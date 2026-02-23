@@ -1,1337 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ECHO OF THE FALLEN — 잔향의 연대기</title>
-<style>
-/* ═══════════════════════════════════════════
-   ECHO OF THE FALLEN v2 — Master Stylesheet
-═══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=Share+Tech+Mono&display=swap');
-
-:root {
-  --void:       #03030a;
-  --deep:       #07071a;
-  --surface:    #0c0c24;
-  --panel:      #10102e;
-  --glass:      rgba(16,16,46,0.7);
-  --border:     rgba(123,47,255,0.2);
-  --border2:    rgba(0,255,204,0.12);
-  --echo:       #7b2fff;
-  --echo-bright:#9b4fff;
-  --echo-glow:  rgba(123,47,255,0.35);
-  --cyan:       #00ffcc;
-  --cyan-dim:   rgba(0,255,204,0.15);
-  --danger:     #ff3366;
-  --danger-dim: rgba(255,51,102,0.15);
-  --gold:       #f0b429;
-  --gold-dim:   rgba(240,180,41,0.15);
-  --white:      #eef0ff;
-  --text:       #b0b4d8;
-  --text-dim:   #606088;
-  --hp-color:   #ff4466;
-  --mp-color:   #7b2fff;
-  --xp-color:   #00ffcc;
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; overflow:hidden; }
-
-body {
-  background: var(--void);
-  font-family: 'Crimson Pro', Georgia, serif;
-  color: var(--text);
-  cursor: default;
-  user-select: none;
-}
-
-body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='3' fill='%237b2fff' opacity='0.9'/%3E%3Ccircle cx='10' cy='10' r='7' fill='none' stroke='%237b2fff' stroke-width='1' opacity='0.4'/%3E%3C/svg%3E") 10 10, crosshair; }
-
-.screen { position:fixed; inset:0; display:none; align-items:center; justify-content:center; }
-.screen.active { display:flex; }
-
-/* ── TITLE SCREEN ── */
-#titleScreen { flex-direction:column; background:var(--void); overflow:hidden; }
-#titleScreen::before {
-  content:''; position:absolute; inset:0; z-index:0;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(123,47,255,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(0,255,204,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(123,47,255,0.06) 0%, transparent 70%);
-  animation:titleBgPulse 6s ease-in-out infinite alternate;
-}
-@keyframes titleBgPulse {
-  from { opacity:0.6; transform:scale(1); }
-  to   { opacity:1;   transform:scale(1.04); }
-}
-#titleScreen::after {
-  content:'✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦';
-  position:absolute; inset:0; z-index:0;
-  display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
-  font-size:14px; color:rgba(255,255,255,0.03); letter-spacing:24px; line-height:40px;
-  pointer-events:none;
-}
-#titleCanvas { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; }
-.title-content { position:relative; z-index:10; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0; pointer-events:auto; }
-.title-eyebrow { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.5em; color:var(--echo); opacity:0.7; margin-bottom:24px; animation:fadeInDown 1s ease 0.5s both; }
-.title-main { font-family:'Cinzel Decorative',serif; font-size:clamp(36px,7vw,88px); font-weight:900; line-height:0.95; color:var(--white); text-shadow:0 0 30px var(--echo-glow),0 0 60px rgba(123,47,255,0.2),0 2px 4px rgba(0,0,0,0.8); animation:titleReveal 1.5s ease 0.3s both; letter-spacing:-0.02em; }
-.title-sub { font-family:'Cinzel Decorative',serif; font-size:clamp(13px,2vw,20px); color:var(--cyan); letter-spacing:0.2em; opacity:0.6; margin-top:8px; margin-bottom:48px; animation:fadeInUp 1s ease 1s both; }
-.title-tagline { font-family:'Crimson Pro',serif; font-style:italic; font-size:clamp(14px,1.8vw,18px); color:var(--text-dim); margin-bottom:64px; animation:fadeInUp 1s ease 1.2s both; }
-
-.class-select { display:flex; gap:16px; margin-bottom:40px; animation:fadeInUp 1s ease 1.4s both; flex-wrap:wrap; justify-content:center; }
-.class-btn { background:var(--glass); border:1px solid var(--border); border-radius:12px; padding:20px 24px; width:180px; cursor:pointer; transition:all 0.3s; backdrop-filter:blur(20px); text-align:left; position:relative; overflow:hidden; z-index:20; }
-.class-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,transparent,rgba(123,47,255,0.05)); opacity:0; transition:opacity 0.3s; }
-.class-btn:hover::before { opacity:1; }
-.class-btn:hover { border-color:var(--echo); transform:translateY(-3px); box-shadow:0 8px 32px var(--echo-glow); }
-.class-btn.selected { border-color:var(--cyan); box-shadow:0 0 24px rgba(0,255,204,0.3); }
-.class-btn-icon { font-size:28px; margin-bottom:10px; display:block; }
-.class-btn-name { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--white); margin-bottom:4px; }
-.class-btn-style { font-size:11px; color:var(--echo); font-family:'Cinzel',serif; letter-spacing:0.1em; margin-bottom:8px; }
-.class-btn-desc { font-size:12px; color:var(--text-dim); line-height:1.5; }
-
-.start-btn { font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.3em; text-transform:uppercase; color:var(--void); background:linear-gradient(135deg,var(--echo),var(--echo-bright)); border:none; padding:16px 48px; border-radius:8px; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 24px var(--echo-glow); animation:fadeInUp 1s ease 1.6s both; position:relative; overflow:hidden; }
-.start-btn:hover { transform:translateY(-2px); box-shadow:0 8px 40px var(--echo-glow); }
-.start-btn:disabled {
-  opacity:0.35; cursor:not-allowed; transform:none;
-  background:linear-gradient(135deg,rgba(60,30,80,0.6),rgba(40,20,60,0.6));
-  box-shadow:none; color:rgba(180,170,210,0.4);
-  border:1px dashed rgba(123,47,255,0.25);
-}
-.start-btn:disabled::after {
-  content:'클래스를 선택하세요';
-  position:absolute; bottom:-24px; left:50%; transform:translateX(-50%);
-  font-size:10px; letter-spacing:0.2em; color:var(--echo);
-  white-space:nowrap; opacity:0.7; pointer-events:none;
-}
-
-/* ── GAME SCREEN ── */
-#gameScreen { flex-direction:column; background:var(--void); align-items:stretch; justify-content:stretch; }
-.game-layout { display:grid; grid-template-columns:1fr 240px; grid-template-rows:1fr 200px; width:100vw; height:100vh; gap:0; position:relative; }
-#gameCanvas { width:100%; height:100%; display:block; }
-
-.panel-left { display:none; } /* 좌측 패널 제거 — hover HUD로 대체 */
-.panel-right { grid-column:2; grid-row:1/3; background:var(--glass); border-left:1px solid var(--border); backdrop-filter:blur(24px); display:flex; flex-direction:column; padding:16px; gap:12px; overflow:hidden; }
-.panel-bottom { grid-column:1; grid-row:2; background:rgba(7,7,26,0.9); border-top:1px solid var(--border); backdrop-filter:blur(16px); padding:12px 16px; display:flex; flex-direction:column; overflow:hidden; }
-
-/* ── HOVER HUD (좌상단 고정, 클릭으로 핀/언핀) ── */
-#hoverHud { position:fixed; top:12px; left:12px; z-index:235; pointer-events:auto; }
-#hoverHudTrigger {
-  background:rgba(7,7,26,0.88); border:1px solid var(--border);
-  border-radius:10px; padding:8px 14px; cursor:pointer;
-  backdrop-filter:blur(16px); display:flex; align-items:center; gap:10px;
-  transition:border-color 0.2s, box-shadow 0.2s; white-space:nowrap;
-  user-select:none;
-}
-#hoverHud:hover #hoverHudTrigger,
-#hoverHud.pinned #hoverHudTrigger { border-color:var(--echo); }
-#hoverHud.pinned #hoverHudTrigger { box-shadow:0 0 14px rgba(123,47,255,0.3); }
-.hud-pin-indicator {
-  font-size:9px; font-family:'Cinzel',serif; letter-spacing:0.1em;
-  color:var(--text-dim); margin-left:2px; transition:color 0.2s;
-}
-#hoverHud.pinned .hud-pin-indicator { color:var(--echo); }
-.hud-stat-inline { display:flex; align-items:center; gap:5px; font-family:'Share Tech Mono',monospace; font-size:12px; }
-.hud-bar-mini { width:48px; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; flex-shrink:0; }
-.hud-bar-mini-fill { height:100%; border-radius:3px; transition:width 0.4s ease; }
-
-#hoverHudPanel {
-  position:absolute; top:calc(100% + 8px); left:0;
-  background:rgba(6,6,22,0.97); border:1px solid var(--border);
-  border-radius:12px; padding:14px 16px; width:248px;
-  backdrop-filter:blur(24px);
-  opacity:0; pointer-events:none;
-  transform:translateY(-6px); transition:opacity 0.2s ease, transform 0.2s ease;
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
-  max-height:80vh; overflow-y:auto;
-  scrollbar-width:thin; scrollbar-color:rgba(123,47,255,0.3) transparent;
-}
-/* 호버 시 표시 */
-#hoverHud:hover #hoverHudPanel { opacity:1; pointer-events:auto; transform:translateY(0); }
-/* 핀 시 항상 표시 */
-#hoverHud.pinned #hoverHudPanel { opacity:1; pointer-events:auto; transform:translateY(0); }
-
-.hud-section { margin-bottom:12px; }
-.hud-section:last-child { margin-bottom:0; }
-.hud-section-title { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.35em; color:var(--text-dim); text-transform:uppercase; padding-bottom:6px; border-bottom:1px solid rgba(123,47,255,0.08); margin-bottom:8px; }
-.hud-stat-row { display:flex; flex-direction:column; gap:3px; margin-bottom:7px; }
-.hud-stat-label-row { display:flex; justify-content:space-between; align-items:center; }
-.hud-stat-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.1em; color:var(--text-dim); }
-.hud-stat-value { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--white); }
-.hud-bar-track { height:4px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
-.hud-bar-fill { height:100%; border-radius:3px; transition:width 0.4s ease; }
-
-/* 상태이상 배지 — 호버 시 설명 툴팁 */
-.hud-status-badge {
-  position:relative; display:inline-flex; align-items:center; gap:3px;
-  font-family:'Share Tech Mono',monospace; font-size:10px;
-  padding:3px 8px; border-radius:5px; cursor:help;
-  transition:filter 0.15s;
-}
-.hud-status-badge:hover { filter:brightness(1.3); }
-.hud-status-badge .hud-badge-tip {
-  position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-  background:rgba(4,4,18,0.98); border:1px solid var(--border);
-  border-radius:8px; padding:8px 10px; width:180px;
-  font-size:11px; color:var(--text); line-height:1.5;
-  pointer-events:none; opacity:0; transition:opacity 0.15s;
-  z-index:999; white-space:normal; text-align:center;
-  box-shadow:0 4px 20px rgba(0,0,0,0.6);
-}
-.hud-status-badge:hover .hud-badge-tip { opacity:1; }
-
-/* 아이템 슬롯 — 호버 시 풍부한 설명 */
-.hud-item-slot {
-  position:relative; display:inline-flex; align-items:center; justify-content:center;
-  width:36px; height:36px; background:rgba(123,47,255,0.1);
-  border:1px solid var(--border); border-radius:8px;
-  cursor:help; font-size:18px; transition:all 0.2s;
-}
-.hud-item-slot:hover { border-color:var(--echo); transform:scale(1.1); box-shadow:0 0 12px var(--echo-glow); }
-.hud-item-tip {
-  position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
-  background:rgba(4,4,18,0.98); border:1px solid var(--border);
-  border-radius:10px; padding:12px 14px; width:210px;
-  pointer-events:none; opacity:0; transition:opacity 0.15s;
-  z-index:999; text-align:left;
-  box-shadow:0 4px 24px rgba(0,0,0,0.7);
-}
-.hud-item-slot:hover .hud-item-tip { opacity:1; }
-.hud-item-tip-name { font-family:'Cinzel',serif; font-size:12px; font-weight:700; color:var(--white); margin-bottom:3px; }
-.hud-item-tip-rarity { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.2em; margin-bottom:6px; }
-.hud-item-tip-desc { font-size:11px; color:var(--text); line-height:1.55; }
-.hud-item-tip-trigger { font-size:10px; color:var(--text-dim); margin-top:5px; font-style:italic; }
-
-/* 스탯 바 호버 설명 */
-.hud-stat-row { cursor:default; }
-.hud-stat-row[data-tip]:hover .hud-stat-tip { opacity:1; }
-.hud-stat-tip {
-  font-size:10px; color:var(--text-dim); margin-top:3px;
-  padding:4px 0; border-top:1px solid rgba(255,255,255,0.04);
-  opacity:0; transition:opacity 0.15s; line-height:1.5;
-}
-
-.panel-title { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.35em; color:var(--text-dim); text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid rgba(123,47,255,0.08); margin-bottom:8px; }
-.player-info { display:flex; gap:12px; align-items:center; }
-.player-avatar { width:44px; height:44px; border-radius:50%; background:rgba(123,47,255,0.15); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-.player-name { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--white); }
-.player-class { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.2em; color:var(--echo); }
-.player-floor { font-size:11px; color:var(--text-dim); font-style:italic; margin-top:2px; }
-
-.stat-bars { display:flex; flex-direction:column; gap:8px; }
-.stat-row { display:flex; flex-direction:column; gap:4px; }
-.stat-label-row { display:flex; justify-content:space-between; align-items:center; }
-.stat-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.15em; color:var(--text-dim); }
-.stat-value { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--white); }
-.bar-track { height:5px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
-.bar-fill { height:100%; border-radius:3px; transition:width 0.4s ease; }
-.bar-hp { background:linear-gradient(90deg,#cc2244,#ff4466); box-shadow:0 0 8px rgba(255,68,102,0.4); }
-.bar-shield { background:linear-gradient(90deg,#2244cc,#4466ff); box-shadow:0 0 8px rgba(68,102,255,0.4); }
-.bar-echo { background:linear-gradient(90deg,var(--echo),var(--echo-bright)); box-shadow:0 0 8px var(--echo-glow); }
-
-.echo-chain-display { background:rgba(123,47,255,0.06); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center; }
-.chain-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.3em; color:var(--text-dim); margin-bottom:4px; }
-.chain-count { font-family:'Cinzel Decorative',serif; font-size:28px; font-weight:900; color:var(--echo); line-height:1; transition:all 0.3s; }
-.chain-count.burst { color:var(--cyan); text-shadow:0 0 20px rgba(0,255,204,0.8); animation:chainPulse 0.5s ease; }
-.chain-dots { display:flex; justify-content:center; gap:6px; margin-top:6px; }
-.chain-dot { width:8px; height:8px; border-radius:50%; background:rgba(123,47,255,0.15); border:1px solid var(--border); transition:all 0.2s; }
-.chain-dot.active { background:var(--echo); border-color:var(--echo); box-shadow:0 0 8px var(--echo-glow); }
-.chain-dot.burst-dot { background:var(--cyan); border-color:var(--cyan); box-shadow:0 0 10px rgba(0,255,204,0.8); animation:dotBurst 0.5s ease; }
-
-.status-effects { display:flex; flex-wrap:wrap; gap:4px; min-height:20px; }
-.status-badge { font-family:'Share Tech Mono',monospace; font-size:9px; padding:2px 6px; border-radius:4px; }
-.status-buff { background:rgba(123,47,255,0.15); border:1px solid rgba(123,47,255,0.3); color:var(--echo-bright); }
-.status-debuff { background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.25); color:var(--danger); }
-
-#minimapCanvas { width:100%; height:160px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid var(--border); }
-.region-info { background:rgba(123,47,255,0.06); border:1px solid var(--border); border-radius:6px; padding:10px; }
-.region-name-display { font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:var(--white); margin-bottom:2px; }
-.region-rule-display { font-size:10px; color:var(--echo); font-family:'Cinzel',serif; letter-spacing:0.1em; }
-.region-floor-display { font-size:10px; color:var(--text-dim); margin-top:2px; font-family:'Share Tech Mono',monospace; }
-
-.next-node-btn { background:rgba(123,47,255,0.06); border:1px solid var(--border); border-radius:6px; padding:8px 12px; cursor:pointer; transition:all 0.25s; text-align:left; width:100%; }
-.next-node-btn:hover { background:rgba(123,47,255,0.15); border-color:var(--echo); }
-.next-node-type { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.15em; color:var(--echo); }
-.next-node-name { font-size:11px; color:var(--white); margin-top:2px; }
-
-.energy-display { display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 8px; flex-shrink:0; }
-.energy-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.2em; color:var(--text-dim); }
-.energy-orbs { display:flex; gap:4px; }
-.energy-orb { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); transition:all 0.2s; }
-.energy-orb.filled { background:var(--echo); border-color:var(--echo); box-shadow:0 0 8px var(--echo-glow); }
-
-.deck-area { display:flex; align-items:center; gap:12px; overflow:hidden; flex:1; }
-.hand-cards { display:flex; gap:8px; overflow-x:auto; flex:1; padding:4px 0; align-items:center; }
-.hand-cards::-webkit-scrollbar { height:3px; }
-.hand-cards::-webkit-scrollbar-track { background:transparent; }
-.hand-cards::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-.deck-meta { display:flex; gap:8px; flex-shrink:0; }
-.deck-count { text-align:center; padding:8px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; }
-.deck-count-num { font-family:'Cinzel Decorative',serif; font-size:18px; font-weight:900; color:var(--white); }
-.deck-count-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.2em; color:var(--text-dim); }
-
-/* ── CARDS ── */
-.card { background:var(--glass); border:1px solid var(--border); border-radius:10px; padding:10px 8px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; width:96px; height:140px; flex-shrink:0; backdrop-filter:blur(12px); }
-.card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,transparent,rgba(123,47,255,0.04)); opacity:0; transition:opacity 0.2s; }
-.card:hover::before { opacity:1; }
-.card:hover { border-color:rgba(123,47,255,0.5); transform:translateY(-6px) scale(1.02); box-shadow:0 8px 24px rgba(123,47,255,0.2); }
-.card.playable { border-color:rgba(0,255,204,0.3); }
-.card.playable:hover { border-color:var(--cyan); box-shadow:0 8px 24px rgba(0,255,204,0.2); }
-.card-cost { position:absolute; top:6px; left:6px; width:22px; height:22px; border-radius:50%; background:rgba(123,47,255,0.3); border:1px solid var(--echo); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:var(--white); }
-.card-icon { font-size:24px; margin:14px 0 4px; }
-.card-name { font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:var(--white); text-align:center; margin-bottom:4px; letter-spacing:0.04em; line-height:1.2; }
-.card-desc { font-size:11px; color:var(--text-dim); text-align:center; line-height:1.35; flex:1; }
-.card-type { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.12em; color:var(--echo); margin-top:auto; text-transform:uppercase; }
-.card-type-attack { color:#ff6688; }
-.card-type-skill  { color:#66bbff; }
-.card-type-power  { color:#f0b429; }
-.card.type-attack { border-top:2px solid rgba(255,80,100,0.35); }
-.card.type-skill  { border-top:2px solid rgba(80,180,255,0.35); }
-.card.type-power  { border-top:2px solid rgba(240,180,41,0.5); }
-.card.type-attack .card-cost { background:rgba(200,40,60,0.35); border-color:rgba(255,80,100,0.6); }
-.card.type-skill  .card-cost { background:rgba(40,100,200,0.35); border-color:rgba(80,180,255,0.6); }
-.card.type-power  .card-cost { background:rgba(180,120,0,0.35); border-color:rgba(240,180,41,0.6); }
-@keyframes cardDraw { from { opacity:0; transform:translateY(20px) scale(0.9); } to { opacity:1; transform:none; } }
-@keyframes cardPlay { 
-  0% { opacity:1; transform:translateY(0) scale(1); }
-  30% { opacity:1; transform:translateY(-30px) scale(1.15); }
-  100% { opacity:0; transform:translateY(-120px) scale(0.7) rotate(10deg); }
-}
-.card-play-effect { pointer-events:none; animation:cardPlay 0.45s ease forwards !important; }
-.card-flash-overlay { position:fixed; inset:0; background:radial-gradient(ellipse at center, rgba(123,47,255,0.25), transparent 60%); animation:cardFlash 0.4s ease forwards; pointer-events:none; z-index:250; }
-
-/* 플레이어 피격 효과 */
-@keyframes playerHitFlash { 0%{opacity:1} 20%{opacity:0.85} 50%{opacity:0.95} 100%{opacity:1} }
-@keyframes playerHitVignette { 0%{opacity:0} 15%{opacity:1} 100%{opacity:0} }
-.player-hit-vignette {
-  position:fixed; inset:0; pointer-events:none; z-index:245;
-  background:radial-gradient(ellipse at center, transparent 30%, rgba(255,30,60,0.55) 100%);
-  animation:playerHitVignette 0.6s ease forwards;
-}
-/* 강타 효과 - 화면 전체 충격 */
-@keyframes heavyHitFlash { 0%{opacity:0} 5%{opacity:1} 40%{opacity:0.4} 100%{opacity:0} }
-.heavy-hit-overlay {
-  position:fixed; inset:0; pointer-events:none; z-index:248;
-  background:radial-gradient(ellipse at 50% 35%, rgba(255,80,30,0.45), transparent 70%);
-  animation:heavyHitFlash 0.5s ease forwards;
-}
-/* 크리티컬 섬광 */
-@keyframes critFlash { 0%{opacity:0} 8%{opacity:1} 30%{opacity:0.6} 100%{opacity:0} }
-.crit-flash-overlay {
-  position:fixed; inset:0; pointer-events:none; z-index:249;
-  background:radial-gradient(ellipse at center, rgba(255,220,50,0.6), rgba(255,100,30,0.2) 40%, transparent 70%);
-  animation:critFlash 0.45s ease forwards;
-}
-/* 적 피격 shake */
-@keyframes enemyHitShake {
-  0%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(8px)}
-  60%{transform:translateX(-5px)} 80%{transform:translateX(4px)} 100%{transform:translateX(0)}
-}
-.enemy-hit-anim { animation:enemyHitShake 0.25s ease !important; }
-/* 적 피격 붉은 플래시 */
-@keyframes enemyDmgFlash { 0%{opacity:0} 10%{opacity:1} 100%{opacity:0} }
-.enemy-dmg-flash {
-  position:absolute; inset:0; border-radius:12px; pointer-events:none;
-  background:rgba(255,60,60,0.45); animation:enemyDmgFlash 0.35s ease forwards; z-index:2;
-}
-@keyframes cardFlash { 0%{opacity:0;} 20%{opacity:1;} 100%{opacity:0;} }
-.attack-card-flash { background:radial-gradient(ellipse at center, rgba(255,51,102,0.3), transparent 60%) !important; }
-.heal-card-flash { background:radial-gradient(ellipse at center, rgba(68,255,136,0.25), transparent 60%) !important; }
-.echo-card-flash { background:radial-gradient(ellipse at center, rgba(0,255,204,0.3), transparent 60%) !important; }
-
-/* ── Echo 스킬 툴팁 ── */
-#echoSkillTooltip {
-  position:fixed; z-index:900;
-  background:var(--panel); border:1px solid var(--echo);
-  border-radius:12px; padding:14px 16px; width:220px;
-  backdrop-filter:blur(20px);
-  box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 20px var(--echo-glow);
-  pointer-events:none; opacity:0; transition:opacity 0.15s ease;
-  font-family:'Cinzel',serif;
-}
-#echoSkillTooltip.visible { opacity:1; }
-.echo-skill-tt-title { font-size:10px; letter-spacing:0.3em; color:var(--echo); margin-bottom:10px; text-align:center; }
-.echo-skill-tt-tier { display:flex; align-items:flex-start; gap:8px; margin-bottom:8px; padding:7px 8px; border-radius:7px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); }
-.echo-skill-tt-tier.active { background:rgba(123,47,255,0.12); border-color:rgba(123,47,255,0.3); }
-.echo-skill-tt-stars { font-size:12px; flex-shrink:0; }
-.echo-skill-tt-cost { font-size:9px; color:var(--text-dim); }
-.echo-skill-tt-desc { font-size:11px; color:var(--text); line-height:1.4; font-family:'Crimson Pro',serif; }
-/* 저체력 HUD 경고 펄스 */
-@keyframes lowHpPulse {
-  0%,100% { border-color:rgba(255,30,60,0.5); box-shadow:0 0 0 0 rgba(255,30,60,0); }
-  50%      { border-color:rgba(255,30,60,0.9); box-shadow:0 0 0 5px rgba(255,30,60,0.15); }
-}
-#hoverHud.low-hp #hoverHudTrigger { animation:lowHpPulse 1.4s ease infinite; }
-
-/* 에너지 부족 카드 — 더 명확한 비활성 표시 */
-.combat-hand-cards .card:not(.playable) {
-  opacity:0.5; filter:saturate(0.35) brightness(0.8);
-}
-.combat-hand-cards .card:not(.playable):hover {
-  transform:rotate(0deg) translateY(-4px) scale(1.02) !important;
-  box-shadow:none !important; border-color:rgba(255,255,255,0.08) !important;
-  cursor:not-allowed;
-}
-
-.card-tooltip {
-  position:fixed; z-index:800; background:var(--panel); border:1px solid var(--border);
-  border-radius:14px; padding:16px 14px; width:160px; backdrop-filter:blur(24px);
-  box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 20px var(--echo-glow);
-  pointer-events:none; opacity:0; transition:opacity 0.15s ease;
-}
-.card-tooltip.visible { opacity:1; }
-.card-tooltip-icon { font-size:32px; text-align:center; margin-bottom:8px; }
-.card-tooltip-name { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--white); text-align:center; margin-bottom:4px; }
-.card-tooltip-type { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.2em; color:var(--echo); text-align:center; margin-bottom:8px; }
-.card-tooltip-cost { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:rgba(123,47,255,0.35); border:1px solid var(--echo); font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:var(--white); margin:0 auto 8px; }
-.card-tooltip-desc { font-size:12px; color:var(--text); line-height:1.6; text-align:center; }
-.card-tooltip-rarity { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.15em; margin-top:8px; text-align:center; }
-.rarity-common { color:var(--text-dim); }
-.rarity-uncommon { color:var(--echo-bright); }
-.rarity-rare { color:var(--gold); }
-.rarity-legendary { color:#c084fc; text-shadow:0 0 10px rgba(192,132,252,0.5); }
-/* 아이템 슬롯 등급 테두리 */
-.item-slot-common    { border-color:rgba(150,150,180,0.3) !important; }
-.item-slot-uncommon  { border-color:rgba(123,47,255,0.5) !important; }
-.item-slot-rare      { border-color:rgba(240,180,41,0.6) !important; box-shadow:0 0 8px rgba(240,180,41,0.15); }
-.item-slot-legendary { border-color:rgba(192,132,252,0.7) !important; box-shadow:0 0 12px rgba(192,132,252,0.25); animation:legendaryPulse 2s ease infinite; }
-@keyframes legendaryPulse { 0%,100%{box-shadow:0 0 8px rgba(192,132,252,0.2);} 50%{box-shadow:0 0 18px rgba(192,132,252,0.5);} }
-@keyframes legendaryReveal {
-  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.6); filter:blur(20px); }
-  40%  { opacity:1; transform:translate(-50%,-50%) scale(1.08); filter:blur(0); }
-  70%  { transform:translate(-50%,-50%) scale(0.97); }
-  100% { transform:translate(-50%,-50%) scale(1); opacity:1; }
-}
-@keyframes legendaryRays {
-  0%   { opacity:0; transform:translate(-50%,-50%) rotate(0deg) scale(0.5); }
-  30%  { opacity:0.7; }
-  100% { opacity:0; transform:translate(-50%,-50%) rotate(45deg) scale(1.6); }
-}
-@keyframes legendaryParticle {
-  0%   { opacity:1; transform:translateY(0) scale(1); }
-  100% { opacity:0; transform:translateY(-60px) scale(0); }
-}
-@keyframes goldPop {
-  0%   { opacity:0; transform:translateY(0) scale(0.8); }
-  15%  { opacity:1; transform:translateY(-8px) scale(1.1); }
-  80%  { opacity:1; transform:translateY(-30px) scale(1); }
-  100% { opacity:0; transform:translateY(-50px) scale(0.9); }
-}
-@keyframes hpChange {
-  0%   { transform:scale(1); }
-  50%  { transform:scale(1.15); }
-  100% { transform:scale(1); }
-}
-.enemy-weakness-badge {
-  position:absolute; top:4px; right:4px; font-size:11px;
-  background:rgba(255,200,0,0.12); border:1px solid rgba(255,200,0,0.25);
-  border-radius:4px; padding:1px 5px; color:#ffd700;
-}
-.combat-stat-summary {
-  position:fixed; bottom:220px; right:260px;
-  background:rgba(7,7,26,0.92); border:1px solid var(--border);
-  border-radius:10px; padding:12px 16px; font-family:'Share Tech Mono',monospace;
-  font-size:11px; color:var(--text); z-index:300; min-width:160px;
-  animation:fadeInUp 0.4s ease both;
-  pointer-events:none; /* 보상 카드 클릭 차단 방지 */
-}
-.combat-stat-summary.fadeout { animation:statSummaryOut 0.5s ease forwards; }
-@keyframes statSummaryOut { to { opacity:0; transform:translateY(-10px); } }
-.boss-phase-bar { height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; margin-top:4px; position:relative; }
-.boss-phase-segment { position:absolute; top:0; height:100%; border-right:2px solid rgba(0,0,0,0.6); }
-.boss-phase-fill { height:100%; background:linear-gradient(90deg,#ff3366,#ff6b00); box-shadow:0 0 8px rgba(255,51,102,0.5); transition:width 0.5s ease; }
-.hand-sort-btn { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.1em; color:var(--text-dim); background:rgba(123,47,255,0.06); border:1px solid rgba(123,47,255,0.15); border-radius:4px; padding:3px 8px; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
-.hand-sort-btn:hover { color:var(--echo); border-color:var(--echo); }
-
-/* ── DECK VIEWER MODAL ── */
-#deckViewModal { position:fixed; inset:0; background:rgba(3,3,10,0.92); display:none; align-items:flex-start; justify-content:center; z-index:600; backdrop-filter:blur(10px); padding:40px 24px; overflow-y:auto; }
-#deckViewModal.active { display:flex; }
-.deck-modal-inner { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:32px; width:100%; max-width:900px; }
-.deck-modal-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.4em; color:var(--text-dim); text-align:center; margin-bottom:24px; }
-.deck-modal-cards { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
-.deck-modal-close { display:block; margin:24px auto 0; font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.2em; background:none; border:1px solid var(--border); border-radius:6px; padding:10px 28px; color:var(--text-dim); cursor:pointer; transition:all 0.2s; }
-.deck-modal-close:hover { color:var(--white); border-color:var(--echo); }
-
-/* ── DEATH SCREEN WORLD MEMORY HINTS ── */
-.death-world-memory { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:600px; margin-top:4px; }
-.wm-badge { font-family:'Share Tech Mono',monospace; font-size:10px; padding:4px 10px; border-radius:20px; border:1px solid rgba(0,255,204,0.25); background:rgba(0,255,204,0.05); color:var(--cyan); }
-/* 전투 UI 고정 요소들 — combatOverlay 비활성 시 숨김 */
-#combatOverlay:not(.active) #noiseWidget,
-#combatOverlay:not(.active) .combat-hand-overlay,
-#combatOverlay:not(.active) .turn-indicator {
-  display: none !important;
-  pointer-events: none !important;
-}
-
-#combatOverlay { position:fixed; inset:0; z-index:200; display:none; pointer-events:none; }
-#combatOverlay.active { display:block; }
-#combatOverlay.active > * { pointer-events:auto; }
-
-/* ── 턴 전환 중앙 배너 ── */
-@keyframes turnBannerIn {
-  0%   { opacity:0; transform:translate(-50%,-50%) scale(1.3); filter:blur(8px); }
-  30%  { opacity:1; transform:translate(-50%,-50%) scale(1);   filter:blur(0); }
-  70%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
-  100% { opacity:0; transform:translate(-50%,-50%) scale(0.85); filter:blur(4px); }
-}
-#turnBanner {
-  position:fixed; top:42%; left:50%; transform:translate(-50%,-50%);
-  z-index:260; pointer-events:none; display:none;
-  font-family:'Cinzel Decorative',serif; font-size:clamp(22px,3.5vw,38px);
-  font-weight:900; letter-spacing:0.15em;
-  padding:14px 40px; border-radius:12px;
-  text-shadow:0 0 30px currentColor;
-  animation:turnBannerIn 1.2s ease forwards;
-}
-#turnBanner.player { color:var(--echo); background:rgba(30,10,60,0.88); border:1px solid rgba(123,47,255,0.6); box-shadow:0 0 50px rgba(123,47,255,0.3); }
-#turnBanner.enemy  { color:var(--danger); background:rgba(40,5,15,0.88); border:1px solid rgba(255,51,102,0.5); box-shadow:0 0 50px rgba(255,51,102,0.25); }
-.turn-indicator { position:fixed; top:16px; left:50%; transform:translateX(-50%); font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.3em; padding:8px 24px; border-radius:20px; text-transform:uppercase; backdrop-filter:blur(12px); z-index:210; }
-.turn-player { background:rgba(123,47,255,0.2); border:1px solid var(--echo); color:var(--echo); }
-.turn-enemy { background:rgba(255,51,102,0.15); border:1px solid var(--danger); color:var(--danger); }
-
-/* ── COMBAT ARENA — 옵션3 투명 오버레이 부채꼴 레이아웃 ── */
-.combat-arena {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 60px 24px 310px;
-  pointer-events: none;
-  gap: 14px;
-}
-#combatOverlay.active .combat-arena {
-  pointer-events: auto;
-}
-.enemy-zone { display:flex; gap:24px; justify-content:center; align-items:flex-end; flex-shrink:0; }
-.combat-divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); max-width:800px; flex-shrink:0; }
-.combat-log { width:100%; max-width:620px; height:80px; overflow-y:auto; background:rgba(3,3,10,0.7); border:1px solid rgba(123,47,255,0.18); border-radius:10px; padding:8px 14px; flex-shrink:0; backdrop-filter:blur(8px); }
-.combat-log::-webkit-scrollbar { width:4px; }
-.combat-log::-webkit-scrollbar-thumb { background:var(--border); }
-.log-entry { font-size:13px; color:var(--text-dim); padding:2px 0; line-height:1.5; }
-.log-entry.damage { color:var(--danger); }
-.log-entry.heal { color:#44ff88; }
-.log-entry.echo { color:var(--echo-bright); }
-.log-entry.system { color:var(--text); }
-
-/* 하단 투명 오버레이 손패 패널 */
-.combat-hand-overlay {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(to top, rgba(3,3,10,0.97) 0%, rgba(5,5,20,0.88) 55%, transparent 100%);
-  padding: 10px 20px 16px;
-  display: flex; flex-direction: column; gap: 8px;
-  pointer-events: none;
-  z-index: 205;
-}
-/* combatOverlay.active 일 때만 활성화 */
-#combatOverlay.active .combat-hand-overlay {
-  pointer-events: auto;
-}
-.combat-hand-topbar {
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 4px; gap: 8px;
-}
-.combat-hand-label {
-  font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.3em;
-  color: var(--text-dim); opacity: 0.7;
-}
-.combat-hand-cards {
-  display: flex; gap: 10px; align-items: flex-end; justify-content: center;
-  overflow-x: auto; padding: 4px 8px 2px;
-}
-.combat-hand-cards::-webkit-scrollbar { height: 0; }
-/* 액션 버튼 바 — 하단 중앙 고정 */
-.combat-bottom-bar {
-  display: flex; align-items: center; justify-content: center;
-  gap: 10px; flex-wrap: wrap; padding: 4px 0 0;
-}
-.combat-hand-bottombar {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-}
-
-/* 카드 부채꼴 팬 효과 */
-.combat-hand-cards .card { flex-shrink: 0; }
-.combat-hand-cards .card:nth-child(1) { transform-origin: bottom center; transform: rotate(-8deg) translateY(5px); }
-.combat-hand-cards .card:nth-child(2) { transform-origin: bottom center; transform: rotate(-4deg) translateY(2px); }
-.combat-hand-cards .card:nth-child(3) { transform-origin: bottom center; transform: rotate(0deg); }
-.combat-hand-cards .card:nth-child(4) { transform-origin: bottom center; transform: rotate(4deg) translateY(2px); }
-.combat-hand-cards .card:nth-child(5) { transform-origin: bottom center; transform: rotate(8deg) translateY(5px); }
-.combat-hand-cards .card:nth-child(6) { transform-origin: bottom center; transform: rotate(11deg) translateY(8px); }
-.combat-hand-cards .card:nth-child(7) { transform-origin: bottom center; transform: rotate(-11deg) translateY(8px); }
-.combat-hand-cards .card:hover {
-  transform: rotate(0deg) translateY(-14px) scale(1.1) !important;
-  z-index: 10; box-shadow: 0 16px 40px rgba(123,47,255,0.5);
-}
-.combat-hand-cards .card.playable:hover {
-  box-shadow: 0 16px 40px rgba(0,255,204,0.4);
-}
-
-/* 액션 버튼 */
-.combat-actions { display:flex; gap:8px; pointer-events:auto; align-items:center; }
-.action-btn { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.12em; padding:8px 14px; border-radius:7px; cursor:pointer; transition:all 0.22s; backdrop-filter:blur(12px); white-space:nowrap; }
-.action-btn-primary { background:rgba(123,47,255,0.2); border:1px solid var(--echo); color:var(--echo); }
-.action-btn-primary:hover { background:rgba(123,47,255,0.38); transform:translateY(-1px); }
-.action-btn-secondary { background:rgba(0,255,204,0.08); border:1px solid rgba(0,255,204,0.2); color:var(--cyan); }
-.action-btn-secondary:hover { background:rgba(0,255,204,0.16); transform:translateY(-1px); }
-.action-btn-end { background:rgba(255,51,102,0.12); border:1px solid rgba(255,51,102,0.3); color:var(--danger); font-weight:700; }
-.action-btn-end:hover { background:rgba(255,51,102,0.25); transform:translateY(-1px); box-shadow:0 4px 16px rgba(255,51,102,0.2); }
-.action-btn:disabled { opacity:0.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
-
-/* 턴 종료 버튼 — 에너지 남아있을 때 경고 펄스 */
-@keyframes endBtnWarn {
-  0%,100% { box-shadow:0 0 0 0 rgba(240,180,41,0); border-color:rgba(255,51,102,0.3); }
-  50% { box-shadow:0 0 0 5px rgba(240,180,41,0.25); border-color:rgba(240,180,41,0.7); }
-}
-.action-btn-end.energy-warn {
-  animation: endBtnWarn 1.4s ease infinite;
-  color: var(--gold) !important;
-}
-
-/* 덱 미니 정보 */
-.combat-deck-pills { display:flex; gap:6px; }
-.combat-deck-pill { text-align:center; padding:5px 10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:6px; }
-.combat-deck-pill .dp-num { font-family:'Cinzel Decorative',serif; font-size:14px; font-weight:900; color:var(--white); line-height:1; }
-.combat-deck-pill .dp-lbl { font-family:'Cinzel',serif; font-size:6px; letter-spacing:0.15em; color:var(--text-dim); margin-top:2px; }
-
-/* 에너지 인라인 */
-.combat-energy-inline { display:flex; align-items:center; gap:6px; }
-.combat-energy-inline .energy-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.2em; color:var(--text-dim); }
-.combat-energy-inline .energy-orbs { display:flex; gap:3px; }
-.combat-energy-inline .energy-orb { width:9px; height:9px; border-radius:50%; }
-.combat-energy-inline .energy-orb.filled { background:var(--echo); box-shadow:0 0 6px var(--echo-glow); border:none; }
-.combat-energy-inline .energy-orb:not(.filled) { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); }
-.combat-energy-inline .energy-val { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--white); }
-
-/* 소음 게이지 위젯 — 우측 상단 고정 */
-#noiseWidget {
-  position: fixed; top: 52px; right: 12px; z-index: 220;
-  background: rgba(5,5,18,0.94); border: 1px solid rgba(255,51,102,0.3);
-  border-radius: 10px; padding: 9px 12px; min-width: 96px;
-  backdrop-filter: blur(16px); box-shadow: 0 0 20px rgba(255,51,102,0.1);
-  display: none;
-  pointer-events: none;
-  animation: fadeInDown 0.4s ease both;
-}
-#noiseWidget .nw-title {
-  font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 0.25em;
-  color: rgba(255,51,102,0.7); margin-bottom: 7px; text-align: center;
-}
-#noiseWidget .nw-dots {
-  display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; flex-wrap: wrap;
-}
-#noiseWidget .nw-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.18);
-  transition: all 0.3s;
-}
-#noiseWidget .nw-dot.active {
-  background: var(--danger); border-color: var(--danger);
-  box-shadow: 0 0 7px rgba(255,51,102,0.8);
-}
-#noiseWidget .nw-dot.warn {
-  background: var(--gold); border-color: var(--gold);
-  box-shadow: 0 0 8px rgba(240,180,41,0.9);
-  animation: noiseDotWarn 0.55s ease infinite alternate;
-}
-@keyframes noiseDotWarn {
-  from { box-shadow: 0 0 4px rgba(240,180,41,0.5); transform: scale(1); }
-  to   { box-shadow: 0 0 12px rgba(240,180,41,1); transform: scale(1.2); }
-}
-#noiseWidget .nw-bar-track {
-  height: 3px; background: rgba(255,51,102,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 5px;
-}
-#noiseWidget .nw-bar-fill {
-  height: 100%; border-radius: 2px; transition: width 0.4s ease;
-  background: linear-gradient(90deg, rgba(255,51,102,0.6), var(--gold));
-}
-#noiseWidget .nw-val {
-  font-family: 'Share Tech Mono', monospace; font-size: 9px;
-  color: var(--danger); text-align: center;
-}
-#noiseWidget .nw-warn {
-  font-family: 'Cinzel', serif; font-size: 7px; color: var(--gold);
-  text-align: center; margin-top: 4px; letter-spacing: 0.1em;
-  animation: noiseDotWarn 0.55s ease infinite alternate;
-  display: none;
-}
-
-/* combat-cards 구역은 더이상 손패가 아닌 빈 컨테이너 (호환용) */
-.combat-cards { display:none; }
-
-/* 보상 카드 선택 시 딤처리 */
-.reward-cards-container.picked .reward-card-wrapper { opacity:0.35; filter:grayscale(0.5); pointer-events:none; transition:opacity 0.25s, filter 0.25s; }
-.reward-cards-container.picked .reward-card-wrapper.selected { opacity:1; filter:none; transform:scale(1.06); box-shadow:0 0 28px rgba(0,255,204,0.5); transition:all 0.25s; }
-.enemy-card { background:rgba(7,7,26,0.7); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; min-width:130px; max-width:170px; backdrop-filter:blur(16px); transition:all 0.3s; }
-.enemy-sprite { font-size:52px; display:block; margin-bottom:8px; filter:drop-shadow(0 0 12px rgba(123,47,255,0.3)); }
-.enemy-name { font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:var(--white); margin-bottom:8px; }
-.enemy-hp-bar { height:7px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; margin-bottom:4px; }
-.enemy-hp-fill { height:100%; background:linear-gradient(90deg,#cc2244,#ff4466); border-radius:3px; transition:width 0.4s ease; box-shadow:0 0 6px rgba(255,68,102,0.4); }
-.enemy-hp-fill.boss-hp { background:linear-gradient(90deg,#7b2fff,#ff3366,#f0b429); }
-.enemy-intent {
-  font-size:13px; font-weight:600; color:var(--white); margin-top:10px;
-  font-family:'Cinzel',serif; letter-spacing:0.05em;
-  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px; padding:6px 8px; line-height:1.4;
-  display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap;
-}
-@keyframes enemyDie { 0%{opacity:1;transform:scale(1) translateY(0);filter:brightness(1);} 30%{opacity:1;transform:scale(1.1) translateY(-5px);filter:brightness(2) saturate(0);} 100%{opacity:0;transform:scale(0.6) translateY(20px);filter:brightness(0);} }
-.enemy-card.dying { animation:enemyDie 0.7s ease forwards !important; pointer-events:none; }
-@keyframes enemyHit { 0%,100%{transform:translateX(0);filter:brightness(1);} 25%{transform:translateX(-6px);filter:brightness(2) saturate(0);} 75%{transform:translateX(6px);filter:brightness(2);} }
-.enemy-card.hit .enemy-sprite { animation:enemyHit 0.4s ease; }
-
-/* ── DEATH SCREEN ── */
-#deathScreen { flex-direction:column; gap:28px; text-align:center; background:radial-gradient(ellipse at center,rgba(123,47,255,0.06),var(--void)); }
-.death-title { font-family:'Cinzel Decorative',serif; font-size:clamp(28px,5vw,56px); font-weight:900; color:var(--white); text-shadow:0 0 40px var(--echo-glow); animation:fadeInDown 1s ease both; }
-.death-quote { font-family:'Crimson Pro',serif; font-style:italic; font-size:clamp(15px,2vw,20px); color:var(--text); max-width:500px; line-height:1.8; animation:fadeInUp 1s ease 0.5s both; }
-.death-stats { display:flex; gap:32px; animation:fadeInUp 1s ease 1s both; }
-.death-stat { text-align:center; }
-.death-stat-num { font-family:'Cinzel Decorative',serif; font-size:36px; font-weight:900; color:var(--echo); }
-.death-stat-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.2em; color:var(--text-dim); }
-.echo-fragment-select { display:flex; gap:16px; animation:fadeInUp 1s ease 1.5s both; flex-wrap:wrap; justify-content:center; }
-.fragment-btn { background:var(--glass); border:1px solid var(--border); border-radius:12px; padding:20px 24px; width:160px; cursor:pointer; transition:all 0.3s; backdrop-filter:blur(20px); text-align:center; }
-.fragment-btn:hover { border-color:var(--echo); transform:translateY(-3px); box-shadow:0 8px 24px var(--echo-glow); }
-.fragment-icon { font-size:28px; margin-bottom:10px; }
-.fragment-name { font-family:'Cinzel',serif; font-size:12px; font-weight:700; color:var(--white); margin-bottom:6px; }
-.fragment-desc { font-size:11px; color:var(--text-dim); line-height:1.5; }
-
-/* ── EVENT MODAL ── */
-#eventModal { position:fixed; inset:0; background:rgba(3,3,10,0.88); display:none; align-items:center; justify-content:center; z-index:300; backdrop-filter:blur(8px); }
-#eventModal.active { display:flex; }
-.event-box { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:40px; max-width:500px; width:90%; backdrop-filter:blur(24px); }
-.event-eyebrow { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.4em; color:var(--text-dim); margin-bottom:12px; }
-.event-title { font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:var(--white); margin-bottom:16px; }
-.event-desc { font-size:14px; color:var(--text); line-height:1.7; margin-bottom:24px; font-style:italic; }
-.event-choices { display:flex; flex-direction:column; gap:8px; }
-.event-choice { background:rgba(123,47,255,0.06); border:1px solid var(--border); border-radius:8px; padding:12px 16px; cursor:pointer; transition:all 0.25s; font-size:13px; color:var(--text); }
-.event-choice:hover { background:rgba(123,47,255,0.15); border-color:var(--echo); color:var(--white); }
-
-/* ── MAP OVERLAY ── */
-.map-overlay { position:fixed; inset:0; background:rgba(3,3,10,0.92); display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:400; backdrop-filter:blur(12px); }
-.map-overlay.active { display:flex; }
-.map-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.4em; color:var(--text-dim); }
-#mapCanvas { border:1px solid var(--border); border-radius:8px; }
-
-/* ── REWARD SCREEN ── */
-#rewardScreen { flex-direction:column; gap:32px; background:radial-gradient(ellipse at center,rgba(123,47,255,0.08),var(--void)); }
-.reward-title { font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.4em; color:var(--text-dim); }
-.reward-cards { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
-.reward-card-wrapper { cursor:pointer; transition:transform 0.2s; animation:rewardCardIn 0.4s ease both; }
-.reward-card-wrapper:hover { transform:translateY(-8px) scale(1.03); box-shadow:0 12px 40px rgba(123,47,255,0.3); }
-@keyframes rewardCardIn {
-  from { opacity:0; transform:translateY(24px) scale(0.92); }
-  to   { opacity:1; transform:translateY(0) scale(1); }
-}
-.skip-btn { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.3em; color:var(--text-dim); background:none; border:1px solid var(--border); border-radius:6px; padding:10px 28px; cursor:pointer; transition:all 0.25s; }
-.skip-btn:hover { color:var(--white); border-color:var(--echo); }
-
-/* ── HUD ELEMENTS ── */
-#hudOverlay { position:fixed; inset:0; pointer-events:none; z-index:100; }
-.dmg-popup { position:absolute; font-family:'Cinzel Decorative',serif; font-weight:900; pointer-events:none; animation:dmgFloat 1.2s ease forwards; }
-@keyframes dmgFloat { 0%{opacity:1;transform:translateY(0) scale(1);} 70%{opacity:1;} 100%{opacity:0;transform:translateY(-60px) scale(0.8);} }
-.screen-edge-damage { position:fixed; inset:0; border:3px solid var(--danger); border-radius:0; animation:edgePulse 0.5s ease forwards; pointer-events:none; }
-@keyframes edgePulse { 0%,100%{opacity:0;} 50%{opacity:0.7;} }
-.echo-burst-overlay { position:fixed; inset:0; background:radial-gradient(ellipse at center,rgba(0,255,204,0.15),transparent 70%); animation:burstFlash 0.8s ease forwards; pointer-events:none; }
-@keyframes burstFlash { 0%{opacity:0;} 30%{opacity:1;} 100%{opacity:0;} }
-.item-toast { position:fixed; bottom:32px; right:24px; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px 18px; display:flex; gap:12px; align-items:center; z-index:500; animation:slideInRight 0.4s ease both; backdrop-filter:blur(20px); }
-@keyframes slideInRight { from{transform:translateX(120%);opacity:0;} to{transform:none;opacity:1;} }
-.toast-icon { font-size:24px; }
-.toast-text { font-family:'Cinzel',serif; font-size:12px; color:var(--white); font-weight:700; }
-.toast-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
-
-/* ── SPECIAL UI ── */
-.pulse-overlay { position:fixed; inset:0; background:rgba(255,51,102,0.05); pointer-events:none; z-index:50; animation:heartbeat 1.5s ease infinite; }
-@keyframes heartbeat { 0%,100%{opacity:0;} 50%{opacity:1;} }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-@keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:none;} }
-@keyframes fadeInDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:none;} }
-@keyframes titleReveal { 0%{opacity:0;transform:scale(1.05);filter:blur(8px);} 100%{opacity:1;transform:none;filter:none;} }
-@keyframes chainPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
-@keyframes dotBurst { 0%,100%{transform:scale(1);} 50%{transform:scale(1.4);} }
-@keyframes bossPhaseShift { 0%{filter:brightness(1) saturate(1);} 50%{filter:brightness(3) saturate(0);} 100%{filter:brightness(1) saturate(1);} }
-.phase-shift { animation:bossPhaseShift 1s ease; }
-@keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-4px);} 40%{transform:translateX(4px);} 60%{transform:translateX(-3px);} 80%{transform:translateX(3px);} }
-
-/* ── MISC ── */
-::-webkit-scrollbar { width:4px; height:4px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-
-/* ── 노드 선택 카드 ── */
-.node-card {
-  background: rgba(12,8,30,0.96);
-  border: 1.5px solid rgba(123,47,255,0.35);
-  border-radius: 16px;
-  width: 160px;
-  padding: 24px 16px 20px;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-  text-align: center;
-  position: relative; overflow: hidden;
-  animation: nodeCardIn 0.35s ease both;
-}
-@keyframes nodeCardIn {
-  from { opacity: 0; transform: translateY(18px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.node-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  border-radius: 16px 16px 0 0;
-  background: var(--node-color, #7b2fff);
-  opacity: 0.7; transition: opacity 0.18s;
-}
-.node-card:hover { transform: translateY(-10px); box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 30px color-mix(in srgb, var(--node-color, #7b2fff) 30%, transparent); }
-.node-card:hover::before { opacity: 1; }
-.node-card:hover { border-color: var(--node-color, #7b2fff); }
-.node-card-icon { font-size: 40px; line-height: 1; transition: transform 0.18s; }
-.node-card:hover .node-card-icon { transform: scale(1.12); }
-.node-card-label { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700; color: #eef0ff; letter-spacing: 0.1em; }
-.node-card-sub { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: rgba(176,180,216,0.55); }
-.node-card-desc { font-size: 11px; color: rgba(176,180,216,0.45); line-height: 1.5; }
-.node-card-cta {
-  font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em;
-  color: var(--node-color, #7b2fff); opacity: 0; transition: opacity 0.18s;
-  margin-top: 4px;
-}
-.node-card:hover .node-card-cta { opacity: 1; }
-
-
-/* ── 적 카드 hover 강조 — 의도 섹션 부각 ── */
-.enemy-card:hover .enemy-intent {
-  background: rgba(255,255,255,0.09);
-  border-color: rgba(255,255,255,0.2);
-  transform: scale(1.04);
-  transition: all 0.2s ease;
-}
-.enemy-card:hover {
-  box-shadow: 0 0 24px rgba(123,47,255,0.25);
-  border-color: rgba(123,47,255,0.4);
-}
-/* 선택된 적 타겟 — 강조 테두리 펄스 */
-.enemy-card.selected-target {
-  animation: targetPulse 1.6s ease infinite;
-}
-@keyframes targetPulse {
-  0%,100% { box-shadow: 0 0 18px rgba(0,255,204,0.45); }
-  50%      { box-shadow: 0 0 30px rgba(0,255,204,0.75), 0 0 8px rgba(0,255,204,0.3) inset; }
-}
-/* 피해 예측 뱃지 */
-.enemy-dmg-preview {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--danger);
-  background: rgba(255,51,102,0.12);
-  border: 1px solid rgba(255,51,102,0.35);
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-top: 3px;
-  text-align: center;
-  letter-spacing: 0.05em;
-}
-
-/* ── 키보드 단축키 힌트 툴팁 ── */
-.kbd-hint {
-  display: inline-block;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 3px;
-  padding: 1px 5px;
-  color: var(--text-dim);
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
-/* ── 로그 heal 색상 ── */
-.log-entry.heal { color: #44ff88; }
-</style>
-</head>
-<body>
-
-<!-- ═══════════════════════════════════════
-     TITLE SCREEN
-═══════════════════════════════════════ -->
-<div id="titleScreen" class="screen active">
-  <canvas id="titleCanvas"></canvas>
-  <div class="title-content">
-    <div class="title-eyebrow">A ROGUELIKE DECKBUILDER</div>
-    <div class="title-main">ECHO OF<br>THE FALLEN</div>
-    <div class="title-sub">잔향의 연대기</div>
-    <div class="title-tagline">"기억은 사라지지 않는다. 잔향이 될 뿐."</div>
-
-    <div class="class-select">
-      <button class="class-btn" data-class="swordsman" onclick="selectClass(this)">
-        <span class="class-btn-icon">⚔️</span>
-        <div class="class-btn-name">잔향검사</div>
-        <div class="class-btn-style">MOMENTUM</div>
-        <div class="class-btn-desc">이동할수록 강해지는 모멘텀 전사. HP 80</div>
-        <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">🔪 시작 유물: 무딘 검</div>
-      </button>
-      <button class="class-btn" data-class="mage" onclick="selectClass(this)">
-        <span class="class-btn-icon">🔮</span>
-        <div class="class-btn-name">메아리술사</div>
-        <div class="class-btn-style">PREDICTION</div>
-        <div class="class-btn-desc">적의 행동을 예측하고 반격한다. HP 50</div>
-        <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">🔷 시작 유물: 허공 파편</div>
-      </button>
-      <button class="class-btn" data-class="hunter" onclick="selectClass(this)">
-        <span class="class-btn-icon">🗡️</span>
-        <div class="class-btn-name">침묵사냥꾼</div>
-        <div class="class-btn-style">SILENCE</div>
-        <div class="class-btn-desc">침묵 게이지를 관리하는 암살자. HP 65</div>
-        <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">🗺️ 시작 유물: 여행자 지도</div>
-      </button>
-    </div>
-
-    <button id="startBtn" class="start-btn" onclick="startGame()" disabled>잔향 속으로</button>
-    <div id="classSelectHint" style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--echo);opacity:0.6;margin-top:32px;animation:fadeInUp 1s ease 1.8s both;transition:opacity 0.4s;">◈ 클래스를 선택해 여정을 시작하세요 ◈</div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     GAME SCREEN
-═══════════════════════════════════════ -->
-<div id="gameScreen" class="screen">
-  <!-- ── Hover HUD (좌상단, 마우스 오버 시 정보 표시) ── -->
-  <div id="hoverHud">
-    <div id="hoverHudTrigger" onclick="toggleHudPin()">
-      <span id="playerAvatar" style="font-size:18px;">⚔️</span>
-      <div class="hud-stat-inline">
-        <span style="color:#ff4466;font-size:13px;">❤</span>
-        <div class="hud-bar-mini"><div class="hud-bar-mini-fill bar-hp" id="hudHpBarMini" style="width:100%"></div></div>
-        <span id="hudHpText" style="color:var(--white);">80/80</span>
-      </div>
-      <div class="hud-stat-inline">
-        <span style="color:var(--echo);font-size:13px;">⚡</span>
-        <div class="hud-bar-mini"><div class="hud-bar-mini-fill bar-echo" id="hudEchoBarMini" style="width:0%"></div></div>
-        <span id="hudEchoText" style="color:var(--echo-bright);">0</span>
-      </div>
-      <div class="hud-stat-inline">
-        <span style="color:var(--gold);font-size:12px;">💰</span>
-        <span id="hudGoldText" style="color:var(--gold);">0</span>
-      </div>
-      <span class="hud-pin-indicator" title="클릭하여 고정">📌</span>
-    </div>
-    <div id="hoverHudPanel">
-      <!-- 핀 안내 문구 -->
-      <div id="hudPinHint" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.15em;color:var(--text-dim);text-align:center;margin-bottom:10px;padding:5px 8px;background:rgba(123,47,255,0.06);border-radius:6px;border:1px solid rgba(123,47,255,0.1);">
-        📌 클릭하면 고정 · 항목에 마우스를 올려 상세 정보 확인
-      </div>
-
-      <div class="hud-section">
-        <div class="hud-section-title">잔향자 상태</div>
-        <div class="hud-stat-row">
-          <div class="hud-stat-label-row">
-            <span class="hud-stat-label">❤ 체력</span>
-            <span class="hud-stat-value" id="hpText">80 / 80</span>
-          </div>
-          <div class="hud-bar-track"><div class="hud-bar-fill bar-hp" id="hpBar" style="width:100%"></div></div>
-          <div class="hud-stat-tip">HP가 0이 되면 사망합니다. 회복 카드·유물로 체력을 관리하세요. 저체력(30% 미만)에서 일부 유물·스킬이 활성화됩니다.</div>
-        </div>
-        <div class="hud-stat-row">
-          <div class="hud-stat-label-row">
-            <span class="hud-stat-label">🛡 방어막</span>
-            <span class="hud-stat-value" id="shieldText">0</span>
-          </div>
-          <div class="hud-bar-track"><div class="hud-bar-fill bar-shield" id="shieldBar" style="width:0%"></div></div>
-          <div class="hud-stat-tip">방어막은 HP 대신 피해를 흡수합니다. 턴 종료 시 사라지므로 매 턴 갱신이 필요합니다.</div>
-        </div>
-        <div class="hud-stat-row">
-          <div class="hud-stat-label-row">
-            <span class="hud-stat-label">⚡ Echo 게이지</span>
-            <span class="hud-stat-value" id="echoText">0 / 100</span>
-          </div>
-          <div class="hud-bar-track"><div class="hud-bar-fill bar-echo" id="echoBar" style="width:0%"></div></div>
-          <div class="hud-stat-tip">카드를 사용하거나 피해를 받으면 Echo가 충전됩니다. 30/60/100에서 Echo 스킬 등급이 올라갑니다. 100 도달 시 Resonance Burst 보너스!</div>
-        </div>
-      </div>
-
-      <div class="hud-section">
-        <div class="hud-section-title">⛓ Echo Chain</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-          <div class="chain-count" id="chainCount" style="font-size:22px;">0</div>
-          <div class="chain-dots" id="chainDots">
-            <div class="chain-dot"></div><div class="chain-dot"></div><div class="chain-dot"></div>
-            <div class="chain-dot"></div><div class="chain-dot"></div>
-          </div>
-        </div>
-        <div style="font-size:10px;color:var(--text-dim);line-height:1.6;">
-          카드 사용마다 체인 +1. 5연속 달성 시 <span style="color:var(--cyan);">Resonance Burst</span> 발동 — 추가 피해+효과. 턴 종료 시 초기화.
-        </div>
-      </div>
-
-      <div class="hud-section">
-        <div class="hud-section-title">🌀 상태 이상</div>
-        <div id="statusEffects"><span style="font-size:11px;color:var(--text-dim);font-style:italic;">없음</span></div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">각 배지에 마우스를 올리면 효과를 확인할 수 있습니다.</div>
-      </div>
-
-      <div id="classSpecialPanel" style="padding:7px;background:rgba(123,47,255,0.06);border:1px solid var(--border);border-radius:6px;display:none;margin-bottom:10px;"></div>
-
-      <div class="hud-section">
-        <div class="hud-section-title">🎒 보유 유물</div>
-        <div id="itemSlots" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;"><span style="font-size:11px;color:var(--text-dim);font-style:italic;">비어있음</span></div>
-        <div id="setBonusPanel" style="margin-top:6px;display:none;"></div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">유물에 마우스를 올리면 발동 조건과 효과를 확인할 수 있습니다.</div>
-      </div>
-
-      <div class="hud-section">
-        <div class="hud-section-title">📊 런 정보</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:2;">
-          <div>런 <span id="runCount" style="color:var(--white);">1</span> &nbsp;·&nbsp; 처치 <span id="killCount" style="color:var(--white);">0</span></div>
-          <div>골드 <span id="goldCount" style="color:var(--gold);">0</span> &nbsp;·&nbsp; <span id="playerFloor" style="color:var(--text);">1층</span></div>
-        </div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:4px;line-height:1.5;">골드는 상인 노드에서 카드 업그레이드·아이템 구매에 사용합니다.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="game-layout">
-    <div style="grid-column:1;grid-row:1;position:relative;overflow:hidden;">
-    <canvas id="gameCanvas" style="width:100%;height:100%;display:block;"></canvas>
-    <!-- 노드 선택 카드 오버레이 -->
-    <div id="nodeCardOverlay" style="
-      position:absolute; inset:0; display:none;
-      flex-direction:column; align-items:center; justify-content:center;
-      gap:20px; pointer-events:none; z-index:10;
-    ">
-      <div id="nodeCardTitle" style="
-        font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.3em;
-        color:rgba(238,240,255,0.6); text-align:center;
-      "></div>
-      <div id="nodeCardRow" style="
-        display:flex; gap:20px; align-items:center; justify-content:center;
-        flex-wrap:wrap; pointer-events:auto;
-      "></div>
-    </div>
-    </div><!-- /gameCanvas wrapper -->
-
-    <div class="panel-right" style="grid-column:2;grid-row:1/3;">
-      <div class="panel-title">미니맵</div>
-      <canvas id="minimapCanvas"></canvas>
-
-      <div class="region-info">
-        <div class="region-name-display" id="regionName">잔향의 숲</div>
-        <div class="region-rule-display" id="regionRule">기본 규칙</div>
-        <div class="region-floor-display" id="regionFloor">1 / 3층</div>
-      </div>
-
-      <div class="panel-title">다음 이동</div>
-      <div id="nextNodes" style="display:none;"></div>
-
-      <div style="margin-top:auto;">
-        <div class="panel-title">덱 정보</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:1.8;">
-          <div>덱: <span id="deckSize" style="color:var(--white);">10</span>장</div>
-          <div>무덤: <span id="graveyardSize" style="color:var(--text-dim);">0</span>장</div>
-          <div>소진: <span id="exhaustSize" style="color:var(--danger);">0</span>장</div>
-        </div>
-        <button onclick="showMapOverlay()" style="width:100%;margin-top:10px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(123,47,255,0.1);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--echo);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.background='rgba(123,47,255,0.2)'" onmouseout="this.style.background='rgba(123,47,255,0.1)'">🗺 지도 보기</button>
-        <button onclick="showDeckView()" style="width:100%;margin-top:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(0,255,204,0.05);border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--cyan);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.background='rgba(0,255,204,0.12)'" onmouseout="this.style.background='rgba(0,255,204,0.05)'">📚 덱 보기</button>
-        <button onclick="openCodex()" style="width:100%;margin-top:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(240,180,41,0.06);border:1px solid rgba(240,180,41,0.2);border-radius:6px;padding:8px;color:var(--gold);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.background='rgba(240,180,41,0.14)'" onmouseout="this.style.background='rgba(240,180,41,0.06)'">📖 도감</button>
-      </div>
-    </div>
-
-    <div class="panel-bottom" style="grid-column:1;grid-row:2;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="panel-title" style="margin:0;border:none;padding:0;">손패</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">클릭하여 사용</div>
-      </div>
-      <div class="deck-area">
-        <div class="energy-display">
-          <div class="energy-label">에너지</div>
-          <div class="energy-orbs" id="energyOrbs">
-            <div class="energy-orb filled"></div><div class="energy-orb filled"></div><div class="energy-orb filled"></div>
-          </div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);" id="energyText">3 / 3</div>
-        </div>
-        <div class="hand-cards" id="handCards"></div>
-        <div class="deck-meta">
-          <div class="deck-count"><div class="deck-count-num" id="deckCount">10</div><div class="deck-count-label">덱</div></div>
-          <div class="deck-count" style="border-color:rgba(255,255,255,0.05);"><div class="deck-count-num" id="graveCount" style="color:var(--text-dim);">0</div><div class="deck-count-label">무덤</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     MAZE OVERLAY — 기억의 미궁 독립 오버레이
-═══════════════════════════════════════ -->
-<div id="mazeOverlay" style="
-  display:none; position:fixed; inset:0; z-index:400;
-  background:#020210; flex-direction:column; align-items:stretch;
-">
-  <!-- 헤더 -->
-  <div style="
-    display:flex; align-items:center; justify-content:space-between;
-    padding:10px 20px; background:rgba(0,0,0,0.6);
-    border-bottom:1px solid rgba(123,47,255,0.25); flex-shrink:0;
-  ">
-    <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:rgba(0,255,204,0.7);">🗝️ 기억의 미궁</div>
-    <div id="mazeStepCount" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);">이동: 0</div>
-    <div style="font-family:'Cinzel',serif;font-size:10px;color:rgba(240,180,41,0.7);">🚪 출구를 찾아라</div>
-  </div>
-  <!-- 메인: 캔버스 + 미니맵 -->
-  <div style="flex:1; display:flex; position:relative; overflow:hidden;">
-    <canvas id="mazeCanvas" style="flex:1; display:block;"></canvas>
-    <!-- 미니맵 (우상단 고정) -->
-    <div style="
-      position:absolute; top:12px; right:12px;
-      background:rgba(0,0,0,0.75); border:1px solid rgba(123,47,255,0.3);
-      border-radius:8px; padding:8px;
-    ">
-      <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:rgba(0,255,204,0.5);margin-bottom:5px;text-align:center;">미니맵</div>
-      <canvas id="mazeMinimap" width="105" height="65" style="display:block;image-rendering:pixelated;"></canvas>
-    </div>
-  </div>
-  <!-- 하단 조작 가이드 -->
-  <div style="
-    display:flex; align-items:center; justify-content:center; gap:32px;
-    padding:12px 20px; background:rgba(0,0,0,0.6);
-    border-top:1px solid rgba(123,47,255,0.2); flex-shrink:0;
-  ">
-    <!-- 방향 버튼 (클릭/터치 가능) -->
-    <div style="display:grid;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(2,40px);gap:5px;">
-      <div></div>
-      <button tabindex="-1" onclick="AudioEngine.resume();AudioEngine.playFootstep();MazeSystem.move(0,-1)" style="background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.35);border-radius:8px;color:var(--cyan);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;" onmousedown="this.style.background='rgba(0,255,204,0.3)'" onmouseup="this.style.background='rgba(0,255,204,0.1)'">↑</button>
-      <div></div>
-      <button tabindex="-1" onclick="AudioEngine.resume();AudioEngine.playFootstep();MazeSystem.move(-1,0)" style="background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.35);border-radius:8px;color:var(--cyan);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;" onmousedown="this.style.background='rgba(0,255,204,0.3)'" onmouseup="this.style.background='rgba(0,255,204,0.1)'">←</button>
-      <button tabindex="-1" onclick="AudioEngine.resume();AudioEngine.playFootstep();MazeSystem.move(0,1)" style="background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.35);border-radius:8px;color:var(--cyan);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;" onmousedown="this.style.background='rgba(0,255,204,0.3)'" onmouseup="this.style.background='rgba(0,255,204,0.1)'">↓</button>
-      <button tabindex="-1" onclick="AudioEngine.resume();AudioEngine.playFootstep();MazeSystem.move(1,0)" style="background:rgba(0,255,204,0.1);border:1px solid rgba(0,255,204,0.35);border-radius:8px;color:var(--cyan);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;" onmousedown="this.style.background='rgba(0,255,204,0.3)'" onmouseup="this.style.background='rgba(0,255,204,0.1)'">→</button>
-    </div>
-    <div style="font-family:'Cinzel',serif;font-size:10px;color:rgba(240,180,41,0.7);letter-spacing:0.15em;">🚪 출구에 도달하면 전투 시작</div>
-    <!-- HP/Echo 상태 -->
-    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;line-height:2;">
-      <span style="color:#ff4466;">❤ <span id="mazeHp">-</span></span>
-      &nbsp;&nbsp;
-      <span style="color:#7b2fff;">⚡ <span id="mazeEcho">-</span></span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     COMBAT OVERLAY
-═══════════════════════════════════════ -->
-<div id="combatOverlay">
-  <div class="turn-indicator turn-player" id="turnIndicator">플레이어 턴</div>
-  <div id="turnBanner"></div>
-
-  <!-- 전투 정보는 hoverHud (좌상단)에서 마우스 오버로 확인 -->
-
-  <!-- 소음 게이지 위젯 (침묵의 도시 전용) -->
-  <div id="noiseWidget">
-    <div class="nw-title">🌑 소음 게이지</div>
-    <div class="nw-dots" id="nwDots"></div>
-    <div class="nw-bar-track"><div class="nw-bar-fill" id="nwBarFill" style="width:0%"></div></div>
-    <div class="nw-val" id="nwVal">0 / 10</div>
-    <div class="nw-warn" id="nwWarn">⚠ 파수꾼 임박</div>
-  </div>
-
-  <div class="combat-arena">
-    <div class="enemy-zone" id="enemyZone"></div>
-    <div class="combat-divider"></div>
-    <div class="combat-cards" id="combatCards"></div>
-    <div class="combat-log" id="combatLog"><div class="log-entry system">⚔ 전투 시작!</div></div>
-  </div>
-
-  <!-- 투명 오버레이 손패 패널 -->
-  <div class="combat-hand-overlay" id="combatHandOverlay">
-    <!-- 손패 상단: 에너지 + 라벨 -->
-    <div class="combat-hand-topbar">
-      <div class="combat-energy-inline">
-        <div class="energy-label">에너지</div>
-        <div class="energy-orbs" id="combatEnergyOrbs">
-          <div class="energy-orb filled"></div><div class="energy-orb filled"></div><div class="energy-orb filled"></div>
-        </div>
-        <div class="energy-val" id="combatEnergyText">3 / 3</div>
-      </div>
-      <div class="combat-hand-label">— 손패 —</div>
-      <div class="combat-deck-pills">
-        <div class="combat-deck-pill"><div class="dp-num" id="combatDeckCount">10</div><div class="dp-lbl">덱</div></div>
-        <div class="combat-deck-pill"><div class="dp-num" id="combatGraveCount" style="color:var(--text-dim);">0</div><div class="dp-lbl">무덤</div></div>
-        <div class="combat-deck-pill"><div class="dp-num" id="combatExhaustCount" style="color:var(--danger);">0</div><div class="dp-lbl">소진</div></div>
-      </div>
-    </div>
-    <!-- 손패 카드 -->
-    <div class="combat-hand-cards" id="combatHandCards"></div>
-    <!-- 하단 액션 버튼 바 — 화면 하단 중앙 -->
-    <div class="combat-bottom-bar">
-      <div class="combat-actions">
-        <button class="action-btn action-btn-primary" id="echoSkillBtn" onclick="useEchoSkill()" onmouseenter="showEchoSkillTooltip(event)" onmouseleave="hideEchoSkillTooltip()">⚡ Echo 스킬<span class="kbd-hint">E</span></button>
-        <button class="action-btn action-btn-secondary" id="drawCardBtn" onclick="drawCard()">🃏 드로우</button>
-        <button class="hand-sort-btn" onclick="sortHandByEnergy()" title="에너지 비용 순 정렬">⇅ 정렬</button>
-        <button class="action-btn action-btn-end" onclick="endPlayerTurn()">턴 종료<span class="kbd-hint">↵</span></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     DEATH SCREEN
-═══════════════════════════════════════ -->
-<div id="deathScreen" class="screen">
-  <div class="death-title">잔향이 흩어지다</div>
-  <div class="death-quote" id="deathQuote">"이 죽음도 기억이 된다."</div>
-  <div class="death-stats">
-    <div class="death-stat"><div class="death-stat-num" id="deathFloor">1</div><div class="death-stat-label">도달 층</div></div>
-    <div class="death-stat"><div class="death-stat-num" id="deathKills">0</div><div class="death-stat-label">처치 수</div></div>
-    <div class="death-stat"><div class="death-stat-num" id="deathChain">0</div><div class="death-stat-label">최고 체인</div></div>
-    <div class="death-stat"><div class="death-stat-num" id="deathRun">1</div><div class="death-stat-label">런 횟수</div></div>
-  </div>
-  <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--text-dim);text-align:center;">메아리 조각 획득 — 각인을 선택하라</div>
-  <div id="deathWorldMemory" class="death-world-memory"></div>
-  <div class="echo-fragment-select" id="fragmentChoices"></div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     EVENT MODAL
-═══════════════════════════════════════ -->
-<div id="eventModal">
-  <div class="event-box">
-    <div class="event-eyebrow" id="eventEyebrow">LAYER 1 · 우발적 이벤트</div>
-    <div class="event-title" id="eventTitle">이벤트</div>
-    <!-- 골드 + 상태 실시간 표시 바 -->
-    <div id="eventGoldBar" style="display:flex;align-items:center;justify-content:center;gap:16px;margin:8px 0;font-family:'Share Tech Mono',monospace;font-size:12px;flex-wrap:wrap;">
-      <span style="color:var(--gold);">💰 <span id="eventGoldDisplay">0</span>골드</span>
-      <span style="color:var(--hp-color);">❤️ <span id="eventHpDisplay">0/0</span></span>
-      <span style="color:var(--echo);">⚡ Echo <span id="eventEchoDisplay">0</span></span>
-    </div>
-    <div class="event-desc" id="eventDesc"></div>
-    <div id="eventDeckInfo" style="display:none;margin:14px 0 2px;padding:10px 14px;background:rgba(123,47,255,0.06);border:1px solid var(--border);border-radius:8px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;"></div>
-    <div class="event-choices" id="eventChoices"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     MAP OVERLAY
-═══════════════════════════════════════ -->
-<div id="mapOverlay" class="map-overlay">
-  <div class="map-title">잔향의 지도</div>
-  <canvas id="mapCanvas" width="600" height="400" onclick="handleMapClick(event)" style="cursor:pointer;"></canvas>
-  <!-- 자동닫힘 진행바 -->
-  <div id="mapTimerBar" style="width:100%;max-width:600px;height:3px;background:rgba(123,47,255,0.15);border-radius:2px;overflow:hidden;display:none;">
-    <div id="mapTimerFill" style="height:100%;width:100%;background:linear-gradient(90deg,var(--echo),var(--cyan));transition:none;"></div>
-  </div>
-  <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;color:var(--text-dim);text-align:center;opacity:0.6;">이동할 곳은 게임 화면의 노드 카드에서 선택하세요</div>
-  <button onclick="closeMapOverlay()" style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;background:none;border:1px solid var(--border);border-radius:6px;padding:10px 28px;color:var(--text-dim);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--text-dim)'">닫기</button>
-</div>
-
-<!-- ═══════════════════════════════════════
-     REWARD SCREEN
-═══════════════════════════════════════ -->
-<div id="rewardScreen" class="screen">
-  <div id="rewardEyebrow" class="reward-title" style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--text-dim);">✦ 보상 선택 ✦</div>
-  <div id="rewardTitle" style="font-family:'Cinzel Decorative',serif;font-size:clamp(20px,3vw,32px);font-weight:900;color:var(--white);text-align:center;display:none;"></div>
-  <div class="reward-cards reward-cards-container" id="rewardCards"></div>
-  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;">
-    <div id="skipConfirmArea" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-      <button class="skip-btn" id="skipInitBtn" onclick="showSkipConfirm()">건너뛰기 (보상 없이 계속)</button>
-      <div id="skipConfirmRow" style="display:none;flex-direction:row;align-items:center;gap:10px;animation:fadeInUp 0.2s ease both;">
-        <span style="font-family:'Cinzel',serif;font-size:10px;color:var(--text-dim);letter-spacing:0.1em;">정말 보상을 포기하시겠습니까?</span>
-        <button class="skip-btn" onclick="skipReward()" style="color:var(--danger);border-color:rgba(255,51,102,0.4);padding:6px 16px;font-size:10px;">예, 건너뜁니다</button>
-        <button class="skip-btn" onclick="hideSkipConfirm()" style="padding:6px 16px;font-size:10px;">취소</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     DECK VIEW MODAL
-═══════════════════════════════════════ -->
-<div id="deckViewModal">
-  <div class="deck-modal-inner">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
-      <div class="deck-modal-title" style="margin-bottom:0;">📚 덱 — <span id="deckModalCount">0</span>장</div>
-      <div id="deckStatusBar" style="display:flex;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;align-items:center;"></div>
-    </div>
-    <!-- 필터 탭 -->
-    <div id="deckFilterTabs" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-      <button onclick="setDeckFilter('all')" id="deckFilter_all"
-        style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.2s;border:1px solid var(--echo);background:rgba(123,47,255,0.2);color:var(--echo);">
-        전체
-      </button>
-      <button onclick="setDeckFilter('ATTACK')" id="deckFilter_ATTACK"
-        style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(255,80,100,0.35);background:transparent;color:#ff6688;">
-        ⚔️ 공격
-      </button>
-      <button onclick="setDeckFilter('SKILL')" id="deckFilter_SKILL"
-        style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(80,180,255,0.35);background:transparent;color:#66bbff;">
-        🛡️ 스킬
-      </button>
-      <button onclick="setDeckFilter('POWER')" id="deckFilter_POWER"
-        style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(240,180,41,0.35);background:transparent;color:var(--gold);">
-        ⚡ 파워
-      </button>
-      <button onclick="setDeckFilter('upgraded')" id="deckFilter_upgraded"
-        style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.2s;border:1px solid rgba(0,255,204,0.35);background:transparent;color:var(--cyan);">
-        ✦ 강화됨
-      </button>
-    </div>
-    <div class="deck-modal-cards" id="deckModalCards"></div>
-    <button class="deck-modal-close" onclick="closeDeckView()">닫기</button>
-  </div>
-</div>
-
-<!-- Card Tooltip -->
-<div id="cardTooltip" class="card-tooltip">
-  <div class="card-tooltip-icon" id="ttIcon">⚔️</div>
-  <div style="display:flex;justify-content:center;"><div class="card-tooltip-cost" id="ttCost">1</div></div>
-  <div class="card-tooltip-name" id="ttName">카드</div>
-  <div class="card-tooltip-type" id="ttType">ATTACK</div>
-  <div class="card-tooltip-desc" id="ttDesc">설명</div>
-  <div id="ttPredicted" style="display:none;margin-top:8px;padding:5px 8px;background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.25);border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);text-align:center;"></div>
-  <div class="card-tooltip-rarity" id="ttRarity"></div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     CODEX MODAL — 도감
-═══════════════════════════════════════ -->
-<div id="codexModal" style="display:none;position:fixed;inset:0;background:rgba(3,3,10,0.97);z-index:900;overflow-y:auto;backdrop-filter:blur(20px);">
-  <div style="max-width:960px;margin:0 auto;padding:40px 24px;">
-    <!-- 헤더 -->
-    <div style="text-align:center;margin-bottom:32px;">
-      <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--text-dim);margin-bottom:8px;">◈ CODEX ◈</div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:clamp(24px,4vw,40px);font-weight:900;color:var(--white);text-shadow:0 0 30px var(--echo-glow);">잔향 도감</div>
-      <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:13px;color:var(--text-dim);margin-top:6px;">발견한 모든 것이 기록된다</div>
-    </div>
-    <!-- 탭 -->
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap;">
-      <button onclick="setCodexTab('enemies')" id="codexTab_enemies"
-        style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all 0.2s;border:1px solid var(--danger);background:rgba(255,51,102,0.15);color:var(--danger);">
-        👾 적 도감
-      </button>
-      <button onclick="setCodexTab('cards')" id="codexTab_cards"
-        style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:transparent;color:var(--text-dim);">
-        🃏 카드 도감
-      </button>
-      <button onclick="setCodexTab('items')" id="codexTab_items"
-        style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:transparent;color:var(--text-dim);">
-        💎 유물 도감
-      </button>
-    </div>
-    <!-- 진행도 바 -->
-    <div id="codexProgress" style="background:rgba(123,47,255,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 18px;margin-bottom:24px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">
-    </div>
-    <!-- 콘텐츠 -->
-    <div id="codexContent" style=""></div>
-    <!-- 닫기 -->
-    <div style="text-align:center;margin-top:32px;">
-      <button onclick="closeCodex()" style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--text-dim);background:none;border:1px solid var(--border);border-radius:8px;padding:12px 32px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--text-dim)'">닫기</button>
-    </div>
-  </div>
-</div>
-
-<div id="hudOverlay"></div>
-<div id="echoSkillTooltip">
-  <div class="echo-skill-tt-title">⚡ ECHO 스킬</div>
-  <div id="echoSkillTtContent"></div>
-</div>
-
-<script>
-'use strict';
+﻿'use strict';
 
 // ═══════════════════════════════════════════════════════════
 //  ECHO OF THE FALLEN v2 — 완전 통합 코드베이스
@@ -1342,1075 +9,6 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 // ────────────────────────────────────────
 // WEB AUDIO ENGINE
 // ────────────────────────────────────────
-const AudioEngine = (() => {
-  let ctx = null, masterGain = null, reverbNode = null;
-  let ambientOsc = null, ambientStarted = false;
-
-  function init() {
-    if (ctx) return;
-    try {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = ctx.createGain();
-      masterGain.gain.value = 0.35;
-      masterGain.connect(ctx.destination);
-      // リバーブ
-      const convolver = ctx.createConvolver();
-      const len = ctx.sampleRate * 1.5;
-      const buf = ctx.createBuffer(2, len, ctx.sampleRate);
-      for (let c = 0; c < 2; c++) {
-        const d = buf.getChannelData(c);
-        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
-      }
-      convolver.buffer = buf;
-      reverbNode = ctx.createGain();
-      reverbNode.gain.value = 0.2;
-      convolver.connect(reverbNode);
-      reverbNode.connect(masterGain);
-    } catch(e) {}
-  }
-
-  function resume() { if (ctx?.state === 'suspended') ctx.resume(); }
-
-  function tone(freq, dur, type='sine', gain=0.2, detune=0) {
-    if (!ctx) return;
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = type; osc.frequency.value = freq; osc.detune.value = detune;
-    g.gain.setValueAtTime(0, ctx.currentTime);
-    g.gain.linearRampToValueAtTime(gain, ctx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    osc.connect(g); g.connect(masterGain);
-    if (reverbNode) g.connect(reverbNode);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur);
-  }
-
-  function chord(freqs, dur, type='sine', gain=0.12) {
-    freqs.forEach((f, i) => tone(f, dur, type, gain, i * 5));
-  }
-
-  function playHit()  { tone(180, 0.15, 'square', 0.15); tone(120, 0.2, 'sawtooth', 0.1); }
-  // 강타 - 크고 묵직한 타격음
-  function playHeavyHit() {
-    tone(90, 0.05, 'square', 0.3);
-    setTimeout(() => tone(60, 0.35, 'sawtooth', 0.25), 30);
-    setTimeout(() => tone(40, 0.5, 'sine', 0.15), 60);
-  }
-  // 피격 - 날카롭고 짧은 충격음
-  function playPlayerHit() {
-    tone(220, 0.04, 'sawtooth', 0.28);
-    setTimeout(() => tone(110, 0.2, 'square', 0.18), 20);
-    setTimeout(() => tone(80, 0.3, 'sine', 0.1), 50);
-  }
-  // 크리티컬 타격
-  function playCritical() {
-    tone(300, 0.03, 'square', 0.35);
-    setTimeout(() => tone(150, 0.08, 'square', 0.28), 20);
-    setTimeout(() => tone(75, 0.4, 'sawtooth', 0.2), 50);
-    setTimeout(() => chord([523, 659], 0.3, 'sine', 0.1), 100);
-  }
-  function playCard() { tone(440, 0.12, 'sine', 0.1); tone(550, 0.08, 'sine', 0.07); }
-  function playHeal() { chord([523, 659, 784], 0.5, 'sine', 0.1); }
-  function playDeath(){ chord([110, 138, 165], 1.5, 'sawtooth', 0.2); }
-  function playItemGet() { chord([523, 659, 784, 1047], 0.8, 'sine', 0.12); }
-  function playBossPhase() { chord([110, 146, 220, 293], 1.2, 'sawtooth', 0.25); tone(55, 1.5, 'sine', 0.3); }
-
-  function playChain(chain) {
-    const baseFreqs = [261, 329, 392, 523, 659];
-    const f = baseFreqs[Math.min(chain - 1, 4)] || 261;
-    chord([f, f * 1.25, f * 1.5], 0.3, 'sine', 0.1 + chain * 0.02);
-  }
-
-  function playResonanceBurst() {
-    [261, 329, 392, 523, 659, 784, 1047].forEach((f, i) => {
-      setTimeout(() => tone(f, 0.6, 'sine', 0.15), i * 60);
-    });
-    tone(55, 2, 'sawtooth', 0.25);
-  }
-
-  const ambientFreqs = [
-    [65, 82, 110], [55, 69, 87], [73, 92, 123], [51, 65, 82], [87, 110, 146]
-  ];
-
-  function startAmbient(regionIdx) {
-    if (!ctx) return;
-    if (ambientOsc) { try { ambientOsc.stop(); } catch(e) {} ambientOsc = null; }
-    ambientStarted = false;
-    const freqs = ambientFreqs[regionIdx] || ambientFreqs[0];
-    const osc = ctx.createOscillator();
-    const lfo = ctx.createOscillator();
-    const lfoGain = ctx.createGain();
-    const g = ctx.createGain();
-    osc.type = 'sine'; osc.frequency.value = freqs[0];
-    lfo.type = 'sine'; lfo.frequency.value = 0.08;
-    lfoGain.gain.value = 3;
-    g.gain.value = 0.04;
-    lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
-    osc.connect(g); g.connect(masterGain);
-    if (reverbNode) g.connect(reverbNode);
-    osc.start(); lfo.start();
-    ambientOsc = osc;
-  }
-
-  function playFootstep() { tone(80 + Math.random() * 40, 0.1, 'square', 0.05); }
-
-  function setVolume(v) { if(masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
-
-  // 클래스 선택 시 고유 사운드
-  function playClassSelect(cls) {
-    switch(cls) {
-      case 'swordsman': // 검: 금속 강타
-        tone(220, 0.07, 'square', 0.18);
-        setTimeout(() => tone(440, 0.12, 'square', 0.13), 70);
-        setTimeout(() => tone(330, 0.25, 'sine',  0.08), 150);
-        break;
-      case 'mage': // 마법: 신비로운 화음
-        chord([523, 659, 784], 0.4, 'sine', 0.09);
-        setTimeout(() => tone(1047, 0.5, 'sine', 0.07, 7), 120);
-        break;
-      case 'hunter': // 사냥꾼: 날카롭고 짧은 음
-        tone(880, 0.05, 'sawtooth', 0.14);
-        setTimeout(() => tone(660, 0.07, 'sawtooth', 0.10), 55);
-        setTimeout(() => tone(440, 0.18, 'sine',     0.07), 110);
-        break;
-      default:
-        playCard();
-    }
-  }
-
-  function playLegendary() {
-    // 저음 베이스 → 상승 아르페지오 → 마지막 화음
-    tone(55,  1.8, 'sawtooth', 0.18);
-    tone(110, 1.4, 'sine',     0.12);
-    [261,329,392,523,659,784,1047,1319].forEach((f,i) => {
-      setTimeout(() => tone(f, 0.5, 'sine', 0.12 - i*0.008), i * 80);
-    });
-    setTimeout(() => chord([523,659,784,1047,1319], 1.2, 'sine', 0.1), 700);
-  }
-
-  return { init, resume, playHit, playHeavyHit, playPlayerHit, playCritical,
-           playCard, playHeal, playDeath, playItemGet,
-           playBossPhase, playChain, playResonanceBurst, startAmbient, playFootstep,
-           setVolume, playClassSelect, playLegendary };
-})();
-
-// ────────────────────────────────────────
-// PARTICLE SYSTEM
-// ────────────────────────────────────────
-const ParticleSystem = (() => {
-  const POOL_SIZE = 300;
-  const pool = Array.from({ length: POOL_SIZE }, () => ({ active: false }));
-  let canvas, ctx;
-
-  function init(c) {
-    canvas = c; ctx = c.getContext('2d');
-  }
-
-  function spawn(x, y, { count=8, color='#7b2fff', size=3, speed=3, life=0.6, type='dot' } = {}) {
-    let spawned = 0;
-    for (let p of pool) {
-      if (spawned >= count) break;
-      if (!p.active) {
-        const a = Math.random() * Math.PI * 2;
-        const v = speed * (0.5 + Math.random() * 0.5);
-        Object.assign(p, {
-          active: true, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v,
-          life: 1, maxLife: life, color, size: size * (0.5 + Math.random()), type,
-          decay: 1 / (life * 60),
-        });
-        spawned++;
-      }
-    }
-  }
-
-  function hitEffect(x, y, big=false) {
-    spawn(x, y, { count: big ? 16 : 8, color: '#ff3366', size: big ? 5 : 3, speed: big ? 6 : 4 });
-    spawn(x, y, { count: 4, color: '#ffffff', size: 2, speed: 2, life: 0.3 });
-  }
-
-  function burstEffect(x, y) {
-    spawn(x, y, { count: 40, color: '#00ffcc', size: 4, speed: 8, life: 1.0 });
-    spawn(x, y, { count: 20, color: '#7b2fff', size: 6, speed: 5, life: 0.8 });
-  }
-
-  function healEffect(x, y) {
-    spawn(x, y, { count: 12, color: '#44ff88', size: 3, speed: 3, life: 0.8, type: 'circle' });
-  }
-
-  function deathEffect(x, y) {
-    spawn(x, y, { count: 60, color: '#7b2fff', size: 5, speed: 10, life: 1.5 });
-    spawn(x, y, { count: 20, color: '#ffffff', size: 2, speed: 4, life: 0.5 });
-  }
-
-  function emit(x, y, opts) { spawn(x, y, opts); }
-
-  function update() {
-    if (!ctx || !canvas) return;
-    for (const p of pool) {
-      if (!p.active) continue;
-      p.x += p.vx; p.y += p.vy;
-      p.vy += 0.1;
-      p.vx *= 0.97; p.vy *= 0.97;
-      p.life -= p.decay;
-      if (p.life <= 0) { p.active = false; continue; }
-      const alpha = p.life;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
-      if (p.type === 'circle') {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
-      }
-      ctx.restore();
-    }
-  }
-
-  return { init, update, hitEffect, burstEffect, healEffect, deathEffect, emit };
-})();
-
-// ────────────────────────────────────────
-// SCREEN SHAKE + HIT STOP
-// ────────────────────────────────────────
-const ScreenShake = (() => {
-  let intensity = 0, decay = 0, ox = 0, oy = 0;
-  function shake(amt, dec = 0.3) { intensity = Math.max(intensity, amt); decay = dec; }
-  function update() {
-    if (intensity < 0.1) { intensity = 0; ox = oy = 0; return; }
-    ox = (Math.random() - 0.5) * intensity;
-    oy = (Math.random() - 0.5) * intensity;
-    intensity *= (1 - decay * 0.1);
-  }
-  function apply(ctx) { ctx.translate(ox, oy); }
-  return { shake, update, apply };
-})();
-
-const HitStop = (() => {
-  let frames = 0;
-  return {
-    trigger(f) { frames = Math.max(frames, f); },
-    active() { return frames > 0; },
-    update() { if (frames > 0) frames--; }
-  };
-})();
-
-// ────────────────────────────────────────
-// FOV ENGINE (기억의 미궁)
-// ────────────────────────────────────────
-const FovEngine = (() => {
-  let map = [], W = 0, H = 0;
-  let revealed = new Set(), visible = new Set();
-
-  function generateMaze(w, h) {
-    W = w; H = h;
-    map = Array.from({length:H}, () => Array(W).fill(1));
-    revealed = new Set(); visible = new Set();
-    function carve(x, y) {
-      const dirs = [[0,-2],[2,0],[0,2],[-2,0]].sort(()=>Math.random()-0.5);
-      dirs.forEach(([dx,dy]) => {
-        const nx=x+dx, ny=y+dy;
-        if(nx>0&&nx<W-1&&ny>0&&ny<H-1&&map[ny][nx]===1){
-          map[y+dy/2][x+dx/2]=0; map[ny][nx]=0; carve(nx,ny);
-        }
-      });
-    }
-    map[1][1]=0; carve(1,1); map[H-2][W-2]=0;
-    return map;
-  }
-
-  const OCT = [[1,0,0,-1],[1,0,0,1],[-1,0,0,1],[-1,0,0,-1],[0,-1,-1,0],[0,-1,1,0],[0,1,1,0],[0,1,-1,0]];
-
-  function castLight(cx,cy,radius,row,startSlope,endSlope,oct) {
-    if(startSlope<endSlope) return;
-    const [xx,xy,yx,yy]=OCT[oct];
-    let blocked=false, nSlope;
-    for(let dist=row;dist<=radius&&!blocked;dist++){
-      for(let col=-dist;col<=0;col++){
-        const lSlope=(col-0.5)/(dist+0.5), rSlope=(col+0.5)/(dist-0.5);
-        if(startSlope<rSlope) continue;
-        if(endSlope>lSlope) break;
-        const mx=cx+col*xx+dist*xy, my=cy+col*yx+dist*yy;
-        if(mx<0||mx>=W||my<0||my>=H) continue;
-        if(col*col+dist*dist<=radius*radius){ visible.add(`${mx},${my}`); revealed.add(`${mx},${my}`); }
-        if(blocked){ if(map[my][mx]===1) nSlope=rSlope; else{blocked=false;startSlope=nSlope;} }
-        else if(map[my][mx]===1&&dist<radius){ blocked=true; castLight(cx,cy,radius,dist+1,startSlope,lSlope,oct); nSlope=rSlope; }
-      }
-      if(blocked) break;
-    }
-  }
-
-  function computeFov(px,py,radius=6){
-    visible=new Set(); visible.add(`${px},${py}`); revealed.add(`${px},${py}`);
-    for(let i=0;i<8;i++) castLight(px,py,radius,1,1.0,0.0,i);
-  }
-
-  function drawMaze(ctx,cW,cH,px,py){
-    if(!W||!H) return;
-    const tW=cW/W, tH=cH/H;
-    computeFov(px,py,6);
-    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-      const vis=visible.has(`${x},${y}`), rev=revealed.has(`${x},${y}`);
-      if(!rev) continue;
-      ctx.save(); ctx.globalAlpha=vis?1:0.25;
-      if(map[y][x]===1){
-        ctx.fillStyle='#1a0a3a'; ctx.fillRect(x*tW,y*tH,tW+1,tH+1);
-        if(vis){ctx.strokeStyle='rgba(123,47,255,0.3)';ctx.lineWidth=0.5;ctx.strokeRect(x*tW,y*tH,tW,tH);}
-      } else {
-        ctx.fillStyle='#0a0520'; ctx.fillRect(x*tW,y*tH,tW+1,tH+1);
-        if(vis){ctx.strokeStyle='rgba(80,40,120,0.15)';ctx.lineWidth=0.5;ctx.strokeRect(x*tW+2,y*tH+2,tW-4,tH-4);}
-      }
-      ctx.restore();
-    }
-    const glow=ctx.createRadialGradient((px+0.5)*tW,(py+0.5)*tH,0,(px+0.5)*tW,(py+0.5)*tH,tW*3);
-    glow.addColorStop(0,'rgba(123,47,255,0.25)'); glow.addColorStop(1,'transparent');
-    ctx.fillStyle=glow; ctx.beginPath(); ctx.arc((px+0.5)*tW,(py+0.5)*tH,tW*3,0,Math.PI*2); ctx.fill();
-  }
-
-  return { generateMaze, computeFov, drawMaze, getMap:()=>map, getSize:()=>({W,H}), getRevealed:()=>revealed, getVisible:()=>visible };
-})();
-
-// ────────────────────────────────────────
-// DATA — 완전 통합 DB
-// ────────────────────────────────────────
-const DATA = {
-  // 카드 강화 시스템: upgradeOf -> 원본카드, 강화 후 suffix '+' 붙은 버전
-  upgradeMap: {
-    'strike':'strike_plus','defend':'defend_plus','echo_strike':'echo_strike_plus',
-    'quick_step':'quick_step_plus','heavy_blow':'heavy_blow_plus','echo_wave':'echo_wave_plus',
-    'resonance':'resonance_plus','soul_rend':'soul_rend_plus','twin_strike':'twin_strike_plus',
-    'echo_shield':'echo_shield_plus','momentum':'momentum_plus','foresight':'foresight_plus',
-    'silent_stab':'silent_stab_plus','vanish':'vanish_plus',
-    'surge':'surge_plus',
-    'flame_slash':'ember_wave',
-    'echo_tide':'void_surge',
-    'tempo_strike':'echo_cascade',
-  },
-  cards: {
-    // 공통 기본
-    strike: { id:'strike', name:'강타', icon:'⚔️', cost:1, type:'ATTACK', desc:'8 피해', rarity:'common',
-      effect(gs) { gs.dealDamage(8); AudioEngine.playChain(gs.player.echoChain); } },
-    strike_plus: { id:'strike_plus', name:'강타+', icon:'⚔️', cost:1, type:'ATTACK', desc:'13 피해 + Echo 5', rarity:'common', upgraded:true,
-      effect(gs) { gs.dealDamage(13); gs.addEcho(5); AudioEngine.playChain(gs.player.echoChain); } },
-    defend: { id:'defend', name:'방어', icon:'🛡️', cost:1, type:'SKILL', desc:'방어막 6 획득', rarity:'common',
-      effect(gs) { gs.addShield(6); } },
-    defend_plus: { id:'defend_plus', name:'방어+', icon:'🛡️', cost:1, type:'SKILL', desc:'방어막 10 획득', rarity:'common', upgraded:true,
-      effect(gs) { gs.addShield(10); } },
-    echo_strike: { id:'echo_strike', name:'잔향 강타', icon:'💥', cost:2, type:'ATTACK', desc:'12 피해 + Echo 20', rarity:'common',
-      effect(gs) { gs.dealDamage(12); gs.addEcho(20); } },
-    echo_strike_plus: { id:'echo_strike_plus', name:'잔향 강타+', icon:'💥', cost:1, type:'ATTACK', desc:'15 피해 + Echo 30', rarity:'common', upgraded:true,
-      effect(gs) { gs.dealDamage(15); gs.addEcho(30); } },
-    quick_step: { id:'quick_step', name:'잔영 이동', icon:'💨', cost:0, type:'SKILL', desc:'방어막 3 + Echo 10', rarity:'common',
-      effect(gs) { gs.addShield(3); gs.addEcho(10); } },
-    quick_step_plus: { id:'quick_step_plus', name:'잔영 이동+', icon:'💨', cost:0, type:'SKILL', desc:'방어막 6 + Echo 20 + 드로우', rarity:'common', upgraded:true,
-      effect(gs) { gs.addShield(6); gs.addEcho(20); gs.drawCards(1); } },
-    heavy_blow: { id:'heavy_blow', name:'중격', icon:'🔨', cost:2, type:'ATTACK', desc:'18 피해 + 기절 1턴', rarity:'common',
-      effect(gs) { gs.dealDamage(18); gs.applyEnemyStatus('stunned',1); } },
-    heavy_blow_plus: { id:'heavy_blow_plus', name:'중격+', icon:'🔨', cost:2, type:'ATTACK', desc:'26 피해 + 기절 2턴', rarity:'common', upgraded:true,
-      effect(gs) { gs.dealDamage(26); gs.applyEnemyStatus('stunned',2); } },
-    echo_wave: { id:'echo_wave', name:'잔향파', icon:'🌊', cost:2, type:'ATTACK', desc:'전체 적에게 8 피해', rarity:'uncommon',
-      effect(gs) { gs.dealDamageAll(8); } },
-    echo_wave_plus: { id:'echo_wave_plus', name:'잔향파+', icon:'🌊', cost:2, type:'ATTACK', desc:'전체 적에게 14 피해 + Echo 15', rarity:'uncommon', upgraded:true,
-      effect(gs) { gs.dealDamageAll(14); gs.addEcho(15); } },
-    resonance: { id:'resonance', name:'공명', icon:'⚡', cost:1, type:'SKILL', desc:'Echo 40 충전', rarity:'uncommon',
-      effect(gs) { gs.addEcho(40); } },
-    resonance_plus: { id:'resonance_plus', name:'공명+', icon:'⚡', cost:0, type:'SKILL', desc:'Echo 50 충전', rarity:'uncommon', upgraded:true,
-      effect(gs) { gs.addEcho(50); } },
-    soul_rend: { id:'soul_rend', name:'영혼 강탈', icon:'💀', cost:3, type:'ATTACK', desc:'24 피해 + 체력 4 흡수', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(24); gs.heal(4); } },
-    soul_rend_plus: { id:'soul_rend_plus', name:'영혼 강탈+', icon:'💀', cost:2, type:'ATTACK', desc:'30 피해 + 체력 8 흡수', rarity:'uncommon', upgraded:true,
-      effect(gs) { gs.dealDamage(30); gs.heal(8); } },
-    twin_strike: { id:'twin_strike', name:'쌍검격', icon:'⚔️', cost:1, type:'ATTACK', desc:'6 피해 × 2회', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(6, 0, true); gs.dealDamage(6); } },
-    twin_strike_plus: { id:'twin_strike_plus', name:'쌍검격+', icon:'⚔️', cost:1, type:'ATTACK', desc:'9 피해 × 2회', rarity:'uncommon', upgraded:true,
-      effect(gs) { gs.dealDamage(9, 0, true); gs.dealDamage(9); } },
-    echo_shield: { id:'echo_shield', name:'잔향 방벽', icon:'🔵', cost:2, type:'SKILL', desc:'방어막 (Echo/5)', rarity:'uncommon',
-      effect(gs) { gs.addShield(Math.floor(gs.player.echo/5)); } },
-    echo_shield_plus: { id:'echo_shield_plus', name:'잔향 방벽+', icon:'🔵', cost:1, type:'SKILL', desc:'방어막 (Echo/4) + Echo 10', rarity:'uncommon', upgraded:true,
-      effect(gs) { gs.addShield(Math.floor(gs.player.echo/4)); gs.addEcho(10); } },
-    // 잔향검사
-    momentum: { id:'momentum', name:'가속', icon:'🌪️', cost:0, type:'SKILL', desc:'이 턴 피해 +4', rarity:'common',
-      effect(gs) { gs.addBuff('momentum',1,{dmgBonus:4}); } },
-    momentum_plus: { id:'momentum_plus', name:'가속+', icon:'🌪️', cost:0, type:'SKILL', desc:'이 턴 피해 +8 + Echo 10', rarity:'common', upgraded:true,
-      effect(gs) { gs.addBuff('momentum',1,{dmgBonus:8}); gs.addEcho(10); } },
-    charge: { id:'charge', name:'돌진', icon:'⚡', cost:1, type:'ATTACK', desc:'모멘텀 × 6 피해', rarity:'common',
-      effect(gs) { const m=gs.getBuff('momentum'); gs.dealDamage(6+(m?m.dmgBonus:0)); } },
-    afterimage: { id:'afterimage', name:'잔영', icon:'👥', cost:1, type:'SKILL', desc:'모멘텀 수만큼 방어막', rarity:'uncommon',
-      effect(gs) { const m=gs.getBuff('momentum'); gs.addShield(4+(m?m.dmgBonus:0)); } },
-    phantom_blade: { id:'phantom_blade', name:'환영 검', icon:'🌀', cost:2, type:'ATTACK', desc:'10 피해 × 2 (2번째 크리)', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(10); gs.addBuff('vanish',1,{}); gs.dealDamage(10); } },
-    echo_dance: { id:'echo_dance', name:'잔향의 춤', icon:'💃', cost:3, type:'ATTACK', desc:'6 피해 × 4 + Echo +8씩', rarity:'rare',
-      effect(gs) { for(let i=0;i<3;i++){gs.dealDamage(6,0,true);gs.addEcho(8);} gs.dealDamage(6); gs.addEcho(8); } },
-    // 메아리술사
-    foresight: { id:'foresight', name:'예지', icon:'👁️', cost:1, type:'SKILL', desc:'다음 적 행동 약화 50%', rarity:'common',
-      effect(gs) { gs.applyEnemyStatus('weakened',1); } },
-    foresight_plus: { id:'foresight_plus', name:'예지+', icon:'👁️', cost:0, type:'SKILL', desc:'다음 적 행동 약화 50% (비용 0)', rarity:'common', upgraded:true,
-      effect(gs) { gs.applyEnemyStatus('weakened',1); gs.addEcho(10); } },
-    counter: { id:'counter', name:'반격', icon:'🔄', cost:2, type:'ATTACK', desc:'예측 피해 × 2 반사', rarity:'common',
-      effect(gs) { gs.dealDamage(gs.getEnemyIntent()*2||14); } },
-    time_echo: { id:'time_echo', name:'시간 메아리', icon:'⏳', cost:2, type:'SKILL', desc:'최근 사용 카드 회수', rarity:'uncommon',
-      effect(gs) { if(gs.player.graveyard.length>0){const c=gs.player.graveyard.pop();gs.player.hand.push(c);gs.addLog(`⏳ ${DATA.cards[c]?.name} 회수!`,'echo');} } },
-    void_mirror: { id:'void_mirror', name:'허공 거울', icon:'🪞', cost:2, type:'ATTACK', desc:'다음 적 공격 반사', rarity:'uncommon',
-      effect(gs) { gs.addBuff('mirror',1,{reflect:true}); gs.addLog('🪞 반사 준비','echo'); } },
-    arcane_storm: { id:'arcane_storm', name:'비전 폭풍', icon:'🌩️', cost:3, type:'ATTACK', desc:'전체 14 피해 + Chain +2', rarity:'rare',
-      effect(gs) { gs.dealDamageAll(14); gs.player.echoChain+=2; gs.updateChainDisplay(); } },
-    prediction: { id:'prediction', name:'예언', icon:'🔭', cost:0, type:'SKILL', desc:'카드 2장 드로우 + Echo +15', rarity:'common',
-      effect(gs) { if(gs.combat.active) gs.drawCards(2); gs.addEcho(15); } },
-    // 침묵사냥꾼
-    silent_stab: { id:'silent_stab', name:'침묵 자상', icon:'🗡️', cost:0, type:'ATTACK', desc:'6 피해, 침묵 +1', rarity:'common',
-      effect(gs) { gs.dealDamage(6); gs.addSilence(1); } },
-    vanish: { id:'vanish', name:'은신', icon:'🌑', cost:1, type:'SKILL', desc:'다음 공격 크리티컬', rarity:'common',
-      effect(gs) { gs.addBuff('vanish',1,{}); } },
-    death_mark: { id:'death_mark', name:'처형 표식', icon:'💢', cost:1, type:'ATTACK', desc:'8 피해 + 표식 3턴 (폭발 30)', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(8); gs.applyEnemyStatus('marked',3); gs.addLog('💢 처형 표식!','echo'); } },
-    shadow_step: { id:'shadow_step', name:'그림자 도약', icon:'🌑', cost:0, type:'SKILL', desc:'침묵-2, 방어막 5, 다음 공격+8', rarity:'uncommon',
-      effect(gs) { gs.player.silenceGauge=Math.max(0,(gs.player.silenceGauge||0)-2); gs.addShield(5); gs.addBuff('shadow_atk',1,{dmgBonus:8}); } },
-    poison_blade: { id:'poison_blade', name:'독침 검', icon:'🐍', cost:1, type:'ATTACK', desc:'7 피해 + 독 3턴', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('poisoned',3); } },
-    // 레어/파워
-    echo_burst_card: { id:'echo_burst_card', name:'Echo Burst', icon:'🌟', cost:3, type:'POWER', desc:'Resonance Burst 즉시 발동', rarity:'rare',
-      effect(gs) { gs.triggerResonanceBurst(); } },
-    void_blade: { id:'void_blade', name:'허공 도검', icon:'🌀', cost:2, type:'ATTACK', desc:'30 피해, 소진', rarity:'rare', exhaust:true,
-      effect(gs) { gs.dealDamage(30); } },
-    soul_armor: { id:'soul_armor', name:'영혼 방어구', icon:'💠', cost:2, type:'SKILL', desc:'방어막 15 + 3턴 Echo +10/턴', rarity:'rare',
-      effect(gs) { gs.addShield(15); gs.addBuff('soul_armor',3,{echoRegen:10}); } },
-    soul_harvest: { id:'soul_harvest', name:'영혼 수확', icon:'💫', cost:2, type:'ATTACK', desc:'20 피해 + 처치 시 HP+8', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(20); } },
-    echo_overload: { id:'echo_overload', name:'Echo 과부하', icon:'⚡', cost:1, type:'SKILL', desc:'Echo 100 충전, HP -12', rarity:'rare',
-      effect(gs) { gs.player.echo=100; gs.player.hp=Math.max(1,gs.player.hp-12); gs.addLog('⚡ Echo 과부하! HP-12','damage'); updateUI(); } },
-    desperate_strike: { id:'desperate_strike', name:'결사의 일격', icon:'☠️', cost:1, type:'ATTACK', desc:'체력 비례 피해 (최대 50)', rarity:'uncommon',
-      effect(gs) { const d=Math.floor((1-gs.player.hp/gs.player.maxHp)*50)+5; gs.dealDamage(d); } },
-    reverberation: { id:'reverberation', name:'반향', icon:'🔊', cost:2, type:'ATTACK', desc:'Chain × 8 피해', rarity:'uncommon',
-      effect(gs) { gs.dealDamage((gs.player.echoChain||1)*8); } },
-    sanctuary: { id:'sanctuary', name:'성역', icon:'🏛️', cost:3, type:'SKILL', desc:'방어막 20 + 2턴 면역', rarity:'rare',
-      effect(gs) { gs.addShield(20); gs.addBuff('immune',2,{}); gs.addLog('🏛️ 성역! 2턴 면역','echo'); } },
-    dark_pact: { id:'dark_pact', name:'어둠의 계약', icon:'📜', cost:1, type:'SKILL', desc:'HP -10, 카드 3장 드로우', rarity:'uncommon',
-      effect(gs) { gs.player.hp=Math.max(1,gs.player.hp-10); gs.drawCards(3); updateUI(); } },
-    // ── 에너지 관련 카드 ──
-    surge: { id:'surge', name:'서지', icon:'⚡', cost:0, type:'SKILL', desc:'에너지 +2 (이번 턴)', rarity:'uncommon',
-      effect(gs) { gs.player.energy=Math.min(gs.player.maxEnergy+2,gs.player.energy+2); gs.addLog('⚡ 서지: 에너지 +2!','echo'); updateUI(); } },
-    surge_plus: { id:'surge_plus', name:'서지+', icon:'⚡', cost:0, type:'SKILL', desc:'에너지 +3 + 드로우 1', rarity:'uncommon', upgraded:true,
-      effect(gs) { gs.player.energy=Math.min(gs.player.maxEnergy+3,gs.player.energy+3); gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!','echo'); updateUI(); } },
-    overcharge: { id:'overcharge', name:'과충전', icon:'🔋', cost:2, type:'SKILL', desc:'에너지 +4, HP -6, Echo +30', rarity:'rare',
-      effect(gs) { gs.player.energy=Math.min(gs.player.maxEnergy+4,gs.player.energy+4); gs.player.hp=Math.max(1,gs.player.hp-6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4','echo'); updateUI(); } },
-    void_tap: { id:'void_tap', name:'허공 탭', icon:'🌀', cost:1, type:'SKILL', desc:'에너지 소진 후 피해 (소진 에너지 × 6)', rarity:'rare',
-      effect(gs) { const spent=gs.player.maxEnergy-gs.player.energy; const dmg=(spent+1)*6; gs.dealDamage(dmg); gs.addLog(`🌀 허공 탭: ${dmg} 피해!`,'echo'); } },
-    energy_siphon: { id:'energy_siphon', name:'에너지 사이펀', icon:'🔵', cost:0, type:'ATTACK', desc:'에너지 1 소비 → 피해 12, 에너지 회복 없음', rarity:'uncommon', exhaust:true,
-      effect(gs) { if(gs.player.energy>0){gs.player.energy--;gs.dealDamage(12);gs.addLog('🔵 에너지 사이펀: 에너지 1 → 12 피해','echo');}else{gs.addLog('🔵 에너지 사이펀: 에너지 없음!','damage');} updateUI(); } },
-    // ── 새 카드: 화염 / 전략 계열 ──
-    flame_slash: { id:'flame_slash', name:'화염 검격', icon:'🔥', cost:1, type:'ATTACK', desc:'7 피해 + 화염 2턴', rarity:'uncommon',
-      effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('burning',2); gs.addLog('🔥 화염 검격!','echo'); } },
-    ember_wave: { id:'ember_wave', name:'불꽃 파동', icon:'🌊', cost:2, type:'ATTACK', desc:'전체 5 피해 + 화염 1턴', rarity:'uncommon',
-      effect(gs) { gs.dealDamageAll(5); gs.combat.enemies.forEach((_,i)=>{ if(gs.combat.enemies[i].hp>0) gs.applyEnemyStatus('burning',1,i); }); gs.addLog('🌊 불꽃 파동!','echo'); } },
-    echo_reflect: { id:'echo_reflect', name:'잔향 반향', icon:'🔊', cost:1, type:'SKILL', desc:'방어막 8 + 이번 턴 피해 받으면 반사', rarity:'rare',
-      effect(gs) { gs.addShield(8); gs.addBuff('mirror',1,{reflect:true}); gs.addLog('🔊 잔향 반향! 반사 준비','echo'); } },
-    chain_reaction: { id:'chain_reaction', name:'연쇄 반응', icon:'⛓️', cost:2, type:'ATTACK', desc:'체인 × 5 피해, 체인 리셋 안 됨', rarity:'rare',
-      effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain*5, null, true); gs.addLog(`⛓️ 연쇄 반응: 체인 ${chain} × 5 = ${chain*5}!`,'echo'); } },
-    revival_echo: { id:'revival_echo', name:'소생 잔향', icon:'💠', cost:3, type:'SKILL', desc:'HP 15 회복 + 무덤에서 카드 2장 회수', rarity:'rare', exhaust:true,
-      effect(gs) { gs.heal(15); const rev=[]; for(let i=0;i<2&&gs.player.graveyard.length>0;i++){ const c=gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(DATA.cards[c]?.name||c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`,'echo'); renderCombatCards(); } },
-
-    // ── 에너지 할인 카드 (처분 모드 대체 컨셉) ──
-    // 카드를 버리는 대신, 이번 턴 모든 카드 비용을 줄여 다양한 콤보를 유도
-    echo_tide:    { id:'echo_tide',    name:'잔향의 조류', icon:'🌀', cost:0, type:'SKILL', desc:'이번 턴 모든 카드 비용 -1 (최소 0), Echo +10', rarity:'uncommon',
-      effect(gs) { gs.player.costDiscount=(gs.player.costDiscount||0)+1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!','echo'); renderCombatCards(); updateUI(); } },
-    void_surge:   { id:'void_surge',   name:'허공 급류',  icon:'⚡', cost:1, type:'SKILL', desc:'이번 턴 모든 카드 비용 -2 (최소 0)', rarity:'rare',
-      effect(gs) { gs.player.costDiscount=(gs.player.costDiscount||0)+2; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -2!','echo'); renderCombatCards(); updateUI(); } },
-    resonance_flow: { id:'resonance_flow', name:'공명 흐름', icon:'🎵', cost:0, type:'SKILL', desc:'손패 카드 수만큼 Echo 충전 (장당 +8)', rarity:'uncommon',
-      effect(gs) { const n=gs.player.hand.length; gs.addEcho(n*8); gs.addLog(`🎵 공명 흐름: 손패 ${n}장 → Echo +${n*8}!`,'echo'); } },
-    echo_cascade:  { id:'echo_cascade', name:'잔향 폭포',  icon:'💧', cost:2, type:'SKILL', desc:'카드 2장 드로우 + 이번 턴 드로우한 카드 비용 0', rarity:'rare',
-      effect(gs) { const before=gs.player.hand.length; gs.drawCards(2); const newCards=gs.player.hand.slice(before); gs.player._cascadeCards=new Set(newCards); gs.player.costDiscount=(gs.player.costDiscount||0)+0; newCards.forEach(c=>{/* mark for free */}); gs.player.zeroCost=false; gs.addLog('💧 잔향 폭포: 카드 2장 드로우, 새 카드 무료!','echo'); gs.player.hand.slice(before).forEach(()=>{}); renderCombatCards(); } },
-    tempo_strike:  { id:'tempo_strike', name:'박자 강타',  icon:'🥁', cost:1, type:'ATTACK', desc:'10 피해, 다음 카드 비용 -1', rarity:'common',
-      effect(gs) { gs.dealDamage(10); gs.player.costDiscount=(gs.player.costDiscount||0)+1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!','echo'); renderCombatCards(); } },
-    echo_lull:    { id:'echo_lull',    name:'잔향의 고요', icon:'🌙', cost:0, type:'SKILL', desc:'에너지 -1, 손패 전체 비용 -2 이번 턴', rarity:'uncommon',
-      effect(gs) { gs.player.energy=Math.max(0,gs.player.energy-1); gs.player.costDiscount=(gs.player.costDiscount||0)+2; gs.addLog('🌙 잔향의 고요: 에너지 -1, 모든 카드 비용 -2!','echo'); renderCombatCards(); updateUI(); } },
-  },
-
-  items: {
-    // ══════════════ COMMON (회색) ══════════════
-    void_compass: { id:'void_compass', name:'허공 나침반', icon:'🧭', rarity:'common',
-      desc:'전투 시작 시 카드 1장 추가 드로우',
-      passive(gs,trigger) { if(trigger==='combat_start'){gs.drawCards(1);gs.addLog('🧭 허공 나침반: 드로우 +1','echo');} } },
-    void_shard: { id:'void_shard', name:'허공 파편', icon:'🔷', rarity:'common',
-      desc:'전투 종료 시 Echo +20',
-      passive(gs,trigger) { if(trigger==='combat_end'){gs.addEcho(20);gs.addLog('🔷 허공 파편: Echo +20','echo');} } },
-    cracked_amulet: { id:'cracked_amulet', name:'균열 부적', icon:'📿', rarity:'common',
-      desc:'턴 시작 시 HP 2 회복',
-      passive(gs,trigger) { if(trigger==='turn_start'){gs.heal(2);gs.addLog('📿 균열 부적: HP +2','heal');} } },
-    worn_pouch: { id:'worn_pouch', name:'낡은 주머니', icon:'👜', rarity:'common',
-      desc:'전투 시작 시 골드 +5',
-      passive(gs,trigger) { if(trigger==='combat_start'){gs.addGold(5);gs.addLog('👜 낡은 주머니: 골드 +5','echo');} } },
-    dull_blade: { id:'dull_blade', name:'무딘 검', icon:'🔪', rarity:'common',
-      desc:'카드 사용 시 10% 확률로 Echo +10',
-      passive(gs,trigger) { if(trigger==='card_play'&&Math.random()<0.1){gs.addEcho(10);gs.addLog('🔪 무딘 검: 행운의 Echo +10','echo');} } },
-    travelers_map: { id:'travelers_map', name:'여행자 지도', icon:'🗺️', rarity:'common',
-      desc:'층 이동 시 HP 3 회복',
-      passive(gs,trigger) { if(trigger==='floor_start'){gs.heal(3);} } },
-    // ══════════════ UNCOMMON (파랑) ══════════════
-    blood_gem: { id:'blood_gem', name:'혈정', icon:'🔴', rarity:'uncommon',
-      desc:'피해 받을 때 Echo +15',
-      passive(gs,trigger,data) { if(trigger==='damage_taken'&&data>0){gs.addEcho(15);gs.addLog('🔴 혈정: Echo +15','echo');} } },
-    phantom_cloak: { id:'phantom_cloak', name:'환영 망토', icon:'🧥', rarity:'uncommon',
-      desc:'턴 시작 시 방어막 +4',
-      passive(gs,trigger) { if(trigger==='turn_start'){gs.addShield(4);gs.addLog('🧥 환영 망토: 방어막 +4','system');} } },
-    cursed_tome: { id:'cursed_tome', name:'저주받은 서', icon:'📕', rarity:'uncommon',
-      desc:'카드 사용 시 Echo +5, HP -2',
-      passive(gs,trigger) { if(trigger==='card_play'){gs.addEcho(5);gs.player.hp=Math.max(1,gs.player.hp-2);updateUI();} } },
-    ancient_rune: { id:'ancient_rune', name:'고대 룬석', icon:'🗿', rarity:'uncommon',
-      desc:'보스전 시작 시 최대 HP +20%',
-      passive(gs,trigger) { if(trigger==='boss_start'){gs.player.maxHp=Math.floor(gs.player.maxHp*1.2);gs.player.hp=Math.min(gs.player.hp+20,gs.player.maxHp);gs.addLog('🗿 고대 룬석: 능력치 강화!','echo');updateUI();} } },
-    echo_chain_ring: { id:'echo_chain_ring', name:'연쇄 반지', icon:'🔗', rarity:'uncommon',
-      desc:'Chain 2 이상이면 공격 피해 +5',
-      passive(gs,trigger,data) { if(trigger==='deal_damage'&&gs.player.echoChain>=2) return (data||0)+5; } },
-    bone_charm: { id:'bone_charm', name:'뼈 부적', icon:'🦴', rarity:'uncommon',
-      desc:'적 처치 시 HP 5 회복',
-      passive(gs,trigger) { if(trigger==='enemy_kill'){gs.heal(5);gs.addLog('🦴 뼈 부적: HP +5','heal');} } },
-    poison_vial: { id:'poison_vial', name:'독 약병', icon:'🧪', rarity:'uncommon',
-      desc:'전투 시작 시 모든 적에게 독 2스택',
-      passive(gs,trigger) { if(trigger==='combat_start'){gs.combat.enemies.forEach((_,i)=>gs.applyEnemyStatus('poisoned',2,i));gs.addLog('🧪 독 약병: 전체 독 부여!','echo');} } },
-    shadow_mask: { id:'shadow_mask', name:'그림자 가면', icon:'🎭', rarity:'uncommon',
-      desc:'카드 3장 연속 사용 시 방어막 +8',
-      passive(gs,trigger) { if(trigger==='card_play'){gs._maskCount=(gs._maskCount||0)+1;if(gs._maskCount>=3){gs.addShield(8);gs._maskCount=0;gs.addLog('🎭 그림자 가면: 방어막 +8','echo');}} } },
-    // ══════════════ RARE (금색) ══════════════
-    resonance_stone: { id:'resonance_stone', name:'공명석', icon:'💎', rarity:'rare',
-      desc:'Echo Chain 3+ 시 카드 소각 방지',
-      passive(gs,trigger) { if(trigger==='card_discard'&&gs.player.echoChain>=3) gs.addLog('💎 공명석: 카드 보호!','echo'); } },
-    silence_ring: { id:'silence_ring', name:'침묵의 반지', icon:'💍', rarity:'rare',
-      desc:'체력 30% 미만 시 카드 비용 0',
-      passive(gs,trigger) { if(trigger==='turn_start'){const low=gs.player.hp<gs.player.maxHp*0.3;gs.player.zeroCost=low;if(low)gs.addLog('💍 침묵의 반지: 비용 0!','echo');} } },
-    echo_amplifier: { id:'echo_amplifier', name:'Echo 증폭기', icon:'📡', rarity:'rare',
-      desc:'Echo Chain 피해 +30%',
-      passive(gs,trigger,data) { if(trigger==='chain_dmg') return Math.floor(data*1.3); } },
-    temporal_lens: { id:'temporal_lens', name:'시간의 렌즈', icon:'🔍', rarity:'rare',
-      desc:'매 3턴마다 카드 1장 무료',
-      passive(gs,trigger) { if(trigger==='turn_start'){gs._temporalTurn=(gs._temporalTurn||0)+1;if(gs._temporalTurn%3===0){gs.player.zeroCost=true;setTimeout(()=>{gs.player.zeroCost=false;},0);gs.addLog('🔍 시간의 렌즈: 무료 카드!','echo');}} } },
-    echo_mirror: { id:'echo_mirror', name:'잔향 거울', icon:'🪞', rarity:'rare',
-      desc:'Resonance Burst 시 피해 2배',
-      passive(gs,trigger) { if(trigger==='resonance_burst') return true; } },
-    void_crystal: { id:'void_crystal', name:'허공 수정', icon:'💠', rarity:'rare',
-      desc:'피해 받을 때 15% 확률로 완전 무효',
-      passive(gs,trigger,data) { if(trigger==='damage_taken'&&data>0&&Math.random()<0.15){gs.addLog('💠 허공 수정: 피해 무효!','echo');return true;} } },
-    bloodsoaked_robe: { id:'bloodsoaked_robe', name:'피 묻은 로브', icon:'🩸', rarity:'rare',
-      desc:'HP 50% 미만 시 모든 피해 +30%',
-      passive(gs,trigger,data) { if(trigger==='deal_damage'&&gs.player.hp<gs.player.maxHp*0.5) return Math.floor((data||0)*1.3); } },
-    echo_gauntlet: { id:'echo_gauntlet', name:'잔향 건틀릿', icon:'🥊', rarity:'rare',
-      desc:'Chain 5 달성 시 즉시 적 기절 1턴',
-      passive(gs,trigger) { if(trigger==='card_play'&&gs.player.echoChain>=5){const aliveIdx=gs.combat.enemies.findIndex(e=>e.hp>0);if(aliveIdx>=0){gs.applyEnemyStatus('stunned',1,aliveIdx);gs.addLog('🥊 잔향 건틀릿: 기절!','echo');gs.player.echoChain=0;}} } },
-    war_drum: { id:'war_drum', name:'전쟁 북', icon:'🥁', rarity:'rare',
-      desc:'전투 시작 시 에너지 +1 (해당 전투만)',
-      passive(gs,trigger) { if(trigger==='combat_start'){gs.player.energy+=1;gs.player.maxEnergy+=1;gs._warDrumActive=true;gs.addLog('🥁 전쟁 북: 에너지 +1!','echo');updateUI();} if(trigger==='combat_end'&&gs._warDrumActive){gs.player.maxEnergy=Math.max(1,gs.player.maxEnergy-1);gs._warDrumActive=false;} } },
-    // ── 에너지 증감 유물 ──
-    energy_core: { id:'energy_core', name:'에너지 핵', icon:'⚡', rarity:'uncommon',
-      desc:'매 전투 영구적으로 최대 에너지 +1 (최대 5)',
-      passive(gs,trigger) { if(trigger==='combat_start'&&!gs._energyCoreUsed){if(gs.player.maxEnergy<5){gs.player.maxEnergy++;gs.player.energy=gs.player.maxEnergy;gs._energyCoreUsed=true;gs.addLog('⚡ 에너지 핵: 최대 에너지 +1!','echo');updateUI();}}} },
-    echo_battery: { id:'echo_battery', name:'잔향 전지', icon:'🔋', rarity:'common',
-      desc:'카드를 버릴 때 에너지 +1 (턴당 1회)',
-      passive(gs,trigger) { if(trigger==='card_discard'&&!gs._batteryUsedTurn){gs.player.energy=Math.min(gs.player.maxEnergy,gs.player.energy+1);gs._batteryUsedTurn=true;gs.addLog('🔋 잔향 전지: 에너지 +1!','echo');updateUI();}
-        if(trigger==='turn_start')gs._batteryUsedTurn=false; } },
-    cursed_capacitor: { id:'cursed_capacitor', name:'저주받은 축전기', icon:'🌩️', rarity:'uncommon',
-      desc:'턴 시작 에너지 +2, 하지만 HP -4',
-      passive(gs,trigger) { if(trigger==='turn_start'){gs.player.energy=Math.min(gs.player.maxEnergy+2,gs.player.energy+2);gs.player.hp=Math.max(1,gs.player.hp-4);gs.addLog('🌩️ 저주받은 축전기: 에너지 +2 / HP -4','echo');updateUI();} } },
-    void_battery: { id:'void_battery', name:'허공 전지', icon:'🔌', rarity:'rare',
-      desc:'Echo 50 이상 시 매 턴 에너지 +1 추가',
-      passive(gs,trigger) { if(trigger==='turn_start'&&gs.player.echo>=50){gs.player.energy=Math.min(gs.player.maxEnergy+1,gs.player.energy+1);gs.addLog('🔌 허공 전지: Echo 충전 에너지 +1!','echo');updateUI();} } },
-    surge_crystal: { id:'surge_crystal', name:'서지 수정', icon:'💫', rarity:'legendary',
-      desc:'에너지 초과 사용 없음 + 최대 에너지 +1 영구',
-      passive(gs,trigger) { if(trigger==='combat_start'&&!gs._surgeGranted){gs.player.maxEnergy++;gs.player.energy=gs.player.maxEnergy;gs._surgeGranted=true;gs.addLog('💫 서지 수정: 최대 에너지 +1 영구!','echo');updateUI();} } },
-    // ══════════════ SET ITEMS — 조각 세트 (2/3개 효과) ══════════════
-    // [세트 A] 심연의 삼위일체 — void_eye + void_fang + void_crown
-    void_eye: { id:'void_eye', name:'허공의 눈', icon:'🌑', rarity:'uncommon',
-      desc:'적 공격 후 15% 확률로 약화 부여 [세트:심연]',
-      passive(gs,trigger) { if(trigger==='card_play'&&Math.random()<0.15){const idx=gs.combat.enemies.findIndex(e=>e.hp>0);if(idx>=0){gs.applyEnemyStatus('weakened',1,idx);gs.addLog('🌑 허공의 눈: 약화!','echo');}}} },
-    void_fang: { id:'void_fang', name:'허공의 송곳니', icon:'🦷', rarity:'uncommon',
-      desc:'공격 카드 사용 시 Echo +8 [세트:심연]',
-      passive(gs,trigger,data) { if(trigger==='card_play'&&data&&DATA.cards[data.cardId]?.type==='ATTACK'){gs.addEcho(8);gs.addLog('🦷 허공의 송곳니: Echo +8','echo');} } },
-    void_crown: { id:'void_crown', name:'허공의 왕관', icon:'👁️', rarity:'rare',
-      desc:'체력 40% 이하일 때 카드 비용 -1 [세트:심연]',
-      passive(gs,trigger) { if(trigger==='turn_start'){const low=gs.player.hp<gs.player.maxHp*0.4;if(low&&!gs._crownActive){gs.player.costDiscount=(gs.player.costDiscount||0)+1;gs._crownActive=true;gs.addLog('👁️ 허공의 왕관: 비용 -1!','echo');}else if(!low&&gs._crownActive){gs.player.costDiscount=Math.max(0,(gs.player.costDiscount||0)-1);gs._crownActive=false;}} } },
-    // [세트 B] 잔향의 삼각 — echo_pendant + echo_bracer + echo_sigil
-    echo_pendant: { id:'echo_pendant', name:'잔향 펜던트', icon:'💜', rarity:'uncommon',
-      desc:'턴 시작 시 Echo +12 [세트:잔향]',
-      passive(gs,trigger) { if(trigger==='turn_start'){gs.addEcho(12);gs.addLog('💜 잔향 펜던트: Echo +12','echo');} } },
-    echo_bracer: { id:'echo_bracer', name:'잔향 팔찌', icon:'🔮', rarity:'uncommon',
-      desc:'Echo 사용(스킬 발동) 시 HP +4 [세트:잔향]',
-      passive(gs,trigger) { if(trigger==='echo_skill'){gs.heal(4);gs.addLog('🔮 잔향 팔찌: HP +4','heal');} } },
-    echo_sigil: { id:'echo_sigil', name:'잔향 각인', icon:'⚜️', rarity:'rare',
-      desc:'Resonance Burst 시 에너지 +2 [세트:잔향]',
-      passive(gs,trigger) { if(trigger==='resonance_burst'){gs.player.energy=Math.min(gs.player.maxEnergy+2,gs.player.energy+2);updateUI();gs.addLog('⚜️ 잔향 각인: 에너지 +2!','echo');} } },
-    // [세트 C] 혈맹의 인장 — blood_seal + blood_oath + blood_crown
-    blood_seal: { id:'blood_seal', name:'혈인', icon:'🩸', rarity:'common',
-      desc:'피해 받을 때 방어막 +3 [세트:혈맹]',
-      passive(gs,trigger,data) { if(trigger==='damage_taken'&&data>0){gs.addShield(3);gs.addLog('🩸 혈인: 방어막 +3', 'system');} } },
-    blood_oath: { id:'blood_oath', name:'혈서', icon:'📜', rarity:'uncommon',
-      desc:'HP 50 이하일 때 공격 +6 [세트:혈맹]',
-      passive(gs,trigger,data) { if(trigger==='deal_damage'&&gs.player.hp<=50) return (data||0)+6; } },
-    blood_crown: { id:'blood_crown', name:'혈관', icon:'💉', rarity:'rare',
-      desc:'적 처치 시 HP 8 & Echo 20 회복 [세트:혈맹]',
-      passive(gs,trigger) { if(trigger==='enemy_kill'){gs.heal(8);gs.addEcho(20);gs.addLog('💉 혈관: HP+8 Echo+20','heal');} } },
-
-    // ══════════════ LEGENDARY (보라/무지개) ══════════════
-    echo_heart: { id:'echo_heart', name:'잔향의 심장', icon:'❤️‍🔥', rarity:'legendary',
-      desc:'사망 시 1회 부활 (HP 50% 복구)',
-      passive(gs,trigger) { if(trigger==='pre_death'&&!gs._heartUsed){gs._heartUsed=true;gs.player.hp=Math.floor(gs.player.maxHp*0.5);gs.addLog('❤️‍🔥 잔향의 심장: 부활!', 'heal');return true;} } },
-    void_throne: { id:'void_throne', name:'허공의 왕좌', icon:'👑', rarity:'legendary',
-      desc:'매 5번째 카드 사용 시 전체 적 15 피해',
-      passive(gs,trigger) { if(trigger==='card_play'){gs._throneCount=(gs._throneCount||0)+1;if(gs._throneCount%5===0){gs.dealDamageAll(15);gs.addLog('👑 허공의 왕좌: 전체 15 피해!','echo');}} } },
-    echo_genesis: { id:'echo_genesis', name:'잔향의 기원', icon:'🌟', rarity:'legendary',
-      desc:'Echo 100 달성 시 모든 핸드 카드 무료화',
-      passive(gs,trigger) { if(trigger==='turn_start'&&gs.player.echo>=100&&!gs._genesisUsed){gs.player.zeroCost=true;gs._genesisUsed=true;setTimeout(()=>{gs.player.zeroCost=false;},0);gs.addLog('🌟 잔향의 기원: 전체 카드 무료!','echo');} if(trigger==='combat_end') gs._genesisUsed=false; } },
-    abyss_codex: { id:'abyss_codex', name:'심연의 비전서', icon:'📖', rarity:'legendary',
-      desc:'전투 시작 시 덱에서 랜덤 희귀 카드 1장 드로우',
-      passive(gs,trigger) { if(trigger==='combat_start'){const rares=gs.player.deck.filter(id=>DATA.cards[id]?.rarity==='rare');if(rares.length>0){const c=rares[Math.floor(Math.random()*rares.length)];const idx=gs.player.deck.indexOf(c);gs.player.deck.splice(idx,1);gs.player.hand.push(c);gs.addLog(`📖 심연의 비전서: ${DATA.cards[c]?.name} 드로우!`,'echo');}} } },
-  },
-
-  enemies: {
-    // 잔향의 숲
-    shadow_wolf: { id:'shadow_wolf', name:'그림자 늑대', icon:'🐺', hp:35, maxHp:35, atk:8, region:0, xp:20, gold:8,
-      ai(turn) {
-        if(turn%3===0) return {type:'howl',intent:'포효 (공격 강화)',dmg:0,effect:'self_atk_up'};
-        if(turn%2===0) return {type:'dodge',intent:'회피 준비',dmg:0,effect:'dodge'};
-        return {type:'bite',intent:`물기 ${this.atk}`,dmg:this.atk};
-      }},
-    forest_wraith: { id:'forest_wraith', name:'숲의 원령', icon:'👻', hp:28, maxHp:28, atk:10, region:0, xp:25, gold:10,
-      ai(turn) {
-        if(turn%4===0) return {type:'curse',intent:'저주 (약화)',dmg:6,effect:'weaken'};
-        if(turn%3===0) return {type:'phase',intent:'위상 이동',dmg:0,effect:'dodge'};
-        return {type:'drain',intent:`생명력 흡수 ${this.atk}`,dmg:this.atk,effect:'lifesteal'};
-      }},
-    fallen_knight: { id:'fallen_knight', name:'타락한 기사', icon:'⚔️', hp:55, maxHp:55, atk:12, region:0, xp:35, gold:15,
-      ai(turn) {
-        if(turn%3===0) return {type:'guard',intent:'방패 방어 (방어막 8)',dmg:0,effect:'self_shield'};
-        if(turn%5===0) return {type:'charge',intent:`돌진 ${this.atk+8}`,dmg:this.atk+8};
-        return {type:'slash',intent:`베기 ${this.atk}`,dmg:this.atk};
-      }},
-    // 침묵의 도시
-    silent_sentinel: { id:'silent_sentinel', name:'침묵 파수꾼', icon:'🗿', hp:60, maxHp:60, atk:14, region:1, xp:40, gold:18,
-      ai(turn) {
-        if(turn%2===0) return {type:'silence',intent:'침묵 강요 (+3소음)',dmg:5,effect:'add_noise'};
-        return {type:'strike',intent:`철권 ${this.atk}`,dmg:this.atk};
-      }},
-    // 기억의 미궁
-    memory_specter: { id:'memory_specter', name:'기억의 환령', icon:'👁️', hp:45, maxHp:45, atk:12, region:2, xp:35, gold:14,
-      ai(turn) {
-        if(turn%5===0) return {type:'memory_steal',intent:'기억 훔치기 (카드 소각)',dmg:0,effect:'exhaust_card'};
-        if(turn%4===0) return {type:'energy_drain',intent:`에너지 흡수 (에너지 -1) ${this.atk}`,dmg:this.atk,effect:'drain_energy'};
-        if(turn%3===0) return {type:'phase',intent:'위상 이동',dmg:0,effect:'dodge'};
-        return {type:'claw',intent:`정신 공격 ${this.atk}`,dmg:this.atk,effect:'confusion'};
-      }},
-    nightmare_hound: { id:'nightmare_hound', name:'악몽의 사냥개', icon:'🐕', hp:38, maxHp:38, atk:11, region:2, xp:30, gold:12,
-      ai(turn) {
-        if(turn%4===0) return {type:'howl',intent:'공포의 포효 (에너지-1)',dmg:6,effect:'drain_energy'};
-        if(turn%2===0) return {type:'pounce',intent:`덮치기 ${this.atk+4}`,dmg:this.atk+4};
-        return {type:'bite',intent:`물기 ${this.atk}`,dmg:this.atk};
-      }},
-    // 신의 무덤
-    divine_remnant: { id:'divine_remnant', name:'신의 잔재', icon:'⚡', hp:70, maxHp:70, atk:15, region:3, xp:50, gold:22,
-      ai(turn) {
-        if(turn%5===0) return {type:'energy_smite',intent:`신성 심판 ${this.atk*2} (에너지 -1)`,dmg:this.atk*2,effect:'drain_energy'};
-        if(turn%4===0) return {type:'smite',intent:`신성 심판 ${this.atk*2}`,dmg:this.atk*2};
-        if(turn%3===0) return {type:'barrier',intent:'신성 방어막 15',dmg:0,effect:'self_shield_15'};
-        return {type:'strike',intent:`천벌 ${this.atk}`,dmg:this.atk};
-      }},
-    // 에코의 핵심
-    echo_devourer: { id:'echo_devourer', name:'Echo 포식자', icon:'🌑', hp:80, maxHp:80, atk:18, region:4, xp:60, gold:30,
-      ai(turn) {
-        if(turn%3===0) return {type:'devour',intent:`Echo 흡수 ${this.atk+5}`,dmg:this.atk+5,effect:'drain_echo'};
-        if(turn%5===0) return {type:'void_burst',intent:`허공 폭발 ${this.atk*1.5|0}`,dmg:this.atk*1.5|0};
-        return {type:'claw',intent:`허공 발톱 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 잔향의 숲 추가 몬스터 ──
-    moss_golem: { id:'moss_golem', name:'이끼 골렘', icon:'🪨', hp:50, maxHp:50, atk:9, region:0, xp:28, gold:12,
-      ai(turn) {
-        if(turn%4===0) return {type:'harden',intent:'굳기 (방어막 12)',dmg:0,effect:'self_shield'};
-        if(turn%3===0) return {type:'slam',intent:`대지 강타 ${this.atk+5}`,dmg:this.atk+5};
-        return {type:'strike',intent:`주먹질 ${this.atk}`,dmg:this.atk};
-      }},
-    echo_bat: { id:'echo_bat', name:'잔향 박쥐', icon:'🦇', hp:20, maxHp:20, atk:7, region:0, xp:18, gold:7,
-      ai(turn) {
-        if(turn%3===0) return {type:'screech',intent:'음파 공격 (약화)',dmg:5,effect:'weaken'};
-        if(turn%2===0) return {type:'dive',intent:`급강하 ${this.atk+3}`,dmg:this.atk+3};
-        return {type:'bite',intent:`물기 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 잔향의 숲 정예 ──
-    elite_dire_wolf: { id:'elite_dire_wolf', name:'【정예】대형 흑랑', icon:'🐺', hp:85, maxHp:85, atk:14, region:0, xp:65, gold:35, isElite:true,
-      ai(turn) {
-        if(turn===1) return {type:'pack_call',intent:'무리 소환 (공격력+4)',dmg:0,effect:'self_atk_up_4'};
-        if(turn%4===0) return {type:'frenzy',intent:`광란 ${this.atk+10}`,dmg:this.atk+10};
-        if(turn%2===0) return {type:'howl',intent:'포효 (약화+출혈)',dmg:6,effect:'weaken'};
-        return {type:'maul',intent:`할퀴기 ${this.atk}`,dmg:this.atk};
-      }},
-    elite_ancient_tree: { id:'elite_ancient_tree', name:'【정예】고목 수호자', icon:'🌳', hp:110, maxHp:110, atk:11, region:0, xp:75, gold:40, isElite:true,
-      ai(turn) {
-        if(turn%5===0) return {type:'spore',intent:'독 포자 (독3)',dmg:8,effect:'poison_3'};
-        if(turn%3===0) return {type:'root',intent:'뿌리 속박 (에너지-1)',dmg:10,effect:'drain_energy'};
-        if(turn%4===0) return {type:'regen',intent:'생명력 재생 (+15HP)',dmg:0,effect:'self_heal_15'};
-        return {type:'branch',intent:`나뭇가지 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 침묵의 도시 추가 몬스터 ──
-    noise_wraith: { id:'noise_wraith', name:'소음 원령', icon:'📢', hp:42, maxHp:42, atk:13, region:1, xp:38, gold:16,
-      ai(turn) {
-        if(turn%3===0) return {type:'noise_wave',intent:'소음 파동 (+4소음)',dmg:7,effect:'add_noise'};
-        if(turn%2===0) return {type:'shriek',intent:`절규 ${this.atk+4}`,dmg:this.atk+4};
-        return {type:'strike',intent:`강타 ${this.atk}`,dmg:this.atk};
-      }},
-    iron_automaton: { id:'iron_automaton', name:'철제 자동병', icon:'🤖', hp:65, maxHp:65, atk:12, region:1, xp:42, gold:20,
-      ai(turn) {
-        if(turn%4===0) return {type:'overclock',intent:'과부하 (공격력+6)',dmg:0,effect:'self_atk_up'};
-        if(turn%3===0) return {type:'cannon',intent:`포격 ${this.atk*2}`,dmg:this.atk*2};
-        return {type:'punch',intent:`주먹 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 침묵의 도시 정예 ──
-    elite_silence_herald: { id:'elite_silence_herald', name:'【정예】침묵 사도', icon:'🗿', hp:95, maxHp:95, atk:16, region:1, xp:70, gold:38, isElite:true,
-      ai(turn) {
-        if(turn===1) return {type:'seal',intent:'봉인 (카드 소각)',dmg:0,effect:'exhaust_card'};
-        if(turn%3===0) return {type:'noise_crush',intent:`소음 격쇄 ${this.atk+8} (+5소음)`,dmg:this.atk+8,effect:'add_noise_5'};
-        if(turn%2===0) return {type:'strike',intent:`침묵의 검 ${this.atk+4}`,dmg:this.atk+4};
-        return {type:'bash',intent:`강타 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 기억의 미궁 추가 몬스터 ──
-    phantom_soldier: { id:'phantom_soldier', name:'환영 병사', icon:'👤', hp:40, maxHp:40, atk:11, region:2, xp:32, gold:13,
-      ai(turn) {
-        if(turn%4===0) return {type:'clone',intent:'분열 (방어막10)',dmg:0,effect:'self_shield'};
-        if(turn%2===0) return {type:'phase',intent:'위상 이동',dmg:0,effect:'dodge'};
-        return {type:'slash',intent:`환영 검 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 기억의 미궁 정예 ──
-    elite_memory_lich: { id:'elite_memory_lich', name:'【정예】기억 리치', icon:'💀', hp:100, maxHp:100, atk:15, region:2, xp:72, gold:42, isElite:true,
-      ai(turn) {
-        if(turn===1) return {type:'memory_curse',intent:'기억 저주 (에너지-2)',dmg:5,effect:'drain_energy_2'};
-        if(turn%4===0) return {type:'drain_cards',intent:'카드 흡수 (소각2)',dmg:8,effect:'exhaust_card'};
-        if(turn%3===0) return {type:'mind_blast',intent:`정신 폭발 ${this.atk+10}`,dmg:this.atk+10};
-        return {type:'strike',intent:`사령 강타 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 신의 무덤 추가 몬스터 ──
-    cursed_paladin: { id:'cursed_paladin', name:'저주받은 기사단', icon:'⚔️', hp:75, maxHp:75, atk:14, region:3, xp:48, gold:22,
-      ai(turn) {
-        if(turn%4===0) return {type:'holy_smite',intent:`성스러운 심판 ${this.atk*2}`,dmg:this.atk*2};
-        if(turn%3===0) return {type:'barrier',intent:'신성 방어막 12',dmg:0,effect:'self_shield'};
-        return {type:'slash',intent:`성검 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 신의 무덤 정예 ──
-    elite_fallen_deity: { id:'elite_fallen_deity', name:'【정예】타락신', icon:'👼', hp:130, maxHp:130, atk:18, region:3, xp:90, gold:55, isElite:true,
-      ai(turn) {
-        if(turn===1) return {type:'curse_all',intent:'전체 저주 (전 디버프)',dmg:0,effect:'mass_debuff'};
-        if(turn%3===0) return {type:'divine_strike',intent:`신성 참격 ${this.atk+12}`,dmg:this.atk+12};
-        if(turn%4===0) return {type:'reckoning',intent:`심판 ${this.atk+8} (약화)`,dmg:this.atk+8,effect:'weaken'};
-        return {type:'smite',intent:`천벌 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 에코의 핵심 추가 몬스터 ──
-    void_remnant: { id:'void_remnant', name:'허공의 잔재', icon:'🌌', hp:55, maxHp:55, atk:16, region:4, xp:52, gold:26,
-      ai(turn) {
-        if(turn%3===0) return {type:'void_drain',intent:`허공 흡수 ${this.atk+4} (Echo드레인)`,dmg:this.atk+4,effect:'drain_echo'};
-        if(turn%4===0) return {type:'collapse',intent:`붕괴 ${this.atk+8}`,dmg:this.atk+8};
-        return {type:'claw',intent:`허공 발톱 ${this.atk}`,dmg:this.atk};
-      }},
-    // ── 에코의 핵심 정예 ──
-    elite_echo_colossus: { id:'elite_echo_colossus', name:'【정예】잔향 거신', icon:'🌟', hp:160, maxHp:160, atk:20, region:4, xp:120, gold:70, isElite:true,
-      ai(turn) {
-        if(turn===1) return {type:'echo_suppress',intent:'Echo 억제 (Max Echo -20)',dmg:0,effect:'drain_echo'};
-        if(turn%3===0) return {type:'colossal_slam',intent:`거신 강타 ${this.atk+15}`,dmg:this.atk+15};
-        if(turn%4===0) return {type:'void_aura',intent:'허공 오라 (에너지-1)',dmg:10,effect:'drain_energy'};
-        return {type:'strike',intent:`거신 격 ${this.atk}`,dmg:this.atk};
-      }},
-    // 보스들
-    ancient_echo: { id:'ancient_echo', name:'태고의 잔향', icon:'🌑', hp:180, maxHp:180, atk:16, region:0, xp:120, gold:50, isBoss:true, phase:1,
-      ai(turn) {
-        if(this.hp<this.maxHp*0.5&&this.phase===1){this.phase=2;AudioEngine.playBossPhase();return {type:'phase_shift',intent:'⚠️ 위상 전환!',dmg:0,effect:'phase_shift'};}
-        if(this.phase===2){
-          if(turn%3===0) return {type:'void_burst',intent:`허공 폭발 ${this.atk+10}`,dmg:this.atk+10};
-          return {type:'echo_drain',intent:`잔향 흡수 ${this.atk+5}`,dmg:this.atk+5,effect:'drain_echo'};
-        }
-        if(turn%4===0) return {type:'resonance_curse',intent:'잔향 저주',dmg:8,effect:'curse'};
-        return {type:'echo_slash',intent:`잔향 참격 ${this.atk}`,dmg:this.atk};
-      }},
-    // 침묵의 도시 전용 보스 — 소음 게이지를 극도로 자극
-    silent_tyrant: { id:'silent_tyrant', name:'침묵의 폭군', icon:'🗣️', hp:200, maxHp:200, atk:17, region:1, xp:130, gold:55, isBoss:true, phase:1,
-      ai(turn) {
-        if(this.hp<this.maxHp*0.55&&this.phase===1){this.phase=2;AudioEngine.playBossPhase();return {type:'phase2',intent:'⚠️ 절대 침묵!',dmg:0,effect:'phase_shift'};}
-        if(this.phase===2){
-          if(turn%2===0) return {type:'noise_burst',intent:`소음 폭발 ${this.atk+12} (+5소음)`,dmg:this.atk+12,effect:'add_noise_5'};
-          return {type:'silence_crush',intent:`침묵 격쇄 ${this.atk+6}`,dmg:this.atk+6,effect:'add_noise'};
-        }
-        if(turn%3===0) return {type:'summon_noise',intent:'소음 파동 (+3소음)',dmg:8,effect:'add_noise'};
-        return {type:'strike',intent:`철권 ${this.atk}`,dmg:this.atk};
-      }},
-    // 신의 무덤 전용 보스 — 디버프 폭격
-    divine_tyrant: { id:'divine_tyrant', name:'신의 심판관', icon:'⚖️', hp:240, maxHp:240, atk:19, region:3, xp:160, gold:75, isBoss:true, phase:1,
-      ai(turn) {
-        if(this.hp<this.maxHp*0.6&&this.phase===1){this.phase=2;AudioEngine.playBossPhase();return {type:'divine_wrath',intent:'⚠️ 신성 분노!',dmg:0,effect:'phase_shift'};}
-        if(this.hp<this.maxHp*0.3&&this.phase===2){this.phase=3;AudioEngine.playBossPhase();return {type:'final_judgement',intent:'⚠️ 최후의 심판!',dmg:0,effect:'phase_shift'};}
-        if(this.phase===3){
-          if(turn%2===0) return {type:'mass_debuff',intent:`신성 심판 ${this.atk+18} (전체 디버프)`,dmg:this.atk+18,effect:'mass_debuff'};
-          return {type:'holy_crush',intent:`성스러운 격쇄 ${this.atk+10}`,dmg:this.atk+10};
-        }
-        if(this.phase===2){
-          if(turn%3===0) return {type:'smite_all',intent:`천벌 ${this.atk+8} (약화)`,dmg:this.atk+8,effect:'weaken'};
-          return {type:'barrier',intent:'신성 방어막 20',dmg:0,effect:'self_shield_20'};
-        }
-        if(turn%4===0) return {type:'curse',intent:`저주 (디버프) ${this.atk+4}`,dmg:this.atk+4,effect:'curse'};
-        return {type:'smite',intent:`천벌 ${this.atk}`,dmg:this.atk};
-      }},
-    memory_sovereign: { id:'memory_sovereign', name:'기억의 군주', icon:'👑', hp:220, maxHp:220, atk:18, region:2, xp:150, gold:70, isBoss:true, phase:1,
-      ai(turn) {
-        if(this.hp<this.maxHp*0.66&&this.phase===1){this.phase=2;AudioEngine.playBossPhase();return {type:'phase2',intent:'⚠️ 기억의 각성!',dmg:0,effect:'phase_shift'};}
-        if(this.hp<this.maxHp*0.33&&this.phase===2){this.phase=3;AudioEngine.playBossPhase();return {type:'phase3',intent:'⚠️ 완전 각성!',dmg:0,effect:'phase_shift'};}
-        if(this.phase===3){
-          if(turn%2===0) return {type:'void_storm',intent:`기억 폭풍 ${this.atk+15}`,dmg:this.atk+15};
-          return {type:'soul_drain',intent:`영혼 흡수 ${this.atk+8}`,dmg:this.atk+8,effect:'drain_echo'};
-        }
-        if(this.phase===2){
-          if(turn%3===0) return {type:'mind_crush',intent:`정신 붕괴 ${this.atk+10}`,dmg:this.atk+10,effect:'exhaust_card'};
-          return {type:'memory_slash',intent:`기억 참격 ${this.atk+5}`,dmg:this.atk+5};
-        }
-        if(turn%4===0) return {type:'amnesia',intent:'망각 (에너지-2)',dmg:5,effect:'drain_energy_2'};
-        return {type:'slash',intent:`기억 검 ${this.atk}`,dmg:this.atk};
-      }},
-    // 히든 보스 — worldMemory 조건부 (상인 구출 + 스토리 5개 이상)
-    echo_origin: { id:'echo_origin', name:'잔향의 근원', icon:'🌟', hp:320, maxHp:320, atk:22, region:4, xp:300, gold:150, isBoss:true, isHidden:true, phase:1,
-      ai(turn) {
-        if(this.hp<this.maxHp*0.7&&this.phase===1){this.phase=2;AudioEngine.playBossPhase();return {type:'awaken',intent:'⚠️ 근원 각성!',dmg:0,effect:'phase_shift'};}
-        if(this.hp<this.maxHp*0.4&&this.phase===2){this.phase=3;AudioEngine.playBossPhase();return {type:'transcend',intent:'⚠️ 근원 초월!',dmg:0,effect:'phase_shift'};}
-        if(this.phase===3){
-          if(turn%2===0) return {type:'origin_blast',intent:`근원 폭발 ${this.atk+20}`,dmg:this.atk+20};
-          return {type:'echo_erase',intent:'Echo 완전 소거',dmg:this.atk,effect:'nullify_echo'};
-        }
-        if(this.phase===2){
-          if(turn%3===0) return {type:'memory_wipe',intent:`기억 소거 ${this.atk+10}`,dmg:this.atk+10,effect:'exhaust_card'};
-          return {type:'resonance',intent:`공명 ${this.atk+6} (드레인)`,dmg:this.atk+6,effect:'drain_echo'};
-        }
-        if(turn%4===0) return {type:'loop_crush',intent:`루프 압박 ${this.atk+8}`,dmg:this.atk+8};
-        return {type:'echo_strike',intent:`잔향 격 ${this.atk}`,dmg:this.atk};
-      }},
-    // 에코의 핵심 최종 보스
-    void_herald: { id:'void_herald', name:'허공의 사도', icon:'🌌', hp:280, maxHp:280, atk:20, region:4, xp:200, gold:100, isBoss:true, phase:1,
-      ai(turn) {
-        if(this.hp<this.maxHp*0.5&&this.phase===1){this.phase=2;AudioEngine.playBossPhase();return {type:'transcend',intent:'⚠️ 허공 초월!',dmg:0,effect:'phase_shift'};}
-        if(this.phase===2){
-          if(turn%2===0) return {type:'void_collapse',intent:`허공 붕괴 ${this.atk+12}`,dmg:this.atk+12};
-          return {type:'echo_nullify',intent:'Echo 무효화',dmg:this.atk,effect:'nullify_echo'};
-        }
-        if(turn%3===0) return {type:'void_pulse',intent:`허공 파동 ${this.atk+6}`,dmg:this.atk+6};
-        return {type:'strike',intent:`허공 강타 ${this.atk}`,dmg:this.atk};
-      }},
-  },
-
-  regions: [
-    { id:0, name:'잔향의 숲', rule:'기본 규칙', ruleDesc:'잔향의 힘이 깨어나는 곳', quote:'"기억은 언제나 숲으로 돌아온다."', floors:4,
-      enemies:['shadow_wolf','forest_wraith','fallen_knight','moss_golem','echo_bat'],
-      elites:['elite_dire_wolf','elite_ancient_tree'],
-      boss:'ancient_echo', bossFloor:4, accent:'#44ff88' },
-    { id:1, name:'침묵의 도시', rule:'소음 게이지', ruleDesc:'카드 사용 시 소음 증가 → 초과 시 파수꾼 소환', quote:'"소리가 없는 곳에서 진실이 드러난다."', floors:4,
-      enemies:['silent_sentinel','shadow_wolf','noise_wraith','iron_automaton'],
-      elites:['elite_silence_herald'],
-      boss:'silent_tyrant', bossFloor:4, accent:'#7b2fff' },
-    { id:2, name:'기억의 미궁', rule:'왜곡된 기억', ruleDesc:'이 지역의 적들은 기억의 잔상에서 소환된다 — 전투 시 무작위 디버프 부여 가능', quote:'"여기서 무엇을 보느냐 — 그것이 너의 과거다."', floors:4,
-      enemies:['memory_specter','nightmare_hound','fallen_knight','phantom_soldier'],
-      elites:['elite_memory_lich'],
-      boss:'memory_sovereign', bossFloor:4, accent:'#ff88cc' },
-    { id:3, name:'신의 무덤', rule:'강제 디버프', ruleDesc:'매 전투 시작 시 랜덤 디버프 부여', quote:'"신들도 결국 잊혀진다."', floors:5,
-      enemies:['divine_remnant','fallen_knight','silent_sentinel','cursed_paladin'],
-      elites:['elite_fallen_deity'],
-      boss:'divine_tyrant', bossFloor:5, accent:'#ff4444' },
-    { id:4, name:'에코의 핵심', rule:'회복 불가', ruleDesc:'체력 회복 불가 — Echo만으로 버텨라', quote:'"루프의 끝에서 너는 무엇을 선택하는가."', floors:4,
-      enemies:['echo_devourer','memory_specter','divine_remnant','void_remnant'],
-      elites:['elite_echo_colossus'],
-      boss:'void_herald', bossFloor:4, accent:'#00ffcc' },
-  ],
-
-  startDecks: {
-    swordsman: ['strike','strike','strike','defend','defend','quick_step','heavy_blow','momentum','charge','echo_strike'],
-    mage: ['foresight','counter','echo_wave','resonance','defend','echo_strike','soul_rend','echo_shield','foresight','prediction'],
-    hunter: ['silent_stab','silent_stab','silent_stab','vanish','defend','quick_step','echo_strike','twin_strike','silent_stab','vanish'],
-  },
-
-  events: [
-    { id:'wanderer', layer:1, title:'방랑자의 흔적', eyebrow:'LAYER 1 · 우발적 이벤트',
-      desc:'낡은 여행 가방 하나가 나뭇가지에 걸려 있다.',
-      choices:[
-        {text:'🎒 가방을 열어본다', effect(gs){gs.addGold(20);gs.addLog('골드 +20','heal');return '오래된 동전들이 쏟아졌다.';}},
-        {text:'⚔️ 함정일지도 모른다 (무시)', effect(gs){gs.addEcho(15);gs.addLog('Echo +15','echo');return '조심성이 잔향을 강화했다.';}},
-      ]},
-    { id:'shrine', layer:1, title:'잔향의 사당', eyebrow:'LAYER 1 · 우발적 이벤트',
-      desc:'고대 사당 앞에 잔향 에너지가 모여 있다.',
-      choices:[
-        {text:'❤️ 체력을 제물로 (HP -10 → Echo +50)', effect(gs){gs.player.hp=Math.max(1,gs.player.hp-10);gs.addEcho(50);return 'Echo 게이지가 타오른다.';}},
-        {text:'💰 골드를 제물로 (15골드 → HP +20)', effect(gs){if(gs.player.gold>=15){gs.player.gold-=15;gs.heal(20);return '신성한 치유의 빛이 감쌌다.';}return '골드가 부족하다.';}},
-        {text:'🚶 통과한다', effect(gs){return '사당을 지나쳤다.';}},
-      ]},
-    { id:'merchant_lost', layer:2, title:'길 잃은 상인', eyebrow:'LAYER 2 · 연속 이벤트',
-      desc:'잔향 에너지에 길을 잃은 상인을 발견했다. 두려움에 떨고 있다.',
-      choices:[
-        {text:'🤝 상인을 도와준다', effect(gs){gs.worldMemory.savedMerchant=(gs.worldMemory.savedMerchant||0)+1;gs.heal(15);gs.addLog('💚 상인이 치료약을 건넸다','heal');return '상인은 감사하며 치료약을 건넸다.';}},
-        {text:'💰 상인의 물건을 빼앗는다', effect(gs){gs.addGold(30);gs.worldMemory.stoleFromMerchant=true;gs.addLog('골드 +30 (약탈)','damage');return '30골드를 얻었다. 상인의 눈에서 빛이 사라졌다.';}},
-      ]},
-    { id:'echo_resonance', layer:1, title:'잔향 공명', eyebrow:'LAYER 1 · 우발적 이벤트',
-      desc:'공기 중에 강한 에코 에너지가 감지된다.',
-      choices:[
-        {text:'⚡ 에너지를 흡수한다', effect(gs){gs.addEcho(60);return 'Echo 게이지가 요동쳤다!';}},
-        {text:'🃏 에너지를 카드로 변환', effect(gs){const c=gs.getRandomCard('rare');gs.player.deck.push(c);return `에너지가 카드로 응결: ${DATA.cards[c]?.name}`;}},
-      ]},
-    { id:'forge', layer:1, title:'잔향의 대장간', eyebrow:'LAYER 1 · 우발적 이벤트',
-      desc:'에코 에너지로 달구어진 대장간이 있다.',
-      choices:[
-        {text:'⚒️ 카드를 강화한다', effect(gs){
-          const upgradable = gs.player.deck.filter(id => DATA.upgradeMap[id]);
-          if(!upgradable.length) return '강화 가능한 카드가 없다.';
-          const cardId = upgradable[Math.floor(Math.random()*upgradable.length)];
-          const upgId = DATA.upgradeMap[cardId];
-          const idx = gs.player.deck.indexOf(cardId);
-          if(idx>=0){ gs.player.deck[idx]=upgId; gs.addLog(`✨ ${DATA.cards[cardId]?.name} → ${DATA.cards[upgId]?.name} 강화!`,'echo'); }
-          return `${DATA.cards[cardId]?.name}이(가) 강화되었다.`;
-        }},
-        {text:'🔥 Echo를 충전한다 (Echo +40)', effect(gs){gs.addEcho(40);return 'Echo가 충전되었다.';}},
-        {text:'🚶 지나친다', effect(gs){return null;}},
-      ]},
-    { id:'echo_vendor', layer:1, title:'Echo 자판기', eyebrow:'LAYER 1 · 우발적 이벤트',
-      desc:'낡은 자판기가 벽에 기대어 있다. "잔향 에너지 교환"이라고 적혀 있다.',
-      choices:[
-        {text:'💊 체력 회복 (골드 10 → HP 15)', effect(gs){if(gs.player.gold>=10){gs.player.gold-=10;gs.heal(15);return '체력이 회복됐다.';}return '골드가 부족하다.';}},
-        {text:'⚡ Echo 구매 (골드 8 → Echo 30)', effect(gs){if(gs.player.gold>=8){gs.player.gold-=8;gs.addEcho(30);return 'Echo가 충전됐다.';}return '골드가 부족하다.';}},
-        {text:'🃏 카드 구매 (골드 15 → 랜덤 카드)', effect(gs){if(gs.player.gold>=15){gs.player.gold-=15;const c=gs.getRandomCard('uncommon');gs.player.deck.push(c);AudioEngine.playItemGet();return `${DATA.cards[c]?.name} 카드를 얻었다.`;}return '골드가 부족하다.';}},
-        {text:'🚶 지나친다', effect(){return null;}},
-      ]},
-    { id:'silent_pool', layer:1, title:'침묵의 웅덩이', eyebrow:'LAYER 2 · 신비한 이벤트',
-      desc:'잔향 에너지가 고인 웅덩이가 빛나고 있다.',
-      choices:[
-        {text:'🌊 웅덩이를 마신다 (HP -5, 덱에 레어 카드)', effect(gs){gs.player.hp=Math.max(1,gs.player.hp-5);const c=gs.getRandomCard('rare');gs.player.deck.push(c);return `${DATA.cards[c]?.name} 카드를 얻었다. 혀가 타는 듯하다.`;}},
-        {text:'🔮 관찰만 한다 (Echo +30)', effect(gs){gs.addEcho(30);return '잔향 에너지를 흡수했다.';}},
-      ]},
-    { id:'lost_memory', layer:2, title:'잃어버린 기억', eyebrow:'LAYER 2 · 연속 이벤트',
-      desc:'흐릿한 기억의 조각이 떠돌고 있다. 집중하면 흡수할 수 있을 것 같다.',
-      choices:[
-        {text:'🧠 기억을 흡수한다 (골드 +25, Echo +20)', effect(gs){gs.addGold(25);gs.addEcho(20);return '기억의 파편이 힘으로 변환됐다.';}},
-        {text:'💭 기억을 방류한다 (HP +15)', effect(gs){gs.heal(15);return '기억은 바람이 되어 사라졌다. 마음이 가벼워졌다.';}},
-      ]},
-    { id:'void_crack', layer:2, title:'허공의 균열', eyebrow:'LAYER 2 · 위험한 이벤트',
-      desc:'공간이 갈라져 있다. 저쪽에는 무언가가 있는 것 같다.',
-      choices:[
-        {text:'🌀 균열을 통과한다 (HP -20, 아이템 1개)', effect(gs){gs.player.hp=Math.max(1,gs.player.hp-20);const items=Object.keys(DATA.items);const item=items[Math.floor(Math.random()*items.length)];gs.player.items.push(item);AudioEngine.playItemGet();showItemToast(DATA.items[item]);return `${DATA.items[item].name}을 얻었다. 몸이 떨린다.`;}},
-        {text:'🚶 위험하다, 돌아간다', effect(gs){return '안전한 길을 선택했다.';}},
-      ]},
-  ],
-
-  storyFragments: [
-    { id:1, run:1, title:'첫 번째 잔향', text:'"눈을 뜬다. 검이 익숙하다. 하지만 이 장소는... 처음인 것 같기도, 아닌 것 같기도 하다."' },
-    { id:2, run:2, title:'기억하는 자들', text:'"타락한 기사가 나를 알아보았다. \'또 왔군\'. 그는 이미 내 이름을 알고 있었다."' },
-    { id:3, run:3, title:'막으려 했던 것', text:'"대침묵 이전, 나는 신들의 전쟁을 막으려 했다. 그 방법이 — 더 많은 희생을 요구했다."' },
-    { id:4, run:4, title:'속삭이는 잔향', text:'"잔향 에너지가 속삭인다: 충분한 기억이 쌓이면, 루프를 끊을 수 있다고. 하지만 그게 진정한 끝인가?"' },
-    { id:5, run:5, title:'두 가지 선택', text:'"상인의 눈빛 — 내가 도왔을 때와 빼앗았을 때. 세계는 두 선택 모두 기억한다."' },
-    { id:6, run:6, title:'자초한 루프', text:'"신의 무덤에서 발견한 비문: \'잔향자여, 루프를 만든 것은 너다. 대침묵을 막기 위해 시간을 되감은 것은.\'"' },
-    { id:7, run:7, title:'진실의 대가', text:'"에코의 핵심에 도달하면 모든 것이 보인다고 한다. 하지만 진실을 알게 되면, 계속 싸울 이유가 있는가?"' },
-    { id:8, run:8, title:'잊혀진 이름', text:'"나는 기억한다 — 처음 루프를 시작할 때, 나는 누군가를 구하려 했다. 그 이름을 아직 기억하지 못한다."' },
-    { id:9, run:9, title:'세계의 의지', text:'"기억이 돌아왔다. 구하려 했던 것은 사람이 아니었다. 세계 그 자체였다. 하지만 세계는 — 구원받기를 원하는가?"' },
-    { id:10, run:10, title:'최후의 선택', text:'"충분히 이해했다. 이제 선택의 시간이다. 루프를 계속할 것인가, 아니면 진짜 끝을 받아들일 것인가."' },
-  ],
-
-  deathQuotes: [
-    '"이 죽음도 기억이 된다."',
-    '"다음엔... 다르게 선택하겠다."',
-    '"잔향은 사라지지 않는다. 형태가 바뀔 뿐."',
-    '"무엇이 옳은가. 아직 알 수 없다."',
-    '"세계는 내 선택을 기억한다."',
-    '"두려움이 없다. 이미 수백 번 죽었으니."',
-    '"다시, 처음부터."',
-    '"루프는 끝나지 않는다. 아직은."',
-  ],
-};
-
-// ────────────────────────────────────────
-// DIFFICULTY SCALER
-// ────────────────────────────────────────
-const DifficultyScaler = {
-  getMultiplier(runCount, region, floor) {
-    const run = runCount !== undefined ? runCount : GS.meta.runCount;
-    const reg = region !== undefined ? region : GS.currentRegion;
-    const flr = floor !== undefined ? floor : GS.currentFloor;
-    return 1 + (run-1)*0.05 + reg*0.10 + flr*0.03;
-  },
-  scaleEnemy(enemy, runCount, region, floor) {
-    const m = this.getMultiplier(runCount, region, floor);
-    return { ...enemy,
-      hp: Math.ceil(enemy.hp*m), maxHp: Math.ceil(enemy.maxHp*m),
-      atk: Math.ceil(enemy.atk*m), xp: Math.ceil(enemy.xp*m),
-    };
-  },
-};
-
-// ────────────────────────────────────────
-// GAME STATE — 단일 중앙 상태
-// ────────────────────────────────────────
-// ────────────────────────────────────────
-// SET BONUS SYSTEM — 유물 세트 효과
-// ────────────────────────────────────────
-const SetBonusSystem = {
-  sets: {
-    void_set: {
-      name: '심연의 삼위일체',
-      items: ['void_eye','void_fang','void_crown'],
-      bonuses: {
-        2: { label:'심연의 각성 — Echo 게이지 최대 +20%', apply(gs){ if(!gs._voidSet2){gs._voidSet2=true;gs.player.maxEcho=Math.floor(gs.player.maxEcho*1.2);} } },
-        3: { label:'심연의 완성 — 모든 피해 +15% + 턴 시작 Echo +15', apply(gs){ gs._voidSet3=true; } },
-      }
-    },
-    echo_set: {
-      name: '잔향의 삼각',
-      items: ['echo_pendant','echo_bracer','echo_sigil'],
-      bonuses: {
-        2: { label:'잔향의 공명 — Resonance Burst 게이지 -20 (80에서 발동)', apply(gs){ gs._echoSet2=true; } },
-        3: { label:'잔향의 완성 — 매 턴 자동 Echo +20 추가', apply(gs){ gs._echoSet3=true; } },
-      }
-    },
-    blood_set: {
-      name: '혈맹의 인장',
-      items: ['blood_seal','blood_oath','blood_crown'],
-      bonuses: {
-        2: { label:'혈맹의 결의 — HP 최대치 +20', apply(gs){ if(!gs._bloodSet2){gs._bloodSet2=true;gs.player.maxHp+=20;gs.player.hp+=20;} } },
-        3: { label:'혈맹의 완성 — 피해 받을 때 20% 확률 완전 무효', apply(gs){ gs._bloodSet3=true; } },
-      }
-    },
-  },
-
-  getActiveSets(gs) {
-    const owned = new Set(gs.player.items);
-    const active = [];
-    for (const [key, set] of Object.entries(this.sets)) {
-      const count = set.items.filter(id => owned.has(id)).length;
-      if (count >= 2) {
-        active.push({ key, name: set.name, count, bonus: set.bonuses[Math.min(count,3)] });
-      }
-    }
-    return active;
-  },
-
-  applyPassiveBonuses(gs) {
-    const owned = new Set(gs.player.items);
-    for (const [key, set] of Object.entries(this.sets)) {
-      const count = set.items.filter(id => owned.has(id)).length;
-      if (count >= 2 && set.bonuses[2]) set.bonuses[2].apply(gs);
-      if (count >= 3 && set.bonuses[3]) set.bonuses[3].apply(gs);
-    }
-  },
-
-  triggerSetBonuses(gs, trigger, data) {
-    const owned = new Set(gs.player.items);
-
-    // 심연 3세트: 피해 +15%
-    if (gs._voidSet3 && trigger === 'deal_damage' && data) return Math.floor(data * 1.15);
-    // 심연 3세트: 턴 시작 Echo +15
-    if (owned.has('void_eye') && owned.has('void_fang') && owned.has('void_crown')) {
-      if (trigger === 'turn_start') { gs.addEcho(15); }
-    }
-
-    // 잔향 2세트: Burst 게이지 감소 (80에서 발동)
-    // 잔향 3세트: 매 턴 Echo +20 추가
-    if (gs._echoSet3 && trigger === 'turn_start') { gs.addEcho(20); }
-
-    // 혈맹 3세트: 20% 피해 무효
-    if (gs._bloodSet3 && trigger === 'damage_taken' && data > 0 && Math.random() < 0.2) {
-      gs.addLog('💉 혈맹의 완성: 피해 무효!', 'echo');
-      return true;
-    }
-  },
-};
 
 const GS = {
   currentScreen: 'title',
@@ -2420,6 +18,10 @@ const GS = {
     inscriptions: { echo_boost:false, resilience:false, fortune:false },
     storyPieces: [], _hiddenEndingHinted: false,
     codex: { enemies: new Set(), cards: new Set(), items: new Set() },
+    unlocks: { ascension: false, endless: false },
+    maxAscension: 0,
+    runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'none' },
+    progress: { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} },
   },
   player: {
     class:'swordsman', hp:80, maxHp:80, shield:0,
@@ -2433,6 +35,7 @@ const GS = {
   combat: { active:false, enemies:[], turn:0, playerTurn:true, log:[] },
   _selectedTarget: null,
   worldMemory: {},
+  runConfig: { ascension: 0, endlessMode: false, blessing: 'none', curse: 'none' },
   stats: { damageDealt:0, damageTaken:0, cardsPlayed:0, maxChain:0 },
   _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
 
@@ -2558,8 +161,12 @@ const GS = {
   },
 
   heal(amount) {
-    if (this.currentRegion === 4) { this.addLog('❌ 에코의 핵심: 회복 불가!', 'damage'); return; }
-    const actual = Math.min(amount, this.player.maxHp - this.player.hp);
+    if (getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1)) {
+      this.addLog('❌ 에코의 핵심: 회복 불가!', 'damage');
+      return;
+    }
+    const adjusted = RunRules.getHealAmount(this, amount);
+    const actual = Math.min(adjusted, this.player.maxHp - this.player.hp);
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + actual);
     if (actual > 0) {
       ParticleSystem.healEffect(window.innerWidth/2, window.innerHeight/2);
@@ -2665,7 +272,8 @@ const GS = {
   },
 
   spawnEnemy() {
-    const region = DATA.regions[this.currentRegion];
+    const region = getRegionData(this.currentRegion, this);
+    if (!region) return;
     const eKey = region.enemies[Math.floor(Math.random()*region.enemies.length)];
     const eData = DATA.enemies[eKey];
     if (eData && this.combat.enemies.length < 3) {
@@ -2729,7 +337,7 @@ const GS = {
       return false;
     }
     // 소음 (침묵의 도시)
-    if (this.currentRegion === 1) {
+    if (getBaseRegionIndex(this.currentRegion) === 1) {
       this.player.silenceGauge = (this.player.silenceGauge||0) + 1;
       this.addLog(`🌑 소음 +1 (${this.player.silenceGauge}/10)`, 'echo');
       if (this.player.silenceGauge >= 10) {
@@ -2845,13 +453,7 @@ const GS = {
   },
 
   showDeathScreen() {
-    Object.assign(this.meta.worldMemory, this.worldMemory);
-    this.meta.runCount++;
-    this.meta.echoFragments += 3;
-    this.meta.bestChain = Math.max(this.meta.bestChain, this.stats.maxChain);
-    StorySystem.unlockNextFragment();
-    SaveSystem.saveMeta(); // 메타 자동저장
-    SaveSystem.clearSave(); // 런 저장 초기화
+    finalizeRunOutcome('defeat', { echoFragments: 3 });
 
     document.getElementById('deathFloor').textContent = this.currentFloor;
     document.getElementById('deathKills').textContent = this.player.kills;
@@ -2934,11 +536,12 @@ const GS = {
     // UI 즉시 반영
     updateChainUI(0);
     renderHand();
+    renderCombatCards();
     updateUI();
     // updateNextNodes는 returnToGame에서만 호출 (보상 선택 전 노드 표시 방지)
 
     const isBoss = this.combat.enemies.some(e => e.isBoss);
-    const isLastRegion = this.currentRegion === 4;
+    const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
     AudioEngine.playItemGet();
     // 전투 통계 요약 (짧게 표시 후 보상 화면)
@@ -2949,6 +552,11 @@ const GS = {
     if (isBoss) {
       GS._bossRewardPending = true;
       GS._bossLastRegion = isLastRegion;
+    }
+    if (isBoss && isLastRegion && RunRules.isEndless(this)) {
+      // 엔들리스 사이클 보스는 보상 선택 없이 즉시 다음 루프로 이동
+      setTimeout(() => returnToGame(true), 300);
+      return;
     }
     const nodeOverlay = document.getElementById('nodeCardOverlay');
     if (nodeOverlay) nodeOverlay.style.display = 'none';
@@ -3539,7 +1147,7 @@ function renderGameWorld(dt, ctx, w, h) {
 }
 
 function renderRegionBackground(ctx, w, h) {
-  const region = DATA.regions[GS.currentRegion];
+  const region = getRegionData(GS.currentRegion, GS) || {};
   const accent = region.accent || '#7b2fff';
   // 배경 격자 패턴
   ctx.save();
@@ -3564,7 +1172,7 @@ function renderDynamicLights(ctx, w, h) {
     const ey = h*0.35;
     const pulse = 0.5 + 0.5*Math.sin(t + i*Math.PI);
     const glow = ctx.createRadialGradient(ex,ey,0,ex,ey,80+pulse*20);
-    const region = DATA.regions[GS.currentRegion];
+    const region = getRegionData(GS.currentRegion, GS) || {};
     glow.addColorStop(0,(region.accent||'#7b2fff')+'22');
     glow.addColorStop(1,'transparent');
     ctx.fillStyle = glow;
@@ -3595,7 +1203,7 @@ const NODE_META = {
 
 function renderNodeInfo(ctx, w, h) {
   if (GS.combat.active) return;
-  const region  = DATA.regions[GS.currentRegion];
+  const region  = getRegionData(GS.currentRegion, GS) || {};
   const accent  = region?.accent || '#7b2fff';
   const t       = Date.now() * 0.001;
   const nextFloor = GS.currentFloor + 1;
@@ -3623,7 +1231,7 @@ function renderNodeInfo(ctx, w, h) {
 
 // ── 지역/층별 상태 문구 헬퍼 ──
 function getFloorStatusText(regionId, floor) {
-  const region = DATA.regions[regionId];
+  const region = getRegionData(regionId, GS);
   if (!region) return '';
   const regionName = region.name;
 
@@ -3690,7 +1298,8 @@ function roundRectTop(ctx, x, y, w, h, r) {
 // MAP SYSTEM
 // ────────────────────────────────────────
 function generateMap(regionIdx) {
-  const region = DATA.regions[regionIdx];
+  const region = getRegionData(regionIdx, GS);
+  if (!region) return;
   GS.mapNodes = [];
   GS.currentNode = null;
 
@@ -3732,7 +1341,7 @@ function generateMap(regionIdx) {
   renderMapOverlay();
   updateUI();
   // 지역 진입 첫 화면 분위기 문구
-  const _entryRegion = DATA.regions[regionIdx];
+  const _entryRegion = getRegionData(regionIdx, GS);
   if (_entryRegion?.quote) {
     setTimeout(() => showWorldMemoryNotice(_entryRegion.quote), 600);
   }
@@ -3871,7 +1480,6 @@ function updateNextNodes() {
     if (nodes.length === 0) {
       overlay.style.display = 'none';
     } else {
-      const region = DATA.regions[GS.currentRegion];
       if (title) title.textContent = getFloorStatusText(GS.currentRegion, GS.currentFloor) + '  —  이동할 곳을 선택하세요';
       row.innerHTML = nodes.map((n, idx) => {
         const m = NODE_META[n.type] || NODE_META.combat;
@@ -3947,7 +1555,8 @@ function moveToNode(node) {
 // ────────────────────────────────────────
 function startCombat(isBoss=false) {
   const gs = GS;
-  const region = DATA.regions[gs.currentRegion];
+  const region = getRegionData(gs.currentRegion, gs);
+  if (!region) return;
 
   gs.combat.enemies = [];
   gs.combat.turn = 0;
@@ -3967,7 +1576,7 @@ function startCombat(isBoss=false) {
 
   if (isBoss) {
     // 히든 보스 조건: 최종 지역 + 상인 구출 + 스토리 5개 이상
-    const isHiddenEligible = GS.currentRegion === 4 &&
+    const isHiddenEligible = getBaseRegionIndex(GS.currentRegion) === Math.max(0, getRegionCount() - 1) &&
       (GS.worldMemory.savedMerchant||0) >= 1 &&
       GS.meta.storyPieces.length >= 5;
     let bossKey = region.boss || 'ancient_echo';
@@ -4003,7 +1612,7 @@ function startCombat(isBoss=false) {
   }
 
   // 기억의 미궁 — 왜곡된 기억 (무작위 경미한 디버프)
-  if (gs.currentRegion === 2) {
+  if (getBaseRegionIndex(gs.currentRegion) === 2) {
     const memoryDebuffs = ['weakened','burning','confusion'];
     const debuff = memoryDebuffs[Math.floor(Math.random()*memoryDebuffs.length)];
     if (Math.random() < 0.5) { // 50% 확률
@@ -4013,7 +1622,7 @@ function startCombat(isBoss=false) {
   }
 
   // 신의 무덤 — 강제 디버프
-  if (gs.currentRegion === 3) {
+  if (getBaseRegionIndex(gs.currentRegion) === 3) {
     const debuffs = ['weakened','slowed','burning'];
     const debuff = debuffs[Math.floor(Math.random()*debuffs.length)];
     gs.player.buffs[debuff] = {stacks:2};
@@ -4023,6 +1632,7 @@ function startCombat(isBoss=false) {
   // 메아리술사 전투 시작
   if (gs.player.class === 'mage') ClassMechanics.mage.onCombatStart(gs);
 
+  RunRules.onCombatStart(gs);
   gs.triggerItems('combat_start');
   gs.drawCards(5);
 
@@ -4574,6 +2184,7 @@ function enemyTurn() {
     gs.drawCards(5);
     renderCombatCards();
     gs.addLog('─── 새 턴 ───', 'system');
+    RunRules.onTurnStart(gs);
     gs.triggerItems('turn_start');
     updateStatusDisplay();
     updateClassSpecialUI();
@@ -4659,12 +2270,13 @@ function handleBossPhaseShift(enemy, idx) {
 function handleEnemyEffect(effect, enemy, idx) {
   if (!effect) return;
   const gs = GS;
+  const baseRegion = getBaseRegionIndex(gs.currentRegion);
   switch(effect) {
     case 'self_atk_up': enemy.atk+=3; gs.addLog(`💪 ${enemy.name}: 공격 강화 (+3)`,'system'); break;
     case 'self_shield': enemy.shield=(enemy.shield||0)+8; gs.addLog(`🛡️ ${enemy.name}: 방어막 8`,'system'); break;
     case 'self_shield_15': enemy.shield=(enemy.shield||0)+15; gs.addLog(`🛡️ ${enemy.name}: 신성 방어막 15`,'system'); break;
     case 'self_shield_20': enemy.shield=(enemy.shield||0)+20; gs.addLog(`🛡️ ${enemy.name}: 방어막 20`,'system'); break;
-    case 'add_noise_5': if(gs.currentRegion===1){gs.addSilence(5);} break;
+    case 'add_noise_5': if(baseRegion === 1){gs.addSilence(5);} break;
     case 'mass_debuff': {
       const debuffs=['weakened','slowed','burning'];
       debuffs.forEach(d=>{ gs.player.buffs[d]={stacks:1}; });
@@ -4678,7 +2290,7 @@ function handleEnemyEffect(effect, enemy, idx) {
       break;
     case 'drain_echo': gs.drainEcho(20); gs.addLog(`🌑 ${enemy.name}: Echo 흡수!`,'damage'); break;
     case 'nullify_echo': gs.player.echo=0; gs.player.echoChain=0; updateChainUI(0); gs.addLog('🌑 Echo 완전 무효화!','damage'); break;
-    case 'add_noise': if(gs.currentRegion===1) gs.addSilence(3); break;
+    case 'add_noise': if(baseRegion === 1) gs.addSilence(3); break;
     case 'exhaust_card':
       if(gs.player.hand.length>0){const ci=Math.floor(Math.random()*gs.player.hand.length);const c=gs.player.hand.splice(ci,1)[0];gs.player.exhausted.push(c);gs.addLog(`💀 ${DATA.cards[c]?.name} 소각!`,'damage');renderCombatCards();}
       break;
@@ -4783,7 +2395,10 @@ function resolveEvent(choiceIdx) {
 
 function showShop() {
   const savedMerchant = (GS.worldMemory.savedMerchant||0) > 0;
-  const p = GS.player;
+  const costPotion = RunRules.getShopCost(GS, savedMerchant ? 8 : 12);
+  const costCard = RunRules.getShopCost(GS, 15);
+  const costUpgrade = RunRules.getShopCost(GS, 20);
+  const costEnergy = RunRules.getShopCost(GS, 30);
   const shop = {
     id:'shop', persistent: true,
     eyebrow: savedMerchant ? 'WORLD MEMORY · 특별 상점' : 'LAYER 1 · 상점',
@@ -4792,13 +2407,14 @@ function showShop() {
       ? '전에 도움받은 상인이다. 좋은 가격을 제시한다.'
       : '낡은 외투를 입은 상인이 잔향 결정들을 늘어놓고 있다.',
     choices: [
-      {text:`💊 치료약 (HP +30) — ${savedMerchant?8:12}골드`, effect(gs){const c=savedMerchant?8:12;if(gs.player.gold>=c){gs.player.gold-=c;gs.heal(30);return `치료약을 마셨다. [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;}},
-      {text:'🃏 랜덤 카드 — 15골드', effect(gs){if(gs.player.gold>=15){gs.player.gold-=15;const c=gs.getRandomCard('uncommon');gs.player.deck.push(c);AudioEngine.playItemGet();return `카드 획득: ${DATA.cards[c]?.name} [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: 15, 보유: ${gs.player.gold})`;}},
-      {text:'⚒️ 카드 강화 — 20골드', effect(gs){
-        if(gs.player.gold<20) return `골드 부족! (필요: 20, 보유: ${gs.player.gold})`;
+      {text:`💊 치료약 (HP +30) — ${costPotion}골드`, effect(gs){const c=costPotion;if(gs.player.gold>=c){gs.player.gold-=c;gs.heal(30);return `치료약을 마셨다. [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;}},
+      {text:`🃏 랜덤 카드 — ${costCard}골드`, effect(gs){const c=costCard;if(gs.player.gold>=c){gs.player.gold-=c;const cardId=gs.getRandomCard('uncommon');gs.player.deck.push(cardId);AudioEngine.playItemGet();return `카드 획득: ${DATA.cards[cardId]?.name} [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;}},
+      {text:`⚒️ 카드 강화 — ${costUpgrade}골드`, effect(gs){
+        const c = costUpgrade;
+        if(gs.player.gold<c) return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;
         const upgradable = gs.player.deck.filter(id => DATA.upgradeMap[id]);
         if(!upgradable.length) return '강화 가능한 카드가 없다.';
-        gs.player.gold-=20;
+        gs.player.gold-=c;
         const cardId = upgradable[Math.floor(Math.random()*upgradable.length)];
         const upgId = DATA.upgradeMap[cardId];
         const idx = gs.player.deck.indexOf(cardId);
@@ -4806,10 +2422,11 @@ function showShop() {
         AudioEngine.playItemGet();
         return `${DATA.cards[cardId]?.name} → ${DATA.cards[upgId]?.name} [남은 골드: ${gs.player.gold}]`;
       }},
-      {text:'⚡ 에너지 강화 — 30골드 (최대 에너지 +1)', effect(gs){
-        if(gs.player.gold<30) return `골드 부족! (필요: 30, 보유: ${gs.player.gold})`;
+      {text:`⚡ 에너지 강화 — ${costEnergy}골드 (최대 에너지 +1)`, effect(gs){
+        const c = costEnergy;
+        if(gs.player.gold<c) return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;
         if(gs.player.maxEnergy>=6) return '이미 최대 에너지에 도달했다.';
-        gs.player.gold-=30;
+        gs.player.gold-=c;
         gs.player.maxEnergy++;
         gs.player.energy=Math.min(gs.player.energy+1,gs.player.maxEnergy);
         AudioEngine.playItemGet();
@@ -4916,10 +2533,10 @@ function showCardDiscard(gs, isBurn=false) {
 // ── 아이템 상점 UI (등급별 차별화) ──
 function showItemShop(gs) {
   const rarityConfig = {
-    common:    { label:'일반',    color:'var(--text)',      cost:10, border:'rgba(150,150,180,0.3)' },
-    uncommon:  { label:'고급',    color:'var(--echo-bright)', cost:20, border:'rgba(123,47,255,0.4)' },
-    rare:      { label:'희귀',    color:'var(--gold)',       cost:35, border:'rgba(240,180,41,0.5)' },
-    legendary: { label:'전설',    color:'#c084fc',           cost:60, border:'rgba(192,132,252,0.6)' },
+    common:    { label:'일반',    color:'var(--text)',      baseCost:10, border:'rgba(150,150,180,0.3)' },
+    uncommon:  { label:'고급',    color:'var(--echo-bright)', baseCost:20, border:'rgba(123,47,255,0.4)' },
+    rare:      { label:'희귀',    color:'var(--gold)',       baseCost:35, border:'rgba(240,180,41,0.5)' },
+    legendary: { label:'전설',    color:'#c084fc',           baseCost:60, border:'rgba(192,132,252,0.6)' },
   };
 
   // 등급별 아이템 각 1개씩 랜덤 선정 (최대 4개)
@@ -4955,7 +2572,8 @@ function showItemShop(gs) {
   const list = document.getElementById('itemShopList');
   shopItems.forEach(item => {
     const rc = rarityConfig[item.rarity] || rarityConfig.common;
-    const canAfford = gs.player.gold >= rc.cost;
+    const cost = RunRules.getShopCost(gs, rc.baseCost || 10);
+    const canAfford = gs.player.gold >= cost;
     const card = document.createElement('div');
     card.style.cssText = `width:155px;background:rgba(10,5,30,0.95);border:1px solid ${rc.border};border-radius:12px;padding:16px;text-align:center;cursor:${canAfford?'pointer':'not-allowed'};opacity:${canAfford?1:0.5};transition:all 0.2s;position:relative;`;
     card.innerHTML = `
@@ -4963,7 +2581,7 @@ function showItemShop(gs) {
       <div style="font-size:32px;margin-bottom:8px;">${item.icon}</div>
       <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:${rc.color};margin-bottom:6px;">${item.name}</div>
       <div style="font-size:11px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;">${item.desc}</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);font-weight:700;">${rc.cost} 골드</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);font-weight:700;">${cost} 골드</div>
     `;
     const alreadyOwned = gs.player.items.includes(item.id);
     if (alreadyOwned) {
@@ -4974,8 +2592,8 @@ function showItemShop(gs) {
       card.onmouseenter = () => { card.style.borderColor='var(--cyan)'; card.style.transform='translateY(-3px)'; card.style.boxShadow=`0 8px 24px rgba(0,255,204,0.2)`; };
       card.onmouseleave = () => { card.style.borderColor=rc.border; card.style.transform=''; card.style.boxShadow=''; };
       card.onclick = () => {
-        if (gs.player.gold < rc.cost) return;
-        gs.player.gold -= rc.cost;
+        if (gs.player.gold < cost) return;
+        gs.player.gold -= cost;
         gs.player.items.push(item.id);
         AudioEngine.playItemGet();
         showItemToast(item);
@@ -4990,6 +2608,7 @@ function showItemShop(gs) {
 }
 
 function showRewardScreen(isBoss) {
+  if (GS.combat?.active) return;
   GS._rewardLock = false; // 보상 화면 열릴 때 락 초기화
   hideSkipConfirm(); // 건너뛰기 확인 UI 초기화
   const isElite = GS.currentNode?.type === 'elite';
@@ -5119,19 +2738,34 @@ function skipReward() {
 function returnToGame(fromReward) {
   const wasBoss = GS._bossRewardPending;
   const wasLastRegion = GS._bossLastRegion;
+  const endlessRun = RunRules.isEndless(GS);
   GS._bossRewardPending = false;
   GS._bossLastRegion = false;
   GS._rewardLock = false;
   GS._nodeMoveLock = false;
   GS._eventLock = false;
 
+  document.getElementById('combatOverlay')?.classList.remove('active');
+  const combatHand = document.getElementById('combatHandCards');
+  if (combatHand) combatHand.innerHTML = '';
+  const enemyZone = document.getElementById('enemyZone');
+  if (enemyZone) enemyZone.innerHTML = '';
+
   if (fromReward && wasBoss) {
     if (wasLastRegion) {
-      // 최종 지역 보스 → 엔딩
-      const rw = document.getElementById('rewardScreen');
-      if (rw) rw.classList.remove('active');
-      if (StorySystem.checkHiddenEnding()) StorySystem.showHiddenEnding();
-      else StorySystem.showNormalEnding();
+      if (!endlessRun) {
+        // 최종 지역 보스(비엔들리스) → 메타 정산 + 엔딩
+        finalizeRunOutcome('victory', { echoFragments: 5 });
+        const rw = document.getElementById('rewardScreen');
+        if (rw) rw.classList.remove('active');
+        if (StorySystem.checkHiddenEnding()) StorySystem.showHiddenEnding();
+        else StorySystem.showNormalEnding();
+        return;
+      }
+      // 엔들리스는 엔딩 없이 다음 루프로 진행
+      switchScreen('game');
+      updateUI();
+      setTimeout(() => advanceToNextRegion(), 300);
       return;
     } else {
       // 중간 보스 → 다음 지역
@@ -5240,7 +2874,7 @@ function _doUpdateUI() {
   // 런 정보
   setText('runCount',gs.meta.runCount); setText('killCount',p.kills); setText('goldCount',p.gold);
   // 지역
-  const region = DATA.regions[gs.currentRegion];
+  const region = getRegionData(gs.currentRegion, gs) || { name: '알 수 없는 지역', rule: '-', floors: 1 };
   setText('regionName',region.name); setText('regionRule',region.rule); setText('regionFloor',`${gs.currentFloor} / ${region.floors}층`);
   setText('playerFloor',`${region.name} · ${gs.currentFloor}층`);
   const classNames = {swordsman:'잔향검사',mage:'메아리술사',hunter:'침묵사냥꾼'};
@@ -5458,7 +3092,7 @@ function updateNoiseWidget() {
   const widget = document.getElementById('noiseWidget');
   if (!widget) return;
   // 침묵의 도시(region 1)의 전투 중에만 표시
-  const inSilenceCity = GS.currentRegion === 1 && GS.combat.active;
+  const inSilenceCity = getBaseRegionIndex(GS.currentRegion) === 1 && GS.combat.active;
   widget.style.display = inSilenceCity ? 'block' : 'none';
   if (!inSilenceCity) return;
 
@@ -6259,9 +3893,105 @@ function selectClass(btn) {
   try { AudioEngine.init(); AudioEngine.resume(); AudioEngine.playClassSelect(selectedClass); } catch(e) { console.warn('Audio error:', e); }
 }
 
+function refreshRunModePanel() {
+  const panel = document.getElementById('runModePanel');
+  if (!panel) return;
+
+  RunRules.ensureMeta(GS.meta);
+  const meta = GS.meta;
+  const cfg = meta.runConfig;
+  const maxAsc = Math.max(0, meta.maxAscension || 0);
+  const ascUnlocked = !!meta.unlocks?.ascension;
+  const endlessUnlocked = !!meta.unlocks?.endless;
+
+  const ascValueEl = document.getElementById('ascensionValue');
+  const ascCapEl = document.getElementById('ascensionCap');
+  if (ascValueEl) ascValueEl.textContent = `A${cfg.ascension}`;
+  if (ascCapEl) ascCapEl.textContent = `최고 A${maxAsc}`;
+
+  panel.querySelectorAll('[onclick^="shiftAscension"]').forEach(btn => {
+    btn.disabled = !ascUnlocked || maxAsc <= 0;
+  });
+
+  const endlessBtn = document.getElementById('endlessToggleBtn');
+  if (endlessBtn) {
+    const endlessOn = !!cfg.endless;
+    endlessBtn.disabled = !endlessUnlocked;
+    endlessBtn.textContent = endlessOn ? 'ON' : 'OFF';
+    endlessBtn.style.borderColor = endlessOn ? 'rgba(0,255,204,0.6)' : '';
+    endlessBtn.style.color = endlessOn ? 'var(--cyan)' : '';
+  }
+
+  const blessing = RunRules.blessings[cfg.blessing] || RunRules.blessings.none;
+  const curse = RunRules.curses[cfg.curse] || RunRules.curses.none;
+  const blessingBtn = document.getElementById('blessingCycleBtn');
+  const curseBtn = document.getElementById('curseCycleBtn');
+  if (blessingBtn) blessingBtn.textContent = blessing.name;
+  if (curseBtn) curseBtn.textContent = curse.name;
+
+  const descEl = document.getElementById('runModeDesc');
+  if (descEl) {
+    const chunks = [];
+    if (cfg.ascension > 0) chunks.push(`승천 A${cfg.ascension}: 적 능력치 상승`);
+    else chunks.push('승천 A0: 기본 난이도');
+    if (cfg.endless) chunks.push('엔들리스: 최종 지역 이후 루프 진행');
+    chunks.push(`축복 - ${blessing.desc}`);
+    if (curse.id !== 'none') chunks.push(`저주 - ${curse.desc}`);
+    if (!ascUnlocked) chunks.push('승천은 2회차부터 해금');
+    if (!endlessUnlocked) chunks.push('엔들리스는 승리 누적으로 해금');
+    descEl.textContent = chunks.join(' · ');
+  }
+}
+
+function shiftAscension(delta) {
+  RunRules.ensureMeta(GS.meta);
+  const meta = GS.meta;
+  if (!meta.unlocks?.ascension) {
+    refreshRunModePanel();
+    return;
+  }
+  const cur = Number.isFinite(meta.runConfig.ascension) ? meta.runConfig.ascension : 0;
+  const maxAsc = Math.max(0, meta.maxAscension || 0);
+  meta.runConfig.ascension = Math.max(0, Math.min(maxAsc, cur + (delta < 0 ? -1 : 1)));
+  refreshRunModePanel();
+  SaveSystem.saveMeta();
+}
+
+function toggleEndlessMode() {
+  RunRules.ensureMeta(GS.meta);
+  const meta = GS.meta;
+  if (!meta.unlocks?.endless) {
+    if (typeof showWorldMemoryNotice === 'function') {
+      showWorldMemoryNotice('엔들리스는 아직 해금되지 않았습니다.');
+    }
+    refreshRunModePanel();
+    return;
+  }
+  meta.runConfig.endless = !meta.runConfig.endless;
+  refreshRunModePanel();
+  SaveSystem.saveMeta();
+}
+
+function cycleRunBlessing() {
+  RunRules.ensureMeta(GS.meta);
+  const meta = GS.meta;
+  meta.runConfig.blessing = RunRules.nextBlessingId(meta.runConfig.blessing || 'none');
+  refreshRunModePanel();
+  SaveSystem.saveMeta();
+}
+
+function cycleRunCurse() {
+  RunRules.ensureMeta(GS.meta);
+  const meta = GS.meta;
+  meta.runConfig.curse = RunRules.nextCurseId(meta.runConfig.curse || 'none');
+  refreshRunModePanel();
+  SaveSystem.saveMeta();
+}
+
 function startGame() {
   if (!selectedClass) return;
   AudioEngine.init(); AudioEngine.resume();
+  RunRules.ensureMeta(GS.meta);
 
   const configs = {
     swordsman: {maxHp:80, startEcho:0},
@@ -6270,6 +4000,13 @@ function startGame() {
   };
   const cfg = configs[selectedClass];
   const ins = GS.meta.inscriptions;
+  GS.runConfig = {
+    ascension: GS.meta.runConfig.ascension || 0,
+    endlessMode: !!GS.meta.runConfig.endless,
+    blessing: GS.meta.runConfig.blessing || 'none',
+    curse: GS.meta.runConfig.curse || 'none',
+  };
+  GS._runOutcomeCommitted = false;
 
   GS.player = {
     class: selectedClass,
@@ -6292,6 +4029,8 @@ function startGame() {
   if (classStartItems[selectedClass]) {
     GS.player.items.push(classStartItems[selectedClass]);
   }
+
+  RunRules.applyRunStart(GS);
 
   shuffleArray(GS.player.deck);
   GS.currentRegion = 0; GS.currentFloor = 0;
@@ -6350,6 +4089,7 @@ function selectFragment(effect) {
     selectedClass = null;
     document.getElementById('startBtn').disabled = true;
     document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));
+    refreshRunModePanel();
   }, 500);
 }
 
@@ -6361,10 +4101,10 @@ function advanceToNextRegion() {
   GS.currentFloor = 0;
   MazeSystem.close();
 
-  const region = DATA.regions[GS.currentRegion];
+  const region = getRegionData(GS.currentRegion, GS);
   if (!region) return;
 
-  AudioEngine.startAmbient(GS.currentRegion);
+  AudioEngine.startAmbient(getBaseRegionIndex(GS.currentRegion));
 
   const el = document.createElement('div');
   el.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:2000;animation:fadeIn 0.8s ease both;';
@@ -6528,10 +4268,7 @@ function confirmAbandon() {
     document.getElementById('combatOverlay')?.classList.remove('active');
   }
   // 사망 처리와 동일하게 런 종료
-  GS.meta.runCount++;
-  GS.meta.echoFragments += 2;
-  Object.assign(GS.meta.worldMemory, GS.worldMemory);
-  StorySystem.unlockNextFragment();
+  finalizeRunOutcome('defeat', { echoFragments: 2 });
   document.getElementById('deathFloor').textContent = GS.currentFloor;
   document.getElementById('deathKills').textContent = GS.player.kills;
   document.getElementById('deathChain').textContent = GS.stats.maxChain;
@@ -6601,6 +4338,7 @@ function restartFromEnding() {
   selectedClass = null;
   document.getElementById('startBtn').disabled = true;
   document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));
+  refreshRunModePanel();
 }
 
 // ────────────────────────────────────────
@@ -6610,6 +4348,10 @@ window.GS = GS;
 window.GameState = GS;
 window.selectClass = selectClass;
 window.startGame = startGame;
+window.shiftAscension = shiftAscension;
+window.toggleEndlessMode = toggleEndlessMode;
+window.cycleRunBlessing = cycleRunBlessing;
+window.cycleRunCurse = cycleRunCurse;
 window.selectFragment = selectFragment;
 window.useEchoSkill = useEchoSkill;
 window.drawCard = drawCard;
@@ -6677,6 +4419,13 @@ const SaveSystem = {
         }
         Object.assign(GS.meta, data);
       }
+      RunRules.ensureMeta(GS.meta);
+      GS.runConfig = {
+        ascension: GS.meta.runConfig.ascension || 0,
+        endlessMode: !!GS.meta.runConfig.endless,
+        blessing: GS.meta.runConfig.blessing || 'none',
+        curse: GS.meta.runConfig.curse || 'none',
+      };
     } catch(e) {}
   },
 
@@ -6726,10 +4475,12 @@ function _bootGame() {
   try {
   document.addEventListener('click', () => { try{AudioEngine.init();AudioEngine.resume();}catch(e){} }, {once:false});
   try { SaveSystem.loadMeta(); } catch(e) {}
+  try { RunRules.ensureMeta(GS.meta); } catch(e) {}
   // class-btn 이벤트는 onclick 속성으로 처리됨 (중복 등록 방지)
   // startBtn도 onclick 속성으로 처리됨
   initTitleCanvas();
   try { updateUI(); } catch(e) { console.warn('updateUI error:', e); }
+  refreshRunModePanel();
 
   // 메타 데이터 표시 (런 횟수 등)
   if (GS.meta.runCount > 1) {
@@ -6762,6 +4513,3 @@ if (document.readyState === 'loading') {
 } else {
   _bootGame();
 }
-</script>
-</body>
-</html>
