@@ -2507,34 +2507,31 @@ function switchScreen(screen) {
 // ────────────────────────────────────────
 // TITLE SCREEN
 // ────────────────────────────────────────
-let selectedClass = null;
+function _getClassSelectUIDeps() {
+  return {
+    doc: document,
+    playClassSelect: (cls) => {
+      try {
+        AudioEngine.init();
+        AudioEngine.resume();
+        AudioEngine.playClassSelect(cls);
+      } catch (e) {
+        console.warn('Audio error:', e);
+      }
+    },
+  };
+}
+
+function _getSelectedClass() {
+  return window.ClassSelectUI?.getSelectedClass?.() || null;
+}
+
+function _clearSelectedClass() {
+  window.ClassSelectUI?.clearSelection?.(_getClassSelectUIDeps());
+}
 
 function selectClass(btn) {
-  // 이미 처리 중이면 중복 실행 방지
-  if (btn._selecting) return;
-  btn._selecting = true;
-  setTimeout(() => { btn._selecting = false; }, 300);
-
-  document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedClass = btn.dataset.class;
-  document.getElementById('startBtn').disabled = false;
-
-  // 클래스 선택 힌트 숨기기
-  const hint = document.getElementById('classSelectHint');
-  if (hint) { hint.style.opacity = '0'; hint.style.transform = 'translateY(-8px)'; hint.style.transition = 'opacity 0.4s,transform 0.4s'; }
-
-  const icons = {swordsman:'⚔️', mage:'🔮', hunter:'🗡️'};
-  const avatarEl = document.getElementById('playerAvatar');
-  if (avatarEl) avatarEl.textContent = icons[selectedClass] || '⚔️';
-
-  // 선택 펄스 애니메이션
-  btn.style.transition = 'transform 0.15s ease';
-  btn.style.transform = 'scale(1.04) translateY(-4px)';
-  setTimeout(() => { btn.style.transform = ''; }, 200);
-
-  // 오디오는 별도로 처리 (실패해도 선택 자체는 유지)
-  try { AudioEngine.init(); AudioEngine.resume(); AudioEngine.playClassSelect(selectedClass); } catch(e) { console.warn('Audio error:', e); }
+  window.ClassSelectUI?.selectClass?.(btn, _getClassSelectUIDeps());
 }
 
 function _getSaveSystemDeps() {
@@ -2578,6 +2575,7 @@ function cycleRunCurse() {
 }
 
 function startGame() {
+  const selectedClass = _getSelectedClass();
   if (!selectedClass) return;
   AudioEngine.init(); AudioEngine.resume();
   RunRules.ensureMeta(GS.meta);
@@ -2679,9 +2677,7 @@ function selectFragment(effect) {
   meta.echoFragments--;
   setTimeout(() => {
     switchScreen('title');
-    selectedClass = null;
-    document.getElementById('startBtn').disabled = true;
-    document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));
+    _clearSelectedClass();
     refreshRunModePanel();
   }, 500);
 }
@@ -2789,9 +2785,7 @@ function shuffleArray(arr) {
 function restartFromEnding() {
   document.getElementById('endingScreen')?.remove();
   switchScreen('title');
-  selectedClass = null;
-  document.getElementById('startBtn').disabled = true;
-  document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));
+  _clearSelectedClass();
   refreshRunModePanel();
 }
 
