@@ -2319,59 +2319,30 @@ function setText(id,val) { const el=document.getElementById(id); if(el) el.textC
 // ────────────────────────────────────────
 // 카드 드래그 앤 드롭
 // ────────────────────────────────────────
-let _dragCardId = null, _dragIdx = null;
+function _getCardTargetUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    renderCombatEnemies,
+  };
+}
 
 function handleCardDragStart(event, cardId, idx) {
-  _dragCardId = cardId; _dragIdx = idx;
-  event.dataTransfer.effectAllowed = 'move';
-  event.currentTarget.style.opacity = '0.5';
-  // 적 카드에 드롭 하이라이트
-  document.querySelectorAll('.enemy-card').forEach(el => {
-    el.style.outline = '2px dashed rgba(0,255,204,0.4)';
-    el.setAttribute('ondragover', 'event.preventDefault();this.style.outline="2px dashed var(--cyan)"');
-    el.setAttribute('ondragleave', 'this.style.outline="2px dashed rgba(0,255,204,0.4)"');
-    el.setAttribute('ondrop', `handleCardDropOnEnemy(event,${el.id.split('_')[1]})`);
-  });
+  window.CardTargetUI?.handleDragStart?.(event, cardId, idx, _getCardTargetUIDeps());
 }
 
 function handleCardDragEnd(event) {
-  event.currentTarget.style.opacity = '';
-  _dragCardId = null; _dragIdx = null;
-  document.querySelectorAll('.enemy-card').forEach(el => {
-    el.style.outline = '';
-    el.removeAttribute('ondragover'); el.removeAttribute('ondragleave'); el.removeAttribute('ondrop');
-  });
+  window.CardTargetUI?.handleDragEnd?.(event, _getCardTargetUIDeps());
 }
 
 function handleCardDropOnEnemy(event, enemyIdx) {
-  event.preventDefault();
-  if (!_dragCardId || _dragIdx === undefined || _dragIdx === null) return;
-  document.querySelectorAll('.enemy-card').forEach(el => { el.style.outline=''; });
-  // 공격 카드인 경우 해당 적을 대상으로 플레이
-  const card = DATA.cards[_dragCardId];
-  if (!card) return;
-  // 임시로 대상 인덱스를 설정 후 플레이
-  GS._dragTarget = enemyIdx;
-  GS._selectedTarget = enemyIdx; // 드래그 타겟도 선택 타겟으로 동기화
-  try {
-    GS.playCard(_dragCardId, _dragIdx);
-  } finally {
-    GS._dragTarget = null;
-  }
+  window.CardTargetUI?.handleDropOnEnemy?.(event, enemyIdx, _getCardTargetUIDeps());
 }
 
 // 적 카드 클릭 → 타겟 지정 (같은 적 다시 클릭하면 해제)
 function selectTarget(idx) {
-  if (!GS.combat.active || !GS.combat.playerTurn) return;
-  const enemy = GS.combat.enemies[idx];
-  if (!enemy || enemy.hp <= 0) return;
-  if (GS._selectedTarget === idx) {
-    GS._selectedTarget = null; // 해제
-  } else {
-    GS._selectedTarget = idx;
-    GS.addLog(`🎯 ${enemy.name} 타겟 지정`, 'system');
-  }
-  renderCombatEnemies(); // 선택 표시 갱신
+  window.CardTargetUI?.selectTarget?.(idx, _getCardTargetUIDeps());
 }
 window.selectTarget = selectTarget;
 
