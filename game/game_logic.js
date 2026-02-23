@@ -35,7 +35,7 @@ const GS = {
   combat: { active:false, enemies:[], turn:0, playerTurn:true, log:[] },
   _selectedTarget: null,
   worldMemory: {},
-  runConfig: { ascension: 0, endlessMode: false, blessing: 'none', curse: 'none' },
+  runConfig: { ascension: 0, endless: false, endlessMode: false, blessing: 'none', curse: 'none' },
   stats: { damageDealt:0, damageTaken:0, cardsPlayed:0, maxChain:0 },
   _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
 
@@ -1914,7 +1914,11 @@ function renderCombatEnemies() {
             const momBonus = GS.getBuff('momentum')?.dmgBonus || 0;
             return sum + (c.dmg||0) + momBonus;
           }, 0);
-          dmgPreviewHtml = `<div class="enemy-dmg-preview">⚔ 예상 총 피해 ${totalDmg}</div>`;
+          const enemyShield = e.shield || 0;
+          const netDmg = Math.max(0, totalDmg - enemyShield);
+          dmgPreviewHtml = enemyShield > 0
+            ? `<div class="enemy-dmg-preview">⚔ 예상 피해 ${netDmg} (방어막 ${enemyShield})</div>`
+            : `<div class="enemy-dmg-preview">⚔ 예상 총 피해 ${netDmg}</div>`;
         }
       }
       // 보스 페이즈 바 (페이즈 구분선)
@@ -1990,8 +1994,12 @@ function renderCombatEnemies() {
               const momBonus = GS.getBuff('momentum')?.dmgBonus || 0;
               return sum + (c.dmg||0) + momBonus;
             }, 0);
+            const enemyShield = e.shield || 0;
+            const netDmg = Math.max(0, totalDmg - enemyShield);
             if (!previewEl) { previewEl = document.createElement('div'); previewEl.className = 'enemy-dmg-preview'; card.appendChild(previewEl); }
-            previewEl.textContent = `⚔ 예상 총 피해 ${totalDmg}`;
+            previewEl.textContent = enemyShield > 0
+              ? `⚔ 예상 피해 ${netDmg} (방어막 ${enemyShield})`
+              : `⚔ 예상 총 피해 ${netDmg}`;
           } else {
             previewEl?.remove();
           }
@@ -4179,6 +4187,7 @@ function startGame() {
   const ins = GS.meta.inscriptions;
   GS.runConfig = {
     ascension: GS.meta.runConfig.ascension || 0,
+    endless: !!GS.meta.runConfig.endless,
     endlessMode: !!GS.meta.runConfig.endless,
     blessing: GS.meta.runConfig.blessing || 'none',
     curse: GS.meta.runConfig.curse || 'none',
@@ -4601,6 +4610,7 @@ const SaveSystem = {
       RunRules.ensureMeta(GS.meta);
       GS.runConfig = {
         ascension: GS.meta.runConfig.ascension || 0,
+        endless: !!GS.meta.runConfig.endless,
         endlessMode: !!GS.meta.runConfig.endless,
         blessing: GS.meta.runConfig.blessing || 'none',
         curse: GS.meta.runConfig.curse || 'none',
@@ -4613,7 +4623,12 @@ const SaveSystem = {
     if (GS.combat?.active) return;
     try {
       const save = {
-        player: {...GS.player, buffs: {}, hand: []},
+        player: {
+          ...GS.player,
+          buffs: {},
+          hand: [],
+          upgradedCards: [...(GS.player.upgradedCards instanceof Set ? GS.player.upgradedCards : [])],
+        },
         currentRegion: GS.currentRegion,
         currentFloor: GS.currentFloor,
         stats: GS.stats,
