@@ -2230,133 +2230,40 @@ function showItemShop(gs) {
   });
 }
 
-function showRewardScreen(isBoss) {
-  if (GS.combat?.active) return;
-  GS._rewardLock = false; // 보상 화면 열릴 때 락 초기화
-  hideSkipConfirm(); // 건너뛰기 확인 UI 초기화
-  const isElite = GS.currentNode?.type === 'elite';
-  // 타이틀 업데이트
-  const eyebrow = document.getElementById('rewardEyebrow');
-  const titleEl = document.getElementById('rewardTitle');
-  if (eyebrow) eyebrow.textContent = isBoss ? '✦ 보스 처치 — 보상 선택 ✦' : isElite ? '✦ 정예 처치 — 보상 선택 ✦' : '✦ 전투 승리 — 보상 선택 ✦';
-  if (titleEl) {
-    if (isBoss) {
-      titleEl.textContent = '보스 처치!';
-      titleEl.style.display = 'block';
-      titleEl.style.color = 'var(--gold)';
-    } else if (isElite) {
-      titleEl.textContent = '⭐ 정예 처치!';
-      titleEl.style.display = 'block';
-      titleEl.style.color = '#d4a017';
-    } else {
-      titleEl.style.display = 'none';
-    }
-  }
-  const count = isBoss ? 4 : isElite ? 3 : 3;
-  const rarities = isBoss ? ['uncommon','uncommon','rare','rare']
-                 : isElite ? ['uncommon','uncommon','rare']
-                 : ['common','uncommon','common'];
-  const rewardCards = Array.from({length:count},(_,i)=>GS.getRandomCard(rarities[i]));
-  const container = document.getElementById('rewardCards');
-  container.classList.remove('picked'); // 이전 선택 상태 초기화
-  container.innerHTML = rewardCards.map((cardId, idx) => {
-    const card = DATA.cards[cardId];
-    if (!card) return '';
-    const rarityBorder = card.rarity==='rare'?'rgba(240,180,41,0.4)':card.rarity==='uncommon'?'rgba(123,47,255,0.4)':'';
-    return `<div class="reward-card-wrapper" onclick="takeRewardCard('${cardId}')"
-      onmouseenter="showTooltip(event,'${cardId}')" onmouseleave="hideTooltip()"
-      style="animation-delay:${idx*0.08}s;">
-      <div class="card" style="width:110px;height:auto;min-height:150px;padding-bottom:10px;${rarityBorder?`border-color:${rarityBorder};`:''}">
-        <div class="card-cost">${card.cost}</div>
-        <div class="card-icon" style="font-size:28px;">${card.icon}</div>
-        <div class="card-name" style="font-size:11px;">${card.name}</div>
-        <div class="card-desc" style="font-size:10px;">${card.desc}</div>
-        <div class="card-type" style="font-size:8px;color:${rarityBorder?rarityBorder:'var(--echo)'};">${card.rarity||'common'}</div>
-      </div>
-    </div>`;
-  }).join('');
+function _getRewardUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    switchScreen,
+    returnToGame,
+    showItemToast,
+    playItemGet: () => AudioEngine.playItemGet(),
+  };
+}
 
-  let itemCardIdx = count;
-  if (isBoss || Math.random() < 0.3) {
-    // 보스면 rare+, 일반이면 uncommon 이하에서 선택
-    const targetRarity = isBoss ? ['rare','legendary'] : ['common','uncommon'];
-    const pool = Object.values(DATA.items)
-      .filter(it => targetRarity.includes(it.rarity) && !GS.player.items.includes(it.id));
-    const itemPool = pool.length > 0 ? pool : Object.values(DATA.items).filter(it=>!GS.player.items.includes(it.id));
-    if (itemPool.length > 0) {
-      const item = itemPool[Math.floor(Math.random()*itemPool.length)];
-      const itemKey = item.id;
-      const rarityColor = {common:'var(--text-dim)',uncommon:'var(--echo-bright)',rare:'var(--gold)',legendary:'#c084fc'};
-      const rarityBorderItem = {common:'rgba(150,150,180,0.3)',uncommon:'rgba(123,47,255,0.4)',rare:'rgba(240,180,41,0.5)',legendary:'rgba(192,132,252,0.6)'};
-      const rarityLabel = {common:'일반',uncommon:'고급',rare:'희귀',legendary:'전설'};
-      const rc = item.rarity||'common';
-      container.innerHTML += `<div class="reward-card-wrapper" onclick="takeRewardItem('${itemKey}')" style="animation-delay:${itemCardIdx*0.08}s;">
-        <div class="card" style="width:110px;height:auto;min-height:150px;padding-bottom:10px;border-color:${rarityBorderItem[rc]};">
-          <div class="card-icon" style="font-size:30px;">${item.icon}</div>
-          <div class="card-name" style="font-size:11px;color:${rarityColor[rc]};">${item.name}</div>
-          <div class="card-desc" style="font-size:10px;">${item.desc}</div>
-          <div class="card-type" style="font-size:8px;color:${rarityColor[rc]};">아이템 · ${rarityLabel[rc]}</div>
-        </div></div>`;
-    }
-  }
-  switchScreen('reward');
+function showRewardScreen(isBoss) {
+  window.RewardUI?.showRewardScreen?.(isBoss, _getRewardUIDeps());
 }
 
 function takeRewardCard(cardId) {
-  if (GS._rewardLock) return;
-  GS._rewardLock = true;
-  // 선택된 카드 강조 + 나머지 딤처리
-  const container = document.getElementById('rewardCards');
-  if (container) {
-    const wrappers = container.querySelectorAll('.reward-card-wrapper');
-    wrappers.forEach(w => {
-      if (w.getAttribute('onclick')?.includes(cardId)) w.classList.add('selected');
-    });
-    container.classList.add('picked');
-  }
-  GS.player.deck.push(cardId);
-  if (GS.meta.codex) GS.meta.codex.cards.add(cardId);
-  const card = DATA.cards[cardId];
-  AudioEngine.playItemGet();
-  showItemToast({name:card?.name, icon:card?.icon, desc:card?.desc});
-  setTimeout(() => returnToGame(true), 350);
+  window.RewardUI?.takeRewardCard?.(cardId, _getRewardUIDeps());
 }
 
 function takeRewardItem(itemKey) {
-  if (GS._rewardLock) return;
-  GS._rewardLock = true;
-  const container = document.getElementById('rewardCards');
-  if (container) {
-    const wrappers = container.querySelectorAll('.reward-card-wrapper');
-    wrappers.forEach(w => {
-      if (w.getAttribute('onclick')?.includes(itemKey)) w.classList.add('selected');
-    });
-    container.classList.add('picked');
-  }
-  GS.player.items.push(itemKey);
-  if (GS.meta.codex) GS.meta.codex.items.add(itemKey);
-  const item = DATA.items[itemKey];
-  AudioEngine.playItemGet();
-  showItemToast(item);
-  setTimeout(() => returnToGame(true), 350);
+  window.RewardUI?.takeRewardItem?.(itemKey, _getRewardUIDeps());
 }
 
 function showSkipConfirm() {
-  const initBtn = document.getElementById('skipInitBtn');
-  const confirmRow = document.getElementById('skipConfirmRow');
-  if (initBtn) initBtn.style.display = 'none';
-  if (confirmRow) confirmRow.style.display = 'flex';
+  window.RewardUI?.showSkipConfirm?.(_getRewardUIDeps());
 }
+
 function hideSkipConfirm() {
-  const initBtn = document.getElementById('skipInitBtn');
-  const confirmRow = document.getElementById('skipConfirmRow');
-  if (initBtn) initBtn.style.display = '';
-  if (confirmRow) confirmRow.style.display = 'none';
+  window.RewardUI?.hideSkipConfirm?.(_getRewardUIDeps());
 }
+
 function skipReward() {
-  if (GS._rewardLock) return;
-  GS._rewardLock = true;
-  returnToGame(true);
+  window.RewardUI?.skipReward?.(_getRewardUIDeps());
 }
 
 function returnToGame(fromReward) {
