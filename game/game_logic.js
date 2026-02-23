@@ -1923,65 +1923,21 @@ function cycleRunCurse() {
   window.RunModeUI?.cycleCurse?.(_getRunModeDeps());
 }
 
+function _getRunSetupUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    runRules: RunRules,
+    audioEngine: AudioEngine,
+    getSelectedClass: () => _getSelectedClass(),
+    shuffleArray,
+    resetDeckModalFilter: () => _resetDeckModalFilter(),
+    enterRun: () => window.RunStartUI?.enterRun?.(_getRunStartUIDeps()),
+  };
+}
+
 function startGame() {
-  const selectedClass = _getSelectedClass();
-  if (!selectedClass) return;
-  AudioEngine.init(); AudioEngine.resume();
-  RunRules.ensureMeta(GS.meta);
-
-  const configs = {
-    swordsman: {maxHp:80, startEcho:0},
-    mage: {maxHp:50, startEcho:20},
-    hunter: {maxHp:65, startEcho:10},
-  };
-  const cfg = configs[selectedClass];
-  const ins = GS.meta.inscriptions;
-  GS.runConfig = {
-    ascension: GS.meta.runConfig.ascension || 0,
-    endless: !!GS.meta.runConfig.endless,
-    endlessMode: !!GS.meta.runConfig.endless,
-    blessing: GS.meta.runConfig.blessing || 'none',
-    curse: GS.meta.runConfig.curse || 'none',
-  };
-  GS._runOutcomeCommitted = false;
-
-  GS.player = {
-    class: selectedClass,
-    hp: cfg.maxHp + (ins.resilience?10:0),
-    maxHp: cfg.maxHp + (ins.resilience?10:0),
-    shield: 0, echo: cfg.startEcho + (ins.echo_boost?30:0), maxEcho:100,
-    echoChain: 0, energy:3, maxEnergy:3,
-    gold: ins.fortune?30:10, kills:0,
-    deck: [...DATA.startDecks[selectedClass]],
-    hand:[], graveyard:[], exhausted:[], items:[], buffs:{}, silenceGauge:0, zeroCost:false, costDiscount:0,
-    upgradedCards: new Set(), _cardUpgradeBonus: {},
-  };
-  if (!GS.meta.codex) GS.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
-  GS.player.deck.forEach(id => GS.meta.codex.cards.add(id));
-
-  // 클래스별 시작 아이템
-  const classStartItems = {
-    swordsman: 'dull_blade',    // 무딘 검: 카드 사용 시 10% Echo
-    mage: 'void_shard',         // 허공 파편: 전투 종료 시 Echo +20
-    hunter: 'travelers_map',    // 여행자 지도: 층 이동 시 HP 회복
-  };
-  if (classStartItems[selectedClass]) {
-    GS.player.items.push(classStartItems[selectedClass]);
-    GS.meta.codex.items.add(classStartItems[selectedClass]);
-  }
-
-  RunRules.applyRunStart(GS);
-
-  shuffleArray(GS.player.deck);
-  GS.currentRegion = 0; GS.currentFloor = 0;
-  GS.mapNodes = []; GS.currentNode = null; GS.visitedNodes = new Set();
-  GS.worldMemory = {...GS.meta.worldMemory};
-  GS.stats = {damageDealt:0,damageTaken:0,cardsPlayed:0,maxChain:0};
-  GS.combat = {active:false,enemies:[],turn:0,playerTurn:true,log:[]};
-  GS._heartUsed = false; GS._temporalTurn = 0; GS._bossAdvancePending = false;
-  _resetDeckModalFilter(); // 덱 필터 초기화
-
-  window.RunStartUI?.enterRun?.(_getRunStartUIDeps());
+  window.RunSetupUI?.startGame?.(_getRunSetupUIDeps());
 }
 
 function _getMetaProgressionUIDeps() {
