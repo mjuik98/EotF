@@ -2561,6 +2561,25 @@ function _getRunModeDeps() {
   };
 }
 
+function _getRunStartUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    switchScreen,
+    markGameStarted: () => { _gameStarted = true; },
+    generateMap,
+    audioEngine: AudioEngine,
+    updateUI,
+    updateClassSpecialUI,
+    initGameCanvas,
+    gameLoop,
+    requestAnimationFrame: window.requestAnimationFrame.bind(window),
+    showMapOverlay,
+    showRunFragment: () => StorySystem.showRunFragment(),
+    showWorldMemoryNotice,
+  };
+}
+
 function refreshRunModePanel() {
   window.RunModeUI?.refresh?.(_getRunModeDeps());
 }
@@ -2639,39 +2658,7 @@ function startGame() {
   GS._heartUsed = false; GS._temporalTurn = 0; GS._bossAdvancePending = false;
   _resetDeckModalFilter(); // 덱 필터 초기화
 
-  switchScreen('game');
-  _gameStarted = true;
-  generateMap(0);
-  AudioEngine.startAmbient(0);
-  updateUI(); updateClassSpecialUI();
-  // 캔버스는 화면이 완전히 렌더된 후 초기화 (타이밍 이슈 방지)
-  setTimeout(() => {
-    initGameCanvas();
-    requestAnimationFrame(gameLoop);
-    // 맵 오버레이 자동 표시로 루트 인식 유도
-    setTimeout(() => showMapOverlay(true), 400);
-  }, 80);
-
-  // 스토리 조각 표시
-  setTimeout(() => {
-    StorySystem.showRunFragment();
-    // World Memory 힌트
-    const wm = GS.worldMemory;
-    const hints = [];
-    if ((wm.savedMerchant||0)>0) hints.push('🤝 상인들이 당신을 기억한다');
-    if (wm['killed_ancient_echo']) hints.push('💀 태고의 잔향이 기다린다');
-    if (hints.length) showWorldMemoryNotice(hints.join(' · '));
-  }, 1000);
-
-  // 런 카운터 배지
-  if (GS.meta.runCount > 1) {
-    setTimeout(() => {
-      const badge = document.createElement('div');
-      badge.style.cssText = 'position:fixed;top:16px;right:16px;font-family:\'Share Tech Mono\',monospace;font-size:10px;color:rgba(123,47,255,0.6);z-index:20;';
-      badge.textContent = `RUN ${GS.meta.runCount}`;
-      document.getElementById('gameScreen')?.appendChild(badge);
-    }, 500);
-  }
+  window.RunStartUI?.enterRun?.(_getRunStartUIDeps());
 }
 
 function _getMetaProgressionUIDeps() {
