@@ -2788,100 +2788,34 @@ function selectTarget(idx) {
 }
 window.selectTarget = selectTarget;
 
+function _getFeedbackUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    win: window,
+    audioEngine: AudioEngine,
+    screenShake: ScreenShake,
+  };
+}
+
 function showCombatSummary(dealt, taken, kills) {
-  const el = document.createElement('div');
-  el.className = 'combat-stat-summary';
-  el.innerHTML = `
-    <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);margin-bottom:8px;">⚔️ 전투 종료</div>
-    <div style="display:flex;flex-direction:column;gap:4px;">
-      <div style="display:flex;justify-content:space-between;gap:16px;">
-        <span style="color:var(--text-dim);">가한 피해</span>
-        <span style="color:var(--danger);font-weight:700;">${dealt}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;gap:16px;">
-        <span style="color:var(--text-dim);">받은 피해</span>
-        <span style="color:#ff8888;">${taken}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;gap:16px;">
-        <span style="color:var(--text-dim);">처치</span>
-        <span style="color:var(--cyan);">${kills}</span>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(el);
-  setTimeout(()=>{el.classList.add('fadeout'); setTimeout(()=>el.remove(), 500);}, 2500);
+  window.FeedbackUI?.showCombatSummary?.(dealt, taken, kills, _getFeedbackUIDeps());
 }
 
 function showDmgPopup(dmg, x, y, color='#ff3366') {
-  const el = document.createElement('div');
-  el.className = 'dmg-popup';
-  el.textContent = dmg>=0?`-${dmg}`:`+${Math.abs(dmg)}`;
-  el.style.cssText = `left:${x-20}px;top:${y-40}px;font-size:${Math.min(28,14+dmg/3)}px;color:${color};`;
-  document.getElementById('hudOverlay').appendChild(el);
-  setTimeout(()=>el.remove(), 1200);
+  window.FeedbackUI?.showDmgPopup?.(dmg, x, y, color, _getFeedbackUIDeps());
 }
 
 function showEdgeDamage() {
-  const el = document.createElement('div');
-  el.className = 'screen-edge-damage';
-  document.getElementById('hudOverlay').appendChild(el);
-  setTimeout(()=>el.remove(), 500);
+  window.FeedbackUI?.showEdgeDamage?.(_getFeedbackUIDeps());
 }
 
 function showEchoBurstOverlay() {
-  const el = document.createElement('div');
-  el.className = 'echo-burst-overlay';
-  document.getElementById('hudOverlay').appendChild(el);
-  setTimeout(()=>el.remove(), 800);
+  window.FeedbackUI?.showEchoBurstOverlay?.(_getFeedbackUIDeps());
 }
 
 function showCardPlayEffect(card) {
-  if (!card) return;
-  // 카드 타입에 맞는 플래시 색상
-  const isAtk = card.type === 'ATTACK';
-  const isHeal = card.desc?.includes('방어') || card.desc?.includes('회복') || card.desc?.includes('방어막');
-  const isEcho = card.type === 'ECHO' || card.type === 'POWER' || card.desc?.includes('Echo');
-  const flashClass = isAtk ? 'attack-card-flash' : isHeal ? 'heal-card-flash' : isEcho ? 'echo-card-flash' : '';
-  const flashColor = isAtk ? 'rgba(255,51,102,0.8)' : isHeal ? 'rgba(68,255,136,0.8)' : 'rgba(0,255,204,0.8)';
-  const textColor = isAtk ? 'var(--danger)' : isHeal ? '#44ff88' : 'var(--cyan)';
-
-  // 화면 플래시
-  const el = document.createElement('div');
-  el.className = `card-flash-overlay ${flashClass}`;
-  document.getElementById('hudOverlay').appendChild(el);
-  setTimeout(()=>el.remove(), 400);
-
-  // 적 위치 계산 (첫 번째 살아있는 적)
-  const aliveIdx = GS.combat.enemies.findIndex(e=>e.hp>0);
-  const targetCard = aliveIdx>=0 ? document.getElementById(`enemy_${aliveIdx}`) : null;
-  let tx = window.innerWidth/2, ty = window.innerHeight*0.3;
-  if (targetCard) {
-    const r = targetCard.getBoundingClientRect();
-    tx = r.left + r.width/2;
-    ty = r.top + r.height/2;
-  }
-
-  // 카드 이름이 사용 위치에서 적 방향으로 날아감
-  const nameEl = document.createElement('div');
-  const startX = window.innerWidth/2, startY = window.innerHeight*0.65;
-  nameEl.style.cssText = `
-    position:fixed; left:${startX}px; top:${startY}px;
-    transform:translate(-50%,-50%);
-    font-family:'Cinzel',serif; font-size:clamp(13px,2vw,20px); font-weight:700;
-    color:${textColor}; text-shadow:0 0 20px ${flashColor};
-    letter-spacing:0.1em; pointer-events:none; z-index:260;
-    transition:left 0.4s cubic-bezier(0.2,0,0.8,1), top 0.4s cubic-bezier(0.2,0,0.8,1), opacity 0.35s ease 0.25s;
-    opacity:1;
-  `;
-  nameEl.textContent = `${card.icon} ${card.name}`;
-  document.body.appendChild(nameEl);
-
-  requestAnimationFrame(() => {
-    nameEl.style.left = `${tx}px`;
-    nameEl.style.top = `${ty}px`;
-    nameEl.style.opacity = '0';
-  });
-  setTimeout(()=>nameEl.remove(), 500);
+  window.FeedbackUI?.showCardPlayEffect?.(card, _getFeedbackUIDeps());
 }
 
 function showDeckView() {
@@ -3298,115 +3232,23 @@ function hideItemTooltip() {
 }
 
 function showItemToast(item) {
-  if (!item) return;
-  if (item.rarity === 'legendary') { showLegendaryAcquire(item); return; }
-  document.querySelector('.item-toast')?.remove();
-  const rarityLabel = {common:'일반',uncommon:'고급',rare:'희귀'};
-  const rarityColor = {common:'var(--text-dim)',uncommon:'var(--echo-bright)',rare:'var(--gold)'};
-  const borderColor = {common:'var(--border)',uncommon:'rgba(123,47,255,0.5)',rare:'rgba(240,180,41,0.5)'};
-  const r = item.rarity||'common';
-  const el = document.createElement('div');
-  el.className = 'item-toast';
-  el.style.borderColor = borderColor[r]||'var(--border)';
-  el.innerHTML = `
-    <div class="toast-icon">${item.icon||'✨'}</div>
-    <div>
-      <div style="font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${rarityColor[r]||'var(--text-dim)'};margin-bottom:2px;">${rarityLabel[r]||r} 아이템 획득</div>
-      <div class="toast-text" style="color:${rarityColor[r]||'var(--white)'};">${item.name}</div>
-      <div class="toast-sub">${item.desc||''}</div>
-    </div>`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 3500);
+  window.FeedbackUI?.showItemToast?.(item, _getFeedbackUIDeps());
 }
 
 // ── 전설 아이템 획득 풀스크린 연출 ──
 function showLegendaryAcquire(item) {
-  AudioEngine.playLegendary?.();
-  ScreenShake.shake(8, 0.6);
-
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(3,2,12,0.0);pointer-events:all;cursor:pointer;';
-  overlay.onclick = () => overlay.remove();
-
-  // 배경 빛 폭발
-  const bg = document.createElement('div');
-  bg.style.cssText = 'position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(192,132,252,0.18) 0%,transparent 70%);animation:fadeIn 0.8s ease both;';
-  overlay.appendChild(bg);
-
-  // 광선 레이
-  const rays = document.createElement('div');
-  rays.style.cssText = 'position:absolute;top:50%;left:50%;width:600px;height:600px;margin:-300px;pointer-events:none;';
-  for (let i = 0; i < 8; i++) {
-    const ray = document.createElement('div');
-    ray.style.cssText = `position:absolute;top:50%;left:50%;width:2px;height:280px;margin-left:-1px;transform-origin:top center;transform:rotate(${i*45}deg);background:linear-gradient(to bottom,rgba(192,132,252,0.6),transparent);animation:legendaryRays 1.4s ease ${i*0.05}s forwards;`;
-    rays.appendChild(ray);
-  }
-  overlay.appendChild(rays);
-
-  // 메인 카드
-  const card = document.createElement('div');
-  card.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;animation:legendaryReveal 0.7s cubic-bezier(0.175,0.885,0.32,1.275) both;';
-  card.innerHTML = `
-    <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.6em;color:rgba(192,132,252,0.7);margin-bottom:16px;animation:fadeIn 0.5s ease 0.3s both;">✦ 전설 아이템 획득 ✦</div>
-    <div style="width:160px;background:rgba(15,8,35,0.97);border:2px solid rgba(192,132,252,0.7);border-radius:20px;padding:28px 20px;margin:0 auto 20px;box-shadow:0 0 60px rgba(192,132,252,0.4),0 0 120px rgba(192,132,252,0.15);position:relative;overflow:hidden;">
-      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(192,132,252,0.12),transparent 60%);pointer-events:none;"></div>
-      <div style="font-size:52px;margin-bottom:14px;filter:drop-shadow(0 0 16px rgba(192,132,252,0.8));">${item.icon}</div>
-      <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:#c084fc;letter-spacing:0.05em;margin-bottom:8px;">${item.name}</div>
-      <div style="font-size:11px;color:rgba(220,210,240,0.8);line-height:1.6;">${item.desc}</div>
-    </div>
-    <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:13px;color:rgba(192,132,252,0.6);animation:fadeIn 0.6s ease 0.6s both;">클릭하여 닫기</div>
-  `;
-
-  // 파티클 스파클
-  for (let i = 0; i < 16; i++) {
-    const p = document.createElement('div');
-    const angle = (i / 16) * Math.PI * 2;
-    const dist  = 80 + Math.random() * 80;
-    const cx = Math.cos(angle) * dist;
-    const cy = Math.sin(angle) * dist;
-    p.style.cssText = `position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:#c084fc;
-      margin:-2px;transform:translate(${cx}px,${cy}px);
-      animation:legendaryParticle ${0.8+Math.random()*0.6}s ease ${Math.random()*0.4}s forwards;
-      box-shadow:0 0 6px rgba(192,132,252,0.8);pointer-events:none;`;
-    overlay.appendChild(p);
-  }
-
-  overlay.appendChild(card);
-  document.body.appendChild(overlay);
-  setTimeout(() => overlay.remove(), 5000);
+  window.FeedbackUI?.showLegendaryAcquire?.(item, _getFeedbackUIDeps());
 }
 
 function showChainAnnounce(text) {
-  const el = document.createElement('div');
-  el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:\'Cinzel Decorative\',serif;font-size:clamp(24px,4vw,48px);font-weight:900;color:var(--cyan);text-shadow:0 0 30px rgba(0,255,204,0.8);animation:fadeInUp 0.5s ease,fadeIn 0.5s ease 1.5s reverse both;z-index:1000;pointer-events:none;';
-  el.textContent = text;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 2000);
+  window.FeedbackUI?.showChainAnnounce?.(text, _getFeedbackUIDeps());
 }
 
-// 알림 큐: 동시 표시 방지, 순차 출력
-const _noticeQueue = [];
-let _noticeActive = false;
 function showWorldMemoryNotice(text) {
-  const parts = text.split(' · ').map(s=>s.trim()).filter(Boolean);
-  parts.forEach(p => _noticeQueue.push(p));
-  if (!_noticeActive) _flushNoticeQueue();
+  window.FeedbackUI?.showWorldMemoryNotice?.(text, _getFeedbackUIDeps());
 }
 function _flushNoticeQueue() {
-  if (!_noticeQueue.length) { _noticeActive = false; return; }
-  _noticeActive = true;
-  const text = _noticeQueue.shift();
-  const el = document.createElement('div');
-  el.className = 'world-memory-notice';
-  el.style.cssText = 'position:fixed;top:68px;left:50%;transform:translateX(-50%);font-family:\'Cinzel\',serif;font-size:13px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,20,18,0.96);border:1px solid rgba(0,255,204,0.3);border-radius:10px;padding:12px 28px;z-index:9000;box-shadow:0 4px 28px rgba(0,255,204,0.15);animation:worldNoticeIn 0.4s ease both;white-space:nowrap;pointer-events:none;text-align:center;max-width:90vw;';
-  el.textContent = text;
-  document.body.appendChild(el);
-  const showDuration = Math.max(2800, text.length * 60);
-  setTimeout(() => {
-    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(-10px)';
-    setTimeout(() => { el.remove(); _flushNoticeQueue(); }, 500);
-  }, showDuration);
+  window.FeedbackUI?._flushNoticeQueue?.(_getFeedbackUIDeps());
 }
 
 function showMapOverlay(autoClose = false) {
