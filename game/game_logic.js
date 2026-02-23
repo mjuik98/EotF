@@ -29,6 +29,7 @@ const GS = {
     energy:3, maxEnergy:3, gold:0, kills:0,
     deck:[], hand:[], graveyard:[], exhausted:[],
     items:[], buffs:{}, silenceGauge:0, zeroCost:false,
+    upgradedCards: new Set(), _cardUpgradeBonus: {},
   },
   currentRegion: 0, currentFloor: 1,
   mapNodes: [], currentNode: null, visitedNodes: new Set(),
@@ -2606,7 +2607,11 @@ function showRestSite() {
     id:'rest', eyebrow:'LAYER 1 · 휴식 장소', title:'잔향의 모닥불',
     desc:'꺼지지 않는 이상한 불꽃이 타오르고 있다.',
     choices:[
-      {text:'❤️ 휴식한다 (HP +25%)', effect(gs){gs.heal(Math.floor(gs.player.maxHp*0.25));return '몸이 회복되었다.';}},
+      {text:'❤️ 휴식한다 (HP +25%)', effect(gs){
+        const baseHeal = Math.floor(gs.player.maxHp * 0.25);
+        gs.heal(RunRules.getHealAmount(gs, baseHeal));
+        return '몸이 회복되었다.';
+      }},
       {text:'🃏 카드를 강화한다 (랜덤 카드 업그레이드)', effect(gs){
         const upgradable = gs.player.deck.filter(id => DATA.upgradeMap[id]);
         if(!upgradable.length) return '강화 가능한 카드가 없다.';
@@ -4625,7 +4630,7 @@ const SaveSystem = {
       const save = {
         player: {
           ...GS.player,
-          buffs: {},
+          buffs: GS.combat.active ? {} : { ...GS.player.buffs },
           hand: [],
           upgradedCards: [...(GS.player.upgradedCards instanceof Set ? GS.player.upgradedCards : [])],
         },
