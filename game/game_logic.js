@@ -1014,46 +1014,32 @@ function animateTitle() {
   window.TitleCanvasUI?.animate?.({ doc: document });
 }
 
-function initGameCanvas() {
-  gameCanvas = document.getElementById('gameCanvas');
-  if (!gameCanvas) return;
-  gameCtx = gameCanvas.getContext('2d');
+function _applyGameCanvasRefs(refs) {
+  if (!refs) return;
+  gameCanvas = refs.gameCanvas;
+  gameCtx = refs.gameCtx;
+  minimapCanvas = refs.minimapCanvas;
+  minimapCtx = refs.minimapCtx;
+  combatCanvas = refs.combatCanvas;
+}
 
-  // 노드 선택은 DOM 카드 오버레이에서 처리
-  minimapCanvas = document.getElementById('minimapCanvas');
-  minimapCtx = minimapCanvas?.getContext('2d');
-  if (minimapCanvas && !minimapCanvas._mapOpenPatched) {
-    minimapCanvas._mapOpenPatched = true;
-    minimapCanvas.style.cursor = 'pointer';
-    minimapCanvas.title = '클릭하여 지도 열기';
-    minimapCanvas.addEventListener('click', () => {
-      if (GS.currentScreen !== 'game') return;
-      if (GS.combat.active) return;
-      showMapOverlay();
-    });
-  }
-  combatCanvas = gameCanvas;
-  ParticleSystem.init(gameCanvas);
-  resizeGameCanvas();
-  window.addEventListener('resize', resizeGameCanvas);
+function _getGameCanvasSetupDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    showMapOverlay,
+    particleSystem: ParticleSystem,
+  };
+}
+
+function initGameCanvas() {
+  const refs = window.GameCanvasSetupUI?.init?.(_getGameCanvasSetupDeps());
+  _applyGameCanvasRefs(refs);
 }
 
 function resizeGameCanvas() {
-  if (!gameCanvas) return;
-  const rect = gameCanvas.getBoundingClientRect();
-  gameCanvas.width  = Math.max(rect.width  || gameCanvas.offsetWidth  || 0, 600);
-  gameCanvas.height = Math.max(rect.height || gameCanvas.offsetHeight || 0, 400);
-  // 리사이즈 관찰 (반응형)
-  if (window.ResizeObserver && !gameCanvas._resizeObserver) {
-    const ro = new ResizeObserver(() => {
-      const r = gameCanvas.getBoundingClientRect();
-      if (r.width > 0) { gameCanvas.width = r.width; gameCanvas.height = r.height; }
-    });
-    ro.observe(gameCanvas);
-    gameCanvas._resizeObserver = ro;
-  }
-  minimapCanvas.width = minimapCanvas.offsetWidth || 200;
-  minimapCanvas.height = 160;
+  window.GameCanvasSetupUI?.resize?.();
+  _applyGameCanvasRefs(window.GameCanvasSetupUI?.getRefs?.());
 }
 
 // ────────────────────────────────────────
