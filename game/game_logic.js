@@ -509,11 +509,7 @@ const GS = {
       this.combat.active = false;
       document.getElementById('combatOverlay').classList.remove('active');
       // 전투 정보 패널 닫기
-      _combatInfoOpen = false;
-      const _cp = document.getElementById('combatInfoPanel');
-      const _ct = document.getElementById('combatInfoTab');
-      if (_cp) _cp.style.left = '-260px';
-      if (_ct) { _ct.style.left = '0'; _ct.textContent = '📋 정보'; }
+      _resetCombatInfoPanel();
       // 하단 손패 패널 복원
       // 소음 게이지 UI 제거
       document.getElementById('noiseGaugeOverlay')?.remove();
@@ -1550,11 +1546,7 @@ function startCombat(isBoss=false) {
   document.getElementById('combatOverlay').classList.add('active');
   setTimeout(() => showTurnBanner('player'), 300);
   // 전투 정보 패널 초기화 (닫힌 상태로 시작)
-  _combatInfoOpen = false;
-  const _panel = document.getElementById('combatInfoPanel');
-  const _tab   = document.getElementById('combatInfoTab');
-  if (_panel) _panel.style.left = '-260px';
-  if (_tab)   { _tab.style.left = '0'; _tab.textContent = '📋 정보'; }
+  _resetCombatInfoPanel();
   _refreshCombatInfoPanel();
   updateUI();
   updateClassSpecialUI();
@@ -2674,6 +2666,17 @@ const STATUS_KR = {
   confusion:  {name:'혼란',     icon:'🌀', buff:false, desc:'카드 사용 순서가 무작위로 뒤섞입니다.'},
   dodge:      {name:'회피',     icon:'💨', buff:true,  desc:'다음 공격을 회피합니다.'},
 };
+function _getCombatInfoUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    statusKr: STATUS_KR,
+    doc: document,
+  };
+}
+function _resetCombatInfoPanel() {
+  window.CombatInfoUI?.reset?.(_getCombatInfoUIDeps());
+}
 function updateStatusDisplay() {
   const el = document.getElementById('statusEffects');
   if (!el) return;
@@ -2701,85 +2704,12 @@ function updateStatusDisplay() {
 }
 
 // ── 전투 정보 사이드 패널 ──
-let _combatInfoOpen = false;
-
 function toggleCombatInfo() {
-  _combatInfoOpen = !_combatInfoOpen;
-  const panel = document.getElementById('combatInfoPanel');
-  const tab   = document.getElementById('combatInfoTab');
-  if (!panel) return;
-  if (_combatInfoOpen) {
-    panel.style.left = '0px';
-    if (tab) { tab.style.left = '256px'; tab.textContent = '✕ 닫기'; }
-    _refreshCombatInfoPanel();
-  } else {
-    panel.style.left = '-260px';
-    if (tab) { tab.style.left = '0'; tab.textContent = '📋 정보'; }
-  }
+  window.CombatInfoUI?.toggle?.(_getCombatInfoUIDeps());
 }
 
 function _refreshCombatInfoPanel() {
-  const statusEl = document.getElementById('combatStatusList');
-  const itemEl   = document.getElementById('combatItemList');
-  if (!statusEl || !itemEl) return;
-
-  // 상태이상
-  const buffs = GS.player.buffs;
-  const keys  = Object.keys(buffs);
-  const rarityBuff   = 'rgba(0,255,100,0.1)';
-  const rarityDebuff = 'rgba(255,60,60,0.1)';
-  if (!keys.length) {
-    statusEl.innerHTML = '<span style="font-size:10px;color:var(--text-dim);font-style:italic;">없음</span>';
-  } else {
-    const descMap = {
-      momentum:'공격 시 피해 증가', soul_armor:'피해 감소', vanish:'다음 공격 크리티컬',
-      immune:'이번 턴 피해 무효', shadow_atk:'그림자 공격 강화', mirror:'피해 반사',
-      zeroCost:'카드 비용 0', weakened:'공격력 50% 감소', slowed:'행동 지연',
-      burning:'매 턴 5 화염 피해', cursed:'효과 감소', poisoned:'매 턴 독 피해', stunned:'행동 불가',
-    };
-    statusEl.innerHTML = keys.map(k => {
-      const b = buffs[k];
-      const info = STATUS_KR[k];
-      const isBuff = info ? info.buff : ['momentum','soul_armor','vanish','immune','shadow_atk'].includes(k);
-      const label  = info ? `${info.icon} ${info.name}` : k;
-      const stacks = b.stacks > 0 ? ` (${b.stacks})` : '';
-      const desc   = descMap[k] || '';
-      return `<div title="${desc}" style="
-        background:${isBuff ? rarityBuff : rarityDebuff};
-        border:1px solid ${isBuff ? 'rgba(0,255,100,0.3)' : 'rgba(255,60,60,0.3)'};
-        border-radius:6px; padding:4px 9px; font-size:10px;
-        color:${isBuff ? '#55ff99' : '#ff6677'}; cursor:default;
-      ">${label}${stacks}</div>`;
-    }).join('');
-  }
-
-  // 유물
-  const items = GS.player.items;
-  if (!items.length) {
-    itemEl.innerHTML = '<span style="font-size:10px;color:var(--text-dim);font-style:italic;">없음</span>';
-  } else {
-    const rarityColor = {common:'var(--text-dim)',uncommon:'var(--echo-bright)',rare:'var(--gold)',legendary:'#c084fc'};
-    const rarityBorderCol = {common:'rgba(150,150,180,0.2)',uncommon:'rgba(123,47,255,0.35)',rare:'rgba(240,180,41,0.4)',legendary:'rgba(192,132,252,0.5)'};
-    const rarityOrder  = {legendary:0,rare:1,uncommon:2,common:3};
-    const sorted = [...items].sort((a,b) => (rarityOrder[DATA.items[a]?.rarity||'common']??3) - (rarityOrder[DATA.items[b]?.rarity||'common']??3));
-    itemEl.innerHTML = sorted.map(id => {
-      const item = DATA.items[id];
-      if (!item) return '';
-      const rc = item.rarity || 'common';
-      return `<div style="
-        display:flex; gap:10px; align-items:flex-start;
-        background:rgba(255,255,255,0.025);
-        border:1px solid ${rarityBorderCol[rc]};
-        border-radius:8px; padding:8px 10px;
-      ">
-        <span style="font-size:20px;flex-shrink:0;line-height:1.2;">${item.icon}</span>
-        <div>
-          <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:${rarityColor[rc]};line-height:1.5;">${item.name}</div>
-          <div style="font-size:9px;color:var(--text-dim);line-height:1.5;">${item.desc}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }
+  window.CombatInfoUI?.refresh?.(_getCombatInfoUIDeps());
 }
 
 function updateChainUI(chain) {
