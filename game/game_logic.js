@@ -1485,6 +1485,7 @@ function _getCardUIDeps() {
     data: DATA,
     doc: document,
     playCardHandlerName: 'GS.playCard',
+    renderCombatCardsHandlerName: 'renderCombatCards',
     dragStartHandlerName: 'handleCardDragStart',
     dragEndHandlerName: 'handleCardDragEnd',
     showTooltipHandlerName: 'showTooltip',
@@ -1508,21 +1509,7 @@ function updateHandFanEffect() {
 }
 
 function renderHand() {
-  const zone = document.getElementById('handCards');
-  if (!zone) return;
-  zone.innerHTML = GS.player.hand.map((cardId,i) => {
-    const card = DATA.cards[cardId];
-    if (!card) return '';
-    return `
-      <div class="card" onclick="GS.playCard('${cardId}',${i});renderCombatCards();" title="${card.desc}">
-        <div class="card-cost">${card.cost}</div>
-        <div class="card-icon">${card.icon}</div>
-        <div class="card-name">${card.name}</div>
-        <div class="card-desc">${card.desc}</div>
-        <div class="card-type">${card.type}</div>
-      </div>
-    `;
-  }).join('');
+  window.CardUI?.renderHand?.(_getCardUIDeps());
 }
 
 function updateCombatLog() {

@@ -92,6 +92,32 @@
       this.updateHandFanEffect({ doc });
     },
 
+    renderHand(deps = {}) {
+      const gs = deps.gs;
+      const data = deps.data;
+      if (!gs?.player?.hand || !data?.cards) return;
+
+      const doc = _getDoc(deps);
+      const zone = doc.getElementById('handCards');
+      if (!zone) return;
+
+      const playCardHandlerName = deps.playCardHandlerName || 'GS.playCard';
+      const renderCombatCardsHandlerName = deps.renderCombatCardsHandlerName || 'renderCombatCards';
+      zone.innerHTML = gs.player.hand.map((cardId, i) => {
+        const card = data.cards[cardId];
+        if (!card) return '';
+        return `
+          <div class="card" onclick="${playCardHandlerName}('${cardId}',${i});${renderCombatCardsHandlerName}();" title="${card.desc}">
+            <div class="card-cost">${card.cost}</div>
+            <div class="card-icon">${card.icon}</div>
+            <div class="card-name">${card.name}</div>
+            <div class="card-desc">${card.desc}</div>
+            <div class="card-type">${card.type}</div>
+          </div>
+        `;
+      }).join('');
+    },
+
     updateHandFanEffect(deps = {}) {
       const doc = _getDoc(deps);
       const cards = doc.querySelectorAll('#combatHandCards .card');
