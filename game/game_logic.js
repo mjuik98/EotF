@@ -1587,51 +1587,23 @@ function skipReward() {
   window.RewardUI?.skipReward?.(_getRewardUIDeps());
 }
 
+function _getRunReturnUIDeps() {
+  return {
+    gs: GS,
+    runRules: RunRules,
+    doc: document,
+    switchScreen,
+    updateUI,
+    renderMapOverlay,
+    updateNextNodes,
+    advanceToNextRegion,
+    finalizeRunOutcome,
+    storySystem: StorySystem,
+  };
+}
+
 function returnToGame(fromReward) {
-  const wasBoss = GS._bossRewardPending;
-  const wasLastRegion = GS._bossLastRegion;
-  const endlessRun = RunRules.isEndless(GS);
-  GS._bossRewardPending = false;
-  GS._bossLastRegion = false;
-  GS._rewardLock = false;
-  GS._nodeMoveLock = false;
-  GS._eventLock = false;
-
-  document.getElementById('combatOverlay')?.classList.remove('active');
-  const combatHand = document.getElementById('combatHandCards');
-  if (combatHand) combatHand.innerHTML = '';
-  const enemyZone = document.getElementById('enemyZone');
-  if (enemyZone) enemyZone.innerHTML = '';
-
-  if (fromReward && wasBoss) {
-    if (wasLastRegion) {
-      if (!endlessRun) {
-        // 최종 지역 보스(비엔들리스) → 메타 정산 + 엔딩
-        finalizeRunOutcome('victory', { echoFragments: 5 });
-        const rw = document.getElementById('rewardScreen');
-        if (rw) rw.classList.remove('active');
-        if (StorySystem.checkHiddenEnding()) StorySystem.showHiddenEnding();
-        else StorySystem.showNormalEnding();
-        return;
-      }
-      // 엔들리스는 엔딩 없이 다음 루프로 진행
-      switchScreen('game');
-      updateUI();
-      setTimeout(() => advanceToNextRegion(), 300);
-      return;
-    } else {
-      // 중간 보스 → 다음 지역
-      switchScreen('game');
-      updateUI();
-      setTimeout(() => advanceToNextRegion(), 300);
-      return;
-    }
-  }
-
-  switchScreen('game');
-  updateUI();
-  renderMapOverlay();
-  updateNextNodes();
+  window.RunReturnUI?.returnToGame?.(fromReward, _getRunReturnUIDeps());
 }
 
 // ────────────────────────────────────────
