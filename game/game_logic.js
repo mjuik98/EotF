@@ -2917,11 +2917,20 @@ function selectClass(btn) {
   try { AudioEngine.init(); AudioEngine.resume(); AudioEngine.playClassSelect(selectedClass); } catch(e) { console.warn('Audio error:', e); }
 }
 
+function _getSaveSystemDeps() {
+  return {
+    gs: GS,
+    runRules: RunRules,
+    doc: document,
+    isGameStarted: () => _gameStarted,
+  };
+}
+
 function _getRunModeDeps() {
   return {
     gs: GS,
     runRules: RunRules,
-    saveMeta: () => SaveSystem.saveMeta(),
+    saveMeta: () => window.SaveSystem?.saveMeta?.(_getSaveSystemDeps()),
     notice: (msg) => {
       if (typeof showWorldMemoryNotice === 'function') showWorldMemoryNotice(msg);
     },
@@ -3209,93 +3218,12 @@ window.setCodexTab = setCodexTab;
 // ────────────────────────────────────────
 // AUTOSAVE SYSTEM
 // ────────────────────────────────────────
-const SaveSystem = {
-  SAVE_KEY: 'echo_fallen_save',
-  META_KEY: 'echo_fallen_meta',
-
-  saveMeta() {
-    try { if (typeof localStorage === 'undefined') return; } catch(e) { return; }
-    try {
-      const meta = {...GS.meta};
-      if (meta.codex) {
-        meta.codex = {
-          enemies: [...meta.codex.enemies],
-          cards:   [...meta.codex.cards],
-          items:   [...meta.codex.items],
-        };
-      }
-      localStorage.setItem(this.META_KEY, JSON.stringify(meta));
-    } catch(e) {}
-  },
-
-  loadMeta() {
-    try {
-      const raw = localStorage.getItem(this.META_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        // Restore codex Sets
-        if (data.codex) {
-          data.codex = {
-            enemies: new Set(data.codex.enemies || []),
-            cards:   new Set(data.codex.cards   || []),
-            items:   new Set(data.codex.items   || []),
-          };
-        }
-        Object.assign(GS.meta, data);
-      }
-      RunRules.ensureMeta(GS.meta);
-      GS.runConfig = {
-        ascension: GS.meta.runConfig.ascension || 0,
-        endless: !!GS.meta.runConfig.endless,
-        endlessMode: !!GS.meta.runConfig.endless,
-        blessing: GS.meta.runConfig.blessing || 'none',
-        curse: GS.meta.runConfig.curse || 'none',
-      };
-    } catch(e) {}
-  },
-
-  saveRun() {
-    if (!_gameStarted) return;
-    if (GS.combat?.active) return;
-    try {
-      const save = {
-        player: {
-          ...GS.player,
-          buffs: GS.combat.active ? {} : { ...GS.player.buffs },
-          hand: [],
-          upgradedCards: [...(GS.player.upgradedCards instanceof Set ? GS.player.upgradedCards : [])],
-        },
-        currentRegion: GS.currentRegion,
-        currentFloor: GS.currentFloor,
-        stats: GS.stats,
-        worldMemory: GS.worldMemory,
-        ts: Date.now(),
-      };
-      localStorage.setItem(this.SAVE_KEY, JSON.stringify(save));
-    } catch(e) {}
-  },
-
-  hasSave() {
-    try { return !!localStorage.getItem(this.SAVE_KEY); } catch(e) { return false; }
-  },
-
-  clearSave() {
-    try { localStorage.removeItem(this.SAVE_KEY); } catch(e) {}
-  },
-
-  showSaveBadge() {
-    const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;bottom:24px;right:24px;font-family:\'Share Tech Mono\',monospace;font-size:10px;color:rgba(0,255,204,0.6);z-index:1000;pointer-events:none;animation:fadeIn 0.3s ease both;';
-    el.textContent = '💾 저장됨';
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1800);
-  }
-};
+// SaveSystem is provided by game/save_system.js.
 
 function _bootGame() {
   try {
   document.addEventListener('click', () => { try{AudioEngine.init();AudioEngine.resume();}catch(e){} }, {once:false});
-  try { SaveSystem.loadMeta(); } catch(e) {}
+  try { window.SaveSystem?.loadMeta?.(_getSaveSystemDeps()); } catch(e) {}
   try { RunRules.ensureMeta(GS.meta); } catch(e) {}
   // class-btn 이벤트는 onclick 속성으로 처리됨 (중복 등록 방지)
   // startBtn도 onclick 속성으로 처리됨
