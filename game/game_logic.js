@@ -1757,273 +1757,36 @@ function showTurnBanner(type) {
   el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 1200);
 }
 
-// 적 의도 아이콘 헬퍼
-function _getIntentIcon(intent) {
-  if (!intent) return '❓';
-  const t = intent.type || '';
-  if (t.includes('dodge') || t.includes('phase')) return '💨';
-  if (t.includes('guard') || t.includes('barrier') || t.includes('shield')) return '🛡️';
-  if (t.includes('howl') || t.includes('roar')) return '📣';
-  if (t.includes('heal') || t.includes('life')) return '💚';
-  if (t.includes('curse') || t.includes('poison') || t.includes('debuff')) return '☠️';
-  if (t.includes('drain') || t.includes('steal')) return '🌀';
-  if (intent.dmg > 0) {
-    if (intent.dmg >= 20) return '💥';
-    if (intent.dmg >= 12) return '⚔️';
-    return '🗡️';
-  }
-  return '❓';
+function _getCombatUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    win: window,
+    selectTargetHandlerName: 'selectTarget',
+    showIntentTooltipHandlerName: 'showIntentTooltip',
+    hideIntentTooltipHandlerName: 'hideIntentTooltip',
+  };
 }
 
-const INTENT_DESCRIPTIONS = {
-  attack:  { type:'공격', desc:'플레이어에게 직접 피해를 입힙니다.' },
-  heavy:   { type:'강타', desc:'강력한 단일 피해를 가합니다.' },
-  double:  { type:'연속공격', desc:'피해를 여러 번 나누어 가합니다.' },
-  aoe:     { type:'광역공격', desc:'광역 피해를 가합니다. 방어막을 미리 준비하세요.' },
-  guard:   { type:'방어', desc:'방어막을 쌓아 다음 피해를 줄입니다.' },
-  barrier: { type:'결계', desc:'강한 방어 효과를 얻습니다.' },
-  shield:  { type:'방패', desc:'피해를 줄이는 방어 자세를 취합니다.' },
-  curse:   { type:'저주', desc:'플레이어에게 불리한 상태를 부여합니다.' },
-  poison:  { type:'독', desc:'턴마다 독 피해를 입힙니다.' },
-  weaken:  { type:'약화', desc:'플레이어의 공격 효율을 떨어뜨립니다.' },
-  debuff:  { type:'디버프', desc:'불리한 상태 이상을 부여합니다.' },
-  mark:    { type:'표식', desc:'다음 공격 피해가 증가할 수 있습니다.' },
-  burning: { type:'화염', desc:'턴마다 화상 피해를 입힙니다.' },
-  heal:    { type:'회복', desc:'자신의 HP를 회복합니다.' },
-  life:    { type:'생명력 흡수', desc:'플레이어를 공격하며 자신을 회복합니다.' },
-  drain:   { type:'흡수', desc:'에너지 또는 Echo를 빼앗을 수 있습니다.' },
-  summon:  { type:'소환', desc:'추가 적을 소환합니다.' },
-  enrage:  { type:'격노', desc:'이후 공격이 더 강해집니다.' },
-};
-
-function _formatIntentLabel(intent) {
-  const text = String(intent?.intent || '?');
-  if (!(intent?.dmg > 0)) return text;
-  const m = text.match(/^(.*)\s+(\d+)$/);
-  if (!m) return text;
-  const tail = Number(m[2]);
-  if (!Number.isFinite(tail) || tail !== Number(intent.dmg)) return text;
-  return m[1].trim() || text;
-}
-
-function _resolveIntentDescription(intent) {
-  const text = `${intent?.type || ''} ${intent?.intent || ''}`.toLowerCase();
-  for (const [key, info] of Object.entries(INTENT_DESCRIPTIONS)) {
-    if (text.includes(key)) return info;
-  }
-  if ((intent?.dmg || 0) > 0) return INTENT_DESCRIPTIONS.attack;
-  return { type: _formatIntentLabel(intent), desc:'이 적의 다음 행동 패턴입니다.' };
-}
-
-let _intentTipTimer = null;
 function showIntentTooltip(event, enemyIdx) {
-  clearTimeout(_intentTipTimer);
-  const idx = Number(enemyIdx);
-  if (!Number.isFinite(idx)) return;
-  const enemy = GS.combat.enemies[idx];
-  if (!enemy?.ai) return;
-
-  let intent;
-  try { intent = enemy.ai(GS.combat.turn); } catch (e) { intent = { intent:'?', dmg:0 }; }
-  const icon = _getIntentIcon(intent);
-  const label = _formatIntentLabel(intent);
-  const descInfo = _resolveIntentDescription(intent);
-
-  let el = document.getElementById('intentTooltip');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'intentTooltip';
-    document.body.appendChild(el);
-  }
-
-  el.innerHTML = `
-    <div class="itt-title">${icon} ${label}</div>
-    <div class="itt-type">— ${descInfo.type} —</div>
-    <div class="itt-desc">${descInfo.desc}</div>
-    ${intent.dmg > 0 ? `<div class="itt-dmg">💢 예상 피해: <strong>${intent.dmg}</strong></div>` : ''}
-  `;
-
-  const rect = event.currentTarget.getBoundingClientRect();
-  let x = rect.right + 12;
-  let y = rect.top;
-  if (x + 240 > window.innerWidth) x = rect.left - 244;
-  if (y + 190 > window.innerHeight) y = window.innerHeight - 194;
-  y = Math.max(10, y);
-
-  el.style.left = `${x}px`;
-  el.style.top = `${y}px`;
-  el.classList.add('visible');
+  window.CombatUI?.showIntentTooltip?.(event, enemyIdx, _getCombatUIDeps());
 }
 
 function hideIntentTooltip() {
-  _intentTipTimer = setTimeout(() => {
-    document.getElementById('intentTooltip')?.classList.remove('visible');
-  }, 80);
+  window.CombatUI?.hideIntentTooltip?.(_getCombatUIDeps());
 }
+
 window.showIntentTooltip = showIntentTooltip;
 window.hideIntentTooltip = hideIntentTooltip;
 
-const ENEMY_STATUS_KR = {
-  stunned:'기절', weakened:'약화', poisoned:'독', marked:'표식', mirror:'반사',
-  slowed:'감속', burning:'화염', cursed:'저주',
-};
-
-function _enemyHpColor(pct) {
-  if (pct > 60) return 'linear-gradient(90deg,#cc2244,#ff4466)';
-  if (pct > 30) return 'linear-gradient(90deg,#cc5500,#ff8800)';
-  return 'linear-gradient(90deg,#8b0000,#ff2200)';
-}
-
 function renderCombatEnemies() {
-  const zone = document.getElementById('enemyZone');
-  if (!zone) return;
-
-  const existing = zone.querySelectorAll('.enemy-card');
-  // 적 수가 달라지거나 enemyZone이 비어있으면 전체 재렌더
-  const expectedCount = GS.combat.enemies.length;
-
-  const needsFullRender = existing.length !== expectedCount || existing.length === 0;
-
-  if (needsFullRender) {
-    zone.innerHTML = GS.combat.enemies.map((e,i) => {
-      if (!e || !e.ai) return '';
-      const hpPct = Math.max(0,(e.hp/e.maxHp)*100);
-      let intent;
-      try { intent = e.ai(GS.combat.turn); } catch(err) { intent = {intent:'?',dmg:0}; }
-      const statusEntries = e.statusEffects ? Object.entries(e.statusEffects) : [];
-      const statusStr = statusEntries.map(([s,d])=>{
-        const kr = ENEMY_STATUS_KR[s]||s;
-        const col = ['weakened','poisoned','burning','cursed','marked'].includes(s)?'#ff6688':'#88ccff';
-        return `<span style="font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};">${kr}${d>1?`(${d})`:''}</span>`;
-      }).join(' ');
-      const intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
-      const intentLabel = _formatIntentLabel(intent);
-      const intentIcon = _getIntentIcon(intent);
-      const isSelected = GS._selectedTarget === i && e.hp > 0;
-      const selStyle = isSelected ? 'outline:2px solid var(--cyan);box-shadow:0 0 18px rgba(0,255,204,0.45);' : '';
-      const deadStyle = e.hp<=0 ? 'opacity:0.3;filter:grayscale(1);pointer-events:none;' : '';
-      // 선택 타겟에 대한 손패 공격 피해 예측 계산
-      let dmgPreviewHtml = '';
-      if (isSelected && GS.combat.playerTurn) {
-        const atkCards = GS.player.hand.filter(id => {
-          const c = DATA.cards[id];
-          return c && c.type === 'ATTACK' && c.dmg && (GS.player.energy >= (GS.player.zeroCost ? 0 : Math.max(0, c.cost - (GS.player.costDiscount||0))));
-        });
-        if (atkCards.length > 0) {
-          const totalDmg = atkCards.reduce((sum, id) => {
-            const c = DATA.cards[id];
-            const momBonus = GS.getBuff('momentum')?.dmgBonus || 0;
-            return sum + (c.dmg||0) + momBonus;
-          }, 0);
-          const enemyShield = e.shield || 0;
-          const netDmg = Math.max(0, totalDmg - enemyShield);
-          dmgPreviewHtml = enemyShield > 0
-            ? `<div class="enemy-dmg-preview">⚔ 예상 피해 ${netDmg} (방어막 ${enemyShield})</div>`
-            : `<div class="enemy-dmg-preview">⚔ 예상 총 피해 ${netDmg}</div>`;
-        }
-      }
-      // 보스 페이즈 바 (페이즈 구분선)
-      const bossPhaseBar = e.isBoss ? `
-        <div class="boss-phase-bar" style="margin-bottom:2px;">
-          ${[0.5].map(t=>`<div class="boss-phase-segment" style="left:${t*100}%;width:${t*100}%;background:rgba(255,100,0,0.2);"></div>`).join('')}
-          <div class="boss-phase-fill" id="enemy_hpfill_${i}" style="width:${hpPct}%"></div>
-        </div>
-        <div style="display:flex;gap:4px;justify-content:center;margin-bottom:2px;">
-          ${[1,2,3].slice(0,e.maxPhase||2).map(p=>`<div style="width:6px;height:6px;border-radius:50%;background:${p<=(e.phase||1)?'var(--gold)':'rgba(255,255,255,0.1)'};box-shadow:${p<=(e.phase||1)?'0 0 6px rgba(240,180,41,0.6)':'none'};"></div>`).join('')}
-        </div>
-      ` : `<div class="enemy-hp-bar"><div class="enemy-hp-fill" id="enemy_hpfill_${i}" style="width:${hpPct}%;background:${_enemyHpColor(hpPct)};"></div></div>`;
-      return `
-        <div class="enemy-card${e.hp<=0?' dead':''}${isSelected?' selected-target':''}" id="enemy_${i}"
-          style="${deadStyle}${selStyle}cursor:${e.hp>0?'pointer':'default'};"
-          onclick="${e.hp>0?`selectTarget(${i})`:''}">
-          ${isSelected ? '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:3px;text-align:center;">▶ 타겟</div>' : ''}
-          <div class="enemy-sprite" id="enemy_sprite_${i}">${e.icon||'👾'}</div>
-          <div class="enemy-name">${e.name}${e.isBoss?` <span style="color:var(--gold)">✦ P${e.phase||1}</span>`:''}</div>
-          ${bossPhaseBar}
-          <div id="enemy_hptext_${i}" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">${e.hp} / ${e.maxHp}${e.shield?` 🛡️${e.shield}`:''}</div>
-          <div class="enemy-intent" id="enemy_intent_${i}" onmouseenter="showIntentTooltip(event,${i})" onmouseleave="hideIntentTooltip()"><span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}</div>
-          <div id="enemy_status_${i}" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:4px;">${statusStr}</div>
-          ${dmgPreviewHtml}
-        </div>
-      `;
-    }).join('');
-  } else {
-    // partial update — HP바, 텍스트, 상태이상만 갱신
-    GS.combat.enemies.forEach((e,i) => {
-      if (!e) return;
-      const hpPct = Math.max(0,(e.hp/e.maxHp)*100);
-      const fill = document.getElementById(`enemy_hpfill_${i}`);
-      const txt = document.getElementById(`enemy_hptext_${i}`);
-      const intentEl = document.getElementById(`enemy_intent_${i}`);
-      const statusEl = document.getElementById(`enemy_status_${i}`);
-      const card = document.getElementById(`enemy_${i}`);
-      if (fill) { fill.style.width = `${hpPct}%`; if (!e.isBoss) fill.style.background = _enemyHpColor(hpPct); }
-      if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield?` 🛡️${e.shield}`:''}`;
-      if (intentEl) {
-        let intent; try { intent = e.ai(GS.combat.turn); } catch(err) { intent = {intent:'?',dmg:0}; }
-        const intentIcon = _getIntentIcon(intent);
-        const intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
-        const intentLabel = _formatIntentLabel(intent);
-        intentEl.innerHTML = `<span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}`;
-        intentEl.onmouseenter = ev => showIntentTooltip(ev, i);
-        intentEl.onmouseleave = () => hideIntentTooltip();
-      }
-      if (statusEl) {
-        const statusEntries = e.statusEffects ? Object.entries(e.statusEffects) : [];
-        statusEl.innerHTML = statusEntries.map(([s,d])=>{
-          const kr = ENEMY_STATUS_KR[s]||s;
-          const col = ['weakened','poisoned','burning','cursed','marked'].includes(s)?'#ff6688':'#88ccff';
-          return `<span style="font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};">${kr}${d>1?`(${d})`:''}</span>`;
-        }).join(' ');
-      }
-      if (card && e.hp <= 0) { card.style.opacity='0.3'; card.style.filter='grayscale(1)'; card.style.pointerEvents='none'; card.style.outline=''; }
-      if (card && e.hp > 0) {
-        const isSel = GS._selectedTarget === i;
-        card.style.outline = isSel ? '2px solid var(--cyan)' : '';
-        card.style.boxShadow = isSel ? '0 0 18px rgba(0,255,204,0.45)' : '';
-        card.classList.toggle('selected-target', isSel);
-        // 피해 예측 뱃지 갱신
-        let previewEl = card.querySelector('.enemy-dmg-preview');
-        if (isSel && GS.combat.playerTurn) {
-          const atkCards = GS.player.hand.filter(id => {
-            const c = DATA.cards[id];
-            return c && c.type === 'ATTACK' && c.dmg && (GS.player.energy >= (GS.player.zeroCost ? 0 : Math.max(0, c.cost - (GS.player.costDiscount||0))));
-          });
-          if (atkCards.length > 0) {
-            const totalDmg = atkCards.reduce((sum, id) => {
-              const c = DATA.cards[id];
-              const momBonus = GS.getBuff('momentum')?.dmgBonus || 0;
-              return sum + (c.dmg||0) + momBonus;
-            }, 0);
-            const enemyShield = e.shield || 0;
-            const netDmg = Math.max(0, totalDmg - enemyShield);
-            if (!previewEl) { previewEl = document.createElement('div'); previewEl.className = 'enemy-dmg-preview'; card.appendChild(previewEl); }
-            previewEl.textContent = enemyShield > 0
-              ? `⚔ 예상 피해 ${netDmg} (방어막 ${enemyShield})`
-              : `⚔ 예상 총 피해 ${netDmg}`;
-          } else {
-            previewEl?.remove();
-          }
-        } else {
-          previewEl?.remove();
-        }
-      }
-    });
-  }
+  window.CombatUI?.renderCombatEnemies?.(_getCombatUIDeps());
 }
 
 // 단일 적 HP만 빠르게 갱신 (공격 직후 호출용)
 function updateEnemyHpUI(idx, enemy) {
-  if (!enemy) return;
-  const hpPct = Math.max(0,(enemy.hp/enemy.maxHp)*100);
-  const fill = document.getElementById(`enemy_hpfill_${idx}`);
-  const txt = document.getElementById(`enemy_hptext_${idx}`);
-  const card = document.getElementById(`enemy_${idx}`);
-  if (fill) { fill.style.width = `${hpPct}%`; if (!enemy.isBoss) fill.style.background = _enemyHpColor(hpPct); }
-  if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield?` 🛡️${enemy.shield}`:''}`;
-  if (card && enemy.hp <= 0) {
-    card.style.opacity='0.3'; card.style.filter='grayscale(1)'; card.style.pointerEvents='none';
-  }
+  window.CombatUI?.updateEnemyHpUI?.(idx, enemy, _getCombatUIDeps());
 }
 
 function getCardTypeClass(type) {
