@@ -2667,19 +2667,18 @@ function startGame() {
   }
 }
 
+function _getMetaProgressionUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    switchScreen,
+    clearSelectedClass: _clearSelectedClass,
+    refreshRunModePanel,
+  };
+}
+
 function selectFragment(effect) {
-  const meta = GS.meta;
-  switch(effect) {
-    case 'echo_boost': meta.inscriptions.echo_boost=true; break;
-    case 'resilience': meta.inscriptions.resilience=true; break;
-    case 'fortune': meta.inscriptions.fortune=true; break;
-  }
-  meta.echoFragments--;
-  setTimeout(() => {
-    switchScreen('title');
-    _clearSelectedClass();
-    refreshRunModePanel();
-  }, 500);
+  window.MetaProgressionUI?.selectFragment?.(effect, _getMetaProgressionUIDeps());
 }
 
 // ────────────────────────────────────────
@@ -2768,10 +2767,7 @@ function shuffleArray(arr) {
 }
 
 function restartFromEnding() {
-  document.getElementById('endingScreen')?.remove();
-  switchScreen('title');
-  _clearSelectedClass();
-  refreshRunModePanel();
+  window.MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionUIDeps());
 }
 
 // ────────────────────────────────────────
