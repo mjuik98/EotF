@@ -1,0 +1,8 @@
+# Local backup/test artifacts
+echo-of-the-fallenV*.html
+test.txt
+test_write.txt
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

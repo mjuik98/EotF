@@ -4380,7 +4380,6 @@ window.closeDeckView = closeDeckView;
 window.openCodex = openCodex;
 window.closeCodex = closeCodex;
 window.setCodexTab = setCodexTab;
-window.resolveEvent = resolveEvent;
 
 // ────────────────────────────────────────
 // AUTOSAVE SYSTEM
@@ -4460,16 +4459,6 @@ const SaveSystem = {
     setTimeout(() => el.remove(), 1800);
   }
 };
-
-// 플로어 이동 시 자동저장
-const _origAdvanceToNextRegion = typeof advanceToNextRegion !== 'undefined' ? advanceToNextRegion : null;
-
-// 층 이동마다 저장 훅
-function _autoSaveOnFloor() {
-  SaveSystem.saveRun();
-  SaveSystem.saveMeta();
-  SaveSystem.showSaveBadge();
-}
 
 function _bootGame() {
   try {
