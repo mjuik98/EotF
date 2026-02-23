@@ -1533,44 +1533,24 @@ function useEchoSkill() {
   }
 }
 
+function _getCombatActionsUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    audioEngine: AudioEngine,
+    renderCombatCards,
+    updateUI,
+  };
+}
+
 function sortHandByEnergy() {
-  if (!GS.combat.active || !GS.combat.playerTurn) return;
-  GS.player.hand.sort((a, b) => {
-    const ca = DATA.cards[a], cb = DATA.cards[b];
-    if (!ca || !cb) return 0;
-    return (ca.cost||0) - (cb.cost||0);
-  });
-  renderCombatCards();
-  GS.addLog('🃏 손패를 비용 순으로 정렬했다', 'system');
+  window.CombatActionsUI?.sortHandByEnergy?.(_getCombatActionsUIDeps());
 }
 window.sortHandByEnergy = sortHandByEnergy;
 
 function drawCard() {
-  const gs = GS;
-  const MAX_HAND = 8;
-  if (!gs.combat.active || !gs.combat.playerTurn) return;
-  if (gs.player.hand.length >= MAX_HAND) {
-    gs.addLog(`⚠️ 손패가 가득 찼습니다 (최대 ${MAX_HAND}장)`, 'damage');
-    const btn = document.getElementById('drawCardBtn');
-    if (btn) {
-      btn.style.animation = 'none';
-      requestAnimationFrame(() => { btn.style.animation = 'shake 0.3s ease'; });
-    }
-    updateUI();
-    return;
-  }
-  if (gs.player.energy < 1) {
-    gs.addLog('⚠️ 에너지 부족! (카드 뽑기: 1 에너지)', 'damage');
-    // 에너지 오브 흔들기
-    const orbs = document.getElementById('energyOrbs');
-    if (orbs) { orbs.style.animation='none'; requestAnimationFrame(()=>{ orbs.style.animation='shake 0.3s ease'; }); }
-    AudioEngine.playHit();
-    return;
-  }
-  gs.player.energy -= 1;
-  gs.drawCards(1);
-  updateUI();
-  renderCombatCards();
+  window.CombatActionsUI?.drawCard?.(_getCombatActionsUIDeps());
 }
 
 function endPlayerTurn() {
