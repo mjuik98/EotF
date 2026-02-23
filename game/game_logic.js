@@ -937,116 +937,34 @@ function moveToNode(node) {
 // ────────────────────────────────────────
 // COMBAT SYSTEM
 // ────────────────────────────────────────
+function _getCombatStartUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    getRegionData,
+    getBaseRegionIndex,
+    getRegionCount,
+    difficultyScaler: DifficultyScaler,
+    audioEngine: AudioEngine,
+    runRules: RunRules,
+    classMechanics: _getClassMechanics(),
+    showWorldMemoryNotice,
+    updateChainUI: (chain) => updateChainUI(chain),
+    renderCombatEnemies: () => renderCombatEnemies(),
+    renderCombatCards: () => renderCombatCards(),
+    updateCombatLog: () => updateCombatLog(),
+    updateNoiseWidget: () => updateNoiseWidget(),
+    showTurnBanner: (type) => showTurnBanner(type),
+    resetCombatInfoPanel: () => _resetCombatInfoPanel(),
+    refreshCombatInfoPanel: () => _refreshCombatInfoPanel(),
+    updateUI,
+    updateClassSpecialUI,
+  };
+}
+
 function startCombat(isBoss=false) {
-  const gs = GS;
-  const region = getRegionData(gs.currentRegion, gs);
-  if (!region) return;
-
-  gs.combat.enemies = [];
-  gs.combat.turn = 0;
-  gs.combat.playerTurn = true;
-  gs.combat.log = [];
-  gs.player.shield = 0;
-  gs.player.echoChain = 0;
-  gs.player.energy = gs.player.maxEnergy;
-  gs.combat.active = true;
-  gs._endCombatScheduled = false;
-  gs._endCombatRunning   = false;
-  gs._selectedTarget = null;
-  // 전투 시작 스탯 스냅샷 (종료 후 델타 계산용)
-  gs._combatStartDmg = gs.stats.damageDealt;
-  gs._combatStartTaken = gs.stats.damageTaken;
-  gs._combatStartKills = gs.player.kills;
-
-  if (isBoss) {
-    // 히든 보스 조건: 최종 지역 + 상인 구출 + 스토리 5개 이상
-    const isHiddenEligible = getBaseRegionIndex(GS.currentRegion) === Math.max(0, getRegionCount() - 1) &&
-      (GS.worldMemory.savedMerchant||0) >= 1 &&
-      GS.meta.storyPieces.length >= 5;
-    let bossKey = region.boss || 'ancient_echo';
-    if (isHiddenEligible) {
-      bossKey = 'echo_origin';
-      setTimeout(() => showWorldMemoryNotice('🌟 세계가 기억한다 — 숨겨진 근원이 깨어났다!'), 600);
-    }
-    const bossData = DATA.enemies[bossKey] || DATA.enemies['ancient_echo'];
-    gs.combat.enemies.push(DifficultyScaler.scaleEnemy({...bossData, statusEffects:{}, phase:1}));
-    if (gs.meta.codex) gs.meta.codex.enemies.add(bossKey); // 도감 등록
-    AudioEngine.playBossPhase();
-    gs.triggerItems('boss_start');
-  } else {
-    const isEliteNode = gs.currentNode?.type === 'elite';
-    if (isEliteNode && region.elites?.length) {
-      // 정예 노드: 정예 몬스터 1체
-      const eKey = region.elites[Math.floor(Math.random()*region.elites.length)];
-      if (DATA.enemies[eKey]) {
-        gs.combat.enemies.push(DifficultyScaler.scaleEnemy({...DATA.enemies[eKey],statusEffects:{}}));
-        if (gs.meta.codex) gs.meta.codex.enemies.add(eKey);
-      }
-    } else {
-      // 일반 노드
-      const count = gs.currentFloor <= 1 ? 1 : Math.random() < 0.4 ? 2 : 1;
-      for (let i=0;i<count;i++) {
-        const eKey = region.enemies[Math.floor(Math.random()*region.enemies.length)];
-        if (DATA.enemies[eKey]) {
-          gs.combat.enemies.push(DifficultyScaler.scaleEnemy({...DATA.enemies[eKey],statusEffects:{}}));
-          if (gs.meta.codex) gs.meta.codex.enemies.add(eKey);
-        }
-      }
-    }
-  }
-
-  // 기억의 미궁 — 왜곡된 기억 (무작위 경미한 디버프)
-  if (getBaseRegionIndex(gs.currentRegion) === 2) {
-    const memoryDebuffs = ['weakened','burning','confusion'];
-    const debuff = memoryDebuffs[Math.floor(Math.random()*memoryDebuffs.length)];
-    if (Math.random() < 0.5) { // 50% 확률
-      gs.player.buffs[debuff] = {stacks:1};
-      gs.addLog(`👁️ 왜곡된 기억: ${debuff} 부여!`, 'damage');
-    }
-  }
-
-  // 신의 무덤 — 강제 디버프
-  if (getBaseRegionIndex(gs.currentRegion) === 3) {
-    const debuffs = ['weakened','slowed','burning'];
-    const debuff = debuffs[Math.floor(Math.random()*debuffs.length)];
-    gs.player.buffs[debuff] = {stacks:2};
-    gs.addLog(`⚠️ 신의 무덤: ${debuff} 부여!`, 'damage');
-  }
-
-  // 메아리술사 전투 시작
-  if (gs.player.class === 'mage') _getClassMechanics().mage?.onCombatStart?.(gs);
-
-  RunRules.onCombatStart(gs);
-  gs.triggerItems('combat_start');
-  gs.drawCards(5);
-
-  // 이전 전투의 적 카드가 남아있으면 전체 재렌더를 위해 초기화
-  const _zone = document.getElementById('enemyZone');
-  if (_zone) _zone.innerHTML = '';
-
-  // 이전 화면 완전 정리
-  document.getElementById('nodeCardOverlay').style.display = 'none';
-  document.getElementById('mapOverlay')?.classList.remove('active');
-  document.getElementById('eventModal').classList.remove('active');
-  document.getElementById('eventModal').style.display = '';
-
-  // 전투 시작 시 첫 번째 살아있는 적 자동 타겟 지정
-  const firstAlive = gs.combat.enemies.findIndex(e => e.hp > 0);
-  gs._selectedTarget = firstAlive >= 0 ? firstAlive : null;
-  updateChainUI(gs.player.echoChain);
-
-  renderCombatEnemies();
-  renderCombatCards();
-  updateCombatLog();
-  gs.addLog('⚔️ 전투 시작!', 'system');
-  updateNoiseWidget();
-  document.getElementById('combatOverlay').classList.add('active');
-  setTimeout(() => showTurnBanner('player'), 300);
-  // 전투 정보 패널 초기화 (닫힌 상태로 시작)
-  _resetCombatInfoPanel();
-  _refreshCombatInfoPanel();
-  updateUI();
-  updateClassSpecialUI();
+  window.CombatStartUI?.startCombat?.(isBoss, _getCombatStartUIDeps());
 }
 
 function _getCombatHudUIDeps() {
