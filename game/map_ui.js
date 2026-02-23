@@ -1,6 +1,7 @@
 'use strict';
 
 (function initMapUI(globalObj) {
+  let _mapAutoCloseTimer = null;
   const NODE_TYPE_CONFIG = {
     combat: { color: '#ff3366', icon: '⚔' },
     elite: { color: '#f0b429', icon: '⭐' },
@@ -199,6 +200,41 @@
 
     handleMapClick(event, deps = {}) {
       if (typeof deps.closeMapOverlay === 'function') deps.closeMapOverlay();
+    },
+
+    showOverlay(autoClose = false, deps = {}) {
+      const doc = _getDoc(deps);
+      if (typeof deps.renderMapOverlay === 'function') deps.renderMapOverlay();
+
+      doc.getElementById('mapOverlay')?.classList.add('active');
+      const bar = doc.getElementById('mapTimerBar');
+      const fill = doc.getElementById('mapTimerFill');
+      if (autoClose && bar && fill) {
+        bar.style.display = 'block';
+        fill.style.transition = 'none';
+        fill.style.width = '100%';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          fill.style.transition = 'width 2.8s linear';
+          fill.style.width = '0%';
+        }));
+        clearTimeout(_mapAutoCloseTimer);
+        _mapAutoCloseTimer = setTimeout(() => {
+          if (doc.getElementById('mapOverlay')?.classList.contains('active')) {
+            this.closeOverlay(deps);
+          }
+        }, 2800);
+      } else if (bar) {
+        bar.style.display = 'none';
+        clearTimeout(_mapAutoCloseTimer);
+      }
+    },
+
+    closeOverlay(deps = {}) {
+      const doc = _getDoc(deps);
+      clearTimeout(_mapAutoCloseTimer);
+      doc.getElementById('mapOverlay')?.classList.remove('active');
+      const bar = doc.getElementById('mapTimerBar');
+      if (bar) bar.style.display = 'none';
     },
   };
 

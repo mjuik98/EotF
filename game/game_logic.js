@@ -1370,6 +1370,7 @@ function _getMapUIDeps() {
     minimapCtx,
     nodeMeta: NODE_META,
     getFloorStatusText,
+    renderMapOverlay: () => renderMapOverlay(),
     moveToNodeHandlerName: 'moveToNode',
     closeMapOverlay: () => closeMapOverlay(),
   };
@@ -3252,33 +3253,10 @@ function _flushNoticeQueue() {
 }
 
 function showMapOverlay(autoClose = false) {
-  renderMapOverlay();
-  document.getElementById('mapOverlay').classList.add('active');
-  const bar = document.getElementById('mapTimerBar');
-  const fill = document.getElementById('mapTimerFill');
-  if (autoClose && bar && fill) {
-    bar.style.display = 'block';
-    fill.style.transition = 'none';
-    fill.style.width = '100%';
-    // 다음 프레임에 트랜지션 시작
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      fill.style.transition = 'width 2.8s linear';
-      fill.style.width = '0%';
-    }));
-    clearTimeout(window._mapAutoCloseTimer);
-    window._mapAutoCloseTimer = setTimeout(() => {
-      if (document.getElementById('mapOverlay').classList.contains('active')) closeMapOverlay();
-    }, 2800);
-  } else if (bar) {
-    bar.style.display = 'none';
-    clearTimeout(window._mapAutoCloseTimer);
-  }
+  window.MapUI?.showOverlay?.(autoClose, _getMapUIDeps());
 }
 function closeMapOverlay() {
-  clearTimeout(window._mapAutoCloseTimer);
-  document.getElementById('mapOverlay').classList.remove('active');
-  const bar = document.getElementById('mapTimerBar');
-  if (bar) bar.style.display = 'none';
+  window.MapUI?.closeOverlay?.(_getMapUIDeps());
   // 닫힌 후 노드 카드 등장 애니메이션
   _nodeCardReveal = Date.now();
 }
