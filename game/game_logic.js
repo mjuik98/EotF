@@ -730,91 +730,38 @@ function resizeGameCanvas() {
 // ────────────────────────────────────────
 // GAME LOOP — 단일 통합 루프
 // ────────────────────────────────────────
-let lastTimestamp = 0;
-function gameLoop(timestamp) {
-  if (!gameCtx || GS.currentScreen !== 'game') {
-    requestAnimationFrame(gameLoop); return;
-  }
-  if (HitStop.active()) { HitStop.update(); requestAnimationFrame(gameLoop); return; }
-  const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
-  lastTimestamp = timestamp;
+function _getWorldRenderLoopDeps() {
+  return {
+    gs: GS,
+    refs: {
+      gameCanvas,
+      gameCtx,
+    },
+    hitStop: HitStop,
+    screenShake: ScreenShake,
+    particleSystem: ParticleSystem,
+    requestAnimationFrame: window.requestAnimationFrame.bind(window),
+    gameLoop,
+    renderMinimap: () => renderMinimap(),
+    renderNodeInfo: (ctx, w, h) => renderNodeInfo(ctx, w, h),
+    getRegionData,
+  };
+}
 
-  ScreenShake.update();
-  gameCtx.save();
-  gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-  ScreenShake.apply(gameCtx);
-  renderGameWorld(dt, gameCtx, gameCanvas.width, gameCanvas.height);
-  ParticleSystem.update();
-  gameCtx.restore();
-  renderMinimap();
-  requestAnimationFrame(gameLoop);
+function gameLoop(timestamp) {
+  window.WorldRenderLoopUI?.gameLoop?.(timestamp, _getWorldRenderLoopDeps());
 }
 
 function renderGameWorld(dt, ctx, w, h) {
-  // 배경
-  const bg = ctx.createLinearGradient(0, 0, 0, h);
-  bg.addColorStop(0, '#03030a');
-  bg.addColorStop(1, '#07071a');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, w, h);
-
-  // 지역별 특수 렌더링 (미궁은 별도 오버레이 사용)
-  renderRegionBackground(ctx, w, h);
-
-  // 동적 광원 (전투 중)
-  if (GS.combat.active) {
-    renderDynamicLights(ctx, w, h);
-  }
-
-  // 현재 노드 정보
-  if (GS.currentNode) {
-    renderNodeInfo(ctx, w, h);
-  }
+  window.WorldRenderLoopUI?.renderGameWorld?.(dt, ctx, w, h, _getWorldRenderLoopDeps());
 }
 
 function renderRegionBackground(ctx, w, h) {
-  const region = getRegionData(GS.currentRegion, GS) || {};
-  const accent = region.accent || '#7b2fff';
-  // 배경 격자 패턴
-  ctx.save();
-  ctx.strokeStyle = 'rgba(123,47,255,0.04)';
-  ctx.lineWidth = 1;
-  const gs = 40;
-  for (let x=0;x<w;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-  for (let y=0;y<h;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  // 지역 색상 오버레이
-  const glow = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.max(w,h)*0.6);
-  glow.addColorStop(0,accent+'08'); glow.addColorStop(1,'transparent');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0,0,w,h);
-  ctx.restore();
+  window.WorldRenderLoopUI?.renderRegionBackground?.(ctx, w, h, _getWorldRenderLoopDeps());
 }
 
 function renderDynamicLights(ctx, w, h) {
-  const t = Date.now() * 0.001;
-  GS.combat.enemies.forEach((e,i) => {
-    if (e.hp <= 0) return;
-    const ex = w/2 + (i-(GS.combat.enemies.length/2-0.5))*200;
-    const ey = h*0.35;
-    const pulse = 0.5 + 0.5*Math.sin(t + i*Math.PI);
-    const glow = ctx.createRadialGradient(ex,ey,0,ex,ey,80+pulse*20);
-    const region = getRegionData(GS.currentRegion, GS) || {};
-    glow.addColorStop(0,(region.accent||'#7b2fff')+'22');
-    glow.addColorStop(1,'transparent');
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(ex,ey,80+pulse*20,0,Math.PI*2);
-    ctx.fill();
-  });
-  // Echo 체인 테두리
-  if (GS.player.echoChain > 0) {
-    const pct = GS.player.echoChain / 5;
-    ctx.save();
-    ctx.strokeStyle = `rgba(0,255,204,${pct*0.3})`;
-    ctx.lineWidth = 2+pct*4;
-    ctx.strokeRect(2,2,w-4,h-4);
-    ctx.restore();
-  }
+  window.WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, _getWorldRenderLoopDeps());
 }
 
 // ── 노드 타입별 메타 ──
