@@ -807,54 +807,19 @@ function roundRectTop(ctx, x, y, w, h, r) {
 // ────────────────────────────────────────
 // MAP SYSTEM
 // ────────────────────────────────────────
+function _getMapGenerationUIDeps() {
+  return {
+    gs: GS,
+    getRegionData,
+    updateNextNodes: () => updateNextNodes(),
+    renderMapOverlay: () => renderMapOverlay(),
+    updateUI,
+    showWorldMemoryNotice,
+  };
+}
+
 function generateMap(regionIdx) {
-  const region = getRegionData(regionIdx, GS);
-  if (!region) return;
-  GS.mapNodes = [];
-  GS.currentNode = null;
-
-  // 층별 노드 타입 가중치: 정예는 중반 이후 등장
-  // 각 층에서 노드 2~3개, 보스층은 1개
-  for (let floor = 1; floor <= region.floors; floor++) {
-    const isBossFloor = floor === region.floors;
-    const isLateGame  = floor >= Math.ceil(region.floors * 0.5);
-    const count = isBossFloor ? 1 : Math.random() < 0.5 ? 2 : 3;
-
-    // 이 층에서 정예를 넣을지 결정 (중반 이후, 30% 확률, 노드 여러 개일 때)
-    let eliteAssigned = false;
-
-    for (let i = 0; i < count; i++) {
-      let type;
-      if (isBossFloor) {
-        type = 'boss';
-      } else if (floor === 1) {
-        type = 'combat'; // 첫 층은 항상 전투
-      } else if (!eliteAssigned && isLateGame && count > 1 && Math.random() < 0.35) {
-        type = 'elite';
-        eliteAssigned = true;
-      } else {
-        // 가중치 풀: 전투 많고, 정예/이벤트/상점/휴식 골고루
-        const pool = ['combat','combat','combat','event','shop','rest'];
-        type = pool[Math.floor(Math.random() * pool.length)];
-      }
-      GS.mapNodes.push({
-        id: `${floor}-${i}`,
-        floor, pos: i, total: count,
-        type, visited: false,
-        accessible: floor === 1,
-      });
-    }
-  }
-
-  GS.currentFloor = 0;
-  updateNextNodes();
-  renderMapOverlay();
-  updateUI();
-  // 지역 진입 첫 화면 분위기 문구
-  const _entryRegion = getRegionData(regionIdx, GS);
-  if (_entryRegion?.quote) {
-    setTimeout(() => showWorldMemoryNotice(_entryRegion.quote), 600);
-  }
+  window.MapGenerationUI?.generateMap?.(regionIdx, _getMapGenerationUIDeps());
 }
 
 function _getMapUIDeps() {
@@ -893,45 +858,25 @@ function handleMapClick(event) {
   window.MapUI?.handleMapClick?.(event, _getMapUIDeps());
 }
 
+function _getMapNavigationUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    classMechanics: _getClassMechanics(),
+    audioEngine: AudioEngine,
+    updateNextNodes: () => updateNextNodes(),
+    renderMapOverlay: () => renderMapOverlay(),
+    renderMinimap: () => renderMinimap(),
+    updateUI,
+    startCombat,
+    triggerRandomEvent,
+    showShop,
+    showRestSite,
+  };
+}
+
 function moveToNode(node) {
-  if (typeof node === 'string') node = GS.mapNodes.find(n => n.id === node);
-  if (!node || !node.accessible || node.visited) return;
-  if (GS._nodeMoveLock) return;
-  GS._nodeMoveLock = true;
-  // 노드 카드 즉시 비활성화
-  const overlay = document.getElementById('nodeCardOverlay');
-  if (overlay) overlay.style.pointerEvents = 'none';
-
-  node.visited = true;
-  GS.currentNode = node;
-  GS.currentFloor = node.floor;
-
-  // 잔향검사 모멘텀 (이동 시 강화)
-  if (GS.player.class === 'swordsman') {
-    _getClassMechanics().swordsman?.onMove?.(GS);
-  }
-
-  // 다음 층 노드 접근 가능하게
-  GS.mapNodes.filter(n => n.floor === node.floor+1).forEach(n => n.accessible = true);
-
-  AudioEngine.playFootstep();
-  updateNextNodes();
-  renderMapOverlay();
-  renderMinimap();
-  updateUI();
-
-  // region 2 (기억의 미궁)도 일반 노드와 동일하게 처리
-  setTimeout(() => {
-    GS._nodeMoveLock = false;
-    switch (node.type) {
-      case 'combat': startCombat(false); break;
-      case 'elite':  startCombat(false); break;
-      case 'boss':   startCombat(true);  break;
-      case 'event':  triggerRandomEvent(); break;
-      case 'shop':   showShop(); break;
-      case 'rest':   showRestSite(); break;
-    }
-  }, 300);
+  window.MapNavigationUI?.moveToNode?.(node, _getMapNavigationUIDeps());
 }
 
 // ────────────────────────────────────────
@@ -1070,43 +1015,19 @@ function updateEchoSkillBtn() {
   window.CombatHudUI?.updateEchoSkillBtn?.(_getCombatHudUIDeps());
 }
 
+function _getEchoSkillUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    audioEngine: AudioEngine,
+    showEchoBurstOverlay,
+    renderCombatEnemies,
+    renderCombatCards,
+  };
+}
+
 function useEchoSkill() {
-  const gs = GS;
-  const echoVal = gs.player.echo;
-  // 충전 단계 결정
-  let tier, cost;
-  if (echoVal >= 100) { tier = 3; cost = 100; }
-  else if (echoVal >= 60) { tier = 2; cost = 60; }
-  else if (echoVal >= 30) { tier = 1; cost = 30; }
-  else { gs.addLog('⚠️ Echo 게이지 부족! (30 필요)', 'damage'); return; }
-
-  gs.drainEcho(cost);
-  gs.triggerItems('echo_skill', {cost}); // 잔향 팔찌 세트 효과 트리거
-
-  const cls = gs.player.class;
-  if (cls === 'swordsman') {
-    if (tier === 3) { gs.dealDamageAll(40); gs.addShield(20); gs.addLog('⚔️ 잔향 폭발! 전체 40 + 방어막 20','echo'); }
-    else if (tier === 2) { gs.dealDamage(30); gs.addShield(12); gs.addLog('⚔️ 잔향 강타! 30 + 방어막 12','echo'); }
-    else { gs.dealDamage(20); gs.addShield(8); gs.addLog('⚔️ Echo 스킬! 20 + 방어막 8','echo'); }
-  } else if (cls === 'mage') {
-    if (tier === 3) { gs.dealDamageAll(30); gs.addEcho(30); gs.drawCards(3); gs.addLog('🔮 비전 폭풍! 전체 30 + Echo 30 + 드로우 3','echo'); }
-    else if (tier === 2) { gs.dealDamageAll(18); gs.addEcho(15); gs.drawCards(2); gs.addLog('🔮 잔향파! 전체 18 + 드로우 2','echo'); }
-    else { gs.applyEnemyStatus('weakened',2); gs.drawCards(1); gs.addLog('🔮 예지! 약화 2턴 + 드로우 1','echo'); }
-  } else { // hunter
-    if (tier === 3) { gs.dealDamage(50); gs.addBuff('vanish',2,{}); gs.addLog('🗡️ 암살! 50 피해 + 은신 2턴','echo'); }
-    else if (tier === 2) { gs.dealDamage(32); gs.addBuff('vanish',1,{}); gs.addLog('🗡️ 기습! 32 + 은신','echo'); }
-    else { gs.dealDamage(20); gs.addLog('🗡️ 숨격! 20 피해','echo'); }
-  }
-  showEchoBurstOverlay();
-  AudioEngine.playResonanceBurst();
-  renderCombatEnemies(); renderCombatCards();
-  // Echo 스킬 사용 후 버튼 쿨다운 시각 피드백
-  const echoBtn2 = document.getElementById('echoSkillBtn');
-  if (echoBtn2) {
-    echoBtn2.style.transition = 'opacity 0.2s, background 0.2s';
-    echoBtn2.style.background = 'linear-gradient(135deg,rgba(0,255,204,0.2),rgba(123,47,255,0.2))';
-    setTimeout(() => { echoBtn2.style.background = ''; }, 800);
-  }
+  window.EchoSkillUI?.useEchoSkill?.(_getEchoSkillUIDeps());
 }
 
 function _getCombatActionsUIDeps() {
@@ -1129,244 +1050,49 @@ function drawCard() {
   window.CombatActionsUI?.drawCard?.(_getCombatActionsUIDeps());
 }
 
+function _getCombatTurnUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    win: window,
+    runRules: RunRules,
+    audioEngine: AudioEngine,
+    particleSystem: ParticleSystem,
+    screenShake: ScreenShake,
+    getBaseRegionIndex,
+    shuffleArray,
+    enemyTurn: () => enemyTurn(),
+    updateChainUI: (chain) => updateChainUI(chain),
+    showTurnBanner: (type) => showTurnBanner(type),
+    renderCombatEnemies: () => renderCombatEnemies(),
+    renderCombatCards: () => renderCombatCards(),
+    updateStatusDisplay: () => updateStatusDisplay(),
+    updateClassSpecialUI: () => updateClassSpecialUI(),
+    updateUI,
+    showEchoBurstOverlay: () => showEchoBurstOverlay(),
+    showDmgPopup: (dmg, x, y, color) => showDmgPopup(dmg, x, y, color),
+  };
+}
+
 function endPlayerTurn() {
-  const gs = GS;
-  if (!gs.combat.playerTurn) return;
-
-  // 손패에 플레이 가능한 카드가 남아있으면 경고 로그 (0장이면 생략)
-  if (gs.player.hand.length > 0) {
-    const playable = gs.player.hand.filter(id => {
-      const c = DATA.cards[id]; if (!c) return false;
-      const cost = gs.player.zeroCost ? 0 : Math.max(0, c.cost - (gs.player.costDiscount||0));
-      return gs.player.energy >= cost;
-    });
-    if (playable.length > 0) {
-      gs.addLog(`💡 사용 가능한 카드 ${playable.length}장을 남기고 턴 종료`, 'system');
-    }
-  }
-
-  // 버프 처리 (턴 종료)
-  Object.keys(gs.player.buffs).forEach(buffId => {
-    const buff = gs.player.buffs[buffId];
-    if (buff.echoRegen) gs.addEcho(buff.echoRegen);
-    buff.stacks--;
-    if (buff.stacks <= 0) delete gs.player.buffs[buffId];
-  });
-
-  // 침묵사냥꾼: 소음 자연 감소
-  if (gs.player.class === 'hunter' && gs.player.silenceGauge > 0) {
-    gs.player.silenceGauge = Math.max(0, gs.player.silenceGauge - 1);
-  }
-
-  gs.player.graveyard.push(...gs.player.hand);
-  gs.player.hand = [];
-  gs.player.echoChain = 0;
-  gs.player.zeroCost = false;
-  gs.player.costDiscount = 0; // 턴 종료 시 비용 할인 초기화
-  gs.player._cascadeCards = null; // 잔향 폭포 무료화 초기화
-  updateChainUI(0);
-
-  gs.combat.playerTurn = false;
-  const ti = document.getElementById('turnIndicator');
-  ti.className = 'turn-indicator turn-enemy'; ti.textContent = '적의 턴';
-  showTurnBanner('enemy');
-  // 적 턴 중 버튼 비활성화
-  document.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
-
-  setTimeout(enemyTurn, 700);
+  window.CombatTurnUI?.endPlayerTurn?.(_getCombatTurnUIDeps());
 }
 
 function enemyTurn() {
-  const gs = GS;
-  gs.combat.turn++;
-
-  // 상태 이상 틱 (독, 표식, 반사)
-  processEnemyStatusTicks();
-
-  gs.combat.enemies.forEach((enemy, i) => {
-    if (enemy.hp <= 0) return;
-    // 기절
-    if (enemy.statusEffects?.stunned > 0) {
-      enemy.statusEffects.stunned--;
-      gs.addLog(`🌀 ${enemy.name}: 기절 상태!`, 'echo');
-      return;
-    }
-
-    let action;
-    try { action = enemy.ai(gs.combat.turn); }
-    catch(e) { action = {type:'strike', intent:`공격 ${enemy.atk}`, dmg:enemy.atk}; }
-
-    if (action.type === 'phase_shift' || action.effect === 'phase_shift') {
-      handleBossPhaseShift(enemy, i);
-    } else if (action.dmg > 0) {
-      let dmg = action.dmg;
-      if (enemy.statusEffects?.weakened > 0) {
-        dmg = Math.floor(dmg * 0.5);
-        enemy.statusEffects.weakened--;
-        gs.addLog(`💫 ${enemy.name}: 약화 (피해 감소)`, 'echo');
-      }
-      gs.takeDamage(dmg);
-      gs.addLog(`💢 ${enemy.name}: ${action.intent}`, 'damage');
-      const sprite = document.getElementById(`enemy_sprite_${i}`);
-      const card = document.getElementById(`enemy_${i}`);
-      if (card) { card.classList.add('hit'); setTimeout(()=>card.classList.remove('hit'),400); }
-    }
-
-    // 특수 효과
-    handleEnemyEffect(action.effect, enemy, i);
-    renderCombatEnemies();
-  });
-
-  // 플레이어 턴 복구
-  setTimeout(() => {
-    if (!gs.combat.active) return;
-    gs.combat.playerTurn = true;
-    gs.player.energy = gs.player.maxEnergy;
-    gs.player.shield = 0;
-    const ti = document.getElementById('turnIndicator');
-    ti.className = 'turn-indicator turn-player'; ti.textContent = '플레이어 턴';
-    showTurnBanner('player');
-    // 플레이어 턴 버튼 강제 활성화 (침묵의 폭군 등 예외 상황 대비)
-    document.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; b.style.pointerEvents = ''; });
-    gs.drawCards(5);
-    renderCombatCards();
-    gs.addLog('─── 새 턴 ───', 'system');
-    RunRules.onTurnStart(gs);
-    gs.triggerItems('turn_start');
-    updateStatusDisplay();
-    updateClassSpecialUI();
-    updateUI();
-  }, 800);
+  window.CombatTurnUI?.enemyTurn?.(_getCombatTurnUIDeps());
 }
 
 function processEnemyStatusTicks() {
-  GS.combat.enemies.forEach((enemy,i) => {
-    if (!enemy.statusEffects) return;
-    if (enemy.hp <= 0) return;
-    const se = enemy.statusEffects;
-    const ex = window.innerWidth/2+(i-0.5)*200;
-    // 독 (3 피해/턴)
-    if (se.poisoned > 0) {
-      const dmg = 3 + Math.floor((3 - se.poisoned) * 0.5); // 스택이 줄수록 피해도 감소
-      enemy.hp = Math.max(0, enemy.hp-dmg);
-      GS.addLog(`🐍 ${enemy.name}: 독 ${dmg}`, 'damage');
-      showDmgPopup(dmg, ex, 200, '#44ff88');
-      ParticleSystem.emit(ex,200,{count:5,color:'#00ff44',size:2,speed:2,life:0.5});
-      se.poisoned--;
-      if (se.poisoned<=0) delete se.poisoned;
-      if (enemy.hp<=0) {
-        GS.onEnemyDeath(enemy,i);
-        return;
-      }
-    }
-    // 화염 (5 피해/턴, 감소 없음)
-    if (se.burning > 0) {
-      const dmg = 5;
-      enemy.hp = Math.max(0, enemy.hp-dmg);
-      GS.addLog(`🔥 ${enemy.name}: 화염 ${dmg}`, 'damage');
-      showDmgPopup(dmg, ex, 220, '#ff8844');
-      ParticleSystem.emit(ex,180,{count:6,color:'#ff6600',size:3,speed:3,life:0.4});
-      se.burning--;
-      if (se.burning<=0) delete se.burning;
-      if (enemy.hp<=0) {
-        GS.onEnemyDeath(enemy,i);
-        return;
-      }
-    }
-    // 처형 표식
-    if (se.marked !== undefined) {
-      se.marked--;
-      if (se.marked<=0) {
-        const dmg = 30;
-        enemy.hp = Math.max(0,enemy.hp-dmg);
-        GS.addLog(`💢 ${enemy.name}: 처형 표식 폭발! ${dmg}!`, 'echo');
-        showDmgPopup(dmg, ex, 200, '#ff2255');
-        ScreenShake.shake(10,0.5);
-        ParticleSystem.burstEffect(ex,200);
-        AudioEngine.playChain(4);
-        delete se.marked;
-        if (enemy.hp<=0) {
-          GS.onEnemyDeath(enemy,i);
-          return;
-        }
-      }
-    }
-    // 반사
-    if (GS.player.buffs.mirror && se.incoming>0) {
-      const r = se.incoming;
-      enemy.hp=Math.max(0,enemy.hp-r);
-      GS.addLog(`🪞 반사! ${r} 피해`,'echo');
-      delete GS.player.buffs.mirror; delete se.incoming;
-      if (enemy.hp<=0) {
-        GS.onEnemyDeath(enemy,i);
-        return;
-      }
-    }
-  });
-  renderCombatEnemies();
+  window.CombatTurnUI?.processEnemyStatusTicks?.(_getCombatTurnUIDeps());
 }
 
 function handleBossPhaseShift(enemy, idx) {
-  const sprite = document.getElementById(`enemy_sprite_${idx}`);
-  if (sprite) { sprite.style.animation='none'; setTimeout(()=>{sprite.style.animation='enemyHit 0.8s ease 3';},10); }
-  ScreenShake.shake(15, 1.0);
-  AudioEngine.playBossPhase();
-  ParticleSystem.burstEffect(window.innerWidth/2+(idx-(GS.combat.enemies.length/2-0.5))*200, 220);
-  // 페이즈 전환 시 플레이어 1턴 무적 부여
-  GS.addBuff('immune', 1, {});
-  GS.addLog('🛡️ 페이즈 전환: 1턴 무적!', 'echo');
-  if (enemy.phase===2) {
-    GS.addLog(`⚠️ ${enemy.name} 2페이즈 각성!`, 'echo');
-    GS.player.buffs = { immune: {stacks:1} }; // 무적 유지하며 다른 버프만 제거
-    GS.addLog('💀 다른 버프 해제!', 'damage');
-  } else if (enemy.phase===3) {
-    GS.addLog(`💀 ${enemy.name} 최종 페이즈!`, 'damage');
-    enemy.atk = Math.floor(enemy.atk*1.3);
-  }
-  // 페이즈 전환 직후 적 카드 즉시 갱신
-  setTimeout(() => { renderCombatEnemies(); updateStatusDisplay(); }, 50);
-  showEchoBurstOverlay();
+  window.CombatTurnUI?.handleBossPhaseShift?.(enemy, idx, _getCombatTurnUIDeps());
 }
 
 function handleEnemyEffect(effect, enemy, idx) {
-  if (!effect) return;
-  const gs = GS;
-  const baseRegion = getBaseRegionIndex(gs.currentRegion);
-  switch(effect) {
-    case 'self_atk_up': enemy.atk+=3; gs.addLog(`💪 ${enemy.name}: 공격 강화 (+3)`,'system'); break;
-    case 'self_shield': enemy.shield=(enemy.shield||0)+8; gs.addLog(`🛡️ ${enemy.name}: 방어막 8`,'system'); break;
-    case 'self_shield_15': enemy.shield=(enemy.shield||0)+15; gs.addLog(`🛡️ ${enemy.name}: 신성 방어막 15`,'system'); break;
-    case 'self_shield_20': enemy.shield=(enemy.shield||0)+20; gs.addLog(`🛡️ ${enemy.name}: 방어막 20`,'system'); break;
-    case 'add_noise_5': if(baseRegion === 1){gs.addSilence(5);} break;
-    case 'mass_debuff': {
-      const debuffs=['weakened','slowed','burning'];
-      debuffs.forEach(d=>{ gs.player.buffs[d]={stacks:1}; });
-      gs.addLog('⚠️ 전체 디버프 부여!','damage');
-      updateStatusDisplay();
-    } break;
-    case 'curse':
-      gs.player.buffs['cursed']={stacks:2};
-      gs.addLog(`💀 ${enemy.name}: 저주 부여!`,'damage');
-      updateStatusDisplay();
-      break;
-    case 'drain_echo': gs.drainEcho(20); gs.addLog(`🌑 ${enemy.name}: Echo 흡수!`,'damage'); break;
-    case 'nullify_echo': gs.player.echo=0; gs.player.echoChain=0; updateChainUI(0); gs.addLog('🌑 Echo 완전 무효화!','damage'); break;
-    case 'add_noise': if(baseRegion === 1) gs.addSilence(3); break;
-    case 'exhaust_card':
-      if(gs.player.hand.length>0){const ci=Math.floor(Math.random()*gs.player.hand.length);const c=gs.player.hand.splice(ci,1)[0];gs.player.exhausted.push(c);gs.addLog(`💀 ${DATA.cards[c]?.name} 소각!`,'damage');renderCombatCards();}
-      break;
-    case 'drain_energy': gs.player.energy=Math.max(0,gs.player.energy-1); gs.addLog('⚡ 에너지 -1!','damage'); updateUI(); break;
-    case 'drain_energy_2': gs.player.energy=Math.max(0,gs.player.energy-2); gs.addLog('⚡ 에너지 -2!','damage'); updateUI(); break;
-    case 'drain_energy_all': gs.player.energy=0; gs.addLog('⚡ 에너지 완전 소진!','damage'); updateUI(); break;
-    case 'confusion': shuffleArray(gs.player.hand); gs.addLog('🌀 카드 뒤섞임!','damage'); renderCombatCards(); break;
-    case 'weaken': gs.applyEnemyStatus('weakened',1); break;
-    case 'dodge': gs.addLog(`${enemy.name}: 회피 준비`,'system'); break;
-    case 'lifesteal': gs.player.hp=Math.min(gs.player.maxHp,gs.player.hp+4); updateUI(); break;
-    case 'poison_3': gs.player.buffs['poisoned']={stacks:3}; gs.addLog(`☠️ ${enemy.name}: 맹독 부여!`,'damage'); updateStatusDisplay(); break;
-    case 'self_heal_15': enemy.hp=Math.min(enemy.maxHp,(enemy.hp||0)+15); gs.addLog(`💚 ${enemy.name}: 체력 회복 (+15)`, 'heal'); break;
-    case 'self_atk_up_4': enemy.atk+=4; gs.addLog(`💪 ${enemy.name}: 공격 대폭 강화 (+4)`,'system'); break;
-    case 'phase_shift': gs.addLog(`⚠️ ${enemy.name}: 위상 전환!`,'system'); break;
-  }
+  window.CombatTurnUI?.handleEnemyEffect?.(effect, enemy, idx, _getCombatTurnUIDeps());
 }
 
 // ────────────────────────────────────────
@@ -2002,45 +1728,23 @@ window.setCodexTab = setCodexTab;
 // ────────────────────────────────────────
 // SaveSystem is provided by game/save_system.js.
 
+function _getGameBootUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    audioEngine: AudioEngine,
+    runRules: RunRules,
+    saveSystem: window.SaveSystem,
+    saveSystemDeps: _getSaveSystemDeps(),
+    initTitleCanvas,
+    updateUI,
+    refreshRunModePanel,
+  };
+}
+
 function _bootGame() {
-  try {
-  document.addEventListener('click', () => { try{AudioEngine.init();AudioEngine.resume();}catch(e){} }, {once:false});
-  try { window.SaveSystem?.loadMeta?.(_getSaveSystemDeps()); } catch(e) {}
-  try { RunRules.ensureMeta(GS.meta); } catch(e) {}
-  // class-btn 이벤트는 onclick 속성으로 처리됨 (중복 등록 방지)
-  // startBtn도 onclick 속성으로 처리됨
-  initTitleCanvas();
-  try { updateUI(); } catch(e) { console.warn('updateUI error:', e); }
-  refreshRunModePanel();
-
-  // 메타 데이터 표시 (런 횟수 등)
-  if (GS.meta.runCount > 1) {
-    const badge = document.createElement('div');
-    badge.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);font-family:\'Share Tech Mono\',monospace;font-size:10px;color:rgba(123,47,255,0.5);z-index:5;pointer-events:none;';
-    badge.textContent = `총 ${GS.meta.runCount-1}회 플레이 · 처치 ${GS.meta.totalKills} · 최고 체인 ${GS.meta.bestChain}`;
-    document.getElementById('titleScreen')?.appendChild(badge);
-  }
-
-  } catch(e) { console.error('Boot error:', e); }
-  console.log(`
-╔══════════════════════════════════════════╗
-║  ECHO OF THE FALLEN v11 — SET SYSTEM    ║
-║                                          ║
-║  ✓ 유물 세트 효과 시스템 (3세트 9유물)  ║
-║  ✓ 기억의 미궁 — WASD UI 가이드        ║
-║  ✓ 미궁 미니맵 + 출구 표시             ║
-║  ✓ 방향키 지원 + 이동 피드백            ║
-║  ✓ 세트 보너스 패널 (좌측 패널)         ║
-║  ✓ 아이템 툴팁 세트 정보 표시           ║
-║  ✓ 세트 아이템 점선 테두리 강조         ║
-║  ✓ echo_skill 트리거 (잔향 팔찌 세트)  ║
-╚══════════════════════════════════════════╝
-  `);
+  window.GameBootUI?.bootGame?.(_getGameBootUIDeps());
 }
 
 // 즉시 실행 (load 이벤트 대신)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _bootGame);
-} else {
-  _bootGame();
-}
+window.GameBootUI?.bootWhenReady?.(_getGameBootUIDeps());
