@@ -1556,182 +1556,34 @@ function returnToGame(fromReward) {
 // ────────────────────────────────────────
 // UI SYSTEM — 단일 통합 updateUI (배치 처리)
 // ────────────────────────────────────────
-let _uiPending = false;
 let _gameStarted = false; // 게임 시작 전에는 즉시 실행
+function _getHudUpdateUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    setBonusSystem: SetBonusSystem,
+    doc: document,
+    isGameStarted: () => _gameStarted,
+    requestAnimationFrame: window.requestAnimationFrame.bind(window),
+    setBar: (id, pct) => setBar(id, pct),
+    setText: (id, val) => setText(id, val),
+    updateNoiseWidget: () => updateNoiseWidget(),
+    updateEchoSkillBtn: () => updateEchoSkillBtn(),
+    updateStatusDisplay: () => updateStatusDisplay(),
+    getRegionData,
+  };
+}
+
 function _updateEndBtnWarn() {
-  // 에너지가 남아있는데 턴을 종료하려 할 때 경고 애니메이션
-  const btn = document.getElementById('combatOverlay')?.querySelector('.action-btn-end');
-  if (!btn) return;
-  const hasEnergy = GS.player.energy > 0 && GS.combat.active && GS.combat.playerTurn;
-  btn.classList.toggle('energy-warn', hasEnergy);
+  window.HudUpdateUI?.updateEndBtnWarn?.(_getHudUpdateUIDeps());
 }
 
 function updateUI() {
-  if (!_gameStarted) { _doUpdateUI(); return; }
-  if (_uiPending) return;
-  _uiPending = true;
-  requestAnimationFrame(() => {
-    _uiPending = false;
-    _doUpdateUI();
-  });
+  window.HudUpdateUI?.updateUI?.(_getHudUpdateUIDeps());
 }
+
 function _doUpdateUI() {
-  const gs = GS, p = gs.player;
-
-  // HP — 저체력 시 색상 변화
-  const hpPct = Math.max(0,(p.hp/p.maxHp)*100);
-  setBar('hpBar',hpPct); setText('hpText',`${Math.max(0,p.hp)} / ${p.maxHp}`);
-  const hpFill = document.getElementById('hpBar');
-  if (hpFill) {
-    if (hpPct <= 25) hpFill.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
-    else if (hpPct <= 50) hpFill.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
-    else hpFill.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
-  }
-  // mini HUD 바 (hoverHud 트리거)
-  const hudHpMini = document.getElementById('hudHpBarMini');
-  if (hudHpMini) { hudHpMini.style.width = hpPct+'%'; hudHpMini.style.background = hpPct<=25?'linear-gradient(90deg,#8b0000,#cc0000)':'linear-gradient(90deg,#cc2244,#ff4466)'; }
-  const hudEchoMini = document.getElementById('hudEchoBarMini');
-  if (hudEchoMini) hudEchoMini.style.width = ((p.echo/p.maxEcho)*100)+'%';
-  setText('hudHpText', `${Math.max(0,p.hp)}/${p.maxHp}`);
-  setText('hudEchoText', Math.floor(p.echo));
-  setText('hudGoldText', p.gold);
-  // 저체력 경고 (30% 미만)
-  document.getElementById('hoverHud')?.classList.toggle('low-hp', hpPct <= 30);
-  // 방어막
-  setBar('shieldBar',Math.min(100,(p.shield/p.maxHp)*100)); setText('shieldText',p.shield||'0');
-  // Echo
-  setBar('echoBar',(p.echo/p.maxEcho)*100); setText('echoText',`${Math.floor(p.echo)} / ${p.maxEcho}`);
-  // 에너지 오브 (초과 에너지 표시 포함)
-  const orbs = document.getElementById('energyOrbs');
-  if (orbs) {
-    const displayMax = Math.max(p.maxEnergy, p.energy);
-    orbs.innerHTML = Array.from({length:displayMax},(_,i)=>{
-      const filled = i < p.energy;
-      const isOverflow = i >= p.maxEnergy;
-      return `<div class="energy-orb ${filled?'filled':''}" style="${isOverflow&&filled?'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);':''}" title="${i+1}/${p.maxEnergy}"></div>`;
-    }).join('');
-  }
-  setText('energyText',`${p.energy} / ${p.maxEnergy}`);
-  // 덱
-  setText('deckCount',p.deck.length); setText('graveCount',p.graveyard.length);
-  setText('deckSize',p.deck.length); setText('graveyardSize',p.graveyard.length); setText('exhaustSize',p.exhausted.length);
-
-  // 전투 오버레이 에너지/덱 동기화
-  const combatOrbs = document.getElementById('combatEnergyOrbs');
-  if (combatOrbs) {
-    const displayMax2 = Math.max(p.maxEnergy, p.energy);
-    combatOrbs.innerHTML = Array.from({length:displayMax2},(_,i)=>{
-      const filled = i < p.energy;
-      const isOverflow = i >= p.maxEnergy;
-      return `<div class="energy-orb ${filled?'filled':''}" style="${isOverflow&&filled?'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);':''}"></div>`;
-    }).join('');
-  }
-  setText('combatEnergyText',`${p.energy} / ${p.maxEnergy}`);
-  setText('combatDeckCount', p.deck.length);
-  setText('combatGraveCount', p.graveyard.length);
-  setText('combatExhaustCount', p.exhausted.length);
-  // 소음 게이지 위젯 업데이트
-  updateNoiseWidget();
-  // 에너지 남아있을 때 턴 종료 버튼 경고
-  const endBtn = document.getElementById ? document.querySelector('.action-btn-end') : null;
-  if (endBtn && gs.combat.active && gs.combat.playerTurn) {
-    const hasPlayable = gs.player.hand.some(id => {
-      const c = DATA.cards[id]; if (!c) return false;
-      const cost = gs.player.zeroCost ? 0 : Math.max(0, c.cost - (gs.player.costDiscount||0));
-      return gs.player.energy >= cost;
-    });
-    endBtn.classList.toggle('energy-warn', hasPlayable && gs.player.energy > 0);
-  }
-  // 런 정보
-  setText('runCount',gs.meta.runCount); setText('killCount',p.kills); setText('goldCount',p.gold);
-  // 지역
-  const region = getRegionData(gs.currentRegion, gs) || { name: '알 수 없는 지역', rule: '-', floors: 1 };
-  setText('regionName',region.name); setText('regionRule',region.rule); setText('regionFloor',`${gs.currentFloor} / ${region.floors}층`);
-  setText('playerFloor',`${region.name} · ${gs.currentFloor}층`);
-  const classNames = {swordsman:'잔향검사',mage:'메아리술사',hunter:'침묵사냥꾼'};
-  setText('playerClassDisplay',classNames[p.class]||p.class);
-  // 아이템
-  const itemEl = document.getElementById('itemSlots');
-  if (itemEl) {
-    if (!p.items.length) {
-      itemEl.innerHTML = '<span style="font-size:11px;color:var(--text-dim);font-style:italic;">비어있음</span>';
-    } else {
-      // 등급 우선순위로 정렬 (legendary > rare > uncommon > common)
-      const _itemRarityOrder = {legendary:0, rare:1, uncommon:2, common:3};
-      const _sortedItems = [...p.items].sort((a,b) => {
-        const ra = _itemRarityOrder[DATA.items[a]?.rarity||'common'] ?? 3;
-        const rb = _itemRarityOrder[DATA.items[b]?.rarity||'common'] ?? 3;
-        return ra - rb;
-      });
-      itemEl.innerHTML = _sortedItems.map(id => {
-        const item = DATA.items[id];
-        if (!item) return '';
-        const rarityClass = item.rarity ? `item-slot-${item.rarity}` : '';
-        const inSet = Object.values(SetBonusSystem.sets).some(s=>s.items.includes(id));
-        const setGlow = inSet ? 'outline:1px dashed rgba(0,255,204,0.4);' : '';
-        return `<div class="hud-item-slot ${rarityClass}" style="${setGlow}"
-          onmouseenter="showItemTooltip(event,'${id}')"
-          onmouseleave="hideItemTooltip()">${item.icon}</div>`;
-      }).join('');
-    }
-    // 세트 보너스 패널 업데이트
-    const setBonusPanel = document.getElementById('setBonusPanel');
-    if (setBonusPanel) {
-      const activeSets = SetBonusSystem.getActiveSets(GS);
-      if (activeSets.length > 0) {
-        setBonusPanel.style.display = 'block';
-        setBonusPanel.innerHTML = activeSets.map(s => `
-          <div style="background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:6px;padding:5px 8px;margin-bottom:4px;">
-            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--cyan);">✦ ${s.name} [${s.count}/3]</div>
-            <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">${s.bonus?.label||''}</div>
-          </div>
-        `).join('');
-        // 패시브 보너스 적용 (초기화 체크 포함)
-        SetBonusSystem.applyPassiveBonuses(GS);
-      } else {
-        setBonusPanel.style.display = 'none';
-      }
-    }
-  }
-  // Echo 스킬 버튼
-  const echoBtn = document.getElementById('echoSkillBtn');
-  if (echoBtn) {
-    const can = p.echo >= 30;
-    echoBtn.disabled = !can;
-    if (can) {
-      updateEchoSkillBtn();
-    } else {
-      echoBtn.textContent = `⚡ Echo 스킬 (${Math.floor(p.echo)}/30)`;
-      echoBtn.style.opacity = '0.4';
-    }
-  }
-  // 카드 뽑기 버튼 — 에너지 0이면 비활성화 (Echo 스킬과 동일 방식)
-  const drawBtn = document.getElementById('drawCardBtn');
-  if (drawBtn) {
-    const handFull = p.hand.length >= 8;
-    const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1 && !handFull;
-    drawBtn.disabled = !canDraw;
-    drawBtn.classList.toggle('hand-full', handFull);
-    drawBtn.style.opacity = canDraw ? '1' : '0.4';
-    if (gs.combat.active) {
-      if (handFull) {
-        drawBtn.textContent = '🃏 손패 가득 참';
-        drawBtn.title = '손패가 가득 찼습니다 (최대 8장)';
-      } else if (p.energy < 1) {
-        drawBtn.textContent = '🃏 에너지 부족';
-        drawBtn.title = '카드 뽑기에는 에너지 1이 필요합니다.';
-      } else {
-        drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${p.energy})`;
-        drawBtn.title = '카드를 한 장 뽑습니다.';
-      }
-    } else {
-      drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
-      drawBtn.title = '전투 중에만 사용할 수 있습니다.';
-    }
-  }
-
-  updateStatusDisplay();
-  _updateEndBtnWarn();
+  window.HudUpdateUI?.doUpdateUI?.(_getHudUpdateUIDeps());
 }
 
 const STATUS_KR = {
