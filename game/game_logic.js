@@ -709,35 +709,9 @@ const StorySystem = {
 // ────────────────────────────────────────
 // CLASS MECHANICS
 // ────────────────────────────────────────
-const ClassMechanics = {
-  swordsman: {
-    onMove() {
-      const m = GS.player.buffs.momentum;
-      if (m) { m.dmgBonus = Math.min(20, (m.dmgBonus||0)+2); m.stacks=1; }
-      else GS.addBuff('momentum', 1, {dmgBonus:2});
-    },
-    getSpecialUI() {
-      const m = GS.getBuff('momentum');
-      return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">모멘텀</div><div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);">+${m?m.dmgBonus||0:0} 데미지</div>`;
-    }
-  },
-  mage: {
-    onCombatStart() { GS._prediction = true; },
-    getSpecialUI() {
-      const next = GS.combat.enemies[0]?.ai?.(GS.combat.turn+1);
-      return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">다음 턴 예측</div><div style="font-size:10px;color:var(--cyan);">${next?.intent||'불명'}</div>`;
-    }
-  },
-  hunter: {
-    getSpecialUI() {
-      const gauge = GS.player.silenceGauge||0;
-      const max = 10;
-      const pct = (gauge/max)*100;
-      const color = pct>70?'var(--danger)':pct>40?'var(--gold)':'var(--cyan)';
-      return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:3px;">침묵 게이지 ${gauge}/${max}</div><div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${color};border-radius:2px;transition:width 0.3s;"></div></div>`;
-    }
-  },
-};
+function _getClassMechanics() {
+  return window.ClassMechanics || {};
+}
 
 // ────────────────────────────────────────
 // CANVAS SETUP
@@ -1276,7 +1250,7 @@ function moveToNode(node) {
 
   // 잔향검사 모멘텀 (이동 시 강화)
   if (GS.player.class === 'swordsman') {
-    ClassMechanics.swordsman.onMove();
+    _getClassMechanics().swordsman?.onMove?.(GS);
   }
 
   // 다음 층 노드 접근 가능하게
@@ -1382,7 +1356,7 @@ function startCombat(isBoss=false) {
   }
 
   // 메아리술사 전투 시작
-  if (gs.player.class === 'mage') ClassMechanics.mage.onCombatStart(gs);
+  if (gs.player.class === 'mage') _getClassMechanics().mage?.onCombatStart?.(gs);
 
   RunRules.onCombatStart(gs);
   gs.triggerItems('combat_start');
@@ -1423,7 +1397,7 @@ function _getCombatHudUIDeps() {
     data: DATA,
     doc: document,
     win: window,
-    classMechanics: ClassMechanics,
+    classMechanics: _getClassMechanics(),
     getBaseRegionIndex,
   };
 }
@@ -2227,8 +2201,12 @@ function updateClassSpecialUI() {
 }
 window.updateClassSpecialUI = updateClassSpecialUI;
 
-function setBar(id,pct) { const el=document.getElementById(id); if(el) el.style.width=`${Math.max(0,Math.min(100,pct))}%`; }
-function setText(id,val) { const el=document.getElementById(id); if(el) el.textContent=val; }
+function setBar(id, pct) {
+  window.DomValueUI?.setBar?.(id, pct, { doc: document });
+}
+function setText(id, val) {
+  window.DomValueUI?.setText?.(id, val, { doc: document });
+}
 
 // ────────────────────────────────────────
 // 카드 드래그 앤 드롭
