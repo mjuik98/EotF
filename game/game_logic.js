@@ -742,7 +742,6 @@ const ClassMechanics = {
 // ────────────────────────────────────────
 // CANVAS SETUP
 // ────────────────────────────────────────
-let titleCanvas, titleCtx;
 let gameCanvas, gameCtx;
 let minimapCanvas, minimapCtx;
 let combatCanvas; // 파티클용
@@ -1004,73 +1003,15 @@ const MazeSystem = (() => {
 })();
 
 function initTitleCanvas() {
-  titleCanvas = document.getElementById('titleCanvas');
-  if (!titleCanvas) return;
-  titleCtx = titleCanvas.getContext('2d');
-  resizeTitleCanvas();
-  window.addEventListener('resize', resizeTitleCanvas);
-  // 크기가 0이면 재시도
-  if (titleCanvas.width === 0 || titleCanvas.height === 0) {
-    setTimeout(() => { resizeTitleCanvas(); animateTitle(); }, 100);
-  } else {
-    animateTitle();
-  }
+  window.TitleCanvasUI?.init?.({ doc: document });
 }
 
 function resizeTitleCanvas() {
-  if (!titleCanvas) return;
-  titleCanvas.width  = window.innerWidth  || 1280;
-  titleCanvas.height = window.innerHeight || 720;
+  window.TitleCanvasUI?.resize?.({ doc: document });
 }
 
-// 타이틀 파티클
-const titleStars = Array.from({length:200}, () => ({
-  x: Math.random(), y: Math.random(),
-  r: Math.random()*2+0.5, v: Math.random()*0.0003+0.0001,
-  alpha: Math.random()*0.8+0.2,
-}));
-const titleParticles = Array.from({length:40}, () => ({
-  x: Math.random(), y: Math.random(),
-  vx: (Math.random()-0.5)*0.0005, vy: (Math.random()-0.5)*0.0005,
-  r: Math.random()*40+10, alpha: Math.random()*0.06+0.01,
-}));
-let titleRAF;
-
 function animateTitle() {
-  if (!titleCtx) return;
-  cancelAnimationFrame(titleRAF);
-  const tick = () => {
-    const w = titleCanvas.width, h = titleCanvas.height;
-    titleCtx.fillStyle = 'rgba(3,3,10,0.15)';
-    titleCtx.fillRect(0, 0, w, h);
-    // 성운
-    titleParticles.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x<-0.1) p.x=1.1; if (p.x>1.1) p.x=-0.1;
-      if (p.y<-0.1) p.y=1.1; if (p.y>1.1) p.y=-0.1;
-      const g = titleCtx.createRadialGradient(p.x*w,p.y*h,0,p.x*w,p.y*h,p.r*(w/800));
-      g.addColorStop(0,`rgba(123,47,255,${p.alpha})`);
-      g.addColorStop(0.5,`rgba(0,255,204,${p.alpha*0.3})`);
-      g.addColorStop(1,'transparent');
-      titleCtx.fillStyle = g;
-      titleCtx.beginPath();
-      titleCtx.arc(p.x*w, p.y*h, p.r*(w/800), 0, Math.PI*2);
-      titleCtx.fill();
-    });
-    // 별
-    titleStars.forEach(s => {
-      s.y -= s.v; if (s.y < -0.01) s.y = 1;
-      titleCtx.save();
-      titleCtx.globalAlpha = s.alpha * (0.5 + 0.5*Math.sin(Date.now()*0.001+s.x*10));
-      titleCtx.fillStyle = '#eef0ff';
-      titleCtx.beginPath();
-      titleCtx.arc(s.x*w, s.y*h, s.r, 0, Math.PI*2);
-      titleCtx.fill();
-      titleCtx.restore();
-    });
-    titleRAF = requestAnimationFrame(tick);
-  };
-  tick();
+  window.TitleCanvasUI?.animate?.({ doc: document });
 }
 
 function initGameCanvas() {
@@ -2501,7 +2442,6 @@ function _getScreenUIDeps() {
     gs: GS,
     doc: document,
     onEnterTitle: () => {
-      cancelAnimationFrame(titleRAF);
       animateTitle();
     },
   };
