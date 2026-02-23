@@ -133,7 +133,6 @@ function _getGameCanvasSetupDeps() {
   return {
     gs: GS,
     doc: document,
-    showMapOverlay,
     particleSystem: ParticleSystem,
   };
 }
@@ -233,7 +232,6 @@ function _getMapGenerationDeps() {
     gs: GS,
     getRegionData,
     updateNextNodes: () => updateNextNodes(),
-    renderMapOverlay: () => renderMapOverlay(),
     updateUI,
     showWorldMemoryNotice,
   };
@@ -247,19 +245,12 @@ function _getMapDeps() {
   return {
     gs: GS,
     doc: document,
-    mapCanvasId: 'mapCanvas',
     minimapCanvas,
     minimapCtx,
     nodeMeta: NODE_META,
     getFloorStatusText,
-    renderMapOverlay: () => renderMapOverlay(),
     moveToNodeHandlerName: 'moveToNode',
-    closeMapOverlay: () => closeMapOverlay(),
   };
-}
-
-function renderMapOverlay() {
-  window.MapUI?.renderMapOverlay?.(_getMapDeps());
 }
 
 function renderMinimap() {
@@ -275,10 +266,6 @@ function isNodeAccessible(node) {
   return true;
 }
 
-function handleMapClick(event) {
-  window.MapUI?.handleMapClick?.(event, _getMapDeps());
-}
-
 function _getMapNavigationDeps() {
   return {
     gs: GS,
@@ -286,7 +273,6 @@ function _getMapNavigationDeps() {
     classMechanics: _getClassMechanics(),
     audioEngine: AudioEngine,
     updateNextNodes: () => updateNextNodes(),
-    renderMapOverlay: () => renderMapOverlay(),
     renderMinimap: () => renderMinimap(),
     updateUI,
     startCombat,
@@ -606,7 +592,6 @@ function _getRunReturnDeps() {
     doc: document,
     switchScreen,
     updateUI,
-    renderMapOverlay,
     updateNextNodes,
     advanceToNextRegion,
     finalizeRunOutcome,
@@ -872,16 +857,6 @@ function _flushNoticeQueue() {
   window.FeedbackUI?._flushNoticeQueue?.(_getFeedbackDeps());
 }
 
-function showMapOverlay(autoClose = false) {
-  window.MapUI?.showOverlay?.(autoClose, _getMapDeps());
-}
-function closeMapOverlay() {
-  window.MapUI?.closeOverlay?.(_getMapDeps());
-  // 닫힌 후 노드 카드 등장 애니메이션
-  _nodeCardReveal = Date.now();
-}
-let _nodeCardReveal = 0;
-
 // ────────────────────────────────────────
 // SCREEN FSM
 // ────────────────────────────────────────
@@ -962,7 +937,6 @@ function _getRunStartDeps() {
     initGameCanvas,
     gameLoop,
     requestAnimationFrame: window.requestAnimationFrame.bind(window),
-    showMapOverlay,
     showRunFragment: () => StorySystem.showRunFragment(),
     showWorldMemoryNotice,
   };
@@ -1035,7 +1009,6 @@ function _getRegionTransitionDeps() {
     generateMap,
     updateUI,
     showRunFragment: () => StorySystem.showRunFragment(),
-    showMapOverlay,
   };
 }
 
@@ -1050,8 +1023,6 @@ function _getHelpPauseDeps() {
   return {
     gs: GS,
     doc: document,
-    showMapOverlay,
-    closeMapOverlay,
     showDeckView,
     closeDeckView,
     useEchoSkill,
@@ -1119,10 +1090,7 @@ window.selectFragment = selectFragment;
 window.useEchoSkill = useEchoSkill;
 window.drawCard = drawCard;
 window.endPlayerTurn = endPlayerTurn;
-window.showMapOverlay = showMapOverlay;
-window.closeMapOverlay = closeMapOverlay;
 window.toggleCombatInfo = toggleCombatInfo;
-window.handleMapClick = handleMapClick;
 window.moveToNode = moveToNode;
 window.resolveEvent = resolveEvent;
 window.takeRewardCard = takeRewardCard;

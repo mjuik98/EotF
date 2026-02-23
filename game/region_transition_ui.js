@@ -46,9 +46,6 @@
           if (typeof deps.generateMap === 'function') deps.generateMap(gs.currentRegion);
           if (typeof deps.updateUI === 'function') deps.updateUI();
           if (typeof deps.showRunFragment === 'function') deps.showRunFragment();
-          setTimeout(() => {
-            if (typeof deps.showMapOverlay === 'function') deps.showMapOverlay(true);
-          }, 200);
         }, 800);
       }, 2800);
 

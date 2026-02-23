@@ -27,9 +27,6 @@
         if (typeof raf === 'function' && typeof deps.gameLoop === 'function') {
           raf(deps.gameLoop);
         }
-        setTimeout(() => {
-          if (typeof deps.showMapOverlay === 'function') deps.showMapOverlay(true);
-        }, 400);
       }, 80);
 
       setTimeout(() => {

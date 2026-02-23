@@ -33,7 +33,6 @@
 
       deps.audioEngine?.playFootstep?.();
       deps.updateNextNodes?.();
-      deps.renderMapOverlay?.();
       deps.renderMinimap?.();
       deps.updateUI?.();
 

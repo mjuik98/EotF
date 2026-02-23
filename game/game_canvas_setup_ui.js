@@ -12,10 +12,6 @@
     return deps?.doc || document;
   }
 
-  function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
-  }
-
   const GameCanvasSetupUI = {
     getRefs() {
       return {
@@ -37,15 +33,6 @@
       _minimapCtx = _minimapCanvas?.getContext('2d');
       if (_minimapCanvas && !_minimapCanvas._mapOpenPatched) {
         _minimapCanvas._mapOpenPatched = true;
-        _minimapCanvas.style.cursor = 'pointer';
-        _minimapCanvas.title = '클릭하여 지도 열기';
-        _minimapCanvas.addEventListener('click', () => {
-          const gs = _getGS(deps);
-          if (!gs) return;
-          if (gs.currentScreen !== 'game') return;
-          if (gs.combat.active) return;
-          if (typeof deps.showMapOverlay === 'function') deps.showMapOverlay();
-        });
       }
 
       _combatCanvas = _gameCanvas;
@@ -87,3 +74,4 @@
 
   globalObj.GameCanvasSetupUI = GameCanvasSetupUI;
 })(window);
+

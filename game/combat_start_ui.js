@@ -112,7 +112,6 @@
 
       const nodeCardOverlay = doc.getElementById('nodeCardOverlay');
       if (nodeCardOverlay) nodeCardOverlay.style.display = 'none';
-      doc.getElementById('mapOverlay')?.classList.remove('active');
       const eventModal = doc.getElementById('eventModal');
       if (eventModal) {
         eventModal.classList.remove('active');

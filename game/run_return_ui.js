@@ -58,7 +58,6 @@
 
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       if (typeof deps.updateUI === 'function') deps.updateUI();
-      if (typeof deps.renderMapOverlay === 'function') deps.renderMapOverlay();
       if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
     },
   };

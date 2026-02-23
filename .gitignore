@@ -6,3 +6,10 @@ test_write.txt
 # OS/editor noise
 .DS_Store
 Thumbs.db
+
+# Generated local analysis artifacts
+all_assets.txt
+asset_list.txt
+asset_names.txt
+current_images.txt
+game_data_full.txt

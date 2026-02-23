@@ -47,7 +47,6 @@
 
       gs.currentFloor = 0;
       deps.updateNextNodes?.();
-      deps.renderMapOverlay?.();
       deps.updateUI?.();
 
       const entryRegion = getRegionData(regionIdx, gs);

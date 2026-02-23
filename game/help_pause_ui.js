@@ -48,7 +48,6 @@
           <div style="background:rgba(16,16,46,0.8);border:1px solid var(--border);border-radius:12px;padding:20px 32px;display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;max-width:480px;width:90%;">
             ${[
               ['ESC', '일시정지 (전투 외)'],
-              ['M', '지도 열기'],
               ['D', '덱 보기'],
               ['?', '이 안내 열기'],
               ['E', 'Echo 스킬 발동 (전투 중)'],
@@ -195,15 +194,6 @@
         if ((e.key === '?' || e.key === '/') && _isInGame(gs)) {
           e.preventDefault();
           self.toggleHelp(deps);
-        }
-
-        if ((e.key === 'm' || e.key === 'M') && _isInGame(gs) && !gs.combat.active && !_helpOpen) {
-          const overlay = doc.getElementById('mapOverlay');
-          if (overlay?.classList.contains('active')) {
-            if (typeof deps.closeMapOverlay === 'function') deps.closeMapOverlay();
-          } else if (typeof deps.showMapOverlay === 'function') {
-            deps.showMapOverlay();
-          }
         }
 
         if ((e.key === 'd' || e.key === 'D') && _isInGame(gs) && !_helpOpen) {
