@@ -316,6 +316,8 @@ const GS = {
         el.style.animation = 'none';
         requestAnimationFrame(() => { el.style.animation = `cardDraw 0.25s ease ${i*0.04}s both`; });
       });
+      const fanRestoreDelay = 300 + Math.max(0, (this.player.hand.length - 1) * 40);
+      setTimeout(() => updateHandFanEffect(), fanRestoreDelay);
     }, 10);
   },
 
@@ -502,66 +504,73 @@ const GS = {
   },
 
   endCombat() {
+    if (!this.combat.active) return;
     if (this._endCombatRunning) return;  // 중복 실행 방지
     this._endCombatRunning = true;
-    this.combat.active = false;
-    document.getElementById('combatOverlay').classList.remove('active');
-    // 전투 정보 패널 닫기
-    _combatInfoOpen = false;
-    const _cp = document.getElementById('combatInfoPanel');
-    const _ct = document.getElementById('combatInfoTab');
-    if (_cp) _cp.style.left = '-260px';
-    if (_ct) { _ct.style.left = '0'; _ct.textContent = '📋 정보'; }
-    // 하단 손패 패널 복원
-    // 소음 게이지 UI 제거
-    document.getElementById('noiseGaugeOverlay')?.remove();
-    // 적 카드 DOM 초기화
-    const endZone = document.getElementById('enemyZone');
-    if (endZone) endZone.innerHTML = '';
-    // ── 전투 상태 완전 초기화 ──
-    this.player.graveyard.push(...this.player.hand);
-    this.player.hand = [];
-    this.player.shield = 0;
-    this.player.echoChain = 0;
-    this.player.energy = this.player.maxEnergy;
-    this.player.buffs = {};
-    this.player.costDiscount = 0;
-    this.player.zeroCost = false;
-    this.player.silenceGauge = 0;
-    this._maskCount = 0;
-    this._batteryUsedTurn = false;
-    this._temporalTurn = 0;
-    this.triggerItems('combat_end');
-    this.triggerItems('void_shard');
-    // UI 즉시 반영
-    updateChainUI(0);
-    renderHand();
-    renderCombatCards();
-    updateUI();
-    // updateNextNodes는 returnToGame에서만 호출 (보상 선택 전 노드 표시 방지)
+    try {
+      this.combat.active = false;
+      document.getElementById('combatOverlay').classList.remove('active');
+      // 전투 정보 패널 닫기
+      _combatInfoOpen = false;
+      const _cp = document.getElementById('combatInfoPanel');
+      const _ct = document.getElementById('combatInfoTab');
+      if (_cp) _cp.style.left = '-260px';
+      if (_ct) { _ct.style.left = '0'; _ct.textContent = '📋 정보'; }
+      // 하단 손패 패널 복원
+      // 소음 게이지 UI 제거
+      document.getElementById('noiseGaugeOverlay')?.remove();
+      // 적 카드 DOM 초기화
+      const endZone = document.getElementById('enemyZone');
+      if (endZone) endZone.innerHTML = '';
+      // ── 전투 상태 완전 초기화 ──
+      this.player.graveyard.push(...this.player.hand);
+      this.player.hand = [];
+      this.player.shield = 0;
+      this.player.echoChain = 0;
+      this.player.energy = this.player.maxEnergy;
+      this.player.buffs = {};
+      this.player.costDiscount = 0;
+      this.player.zeroCost = false;
+      this.player.silenceGauge = 0;
+      this._maskCount = 0;
+      this._batteryUsedTurn = false;
+      this._temporalTurn = 0;
+      this.triggerItems('combat_end');
+      this.triggerItems('void_shard');
+      // UI 즉시 반영
+      updateChainUI(0);
+      renderHand();
+      renderCombatCards();
+      updateUI();
+      // updateNextNodes는 returnToGame에서만 호출 (보상 선택 전 노드 표시 방지)
 
-    const isBoss = this.combat.enemies.some(e => e.isBoss);
-    const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
+      const isBoss = this.combat.enemies.some(e => e.isBoss);
+      const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
-    AudioEngine.playItemGet();
-    // 전투 통계 요약 (짧게 표시 후 보상 화면)
-    const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg||0);
-    const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken||0);
-    showCombatSummary(combatDmgDealt, combatDmgTaken, this.player.kills - (this._combatStartKills||0));
-    // 보스 전투 완료 시 플래그 설정 (returnToGame에서 지역 전환)
-    if (isBoss) {
-      GS._bossRewardPending = true;
-      GS._bossLastRegion = isLastRegion;
+      AudioEngine.playItemGet();
+      // 전투 통계 요약 (짧게 표시 후 보상 화면)
+      const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg||0);
+      const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken||0);
+      showCombatSummary(combatDmgDealt, combatDmgTaken, this.player.kills - (this._combatStartKills||0));
+      // 보스 전투 완료 시 플래그 설정 (returnToGame에서 지역 전환)
+      if (isBoss) {
+        GS._bossRewardPending = true;
+        GS._bossLastRegion = isLastRegion;
+      }
+      if (isBoss && isLastRegion && RunRules.isEndless(this)) {
+        // 엔들리스 사이클 보스는 보상 선택 없이 즉시 다음 루프로 이동
+        setTimeout(() => returnToGame(true), 300);
+        return;
+      }
+      const nodeOverlay = document.getElementById('nodeCardOverlay');
+      if (nodeOverlay) nodeOverlay.style.display = 'none';
+      // 전투 요약 UI(2800ms)가 완전히 사라진 후 보상 화면 표시 (클릭 차단 방지)
+      setTimeout(() => showRewardScreen(isBoss), 3000);
+    } catch (e) {
+      console.error('[endCombat] Error:', e);
+    } finally {
+      this._endCombatRunning = false;
     }
-    if (isBoss && isLastRegion && RunRules.isEndless(this)) {
-      // 엔들리스 사이클 보스는 보상 선택 없이 즉시 다음 루프로 이동
-      setTimeout(() => returnToGame(true), 300);
-      return;
-    }
-    const nodeOverlay = document.getElementById('nodeCardOverlay');
-    if (nodeOverlay) nodeOverlay.style.display = 'none';
-    // 전투 요약 UI(2800ms)가 완전히 사라진 후 보상 화면 표시 (클릭 차단 방지)
-    setTimeout(() => showRewardScreen(isBoss), 3000);
   },
 
   updateChainDisplay() {
@@ -1963,6 +1972,22 @@ function renderCombatCards() {
       </div>
     `;
   }).join('');
+  updateHandFanEffect();
+}
+
+function updateHandFanEffect() {
+  const cards = document.querySelectorAll('#combatHandCards .card');
+  const n = cards.length;
+  if (n === 0) return;
+  const mid = (n - 1) / 2;
+  const spread = Math.min(16, Math.max(6, n * 2));
+  cards.forEach((card, i) => {
+    const ratio = mid === 0 ? 0 : (i - mid) / mid;
+    const angle = ratio * spread;
+    const yOffset = Math.abs(i - mid) * 2;
+    card.style.transformOrigin = 'bottom center';
+    card.style.transform = `rotate(${angle.toFixed(2)}deg) translateY(${yOffset.toFixed(2)}px)`;
+  });
 }
 
 function renderHand() {
@@ -2195,6 +2220,7 @@ function enemyTurn() {
 function processEnemyStatusTicks() {
   GS.combat.enemies.forEach((enemy,i) => {
     if (!enemy.statusEffects) return;
+    if (enemy.hp <= 0) return;
     const se = enemy.statusEffects;
     const ex = window.innerWidth/2+(i-0.5)*200;
     // 독 (3 피해/턴)
@@ -2206,7 +2232,10 @@ function processEnemyStatusTicks() {
       ParticleSystem.emit(ex,200,{count:5,color:'#00ff44',size:2,speed:2,life:0.5});
       se.poisoned--;
       if (se.poisoned<=0) delete se.poisoned;
-      if (enemy.hp<=0) GS.onEnemyDeath(enemy,i);
+      if (enemy.hp<=0) {
+        GS.onEnemyDeath(enemy,i);
+        return;
+      }
     }
     // 화염 (5 피해/턴, 감소 없음)
     if (se.burning > 0) {
@@ -2217,7 +2246,10 @@ function processEnemyStatusTicks() {
       ParticleSystem.emit(ex,180,{count:6,color:'#ff6600',size:3,speed:3,life:0.4});
       se.burning--;
       if (se.burning<=0) delete se.burning;
-      if (enemy.hp<=0) GS.onEnemyDeath(enemy,i);
+      if (enemy.hp<=0) {
+        GS.onEnemyDeath(enemy,i);
+        return;
+      }
     }
     // 처형 표식
     if (se.marked !== undefined) {
@@ -2231,7 +2263,10 @@ function processEnemyStatusTicks() {
         ParticleSystem.burstEffect(ex,200);
         AudioEngine.playChain(4);
         delete se.marked;
-        if (enemy.hp<=0) GS.onEnemyDeath(enemy,i);
+        if (enemy.hp<=0) {
+          GS.onEnemyDeath(enemy,i);
+          return;
+        }
       }
     }
     // 반사
@@ -2240,6 +2275,10 @@ function processEnemyStatusTicks() {
       enemy.hp=Math.max(0,enemy.hp-r);
       GS.addLog(`🪞 반사! ${r} 피해`,'echo');
       delete GS.player.buffs.mirror; delete se.incoming;
+      if (enemy.hp<=0) {
+        GS.onEnemyDeath(enemy,i);
+        return;
+      }
     }
   });
   renderCombatEnemies();
@@ -2408,7 +2447,7 @@ function showShop() {
       : '낡은 외투를 입은 상인이 잔향 결정들을 늘어놓고 있다.',
     choices: [
       {text:`💊 치료약 (HP +30) — ${costPotion}골드`, effect(gs){const c=costPotion;if(gs.player.gold>=c){gs.player.gold-=c;gs.heal(30);return `치료약을 마셨다. [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;}},
-      {text:`🃏 랜덤 카드 — ${costCard}골드`, effect(gs){const c=costCard;if(gs.player.gold>=c){gs.player.gold-=c;const cardId=gs.getRandomCard('uncommon');gs.player.deck.push(cardId);AudioEngine.playItemGet();return `카드 획득: ${DATA.cards[cardId]?.name} [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;}},
+      {text:`🃏 랜덤 카드 — ${costCard}골드`, effect(gs){const c=costCard;if(gs.player.gold>=c){gs.player.gold-=c;const cardId=gs.getRandomCard('uncommon');gs.player.deck.push(cardId);if (gs.meta.codex) gs.meta.codex.cards.add(cardId);AudioEngine.playItemGet();return `카드 획득: ${DATA.cards[cardId]?.name} [남은 골드: ${gs.player.gold}]`;}return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;}},
       {text:`⚒️ 카드 강화 — ${costUpgrade}골드`, effect(gs){
         const c = costUpgrade;
         if(gs.player.gold<c) return `골드 부족! (필요: ${c}, 보유: ${gs.player.gold})`;
@@ -2419,6 +2458,7 @@ function showShop() {
         const upgId = DATA.upgradeMap[cardId];
         const idx = gs.player.deck.indexOf(cardId);
         if(idx>=0){ gs.player.deck[idx]=upgId; }
+        if (gs.meta.codex) gs.meta.codex.cards.add(upgId);
         AudioEngine.playItemGet();
         return `${DATA.cards[cardId]?.name} → ${DATA.cards[upgId]?.name} [남은 골드: ${gs.player.gold}]`;
       }},
@@ -2595,6 +2635,7 @@ function showItemShop(gs) {
         if (gs.player.gold < cost) return;
         gs.player.gold -= cost;
         gs.player.items.push(item.id);
+        if (gs.meta.codex) gs.meta.codex.items.add(item.id);
         AudioEngine.playItemGet();
         showItemToast(item);
         gs.addLog(`🛍️ ${item.name} 구매!`, 'echo');
@@ -2692,6 +2733,7 @@ function takeRewardCard(cardId) {
     container.classList.add('picked');
   }
   GS.player.deck.push(cardId);
+  if (GS.meta.codex) GS.meta.codex.cards.add(cardId);
   const card = DATA.cards[cardId];
   AudioEngine.playItemGet();
   showItemToast({name:card?.name, icon:card?.icon, desc:card?.desc});
@@ -3174,8 +3216,11 @@ function handleCardDropOnEnemy(event, enemyIdx) {
   // 임시로 대상 인덱스를 설정 후 플레이
   GS._dragTarget = enemyIdx;
   GS._selectedTarget = enemyIdx; // 드래그 타겟도 선택 타겟으로 동기화
-  GS.playCard(_dragCardId, _dragIdx);
-  GS._dragTarget = null;
+  try {
+    GS.playCard(_dragCardId, _dragIdx);
+  } finally {
+    GS._dragTarget = null;
+  }
 }
 
 // 적 카드 클릭 → 타겟 지정 (같은 적 다시 클릭하면 해제)
@@ -3367,11 +3412,6 @@ let _codexTab = 'enemies';
 function openCodex() {
   // Ensure codex sets exist
   if (!GS.meta.codex) GS.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
-  // Pre-populate with starter deck cards
-  GS.player.deck.forEach(id => GS.meta.codex.cards.add(id));
-  GS.player.hand.forEach(id => GS.meta.codex.cards.add(id));
-  GS.player.graveyard.forEach(id => GS.meta.codex.cards.add(id));
-  GS.player.items.forEach(id => GS.meta.codex.items.add(id));
   document.getElementById('codexModal').style.display = 'block';
   setCodexTab('enemies');
 }
@@ -3407,7 +3447,9 @@ function renderCodexContent() {
   const seenEnemies = codex.enemies.size;
   const seenCards = codex.cards.size;
   const seenItems = codex.items.size;
-  const pct = n => Math.round(n * 100);
+  const totalAll = totalEnemies + totalCards + totalItems;
+  const seenAll = seenEnemies + seenCards + seenItems;
+  const discoveryPct = totalAll > 0 ? Math.round((seenAll / totalAll) * 100) : 0;
 
   if (progressEl) {
     progressEl.innerHTML = `
@@ -3417,7 +3459,7 @@ function renderCodexContent() {
       <span style="opacity:0.3;">|</span>
       <span>💎 유물 <b style="color:var(--gold);">${seenItems}</b>/<span style="color:var(--text-dim)">${totalItems}</span></span>
       <span style="opacity:0.3;">|</span>
-      <span style="color:var(--cyan);">총 발견률 ${pct((seenEnemies+seenCards+seenItems)/(totalEnemies+totalCards+totalItems))}%</span>
+      <span style="color:var(--cyan);">총 발견률 ${discoveryPct}%</span>
     `;
   }
 
@@ -4019,6 +4061,8 @@ function startGame() {
     hand:[], graveyard:[], exhausted:[], items:[], buffs:{}, silenceGauge:0, zeroCost:false, costDiscount:0,
     upgradedCards: new Set(), _cardUpgradeBonus: {},
   };
+  if (!GS.meta.codex) GS.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
+  GS.player.deck.forEach(id => GS.meta.codex.cards.add(id));
 
   // 클래스별 시작 아이템
   const classStartItems = {
@@ -4028,6 +4072,7 @@ function startGame() {
   };
   if (classStartItems[selectedClass]) {
     GS.player.items.push(classStartItems[selectedClass]);
+    GS.meta.codex.items.add(classStartItems[selectedClass]);
   }
 
   RunRules.applyRunStart(GS);
