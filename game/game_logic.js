@@ -2496,12 +2496,19 @@ let _nodeCardReveal = 0;
 // ────────────────────────────────────────
 // SCREEN FSM
 // ────────────────────────────────────────
+function _getScreenUIDeps() {
+  return {
+    gs: GS,
+    doc: document,
+    onEnterTitle: () => {
+      cancelAnimationFrame(titleRAF);
+      animateTitle();
+    },
+  };
+}
+
 function switchScreen(screen) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el = document.getElementById(screen+'Screen');
-  if (el) el.classList.add('active');
-  GS.currentScreen = screen;
-  if (screen==='title') { cancelAnimationFrame(titleRAF); animateTitle(); }
+  window.ScreenUI?.switchScreen?.(screen, _getScreenUIDeps());
 }
 
 // ────────────────────────────────────────
