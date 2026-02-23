@@ -27,6 +27,11 @@
       if (combatHand) combatHand.innerHTML = '';
       const enemyZone = doc.getElementById('enemyZone');
       if (enemyZone) enemyZone.innerHTML = '';
+      const nodeOverlay = doc.getElementById('nodeCardOverlay');
+      if (nodeOverlay) {
+        nodeOverlay.style.display = 'none';
+        nodeOverlay.style.pointerEvents = 'none';
+      }
 
       if (fromReward && wasBoss) {
         if (wasLastRegion) {

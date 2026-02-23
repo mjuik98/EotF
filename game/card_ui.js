@@ -48,9 +48,9 @@
       const hideTooltipHandlerName = deps.hideTooltipHandlerName || 'hideTooltip';
 
       const handSize = gs.player.hand.length;
-      const cardScale = handSize <= 5 ? 1 : handSize <= 7 ? 0.87 : 0.75;
-      const cardW = Math.round(96 * cardScale);
-      const cardH = Math.round(140 * cardScale);
+      const cardScale = handSize <= 5 ? 1.08 : handSize <= 7 ? 0.96 : 0.86;
+      const cardW = Math.round(100 * cardScale);
+      const cardH = Math.round(146 * cardScale);
       const cardFontScale = cardScale < 1 ? `font-size:${Math.round(10 * cardScale)}px;` : '';
 
       zone.innerHTML = gs.player.hand.map((cardId, i) => {
@@ -79,8 +79,8 @@
             ondragend="${dragEndHandlerName}(event)"
             onmouseenter="${showTooltipHandlerName}(event,'${cardId}')"
             onmouseleave="${hideTooltipHandlerName}()">
-            ${i < 5 ? `<div style="position:absolute;top:3px;left:3px;font-family:'Share Tech Mono',monospace;font-size:8px;color:${canPlay ? 'rgba(0,255,204,0.7)' : 'rgba(120,120,140,0.5)'};background:rgba(3,3,10,0.7);border:1px solid ${canPlay ? 'rgba(0,255,204,0.3)' : 'rgba(120,120,140,0.2)'};border-radius:3px;width:13px;height:13px;display:flex;align-items:center;justify-content:center;line-height:1;z-index:1;">${i + 1}</div>` : ''}
-            <div class="card-cost" style="${!canPlay ? 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);' : isCascadeFree && card.cost > 0 ? 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;' : disc > 0 && card.cost > 0 ? 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;' : ''}">${cost}${isCascadeFree && card.cost > 0 ? `<span style="position:absolute;top:-4px;right:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;">FREE</span>` : disc > 0 && card.cost > 0 ? `<span style="position:absolute;top:-4px;right:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;">-${Math.min(disc, card.cost)}</span>` : ''}</div>
+            ${i < 5 ? `<div class="card-hotkey ${canPlay ? '' : 'disabled'}">${i + 1}</div>` : ''}
+            <div class="card-cost" style="${!canPlay ? 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);' : isCascadeFree && card.cost > 0 ? 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;' : disc > 0 && card.cost > 0 ? 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;' : ''}">${cost}${isCascadeFree && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;">FREE</span>` : disc > 0 && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;">-${Math.min(disc, card.cost)}</span>` : ''}</div>
             <div class="card-icon" style="${cardScale < 1 ? `font-size:${Math.round(22 * cardScale)}px;` : ''}">${card.icon}</div>
             <div class="card-name" style="${cardScale < 1 ? `font-size:${Math.round(11 * cardScale)}px;` : ''}">${card.name}${card.upgraded ? '<span style="color:var(--cyan);font-size:7px;"> ✦</span>' : ''}</div>
             <div class="card-desc" style="${cardScale < 1 ? `font-size:${Math.round(11 * cardScale)}px;` : ''}">${card.desc}</div>

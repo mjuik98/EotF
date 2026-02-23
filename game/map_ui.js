@@ -62,10 +62,23 @@
       const overlay = doc.getElementById('nodeCardOverlay');
       const row = doc.getElementById('nodeCardRow');
       const title = doc.getElementById('nodeCardTitle');
-      if (!overlay || !row || gs.combat.active) return;
+      if (!overlay || !row) return;
+      if (
+        gs.currentScreen !== 'game' ||
+        gs.combat.active ||
+        gs._nodeMoveLock ||
+        gs._rewardLock ||
+        gs._endCombatScheduled ||
+        gs._endCombatRunning
+      ) {
+        overlay.style.display = 'none';
+        overlay.style.pointerEvents = 'none';
+        return;
+      }
 
       if (nodes.length === 0) {
         overlay.style.display = 'none';
+        overlay.style.pointerEvents = 'none';
         return;
       }
 
@@ -96,6 +109,7 @@
       }).join('');
 
       overlay.style.display = 'flex';
+      overlay.style.pointerEvents = 'auto';
     },
   };
 

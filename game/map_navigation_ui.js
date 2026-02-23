@@ -17,11 +17,15 @@
 
       const doc = deps.doc || document;
       const overlay = doc.getElementById('nodeCardOverlay');
-      if (overlay) overlay.style.pointerEvents = 'none';
+      if (overlay) {
+        overlay.style.pointerEvents = 'none';
+        overlay.style.display = 'none';
+      }
 
       node.visited = true;
       gs.currentNode = node;
       gs.currentFloor = node.floor;
+      const isCombatNode = node.type === 'combat' || node.type === 'elite' || node.type === 'boss';
 
       if (gs.player.class === 'swordsman') {
         deps.classMechanics?.swordsman?.onMove?.(gs);
@@ -32,12 +36,12 @@
         .forEach(n => { n.accessible = true; });
 
       deps.audioEngine?.playFootstep?.();
-      deps.updateNextNodes?.();
       deps.renderMinimap?.();
       deps.updateUI?.();
 
       setTimeout(() => {
         gs._nodeMoveLock = false;
+        if (!isCombatNode) deps.updateNextNodes?.();
         switch (node.type) {
           case 'combat':
           case 'elite':

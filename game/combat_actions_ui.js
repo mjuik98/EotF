@@ -31,10 +31,15 @@
       if (!gs.combat.active || !gs.combat.playerTurn) return;
 
       const doc = _getDoc(deps);
+      const btn = doc.getElementById('drawCardBtn');
+      if (btn && gs.player.hand.length < maxHand) {
+        btn.classList.remove('hand-full');
+      }
       if (gs.player.hand.length >= maxHand) {
         gs.addLog(`⚠️ 손패가 가득 찼습니다 (최대 ${maxHand}장)`, 'damage');
-        const btn = doc.getElementById('drawCardBtn');
         if (btn) {
+          btn.disabled = true;
+          btn.classList.add('hand-full');
           btn.style.animation = 'none';
           globalObj.requestAnimationFrame(() => { btn.style.animation = 'shake 0.3s ease'; });
         }
