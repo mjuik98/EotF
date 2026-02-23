@@ -215,7 +215,6 @@
           <div>무덤: <span id="graveyardSize" style="color:var(--text-dim);">0</span>장</div>
           <div>소진: <span id="exhaustSize" style="color:var(--danger);">0</span>장</div>
         </div>
-        <button onclick="showMapOverlay()" style="width:100%;margin-top:10px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(123,47,255,0.1);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--echo);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.background='rgba(123,47,255,0.2)'" onmouseout="this.style.background='rgba(123,47,255,0.1)'">🗺 지도 보기</button>
         <button onclick="showDeckView()" style="width:100%;margin-top:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(0,255,204,0.05);border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--cyan);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.background='rgba(0,255,204,0.12)'" onmouseout="this.style.background='rgba(0,255,204,0.05)'">📚 덱 보기</button>
         <button onclick="openCodex()" style="width:100%;margin-top:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(240,180,41,0.06);border:1px solid rgba(240,180,41,0.2);border-radius:6px;padding:8px;color:var(--gold);cursor:pointer;transition:all 0.25s;" onmouseover="this.style.background='rgba(240,180,41,0.14)'" onmouseout="this.style.background='rgba(240,180,41,0.06)'">📖 도감</button>
       </div>
@@ -346,6 +345,14 @@
     <div class="combat-hand-cards" id="combatHandCards"></div>
     <!-- 하단 액션 버튼 바 — 화면 하단 중앙 -->
     <div class="combat-bottom-bar">
+      <div class="combat-chain-inline" id="combatChainInline" style="display:none;">
+        <div class="chain-label">CHAIN</div>
+        <div class="chain-count" id="combatChainCount">0</div>
+        <div class="chain-dots" id="combatChainDots">
+          <div class="chain-dot"></div><div class="chain-dot"></div><div class="chain-dot"></div>
+          <div class="chain-dot"></div><div class="chain-dot"></div>
+        </div>
+      </div>
       <div class="combat-actions">
         <button class="action-btn action-btn-primary" id="echoSkillBtn" onclick="useEchoSkill()" onmouseenter="showEchoSkillTooltip(event)" onmouseleave="hideEchoSkillTooltip()">⚡ Echo 스킬<span class="kbd-hint">E</span></button>
         <button class="action-btn action-btn-secondary" id="drawCardBtn" onclick="drawCard()">🃏 드로우</button>

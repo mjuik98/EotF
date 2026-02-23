@@ -1666,6 +1666,7 @@ function startCombat(isBoss=false) {
   // 전투 시작 시 첫 번째 살아있는 적 자동 타겟 지정
   const firstAlive = gs.combat.enemies.findIndex(e => e.hp > 0);
   gs._selectedTarget = firstAlive >= 0 ? firstAlive : null;
+  updateChainUI(gs.player.echoChain);
 
   renderCombatEnemies();
   renderCombatCards();
@@ -3242,15 +3243,25 @@ function _refreshCombatInfoPanel() {
 }
 
 function updateChainUI(chain) {
-  const countEl = document.getElementById('chainCount');
-  const dotsEl = document.getElementById('chainDots');
-  if (!countEl||!dotsEl) return;
-  countEl.textContent = chain;
-  countEl.classList.toggle('burst', chain>=5);
-  dotsEl.querySelectorAll('.chain-dot').forEach((dot,i)=>{
-    dot.classList.toggle('active', i<chain&&chain<5);
-    dot.classList.toggle('burst-dot', chain>=5);
-  });
+  const applyChainWidget = (countEl, dotsEl) => {
+    if (!countEl || !dotsEl) return;
+    countEl.textContent = chain;
+    countEl.classList.toggle('burst', chain >= 5);
+    dotsEl.querySelectorAll('.chain-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i < chain && chain < 5);
+      dot.classList.toggle('burst-dot', chain >= 5);
+    });
+  };
+  applyChainWidget(
+    document.getElementById('chainCount'),
+    document.getElementById('chainDots')
+  );
+  const combatWidget = document.getElementById('combatChainInline');
+  if (combatWidget) combatWidget.style.display = GS.combat.active ? 'flex' : 'none';
+  applyChainWidget(
+    document.getElementById('combatChainCount'),
+    document.getElementById('combatChainDots')
+  );
 }
 
 function updateNoiseWidget() {

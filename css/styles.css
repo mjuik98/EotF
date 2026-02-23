@@ -188,12 +188,6 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   box-shadow:none; color:rgba(180,170,210,0.4);
   border:1px dashed rgba(123,47,255,0.25);
 }
-.start-btn:disabled::after {
-  content:'클래스를 선택하세요';
-  position:absolute; bottom:-24px; left:50%; transform:translateX(-50%);
-  font-size:10px; letter-spacing:0.2em; color:var(--echo);
-  white-space:nowrap; opacity:0.7; pointer-events:none;
-}
 
 /* ── GAME SCREEN ── */
 #gameScreen { flex-direction:column; background:var(--void); align-items:stretch; justify-content:stretch; }
@@ -640,6 +634,32 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 .combat-bottom-bar {
   display: flex; align-items: center; justify-content: center;
   gap: 10px; flex-wrap: wrap; padding: 4px 0 0;
+}
+.combat-chain-inline {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:8px;
+  background:rgba(123,47,255,0.12);
+  border:1px solid rgba(123,47,255,0.28);
+}
+.combat-chain-inline .chain-label {
+  margin:0;
+  font-size:7px;
+  opacity:0.8;
+}
+.combat-chain-inline .chain-count {
+  font-size:18px;
+  min-width:20px;
+}
+.combat-chain-inline .chain-dots {
+  margin-top:0;
+  gap:4px;
+}
+.combat-chain-inline .chain-dot {
+  width:6px;
+  height:6px;
 }
 .combat-hand-bottombar {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
