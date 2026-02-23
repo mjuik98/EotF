@@ -1560,74 +1560,34 @@ function startCombat(isBoss=false) {
   updateClassSpecialUI();
 }
 
+function _getCombatHudUIDeps() {
+  return {
+    gs: GS,
+    data: DATA,
+    doc: document,
+    win: window,
+    classMechanics: ClassMechanics,
+    getBaseRegionIndex,
+  };
+}
+
 // Echo 스킬 툴팁
 // ── HUD 핀/언핀 토글 ──
-let _hudPinned = false;
 function toggleHudPin() {
-  _hudPinned = !_hudPinned;
-  const hud = document.getElementById('hoverHud');
-  const hint = document.getElementById('hudPinHint');
-  if (!hud) return;
-  hud.classList.toggle('pinned', _hudPinned);
-  // 첫 핀 후 안내 힌트 숨기기
-  if (_hudPinned && hint) {
-    hint.style.display = 'none';
-  } else if (!_hudPinned && hint) {
-    hint.style.display = '';
-  }
+  window.CombatHudUI?.toggleHudPin?.(_getCombatHudUIDeps());
 }
 window.toggleHudPin = toggleHudPin;
 
 function showEchoSkillTooltip(event) {
-  const tt = document.getElementById('echoSkillTooltip');
-  const content = document.getElementById('echoSkillTtContent');
-  if (!tt || !content || !GS.player) return;
-  const cls = GS.player.class;
-  const echo = GS.player.echo;
-  const tiers = [
-    { stars:'★', cost:30, active: echo>=30,
-      desc: {swordsman:'20 피해 + 방어막 8', mage:'적 약화 2턴 + 드로우 1', hunter:'20 피해'}[cls] },
-    { stars:'★★', cost:60, active: echo>=60,
-      desc: {swordsman:'30 피해 + 방어막 12', mage:'전체 18 피해 + 드로우 2', hunter:'32 피해 + 은신'}[cls] },
-    { stars:'★★★', cost:100, active: echo>=100,
-      desc: {swordsman:'전체 40 피해 + 방어막 20', mage:'전체 30 피해 + Echo 30 + 드로우 3', hunter:'암살 50 피해 + 은신 2턴'}[cls] },
-  ];
-  content.innerHTML = tiers.map(t => `
-    <div class="echo-skill-tt-tier${t.active?' active':''}">
-      <div>
-        <div class="echo-skill-tt-stars">${t.stars} <span class="echo-skill-tt-cost">(${t.cost} Echo)</span></div>
-        <div class="echo-skill-tt-desc">${t.desc}</div>
-      </div>
-    </div>
-  `).join('');
-  const rect = event.target.getBoundingClientRect();
-  tt.style.left = Math.min(rect.left, window.innerWidth-240) + 'px';
-  tt.style.top = (rect.top - tt.offsetHeight - 10) + 'px';
-  tt.classList.add('visible');
-  // 위치 보정 (화면 밖 방지)
-  requestAnimationFrame(() => {
-    const h = tt.offsetHeight;
-    const top = rect.top - h - 10;
-    tt.style.top = (top < 10 ? rect.bottom + 10 : top) + 'px';
-  });
+  window.CombatHudUI?.showEchoSkillTooltip?.(event, _getCombatHudUIDeps());
 }
 function hideEchoSkillTooltip() {
-  const tt = document.getElementById('echoSkillTooltip');
-  if (tt) tt.classList.remove('visible');
+  window.CombatHudUI?.hideEchoSkillTooltip?.(_getCombatHudUIDeps());
 }
 
 // 턴 전환 중앙 배너
 function showTurnBanner(type) {
-  const el = document.getElementById('turnBanner');
-  if (!el) return;
-  el.className = type === 'player' ? 'player' : 'enemy';
-  el.textContent = type === 'player' ? '⚡ 플레이어 턴' : '💢 적의 턴';
-  el.style.display = 'block';
-  el.style.animation = 'none';
-  void el.offsetWidth; // reflow
-  el.style.animation = 'turnBannerIn 1.2s ease forwards';
-  clearTimeout(el._hideTimer);
-  el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 1200);
+  window.CombatHudUI?.showTurnBanner?.(type, _getCombatHudUIDeps());
 }
 
 function _getCombatUIDeps() {
@@ -1709,34 +1669,11 @@ function renderHand() {
 }
 
 function updateCombatLog() {
-  const log = document.getElementById('combatLog');
-  if (!log) return;
-  log.innerHTML = GS.combat.log.slice(-8).map(e => `<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
-  log.scrollTop = log.scrollHeight;
+  window.CombatHudUI?.updateCombatLog?.(_getCombatHudUIDeps());
 }
 
 function updateEchoSkillBtn() {
-  const btn = document.getElementById('echoSkillBtn');
-  if (!btn) return;
-  const echo = GS.player.echo;
-  const cls = GS.player.class;
-  let tier, desc;
-  if (echo >= 100) {
-    tier = '★★★'; 
-    desc = {swordsman:'전체 40↯ + 방어막 20', mage:'전체 30↯ + 드로우 3', hunter:'침묵 초기화 + 즉시 40↯'}[cls];
-  } else if (echo >= 60) {
-    tier = '★★'; 
-    desc = {swordsman:'30↯ + 방어막 12', mage:'전체 18↯ + 드로우 2', hunter:'20↯ × 2'}[cls];
-  } else if (echo >= 30) {
-    tier = '★'; 
-    desc = {swordsman:'20↯ + 방어막 8', mage:'약화 2턴 + 드로우', hunter:'15↯ × 2'}[cls];
-  } else {
-    btn.textContent = `⚡ Echo 스킬 (${echo}/30)`;
-    btn.style.opacity = '0.45';
-    return;
-  }
-  btn.textContent = `⚡ ${tier} ${desc}`;
-  btn.style.opacity = '1';
+  window.CombatHudUI?.updateEchoSkillBtn?.(_getCombatHudUIDeps());
 }
 
 function useEchoSkill() {
@@ -2846,70 +2783,16 @@ function _refreshCombatInfoPanel() {
 }
 
 function updateChainUI(chain) {
-  const applyChainWidget = (countEl, dotsEl) => {
-    if (!countEl || !dotsEl) return;
-    countEl.textContent = chain;
-    countEl.classList.toggle('burst', chain >= 5);
-    dotsEl.querySelectorAll('.chain-dot').forEach((dot, i) => {
-      dot.classList.toggle('active', i < chain && chain < 5);
-      dot.classList.toggle('burst-dot', chain >= 5);
-    });
-  };
-  applyChainWidget(
-    document.getElementById('chainCount'),
-    document.getElementById('chainDots')
-  );
-  const combatWidget = document.getElementById('combatChainInline');
-  if (combatWidget) combatWidget.style.display = GS.combat.active ? 'flex' : 'none';
-  applyChainWidget(
-    document.getElementById('combatChainCount'),
-    document.getElementById('combatChainDots')
-  );
+  window.CombatHudUI?.updateChainUI?.(chain, _getCombatHudUIDeps());
 }
 
 function updateNoiseWidget() {
-  const widget = document.getElementById('noiseWidget');
-  if (!widget) return;
-  // 침묵의 도시(region 1)의 전투 중에만 표시
-  const inSilenceCity = getBaseRegionIndex(GS.currentRegion) === 1 && GS.combat.active;
-  widget.style.display = inSilenceCity ? 'block' : 'none';
-  if (!inSilenceCity) return;
-
-  const MAX = 10;
-  const gauge = GS.player.silenceGauge || 0;
-  const pct = (gauge / MAX) * 100;
-  const isWarn = gauge >= 7;
-
-  // 도트 렌더
-  const dots = document.getElementById('nwDots');
-  if (dots) {
-    dots.innerHTML = Array.from({length: MAX}, (_, i) => {
-      const active = i < gauge;
-      const warn = active && i >= 6; // 7번째 이상은 경고색
-      return `<div class="nw-dot${active?' active':''}${warn?' warn':''}"></div>`;
-    }).join('');
-  }
-  const fill = document.getElementById('nwBarFill');
-  if (fill) fill.style.width = `${pct}%`;
-  setText('nwVal', `${gauge} / ${MAX}`);
-  const warnEl = document.getElementById('nwWarn');
-  if (warnEl) warnEl.style.display = isWarn ? 'block' : 'none';
-  // 경고 상태면 위젯 테두리 색 변경
-  widget.style.borderColor = isWarn ? 'rgba(240,180,41,0.5)' : 'rgba(255,51,102,0.3)';
-  widget.style.boxShadow = isWarn ? '0 0 20px rgba(240,180,41,0.15)' : '0 0 20px rgba(255,51,102,0.1)';
+  window.CombatHudUI?.updateNoiseWidget?.(_getCombatHudUIDeps());
 }
 window.updateNoiseWidget = updateNoiseWidget;
 
 function updateClassSpecialUI() {
-  const el = document.getElementById('classSpecialPanel');
-  if (!el) return;
-  const mech = ClassMechanics[GS.player.class];
-  if (mech?.getSpecialUI) {
-    el.style.display = 'block';
-    el.innerHTML = mech.getSpecialUI(GS);
-  } else {
-    el.style.display = 'none';
-  }
+  window.CombatHudUI?.updateClassSpecialUI?.(_getCombatHudUIDeps());
 }
 window.updateClassSpecialUI = updateClassSpecialUI;
 
