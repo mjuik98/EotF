@@ -1085,7 +1085,17 @@ function initGameCanvas() {
 
   // 노드 선택은 DOM 카드 오버레이에서 처리
   minimapCanvas = document.getElementById('minimapCanvas');
-  minimapCtx = minimapCanvas.getContext('2d');
+  minimapCtx = minimapCanvas?.getContext('2d');
+  if (minimapCanvas && !minimapCanvas._mapOpenPatched) {
+    minimapCanvas._mapOpenPatched = true;
+    minimapCanvas.style.cursor = 'pointer';
+    minimapCanvas.title = '클릭하여 지도 열기';
+    minimapCanvas.addEventListener('click', () => {
+      if (GS.currentScreen !== 'game') return;
+      if (GS.combat.active) return;
+      showMapOverlay();
+    });
+  }
   combatCanvas = gameCanvas;
   ParticleSystem.init(gameCanvas);
   resizeGameCanvas();
@@ -1765,6 +1775,94 @@ function _getIntentIcon(intent) {
   return '❓';
 }
 
+const INTENT_DESCRIPTIONS = {
+  attack:  { type:'공격', desc:'플레이어에게 직접 피해를 입힙니다.' },
+  heavy:   { type:'강타', desc:'강력한 단일 피해를 가합니다.' },
+  double:  { type:'연속공격', desc:'피해를 여러 번 나누어 가합니다.' },
+  aoe:     { type:'광역공격', desc:'광역 피해를 가합니다. 방어막을 미리 준비하세요.' },
+  guard:   { type:'방어', desc:'방어막을 쌓아 다음 피해를 줄입니다.' },
+  barrier: { type:'결계', desc:'강한 방어 효과를 얻습니다.' },
+  shield:  { type:'방패', desc:'피해를 줄이는 방어 자세를 취합니다.' },
+  curse:   { type:'저주', desc:'플레이어에게 불리한 상태를 부여합니다.' },
+  poison:  { type:'독', desc:'턴마다 독 피해를 입힙니다.' },
+  weaken:  { type:'약화', desc:'플레이어의 공격 효율을 떨어뜨립니다.' },
+  debuff:  { type:'디버프', desc:'불리한 상태 이상을 부여합니다.' },
+  mark:    { type:'표식', desc:'다음 공격 피해가 증가할 수 있습니다.' },
+  burning: { type:'화염', desc:'턴마다 화상 피해를 입힙니다.' },
+  heal:    { type:'회복', desc:'자신의 HP를 회복합니다.' },
+  life:    { type:'생명력 흡수', desc:'플레이어를 공격하며 자신을 회복합니다.' },
+  drain:   { type:'흡수', desc:'에너지 또는 Echo를 빼앗을 수 있습니다.' },
+  summon:  { type:'소환', desc:'추가 적을 소환합니다.' },
+  enrage:  { type:'격노', desc:'이후 공격이 더 강해집니다.' },
+};
+
+function _formatIntentLabel(intent) {
+  const text = String(intent?.intent || '?');
+  if (!(intent?.dmg > 0)) return text;
+  const m = text.match(/^(.*)\s+(\d+)$/);
+  if (!m) return text;
+  const tail = Number(m[2]);
+  if (!Number.isFinite(tail) || tail !== Number(intent.dmg)) return text;
+  return m[1].trim() || text;
+}
+
+function _resolveIntentDescription(intent) {
+  const text = `${intent?.type || ''} ${intent?.intent || ''}`.toLowerCase();
+  for (const [key, info] of Object.entries(INTENT_DESCRIPTIONS)) {
+    if (text.includes(key)) return info;
+  }
+  if ((intent?.dmg || 0) > 0) return INTENT_DESCRIPTIONS.attack;
+  return { type: _formatIntentLabel(intent), desc:'이 적의 다음 행동 패턴입니다.' };
+}
+
+let _intentTipTimer = null;
+function showIntentTooltip(event, enemyIdx) {
+  clearTimeout(_intentTipTimer);
+  const idx = Number(enemyIdx);
+  if (!Number.isFinite(idx)) return;
+  const enemy = GS.combat.enemies[idx];
+  if (!enemy?.ai) return;
+
+  let intent;
+  try { intent = enemy.ai(GS.combat.turn); } catch (e) { intent = { intent:'?', dmg:0 }; }
+  const icon = _getIntentIcon(intent);
+  const label = _formatIntentLabel(intent);
+  const descInfo = _resolveIntentDescription(intent);
+
+  let el = document.getElementById('intentTooltip');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'intentTooltip';
+    document.body.appendChild(el);
+  }
+
+  el.innerHTML = `
+    <div class="itt-title">${icon} ${label}</div>
+    <div class="itt-type">— ${descInfo.type} —</div>
+    <div class="itt-desc">${descInfo.desc}</div>
+    ${intent.dmg > 0 ? `<div class="itt-dmg">💢 예상 피해: <strong>${intent.dmg}</strong></div>` : ''}
+  `;
+
+  const rect = event.currentTarget.getBoundingClientRect();
+  let x = rect.right + 12;
+  let y = rect.top;
+  if (x + 240 > window.innerWidth) x = rect.left - 244;
+  if (y + 190 > window.innerHeight) y = window.innerHeight - 194;
+  y = Math.max(10, y);
+
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  el.classList.add('visible');
+}
+
+function hideIntentTooltip() {
+  _intentTipTimer = setTimeout(() => {
+    document.getElementById('intentTooltip')?.classList.remove('visible');
+  }, 80);
+}
+window.showIntentTooltip = showIntentTooltip;
+window.hideIntentTooltip = hideIntentTooltip;
+
 const ENEMY_STATUS_KR = {
   stunned:'기절', weakened:'약화', poisoned:'독', marked:'표식', mirror:'반사',
   slowed:'감속', burning:'화염', cursed:'저주',
@@ -1799,6 +1897,7 @@ function renderCombatEnemies() {
         return `<span style="font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};">${kr}${d>1?`(${d})`:''}</span>`;
       }).join(' ');
       const intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
+      const intentLabel = _formatIntentLabel(intent);
       const intentIcon = _getIntentIcon(intent);
       const isSelected = GS._selectedTarget === i && e.hp > 0;
       const selStyle = isSelected ? 'outline:2px solid var(--cyan);box-shadow:0 0 18px rgba(0,255,204,0.45);' : '';
@@ -1838,7 +1937,7 @@ function renderCombatEnemies() {
           <div class="enemy-name">${e.name}${e.isBoss?` <span style="color:var(--gold)">✦ P${e.phase||1}</span>`:''}</div>
           ${bossPhaseBar}
           <div id="enemy_hptext_${i}" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">${e.hp} / ${e.maxHp}${e.shield?` 🛡️${e.shield}`:''}</div>
-          <div class="enemy-intent" id="enemy_intent_${i}"><span>${intentIcon}</span><span>${intent.intent||'?'}</span>${intentDmg}</div>
+          <div class="enemy-intent" id="enemy_intent_${i}" onmouseenter="showIntentTooltip(event,${i})" onmouseleave="hideIntentTooltip()"><span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}</div>
           <div id="enemy_status_${i}" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:4px;">${statusStr}</div>
           ${dmgPreviewHtml}
         </div>
@@ -1860,7 +1959,10 @@ function renderCombatEnemies() {
         let intent; try { intent = e.ai(GS.combat.turn); } catch(err) { intent = {intent:'?',dmg:0}; }
         const intentIcon = _getIntentIcon(intent);
         const intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
-        intentEl.innerHTML = `<span>${intentIcon}</span><span>${intent.intent||'?'}</span>${intentDmg}`;
+        const intentLabel = _formatIntentLabel(intent);
+        intentEl.innerHTML = `<span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}`;
+        intentEl.onmouseenter = ev => showIntentTooltip(ev, i);
+        intentEl.onmouseleave = () => hideIntentTooltip();
       }
       if (statusEl) {
         const statusEntries = e.statusEffects ? Object.entries(e.statusEffects) : [];
@@ -2092,7 +2194,18 @@ window.sortHandByEnergy = sortHandByEnergy;
 
 function drawCard() {
   const gs = GS;
+  const MAX_HAND = 8;
   if (!gs.combat.active || !gs.combat.playerTurn) return;
+  if (gs.player.hand.length >= MAX_HAND) {
+    gs.addLog(`⚠️ 손패가 가득 찼습니다 (최대 ${MAX_HAND}장)`, 'damage');
+    const btn = document.getElementById('drawCardBtn');
+    if (btn) {
+      btn.style.animation = 'none';
+      requestAnimationFrame(() => { btn.style.animation = 'shake 0.3s ease'; });
+    }
+    updateUI();
+    return;
+  }
   if (gs.player.energy < 1) {
     gs.addLog('⚠️ 에너지 부족! (카드 뽑기: 1 에너지)', 'damage');
     // 에너지 오브 흔들기
@@ -2979,13 +3092,25 @@ function _doUpdateUI() {
   // 카드 뽑기 버튼 — 에너지 0이면 비활성화 (Echo 스킬과 동일 방식)
   const drawBtn = document.getElementById('drawCardBtn');
   if (drawBtn) {
-    const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1;
+    const handFull = p.hand.length >= 8;
+    const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1 && !handFull;
     drawBtn.disabled = !canDraw;
+    drawBtn.classList.toggle('hand-full', handFull);
     drawBtn.style.opacity = canDraw ? '1' : '0.4';
     if (gs.combat.active) {
-      drawBtn.textContent = canDraw ? `🃏 카드 뽑기 (에너지 ${p.energy})` : '🃏 에너지 부족';
+      if (handFull) {
+        drawBtn.textContent = '🃏 손패 가득 참';
+        drawBtn.title = '손패가 가득 찼습니다 (최대 8장)';
+      } else if (p.energy < 1) {
+        drawBtn.textContent = '🃏 에너지 부족';
+        drawBtn.title = '카드 뽑기에는 에너지 1이 필요합니다.';
+      } else {
+        drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${p.energy})`;
+        drawBtn.title = '카드를 한 장 뽑습니다.';
+      }
     } else {
       drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
+      drawBtn.title = '전투 중에만 사용할 수 있습니다.';
     }
   }
 
@@ -3847,7 +3972,8 @@ function _flushNoticeQueue() {
   _noticeActive = true;
   const text = _noticeQueue.shift();
   const el = document.createElement('div');
-  el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);font-family:\'Cinzel\',serif;font-size:13px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,20,18,0.94);border:1px solid rgba(0,255,204,0.3);border-radius:10px;padding:12px 28px;z-index:9000;box-shadow:0 4px 28px rgba(0,255,204,0.15);animation:fadeInUp 0.4s ease both;white-space:nowrap;pointer-events:none;text-align:center;max-width:90vw;';
+  el.className = 'world-memory-notice';
+  el.style.cssText = 'position:fixed;top:68px;left:50%;transform:translateX(-50%);font-family:\'Cinzel\',serif;font-size:13px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,20,18,0.96);border:1px solid rgba(0,255,204,0.3);border-radius:10px;padding:12px 28px;z-index:9000;box-shadow:0 4px 28px rgba(0,255,204,0.15);animation:worldNoticeIn 0.4s ease both;white-space:nowrap;pointer-events:none;text-align:center;max-width:90vw;';
   el.textContent = text;
   document.body.appendChild(el);
   const showDuration = Math.max(2800, text.length * 60);

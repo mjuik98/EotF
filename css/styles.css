@@ -333,7 +333,15 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 .status-buff { background:rgba(123,47,255,0.15); border:1px solid rgba(123,47,255,0.3); color:var(--echo-bright); }
 .status-debuff { background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.25); color:var(--danger); }
 
-#minimapCanvas { width:100%; height:160px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid var(--border); }
+#minimapCanvas {
+  width:100%; height:160px; border-radius:6px;
+  background:rgba(0,0,0,0.3); border:1px solid var(--border);
+  cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s;
+}
+#minimapCanvas:hover {
+  border-color:rgba(123,47,255,0.5);
+  box-shadow:0 0 14px rgba(123,47,255,0.35);
+}
 .region-info { background:rgba(123,47,255,0.06); border:1px solid var(--border); border-radius:6px; padding:10px; }
 .region-name-display { font-family:'Cinzel',serif; font-size:11px; font-weight:700; color:var(--white); margin-bottom:2px; }
 .region-rule-display { font-size:10px; color:var(--echo); font-family:'Cinzel',serif; letter-spacing:0.1em; }
@@ -664,6 +672,10 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 .action-btn-end { background:rgba(255,51,102,0.12); border:1px solid rgba(255,51,102,0.3); color:var(--danger); font-weight:700; }
 .action-btn-end:hover { background:rgba(255,51,102,0.25); transform:translateY(-1px); box-shadow:0 4px 16px rgba(255,51,102,0.2); }
 .action-btn:disabled { opacity:0.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+#drawCardBtn.hand-full:disabled {
+  opacity:0.3 !important;
+  filter:grayscale(0.6);
+}
 
 /* 턴 종료 버튼 — 에너지 남아있을 때 경고 펄스 */
 @keyframes endBtnWarn {
@@ -761,7 +773,56 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
   background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
   border-radius:8px; padding:6px 8px; line-height:1.4;
   display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap;
+  cursor:help;
 }
+
+#intentTooltip {
+  position:fixed; z-index:850;
+  background:rgba(6,6,22,0.97);
+  border:1px solid rgba(255,100,100,0.35);
+  border-radius:12px;
+  width:220px;
+  padding:12px 14px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 10px 36px rgba(0,0,0,0.7), 0 0 18px rgba(255,51,102,0.1);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.15s ease;
+}
+#intentTooltip.visible { opacity:1; }
+.itt-title {
+  font-family:'Cinzel',serif;
+  font-size:12px;
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:5px;
+}
+.itt-type {
+  font-family:'Cinzel',serif;
+  font-size:8px;
+  letter-spacing:0.2em;
+  color:var(--danger);
+  margin-bottom:8px;
+}
+.itt-desc {
+  font-size:12px;
+  color:var(--text);
+  line-height:1.55;
+  font-family:'Crimson Pro',serif;
+}
+.itt-dmg {
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,0.07);
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+  color:var(--danger);
+}
+.itt-dmg strong {
+  font-size:15px;
+  color:var(--danger);
+}
+
 @keyframes enemyDie { 0%{opacity:1;transform:scale(1) translateY(0);filter:brightness(1);} 30%{opacity:1;transform:scale(1.1) translateY(-5px);filter:brightness(2) saturate(0);} 100%{opacity:0;transform:scale(0.6) translateY(20px);filter:brightness(0);} }
 .enemy-card.dying { animation:enemyDie 0.7s ease forwards !important; pointer-events:none; }
 @keyframes enemyHit { 0%,100%{transform:translateX(0);filter:brightness(1);} 25%{transform:translateX(-6px);filter:brightness(2) saturate(0);} 75%{transform:translateX(6px);filter:brightness(2);} }
@@ -834,6 +895,7 @@ body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:none;} }
 @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:none;} }
+@keyframes worldNoticeIn { from{opacity:0;transform:translateX(-50%) translateY(-14px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
 @keyframes titleReveal { 0%{opacity:0;transform:scale(1.05);filter:blur(8px);} 100%{opacity:1;transform:none;filter:none;} }
 @keyframes chainPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
 @keyframes dotBurst { 0%,100%{transform:scale(1);} 50%{transform:scale(1.4);} }
