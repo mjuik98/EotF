@@ -49,7 +49,7 @@ const GameState = GS;
 // ────────────────────────────────────────
 // STORY SYSTEM
 // ────────────────────────────────────────
-function _getStoryUIDeps() {
+function _getStoryDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -62,22 +62,22 @@ function _getStoryUIDeps() {
 
 const StorySystem = {
   unlockNextFragment() {
-    window.StoryUI?.unlockNextFragment?.(_getStoryUIDeps());
+    window.StoryUI?.unlockNextFragment?.(_getStoryDeps());
   },
   showRunFragment() {
-    window.StoryUI?.showRunFragment?.(_getStoryUIDeps());
+    window.StoryUI?.showRunFragment?.(_getStoryDeps());
   },
   displayFragment(frag) {
-    window.StoryUI?.displayFragment?.(frag, _getStoryUIDeps());
+    window.StoryUI?.displayFragment?.(frag, _getStoryDeps());
   },
   checkHiddenEnding() {
-    return !!window.StoryUI?.checkHiddenEnding?.(_getStoryUIDeps());
+    return !!window.StoryUI?.checkHiddenEnding?.(_getStoryDeps());
   },
   showNormalEnding() {
-    window.StoryUI?.showNormalEnding?.(_getStoryUIDeps());
+    window.StoryUI?.showNormalEnding?.(_getStoryDeps());
   },
   showHiddenEnding() {
-    window.StoryUI?.showHiddenEnding?.(_getStoryUIDeps());
+    window.StoryUI?.showHiddenEnding?.(_getStoryDeps());
   },
 };
 
@@ -195,7 +195,7 @@ const NODE_META = {
   rest:   { icon:'🔥', label:'휴식',   color:'#cc5500', glow:'rgba(204,85,0,',    desc:'체력을 회복하거나 카드를 강화한다' },
 };
 
-function _getWorldCanvasUIDeps() {
+function _getWorldCanvasDeps() {
   return {
     gs: GS,
     getRegionData,
@@ -203,13 +203,13 @@ function _getWorldCanvasUIDeps() {
 }
 
 function renderNodeInfo(ctx, w, h) {
-  window.WorldCanvasUI?.renderNodeInfo?.(ctx, w, h, _getWorldCanvasUIDeps());
+  window.WorldCanvasUI?.renderNodeInfo?.(ctx, w, h, _getWorldCanvasDeps());
 }
 
 
 // ── 지역/층별 상태 문구 헬퍼 ──
 function getFloorStatusText(regionId, floor) {
-  return window.WorldCanvasUI?.getFloorStatusText?.(regionId, floor, _getWorldCanvasUIDeps()) || '';
+  return window.WorldCanvasUI?.getFloorStatusText?.(regionId, floor, _getWorldCanvasDeps()) || '';
 }
 
 // 캔버스 텍스트 줄바꿈 헬퍼
@@ -228,7 +228,7 @@ function roundRectTop(ctx, x, y, w, h, r) {
 // ────────────────────────────────────────
 // MAP SYSTEM
 // ────────────────────────────────────────
-function _getMapGenerationUIDeps() {
+function _getMapGenerationDeps() {
   return {
     gs: GS,
     getRegionData,
@@ -240,10 +240,10 @@ function _getMapGenerationUIDeps() {
 }
 
 function generateMap(regionIdx) {
-  window.MapGenerationUI?.generateMap?.(regionIdx, _getMapGenerationUIDeps());
+  window.MapGenerationUI?.generateMap?.(regionIdx, _getMapGenerationDeps());
 }
 
-function _getMapUIDeps() {
+function _getMapDeps() {
   return {
     gs: GS,
     doc: document,
@@ -259,15 +259,15 @@ function _getMapUIDeps() {
 }
 
 function renderMapOverlay() {
-  window.MapUI?.renderMapOverlay?.(_getMapUIDeps());
+  window.MapUI?.renderMapOverlay?.(_getMapDeps());
 }
 
 function renderMinimap() {
-  window.MapUI?.renderMinimap?.(_getMapUIDeps());
+  window.MapUI?.renderMinimap?.(_getMapDeps());
 }
 
 function updateNextNodes() {
-  window.MapUI?.updateNextNodes?.(_getMapUIDeps());
+  window.MapUI?.updateNextNodes?.(_getMapDeps());
 }
 
 function isNodeAccessible(node) {
@@ -276,10 +276,10 @@ function isNodeAccessible(node) {
 }
 
 function handleMapClick(event) {
-  window.MapUI?.handleMapClick?.(event, _getMapUIDeps());
+  window.MapUI?.handleMapClick?.(event, _getMapDeps());
 }
 
-function _getMapNavigationUIDeps() {
+function _getMapNavigationDeps() {
   return {
     gs: GS,
     doc: document,
@@ -297,13 +297,13 @@ function _getMapNavigationUIDeps() {
 }
 
 function moveToNode(node) {
-  window.MapNavigationUI?.moveToNode?.(node, _getMapNavigationUIDeps());
+  window.MapNavigationUI?.moveToNode?.(node, _getMapNavigationDeps());
 }
 
 // ────────────────────────────────────────
 // COMBAT SYSTEM
 // ────────────────────────────────────────
-function _getCombatStartUIDeps() {
+function _getCombatStartDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -330,10 +330,10 @@ function _getCombatStartUIDeps() {
 }
 
 function startCombat(isBoss=false) {
-  window.CombatStartUI?.startCombat?.(isBoss, _getCombatStartUIDeps());
+  window.CombatStartUI?.startCombat?.(isBoss, _getCombatStartDeps());
 }
 
-function _getCombatHudUIDeps() {
+function _getCombatHudDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -347,23 +347,23 @@ function _getCombatHudUIDeps() {
 // Echo 스킬 툴팁
 // ── HUD 핀/언핀 토글 ──
 function toggleHudPin() {
-  window.CombatHudUI?.toggleHudPin?.(_getCombatHudUIDeps());
+  window.CombatHudUI?.toggleHudPin?.(_getCombatHudDeps());
 }
 window.toggleHudPin = toggleHudPin;
 
 function showEchoSkillTooltip(event) {
-  window.CombatHudUI?.showEchoSkillTooltip?.(event, _getCombatHudUIDeps());
+  window.CombatHudUI?.showEchoSkillTooltip?.(event, _getCombatHudDeps());
 }
 function hideEchoSkillTooltip() {
-  window.CombatHudUI?.hideEchoSkillTooltip?.(_getCombatHudUIDeps());
+  window.CombatHudUI?.hideEchoSkillTooltip?.(_getCombatHudDeps());
 }
 
 // 턴 전환 중앙 배너
 function showTurnBanner(type) {
-  window.CombatHudUI?.showTurnBanner?.(type, _getCombatHudUIDeps());
+  window.CombatHudUI?.showTurnBanner?.(type, _getCombatHudDeps());
 }
 
-function _getCombatUIDeps() {
+function _getCombatDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -376,26 +376,26 @@ function _getCombatUIDeps() {
 }
 
 function showIntentTooltip(event, enemyIdx) {
-  window.CombatUI?.showIntentTooltip?.(event, enemyIdx, _getCombatUIDeps());
+  window.CombatUI?.showIntentTooltip?.(event, enemyIdx, _getCombatDeps());
 }
 
 function hideIntentTooltip() {
-  window.CombatUI?.hideIntentTooltip?.(_getCombatUIDeps());
+  window.CombatUI?.hideIntentTooltip?.(_getCombatDeps());
 }
 
 window.showIntentTooltip = showIntentTooltip;
 window.hideIntentTooltip = hideIntentTooltip;
 
 function renderCombatEnemies() {
-  window.CombatUI?.renderCombatEnemies?.(_getCombatUIDeps());
+  window.CombatUI?.renderCombatEnemies?.(_getCombatDeps());
 }
 
 // 단일 적 HP만 빠르게 갱신 (공격 직후 호출용)
 function updateEnemyHpUI(idx, enemy) {
-  window.CombatUI?.updateEnemyHpUI?.(idx, enemy, _getCombatUIDeps());
+  window.CombatUI?.updateEnemyHpUI?.(idx, enemy, _getCombatDeps());
 }
 
-function _getCardUIDeps() {
+function _getCardDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -417,26 +417,26 @@ function getCardTypeLabelClass(type) {
 }
 
 function renderCombatCards() {
-  window.CardUI?.renderCombatCards?.(_getCardUIDeps());
+  window.CardUI?.renderCombatCards?.(_getCardDeps());
 }
 
 function updateHandFanEffect() {
-  window.CardUI?.updateHandFanEffect?.(_getCardUIDeps());
+  window.CardUI?.updateHandFanEffect?.(_getCardDeps());
 }
 
 function renderHand() {
-  window.CardUI?.renderHand?.(_getCardUIDeps());
+  window.CardUI?.renderHand?.(_getCardDeps());
 }
 
 function updateCombatLog() {
-  window.CombatHudUI?.updateCombatLog?.(_getCombatHudUIDeps());
+  window.CombatHudUI?.updateCombatLog?.(_getCombatHudDeps());
 }
 
 function updateEchoSkillBtn() {
-  window.CombatHudUI?.updateEchoSkillBtn?.(_getCombatHudUIDeps());
+  window.CombatHudUI?.updateEchoSkillBtn?.(_getCombatHudDeps());
 }
 
-function _getEchoSkillUIDeps() {
+function _getEchoSkillDeps() {
   return {
     gs: GS,
     doc: document,
@@ -448,10 +448,10 @@ function _getEchoSkillUIDeps() {
 }
 
 function useEchoSkill() {
-  window.EchoSkillUI?.useEchoSkill?.(_getEchoSkillUIDeps());
+  window.EchoSkillUI?.useEchoSkill?.(_getEchoSkillDeps());
 }
 
-function _getCombatActionsUIDeps() {
+function _getCombatActionsDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -463,15 +463,15 @@ function _getCombatActionsUIDeps() {
 }
 
 function sortHandByEnergy() {
-  window.CombatActionsUI?.sortHandByEnergy?.(_getCombatActionsUIDeps());
+  window.CombatActionsUI?.sortHandByEnergy?.(_getCombatActionsDeps());
 }
 window.sortHandByEnergy = sortHandByEnergy;
 
 function drawCard() {
-  window.CombatActionsUI?.drawCard?.(_getCombatActionsUIDeps());
+  window.CombatActionsUI?.drawCard?.(_getCombatActionsDeps());
 }
 
-function _getCombatTurnUIDeps() {
+function _getCombatTurnDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -497,29 +497,29 @@ function _getCombatTurnUIDeps() {
 }
 
 function endPlayerTurn() {
-  window.CombatTurnUI?.endPlayerTurn?.(_getCombatTurnUIDeps());
+  window.CombatTurnUI?.endPlayerTurn?.(_getCombatTurnDeps());
 }
 
 function enemyTurn() {
-  window.CombatTurnUI?.enemyTurn?.(_getCombatTurnUIDeps());
+  window.CombatTurnUI?.enemyTurn?.(_getCombatTurnDeps());
 }
 
 function processEnemyStatusTicks() {
-  window.CombatTurnUI?.processEnemyStatusTicks?.(_getCombatTurnUIDeps());
+  window.CombatTurnUI?.processEnemyStatusTicks?.(_getCombatTurnDeps());
 }
 
 function handleBossPhaseShift(enemy, idx) {
-  window.CombatTurnUI?.handleBossPhaseShift?.(enemy, idx, _getCombatTurnUIDeps());
+  window.CombatTurnUI?.handleBossPhaseShift?.(enemy, idx, _getCombatTurnDeps());
 }
 
 function handleEnemyEffect(effect, enemy, idx) {
-  window.CombatTurnUI?.handleEnemyEffect?.(effect, enemy, idx, _getCombatTurnUIDeps());
+  window.CombatTurnUI?.handleEnemyEffect?.(effect, enemy, idx, _getCombatTurnDeps());
 }
 
 // ────────────────────────────────────────
 // EVENT SYSTEM
 // ────────────────────────────────────────
-function _getEventUIDeps() {
+function _getEventDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -532,38 +532,38 @@ function _getEventUIDeps() {
 }
 
 function triggerRandomEvent() {
-  window.EventUI?.triggerRandomEvent?.(_getEventUIDeps());
+  window.EventUI?.triggerRandomEvent?.(_getEventDeps());
 }
 
 function _updateEventGoldBar() {
-  window.EventUI?.updateEventGoldBar?.(_getEventUIDeps());
+  window.EventUI?.updateEventGoldBar?.(_getEventDeps());
 }
 
 function showEvent(event) {
-  window.EventUI?.showEvent?.(event, _getEventUIDeps());
+  window.EventUI?.showEvent?.(event, _getEventDeps());
 }
 
 function resolveEvent(choiceIdx) {
-  window.EventUI?.resolveEvent?.(choiceIdx, _getEventUIDeps());
+  window.EventUI?.resolveEvent?.(choiceIdx, _getEventDeps());
 }
 
 function showShop() {
-  window.EventUI?.showShop?.(_getEventUIDeps());
+  window.EventUI?.showShop?.(_getEventDeps());
 }
 
 function showRestSite() {
-  window.EventUI?.showRestSite?.(_getEventUIDeps());
+  window.EventUI?.showRestSite?.(_getEventDeps());
 }
 
 function showCardDiscard(gs, isBurn = false) {
-  window.EventUI?.showCardDiscard?.(gs, isBurn, _getEventUIDeps());
+  window.EventUI?.showCardDiscard?.(gs, isBurn, _getEventDeps());
 }
 
 function showItemShop(gs) {
-  window.EventUI?.showItemShop?.(gs, _getEventUIDeps());
+  window.EventUI?.showItemShop?.(gs, _getEventDeps());
 }
 
-function _getRewardUIDeps() {
+function _getRewardDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -576,30 +576,30 @@ function _getRewardUIDeps() {
 }
 
 function showRewardScreen(isBoss) {
-  window.RewardUI?.showRewardScreen?.(isBoss, _getRewardUIDeps());
+  window.RewardUI?.showRewardScreen?.(isBoss, _getRewardDeps());
 }
 
 function takeRewardCard(cardId) {
-  window.RewardUI?.takeRewardCard?.(cardId, _getRewardUIDeps());
+  window.RewardUI?.takeRewardCard?.(cardId, _getRewardDeps());
 }
 
 function takeRewardItem(itemKey) {
-  window.RewardUI?.takeRewardItem?.(itemKey, _getRewardUIDeps());
+  window.RewardUI?.takeRewardItem?.(itemKey, _getRewardDeps());
 }
 
 function showSkipConfirm() {
-  window.RewardUI?.showSkipConfirm?.(_getRewardUIDeps());
+  window.RewardUI?.showSkipConfirm?.(_getRewardDeps());
 }
 
 function hideSkipConfirm() {
-  window.RewardUI?.hideSkipConfirm?.(_getRewardUIDeps());
+  window.RewardUI?.hideSkipConfirm?.(_getRewardDeps());
 }
 
 function skipReward() {
-  window.RewardUI?.skipReward?.(_getRewardUIDeps());
+  window.RewardUI?.skipReward?.(_getRewardDeps());
 }
 
-function _getRunReturnUIDeps() {
+function _getRunReturnDeps() {
   return {
     gs: GS,
     runRules: RunRules,
@@ -615,14 +615,14 @@ function _getRunReturnUIDeps() {
 }
 
 function returnToGame(fromReward) {
-  window.RunReturnUI?.returnToGame?.(fromReward, _getRunReturnUIDeps());
+  window.RunReturnUI?.returnToGame?.(fromReward, _getRunReturnDeps());
 }
 
 // ────────────────────────────────────────
 // UI SYSTEM — 단일 통합 updateUI (배치 처리)
 // ────────────────────────────────────────
 let _gameStarted = false; // 게임 시작 전에는 즉시 실행
-function _getHudUpdateUIDeps() {
+function _getHudUpdateDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -640,22 +640,22 @@ function _getHudUpdateUIDeps() {
 }
 
 function _updateEndBtnWarn() {
-  window.HudUpdateUI?.updateEndBtnWarn?.(_getHudUpdateUIDeps());
+  window.HudUpdateUI?.updateEndBtnWarn?.(_getHudUpdateDeps());
 }
 
 function updateUI() {
-  window.HudUpdateUI?.updateUI?.(_getHudUpdateUIDeps());
+  window.HudUpdateUI?.updateUI?.(_getHudUpdateDeps());
 }
 
 function _doUpdateUI() {
-  window.HudUpdateUI?.doUpdateUI?.(_getHudUpdateUIDeps());
+  window.HudUpdateUI?.doUpdateUI?.(_getHudUpdateDeps());
 }
 
 function _getStatusKrMap() {
   return window.StatusEffectsUI?.getStatusMap?.() || {};
 }
 
-function _getCombatInfoUIDeps() {
+function _getCombatInfoDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -664,7 +664,7 @@ function _getCombatInfoUIDeps() {
   };
 }
 function _resetCombatInfoPanel() {
-  window.CombatInfoUI?.reset?.(_getCombatInfoUIDeps());
+  window.CombatInfoUI?.reset?.(_getCombatInfoDeps());
 }
 function updateStatusDisplay() {
   window.StatusEffectsUI?.updateStatusDisplay?.({
@@ -677,24 +677,24 @@ function updateStatusDisplay() {
 
 // ── 전투 정보 사이드 패널 ──
 function toggleCombatInfo() {
-  window.CombatInfoUI?.toggle?.(_getCombatInfoUIDeps());
+  window.CombatInfoUI?.toggle?.(_getCombatInfoDeps());
 }
 
 function _refreshCombatInfoPanel() {
-  window.CombatInfoUI?.refresh?.(_getCombatInfoUIDeps());
+  window.CombatInfoUI?.refresh?.(_getCombatInfoDeps());
 }
 
 function updateChainUI(chain) {
-  window.CombatHudUI?.updateChainUI?.(chain, _getCombatHudUIDeps());
+  window.CombatHudUI?.updateChainUI?.(chain, _getCombatHudDeps());
 }
 
 function updateNoiseWidget() {
-  window.CombatHudUI?.updateNoiseWidget?.(_getCombatHudUIDeps());
+  window.CombatHudUI?.updateNoiseWidget?.(_getCombatHudDeps());
 }
 window.updateNoiseWidget = updateNoiseWidget;
 
 function updateClassSpecialUI() {
-  window.CombatHudUI?.updateClassSpecialUI?.(_getCombatHudUIDeps());
+  window.CombatHudUI?.updateClassSpecialUI?.(_getCombatHudDeps());
 }
 window.updateClassSpecialUI = updateClassSpecialUI;
 
@@ -708,7 +708,7 @@ function setText(id, val) {
 // ────────────────────────────────────────
 // 카드 드래그 앤 드롭
 // ────────────────────────────────────────
-function _getCardTargetUIDeps() {
+function _getCardTargetDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -718,24 +718,24 @@ function _getCardTargetUIDeps() {
 }
 
 function handleCardDragStart(event, cardId, idx) {
-  window.CardTargetUI?.handleDragStart?.(event, cardId, idx, _getCardTargetUIDeps());
+  window.CardTargetUI?.handleDragStart?.(event, cardId, idx, _getCardTargetDeps());
 }
 
 function handleCardDragEnd(event) {
-  window.CardTargetUI?.handleDragEnd?.(event, _getCardTargetUIDeps());
+  window.CardTargetUI?.handleDragEnd?.(event, _getCardTargetDeps());
 }
 
 function handleCardDropOnEnemy(event, enemyIdx) {
-  window.CardTargetUI?.handleDropOnEnemy?.(event, enemyIdx, _getCardTargetUIDeps());
+  window.CardTargetUI?.handleDropOnEnemy?.(event, enemyIdx, _getCardTargetDeps());
 }
 
 // 적 카드 클릭 → 타겟 지정 (같은 적 다시 클릭하면 해제)
 function selectTarget(idx) {
-  window.CardTargetUI?.selectTarget?.(idx, _getCardTargetUIDeps());
+  window.CardTargetUI?.selectTarget?.(idx, _getCardTargetDeps());
 }
 window.selectTarget = selectTarget;
 
-function _getFeedbackUIDeps() {
+function _getFeedbackDeps() {
   return {
     gs: GS,
     doc: document,
@@ -746,26 +746,26 @@ function _getFeedbackUIDeps() {
 }
 
 function showCombatSummary(dealt, taken, kills) {
-  window.FeedbackUI?.showCombatSummary?.(dealt, taken, kills, _getFeedbackUIDeps());
+  window.FeedbackUI?.showCombatSummary?.(dealt, taken, kills, _getFeedbackDeps());
 }
 
 function showDmgPopup(dmg, x, y, color='#ff3366') {
-  window.FeedbackUI?.showDmgPopup?.(dmg, x, y, color, _getFeedbackUIDeps());
+  window.FeedbackUI?.showDmgPopup?.(dmg, x, y, color, _getFeedbackDeps());
 }
 
 function showEdgeDamage() {
-  window.FeedbackUI?.showEdgeDamage?.(_getFeedbackUIDeps());
+  window.FeedbackUI?.showEdgeDamage?.(_getFeedbackDeps());
 }
 
 function showEchoBurstOverlay() {
-  window.FeedbackUI?.showEchoBurstOverlay?.(_getFeedbackUIDeps());
+  window.FeedbackUI?.showEchoBurstOverlay?.(_getFeedbackDeps());
 }
 
 function showCardPlayEffect(card) {
-  window.FeedbackUI?.showCardPlayEffect?.(card, _getFeedbackUIDeps());
+  window.FeedbackUI?.showCardPlayEffect?.(card, _getFeedbackDeps());
 }
 
-function _getDeckModalUIDeps() {
+function _getDeckModalDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -778,17 +778,17 @@ function _resetDeckModalFilter() {
 }
 
 function showDeckView() {
-  window.DeckModalUI?.showDeckView?.(_getDeckModalUIDeps());
+  window.DeckModalUI?.showDeckView?.(_getDeckModalDeps());
 }
 
 function _renderDeckModal() {
-  window.DeckModalUI?.renderDeckModal?.(_getDeckModalUIDeps());
+  window.DeckModalUI?.renderDeckModal?.(_getDeckModalDeps());
 }
 
 // ────────────────────────────────────────
 // CODEX SYSTEM — 도감
 // ────────────────────────────────────────
-function _getCodexUIDeps() {
+function _getCodexDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -797,30 +797,30 @@ function _getCodexUIDeps() {
 }
 
 function openCodex() {
-  window.CodexUI?.openCodex?.(_getCodexUIDeps());
+  window.CodexUI?.openCodex?.(_getCodexDeps());
 }
 
 function closeCodex() {
-  window.CodexUI?.closeCodex?.(_getCodexUIDeps());
+  window.CodexUI?.closeCodex?.(_getCodexDeps());
 }
 
 function setCodexTab(tab) {
-  window.CodexUI?.setCodexTab?.(tab, _getCodexUIDeps());
+  window.CodexUI?.setCodexTab?.(tab, _getCodexDeps());
 }
 
 function renderCodexContent() {
-  window.CodexUI?.renderCodexContent?.(_getCodexUIDeps());
+  window.CodexUI?.renderCodexContent?.(_getCodexDeps());
 }
 
 function setDeckFilter(type) {
-  window.DeckModalUI?.setDeckFilter?.(type, _getDeckModalUIDeps());
+  window.DeckModalUI?.setDeckFilter?.(type, _getDeckModalDeps());
 }
 
 function closeDeckView() {
-  window.DeckModalUI?.closeDeckView?.(_getDeckModalUIDeps());
+  window.DeckModalUI?.closeDeckView?.(_getDeckModalDeps());
 }
 
-function _getTooltipUIDeps() {
+function _getTooltipDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -832,51 +832,51 @@ function _getTooltipUIDeps() {
 
 // ── 카드 툴팁 ──
 function showTooltip(event, cardId) {
-  window.TooltipUI?.showTooltip?.(event, cardId, _getTooltipUIDeps());
+  window.TooltipUI?.showTooltip?.(event, cardId, _getTooltipDeps());
 }
 
 function hideTooltip() {
-  window.TooltipUI?.hideTooltip?.(_getTooltipUIDeps());
+  window.TooltipUI?.hideTooltip?.(_getTooltipDeps());
 }
 
 // 전투 카드에 툴팁 연결 (렌더 후 호출)
 function attachCardTooltips() {
-  window.TooltipUI?.attachCardTooltips?.(_getTooltipUIDeps());
+  window.TooltipUI?.attachCardTooltips?.(_getTooltipDeps());
 }
 
 // ── 아이템 툴팁 ──
 function showItemTooltip(event, itemId) {
-  window.TooltipUI?.showItemTooltip?.(event, itemId, _getTooltipUIDeps());
+  window.TooltipUI?.showItemTooltip?.(event, itemId, _getTooltipDeps());
 }
 function hideItemTooltip() {
-  window.TooltipUI?.hideItemTooltip?.(_getTooltipUIDeps());
+  window.TooltipUI?.hideItemTooltip?.(_getTooltipDeps());
 }
 
 function showItemToast(item) {
-  window.FeedbackUI?.showItemToast?.(item, _getFeedbackUIDeps());
+  window.FeedbackUI?.showItemToast?.(item, _getFeedbackDeps());
 }
 
 // ── 전설 아이템 획득 풀스크린 연출 ──
 function showLegendaryAcquire(item) {
-  window.FeedbackUI?.showLegendaryAcquire?.(item, _getFeedbackUIDeps());
+  window.FeedbackUI?.showLegendaryAcquire?.(item, _getFeedbackDeps());
 }
 
 function showChainAnnounce(text) {
-  window.FeedbackUI?.showChainAnnounce?.(text, _getFeedbackUIDeps());
+  window.FeedbackUI?.showChainAnnounce?.(text, _getFeedbackDeps());
 }
 
 function showWorldMemoryNotice(text) {
-  window.FeedbackUI?.showWorldMemoryNotice?.(text, _getFeedbackUIDeps());
+  window.FeedbackUI?.showWorldMemoryNotice?.(text, _getFeedbackDeps());
 }
 function _flushNoticeQueue() {
-  window.FeedbackUI?._flushNoticeQueue?.(_getFeedbackUIDeps());
+  window.FeedbackUI?._flushNoticeQueue?.(_getFeedbackDeps());
 }
 
 function showMapOverlay(autoClose = false) {
-  window.MapUI?.showOverlay?.(autoClose, _getMapUIDeps());
+  window.MapUI?.showOverlay?.(autoClose, _getMapDeps());
 }
 function closeMapOverlay() {
-  window.MapUI?.closeOverlay?.(_getMapUIDeps());
+  window.MapUI?.closeOverlay?.(_getMapDeps());
   // 닫힌 후 노드 카드 등장 애니메이션
   _nodeCardReveal = Date.now();
 }
@@ -885,7 +885,7 @@ let _nodeCardReveal = 0;
 // ────────────────────────────────────────
 // SCREEN FSM
 // ────────────────────────────────────────
-function _getScreenUIDeps() {
+function _getScreenDeps() {
   return {
     gs: GS,
     doc: document,
@@ -896,13 +896,13 @@ function _getScreenUIDeps() {
 }
 
 function switchScreen(screen) {
-  window.ScreenUI?.switchScreen?.(screen, _getScreenUIDeps());
+  window.ScreenUI?.switchScreen?.(screen, _getScreenDeps());
 }
 
 // ────────────────────────────────────────
 // TITLE SCREEN
 // ────────────────────────────────────────
-function _getClassSelectUIDeps() {
+function _getClassSelectDeps() {
   return {
     doc: document,
     playClassSelect: (cls) => {
@@ -922,11 +922,11 @@ function _getSelectedClass() {
 }
 
 function _clearSelectedClass() {
-  window.ClassSelectUI?.clearSelection?.(_getClassSelectUIDeps());
+  window.ClassSelectUI?.clearSelection?.(_getClassSelectDeps());
 }
 
 function selectClass(btn) {
-  window.ClassSelectUI?.selectClass?.(btn, _getClassSelectUIDeps());
+  window.ClassSelectUI?.selectClass?.(btn, _getClassSelectDeps());
 }
 
 function _getSaveSystemDeps() {
@@ -949,7 +949,7 @@ function _getRunModeDeps() {
   };
 }
 
-function _getRunStartUIDeps() {
+function _getRunStartDeps() {
   return {
     gs: GS,
     doc: document,
@@ -988,7 +988,7 @@ function cycleRunCurse() {
   window.RunModeUI?.cycleCurse?.(_getRunModeDeps());
 }
 
-function _getRunSetupUIDeps() {
+function _getRunSetupDeps() {
   return {
     gs: GS,
     data: DATA,
@@ -997,15 +997,15 @@ function _getRunSetupUIDeps() {
     getSelectedClass: () => _getSelectedClass(),
     shuffleArray,
     resetDeckModalFilter: () => _resetDeckModalFilter(),
-    enterRun: () => window.RunStartUI?.enterRun?.(_getRunStartUIDeps()),
+    enterRun: () => window.RunStartUI?.enterRun?.(_getRunStartDeps()),
   };
 }
 
 function startGame() {
-  window.RunSetupUI?.startGame?.(_getRunSetupUIDeps());
+  window.RunSetupUI?.startGame?.(_getRunSetupDeps());
 }
 
-function _getMetaProgressionUIDeps() {
+function _getMetaProgressionDeps() {
   return {
     gs: GS,
     doc: document,
@@ -1016,13 +1016,13 @@ function _getMetaProgressionUIDeps() {
 }
 
 function selectFragment(effect) {
-  window.MetaProgressionUI?.selectFragment?.(effect, _getMetaProgressionUIDeps());
+  window.MetaProgressionUI?.selectFragment?.(effect, _getMetaProgressionDeps());
 }
 
 // ────────────────────────────────────────
 // REGION ADVANCE
 // ────────────────────────────────────────
-function _getRegionTransitionUIDeps() {
+function _getRegionTransitionDeps() {
   return {
     gs: GS,
     doc: document,
@@ -1040,13 +1040,13 @@ function _getRegionTransitionUIDeps() {
 }
 
 function advanceToNextRegion() {
-  window.RegionTransitionUI?.advanceToNextRegion?.(_getRegionTransitionUIDeps());
+  window.RegionTransitionUI?.advanceToNextRegion?.(_getRegionTransitionDeps());
 }
 
 // ────────────────────────────────────────
 // HELP / PAUSE UI + HOTKEYS
 // ────────────────────────────────────────
-function _getHelpPauseUIDeps() {
+function _getHelpPauseDeps() {
   return {
     gs: GS,
     doc: document,
@@ -1064,31 +1064,31 @@ function _getHelpPauseUIDeps() {
 
 function toggleHelp() {
   if (window.HelpPauseUI?.toggleHelp) {
-    window.HelpPauseUI.toggleHelp(_getHelpPauseUIDeps());
+    window.HelpPauseUI.toggleHelp(_getHelpPauseDeps());
   }
 }
 
 function abandonRun() {
   if (window.HelpPauseUI?.abandonRun) {
-    window.HelpPauseUI.abandonRun(_getHelpPauseUIDeps());
+    window.HelpPauseUI.abandonRun(_getHelpPauseDeps());
   }
 }
 
 function confirmAbandon() {
   if (window.HelpPauseUI?.confirmAbandon) {
-    window.HelpPauseUI.confirmAbandon(_getHelpPauseUIDeps());
+    window.HelpPauseUI.confirmAbandon(_getHelpPauseDeps());
   }
 }
 
 function togglePause() {
   if (window.HelpPauseUI?.togglePause) {
-    window.HelpPauseUI.togglePause(_getHelpPauseUIDeps());
+    window.HelpPauseUI.togglePause(_getHelpPauseDeps());
   }
 }
 
 (function initHelpPauseUIBindings() {
   if (!window.HelpPauseUI) return;
-  const deps = _getHelpPauseUIDeps();
+  const deps = _getHelpPauseDeps();
   window.HelpPauseUI.showMobileWarning(deps);
   window.HelpPauseUI.bindGlobalHotkeys(deps);
 })();
@@ -1101,7 +1101,7 @@ function shuffleArray(arr) {
 }
 
 function restartFromEnding() {
-  window.MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionUIDeps());
+  window.MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionDeps());
 }
 
 // ────────────────────────────────────────
@@ -1149,7 +1149,7 @@ window.setCodexTab = setCodexTab;
 // ────────────────────────────────────────
 // SaveSystem is provided by game/save_system.js.
 
-function _getGameBootUIDeps() {
+function _getGameBootDeps() {
   return {
     gs: GS,
     doc: document,
@@ -1164,8 +1164,11 @@ function _getGameBootUIDeps() {
 }
 
 function _bootGame() {
-  window.GameBootUI?.bootGame?.(_getGameBootUIDeps());
+  window.GameBootUI?.bootGame?.(_getGameBootDeps());
 }
 
 // 즉시 실행 (load 이벤트 대신)
-window.GameBootUI?.bootWhenReady?.(_getGameBootUIDeps());
+window.GameBootUI?.bootWhenReady?.(_getGameBootDeps());
+
+
+
