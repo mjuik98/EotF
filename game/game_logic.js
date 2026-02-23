@@ -4083,99 +4083,35 @@ function selectClass(btn) {
   try { AudioEngine.init(); AudioEngine.resume(); AudioEngine.playClassSelect(selectedClass); } catch(e) { console.warn('Audio error:', e); }
 }
 
+function _getRunModeDeps() {
+  return {
+    gs: GS,
+    runRules: RunRules,
+    saveMeta: () => SaveSystem.saveMeta(),
+    notice: (msg) => {
+      if (typeof showWorldMemoryNotice === 'function') showWorldMemoryNotice(msg);
+    },
+  };
+}
+
 function refreshRunModePanel() {
-  const panel = document.getElementById('runModePanel');
-  if (!panel) return;
-
-  RunRules.ensureMeta(GS.meta);
-  const meta = GS.meta;
-  const cfg = meta.runConfig;
-  const maxAsc = Math.max(0, meta.maxAscension || 0);
-  const ascUnlocked = !!meta.unlocks?.ascension;
-  const endlessUnlocked = !!meta.unlocks?.endless;
-
-  const ascValueEl = document.getElementById('ascensionValue');
-  const ascCapEl = document.getElementById('ascensionCap');
-  if (ascValueEl) ascValueEl.textContent = `A${cfg.ascension}`;
-  if (ascCapEl) ascCapEl.textContent = `최고 A${maxAsc}`;
-
-  panel.querySelectorAll('[onclick^="shiftAscension"]').forEach(btn => {
-    btn.disabled = !ascUnlocked || maxAsc <= 0;
-  });
-
-  const endlessBtn = document.getElementById('endlessToggleBtn');
-  if (endlessBtn) {
-    const endlessOn = !!cfg.endless;
-    endlessBtn.disabled = !endlessUnlocked;
-    endlessBtn.textContent = endlessOn ? 'ON' : 'OFF';
-    endlessBtn.style.borderColor = endlessOn ? 'rgba(0,255,204,0.6)' : '';
-    endlessBtn.style.color = endlessOn ? 'var(--cyan)' : '';
-  }
-
-  const blessing = RunRules.blessings[cfg.blessing] || RunRules.blessings.none;
-  const curse = RunRules.curses[cfg.curse] || RunRules.curses.none;
-  const blessingBtn = document.getElementById('blessingCycleBtn');
-  const curseBtn = document.getElementById('curseCycleBtn');
-  if (blessingBtn) blessingBtn.textContent = blessing.name;
-  if (curseBtn) curseBtn.textContent = curse.name;
-
-  const descEl = document.getElementById('runModeDesc');
-  if (descEl) {
-    const chunks = [];
-    if (cfg.ascension > 0) chunks.push(`승천 A${cfg.ascension}: 적 능력치 상승`);
-    else chunks.push('승천 A0: 기본 난이도');
-    if (cfg.endless) chunks.push('엔들리스: 최종 지역 이후 루프 진행');
-    chunks.push(`축복 - ${blessing.desc}`);
-    if (curse.id !== 'none') chunks.push(`저주 - ${curse.desc}`);
-    if (!ascUnlocked) chunks.push('승천은 2회차부터 해금');
-    if (!endlessUnlocked) chunks.push('엔들리스는 승리 누적으로 해금');
-    descEl.textContent = chunks.join(' · ');
-  }
+  window.RunModeUI?.refresh?.(_getRunModeDeps());
 }
 
 function shiftAscension(delta) {
-  RunRules.ensureMeta(GS.meta);
-  const meta = GS.meta;
-  if (!meta.unlocks?.ascension) {
-    refreshRunModePanel();
-    return;
-  }
-  const cur = Number.isFinite(meta.runConfig.ascension) ? meta.runConfig.ascension : 0;
-  const maxAsc = Math.max(0, meta.maxAscension || 0);
-  meta.runConfig.ascension = Math.max(0, Math.min(maxAsc, cur + (delta < 0 ? -1 : 1)));
-  refreshRunModePanel();
-  SaveSystem.saveMeta();
+  window.RunModeUI?.shiftAscension?.(delta, _getRunModeDeps());
 }
 
 function toggleEndlessMode() {
-  RunRules.ensureMeta(GS.meta);
-  const meta = GS.meta;
-  if (!meta.unlocks?.endless) {
-    if (typeof showWorldMemoryNotice === 'function') {
-      showWorldMemoryNotice('엔들리스는 아직 해금되지 않았습니다.');
-    }
-    refreshRunModePanel();
-    return;
-  }
-  meta.runConfig.endless = !meta.runConfig.endless;
-  refreshRunModePanel();
-  SaveSystem.saveMeta();
+  window.RunModeUI?.toggleEndlessMode?.(_getRunModeDeps());
 }
 
 function cycleRunBlessing() {
-  RunRules.ensureMeta(GS.meta);
-  const meta = GS.meta;
-  meta.runConfig.blessing = RunRules.nextBlessingId(meta.runConfig.blessing || 'none');
-  refreshRunModePanel();
-  SaveSystem.saveMeta();
+  window.RunModeUI?.cycleBlessing?.(_getRunModeDeps());
 }
 
 function cycleRunCurse() {
-  RunRules.ensureMeta(GS.meta);
-  const meta = GS.meta;
-  meta.runConfig.curse = RunRules.nextCurseId(meta.runConfig.curse || 'none');
-  refreshRunModePanel();
-  SaveSystem.saveMeta();
+  window.RunModeUI?.cycleCurse?.(_getRunModeDeps());
 }
 
 function startGame() {
