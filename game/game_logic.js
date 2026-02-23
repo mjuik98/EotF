@@ -389,18 +389,21 @@ const GS = {
 
   addLog(msg, type='') {
     this.combat.log.push({msg, type});
+    if (this.combat.log.length > 200) this.combat.log.shift();
     updateCombatLog();
   },
 
   onEnemyDeath(enemy, idx) {
     this.player.kills++; this.meta.totalKills++;
-    this.addGold(enemy.gold||10);
+    const goldGained = enemy.gold || 10;
+    this.addGold(goldGained);
     AudioEngine.playHit();
-    this.addLog(`💀 ${enemy.name} 처치! +${enemy.gold}골드`, 'system');
+    this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
     // 죽은 적이 현재 타겟이면 다음 살아있는 적으로 자동 전환
     if (this._selectedTarget === idx) {
       const nextAlive = this.combat.enemies.findIndex((e, i) => i !== idx && e.hp > 0);
       this._selectedTarget = nextAlive >= 0 ? nextAlive : null;
+      setTimeout(() => renderCombatEnemies(), 50);
     }
     this.worldMemory[`killed_${enemy.id}`] = (this.worldMemory[`killed_${enemy.id}`]||0) + 1;
     // 사망 애니메이션
@@ -408,12 +411,6 @@ const GS = {
     if (cardEl) {
       cardEl.classList.add('dying');
       setTimeout(() => { cardEl.style.display='none'; }, 700);
-    }
-    // 죽은 적이 선택 타겟이면 다음 살아있는 적으로 자동 이동
-    if (this._selectedTarget === idx) {
-      const nextAlive = this.combat.enemies.findIndex((e,i) => i !== idx && e.hp > 0);
-      this._selectedTarget = nextAlive >= 0 ? nextAlive : null;
-      setTimeout(() => renderCombatEnemies(), 50);
     }
     const alive = this.combat.enemies.filter(e => e.hp > 0);
     if (alive.length === 0 && !this._endCombatScheduled) {
@@ -570,6 +567,7 @@ const GS = {
       console.error('[endCombat] Error:', e);
     } finally {
       this._endCombatRunning = false;
+      this._endCombatScheduled = false;
     }
   },
 
@@ -3333,7 +3331,7 @@ function handleCardDragEnd(event) {
 
 function handleCardDropOnEnemy(event, enemyIdx) {
   event.preventDefault();
-  if (!_dragCardId) return;
+  if (!_dragCardId || _dragIdx === undefined || _dragIdx === null) return;
   document.querySelectorAll('.enemy-card').forEach(el => { el.style.outline=''; });
   // 공격 카드인 경우 해당 적을 대상으로 플레이
   const card = DATA.cards[_dragCardId];
@@ -4601,6 +4599,7 @@ const SaveSystem = {
 
   saveRun() {
     if (!_gameStarted) return;
+    if (GS.combat?.active) return;
     try {
       const save = {
         player: {...GS.player, buffs: {}, hand: []},
