@@ -151,16 +151,39 @@
       setText('hudGoldText', p.gold);
 
       const avatarEl = doc.getElementById('playerAvatar');
-      if (avatarEl && p.class) {
+      const largePortrait = doc.getElementById('largePlayerPortrait');
+      const largeFallback = doc.getElementById('playerPortraitFallback');
+
+      if (p.class) {
         const avatarFile = data?.assets?.avatars?.[p.class];
-        if (avatarFile) {
-          const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
-          const fallbackIcon = icons[p.class] || '⚔️';
-          avatarEl.innerHTML = `
-            <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-            <span style="display:none;font-size:18px;vertical-align:middle;">${fallbackIcon}</span>
-          `;
+        const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
+        const fallbackIcon = icons[p.class] || '⚔️';
+
+        // 소형 초상화 (HUD)
+        if (avatarEl) {
+          if (avatarFile) {
+            avatarEl.innerHTML = `
+              <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+              <span style="display:none;font-size:18px;vertical-align:middle;">${fallbackIcon}</span>
+            `;
+          }
+        }
+
+        // 대형 초상화 (우측 패널)
+        if (largePortrait && largeFallback) {
+          if (avatarFile) {
+            const newSrc = `assets/images/${avatarFile}`;
+            if (largePortrait.getAttribute('src') !== newSrc) {
+              largePortrait.src = newSrc;
+            }
+            largePortrait.style.display = 'block';
+            largeFallback.style.display = 'none';
+          } else {
+            largePortrait.style.display = 'none';
+            largeFallback.textContent = fallbackIcon;
+            largeFallback.style.display = 'flex';
+          }
         }
       }
 

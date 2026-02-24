@@ -34,18 +34,36 @@
       }
 
       const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
+      const data = deps.data || globalObj.DATA;
+      const avatarFile = data?.assets?.avatars?.[_selectedClass];
+      const fallbackIcon = icons[_selectedClass] || '⚔️';
+
+      // HUD 소형 초상화 업데이트
       const avatarEl = doc.getElementById('playerAvatar');
       if (avatarEl) {
-        const data = deps.data || globalObj.DATA;
-        const avatarFile = data?.assets?.avatars?.[_selectedClass];
         if (avatarFile) {
           avatarEl.innerHTML = `
             <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-            <span style="display:none;">${icons[_selectedClass] || '⚔️'}</span>
+            <span style="display:none;">${fallbackIcon}</span>
           `;
         } else {
-          avatarEl.textContent = icons[_selectedClass] || '⚔️';
+          avatarEl.textContent = fallbackIcon;
+        }
+      }
+
+      // 우측 패널 대령 초상화 업데이트 (미리보기)
+      const largePortrait = doc.getElementById('largePlayerPortrait');
+      const largeFallback = doc.getElementById('playerPortraitFallback');
+      if (largePortrait && largeFallback) {
+        if (avatarFile) {
+          largePortrait.src = `assets/images/${avatarFile}`;
+          largePortrait.style.display = 'block';
+          largeFallback.style.display = 'none';
+        } else {
+          largePortrait.style.display = 'none';
+          largeFallback.textContent = fallbackIcon;
+          largeFallback.style.display = 'flex';
         }
       }
 
