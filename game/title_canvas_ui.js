@@ -112,5 +112,23 @@
     },
   };
 
+  globalObj.showCharacterSelect = function () {
+    const main = document.getElementById('mainTitleSubScreen');
+    const char = document.getElementById('charSelectSubScreen');
+    if (main && char) {
+      main.style.display = 'none';
+      char.style.display = 'block';
+    }
+  };
+
+  globalObj.backToTitle = function () {
+    const main = document.getElementById('mainTitleSubScreen');
+    const char = document.getElementById('charSelectSubScreen');
+    if (main && char) {
+      main.style.display = 'block';
+      char.style.display = 'none';
+    }
+  };
+
   globalObj.TitleCanvasUI = TitleCanvasUI;
 })(window);

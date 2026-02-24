@@ -15,6 +15,11 @@
       if (!gs) return;
 
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+      // 시작 시 타이틀 화면 상태 초기화
+      const doc = _getDoc(deps);
+      doc.getElementById('mainTitleSubScreen').style.display = 'block';
+      doc.getElementById('charSelectSubScreen').style.display = 'none';
+
       if (typeof deps.markGameStarted === 'function') deps.markGameStarted();
       if (typeof deps.generateMap === 'function') deps.generateMap(0);
       deps.audioEngine?.startAmbient?.(0);
