@@ -2090,6 +2090,13 @@ body {
   color: var(--cyan);
 }
 
+/* 전투 중 배경 탐험 손패 레이아웃 숨김 */
+body:has(#combatOverlay.active) .panel-bottom {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
 /* 전투 UI 고정 요소들 — combatOverlay 비활성 시 숨김 */
 #combatOverlay:not(.active) #noiseWidget,
 #combatOverlay:not(.active) .combat-hand-overlay,
@@ -3193,7 +3200,8 @@ body {
 
 .item-toast {
   position: fixed;
-  bottom: 32px;
+  bottom: 220px;
+  /* 전투 요약창과 정렬 */
   right: 260px;
   /* 우측 패널(240px) + 여백(20px) */
   background: rgba(16, 16, 46, 0.98);
