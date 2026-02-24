@@ -154,6 +154,22 @@
       gs.meta.inscriptions[key] = !gs.meta.inscriptions[key];
       this.refreshInscriptions(deps);
       if (typeof deps.saveMeta === 'function') deps.saveMeta();
+    },
+
+    openSettings(deps = {}) {
+      const doc = _getDoc(deps);
+      const modal = doc.getElementById('runSettingsModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        this.refresh(deps);
+        this.refreshInscriptions(deps);
+      }
+    },
+
+    closeSettings(deps = {}) {
+      const doc = _getDoc(deps);
+      const modal = doc.getElementById('runSettingsModal');
+      if (modal) modal.style.display = 'none';
     }
   };
 
