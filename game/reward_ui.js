@@ -58,12 +58,12 @@
         return `<div class="reward-card-wrapper" onclick="takeRewardCard('${cardId}')"
           onmouseenter="showTooltip(event,'${cardId}')" onmouseleave="hideTooltip()"
           style="animation-delay:${idx * 0.08}s;">
-          <div class="card" style="width:110px;height:auto;min-height:150px;padding-bottom:10px;${rarityBorder ? `border-color:${rarityBorder};` : ''}">
+          <div class="card" style="width:140px;height:auto;min-height:190px;padding-bottom:12px;${rarityBorder ? `border-color:${rarityBorder};` : ''}">
             <div class="card-cost">${card.cost}</div>
-            <div class="card-icon" style="font-size:28px;">${card.icon}</div>
-            <div class="card-name" style="font-size:11px;">${card.name}</div>
-            <div class="card-desc" style="font-size:10px;">${card.desc}</div>
-            <div class="card-type" style="font-size:8px;color:${rarityBorder || 'var(--echo)'};">${card.rarity || 'common'}</div>
+            <div class="card-icon" style="font-size:36px;">${card.icon}</div>
+            <div class="card-name" style="font-size:13px;">${card.name}</div>
+            <div class="card-desc" style="font-size:11px;">${card.desc}</div>
+            <div class="card-type" style="font-size:9px;color:${rarityBorder || 'var(--echo)'};">${card.rarity || 'common'}</div>
           </div>
         </div>`;
       }).join('');
@@ -81,11 +81,11 @@
           const rarityLabel = { common: '일반', uncommon: '고급', rare: '희귀', legendary: '전설' };
           const rc = item.rarity || 'common';
           container.innerHTML += `<div class="reward-card-wrapper" onclick="takeRewardItem('${item.id}')" style="animation-delay:${count * 0.08}s;">
-            <div class="card" style="width:110px;height:auto;min-height:150px;padding-bottom:10px;border-color:${rarityBorderItem[rc]};">
-              <div class="card-icon" style="font-size:30px;">${item.icon}</div>
-              <div class="card-name" style="font-size:11px;color:${rarityColor[rc]};">${item.name}</div>
-              <div class="card-desc" style="font-size:10px;">${item.desc}</div>
-              <div class="card-type" style="font-size:8px;color:${rarityColor[rc]};">아이템 · ${rarityLabel[rc]}</div>
+            <div class="card" style="width:140px;height:auto;min-height:190px;padding-bottom:12px;border-color:${rarityBorderItem[rc]};">
+              <div class="card-icon" style="font-size:40px;">${item.icon}</div>
+              <div class="card-name" style="font-size:13px;color:${rarityColor[rc]};">${item.name}</div>
+              <div class="card-desc" style="font-size:11px;">${item.desc}</div>
+              <div class="card-type" style="font-size:9px;color:${rarityColor[rc]};">아이템 · ${rarityLabel[rc]}</div>
             </div>
           </div>`;
         }

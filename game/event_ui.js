@@ -48,10 +48,13 @@
       const player = gs.player;
       const gEl = doc.getElementById('eventGoldDisplay');
       const hEl = doc.getElementById('eventHpDisplay');
-      const eEl = doc.getElementById('eventEchoDisplay');
+      const dEl = doc.getElementById('eventDeckDisplay');
       if (gEl) gEl.textContent = player.gold ?? 0;
       if (hEl) hEl.textContent = `${Math.max(0, player.hp ?? 0)}/${player.maxHp ?? 0}`;
-      if (eEl) eEl.textContent = Math.floor(player.echo ?? 0);
+      if (dEl) {
+        const totalCards = (player.deck?.length || 0) + (player.hand?.length || 0) + (player.graveyard?.length || 0);
+        dEl.textContent = totalCards;
+      }
     },
 
     showEvent(event, deps = {}) {
@@ -70,15 +73,11 @@
       if (descEl) descEl.textContent = event.desc;
       this.updateEventGoldBar(deps);
 
-      const deckInfoEl = doc.getElementById('eventDeckInfo');
+      const deckInfoEl = doc.getElementById('eventDeckDisplay');
       if (deckInfoEl && gs.player) {
         const player = gs.player;
         const totalCards = (player.deck?.length || 0) + (player.hand?.length || 0) + (player.graveyard?.length || 0);
-        const goldStr = player.gold !== undefined ? `<span style="color:var(--gold);">💰 ${player.gold}골드</span>` : '';
-        const hpStr = player.hp !== undefined ? `<span style="color:var(--hp-color);">❤️ ${player.hp}/${player.maxHp}</span>` : '';
-        const deckStr = `<span style="color:var(--echo);">🃏 덱 ${totalCards}장</span>`;
-        deckInfoEl.innerHTML = [hpStr, goldStr, deckStr].filter(Boolean).join('<span style="opacity:0.25;margin:0 4px;">|</span>');
-        deckInfoEl.style.display = 'flex';
+        deckInfoEl.textContent = totalCards;
       }
 
       _renderChoices(event, doc);

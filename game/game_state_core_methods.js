@@ -207,8 +207,19 @@
     },
 
     addBuff(id, stacks, data = {}) {
-      this.player.buffs[id] = { stacks, ...data };
-      updateStatusDisplay();
+      if (this.player.buffs[id]) {
+        this.player.buffs[id].stacks += stacks;
+        for (const key in data) {
+          if (typeof data[key] === 'number') {
+            this.player.buffs[id][key] = (this.player.buffs[id][key] || 0) + data[key];
+          } else {
+            this.player.buffs[id][key] = data[key];
+          }
+        }
+      } else {
+        this.player.buffs[id] = { stacks, ...data };
+      }
+      if (typeof updateStatusDisplay === 'function') updateStatusDisplay();
     },
 
     getBuff(id) { return this.player.buffs[id] || null; },
@@ -320,7 +331,7 @@
       const card = DATA.cards[cardId];
       if (!card) return false;
       // 적 턴이거나 전투 비활성 상태면 카드 사용 불가
-      if (!this.combat.active || !this.combat.playerTurn) return false;
+      if (!this.combat.active || !this.combat.playerTurn || this._endCombatScheduled) return false;
       const cost = typeof globalObj.CardCostUtils !== 'undefined'
         ? globalObj.CardCostUtils.calcEffectiveCost(cardId, card, this.player)
         : Math.max(0, card.cost - (this.player.costDiscount || 0));
@@ -374,6 +385,11 @@
         }
       }
       this.player.hand.splice(handIdx, 1);
+
+      if (typeof globalObj.TooltipUI !== 'undefined') {
+        globalObj.TooltipUI.hideTooltip({ doc: document });
+      }
+
       this.triggerItems('card_play', { cardId });
       // 도감 등록
       if (this.meta.codex) this.meta.codex.cards.add(cardId);
@@ -393,10 +409,20 @@
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0) {
           renderHand(); renderCombatCards(); updateUI();
+          if (typeof globalObj.CombatUI !== 'undefined') {
+            globalObj.CombatUI.renderCombatEnemies({ gs: this, data: DATA });
+          } else if (typeof renderCombatEnemies === 'function') {
+            renderCombatEnemies();
+          }
           return true; // endCombat은 onEnemyDeath 타임아웃에서 호출됨
         }
       }
       renderHand(); renderCombatCards(); updateUI();
+      if (typeof globalObj.CombatUI !== 'undefined') {
+        globalObj.CombatUI.renderCombatEnemies({ gs: this, data: DATA });
+      } else if (typeof renderCombatEnemies === 'function') {
+        renderCombatEnemies();
+      }
       return true;
     },
 

@@ -87,6 +87,7 @@
         if (enemy.statusEffects?.stunned > 0) {
           enemy.statusEffects.stunned--;
           gs.addLog?.(`🌀 ${enemy.name}: 기절 상태!`, 'echo');
+          deps.renderCombatEnemies?.();
           return;
         }
 
