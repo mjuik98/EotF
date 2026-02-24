@@ -252,6 +252,11 @@ function updateNextNodes() {
 }
 window.updateNextNodes = updateNextNodes;
 
+function showFullMap() {
+  window.MapUI?.showFullMap?.(_getMapDeps());
+}
+window.showFullMap = showFullMap;
+
 function isNodeAccessible(node) {
   if (node.floor !== GS.currentFloor + 1) return false;
   return true;

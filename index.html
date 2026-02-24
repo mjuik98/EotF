@@ -75,25 +75,41 @@
         <div id="runModeDesc" class="run-mode-desc"></div>
       </div>
 
-      
-      <!-- 사운드 설정 -->
-      <div id="soundSettings" style="margin-top:20px;padding:16px 20px;background:rgba(7,7,26,0.7);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(10px);max-width:320px;width:100%;">
-        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);text-align:center;margin-bottom:12px;">🔊 사운드 설정</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text);min-width:60px;">전체</span>
-            <input type="range" id="volMaster" min="0" max="100" value="35" style="flex:1;accent-color:var(--echo);" oninput="setMasterVolume(this.value)">
-            <span id="volMasterVal" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);min-width:28px;text-align:right;">35%</span>
+
+      <!-- 사운드 설정 토글 (우하단 고정) -->
+      <div id="soundToggleBtn" onclick="document.getElementById('soundSettings').classList.toggle('open')"
+        style="position:fixed;bottom:16px;right:16px;z-index:100;width:40px;height:40px;border-radius:50%;background:rgba(7,7,26,0.85);border:1px solid var(--border);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:transform 0.2s;">
+        🔊
+      </div>
+      <div id="soundSettings"
+        style="position:fixed;bottom:64px;right:16px;z-index:100;padding:14px 18px;background:rgba(7,7,26,0.92);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(16px);width:260px;display:none;animation:fadeInDown 0.2s ease both;">
+        <div
+          style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.3em;color:var(--text-dim);text-align:center;margin-bottom:10px;">
+          🔊 사운드 설정</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span
+              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">전체</span>
+            <input type="range" id="volMaster" min="0" max="100" value="35" style="flex:1;accent-color:var(--echo);"
+              oninput="setMasterVolume(this.value)">
+            <span id="volMasterVal"
+              style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);min-width:28px;text-align:right;">35%</span>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text);min-width:60px;">효과음</span>
-            <input type="range" id="volSfx" min="0" max="100" value="70" style="flex:1;accent-color:var(--cyan);" oninput="setSfxVolume(this.value)">
-            <span id="volSfxVal" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);min-width:28px;text-align:right;">70%</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span
+              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">효과음</span>
+            <input type="range" id="volSfx" min="0" max="100" value="70" style="flex:1;accent-color:var(--cyan);"
+              oninput="setSfxVolume(this.value)">
+            <span id="volSfxVal"
+              style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);min-width:28px;text-align:right;">70%</span>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text);min-width:60px;">배경음</span>
-            <input type="range" id="volAmbient" min="0" max="100" value="40" style="flex:1;accent-color:#44ff88;" oninput="setAmbientVolume(this.value)">
-            <span id="volAmbientVal" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);min-width:28px;text-align:right;">40%</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span
+              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">배경음</span>
+            <input type="range" id="volAmbient" min="0" max="100" value="40" style="flex:1;accent-color:#44ff88;"
+              oninput="setAmbientVolume(this.value)">
+            <span id="volAmbientVal"
+              style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);min-width:28px;text-align:right;">40%</span>
           </div>
         </div>
       </div>
@@ -108,7 +124,7 @@
      GAME SCREEN
 ═══════════════════════════════════════ -->
   <div id="gameScreen" class="screen">
-        <div class="game-layout">
+    <div class="game-layout">
       <div style="grid-column:1;grid-row:1;position:relative;overflow:hidden;">
         <canvas id="gameCanvas" style="width:100%;height:100%;display:block;"></canvas>
         <!-- 노드 선택 카드 오버레이 -->
@@ -400,125 +416,125 @@
     </div>
   </div>
 
-  
+
   <!-- ── Hover HUD (좌상단, 마우스 오버 시 정보 표시) ── -->
-    <div id="hoverHud" class="combat-hud-container"
-      onclick="if(!event.target.closest('#hoverHudPanel') && !event.target.closest('#minimapCanvas') && !event.target.closest('.next-node-btn')) toggleHudPin()">
-      <!-- 호버 HUD 트리거 및 컴팩트 뷰 -->
-      <div id="hoverHudTrigger">
-        <span id="playerAvatar" style="font-size:18px;">⚔️</span>
-        <div class="hud-stat-inline">
-          <span style="color:#ff4466;font-size:13px;">❤</span>
-          <div class="hud-bar-mini">
-            <div class="hud-bar-mini-fill bar-hp" id="hudHpBarMini" style="width:100%"></div>
-          </div>
-          <span id="hudHpText" style="color:var(--white);">80/80</span>
+  <div id="hoverHud" class="combat-hud-container"
+    onclick="if(!event.target.closest('#hoverHudPanel') && !event.target.closest('#minimapCanvas') && !event.target.closest('.next-node-btn')) toggleHudPin()">
+    <!-- 호버 HUD 트리거 및 컴팩트 뷰 -->
+    <div id="hoverHudTrigger">
+      <span id="playerAvatar" style="font-size:18px;">⚔️</span>
+      <div class="hud-stat-inline">
+        <span style="color:#ff4466;font-size:13px;">❤</span>
+        <div class="hud-bar-mini">
+          <div class="hud-bar-mini-fill bar-hp" id="hudHpBarMini" style="width:100%"></div>
         </div>
-        <div class="hud-stat-inline">
-          <span style="color:var(--echo);font-size:13px;">⚡</span>
-          <div class="hud-bar-mini">
-            <div class="hud-bar-mini-fill bar-echo" id="hudEchoBarMini" style="width:0%"></div>
-          </div>
-          <span id="hudEchoText" style="color:var(--echo-bright);">0</span>
-        </div>
-        <div class="hud-stat-inline">
-          <span style="color:var(--gold);font-size:12px;">💰</span>
-          <span id="hudGoldText" style="color:var(--gold);">0</span>
-        </div>
-        <span class="hud-pin-indicator" title="클릭하여 고정">📌</span>
+        <span id="hudHpText" style="color:var(--white);">80/80</span>
       </div>
-      <div id="hoverHudPanel">
-        <!-- 핀 안내 문구 -->
-        <div id="hudPinHint"
-          style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.15em;color:var(--text-dim);text-align:center;margin-bottom:10px;padding:5px 8px;background:rgba(123,47,255,0.06);border-radius:6px;border:1px solid rgba(123,47,255,0.1);">
-          📌 클릭하면 고정 · 항목에 마우스를 올려 상세 정보 확인
+      <div class="hud-stat-inline">
+        <span style="color:var(--echo);font-size:13px;">⚡</span>
+        <div class="hud-bar-mini">
+          <div class="hud-bar-mini-fill bar-echo" id="hudEchoBarMini" style="width:0%"></div>
         </div>
+        <span id="hudEchoText" style="color:var(--echo-bright);">0</span>
+      </div>
+      <div class="hud-stat-inline">
+        <span style="color:var(--gold);font-size:12px;">💰</span>
+        <span id="hudGoldText" style="color:var(--gold);">0</span>
+      </div>
+      <span class="hud-pin-indicator" title="클릭하여 고정">📌</span>
+    </div>
+    <div id="hoverHudPanel">
+      <!-- 핀 안내 문구 -->
+      <div id="hudPinHint"
+        style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.15em;color:var(--text-dim);text-align:center;margin-bottom:10px;padding:5px 8px;background:rgba(123,47,255,0.06);border-radius:6px;border:1px solid rgba(123,47,255,0.1);">
+        📌 클릭하면 고정 · 항목에 마우스를 올려 상세 정보 확인
+      </div>
 
-        <div class="hud-section">
-          <div class="hud-section-title">잔향자 상태</div>
-          <div class="hud-stat-row">
-            <div class="hud-stat-label-row">
-              <span class="hud-stat-label">❤ 체력</span>
-              <span class="hud-stat-value" id="hpText">80 / 80</span>
-            </div>
-            <div class="hud-bar-track">
-              <div class="hud-bar-fill bar-hp" id="hpBar" style="width:100%"></div>
-            </div>
-            <div class="hud-stat-tip">HP가 0이 되면 사망합니다. 회복 카드·유물로 체력을 관리하세요. 저체력(30% 미만)에서 일부 유물·스킬이 활성화됩니다.</div>
+      <div class="hud-section">
+        <div class="hud-section-title">잔향자 상태</div>
+        <div class="hud-stat-row">
+          <div class="hud-stat-label-row">
+            <span class="hud-stat-label">❤ 체력</span>
+            <span class="hud-stat-value" id="hpText">80 / 80</span>
           </div>
-          <div class="hud-stat-row">
-            <div class="hud-stat-label-row">
-              <span class="hud-stat-label">🛡 방어막</span>
-              <span class="hud-stat-value" id="shieldText">0</span>
-            </div>
-            <div class="hud-bar-track">
-              <div class="hud-bar-fill bar-shield" id="shieldBar" style="width:0%"></div>
-            </div>
-            <div class="hud-stat-tip">방어막은 HP 대신 피해를 흡수합니다. 턴 종료 시 사라지므로 매 턴 갱신이 필요합니다.</div>
+          <div class="hud-bar-track">
+            <div class="hud-bar-fill bar-hp" id="hpBar" style="width:100%"></div>
           </div>
-          <div class="hud-stat-row">
-            <div class="hud-stat-label-row">
-              <span class="hud-stat-label">⚡ Echo 게이지</span>
-              <span class="hud-stat-value" id="echoText">0 / 100</span>
-            </div>
-            <div class="hud-bar-track">
-              <div class="hud-bar-fill bar-echo" id="echoBar" style="width:0%"></div>
-            </div>
-            <div class="hud-stat-tip">카드를 사용하거나 피해를 받으면 Echo가 충전됩니다. 30/60/100에서 Echo 스킬 등급이 올라갑니다. 100 도달 시 Resonance
-              Burst 보너스!</div>
-          </div>
+          <div class="hud-stat-tip">HP가 0이 되면 사망합니다. 회복 카드·유물로 체력을 관리하세요. 저체력(30% 미만)에서 일부 유물·스킬이 활성화됩니다.</div>
         </div>
+        <div class="hud-stat-row">
+          <div class="hud-stat-label-row">
+            <span class="hud-stat-label">🛡 방어막</span>
+            <span class="hud-stat-value" id="shieldText">0</span>
+          </div>
+          <div class="hud-bar-track">
+            <div class="hud-bar-fill bar-shield" id="shieldBar" style="width:0%"></div>
+          </div>
+          <div class="hud-stat-tip">방어막은 HP 대신 피해를 흡수합니다. 턴 종료 시 사라지므로 매 턴 갱신이 필요합니다.</div>
+        </div>
+        <div class="hud-stat-row">
+          <div class="hud-stat-label-row">
+            <span class="hud-stat-label">⚡ Echo 게이지</span>
+            <span class="hud-stat-value" id="echoText">0 / 100</span>
+          </div>
+          <div class="hud-bar-track">
+            <div class="hud-bar-fill bar-echo" id="echoBar" style="width:0%"></div>
+          </div>
+          <div class="hud-stat-tip">카드를 사용하거나 피해를 받으면 Echo가 충전됩니다. 30/60/100에서 Echo 스킬 등급이 올라갑니다. 100 도달 시 Resonance
+            Burst 보너스!</div>
+        </div>
+      </div>
 
-        <div class="hud-section">
-          <div class="hud-section-title">⛓ Echo Chain</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-            <div class="chain-count" id="chainCount" style="font-size:22px;">0</div>
-            <div class="chain-dots" id="chainDots">
-              <div class="chain-dot"></div>
-              <div class="chain-dot"></div>
-              <div class="chain-dot"></div>
-              <div class="chain-dot"></div>
-              <div class="chain-dot"></div>
-            </div>
-          </div>
-          <div style="font-size:10px;color:var(--text-dim);line-height:1.6;">
-            카드 사용마다 체인 +1. 5연속 달성 시 <span style="color:var(--cyan);">Resonance Burst</span> 발동 — 추가 피해+효과. 턴 종료 시 초기화.
+      <div class="hud-section">
+        <div class="hud-section-title">⛓ Echo Chain</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <div class="chain-count" id="chainCount" style="font-size:22px;">0</div>
+          <div class="chain-dots" id="chainDots">
+            <div class="chain-dot"></div>
+            <div class="chain-dot"></div>
+            <div class="chain-dot"></div>
+            <div class="chain-dot"></div>
+            <div class="chain-dot"></div>
           </div>
         </div>
-
-        <div class="hud-section">
-          <div class="hud-section-title">🌀 상태 이상</div>
-          <div id="statusEffects"><span style="font-size:11px;color:var(--text-dim);font-style:italic;">없음</span></div>
-          <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">각 배지에 마우스를 올리면 효과를 확인할 수
-            있습니다.</div>
+        <div style="font-size:10px;color:var(--text-dim);line-height:1.6;">
+          카드 사용마다 체인 +1. 5연속 달성 시 <span style="color:var(--cyan);">Resonance Burst</span> 발동 — 추가 피해+효과. 턴 종료 시 초기화.
         </div>
+      </div>
 
-        <div id="classSpecialPanel"
-          style="padding:7px;background:rgba(123,47,255,0.06);border:1px solid var(--border);border-radius:6px;display:none;margin-bottom:10px;">
-        </div>
+      <div class="hud-section">
+        <div class="hud-section-title">🌀 상태 이상</div>
+        <div id="statusEffects"><span style="font-size:11px;color:var(--text-dim);font-style:italic;">없음</span></div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">각 배지에 마우스를 올리면 효과를 확인할 수
+          있습니다.</div>
+      </div>
 
-        <div class="hud-section">
-          <div class="hud-section-title">🎒 보유 유물</div>
-          <div id="itemSlots" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;"><span
-              style="font-size:11px;color:var(--text-dim);font-style:italic;">비어있음</span></div>
-          <div id="setBonusPanel" style="margin-top:6px;display:none;"></div>
-          <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">유물에 마우스를 올리면 발동 조건과 효과를 확인할
-            수 있습니다.</div>
-        </div>
+      <div id="classSpecialPanel"
+        style="padding:7px;background:rgba(123,47,255,0.06);border:1px solid var(--border);border-radius:6px;display:none;margin-bottom:10px;">
+      </div>
 
-        <div class="hud-section">
-          <div class="hud-section-title">📊 런 정보</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:2;">
-            <div>런 <span id="runCount" style="color:var(--white);">1</span> &nbsp;·&nbsp; 처치 <span id="killCount"
-                style="color:var(--white);">0</span></div>
-            <div>골드 <span id="goldCount" style="color:var(--gold);">0</span> &nbsp;·&nbsp; <span id="playerFloor"
-                style="color:var(--text);">1층</span></div>
-          </div>
-          <div style="font-size:10px;color:var(--text-dim);margin-top:4px;line-height:1.5;">골드는 상인 노드에서 카드 업그레이드·아이템 구매에
-            사용합니다.</div>
+      <div class="hud-section">
+        <div class="hud-section-title">🎒 보유 유물</div>
+        <div id="itemSlots" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;"><span
+            style="font-size:11px;color:var(--text-dim);font-style:italic;">비어있음</span></div>
+        <div id="setBonusPanel" style="margin-top:6px;display:none;"></div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">유물에 마우스를 올리면 발동 조건과 효과를 확인할
+          수 있습니다.</div>
+      </div>
+
+      <div class="hud-section">
+        <div class="hud-section-title">📊 런 정보</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:2;">
+          <div>런 <span id="runCount" style="color:var(--white);">1</span> &nbsp;·&nbsp; 처치 <span id="killCount"
+              style="color:var(--white);">0</span></div>
+          <div>골드 <span id="goldCount" style="color:var(--gold);">0</span> &nbsp;·&nbsp; <span id="playerFloor"
+              style="color:var(--text);">1층</span></div>
         </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:4px;line-height:1.5;">골드는 상인 노드에서 카드 업그레이드·아이템 구매에
+          사용합니다.</div>
       </div>
     </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
      REWARD SCREEN

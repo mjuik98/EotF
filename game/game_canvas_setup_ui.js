@@ -35,14 +35,8 @@
         _minimapCanvas._mapOpenPatched = true;
         _minimapCanvas.style.cursor = 'pointer';
         _minimapCanvas.addEventListener('click', () => {
-          const overlay = doc.getElementById('nodeCardOverlay');
-          if (!overlay) return;
-          // 현재 보이면 숨기고, 숨겨져 있으면 updateNextNodes 호출
-          if (overlay.style.display === 'flex') {
-            overlay.style.display = 'none';
-            overlay.style.pointerEvents = 'none';
-          } else if (typeof globalObj.updateNextNodes === 'function') {
-            globalObj.updateNextNodes();
+          if (typeof globalObj.showFullMap === 'function') {
+            globalObj.showFullMap();
           }
         });
       }
