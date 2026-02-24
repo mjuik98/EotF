@@ -190,6 +190,7 @@
     },
     soul_armor: {
       id: 'soul_armor', name: '영혼 방어구', icon: '💠', cost: 2, type: 'SKILL', desc: '방어막 15, 3턴간 Echo +10/턴', rarity: 'rare',
+      image: 'card_soul_armor.png',
       effect(gs) { gs.addShield(15); gs.addBuff('soul_armor', 3, { echoRegen: 10 }); }
     },
     soul_harvest: {
