@@ -78,7 +78,23 @@
             if (gs.meta.codex) gs.meta.codex.enemies.add(eliteKey);
           }
         } else {
-          const count = gs.currentFloor <= 1 ? 1 : (Math.random() < 0.4 ? 2 : 1);
+          // 진행도에 따른 적 생성 수 동적 조정
+          let count = 1;
+          const regIdx = typeof getBaseRegionIndex === 'function' ? getBaseRegionIndex(gs.currentRegion) : gs.currentRegion;
+
+          if (gs.currentFloor > 1) {
+            if (regIdx === 0) {
+              // 1지역: 2층부터 40% 확률로 2명
+              count = Math.random() < 0.4 ? 2 : 1;
+            } else {
+              // 2지역 이상: 50% 확률로 2명, 20% 확률로 3명
+              const roll = Math.random();
+              if (roll < 0.2) count = 3;
+              else if (roll < 0.7) count = 2;
+              else count = 1;
+            }
+          }
+
           for (let i = 0; i < count; i++) {
             const enemyKey = region.enemies[Math.floor(Math.random() * region.enemies.length)];
             if (!data.enemies[enemyKey]) continue;
