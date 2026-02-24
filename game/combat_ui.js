@@ -324,11 +324,13 @@
                 labelEl = doc.createElement('div');
                 labelEl.className = 'target-label-anim';
                 labelEl.style.cssText = "";
-                labelEl.textContent = '▶ 타겟';
+                labelEl.textContent = '타겟';
                 card.prepend(labelEl);
               }
             } else {
               labelEl?.remove();
+              card.style.outline = '';
+              card.style.boxShadow = '';
             }
 
             let previewEl = card.querySelector('.enemy-dmg-preview');

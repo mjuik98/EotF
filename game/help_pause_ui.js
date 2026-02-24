@@ -47,14 +47,14 @@
           <div style="font-family:'Cinzel Decorative',serif;font-size:22px;font-weight:900;color:var(--white);margin-bottom:8px;">단축키 안내</div>
           <div style="background:rgba(16,16,46,0.8);border:1px solid var(--border);border-radius:12px;padding:20px 32px;display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;max-width:480px;width:90%;">
             ${[
-              ['ESC', '일시정지 (전투 외)'],
-              ['D', '덱 보기'],
-              ['?', '이 안내 열기'],
-              ['E', 'Echo 스킬 발동 (전투 중)'],
-              ['Enter', '턴 종료 (전투 중)'],
-              ['1 - 5', '손패 카드 빠른 사용'],
-              ['Tab', '다음 적 타겟 순환'],
-            ].map(([k, v]) => `
+            ['ESC', '일시정지 (전투 외)'],
+            ['D', '덱 보기'],
+            ['?', '이 안내 열기'],
+            ['E', 'Echo 스킬 발동 (전투 중)'],
+            ['Enter', '턴 종료 (전투 중)'],
+            ['1 - 0', '손패 카드 빠른 사용'],
+            ['Tab', '다음 적 타겟 순환'],
+          ].map(([k, v]) => `
               <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(0,255,204,0.07);border:1px solid rgba(0,255,204,0.15);border-radius:4px;padding:3px 8px;text-align:center;">${k}</div>
               <div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${v}</div>
             `).join('')}
@@ -215,9 +215,9 @@
         }
 
         if (_isInGame(gs) && gs.combat.active && gs.combat.playerTurn) {
-          const num = parseInt(e.key, 10);
-          if (num >= 1 && num <= 5) {
-            const idx = num - 1;
+          const numKey = e.key === '0' ? 10 : parseInt(e.key, 10);
+          if (!isNaN(numKey) && numKey >= 1 && numKey <= 10) {
+            const idx = numKey - 1;
             if (gs.player.hand[idx] && typeof gs.playCard === 'function') {
               gs.playCard(gs.player.hand[idx], idx);
             }

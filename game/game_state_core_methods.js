@@ -276,10 +276,13 @@
     spawnEnemy() {
       const region = getRegionData(this.currentRegion, this);
       if (!region) return;
-      const eKey = region.enemies[Math.floor(Math.random() * region.enemies.length)];
+
+      const pool = (this.currentFloor <= 1 && region.strongEnemies) ? region.enemies : [...region.enemies, ...(region.strongEnemies || [])];
+      const eKey = pool[Math.floor(Math.random() * pool.length)];
       const eData = DATA.enemies[eKey];
       if (eData && this.combat.enemies.length < 3) {
-        this.combat.enemies.push(DifficultyScaler.scaleEnemy({ ...eData, statusEffects: {} }, this));
+        // DifficultyScaler.scaleEnemy(enemy, gs, runCount, region, floor) 순서에 맞춰 현재 층 전달
+        this.combat.enemies.push(DifficultyScaler.scaleEnemy({ ...eData, statusEffects: {} }, this, undefined, undefined, this.currentFloor));
         renderCombatEnemies();
         // 플레이어 턴 중 소환된 경우 버튼 활성화 상태 유지
         if (this.combat.playerTurn) {

@@ -852,7 +852,8 @@
   regions: [
     {
       id: 0, name: '잔향의 숲', rule: '기본 규칙', ruleDesc: '잔향의 힘이 깨어나는 곳', quote: '"기억은 언제나 숲으로 돌아온다."', floors: 4,
-      enemies: ['shadow_wolf', 'forest_wraith', 'fallen_knight', 'moss_golem', 'echo_bat'],
+      enemies: ['shadow_wolf', 'forest_wraith', 'echo_bat'],
+      strongEnemies: ['fallen_knight', 'moss_golem'],
       elites: ['elite_dire_wolf', 'elite_ancient_tree'],
       boss: ['ancient_echo']
     },
@@ -902,7 +903,13 @@
       desc: '고대 사당 앞에 잔향 에너지가 모여 있다.',
       choices: [
         { text: '❤️ 체력을 제물로 (HP -10 → Echo +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return 'Echo 게이지가 타오른다.'; } },
-        { text: '💰 골드를 제물로 (15골드 → HP +20)', effect(gs) { if (gs.player.gold >= 15) { gs.player.gold -= 15; gs.heal(20); return '신성한 치유의 빛이 감쌌다.'; } return '골드가 부족하다.'; } },
+        {
+          text: '💰 골드를 제물로 (15골드 → HP +20)', effect(gs) {
+            if (gs.player.hp >= gs.player.maxHp) return '이미 체력이 가득 차 있습니다.';
+            if (gs.player.gold >= 15) { gs.player.gold -= 15; gs.heal(20); return '신성한 치유의 빛이 감쌌다.'; }
+            return '골드가 부족하다.';
+          }
+        },
         { text: '🚶 통과한다', effect(gs) { return '사당을 지나쳤다.'; } },
       ]
     },
@@ -945,7 +952,13 @@
       id: 'echo_vendor', layer: 1, title: 'Echo 자판기', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '낡은 자판기가 벽에 기대어 있다. "잔향 에너지 교환"이라고 적혀 있다.',
       choices: [
-        { text: '💊 체력 회복 (골드 10 → HP 15)', effect(gs) { if (gs.player.gold >= 10) { gs.player.gold -= 10; gs.heal(15); return '체력이 회복됐다.'; } return '골드가 부족하다.'; } },
+        {
+          text: '💊 체력 회복 (골드 10 → HP 15)', effect(gs) {
+            if (gs.player.hp >= gs.player.maxHp) return '이미 체력이 가득 차 있습니다.';
+            if (gs.player.gold >= 10) { gs.player.gold -= 10; gs.heal(15); return '체력이 회복됐다.'; }
+            return '골드가 부족하다.';
+          }
+        },
         { text: '⚡ Echo 구매 (골드 8 → Echo 30)', effect(gs) { if (gs.player.gold >= 8) { gs.player.gold -= 8; gs.addEcho(30); return 'Echo가 충전됐다.'; } return '골드가 부족하다.'; } },
         { text: '🃏 카드 구매 (골드 15 → 랜덤 카드)', effect(gs) { if (gs.player.gold >= 15) { gs.player.gold -= 15; const c = gs.getRandomCard('uncommon'); gs.player.deck.push(c); AudioEngine.playItemGet(); return `${DATA.cards[c]?.name} 카드를 얻었다.`; } return '골드가 부족하다.'; } },
         { text: '🚶 지나친다', effect() { return null; } },
