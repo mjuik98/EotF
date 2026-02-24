@@ -22,12 +22,12 @@
       reverbNode.gain.value = 0.2;
       convolver.connect(reverbNode);
       reverbNode.connect(masterGain);
-    } catch(e) {}
+    } catch (e) { }
   }
 
   function resume() { if (ctx?.state === 'suspended') ctx.resume(); }
 
-  function tone(freq, dur, type='sine', gain=0.2, detune=0) {
+  function tone(freq, dur, type = 'sine', gain = 0.2, detune = 0) {
     if (!ctx) return;
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
@@ -40,11 +40,11 @@
     osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur);
   }
 
-  function chord(freqs, dur, type='sine', gain=0.12) {
+  function chord(freqs, dur, type = 'sine', gain = 0.12) {
     freqs.forEach((f, i) => tone(f, dur, type, gain, i * 5));
   }
 
-  function playHit()  { tone(180, 0.15, 'square', 0.15); tone(120, 0.2, 'sawtooth', 0.1); }
+  function playHit() { tone(180, 0.15, 'square', 0.15); tone(120, 0.2, 'sawtooth', 0.1); }
   // 강타 - 크고 묵직한 타격음
   function playHeavyHit() {
     tone(90, 0.05, 'square', 0.3);
@@ -65,8 +65,19 @@
     setTimeout(() => chord([523, 659], 0.3, 'sine', 0.1), 100);
   }
   function playCard() { tone(440, 0.12, 'sine', 0.1); tone(550, 0.08, 'sine', 0.07); }
+  // 스킬(방어/버프) 카드 사운드 — 부드러운 상승음
+  function playSkill() {
+    tone(330, 0.15, 'sine', 0.12);
+    setTimeout(() => tone(440, 0.12, 'sine', 0.1), 60);
+    setTimeout(() => tone(550, 0.18, 'sine', 0.08), 120);
+  }
+  // Echo/Power 카드 사운드 — 신비로운 반짝임
+  function playEcho() {
+    chord([392, 523, 659], 0.35, 'sine', 0.08);
+    setTimeout(() => tone(784, 0.25, 'sine', 0.06, 10), 80);
+  }
   function playHeal() { chord([523, 659, 784], 0.5, 'sine', 0.1); }
-  function playDeath(){ chord([110, 138, 165], 1.5, 'sawtooth', 0.2); }
+  function playDeath() { chord([110, 138, 165], 1.5, 'sawtooth', 0.2); }
   function playItemGet() { chord([523, 659, 784, 1047], 0.8, 'sine', 0.12); }
   function playBossPhase() { chord([110, 146, 220, 293], 1.2, 'sawtooth', 0.25); tone(55, 1.5, 'sine', 0.3); }
 
@@ -89,7 +100,7 @@
 
   function startAmbient(regionIdx) {
     if (!ctx) return;
-    if (ambientOsc) { try { ambientOsc.stop(); } catch(e) {} ambientOsc = null; }
+    if (ambientOsc) { try { ambientOsc.stop(); } catch (e) { } ambientOsc = null; }
     ambientStarted = false;
     const freqs = ambientFreqs[regionIdx] || ambientFreqs[0];
     const osc = ctx.createOscillator();
@@ -109,15 +120,15 @@
 
   function playFootstep() { tone(80 + Math.random() * 40, 0.1, 'square', 0.05); }
 
-  function setVolume(v) { if(masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
+  function setVolume(v) { if (masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
 
   // 클래스 선택 시 고유 사운드
   function playClassSelect(cls) {
-    switch(cls) {
+    switch (cls) {
       case 'swordsman': // 검: 금속 강타
         tone(220, 0.07, 'square', 0.18);
         setTimeout(() => tone(440, 0.12, 'square', 0.13), 70);
-        setTimeout(() => tone(330, 0.25, 'sine',  0.08), 150);
+        setTimeout(() => tone(330, 0.25, 'sine', 0.08), 150);
         break;
       case 'mage': // 마법: 신비로운 화음
         chord([523, 659, 784], 0.4, 'sine', 0.09);
@@ -126,7 +137,7 @@
       case 'hunter': // 사냥꾼: 날카롭고 짧은 음
         tone(880, 0.05, 'sawtooth', 0.14);
         setTimeout(() => tone(660, 0.07, 'sawtooth', 0.10), 55);
-        setTimeout(() => tone(440, 0.18, 'sine',     0.07), 110);
+        setTimeout(() => tone(440, 0.18, 'sine', 0.07), 110);
         break;
       default:
         playCard();
@@ -135,18 +146,20 @@
 
   function playLegendary() {
     // 저음 베이스 → 상승 아르페지오 → 마지막 화음
-    tone(55,  1.8, 'sawtooth', 0.18);
-    tone(110, 1.4, 'sine',     0.12);
-    [261,329,392,523,659,784,1047,1319].forEach((f,i) => {
-      setTimeout(() => tone(f, 0.5, 'sine', 0.12 - i*0.008), i * 80);
+    tone(55, 1.8, 'sawtooth', 0.18);
+    tone(110, 1.4, 'sine', 0.12);
+    [261, 329, 392, 523, 659, 784, 1047, 1319].forEach((f, i) => {
+      setTimeout(() => tone(f, 0.5, 'sine', 0.12 - i * 0.008), i * 80);
     });
-    setTimeout(() => chord([523,659,784,1047,1319], 1.2, 'sine', 0.1), 700);
+    setTimeout(() => chord([523, 659, 784, 1047, 1319], 1.2, 'sine', 0.1), 700);
   }
 
-  return { init, resume, playHit, playHeavyHit, playPlayerHit, playCritical,
-           playCard, playHeal, playDeath, playItemGet,
-           playBossPhase, playChain, playResonanceBurst, startAmbient, playFootstep,
-           setVolume, playClassSelect, playLegendary };
+  return {
+    init, resume, playHit, playHeavyHit, playPlayerHit, playCritical,
+    playCard, playSkill, playEcho, playHeal, playDeath, playItemGet,
+    playBossPhase, playChain, playResonanceBurst, startAmbient, playFootstep,
+    setVolume, playClassSelect, playLegendary
+  };
 })();
 
 // ────────────────────────────────────────

@@ -94,6 +94,15 @@
       const flashColor = isAtk ? 'rgba(255,51,102,0.8)' : isHeal ? 'rgba(68,255,136,0.8)' : 'rgba(0,255,204,0.8)';
       const textColor = isAtk ? 'var(--danger)' : isHeal ? '#44ff88' : 'var(--cyan)';
 
+      // 카드 타입별 효과음
+      const ae = deps.audioEngine;
+      if (ae) {
+        if (isAtk) ae.playHit?.();
+        else if (isHeal) ae.playSkill?.();
+        else if (isEcho) ae.playEcho?.();
+        else ae.playCard?.();
+      }
+
       const el = doc.createElement('div');
       el.className = `card-flash-overlay ${flashClass}`;
       overlay.appendChild(el);

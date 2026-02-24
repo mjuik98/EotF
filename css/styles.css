@@ -452,7 +452,7 @@ body {
   position: fixed;
   top: 14px;
   left: 14px;
-  z-index: 235;
+  z-index: 250;
   pointer-events: auto;
 }
 
