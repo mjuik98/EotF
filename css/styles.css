@@ -2147,6 +2147,24 @@ body:has(#combatOverlay.active) .panel-bottom {
   }
 }
 
+/* 타겟 라벨 애니메이션 */
+@keyframes floatLabel {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.target-label-anim {
+  animation: floatLabel 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+
 #turnBanner {
   position: fixed;
   top: 42%;
@@ -2728,10 +2746,20 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .enemy-sprite {
-  font-size: 64px;
-  display: block;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 0 12px rgba(123, 47, 255, 0.3));
+  font-size: 32px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 10px rgba(123, 47, 255, 0.3));
+  transition: transform 0.2s;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.enemy-sprite img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .enemy-name {

@@ -74,22 +74,26 @@
       }, 700);
     },
 
-    enemyTurn(deps = {}) {
+    async enemyTurn(deps = {}) {
       const gs = deps.gs || globalObj.GS;
       if (!gs?.combat?.active) return;
 
       gs.combat.turn++;
       this.processEnemyStatusTicks(deps);
 
-      gs.combat.enemies.forEach((enemy, index) => {
-        if (enemy.hp <= 0) return;
+      for (let index = 0; index < gs.combat.enemies.length; index++) {
+        const enemy = gs.combat.enemies[index];
+        if (enemy.hp <= 0) continue;
+
+        await new Promise(r => setTimeout(r, 800));
+        if (!gs.combat.active) return;
 
         if (enemy.statusEffects?.stunned > 0) {
           enemy.statusEffects.stunned--;
           if (enemy.statusEffects.stunned <= 0) delete enemy.statusEffects.stunned;
           gs.addLog?.(`🌀 ${enemy.name}: 기절 상태!`, 'echo');
           deps.renderCombatEnemies?.();
-          return;
+          continue;
         }
 
         let action;
@@ -114,7 +118,8 @@
             delete gs.player.buffs.mirror;
             if (enemy.hp <= 0) {
               gs.onEnemyDeath?.(enemy, index);
-              return;
+              deps.renderCombatEnemies?.();
+              continue;
             }
           } else {
             gs.takeDamage(dmg);
@@ -131,48 +136,45 @@
 
         this.handleEnemyEffect(action.effect, enemy, index, deps);
         deps.renderCombatEnemies?.();
+      }
+
+      // 모든 적 행동 종료 후 플레이어 턴으로 전환
+      await new Promise(r => setTimeout(r, 600));
+      if (!gs.combat.active) return;
+
+      ENEMY_TURN_BUFFS.forEach(buffId => {
+        const buff = gs.player.buffs?.[buffId];
+        if (!buff || !Number.isFinite(buff.stacks)) return;
+        buff.stacks--;
+        if (buff.stacks <= 0) delete gs.player.buffs[buffId];
       });
 
-      setTimeout(() => {
-        if (!gs.combat.active) return;
+      gs.combat.playerTurn = true;
+      gs.player.energy = gs.player.maxEnergy;
+      gs.player.shield = 0;
+      gs.drawCards(5);
 
-        ENEMY_TURN_BUFFS.forEach(buffId => {
-          const buff = gs.player.buffs?.[buffId];
-          if (!buff || !Number.isFinite(buff.stacks)) return;
-          buff.stacks--;
-          if (buff.stacks <= 0) delete gs.player.buffs[buffId];
-        });
+      if (typeof this.processPlayerStatusTicks === 'function' && !this.processPlayerStatusTicks(deps)) return;
 
-        gs.combat.playerTurn = true;
-        gs.player.energy = gs.player.maxEnergy;
-        gs.player.shield = 0;
-        gs.drawCards(5);
-        deps.renderCombatCards?.();
+      gs.addLog?.('─── 새 턴 ───', 'system');
+      globalObj.RunRules?.onTurnStart?.(gs);
+      gs.triggerItems?.('turn_start');
 
-        if (!this.processPlayerStatusTicks(deps)) return;
+      const doc = _getDoc(deps);
+      const turnIndicator = doc.getElementById('turnIndicator');
+      if (turnIndicator) {
+        turnIndicator.className = 'turn-indicator turn-player';
+        turnIndicator.textContent = '플레이어 턴';
+      }
+      deps.showTurnBanner?.('player');
+      doc.querySelectorAll('.action-btn').forEach(btn => {
+        btn.disabled = false;
+        btn.style.pointerEvents = '';
+      });
 
-        gs.addLog?.('─── 새 턴 ───', 'system');
-        deps.runRules?.onTurnStart?.(gs);
-        gs.triggerItems?.(Trigger.TURN_START);
-        if (!gs.combat.active || gs.player.hp <= 0) return;
-
-        const doc = _getDoc(deps);
-        const turnIndicator = doc.getElementById('turnIndicator');
-        if (turnIndicator) {
-          turnIndicator.className = 'turn-indicator turn-player';
-          turnIndicator.textContent = '플레이어 턴';
-        }
-        deps.showTurnBanner?.('player');
-        doc.querySelectorAll('.action-btn').forEach(btn => {
-          btn.disabled = false;
-          btn.style.pointerEvents = '';
-        });
-
-        deps.renderCombatCards?.();
-        deps.updateStatusDisplay?.();
-        deps.updateClassSpecialUI?.();
-        deps.updateUI?.();
-      }, 800);
+      deps.renderCombatCards?.();
+      deps.renderCombatEnemies?.();
+      if (typeof globalObj.updateUI === 'function') globalObj.updateUI();
     },
 
     processEnemyStatusTicks(deps = {}) {

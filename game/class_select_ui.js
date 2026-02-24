@@ -35,7 +35,15 @@
 
       const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
       const avatarEl = doc.getElementById('playerAvatar');
-      if (avatarEl) avatarEl.textContent = icons[_selectedClass] || '⚔️';
+      if (avatarEl) {
+        const data = deps.data || globalObj.DATA;
+        const avatarFile = data?.assets?.avatars?.[_selectedClass];
+        if (avatarFile) {
+          avatarEl.innerHTML = `<img src="assets/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;">`;
+        } else {
+          avatarEl.textContent = icons[_selectedClass] || '⚔️';
+        }
+      }
 
       btn.style.transition = 'transform 0.15s ease';
       btn.style.transform = 'scale(1.04) translateY(-4px)';

@@ -150,6 +150,14 @@
       setText('hudEchoText', Math.floor(p.echo));
       setText('hudGoldText', p.gold);
 
+      const avatarEl = doc.getElementById('playerAvatar');
+      if (avatarEl && p.class) {
+        const avatarFile = data?.assets?.avatars?.[p.class];
+        if (avatarFile && !avatarEl.querySelector('img')) {
+          avatarEl.innerHTML = `<img src="assets/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;">`;
+        }
+      }
+
       const shieldTrigger = doc.getElementById('hudShieldTrigger');
       if (shieldTrigger) {
         shieldTrigger.style.opacity = p.shield > 0 ? '1' : '0.3';

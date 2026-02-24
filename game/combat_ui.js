@@ -254,8 +254,10 @@
             <div class="enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}" id="enemy_${i}"
               style="${deadStyle}${selStyle}cursor:${e.hp > 0 ? 'pointer' : 'default'};"
               onclick="${e.hp > 0 ? `${selectTargetHandlerName}(${i})` : ''}">
-              ${isSelected ? '<div style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:3px;text-align:center;">▶ 타겟</div>' : ''}
-              <div class="enemy-sprite" id="enemy_sprite_${i}">${e.icon || '👾'}</div>
+              ${isSelected ? '<div class="target-label-anim" style="font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:3px;text-align:center;">▶ 타겟</div>' : ''}
+              <div class="enemy-sprite" id="enemy_sprite_${i}">
+                ${e.image ? `<img src="assets/${e.image}" alt="${e.name}">` : (e.icon || '👾')}
+              </div>
               <div class="enemy-name">${e.name}${e.isBoss ? ` <span style="color:var(--gold)">✦ P${e.phase || 1}</span>` : ''}</div>
               ${bossPhaseBar}
               <div id="enemy_hptext_${i}" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">${e.hp} / ${e.maxHp}${e.shield ? ` 🛡️${e.shield}` : ''}</div>
