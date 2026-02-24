@@ -92,7 +92,7 @@
           ${locationTag}
           <div style="font-size:22px;margin:16px 0 4px;">${card.icon}</div>
           <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:var(--white);text-align:center;margin-bottom:3px;line-height:1.2;">${card.name}</div>
-          <div style="font-size:9px;color:var(--text-dim);text-align:center;line-height:1.3;flex:1;">${card.desc}</div>
+          <div style="font-size:9px;color:var(--text-dim);text-align:center;line-height:1.3;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
           <div style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.1em;color:${card.upgraded ? 'var(--cyan)' : typeColor};margin-top:4px;">${card.upgraded ? '✦ 강화됨' : card.type}</div>
         </div>`;
       }).join('');

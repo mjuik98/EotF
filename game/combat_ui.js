@@ -62,13 +62,20 @@
   }
 
   function _formatIntentLabel(intent) {
-    const text = String(intent?.intent || '?');
-    if (!(intent?.dmg > 0)) return text;
-    const m = text.match(/^(.*)\s+(\d+)$/);
-    if (!m) return text;
-    const tail = Number(m[2]);
-    if (!Number.isFinite(tail) || tail !== Number(intent.dmg)) return text;
-    return m[1].trim() || text;
+    let text = String(intent?.intent || '?');
+    if (intent?.dmg > 0) {
+      // 숫자만 있는 경우(데미지만 있는 경우) 빈 문자열 반환 (아이콘과 큰 데미지 숫자가 대체)
+      if (/^\d+$/.test(text.trim())) return '';
+
+      // "공격 20" 형태에서 숫자 제거 (데미지가 하단에 크게 표시되므로)
+      const dmgPattern = new RegExp(`\\s+${intent.dmg}$`);
+      if (dmgPattern.test(text)) {
+        text = text.replace(dmgPattern, '').trim();
+      }
+    }
+
+    // 유틸리티를 사용하여 키워드 하이라이트 적용 (innerHTML로 사용될 예정)
+    return globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(text) : text;
   }
 
   function _resolveIntentDescription(intent) {
@@ -164,7 +171,7 @@
       el.innerHTML = `
         <div class="itt-title">${icon} ${label}</div>
         <div class="itt-type">— ${descInfo.type} —</div>
-        <div class="itt-desc">${descInfo.desc}</div>
+        <div class="itt-desc">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(descInfo.desc) : descInfo.desc}</div>
         ${intent.dmg > 0 ? `<div class="itt-dmg">💢 예상 피해: <strong>${intent.dmg}</strong></div>` : ''}
       `;
 

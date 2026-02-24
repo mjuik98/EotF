@@ -28,7 +28,7 @@
       gs.currentFloor = node.floor;
       const isCombatNode = node.type === 'combat' || node.type === 'elite' || node.type === 'boss';
       if (gs.currentFloor !== prevFloor) {
-        gs.triggerItems?.('floor_start', { floor: gs.currentFloor });
+        gs.triggerItems?.(Trigger.FLOOR_START, { floor: gs.currentFloor });
       }
 
       if (gs.player.class === 'swordsman') {

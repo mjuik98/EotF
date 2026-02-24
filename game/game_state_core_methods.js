@@ -40,12 +40,12 @@
       }
 
       // 유물/세트 보너스 피해 보정
-      const itemScaled = this.triggerItems('deal_damage', dmg);
+      const itemScaled = this.triggerItems(Trigger.DEAL_DAMAGE, dmg);
       if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
         dmg = Math.max(0, Math.floor(itemScaled));
       }
       if (this.player.echoChain > 0) {
-        const chainScaled = this.triggerItems('chain_dmg', dmg);
+        const chainScaled = this.triggerItems(Trigger.CHAIN_DMG, dmg);
         if (typeof chainScaled === 'number' && Number.isFinite(chainScaled)) {
           dmg = Math.max(0, Math.floor(chainScaled));
         }
@@ -170,7 +170,7 @@
         this.player.shield -= blocked; dmg -= blocked;
         if (blocked > 0) this.addLog(`🛡️ 방어막 ${blocked} 흡수`, 'system');
       }
-      const triggerResult = this.triggerItems('damage_taken', dmg);
+      const triggerResult = this.triggerItems(Trigger.DAMAGE_TAKEN, dmg);
       if (triggerResult === true) {
         dmg = 0;
         this.addLog('🛡️ 피해 무효!', 'echo');
@@ -390,7 +390,7 @@
         globalObj.TooltipUI.hideTooltip({ doc: document });
       }
 
-      this.triggerItems('card_play', { cardId });
+      this.triggerItems(Trigger.CARD_PLAY, { cardId });
       // 도감 등록
       if (this.meta.codex) this.meta.codex.cards.add(cardId);
       // ── 카드 사용 시각 효과 ──
@@ -403,7 +403,7 @@
       } else {
         this.player.graveyard.push(cardId);
       }
-      this.triggerItems('card_discard', { cardId });
+      this.triggerItems(Trigger.CARD_DISCARD, { cardId });
       // ── 모든 적 처치 체크 (카드 사용 후 즉시) ──
       if (this.combat.active) {
         const alive = this.combat.enemies.filter(e => e.hp > 0);
@@ -478,7 +478,7 @@
       this.addGold(goldGained);
       AudioEngine.playHit();
       this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
-      this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
+      this.triggerItems(Trigger.ENEMY_KILL, { enemy, idx, gold: goldGained });
       // 죽은 적이 현재 타겟이면 다음 살아있는 적으로 자동 전환
       if (this._selectedTarget === idx) {
         const nextAlive = this.combat.enemies.findIndex((e, i) => i !== idx && e.hp > 0);
@@ -611,7 +611,7 @@
         this._maskCount = 0;
         this._batteryUsedTurn = false;
         this._temporalTurn = 0;
-        this.triggerItems('combat_end');
+        this.triggerItems(Trigger.COMBAT_END);
         this.triggerItems('void_shard');
         // UI 즉시 반영
         updateChainUI(0);
@@ -668,7 +668,7 @@
       AudioEngine.playResonanceBurst();
       ScreenShake.shake(15, 0.8);
       let burstDmg = 35 + Math.floor(this.player.echo / 3);
-      const burstMod = this.triggerItems('resonance_burst', burstDmg);
+      const burstMod = this.triggerItems(Trigger.RESONANCE_BURST, burstDmg);
       if (burstMod === true) {
         burstDmg = Math.floor(burstDmg * 2);
       } else if (typeof burstMod === 'number' && Number.isFinite(burstMod)) {

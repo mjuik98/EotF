@@ -4,14 +4,6 @@
   const SAVE_KEY = 'echo_fallen_save';
   const META_KEY = 'echo_fallen_meta';
 
-  function _getStorage() {
-    try {
-      return globalObj.localStorage;
-    } catch (e) {
-      return null;
-    }
-  }
-
   function _getDoc(deps) {
     return deps?.doc || document;
   }
@@ -25,9 +17,8 @@
     META_KEY,
 
     saveMeta(deps = {}) {
-      const storage = _getStorage();
       const gs = _getGS(deps);
-      if (!storage || !gs?.meta) return;
+      if (!gs?.meta) return;
 
       try {
         const meta = { ...gs.meta };
@@ -38,19 +29,17 @@
             items: [...meta.codex.items],
           };
         }
-        storage.setItem(this.META_KEY, JSON.stringify(meta));
+        SaveAdapter.save(this.META_KEY, meta);
       } catch (e) { }
     },
 
     loadMeta(deps = {}) {
-      const storage = _getStorage();
       const gs = _getGS(deps);
-      if (!storage || !gs?.meta) return;
+      if (!gs?.meta) return;
 
       try {
-        const raw = storage.getItem(this.META_KEY);
-        if (raw) {
-          const data = JSON.parse(raw);
+        const data = SaveAdapter.load(this.META_KEY);
+        if (data) {
           if (data.codex) {
             data.codex = {
               enemies: new Set(data.codex.enemies || []),
@@ -77,9 +66,8 @@
     },
 
     saveRun(deps = {}) {
-      const storage = _getStorage();
       const gs = _getGS(deps);
-      if (!storage || !gs?.player) return;
+      if (!gs?.player) return;
 
       const isGameStarted = typeof deps.isGameStarted === 'function' ? deps.isGameStarted() : true;
       if (!isGameStarted) return;
@@ -102,19 +90,16 @@
           worldMemory: gs.worldMemory,
           ts: Date.now(),
         };
-        storage.setItem(this.SAVE_KEY, JSON.stringify(save));
+        SaveAdapter.save(this.SAVE_KEY, save);
       } catch (e) { }
     },
 
     loadRun(deps = {}) {
-      const storage = _getStorage();
       const gs = _getGS(deps);
-      if (!storage || !gs) return false;
+      if (!gs) return false;
 
       try {
-        const raw = storage.getItem(this.SAVE_KEY);
-        if (!raw) return false;
-        const data = JSON.parse(raw);
+        const data = SaveAdapter.load(this.SAVE_KEY);
         if (!data || !data.player) return false;
 
         Object.assign(gs.player, data.player);
@@ -138,21 +123,11 @@
     },
 
     hasSave() {
-      const storage = _getStorage();
-      if (!storage) return false;
-      try {
-        return !!storage.getItem(this.SAVE_KEY);
-      } catch (e) {
-        return false;
-      }
+      return SaveAdapter.has(this.SAVE_KEY);
     },
 
     clearSave() {
-      const storage = _getStorage();
-      if (!storage) return;
-      try {
-        storage.removeItem(this.SAVE_KEY);
-      } catch (e) { }
+      SaveAdapter.remove(this.SAVE_KEY);
     },
 
     showSaveBadge(deps = {}) {
@@ -169,3 +144,4 @@
 
   globalObj.SaveSystem = SaveSystem;
 })(window);
+

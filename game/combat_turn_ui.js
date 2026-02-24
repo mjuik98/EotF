@@ -152,7 +152,7 @@
 
         gs.addLog?.('─── 새 턴 ───', 'system');
         deps.runRules?.onTurnStart?.(gs);
-        gs.triggerItems?.('turn_start');
+        gs.triggerItems?.(Trigger.TURN_START);
         if (!gs.combat.active || gs.player.hp <= 0) return;
 
         const doc = _getDoc(deps);

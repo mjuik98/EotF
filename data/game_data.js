@@ -26,7 +26,7 @@
       effect(gs) { gs.dealDamage(8); AudioEngine.playChain(gs.player.echoChain); }
     },
     strike_plus: {
-      id: 'strike_plus', name: '강타+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '13 피해 + Echo 5', rarity: 'common', upgraded: true,
+      id: 'strike_plus', name: '강타+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '13 피해, Echo +5', rarity: 'common', upgraded: true,
       effect(gs) { gs.dealDamage(13); gs.addEcho(5); AudioEngine.playChain(gs.player.echoChain); }
     },
     defend: {
@@ -38,19 +38,19 @@
       effect(gs) { gs.addShield(10); }
     },
     echo_strike: {
-      id: 'echo_strike', name: '잔향 강타', icon: '💥', cost: 2, type: 'ATTACK', desc: '12 피해 + Echo 20', rarity: 'common',
+      id: 'echo_strike', name: '잔향 강타', icon: '💥', cost: 2, type: 'ATTACK', desc: '12 피해, Echo +20', rarity: 'common',
       effect(gs) { gs.dealDamage(12); gs.addEcho(20); }
     },
     echo_strike_plus: {
-      id: 'echo_strike_plus', name: '잔향 강타+', icon: '💥', cost: 1, type: 'ATTACK', desc: '15 피해 + Echo 30', rarity: 'common', upgraded: true,
+      id: 'echo_strike_plus', name: '잔향 강타+', icon: '💥', cost: 1, type: 'ATTACK', desc: '15 피해, Echo +30', rarity: 'common', upgraded: true,
       effect(gs) { gs.dealDamage(15); gs.addEcho(30); }
     },
     quick_step: {
-      id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 3 + Echo 10', rarity: 'common',
+      id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 3, Echo +10', rarity: 'common',
       effect(gs) { gs.addShield(3); gs.addEcho(10); }
     },
     quick_step_plus: {
-      id: 'quick_step_plus', name: '잔영 이동+', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 6 + Echo 20 + 드로우', rarity: 'common', upgraded: true,
+      id: 'quick_step_plus', name: '잔영 이동+', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 6, Echo +20, 1장 드로우', rarity: 'common', upgraded: true,
       effect(gs) { gs.addShield(6); gs.addEcho(20); gs.drawCards(1); }
     },
     heavy_blow: {
@@ -66,7 +66,7 @@
       effect(gs) { gs.dealDamageAll(8); }
     },
     echo_wave_plus: {
-      id: 'echo_wave_plus', name: '잔향파+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 적에게 14 피해 + Echo 15', rarity: 'uncommon', upgraded: true,
+      id: 'echo_wave_plus', name: '잔향파+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 14 피해, Echo +15', rarity: 'uncommon', upgraded: true,
       effect(gs) { gs.dealDamageAll(14); gs.addEcho(15); }
     },
     resonance: {
@@ -98,7 +98,7 @@
       effect(gs) { gs.addShield(Math.floor(gs.player.echo / 5)); }
     },
     echo_shield_plus: {
-      id: 'echo_shield_plus', name: '잔향 방벽+', icon: '🔵', cost: 1, type: 'SKILL', desc: '방어막 (Echo/4) + Echo 10', rarity: 'uncommon', upgraded: true,
+      id: 'echo_shield_plus', name: '잔향 방벽+', icon: '🔵', cost: 1, type: 'SKILL', desc: '방어막 (Echo/4), Echo +10', rarity: 'uncommon', upgraded: true,
       effect(gs) { gs.addShield(Math.floor(gs.player.echo / 4)); gs.addEcho(10); }
     },
     // 잔향검사
@@ -107,7 +107,7 @@
       effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 4 }); }
     },
     momentum_plus: {
-      id: 'momentum_plus', name: '가속+', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +8 + Echo 10', rarity: 'common', upgraded: true,
+      id: 'momentum_plus', name: '가속+', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +8, Echo +10', rarity: 'common', upgraded: true,
       effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 8 }); gs.addEcho(10); }
     },
     charge: {
@@ -119,11 +119,11 @@
       effect(gs) { const m = gs.getBuff('momentum'); gs.addShield(4 + (m ? m.dmgBonus : 0)); }
     },
     phantom_blade: {
-      id: 'phantom_blade', name: '환영 검', icon: '🌀', cost: 2, type: 'ATTACK', desc: '10 피해 × 2 (2번째 크리)', rarity: 'uncommon',
+      id: 'phantom_blade', name: '환영 검', icon: '🌀', cost: 2, type: 'ATTACK', desc: '10 피해 × 2 (2번째 치명타)', rarity: 'uncommon',
       effect(gs) { gs.dealDamage(10); gs.addBuff('vanish', 1, {}); gs.dealDamage(10); }
     },
     echo_dance: {
-      id: 'echo_dance', name: '잔향의 춤', icon: '💃', cost: 3, type: 'ATTACK', desc: '6 피해 × 4 + Echo +8씩', rarity: 'rare',
+      id: 'echo_dance', name: '잔향의 춤', icon: '💃', cost: 3, type: 'ATTACK', desc: '6 피해 × 4, 회당 Echo +8', rarity: 'rare',
       image: 'card_echo_dance.png',
       effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, 0, true); gs.addEcho(8); } gs.dealDamage(6); gs.addEcho(8); }
     },
@@ -133,7 +133,7 @@
       effect(gs) { gs.applyEnemyStatus('weakened', 1); }
     },
     foresight_plus: {
-      id: 'foresight_plus', name: '예지+', icon: '👁️', cost: 0, type: 'SKILL', desc: '다음 적 행동 약화 50% (비용 0)', rarity: 'common', upgraded: true,
+      id: 'foresight_plus', name: '예지+', icon: '👁️', cost: 0, type: 'SKILL', desc: '약화 50%, Echo +10', rarity: 'common', upgraded: true,
       effect(gs) { gs.applyEnemyStatus('weakened', 1); gs.addEcho(10); }
     },
     counter: {
@@ -149,12 +149,12 @@
       effect(gs) { gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🪞 반사 준비', 'echo'); }
     },
     arcane_storm: {
-      id: 'arcane_storm', name: '비전 폭풍', icon: '🌩️', cost: 3, type: 'ATTACK', desc: '전체 14 피해 + Chain +2', rarity: 'rare',
+      id: 'arcane_storm', name: '비전 폭풍', icon: '🌩️', cost: 3, type: 'ATTACK', desc: '전체 14 피해, Chain +2', rarity: 'rare',
       image: 'card_arcane_storm.png',
       effect(gs) { gs.dealDamageAll(14); gs.player.echoChain += 2; gs.updateChainDisplay(); }
     },
     prediction: {
-      id: 'prediction', name: '예언', icon: '🔭', cost: 0, type: 'SKILL', desc: '카드 2장 드로우 + Echo +15', rarity: 'common',
+      id: 'prediction', name: '예언', icon: '🔭', cost: 0, type: 'SKILL', desc: '2장 드로우, Echo +15', rarity: 'common',
       effect(gs) { if (gs.combat.active) gs.drawCards(2); gs.addEcho(15); }
     },
     // 침묵사냥꾼
@@ -167,11 +167,11 @@
       effect(gs) { gs.addBuff('vanish', 1, {}); }
     },
     death_mark: {
-      id: 'death_mark', name: '처형 표식', icon: '💢', cost: 1, type: 'ATTACK', desc: '8 피해 + 표식 3턴 (폭발 30)', rarity: 'uncommon',
+      id: 'death_mark', name: '처형 표식', icon: '💢', cost: 1, type: 'ATTACK', desc: '8 피해, 표식 3턴 (폭발 30)', rarity: 'uncommon',
       effect(gs) { gs.dealDamage(8); gs.applyEnemyStatus('marked', 3); gs.addLog('💢 처형 표식!', 'echo'); }
     },
     shadow_step: {
-      id: 'shadow_step', name: '그림자 도약', icon: '🌑', cost: 0, type: 'SKILL', desc: '침묵-2, 방어막 5, 다음 공격+8', rarity: 'uncommon',
+      id: 'shadow_step', name: '그림자 도약', icon: '🌑', cost: 0, type: 'SKILL', desc: '침묵 -2, 방어막 5, 다음 공격 +8', rarity: 'uncommon',
       effect(gs) { gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) - 2); gs.addShield(5); gs.addBuff('shadow_atk', 1, { dmgBonus: 8 }); }
     },
     poison_blade: {
@@ -189,11 +189,11 @@
       effect(gs) { gs.dealDamage(30); }
     },
     soul_armor: {
-      id: 'soul_armor', name: '영혼 방어구', icon: '💠', cost: 2, type: 'SKILL', desc: '방어막 15 + 3턴 Echo +10/턴', rarity: 'rare',
+      id: 'soul_armor', name: '영혼 방어구', icon: '💠', cost: 2, type: 'SKILL', desc: '방어막 15, 3턴간 Echo +10/턴', rarity: 'rare',
       effect(gs) { gs.addShield(15); gs.addBuff('soul_armor', 3, { echoRegen: 10 }); }
     },
     soul_harvest: {
-      id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '20 피해 + 처치 시 HP+8', rarity: 'uncommon',
+      id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '20 피해, 처치 시 HP +8', rarity: 'uncommon',
       effect(gs) { gs.dealDamage(20); }
     },
     echo_overload: {
@@ -224,7 +224,7 @@
       effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.addLog('⚡ 서지: 에너지 +2!', 'echo'); updateUI(); }
     },
     surge_plus: {
-      id: 'surge_plus', name: '서지+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +3 + 드로우 1', rarity: 'uncommon', upgraded: true,
+      id: 'surge_plus', name: '서지+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +3, 1장 드로우', rarity: 'uncommon', upgraded: true,
       effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 3, gs.player.energy + 3); gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); updateUI(); }
     },
     overcharge: {
@@ -264,7 +264,7 @@
     // ── 에너지 할인 카드 (처분 모드 대체 컨셉) ──
     // 카드를 버리는 대신, 이번 턴 모든 카드 비용을 줄여 다양한 콤보를 유도
     echo_tide: {
-      id: 'echo_tide', name: '잔향의 조류', icon: '🌀', cost: 0, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -1 (최소 0), Echo +10', rarity: 'uncommon',
+      id: 'echo_tide', name: '잔향의 조류', icon: '🌀', cost: 0, type: 'SKILL', desc: '전체 카드 비용 -1, Echo +10', rarity: 'uncommon',
       effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); renderCombatCards(); updateUI(); }
     },
     void_surge: {
@@ -276,7 +276,7 @@
       effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 8); gs.addLog(`🎵 공명 흐름: 손패 ${n}장 → Echo +${n * 8}!`, 'echo'); }
     },
     echo_cascade: {
-      id: 'echo_cascade', name: '잔향 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '카드 2장 드로우 + 이번 턴 드로우한 카드 비용 0', rarity: 'rare',
+      id: 'echo_cascade', name: '잔향 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '2장 드로우, 드로우한 카드 비용 0', rarity: 'rare',
       effect(gs) { const before = gs.player.hand.length; gs.drawCards(2); const newCards = gs.player.hand.slice(before); gs.player._cascadeCards = new Set(newCards); gs.player.costDiscount = (gs.player.costDiscount || 0) + 0; newCards.forEach(c => {/* mark for free */ }); gs.player.zeroCost = false; gs.addLog('💧 잔향 폭포: 카드 2장 드로우, 새 카드 무료!', 'echo'); gs.player.hand.slice(before).forEach(() => { }); renderCombatCards(); }
     },
     tempo_strike: {

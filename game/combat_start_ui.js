@@ -68,7 +68,7 @@
         _spawnScaledEnemy(gs, bossData, difficultyScaler, { phase: 1 });
         if (gs.meta.codex) gs.meta.codex.enemies.add(bossKey);
         audioEngine?.playBossPhase?.();
-        gs.triggerItems?.('boss_start');
+        gs.triggerItems?.(Trigger.BOSS_START);
       } else {
         const isEliteNode = gs.currentNode?.type === 'elite';
         if (isEliteNode && region.elites?.length) {
@@ -107,7 +107,7 @@
       if (gs.player.class === 'mage') classMechanics?.mage?.onCombatStart?.(gs);
 
       runRules?.onCombatStart?.(gs);
-      gs.triggerItems?.('combat_start');
+      gs.triggerItems?.(Trigger.COMBAT_START);
       gs.drawCards?.(5);
 
       const doc = _getDoc(deps);

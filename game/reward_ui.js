@@ -62,7 +62,7 @@
             <div class="card-cost">${card.cost}</div>
             <div class="card-icon" style="font-size:36px;">${card.icon}</div>
             <div class="card-name" style="font-size:13px;">${card.name}</div>
-            <div class="card-desc" style="font-size:11px;">${card.desc}</div>
+            <div class="card-desc" style="font-size:11px;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type" style="font-size:9px;color:${rarityBorder || 'var(--echo)'};">${card.rarity || 'common'}</div>
           </div>
         </div>`;
@@ -84,7 +84,7 @@
             <div class="card" style="width:140px;height:auto;min-height:190px;padding-bottom:12px;border-color:${rarityBorderItem[rc]};">
               <div class="card-icon" style="font-size:40px;">${item.icon}</div>
               <div class="card-name" style="font-size:13px;color:${rarityColor[rc]};">${item.name}</div>
-              <div class="card-desc" style="font-size:11px;">${item.desc}</div>
+              <div class="card-desc" style="font-size:11px;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>
               <div class="card-type" style="font-size:9px;color:${rarityColor[rc]};">아이템 · ${rarityLabel[rc]}</div>
             </div>
           </div>`;

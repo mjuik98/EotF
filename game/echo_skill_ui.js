@@ -24,7 +24,7 @@
       }
 
       gs.drainEcho(cost);
-      gs.triggerItems?.('echo_skill', { cost });
+      gs.triggerItems?.(Trigger.ECHO_SKILL, { cost });
 
       const cls = gs.player.class;
       if (cls === 'swordsman') {

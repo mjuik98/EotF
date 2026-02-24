@@ -30,7 +30,7 @@
       doc.getElementById('ttCost').textContent = card.cost;
       doc.getElementById('ttName').textContent = card.name;
       doc.getElementById('ttType').textContent = card.type;
-      doc.getElementById('ttDesc').textContent = card.desc;
+      doc.getElementById('ttDesc').innerHTML = globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc;
       const rarityEl = doc.getElementById('ttRarity');
       rarityEl.textContent = (card.rarity || 'common').toUpperCase();
       rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
@@ -118,16 +118,16 @@
       el.style.borderColor = tipBorder;
       el.innerHTML =
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' +
-          '<div style="font-size:28px;line-height:1;filter:' + (tipR === 'legendary' ? 'drop-shadow(0 0 8px rgba(192,132,252,0.7))' : 'none') + ';">' + item.icon + '</div>' +
-          '<div>' +
-            '<div style="font-family:\'Cinzel\',serif;font-size:12px;font-weight:700;color:' + (tipRarityColor[tipR] || 'var(--white)') + ';">' + item.name + '</div>' +
-            '<div style="display:flex;gap:6px;align-items:center;margin-top:3px;">' +
-              '<span style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:0.15em;background:rgba(123,47,255,0.15);border-radius:3px;padding:1px 5px;color:' + (tipRarityColor[tipR]) + ';">' + (tipRarityLabel[tipR] || tipR) + '</span>' +
-              '<span style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:0.1em;color:var(--text-dim);">' + triggerText + '</span>' +
-            '</div>' +
-          '</div>' +
+        '<div style="font-size:28px;line-height:1;filter:' + (tipR === 'legendary' ? 'drop-shadow(0 0 8px rgba(192,132,252,0.7))' : 'none') + ';">' + item.icon + '</div>' +
+        '<div>' +
+        '<div style="font-family:\'Cinzel\',serif;font-size:12px;font-weight:700;color:' + (tipRarityColor[tipR] || 'var(--white)') + ';">' + item.name + '</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;margin-top:3px;">' +
+        '<span style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:0.15em;background:rgba(123,47,255,0.15);border-radius:3px;padding:1px 5px;color:' + (tipRarityColor[tipR]) + ';">' + (tipRarityLabel[tipR] || tipR) + '</span>' +
+        '<span style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:0.1em;color:var(--text-dim);">' + triggerText + '</span>' +
         '</div>' +
-        '<div style="font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;">' + item.desc + '</div>' +
+        '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;">' + (globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc) + '</div>' +
         (() => {
           const setEntry = Object.entries(setBonusSystem.sets).find(([, s]) => s.items.includes(itemId));
           if (!setEntry) return '';

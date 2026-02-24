@@ -88,7 +88,7 @@
             <div class="card-cost" style="${!canPlay ? 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);' : (isCascadeFree || isChargeFree) && card.cost > 0 ? 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;' : disc > 0 && card.cost > 0 ? 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;' : ''}">${cost}${(isCascadeFree || isChargeFree) && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;">FREE</span>` : disc > 0 && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;">-${Math.min(disc, card.cost)}</span>` : ''}</div>
             <div class="card-icon" style="${cardScale < 1 ? `font-size:${Math.round(22 * cardScale)}px;` : ''}">${card.icon}</div>
             <div class="card-name" style="${cardScale < 1 ? `font-size:${Math.round(11 * cardScale)}px;` : ''}">${card.name}${card.upgraded ? '<span style="color:var(--cyan);font-size:7px;"> ✦</span>' : ''}</div>
-            <div class="card-desc" style="${cardScale < 1 ? `font-size:${Math.round(11 * cardScale)}px;` : ''}">${card.desc}</div>
+            <div class="card-desc" style="${cardScale < 1 ? `font-size:${Math.round(11 * cardScale)}px;` : ''}">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type ${typeLabelClass}">${card.type}</div>
           </div>
         `;
@@ -116,7 +116,7 @@
             <div class="card-cost">${card.cost}</div>
             <div class="card-icon">${card.icon}</div>
             <div class="card-name">${card.name}</div>
-            <div class="card-desc">${card.desc}</div>
+            <div class="card-desc">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type">${card.type}</div>
           </div>
         `;

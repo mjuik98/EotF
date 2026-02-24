@@ -144,7 +144,7 @@
               <div style="font-size:${seen ? '24px' : '20px'};margin:8px 0 4px;filter:${seen ? 'none' : 'grayscale(1) brightness(0.25)'};">${seen ? card.icon : '❓'}</div>
               <div style="font-family:'Cinzel',serif;font-size:8px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">${seen ? card.name : '???'}</div>
               ${seen ? `
-                <div style="font-size:8px;color:var(--text-dim);text-align:center;line-height:1.4;flex:1;">${card.desc}</div>
+                <div style="font-size:8px;color:var(--text-dim);text-align:center;line-height:1.4;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
                 <div style="display:flex;gap:4px;align-items:center;margin-top:auto;">
                   <span style="width:16px;height:16px;border-radius:50%;background:rgba(123,47,255,0.3);border:1px solid var(--echo);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--white);">${card.cost}</span>
                   <span style="font-size:7px;color:${tc};">${card.type}</span>
@@ -182,10 +182,10 @@
               width:130px;min-height:140px;display:flex;flex-direction:column;align-items:center;gap:6px;
               transition:transform 0.15s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
               <div style="font-size:${seen ? '30px' : '24px'};margin:4px 0;filter:${seen ? 'none' : 'grayscale(1) brightness(0.2)'};">${seen ? item.icon : '❓'}</div>
-              <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
+               <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
                 ${seen ? item.name : '???'}
               </div>
-              ${seen ? `<div style="font-size:9px;color:var(--text-dim);text-align:center;line-height:1.5;flex:1;">${item.desc}</div>`
+              ${seen ? `<div style="font-size:9px;color:var(--text-dim);text-align:center;line-height:1.5;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>`
                 : `<div style="font-size:8px;color:var(--text-dim);text-align:center;margin-top:auto;">획득하면 해금</div>`}
               <div style="font-size:8px;color:${rColor};font-family:'Cinzel',serif;margin-top:auto;">${rarityLabel[r]}</div>
             </div>`;
