@@ -15,7 +15,7 @@ const GS = {
   meta: {
     runCount: 1, totalKills: 0, bestChain: 0, echoFragments: 0,
     worldMemory: {},
-    inscriptions: { echo_boost:false, resilience:false, fortune:false },
+    inscriptions: { echo_boost: false, resilience: false, fortune: false },
     storyPieces: [], _hiddenEndingHinted: false,
     codex: { enemies: new Set(), cards: new Set(), items: new Set() },
     unlocks: { ascension: false, endless: false },
@@ -24,20 +24,20 @@ const GS = {
     progress: { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} },
   },
   player: {
-    class:'swordsman', hp:80, maxHp:80, shield:0,
-    echo:0, maxEcho:100, echoChain:0,
-    energy:3, maxEnergy:3, gold:0, kills:0,
-    deck:[], hand:[], graveyard:[], exhausted:[],
-    items:[], buffs:{}, silenceGauge:0, zeroCost:false, _freeCardUses:0, costDiscount:0, _cascadeCards:null,
+    class: 'swordsman', hp: 80, maxHp: 80, shield: 0,
+    echo: 0, maxEcho: 100, echoChain: 0,
+    energy: 3, maxEnergy: 3, gold: 0, kills: 0,
+    deck: [], hand: [], graveyard: [], exhausted: [],
+    items: [], buffs: {}, silenceGauge: 0, zeroCost: false, _freeCardUses: 0, costDiscount: 0, _cascadeCards: null,
     upgradedCards: new Set(), _cardUpgradeBonus: {},
   },
   currentRegion: 0, currentFloor: 1,
   mapNodes: [], currentNode: null, visitedNodes: new Set(),
-  combat: { active:false, enemies:[], turn:0, playerTurn:true, log:[] },
+  combat: { active: false, enemies: [], turn: 0, playerTurn: true, log: [] },
   _selectedTarget: null,
   worldMemory: {},
   runConfig: { ascension: 0, endless: false, endlessMode: false, blessing: 'none', curse: 'none' },
-  stats: { damageDealt:0, damageTaken:0, cardsPlayed:0, maxChain:0 },
+  stats: { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 },
   _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
 };
 
@@ -58,7 +58,7 @@ function _getStoryDeps() {
     audioEngine: AudioEngine,
     particleSystem: ParticleSystem,
     showWorldMemoryNotice,
-    };
+  };
 }
 
 const StorySystem = {
@@ -134,7 +134,7 @@ function _getGameCanvasSetupDeps() {
   return {
     ..._baseDeps(),
     particleSystem: ParticleSystem,
-    };
+  };
 }
 
 function initGameCanvas() {
@@ -165,7 +165,7 @@ function _getWorldRenderLoopDeps() {
     renderMinimap: () => renderMinimap(),
     renderNodeInfo: (ctx, w, h) => renderNodeInfo(ctx, w, h),
     getRegionData,
-    };
+  };
 }
 
 function gameLoop(timestamp) {
@@ -189,7 +189,7 @@ function _getWorldCanvasDeps() {
   return {
     ..._baseDeps(),
     getRegionData,
-    };
+  };
 }
 
 function renderNodeInfo(ctx, w, h) {
@@ -225,7 +225,7 @@ function _getMapGenerationDeps() {
     updateNextNodes: () => updateNextNodes(),
     updateUI,
     showWorldMemoryNotice,
-    };
+  };
 }
 
 function generateMap(regionIdx) {
@@ -240,7 +240,7 @@ function _getMapDeps() {
     nodeMeta: NODE_META,
     getFloorStatusText,
     moveToNodeHandlerName: 'moveToNode',
-    };
+  };
 }
 
 function renderMinimap() {
@@ -250,6 +250,7 @@ function renderMinimap() {
 function updateNextNodes() {
   window.MapUI?.updateNextNodes?.(_getMapDeps());
 }
+window.updateNextNodes = updateNextNodes;
 
 function isNodeAccessible(node) {
   if (node.floor !== GS.currentFloor + 1) return false;
@@ -268,7 +269,7 @@ function _getMapNavigationDeps() {
     triggerRandomEvent,
     showShop,
     showRestSite,
-    };
+  };
 }
 
 function moveToNode(node) {
@@ -299,10 +300,10 @@ function _getCombatStartDeps() {
     refreshCombatInfoPanel: () => _refreshCombatInfoPanel(),
     updateUI,
     updateClassSpecialUI,
-    };
+  };
 }
 
-function startCombat(isBoss=false) {
+function startCombat(isBoss = false) {
   window.CombatStartUI?.startCombat?.(isBoss, _getCombatStartDeps());
 }
 
@@ -311,7 +312,7 @@ function _getCombatHudDeps() {
     ..._baseDeps(),
     classMechanics: _getClassMechanics(),
     getBaseRegionIndex,
-    };
+  };
 }
 
 // Echo 스킬 툴팁
@@ -339,7 +340,7 @@ function _getCombatDeps() {
     selectTargetHandlerName: 'selectTarget',
     showIntentTooltipHandlerName: 'showIntentTooltip',
     hideIntentTooltipHandlerName: 'hideIntentTooltip',
-    };
+  };
 }
 
 function showIntentTooltip(event, enemyIdx) {
@@ -371,7 +372,7 @@ function _getCardDeps() {
     dragEndHandlerName: 'handleCardDragEnd',
     showTooltipHandlerName: 'showTooltip',
     hideTooltipHandlerName: 'hideTooltip',
-    };
+  };
 }
 
 function getCardTypeClass(type) {
@@ -408,7 +409,7 @@ function _getEchoSkillDeps() {
     showEchoBurstOverlay,
     renderCombatEnemies,
     renderCombatCards,
-    };
+  };
 }
 
 function useEchoSkill() {
@@ -421,7 +422,7 @@ function _getCombatActionsDeps() {
     audioEngine: AudioEngine,
     renderCombatCards,
     updateUI,
-    };
+  };
 }
 
 function sortHandByEnergy() {
@@ -452,7 +453,7 @@ function _getCombatTurnDeps() {
     updateUI,
     showEchoBurstOverlay: () => showEchoBurstOverlay(),
     showDmgPopup: (dmg, x, y, color) => showDmgPopup(dmg, x, y, color),
-    };
+  };
 }
 
 function endPlayerTurn() {
@@ -486,7 +487,7 @@ function _getEventDeps() {
     updateUI,
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
-    };
+  };
 }
 
 function triggerRandomEvent() {
@@ -528,7 +529,7 @@ function _getRewardDeps() {
     returnToGame,
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
-    };
+  };
 }
 
 function showRewardScreen(isBoss) {
@@ -566,7 +567,7 @@ function _getRunReturnDeps() {
     advanceToNextRegion,
     finalizeRunOutcome,
     storySystem: StorySystem,
-    };
+  };
 }
 
 function returnToGame(fromReward) {
@@ -590,7 +591,7 @@ function _getHudUpdateDeps() {
     updateEchoSkillBtn: () => updateEchoSkillBtn(),
     updateStatusDisplay: () => updateStatusDisplay(),
     getRegionData,
-    };
+  };
 }
 
 function _updateEndBtnWarn() {
@@ -664,7 +665,7 @@ function _getCardTargetDeps() {
   return {
     ..._baseDeps(),
     renderCombatEnemies,
-    };
+  };
 }
 
 function handleCardDragStart(event, cardId, idx) {
@@ -690,14 +691,14 @@ function _getFeedbackDeps() {
     ..._baseDeps(),
     audioEngine: AudioEngine,
     screenShake: ScreenShake,
-    };
+  };
 }
 
 function showCombatSummary(dealt, taken, kills) {
   window.FeedbackUI?.showCombatSummary?.(dealt, taken, kills, _getFeedbackDeps());
 }
 
-function showDmgPopup(dmg, x, y, color='#ff3366') {
+function showDmgPopup(dmg, x, y, color = '#ff3366') {
   window.FeedbackUI?.showDmgPopup?.(dmg, x, y, color, _getFeedbackDeps());
 }
 
@@ -822,7 +823,7 @@ function _getScreenDeps() {
     onEnterTitle: () => {
       animateTitle();
     },
-    };
+  };
 }
 
 function switchScreen(screen) {
@@ -844,7 +845,7 @@ function _getClassSelectDeps() {
         console.warn('Audio error:', e);
       }
     },
-    };
+  };
 }
 
 function _getSelectedClass() {
@@ -865,7 +866,7 @@ function _getSaveSystemDeps() {
     runRules: RunRules,
 
     isGameStarted: () => _gameStarted,
-    };
+  };
 }
 
 function _getRunModeDeps() {
@@ -876,7 +877,7 @@ function _getRunModeDeps() {
     notice: (msg) => {
       if (typeof showWorldMemoryNotice === 'function') showWorldMemoryNotice(msg);
     },
-    };
+  };
 }
 
 function _getRunStartDeps() {
@@ -893,7 +894,7 @@ function _getRunStartDeps() {
     requestAnimationFrame: window.requestAnimationFrame.bind(window),
     showRunFragment: () => StorySystem.showRunFragment(),
     showWorldMemoryNotice,
-    };
+  };
 }
 
 function refreshRunModePanel() {
@@ -925,7 +926,7 @@ function _getRunSetupDeps() {
     shuffleArray,
     resetDeckModalFilter: () => _resetDeckModalFilter(),
     enterRun: () => window.RunStartUI?.enterRun?.(_getRunStartDeps()),
-    };
+  };
 }
 
 function startGame() {
@@ -938,7 +939,7 @@ function _getMetaProgressionDeps() {
     switchScreen,
     clearSelectedClass: _clearSelectedClass,
     refreshRunModePanel,
-    };
+  };
 }
 
 function selectFragment(effect) {
@@ -960,7 +961,7 @@ function _getRegionTransitionDeps() {
     generateMap,
     updateUI,
     showRunFragment: () => StorySystem.showRunFragment(),
-    };
+  };
 }
 
 function advanceToNextRegion() {
@@ -980,7 +981,7 @@ function _getHelpPauseDeps() {
     renderCombatEnemies,
     finalizeRunOutcome,
     switchScreen,
-    };
+  };
 }
 
 function toggleHelp() {
@@ -1077,7 +1078,7 @@ function _getGameBootDeps() {
     initTitleCanvas,
     updateUI,
     refreshRunModePanel,
-    };
+  };
 }
 
 function _bootGame() {

@@ -2473,12 +2473,11 @@ body {
   color: var(--white);
 }
 
-/* 소음 게이지 위젯 — 상단 중앙 고정 */
+/* 소음 게이지 위젯 — 우측 상단 (턴 표시기 아래) */
 #noiseWidget {
   position: fixed;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 60px;
+  right: 12px;
   z-index: 220;
   background: rgba(5, 5, 18, 0.94);
   border: 1px solid rgba(255, 51, 102, 0.3);
