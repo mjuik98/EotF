@@ -2197,19 +2197,21 @@ body:has(#combatOverlay.active) .panel-bottom {
   animation: floatLabel 1.5s ease-in-out infinite;
   display: inline-block;
   position: absolute;
-  top: -32px;
+  top: -45px;
+  /* 확대된 카드에 맞춰 위로 조정 */
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
   font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-size: 15px;
+  /* 약간 확대 */
+  font-weight: 900;
+  letter-spacing: 0.1em;
   color: var(--cyan);
-  text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
-  padding-left: 10px;
-  /* '▶' 아이콘에 의한 시각적 불균형 보정 */
+  text-shadow: 0 0 15px rgba(0, 255, 204, 0.8), 0 0 5px #000;
+  padding: 0;
+  z-index: 10;
 }
 
 #turnBanner {
