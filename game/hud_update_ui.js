@@ -12,6 +12,17 @@
   }
 
   const HudUpdateUI = {
+    triggerDeckShufflePulse(deps = {}) {
+      const doc = _getDoc(deps);
+      const deckEls = doc.querySelectorAll('#deckCount, #combatDeckCount');
+      deckEls.forEach(el => {
+        el.style.transition = 'color 0.15s, text-shadow 0.15s';
+        el.style.color = 'var(--cyan)';
+        el.style.textShadow = '0 0 10px rgba(0,255,204,0.8)';
+        setTimeout(() => { el.style.color = ''; el.style.textShadow = ''; }, 600);
+      });
+    },
+
     updateEndBtnWarn(deps = {}) {
       const gs = _getGS(deps);
       if (!gs) return;
@@ -58,8 +69,8 @@
       const data = deps.data || globalObj.DATA;
       const setBonusSystem = deps.setBonusSystem || globalObj.SetBonusSystem;
       const getRegionData = deps.getRegionData || globalObj.getRegionData;
-      const setBar = deps.setBar || (() => {});
-      const setText = deps.setText || (() => {});
+      const setBar = deps.setBar || (() => { });
+      const setText = deps.setText || (() => { });
 
       // HP - 저체력 시 색상 변화
       const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
