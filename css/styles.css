@@ -669,7 +669,7 @@ body {
 }
 
 .hud-section {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .hud-section:last-child {
@@ -690,8 +690,8 @@ body {
 .hud-stat-row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: 2px;
+  margin-bottom: 8px;
 }
 
 .hud-stat-label-row {
@@ -2157,16 +2157,19 @@ body:has(#combatOverlay.active) .panel-bottom {
   animation: floatLabel 1.5s ease-in-out infinite;
   display: inline-block;
   position: absolute;
-  top: -26px;
+  top: -32px;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
   font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   color: var(--cyan);
-  text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+  padding-left: 10px;
+  /* '▶' 아이콘에 의한 시각적 불균형 보정 */
 }
 
 #turnBanner {
@@ -2745,8 +2748,14 @@ body:has(#combatOverlay.active) .panel-bottom {
   min-width: 180px;
   max-width: 240px;
   backdrop-filter: blur(16px);
-  transition: all 0.3s;
+  transition: all 0.2s;
   position: relative;
+}
+
+.enemy-card.selected-target {
+  outline: 2.5px solid var(--cyan);
+  box-shadow: 0 0 24px rgba(0, 255, 204, 0.35);
+  transform: scale(1.02);
 }
 
 .enemy-sprite {
