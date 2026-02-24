@@ -661,14 +661,7 @@ body {
   scrollbar-color: rgba(123, 47, 255, 0.3) transparent;
 }
 
-/* 호버 시 표시 */
-#hoverHud:hover #hoverHudPanel {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* 핀 시 항상 표시 */
+/* 핀 시 항상 표시 (이제 클릭 토글로 활성화됨) */
 #hoverHud.pinned #hoverHudPanel {
   opacity: 1;
   pointer-events: auto;
@@ -2163,6 +2156,17 @@ body:has(#combatOverlay.active) .panel-bottom {
 .target-label-anim {
   animation: floatLabel 1.5s ease-in-out infinite;
   display: inline-block;
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
 }
 
 #turnBanner {
@@ -2742,6 +2746,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   max-width: 240px;
   backdrop-filter: blur(16px);
   transition: all 0.3s;
+  position: relative;
 }
 
 .enemy-sprite {
