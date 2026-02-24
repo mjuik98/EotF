@@ -315,9 +315,21 @@
 
           if (card && e.hp > 0) {
             const isSel = gs._selectedTarget === i;
-            card.style.outline = isSel ? '2px solid var(--cyan)' : '';
-            card.style.boxShadow = isSel ? '0 0 18px rgba(0,255,204,0.45)' : '';
             card.classList.toggle('selected-target', isSel);
+
+            // 타겟 라벨 관리 (이동)
+            let labelEl = card.querySelector('.target-label-anim');
+            if (isSel) {
+              if (!labelEl) {
+                labelEl = doc.createElement('div');
+                labelEl.className = 'target-label-anim';
+                labelEl.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:3px;text-align:center;";
+                labelEl.textContent = '▶ 타겟';
+                card.prepend(labelEl);
+              }
+            } else {
+              labelEl?.remove();
+            }
 
             let previewEl = card.querySelector('.enemy-dmg-preview');
             if (isSel && gs.combat.playerTurn) {

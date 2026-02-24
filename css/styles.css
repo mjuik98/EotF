@@ -2738,32 +2738,32 @@ body:has(#combatOverlay.active) .panel-bottom {
   border-radius: 12px;
   padding: 18px;
   text-align: center;
-  min-width: 150px;
-  max-width: 190px;
+  min-width: 180px;
+  max-width: 240px;
   backdrop-filter: blur(16px);
   transition: all 0.3s;
 }
 
 .enemy-sprite {
-  font-size: 32px;
-  margin-bottom: 8px;
+  font-size: 48px;
+  margin-bottom: 12px;
   filter: drop-shadow(0 0 10px rgba(123, 47, 255, 0.3));
   transition: transform 0.2s;
-  height: 48px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .enemy-sprite img {
-  width: 48px;
-  height: 48px;
+  width: 120px;
+  height: 120px;
   object-fit: contain;
 }
 
 .enemy-name {
   font-family: 'Cinzel', serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--white);
   margin-bottom: 10px;
