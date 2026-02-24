@@ -25,18 +25,18 @@
 
         <div class="main-menu-buttons"
           style="margin-top: 40px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
-          <button class="primary-start-btn" onclick="showCharacterSelect()">시작하기</button>
+          <button class="primary-start-btn" onclick="showCharacterSelect()">START JOURNEY</button>
           <div style="display: flex; gap: 10px;">
-            <button class="settings-trigger-btn" onclick="openRunSettings()">⚙️ 런 규칙 설정</button>
+            <button class="settings-trigger-btn" onclick="openRunSettings()">⚙️ RUN RULES</button>
             <button class="settings-trigger-btn"
-              onclick="document.getElementById('soundSettings').classList.toggle('open')">🔊 사운드 설정</button>
+              onclick="document.getElementById('soundSettings').classList.toggle('open')">🔊 SETTINGS</button>
           </div>
         </div>
       </div>
 
       <!-- 2단계: 캐릭터 선택 화면 -->
       <div id="charSelectSubScreen" style="display:none; animation: fadeIn 0.4s ease;">
-        <div class="title-sub" style="margin-bottom: 30px;">캐릭터 선택</div>
+        <div class="title-sub" style="margin-bottom: 30px;">CHOOSE YOUR ECHO</div>
 
         <div class="class-select" style="margin-bottom: 40px;">
           <button class="class-btn" data-class="swordsman" onclick="selectClass(this)">
@@ -75,20 +75,20 @@
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 16px; align-items: center;">
-          <button id="startBtn" class="start-btn" onclick="startGame()" disabled>잔향 속으로</button>
+          <button id="startBtn" class="start-btn" onclick="startGame()" disabled>ENTER THE ECHO</button>
           <button class="settings-trigger-btn" onclick="backToTitle()"
-            style="opacity: 0.7; border: none; background: transparent;">← 뒤로 가기</button>
+            style="opacity: 0.7; border: none; background: transparent;">← BACK TO TITLE</button>
         </div>
         <div id="classSelectHint"
           style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--echo);opacity:0.6;margin-top:12px;transition:opacity 0.4s;">
-          ◈ 클래스를 선택해 여정을 시작하세요 ◈</div>
+          ◈ CHOOSE A CLASS TO BEGIN YOUR TALE ◈</div>
       </div>
 
       <!-- 런 설정 모달 (공용) -->
       <div id="runSettingsModal" class="modal-overlay" style="display:none;">
         <div class="modal-content run-settings-panel">
           <div class="modal-header">
-            <div class="modal-title">런 규칙 설정</div>
+            <div class="modal-title">RUN RULES</div>
             <button class="modal-close-btn" onclick="closeRunSettings()">×</button>
           </div>
           <div id="runModePanel" class="run-mode-panel"
@@ -126,7 +126,7 @@
             </div>
             <div id="runModeDesc" class="run-mode-desc"></div>
           </div>
-          <button class="modal-confirm-btn" onclick="closeRunSettings()">수정 완료</button>
+          <button class="modal-confirm-btn" onclick="closeRunSettings()">CONFIRM</button>
         </div>
       </div>
 
@@ -140,11 +140,11 @@
         style="position:fixed;bottom:64px;right:16px;z-index:100;padding:14px 18px;background:rgba(7,7,26,0.92);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(16px);width:260px;display:none;animation:fadeInDown 0.2s ease both;">
         <div
           style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.3em;color:var(--text-dim);text-align:center;margin-bottom:10px;">
-          🔊 사운드 설정</div>
+          🔊 SOUND SETTINGS</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <span
-              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">전체</span>
+              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">MASTER</span>
             <input type="range" id="volMaster" min="0" max="100" value="35" style="flex:1;accent-color:var(--echo);"
               oninput="setMasterVolume(this.value)">
             <span id="volMasterVal"
@@ -152,7 +152,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span
-              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">효과음</span>
+              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">SFX</span>
             <input type="range" id="volSfx" min="0" max="100" value="70" style="flex:1;accent-color:var(--cyan);"
               oninput="setSfxVolume(this.value)">
             <span id="volSfxVal"
@@ -160,7 +160,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span
-              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">배경음</span>
+              style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">AMBIENT</span>
             <input type="range" id="volAmbient" min="0" max="100" value="40" style="flex:1;accent-color:#44ff88;"
               oninput="setAmbientVolume(this.value)">
             <span id="volAmbientVal"
@@ -168,10 +168,7 @@
           </div>
         </div>
       </div>
-      <button id="startBtn" class="start-btn" onclick="startGame()" disabled>잔향 속으로</button>
-      <div id="classSelectHint"
-        style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--echo);opacity:0.6;margin-top:12px;animation:fadeInUp 1s ease 1.8s both;transition:opacity 0.4s;">
-        ◈ 클래스를 선택해 여정을 시작하세요 ◈</div>
+      <!-- Duplicate removed -->
     </div>
   </div>
 

@@ -173,5 +173,28 @@
     }
   };
 
+  // 전역 함수 연결 (HTML onclick 연동용)
+  globalObj.openRunSettings = function (deps = {}) {
+    RunModeUI.openSettings({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  };
+  globalObj.closeRunSettings = function (deps = {}) {
+    RunModeUI.closeSettings(deps);
+  };
+  globalObj.toggleEndlessMode = function (deps = {}) {
+    RunModeUI.toggleEndlessMode({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  };
+  globalObj.cycleRunBlessing = function (deps = {}) {
+    RunModeUI.cycleBlessing({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  };
+  globalObj.cycleRunCurse = function (deps = {}) {
+    RunModeUI.cycleCurse({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  };
+  globalObj.shiftAscension = function (delta, deps = {}) {
+    RunModeUI.shiftAscension(delta, { gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  };
+  globalObj.toggleInscription = function (key, deps = {}) {
+    RunModeUI.toggleInscription(key, { gs: globalObj.GS, ...deps });
+  };
+
   globalObj.RunModeUI = RunModeUI;
 })(window);
