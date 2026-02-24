@@ -198,36 +198,6 @@
       </div><!-- /gameCanvas wrapper -->
 
 
-      <div class="panel-bottom" style="grid-column:1;grid-row:2;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div class="panel-title" style="margin:0;border:none;padding:0;">손패</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">클릭하여 사용</div>
-        </div>
-        <div class="deck-area">
-          <div class="energy-display">
-            <div class="energy-label">에너지</div>
-            <div class="energy-orbs" id="energyOrbs">
-              <div class="energy-orb filled"></div>
-              <div class="energy-orb filled"></div>
-              <div class="energy-orb filled"></div>
-            </div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);" id="energyText">3
-              /
-              3</div>
-          </div>
-          <div class="hand-cards" id="handCards"></div>
-          <div class="deck-meta">
-            <div class="deck-count">
-              <div class="deck-count-num" id="deckCount">10</div>
-              <div class="deck-count-label">덱</div>
-            </div>
-            <div class="deck-count" style="border-color:rgba(255,255,255,0.05);">
-              <div class="deck-count-num" id="graveCount" style="color:var(--text-dim);">0</div>
-              <div class="deck-count-label">무덤</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -466,6 +436,11 @@
       <div class="hud-stat-inline">
         <span style="color:var(--gold);font-size:12px;">💰</span>
         <span id="hudGoldText" style="color:var(--gold);">0</span>
+      </div>
+      <div class="hud-stat-inline" id="hudEnergyTrigger" style="margin-left:4px;">
+        <div class="hud-energy-orbs" id="hudEnergyOrbs"></div>
+        <span id="hudEnergyText"
+          style="color:var(--white); font-family:'Share Tech Mono',monospace; font-size:11px; margin-left:4px;">0/0</span>
       </div>
       <div class="hud-stat-inline" id="hudShieldTrigger" style="margin-left:4px; opacity:0.3;">
         <span style="color:#66bbff;font-size:12px;">🛡️</span>

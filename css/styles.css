@@ -288,8 +288,9 @@ body {
   background: var(--glass);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 32px 20px;
-  width: 240px;
+  padding: 40px 24px;
+  width: 280px;
+  /* Scale UP (기존 240px) */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -311,9 +312,10 @@ body {
 }
 
 .class-btn-icon-container {
-  width: 110px;
-  height: 110px;
-  margin: 0 auto 20px;
+  width: 140px;
+  /* Scale UP (기존 110px) */
+  height: 140px;
+  margin: 0 auto 24px;
   border-radius: 50%;
   background: rgba(123, 47, 255, 0.12);
   border: 1px solid rgba(123, 47, 255, 0.25);
@@ -542,7 +544,8 @@ body {
 .game-layout {
   display: grid;
   grid-template-columns: 1fr 240px;
-  grid-template-rows: 1fr 200px;
+  grid-template-rows: 1fr;
+  /* 하단 패널 제거로 인한 전체 화면 활용 */
   width: 100vw;
   height: 100vh;
   gap: 0;
@@ -3773,6 +3776,28 @@ body:has(#combatOverlay.active) .panel-bottom {
   100% {
     left: 100%;
   }
+}
+
+/* ── HUD ENERGY ORBS STYLE ── */
+.hud-energy-orbs {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.hud-energy-orb {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.hud-energy-orb.filled {
+  background: #ffcc00;
+  border-color: #ffaa00;
+  box-shadow: 0 0 5px rgba(255, 170, 0, 0.6);
 }
 
 /* ── INGAME PORTRAIT PREMIUM REDESIGN ── */

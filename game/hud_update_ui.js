@@ -193,17 +193,15 @@
       setBar('echoBar', (p.echo / p.maxEcho) * 100);
       setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
 
-      const orbs = doc.getElementById('energyOrbs');
-      if (orbs) {
-        const displayMax = Math.max(p.maxEnergy, p.energy);
-        orbs.innerHTML = Array.from({ length: displayMax }, (_, i) => {
+      const hudOrbs = doc.getElementById('hudEnergyOrbs');
+      if (hudOrbs) {
+        hudOrbs.innerHTML = Array.from({ length: p.maxEnergy }, (_, i) => {
           const filled = i < p.energy;
-          const isOverflow = i >= p.maxEnergy;
-          return `<div class="energy-orb ${filled ? 'filled' : ''}" style="${isOverflow && filled ? 'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);' : ''}" title="${i + 1}/${p.maxEnergy}"></div>`;
+          return `<div class="hud-energy-orb ${filled ? 'filled' : ''}"></div>`;
         }).join('');
       }
 
-      setText('energyText', `${p.energy} / ${p.maxEnergy}`);
+      setText('hudEnergyText', `${p.energy}/${p.maxEnergy}`);
 
       setText('deckCount', p.deck.length);
       setText('graveCount', p.graveyard.length);
