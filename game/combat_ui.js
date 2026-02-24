@@ -254,7 +254,7 @@
             <div class="enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}" id="enemy_${i}"
               style="${deadStyle}${selStyle}cursor:${e.hp > 0 ? 'pointer' : 'default'};"
               onclick="${e.hp > 0 ? `${selectTargetHandlerName}(${i})` : ''}">
-              ${isSelected ? '<div class="target-label-anim">▶ 타겟</div>' : ''}
+              ${isSelected ? '<div class="target-label-anim"><span>▼</span><span>TARGET</span></div>' : ''}
               <div class="enemy-sprite" id="enemy_sprite_${i}">
                 ${e.image ? `<img src="assets/images/${e.image}" alt="${e.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">` : ''}
                 <span style="${e.image ? 'display:none;' : ''}">${e.icon || '👾'}</span>
@@ -324,7 +324,7 @@
                 labelEl = doc.createElement('div');
                 labelEl.className = 'target-label-anim';
                 labelEl.style.cssText = "";
-                labelEl.textContent = '▼ TARGET';
+                labelEl.innerHTML = '<span>▼</span><span>TARGET</span>';
                 card.prepend(labelEl);
               }
             } else {

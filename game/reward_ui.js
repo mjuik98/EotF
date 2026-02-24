@@ -46,7 +46,20 @@
       const rarities = isBoss ? ['uncommon', 'uncommon', 'rare', 'rare']
         : isElite ? ['uncommon', 'uncommon', 'rare']
           : ['common', 'uncommon', 'common'];
-      const rewardCards = Array.from({ length: count }, (_, i) => gs.getRandomCard(rarities[i]));
+
+      const rewardCards = [];
+      const usedIds = new Set();
+      for (let i = 0; i < count; i++) {
+        let cardId = gs.getRandomCard(rarities[i]);
+        // 중복 방지 (최대 10회 시도하여 무한 루프 방지)
+        let attempts = 0;
+        while (usedIds.has(cardId) && attempts < 10) {
+          cardId = gs.getRandomCard(rarities[i]);
+          attempts++;
+        }
+        rewardCards.push(cardId);
+        usedIds.add(cardId);
+      }
 
       const container = doc.getElementById('rewardCards');
       if (!container) return;

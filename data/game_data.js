@@ -788,7 +788,7 @@
     },
     // 보스들
     ancient_echo: {
-      id: 'ancient_echo', name: '태고의 잔향', icon: '🌑', image: 'enemy_ancient_echo.png', hp: 180, maxHp: 180, atk: 16, region: 0, xp: 120, gold: 50, isBoss: true, phase: 1,
+      id: 'ancient_echo', name: '태고의 잔향', icon: '🌑', image: 'enemy_ancient_echo.png', hp: 145, maxHp: 145, atk: 16, region: 0, xp: 120, gold: 50, isBoss: true, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.5 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase_shift', intent: '⚠️ 위상 전환!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {

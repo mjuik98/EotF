@@ -109,8 +109,8 @@
               </div>
               ${seen ? `
                 <div style="width:100%;background:rgba(255,51,102,0.1);border-radius:4px;padding:4px 6px;font-size:9px;color:var(--text-dim);line-height:1.6;">
-                  <div>❤️ HP <span style="color:var(--white);">${e.maxHp}</span></div>
-                  <div>⚔️ ATK <span style="color:var(--white);">${e.atk}</span></div>
+                  <div>❤️ HP <span style="color:var(--white);">${e.maxHp}</span> <small>(기본)</small></div>
+                  <div>⚔️ ATK <span style="color:var(--white);">${e.atk}</span> <small>(기본)</small></div>
                   <div>💰 ${e.gold}골드 / ⭐ ${e.xp}XP</div>
                 </div>
               ` : `<div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:4px;">조우하면 해금</div>`}

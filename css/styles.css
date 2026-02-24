@@ -2195,23 +2195,35 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .target-label-anim {
   animation: floatLabel 1.5s ease-in-out infinite;
-  display: inline-block;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: absolute;
-  top: -45px;
-  /* 확대된 카드에 맞춰 위로 조정 */
+  top: -48px;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
   font-family: 'Cinzel', serif;
-  font-size: 15px;
-  /* 약간 확대 */
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.1em;
   color: var(--cyan);
   text-shadow: 0 0 15px rgba(0, 255, 204, 0.8), 0 0 5px #000;
   padding: 0;
   z-index: 10;
+}
+
+.target-label-anim span:first-child {
+  font-size: 16px;
+  line-height: 1;
+  margin-bottom: -2px;
+}
+
+.target-label-anim span:last-child {
+  font-size: 11px;
+  letter-spacing: 0.2em;
 }
 
 #turnBanner {
