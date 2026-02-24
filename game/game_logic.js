@@ -49,15 +49,16 @@ const GameState = GS;
 // ────────────────────────────────────────
 // STORY SYSTEM
 // ────────────────────────────────────────
+// ── Base Dependencies ──
+const _baseDeps = () => ({ gs: GS, data: DATA, doc: document, win: window });
+
 function _getStoryDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
     audioEngine: AudioEngine,
     particleSystem: ParticleSystem,
     showWorldMemoryNotice,
-  };
+    };
 }
 
 const StorySystem = {
@@ -131,10 +132,9 @@ function _applyGameCanvasRefs(refs) {
 
 function _getGameCanvasSetupDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     particleSystem: ParticleSystem,
-  };
+    };
 }
 
 function initGameCanvas() {
@@ -152,7 +152,7 @@ function resizeGameCanvas() {
 // ────────────────────────────────────────
 function _getWorldRenderLoopDeps() {
   return {
-    gs: GS,
+    ..._baseDeps(),
     refs: {
       gameCanvas,
       gameCtx,
@@ -165,7 +165,7 @@ function _getWorldRenderLoopDeps() {
     renderMinimap: () => renderMinimap(),
     renderNodeInfo: (ctx, w, h) => renderNodeInfo(ctx, w, h),
     getRegionData,
-  };
+    };
 }
 
 function gameLoop(timestamp) {
@@ -184,21 +184,12 @@ function renderDynamicLights(ctx, w, h) {
   window.WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, _getWorldRenderLoopDeps());
 }
 
-// ── 노드 타입별 메타 ──
-const NODE_META = {
-  combat: { icon:'⚔️', label:'전투',   color:'#cc2244', glow:'rgba(204,34,68,',   desc:'일반 적과 싸워 카드를 획득한다' },
-  elite:  { icon:'⭐', label:'정예',   color:'#d4a017', glow:'rgba(212,160,23,',  desc:'위험한 정예 몬스터. 희귀 보상 확정' },
-  boss:   { icon:'💀', label:'보스',   color:'#7b2fff', glow:'rgba(123,47,255,',  desc:'지역 보스. 처치하면 새 지역이 열린다' },
-  event:  { icon:'🎭', label:'이벤트', color:'#0099cc', glow:'rgba(0,153,204,',   desc:'선택지에 따라 좋을 수도, 나쁠 수도' },
-  shop:   { icon:'🏪', label:'상점',   color:'#00cc88', glow:'rgba(0,204,136,',   desc:'골드로 카드·유물을 구입한다' },
-  rest:   { icon:'🔥', label:'휴식',   color:'#cc5500', glow:'rgba(204,85,0,',    desc:'체력을 회복하거나 카드를 강화한다' },
-};
 
 function _getWorldCanvasDeps() {
   return {
-    gs: GS,
+    ..._baseDeps(),
     getRegionData,
-  };
+    };
 }
 
 function renderNodeInfo(ctx, w, h) {
@@ -229,12 +220,12 @@ function roundRectTop(ctx, x, y, w, h, r) {
 // ────────────────────────────────────────
 function _getMapGenerationDeps() {
   return {
-    gs: GS,
+    ..._baseDeps(),
     getRegionData,
     updateNextNodes: () => updateNextNodes(),
     updateUI,
     showWorldMemoryNotice,
-  };
+    };
 }
 
 function generateMap(regionIdx) {
@@ -243,14 +234,13 @@ function generateMap(regionIdx) {
 
 function _getMapDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     minimapCanvas,
     minimapCtx,
     nodeMeta: NODE_META,
     getFloorStatusText,
     moveToNodeHandlerName: 'moveToNode',
-  };
+    };
 }
 
 function renderMinimap() {
@@ -268,8 +258,7 @@ function isNodeAccessible(node) {
 
 function _getMapNavigationDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     classMechanics: _getClassMechanics(),
     audioEngine: AudioEngine,
     updateNextNodes: () => updateNextNodes(),
@@ -279,7 +268,7 @@ function _getMapNavigationDeps() {
     triggerRandomEvent,
     showShop,
     showRestSite,
-  };
+    };
 }
 
 function moveToNode(node) {
@@ -291,9 +280,7 @@ function moveToNode(node) {
 // ────────────────────────────────────────
 function _getCombatStartDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
     getRegionData,
     getBaseRegionIndex,
     getRegionCount,
@@ -312,7 +299,7 @@ function _getCombatStartDeps() {
     refreshCombatInfoPanel: () => _refreshCombatInfoPanel(),
     updateUI,
     updateClassSpecialUI,
-  };
+    };
 }
 
 function startCombat(isBoss=false) {
@@ -321,13 +308,10 @@ function startCombat(isBoss=false) {
 
 function _getCombatHudDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
-    win: window,
+    ..._baseDeps(),
     classMechanics: _getClassMechanics(),
     getBaseRegionIndex,
-  };
+    };
 }
 
 // Echo 스킬 툴팁
@@ -351,14 +335,11 @@ function showTurnBanner(type) {
 
 function _getCombatDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
-    win: window,
+    ..._baseDeps(),
     selectTargetHandlerName: 'selectTarget',
     showIntentTooltipHandlerName: 'showIntentTooltip',
     hideIntentTooltipHandlerName: 'hideIntentTooltip',
-  };
+    };
 }
 
 function showIntentTooltip(event, enemyIdx) {
@@ -383,16 +364,14 @@ function updateEnemyHpUI(idx, enemy) {
 
 function _getCardDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
     playCardHandlerName: 'GS.playCard',
     renderCombatCardsHandlerName: 'renderCombatCards',
     dragStartHandlerName: 'handleCardDragStart',
     dragEndHandlerName: 'handleCardDragEnd',
     showTooltipHandlerName: 'showTooltip',
     hideTooltipHandlerName: 'hideTooltip',
-  };
+    };
 }
 
 function getCardTypeClass(type) {
@@ -424,13 +403,12 @@ function updateEchoSkillBtn() {
 
 function _getEchoSkillDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     audioEngine: AudioEngine,
     showEchoBurstOverlay,
     renderCombatEnemies,
     renderCombatCards,
-  };
+    };
 }
 
 function useEchoSkill() {
@@ -439,13 +417,11 @@ function useEchoSkill() {
 
 function _getCombatActionsDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
     audioEngine: AudioEngine,
     renderCombatCards,
     updateUI,
-  };
+    };
 }
 
 function sortHandByEnergy() {
@@ -459,10 +435,7 @@ function drawCard() {
 
 function _getCombatTurnDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
-    win: window,
+    ..._baseDeps(),
     runRules: RunRules,
     audioEngine: AudioEngine,
     particleSystem: ParticleSystem,
@@ -479,7 +452,7 @@ function _getCombatTurnDeps() {
     updateUI,
     showEchoBurstOverlay: () => showEchoBurstOverlay(),
     showDmgPopup: (dmg, x, y, color) => showDmgPopup(dmg, x, y, color),
-  };
+    };
 }
 
 function endPlayerTurn() {
@@ -507,14 +480,13 @@ function handleEnemyEffect(effect, enemy, idx) {
 // ────────────────────────────────────────
 function _getEventDeps() {
   return {
-    gs: GS,
-    data: DATA,
+    ..._baseDeps(),
     runRules: RunRules,
-    doc: document,
+
     updateUI,
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
-  };
+    };
 }
 
 function triggerRandomEvent() {
@@ -551,14 +523,12 @@ function showItemShop(gs) {
 
 function _getRewardDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
     switchScreen,
     returnToGame,
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
-  };
+    };
 }
 
 function showRewardScreen(isBoss) {
@@ -587,16 +557,16 @@ function skipReward() {
 
 function _getRunReturnDeps() {
   return {
-    gs: GS,
+    ..._baseDeps(),
     runRules: RunRules,
-    doc: document,
+
     switchScreen,
     updateUI,
     updateNextNodes,
     advanceToNextRegion,
     finalizeRunOutcome,
     storySystem: StorySystem,
-  };
+    };
 }
 
 function returnToGame(fromReward) {
@@ -609,10 +579,9 @@ function returnToGame(fromReward) {
 let _gameStarted = false; // 게임 시작 전에는 즉시 실행
 function _getHudUpdateDeps() {
   return {
-    gs: GS,
-    data: DATA,
+    ..._baseDeps(),
     setBonusSystem: SetBonusSystem,
-    doc: document,
+
     isGameStarted: () => _gameStarted,
     requestAnimationFrame: window.requestAnimationFrame.bind(window),
     setBar: (id, pct) => setBar(id, pct),
@@ -621,7 +590,7 @@ function _getHudUpdateDeps() {
     updateEchoSkillBtn: () => updateEchoSkillBtn(),
     updateStatusDisplay: () => updateStatusDisplay(),
     getRegionData,
-  };
+    };
 }
 
 function _updateEndBtnWarn() {
@@ -642,10 +611,8 @@ function _getStatusKrMap() {
 
 function _getCombatInfoDeps() {
   return {
-    gs: GS,
-    data: DATA,
+    ..._baseDeps(),
     statusKr: _getStatusKrMap(),
-    doc: document,
   };
 }
 function _resetCombatInfoPanel() {
@@ -695,11 +662,9 @@ function setText(id, val) {
 // ────────────────────────────────────────
 function _getCardTargetDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
     renderCombatEnemies,
-  };
+    };
 }
 
 function handleCardDragStart(event, cardId, idx) {
@@ -722,12 +687,10 @@ window.selectTarget = selectTarget;
 
 function _getFeedbackDeps() {
   return {
-    gs: GS,
-    doc: document,
-    win: window,
+    ..._baseDeps(),
     audioEngine: AudioEngine,
     screenShake: ScreenShake,
-  };
+    };
 }
 
 function showCombatSummary(dealt, taken, kills) {
@@ -752,9 +715,7 @@ function showCardPlayEffect(card) {
 
 function _getDeckModalDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
   };
 }
 
@@ -775,9 +736,7 @@ function _renderDeckModal() {
 // ────────────────────────────────────────
 function _getCodexDeps() {
   return {
-    gs: GS,
-    data: DATA,
-    doc: document,
+    ..._baseDeps(),
   };
 }
 
@@ -807,11 +766,8 @@ function closeDeckView() {
 
 function _getTooltipDeps() {
   return {
-    gs: GS,
-    data: DATA,
+    ..._baseDeps(),
     setBonusSystem: SetBonusSystem,
-    doc: document,
-    win: window,
   };
 }
 
@@ -862,12 +818,11 @@ function _flushNoticeQueue() {
 // ────────────────────────────────────────
 function _getScreenDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     onEnterTitle: () => {
       animateTitle();
     },
-  };
+    };
 }
 
 function switchScreen(screen) {
@@ -879,7 +834,7 @@ function switchScreen(screen) {
 // ────────────────────────────────────────
 function _getClassSelectDeps() {
   return {
-    doc: document,
+    ..._baseDeps(),
     playClassSelect: (cls) => {
       try {
         AudioEngine.init();
@@ -889,7 +844,7 @@ function _getClassSelectDeps() {
         console.warn('Audio error:', e);
       }
     },
-  };
+    };
 }
 
 function _getSelectedClass() {
@@ -906,28 +861,27 @@ function selectClass(btn) {
 
 function _getSaveSystemDeps() {
   return {
-    gs: GS,
+    ..._baseDeps(),
     runRules: RunRules,
-    doc: document,
+
     isGameStarted: () => _gameStarted,
-  };
+    };
 }
 
 function _getRunModeDeps() {
   return {
-    gs: GS,
+    ..._baseDeps(),
     runRules: RunRules,
     saveMeta: () => window.SaveSystem?.saveMeta?.(_getSaveSystemDeps()),
     notice: (msg) => {
       if (typeof showWorldMemoryNotice === 'function') showWorldMemoryNotice(msg);
     },
-  };
+    };
 }
 
 function _getRunStartDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     switchScreen,
     markGameStarted: () => { _gameStarted = true; },
     generateMap,
@@ -939,7 +893,7 @@ function _getRunStartDeps() {
     requestAnimationFrame: window.requestAnimationFrame.bind(window),
     showRunFragment: () => StorySystem.showRunFragment(),
     showWorldMemoryNotice,
-  };
+    };
 }
 
 function refreshRunModePanel() {
@@ -964,15 +918,14 @@ function cycleRunCurse() {
 
 function _getRunSetupDeps() {
   return {
-    gs: GS,
-    data: DATA,
+    ..._baseDeps(),
     runRules: RunRules,
     audioEngine: AudioEngine,
     getSelectedClass: () => _getSelectedClass(),
     shuffleArray,
     resetDeckModalFilter: () => _resetDeckModalFilter(),
     enterRun: () => window.RunStartUI?.enterRun?.(_getRunStartDeps()),
-  };
+    };
 }
 
 function startGame() {
@@ -981,12 +934,11 @@ function startGame() {
 
 function _getMetaProgressionDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     switchScreen,
     clearSelectedClass: _clearSelectedClass,
     refreshRunModePanel,
-  };
+    };
 }
 
 function selectFragment(effect) {
@@ -998,8 +950,7 @@ function selectFragment(effect) {
 // ────────────────────────────────────────
 function _getRegionTransitionDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     mazeSystem: MazeSystem,
     getRegionData,
     getBaseRegionIndex,
@@ -1009,7 +960,7 @@ function _getRegionTransitionDeps() {
     generateMap,
     updateUI,
     showRunFragment: () => StorySystem.showRunFragment(),
-  };
+    };
 }
 
 function advanceToNextRegion() {
@@ -1021,8 +972,7 @@ function advanceToNextRegion() {
 // ────────────────────────────────────────
 function _getHelpPauseDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     showDeckView,
     closeDeckView,
     useEchoSkill,
@@ -1030,7 +980,7 @@ function _getHelpPauseDeps() {
     renderCombatEnemies,
     finalizeRunOutcome,
     switchScreen,
-  };
+    };
 }
 
 function toggleHelp() {
@@ -1119,8 +1069,7 @@ window.setCodexTab = setCodexTab;
 
 function _getGameBootDeps() {
   return {
-    gs: GS,
-    doc: document,
+    ..._baseDeps(),
     audioEngine: AudioEngine,
     runRules: RunRules,
     saveSystem: window.SaveSystem,
@@ -1128,7 +1077,7 @@ function _getGameBootDeps() {
     initTitleCanvas,
     updateUI,
     refreshRunModePanel,
-  };
+    };
 }
 
 function _bootGame() {
