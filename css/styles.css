@@ -2613,10 +2613,10 @@ body:has(#combatOverlay.active) .panel-bottom {
   color: var(--white);
 }
 
-/* 소음 게이지 위젯 — 하단 중앙 (플레이어 턴 표시기와 수직 정렬) */
+/* 소음 게이지 위젯 — 상단 중앙 (플레이어 턴 표시기 바로 아래) */
 #noiseWidget {
   position: fixed;
-  bottom: 280px;
+  top: 62px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 220;
