@@ -253,8 +253,8 @@
       // 골드 획득 팝업
       if (amount > 0) {
         const el = document.createElement('div');
-        el.style.cssText = `position:fixed;right:260px;top:${60 + Math.random() * 40}px;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;color:var(--gold);text-shadow:0 0 12px rgba(240,180,41,0.7);pointer-events:none;z-index:500;animation:goldPop 1.4s ease forwards;`;
-        el.textContent = `+${amount}G`;
+        el.style.cssText = `position:fixed;left:50%;top:${40 + Math.random() * 20}%;transform:translate(-50%,-50%);font-family:'Share Tech Mono',monospace;font-size:24px;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(240,180,41,0.9);pointer-events:none;z-index:9500;animation:goldPop 1.4s ease forwards;`;
+        el.textContent = `+${amount} Gold`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1400);
       }
@@ -586,6 +586,13 @@
       this._endCombatRunning = true;
       try {
         this.combat.active = false;
+        // 카드 tooltip 잔상 및 손패 카드 DOM 즉시 제거
+        if (typeof globalObj.TooltipUI !== 'undefined') {
+          globalObj.TooltipUI.hideTooltip({ doc: document });
+        }
+        document.getElementById('cardTooltip')?.classList.remove('visible');
+        const combatHandCards = document.getElementById('combatHandCards');
+        if (combatHandCards) combatHandCards.innerHTML = '';
         if (typeof globalObj.HudUpdateUI !== 'undefined' && typeof globalObj.HudUpdateUI.resetCombatUI === 'function') {
           globalObj.HudUpdateUI.resetCombatUI();
         } else {

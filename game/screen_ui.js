@@ -12,10 +12,13 @@
       const target = doc.getElementById(`${screen}Screen`);
       if (target) target.classList.add('active');
 
-      // hoverHud는 body-level이므로 game 관련 화면에서만 표시
+      // hoverHud 및 panel-right 가시성 제어
       const hud = doc.getElementById('hoverHud');
-      const showHud = ['game', 'event', 'reward', 'death'].includes(screen);
-      if (hud) hud.style.display = showHud ? 'block' : 'none';
+      const panelRight = doc.querySelector('.panel-right');
+      const showIngame = ['game', 'event', 'reward', 'death'].includes(screen);
+
+      if (hud) hud.style.display = showIngame ? 'block' : 'none';
+      if (panelRight) panelRight.style.display = showIngame ? 'flex' : 'none';
 
       if (deps?.gs) deps.gs.currentScreen = screen;
       if (screen === 'title' && typeof deps.onEnterTitle === 'function') {

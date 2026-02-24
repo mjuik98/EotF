@@ -15,9 +15,12 @@
 
       for (let floor = 1; floor <= region.floors; floor++) {
         const isBossFloor = floor === region.floors;
+        const isPreBossFloor = floor === region.floors - 1;
         const isLateGame = floor >= Math.ceil(region.floors * 0.5);
         const count = isBossFloor ? 1 : (Math.random() < 0.5 ? 2 : 3);
         let eliteAssigned = false;
+        let shopAssigned = false;
+        let eventAssigned = false;
 
         for (let i = 0; i < count; i++) {
           let type;
@@ -25,12 +28,19 @@
             type = 'boss';
           } else if (floor === 1) {
             type = 'combat';
+          } else if (isPreBossFloor && i === 0) {
+            // 보스 직전 층의 첫 노드는 상점 고정
+            type = 'shop';
+            shopAssigned = true;
           } else if (!eliteAssigned && isLateGame && count > 1 && Math.random() < 0.35) {
             type = 'elite';
             eliteAssigned = true;
           } else {
             const pool = ['combat', 'combat', 'combat', 'event', 'shop', 'rest'];
-            type = pool[Math.floor(Math.random() * pool.length)];
+            const filteredPool = pool.filter(t => (t !== 'shop' || !shopAssigned) && (t !== 'event' || !eventAssigned));
+            type = filteredPool[Math.floor(Math.random() * filteredPool.length)] || 'combat';
+            if (type === 'shop') shopAssigned = true;
+            if (type === 'event') eventAssigned = true;
           }
 
           gs.mapNodes.push({

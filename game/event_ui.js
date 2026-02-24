@@ -291,7 +291,9 @@
 
       const allCards = [...gs.player.deck];
       if (allCards.length === 0) {
-        gs.addLog('덱에 카드가 없다.', 'system');
+        if (typeof AudioEngine !== 'undefined') AudioEngine.playHit();
+        if (typeof ScreenShake !== 'undefined') ScreenShake.shake(10, 0.4);
+        gs.addLog('⚠️ 소각/처분할 카드가 덱에 없습니다.', 'damage');
         return;
       }
 
@@ -411,13 +413,13 @@
         const cost = runRules.getShopCost(gs, rc.baseCost || 10);
         const canAfford = gs.player.gold >= cost;
         const card = doc.createElement('div');
-        card.style.cssText = `width:155px;background:rgba(10,5,30,0.95);border:1px solid ${rc.border};border-radius:12px;padding:16px;text-align:center;cursor:${canAfford ? 'pointer' : 'not-allowed'};opacity:${canAfford ? 1 : 0.5};transition:all 0.2s;position:relative;`;
+        card.style.cssText = `width:170px;height:260px;background:rgba(10,5,30,0.95);border:1px solid ${rc.border};border-radius:12px;padding:16px;text-align:center;cursor:${canAfford ? 'pointer' : 'not-allowed'};opacity:${canAfford ? 1 : 0.5};transition:all 0.2s;position:relative;display:flex;flex-direction:column;`;
         card.innerHTML = `
-          <div style="position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.1em;color:${rc.color};">${rc.label}</div>
-          <div style="font-size:32px;margin-bottom:8px;">${item.icon}</div>
-          <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:${rc.color};margin-bottom:6px;">${item.name}</div>
-          <div style="font-size:11px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;">${item.desc}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);font-weight:700;">${cost} 골드</div>
+          <div style="position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.1em;color:${rc.color};">${rc.label}</div>
+          <div style="font-size:46px;margin-bottom:8px;margin-top:20px;">${item.icon}</div>
+          <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:${rc.color};margin-bottom:6px;">${item.name}</div>
+          <div style="font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--gold);font-weight:700;margin-top:auto;">${cost} 골드</div>
         `;
         const alreadyOwned = gs.player.items.includes(item.id);
         if (alreadyOwned) {

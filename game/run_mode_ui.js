@@ -125,6 +125,36 @@
       this.refresh(deps);
       if (typeof deps.saveMeta === 'function') deps.saveMeta();
     },
+
+    refreshInscriptions(deps = {}) {
+      const gs = deps.gs;
+      if (!gs?.meta) return;
+      const doc = _getDoc(deps);
+      const row = doc.getElementById('inscriptionRow');
+      const container = doc.getElementById('inscriptionToggles');
+      if (!row || !container) return;
+
+      const insc = gs.meta.inscriptions || {};
+      const hasAny = Object.values(insc).some(v => v !== undefined);
+      if (!hasAny) {
+        row.style.display = 'none';
+        return;
+      }
+
+      row.style.display = 'flex';
+      const labels = { echo_boost: '⚡Echo+', resilience: '🛡️HP+', fortune: '💰Gold+' };
+      container.innerHTML = Object.entries(insc).map(([key, val]) => `
+        <div class="inscription-pill ${val ? 'active' : ''}" onclick="toggleInscription('${key}')">${labels[key] || key}</div>
+      `).join('');
+    },
+
+    toggleInscription(key, deps = {}) {
+      const gs = deps.gs;
+      if (!gs?.meta?.inscriptions) return;
+      gs.meta.inscriptions[key] = !gs.meta.inscriptions[key];
+      this.refreshInscriptions(deps);
+      if (typeof deps.saveMeta === 'function') deps.saveMeta();
+    }
   };
 
   globalObj.RunModeUI = RunModeUI;

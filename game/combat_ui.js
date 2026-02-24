@@ -157,6 +157,10 @@
 
       let intent;
       try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
+
+      // 전투 첫 턴(turn === 0): 툴팁 표시 차단
+      if (gs.combat.turn === 0) return;
+
       const icon = _getIntentIcon(intent);
       const label = _formatIntentLabel(intent);
       const descInfo = _resolveIntentDescription(intent);
@@ -219,9 +223,17 @@
           try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
 
           const statusStr = _renderEnemyStatuses(e.statusEffects);
-          const intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
-          const intentLabel = _formatIntentLabel(intent);
-          const intentIcon = _getIntentIcon(intent);
+          let intentIcon = _getIntentIcon(intent);
+          let intentLabel = _formatIntentLabel(intent);
+          let intentDmg = intent.dmg > 0 ? `<div class="enemy-intent-dmg">${intent.dmg}</div>` : '';
+
+          // 전투 첫 턴(turn === 0): 아직 행동이 없으므로 준비 중 표시
+          if (gs.combat.turn === 0) {
+            intentIcon = '❓';
+            intentLabel = '알 수 없음';
+            intentDmg = '';
+          }
+
           const isSelected = gs._selectedTarget === i && e.hp > 0;
           const selStyle = isSelected ? 'outline:2px solid var(--cyan);box-shadow:0 0 18px rgba(0,255,204,0.45);' : '';
           const deadStyle = e.hp <= 0 ? 'opacity:0.3;filter:grayscale(1);pointer-events:none;' : '';
@@ -273,9 +285,17 @@
           if (intentEl) {
             let intent;
             try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
-            const intentIcon = _getIntentIcon(intent);
-            const intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
-            const intentLabel = _formatIntentLabel(intent);
+            let intentIcon = _getIntentIcon(intent);
+            let intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
+            let intentLabel = _formatIntentLabel(intent);
+
+            // 전투 첫 턴(turn === 0): 차분 업데이트 시에도 준비 중 표시
+            if (gs.combat.turn === 0) {
+              intentIcon = '❓';
+              intentLabel = '알 수 없음';
+              intentDmg = '';
+            }
+
             intentEl.innerHTML = `<span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}`;
             intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
             intentEl.onmouseleave = () => this.hideIntentTooltip(deps);

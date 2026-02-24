@@ -97,17 +97,25 @@
         <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(14px,1.8vw,18px);color:var(--text);max-width:500px;text-align:center;line-height:1.9;animation:fadeInUp 1s ease 1.8s both;opacity:0;">"잔향자는 에코의 핵심을 돌파했다.<br>하지만 루프는 아직 끝나지 않았다.<br>진실을 알기에는 — 아직 이르다."</div>
         <div style="display:flex;gap:28px;animation:fadeInUp 1s ease 2.5s both;opacity:0;flex-wrap:wrap;justify-content:center;">
           ${[
-            { n: gs.player.kills, l: '처치 수' },
-            { n: gs.stats.maxChain, l: '최고 체인' },
-            { n: gs.stats.damageDealt, l: '총 피해' },
-            { n: gs.meta.runCount, l: '런 횟수' },
-            { n: `${gs.meta.storyPieces.length}/10`, l: '스토리 조각' },
-          ].map(s => `<div style="text-align:center;"><div style="font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:900;color:var(--echo);">${s.n}</div><div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:var(--text-dim);margin-top:4px;">${s.l}</div></div>`).join('')}
+        { n: gs.player.kills, l: '처치 수' },
+        { n: gs.stats.maxChain, l: '최고 체인' },
+        { n: gs.stats.damageDealt, l: '총 피해' },
+        { n: gs.meta.runCount, l: '런 횟수' },
+        { n: `${gs.meta.storyPieces.length}/10`, l: '스토리 조각' },
+      ].map(s => `<div style="text-align:center;"><div style="font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:900;color:var(--echo);">${s.n}</div><div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:var(--text-dim);margin-top:4px;">${s.l}</div></div>`).join('')}
         </div>
         <div style="animation:fadeInUp 1s ease 3s both;opacity:0;">
           <button onclick="restartFromEnding()" style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--echo),var(--echo-bright));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;">다시 잔향 속으로</button>
         </div>
-        <div style="font-family:'Crimson Pro',serif;font-size:13px;font-style:italic;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;">힌트: 각인 없이 클리어하면 — 다른 결말이 기다린다</div>
+        <div style="font-family:'Crimson Pro',serif;font-size:13px;font-style:italic;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;line-height:1.6;max-width:450px;">
+          ✦ 각인이란? — 사망 시 획득하는 영구 강화입니다.<br>
+          <span style="font-size:0.9em;opacity:0.8;">
+            · 에코 증폭: 다음 런 Echo +30으로 시작<br>
+            · 회복력: 다음 런 최대 HP +10<br>
+            · 행운: 다음 런 골드 25로 시작
+          </span><br>
+          각인을 하나도 선택하지 않고 클리어하면 — 다른 결말이 기다립니다.
+        </div>
       `;
 
       doc.body.appendChild(el);

@@ -61,6 +61,9 @@
         globalObj._resetCombatInfoPanel();
       }
       doc.getElementById('noiseGaugeOverlay')?.remove();
+      doc.getElementById('cardTooltip')?.classList.remove('visible');
+      const handCards = doc.getElementById('combatHandCards');
+      if (handCards) handCards.innerHTML = '';
       const endZone = doc.getElementById('enemyZone');
       if (endZone) endZone.innerHTML = '';
     },
@@ -146,6 +149,12 @@
       setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
       setText('hudEchoText', Math.floor(p.echo));
       setText('hudGoldText', p.gold);
+
+      const shieldTrigger = doc.getElementById('hudShieldTrigger');
+      if (shieldTrigger) {
+        shieldTrigger.style.opacity = p.shield > 0 ? '1' : '0.3';
+        setText('hudShieldText', p.shield);
+      }
 
       doc.getElementById('hoverHud')?.classList.toggle('low-hp', hpPct <= 30);
 

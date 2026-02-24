@@ -51,19 +51,61 @@
       const container = doc.getElementById('rewardCards');
       if (!container) return;
       container.classList.remove('picked');
+
+      const isNormalCombat = !isBoss && !isElite;
+      const specialRoll = isNormalCombat && Math.random() < 0.1;
+      let specialType = null;
+      if (specialRoll) {
+        specialType = ['relic', 'upgrade', 'remove'][Math.floor(Math.random() * 3)];
+      }
+
       container.innerHTML = rewardCards.map((cardId, idx) => {
+        if (specialRoll && idx === rewardCards.length - 1) {
+          // 마지막 슬롯을 특별 보상으로 대체
+          if (specialType === 'relic') {
+            const pool = Object.values(data.items).filter(item => !gs.player.items.includes(item.id));
+            const item = pool[Math.floor(Math.random() * pool.length)] || data.items.void_shard;
+            return `<div class="reward-card-wrapper" onclick="takeRewardItem('${item.id}')" style="animation-delay:${idx * 0.08}s;">
+              <div class="card" style="width:170px;height:260px;padding-top:20px;padding-bottom:12px;border-color:var(--gold);">
+                <div class="card-icon" style="font-size:46px;">🎁</div>
+                <div class="card-name" style="font-size:16px;color:var(--gold);">특별 유물</div>
+                <div class="card-desc" style="font-size:13px;flex:1;">무작위 유물을 획득합니다.<br><br><b>${item.name}</b></div>
+                <div class="card-type" style="font-size:11px;color:var(--gold);margin-top:auto;">특수 보상</div>
+              </div>
+            </div>`;
+          } else if (specialType === 'upgrade') {
+            return `<div class="reward-card-wrapper" onclick="takeRewardUpgrade()" style="animation-delay:${idx * 0.08}s;">
+              <div class="card" style="width:170px;height:260px;padding-top:20px;padding-bottom:12px;border-color:var(--echo-bright);">
+                <div class="card-icon" style="font-size:46px;">⚒️</div>
+                <div class="card-name" style="font-size:16px;color:var(--echo-bright);">무작위 강화</div>
+                <div class="card-desc" style="font-size:13px;flex:1;">덱의 무작위 카드 1장을 즉시 강화합니다.</div>
+                <div class="card-type" style="font-size:11px;color:var(--echo-bright);margin-top:auto;">특수 보상</div>
+              </div>
+            </div>`;
+          } else {
+            return `<div class="reward-card-wrapper" onclick="takeRewardRemove()" style="animation-delay:${idx * 0.08}s;">
+              <div class="card" style="width:170px;height:260px;padding-top:20px;padding-bottom:12px;border-color:#ff3366;">
+                <div class="card-icon" style="font-size:46px;">🔥</div>
+                <div class="card-name" style="font-size:16px;color:#ff3366;">스킬 소각</div>
+                <div class="card-desc" style="font-size:13px;flex:1;">덱에서 원하는 카드 1장을 영구히 제거합니다.</div>
+                <div class="card-type" style="font-size:11px;color:#ff3366);margin-top:auto;">특수 보상</div>
+              </div>
+            </div>`;
+          }
+        }
+
         const card = data.cards[cardId];
         if (!card) return '';
         const rarityBorder = card.rarity === 'rare' ? 'rgba(240,180,41,0.4)' : card.rarity === 'uncommon' ? 'rgba(123,47,255,0.4)' : '';
         return `<div class="reward-card-wrapper" onclick="takeRewardCard('${cardId}')"
           onmouseenter="showTooltip(event,'${cardId}')" onmouseleave="hideTooltip()"
           style="animation-delay:${idx * 0.08}s;">
-          <div class="card" style="width:140px;height:auto;min-height:190px;padding-bottom:12px;${rarityBorder ? `border-color:${rarityBorder};` : ''}">
-            <div class="card-cost">${card.cost}</div>
-            <div class="card-icon" style="font-size:36px;">${card.icon}</div>
-            <div class="card-name" style="font-size:13px;">${card.name}</div>
-            <div class="card-desc" style="font-size:11px;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
-            <div class="card-type" style="font-size:9px;color:${rarityBorder || 'var(--echo)'};">${card.rarity || 'common'}</div>
+          <div class="card" style="width:170px;height:260px;padding-bottom:12px;${rarityBorder ? `border-color:${rarityBorder};` : ''}">
+            <div class="card-cost" style="width:32px;height:32px;font-size:15px;right:10px;top:10px;">${card.cost}</div>
+            <div class="card-icon" style="font-size:44px;margin-top:18px;">${card.icon}</div>
+            <div class="card-name" style="font-size:16px;">${card.name}</div>
+            <div class="card-desc" style="font-size:13px;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
+            <div class="card-type" style="font-size:11px;color:${rarityBorder || 'var(--echo)'};margin-top:auto;">${card.rarity || 'common'}</div>
           </div>
         </div>`;
       }).join('');
@@ -81,11 +123,11 @@
           const rarityLabel = { common: '일반', uncommon: '고급', rare: '희귀', legendary: '전설' };
           const rc = item.rarity || 'common';
           container.innerHTML += `<div class="reward-card-wrapper" onclick="takeRewardItem('${item.id}')" style="animation-delay:${count * 0.08}s;">
-            <div class="card" style="width:140px;height:auto;min-height:190px;padding-bottom:12px;border-color:${rarityBorderItem[rc]};">
-              <div class="card-icon" style="font-size:40px;">${item.icon}</div>
-              <div class="card-name" style="font-size:13px;color:${rarityColor[rc]};">${item.name}</div>
-              <div class="card-desc" style="font-size:11px;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>
-              <div class="card-type" style="font-size:9px;color:${rarityColor[rc]};">아이템 · ${rarityLabel[rc]}</div>
+            <div class="card" style="width:170px;height:260px;padding-bottom:12px;border-color:${rarityBorderItem[rc]};">
+              <div class="card-icon" style="font-size:46px;margin-top:20px;">${item.icon}</div>
+              <div class="card-name" style="font-size:16px;color:${rarityColor[rc]};">${item.name}</div>
+              <div class="card-desc" style="font-size:13px;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>
+              <div class="card-type" style="font-size:11px;color:${rarityColor[rc]};margin-top:auto;">아이템 · ${rarityLabel[rc]}</div>
             </div>
           </div>`;
         }
@@ -149,6 +191,47 @@
       if (typeof deps.showItemToast === 'function') deps.showItemToast(item);
       if (typeof deps.returnToGame === 'function') {
         setTimeout(() => deps.returnToGame(true), 350);
+      }
+    },
+
+    takeRewardUpgrade(deps = {}) {
+      const gs = _getGS(deps);
+      const data = _getData(deps);
+      if (!gs || !data) return;
+      if (gs._rewardLock) return;
+      gs._rewardLock = true;
+
+      const upgradable = gs.player.deck.filter(id => data.upgradeMap[id]);
+      if (upgradable.length > 0) {
+        const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
+        const upgId = data.upgradeMap[cardId];
+        const idx = gs.player.deck.indexOf(cardId);
+        if (idx >= 0) gs.player.deck[idx] = upgId;
+        if (gs.meta.codex) gs.meta.codex.cards.add(upgId);
+        if (typeof deps.playItemGet === 'function') deps.playItemGet();
+        if (typeof deps.showItemToast === 'function') {
+          const upgCard = data.cards[upgId];
+          deps.showItemToast({ name: `${upgCard?.name} 강화 완료`, icon: '⚒️', desc: '무작위 카드가 업그레이드되었습니다.' });
+        }
+      }
+      if (typeof deps.returnToGame === 'function') {
+        setTimeout(() => deps.returnToGame(true), 350);
+      }
+    },
+
+    takeRewardRemove(deps = {}) {
+      const gs = _getGS(deps);
+      if (!gs) return;
+      if (gs._rewardLock) return;
+      // 소각은 오버레이에서 선택 후 returnToGame 호출하므로 락을 걸지 않거나 오버레이 안에서 관리
+      if (globalObj.EventUI && typeof globalObj.EventUI.showCardDiscard === 'function') {
+        globalObj.EventUI.showCardDiscard(gs, true, {
+          ...deps, returnToGame: (force) => {
+            if (typeof deps.returnToGame === 'function') deps.returnToGame(force);
+          }
+        });
+      } else {
+        if (typeof deps.returnToGame === 'function') deps.returnToGame(true);
       }
     },
 

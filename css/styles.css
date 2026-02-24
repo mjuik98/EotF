@@ -463,7 +463,7 @@ body {
 
 .start-btn {
   font-family: 'Cinzel', serif;
-  font-size: 14px;
+  font-size: 18px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--void);
@@ -524,16 +524,23 @@ body {
 
 /* 좌측 패널 제거 — hover HUD로 대체 */
 .panel-right {
-  grid-column: 2;
-  grid-row: 1/3;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 240px;
+  height: 100vh;
   background: var(--glass);
   border-left: 1px solid var(--border);
   backdrop-filter: blur(24px);
-  display: flex;
+  display: none;
+  /* ScreenUI에서 제어하도록 기본값 숨김 */
   flex-direction: column;
   padding: 16px;
   gap: 12px;
   overflow: hidden;
+  z-index: 9999;
+  /* 모든 화면 및 오버레이 최상단 보장 */
+  pointer-events: auto !important;
 }
 
 .panel-bottom {
@@ -598,9 +605,9 @@ body {
 .hud-stat-inline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .hud-bar-mini {
@@ -619,13 +626,13 @@ body {
 }
 
 #hoverHudTrigger #playerAvatar {
-  font-size: 20px !important;
+  font-size: 30px !important;
 }
 
 #hoverHudTrigger #hudHpText,
 #hoverHudTrigger #hudEchoText,
 #hoverHudTrigger #hudGoldText {
-  font-size: 13px;
+  font-size: 16px;
 }
 
 #hudPinHint {
@@ -640,8 +647,8 @@ body {
   background: rgba(6, 6, 22, 0.97);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px 18px;
-  width: 276px;
+  padding: 24px 32px;
+  width: 480px;
   backdrop-filter: blur(24px);
   opacity: 0;
   pointer-events: none;
@@ -678,20 +685,20 @@ body {
 
 .hud-section-title {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: 0.32em;
+  font-size: 16px;
+  letter-spacing: 0.35em;
   color: var(--text-dim);
   text-transform: uppercase;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(123, 47, 255, 0.08);
-  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(123, 47, 255, 0.12);
+  margin-bottom: 12px;
 }
 
 .hud-stat-row {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-bottom: 7px;
+  gap: 6px;
+  margin-bottom: 18px;
 }
 
 .hud-stat-label-row {
@@ -702,21 +709,21 @@ body {
 
 .hud-stat-label {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: 16px;
   letter-spacing: 0.08em;
   color: var(--text-dim);
 }
 
 .hud-stat-value {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
+  font-size: 26px;
   color: var(--white);
 }
 
 .hud-bar-track {
-  height: 5px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -864,7 +871,7 @@ body {
 
 .panel-title {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: 13px;
   letter-spacing: 0.35em;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -1082,21 +1089,21 @@ body {
 
 .region-name-display {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--white);
   margin-bottom: 2px;
 }
 
 .region-rule-display {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--echo);
   font-family: 'Cinzel', serif;
   letter-spacing: 0.1em;
 }
 
 .region-floor-display {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--text-dim);
   margin-top: 2px;
   font-family: 'Share Tech Mono', monospace;
@@ -1120,13 +1127,13 @@ body {
 
 .next-node-type {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.15em;
   color: var(--echo);
 }
 
 .next-node-name {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--white);
   margin-top: 2px;
 }
@@ -1142,7 +1149,7 @@ body {
 
 .energy-label {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   color: var(--gold);
 }
@@ -1220,7 +1227,7 @@ body {
 
 .deck-count-label {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--text-dim);
 }
@@ -1238,8 +1245,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100px;
-  height: 146px;
+  width: 125px;
+  height: 180px;
   flex-shrink: 0;
   backdrop-filter: blur(12px);
 }
@@ -1277,8 +1284,8 @@ body {
   top: 7px;
   right: 7px;
   left: auto;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: rgba(123, 47, 255, 0.3);
   border: 1px solid var(--echo);
@@ -1286,7 +1293,7 @@ body {
   align-items: center;
   justify-content: center;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--white);
   z-index: 2;
@@ -1323,7 +1330,7 @@ body {
 
 .card-name {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--white);
   text-align: center;
@@ -1333,7 +1340,7 @@ body {
 }
 
 .card-desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-dim);
   text-align: center;
   line-height: 1.4;
@@ -1342,7 +1349,7 @@ body {
 
 .card-type {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--echo);
   margin-top: auto;
@@ -1931,18 +1938,20 @@ body {
   position: fixed;
   bottom: 220px;
   right: 260px;
-  background: rgba(7, 7, 26, 0.92);
+  transform: none;
+  background: rgba(7, 7, 26, 0.94);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 16px;
+  border-radius: 12px;
+  padding: 16px 24px;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text);
-  z-index: 300;
-  min-width: 160px;
+  z-index: 9000;
+  /* 미니맵보다 위로 */
+  min-width: 240px;
   animation: fadeInUp 0.4s ease both;
   pointer-events: none;
-  /* 보상 카드 클릭 차단 방지 */
+  box-shadow: 0 0 40px rgba(123, 47, 255, 0.2);
 }
 
 .combat-stat-summary.fadeout {
@@ -2426,9 +2435,9 @@ body {
 
 .action-btn {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.1em;
-  padding: 9px 16px;
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.22s;
@@ -2578,8 +2587,9 @@ body {
 /* 소음 게이지 위젯 — 우측 상단 (턴 표시기 아래) */
 #noiseWidget {
   position: fixed;
-  top: 60px;
-  right: 12px;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 220;
   background: rgba(5, 5, 18, 0.94);
   border: 1px solid rgba(255, 51, 102, 0.3);
@@ -3184,27 +3194,29 @@ body {
 .item-toast {
   position: fixed;
   bottom: 32px;
-  right: 24px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 18px;
+  right: 260px;
+  /* 우측 패널(240px) + 여백(20px) */
+  background: rgba(16, 16, 46, 0.98);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 32px;
   display: flex;
-  gap: 12px;
+  gap: 20px;
   align-items: center;
-  z-index: 500;
-  animation: slideInRight 0.4s ease both;
-  backdrop-filter: blur(20px);
+  z-index: 1000;
+  animation: toastRevealRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  backdrop-filter: blur(32px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(123, 47, 255, 0.2);
 }
 
-@keyframes slideInRight {
+@keyframes toastRevealRight {
   from {
-    transform: translateX(120%);
+    transform: translateX(40px) scale(0.9);
     opacity: 0;
   }
 
   to {
-    transform: none;
+    transform: translateX(0) scale(1);
     opacity: 1;
   }
 }
@@ -3215,15 +3227,16 @@ body {
 
 .toast-text {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: 18px;
   color: var(--white);
   font-weight: 700;
 }
 
 .toast-sub {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 2px;
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 6px;
+  line-height: 1.4;
 }
 
 /* ── SPECIAL UI ── */
@@ -3577,4 +3590,29 @@ body {
 
 .enemy-image-container:hover img {
   transform: scale(1.05);
+}
+
+.inscription-pill {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(123, 47, 255, 0.2);
+  background: rgba(123, 47, 255, 0.05);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.inscription-pill.active {
+  background: rgba(123, 47, 255, 0.25);
+  border-color: var(--echo);
+  color: var(--echo-bright);
+  box-shadow: 0 0 10px rgba(123, 47, 255, 0.2);
+}
+
+.inscription-pill:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
 }

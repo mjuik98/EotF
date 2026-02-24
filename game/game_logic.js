@@ -904,10 +904,12 @@ function _getRunStartDeps() {
 
 function refreshRunModePanel() {
   window.RunModeUI?.refresh?.(_getRunModeDeps());
+  window.RunModeUI?.refreshInscriptions?.(_getRunModeDeps());
 }
 
 function shiftAscension(delta) {
   window.RunModeUI?.shiftAscension?.(delta, _getRunModeDeps());
+  window.RunModeUI?.refreshInscriptions?.(_getRunModeDeps());
 }
 
 function toggleEndlessMode() {
@@ -1042,6 +1044,7 @@ window.shiftAscension = shiftAscension;
 window.toggleEndlessMode = toggleEndlessMode;
 window.cycleRunBlessing = cycleRunBlessing;
 window.cycleRunCurse = cycleRunCurse;
+window.toggleInscription = (key) => window.RunModeUI?.toggleInscription?.(key, _getRunModeDeps());
 window.selectFragment = selectFragment;
 window.useEchoSkill = useEchoSkill;
 window.drawCard = drawCard;

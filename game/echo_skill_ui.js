@@ -5,6 +5,7 @@
     useEchoSkill(deps = {}) {
       const gs = deps.gs || globalObj.GS;
       if (!gs?.player) return;
+      if (!gs.combat?.active || !gs.combat.playerTurn) return;
 
       const echoVal = gs.player.echo;
       let tier;

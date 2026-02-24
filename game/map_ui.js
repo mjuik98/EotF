@@ -30,22 +30,73 @@
       const maxFloor = Math.max(...gs.mapNodes.map(n => n.floor));
       const floorH = (h - 20) / (maxFloor + 1);
 
+      // 연결선 그리기
+      gs.mapNodes.forEach(node => {
+        if (!node.children) return;
+        const nx = w * (node.pos + 1) / (node.total + 1);
+        const ny = h - 10 - floorH * node.floor;
+
+        node.children.forEach(childId => {
+          const child = gs.mapNodes.find(n => n.id === childId);
+          if (!child) return;
+          const cx2 = w * (child.pos + 1) / (child.total + 1);
+          const cy2 = h - 10 - floorH * child.floor;
+
+          ctx.beginPath();
+          ctx.moveTo(nx, ny);
+          ctx.lineTo(cx2, cy2);
+
+          const isVisited = node.visited && child.visited;
+          const isNext = node.visited && child.accessible;
+
+          if (isVisited) {
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.5)';
+            ctx.lineWidth = 1.5;
+          } else if (isNext) {
+            ctx.strokeStyle = 'rgba(123, 47, 255, 0.4)';
+            ctx.lineWidth = 1;
+          } else {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 0.5;
+          }
+          ctx.stroke();
+        });
+      });
+
+      // 노드 그리기
       gs.mapNodes.forEach(node => {
         const nx = w * (node.pos + 1) / (node.total + 1);
         const ny = h - 10 - floorH * node.floor;
         const r = node.type === 'boss' ? 5 : 3;
 
-        ctx.beginPath();
-        if (node.visited) ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        else if (node.accessible) ctx.fillStyle = '#7b2fff';
-        else ctx.fillStyle = 'rgba(96,96,136,0.3)';
+        // 노드 아이콘/이모지 렌더링 (배경 없이 깔끔하게)
+        const meta = deps.nodeMeta || (typeof NODE_META !== 'undefined' ? NODE_META : {});
+        const nodeMetaInfo = meta[node.type] || { icon: '?' };
 
-        ctx.arc(nx, ny, r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = node.visited ? 'rgba(0, 255, 204, 0.9)' : (node.accessible ? '#fff' : 'rgba(255,255,255,0.2)');
+        ctx.font = `bold ${r * 1.5}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(nodeMetaInfo.icon || '?', nx, ny);
 
         if (gs.currentNode?.id === node.id) {
-          ctx.strokeStyle = '#00ffcc';
+          // 현재 위치만 최소한의 흰색 테두리
+          ctx.beginPath();
+          ctx.arc(nx, ny, r + 1, 0, Math.PI * 2);
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        if (gs.currentNode?.id === node.id) {
+          ctx.strokeStyle = '#fff';
           ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // 현재 위치 강조 (화이트 글로우)
+          ctx.beginPath();
+          ctx.arc(nx, ny, r + 2, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.lineWidth = 1;
           ctx.stroke();
         }
       });
@@ -114,7 +165,7 @@
 
     /** 미니맵 클릭 시 전체 지도를 큰 오버레이로 표시 */
     showFullMap(deps = {}) {
-      const gs = deps.gs;
+      const gs = deps.gs || globalObj.GS;
       const doc = _getDoc(deps);
       if (!gs || !gs.mapNodes.length) return;
 
@@ -186,10 +237,25 @@
           ctx.beginPath();
           ctx.moveTo(nx, ny);
           ctx.lineTo(cx2, cy2);
+
           const isPath = node.visited && child.visited;
-          ctx.strokeStyle = isPath ? 'rgba(0,255,204,0.4)' : 'rgba(123,47,255,0.25)';
-          ctx.lineWidth = isPath ? 2.5 : 1.5;
+          const isNext = node.visited && child.accessible;
+
+          if (isPath) {
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([]);
+          } else if (isNext) {
+            ctx.strokeStyle = 'rgba(123, 47, 255, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+          } else {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]); // 잠긴 경로는 점선 처리
+          }
           ctx.stroke();
+          ctx.setLineDash([]); // 리셋
         });
       });
 
@@ -200,33 +266,20 @@
         const isCurrent = gs.currentNode?.id === node.id;
         const r = node.type === 'boss' ? 14 : 10;
 
-        // 글로우 효과
-        if (isCurrent || node.accessible) {
+        // 글로우 효과 (현재 위치만 최소화)
+        if (isCurrent) {
           ctx.beginPath();
           ctx.arc(nx, ny, r + 4, 0, Math.PI * 2);
-          ctx.fillStyle = isCurrent ? 'rgba(0,255,204,0.15)' : 'rgba(123,47,255,0.1)';
+          ctx.fillStyle = 'rgba(0,255,204,0.2)';
           ctx.fill();
         }
 
-        // 노드 원
-        ctx.beginPath();
-        ctx.arc(nx, ny, r, 0, Math.PI * 2);
-        if (isCurrent) {
-          ctx.fillStyle = '#00ffcc';
-          ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.stroke();
-        } else if (node.visited) {
-          ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        } else if (node.accessible) {
-          ctx.fillStyle = meta.color || '#7b2fff';
-          ctx.strokeStyle = meta.color || '#7b2fff'; ctx.lineWidth = 1.5; ctx.stroke();
-        } else {
-          ctx.fillStyle = 'rgba(96,96,136,0.25)';
-        }
-        ctx.fill();
+        // 노드 원 장식 제거 (외곽선 및 배경 채우기 모두 제거)
+        // 오직 이모지와 현재 위치 글로우만 남김
 
         // 아이콘
         ctx.fillStyle = isCurrent ? '#000' : '#fff';
-        ctx.font = `bold ${r + 2}px sans-serif`;
+        ctx.font = `bold ${r * 1.8}px sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(meta.icon || NODE_TYPE_CONFIG[node.type]?.icon || '?', nx, ny);
       });

@@ -22,19 +22,19 @@
       const el = doc.createElement('div');
       el.className = 'combat-stat-summary';
       el.innerHTML = `
-        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);margin-bottom:8px;">⚔️ 전투 종료</div>
-        <div style="display:flex;flex-direction:column;gap:4px;">
-          <div style="display:flex;justify-content:space-between;gap:16px;">
-            <span style="color:var(--text-dim);">가한 피해</span>
-            <span style="color:var(--danger);font-weight:700;">${dealt}</span>
+        <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.3em;color:var(--text-dim);margin-bottom:12px;text-align:center;">⚔️ 전투 요약 ⚔️</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;gap:20px;align-items:center;">
+            <span style="color:var(--text-dim);font-size:13px;">가한 피해</span>
+            <span style="color:var(--danger);font-weight:700;font-size:20px;font-family:'Share Tech Mono';">${dealt}</span>
           </div>
-          <div style="display:flex;justify-content:space-between;gap:16px;">
-            <span style="color:var(--text-dim);">받은 피해</span>
-            <span style="color:#ff8888;">${taken}</span>
+          <div style="display:flex;justify-content:space-between;gap:20px;align-items:center;">
+            <span style="color:var(--text-dim);font-size:13px;">받은 피해</span>
+            <span style="color:#ff8888;font-size:18px;font-family:'Share Tech Mono';">${taken}</span>
           </div>
-          <div style="display:flex;justify-content:space-between;gap:16px;">
-            <span style="color:var(--text-dim);">처치</span>
-            <span style="color:var(--cyan);">${kills}</span>
+          <div style="display:flex;justify-content:space-between;gap:20px;align-items:center;">
+            <span style="color:var(--text-dim);font-size:13px;">경험치(처치)</span>
+            <span style="color:var(--cyan);font-size:18px;font-family:'Share Tech Mono';">${kills}</span>
           </div>
         </div>
       `;
