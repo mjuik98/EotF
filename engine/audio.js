@@ -1,5 +1,6 @@
 ﻿const AudioEngine = (() => {
   let ctx = null, masterGain = null, reverbNode = null;
+  let sfxGain = null, ambientGainNode = null;
   let ambientOsc = null, ambientStarted = false;
 
   function init() {
@@ -9,6 +10,14 @@
       masterGain = ctx.createGain();
       masterGain.gain.value = 0.35;
       masterGain.connect(ctx.destination);
+      // SFX sub-gain
+      sfxGain = ctx.createGain();
+      sfxGain.gain.value = 0.7;
+      sfxGain.connect(masterGain);
+      // Ambient sub-gain
+      ambientGainNode = ctx.createGain();
+      ambientGainNode.gain.value = 0.4;
+      ambientGainNode.connect(masterGain);
       // リバーブ
       const convolver = ctx.createConvolver();
       const len = ctx.sampleRate * 1.5;
@@ -21,7 +30,7 @@
       reverbNode = ctx.createGain();
       reverbNode.gain.value = 0.2;
       convolver.connect(reverbNode);
-      reverbNode.connect(masterGain);
+      reverbNode.connect(sfxGain);
     } catch (e) { }
   }
 
@@ -29,13 +38,14 @@
 
   function tone(freq, dur, type = 'sine', gain = 0.2, detune = 0) {
     if (!ctx) return;
+    const dest = sfxGain || masterGain;
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
     osc.type = type; osc.frequency.value = freq; osc.detune.value = detune;
     g.gain.setValueAtTime(0, ctx.currentTime);
     g.gain.linearRampToValueAtTime(gain, ctx.currentTime + 0.01);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    osc.connect(g); g.connect(masterGain);
+    osc.connect(g); g.connect(dest);
     if (reverbNode) g.connect(reverbNode);
     osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur);
   }
@@ -65,16 +75,16 @@
     setTimeout(() => chord([523, 659], 0.3, 'sine', 0.1), 100);
   }
   function playCard() { tone(440, 0.12, 'sine', 0.1); tone(550, 0.08, 'sine', 0.07); }
-  // 스킬(방어/버프) 카드 사운드 — 부드러운 상승음
+  // 스킬(방어/버프) 카드 사운드 — 부드러운 상승음 (playHit과 동일 레벨)
   function playSkill() {
-    tone(330, 0.15, 'sine', 0.12);
-    setTimeout(() => tone(440, 0.12, 'sine', 0.1), 60);
-    setTimeout(() => tone(550, 0.18, 'sine', 0.08), 120);
+    tone(330, 0.15, 'sine', 0.15);
+    setTimeout(() => tone(440, 0.12, 'sine', 0.12), 60);
+    setTimeout(() => tone(550, 0.18, 'sine', 0.10), 120);
   }
-  // Echo/Power 카드 사운드 — 신비로운 반짝임
+  // Echo/Power 카드 사운드 — 신비로운 반짝임 (playHit과 동일 레벨)
   function playEcho() {
-    chord([392, 523, 659], 0.35, 'sine', 0.08);
-    setTimeout(() => tone(784, 0.25, 'sine', 0.06, 10), 80);
+    chord([392, 523, 659], 0.35, 'sine', 0.12);
+    setTimeout(() => tone(784, 0.25, 'sine', 0.10, 10), 80);
   }
   function playHeal() { chord([523, 659, 784], 0.5, 'sine', 0.1); }
   function playDeath() { chord([110, 138, 165], 1.5, 'sawtooth', 0.2); }
@@ -112,7 +122,8 @@
     lfoGain.gain.value = 3;
     g.gain.value = 0.04;
     lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
-    osc.connect(g); g.connect(masterGain);
+    const ambDest = ambientGainNode || masterGain;
+    osc.connect(g); g.connect(ambDest);
     if (reverbNode) g.connect(reverbNode);
     osc.start(); lfo.start();
     ambientOsc = osc;
@@ -121,6 +132,8 @@
   function playFootstep() { tone(80 + Math.random() * 40, 0.1, 'square', 0.05); }
 
   function setVolume(v) { if (masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
+  function setSfxVolume(v) { if (sfxGain) sfxGain.gain.value = Math.max(0, Math.min(1, v)); }
+  function setAmbientVolume(v) { if (ambientGainNode) ambientGainNode.gain.value = Math.max(0, Math.min(1, v)); }
 
   // 클래스 선택 시 고유 사운드
   function playClassSelect(cls) {
@@ -158,7 +171,7 @@
     init, resume, playHit, playHeavyHit, playPlayerHit, playCritical,
     playCard, playSkill, playEcho, playHeal, playDeath, playItemGet,
     playBossPhase, playChain, playResonanceBurst, startAmbient, playFootstep,
-    setVolume, playClassSelect, playLegendary
+    setVolume, setSfxVolume, setAmbientVolume, playClassSelect, playLegendary
   };
 })();
 

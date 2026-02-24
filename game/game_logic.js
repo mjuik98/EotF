@@ -1063,6 +1063,26 @@ window.openCodex = openCodex;
 window.closeCodex = closeCodex;
 window.setCodexTab = setCodexTab;
 
+// ── 사운드 설정 핸들러 ──
+window.setMasterVolume = function (v) {
+  const val = Math.max(0, Math.min(100, parseInt(v) || 0));
+  AudioEngine.setVolume(val / 100);
+  const el = document.getElementById('volMasterVal');
+  if (el) el.textContent = val + '%';
+};
+window.setSfxVolume = function (v) {
+  const val = Math.max(0, Math.min(100, parseInt(v) || 0));
+  AudioEngine.setSfxVolume(val / 100);
+  const el = document.getElementById('volSfxVal');
+  if (el) el.textContent = val + '%';
+};
+window.setAmbientVolume = function (v) {
+  const val = Math.max(0, Math.min(100, parseInt(v) || 0));
+  AudioEngine.setAmbientVolume(val / 100);
+  const el = document.getElementById('volAmbientVal');
+  if (el) el.textContent = val + '%';
+};
+
 // ────────────────────────────────────────
 // AUTOSAVE SYSTEM
 // ────────────────────────────────────────
