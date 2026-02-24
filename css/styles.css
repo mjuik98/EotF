@@ -2609,10 +2609,10 @@ body:has(#combatOverlay.active) .panel-bottom {
   color: var(--white);
 }
 
-/* 소음 게이지 위젯 — 우측 상단 (턴 표시기 아래) */
+/* 소음 게이지 위젯 — 하단 중앙 (플레이어 턴 표시기와 수직 정렬) */
 #noiseWidget {
   position: fixed;
-  top: 72px;
+  bottom: 280px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 220;
@@ -2625,7 +2625,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   box-shadow: 0 0 20px rgba(255, 51, 102, 0.1);
   display: none;
   pointer-events: none;
-  animation: fadeInDown 0.4s ease both;
 }
 
 #noiseWidget .nw-title {

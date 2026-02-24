@@ -94,6 +94,8 @@
 
       if (typeof deps.renderCombatEnemies === 'function') {
         deps.renderCombatEnemies();
+      } else if (typeof globalObj.CombatUI?.renderCombatEnemies === 'function') {
+        globalObj.CombatUI.renderCombatEnemies({ gs: gs, data: data });
       }
     },
   };

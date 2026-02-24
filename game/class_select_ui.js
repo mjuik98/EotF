@@ -39,7 +39,11 @@
         const data = deps.data || globalObj.DATA;
         const avatarFile = data?.assets?.avatars?.[_selectedClass];
         if (avatarFile) {
-          avatarEl.innerHTML = `<img src="assets/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;">`;
+          avatarEl.innerHTML = `
+            <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+            <span style="display:none;">${icons[_selectedClass] || '⚔️'}</span>
+          `;
         } else {
           avatarEl.textContent = icons[_selectedClass] || '⚔️';
         }

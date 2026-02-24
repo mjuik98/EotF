@@ -153,8 +153,14 @@
       const avatarEl = doc.getElementById('playerAvatar');
       if (avatarEl && p.class) {
         const avatarFile = data?.assets?.avatars?.[p.class];
-        if (avatarFile && !avatarEl.querySelector('img')) {
-          avatarEl.innerHTML = `<img src="assets/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;">`;
+        if (avatarFile) {
+          const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
+          const fallbackIcon = icons[p.class] || '⚔️';
+          avatarEl.innerHTML = `
+            <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+            <span style="display:none;font-size:18px;vertical-align:middle;">${fallbackIcon}</span>
+          `;
         }
       }
 
