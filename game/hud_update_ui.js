@@ -136,7 +136,12 @@
         const hasPlayable = gs.player.hand.some(id => {
           const c = data?.cards?.[id];
           if (!c) return false;
-          const cost = gs.player.zeroCost ? 0 : Math.max(0, c.cost - (gs.player.costDiscount || 0));
+          const cascade = gs.player._cascadeCards;
+          const isCascadeFree = cascade instanceof Map
+            ? (cascade.get(id) || 0) > 0
+            : !!(cascade && cascade.has && cascade.has(id));
+          const hasFreeCharge = Number(gs.player._freeCardUses || 0) > 0;
+          const cost = (gs.player.zeroCost || isCascadeFree || hasFreeCharge) ? 0 : Math.max(0, c.cost - (gs.player.costDiscount || 0));
           return gs.player.energy >= cost;
         });
         endBtn.classList.toggle('energy-warn', hasPlayable && gs.player.energy > 0);

@@ -28,8 +28,28 @@
       delete this.player.buffs['vanish'];
       this.addLog('💥 크리티컬!', 'echo');
     }
-    // 면역 체크
-    if (this.getBuff('immune')) { this.addLog('🏛️ 면역: 피해 없음!', 'echo'); return 0; }
+    // 적 무적 체크
+    if (enemy.statusEffects?.immune > 0) {
+      this.addLog(`🏛️ ${enemy.name}은(는) 무적 상태!`, 'echo');
+      return 0;
+    }
+
+    // 플레이어 디버프: 약화 시 공격 피해 감소
+    if ((this.getBuff('weakened')?.stacks || 0) > 0) {
+      dmg = Math.max(0, Math.floor(dmg * 0.5));
+    }
+
+    // 유물/세트 보너스 피해 보정
+    const itemScaled = this.triggerItems('deal_damage', dmg);
+    if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
+      dmg = Math.max(0, Math.floor(itemScaled));
+    }
+    if (this.player.echoChain > 0) {
+      const chainScaled = this.triggerItems('chain_dmg', dmg);
+      if (typeof chainScaled === 'number' && Number.isFinite(chainScaled)) {
+        dmg = Math.max(0, Math.floor(chainScaled));
+      }
+    }
 
     // 적 방어막
     if (enemy.shield > 0) {
@@ -127,7 +147,10 @@
       this.addLog('❌ 에코의 핵심: 회복 불가!', 'damage');
       return;
     }
-    const adjusted = RunRules.getHealAmount(this, amount);
+    let adjusted = RunRules.getHealAmount(this, amount);
+    if ((this.getBuff('cursed')?.stacks || 0) > 0) {
+      adjusted = Math.max(0, Math.floor(adjusted * 0.7));
+    }
     const actual = Math.min(adjusted, this.player.maxHp - this.player.hp);
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + actual);
     if (actual > 0) {
@@ -147,7 +170,13 @@
       this.player.shield -= blocked; dmg -= blocked;
       if (blocked > 0) this.addLog(`🛡️ 방어막 ${blocked} 흡수`, 'system');
     }
-    this.triggerItems('damage_taken', dmg);
+    const triggerResult = this.triggerItems('damage_taken', dmg);
+    if (triggerResult === true) {
+      dmg = 0;
+      this.addLog('🛡️ 피해 무효!', 'echo');
+    } else if (typeof triggerResult === 'number' && Number.isFinite(triggerResult)) {
+      dmg = Math.max(0, Math.floor(triggerResult));
+    }
     if (dmg > 0) {
       this.player.hp -= dmg; this.stats.damageTaken += dmg;
       ScreenShake.shake(8, 0.4); showEdgeDamage();
@@ -289,7 +318,13 @@
     // 적 턴이거나 전투 비활성 상태면 카드 사용 불가
     if (!this.combat.active || !this.combat.playerTurn) return false;
     const disc = this.player.costDiscount || 0;
-    const cost = this.player.zeroCost ? 0 : Math.max(0, card.cost - disc);
+    const cascade = this.player._cascadeCards;
+    const isCascadeFree = cascade instanceof Map
+      ? (cascade.get(cardId) || 0) > 0
+      : !!(cascade && cascade.has && cascade.has(cardId));
+    const freeCardUses = Math.max(0, Number(this.player._freeCardUses || 0));
+    const isChargedFree = !this.player.zeroCost && !isCascadeFree && freeCardUses > 0;
+    const cost = (this.player.zeroCost || isCascadeFree || isChargedFree) ? 0 : Math.max(0, card.cost - disc);
     if (this.player.energy < cost) {
       this.addLog('⚠️ 에너지 부족!', 'damage');
       // 카드 흔들기
@@ -311,6 +346,18 @@
       }
     }
     this.player.energy -= cost;
+    if (isChargedFree) {
+      this.player._freeCardUses = Math.max(0, freeCardUses - 1);
+    }
+    if (isCascadeFree) {
+      if (cascade instanceof Map) {
+        const left = Math.max(0, (cascade.get(cardId) || 0) - 1);
+        if (left <= 0) cascade.delete(cardId);
+        else cascade.set(cardId, left);
+      } else if (cascade && cascade.delete) {
+        cascade.delete(cardId);
+      }
+    }
     this.player.hand.splice(handIdx, 1);
     this.triggerItems('card_play', {cardId});
     // 도감 등록
@@ -339,12 +386,31 @@
   },
 
   triggerItems(trigger, data) {
+    let numericResult = typeof data === 'number' ? data : null;
+    let boolResult = false;
+
     this.player.items.forEach(itemId => {
       const item = DATA.items[itemId];
-      if (item?.passive) item.passive(this, trigger, data);
+      if (!item?.passive) return;
+      const payload = numericResult !== null ? numericResult : data;
+      const result = item.passive(this, trigger, payload);
+      if (typeof result === 'number' && Number.isFinite(result) && numericResult !== null) {
+        numericResult = result;
+      }
+      if (result === true) boolResult = true;
     });
+
     // 세트 보너스 체크
-    SetBonusSystem.triggerSetBonuses(this, trigger, data);
+    const setPayload = numericResult !== null ? numericResult : data;
+    const setResult = SetBonusSystem.triggerSetBonuses(this, trigger, setPayload);
+    if (typeof setResult === 'number' && Number.isFinite(setResult) && numericResult !== null) {
+      numericResult = setResult;
+    }
+    if (setResult === true) boolResult = true;
+
+    if (boolResult) return true;
+    if (numericResult !== null) return numericResult;
+    return data;
   },
 
   getSetBonuses() { return SetBonusSystem.getActiveSets(this); },
@@ -361,6 +427,7 @@
     this.addGold(goldGained);
     AudioEngine.playHit();
     this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
+    this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
     // 죽은 적이 현재 타겟이면 다음 살아있는 적으로 자동 전환
     if (this._selectedTarget === idx) {
       const nextAlive = this.combat.enemies.findIndex((e, i) => i !== idx && e.hp > 0);
@@ -486,6 +553,8 @@
       this.player.buffs = {};
       this.player.costDiscount = 0;
       this.player.zeroCost = false;
+      this.player._freeCardUses = 0;
+      this.player._cascadeCards = null;
       this.player.silenceGauge = 0;
       this._maskCount = 0;
       this._batteryUsedTurn = false;
@@ -542,7 +611,13 @@
     this.drainEcho(50);
     AudioEngine.playResonanceBurst();
     ScreenShake.shake(15, 0.8);
-    const burstDmg = 35 + Math.floor(this.player.echo / 3);
+    let burstDmg = 35 + Math.floor(this.player.echo / 3);
+    const burstMod = this.triggerItems('resonance_burst', burstDmg);
+    if (burstMod === true) {
+      burstDmg = Math.floor(burstDmg * 2);
+    } else if (typeof burstMod === 'number' && Number.isFinite(burstMod)) {
+      burstDmg = Math.max(0, Math.floor(burstMod));
+    }
     this.combat.enemies.forEach((e, i) => {
       if (e.hp > 0) {
         e.hp = Math.max(0, e.hp - burstDmg);

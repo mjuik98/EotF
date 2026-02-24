@@ -24,8 +24,12 @@
 
       node.visited = true;
       gs.currentNode = node;
+      const prevFloor = gs.currentFloor;
       gs.currentFloor = node.floor;
       const isCombatNode = node.type === 'combat' || node.type === 'elite' || node.type === 'boss';
+      if (gs.currentFloor !== prevFloor) {
+        gs.triggerItems?.('floor_start', { floor: gs.currentFloor });
+      }
 
       if (gs.player.class === 'swordsman') {
         deps.classMechanics?.swordsman?.onMove?.(gs);

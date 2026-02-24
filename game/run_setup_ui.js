@@ -61,7 +61,9 @@
         buffs: {},
         silenceGauge: 0,
         zeroCost: false,
+        _freeCardUses: 0,
         costDiscount: 0,
+        _cascadeCards: null,
         upgradedCards: new Set(),
         _cardUpgradeBonus: {},
       };

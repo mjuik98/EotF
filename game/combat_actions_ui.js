@@ -35,6 +35,7 @@
       if (btn && gs.player.hand.length < maxHand) {
         btn.classList.remove('hand-full');
       }
+
       if (gs.player.hand.length >= maxHand) {
         gs.addLog(`⚠️ 손패가 가득 찼습니다 (최대 ${maxHand}장)`, 'damage');
         if (btn) {
@@ -55,6 +56,7 @@
           globalObj.requestAnimationFrame(() => { orbs.style.animation = 'shake 0.3s ease'; });
         }
         deps.audioEngine?.playHit?.();
+        if (typeof deps.updateUI === 'function') deps.updateUI();
         return;
       }
 

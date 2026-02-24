@@ -41,6 +41,10 @@
       gs.player.shield = 0;
       gs.player.echoChain = 0;
       gs.player.energy = gs.player.maxEnergy;
+      gs.player.zeroCost = false;
+      gs.player.costDiscount = 0;
+      gs.player._freeCardUses = 0;
+      gs.player._cascadeCards = null;
       gs.combat.active = true;
       gs._endCombatScheduled = false;
       gs._endCombatRunning = false;

@@ -84,7 +84,7 @@
 
       const getFloorStatusText = deps.getFloorStatusText;
       if (title && typeof getFloorStatusText === 'function') {
-        title.textContent = `${getFloorStatusText(gs.currentRegion, gs.currentFloor)} - Choose your route`;
+        title.textContent = `${getFloorStatusText(gs.currentRegion, gs.currentFloor)} - 이동 경로를 선택하세요`;
       }
 
       const moveToNodeHandlerName = deps.moveToNodeHandlerName || 'moveToNode';
@@ -94,17 +94,17 @@
         const m = nodeMeta[n.type] || nodeMeta.combat || {
           color: '#ff3366',
           icon: NODE_TYPE_CONFIG.combat.icon,
-          label: 'Combat',
-          desc: 'Prepare for the next fight.',
+          label: '전투',
+          desc: '다음 교전을 준비합니다.',
         };
         const pos = ['A', 'B', 'C', 'D'][n.pos] || String(n.pos + 1);
         return `<div class="node-card" style="--node-color:${m.color};animation-delay:${idx * 0.07}s;"
           onclick="${moveToNodeHandlerName}('${n.id}')">
           <div class="node-card-icon">${m.icon || NODE_TYPE_CONFIG[n.type]?.icon || '?'}</div>
-          <div class="node-card-label">${m.label || 'Node'}</div>
-          <div class="node-card-sub">Floor ${n.floor} - ${pos}</div>
-          <div class="node-card-desc">${m.desc || 'Move to the next location.'}</div>
-          <div class="node-card-cta">Select</div>
+          <div class="node-card-label">${m.label || '노드'}</div>
+          <div class="node-card-sub">${n.floor}층 - ${pos}구역</div>
+          <div class="node-card-desc">${m.desc || '다음 위치로 이동합니다.'}</div>
+          <div class="node-card-cta">선택</div>
         </div>`;
       }).join('');
 
