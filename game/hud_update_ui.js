@@ -159,16 +159,8 @@
         const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
         const fallbackIcon = icons[p.class] || '⚔️';
 
-        // 소형 초상화 (HUD)
-        if (avatarEl) {
-          if (avatarFile) {
-            avatarEl.innerHTML = `
-              <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
-                   onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-              <span style="display:none;font-size:18px;vertical-align:middle;">${fallbackIcon}</span>
-            `;
-          }
-        }
+        // 소형 초상화 (HUD) - Removed as requested
+        if (avatarEl) avatarEl.style.display = 'none';
 
         // 대형 초상화 (우측 패널)
         if (largePortrait && largeFallback) {

@@ -96,7 +96,14 @@
               display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform 0.2s;position:relative;"
               onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
               ${isBoss ? `<div style="position:absolute;top:6px;right:6px;font-size:9px;color:var(--gold);font-family:'Cinzel',serif;">BOSS</div>` : ''}
-              <div style="font-size:${seen ? '36px' : '28px'};filter:${seen ? 'none' : 'grayscale(1) brightness(0.3)'};">${seen ? e.icon : '❓'}</div>
+              <div style="width:100%;height:60px;display:flex;align-items:center;justify-content:center;margin:4px 0;">
+                ${seen ? (e.image ?
+                `<img src="assets/images/${e.image}" style="max-width:100%;max-height:100%;object-fit:contain;" 
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                   <div style="display:none;font-size:36px;">${e.icon}</div>` :
+                `<div style="font-size:36px;">${e.icon}</div>`) :
+                `<div style="font-size:28px;filter:grayscale(1) brightness(0.3);">❓</div>`}
+              </div>
               <div style="font-family:'Cinzel',serif;font-size:${seen ? '10px' : '9px'};font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
                 ${seen ? e.name : '???'}
               </div>
@@ -141,7 +148,14 @@
             return `<div style="background:var(--glass);border:1px solid ${seen ? rarityBorder[r] : 'rgba(60,60,80,0.3)'};border-radius:10px;padding:10px 8px;
               width:90px;min-height:140px;display:flex;flex-direction:column;align-items:center;gap:4px;
               transition:transform 0.15s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
-              <div style="font-size:${seen ? '24px' : '20px'};margin:8px 0 4px;filter:${seen ? 'none' : 'grayscale(1) brightness(0.25)'};">${seen ? card.icon : '❓'}</div>
+              <div style="width:100%;height:40px;display:flex;align-items:center;justify-content:center;margin:4px 0;">
+                ${seen ? (card.image ?
+                `<img src="assets/images/${card.image}" style="max-width:100%;max-height:100%;object-fit:contain;" 
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                   <div style="display:none;font-size:24px;">${card.icon}</div>` :
+                `<div style="font-size:24px;">${card.icon}</div>`) :
+                `<div style="font-size:20px;filter:grayscale(1) brightness(0.25);">❓</div>`}
+              </div>
               <div style="font-family:'Cinzel',serif;font-size:8px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">${seen ? card.name : '???'}</div>
               ${seen ? `
                 <div style="font-size:8px;color:var(--text-dim);text-align:center;line-height:1.4;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
@@ -181,7 +195,14 @@
             return `<div style="background:var(--glass);border:1px solid ${seen ? rarityBorder[r] : 'rgba(60,60,80,0.3)'};border-radius:12px;padding:12px 10px;
               width:130px;min-height:140px;display:flex;flex-direction:column;align-items:center;gap:6px;
               transition:transform 0.15s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
-              <div style="font-size:${seen ? '30px' : '24px'};margin:4px 0;filter:${seen ? 'none' : 'grayscale(1) brightness(0.2)'};">${seen ? item.icon : '❓'}</div>
+              <div style="width:100%;height:50px;display:flex;align-items:center;justify-content:center;margin:4px 0;">
+                ${seen ? (item.image ?
+                `<img src="assets/images/${item.image}" style="max-width:100%;max-height:100%;object-fit:contain;" 
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                   <div style="display:none;font-size:30px;">${item.icon}</div>` :
+                `<div style="font-size:30px;">${item.icon}</div>`) :
+                `<div style="font-size:24px;filter:grayscale(1) brightness(0.2);">❓</div>`}
+              </div>
                <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
                 ${seen ? item.name : '???'}
               </div>
