@@ -241,10 +241,12 @@
       this.addLog(`💫 ${enemy.name}: ${status} ${duration}턴`, 'echo');
     },
 
-    getEnemyIntent(targetIdx = 0) {
-      const enemy = this.combat.enemies[targetIdx];
-      if (!enemy) return 0;
-      return enemy.ai(this.combat.turn)?.dmg || 0;
+    getEnemyIntent(targetIdx = null) {
+      const idx = targetIdx !== null ? targetIdx : (this._selectedTarget !== null ? this._selectedTarget : 0);
+      const enemy = this.combat.enemies[idx];
+      if (!enemy || enemy.hp <= 0) return 0;
+      // 인게임 UI 표시(turn+1)와 동일하게 다음 행동의 데미지를 가져옴
+      return enemy.ai(this.combat.turn + 1)?.dmg || 0;
     },
 
     addGold(amount) {
@@ -394,6 +396,9 @@
       }
 
       this.triggerItems(Trigger.CARD_PLAY, { cardId });
+      // 클래스 고유 트리거 호출
+      globalObj.ClassMechanics?.[this.player.class]?.onPlayCard?.(this, { cardId });
+
       // 도감 등록
       if (this.meta.codex) this.meta.codex.cards.add(cardId);
       // ── 카드 사용 시각 효과 ──

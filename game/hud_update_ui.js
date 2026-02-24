@@ -177,6 +177,18 @@
             largeFallback.style.display = 'flex';
           }
         }
+
+        // 캐릭터 이름 및 특성 (우측 패널)
+        const nameMap = { swordsman: '잔향검사', mage: '메아리술사', hunter: '침묵사냥꾼' };
+        setText('playerNameDisplay', nameMap[p.class] || '');
+
+        const specialEl = doc.getElementById('playerSpecialDisplay');
+        if (specialEl && globalObj.ClassMechanics?.[p.class]) {
+          specialEl.innerHTML = globalObj.ClassMechanics[p.class].getSpecialUI(gs);
+          specialEl.style.display = 'flex';
+        } else if (specialEl) {
+          specialEl.style.display = 'none';
+        }
       }
 
       const shieldTrigger = doc.getElementById('hudShieldTrigger');

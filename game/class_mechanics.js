@@ -7,15 +7,26 @@
 
   const ClassMechanics = {
     swordsman: {
+      onPlayCard(gs, { cardId }) {
+        const state = _getGS(gs);
+        if (!state?.player?.buffs) return;
+        const momentum = state.player.buffs.momentum;
+        if (momentum) {
+          momentum.dmgBonus = Math.min(30, (momentum.dmgBonus || 0) + 1);
+          momentum.stacks = 99;
+        } else {
+          state.addBuff('momentum', 99, { dmgBonus: 1 });
+        }
+      },
       onMove(gs) {
         const state = _getGS(gs);
         if (!state?.player?.buffs) return;
         const momentum = state.player.buffs.momentum;
         if (momentum) {
-          momentum.dmgBonus = Math.min(20, (momentum.dmgBonus || 0) + 2);
-          momentum.stacks = 1;
+          momentum.dmgBonus = Math.min(30, (momentum.dmgBonus || 0) + 3);
+          momentum.stacks = 99; // 대량의 스택으로 유지 보장
         } else {
-          state.addBuff('momentum', 1, { dmgBonus: 2 });
+          state.addBuff('momentum', 99, { dmgBonus: 3 });
         }
       },
       getSpecialUI(gs) {
@@ -32,7 +43,10 @@
       },
       getSpecialUI(gs) {
         const state = _getGS(gs);
-        const next = state?.combat?.enemies?.[0]?.ai?.(state.combat.turn + 1);
+        if (!state?.combat?.enemies) return '';
+        const target = state.combat.enemies[state._selectedTarget || 0];
+        if (!target || target.hp <= 0) return '';
+        const next = target.ai?.(state.combat.turn + 2);
         return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">다음 턴 예측</div><div style="font-size:10px;color:var(--cyan);">${next?.intent || '불명'}</div>`;
       },
     },

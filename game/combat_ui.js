@@ -287,19 +287,17 @@
 
           if (intentEl) {
             let intent;
-            try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
+            // 플레이어 턴에는 항상 다음 적의 행동(turn + 1)을 인텐트로 표시
+            try { intent = e.ai(gs.combat.turn + 1); } catch (err) { intent = { intent: '?', dmg: 0 }; }
             let intentIcon = _getIntentIcon(intent);
             let intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
             let intentLabel = _formatIntentLabel(intent);
 
-            // 전투 첫 턴(turn === 0): 차분 업데이트 시에도 준비 중 표시
-            if (gs.combat.turn === 0) {
-              intentIcon = '❓';
-              intentLabel = '알 수 없음';
-              intentDmg = '';
-            }
-
-            intentEl.innerHTML = `<span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}`;
+            intentEl.innerHTML = `
+              <div class="enemy-intent-icon">${intentIcon}</div>
+              <div class="enemy-intent-label">${intentLabel}</div>
+              <div class="enemy-intent-dmg">${intentDmg}</div>
+            `;
             intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
             intentEl.onmouseleave = () => this.hideIntentTooltip(deps);
           }

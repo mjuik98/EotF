@@ -40,6 +40,7 @@
         if (!buff || typeof buff !== 'object') return;
         if (TURN_START_DEBUFFS.has(buffId)) return;
         if (ENEMY_TURN_BUFFS.has(buffId)) return;
+        if (buffId === 'momentum') return; // 모멘텀은 플레이어 턴 종료 시 감소하지 않음
         if (buff.echoRegen) gs.addEcho(buff.echoRegen);
         if (!Number.isFinite(buff.stacks)) return;
         buff.stacks--;

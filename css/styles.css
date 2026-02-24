@@ -289,7 +289,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 40px 24px;
-  width: 280px;
+  width: 320px;
   /* Scale UP (기존 240px) */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
@@ -312,9 +312,9 @@ body {
 }
 
 .class-btn-icon-container {
-  width: 140px;
-  /* Scale UP (기존 110px) */
-  height: 140px;
+  width: 180px;
+  /* Scale UP (기존 140px) */
+  height: 180px;
   margin: 0 auto 24px;
   border-radius: 50%;
   background: rgba(123, 47, 255, 0.12);
@@ -2185,11 +2185,11 @@ body:has(#combatOverlay.active) .panel-bottom {
 
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 
   50% {
-    transform: translateY(-4px);
+    transform: translateX(-50%) translateY(-4px);
   }
 }
 

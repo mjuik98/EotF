@@ -87,11 +87,18 @@
               </div>
             </div>`;
           } else if (specialType === 'upgrade') {
-            return `<div class="reward-card-wrapper" onclick="takeRewardUpgrade()" style="animation-delay:${idx * 0.08}s;">
+            const upgradable = gs.player.deck.filter(id => data.upgradeMap[id]);
+            const hasUpgradable = upgradable.length > 0;
+            const title = hasUpgradable ? '무작위 강화' : '강화 불가';
+            const desc = hasUpgradable ? '덱의 무작위 카드 1장을 즉시 강화합니다.' : '강화 가능한 카드가 덱에 존재하지 않습니다.';
+            const opacity = hasUpgradable ? 1 : 0.4;
+            const filter = hasUpgradable ? 'none' : 'grayscale(1)';
+
+            return `<div class="reward-card-wrapper ${hasUpgradable ? '' : 'disabled'}" onclick="takeRewardUpgrade()" style="animation-delay:${idx * 0.08}s; opacity:${opacity}; filter:${filter};">
               <div class="card" style="width:170px;height:260px;padding-top:20px;padding-bottom:12px;border-color:var(--echo-bright);">
                 <div class="card-icon" style="font-size:46px;">⚒️</div>
-                <div class="card-name" style="font-size:16px;color:var(--echo-bright);">무작위 강화</div>
-                <div class="card-desc" style="font-size:13px;flex:1;">덱의 무작위 카드 1장을 즉시 강화합니다.</div>
+                <div class="card-name" style="font-size:16px;color:var(--echo-bright);">${title}</div>
+                <div class="card-desc" style="font-size:13px;flex:1;">${desc}</div>
                 <div class="card-type" style="font-size:11px;color:var(--echo-bright);margin-top:auto;">특수 보상</div>
               </div>
             </div>`;
@@ -212,10 +219,10 @@
       const data = _getData(deps);
       if (!gs || !data) return;
       if (gs._rewardLock) return;
-      gs._rewardLock = true;
 
       const upgradable = gs.player.deck.filter(id => data.upgradeMap[id]);
       if (upgradable.length > 0) {
+        gs._rewardLock = true;
         const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
         const upgId = data.upgradeMap[cardId];
         const idx = gs.player.deck.indexOf(cardId);
@@ -226,9 +233,13 @@
           const upgCard = data.cards[upgId];
           deps.showItemToast({ name: `${upgCard?.name} 강화 완료`, icon: '⚒️', desc: '무작위 카드가 업그레이드되었습니다.' });
         }
-      }
-      if (typeof deps.returnToGame === 'function') {
-        setTimeout(() => deps.returnToGame(true), 350);
+        if (typeof deps.returnToGame === 'function') {
+          setTimeout(() => deps.returnToGame(true), 350);
+        }
+      } else {
+        // 강화 대상이 없을 때 경고음 및 취소 방지
+        if (typeof AudioEngine !== 'undefined' && AudioEngine.playHit) AudioEngine.playHit();
+        return;
       }
     },
 

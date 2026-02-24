@@ -229,23 +229,6 @@
       widget.style.boxShadow = isWarn ? '0 0 20px rgba(240,180,41,0.15)' : '0 0 20px rgba(255,51,102,0.1)';
     },
 
-    updateClassSpecialUI(deps = {}) {
-      const gs = deps.gs;
-      const classMechanics = deps.classMechanics;
-      if (!gs || !classMechanics) return;
-
-      const doc = _getDoc(deps);
-      const el = doc.getElementById('classSpecialPanel');
-      if (!el) return;
-
-      const mech = classMechanics[gs.player.class];
-      if (mech?.getSpecialUI) {
-        el.style.display = 'block';
-        el.innerHTML = mech.getSpecialUI(gs);
-      } else {
-        el.style.display = 'none';
-      }
-    },
   };
 
   globalObj.CombatHudUI = CombatHudUI;
