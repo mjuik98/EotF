@@ -23,6 +23,54 @@
       });
     },
 
+    enableActionButtons(deps = {}) {
+      const doc = _getDoc(deps);
+      doc.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
+    },
+
+    triggerDrawCardAnimation(deps = {}) {
+      const doc = _getDoc(deps);
+      doc.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
+        el.style.animation = 'none';
+        const raf = deps.requestAnimationFrame || globalObj.requestAnimationFrame?.bind(globalObj);
+        if (typeof raf === 'function') {
+          raf(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
+        } else {
+          el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`;
+        }
+      });
+    },
+
+    triggerCardShakeAnimation(deps = {}) {
+      const doc = _getDoc(deps);
+      doc.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
+        el.style.animation = 'none';
+        const raf = deps.requestAnimationFrame || globalObj.requestAnimationFrame?.bind(globalObj);
+        if (typeof raf === 'function') {
+          raf(() => { el.style.animation = 'shake 0.3s ease'; });
+        } else {
+          el.style.animation = 'shake 0.3s ease';
+        }
+      });
+    },
+
+    resetCombatUI(deps = {}) {
+      const doc = _getDoc(deps);
+      doc.getElementById('combatOverlay')?.classList.remove('active');
+      if (typeof globalObj._resetCombatInfoPanel === 'function') {
+        globalObj._resetCombatInfoPanel();
+      }
+      doc.getElementById('noiseGaugeOverlay')?.remove();
+      const endZone = doc.getElementById('enemyZone');
+      if (endZone) endZone.innerHTML = '';
+    },
+
+    hideNodeOverlay(deps = {}) {
+      const doc = _getDoc(deps);
+      const nodeOverlay = doc.getElementById('nodeCardOverlay');
+      if (nodeOverlay) nodeOverlay.style.display = 'none';
+    },
+
     updateEndBtnWarn(deps = {}) {
       const gs = _getGS(deps);
       if (!gs) return;

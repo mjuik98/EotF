@@ -268,11 +268,15 @@
       const eKey = region.enemies[Math.floor(Math.random() * region.enemies.length)];
       const eData = DATA.enemies[eKey];
       if (eData && this.combat.enemies.length < 3) {
-        this.combat.enemies.push(DifficultyScaler.scaleEnemy({ ...eData, statusEffects: {} }));
+        this.combat.enemies.push(DifficultyScaler.scaleEnemy({ ...eData, statusEffects: {} }, this));
         renderCombatEnemies();
         // 플레이어 턴 중 소환된 경우 버튼 활성화 상태 유지
         if (this.combat.playerTurn) {
-          document.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
+          if (typeof globalObj.HudUpdateUI !== 'undefined' && typeof globalObj.HudUpdateUI.enableActionButtons === 'function') {
+            globalObj.HudUpdateUI.enableActionButtons();
+          } else {
+            document.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
+          }
         }
       }
     },
@@ -299,12 +303,16 @@
       updateUI();
       // 드로우 애니메이션
       setTimeout(() => {
-        document.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
-          el.style.animation = 'none';
-          requestAnimationFrame(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
-        });
-        const fanRestoreDelay = 300 + Math.max(0, (this.player.hand.length - 1) * 40);
-        setTimeout(() => updateHandFanEffect(), fanRestoreDelay);
+        if (typeof globalObj.HudUpdateUI !== 'undefined' && typeof globalObj.HudUpdateUI.triggerDrawCardAnimation === 'function') {
+          globalObj.HudUpdateUI.triggerDrawCardAnimation();
+        } else {
+          document.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
+            el.style.animation = 'none';
+            requestAnimationFrame(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
+          });
+          const fanRestoreDelay = 300 + Math.max(0, (this.player.hand.length - 1) * 40);
+          setTimeout(() => updateHandFanEffect(), fanRestoreDelay);
+        }
       }, 10);
     },
 
@@ -313,21 +321,21 @@
       if (!card) return false;
       // 적 턴이거나 전투 비활성 상태면 카드 사용 불가
       if (!this.combat.active || !this.combat.playerTurn) return false;
-      const disc = this.player.costDiscount || 0;
-      const cascade = this.player._cascadeCards;
-      const isCascadeFree = cascade instanceof Map
-        ? (cascade.get(cardId) || 0) > 0
-        : !!(cascade && cascade.has && cascade.has(cardId));
-      const freeCardUses = Math.max(0, Number(this.player._freeCardUses || 0));
-      const isChargedFree = !this.player.zeroCost && !isCascadeFree && freeCardUses > 0;
-      const cost = (this.player.zeroCost || isCascadeFree || isChargedFree) ? 0 : Math.max(0, card.cost - disc);
+      const cost = typeof globalObj.CardCostUtils !== 'undefined'
+        ? globalObj.CardCostUtils.calcEffectiveCost(cardId, card, this.player)
+        : Math.max(0, card.cost - (this.player.costDiscount || 0));
+
       if (this.player.energy < cost) {
         this.addLog('⚠️ 에너지 부족!', 'damage');
         // 카드 흔들기
-        document.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
-          el.style.animation = 'none';
-          requestAnimationFrame(() => { el.style.animation = 'shake 0.3s ease'; });
-        });
+        if (typeof globalObj.HudUpdateUI !== 'undefined' && typeof globalObj.HudUpdateUI.triggerCardShakeAnimation === 'function') {
+          globalObj.HudUpdateUI.triggerCardShakeAnimation();
+        } else {
+          document.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
+            el.style.animation = 'none';
+            requestAnimationFrame(() => { el.style.animation = 'shake 0.3s ease'; });
+          });
+        }
         AudioEngine.playHit();
         return false;
       }
@@ -342,16 +350,27 @@
         }
       }
       this.player.energy -= cost;
-      if (isChargedFree) {
-        this.player._freeCardUses = Math.max(0, freeCardUses - 1);
-      }
-      if (isCascadeFree) {
-        if (cascade instanceof Map) {
-          const left = Math.max(0, (cascade.get(cardId) || 0) - 1);
-          if (left <= 0) cascade.delete(cardId);
-          else cascade.set(cardId, left);
-        } else if (cascade && cascade.delete) {
-          cascade.delete(cardId);
+      if (typeof globalObj.CardCostUtils !== 'undefined') {
+        globalObj.CardCostUtils.consumeFreeCharge(cardId, this.player);
+      } else {
+        const cascade = this.player._cascadeCards;
+        const isCascadeFree = cascade instanceof Map
+          ? (cascade.get(cardId) || 0) > 0
+          : !!(cascade && cascade.has && cascade.has(cardId));
+        const freeCardUses = Math.max(0, Number(this.player._freeCardUses || 0));
+        const isChargedFree = !this.player.zeroCost && !isCascadeFree && freeCardUses > 0;
+
+        if (isChargedFree) {
+          this.player._freeCardUses = Math.max(0, freeCardUses - 1);
+        }
+        if (isCascadeFree) {
+          if (cascade instanceof Map) {
+            const left = Math.max(0, (cascade.get(cardId) || 0) - 1);
+            if (left <= 0) cascade.delete(cardId);
+            else cascade.set(cardId, left);
+          } else if (cascade && cascade.delete) {
+            cascade.delete(cardId);
+          }
         }
       }
       this.player.hand.splice(handIdx, 1);
@@ -385,7 +404,17 @@
       let numericResult = typeof data === 'number' ? data : null;
       let boolResult = false;
 
-      this.player.items.forEach(itemId => {
+      // 우선순위 정렬: damage_taken 같은 방어형 트리거에선 무효화/뎀감 템을 먼저 실행
+      const sortedItems = [...this.player.items].sort((a, b) => {
+        if (trigger === 'damage_taken') {
+          const aPrio = (a === 'void_crystal' || a === 'blood_crown') ? -1 : 0;
+          const bPrio = (b === 'void_crystal' || b === 'blood_crown') ? -1 : 0;
+          return aPrio - bPrio;
+        }
+        return 0;
+      });
+
+      sortedItems.forEach(itemId => {
         const item = DATA.items[itemId];
         if (!item?.passive) return;
         const payload = numericResult !== null ? numericResult : data;
@@ -531,15 +560,16 @@
       this._endCombatRunning = true;
       try {
         this.combat.active = false;
-        document.getElementById('combatOverlay').classList.remove('active');
-        // 전투 정보 패널 닫기
-        _resetCombatInfoPanel();
-        // 하단 손패 패널 복원
-        // 소음 게이지 UI 제거
-        document.getElementById('noiseGaugeOverlay')?.remove();
-        // 적 카드 DOM 초기화
-        const endZone = document.getElementById('enemyZone');
-        if (endZone) endZone.innerHTML = '';
+        if (typeof globalObj.HudUpdateUI !== 'undefined' && typeof globalObj.HudUpdateUI.resetCombatUI === 'function') {
+          globalObj.HudUpdateUI.resetCombatUI();
+        } else {
+          document.getElementById('combatOverlay').classList.remove('active');
+          // 소음 게이지 UI 제거
+          document.getElementById('noiseGaugeOverlay')?.remove();
+          // 적 카드 DOM 초기화
+          const endZone = document.getElementById('enemyZone');
+          if (endZone) endZone.innerHTML = '';
+        }
         // ── 전투 상태 완전 초기화 ──
         this.player.graveyard.push(...this.player.hand);
         this.player.hand = [];
@@ -582,8 +612,12 @@
           setTimeout(() => returnToGame(true), 300);
           return;
         }
-        const nodeOverlay = document.getElementById('nodeCardOverlay');
-        if (nodeOverlay) nodeOverlay.style.display = 'none';
+        if (typeof globalObj.HudUpdateUI !== 'undefined' && typeof globalObj.HudUpdateUI.hideNodeOverlay === 'function') {
+          globalObj.HudUpdateUI.hideNodeOverlay();
+        } else {
+          const nodeOverlay = document.getElementById('nodeCardOverlay');
+          if (nodeOverlay) nodeOverlay.style.display = 'none';
+        }
         // 전투 요약 UI(2800ms)가 완전히 사라진 후 보상 화면 표시 (클릭 차단 방지)
         setTimeout(() => showRewardScreen(isBoss), 3000);
       } catch (e) {

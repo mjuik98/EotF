@@ -39,7 +39,7 @@
           };
         }
         storage.setItem(this.META_KEY, JSON.stringify(meta));
-      } catch (e) {}
+      } catch (e) { }
     },
 
     loadMeta(deps = {}) {
@@ -60,12 +60,12 @@
           }
           Object.assign(gs.meta, data);
         }
-      } catch (e) {}
+      } catch (e) { }
 
       const runRules = deps.runRules || globalObj.RunRules;
       try {
         runRules?.ensureMeta?.(gs.meta);
-      } catch (e) {}
+      } catch (e) { }
 
       gs.runConfig = {
         ascension: gs.meta.runConfig.ascension || 0,
@@ -95,12 +95,46 @@
           },
           currentRegion: gs.currentRegion,
           currentFloor: gs.currentFloor,
+          mapNodes: gs.mapNodes || null,
+          visitedNodes: gs.visitedNodes ? Array.from(gs.visitedNodes) : [],
+          currentNode: gs.currentNode !== undefined ? gs.currentNode : null,
           stats: gs.stats,
           worldMemory: gs.worldMemory,
           ts: Date.now(),
         };
         storage.setItem(this.SAVE_KEY, JSON.stringify(save));
-      } catch (e) {}
+      } catch (e) { }
+    },
+
+    loadRun(deps = {}) {
+      const storage = _getStorage();
+      const gs = _getGS(deps);
+      if (!storage || !gs) return false;
+
+      try {
+        const raw = storage.getItem(this.SAVE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data || !data.player) return false;
+
+        Object.assign(gs.player, data.player);
+        if (data.player.upgradedCards) {
+          gs.player.upgradedCards = new Set(data.player.upgradedCards);
+        }
+
+        gs.currentRegion = data.currentRegion || 'forest';
+        gs.currentFloor = data.currentFloor || 1;
+        gs.stats = data.stats || gs.stats;
+        gs.worldMemory = data.worldMemory || gs.worldMemory;
+
+        if (data.mapNodes !== undefined) gs.mapNodes = data.mapNodes;
+        if (data.visitedNodes) gs.visitedNodes = new Set(data.visitedNodes);
+        if (data.currentNode !== undefined) gs.currentNode = data.currentNode;
+
+        return true;
+      } catch (e) {
+        return false;
+      }
     },
 
     hasSave() {
@@ -118,7 +152,7 @@
       if (!storage) return;
       try {
         storage.removeItem(this.SAVE_KEY);
-      } catch (e) {}
+      } catch (e) { }
     },
 
     showSaveBadge(deps = {}) {

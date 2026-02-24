@@ -381,7 +381,15 @@
     temporal_lens: {
       id: 'temporal_lens', name: '시간의 렌즈', icon: '🔍', rarity: 'rare',
       desc: '매 3턴마다 카드 1장 무료',
-      passive(gs, trigger) { if (trigger === 'turn_start') { gs._temporalTurn = (gs._temporalTurn || 0) + 1; if (gs._temporalTurn % 3 === 0) { gs.player._freeCardUses = (gs.player._freeCardUses || 0) + 1; gs.addLog('🔍 시간의 렌즈: 무료 카드 1회!', 'echo'); } } }
+      passive(gs, trigger) {
+        if (trigger === 'turn_start') {
+          gs._temporalTurn = (gs._temporalTurn || 0) + 1;
+          if (gs._temporalTurn % 3 === 0) {
+            gs.player._freeCardUses = (gs.player._freeCardUses || 0) + 1;
+            gs.addLog('🔍 시간의 렌즈: 무료 카드 1회!', 'echo');
+          }
+        }
+      }
     },
     echo_mirror: {
       id: 'echo_mirror', name: '잔향 거울', icon: '🪞', rarity: 'rare',
@@ -396,23 +404,58 @@
     bloodsoaked_robe: {
       id: 'bloodsoaked_robe', name: '피 묻은 로브', icon: '🩸', rarity: 'rare',
       desc: 'HP 50% 미만 시 모든 피해 +30%',
-      passive(gs, trigger, data) { if (trigger === 'deal_damage' && gs.player.hp < gs.player.maxHp * 0.5) return Math.floor((data || 0) * 1.3); }
+      passive(gs, trigger, data) {
+        if (trigger === 'deal_damage' && gs.player.hp < gs.player.maxHp * 0.5) {
+          return Math.floor((data || 0) * 1.3);
+        }
+      }
     },
     echo_gauntlet: {
       id: 'echo_gauntlet', name: '잔향 건틀릿', icon: '🥊', rarity: 'rare',
       desc: 'Chain 5 달성 시 즉시 적 기절 1턴',
-      passive(gs, trigger) { if (trigger === 'card_play' && gs.player.echoChain >= 5) { const aliveIdx = gs.combat.enemies.findIndex(e => e.hp > 0); if (aliveIdx >= 0) { gs.applyEnemyStatus('stunned', 1, aliveIdx); gs.addLog('🥊 잔향 건틀릿: 기절!', 'echo'); gs.player.echoChain = 0; } } }
+      passive(gs, trigger) {
+        if (trigger === 'card_play' && gs.player.echoChain >= 5) {
+          const aliveIdx = gs.combat.enemies.findIndex(e => e.hp > 0);
+          if (aliveIdx >= 0) {
+            gs.applyEnemyStatus('stunned', 1, aliveIdx);
+            gs.addLog('🥊 잔향 건틀릿: 기절!', 'echo');
+            gs.player.echoChain = 0;
+          }
+        }
+      }
     },
     war_drum: {
       id: 'war_drum', name: '전쟁 북', icon: '🥁', rarity: 'rare',
       desc: '전투 시작 시 에너지 +1 (해당 전투만)',
-      passive(gs, trigger) { if (trigger === 'combat_start') { gs.player.energy += 1; gs.player.maxEnergy += 1; gs._warDrumActive = true; gs.addLog('🥁 전쟁 북: 에너지 +1!', 'echo'); updateUI(); } if (trigger === 'combat_end' && gs._warDrumActive) { gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1); gs._warDrumActive = false; } }
+      passive(gs, trigger) {
+        if (trigger === 'combat_start') {
+          gs.player.energy += 1;
+          gs.player.maxEnergy += 1;
+          gs._warDrumActive = true;
+          gs.addLog('🥁 전쟁 북: 에너지 +1!', 'echo');
+          updateUI();
+        }
+        if (trigger === 'combat_end' && gs._warDrumActive) {
+          gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1);
+          gs._warDrumActive = false;
+        }
+      }
     },
     // ── 에너지 증감 유물 ──
     energy_core: {
       id: 'energy_core', name: '에너지 핵', icon: '⚡', rarity: 'uncommon',
       desc: '매 전투 영구적으로 최대 에너지 +1 (최대 5)',
-      passive(gs, trigger) { if (trigger === 'combat_start' && !gs._energyCoreUsed) { if (gs.player.maxEnergy < 5) { gs.player.maxEnergy++; gs.player.energy = gs.player.maxEnergy; gs._energyCoreUsed = true; gs.addLog('⚡ 에너지 핵: 최대 에너지 +1!', 'echo'); updateUI(); } } }
+      passive(gs, trigger) {
+        if (trigger === 'combat_start' && !gs._energyCoreUsed) {
+          if (gs.player.maxEnergy < 5) {
+            gs.player.maxEnergy++;
+            gs.player.energy = gs.player.maxEnergy;
+            gs._energyCoreUsed = true;
+            gs.addLog('⚡ 에너지 핵: 최대 에너지 +1!', 'echo');
+            updateUI();
+          }
+        }
+      }
     },
     echo_battery: {
       id: 'echo_battery', name: '잔향 전지', icon: '🔋', rarity: 'common',
