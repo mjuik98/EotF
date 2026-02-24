@@ -669,7 +669,7 @@ body {
 }
 
 .hud-section {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .hud-section:last-child {
@@ -690,8 +690,8 @@ body {
 .hud-stat-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 18px;
+  gap: 4px;
+  margin-bottom: 12px;
 }
 
 .hud-stat-label-row {

@@ -67,7 +67,7 @@
       gs.mapNodes.forEach(node => {
         const nx = w * (node.pos + 1) / (node.total + 1);
         const ny = h - 10 - floorH * node.floor;
-        const r = node.type === 'boss' ? 5 : 3;
+        const r = node.type === 'boss' ? 8 : 5;
 
         // 노드 아이콘/이모지 렌더링 (배경 없이 깔끔하게)
         const meta = deps.nodeMeta || (typeof NODE_META !== 'undefined' ? NODE_META : {});
@@ -148,12 +148,13 @@
           label: '전투',
           desc: '다음 교전을 준비합니다.',
         };
+        const regionData = typeof window.getRegionData === 'function' ? window.getRegionData(gs.currentRegion, gs) : { name: '알 수 없는 지역' };
         const pos = ['A', 'B', 'C', 'D'][n.pos] || String(n.pos + 1);
         return `<div class="node-card" style="--node-color:${m.color};animation-delay:${idx * 0.07}s;"
           onclick="${moveToNodeHandlerName}('${n.id}')">
           <div class="node-card-icon">${m.icon || NODE_TYPE_CONFIG[n.type]?.icon || '?'}</div>
           <div class="node-card-label">${m.label || '노드'}</div>
-          <div class="node-card-sub">${n.floor}층 - ${pos}구역</div>
+          <div class="node-card-sub">${regionData.name} ${n.floor}층 — ${pos}구역</div>
           <div class="node-card-desc">${m.desc || '다음 위치로 이동합니다.'}</div>
           <div class="node-card-cta">선택</div>
         </div>`;
@@ -188,7 +189,8 @@
       // 타이틀
       const title = doc.createElement('div');
       title.style.cssText = `font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.3em;color:var(--echo-bright,#b388ff);margin-bottom:20px;`;
-      title.textContent = `📍 ${gs.currentRegion || '지역'} — ${gs.currentFloor || 0}층`;
+      const regionData = typeof window.getRegionData === 'function' ? window.getRegionData(gs.currentRegion, gs) : { name: '알 수 없는 지역' };
+      title.textContent = `📍 ${regionData.name} — ${gs.currentFloor || 0}층`;
       overlay.appendChild(title);
 
       // 캔버스
@@ -264,7 +266,7 @@
         const nx = nodeX(node), ny = nodeY(node);
         const meta = nodeMeta[node.type] || { color: '#666', icon: '?', label: '?' };
         const isCurrent = gs.currentNode?.id === node.id;
-        const r = node.type === 'boss' ? 14 : 10;
+        const r = node.type === 'boss' ? 18 : 14;
 
         // 글로우 효과 (현재 위치만 최소화)
         if (isCurrent) {
