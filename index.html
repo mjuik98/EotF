@@ -115,7 +115,7 @@
       </div>
       <button id="startBtn" class="start-btn" onclick="startGame()" disabled>잔향 속으로</button>
       <div id="classSelectHint"
-        style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--echo);opacity:0.6;margin-top:32px;animation:fadeInUp 1s ease 1.8s both;transition:opacity 0.4s;">
+        style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:var(--echo);opacity:0.6;margin-top:12px;animation:fadeInUp 1s ease 1.8s both;transition:opacity 0.4s;">
         ◈ 클래스를 선택해 여정을 시작하세요 ◈</div>
     </div>
   </div>
@@ -442,6 +442,9 @@
         <span id="hudGoldText" style="color:var(--gold);">0</span>
       </div>
       <span class="hud-pin-indicator" title="클릭하여 고정">📌</span>
+      <span onclick="event.stopPropagation(); showFullMap()" title="전체 지도"
+        style="cursor:pointer;font-size:14px;margin-left:4px;opacity:0.7;transition:opacity 0.2s;"
+        onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.7'">🗺️</span>
     </div>
     <div id="hoverHudPanel">
       <!-- 핀 안내 문구 -->
