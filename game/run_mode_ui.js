@@ -1,11 +1,15 @@
 'use strict';
 
-(function initRunModeUI(globalObj) {
+import { RunRules } from './run_rules.js';
+import { GS } from './game_state.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const RunModeUI = {
+  export const RunModeUI = {
     refresh(deps = {}) {
       const gs = deps.gs;
       const runRules = deps.runRules;
@@ -174,27 +178,24 @@
   };
 
   // 전역 함수 연결 (HTML onclick 연동용)
-  globalObj.openRunSettings = function (deps = {}) {
-    RunModeUI.openSettings({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  window.openRunSettings = function (deps = {}) {
+    RunModeUI.openSettings({ gs: GS, runRules: RunRules, ...deps });
   };
-  globalObj.closeRunSettings = function (deps = {}) {
+  window.closeRunSettings = function (deps = {}) {
     RunModeUI.closeSettings(deps);
   };
-  globalObj.toggleEndlessMode = function (deps = {}) {
-    RunModeUI.toggleEndlessMode({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  window.toggleEndlessMode = function (deps = {}) {
+    RunModeUI.toggleEndlessMode({ gs: GS, runRules: RunRules, ...deps });
   };
-  globalObj.cycleRunBlessing = function (deps = {}) {
-    RunModeUI.cycleBlessing({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  window.cycleRunBlessing = function (deps = {}) {
+    RunModeUI.cycleBlessing({ gs: GS, runRules: RunRules, ...deps });
   };
-  globalObj.cycleRunCurse = function (deps = {}) {
-    RunModeUI.cycleCurse({ gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  window.cycleRunCurse = function (deps = {}) {
+    RunModeUI.cycleCurse({ gs: GS, runRules: RunRules, ...deps });
   };
-  globalObj.shiftAscension = function (delta, deps = {}) {
-    RunModeUI.shiftAscension(delta, { gs: globalObj.GS, runRules: globalObj.RunRules, ...deps });
+  window.shiftAscension = function (delta, deps = {}) {
+    RunModeUI.shiftAscension(delta, { gs: GS, runRules: RunRules, ...deps });
   };
-  globalObj.toggleInscription = function (key, deps = {}) {
-    RunModeUI.toggleInscription(key, { gs: globalObj.GS, ...deps });
+  window.toggleInscription = function (key, deps = {}) {
+    RunModeUI.toggleInscription(key, { gs: GS, ...deps });
   };
-
-  globalObj.RunModeUI = RunModeUI;
-})(window);

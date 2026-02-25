@@ -1,10 +1,16 @@
 'use strict';
 
-(function initWorldRenderLoopUI(globalObj) {
+import { ParticleSystem } from '../engine/particles.js';
+import { ScreenShake } from '../engine/screenshake.js';
+import { HitStop } from '../engine/hitstop.js';
+import { GS } from './game_state.js';
+
+
+
   let _lastTimestamp = 0;
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
   function _getRefs(deps) {
@@ -12,18 +18,18 @@
   }
 
   function _getRegionDataFn(deps) {
-    return deps?.getRegionData || globalObj.getRegionData;
+    return deps?.getRegionData || window.getRegionData;
   }
 
   function _requestNextFrame(deps) {
-    const raf = deps?.requestAnimationFrame || globalObj.requestAnimationFrame?.bind(globalObj);
+    const raf = deps?.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
     const loopFn = deps?.gameLoop;
     if (typeof raf === 'function' && typeof loopFn === 'function') {
       raf(loopFn);
     }
   }
 
-  const WorldRenderLoopUI = {
+  export const WorldRenderLoopUI = {
     gameLoop(timestamp, deps = {}) {
       const gs = _getGS(deps);
       const refs = _getRefs(deps);
@@ -34,7 +40,7 @@
         return;
       }
 
-      const hitStop = deps.hitStop || globalObj.HitStop;
+      const hitStop = deps.hitStop || HitStop;
       if (hitStop?.active?.()) {
         hitStop.update?.();
         _requestNextFrame(deps);
@@ -44,8 +50,8 @@
       const dt = Math.min((timestamp - _lastTimestamp) / 1000, 0.05);
       _lastTimestamp = timestamp;
 
-      const screenShake = deps.screenShake || globalObj.ScreenShake;
-      const particleSystem = deps.particleSystem || globalObj.ParticleSystem;
+      const screenShake = deps.screenShake || ScreenShake;
+      const particleSystem = deps.particleSystem || ParticleSystem;
 
       screenShake?.update?.();
       gameCtx.save();
@@ -147,6 +153,3 @@
       }
     },
   };
-
-  globalObj.WorldRenderLoopUI = WorldRenderLoopUI;
-})(window);

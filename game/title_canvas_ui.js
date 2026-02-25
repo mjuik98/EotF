@@ -1,6 +1,6 @@
 'use strict';
 
-(function initTitleCanvasUI(globalObj) {
+
   let _titleCanvas = null;
   let _titleCtx = null;
   let _titleRAF = 0;
@@ -29,11 +29,11 @@
 
   function _resize() {
     if (!_titleCanvas) return;
-    _titleCanvas.width = globalObj.innerWidth || 1280;
-    _titleCanvas.height = globalObj.innerHeight || 720;
+    _titleCanvas.width = window.innerWidth || 1280;
+    _titleCanvas.height = window.innerHeight || 720;
   }
 
-  const TitleCanvasUI = {
+  export const TitleCanvasUI = {
     init(deps = {}) {
       const doc = _getDoc(deps);
       _titleCanvas = doc.getElementById('titleCanvas');
@@ -42,7 +42,7 @@
 
       this.resize();
       if (!_resizeBound) {
-        globalObj.addEventListener('resize', () => this.resize());
+        window.addEventListener('resize', () => this.resize());
         _resizeBound = true;
       }
 
@@ -62,7 +62,7 @@
 
     animate() {
       if (!_titleCtx || !_titleCanvas) return;
-      if (_titleRAF) globalObj.cancelAnimationFrame(_titleRAF);
+      if (_titleRAF) window.cancelAnimationFrame(_titleRAF);
 
       const tick = () => {
         const w = _titleCanvas.width;
@@ -100,19 +100,19 @@
           _titleCtx.restore();
         });
 
-        _titleRAF = globalObj.requestAnimationFrame(tick);
+        _titleRAF = window.requestAnimationFrame(tick);
       };
 
       tick();
     },
 
     stop() {
-      if (_titleRAF) globalObj.cancelAnimationFrame(_titleRAF);
+      if (_titleRAF) window.cancelAnimationFrame(_titleRAF);
       _titleRAF = 0;
     },
   };
 
-  globalObj.showCharacterSelect = function () {
+  window.showCharacterSelect = function () {
     const main = document.getElementById('mainTitleSubScreen');
     const char = document.getElementById('charSelectSubScreen');
     if (main && char) {
@@ -121,7 +121,7 @@
     }
   };
 
-  globalObj.backToTitle = function () {
+  window.backToTitle = function () {
     const main = document.getElementById('mainTitleSubScreen');
     const char = document.getElementById('charSelectSubScreen');
     if (main && char) {
@@ -129,6 +129,3 @@
       char.style.display = 'none';
     }
   };
-
-  globalObj.TitleCanvasUI = TitleCanvasUI;
-})(window);

@@ -1,15 +1,18 @@
 'use strict';
 
-(function initRunStartUI(globalObj) {
+import { GS } from './game_state.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
-  const RunStartUI = {
+  export const RunStartUI = {
     enterRun(deps = {}) {
       const gs = _getGS(deps);
       if (!gs) return;
@@ -28,7 +31,7 @@
 
       setTimeout(() => {
         if (typeof deps.initGameCanvas === 'function') deps.initGameCanvas();
-        const raf = deps.requestAnimationFrame || globalObj.requestAnimationFrame;
+        const raf = deps.requestAnimationFrame || window.requestAnimationFrame;
         if (typeof raf === 'function' && typeof deps.gameLoop === 'function') {
           raf(deps.gameLoop);
         }
@@ -56,6 +59,3 @@
       }
     },
   };
-
-  globalObj.RunStartUI = RunStartUI;
-})(window);

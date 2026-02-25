@@ -1,3 +1,5 @@
+import { HitStop } from './hitstop.js';
+
 ﻿const HitStop = (() => {
   let frames = 0;
   return {
@@ -5,7 +7,7 @@
     active() { return frames > 0; },
     update() { if (frames > 0) frames--; }
   };
-})();
+
 
 // ────────────────────────────────────────
 // FOV ENGINE (기억의 미궁)

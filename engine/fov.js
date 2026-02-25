@@ -1,3 +1,6 @@
+import { FovEngine } from './fov.js';
+import { DATA } from '../data/game_data.js';
+
 ﻿const FovEngine = (() => {
   let map = [], W = 0, H = 0;
   let revealed = new Set(), visible = new Set();
@@ -68,7 +71,7 @@
   }
 
   return { generateMaze, computeFov, drawMaze, getMap:()=>map, getSize:()=>({W,H}), getRevealed:()=>revealed, getVisible:()=>visible };
-})();
+
 
 // ────────────────────────────────────────
 // DATA — 완전 통합 DB

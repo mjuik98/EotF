@@ -1,3 +1,5 @@
+import { AudioEngine } from './audio.js';
+
 ﻿const AudioEngine = (() => {
   let ctx = null, masterGain = null, reverbNode = null;
   let sfxGain = null, ambientGainNode = null;
@@ -185,7 +187,7 @@
     playBossPhase, playChain, playResonanceBurst, startAmbient, playFootstep,
     setVolume, setSfxVolume, setAmbientVolume, getVolumes, playClassSelect, playLegendary
   };
-})();
+
 
 // ────────────────────────────────────────
 // PARTICLE SYSTEM

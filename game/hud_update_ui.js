@@ -1,6 +1,13 @@
 'use strict';
 
-(function initHudUpdateUI(globalObj) {
+import { DATA } from '../data/game_data.js';
+import { SetBonusSystem } from './set_bonus_system.js';
+import { RunRules } from './run_rules.js';
+import { ClassMechanics } from './class_mechanics.js';
+import { GS } from './game_state.js';
+
+
+
   let _uiPending = false;
 
   function _getDoc(deps) {
@@ -8,10 +15,10 @@
   }
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
-  const HudUpdateUI = {
+  export const HudUpdateUI = {
     triggerDeckShufflePulse(deps = {}) {
       const doc = _getDoc(deps);
       const deckEls = doc.querySelectorAll('#deckCount, #combatDeckCount');
@@ -32,7 +39,7 @@
       const doc = _getDoc(deps);
       doc.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
         el.style.animation = 'none';
-        const raf = deps.requestAnimationFrame || globalObj.requestAnimationFrame?.bind(globalObj);
+        const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
         if (typeof raf === 'function') {
           raf(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
         } else {
@@ -45,7 +52,7 @@
       const doc = _getDoc(deps);
       doc.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
         el.style.animation = 'none';
-        const raf = deps.requestAnimationFrame || globalObj.requestAnimationFrame?.bind(globalObj);
+        const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
         if (typeof raf === 'function') {
           raf(() => { el.style.animation = 'shake 0.3s ease'; });
         } else {
@@ -57,8 +64,8 @@
     resetCombatUI(deps = {}) {
       const doc = _getDoc(deps);
       doc.getElementById('combatOverlay')?.classList.remove('active');
-      if (typeof globalObj._resetCombatInfoPanel === 'function') {
-        globalObj._resetCombatInfoPanel();
+      if (typeof window._resetCombatInfoPanel === 'function') {
+        window._resetCombatInfoPanel();
       }
       doc.getElementById('noiseGaugeOverlay')?.remove();
       doc.getElementById('cardTooltip')?.classList.remove('visible');
@@ -98,7 +105,7 @@
       if (_uiPending) return;
       _uiPending = true;
 
-      const raf = deps.requestAnimationFrame || globalObj.requestAnimationFrame?.bind(globalObj);
+      const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
       if (typeof raf === 'function') {
         raf(() => {
           _uiPending = false;
@@ -117,9 +124,9 @@
       if (!gs || !p) return;
 
       const doc = _getDoc(deps);
-      const data = deps.data || globalObj.DATA;
-      const setBonusSystem = deps.setBonusSystem || globalObj.SetBonusSystem;
-      const getRegionData = deps.getRegionData || globalObj.getRegionData;
+      const data = deps.data || DATA;
+      const setBonusSystem = deps.setBonusSystem || SetBonusSystem;
+      const getRegionData = deps.getRegionData || window.getRegionData;
       const setBar = deps.setBar || (() => { });
       const setText = deps.setText || (() => { });
 
@@ -181,8 +188,8 @@
         setText('playerNameDisplay', nameMap[p.class] || '');
 
         const specialEl = doc.getElementById('playerSpecialDisplay');
-        if (specialEl && globalObj.ClassMechanics?.[p.class]) {
-          const specialUI = globalObj.ClassMechanics[p.class].getSpecialUI(gs);
+        if (specialEl && ClassMechanics?.[p.class]) {
+          const specialUI = ClassMechanics[p.class].getSpecialUI(gs);
           if (typeof specialUI === 'string') {
             specialEl.innerHTML = specialUI;
           } else {
@@ -320,7 +327,7 @@
       const modEl = doc.getElementById('runModifiersSection');
       if (modEl) {
         let modHtml = '';
-        const runRules = globalObj.RunRules;
+        const runRules = RunRules;
         const asc = runRules?.getAscension?.(gs) || 0;
         const endless = runRules?.isEndless?.(gs);
 
@@ -395,6 +402,3 @@
       this.updateEndBtnWarn(deps);
     },
   };
-
-  globalObj.HudUpdateUI = HudUpdateUI;
-})(window);

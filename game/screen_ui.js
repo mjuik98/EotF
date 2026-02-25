@@ -1,11 +1,11 @@
 'use strict';
 
-(function initScreenUI(globalObj) {
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const ScreenUI = {
+  export const ScreenUI = {
     switchScreen(screen, deps = {}) {
       const doc = _getDoc(deps);
       doc.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -26,6 +26,3 @@
       }
     },
   };
-
-  globalObj.ScreenUI = ScreenUI;
-})(window);

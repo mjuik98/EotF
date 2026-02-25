@@ -1,6 +1,11 @@
 'use strict';
 
-(function initRunSetupUI(globalObj) {
+import { AudioEngine } from '../engine/audio.js';
+import { DATA } from '../data/game_data.js';
+import { RunRules } from './run_rules.js';
+
+
+
   const CLASS_CONFIGS = {
     swordsman: { maxHp: 80, startEcho: 0 },
     mage: { maxHp: 50, startEcho: 20 },
@@ -19,15 +24,15 @@
     shielder: 'phantom_cloak',
   };
 
-  const RunSetupUI = {
+  export const RunSetupUI = {
     startGame(deps = {}) {
       const selectedClass = deps.getSelectedClass?.();
       if (!selectedClass) return;
 
       const gs = deps.gs;
-      const data = deps.data || globalObj.DATA;
-      const runRules = deps.runRules || globalObj.RunRules;
-      const audioEngine = deps.audioEngine || globalObj.AudioEngine;
+      const data = deps.data || DATA;
+      const runRules = deps.runRules || RunRules;
+      const audioEngine = deps.audioEngine || AudioEngine;
       if (!gs || !data?.startDecks || !runRules || !audioEngine) return;
 
       audioEngine.init?.();
@@ -102,6 +107,3 @@
       if (typeof deps.enterRun === 'function') deps.enterRun();
     },
   };
-
-  globalObj.RunSetupUI = RunSetupUI;
-})(window);

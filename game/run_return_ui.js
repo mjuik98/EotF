@@ -1,14 +1,17 @@
 'use strict';
 
-(function initRunReturnUI(globalObj) {
+import { RunRules } from './run_rules.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const RunReturnUI = {
+  export const RunReturnUI = {
     returnToGame(fromReward, deps = {}) {
       const gs = deps.gs;
-      const runRules = deps.runRules || globalObj.RunRules;
+      const runRules = deps.runRules || RunRules;
       if (!gs || !runRules) return;
 
       const wasBoss = gs._bossRewardPending;
@@ -66,6 +69,3 @@
       if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
     },
   };
-
-  globalObj.RunReturnUI = RunReturnUI;
-})(window);

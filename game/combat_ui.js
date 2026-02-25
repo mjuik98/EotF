@@ -1,6 +1,10 @@
 'use strict';
 
-(function initCombatUI(globalObj) {
+import { DescriptionUtils } from './description_utils.js';
+import { CardCostUtils } from './card_cost_utils.js';
+
+
+
   const INTENT_DESCRIPTIONS = {
     attack: { type: '공격', desc: '플레이어에게 직접 피해를 입힙니다.' },
     heavy: { type: '강타', desc: '강력한 단일 피해를 가합니다.' },
@@ -75,7 +79,7 @@
     }
 
     // 유틸리티를 사용하여 키워드 하이라이트 적용 (innerHTML로 사용될 예정)
-    return globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(text) : text;
+    return DescriptionUtils ? DescriptionUtils.highlight(text) : text;
   }
 
   function _resolveIntentDescription(intent) {
@@ -107,7 +111,7 @@
     const atkCards = gs.player.hand.filter(id => {
       const c = data.cards[id];
       if (!c || c.type !== 'ATTACK' || !c.dmg) return false;
-      return globalObj.CardCostUtils.canPlay(id, c, gs.player);
+      return CardCostUtils.canPlay(id, c, gs.player);
     });
     if (!atkCards.length) return null;
 
@@ -135,7 +139,7 @@
       : `⚔ 예상 총 피해 ${preview.netDmg}`;
   }
 
-  const CombatUI = {
+  export const CombatUI = {
     showIntentTooltip(event, enemyIdx, deps = {}) {
       const gs = deps.gs;
       if (!gs?.combat?.enemies) return;
@@ -169,7 +173,7 @@
       el.innerHTML = `
         <div class="itt-title">${icon} ${label}</div>
         <div class="itt-type">— ${descInfo.type} —</div>
-        <div class="itt-desc">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(descInfo.desc) : descInfo.desc}</div>
+        <div class="itt-desc">${DescriptionUtils ? DescriptionUtils.highlight(descInfo.desc) : descInfo.desc}</div>
         ${intent.dmg > 0 ? `<div class="itt-dmg">💢 예상 피해: <strong>${intent.dmg}</strong></div>` : ''}
       `;
 
@@ -366,6 +370,3 @@
       }
     },
   };
-
-  globalObj.CombatUI = CombatUI;
-})(window);

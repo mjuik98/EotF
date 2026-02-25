@@ -1,6 +1,6 @@
 'use strict';
 
-(function initGameCanvasSetupUI(globalObj) {
+
   let _gameCanvas = null;
   let _gameCtx = null;
   let _minimapCanvas = null;
@@ -12,7 +12,7 @@
     return deps?.doc || document;
   }
 
-  const GameCanvasSetupUI = {
+  export const GameCanvasSetupUI = {
     getRefs() {
       return {
         gameCanvas: _gameCanvas,
@@ -35,8 +35,8 @@
         _minimapCanvas._mapOpenPatched = true;
         _minimapCanvas.style.cursor = 'pointer';
         _minimapCanvas.addEventListener('click', () => {
-          if (typeof globalObj.showFullMap === 'function') {
-            globalObj.showFullMap();
+          if (typeof window.showFullMap === 'function') {
+            window.showFullMap();
           }
         });
       }
@@ -46,7 +46,7 @@
       this.resize();
 
       if (!_resizeBound) {
-        globalObj.addEventListener('resize', () => this.resize());
+        window.addEventListener('resize', () => this.resize());
         _resizeBound = true;
       }
 
@@ -59,7 +59,7 @@
       _gameCanvas.width = Math.max(rect.width || _gameCanvas.offsetWidth || 0, 600);
       _gameCanvas.height = Math.max(rect.height || _gameCanvas.offsetHeight || 0, 400);
 
-      if (globalObj.ResizeObserver && !_gameCanvas._resizeObserver) {
+      if (window.ResizeObserver && !_gameCanvas._resizeObserver) {
         const ro = new ResizeObserver(() => {
           const r = _gameCanvas.getBoundingClientRect();
           if (r.width > 0) {
@@ -77,7 +77,3 @@
       }
     },
   };
-
-  globalObj.GameCanvasSetupUI = GameCanvasSetupUI;
-})(window);
-

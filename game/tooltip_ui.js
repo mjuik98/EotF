@@ -1,6 +1,10 @@
 'use strict';
 
-(function initTooltipUI(globalObj) {
+import { DescriptionUtils } from './description_utils.js';
+import { TooltipUI } from './tooltip_ui.js';
+
+
+
   let _tooltipTimer = null;
   let _itemTipEl = null;
 
@@ -48,7 +52,7 @@
       doc.getElementById('ttCost').textContent = card.cost;
       doc.getElementById('ttName').textContent = card.name;
       doc.getElementById('ttType').textContent = card.type;
-      doc.getElementById('ttDesc').innerHTML = globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc;
+      doc.getElementById('ttDesc').innerHTML = DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc;
       const rarityEl = doc.getElementById('ttRarity');
       rarityEl.textContent = (card.rarity || 'common').toUpperCase();
       rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
@@ -168,7 +172,7 @@
         '</div>' +
         '</div>' +
         '</div>' +
-        '<div style="font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;">' + (globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc) + '</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;">' + (DescriptionUtils ? DescriptionUtils.highlight(item.desc) : item.desc) + '</div>' +
         (() => {
           const setEntry = Object.entries(setBonusSystem.sets).find(([, s]) => s.items.includes(itemId));
           if (!setEntry) return '';
@@ -183,7 +187,7 @@
             <div style="font-size:9px;color:${owned >= 2 ? 'var(--cyan)' : 'var(--text-dim)'};margin-bottom:1px;">2개: ${b2}</div>
             <div style="font-size:9px;color:${owned >= 3 ? 'var(--gold)' : 'var(--text-dim)'};">3개: ${b3}</div>
           </div>`;
-        })();
+        
 
       const rect = event.currentTarget.getBoundingClientRect();
       let x = rect.right + 10;
@@ -230,16 +234,15 @@
       el.style.left = `${Math.max(6, x)}px`;
       el.style.top = `${Math.max(6, y)}px`;
       doc.body.appendChild(el);
-      globalObj._generalTipEl = el;
+      
     },
 
     hideGeneralTooltip() {
-      if (globalObj._generalTipEl) {
-        globalObj._generalTipEl.remove();
-        globalObj._generalTipEl = null;
+      if (window._generalTipEl) {
+        window._generalTipEl.remove();
+        window._generalTipEl = null;
       }
     }
   };
 
-  globalObj.TooltipUI = TooltipUI;
-})(window);
+  TooltipUI = TooltipUI;

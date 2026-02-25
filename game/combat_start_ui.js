@@ -1,6 +1,15 @@
 'use strict';
 
-(function initCombatStartUI(globalObj) {
+import { AudioEngine } from '../engine/audio.js';
+import { Trigger } from './constants/triggers.js';
+import { DATA } from '../data/game_data.js';
+import { DifficultyScaler } from './difficulty_scaler.js';
+import { RunRules } from './run_rules.js';
+import { ClassMechanics } from './class_mechanics.js';
+import { GS } from './game_state.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
@@ -18,17 +27,17 @@
     gs.combat.enemies.push(enemy);
   }
 
-  const CombatStartUI = {
+  export const CombatStartUI = {
     startCombat(isBoss = false, deps = {}) {
-      const gs = deps.gs || globalObj.GS;
-      const data = deps.data || globalObj.DATA;
-      const getRegionData = deps.getRegionData || globalObj.getRegionData;
-      const getBaseRegionIndex = deps.getBaseRegionIndex || globalObj.getBaseRegionIndex;
-      const getRegionCount = deps.getRegionCount || globalObj.getRegionCount;
-      const difficultyScaler = deps.difficultyScaler || globalObj.DifficultyScaler;
-      const audioEngine = deps.audioEngine || globalObj.AudioEngine;
-      const runRules = deps.runRules || globalObj.RunRules;
-      const classMechanics = deps.classMechanics || globalObj.ClassMechanics;
+      const gs = deps.gs || GS;
+      const data = deps.data || DATA;
+      const getRegionData = deps.getRegionData || window.getRegionData;
+      const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
+      const getRegionCount = deps.getRegionCount || window.getRegionCount;
+      const difficultyScaler = deps.difficultyScaler || DifficultyScaler;
+      const audioEngine = deps.audioEngine || AudioEngine;
+      const runRules = deps.runRules || RunRules;
+      const classMechanics = deps.classMechanics || ClassMechanics;
       if (!gs || !data?.enemies || typeof getRegionData !== 'function') return;
 
       const region = getRegionData(gs.currentRegion, gs);
@@ -157,6 +166,3 @@
       deps.updateClassSpecialUI?.();
     },
   };
-
-  globalObj.CombatStartUI = CombatStartUI;
-})(window);

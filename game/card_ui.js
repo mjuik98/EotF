@@ -1,6 +1,11 @@
 'use strict';
 
-(function initCardUI(globalObj) {
+import { DescriptionUtils } from './description_utils.js';
+import { CardCostUtils } from './card_cost_utils.js';
+import { GS } from './game_state.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
@@ -23,7 +28,7 @@
     return '';
   }
 
-  const CardUI = {
+  export const CardUI = {
     getCardTypeClass(type) {
       return _getCardTypeClass(type);
     },
@@ -41,11 +46,11 @@
       const zone = doc.getElementById('combatHandCards');
       if (!zone) return;
 
-      const playCardHandler = deps.playCardHandler || globalObj.GS?.playCard;
-      const dragStartHandler = deps.dragStartHandler || globalObj.handleCardDragStart;
-      const dragEndHandler = deps.dragEndHandler || globalObj.handleCardDragEnd;
-      const showTooltipHandler = deps.showTooltipHandler || globalObj.showTooltip;
-      const hideTooltipHandler = deps.hideTooltipHandler || globalObj.hideTooltip;
+      const playCardHandler = deps.playCardHandler || GS?.playCard;
+      const dragStartHandler = deps.dragStartHandler || window.handleCardDragStart;
+      const dragEndHandler = deps.dragEndHandler || window.handleCardDragEnd;
+      const showTooltipHandler = deps.showTooltipHandler || window.showTooltip;
+      const hideTooltipHandler = deps.hideTooltipHandler || window.hideTooltip;
 
       const handSize = gs.player.hand.length;
       const cardScale = handSize <= 5 ? 1.2 : handSize <= 7 ? 1.05 : 0.95;
@@ -60,11 +65,11 @@
 
         const rarityClass = `rarity-${card.rarity || 'common'}`;
 
-        const { displayCost: cost, isFree } = globalObj.CardCostUtils.getCostDisplay(cardId, card, gs.player);
+        const { displayCost: cost, isFree } = CardCostUtils.getCostDisplay(cardId, card, gs.player);
         const canPlay = gs.player.energy >= cost;
         const disc = gs.player.costDiscount || 0;
-        const isCascadeFree = globalObj.CardCostUtils.isCascadeFree(cardId, gs.player);
-        const isChargeFree = globalObj.CardCostUtils.isChargeFree(cardId, gs.player);
+        const isCascadeFree = CardCostUtils.isCascadeFree(cardId, gs.player);
+        const isChargeFree = CardCostUtils.isChargeFree(cardId, gs.player);
         const rarityBorder = card.rarity === 'rare'
           ? 'rgba(240,180,41,0.5)'
           : card.rarity === 'uncommon'
@@ -92,7 +97,7 @@
               ${card.icon}
             </div>
             <div class="card-name" style="${cardScale < 1 ? `font-size:${Math.round(12 * cardScale)}px;` : 'font-size:14px;'}">${card.name}${card.upgraded ? '<span style="color:var(--cyan);font-size:10px;"> ✦</span>' : ''}</div>
-            <div class="card-desc" style="display:none;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
+            <div class="card-desc" style="display:none;">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type ${typeLabelClass}">${card.type}</div>
         `;
         zone.appendChild(el);
@@ -110,8 +115,8 @@
       const zone = doc.getElementById('handCards');
       if (!zone) return;
 
-      const playCardHandler = deps.playCardHandler || globalObj.GS?.playCard;
-      const renderCombatCardsHandler = deps.renderCombatCardsHandler || globalObj.renderCombatCards;
+      const playCardHandler = deps.playCardHandler || GS?.playCard;
+      const renderCombatCardsHandler = deps.renderCombatCardsHandler || window.renderCombatCards;
 
       zone.innerHTML = '';
       gs.player.hand.forEach((cardId, i) => {
@@ -131,7 +136,7 @@
             <div class="card-cost">${card.cost}</div>
             <div class="card-icon">${card.icon}</div>
             <div class="card-name">${card.name}</div>
-            <div class="card-desc">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
+            <div class="card-desc">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type">${card.type}</div>
         `;
         zone.appendChild(el);
@@ -155,6 +160,3 @@
       });
     },
   };
-
-  globalObj.CardUI = CardUI;
-})(window);

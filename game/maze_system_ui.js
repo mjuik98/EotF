@@ -1,6 +1,10 @@
 'use strict';
 
-(function initMazeSystemUI(globalObj) {
+import { FovEngine } from '../engine/fov.js';
+import { GS } from './game_state.js';
+
+
+
   let _deps = {};
 
   let canvas;
@@ -30,11 +34,11 @@
   }
 
   function _fov() {
-    return _deps.fovEngine || globalObj.FovEngine;
+    return _deps.fovEngine || FovEngine;
   }
 
   function _gs() {
-    return _deps.gs || globalObj.GS;
+    return _deps.gs || GS;
   }
 
   function _init() {
@@ -222,7 +226,7 @@
     }, 800);
   }
 
-  const MazeSystem = {
+  export const MazeSystem = {
     configure(nextDeps = {}) {
       _deps = { ..._deps, ...nextDeps };
     },
@@ -286,6 +290,3 @@
       return true;
     },
   };
-
-  globalObj.MazeSystem = MazeSystem;
-})(window);

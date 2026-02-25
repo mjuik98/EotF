@@ -1,6 +1,11 @@
 'use strict';
 
-(function initSaveSystem(globalObj) {
+import { SaveAdapter } from './save_adapter.js';
+import { RunRules } from './run_rules.js';
+import { GS } from './game_state.js';
+
+
+
   const SAVE_KEY = 'echo_fallen_save';
   const META_KEY = 'echo_fallen_meta';
 
@@ -9,10 +14,10 @@
   }
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
-  const SaveSystem = {
+  export const SaveSystem = {
     SAVE_KEY,
     META_KEY,
 
@@ -54,7 +59,7 @@
         }
       } catch (e) { }
 
-      const runRules = deps.runRules || globalObj.RunRules;
+      const runRules = deps.runRules || RunRules;
       try {
         runRules?.ensureMeta?.(gs.meta);
       } catch (e) { }
@@ -147,7 +152,3 @@
       setTimeout(() => el.remove(), 1800);
     },
   };
-
-  globalObj.SaveSystem = SaveSystem;
-})(window);
-

@@ -1,3 +1,12 @@
+import { AudioEngine } from '../engine/audio.js';
+import { CONSTANTS } from '../game/constants/constants.js';
+import { Trigger } from '../game/constants/triggers.js';
+import { DATA } from './game_data.js';
+import { DifficultyScaler } from '../game/difficulty_scaler.js';
+import { SetBonusSystem } from '../game/set_bonus_system.js';
+import { RunRules } from '../game/run_rules.js';
+import { GS } from '../game/game_state.js';
+
 ﻿const DATA = {
   // 에셋 경로 정의
   assets: {
@@ -1545,6 +1554,5 @@ const SetBonusSystem = {
 };
 
 if (typeof window !== 'undefined') {
-  window.DATA = DATA;
+  DATA = DATA;
 }
-

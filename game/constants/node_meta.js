@@ -1,6 +1,6 @@
 'use strict';
 
-const NODE_META = {
+export const NODE_META = {
     combat: { icon: '⚔️', label: '전투', color: '#cc2244', glow: 'rgba(204,34,68,', desc: '일반 적과 싸워 카드를 획득한다' },
     elite: { icon: '⭐', label: '정예', color: '#d4a017', glow: 'rgba(212,160,23,', desc: '위험한 정예 몬스터. 희귀 보상 확정' },
     boss: { icon: '💀', label: '보스', color: '#7b2fff', glow: 'rgba(123,47,255,', desc: '지역 보스. 처치하면 새 지역이 열린다' },
@@ -10,5 +10,5 @@ const NODE_META = {
 };
 
 (function (globalObj) {
-    globalObj.NODE_META = NODE_META;
+    
 })(typeof window !== 'undefined' ? window : global);

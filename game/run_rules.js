@@ -1,5 +1,11 @@
 'use strict';
 
+import { DATA } from '../data/game_data.js';
+import { SaveSystem } from './save_system.js';
+import { RunRules } from './run_rules.js';
+import { GS } from './game_state.js';
+
+
 function getRegionCount() {
   return Array.isArray(DATA?.regions) ? DATA.regions.length : 0;
 }
@@ -20,7 +26,7 @@ function getRegionData(regionIdx = 0, gsRef = null) {
   const baseRegion = DATA.regions[baseIdx];
   if (!baseRegion) return null;
 
-  const gs = gsRef || window.GS || null;
+  const gs = gsRef || GS || null;
   const endless = !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
   if (!endless || idx < count) return baseRegion;
 
@@ -193,7 +199,7 @@ const RunRules = {
 };
 
 function finalizeRunOutcome(kind = 'defeat', options = {}) {
-  const gs = window.GS;
+  const gs = GS;
   if (!gs) return 0;
   if (gs._runOutcomeCommitted) return 0;
   gs._runOutcomeCommitted = true;
@@ -216,8 +222,8 @@ function finalizeRunOutcome(kind = 'defeat', options = {}) {
   gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
 
   if (window.StorySystem?.unlockNextFragment) StorySystem.unlockNextFragment();
-  if (window.SaveSystem?.saveMeta) SaveSystem.saveMeta();
-  if (window.SaveSystem?.clearSave) SaveSystem.clearSave();
+  if (SaveSystem?.saveMeta) SaveSystem.saveMeta();
+  if (SaveSystem?.clearSave) SaveSystem.clearSave();
 
   return shardGain;
 }
@@ -225,5 +231,5 @@ function finalizeRunOutcome(kind = 'defeat', options = {}) {
 window.getRegionCount = getRegionCount;
 window.getBaseRegionIndex = getBaseRegionIndex;
 window.getRegionData = getRegionData;
-window.RunRules = RunRules;
+RunRules = RunRules;
 window.finalizeRunOutcome = finalizeRunOutcome;

@@ -1,3 +1,5 @@
+import { ScreenShake } from './screenshake.js';
+
 ﻿const ScreenShake = (() => {
   let intensity = 0, decay = 0, ox = 0, oy = 0;
   function shake(amt, dec = 0.3) { intensity = Math.max(intensity, amt); decay = dec; }
@@ -9,5 +11,3 @@
   }
   function apply(ctx) { ctx.translate(ox, oy); }
   return { shake, update, apply };
-})();
-

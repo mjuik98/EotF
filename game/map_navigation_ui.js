@@ -1,9 +1,13 @@
 'use strict';
 
-(function initMapNavigationUI(globalObj) {
-  const MapNavigationUI = {
+import { Trigger } from './constants/triggers.js';
+import { GS } from './game_state.js';
+
+
+
+  export const MapNavigationUI = {
     moveToNode(nodeRef, deps = {}) {
-      const gs = deps.gs || globalObj.GS;
+      const gs = deps.gs || GS;
       if (!gs) return;
 
       let node = nodeRef;
@@ -58,6 +62,3 @@
       }, 300);
     },
   };
-
-  globalObj.MapNavigationUI = MapNavigationUI;
-})(window);

@@ -1,10 +1,13 @@
 'use strict';
 
-(function initMapGenerationUI(globalObj) {
-  const MapGenerationUI = {
+import { GS } from './game_state.js';
+
+
+
+  export const MapGenerationUI = {
     generateMap(regionIdx, deps = {}) {
-      const gs = deps.gs || globalObj.GS;
-      const getRegionData = deps.getRegionData || globalObj.getRegionData;
+      const gs = deps.gs || GS;
+      const getRegionData = deps.getRegionData || window.getRegionData;
       if (!gs || typeof getRegionData !== 'function') return;
 
       const region = getRegionData(regionIdx, gs);
@@ -65,6 +68,3 @@
       }
     },
   };
-
-  globalObj.MapGenerationUI = MapGenerationUI;
-})(window);

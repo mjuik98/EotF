@@ -1,6 +1,11 @@
 'use strict';
 
-(function initCardTargetUI(globalObj) {
+import { DATA } from '../data/game_data.js';
+import { CombatUI } from './combat_ui.js';
+import { GS } from './game_state.js';
+
+
+
   let _dragCardId = null;
   let _dragIdx = null;
 
@@ -9,14 +14,14 @@
   }
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
   function _getData(deps) {
-    return deps?.data || globalObj.DATA;
+    return deps?.data || DATA;
   }
 
-  const CardTargetUI = {
+  export const CardTargetUI = {
     handleDragStart(event, cardId, idx, deps = {}) {
       _dragCardId = cardId;
       _dragIdx = idx;
@@ -94,11 +99,8 @@
 
       if (typeof deps.renderCombatEnemies === 'function') {
         deps.renderCombatEnemies();
-      } else if (typeof globalObj.CombatUI?.renderCombatEnemies === 'function') {
-        globalObj.CombatUI.renderCombatEnemies({ gs: gs, data: data });
+      } else if (typeof CombatUI?.renderCombatEnemies === 'function') {
+        CombatUI.renderCombatEnemies({ gs: gs, data: data });
       }
     },
   };
-
-  globalObj.CardTargetUI = CardTargetUI;
-})(window);

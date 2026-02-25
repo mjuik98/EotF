@@ -5,7 +5,7 @@
 //  오타 버그를 방지하고, IDE 자동완성을 지원합니다.
 // ═══════════════════════════════════════════════
 
-const Trigger = Object.freeze({
+export const Trigger = Object.freeze({
     COMBAT_START: 'combat_start',
     COMBAT_END: 'combat_end',
     TURN_START: 'turn_start',
@@ -23,5 +23,5 @@ const Trigger = Object.freeze({
 });
 
 (function (globalObj) {
-    globalObj.Trigger = Trigger;
+    
 })(typeof window !== 'undefined' ? window : global);

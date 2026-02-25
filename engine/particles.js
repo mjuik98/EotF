@@ -1,3 +1,5 @@
+import { ParticleSystem } from './particles.js';
+
 ﻿const ParticleSystem = (() => {
   const POOL_SIZE = 300;
   const pool = Array.from({ length: POOL_SIZE }, () => ({ active: false }));
@@ -70,7 +72,7 @@
   }
 
   return { init, update, hitEffect, burstEffect, healEffect, deathEffect, emit };
-})();
+
 
 // ────────────────────────────────────────
 // SCREEN SHAKE + HIT STOP

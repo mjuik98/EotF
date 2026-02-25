@@ -1,6 +1,9 @@
 'use strict';
 
-(function initStatusEffectsUI(globalObj) {
+import { GS } from './game_state.js';
+
+
+
   const STATUS_KR = {
     momentum: { name: '모멘텀', icon: '⚔️', buff: true, desc: '이동·공격 시 피해가 누적 증가. 연속 공격일수록 강해집니다.' },
     soul_armor: { name: '영혼갑옷', icon: '🛡️', buff: true, desc: '받는 피해를 일부 감소시킵니다.' },
@@ -24,10 +27,10 @@
   }
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
-  const StatusEffectsUI = {
+  export const StatusEffectsUI = {
     getStatusMap() {
       return STATUS_KR;
     },
@@ -68,6 +71,3 @@
       }
     },
   };
-
-  globalObj.StatusEffectsUI = StatusEffectsUI;
-})(window);

@@ -1,19 +1,23 @@
 'use strict';
 
-(function initStoryUI(globalObj) {
+import { DATA } from '../data/game_data.js';
+import { GS } from './game_state.js';
+
+
+
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
   function _getData(deps) {
-    return deps?.data || globalObj.DATA;
+    return deps?.data || DATA;
   }
 
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const StoryUI = {
+  export const StoryUI = {
     unlockNextFragment(deps = {}) {
       const gs = _getGS(deps);
       const data = _getData(deps);
@@ -122,13 +126,10 @@
       setTimeout(() => {
         for (let i = 0; i < 5; i++) {
           setTimeout(() => {
-            deps.particleSystem?.burstEffect?.(globalObj.innerWidth * (0.2 + Math.random() * 0.6), globalObj.innerHeight * (0.2 + Math.random() * 0.6));
+            deps.particleSystem?.burstEffect?.(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * (0.2 + Math.random() * 0.6));
           }, i * 300);
         }
         deps.audioEngine?.playResonanceBurst?.();
       }, 2000);
     },
   };
-
-  globalObj.StoryUI = StoryUI;
-})(window);

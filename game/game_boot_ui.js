@@ -1,6 +1,14 @@
 'use strict';
 
-(function initGameBootUI(globalObj) {
+import { AudioEngine } from '../engine/audio.js';
+import { DATA } from '../data/game_data.js';
+import { SaveSystem } from './save_system.js';
+import { RunRules } from './run_rules.js';
+import { CodexUI } from './codex_ui.js';
+import { GS } from './game_state.js';
+
+
+
   const BOOT_BANNER = `
 ╔══════════════════════════════════════════╗
 ║  ECHO OF THE FALLEN v11 — SET SYSTEM    ║
@@ -20,13 +28,13 @@
     return deps?.doc || document;
   }
 
-  const GameBootUI = {
+  export const GameBootUI = {
     bootGame(deps = {}) {
-      const gs = deps.gs || globalObj.GS;
+      const gs = deps.gs || GS;
       const doc = _getDoc(deps);
-      const audioEngine = deps.audioEngine || globalObj.AudioEngine;
-      const runRules = deps.runRules || globalObj.RunRules;
-      const saveSystem = deps.saveSystem || globalObj.SaveSystem;
+      const audioEngine = deps.audioEngine || AudioEngine;
+      const runRules = deps.runRules || RunRules;
+      const saveSystem = deps.saveSystem || SaveSystem;
 
       try {
         doc.addEventListener('click', () => {
@@ -53,9 +61,9 @@
         }
 
         // 도감 버튼 클릭 핸들러 (인덱스 HTML에서 사용)
-        globalObj.openCodexFromTitle = () => {
-          if (globalObj.CodexUI) {
-            globalObj.CodexUI.openCodex({ gs, data: globalObj.DATA });
+        window.openCodexFromTitle = () => {
+          if (CodexUI) {
+            CodexUI.openCodex({ gs, data: DATA });
           }
         };
       } catch (e) {
@@ -74,6 +82,3 @@
       }
     },
   };
-
-  globalObj.GameBootUI = GameBootUI;
-})(window);

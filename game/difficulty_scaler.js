@@ -1,3 +1,8 @@
+import { CONSTANTS } from './constants/constants.js';
+import { DifficultyScaler } from './difficulty_scaler.js';
+import { RunRules } from './run_rules.js';
+import { GS } from './game_state.js';
+
 // DifficultyScaler — 순수 함수화 (GS 없이 밸런스 시뮬레이션 가능)
 const DifficultyScaler = {
   /**
@@ -49,4 +54,3 @@ const DifficultyScaler = {
     };
   },
 };
-

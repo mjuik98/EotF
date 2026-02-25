@@ -1,13 +1,16 @@
 'use strict';
 
-(function initDeckModalUI(globalObj) {
+import { DescriptionUtils } from './description_utils.js';
+
+
+
   let _deckFilterType = 'all';
 
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const DeckModalUI = {
+  export const DeckModalUI = {
     resetFilter() {
       _deckFilterType = 'all';
     },
@@ -92,7 +95,7 @@
           ${locationTag}
           <div style="font-size:48px;margin:32px 0 12px;">${card.icon}</div>
           <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--white);text-align:center;margin-bottom:8px;line-height:1.2;">${card.name}</div>
-          <div style="font-size:13px;color:var(--text);text-align:center;line-height:1.5;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
+          <div style="font-size:13px;color:var(--text);text-align:center;line-height:1.5;flex:1;">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
           <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;color:${card.upgraded ? 'var(--cyan)' : typeColor};margin-top:8px;font-weight:bold;">${card.upgraded ? '✦ 강화됨' : card.type}</div>
         </div>`;
       }).join('');
@@ -122,6 +125,3 @@
       doc.getElementById('deckViewModal')?.classList.remove('active');
     },
   };
-
-  globalObj.DeckModalUI = DeckModalUI;
-})(window);

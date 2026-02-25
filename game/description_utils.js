@@ -1,11 +1,11 @@
 'use strict';
 
-(function initDescriptionUtils(globalObj) {
+
     /**
      * 카드 또는 아이템의 설명 텍스트를 게임의 키워드 체계에 맞춰 하이라이트합니다.
      * 주요 키워드와 숫자에 HTML 스팬 태그를 입힙니다.
      */
-    const DescriptionUtils = {
+    export const DescriptionUtils = {
         highlight(text) {
             if (!text) return '';
 
@@ -62,6 +62,3 @@
             return highlighted;
         }
     };
-
-    globalObj.DescriptionUtils = DescriptionUtils;
-})(window);

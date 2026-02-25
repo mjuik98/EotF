@@ -1,16 +1,21 @@
 'use strict';
 
-(function initCodexUI(globalObj) {
+import { DescriptionUtils } from './description_utils.js';
+import { DATA } from '../data/game_data.js';
+import { GS } from './game_state.js';
+
+
+
   let _codexTab = 'enemies';
 
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const CodexUI = {
+  export const CodexUI = {
     openCodex(deps = {}) {
-      const gs = deps.gs || (typeof window !== 'undefined' ? window.GS : null);
-      const data = deps.data || (typeof window !== 'undefined' ? window.DATA : null);
+      const gs = deps.gs || (typeof window !== 'undefined' ? GS : null);
+      const data = deps.data || (typeof window !== 'undefined' ? DATA : null);
 
       if (gs && !gs.meta) gs.meta = {};
       if (gs && gs.meta && !gs.meta.codex) {
@@ -164,7 +169,7 @@
               </div>
               <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">${seen ? card.name : '???'}</div>
               ${seen ? `
-                <div style="font-size:10px;color:var(--text);text-align:center;line-height:1.5;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
+                <div style="font-size:10px;color:var(--text);text-align:center;line-height:1.5;flex:1;">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
                 <div style="display:flex;gap:6px;align-items:center;margin-top:auto;">
                   <span style="width:20px;height:20px;border-radius:50%;background:rgba(123,47,255,0.3);border:1px solid var(--echo);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--white);font-weight:bold;">${card.cost}</span>
                   <span style="font-size:9px;color:${tc};font-weight:bold;">${card.type}</span>
@@ -207,7 +212,7 @@
                <div style="font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
                 ${seen ? item.name : '???'}
               </div>
-              ${seen ? `<div style="font-size:11px;color:var(--text);text-align:center;line-height:1.6;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>`
+              ${seen ? `<div style="font-size:11px;color:var(--text);text-align:center;line-height:1.6;flex:1;">${DescriptionUtils ? DescriptionUtils.highlight(item.desc) : item.desc}</div>`
                 : `<div style="font-size:10px;color:var(--text-dim);text-align:center;margin-top:auto;">획득하면 해금</div>`}
               <div style="font-size:10px;color:${rColor};font-family:'Cinzel',serif;margin-top:auto;opacity:0.8;font-weight:bold;">${rarityLabel[r]}</div>
             </div>`;
@@ -222,6 +227,3 @@
       }
     },
   };
-
-  globalObj.CodexUI = CodexUI;
-})(window);

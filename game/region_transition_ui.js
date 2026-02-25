@@ -1,15 +1,18 @@
 'use strict';
 
-(function initRegionTransitionUI(globalObj) {
+import { GS } from './game_state.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
-  const RegionTransitionUI = {
+  export const RegionTransitionUI = {
     advanceToNextRegion(deps = {}) {
       const gs = _getGS(deps);
       if (!gs) return;
@@ -18,11 +21,11 @@
       gs.currentFloor = 0;
       deps.mazeSystem?.close?.();
 
-      const getRegionData = deps.getRegionData || globalObj.getRegionData;
+      const getRegionData = deps.getRegionData || window.getRegionData;
       const region = getRegionData?.(gs.currentRegion, gs);
       if (!region) return;
 
-      const getBaseRegionIndex = deps.getBaseRegionIndex || globalObj.getBaseRegionIndex;
+      const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
       const baseRegion = getBaseRegionIndex ? getBaseRegionIndex(gs.currentRegion) : gs.currentRegion;
       deps.audioEngine?.startAmbient?.(baseRegion);
 
@@ -49,11 +52,8 @@
         }, 800);
       }, 2800);
 
-      deps.particleSystem?.burstEffect?.(globalObj.innerWidth / 2, globalObj.innerHeight / 2);
+      deps.particleSystem?.burstEffect?.(window.innerWidth / 2, window.innerHeight / 2);
       deps.screenShake?.shake?.(8, 0.5);
       deps.audioEngine?.playBossPhase?.();
     },
   };
-
-  globalObj.RegionTransitionUI = RegionTransitionUI;
-})(window);

@@ -1,15 +1,18 @@
 'use strict';
 
-(function initMetaProgressionUI(globalObj) {
+import { GS } from './game_state.js';
+
+
+
   function _getGS(deps) {
-    return deps?.gs || globalObj.GS;
+    return deps?.gs || GS;
   }
 
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const MetaProgressionUI = {
+  export const MetaProgressionUI = {
     selectFragment(effect, deps = {}) {
       const gs = _getGS(deps);
       if (!gs?.meta) return;
@@ -45,6 +48,3 @@
       if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();
     },
   };
-
-  globalObj.MetaProgressionUI = MetaProgressionUI;
-})(window);

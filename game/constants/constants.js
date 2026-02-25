@@ -5,7 +5,7 @@
 //  밸런싱 시 이 파일만 수정하면 됩니다.
 // ═══════════════════════════════════════════════
 
-const CONSTANTS = Object.freeze({
+export const CONSTANTS = Object.freeze({
   COMBAT: Object.freeze({
     ENEMY_TURN_DELAY_MS: 700,
     STATUS_TICK_INTERVAL: 1,
@@ -76,5 +76,5 @@ const CONSTANTS = Object.freeze({
 });
 
 (function (globalObj) {
-  globalObj.CONSTANTS = CONSTANTS;
+  
 })(typeof window !== 'undefined' ? window : global);

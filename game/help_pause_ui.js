@@ -1,6 +1,6 @@
 'use strict';
 
-(function initHelpPauseUI(globalObj) {
+
   let _helpOpen = false;
   let _pauseOpen = false;
   let _hotkeysBound = false;
@@ -13,14 +13,14 @@
     return gs?.currentScreen === 'game';
   }
 
-  const HelpPauseUI = {
+  export const HelpPauseUI = {
     isHelpOpen() {
       return _helpOpen;
     },
 
     showMobileWarning(deps = {}) {
       const doc = _getDoc(deps);
-      const isMobile = globalObj.innerWidth < 900 || 'ontouchstart' in globalObj;
+      const isMobile = window.innerWidth < 900 || 'ontouchstart' in globalObj;
       if (!isMobile || doc.getElementById('mobileWarn')) return;
 
       const warn = doc.createElement('div');
@@ -193,7 +193,7 @@
           </div>
         `;
         doc.body.appendChild(menu);
-        if (typeof globalObj._syncVolumeUI === 'function') globalObj._syncVolumeUI();
+        if (typeof window._syncVolumeUI === 'function') window._syncVolumeUI();
       } else {
         menu?.remove();
       }
@@ -261,6 +261,3 @@
       });
     },
   };
-
-  globalObj.HelpPauseUI = HelpPauseUI;
-})(window);

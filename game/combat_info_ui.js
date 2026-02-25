@@ -1,6 +1,6 @@
 'use strict';
 
-(function initCombatInfoUI(globalObj) {
+
   let _combatInfoOpen = false;
 
   function _getDoc(deps) {
@@ -17,7 +17,7 @@
     }
   }
 
-  const CombatInfoUI = {
+  export const CombatInfoUI = {
     reset(deps = {}) {
       _combatInfoOpen = false;
       const doc = _getDoc(deps);
@@ -131,6 +131,3 @@
       }
     },
   };
-
-  globalObj.CombatInfoUI = CombatInfoUI;
-})(window);

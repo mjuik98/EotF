@@ -1,6 +1,12 @@
 'use strict';
 
-(function initCombatTurnUI(globalObj) {
+import { DATA } from '../data/game_data.js';
+import { CardCostUtils } from './card_cost_utils.js';
+import { RunRules } from './run_rules.js';
+import { GS } from './game_state.js';
+
+
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
@@ -118,17 +124,17 @@
     }
   };
 
-  const CombatTurnUI = {
+  export const CombatTurnUI = {
     endPlayerTurn(deps = {}) {
-      const gs = deps.gs || globalObj.GS;
-      const data = deps.data || globalObj.DATA;
+      const gs = deps.gs || GS;
+      const data = deps.data || DATA;
       if (!gs?.combat?.active || !gs.combat.playerTurn) return;
 
       if (gs.player.hand.length > 0) {
         const playable = gs.player.hand.filter(id => {
           const card = data?.cards?.[id];
           if (!card) return false;
-          return globalObj.CardCostUtils.canPlay(id, card, gs.player);
+          return CardCostUtils.canPlay(id, card, gs.player);
         });
         if (playable.length > 0) {
           gs.addLog?.(`💡 사용 가능한 카드 ${playable.length}장을 남기고 턴 종료`, 'system');
@@ -181,7 +187,7 @@
     },
 
     async enemyTurn(deps = {}) {
-      const gs = deps.gs || globalObj.GS;
+      const gs = deps.gs || GS;
       if (!gs?.combat?.active) return;
 
       const waitWhileActive = async (ms) => {
@@ -293,7 +299,7 @@
       });
 
       gs.addLog?.('─── 새 턴 ───', 'system');
-      globalObj.RunRules?.onTurnStart?.(gs);
+      RunRules?.onTurnStart?.(gs);
       gs.triggerItems?.('turn_start');
 
       const doc = _getDoc(deps);
@@ -310,11 +316,11 @@
 
       deps.renderCombatCards?.();
       deps.renderCombatEnemies?.();
-      if (typeof globalObj.updateUI === 'function') globalObj.updateUI();
+      if (typeof window.updateUI === 'function') window.updateUI();
     },
 
     processEnemyStatusTicks(deps = {}) {
-      const gs = deps.gs || globalObj.GS;
+      const gs = deps.gs || GS;
       if (!gs?.combat?.enemies) return;
 
       const win = _getWin(deps);
@@ -380,7 +386,7 @@
     },
 
     processPlayerStatusTicks(deps = {}) {
-      const gs = deps.gs || globalObj.GS;
+      const gs = deps.gs || GS;
       if (!gs?.combat?.active || !gs?.player?.buffs) return true;
 
       const buffs = gs.player.buffs;
@@ -427,7 +433,7 @@
     },
 
     handleBossPhaseShift(enemy, idx, deps = {}) {
-      const gs = deps.gs || globalObj.GS;
+      const gs = deps.gs || GS;
       if (!gs || !enemy) return;
 
       const doc = _getDoc(deps);
@@ -470,14 +476,11 @@
     handleEnemyEffect(effect, enemy, idx, deps = {}) {
       if (!effect) return;
 
-      const gs = deps.gs || globalObj.GS;
-      const data = deps.data || globalObj.DATA;
+      const gs = deps.gs || GS;
+      const data = deps.data || DATA;
       const baseRegion = deps.getBaseRegionIndex?.(gs.currentRegion);
       const handler = ENEMY_EFFECTS[effect];
       if (handler) handler(gs, enemy, deps, baseRegion, data);
       else console.warn('[CombatTurn] 알 수 없는 효과:', effect);
     },
   };
-
-  globalObj.CombatTurnUI = CombatTurnUI;
-})(window);

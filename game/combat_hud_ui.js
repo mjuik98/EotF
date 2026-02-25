@@ -1,6 +1,9 @@
 'use strict';
 
-(function initCombatHudUI(globalObj) {
+import { CONSTANTS } from './constants/constants.js';
+
+
+
   let _hudPinned = false;
 
   function _getDoc(deps) {
@@ -11,7 +14,7 @@
     return deps?.win || window;
   }
 
-  const CombatHudUI = {
+  export const CombatHudUI = {
     toggleHudPin(deps = {}) {
       _hudPinned = !_hudPinned;
       const doc = _getDoc(deps);
@@ -37,7 +40,7 @@
       const cls = gs.player.class;
       const echo = gs.player.echo;
       const tiers = [1, 2, 3].map(t => {
-        const skill = globalObj.CONSTANTS.ECHO_SKILLS[cls]?.[t];
+        const skill = CONSTANTS.ECHO_SKILLS[cls]?.[t];
         return {
           stars: '★'.repeat(t),
           cost: skill?.cost || 0,
@@ -117,7 +120,7 @@
         return;
       }
 
-      const skill = globalObj.CONSTANTS.ECHO_SKILLS[cls]?.[tLevel];
+      const skill = CONSTANTS.ECHO_SKILLS[cls]?.[tLevel];
       const stars = '★'.repeat(tLevel);
       const sDesc = skill?.shortDesc || '';
       btn.textContent = `⚡ ${stars} ${sDesc}`;
@@ -189,6 +192,3 @@
     },
 
   };
-
-  globalObj.CombatHudUI = CombatHudUI;
-})(window);

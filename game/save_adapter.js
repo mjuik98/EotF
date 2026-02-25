@@ -5,9 +5,9 @@
 //  클라우드/IndexedDB로 전환 시 이 파일만 교체하면 됩니다.
 // ═══════════════════════════════════════════════
 
-(function initSaveAdapter(globalObj) {
 
-    const SaveAdapter = {
+
+    export const SaveAdapter = {
         /**
          * 키에 해당하는 데이터를 읽어옵니다.
          * @param {string} key
@@ -15,7 +15,7 @@
          */
         load(key) {
             try {
-                const raw = globalObj.localStorage.getItem(key);
+                const raw = window.localStorage.getItem(key);
                 return raw !== null ? JSON.parse(raw) : null;
             } catch (e) {
                 return null;
@@ -29,7 +29,7 @@
          */
         save(key, data) {
             try {
-                globalObj.localStorage.setItem(key, JSON.stringify(data));
+                window.localStorage.setItem(key, JSON.stringify(data));
             } catch (e) { /* quota exceeded 등 — silent */ }
         },
 
@@ -39,7 +39,7 @@
          */
         remove(key) {
             try {
-                globalObj.localStorage.removeItem(key);
+                window.localStorage.removeItem(key);
             } catch (e) { /* silent */ }
         },
 
@@ -50,12 +50,9 @@
          */
         has(key) {
             try {
-                return globalObj.localStorage.getItem(key) !== null;
+                return window.localStorage.getItem(key) !== null;
             } catch (e) {
                 return false;
             }
         },
     };
-
-    globalObj.SaveAdapter = SaveAdapter;
-})(window);

@@ -1,11 +1,11 @@
 'use strict';
 
-(function initCombatActionsUI(globalObj) {
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const CombatActionsUI = {
+  export const CombatActionsUI = {
     sortHandByEnergy(deps = {}) {
       const gs = deps.gs;
       const data = deps.data;
@@ -42,7 +42,7 @@
           btn.disabled = true;
           btn.classList.add('hand-full');
           btn.style.animation = 'none';
-          globalObj.requestAnimationFrame(() => { btn.style.animation = 'shake 0.3s ease'; });
+          window.requestAnimationFrame(() => { btn.style.animation = 'shake 0.3s ease'; });
         }
         if (typeof deps.updateUI === 'function') deps.updateUI();
         return;
@@ -53,7 +53,7 @@
         const orbs = doc.getElementById('energyOrbs');
         if (orbs) {
           orbs.style.animation = 'none';
-          globalObj.requestAnimationFrame(() => { orbs.style.animation = 'shake 0.3s ease'; });
+          window.requestAnimationFrame(() => { orbs.style.animation = 'shake 0.3s ease'; });
         }
         deps.audioEngine?.playHit?.();
         if (typeof deps.updateUI === 'function') deps.updateUI();
@@ -66,6 +66,3 @@
       if (typeof deps.renderCombatCards === 'function') deps.renderCombatCards();
     },
   };
-
-  globalObj.CombatActionsUI = CombatActionsUI;
-})(window);

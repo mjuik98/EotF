@@ -1,11 +1,11 @@
 'use strict';
 
-(function initDomValueUI(globalObj) {
+
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const DomValueUI = {
+  export const DomValueUI = {
     setBar(id, pct, deps = {}) {
       const doc = _getDoc(deps);
       const el = doc.getElementById(id);
@@ -21,6 +21,3 @@
       el.textContent = value;
     },
   };
-
-  globalObj.DomValueUI = DomValueUI;
-})(window);

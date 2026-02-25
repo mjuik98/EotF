@@ -1,7 +1,7 @@
 'use strict';
 
-(function initWorldCanvasUI(globalObj) {
-  const WorldCanvasUI = {
+
+  export const WorldCanvasUI = {
     renderNodeInfo(ctx, w, h, deps = {}) {
       const gs = deps.gs;
       const getRegionData = deps.getRegionData;
@@ -102,6 +102,3 @@
       ctx.closePath();
     },
   };
-
-  globalObj.WorldCanvasUI = WorldCanvasUI;
-})(window);

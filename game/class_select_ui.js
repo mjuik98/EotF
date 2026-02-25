@@ -1,13 +1,16 @@
 'use strict';
 
-(function initClassSelectUI(globalObj) {
+import { DATA } from '../data/game_data.js';
+
+
+
   let _selectedClass = null;
 
   function _getDoc(deps) {
     return deps?.doc || document;
   }
 
-  const ClassSelectUI = {
+  export const ClassSelectUI = {
     getSelectedClass() {
       return _selectedClass;
     },
@@ -34,7 +37,7 @@
       }
 
       const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🏹', paladin: '🛡️', berserker: '🪓', shielder: '🧱' };
-      const data = deps.data || globalObj.DATA;
+      const data = deps.data || DATA;
       const avatarEmoji = data?.assets?.avatars?.[_selectedClass] || icons[_selectedClass] || '⚔️';
 
       // HUD 소형 초상화 업데이트
@@ -71,6 +74,3 @@
       doc.querySelectorAll('.class-btn').forEach(el => el.classList.remove('selected'));
     },
   };
-
-  globalObj.ClassSelectUI = ClassSelectUI;
-})(window);
