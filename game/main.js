@@ -43,8 +43,8 @@ import { CodexUI } from './codex_ui.js';
 import { CardUI } from './card_ui.js';
 import { CardTargetUI } from './card_target_ui.js';
 import { DomValueUI } from './dom_value_ui.js';
-import { RandomUtils } from './random_utils.js';
 import { WorldCanvasUI } from './world_canvas_ui.js';
+
 import { WorldRenderLoopUI } from './world_render_loop_ui.js';
 import { MapGenerationUI } from './map_generation_ui.js';
 import { MapNavigationUI } from './map_navigation_ui.js';
@@ -874,8 +874,38 @@ function switchScreen(screen) {
 }
 
 // ────────────────────────────────────────
-// TITLE SCREEN
+// TITLE SCREEN / NAVIGATION
 // ────────────────────────────────────────
+function showCharacterSelect() {
+  const main = document.getElementById('mainTitleSubScreen');
+  const char = document.getElementById('charSelectSubScreen');
+  if (main && char) {
+    main.style.display = 'none';
+    char.style.display = 'block';
+  }
+}
+
+function backToTitle() {
+  const main = document.getElementById('mainTitleSubScreen');
+  const char = document.getElementById('charSelectSubScreen');
+  if (main && char) {
+    main.style.display = 'block';
+    char.style.display = 'none';
+  }
+}
+
+function openRunSettings() {
+  RunModeUI.openSettings(_getRunModeDeps());
+}
+
+function closeRunSettings() {
+  RunModeUI.closeSettings(_getRunModeDeps());
+}
+
+function openCodexFromTitle() {
+  CodexUI.openCodex({ gs: GS, data: DATA });
+}
+
 function _getClassSelectDeps() {
   return {
     ..._baseDeps(),
@@ -1196,12 +1226,18 @@ function _bootGame() {
   GameBootUI?.bootGame?.(_getGameBootDeps());
 }
 
-// ── 외부용 싱크 함수 노출 ──
 window._syncVolumeUI = _syncVolumeUI;
 window.GS = GS;
 window.GameState = GS;
+window.updateUI = updateUI;
+
 
 // UI Event Handlers used by index.html onclick=""
+window.showCharacterSelect = showCharacterSelect;
+window.backToTitle = backToTitle;
+window.openRunSettings = openRunSettings;
+window.closeRunSettings = closeRunSettings;
+window.openCodexFromTitle = openCodexFromTitle;
 window.selectClass = selectClass;
 window.startGame = startGame;
 window.shiftAscension = shiftAscension;
