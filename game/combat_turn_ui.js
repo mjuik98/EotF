@@ -12,6 +12,110 @@
   const TURN_START_DEBUFFS = new Set(['poisoned', 'burning', 'slowed', 'confusion']);
   const ENEMY_TURN_BUFFS = new Set(['mirror', 'immune']);
 
+  const ENEMY_EFFECTS = {
+    self_atk_up: (gs, enemy) => {
+      enemy.atk += 3;
+      gs.addLog(`💪 ${enemy.name}: 공격 강화 (+3)`, 'system');
+    },
+    self_shield: (gs, enemy) => {
+      enemy.shield = (enemy.shield || 0) + 8;
+      gs.addLog(`🛡️ ${enemy.name}: 방어막 8`, 'system');
+    },
+    self_shield_15: (gs, enemy) => {
+      enemy.shield = (enemy.shield || 0) + 15;
+      gs.addLog(`🛡️ ${enemy.name}: 신성 방어막 15`, 'system');
+    },
+    self_shield_20: (gs, enemy) => {
+      enemy.shield = (enemy.shield || 0) + 20;
+      gs.addLog(`🛡️ ${enemy.name}: 방어막 20`, 'system');
+    },
+    add_noise_5: (gs, enemy, deps, baseRegion) => {
+      if (baseRegion === 1) gs.addSilence(5);
+    },
+    mass_debuff: (gs, enemy, deps) => {
+      const debuffs = ['weakened', 'slowed', 'burning'];
+      debuffs.forEach(d => { gs.player.buffs[d] = { stacks: 1 }; });
+      gs.addLog('⚠️ 전체 디버프 부여!', 'damage');
+      deps.updateStatusDisplay?.();
+    },
+    curse: (gs, enemy, deps) => {
+      gs.player.buffs.cursed = { stacks: 2 };
+      gs.addLog(`💀 ${enemy.name}: 저주 부여!`, 'damage');
+      deps.updateStatusDisplay?.();
+    },
+    drain_echo: (gs, enemy) => {
+      gs.drainEcho(20);
+      gs.addLog(`🌑 ${enemy.name}: Echo 흡수!`, 'damage');
+    },
+    nullify_echo: (gs, enemy, deps) => {
+      gs.player.echo = 0;
+      gs.player.echoChain = 0;
+      deps.updateChainUI?.(0);
+      gs.addLog('🌑 Echo 완전 무효화!', 'damage');
+    },
+    add_noise: (gs, enemy, deps, baseRegion) => {
+      if (baseRegion === 1) gs.addSilence(3);
+    },
+    exhaust_card: (gs, enemy, deps, baseRegion, data) => {
+      if (gs.player.hand.length > 0) {
+        const ci = Math.floor(Math.random() * gs.player.hand.length);
+        const c = gs.player.hand.splice(ci, 1)[0];
+        gs.player.exhausted.push(c);
+        gs.addLog(`💀 ${data.cards[c]?.name} 소각!`, 'damage');
+        deps.renderCombatCards?.();
+      }
+    },
+    drain_energy: (gs, enemy, deps) => {
+      gs.player.energy = Math.max(0, gs.player.energy - 1);
+      gs.addLog('⚡ 에너지 -1!', 'damage');
+      deps.updateUI?.();
+    },
+    drain_energy_2: (gs, enemy, deps) => {
+      gs.player.energy = Math.max(0, gs.player.energy - 2);
+      gs.addLog('⚡ 에너지 -2!', 'damage');
+      deps.updateUI?.();
+    },
+    drain_energy_all: (gs, enemy, deps) => {
+      gs.player.energy = 0;
+      gs.addLog('⚡ 에너지 완전 소진!', 'damage');
+      deps.updateUI?.();
+    },
+    confusion: (gs, enemy, deps) => {
+      deps.shuffleArray?.(gs.player.hand);
+      gs.addLog('🌀 카드 뒤섞임!', 'damage');
+      deps.renderCombatCards?.();
+    },
+    weaken: (gs, enemy, deps) => {
+      gs.player.buffs.weakened = { stacks: (gs.player.buffs.weakened?.stacks || 0) + 1 };
+      gs.addLog(`💫 ${enemy.name}: 약화 부여`, 'damage');
+      deps.updateStatusDisplay?.();
+    },
+    dodge: (gs, enemy) => {
+      gs.addLog(`${enemy.name}: 회피 준비`, 'system');
+    },
+    lifesteal: (gs, enemy, deps) => {
+      enemy.hp = Math.min(enemy.maxHp || enemy.hp, (enemy.hp || 0) + 4);
+      gs.addLog(`💚 ${enemy.name}: 생명력 흡수 (+4)`, 'heal');
+      deps.updateUI?.();
+    },
+    poison_3: (gs, enemy, deps) => {
+      gs.player.buffs.poisoned = { stacks: 3 };
+      gs.addLog(`☠️ ${enemy.name}: 맹독 부여!`, 'damage');
+      deps.updateStatusDisplay?.();
+    },
+    self_heal_15: (gs, enemy) => {
+      enemy.hp = Math.min(enemy.maxHp, (enemy.hp || 0) + 15);
+      gs.addLog(`💚 ${enemy.name}: 체력 회복 (+15)`, 'heal');
+    },
+    self_atk_up_4: (gs, enemy) => {
+      enemy.atk += 4;
+      gs.addLog(`💪 ${enemy.name}: 공격 대폭 강화 (+4)`, 'system');
+    },
+    phase_shift: (gs, enemy) => {
+      gs.addLog(`⚠️ ${enemy.name}: 위상 전환!`, 'system');
+    }
+  };
+
   const CombatTurnUI = {
     endPlayerTurn(deps = {}) {
       const gs = deps.gs || globalObj.GS;
@@ -71,8 +175,12 @@
       deps.showTurnBanner?.('enemy');
       doc.querySelectorAll('.action-btn').forEach(btn => { btn.disabled = true; });
 
-      setTimeout(() => {
-        deps.enemyTurn?.();
+      setTimeout(async () => {
+        try {
+          await deps.enemyTurn?.();
+        } catch (e) {
+          console.error('[CombatTurn] 적 턴 오류:', e);
+        }
       }, 700);
     },
 
@@ -360,112 +468,9 @@
       const gs = deps.gs || globalObj.GS;
       const data = deps.data || globalObj.DATA;
       const baseRegion = deps.getBaseRegionIndex?.(gs.currentRegion);
-      switch (effect) {
-        case 'self_atk_up':
-          enemy.atk += 3;
-          gs.addLog(`💪 ${enemy.name}: 공격 강화 (+3)`, 'system');
-          break;
-        case 'self_shield':
-          enemy.shield = (enemy.shield || 0) + 8;
-          gs.addLog(`🛡️ ${enemy.name}: 방어막 8`, 'system');
-          break;
-        case 'self_shield_15':
-          enemy.shield = (enemy.shield || 0) + 15;
-          gs.addLog(`🛡️ ${enemy.name}: 신성 방어막 15`, 'system');
-          break;
-        case 'self_shield_20':
-          enemy.shield = (enemy.shield || 0) + 20;
-          gs.addLog(`🛡️ ${enemy.name}: 방어막 20`, 'system');
-          break;
-        case 'add_noise_5':
-          if (baseRegion === 1) gs.addSilence(5);
-          break;
-        case 'mass_debuff': {
-          const debuffs = ['weakened', 'slowed', 'burning'];
-          debuffs.forEach(d => { gs.player.buffs[d] = { stacks: 1 }; });
-          gs.addLog('⚠️ 전체 디버프 부여!', 'damage');
-          deps.updateStatusDisplay?.();
-          break;
-        }
-        case 'curse':
-          gs.player.buffs.cursed = { stacks: 2 };
-          gs.addLog(`💀 ${enemy.name}: 저주 부여!`, 'damage');
-          deps.updateStatusDisplay?.();
-          break;
-        case 'drain_echo':
-          gs.drainEcho(20);
-          gs.addLog(`🌑 ${enemy.name}: Echo 흡수!`, 'damage');
-          break;
-        case 'nullify_echo':
-          gs.player.echo = 0;
-          gs.player.echoChain = 0;
-          deps.updateChainUI?.(0);
-          gs.addLog('🌑 Echo 완전 무효화!', 'damage');
-          break;
-        case 'add_noise':
-          if (baseRegion === 1) gs.addSilence(3);
-          break;
-        case 'exhaust_card':
-          if (gs.player.hand.length > 0) {
-            const ci = Math.floor(Math.random() * gs.player.hand.length);
-            const c = gs.player.hand.splice(ci, 1)[0];
-            gs.player.exhausted.push(c);
-            gs.addLog(`💀 ${data.cards[c]?.name} 소각!`, 'damage');
-            deps.renderCombatCards?.();
-          }
-          break;
-        case 'drain_energy':
-          gs.player.energy = Math.max(0, gs.player.energy - 1);
-          gs.addLog('⚡ 에너지 -1!', 'damage');
-          deps.updateUI?.();
-          break;
-        case 'drain_energy_2':
-          gs.player.energy = Math.max(0, gs.player.energy - 2);
-          gs.addLog('⚡ 에너지 -2!', 'damage');
-          deps.updateUI?.();
-          break;
-        case 'drain_energy_all':
-          gs.player.energy = 0;
-          gs.addLog('⚡ 에너지 완전 소진!', 'damage');
-          deps.updateUI?.();
-          break;
-        case 'confusion':
-          deps.shuffleArray?.(gs.player.hand);
-          gs.addLog('🌀 카드 뒤섞임!', 'damage');
-          deps.renderCombatCards?.();
-          break;
-        case 'weaken':
-          gs.player.buffs.weakened = { stacks: (gs.player.buffs.weakened?.stacks || 0) + 1 };
-          gs.addLog(`💫 ${enemy.name}: 약화 부여`, 'damage');
-          deps.updateStatusDisplay?.();
-          break;
-        case 'dodge':
-          gs.addLog(`${enemy.name}: 회피 준비`, 'system');
-          break;
-        case 'lifesteal':
-          enemy.hp = Math.min(enemy.maxHp || enemy.hp, (enemy.hp || 0) + 4);
-          gs.addLog(`💚 ${enemy.name}: 생명력 흡수 (+4)`, 'heal');
-          deps.updateUI?.();
-          break;
-        case 'poison_3':
-          gs.player.buffs.poisoned = { stacks: 3 };
-          gs.addLog(`☠️ ${enemy.name}: 맹독 부여!`, 'damage');
-          deps.updateStatusDisplay?.();
-          break;
-        case 'self_heal_15':
-          enemy.hp = Math.min(enemy.maxHp, (enemy.hp || 0) + 15);
-          gs.addLog(`💚 ${enemy.name}: 체력 회복 (+15)`, 'heal');
-          break;
-        case 'self_atk_up_4':
-          enemy.atk += 4;
-          gs.addLog(`💪 ${enemy.name}: 공격 대폭 강화 (+4)`, 'system');
-          break;
-        case 'phase_shift':
-          gs.addLog(`⚠️ ${enemy.name}: 위상 전환!`, 'system');
-          break;
-        default:
-          break;
-      }
+      const handler = ENEMY_EFFECTS[effect];
+      if (handler) handler(gs, enemy, deps, baseRegion, data);
+      else console.warn('[CombatTurn] 알 수 없는 효과:', effect);
     },
   };
 

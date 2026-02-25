@@ -182,7 +182,13 @@
 
         const specialEl = doc.getElementById('playerSpecialDisplay');
         if (specialEl && globalObj.ClassMechanics?.[p.class]) {
-          specialEl.innerHTML = globalObj.ClassMechanics[p.class].getSpecialUI(gs);
+          const specialUI = globalObj.ClassMechanics[p.class].getSpecialUI(gs);
+          if (typeof specialUI === 'string') {
+            specialEl.innerHTML = specialUI;
+          } else {
+            specialEl.innerHTML = '';
+            specialEl.appendChild(specialUI);
+          }
           specialEl.style.display = 'flex';
         } else if (specialEl) {
           specialEl.style.display = 'none';

@@ -41,11 +41,11 @@
       const zone = doc.getElementById('combatHandCards');
       if (!zone) return;
 
-      const playCardHandlerName = deps.playCardHandlerName || 'GS.playCard';
-      const dragStartHandlerName = deps.dragStartHandlerName || 'handleCardDragStart';
-      const dragEndHandlerName = deps.dragEndHandlerName || 'handleCardDragEnd';
-      const showTooltipHandlerName = deps.showTooltipHandlerName || 'showTooltip';
-      const hideTooltipHandlerName = deps.hideTooltipHandlerName || 'hideTooltip';
+      const playCardHandler = deps.playCardHandler || globalObj.GS?.playCard;
+      const dragStartHandler = deps.dragStartHandler || globalObj.handleCardDragStart;
+      const dragEndHandler = deps.dragEndHandler || globalObj.handleCardDragEnd;
+      const showTooltipHandler = deps.showTooltipHandler || globalObj.showTooltip;
+      const hideTooltipHandler = deps.hideTooltipHandler || globalObj.hideTooltip;
 
       const handSize = gs.player.hand.length;
       const cardScale = handSize <= 5 ? 1.2 : handSize <= 7 ? 1.05 : 0.95;
@@ -53,9 +53,10 @@
       const cardH = Math.round(146 * cardScale);
       const cardFontScale = cardScale < 1 ? `font-size:${Math.round(10 * cardScale)}px;` : '';
 
-      zone.innerHTML = gs.player.hand.map((cardId, i) => {
+      zone.innerHTML = '';
+      gs.player.hand.forEach((cardId, i) => {
         const card = data.cards[cardId];
-        if (!card) return '';
+        if (!card) return;
 
         const rarityClass = `rarity-${card.rarity || 'common'}`;
 
@@ -73,20 +74,22 @@
           : card.rarity === 'uncommon'
             ? 'rgba(123,47,255,0.5)'
             : '';
-        // 강화 카드 효과: 더 진한 청록색 광채와 테두리 두께 증가
         const isUpgraded = card.upgraded ? 'box-shadow:0 0 15px rgba(0,255,204,0.6), inset 0 0 10px rgba(0,255,204,0.2); border-width:2px; border-color:var(--cyan);' : '';
         const typeClass = _getCardTypeClass(card.type);
         const typeLabelClass = _getCardTypeLabelClass(card.type);
 
-        return `
-          <div class="card ${canPlay ? 'playable' : ''} ${typeClass} ${rarityClass}"
-            style="width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;"
-            draggable="true"
-            onclick="${playCardHandlerName}('${cardId}',${i})"
-            ondragstart="${dragStartHandlerName}(event,'${cardId}',${i})"
-            ondragend="${dragEndHandlerName}(event)"
-            onmouseenter="${showTooltipHandlerName}(event,'${cardId}')"
-            onmouseleave="${hideTooltipHandlerName}()">
+        const el = doc.createElement('div');
+        el.className = `card ${canPlay ? 'playable' : ''} ${typeClass} ${rarityClass}`;
+        el.style.cssText = `width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;`;
+        el.draggable = true;
+
+        if (playCardHandler) el.addEventListener('click', () => playCardHandler(cardId, i));
+        if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
+        if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
+        if (showTooltipHandler) el.addEventListener('mouseenter', (e) => showTooltipHandler(e, cardId));
+        if (hideTooltipHandler) el.addEventListener('mouseleave', () => hideTooltipHandler());
+
+        el.innerHTML = `
             ${i < 5 ? `<div class="card-hotkey ${canPlay ? '' : 'disabled'}">${i + 1}</div>` : ''}
             <div class="card-cost" style="${!canPlay ? 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);' : (isCascadeFree || isChargeFree) && card.cost > 0 ? 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;' : disc > 0 && card.cost > 0 ? 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;' : ''}">${cost}${(isCascadeFree || isChargeFree) && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;">FREE</span>` : disc > 0 && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;">-${Math.min(disc, card.cost)}</span>` : ''}</div>
             <div class="card-icon" style="${cardScale < 1 ? `font-size:${Math.round(40 * cardScale)}px;` : 'font-size:40px;'}">
@@ -95,9 +98,9 @@
             <div class="card-name" style="${cardScale < 1 ? `font-size:${Math.round(12 * cardScale)}px;` : 'font-size:14px;'}">${card.name}${card.upgraded ? '<span style="color:var(--cyan);font-size:10px;"> ✦</span>' : ''}</div>
             <div class="card-desc" style="display:none;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type ${typeLabelClass}">${card.type}</div>
-          </div>
         `;
-      }).join('');
+        zone.appendChild(el);
+      });
 
       this.updateHandFanEffect({ doc });
     },
@@ -111,21 +114,32 @@
       const zone = doc.getElementById('handCards');
       if (!zone) return;
 
-      const playCardHandlerName = deps.playCardHandlerName || 'GS.playCard';
-      const renderCombatCardsHandlerName = deps.renderCombatCardsHandlerName || 'renderCombatCards';
-      zone.innerHTML = gs.player.hand.map((cardId, i) => {
+      const playCardHandler = deps.playCardHandler || globalObj.GS?.playCard;
+      const renderCombatCardsHandler = deps.renderCombatCardsHandler || globalObj.renderCombatCards;
+
+      zone.innerHTML = '';
+      gs.player.hand.forEach((cardId, i) => {
         const card = data.cards[cardId];
-        if (!card) return '';
-        return `
-          <div class="card rarity-${card.rarity || 'common'}" onclick="${playCardHandlerName}('${cardId}',${i});${renderCombatCardsHandlerName}();" title="${card.desc}">
+        if (!card) return;
+
+        const el = doc.createElement('div');
+        el.className = `card rarity-${card.rarity || 'common'}`;
+        el.title = card.desc;
+
+        el.addEventListener('click', () => {
+          if (playCardHandler) playCardHandler(cardId, i);
+          if (renderCombatCardsHandler) renderCombatCardsHandler();
+        });
+
+        el.innerHTML = `
             <div class="card-cost">${card.cost}</div>
             <div class="card-icon">${card.icon}</div>
             <div class="card-name">${card.name}</div>
             <div class="card-desc">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type">${card.type}</div>
-          </div>
         `;
-      }).join('');
+        zone.appendChild(el);
+      });
     },
 
     updateHandFanEffect(deps = {}) {

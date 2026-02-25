@@ -46,26 +46,15 @@
       setTimeout(() => {
         gs._nodeMoveLock = false;
         if (!isCombatNode) deps.updateNextNodes?.();
-        switch (node.type) {
-          case 'combat':
-          case 'elite':
-            deps.startCombat?.(false);
-            break;
-          case 'boss':
-            deps.startCombat?.(true);
-            break;
-          case 'event':
-            deps.triggerRandomEvent?.();
-            break;
-          case 'shop':
-            deps.showShop?.();
-            break;
-          case 'rest':
-            deps.showRestSite?.();
-            break;
-          default:
-            break;
-        }
+        const NODE_HANDLERS = {
+          combat: (d) => d.startCombat?.(false),
+          elite: (d) => d.startCombat?.(false),
+          boss: (d) => d.startCombat?.(true),
+          event: (d) => d.triggerRandomEvent?.(),
+          shop: (d) => d.showShop?.(),
+          rest: (d) => d.showRestSite?.(),
+        };
+        NODE_HANDLERS[node.type]?.(deps);
       }, 300);
     },
   };

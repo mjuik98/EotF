@@ -30,7 +30,10 @@
           };
         }
         SaveAdapter.save(this.META_KEY, meta);
-      } catch (e) { }
+      } catch (e) {
+        console.warn('[SaveSystem] 메타 데이터 저장 실패:', e?.name, e?.message);
+        this._lastSaveError = e;
+      }
     },
 
     loadMeta(deps = {}) {
@@ -91,7 +94,10 @@
           ts: Date.now(),
         };
         SaveAdapter.save(this.SAVE_KEY, save);
-      } catch (e) { }
+      } catch (e) {
+        console.warn('[SaveSystem] 런 데이터 저장 실패:', e?.name, e?.message);
+        this._lastSaveError = e;
+      }
     },
 
     loadRun(deps = {}) {

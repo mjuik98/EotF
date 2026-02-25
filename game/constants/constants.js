@@ -35,15 +35,10 @@ const CONSTANTS = Object.freeze({
     ASCENSION_GOLD_SCALE: 0.02,
   }),
 
-  BOSS: Object.freeze({
-    PHASE2_HP_RATIO: 0.5,
-    PHASE2_HP_RATIO_HIGH: 0.55,
-    PHASE2_HP_RATIO_MID: 0.6,
-    PHASE3_HP_RATIO: 0.3,
-    PHASE2_HP_RATIO_66: 0.66,
-    PHASE3_HP_RATIO_33: 0.33,
-    PHASE2_HP_RATIO_70: 0.7,
-    PHASE3_HP_RATIO_40: 0.4,
+  BOSS_PHASES: Object.freeze({
+    SHADOW_KING: { phase2: 0.66, phase3: 0.33 },
+    VOID_HORROR: { phase2: 0.55, phase3: 0.40 },
+    DEFAULT: { phase2: 0.50, phase3: 0.30 },
   }),
 });
 
