@@ -4,8 +4,7 @@ const path = require('path');
 const PROJECT_DIR = __dirname;
 const JS_DIRS = ['game', 'engine', 'data', 'game/constants'];
 
-// Mapping of ExportName -> Relative Path from game/ folder.
-// (We will resolve relative paths dynamically based on file location).
+// Mapping of ExportName -> Relative Path from root.
 const EXPORTS = {
     'AudioEngine': 'engine/audio.js',
     'ParticleSystem': 'engine/particles.js',
@@ -63,8 +62,14 @@ const EXPORTS = {
     'MapUI': 'game/map_ui.js',
     'GameBootUI': 'game/game_boot_ui.js',
     'GameStateCoreMethods': 'game/game_state_core_methods.js',
-    'GS': 'game/game_state.js', // We will extract GS to its own file
+    'GS': 'game/game_state.js',
 };
+
+// Inverse mapping for module resolution
+const FILE_TO_EXPORT = {};
+for (const [name, file] of Object.entries(EXPORTS)) {
+    FILE_TO_EXPORT[file.replace(/\\/g, '/')] = name;
+}
 
 function getAllJsFiles() {
     let files = [];
@@ -81,39 +86,54 @@ function getAllJsFiles() {
 }
 
 function processFile(filePath) {
+    const normalizedPath = filePath.replace(/\\/g, '/');
     const fullPath = path.join(PROJECT_DIR, filePath);
     let content = fs.readFileSync(fullPath, 'utf8');
+
+    // Strip BOM
+    content = content.replace(/^\uFEFF/, '');
 
     // Strip IIFE start: (function initXXX(globalObj) {
     content = content.replace(/\(function\s+[a-zA-Z0-9_]+\s*\([^)]*\)\s*\{/g, '');
 
-    // Find module name registration: globalObj.ModuleName = ModuleName;
-    // OR Object.assign(globalObj, { ModuleName });
-    let moduleName = null;
-    const match = content.match(/globalObj\.([A-Za-z0-9_]+)\s*=\s*[A-Za-z0-9_]+;/);
-    if (match) {
-        moduleName = match[1];
-        content = content.replace(match[0], '');
+    // Determine what this file exports based on our map
+    const moduleName = FILE_TO_EXPORT[normalizedPath];
 
-        // Check if the declaration `const ModuleName = {` exists and prepend `export `
-        const declRegex = new RegExp(`const\\s+${moduleName}\\s*=\\s*`);
-        if (declRegex.test(content)) {
-            content = content.replace(declRegex, `export const ${moduleName} = `);
+    if (moduleName) {
+        // Look for registration patterns and strip them
+        // globalObj.Name = Name;
+        const regRegex1 = new RegExp(`globalObj\\.${moduleName}\\s*=\\s*${moduleName};`, 'g');
+        content = content.replace(regRegex1, '');
+
+        // globalObj.Name = { ... };
+        const regRegex2 = new RegExp(`globalObj\\.${moduleName}\\s*=\\s*`, 'g');
+        if (regRegex2.test(content)) {
+            content = content.replace(regRegex2, `export const ${moduleName} = `);
+        } else {
+            // Look for const ModuleName = ... or function ModuleName(...) {
+            const declRegex = new RegExp(`(?:const|let|var|function)\\s+${moduleName}\\b`);
+            if (declRegex.test(content)) {
+                content = content.replace(new RegExp(`(const|let|var|function)(\\s+)${moduleName}\\b`), `export $1$2${moduleName}`);
+            } else {
+                // fallback if it was a factory: const Name = (() => { ... })();
+                const factoryRegex = new RegExp(`const\\s+${moduleName}\\s*=\\s*\\(`, 'g');
+                if (factoryRegex.test(content)) {
+                    content = content.replace(factoryRegex, `export const ${moduleName} = (`);
+                }
+            }
         }
     }
 
     // Strip IIFE end: })(window); or })(this);
     content = content.replace(/\}\)\s*\((?:window|this|globalObj|)\s*\)\s*;/g, '');
 
-    // Replace window.XXX?. with XXX?. where XXX is one of our exports
+    // Handle globalObj.XXX and window.XXX
+    // Replace window.XXX where XXX is in EXPORTS
     for (const exp of Object.keys(EXPORTS)) {
         const winRegex = new RegExp(`window\\.${exp}\\b`, 'g');
         content = content.replace(winRegex, exp);
     }
 
-    // Handle globalObj.XXX
-    // If XXX is in EXPORTS, replace with XXX (and it will be imported).
-    // Else, replace with window.XXX
     content = content.replace(/globalObj\.([A-Za-z0-9_]+)/g, (match, p1) => {
         if (EXPORTS[p1] || p1 === 'DescriptionUtils' || p1 === 'CardCostUtils') {
             return p1;
@@ -158,7 +178,7 @@ function processFile(filePath) {
 function main() {
     const files = getAllJsFiles();
     files.forEach(processFile);
-    console.log('--- Finished converting all files to ES Modules Structure ---');
+    console.log('--- Finished converting all files (Fixed Version) ---');
 }
 
 main();

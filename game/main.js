@@ -8,7 +8,9 @@ import { NODE_META } from './constants/node_meta.js';
 import { DifficultyScaler } from './difficulty_scaler.js';
 import { SetBonusSystem } from './set_bonus_system.js';
 import { SaveSystem } from './save_system.js';
-import { RunRules } from './run_rules.js';
+import { RunRules, getRegionData, getBaseRegionIndex, getRegionCount } from './run_rules.js';
+import { RandomUtils } from './random_utils.js';
+
 import { TitleCanvasUI } from './title_canvas_ui.js';
 import { ClassMechanics } from './class_mechanics.js';
 import { ScreenUI } from './screen_ui.js';
@@ -79,14 +81,15 @@ const GAME = {
   API: {},
 
   init(global) {
-    this.Data = global.DATA;
-    this.Audio = global.AudioEngine;
-    this.Particle = global.ParticleSystem;
+    this.Data = DATA;
+    this.Audio = AudioEngine;
+    this.Particle = ParticleSystem;
 
     // Bind legacy global compatibility
     global.GS = this.State;
     global.GameState = this.State;
     global.GAME = this;
+    global.DATA = DATA;
   },
 
   register(moduleName, moduleObj) {
@@ -117,11 +120,11 @@ const GAME = {
       api: this.API,
       runRules: RunRules,
       classMechanics: ClassMechanics,
-      getRegionData: window.getRegionData,
-      getBaseRegionIndex: window.getBaseRegionIndex,
-      getRegionCount: window.getRegionCount,
+      getRegionData: getRegionData,
+      getBaseRegionIndex: getBaseRegionIndex,
+      getRegionCount: getRegionCount,
       difficultyScaler: DifficultyScaler,
-      shuffleArray: window.shuffleArray,
+      shuffleArray: RandomUtils.shuffleArray,
       hitStop: HitStop,
       screenShake: ScreenShake,
       fovEngine: FovEngine,

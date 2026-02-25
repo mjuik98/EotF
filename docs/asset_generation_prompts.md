@@ -22,7 +22,7 @@
 - `enemy_elite_moss_monarch.png`: Dynamic pose, menacing gaze, a giant treant-like creature with glowing green eyes and a crown of bioluminescent fungi.
 - `enemy_forest_guardian.png`: Dynamic pose, menacing gaze, a massive golem made of ancient white stone and dark vines.
 
-### Region 1 (기계의 잔향)
+### Region 1 (침묵의 도시)
 - `enemy_rust_stalker.png`: Dynamic pose, menacing gaze, a robotic predator with rusted metal plating and glowing red sensors.
 - `enemy_brass_guardian.png`: Dynamic pose, menacing gaze, a heavily armored brass soldier with steam escaping its joints.
 - `enemy_silent_shade.png`: Dynamic pose, menacing gaze, a shadowy figure weaving between mechanical parts, ethereal mist.
@@ -31,7 +31,7 @@
 - `enemy_clockwork_emperor.png`: Dynamic pose, menacing gaze, a regal mechanical figure on a throne of debris, golden metal plating.
 - `enemy_elite_silence_herald.png`: Dynamic pose, menacing gaze, a sleek silver automaton holding a staff that absorbs light.
 
-### Region 2 (기억의 미로)
+### Region 2 (기억의 미궁)
 - `enemy_nightmare_specter.png`: Dynamic pose, menacing gaze, a floating ghostly entity with multiple translucent arms and glowing purple eyes.
 - `enemy_memory_thief.png`: Dynamic pose, menacing gaze, a lean shadowy figure holding a jar of glowing white memories.
 - `enemy_mirror_shade.png`: Dynamic pose, menacing gaze, a creature made of cracked glass shards, reflecting distorted faces.
