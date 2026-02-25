@@ -69,7 +69,7 @@
         zeroCost: false,
         _freeCardUses: 0,
         costDiscount: 0,
-        _cascadeCards: null,
+        _cascadeCards: new Map(),
         upgradedCards: new Set(),
         _cardUpgradeBonus: {},
       };

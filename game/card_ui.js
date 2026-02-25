@@ -60,15 +60,11 @@
 
         const rarityClass = `rarity-${card.rarity || 'common'}`;
 
-        const disc = gs.player.costDiscount || 0;
-        const cascade = gs.player._cascadeCards;
-        const isCascadeFree = cascade instanceof Map
-          ? (cascade.get(cardId) || 0) > 0
-          : !!(cascade && cascade.has && cascade.has(cardId));
-        const hasFreeCharge = Number(gs.player._freeCardUses || 0) > 0;
-        const isChargeFree = !gs.player.zeroCost && !isCascadeFree && hasFreeCharge;
-        const cost = (gs.player.zeroCost || isCascadeFree || isChargeFree) ? 0 : Math.max(0, card.cost - disc);
+        const { displayCost: cost, isFree } = globalObj.CardCostUtils.getCostDisplay(cardId, card, gs.player);
         const canPlay = gs.player.energy >= cost;
+        const disc = gs.player.costDiscount || 0;
+        const isCascadeFree = globalObj.CardCostUtils.isCascadeFree(cardId, gs.player);
+        const isChargeFree = globalObj.CardCostUtils.isChargeFree(cardId, gs.player);
         const rarityBorder = card.rarity === 'rare'
           ? 'rgba(240,180,41,0.5)'
           : card.rarity === 'uncommon'

@@ -34,6 +34,14 @@
         return 0;
       }
 
+      // 적 회피 체크
+      if (enemy.statusEffects?.dodge > 0) {
+        this.addLog(`💨 ${enemy.name}이(가) 공격을 강회피했습니다!`, 'system');
+        enemy.statusEffects.dodge--;
+        if (enemy.statusEffects.dodge <= 0) delete enemy.statusEffects.dodge;
+        return 0;
+      }
+
       // 플레이어 디버프: 약화 시 공격 피해 감소
       if ((this.getBuff('weakened')?.stacks || 0) > 0) {
         dmg = Math.max(0, Math.floor(dmg * 0.5));
@@ -588,7 +596,7 @@
     `).join('');
     },
 
-    endCombat() {
+    async endCombat() {
       if (!this.combat.active) return;
       if (this._endCombatRunning) return;  // 중복 실행 방지
       this._endCombatRunning = true;
@@ -621,7 +629,7 @@
         this.player.costDiscount = 0;
         this.player.zeroCost = false;
         this.player._freeCardUses = 0;
-        this.player._cascadeCards = null;
+        this.player._cascadeCards = new Map();
         this.player.silenceGauge = 0;
         this._maskCount = 0;
         this._batteryUsedTurn = false;
@@ -660,7 +668,8 @@
           if (nodeOverlay) nodeOverlay.style.display = 'none';
         }
         // 전투 요약 UI(2800ms)가 완전히 사라진 후 보상 화면 표시 (클릭 차단 방지)
-        setTimeout(() => showRewardScreen(isBoss), 3000);
+        await new Promise(r => setTimeout(r, 3000));
+        showRewardScreen(isBoss);
       } catch (e) {
         console.error('[endCombat] Error:', e);
       } finally {

@@ -44,7 +44,7 @@
       gs.player.zeroCost = false;
       gs.player.costDiscount = 0;
       gs.player._freeCardUses = 0;
-      gs.player._cascadeCards = null;
+      gs.player._cascadeCards = new Map();
       gs.combat.active = true;
       gs._endCombatScheduled = false;
       gs._endCombatRunning = false;

@@ -20,8 +20,7 @@
     isCascadeFree(cardId, player) {
       const cascade = player._cascadeCards;
       if (!cascade) return false;
-      if (cascade instanceof Map) return (cascade.get(cardId) || 0) > 0;
-      return !!(cascade.has && cascade.has(cardId));
+      return (cascade.get(cardId) || 0) > 0;
     },
 
     /**
@@ -62,13 +61,9 @@
     consumeFreeCharge(cardId, player) {
       if (this.isCascadeFree(cardId, player)) {
         const cascade = player._cascadeCards;
-        if (cascade instanceof Map) {
-          const left = Math.max(0, (cascade.get(cardId) || 0) - 1);
-          if (left <= 0) cascade.delete(cardId);
-          else cascade.set(cardId, left);
-        } else if (cascade?.delete) {
-          cascade.delete(cardId);
-        }
+        const left = Math.max(0, (cascade.get(cardId) || 0) - 1);
+        if (left <= 0) cascade.delete(cardId);
+        else cascade.set(cardId, left);
         return;
       }
       if (this.isChargeFree(cardId, player)) {

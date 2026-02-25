@@ -38,8 +38,8 @@
           }
         }, { once: false });
 
-        try { saveSystem?.loadMeta?.(deps.saveSystemDeps || {}); } catch (e) { }
-        try { runRules?.ensureMeta?.(gs?.meta); } catch (e) { }
+        try { saveSystem?.loadMeta?.(deps.saveSystemDeps || {}); } catch (e) { console.error('[Boot] loadMeta error:', e); }
+        try { runRules?.ensureMeta?.(gs?.meta); } catch (e) { console.error('[Boot] ensureMeta error:', e); }
 
         deps.initTitleCanvas?.();
         try { deps.updateUI?.(); } catch (e) { console.warn('updateUI error:', e); }

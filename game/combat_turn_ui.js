@@ -91,7 +91,9 @@
       deps.updateStatusDisplay?.();
     },
     dodge: (gs, enemy) => {
-      gs.addLog(`${enemy.name}: 회피 준비`, 'system');
+      if (!enemy.statusEffects) enemy.statusEffects = {};
+      enemy.statusEffects.dodge = (enemy.statusEffects.dodge || 0) + 1;
+      gs.addLog(`💨 ${enemy.name}: 회피 태세!`, 'system');
     },
     lifesteal: (gs, enemy, deps) => {
       enemy.hp = Math.min(enemy.maxHp || enemy.hp, (enemy.hp || 0) + 4);
@@ -126,13 +128,7 @@
         const playable = gs.player.hand.filter(id => {
           const card = data?.cards?.[id];
           if (!card) return false;
-          const cascade = gs.player._cascadeCards;
-          const isCascadeFree = cascade instanceof Map
-            ? (cascade.get(id) || 0) > 0
-            : !!(cascade && cascade.has && cascade.has(id));
-          const hasFreeCharge = Number(gs.player._freeCardUses || 0) > 0;
-          const cost = (gs.player.zeroCost || isCascadeFree || hasFreeCharge) ? 0 : Math.max(0, card.cost - (gs.player.costDiscount || 0));
-          return gs.player.energy >= cost;
+          return globalObj.CardCostUtils.canPlay(id, card, gs.player);
         });
         if (playable.length > 0) {
           gs.addLog?.(`💡 사용 가능한 카드 ${playable.length}장을 남기고 턴 종료`, 'system');
@@ -162,7 +158,7 @@
       gs.player.zeroCost = false;
       gs.player.costDiscount = 0;
       gs.player._freeCardUses = 0;
-      gs.player._cascadeCards = null;
+      gs.player._cascadeCards = new Map();
       deps.updateChainUI?.(0);
 
       gs.combat.playerTurn = false;
@@ -188,6 +184,15 @@
       const gs = deps.gs || globalObj.GS;
       if (!gs?.combat?.active) return;
 
+      const waitWhileActive = async (ms) => {
+        const steps = Math.ceil(ms / 50);
+        for (let i = 0; i < steps; i++) {
+          if (!gs.combat.active) return false;
+          await new Promise(r => setTimeout(r, 50));
+        }
+        return gs.combat.active;
+      };
+
       // status effects ticks only, turn++ is now in startPlayerTurn
       this.processEnemyStatusTicks(deps);
 
@@ -195,8 +200,7 @@
         const enemy = gs.combat.enemies[index];
         if (enemy.hp <= 0) continue;
 
-        await new Promise(r => setTimeout(r, 800));
-        if (!gs.combat.active) return;
+        if (!(await waitWhileActive(800))) return;
 
         if (enemy.statusEffects?.stunned > 0) {
           enemy.statusEffects.stunned--;
@@ -249,8 +253,7 @@
       }
 
       // 모든 적 행동 종료 후 플레이어 턴으로 전환
-      await new Promise(r => setTimeout(r, 600));
-      if (!gs.combat.active) return;
+      if (!(await waitWhileActive(600))) return;
 
       ENEMY_TURN_BUFFS.forEach(buffId => {
         const buff = gs.player.buffs?.[buffId];
@@ -445,6 +448,8 @@
       if (!enemy.statusEffects) enemy.statusEffects = {};
       enemy.statusEffects.immune = Math.max(enemy.statusEffects.immune || 0, 1);
       gs.addLog?.(`🛡️ ${enemy.name}: 1턴 무적`, 'echo');
+
+      enemy.phase = (enemy.phase || 1) + 1; // Actual state mutation moved here
 
       if (enemy.phase === 2) {
         gs.addLog?.(`⚠️ ${enemy.name} 2페이즈 각성!`, 'echo');

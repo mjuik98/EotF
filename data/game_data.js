@@ -1165,7 +1165,7 @@
     ancient_echo: {
       id: 'ancient_echo', name: '태고의 잔향', icon: '🌑', image: 'enemy_ancient_echo.png', hp: 145, maxHp: 145, atk: 16, region: 0, xp: 120, gold: 50, isBoss: true, maxPhase: 2, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.5 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase_shift', intent: '⚠️ 위상 전환!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.5 && this.phase === 1) { return { type: 'phase_shift', intent: '⚠️ 위상 전환!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {
           if (turn % 3 === 0) return { type: 'void_burst', intent: `허공 폭발 ${this.atk + 10}`, dmg: this.atk + 10 };
           return { type: 'echo_drain', intent: `잔향 흡수 ${this.atk + 5}`, dmg: this.atk + 5, effect: 'drain_echo' };
@@ -1178,7 +1178,7 @@
     silent_tyrant: {
       id: 'silent_tyrant', name: '침묵의 폭군', icon: '🗣️', image: 'enemy_silent_tyrant.png', hp: 200, maxHp: 200, atk: 17, region: 1, xp: 130, gold: 55, isBoss: true, maxPhase: 2, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.55 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase2', intent: '⚠️ 절대 침묵!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.55 && this.phase === 1) { return { type: 'phase2', intent: '⚠️ 절대 침묵!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {
           if (turn % 2 === 0) return { type: 'noise_burst', intent: `소음 폭발 ${this.atk + 12} (+5소음)`, dmg: this.atk + 12, effect: 'add_noise_5' };
           return { type: 'silence_crush', intent: `침묵 격쇄 ${this.atk + 6}`, dmg: this.atk + 6, effect: 'add_noise' };
@@ -1191,8 +1191,8 @@
     divine_tyrant: {
       id: 'divine_tyrant', name: '신의 심판관', icon: '⚖️', image: 'enemy_divine_tyrant.png', hp: 240, maxHp: 240, atk: 19, region: 3, xp: 160, gold: 75, isBoss: true, maxPhase: 3, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.6 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'divine_wrath', intent: '⚠️ 신성 분노!', dmg: 0, effect: 'phase_shift' }; }
-        if (this.hp < this.maxHp * 0.3 && this.phase === 2) { this.phase = 3; AudioEngine.playBossPhase(); return { type: 'final_judgement', intent: '⚠️ 최후의 심판!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.6 && this.phase === 1) { return { type: 'divine_wrath', intent: '⚠️ 신성 분노!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.3 && this.phase === 2) { return { type: 'final_judgement', intent: '⚠️ 최후의 심판!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 3) {
           if (turn % 2 === 0) return { type: 'mass_debuff', intent: `신성 심판 ${this.atk + 18} (전체 디버프)`, dmg: this.atk + 18, effect: 'mass_debuff' };
           return { type: 'holy_crush', intent: `성스러운 격쇄 ${this.atk + 10}`, dmg: this.atk + 10 };
@@ -1208,8 +1208,8 @@
     memory_sovereign: {
       id: 'memory_sovereign', name: '기억의 군주', icon: '👑', image: 'enemy_memory_sovereign.png', hp: 220, maxHp: 220, atk: 18, region: 2, xp: 150, gold: 70, isBoss: true, maxPhase: 3, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.66 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase2', intent: '⚠️ 기억의 각성!', dmg: 0, effect: 'phase_shift' }; }
-        if (this.hp < this.maxHp * 0.33 && this.phase === 2) { this.phase = 3; AudioEngine.playBossPhase(); return { type: 'phase3', intent: '⚠️ 완전 각성!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.66 && this.phase === 1) { return { type: 'phase2', intent: '⚠️ 기억의 각성!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.33 && this.phase === 2) { return { type: 'phase3', intent: '⚠️ 완전 각성!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 3) {
           if (turn % 2 === 0) return { type: 'void_storm', intent: `기억 폭풍 ${this.atk + 15}`, dmg: this.atk + 15 };
           return { type: 'soul_drain', intent: `영혼 흡수 ${this.atk + 8}`, dmg: this.atk + 8, effect: 'drain_echo' };
@@ -1226,8 +1226,8 @@
     echo_origin: {
       id: 'echo_origin', name: '잔향의 근원', icon: '🌟', image: 'enemy_echo_origin.png', hp: 320, maxHp: 320, atk: 22, region: 4, xp: 300, gold: 150, isBoss: true, isHidden: true, maxPhase: 3, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.7 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'awaken', intent: '⚠️ 근원 각성!', dmg: 0, effect: 'phase_shift' }; }
-        if (this.hp < this.maxHp * 0.4 && this.phase === 2) { this.phase = 3; AudioEngine.playBossPhase(); return { type: 'transcend', intent: '⚠️ 근원 초월!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.7 && this.phase === 1) { return { type: 'awaken', intent: '⚠️ 근원 각성!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.4 && this.phase === 2) { return { type: 'transcend', intent: '⚠️ 근원 초월!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 3) {
           if (turn % 2 === 0) return { type: 'origin_blast', intent: `근원 폭발 ${this.atk + 20}`, dmg: this.atk + 20 };
           return { type: 'echo_erase', intent: 'Echo 완전 소거', dmg: this.atk, effect: 'nullify_echo' };
@@ -1244,7 +1244,7 @@
     void_herald: {
       id: 'void_herald', name: '허공의 사도', icon: '🌌', image: 'enemy_void_herald.png', hp: 280, maxHp: 280, atk: 20, region: 4, xp: 200, gold: 100, isBoss: true, maxPhase: 2, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.5 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'transcend', intent: '⚠️ 허공 초월!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.5 && this.phase === 1) { return { type: 'transcend', intent: '⚠️ 허공 초월!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {
           if (turn % 2 === 0) return { type: 'void_collapse', intent: `허공 붕괴 ${this.atk + 12}`, dmg: this.atk + 12 };
           return { type: 'echo_nullify', intent: 'Echo 무효화', dmg: this.atk, effect: 'nullify_echo' };
