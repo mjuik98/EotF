@@ -53,7 +53,7 @@
     },
     quick_step: {
       id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 4, Echo +15', rarity: 'common',
-      image: 'card_skill.png',
+      image: 'card_quick_step.png',
       effect(gs) { gs.addShield(4); gs.addEcho(15); }
     },
     quick_step_plus: {
@@ -63,7 +63,7 @@
     },
     heavy_blow: {
       id: 'heavy_blow', name: '중격', icon: '🔨', cost: 2, type: 'ATTACK', desc: '18 피해 + 기절 1턴', rarity: 'common',
-      image: 'card_attack.png',
+      image: 'card_heavy_blow.png',
       effect(gs) { gs.dealDamage(18); gs.applyEnemyStatus('stunned', 1); }
     },
     heavy_blow_plus: {
@@ -73,7 +73,7 @@
     },
     echo_wave: {
       id: 'echo_wave', name: '잔향파', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 적에게 8 피해', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_echo_wave.png',
       effect(gs) { gs.dealDamageAll(8); }
     },
     echo_wave_plus: {
@@ -83,7 +83,7 @@
     },
     resonance: {
       id: 'resonance', name: '공명', icon: '⚡', cost: 1, type: 'SKILL', desc: 'Echo 40 충전', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_resonance.png',
       effect(gs) { gs.addEcho(40); }
     },
     resonance_plus: {
@@ -103,7 +103,7 @@
     },
     twin_strike: {
       id: 'twin_strike', name: '쌍검격', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '6 피해 × 2회', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_twin_strike.png',
       effect(gs) { gs.dealDamage(6, 0, true); gs.dealDamage(6); }
     },
     twin_strike_plus: {
@@ -113,7 +113,7 @@
     },
     echo_shield: {
       id: 'echo_shield', name: '잔향 방벽', icon: '🔵', cost: 2, type: 'SKILL', desc: '방어막 (Echo/5)', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_echo_shield.png',
       effect(gs) { gs.addShield(Math.floor(gs.player.echo / 5)); }
     },
     echo_shield_plus: {
@@ -124,7 +124,7 @@
     // 잔향검사
     momentum: {
       id: 'momentum', name: '가속', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +6', rarity: 'common',
-      image: 'card_skill.png',
+      image: 'card_momentum.png',
       effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 6 }); }
     },
     momentum_plus: {
@@ -134,17 +134,17 @@
     },
     charge: {
       id: 'charge', name: '돌진', icon: '⚡', cost: 1, type: 'ATTACK', desc: '9 + 모멘텀 피해', rarity: 'common',
-      image: 'card_attack.png',
+      image: 'card_charge.png',
       effect(gs) { const m = gs.getBuff('momentum'); gs.dealDamage(9 + (m ? m.dmgBonus : 0)); }
     },
     afterimage: {
       id: 'afterimage', name: '잔영', icon: '👥', cost: 1, type: 'SKILL', desc: '모멘텀 수만큼 방어막', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_afterimage.png',
       effect(gs) { const m = gs.getBuff('momentum'); gs.addShield(4 + (m ? m.dmgBonus : 0)); }
     },
     phantom_blade: {
       id: 'phantom_blade', name: '환영 검', icon: '🌀', cost: 2, type: 'ATTACK', desc: '10 피해 × 2 (2번째 치명타)', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_phantom_blade.png',
       effect(gs) { gs.dealDamage(10); gs.addBuff('vanish', 1, {}); gs.dealDamage(10); }
     },
     echo_dance: {
@@ -160,7 +160,7 @@
     // 메아리술사
     foresight: {
       id: 'foresight', name: '예지', icon: '👁️', cost: 0, type: 'SKILL', desc: '약화 50%, Echo +5', rarity: 'common',
-      image: 'card_skill.png',
+      image: 'card_foresight.png',
       effect(gs) { gs.addEcho(5); gs.applyEnemyStatus('weakened', 1); }
     },
     foresight_plus: {
@@ -170,17 +170,17 @@
     },
     counter: {
       id: 'counter', name: '반격', icon: '🔄', cost: 2, type: 'ATTACK', desc: '예측 피해 × 1.5 피해 (최대 35)', rarity: 'common',
-      image: 'card_attack.png',
+      image: 'card_counter.png',
       effect(gs) { gs.dealDamage(Math.min(35, Math.floor(gs.getEnemyIntent() * 1.5))); }
     },
     time_echo: {
       id: 'time_echo', name: '시간 메아리', icon: '⏳', cost: 2, type: 'SKILL', desc: '최근 사용 카드 회수', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_time_echo.png',
       effect(gs) { if (gs.player.graveyard.length > 0) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); gs.addLog(`⏳ ${DATA.cards[c]?.name} 회수!`, 'echo'); } }
     },
     void_mirror: {
       id: 'void_mirror', name: '허공 거울', icon: '🪞', cost: 2, type: 'ATTACK', desc: '다음 적 공격 반사', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_void_mirror.png',
       effect(gs) { gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🪞 반사 준비', 'echo'); }
     },
     arcane_storm: {
@@ -190,7 +190,7 @@
     },
     prediction: {
       id: 'prediction', name: '예언', icon: '🔭', cost: 0, type: 'SKILL', desc: '2장 드로우, Echo +15', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_prediction.png',
       effect(gs) { if (gs.combat.active) gs.drawCards(2); gs.addEcho(15); }
     },
     time_warp: {
@@ -201,12 +201,12 @@
     // 침묵사냥꾼
     silent_stab: {
       id: 'silent_stab', name: '침묵 자상', icon: '🗡️', cost: 0, type: 'ATTACK', desc: '6 피해, 침묵 +1', rarity: 'common',
-      image: 'card_attack.png',
+      image: 'card_silent_stab.png',
       effect(gs) { gs.dealDamage(6); gs.addSilence(1); }
     },
     vanish: {
       id: 'vanish', name: '은신', icon: '🌑', cost: 1, type: 'SKILL', desc: '다음 공격 크리티컬', rarity: 'common',
-      image: 'card_skill.png',
+      image: 'card_vanish.png',
       effect(gs) { gs.addBuff('vanish', 1, {}); }
     },
     death_mark: {
@@ -216,12 +216,12 @@
     },
     shadow_step: {
       id: 'shadow_step', name: '그림자 도약', icon: '🌑', cost: 0, type: 'SKILL', desc: '침묵 -2, 방어막 5, 다음 공격 +8', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_shadow_step.png',
       effect(gs) { gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) - 2); gs.addShield(5); gs.addBuff('shadow_atk', 1, { dmgBonus: 8 }); }
     },
     poison_blade: {
       id: 'poison_blade', name: '독침 검', icon: '🐍', cost: 1, type: 'ATTACK', desc: '7 피해 + 독 3턴', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_poison_blade.png',
       effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('poisoned', 3); }
     },
     phantom_step: {
@@ -257,12 +257,12 @@
     },
     desperate_strike: {
       id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '체력 비례 피해 (최대 50)', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_desperate_strike.png',
       effect(gs) { const d = Math.floor((1 - gs.player.hp / gs.player.maxHp) * 50) + 5; gs.dealDamage(d); }
     },
     reverberation: {
       id: 'reverberation', name: '반향', icon: '🔊', cost: 2, type: 'ATTACK', desc: 'Chain × 8 피해 (최대 40)', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_reverberation.png',
       effect(gs) { gs.dealDamage(Math.min(40, (gs.player.echoChain || 1) * 8)); }
     },
     sanctuary: {
@@ -272,13 +272,13 @@
     },
     dark_pact: {
       id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: 'HP -8, 카드 2장 드로우', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_dark_pact.png',
       effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 8); gs.drawCards(2); updateUI(); }
     },
     // ── 에너지 관련 카드 ──
     surge: {
       id: 'surge', name: '서지', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +2 (이번 턴)', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_surge.png',
       effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.addLog('⚡ 서지: 에너지 +2!', 'echo'); updateUI(); }
     },
     surge_plus: {
@@ -288,17 +288,17 @@
     },
     overcharge: {
       id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '에너지 +4, HP -6, Echo +30', rarity: 'rare',
-      image: 'card_skill.png',
+      image: 'card_overcharge.png',
       effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 4, gs.player.energy + 4); gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); updateUI(); }
     },
     void_tap: {
       id: 'void_tap', name: '허공 탭', icon: '🌀', cost: 1, type: 'SKILL', desc: '에너지 소진 후 피해 (소진 에너지 × 6)', rarity: 'rare',
-      image: 'card_skill.png',
+      image: 'card_void_tap.png',
       effect(gs) { const spent = gs.player.maxEnergy - gs.player.energy; const dmg = (spent + 1) * 6; gs.dealDamage(dmg); gs.addLog(`🌀 허공 탭: ${dmg} 피해!`, 'echo'); }
     },
     energy_siphon: {
       id: 'energy_siphon', name: '에너지 사이펀', icon: '🔵', cost: 0, type: 'ATTACK', desc: '에너지 1 소비 → 피해 12, 에너지 회복 없음', rarity: 'uncommon', exhaust: true,
-      image: 'card_attack.png',
+      image: 'card_energy_siphon.png',
       effect(gs) { if (gs.player.energy > 0) { gs.player.energy--; gs.dealDamage(12); gs.addLog('🔵 에너지 사이펀: 에너지 1 → 12 피해', 'echo'); } else { gs.addLog('🔵 에너지 사이펀: 에너지 없음!', 'damage'); } updateUI(); }
     },
     // ── 새 카드: 화염 / 전략 계열 ──
@@ -314,7 +314,7 @@
     },
     echo_reflect: {
       id: 'echo_reflect', name: '잔향 반향', icon: '🔊', cost: 1, type: 'SKILL', desc: '방어막 8 + 이번 턴 피해 받으면 반사', rarity: 'rare',
-      image: 'card_skill.png',
+      image: 'card_echo_reflect.png',
       effect(gs) { gs.addShield(8); gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🔊 잔향 반향! 반사 준비', 'echo'); }
     },
     chain_reaction: {
@@ -332,7 +332,7 @@
     // 카드를 버리는 대신, 이번 턴 모든 카드 비용을 줄여 다양한 콤보를 유도
     echo_tide: {
       id: 'echo_tide', name: '잔향의 조류', icon: '🌀', cost: 0, type: 'SKILL', desc: '전체 카드 비용 -1, Echo +10', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_echo_tide.png',
       effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); renderCombatCards(); updateUI(); }
     },
     void_surge: {
@@ -342,7 +342,7 @@
     },
     resonance_flow: {
       id: 'resonance_flow', name: '공명 흐름', icon: '🎵', cost: 0, type: 'SKILL', desc: '손패 카드 수만큼 Echo 충전 (장당 +8)', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_resonance_flow.png',
       effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 8); gs.addLog(`🎵 공명 흐름: 손패 ${n}장 → Echo +${n * 8}!`, 'echo'); }
     },
     echo_cascade: {
@@ -352,12 +352,12 @@
     },
     tempo_strike: {
       id: 'tempo_strike', name: '박자 강타', icon: '🥁', cost: 1, type: 'ATTACK', desc: '10 피해, 다음 카드 비용 -1', rarity: 'common',
-      image: 'card_attack.png',
+      image: 'card_tempo_strike.png',
       effect(gs) { gs.dealDamage(10); gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo'); renderCombatCards(); }
     },
     echo_lull: {
       id: 'echo_lull', name: '잔향의 고요', icon: '🌙', cost: 0, type: 'SKILL', desc: '에너지 -1, 손패 전체 비용 -2 이번 턴', rarity: 'uncommon',
-      image: 'card_skill.png',
+      image: 'card_echo_lull.png',
       effect(gs) { gs.player.energy = Math.max(0, gs.player.energy - 1); gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('🌙 잔향의 고요: 에너지 -1, 모든 카드 비용 -2!', 'echo'); renderCombatCards(); updateUI(); }
     },
   },
@@ -686,6 +686,14 @@
         return { type: 'bite', intent: `물기 ${this.atk}`, dmg: this.atk };
       }
     },
+    elite_dire_wolf: {
+      id: 'elite_dire_wolf', name: '【정예】공포의 거대늑대', icon: '🐺', image: 'enemy_elite_dire_wolf.png', hp: 95, maxHp: 95, atk: 13, region: 0, xp: 75, gold: 40, isElite: true,
+      ai(turn) {
+        if (turn === 1) return { type: 'howl', intent: '공포의 포효 (약화)', dmg: 8, effect: 'weaken' };
+        if (turn % 3 === 0) return { type: 'pounce', intent: `덮치기 ${this.atk + 7}`, dmg: this.atk + 7 };
+        return { type: 'bite', intent: `물기 ${this.atk}×2`, dmg: this.atk, multi: 2 };
+      }
+    },
     forest_wraith: {
       id: 'forest_wraith', name: '숲의 원령', icon: '👻', image: 'enemy_forest_wraith.png', hp: 38, maxHp: 38, atk: 10, region: 0, xp: 25, gold: 10,
       ai(turn) {
@@ -695,7 +703,7 @@
       }
     },
     fallen_knight: {
-      id: 'fallen_knight', name: '타락한 기사', icon: '⚔️', image: 'enemy_fallen_knight.png', hp: 55, maxHp: 55, atk: 12, region: 0, xp: 35, gold: 15,
+      id: 'fallen_knight', name: '타락한 기사', icon: '⚔️', image: 'enemy_fallen_knight.png', hp: 55, maxHp: 55, atk: 12, region: null, xp: 35, gold: 15,
       ai(turn) {
         if (turn % 3 === 0) return { type: 'guard', intent: '방패 방어 (방어막 8)', dmg: 0, effect: 'self_shield' };
         if (turn % 5 === 0) return { type: 'charge', intent: `돌진 ${this.atk + 8}`, dmg: this.atk + 8 };
@@ -790,7 +798,7 @@
     },
     // ── 잔향의 숲 보스 추가 ──
     forest_guardian: {
-      id: 'forest_guardian', name: '숲의 수호자', icon: '🛡️', image: 'enemy_forest_guardian.png', hp: 160, maxHp: 160, atk: 14, region: 0, xp: 140, gold: 60, isBoss: true,
+      id: 'forest_guardian', name: '숲의 수호자', icon: '🛡️', image: 'enemy_forest_guardian.png', hp: 160, maxHp: 160, atk: 14, region: 0, xp: 140, gold: 60, isBoss: true, maxPhase: 2,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'nature_wrath', intent: `자연의 분노 ${this.atk * 2}`, dmg: this.atk * 2 };
         if (turn % 3 === 0) return { type: 'heal', intent: '생명의 기운 (회복 20)', dmg: 0, effect: 'heal_20' };
@@ -862,7 +870,7 @@
     },
     // ── 침묵의 도시 보스 추가 ──
     clockwork_emperor: {
-      id: 'clockwork_emperor', name: '태엽 황제', icon: '⚙️', image: 'enemy_clockwork_emperor.png', hp: 220, maxHp: 220, atk: 18, region: 1, xp: 150, gold: 70, isBoss: true,
+      id: 'clockwork_emperor', name: '태엽 황제', icon: '⚙️', image: 'enemy_clockwork_emperor.png', hp: 220, maxHp: 220, atk: 18, region: 1, xp: 150, gold: 70, isBoss: true, maxPhase: 2,
       ai(turn) {
         if (turn % 5 === 0) return { type: 'overdrive', intent: `오버드라이브 ${this.atk * 2.5 | 0}`, dmg: this.atk * 2.5 | 0 };
         if (turn % 3 === 0) return { type: 'repair', intent: '자가 수리 (회복 30)', dmg: 0, effect: 'heal_30' };
@@ -971,7 +979,7 @@
       }
     },
     memory_weaver: {
-      id: 'memory_weaver', name: '기억의 직조자', icon: '🕸️', image: 'enemy_memory_weaver.png', hp: 190, maxHp: 190, atk: 16, region: 2, xp: 140, gold: 65, isBoss: true,
+      id: 'memory_weaver', name: '기억의 직조자', icon: '🕸️', image: 'enemy_memory_weaver.png', hp: 190, maxHp: 190, atk: 16, region: 2, xp: 140, gold: 65, isBoss: true, maxPhase: 2,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'weave', intent: '기억의 실 (카드 소각)', dmg: 0, effect: 'exhaust_card' };
         return { type: 'strike', intent: `환영 타격 ${this.atk + 6}`, dmg: this.atk + 6 };
@@ -1007,7 +1015,7 @@
       }
     },
     grave_executor: {
-      id: 'grave_executor', name: '무덤의 집행자', icon: '🪓', image: 'enemy_grave_executor.png', hp: 210, maxHp: 210, atk: 19, region: 3, xp: 155, gold: 72, isBoss: true,
+      id: 'grave_executor', name: '무덤의 집행자', icon: '🪓', image: 'enemy_grave_executor.png', hp: 210, maxHp: 210, atk: 19, region: 3, xp: 155, gold: 72, isBoss: true, maxPhase: 2,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'execute', intent: `사형 구형 ${this.atk * 2.5 | 0}`, dmg: this.atk * 2.5 | 0 };
         return { type: 'strike', intent: `집행의 도끼 ${this.atk + 5}`, dmg: this.atk + 5 };
@@ -1083,7 +1091,7 @@
     },
     // 보스들
     ancient_echo: {
-      id: 'ancient_echo', name: '태고의 잔향', icon: '🌑', image: 'enemy_ancient_echo.png', hp: 145, maxHp: 145, atk: 16, region: 0, xp: 120, gold: 50, isBoss: true, phase: 1,
+      id: 'ancient_echo', name: '태고의 잔향', icon: '🌑', image: 'enemy_ancient_echo.png', hp: 145, maxHp: 145, atk: 16, region: 0, xp: 120, gold: 50, isBoss: true, maxPhase: 2, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.5 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase_shift', intent: '⚠️ 위상 전환!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {
@@ -1096,7 +1104,7 @@
     },
     // 침묵의 도시 전용 보스 — 소음 게이지를 극도로 자극
     silent_tyrant: {
-      id: 'silent_tyrant', name: '침묵의 폭군', icon: '🗣️', image: 'enemy_silent_tyrant.png', hp: 200, maxHp: 200, atk: 17, region: 1, xp: 130, gold: 55, isBoss: true, phase: 1,
+      id: 'silent_tyrant', name: '침묵의 폭군', icon: '🗣️', image: 'enemy_silent_tyrant.png', hp: 200, maxHp: 200, atk: 17, region: 1, xp: 130, gold: 55, isBoss: true, maxPhase: 2, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.55 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase2', intent: '⚠️ 절대 침묵!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {
@@ -1109,7 +1117,7 @@
     },
     // 신의 무덤 전용 보스 — 디버프 폭격
     divine_tyrant: {
-      id: 'divine_tyrant', name: '신의 심판관', icon: '⚖️', image: 'enemy_divine_tyrant.png', hp: 240, maxHp: 240, atk: 19, region: 3, xp: 160, gold: 75, isBoss: true, phase: 1,
+      id: 'divine_tyrant', name: '신의 심판관', icon: '⚖️', image: 'enemy_divine_tyrant.png', hp: 240, maxHp: 240, atk: 19, region: 3, xp: 160, gold: 75, isBoss: true, maxPhase: 3, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.6 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'divine_wrath', intent: '⚠️ 신성 분노!', dmg: 0, effect: 'phase_shift' }; }
         if (this.hp < this.maxHp * 0.3 && this.phase === 2) { this.phase = 3; AudioEngine.playBossPhase(); return { type: 'final_judgement', intent: '⚠️ 최후의 심판!', dmg: 0, effect: 'phase_shift' }; }
@@ -1126,7 +1134,7 @@
       }
     },
     memory_sovereign: {
-      id: 'memory_sovereign', name: '기억의 군주', icon: '👑', image: 'enemy_memory_sovereign.png', hp: 220, maxHp: 220, atk: 18, region: 2, xp: 150, gold: 70, isBoss: true, phase: 1,
+      id: 'memory_sovereign', name: '기억의 군주', icon: '👑', image: 'enemy_memory_sovereign.png', hp: 220, maxHp: 220, atk: 18, region: 2, xp: 150, gold: 70, isBoss: true, maxPhase: 3, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.66 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'phase2', intent: '⚠️ 기억의 각성!', dmg: 0, effect: 'phase_shift' }; }
         if (this.hp < this.maxHp * 0.33 && this.phase === 2) { this.phase = 3; AudioEngine.playBossPhase(); return { type: 'phase3', intent: '⚠️ 완전 각성!', dmg: 0, effect: 'phase_shift' }; }
@@ -1144,7 +1152,7 @@
     },
     // 히든 보스 — worldMemory 조건부 (상인 구출 + 스토리 5개 이상)
     echo_origin: {
-      id: 'echo_origin', name: '잔향의 근원', icon: '🌟', image: 'enemy_echo_origin.png', hp: 320, maxHp: 320, atk: 22, region: 4, xp: 300, gold: 150, isBoss: true, isHidden: true, phase: 1,
+      id: 'echo_origin', name: '잔향의 근원', icon: '🌟', image: 'enemy_echo_origin.png', hp: 320, maxHp: 320, atk: 22, region: 4, xp: 300, gold: 150, isBoss: true, isHidden: true, maxPhase: 3, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.7 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'awaken', intent: '⚠️ 근원 각성!', dmg: 0, effect: 'phase_shift' }; }
         if (this.hp < this.maxHp * 0.4 && this.phase === 2) { this.phase = 3; AudioEngine.playBossPhase(); return { type: 'transcend', intent: '⚠️ 근원 초월!', dmg: 0, effect: 'phase_shift' }; }
@@ -1162,7 +1170,7 @@
     },
     // 메아리의 근원 최종 보스
     void_herald: {
-      id: 'void_herald', name: '허공의 사도', icon: '🌌', image: 'enemy_void_herald.png', hp: 280, maxHp: 280, atk: 20, region: 4, xp: 200, gold: 100, isBoss: true, phase: 1,
+      id: 'void_herald', name: '허공의 사도', icon: '🌌', image: 'enemy_void_herald.png', hp: 280, maxHp: 280, atk: 20, region: 4, xp: 200, gold: 100, isBoss: true, maxPhase: 2, phase: 1,
       ai(turn) {
         if (this.hp < this.maxHp * 0.5 && this.phase === 1) { this.phase = 2; AudioEngine.playBossPhase(); return { type: 'transcend', intent: '⚠️ 허공 초월!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 2) {
@@ -1218,6 +1226,7 @@
     {
       id: 'wanderer', layer: 1, title: '방랑자의 흔적', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '낡은 여행 가방 하나가 나뭇가지에 걸려 있다.',
+      image: 'event_wanderer.png',
       choices: [
         { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog('골드 +20', 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
         { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog('Echo +15', 'echo'); return '조심성이 잔향을 강화했다.'; } },
@@ -1226,6 +1235,7 @@
     {
       id: 'echo_shrine', layer: 1, title: '잔향의 제단', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '희미한 빛을 내뿜는 제단이 당신의 기억을 자극한다.',
+      image: 'event_echo_shrine.png',
       choices: [
         { text: '✨ 에고를 바친다 (HP -10, Echo +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '제단이 당신의 기억을 삼키고 힘을 내뿜는다.'; } },
         { text: '🚶 조용히 지나간다', effect(gs) { return '제단은 다시 침묵에 잠겼다.'; } }
@@ -1234,6 +1244,7 @@
     {
       id: 'shrine', layer: 1, title: '잔향의 사당', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '고대 사당 앞에 잔향 에너지가 모여 있다.',
+      image: 'event_shrine.png',
       choices: [
         { text: '❤️ 체력을 제물로 (HP -10 → Echo +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return 'Echo 게이지가 타오른다.'; } },
         {
@@ -1249,6 +1260,7 @@
     {
       id: 'merchant_lost', layer: 2, title: '길 잃은 상인', eyebrow: 'LAYER 2 · 연속 이벤트',
       desc: '잔향 에너지에 길을 잃은 상인을 발견했다. 두려움에 떨고 있다.',
+      image: 'event_merchant_lost.png',
       choices: [
         { text: '🤝 상인을 도와준다', effect(gs) { gs.worldMemory.savedMerchant = (gs.worldMemory.savedMerchant || 0) + 1; gs.heal(15); gs.addLog('💚 상인이 치료약을 건넸다', 'heal'); return '상인은 감사하며 치료약을 건넸다.'; } },
         { text: '💰 상인의 물건을 빼앗는다', effect(gs) { gs.addGold(30); gs.worldMemory.stoleFromMerchant = true; gs.addLog('골드 +30 (약탈)', 'damage'); return '30골드를 얻었다. 상인의 눈에서 빛이 사라졌다.'; } },
@@ -1257,6 +1269,7 @@
     {
       id: 'echo_resonance', layer: 1, title: '잔향 공명', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '공기 중에 강한 에코 에너지가 감지된다.',
+      image: 'event_echo_resonance.png',
       choices: [
         { text: '⚡ 에너지를 흡수한다', effect(gs) { gs.addEcho(60); return 'Echo 게이지가 요동쳤다!'; } },
         { text: '🃏 에너지를 카드로 변환', effect(gs) { const c = gs.getRandomCard('rare'); gs.player.deck.push(c); return `에너지가 카드로 응결: ${DATA.cards[c]?.name}`; } },
@@ -1265,6 +1278,7 @@
     {
       id: 'forge', layer: 1, title: '잔향의 대장간', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '에코 에너지로 달구어진 대장간이 있다.',
+      image: 'event_forge.png',
       choices: [
         {
           text: '⚒️ 카드를 강화한다', effect(gs) {
@@ -1284,6 +1298,7 @@
     {
       id: 'echo_vendor', layer: 1, title: 'Echo 자판기', eyebrow: 'LAYER 1 · 우발적 이벤트',
       desc: '낡은 자판기가 벽에 기대어 있다. "잔향 에너지 교환"이라고 적혀 있다.',
+      image: 'event_echo_vendor.png',
       choices: [
         {
           text: '💊 체력 회복 (골드 10 → HP 15)', effect(gs) {
@@ -1300,6 +1315,7 @@
     {
       id: 'silent_pool', layer: 1, title: '침묵의 웅덩이', eyebrow: 'LAYER 2 · 신비한 이벤트',
       desc: '잔향 에너지가 고인 웅덩이가 빛나고 있다.',
+      image: 'event_silent_pool.png',
       choices: [
         { text: '🌊 웅덩이를 마신다 (HP -5, 덱에 레어 카드)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 5); const c = gs.getRandomCard('rare'); gs.player.deck.push(c); return `${DATA.cards[c]?.name} 카드를 얻었다. 혀가 타는 듯하다.`; } },
         { text: '🔮 관찰만 한다 (Echo +30)', effect(gs) { gs.addEcho(30); return '잔향 에너지를 흡수했다.'; } },
@@ -1308,6 +1324,7 @@
     {
       id: 'lost_memory', layer: 2, title: '잃어버린 기억', eyebrow: 'LAYER 2 · 연속 이벤트',
       desc: '흐릿한 기억의 조각이 떠돌고 있다. 집중하면 흡수할 수 있을 것 같다.',
+      image: 'event_lost_memory.png',
       choices: [
         { text: '🧠 기억을 흡수한다 (골드 +25, Echo +20)', effect(gs) { gs.addGold(25); gs.addEcho(20); return '기억의 파편이 힘으로 변환됐다.'; } },
         { text: '💭 기억을 방류한다 (HP +15)', effect(gs) { gs.heal(15); return '기억은 바람이 되어 사라졌다. 마음이 가벼워졌다.'; } },
@@ -1316,6 +1333,7 @@
     {
       id: 'void_crack', layer: 2, title: '허공의 균열', eyebrow: 'LAYER 2 · 위험한 이벤트',
       desc: '공간이 갈라져 있다. 저쪽에는 무언가가 있는 것 같다.',
+      image: 'event_void_crack.png',
       choices: [
         { text: '🌀 균열을 통과한다 (HP -20, 아이템 1개)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 20); const items = Object.keys(DATA.items); const item = items[Math.floor(Math.random() * items.length)]; gs.player.items.push(item); AudioEngine.playItemGet(); showItemToast(DATA.items[item]); return `${DATA.items[item].name}을 얻었다. 몸이 떨린다.`; } },
         { text: '🚶 위험하다, 돌아간다', effect(gs) { return '안전한 길을 선택했다.'; } },

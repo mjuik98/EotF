@@ -68,9 +68,22 @@
       const eyebrowEl = doc.getElementById('eventEyebrow');
       const titleEl = doc.getElementById('eventTitle');
       const descEl = doc.getElementById('eventDesc');
+      const imgContEl = doc.getElementById('eventImageContainer');
+      const imgEl = doc.getElementById('eventImage');
+
       if (eyebrowEl) eyebrowEl.textContent = event.eyebrow || 'LAYER 1 · 이벤트';
       if (titleEl) titleEl.textContent = event.title;
       if (descEl) descEl.textContent = event.desc;
+
+      if (imgContEl && imgEl) {
+        if (event.image) {
+          imgEl.src = 'assets/images/' + event.image;
+          imgContEl.style.display = 'block';
+        } else {
+          imgContEl.style.display = 'none';
+        }
+      }
+
       this.updateEventGoldBar(deps);
 
       const deckInfoEl = doc.getElementById('eventDeckDisplay');
@@ -148,6 +161,7 @@
         persistent: true,
         eyebrow: savedMerchant ? 'WORLD MEMORY · 특별 상점' : 'LAYER 1 · 상점',
         title: savedMerchant ? '고마운 상인의 가게' : '잔향 상인',
+        image: 'event_shop.png',
         desc: savedMerchant
           ? '전에 도움받은 상인이다. 좋은 가격을 제시한다.'
           : '낡은 외투를 입은 상인이 잔향 결정들을 늘어놓고 있다.',
@@ -239,6 +253,7 @@
         id: 'rest',
         eyebrow: 'LAYER 1 · 휴식 장소',
         title: '잔향의 모닥불',
+        image: 'event_rest.png',
         desc: '꺼지지 않는 이상한 불꽃이 타오르고 있다.',
         choices: [
           {

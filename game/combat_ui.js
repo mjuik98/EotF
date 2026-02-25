@@ -252,7 +252,7 @@
           ` : `<div class="enemy-hp-bar"><div class="enemy-hp-fill" id="enemy_hpfill_${i}" style="width:${hpPct}%;background:${_enemyHpColor(hpPct)};"></div></div>`;
 
           return `
-            <div class="enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}" id="enemy_${i}"
+            <div class="enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}${e.isBoss ? ' boss' : ''}" id="enemy_${i}"
               style="${deadStyle}${selStyle}cursor:${e.hp > 0 ? 'pointer' : 'default'};"
               onclick="${e.hp > 0 ? `${selectTargetHandlerName}(${i})` : ''}">
               ${isSelected ? '<div class="target-label-anim"><span>▼</span><span>TARGET</span></div>' : ''}

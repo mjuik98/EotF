@@ -89,7 +89,7 @@
         const allEnemies = Object.values(data.enemies);
         const byRegion = {};
         allEnemies.forEach(e => {
-          const r = e.region ?? 0;
+          const r = e.region !== undefined && e.region !== null ? e.region : 'unassigned';
           if (!byRegion[r]) byRegion[r] = [];
           byRegion[r].push(e);
         });

@@ -2845,6 +2845,47 @@ body:has(#combatOverlay.active) .panel-bottom {
   backdrop-filter: blur(16px);
   transition: all 0.2s;
   position: relative;
+  z-index: 10;
+}
+
+.enemy-card.boss {
+  border-color: rgba(240, 180, 41, 0.4);
+  background: linear-gradient(180deg, rgba(20, 10, 40, 0.8) 0%, rgba(7, 7, 26, 0.85) 100%);
+}
+
+.enemy-card.boss::before {
+  content: '';
+  position: absolute;
+  inset: -15px;
+  background: radial-gradient(circle at center, rgba(240, 180, 41, 0.15) 0%, transparent 70%);
+  border-radius: 20px;
+  z-index: -1;
+  animation: bossAuraPulse 3s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes bossAuraPulse {
+  from {
+    opacity: 0.4;
+    transform: scale(0.95);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 0.8;
+    transform: scale(1.05);
+    filter: blur(20px);
+  }
+}
+
+@keyframes enemyBreath {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-8px);
+  }
 }
 
 .enemy-card.selected-target {
@@ -2862,6 +2903,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: enemyBreath 4s ease-in-out infinite alternate;
 }
 
 .enemy-sprite img {
@@ -3172,6 +3214,27 @@ body:has(#combatOverlay.active) .panel-bottom {
   line-height: 1.7;
   margin-bottom: 24px;
   font-style: italic;
+}
+
+.event-image-container img {
+  animation: eventImageFade 1.2s ease-out forwards;
+  box-shadow: 0 0 30px rgba(123, 47, 255, 0.2);
+  object-fit: cover;
+  max-height: 280px;
+}
+
+@keyframes eventImageFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .event-choices {
@@ -3913,13 +3976,76 @@ body:has(#combatOverlay.active) .panel-bottom {
   border-radius: 2px;
   color: var(--text-dim);
   font-family: 'Cinzel', serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-  transition: all 0.4s;
-  text-transform: uppercase;
 }
+
+/* ── MOBILE RESPONSIVENESS (Basic) ── */
+@media screen and (max-width: 768px) {
+  .title-main {
+    font-size: 48px;
+  }
+
+  .title-sub {
+    font-size: 14px;
+  }
+
+  .class-btn {
+    width: 260px;
+    padding: 20px 16px;
+  }
+
+  .class-btn-icon-container {
+    width: 140px;
+    height: 140px;
+  }
+
+  #statsPanel {
+    padding: 10px;
+    width: 160px;
+  }
+
+  .enemy-card {
+    min-width: 140px;
+    padding: 12px;
+  }
+
+  .enemy-sprite img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .enemy-name {
+    font-size: 13px;
+  }
+
+  .combat-hand-container {
+    height: 140px;
+  }
+
+  .card {
+    width: 80px;
+    height: 116px;
+  }
+
+  .card-name {
+    font-size: 11px;
+  }
+
+  .card-desc {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  .title-content {
+    transform: scale(0.85);
+    transform-origin: center;
+  }
+
+  .combat-hand-container {
+    bottom: 10px;
+  }
+}
+
 
 .settings-trigger-btn:hover {
   background: rgba(123, 47, 255, 0.15);
