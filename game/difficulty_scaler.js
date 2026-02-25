@@ -42,6 +42,10 @@ export const DifficultyScaler = {
   },
 
   scaleEnemy(enemy, gs, runCount, region, floor) {
+    if (!gs) {
+      console.warn('[DifficultyScaler] gs is undefined, using base enemy');
+      return { ...enemy };
+    }
     const m = this.getMultiplier(gs, runCount, region, floor);
     const ascGoldScale = CONSTANTS.DIFFICULTY.ASCENSION_GOLD_SCALE;
     return {

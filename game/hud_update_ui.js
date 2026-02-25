@@ -1,5 +1,6 @@
 import { GS } from './game_state.js';
 import { DATA } from '../data/game_data.js';
+import { SecurityUtils } from './utils/security.js';
 
 
 let _uiPending = false;
@@ -179,7 +180,7 @@ export const HudUpdateUI = {
         swordsman: '잔향검사', mage: '메아리술사', hunter: '침묵사냥꾼',
         paladin: '성기사', berserker: '광전사', shielder: '쉴더'
       };
-      setText('playerNameDisplay', nameMap[p.class] || '');
+      setText('playerNameDisplay', SecurityUtils.escapeHtml(nameMap[p.class] || ''));
 
       const specialEl = doc.getElementById('playerSpecialDisplay');
       if (specialEl && window.ClassMechanics?.[p.class]) {
@@ -194,6 +195,20 @@ export const HudUpdateUI = {
       } else if (specialEl) {
         specialEl.style.display = 'none';
       }
+    }
+
+    // Hover HUD 에도 클래스 특성 표시
+    const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
+    if (hoverSpecialEl && window.ClassMechanics?.[p.class]) {
+      const specialUI = window.ClassMechanics[p.class].getSpecialUI(gs);
+      if (typeof specialUI === 'string') {
+        hoverSpecialEl.innerHTML = specialUI;
+      } else {
+        hoverSpecialEl.innerHTML = '';
+        hoverSpecialEl.appendChild(specialUI);
+      }
+    } else if (hoverSpecialEl) {
+      hoverSpecialEl.innerHTML = '<span style="font-size:10px;color:var(--text-dim);font-style:italic;">없음</span>';
     }
 
     const shieldTrigger = doc.getElementById('hudShieldTrigger');
@@ -398,4 +413,11 @@ export const HudUpdateUI = {
     if (typeof deps.updateStatusDisplay === 'function') deps.updateStatusDisplay();
     this.updateEndBtnWarn(deps);
   },
+
+  // Expose public API for GAME.API
+  api: {
+    updateUI: (deps) => HudUpdateUI.updateUI(deps),
+    resetCombatUI: (deps) => HudUpdateUI.resetCombatUI(deps),
+    triggerDeckShufflePulse: (deps) => HudUpdateUI.triggerDeckShufflePulse(deps),
+  }
 };

@@ -1,4 +1,5 @@
 import { GS } from './game_state.js';
+import { Trigger } from './constants/triggers.js';
 
 
   export const MapNavigationUI = {

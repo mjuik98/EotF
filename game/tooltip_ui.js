@@ -36,6 +36,12 @@ import { DescriptionUtils } from './description_utils.js';
       const gs = deps.gs;
       if (!data?.cards || !gs) return;
 
+      // 특수 툴팁: 스킬 소각
+      if (cardId === 'remove_card') {
+        this.showGeneralTooltip(event, '🔥 스킬 소각', '덱에서 원하는 카드 1장을 영구히 제거합니다.<br><br>조건: 덱에 카드가 있어야 합니다.', deps);
+        return;
+      }
+
       const card = data.cards[cardId];
       if (!card) return;
       clearTimeout(_tooltipTimer);
@@ -208,27 +214,35 @@ import { DescriptionUtils } from './description_utils.js';
       const el = doc.createElement('div');
       el.id = '_generalTip';
       el.style.cssText = [
-        'position:fixed;z-index:950;',
-        'background:rgba(10,10,35,0.95);border:1px solid var(--echo);border-left:3px solid var(--echo);border-radius:8px;',
-        'padding:12px;width:190px;pointer-events:none;',
+        'position:fixed;z-index:10000;',
+        'background:rgba(10,10,35,0.98);border:1px solid var(--echo);border-left:3px solid var(--echo);border-radius:8px;',
+        'padding:12px;width:220px;pointer-events:none;',
         'backdrop-filter:blur(20px);',
-        'box-shadow:0 10px 30px rgba(0,0,0,0.6);',
+        'box-shadow:0 10px 40px rgba(0,0,0,0.8);',
         'animation:fadeIn 0.15s ease both;',
       ].join('');
 
       el.innerHTML = `
         <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:0.05em;">${title}</div>
-        <div style="font-size:11px;color:var(--text);line-height:1.5;">${content}</div>
+        <div style="font-size:11px;color:var(--text);line-height:1.6;">${content}</div>
       `;
 
       const rect = event.currentTarget.getBoundingClientRect();
+      const rightPanelWidth = 240; // 우측 패널 너비
       let x = rect.right + 10;
       let y = rect.top;
-      if (x + 200 > win.innerWidth) x = rect.left - 202;
-      if (y + 100 > win.innerHeight) y = win.innerHeight - 105;
 
-      el.style.left = `${Math.max(6, x)}px`;
-      el.style.top = `${Math.max(6, y)}px`;
+      // 우측 패널과의 충돌 확인
+      if (x + 220 > win.innerWidth - rightPanelWidth) {
+        x = rect.left - 230; // 왼쪽으로 표시
+      }
+      if (x < 6) x = 6; // 왼쪽 벽 충돌 방지
+
+      if (y + 120 > win.innerHeight) y = win.innerHeight - 125;
+      if (y < 6) y = 6;
+
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
       doc.body.appendChild(el);
       window._generalTipEl = el;
     },

@@ -48,18 +48,32 @@ import { GS } from './game_state.js';
 
           const isVisited = node.visited && child.visited;
           const isNext = node.visited && child.accessible;
+          const isCurrentPath = node.id === gs.currentNode?.id || child.id === gs.currentNode?.id;
 
-          if (isVisited) {
-            ctx.strokeStyle = 'rgba(0, 255, 204, 0.5)';
-            ctx.lineWidth = 1.5;
+          if (isCurrentPath) {
+            // 현재 위치 연결선 - 강조
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.9)';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = 'rgba(0, 255, 204, 0.8)';
+            ctx.shadowBlur = 8;
+          } else if (isVisited) {
+            // 방문한 경로 - 밝은 청록색
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 0;
           } else if (isNext) {
-            ctx.strokeStyle = 'rgba(123, 47, 255, 0.4)';
-            ctx.lineWidth = 1;
+            // 다음 이동 가능 - 보라색
+            ctx.strokeStyle = 'rgba(123, 47, 255, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.shadowBlur = 0;
           } else {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            // 방문 안 함 - 어두운 회색
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
             ctx.lineWidth = 0.5;
+            ctx.shadowBlur = 0;
           }
           ctx.stroke();
+          ctx.shadowBlur = 0; // 리셋
         });
       });
 
@@ -68,35 +82,49 @@ import { GS } from './game_state.js';
         const nx = w * (node.pos + 1) / (node.total + 1);
         const ny = h - 10 - floorH * node.floor;
         const r = node.type === 'boss' ? 8 : 5;
+        const isCurrent = gs.currentNode?.id === node.id;
 
-        // 노드 아이콘/이모지 렌더링 (배경 없이 깔끔하게)
+        // 노드 아이콘/이모지 렌더링
         const meta = deps.nodeMeta || (typeof NODE_META !== 'undefined' ? NODE_META : {});
         const nodeMetaInfo = meta[node.type] || { icon: '?' };
 
-        ctx.fillStyle = node.visited ? 'rgba(0, 255, 204, 0.9)' : (node.accessible ? '#fff' : 'rgba(255,255,255,0.2)');
-        ctx.font = `bold ${r * 1.5}px sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(nodeMetaInfo.icon || '?', nx, ny);
+        // 방문한 노드 - 밝은 청록색, 현재 위치 - 흰색 글로우, 그 외 - 회색
+        if (isCurrent) {
+          // 현재 위치 - 흰색 글로우
+          ctx.beginPath();
+          ctx.arc(nx, ny, r + 4, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.fill();
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = '#fff';
+        } else if (node.visited) {
+          // 방문한 노드 - 밝은 청록색
+          ctx.shadowColor = 'rgba(0, 255, 204, 0.6)';
+          ctx.shadowBlur = 6;
+          ctx.fillStyle = 'rgba(0, 255, 204, 0.9)';
+        } else if (node.accessible) {
+          // 이동 가능 - 흰색
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.shadowBlur = 0;
+        } else {
+          // 방문 불가 - 어두운 회색
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+          ctx.shadowBlur = 0;
+        }
 
-        if (gs.currentNode?.id === node.id) {
-          // 현재 위치만 최소한의 흰색 테두리
+        ctx.font = `bold ${r * 1.5}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(nodeMetaInfo.icon || '?', nx, ny);
+        ctx.shadowBlur = 0; // 리셋
+
+        // 현재 위치 추가 강조
+        if (isCurrent) {
           ctx.beginPath();
           ctx.arc(nx, ny, r + 1, 0, Math.PI * 2);
           ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        if (gs.currentNode?.id === node.id) {
-          ctx.strokeStyle = '#fff';
           ctx.lineWidth = 1.5;
-          ctx.stroke();
-
-          // 현재 위치 강조 (화이트 글로우)
-          ctx.beginPath();
-          ctx.arc(nx, ny, r + 2, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-          ctx.lineWidth = 1;
           ctx.stroke();
         }
       });
@@ -134,6 +162,7 @@ import { GS } from './game_state.js';
       }
 
       const getFloorStatusText = deps.getFloorStatusText;
+      const getRegionData = deps.getRegionData || window.getRegionData;
       if (title && typeof getFloorStatusText === 'function') {
         title.textContent = `${getFloorStatusText(gs.currentRegion, gs.currentFloor)} - 이동 경로를 선택하세요`;
       }
@@ -148,7 +177,7 @@ import { GS } from './game_state.js';
           label: '전투',
           desc: '다음 교전을 준비합니다.',
         };
-        const regionData = typeof window.getRegionData === 'function' ? window.getRegionData(gs.currentRegion, gs) : { name: '알 수 없는 지역' };
+        const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: '지역' };
         const pos = ['A', 'B', 'C', 'D'][n.pos] || String(n.pos + 1);
         return `<div class="node-card" style="--node-color:${m.color};animation-delay:${idx * 0.07}s;"
           onclick="${moveToNodeHandlerName}('${n.id}')">
@@ -189,7 +218,8 @@ import { GS } from './game_state.js';
       // 타이틀
       const title = doc.createElement('div');
       title.style.cssText = `font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.3em;color:var(--echo-bright,#b388ff);margin-bottom:20px;`;
-      const regionData = typeof window.getRegionData === 'function' ? window.getRegionData(gs.currentRegion, gs) : { name: '알 수 없는 지역' };
+      const getRegionData = deps.getRegionData || window.getRegionData;
+      const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: '지역' };
       title.textContent = `📍 ${regionData.name} — ${gs.currentFloor || 0}층`;
       overlay.appendChild(title);
 

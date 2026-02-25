@@ -1,6 +1,7 @@
 import { AudioEngine } from '../engine/audio.js';
 import { GS } from './game_state.js';
 import { DATA } from '../data/game_data.js';
+import { Trigger } from './constants/triggers.js';
 
 
   function _getDoc(deps) {
@@ -16,12 +17,15 @@ import { DATA } from '../data/game_data.js';
   function _spawnScaledEnemy(gs, enemyData, difficultyScaler, extra = {}) {
     if (!gs || !enemyData) return;
     const payload = { ...enemyData, statusEffects: {}, ...extra };
-    const enemy = difficultyScaler?.scaleEnemy?.(payload) || payload;
+    // difficultyScaler.scaleEnemy(enemy, gs, runCount, region, floor)
+    const enemy = difficultyScaler?.scaleEnemy?.(payload, gs) || payload;
     gs.combat.enemies.push(enemy);
   }
 
   export const CombatStartUI = {
     startCombat(isBoss = false, deps = {}) {
+      console.log('[CombatStart] Starting combat, isBoss:', isBoss);
+
       const gs = deps.gs || window.GS;
       const data = deps.data || window.DATA;
       const getRegionData = deps.getRegionData || window.getRegionData;
@@ -31,7 +35,10 @@ import { DATA } from '../data/game_data.js';
       const audioEngine = deps.audioEngine || window.AudioEngine;
       const runRules = deps.runRules || window.RunRules;
       const classMechanics = deps.classMechanics || window.ClassMechanics;
-      if (!gs || !data?.enemies || typeof getRegionData !== 'function') return;
+      if (!gs || !data?.enemies || typeof getRegionData !== 'function') {
+        console.error('[CombatStart] Missing dependencies:', { gs: !!gs, data: !!data, getRegionData: typeof getRegionData });
+        return;
+      }
 
       const region = getRegionData(gs.currentRegion, gs);
       if (!region) return;
@@ -59,12 +66,16 @@ import { DATA } from '../data/game_data.js';
         const isHiddenEligible = _isLastBaseRegion(gs, getBaseRegionIndex, getRegionCount) &&
           (gs.worldMemory.savedMerchant || 0) >= 1 &&
           gs.meta.storyPieces.length >= 5;
-        let bossKey = region.boss || 'ancient_echo';
+        let bossKey;
         if (isHiddenEligible) {
           bossKey = 'echo_origin';
           if (typeof deps.showWorldMemoryNotice === 'function') {
             setTimeout(() => deps.showWorldMemoryNotice('🌟 세계가 기억한다 — 숨겨진 근원이 깨어났다!'), 600);
           }
+        } else {
+          // region.boss 는 배열이므로 랜덤 선택
+          const bossArray = region.boss || ['ancient_echo'];
+          bossKey = Array.isArray(bossArray) ? bossArray[Math.floor(Math.random() * bossArray.length)] : bossArray;
         }
         const bossData = data.enemies[bossKey] || data.enemies.ancient_echo;
         _spawnScaledEnemy(gs, bossData, difficultyScaler, { phase: 1 });
@@ -149,7 +160,19 @@ import { DATA } from '../data/game_data.js';
       deps.updateCombatLog?.();
       gs.addLog?.('⚔️ 전투 시작!', 'system');
       deps.updateNoiseWidget?.();
-      doc.getElementById('combatOverlay')?.classList.add('active');
+
+      const combatOverlay = doc.getElementById('combatOverlay');
+      console.log('[CombatStart] combatOverlay element:', combatOverlay);
+      if (combatOverlay) {
+        combatOverlay.classList.add('active');
+        console.log('[CombatStart] combatOverlay classList:', combatOverlay.classList);
+      }
+
+      // 액션 버튼 활성화 (이전 전투에서 비활성화된 상태 복구)
+      if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.enableActionButtons === 'function') {
+        window.HudUpdateUI.enableActionButtons();
+      }
+
       if (typeof deps.showTurnBanner === 'function') {
         setTimeout(() => deps.showTurnBanner('player'), 300);
       }
@@ -157,5 +180,7 @@ import { DATA } from '../data/game_data.js';
       deps.refreshCombatInfoPanel?.();
       deps.updateUI?.();
       deps.updateClassSpecialUI?.();
+
+      console.log('[CombatStart] Combat start complete, enemies:', gs.combat.enemies.length);
     },
   };

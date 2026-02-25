@@ -52,9 +52,12 @@ import { GS } from './game_state.js';
             ? info.buff
             : ['momentum', 'soul_armor', 'vanish', 'immune', 'shadow_atk', 'dodge'].includes(k);
           const label = info ? `${info.icon} ${info.name}` : k;
-          const stacks = buff.stacks > 0 ? ` <span style="opacity:0.7;">(${buff.stacks})</span>` : '';
-          const desc = info?.desc || '효과 정보 없음';
+
+          // 모멘텀은 스택 (99) 대신 데미지 보너스만 표시
           const dmgBonus = k === 'momentum' && buff.dmgBonus ? ` +${buff.dmgBonus}↯` : '';
+          const stacks = (k !== 'momentum' && buff.stacks > 0) ? ` <span style="opacity:0.7;">(${buff.stacks})</span>` : '';
+
+          const desc = info?.desc || '효과 정보 없음';
           const tipContent = `<b>${label}</b>${dmgBonus ? ` ${dmgBonus}` : ''}<br><span style="color:var(--text-dim);font-size:10px;">${desc}</span>`;
           return `<span class="hud-status-badge ${isBuff ? 'status-buff' : 'status-debuff'}">
         ${label}${stacks}${dmgBonus}

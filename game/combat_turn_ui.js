@@ -267,6 +267,10 @@ import { DATA } from '../data/game_data.js';
       gs.combat.playerTurn = true;
       gs.player.energy = gs.player.maxEnergy;
       gs.player.shield = 0;
+
+      console.log('[CombatTurn] Player turn start - energy:', gs.player.energy, 'maxEnergy:', gs.player.maxEnergy);
+      console.log('[CombatTurn] Region:', gs.currentRegion, 'baseRegion:', typeof window.getBaseRegionIndex === 'function' ? window.getBaseRegionIndex(gs.currentRegion) : 'N/A');
+
       gs.drawCards(5);
 
       if (typeof this.processPlayerStatusTicks === 'function' && !this.processPlayerStatusTicks(deps)) return;

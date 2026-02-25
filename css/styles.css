@@ -2245,10 +2245,10 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 #combatOverlay.active {
-  display: block;
+  display: block !important;
 }
 
-#combatOverlay.active>* {
+#combatOverlay.active > * {
   pointer-events: auto;
 }
 
@@ -3000,7 +3000,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 .enemy-intent {
   font-size: 13px;
   font-weight: 500;
-  color: var(--white);
+  color: var(--white) !important;
   margin-top: 11px;
   font-family: 'Cinzel', serif;
   letter-spacing: 0.02em;
@@ -3023,6 +3023,25 @@ body:has(#combatOverlay.active) .panel-bottom {
   vertical-align: middle;
 }
 
+/* 예상 피해 숫자는 항상 붉은색 유지 - 최우선 */
+.enemy-intent .enemy-intent-dmg,
+.enemy-intent-dmg,
+.enemy-dmg-preview {
+  color: var(--danger) !important;
+}
+
+/* 선택된 적의 인텐트 색상도 흰색 유지 (예상 피해 제외) */
+.enemy-card.selected-target .enemy-intent,
+.enemy-card.selected-target .enemy-intent span:not(.enemy-intent-dmg):not(.enemy-dmg-preview) {
+  color: var(--white) !important;
+}
+
+/* 선택된 적의 피해 예측도 붉은색 유지 - 최우선 */
+.enemy-card.selected-target .enemy-dmg-preview,
+.enemy-card.selected-target .enemy-intent .enemy-dmg-preview {
+  color: var(--danger) !important;
+}
+
 #intentTooltip {
   position: fixed;
   z-index: 850;
@@ -3040,6 +3059,42 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 #intentTooltip.visible {
   opacity: 1;
+}
+
+/* 적 상태 이상 툴팁 */
+#enemyStatusTooltip {
+  position: fixed;
+  z-index: 900;
+  background: rgba(6, 6, 22, 0.98);
+  border: 1px solid var(--echo);
+  border-left: 3px solid var(--echo);
+  border-radius: 8px;
+  width: 180px;
+  padding: 10px 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+#enemyStatusTooltip.visible {
+  opacity: 1;
+}
+
+.est-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+
+.est-desc {
+  font-size: 10px;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .itt-title {
@@ -3818,11 +3873,11 @@ body:has(#combatOverlay.active) .panel-bottom {
   }
 }
 
-/* 피해 예측 뱃지 */
+/* 피해 예측 뱃지 - 항상 붉은색 유지 */
 .enemy-dmg-preview {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: var(--danger);
+  color: var(--danger) !important;
   background: rgba(255, 51, 102, 0.12);
   border: 1px solid rgba(255, 51, 102, 0.35);
   border-radius: 4px;
@@ -3830,6 +3885,11 @@ body:has(#combatOverlay.active) .panel-bottom {
   margin-top: 3px;
   text-align: center;
   letter-spacing: 0.05em;
+}
+
+/* 선택된 적의 피해 예측도 붉은색 유지 */
+.enemy-card.selected-target .enemy-dmg-preview {
+  color: var(--danger) !important;
 }
 
 /* ── 키보드 단축키 힌트 툴팁 ── */
@@ -4156,4 +4216,172 @@ body:has(#combatOverlay.active) .panel-bottom {
   color: #444;
   box-shadow: none;
   cursor: not-allowed;
+}
+
+/* ── 사운드 슬라이더 스타일 ── */
+#soundSettings input[type="range"],
+#pauseMenu input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(100, 100, 100, 0.5);
+  cursor: pointer;
+}
+
+/* MASTER 슬라이더 - 보라색 */
+#soundSettings #volMaster,
+#soundSettings #volMasterSlider,
+#pauseMenu #volMasterSlider {
+  accent-color: var(--echo);
+}
+
+#soundSettings #volMaster::-webkit-slider-runnable-track,
+#soundSettings #volMasterSlider::-webkit-slider-runnable-track,
+#pauseMenu #volMasterSlider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, var(--echo) 0%, var(--echo) var(--fill-percent, 35%), rgba(100, 100, 100, 0.5) var(--fill-percent, 35%), rgba(100, 100, 100, 0.5) 100%);
+  border-radius: 3px;
+}
+
+#soundSettings #volMaster::-webkit-slider-thumb,
+#soundSettings #volMasterSlider::-webkit-slider-thumb,
+#pauseMenu #volMasterSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--echo);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(123, 47, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-top: -4px;
+}
+
+#soundSettings #volMaster::-moz-range-track,
+#soundSettings #volMasterSlider::-moz-range-track,
+#pauseMenu #volMasterSlider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, var(--echo) 0%, var(--echo) var(--fill-percent, 35%), rgba(100, 100, 100, 0.5) var(--fill-percent, 35%), rgba(100, 100, 100, 0.5) 100%);
+  border-radius: 3px;
+}
+
+#soundSettings #volMaster::-moz-range-thumb,
+#soundSettings #volMasterSlider::-moz-range-thumb,
+#pauseMenu #volMasterSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--echo);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 8px rgba(123, 47, 255, 0.6);
+}
+
+/* SFX 슬라이더 - 시안색 */
+#soundSettings #volSfx,
+#soundSettings #volSfxSlider,
+#pauseMenu #volSfxSlider {
+  accent-color: var(--cyan);
+}
+
+#soundSettings #volSfx::-webkit-slider-runnable-track,
+#soundSettings #volSfxSlider::-webkit-slider-runnable-track,
+#pauseMenu #volSfxSlider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, var(--cyan) 0%, var(--cyan) var(--fill-percent, 70%), rgba(100, 100, 100, 0.5) var(--fill-percent, 70%), rgba(100, 100, 100, 0.5) 100%);
+  border-radius: 3px;
+}
+
+#soundSettings #volSfx::-webkit-slider-thumb,
+#soundSettings #volSfxSlider::-webkit-slider-thumb,
+#pauseMenu #volSfxSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--cyan);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-top: -4px;
+}
+
+#soundSettings #volSfx::-moz-range-track,
+#soundSettings #volSfxSlider::-moz-range-track,
+#pauseMenu #volSfxSlider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, var(--cyan) 0%, var(--cyan) var(--fill-percent, 70%), rgba(100, 100, 100, 0.5) var(--fill-percent, 70%), rgba(100, 100, 100, 0.5) 100%);
+  border-radius: 3px;
+}
+
+#soundSettings #volSfx::-moz-range-thumb,
+#soundSettings #volSfxSlider::-moz-range-thumb,
+#pauseMenu #volSfxSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--cyan);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+}
+
+/* AMBIENT 슬라이더 - 초록색 */
+#soundSettings #volAmbient,
+#soundSettings #volAmbientSlider,
+#pauseMenu #volAmbientSlider {
+  accent-color: #44ff88;
+}
+
+#soundSettings #volAmbient::-webkit-slider-runnable-track,
+#soundSettings #volAmbientSlider::-webkit-slider-runnable-track,
+#pauseMenu #volAmbientSlider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, #44ff88 0%, #44ff88 var(--fill-percent, 40%), rgba(100, 100, 100, 0.5) var(--fill-percent, 40%), rgba(100, 100, 100, 0.5) 100%);
+  border-radius: 3px;
+}
+
+#soundSettings #volAmbient::-webkit-slider-thumb,
+#soundSettings #volAmbientSlider::-webkit-slider-thumb,
+#pauseMenu #volAmbientSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #44ff88;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(68, 255, 136, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-top: -4px;
+}
+
+#soundSettings #volAmbient::-moz-range-track,
+#soundSettings #volAmbientSlider::-moz-range-track,
+#pauseMenu #volAmbientSlider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, #44ff88 0%, #44ff88 var(--fill-percent, 40%), rgba(100, 100, 100, 0.5) var(--fill-percent, 40%), rgba(100, 100, 100, 0.5) 100%);
+  border-radius: 3px;
+}
+
+#soundSettings #volAmbient::-moz-range-thumb,
+#soundSettings #volAmbientSlider::-moz-range-thumb,
+#pauseMenu #volAmbientSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #44ff88;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 8px rgba(68, 255, 136, 0.6);
 }

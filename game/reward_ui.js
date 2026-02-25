@@ -104,12 +104,19 @@ import { AudioEngine } from '../engine/audio.js';
               </div>
             </div>`;
           } else {
-            return `<div class="reward-card-wrapper" onclick="takeRewardRemove()" style="animation-delay:${idx * 0.08}s;">
+            // 소각 카드 - 덱이 비었을 경우 비활성화
+            const hasCards = gs.player.deck.length > 0;
+            const opacity = hasCards ? 1 : 0.4;
+            const filter = hasCards ? 'none' : 'grayscale(1)';
+            const tooltipAttr = hasCards ? `onmouseenter="showTooltip(event,'remove_card')" onmouseleave="hideTooltip()" onclick="hideTooltip()"` : '';
+
+            return `<div class="reward-card-wrapper ${hasCards ? '' : 'disabled'}" onclick="${hasCards ? 'takeRewardRemove();hideTooltip();' : ''}" style="animation-delay:${idx * 0.08}s; opacity:${opacity}; filter:${filter};" ${tooltipAttr}>
               <div class="card" style="width:170px;height:260px;padding-top:20px;padding-bottom:12px;border-color:#ff3366;">
                 <div class="card-icon" style="font-size:46px;">🔥</div>
                 <div class="card-name" style="font-size:16px;color:#ff3366;">스킬 소각</div>
                 <div class="card-desc" style="font-size:13px;flex:1;">덱에서 원하는 카드 1장을 영구히 제거합니다.</div>
-                <div class="card-type" style="font-size:11px;color:#ff3366);margin-top:auto;">특수 보상</div>
+                <div class="card-type" style="font-size:11px;color:#ff3366;margin-top:auto;">특수 보상</div>
+                ${!hasCards ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);border-radius:8px;font-size:10px;color:var(--text-dim);text-align:center;padding:10px;">덱에 카드가 없습니다</div>' : ''}
               </div>
             </div>`;
           }

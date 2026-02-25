@@ -1,4 +1,4 @@
-import { AudioEngine } from '../engine/audio.js';
+﻿import { AudioEngine } from '../engine/audio.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { ScreenShake } from '../engine/screenshake.js';
 import { HitStop } from '../engine/hitstop.js';
@@ -6,9 +6,10 @@ import { FovEngine } from '../engine/fov.js';
 import { DATA } from '../data/game_data.js';
 import { NODE_META } from './constants/node_meta.js';
 import { DifficultyScaler } from './difficulty_scaler.js';
+import { CardCostUtils } from './card_cost_utils.js';
 import { SetBonusSystem } from './set_bonus_system.js';
 import { SaveSystem } from './save_system.js';
-import { RunRules, getRegionData, getBaseRegionIndex, getRegionCount } from './run_rules.js';
+import { RunRules, getRegionData, getBaseRegionIndex, getRegionCount, finalizeRunOutcome } from './run_rules.js';
 import { RandomUtils } from './random_utils.js';
 
 import { TitleCanvasUI } from './title_canvas_ui.js';
@@ -51,24 +52,24 @@ import { MapNavigationUI } from './map_navigation_ui.js';
 import { MapUI } from './map_ui.js';
 import { GameBootUI } from './game_boot_ui.js';
 import { GameStateCoreMethods } from './game_state_core_methods.js';
+import { CardMethods } from './methods/card_methods.js';
+import { CombatMethods } from './methods/combat_methods.js';
+import { PlayerMethods } from './methods/player_methods.js';
 import { GS } from './game_state.js';
 
 
-// ═══════════════════════════════════════════════════════════
-//  ECHO OF THE FALLEN v2 — 완전 통합 코드베이스
-//  모든 Phase 1~4 기능을 단일 아키텍처로 통합
-//  훅 체인 제거 · 클린 FSM · 단일 게임 루프
-// ═══════════════════════════════════════════════════════════
-
-// ────────────────────────────────────────
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??//  ECHO OF THE FALLEN v2 ???꾩쟾 ?듯빀 肄붾뱶踰좎씠??//  紐⑤뱺 Phase 1~4 湲곕뒫???⑥씪 ?꾪궎?띿쿂濡??듯빀
+//  ??泥댁씤 ?쒓굅 쨌 ?대┛ FSM 쨌 ?⑥씪 寃뚯엫 猷⑦봽
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+// ????????????????????????????????????????
 // WEB AUDIO ENGINE
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 
-Object.assign(GS, GameStateCoreMethods || {});
+Object.assign(GS, GameStateCoreMethods || {}, CardMethods || {}, CombatMethods || {}, PlayerMethods || {});
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // GAME NAMESPACE & DI SYSTEM (Phase 3)
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 const GAME = {
   State: GS,
   Data: null,
@@ -98,6 +99,20 @@ const GAME = {
     if (moduleObj && moduleObj.api) {
       Object.assign(this.API, moduleObj.api);
     }
+  },
+
+  /**
+   * ?덉쟾?섍쾶 API ?⑥닔瑜??몄텧?⑸땲?? (Phase 4 媛쒖꽑???곸슜)
+   * @param {string} methodName 
+   * @param  {...any} args 
+   */
+  call(methodName, ...args) {
+    const fn = this.API[methodName];
+    if (typeof fn === 'function') {
+      return fn(...args);
+    }
+    console.warn(`[GAME] API Method not found: ${methodName}`);
+    return null;
   },
 
   require(moduleName) {
@@ -133,12 +148,49 @@ const GAME = {
   }
 };
 
+// ────────────────────────────────────────
+// GAME EXIT LOGIC
+// ────────────────────────────────────────
+function quitGame() {
+  if (confirm('정말로 게임을 종료하시겠습니까?')) {
+    // 방법 1: window.close()
+    window.close();
+
+    // 방법 2: 브라우저 정책상 window.close() 가 작동하지 않을 경우 대안
+    setTimeout(() => {
+      alert('브라우저 정책상 window.close() 가 작동하지 않을 수 있습니다. 창을 직접 닫아주세요.');
+    }, 500);
+  }
+}
+window.quitGame = quitGame;
+
 GAME.init(window);
 
-// ────────────────────────────────────────
+// Register Core UI/Logic Modules
+GAME.register('EventUI', EventUI);
+GAME.register('CombatUI', CombatUI);
+GAME.register('HudUpdateUI', HudUpdateUI);
+GAME.register('MazeSystem', MazeSystem);
+GAME.register('StoryUI', StoryUI);
+GAME.register('CodexUI', CodexUI);
+GAME.register('RunModeUI', RunModeUI);
+GAME.register('MetaProgressionUI', MetaProgressionUI);
+GAME.register('HelpPauseUI', HelpPauseUI);
+GAME.register('TooltipUI', TooltipUI);   // Added
+GAME.register('FeedbackUI', FeedbackUI); // Added
+GAME.register('ScreenUI', ScreenUI);     // Added
+GAME.register('RunSetupUI', RunSetupUI); // Added
+GAME.register('RunStartUI', RunStartUI); // Added
+
+// Register some legacy global dependencies that can't be easily modularized yet
+GAME.API.updateCombatLog = () => updateCombatLog();
+GAME.API.updateUI = () => updateUI();
+GAME.API.showWorldMemoryNotice = (txt) => showWorldMemoryNotice(txt);
+
+// ????????????????????????????????????????
 // LEGACY COMPATIBILITY WRAPPERS
 // (To be phased out by routing through GAME.API directly)
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 const _baseDeps = () => GAME.getDeps();
 
 function _getStoryDeps() {
@@ -171,23 +223,23 @@ const StorySystem = {
   },
 };
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // CLASS MECHANICS
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function _getClassMechanics() {
   return ClassMechanics || {};
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // CANVAS SETUP
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 let gameCanvas, gameCtx;
 let minimapCanvas, minimapCtx;
-let combatCanvas; // 파티클용
+let combatCanvas; // ?뚰떚?댁슜
 
-// ────────────────────────────────────────
-// MAZE SYSTEM — 독립 풀스크린 오버레이
-// ────────────────────────────────────────
+// ????????????????????????????????????????
+// MAZE SYSTEM ???낅┰ ??ㅽ겕由??ㅻ쾭?덉씠
+// ????????????????????????????????????????
 
 MazeSystem?.configure?.({
   gs: GS,
@@ -229,9 +281,9 @@ function resizeGameCanvas() {
   _applyGameCanvasRefs(GameCanvasSetupUI?.getRefs?.());
 }
 
-// ────────────────────────────────────────
-// GAME LOOP — 단일 통합 루프
-// ────────────────────────────────────────
+// ????????????????????????????????????????
+// GAME LOOP ???⑥씪 ?듯빀 猷⑦봽
+// ????????????????????????????????????????
 function gameLoop(timestamp) {
   const deps = GAME.getDeps();
   deps.refs = { gameCanvas, gameCtx };
@@ -271,12 +323,12 @@ function renderNodeInfo(ctx, w, h) {
 }
 
 
-// ── 지역/층별 상태 문구 헬퍼 ──
+// ?? 吏??痢듬퀎 ?곹깭 臾멸뎄 ?ы띁 ??
 function getFloorStatusText(regionId, floor) {
   return WorldCanvasUI?.getFloorStatusText?.(regionId, floor, _getWorldCanvasDeps()) || '';
 }
 
-// 캔버스 텍스트 줄바꿈 헬퍼
+// 罹붾쾭???띿뒪??以꾨컮轅??ы띁
 function wrapCanvasText(ctx, text, x, y, maxW, lineH) {
   WorldCanvasUI?.wrapCanvasText?.(ctx, text, x, y, maxW, lineH);
 }
@@ -289,9 +341,9 @@ function roundRectTop(ctx, x, y, w, h, r) {
   WorldCanvasUI?.roundRectTop?.(ctx, x, y, w, h, r);
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // MAP SYSTEM
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function generateMap(regionIdx) {
   const deps = GAME.getDeps();
   deps.updateNextNodes = updateNextNodes;
@@ -349,9 +401,9 @@ function moveToNode(node) {
   MapNavigationUI?.moveToNode?.(node, deps);
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // COMBAT SYSTEM
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function startCombat(isBoss = false) {
   const deps = GAME.getDeps();
   deps.showWorldMemoryNotice = showWorldMemoryNotice;
@@ -368,8 +420,8 @@ function startCombat(isBoss = false) {
   CombatStartUI?.startCombat?.(isBoss, deps);
 }
 
-// Echo 스킬 툴팁
-// ── HUD 핀/언핀 토글 ──
+// Echo ?ㅽ궗 ?댄똻
+// ?? HUD ?/?명? ?좉? ??
 function toggleHudPin() {
   CombatHudUI?.toggleHudPin?.(GAME.getDeps());
 }
@@ -382,7 +434,7 @@ function hideEchoSkillTooltip() {
   CombatHudUI?.hideEchoSkillTooltip?.(GAME.getDeps());
 }
 
-// 턴 전환 중앙 배너
+// ???꾪솚 以묒븰 諛곕꼫
 function showTurnBanner(type) {
   CombatHudUI?.showTurnBanner?.(type, GAME.getDeps());
 }
@@ -405,16 +457,20 @@ function hideIntentTooltip() {
 
 window.showIntentTooltip = showIntentTooltip;
 window.hideIntentTooltip = hideIntentTooltip;
+window.showEnemyStatusTooltip = function(event, statusKey) { CombatUI?.showEnemyStatusTooltip?.(event, statusKey, GAME.getDeps()); };
+window.hideEnemyStatusTooltip = function() { CombatUI?.hideEnemyStatusTooltip?.(GAME.getDeps()); };
 
-function renderCombatEnemies() {
+function renderCombatEnemies(forceFullRender = false) {
   const deps = GAME.getDeps();
   deps.selectTargetHandlerName = 'selectTarget';
   deps.showIntentTooltipHandlerName = 'showIntentTooltip';
   deps.hideIntentTooltipHandlerName = 'hideIntentTooltip';
+  deps.forceFullRender = forceFullRender;
   CombatUI?.renderCombatEnemies?.(deps);
 }
+window.renderCombatEnemies = renderCombatEnemies;
 
-// 단일 적 HP만 빠르게 갱신 (공격 직후 호출용)
+// ?⑥씪 ??HP留?鍮좊Ⅴ寃?媛깆떊 (怨듦꺽 吏곹썑 ?몄텧??
 function updateEnemyHpUI(idx, enemy) {
   const deps = GAME.getDeps();
   deps.selectTargetHandlerName = 'selectTarget';
@@ -422,7 +478,7 @@ function updateEnemyHpUI(idx, enemy) {
   deps.hideIntentTooltipHandlerName = 'hideIntentTooltip';
   CombatUI?.updateEnemyHpUI?.(idx, enemy, deps);
 }
-
+window.updateEnemyHpUI = updateEnemyHpUI;
 function getCardTypeClass(type) {
   return CardUI?.getCardTypeClass?.(type) || '';
 }
@@ -432,12 +488,12 @@ function getCardTypeLabelClass(type) {
 
 function _baseCardDeps() {
   const deps = GAME.getDeps();
-  deps.playCardHandlerName = 'GS.playCard';
-  deps.renderCombatCardsHandlerName = 'renderCombatCards';
-  deps.dragStartHandlerName = 'handleCardDragStart';
-  deps.dragEndHandlerName = 'handleCardDragEnd';
-  deps.showTooltipHandlerName = 'showTooltip';
-  deps.hideTooltipHandlerName = 'hideTooltip';
+  deps.playCardHandler = GS?.playCard?.bind(GS);
+  deps.renderCombatCardsHandler = renderCombatCards;
+  deps.dragStartHandler = handleCardDragStart;
+  deps.dragEndHandler = handleCardDragEnd;
+  deps.showTooltipHandler = showTooltip;
+  deps.hideTooltipHandler = hideTooltip;
   return deps;
 }
 
@@ -519,9 +575,9 @@ function handleEnemyEffect(effect, enemy, idx) {
   CombatTurnUI?.handleEnemyEffect?.(effect, enemy, idx, _getCombatTurnBaseDeps());
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // EVENT SYSTEM
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function _getEventDeps() {
   return {
     ..._baseDeps(),
@@ -578,6 +634,7 @@ function _getRewardDeps() {
 function showRewardScreen(isBoss) {
   RewardUI?.showRewardScreen?.(isBoss, _getRewardDeps());
 }
+window.showRewardScreen = showRewardScreen;
 
 function takeRewardCard(cardId) {
   RewardUI?.takeRewardCard?.(cardId, _getRewardDeps());
@@ -586,6 +643,17 @@ function takeRewardCard(cardId) {
 function takeRewardItem(itemKey) {
   RewardUI?.takeRewardItem?.(itemKey, _getRewardDeps());
 }
+window.takeRewardItem = takeRewardItem;
+
+function takeRewardUpgrade() {
+  RewardUI?.takeRewardUpgrade?.(_getRewardDeps());
+}
+window.takeRewardUpgrade = takeRewardUpgrade;
+
+function takeRewardRemove() {
+  RewardUI?.takeRewardRemove?.(_getRewardDeps());
+}
+window.takeRewardRemove = takeRewardRemove;
 
 function showSkipConfirm() {
   RewardUI?.showSkipConfirm?.(_getRewardDeps());
@@ -607,6 +675,7 @@ function _getRunReturnDeps() {
     switchScreen,
     updateUI,
     updateNextNodes,
+    renderMinimap,
     advanceToNextRegion,
     finalizeRunOutcome,
     storySystem: StorySystem,
@@ -617,10 +686,10 @@ function returnToGame(fromReward) {
   RunReturnUI?.returnToGame?.(fromReward, _getRunReturnDeps());
 }
 
-// ────────────────────────────────────────
-// UI SYSTEM — 단일 통합 updateUI (배치 처리)
-// ────────────────────────────────────────
-let _gameStarted = false; // 게임 시작 전에는 즉시 실행
+// ????????????????????????????????????????
+// UI SYSTEM ???⑥씪 ?듯빀 updateUI (諛곗튂 泥섎━)
+// ????????????????????????????????????????
+let _gameStarted = false; // 寃뚯엫 ?쒖옉 ?꾩뿉??利됱떆 ?ㅽ뻾
 function _getHudUpdateDeps() {
   return {
     ..._baseDeps(),
@@ -671,13 +740,23 @@ function updateStatusDisplay() {
   });
 }
 
-// ── 전투 정보 사이드 패널 ──
+// ?? ?꾪닾 ?뺣낫 ?ъ씠???⑤꼸 ??
 function toggleCombatInfo() {
   CombatInfoUI?.toggle?.(_getCombatInfoDeps());
 }
 
 function _refreshCombatInfoPanel() {
   CombatInfoUI?.refresh?.(_getCombatInfoDeps());
+}
+
+function _getCombatHudDeps() {
+  return {
+    ..._baseDeps(),
+    updateChainUI,
+    updateNoiseWidget,
+    updateClassSpecialUI,
+    updateUI,
+  };
 }
 
 function updateChainUI(chain) {
@@ -701,9 +780,9 @@ function setText(id, val) {
   DomValueUI?.setText?.(id, val, { doc: document });
 }
 
-// ────────────────────────────────────────
-// 카드 드래그 앤 드롭
-// ────────────────────────────────────────
+// ????????????????????????????????????????
+// 移대뱶 ?쒕옒洹????쒕∼
+// ????????????????????????????????????????
 function _getCardTargetDeps() {
   return {
     ..._baseDeps(),
@@ -723,7 +802,7 @@ function handleCardDropOnEnemy(event, enemyIdx) {
   CardTargetUI?.handleDropOnEnemy?.(event, enemyIdx, _getCardTargetDeps());
 }
 
-// 적 카드 클릭 → 타겟 지정 (같은 적 다시 클릭하면 해제)
+// ??移대뱶 ?대┃ ???寃?吏??(媛숈? ???ㅼ떆 ?대┃?섎㈃ ?댁젣)
 function selectTarget(idx) {
   CardTargetUI?.selectTarget?.(idx, _getCardTargetDeps());
 }
@@ -775,9 +854,9 @@ function _renderDeckModal() {
   DeckModalUI?.renderDeckModal?.(_getDeckModalDeps());
 }
 
-// ────────────────────────────────────────
-// CODEX SYSTEM — 도감
-// ────────────────────────────────────────
+// ????????????????????????????????????????
+// CODEX SYSTEM ???꾧컧
+// ????????????????????????????????????????
 function _getCodexDeps() {
   return {
     ..._baseDeps(),
@@ -815,7 +894,7 @@ function _getTooltipDeps() {
   };
 }
 
-// ── 카드 툴팁 ──
+// ?? 移대뱶 ?댄똻 ??
 function showTooltip(event, cardId) {
   TooltipUI?.showTooltip?.(event, cardId, _getTooltipDeps());
 }
@@ -824,12 +903,12 @@ function hideTooltip() {
   TooltipUI?.hideTooltip?.(_getTooltipDeps());
 }
 
-// 전투 카드에 툴팁 연결 (렌더 후 호출)
+// ?꾪닾 移대뱶???댄똻 ?곌껐 (?뚮뜑 ???몄텧)
 function attachCardTooltips() {
   TooltipUI?.attachCardTooltips?.(_getTooltipDeps());
 }
 
-// ── 아이템 툴팁 ──
+// ?? ?꾩씠???댄똻 ??
 function showItemTooltip(event, itemId) {
   TooltipUI?.showItemTooltip?.(event, itemId, _getTooltipDeps());
 }
@@ -837,11 +916,19 @@ function hideItemTooltip() {
   TooltipUI?.hideItemTooltip?.(_getTooltipDeps());
 }
 
+// ?? ?쇰컲 ?댄똻 (?대옒???뱀꽦 ?? ??
+function showGeneralTooltip(event, title, content) {
+  TooltipUI?.showGeneralTooltip?.(event, title, content, _getTooltipDeps());
+}
+function hideGeneralTooltip() {
+  TooltipUI?.hideGeneralTooltip?.(_getTooltipDeps());
+}
+
 function showItemToast(item) {
   FeedbackUI?.showItemToast?.(item, _getFeedbackDeps());
 }
 
-// ── 전설 아이템 획득 풀스크린 연출 ──
+// ?? ?꾩꽕 ?꾩씠???띾뱷 ??ㅽ겕由??곗텧 ??
 function showLegendaryAcquire(item) {
   FeedbackUI?.showLegendaryAcquire?.(item, _getFeedbackDeps());
 }
@@ -857,9 +944,9 @@ function _flushNoticeQueue() {
   FeedbackUI?._flushNoticeQueue?.(_getFeedbackDeps());
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // SCREEN FSM
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function _getScreenDeps() {
   return {
     ..._baseDeps(),
@@ -873,9 +960,9 @@ function switchScreen(screen) {
   ScreenUI?.switchScreen?.(screen, _getScreenDeps());
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // TITLE SCREEN / NAVIGATION
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function showCharacterSelect() {
   const main = document.getElementById('mainTitleSubScreen');
   const char = document.getElementById('charSelectSubScreen');
@@ -903,7 +990,11 @@ function closeRunSettings() {
 }
 
 function openCodexFromTitle() {
-  CodexUI.openCodex({ gs: GS, data: DATA });
+  if (window.CodexUI) {
+    window.CodexUI.openCodex({ gs: GS, data: DATA });
+  } else {
+    console.error('[openCodexFromTitle] CodexUI is not defined');
+  }
 }
 
 function _getClassSelectDeps() {
@@ -1021,9 +1112,9 @@ function selectFragment(effect) {
   MetaProgressionUI?.selectFragment?.(effect, _getMetaProgressionDeps());
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // REGION ADVANCE
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function _getRegionTransitionDeps() {
   return {
     ..._baseDeps(),
@@ -1043,9 +1134,9 @@ function advanceToNextRegion() {
   RegionTransitionUI?.advanceToNextRegion?.(_getRegionTransitionDeps());
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // HELP / PAUSE UI + HOTKEYS
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function _getHelpPauseDeps() {
   return {
     ..._baseDeps(),
@@ -1056,31 +1147,24 @@ function _getHelpPauseDeps() {
     renderCombatEnemies,
     finalizeRunOutcome,
     switchScreen,
+    returnToGame,
   };
 }
 
 function toggleHelp() {
-  if (HelpPauseUI?.toggleHelp) {
-    HelpPauseUI.toggleHelp(_getHelpPauseDeps());
-  }
+  HelpPauseUI?.toggleHelp?.(_getHelpPauseDeps());
 }
 
 function abandonRun() {
-  if (HelpPauseUI?.abandonRun) {
-    HelpPauseUI.abandonRun(_getHelpPauseDeps());
-  }
+  HelpPauseUI?.abandonRun?.(_getHelpPauseDeps());
 }
 
 function confirmAbandon() {
-  if (HelpPauseUI?.confirmAbandon) {
-    HelpPauseUI.confirmAbandon(_getHelpPauseDeps());
-  }
+  HelpPauseUI?.confirmAbandon?.(_getHelpPauseDeps());
 }
 
 function togglePause() {
-  if (HelpPauseUI?.togglePause) {
-    HelpPauseUI.togglePause(_getHelpPauseDeps());
-  }
+  HelpPauseUI?.togglePause?.(_getHelpPauseDeps());
 }
 
 function _initHelpPauseUI() {
@@ -1091,9 +1175,9 @@ function _initHelpPauseUI() {
 }
 
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // UTILITIES
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function shuffleArray(arr) {
   return RandomUtils?.shuffleArray?.(arr) || arr;
 }
@@ -1102,9 +1186,9 @@ function restartFromEnding() {
   MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionDeps());
 }
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // GLOBAL EXPORTS
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 window.GameState = GS;
 window.selectClass = selectClass;
 window.startGame = startGame;
@@ -1139,32 +1223,50 @@ window.openCodex = openCodex;
 window.closeCodex = closeCodex;
 window.setCodexTab = setCodexTab;
 
-// ── 사운드 설정 핸들러 ──
+// ?? ?ъ슫???ㅼ젙 ?몃뱾????
 window.setMasterVolume = function (v) {
   const val = Math.max(0, Math.min(100, parseInt(v) || 0));
   AudioEngine.setVolume(val / 100);
-  const el = document.getElementById('volMasterVal');
-  if (el) el.textContent = val + '%';
+  // 紐⑤뱺 Master 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃
+  document.querySelectorAll('#volMasterVal').forEach(el => {
+    if (el) el.textContent = val + '%';
+  });
+  // ?щ씪?대뜑 ?몃옓 ?됱긽 ?낅뜲?댄듃
+  document.querySelectorAll('#volMasterSlider, #volMaster').forEach(el => {
+    if (el) el.style.setProperty('--fill-percent', val + '%');
+  });
   _saveVolumes();
 };
 window.setSfxVolume = function (v) {
   const val = Math.max(0, Math.min(100, parseInt(v) || 0));
   AudioEngine.setSfxVolume(val / 100);
-  const el = document.getElementById('volSfxVal');
-  if (el) el.textContent = val + '%';
+  // 紐⑤뱺 SFX 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃
+  document.querySelectorAll('#volSfxVal').forEach(el => {
+    if (el) el.textContent = val + '%';
+  });
+  // ?щ씪?대뜑 ?몃옓 ?됱긽 ?낅뜲?댄듃
+  document.querySelectorAll('#volSfxSlider, #volSfx').forEach(el => {
+    if (el) el.style.setProperty('--fill-percent', val + '%');
+  });
   _saveVolumes();
 };
 window.setAmbientVolume = function (v) {
   const val = Math.max(0, Math.min(100, parseInt(v) || 0));
   AudioEngine.setAmbientVolume(val / 100);
-  const el = document.getElementById('volAmbientVal');
-  if (el) el.textContent = val + '%';
+  // 紐⑤뱺 Ambient 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃
+  document.querySelectorAll('#volAmbientVal').forEach(el => {
+    if (el) el.textContent = val + '%';
+  });
+  // ?щ씪?대뜑 ?몃옓 ?됱긽 ?낅뜲?댄듃
+  document.querySelectorAll('#volAmbientSlider, #volAmbient').forEach(el => {
+    if (el) el.style.setProperty('--fill-percent', val + '%');
+  });
   _saveVolumes();
 };
 
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 // AUTOSAVE SYSTEM & SETTINGS
-// ────────────────────────────────────────
+// ????????????????????????????????????????
 function _saveVolumes() {
   const vol = AudioEngine.getVolumes();
   localStorage.setItem('eotf_settings', JSON.stringify({ volumes: vol }));
@@ -1190,19 +1292,18 @@ function _syncVolumeUI() {
   const s = Math.round(vol.sfx * 100);
   const a = Math.round(vol.ambient * 100);
   const doc = document;
-  const volM = doc.getElementById('volMasterVal');
-  const volS = doc.getElementById('volSfxVal');
-  const volA = doc.getElementById('volAmbientVal');
-  if (volM) volM.textContent = m + '%';
-  if (volS) volS.textContent = s + '%';
-  if (volA) volA.textContent = a + '%';
-  const d = document;
-  const mSl = d.getElementById('volMasterSlider');
-  const sSl = d.getElementById('volSfxSlider');
-  const aSl = d.getElementById('volAmbientSlider');
-  if (mSl) mSl.value = m;
-  if (sSl) sSl.value = s;
-  if (aSl) aSl.value = a;
+  // 紐⑤뱺 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃 (?ъ슫???ㅼ젙 + ?쇱떆?뺤? 硫붾돱)
+  doc.querySelectorAll('#volMasterVal').forEach(el => el.textContent = m + '%');
+  doc.querySelectorAll('#volSfxVal').forEach(el => el.textContent = s + '%');
+  doc.querySelectorAll('#volAmbientVal').forEach(el => el.textContent = a + '%');
+  // 紐⑤뱺 ?щ씪?대뜑 媛??낅뜲?댄듃
+  doc.querySelectorAll('#volMasterSlider').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
+  doc.querySelectorAll('#volSfxSlider').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
+  doc.querySelectorAll('#volAmbientSlider').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
+  // ?ъ슫???ㅼ젙 ?щ씪?대뜑???낅뜲?댄듃
+  doc.querySelectorAll('#volMaster').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
+  doc.querySelectorAll('#volSfx').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
+  doc.querySelectorAll('#volAmbient').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
 }
 
 // SaveSystem is provided by game/save_system.js.
@@ -1226,7 +1327,7 @@ function _bootGame() {
   GameBootUI?.bootGame?.(_getGameBootDeps());
 }
 
-// ── 외부용 싱크 함수 노출 ──
+// ?? ?몃????깊겕 ?⑥닔 ?몄텧 ??
 window._syncVolumeUI = _syncVolumeUI;
 window.GS = GS;
 window.GameState = GS;
@@ -1253,6 +1354,8 @@ window.drawCard = drawCard;
 window.endPlayerTurn = endPlayerTurn;
 window.showEchoSkillTooltip = showEchoSkillTooltip;
 window.hideEchoSkillTooltip = hideEchoSkillTooltip;
+window.showTooltip = showTooltip;
+window.hideTooltip = hideTooltip;
 
 window.skipReward = skipReward;
 window.showSkipConfirm = showSkipConfirm;
@@ -1264,10 +1367,26 @@ window.setCodexTab = setCodexTab;
 window.closeCodex = closeCodex;
 window.toggleHudPin = toggleHudPin;
 window.showFullMap = showFullMap;
+window.getRegionData = getRegionData;
+window.togglePause = togglePause;
+window.toggleHelp = toggleHelp;
+window.abandonRun = abandonRun;
+window.confirmAbandon = confirmAbandon;
+window.CardCostUtils = CardCostUtils;
+window.ClassMechanics = ClassMechanics;
+window.CodexUI = CodexUI;
+window.openCodex = openCodex;
+window.closeCodex = closeCodex;
+window.setCodexTab = setCodexTab;
+window.TooltipUI = TooltipUI;
+window.showGeneralTooltip = showGeneralTooltip;
+window.hideGeneralTooltip = hideGeneralTooltip;
+window.renderCombatCards = renderCombatCards;
 
-// ── 최종적으로 게임 엔진 기동 ──
+// ?? 理쒖쥌?곸쑝濡?寃뚯엫 ?붿쭊 湲곕룞 ??
 try {
   _bootGame();
 } catch (e) {
   console.error("Critical Boot Error:", e);
 }
+

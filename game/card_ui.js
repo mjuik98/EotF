@@ -61,7 +61,8 @@ import { DescriptionUtils } from './description_utils.js';
         const rarityClass = `rarity-${card.rarity || 'common'}`;
 
         const { displayCost: cost, isFree } = window.CardCostUtils.getCostDisplay(cardId, card, gs.player);
-        const canPlay = gs.player.energy >= cost;
+        const effectiveCost = window.CardCostUtils.calcEffectiveCost(cardId, card, gs.player);
+        const canPlay = gs.player.energy >= effectiveCost;
         const disc = gs.player.costDiscount || 0;
         const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player);
         const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player);
@@ -79,14 +80,32 @@ import { DescriptionUtils } from './description_utils.js';
         el.style.cssText = `width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;`;
         el.draggable = true;
 
-        if (playCardHandler) el.addEventListener('click', () => playCardHandler(cardId, i));
+        // 클릭 이벤트 - 카드 사용
+        if (playCardHandler) {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playCardHandler(cardId, i);
+          });
+        }
+
+        // 드래그 이벤트
         if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
         if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
-        if (showTooltipHandler) el.addEventListener('mouseenter', (e) => showTooltipHandler(e, cardId));
+
+        // 툴팁 이벤트
+        if (showTooltipHandler) {
+          el.addEventListener('mouseenter', (e) => {
+            e.stopPropagation();
+            showTooltipHandler(e, cardId);
+          });
+        }
         if (hideTooltipHandler) el.addEventListener('mouseleave', () => hideTooltipHandler());
 
+        // 단축키 표시 (1-5 번 카드만)
+        const hotkeyHtml = i < 5 ? `<div class="card-hotkey ${canPlay ? '' : 'disabled'}">${i + 1}</div>` : '';
+
         el.innerHTML = `
-            ${i < 5 ? `<div class="card-hotkey ${canPlay ? '' : 'disabled'}">${i + 1}</div>` : ''}
+            ${hotkeyHtml}
             <div class="card-cost" style="${!canPlay ? 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);' : (isCascadeFree || isChargeFree) && card.cost > 0 ? 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;' : disc > 0 && card.cost > 0 ? 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;' : ''}">${cost}${(isCascadeFree || isChargeFree) && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;">FREE</span>` : disc > 0 && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;">-${Math.min(disc, card.cost)}</span>` : ''}</div>
             <div class="card-icon" style="${cardScale < 1 ? `font-size:${Math.round(40 * cardScale)}px;` : 'font-size:40px;'}">
               ${card.icon}

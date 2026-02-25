@@ -1,4 +1,7 @@
 ﻿import { GS } from '../game/game_state.js';
+import { Trigger } from '../game/constants/triggers.js';
+import { CONSTANTS } from '../game/constants/constants.js';
+import { AudioEngine } from '../engine/audio.js';
 
 export const DATA = {
   // 에셋 경로 정의

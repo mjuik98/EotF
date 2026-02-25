@@ -1,4 +1,5 @@
 import { CONSTANTS } from './constants/constants.js';
+import { Trigger } from './constants/triggers.js';
 import { GS } from './game_state.js';
 
 
@@ -25,10 +26,14 @@ import { GS } from './game_state.js';
         return;
       }
 
+      console.log('[EchoSkill] Before drain - echo:', echoVal, 'cost:', cost);
       gs.drainEcho(cost);
+      console.log('[EchoSkill] After drain - echo:', gs.player.echo);
+
       gs.triggerItems?.(Trigger.ECHO_SKILL, { cost });
 
-      const skillDef = window.CONSTANTS.ECHO_SKILLS[cls]?.[tier];
+      const cls = gs.player.class;
+      const skillDef = CONSTANTS.ECHO_SKILLS[cls]?.[tier];
       if (skillDef) {
         if (skillDef.dmg) gs.dealDamage(skillDef.dmg);
         if (skillDef.aoedmg) gs.dealDamageAll(skillDef.aoedmg);

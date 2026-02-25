@@ -1,4 +1,7 @@
+import { GameStateCoreMethods } from './game_state_core_methods.js';
+
 export const GS = {
+    // ... existing properties
     currentScreen: 'title',
     meta: {
         runCount: 1, totalKills: 0, bestChain: 0, echoFragments: 0,
@@ -28,3 +31,6 @@ export const GS = {
     stats: { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 },
     _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
 };
+
+// Merge business logic methods
+Object.assign(GS, GameStateCoreMethods);

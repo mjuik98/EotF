@@ -30,36 +30,48 @@ function _getDoc(deps) {
         nodeOverlay.style.pointerEvents = 'none';
       }
 
+      // rewardScreen 비활성화
+      doc.getElementById('rewardScreen')?.classList.remove('active');
+
       if (fromReward && wasBoss) {
         if (wasLastRegion) {
           if (!endlessRun) {
             if (typeof deps.finalizeRunOutcome === 'function') {
               deps.finalizeRunOutcome('victory', { echoFragments: 5 });
             }
-            doc.getElementById('rewardScreen')?.classList.remove('active');
             if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
             else deps.storySystem?.showNormalEnding?.();
             return;
           }
 
+          // 무한 모드: 다음 지역로 이동
           if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
           if (typeof deps.updateUI === 'function') deps.updateUI();
+          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
           setTimeout(() => {
             if (typeof deps.advanceToNextRegion === 'function') deps.advanceToNextRegion();
           }, 300);
           return;
         }
 
+        // 보스 처치 후 다음 지역로 이동
         if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
         if (typeof deps.updateUI === 'function') deps.updateUI();
+        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
         setTimeout(() => {
           if (typeof deps.advanceToNextRegion === 'function') deps.advanceToNextRegion();
         }, 300);
         return;
       }
 
+      // 일반 전투 승리 후 맵 화면으로 복귀
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       if (typeof deps.updateUI === 'function') deps.updateUI();
       if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
+      // 미니맵 렌더링以确保 노드 선택 가능
+      if (typeof deps.renderMinimap === 'function') {
+        setTimeout(() => deps.renderMinimap(), 50);
+      }
     },
   };

@@ -7,7 +7,8 @@ function _getDoc(deps) {
 }
 
 function _isInGame(gs) {
-  return gs?.currentScreen === 'game';
+  // game 화면이거나 combat 활성 상태이면 인게임으로 간주
+  return gs?.currentScreen === 'game' || gs?.combat?.active === true;
 }
 
 export const HelpPauseUI = {
@@ -141,7 +142,7 @@ export const HelpPauseUI = {
   },
 
   togglePause(deps = {}) {
-    const gs = deps.gs;
+    const gs = deps.gs || window.GS;
     if (!gs) return;
 
     const doc = _getDoc(deps);
@@ -163,23 +164,24 @@ export const HelpPauseUI = {
             <button onclick="toggleHelp();togglePause();" style="font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.3);border-radius:8px;padding:16px;cursor:pointer;">단축키 안내 (?)</button>
             <button onclick="abandonRun()" style="font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.3);border-radius:8px;padding:16px;cursor:pointer;">⚠ 런 포기</button>
             <button onclick="location.reload()" style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;cursor:pointer;">처음으로</button>
+            <button onclick="quitGame()" style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.05);border:1px solid rgba(255,51,102,0.2);border-radius:8px;padding:14px;cursor:pointer;margin-top:4px;">게임 종료</button>
           </div>
           <div style="display:flex;flex-direction:column;gap:16px;margin-top:12px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;width:280px;">
             <div style="display:flex;align-items:center;gap:15px;">
               <span style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;">마스터</span>
-              <input type="range" id="volMasterSlider" min="0" max="100" style="flex:1;accent-color:var(--echo);background:rgba(255,255,255,0.05);"
+              <input type="range" id="volMasterSlider" min="0" max="100"
                 oninput="setMasterVolume(this.value)">
               <span id="volMasterVal" style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;">35%</span>
             </div>
             <div style="display:flex;align-items:center;gap:15px;">
               <span style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;">SFX</span>
-              <input type="range" id="volSfxSlider" min="0" max="100" style="flex:1;accent-color:var(--echo);background:rgba(255,255,255,0.05);"
+              <input type="range" id="volSfxSlider" min="0" max="100"
                 oninput="setSfxVolume(this.value)">
               <span id="volSfxVal" style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;">70%</span>
             </div>
             <div style="display:flex;align-items:center;gap:15px;">
               <span style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;">BGM</span>
-              <input type="range" id="volAmbientSlider" min="0" max="100" style="flex:1;accent-color:var(--echo);background:rgba(255,255,255,0.05);"
+              <input type="range" id="volAmbientSlider" min="0" max="100"
                 oninput="setAmbientVolume(this.value)">
               <span id="volAmbientVal" style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;">40%</span>
             </div>
@@ -192,27 +194,92 @@ export const HelpPauseUI = {
       doc.body.appendChild(menu);
       if (typeof window._syncVolumeUI === 'function') window._syncVolumeUI();
     } else {
-      menu?.remove();
+      // 메뉴 제거
+      if (menu) menu.remove();
     }
   },
 
   bindGlobalHotkeys(deps = {}) {
-    const gs = deps.gs;
-    if (!gs || _hotkeysBound) return;
     const doc = _getDoc(deps);
+
+    console.log('[bindGlobalHotkeys] _hotkeysBound:', _hotkeysBound);
+
+    // 이미 바인딩된 경우 중복 방지
+    if (_hotkeysBound) {
+      console.log('[bindGlobalHotkeys] Already bound, skipping');
+      return;
+    }
+    _hotkeysBound = true;
+
     const self = this;
 
+    console.log('[bindGlobalHotkeys] Binding ESC key listener');
+
     doc.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && _isInGame(gs)) {
-        self.togglePause(deps);
+      // window.GS 를 직접 참조하여 최신 상태 사용
+      const gs = window.GS;
+
+      // ESC: 일시정지 또는 모달 닫기
+      if (e.key === 'Escape') {
+        console.log('[ESC Key] currentScreen:', gs?.currentScreen, 'combat.active:', gs?.combat?.active, 'pauseOpen:', _pauseOpen);
+        const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true;
+        const isTitle = gs?.currentScreen === 'title';
+
+        // 도감 또는 덱 모달이 열려있으면 닫기
+        const deckModal = document.getElementById('deckViewModal');
+        const codexModal = document.getElementById('codexModal');
+        const runSettingsModal = document.getElementById('runSettingsModal');
+
+        // 덱 모달 확인 (classList.active 사용)
+        if (deckModal && deckModal.classList.contains('active')) {
+          console.log('[ESC Key] Close deck modal');
+          if (typeof window.closeDeckView === 'function') window.closeDeckView();
+          return;
+        }
+
+        // 도감 모달 확인 (style.display 사용)
+        if (codexModal && codexModal.style.display === 'block') {
+          console.log('[ESC Key] Close codex modal');
+          if (typeof window.closeCodex === 'function') window.closeCodex();
+          return;
+        }
+
+        // 런 세팅 모달 확인
+        if (runSettingsModal && runSettingsModal.style.display !== 'none') {
+          console.log('[ESC Key] Close run settings modal');
+          if (typeof window.closeRunSettings === 'function') window.closeRunSettings();
+          return;
+        }
+
+        // combat 중이거나 game 화면이면 무조건 일시정지
+        if (isInGame && !self.isHelpOpen()) {
+          console.log('[ESC Key] Toggle pause');
+          self.togglePause(deps);
+          return;
+        }
+
+        // 타이틀 화면에서는 아무것도 안 함 (이미 메뉴가 있음)
+        if (isTitle) {
+          console.log('[ESC Key] Title screen - ignored');
+          return;
+        }
+
+        // reward 화면에서는 ESC 무시 (명시적 선택 필요)
+        if (gs?.currentScreen === 'reward') {
+          console.log('[ESC Key] Reward screen - ignored (explicit selection required)');
+          return;
+        }
+        console.log('[ESC Key] Ignored - not in game or help open');
       }
 
-      if ((e.key === '?' || e.key === '/') && _isInGame(gs)) {
+      const isInGame = window.GS?.currentScreen === 'game' || window.GS?.combat?.active === true;
+
+      if ((e.key === '?' || e.key === '/') && isInGame) {
         e.preventDefault();
         self.toggleHelp(deps);
       }
 
-      if ((e.key === 'd' || e.key === 'D') && _isInGame(gs) && !_helpOpen) {
+      if ((e.key === 'd' || e.key === 'D') && isInGame && !_helpOpen) {
         const modal = doc.getElementById('deckViewModal');
         if (modal?.classList.contains('active')) {
           if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
@@ -221,34 +288,34 @@ export const HelpPauseUI = {
         }
       }
 
-      if ((e.key === 'e' || e.key === 'E') && _isInGame(gs) && gs.combat.active && gs.combat.playerTurn) {
+      if ((e.key === 'e' || e.key === 'E') && isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
         if (typeof deps.useEchoSkill === 'function') deps.useEchoSkill();
       }
 
-      if (e.key === 'Enter' && _isInGame(gs) && gs.combat.active && gs.combat.playerTurn) {
+      if (e.key === 'Enter' && isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
         e.preventDefault();
         if (typeof deps.endPlayerTurn === 'function') deps.endPlayerTurn();
       }
 
-      if (_isInGame(gs) && gs.combat.active && gs.combat.playerTurn) {
+      if (isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
         const numKey = e.key === '0' ? 10 : parseInt(e.key, 10);
         if (!isNaN(numKey) && numKey >= 1 && numKey <= 10) {
           const idx = numKey - 1;
-          if (gs.player.hand[idx] && typeof gs.playCard === 'function') {
-            gs.playCard(gs.player.hand[idx], idx);
+          if (window.GS?.player?.hand?.[idx] && typeof window.GS?.playCard === 'function') {
+            window.GS.playCard(window.GS.player.hand[idx], idx);
           }
         }
       }
 
-      if (e.key === 'Tab' && _isInGame(gs) && gs.combat.active && gs.combat.playerTurn) {
+      if (e.key === 'Tab' && isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
         e.preventDefault();
-        const enemies = gs.combat.enemies;
+        const enemies = window.GS?.combat?.enemies;
         const aliveIndices = enemies.map((enemy, idx) => enemy.hp > 0 ? idx : -1).filter(idx => idx >= 0);
         if (aliveIndices.length > 1) {
-          const cur = aliveIndices.indexOf(gs._selectedTarget ?? -1);
-          gs._selectedTarget = aliveIndices[(cur + 1) % aliveIndices.length];
-          if (typeof gs.addLog === 'function') {
-            gs.addLog(`🎯 타겟: ${enemies[gs._selectedTarget].name}`, 'system');
+          const cur = aliveIndices.indexOf(window.GS._selectedTarget ?? -1);
+          window.GS._selectedTarget = aliveIndices[(cur + 1) % aliveIndices.length];
+          if (typeof window.GS?.addLog === 'function') {
+            window.GS.addLog(`🎯 타겟: ${enemies[window.GS._selectedTarget].name}`, 'system');
           }
           if (typeof deps.renderCombatEnemies === 'function') {
             deps.renderCombatEnemies();

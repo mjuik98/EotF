@@ -31,6 +31,7 @@
             <button class="settings-trigger-btn" onclick="openCodexFromTitle()">📖 CODEX</button>
             <button class="settings-trigger-btn"
               onclick="document.getElementById('soundSettings').classList.toggle('open')">🔊 SETTINGS</button>
+            <button class="settings-trigger-btn" onclick="quitGame()" style="background:rgba(255,51,102,0.1); border-color:rgba(255,51,102,0.3); color:var(--danger);">🚪 QUIT</button>
           </div>
         </div>
       </div>
@@ -173,7 +174,6 @@
             <span
               style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">MASTER</span>
             <input type="range" id="volMaster" min="0" max="100" value="35"
-              style="flex:1;accent-color:var(--echo);background:rgba(255,255,255,0.05);"
               oninput="setMasterVolume(this.value)">
             <span id="volMasterVal"
               style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);min-width:28px;text-align:right;">35%</span>
@@ -182,7 +182,6 @@
             <span
               style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">SFX</span>
             <input type="range" id="volSfx" min="0" max="100" value="70"
-              style="flex:1;accent-color:var(--cyan);background:rgba(255,255,255,0.05);"
               oninput="setSfxVolume(this.value)">
             <span id="volSfxVal"
               style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);min-width:28px;text-align:right;">70%</span>
@@ -191,7 +190,6 @@
             <span
               style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);min-width:48px;">AMBIENT</span>
             <input type="range" id="volAmbient" min="0" max="100" value="40"
-              style="flex:1;accent-color:#44ff88;background:rgba(255,255,255,0.05);"
               oninput="setAmbientVolume(this.value)">
             <span id="volAmbientVal"
               style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);min-width:28px;text-align:right;">40%</span>
@@ -539,6 +537,11 @@
         <div id="statusEffects"><span style="font-size:11px;color:var(--text-dim);font-style:italic;">없음</span></div>
         <div style="font-size:10px;color:var(--text-dim);margin-top:6px;line-height:1.5;">각 배지에 마우스를 올리면 효과를 확인할 수
           있습니다.</div>
+      </div>
+
+      <div class="hud-section">
+        <div class="hud-section-title">✨ 클래스 특성</div>
+        <div id="hoverHudSpecial" style="min-height:40px;display:flex;flex-direction:column;justify-content:center;"></div>
       </div>
 
 

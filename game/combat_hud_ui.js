@@ -37,7 +37,7 @@ import { CONSTANTS } from './constants/constants.js';
       const cls = gs.player.class;
       const echo = gs.player.echo;
       const tiers = [1, 2, 3].map(t => {
-        const skill = window.CONSTANTS.ECHO_SKILLS[cls]?.[t];
+        const skill = CONSTANTS.ECHO_SKILLS[cls]?.[t];
         return {
           stars: '★'.repeat(t),
           cost: skill?.cost || 0,
@@ -117,7 +117,7 @@ import { CONSTANTS } from './constants/constants.js';
         return;
       }
 
-      const skill = window.CONSTANTS.ECHO_SKILLS[cls]?.[tLevel];
+      const skill = CONSTANTS.ECHO_SKILLS[cls]?.[tLevel];
       const stars = '★'.repeat(tLevel);
       const sDesc = skill?.shortDesc || '';
       btn.textContent = `⚡ ${stars} ${sDesc}`;
