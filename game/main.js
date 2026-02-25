@@ -1226,15 +1226,12 @@ function _bootGame() {
   GameBootUI?.bootGame?.(_getGameBootDeps());
 }
 
-// ── 최종적으로 게임 엔진 기동 ──
-_bootGame();
-
 // ── 외부용 싱크 함수 노출 ──
 window._syncVolumeUI = _syncVolumeUI;
 window.GS = GS;
 window.GameState = GS;
 window.updateUI = updateUI;
-window.refreshRunMode = refreshRunMode;
+window.refreshRunMode = refreshRunModePanel;
 window._bootGame = _bootGame;
 
 // UI Event Handlers used by index.html onclick=""
@@ -1267,3 +1264,10 @@ window.setCodexTab = setCodexTab;
 window.closeCodex = closeCodex;
 window.toggleHudPin = toggleHudPin;
 window.showFullMap = showFullMap;
+
+// ── 최종적으로 게임 엔진 기동 ──
+try {
+  _bootGame();
+} catch (e) {
+  console.error("Critical Boot Error:", e);
+}
