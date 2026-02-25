@@ -1226,11 +1226,16 @@ function _bootGame() {
   GameBootUI?.bootGame?.(_getGameBootDeps());
 }
 
+// ── 최종적으로 게임 엔진 기동 ──
+_bootGame();
+
+// ── 외부용 싱크 함수 노출 ──
 window._syncVolumeUI = _syncVolumeUI;
 window.GS = GS;
 window.GameState = GS;
 window.updateUI = updateUI;
-
+window.refreshRunMode = refreshRunMode;
+window._bootGame = _bootGame;
 
 // UI Event Handlers used by index.html onclick=""
 window.showCharacterSelect = showCharacterSelect;
@@ -1244,8 +1249,6 @@ window.shiftAscension = shiftAscension;
 window.toggleEndlessMode = toggleEndlessMode;
 window.cycleRunBlessing = cycleRunBlessing;
 window.cycleRunCurse = cycleRunCurse;
-
-
 
 window.sortHandByEnergy = sortHandByEnergy;
 window.useEchoSkill = useEchoSkill;
@@ -1264,6 +1267,3 @@ window.setCodexTab = setCodexTab;
 window.closeCodex = closeCodex;
 window.toggleHudPin = toggleHudPin;
 window.showFullMap = showFullMap;
-
-// 즉시 실행 (load 이벤트 대신)
-GameBootUI?.bootWhenReady?.(_getGameBootDeps());
