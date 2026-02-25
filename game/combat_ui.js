@@ -158,8 +158,8 @@
       let intent;
       try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
 
-      // 전투 첫 턴(turn === 0): 툴팁 표시 차단
-      if (gs.combat.turn === 0) return;
+      // 전투 첫 턴(turn === 0): 아직 행동이 없으므로 표시 차단 (일반적으로 1부터 시작)
+      if (gs.combat.turn <= 0) return;
 
       const icon = _getIntentIcon(intent);
       const label = _formatIntentLabel(intent);
@@ -219,6 +219,7 @@
         zone.innerHTML = gs.combat.enemies.map((e, i) => {
           if (!e || !e.ai) return '';
           const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
+          // 플레이어 턴에는 현재 턴(turn)을 인텐트로 표시
           let intent;
           try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
 
@@ -227,8 +228,8 @@
           let intentLabel = _formatIntentLabel(intent);
           let intentDmg = intent.dmg > 0 ? `<div class="enemy-intent-dmg">${intent.dmg}</div>` : '';
 
-          // 전투 첫 턴(turn === 0): 아직 행동이 없으므로 준비 중 표시
-          if (gs.combat.turn === 0) {
+          // 전투 첫 턴(turn <= 0): 아직 행동이 없으므로 준비 중 표시
+          if (gs.combat.turn <= 0) {
             intentIcon = '❓';
             intentLabel = '알 수 없음';
             intentDmg = '';
@@ -287,8 +288,8 @@
 
           if (intentEl) {
             let intent;
-            // 플레이어 턴에는 항상 다음 적의 행동(turn + 1)을 인텐트로 표시
-            try { intent = e.ai(gs.combat.turn + 1); } catch (err) { intent = { intent: '?', dmg: 0 }; }
+            // 플레이어 턴에는 현재 턴(turn)을 인텐트로 표시 (turn++ 위치 조정 완료 전제)
+            try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
             let intentIcon = _getIntentIcon(intent);
             let intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
             let intentLabel = _formatIntentLabel(intent);

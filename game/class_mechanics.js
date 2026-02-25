@@ -32,7 +32,10 @@
       getSpecialUI(gs) {
         const state = _getGS(gs);
         const momentum = state?.getBuff?.('momentum');
-        return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">모멘텀</div><div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);">+${momentum ? momentum.dmgBonus || 0 : 0} 데미지</div>`;
+        return `<div title="모멘텀: 카드를 사용하거나 이동할 때마다 다음 공격 데미지가 상승합니다. (최대 +30)" style="cursor:help;">
+          <div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">모멘텀</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);">+${momentum ? momentum.dmgBonus || 0 : 0} 데미지</div>
+        </div>`;
       },
     },
     mage: {
@@ -43,11 +46,13 @@
       },
       getSpecialUI(gs) {
         const state = _getGS(gs);
-        if (!state?.combat?.enemies) return '';
-        const target = state.combat.enemies[state._selectedTarget || 0];
-        if (!target || target.hp <= 0) return '';
-        const next = target.ai?.(state.combat.turn + 2);
-        return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">다음 턴 예측</div><div style="font-size:10px;color:var(--cyan);">${next?.intent || '불명'}</div>`;
+        const target = state?.combat?.enemies ? state.combat.enemies[state._selectedTarget || 0] : null;
+        const next = (target && target.hp > 0) ? target.ai?.(state.combat.turn + 2) : null;
+
+        return `<div title="다음 턴 예측: 선택한 적이 다음 턴에 취할 행동을 미리 파악합니다." style="cursor:help;">
+          <div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;">다음 턴 예측</div>
+          <div style="font-size:10px;color:var(--cyan);">${next?.intent || '활성 적 없음'}</div>
+        </div>`;
       },
     },
     hunter: {
@@ -57,7 +62,12 @@
         const max = 10;
         const pct = (gauge / max) * 100;
         const color = pct > 70 ? 'var(--danger)' : pct > 40 ? 'var(--gold)' : 'var(--cyan)';
-        return `<div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:3px;">침묵 게이지 ${gauge}/${max}</div><div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${color};border-radius:2px;transition:width 0.3s;"></div></div>`;
+        return `<div title="침묵 게이지: 게이지가 10에 도달하면 다음 공격 시 적에게 강력한 침묵 상태이상을 부여합니다." style="cursor:help;">
+          <div style="font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:3px;">침묵 게이지 ${gauge}/${max}</div>
+          <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:${color};border-radius:2px;transition:width 0.3s;"></div>
+          </div>
+        </div>`;
       },
     },
   };

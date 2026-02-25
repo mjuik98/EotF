@@ -80,20 +80,20 @@
           : graveCards.includes(id)
             ? `<div style="position:absolute;top:4px;right:4px;font-size:7px;background:rgba(123,47,255,0.15);border-radius:3px;padding:1px 4px;color:var(--echo);">무덤</div>`
             : '';
-        return `<div style="position:relative;background:var(--glass);border:1px solid ${bdr};border-radius:10px;padding:10px 8px;
-            width:88px;min-height:130px;display:flex;flex-direction:column;align-items:center;backdrop-filter:blur(12px);
+        return `<div style="position:relative;background:var(--glass);border:1px solid ${bdr};border-radius:16px;padding:16px 14px;
+            width:160px;min-height:240px;display:flex;flex-direction:column;align-items:center;backdrop-filter:blur(16px);
             transition:transform 0.15s,box-shadow 0.15s;"
-            onmouseenter="showTooltip(event,'${id}');this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.4)'"
+            onmouseenter="showTooltip(event,'${id}');this.style.transform='translateY(-6px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.6)'"
             onmouseleave="hideTooltip();this.style.transform='';this.style.boxShadow=''">
-          <div style="position:absolute;top:5px;left:5px;width:18px;height:18px;border-radius:50%;background:rgba(123,47,255,0.3);
+          <div style="position:absolute;top:8px;left:8px;width:32px;height:32px;border-radius:50%;background:rgba(123,47,255,0.4);
             border:1px solid var(--echo);display:flex;align-items:center;justify-content:center;
-            font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:var(--white);">${card.cost}</div>
-          ${cnt > 1 ? `<div style="position:absolute;bottom:24px;right:5px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);">×${cnt}</div>` : ''}
+            font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--white);">${card.cost}</div>
+          ${cnt > 1 ? `<div style="position:absolute;bottom:40px;right:10px;font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--cyan);font-weight:bold;">×${cnt}</div>` : ''}
           ${locationTag}
-          <div style="font-size:22px;margin:16px 0 4px;">${card.icon}</div>
-          <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:var(--white);text-align:center;margin-bottom:3px;line-height:1.2;">${card.name}</div>
-          <div style="font-size:9px;color:var(--text-dim);text-align:center;line-height:1.3;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
-          <div style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.1em;color:${card.upgraded ? 'var(--cyan)' : typeColor};margin-top:4px;">${card.upgraded ? '✦ 강화됨' : card.type}</div>
+          <div style="font-size:48px;margin:32px 0 12px;">${card.icon}</div>
+          <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--white);text-align:center;margin-bottom:8px;line-height:1.2;">${card.name}</div>
+          <div style="font-size:13px;color:var(--text);text-align:center;line-height:1.5;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>
+          <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;color:${card.upgraded ? 'var(--cyan)' : typeColor};margin-top:8px;font-weight:bold;">${card.upgraded ? '✦ 강화됨' : card.type}</div>
         </div>`;
       }).join('');
     },

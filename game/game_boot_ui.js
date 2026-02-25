@@ -38,8 +38,8 @@
           }
         }, { once: false });
 
-        try { saveSystem?.loadMeta?.(deps.saveSystemDeps || {}); } catch (e) {}
-        try { runRules?.ensureMeta?.(gs?.meta); } catch (e) {}
+        try { saveSystem?.loadMeta?.(deps.saveSystemDeps || {}); } catch (e) { }
+        try { runRules?.ensureMeta?.(gs?.meta); } catch (e) { }
 
         deps.initTitleCanvas?.();
         try { deps.updateUI?.(); } catch (e) { console.warn('updateUI error:', e); }
@@ -51,6 +51,13 @@
           badge.textContent = `총 ${gs.meta.runCount - 1}회 플레이 · 처치 ${gs.meta.totalKills} · 최고 체인 ${gs.meta.bestChain}`;
           doc.getElementById('titleScreen')?.appendChild(badge);
         }
+
+        // 도감 버튼 클릭 핸들러 (인덱스 HTML에서 사용)
+        globalObj.openCodexFromTitle = () => {
+          if (globalObj.CodexUI) {
+            globalObj.CodexUI.openCodex({ gs, data: globalObj.DATA });
+          }
+        };
       } catch (e) {
         console.error('Boot error:', e);
       }

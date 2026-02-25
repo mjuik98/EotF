@@ -79,7 +79,7 @@
       const gs = deps.gs || globalObj.GS;
       if (!gs?.combat?.active) return;
 
-      gs.combat.turn++;
+      // status effects ticks only, turn++ is now in startPlayerTurn
       this.processEnemyStatusTicks(deps);
 
       for (let index = 0; index < gs.combat.enemies.length; index++) {
@@ -150,12 +150,21 @@
         if (buff.stacks <= 0) delete gs.player.buffs[buffId];
       });
 
+      gs.combat.turn++;
       gs.combat.playerTurn = true;
       gs.player.energy = gs.player.maxEnergy;
       gs.player.shield = 0;
       gs.drawCards(5);
 
       if (typeof this.processPlayerStatusTicks === 'function' && !this.processPlayerStatusTicks(deps)) return;
+
+      Object.keys(gs.player.buffs || {}).forEach(buffId => {
+        const buff = gs.player.buffs[buffId];
+        if (buff?.nextEnergy) {
+          gs.player.energy += buff.nextEnergy;
+          gs.addLog?.(`🌀 ${buff.name || '효과'}: 에너지 +${buff.nextEnergy}`, 'echo');
+        }
+      });
 
       gs.addLog?.('─── 새 턴 ───', 'system');
       globalObj.RunRules?.onTurnStart?.(gs);

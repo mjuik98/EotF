@@ -22,39 +22,43 @@
   cards: {
     // 공통 기본
     strike: {
-      id: 'strike', name: '강타', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '8 피해', rarity: 'common',
+      id: 'strike', name: '강타', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '9 피해', rarity: 'common',
       image: 'card_strike.png',
-      effect(gs) { gs.dealDamage(8); AudioEngine.playChain(gs.player.echoChain); }
+      effect(gs) { gs.dealDamage(9); AudioEngine.playChain(gs.player.echoChain); }
     },
     strike_plus: {
       id: 'strike_plus', name: '강타+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '13 피해, Echo +5', rarity: 'common', upgraded: true,
+      image: 'card_strike.png',
       effect(gs) { gs.dealDamage(13); gs.addEcho(5); AudioEngine.playChain(gs.player.echoChain); }
     },
     defend: {
-      id: 'defend', name: '방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 6 획득', rarity: 'common',
+      id: 'defend', name: '방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 7 획득', rarity: 'common',
       image: 'card_defend.png',
-      effect(gs) { gs.addShield(6); }
+      effect(gs) { gs.addShield(7); }
     },
     defend_plus: {
       id: 'defend_plus', name: '방어+', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10 획득', rarity: 'common', upgraded: true,
+      image: 'card_defend.png',
       effect(gs) { gs.addShield(10); }
     },
     echo_strike: {
-      id: 'echo_strike', name: '잔향 강타', icon: '💥', cost: 2, type: 'ATTACK', desc: '12 피해, Echo +20', rarity: 'common',
+      id: 'echo_strike', name: '잔향 강타', icon: '💥', cost: 2, type: 'ATTACK', desc: '14 피해, Echo +20', rarity: 'uncommon',
       image: 'card_echo_strike.png',
-      effect(gs) { gs.dealDamage(12); gs.addEcho(20); }
+      effect(gs) { gs.dealDamage(14); gs.addEcho(20); }
     },
     echo_strike_plus: {
       id: 'echo_strike_plus', name: '잔향 강타+', icon: '💥', cost: 1, type: 'ATTACK', desc: '15 피해, Echo +30', rarity: 'common', upgraded: true,
+      image: 'card_echo_strike.png',
       effect(gs) { gs.dealDamage(15); gs.addEcho(30); }
     },
     quick_step: {
-      id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 3, Echo +10', rarity: 'common',
+      id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 4, Echo +15', rarity: 'common',
       image: 'card_skill.png',
-      effect(gs) { gs.addShield(3); gs.addEcho(10); }
+      effect(gs) { gs.addShield(4); gs.addEcho(15); }
     },
     quick_step_plus: {
       id: 'quick_step_plus', name: '잔영 이동+', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 6, Echo +20, 1장 드로우', rarity: 'common', upgraded: true,
+      image: 'card_skill.png',
       effect(gs) { gs.addShield(6); gs.addEcho(20); gs.drawCards(1); }
     },
     heavy_blow: {
@@ -63,8 +67,9 @@
       effect(gs) { gs.dealDamage(18); gs.applyEnemyStatus('stunned', 1); }
     },
     heavy_blow_plus: {
-      id: 'heavy_blow_plus', name: '중격+', icon: '🔨', cost: 2, type: 'ATTACK', desc: '26 피해 + 기절 2턴', rarity: 'common', upgraded: true,
-      effect(gs) { gs.dealDamage(26); gs.applyEnemyStatus('stunned', 2); }
+      id: 'heavy_blow_plus', name: '중격+', icon: '🔨', cost: 2, type: 'ATTACK', desc: '26 피해 + 기절 1턴', rarity: 'common', upgraded: true,
+      image: 'card_attack.png',
+      effect(gs) { gs.dealDamage(26); gs.applyEnemyStatus('stunned', 1); }
     },
     echo_wave: {
       id: 'echo_wave', name: '잔향파', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 적에게 8 피해', rarity: 'uncommon',
@@ -73,6 +78,7 @@
     },
     echo_wave_plus: {
       id: 'echo_wave_plus', name: '잔향파+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 14 피해, Echo +15', rarity: 'uncommon', upgraded: true,
+      image: 'card_attack.png',
       effect(gs) { gs.dealDamageAll(14); gs.addEcho(15); }
     },
     resonance: {
@@ -82,6 +88,7 @@
     },
     resonance_plus: {
       id: 'resonance_plus', name: '공명+', icon: '⚡', cost: 0, type: 'SKILL', desc: 'Echo 50 충전', rarity: 'uncommon', upgraded: true,
+      image: 'card_skill.png',
       effect(gs) { gs.addEcho(50); }
     },
     soul_rend: {
@@ -91,6 +98,7 @@
     },
     soul_rend_plus: {
       id: 'soul_rend_plus', name: '영혼 강탈+', icon: '💀', cost: 2, type: 'ATTACK', desc: '30 피해 + 체력 8 흡수', rarity: 'uncommon', upgraded: true,
+      image: 'card_soul_rend.png',
       effect(gs) { gs.dealDamage(30); gs.heal(8); }
     },
     twin_strike: {
@@ -100,6 +108,7 @@
     },
     twin_strike_plus: {
       id: 'twin_strike_plus', name: '쌍검격+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '9 피해 × 2회', rarity: 'uncommon', upgraded: true,
+      image: 'card_attack.png',
       effect(gs) { gs.dealDamage(9, 0, true); gs.dealDamage(9); }
     },
     echo_shield: {
@@ -109,22 +118,24 @@
     },
     echo_shield_plus: {
       id: 'echo_shield_plus', name: '잔향 방벽+', icon: '🔵', cost: 1, type: 'SKILL', desc: '방어막 (Echo/4), Echo +10', rarity: 'uncommon', upgraded: true,
+      image: 'card_skill.png',
       effect(gs) { gs.addShield(Math.floor(gs.player.echo / 4)); gs.addEcho(10); }
     },
     // 잔향검사
     momentum: {
-      id: 'momentum', name: '가속', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +4', rarity: 'common',
+      id: 'momentum', name: '가속', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +6', rarity: 'common',
       image: 'card_skill.png',
-      effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 4 }); }
+      effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 6 }); }
     },
     momentum_plus: {
       id: 'momentum_plus', name: '가속+', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +8, Echo +10', rarity: 'common', upgraded: true,
+      image: 'card_skill.png',
       effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 8 }); gs.addEcho(10); }
     },
     charge: {
-      id: 'charge', name: '돌진', icon: '⚡', cost: 1, type: 'ATTACK', desc: '모멘텀 × 6 피해', rarity: 'common',
+      id: 'charge', name: '돌진', icon: '⚡', cost: 1, type: 'ATTACK', desc: '9 + 모멘텀 피해', rarity: 'common',
       image: 'card_attack.png',
-      effect(gs) { const m = gs.getBuff('momentum'); gs.dealDamage(6 + (m ? m.dmgBonus : 0)); }
+      effect(gs) { const m = gs.getBuff('momentum'); gs.dealDamage(9 + (m ? m.dmgBonus : 0)); }
     },
     afterimage: {
       id: 'afterimage', name: '잔영', icon: '👥', cost: 1, type: 'SKILL', desc: '모멘텀 수만큼 방어막', rarity: 'uncommon',
@@ -141,27 +152,35 @@
       image: 'card_echo_dance.png',
       effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, 0, true); gs.addEcho(8); } gs.dealDamage(6); gs.addEcho(8); }
     },
+    blade_dance: {
+      id: 'blade_dance', name: '검무', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '4 피해 × 3회. 가속 상태라면 Echo +10', rarity: 'uncommon',
+      image: 'card_blade_dance.png',
+      effect(gs) { for (let i = 0; i < 3; i++) gs.dealDamage(4, 0, i < 2); if (gs.getBuff('momentum')) gs.addEcho(10); }
+    },
     // 메아리술사
     foresight: {
-      id: 'foresight', name: '예지', icon: '👁️', cost: 1, type: 'SKILL', desc: '다음 적 행동 약화 50%', rarity: 'common',
+      id: 'foresight', name: '예지', icon: '👁️', cost: 0, type: 'SKILL', desc: '약화 50%, Echo +5', rarity: 'common',
       image: 'card_skill.png',
-      effect(gs) { gs.applyEnemyStatus('weakened', 1); }
+      effect(gs) { gs.addEcho(5); gs.applyEnemyStatus('weakened', 1); }
     },
     foresight_plus: {
       id: 'foresight_plus', name: '예지+', icon: '👁️', cost: 0, type: 'SKILL', desc: '약화 50%, Echo +10', rarity: 'common', upgraded: true,
+      image: 'card_skill.png',
       effect(gs) { gs.applyEnemyStatus('weakened', 1); gs.addEcho(10); }
     },
     counter: {
-      id: 'counter', name: '반격', icon: '🔄', cost: 2, type: 'ATTACK', desc: '예측 피해 × 2 반사', rarity: 'common',
+      id: 'counter', name: '반격', icon: '🔄', cost: 2, type: 'ATTACK', desc: '예측 피해 × 1.5 피해 (최대 35)', rarity: 'common',
       image: 'card_attack.png',
-      effect(gs) { gs.dealDamage(gs.getEnemyIntent() * 2 || 14); }
+      effect(gs) { gs.dealDamage(Math.min(35, Math.floor(gs.getEnemyIntent() * 1.5))); }
     },
     time_echo: {
       id: 'time_echo', name: '시간 메아리', icon: '⏳', cost: 2, type: 'SKILL', desc: '최근 사용 카드 회수', rarity: 'uncommon',
+      image: 'card_skill.png',
       effect(gs) { if (gs.player.graveyard.length > 0) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); gs.addLog(`⏳ ${DATA.cards[c]?.name} 회수!`, 'echo'); } }
     },
     void_mirror: {
       id: 'void_mirror', name: '허공 거울', icon: '🪞', cost: 2, type: 'ATTACK', desc: '다음 적 공격 반사', rarity: 'uncommon',
+      image: 'card_attack.png',
       effect(gs) { gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🪞 반사 준비', 'echo'); }
     },
     arcane_storm: {
@@ -170,9 +189,14 @@
       effect(gs) { gs.dealDamageAll(14); gs.player.echoChain += 2; gs.updateChainDisplay(); }
     },
     prediction: {
-      id: 'prediction', name: '예언', icon: '🔭', cost: 0, type: 'SKILL', desc: '2장 드로우, Echo +15', rarity: 'common',
+      id: 'prediction', name: '예언', icon: '🔭', cost: 0, type: 'SKILL', desc: '2장 드로우, Echo +15', rarity: 'uncommon',
       image: 'card_skill.png',
       effect(gs) { if (gs.combat.active) gs.drawCards(2); gs.addEcho(15); }
+    },
+    time_warp: {
+      id: 'time_warp', name: '시간 왜곡', icon: '🌀', cost: 2, type: 'SKILL', desc: '다음 턴 에너지 +1 획득', rarity: 'rare',
+      image: 'card_time_warp.png',
+      effect(gs) { gs.addBuff('time_warp', 1, { nextEnergy: 1 }); }
     },
     // 침묵사냥꾼
     silent_stab: {
@@ -192,12 +216,18 @@
     },
     shadow_step: {
       id: 'shadow_step', name: '그림자 도약', icon: '🌑', cost: 0, type: 'SKILL', desc: '침묵 -2, 방어막 5, 다음 공격 +8', rarity: 'uncommon',
+      image: 'card_skill.png',
       effect(gs) { gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) - 2); gs.addShield(5); gs.addBuff('shadow_atk', 1, { dmgBonus: 8 }); }
     },
     poison_blade: {
       id: 'poison_blade', name: '독침 검', icon: '🐍', cost: 1, type: 'ATTACK', desc: '7 피해 + 독 3턴', rarity: 'uncommon',
       image: 'card_attack.png',
       effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('poisoned', 3); }
+    },
+    phantom_step: {
+      id: 'phantom_step', name: '환영 보폭', icon: '💨', cost: 1, type: 'SKILL', desc: '방어막 10, 회피 1 획득', rarity: 'uncommon',
+      image: 'card_phantom_step.png',
+      effect(gs) { gs.addShield(10); gs.addBuff('dodge', 1, {}); }
     },
     // 레어/파워
     echo_burst_card: {
@@ -221,9 +251,9 @@
       effect(gs) { gs.dealDamage(20); }
     },
     echo_overload: {
-      id: 'echo_overload', name: 'Echo 과부하', icon: '⚡', cost: 1, type: 'SKILL', desc: 'Echo 100 충전, HP -12', rarity: 'rare',
+      id: 'echo_overload', name: 'Echo 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: 'Echo 100 충전, HP -15', rarity: 'rare',
       image: 'card_echo_overload.png',
-      effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 12); gs.addLog('⚡ Echo 과부하! HP-12', 'damage'); updateUI(); }
+      effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ Echo 과부하! HP-15', 'damage'); updateUI(); }
     },
     desperate_strike: {
       id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '체력 비례 피해 (최대 50)', rarity: 'uncommon',
@@ -231,9 +261,9 @@
       effect(gs) { const d = Math.floor((1 - gs.player.hp / gs.player.maxHp) * 50) + 5; gs.dealDamage(d); }
     },
     reverberation: {
-      id: 'reverberation', name: '반향', icon: '🔊', cost: 2, type: 'ATTACK', desc: 'Chain × 8 피해', rarity: 'uncommon',
+      id: 'reverberation', name: '반향', icon: '🔊', cost: 2, type: 'ATTACK', desc: 'Chain × 8 피해 (최대 40)', rarity: 'uncommon',
       image: 'card_attack.png',
-      effect(gs) { gs.dealDamage((gs.player.echoChain || 1) * 8); }
+      effect(gs) { gs.dealDamage(Math.min(40, (gs.player.echoChain || 1) * 8)); }
     },
     sanctuary: {
       id: 'sanctuary', name: '성역', icon: '🏛️', cost: 3, type: 'SKILL', desc: '방어막 20 + 2턴 면역', rarity: 'rare',
@@ -241,9 +271,9 @@
       effect(gs) { gs.addShield(20); gs.addBuff('immune', 2, {}); gs.addLog('🏛️ 성역! 2턴 면역', 'echo'); }
     },
     dark_pact: {
-      id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: 'HP -10, 카드 3장 드로우', rarity: 'uncommon',
+      id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: 'HP -8, 카드 2장 드로우', rarity: 'uncommon',
       image: 'card_skill.png',
-      effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.drawCards(3); updateUI(); }
+      effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 8); gs.drawCards(2); updateUI(); }
     },
     // ── 에너지 관련 카드 ──
     surge: {
@@ -279,7 +309,7 @@
     },
     ember_wave: {
       id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 5 피해 + 화염 1턴', rarity: 'uncommon',
-      image: 'card_attack.png',
+      image: 'card_flame_slash.png',
       effect(gs) { gs.dealDamageAll(5); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); gs.addLog('🌊 불꽃 파동!', 'echo'); }
     },
     echo_reflect: {
@@ -580,9 +610,18 @@
     },
     echo_bracer: {
       id: 'echo_bracer', name: '잔향 팔찌', icon: '🔮', rarity: 'uncommon',
-      desc: 'Echo 사용(스킬 발동) 시 HP +4 [세트:잔향]',
+      desc: 'Echo 스킬 발동마다 HP +3 (전투당 최대 20) [세트:잔향]',
       image: 'relic_echo_bracer.png',
-      passive(gs, trigger) { if (trigger === Trigger.ECHO_SKILL) { gs.heal(4); gs.addLog('🔮 잔향 팔찌: HP +4', 'heal'); } }
+      passive(gs, trigger) {
+        if (trigger === Trigger.ECHO_SKILL) {
+          gs.combat._bracerHeal = (gs.combat._bracerHeal || 0);
+          if (gs.combat._bracerHeal < 20) {
+            gs.heal(3);
+            gs.combat._bracerHeal += 3;
+            gs.addLog(`🔮 잔향 팔찌: HP +3 (${gs.combat._bracerHeal}/20)`, 'heal');
+          }
+        }
+      }
     },
     echo_sigil: {
       id: 'echo_sigil', name: '잔향 각인', icon: '⚜️', rarity: 'rare',
@@ -625,7 +664,7 @@
     },
     echo_genesis: {
       id: 'echo_genesis', name: '잔향의 기원', icon: '🌟', rarity: 'legendary',
-      desc: 'Echo 100 달성 시 모든 핸드 카드 무료화',
+      desc: 'Echo 100 달성 시 손패 전체 무료화 (전투당 1회)',
       image: 'relic_echo_genesis.png',
       passive(gs, trigger) { if (trigger === Trigger.TURN_START && gs.player.echo >= CONSTANTS.ECHO.BURST_THRESHOLD && !gs._genesisUsed) { gs.player._freeCardUses = Math.max(gs.player._freeCardUses || 0, gs.player.hand.length); gs._genesisUsed = true; gs.addLog('🌟 잔향의 기원: 현재 손패 무료!', 'echo'); } if (trigger === Trigger.COMBAT_END) gs._genesisUsed = false; }
     },
@@ -648,7 +687,7 @@
       }
     },
     forest_wraith: {
-      id: 'forest_wraith', name: '숲의 원령', icon: '👻', image: 'enemy_forest_wraith.png', hp: 28, maxHp: 28, atk: 10, region: 0, xp: 25, gold: 10,
+      id: 'forest_wraith', name: '숲의 원령', icon: '👻', image: 'enemy_forest_wraith.png', hp: 38, maxHp: 38, atk: 10, region: 0, xp: 25, gold: 10,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'curse', intent: '저주 (약화)', dmg: 6, effect: 'weaken' };
         if (turn % 3 === 0) return { type: 'phase', intent: '위상 이동', dmg: 0, effect: 'dodge' };
@@ -673,7 +712,7 @@
     },
     // 기억의 미궁
     memory_specter: {
-      id: 'memory_specter', name: '기억의 환령', icon: '👁️', image: 'enemy_specter.png', hp: 45, maxHp: 45, atk: 12, region: 2, xp: 35, gold: 14,
+      id: 'memory_specter', name: '기억의 환령', icon: '👁️', image: 'enemy_specter.png', hp: 50, maxHp: 50, atk: 14, region: 2, xp: 35, gold: 14,
       ai(turn) {
         if (turn % 5 === 0) return { type: 'memory_steal', intent: '기억 훔치기 (카드 소각)', dmg: 0, effect: 'exhaust_card' };
         if (turn % 4 === 0) return { type: 'energy_drain', intent: `에너지 흡수 (에너지 -1) ${this.atk}`, dmg: this.atk, effect: 'drain_energy' };
@@ -682,7 +721,7 @@
       }
     },
     nightmare_hound: {
-      id: 'nightmare_hound', name: '악몽의 사냥개', icon: '🐕', image: 'enemy_nightmare_hound.png', hp: 38, maxHp: 38, atk: 11, region: 2, xp: 30, gold: 12,
+      id: 'nightmare_hound', name: '악몽의 사냥개', icon: '🐕', image: 'enemy_nightmare_hound.png', hp: 44, maxHp: 44, atk: 13, region: 2, xp: 30, gold: 12,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'howl', intent: '공포의 포효 (에너지-1)', dmg: 6, effect: 'drain_energy' };
         if (turn % 2 === 0) return { type: 'pounce', intent: `덮치기 ${this.atk + 4}`, dmg: this.atk + 4 };
@@ -699,9 +738,9 @@
         return { type: 'strike', intent: `천벌 ${this.atk}`, dmg: this.atk };
       }
     },
-    // 에코의 핵심
+    // 메아리의 근원
     echo_devourer: {
-      id: 'echo_devourer', name: 'Echo 포식자', icon: '🌑', image: 'enemy_echo_devourer.png', hp: 80, maxHp: 80, atk: 18, region: 4, xp: 60, gold: 30,
+      id: 'echo_devourer', name: '메아리 포식자', icon: '🌑', image: 'enemy_echo_devourer.png', hp: 65, maxHp: 65, atk: 18, region: 4, xp: 60, gold: 30,
       ai(turn) {
         if (turn % 3 === 0) return { type: 'devour', intent: `Echo 흡수 ${this.atk + 5}`, dmg: this.atk + 5, effect: 'drain_echo' };
         if (turn % 5 === 0) return { type: 'void_burst', intent: `허공 폭발 ${this.atk * 1.5 | 0}`, dmg: this.atk * 1.5 | 0 };
@@ -718,21 +757,44 @@
       }
     },
     echo_bat: {
-      id: 'echo_bat', name: '잔향 박쥐', icon: '🦇', image: 'enemy_echo_bat.png', hp: 20, maxHp: 20, atk: 7, region: 0, xp: 18, gold: 7,
+      id: 'echo_bat', name: '잔향 박쥐', icon: '🦇', image: 'enemy_echo_bat.png', hp: 28, maxHp: 28, atk: 8, region: 0, xp: 18, gold: 7,
       ai(turn) {
         if (turn % 3 === 0) return { type: 'screech', intent: '음파 공격 (약화)', dmg: 5, effect: 'weaken' };
         if (turn % 2 === 0) return { type: 'dive', intent: `급강하 ${this.atk + 3}`, dmg: this.atk + 3 };
         return { type: 'bite', intent: `물기 ${this.atk}`, dmg: this.atk };
       }
     },
-    // ── 잔향의 숲 정예 ──
-    elite_dire_wolf: {
-      id: 'elite_dire_wolf', name: '【정예】대형 흑랑', icon: '🐺', image: 'enemy_elite_dire_wolf.png', hp: 85, maxHp: 85, atk: 14, region: 0, xp: 65, gold: 35, isElite: true,
+    // ── 잔향의 숲 추가 몬스터 ──
+    verdant_slayer: {
+      id: 'verdant_slayer', name: '초록 학살자', icon: '🌲', image: 'enemy_verdant_slayer.png', hp: 32, maxHp: 32, atk: 9, region: 0, xp: 22, gold: 9,
       ai(turn) {
-        if (turn === 1) return { type: 'pack_call', intent: '무리 소환 (공격력+4)', dmg: 0, effect: 'self_atk_up_4' };
-        if (turn % 4 === 0) return { type: 'frenzy', intent: `광란 ${this.atk + 10}`, dmg: this.atk + 10 };
-        if (turn % 2 === 0) return { type: 'howl', intent: '포효 (약화+출혈)', dmg: 6, effect: 'weaken' };
-        return { type: 'maul', intent: `할퀴기 ${this.atk}`, dmg: this.atk };
+        if (turn % 3 === 0) return { type: 'slash', intent: `연속 베기 ${this.atk}×2`, dmg: this.atk, multi: 2 };
+        return { type: 'strike', intent: `찌르기 ${this.atk}`, dmg: this.atk };
+      }
+    },
+    thistle_back: {
+      id: 'thistle_back', name: '엉겅퀴 등피', icon: '🌵', image: 'enemy_thistle_back.png', hp: 40, maxHp: 40, atk: 7, region: 0, xp: 24, gold: 10,
+      ai(turn) {
+        if (turn % 2 === 0) return { type: 'thorns', intent: '가시 방어 (가시 4)', dmg: 0, effect: 'thorns' };
+        return { type: 'slam', intent: `박치기 ${this.atk + 3}`, dmg: this.atk + 3 };
+      }
+    },
+    // ── 잔향의 숲 정예 추가 ──
+    elite_moss_monarch: {
+      id: 'elite_moss_monarch', name: '【정예】이끼 군주', icon: '�', image: 'enemy_elite_moss_monarch.png', hp: 90, maxHp: 90, atk: 12, region: 0, xp: 70, gold: 40, isElite: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'command', intent: '군주의 포효 (전체 공격 강화)', dmg: 0, effect: 'all_atk_up' };
+        if (turn % 3 === 0) return { type: 'stomp', intent: `대지 밟기 ${this.atk + 8} (기절)`, dmg: this.atk + 8, effect: 'stun' };
+        return { type: 'slam', intent: `일격 ${this.atk + 4}`, dmg: this.atk + 4 };
+      }
+    },
+    // ── 잔향의 숲 보스 추가 ──
+    forest_guardian: {
+      id: 'forest_guardian', name: '숲의 수호자', icon: '🛡️', image: 'enemy_forest_guardian.png', hp: 160, maxHp: 160, atk: 14, region: 0, xp: 140, gold: 60, isBoss: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'nature_wrath', intent: `자연의 분노 ${this.atk * 2}`, dmg: this.atk * 2 };
+        if (turn % 3 === 0) return { type: 'heal', intent: '생명의 기운 (회복 20)', dmg: 0, effect: 'heal_20' };
+        return { type: 'strike', intent: `징벌 ${this.atk}`, dmg: this.atk };
       }
     },
     elite_ancient_tree: {
@@ -761,6 +823,52 @@
         return { type: 'punch', intent: `주먹 ${this.atk}`, dmg: this.atk };
       }
     },
+    // ── 침묵의 도시 추가 몬스터 ──
+    rust_stalker: {
+      id: 'rust_stalker', name: '녹슨 추적자', icon: '👤', image: 'enemy_rust_stalker.png', hp: 38, maxHp: 38, atk: 11, region: 1, xp: 35, gold: 14,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'poison', intent: '독 단검 (독 2)', dmg: 8, effect: 'poison' };
+        return { type: 'stab', intent: `기습 ${this.atk + 4}`, dmg: this.atk + 4 };
+      }
+    },
+    brass_guardian: {
+      id: 'brass_guardian', name: '황동 수호병', icon: '🛡️', image: 'enemy_brass_guardian.png', hp: 70, maxHp: 70, atk: 10, region: 1, xp: 40, gold: 18,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'guard', intent: '황동 방어 (방어막 15)', dmg: 0, effect: 'shield' };
+        return { type: 'strike', intent: `방패 가격 ${this.atk + 5}`, dmg: this.atk + 5 };
+      }
+    },
+    silent_shade: {
+      id: 'silent_shade', name: '침묵의 그림자', icon: '🌑', image: 'enemy_silent_shade.png', hp: 35, maxHp: 35, atk: 12, region: 1, xp: 32, gold: 13,
+      ai(turn) {
+        if (turn % 2 === 0) return { type: 'vanish', intent: '그림자 숨기 (회피)', dmg: 0, effect: 'dodge' };
+        return { type: 'slash', intent: `그림자 베기 ${this.atk}`, dmg: this.atk };
+      }
+    },
+    // ── 침묵의 도시 정예 추가 ──
+    elite_gear_titan: {
+      id: 'elite_gear_titan', name: '【정예】톱니 타이탄', icon: '⚙️', image: 'enemy_elite_gear_titan.png', hp: 120, maxHp: 120, atk: 15, region: 1, xp: 80, gold: 45, isElite: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'crush', intent: `분쇄 ${this.atk * 2} (취약)`, dmg: this.atk * 2, effect: 'vulnerable' };
+        return { type: 'slam', intent: `톱니 타격 ${this.atk + 5}`, dmg: this.atk + 5 };
+      }
+    },
+    elite_echo_judge: {
+      id: 'elite_echo_judge', name: '【정예】잔향 심판관', icon: '⚖️', image: 'enemy_elite_echo_judge.png', hp: 100, maxHp: 100, atk: 14, region: 1, xp: 75, gold: 40, isElite: true,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'judge', intent: '심판 (에너지 -1)', dmg: 10, effect: 'drain_energy' };
+        return { type: 'strike', intent: `정의의 검 ${this.atk + 6}`, dmg: this.atk + 6 };
+      }
+    },
+    // ── 침묵의 도시 보스 추가 ──
+    clockwork_emperor: {
+      id: 'clockwork_emperor', name: '태엽 황제', icon: '⚙️', image: 'enemy_clockwork_emperor.png', hp: 220, maxHp: 220, atk: 18, region: 1, xp: 150, gold: 70, isBoss: true,
+      ai(turn) {
+        if (turn % 5 === 0) return { type: 'overdrive', intent: `오버드라이브 ${this.atk * 2.5 | 0}`, dmg: this.atk * 2.5 | 0 };
+        if (turn % 3 === 0) return { type: 'repair', intent: '자가 수리 (회복 30)', dmg: 0, effect: 'heal_30' };
+        return { type: 'punch', intent: `황제의 권격 ${this.atk}`, dmg: this.atk };
+      }
+    },
     // ── 침묵의 도시 정예 ──
     elite_silence_herald: {
       id: 'elite_silence_herald', name: '【정예】침묵 사도', icon: '🗿', image: 'enemy_elite_silence_herald.png', hp: 95, maxHp: 95, atk: 16, region: 1, xp: 70, gold: 38, isElite: true,
@@ -771,9 +879,8 @@
         return { type: 'bash', intent: `강타 ${this.atk}`, dmg: this.atk };
       }
     },
-    // ── 기억의 미궁 추가 몬스터 ──
     phantom_soldier: {
-      id: 'phantom_soldier', name: '환영 병사', icon: '👤', image: 'enemy_phantom_soldier.png', hp: 40, maxHp: 40, atk: 11, region: 2, xp: 32, gold: 13,
+      id: 'phantom_soldier', name: '환영 병사', icon: '👤', image: 'enemy_phantom_soldier.png', hp: 46, maxHp: 46, atk: 13, region: 2, xp: 32, gold: 13,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'clone', intent: '분열 (방어막10)', dmg: 0, effect: 'self_shield' };
         if (turn % 2 === 0) return { type: 'phase', intent: '위상 이동', dmg: 0, effect: 'dodge' };
@@ -801,7 +908,7 @@
     },
     // ── 신의 무덤 정예 ──
     elite_fallen_deity: {
-      id: 'elite_fallen_deity', name: '【정예】타락신', icon: '👼', image: 'enemy_elite_fallen_deity.png', hp: 130, maxHp: 130, atk: 18, region: 3, xp: 90, gold: 55, isElite: true,
+      id: 'elite_fallen_deity', name: '【정예】타락천사', icon: '👼', image: 'enemy_elite_fallen_deity.png', hp: 130, maxHp: 130, atk: 18, region: 3, xp: 90, gold: 55, isElite: true,
       ai(turn) {
         if (turn === 1) return { type: 'curse_all', intent: '전체 저주 (전 디버프)', dmg: 0, effect: 'mass_debuff' };
         if (turn % 3 === 0) return { type: 'divine_strike', intent: `신성 참격 ${this.atk + 12}`, dmg: this.atk + 12 };
@@ -819,13 +926,159 @@
       }
     },
     // ── 에코의 핵심 정예 ──
+    // ── 기억의 미궁 추가 몬스터 ──
+    nightmare_specter: {
+      id: 'nightmare_specter', name: '악몽의 망령', icon: '👻', image: 'enemy_nightmare_specter.png', hp: 52, maxHp: 52, atk: 14, region: null, xp: 40, gold: 16,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'panic', intent: '공포 (방어막 불가)', dmg: 10, effect: 'no_shield' };
+        return { type: 'strike', intent: `악몽의 손길 ${this.atk + 4}`, dmg: this.atk + 4 };
+      }
+    },
+    memory_thief: {
+      id: 'memory_thief', name: '기억 도둑', icon: '👤', image: 'enemy_memory_thief.png', hp: 44, maxHp: 44, atk: 13, region: 2, xp: 38, gold: 25,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'steal_gold', intent: '금전 탈취 (10골드)', dmg: 5, effect: 'steal_gold' };
+        return { type: 'stab', intent: `기습 ${this.atk + 6}`, dmg: this.atk + 6 };
+      }
+    },
+    mirror_shade: {
+      id: 'mirror_shade', name: '거울 그림자', icon: '🪞', image: 'enemy_mirror_shade.png', hp: 48, maxHp: 48, atk: 12, region: 2, xp: 42, gold: 18,
+      ai(turn) {
+        if (turn % 2 === 0) return { type: 'reflect', intent: '거울 반사 (가시 5)', dmg: 0, effect: 'thorns_5' };
+        return { type: 'slash', intent: `그림자 베기 ${this.atk}`, dmg: this.atk };
+      }
+    },
+    elite_maze_master: {
+      id: 'elite_maze_master', name: '【정예】미궁 주권자', icon: '🌀', image: 'enemy_elite_maze_master.png', hp: 115, maxHp: 115, atk: 17, region: 2, xp: 85, gold: 50, isElite: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'maze_lock', intent: '미궁 폐쇄 (손패 교체)', dmg: 0, effect: 'discard_hand' };
+        if (turn % 3 === 0) return { type: 'crush', intent: `공간 압착 ${this.atk + 10} (+취약)`, dmg: this.atk + 10, effect: 'vulnerable' };
+        return { type: 'strike', intent: `미궁의 일격 ${this.atk + 5}`, dmg: this.atk + 5 };
+      }
+    },
+    labyrinth_shade: {
+      id: 'labyrinth_shade', name: '미궁의 그림자', icon: '🌑', image: 'enemy_labyrinth_shade.png', hp: 46, maxHp: 46, atk: 12, region: 2, xp: 36, gold: 15,
+      ai(turn) {
+        if (turn % 2 === 0) return { type: 'hide', intent: '그림자 숨기 (회피)', dmg: 0, effect: 'dodge' };
+        return { type: 'slash', intent: `그림자 베기 ${this.atk}`, dmg: this.atk };
+      }
+    },
+    elite_soul_reaper: {
+      id: 'elite_soul_reaper', name: '【정예】영혼 수확자', icon: '⚔️', image: 'enemy_elite_soul_reaper.png', hp: 110, maxHp: 110, atk: 18, region: 2, xp: 90, gold: 55, isElite: true,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'harvest', intent: `영혼 수확 ${this.atk + 8} (HP흡수)`, dmg: this.atk + 8, effect: 'lifesteal' };
+        return { type: 'slash', intent: `사선 베기 ${this.atk + 4}`, dmg: this.atk + 4 };
+      }
+    },
+    memory_weaver: {
+      id: 'memory_weaver', name: '기억의 직조자', icon: '🕸️', image: 'enemy_memory_weaver.png', hp: 190, maxHp: 190, atk: 16, region: 2, xp: 140, gold: 65, isBoss: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'weave', intent: '기억의 실 (카드 소각)', dmg: 0, effect: 'exhaust_card' };
+        return { type: 'strike', intent: `환영 타격 ${this.atk + 6}`, dmg: this.atk + 6 };
+      }
+    },
+    // ── 신의 무덤 추가 몬스터 ──
+    tomb_guardian: {
+      id: 'tomb_guardian', name: '무덤 파수병', icon: '🛡️', image: 'enemy_tomb_guardian.png', hp: 85, maxHp: 85, atk: 11, region: 3, xp: 45, gold: 20,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'shield_bash', intent: `방패 강타 ${this.atk + 8} (기절)`, dmg: this.atk + 8, effect: 'stun' };
+        return { type: 'guard', intent: '철벽 방어 (방어막 15)', dmg: 0, effect: 'self_shield' };
+      }
+    },
+    holy_guardian: {
+      id: 'holy_guardian', name: '성소 수호병', icon: '🏯', image: 'enemy_holy_guardian.png', hp: 80, maxHp: 80, atk: 12, region: 3, xp: 46, gold: 21,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'holy_shield', intent: '성스러운 방패 (방어막16)', dmg: 0, effect: 'self_shield' };
+        return { type: 'strike', intent: `심판의 망치 ${this.atk + 4}`, dmg: this.atk + 4 };
+      }
+    },
+    divine_servant: {
+      id: 'divine_servant', name: '신의 하인', icon: '🔅', image: 'enemy_divine_servant.png', hp: 72, maxHp: 72, atk: 13, region: 3, xp: 44, gold: 19,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'curse', intent: '빛의 구속 (약화)', dmg: 0, effect: 'weaken' };
+        return { type: 'beam', intent: `빛의 화살 ${this.atk + 6}`, dmg: this.atk + 6 };
+      }
+    },
+    elite_judgement_hand: {
+      id: 'elite_judgement_hand', name: '【정예】심판의 손', icon: '🖐️', image: 'enemy_elite_judgement_hand.png', hp: 135, maxHp: 135, atk: 21, region: 3, xp: 95, gold: 58, isElite: true,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'crush', intent: `압쇄 ${this.atk + 12} (취약)`, dmg: this.atk + 12, effect: 'vulnerable' };
+        return { type: 'strike', intent: `심판의 일격 ${this.atk + 6}`, dmg: this.atk + 6 };
+      }
+    },
+    grave_executor: {
+      id: 'grave_executor', name: '무덤의 집행자', icon: '🪓', image: 'enemy_grave_executor.png', hp: 210, maxHp: 210, atk: 19, region: 3, xp: 155, gold: 72, isBoss: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'execute', intent: `사형 구형 ${this.atk * 2.5 | 0}`, dmg: this.atk * 2.5 | 0 };
+        return { type: 'strike', intent: `집행의 도끼 ${this.atk + 5}`, dmg: this.atk + 5 };
+      }
+    },
+    holy_specter: {
+      id: 'holy_specter', name: '성스러운 환령', icon: '✨', image: 'enemy_holy_specter.png', hp: 68, maxHp: 68, atk: 15, region: 3, xp: 55, gold: 24,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'smite', intent: `신의 처벌 ${this.atk * 2}`, dmg: this.atk * 2 };
+        return { type: 'bless', intent: '빛의 가속 (공격력+4)', dmg: 0, effect: 'self_atk_up' };
+      }
+    },
+    elite_grave_lord: {
+      id: 'elite_grave_lord', name: '【정예】무덤 군주', icon: '☠️', image: 'enemy_elite_grave_lord.png', hp: 140, maxHp: 140, atk: 20, region: 3, xp: 100, gold: 60, isElite: true,
+      ai(turn) {
+        if (turn === 1) return { type: 'doom', intent: '파멸의 선고 (3턴 후 큰 피해)', dmg: 0, effect: 'doom_3' };
+        if (turn % 3 === 0) return { type: 'death_grasp', intent: `죽음의 움켜읨 ${this.atk + 12} (흡혈)`, dmg: this.atk + 12, effect: 'lifesteal' };
+        return { type: 'strike', intent: `사령 강타 ${this.atk + 8}`, dmg: this.atk + 8 };
+      }
+    },
+    // ── 메아리의 근원 추가 몬스터 ──
+    void_eye_enemy: {
+      id: 'void_eye_enemy', name: '허공의 눈', icon: '👁️', image: 'enemy_void_eye_enemy.png', hp: 62, maxHp: 62, atk: 18, region: 4, xp: 58, gold: 32,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'gaze', intent: '심연의 시선 (취약/약화)', dmg: 5, effect: 'weaken_vulnerable' };
+        return { type: 'beam', intent: `공허 광선 ${this.atk + 6}`, dmg: this.atk + 6 };
+      }
+    },
+    void_walker: {
+      id: 'void_walker', name: '허공 보행자', icon: '🚶', image: 'enemy_void_walker.png', hp: 58, maxHp: 58, atk: 19, region: 4, xp: 62, gold: 35,
+      ai(turn) {
+        if (turn % 2 === 0) return { type: 'blink', intent: '차원 점멸 (회피)', dmg: 0, effect: 'dodge' };
+        return { type: 'reality_slash', intent: `현실 베기 ${this.atk + 10}`, dmg: this.atk + 10 };
+      }
+    },
+    reality_shredder: {
+      id: 'reality_shredder', name: '현실 파쇄자', icon: '🌪️', image: 'enemy_reality_shredder.png', hp: 75, maxHp: 75, atk: 21, region: 4, xp: 70, gold: 40,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'shred', intent: `현실 파쇄 ${this.atk * 2} (Echo-10)`, dmg: this.atk * 2, effect: 'drain_echo_10' };
+        return { type: 'strike', intent: `차원 강타 ${this.atk + 5}`, dmg: this.atk + 5 };
+      }
+    },
+    elite_origin_guard: {
+      id: 'elite_origin_guard', name: '【정예】근원 수호자', icon: '🛡️', image: 'enemy_elite_origin_guard.png', hp: 180, maxHp: 180, atk: 24, region: 4, xp: 140, gold: 80, isElite: true,
+      ai(turn) {
+        if (turn % 5 === 0) return { type: 'origin_shield', intent: '근원의 방패 (무적 1턴)', dmg: 0, effect: 'invincible' };
+        if (turn % 3 === 0) return { type: 'counter', intent: '반격 태세 (가시 10)', dmg: 0, effect: 'thorns_10' };
+        return { type: 'bash', intent: `근원의 충격 ${this.atk + 15}`, dmg: this.atk + 15 };
+      }
+    },
     elite_echo_colossus: {
-      id: 'elite_echo_colossus', name: '【정예】잔향 거신', icon: '🌟', image: 'enemy_elite_echo_colossus.png', hp: 160, maxHp: 160, atk: 20, region: 4, xp: 120, gold: 70, isElite: true,
+      id: 'elite_echo_colossus', name: '【정예】잔향 거신', icon: '🌟', image: 'enemy_elite_echo_colossus.png', hp: 135, maxHp: 135, atk: 20, region: 4, xp: 120, gold: 70, isElite: true,
       ai(turn) {
         if (turn === 1) return { type: 'echo_suppress', intent: 'Echo 억제 (Max Echo -20)', dmg: 0, effect: 'drain_echo' };
         if (turn % 3 === 0) return { type: 'colossal_slam', intent: `거신 강타 ${this.atk + 15}`, dmg: this.atk + 15 };
         if (turn % 4 === 0) return { type: 'void_aura', intent: '허공 오라 (에너지-1)', dmg: 10, effect: 'drain_energy' };
         return { type: 'strike', intent: `거신 격 ${this.atk}`, dmg: this.atk };
+      }
+    },
+    void_core_fragment: {
+      id: 'void_core_fragment', name: '허공 핵 파편', icon: '💠', image: 'enemy_void_core_fragment.png', hp: 64, maxHp: 64, atk: 17, region: 4, xp: 55, gold: 28,
+      ai(turn) {
+        if (turn % 3 === 0) return { type: 'pulse', intent: `핵 맥동 ${this.atk + 5} (Echo감소)`, dmg: this.atk + 5, effect: 'drain_echo' };
+        return { type: 'strike', intent: `파괴 광선 ${this.atk + 4}`, dmg: this.atk + 4 };
+      }
+    },
+    elite_void_templar: {
+      id: 'elite_void_templar', name: '【정예】허공 기사', icon: '⚔️', image: 'enemy_elite_void_templar.png', hp: 170, maxHp: 170, atk: 22, region: 4, xp: 130, gold: 75, isElite: true,
+      ai(turn) {
+        if (turn % 4 === 0) return { type: 'shatter', intent: `현실 분쇄 ${this.atk * 2} (에너지-1)`, dmg: this.atk * 2, effect: 'drain_energy' };
+        return { type: 'slash', intent: `허공 베기 ${this.atk + 10}`, dmg: this.atk + 10 };
       }
     },
     // 보스들
@@ -907,7 +1160,7 @@
         return { type: 'echo_strike', intent: `잔향 격 ${this.atk}`, dmg: this.atk };
       }
     },
-    // 에코의 핵심 최종 보스
+    // 메아리의 근원 최종 보스
     void_herald: {
       id: 'void_herald', name: '허공의 사도', icon: '🌌', image: 'enemy_void_herald.png', hp: 280, maxHp: 280, atk: 20, region: 4, xp: 200, gold: 100, isBoss: true, phase: 1,
       ai(turn) {
@@ -925,41 +1178,40 @@
   regions: [
     {
       id: 0, name: '잔향의 숲', rule: '기본 규칙', ruleDesc: '잔향의 힘이 깨어나는 곳', quote: '"기억은 언제나 숲으로 돌아온다."', floors: 4,
-      enemies: ['shadow_wolf', 'forest_wraith', 'echo_bat'],
-      strongEnemies: ['fallen_knight', 'moss_golem'],
-      elites: ['elite_dire_wolf', 'elite_ancient_tree'],
-      boss: ['ancient_echo']
+      enemies: ['shadow_wolf', 'forest_wraith', 'moss_golem', 'echo_bat', 'verdant_slayer', 'thistle_back'],
+      elites: ['elite_dire_wolf', 'elite_ancient_tree', 'elite_moss_monarch'],
+      boss: ['ancient_echo', 'forest_guardian']
     },
     {
       id: 1, name: '침묵의 도시', rule: '침묵의 저주', ruleDesc: '소음 게이지가 더 빨리 상승합니다.', quote: '"침묵은 가장 큰 비명이다."', floors: 4,
-      enemies: ['silent_sentinel', 'noise_wraith', 'iron_automaton'],
-      elites: ['elite_silence_herald'],
-      boss: ['silent_tyrant']
+      enemies: ['silent_sentinel', 'noise_wraith', 'iron_automaton', 'rust_stalker', 'brass_guardian', 'silent_shade'],
+      elites: ['elite_silence_herald', 'elite_gear_titan', 'elite_echo_judge'],
+      boss: ['silent_tyrant', 'clockwork_emperor']
     },
     {
       id: 2, name: '기억의 미궁', rule: '망각의 안개', ruleDesc: '매 턴 무작위 카드 1장이 소각됩니다.', quote: '"잊혀진 것들이 이곳에 모인다."', floors: 5,
-      enemies: ['memory_specter', 'nightmare_hound', 'phantom_soldier'],
-      elites: ['elite_memory_lich'],
-      boss: ['memory_sovereign']
+      enemies: ['memory_specter', 'nightmare_hound', 'phantom_soldier', 'memory_thief', 'mirror_shade', 'labyrinth_shade'],
+      elites: ['elite_memory_lich', 'elite_maze_master', 'elite_soul_reaper'],
+      boss: ['memory_sovereign', 'memory_weaver']
     },
     {
       id: 3, name: '신의 무덤', rule: '신성한 심판', ruleDesc: '에너지 회복량이 1 감소합니다.', quote: '"신들은 죽었으나 영광은 남았다."', floors: 5,
-      enemies: ['divine_remnant', 'cursed_paladin'],
-      elites: ['elite_fallen_deity'],
-      boss: ['divine_tyrant']
+      enemies: ['divine_remnant', 'cursed_paladin', 'tomb_guardian', 'holy_specter', 'holy_guardian', 'divine_servant'],
+      elites: ['elite_fallen_deity', 'elite_grave_lord', 'elite_judgement_hand'],
+      boss: ['divine_tyrant', 'grave_executor']
     },
     {
-      id: 4, name: '에코의 핵심', rule: '현실 붕괴', ruleDesc: '매 턴 최대 에코가 5씩 감소합니다.', quote: '"모든 시작이자 끝인 곳."', floors: 3,
-      enemies: ['echo_devourer', 'void_remnant'],
-      elites: ['elite_echo_colossus'],
+      id: 4, name: '메아리의 근원', rule: '현실 붕괴', ruleDesc: '매 턴 최대 에코가 5씩 감소합니다.', quote: '"모든 시작이자 끝인 곳."', floors: 3,
+      enemies: ['echo_devourer', 'void_remnant', 'void_eye_enemy', 'void_walker', 'reality_shredder', 'void_core_fragment'],
+      elites: ['elite_echo_colossus', 'elite_origin_guard', 'elite_void_templar'],
       boss: ['void_herald', 'echo_origin']
     }
   ],
 
   startDecks: {
-    swordsman: ['strike', 'strike', 'strike', 'defend', 'defend', 'quick_step', 'heavy_blow', 'momentum', 'charge', 'echo_strike'],
-    mage: ['foresight', 'counter', 'echo_wave', 'resonance', 'defend', 'echo_strike', 'soul_rend', 'echo_shield', 'foresight', 'prediction'],
-    hunter: ['silent_stab', 'silent_stab', 'silent_stab', 'vanish', 'defend', 'quick_step', 'echo_strike', 'twin_strike', 'silent_stab', 'vanish'],
+    swordsman: ['strike', 'strike', 'defend', 'charge', 'echo_strike', 'heavy_blow', 'blade_dance'],
+    mage: ['strike', 'strike', 'defend', 'prediction', 'foresight', 'void_mirror', 'time_warp'],
+    hunter: ['strike', 'strike', 'defend', 'momentum', 'tempo_strike', 'quick_step', 'phantom_step'],
   },
 
   events: [
@@ -969,6 +1221,14 @@
       choices: [
         { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog('골드 +20', 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
         { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog('Echo +15', 'echo'); return '조심성이 잔향을 강화했다.'; } },
+      ]
+    },
+    {
+      id: 'echo_shrine', layer: 1, title: '잔향의 제단', eyebrow: 'LAYER 1 · 우발적 이벤트',
+      desc: '희미한 빛을 내뿜는 제단이 당신의 기억을 자극한다.',
+      choices: [
+        { text: '✨ 에고를 바친다 (HP -10, Echo +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '제단이 당신의 기억을 삼키고 힘을 내뿜는다.'; } },
+        { text: '🚶 조용히 지나간다', effect(gs) { return '제단은 다시 침묵에 잠겼다.'; } }
       ]
     },
     {
@@ -1097,7 +1357,7 @@ const DifficultyScaler = {
     const regAbs = region !== undefined ? region : GS.currentRegion;
     const reg = (typeof getBaseRegionIndex === 'function') ? getBaseRegionIndex(regAbs) : regAbs;
     const flr = floor !== undefined ? floor : GS.currentFloor;
-    const base = 1 + (run - 1) * 0.05 + reg * 0.10 + flr * 0.03;
+    const base = 1 + reg * 0.15 + flr * 0.05; // Removed run scaling
     if (typeof RunRules !== 'undefined' && RunRules?.getEnemyScaleMultiplier) {
       return base * RunRules.getEnemyScaleMultiplier(GS, regAbs);
     }
@@ -1190,4 +1450,8 @@ const SetBonusSystem = {
     }
   },
 };
+
+if (typeof window !== 'undefined') {
+  window.DATA = DATA;
+}
 

@@ -313,6 +313,44 @@
         }
       }
 
+      const modEl = doc.getElementById('runModifiersSection');
+      if (modEl) {
+        let modHtml = '';
+        const runRules = globalObj.RunRules;
+        const asc = runRules?.getAscension?.(gs) || 0;
+        const endless = runRules?.isEndless?.(gs);
+
+        // 승천/엔들리스 정보
+        modHtml += `<div style="display:flex; gap:6px; flex-direction:column;">`;
+        if (asc > 0) {
+          modHtml += `<div style="font-family:'Cinzel',serif; font-size:10px; color:var(--danger); letter-spacing:0.1em; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); border-radius:4px; padding:4px 8px; display:inline-block;">✦ 승천 ${asc}</div>`;
+        }
+        if (endless) {
+          modHtml += `<div style="font-family:'Cinzel',serif; font-size:10px; color:var(--cyan); letter-spacing:0.1em; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.2); border-radius:4px; padding:4px 8px; display:inline-block;">✦ 무한 모드</div>`;
+        }
+        modHtml += `</div>`;
+
+        // 축복/저주 정보
+        const blessingId = gs.runConfig?.blessing || 'none';
+        const curseId = gs.runConfig?.curse || 'none';
+
+        if (blessingId !== 'none' || curseId !== 'none') {
+          modHtml += `<div style="margin-top:4px; display:flex; flex-direction:column; gap:4px;">`;
+          if (blessingId !== 'none') {
+            const b = runRules?.blessings?.[blessingId];
+            if (b) modHtml += `<div title="${b.desc}" style="font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;">✨ ${b.name}</div>`;
+          }
+          if (curseId !== 'none') {
+            const c = runRules?.curses?.[curseId];
+            if (c) modHtml += `<div title="${c.desc}" style="font-size:11px; color:var(--danger); background:rgba(255,51,102,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(255,51,102,0.15); cursor:help;">💀 ${c.name}</div>`;
+          }
+          modHtml += `</div>`;
+        }
+
+        modEl.innerHTML = modHtml;
+      }
+
+
       const echoBtn = doc.getElementById('echoSkillBtn');
       if (echoBtn) {
         const can = p.echo >= 30;

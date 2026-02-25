@@ -1077,23 +1077,66 @@ window.setMasterVolume = function (v) {
   AudioEngine.setVolume(val / 100);
   const el = document.getElementById('volMasterVal');
   if (el) el.textContent = val + '%';
+  _saveVolumes();
 };
 window.setSfxVolume = function (v) {
   const val = Math.max(0, Math.min(100, parseInt(v) || 0));
   AudioEngine.setSfxVolume(val / 100);
   const el = document.getElementById('volSfxVal');
   if (el) el.textContent = val + '%';
+  _saveVolumes();
 };
 window.setAmbientVolume = function (v) {
   const val = Math.max(0, Math.min(100, parseInt(v) || 0));
   AudioEngine.setAmbientVolume(val / 100);
   const el = document.getElementById('volAmbientVal');
   if (el) el.textContent = val + '%';
+  _saveVolumes();
 };
 
 // ────────────────────────────────────────
-// AUTOSAVE SYSTEM
+// AUTOSAVE SYSTEM & SETTINGS
 // ────────────────────────────────────────
+function _saveVolumes() {
+  const vol = AudioEngine.getVolumes();
+  localStorage.setItem('eotf_settings', JSON.stringify({ volumes: vol }));
+}
+
+function _loadVolumes() {
+  try {
+    const saved = localStorage.getItem('eotf_settings');
+    if (saved) {
+      const { volumes } = JSON.parse(saved);
+      if (volumes) {
+        if (Number.isFinite(volumes.master)) AudioEngine.setVolume(volumes.master);
+        if (Number.isFinite(volumes.sfx)) AudioEngine.setSfxVolume(volumes.sfx);
+        if (Number.isFinite(volumes.ambient)) AudioEngine.setAmbientVolume(volumes.ambient);
+      }
+    }
+  } catch (e) { console.warn('Load settings error:', e); }
+}
+
+function _syncVolumeUI() {
+  const vol = AudioEngine.getVolumes();
+  const m = Math.round(vol.master * 100);
+  const s = Math.round(vol.sfx * 100);
+  const a = Math.round(vol.ambient * 100);
+  const doc = document;
+  const volM = doc.getElementById('volMasterVal');
+  const volS = doc.getElementById('volSfxVal');
+  const volA = doc.getElementById('volAmbientVal');
+  if (volM) volM.textContent = m + '%';
+  if (volS) volS.textContent = s + '%';
+  if (volA) volA.textContent = a + '%';
+  const d = document;
+  const mSl = d.getElementById('volMasterSlider');
+  const sSl = d.getElementById('volSfxSlider');
+  const aSl = d.getElementById('volAmbientSlider');
+  if (mSl) mSl.value = m;
+  if (sSl) sSl.value = s;
+  if (aSl) aSl.value = a;
+}
+
 // SaveSystem is provided by game/save_system.js.
 
 function _getGameBootDeps() {
@@ -1110,8 +1153,13 @@ function _getGameBootDeps() {
 }
 
 function _bootGame() {
+  _loadVolumes();
   window.GameBootUI?.bootGame?.(_getGameBootDeps());
 }
+
+// ── 외부용 싱크 함수 노출 ──
+window._syncVolumeUI = _syncVolumeUI;
+window.GS = GS;
 
 // 즉시 실행 (load 이벤트 대신)
 window.GameBootUI?.bootWhenReady?.(_getGameBootDeps());

@@ -35,7 +35,7 @@
       if (!region) return;
 
       gs.combat.enemies = [];
-      gs.combat.turn = 0;
+      gs.combat.turn = 1;
       gs.combat.playerTurn = true;
       gs.combat.log = [];
       gs.player.shield = 0;

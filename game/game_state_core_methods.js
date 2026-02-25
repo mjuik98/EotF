@@ -144,7 +144,7 @@
 
     heal(amount) {
       if (getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1)) {
-        this.addLog('❌ 에코의 핵심: 회복 불가!', 'damage');
+        this.addLog('❌ 메아리의 근원: 회복 불가!', 'damage');
         return;
       }
       let adjusted = RunRules.getHealAmount(this, amount);

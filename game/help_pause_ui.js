@@ -44,10 +44,10 @@
         menu.id = 'helpMenu';
         menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:1000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
         menu.innerHTML = `
-          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;font-weight:900;color:var(--white);margin-bottom:8px;">단축키 안내</div>
-          <div style="background:rgba(16,16,46,0.8);border:1px solid var(--border);border-radius:12px;padding:20px 32px;display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;max-width:480px;width:90%;">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:900;color:var(--white);margin-bottom:12px;">단축키 안내</div>
+          <div style="background:rgba(16,16,46,0.85);border:1px solid var(--border);border-radius:16px;padding:24px 40px;display:grid;grid-template-columns:1fr 1.2fr;gap:12px 40px;max-width:600px;width:90%;">
             ${[
-            ['ESC', '일시정지 (전투 외)'],
+            ['ESC', '일시정지 (전항목)'],
             ['D', '덱 보기'],
             ['?', '이 안내 열기'],
             ['E', 'Echo 스킬 발동 (전투 중)'],
@@ -55,12 +55,12 @@
             ['1 - 0', '손패 카드 빠른 사용'],
             ['Tab', '다음 적 타겟 순환'],
           ].map(([k, v]) => `
-              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(0,255,204,0.07);border:1px solid rgba(0,255,204,0.15);border-radius:4px;padding:3px 8px;text-align:center;">${k}</div>
-              <div style="font-size:12px;color:var(--text);display:flex;align-items:center;">${v}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--cyan);background:rgba(0,255,204,0.07);border:1px solid rgba(0,255,204,0.15);border-radius:6px;padding:5px 12px;text-align:center;">${k}</div>
+              <div style="font-size:15px;color:var(--text);display:flex;align-items:center;">${v}</div>
             `).join('')}
           </div>
-          <div style="margin-top:8px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;color:var(--text-dim);">Echo 단계: 30 = ★☆☆ · 60 = ★★☆ · 100 = ★★★</div>
-          <button onclick="toggleHelp()" style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.1);border:1px solid var(--border);border-radius:6px;padding:10px 24px;cursor:pointer;margin-top:4px;">닫기</button>
+          <div style="margin-top:12px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--text-dim);">Echo 단계: 30 = ★☆☆ · 60 = ★★☆ · 100 = ★★★</div>
+          <button onclick="toggleHelp()" style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.1);border:1px solid var(--border);border-radius:8px;padding:14px 32px;cursor:pointer;margin-top:8px;">닫기</button>
         `;
         doc.body.appendChild(menu);
       } else {
@@ -155,25 +155,45 @@
         menu.id = 'pauseMenu';
         menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:1000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
         menu.innerHTML = `
-          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.5em;color:var(--text-dim);">일시정지</div>
-          <div style="font-family:'Cinzel Decorative',serif;font-size:32px;font-weight:900;color:var(--white);">PAUSED</div>
-          <div style="display:flex;flex-direction:column;gap:8px;width:200px;">
-            <button onclick="togglePause()" style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.1);border:1px solid var(--border);border-radius:6px;padding:12px;cursor:pointer;">계속하기</button>
-            <button onclick="toggleHelp();togglePause();" style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:6px;padding:12px;cursor:pointer;">단축키 안내 (?)</button>
-            <button onclick="abandonRun()" style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.08);border:1px solid rgba(255,51,102,0.25);border-radius:6px;padding:12px;cursor:pointer;">⚠ 런 포기</button>
-            <button onclick="location.reload()" style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:12px;cursor:pointer;">처음으로</button>
+          <div style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.5em;color:var(--text-dim);">일시정지</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:48px;font-weight:900;color:var(--white);text-shadow:0 0 20px rgba(255,255,255,0.2);">PAUSED</div>
+          <div style="display:flex;flex-direction:column;gap:12px;width:280px;">
+            <button onclick="togglePause()" style="font-family:'Cinzel',serif;font-size:16px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.12);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;">계속하기</button>
+            <div style="display:flex;gap:8px;">
+              <button onclick="showDeckView();togglePause();" style="flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;">📚 덱 보기</button>
+              <button onclick="openCodex();togglePause();" style="flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;">📖 도감</button>
+            </div>
+            <button onclick="toggleHelp();togglePause();" style="font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.3);border-radius:8px;padding:16px;cursor:pointer;">단축키 안내 (?)</button>
+            <button onclick="abandonRun()" style="font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.3);border-radius:8px;padding:16px;cursor:pointer;">⚠ 런 포기</button>
+            <button onclick="location.reload()" style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;cursor:pointer;">처음으로</button>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-            <span style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;color:var(--text-dim);">음량</span>
-            <input type="range" min="0" max="100" value="35" style="width:120px;accent-color:var(--echo);"
-              oninput="AudioEngine.setVolume(this.value/100)">
+          <div style="display:flex;flex-direction:column;gap:16px;margin-top:12px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;width:280px;">
+            <div style="display:flex;align-items:center;gap:15px;">
+              <span style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;">마스터</span>
+              <input type="range" id="volMasterSlider" min="0" max="100" style="flex:1;accent-color:var(--echo);"
+                oninput="setMasterVolume(this.value)">
+              <span id="volMasterVal" style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;">35%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:15px;">
+              <span style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;">SFX</span>
+              <input type="range" id="volSfxSlider" min="0" max="100" style="flex:1;accent-color:var(--echo);"
+                oninput="setSfxVolume(this.value)">
+              <span id="volSfxVal" style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;">70%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:15px;">
+              <span style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;">BGM</span>
+              <input type="range" id="volAmbientSlider" min="0" max="100" style="flex:1;accent-color:var(--echo);"
+                oninput="setAmbientVolume(this.value)">
+              <span id="volAmbientVal" style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;">40%</span>
+            </div>
           </div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text-dim);text-align:center;">
             런 ${gs.meta.runCount} · 지역 ${gs.currentRegion + 1} · ${gs.currentFloor}층<br>
             스토리 조각 ${gs.meta.storyPieces.length}/10
           </div>
         `;
         doc.body.appendChild(menu);
+        if (typeof globalObj._syncVolumeUI === 'function') globalObj._syncVolumeUI();
       } else {
         menu?.remove();
       }
@@ -185,9 +205,8 @@
       const doc = _getDoc(deps);
       const self = this;
 
-      _hotkeysBound = true;
       doc.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && _isInGame(gs) && !gs.combat.active) {
+        if (e.key === 'Escape' && _isInGame(gs)) {
           self.togglePause(deps);
         }
 

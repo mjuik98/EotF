@@ -2,6 +2,7 @@
   let ctx = null, masterGain = null, reverbNode = null;
   let sfxGain = null, ambientGainNode = null;
   let ambientOsc = null, ambientStarted = false;
+  let _volumes = { master: 0.35, sfx: 0.7, ambient: 0.4 };
 
   function init() {
     if (ctx) return;
@@ -131,9 +132,20 @@
 
   function playFootstep() { tone(80 + Math.random() * 40, 0.1, 'square', 0.05); }
 
-  function setVolume(v) { if (masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
-  function setSfxVolume(v) { if (sfxGain) sfxGain.gain.value = Math.max(0, Math.min(1, v)); }
-  function setAmbientVolume(v) { if (ambientGainNode) ambientGainNode.gain.value = Math.max(0, Math.min(1, v)); }
+  function setVolume(v) {
+    _volumes.master = Math.max(0, Math.min(1, v));
+    if (masterGain) masterGain.gain.value = _volumes.master;
+  }
+  function setSfxVolume(v) {
+    _volumes.sfx = Math.max(0, Math.min(1, v));
+    if (sfxGain) sfxGain.gain.value = _volumes.sfx;
+  }
+  function setAmbientVolume(v) {
+    _volumes.ambient = Math.max(0, Math.min(1, v));
+    if (ambientGainNode) ambientGainNode.gain.value = _volumes.ambient;
+  }
+
+  function getVolumes() { return { ..._volumes }; }
 
   // 클래스 선택 시 고유 사운드
   function playClassSelect(cls) {
@@ -171,7 +183,7 @@
     init, resume, playHit, playHeavyHit, playPlayerHit, playCritical,
     playCard, playSkill, playEcho, playHeal, playDeath, playItemGet,
     playBossPhase, playChain, playResonanceBurst, startAmbient, playFootstep,
-    setVolume, setSfxVolume, setAmbientVolume, playClassSelect, playLegendary
+    setVolume, setSfxVolume, setAmbientVolume, getVolumes, playClassSelect, playLegendary
   };
 })();
 

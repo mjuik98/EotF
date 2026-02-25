@@ -28,6 +28,7 @@
           <button class="primary-start-btn" onclick="showCharacterSelect()">GAME START</button>
           <div style="display: flex; gap: 10px;">
             <button class="settings-trigger-btn" onclick="openRunSettings()">⚙️ RUN RULES</button>
+            <button class="settings-trigger-btn" onclick="openCodexFromTitle()">📖 CODEX</button>
             <button class="settings-trigger-btn"
               onclick="document.getElementById('soundSettings').classList.toggle('open')">🔊 SETTINGS</button>
           </div>
@@ -191,7 +192,7 @@
         color:rgba(238,240,255,0.6); text-align:center;
       "></div>
           <div id="nodeCardRow" style="
-        display:flex; gap:20px; align-items:center; justify-content:center;
+        display:flex; gap:30px; align-items:center; justify-content:center;
         flex-wrap:wrap; pointer-events:auto;
       "></div>
         </div>
@@ -415,8 +416,7 @@
 
 
   <!-- ── Hover HUD (좌상단, 마우스 오버 시 정보 표시) ── -->
-  <div id="hoverHud" class="combat-hud-container"
-    onclick="if(!event.target.closest('#hoverHudPanel') && !event.target.closest('#minimapCanvas') && !event.target.closest('.next-node-btn')) toggleHudPin()">
+  <div id="hoverHud" class="combat-hud-container" onclick="toggleHudPin()">
     <!-- 호버 HUD 트리거 및 컴팩트 뷰 -->
     <div id="hoverHudTrigger">
       <div class="hud-stat-inline">
@@ -425,6 +425,10 @@
           <div class="hud-bar-mini-fill bar-hp" id="hudHpBarMini" style="width:100%"></div>
         </div>
         <span id="hudHpText" style="color:var(--white);">80/80</span>
+      </div>
+      <div class="hud-stat-inline" id="hudShieldTrigger" style="margin-left:4px; opacity:0.3;">
+        <span style="color:#66bbff;font-size:12px;">🛡️</span>
+        <span id="hudShieldText" style="color:#66bbff;">0</span>
       </div>
       <div class="hud-stat-inline">
         <span style="color:var(--echo);font-size:13px;">⚡</span>
@@ -442,11 +446,6 @@
         <span id="hudEnergyText"
           style="color:var(--white); font-family:'Share Tech Mono',monospace; font-size:11px; margin-left:4px;">0/0</span>
       </div>
-      <div class="hud-stat-inline" id="hudShieldTrigger" style="margin-left:4px; opacity:0.3;">
-        <span style="color:#66bbff;font-size:12px;">🛡️</span>
-        <span id="hudShieldText" style="color:#66bbff;">0</span>
-      </div>
-      <span class="hud-pin-indicator" title="클릭하여 고정">📌</span>
     </div>
     <div id="hoverHudPanel">
 
@@ -706,20 +705,14 @@
     <div id="nextNodes" style="display:none;"></div>
 
     <div style="margin-top:auto;">
+      <div class="panel-title">런 모디파이어</div>
+      <div id="runModifiersSection" style="margin-bottom:12px; display:flex; flex-direction:column; gap:6px;"></div>
       <div class="panel-title">덱 정보</div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:1.8;">
         <div>덱: <span id="deckSize" style="color:var(--white);">10</span>장</div>
         <div>무덤: <span id="graveyardSize" style="color:var(--text-dim);">0</span>장</div>
         <div>소진: <span id="exhaustSize" style="color:var(--danger);">0</span>장</div>
       </div>
-      <button onclick="showDeckView()"
-        style="width:100%;margin-top:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(0,255,204,0.05);border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--cyan);cursor:pointer;transition:all 0.25s;"
-        onmouseover="this.style.background='rgba(0,255,204,0.12)'"
-        onmouseout="this.style.background='rgba(0,255,204,0.05)'">📚 덱 보기</button>
-      <button onclick="openCodex()"
-        style="width:100%;margin-top:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;background:rgba(240,180,41,0.06);border:1px solid rgba(240,180,41,0.2);border-radius:6px;padding:8px;color:var(--gold);cursor:pointer;transition:all 0.25s;"
-        onmouseover="this.style.background='rgba(240,180,41,0.14)'"
-        onmouseout="this.style.background='rgba(240,180,41,0.06)'">📖 도감</button>
     </div>
   </div>
 
