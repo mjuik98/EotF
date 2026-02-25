@@ -23,6 +23,7 @@
     // 공통 기본
     strike: {
       id: 'strike', name: '강타', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '8 피해', rarity: 'common',
+      image: 'card_strike.png',
       effect(gs) { gs.dealDamage(8); AudioEngine.playChain(gs.player.echoChain); }
     },
     strike_plus: {
@@ -31,6 +32,7 @@
     },
     defend: {
       id: 'defend', name: '방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 6 획득', rarity: 'common',
+      image: 'card_defend.png',
       effect(gs) { gs.addShield(6); }
     },
     defend_plus: {
@@ -39,6 +41,7 @@
     },
     echo_strike: {
       id: 'echo_strike', name: '잔향 강타', icon: '💥', cost: 2, type: 'ATTACK', desc: '12 피해, Echo +20', rarity: 'common',
+      image: 'card_echo_strike.png',
       effect(gs) { gs.dealDamage(12); gs.addEcho(20); }
     },
     echo_strike_plus: {
@@ -181,6 +184,7 @@
     // 레어/파워
     echo_burst_card: {
       id: 'echo_burst_card', name: 'Echo Burst', icon: '🌟', cost: 3, type: 'POWER', desc: 'Resonance Burst 즉시 발동', rarity: 'rare',
+      image: 'card_echo_burst.png',
       effect(gs) { gs.triggerResonanceBurst(); }
     },
     void_blade: {
@@ -195,11 +199,12 @@
     },
     soul_harvest: {
       id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '20 피해, 처치 시 HP +8', rarity: 'uncommon',
+      image: 'card_soul_harvest.png',
       effect(gs) { gs.dealDamage(20); }
     },
     echo_overload: {
       id: 'echo_overload', name: 'Echo 과부하', icon: '⚡', cost: 1, type: 'SKILL', desc: 'Echo 100 충전, HP -12', rarity: 'rare',
-      image: 'echo_overload.png',
+      image: 'card_echo_overload.png',
       effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 12); gs.addLog('⚡ Echo 과부하! HP-12', 'damage'); updateUI(); }
     },
     desperate_strike: {
@@ -259,6 +264,7 @@
     },
     revival_echo: {
       id: 'revival_echo', name: '소생 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: 'HP 15 회복 + 무덤에서 카드 2장 회수', rarity: 'rare', exhaust: true,
+      image: 'card_revival_echo.png',
       effect(gs) { gs.heal(15); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(DATA.cards[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); renderCombatCards(); }
     },
 
@@ -270,6 +276,7 @@
     },
     void_surge: {
       id: 'void_surge', name: '허공 급류', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -2 (최소 0)', rarity: 'rare',
+      image: 'card_void_surge.png',
       effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -2!', 'echo'); renderCombatCards(); updateUI(); }
     },
     resonance_flow: {
@@ -278,6 +285,7 @@
     },
     echo_cascade: {
       id: 'echo_cascade', name: '잔향 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '2장 드로우, 드로우한 카드 비용 0', rarity: 'rare',
+      image: 'card_echo_cascade.png',
       effect(gs) { const before = gs.player.hand.length; gs.drawCards(2); const newCards = gs.player.hand.slice(before); gs.player._cascadeCards = new Set(newCards); gs.player.costDiscount = (gs.player.costDiscount || 0) + 0; newCards.forEach(c => {/* mark for free */ }); gs.player.zeroCost = false; gs.addLog('💧 잔향 폭포: 카드 2장 드로우, 새 카드 무료!', 'echo'); gs.player.hand.slice(before).forEach(() => { }); renderCombatCards(); }
     },
     tempo_strike: {
