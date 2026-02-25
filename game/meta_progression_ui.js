@@ -1,11 +1,5 @@
-'use strict';
-
-import { GS } from './game_state.js';
-
-
-
-  function _getGS(deps) {
-    return deps?.gs || GS;
+function _getGS(deps) {
+    return deps?.gs || window.GS;
   }
 
   function _getDoc(deps) {

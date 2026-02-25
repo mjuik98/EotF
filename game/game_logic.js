@@ -1,56 +1,4 @@
-import { AudioEngine } from '../engine/audio.js';
-import { ParticleSystem } from '../engine/particles.js';
-import { ScreenShake } from '../engine/screenshake.js';
-import { HitStop } from '../engine/hitstop.js';
-import { FovEngine } from '../engine/fov.js';
-import { DATA } from '../data/game_data.js';
-import { NODE_META } from './constants/node_meta.js';
-import { DifficultyScaler } from './difficulty_scaler.js';
-import { SetBonusSystem } from './set_bonus_system.js';
-import { SaveSystem } from './save_system.js';
-import { RunRules } from './run_rules.js';
-import { TitleCanvasUI } from './title_canvas_ui.js';
-import { ClassMechanics } from './class_mechanics.js';
-import { ScreenUI } from './screen_ui.js';
-import { RunModeUI } from './run_mode_ui.js';
-import { ClassSelectUI } from './class_select_ui.js';
-import { MetaProgressionUI } from './meta_progression_ui.js';
-import { HelpPauseUI } from './help_pause_ui.js';
-import { RegionTransitionUI } from './region_transition_ui.js';
-import { RunStartUI } from './run_start_ui.js';
-import { RunSetupUI } from './run_setup_ui.js';
-import { GameCanvasSetupUI } from './game_canvas_setup_ui.js';
-import { MazeSystem } from './maze_system_ui.js';
-import { StoryUI } from './story_ui.js';
-import { CombatStartUI } from './combat_start_ui.js';
-import { CombatUI } from './combat_ui.js';
-import { CombatHudUI } from './combat_hud_ui.js';
-import { EchoSkillUI } from './echo_skill_ui.js';
-import { CombatTurnUI } from './combat_turn_ui.js';
-import { HudUpdateUI } from './hud_update_ui.js';
-import { StatusEffectsUI } from './status_effects_ui.js';
-import { CombatInfoUI } from './combat_info_ui.js';
-import { CombatActionsUI } from './combat_actions_ui.js';
-import { FeedbackUI } from './feedback_ui.js';
-import { TooltipUI } from './tooltip_ui.js';
-import { EventUI } from './event_ui.js';
-import { RewardUI } from './reward_ui.js';
-import { RunReturnUI } from './run_return_ui.js';
-import { DeckModalUI } from './deck_modal_ui.js';
-import { CodexUI } from './codex_ui.js';
-import { CardUI } from './card_ui.js';
-import { CardTargetUI } from './card_target_ui.js';
-import { DomValueUI } from './dom_value_ui.js';
-import { RandomUtils } from './random_utils.js';
-import { WorldCanvasUI } from './world_canvas_ui.js';
-import { WorldRenderLoopUI } from './world_render_loop_ui.js';
-import { MapGenerationUI } from './map_generation_ui.js';
-import { MapNavigationUI } from './map_navigation_ui.js';
-import { MapUI } from './map_ui.js';
-import { GameBootUI } from './game_boot_ui.js';
-import { GameStateCoreMethods } from './game_state_core_methods.js';
-import { GS } from './game_state.js';
-
+﻿'use strict';
 
 // ═══════════════════════════════════════════════════════════
 //  ECHO OF THE FALLEN v2 — 완전 통합 코드베이스
@@ -62,81 +10,47 @@ import { GS } from './game_state.js';
 // WEB AUDIO ENGINE
 // ────────────────────────────────────────
 
-Object.assign(GS, GameStateCoreMethods || {});
-
-// ────────────────────────────────────────
-// GAME NAMESPACE & DI SYSTEM (Phase 3)
-// ────────────────────────────────────────
-const GAME = {
-  State: GS,
-  Data: null,
-  Audio: null,
-  Particle: null,
-  Modules: {}, // Loaded UI/Logic modules
-
-  // Registry for cross-module calls replacing the legacy window wrapper functions.
-  // Modules will register their public API here.
-  API: {},
-
-  init(global) {
-    this.Data = global.DATA;
-    this.Audio = global.AudioEngine;
-    this.Particle = global.ParticleSystem;
-
-    // Bind legacy global compatibility
-    global.GS = this.State;
-    global.GameState = this.State;
-    global.GAME = this;
+const GS = {
+  currentScreen: 'title',
+  meta: {
+    runCount: 1, totalKills: 0, bestChain: 0, echoFragments: 0,
+    worldMemory: {},
+    inscriptions: { echo_boost: false, resilience: false, fortune: false },
+    storyPieces: [], _hiddenEndingHinted: false,
+    codex: { enemies: new Set(), cards: new Set(), items: new Set() },
+    unlocks: { ascension: false, endless: false },
+    maxAscension: 0,
+    runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'none' },
+    progress: { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} },
   },
-
-  register(moduleName, moduleObj) {
-    this.Modules[moduleName] = moduleObj;
-    // Auto-bind APIs if exposed
-    if (moduleObj && moduleObj.api) {
-      Object.assign(this.API, moduleObj.api);
-    }
+  player: {
+    class: 'swordsman', hp: 80, maxHp: 80, shield: 0,
+    echo: 0, maxEcho: 100, echoChain: 0,
+    energy: 3, maxEnergy: 3, gold: 0, kills: 0,
+    deck: [], hand: [], graveyard: [], exhausted: [],
+    items: [], buffs: {}, silenceGauge: 0, zeroCost: false, _freeCardUses: 0, costDiscount: 0, _cascadeCards: new Map(),
+    upgradedCards: new Set(), _cardUpgradeBonus: {},
   },
-
-  require(moduleName) {
-    const mod = this.Modules[moduleName] || window[moduleName];
-    if (!mod) {
-      throw new Error(`[GAME] Critical module missing: ${moduleName}`);
-    }
-    return mod;
-  },
-
-  // Builds standard Dependencies object for UI modules
-  getDeps() {
-    return {
-      gs: this.State,
-      data: this.Data,
-      doc: document,
-      win: window,
-      audioEngine: this.Audio,
-      particleSystem: this.Particle,
-      api: this.API,
-      runRules: RunRules,
-      classMechanics: ClassMechanics,
-      getRegionData: window.getRegionData,
-      getBaseRegionIndex: window.getBaseRegionIndex,
-      getRegionCount: window.getRegionCount,
-      difficultyScaler: DifficultyScaler,
-      shuffleArray: window.shuffleArray,
-      hitStop: HitStop,
-      screenShake: ScreenShake,
-      fovEngine: FovEngine,
-      setBonusSystem: SetBonusSystem,
-    };
-  }
+  currentRegion: 0, currentFloor: 1,
+  mapNodes: [], currentNode: null, visitedNodes: new Set(),
+  combat: { active: false, enemies: [], turn: 0, playerTurn: true, log: [] },
+  _selectedTarget: null,
+  worldMemory: {},
+  runConfig: { ascension: 0, endless: false, endlessMode: false, blessing: 'none', curse: 'none' },
+  stats: { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 },
+  _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
 };
 
-GAME.init(window);
+Object.assign(GS, window.GameStateCoreMethods || {});
+
+// 전역 참조 (레거시 호환)
+const GameState = GS;
 
 // ────────────────────────────────────────
-// LEGACY COMPATIBILITY WRAPPERS
-// (To be phased out by routing through GAME.API directly)
+// STORY SYSTEM
 // ────────────────────────────────────────
-const _baseDeps = () => GAME.getDeps();
+// ── Base Dependencies ──
+const _baseDeps = () => ({ gs: GS, data: DATA, doc: document, win: window });
 
 function _getStoryDeps() {
   return {
@@ -149,22 +63,22 @@ function _getStoryDeps() {
 
 const StorySystem = {
   unlockNextFragment() {
-    StoryUI?.unlockNextFragment?.(_getStoryDeps());
+    window.StoryUI?.unlockNextFragment?.(_getStoryDeps());
   },
   showRunFragment() {
-    StoryUI?.showRunFragment?.(_getStoryDeps());
+    window.StoryUI?.showRunFragment?.(_getStoryDeps());
   },
   displayFragment(frag) {
-    StoryUI?.displayFragment?.(frag, _getStoryDeps());
+    window.StoryUI?.displayFragment?.(frag, _getStoryDeps());
   },
   checkHiddenEnding() {
-    return !!StoryUI?.checkHiddenEnding?.(_getStoryDeps());
+    return !!window.StoryUI?.checkHiddenEnding?.(_getStoryDeps());
   },
   showNormalEnding() {
-    StoryUI?.showNormalEnding?.(_getStoryDeps());
+    window.StoryUI?.showNormalEnding?.(_getStoryDeps());
   },
   showHiddenEnding() {
-    StoryUI?.showHiddenEnding?.(_getStoryDeps());
+    window.StoryUI?.showHiddenEnding?.(_getStoryDeps());
   },
 };
 
@@ -172,7 +86,7 @@ const StorySystem = {
 // CLASS MECHANICS
 // ────────────────────────────────────────
 function _getClassMechanics() {
-  return ClassMechanics || {};
+  return window.ClassMechanics || {};
 }
 
 // ────────────────────────────────────────
@@ -185,8 +99,8 @@ let combatCanvas; // 파티클용
 // ────────────────────────────────────────
 // MAZE SYSTEM — 독립 풀스크린 오버레이
 // ────────────────────────────────────────
-
-MazeSystem?.configure?.({
+const MazeSystem = window.MazeSystem;
+window.MazeSystem?.configure?.({
   gs: GS,
   doc: document,
   win: window,
@@ -196,15 +110,15 @@ MazeSystem?.configure?.({
 });
 
 function initTitleCanvas() {
-  TitleCanvasUI?.init?.({ doc: document });
+  window.TitleCanvasUI?.init?.({ doc: document });
 }
 
 function resizeTitleCanvas() {
-  TitleCanvasUI?.resize?.({ doc: document });
+  window.TitleCanvasUI?.resize?.({ doc: document });
 }
 
 function animateTitle() {
-  TitleCanvasUI?.animate?.({ doc: document });
+  window.TitleCanvasUI?.animate?.({ doc: document });
 }
 
 function _applyGameCanvasRefs(refs) {
@@ -216,43 +130,58 @@ function _applyGameCanvasRefs(refs) {
   combatCanvas = refs.combatCanvas;
 }
 
+function _getGameCanvasSetupDeps() {
+  return {
+    ..._baseDeps(),
+    particleSystem: ParticleSystem,
+  };
+}
+
 function initGameCanvas() {
-  const refs = GameCanvasSetupUI?.init?.(GAME.getDeps());
+  const refs = window.GameCanvasSetupUI?.init?.(_getGameCanvasSetupDeps());
   _applyGameCanvasRefs(refs);
 }
 
 function resizeGameCanvas() {
-  GameCanvasSetupUI?.resize?.();
-  _applyGameCanvasRefs(GameCanvasSetupUI?.getRefs?.());
+  window.GameCanvasSetupUI?.resize?.();
+  _applyGameCanvasRefs(window.GameCanvasSetupUI?.getRefs?.());
 }
 
 // ────────────────────────────────────────
 // GAME LOOP — 단일 통합 루프
 // ────────────────────────────────────────
+function _getWorldRenderLoopDeps() {
+  return {
+    ..._baseDeps(),
+    refs: {
+      gameCanvas,
+      gameCtx,
+    },
+    hitStop: HitStop,
+    screenShake: ScreenShake,
+    particleSystem: ParticleSystem,
+    requestAnimationFrame: window.requestAnimationFrame.bind(window),
+    gameLoop,
+    renderMinimap: () => renderMinimap(),
+    renderNodeInfo: (ctx, w, h) => renderNodeInfo(ctx, w, h),
+    getRegionData,
+  };
+}
+
 function gameLoop(timestamp) {
-  const deps = GAME.getDeps();
-  deps.refs = { gameCanvas, gameCtx };
-  deps.requestAnimationFrame = window.requestAnimationFrame.bind(window);
-  deps.gameLoop = gameLoop;
-  deps.renderMinimap = renderMinimap;
-  deps.renderNodeInfo = renderNodeInfo;
-  WorldRenderLoopUI?.gameLoop?.(timestamp, deps);
+  window.WorldRenderLoopUI?.gameLoop?.(timestamp, _getWorldRenderLoopDeps());
 }
 
 function renderGameWorld(dt, ctx, w, h) {
-  const deps = GAME.getDeps();
-  deps.refs = { gameCanvas, gameCtx };
-  deps.renderMinimap = renderMinimap;
-  deps.renderNodeInfo = renderNodeInfo;
-  WorldRenderLoopUI?.renderGameWorld?.(dt, ctx, w, h, deps);
+  window.WorldRenderLoopUI?.renderGameWorld?.(dt, ctx, w, h, _getWorldRenderLoopDeps());
 }
 
 function renderRegionBackground(ctx, w, h) {
-  WorldRenderLoopUI?.renderRegionBackground?.(ctx, w, h, GAME.getDeps());
+  window.WorldRenderLoopUI?.renderRegionBackground?.(ctx, w, h, _getWorldRenderLoopDeps());
 }
 
 function renderDynamicLights(ctx, w, h) {
-  WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, GAME.getDeps());
+  window.WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, _getWorldRenderLoopDeps());
 }
 
 
@@ -264,68 +193,67 @@ function _getWorldCanvasDeps() {
 }
 
 function renderNodeInfo(ctx, w, h) {
-  WorldCanvasUI?.renderNodeInfo?.(ctx, w, h, _getWorldCanvasDeps());
+  window.WorldCanvasUI?.renderNodeInfo?.(ctx, w, h, _getWorldCanvasDeps());
 }
 
 
 // ── 지역/층별 상태 문구 헬퍼 ──
 function getFloorStatusText(regionId, floor) {
-  return WorldCanvasUI?.getFloorStatusText?.(regionId, floor, _getWorldCanvasDeps()) || '';
+  return window.WorldCanvasUI?.getFloorStatusText?.(regionId, floor, _getWorldCanvasDeps()) || '';
 }
 
 // 캔버스 텍스트 줄바꿈 헬퍼
 function wrapCanvasText(ctx, text, x, y, maxW, lineH) {
-  WorldCanvasUI?.wrapCanvasText?.(ctx, text, x, y, maxW, lineH);
+  window.WorldCanvasUI?.wrapCanvasText?.(ctx, text, x, y, maxW, lineH);
 }
 
 // 캔버스 둥근 사각형
 function roundRect(ctx, x, y, w, h, r) {
-  WorldCanvasUI?.roundRect?.(ctx, x, y, w, h, r);
+  window.WorldCanvasUI?.roundRect?.(ctx, x, y, w, h, r);
 }
 function roundRectTop(ctx, x, y, w, h, r) {
-  WorldCanvasUI?.roundRectTop?.(ctx, x, y, w, h, r);
+  window.WorldCanvasUI?.roundRectTop?.(ctx, x, y, w, h, r);
 }
 
 // ────────────────────────────────────────
 // MAP SYSTEM
 // ────────────────────────────────────────
+function _getMapGenerationDeps() {
+  return {
+    ..._baseDeps(),
+    getRegionData,
+    updateNextNodes: () => updateNextNodes(),
+    updateUI,
+    showWorldMemoryNotice,
+  };
+}
+
 function generateMap(regionIdx) {
-  const deps = GAME.getDeps();
-  deps.updateNextNodes = updateNextNodes;
-  deps.updateUI = updateUI;
-  deps.showWorldMemoryNotice = showWorldMemoryNotice;
-  MapGenerationUI?.generateMap?.(regionIdx, deps);
+  window.MapGenerationUI?.generateMap?.(regionIdx, _getMapGenerationDeps());
+}
+
+function _getMapDeps() {
+  return {
+    ..._baseDeps(),
+    minimapCanvas,
+    minimapCtx,
+    nodeMeta: NODE_META,
+    getFloorStatusText,
+    moveToNodeHandlerName: 'moveToNode',
+  };
 }
 
 function renderMinimap() {
-  const deps = GAME.getDeps();
-  deps.minimapCanvas = minimapCanvas;
-  deps.minimapCtx = minimapCtx;
-  deps.nodeMeta = NODE_META;
-  deps.getFloorStatusText = getFloorStatusText;
-  deps.moveToNodeHandlerName = 'moveToNode';
-  MapUI?.renderMinimap?.(deps);
+  window.MapUI?.renderMinimap?.(_getMapDeps());
 }
 
 export function updateNextNodes() {
-  const deps = GAME.getDeps();
-  deps.minimapCanvas = minimapCanvas;
-  deps.minimapCtx = minimapCtx;
-  deps.nodeMeta = NODE_META;
-  deps.getFloorStatusText = getFloorStatusText;
-  deps.moveToNodeHandlerName = 'moveToNode';
-  MapUI?.updateNextNodes?.(deps);
+  window.MapUI?.updateNextNodes?.(_getMapDeps());
 }
 
 
 function showFullMap() {
-  const deps = GAME.getDeps();
-  deps.minimapCanvas = minimapCanvas;
-  deps.minimapCtx = minimapCtx;
-  deps.nodeMeta = NODE_META;
-  deps.getFloorStatusText = getFloorStatusText;
-  deps.moveToNodeHandlerName = 'moveToNode';
-  MapUI?.showFullMap?.(deps);
+  window.MapUI?.showFullMap?.(_getMapDeps());
 }
 window.showFullMap = showFullMap;
 
@@ -334,186 +262,223 @@ function isNodeAccessible(node) {
   return true;
 }
 
+function _getMapNavigationDeps() {
+  return {
+    ..._baseDeps(),
+    classMechanics: _getClassMechanics(),
+    audioEngine: AudioEngine,
+    updateNextNodes: () => updateNextNodes(),
+    renderMinimap: () => renderMinimap(),
+    updateUI,
+    startCombat,
+    triggerRandomEvent,
+    showShop,
+    showRestSite,
+  };
+}
+
 function moveToNode(node) {
-  const deps = GAME.getDeps();
-  deps.updateNextNodes = updateNextNodes;
-  deps.renderMinimap = renderMinimap;
-  deps.updateUI = updateUI;
-  deps.startCombat = startCombat;
-  deps.triggerRandomEvent = triggerRandomEvent;
-  deps.showShop = showShop;
-  deps.showRestSite = showRestSite;
-  MapNavigationUI?.moveToNode?.(node, deps);
+  window.MapNavigationUI?.moveToNode?.(node, _getMapNavigationDeps());
 }
 
 // ────────────────────────────────────────
 // COMBAT SYSTEM
 // ────────────────────────────────────────
+function _getCombatStartDeps() {
+  return {
+    ..._baseDeps(),
+    getRegionData,
+    getBaseRegionIndex,
+    getRegionCount,
+    difficultyScaler: DifficultyScaler,
+    audioEngine: AudioEngine,
+    runRules: RunRules,
+    classMechanics: _getClassMechanics(),
+    showWorldMemoryNotice,
+    updateChainUI: (chain) => updateChainUI(chain),
+    renderCombatEnemies: () => renderCombatEnemies(),
+    renderCombatCards: () => renderCombatCards(),
+    updateCombatLog: () => updateCombatLog(),
+    updateNoiseWidget: () => updateNoiseWidget(),
+    showTurnBanner: (type) => showTurnBanner(type),
+    resetCombatInfoPanel: () => _resetCombatInfoPanel(),
+    refreshCombatInfoPanel: () => _refreshCombatInfoPanel(),
+    updateUI,
+    updateClassSpecialUI,
+  };
+}
+
 function startCombat(isBoss = false) {
-  const deps = GAME.getDeps();
-  deps.showWorldMemoryNotice = showWorldMemoryNotice;
-  deps.updateChainUI = updateChainUI;
-  deps.renderCombatEnemies = renderCombatEnemies;
-  deps.renderCombatCards = renderCombatCards;
-  deps.updateCombatLog = updateCombatLog;
-  deps.updateNoiseWidget = updateNoiseWidget;
-  deps.showTurnBanner = showTurnBanner;
-  deps.resetCombatInfoPanel = _resetCombatInfoPanel;
-  deps.refreshCombatInfoPanel = _refreshCombatInfoPanel;
-  deps.updateUI = updateUI;
-  deps.updateClassSpecialUI = updateClassSpecialUI;
-  CombatStartUI?.startCombat?.(isBoss, deps);
+  window.CombatStartUI?.startCombat?.(isBoss, _getCombatStartDeps());
+}
+
+function _getCombatHudDeps() {
+  return {
+    ..._baseDeps(),
+    classMechanics: _getClassMechanics(),
+    getBaseRegionIndex,
+  };
 }
 
 // Echo 스킬 툴팁
 // ── HUD 핀/언핀 토글 ──
 function toggleHudPin() {
-  CombatHudUI?.toggleHudPin?.(GAME.getDeps());
+  window.CombatHudUI?.toggleHudPin?.(_getCombatHudDeps());
 }
 window.toggleHudPin = toggleHudPin;
 
 function showEchoSkillTooltip(event) {
-  CombatHudUI?.showEchoSkillTooltip?.(event, GAME.getDeps());
+  window.CombatHudUI?.showEchoSkillTooltip?.(event, _getCombatHudDeps());
 }
 function hideEchoSkillTooltip() {
-  CombatHudUI?.hideEchoSkillTooltip?.(GAME.getDeps());
+  window.CombatHudUI?.hideEchoSkillTooltip?.(_getCombatHudDeps());
 }
 
 // 턴 전환 중앙 배너
 function showTurnBanner(type) {
-  CombatHudUI?.showTurnBanner?.(type, GAME.getDeps());
+  window.CombatHudUI?.showTurnBanner?.(type, _getCombatHudDeps());
+}
+
+function _getCombatDeps() {
+  return {
+    ..._baseDeps(),
+    selectTargetHandlerName: 'selectTarget',
+    showIntentTooltipHandlerName: 'showIntentTooltip',
+    hideIntentTooltipHandlerName: 'hideIntentTooltip',
+  };
 }
 
 function showIntentTooltip(event, enemyIdx) {
-  const deps = GAME.getDeps();
-  deps.selectTargetHandlerName = 'selectTarget';
-  deps.showIntentTooltipHandlerName = 'showIntentTooltip';
-  deps.hideIntentTooltipHandlerName = 'hideIntentTooltip';
-  CombatUI?.showIntentTooltip?.(event, enemyIdx, deps);
+  window.CombatUI?.showIntentTooltip?.(event, enemyIdx, _getCombatDeps());
 }
 
 function hideIntentTooltip() {
-  const deps = GAME.getDeps();
-  deps.selectTargetHandlerName = 'selectTarget';
-  deps.showIntentTooltipHandlerName = 'showIntentTooltip';
-  deps.hideIntentTooltipHandlerName = 'hideIntentTooltip';
-  CombatUI?.hideIntentTooltip?.(deps);
+  window.CombatUI?.hideIntentTooltip?.(_getCombatDeps());
 }
 
 window.showIntentTooltip = showIntentTooltip;
 window.hideIntentTooltip = hideIntentTooltip;
 
 function renderCombatEnemies() {
-  const deps = GAME.getDeps();
-  deps.selectTargetHandlerName = 'selectTarget';
-  deps.showIntentTooltipHandlerName = 'showIntentTooltip';
-  deps.hideIntentTooltipHandlerName = 'hideIntentTooltip';
-  CombatUI?.renderCombatEnemies?.(deps);
+  window.CombatUI?.renderCombatEnemies?.(_getCombatDeps());
 }
 
 // 단일 적 HP만 빠르게 갱신 (공격 직후 호출용)
 function updateEnemyHpUI(idx, enemy) {
-  const deps = GAME.getDeps();
-  deps.selectTargetHandlerName = 'selectTarget';
-  deps.showIntentTooltipHandlerName = 'showIntentTooltip';
-  deps.hideIntentTooltipHandlerName = 'hideIntentTooltip';
-  CombatUI?.updateEnemyHpUI?.(idx, enemy, deps);
+  window.CombatUI?.updateEnemyHpUI?.(idx, enemy, _getCombatDeps());
+}
+
+function _getCardDeps() {
+  return {
+    ..._baseDeps(),
+    playCardHandlerName: 'GS.playCard',
+    renderCombatCardsHandlerName: 'renderCombatCards',
+    dragStartHandlerName: 'handleCardDragStart',
+    dragEndHandlerName: 'handleCardDragEnd',
+    showTooltipHandlerName: 'showTooltip',
+    hideTooltipHandlerName: 'hideTooltip',
+  };
 }
 
 function getCardTypeClass(type) {
-  return CardUI?.getCardTypeClass?.(type) || '';
+  return window.CardUI?.getCardTypeClass?.(type) || '';
 }
 function getCardTypeLabelClass(type) {
-  return CardUI?.getCardTypeLabelClass?.(type) || '';
-}
-
-function _baseCardDeps() {
-  const deps = GAME.getDeps();
-  deps.playCardHandlerName = 'GS.playCard';
-  deps.renderCombatCardsHandlerName = 'renderCombatCards';
-  deps.dragStartHandlerName = 'handleCardDragStart';
-  deps.dragEndHandlerName = 'handleCardDragEnd';
-  deps.showTooltipHandlerName = 'showTooltip';
-  deps.hideTooltipHandlerName = 'hideTooltip';
-  return deps;
+  return window.CardUI?.getCardTypeLabelClass?.(type) || '';
 }
 
 function renderCombatCards() {
-  CardUI?.renderCombatCards?.(_baseCardDeps());
+  window.CardUI?.renderCombatCards?.(_getCardDeps());
 }
 
 function updateHandFanEffect() {
-  CardUI?.updateHandFanEffect?.(_baseCardDeps());
+  window.CardUI?.updateHandFanEffect?.(_getCardDeps());
 }
 
 function renderHand() {
-  CardUI?.renderHand?.(_baseCardDeps());
+  window.CardUI?.renderHand?.(_getCardDeps());
 }
 
 function updateCombatLog() {
-  CombatHudUI?.updateCombatLog?.(GAME.getDeps());
+  window.CombatHudUI?.updateCombatLog?.(_getCombatHudDeps());
 }
 
 function updateEchoSkillBtn() {
-  CombatHudUI?.updateEchoSkillBtn?.(GAME.getDeps());
+  window.CombatHudUI?.updateEchoSkillBtn?.(_getCombatHudDeps());
+}
+
+function _getEchoSkillDeps() {
+  return {
+    ..._baseDeps(),
+    audioEngine: AudioEngine,
+    showEchoBurstOverlay,
+    renderCombatEnemies,
+    renderCombatCards,
+  };
 }
 
 function useEchoSkill() {
-  const deps = GAME.getDeps();
-  deps.showEchoBurstOverlay = showEchoBurstOverlay;
-  deps.renderCombatEnemies = renderCombatEnemies;
-  deps.renderCombatCards = renderCombatCards;
-  EchoSkillUI?.useEchoSkill?.(deps);
+  window.EchoSkillUI?.useEchoSkill?.(_getEchoSkillDeps());
+}
+
+function _getCombatActionsDeps() {
+  return {
+    ..._baseDeps(),
+    audioEngine: AudioEngine,
+    renderCombatCards,
+    updateUI,
+  };
 }
 
 function sortHandByEnergy() {
-  const deps = GAME.getDeps();
-  deps.renderCombatCards = renderCombatCards;
-  deps.updateUI = updateUI;
-  CombatActionsUI?.sortHandByEnergy?.(deps);
+  window.CombatActionsUI?.sortHandByEnergy?.(_getCombatActionsDeps());
 }
 window.sortHandByEnergy = sortHandByEnergy;
 
 function drawCard() {
-  const deps = GAME.getDeps();
-  deps.renderCombatCards = renderCombatCards;
-  deps.updateUI = updateUI;
-  CombatActionsUI?.drawCard?.(deps);
+  window.CombatActionsUI?.drawCard?.(_getCombatActionsDeps());
 }
 
-function _getCombatTurnBaseDeps() {
-  const deps = GAME.getDeps();
-  deps.enemyTurn = enemyTurn;
-  deps.updateChainUI = updateChainUI;
-  deps.showTurnBanner = showTurnBanner;
-  deps.renderCombatEnemies = renderCombatEnemies;
-  deps.renderCombatCards = renderCombatCards;
-  deps.updateStatusDisplay = updateStatusDisplay;
-  deps.updateClassSpecialUI = updateClassSpecialUI;
-  deps.updateUI = updateUI;
-  deps.showEchoBurstOverlay = showEchoBurstOverlay;
-  deps.showDmgPopup = showDmgPopup;
-  return deps;
+function _getCombatTurnDeps() {
+  return {
+    ..._baseDeps(),
+    runRules: RunRules,
+    audioEngine: AudioEngine,
+    particleSystem: ParticleSystem,
+    screenShake: ScreenShake,
+    getBaseRegionIndex,
+    shuffleArray,
+    enemyTurn: () => enemyTurn(),
+    updateChainUI: (chain) => updateChainUI(chain),
+    showTurnBanner: (type) => showTurnBanner(type),
+    renderCombatEnemies: () => renderCombatEnemies(),
+    renderCombatCards: () => renderCombatCards(),
+    updateStatusDisplay: () => updateStatusDisplay(),
+    updateClassSpecialUI: () => updateClassSpecialUI(),
+    updateUI,
+    showEchoBurstOverlay: () => showEchoBurstOverlay(),
+    showDmgPopup: (dmg, x, y, color) => showDmgPopup(dmg, x, y, color),
+  };
 }
 
 function endPlayerTurn() {
-  CombatTurnUI?.endPlayerTurn?.(_getCombatTurnBaseDeps());
+  window.CombatTurnUI?.endPlayerTurn?.(_getCombatTurnDeps());
 }
 
 function enemyTurn() {
-  CombatTurnUI?.enemyTurn?.(_getCombatTurnBaseDeps());
+  window.CombatTurnUI?.enemyTurn?.(_getCombatTurnDeps());
 }
 
 function processEnemyStatusTicks() {
-  CombatTurnUI?.processEnemyStatusTicks?.(_getCombatTurnBaseDeps());
+  window.CombatTurnUI?.processEnemyStatusTicks?.(_getCombatTurnDeps());
 }
 
 function handleBossPhaseShift(enemy, idx) {
-  CombatTurnUI?.handleBossPhaseShift?.(enemy, idx, _getCombatTurnBaseDeps());
+  window.CombatTurnUI?.handleBossPhaseShift?.(enemy, idx, _getCombatTurnDeps());
 }
 
 function handleEnemyEffect(effect, enemy, idx) {
-  CombatTurnUI?.handleEnemyEffect?.(effect, enemy, idx, _getCombatTurnBaseDeps());
+  window.CombatTurnUI?.handleEnemyEffect?.(effect, enemy, idx, _getCombatTurnDeps());
 }
 
 // ────────────────────────────────────────
@@ -531,35 +496,35 @@ function _getEventDeps() {
 }
 
 function triggerRandomEvent() {
-  EventUI?.triggerRandomEvent?.(_getEventDeps());
+  window.EventUI?.triggerRandomEvent?.(_getEventDeps());
 }
 
 function _updateEventGoldBar() {
-  EventUI?.updateEventGoldBar?.(_getEventDeps());
+  window.EventUI?.updateEventGoldBar?.(_getEventDeps());
 }
 
 function showEvent(event) {
-  EventUI?.showEvent?.(event, _getEventDeps());
+  window.EventUI?.showEvent?.(event, _getEventDeps());
 }
 
 function resolveEvent(choiceIdx) {
-  EventUI?.resolveEvent?.(choiceIdx, _getEventDeps());
+  window.EventUI?.resolveEvent?.(choiceIdx, _getEventDeps());
 }
 
 function showShop() {
-  EventUI?.showShop?.(_getEventDeps());
+  window.EventUI?.showShop?.(_getEventDeps());
 }
 
 function showRestSite() {
-  EventUI?.showRestSite?.(_getEventDeps());
+  window.EventUI?.showRestSite?.(_getEventDeps());
 }
 
 function showCardDiscard(gs, isBurn = false) {
-  EventUI?.showCardDiscard?.(gs, isBurn, _getEventDeps());
+  window.EventUI?.showCardDiscard?.(gs, isBurn, _getEventDeps());
 }
 
 function showItemShop(gs) {
-  EventUI?.showItemShop?.(gs, _getEventDeps());
+  window.EventUI?.showItemShop?.(gs, _getEventDeps());
 }
 
 function _getRewardDeps() {
@@ -573,27 +538,27 @@ function _getRewardDeps() {
 }
 
 function showRewardScreen(isBoss) {
-  RewardUI?.showRewardScreen?.(isBoss, _getRewardDeps());
+  window.RewardUI?.showRewardScreen?.(isBoss, _getRewardDeps());
 }
 
 function takeRewardCard(cardId) {
-  RewardUI?.takeRewardCard?.(cardId, _getRewardDeps());
+  window.RewardUI?.takeRewardCard?.(cardId, _getRewardDeps());
 }
 
 function takeRewardItem(itemKey) {
-  RewardUI?.takeRewardItem?.(itemKey, _getRewardDeps());
+  window.RewardUI?.takeRewardItem?.(itemKey, _getRewardDeps());
 }
 
 function showSkipConfirm() {
-  RewardUI?.showSkipConfirm?.(_getRewardDeps());
+  window.RewardUI?.showSkipConfirm?.(_getRewardDeps());
 }
 
 function hideSkipConfirm() {
-  RewardUI?.hideSkipConfirm?.(_getRewardDeps());
+  window.RewardUI?.hideSkipConfirm?.(_getRewardDeps());
 }
 
 function skipReward() {
-  RewardUI?.skipReward?.(_getRewardDeps());
+  window.RewardUI?.skipReward?.(_getRewardDeps());
 }
 
 function _getRunReturnDeps() {
@@ -611,7 +576,7 @@ function _getRunReturnDeps() {
 }
 
 function returnToGame(fromReward) {
-  RunReturnUI?.returnToGame?.(fromReward, _getRunReturnDeps());
+  window.RunReturnUI?.returnToGame?.(fromReward, _getRunReturnDeps());
 }
 
 // ────────────────────────────────────────
@@ -635,19 +600,19 @@ function _getHudUpdateDeps() {
 }
 
 function _updateEndBtnWarn() {
-  HudUpdateUI?.updateEndBtnWarn?.(_getHudUpdateDeps());
+  window.HudUpdateUI?.updateEndBtnWarn?.(_getHudUpdateDeps());
 }
 
 function updateUI() {
-  HudUpdateUI?.updateUI?.(_getHudUpdateDeps());
+  window.HudUpdateUI?.updateUI?.(_getHudUpdateDeps());
 }
 
 function _doUpdateUI() {
-  HudUpdateUI?.doUpdateUI?.(_getHudUpdateDeps());
+  window.HudUpdateUI?.doUpdateUI?.(_getHudUpdateDeps());
 }
 
 function _getStatusKrMap() {
-  return StatusEffectsUI?.getStatusMap?.() || {};
+  return window.StatusEffectsUI?.getStatusMap?.() || {};
 }
 
 function _getCombatInfoDeps() {
@@ -657,10 +622,10 @@ function _getCombatInfoDeps() {
   };
 }
 function _resetCombatInfoPanel() {
-  CombatInfoUI?.reset?.(_getCombatInfoDeps());
+  window.CombatInfoUI?.reset?.(_getCombatInfoDeps());
 }
 function updateStatusDisplay() {
-  StatusEffectsUI?.updateStatusDisplay?.({
+  window.StatusEffectsUI?.updateStatusDisplay?.({
     gs: GS,
     doc: document,
     statusContainerId: 'statusEffects',
@@ -670,32 +635,32 @@ function updateStatusDisplay() {
 
 // ── 전투 정보 사이드 패널 ──
 function toggleCombatInfo() {
-  CombatInfoUI?.toggle?.(_getCombatInfoDeps());
+  window.CombatInfoUI?.toggle?.(_getCombatInfoDeps());
 }
 
 function _refreshCombatInfoPanel() {
-  CombatInfoUI?.refresh?.(_getCombatInfoDeps());
+  window.CombatInfoUI?.refresh?.(_getCombatInfoDeps());
 }
 
 function updateChainUI(chain) {
-  CombatHudUI?.updateChainUI?.(chain, _getCombatHudDeps());
+  window.CombatHudUI?.updateChainUI?.(chain, _getCombatHudDeps());
 }
 
 function updateNoiseWidget() {
-  CombatHudUI?.updateNoiseWidget?.(_getCombatHudDeps());
+  window.CombatHudUI?.updateNoiseWidget?.(_getCombatHudDeps());
 }
 window.updateNoiseWidget = updateNoiseWidget;
 
 function updateClassSpecialUI() {
-  CombatHudUI?.updateClassSpecialUI?.(_getCombatHudDeps());
+  window.CombatHudUI?.updateClassSpecialUI?.(_getCombatHudDeps());
 }
 window.updateClassSpecialUI = updateClassSpecialUI;
 
 function setBar(id, pct) {
-  DomValueUI?.setBar?.(id, pct, { doc: document });
+  window.DomValueUI?.setBar?.(id, pct, { doc: document });
 }
 function setText(id, val) {
-  DomValueUI?.setText?.(id, val, { doc: document });
+  window.DomValueUI?.setText?.(id, val, { doc: document });
 }
 
 // ────────────────────────────────────────
@@ -709,20 +674,20 @@ function _getCardTargetDeps() {
 }
 
 function handleCardDragStart(event, cardId, idx) {
-  CardTargetUI?.handleDragStart?.(event, cardId, idx, _getCardTargetDeps());
+  window.CardTargetUI?.handleDragStart?.(event, cardId, idx, _getCardTargetDeps());
 }
 
 function handleCardDragEnd(event) {
-  CardTargetUI?.handleDragEnd?.(event, _getCardTargetDeps());
+  window.CardTargetUI?.handleDragEnd?.(event, _getCardTargetDeps());
 }
 
 function handleCardDropOnEnemy(event, enemyIdx) {
-  CardTargetUI?.handleDropOnEnemy?.(event, enemyIdx, _getCardTargetDeps());
+  window.CardTargetUI?.handleDropOnEnemy?.(event, enemyIdx, _getCardTargetDeps());
 }
 
 // 적 카드 클릭 → 타겟 지정 (같은 적 다시 클릭하면 해제)
 function selectTarget(idx) {
-  CardTargetUI?.selectTarget?.(idx, _getCardTargetDeps());
+  window.CardTargetUI?.selectTarget?.(idx, _getCardTargetDeps());
 }
 window.selectTarget = selectTarget;
 
@@ -735,23 +700,23 @@ function _getFeedbackDeps() {
 }
 
 function showCombatSummary(dealt, taken, kills) {
-  FeedbackUI?.showCombatSummary?.(dealt, taken, kills, _getFeedbackDeps());
+  window.FeedbackUI?.showCombatSummary?.(dealt, taken, kills, _getFeedbackDeps());
 }
 
 function showDmgPopup(dmg, x, y, color = '#ff3366') {
-  FeedbackUI?.showDmgPopup?.(dmg, x, y, color, _getFeedbackDeps());
+  window.FeedbackUI?.showDmgPopup?.(dmg, x, y, color, _getFeedbackDeps());
 }
 
 function showEdgeDamage() {
-  FeedbackUI?.showEdgeDamage?.(_getFeedbackDeps());
+  window.FeedbackUI?.showEdgeDamage?.(_getFeedbackDeps());
 }
 
 function showEchoBurstOverlay() {
-  FeedbackUI?.showEchoBurstOverlay?.(_getFeedbackDeps());
+  window.FeedbackUI?.showEchoBurstOverlay?.(_getFeedbackDeps());
 }
 
 function showCardPlayEffect(card) {
-  FeedbackUI?.showCardPlayEffect?.(card, _getFeedbackDeps());
+  window.FeedbackUI?.showCardPlayEffect?.(card, _getFeedbackDeps());
 }
 
 function _getDeckModalDeps() {
@@ -761,15 +726,15 @@ function _getDeckModalDeps() {
 }
 
 function _resetDeckModalFilter() {
-  DeckModalUI?.resetFilter?.();
+  window.DeckModalUI?.resetFilter?.();
 }
 
 function showDeckView() {
-  DeckModalUI?.showDeckView?.(_getDeckModalDeps());
+  window.DeckModalUI?.showDeckView?.(_getDeckModalDeps());
 }
 
 function _renderDeckModal() {
-  DeckModalUI?.renderDeckModal?.(_getDeckModalDeps());
+  window.DeckModalUI?.renderDeckModal?.(_getDeckModalDeps());
 }
 
 // ────────────────────────────────────────
@@ -782,27 +747,27 @@ function _getCodexDeps() {
 }
 
 function openCodex() {
-  CodexUI?.openCodex?.(_getCodexDeps());
+  window.CodexUI?.openCodex?.(_getCodexDeps());
 }
 
 function closeCodex() {
-  CodexUI?.closeCodex?.(_getCodexDeps());
+  window.CodexUI?.closeCodex?.(_getCodexDeps());
 }
 
 function setCodexTab(tab) {
-  CodexUI?.setCodexTab?.(tab, _getCodexDeps());
+  window.CodexUI?.setCodexTab?.(tab, _getCodexDeps());
 }
 
 function renderCodexContent() {
-  CodexUI?.renderCodexContent?.(_getCodexDeps());
+  window.CodexUI?.renderCodexContent?.(_getCodexDeps());
 }
 
 function setDeckFilter(type) {
-  DeckModalUI?.setDeckFilter?.(type, _getDeckModalDeps());
+  window.DeckModalUI?.setDeckFilter?.(type, _getDeckModalDeps());
 }
 
 function closeDeckView() {
-  DeckModalUI?.closeDeckView?.(_getDeckModalDeps());
+  window.DeckModalUI?.closeDeckView?.(_getDeckModalDeps());
 }
 
 function _getTooltipDeps() {
@@ -814,44 +779,44 @@ function _getTooltipDeps() {
 
 // ── 카드 툴팁 ──
 function showTooltip(event, cardId) {
-  TooltipUI?.showTooltip?.(event, cardId, _getTooltipDeps());
+  window.TooltipUI?.showTooltip?.(event, cardId, _getTooltipDeps());
 }
 
 function hideTooltip() {
-  TooltipUI?.hideTooltip?.(_getTooltipDeps());
+  window.TooltipUI?.hideTooltip?.(_getTooltipDeps());
 }
 
 // 전투 카드에 툴팁 연결 (렌더 후 호출)
 function attachCardTooltips() {
-  TooltipUI?.attachCardTooltips?.(_getTooltipDeps());
+  window.TooltipUI?.attachCardTooltips?.(_getTooltipDeps());
 }
 
 // ── 아이템 툴팁 ──
 function showItemTooltip(event, itemId) {
-  TooltipUI?.showItemTooltip?.(event, itemId, _getTooltipDeps());
+  window.TooltipUI?.showItemTooltip?.(event, itemId, _getTooltipDeps());
 }
 function hideItemTooltip() {
-  TooltipUI?.hideItemTooltip?.(_getTooltipDeps());
+  window.TooltipUI?.hideItemTooltip?.(_getTooltipDeps());
 }
 
 function showItemToast(item) {
-  FeedbackUI?.showItemToast?.(item, _getFeedbackDeps());
+  window.FeedbackUI?.showItemToast?.(item, _getFeedbackDeps());
 }
 
 // ── 전설 아이템 획득 풀스크린 연출 ──
 function showLegendaryAcquire(item) {
-  FeedbackUI?.showLegendaryAcquire?.(item, _getFeedbackDeps());
+  window.FeedbackUI?.showLegendaryAcquire?.(item, _getFeedbackDeps());
 }
 
 function showChainAnnounce(text) {
-  FeedbackUI?.showChainAnnounce?.(text, _getFeedbackDeps());
+  window.FeedbackUI?.showChainAnnounce?.(text, _getFeedbackDeps());
 }
 
 function showWorldMemoryNotice(text) {
-  FeedbackUI?.showWorldMemoryNotice?.(text, _getFeedbackDeps());
+  window.FeedbackUI?.showWorldMemoryNotice?.(text, _getFeedbackDeps());
 }
 function _flushNoticeQueue() {
-  FeedbackUI?._flushNoticeQueue?.(_getFeedbackDeps());
+  window.FeedbackUI?._flushNoticeQueue?.(_getFeedbackDeps());
 }
 
 // ────────────────────────────────────────
@@ -867,7 +832,7 @@ function _getScreenDeps() {
 }
 
 function switchScreen(screen) {
-  ScreenUI?.switchScreen?.(screen, _getScreenDeps());
+  window.ScreenUI?.switchScreen?.(screen, _getScreenDeps());
 }
 
 // ────────────────────────────────────────
@@ -889,15 +854,15 @@ function _getClassSelectDeps() {
 }
 
 function _getSelectedClass() {
-  return ClassSelectUI?.getSelectedClass?.() || null;
+  return window.ClassSelectUI?.getSelectedClass?.() || null;
 }
 
 function _clearSelectedClass() {
-  ClassSelectUI?.clearSelection?.(_getClassSelectDeps());
+  window.ClassSelectUI?.clearSelection?.(_getClassSelectDeps());
 }
 
 function selectClass(btn) {
-  ClassSelectUI?.selectClass?.(btn, _getClassSelectDeps());
+  window.ClassSelectUI?.selectClass?.(btn, _getClassSelectDeps());
 }
 
 function _getSaveSystemDeps() {
@@ -913,7 +878,7 @@ function _getRunModeDeps() {
   return {
     ..._baseDeps(),
     runRules: RunRules,
-    saveMeta: () => SaveSystem?.saveMeta?.(_getSaveSystemDeps()),
+    saveMeta: () => window.SaveSystem?.saveMeta?.(_getSaveSystemDeps()),
     notice: (msg) => {
       if (typeof showWorldMemoryNotice === 'function') showWorldMemoryNotice(msg);
     },
@@ -938,25 +903,25 @@ function _getRunStartDeps() {
 }
 
 function refreshRunModePanel() {
-  RunModeUI?.refresh?.(_getRunModeDeps());
-  RunModeUI?.refreshInscriptions?.(_getRunModeDeps());
+  window.RunModeUI?.refresh?.(_getRunModeDeps());
+  window.RunModeUI?.refreshInscriptions?.(_getRunModeDeps());
 }
 
 function shiftAscension(delta) {
-  RunModeUI?.shiftAscension?.(delta, _getRunModeDeps());
-  RunModeUI?.refreshInscriptions?.(_getRunModeDeps());
+  window.RunModeUI?.shiftAscension?.(delta, _getRunModeDeps());
+  window.RunModeUI?.refreshInscriptions?.(_getRunModeDeps());
 }
 
 function toggleEndlessMode() {
-  RunModeUI?.toggleEndlessMode?.(_getRunModeDeps());
+  window.RunModeUI?.toggleEndlessMode?.(_getRunModeDeps());
 }
 
 function cycleRunBlessing() {
-  RunModeUI?.cycleBlessing?.(_getRunModeDeps());
+  window.RunModeUI?.cycleBlessing?.(_getRunModeDeps());
 }
 
 function cycleRunCurse() {
-  RunModeUI?.cycleCurse?.(_getRunModeDeps());
+  window.RunModeUI?.cycleCurse?.(_getRunModeDeps());
 }
 
 function _getRunSetupDeps() {
@@ -967,12 +932,12 @@ function _getRunSetupDeps() {
     getSelectedClass: () => _getSelectedClass(),
     shuffleArray,
     resetDeckModalFilter: () => _resetDeckModalFilter(),
-    enterRun: () => RunStartUI?.enterRun?.(_getRunStartDeps()),
+    enterRun: () => window.RunStartUI?.enterRun?.(_getRunStartDeps()),
   };
 }
 
 function startGame() {
-  RunSetupUI?.startGame?.(_getRunSetupDeps());
+  window.RunSetupUI?.startGame?.(_getRunSetupDeps());
 }
 
 function _getMetaProgressionDeps() {
@@ -985,7 +950,7 @@ function _getMetaProgressionDeps() {
 }
 
 function selectFragment(effect) {
-  MetaProgressionUI?.selectFragment?.(effect, _getMetaProgressionDeps());
+  window.MetaProgressionUI?.selectFragment?.(effect, _getMetaProgressionDeps());
 }
 
 // ────────────────────────────────────────
@@ -1007,7 +972,7 @@ function _getRegionTransitionDeps() {
 }
 
 function advanceToNextRegion() {
-  RegionTransitionUI?.advanceToNextRegion?.(_getRegionTransitionDeps());
+  window.RegionTransitionUI?.advanceToNextRegion?.(_getRegionTransitionDeps());
 }
 
 // ────────────────────────────────────────
@@ -1027,51 +992,51 @@ function _getHelpPauseDeps() {
 }
 
 function toggleHelp() {
-  if (HelpPauseUI?.toggleHelp) {
-    HelpPauseUI.toggleHelp(_getHelpPauseDeps());
+  if (window.HelpPauseUI?.toggleHelp) {
+    window.HelpPauseUI.toggleHelp(_getHelpPauseDeps());
   }
 }
 
 function abandonRun() {
-  if (HelpPauseUI?.abandonRun) {
-    HelpPauseUI.abandonRun(_getHelpPauseDeps());
+  if (window.HelpPauseUI?.abandonRun) {
+    window.HelpPauseUI.abandonRun(_getHelpPauseDeps());
   }
 }
 
 function confirmAbandon() {
-  if (HelpPauseUI?.confirmAbandon) {
-    HelpPauseUI.confirmAbandon(_getHelpPauseDeps());
+  if (window.HelpPauseUI?.confirmAbandon) {
+    window.HelpPauseUI.confirmAbandon(_getHelpPauseDeps());
   }
 }
 
 function togglePause() {
-  if (HelpPauseUI?.togglePause) {
-    HelpPauseUI.togglePause(_getHelpPauseDeps());
+  if (window.HelpPauseUI?.togglePause) {
+    window.HelpPauseUI.togglePause(_getHelpPauseDeps());
   }
 }
 
-function _initHelpPauseUI() {
-  if (!HelpPauseUI) return;
+(function initHelpPauseUIBindings() {
+  if (!window.HelpPauseUI) return;
   const deps = _getHelpPauseDeps();
-  HelpPauseUI.showMobileWarning(deps);
-  HelpPauseUI.bindGlobalHotkeys(deps);
-}
-
+  window.HelpPauseUI.showMobileWarning(deps);
+  window.HelpPauseUI.bindGlobalHotkeys(deps);
+})();
 
 // ────────────────────────────────────────
 // UTILITIES
 // ────────────────────────────────────────
 function shuffleArray(arr) {
-  return RandomUtils?.shuffleArray?.(arr) || arr;
+  return window.RandomUtils?.shuffleArray?.(arr) || arr;
 }
 
 function restartFromEnding() {
-  MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionDeps());
+  window.MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionDeps());
 }
 
 // ────────────────────────────────────────
 // GLOBAL EXPORTS
 // ────────────────────────────────────────
+window.GS = GS;
 window.GameState = GS;
 window.selectClass = selectClass;
 window.startGame = startGame;
@@ -1079,7 +1044,7 @@ window.shiftAscension = shiftAscension;
 window.toggleEndlessMode = toggleEndlessMode;
 window.cycleRunBlessing = cycleRunBlessing;
 window.cycleRunCurse = cycleRunCurse;
-window.toggleInscription = (key) => RunModeUI?.toggleInscription?.(key, _getRunModeDeps());
+window.toggleInscription = (key) => window.RunModeUI?.toggleInscription?.(key, _getRunModeDeps());
 window.selectFragment = selectFragment;
 window.useEchoSkill = useEchoSkill;
 window.drawCard = drawCard;
@@ -1179,7 +1144,7 @@ function _getGameBootDeps() {
     ..._baseDeps(),
     audioEngine: AudioEngine,
     runRules: RunRules,
-    saveSystem: SaveSystem,
+    saveSystem: window.SaveSystem,
     saveSystemDeps: _getSaveSystemDeps(),
     initTitleCanvas,
     updateUI,
@@ -1189,42 +1154,12 @@ function _getGameBootDeps() {
 
 function _bootGame() {
   _loadVolumes();
-  _initHelpPauseUI();
-  GameBootUI?.bootGame?.(_getGameBootDeps());
+  window.GameBootUI?.bootGame?.(_getGameBootDeps());
 }
 
 // ── 외부용 싱크 함수 노출 ──
 window._syncVolumeUI = _syncVolumeUI;
 window.GS = GS;
-window.GameState = GS;
-
-// UI Event Handlers used by index.html onclick=""
-window.selectClass = selectClass;
-window.startGame = startGame;
-window.shiftAscension = shiftAscension;
-window.toggleEndlessMode = toggleEndlessMode;
-window.cycleRunBlessing = cycleRunBlessing;
-window.cycleRunCurse = cycleRunCurse;
-
-
-
-window.sortHandByEnergy = sortHandByEnergy;
-window.useEchoSkill = useEchoSkill;
-window.drawCard = drawCard;
-window.endPlayerTurn = endPlayerTurn;
-window.showEchoSkillTooltip = showEchoSkillTooltip;
-window.hideEchoSkillTooltip = hideEchoSkillTooltip;
-
-window.skipReward = skipReward;
-window.showSkipConfirm = showSkipConfirm;
-window.hideSkipConfirm = hideSkipConfirm;
-
-window.setDeckFilter = setDeckFilter;
-window.closeDeckView = closeDeckView;
-window.setCodexTab = setCodexTab;
-window.closeCodex = closeCodex;
-window.toggleHudPin = toggleHudPin;
-window.showFullMap = showFullMap;
 
 // 즉시 실행 (load 이벤트 대신)
-GameBootUI?.bootWhenReady?.(_getGameBootDeps());
+window.GameBootUI?.bootWhenReady?.(_getGameBootDeps());

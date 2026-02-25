@@ -1,11 +1,5 @@
-'use strict';
-
-import { AudioEngine } from '../engine/audio.js';
 import { DescriptionUtils } from './description_utils.js';
-import { DATA } from '../data/game_data.js';
-import { EventUI } from './event_ui.js';
-import { GS } from './game_state.js';
-
+import { AudioEngine } from '../engine/audio.js';
 
 
   function _getDoc(deps) {
@@ -13,11 +7,11 @@ import { GS } from './game_state.js';
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   function _getData(deps) {
-    return deps?.data || DATA;
+    return deps?.data || window.DATA;
   }
 
   export const RewardUI = {
@@ -131,7 +125,7 @@ import { GS } from './game_state.js';
             <div class="card-cost" style="width:32px;height:32px;font-size:15px;right:10px;top:10px;">${card.cost}</div>
             <div class="card-icon" style="font-size:44px;margin-top:18px;">${card.icon}</div>
             <div class="card-name" style="font-size:16px;">${card.name}</div>
-            <div class="card-desc" style="font-size:13px;flex:1;">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
+            <div class="card-desc" style="font-size:13px;flex:1;">${window.DescriptionUtils ? window.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type" style="font-size:11px;color:${rarityBorder || 'var(--echo)'};margin-top:auto;">${card.rarity || 'common'}</div>
           </div>
         </div>`;
@@ -255,8 +249,8 @@ import { GS } from './game_state.js';
       if (!gs) return;
       if (gs._rewardLock) return;
       // 소각은 오버레이에서 선택 후 returnToGame 호출하므로 락을 걸지 않거나 오버레이 안에서 관리
-      if (EventUI && typeof EventUI.showCardDiscard === 'function') {
-        EventUI.showCardDiscard(gs, true, {
+      if (window.EventUI && typeof window.EventUI.showCardDiscard === 'function') {
+        window.EventUI.showCardDiscard(gs, true, {
           ...deps, returnToGame: (force) => {
             if (typeof deps.returnToGame === 'function') deps.returnToGame(force);
           }

@@ -74,7 +74,3 @@ export const CONSTANTS = Object.freeze({
     DEFAULT: { phase2: 0.50, phase3: 0.30 },
   }),
 });
-
-(function (globalObj) {
-  
-})(typeof window !== 'undefined' ? window : global);

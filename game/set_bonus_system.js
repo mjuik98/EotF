@@ -1,6 +1,4 @@
-import { SetBonusSystem } from './set_bonus_system.js';
-
-// Set Bonus System extraction: logic moved from data/game_data.js
+export // Set Bonus System extraction: logic moved from data/game_data.js
 const SetBonusSystem = {
     sets: {
         void_set: {

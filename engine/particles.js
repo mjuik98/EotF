@@ -1,6 +1,4 @@
-import { ParticleSystem } from './particles.js';
-
-﻿const ParticleSystem = (() => {
+export const ParticleSystem = (() => {
   const POOL_SIZE = 300;
   const pool = Array.from({ length: POOL_SIZE }, () => ({ active: false }));
   let canvas, ctx;
@@ -9,7 +7,7 @@ import { ParticleSystem } from './particles.js';
     canvas = c; ctx = c.getContext('2d');
   }
 
-  function spawn(x, y, { count=8, color='#7b2fff', size=3, speed=3, life=0.6, type='dot' } = {}) {
+  function spawn(x, y, { count = 8, color = '#7b2fff', size = 3, speed = 3, life = 0.6, type = 'dot' } = {}) {
     let spawned = 0;
     for (let p of pool) {
       if (spawned >= count) break;
@@ -26,7 +24,7 @@ import { ParticleSystem } from './particles.js';
     }
   }
 
-  function hitEffect(x, y, big=false) {
+  function hitEffect(x, y, big = false) {
     spawn(x, y, { count: big ? 16 : 8, color: '#ff3366', size: big ? 5 : 3, speed: big ? 6 : 4 });
     spawn(x, y, { count: 4, color: '#ffffff', size: 2, speed: 2, life: 0.3 });
   }
@@ -72,6 +70,7 @@ import { ParticleSystem } from './particles.js';
   }
 
   return { init, update, hitEffect, burstEffect, healEffect, deathEffect, emit };
+})();
 
 
 // ────────────────────────────────────────

@@ -1,7 +1,4 @@
-'use strict';
-
 import { GS } from './game_state.js';
-
 
 
   const STATUS_KR = {
@@ -27,7 +24,7 @@ import { GS } from './game_state.js';
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   export const StatusEffectsUI = {

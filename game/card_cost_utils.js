@@ -1,5 +1,3 @@
-'use strict';
-
 // ────────────────────────────────────────
 //  CARD COST UTILS
 //  카드 비용 계산 공통 유틸리티
@@ -8,11 +6,7 @@
 //  card_ui.js::renderCombatCards() 에 동일한 로직이 복붙되어 있었음.
 //  규칙 변경 시 한 곳만 수정하면 되도록 통합.
 // ────────────────────────────────────────
-
-
-  'use strict';
-
-  export const CardCostUtils = {
+export const CardCostUtils = {
 
     /**
      * 해당 카드가 캐스케이드 무료인지 확인

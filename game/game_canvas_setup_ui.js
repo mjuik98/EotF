@@ -1,7 +1,4 @@
-'use strict';
-
-
-  let _gameCanvas = null;
+let _gameCanvas = null;
   let _gameCtx = null;
   let _minimapCanvas = null;
   let _minimapCtx = null;

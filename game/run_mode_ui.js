@@ -1,11 +1,4 @@
-'use strict';
-
-import { RunRules } from './run_rules.js';
-import { GS } from './game_state.js';
-
-
-
-  function _getDoc(deps) {
+function _getDoc(deps) {
     return deps?.doc || document;
   }
 
@@ -179,23 +172,23 @@ import { GS } from './game_state.js';
 
   // 전역 함수 연결 (HTML onclick 연동용)
   window.openRunSettings = function (deps = {}) {
-    RunModeUI.openSettings({ gs: GS, runRules: RunRules, ...deps });
+    RunModeUI.openSettings({ gs: window.GS, runRules: window.RunRules, ...deps });
   };
   window.closeRunSettings = function (deps = {}) {
     RunModeUI.closeSettings(deps);
   };
   window.toggleEndlessMode = function (deps = {}) {
-    RunModeUI.toggleEndlessMode({ gs: GS, runRules: RunRules, ...deps });
+    RunModeUI.toggleEndlessMode({ gs: window.GS, runRules: window.RunRules, ...deps });
   };
   window.cycleRunBlessing = function (deps = {}) {
-    RunModeUI.cycleBlessing({ gs: GS, runRules: RunRules, ...deps });
+    RunModeUI.cycleBlessing({ gs: window.GS, runRules: window.RunRules, ...deps });
   };
   window.cycleRunCurse = function (deps = {}) {
-    RunModeUI.cycleCurse({ gs: GS, runRules: RunRules, ...deps });
+    RunModeUI.cycleCurse({ gs: window.GS, runRules: window.RunRules, ...deps });
   };
   window.shiftAscension = function (delta, deps = {}) {
-    RunModeUI.shiftAscension(delta, { gs: GS, runRules: RunRules, ...deps });
+    RunModeUI.shiftAscension(delta, { gs: window.GS, runRules: window.RunRules, ...deps });
   };
   window.toggleInscription = function (key, deps = {}) {
-    RunModeUI.toggleInscription(key, { gs: GS, ...deps });
+    RunModeUI.toggleInscription(key, { gs: window.GS, ...deps });
   };

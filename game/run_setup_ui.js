@@ -1,9 +1,6 @@
-'use strict';
-
 import { AudioEngine } from '../engine/audio.js';
+import { GS } from './game_state.js';
 import { DATA } from '../data/game_data.js';
-import { RunRules } from './run_rules.js';
-
 
 
   const CLASS_CONFIGS = {
@@ -30,9 +27,9 @@ import { RunRules } from './run_rules.js';
       if (!selectedClass) return;
 
       const gs = deps.gs;
-      const data = deps.data || DATA;
-      const runRules = deps.runRules || RunRules;
-      const audioEngine = deps.audioEngine || AudioEngine;
+      const data = deps.data || window.DATA;
+      const runRules = deps.runRules || window.RunRules;
+      const audioEngine = deps.audioEngine || window.AudioEngine;
       if (!gs || !data?.startDecks || !runRules || !audioEngine) return;
 
       audioEngine.init?.();

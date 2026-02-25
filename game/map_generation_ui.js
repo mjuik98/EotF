@@ -1,12 +1,9 @@
-'use strict';
-
 import { GS } from './game_state.js';
-
 
 
   export const MapGenerationUI = {
     generateMap(regionIdx, deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       const getRegionData = deps.getRegionData || window.getRegionData;
       if (!gs || typeof getRegionData !== 'function') return;
 

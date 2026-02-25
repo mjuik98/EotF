@@ -1,11 +1,5 @@
-'use strict';
-
-import { DATA } from '../data/game_data.js';
-import { SetBonusSystem } from './set_bonus_system.js';
-import { RunRules } from './run_rules.js';
-import { ClassMechanics } from './class_mechanics.js';
 import { GS } from './game_state.js';
-
+import { DATA } from '../data/game_data.js';
 
 
   let _uiPending = false;
@@ -15,7 +9,7 @@ import { GS } from './game_state.js';
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   export const HudUpdateUI = {
@@ -39,7 +33,7 @@ import { GS } from './game_state.js';
       const doc = _getDoc(deps);
       doc.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
         el.style.animation = 'none';
-        const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
+        const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
         if (typeof raf === 'function') {
           raf(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
         } else {
@@ -52,7 +46,7 @@ import { GS } from './game_state.js';
       const doc = _getDoc(deps);
       doc.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
         el.style.animation = 'none';
-        const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
+        const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
         if (typeof raf === 'function') {
           raf(() => { el.style.animation = 'shake 0.3s ease'; });
         } else {
@@ -105,7 +99,7 @@ import { GS } from './game_state.js';
       if (_uiPending) return;
       _uiPending = true;
 
-      const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
+      const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
       if (typeof raf === 'function') {
         raf(() => {
           _uiPending = false;
@@ -124,8 +118,8 @@ import { GS } from './game_state.js';
       if (!gs || !p) return;
 
       const doc = _getDoc(deps);
-      const data = deps.data || DATA;
-      const setBonusSystem = deps.setBonusSystem || SetBonusSystem;
+      const data = deps.data || window.DATA;
+      const setBonusSystem = deps.setBonusSystem || window.SetBonusSystem;
       const getRegionData = deps.getRegionData || window.getRegionData;
       const setBar = deps.setBar || (() => { });
       const setText = deps.setText || (() => { });
@@ -188,8 +182,8 @@ import { GS } from './game_state.js';
         setText('playerNameDisplay', nameMap[p.class] || '');
 
         const specialEl = doc.getElementById('playerSpecialDisplay');
-        if (specialEl && ClassMechanics?.[p.class]) {
-          const specialUI = ClassMechanics[p.class].getSpecialUI(gs);
+        if (specialEl && window.ClassMechanics?.[p.class]) {
+          const specialUI = window.ClassMechanics[p.class].getSpecialUI(gs);
           if (typeof specialUI === 'string') {
             specialEl.innerHTML = specialUI;
           } else {
@@ -327,7 +321,7 @@ import { GS } from './game_state.js';
       const modEl = doc.getElementById('runModifiersSection');
       if (modEl) {
         let modHtml = '';
-        const runRules = RunRules;
+        const runRules = window.RunRules;
         const asc = runRules?.getAscension?.(gs) || 0;
         const endless = runRules?.isEndless?.(gs);
 

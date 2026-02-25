@@ -1,7 +1,4 @@
-'use strict';
-
-
-  function _getDoc(deps) {
+function _getDoc(deps) {
     return deps?.doc || document;
   }
 

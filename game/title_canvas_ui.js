@@ -1,7 +1,4 @@
-'use strict';
-
-
-  let _titleCanvas = null;
+let _titleCanvas = null;
   let _titleCtx = null;
   let _titleRAF = 0;
   let _resizeBound = false;

@@ -1,12 +1,4 @@
-'use strict';
-
 import { AudioEngine } from '../engine/audio.js';
-import { DATA } from '../data/game_data.js';
-import { SaveSystem } from './save_system.js';
-import { RunRules } from './run_rules.js';
-import { CodexUI } from './codex_ui.js';
-import { GS } from './game_state.js';
-
 
 
   const BOOT_BANNER = `
@@ -30,11 +22,11 @@ import { GS } from './game_state.js';
 
   export const GameBootUI = {
     bootGame(deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       const doc = _getDoc(deps);
-      const audioEngine = deps.audioEngine || AudioEngine;
-      const runRules = deps.runRules || RunRules;
-      const saveSystem = deps.saveSystem || SaveSystem;
+      const audioEngine = deps.audioEngine || window.AudioEngine;
+      const runRules = deps.runRules || window.RunRules;
+      const saveSystem = deps.saveSystem || window.SaveSystem;
 
       try {
         doc.addEventListener('click', () => {
@@ -62,8 +54,8 @@ import { GS } from './game_state.js';
 
         // 도감 버튼 클릭 핸들러 (인덱스 HTML에서 사용)
         window.openCodexFromTitle = () => {
-          if (CodexUI) {
-            CodexUI.openCodex({ gs, data: DATA });
+          if (window.CodexUI) {
+            window.CodexUI.openCodex({ gs, data: window.DATA });
           }
         };
       } catch (e) {

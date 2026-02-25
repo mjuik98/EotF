@@ -1,10 +1,5 @@
-'use strict';
-
-import { DATA } from '../data/game_data.js';
-import { CardCostUtils } from './card_cost_utils.js';
-import { RunRules } from './run_rules.js';
 import { GS } from './game_state.js';
-
+import { DATA } from '../data/game_data.js';
 
 
   function _getDoc(deps) {
@@ -126,15 +121,15 @@ import { GS } from './game_state.js';
 
   export const CombatTurnUI = {
     endPlayerTurn(deps = {}) {
-      const gs = deps.gs || GS;
-      const data = deps.data || DATA;
+      const gs = deps.gs || window.GS;
+      const data = deps.data || window.DATA;
       if (!gs?.combat?.active || !gs.combat.playerTurn) return;
 
       if (gs.player.hand.length > 0) {
         const playable = gs.player.hand.filter(id => {
           const card = data?.cards?.[id];
           if (!card) return false;
-          return CardCostUtils.canPlay(id, card, gs.player);
+          return window.CardCostUtils.canPlay(id, card, gs.player);
         });
         if (playable.length > 0) {
           gs.addLog?.(`💡 사용 가능한 카드 ${playable.length}장을 남기고 턴 종료`, 'system');
@@ -187,7 +182,7 @@ import { GS } from './game_state.js';
     },
 
     async enemyTurn(deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       if (!gs?.combat?.active) return;
 
       const waitWhileActive = async (ms) => {
@@ -299,7 +294,7 @@ import { GS } from './game_state.js';
       });
 
       gs.addLog?.('─── 새 턴 ───', 'system');
-      RunRules?.onTurnStart?.(gs);
+      window.RunRules?.onTurnStart?.(gs);
       gs.triggerItems?.('turn_start');
 
       const doc = _getDoc(deps);
@@ -320,7 +315,7 @@ import { GS } from './game_state.js';
     },
 
     processEnemyStatusTicks(deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       if (!gs?.combat?.enemies) return;
 
       const win = _getWin(deps);
@@ -386,7 +381,7 @@ import { GS } from './game_state.js';
     },
 
     processPlayerStatusTicks(deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       if (!gs?.combat?.active || !gs?.player?.buffs) return true;
 
       const buffs = gs.player.buffs;
@@ -433,7 +428,7 @@ import { GS } from './game_state.js';
     },
 
     handleBossPhaseShift(enemy, idx, deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       if (!gs || !enemy) return;
 
       const doc = _getDoc(deps);
@@ -476,8 +471,8 @@ import { GS } from './game_state.js';
     handleEnemyEffect(effect, enemy, idx, deps = {}) {
       if (!effect) return;
 
-      const gs = deps.gs || GS;
-      const data = deps.data || DATA;
+      const gs = deps.gs || window.GS;
+      const data = deps.data || window.DATA;
       const baseRegion = deps.getBaseRegionIndex?.(gs.currentRegion);
       const handler = ENEMY_EFFECTS[effect];
       if (handler) handler(gs, enemy, deps, baseRegion, data);

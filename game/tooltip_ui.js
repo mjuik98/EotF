@@ -1,8 +1,4 @@
-'use strict';
-
 import { DescriptionUtils } from './description_utils.js';
-import { TooltipUI } from './tooltip_ui.js';
-
 
 
   let _tooltipTimer = null;
@@ -34,7 +30,7 @@ import { TooltipUI } from './tooltip_ui.js';
     '드로우': { title: '드로우 (Draw)', text: '덱에서 카드를 손패로 가져옵니다.' }
   };
 
-  const TooltipUI = {
+  export const TooltipUI = {
     showTooltip(event, cardId, deps = {}) {
       const data = deps.data;
       const gs = deps.gs;
@@ -52,7 +48,7 @@ import { TooltipUI } from './tooltip_ui.js';
       doc.getElementById('ttCost').textContent = card.cost;
       doc.getElementById('ttName').textContent = card.name;
       doc.getElementById('ttType').textContent = card.type;
-      doc.getElementById('ttDesc').innerHTML = DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc;
+      doc.getElementById('ttDesc').innerHTML = window.DescriptionUtils ? window.DescriptionUtils.highlight(card.desc) : card.desc;
       const rarityEl = doc.getElementById('ttRarity');
       rarityEl.textContent = (card.rarity || 'common').toUpperCase();
       rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
@@ -172,7 +168,7 @@ import { TooltipUI } from './tooltip_ui.js';
         '</div>' +
         '</div>' +
         '</div>' +
-        '<div style="font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;">' + (DescriptionUtils ? DescriptionUtils.highlight(item.desc) : item.desc) + '</div>' +
+        '<div style="font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;">' + (window.DescriptionUtils ? window.DescriptionUtils.highlight(item.desc) : item.desc) + '</div>' +
         (() => {
           const setEntry = Object.entries(setBonusSystem.sets).find(([, s]) => s.items.includes(itemId));
           if (!setEntry) return '';
@@ -187,7 +183,7 @@ import { TooltipUI } from './tooltip_ui.js';
             <div style="font-size:9px;color:${owned >= 2 ? 'var(--cyan)' : 'var(--text-dim)'};margin-bottom:1px;">2개: ${b2}</div>
             <div style="font-size:9px;color:${owned >= 3 ? 'var(--gold)' : 'var(--text-dim)'};">3개: ${b3}</div>
           </div>`;
-        
+        })();
 
       const rect = event.currentTarget.getBoundingClientRect();
       let x = rect.right + 10;
@@ -234,7 +230,7 @@ import { TooltipUI } from './tooltip_ui.js';
       el.style.left = `${Math.max(6, x)}px`;
       el.style.top = `${Math.max(6, y)}px`;
       doc.body.appendChild(el);
-      
+      window._generalTipEl = el;
     },
 
     hideGeneralTooltip() {
@@ -244,5 +240,3 @@ import { TooltipUI } from './tooltip_ui.js';
       }
     }
   };
-
-  TooltipUI = TooltipUI;

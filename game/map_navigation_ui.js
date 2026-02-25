@@ -1,13 +1,9 @@
-'use strict';
-
-import { Trigger } from './constants/triggers.js';
 import { GS } from './game_state.js';
-
 
 
   export const MapNavigationUI = {
     moveToNode(nodeRef, deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       if (!gs) return;
 
       let node = nodeRef;

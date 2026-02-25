@@ -1,8 +1,4 @@
-'use strict';
-
 import { DescriptionUtils } from './description_utils.js';
-import { CardCostUtils } from './card_cost_utils.js';
-
 
 
   const INTENT_DESCRIPTIONS = {
@@ -79,7 +75,7 @@ import { CardCostUtils } from './card_cost_utils.js';
     }
 
     // 유틸리티를 사용하여 키워드 하이라이트 적용 (innerHTML로 사용될 예정)
-    return DescriptionUtils ? DescriptionUtils.highlight(text) : text;
+    return window.DescriptionUtils ? window.DescriptionUtils.highlight(text) : text;
   }
 
   function _resolveIntentDescription(intent) {
@@ -111,7 +107,7 @@ import { CardCostUtils } from './card_cost_utils.js';
     const atkCards = gs.player.hand.filter(id => {
       const c = data.cards[id];
       if (!c || c.type !== 'ATTACK' || !c.dmg) return false;
-      return CardCostUtils.canPlay(id, c, gs.player);
+      return window.CardCostUtils.canPlay(id, c, gs.player);
     });
     if (!atkCards.length) return null;
 
@@ -173,7 +169,7 @@ import { CardCostUtils } from './card_cost_utils.js';
       el.innerHTML = `
         <div class="itt-title">${icon} ${label}</div>
         <div class="itt-type">— ${descInfo.type} —</div>
-        <div class="itt-desc">${DescriptionUtils ? DescriptionUtils.highlight(descInfo.desc) : descInfo.desc}</div>
+        <div class="itt-desc">${window.DescriptionUtils ? window.DescriptionUtils.highlight(descInfo.desc) : descInfo.desc}</div>
         ${intent.dmg > 0 ? `<div class="itt-dmg">💢 예상 피해: <strong>${intent.dmg}</strong></div>` : ''}
       `;
 

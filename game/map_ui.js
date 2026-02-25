@@ -1,8 +1,4 @@
-'use strict';
-
-import { NODE_META } from './constants/node_meta.js';
 import { GS } from './game_state.js';
-
 
 
   const NODE_TYPE_CONFIG = {
@@ -170,7 +166,7 @@ import { GS } from './game_state.js';
 
     /** 미니맵 클릭 시 전체 지도를 큰 오버레이로 표시 */
     showFullMap(deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       const doc = _getDoc(deps);
       if (!gs || !gs.mapNodes.length) return;
 

@@ -1,23 +1,17 @@
-'use strict';
-
 import { DATA } from '../data/game_data.js';
-import { SaveSystem } from './save_system.js';
-import { RunRules } from './run_rules.js';
-import { GS } from './game_state.js';
 
-
-function getRegionCount() {
+export function getRegionCount() {
   return Array.isArray(DATA?.regions) ? DATA.regions.length : 0;
 }
 
-function getBaseRegionIndex(regionIdx = 0) {
+export function getBaseRegionIndex(regionIdx = 0) {
   const count = getRegionCount();
   if (!count) return 0;
   const idx = Math.max(0, Math.floor(Number(regionIdx) || 0));
   return idx % count;
 }
 
-function getRegionData(regionIdx = 0, gsRef = null) {
+export function getRegionData(regionIdx = 0, gsRef = null) {
   const count = getRegionCount();
   if (!count) return null;
 
@@ -26,7 +20,7 @@ function getRegionData(regionIdx = 0, gsRef = null) {
   const baseRegion = DATA.regions[baseIdx];
   if (!baseRegion) return null;
 
-  const gs = gsRef || GS || null;
+  const gs = gsRef || window.GS || null;
   const endless = !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
   if (!endless || idx < count) return baseRegion;
 
@@ -39,7 +33,7 @@ function getRegionData(regionIdx = 0, gsRef = null) {
   };
 }
 
-const RunRules = {
+export const RunRules = {
   blessings: {
     none: { id: 'none', name: '없음', desc: '기본 규칙으로 시작' },
     vigor: { id: 'vigor', name: '활력의 축복', desc: '시작 최대 HP +10' },
@@ -198,8 +192,8 @@ const RunRules = {
   },
 };
 
-function finalizeRunOutcome(kind = 'defeat', options = {}) {
-  const gs = GS;
+export function finalizeRunOutcome(kind = 'defeat', options = {}) {
+  const gs = window.GS;
   if (!gs) return 0;
   if (gs._runOutcomeCommitted) return 0;
   gs._runOutcomeCommitted = true;
@@ -222,14 +216,8 @@ function finalizeRunOutcome(kind = 'defeat', options = {}) {
   gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
 
   if (window.StorySystem?.unlockNextFragment) StorySystem.unlockNextFragment();
-  if (SaveSystem?.saveMeta) SaveSystem.saveMeta();
-  if (SaveSystem?.clearSave) SaveSystem.clearSave();
+  if (window.SaveSystem?.saveMeta) SaveSystem.saveMeta();
+  if (window.SaveSystem?.clearSave) SaveSystem.clearSave();
 
   return shardGain;
 }
-
-window.getRegionCount = getRegionCount;
-window.getBaseRegionIndex = getBaseRegionIndex;
-window.getRegionData = getRegionData;
-RunRules = RunRules;
-window.finalizeRunOutcome = finalizeRunOutcome;

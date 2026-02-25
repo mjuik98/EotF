@@ -1,10 +1,8 @@
 import { CONSTANTS } from './constants/constants.js';
-import { DifficultyScaler } from './difficulty_scaler.js';
-import { RunRules } from './run_rules.js';
-import { GS } from './game_state.js';
+import { RunRules, getBaseRegionIndex } from './run_rules.js';
 
 // DifficultyScaler — 순수 함수화 (GS 없이 밸런스 시뮬레이션 가능)
-const DifficultyScaler = {
+export const DifficultyScaler = {
   /**
    * 난이도 배율을 계산합니다.
    * @param {Object} params - { runCount, region, floor, ascension }

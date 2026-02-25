@@ -1,17 +1,11 @@
-'use strict';
-
-import { RunRules } from './run_rules.js';
-
-
-
-  function _getDoc(deps) {
+function _getDoc(deps) {
     return deps?.doc || document;
   }
 
   export const RunReturnUI = {
     returnToGame(fromReward, deps = {}) {
       const gs = deps.gs;
-      const runRules = deps.runRules || RunRules;
+      const runRules = deps.runRules || window.RunRules;
       if (!gs || !runRules) return;
 
       const wasBoss = gs._bossRewardPending;

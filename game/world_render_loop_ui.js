@@ -1,16 +1,10 @@
-'use strict';
-
 import { ParticleSystem } from '../engine/particles.js';
-import { ScreenShake } from '../engine/screenshake.js';
-import { HitStop } from '../engine/hitstop.js';
-import { GS } from './game_state.js';
-
 
 
   let _lastTimestamp = 0;
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   function _getRefs(deps) {
@@ -22,7 +16,7 @@ import { GS } from './game_state.js';
   }
 
   function _requestNextFrame(deps) {
-    const raf = deps?.requestAnimationFrame || window.requestAnimationFrame?.bind(globalObj);
+    const raf = deps?.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
     const loopFn = deps?.gameLoop;
     if (typeof raf === 'function' && typeof loopFn === 'function') {
       raf(loopFn);
@@ -40,7 +34,7 @@ import { GS } from './game_state.js';
         return;
       }
 
-      const hitStop = deps.hitStop || HitStop;
+      const hitStop = deps.hitStop || window.HitStop;
       if (hitStop?.active?.()) {
         hitStop.update?.();
         _requestNextFrame(deps);
@@ -50,8 +44,8 @@ import { GS } from './game_state.js';
       const dt = Math.min((timestamp - _lastTimestamp) / 1000, 0.05);
       _lastTimestamp = timestamp;
 
-      const screenShake = deps.screenShake || ScreenShake;
-      const particleSystem = deps.particleSystem || ParticleSystem;
+      const screenShake = deps.screenShake || window.ScreenShake;
+      const particleSystem = deps.particleSystem || window.ParticleSystem;
 
       screenShake?.update?.();
       gameCtx.save();

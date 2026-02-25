@@ -1,13 +1,6 @@
-'use strict';
-
 import { AudioEngine } from '../engine/audio.js';
-import { Trigger } from './constants/triggers.js';
-import { DATA } from '../data/game_data.js';
-import { DifficultyScaler } from './difficulty_scaler.js';
-import { RunRules } from './run_rules.js';
-import { ClassMechanics } from './class_mechanics.js';
 import { GS } from './game_state.js';
-
+import { DATA } from '../data/game_data.js';
 
 
   function _getDoc(deps) {
@@ -29,15 +22,15 @@ import { GS } from './game_state.js';
 
   export const CombatStartUI = {
     startCombat(isBoss = false, deps = {}) {
-      const gs = deps.gs || GS;
-      const data = deps.data || DATA;
+      const gs = deps.gs || window.GS;
+      const data = deps.data || window.DATA;
       const getRegionData = deps.getRegionData || window.getRegionData;
       const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
       const getRegionCount = deps.getRegionCount || window.getRegionCount;
-      const difficultyScaler = deps.difficultyScaler || DifficultyScaler;
-      const audioEngine = deps.audioEngine || AudioEngine;
-      const runRules = deps.runRules || RunRules;
-      const classMechanics = deps.classMechanics || ClassMechanics;
+      const difficultyScaler = deps.difficultyScaler || window.DifficultyScaler;
+      const audioEngine = deps.audioEngine || window.AudioEngine;
+      const runRules = deps.runRules || window.RunRules;
+      const classMechanics = deps.classMechanics || window.ClassMechanics;
       if (!gs || !data?.enemies || typeof getRegionData !== 'function') return;
 
       const region = getRegionData(gs.currentRegion, gs);

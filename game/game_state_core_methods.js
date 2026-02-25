@@ -1,21 +1,6 @@
-'use strict';
-
 import { AudioEngine } from '../engine/audio.js';
-import { ParticleSystem } from '../engine/particles.js';
-import { ScreenShake } from '../engine/screenshake.js';
-import { HitStop } from '../engine/hitstop.js';
-import { Trigger } from './constants/triggers.js';
-import { DATA } from '../data/game_data.js';
-import { DifficultyScaler } from './difficulty_scaler.js';
-import { SetBonusSystem } from './set_bonus_system.js';
-import { CardCostUtils } from './card_cost_utils.js';
-import { RunRules } from './run_rules.js';
-import { ClassMechanics } from './class_mechanics.js';
-import { CombatUI } from './combat_ui.js';
-import { HudUpdateUI } from './hud_update_ui.js';
-import { TooltipUI } from './tooltip_ui.js';
 import { GS } from './game_state.js';
-
+import { DATA } from '../data/game_data.js';
 
 
   export const GameStateCoreMethods = {
@@ -313,8 +298,8 @@ import { GS } from './game_state.js';
         renderCombatEnemies();
         // 플레이어 턴 중 소환된 경우 버튼 활성화 상태 유지
         if (this.combat.playerTurn) {
-          if (typeof HudUpdateUI !== 'undefined' && typeof HudUpdateUI.enableActionButtons === 'function') {
-            HudUpdateUI.enableActionButtons();
+          if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.enableActionButtons === 'function') {
+            window.HudUpdateUI.enableActionButtons();
           } else {
             document.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
           }
@@ -331,8 +316,8 @@ import { GS } from './game_state.js';
           shuffleArray(this.player.deck);
           this.addLog('🔄 덱을 섞었다', 'system');
           // 덱 카운트 UI 펄스 피드백
-          if (typeof HudUpdateUI !== 'undefined' && typeof HudUpdateUI.triggerDeckShufflePulse === 'function') {
-            HudUpdateUI.triggerDeckShufflePulse();
+          if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.triggerDeckShufflePulse === 'function') {
+            window.HudUpdateUI.triggerDeckShufflePulse();
           }
         }
         if (this.player.hand.length < 8) {
@@ -344,8 +329,8 @@ import { GS } from './game_state.js';
       updateUI();
       // 드로우 애니메이션
       setTimeout(() => {
-        if (typeof HudUpdateUI !== 'undefined' && typeof HudUpdateUI.triggerDrawCardAnimation === 'function') {
-          HudUpdateUI.triggerDrawCardAnimation();
+        if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.triggerDrawCardAnimation === 'function') {
+          window.HudUpdateUI.triggerDrawCardAnimation();
         } else {
           document.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
             el.style.animation = 'none';
@@ -362,15 +347,15 @@ import { GS } from './game_state.js';
       if (!card) return false;
       // 적 턴이거나 전투 비활성 상태면 카드 사용 불가
       if (!this.combat.active || !this.combat.playerTurn || this._endCombatScheduled) return false;
-      const cost = typeof CardCostUtils !== 'undefined'
-        ? CardCostUtils.calcEffectiveCost(cardId, card, this.player)
+      const cost = typeof window.CardCostUtils !== 'undefined'
+        ? window.CardCostUtils.calcEffectiveCost(cardId, card, this.player)
         : Math.max(0, card.cost - (this.player.costDiscount || 0));
 
       if (this.player.energy < cost) {
         this.addLog('⚠️ 에너지 부족!', 'damage');
         // 카드 흔들기
-        if (typeof HudUpdateUI !== 'undefined' && typeof HudUpdateUI.triggerCardShakeAnimation === 'function') {
-          HudUpdateUI.triggerCardShakeAnimation();
+        if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.triggerCardShakeAnimation === 'function') {
+          window.HudUpdateUI.triggerCardShakeAnimation();
         } else {
           document.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
             el.style.animation = 'none';
@@ -391,8 +376,8 @@ import { GS } from './game_state.js';
         }
       }
       this.player.energy -= cost;
-      if (typeof CardCostUtils !== 'undefined') {
-        CardCostUtils.consumeFreeCharge(cardId, this.player);
+      if (typeof window.CardCostUtils !== 'undefined') {
+        window.CardCostUtils.consumeFreeCharge(cardId, this.player);
       } else {
         const cascade = this.player._cascadeCards;
         const isCascadeFree = cascade instanceof Map
@@ -416,13 +401,13 @@ import { GS } from './game_state.js';
       }
       this.player.hand.splice(handIdx, 1);
 
-      if (typeof TooltipUI !== 'undefined') {
-        TooltipUI.hideTooltip({ doc: document });
+      if (typeof window.TooltipUI !== 'undefined') {
+        window.TooltipUI.hideTooltip({ doc: document });
       }
 
       this.triggerItems(Trigger.CARD_PLAY, { cardId });
       // 클래스 고유 트리거 호출
-      ClassMechanics?.[this.player.class]?.onPlayCard?.(this, { cardId });
+      window.ClassMechanics?.[this.player.class]?.onPlayCard?.(this, { cardId });
 
       // 도감 등록
       if (this.meta.codex) this.meta.codex.cards.add(cardId);
@@ -442,8 +427,8 @@ import { GS } from './game_state.js';
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0) {
           renderHand(); renderCombatCards(); updateUI();
-          if (typeof CombatUI !== 'undefined') {
-            CombatUI.renderCombatEnemies({ gs: this, data: DATA });
+          if (typeof window.CombatUI !== 'undefined') {
+            window.CombatUI.renderCombatEnemies({ gs: this, data: DATA });
           } else if (typeof renderCombatEnemies === 'function') {
             renderCombatEnemies();
           }
@@ -451,8 +436,8 @@ import { GS } from './game_state.js';
         }
       }
       renderHand(); renderCombatCards(); updateUI();
-      if (typeof CombatUI !== 'undefined') {
-        CombatUI.renderCombatEnemies({ gs: this, data: DATA });
+      if (typeof window.CombatUI !== 'undefined') {
+        window.CombatUI.renderCombatEnemies({ gs: this, data: DATA });
       } else if (typeof renderCombatEnemies === 'function') {
         renderCombatEnemies();
       }
@@ -620,14 +605,14 @@ import { GS } from './game_state.js';
       try {
         this.combat.active = false;
         // 카드 tooltip 잔상 및 손패 카드 DOM 즉시 제거
-        if (typeof TooltipUI !== 'undefined') {
-          TooltipUI.hideTooltip({ doc: document });
+        if (typeof window.TooltipUI !== 'undefined') {
+          window.TooltipUI.hideTooltip({ doc: document });
         }
         document.getElementById('cardTooltip')?.classList.remove('visible');
         const combatHandCards = document.getElementById('combatHandCards');
         if (combatHandCards) combatHandCards.innerHTML = '';
-        if (typeof HudUpdateUI !== 'undefined' && typeof HudUpdateUI.resetCombatUI === 'function') {
-          HudUpdateUI.resetCombatUI();
+        if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.resetCombatUI === 'function') {
+          window.HudUpdateUI.resetCombatUI();
         } else {
           document.getElementById('combatOverlay').classList.remove('active');
           // 소음 게이지 UI 제거
@@ -678,8 +663,8 @@ import { GS } from './game_state.js';
           setTimeout(() => returnToGame(true), 300);
           return;
         }
-        if (typeof HudUpdateUI !== 'undefined' && typeof HudUpdateUI.hideNodeOverlay === 'function') {
-          HudUpdateUI.hideNodeOverlay();
+        if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.hideNodeOverlay === 'function') {
+          window.HudUpdateUI.hideNodeOverlay();
         } else {
           const nodeOverlay = document.getElementById('nodeCardOverlay');
           if (nodeOverlay) nodeOverlay.style.display = 'none';

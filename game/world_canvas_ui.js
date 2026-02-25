@@ -1,7 +1,4 @@
-'use strict';
-
-
-  export const WorldCanvasUI = {
+export const WorldCanvasUI = {
     renderNodeInfo(ctx, w, h, deps = {}) {
       const gs = deps.gs;
       const getRegionData = deps.getRegionData;

@@ -8,7 +8,3 @@ export const NODE_META = {
     shop: { icon: '🏪', label: '상점', color: '#00cc88', glow: 'rgba(0,204,136,', desc: '골드로 카드·유물을 구입한다' },
     rest: { icon: '🔥', label: '휴식', color: '#cc5500', glow: 'rgba(204,85,0,', desc: '체력을 회복하거나 카드를 강화한다' },
 };
-
-(function (globalObj) {
-    
-})(typeof window !== 'undefined' ? window : global);

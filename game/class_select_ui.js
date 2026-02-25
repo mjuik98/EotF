@@ -1,10 +1,4 @@
-'use strict';
-
-import { DATA } from '../data/game_data.js';
-
-
-
-  let _selectedClass = null;
+let _selectedClass = null;
 
   function _getDoc(deps) {
     return deps?.doc || document;
@@ -37,7 +31,7 @@ import { DATA } from '../data/game_data.js';
       }
 
       const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🏹', paladin: '🛡️', berserker: '🪓', shielder: '🧱' };
-      const data = deps.data || DATA;
+      const data = deps.data || window.DATA;
       const avatarEmoji = data?.assets?.avatars?.[_selectedClass] || icons[_selectedClass] || '⚔️';
 
       // HUD 소형 초상화 업데이트

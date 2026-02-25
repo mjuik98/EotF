@@ -1,7 +1,4 @@
-'use strict';
-
-
-  let _combatInfoOpen = false;
+let _combatInfoOpen = false;
 
   function _getDoc(deps) {
     return deps?.doc || document;

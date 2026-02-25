@@ -1,7 +1,4 @@
-'use strict';
-
-
-  let _helpOpen = false;
+let _helpOpen = false;
   let _pauseOpen = false;
   let _hotkeysBound = false;
 
@@ -20,7 +17,7 @@
 
     showMobileWarning(deps = {}) {
       const doc = _getDoc(deps);
-      const isMobile = window.innerWidth < 900 || 'ontouchstart' in globalObj;
+      const isMobile = window.innerWidth < 900 || 'ontouchstart' in window;
       if (!isMobile || doc.getElementById('mobileWarn')) return;
 
       const warn = doc.createElement('div');

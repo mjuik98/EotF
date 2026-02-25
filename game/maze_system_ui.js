@@ -1,8 +1,4 @@
-'use strict';
-
-import { FovEngine } from '../engine/fov.js';
 import { GS } from './game_state.js';
-
 
 
   let _deps = {};
@@ -30,15 +26,15 @@ import { GS } from './game_state.js';
   }
 
   function _win() {
-    return _deps.win || globalObj;
+    return _deps.win || window;
   }
 
   function _fov() {
-    return _deps.fovEngine || FovEngine;
+    return _deps.fovEngine || window.FovEngine;
   }
 
   function _gs() {
-    return _deps.gs || GS;
+    return _deps.gs || window.GS;
   }
 
   function _init() {

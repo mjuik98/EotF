@@ -1,7 +1,4 @@
-'use strict';
-
 import { DescriptionUtils } from './description_utils.js';
-
 
 
   const _noticeQueue = [];
@@ -164,7 +161,7 @@ import { DescriptionUtils } from './description_utils.js';
         <div>
            <div style="font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${rarityColor[r] || 'var(--text-dim)'};margin-bottom:2px;">${rarityLabel[r] || r} 아이템 획득</div>
           <div class="toast-text" style="color:${rarityColor[r] || 'var(--white)'};">${item.name}</div>
-          <div class="toast-sub">${DescriptionUtils ? DescriptionUtils.highlight(item.desc) : item.desc}</div>
+          <div class="toast-sub">${window.DescriptionUtils ? window.DescriptionUtils.highlight(item.desc) : item.desc}</div>
         </div>`;
       doc.body.appendChild(el);
       setTimeout(() => el.remove(), 3500);
@@ -203,7 +200,7 @@ import { DescriptionUtils } from './description_utils.js';
           <div style="position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(192,132,252,0.12),transparent 60%);pointer-events:none;"></div>
            <div style="font-size:52px;margin-bottom:14px;filter:drop-shadow(0 0 16px rgba(192,132,252,0.8));">${item.icon}</div>
           <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:#c084fc;letter-spacing:0.05em;margin-bottom:8px;">${item.name}</div>
-          <div style="font-size:11px;color:rgba(220,210,240,0.8);line-height:1.6;">${DescriptionUtils ? DescriptionUtils.highlight(item.desc) : item.desc}</div>
+          <div style="font-size:11px;color:rgba(220,210,240,0.8);line-height:1.6;">${window.DescriptionUtils ? window.DescriptionUtils.highlight(item.desc) : item.desc}</div>
         </div>
         <div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:13px;color:rgba(192,132,252,0.6);animation:fadeIn 0.6s ease 0.6s both;">클릭하여 닫기</div>
       `;

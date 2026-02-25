@@ -1,14 +1,10 @@
-'use strict';
-
 import { CONSTANTS } from './constants/constants.js';
-import { Trigger } from './constants/triggers.js';
 import { GS } from './game_state.js';
-
 
 
   export const EchoSkillUI = {
     useEchoSkill(deps = {}) {
-      const gs = deps.gs || GS;
+      const gs = deps.gs || window.GS;
       if (!gs?.player) return;
       if (!gs.combat?.active || !gs.combat.playerTurn) return;
 
@@ -32,7 +28,7 @@ import { GS } from './game_state.js';
       gs.drainEcho(cost);
       gs.triggerItems?.(Trigger.ECHO_SKILL, { cost });
 
-      const skillDef = CONSTANTS.ECHO_SKILLS[cls]?.[tier];
+      const skillDef = window.CONSTANTS.ECHO_SKILLS[cls]?.[tier];
       if (skillDef) {
         if (skillDef.dmg) gs.dealDamage(skillDef.dmg);
         if (skillDef.aoedmg) gs.dealDamageAll(skillDef.aoedmg);

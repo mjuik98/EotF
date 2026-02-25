@@ -1,9 +1,4 @@
-'use strict';
-
 import { DescriptionUtils } from './description_utils.js';
-import { CardCostUtils } from './card_cost_utils.js';
-import { GS } from './game_state.js';
-
 
 
   function _getDoc(deps) {
@@ -46,7 +41,7 @@ import { GS } from './game_state.js';
       const zone = doc.getElementById('combatHandCards');
       if (!zone) return;
 
-      const playCardHandler = deps.playCardHandler || GS?.playCard;
+      const playCardHandler = deps.playCardHandler || window.GS?.playCard;
       const dragStartHandler = deps.dragStartHandler || window.handleCardDragStart;
       const dragEndHandler = deps.dragEndHandler || window.handleCardDragEnd;
       const showTooltipHandler = deps.showTooltipHandler || window.showTooltip;
@@ -65,11 +60,11 @@ import { GS } from './game_state.js';
 
         const rarityClass = `rarity-${card.rarity || 'common'}`;
 
-        const { displayCost: cost, isFree } = CardCostUtils.getCostDisplay(cardId, card, gs.player);
+        const { displayCost: cost, isFree } = window.CardCostUtils.getCostDisplay(cardId, card, gs.player);
         const canPlay = gs.player.energy >= cost;
         const disc = gs.player.costDiscount || 0;
-        const isCascadeFree = CardCostUtils.isCascadeFree(cardId, gs.player);
-        const isChargeFree = CardCostUtils.isChargeFree(cardId, gs.player);
+        const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player);
+        const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player);
         const rarityBorder = card.rarity === 'rare'
           ? 'rgba(240,180,41,0.5)'
           : card.rarity === 'uncommon'
@@ -97,7 +92,7 @@ import { GS } from './game_state.js';
               ${card.icon}
             </div>
             <div class="card-name" style="${cardScale < 1 ? `font-size:${Math.round(12 * cardScale)}px;` : 'font-size:14px;'}">${card.name}${card.upgraded ? '<span style="color:var(--cyan);font-size:10px;"> ✦</span>' : ''}</div>
-            <div class="card-desc" style="display:none;">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
+            <div class="card-desc" style="display:none;">${window.DescriptionUtils ? window.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type ${typeLabelClass}">${card.type}</div>
         `;
         zone.appendChild(el);
@@ -115,7 +110,7 @@ import { GS } from './game_state.js';
       const zone = doc.getElementById('handCards');
       if (!zone) return;
 
-      const playCardHandler = deps.playCardHandler || GS?.playCard;
+      const playCardHandler = deps.playCardHandler || window.GS?.playCard;
       const renderCombatCardsHandler = deps.renderCombatCardsHandler || window.renderCombatCards;
 
       zone.innerHTML = '';
@@ -136,7 +131,7 @@ import { GS } from './game_state.js';
             <div class="card-cost">${card.cost}</div>
             <div class="card-icon">${card.icon}</div>
             <div class="card-name">${card.name}</div>
-            <div class="card-desc">${DescriptionUtils ? DescriptionUtils.highlight(card.desc) : card.desc}</div>
+            <div class="card-desc">${window.DescriptionUtils ? window.DescriptionUtils.highlight(card.desc) : card.desc}</div>
             <div class="card-type">${card.type}</div>
         `;
         zone.appendChild(el);

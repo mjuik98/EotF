@@ -21,7 +21,3 @@ export const Trigger = Object.freeze({
     PRE_DEATH: 'pre_death',
     FLOOR_START: 'floor_start',
 });
-
-(function (globalObj) {
-    
-})(typeof window !== 'undefined' ? window : global);

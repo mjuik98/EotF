@@ -262,7 +262,7 @@
           미니맵</div>
         <canvas id="mazeMinimapCanvas" width="220" height="150"
           style="display:block; image-rendering:pixelated; cursor:pointer;"
-          onclick="event.stopPropagation(); window.showFullMap?.()"></canvas>
+          onclick="event.stopPropagation(); globalObj.MapUI?.showFullMap?.()"></canvas>
       </div>
     </div>
     <!-- 하단 조작 가이드 -->
@@ -702,7 +702,43 @@
     <div id="echoSkillTtContent"></div>
   </div>
 
-  <!-- ES Module Entry Point -->
+
+  <div class="panel-right">
+    <div class="panel-title">미니맵</div>
+    <canvas id="minimapCanvas"></canvas>
+
+    <div class="region-info">
+      <div class="region-name-display" id="regionName">잔향의 숲</div>
+      <div class="region-rule-display" id="regionRule">기본 규칙</div>
+      <div class="region-floor-display" id="regionFloor">1 / 3층</div>
+    </div>
+
+    <div class="panel-title">캐릭터</div>
+    <div id="playerPortraitSection" class="ingame-portrait-container">
+      <div id="largePlayerPortraitGlow" class="ingame-portrait-glow"></div>
+      <div id="playerPortraitFallback" class="ingame-portrait-fallback">⚔️</div>
+    </div>
+    <div id="playerNameDisplay"
+      style="text-align:center;font-family:'Cinzel Decorative',serif;font-size:16px;font-weight:900;color:var(--white);margin-top:10px;text-shadow:0 0 10px rgba(255,255,255,0.3);">
+    </div>
+    <div id="playerSpecialDisplay"
+      style="margin-top:12px;padding:10px;background:rgba(123,47,255,0.05);border:1px solid rgba(123,47,255,0.15);border-radius:8px;min-height:40px;display:flex;flex-direction:column;justify-content:center;">
+    </div>
+
+    <div id="nextNodes" style="display:none;"></div>
+
+    <div style="margin-top:auto;">
+      <div class="panel-title">런 모디파이어</div>
+      <div id="runModifiersSection" style="margin-bottom:12px; display:flex; flex-direction:column; gap:6px;"></div>
+      <div class="panel-title">덱 정보</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);line-height:1.8;">
+        <div>덱: <span id="deckSize" style="color:var(--white);">10</span>장</div>
+        <div>무덤: <span id="graveyardSize" style="color:var(--text-dim);">0</span>장</div>
+        <div>소진: <span id="exhaustSize" style="color:var(--danger);">0</span>장</div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="game/main.js"></script>
 </body>
 

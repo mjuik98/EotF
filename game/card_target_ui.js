@@ -1,9 +1,5 @@
-'use strict';
-
-import { DATA } from '../data/game_data.js';
-import { CombatUI } from './combat_ui.js';
 import { GS } from './game_state.js';
-
+import { DATA } from '../data/game_data.js';
 
 
   let _dragCardId = null;
@@ -14,11 +10,11 @@ import { GS } from './game_state.js';
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   function _getData(deps) {
-    return deps?.data || DATA;
+    return deps?.data || window.DATA;
   }
 
   export const CardTargetUI = {
@@ -99,8 +95,8 @@ import { GS } from './game_state.js';
 
       if (typeof deps.renderCombatEnemies === 'function') {
         deps.renderCombatEnemies();
-      } else if (typeof CombatUI?.renderCombatEnemies === 'function') {
-        CombatUI.renderCombatEnemies({ gs: gs, data: data });
+      } else if (typeof window.CombatUI?.renderCombatEnemies === 'function') {
+        window.CombatUI.renderCombatEnemies({ gs: gs, data: data });
       }
     },
   };

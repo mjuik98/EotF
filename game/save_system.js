@@ -1,12 +1,5 @@
-'use strict';
-
 import { SaveAdapter } from './save_adapter.js';
-import { RunRules } from './run_rules.js';
-import { GS } from './game_state.js';
-
-
-
-  const SAVE_KEY = 'echo_fallen_save';
+const SAVE_KEY = 'echo_fallen_save';
   const META_KEY = 'echo_fallen_meta';
 
   function _getDoc(deps) {
@@ -14,7 +7,7 @@ import { GS } from './game_state.js';
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   export const SaveSystem = {
@@ -59,7 +52,7 @@ import { GS } from './game_state.js';
         }
       } catch (e) { }
 
-      const runRules = deps.runRules || RunRules;
+      const runRules = deps.runRules || window.RunRules;
       try {
         runRules?.ensureMeta?.(gs.meta);
       } catch (e) { }

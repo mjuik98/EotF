@@ -1,15 +1,9 @@
-'use strict';
-
-import { GS } from './game_state.js';
-
-
-
-  function _getDoc(deps) {
+function _getDoc(deps) {
     return deps?.doc || document;
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   export const RegionTransitionUI = {

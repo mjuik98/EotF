@@ -1,12 +1,7 @@
-'use strict';
-
-import { AudioEngine } from '../engine/audio.js';
-import { ScreenShake } from '../engine/screenshake.js';
 import { DescriptionUtils } from './description_utils.js';
-import { DATA } from '../data/game_data.js';
-import { RunRules } from './run_rules.js';
+import { AudioEngine } from '../engine/audio.js';
 import { GS } from './game_state.js';
-
+import { DATA } from '../data/game_data.js';
 
 
   let _currentEvent = null;
@@ -16,15 +11,15 @@ import { GS } from './game_state.js';
   }
 
   function _getGS(deps) {
-    return deps?.gs || GS;
+    return deps?.gs || window.GS;
   }
 
   function _getData(deps) {
-    return deps?.data || DATA;
+    return deps?.data || window.DATA;
   }
 
   function _getRunRules(deps) {
-    return deps?.runRules || RunRules;
+    return deps?.runRules || window.RunRules;
   }
 
   function _renderChoices(event, doc) {
@@ -436,7 +431,7 @@ import { GS } from './game_state.js';
           <div style="position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.1em;color:${rc.color};">${rc.label}</div>
           <div style="font-size:46px;margin-bottom:8px;margin-top:20px;">${item.icon}</div>
           <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:${rc.color};margin-bottom:6px;">${item.name}</div>
-          <div style="font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;">${DescriptionUtils ? DescriptionUtils.highlight(item.desc) : item.desc}</div>
+          <div style="font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;">${window.DescriptionUtils ? window.DescriptionUtils.highlight(item.desc) : item.desc}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--gold);font-weight:700;margin-top:auto;">${cost} 골드</div>
         `;
         const alreadyOwned = gs.player.items.includes(item.id);
