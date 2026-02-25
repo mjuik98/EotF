@@ -1,5 +1,13 @@
 {
-  "dependencies": {
-    "puppeteer": "^24.37.5"
-  }
+  "name": "echo-of-the-fallen",
+  "version": "2.0.0",
+  "description": "Roguelike Deckbuilder Game",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in browser'",
+    "clean": "echo 'Cleaning...'"
+  },
+  "keywords": ["game", "roguelike", "deckbuilder"],
+  "author": "",
+  "license": "ISC"
 }

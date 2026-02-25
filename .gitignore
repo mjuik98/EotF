@@ -1,3 +1,6 @@
+# Dependencies
+node_modules/
+
 # Local backup/test artifacts
 echo-of-the-fallenV*.html
 test.txt
