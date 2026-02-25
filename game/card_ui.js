@@ -57,12 +57,7 @@
         const card = data.cards[cardId];
         if (!card) return '';
 
-        // 강화 카드는 원분 카드 이미지 사용 (사용자 요청 #5)
-        let displayImg = card.image;
-        if (card.upgraded) {
-          const baseId = cardId.replace('_plus', '');
-          if (data.cards[baseId]) displayImg = data.cards[baseId].image;
-        }
+        const rarityClass = `rarity-${card.rarity || 'common'}`;
 
         const disc = gs.player.costDiscount || 0;
         const cascade = gs.player._cascadeCards;
@@ -83,8 +78,6 @@
         const typeClass = _getCardTypeClass(card.type);
         const typeLabelClass = _getCardTypeLabelClass(card.type);
 
-        const rarityClass = `rarity-${card.rarity || 'common'}`;
-
         return `
           <div class="card ${canPlay ? 'playable' : ''} ${typeClass} ${rarityClass}"
             style="width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;"
@@ -96,8 +89,8 @@
             onmouseleave="${hideTooltipHandlerName}()">
             ${i < 5 ? `<div class="card-hotkey ${canPlay ? '' : 'disabled'}">${i + 1}</div>` : ''}
             <div class="card-cost" style="${!canPlay ? 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);' : (isCascadeFree || isChargeFree) && card.cost > 0 ? 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;' : disc > 0 && card.cost > 0 ? 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;' : ''}">${cost}${(isCascadeFree || isChargeFree) && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;">FREE</span>` : disc > 0 && card.cost > 0 ? `<span style="position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;">-${Math.min(disc, card.cost)}</span>` : ''}</div>
-            <div class="card-icon" style="${cardScale < 1 ? `font-size:${Math.round(22 * cardScale)}px;` : ''}">
-              ${displayImg ? `<img src="assets/images/${displayImg}" style="width:100%;height:100%;object-fit:cover;opacity:0.6;border-radius:4px;">` : ''}
+            <div class="card-icon" style="${cardScale < 1 ? `font-size:${Math.round(40 * cardScale)}px;` : 'font-size:40px;'}">
+              ${card.icon}
             </div>
             <div class="card-name" style="${cardScale < 1 ? `font-size:${Math.round(12 * cardScale)}px;` : 'font-size:14px;'}">${card.name}${card.upgraded ? '<span style="color:var(--cyan);font-size:10px;"> ✦</span>' : ''}</div>
             <div class="card-desc" style="display:none;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(card.desc) : card.desc}</div>

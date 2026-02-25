@@ -1344,6 +1344,33 @@ body {
   border-color: rgba(240, 180, 41, 0.5);
 }
 
+.card.rarity-rare::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: skewX(-25deg);
+  pointer-events: none;
+  animation: cardShimmer 4s infinite ease-in-out;
+}
+
+@keyframes cardShimmer {
+  0% {
+    left: -150%;
+  }
+
+  25% {
+    left: 150%;
+  }
+
+  100% {
+    left: 150%;
+  }
+}
+
 .card.playable {
   border-color: rgba(0, 255, 204, 0.3);
 }
@@ -1803,6 +1830,36 @@ body {
 
 .card-tooltip.visible {
   opacity: 1;
+}
+
+.sub-tooltip {
+  position: fixed;
+  z-index: 810;
+  background: rgba(7, 7, 26, 0.95);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--echo);
+  border-radius: 8px;
+  padding: 12px 14px;
+  width: 180px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  animation: fadeIn 0.15s ease both;
+}
+
+.sub-tooltip-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
+.sub-tooltip-content {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .card-tooltip-icon {
@@ -4032,6 +4089,26 @@ body:has(#combatOverlay.active) .panel-bottom {
 
   .card-desc {
     font-size: 10px;
+  }
+
+  /* Event Modal Mobile */
+  .event-box {
+    padding: 24px 20px;
+    max-width: 95%;
+  }
+
+  .event-title {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .event-image-container img {
+    max-height: 180px;
+  }
+
+  .event-desc {
+    font-size: 13px;
+    margin-bottom: 20px;
   }
 }
 

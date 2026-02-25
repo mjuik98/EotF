@@ -113,12 +113,7 @@
               onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.4)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
               ${isBoss ? `<div style="position:absolute;top:8px;right:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;font-weight:bold;">BOSS</div>` : ''}
               <div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;margin:8px 0;">
-                ${seen ? (e.image ?
-                `<img src="assets/images/${e.image}" style="max-width:100%;max-height:100%;object-fit:contain;" 
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                   <div style="display:none;font-size:48px;">${e.icon}</div>` :
-                `<div style="font-size:48px;">${e.icon}</div>`) :
-                `<div style="font-size:40px;filter:grayscale(1) brightness(0.25);">❓</div>`}
+                ${seen ? `<div style="font-size:48px;">${e.icon}</div>` : `<div style="font-size:40px;filter:grayscale(1) brightness(0.25);">❓</div>`}
               </div>
               <div style="font-family:'Cinzel',serif;font-size:${seen ? '13px' : '11px'};font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
                 ${seen ? e.name : '???'}
@@ -165,12 +160,7 @@
               width:120px;min-height:190px;display:flex;flex-direction:column;align-items:center;gap:6px;
               transition:all 0.15s;" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
               <div style="width:100%;height:60px;display:flex;align-items:center;justify-content:center;margin:6px 0;">
-                ${seen ? (card.image ?
-                `<img src="assets/images/${card.image}" style="max-width:100%;max-height:100%;object-fit:contain;" 
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                   <div style="display:none;font-size:36px;">${card.icon}</div>` :
-                `<div style="font-size:36px;">${card.icon}</div>`) :
-                `<div style="font-size:30px;filter:grayscale(1) brightness(0.25);">❓</div>`}
+                ${seen ? `<div style="font-size:36px;">${card.icon}</div>` : `<div style="font-size:30px;filter:grayscale(1) brightness(0.25);">❓</div>`}
               </div>
               <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">${seen ? card.name : '???'}</div>
               ${seen ? `
@@ -212,12 +202,7 @@
               width:150px;min-height:180px;display:flex;flex-direction:column;align-items:center;gap:8px;
               transition:all 0.15s;" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
               <div style="width:100%;height:70px;display:flex;align-items:center;justify-content:center;margin:6px 0;">
-                ${seen ? (item.image ?
-                `<img src="assets/images/${item.image}" style="max-width:100%;max-height:100%;object-fit:contain;" 
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                   <div style="display:none;font-size:42px;">${item.icon}</div>` :
-                `<div style="font-size:42px;">${item.icon}</div>`) :
-                `<div style="font-size:36px;filter:grayscale(1) brightness(0.2);">❓</div>`}
+                ${seen ? `<div style="font-size:42px;">${item.icon}</div>` : `<div style="font-size:36px;filter:grayscale(1) brightness(0.2);">❓</div>`}
               </div>
                <div style="font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;">
                 ${seen ? item.name : '???'}

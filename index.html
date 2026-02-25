@@ -42,8 +42,7 @@
         <div class="class-select" style="margin-bottom: 40px;">
           <button class="class-btn" data-class="swordsman" onclick="selectClass(this)">
             <div class="class-btn-icon-container">
-              <img src="assets/images/avatar_swordsman.png" class="class-btn-img"
-                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>⚔️</text></svg>'">
+              <span class="class-btn-emoji">⚔️</span>
             </div>
             <div class="class-btn-name">잔향검사</div>
             <div class="class-btn-style">MOMENTUM</div>
@@ -53,8 +52,7 @@
           </button>
           <button class="class-btn" data-class="mage" onclick="selectClass(this)">
             <div class="class-btn-icon-container">
-              <img src="assets/images/avatar_mage.png" class="class-btn-img"
-                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔮</text></svg>'">
+              <span class="class-btn-emoji">🔮</span>
             </div>
             <div class="class-btn-name">메아리술사</div>
             <div class="class-btn-style">PREDICTION</div>
@@ -64,13 +62,41 @@
           </button>
           <button class="class-btn" data-class="hunter" onclick="selectClass(this)">
             <div class="class-btn-icon-container">
-              <img src="assets/images/avatar_hunter.png" class="class-btn-img"
-                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🗡️</text></svg>'">
+              <span class="class-btn-emoji">🏹</span>
             </div>
             <div class="class-btn-name">침묵사냥꾼</div>
             <div class="class-btn-style">SILENCE</div>
             <div class="class-btn-desc">침묵 게이지를 관리하는 암살자. HP 65</div>
             <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">🗺️ 시작 유물: 여행자 지도
+            </div>
+          </button>
+          <button class="class-btn" data-class="paladin" onclick="selectClass(this)">
+            <div class="class-btn-icon-container">
+              <span class="class-btn-emoji">🛡️</span>
+            </div>
+            <div class="class-btn-name">성기사</div>
+            <div class="class-btn-style">HEALING</div>
+            <div class="class-btn-desc">전투하며 생명력을 회복합니다. HP 85</div>
+            <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">📿 시작 유물: 균열 부적
+            </div>
+          </button>
+          <button class="class-btn" data-class="berserker" onclick="selectClass(this)">
+            <div class="class-btn-icon-container">
+              <span class="class-btn-emoji">🪓</span>
+            </div>
+            <div class="class-btn-name">광전사</div>
+            <div class="class-btn-style">RAGE</div>
+            <div class="class-btn-desc">낮은 HP에서 더 치명적입니다. HP 90</div>
+            <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">🔴 시작 유물: 혈정</div>
+          </button>
+          <button class="class-btn" data-class="shielder" onclick="selectClass(this)">
+            <div class="class-btn-icon-container">
+              <span class="class-btn-emoji">🧱</span>
+            </div>
+            <div class="class-btn-name">쉴더</div>
+            <div class="class-btn-style">BARRIER</div>
+            <div class="class-btn-desc">강력한 방어막으로 공격을 막아냅니다. HP 75</div>
+            <div style="margin-top:8px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif;">🧥 시작 유물: 환영 망토
             </div>
           </button>
         </div>
@@ -617,6 +643,11 @@
     <div class="card-tooltip-rarity" id="ttRarity"></div>
   </div>
 
+  <div id="subTooltip" class="sub-tooltip" style="display:none;">
+    <div class="sub-tooltip-title" id="stTitle">키워드</div>
+    <div class="sub-tooltip-content" id="stContent">내용</div>
+  </div>
+
   <!-- ═══════════════════════════════════════
      CODEX MODAL — 도감
 ═══════════════════════════════════════ -->
@@ -655,7 +686,7 @@
         style="background:rgba(123,47,255,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 18px;margin-bottom:24px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">
       </div>
       <!-- 콘텐츠 -->
-      <div id="codexContent" style=""></div>
+      <div id="codexContent"></div>
       <!-- 닫기 -->
       <div style="text-align:center;margin-top:32px;">
         <button onclick="closeCodex()"
@@ -696,7 +727,6 @@
     <div class="panel-title">캐릭터</div>
     <div id="playerPortraitSection" class="ingame-portrait-container">
       <div id="largePlayerPortraitGlow" class="ingame-portrait-glow"></div>
-      <img id="largePlayerPortrait" src="" class="ingame-portrait-img">
       <div id="playerPortraitFallback" class="ingame-portrait-fallback">⚔️</div>
     </div>
     <div id="playerNameDisplay"

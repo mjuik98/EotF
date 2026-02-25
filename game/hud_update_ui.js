@@ -155,31 +155,29 @@
       const largeFallback = doc.getElementById('playerPortraitFallback');
 
       if (p.class) {
-        const avatarFile = data?.assets?.avatars?.[p.class];
-        const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
-        const fallbackIcon = icons[p.class] || '⚔️';
+        const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🏹', paladin: '🛡️', berserker: '🪓', shielder: '🧱' };
+        const avatarEmoji = data?.assets?.avatars?.[p.class] || icons[p.class] || '⚔️';
 
-        // 소형 초상화 (HUD) - Removed as requested
-        if (avatarEl) avatarEl.style.display = 'none';
+        // 소형 초상화 (HUD)
+        if (avatarEl) {
+          avatarEl.style.display = 'block';
+          avatarEl.textContent = avatarEmoji;
+          avatarEl.style.fontSize = '24px';
+        }
 
         // 대형 초상화 (우측 패널)
         if (largePortrait && largeFallback) {
-          if (avatarFile) {
-            const newSrc = `assets/images/${avatarFile}`;
-            if (largePortrait.getAttribute('src') !== newSrc) {
-              largePortrait.src = newSrc;
-            }
-            largePortrait.style.display = 'block';
-            largeFallback.style.display = 'none';
-          } else {
-            largePortrait.style.display = 'none';
-            largeFallback.textContent = fallbackIcon;
-            largeFallback.style.display = 'flex';
-          }
+          largePortrait.style.display = 'none';
+          largeFallback.textContent = avatarEmoji;
+          largeFallback.style.fontSize = '80px';
+          largeFallback.style.display = 'flex';
         }
 
         // 캐릭터 이름 및 특성 (우측 패널)
-        const nameMap = { swordsman: '잔향검사', mage: '메아리술사', hunter: '침묵사냥꾼' };
+        const nameMap = {
+          swordsman: '잔향검사', mage: '메아리술사', hunter: '침묵사냥꾼',
+          paladin: '성기사', berserker: '광전사', shielder: '쉴더'
+        };
         setText('playerNameDisplay', nameMap[p.class] || '');
 
         const specialEl = doc.getElementById('playerSpecialDisplay');

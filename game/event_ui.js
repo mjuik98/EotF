@@ -75,13 +75,8 @@
       if (titleEl) titleEl.textContent = event.title;
       if (descEl) descEl.textContent = event.desc;
 
-      if (imgContEl && imgEl) {
-        if (event.image) {
-          imgEl.src = 'assets/images/' + event.image;
-          imgContEl.style.display = 'block';
-        } else {
-          imgContEl.style.display = 'none';
-        }
+      if (imgContEl) {
+        imgContEl.style.display = 'none';
       }
 
       this.updateEventGoldBar(deps);

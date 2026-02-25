@@ -2,9 +2,12 @@
   // 에셋 경로 정의
   assets: {
     avatars: {
-      swordsman: 'avatar_swordsman.png',
-      mage: 'avatar_mage.png',
-      hunter: 'avatar_hunter.png'
+      swordsman: '⚔️',
+      mage: '🔮',
+      hunter: '🏹',
+      paladin: '🛡️',
+      berserker: '🪓',
+      shielder: '🧱'
     }
   },
   // 카드 강화 시스템: upgradeOf -> 원본카드, 강화 후 suffix '+' 붙은 버전
@@ -18,6 +21,9 @@
     'flame_slash': 'ember_wave',
     'echo_tide': 'void_surge',
     'tempo_strike': 'echo_cascade',
+    'holy_strike': 'holy_strike_plus',
+    'blood_fury': 'blood_fury_plus',
+    'iron_defense': 'iron_defense_plus'
   },
   cards: {
     // 공통 기본
@@ -33,12 +39,12 @@
     },
     defend: {
       id: 'defend', name: '방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 7 획득', rarity: 'common',
-      image: 'card_defend.png',
+      image: 'card_defend_standard.png',
       effect(gs) { gs.addShield(7); }
     },
     defend_plus: {
       id: 'defend_plus', name: '방어+', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10 획득', rarity: 'common', upgraded: true,
-      image: 'card_defend.png',
+      image: 'card_defend_plus.png',
       effect(gs) { gs.addShield(10); }
     },
     echo_strike: {
@@ -58,7 +64,7 @@
     },
     quick_step_plus: {
       id: 'quick_step_plus', name: '잔영 이동+', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 6, Echo +20, 1장 드로우', rarity: 'common', upgraded: true,
-      image: 'card_skill.png',
+      image: 'card_quick_step.png',
       effect(gs) { gs.addShield(6); gs.addEcho(20); gs.drawCards(1); }
     },
     heavy_blow: {
@@ -68,7 +74,7 @@
     },
     heavy_blow_plus: {
       id: 'heavy_blow_plus', name: '중격+', icon: '🔨', cost: 2, type: 'ATTACK', desc: '26 피해 + 기절 1턴', rarity: 'common', upgraded: true,
-      image: 'card_attack.png',
+      image: 'card_heavy_blow.png',
       effect(gs) { gs.dealDamage(26); gs.applyEnemyStatus('stunned', 1); }
     },
     echo_wave: {
@@ -78,7 +84,7 @@
     },
     echo_wave_plus: {
       id: 'echo_wave_plus', name: '잔향파+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 14 피해, Echo +15', rarity: 'uncommon', upgraded: true,
-      image: 'card_attack.png',
+      image: 'card_echo_wave.png',
       effect(gs) { gs.dealDamageAll(14); gs.addEcho(15); }
     },
     resonance: {
@@ -88,7 +94,7 @@
     },
     resonance_plus: {
       id: 'resonance_plus', name: '공명+', icon: '⚡', cost: 0, type: 'SKILL', desc: 'Echo 50 충전', rarity: 'uncommon', upgraded: true,
-      image: 'card_skill.png',
+      image: 'card_resonance.png',
       effect(gs) { gs.addEcho(50); }
     },
     soul_rend: {
@@ -108,7 +114,7 @@
     },
     twin_strike_plus: {
       id: 'twin_strike_plus', name: '쌍검격+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '9 피해 × 2회', rarity: 'uncommon', upgraded: true,
-      image: 'card_attack.png',
+      image: 'card_twin_strike.png',
       effect(gs) { gs.dealDamage(9, 0, true); gs.dealDamage(9); }
     },
     echo_shield: {
@@ -118,7 +124,7 @@
     },
     echo_shield_plus: {
       id: 'echo_shield_plus', name: '잔향 방벽+', icon: '🔵', cost: 1, type: 'SKILL', desc: '방어막 (Echo/4), Echo +10', rarity: 'uncommon', upgraded: true,
-      image: 'card_skill.png',
+      image: 'card_echo_shield.png',
       effect(gs) { gs.addShield(Math.floor(gs.player.echo / 4)); gs.addEcho(10); }
     },
     // 잔향검사
@@ -129,7 +135,7 @@
     },
     momentum_plus: {
       id: 'momentum_plus', name: '가속+', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +8, Echo +10', rarity: 'common', upgraded: true,
-      image: 'card_skill.png',
+      image: 'card_momentum_plus.png',
       effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 8 }); gs.addEcho(10); }
     },
     charge: {
@@ -165,7 +171,7 @@
     },
     foresight_plus: {
       id: 'foresight_plus', name: '예지+', icon: '👁️', cost: 0, type: 'SKILL', desc: '약화 50%, Echo +10', rarity: 'common', upgraded: true,
-      image: 'card_skill.png',
+      image: 'card_foresight.png',
       effect(gs) { gs.applyEnemyStatus('weakened', 1); gs.addEcho(10); }
     },
     counter: {
@@ -194,9 +200,9 @@
       effect(gs) { if (gs.combat.active) gs.drawCards(2); gs.addEcho(15); }
     },
     time_warp: {
-      id: 'time_warp', name: '시간 왜곡', icon: '🌀', cost: 2, type: 'SKILL', desc: '다음 턴 에너지 +1 획득', rarity: 'rare',
+      id: 'time_warp', name: '시간 왜곡', icon: '🌀', cost: 2, type: 'POWER', desc: '매 턴 시작 시 에너지 +1을 추가로 획득합니다.', rarity: 'rare',
       image: 'card_time_warp.png',
-      effect(gs) { gs.addBuff('time_warp', 1, { nextEnergy: 1 }); }
+      effect(gs) { gs.addBuff('time_warp', 99, { energyPerTurn: 1 }); }
     },
     // 침묵사냥꾼
     silent_stab: {
@@ -283,7 +289,7 @@
     },
     surge_plus: {
       id: 'surge_plus', name: '서지+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +3, 1장 드로우', rarity: 'uncommon', upgraded: true,
-      image: 'card_skill.png',
+      image: 'card_surge.png',
       effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 3, gs.player.energy + 3); gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); updateUI(); }
     },
     overcharge: {
@@ -359,6 +365,72 @@
       id: 'echo_lull', name: '잔향의 고요', icon: '🌙', cost: 0, type: 'SKILL', desc: '에너지 -1, 손패 전체 비용 -2 이번 턴', rarity: 'uncommon',
       image: 'card_echo_lull.png',
       effect(gs) { gs.player.energy = Math.max(0, gs.player.energy - 1); gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('🌙 잔향의 고요: 에너지 -1, 모든 카드 비용 -2!', 'echo'); renderCombatCards(); updateUI(); }
+    },
+
+    // ── 성기사 (Paladin) ──
+    holy_strike: {
+      id: 'holy_strike', name: '성스러운 강타', icon: '✨', cost: 1, type: 'ATTACK', desc: '8 피해. 사용 시 HP 2 회복.', rarity: 'common',
+      effect(gs) { gs.dealDamage(8); gs.heal(2); }
+    },
+    holy_strike_plus: {
+      id: 'holy_strike_plus', name: '성스러운 강타+', icon: '✨', cost: 1, type: 'ATTACK', desc: '11 피해. 사용 시 HP 4 회복.', rarity: 'common', upgraded: true,
+      effect(gs) { gs.dealDamage(11); gs.heal(4); }
+    },
+    divine_grace: {
+      id: 'divine_grace', name: '신의 은총', icon: '🙏', cost: 1, type: 'SKILL', desc: '방어막 6 획득. Echo 15 충전.', rarity: 'common',
+      effect(gs) { gs.addShield(6); gs.addEcho(15); }
+    },
+    blessing_of_light: {
+      id: 'blessing_of_light', name: '빛의 축복', icon: '☀️', cost: 2, type: 'POWER', desc: '매 턴 시작 시 HP 3 회복.', rarity: 'uncommon',
+      effect(gs) { gs.addBuff('blessing_of_light', 99, { healPerTurn: 3 }); }
+    },
+
+    // ── 광전사 (Berserker) ──
+    blood_fury: {
+      id: 'blood_fury', name: '핏빛 분노', icon: '🩸', cost: 1, type: 'ATTACK', desc: '7 피해. 잃은 체력 10당 피해 +3.', rarity: 'common',
+      effect(gs) {
+        const lostHp = gs.player.maxHp - gs.player.hp;
+        const bonus = Math.floor(lostHp / 10) * 3;
+        gs.dealDamage(7 + bonus);
+      }
+    },
+    blood_fury_plus: {
+      id: 'blood_fury_plus', name: '핏빛 분노+', icon: '🩸', cost: 1, type: 'ATTACK', desc: '10 피해. 잃은 체력 10당 피해 +5.', rarity: 'common', upgraded: true,
+      effect(gs) {
+        const lostHp = gs.player.maxHp - gs.player.hp;
+        const bonus = Math.floor(lostHp / 10) * 5;
+        gs.dealDamage(10 + bonus);
+      }
+    },
+    reckless_swing: {
+      id: 'reckless_swing', name: '무모한 휘두르기', icon: '🪓', cost: 1, type: 'ATTACK', desc: '15 피해. HP 3 소모.', rarity: 'common',
+      effect(gs) {
+        gs.player.hp = Math.max(1, gs.player.hp - 3);
+        gs.dealDamage(15);
+        updateUI();
+      }
+    },
+    berserk_mode: {
+      id: 'berserk_mode', name: '광폭화', icon: '😡', cost: 3, type: 'POWER', desc: '공격 시마다 피해 +2.', rarity: 'rare',
+      effect(gs) { gs.addBuff('berserk_mode', 99, { atkGrowth: 2 }); }
+    },
+
+    // ── 쉴더 (Shielder) ──
+    iron_defense: {
+      id: 'iron_defense', name: '무쇠 방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10 획득. Echo 10 충전.', rarity: 'common',
+      effect(gs) { gs.addShield(10); gs.addEcho(10); }
+    },
+    iron_defense_plus: {
+      id: 'iron_defense_plus', name: '무쇠 방어+', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 14 획득. Echo 20 충전.', rarity: 'common', upgraded: true,
+      effect(gs) { gs.addShield(14); gs.addEcho(20); }
+    },
+    shield_slam: {
+      id: 'shield_slam', name: '방패 가격', icon: '💥', cost: 2, type: 'ATTACK', desc: '현재 방어막 수치만큼 피해.', rarity: 'uncommon',
+      effect(gs) { gs.dealDamage(gs.player.shield || 0); }
+    },
+    unbreakable_wall: {
+      id: 'unbreakable_wall', name: '불굴의 벽', icon: '🧱', cost: 3, type: 'POWER', desc: '턴 종료 시 방어막이 절반만 감소합니다.', rarity: 'rare',
+      effect(gs) { gs.addBuff('unbreakable_wall', 99, {}); }
     },
   },
 
@@ -1220,6 +1292,9 @@
     swordsman: ['strike', 'strike', 'defend', 'charge', 'echo_strike', 'heavy_blow', 'blade_dance'],
     mage: ['strike', 'strike', 'defend', 'prediction', 'foresight', 'void_mirror', 'time_warp'],
     hunter: ['strike', 'strike', 'defend', 'momentum', 'tempo_strike', 'quick_step', 'phantom_step'],
+    paladin: ['strike', 'defend', 'holy_strike', 'holy_strike', 'divine_grace', 'divine_grace', 'blessing_of_light'],
+    berserker: ['strike', 'strike', 'defend', 'blood_fury', 'blood_fury', 'reckless_swing', 'reckless_swing'],
+    shielder: ['strike', 'defend', 'defend', 'iron_defense', 'iron_defense', 'shield_slam', 'unbreakable_wall'],
   },
 
   events: [

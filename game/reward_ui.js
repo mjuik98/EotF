@@ -81,9 +81,9 @@
             return `<div class="reward-card-wrapper" onclick="takeRewardItem('${item.id}')" style="animation-delay:${idx * 0.08}s;">
               <div class="card" style="width:170px;height:260px;padding-top:20px;padding-bottom:12px;border-color:var(--gold);">
                 <div class="card-icon" style="font-size:46px;">🎁</div>
-                <div class="card-name" style="font-size:16px;color:var(--gold);">특별 유물</div>
-                <div class="card-desc" style="font-size:13px;flex:1;">무작위 유물을 획득합니다.<br><br><b>${item.name}</b></div>
-                <div class="card-type" style="font-size:11px;color:var(--gold);margin-top:auto;">특수 보상</div>
+                <div class="card-name" style="font-size:16px;color:var(--gold);">미지의 유물</div>
+                <div class="card-desc" style="font-size:13px;flex:1;">어떤 유물인지 알 수 없습니다.<br>획득하여 정체를 밝히십시오.</div>
+                <div class="card-type" style="font-size:11px;color:var(--gold);margin-top:auto;">특수 보상 · 미식별</div>
               </div>
             </div>`;
           } else if (specialType === 'upgrade') {
@@ -144,10 +144,10 @@
           const rc = item.rarity || 'common';
           container.innerHTML += `<div class="reward-card-wrapper" onclick="takeRewardItem('${item.id}')" style="animation-delay:${count * 0.08}s;">
             <div class="card" style="width:170px;height:260px;padding-bottom:12px;border-color:${rarityBorderItem[rc]};">
-              <div class="card-icon" style="font-size:46px;margin-top:20px;">${item.icon}</div>
-              <div class="card-name" style="font-size:16px;color:${rarityColor[rc]};">${item.name}</div>
-              <div class="card-desc" style="font-size:13px;flex:1;">${globalObj.DescriptionUtils ? globalObj.DescriptionUtils.highlight(item.desc) : item.desc}</div>
-              <div class="card-type" style="font-size:11px;color:${rarityColor[rc]};margin-top:auto;">아이템 · ${rarityLabel[rc]}</div>
+              <div class="card-icon" style="font-size:46px;margin-top:20px;">❓</div>
+              <div class="card-name" style="font-size:16px;color:${rarityColor[rc]};">미지의 보물</div>
+              <div class="card-desc" style="font-size:13px;flex:1;">신비로운 기운이 흐르는 유물입니다.<br>무엇인지는 획득 후에 알 수 있습니다.</div>
+              <div class="card-type" style="font-size:11px;color:${rarityColor[rc]};margin-top:auto;">아이템 · 미식별</div>
             </div>
           </div>`;
         }

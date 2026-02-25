@@ -58,7 +58,7 @@
           gs.drawCards(1);
           gs.addLog?.('🔮 예지! 약화 2턴 + 드로우 1', 'echo');
         }
-      } else {
+      } else if (cls === 'hunter') {
         if (tier === 3) {
           gs.dealDamage(50);
           gs.addBuff('vanish', 2, {});
@@ -70,6 +70,47 @@
         } else {
           gs.dealDamage(20);
           gs.addLog?.('🗡️ 숨격! 20 피해', 'echo');
+        }
+      } else if (cls === 'paladin') {
+        if (tier === 3) {
+          gs.dealDamageAll(45);
+          gs.heal(25);
+          gs.addLog?.('✨ 빛의 심판! 전체 45 + 체력 25 회복', 'echo');
+        } else if (tier === 2) {
+          gs.dealDamage(35);
+          gs.heal(15);
+          gs.addLog?.('✨ 신성한 망치! 35 + 체력 15 회복', 'echo');
+        } else {
+          gs.dealDamage(22);
+          gs.heal(8);
+          gs.addLog?.('✨ 신벌! 22 + 체력 8 회복', 'echo');
+        }
+      } else if (cls === 'berserker') {
+        if (tier === 3) {
+          gs.dealDamageAll(70);
+          gs.addBuff('berserk_mode', 99, { atkGrowth: 10 });
+          gs.addLog?.('😡 끝없는 광기! 전체 70 + 공격력 +10 영구 성장', 'echo');
+        } else if (tier === 2) {
+          gs.dealDamage(55);
+          gs.addBuff('berserk_mode', 99, { atkGrowth: 5 });
+          gs.addLog?.('😡 피의 분노! 55 + 공격력 +5 성장', 'echo');
+        } else {
+          gs.dealDamage(35);
+          gs.addBuff('berserk_mode', 99, { atkGrowth: 2 });
+          gs.addLog?.('😡 광분! 35 + 공격력 +2 성장', 'echo');
+        }
+      } else if (cls === 'shielder') {
+        if (tier === 3) {
+          gs.addShield(100);
+          gs.addBuff('immune', 1, {});
+          gs.addLog?.('🧱 신의 아이기스! 방어막 100 + 1턴간 피해 면역', 'echo');
+        } else if (tier === 2) {
+          gs.addShield(65);
+          gs.applyEnemyStatus('weakened', 3);
+          gs.addLog?.('🧱 철벽 요새! 방어막 65 + 적 전체 약화 3', 'echo');
+        } else {
+          gs.addShield(45);
+          gs.addLog?.('🧱 강철 방패! 방어막 45', 'echo');
         }
       }
 

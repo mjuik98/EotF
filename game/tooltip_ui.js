@@ -12,6 +12,24 @@
     return deps?.win || window;
   }
 
+  const KEYWORD_MAP = {
+    '소진': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 제외(소멸)됩니다.' },
+    '소각': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 제외(소멸)됩니다.' },
+    'Echo': { title: '잔향 (Echo)', text: '특수 효과 및 카드 발동에 사용되는 에너지 자원입니다.' },
+    'Chain': { title: '체인 (Chain)', text: '연속 공격 횟수입니다. 3회 이상 쌓이면 추가 피해를 입힙니다.' },
+    '침묵': { title: '침묵 (Silence)', text: '침묵 게이지입니다. 최대치(10) 도달 시 다음 공격이 강력해집니다.' },
+    '모멘텀': { title: '모멘텀 (Momentum)', text: '공격력이 일시적으로 상승하는 상태입니다.' },
+    '기절': { title: '기절 (Stun)', text: '적이 다음 턴에 행동을 취하지 못합니다.' },
+    '약화': { title: '약화 (Weakened)', text: '대상의 공격력이 50% 감소합니다.' },
+    '표식': { title: '처형 표식 (Marked)', text: '3턴 후 표식이 폭발하여 큰 피해(30)를 입힙니다.' },
+    '독': { title: '독 (Poison)', text: '매 턴 시작 시 피해를 입습니다. 시간이 지날수록 피해가 서서히 줄어듭니다.' },
+    '화염': { title: '화염 (Burning)', text: '매 턴 시작 시 고정 피해(5)를 입습니다.' },
+    '면역': { title: '면역 (Immune)', text: '모든 피해와 상태이상의 영향을 받지 않습니다.' },
+    '회피': { title: '회피 (Dodge)', text: '다음 적의 공격을 1회 완전 무효화합니다.' },
+    '시간 왜곡': { title: '시간 왜곡 (Time Warp)', text: '공간을 비틀어 매 턴 시작 시 추가 에너지를 얻습니다.' },
+    '드로우': { title: '드로우 (Draw)', text: '덱에서 카드를 손패로 가져옵니다.' }
+  };
+
   const TooltipUI = {
     showTooltip(event, cardId, deps = {}) {
       const data = deps.data;
@@ -59,12 +77,35 @@
       tt.style.left = `${x}px`;
       tt.style.top = `${y}px`;
       tt.classList.add('visible');
+
+      // Sub-tooltip for keywords
+      const st = doc.getElementById('subTooltip');
+      if (st) {
+        const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc.includes(kw) || (card.exhaust && kw === '소진'));
+        if (foundKw) {
+          const kwData = KEYWORD_MAP[foundKw];
+          doc.getElementById('stTitle').textContent = kwData.title;
+          doc.getElementById('stContent').textContent = kwData.text;
+
+          let stX = x + 172;
+          let stY = y;
+          if (stX + 180 > win.innerWidth) stX = x - 182;
+
+          st.style.left = `${stX}px`;
+          st.style.top = `${stY}px`;
+          st.style.display = 'block';
+        } else {
+          st.style.display = 'none';
+        }
+      }
     },
 
     hideTooltip(deps = {}) {
       const doc = _getDoc(deps);
       _tooltipTimer = setTimeout(() => {
         doc.getElementById('cardTooltip')?.classList.remove('visible');
+        const st = doc.getElementById('subTooltip');
+        if (st) st.style.display = 'none';
       }, 80);
     },
 
@@ -156,11 +197,48 @@
     },
 
     hideItemTooltip() {
-      if (_itemTipEl) {
-        _itemTipEl.remove();
-        _itemTipEl = null;
-      }
+      if (_itemTipEl) _itemTipEl.remove();
+      _itemTipEl = null;
     },
+
+    showGeneralTooltip(event, title, content, deps = {}) {
+      this.hideGeneralTooltip(deps);
+      const doc = _getDoc(deps);
+      const win = _getWin(deps);
+      const el = doc.createElement('div');
+      el.id = '_generalTip';
+      el.style.cssText = [
+        'position:fixed;z-index:950;',
+        'background:rgba(10,10,35,0.95);border:1px solid var(--echo);border-left:3px solid var(--echo);border-radius:8px;',
+        'padding:12px;width:190px;pointer-events:none;',
+        'backdrop-filter:blur(20px);',
+        'box-shadow:0 10px 30px rgba(0,0,0,0.6);',
+        'animation:fadeIn 0.15s ease both;',
+      ].join('');
+
+      el.innerHTML = `
+        <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:0.05em;">${title}</div>
+        <div style="font-size:11px;color:var(--text);line-height:1.5;">${content}</div>
+      `;
+
+      const rect = event.currentTarget.getBoundingClientRect();
+      let x = rect.right + 10;
+      let y = rect.top;
+      if (x + 200 > win.innerWidth) x = rect.left - 202;
+      if (y + 100 > win.innerHeight) y = win.innerHeight - 105;
+
+      el.style.left = `${Math.max(6, x)}px`;
+      el.style.top = `${Math.max(6, y)}px`;
+      doc.body.appendChild(el);
+      globalObj._generalTipEl = el;
+    },
+
+    hideGeneralTooltip() {
+      if (globalObj._generalTipEl) {
+        globalObj._generalTipEl.remove();
+        globalObj._generalTipEl = null;
+      }
+    }
   };
 
   globalObj.TooltipUI = TooltipUI;

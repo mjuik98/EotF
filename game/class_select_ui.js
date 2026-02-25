@@ -33,38 +33,25 @@
         hint.style.transition = 'opacity 0.4s,transform 0.4s';
       }
 
-      const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🗡️' };
+      const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🏹', paladin: '🛡️', berserker: '🪓', shielder: '🧱' };
       const data = deps.data || globalObj.DATA;
-      const avatarFile = data?.assets?.avatars?.[_selectedClass];
-      const fallbackIcon = icons[_selectedClass] || '⚔️';
+      const avatarEmoji = data?.assets?.avatars?.[_selectedClass] || icons[_selectedClass] || '⚔️';
 
       // HUD 소형 초상화 업데이트
       const avatarEl = doc.getElementById('playerAvatar');
       if (avatarEl) {
-        if (avatarFile) {
-          avatarEl.innerHTML = `
-            <img src="assets/images/${avatarFile}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" 
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-            <span style="display:none;">${fallbackIcon}</span>
-          `;
-        } else {
-          avatarEl.textContent = fallbackIcon;
-        }
+        avatarEl.textContent = avatarEmoji;
+        avatarEl.style.fontSize = '24px';
       }
 
-      // 우측 패널 대령 초상화 업데이트 (미리보기)
+      // 우측 패널 대형 초상화 업데이트 (미리보기)
       const largePortrait = doc.getElementById('largePlayerPortrait');
       const largeFallback = doc.getElementById('playerPortraitFallback');
       if (largePortrait && largeFallback) {
-        if (avatarFile) {
-          largePortrait.src = `assets/images/${avatarFile}`;
-          largePortrait.style.display = 'block';
-          largeFallback.style.display = 'none';
-        } else {
-          largePortrait.style.display = 'none';
-          largeFallback.textContent = fallbackIcon;
-          largeFallback.style.display = 'flex';
-        }
+        largePortrait.style.display = 'none';
+        largeFallback.textContent = avatarEmoji;
+        largeFallback.style.fontSize = '80px';
+        largeFallback.style.display = 'flex';
       }
 
       btn.style.transition = 'transform 0.15s ease';

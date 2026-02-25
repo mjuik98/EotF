@@ -5,12 +5,18 @@
     swordsman: { maxHp: 80, startEcho: 0 },
     mage: { maxHp: 50, startEcho: 20 },
     hunter: { maxHp: 65, startEcho: 10 },
+    paladin: { maxHp: 85, startEcho: 5 },
+    berserker: { maxHp: 90, startEcho: 0 },
+    shielder: { maxHp: 75, startEcho: 0 },
   };
 
   const CLASS_START_ITEMS = {
     swordsman: 'dull_blade',
     mage: 'void_shard',
     hunter: 'travelers_map',
+    paladin: 'rift_talisman',
+    berserker: 'blood_shard',
+    shielder: 'phantom_cloak',
   };
 
   const RunSetupUI = {

@@ -40,7 +40,8 @@
         if (!buff || typeof buff !== 'object') return;
         if (TURN_START_DEBUFFS.has(buffId)) return;
         if (ENEMY_TURN_BUFFS.has(buffId)) return;
-        if (buffId === 'momentum') return; // 모멘텀은 플레이어 턴 종료 시 감소하지 않음
+        if (buffId === 'momentum') return;
+        if (buff.nextEnergy) return; // 시간 왜곡 등 다음 턴 발동 버프는 스킵
         if (buff.echoRegen) gs.addEcho(buff.echoRegen);
         if (!Number.isFinite(buff.stacks)) return;
         buff.stacks--;
@@ -162,7 +163,21 @@
         const buff = gs.player.buffs[buffId];
         if (buff?.nextEnergy) {
           gs.player.energy += buff.nextEnergy;
-          gs.addLog?.(`🌀 ${buff.name || '효과'}: 에너지 +${buff.nextEnergy}`, 'echo');
+          const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
+          gs.addLog?.(`🌀 ${label}: 에너지 +${buff.nextEnergy}`, 'echo');
+
+          // 사용 후 스택 감소 및 삭제
+          if (Number.isFinite(buff.stacks)) {
+            buff.stacks--;
+            if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+          } else {
+            delete gs.player.buffs[buffId];
+          }
+        }
+        if (buff?.energyPerTurn) {
+          gs.player.energy += buff.energyPerTurn;
+          const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
+          gs.addLog?.(`🌀 ${label}: 에너지 +${buff.energyPerTurn}`, 'echo');
         }
       });
 

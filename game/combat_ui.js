@@ -257,8 +257,7 @@
               onclick="${e.hp > 0 ? `${selectTargetHandlerName}(${i})` : ''}">
               ${isSelected ? '<div class="target-label-anim"><span>▼</span><span>TARGET</span></div>' : ''}
               <div class="enemy-sprite" id="enemy_sprite_${i}">
-                ${e.image ? `<img src="assets/images/${e.image}" alt="${e.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">` : ''}
-                <span style="${e.image ? 'display:none;' : ''}">${e.icon || '👾'}</span>
+                <span style="font-size:64px;">${e.icon || '👾'}</span>
               </div>
               <div class="enemy-name">${e.name}${e.isBoss ? ` <span style="color:var(--gold)">✦ P${e.phase || 1}</span>` : ''}</div>
               ${bossPhaseBar}
