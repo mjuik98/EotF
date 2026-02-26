@@ -140,9 +140,16 @@ export const RunModeUI = {
 
     row.style.display = 'flex';
     const labels = { echo_boost: '⚡Echo+', resilience: '🛡️HP+', fortune: '💰Gold+' };
-    container.innerHTML = Object.entries(insc).map(([key, val]) => `
-        <div class="inscription-pill ${val ? 'active' : ''}" onclick="toggleInscription('${key}')">${labels[key] || key}</div>
-      `).join('');
+    container.textContent = '';
+    const frag = doc.createDocumentFragment();
+    Object.entries(insc).forEach(([key, val]) => {
+      const pill = doc.createElement('div');
+      pill.className = `inscription-pill ${val ? 'active' : ''}`;
+      pill.textContent = labels[key] || key;
+      pill.onclick = () => this.toggleInscription(key, deps);
+      frag.appendChild(pill);
+    });
+    container.appendChild(frag);
   },
 
   toggleInscription(key, deps = {}) {

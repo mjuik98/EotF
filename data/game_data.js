@@ -267,9 +267,9 @@ export const DATA = {
       effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ Echo 과부하! HP-15', 'damage'); updateUI(); }
     },
     desperate_strike: {
-      id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '체력 비례 피해 (최대 50)', rarity: 'uncommon',
+      id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '체력 비례 피해 (최대 40)', rarity: 'uncommon',
       image: 'card_desperate_strike.png',
-      effect(gs) { const d = Math.floor((1 - gs.player.hp / gs.player.maxHp) * 50) + 5; gs.dealDamage(d); }
+      effect(gs) { const d = Math.floor((1 - gs.player.hp / gs.player.maxHp) * 40) + 5; gs.dealDamage(d); }
     },
     reverberation: {
       id: 'reverberation', name: '반향', icon: '🔊', cost: 2, type: 'ATTACK', desc: 'Chain × 8 피해 (최대 40)', rarity: 'uncommon',
@@ -277,9 +277,9 @@ export const DATA = {
       effect(gs) { gs.dealDamage(Math.min(40, (gs.player.echoChain || 1) * 8)); }
     },
     sanctuary: {
-      id: 'sanctuary', name: '성역', icon: '🏛️', cost: 3, type: 'SKILL', desc: '방어막 20 + 2턴 면역', rarity: 'rare',
+      id: 'sanctuary', name: '성역', icon: '🏛️', cost: 3, type: 'SKILL', desc: '방어막 15 + 2턴 면역', rarity: 'rare',
       image: 'card_sanctuary.png',
-      effect(gs) { gs.addShield(20); gs.addBuff('immune', 2, {}); gs.addLog('🏛️ 성역! 2턴 면역', 'echo'); }
+      effect(gs) { gs.addShield(15); gs.addBuff('immune', 2, {}); gs.addLog('🏛️ 성역! 2턴 면역', 'echo'); }
     },
     dark_pact: {
       id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: 'HP -8, 카드 2장 드로우', rarity: 'uncommon',
@@ -319,9 +319,9 @@ export const DATA = {
       effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('burning', 2); gs.addLog('🔥 화염 검격!', 'echo'); }
     },
     ember_wave: {
-      id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 5 피해 + 화염 1턴', rarity: 'uncommon',
+      id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '전체 8 피해 + 화염 1턴', rarity: 'uncommon',
       image: 'card_flame_slash.png',
-      effect(gs) { gs.dealDamageAll(5); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); gs.addLog('🌊 불꽃 파동!', 'echo'); }
+      effect(gs) { gs.dealDamageAll(8); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); gs.addLog('🌊 불꽃 파동!', 'echo'); }
     },
     echo_reflect: {
       id: 'echo_reflect', name: '잔향 반향', icon: '🔊', cost: 1, type: 'SKILL', desc: '방어막 8 + 이번 턴 피해 받으면 반사', rarity: 'rare',
@@ -347,9 +347,9 @@ export const DATA = {
       effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); renderCombatCards(); updateUI(); }
     },
     void_surge: {
-      id: 'void_surge', name: '허공 급류', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -2 (최소 0)', rarity: 'rare',
+      id: 'void_surge', name: '허공 급류', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -1 (최소 0)', rarity: 'rare',
       image: 'card_void_surge.png',
-      effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -2!', 'echo'); renderCombatCards(); updateUI(); }
+      effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -1!', 'echo'); renderCombatCards(); updateUI(); }
     },
     resonance_flow: {
       id: 'resonance_flow', name: '공명 흐름', icon: '🎵', cost: 0, type: 'SKILL', desc: '손패 카드 수만큼 Echo 충전 (장당 +8)', rarity: 'uncommon',
@@ -357,14 +357,14 @@ export const DATA = {
       effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 8); gs.addLog(`🎵 공명 흐름: 손패 ${n}장 → Echo +${n * 8}!`, 'echo'); }
     },
     echo_cascade: {
-      id: 'echo_cascade', name: '잔향 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '2장 드로우, 드로우한 카드 비용 0', rarity: 'rare',
+      id: 'echo_cascade', name: '잔향 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '1장 드로우, 드로우한 카드 비용 0', rarity: 'rare',
       image: 'card_echo_cascade.png',
-      effect(gs) { const before = gs.player.hand.length; gs.drawCards(2); const newCards = gs.player.hand.slice(before); gs.player._cascadeCards = new Set(newCards); gs.player.costDiscount = (gs.player.costDiscount || 0) + 0; newCards.forEach(c => {/* mark for free */ }); gs.player.zeroCost = false; gs.addLog('💧 잔향 폭포: 카드 2장 드로우, 새 카드 무료!', 'echo'); gs.player.hand.slice(before).forEach(() => { }); renderCombatCards(); }
+      effect(gs) { const before = gs.player.hand.length; gs.drawCards(1); const newCards = gs.player.hand.slice(before); gs.player._cascadeCards = new Set(newCards); gs.player.costDiscount = (gs.player.costDiscount || 0) + 0; newCards.forEach(c => {/* mark for free */ }); gs.player.zeroCost = false; gs.addLog('💧 잔향 폭포: 카드 1장 드로우, 새 카드 무료!', 'echo'); gs.player.hand.slice(before).forEach(() => { }); renderCombatCards(); }
     },
     tempo_strike: {
-      id: 'tempo_strike', name: '박자 강타', icon: '🥁', cost: 1, type: 'ATTACK', desc: '10 피해, 다음 카드 비용 -1', rarity: 'common',
+      id: 'tempo_strike', name: '박자 강타', icon: '🥁', cost: 1, type: 'ATTACK', desc: '8 피해, 다음 카드 비용 -1', rarity: 'common',
       image: 'card_tempo_strike.png',
-      effect(gs) { gs.dealDamage(10); gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo'); renderCombatCards(); }
+      effect(gs) { gs.dealDamage(8); gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo'); renderCombatCards(); }
     },
     echo_lull: {
       id: 'echo_lull', name: '잔향의 고요', icon: '🌙', cost: 0, type: 'SKILL', desc: '에너지 -1, 손패 전체 비용 -2 이번 턴', rarity: 'uncommon',
@@ -535,9 +535,9 @@ export const DATA = {
     },
     silence_ring: {
       id: 'silence_ring', name: '침묵의 반지', icon: '💍', rarity: 'rare',
-      desc: '체력 30% 미만 시 카드 비용 0',
+      desc: '체력 30% 미만 시 모든 카드 비용 -2',
       image: 'relic_silence_ring.png',
-      passive(gs, trigger) { if (trigger === Trigger.TURN_START) { const low = gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.LOW_HP_RATIO; gs.player.zeroCost = low; if (low) gs.addLog('💍 침묵의 반지: 비용 0!', 'echo'); } }
+      passive(gs, trigger) { if (trigger === Trigger.TURN_START) { const low = gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.LOW_HP_RATIO; if (low) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('💍 침묵의 반지: 비용 -2!', 'echo'); } } }
     },
     echo_amplifier: {
       id: 'echo_amplifier', name: 'Echo 증폭기', icon: '📡', rarity: 'rare',
@@ -561,9 +561,9 @@ export const DATA = {
     },
     echo_mirror: {
       id: 'echo_mirror', name: '잔향 거울', icon: '🪞', rarity: 'rare',
-      desc: 'Resonance Burst 시 피해 2배',
+      desc: 'Resonance Burst 시 피해 +50%',
       image: 'relic_echo_mirror.png',
-      passive(gs, trigger, data) { if (trigger === Trigger.RESONANCE_BURST) return Math.floor((data || 0) * 2); }
+      passive(gs, trigger, data) { if (trigger === Trigger.RESONANCE_BURST) return Math.floor((data || 0) * 1.5); }
     },
     void_crystal: {
       id: 'void_crystal', name: '허공 수정', icon: '💠', rarity: 'rare',
@@ -573,11 +573,11 @@ export const DATA = {
     },
     bloodsoaked_robe: {
       id: 'bloodsoaked_robe', name: '피 묻은 로브', icon: '🩸', rarity: 'rare',
-      desc: 'HP 50% 미만 시 모든 피해 +30%',
+      desc: 'HP 50% 미만 시 모든 피해 +20%',
       image: 'relic_bloodsoaked_robe.png',
       passive(gs, trigger, data) {
         if (trigger === Trigger.DEAL_DAMAGE && gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.MID_HP_RATIO) {
-          return Math.floor((data || 0) * 1.3);
+          return Math.floor((data || 0) * 1.2);
         }
       }
     },
@@ -620,11 +620,11 @@ export const DATA = {
       desc: '매 전투 영구적으로 최대 에너지 +1 (최대 5)',
       image: 'relic_energy_core.png',
       passive(gs, trigger) {
-        if (trigger === Trigger.COMBAT_START && !gs._energyCoreUsed) {
+        if (trigger === Trigger.COMBAT_START && !gs.meta._energyCoreGranted) {
           if (gs.player.maxEnergy < CONSTANTS.PLAYER.MAX_ENERGY_CAP) {
             gs.player.maxEnergy++;
             gs.player.energy = gs.player.maxEnergy;
-            gs._energyCoreUsed = true;
+            gs.meta._energyCoreGranted = true;
             gs.addLog('⚡ 에너지 핵: 최대 에너지 +1!', 'echo');
             updateUI();
           }
@@ -642,9 +642,9 @@ export const DATA = {
     },
     cursed_capacitor: {
       id: 'cursed_capacitor', name: '저주받은 축전기', icon: '🌩️', rarity: 'uncommon',
-      desc: '턴 시작 에너지 +2, 하지만 HP -4',
+      desc: '턴 시작 에너지 +1, 하지만 HP -3',
       image: 'relic_cursed_capacitor.png',
-      passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.player.hp = Math.max(1, gs.player.hp - 4); gs.addLog('🌩️ 저주받은 축전기: 에너지 +2 / HP -4', 'echo'); updateUI(); } }
+      passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.player.energy = Math.min(gs.player.maxEnergy + 1, gs.player.energy + 1); gs.player.hp = Math.max(1, gs.player.hp - 3); gs.addLog('🌩️ 저주받은 축전기: 에너지 +1 / HP -3', 'echo'); updateUI(); } }
     },
     void_battery: {
       id: 'void_battery', name: '허공 전지', icon: '🔌', rarity: 'rare',
@@ -741,9 +741,9 @@ export const DATA = {
     },
     echo_genesis: {
       id: 'echo_genesis', name: '잔향의 기원', icon: '🌟', rarity: 'legendary',
-      desc: 'Echo 100 달성 시 손패 전체 무료화 (전투당 1회)',
+      desc: 'Echo 100 달성 시 손패 최대 5장 무료화 (전투당 1회)',
       image: 'relic_echo_genesis.png',
-      passive(gs, trigger) { if (trigger === Trigger.TURN_START && gs.player.echo >= CONSTANTS.ECHO.BURST_THRESHOLD && !gs._genesisUsed) { gs.player._freeCardUses = Math.max(gs.player._freeCardUses || 0, gs.player.hand.length); gs._genesisUsed = true; gs.addLog('🌟 잔향의 기원: 현재 손패 무료!', 'echo'); } if (trigger === Trigger.COMBAT_END) gs._genesisUsed = false; }
+      passive(gs, trigger) { if (trigger === Trigger.TURN_START && gs.player.echo >= CONSTANTS.ECHO.BURST_THRESHOLD && !gs._genesisUsed) { gs.player._freeCardUses = Math.max(gs.player._freeCardUses || 0, Math.min(5, gs.player.hand.length)); gs._genesisUsed = true; gs.addLog('🌟 잔향의 기원: 현재 손패 일부 무료!', 'echo'); } if (trigger === Trigger.COMBAT_END) gs._genesisUsed = false; }
     },
     abyss_codex: {
       id: 'abyss_codex', name: '심연의 비전서', icon: '📖', rarity: 'legendary',
@@ -877,8 +877,8 @@ export const DATA = {
     forest_guardian: {
       id: 'forest_guardian', name: '숲의 수호자', icon: '🛡️', image: 'enemy_forest_guardian.png', hp: 160, maxHp: 160, atk: 14, region: 0, xp: 140, gold: 60, isBoss: true, maxPhase: 2,
       ai(turn) {
+        if (turn % 5 === 0) return { type: 'heal', intent: '생명의 기운 (회복 12)', dmg: 0, effect: 'heal_12' };
         if (turn % 4 === 0) return { type: 'nature_wrath', intent: `자연의 분노 ${this.atk * 2}`, dmg: this.atk * 2 };
-        if (turn % 3 === 0) return { type: 'heal', intent: '생명의 기운 (회복 20)', dmg: 0, effect: 'heal_20' };
         return { type: 'strike', intent: `징벌 ${this.atk}`, dmg: this.atk };
       }
     },
@@ -950,7 +950,7 @@ export const DATA = {
       id: 'clockwork_emperor', name: '태엽 황제', icon: '⚙️', image: 'enemy_clockwork_emperor.png', hp: 220, maxHp: 220, atk: 18, region: 1, xp: 150, gold: 70, isBoss: true, maxPhase: 2,
       ai(turn) {
         if (turn % 5 === 0) return { type: 'overdrive', intent: `오버드라이브 ${this.atk * 2.5 | 0}`, dmg: this.atk * 2.5 | 0 };
-        if (turn % 3 === 0) return { type: 'repair', intent: '자가 수리 (회복 30)', dmg: 0, effect: 'heal_30' };
+        if (turn % 3 === 0) return { type: 'repair', intent: '자가 수리 (회복 15)', dmg: 0, effect: 'heal_15' };
         return { type: 'punch', intent: `황제의 권격 ${this.atk}`, dmg: this.atk };
       }
     },
@@ -965,7 +965,7 @@ export const DATA = {
       }
     },
     phantom_soldier: {
-      id: 'phantom_soldier', name: '환영 병사', icon: '👤', image: 'enemy_phantom_soldier.png', hp: 46, maxHp: 46, atk: 13, region: 2, xp: 32, gold: 13,
+      id: 'phantom_soldier', name: '환영 병사', icon: '👤', image: 'enemy_phantom_soldier.png', hp: 40, maxHp: 40, atk: 12, region: 2, xp: 32, gold: 13,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'clone', intent: '분열 (방어막10)', dmg: 0, effect: 'self_shield' };
         if (turn % 2 === 0) return { type: 'phase', intent: '위상 이동', dmg: 0, effect: 'dodge' };
@@ -984,7 +984,7 @@ export const DATA = {
     },
     // ── 신의 무덤 추가 몬스터 ──
     cursed_paladin: {
-      id: 'cursed_paladin', name: '저주받은 기사단', icon: '⚔️', image: 'enemy_cursed_paladin.png', hp: 75, maxHp: 75, atk: 14, region: 3, xp: 48, gold: 22,
+      id: 'cursed_paladin', name: '저주받은 기사단', icon: '⚔️', image: 'enemy_cursed_paladin.png', hp: 65, maxHp: 65, atk: 13, region: 3, xp: 48, gold: 22,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'holy_smite', intent: `성스러운 심판 ${this.atk * 2}`, dmg: this.atk * 2 };
         if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어막 12', dmg: 0, effect: 'self_shield' };
@@ -1136,7 +1136,7 @@ export const DATA = {
       }
     },
     elite_origin_guard: {
-      id: 'elite_origin_guard', name: '【정예】근원 수호자', icon: '🛡️', image: 'enemy_elite_origin_guard.png', hp: 180, maxHp: 180, atk: 24, region: 4, xp: 140, gold: 80, isElite: true,
+      id: 'elite_origin_guard', name: '【정예】근원 수호자', icon: '🛡️', image: 'enemy_elite_origin_guard.png', hp: 160, maxHp: 160, atk: 20, region: 4, xp: 140, gold: 80, isElite: true,
       ai(turn) {
         if (turn % 5 === 0) return { type: 'origin_shield', intent: '근원의 방패 (무적 1턴)', dmg: 0, effect: 'invincible' };
         if (turn % 3 === 0) return { type: 'counter', intent: '반격 태세 (가시 10)', dmg: 0, effect: 'thorns_10' };
@@ -1160,7 +1160,7 @@ export const DATA = {
       }
     },
     elite_void_templar: {
-      id: 'elite_void_templar', name: '【정예】허공 기사', icon: '⚔️', image: 'enemy_elite_void_templar.png', hp: 170, maxHp: 170, atk: 22, region: 4, xp: 130, gold: 75, isElite: true,
+      id: 'elite_void_templar', name: '【정예】허공 기사', icon: '⚔️', image: 'enemy_elite_void_templar.png', hp: 155, maxHp: 155, atk: 19, region: 4, xp: 130, gold: 75, isElite: true,
       ai(turn) {
         if (turn % 4 === 0) return { type: 'shatter', intent: `현실 분쇄 ${this.atk * 2} (에너지-1)`, dmg: this.atk * 2, effect: 'drain_energy' };
         return { type: 'slash', intent: `허공 베기 ${this.atk + 10}`, dmg: this.atk + 10 };
@@ -1199,7 +1199,7 @@ export const DATA = {
         if (this.hp < this.maxHp * 0.6 && this.phase === 1) { return { type: 'divine_wrath', intent: '⚠️ 신성 분노!', dmg: 0, effect: 'phase_shift' }; }
         if (this.hp < this.maxHp * 0.3 && this.phase === 2) { return { type: 'final_judgement', intent: '⚠️ 최후의 심판!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 3) {
-          if (turn % 2 === 0) return { type: 'mass_debuff', intent: `신성 심판 ${this.atk + 18} (전체 디버프)`, dmg: this.atk + 18, effect: 'mass_debuff' };
+          if (turn % 3 === 0) return { type: 'mass_debuff', intent: `신성 심판 ${this.atk + 18} (전체 디버프)`, dmg: this.atk + 18, effect: 'mass_debuff' };
           return { type: 'holy_crush', intent: `성스러운 격쇄 ${this.atk + 10}`, dmg: this.atk + 10 };
         }
         if (this.phase === 2) {
@@ -1231,10 +1231,10 @@ export const DATA = {
     echo_origin: {
       id: 'echo_origin', name: '잔향의 근원', icon: '🌟', image: 'enemy_echo_origin.png', hp: 320, maxHp: 320, atk: 22, region: 4, xp: 300, gold: 150, isBoss: true, isHidden: true, maxPhase: 3, phase: 1,
       ai(turn) {
-        if (this.hp < this.maxHp * 0.7 && this.phase === 1) { return { type: 'awaken', intent: '⚠️ 근원 각성!', dmg: 0, effect: 'phase_shift' }; }
-        if (this.hp < this.maxHp * 0.4 && this.phase === 2) { return { type: 'transcend', intent: '⚠️ 근원 초월!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.6 && this.phase === 1) { return { type: 'awaken', intent: '⚠️ 근원 각성!', dmg: 0, effect: 'phase_shift' }; }
+        if (this.hp < this.maxHp * 0.25 && this.phase === 2) { return { type: 'transcend', intent: '⚠️ 근원 초월!', dmg: 0, effect: 'phase_shift' }; }
         if (this.phase === 3) {
-          if (turn % 2 === 0) return { type: 'origin_blast', intent: `근원 폭발 ${this.atk + 20}`, dmg: this.atk + 20 };
+          if (turn % 3 === 0) return { type: 'origin_blast', intent: `근원 폭발 ${this.atk + 20}`, dmg: this.atk + 20 };
           return { type: 'echo_erase', intent: 'Echo 완전 소거', dmg: this.atk, effect: 'nullify_echo' };
         }
         if (this.phase === 2) {

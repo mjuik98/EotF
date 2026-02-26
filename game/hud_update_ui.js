@@ -65,9 +65,9 @@ export const HudUpdateUI = {
     doc.getElementById('noiseGaugeOverlay')?.remove();
     doc.getElementById('cardTooltip')?.classList.remove('visible');
     const handCards = doc.getElementById('combatHandCards');
-    if (handCards) handCards.innerHTML = '';
+    if (handCards) handCards.textContent = '';
     const endZone = doc.getElementById('enemyZone');
-    if (endZone) endZone.innerHTML = '';
+    if (endZone) endZone.textContent = '';
   },
 
   hideNodeOverlay(deps = {}) {
@@ -185,11 +185,11 @@ export const HudUpdateUI = {
       const specialEl = doc.getElementById('playerSpecialDisplay');
       if (specialEl && window.ClassMechanics?.[p.class]) {
         const specialUI = window.ClassMechanics[p.class].getSpecialUI(gs);
-        if (typeof specialUI === 'string') {
-          specialEl.innerHTML = specialUI;
-        } else {
-          specialEl.innerHTML = '';
+        specialEl.textContent = '';
+        if (specialUI instanceof HTMLElement) {
           specialEl.appendChild(specialUI);
+        } else if (typeof specialUI === 'string') {
+          specialEl.textContent = specialUI;
         }
         specialEl.style.display = 'flex';
       } else if (specialEl) {
@@ -201,14 +201,18 @@ export const HudUpdateUI = {
     const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
     if (hoverSpecialEl && window.ClassMechanics?.[p.class]) {
       const specialUI = window.ClassMechanics[p.class].getSpecialUI(gs);
-      if (typeof specialUI === 'string') {
-        hoverSpecialEl.innerHTML = specialUI;
-      } else {
-        hoverSpecialEl.innerHTML = '';
+      hoverSpecialEl.textContent = '';
+      if (specialUI instanceof HTMLElement) {
         hoverSpecialEl.appendChild(specialUI);
+      } else if (typeof specialUI === 'string') {
+        hoverSpecialEl.textContent = specialUI;
       }
     } else if (hoverSpecialEl) {
-      hoverSpecialEl.innerHTML = '<span style="font-size:10px;color:var(--text-dim);font-style:italic;">없음</span>';
+      hoverSpecialEl.textContent = '';
+      const none = doc.createElement('span');
+      none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
+      none.textContent = '없음';
+      hoverSpecialEl.appendChild(none);
     }
 
     const shieldTrigger = doc.getElementById('hudShieldTrigger');
@@ -227,10 +231,12 @@ export const HudUpdateUI = {
 
     const hudOrbs = doc.getElementById('hudEnergyOrbs');
     if (hudOrbs) {
-      hudOrbs.innerHTML = Array.from({ length: p.maxEnergy }, (_, i) => {
-        const filled = i < p.energy;
-        return `<div class="hud-energy-orb ${filled ? 'filled' : ''}"></div>`;
-      }).join('');
+      hudOrbs.textContent = '';
+      for (let i = 0; i < p.maxEnergy; i++) {
+        const orb = doc.createElement('div');
+        orb.className = `hud-energy-orb ${i < p.energy ? 'filled' : ''}`;
+        hudOrbs.appendChild(orb);
+      }
     }
 
     setText('hudEnergyText', `${p.energy}/${p.maxEnergy}`);
@@ -244,11 +250,17 @@ export const HudUpdateUI = {
     const combatOrbs = doc.getElementById('combatEnergyOrbs');
     if (combatOrbs) {
       const displayMax2 = Math.max(p.maxEnergy, p.energy);
-      combatOrbs.innerHTML = Array.from({ length: displayMax2 }, (_, i) => {
+      combatOrbs.textContent = '';
+      for (let i = 0; i < displayMax2; i++) {
         const filled = i < p.energy;
         const isOverflow = i >= p.maxEnergy;
-        return `<div class="energy-orb ${filled ? 'filled' : ''}" style="${isOverflow && filled ? 'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);' : ''}"></div>`;
-      }).join('');
+        const orb = doc.createElement('div');
+        orb.className = `energy-orb ${filled ? 'filled' : ''}`;
+        if (isOverflow && filled) {
+          orb.style.cssText = 'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);';
+        }
+        combatOrbs.appendChild(orb);
+      }
     }
 
     setText('combatEnergyText', `${p.energy} / ${p.maxEnergy}`);
@@ -294,8 +306,12 @@ export const HudUpdateUI = {
 
     const itemEl = doc.getElementById('itemSlots');
     if (itemEl) {
+      itemEl.textContent = '';
       if (!p.items.length) {
-        itemEl.innerHTML = '<span style="font-size:11px;color:var(--text-dim);font-style:italic;">비어있음</span>';
+        const none = doc.createElement('span');
+        none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
+        none.textContent = '비어있음';
+        itemEl.appendChild(none);
       } else {
         const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
         const sortedItems = [...p.items].sort((a, b) => {
@@ -304,31 +320,38 @@ export const HudUpdateUI = {
           return ra - rb;
         });
 
-        itemEl.innerHTML = sortedItems.map(id => {
+        sortedItems.forEach(id => {
           const item = data?.items?.[id];
-          if (!item) return '';
-          const rarityClass = item.rarity ? `item-slot-${item.rarity}` : '';
-          const inSet = setBonusSystem
-            ? Object.values(setBonusSystem.sets || {}).some(s => s.items.includes(id))
-            : false;
-          const setGlow = inSet ? 'outline:1px dashed rgba(0,255,204,0.4);' : '';
-          return `<div class="hud-item-slot ${rarityClass}" style="${setGlow}"
-          onmouseenter="showItemTooltip(event,'${id}')"
-          onmouseleave="hideItemTooltip()">${item.icon}</div>`;
-        }).join('');
+          if (!item) return;
+          const slot = doc.createElement('div');
+          slot.className = `hud-item-slot ${item.rarity ? `item-slot-${item.rarity}` : ''}`;
+          const inSet = setBonusSystem ? Object.values(setBonusSystem.sets || {}).some(s => s.items.includes(id)) : false;
+          if (inSet) slot.style.outline = '1px dashed rgba(0,255,204,0.4)';
+          slot.textContent = item.icon;
+          slot.addEventListener('mouseenter', ev => { if (typeof window.showItemTooltip === 'function') window.showItemTooltip(ev, id); });
+          slot.addEventListener('mouseleave', () => { if (typeof window.hideItemTooltip === 'function') window.hideItemTooltip(); });
+          itemEl.appendChild(slot);
+        });
       }
 
       const setBonusPanel = doc.getElementById('setBonusPanel');
       if (setBonusPanel) {
         const activeSets = setBonusSystem?.getActiveSets?.(gs) || [];
+        setBonusPanel.textContent = '';
         if (activeSets.length > 0) {
           setBonusPanel.style.display = 'block';
-          setBonusPanel.innerHTML = activeSets.map(s => `
-          <div style="background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:6px;padding:5px 8px;margin-bottom:4px;">
-            <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--cyan);">✦ ${s.name} [${s.count}/3]</div>
-            <div style="font-size:9px;color:var(--text-dim);margin-top:2px;">${s.bonus?.label || ''}</div>
-          </div>
-        `).join('');
+          activeSets.forEach(s => {
+            const div = doc.createElement('div');
+            div.style.cssText = 'background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:6px;padding:5px 8px;margin-bottom:4px;';
+            const name = doc.createElement('div');
+            name.style.cssText = "font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--cyan);";
+            name.textContent = `✦ ${s.name} [${s.count}/3]`;
+            const bonus = doc.createElement('div');
+            bonus.style.cssText = 'font-size:9px;color:var(--text-dim);margin-top:2px;';
+            bonus.textContent = s.bonus?.label || '';
+            div.append(name, bonus);
+            setBonusPanel.appendChild(div);
+          });
           setBonusSystem?.applyPassiveBonuses?.(gs);
         } else {
           setBonusPanel.style.display = 'none';
@@ -336,41 +359,54 @@ export const HudUpdateUI = {
       }
     }
 
-    const modEl = doc.getElementById('runModifiersSection');
-    if (modEl) {
-      let modHtml = '';
-      const runRules = window.RunRules;
-      const asc = runRules?.getAscension?.(gs) || 0;
-      const endless = runRules?.isEndless?.(gs);
+    const modEl = doc.getElementById('hudRunModifiers');
+    if (!modEl) return;
+    modEl.textContent = '';
+    const runRules = window.RunRules;
+    const asc = runRules?.getAscension?.(gs) || 0;
+    const endless = runRules?.isEndless?.(gs);
 
-      // 승천/엔들리스 정보
-      modHtml += `<div style="display:flex; gap:6px; flex-direction:column;">`;
-      if (asc > 0) {
-        modHtml += `<div style="font-family:'Cinzel',serif; font-size:10px; color:var(--danger); letter-spacing:0.1em; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); border-radius:4px; padding:4px 8px; display:inline-block;">✦ 승천 ${asc}</div>`;
-      }
-      if (endless) {
-        modHtml += `<div style="font-family:'Cinzel',serif; font-size:10px; color:var(--cyan); letter-spacing:0.1em; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.2); border-radius:4px; padding:4px 8px; display:inline-block;">✦ 무한 모드</div>`;
-      }
-      modHtml += `</div>`;
+    const topCont = doc.createElement('div');
+    topCont.style.cssText = 'display:flex; gap:6px; flex-direction:column;';
+    if (asc > 0) {
+      const ascDiv = doc.createElement('div');
+      ascDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--danger); letter-spacing:0.1em; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
+      ascDiv.textContent = `✦ 승천 ${asc}`;
+      topCont.appendChild(ascDiv);
+    }
+    if (endless) {
+      const endDiv = doc.createElement('div');
+      endDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--cyan); letter-spacing:0.1em; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
+      endDiv.textContent = '✦ 무한 모드';
+      topCont.appendChild(endDiv);
+    }
+    modEl.appendChild(topCont);
 
-      // 축복/저주 정보
-      const blessingId = gs.runConfig?.blessing || 'none';
-      const curseId = gs.runConfig?.curse || 'none';
+    const blessingId = gs.runConfig?.blessing || 'none';
+    const curseId = gs.runConfig?.curse || 'none';
 
-      if (blessingId !== 'none' || curseId !== 'none') {
-        modHtml += `<div style="margin-top:4px; display:flex; flex-direction:column; gap:4px;">`;
-        if (blessingId !== 'none') {
-          const b = runRules?.blessings?.[blessingId];
-          if (b) modHtml += `<div title="${b.desc}" style="font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;">✨ ${b.name}</div>`;
+    if (blessingId !== 'none' || curseId !== 'none') {
+      const midCont = doc.createElement('div');
+      midCont.style.cssText = 'margin-top:4px; display:flex; flex-direction:column; gap:4px;';
+      if (blessingId !== 'none') {
+        const b = runRules?.blessings?.[blessingId];
+        if (b) {
+          const bDiv = doc.createElement('div');
+          bDiv.style.cssText = 'font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;';
+          bDiv.title = b.desc; bDiv.textContent = `✨ ${b.name}`;
+          midCont.appendChild(bDiv);
         }
-        if (curseId !== 'none') {
-          const c = runRules?.curses?.[curseId];
-          if (c) modHtml += `<div title="${c.desc}" style="font-size:11px; color:var(--danger); background:rgba(255,51,102,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(255,51,102,0.15); cursor:help;">💀 ${c.name}</div>`;
-        }
-        modHtml += `</div>`;
       }
-
-      modEl.innerHTML = modHtml;
+      if (curseId !== 'none') {
+        const c = runRules?.curses?.[curseId];
+        if (c) {
+          const cDiv = doc.createElement('div');
+          cDiv.style.cssText = 'font-size:11px; color:var(--danger); background:rgba(255,51,102,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(255,51,102,0.15); cursor:help;';
+          cDiv.title = c.desc; cDiv.textContent = `💀 ${c.name}`;
+          midCont.appendChild(cDiv);
+        }
+      }
+      modEl.appendChild(midCont);
     }
 
 

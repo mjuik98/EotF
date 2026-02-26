@@ -2,20 +2,21 @@ import { GS } from './game_state.js';
 import { Trigger } from './constants/triggers.js';
 
 
-  export const MapNavigationUI = {
-    moveToNode(nodeRef, deps = {}) {
-      const gs = deps.gs || window.GS;
-      if (!gs) return;
+export const MapNavigationUI = {
+  moveToNode(nodeRef, deps = {}) {
+    const gs = deps.gs || window.GS;
+    if (!gs) return;
 
-      let node = nodeRef;
-      if (typeof node === 'string') {
-        node = gs.mapNodes.find(n => n.id === node);
-      }
+    let node = nodeRef;
+    if (typeof node === 'string') {
+      node = gs.mapNodes.find(n => n.id === node);
+    }
 
-      if (!node || !node.accessible || node.visited) return;
-      if (gs._nodeMoveLock) return;
-      gs._nodeMoveLock = true;
+    if (!node || !node.accessible || node.visited) return;
+    if (gs._nodeMoveLock) return;
+    gs._nodeMoveLock = true;
 
+    try {
       const doc = deps.doc || document;
       const overlay = doc.getElementById('nodeCardOverlay');
       if (overlay) {
@@ -45,17 +46,25 @@ import { Trigger } from './constants/triggers.js';
       deps.updateUI?.();
 
       setTimeout(() => {
-        gs._nodeMoveLock = false;
-        if (!isCombatNode) deps.updateNextNodes?.();
-        const NODE_HANDLERS = {
-          combat: (d) => d.startCombat?.(false),
-          elite: (d) => d.startCombat?.(false),
-          boss: (d) => d.startCombat?.(true),
-          event: (d) => d.triggerRandomEvent?.(),
-          shop: (d) => d.showShop?.(),
-          rest: (d) => d.showRestSite?.(),
-        };
-        NODE_HANDLERS[node.type]?.(deps);
+        try {
+          if (!isCombatNode) deps.updateNextNodes?.();
+          const NODE_HANDLERS = {
+            combat: (d) => d.startCombat?.(false),
+            elite: (d) => d.startCombat?.(false),
+            boss: (d) => d.startCombat?.(true),
+            event: (d) => d.triggerRandomEvent?.(),
+            shop: (d) => d.showShop?.(),
+            rest: (d) => d.showRestSite?.(),
+          };
+          NODE_HANDLERS[node.type]?.(deps);
+        } finally {
+          gs._nodeMoveLock = false;
+        }
       }, 300);
-    },
-  };
+    } catch (e) {
+      console.error('[MapNavigationUI] 이동 중 오류:', e);
+      gs._nodeMoveLock = false;
+      deps.updateUI?.();
+    }
+  },
+};

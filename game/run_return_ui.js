@@ -1,60 +1,50 @@
 function _getDoc(deps) {
-    return deps?.doc || document;
-  }
+  return deps?.doc || document;
+}
 
-  export const RunReturnUI = {
-    returnToGame(fromReward, deps = {}) {
-      const gs = deps.gs;
-      const runRules = deps.runRules || window.RunRules;
-      if (!gs || !runRules) return;
+export const RunReturnUI = {
+  returnToGame(fromReward, deps = {}) {
+    const gs = deps.gs;
+    const runRules = deps.runRules || window.RunRules;
+    if (!gs || !runRules) return;
 
-      const wasBoss = gs._bossRewardPending;
-      const wasLastRegion = gs._bossLastRegion;
-      const endlessRun = runRules.isEndless(gs);
+    const wasBoss = gs._bossRewardPending;
+    const wasLastRegion = gs._bossLastRegion;
+    const endlessRun = runRules.isEndless(gs);
 
-      gs._bossRewardPending = false;
-      gs._bossLastRegion = false;
-      gs._rewardLock = false;
-      gs._nodeMoveLock = false;
-      gs._eventLock = false;
+    gs._bossRewardPending = false;
+    gs._bossLastRegion = false;
+    gs._rewardLock = false;
+    gs._nodeMoveLock = false;
+    gs._eventLock = false;
 
-      const doc = _getDoc(deps);
-      doc.getElementById('combatOverlay')?.classList.remove('active');
-      const combatHand = doc.getElementById('combatHandCards');
-      if (combatHand) combatHand.innerHTML = '';
-      const enemyZone = doc.getElementById('enemyZone');
-      if (enemyZone) enemyZone.innerHTML = '';
-      const nodeOverlay = doc.getElementById('nodeCardOverlay');
-      if (nodeOverlay) {
-        nodeOverlay.style.display = 'none';
-        nodeOverlay.style.pointerEvents = 'none';
-      }
+    const doc = _getDoc(deps);
+    doc.getElementById('combatOverlay')?.classList.remove('active');
+    const combatHand = doc.getElementById('combatHandCards');
+    if (combatHand) combatHand.textContent = '';
+    const enemyZone = doc.getElementById('enemyZone');
+    if (enemyZone) enemyZone.textContent = '';
+    const nodeOverlay = doc.getElementById('nodeCardOverlay');
+    if (nodeOverlay) {
+      nodeOverlay.style.display = 'none';
+      nodeOverlay.style.pointerEvents = 'none';
+    }
 
-      // rewardScreen 비활성화
-      doc.getElementById('rewardScreen')?.classList.remove('active');
+    // rewardScreen 비활성화
+    doc.getElementById('rewardScreen')?.classList.remove('active');
 
-      if (fromReward && wasBoss) {
-        if (wasLastRegion) {
-          if (!endlessRun) {
-            if (typeof deps.finalizeRunOutcome === 'function') {
-              deps.finalizeRunOutcome('victory', { echoFragments: 5 });
-            }
-            if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
-            else deps.storySystem?.showNormalEnding?.();
-            return;
+    if (fromReward && wasBoss) {
+      if (wasLastRegion) {
+        if (!endlessRun) {
+          if (typeof deps.finalizeRunOutcome === 'function') {
+            deps.finalizeRunOutcome('victory', { echoFragments: 5 });
           }
-
-          // 무한 모드: 다음 지역로 이동
-          if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-          if (typeof deps.updateUI === 'function') deps.updateUI();
-          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-          setTimeout(() => {
-            if (typeof deps.advanceToNextRegion === 'function') deps.advanceToNextRegion();
-          }, 300);
+          if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
+          else deps.storySystem?.showNormalEnding?.();
           return;
         }
 
-        // 보스 처치 후 다음 지역로 이동
+        // 무한 모드: 다음 지역로 이동
         if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
@@ -64,14 +54,24 @@ function _getDoc(deps) {
         return;
       }
 
-      // 일반 전투 승리 후 맵 화면으로 복귀
+      // 보스 처치 후 다음 지역로 이동
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       if (typeof deps.updateUI === 'function') deps.updateUI();
       if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+      setTimeout(() => {
+        if (typeof deps.advanceToNextRegion === 'function') deps.advanceToNextRegion();
+      }, 300);
+      return;
+    }
 
-      // 미니맵 렌더링以确保 노드 선택 가능
-      if (typeof deps.renderMinimap === 'function') {
-        setTimeout(() => deps.renderMinimap(), 50);
-      }
-    },
-  };
+    // 일반 전투 승리 후 맵 화면으로 복귀
+    if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+    if (typeof deps.updateUI === 'function') deps.updateUI();
+    if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
+    // 미니맵 렌더링以确保 노드 선택 가능
+    if (typeof deps.renderMinimap === 'function') {
+      setTimeout(() => deps.renderMinimap(), 50);
+    }
+  },
+};

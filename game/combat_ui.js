@@ -109,20 +109,30 @@ function _enemyHpColor(pct) {
   return 'linear-gradient(90deg,#8b0000,#ff2200)';
 }
 
-function _renderEnemyStatuses(statusEffects) {
+function _renderEnemyStatuses(statusEffects, doc) {
   const statusEntries = statusEffects ? Object.entries(statusEffects) : [];
-  return statusEntries.map(([s, d]) => {
+  const fragment = doc.createDocumentFragment();
+
+  statusEntries.forEach(([s, d]) => {
     const kr = ENEMY_STATUS_KR[s] || s;
-    const desc = ENEMY_STATUS_DESC[s]?.desc || '';
     const icon = ENEMY_STATUS_DESC[s]?.icon || '💫';
     const col = ['weakened', 'poisoned', 'burning', 'cursed', 'marked'].includes(s) ? '#ff6688' : '#88ccff';
     const duration = d > 1 ? `(${d})` : '';
-    return `<span class="enemy-status-badge" style="font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};cursor:help;"
-      onmouseenter="showEnemyStatusTooltip(event,'${s}')"
-      onmouseleave="hideEnemyStatusTooltip()">
-      ${icon} ${kr}${duration}
-    </span>`;
-  }).join(' ');
+
+    const badge = doc.createElement('span');
+    badge.className = 'enemy-status-badge';
+    badge.style.cssText = `font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};cursor:help;`;
+    badge.textContent = `${icon} ${kr}${duration}`;
+
+    badge.addEventListener('mouseenter', (e) => CombatUI.showEnemyStatusTooltip(e, s, { doc }));
+    badge.addEventListener('mouseleave', () => CombatUI.hideEnemyStatusTooltip({ doc }));
+
+    fragment.appendChild(badge);
+    // Add a space between badges
+    fragment.appendChild(doc.createTextNode(' '));
+  });
+
+  return fragment;
 }
 
 function _calcSelectedPreview(gs, data, enemy) {
@@ -175,10 +185,16 @@ export const CombatUI = {
       doc.body.appendChild(el);
     }
 
-    el.innerHTML = `
-      <div class="est-title">${status.icon} ${ENEMY_STATUS_KR[statusKey] || statusKey}</div>
-      <div class="est-desc">${status.desc}</div>
-    `;
+    el.textContent = '';
+    const title = doc.createElement('div');
+    title.className = 'est-title';
+    title.textContent = `${status.icon} ${ENEMY_STATUS_KR[statusKey] || statusKey}`;
+
+    const desc = doc.createElement('div');
+    desc.className = 'est-desc';
+    desc.textContent = status.desc;
+
+    el.append(title, desc);
 
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + 10;
@@ -228,12 +244,32 @@ export const CombatUI = {
       doc.body.appendChild(el);
     }
 
-    el.innerHTML = `
-        <div class="itt-title">${icon} ${SecurityUtils.escapeHtml(label)}</div>
-        <div class="itt-type">— ${SecurityUtils.escapeHtml(descInfo.type)} —</div>
-        <div class="itt-desc">${window.DescriptionUtils ? window.DescriptionUtils.highlight(SecurityUtils.escapeHtml(descInfo.desc)) : SecurityUtils.escapeHtml(descInfo.desc)}</div>
-        ${intent.dmg > 0 ? `<div class="itt-dmg">💢 예상 피해: <strong>${intent.dmg}</strong></div>` : ''}
-      `;
+    el.textContent = '';
+
+    const title = doc.createElement('div');
+    title.className = 'itt-title';
+    title.textContent = `${icon} ${label}`;
+
+    const type = doc.createElement('div');
+    type.className = 'itt-type';
+    type.textContent = `— ${descInfo.type} —`;
+
+    const desc = doc.createElement('div');
+    desc.className = 'itt-desc';
+    if (window.DescriptionUtils) {
+      desc.innerHTML = window.DescriptionUtils.highlight(descInfo.desc);
+    } else {
+      desc.textContent = descInfo.desc;
+    }
+
+    el.append(title, type, desc);
+
+    if (intent.dmg > 0) {
+      const dmg = doc.createElement('div');
+      dmg.className = 'itt-dmg';
+      dmg.innerHTML = `💢 예상 피해: <strong>${intent.dmg}</strong>`;
+      el.appendChild(dmg);
+    }
 
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + 12;
@@ -273,58 +309,147 @@ export const CombatUI = {
     const needsFullRender = deps.forceFullRender || existing.length !== expectedCount || existing.length === 0;
 
     if (needsFullRender) {
-      zone.innerHTML = gs.combat.enemies.map((e, i) => {
-        if (!e || !e.ai) return '';
+      zone.textContent = '';
+      gs.combat.enemies.forEach((e, i) => {
+        if (!e || !e.ai) return;
+
         const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
-        // 플레이어 턴에는 현재 턴(turn)을 인텐트로 표시
         let intent;
         try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
 
-        const statusStr = _renderEnemyStatuses(e.statusEffects);
+        const isSelected = gs._selectedTarget === i && e.hp > 0;
+
+        const card = doc.createElement('div');
+        card.id = `enemy_${i}`;
+        card.className = `enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}${e.isBoss ? ' boss' : ''}`;
+
+        const deadStyle = e.hp <= 0 ? 'opacity:0.3;filter:grayscale(1);pointer-events:none;' : '';
+        const selStyle = isSelected ? 'outline:2px solid var(--cyan);box-shadow:0 0 18px rgba(0,255,204,0.45);' : '';
+        card.style.cssText = `${deadStyle}${selStyle}cursor:${e.hp > 0 ? 'pointer' : 'default'};`;
+
+        if (e.hp > 0) {
+          card.addEventListener('click', () => {
+            const handler = window[selectTargetHandlerName];
+            if (typeof handler === 'function') handler(i);
+          });
+        }
+
+        if (isSelected) {
+          const targetLabel = doc.createElement('div');
+          targetLabel.className = 'target-label-anim';
+          const v = doc.createElement('span'); v.textContent = '▼';
+          const t = doc.createElement('span'); t.textContent = 'TARGET';
+          targetLabel.append(v, t);
+          card.appendChild(targetLabel);
+        }
+
+        const sprite = doc.createElement('div');
+        sprite.id = `enemy_sprite_${i}`;
+        sprite.className = 'enemy-sprite';
+        const spriteIcon = doc.createElement('span');
+        spriteIcon.style.fontSize = '64px';
+        spriteIcon.textContent = e.icon || '👾';
+        sprite.appendChild(spriteIcon);
+        card.appendChild(sprite);
+
+        const name = doc.createElement('div');
+        name.className = 'enemy-name';
+        name.textContent = e.name;
+        if (e.isBoss) {
+          const phase = doc.createElement('span');
+          phase.style.color = 'var(--gold)';
+          phase.textContent = ` ✦ P${e.phase || 1}`;
+          name.appendChild(phase);
+        }
+        card.appendChild(name);
+
+        if (e.isBoss) {
+          const phaseBar = doc.createElement('div');
+          phaseBar.className = 'boss-phase-bar';
+          phaseBar.style.marginBottom = '2px';
+
+          const seg = doc.createElement('div');
+          seg.className = 'boss-phase-segment';
+          seg.style.cssText = 'left:50%;width:50%;background:rgba(255,100,0,0.2);';
+
+          const fill = doc.createElement('div');
+          fill.id = `enemy_hpfill_${i}`;
+          fill.className = 'boss-phase-fill';
+          fill.style.width = `${hpPct}%`;
+
+          phaseBar.append(seg, fill);
+          card.appendChild(phaseBar);
+
+          const phaseDots = doc.createElement('div');
+          phaseDots.style.cssText = 'display:flex;gap:4px;justify-content:center;margin-bottom:2px;';
+          for (let p = 1; p <= (e.maxPhase || 2); p++) {
+            const dot = doc.createElement('div');
+            const isActive = p <= (e.phase || 1);
+            dot.style.cssText = `width:6px;height:6px;border-radius:50%;background:${isActive ? 'var(--gold)' : 'rgba(255,255,255,0.1)'};box-shadow:${isActive ? '0 0 6px rgba(240,180,41,0.6)' : 'none'};`;
+            phaseDots.appendChild(dot);
+          }
+          card.appendChild(phaseDots);
+        } else {
+          const hpBar = doc.createElement('div');
+          hpBar.className = 'enemy-hp-bar';
+          const fill = doc.createElement('div');
+          fill.id = `enemy_hpfill_${i}`;
+          fill.className = 'enemy-hp-fill';
+          fill.style.cssText = `width:${hpPct}%;background:${_enemyHpColor(hpPct)};`;
+          hpBar.appendChild(fill);
+          card.appendChild(hpBar);
+        }
+
+        const hpText = doc.createElement('div');
+        hpText.id = `enemy_hptext_${i}`;
+        hpText.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);";
+        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` 🛡️${e.shield}` : ''}`;
+        card.appendChild(hpText);
+
+        const intentEl = doc.createElement('div');
+        intentEl.id = `enemy_intent_${i}`;
+        intentEl.className = 'enemy-intent';
+
         let intentIcon = _getIntentIcon(intent);
         let intentLabel = _formatIntentLabel(intent);
-        let intentDmg = intent.dmg > 0 ? `<div class="enemy-intent-dmg">${intent.dmg}</div>` : '';
+        let intentDmgVal = intent.dmg;
 
-        // 전투 첫 턴(turn <= 0): 아직 행동이 없으므로 준비 중 표시
         if (gs.combat.turn <= 0) {
           intentIcon = '❓';
           intentLabel = '알 수 없음';
-          intentDmg = '';
+          intentDmgVal = 0;
         }
 
-        const isSelected = gs._selectedTarget === i && e.hp > 0;
-        const selStyle = isSelected ? 'outline:2px solid var(--cyan);box-shadow:0 0 18px rgba(0,255,204,0.45);' : '';
-        const deadStyle = e.hp <= 0 ? 'opacity:0.3;filter:grayscale(1);pointer-events:none;' : '';
+        const iconSpan = doc.createElement('span'); iconSpan.textContent = intentIcon;
+        const labelSpan = doc.createElement('span'); labelSpan.textContent = intentLabel;
+        intentEl.append(iconSpan, labelSpan);
+        if (intentDmgVal > 0) {
+          const dmgDiv = doc.createElement('div');
+          dmgDiv.className = 'enemy-intent-dmg';
+          dmgDiv.textContent = intentDmgVal;
+          intentEl.appendChild(dmgDiv);
+        }
+
+        intentEl.addEventListener('mouseenter', ev => this.showIntentTooltip(ev, i, deps));
+        intentEl.addEventListener('mouseleave', () => this.hideIntentTooltip(deps));
+        card.appendChild(intentEl);
+
+        const statusCont = doc.createElement('div');
+        statusCont.id = `enemy_status_${i}`;
+        statusCont.style.cssText = 'display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:4px;';
+        statusCont.appendChild(_renderEnemyStatuses(e.statusEffects, doc));
+        card.appendChild(statusCont);
+
         const preview = isSelected ? _calcSelectedPreview(gs, data, e) : null;
-        const dmgPreviewHtml = _renderSelectedPreviewHtml(preview);
+        if (preview) {
+          const previewEl = doc.createElement('div');
+          previewEl.className = 'enemy-dmg-preview';
+          previewEl.textContent = _renderSelectedPreviewText(preview);
+          card.appendChild(previewEl);
+        }
 
-        const bossPhaseBar = e.isBoss ? `
-            <div class="boss-phase-bar" style="margin-bottom:2px;">
-              ${[0.5].map(t => `<div class="boss-phase-segment" style="left:${t * 100}%;width:${t * 100}%;background:rgba(255,100,0,0.2);"></div>`).join('')}
-              <div class="boss-phase-fill" id="enemy_hpfill_${i}" style="width:${hpPct}%"></div>
-            </div>
-            <div style="display:flex;gap:4px;justify-content:center;margin-bottom:2px;">
-              ${[1, 2, 3].slice(0, e.maxPhase || 2).map(p => `<div style="width:6px;height:6px;border-radius:50%;background:${p <= (e.phase || 1) ? 'var(--gold)' : 'rgba(255,255,255,0.1)'};box-shadow:${p <= (e.phase || 1) ? '0 0 6px rgba(240,180,41,0.6)' : 'none'};"></div>`).join('')}
-            </div>
-          ` : `<div class="enemy-hp-bar"><div class="enemy-hp-fill" id="enemy_hpfill_${i}" style="width:${hpPct}%;background:${_enemyHpColor(hpPct)};"></div></div>`;
-
-        return `
-            <div class="enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}${e.isBoss ? ' boss' : ''}" id="enemy_${i}"
-              style="${deadStyle}${selStyle}cursor:${e.hp > 0 ? 'pointer' : 'default'};"
-              onclick="${e.hp > 0 ? `${selectTargetHandlerName}(${i})` : ''}">
-              ${isSelected ? '<div class="target-label-anim"><span>▼</span><span>TARGET</span></div>' : ''}
-              <div class="enemy-sprite" id="enemy_sprite_${i}">
-                <span style="font-size:64px;">${e.icon || '👾'}</span>
-              </div>
-              <div class="enemy-name">${e.name}${e.isBoss ? ` <span style="color:var(--gold)">✦ P${e.phase || 1}</span>` : ''}</div>
-              ${bossPhaseBar}
-              <div id="enemy_hptext_${i}" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">${e.hp} / ${e.maxHp}${e.shield ? ` 🛡️${e.shield}` : ''}</div>
-              <div class="enemy-intent" id="enemy_intent_${i}" onmouseenter="${showIntentTooltipHandlerName}(event,${i})" onmouseleave="${hideIntentTooltipHandlerName}()"><span>${intentIcon}</span><span>${intentLabel}</span>${intentDmg}</div>
-              <div id="enemy_status_${i}" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:4px;">${statusStr}</div>
-              ${dmgPreviewHtml}
-            </div>
-          `;
-      }).join('');
+        zone.appendChild(card);
+      });
     } else {
       gs.combat.enemies.forEach((e, i) => {
         if (!e) return;
@@ -344,22 +469,37 @@ export const CombatUI = {
 
         if (intentEl) {
           let intent;
-          // 플레이어 턴에는 현재 턴(turn)을 인텐트로 표시 (turn++ 위치 조정 완료 전제)
           try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
           let intentIcon = _getIntentIcon(intent);
-          let intentDmg = intent.dmg > 0 ? `<span style="color:var(--danger);font-size:16px;font-weight:900;">${intent.dmg}</span>` : '';
           let intentLabel = _formatIntentLabel(intent);
 
-          intentEl.innerHTML = `
-              <div class="enemy-intent-icon">${intentIcon}</div>
-              <div class="enemy-intent-label">${intentLabel}</div>
-              <div class="enemy-intent-dmg">${intentDmg}</div>
-            `;
-          intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
-          intentEl.onmouseleave = () => this.hideIntentTooltip(deps);
+          intentEl.textContent = '';
+          const iconDiv = doc.createElement('div');
+          iconDiv.className = 'enemy-intent-icon';
+          iconDiv.textContent = intentIcon;
+
+          const labelDiv = doc.createElement('div');
+          labelDiv.className = 'enemy-intent-label';
+          labelDiv.textContent = intentLabel;
+
+          const dmgDiv = doc.createElement('div');
+          dmgDiv.className = 'enemy-intent-dmg';
+          if (intent.dmg > 0) {
+            const dmgSpan = doc.createElement('span');
+            dmgSpan.style.cssText = 'color:var(--danger);font-size:16px;font-weight:900;';
+            dmgSpan.textContent = intent.dmg;
+            dmgDiv.appendChild(dmgSpan);
+          }
+
+          intentEl.append(iconDiv, labelDiv, dmgDiv);
+          intentEl.addEventListener('mouseenter', ev => this.showIntentTooltip(ev, i, deps));
+          intentEl.addEventListener('mouseleave', () => this.hideIntentTooltip(deps));
         }
 
-        if (statusEl) statusEl.innerHTML = _renderEnemyStatuses(e.statusEffects);
+        if (statusEl) {
+          statusEl.textContent = '';
+          statusEl.appendChild(_renderEnemyStatuses(e.statusEffects, doc));
+        }
 
         if (card && e.hp <= 0) {
           card.style.opacity = '0.3';
@@ -378,8 +518,13 @@ export const CombatUI = {
             if (!labelEl) {
               labelEl = doc.createElement('div');
               labelEl.className = 'target-label-anim';
-              labelEl.style.cssText = "";
-              labelEl.innerHTML = '<span>▼</span><span>TARGET</span>';
+
+              const v = doc.createElement('span');
+              v.textContent = '▼';
+              const t = doc.createElement('span');
+              t.textContent = 'TARGET';
+
+              labelEl.append(v, t);
               card.prepend(labelEl);
             }
           } else {

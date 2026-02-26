@@ -157,8 +157,13 @@ export const CombatMethods = {
     },
 
     addShield(amount) {
-        this.player.shield += amount;
-        this.addLog(`🛡️ 방어막 +${amount}`, 'system');
+        let actual = amount;
+        if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
+            actual = Math.max(0, amount - 10);
+            if (actual < amount) this.addLog('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
+        }
+        this.player.shield += actual;
+        this.addLog(`🛡️ 방어막 +${actual}`, 'system');
         if (typeof window.updateUI === 'function') window.updateUI();
     },
 
@@ -325,7 +330,10 @@ export const CombatMethods = {
             const quote = DATA.deathQuotes[Math.floor(Math.random() * DATA.deathQuotes.length)];
             const mono = document.createElement('div');
             mono.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1800;pointer-events:none;';
-            mono.innerHTML = `<div style="font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(18px,3vw,28px);color:rgba(238,240,255,0.9);text-align:center;max-width:500px;line-height:1.8;text-shadow:0 0 40px rgba(123,47,255,0.8);animation:fadeInUp 1s ease both;">${quote}</div>`;
+            const monoInner = document.createElement('div');
+            monoInner.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(18px,3vw,28px);color:rgba(238,240,255,0.9);text-align:center;max-width:500px;line-height:1.8;text-shadow:0 0 40px rgba(123,47,255,0.8);animation:fadeInUp 1s ease both;";
+            monoInner.textContent = quote;
+            mono.appendChild(monoInner);
             document.body.appendChild(mono);
             setTimeout(() => {
                 mono.remove();
@@ -361,11 +369,18 @@ export const CombatMethods = {
             if (wm['killed_memory_sovereign']) hints.push(`👑 기억의 군주 처치 ×${wm['killed_memory_sovereign']}`);
             const storyCount = this.meta.storyPieces.length;
             if (storyCount > 0) hints.push(`📖 스토리 ${storyCount}/10 해금`);
+            wmEl.textContent = '';
             if (hints.length) {
-                wmEl.innerHTML = `<div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);width:100%;text-align:center;margin-bottom:6px;">◈ 세계의 기억 ◈</div>` +
-                    hints.map(h => `<span class="wm-badge">${h}</span>`).join('');
-            } else {
-                wmEl.innerHTML = '';
+                const title = document.createElement('div');
+                title.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);width:100%;text-align:center;margin-bottom:6px;";
+                title.textContent = '◈ 세계의 기억 ◈';
+                wmEl.appendChild(title);
+                hints.forEach(h => {
+                    const badge = document.createElement('span');
+                    badge.className = 'wm-badge';
+                    badge.textContent = h;
+                    wmEl.appendChild(badge);
+                });
             }
         }
 
@@ -388,13 +403,27 @@ export const CombatMethods = {
         shuffle(choices);
         const fragList = document.getElementById('fragmentChoices');
         if (fragList) {
-            fragList.innerHTML = choices.map(c => `
-          <div class="fragment-btn" onclick="selectFragment('${c.effect}')">
-            <div class="fragment-icon">${c.icon}</div>
-            <div class="fragment-name">${c.name}</div>
-            <div class="fragment-desc">${c.desc}</div>
-          </div>
-        `).join('');
+            fragList.textContent = '';
+            choices.forEach(c => {
+                const btn = document.createElement('div');
+                btn.className = 'fragment-btn';
+                btn.onclick = () => window.selectFragment(c.effect);
+
+                const icon = document.createElement('div');
+                icon.className = 'fragment-icon';
+                icon.textContent = c.icon;
+
+                const name = document.createElement('div');
+                name.className = 'fragment-name';
+                name.textContent = c.name;
+
+                const desc = document.createElement('div');
+                desc.className = 'fragment-desc';
+                desc.textContent = c.desc;
+
+                btn.append(icon, name, desc);
+                fragList.appendChild(btn);
+            });
         }
     },
 
@@ -409,14 +438,14 @@ export const CombatMethods = {
             }
             document.getElementById('cardTooltip')?.classList.remove('visible');
             const combatHandCards = document.getElementById('combatHandCards');
-            if (combatHandCards) combatHandCards.innerHTML = '';
+            if (combatHandCards) combatHandCards.textContent = '';
             if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.resetCombatUI === 'function') {
                 window.HudUpdateUI.resetCombatUI();
             } else {
                 document.getElementById('combatOverlay')?.classList.remove('active');
                 document.getElementById('noiseGaugeOverlay')?.remove();
                 const endZone = document.getElementById('enemyZone');
-                if (endZone) endZone.innerHTML = '';
+                if (endZone) endZone.textContent = '';
             }
 
             this.player.graveyard.push(...this.player.hand);

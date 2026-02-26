@@ -2248,7 +2248,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: block !important;
 }
 
-#combatOverlay.active > * {
+#combatOverlay.active>* {
   pointer-events: auto;
 }
 
@@ -4384,4 +4384,795 @@ body:has(#combatOverlay.active) .panel-bottom {
   cursor: pointer;
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 8px rgba(68, 255, 136, 0.6);
+}
+
+/* ═══════════════════════════════════════
+   PHASE 3: ARCHITECTURAL CLEANUP CLASSES
+   ═══════════════════════════════════════ */
+
+/* Title Screen Utility */
+.menu-buttons-container {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.menu-buttons-sub-container {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-quit-special {
+  background: rgba(255, 51, 102, 0.1) !important;
+  border-color: rgba(255, 51, 102, 0.3) !important;
+  color: var(--danger) !important;
+}
+
+/* Character Select Utility */
+.char-select-sub-screen {
+  animation: fadeIn 0.4s ease;
+}
+
+.choose-echo-title {
+  margin-bottom: 30px;
+}
+
+.class-select-container {
+  margin-bottom: 40px;
+}
+
+.class-btn-starting-relic {
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+}
+
+.char-select-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.back-to-title-btn {
+  opacity: 0.7;
+  border: none !important;
+  background: transparent !important;
+}
+
+.class-select-hint {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--echo);
+  opacity: 0.6;
+  margin-top: 12px;
+  transition: opacity 0.4s;
+}
+
+/* Run Rules & Modals Cleanup */
+.run-settings-modal-panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 10px 0 !important;
+  margin: 0 !important;
+}
+
+.inscription-row {
+  margin-top: 8px;
+  border-top: 1px solid rgba(123, 47, 255, 0.15);
+  padding-top: 10px;
+}
+
+.inscription-toggles-container {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Sound Settings Float Panel */
+.sound-toggle-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(7, 7, 26, 0.85);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: transform 0.2s;
+}
+
+.sound-settings-panel {
+  position: fixed;
+  bottom: 64px;
+  right: 16px;
+  z-index: 100;
+  padding: 14px 18px;
+  background: rgba(7, 7, 26, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  width: 260px;
+  animation: fadeInDown 0.2s ease both;
+}
+
+.sound-settings-title {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.sound-settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sound-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sound-settings-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text);
+  min-width: 48px;
+}
+
+.sound-settings-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Maze Overlay Classes */
+.maze-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #020210;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.maze-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(123, 47, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.maze-header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: rgba(0, 255, 204, 0.7);
+}
+
+.maze-step-count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.maze-header-hint {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: rgba(240, 180, 41, 0.7);
+}
+
+.maze-main-container {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.maze-canvas-el {
+  flex: 1;
+  display: block;
+}
+
+.maze-minimap-container {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(123, 47, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.maze-minimap-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: rgba(0, 255, 204, 0.5);
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.maze-minimap-canvas-el {
+  display: block;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+
+.maze-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-top: 1px solid rgba(123, 47, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.maze-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(2, 40px);
+  gap: 5px;
+}
+
+.maze-btn {
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.35);
+  border-radius: 8px;
+  color: var(--cyan);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+}
+
+.maze-footer-hint {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: rgba(240, 180, 41, 0.7);
+  letter-spacing: 0.15em;
+}
+
+.maze-status-bar {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  line-height: 2;
+}
+
+/* Combat & HUD Batch Cleanup */
+.energy-val-special {
+  color: var(--white);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.hand-sort-btn-special {
+  margin-left: 8px;
+  background: rgba(123, 47, 255, 0.1) !important;
+  border: 1px solid rgba(123, 47, 255, 0.3) !important;
+  border-radius: 4px;
+  color: var(--echo) !important;
+  cursor: pointer;
+  font-family: 'Cinzel', serif !important;
+  font-size: 9px !important;
+  padding: 2px 8px !important;
+  transition: all 0.2s;
+}
+
+.pill-num-dim {
+  color: var(--text-dim) !important;
+}
+
+.pill-num-danger {
+  color: var(--danger) !important;
+}
+
+.event-gold-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 8px 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.event-image-container-special {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+.hud-stat-trigger-special {
+  margin-left: 4px;
+}
+
+.hud-energy-text-special {
+  color: var(--white);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+/* Death Screen Cleanup */
+.death-fragment-hint {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* Event Modal Utilities */
+.event-hp-val {
+  color: var(--hp-color);
+}
+
+.event-gold-val {
+  color: var(--gold);
+}
+
+.event-deck-val {
+  color: var(--echo);
+}
+
+.event-image-el {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+/* HUD Utility Classes */
+.hud-stat-icon-hp {
+  color: #ff4466;
+  font-size: 13px;
+}
+
+.hud-stat-icon-shield {
+  color: #66bbff;
+  font-size: 12px;
+}
+
+.hud-stat-icon-echo {
+  color: var(--echo);
+  font-size: 13px;
+}
+
+.hud-stat-icon-gold {
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.hud-stat-val-white {
+  color: var(--white);
+}
+
+.hud-stat-val-shield {
+  color: #66bbff;
+}
+
+.hud-stat-val-echo {
+  color: var(--echo-bright);
+}
+
+.hud-stat-val-gold {
+  color: var(--gold);
+}
+
+/* Reward Screen Cleanup */
+.reward-eyebrow-special {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  color: var(--text-dim);
+}
+
+.reward-title-special {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 900;
+  color: var(--white);
+  text-align: center;
+}
+
+.skip-confirm-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.skip-confirm-row-el {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  animation: fadeInUp 0.2s ease both;
+}
+
+.skip-confirm-text {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.skip-btn-danger {
+  color: var(--danger) !important;
+  border-color: rgba(255, 51, 102, 0.4) !important;
+  padding: 6px 16px !important;
+  font-size: 10px !important;
+}
+
+.skip-btn-cancel {
+  padding: 6px 16px !important;
+  font-size: 10px !important;
+}
+
+/* Deck Modal & Filter Cleanup */
+.deck-modal-header-special {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.deck-status-bar-el {
+  display: flex;
+  gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  align-items: center;
+}
+
+.deck-filter-tabs-container {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.deck-filter-btn-base {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.deck-filter-all {
+  border: 1px solid var(--echo);
+  background: rgba(123, 47, 255, 0.2);
+  color: var(--echo);
+}
+
+.deck-filter-attack {
+  border: 1px solid rgba(255, 80, 100, 0.35);
+  background: transparent;
+  color: #ff6688;
+}
+
+.deck-filter-skill {
+  border: 1px solid rgba(80, 180, 255, 0.35);
+  background: transparent;
+  color: #66bbff;
+}
+
+.deck-filter-power {
+  border: 1px solid rgba(240, 180, 41, 0.35);
+  background: transparent;
+  color: var(--gold);
+}
+
+.deck-filter-upgraded {
+  border: 1px solid rgba(0, 255, 204, 0.35);
+  background: transparent;
+  color: var(--cyan);
+}
+
+/* Tooltip Prediction Utility */
+.tooltip-prediction-panel {
+  display: block;
+  margin-top: 8px;
+  padding: 5px 8px;
+  background: rgba(255, 51, 102, 0.1);
+  border: 1px solid rgba(255, 51, 102, 0.25);
+  border-radius: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--danger);
+  text-align: center;
+}
+
+/* Codex Modal Cleanup Classes */
+.codex-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 3, 10, 0.97);
+  z-index: 900;
+  overflow-y: auto;
+  backdrop-filter: blur(20px);
+}
+
+.codex-modal-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.codex-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.codex-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.codex-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 900;
+  color: var(--white);
+  text-shadow: 0 0 30px var(--echo-glow);
+}
+
+.codex-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+.codex-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.codex-tab-btn-enemies {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--danger);
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--danger);
+}
+
+.codex-tab-btn-base {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.codex-progress-bar {
+  background: rgba(123, 47, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.codex-footer {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.codex-close-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Right Panel Cleanup Classes */
+.ingame-player-name {
+  text-align: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--white);
+  margin-top: 10px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.run-modifiers-container {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-deck-info {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+
+.val-white {
+  color: var(--white);
+}
+
+.val-dim {
+  color: var(--text-dim);
+}
+
+.val-danger {
+  color: var(--danger);
+}
+
+/* Final Polish Utility Classes */
+.game-canvas-wrapper-special {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-canvas-el-special {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.node-card-overlay-special {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  pointer-events: none;
+  z-index: 15;
+  background: rgba(5, 5, 18, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.node-card-title-special {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: rgba(238, 240, 255, 0.6);
+  text-align: center;
+}
+
+.node-card-row-special {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.hud-chain-row-special {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.hud-chain-large-val {
+  font-size: 22px;
+}
+
+.hud-chain-desc-special {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.hud-status-tip-special {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.hud-item-slots-special {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+}
+
+.hud-run-info-grid {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 2;
+}
+
+.reward-actions-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.panel-right-special-container {
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(123, 47, 255, 0.05);
+  border: 1px solid rgba(123, 47, 255, 0.15);
+  border-radius: 8px;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.panel-right-footer-glue {
+  margin-top: auto;
 }

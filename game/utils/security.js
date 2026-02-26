@@ -4,14 +4,26 @@
 export const SecurityUtils = {
     /**
      * HTML 특수 문자를 이스케이프하여 XSS를 방지합니다.
-     * @param {string} text - 이스케이프할 텍스트
+     * @param {any} text - 이스케이프할 텍스트
      * @returns {string} 이스케이프된 텍스트
      */
     escapeHtml(text) {
-        if (typeof text !== 'string') return text;
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        if (text === null || text === undefined) return '';
+        const s = String(text);
+        return s.replace(/[&<>"']/g, (m) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m]));
+    },
+
+    /**
+     * 속성값을 생성할 때 사용할 수 있도록 이스케이프합니다.
+     */
+    escapeAttr(text) {
+        return this.escapeHtml(text).replace(/\(/g, '&#40;').replace(/\)/g, '&#41;');
     },
 
     /**
@@ -21,5 +33,15 @@ export const SecurityUtils = {
      */
     createText(text) {
         return document.createTextNode(text);
+    },
+
+    /**
+     * 안전한 요소 생성을 도와주는 래퍼
+     */
+    createSafeElement(tag, className = '', text = '') {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        if (text) el.textContent = text;
+        return el;
     }
 };

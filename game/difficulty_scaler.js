@@ -30,7 +30,11 @@ export const DifficultyScaler = {
     }
 
     const D = CONSTANTS.DIFFICULTY;
-    const base = 1 + (run - 1) * D.RUN_SCALE + reg * D.REGION_SCALE + flr * D.FLOOR_SCALE;
+    let base = 1 + (run - 1) * D.RUN_SCALE + reg * D.REGION_SCALE + flr * D.FLOOR_SCALE;
+
+    // 밸런스 조정: 베이스 배율 캡 적용 (기본 3.0)
+    const cap = D.BASE_MULTIPLIER_CAP || 3.0;
+    if (base > cap) base = cap;
 
     // 하위 호환: RunRules가 있으면 적용
     if (typeof paramsOrGs === 'object' && !('runCount' in paramsOrGs) &&

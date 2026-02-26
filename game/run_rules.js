@@ -36,16 +36,16 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
 export const RunRules = {
   blessings: {
     none: { id: 'none', name: '없음', desc: '기본 규칙으로 시작' },
-    vigor: { id: 'vigor', name: '활력의 축복', desc: '시작 최대 HP +10' },
-    wealth: { id: 'wealth', name: '풍요의 축복', desc: '시작 골드 +25' },
-    spark: { id: 'spark', name: '잔향의 축복', desc: '시작 Echo +20' },
+    vigor: { id: 'vigor', name: '활력의 축복', desc: '시작 최대 HP +15' },
+    wealth: { id: 'wealth', name: '풍요의 축복', desc: '시작 골드 +35' },
+    spark: { id: 'spark', name: '잔향의 축복', desc: '시작 Echo +30' },
   },
 
   curses: {
     none: { id: 'none', name: '없음', desc: '추가 불이익 없음' },
     tax: { id: 'tax', name: '탐욕의 저주', desc: '상점 가격 +20%' },
-    fatigue: { id: 'fatigue', name: '피로의 저주', desc: '회복량 -25%' },
-    frail: { id: 'frail', name: '쇠약의 저주', desc: '시작 최대 HP -8' },
+    fatigue: { id: 'fatigue', name: '피로의 저주', desc: '회복량 -25% & 최대 방어막 -10' },
+    frail: { id: 'frail', name: '쇠약의 저주', desc: '시작 최대 HP -10' },
   },
 
   ensureMeta(meta) {
@@ -104,7 +104,10 @@ export const RunRules = {
   },
 
   getEnemyScaleMultiplier(gs, regionAbs = 0) {
-    const ascMul = 1 + this.getAscension(gs) * 0.08;
+    // 밸런스 조정: 승천 단계별 스케일링 완화 (8% -> 6%) 및 상한 적용
+    let ascMul = 1 + this.getAscension(gs) * 0.06;
+    if (ascMul > 1.5) ascMul = 1.5;
+
     const cycle = this.isEndless(gs) ? Math.floor(Math.max(0, regionAbs) / Math.max(1, getRegionCount())) : 0;
     const endlessMul = 1 + cycle * 0.12;
     return ascMul * endlessMul;
@@ -139,23 +142,23 @@ export const RunRules = {
 
     const blessing = cfg.blessing || 'none';
     if (blessing === 'vigor') {
-      gs.player.maxHp += 10;
-      gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 10);
+      gs.player.maxHp += 15;
+      gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 15);
     } else if (blessing === 'wealth') {
-      gs.player.gold += 25;
+      gs.player.gold += 35;
     } else if (blessing === 'spark') {
-      gs.player.echo = Math.min(gs.player.maxEcho, gs.player.echo + 20);
+      gs.player.echo = Math.min(gs.player.maxEcho, gs.player.echo + 30);
     }
 
     const curse = cfg.curse || 'none';
     if (curse === 'frail') {
-      gs.player.maxHp = Math.max(1, gs.player.maxHp - 8);
+      gs.player.maxHp = Math.max(1, gs.player.maxHp - 10);
       gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
     }
   },
 
-  onCombatStart() {},
-  onTurnStart() {},
+  onCombatStart() { },
+  onTurnStart() { },
 
   onVictory(gs) {
     if (!gs?.meta) return 5;

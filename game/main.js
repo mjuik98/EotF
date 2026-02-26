@@ -48,6 +48,7 @@ import { WorldCanvasUI } from './world_canvas_ui.js';
 
 import { WorldRenderLoopUI } from './world_render_loop_ui.js';
 import { MapGenerationUI } from './map_generation_ui.js';
+import { GameAPI } from './game_api.js';
 import { MapNavigationUI } from './map_navigation_ui.js';
 import { MapUI } from './map_ui.js';
 import { GameBootUI } from './game_boot_ui.js';
@@ -57,96 +58,24 @@ import { CombatMethods } from './methods/combat_methods.js';
 import { PlayerMethods } from './methods/player_methods.js';
 import { GS } from './game_state.js';
 
+import { GAME, exposeGlobals } from './global_bridge.js';
+import { GameInit } from './game_init.js';
 
-// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??//  ECHO OF THE FALLEN v2 ???꾩쟾 ?듯빀 肄붾뱶踰좎씠??//  紐⑤뱺 Phase 1~4 湲곕뒫???⑥씪 ?꾪궎?띿쿂濡??듯빀
+
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??//  ECHO OF THE FALLEN v2 ???꾩쟾 ?듯합 肄붾뱶踰좎씠??//  紐⑤뱺 Phase 1~4 湲곕뒫???⑥씪 ?꾪궎?띿쿂濡??듯합
 //  ??泥댁씤 ?쒓굅 쨌 ?대┛ FSM 쨌 ?⑥씪 寃뚯엫 猷⑦봽
 // ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
 // ????????????????????????????????????????
 // WEB AUDIO ENGINE
 // ????????????????????????????????????????
 
-Object.assign(GS, GameStateCoreMethods || {}, CardMethods || {}, CombatMethods || {}, PlayerMethods || {});
-
 // ????????????????????????????????????????
 // GAME NAMESPACE & DI SYSTEM (Phase 3)
 // ????????????????????????????????????????
-const GAME = {
-  State: GS,
-  Data: null,
-  Audio: null,
-  Particle: null,
-  Modules: {}, // Loaded UI/Logic modules
 
-  // Registry for cross-module calls replacing the legacy window wrapper functions.
-  // Modules will register their public API here.
-  API: {},
-
-  init(global) {
-    this.Data = DATA;
-    this.Audio = AudioEngine;
-    this.Particle = ParticleSystem;
-
-    // Bind legacy global compatibility
-    global.GS = this.State;
-    global.GameState = this.State;
-    global.GAME = this;
-    global.DATA = DATA;
-  },
-
-  register(moduleName, moduleObj) {
-    this.Modules[moduleName] = moduleObj;
-    // Auto-bind APIs if exposed
-    if (moduleObj && moduleObj.api) {
-      Object.assign(this.API, moduleObj.api);
-    }
-  },
-
-  /**
-   * ?덉쟾?섍쾶 API ?⑥닔瑜??몄텧?⑸땲?? (Phase 4 媛쒖꽑???곸슜)
-   * @param {string} methodName 
-   * @param  {...any} args 
-   */
-  call(methodName, ...args) {
-    const fn = this.API[methodName];
-    if (typeof fn === 'function') {
-      return fn(...args);
-    }
-    console.warn(`[GAME] API Method not found: ${methodName}`);
-    return null;
-  },
-
-  require(moduleName) {
-    const mod = this.Modules[moduleName] || window[moduleName];
-    if (!mod) {
-      throw new Error(`[GAME] Critical module missing: ${moduleName}`);
-    }
-    return mod;
-  },
-
-  // Builds standard Dependencies object for UI modules
-  getDeps() {
-    return {
-      gs: this.State,
-      data: this.Data,
-      doc: document,
-      win: window,
-      audioEngine: this.Audio,
-      particleSystem: this.Particle,
-      api: this.API,
-      runRules: RunRules,
-      classMechanics: ClassMechanics,
-      getRegionData: getRegionData,
-      getBaseRegionIndex: getBaseRegionIndex,
-      getRegionCount: getRegionCount,
-      difficultyScaler: DifficultyScaler,
-      shuffleArray: RandomUtils.shuffleArray,
-      hitStop: HitStop,
-      screenShake: ScreenShake,
-      fovEngine: FovEngine,
-      setBonusSystem: SetBonusSystem,
-    };
-  }
-};
+// GAME Initialization (Phase 3 cleanup)
+GAME.init(GS, DATA, AudioEngine, ParticleSystem);
+exposeGlobals(window);
 
 // ────────────────────────────────────────
 // GAME EXIT LOGIC
@@ -163,8 +92,6 @@ function quitGame() {
   }
 }
 window.quitGame = quitGame;
-
-GAME.init(window);
 
 // Register Core UI/Logic Modules
 GAME.register('EventUI', EventUI);
@@ -457,8 +384,8 @@ function hideIntentTooltip() {
 
 window.showIntentTooltip = showIntentTooltip;
 window.hideIntentTooltip = hideIntentTooltip;
-window.showEnemyStatusTooltip = function(event, statusKey) { CombatUI?.showEnemyStatusTooltip?.(event, statusKey, GAME.getDeps()); };
-window.hideEnemyStatusTooltip = function() { CombatUI?.hideEnemyStatusTooltip?.(GAME.getDeps()); };
+window.showEnemyStatusTooltip = function (event, statusKey) { CombatUI?.showEnemyStatusTooltip?.(event, statusKey, GAME.getDeps()); };
+window.hideEnemyStatusTooltip = function () { CombatUI?.hideEnemyStatusTooltip?.(GAME.getDeps()); };
 
 function renderCombatEnemies(forceFullRender = false) {
   const deps = GAME.getDeps();
@@ -1167,14 +1094,6 @@ function togglePause() {
   HelpPauseUI?.togglePause?.(_getHelpPauseDeps());
 }
 
-function _initHelpPauseUI() {
-  if (!HelpPauseUI) return;
-  const deps = _getHelpPauseDeps();
-  HelpPauseUI.showMobileWarning(deps);
-  HelpPauseUI.bindGlobalHotkeys(deps);
-}
-
-
 // ????????????????????????????????????????
 // UTILITIES
 // ????????????????????????????????????????
@@ -1186,78 +1105,41 @@ function restartFromEnding() {
   MetaProgressionUI?.restartFromEnding?.(_getMetaProgressionDeps());
 }
 
-// ????????????????????????????????????????
-// GLOBAL EXPORTS
-// ????????????????????????????????????????
-window.GameState = GS;
-window.selectClass = selectClass;
-window.startGame = startGame;
-window.shiftAscension = shiftAscension;
-window.toggleEndlessMode = toggleEndlessMode;
-window.cycleRunBlessing = cycleRunBlessing;
-window.cycleRunCurse = cycleRunCurse;
-window.toggleInscription = (key) => RunModeUI?.toggleInscription?.(key, _getRunModeDeps());
-window.selectFragment = selectFragment;
-window.useEchoSkill = useEchoSkill;
-window.drawCard = drawCard;
-window.endPlayerTurn = endPlayerTurn;
-window.toggleCombatInfo = toggleCombatInfo;
-window.moveToNode = moveToNode;
-window.resolveEvent = resolveEvent;
-window.takeRewardCard = takeRewardCard;
-window.takeRewardItem = takeRewardItem;
-window.skipReward = skipReward;
-window.showSkipConfirm = showSkipConfirm;
-window.hideSkipConfirm = hideSkipConfirm;
-window.returnToGame = returnToGame;
-window.restartFromEnding = restartFromEnding;
-window.toggleHelp = toggleHelp;
-window.handleCardDragStart = handleCardDragStart;
-window.handleCardDragEnd = handleCardDragEnd;
-window.handleCardDropOnEnemy = handleCardDropOnEnemy;
-window.showDeckView = showDeckView;
-window.showItemTooltip = showItemTooltip;
-window.hideItemTooltip = hideItemTooltip;
-window.closeDeckView = closeDeckView;
-window.openCodex = openCodex;
-window.closeCodex = closeCodex;
-window.setCodexTab = setCodexTab;
-
 // ?? ?ъ슫???ㅼ젙 ?몃뱾????
 window.setMasterVolume = function (v) {
-  const val = Math.max(0, Math.min(100, parseInt(v) || 0));
+  let val = parseInt(v);
+  if (isNaN(val)) val = 0;
+  val = Math.max(0, Math.min(100, val));
   AudioEngine.setVolume(val / 100);
-  // 紐⑤뱺 Master 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃
   document.querySelectorAll('#volMasterVal').forEach(el => {
     if (el) el.textContent = val + '%';
   });
-  // ?щ씪?대뜑 ?몃옓 ?됱긽 ?낅뜲?댄듃
   document.querySelectorAll('#volMasterSlider, #volMaster').forEach(el => {
     if (el) el.style.setProperty('--fill-percent', val + '%');
   });
   _saveVolumes();
 };
 window.setSfxVolume = function (v) {
-  const val = Math.max(0, Math.min(100, parseInt(v) || 0));
+  let val = parseInt(v);
+  if (isNaN(val)) val = 0;
+  val = Math.max(0, Math.min(100, val));
   AudioEngine.setSfxVolume(val / 100);
-  // 紐⑤뱺 SFX 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃
   document.querySelectorAll('#volSfxVal').forEach(el => {
     if (el) el.textContent = val + '%';
   });
-  // ?щ씪?대뜑 ?몃옓 ?됱긽 ?낅뜲?댄듃
   document.querySelectorAll('#volSfxSlider, #volSfx').forEach(el => {
     if (el) el.style.setProperty('--fill-percent', val + '%');
   });
   _saveVolumes();
 };
 window.setAmbientVolume = function (v) {
-  const val = Math.max(0, Math.min(100, parseInt(v) || 0));
+  let val = parseInt(v);
+  if (isNaN(val)) val = 0;
+  val = Math.max(0, Math.min(100, val));
   AudioEngine.setAmbientVolume(val / 100);
-  // 紐⑤뱺 Ambient 蹂쇰ⅷ ?쒖떆 ?낅뜲?댄듃
   document.querySelectorAll('#volAmbientVal').forEach(el => {
     if (el) el.textContent = val + '%';
   });
-  // ?щ씪?대뜑 ?몃옓 ?됱긽 ?낅뜲?댄듃
   document.querySelectorAll('#volAmbientSlider, #volAmbient').forEach(el => {
     if (el) el.style.setProperty('--fill-percent', val + '%');
   });
@@ -1278,9 +1160,9 @@ function _loadVolumes() {
     if (saved) {
       const { volumes } = JSON.parse(saved);
       if (volumes) {
-        if (Number.isFinite(volumes.master)) AudioEngine.setVolume(volumes.master);
-        if (Number.isFinite(volumes.sfx)) AudioEngine.setSfxVolume(volumes.sfx);
-        if (Number.isFinite(volumes.ambient)) AudioEngine.setAmbientVolume(volumes.ambient);
+        if (Number.isFinite(volumes.master)) AudioEngine.setVolume(Math.max(0, Math.min(1, volumes.master)));
+        if (Number.isFinite(volumes.sfx)) AudioEngine.setSfxVolume(Math.max(0, Math.min(1, volumes.sfx)));
+        if (Number.isFinite(volumes.ambient)) AudioEngine.setAmbientVolume(Math.max(0, Math.min(1, volumes.ambient)));
       }
     }
   } catch (e) { console.warn('Load settings error:', e); }
@@ -1308,9 +1190,11 @@ function _syncVolumeUI() {
 
 // SaveSystem is provided by game/save_system.js.
 
-function _getGameBootDeps() {
-  return {
-    ..._baseDeps(),
+const _getGameBootDeps = () => ({
+  ...GAME.getDeps(),
+  gameBootUI: GameBootUI,
+  getGameBootDeps: () => ({
+    ...GAME.getDeps(),
     audioEngine: AudioEngine,
     runRules: RunRules,
     saveSystem: SaveSystem,
@@ -1318,75 +1202,83 @@ function _getGameBootDeps() {
     initTitleCanvas,
     updateUI,
     refreshRunModePanel,
-  };
-}
+  }),
+});
 
-function _bootGame() {
-  _loadVolumes();
-  _initHelpPauseUI();
-  GameBootUI?.bootGame?.(_getGameBootDeps());
-}
-
-// ?? ?몃????깊겕 ?⑥닔 ?몄텧 ??
-window._syncVolumeUI = _syncVolumeUI;
-window.GS = GS;
-window.GameState = GS;
-window.updateUI = updateUI;
-window.refreshRunMode = refreshRunModePanel;
-window._bootGame = _bootGame;
-
-// UI Event Handlers used by index.html onclick=""
-window.showCharacterSelect = showCharacterSelect;
-window.backToTitle = backToTitle;
-window.openRunSettings = openRunSettings;
-window.closeRunSettings = closeRunSettings;
-window.openCodexFromTitle = openCodexFromTitle;
-window.selectClass = selectClass;
-window.startGame = startGame;
-window.shiftAscension = shiftAscension;
-window.toggleEndlessMode = toggleEndlessMode;
-window.cycleRunBlessing = cycleRunBlessing;
-window.cycleRunCurse = cycleRunCurse;
-
-window.sortHandByEnergy = sortHandByEnergy;
-window.useEchoSkill = useEchoSkill;
-window.drawCard = drawCard;
-window.endPlayerTurn = endPlayerTurn;
-window.showEchoSkillTooltip = showEchoSkillTooltip;
-window.hideEchoSkillTooltip = hideEchoSkillTooltip;
-window.showTooltip = showTooltip;
-window.hideTooltip = hideTooltip;
-
-window.skipReward = skipReward;
-window.showSkipConfirm = showSkipConfirm;
-window.hideSkipConfirm = hideSkipConfirm;
-
-window.setDeckFilter = setDeckFilter;
-window.closeDeckView = closeDeckView;
-window.setCodexTab = setCodexTab;
-window.closeCodex = closeCodex;
-window.toggleHudPin = toggleHudPin;
-window.showFullMap = showFullMap;
-window.getRegionData = getRegionData;
-window.togglePause = togglePause;
-window.toggleHelp = toggleHelp;
-window.abandonRun = abandonRun;
-window.confirmAbandon = confirmAbandon;
-window.CardCostUtils = CardCostUtils;
-window.ClassMechanics = ClassMechanics;
-window.CodexUI = CodexUI;
-window.openCodex = openCodex;
-window.closeCodex = closeCodex;
-window.setCodexTab = setCodexTab;
-window.TooltipUI = TooltipUI;
-window.showGeneralTooltip = showGeneralTooltip;
-window.hideGeneralTooltip = hideGeneralTooltip;
-window.renderCombatCards = renderCombatCards;
-
-// ?? 理쒖쥌?곸쑝濡?寃뚯엫 ?붿쭊 湲곕룞 ??
+// Final Boot Sequence
 try {
-  _bootGame();
+  GameInit.boot({
+    ...GAME.getDeps(),
+    audioEngine: AudioEngine,
+    helpPauseUI: HelpPauseUI,
+    gameBootUI: GameBootUI,
+    getGameBootDeps: _getGameBootDeps,
+    getHelpPauseDeps: _getHelpPauseDeps,
+    actions: {
+      showCharacterSelect, openRunSettings, openCodexFromTitle, quitGame,
+      selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
+      toggleEndlessMode, cycleRunBlessing, cycleRunCurse, setMasterVolume: window.setMasterVolume,
+      setSfxVolume: window.setSfxVolume, setAmbientVolume: window.setAmbientVolume, drawCard, endPlayerTurn, useEchoSkill
+    }
+  });
 } catch (e) {
   console.error("Critical Boot Error:", e);
 }
 
+// ?? ?몃????깊겕 ?⑥닔 ?몄텧 ??
+exposeGlobals({
+  _syncVolumeUI: () => GameInit.syncVolumeUI(AudioEngine),
+  updateUI,
+  refreshRunModePanel,
+  showCharacterSelect,
+  backToTitle,
+  openRunSettings,
+  closeRunSettings,
+  openCodexFromTitle,
+  selectClass,
+  startGame,
+  shiftAscension,
+  toggleEndlessMode,
+  cycleRunBlessing,
+  cycleRunCurse,
+  sortHandByEnergy,
+  useEchoSkill,
+  drawCard,
+  endPlayerTurn,
+  skipReward,
+  showSkipConfirm,
+  hideSkipConfirm,
+  setDeckFilter,
+  closeDeckView,
+  setCodexTab,
+  closeCodex,
+  toggleHudPin,
+  showFullMap,
+  getRegionData,
+  togglePause,
+  toggleHelp,
+  abandonRun,
+  confirmAbandon,
+  openCodex,
+  showGeneralTooltip,
+  hideGeneralTooltip,
+  renderCombatCards,
+  toggleInscription: (key) => RunModeUI?.toggleInscription?.(key, _getRunModeDeps()),
+  selectFragment,
+  toggleCombatInfo,
+  moveToNode,
+  resolveEvent,
+  takeRewardCard,
+  takeRewardItem,
+  returnToGame,
+  restartFromEnding,
+  handleCardDragStart,
+  handleCardDragEnd,
+  handleCardDropOnEnemy,
+  showDeckView,
+  showItemTooltip,
+  hideItemTooltip,
+  setMasterVolume: window.setMasterVolume,
+  setSfxVolume: window.setSfxVolume,
+  setAmbientVolume: window.setAmbientVolume,
+});
