@@ -671,7 +671,9 @@ function _getEventDeps() {
 
     updateUI,
     returnToGame,
-    switchScreen, // Bug #7: Added missing screen switch
+    switchScreen,
+    renderMinimap,
+    updateNextNodes,
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
   };
@@ -846,6 +848,7 @@ function _getCombatHudDeps() {
     updateNoiseWidget,
     updateClassSpecialUI,
     updateUI,
+    getBaseRegionIndex,
   };
 }
 

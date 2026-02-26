@@ -118,15 +118,18 @@ export const EventUI = {
     if (typeof deps.updateUI === 'function') deps.updateUI();
     this.updateEventGoldBar(deps);
 
-    if (!result) {
-      console.log('[resolveEvent] no result, closing event');
-      doc.getElementById('eventModal')?.classList.remove('active');
-      _currentEvent = null;
-      gs._eventLock = false;
-      // Ensure screen state is consistent
-      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-      if (typeof deps.updateUI === 'function') deps.updateUI();
-      if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+    if (!result || result === '__item_shop_open__') {
+      if (!result) {
+        console.log('[resolveEvent] no result, closing event');
+        doc.getElementById('eventModal')?.classList.remove('active');
+        _currentEvent = null;
+        gs._eventLock = false;
+        // Ensure screen state is consistent
+        if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+        if (typeof deps.updateUI === 'function') deps.updateUI();
+        if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+      }
       return;
     }
 
@@ -157,6 +160,7 @@ export const EventUI = {
         if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
       }, { once: true });
       choicesEl.appendChild(continueBtn);
     }
@@ -249,7 +253,7 @@ export const EventUI = {
           text: '💎 아이템 구매 — 골드',
           effect(state) {
             self.showItemShop(state, deps);
-            return null;
+            return '__item_shop_open__';
           },
         },
         {
@@ -567,9 +571,17 @@ export const EventUI = {
           if (typeof deps.playItemGet === 'function') deps.playItemGet();
           if (typeof deps.showItemToast === 'function') deps.showItemToast(item);
           gs.addLog(`🛍️ ${item.name} 구매!`, 'echo');
-          if (typeof deps.updateUI === 'function') deps.updateUI();
-          this.updateEventGoldBar(deps);
+
           overlay.remove();
+
+          // 아이템 구매 후 게임으로 복귀 (상점 모달 닫기)
+          doc.getElementById('eventModal')?.classList.remove('active');
+          _currentEvent = null;
+          gs._eventLock = false;
+          if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+          if (typeof deps.updateUI === 'function') deps.updateUI();
+          if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
         };
       }
       shopList.appendChild(card);

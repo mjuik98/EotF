@@ -163,12 +163,20 @@ export const HudUpdateUI = {
     setBar('hpBar', hpPct);
     setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
+    // 호버 패널 동기화
+    setBar('hoverHpBar', hpPct);
+    setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
+
     const hpFill = doc.getElementById('hpBar');
-    if (hpFill) {
-      if (hpPct <= 25) hpFill.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
-      else if (hpPct <= 50) hpFill.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
-      else hpFill.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
-    }
+    const hoverHpFill = doc.getElementById('hoverHpBar');
+    const updateHpBackground = (el, pct) => {
+      if (!el) return;
+      if (pct <= 25) el.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
+      else if (pct <= 50) el.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
+      else el.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
+    };
+    updateHpBackground(hpFill, hpPct);
+    updateHpBackground(hoverHpFill, hpPct);
 
     const hudHpMini = doc.getElementById('hudHpBarMini');
     if (hudHpMini) {
@@ -262,9 +270,13 @@ export const HudUpdateUI = {
 
     setBar('shieldBar', Math.min(100, (p.shield / p.maxHp) * 100));
     setText('shieldText', p.shield || '0');
+    setBar('hoverShieldBar', Math.min(100, (p.shield / p.maxHp) * 100));
+    setText('hoverShieldText', p.shield || '0');
 
     setBar('echoBar', (p.echo / p.maxEcho) * 100);
     setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
+    setBar('hoverEchoBar', (p.echo / p.maxEcho) * 100);
+    setText('hoverEchoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
 
     const hudOrbs = doc.getElementById('hudEnergyOrbs');
     if (hudOrbs) {
@@ -457,7 +469,11 @@ export const HudUpdateUI = {
         const can = echoValue >= 30;
         echoBtn.disabled = !can;
         echoBtn.style.opacity = can ? '1' : '0.4';
-        echoBtn.textContent = `⚡ Echo 스킬 (${echoValue}/30)`;
+        if (!can) {
+          echoBtn.textContent = `⚡ Echo 스킬 (${echoValue}/30)`;
+        } else {
+          echoBtn.textContent = `⚡ Echo 스킬 ✓ (${echoValue})`;
+        }
       }
     }
 
@@ -510,12 +526,19 @@ export const HudUpdateUI = {
     setBar('hpBar', hpPct);
     setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
-    const hpFill = doc.getElementById('hpBar');
-    if (hpFill) {
-      if (hpPct <= 25) hpFill.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
-      else if (hpPct <= 50) hpFill.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
-      else hpFill.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
-    }
+    // 호버 패널 동기화 (HP)
+    setBar('hoverHpBar', hpPct);
+    setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
+
+    const updateHpColor = (el, pct) => {
+      if (!el) return;
+      if (pct <= 25) el.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
+      else if (pct <= 50) el.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
+      else el.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
+    };
+
+    updateHpColor(doc.getElementById('hpBar'), hpPct);
+    updateHpColor(doc.getElementById('hoverHpBar'), hpPct);
 
     const hudHpMini = doc.getElementById('hudHpBarMini');
     if (hudHpMini) {
@@ -537,17 +560,24 @@ export const HudUpdateUI = {
       setText('hudShieldText', p.shield);
     }
 
-    const shieldBar = doc.getElementById('shieldBar');
-    if (shieldBar) shieldBar.style.width = `${Math.min(100, (p.shield / p.maxHp) * 100)}%`;
+    const shieldPct = Math.min(100, (p.shield / p.maxHp) * 100);
+    setBar('shieldBar', shieldPct);
     setText('shieldText', p.shield || '0');
 
-    const echoBar = doc.getElementById('echoBar');
-    if (echoBar) echoBar.style.width = `${(p.echo / p.maxEcho) * 100}%`;
+    // 호버 패널 동기화 (Shield)
+    setBar('hoverShieldBar', shieldPct);
+    setText('hoverShieldText', p.shield || '0');
+
+    const echoPct = (p.echo / p.maxEcho) * 100;
+    setBar('echoBar', echoPct);
+    setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
+
+    // 호버 패널 동기화 (Echo)
+    setBar('hoverEchoBar', echoPct);
+    setText('hoverEchoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
 
     const mazeEcho2 = doc.getElementById('mazeEcho');
     if (mazeEcho2) mazeEcho2.textContent = Math.floor(p.echo);
-
-    setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
 
     // Class Mechanics (e.g. echo, chain)
     const cm = deps.classMechanics || window.ClassMechanics;
@@ -555,23 +585,46 @@ export const HudUpdateUI = {
       if (typeof cm.updateUI === 'function') cm.updateUI(gs);
       else if (typeof cm.render === 'function') cm.render(gs);
     }
-    // Update Echo skill button state
+    // ───── 추가: 버튼 즉각 동기화 (Priority 7 Fix) ─────
+    // 1) 드로우 버튼
+    const drawBtn = doc.getElementById('combatDrawCardBtn');
+    if (drawBtn) {
+      const handFull = p.hand.length >= 8;
+      const canDraw = gs.combat?.active && gs.combat?.playerTurn && p.energy >= 1 && !handFull;
+      drawBtn.disabled = !canDraw;
+      drawBtn.style.opacity = canDraw ? '1' : '0.4';
+      if (gs.combat?.active) {
+        if (handFull) {
+          drawBtn.textContent = '🃏 손패 가득 참';
+        } else if (p.energy < 1) {
+          drawBtn.textContent = '🃏 에너지 부족';
+        } else {
+          drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${p.energy})`;
+        }
+      }
+    }
+
+    // 2) Echo 스킬 버튼
     const updateBtn = deps.updateEchoSkillBtn || (typeof window.updateEchoSkillBtn === 'function' ? window.updateEchoSkillBtn : null);
     if (typeof updateBtn === 'function') {
       updateBtn(deps);
     } else {
       const echoBtn = doc.getElementById('useEchoSkillBtn');
       if (echoBtn) {
-        const can = p.echo >= 30;
-        echoBtn.disabled = !can;
-        if (!can) {
-          echoBtn.textContent = `⚡ Echo 스킬 (${Math.floor(p.echo)}/30)`;
-          echoBtn.style.opacity = '0.4';
+        const echo = Math.floor(p.echo);
+        const tier = echo >= 100 ? 3 : echo >= 60 ? 2 : echo >= 30 ? 1 : 0;
+        if (tier === 0) {
+          echoBtn.disabled = true;
+          echoBtn.style.opacity = '0.45';
+          echoBtn.textContent = `⚡ Echo 스킬 (${echo}/30)`;
         } else {
+          echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
+          echoBtn.textContent = `⚡ Echo 스킬 ✓ (${echo})`;
         }
       }
     }
+    // ────────────────────────────────────────────────
   },
 
   // Expose public API for GAME.API

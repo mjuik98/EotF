@@ -481,24 +481,28 @@ export const CombatUI = {
           let intentLabel = _formatIntentLabel(intent);
 
           intentEl.textContent = '';
-          const iconDiv = doc.createElement('div');
-          iconDiv.className = 'enemy-intent-icon';
-          iconDiv.textContent = intentIcon;
+          const iconSpan = doc.createElement('span');
+          iconSpan.className = 'enemy-intent-icon';
+          iconSpan.textContent = intentIcon;
 
-          const labelDiv = doc.createElement('div');
-          labelDiv.className = 'enemy-intent-label';
-          labelDiv.innerHTML = intentLabel;
+          const labelSpan = doc.createElement('span');
+          labelSpan.className = 'enemy-intent-label';
+          if (window.DescriptionUtils) {
+            labelSpan.innerHTML = intentLabel;
+          } else {
+            labelSpan.textContent = intentLabel;
+          }
 
           const dmgDiv = doc.createElement('div');
           dmgDiv.className = 'enemy-intent-dmg';
           if (intent.dmg > 0) {
-            const dmgSpan = doc.createElement('span');
-            dmgSpan.style.cssText = 'color:var(--danger);font-size:16px;font-weight:900;';
-            dmgSpan.textContent = intent.dmg;
-            dmgDiv.appendChild(dmgSpan);
+            const dmgVal = doc.createElement('span');
+            dmgVal.style.cssText = 'color:var(--danger);font-size:16px;font-weight:900;';
+            dmgVal.textContent = intent.dmg;
+            dmgDiv.appendChild(dmgVal);
           }
 
-          intentEl.append(iconDiv, labelDiv, dmgDiv);
+          intentEl.append(iconSpan, labelSpan, dmgDiv);
           intentEl.addEventListener('mouseenter', ev => this.showIntentTooltip(ev, i, deps));
           intentEl.addEventListener('mouseleave', () => this.hideIntentTooltip(deps));
         }
