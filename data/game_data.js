@@ -376,7 +376,12 @@ export const DATA = {
     tempo_strike: {
       id: 'tempo_strike', name: '박자 강타', icon: '🥁', cost: 1, type: 'ATTACK', desc: '8 피해, 다음 카드 비용 -1', rarity: 'common',
       image: 'card_tempo_strike.png',
-      effect(gs) { gs.dealDamage(8); gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo'); gs.markDirty('hand'); }
+      effect(gs) {
+        gs.dealDamage(8);
+        gs.player._nextCardDiscount = (gs.player._nextCardDiscount || 0) + 1;
+        gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo');
+        gs.markDirty('hand');
+      }
     },
     echo_lull: {
       id: 'echo_lull', name: '잔향의 고요', icon: '🌙', cost: 0, type: 'SKILL', desc: '에너지 -1, 손패 전체 비용 -2 이번 턴', rarity: 'uncommon',

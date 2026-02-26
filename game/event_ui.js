@@ -328,6 +328,13 @@ export const EventUI = {
     const data = _getData(deps);
     if (!gs?.player || !data?.cards) return;
 
+    // ── Bug Fix: allCards 정의 추가 ──
+    const allCards = [
+      ...(gs.player.deck || []),
+      ...(gs.player.hand || []),
+      ...(gs.player.graveyard || []),
+    ];
+
     if (allCards.length === 0) {
       // 덱에 카드가 없을 경우: 경고음 + 툴팁 표시
       if (deps.audioEngine) deps.audioEngine.playHit();

@@ -217,6 +217,7 @@ export const CombatTurnUI = {
 
     deps.updateChainUI?.(0);
     gs.player.costDiscount = 0;
+    gs.player._nextCardDiscount = 0;
 
     gs.combat.playerTurn = false;
     const doc = _getDoc(deps);

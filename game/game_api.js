@@ -178,8 +178,19 @@ export const GameAPI = {
             gs.player.energy -= cost;
             gs.player.hand.splice(handIdx, 1);
 
+            // ── Bug Fix: 침묵의 도시 소음 게이지 상승 ──
+            const _getBaseRegion = window.getBaseRegionIndex || ((r) => r);
+            if (_getBaseRegion(gs.currentRegion) === 1 && gs.combat?.active) {
+                gs.addSilence?.(1);
+            }
+
             // 효과 실행 (비동기 처리)
             await card.effect?.(gs);
+
+            // ── Bug Fix: _nextCardDiscount 소비 (박자 강타 등) ──
+            if ((gs.player._nextCardDiscount || 0) > 0) {
+                gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
+            }
 
             // 클래스 특성 훅 실행 (예: 잔향검사 모멘텀)
             const cm = window.ClassMechanics?.[gs.player.class];

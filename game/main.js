@@ -271,6 +271,7 @@ GAME.register('renderMinimap', renderMinimap);
 // Register some legacy global dependencies that can't be easily modularized yet
 GAME.API.updateCombatLog = () => updateCombatLog();
 GAME.API.updateUI = () => updateUI();
+GAME.API.updateEchoSkillBtn = () => updateEchoSkillBtn();
 GAME.API.showWorldMemoryNotice = (txt) => showWorldMemoryNotice(txt);
 GAME.API.toggleHudPin = () => toggleHudPin();
 GAME.API.closeDeckView = () => closeDeckView();

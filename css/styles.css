@@ -4096,9 +4096,9 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .hud-energy-orb.filled {
-  background: #ffcc00;
-  border-color: #ffaa00;
-  box-shadow: 0 0 5px rgba(255, 170, 0, 0.6);
+  background: var(--echo);
+  border-color: var(--echo);
+  box-shadow: 0 0 5px var(--echo-glow);
 }
 
 /* ── INGAME PORTRAIT PREMIUM REDESIGN ── */

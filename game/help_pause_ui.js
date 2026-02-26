@@ -153,8 +153,19 @@ export const HelpPauseUI = {
       gs.generateFragmentChoices();
     }
 
+    // ── Bug Fix: hints 정의 추가 ──
     const wmEl = doc.getElementById('deathWorldMemory');
     if (wmEl) {
+      const wm = gs.worldMemory || gs.meta?.worldMemory || {};
+      const hints = [];
+      if ((wm.savedMerchant || 0) > 0) hints.push(`🤝 상인을 구함 ×${wm.savedMerchant}`);
+      if (wm.stoleFromMerchant) hints.push('⚠️ 상인에게서 약탈함');
+      if (wm['killed_ancient_echo']) hints.push(`💀 태고의 잔향 처치 ×${wm['killed_ancient_echo']}`);
+      if (wm['killed_void_herald']) hints.push(`🌌 허공의 사도 처치 ×${wm['killed_void_herald']}`);
+      if (wm['killed_memory_sovereign']) hints.push(`👑 기억의 군주 처치 ×${wm['killed_memory_sovereign']}`);
+      const storyCount = gs.meta?.storyPieces?.length || 0;
+      if (storyCount > 0) hints.push(`📖 스토리 ${storyCount}/10 해금`);
+
       wmEl.textContent = '';
 
       if (hints.length) {

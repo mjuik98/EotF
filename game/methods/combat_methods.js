@@ -328,18 +328,28 @@ export const CombatMethods = {
         if (this._selectedTarget === idx) {
             const nextAlive = this.combat.enemies.findIndex((e, i) => i !== idx && e.hp > 0);
             this._selectedTarget = nextAlive >= 0 ? nextAlive : null;
-            setTimeout(() => {
-                const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
-                if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
-            }, 50);
         }
         this.worldMemory[`killed_${enemy.id}`] = (this.worldMemory[`killed_${enemy.id}`] || 0) + 1;
+
         const doc = _getDoc(deps);
         const cardEl = doc.getElementById(`enemy_${idx}`);
         if (cardEl) {
             cardEl.classList.add('dying');
-            setTimeout(() => { cardEl.style.display = 'none'; }, 700);
+            setTimeout(() => {
+                // ── Bug Fix: 죽은 적을 배열에서 실제로 제거 ──
+                this.combat.enemies = this.combat.enemies.filter(e => e.hp > 0);
+                // selectedTarget 인덱스 재조정
+                if (this._selectedTarget !== null) {
+                    const aliveCount = this.combat.enemies.length;
+                    if (this._selectedTarget >= aliveCount) {
+                        this._selectedTarget = aliveCount > 0 ? aliveCount - 1 : null;
+                    }
+                }
+                const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
+                if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
+            }, 700);
         }
+
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0 && !this._endCombatScheduled) {
             this._endCombatScheduled = true;
@@ -517,6 +527,7 @@ export const CombatMethods = {
             this.player.energy = this.player.maxEnergy;
             this.player.buffs = {};
             this.player.costDiscount = 0;
+            this.player._nextCardDiscount = 0;
             this.player.zeroCost = false;
             this.player._freeCardUses = 0;
             this.player._cascadeCards = new Map();

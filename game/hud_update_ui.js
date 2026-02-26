@@ -330,7 +330,8 @@ export const HudUpdateUI = {
           ? (cascade.get(id) || 0) > 0
           : !!(cascade && cascade.has && cascade.has(id));
         const hasFreeCharge = Number(gs.player._freeCardUses || 0) > 0;
-        const cost = (gs.player.zeroCost || isCascadeFree || hasFreeCharge) ? 0 : Math.max(0, c.cost - (gs.player.costDiscount || 0));
+        const totalDiscount = (gs.player.costDiscount || 0) + (gs.player._nextCardDiscount || 0);
+        const cost = (gs.player.zeroCost || isCascadeFree || hasFreeCharge) ? 0 : Math.max(0, c.cost - totalDiscount);
         return gs.player.energy >= cost;
       });
       endBtn.classList.toggle('energy-warn', hasPlayable && gs.player.energy > 0);
@@ -462,9 +463,13 @@ export const HudUpdateUI = {
 
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
+      // deps.updateEchoSkillBtn 이 있으면 gs 를 포함하여 호출
       if (typeof deps.updateEchoSkillBtn === 'function') {
-        deps.updateEchoSkillBtn();
+        deps.updateEchoSkillBtn({ ...deps, gs });
+      } else if (typeof window.updateEchoSkillBtn === 'function') {
+        window.updateEchoSkillBtn();
       } else {
+        // Fallback: 인라인 업데이트
         const echoValue = Math.floor(p.echo);
         const can = echoValue >= 30;
         echoBtn.disabled = !can;
@@ -586,26 +591,10 @@ export const HudUpdateUI = {
       else if (typeof cm.render === 'function') cm.render(gs);
     }
     // ───── 추가: 버튼 즉각 동기화 (Priority 7 Fix) ─────
-    // 1) 드로우 버튼
-    const drawBtn = doc.getElementById('combatDrawCardBtn');
-    if (drawBtn) {
-      const handFull = p.hand.length >= 8;
-      const canDraw = gs.combat?.active && gs.combat?.playerTurn && p.energy >= 1 && !handFull;
-      drawBtn.disabled = !canDraw;
-      drawBtn.style.opacity = canDraw ? '1' : '0.4';
-      if (gs.combat?.active) {
-        if (handFull) {
-          drawBtn.textContent = '🃏 손패 가득 참';
-        } else if (p.energy < 1) {
-          drawBtn.textContent = '🃏 에너지 부족';
-        } else {
-          drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${p.energy})`;
-        }
-      }
-    }
-
-    // 2) Echo 스킬 버튼
-    const updateBtn = deps.updateEchoSkillBtn || (typeof window.updateEchoSkillBtn === 'function' ? window.updateEchoSkillBtn : null);
+    // Echo 스킬 버튼만 업데이트 (드로우 버튼은 updateUI() 에서 일괄 처리)
+    const updateBtn = deps.updateEchoSkillBtn
+      ? (deps) => deps.updateEchoSkillBtn({ ...deps, gs })
+      : (typeof window.updateEchoSkillBtn === 'function' ? window.updateEchoSkillBtn : null);
     if (typeof updateBtn === 'function') {
       updateBtn(deps);
     } else {

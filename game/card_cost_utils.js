@@ -44,8 +44,11 @@ export const CardCostUtils = {
     if (player.zeroCost) return 0;
     if (this.isCascadeFree(cardId, player, handIndex)) return 0;
     if (this.isChargeFree(cardId, player, handIndex)) return 0;
+    // _nextCardDiscount 는 다음 카드 1 장에만 적용 (우선적으로 차감)
+    const nextDisc = player._nextCardDiscount || 0;
     const disc = player.costDiscount || 0;
-    return Math.max(0, card.cost - disc);
+    const totalDisc = nextDisc + disc;
+    return Math.max(0, card.cost - totalDisc);
   },
 
   /**
@@ -94,7 +97,8 @@ export const CardCostUtils = {
       || this.isCascadeFree(cardId, player, handIndex)
       || this.isChargeFree(cardId, player, handIndex);
     const effectiveCost = this.calcEffectiveCost(cardId, card, player, handIndex);
-    const isDiscounted = !isFree && (player.costDiscount || 0) > 0 && effectiveCost < card.cost;
+    const totalDiscount = (player.costDiscount || 0) + (player._nextCardDiscount || 0);
+    const isDiscounted = !isFree && totalDiscount > 0 && effectiveCost < card.cost;
     return { displayCost: effectiveCost, isFree, isDiscounted };
   },
 };

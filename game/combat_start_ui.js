@@ -52,6 +52,7 @@ export const CombatStartUI = {
     gs.player.energy = gs.player.maxEnergy;
     gs.player.zeroCost = false;
     gs.player.costDiscount = 0;
+    gs.player._nextCardDiscount = 0;
     gs.player._freeCardUses = 0;
     gs.player._cascadeCards = new Map();
     gs.combat.active = true;
@@ -182,6 +183,25 @@ export const CombatStartUI = {
       window.HudUpdateUI.enableActionButtons();
     }
 
+    // 드로우 버튼은 즉시 상태 갱신 (enableActionButtons 은 모든 버튼을 활성화하므로 에너지 부족 시 바로 비활성화)
+    const drawBtn = doc.getElementById('combatDrawCardBtn');
+    if (drawBtn) {
+      const handFull = gs.player.hand.length >= 8;
+      const canDraw = gs.combat.active && gs.combat.playerTurn && gs.player.energy >= 1 && !handFull;
+      drawBtn.disabled = !canDraw;
+      drawBtn.style.opacity = canDraw ? '1' : '0.4';
+      if (handFull) {
+        drawBtn.textContent = '🃏 손패 가득 참';
+        drawBtn.title = '손패가 가득 찼습니다 (최대 8 장)';
+      } else if (gs.player.energy < 1) {
+        drawBtn.textContent = '🃏 에너지 부족';
+        drawBtn.title = '카드 뽑기에는 에너지 1 이 필요합니다.';
+      } else {
+        drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${gs.player.energy})`;
+        drawBtn.title = '카드를 한 장 뽑습니다.';
+      }
+    }
+
     // Echo 버튼 상태 즉시 갱신 (enableActionButtons 이후에 호출해야 함)
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
@@ -190,7 +210,12 @@ export const CombatStartUI = {
       echoBtn.style.opacity = echoVal >= 30 ? '1' : '0.4';
       // Echo 스킬 버튼 텍스트는 updateEchoSkillBtn 에서 일관되게 처리
       if (echoVal >= 30) {
-        if (typeof deps.updateEchoSkillBtn === 'function') deps.updateEchoSkillBtn();
+        // gs 를 포함하여 호출 (updateEchoSkillBtn 이 deps.gs 를 요구함)
+        if (typeof deps.updateEchoSkillBtn === 'function') {
+          deps.updateEchoSkillBtn({ ...deps, gs });
+        } else if (typeof window.updateEchoSkillBtn === 'function') {
+          window.updateEchoSkillBtn();
+        }
       } else {
         echoBtn.textContent = `⚡ Echo 스킬 (${echoVal}/30)`;
       }
@@ -202,7 +227,12 @@ export const CombatStartUI = {
     }
     deps.resetCombatInfoPanel?.();
     deps.refreshCombatInfoPanel?.();
-    deps.updateUI?.();
+    // updateUI 를 동기적으로 즉시 호출하여 드로우 버튼 상태가 즉시 갱신되도록 함
+    if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.doUpdateUI === 'function') {
+      window.HudUpdateUI.doUpdateUI(deps);
+    } else {
+      deps.updateUI?.();
+    }
     gs.markDirty?.('hud');
     deps.updateClassSpecialUI?.();
 
