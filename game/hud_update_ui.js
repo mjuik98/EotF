@@ -178,11 +178,15 @@ export const HudUpdateUI = {
         : 'linear-gradient(90deg,#cc2244,#ff4466)';
     }
 
+    const hudEchoText = doc.getElementById('hudEchoText');
+    if (hudEchoText) hudEchoText.textContent = Math.floor(p.echo);
+
+    const mazeEcho = doc.getElementById('mazeEcho');
+    if (mazeEcho) mazeEcho.textContent = Math.floor(p.echo);
+
     const hudEchoMini = doc.getElementById('hudEchoBarMini');
     if (hudEchoMini) hudEchoMini.style.width = `${(p.echo / p.maxEcho) * 100}%`;
 
-    setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
-    setText('hudEchoText', Math.floor(p.echo));
     setText('hudGoldText', p.gold);
 
     const avatarEl = doc.getElementById('playerAvatar');
@@ -539,6 +543,10 @@ export const HudUpdateUI = {
 
     const echoBar = doc.getElementById('echoBar');
     if (echoBar) echoBar.style.width = `${(p.echo / p.maxEcho) * 100}%`;
+
+    const mazeEcho2 = doc.getElementById('mazeEcho');
+    if (mazeEcho2) mazeEcho2.textContent = Math.floor(p.echo);
+
     setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
 
     // Class Mechanics (e.g. echo, chain)

@@ -259,7 +259,7 @@ export const CombatUI = {
 
     const type = doc.createElement('div');
     type.className = 'itt-type';
-    type.textContent = `— ${descInfo.type} —`;
+    type.innerHTML = `— ${descInfo.type} —`;
 
     const desc = doc.createElement('div');
     desc.className = 'itt-desc';

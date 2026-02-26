@@ -161,12 +161,12 @@ export const DATA = {
     echo_dance: {
       id: 'echo_dance', name: '잔향의 춤', icon: '💃', cost: 3, type: 'ATTACK', desc: '6 피해 × 4, 회당 Echo +8', rarity: 'rare',
       image: 'card_echo_dance.png',
-      effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, 0, true); gs.addEcho(8); } gs.dealDamage(6); gs.addEcho(8); }
+      effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, null, true); gs.addEcho(8); } gs.dealDamage(6, null); gs.addEcho(8); }
     },
     blade_dance: {
       id: 'blade_dance', name: '검무', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '4 피해 × 3회. 가속 상태라면 Echo +10', rarity: 'uncommon',
       image: 'card_blade_dance.png',
-      effect(gs) { for (let i = 0; i < 3; i++) gs.dealDamage(4, 0, i < 2); if (gs.getBuff('momentum')) gs.addEcho(10); }
+      effect(gs) { for (let i = 0; i < 3; i++) gs.dealDamage(4, null, i < 2); if (gs.getBuff('momentum')) gs.addEcho(10); }
     },
     // 메아리술사
     foresight: {

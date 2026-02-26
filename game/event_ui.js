@@ -97,7 +97,7 @@ export const EventUI = {
       deckInfoEl.textContent = totalCards;
     }
 
-    _renderChoices(event, doc);
+    _renderChoices(event, doc, deps);
     doc.getElementById('eventModal')?.classList.add('active');
   },
 

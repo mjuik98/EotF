@@ -220,6 +220,12 @@ export const GameAPI = {
             // 효과 실행 (비동기 처리)
             await card.effect?.(gs);
 
+            // 클래스 특성 훅 실행 (예: 잔향검사 모멘텀)
+            const cm = window.ClassMechanics?.[gs.player.class];
+            if (cm && typeof cm.onPlayCard === 'function') {
+                cm.onPlayCard(gs, { cardId });
+            }
+
             // 사용 후 처리 (소진 여부 등)
             this.discardCard(cardId, card.exhaust, gs);
 

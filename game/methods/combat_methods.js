@@ -154,10 +154,13 @@ export const CombatMethods = {
         return dmg;
     },
 
-    dealDamageAll(amount) {
+    dealDamageAll(amount, noChain = false) {
         const alive = this.combat.enemies.map((_, i) => i).filter(i => this.combat.enemies[i].hp > 0);
         alive.forEach((i, idx) => {
-            this.dealDamage(amount, i, idx < alive.length - 1);
+            // If the whole AOE is marked noChain, pass it.
+            // Otherwise, subsequents should be noChain anyway to avoid multiple chain increments if that's the logic.
+            // But here we want to ensure Echo skills can pass 'true' to avoid ANY gain.
+            this.dealDamage(amount, i, noChain || (idx < alive.length - 1));
         });
     },
 

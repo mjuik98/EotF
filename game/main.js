@@ -162,6 +162,7 @@ exposeGlobals({
   showItemTooltip,
   hideItemTooltip,
   _resetCombatInfoPanel, // Bug #3 fix
+  classMechanics: ClassMechanics, // Ensure lowercase DI access
 });
 
 // window 객체에 직접 노출 (HTML onclick 핸들러 지원)
@@ -258,6 +259,7 @@ GAME.register('FeedbackUI', FeedbackUI); // Added
 GAME.register('ScreenUI', ScreenUI);     // Added
 GAME.register('RunSetupUI', RunSetupUI); // Added
 GAME.register('RunStartUI', RunStartUI); // Added
+GAME.register('ClassMechanics', ClassMechanics); // Added specifically
 
 // Register some legacy global dependencies that can't be easily modularized yet
 GAME.API.updateCombatLog = () => updateCombatLog();
