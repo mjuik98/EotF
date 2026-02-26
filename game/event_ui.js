@@ -123,7 +123,7 @@ export const EventUI = {
       doc.getElementById('eventModal')?.classList.remove('active');
       _currentEvent = null;
       gs._eventLock = false;
-      // Switch to game screen and update UI
+      // Ensure screen state is consistent
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       if (typeof deps.updateUI === 'function') deps.updateUI();
       if (typeof deps.renderMinimap === 'function') deps.renderMinimap();

@@ -104,7 +104,6 @@ export const GameInit = {
         doc.getElementById('mazeMoveRight')?.addEventListener('click', () => mazeMove(1, 0));
 
         // Combat
-        doc.getElementById('handSortBtn')?.addEventListener('click', () => GAME.API.sortHandByEnergy?.());
         const echoBtn = doc.getElementById('useEchoSkillBtn');
         if (echoBtn) {
             echoBtn.addEventListener('click', () => useEchoSkill?.());

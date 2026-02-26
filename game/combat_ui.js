@@ -487,7 +487,7 @@ export const CombatUI = {
 
           const labelDiv = doc.createElement('div');
           labelDiv.className = 'enemy-intent-label';
-          labelDiv.textContent = intentLabel;
+          labelDiv.innerHTML = intentLabel;
 
           const dmgDiv = doc.createElement('div');
           dmgDiv.className = 'enemy-intent-dmg';

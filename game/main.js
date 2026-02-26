@@ -128,7 +128,6 @@ exposeGlobals({
   toggleEndlessMode,
   cycleRunBlessing,
   cycleRunCurse,
-  sortHandByEnergy,
   useEchoSkill,
   drawCard,
   drawCards: drawCard,
@@ -225,7 +224,7 @@ Object.assign(GAME.API, {
   showSkipConfirm: () => RewardUI.showSkipConfirm(_baseDeps()),
   skipReward: () => RewardUI.skipReward(_baseDeps()),
   hideSkipConfirm: () => RewardUI.hideSkipConfirm(_baseDeps()),
-  sortHandByEnergy: () => CombatActionsUI.sortHandByEnergy(_baseDeps())
+  shiftAscension: (delta) => RunRules.shiftAscension(delta, _baseDeps()),
 });
 
 // ────────────────────────────────────────
@@ -619,13 +618,6 @@ function useEchoSkill() {
   EchoSkillUI?.useEchoSkill?.(deps);
 }
 
-function sortHandByEnergy() {
-  const deps = GAME.getDeps();
-  deps.renderCombatCards = renderCombatCards;
-  deps.updateUI = updateUI;
-  CombatActionsUI?.sortHandByEnergy?.(deps);
-}
-window.sortHandByEnergy = sortHandByEnergy;
 
 function drawCard() {
   const deps = GAME.getDeps();
