@@ -8,12 +8,6 @@ export const CardMethods = {
         // Use GS.API instead of window.GAME.API
         const api = gs.API || window.GAME?.API;
 
-        const shuffle = (arr) => {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-        };
 
         if (typeof api?.drawCards === 'function') {
             api.drawCards(count, gs);

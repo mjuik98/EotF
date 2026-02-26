@@ -246,32 +246,8 @@ export const GameAPI = {
      */
     async endCombat(gs = window.GS) {
         if (!gs.combat?.active || gs._endCombatRunning) return;
-
-        Logger.info('[API] Ending combat...');
-        gs._endCombatRunning = true;
-
-        try {
-            Logger.group('Combat End Sequence');
-
-            // 1. 상태 정리
-            gs.combat.active = false;
-            gs.player.shield = 0;
-            gs.player.energy = gs.player.maxEnergy;
-            // ... hand to graveyard 등 
-
-            // 2. UI 정리
-            window.HudUpdateUI?.resetCombatUI?.();
-
-            // 3. 비동기 지연 및 보상 화면
-            await new Promise(r => setTimeout(r, 1000));
-            window.showRewardScreen?.(gs.combat.enemies.some(e => e.isBoss));
-
-        } catch (e) {
-            Logger.error('[API] Error in endCombat:', e);
-        } finally {
-            gs._endCombatRunning = false;
-            Logger.groupEnd();
-        }
+        // gs.endCombat()은 combat_methods.js의 완전한 구현을 사용
+        return gs.endCombat();
     },
 
     // === System ===

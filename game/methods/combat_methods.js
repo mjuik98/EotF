@@ -113,7 +113,7 @@ export const CombatMethods = {
             this.player.echoChain++;
             // 전투 중에는 Echo 게이지만 즉시 갱신 (전체 UI 갱신은 playCard 에서)
             this.addEcho(10, true);
-            this.updateChainDisplay();
+            if (typeof window.updateChainUI === 'function') window.updateChainUI();
         }
 
         this.addLog(`⚔️ ${enemy.name}에게 ${dmg} 피해!`, 'damage');
@@ -209,7 +209,7 @@ export const CombatMethods = {
         setTimeout(() => {
             if (typeof window.renderCombatEnemies === 'function') {
                 Logger.debug('[applyEnemyStatus] Calling renderCombatEnemies with forceFullRender');
-                window.renderCombatEnemies({ forceFullRender: true });
+                window.renderCombatEnemies(true);
             }
             if (typeof window.updateUI === 'function') {
                 Logger.debug('[applyEnemyStatus] Calling updateUI');

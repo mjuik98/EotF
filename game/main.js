@@ -53,10 +53,6 @@ import { GameAPI } from './game_api.js';
 import { MapNavigationUI } from './map_navigation_ui.js';
 import { MapUI } from './map_ui.js';
 import { GameBootUI } from './game_boot_ui.js';
-import { GameStateCoreMethods } from './game_state_core_methods.js';
-import { CardMethods } from './methods/card_methods.js';
-import { CombatMethods } from './methods/combat_methods.js';
-import { PlayerMethods } from './methods/player_methods.js';
 import { GS } from './game_state.js';
 
 import { GAME, exposeGlobals } from './global_bridge.js';
@@ -118,7 +114,6 @@ exposeGlobals({
   hideItemTooltip,
   showWorldMemoryNotice,
   DescriptionUtils,
-  CardCostUtils,
   // Helper actions
   updateUI,
   refreshRunModePanel,
@@ -154,18 +149,19 @@ exposeGlobals({
   renderCombatCards,
   processDirtyFlags: () => HudUpdateUI.processDirtyFlags(),
   selectFragment,
-  toggleCombatInfo: () => CombatInfoUI.toggle?.(),
+  toggleCombatInfo, // Bug #8 fix
   moveToNode,
-  resolveEvent: (idx) => EventUI.resolve?.(idx, GAME.getDeps()),
-  takeRewardCard: (card) => RewardUI.takeCard?.(card, GAME.getDeps()),
-  takeRewardItem: (item) => RewardUI.takeItem?.(item, GAME.getDeps()),
+  resolveEvent: (idx) => EventUI.resolveEvent?.(idx, GAME.getDeps()), // Bug #4 fix
+  takeRewardCard: (card) => RewardUI.takeRewardCard?.(card, GAME.getDeps()), // Bug #4 fix
+  takeRewardItem: (item) => RewardUI.takeRewardItem?.(item, GAME.getDeps()), // Bug #4 fix
   returnToGame,
   restartFromEnding,
   handleCardDragStart,
   handleCardDragEnd,
   handleCardDropOnEnemy,
   showItemTooltip,
-  hideItemTooltip
+  hideItemTooltip,
+  _resetCombatInfoPanel, // Bug #3 fix
 });
 
 // window 객체에 직접 노출 (HTML onclick 핸들러 지원)
@@ -189,6 +185,7 @@ window.hideItemTooltip = hideItemTooltip;
 window.showWorldMemoryNotice = showWorldMemoryNotice;
 window.DescriptionUtils = DescriptionUtils;
 window.CardCostUtils = CardCostUtils;
+window._resetCombatInfoPanel = _resetCombatInfoPanel; // Bug #3: Expose this to window
 
 // Consolidate global functions into GAME.API for primary interface
 Object.assign(GAME.API, {
@@ -680,6 +677,7 @@ function _getEventDeps() {
 
     updateUI,
     returnToGame,
+    switchScreen, // Bug #7: Added missing screen switch
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
   };
@@ -1398,8 +1396,11 @@ try {
     actions: {
       showCharacterSelect, openRunSettings, openCodexFromTitle, quitGame,
       selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
-      toggleEndlessMode, cycleRunBlessing, cycleRunCurse, setMasterVolume: window.setMasterVolume,
-      setSfxVolume: window.setSfxVolume, setAmbientVolume: window.setAmbientVolume, drawCard, endPlayerTurn, useEchoSkill
+      toggleEndlessMode, cycleRunBlessing, cycleRunCurse,
+      setMasterVolume: (v) => window.setMasterVolume?.(v),  // Bug #5 fix
+      setSfxVolume: (v) => window.setSfxVolume?.(v),        // Bug #5 fix
+      setAmbientVolume: (v) => window.setAmbientVolume?.(v), // Bug #5 fix
+      drawCard, endPlayerTurn, useEchoSkill
     }
   });
 } catch (e) {
