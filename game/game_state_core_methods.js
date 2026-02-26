@@ -20,7 +20,13 @@ export const GameStateCoreMethods = {
   addLog(msg, type = '') {
     this.combat.log.push({ msg, type });
     if (this.combat.log.length > 200) this.combat.log.shift();
-    window.GAME?.call('updateCombatLog');
+
+    this.markDirty?.('log');
+    if (typeof window.updateCombatLog === 'function') {
+      window.updateCombatLog();
+    } else {
+      window.GAME?.call('updateCombatLog');
+    }
   },
 
   // ── 모듈 통합 ──

@@ -13,47 +13,14 @@ export const GameAPI = {
      */
     applyPlayerDamage(amount, gs = window.GS) {
         if (amount <= 0) return;
-        Logger.group('API: Player Damage');
-        try {
-            if (gs.getBuff?.('immune')) {
-                Logger.info('Player is immune.');
-                gs.addLog?.('🏛️ 면역으로 피해 무효!', 'echo');
-                return;
-            }
-
-            let dmg = amount;
-            if (gs.player.shield > 0) {
-                const block = Math.min(gs.player.shield, dmg);
-                gs.player.shield -= block;
-                dmg -= block;
-                Logger.debug(`Shield blocked ${block}. Remaining: ${dmg}`);
-                if (block > 0) gs.addLog?.(`🛡️ 방어막 ${block} 흡수`, 'system');
-            }
-
-            const itemScaled = gs.triggerItems?.('damage_taken', dmg);
-            if (itemScaled === true) {
-                dmg = 0;
-                gs.addLog?.('🛡️ 피해 무효!', 'echo');
-            } else if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
-                dmg = Math.max(0, Math.floor(itemScaled));
-            }
-
-            if (dmg > 0) {
-                gs.player.hp = Math.max(0, gs.player.hp - dmg);
-                gs.stats.damageTaken += dmg;
-                gs.addLog?.(`💔 ${dmg} 피해 받음`, 'damage');
-
-                // Audio/Visual feedback via window objects
-                window.ScreenShake?.shake(8, 0.4);
-                window.AudioEngine?.playPlayerHit();
-            }
-
-            window.HudUpdateUI?.updatePlayerStats?.(gs);
-            window.updateUI?.();
+        if (typeof gs.takeDamage === 'function') {
+            gs.takeDamage(amount);
+        } else {
+            // Fallback
+            gs.player.hp = Math.max(0, gs.player.hp - amount);
             if (gs.player.hp <= 0) gs.onPlayerDeath?.();
-        } finally {
-            Logger.groupEnd();
         }
+        window.HudUpdateUI?.updatePlayerStats?.(gs);
     },
 
     /**
@@ -61,17 +28,12 @@ export const GameAPI = {
      */
     addShield(amount, gs = window.GS) {
         if (amount <= 0) return;
-        Logger.info(`[API] Add Shield: ${amount}`);
-
-        let actual = amount;
-        // 밸런스 조정: 피로의 저주(fatigue)
-        if (gs.runConfig?.curse === 'fatigue' || gs.meta?.runConfig?.curse === 'fatigue') {
-            actual = Math.max(0, amount - 10);
-            if (actual < amount) gs.addLog?.('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
+        if (typeof gs.addShield === 'function') {
+            gs.addShield(amount);
+        } else {
+            // Fallback
+            gs.player.shield += amount;
         }
-
-        gs.player.shield += actual;
-        gs.addLog?.(`🛡️ 방어막 +${actual}`, 'system');
         window.HudUpdateUI?.updatePlayerStats?.(gs);
     },
 
@@ -80,21 +42,10 @@ export const GameAPI = {
      */
     healPlayer(amount, gs = window.GS) {
         if (amount <= 0) return;
-        Logger.info(`[API] Heal attempt: ${amount}`);
-
-        // 지역 제한 등 비즈니스 로직 유지
-        if (gs.currentRegion !== undefined && window.RunRules?.getHealAmount) {
-            // ... RunRules 로직은 기존 player_methods.js 참고
-        }
-
-        const oldHp = gs.player.hp;
-        gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + amount);
-        const actual = gs.player.hp - oldHp;
-
-        if (actual > 0) {
-            Logger.info(`Player healed for ${actual}.`);
-            gs.addLog?.(`💚 체력 +${actual}`, 'heal');
-            window.AudioEngine?.playHeal();
+        if (typeof gs.heal === 'function') {
+            gs.heal(amount);
+        } else {
+            gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + amount);
         }
         window.HudUpdateUI?.updatePlayerStats?.(gs);
     },
@@ -118,33 +69,16 @@ export const GameAPI = {
      * 적에게 데미지를 입힙니다.
      */
     applyEnemyDamage(amount, targetIdx, gs = window.GS) {
+        if (typeof gs.dealDamage === 'function') {
+            return gs.dealDamage(amount, targetIdx);
+        }
+
+        // Fallback for primitive GS
         const enemy = gs.combat?.enemies?.[targetIdx];
         if (!enemy || enemy.hp <= 0) return 0;
-
-        Logger.group(`API: Enemy Damage (${enemy.name})`);
-        try {
-            let dmg = amount;
-
-            // 기존 dealDamage의 데미지 계산 로직(버프, 면역 등) 이관 예정... 
-            // 현재는 단순화하여 프로토타입 구현
-            if (enemy.shield > 0) {
-                const block = Math.min(enemy.shield, dmg);
-                enemy.shield -= block;
-                dmg -= block;
-            }
-
-            enemy.hp = Math.max(0, enemy.hp - dmg);
-            gs.stats.damageDealt += dmg;
-
-            Logger.debug(`Dealt ${dmg} damage. ${enemy.name} HP: ${enemy.hp}`);
-
-            if (enemy.hp <= 0) gs.onEnemyDeath?.(enemy, targetIdx);
-
-            window.HudUpdateUI?.updateEnemyHpUI?.(targetIdx, enemy);
-            return dmg;
-        } finally {
-            Logger.groupEnd();
-        }
+        enemy.hp = Math.max(0, enemy.hp - amount);
+        window.HudUpdateUI?.updateEnemyHpUI?.(targetIdx, enemy);
+        return amount;
     },
 
     /**
@@ -158,7 +92,7 @@ export const GameAPI = {
     },
 
     /**
-     * 카드를 뽑습니다.
+     * 카드를 뽑습니다 (단순 상태 변경).
      */
     drawCards(count = 1, gs = window.GS) {
         for (let i = 0; i < count; i++) {
@@ -176,6 +110,33 @@ export const GameAPI = {
         window.renderHand?.();
         window.renderCombatCards?.();
         window.HudUpdateUI?.triggerDrawCardAnimation?.();
+        window.updateUI?.();
+    },
+
+    /**
+     * 플레이어가 직접 카드를 뽑는 액션을 수행합니다 (에너지 소모 및 제약 포함).
+     */
+    executePlayerDraw(gs = window.GS) {
+        if (!gs.combat?.active || !gs.combat?.playerTurn) return false;
+
+        const maxHand = 8;
+        if (gs.player.hand.length >= maxHand) {
+            gs.addLog?.(`⚠️ 손패가 가득 찼습니다 (최대 ${maxHand}장)`, 'damage');
+            window.AudioEngine?.playHit?.();
+            window.updateUI?.();
+            return false;
+        }
+
+        if (gs.player.energy < 1) {
+            gs.addLog?.('⚠️ 에너지 부족! (카드 뽑기: 1 에너지)', 'damage');
+            window.AudioEngine?.playHit?.();
+            window.updateUI?.();
+            return false;
+        }
+
+        this.modifyEnergy(-1, gs);
+        this.drawCards(1, gs);
+        return true;
     },
 
     /**

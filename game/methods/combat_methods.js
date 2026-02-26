@@ -2,7 +2,7 @@ import { AudioEngine } from '../../engine/audio.js';
 import { ParticleSystem } from '../../engine/particles.js';
 import { ScreenShake } from '../../engine/screenshake.js';
 import { HitStop } from '../../engine/hitstop.js';
-import { DATA } from '../../../data/game_data.js';
+import { DATA } from '../../data/game_data.js';
 import { DifficultyScaler } from '../difficulty_scaler.js';
 import { RunRules, getRegionData, getBaseRegionIndex, getRegionCount } from '../run_rules.js';
 
@@ -151,6 +151,10 @@ export const CombatMethods = {
         this.markDirty('enemies');
 
         if (enemy.hp <= 0) this.onEnemyDeath(enemy, targetIdx);
+
+        // UI Sync (GameAPI가 담당하지 않는 즉각적인 UI 반영용)
+        window.HudUpdateUI?.updateEnemyHpUI?.(targetIdx, enemy);
+
         return dmg;
     },
 
@@ -165,28 +169,53 @@ export const CombatMethods = {
     },
 
     addShield(amount) {
-        const api = this.API || window.GAME?.API;
-        if (api?.addShield) {
-            api.addShield(amount, this);
-        } else {
-            let actual = amount;
-            if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
-                actual = Math.max(0, amount - 10);
-                if (actual < amount) this.addLog('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
-            }
-            this.player.shield += actual;
-            this.addLog(`🛡️ 방어막 +${actual}`, 'system');
-            if (typeof window.updateUI === 'function') window.updateUI();
+        let actual = amount;
+        if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
+            actual = Math.max(0, amount - 10);
+            if (actual < amount) this.addLog('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
         }
+        this.player.shield += actual;
+        this.addLog(`🛡️ 방어막 +${actual}`, 'system');
+
+        this.markDirty('hud');
+        window.HudUpdateUI?.updatePlayerStats?.(this);
     },
 
     takeDamage(amount) {
-        const api = this.API || window.GAME?.API;
-        if (api?.applyPlayerDamage) {
-            api.applyPlayerDamage(amount, this);
-        } else {
-            Logger.error('[takeDamage] GameAPI.applyPlayerDamage not found!');
+        if (amount <= 0) return;
+
+        if (this.getBuff?.('immune')) {
+            this.addLog?.('🏛️ 면역으로 피해 무효!', 'echo');
+            return;
         }
+
+        let dmg = amount;
+        if (this.player.shield > 0) {
+            const block = Math.min(this.player.shield, dmg);
+            this.player.shield -= block;
+            dmg -= block;
+            if (block > 0) this.addLog?.(`🛡️ 방어막 ${block} 흡수`, 'system');
+        }
+
+        const itemScaled = this.triggerItems?.('damage_taken', dmg);
+        if (itemScaled === true) {
+            dmg = 0;
+            this.addLog?.('🛡️ 피해 무효!', 'echo');
+        } else if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
+            dmg = Math.max(0, Math.floor(itemScaled));
+        }
+
+        if (dmg > 0) {
+            this.player.hp = Math.max(0, this.player.hp - dmg);
+            this.stats.damageTaken += dmg;
+            this.addLog?.(`💔 ${dmg} 피해 받음`, 'damage');
+            window.ScreenShake?.shake(8, 0.4);
+            window.AudioEngine?.playPlayerHit();
+        }
+
+        this.markDirty('hud');
+        window.HudUpdateUI?.updatePlayerStats?.(this);
+        if (this.player.hp <= 0) this.onPlayerDeath?.();
     },
 
     applyEnemyStatus(status, duration, targetIdx = null) {

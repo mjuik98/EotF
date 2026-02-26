@@ -328,11 +328,14 @@ export const EventUI = {
     const data = _getData(deps);
     if (!gs?.player || !data?.cards) return;
 
-    const allCards = [...gs.player.deck];
     if (allCards.length === 0) {
       // 덱에 카드가 없을 경우: 경고음 + 툴팁 표시
-      if (typeof AudioEngine !== 'undefined') AudioEngine.playHit();
-      if (typeof ScreenShake !== 'undefined') ScreenShake.shake(10, 0.4);
+      if (deps.audioEngine) deps.audioEngine.playHit();
+      else if (typeof AudioEngine !== 'undefined') AudioEngine.playHit();
+
+      if (deps.screenShake) deps.screenShake.shake(10, 0.4);
+      else if (typeof ScreenShake !== 'undefined') ScreenShake.shake(10, 0.4);
+
       gs.addLog('⚠️ 소각/처분할 카드가 덱에 없습니다.', 'damage');
 
       // 보상 화면으로 복귀

@@ -60,7 +60,7 @@ import { GameInit } from './game_init.js';
 
 
 // ──────────────────────────────────────────────────────────────────────────────
-//  ECHO OF THE FALLEN v2 - 코드 통합 베이스
+//  ECHO OF THE FALLEN - 코드 통합 베이스
 //  모든 Phase 1~4 기능을 단일 아키텍처로 통합
 // ──────────────────────────────────────────────────────────────────────────────
 // ──────────────────────────────────────────────────────────────────────────────
@@ -116,6 +116,7 @@ exposeGlobals({
   DescriptionUtils,
   // Helper actions
   updateUI,
+  updateCombatLog,
   refreshRunModePanel,
   showCharacterSelect,
   backToTitle,
@@ -148,11 +149,11 @@ exposeGlobals({
   renderCombatCards,
   processDirtyFlags: () => HudUpdateUI.processDirtyFlags(),
   selectFragment,
-  toggleCombatInfo, // Bug #8 fix
+  toggleCombatInfo,
   moveToNode,
-  resolveEvent: (idx) => EventUI.resolveEvent?.(idx, GAME.getDeps()), // Bug #4 fix
-  takeRewardCard: (card) => RewardUI.takeRewardCard?.(card, GAME.getDeps()), // Bug #4 fix
-  takeRewardItem: (item) => RewardUI.takeRewardItem?.(item, GAME.getDeps()), // Bug #4 fix
+  resolveEvent,
+  takeRewardCard,
+  takeRewardItem,
   returnToGame,
   restartFromEnding,
   handleCardDragStart,
@@ -160,8 +161,8 @@ exposeGlobals({
   handleCardDropOnEnemy,
   showItemTooltip,
   hideItemTooltip,
-  _resetCombatInfoPanel, // Bug #3 fix
-  classMechanics: ClassMechanics, // Ensure lowercase DI access
+  _resetCombatInfoPanel,
+  classMechanics: ClassMechanics,
 });
 
 // window 객체에 직접 노출 (HTML onclick 핸들러 지원)
@@ -620,10 +621,7 @@ function useEchoSkill() {
 
 
 function drawCard() {
-  const deps = GAME.getDeps();
-  deps.renderCombatCards = renderCombatCards;
-  deps.updateUI = updateUI;
-  CombatActionsUI?.drawCard?.(deps);
+  CombatActionsUI?.drawCard?.({ gs: GS, ...GAME.getDeps() });
 }
 
 function _getCombatTurnBaseDeps() {
@@ -675,6 +673,8 @@ function _getEventDeps() {
     renderMinimap,
     updateNextNodes,
     showItemToast,
+    audioEngine: AudioEngine,
+    screenShake: ScreenShake,
     playItemGet: () => AudioEngine.playItemGet(),
   };
 }
@@ -1295,7 +1295,7 @@ window.setMasterVolume = function (v) {
   document.querySelectorAll('#volMasterSlider, #volMaster').forEach(el => {
     if (el) el.style.setProperty('--fill-percent', val + '%');
   });
-  _saveVolumes();
+  GameInit.saveVolumes(AudioEngine);
 };
 window.setSfxVolume = function (v) {
   let val = parseInt(v);
@@ -1308,7 +1308,7 @@ window.setSfxVolume = function (v) {
   document.querySelectorAll('#volSfxSlider, #volSfx').forEach(el => {
     if (el) el.style.setProperty('--fill-percent', val + '%');
   });
-  _saveVolumes();
+  GameInit.saveVolumes(AudioEngine);
 };
 window.setAmbientVolume = function (v) {
   let val = parseInt(v);
@@ -1321,50 +1321,12 @@ window.setAmbientVolume = function (v) {
   document.querySelectorAll('#volAmbientSlider, #volAmbient').forEach(el => {
     if (el) el.style.setProperty('--fill-percent', val + '%');
   });
-  _saveVolumes();
+  GameInit.saveVolumes(AudioEngine);
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
 // AUTOSAVE SYSTEM & SETTINGS
 // ──────────────────────────────────────────────────────────────────────────────
-function _saveVolumes() {
-  const vol = AudioEngine.getVolumes();
-  localStorage.setItem('eotf_settings', JSON.stringify({ volumes: vol }));
-}
-
-function _loadVolumes() {
-  try {
-    const saved = localStorage.getItem('eotf_settings');
-    if (saved) {
-      const { volumes } = JSON.parse(saved);
-      if (volumes) {
-        if (Number.isFinite(volumes.master)) AudioEngine.setVolume(Math.max(0, Math.min(1, volumes.master)));
-        if (Number.isFinite(volumes.sfx)) AudioEngine.setSfxVolume(Math.max(0, Math.min(1, volumes.sfx)));
-        if (Number.isFinite(volumes.ambient)) AudioEngine.setAmbientVolume(Math.max(0, Math.min(1, volumes.ambient)));
-      }
-    }
-  } catch (e) { console.warn('Load settings error:', e); }
-}
-
-function _syncVolumeUI() {
-  const vol = AudioEngine.getVolumes();
-  const m = Math.round(vol.master * 100);
-  const s = Math.round(vol.sfx * 100);
-  const a = Math.round(vol.ambient * 100);
-  const doc = document;
-  // 모든 볼륨 표시 업데이트
-  doc.querySelectorAll('#volMasterVal').forEach(el => el.textContent = m + '%');
-  doc.querySelectorAll('#volSfxVal').forEach(el => el.textContent = s + '%');
-  doc.querySelectorAll('#volAmbientVal').forEach(el => el.textContent = a + '%');
-  // 모든 슬라이더 업데이트
-  doc.querySelectorAll('#volMasterSlider').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
-  doc.querySelectorAll('#volSfxSlider').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
-  doc.querySelectorAll('#volAmbientSlider').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
-  // 사운드 설정 슬라이더 업데이트
-  doc.querySelectorAll('#volMaster').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
-  doc.querySelectorAll('#volSfx').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
-  doc.querySelectorAll('#volAmbient').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
-}
 
 const _getGameBootDeps = () => ({
   ...GAME.getDeps(),

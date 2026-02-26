@@ -4,45 +4,18 @@ function _getDoc(deps) {
 
 export const CombatActionsUI = {
   drawCard(deps = {}) {
-    const gs = deps.gs;
+    const gs = deps.gs || window.GS;
     if (!gs) return;
 
-    const maxHand = 8;
-    if (!gs.combat.active || !gs.combat.playerTurn) return;
-
-    const doc = _getDoc(deps);
-    const btn = doc.getElementById('combatDrawCardBtn');
-    if (btn && gs.player.hand.length < maxHand) {
-      btn.classList.remove('hand-full');
-    }
-
-    if (gs.player.hand.length >= maxHand) {
-      gs.addLog(`⚠️ 손패가 가득 찼습니다 (최대 ${maxHand}장)`, 'damage');
-      if (btn) {
-        btn.disabled = true;
-        btn.classList.add('hand-full');
-        btn.style.animation = 'none';
-        window.requestAnimationFrame(() => { btn.style.animation = 'shake 0.3s ease'; });
+    if (typeof gs.API?.executePlayerDraw === 'function') {
+      gs.API.executePlayerDraw(gs);
+    } else {
+      console.warn('[CombatActionsUI] GameAPI.executePlayerDraw not found, falling back to legacy');
+      // Legacy fallback if API not yet initialized
+      if (gs.player.energy >= 1 && gs.player.hand.length < 8) {
+        gs.player.energy -= 1;
+        gs.drawCards(1);
       }
-      if (typeof deps.updateUI === 'function') deps.updateUI();
-      return;
     }
-
-    if (gs.player.energy < 1) {
-      gs.addLog('⚠️ 에너지 부족! (카드 뽑기: 1 에너지)', 'damage');
-      const orbs = doc.getElementById('energyOrbs');
-      if (orbs) {
-        orbs.style.animation = 'none';
-        window.requestAnimationFrame(() => { orbs.style.animation = 'shake 0.3s ease'; });
-      }
-      deps.audioEngine?.playHit?.();
-      if (typeof deps.updateUI === 'function') deps.updateUI();
-      return;
-    }
-
-    gs.player.energy -= 1;
-    gs.drawCards(1);
-    if (typeof deps.updateUI === 'function') deps.updateUI();
-    if (typeof deps.renderCombatCards === 'function') deps.renderCombatCards();
   }
 };
