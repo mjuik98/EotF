@@ -75,7 +75,24 @@ import { GameInit } from './game_init.js';
 
 // GAME Initialization (Phase 3 cleanup)
 GAME.init(GS, DATA, AudioEngine, ParticleSystem);
-exposeGlobals(window);
+
+// 레거시 지원을 위해 필요한 전역 변수들 노출
+exposeGlobals({
+  AudioEngine,
+  ParticleSystem,
+  ScreenShake,
+  HitStop,
+  FovEngine,
+  DifficultyScaler,
+  RandomUtils,
+  RunRules,
+  getRegionData,
+  getBaseRegionIndex,
+  getRegionCount,
+  ClassMechanics,
+  SetBonusSystem,
+  SaveSystem
+});
 
 // ────────────────────────────────────────
 // GAME EXIT LOGIC

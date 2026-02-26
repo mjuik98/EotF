@@ -66,10 +66,21 @@ export const GAME = {
 };
 
 /**
- * 윈도우 전역 객체에 주요 함수들을 노출합니다.
+ * 윈도우 전역 객체에 주요 함수들을 노출합니다. (레거시 지원용)
+ * @param {Object} mapping - 전역으로 노출할 객체들의 맵
  */
 export function exposeGlobals(mapping) {
+    if (!mapping || mapping === window) return;
+
+    const reserved = ['window', 'document', 'location', 'top', 'parent', 'self'];
+
     Object.entries(mapping).forEach(([key, val]) => {
-        window[key] = val;
+        if (reserved.includes(key)) return;
+
+        try {
+            window[key] = val;
+        } catch (e) {
+            console.warn(`[GAME] Could not expose global: ${key}`, e);
+        }
     });
 }
