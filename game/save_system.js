@@ -93,6 +93,7 @@ export const SaveSystem = {
           buffs: gs.combat.active ? {} : { ...gs.player.buffs },
           hand: [],
           upgradedCards: [...(gs.player.upgradedCards instanceof Set ? gs.player.upgradedCards : [])],
+          _cascadeCards: [], // Map은 저장 불필요 (전투 중 세이브 차단됨)
         },
         currentRegion: gs.currentRegion,
         currentFloor: gs.currentFloor,
@@ -124,6 +125,7 @@ export const SaveSystem = {
       }
 
       Object.assign(gs.player, data.player);
+      gs.player._cascadeCards = new Map(); // 로드 시 항상 Map으로 초기화
       if (data.player.upgradedCards) {
         gs.player.upgradedCards = new Set(data.player.upgradedCards);
       }

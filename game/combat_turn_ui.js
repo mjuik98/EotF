@@ -144,6 +144,33 @@ const ENEMY_EFFECTS = {
   },
   phase_shift: (gs, enemy) => {
     gs.addLog(`⚠️ ${enemy.name}: 위상 전환!`, 'system');
+  },
+  stun: (gs, enemy, deps) => {
+    gs.player.energy = 0;
+    gs.player.buffs.stunned = { stacks: 1 };
+    gs.addLog(`⚡ ${enemy.name}: 기절! 에너지 소진`, 'damage');
+    deps.updateStatusDisplay?.();
+  },
+  thorns: (gs, enemy) => {
+    enemy.statusEffects = enemy.statusEffects || {};
+    enemy.statusEffects.thorns = (enemy.statusEffects.thorns || 0) + 4;
+    gs.addLog(`🌵 ${enemy.name}: 가시 반격 준비`, 'system');
+  },
+  doom_3: (gs, enemy) => {
+    enemy.statusEffects = enemy.statusEffects || {};
+    enemy.statusEffects.doom = 3;
+    gs.addLog(`☠️ ${enemy.name}: 파멸의 선고! 3턴 후 폭발`, 'damage');
+  },
+  vulnerable: (gs, enemy, deps) => {
+    gs.player.buffs.vulnerable = { stacks: (gs.player.buffs.vulnerable?.stacks || 0) + 2 };
+    gs.addLog(`💢 ${enemy.name}: 취약 부여!`, 'damage');
+    deps.updateStatusDisplay?.();
+  },
+  weaken_vulnerable: (gs, enemy, deps) => {
+    gs.player.buffs.weakened = { stacks: (gs.player.buffs.weakened?.stacks || 0) + 1 };
+    gs.player.buffs.vulnerable = { stacks: (gs.player.buffs.vulnerable?.stacks || 0) + 1 };
+    gs.addLog(`💫 ${enemy.name}: 약화 및 취약 부여!`, 'damage');
+    deps.updateStatusDisplay?.();
   }
 };
 
@@ -157,7 +184,7 @@ export const CombatTurnUI = {
       const playable = gs.player.hand.filter(id => {
         const card = data?.cards?.[id];
         if (!card) return false;
-        return window.CardCostUtils.canPlay(id, card, gs.player);
+        return window.CardCostUtils?.canPlay?.(id, card, gs.player) ?? false;
       });
       if (playable.length > 0) {
         gs.addLog?.(`💡 사용 가능한 카드 ${playable.length}장을 남기고 턴 종료`, 'system');
@@ -189,6 +216,7 @@ export const CombatTurnUI = {
     gs.API?.modifyEnergy?.(0, gs);
 
     deps.updateChainUI?.(0);
+    gs.player.costDiscount = 0;
 
     gs.combat.playerTurn = false;
     const doc = _getDoc(deps);
@@ -249,35 +277,52 @@ export const CombatTurnUI = {
       if (action.type === 'phase_shift' || action.effect === 'phase_shift') {
         this.handleBossPhaseShift(enemy, index, deps);
       } else if (action.dmg > 0) {
-        let dmg = action.dmg;
-        if (enemy.statusEffects?.weakened > 0) {
-          dmg = Math.floor(dmg * 0.5);
-          enemy.statusEffects.weakened--;
-          gs.addLog?.(`💫 ${enemy.name}: 약화 (피해 감소)`, 'echo');
-        }
-        if (gs.player.buffs?.mirror) {
-          enemy.hp = Math.max(0, enemy.hp - dmg);
-          gs.addLog?.(`🪞 반사! ${enemy.name}에게 ${dmg} 피해`, 'echo');
-          delete gs.player.buffs.mirror;
-          if (enemy.hp <= 0) {
-            gs.onEnemyDeath?.(enemy, index);
-            deps.renderCombatEnemies?.();
-            continue;
-          }
-        } else {
-          gs.API?.applyPlayerDamage?.(dmg, gs);
-        }
+        const hitCount = action.multi || 1;
         gs.addLog?.(`💢 ${enemy.name}: ${action.intent}`, 'damage');
 
-        const doc = _getDoc(deps);
-        const card = doc.getElementById(`enemy_${index}`);
-        if (card) {
-          card.classList.add('hit');
-          setTimeout(() => card.classList.remove('hit'), 400);
+        for (let h = 0; h < hitCount; h++) {
+          if (!gs.combat.active || gs.player.hp <= 0) break;
+
+          let dmg = action.dmg;
+          if (enemy.statusEffects?.weakened > 0) {
+            dmg = Math.floor(dmg * 0.5);
+            gs.addLog?.(`💫 ${enemy.name}: 약화 (피해 감소)`, 'echo');
+          }
+
+          if (gs.player.buffs?.mirror) {
+            enemy.hp = Math.max(0, enemy.hp - dmg);
+            gs.addLog?.(`🪞 반사! ${enemy.name}에게 ${dmg} 피해`, 'echo');
+            delete gs.player.buffs.mirror;
+            if (enemy.hp <= 0) {
+              gs.onEnemyDeath?.(enemy, index);
+              deps.renderCombatEnemies?.();
+              break;
+            }
+          } else {
+            gs.API?.applyPlayerDamage?.(dmg, gs);
+          }
+
+          const doc = _getDoc(deps);
+          const card = doc.getElementById(`enemy_${index}`);
+          if (card) {
+            card.classList.add('hit');
+            setTimeout(() => card.classList.remove('hit'), 400);
+          }
+
+          if (h < hitCount - 1) {
+            await new Promise(r => setTimeout(r, 200));
+          }
         }
       }
 
       this.handleEnemyEffect(action.effect, enemy, index, deps);
+
+      // 약화 스택 감소 (턴당 1회)
+      if (enemy.statusEffects?.weakened > 0) {
+        enemy.statusEffects.weakened--;
+        if (enemy.statusEffects.weakened <= 0) delete enemy.statusEffects.weakened;
+      }
+
       deps.renderCombatEnemies?.();
     }
 
@@ -293,7 +338,15 @@ export const CombatTurnUI = {
 
     gs.combat.turn++;
     gs.combat.playerTurn = true;
-    gs.player.energy = gs.player.maxEnergy;
+
+    const isStunned = (gs.player.buffs?.stunned?.stacks || 0) > 0;
+    if (isStunned) {
+      gs.player.energy = 0;
+      gs.addLog?.('🌀 기절 상태: 에너지가 충전되지 않았습니다!', 'damage');
+    } else {
+      gs.player.energy = gs.player.maxEnergy;
+    }
+
     gs.player.shield = 0;
 
     // 밸런스 조정: 피로의 저주(fatigue) - 최대 방어막 -10 페널티 (전투 개시 시점 등에도 체크 필요하나 일단 턴 시작 시 보정)
@@ -413,6 +466,20 @@ export const CombatTurnUI = {
       if (se.immune > 0) {
         se.immune--;
         if (se.immune <= 0) delete se.immune;
+      }
+
+      if (se.doom !== undefined) {
+        se.doom--;
+        if (se.doom <= 0) {
+          const dmg = 40;
+          gs.takeDamage?.(dmg, deps);
+          gs.addLog?.(`☠️ ${enemy.name}: 파멸 발동! ${dmg} 피해!`, 'damage');
+          deps.showDmgPopup?.(dmg, win.innerWidth / 2, 300, '#ff00ff');
+          deps.screenShake?.shake?.(10, 0.5);
+          delete se.doom;
+        } else {
+          gs.addLog?.(`☠️ ${enemy.name}: 파멸 카운트다운 ${se.doom}`, 'system');
+        }
       }
     });
 

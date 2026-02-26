@@ -424,7 +424,7 @@ export const DATA = {
       effect(gs) {
         gs.player.hp = Math.max(1, gs.player.hp - 3);
         gs.dealDamage(15);
-        updateUI();
+        gs.markDirty?.('hud');
       }
     },
     berserk_mode: {
@@ -506,13 +506,13 @@ export const DATA = {
       id: 'cursed_tome', name: '저주받은 서', icon: '📕', rarity: 'uncommon',
       desc: '카드 사용 시 Echo +5, HP -2',
       image: 'relic_cursed_tome.png',
-      passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs.addEcho(5); gs.player.hp = Math.max(1, gs.player.hp - 2); updateUI(); } }
+      passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs.addEcho(5); gs.player.hp = Math.max(1, gs.player.hp - 2); gs.markDirty?.('hud'); } }
     },
     ancient_rune: {
       id: 'ancient_rune', name: '고대 룬석', icon: '🗿', rarity: 'uncommon',
       desc: '보스전 시작 시 최대 HP +20%',
       image: 'relic_ancient_rune.png',
-      passive(gs, trigger) { if (trigger === Trigger.BOSS_START) { gs.player.maxHp = Math.floor(gs.player.maxHp * 1.2); gs.player.hp = Math.min(gs.player.hp + 20, gs.player.maxHp); gs.addLog('🗿 고대 룬석: 능력치 강화!', 'echo'); updateUI(); } }
+      passive(gs, trigger) { if (trigger === Trigger.BOSS_START) { gs.player.maxHp = Math.floor(gs.player.maxHp * 1.2); gs.player.hp = Math.min(gs.player.hp + 20, gs.player.maxHp); gs.addLog('🗿 고대 룬석: 능력치 강화!', 'echo'); gs.markDirty?.('hud'); } }
     },
     echo_chain_ring: {
       id: 'echo_chain_ring', name: '연쇄 반지', icon: '🔗', rarity: 'uncommon',
@@ -549,7 +549,7 @@ export const DATA = {
       id: 'silence_ring', name: '침묵의 반지', icon: '💍', rarity: 'rare',
       desc: '체력 30% 미만 시 모든 카드 비용 -2',
       image: 'relic_silence_ring.png',
-      passive(gs, trigger) { if (trigger === Trigger.TURN_START) { const low = gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.LOW_HP_RATIO; if (low) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('💍 침묵의 반지: 비용 -2!', 'echo'); } } }
+      passive(gs, trigger) { if (trigger === Trigger.TURN_START) { const low = gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.LOW_HP_RATIO; if (low) { gs.player.costDiscount = Math.max(gs.player.costDiscount || 0, 2); gs.addLog('💍 침묵의 반지: 비용 -2!', 'echo'); } } }
     },
     echo_amplifier: {
       id: 'echo_amplifier', name: 'Echo 증폭기', icon: '📡', rarity: 'rare',
@@ -618,7 +618,7 @@ export const DATA = {
           gs.player.maxEnergy += 1;
           gs._warDrumActive = true;
           gs.addLog('🥁 전쟁 북: 에너지 +1!', 'echo');
-          updateUI();
+          gs.markDirty?.('hud');
         }
         if (trigger === Trigger.COMBAT_END && gs._warDrumActive) {
           gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1);
@@ -716,7 +716,7 @@ export const DATA = {
       id: 'echo_sigil', name: '잔향 각인', icon: '⚜️', rarity: 'rare',
       desc: 'Resonance Burst 시 에너지 +2 [세트:잔향]',
       image: 'relic_echo_sigil.png',
-      passive(gs, trigger) { if (trigger === Trigger.RESONANCE_BURST) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); updateUI(); gs.addLog('⚜️ 잔향 각인: 에너지 +2!', 'echo'); } }
+      passive(gs, trigger) { if (trigger === Trigger.RESONANCE_BURST) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.markDirty?.('hud'); gs.addLog('⚜️ 잔향 각인: 에너지 +2!', 'echo'); } }
     },
     // [세트 C] 혈맹의 인장 — blood_seal + blood_oath + blood_crown
     blood_seal: {
@@ -761,7 +761,7 @@ export const DATA = {
       id: 'abyss_codex', name: '심연의 비전서', icon: '📖', rarity: 'legendary',
       desc: '전투 시작 시 덱에서 랜덤 희귀 카드 1장 드로우',
       image: 'relic_abyss_codex.png',
-      passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { const rares = gs.player.deck.filter(id => DATA.cards[id]?.rarity === 'rare'); if (rares.length > 0) { const c = rares[Math.floor(Math.random() * rares.length)]; const idx = gs.player.deck.indexOf(c); gs.player.deck.splice(idx, 1); gs.player.hand.push(c); gs.addLog(`📖 심연의 비전서: ${DATA.cards[c]?.name} 드로우!`, 'echo'); } } }
+      passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { const source = (gs.player.drawPile && gs.player.drawPile.length > 0) ? gs.player.drawPile : gs.player.deck; const rares = source.filter(id => DATA.cards[id]?.rarity === 'rare'); if (rares.length > 0) { const c = rares[Math.floor(Math.random() * rares.length)]; const idx = source.indexOf(c); source.splice(idx, 1); if (source === gs.player.drawPile) { const dIdx = gs.player.deck.indexOf(c); if (dIdx !== -1) gs.player.deck.splice(dIdx, 1); } gs.player.hand.push(c); gs.addLog(`📖 심연의 비전서: ${DATA.cards[c]?.name} 드로우!`, 'echo'); } } }
     },
   },
 

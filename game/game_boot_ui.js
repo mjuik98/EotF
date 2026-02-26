@@ -43,13 +43,6 @@ export const GameBootUI = {
         badge.textContent = `총 ${gs.meta.runCount - 1}회 플레이 · 처치 ${gs.meta.totalKills} · 최고 체인 ${gs.meta.bestChain}`;
         doc.getElementById('titleScreen')?.appendChild(badge);
       }
-
-      // 도감 버튼 클릭 핸들러 (인덱스 HTML에서 사용)
-      window.openCodexFromTitle = () => {
-        if (window.CodexUI) {
-          window.CodexUI.openCodex({ gs, data: window.DATA });
-        }
-      };
     } catch (e) {
       console.error('Boot error:', e);
     }

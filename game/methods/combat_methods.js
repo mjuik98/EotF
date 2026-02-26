@@ -8,8 +8,14 @@ import { RunRules, getRegionData, getBaseRegionIndex, getRegionCount } from '../
 
 import { Logger } from '../utils/logger.js';
 
+const _getDoc = (deps) => deps?.doc || document;
+const _getWin = (deps) => deps?.win || window;
+
 export const CombatMethods = {
-    dealDamage(amount, targetIdx = null, noChain = false) {
+    dealDamage(amount, targetIdx = null, noChain = false, deps = {}) {
+        const doc = _getDoc(deps);
+        const win = _getWin(deps);
+
         Logger.debug('[dealDamage] Called with targetIdx:', targetIdx, '_selectedTarget:', this._selectedTarget);
         Logger.debug('[dealDamage] Enemies:', this.combat.enemies.map(e => ({ name: e.name, hp: e.hp })));
 
@@ -74,62 +80,72 @@ export const CombatMethods = {
         enemy.hp = Math.max(0, enemy.hp - dmg);
         this.stats.damageDealt += dmg;
 
-        const ex = window.innerWidth / 2 + (targetIdx - (this.combat.enemies.length / 2 - 0.5)) * 180;
+        // 가시 반격 처리
+        if (enemy.statusEffects?.thorns > 0) {
+            const thornsAmt = enemy.statusEffects.thorns;
+            this.addLog?.(`🌵 ${enemy.name}: 가시 반격!`, 'damage');
+            this.takeDamage(thornsAmt, deps);
+        }
+
+        const ex = win.innerWidth / 2 + (targetIdx - (this.combat.enemies.length / 2 - 0.5)) * 180;
         ParticleSystem.hitEffect(ex, 250, dmg > 20);
 
         const isCrit = dmg > prevHp * 0.3 || (this.getBuff && this._lastCrit);
+        const hudOverlay = doc.getElementById('hudOverlay');
         if (isCrit || dmg > 25) {
             AudioEngine.playCritical();
-            const cf = document.createElement('div');
+            const cf = doc.createElement('div');
             cf.className = 'crit-flash-overlay';
-            document.getElementById('hudOverlay')?.appendChild(cf);
+            hudOverlay?.appendChild(cf);
             setTimeout(() => cf.remove(), 450);
         } else if (dmg > 12) {
             AudioEngine.playHeavyHit();
-            const hf = document.createElement('div');
+            const hf = doc.createElement('div');
             hf.className = 'heavy-hit-overlay';
-            document.getElementById('hudOverlay')?.appendChild(hf);
+            hudOverlay?.appendChild(hf);
             setTimeout(() => hf.remove(), 500);
         } else {
             AudioEngine.playHit();
         }
 
-        const enemyCard = document.getElementById(`enemy_${targetIdx}`);
+        const enemyCard = doc.getElementById(`enemy_${targetIdx}`);
         if (enemyCard) {
             enemyCard.classList.remove('enemy-hit-anim');
             void enemyCard.offsetWidth;
             enemyCard.classList.add('enemy-hit-anim');
             setTimeout(() => enemyCard.classList.remove('enemy-hit-anim'), 280);
-            const flashEl = document.createElement('div');
+            const flashEl = doc.createElement('div');
             flashEl.className = 'enemy-dmg-flash';
             enemyCard.style.position = 'relative';
             enemyCard.appendChild(flashEl);
             setTimeout(() => flashEl.remove(), 350);
         }
 
-        ScreenShake.shake(dmg > 20 ? 6 : 3, 0.2);
+        const screenShake = deps.screenShake || win.ScreenShake || ScreenShake;
+        screenShake?.shake?.(dmg > 20 ? 6 : 3, 0.2);
 
         if (!noChain) {
             this.player.echoChain++;
             // 전투 중에는 Echo 게이지만 즉시 갱신 (전체 UI 갱신은 playCard 에서)
             this.addEcho(10, true);
-            if (typeof window.updateChainUI === 'function') window.updateChainUI();
+            const updateChainUI = deps.updateChainUI || win.updateChainUI;
+            if (typeof updateChainUI === 'function') updateChainUI();
         }
 
         this.addLog(`⚔️ ${enemy.name}에게 ${dmg} 피해!`, 'damage');
-        if (typeof window.showDmgPopup === 'function') window.showDmgPopup(dmg, ex, 250);
+        const showDmgPopup = deps.showDmgPopup || win.showDmgPopup;
+        if (typeof showDmgPopup === 'function') showDmgPopup(dmg, ex, 250);
 
         Logger.debug('[dealDamage] Before HP update:', enemy.hp, 'TargetIdx:', targetIdx);
         Logger.debug('[dealDamage] DOM elements check:', {
-            fill: document.getElementById(`enemy_hpfill_${targetIdx}`) ? 'found' : 'not found',
-            txt: document.getElementById(`enemy_hptext_${targetIdx}`) ? 'found' : 'not found',
-            card: document.getElementById(`enemy_${targetIdx}`) ? 'found' : 'not found'
+            fill: doc.getElementById(`enemy_hpfill_${targetIdx}`) ? 'found' : 'not found',
+            txt: doc.getElementById(`enemy_hptext_${targetIdx}`) ? 'found' : 'not found',
+            card: doc.getElementById(`enemy_${targetIdx}`) ? 'found' : 'not found'
         });
 
         // 적 HP UI 즉시 갱신 - DOM 직접 업데이트
-        const fillEl = document.getElementById(`enemy_hpfill_${targetIdx}`);
-        const txtEl = document.getElementById(`enemy_hptext_${targetIdx}`);
-        const cardEl = document.getElementById(`enemy_${targetIdx}`);
+        const fillEl = doc.getElementById(`enemy_hpfill_${targetIdx}`);
+        const txtEl = doc.getElementById(`enemy_hptext_${targetIdx}`);
 
         if (fillEl) {
             const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
@@ -141,34 +157,33 @@ export const CombatMethods = {
             Logger.debug('[dealDamage] HP text updated to:', txtEl.textContent);
         }
 
-        if (typeof window.updateEnemyHpUI === 'function') {
-            window.updateEnemyHpUI(targetIdx, enemy);
+        const updateEnemyHpUI = deps.updateEnemyHpUI || win.updateEnemyHpUI;
+        if (typeof updateEnemyHpUI === 'function') {
+            updateEnemyHpUI(targetIdx, enemy);
             Logger.debug('[dealDamage] updateEnemyHpUI called');
-        } else {
-            Logger.warn('[dealDamage] updateEnemyHpUI not available');
         }
 
         this.markDirty('enemies');
 
-        if (enemy.hp <= 0) this.onEnemyDeath(enemy, targetIdx);
+        if (enemy.hp <= 0) this.onEnemyDeath(enemy, targetIdx, deps);
 
         // UI Sync (GameAPI가 담당하지 않는 즉각적인 UI 반영용)
-        window.HudUpdateUI?.updateEnemyHpUI?.(targetIdx, enemy);
+        const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
+        hudUpdateUI?.updateEnemyHpUI?.(targetIdx, enemy);
 
         return dmg;
     },
 
-    dealDamageAll(amount, noChain = false) {
+    dealDamageAll(amount, noChain = false, deps = {}) {
         const alive = this.combat.enemies.map((_, i) => i).filter(i => this.combat.enemies[i].hp > 0);
         alive.forEach((i, idx) => {
             // If the whole AOE is marked noChain, pass it.
             // Otherwise, subsequents should be noChain anyway to avoid multiple chain increments if that's the logic.
-            // But here we want to ensure Echo skills can pass 'true' to avoid ANY gain.
-            this.dealDamage(amount, i, noChain || (idx < alive.length - 1));
+            this.dealDamage(amount, i, noChain || (idx < alive.length - 1), deps);
         });
     },
 
-    addShield(amount) {
+    addShield(amount, deps = {}) {
         let actual = amount;
         if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
             actual = Math.max(0, amount - 10);
@@ -178,10 +193,11 @@ export const CombatMethods = {
         this.addLog(`🛡️ 방어막 +${actual}`, 'system');
 
         this.markDirty('hud');
-        window.HudUpdateUI?.updatePlayerStats?.(this);
+        const hudUpdateUI = deps.hudUpdateUI || _getWin(deps).HudUpdateUI;
+        hudUpdateUI?.updatePlayerStats?.(this);
     },
 
-    takeDamage(amount) {
+    takeDamage(amount, deps = {}) {
         if (amount <= 0) return;
 
         if (this.getBuff?.('immune')) {
@@ -190,6 +206,11 @@ export const CombatMethods = {
         }
 
         let dmg = amount;
+        if ((this.getBuff?.('vulnerable')?.stacks || 0) > 0) {
+            dmg = Math.floor(dmg * 1.5);
+            this.addLog?.('💢 취약: 피해량 증가!', 'damage');
+        }
+
         if (this.player.shield > 0) {
             const block = Math.min(this.player.shield, dmg);
             this.player.shield -= block;
@@ -209,16 +230,21 @@ export const CombatMethods = {
             this.player.hp = Math.max(0, this.player.hp - dmg);
             this.stats.damageTaken += dmg;
             this.addLog?.(`💔 ${dmg} 피해 받음`, 'damage');
-            window.ScreenShake?.shake(8, 0.4);
-            window.AudioEngine?.playPlayerHit();
+
+            const win = _getWin(deps);
+            const screenShake = deps.screenShake || win.ScreenShake || ScreenShake;
+            screenShake?.shake?.(8, 0.4);
+            const audioEngine = deps.audioEngine || win.AudioEngine || AudioEngine;
+            audioEngine?.playPlayerHit?.();
         }
 
         this.markDirty('hud');
-        window.HudUpdateUI?.updatePlayerStats?.(this);
-        if (this.player.hp <= 0) this.onPlayerDeath?.();
+        const hudUpdateUI = deps.hudUpdateUI || _getWin(deps).HudUpdateUI;
+        hudUpdateUI?.updatePlayerStats?.(this);
+        if (this.player.hp <= 0) this.onPlayerDeath?.(deps);
     },
 
-    applyEnemyStatus(status, duration, targetIdx = null) {
+    applyEnemyStatus(status, duration, targetIdx = null, deps = {}) {
         if (targetIdx === null) {
             const sel = this._selectedTarget;
             if (sel !== null && sel !== undefined && this.combat.enemies[sel]?.hp > 0) {
@@ -238,14 +264,17 @@ export const CombatMethods = {
         Logger.debug('[applyEnemyStatus] Enemy statusEffects:', enemy.statusEffects);
 
         // 상태 이상 UI 즉시 갱신 - 전체 렌더링 수행 (카드 애니메이션 완료 후)
+        const win = _getWin(deps);
         setTimeout(() => {
-            if (typeof window.renderCombatEnemies === 'function') {
+            const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
+            if (typeof renderCombatEnemies === 'function') {
                 Logger.debug('[applyEnemyStatus] Calling renderCombatEnemies with forceFullRender');
-                window.renderCombatEnemies(true);
+                renderCombatEnemies(true);
             }
-            if (typeof window.updateUI === 'function') {
+            const updateUI = deps.updateUI || win.updateUI;
+            if (typeof updateUI === 'function') {
                 Logger.debug('[applyEnemyStatus] Calling updateUI');
-                window.updateUI();
+                updateUI();
             }
         }, 300); // 카드 효과 애니메이션 완료 대기 (300ms)
     },
@@ -257,7 +286,7 @@ export const CombatMethods = {
         return enemy.ai(this.combat.turn + 1)?.dmg || 0;
     },
 
-    spawnEnemy() {
+    spawnEnemy(deps = {}) {
         const region = getRegionData(this.currentRegion, this);
         if (!region) return;
 
@@ -266,25 +295,26 @@ export const CombatMethods = {
         const eData = DATA.enemies[eKey];
         if (eData && this.combat.enemies.length < 3) {
             this.combat.enemies.push(DifficultyScaler.scaleEnemy({ ...eData, statusEffects: {} }, this, undefined, undefined, this.currentFloor));
-            if (typeof window.renderCombatEnemies === 'function') {
-                window.renderCombatEnemies();
-            } else if (typeof renderCombatEnemies === 'function') {
+            const win = _getWin(deps);
+            const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
+            if (typeof renderCombatEnemies === 'function') {
                 renderCombatEnemies();
             }
             if (this.combat.playerTurn) {
-                if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.enableActionButtons === 'function') {
-                    window.HudUpdateUI.enableActionButtons();
+                const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
+                if (hudUpdateUI && typeof hudUpdateUI.enableActionButtons === 'function') {
+                    hudUpdateUI.enableActionButtons();
                 } else {
-                    document.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
+                    _getDoc(deps).querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
                 }
             }
         }
     },
 
-    onEnemyDeath(enemy, idx) {
+    onEnemyDeath(enemy, idx, deps = {}) {
         this.player.kills++; this.meta.totalKills++;
         const goldGained = enemy.gold || 10;
-        this.addGold(goldGained);
+        this.addGold(goldGained, deps);
         AudioEngine.playHit();
         this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
         this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
@@ -294,15 +324,18 @@ export const CombatMethods = {
             this.meta.codex.enemies.add(enemy.id);
         }
 
+        const win = _getWin(deps);
         if (this._selectedTarget === idx) {
             const nextAlive = this.combat.enemies.findIndex((e, i) => i !== idx && e.hp > 0);
             this._selectedTarget = nextAlive >= 0 ? nextAlive : null;
             setTimeout(() => {
-                if (typeof window.renderCombatEnemies === 'function') window.renderCombatEnemies();
+                const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
+                if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
             }, 50);
         }
         this.worldMemory[`killed_${enemy.id}`] = (this.worldMemory[`killed_${enemy.id}`] || 0) + 1;
-        const cardEl = document.getElementById(`enemy_${idx}`);
+        const doc = _getDoc(deps);
+        const cardEl = doc.getElementById(`enemy_${idx}`);
         if (cardEl) {
             cardEl.classList.add('dying');
             setTimeout(() => { cardEl.style.display = 'none'; }, 700);
@@ -310,65 +343,74 @@ export const CombatMethods = {
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0 && !this._endCombatScheduled) {
             this._endCombatScheduled = true;
-            setTimeout(() => this.endCombat(), 900);
+            setTimeout(() => this.endCombat(deps), 900);
         }
-        if (typeof window.updateUI === 'function') window.updateUI();
+        const updateUI = deps.updateUI || win.updateUI;
+        if (typeof updateUI === 'function') updateUI();
     },
 
-    onPlayerDeath() {
+    onPlayerDeath(deps = {}) {
         console.log('[onPlayerDeath] Called, hp:', this.player.hp);
 
         const heart = this.player.items.find(i => i === 'echo_heart');
         if (heart && !this._heartUsed) {
             if (DATA.items.echo_heart.passive(this, 'pre_death')) {
                 AudioEngine.playHeal();
-                if (typeof window.updateUI === 'function') window.updateUI();
+                const updateUI = deps.updateUI || _getWin(deps).updateUI;
+                if (typeof updateUI === 'function') updateUI();
                 return;
             }
         }
+
+        const win = _getWin(deps);
+        const doc = _getDoc(deps);
+
         AudioEngine.playDeath();
         ScreenShake.shake(20, 1.2);
-        ParticleSystem.deathEffect(window.innerWidth / 2, window.innerHeight / 2);
+        ParticleSystem.deathEffect(win.innerWidth / 2, win.innerHeight / 2);
 
         // 전투 상태 해제
         this.combat.active = false;
-        document.getElementById('combatOverlay')?.classList.remove('active');
+        doc.getElementById('combatOverlay')?.classList.remove('active');
 
-        document.body.style.transition = 'filter 1s';
-        document.body.style.filter = 'saturate(0.2) brightness(0.6)';
+        doc.body.style.transition = 'filter 1s';
+        doc.body.style.filter = 'saturate(0.2) brightness(0.6)';
         setTimeout(() => {
             const quote = DATA.deathQuotes[Math.floor(Math.random() * DATA.deathQuotes.length)];
-            const mono = document.createElement('div');
+            const mono = doc.createElement('div');
             mono.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1800;pointer-events:none;';
-            const monoInner = document.createElement('div');
+            const monoInner = doc.createElement('div');
             monoInner.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(18px,3vw,28px);color:rgba(238,240,255,0.9);text-align:center;max-width:500px;line-height:1.8;text-shadow:0 0 40px rgba(123,47,255,0.8);animation:fadeInUp 1s ease both;";
             monoInner.textContent = quote;
             mono.appendChild(monoInner);
-            document.body.appendChild(mono);
+            doc.body.appendChild(mono);
             setTimeout(() => {
                 mono.remove();
-                document.body.style.filter = '';
-                document.body.style.transition = '';
-                this.showDeathScreen();
+                doc.body.style.filter = '';
+                doc.body.style.transition = '';
+                this.showDeathScreen(deps);
             }, 2500);
         }, 800);
     },
 
-    showDeathScreen() {
-        if (typeof window.finalizeRunOutcome === 'function') window.finalizeRunOutcome('defeat', { echoFragments: 3 });
+    showDeathScreen(deps = {}) {
+        const win = _getWin(deps);
+        const finalizeRunOutcome = deps.finalizeRunOutcome || win.finalizeRunOutcome;
+        if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 });
 
-        const dFloor = document.getElementById('deathFloor');
+        const doc = _getDoc(deps);
+        const dFloor = doc.getElementById('deathFloor');
         if (dFloor) dFloor.textContent = this.currentFloor;
-        const dKills = document.getElementById('deathKills');
+        const dKills = doc.getElementById('deathKills');
         if (dKills) dKills.textContent = this.player.kills;
-        const dChain = document.getElementById('deathChain');
+        const dChain = doc.getElementById('deathChain');
         if (dChain) dChain.textContent = this.stats.maxChain;
-        const dRun = document.getElementById('deathRun');
+        const dRun = doc.getElementById('deathRun');
         if (dRun) dRun.textContent = this.meta.runCount - 1;
-        const dQuote = document.getElementById('deathQuote');
+        const dQuote = doc.getElementById('deathQuote');
         if (dQuote) dQuote.textContent = DATA.deathQuotes[Math.floor(Math.random() * DATA.deathQuotes.length)];
 
-        const wmEl = document.getElementById('deathWorldMemory');
+        const wmEl = doc.getElementById('deathWorldMemory');
         if (wmEl) {
             const wm = this.meta.worldMemory;
             const hints = [];
@@ -381,12 +423,12 @@ export const CombatMethods = {
             if (storyCount > 0) hints.push(`📖 스토리 ${storyCount}/10 해금`);
             wmEl.textContent = '';
             if (hints.length) {
-                const title = document.createElement('div');
+                const title = doc.createElement('div');
                 title.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);width:100%;text-align:center;margin-bottom:6px;";
                 title.textContent = '◈ 세계의 기억 ◈';
                 wmEl.appendChild(title);
                 hints.forEach(h => {
-                    const badge = document.createElement('span');
+                    const badge = doc.createElement('span');
                     badge.className = 'wm-badge';
                     badge.textContent = h;
                     wmEl.appendChild(badge);
@@ -394,11 +436,12 @@ export const CombatMethods = {
             }
         }
 
-        this.generateFragmentChoices();
-        if (typeof window.switchScreen === 'function') window.switchScreen('death');
+        this.generateFragmentChoices(deps);
+        const switchScreen = deps.switchScreen || win.switchScreen;
+        if (typeof switchScreen === 'function') switchScreen('death');
     },
 
-    generateFragmentChoices() {
+    generateFragmentChoices(deps = {}) {
         const choices = [
             { icon: '⚡', name: 'Echo 강화', desc: '다음 런 시작 시 Echo +30', effect: 'echo_boost' },
             { icon: '🛡️', name: '회복력', desc: '최대 체력 +10', effect: 'resilience' },
@@ -411,23 +454,28 @@ export const CombatMethods = {
             }
         };
         shuffle(choices);
-        const fragList = document.getElementById('fragmentChoices');
+        const doc = _getDoc(deps);
+        const win = _getWin(deps);
+        const fragList = doc.getElementById('fragmentChoices');
         if (fragList) {
             fragList.textContent = '';
             choices.forEach(c => {
-                const btn = document.createElement('div');
+                const btn = doc.createElement('div');
                 btn.className = 'fragment-btn';
-                btn.onclick = () => window.selectFragment(c.effect);
+                btn.onclick = () => {
+                    const selectFragment = deps.selectFragment || win.selectFragment || window.selectFragment;
+                    selectFragment?.(c.effect);
+                };
 
-                const icon = document.createElement('div');
+                const icon = doc.createElement('div');
                 icon.className = 'fragment-icon';
                 icon.textContent = c.icon;
 
-                const name = document.createElement('div');
+                const name = doc.createElement('div');
                 name.className = 'fragment-name';
                 name.textContent = c.name;
 
-                const desc = document.createElement('div');
+                const desc = doc.createElement('div');
                 desc.className = 'fragment-desc';
                 desc.textContent = c.desc;
 
@@ -437,24 +485,28 @@ export const CombatMethods = {
         }
     },
 
-    async endCombat() {
+    async endCombat(deps = {}) {
         if (!this.combat.active) return;
         if (this._endCombatRunning) return;
         this._endCombatRunning = true;
+        const win = _getWin(deps);
+        const doc = _getDoc(deps);
+
         try {
             this.combat.active = false;
-            if (typeof window.TooltipUI !== 'undefined') {
-                window.TooltipUI.hideTooltip({ doc: document });
-            }
-            document.getElementById('cardTooltip')?.classList.remove('visible');
-            const combatHandCards = document.getElementById('combatHandCards');
+            const tooltipUI = deps.tooltipUI || win.TooltipUI;
+            tooltipUI?.hideTooltip?.({ doc });
+
+            doc.getElementById('cardTooltip')?.classList.remove('visible');
+            const combatHandCards = doc.getElementById('combatHandCards');
             if (combatHandCards) combatHandCards.textContent = '';
-            if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.resetCombatUI === 'function') {
-                window.HudUpdateUI.resetCombatUI();
+            const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
+            if (hudUpdateUI && typeof hudUpdateUI.resetCombatUI === 'function') {
+                hudUpdateUI.resetCombatUI();
             } else {
-                document.getElementById('combatOverlay')?.classList.remove('active');
-                document.getElementById('noiseGaugeOverlay')?.remove();
-                const endZone = document.getElementById('enemyZone');
+                doc.getElementById('combatOverlay')?.classList.remove('active');
+                doc.getElementById('noiseGaugeOverlay')?.remove();
+                const endZone = doc.getElementById('enemyZone');
                 if (endZone) endZone.textContent = '';
             }
 
@@ -475,10 +527,14 @@ export const CombatMethods = {
             this.triggerItems('combat_end');
             this.triggerItems('void_shard');
 
-            if (typeof window.updateChainUI === 'function') window.updateChainUI(0);
-            if (typeof window.renderHand === 'function') window.renderHand();
-            if (typeof window.renderCombatCards === 'function') window.renderCombatCards();
-            if (typeof window.updateUI === 'function') window.updateUI();
+            const updateChainUI = deps.updateChainUI || win.updateChainUI;
+            if (typeof updateChainUI === 'function') updateChainUI(0);
+            const renderHand = deps.renderHand || win.renderHand;
+            if (typeof renderHand === 'function') renderHand();
+            const renderCombatCards = deps.renderCombatCards || win.renderCombatCards;
+            if (typeof renderCombatCards === 'function') renderCombatCards();
+            const updateUI = deps.updateUI || win.updateUI;
+            if (typeof updateUI === 'function') updateUI();
 
             const isBoss = this.combat.enemies.some(e => e.isBoss);
             const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
@@ -487,7 +543,8 @@ export const CombatMethods = {
             const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
             const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
             console.log('[endCombat] Showing combat summary:', combatDmgDealt, combatDmgTaken);
-            if (typeof window.showCombatSummary === 'function') window.showCombatSummary(combatDmgDealt, combatDmgTaken, this.player.kills - (this._combatStartKills || 0));
+            const showCombatSummary = deps.showCombatSummary || win.showCombatSummary;
+            if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, this.player.kills - (this._combatStartKills || 0));
 
             if (isBoss) {
                 this._bossRewardPending = true;
@@ -496,21 +553,23 @@ export const CombatMethods = {
             }
             if (isBoss && isLastRegion && RunRules.isEndless(this)) {
                 setTimeout(() => {
-                    if (typeof window.returnToGame === 'function') window.returnToGame(true);
+                    const returnToGame = deps.returnToGame || win.returnToGame;
+                    if (typeof returnToGame === 'function') returnToGame(true);
                 }, 300);
                 return;
             }
-            if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.hideNodeOverlay === 'function') {
-                window.HudUpdateUI.hideNodeOverlay();
+            if (hudUpdateUI && typeof hudUpdateUI.hideNodeOverlay === 'function') {
+                hudUpdateUI.hideNodeOverlay();
             } else {
-                const nodeOverlay = document.getElementById('nodeCardOverlay');
+                const nodeOverlay = doc.getElementById('nodeCardOverlay');
                 if (nodeOverlay) nodeOverlay.style.display = 'none';
             }
             console.log('[endCombat] Waiting 1 second before reward screen...');
             await new Promise(r => setTimeout(r, 1000));
             console.log('[endCombat] Calling showRewardScreen, isBoss:', isBoss);
-            if (typeof window.showRewardScreen === 'function') {
-                window.showRewardScreen(isBoss);
+            const showRewardScreen = deps.showRewardScreen || win.showRewardScreen;
+            if (typeof showRewardScreen === 'function') {
+                showRewardScreen(isBoss);
                 console.log('[endCombat] showRewardScreen called successfully');
             } else {
                 console.error('[endCombat] showRewardScreen is not available');
@@ -523,18 +582,21 @@ export const CombatMethods = {
         }
     },
 
-    updateChainDisplay() {
+    updateChainDisplay(deps = {}) {
         const chain = this.player.echoChain;
         this.stats.maxChain = Math.max(this.stats.maxChain, chain);
-        if (typeof window.updateChainUI === 'function') window.updateChainUI(chain);
+        const win = _getWin(deps);
+        const updateChainUI = deps.updateChainUI || win.updateChainUI;
+        if (typeof updateChainUI === 'function') updateChainUI(chain);
         if (chain > 0) AudioEngine.playChain(chain);
-        if (chain >= 5) this.triggerResonanceBurst();
+        if (chain >= 5) this.triggerResonanceBurst(deps);
     },
 
-    triggerResonanceBurst() {
+    triggerResonanceBurst(deps = {}) {
         this.player.echoChain = 0;
         this.drainEcho(50);
         AudioEngine.playResonanceBurst();
+        const win = _getWin(deps);
         ScreenShake.shake(15, 0.8);
         let burstDmg = 35 + Math.floor(this.player.echo / 3);
         const burstMod = this.triggerItems('resonance_burst', burstDmg);
@@ -546,16 +608,21 @@ export const CombatMethods = {
         this.combat.enemies.forEach((e, i) => {
             if (e.hp > 0) {
                 e.hp = Math.max(0, e.hp - burstDmg);
-                if (typeof window.showDmgPopup === 'function') window.showDmgPopup(burstDmg, window.innerWidth / 2 + (i - 0.5) * 200, 200, '#00ffcc');
-                if (e.hp <= 0) this.onEnemyDeath(e, i);
+                const showDmgPopup = deps.showDmgPopup || win.showDmgPopup;
+                if (typeof showDmgPopup === 'function') showDmgPopup(burstDmg, win.innerWidth / 2 + (i - 0.5) * 200, 200, '#00ffcc');
+                if (e.hp <= 0) this.onEnemyDeath(e, i, deps);
             }
         });
-        ParticleSystem.burstEffect(window.innerWidth / 2, window.innerHeight / 3);
-        if (typeof window.showEchoBurstOverlay === 'function') window.showEchoBurstOverlay();
+        ParticleSystem.burstEffect(win.innerWidth / 2, win.innerHeight / 3);
+        const showEchoBurstOverlay = deps.showEchoBurstOverlay || win.showEchoBurstOverlay;
+        if (typeof showEchoBurstOverlay === 'function') showEchoBurstOverlay();
         this.addLog(`🌟 RESONANCE BURST! 전체 ${burstDmg} 피해!`, 'echo');
         this.stats.maxChain = Math.max(this.stats.maxChain, 5);
-        if (typeof window.updateChainUI === 'function') window.updateChainUI(0);
-        if (typeof window.renderCombatEnemies === 'function') window.renderCombatEnemies();
-        if (typeof window.showChainAnnounce === 'function') window.showChainAnnounce('RESONANCE BURST!!');
+        const updateChainUI = deps.updateChainUI || win.updateChainUI;
+        if (typeof updateChainUI === 'function') updateChainUI(0);
+        const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
+        if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
+        const showChainAnnounce = deps.showChainAnnounce || win.showChainAnnounce;
+        if (typeof showChainAnnounce === 'function') showChainAnnounce('RESONANCE BURST!!');
     },
 };

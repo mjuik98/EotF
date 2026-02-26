@@ -260,6 +260,13 @@ GAME.register('ScreenUI', ScreenUI);     // Added
 GAME.register('RunSetupUI', RunSetupUI); // Added
 GAME.register('RunStartUI', RunStartUI); // Added
 GAME.register('ClassMechanics', ClassMechanics); // Added specifically
+GAME.register('RunRules', RunRules);
+GAME.register('advanceToNextRegion', advanceToNextRegion);
+GAME.register('finalizeRunOutcome', finalizeRunOutcome);
+GAME.register('switchScreen', switchScreen);
+GAME.register('updateUI', updateUI);
+GAME.register('updateNextNodes', updateNextNodes);
+GAME.register('renderMinimap', renderMinimap);
 
 // Register some legacy global dependencies that can't be easily modularized yet
 GAME.API.updateCombatLog = () => updateCombatLog();
@@ -307,6 +314,7 @@ const StorySystem = {
     StoryUI?.showHiddenEnding?.(_getStoryDeps());
   },
 };
+GAME.register('storySystem', StorySystem);
 
 // ──────────────────────────────────────────────────────────────────────────────
 // CLASS MECHANICS
@@ -501,6 +509,7 @@ function startCombat(isBoss = false) {
   deps.refreshCombatInfoPanel = _refreshCombatInfoPanel;
   deps.updateUI = updateUI;
   deps.updateClassSpecialUI = updateClassSpecialUI;
+  deps.shuffleArray = RandomUtils?.shuffleArray?.bind(RandomUtils) || ((arr) => arr.sort(() => Math.random() - 0.5));
   CombatStartUI?.startCombat?.(isBoss, deps);
 }
 
@@ -636,6 +645,7 @@ function _getCombatTurnBaseDeps() {
   deps.updateUI = updateUI;
   deps.showEchoBurstOverlay = showEchoBurstOverlay;
   deps.showDmgPopup = showDmgPopup;
+  deps.shuffleArray = (arr) => RandomUtils?.shuffleArray?.(arr) || arr;
   return deps;
 }
 
@@ -758,18 +768,7 @@ function skipReward() {
 }
 
 function _getRunReturnDeps() {
-  return {
-    ..._baseDeps(),
-    runRules: RunRules,
-
-    switchScreen,
-    updateUI,
-    updateNextNodes,
-    renderMinimap,
-    advanceToNextRegion,
-    finalizeRunOutcome,
-    storySystem: StorySystem,
-  };
+  return _baseDeps();
 }
 
 function returnToGame(fromReward) {
