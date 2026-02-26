@@ -18,6 +18,12 @@ export const CodexUI = {
     }
 
     const codex = gs?.meta?.codex || { enemies: new Set(), cards: new Set(), items: new Set() };
+    // Ensure normalization here too just in case
+    if (gs?.meta?.codex) {
+      if (Array.isArray(gs.meta.codex.enemies)) gs.meta.codex.enemies = new Set(gs.meta.codex.enemies);
+      if (Array.isArray(gs.meta.codex.cards)) gs.meta.codex.cards = new Set(gs.meta.codex.cards);
+      if (Array.isArray(gs.meta.codex.items)) gs.meta.codex.items = new Set(gs.meta.codex.items);
+    }
     const doc = _getDoc(deps);
     const modal = doc.getElementById('codexModal');
     if (modal) modal.style.display = 'block';
@@ -59,6 +65,9 @@ export const CodexUI = {
     const progressEl = doc.getElementById('codexProgress');
     const contentEl = doc.getElementById('codexContent');
     if (!contentEl) return;
+
+    // Fix: Clear content immediately to avoid duplication when switching tabs
+    contentEl.textContent = '';
 
     const totalEnemies = Object.keys(data.enemies).length;
     const totalCards = Object.keys(data.cards).length;
@@ -127,7 +136,6 @@ export const CodexUI = {
         });
       });
 
-      contentEl.textContent = '';
       Object.entries(byRegion).forEach(([regionIdx, enemies]) => {
         const rColor = regionColors[regionIdx] || '#888';
         const rName = regionNames[regionIdx] || `지역 ${regionIdx}`;
@@ -242,7 +250,6 @@ export const CodexUI = {
       allCards.forEach(c => { const r = c.rarity || 'common'; if (byRarity[r]) byRarity[r].push(c); });
       const rarityLabel = { legendary: '전설', rare: '희귀', uncommon: '비범', common: '일반' };
 
-      contentEl.textContent = '';
       Object.entries(byRarity).filter(([, arr]) => arr.length).forEach(([r, cards]) => {
         const rColor = rarityColor[r];
         const section = doc.createElement('div');
@@ -298,6 +305,8 @@ export const CodexUI = {
             desc.style.cssText = 'font-size:10px;color:var(--text);text-align:center;line-height:1.5;flex:1;';
             if (window.DescriptionUtils) {
               desc.innerHTML = window.DescriptionUtils.highlight(card.desc);
+            } else if (typeof DescriptionUtils !== 'undefined' && DescriptionUtils.highlight) {
+              desc.innerHTML = DescriptionUtils.highlight(card.desc);
             } else {
               desc.textContent = card.desc;
             }
@@ -396,6 +405,8 @@ export const CodexUI = {
             desc.style.cssText = 'font-size:11px;color:var(--text);text-align:center;line-height:1.6;flex:1;';
             if (window.DescriptionUtils) {
               desc.innerHTML = window.DescriptionUtils.highlight(itemInfo.desc);
+            } else if (typeof DescriptionUtils !== 'undefined' && DescriptionUtils.highlight) {
+              desc.innerHTML = DescriptionUtils.highlight(itemInfo.desc);
             } else {
               desc.textContent = itemInfo.desc;
             }

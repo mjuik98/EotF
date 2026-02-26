@@ -135,7 +135,7 @@ export const EventUI = {
 
     const isFail = result.includes('부족') || result.includes('없다') || result.includes('부족.');
     if (event.persistent || isFail) {
-      _renderChoices(event, doc);
+      _renderChoices(event, doc, deps);
       this.updateEventGoldBar(deps);
       gs._eventLock = false;
       return;
@@ -429,6 +429,9 @@ export const EventUI = {
           if (typeof deps.updateUI === 'function') deps.updateUI();
         }
         overlay.remove();
+        if (isBurn && typeof deps.returnToGame === 'function') {
+          deps.returnToGame(true);
+        }
       };
       discardList.appendChild(btn);
     });

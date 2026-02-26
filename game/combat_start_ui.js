@@ -203,6 +203,7 @@ export const CombatStartUI = {
     deps.resetCombatInfoPanel?.();
     deps.refreshCombatInfoPanel?.();
     deps.updateUI?.();
+    gs.markDirty?.('hud');
     deps.updateClassSpecialUI?.();
 
     console.log('[CombatStart] Combat start complete, enemies:', gs.combat.enemies.length);

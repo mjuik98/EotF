@@ -60,12 +60,12 @@ export const CardUI = {
 
       const rarityClass = `rarity-${card.rarity || 'common'}`;
 
-      const { displayCost: cost, isFree } = window.CardCostUtils.getCostDisplay(cardId, card, gs.player);
-      const effectiveCost = window.CardCostUtils.calcEffectiveCost(cardId, card, gs.player);
+      const { displayCost: cost, isFree } = window.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
+      const effectiveCost = window.CardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
       const canPlay = gs.player.energy >= effectiveCost;
       const disc = gs.player.costDiscount || 0;
-      const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player);
-      const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player);
+      const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player, i);
+      const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player, i);
       const rarityBorder = card.rarity === 'rare'
         ? 'rgba(240,180,41,0.5)'
         : card.rarity === 'uncommon'

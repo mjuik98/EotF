@@ -6,19 +6,21 @@ import { DATA } from '../../../data/game_data.js';
 import { DifficultyScaler } from '../difficulty_scaler.js';
 import { RunRules, getRegionData, getBaseRegionIndex, getRegionCount } from '../run_rules.js';
 
+import { Logger } from '../utils/logger.js';
+
 export const CombatMethods = {
     dealDamage(amount, targetIdx = null, noChain = false) {
-        console.log('[dealDamage] Called with targetIdx:', targetIdx, '_selectedTarget:', this._selectedTarget);
-        console.log('[dealDamage] Enemies:', this.combat.enemies.map(e => ({ name: e.name, hp: e.hp })));
+        Logger.debug('[dealDamage] Called with targetIdx:', targetIdx, '_selectedTarget:', this._selectedTarget);
+        Logger.debug('[dealDamage] Enemies:', this.combat.enemies.map(e => ({ name: e.name, hp: e.hp })));
 
         if (targetIdx === null) {
             const sel = this._selectedTarget;
             if (sel !== null && sel !== undefined && this.combat.enemies[sel]?.hp > 0) {
                 targetIdx = sel;
-                console.log('[dealDamage] Using _selectedTarget:', targetIdx);
+                Logger.debug('[dealDamage] Using _selectedTarget:', targetIdx);
             } else {
                 targetIdx = this.combat.enemies.findIndex(e => e.hp > 0);
-                console.log('[dealDamage] Using first alive enemy:', targetIdx);
+                Logger.debug('[dealDamage] Using first alive enemy:', targetIdx);
                 if (targetIdx < 0) return 0;
             }
         }
@@ -117,8 +119,8 @@ export const CombatMethods = {
         this.addLog(`⚔️ ${enemy.name}에게 ${dmg} 피해!`, 'damage');
         if (typeof window.showDmgPopup === 'function') window.showDmgPopup(dmg, ex, 250);
 
-        console.log('[dealDamage] Before HP update:', enemy.hp, 'TargetIdx:', targetIdx);
-        console.log('[dealDamage] DOM elements check:', {
+        Logger.debug('[dealDamage] Before HP update:', enemy.hp, 'TargetIdx:', targetIdx);
+        Logger.debug('[dealDamage] DOM elements check:', {
             fill: document.getElementById(`enemy_hpfill_${targetIdx}`) ? 'found' : 'not found',
             txt: document.getElementById(`enemy_hptext_${targetIdx}`) ? 'found' : 'not found',
             card: document.getElementById(`enemy_${targetIdx}`) ? 'found' : 'not found'
@@ -131,20 +133,22 @@ export const CombatMethods = {
 
         if (fillEl) {
             const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
-            fillEl.style.width = `${hpPct}%`;
-            console.log('[dealDamage] HP fill updated to:', hpPct + '%');
+            fillEl.style.width = hpPct + '%';
+            Logger.debug('[dealDamage] HP fill updated to:', hpPct + '%');
         }
         if (txtEl) {
             txtEl.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` 🛡️${enemy.shield}` : ''}`;
-            console.log('[dealDamage] HP text updated to:', txtEl.textContent);
+            Logger.debug('[dealDamage] HP text updated to:', txtEl.textContent);
         }
 
         if (typeof window.updateEnemyHpUI === 'function') {
             window.updateEnemyHpUI(targetIdx, enemy);
-            console.log('[dealDamage] updateEnemyHpUI called');
+            Logger.debug('[dealDamage] updateEnemyHpUI called');
         } else {
-            console.warn('[dealDamage] updateEnemyHpUI not available');
+            Logger.warn('[dealDamage] updateEnemyHpUI not available');
         }
+
+        this.markDirty('enemies');
 
         if (enemy.hp <= 0) this.onEnemyDeath(enemy, targetIdx);
         return dmg;
@@ -178,44 +182,7 @@ export const CombatMethods = {
         if (api?.applyPlayerDamage) {
             api.applyPlayerDamage(amount, this);
         } else {
-            if (this.getBuff('immune')) { this.addLog('🏛️ 면역으로 피해 무효!', 'echo'); return; }
-            let dmg = amount;
-            if (this.player.shield > 0) {
-                const blocked = Math.min(this.player.shield, dmg);
-                this.player.shield -= blocked; dmg -= blocked;
-                if (blocked > 0) this.addLog(`🛡️ 방어막 ${blocked} 흡수`, 'system');
-            }
-            const triggerResult = this.triggerItems('damage_taken', dmg);
-            if (triggerResult === true) {
-                dmg = 0;
-                this.addLog('🛡️ 피해 무효!', 'echo');
-            } else if (typeof triggerResult === 'number' && Number.isFinite(triggerResult)) {
-                dmg = Math.max(0, Math.floor(triggerResult));
-            }
-            if (dmg > 0) {
-                this.player.hp -= dmg; this.stats.damageTaken += dmg;
-                ScreenShake.shake(8, 0.4);
-                if (typeof window.showEdgeDamage === 'function') window.showEdgeDamage();
-                this.addLog(`💔 ${dmg} 피해 받음`, 'damage');
-                if (typeof window.showDmgPopup === 'function') window.showDmgPopup(dmg, window.innerWidth * 0.3, window.innerHeight / 2, '#ff3366');
-
-                AudioEngine.playPlayerHit();
-                const vign = document.createElement('div');
-                vign.className = 'player-hit-vignette';
-                document.getElementById('hudOverlay')?.appendChild(vign);
-                setTimeout(() => vign.remove(), 600);
-                const hpBar = document.getElementById('hoverHud');
-                if (hpBar) {
-                    hpBar.style.animation = 'none';
-                    void hpBar.offsetWidth;
-                    hpBar.style.animation = 'shake 0.3s ease';
-                    setTimeout(() => hpBar.style.animation = '', 300);
-                }
-
-                if (this.player.hp < this.player.maxHp * 0.25) this.showLowHpWarning();
-            }
-            if (typeof window.updateUI === 'function') window.updateUI();
-            if (this.player.hp <= 0) this.onPlayerDeath();
+            Logger.error('[takeDamage] GameAPI.applyPlayerDamage not found!');
         }
     },
 
@@ -235,17 +202,17 @@ export const CombatMethods = {
         enemy.statusEffects[status] = duration;
         this.addLog(`💫 ${enemy.name}: ${status} ${duration}턴`, 'echo');
 
-        console.log('[applyEnemyStatus] Applied', status, 'for', duration, 'turns to', enemy.name);
-        console.log('[applyEnemyStatus] Enemy statusEffects:', enemy.statusEffects);
+        Logger.debug('[applyEnemyStatus] Applied', status, 'for', duration, 'turns to', enemy.name);
+        Logger.debug('[applyEnemyStatus] Enemy statusEffects:', enemy.statusEffects);
 
         // 상태 이상 UI 즉시 갱신 - 전체 렌더링 수행 (카드 애니메이션 완료 후)
         setTimeout(() => {
             if (typeof window.renderCombatEnemies === 'function') {
-                console.log('[applyEnemyStatus] Calling renderCombatEnemies with forceFullRender');
+                Logger.debug('[applyEnemyStatus] Calling renderCombatEnemies with forceFullRender');
                 window.renderCombatEnemies({ forceFullRender: true });
             }
             if (typeof window.updateUI === 'function') {
-                console.log('[applyEnemyStatus] Calling updateUI');
+                Logger.debug('[applyEnemyStatus] Calling updateUI');
                 window.updateUI();
             }
         }, 300); // 카드 효과 애니메이션 완료 대기 (300ms)

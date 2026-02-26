@@ -113,6 +113,29 @@ export const HudUpdateUI = {
     this.doUpdateUI(deps);
   },
 
+  /**
+   * 상태 더티 플래그를 확인하고 필요한 UI를 선별적으로 업데이트합니다.
+   * 메인 루프나 틱에서 호출될 수 있습니다.
+   */
+  processDirtyFlags(deps = {}) {
+    const gs = _getGS(deps);
+    if (!gs || !gs.isDirty()) return;
+
+    if (gs.hasDirtyFlag('hud')) {
+      this.updateUI(deps);
+    }
+
+    if (gs.hasDirtyFlag('enemies') && typeof window.renderCombatEnemies === 'function') {
+      window.renderCombatEnemies();
+    }
+
+    if (gs.hasDirtyFlag('hand') && typeof window.renderCombatCards === 'function') {
+      window.renderCombatCards();
+    }
+
+    gs.clearDirty();
+  },
+
   doUpdateUI(deps = {}) {
     const gs = _getGS(deps);
     const p = gs?.player;
@@ -423,23 +446,21 @@ export const HudUpdateUI = {
 
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
-      const echoValue = Math.floor(p.echo);
-      const can = echoValue >= 30;
-      echoBtn.disabled = !can;
-      echoBtn.style.opacity = can ? '1' : '0.4';
-      if (can) {
-        // Echo 스킬 버튼 텍스트는 updateEchoSkillBtn 에서 일관되게 처리
-        if (typeof deps.updateEchoSkillBtn === 'function') deps.updateEchoSkillBtn();
+      if (typeof deps.updateEchoSkillBtn === 'function') {
+        deps.updateEchoSkillBtn();
       } else {
+        const echoValue = Math.floor(p.echo);
+        const can = echoValue >= 30;
+        echoBtn.disabled = !can;
+        echoBtn.style.opacity = can ? '1' : '0.4';
         echoBtn.textContent = `⚡ Echo 스킬 (${echoValue}/30)`;
       }
     }
 
-    const drawBtn = doc.getElementById('drawCardBtn');
+    const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn) {
       const handFull = p.hand.length >= 8;
       const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1 && !handFull;
-      console.log('[updateUI] drawBtn - energy:', p.energy, 'canDraw:', canDraw, 'combat.active:', gs.combat?.active, 'playerTurn:', gs.combat?.playerTurn);
       drawBtn.disabled = !canDraw;
       drawBtn.classList.toggle('hand-full', handFull);
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
@@ -462,6 +483,10 @@ export const HudUpdateUI = {
 
     if (typeof deps.updateStatusDisplay === 'function') deps.updateStatusDisplay();
     this.updateEndBtnWarn(deps);
+
+    // UI 업데이트 완료 후 HUD 플래그가 있었다면 이미 처리된 것으로 간주
+    const gs_internal = _getGS(deps);
+    if (gs_internal) gs_internal.clearDirtyFlag('hud');
   },
 
   updatePlayerStats(gs, deps = {}) {
@@ -516,9 +541,16 @@ export const HudUpdateUI = {
     if (echoBar) echoBar.style.width = `${(p.echo / p.maxEcho) * 100}%`;
     setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
 
+    // Class Mechanics (e.g. echo, chain)
+    const cm = deps.classMechanics || window.ClassMechanics;
+    if (cm) {
+      if (typeof cm.updateUI === 'function') cm.updateUI(gs);
+      else if (typeof cm.render === 'function') cm.render(gs);
+    }
     // Update Echo skill button state
-    if (typeof window.updateEchoSkillBtn === 'function') {
-      window.updateEchoSkillBtn();
+    const updateBtn = deps.updateEchoSkillBtn || (typeof window.updateEchoSkillBtn === 'function' ? window.updateEchoSkillBtn : null);
+    if (typeof updateBtn === 'function') {
+      updateBtn(deps);
     } else {
       const echoBtn = doc.getElementById('useEchoSkillBtn');
       if (echoBtn) {

@@ -20,8 +20,8 @@ export const CardMethods = {
         } else {
             console.error('[CardMethods.drawCards] API.drawCards not found!', { api, hasGSAPI: !!gs?.API, hasGAMEAPI: !!window.GAME?.API?.drawCards });
         }
-        if (typeof window.renderHand === 'function') window.renderHand();
-        if (typeof window.updateUI === 'function') window.updateUI();
+        gs.markDirty('hand');
+        gs.markDirty('hud');
 
         setTimeout(() => {
             if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.triggerDrawCardAnimation === 'function') {

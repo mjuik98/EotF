@@ -12,6 +12,7 @@ export const GAME = {
     API: {},
 
     init(gs, data, audio, particle) {
+        console.log('[GAME] Initializing with:', { gs: !!gs, data: !!data, audio: !!audio, particle: !!particle });
         this.State = gs;
         this.Data = data;
         this.Audio = audio;
@@ -33,35 +34,33 @@ export const GAME = {
         }
     },
 
-    call(methodName, ...args) {
-        const fn = this.API[methodName];
-        if (typeof fn === 'function') return fn(...args);
-        console.warn(`[GAME] API Method not found: ${methodName}`);
-        return null;
-    },
-
     getDeps() {
         return {
             gs: this.State,
+            State: this.State,
+            state: this.State,
             data: this.Data,
+            Data: this.Data,
+            audio: this.Audio,
+            audioEngine: this.Audio,
+            particles: this.Particle,
+            particleSystem: this.Particle,
             doc: document,
             win: window,
-            audioEngine: this.Audio,
-            particleSystem: this.Particle,
             api: this.API,
-            // References that will be injected by main.js
-            runRules: window.RunRules,
-            classMechanics: window.ClassMechanics,
-            getRegionData: window.getRegionData,
-            getBaseRegionIndex: window.getBaseRegionIndex,
-            getRegionCount: window.getRegionCount,
-            difficultyScaler: window.DifficultyScaler,
-            shuffleArray: window.RandomUtils?.shuffleArray,
-            hitStop: window.HitStop,
-            screenShake: window.ScreenShake,
-            fovEngine: window.FovEngine,
-            setBonusSystem: window.SetBonusSystem,
+            runRules: window.RunRules || this.Modules['RunRules'],
+            ...this.Modules
         };
+    },
+
+    call(methodName, ...args) {
+        if (typeof this.API[methodName] === 'function') {
+            return this.API[methodName](...args);
+        }
+        if (typeof window[methodName] === 'function') {
+            return window[methodName](...args);
+        }
+        console.warn(`[GAME] Method not found: ${methodName}`);
     }
 };
 

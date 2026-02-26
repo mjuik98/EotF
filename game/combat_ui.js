@@ -90,6 +90,9 @@ function _formatIntentLabel(intent) {
     }
   }
 
+  // "피해" 텍스트 중복 제거 (이미 툴팁이나 별도 피해 숫자가 있으므로)
+  text = text.replace(/피해/g, '').trim();
+
   // 유틸리티를 사용하여 키워드 하이라이트 적용 (innerHTML로 사용될 예정)
   return window.DescriptionUtils ? window.DescriptionUtils.highlight(text) : text;
 }
@@ -154,12 +157,15 @@ function _calcSelectedPreview(gs, data, enemy) {
   return { netDmg, enemyShield };
 }
 
-function _renderSelectedPreviewHtml(preview, card) {
+function _renderSelectedPreviewHtml(preview, card, doc) {
   if (!preview) return;
   const cls = preview.netDmg > preview.enemyShield ? 'enemy-dmg-preview hp-hit' : 'enemy-dmg-preview shield-only';
-  card.innerHTML += preview.enemyShield > 0
-    ? `<div class="${cls}">⚔ 예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})</div>`
-    : `<div class="${cls}">⚔ 예상 총 피해 ${preview.netDmg}</div>`;
+  const previewDiv = doc.createElement('div');
+  previewDiv.className = cls;
+  previewDiv.textContent = preview.enemyShield > 0
+    ? `⚔ 예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})`
+    : `⚔ 예상 총 피해 ${preview.netDmg}`;
+  card.appendChild(previewDiv);
 }
 
 function _renderSelectedPreviewText(preview) {
@@ -249,7 +255,7 @@ export const CombatUI = {
 
     const title = doc.createElement('div');
     title.className = 'itt-title';
-    title.textContent = `${icon} ${label}`;
+    title.innerHTML = `${icon} ${label}`;
 
     const type = doc.createElement('div');
     type.className = 'itt-type';
@@ -422,8 +428,8 @@ export const CombatUI = {
         }
 
         const iconSpan = doc.createElement('span'); iconSpan.textContent = intentIcon;
-        const labelSpan = doc.createElement('span'); labelSpan.textContent = intentLabel;
-        intentEl.append(iconSpan, labelSpan);
+        const labelSpan = doc.createElement('span'); labelSpan.innerHTML = intentIcon + ' ' + intentLabel;
+        intentEl.append(labelSpan);
         if (intentDmgVal > 0) {
           const dmgDiv = doc.createElement('div');
           dmgDiv.className = 'enemy-intent-dmg';

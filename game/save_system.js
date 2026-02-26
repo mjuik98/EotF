@@ -63,21 +63,17 @@ export const SaveSystem = {
     }
 
     if (!gs.meta.runConfig) gs.meta.runConfig = {};
-    gs.runConfig = {
-      ascension: gs.meta.runConfig.ascension || 0,
-      endless: !!gs.meta.runConfig.endless,
-      endlessMode: !!gs.meta.runConfig.endless,
-      blessing: gs.meta.runConfig.blessing || 'none',
-      curse: gs.meta.runConfig.curse || 'none',
-    };
+    // gs.runConfig is now a getter/setter in game_state.js, so manual sync is no longer required.
   },
 
   validateSaveData(data) {
     if (!data?.player) return false;
     const p = data.player;
-    if (typeof p.hp !== 'number' || isNaN(p.hp)) return false;
-    if (typeof p.maxHp !== 'number' || p.maxHp <= 0) return false;
-    if (!Array.isArray(p.deck)) return false;
+    if (typeof p.hp !== 'number' || isNaN(p.hp) || p.hp < 0) return false;
+    if (typeof p.maxHp !== 'number' || p.maxHp <= 0 || p.maxHp > 9999) return false;
+    if (p.hp > p.maxHp) return false;
+    if (!Array.isArray(p.deck) || p.deck.length > 500) return false;
+    if (typeof p.gold === 'number' && (p.gold < 0 || p.gold > 999999)) return false;
     if (typeof data.currentRegion === 'undefined') return false;
     return true;
   },

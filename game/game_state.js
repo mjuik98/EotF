@@ -27,7 +27,17 @@ export const GS = {
     combat: { active: false, enemies: [], turn: 0, playerTurn: true, log: [] },
     _selectedTarget: null,
     worldMemory: {},
-    runConfig: { ascension: 0, endless: false, endlessMode: false, blessing: 'none', curse: 'none' },
+    get runConfig() { return this.meta.runConfig; },
+    set runConfig(val) { this.meta.runConfig = val; },
+    _dirty: new Set(),
+    markDirty(key) { this._dirty.add(key); },
+    isDirty(key) { 
+        if (key === undefined) return this._dirty.size > 0;
+        return this._dirty.has(key); 
+    },
+    hasDirtyFlag(key) { return this._dirty.has(key); },
+    clearDirty(key) { if (key) this._dirty.delete(key); else this._dirty.clear(); },
+    clearDirtyFlag(key) { this._dirty.delete(key); },
     stats: { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 },
     _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
 };

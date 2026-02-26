@@ -397,6 +397,12 @@ export const RewardUI = {
     const gs = _getGS(deps);
     if (!gs) return;
     if (gs._rewardLock) return;
+
+    gs._rewardLock = true;
+    const doc = _getDoc(deps);
+    const container = doc.getElementById('rewardCards');
+    if (container) container.classList.add('picked');
+
     // 소각은 오버레이에서 선택 후 returnToGame 호출하므로 락을 걸지 않거나 오버레이 안에서 관리
     if (window.EventUI && typeof window.EventUI.showCardDiscard === 'function') {
       window.EventUI.showCardDiscard(gs, true, {

@@ -24,20 +24,38 @@ import { DATA } from '../data/game_data.js';
   export const RunSetupUI = {
     startGame(deps = {}) {
       const selectedClass = deps.getSelectedClass?.();
-      if (!selectedClass) return;
+      console.log('[RunSetupUI] startGame triggered. Selected class:', selectedClass);
+      
+      if (!selectedClass) {
+        console.warn('[RunSetupUI] No class selected. Cannot start game.');
+        return;
+      }
 
-      const gs = deps.gs;
+      const gs = deps.gs || window.GS;
       const data = deps.data || window.DATA;
       const runRules = deps.runRules || window.RunRules;
       const audioEngine = deps.audioEngine || window.AudioEngine;
-      if (!gs || !data?.startDecks || !runRules || !audioEngine) return;
+      
+      if (!gs || !data?.startDecks || !runRules || !audioEngine) {
+        console.error('[RunSetupUI] Missing dependencies:', { 
+          gs: !!gs, 
+          data: !!data, 
+          startDecks: !!data?.startDecks, 
+          runRules: !!runRules, 
+          audioEngine: !!audioEngine 
+        });
+        return;
+      }
 
       audioEngine.init?.();
       audioEngine.resume?.();
       runRules.ensureMeta?.(gs.meta);
 
       const cfg = CLASS_CONFIGS[selectedClass];
-      if (!cfg) return;
+      if (!cfg) {
+        console.error('[RunSetupUI] Invalid class config for:', selectedClass);
+        return;
+      }
 
       const inscriptions = gs.meta.inscriptions || {};
       gs.runConfig = {

@@ -264,7 +264,7 @@ export const DATA = {
     echo_overload: {
       id: 'echo_overload', name: 'Echo 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: 'Echo 100 충전, HP -15', rarity: 'rare',
       image: 'card_echo_overload.png',
-      effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ Echo 과부하! HP-15', 'damage'); updateUI(); }
+      effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ Echo 과부하! HP-15', 'damage'); gs.markDirty('hud'); }
     },
     desperate_strike: {
       id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '체력 비례 피해 (최대 40)', rarity: 'uncommon',
@@ -284,23 +284,23 @@ export const DATA = {
     dark_pact: {
       id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: 'HP -8, 카드 2장 드로우', rarity: 'uncommon',
       image: 'card_dark_pact.png',
-      effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 8); gs.drawCards(2); updateUI(); }
+      effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 8); gs.drawCards(2); gs.markDirty('hud'); }
     },
     // ── 에너지 관련 카드 ──
     surge: {
       id: 'surge', name: '서지', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +2 (이번 턴)', rarity: 'uncommon',
       image: 'card_surge.png',
-      effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.addLog('⚡ 서지: 에너지 +2!', 'echo'); updateUI(); }
+      effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.addLog('⚡ 서지: 에너지 +2!', 'echo'); gs.markDirty('hud'); }
     },
     surge_plus: {
       id: 'surge_plus', name: '서지+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +3, 1장 드로우', rarity: 'uncommon', upgraded: true,
       image: 'card_surge.png',
-      effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 3, gs.player.energy + 3); gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); updateUI(); }
+      effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 3, gs.player.energy + 3); gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); gs.markDirty('hud'); }
     },
     overcharge: {
       id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '에너지 +4, HP -6, Echo +30', rarity: 'rare',
       image: 'card_overcharge.png',
-      effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 4, gs.player.energy + 4); gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); updateUI(); }
+      effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 4, gs.player.energy + 4); gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); gs.markDirty('hud'); }
     },
     void_tap: {
       id: 'void_tap', name: '허공 탭', icon: '🌀', cost: 1, type: 'SKILL', desc: '에너지 소진 후 피해 (소진 에너지 × 6)', rarity: 'rare',
@@ -310,7 +310,7 @@ export const DATA = {
     energy_siphon: {
       id: 'energy_siphon', name: '에너지 사이펀', icon: '🔵', cost: 0, type: 'ATTACK', desc: '에너지 1 소비 → 피해 12, 에너지 회복 없음', rarity: 'uncommon', exhaust: true,
       image: 'card_energy_siphon.png',
-      effect(gs) { if (gs.player.energy > 0) { gs.player.energy--; gs.dealDamage(12); gs.addLog('🔵 에너지 사이펀: 에너지 1 → 12 피해', 'echo'); } else { gs.addLog('🔵 에너지 사이펀: 에너지 없음!', 'damage'); } updateUI(); }
+      effect(gs) { if (gs.player.energy > 0) { gs.player.energy--; gs.dealDamage(12); gs.addLog('🔵 에너지 사이펀: 에너지 1 → 12 피해', 'echo'); } else { gs.addLog('🔵 에너지 사이펀: 에너지 없음!', 'damage'); } gs.markDirty('hud'); }
     },
     // ── 새 카드: 화염 / 전략 계열 ──
     flame_slash: {
@@ -336,7 +336,7 @@ export const DATA = {
     revival_echo: {
       id: 'revival_echo', name: '소생 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: 'HP 15 회복 + 무덤에서 카드 2장 회수', rarity: 'rare', exhaust: true,
       image: 'card_revival_echo.png',
-      effect(gs) { gs.heal(15); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(DATA.cards[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); renderCombatCards(); }
+      effect(gs) { gs.heal(15); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(DATA.cards[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); gs.markDirty('hand'); }
     },
 
     // ── 에너지 할인 카드 (처분 모드 대체 컨셉) ──
@@ -344,12 +344,12 @@ export const DATA = {
     echo_tide: {
       id: 'echo_tide', name: '잔향의 조류', icon: '🌀', cost: 0, type: 'SKILL', desc: '전체 카드 비용 -1, Echo +10', rarity: 'uncommon',
       image: 'card_echo_tide.png',
-      effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); renderCombatCards(); updateUI(); }
+      effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
     void_surge: {
       id: 'void_surge', name: '허공 급류', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -1 (최소 0)', rarity: 'rare',
       image: 'card_void_surge.png',
-      effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -1!', 'echo'); renderCombatCards(); updateUI(); }
+      effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -1!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
     resonance_flow: {
       id: 'resonance_flow', name: '공명 흐름', icon: '🎵', cost: 0, type: 'SKILL', desc: '손패 카드 수만큼 Echo 충전 (장당 +8)', rarity: 'uncommon',
@@ -359,17 +359,29 @@ export const DATA = {
     echo_cascade: {
       id: 'echo_cascade', name: '잔향 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '1장 드로우, 드로우한 카드 비용 0', rarity: 'rare',
       image: 'card_echo_cascade.png',
-      effect(gs) { const before = gs.player.hand.length; gs.drawCards(1); const newCards = gs.player.hand.slice(before); gs.player._cascadeCards = new Set(newCards); gs.player.costDiscount = (gs.player.costDiscount || 0) + 0; newCards.forEach(c => {/* mark for free */ }); gs.player.zeroCost = false; gs.addLog('💧 잔향 폭포: 카드 1장 드로우, 새 카드 무료!', 'echo'); gs.player.hand.slice(before).forEach(() => { }); renderCombatCards(); }
+      effect(gs) {
+        const before = gs.player.hand.length;
+        gs.drawCards(1);
+        const newCardIds = gs.player.hand.slice(before);
+        if (newCardIds.length > 0) {
+          const cardId = newCardIds[0];
+          if (!gs.player._cascadeCards) gs.player._cascadeCards = new Map();
+          // Mark the specific instance (index) as free
+          gs.player._cascadeCards.set(gs.player.hand.length - 1, cardId);
+          gs.addLog(`💧 잔향 폭포: ${DATA.cards[cardId]?.name} 드로우, 비용 0!`, 'echo');
+        }
+        gs.markDirty('hand');
+      }
     },
     tempo_strike: {
       id: 'tempo_strike', name: '박자 강타', icon: '🥁', cost: 1, type: 'ATTACK', desc: '8 피해, 다음 카드 비용 -1', rarity: 'common',
       image: 'card_tempo_strike.png',
-      effect(gs) { gs.dealDamage(8); gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo'); renderCombatCards(); }
+      effect(gs) { gs.dealDamage(8); gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('🥁 박자 강타: 다음 카드 비용 -1!', 'echo'); gs.markDirty('hand'); }
     },
     echo_lull: {
       id: 'echo_lull', name: '잔향의 고요', icon: '🌙', cost: 0, type: 'SKILL', desc: '에너지 -1, 손패 전체 비용 -2 이번 턴', rarity: 'uncommon',
       image: 'card_echo_lull.png',
-      effect(gs) { gs.player.energy = Math.max(0, gs.player.energy - 1); gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('🌙 잔향의 고요: 에너지 -1, 모든 카드 비용 -2!', 'echo'); renderCombatCards(); updateUI(); }
+      effect(gs) { gs.player.energy = Math.max(0, gs.player.energy - 1); gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('🌙 잔향의 고요: 에너지 -1, 모든 카드 비용 -2!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
 
     // ── 성기사 (Paladin) ──

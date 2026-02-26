@@ -153,6 +153,7 @@ export const GameAPI = {
     modifyEnergy(amount, gs = window.GS) {
         gs.player.energy = Math.max(0, Math.min(gs.player.maxEnergy, gs.player.energy + amount));
         Logger.debug(`[API] Energy modified by ${amount}. Current: ${gs.player.energy}`);
+        gs.markDirty?.('hud');
         window.HudUpdateUI?.updateCombatEnergy?.(gs);
     },
 
@@ -227,8 +228,8 @@ export const GameAPI = {
 
             console.log('[playCard] Before updateUI - energy:', gs.player.energy);
             window.renderCombatCards?.();
+            gs.markDirty?.('hud');
             window.updateUI?.();
-            console.log('[playCard] After updateUI called');
             return true;
         } catch (e) {
             Logger.error('Error playing card:', e);
