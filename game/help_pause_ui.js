@@ -291,6 +291,12 @@ export const HelpPauseUI = {
 
       // ESC: 일시정지 또는 모달 닫기
       if (e.key === 'Escape') {
+        const helpMenu = doc.getElementById('helpMenu');
+        if (helpMenu && helpMenu.style.display !== 'none') {
+          this.toggleHelp(deps);
+          return; // Exit early if help menu was handled
+        }
+
         console.log('[ESC Key] currentScreen:', gs?.currentScreen, 'combat.active:', gs?.combat?.active, 'pauseOpen:', _pauseOpen);
         const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true;
         const isTitle = gs?.currentScreen === 'title';
@@ -300,8 +306,8 @@ export const HelpPauseUI = {
         const codexModal = document.getElementById('codexModal');
         const runSettingsModal = document.getElementById('runSettingsModal');
 
-        // 덱 모달 확인 (classList.active 사용)
-        if (deckModal && deckModal.classList.contains('active')) {
+        // 덱 모달 확인 (style.display 사용)
+        if (deckModal && deckModal.style.display === 'block') {
           console.log('[ESC Key] Close deck modal');
           if (typeof window.closeDeckView === 'function') window.closeDeckView();
           return;

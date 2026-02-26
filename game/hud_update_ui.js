@@ -122,8 +122,18 @@ export const HudUpdateUI = {
     const data = deps.data || window.DATA;
     const setBonusSystem = deps.setBonusSystem || window.SetBonusSystem;
     const getRegionData = deps.getRegionData || window.getRegionData;
-    const setBar = deps.setBar || (() => { });
-    const setText = deps.setText || (() => { });
+    // Use DomValueUI directly instead of deps
+    const setBar = (id, pct) => {
+      const el = doc.getElementById(id);
+      if (el) el.style.width = `${Math.max(0, Math.min(100, Number(pct) || 0))}%`;
+    };
+    const setText = (id, val) => {
+      const el = doc.getElementById(id);
+      if (el) {
+        el.textContent = val;
+        console.log('[setText]', id, '=', val, 'el:', el.id);
+      }
+    };
 
     // HP - 저체력 시 색상 변화
     const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
@@ -264,6 +274,7 @@ export const HudUpdateUI = {
     }
 
     setText('combatEnergyText', `${p.energy} / ${p.maxEnergy}`);
+    console.log('[updateUI] combatEnergyText set to:', `${p.energy} / ${p.maxEnergy}`, 'element:', doc.getElementById('combatEnergyText')?.textContent);
     setText('combatDeckCount', p.deck.length);
     setText('combatGraveCount', p.graveyard.length);
     setText('combatExhaustCount', p.exhausted.length);
@@ -410,15 +421,17 @@ export const HudUpdateUI = {
     }
 
 
-    const echoBtn = doc.getElementById('echoSkillBtn');
+    const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
-      const can = p.echo >= 30;
+      const echoValue = Math.floor(p.echo);
+      const can = echoValue >= 30;
       echoBtn.disabled = !can;
+      echoBtn.style.opacity = can ? '1' : '0.4';
       if (can) {
+        // Echo 스킬 버튼 텍스트는 updateEchoSkillBtn 에서 일관되게 처리
         if (typeof deps.updateEchoSkillBtn === 'function') deps.updateEchoSkillBtn();
       } else {
-        echoBtn.textContent = `⚡ Echo 스킬 (${Math.floor(p.echo)}/30)`;
-        echoBtn.style.opacity = '0.4';
+        echoBtn.textContent = `⚡ Echo 스킬 (${echoValue}/30)`;
       }
     }
 
@@ -426,6 +439,7 @@ export const HudUpdateUI = {
     if (drawBtn) {
       const handFull = p.hand.length >= 8;
       const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1 && !handFull;
+      console.log('[updateUI] drawBtn - energy:', p.energy, 'canDraw:', canDraw, 'combat.active:', gs.combat?.active, 'playerTurn:', gs.combat?.playerTurn);
       drawBtn.disabled = !canDraw;
       drawBtn.classList.toggle('hand-full', handFull);
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
@@ -450,9 +464,80 @@ export const HudUpdateUI = {
     this.updateEndBtnWarn(deps);
   },
 
+  updatePlayerStats(gs, deps = {}) {
+    if (!gs?.player) return;
+    const p = gs.player;
+    const doc = _getDoc(deps);
+    const setText = deps.setText || ((id, val) => {
+      const el = doc.getElementById(id);
+      if (el) el.textContent = val;
+    });
+    const setBar = deps.setBar || ((id, pct) => {
+      const el = doc.getElementById(id);
+      if (el) el.style.width = `${pct}%`;
+    });
+
+    const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
+    setBar('hpBar', hpPct);
+    setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
+
+    const hpFill = doc.getElementById('hpBar');
+    if (hpFill) {
+      if (hpPct <= 25) hpFill.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
+      else if (hpPct <= 50) hpFill.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
+      else hpFill.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
+    }
+
+    const hudHpMini = doc.getElementById('hudHpBarMini');
+    if (hudHpMini) {
+      hudHpMini.style.width = `${hpPct}%`;
+      hudHpMini.style.background = hpPct <= 25
+        ? 'linear-gradient(90deg,#8b0000,#cc0000)'
+        : 'linear-gradient(90deg,#cc2244,#ff4466)';
+    }
+
+    const hudEchoMini = doc.getElementById('hudEchoBarMini');
+    if (hudEchoMini) hudEchoMini.style.width = `${(p.echo / p.maxEcho) * 100}%`;
+
+    setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
+    setText('hudEchoText', Math.floor(p.echo));
+
+    const shieldTrigger = doc.getElementById('hudShieldTrigger');
+    if (shieldTrigger) {
+      shieldTrigger.style.opacity = p.shield > 0 ? '1' : '0.3';
+      setText('hudShieldText', p.shield);
+    }
+
+    const shieldBar = doc.getElementById('shieldBar');
+    if (shieldBar) shieldBar.style.width = `${Math.min(100, (p.shield / p.maxHp) * 100)}%`;
+    setText('shieldText', p.shield || '0');
+
+    const echoBar = doc.getElementById('echoBar');
+    if (echoBar) echoBar.style.width = `${(p.echo / p.maxEcho) * 100}%`;
+    setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
+
+    // Update Echo skill button state
+    if (typeof window.updateEchoSkillBtn === 'function') {
+      window.updateEchoSkillBtn();
+    } else {
+      const echoBtn = doc.getElementById('useEchoSkillBtn');
+      if (echoBtn) {
+        const can = p.echo >= 30;
+        echoBtn.disabled = !can;
+        if (!can) {
+          echoBtn.textContent = `⚡ Echo 스킬 (${Math.floor(p.echo)}/30)`;
+          echoBtn.style.opacity = '0.4';
+        } else {
+          echoBtn.style.opacity = '1';
+        }
+      }
+    }
+  },
+
   // Expose public API for GAME.API
   api: {
     updateUI: (deps) => HudUpdateUI.updateUI(deps),
+    updatePlayerStats: (gs, deps) => HudUpdateUI.updatePlayerStats(gs, deps),
     resetCombatUI: (deps) => HudUpdateUI.resetCombatUI(deps),
     triggerDeckShufflePulse: (deps) => HudUpdateUI.triggerDeckShufflePulse(deps),
   }

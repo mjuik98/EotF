@@ -92,6 +92,7 @@ exposeGlobals({
   ClassMechanics,
   SetBonusSystem,
   SaveSystem,
+  CardCostUtils,
   // UI Modules needed by legacy handlers
   CodexUI,
   EventUI,
@@ -102,6 +103,7 @@ exposeGlobals({
   TitleCanvasUI,
   ClassSelectUI,
   CombatHudUI,
+  HudUpdateUI,
   RewardUI,
   CombatActionsUI,
   TooltipUI,
@@ -124,21 +126,18 @@ exposeGlobals({
   sortHandByEnergy,
   useEchoSkill,
   drawCard,
+  drawCards: drawCard,
   endPlayerTurn,
   skipReward,
   showSkipConfirm,
   hideSkipConfirm,
-  setDeckFilter,
-  closeDeckView,
-  setCodexTab,
-  closeCodex,
-  toggleHudPin,
-  showFullMap,
-  togglePause,
-  toggleHelp,
   abandonRun,
   confirmAbandon,
   openCodex,
+  showDeckView,
+  closeDeckView,
+  closeCodex,
+  toggleHudPin,
   showGeneralTooltip,
   hideGeneralTooltip,
   renderCombatCards,
@@ -194,6 +193,12 @@ GAME.register('RunStartUI', RunStartUI); // Added
 GAME.API.updateCombatLog = () => updateCombatLog();
 GAME.API.updateUI = () => updateUI();
 GAME.API.showWorldMemoryNotice = (txt) => showWorldMemoryNotice(txt);
+GAME.API.toggleHudPin = () => toggleHudPin();
+GAME.API.closeDeckView = () => closeDeckView();
+GAME.API.closeCodex = () => closeCodex();
+GAME.API.showSkipConfirm = () => showSkipConfirm();
+GAME.API.skipReward = () => skipReward();
+GAME.API.hideSkipConfirm = () => hideSkipConfirm();
 
 // ????????????????????????????????????????
 // LEGACY COMPATIBILITY WRAPPERS
@@ -525,6 +530,14 @@ function updateEchoSkillBtn() {
   CombatHudUI?.updateEchoSkillBtn?.(GAME.getDeps());
 }
 
+// Export UI functions to window for API calls
+window.renderCombatCards = renderCombatCards;
+window.renderHand = renderHand;
+window.updateUI = () => HudUpdateUI?.updateUI?.(_baseDeps());
+window.updateEchoSkillBtn = updateEchoSkillBtn;
+window.updateCombatLog = updateCombatLog;
+window.updateHandFanEffect = updateHandFanEffect;
+
 function useEchoSkill() {
   const deps = GAME.getDeps();
   deps.showEchoBurstOverlay = showEchoBurstOverlay;
@@ -592,6 +605,7 @@ function _getEventDeps() {
     runRules: RunRules,
 
     updateUI,
+    returnToGame,
     showItemToast,
     playItemGet: () => AudioEngine.playItemGet(),
   };
@@ -875,10 +889,6 @@ function openCodex() {
   CodexUI?.openCodex?.(_getCodexDeps());
 }
 
-function closeCodex() {
-  CodexUI?.closeCodex?.(_getCodexDeps());
-}
-
 function setCodexTab(tab) {
   CodexUI?.setCodexTab?.(tab, _getCodexDeps());
 }
@@ -894,6 +904,14 @@ function setDeckFilter(type) {
 function closeDeckView() {
   DeckModalUI?.closeDeckView?.(_getDeckModalDeps());
 }
+
+function closeCodex() {
+  CodexUI?.closeCodex?.(_getCodexDeps());
+}
+
+// Export to window for onclick handlers
+window.closeDeckView = closeDeckView;
+window.closeCodex = closeCodex;
 
 function _getTooltipDeps() {
   return {

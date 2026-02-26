@@ -119,9 +119,14 @@ export const EventUI = {
     this.updateEventGoldBar(deps);
 
     if (!result) {
+      console.log('[resolveEvent] no result, closing event');
       doc.getElementById('eventModal')?.classList.remove('active');
       _currentEvent = null;
       gs._eventLock = false;
+      // Switch to game screen and update UI
+      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+      if (typeof deps.updateUI === 'function') deps.updateUI();
+      if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
       return;
     }
 
@@ -144,9 +149,14 @@ export const EventUI = {
       continueBtn.id = 'eventChoiceContinue';
       continueBtn.textContent = '계속';
       continueBtn.addEventListener('click', () => {
+        console.log('[event continue] clicked');
         doc.getElementById('eventModal')?.classList.remove('active');
         _currentEvent = null;
         gs._eventLock = false;
+        // Switch to game screen and update UI
+        if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+        if (typeof deps.updateUI === 'function') deps.updateUI();
+        if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
       }, { once: true });
       choicesEl.appendChild(continueBtn);
     }
@@ -179,8 +189,9 @@ export const EventUI = {
           effect(state) {
             const cost = costPotion;
             if (state.player.gold >= cost) {
-              window.GAME?.API?.addGold?.(-cost, state);
-              window.GAME?.API?.healPlayer?.(30, state);
+              const api = state.API || window.GAME?.API;
+              api?.addGold?.(-cost, state);
+              api?.healPlayer?.(30, state);
               return `치료약을 마셨다. [남은 골드: ${state.player.gold}]`;
             }
             return `골드 부족! (필요: ${cost}, 보유: ${state.player.gold})`;
@@ -191,7 +202,8 @@ export const EventUI = {
           effect(state) {
             const cost = costCard;
             if (state.player.gold >= cost) {
-              window.GAME?.API?.addGold?.(-cost, state);
+              const api = state.API || window.GAME?.API;
+              api?.addGold?.(-cost, state);
               const cardId = state.getRandomCard?.('uncommon');
               state.player.deck.push(cardId);
               if (state.meta.codex) state.meta.codex.cards.add(cardId);

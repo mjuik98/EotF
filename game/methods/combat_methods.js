@@ -109,7 +109,8 @@ export const CombatMethods = {
 
         if (!noChain) {
             this.player.echoChain++;
-            this.addEcho(10);
+            // 전투 중에는 Echo 게이지만 즉시 갱신 (전체 UI 갱신은 playCard 에서)
+            this.addEcho(10, true);
             this.updateChainDisplay();
         }
 
@@ -157,55 +158,65 @@ export const CombatMethods = {
     },
 
     addShield(amount) {
-        let actual = amount;
-        if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
-            actual = Math.max(0, amount - 10);
-            if (actual < amount) this.addLog('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
+        const api = this.API || window.GAME?.API;
+        if (api?.addShield) {
+            api.addShield(amount, this);
+        } else {
+            let actual = amount;
+            if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
+                actual = Math.max(0, amount - 10);
+                if (actual < amount) this.addLog('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
+            }
+            this.player.shield += actual;
+            this.addLog(`🛡️ 방어막 +${actual}`, 'system');
+            if (typeof window.updateUI === 'function') window.updateUI();
         }
-        this.player.shield += actual;
-        this.addLog(`🛡️ 방어막 +${actual}`, 'system');
-        if (typeof window.updateUI === 'function') window.updateUI();
     },
 
     takeDamage(amount) {
-        if (this.getBuff('immune')) { this.addLog('🏛️ 면역으로 피해 무효!', 'echo'); return; }
-        let dmg = amount;
-        if (this.player.shield > 0) {
-            const blocked = Math.min(this.player.shield, dmg);
-            this.player.shield -= blocked; dmg -= blocked;
-            if (blocked > 0) this.addLog(`🛡️ 방어막 ${blocked} 흡수`, 'system');
-        }
-        const triggerResult = this.triggerItems('damage_taken', dmg);
-        if (triggerResult === true) {
-            dmg = 0;
-            this.addLog('🛡️ 피해 무효!', 'echo');
-        } else if (typeof triggerResult === 'number' && Number.isFinite(triggerResult)) {
-            dmg = Math.max(0, Math.floor(triggerResult));
-        }
-        if (dmg > 0) {
-            this.player.hp -= dmg; this.stats.damageTaken += dmg;
-            ScreenShake.shake(8, 0.4);
-            if (typeof window.showEdgeDamage === 'function') window.showEdgeDamage();
-            this.addLog(`💔 ${dmg} 피해 받음`, 'damage');
-            if (typeof window.showDmgPopup === 'function') window.showDmgPopup(dmg, window.innerWidth * 0.3, window.innerHeight / 2, '#ff3366');
-
-            AudioEngine.playPlayerHit();
-            const vign = document.createElement('div');
-            vign.className = 'player-hit-vignette';
-            document.getElementById('hudOverlay')?.appendChild(vign);
-            setTimeout(() => vign.remove(), 600);
-            const hpBar = document.getElementById('hoverHud');
-            if (hpBar) {
-                hpBar.style.animation = 'none';
-                void hpBar.offsetWidth;
-                hpBar.style.animation = 'shake 0.3s ease';
-                setTimeout(() => hpBar.style.animation = '', 300);
+        const api = this.API || window.GAME?.API;
+        if (api?.applyPlayerDamage) {
+            api.applyPlayerDamage(amount, this);
+        } else {
+            if (this.getBuff('immune')) { this.addLog('🏛️ 면역으로 피해 무효!', 'echo'); return; }
+            let dmg = amount;
+            if (this.player.shield > 0) {
+                const blocked = Math.min(this.player.shield, dmg);
+                this.player.shield -= blocked; dmg -= blocked;
+                if (blocked > 0) this.addLog(`🛡️ 방어막 ${blocked} 흡수`, 'system');
             }
+            const triggerResult = this.triggerItems('damage_taken', dmg);
+            if (triggerResult === true) {
+                dmg = 0;
+                this.addLog('🛡️ 피해 무효!', 'echo');
+            } else if (typeof triggerResult === 'number' && Number.isFinite(triggerResult)) {
+                dmg = Math.max(0, Math.floor(triggerResult));
+            }
+            if (dmg > 0) {
+                this.player.hp -= dmg; this.stats.damageTaken += dmg;
+                ScreenShake.shake(8, 0.4);
+                if (typeof window.showEdgeDamage === 'function') window.showEdgeDamage();
+                this.addLog(`💔 ${dmg} 피해 받음`, 'damage');
+                if (typeof window.showDmgPopup === 'function') window.showDmgPopup(dmg, window.innerWidth * 0.3, window.innerHeight / 2, '#ff3366');
 
-            if (this.player.hp < this.player.maxHp * 0.25) this.showLowHpWarning();
+                AudioEngine.playPlayerHit();
+                const vign = document.createElement('div');
+                vign.className = 'player-hit-vignette';
+                document.getElementById('hudOverlay')?.appendChild(vign);
+                setTimeout(() => vign.remove(), 600);
+                const hpBar = document.getElementById('hoverHud');
+                if (hpBar) {
+                    hpBar.style.animation = 'none';
+                    void hpBar.offsetWidth;
+                    hpBar.style.animation = 'shake 0.3s ease';
+                    setTimeout(() => hpBar.style.animation = '', 300);
+                }
+
+                if (this.player.hp < this.player.maxHp * 0.25) this.showLowHpWarning();
+            }
+            if (typeof window.updateUI === 'function') window.updateUI();
+            if (this.player.hp <= 0) this.onPlayerDeath();
         }
-        if (typeof window.updateUI === 'function') window.updateUI();
-        if (this.player.hp <= 0) this.onPlayerDeath();
     },
 
     applyEnemyStatus(status, duration, targetIdx = null) {

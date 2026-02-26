@@ -154,11 +154,12 @@ function _calcSelectedPreview(gs, data, enemy) {
   return { netDmg, enemyShield };
 }
 
-function _renderSelectedPreviewHtml(preview) {
-  if (!preview) return '';
-  return preview.enemyShield > 0
-    ? `<div class="enemy-dmg-preview">⚔ 예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})</div>`
-    : `<div class="enemy-dmg-preview">⚔ 예상 총 피해 ${preview.netDmg}</div>`;
+function _renderSelectedPreviewHtml(preview, card) {
+  if (!preview) return;
+  const cls = preview.netDmg > preview.enemyShield ? 'enemy-dmg-preview hp-hit' : 'enemy-dmg-preview shield-only';
+  card.innerHTML += preview.enemyShield > 0
+    ? `<div class="${cls}">⚔ 예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})</div>`
+    : `<div class="${cls}">⚔ 예상 총 피해 ${preview.netDmg}</div>`;
 }
 
 function _renderSelectedPreviewText(preview) {

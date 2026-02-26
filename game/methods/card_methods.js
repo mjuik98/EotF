@@ -3,6 +3,11 @@ import { DATA } from '../../../data/game_data.js';
 
 export const CardMethods = {
     drawCards(count = 1) {
+        const gs = window.GS;
+
+        // Use GS.API instead of window.GAME.API
+        const api = gs.API || window.GAME?.API;
+
         const shuffle = (arr) => {
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -10,7 +15,11 @@ export const CardMethods = {
             }
         };
 
-        window.GAME?.API?.drawCards?.(count, this);
+        if (typeof api?.drawCards === 'function') {
+            api.drawCards(count, gs);
+        } else {
+            console.error('[CardMethods.drawCards] API.drawCards not found!', { api, hasGSAPI: !!gs?.API, hasGAMEAPI: !!window.GAME?.API?.drawCards });
+        }
         if (typeof window.renderHand === 'function') window.renderHand();
         if (typeof window.updateUI === 'function') window.updateUI();
 
@@ -22,14 +31,16 @@ export const CardMethods = {
                     el.style.animation = 'none';
                     requestAnimationFrame(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
                 });
-                const fanRestoreDelay = 300 + Math.max(0, (this.player.hand.length - 1) * 40);
+                const fanRestoreDelay = 300 + Math.max(0, (gs.player.hand.length - 1) * 40);
                 if (typeof window.updateHandFanEffect === 'function') setTimeout(() => window.updateHandFanEffect(), fanRestoreDelay);
             }
         }, 10);
     },
 
     playCard(cardId, handIdx) {
-        return window.GAME?.API?.playCard?.(cardId, handIdx, this);
+        const gs = window.GS;
+        const api = gs.API || window.GAME?.API;
+        return api?.playCard?.(cardId, handIdx, gs);
     },
 
     getRandomCard(rarity = 'common') {

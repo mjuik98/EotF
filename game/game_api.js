@@ -41,7 +41,6 @@ export const GameAPI = {
             if (dmg > 0) {
                 gs.player.hp = Math.max(0, gs.player.hp - dmg);
                 gs.stats.damageTaken += dmg;
-                Logger.info(`Player took ${dmg} damage. New HP: ${gs.player.hp}`);
                 gs.addLog?.(`💔 ${dmg} 피해 받음`, 'damage');
 
                 // Audio/Visual feedback via window objects
@@ -50,10 +49,30 @@ export const GameAPI = {
             }
 
             window.HudUpdateUI?.updatePlayerStats?.(gs);
+            window.updateUI?.();
             if (gs.player.hp <= 0) gs.onPlayerDeath?.();
         } finally {
             Logger.groupEnd();
         }
+    },
+
+    /**
+     * 플레이어에게 방어막을 추가합니다.
+     */
+    addShield(amount, gs = window.GS) {
+        if (amount <= 0) return;
+        Logger.info(`[API] Add Shield: ${amount}`);
+
+        let actual = amount;
+        // 밸런스 조정: 피로의 저주(fatigue)
+        if (gs.runConfig?.curse === 'fatigue' || gs.meta?.runConfig?.curse === 'fatigue') {
+            actual = Math.max(0, amount - 10);
+            if (actual < amount) gs.addLog?.('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
+        }
+
+        gs.player.shield += actual;
+        gs.addLog?.(`🛡️ 방어막 +${actual}`, 'system');
+        window.HudUpdateUI?.updatePlayerStats?.(gs);
     },
 
     /**
@@ -141,13 +160,11 @@ export const GameAPI = {
      * 카드를 뽑습니다.
      */
     drawCards(count = 1, gs = window.GS) {
-        Logger.debug(`[API] Drawing ${count} cards.`);
         for (let i = 0; i < count; i++) {
             if (gs.player.deck.length === 0) {
                 if (gs.player.graveyard.length === 0) break;
                 gs.player.deck = [...gs.player.graveyard];
                 gs.player.graveyard = [];
-                // Shuffle logic...
                 gs.addLog?.('🔄 덱을 섞었다', 'system');
             }
             if (gs.player.hand.length < 8) {
@@ -156,6 +173,7 @@ export const GameAPI = {
             }
         }
         window.renderHand?.();
+        window.renderCombatCards?.();
         window.HudUpdateUI?.triggerDrawCardAnimation?.();
     },
 
@@ -207,8 +225,10 @@ export const GameAPI = {
             gs.stats.cardsPlayed++;
             Logger.info(`Card ${card.name} played successfully.`);
 
+            console.log('[playCard] Before updateUI - energy:', gs.player.energy);
             window.renderCombatCards?.();
             window.updateUI?.();
+            console.log('[playCard] After updateUI called');
             return true;
         } catch (e) {
             Logger.error('Error playing card:', e);
@@ -262,9 +282,44 @@ export const GameAPI = {
         Logger.info(`[API] Screen change: ${gs.currentScreen} -> ${screenName}`);
         gs.currentScreen = screenName;
         window.ScreenUI?.show?.(screenName);
+    },
+
+    // === UI Controls ===
+
+    /**
+     * HUD 핀 고정/해제를 토글합니다.
+     */
+    toggleHudPin() {
+        if (window.CombatHudUI?.toggleHudPin) {
+            window.CombatHudUI.toggleHudPin();
+        } else {
+            console.warn('[API] CombatHudUI.toggleHudPin not found');
+        }
+    },
+
+    /**
+     * 덱 보기 모달을 닫습니다.
+     */
+    closeDeckView() {
+        if (window.DeckModalUI?.closeDeckView) {
+            window.DeckModalUI.closeDeckView();
+        } else {
+            console.warn('[API] DeckModalUI.closeDeckView not found');
+        }
+    },
+
+    /**
+     * 도감 모달을 닫습니다.
+     */
+    closeCodex() {
+        if (window.CodexUI?.closeCodex) {
+            window.CodexUI.closeCodex();
+        } else {
+            console.warn('[API] CodexUI.closeCodex not found');
+        }
     }
 };
 
 // Global export for legacy/UI code compatibility
-window.GAME = window.GAME || {};
-window.GAME.API = GameAPI;
+// Note: This runs at module load time, GAME may be overwritten by main.js
+// The API methods will still work as they reference window.GS directly

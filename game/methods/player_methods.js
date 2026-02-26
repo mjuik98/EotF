@@ -3,9 +3,43 @@ import { ParticleSystem } from '../../engine/particles.js';
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../run_rules.js';
 
 export const PlayerMethods = {
-    addEcho(amount) {
+    addEcho(amount, skipFullUI = false) {
+        const oldEcho = this.player.echo;
         this.player.echo = Math.min(this.player.maxEcho, this.player.echo + amount);
-        if (typeof window.updateUI === 'function') window.updateUI();
+        const newEcho = this.player.echo;
+
+        // 즉시 HUD 갱신 (에코 텍스트만 빠르게) - 모든 Echo 관련 요소 갱신
+        const echoTextEl = document.getElementById('echoText');
+        const hudEchoTextEl = document.getElementById('hudEchoText');
+        const hudEchoMiniEl = document.getElementById('hudEchoBarMini');
+        const echoBar = document.getElementById('echoBar');
+        const echoBtn = document.getElementById('useEchoSkillBtn');
+
+        const echoValue = Math.floor(newEcho);
+        const echoPct = (newEcho / this.player.maxEcho) * 100;
+
+        if (echoTextEl) echoTextEl.textContent = `${echoValue} / ${this.player.maxEcho}`;
+        if (hudEchoTextEl) hudEchoTextEl.textContent = echoValue;
+        if (hudEchoMiniEl) hudEchoMiniEl.style.width = `${echoPct}%`;
+        if (echoBar) echoBar.style.width = `${echoPct}%`;
+
+        // Echo 버튼 상태도 즉시 갱신
+        if (echoBtn) {
+          const canUse = newEcho >= 30;
+          echoBtn.disabled = !canUse;
+          echoBtn.style.opacity = canUse ? '1' : '0.4';
+          // Echo 스킬 버튼 텍스트는 updateEchoSkillBtn 에서 일관되게 처리
+          if (canUse && typeof window.updateEchoSkillBtn === 'function') {
+            window.updateEchoSkillBtn();
+          } else {
+            echoBtn.textContent = `⚡ Echo 스킬 (${echoValue}/30)`;
+          }
+        }
+
+        // 전체 UI 갱신 (skipFullUI 가 true 가 아닐 때만)
+        if (!skipFullUI && typeof window.updateUI === 'function') {
+          window.updateUI();
+        }
     },
 
     drainEcho(amount) {

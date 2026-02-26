@@ -504,8 +504,8 @@
         <button id="rewardSkipInitBtn" class="skip-btn">건너뛰기 (보상 없이 계속)</button>
         <div id="skipConfirmRow" class="skip-confirm-row-el" style="display:none;">
           <span class="skip-confirm-text">정말 보상을 포기하시겠습니까?</span>
-          <button id="rewardSkipConfirmBtn" class="skip-btn skip-btn-danger">예, 건너뜜</button>
-          <button id="rewardSkipCancelBtn" class="skip-btn skip-btn-cancel">취소</button>
+          <button id="rewardSkipConfirmBtn" class="skip-btn skip-btn-danger">예, 건너뜀</button>
+          <button id="rewardSkipCancelBtn" class="skip-btn skip-btn-cancel">아니오</button>
         </div>
       </div>
     </div>
@@ -544,7 +544,9 @@
         </button>
       </div>
       <div class="deck-modal-cards" id="deckModalCards"></div>
-      <button id="deckViewCloseBtn" class="deck-modal-close">닫기</button>
+      <div class="deck-footer" style="display:block !important; visibility:visible !important; opacity:1 !important;">
+        <button id="deckViewCloseBtn" class="premium-btn close-btn" style="display:inline-block !important; visibility:visible !important; opacity:1 !important;">닫기</button>
+      </div>
     </div>
   </div>
 
@@ -597,7 +599,7 @@
       <div id="codexContent"></div>
       <!-- 닫기 -->
       <div class="codex-footer">
-        <button id="codexCloseBtn" class="codex-close-btn">닫기</button>
+        <button id="codexCloseBtn" class="premium-btn close-btn">닫기</button>
       </div>
     </div>
   </div>
@@ -643,7 +645,7 @@
     </div>
   </div>
 
-  <script type="module" src="game/main.js"></script>
+  <script type="module" src="game/main.js?v=2026022631"></script>
 </body>
 
 </html>

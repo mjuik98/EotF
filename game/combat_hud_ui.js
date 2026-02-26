@@ -127,7 +127,7 @@ export const CombatHudUI = {
     if (!gs?.player) return;
 
     const doc = _getDoc(deps);
-    const btn = doc.getElementById('echoSkillBtn');
+    const btn = doc.getElementById('useEchoSkillBtn');
     if (!btn) return;
 
     const echo = gs.player.echo;
@@ -136,6 +136,7 @@ export const CombatHudUI = {
     if (tLevel === 0) {
       btn.textContent = `⚡ Echo 스킬 (${echo}/30)`;
       btn.style.opacity = '0.45';
+      btn.disabled = true;
       return;
     }
 
@@ -144,6 +145,7 @@ export const CombatHudUI = {
     const sDesc = skill?.shortDesc || '';
     btn.textContent = `⚡ ${stars} ${sDesc}`;
     btn.style.opacity = '1';
+    btn.disabled = false;
   },
 
   updateChainUI(chain, deps = {}) {

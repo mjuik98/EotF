@@ -186,7 +186,7 @@ export const CombatTurnUI = {
     gs.player.echoChain = 0;
 
     // API를 통한 상태 갱신 권장 (에너지 리셋 등은 StartPlayerTurn에서 처리)
-    window.GAME?.API?.modifyEnergy?.(0, gs);
+    gs.API?.modifyEnergy?.(0, gs);
 
     deps.updateChainUI?.(0);
 
@@ -265,7 +265,7 @@ export const CombatTurnUI = {
             continue;
           }
         } else {
-          window.GAME?.API?.applyPlayerDamage?.(dmg, gs);
+          gs.API?.applyPlayerDamage?.(dmg, gs);
         }
         gs.addLog?.(`💢 ${enemy.name}: ${action.intent}`, 'damage');
 

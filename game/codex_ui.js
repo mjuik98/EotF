@@ -27,7 +27,7 @@ export const CodexUI = {
   },
 
   closeCodex(deps = {}) {
-    const doc = _getDoc(deps);
+    const doc = deps?.doc || document;
     const modal = doc.getElementById('codexModal');
     if (modal) modal.style.display = 'none';
   },

@@ -329,7 +329,7 @@ export const RewardUI = {
       container.classList.add('picked');
     }
 
-    gs.player.deck.push(cardId);
+    gs.player.deck.unshift(cardId);
     if (gs.meta.codex) gs.meta.codex.cards.add(cardId);
     const card = data.cards[cardId];
     if (typeof deps.playItemGet === 'function') deps.playItemGet();
@@ -376,7 +376,7 @@ export const RewardUI = {
       const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
       const upgId = data.upgradeMap[cardId];
       const idx = gs.player.deck.indexOf(cardId);
-      if (idx >= 0) gs.player.deck[idx] = upgId;
+      if (idx >= 0) gs.player.deck[idx] = upgId; // Index-based replacement is already FIFO-neutral, fine.
       if (gs.meta.codex) gs.meta.codex.cards.add(upgId);
       if (typeof deps.playItemGet === 'function') deps.playItemGet();
       if (typeof deps.showItemToast === 'function') {

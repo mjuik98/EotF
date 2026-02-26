@@ -33,8 +33,8 @@ export const CardUI = {
   },
 
   renderCombatCards(deps = {}) {
-    const gs = deps.gs;
-    const data = deps.data;
+    const gs = deps.gs || window.GS;
+    const data = deps.data || window.DATA;
     if (!gs?.player?.hand || !data?.cards) return;
 
     const doc = _getDoc(deps);
@@ -82,9 +82,9 @@ export const CardUI = {
 
       // 클릭 이벤트 - 카드 사용
       if (playCardHandler) {
-        el.addEventListener('click', (e) => {
+        el.addEventListener('click', async (e) => {
           e.stopPropagation();
-          playCardHandler(cardId, i);
+          await playCardHandler(cardId, i);
         });
       }
 
@@ -175,8 +175,8 @@ export const CardUI = {
   },
 
   renderHand(deps = {}) {
-    const gs = deps.gs;
-    const data = deps.data;
+    const gs = deps.gs || window.GS;
+    const data = deps.data || window.DATA;
     if (!gs?.player?.hand || !data?.cards) return;
 
     const doc = _getDoc(deps);
