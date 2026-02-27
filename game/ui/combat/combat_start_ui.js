@@ -56,7 +56,11 @@ export const CombatStartUI = {
     CombatInitializer.applyRegionDebuffs(gs, getBaseRegionIndex);
 
     // ── 로직: 클래스/런 룰 트리거 ──
-    if (gs.player.class === 'mage') classMechanics?.mage?.onCombatStart?.(gs);
+    const playerClass = gs.player.class;
+    const classMech = classMechanics?.[playerClass];
+    if (classMech && typeof classMech.onCombatStart === 'function') {
+      classMech.onCombatStart(gs);
+    }
     runRules?.onCombatStart?.(gs);
     gs.triggerItems?.(Trigger.COMBAT_START);
 

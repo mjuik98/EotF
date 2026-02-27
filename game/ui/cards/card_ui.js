@@ -85,13 +85,19 @@ export const CardUI = {
       el.style.cssText = `width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;`;
       el.draggable = true;
 
-      // 클릭 이벤트 - 카드 사용
+      // 클릭 이벤트 - 카드 사용 (전체 카드 존 잠금으로 중복 사용 방지)
       if (playCardHandler) {
         el.addEventListener('click', async (e) => {
           e.stopPropagation();
-          if (el.style.pointerEvents === 'none') return;
-          el.style.pointerEvents = 'none';
-          await playCardHandler(cardId, i);
+          if (zone.dataset.locked === 'true') return;
+          zone.dataset.locked = 'true';
+          zone.style.pointerEvents = 'none';
+          try {
+            await playCardHandler(cardId, i);
+          } finally {
+            zone.dataset.locked = 'false';
+            zone.style.pointerEvents = '';
+          }
         });
       }
 
