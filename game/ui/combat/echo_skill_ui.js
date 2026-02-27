@@ -5,7 +5,7 @@ import { GS } from '../../core/game_state.js';
 
 export const EchoSkillUI = {
   useEchoSkill(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     if (!gs?.player) return;
     if (!gs.combat?.active || !gs.combat.playerTurn) return;
 

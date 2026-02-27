@@ -14,11 +14,11 @@ function _getDoc(deps) {
 
 export const GameBootUI = {
   bootGame(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     const doc = _getDoc(deps);
-    const audioEngine = deps.audioEngine || window.AudioEngine;
-    const runRules = deps.runRules || window.RunRules;
-    const saveSystem = deps.saveSystem || window.SaveSystem;
+    const audioEngine = deps.audioEngine;
+    const runRules = deps.runRules;
+    const saveSystem = deps.saveSystem;
 
     try {
       doc.addEventListener('click', () => {

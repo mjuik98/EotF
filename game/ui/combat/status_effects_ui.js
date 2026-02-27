@@ -24,7 +24,7 @@ function _getDoc(deps) {
 }
 
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 export const StatusEffectsUI = {

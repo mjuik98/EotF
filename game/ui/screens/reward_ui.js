@@ -7,11 +7,11 @@ function _getDoc(deps) {
 }
 
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 function _getData(deps) {
-  return deps?.data || window.DATA;
+  return deps?.data;
 }
 
 export const RewardUI = {
@@ -195,10 +195,10 @@ export const RewardUI = {
 
           wrapper.appendChild(cardEl);
           if (hasCards) {
-            wrapper.addEventListener('mouseenter', (e) => window.showTooltip?.(e, 'remove_card'));
-            wrapper.addEventListener('mouseleave', () => window.hideTooltip?.());
+            wrapper.addEventListener('mouseenter', (e) => deps.showTooltip?.(e, 'remove_card'));
+            wrapper.addEventListener('mouseleave', () => deps.hideTooltip?.());
             wrapper.addEventListener('click', () => {
-              window.hideTooltip?.();
+              deps.hideTooltip?.();
               this.takeRewardRemove(deps);
             });
           }
@@ -230,8 +230,8 @@ export const RewardUI = {
         const desc = doc.createElement('div');
         desc.className = 'card-desc';
         desc.style.cssText = 'font-size:13px;flex:1;';
-        if (window.DescriptionUtils) {
-          desc.innerHTML = window.DescriptionUtils.highlight(card.desc);
+        if (deps.DescriptionUtils) {
+          desc.innerHTML = deps.DescriptionUtils.highlight(card.desc);
         } else {
           desc.textContent = card.desc;
         }
@@ -243,10 +243,10 @@ export const RewardUI = {
 
         cardEl.append(cost, icon, name, desc, typeLabel);
         wrapper.appendChild(cardEl);
-        wrapper.addEventListener('mouseenter', (e) => window.showTooltip?.(e, cardId));
-        wrapper.addEventListener('mouseleave', () => window.hideTooltip?.());
+        wrapper.addEventListener('mouseenter', (e) => deps.showTooltip?.(e, cardId));
+        wrapper.addEventListener('mouseleave', () => deps.hideTooltip?.());
         wrapper.addEventListener('click', () => {
-          window.hideTooltip?.();
+          deps.hideTooltip?.();
           this.takeRewardCard(cardId, deps);
         });
       }
@@ -404,8 +404,8 @@ export const RewardUI = {
     if (container) container.classList.add('picked');
 
     // 소각은 오버레이에서 선택 후 returnToGame 호출하므로 락을 걸지 않거나 오버레이 안에서 관리
-    // window.EventUI 대신 GAME.Modules 사용 (EventUI 는 window 에 노출되지 않음)
-    const eventUI = window.GAME?.Modules?.['EventUI'] || window.EventUI;
+    // 의존성 주입된 eventUI 사용
+    const eventUI = deps.EventUI;
     if (eventUI && typeof eventUI.showCardDiscard === 'function') {
       eventUI.showCardDiscard(gs, true, {
         ...deps, returnToGame: (force) => {

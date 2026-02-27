@@ -1,9 +1,9 @@
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 function _getData(deps) {
-  return deps?.data || window.DATA;
+  return deps?.data;
 }
 
 function _getDoc(deps) {
@@ -115,7 +115,7 @@ export const StoryUI = {
       const btn = doc.createElement('button');
       btn.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--cyan),var(--echo));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;";
       btn.textContent = '새로운 잔향';
-      btn.onclick = () => { if (typeof window.restartFromEnding === 'function') window.restartFromEnding(); };
+      btn.onclick = () => { if (typeof deps.restartFromEnding === 'function') deps.restartFromEnding(); };
       btnCont.appendChild(btn);
 
       const foot = doc.createElement('div');
@@ -162,7 +162,7 @@ export const StoryUI = {
       const btn = doc.createElement('button');
       btn.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--echo),var(--echo-bright));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;";
       btn.textContent = '다시 잔향 속으로';
-      btn.onclick = () => { if (typeof window.restartFromEnding === 'function') window.restartFromEnding(); };
+      btn.onclick = () => { if (typeof deps.restartFromEnding === 'function') deps.restartFromEnding(); };
       btnCont.appendChild(btn);
 
       const foot = doc.createElement('div');
@@ -176,7 +176,7 @@ export const StoryUI = {
     setTimeout(() => {
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
-          deps.particleSystem?.burstEffect?.(window.innerWidth * (0.2 + Math.random() * 0.6), window.innerHeight * (0.2 + Math.random() * 0.6));
+          deps.particleSystem?.burstEffect?.(innerWidth * (0.2 + Math.random() * 0.6), innerHeight * (0.2 + Math.random() * 0.6));
         }, i * 300);
       }
       deps.audioEngine?.playResonanceBurst?.();

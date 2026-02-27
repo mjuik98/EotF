@@ -5,7 +5,7 @@ function _getDoc(deps) {
 export const RunReturnUI = {
   returnToGame(fromReward, deps = {}) {
     const gs = deps.gs;
-    const runRules = deps.runRules || window.RunRules;
+    const runRules = deps.runRules;
     if (!gs || !runRules) return;
 
     const wasBoss = gs._bossRewardPending;

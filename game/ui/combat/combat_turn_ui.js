@@ -18,8 +18,8 @@ function _getWin(deps) {
 
 export const CombatTurnUI = {
   endPlayerTurn(deps = {}) {
-    const gs = deps.gs || window.GS;
-    const data = deps.data || window.DATA;
+    const gs = deps.gs;
+    const data = deps.data;
 
     // ── 로직 위임 ──
     const result = TurnManager.endPlayerTurnLogic(gs, data, {
@@ -49,8 +49,8 @@ export const CombatTurnUI = {
   },
 
   async enemyTurn(deps = {}) {
-    const gs = deps.gs || window.GS;
-    const data = deps.data || window.DATA;
+    const gs = deps.gs;
+    const data = deps.data;
     const win = _getWin(deps);
     const doc = _getDoc(deps);
     if (!gs?.combat?.active) return;
@@ -170,7 +170,7 @@ export const CombatTurnUI = {
 
     TurnManager.startPlayerTurnLogic(gs);
 
-    window.RunRules?.onTurnStart?.(gs);
+    deps.runRules?.onTurnStart?.(gs);
 
     // UI 반영
     const turnIndicator = doc.getElementById('turnIndicator');
@@ -198,7 +198,7 @@ export const CombatTurnUI = {
       case 'renderCombatCards': deps.renderCombatCards?.(); break;
       case 'updateUI': deps.updateUI?.(); break;
       case 'shuffleAndRender':
-        deps.shuffleArray?.(deps.gs?.player?.hand || window.GS?.player?.hand);
+        deps.shuffleArray?.(deps.gs?.player?.hand);
         deps.renderCombatCards?.();
         break;
     }
@@ -206,13 +206,13 @@ export const CombatTurnUI = {
 
   // ── 하위 호환: 기존 API 유지 ──
   processEnemyStatusTicks(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     TurnManager.processEnemyStatusTicks(gs);
     deps.renderCombatEnemies?.();
   },
 
   processPlayerStatusTicks(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     const result = TurnManager.processPlayerStatusTicks(gs, {
       shuffleArrayFn: deps.shuffleArray,
     });
@@ -222,7 +222,7 @@ export const CombatTurnUI = {
   },
 
   handleBossPhaseShift(enemy, idx, deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     const doc = _getDoc(deps);
     const win = _getWin(deps);
 
@@ -247,8 +247,8 @@ export const CombatTurnUI = {
   },
 
   handleEnemyEffect(effect, enemy, idx, deps = {}) {
-    const gs = deps.gs || window.GS;
-    const data = deps.data || window.DATA;
+    const gs = deps.gs;
+    const data = deps.data;
     const baseRegion = deps.getBaseRegionIndex?.(gs.currentRegion);
     const result = TurnManager.handleEnemyEffect(effect, gs, enemy, { baseRegion, data });
     if (result?.uiAction) this._dispatchUIAction(result, deps);

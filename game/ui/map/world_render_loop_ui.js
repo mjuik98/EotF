@@ -4,7 +4,7 @@ import { ParticleSystem } from '../../../engine/particles.js';
 let _lastTimestamp = 0;
 
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 function _getRefs(deps) {
@@ -45,7 +45,7 @@ export const WorldRenderLoopUI = {
     _lastTimestamp = timestamp;
 
     const screenShake = deps.screenShake || window.ScreenShake;
-    const particleSystem = deps.particleSystem || window.ParticleSystem;
+    const particleSystem = deps.particleSystem;
 
     screenShake?.update?.();
     gameCtx.save();

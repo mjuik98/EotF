@@ -188,7 +188,7 @@ export const HelpPauseUI = {
   },
 
   togglePause(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     if (!gs) return;
 
     const doc = _getDoc(deps);
@@ -218,11 +218,11 @@ export const HelpPauseUI = {
       const deckBtn = doc.createElement('button');
       deckBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
       deckBtn.textContent = '📚 덱 보기';
-      deckBtn.onclick = () => { if (typeof window.showDeckView === 'function') window.showDeckView(); this.togglePause(deps); };
+      deckBtn.onclick = () => { if (typeof deps.showDeckView === 'function') deps.showDeckView(); this.togglePause(deps); };
       const codexBtn = doc.createElement('button');
       codexBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
       codexBtn.textContent = '📖 도감';
-      codexBtn.onclick = () => { if (typeof window.openCodex === 'function') window.openCodex(); this.togglePause(deps); };
+      codexBtn.onclick = () => { if (typeof deps.openCodex === 'function') deps.openCodex(); this.togglePause(deps); };
       midRow.append(deckBtn, codexBtn);
 
       const helpBtn = doc.createElement('button');
@@ -243,7 +243,7 @@ export const HelpPauseUI = {
       const quitBtn = doc.createElement('button');
       quitBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.05);border:1px solid rgba(255,51,102,0.2);border-radius:8px;padding:14px;cursor:pointer;margin-top:4px;";
       quitBtn.textContent = '게임 종료';
-      quitBtn.onclick = () => { if (typeof window.quitGame === 'function') window.quitGame(); };
+      quitBtn.onclick = () => { if (typeof deps.quitGame === 'function') deps.quitGame(); };
 
       mainBtns.append(resBtn, midRow, helpBtn, abnBtn, startBtn, quitBtn);
 
@@ -261,9 +261,9 @@ export const HelpPauseUI = {
       };
 
       volPanel.append(
-        createSliderRow('마스터', 'volMasterSlider', (v) => { if (typeof window.setMasterVolume === 'function') window.setMasterVolume(v); }),
-        createSliderRow('SFX', 'volSfxSlider', (v) => { if (typeof window.setSfxVolume === 'function') window.setSfxVolume(v); }),
-        createSliderRow('BGM', 'volAmbientSlider', (v) => { if (typeof window.setAmbientVolume === 'function') window.setAmbientVolume(v); })
+        createSliderRow('마스터', 'volMasterSlider', (v) => { if (typeof deps.setMasterVolume === 'function') deps.setMasterVolume(v); }),
+        createSliderRow('SFX', 'volSfxSlider', (v) => { if (typeof deps.setSfxVolume === 'function') deps.setSfxVolume(v); }),
+        createSliderRow('BGM', 'volAmbientSlider', (v) => { if (typeof deps.setAmbientVolume === 'function') deps.setAmbientVolume(v); })
       );
 
       const info = doc.createElement('div');
@@ -273,7 +273,7 @@ export const HelpPauseUI = {
 
       menu.append(eyebrow, head, mainBtns, volPanel, info);
       doc.body.appendChild(menu);
-      if (typeof window._syncVolumeUI === 'function') window._syncVolumeUI();
+      if (typeof deps._syncVolumeUI === 'function') deps._syncVolumeUI();
     } else {
       // 메뉴 제거
       if (menu) menu.remove();
@@ -297,8 +297,8 @@ export const HelpPauseUI = {
     console.log('[bindGlobalHotkeys] Binding ESC key listener');
 
     doc.addEventListener('keydown', e => {
-      // window.GS 를 직접 참조하여 최신 상태 사용
-      const gs = window.GS;
+      // deps를 통해 직접 참조
+      const gs = deps.gs;
 
       // ESC: 일시정지 또는 모달 닫기
       if (e.key === 'Escape') {
@@ -320,21 +320,21 @@ export const HelpPauseUI = {
         // 덱 모달 확인 (style.display 사용)
         if (deckModal && deckModal.style.display === 'block') {
           console.log('[ESC Key] Close deck modal');
-          if (typeof window.closeDeckView === 'function') window.closeDeckView();
+          if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
           return;
         }
 
         // 도감 모달 확인 (style.display 사용)
         if (codexModal && codexModal.style.display === 'block') {
           console.log('[ESC Key] Close codex modal');
-          if (typeof window.closeCodex === 'function') window.closeCodex();
+          if (typeof deps.closeCodex === 'function') deps.closeCodex();
           return;
         }
 
         // 런 세팅 모달 확인
         if (runSettingsModal && runSettingsModal.style.display !== 'none') {
           console.log('[ESC Key] Close run settings modal');
-          if (typeof window.closeRunSettings === 'function') window.closeRunSettings();
+          if (typeof deps.closeRunSettings === 'function') deps.closeRunSettings();
           return;
         }
 
@@ -359,7 +359,7 @@ export const HelpPauseUI = {
         console.log('[ESC Key] Ignored - not in game or help open');
       }
 
-      const isInGame = window.GS?.currentScreen === 'game' || window.GS?.combat?.active === true;
+      const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true;
 
       if ((e.key === '?' || e.key === '/') && isInGame) {
         e.preventDefault();
@@ -375,34 +375,34 @@ export const HelpPauseUI = {
         }
       }
 
-      if ((e.key === 'e' || e.key === 'E') && isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
+      if ((e.key === 'e' || e.key === 'E') && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         if (typeof deps.useEchoSkill === 'function') deps.useEchoSkill();
       }
 
-      if (e.key === 'Enter' && isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
+      if (e.key === 'Enter' && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
         if (typeof deps.endPlayerTurn === 'function') deps.endPlayerTurn();
       }
 
-      if (isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
+      if (isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         const numKey = e.key === '0' ? 10 : parseInt(e.key, 10);
         if (!isNaN(numKey) && numKey >= 1 && numKey <= 10) {
           const idx = numKey - 1;
-          if (window.GS?.player?.hand?.[idx] && typeof window.GS?.playCard === 'function') {
-            window.GS.playCard(window.GS.player.hand[idx], idx);
+          if (gs?.player?.hand?.[idx] && typeof gs?.playCard === 'function') {
+            gs.playCard(gs.player.hand[idx], idx);
           }
         }
       }
 
-      if (e.key === 'Tab' && isInGame && window.GS?.combat?.active && window.GS?.combat?.playerTurn) {
+      if (e.key === 'Tab' && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
-        const enemies = window.GS?.combat?.enemies;
+        const enemies = gs?.combat?.enemies;
         const aliveIndices = enemies.map((enemy, idx) => enemy.hp > 0 ? idx : -1).filter(idx => idx >= 0);
         if (aliveIndices.length > 1) {
-          const cur = aliveIndices.indexOf(window.GS._selectedTarget ?? -1);
-          window.GS._selectedTarget = aliveIndices[(cur + 1) % aliveIndices.length];
-          if (typeof window.GS?.addLog === 'function') {
-            window.GS.addLog(`🎯 타겟: ${enemies[window.GS._selectedTarget].name} `, 'system');
+          const cur = aliveIndices.indexOf(gs._selectedTarget ?? -1);
+          gs._selectedTarget = aliveIndices[(cur + 1) % aliveIndices.length];
+          if (typeof gs?.addLog === 'function') {
+            gs.addLog(`🎯 타겟: ${enemies[gs._selectedTarget].name} `, 'system');
           }
           if (typeof deps.renderCombatEnemies === 'function') {
             deps.renderCombatEnemies();

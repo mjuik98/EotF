@@ -9,8 +9,8 @@ function _getDoc(deps) {
 
 export const CodexUI = {
   openCodex(deps = {}) {
-    const gs = deps.gs || (typeof window !== 'undefined' ? window.GS : null);
-    const data = deps.data || (typeof window !== 'undefined' ? window.DATA : null);
+    const gs = deps.gs;
+    const data = deps.data;
 
     if (gs && !gs.meta) gs.meta = {};
     if (gs && gs.meta && !gs.meta.codex) {

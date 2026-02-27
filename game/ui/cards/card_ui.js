@@ -33,15 +33,15 @@ export const CardUI = {
   },
 
   renderCombatCards(deps = {}) {
-    const gs = deps.gs || window.GS;
-    const data = deps.data || window.DATA;
+    const gs = deps.gs;
+    const data = deps.data;
     if (!gs?.player?.hand || !data?.cards) return;
 
     const doc = _getDoc(deps);
     const zone = doc.getElementById('combatHandCards');
     if (!zone) return;
 
-    const playCardHandler = deps.playCardHandler || window.GS?.playCard;
+    const playCardHandler = deps.playCardHandler;
     const dragStartHandler = deps.dragStartHandler || window.handleCardDragStart;
     const dragEndHandler = deps.dragEndHandler || window.handleCardDragEnd;
     const showTooltipHandler = deps.showTooltipHandler || window.showTooltip;
@@ -175,15 +175,15 @@ export const CardUI = {
   },
 
   renderHand(deps = {}) {
-    const gs = deps.gs || window.GS;
-    const data = deps.data || window.DATA;
+    const gs = deps.gs;
+    const data = deps.data;
     if (!gs?.player?.hand || !data?.cards) return;
 
     const doc = _getDoc(deps);
     const zone = doc.getElementById('handCards');
     if (!zone) return;
 
-    const playCardHandler = deps.playCardHandler || window.GS?.playCard;
+    const playCardHandler = deps.playCardHandler;
     const renderCombatCardsHandler = deps.renderCombatCardsHandler || window.renderCombatCards;
 
     zone.textContent = '';

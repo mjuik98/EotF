@@ -1,5 +1,5 @@
 import { DATA } from '../../data/game_data.js';
-
+import { GAME } from '../core/global_bridge.js';
 export function getRegionCount() {
   return Array.isArray(DATA?.regions) ? DATA.regions.length : 0;
 }
@@ -20,7 +20,7 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
   const baseRegion = DATA.regions[baseIdx];
   if (!baseRegion) return null;
 
-  const gs = gsRef || window.GS || null;
+  const gs = gsRef || GAME.State || null;
   const endless = !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
   if (!endless || idx < count) return baseRegion;
 
@@ -64,7 +64,7 @@ export const RunRules = {
       if (Array.isArray(meta.codex.enemies)) meta.codex.enemies = new Set(meta.codex.enemies);
       if (Array.isArray(meta.codex.cards)) meta.codex.cards = new Set(meta.codex.cards);
       if (Array.isArray(meta.codex.items)) meta.codex.items = new Set(meta.codex.items);
-      
+
       if (!(meta.codex.enemies instanceof Set)) meta.codex.enemies = new Set();
       if (!(meta.codex.cards instanceof Set)) meta.codex.cards = new Set();
       if (!(meta.codex.items instanceof Set)) meta.codex.items = new Set();
@@ -205,7 +205,7 @@ export const RunRules = {
 };
 
 export function finalizeRunOutcome(kind = 'defeat', options = {}) {
-  const gs = window.GS;
+  const gs = GAME.State;
   if (!gs) return 0;
   if (gs._runOutcomeCommitted) return 0;
   gs._runOutcomeCommitted = true;
@@ -228,8 +228,8 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
   gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
 
   if (window.StorySystem?.unlockNextFragment) StorySystem.unlockNextFragment();
-  if (window.SaveSystem?.saveMeta) SaveSystem.saveMeta();
-  if (window.SaveSystem?.clearSave) SaveSystem.clearSave();
+  if (GAME.Modules?.['SaveSystem']?.saveMeta) GAME.Modules['SaveSystem'].saveMeta();
+  if (GAME.Modules?.['SaveSystem']?.clearSave) GAME.Modules['SaveSystem'].clearSave();
 
   return shardGain;
 }

@@ -221,7 +221,7 @@ export const MapUI = {
 
   /** 미니맵 클릭 시 전체 지도를 큰 오버레이로 표시 */
   showFullMap(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     const doc = _getDoc(deps);
     if (!gs || !gs.mapNodes.length) return;
 

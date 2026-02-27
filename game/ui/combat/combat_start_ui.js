@@ -18,14 +18,14 @@ export const CombatStartUI = {
   startCombat(isBoss = false, deps = {}) {
     console.log('[CombatStart] Starting combat, isBoss:', isBoss);
 
-    const gs = deps.gs || window.GS;
-    const data = deps.data || window.DATA;
+    const gs = deps.gs;
+    const data = deps.data;
     const getRegionData = deps.getRegionData || window.getRegionData;
     const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
     const getRegionCount = deps.getRegionCount || window.getRegionCount;
     const difficultyScaler = deps.difficultyScaler || window.DifficultyScaler;
-    const audioEngine = deps.audioEngine || window.AudioEngine;
-    const runRules = deps.runRules || window.RunRules;
+    const audioEngine = deps.audioEngine;
+    const runRules = deps.runRules;
     const classMechanics = deps.classMechanics || window.ClassMechanics;
 
     if (!gs || !data?.enemies || typeof getRegionData !== 'function') {
@@ -63,7 +63,7 @@ export const CombatStartUI = {
     // ── 로직: 덱 초기화 ──
     CombatInitializer.initDeck(gs, {
       shuffleArrayFn: deps.shuffleArray,
-      drawCardsFn: window.GAME?.API?.drawCards,
+      drawCardsFn: deps.api?.drawCards,
     });
 
     // ═══════════════════════════════════════

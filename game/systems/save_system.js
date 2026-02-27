@@ -8,7 +8,7 @@ function _getDoc(deps) {
 }
 
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 export const SaveSystem = {
@@ -55,7 +55,7 @@ export const SaveSystem = {
       Logger.warn('[SaveSystem] 메타 로드 중 오류:', e.message);
     }
 
-    const runRules = deps.runRules || window.RunRules;
+    const runRules = deps.runRules;
     try {
       runRules?.ensureMeta?.(gs.meta);
     } catch (e) {

@@ -4,7 +4,7 @@ function _getDoc(deps) {
 
 export const CombatActionsUI = {
   drawCard(deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     if (!gs) return;
 
     if (typeof gs.API?.executePlayerDraw === 'function') {

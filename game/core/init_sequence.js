@@ -45,6 +45,10 @@ export function bootGame(modules, fns, Deps) {
         CombatHudUI: modules.CombatHudUI,
         FeedbackUI: modules.FeedbackUI,
         StatusEffectsUI: modules.StatusEffectsUI,
+        AudioEngine,
+        ParticleSystem,
+        ScreenShake: modules.ScreenShake,
+        HitStop: modules.HitStop,
     });
 
     // ── StorySystem 브릿지 ──

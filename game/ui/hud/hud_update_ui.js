@@ -10,7 +10,7 @@ function _getDoc(deps) {
 }
 
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 export const HudUpdateUI = {
@@ -146,7 +146,7 @@ export const HudUpdateUI = {
     if (!gs || !p) return;
 
     const doc = _getDoc(deps);
-    const data = deps.data || window.DATA;
+    const data = deps.data;
     const setBonusSystem = deps.setBonusSystem || window.SetBonusSystem;
     const getRegionData = deps.getRegionData || window.getRegionData;
     // Use DomValueUI directly instead of deps
@@ -446,7 +446,7 @@ export const HudUpdateUI = {
     const modEl = doc.getElementById('hudRunModifiers');
     if (!modEl) return;
     modEl.textContent = '';
-    const runRules = window.RunRules;
+    const runRules = deps.runRules;
     const asc = runRules?.getAscension?.(gs) || 0;
     const endless = runRules?.isEndless?.(gs);
 

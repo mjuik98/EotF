@@ -1,14 +1,14 @@
 import { AudioEngine } from '../../engine/audio.js';
 import { DATA } from '../../data/game_data.js';
+import { GameAPI } from '../core/game_api.js';
 
 export const CardMethods = {
     drawCards(count = 1) {
         const gs = this;
-        const api = gs.API || window.GAME?.API;
         let drewCards = false;
 
-        if (typeof api?.drawCards === 'function') {
-            api.drawCards(count, gs);
+        if (typeof GameAPI?.drawCards === 'function') {
+            GameAPI.drawCards(count, gs);
             drewCards = true;
         } else {
             // 폴백: 직접 카드 뽑기 로직 실행 (API 초기화 전에도 동작)
@@ -21,7 +21,7 @@ export const CardMethods = {
                 }
                 if (gs.player.hand.length < 8) {
                     gs.player.hand.push(gs.player.deck.pop());
-                    window.AudioEngine?.playCard?.();
+                    deps?.audioEngine?.playCard?.();
                     drewCards = true;
                 }
             }
@@ -35,8 +35,7 @@ export const CardMethods = {
 
     playCard(cardId, handIdx) {
         const gs = this;
-        const api = gs.API || window.GAME?.API;
-        return api?.playCard?.(cardId, handIdx, gs);
+        return GameAPI?.playCard?.(cardId, handIdx, gs);
     },
 
     getRandomCard(rarity = 'common') {

@@ -4,7 +4,7 @@ import { Trigger } from '../../data/triggers.js';
 
 export const MapNavigationUI = {
   moveToNode(nodeRef, deps = {}) {
-    const gs = deps.gs || window.GS;
+    const gs = deps.gs;
     if (!gs) return;
 
     let node = nodeRef;

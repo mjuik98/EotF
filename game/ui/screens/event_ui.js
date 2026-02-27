@@ -18,15 +18,15 @@ function _getDoc(deps) {
 }
 
 function _getGS(deps) {
-  return deps?.gs || window.GS;
+  return deps?.gs;
 }
 
 function _getData(deps) {
-  return deps?.data || window.DATA;
+  return deps?.data;
 }
 
 function _getRunRules(deps) {
-  return deps?.runRules || window.RunRules;
+  return deps?.runRules;
 }
 
 function _renderChoices(event, doc, deps = {}) {

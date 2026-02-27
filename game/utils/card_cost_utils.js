@@ -31,7 +31,7 @@ export const CardCostUtils = {
    */
   isChargeFree(cardId, player, handIndex = -1) {
     if (player.zeroCost) return false;
-    if (this.isCascadeFree(cardId, player, handIndex)) return false;
+    if (CardCostUtils.isCascadeFree(cardId, player, handIndex)) return false;
     return Number(player._freeCardUses || 0) > 0;
   },
 
@@ -42,8 +42,8 @@ export const CardCostUtils = {
   calcEffectiveCost(cardId, card, player, handIndex = -1) {
     if (!card || !player) return 0;
     if (player.zeroCost) return 0;
-    if (this.isCascadeFree(cardId, player, handIndex)) return 0;
-    if (this.isChargeFree(cardId, player, handIndex)) return 0;
+    if (CardCostUtils.isCascadeFree(cardId, player, handIndex)) return 0;
+    if (CardCostUtils.isChargeFree(cardId, player, handIndex)) return 0;
     // _nextCardDiscount 는 다음 카드 1 장에만 적용 (우선적으로 차감)
     const nextDisc = player._nextCardDiscount || 0;
     const disc = player.costDiscount || 0;
@@ -55,7 +55,7 @@ export const CardCostUtils = {
    * 현재 에너지로 카드를 사용할 수 있는지 확인
    */
   canPlay(cardId, card, player, handIndex = -1) {
-    const cost = this.calcEffectiveCost(cardId, card, player, handIndex);
+    const cost = CardCostUtils.calcEffectiveCost(cardId, card, player, handIndex);
     return player.energy >= cost;
   },
 
@@ -64,7 +64,7 @@ export const CardCostUtils = {
    * playCard() 내에서 에너지 차감 전에 호출
    */
   consumeFreeCharge(cardId, player, handIndex = -1) {
-    if (this.isCascadeFree(cardId, player, handIndex)) {
+    if (CardCostUtils.isCascadeFree(cardId, player, handIndex)) {
       const cascade = player._cascadeCards;
       if (cascade instanceof Map) {
         if (handIndex !== -1) {
@@ -83,7 +83,7 @@ export const CardCostUtils = {
       }
       return;
     }
-    if (this.isChargeFree(cardId, player, handIndex)) {
+    if (CardCostUtils.isChargeFree(cardId, player, handIndex)) {
       player._freeCardUses = Math.max(0, Number(player._freeCardUses || 0) - 1);
     }
   },
@@ -94,9 +94,9 @@ export const CardCostUtils = {
    */
   getCostDisplay(cardId, card, player, handIndex = -1) {
     const isFree = player.zeroCost
-      || this.isCascadeFree(cardId, player, handIndex)
-      || this.isChargeFree(cardId, player, handIndex);
-    const effectiveCost = this.calcEffectiveCost(cardId, card, player, handIndex);
+      || CardCostUtils.isCascadeFree(cardId, player, handIndex)
+      || CardCostUtils.isChargeFree(cardId, player, handIndex);
+    const effectiveCost = CardCostUtils.calcEffectiveCost(cardId, card, player, handIndex);
     const totalDiscount = (player.costDiscount || 0) + (player._nextCardDiscount || 0);
     const isDiscounted = !isFree && totalDiscount > 0 && effectiveCost < card.cost;
     return { displayCost: effectiveCost, isFree, isDiscounted };

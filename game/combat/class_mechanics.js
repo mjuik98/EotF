@@ -2,7 +2,7 @@ import { GS } from '../core/game_state.js';
 
 
 function _getGS(gs) {
-  return gs || window.GS;
+  return gs;
 }
 
 export const ClassMechanics = {

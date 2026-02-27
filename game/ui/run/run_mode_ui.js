@@ -4,8 +4,8 @@ function _getDoc(deps) {
 
 export const RunModeUI = {
   refresh(deps = {}) {
-    const gs = deps.gs || window.GS;
-    const runRules = deps.runRules || window.RunRules;
+    const gs = deps.gs;
+    const runRules = deps.runRules;
     if (!gs || !runRules) return;
 
     const doc = _getDoc(deps);
@@ -50,15 +50,15 @@ export const RunModeUI = {
       const chunks = [];
       if (cfg.ascension > 0) chunks.push(`승천 A${cfg.ascension}: 적 능력치 상승`);
       else chunks.push('승천 A0: 기본 난이도');
-      
+
       if (cfg.endless) chunks.push('엔들리스: 최종 지역 이후 루프 진행');
-      
+
       if (blessing.id !== 'none') chunks.push(`축복: ${blessing.desc}`);
       if (curse.id !== 'none') chunks.push(`저주: ${curse.desc}`);
-      
+
       if (!ascUnlocked) chunks.push('승천은 2회차부터 해금');
       if (!endlessUnlocked) chunks.push('엔들리스는 승리 누적으로 해금');
-      
+
       descEl.textContent = chunks.join('  ·  ');
       descEl.style.display = chunks.length > 0 ? 'block' : 'none';
     }
