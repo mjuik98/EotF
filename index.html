@@ -40,68 +40,53 @@
       <div id="charSelectSubScreen" class="char-select-sub-screen" style="display:none;">
         <div class="title-sub choose-echo-title">CHOOSE YOUR ECHO</div>
 
-        <div class="class-select class-select-container">
-          <button id="class_swordsman" class="class-btn" data-class="swordsman">
-            <div class="class-btn-icon-container">
-              <span class="class-btn-emoji">⚔️</span>
-            </div>
-            <div class="class-btn-name">잔향검사</div>
-            <div class="class-btn-style">swordsman</div>
-            <div class="class-btn-desc">싸울수록 강해지는 검사.</div>
-            <div class="class-btn-starting-relic">고유 특성: 모멘텀</div>
-            <div class="class-btn-starting-relic">시작 유물: 🔪 무딘 검</div>
-          </button>
-          <button id="class_mage" class="class-btn" data-class="mage">
-            <div class="class-btn-icon-container">
-              <span class="class-btn-emoji">🔮</span>
-            </div>
-            <div class="class-btn-name">메아리술사</div>
-            <div class="class-btn-style">mage</div>
-            <div class="class-btn-desc">적의 행동을 예측하는 마법사.</div>
-            <div class="class-btn-starting-relic">고유 특성: 예지</div>
-            <div class="class-btn-starting-relic">시작 유물: 🔷 허공 파편</div>
-          </button>
-          <button id="class_hunter" class="class-btn" data-class="hunter">
-            <div class="class-btn-icon-container">
-              <span class="class-btn-emoji">🏹</span>
-            </div>
-            <div class="class-btn-name">침묵사냥꾼</div>
-            <div class="class-btn-style">hunter</div>
-            <div class="class-btn-desc">침묵 게이지를 관리하는 암살자.</div>
-            <div class="class-btn-starting-relic">고유 특성: 침묵</div>
-            <div class="class-btn-starting-relic">시작 유물: 🗺️ 여행자 지도</div>
-          </button>
-          <button id="class_paladin" class="class-btn" data-class="paladin">
-            <div class="class-btn-icon-container">
-              <span class="class-btn-emoji">🛡️</span>
-            </div>
-            <div class="class-btn-name">성기사</div>
-            <div class="class-btn-style">paladin</div>
-            <div class="class-btn-desc">생명력을 회복하며 전투하는 기사.</div>
-            <div class="class-btn-starting-relic">고유 특성: 빛의 가호</div>
-            <div class="class-btn-starting-relic">시작 유물: 📿 부서진 목걸이</div>
-          </button>
-          <button id="class_berserker" class="class-btn" data-class="berserker">
-            <div class="class-btn-icon-container">
-              <span class="class-btn-emoji">🪓</span>
-            </div>
-            <div class="class-btn-name">광전사</div>
-            <div class="class-btn-style">berserker</div>
-            <div class="class-btn-desc">낮은 HP에서 더 치명적입니다.</div>
-            <div class="class-btn-starting-relic">고유 특성: 광기 어린 투지</div>
-            <div class="class-btn-starting-relic">시작 유물: 🔴혈정</div>
-          </button>
-          <button id="class_shielder" class="class-btn" data-class="shielder">
-            <div class="class-btn-icon-container">
-              <span class="class-btn-emoji">🧱</span>
-            </div>
-            <div class="class-btn-name">쉴더</div>
-            <div class="class-btn-style">shielder</div>
-            <div class="class-btn-desc">강력한 방어막으로 공격을 막아냅니다.</div>
-            <div class="class-btn-starting-relic">고유 특성: 영혼 갑주</div>
-            <div class="class-btn-starting-relic">시작 유물: 🧥 환영 망토</div>
-          </button>
+        <div id="classSelectContainer" class="class-select class-select-container">
+          <!-- 데이터로부터 동적 생성됨 -->
         </div>
+
+        <script type="module">
+          import { DATA } from './data/game_data.js';
+          import { CLASS_START_ITEMS } from './game/ui/run/run_setup_ui.js';
+
+          function renderClassButtons() {
+            const container = document.getElementById('classSelectContainer');
+            if (!container || !DATA.classes) return;
+
+            container.innerHTML = '';
+            Object.values(DATA.classes).forEach(cls => {
+              const startItemKey = CLASS_START_ITEMS[cls.id];
+              const startItem = DATA.items[startItemKey];
+              const itemInfo = startItem ? `${startItem.icon} 시작 유물: ${startItem.name}` : '';
+
+              const btn = document.createElement('button');
+              btn.id = `class_${cls.id}`;
+              btn.className = 'class-btn';
+              btn.dataset.class = cls.id;
+              btn.innerHTML = `
+                <div class="class-btn-icon-container">
+                  <span class="class-btn-emoji">${cls.emoji}</span>
+                </div>
+                <div class="class-btn-name">${cls.name}</div>
+                <div class="class-btn-style">${cls.style}</div>
+                <div class="class-btn-desc">${cls.desc}</div>
+                <div class="class-btn-desc">고유 특성: ${cls.traitName}</div>
+                <div class="class-btn-starting-relic">${itemInfo}</div>
+              `;
+
+              // 기존의 클릭 이벤트 리스너가 이미 index.html 하단 어딘가에서 바인딩되고 있을 것입니다.
+              // 만약 이벤트 위임을 사용하고 있다면 문제 없지만, 아니라면 리렌더링 후 재바인딩이 필요할 수 있습니다.
+              // 이 앱은 보통 main.js 등에서 이벤트 위임을 사용하므로 그대로 둡니다.
+              container.appendChild(btn);
+            });
+          }
+
+          // 데이터 로드 대기 후 렌더링
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderClassButtons);
+          } else {
+            renderClassButtons();
+          }
+        </script>
 
         <div class="char-select-actions">
           <button id="startBtn" class="start-btn" disabled>잔향 속으로</button>
