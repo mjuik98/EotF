@@ -1,5 +1,5 @@
 import { DATA } from '../../data/game_data.js';
-import { SetBonusSystem } from '../set_bonus_system.js';
+import { SetBonusSystem } from './set_bonus_system.js';
 
 /**
  * 아이템 및 세트 보너스 트리거 시스템

@@ -1,0 +1,235 @@
+import { DescriptionUtils } from '../../utils/description_utils.js';
+
+
+function _getDoc(deps) {
+  return deps?.doc || document;
+}
+
+function _getCardTypeClass(type) {
+  if (!type) return '';
+  const t = type.toLowerCase();
+  if (t === 'attack') return 'type-attack';
+  if (t === 'skill') return 'type-skill';
+  if (t === 'power') return 'type-power';
+  return '';
+}
+
+function _getCardTypeLabelClass(type) {
+  if (!type) return '';
+  const t = type.toLowerCase();
+  if (t === 'attack') return 'card-type-attack';
+  if (t === 'skill') return 'card-type-skill';
+  if (t === 'power') return 'card-type-power';
+  return '';
+}
+
+export const CardUI = {
+  getCardTypeClass(type) {
+    return _getCardTypeClass(type);
+  },
+
+  getCardTypeLabelClass(type) {
+    return _getCardTypeLabelClass(type);
+  },
+
+  renderCombatCards(deps = {}) {
+    const gs = deps.gs || window.GS;
+    const data = deps.data || window.DATA;
+    if (!gs?.player?.hand || !data?.cards) return;
+
+    const doc = _getDoc(deps);
+    const zone = doc.getElementById('combatHandCards');
+    if (!zone) return;
+
+    const playCardHandler = deps.playCardHandler || window.GS?.playCard;
+    const dragStartHandler = deps.dragStartHandler || window.handleCardDragStart;
+    const dragEndHandler = deps.dragEndHandler || window.handleCardDragEnd;
+    const showTooltipHandler = deps.showTooltipHandler || window.showTooltip;
+    const hideTooltipHandler = deps.hideTooltipHandler || window.hideTooltip;
+
+    const handSize = gs.player.hand.length;
+    const cardScale = handSize <= 5 ? 1.2 : handSize <= 7 ? 1.05 : 0.95;
+    const cardW = Math.round(100 * cardScale);
+    const cardH = Math.round(146 * cardScale);
+    const cardFontScale = cardScale < 1 ? `font-size:${Math.round(10 * cardScale)}px;` : '';
+
+    zone.textContent = '';
+    gs.player.hand.forEach((cardId, i) => {
+      const card = data.cards[cardId];
+      if (!card) return;
+
+      const rarityClass = `rarity-${card.rarity || 'common'}`;
+
+      const { displayCost: cost, isFree } = window.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
+      const effectiveCost = window.CardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
+      const canPlay = gs.player.energy >= effectiveCost;
+      const disc = gs.player.costDiscount || 0;
+      const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player, i);
+      const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player, i);
+      const rarityBorder = card.rarity === 'rare'
+        ? 'rgba(240,180,41,0.5)'
+        : card.rarity === 'uncommon'
+          ? 'rgba(123,47,255,0.5)'
+          : '';
+      const isUpgraded = card.upgraded ? 'box-shadow:0 0 15px rgba(0,255,204,0.6), inset 0 0 10px rgba(0,255,204,0.2); border-width:2px; border-color:var(--cyan);' : '';
+      const typeClass = _getCardTypeClass(card.type);
+      const typeLabelClass = _getCardTypeLabelClass(card.type);
+
+      const el = doc.createElement('div');
+      el.className = `card ${canPlay ? 'playable' : ''} ${typeClass} ${rarityClass}`;
+      el.style.cssText = `width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;`;
+      el.draggable = true;
+
+      // 클릭 이벤트 - 카드 사용
+      if (playCardHandler) {
+        el.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await playCardHandler(cardId, i);
+        });
+      }
+
+      // 드래그 이벤트
+      if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
+      if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
+
+      // 툴팁 이벤트
+      if (showTooltipHandler) {
+        el.addEventListener('mouseenter', (e) => {
+          e.stopPropagation();
+          showTooltipHandler(e, cardId);
+        });
+      }
+      if (hideTooltipHandler) el.addEventListener('mouseleave', () => hideTooltipHandler());
+
+      el.textContent = '';
+
+      if (i < 5) {
+        const hotkey = doc.createElement('div');
+        hotkey.className = `card-hotkey ${canPlay ? '' : 'disabled'}`;
+        hotkey.textContent = i + 1;
+        el.appendChild(hotkey);
+      }
+
+      const costEl = doc.createElement('div');
+      costEl.className = 'card-cost';
+      if (!canPlay) {
+        costEl.style.cssText = 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);';
+      } else if ((isCascadeFree || isChargeFree) && card.cost > 0) {
+        costEl.style.cssText = 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;';
+      } else if (disc > 0 && card.cost > 0) {
+        costEl.style.cssText = 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;';
+      }
+      costEl.textContent = cost;
+
+      if (card.cost > 0) {
+        if (isCascadeFree || isChargeFree) {
+          const freeBadge = doc.createElement('span');
+          freeBadge.style.cssText = 'position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;';
+          freeBadge.textContent = 'FREE';
+          costEl.appendChild(freeBadge);
+        } else if (disc > 0) {
+          const discBadge = doc.createElement('span');
+          discBadge.style.cssText = 'position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;';
+          discBadge.textContent = `-${Math.min(disc, card.cost)}`;
+          costEl.appendChild(discBadge);
+        }
+      }
+      el.appendChild(costEl);
+
+      const icon = doc.createElement('div');
+      icon.className = 'card-icon';
+      icon.style.fontSize = cardScale < 1 ? `${Math.round(40 * cardScale)}px` : '40px';
+      icon.textContent = card.icon;
+      el.appendChild(icon);
+
+      const name = doc.createElement('div');
+      name.className = 'card-name';
+      name.style.fontSize = cardScale < 1 ? `${Math.round(12 * cardScale)}px` : '14px';
+      name.textContent = card.name;
+      if (card.upgraded) {
+        const up = doc.createElement('span');
+        up.style.cssText = 'color:var(--cyan);font-size:10px;';
+        up.textContent = ' ✦';
+        name.appendChild(up);
+      }
+      el.appendChild(name);
+
+      const desc = doc.createElement('div');
+      desc.className = 'card-desc';
+      desc.style.display = 'none';
+      if (window.DescriptionUtils) {
+        desc.innerHTML = window.DescriptionUtils.highlight(card.desc);
+      } else {
+        desc.textContent = card.desc;
+      }
+      el.appendChild(desc);
+
+      const type = doc.createElement('div');
+      type.className = `card-type ${typeLabelClass}`;
+      type.textContent = card.type;
+      el.appendChild(type);
+      zone.appendChild(el);
+    });
+
+    this.updateHandFanEffect({ doc });
+  },
+
+  renderHand(deps = {}) {
+    const gs = deps.gs || window.GS;
+    const data = deps.data || window.DATA;
+    if (!gs?.player?.hand || !data?.cards) return;
+
+    const doc = _getDoc(deps);
+    const zone = doc.getElementById('handCards');
+    if (!zone) return;
+
+    const playCardHandler = deps.playCardHandler || window.GS?.playCard;
+    const renderCombatCardsHandler = deps.renderCombatCardsHandler || window.renderCombatCards;
+
+    zone.textContent = '';
+    gs.player.hand.forEach((cardId, i) => {
+      const card = data.cards[cardId];
+      if (!card) return;
+
+      const el = doc.createElement('div');
+      el.className = `card rarity-${card.rarity || 'common'}`;
+      el.title = card.desc;
+
+      el.addEventListener('click', () => {
+        if (playCardHandler) playCardHandler(cardId, i);
+        if (renderCombatCardsHandler) renderCombatCardsHandler();
+      });
+
+      const cost = doc.createElement('div'); cost.className = 'card-cost'; cost.textContent = card.cost;
+      const icon = doc.createElement('div'); icon.className = 'card-icon'; icon.textContent = card.icon;
+      const name = doc.createElement('div'); name.className = 'card-name'; name.textContent = card.name;
+      const desc = doc.createElement('div');
+      desc.className = 'card-desc';
+      if (window.DescriptionUtils) {
+        desc.innerHTML = window.DescriptionUtils.highlight(card.desc);
+      } else {
+        desc.textContent = card.desc;
+      }
+      const type = doc.createElement('div'); type.className = 'card-type'; type.textContent = card.type;
+      el.append(cost, icon, name, desc, type);
+      zone.appendChild(el);
+    });
+  },
+
+  updateHandFanEffect(deps = {}) {
+    const doc = _getDoc(deps);
+    const cards = doc.querySelectorAll('#combatHandCards .card');
+    const n = cards.length;
+    if (n === 0) return;
+
+    const mid = (n - 1) / 2;
+    const spread = Math.min(16, Math.max(6, n * 2));
+    cards.forEach((card, i) => {
+      const ratio = mid === 0 ? 0 : (i - mid) / mid;
+      const angle = ratio * spread;
+      const yOffset = Math.abs(i - mid) * 2;
+      card.style.transformOrigin = 'bottom center';
+      card.style.transform = `rotate(${angle.toFixed(2)}deg) translateY(${yOffset.toFixed(2)}px)`;
+    });
+  },
+};

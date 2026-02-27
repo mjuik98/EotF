@@ -4,10 +4,18 @@
   "description": "Roguelike Deckbuilder Game",
   "main": "index.html",
   "scripts": {
-    "start": "echo 'Open index.html in browser'",
-    "clean": "echo 'Cleaning...'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "keywords": ["game", "roguelike", "deckbuilder"],
+  "keywords": [
+    "game",
+    "roguelike",
+    "deckbuilder"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
 }
