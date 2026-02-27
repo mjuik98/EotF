@@ -48,10 +48,10 @@ export const PlayerMethods = {
         }
     },
 
-    addSilence(amount, deps = {}) {
+    addSilence(amount, label = '소음', deps = {}) {
         this.player.silenceGauge = (this.player.silenceGauge || 0) + amount;
         const max = 10;
-        this.addLog(`🌑 소음 ${this.player.silenceGauge}/${max}`, 'echo');
+        this.addLog(`🌑 ${label} ${this.player.silenceGauge}/${max}`, 'echo');
         if (this.player.silenceGauge >= max) {
             this.player.silenceGauge = 0;
             this.spawnEnemy(deps);

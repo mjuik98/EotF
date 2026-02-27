@@ -212,7 +212,7 @@ export const CARDS = {
     silent_stab: {
         id: 'silent_stab', name: '침묵 자상', icon: '🗡️', cost: 0, type: 'ATTACK', desc: '6 피해, 침묵 +1', rarity: 'common',
         image: 'card_silent_stab.png',
-        effect(gs) { gs.dealDamage(6); gs.addSilence(1); }
+        effect(gs) { gs.dealDamage(6); gs.addSilence(1, '침묵'); }
     },
     vanish: {
         id: 'vanish', name: '은신', icon: '🌑', cost: 1, type: 'SKILL', desc: '다음 공격 크리티컬', rarity: 'common',
