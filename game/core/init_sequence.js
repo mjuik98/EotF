@@ -63,6 +63,7 @@ export function bootGame(modules, fns, Deps) {
     };
     GAME.register('storySystem', StorySystem);
     modules.StorySystem = StorySystem;
+    Deps.patchRefs({ StorySystem });
 
     // ── GAME.register 추가 등록 ──
     GAME.register('advanceToNextRegion', fns.advanceToNextRegion);

@@ -102,9 +102,9 @@ export const DamageSystem = {
         this.markDirty('enemies');
 
         // 다중 공격 등에서 DOM 즉각 갱신 보장
-        const winObj = deps?.win || window;
-        if (winObj && typeof winObj.updateStatusDisplay === 'function') {
-            winObj.updateStatusDisplay();
+        // window 폴백 참조 제거, 순수 DI 의존성으로만 접근
+        if (typeof deps?.updateStatusDisplay === 'function') {
+            deps.updateStatusDisplay();
         }
 
         if (result && result.isDead && typeof this.onEnemyDeath === 'function') {

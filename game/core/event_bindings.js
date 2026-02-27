@@ -80,7 +80,7 @@ function exposeToWindow(fns) {
     windowExpose.forEach(name => { if (fns[name]) window[name] = fns[name]; });
 
     // Special: updateUI wraps through HudUpdateUI
-    window.updateUI = () => M.HudUpdateUI?.updateUI?.(Deps.baseDeps());
+    window.updateUI = () => M.HudUpdateUI?.updateUI?.(Deps.getHudUpdateDeps());
 
     // Special: enemy status tooltip
     window.showEnemyStatusTooltip = (event, statusKey) => M.CombatUI?.showEnemyStatusTooltip?.(event, statusKey, M.GAME.getDeps());

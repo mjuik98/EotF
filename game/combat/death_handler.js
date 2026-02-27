@@ -105,13 +105,12 @@ export const DeathHandler = {
                     returnToGame: deps.returnToGame || win.returnToGame,
                     updateUI: deps.updateUI || win.updateUI,
                     renderHand: deps.renderHand || win.renderHand,
-                    renderCombatCards: deps.renderCombatCards || win.renderCombatCards,
                     updateChainUI: deps.updateChainUI || win.updateChainUI,
-                    cleanupAllTooltips: deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips,
                     tooltipUI: deps.tooltipUI || win.TooltipUI,
                     hudUpdateUI: deps.hudUpdateUI || win.HudUpdateUI,
-                    showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
                 };
+                if (typeof deps.cleanupAllTooltips === 'function') deps.cleanupAllTooltips();
+                if (typeof deps.renderCombatCards === 'function') deps.renderCombatCards();
                 this.endCombat(endCombatDeps);
             }, 900);
         }

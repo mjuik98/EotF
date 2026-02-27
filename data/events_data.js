@@ -65,14 +65,17 @@ export const EVENTS = [
         choices: [
             {
                 text: '⚒️ 카드를 강화한다', effect(gs) {
-                    // gs에서 UPGRADE_MAP 참조 대신 DATA를 통해서 참조 (임시로, 나중에 game_data 통합 본에서 구조화됨)
-                    // 여기 이벤트 내에선 gs와 CARDS를 통해 가져옴. 
-                    // 안전하게 처리 위해 window.DATA 나 import 기반으로 가져와야 함.
-                    // 현재는 이벤트 로직 내에서 DATA 객체를 gs 외부에서 참조 시도할 가능성 방지:
-                    const upgradable = gs.player.deck.filter(id => import('./cards.js').then(m => m.UPGRADE_MAP[id]));
-                    // TODO: 실제 게임에서는 동기적 UPGRADE_MAP 필요. 여기서는 `window.DATA.upgradeMap` 유지하거나 임베딩
-                    // 이를 우회하기 위해 일단 기존 `DATA.upgradeMap` 방식을 사용할 수 있게 GameState/Data 쪽 보완 권장
-                    return '카드를 강화했습니다. (로직은 game_data 리팩토링 후 최적화 필요)';
+                    const upgradable = gs.player.deck.filter(id => window.DATA?.upgradeMap?.[id]);
+                    if (!upgradable.length) return '강화 가능한 카드가 없습니다.';
+
+                    const target = upgradable[Math.floor(Math.random() * upgradable.length)];
+                    const upgraded = window.DATA.upgradeMap[target];
+                    const idx = gs.player.deck.indexOf(target);
+                    if (idx !== -1) gs.player.deck[idx] = upgraded;
+
+                    const originName = window.DATA.cards[target]?.name || '알 수 없음';
+                    const newName = window.DATA.cards[upgraded]?.name || '알 수 없음';
+                    return `${originName} → ${newName} 강화!`;
                 }
             },
             { text: '🔥 Echo를 충전한다 (Echo +40)', effect(gs) { gs.addEcho(40); return 'Echo가 충전되었다.'; } },
