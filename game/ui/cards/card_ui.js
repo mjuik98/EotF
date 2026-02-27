@@ -60,10 +60,15 @@ export const CardUI = {
 
       const rarityClass = `rarity-${card.rarity || 'common'}`;
 
-      const { displayCost: cost, isFree } = window.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
+      const displayMax = window.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
+      const { displayCost: cost, isFree, isDiscounted } = displayMax;
       const effectiveCost = window.CardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
       const canPlay = gs.player.energy >= effectiveCost;
-      const disc = gs.player.costDiscount || 0;
+
+      const nextDisc = gs.player._nextCardDiscount || 0;
+      const baseDisc = gs.player.costDiscount || 0;
+      const totalDisc = nextDisc + baseDisc;
+
       const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player, i);
       const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player, i);
       const rarityBorder = card.rarity === 'rare'
@@ -118,7 +123,7 @@ export const CardUI = {
         costEl.style.cssText = 'background:rgba(80,80,80,0.4);border-color:rgba(150,150,150,0.3);';
       } else if ((isCascadeFree || isChargeFree) && card.cost > 0) {
         costEl.style.cssText = 'background:rgba(0,255,204,0.2);border-color:rgba(0,255,204,0.7);color:#00ffcc;';
-      } else if (disc > 0 && card.cost > 0) {
+      } else if (totalDisc > 0 && card.cost > 0) {
         costEl.style.cssText = 'background:rgba(0,255,100,0.25);border-color:rgba(0,255,100,0.6);color:#00ff88;';
       }
       costEl.textContent = cost;
@@ -129,10 +134,10 @@ export const CardUI = {
           freeBadge.style.cssText = 'position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ffcc;background:rgba(0,30,20,0.9);border-radius:3px;padding:1px 2px;line-height:1;';
           freeBadge.textContent = 'FREE';
           costEl.appendChild(freeBadge);
-        } else if (disc > 0) {
+        } else if (totalDisc > 0) {
           const discBadge = doc.createElement('span');
           discBadge.style.cssText = 'position:absolute;top:-4px;left:-4px;font-size:7px;color:#00ff88;background:rgba(0,30,10,0.9);border-radius:3px;padding:1px 2px;line-height:1;';
-          discBadge.textContent = `-${Math.min(disc, card.cost)}`;
+          discBadge.textContent = `-${Math.min(totalDisc, card.cost)}`;
           costEl.appendChild(discBadge);
         }
       }
