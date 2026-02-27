@@ -142,4 +142,5 @@ function registerModules() {
     G.register('ClassMechanics', M.ClassMechanics);
     G.register('RunRules', M.RunRules);
     G.register('CardCostUtils', M.CardCostUtils);
+    G.register('GameAPI', M.GameAPI);
 }

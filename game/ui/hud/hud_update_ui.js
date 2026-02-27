@@ -555,7 +555,22 @@ export const HudUpdateUI = {
     const p = gs.player;
     const doc = _getDoc(deps);
 
-    // Update energy orbs
+    // Update HUD energy orbs (Top Layout)
+    const hudOrbs = doc.getElementById('hudEnergyOrbs');
+    if (hudOrbs) {
+      hudOrbs.textContent = '';
+      for (let i = 0; i < p.maxEnergy; i++) {
+        const orb = doc.createElement('div');
+        orb.className = `hud-energy-orb ${i < p.energy ? 'filled' : ''}`;
+        hudOrbs.appendChild(orb);
+      }
+    }
+    const hudEnergyText = doc.getElementById('hudEnergyText');
+    if (hudEnergyText) {
+      hudEnergyText.textContent = `${p.energy}/${p.maxEnergy}`;
+    }
+
+    // Update combat energy orbs
     const combatOrbs = doc.getElementById('combatEnergyOrbs');
     if (combatOrbs) {
       const displayMax2 = Math.max(p.maxEnergy, p.energy);

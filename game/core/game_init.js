@@ -59,10 +59,22 @@ export const GameInit = {
         } = deps.actions;
 
         // Title Screen
+        doc.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const char = doc.getElementById('charSelectSubScreen');
+                if (char && char.style.display === 'block') {
+                    backToTitle?.();
+                }
+            }
+        });
+
         doc.getElementById('mainStartBtn')?.addEventListener('click', () => showCharacterSelect?.());
         doc.getElementById('mainRunRulesBtn')?.addEventListener('click', () => openRunSettings?.());
         doc.getElementById('mainCodexBtn')?.addEventListener('click', () => openCodexFromTitle?.());
-        doc.getElementById('mainSettingsBtn')?.addEventListener('click', () => doc.getElementById('soundSettings')?.classList.toggle('open'));
+        doc.getElementById('mainSettingsBtn')?.addEventListener('click', () => {
+            deps.audioEngine?.playClick?.();
+            doc.getElementById('soundSettings')?.classList.toggle('open');
+        });
         doc.getElementById('mainQuitBtn')?.addEventListener('click', () => typeof quitGame === 'function' && quitGame());
 
         doc.querySelectorAll('.class-btn').forEach(btn => {
@@ -83,7 +95,10 @@ export const GameInit = {
         doc.getElementById('curseCycleBtn')?.addEventListener('click', () => cycleRunCurse?.());
 
         // Sound
-        doc.getElementById('soundToggleBtn')?.addEventListener('click', () => doc.getElementById('soundSettings')?.classList.toggle('open'));
+        doc.getElementById('soundToggleBtn')?.addEventListener('click', () => {
+            deps.audioEngine?.playClick?.();
+            doc.getElementById('soundSettings')?.classList.toggle('open');
+        });
         doc.getElementById('volMaster')?.addEventListener('input', (e) => setMasterVolume?.(e.target.value));
         doc.getElementById('volSfx')?.addEventListener('input', (e) => setSfxVolume?.(e.target.value));
         doc.getElementById('volAmbient')?.addEventListener('input', (e) => setAmbientVolume?.(e.target.value));
