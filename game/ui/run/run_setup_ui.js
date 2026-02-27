@@ -121,5 +121,9 @@ export const RunSetupUI = {
 
     if (typeof deps.resetDeckModalFilter === 'function') deps.resetDeckModalFilter();
     if (typeof deps.enterRun === 'function') deps.enterRun();
+
+    // 게임 시작 직후 HUD 즉시 갱신 (초기 상태와의 불일치 방지)
+    if (typeof deps.updateUI === 'function') deps.updateUI();
+    gs.markDirty('hud');
   },
 };

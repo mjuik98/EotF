@@ -156,10 +156,7 @@ export const HudUpdateUI = {
     };
     const setText = (id, val) => {
       const el = doc.getElementById(id);
-      if (el) {
-        el.textContent = val;
-        console.log('[setText]', id, '=', val, 'el:', el.id);
-      }
+      if (el) el.textContent = val;
     };
 
     // HP - 저체력 시 색상 변화
@@ -189,6 +186,9 @@ export const HudUpdateUI = {
         ? 'linear-gradient(90deg,#8b0000,#cc0000)'
         : 'linear-gradient(90deg,#cc2244,#ff4466)';
     }
+
+    // 컴팩트 HUD HP 텍스트 동기화
+    setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
 
     const hudEchoText = doc.getElementById('hudEchoText');
     if (hudEchoText) hudEchoText.textContent = Math.floor(p.echo);
@@ -342,7 +342,6 @@ export const HudUpdateUI = {
     }
 
     setText('combatEnergyText', `${p.energy} / ${p.maxEnergy}`);
-    console.log('[updateUI] combatEnergyText set to:', `${p.energy} / ${p.maxEnergy}`, 'element:', doc.getElementById('combatEnergyText')?.textContent);
     setText('combatDeckCount', p.deck.length);
     setText('combatGraveCount', p.graveyard.length);
     setText('combatExhaustCount', p.exhausted.length);
@@ -677,13 +676,17 @@ export const HudUpdateUI = {
     setBar('hoverShieldBar', shieldPct);
     setText('hoverShieldText', p.shield || '0');
 
-    const echoPct = (p.echo / p.maxEcho) * 100;
+    // Echo 바를 tier 기준으로 표시 (doUpdateUI와 동일한 계산)
+    const echo2 = Math.floor(p.echo);
+    const tierMax2 = echo2 >= 100 ? 100 : echo2 >= 60 ? 100 : echo2 >= 30 ? 60 : 30;
+    const tierMin2 = echo2 >= 60 ? 60 : echo2 >= 30 ? 30 : 0;
+    const echoPct = Math.min(100, ((echo2 - tierMin2) / (tierMax2 - tierMin2)) * 100);
     setBar('echoBar', echoPct);
-    setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
+    setText('echoText', `${echo2} / ${p.maxEcho}`);
 
     // 호버 패널 동기화 (Echo)
     setBar('hoverEchoBar', echoPct);
-    setText('hoverEchoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
+    setText('hoverEchoText', `${echo2} / ${p.maxEcho}`);
 
     const mazeEcho2 = doc.getElementById('mazeEcho');
     if (mazeEcho2) mazeEcho2.textContent = Math.floor(p.echo);

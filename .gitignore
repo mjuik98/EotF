@@ -1,18 +1,13 @@
 # Dependencies
 node_modules/
 
-# Local backup/test artifacts
-echo-of-the-fallenV*.html
-test.txt
-test_write.txt
+# Build output
+dist/
 
 # OS/editor noise
 .DS_Store
 Thumbs.db
 
-# Generated local analysis artifacts
-all_assets.txt
-asset_list.txt
-asset_names.txt
-current_images.txt
-game_data_full.txt
+# Temporary/generated files
+*.log
+eslint_report.txt
