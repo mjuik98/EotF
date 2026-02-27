@@ -1,20 +1,17 @@
 function _getDoc(deps) {
   return deps?.doc || document;
 }
+import { Actions } from '../../core/state_actions.js';
 
 export const CombatActionsUI = {
   drawCard(deps = {}) {
     const gs = deps.gs;
     if (!gs) return;
 
-    if (typeof gs.API?.executePlayerDraw === 'function') {
-      gs.API.executePlayerDraw(gs);
-    } else {
-      console.warn('[CombatActionsUI] GameAPI.executePlayerDraw not found, falling back to legacy');
-      // Legacy fallback if API not yet initialized
+    if (gs.combat?.active && gs.combat?.playerTurn) {
       if (gs.player.energy >= 1 && gs.player.hand.length < 8) {
-        gs.player.energy -= 1;
-        gs.drawCards(1);
+        gs.dispatch(Actions.PLAYER_ENERGY, { amount: -1 });
+        gs.drawCards?.(1);
       }
     }
   }

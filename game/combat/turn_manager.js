@@ -220,7 +220,6 @@ export const TurnManager = {
         gs.player.hand = [];
         gs.player.echoChain = 0;
 
-        gs.API?.modifyEnergy?.(0, gs);
         gs.player.costDiscount = 0;
         gs.player._nextCardDiscount = 0;
 
