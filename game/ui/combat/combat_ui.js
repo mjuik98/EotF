@@ -519,7 +519,7 @@ export const CombatUI = {
           if (intent.dmg > 0) {
             const dmgVal = doc.createElement('span');
             // Bug 4 Fix: Force red color style for predicted damage instead of dynamic CSS relying on undefined styles
-            dmgVal.style.cssText = 'color:#ff4466;font-size:16px;font-weight:900;text-shadow:0 0 5px rgba(204,34,68,0.5);';
+            dmgVal.style.cssText = 'color:#ff4466 !important;font-size:16px;font-weight:900;text-shadow:0 0 5px rgba(204,34,68,0.5);';
             dmgVal.textContent = intent.dmg;
             dmgDiv.appendChild(dmgVal);
           }

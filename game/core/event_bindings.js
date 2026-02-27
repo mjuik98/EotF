@@ -136,4 +136,5 @@ function registerModules() {
     G.register('RunStartUI', M.RunStartUI);
     G.register('ClassMechanics', M.ClassMechanics);
     G.register('RunRules', M.RunRules);
+    G.register('CardCostUtils', M.CardCostUtils);
 }

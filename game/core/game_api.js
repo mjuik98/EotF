@@ -184,7 +184,7 @@ export const GameAPI = {
             Logger.info(`Card ${card.name} played successfully.`);
             GAME.getDeps()?.renderCombatCards?.();
             gs.markDirty?.('hud');
-            GAME.getDeps()?.updateUI?.();
+            GAME.Modules?.['HudUpdateUI']?.processDirtyFlags?.(GAME.getDeps());
             return true;
         } catch (e) {
             Logger.error('Error playing card:', e);
