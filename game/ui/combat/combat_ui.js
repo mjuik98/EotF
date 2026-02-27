@@ -62,7 +62,8 @@ function _getWin(deps) {
 
 function _getIntentIcon(intent) {
   if (!intent) return '❓';
-  const t = intent.type || '';
+  const t = String(intent.type || '').toLowerCase();
+  if (t === 'stunned' || t === 'stun') return '⚡';
   if (t.includes('dodge') || t.includes('phase')) return '💨';
   if (t.includes('guard') || t.includes('barrier') || t.includes('shield')) return '🛡️';
   if (t.includes('howl') || t.includes('roar')) return '📣';
@@ -235,7 +236,11 @@ export const CombatUI = {
     if (!enemy?.ai) return;
 
     let intent;
-    try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
+    if (enemy.statusEffects?.stunned > 0) {
+      intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
+    } else {
+      try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
+    }
 
     // 전투 첫 턴(turn === 0): 아직 행동이 없으므로 표시 차단 (일반적으로 1부터 시작)
     if (gs.combat.turn <= 0) return;
@@ -332,7 +337,11 @@ export const CombatUI = {
 
         const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
         let intent;
-        try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
+        if (e.statusEffects?.stunned > 0) {
+          intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
+        } else {
+          try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
+        }
 
         const isSelected = gs._selectedTarget === i && e.hp > 0;
 

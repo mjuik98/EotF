@@ -9,6 +9,7 @@
 
 import { ParticleSystem } from '../../engine/particles.js';
 import { ScreenShake } from '../../engine/screenshake.js';
+import { AudioEngine } from '../../engine/audio.js';
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
@@ -77,7 +78,7 @@ export const CombatLifecycle = {
             const isBoss = this.combat.enemies.some(e => e.isBoss);
             const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
-            audioEngine?.playItemGet?.();
+            AudioEngine?.playItemGet?.();
             const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
             const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
             console.log('[endCombat] Showing combat summary:', combatDmgDealt, combatDmgTaken);
@@ -126,14 +127,14 @@ export const CombatLifecycle = {
         const win = _getWin(deps);
         const updateChainUI = deps.updateChainUI || win.updateChainUI;
         if (typeof updateChainUI === 'function') updateChainUI(chain);
-        if (chain > 0) audioEngine?.playChain?.(chain);
+        if (chain > 0) AudioEngine?.playChain?.(chain);
         if (chain >= 5) this.triggerResonanceBurst(deps);
     },
 
     triggerResonanceBurst(deps = {}) {
         this.player.echoChain = 0;
         this.drainEcho(50);
-        audioEngine?.playResonanceBurst?.();
+        AudioEngine?.playResonanceBurst?.();
         const win = _getWin(deps);
         ScreenShake.shake(15, 0.8);
         let burstDmg = 35 + Math.floor(this.player.echo / 3);

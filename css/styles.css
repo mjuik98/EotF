@@ -4452,10 +4452,12 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .choose-echo-title {
   margin-bottom: 30px;
+  animation: fadeInDown 0.4s ease forwards !important;
 }
 
 .class-select-container {
   margin-bottom: 40px;
+  animation: fadeInUp 0.4s ease 0.1s forwards !important;
 }
 
 .class-btn-starting-relic {

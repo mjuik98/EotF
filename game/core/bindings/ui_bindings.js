@@ -37,7 +37,10 @@ export function createUIBindings(M, fns) {
     fns.setDeckFilter = (type) => M.DeckModalUI?.setDeckFilter?.(type, Deps.getDeckModalDeps());
     fns.closeDeckView = () => M.DeckModalUI?.closeDeckView?.(Deps.getDeckModalDeps());
 
-    fns.openCodex = () => M.CodexUI?.openCodex?.(Deps.getCodexDeps());
+    fns.openCodex = () => {
+        M.AudioEngine?.playClick?.();
+        M.CodexUI?.openCodex?.(Deps.getCodexDeps());
+    };
     fns.setCodexTab = (tab) => M.CodexUI?.setCodexTab?.(tab, Deps.getCodexDeps());
     fns.renderCodexContent = () => M.CodexUI?.renderCodexContent?.(Deps.getCodexDeps());
     fns.closeCodex = () => M.CodexUI?.closeCodex?.(Deps.getCodexDeps());

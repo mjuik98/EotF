@@ -17,9 +17,15 @@ export function createTitleSettingsBindings(M, fns) {
         const char = document.getElementById('charSelectSubScreen');
         if (main && char) { main.style.display = 'block'; char.style.display = 'none'; }
     };
-    fns.openRunSettings = () => M.RunModeUI?.openSettings?.(Deps.getRunModeDeps());
+    fns.openRunSettings = () => {
+        M.AudioEngine?.playClick?.();
+        M.RunModeUI?.openSettings?.(Deps.getRunModeDeps());
+    };
     fns.closeRunSettings = () => M.RunModeUI?.closeSettings?.(Deps.getRunModeDeps());
-    fns.openCodexFromTitle = () => M.CodexUI?.openCodex?.({ gs: M.GS, data: M.DATA });
+    fns.openCodexFromTitle = () => {
+        M.AudioEngine?.playClick?.();
+        M.CodexUI?.openCodex?.({ gs: M.GS, data: M.DATA });
+    };
     fns.selectClass = (btn) => M.ClassSelectUI?.selectClass?.(btn, Deps.getClassSelectDeps());
     fns.startGame = () => M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
 
