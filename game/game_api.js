@@ -155,9 +155,9 @@ export const GameAPI = {
     // === Combat ===
 
     /**
-     * 카드를 사용합니다 (고도화 버전).
+     * 카드를 사용합니다 (동기 처리 - 모든 카드 효과는 동기 함수임).
      */
-    async playCard(cardId, handIdx, gs = window.GS) {
+    playCard(cardId, handIdx, gs = window.GS) {
         const card = window.DATA?.cards?.[cardId];
         if (!card) return false;
 
@@ -184,8 +184,8 @@ export const GameAPI = {
                 gs.addSilence?.(1);
             }
 
-            // 효과 실행 (비동기 처리)
-            await card.effect?.(gs);
+            // 효과 실행 (동기 처리)
+            card.effect?.(gs);
 
             // ── Bug Fix: _nextCardDiscount 소비 (박자 강타 등) ──
             if ((gs.player._nextCardDiscount || 0) > 0) {
@@ -236,7 +236,14 @@ export const GameAPI = {
     setScreen(screenName, gs = window.GS) {
         Logger.info(`[API] Screen change: ${gs.currentScreen} -> ${screenName}`);
         gs.currentScreen = screenName;
-        window.ScreenUI?.show?.(screenName);
+        // ScreenUI 는 GAME.Modules 에 등록되어 있음
+        const ScreenUI = window.GAME?.Modules?.['ScreenUI'];
+        if (ScreenUI?.switchScreen) {
+            ScreenUI.switchScreen(screenName, { gs });
+        } else {
+            // Fallback: direct window call (main.js 에서 window.switchScreen 등록됨)
+            window.switchScreen?.(screenName);
+        }
     },
 
     // === UI Controls ===
@@ -245,10 +252,11 @@ export const GameAPI = {
      * HUD 핀 고정/해제를 토글합니다.
      */
     toggleHudPin() {
-        if (window.CombatHudUI?.toggleHudPin) {
-            window.CombatHudUI.toggleHudPin();
+        // GAME.API 를 통해 호출 (main.js 에서 등록됨)
+        if (typeof window.GAME?.API?.toggleHudPin === 'function') {
+            window.GAME.API.toggleHudPin();
         } else {
-            console.warn('[API] CombatHudUI.toggleHudPin not found');
+            console.warn('[API] GAME.API.toggleHudPin not found');
         }
     },
 
@@ -256,10 +264,11 @@ export const GameAPI = {
      * 덱 보기 모달을 닫습니다.
      */
     closeDeckView() {
-        if (window.DeckModalUI?.closeDeckView) {
-            window.DeckModalUI.closeDeckView();
+        // GAME.API 를 통해 호출 (main.js 에서 등록됨)
+        if (typeof window.GAME?.API?.closeDeckView === 'function') {
+            window.GAME.API.closeDeckView();
         } else {
-            console.warn('[API] DeckModalUI.closeDeckView not found');
+            console.warn('[API] GAME.API.closeDeckView not found');
         }
     },
 
@@ -267,10 +276,11 @@ export const GameAPI = {
      * 도감 모달을 닫습니다.
      */
     closeCodex() {
-        if (window.CodexUI?.closeCodex) {
-            window.CodexUI.closeCodex();
+        // GAME.API 를 통해 호출 (main.js 에서 등록됨)
+        if (typeof window.GAME?.API?.closeCodex === 'function') {
+            window.GAME.API.closeCodex();
         } else {
-            console.warn('[API] CodexUI.closeCodex not found');
+            console.warn('[API] GAME.API.closeCodex not found');
         }
     }
 };

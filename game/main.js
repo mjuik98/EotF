@@ -284,7 +284,12 @@ GAME.API.hideSkipConfirm = () => hideSkipConfirm();
 // LEGACY COMPATIBILITY WRAPPERS
 // (To be phased out by routing through GAME.API directly)
 // ──────────────────────────────────────────────────────────────────────────────
-const _baseDeps = () => GAME.getDeps();
+// ──────────────────────────────────────────────────────────────────────────────
+// _gameStarted 는 아래 UI SYSTEM 섹션에서 정의됨 (line 782)
+const _baseDeps = () => ({
+  ...GAME.getDeps(),
+  isGameStarted: () => _gameStarted,  // 게임 시작 전/후 UI 업데이트 최적화 (rAF 지연 여부)
+});
 
 function _getStoryDeps() {
   return {

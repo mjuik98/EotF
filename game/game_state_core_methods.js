@@ -22,10 +22,13 @@ export const GameStateCoreMethods = {
     if (this.combat.log.length > 200) this.combat.log.shift();
 
     this.markDirty?.('log');
-    if (typeof window.updateCombatLog === 'function') {
+    // GAME.API.updateCombatLog 을 우선으로 호출 (공식 경로)
+    if (typeof window.GAME?.API?.updateCombatLog === 'function') {
+      window.GAME.API.updateCombatLog();
+    } else if (typeof window.updateCombatLog === 'function') {
       window.updateCombatLog();
     } else {
-      window.GAME?.call('updateCombatLog');
+      window.GAME?.call?.('updateCombatLog');
     }
   },
 

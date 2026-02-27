@@ -59,8 +59,12 @@ export const HudUpdateUI = {
   resetCombatUI(deps = {}) {
     const doc = _getDoc(deps);
     doc.getElementById('combatOverlay')?.classList.remove('active');
-    if (typeof window._resetCombatInfoPanel === 'function') {
-      window._resetCombatInfoPanel();
+    // deps 패턴을 사용하여 일관성 유지
+    const resetPanel = deps?.resetCombatInfoPanel
+      || deps?._resetCombatInfoPanel
+      || window._resetCombatInfoPanel;
+    if (typeof resetPanel === 'function') {
+      resetPanel();
     }
     doc.getElementById('noiseGaugeOverlay')?.remove();
     doc.getElementById('cardTooltip')?.classList.remove('visible');

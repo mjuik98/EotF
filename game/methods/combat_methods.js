@@ -1,4 +1,4 @@
-import { AudioEngine } from '../../engine/audio.js';
+﻿import { AudioEngine } from '../../engine/audio.js';
 import { ParticleSystem } from '../../engine/particles.js';
 import { ScreenShake } from '../../engine/screenshake.js';
 import { HitStop } from '../../engine/hitstop.js';
@@ -157,11 +157,6 @@ export const CombatMethods = {
             Logger.debug('[dealDamage] HP text updated to:', txtEl.textContent);
         }
 
-        const updateEnemyHpUI = deps.updateEnemyHpUI || win.updateEnemyHpUI;
-        if (typeof updateEnemyHpUI === 'function') {
-            updateEnemyHpUI(targetIdx, enemy);
-            Logger.debug('[dealDamage] updateEnemyHpUI called');
-        }
 
         this.markDirty('enemies');
 
