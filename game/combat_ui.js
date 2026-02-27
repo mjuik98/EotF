@@ -297,6 +297,16 @@ export const CombatUI = {
     }, 80);
   },
 
+  cleanupAllTooltips(deps = {}) {
+    const doc = _getDoc(deps);
+    // 상태이상 툴팁 즉시 숨김
+    clearTimeout(_enemyStatusTipTimer);
+    doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
+    // 의도 툴팁 즉시 숨김
+    clearTimeout(_intentTipTimer);
+    doc.getElementById('intentTooltip')?.classList.remove('visible');
+  },
+
   renderCombatEnemies(deps = {}) {
     const gs = deps.gs;
     const data = deps.data;

@@ -2166,7 +2166,7 @@ body {
   border-color: var(--echo);
 }
 
-/* ── ENEMY DAMAGE PREVIEW ── */
+/* ── ENEMY DAMAGE PREVIEW — 항상 붉은색 ── */
 .enemy-dmg-preview {
   position: absolute;
   bottom: -35px;
@@ -2174,30 +2174,19 @@ body {
   transform: translateX(-50%);
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #ffcc00;
+  color: var(--danger) !important;
   white-space: nowrap;
   background: rgba(0, 0, 0, 0.75);
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 204, 0, 0.3);
+  border: 1px solid rgba(255, 51, 102, 0.4);
   pointer-events: none;
   z-index: 100;
   display: flex;
   align-items: center;
   gap: 5px;
   animation: fadeIn 0.15s ease both;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-
-.enemy-dmg-preview.hp-hit {
-  color: #ff3366;
-  border-color: rgba(255, 51, 102, 0.4);
-  box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
-}
-
-.enemy-dmg-preview.shield-only {
-  color: #66bbff;
-  border-color: rgba(102, 187, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 51, 102, 0.2);
 }
 
 /* ── DECK VIEWER MODAL ── */
@@ -3091,8 +3080,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 /* 예상 피해 숫자는 항상 붉은색 유지 - 최우선 */
 .enemy-intent .enemy-intent-dmg,
-.enemy-intent-dmg,
-.enemy-dmg-preview {
+.enemy-intent-dmg {
   color: var(--danger) !important;
 }
 
@@ -3937,25 +3925,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   50% {
     box-shadow: 0 0 30px rgba(0, 255, 204, 0.75), 0 0 8px rgba(0, 255, 204, 0.3) inset;
   }
-}
-
-/* 피해 예측 뱃지 - 항상 붉은색 유지 */
-.enemy-dmg-preview {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: var(--danger) !important;
-  background: rgba(255, 51, 102, 0.12);
-  border: 1px solid rgba(255, 51, 102, 0.35);
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-top: 3px;
-  text-align: center;
-  letter-spacing: 0.05em;
-}
-
-/* 선택된 적의 피해 예측도 붉은색 유지 */
-.enemy-card.selected-target .enemy-dmg-preview {
-  color: var(--danger) !important;
 }
 
 /* ── 키보드 단축키 힌트 툴팁 ── */

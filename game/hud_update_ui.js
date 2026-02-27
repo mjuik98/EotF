@@ -193,7 +193,20 @@ export const HudUpdateUI = {
     if (mazeEcho) mazeEcho.textContent = Math.floor(p.echo);
 
     const hudEchoMini = doc.getElementById('hudEchoBarMini');
-    if (hudEchoMini) hudEchoMini.style.width = `${(p.echo / p.maxEcho) * 100}%`;
+    if (hudEchoMini) {
+      const echo = Math.floor(p.echo);
+      // 현재 tier threshold 기준으로 표시 (30/60/100)
+      const tierMax = echo >= 100 ? 100 : echo >= 60 ? 100 : echo >= 30 ? 60 : 30;
+      const tierMin = echo >= 60 ? 60 : echo >= 30 ? 30 : 0;
+      const pct = Math.min(100, ((echo - tierMin) / (tierMax - tierMin)) * 100);
+      hudEchoMini.style.width = `${pct}%`;
+      // tier 별 색상 변경
+      hudEchoMini.style.background = echo >= 100
+        ? 'linear-gradient(90deg, var(--gold), #ffd700)'
+        : echo >= 60
+          ? 'linear-gradient(90deg, var(--cyan), #00ffcc)'
+          : 'linear-gradient(90deg, var(--echo), #a855f7)';
+    }
 
     setText('hudGoldText', p.gold);
 
@@ -273,10 +286,26 @@ export const HudUpdateUI = {
     setBar('hoverShieldBar', Math.min(100, (p.shield / p.maxHp) * 100));
     setText('hoverShieldText', p.shield || '0');
 
-    setBar('echoBar', (p.echo / p.maxEcho) * 100);
-    setText('echoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
-    setBar('hoverEchoBar', (p.echo / p.maxEcho) * 100);
-    setText('hoverEchoText', `${Math.floor(p.echo)} / ${p.maxEcho}`);
+    // Echo 바를 tier 기준으로 표시 (30/60/100)
+    const echo = Math.floor(p.echo);
+    const tierMax = echo >= 100 ? 100 : echo >= 60 ? 100 : echo >= 30 ? 60 : 30;
+    const tierMin = echo >= 60 ? 60 : echo >= 30 ? 30 : 0;
+    const echoPct = Math.min(100, ((echo - tierMin) / (tierMax - tierMin)) * 100);
+    setBar('echoBar', echoPct);
+    setText('echoText', `${echo} / ${p.maxEcho}`);
+    setBar('hoverEchoBar', echoPct);
+    setText('hoverEchoText', `${echo} / ${p.maxEcho}`);
+
+    // Echo 바 색상 tier 별 변경
+    const echoBarEl = doc.getElementById('echoBar');
+    const hoverEchoBarEl = doc.getElementById('hoverEchoBar');
+    const echoBarBg = echo >= 100
+      ? 'linear-gradient(90deg, var(--gold), #ffd700)'
+      : echo >= 60
+        ? 'linear-gradient(90deg, var(--cyan), #00ffcc)'
+        : 'linear-gradient(90deg, var(--echo), #a855f7)';
+    if (echoBarEl) echoBarEl.style.background = echoBarBg;
+    if (hoverEchoBarEl) hoverEchoBarEl.style.background = echoBarBg;
 
     const hudOrbs = doc.getElementById('hudEnergyOrbs');
     if (hudOrbs) {
@@ -514,6 +543,50 @@ export const HudUpdateUI = {
     if (gs_internal) gs_internal.clearDirtyFlag('hud');
   },
 
+  updateCombatEnergy(gs, deps = {}) {
+    if (!gs?.player) return;
+    const p = gs.player;
+    const doc = _getDoc(deps);
+
+    // Update energy orbs
+    const combatOrbs = doc.getElementById('combatEnergyOrbs');
+    if (combatOrbs) {
+      const displayMax2 = Math.max(p.maxEnergy, p.energy);
+      combatOrbs.textContent = '';
+      for (let i = 0; i < displayMax2; i++) {
+        const filled = i < p.energy;
+        const isOverflow = i >= p.maxEnergy;
+        const orb = doc.createElement('div');
+        orb.className = `energy-orb ${filled ? 'filled' : ''}`;
+        if (isOverflow && filled) {
+          orb.style.cssText = 'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);';
+        }
+        combatOrbs.appendChild(orb);
+      }
+    }
+
+    // Update energy text
+    const combatEnergyText = doc.getElementById('combatEnergyText');
+    if (combatEnergyText) {
+      combatEnergyText.textContent = `${p.energy} / ${p.maxEnergy}`;
+    }
+
+    // ▼ 드로우 버튼도 함께 동기화
+    const drawBtn = doc.getElementById('combatDrawCardBtn');
+    if (drawBtn && gs.combat?.active) {
+      const handFull = p.hand.length >= 8;
+      if (handFull) {
+        drawBtn.textContent = '🃏 손패 가득 참';
+      } else if (p.energy < 1) {
+        drawBtn.textContent = '🃏 에너지 부족';
+      } else {
+        drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${p.energy})`;
+      }
+      drawBtn.disabled = !gs.combat.playerTurn || p.energy < 1 || handFull;
+      drawBtn.style.opacity = drawBtn.disabled ? '0.4' : '1';
+    }
+  },
+
   updatePlayerStats(gs, deps = {}) {
     if (!gs?.player) return;
     const p = gs.player;
@@ -554,7 +627,20 @@ export const HudUpdateUI = {
     }
 
     const hudEchoMini = doc.getElementById('hudEchoBarMini');
-    if (hudEchoMini) hudEchoMini.style.width = `${(p.echo / p.maxEcho) * 100}%`;
+    if (hudEchoMini) {
+      const echo = Math.floor(p.echo);
+      // 현재 tier threshold 기준으로 표시 (30/60/100)
+      const tierMax = echo >= 100 ? 100 : echo >= 60 ? 100 : echo >= 30 ? 60 : 30;
+      const tierMin = echo >= 60 ? 60 : echo >= 30 ? 30 : 0;
+      const pct = Math.min(100, ((echo - tierMin) / (tierMax - tierMin)) * 100);
+      hudEchoMini.style.width = `${pct}%`;
+      // tier 별 색상 변경
+      hudEchoMini.style.background = echo >= 100
+        ? 'linear-gradient(90deg, var(--gold), #ffd700)'
+        : echo >= 60
+          ? 'linear-gradient(90deg, var(--cyan), #00ffcc)'
+          : 'linear-gradient(90deg, var(--echo), #a855f7)';
+    }
 
     setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
     setText('hudEchoText', Math.floor(p.echo));
@@ -620,6 +706,7 @@ export const HudUpdateUI = {
   api: {
     updateUI: (deps) => HudUpdateUI.updateUI(deps),
     updatePlayerStats: (gs, deps) => HudUpdateUI.updatePlayerStats(gs, deps),
+    updateCombatEnergy: (gs, deps) => HudUpdateUI.updateCombatEnergy(gs, deps),
     resetCombatUI: (deps) => HudUpdateUI.resetCombatUI(deps),
     triggerDeckShufflePulse: (deps) => HudUpdateUI.triggerDeckShufflePulse(deps),
   }

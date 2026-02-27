@@ -507,6 +507,10 @@ export const CombatMethods = {
             const tooltipUI = deps.tooltipUI || win.TooltipUI;
             tooltipUI?.hideTooltip?.({ doc });
 
+            // 전투 종료 시 툴팁 정리
+            const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
+            if (typeof cleanupTooltips === 'function') cleanupTooltips({ doc, win });
+
             doc.getElementById('cardTooltip')?.classList.remove('visible');
             const combatHandCards = doc.getElementById('combatHandCards');
             if (combatHandCards) combatHandCards.textContent = '';
