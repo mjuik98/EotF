@@ -24,8 +24,7 @@ export const CombatLifecycle = {
         const doc = _getDoc(deps);
 
         try {
-            this.combat.active = false;
-            EventBus.emit(Actions.COMBAT_END, { victory: true });
+            this.dispatch(Actions.COMBAT_END, { victory: true });
             const tooltipUI = deps.tooltipUI || win.TooltipUI;
             tooltipUI?.hideTooltip?.({ doc });
 
@@ -46,21 +45,6 @@ export const CombatLifecycle = {
                 if (endZone) endZone.textContent = '';
             }
 
-            this.player.graveyard.push(...this.player.hand);
-            this.player.hand = [];
-            this.player.shield = 0;
-            this.player.echoChain = 0;
-            this.player.energy = this.player.maxEnergy;
-            this.player.buffs = {};
-            this.player.costDiscount = 0;
-            this.player._nextCardDiscount = 0;
-            this.player.zeroCost = false;
-            this.player._freeCardUses = 0;
-            this.player._cascadeCards = new Map();
-            this.player.silenceGauge = 0;
-            this._maskCount = 0;
-            this._batteryUsedTurn = false;
-            this._temporalTurn = 0;
             this.triggerItems('combat_end');
             this.triggerItems('void_shard');
 

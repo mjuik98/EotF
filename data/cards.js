@@ -135,12 +135,12 @@ export const CARDS = {
     momentum: {
         id: 'momentum', name: '가속', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +6', rarity: 'common',
         image: 'card_momentum.png',
-        effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 6 }); }
+        effect(gs) { gs.addBuff('acceleration', 1, { dmgBonus: 6 }); }
     },
     momentum_plus: {
         id: 'momentum_plus', name: '가속+', icon: '🌪️', cost: 0, type: 'SKILL', desc: '이 턴 피해 +8, Echo +10', rarity: 'common', upgraded: true,
         image: 'card_momentum_plus.png',
-        effect(gs) { gs.addBuff('momentum', 1, { dmgBonus: 8 }); gs.addEcho(10); }
+        effect(gs) { gs.addBuff('acceleration', 1, { dmgBonus: 8 }); gs.addEcho(10); }
     },
     charge: {
         id: 'charge', name: '돌진', icon: '⚡', cost: 1, type: 'ATTACK', desc: '9 + 모멘텀 피해', rarity: 'common',
@@ -165,7 +165,7 @@ export const CARDS = {
     blade_dance: {
         id: 'blade_dance', name: '검무', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '4 피해 × 3회. 가속 상태라면 Echo +10', rarity: 'uncommon',
         image: 'card_blade_dance.png',
-        effect(gs) { for (let i = 0; i < 3; i++) gs.dealDamage(4, null, i < 2); if (gs.getBuff('momentum')) gs.addEcho(10); }
+        effect(gs) { for (let i = 0; i < 3; i++) gs.dealDamage(4, null, i < 2); if (gs.getBuff('acceleration')) gs.addEcho(10); }
     },
     // 메아리술사
     foresight: {

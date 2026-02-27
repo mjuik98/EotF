@@ -94,6 +94,17 @@ export const DeathHandler = {
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0 && !this._endCombatScheduled) {
             this._endCombatScheduled = true;
+            this.combat.playerTurn = false; // 전투 종료 예정: 추가 행동 차단
+
+            // UI를 즉시 잠금 처리하여 여분의 입력을 방어
+            const docD = _getDoc(deps);
+            if (docD) {
+                docD.querySelectorAll('.action-btn, #combatHandCards .card').forEach(el => {
+                    el.style.pointerEvents = 'none';
+                    el.disabled = true;
+                });
+            }
+
             setTimeout(() => {
                 // deps 가 비어있을 경우 window globals 로 폴백
                 const win = _getWin(deps);

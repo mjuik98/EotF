@@ -230,8 +230,7 @@ export const HudUpdateUI = {
       }
 
       // 대형 초상화 (우측 패널)
-      if (largePortrait && largeFallback) {
-        largePortrait.style.display = 'none';
+      if (largeFallback) {
         largeFallback.textContent = avatarEmoji;
         largeFallback.style.fontSize = '80px';
         largeFallback.style.display = 'flex';

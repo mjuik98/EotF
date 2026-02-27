@@ -170,6 +170,13 @@ export const CombatTurnUI = {
 
     TurnManager.startPlayerTurnLogic(gs);
 
+    // 에너지 상태 변경(드로우 버튼 활성화 등) 즉시 반영
+    if (typeof deps.updateCombatEnergy === 'function') {
+      deps.updateCombatEnergy(gs);
+    } else if (typeof deps.hudUpdateUI?.updateCombatEnergy === 'function') {
+      deps.hudUpdateUI.updateCombatEnergy(gs);
+    }
+
     deps.runRules?.onTurnStart?.(gs);
 
     // UI 반영

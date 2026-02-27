@@ -26,8 +26,8 @@ function _getDoc(deps) {
 
 function _resize() {
   if (!_titleCanvas) return;
-  _titleCanvas.width = window.innerWidth || 1280;
-  _titleCanvas.height = window.innerHeight || 720;
+  _titleCanvas.width = window.innerWidth || document.documentElement.clientWidth || 1280;
+  _titleCanvas.height = window.innerHeight || document.documentElement.clientHeight || 720;
 }
 
 export const TitleCanvasUI = {
@@ -35,22 +35,28 @@ export const TitleCanvasUI = {
     const doc = _getDoc(deps);
     _titleCanvas = doc.getElementById('titleCanvas');
     if (!_titleCanvas) return;
-    _titleCtx = _titleCanvas.getContext('2d');
+    _titleCtx = _titleCanvas.getContext('2d', { alpha: true });
 
     this.resize();
     if (!_resizeBound) {
-      window.addEventListener('resize', () => this.resize());
+      window.addEventListener('resize', () => {
+        this.resize();
+      });
       _resizeBound = true;
     }
 
-    if (_titleCanvas.width === 0 || _titleCanvas.height === 0) {
-      setTimeout(() => {
+    // 초기 크기 설정이 실패할 경우를 대비해 반복 시도
+    let retry = 0;
+    const checkSize = () => {
+      if (_titleCanvas && (_titleCanvas.width < 100 || _titleCanvas.height < 100) && retry < 5) {
         this.resize();
+        retry++;
+        setTimeout(checkSize, 200);
+      } else {
         this.animate();
-      }, 100);
-    } else {
-      this.animate();
-    }
+      }
+    };
+    checkSize();
   },
 
   resize() {
@@ -64,39 +70,56 @@ export const TitleCanvasUI = {
     const tick = () => {
       const w = _titleCanvas.width;
       const h = _titleCanvas.height;
-      _titleCtx.fillStyle = 'rgba(3,3,10,0.15)';
+      if (w === 0 || h === 0) {
+        _titleRAF = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      // 배경을 완전히 덮지 않고 잔상 효과만 주기 위해 clearRect 대신 투명도 있는 fill 사용
+      // CSS 배경이 보이도록 alpha 조절
+      _titleCtx.globalCompositeOperation = 'destination-out';
+      _titleCtx.fillStyle = 'rgba(0,0,0,0.15)';
       _titleCtx.fillRect(0, 0, w, h);
+      _titleCtx.globalCompositeOperation = 'lighter'; // 입자들이 겹칠 때 빛나게 함
 
       _titleParticles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < -0.1) p.x = 1.1;
-        if (p.x > 1.1) p.x = -0.1;
-        if (p.y < -0.1) p.y = 1.1;
-        if (p.y > 1.1) p.y = -0.1;
+        if (p.x < -0.2) p.x = 1.2;
+        if (p.x > 1.2) p.x = -0.2;
+        if (p.y < -0.2) p.y = 1.2;
+        if (p.y > 1.2) p.y = -0.2;
 
-        const g = _titleCtx.createRadialGradient(p.x * w, p.y * h, 0, p.x * w, p.y * h, p.r * (w / 800));
+        const pX = p.x * w;
+        const pY = p.y * h;
+        const pR = p.r * (w / 1200);
+
+        const g = _titleCtx.createRadialGradient(pX, pY, 0, pX, pY, pR);
         g.addColorStop(0, `rgba(123,47,255,${p.alpha})`);
-        g.addColorStop(0.5, `rgba(0,255,204,${p.alpha * 0.3})`);
-        g.addColorStop(1, 'transparent');
+        g.addColorStop(0.5, `rgba(0,255,204,${p.alpha * 0.4})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+
         _titleCtx.fillStyle = g;
         _titleCtx.beginPath();
-        _titleCtx.arc(p.x * w, p.y * h, p.r * (w / 800), 0, Math.PI * 2);
+        _titleCtx.arc(pX, pY, pR, 0, Math.PI * 2);
         _titleCtx.fill();
       });
 
       _titleStars.forEach(s => {
         s.y -= s.v;
-        if (s.y < -0.01) s.y = 1;
+        if (s.y < -0.05) s.y = 1.05;
+
         _titleCtx.save();
-        _titleCtx.globalAlpha = s.alpha * (0.5 + 0.5 * Math.sin(Date.now() * 0.001 + s.x * 10));
-        _titleCtx.fillStyle = '#eef0ff';
+        _titleCtx.globalAlpha = s.alpha * (0.6 + 0.4 * Math.sin(Date.now() * 0.0015 + s.x * 20));
+        _titleCtx.fillStyle = '#f0f4ff';
         _titleCtx.beginPath();
-        _titleCtx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2);
+        const sSize = s.r * (w / 1600);
+        _titleCtx.arc(s.x * w, s.y * h, Math.max(0.5, sSize), 0, Math.PI * 2);
         _titleCtx.fill();
         _titleCtx.restore();
       });
 
+      _titleCtx.globalCompositeOperation = 'source-over';
       _titleRAF = window.requestAnimationFrame(tick);
     };
 

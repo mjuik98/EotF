@@ -199,6 +199,36 @@ export const Reducers = {
     [Actions.COMBAT_END](gs, { victory = true }) {
         gs.combat.active = false;
         gs.combat.playerTurn = true;
+
+        // 전투 중 파편화된 덱 복구
+        const fullDeck = [
+            ...(gs.player.deck || []),
+            ...(gs.player.hand || []),
+            ...(gs.player.graveyard || []),
+            ...(gs.player.exhausted || [])
+        ];
+        gs.player.deck = fullDeck;
+        gs.player.hand = [];
+        gs.player.graveyard = [];
+        gs.player.exhausted = [];
+        gs.player.drawPile = [];
+        gs.player.discardPile = [];
+
+        // 플레이어 상태 초기화
+        gs.player.shield = 0;
+        gs.player.echoChain = 0;
+        gs.player.energy = gs.player.maxEnergy;
+        gs.player.buffs = {};
+        gs.player.costDiscount = 0;
+        gs.player._nextCardDiscount = 0;
+        gs.player.zeroCost = false;
+        gs.player._freeCardUses = 0;
+        gs.player._cascadeCards = new Map();
+        gs.player.silenceGauge = 0;
+        gs._maskCount = 0;
+        gs._batteryUsedTurn = false;
+        gs._temporalTurn = 0;
+
         gs.markDirty('hud');
         return { victory };
     },

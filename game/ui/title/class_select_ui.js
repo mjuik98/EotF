@@ -42,10 +42,8 @@ export const ClassSelectUI = {
     }
 
     // 우측 패널 대형 초상화 업데이트 (미리보기)
-    const largePortrait = doc.getElementById('largePlayerPortrait');
     const largeFallback = doc.getElementById('playerPortraitFallback');
-    if (largePortrait && largeFallback) {
-      largePortrait.style.display = 'none';
+    if (largeFallback) {
       largeFallback.textContent = avatarEmoji;
       largeFallback.style.fontSize = '80px';
       largeFallback.style.display = 'flex';

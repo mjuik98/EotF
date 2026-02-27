@@ -140,6 +140,9 @@ export const GameAPI = {
                 return false;
             }
 
+            // 새로운 카드 액션이 시작될 때 이전 회피 상태이상 무효화 플래그 초기화
+            gs._lastDodgedTarget = null;
+
             const cost = GAME.Modules?.['CardCostUtils']?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');

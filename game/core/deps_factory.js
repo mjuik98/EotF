@@ -36,6 +36,7 @@ export function getStoryDeps() {
         audioEngine: _refs.AudioEngine,
         particleSystem: _refs.ParticleSystem,
         showWorldMemoryNotice: _refs.showWorldMemoryNotice,
+        restartFromEnding: _refs.restartFromEnding,
     };
 }
 

@@ -220,8 +220,11 @@ export const TurnManager = {
         gs.player.hand = [];
         gs.player.echoChain = 0;
 
+        // 비용 할인 관련 버프/상태 무조건 초기화 (허공 급류 지속 버그 방지)
         gs.player.costDiscount = 0;
         gs.player._nextCardDiscount = 0;
+        gs.player.zeroCost = false;
+        gs.player._freeCardUses = 0;
 
         gs.combat.playerTurn = false;
 
@@ -474,6 +477,28 @@ export const TurnManager = {
         }
 
         gs.player.shield = 0;
+
+        // ── 지역별 스테이지 효과 (Stage Effects) 발동 ──
+        const regionIdx = gs.currentRegion || 0;
+        const baseRegionIdx = typeof window.getBaseRegionIndex === 'function' ? window.getBaseRegionIndex(regionIdx) : (regionIdx % 5);
+
+        if (baseRegionIdx === 2) { // 기억의 미궁: 매 턴 무작위 카드 1장 소각
+            const allCards = [...gs.player.deck, ...gs.player.hand, ...gs.player.graveyard];
+            if (allCards.length > 0) {
+                const targetCardId = allCards[Math.floor(Math.random() * allCards.length)];
+                gs.dispatch?.(Actions.CARD_DISCARD, { cardId: targetCardId, exhaust: true });
+                gs.addLog?.(`🌫️ 망각의 안개: ${targetCardId} 소각됨`, 'damage');
+            }
+        } else if (baseRegionIdx === 3) { // 신의 무덤: 에너지 회복량 -1
+            if (!isStunned) {
+                gs.player.energy = Math.max(0, gs.player.energy - 1);
+                gs.addLog?.('⚖️ 신성한 심판: 에너지 회복량 감소', 'damage');
+            }
+        } else if (baseRegionIdx === 4) { // 메아리의 근원: 매 턴 최대 에코 -5
+            gs.player.maxEcho = Math.max(50, (gs.player.maxEcho || 100) - 5);
+            gs.player.echo = Math.min(gs.player.echo, gs.player.maxEcho);
+            gs.addLog?.('🌀 현실 붕괴: 최대 에코 감소', 'damage');
+        }
 
         gs.drawCards(5);
 

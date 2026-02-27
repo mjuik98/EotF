@@ -44,6 +44,8 @@ export const DamageSystem = {
         let dmg = amount;
         const mom = this.getBuff('momentum');
         if (mom) dmg += mom.dmgBonus || 0;
+        const accel = this.getBuff('acceleration');
+        if (accel) dmg += accel.dmgBonus || 0;
         const sha = this.getBuff('shadow_atk');
         if (sha) { dmg += sha.dmgBonus || 0; delete this.player.buffs['shadow_atk']; }
         if (this.getBuff('vanish')) {
@@ -57,6 +59,10 @@ export const DamageSystem = {
         }
         if (enemy.statusEffects?.dodge > 0) {
             this.addLog(`💨 ${enemy.name}이(가) 공격을 강회피했습니다!`, 'system');
+
+            // 후속 상태이상(기절, 독 등)도 함께 무효화시키기 위한 플래그
+            this._lastDodgedTarget = targetIdx;
+
             enemy.statusEffects.dodge--;
             if (enemy.statusEffects.dodge <= 0) delete enemy.statusEffects.dodge;
             return 0;
@@ -93,8 +99,14 @@ export const DamageSystem = {
             this.player.echoChain++;
             this.addEcho(10, true);
             const win = _getWin(deps);
-            const updateChainUI = deps.updateChainUI || win.updateChainUI;
-            if (typeof updateChainUI === 'function') updateChainUI();
+            // 전투 라이프사이클을 통해 UI와 버스트 로직(5돌파) 트리거
+            const updateChainDisplay = deps.updateChainDisplay || win.updateChainDisplay || win.CombatLifecycle?.updateChainDisplay;
+            if (typeof updateChainDisplay === 'function') {
+                updateChainDisplay.call(win.CombatLifecycle || this, deps);
+            } else {
+                const updateChainUI = deps.updateChainUI || win.updateChainUI;
+                if (typeof updateChainUI === 'function') updateChainUI(this.player.echoChain);
+            }
         }
 
         const finalDmg = result?.actualDamage ?? dmg;
@@ -182,6 +194,13 @@ export const DamageSystem = {
         }
         const enemy = this.combat.enemies[targetIdx];
         if (!enemy) return;
+
+        // 회피된 타겟이면 상태이상도 무효화 (회피 후 1회 한정)
+        if (this._lastDodgedTarget === targetIdx) {
+            this._lastDodgedTarget = null;
+            if (typeof this.addLog === 'function') this.addLog(`💨 ${enemy.name}: 강회피로 ${status} 무효화!`, 'system');
+            return;
+        }
 
         const result = this.dispatch(Actions.ENEMY_STATUS, { status, duration, targetIdx });
         if (typeof this.addLog === 'function') this.addLog(`💫 ${enemy.name}: ${status} ${result?.duration || duration}턴`, 'echo');

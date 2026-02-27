@@ -497,7 +497,11 @@ export const CombatUI = {
 
         if (intentEl) {
           let intent;
-          try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
+          if (e.statusEffects?.stunned > 0) {
+            intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
+          } else {
+            try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
+          }
           let intentIcon = _getIntentIcon(intent);
           let intentLabel = _formatIntentLabel(intent);
 
