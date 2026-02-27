@@ -36,5 +36,5 @@ export const GameStateCoreMethods = {
   ...CombatMethods,
   ...CardMethods,
   ...PlayerMethods,
-  API: GameAPI
+  // API: GameAPI 제거 (GAME.API 단일 경로로 통일하여 혼란 방지)
 };

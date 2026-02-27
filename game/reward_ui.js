@@ -404,8 +404,10 @@ export const RewardUI = {
     if (container) container.classList.add('picked');
 
     // 소각은 오버레이에서 선택 후 returnToGame 호출하므로 락을 걸지 않거나 오버레이 안에서 관리
-    if (window.EventUI && typeof window.EventUI.showCardDiscard === 'function') {
-      window.EventUI.showCardDiscard(gs, true, {
+    // window.EventUI 대신 GAME.Modules 사용 (EventUI 는 window 에 노출되지 않음)
+    const eventUI = window.GAME?.Modules?.['EventUI'] || window.EventUI;
+    if (eventUI && typeof eventUI.showCardDiscard === 'function') {
+      eventUI.showCardDiscard(gs, true, {
         ...deps, returnToGame: (force) => {
           if (typeof deps.returnToGame === 'function') deps.returnToGame(force);
         }

@@ -58,11 +58,13 @@ import { GS } from './game_state.js';
 import { GAME, exposeGlobals } from './global_bridge.js';
 import { GameInit } from './game_init.js';
 
-
 // ──────────────────────────────────────────────────────────────────────────────
 //  ECHO OF THE FALLEN - 코드 통합 베이스
 //  모든 Phase 1~4 기능을 단일 아키텍처로 통합
 // ──────────────────────────────────────────────────────────────────────────────
+
+// 게임 시작 상태 (TDZ 방지 위해 최상단 선언)
+let _gameStarted = false;
 // ──────────────────────────────────────────────────────────────────────────────
 // WEB AUDIO ENGINE
 // ──────────────────────────────────────────────────────────────────────────────
@@ -188,7 +190,7 @@ window.DescriptionUtils = DescriptionUtils;
 window.CardCostUtils = CardCostUtils;
 window._resetCombatInfoPanel = _resetCombatInfoPanel; // Bug #3: Expose this to window
 
-// Consolidate global functions into GAME.API for primary interface
+// Consolidate global functions into GAME.API for primary interface (단일 등록)
 Object.assign(GAME.API, {
   AudioEngine,
   ParticleSystem,
@@ -205,26 +207,36 @@ Object.assign(GAME.API, {
   SetBonusSystem,
   SaveSystem,
   CardCostUtils,
-  updateUI: () => HudUpdateUI.updateUI(_baseDeps()),
+  // UI updates
+  updateUI: () => HudUpdateUI.updateUI(_getHudUpdateDeps()),
+  updateCombatLog: () => CombatHudUI.updateCombatLog(GAME.getDeps()),
+  updateEchoSkillBtn: (overrideDeps) => CombatHudUI.updateEchoSkillBtn(overrideDeps || GAME.getDeps()),
   refreshRunModePanel,
+  // Game flow
   startGame,
   useEchoSkill,
   takeDamage: (amt) => GameAPI.applyPlayerDamage(amt, GS),
   drawCards: drawCard,
   endPlayerTurn,
   renderCombatCards,
-  processDirtyFlags: () => HudUpdateUI.processDirtyFlags(_baseDeps()),
+  processDirtyFlags: () => HudUpdateUI.processDirtyFlags(_getHudUpdateDeps()),
+  // Codex
   setCodexTab: (tab) => CodexUI.setCodexTab(tab, _getCodexDeps()),
   closeCodex: () => CodexUI.closeCodex(_getCodexDeps()),
   openCodex: () => CodexUI.openCodex(_getCodexDeps()),
+  // Deck modal
   setDeckFilter: (filter) => DeckModalUI.setDeckFilter(filter, _getDeckModalDeps()),
   closeDeckView: () => DeckModalUI.closeDeckView(_getDeckModalDeps()),
+  // HUD
   toggleHudPin: () => CombatHudUI.toggleHudPin(GAME.getDeps()),
   showEchoSkillTooltip: (e) => CombatHudUI.showEchoSkillTooltip(e, GAME.getDeps()),
   hideEchoSkillTooltip: () => CombatHudUI.hideEchoSkillTooltip(GAME.getDeps()),
+  // Reward
   showSkipConfirm: () => RewardUI.showSkipConfirm(_baseDeps()),
   skipReward: () => RewardUI.skipReward(_baseDeps()),
   hideSkipConfirm: () => RewardUI.hideSkipConfirm(_baseDeps()),
+  // Utility
+  showWorldMemoryNotice: (txt) => showWorldMemoryNotice(txt),
   shiftAscension: (delta) => RunRules.shiftAscension(delta, _baseDeps()),
 });
 
@@ -267,18 +279,6 @@ GAME.register('switchScreen', switchScreen);
 GAME.register('updateUI', updateUI);
 GAME.register('updateNextNodes', updateNextNodes);
 GAME.register('renderMinimap', renderMinimap);
-
-// Register some legacy global dependencies that can't be easily modularized yet
-GAME.API.updateCombatLog = () => updateCombatLog();
-GAME.API.updateUI = () => updateUI();
-GAME.API.updateEchoSkillBtn = () => updateEchoSkillBtn();
-GAME.API.showWorldMemoryNotice = (txt) => showWorldMemoryNotice(txt);
-GAME.API.toggleHudPin = () => toggleHudPin();
-GAME.API.closeDeckView = () => closeDeckView();
-GAME.API.closeCodex = () => closeCodex();
-GAME.API.showSkipConfirm = () => showSkipConfirm();
-GAME.API.skipReward = () => skipReward();
-GAME.API.hideSkipConfirm = () => hideSkipConfirm();
 
 // ──────────────────────────────────────────────────────────────────────────────
 // LEGACY COMPATIBILITY WRAPPERS
@@ -784,18 +784,19 @@ function returnToGame(fromReward) {
 // ──────────────────────────────────────────────────────────────────────────────
 // UI SYSTEM (단일 통합 updateUI (배치 처리))
 // ──────────────────────────────────────────────────────────────────────────────
-let _gameStarted = false; // 게임 시작 전에 즉시 실행
+// _gameStarted 는 최상단에서 선언됨 (TDZ 방지)
 function _getHudUpdateDeps() {
   return {
     ..._baseDeps(),
     setBonusSystem: SetBonusSystem,
+    classMechanics: ClassMechanics,  // 명시적 전달 (hud_update_ui.js deps 키 일치)
 
     isGameStarted: () => _gameStarted,
     requestAnimationFrame: window.requestAnimationFrame.bind(window),
     setBar: (id, pct) => setBar(id, pct),
     setText: (id, val) => setText(id, val),
     updateNoiseWidget: () => updateNoiseWidget(),
-    updateEchoSkillBtn: () => updateEchoSkillBtn(),
+    updateEchoSkillBtn: (overrideDeps) => CombatHudUI.updateEchoSkillBtn(overrideDeps || GAME.getDeps()),
     updateStatusDisplay: () => updateStatusDisplay(),
     getRegionData,
   };

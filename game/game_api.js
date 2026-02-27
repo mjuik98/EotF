@@ -251,36 +251,39 @@ export const GameAPI = {
     /**
      * HUD 핀 고정/해제를 토글합니다.
      */
-    toggleHudPin() {
-        // GAME.API 를 통해 호출 (main.js 에서 등록됨)
-        if (typeof window.GAME?.API?.toggleHudPin === 'function') {
-            window.GAME.API.toggleHudPin();
+    toggleHudPin(gs = window.GS) {
+        // GAME.Modules 에 등록된 CombatHudUI 직접 호출 (재귀 방지)
+        const CombatHudUI = window.GAME?.Modules?.['CombatHudUI'];
+        if (CombatHudUI?.toggleHudPin) {
+            CombatHudUI.toggleHudPin(window.GAME.getDeps());
         } else {
-            console.warn('[API] GAME.API.toggleHudPin not found');
+            console.warn('[API] CombatHudUI.toggleHudPin not available');
         }
     },
 
     /**
      * 덱 보기 모달을 닫습니다.
      */
-    closeDeckView() {
-        // GAME.API 를 통해 호출 (main.js 에서 등록됨)
-        if (typeof window.GAME?.API?.closeDeckView === 'function') {
-            window.GAME.API.closeDeckView();
+    closeDeckView(gs = window.GS) {
+        // GAME.Modules 에 등록된 DeckModalUI 직접 호출 (재귀 방지)
+        const DeckModalUI = window.GAME?.Modules?.['DeckModalUI'];
+        if (DeckModalUI?.closeDeckView) {
+            DeckModalUI.closeDeckView(window.GAME.getDeps());
         } else {
-            console.warn('[API] GAME.API.closeDeckView not found');
+            console.warn('[API] DeckModalUI.closeDeckView not available');
         }
     },
 
     /**
      * 도감 모달을 닫습니다.
      */
-    closeCodex() {
-        // GAME.API 를 통해 호출 (main.js 에서 등록됨)
-        if (typeof window.GAME?.API?.closeCodex === 'function') {
-            window.GAME.API.closeCodex();
+    closeCodex(gs = window.GS) {
+        // GAME.Modules 에 등록된 CodexUI 직접 호출 (재귀 방지)
+        const CodexUI = window.GAME?.Modules?.['CodexUI'];
+        if (CodexUI?.closeCodex) {
+            CodexUI.closeCodex(window.GAME.getDeps());
         } else {
-            console.warn('[API] GAME.API.closeCodex not found');
+            console.warn('[API] CodexUI.closeCodex not available');
         }
     }
 };
