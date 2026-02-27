@@ -83,6 +83,18 @@ export function bootGame(modules, fns, Deps) {
         startCombat: (isBoss) => fns.startCombat(isBoss),
     });
 
+    // ── 캐릭터 선택 버튼 렌더링 (추가 - 약간의 지연으로 DOM 안정성 확보) ──
+    setTimeout(() => {
+        const classContainer = document.getElementById('classSelectContainer');
+        console.log('[Init] Attempting to render class buttons', { classContainer, hasUI: !!modules.ClassSelectUI });
+        if (classContainer && modules.ClassSelectUI) {
+            modules.ClassSelectUI.renderButtons(classContainer, {
+                data: DATA,
+                CLASS_START_ITEMS: modules.RunSetupUI?.CLASS_START_ITEMS
+            });
+        }
+    }, 50);
+
     // ── 볼륨 동기화 ──
     exposeGlobals({
         _syncVolumeUI: () => GameInit.syncVolumeUI(AudioEngine),

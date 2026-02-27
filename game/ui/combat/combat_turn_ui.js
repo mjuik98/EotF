@@ -179,7 +179,7 @@ export const CombatTurnUI = {
 
     deps.runRules?.onTurnStart?.(gs);
 
-    // 클래스 특성 턴 시작 훅 (성기사 회복, 방패병 방어막 유지 등)
+    // 클래스 특성 턴 시작 훅 (찬송기사 회복, 무음수호자 방어막 유지 등)
     const classMechanics = deps.classMechanics || window.ClassMechanics || window.GAME?.Modules?.['ClassMechanics'];
     const classMech = classMechanics?.[gs.player.class];
     if (classMech && typeof classMech.onTurnStart === 'function') {

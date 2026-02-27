@@ -219,8 +219,8 @@ export const HudUpdateUI = {
     const largeFallback = doc.getElementById('playerPortraitFallback');
 
     if (p.class) {
-      const icons = { swordsman: '⚔️', mage: '🔮', hunter: '🏹', paladin: '🛡️', berserker: '🪓', shielder: '🧱' };
-      const avatarEmoji = data?.assets?.avatars?.[p.class] || icons[p.class] || '⚔️';
+      const classMeta = data?.classes?.[p.class];
+      const avatarEmoji = classMeta?.emoji || '⚔️';
 
       // 소형 초상화 (HUD)
       if (avatarEl) {
@@ -237,11 +237,8 @@ export const HudUpdateUI = {
       }
 
       // 캐릭터 이름 및 특성 (우측 패널)
-      const nameMap = {
-        swordsman: '잔향검사', mage: '메아리술사', hunter: '침묵사냥꾼',
-        paladin: '성기사', berserker: '광전사', shielder: '쉴더'
-      };
-      setText('playerNameDisplay', SecurityUtils.escapeHtml(nameMap[p.class] || ''));
+      const className = classMeta?.name || p.class;
+      setText('playerNameDisplay', SecurityUtils.escapeHtml(className));
 
       const specialEl = doc.getElementById('playerSpecialDisplay');
       if (specialEl && window.ClassMechanics?.[p.class]) {
@@ -384,8 +381,8 @@ export const HudUpdateUI = {
     setText('regionFloor', `${displayFloor} / ${maxFloors}층`);
     setText('playerFloor', `${region.name} · ${displayFloor}층`);
 
-    const classNames = { swordsman: '잔향검사', mage: '메아리술사', hunter: '침묵사냥꾼' };
-    setText('playerClassDisplay', classNames[p.class] || p.class);
+    const className = data?.classes?.[p.class]?.name || p.class;
+    setText('playerClassDisplay', className);
 
     const itemEl = doc.getElementById('itemSlots');
     if (itemEl) {
@@ -697,7 +694,6 @@ export const HudUpdateUI = {
       if (typeof cm.updateUI === 'function') cm.updateUI(gs);
       else if (typeof cm.render === 'function') cm.render(gs);
     }
-    // ───── 추가: 버튼 즉각 동기화 (Priority 7 Fix) ─────
     // Echo 스킬 버튼만 업데이트 (드로우 버튼은 updateUI() 에서 일괄 처리)
     const updateBtn = deps.updateEchoSkillBtn
       ? (deps) => deps.updateEchoSkillBtn({ ...deps, gs })

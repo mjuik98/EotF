@@ -52,7 +52,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '모멘텀';
+      label.textContent = meta?.traitName || '공명';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
       value.textContent = `+${val} 데미지`;
@@ -89,7 +89,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '예지';
+      label.textContent = meta?.traitName || '예지';
       const valEl = document.createElement('div');
       valEl.style.cssText = "font-size:10px;color:var(--cyan);";
       valEl.textContent = next?.intent || '활성 적 없음';
@@ -139,7 +139,8 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('blessing_of_light');
       if (buff) {
         state.heal(buff.healPerTurn || 0);
-        state.addLog(`✨ 빛의 축복으로 ${buff.healPerTurn} 회복`, 'heal');
+        const trayName = window.DATA?.classes?.paladin?.traitName || '성가';
+        state.addLog(`✨ ${trayName}로 ${buff.healPerTurn} 회복`, 'heal');
       }
     },
     getSpecialUI(gs) {
@@ -165,7 +166,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '빛의 가호';
+      label.textContent = meta?.traitName || '성가';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);";
       value.textContent = `재생: ${val} HP/턴`;
@@ -208,7 +209,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '광기 어린 투지';
+      label.textContent = meta?.traitName || '불협화음';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
       value.textContent = `보너스: +${hpBonus + growBonus}`;
@@ -254,10 +255,11 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '방패 장벽';
+      label.textContent = meta?.traitName || '잔영 갑주';
       const value = document.createElement('div');
       value.style.cssText = "font-size:10px;color:var(--white);";
-      value.textContent = hasWall ? '불굴의 벽 활성 (50% 유지)' : '일반 방어 상태';
+      const wallTitle = meta?.traitName || '방패 장벽';
+      value.textContent = hasWall ? `${wallTitle} 활성 (50% 유지)` : '일반 방어 상태';
       el.append(label, value);
       return el;
     }

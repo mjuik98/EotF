@@ -32,6 +32,18 @@ export function createTitleSettingsBindings(M, fns) {
         M.AudioEngine?.playClick?.();
         M.ClassSelectUI?.selectClass?.(btn, Deps.getClassSelectDeps());
     };
+
+    // 캐릭터 선택 컨테이너에 이벤트 위임 설정 (추가)
+    const classContainer = document.getElementById('classSelectContainer');
+    if (classContainer) {
+        classContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.class-btn');
+            if (btn) {
+                fns.selectClass(btn);
+            }
+        });
+    }
+
     fns.startGame = () => {
         M.AudioEngine?.playClick?.();
         M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());

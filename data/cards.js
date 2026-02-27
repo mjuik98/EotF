@@ -5,12 +5,12 @@ import { AudioEngine } from '../engine/audio.js';
 
 export const ASSETS = {
     avatars: {
-        swordsman: '⚔️',
-        mage: '🔮',
+        swordsman: '🗡️',
+        mage: '🪄',
         hunter: '🏹',
-        paladin: '🛡️',
+        paladin: '⚜️',
         berserker: '🪓',
-        shielder: '🧱'
+        shielder: '🛡️'
     }
 };
 
@@ -386,7 +386,7 @@ export const CARDS = {
         effect(gs) { gs.player.energy = Math.max(0, gs.player.energy - 1); gs.player.costDiscount = (gs.player.costDiscount || 0) + 2; gs.addLog('🌙 잔향의 고요: 에너지 -1, 모든 카드 비용 -2!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
 
-    // ── 성기사 (Paladin) ──
+    // ── 찬송기사 (Paladin) ──
     holy_strike: {
         id: 'holy_strike', name: '성스러운 강타', icon: '✨', cost: 1, type: 'ATTACK', desc: '8 피해. 사용 시 HP 2 회복.', rarity: 'common',
         effect(gs) { gs.dealDamage(8); gs.heal(2); }
@@ -404,7 +404,7 @@ export const CARDS = {
         effect(gs) { gs.addBuff('blessing_of_light', 99, { healPerTurn: 3 }); }
     },
 
-    // ── 광전사 (Berserker) ──
+    // ── 파음전사 (Berserker) ──
     blood_fury: {
         id: 'blood_fury', name: '핏빛 분노', icon: '🩸', cost: 1, type: 'ATTACK', desc: '7 피해. 잃은 체력 10당 피해 +3.', rarity: 'common',
         effect(gs) {
@@ -434,7 +434,7 @@ export const CARDS = {
         effect(gs) { gs.addBuff('berserk_mode', 99, { atkGrowth: 2 }); }
     },
 
-    // ── 쉴더 (Shielder) ──
+    // ── 무음수호자 (Shielder) ──
     iron_defense: {
         id: 'iron_defense', name: '무쇠 방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10 획득. Echo 10 충전.', rarity: 'common',
         effect(gs) { gs.addShield(10); gs.addEcho(10); }

@@ -22,6 +22,7 @@ const CLASS_START_ITEMS = {
 };
 
 export const RunSetupUI = {
+  CLASS_START_ITEMS,
   startGame(deps = {}) {
     const selectedClass = deps.getSelectedClass?.();
     console.log('[RunSetupUI] startGame triggered. Selected class:', selectedClass);
