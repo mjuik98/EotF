@@ -152,7 +152,8 @@ export const GameAPI = {
 
             // 침묵의 도시 소음 게이지 상승
             const _getBaseRegion = GAME.getDeps()?.getBaseRegionIndex || ((r) => r);
-            if (_getBaseRegion(gs.currentRegion) === 1 && gs.combat?.active) {
+            if (gs.combat?.active && _getBaseRegion(gs.currentRegion) === 1) {
+                // 추가 방어 로직: 1지역(침묵의 도시) 외에서 소음 관련 로그가 뜨는 것을 방지
                 gs.addSilence?.(1);
             }
 

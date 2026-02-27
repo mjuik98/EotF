@@ -75,7 +75,7 @@ export const CombatLifecycle = {
             const updateUI = deps.updateUI || win.updateUI;
             if (typeof updateUI === 'function') updateUI();
 
-            const isBoss = this.combat.enemies.some(e => e.isBoss);
+            const isBoss = this.combat.bossDefeated || this.combat.enemies.some(e => e.isBoss);
             const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
             AudioEngine?.playItemGet?.();

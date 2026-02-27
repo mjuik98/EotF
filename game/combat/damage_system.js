@@ -101,6 +101,12 @@ export const DamageSystem = {
         if (typeof this.addLog === 'function') this.addLog(`⚔️ ${enemy.name}에게 ${finalDmg} 피해!`, 'damage');
         this.markDirty('enemies');
 
+        // 다중 공격 등에서 DOM 즉각 갱신 보장
+        const win = deps?.win || window;
+        if (win && typeof win.updateStatusDisplay === 'function') {
+            win.updateStatusDisplay();
+        }
+
         if (result && result.isDead && typeof this.onEnemyDeath === 'function') {
             this.onEnemyDeath(enemy, targetIdx, deps);
         }

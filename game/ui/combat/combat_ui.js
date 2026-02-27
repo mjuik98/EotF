@@ -34,6 +34,7 @@ const ENEMY_STATUS_KR = {
   burning: '화염',
   cursed: '저주',
   dodge: '회피',
+  thorns: '가시 방어',
 };
 
 const ENEMY_STATUS_DESC = {
@@ -47,6 +48,7 @@ const ENEMY_STATUS_DESC = {
   burning: { icon: '🔥', desc: '매 턴 5의 화염 피해를 받습니다.' },
   cursed: { icon: '💀', desc: '카드 효과와 회복량이 감소합니다.' },
   dodge: { icon: '💨', desc: '다음 공격을 회피합니다.' },
+  thorns: { icon: '🌵', desc: '직접 공격을 가한 대상에게 피해를 줍니다.' },
 };
 
 let _intentTipTimer = null;

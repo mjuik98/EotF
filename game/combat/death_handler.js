@@ -50,6 +50,11 @@ export const DeathHandler = {
     onEnemyDeath(enemy, idx, deps = {}) {
         this.player.kills++; this.meta.totalKills++;
         EventBus.emit(Actions.ENEMY_DEATH, { enemy: { name: enemy.name, id: enemy.id }, idx });
+
+        if (enemy.isBoss) {
+            this.combat.bossDefeated = true;
+        }
+
         const goldGained = enemy.gold || 10;
         this.addGold(goldGained, deps);
         AudioEngine?.playHit?.();
