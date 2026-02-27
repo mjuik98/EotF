@@ -774,7 +774,14 @@ function skipReward() {
 }
 
 function _getRunReturnDeps() {
-  return _baseDeps();
+  return {
+    ..._baseDeps(),
+    storySystem: StorySystem,       // 엔딩 처리에 필요
+    finalizeRunOutcome,             // 게임 클리어 처리
+    advanceToNextRegion,            // 다음 지역 이동
+    updateNextNodes,                // 노드 갱신
+    renderMinimap,                  // 미니맵 렌더링
+  };
 }
 
 function returnToGame(fromReward) {

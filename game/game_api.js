@@ -198,8 +198,11 @@ export const GameAPI = {
                 cm.onPlayCard(gs, { cardId });
             }
 
-            // 사용 후 처리 (소진 여부 등)
-            this.discardCard(cardId, card.exhaust, gs);
+            // 사용 후 처리 (소진 여부 등) - 카드가 이미 처리되지 않았을 경우만
+            // 카드 효과 내에서 직접 graveyard/exhaust 에 추가했을 경우 중복 방지
+            if (!gs.player.graveyard.includes(cardId) && !gs.player.exhausted.includes(cardId)) {
+                this.discardCard(cardId, card.exhaust, gs);
+            }
 
             gs.stats.cardsPlayed++;
             Logger.info(`Card ${card.name} played successfully.`);

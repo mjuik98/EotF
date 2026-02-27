@@ -5,14 +5,32 @@ export const CardMethods = {
     drawCards(count = 1) {
         const gs = this;
         const api = gs.API || window.GAME?.API;
+        let drewCards = false;
 
         if (typeof api?.drawCards === 'function') {
             api.drawCards(count, gs);
+            drewCards = true;
         } else {
-            console.error('[CardMethods.drawCards] API.drawCards not found!');
+            // 폴백: 직접 카드 뽑기 로직 실행 (API 초기화 전에도 동작)
+            for (let i = 0; i < count; i++) {
+                if (gs.player.deck.length === 0) {
+                    if (gs.player.graveyard.length === 0) break;
+                    gs.player.deck = [...gs.player.graveyard];
+                    gs.player.graveyard = [];
+                    gs.addLog?.('🔄 덱을 섞었다', 'system');
+                }
+                if (gs.player.hand.length < 8) {
+                    gs.player.hand.push(gs.player.deck.pop());
+                    window.AudioEngine?.playCard?.();
+                    drewCards = true;
+                }
+            }
         }
-        gs.markDirty('hand');
-        gs.markDirty('hud');
+        // 실제로 카드를 뽑았을 때만 dirty 마킹
+        if (drewCards) {
+            gs.markDirty('hand');
+            gs.markDirty('hud');
+        }
     },
 
     playCard(cardId, handIdx) {

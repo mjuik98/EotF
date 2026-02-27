@@ -1,4 +1,4 @@
-import { GS } from './game_state.js';
+﻿import { GS } from './game_state.js';
 import { DATA } from '../data/game_data.js';
 
 
@@ -416,7 +416,7 @@ export const CombatTurnUI = {
 
     deps.renderCombatCards?.();
     deps.renderCombatEnemies?.();
-    if (typeof window.updateUI === 'function') window.updateUI();
+    deps.updateUI?.();
   },
 
   processEnemyStatusTicks(deps = {}) {
@@ -574,7 +574,7 @@ export const CombatTurnUI = {
 
     if (enemy.phase === 2) {
       gs.addLog?.(`⚠️ ${enemy.name} 2페이즈 각성!`, 'echo');
-      gs.player.buffs = {};
+      const permanentBuffs = {}; Object.keys(gs.player.buffs).forEach(buffId => { const buff = gs.player.buffs[buffId]; if (buff?.permanent || (Number.isFinite(buff.stacks) && buff.stacks >= 99)) { permanentBuffs[buffId] = buff; } }); gs.player.buffs = permanentBuffs;
       gs.addLog?.('💀 플레이어 버프 해제!', 'damage');
     } else if (enemy.phase === 3) {
       gs.addLog?.(`💀 ${enemy.name} 최종 페이즈!`, 'damage');

@@ -90,22 +90,23 @@ export const CombatMethods = {
         const ex = win.innerWidth / 2 + (targetIdx - (this.combat.enemies.length / 2 - 0.5)) * 180;
         ParticleSystem.hitEffect(ex, 250, dmg > 20);
 
+        const audioEngine = deps.audioEngine || win.AudioEngine;
         const isCrit = dmg > prevHp * 0.3 || (this.getBuff && this._lastCrit);
         const hudOverlay = doc.getElementById('hudOverlay');
         if (isCrit || dmg > 25) {
-            AudioEngine.playCritical();
+            audioEngine?.playCritical?.();
             const cf = doc.createElement('div');
             cf.className = 'crit-flash-overlay';
             hudOverlay?.appendChild(cf);
             setTimeout(() => cf.remove(), 450);
         } else if (dmg > 12) {
-            AudioEngine.playHeavyHit();
+            audioEngine?.playHeavyHit?.();
             const hf = doc.createElement('div');
             hf.className = 'heavy-hit-overlay';
             hudOverlay?.appendChild(hf);
             setTimeout(() => hf.remove(), 500);
         } else {
-            AudioEngine.playHit();
+            audioEngine?.playHit?.();
         }
 
         const enemyCard = doc.getElementById(`enemy_${targetIdx}`);
@@ -310,7 +311,7 @@ export const CombatMethods = {
         this.player.kills++; this.meta.totalKills++;
         const goldGained = enemy.gold || 10;
         this.addGold(goldGained, deps);
-        AudioEngine.playHit();
+        audioEngine?.playHit?.();
         this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
         this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
 
@@ -348,7 +349,26 @@ export const CombatMethods = {
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0 && !this._endCombatScheduled) {
             this._endCombatScheduled = true;
-            setTimeout(() => this.endCombat(deps), 900);
+            setTimeout(() => {
+                // deps 가 비어있을 경우 window globals 로 폴백
+                const win = _getWin(deps);
+                const endCombatDeps = {
+                    ...deps,
+                    showRewardScreen: deps.showRewardScreen || win.showRewardScreen,
+                    showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
+                    switchScreen: deps.switchScreen || win.switchScreen,
+                    returnToGame: deps.returnToGame || win.returnToGame,
+                    updateUI: deps.updateUI || win.updateUI,
+                    renderHand: deps.renderHand || win.renderHand,
+                    renderCombatCards: deps.renderCombatCards || win.renderCombatCards,
+                    updateChainUI: deps.updateChainUI || win.updateChainUI,
+                    cleanupAllTooltips: deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips,
+                    tooltipUI: deps.tooltipUI || win.TooltipUI,
+                    hudUpdateUI: deps.hudUpdateUI || win.HudUpdateUI,
+                    showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
+                };
+                this.endCombat(endCombatDeps);
+            }, 900);
         }
         const updateUI = deps.updateUI || win.updateUI;
         if (typeof updateUI === 'function') updateUI();
@@ -360,7 +380,7 @@ export const CombatMethods = {
         const heart = this.player.items.find(i => i === 'echo_heart');
         if (heart && !this._heartUsed) {
             if (DATA.items.echo_heart.passive(this, 'pre_death')) {
-                AudioEngine.playHeal();
+                audioEngine?.playHeal?.();
                 const updateUI = deps.updateUI || _getWin(deps).updateUI;
                 if (typeof updateUI === 'function') updateUI();
                 return;
@@ -370,7 +390,7 @@ export const CombatMethods = {
         const win = _getWin(deps);
         const doc = _getDoc(deps);
 
-        AudioEngine.playDeath();
+        audioEngine?.playDeath?.();
         ScreenShake.shake(20, 1.2);
         ParticleSystem.deathEffect(win.innerWidth / 2, win.innerHeight / 2);
 
@@ -550,7 +570,7 @@ export const CombatMethods = {
             const isBoss = this.combat.enemies.some(e => e.isBoss);
             const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
-            AudioEngine.playItemGet();
+            audioEngine?.playItemGet?.();
             const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
             const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
             console.log('[endCombat] Showing combat summary:', combatDmgDealt, combatDmgTaken);
@@ -599,14 +619,14 @@ export const CombatMethods = {
         const win = _getWin(deps);
         const updateChainUI = deps.updateChainUI || win.updateChainUI;
         if (typeof updateChainUI === 'function') updateChainUI(chain);
-        if (chain > 0) AudioEngine.playChain(chain);
+        if (chain > 0) audioEngine?.playChain?.(chain);
         if (chain >= 5) this.triggerResonanceBurst(deps);
     },
 
     triggerResonanceBurst(deps = {}) {
         this.player.echoChain = 0;
         this.drainEcho(50);
-        AudioEngine.playResonanceBurst();
+        audioEngine?.playResonanceBurst?.();
         const win = _getWin(deps);
         ScreenShake.shake(15, 0.8);
         let burstDmg = 35 + Math.floor(this.player.echo / 3);
