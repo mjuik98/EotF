@@ -120,7 +120,7 @@ export function registerSubscribers(uiRefs) {
         if (result?.targetIdx !== undefined) {
             const enemy = gs?.combat?.enemies?.[result.targetIdx];
             if (enemy) {
-                _ui.HudUpdateUI?.updateEnemyHpUI?.(result.targetIdx, enemy);
+                _ui.CombatUI?.updateEnemyHpUI?.(result.targetIdx, enemy);
 
                 const dmg = result.actualDamage || 0;
                 if (dmg > 0 || (payload && payload.amount > 0)) {

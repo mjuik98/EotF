@@ -5,6 +5,7 @@ import { CardMethods } from '../combat/card_methods.js';
 import { PlayerMethods } from '../combat/player_methods.js';
 import { GameAPI } from './game_api.js';
 import { ItemSystem } from '../systems/item_system.js';
+import { DamageSystem } from '../combat/damage_system.js';
 import { EventBus } from './event_bus.js';
 
 /**
@@ -31,5 +32,6 @@ export const GameStateCoreMethods = {
   ...CombatMethods,
   ...CardMethods,
   ...PlayerMethods,
+  ...DamageSystem,
   // API: GameAPI 제거 (GAME.API 단일 경로로 통일하여 혼란 방지)
 };

@@ -140,7 +140,7 @@ export const GameAPI = {
                 return false;
             }
 
-            const cost = GAME.Modules?.['CardCostUtils']?.calcEffectiveCost?.(cardId, card, gs.player) ?? card.cost;
+            const cost = GAME.Modules?.['CardCostUtils']?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');
                 return false;
