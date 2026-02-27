@@ -262,7 +262,7 @@ export const TurnManager = {
                     enemyDied = true;
                 }
             } else {
-                gs.API?.applyPlayerDamage?.(dmg, gs);
+                gs.takeDamage?.(dmg);
             }
 
             results.push({ dmg, reflected, enemyDied, weakened, hitIndex: h });

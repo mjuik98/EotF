@@ -157,13 +157,13 @@ export const GameAPI = {
                 gs.addSilence?.(1);
             }
 
-            // 효과 실행 (동기 처리)
-            card.effect?.(gs);
-
-            // _nextCardDiscount 소비
+            // _nextCardDiscount 소비 (효과 발동 전 차감하여 차후 획득 버프 보호)
             if ((gs.player._nextCardDiscount || 0) > 0) {
                 gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
             }
+
+            // 효과 실행 (동기 처리)
+            card.effect?.(gs);
 
             // 클래스 특성 훅
             const cm = GAME.Modules?.['ClassMechanics']?.[gs.player.class];

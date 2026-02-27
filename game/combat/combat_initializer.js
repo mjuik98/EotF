@@ -42,6 +42,7 @@ export const CombatInitializer = {
         gs.player._freeCardUses = 0;
         gs.player._cascadeCards = new Map();
         gs.combat.active = true;
+        gs.combat.bossDefeated = false; // 보스 오인 판정 방지
         gs._endCombatScheduled = false;
         gs._endCombatRunning = false;
         gs._selectedTarget = null;
