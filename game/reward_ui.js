@@ -417,7 +417,7 @@ export const RewardUI = {
 
   showSkipConfirm(deps = {}) {
     const doc = _getDoc(deps);
-    const initBtn = doc.getElementById('skipInitBtn');
+    const initBtn = doc.getElementById('rewardSkipInitBtn');
     const confirmRow = doc.getElementById('skipConfirmRow');
     if (initBtn) initBtn.style.display = 'none';
     if (confirmRow) confirmRow.style.display = 'flex';
@@ -425,7 +425,7 @@ export const RewardUI = {
 
   hideSkipConfirm(deps = {}) {
     const doc = _getDoc(deps);
-    const initBtn = doc.getElementById('skipInitBtn');
+    const initBtn = doc.getElementById('rewardSkipInitBtn');
     const confirmRow = doc.getElementById('skipConfirmRow');
     if (initBtn) initBtn.style.display = '';
     if (confirmRow) confirmRow.style.display = 'none';

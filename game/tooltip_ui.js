@@ -63,24 +63,30 @@ export const TooltipUI = {
     const baseDmg = card.dmg;
     const momentum = gs.getBuff?.('momentum');
     const momBonus = momentum ? (momentum.dmgBonus || 0) : 0;
-    const chainBonus = gs.player.echoChain >= 3 ? Math.floor(baseDmg * 0.2) : 0;
-    const total = baseDmg + momBonus + chainBonus;
+    const chainBonus = baseDmg && gs.player.echoChain >= 3 ? Math.floor(baseDmg * 0.2) : 0;
 
-    predEl.textContent = '';
-    predEl.append(doc.createTextNode('⚔ 예상 피해: '));
-    const totalB = doc.createElement('b'); totalB.textContent = total; predEl.appendChild(totalB);
+    // 공격 카드만 예상 피해 표시 (스킬/파워 카드는 숨김)
+    if (baseDmg !== undefined && baseDmg > 0) {
+      const total = baseDmg + momBonus + chainBonus;
+      predEl.style.display = 'block';
+      predEl.textContent = '';
+      predEl.append(doc.createTextNode('⚔ 예상 피해: '));
+      const totalB = doc.createElement('b'); totalB.textContent = total; predEl.appendChild(totalB);
 
-    if (momBonus > 0) {
-      const momSpan = doc.createElement('span');
-      momSpan.style.cssText = 'color:rgba(255,120,120,0.8);font-size:9px;';
-      momSpan.textContent = ` (+${momBonus} 모멘텀)`;
-      predEl.appendChild(momSpan);
-    }
-    if (chainBonus > 0) {
-      const chainSpan = doc.createElement('span');
-      chainSpan.style.cssText = 'color:rgba(0,255,204,0.8);font-size:9px;';
-      chainSpan.textContent = ` (+${chainBonus} 체인)`;
-      predEl.appendChild(chainSpan);
+      if (momBonus > 0) {
+        const momSpan = doc.createElement('span');
+        momSpan.style.cssText = 'color:rgba(255,120,120,0.8);font-size:9px;';
+        momSpan.textContent = ` (+${momBonus} 모멘텀)`;
+        predEl.appendChild(momSpan);
+      }
+      if (chainBonus > 0) {
+        const chainSpan = doc.createElement('span');
+        chainSpan.style.cssText = 'color:rgba(0,255,204,0.8);font-size:9px;';
+        chainSpan.textContent = ` (+${chainBonus} 체인)`;
+        predEl.appendChild(chainSpan);
+      }
+    } else {
+      predEl.style.display = 'none';
     }
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + 12;

@@ -263,6 +263,13 @@ export const CombatTurnUI = {
       if (enemy.statusEffects?.stunned > 0) {
         enemy.statusEffects.stunned--;
         if (enemy.statusEffects.stunned <= 0) delete enemy.statusEffects.stunned;
+        
+        // ▼ 기절 턴에도 약화 스택 정상 감소
+        if (enemy.statusEffects?.weakened > 0) {
+          enemy.statusEffects.weakened--;
+          if (enemy.statusEffects.weakened <= 0) delete enemy.statusEffects.weakened;
+        }
+        
         gs.addLog?.(`🌀 ${enemy.name}: 기절 상태!`, 'echo');
         deps.renderCombatEnemies?.();
         continue;
@@ -366,6 +373,7 @@ export const CombatTurnUI = {
 
     Object.keys(gs.player.buffs || {}).forEach(buffId => {
       const buff = gs.player.buffs[buffId];
+      // nextEnergy 와 energyPerTurn 은 상호 배타적으로 처리 (이중 지급 방지)
       if (buff?.nextEnergy) {
         gs.player.energy += buff.nextEnergy;
         const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
@@ -378,11 +386,15 @@ export const CombatTurnUI = {
         } else {
           delete gs.player.buffs[buffId];
         }
-      }
-      if (buff?.energyPerTurn) {
+      } else if (buff?.energyPerTurn) {
         gs.player.energy += buff.energyPerTurn;
         const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
         gs.addLog?.(`🌀 ${label}: 에너지 +${buff.energyPerTurn}`, 'echo');
+        // energyPerTurn 은 buff.stacks 으로 지속 시간 관리
+        if (Number.isFinite(buff.stacks)) {
+          buff.stacks--;
+          if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+        }
       }
     });
 
@@ -419,7 +431,8 @@ export const CombatTurnUI = {
       const ex = win.innerWidth / 2 + (index - 0.5) * 200;
 
       if (se.poisoned > 0) {
-        const dmg = 3 + Math.floor((3 - se.poisoned) * 0.5);
+        // 스택 × 기본 피해 (스택이 줄수록 피해도 감소)
+        const dmg = se.poisoned * 2;  // 3 스택 → 6, 2 스택 → 4, 1 스택 → 2
         enemy.hp = Math.max(0, enemy.hp - dmg);
         gs.addLog?.(`🐍 ${enemy.name}: 독 ${dmg}`, 'damage');
         deps.showDmgPopup?.(dmg, ex, 200, '#44ff88');

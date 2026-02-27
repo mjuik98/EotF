@@ -320,10 +320,7 @@ export const CombatMethods = {
         }
 
         const win = _getWin(deps);
-        if (this._selectedTarget === idx) {
-            const nextAlive = this.combat.enemies.findIndex((e, i) => i !== idx && e.hp > 0);
-            this._selectedTarget = nextAlive >= 0 ? nextAlive : null;
-        }
+        // _selectedTarget 즉시 조정 제거 (setTimeout 내부에서 일괄 처리)
         this.worldMemory[`killed_${enemy.id}`] = (this.worldMemory[`killed_${enemy.id}`] || 0) + 1;
 
         const doc = _getDoc(deps);
@@ -331,15 +328,18 @@ export const CombatMethods = {
         if (cardEl) {
             cardEl.classList.add('dying');
             setTimeout(() => {
-                // ── Bug Fix: 죽은 적을 배열에서 실제로 제거 ──
+                // 죽은 적을 배열에서 실제로 제거
                 this.combat.enemies = this.combat.enemies.filter(e => e.hp > 0);
-                // selectedTarget 인덱스 재조정
-                if (this._selectedTarget !== null) {
-                    const aliveCount = this.combat.enemies.length;
-                    if (this._selectedTarget >= aliveCount) {
-                        this._selectedTarget = aliveCount > 0 ? aliveCount - 1 : null;
-                    }
+                
+                // 배열 재구성 이후 selectedTarget 재계산
+                const aliveCount = this.combat.enemies.length;
+                if (aliveCount === 0) {
+                    this._selectedTarget = null;
+                } else if (this._selectedTarget === null || this._selectedTarget >= aliveCount) {
+                    this._selectedTarget = 0;
                 }
+                // 그 외엔 기존 인덱스 유지 (배열이 앞에서 줄었을 경우 대비)
+                
                 const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
                 if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
             }, 700);
@@ -374,8 +374,9 @@ export const CombatMethods = {
         ScreenShake.shake(20, 1.2);
         ParticleSystem.deathEffect(win.innerWidth / 2, win.innerHeight / 2);
 
-        // 전투 상태 해제
+        // 전투 상태 해제 및 유물 트리거 (death)
         this.combat.active = false;
+        this.triggerItems('death');
         doc.getElementById('combatOverlay')?.classList.remove('active');
 
         doc.body.style.transition = 'filter 1s';

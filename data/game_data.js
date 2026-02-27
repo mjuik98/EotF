@@ -618,16 +618,19 @@ export const DATA = {
       desc: '전투 시작 시 에너지 +1 (해당 전투만)',
       image: 'relic_war_drum.png',
       passive(gs, trigger) {
-        if (trigger === Trigger.COMBAT_START) {
-          gs.player.energy += 1;
+        if (trigger === Trigger.COMBAT_START && !gs._warDrumActive) {
+          gs._warDrumBaseMax = gs.player.maxEnergy; // 원래 maxEnergy 저장
           gs.player.maxEnergy += 1;
+          gs.player.energy = Math.min(gs.player.energy + 1, gs.player.maxEnergy);
           gs._warDrumActive = true;
           gs.addLog('🥁 전쟁 북: 에너지 +1!', 'echo');
           gs.markDirty?.('hud');
         }
-        if (trigger === Trigger.COMBAT_END && gs._warDrumActive) {
-          gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1);
+        // COMBAT_END 와 사망 (death) 둘 다에서 복구
+        if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._warDrumActive) {
+          gs.player.maxEnergy = gs._warDrumBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
           gs._warDrumActive = false;
+          gs._warDrumBaseMax = undefined;
         }
       }
     },
