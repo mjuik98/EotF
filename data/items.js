@@ -20,10 +20,10 @@ export const ITEMS = {
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20); gs.addLog('🔷 허공 파편: Echo +20', 'echo'); } }
     },
     cracked_amulet: {
-        id: 'cracked_amulet', name: '균열 부적', icon: '📿', rarity: 'common',
+        id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
         desc: '턴 시작 시 HP 2 회복',
         image: 'relic_cracked_amulet.png',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2); gs.addLog('📿 균열 부적: HP +2', 'heal'); } }
+        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2); gs.addLog('📿 부서진 목걸이: HP +2', 'heal'); } }
     },
     worn_pouch: {
         id: 'worn_pouch', name: '낡은 주머니', icon: '👜', rarity: 'common',
@@ -35,7 +35,7 @@ export const ITEMS = {
         id: 'dull_blade', name: '무딘 검', icon: '🔪', rarity: 'common',
         desc: '카드 사용 시 10% 확률로 Echo +10',
         image: 'relic_dull_blade.png',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10); gs.addLog('🔪 무딘 검: 행운의 Echo +10', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10); gs.addLog('🔪 무딘 검: 일정 확률로 Echo +10', 'echo'); } }
     },
     travelers_map: {
         id: 'travelers_map', name: '여행자 지도', icon: '🗺️', rarity: 'common',
