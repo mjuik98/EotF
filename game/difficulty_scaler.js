@@ -57,6 +57,12 @@ export const DifficultyScaler = {
       hp: Math.ceil(enemy.hp * m), maxHp: Math.ceil(enemy.maxHp * m),
       atk: Math.ceil(enemy.atk * m), xp: Math.ceil(enemy.xp * m),
       gold: Math.max(1, Math.ceil((enemy.gold || 0) * (1 + ((gs?.runConfig?.ascension || 0) * ascGoldScale)))),
+      // isBoss, maxPhase, phase 등 모든 속성 유지
+      isBoss: enemy.isBoss || false,
+      maxPhase: enemy.maxPhase || 1,
+      phase: enemy.phase || 1,
+      isElite: enemy.isElite || false,
+      statusEffects: enemy.statusEffects || {},
     };
   },
 };

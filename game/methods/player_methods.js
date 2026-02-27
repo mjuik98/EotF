@@ -9,11 +9,17 @@ export const PlayerMethods = {
     addEcho(amount, skipFullUI = false) {
         this.player.echo = Math.min(this.player.maxEcho, this.player.echo + amount);
         this.markDirty('hud');
+        // Echo 변화 시 Echo 스킬 버튼 즉시 갱신
+        const updateEchoSkillBtn = window.updateEchoSkillBtn;
+        if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
 
     drainEcho(amount) {
         this.player.echo = Math.max(0, this.player.echo - amount);
         this.markDirty('hud');
+        // Echo 변화 시 Echo 스킬 버튼 즉시 갱신
+        const updateEchoSkillBtn = window.updateEchoSkillBtn;
+        if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
 
     heal(amount, deps = {}) {
