@@ -180,9 +180,9 @@ export const Reducers = {
     [Actions.ENEMY_STATUS](gs, { status, duration, targetIdx }) {
         const enemy = gs.combat.enemies[targetIdx];
         if (!enemy) return {};
-        if (!enemy.status) enemy.status = {};
-        enemy.status[status] = (enemy.status[status] || 0) + duration;
-        return { status, duration: enemy.status[status], targetIdx };
+        if (!enemy.statusEffects) enemy.statusEffects = {};
+        enemy.statusEffects[status] = (enemy.statusEffects[status] || 0) + duration;
+        return { status, duration: enemy.statusEffects[status], targetIdx };
     },
 
     [Actions.COMBAT_START](gs, { enemies = [] }) {

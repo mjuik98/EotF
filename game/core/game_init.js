@@ -85,14 +85,14 @@ export const GameInit = {
         doc.getElementById('backToTitleBtn')?.addEventListener('click', () => backToTitle?.());
 
         // Run Rules
-        doc.getElementById('runSettingsCloseBtn')?.addEventListener('click', () => closeRunSettings?.());
-        doc.getElementById('runSettingsConfirmBtn')?.addEventListener('click', () => closeRunSettings?.());
+        doc.getElementById('runSettingsCloseBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); closeRunSettings?.(); });
+        doc.getElementById('runSettingsConfirmBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); closeRunSettings?.(); });
         doc.querySelectorAll('.run-mode-stepper .run-mode-btn').forEach((btn, i) => {
-            btn.addEventListener('click', () => shiftAscension?.(i === 0 ? -1 : 1));
+            btn.addEventListener('click', () => { deps.audioEngine?.playClick?.(); shiftAscension?.(i === 0 ? -1 : 1); });
         });
-        doc.getElementById('endlessToggleBtn')?.addEventListener('click', () => toggleEndlessMode?.());
-        doc.getElementById('blessingCycleBtn')?.addEventListener('click', () => cycleRunBlessing?.());
-        doc.getElementById('curseCycleBtn')?.addEventListener('click', () => cycleRunCurse?.());
+        doc.getElementById('endlessToggleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); toggleEndlessMode?.(); });
+        doc.getElementById('blessingCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunBlessing?.(); });
+        doc.getElementById('curseCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunCurse?.(); });
 
         // Sound
         doc.getElementById('soundToggleBtn')?.addEventListener('click', () => {
@@ -132,21 +132,21 @@ export const GameInit = {
         doc.getElementById('hoverHud')?.addEventListener('click', () => GAME.API.toggleHudPin?.());
 
         // Rewards
-        doc.getElementById('rewardSkipInitBtn')?.addEventListener('click', () => GAME.API.showSkipConfirm?.());
-        doc.getElementById('rewardSkipConfirmBtn')?.addEventListener('click', () => GAME.API.skipReward?.());
-        doc.getElementById('rewardSkipCancelBtn')?.addEventListener('click', () => GAME.API.hideSkipConfirm?.());
+        doc.getElementById('rewardSkipInitBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.showSkipConfirm?.(); });
+        doc.getElementById('rewardSkipConfirmBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.skipReward?.(); });
+        doc.getElementById('rewardSkipCancelBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.hideSkipConfirm?.(); });
 
         // Deck View
         doc.querySelectorAll('.deck-filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => GAME.API.setDeckFilter?.(btn.dataset.filter));
+            btn.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.setDeckFilter?.(btn.dataset.filter); });
         });
-        doc.getElementById('deckViewCloseBtn')?.addEventListener('click', () => GAME.API.closeDeckView?.());
+        doc.getElementById('deckViewCloseBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.closeDeckView?.(); });
 
         // Codex
         doc.querySelectorAll('.codex-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => GAME.API.setCodexTab?.(btn.dataset.tab));
+            btn.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.setCodexTab?.(btn.dataset.tab); });
         });
-        doc.getElementById('codexCloseBtn')?.addEventListener('click', () => GAME.API.closeCodex?.());
+        doc.getElementById('codexCloseBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.closeCodex?.(); });
     },
 
     initHelpPauseUI(deps) {

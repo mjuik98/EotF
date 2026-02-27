@@ -84,6 +84,8 @@ export const CardUI = {
       if (playCardHandler) {
         el.addEventListener('click', async (e) => {
           e.stopPropagation();
+          if (el.style.pointerEvents === 'none') return;
+          el.style.pointerEvents = 'none';
           await playCardHandler(cardId, i);
         });
       }
