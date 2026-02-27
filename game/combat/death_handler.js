@@ -9,9 +9,7 @@
  * - spawnEnemy: 적 소환 (적 생사 관리)
  */
 
-import { ParticleSystem } from '../../engine/particles.js';
-import { ScreenShake } from '../../engine/screenshake.js';
-import { AudioEngine } from '../../engine/audio.js';
+// 엔진 기능은 deps를 통해 주입받도록 수정하여 하드코딩 연결 제거
 import { DATA } from '../../data/game_data.js';
 import { DifficultyScaler } from './difficulty_scaler.js';
 import { getRegionData } from '../systems/run_rules.js';
@@ -57,6 +55,7 @@ export const DeathHandler = {
 
         const goldGained = enemy.gold || 10;
         this.addGold(goldGained, deps);
+        const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
         AudioEngine?.playHit?.();
         this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
         this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
@@ -125,6 +124,7 @@ export const DeathHandler = {
 
         const heart = this.player.items.find(i => i === 'echo_heart');
         if (heart && !this._heartUsed) {
+            const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
             if (DATA.items.echo_heart.passive(this, 'pre_death')) {
                 AudioEngine?.playHeal?.();
                 const updateUI = deps.updateUI || _getWin(deps).updateUI;
@@ -136,9 +136,13 @@ export const DeathHandler = {
         const win = _getWin(deps);
         const doc = _getDoc(deps);
 
+        const AudioEngine = deps.audioEngine || win.AudioEngine;
+        const ScreenShake = deps.screenShake || win.ScreenShake;
+        const ParticleSystem = deps.particleSystem || win.ParticleSystem;
+
         AudioEngine?.playDeath?.();
-        ScreenShake.shake(20, 1.2);
-        ParticleSystem.deathEffect(win.innerWidth / 2, win.innerHeight / 2);
+        ScreenShake?.shake?.(20, 1.2);
+        ParticleSystem?.deathEffect?.(win.innerWidth / 2, win.innerHeight / 2);
 
         // 전투 상태 해제 및 유물 트리거 (death)
         this.combat.active = false;

@@ -1,6 +1,6 @@
 import { AudioEngine } from '../../engine/audio.js';
 import { DATA } from '../../data/game_data.js';
-import { GameAPI } from '../core/game_api.js';
+import { GAME } from '../core/global_bridge.js';
 
 export const CardMethods = {
     drawCards(count = 1) {
@@ -21,7 +21,7 @@ export const CardMethods = {
                 }
                 if (gs.player.hand.length < 8) {
                     gs.player.hand.push(gs.player.deck.pop());
-                    deps?.audioEngine?.playCard?.();
+                    AudioEngine?.playCard?.();
                     drewCards = true;
                 }
             }
@@ -35,7 +35,9 @@ export const CardMethods = {
 
     playCard(cardId, handIdx) {
         const gs = this;
-        return GameAPI?.playCard?.(cardId, handIdx, gs);
+        // GameAPI는 순환참조 방지 위해 GAME.Modules 지연 참조
+        const api = GAME?.Modules?.['GameAPI'];
+        return api?.playCard?.(cardId, handIdx, gs);
     },
 
     getRandomCard(rarity = 'common') {

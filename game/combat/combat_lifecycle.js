@@ -7,9 +7,7 @@
  * - triggerResonanceBurst: 공명 폭발 (체인 5+ 달성 시)
  */
 
-import { ParticleSystem } from '../../engine/particles.js';
-import { ScreenShake } from '../../engine/screenshake.js';
-import { AudioEngine } from '../../engine/audio.js';
+// 엔진 기능은 deps를 통해 주입받도록 수정하여 하드코딩 연결 제거
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
@@ -78,6 +76,7 @@ export const CombatLifecycle = {
             const isBoss = this.combat.bossDefeated || this.combat.enemies.some(e => e.isBoss);
             const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
+            const AudioEngine = deps.audioEngine || win.AudioEngine;
             AudioEngine?.playItemGet?.();
             const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
             const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
@@ -127,6 +126,7 @@ export const CombatLifecycle = {
         const win = _getWin(deps);
         const updateChainUI = deps.updateChainUI || win.updateChainUI;
         if (typeof updateChainUI === 'function') updateChainUI(chain);
+        const AudioEngine = deps.audioEngine || win.AudioEngine;
         if (chain > 0) AudioEngine?.playChain?.(chain);
         if (chain >= 5) this.triggerResonanceBurst(deps);
     },
@@ -134,9 +134,13 @@ export const CombatLifecycle = {
     triggerResonanceBurst(deps = {}) {
         this.player.echoChain = 0;
         this.drainEcho(50);
-        AudioEngine?.playResonanceBurst?.();
         const win = _getWin(deps);
-        ScreenShake.shake(15, 0.8);
+        const AudioEngine = deps.audioEngine || win.AudioEngine;
+        const ScreenShake = deps.screenShake || win.ScreenShake;
+        const ParticleSystem = deps.particleSystem || win.ParticleSystem;
+
+        AudioEngine?.playResonanceBurst?.();
+        ScreenShake?.shake?.(15, 0.8);
         let burstDmg = 35 + Math.floor(this.player.echo / 3);
         const burstMod = this.triggerItems('resonance_burst', burstDmg);
         if (burstMod === true) {
@@ -152,7 +156,7 @@ export const CombatLifecycle = {
                 if (e.hp <= 0) this.onEnemyDeath(e, i, deps);
             }
         });
-        ParticleSystem.burstEffect(win.innerWidth / 2, win.innerHeight / 3);
+        ParticleSystem?.burstEffect?.(win.innerWidth / 2, win.innerHeight / 3);
         const showEchoBurstOverlay = deps.showEchoBurstOverlay || win.showEchoBurstOverlay;
         if (typeof showEchoBurstOverlay === 'function') showEchoBurstOverlay();
         this.addLog(`🌟 RESONANCE BURST! 전체 ${burstDmg} 피해!`, 'echo');

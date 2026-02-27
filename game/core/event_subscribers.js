@@ -81,7 +81,7 @@ export function registerSubscribers(uiRefs) {
 
     // 버프 변경 → 상태 효과 디스플레이 갱신
     EventBus.on(Actions.PLAYER_BUFF, ({ payload, result, gs }) => {
-        const updateStatusDisplay = window.updateStatusDisplay;
+        const updateStatusDisplay = _ui.HudUpdateUI?.updateStatusDisplay || window.updateStatusDisplay;
         if (typeof updateStatusDisplay === 'function') updateStatusDisplay();
     });
 
@@ -101,7 +101,8 @@ export function registerSubscribers(uiRefs) {
     EventBus.on(Actions.CARD_PLAY, ({ payload, result, gs }) => {
         const { card } = payload || {};
         if (card) {
-            window.showCardPlayEffect?.(card);
+            const showCardPlayEffect = _ui.CombatUI?.showCardPlayEffect || window.showCardPlayEffect;
+            showCardPlayEffect?.(card);
         }
         window.renderCombatCards?.();
     });

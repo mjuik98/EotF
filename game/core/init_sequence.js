@@ -44,6 +44,7 @@ export function bootGame(modules, fns, Deps) {
         HudUpdateUI: modules.HudUpdateUI,
         CombatHudUI: modules.CombatHudUI,
         FeedbackUI: modules.FeedbackUI,
+        CombatUI: modules.CombatUI,
         StatusEffectsUI: modules.StatusEffectsUI,
         AudioEngine,
         ParticleSystem,

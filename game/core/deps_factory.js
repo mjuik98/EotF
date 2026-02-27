@@ -37,6 +37,7 @@ export function getCombatTurnBaseDeps() {
     return {
         ...(_refs.GAME?.getDeps?.() || {}),
         enemyTurn: _refs.enemyTurn,
+        updateStatusDisplay: _refs.updateStatusDisplay,
         updateChainUI: _refs.updateChainUI,
         showTurnBanner: _refs.showTurnBanner,
         renderCombatEnemies: _refs.renderCombatEnemies,
@@ -287,7 +288,7 @@ export function getHelpPauseDeps() {
         setMasterVolume: _refs.setMasterVolume,
         setSfxVolume: _refs.setSfxVolume,
         setAmbientVolume: _refs.setAmbientVolume,
-        _syncVolumeUI: _refs._syncVolumeUI,
+        _syncVolumeUI: _refs._syncVolumeUI || (() => window._syncVolumeUI?.()),
         useEchoSkill: _refs.useEchoSkill,
         endPlayerTurn: _refs.endPlayerTurn,
         renderCombatEnemies: _refs.renderCombatEnemies,

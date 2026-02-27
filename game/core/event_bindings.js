@@ -71,6 +71,11 @@ function exposeToWindow(fns) {
         'closeDeckView', 'closeCodex', 'updateNoiseWidget', 'updateClassSpecialUI',
         'selectTarget', 'showRewardScreen', 'takeRewardItem', 'takeRewardUpgrade',
         'takeRewardRemove', 'setMasterVolume', 'setSfxVolume', 'setAmbientVolume',
+        // 제보받은 누락 함수 목록 추가 등록
+        'endPlayerTurn', 'takeRewardCard', 'moveToNode', 'toggleHelp', 'togglePause',
+        'abandonRun', 'confirmAbandon', 'showDeckView', 'useEchoSkill', 'drawCard',
+        'resolveEvent', 'returnToGame', 'openCodex', 'toggleCombatInfo', 'updateStatusDisplay',
+        'showCardPlayEffect',
     ];
     windowExpose.forEach(name => { if (fns[name]) window[name] = fns[name]; });
 
