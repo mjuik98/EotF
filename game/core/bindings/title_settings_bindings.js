@@ -8,11 +8,13 @@ import * as Deps from '../deps_factory.js';
 export function createTitleSettingsBindings(M, fns) {
     // ═══ Title / Navigation ═══
     fns.showCharacterSelect = () => {
+        M.AudioEngine?.playClick?.();
         const main = document.getElementById('mainTitleSubScreen');
         const char = document.getElementById('charSelectSubScreen');
         if (main && char) { main.style.display = 'none'; char.style.display = 'block'; }
     };
     fns.backToTitle = () => {
+        M.AudioEngine?.playClick?.();
         const main = document.getElementById('mainTitleSubScreen');
         const char = document.getElementById('charSelectSubScreen');
         if (main && char) { main.style.display = 'block'; char.style.display = 'none'; }
@@ -26,8 +28,14 @@ export function createTitleSettingsBindings(M, fns) {
         M.AudioEngine?.playClick?.();
         M.CodexUI?.openCodex?.({ gs: M.GS, data: M.DATA });
     };
-    fns.selectClass = (btn) => M.ClassSelectUI?.selectClass?.(btn, Deps.getClassSelectDeps());
-    fns.startGame = () => M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
+    fns.selectClass = (btn) => {
+        M.AudioEngine?.playClick?.();
+        M.ClassSelectUI?.selectClass?.(btn, Deps.getClassSelectDeps());
+    };
+    fns.startGame = () => {
+        M.AudioEngine?.playClick?.();
+        M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
+    };
 
     fns.refreshRunModePanel = () => {
         M.RunModeUI?.refresh?.(Deps.getRunModeDeps());
@@ -44,7 +52,10 @@ export function createTitleSettingsBindings(M, fns) {
     fns.advanceToNextRegion = () => M.RegionTransitionUI?.advanceToNextRegion?.(Deps.getRegionTransitionDeps());
 
     // ═══ Help / Pause ═══
-    fns.toggleHelp = () => M.HelpPauseUI?.toggleHelp?.(Deps.getHelpPauseDeps());
+    fns.toggleHelp = () => {
+        M.AudioEngine?.playClick?.();
+        M.HelpPauseUI?.toggleHelp?.(Deps.getHelpPauseDeps());
+    };
     fns.abandonRun = () => M.HelpPauseUI?.abandonRun?.(Deps.getHelpPauseDeps());
     fns.confirmAbandon = () => M.HelpPauseUI?.confirmAbandon?.(Deps.getHelpPauseDeps());
     fns.togglePause = () => M.HelpPauseUI?.togglePause?.(Deps.getHelpPauseDeps());
@@ -55,6 +66,7 @@ export function createTitleSettingsBindings(M, fns) {
 
     // ═══ Game Exit ═══
     fns.quitGame = () => {
+        M.AudioEngine?.playClick?.();
         if (confirm('정말로 게임을 종료하시겠습니까?')) {
             window.close();
             setTimeout(() => alert('브라우저 정책상 window.close() 가 작동하지 않을 수 있습니다. 창을 직접 닫아주세요.'), 500);

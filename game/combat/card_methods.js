@@ -7,8 +7,9 @@ export const CardMethods = {
         const gs = this;
         let drewCards = false;
 
-        if (typeof GameAPI?.drawCards === 'function') {
-            GameAPI.drawCards(count, gs);
+        const api = GAME?.Modules?.['GameAPI'];
+        if (typeof api?.drawCards === 'function') {
+            api.drawCards(count, gs);
             drewCards = true;
         } else {
             // 폴백: 직접 카드 뽑기 로직 실행 (API 초기화 전에도 동작)
