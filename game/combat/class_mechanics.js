@@ -161,7 +161,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '빛의 축복';
+      label.textContent = '빛의 가호';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);";
       value.textContent = `재생: ${val} HP/턴`;
@@ -175,7 +175,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('berserk_mode');
       if (buff) {
         buff.atkGrowth = (buff.atkGrowth || 0) + 2;
-        state.addLog(`😡 광폭화: 피해 +2 (현재 +${buff.atkGrowth})`, 'echo');
+        state.addLog(`😡 광기 어린 투지: 피해 +2 (현재 +${buff.atkGrowth})`, 'echo');
       }
       return damage;
     },
@@ -203,7 +203,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = '광기의 힘';
+      label.textContent = '광기 어린 투지';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
       value.textContent = `보너스: +${hpBonus + growBonus}`;

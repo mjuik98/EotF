@@ -130,13 +130,21 @@ export const GameAPI = {
      * 카드를 사용합니다 (동기 처리 - 모든 카드 효과는 동기 함수임).
      */
     playCard(cardId, handIdx, gs = GAME.State) {
+        if (gs.combat._isPlayingCard) {
+            Logger.warn('Already playing a card. Ignoring input.');
+            return false;
+        }
+
         const card = GAME.Data?.cards?.[cardId];
         if (!card) return false;
 
         Logger.group(`API: Play Card (${card.name})`);
+        gs.combat._isPlayingCard = true;
+
         try {
             if (!gs.combat?.active || !gs.combat?.playerTurn) {
                 Logger.warn('Cannot play card: Not player turn.');
+                gs.combat._isPlayingCard = false;
                 return false;
             }
 
@@ -146,6 +154,7 @@ export const GameAPI = {
             const cost = GAME.Modules?.['CardCostUtils']?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');
+                gs.combat._isPlayingCard = false;
                 return false;
             }
 
@@ -188,9 +197,13 @@ export const GameAPI = {
             GAME.getDeps()?.renderCombatCards?.();
             gs.markDirty?.('hud');
             GAME.Modules?.['HudUpdateUI']?.processDirtyFlags?.(GAME.getDeps());
+
+            // 처리 완료 후 플래그 해제
+            gs.combat._isPlayingCard = false;
             return true;
         } catch (e) {
             Logger.error('Error playing card:', e);
+            gs.combat._isPlayingCard = false;
             return false;
         } finally {
             Logger.groupEnd();

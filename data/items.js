@@ -43,6 +43,18 @@ export const ITEMS = {
         image: 'relic_travelers_map.png',
         passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3); } }
     },
+    rift_talisman: {
+        id: 'rift_talisman', name: '균열 부적', icon: '📿', rarity: 'common',
+        desc: '전투 시작 시 방어막 +5',
+        image: 'relic_cracked_amulet.png',
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog('📿 균열 부적: 방어막 +5', 'system'); } }
+    },
+    blood_shard: {
+        id: 'blood_shard', name: '핏빛 파편', icon: '🍷', rarity: 'common',
+        desc: '적 처치 시 Echo +10',
+        image: 'relic_blood_shard.png',
+        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10); gs.addLog('🍷 핏빛 파편: Echo +10', 'echo'); } }
+    },
     // ══════════════ UNCOMMON (파랑) ══════════════
     blood_gem: {
         id: 'blood_gem', name: '혈정', icon: '🔴', rarity: 'uncommon',
