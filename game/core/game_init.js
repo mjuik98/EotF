@@ -7,7 +7,6 @@ export const GameInit = {
     boot(deps) {
         this.loadVolumes(deps.audioEngine);
         this.syncVolumeUI(deps.audioEngine);
-        this.syncVolumeUI(deps.audioEngine);
         this.initEventHandlers(deps);
         this.initHelpPauseUI(deps);
         deps.gameBootUI?.bootGame?.(deps.getGameBootDeps());
