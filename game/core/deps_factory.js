@@ -1,48 +1,48 @@
 /**
- * deps_factory.js — 의존성 팩토리 모음
+ * Dependency factory for feature modules.
  *
- * 각 UI 모듈에 주입할 deps 객체를 생성하는 팩토리 함수들.
- * main.js에서 모듈 참조와 래퍼 함수 참조를 주입받아 초기화합니다.
+ * Each contract defines the exact dependency surface a feature can use.
+ * This keeps module boundaries explicit and prevents hidden global coupling.
  */
 
-let _refs = {};  // 모든 모듈/래퍼 참조 저장
+let _refs = {};
 
-/**
- * 초기화 — main.js에서 모든 참조를 한번에 주입
- */
 export function initDepsFactory(refs) {
-    _refs = refs;
+    _refs = refs || {};
 }
 
-/**
- * 동적 참조 추가 병합 (booting 이후 주입용)
- */
 export function patchRefs(partial) {
-    Object.assign(_refs, partial);
+    Object.assign(_refs, partial || {});
 }
 
-// ─── 공통 base ───
-export function baseDeps() {
+function getRaf() {
+    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+        return window.requestAnimationFrame.bind(window);
+    }
+    return (cb) => setTimeout(cb, 16);
+}
+
+function buildBaseDeps() {
     return {
         ...(_refs.GAME?.getDeps?.() || {}),
         isGameStarted: () => _refs._gameStarted?.(),
     };
 }
 
-// ─── Story ───
-export function getStoryDeps() {
-    return {
-        ...baseDeps(),
+const CONTRACT_BUILDERS = Object.freeze({
+    base: () => ({
+        ...buildBaseDeps(),
+    }),
+
+    story: () => ({
+        ...buildBaseDeps(),
         audioEngine: _refs.AudioEngine,
         particleSystem: _refs.ParticleSystem,
         showWorldMemoryNotice: _refs.showWorldMemoryNotice,
         restartFromEnding: _refs.restartFromEnding,
-    };
-}
+    }),
 
-// ─── Combat Turn ───
-export function getCombatTurnBaseDeps() {
-    return {
+    combatTurnBase: () => ({
         ...(_refs.GAME?.getDeps?.() || {}),
         enemyTurn: _refs.enemyTurn,
         updateChainUI: _refs.updateChainUI,
@@ -55,13 +55,10 @@ export function getCombatTurnBaseDeps() {
         showEchoBurstOverlay: _refs.showEchoBurstOverlay,
         showDmgPopup: _refs.showDmgPopup,
         shuffleArray: (arr) => _refs.RandomUtils?.shuffleArray?.(arr) || arr,
-    };
-}
+    }),
 
-// ─── Event ───
-export function getEventDeps() {
-    return {
-        ...baseDeps(),
+    event: () => ({
+        ...buildBaseDeps(),
         runRules: _refs.RunRules,
         updateUI: _refs.updateUI,
         returnToGame: _refs.returnToGame,
@@ -72,128 +69,102 @@ export function getEventDeps() {
         audioEngine: _refs.AudioEngine,
         screenShake: _refs.ScreenShake,
         playItemGet: () => _refs.AudioEngine?.playItemGet?.(),
-    };
-}
+    }),
 
-// ─── Reward ───
-export function getRewardDeps() {
-    return {
-        ...baseDeps(),
+    reward: () => ({
+        ...buildBaseDeps(),
         switchScreen: _refs.switchScreen,
         returnToGame: _refs.returnToGame,
         showItemToast: _refs.showItemToast,
         playItemGet: () => _refs.AudioEngine?.playItemGet?.(),
-    };
-}
+    }),
 
-// ─── Run Return ───
-export function getRunReturnDeps() {
-    return {
-        ...baseDeps(),
+    runReturn: () => ({
+        ...buildBaseDeps(),
         storySystem: _refs.StorySystem,
         finalizeRunOutcome: _refs.finalizeRunOutcome,
         advanceToNextRegion: _refs.advanceToNextRegion,
         updateNextNodes: _refs.updateNextNodes,
         renderMinimap: _refs.renderMinimap,
-    };
-}
+    }),
 
-// ─── HUD Update ───
-export function getHudUpdateDeps() {
-    return {
-        ...baseDeps(),
+    hudUpdate: () => ({
+        ...buildBaseDeps(),
         setBonusSystem: _refs.SetBonusSystem,
         classMechanics: _refs.ClassMechanics,
+        tooltipUI: _refs.TooltipUI,
+        runRules: _refs.RunRules,
         isGameStarted: () => _refs._gameStarted?.(),
-        requestAnimationFrame: window.requestAnimationFrame.bind(window),
+        requestAnimationFrame: getRaf(),
         setBar: (id, pct) => _refs.setBar?.(id, pct),
         setText: (id, val) => _refs.setText?.(id, val),
         updateNoiseWidget: () => _refs.updateNoiseWidget?.(),
         updateEchoSkillBtn: (overrideDeps) => _refs.CombatHudUI?.updateEchoSkillBtn?.(overrideDeps || _refs.GAME?.getDeps?.()),
         updateStatusDisplay: () => _refs.updateStatusDisplay?.(),
+        renderCombatEnemies: () => _refs.renderCombatEnemies?.(),
+        renderCombatCards: () => _refs.renderCombatCards?.(),
+        showItemTooltip: (event, id) => _refs.showItemTooltip?.(event, id),
+        hideItemTooltip: () => _refs.hideItemTooltip?.(),
+        showGeneralTooltip: (event, title, desc, deps) => _refs.showGeneralTooltip?.(event, title, desc, deps),
+        hideGeneralTooltip: () => _refs.hideGeneralTooltip?.(),
         getRegionData: _refs.getRegionData,
-    };
-}
+    }),
 
-// ─── Combat HUD ───
-export function getCombatHudDeps() {
-    return {
-        ...baseDeps(),
+    combatHud: () => ({
+        ...buildBaseDeps(),
         updateChainUI: _refs.updateChainUI,
         updateNoiseWidget: _refs.updateNoiseWidget,
         updateClassSpecialUI: _refs.updateClassSpecialUI,
         updateUI: _refs.updateUI,
         getBaseRegionIndex: _refs.getBaseRegionIndex,
-    };
-}
+    }),
 
-// ─── Card Target ───
-export function getCardTargetDeps() {
-    return {
-        ...baseDeps(),
+    cardTarget: () => ({
+        ...buildBaseDeps(),
         renderCombatEnemies: _refs.renderCombatEnemies,
-    };
-}
+    }),
 
-// ─── Card ───
-export function baseCardDeps() {
-    const deps = _refs.GAME?.getDeps?.() || {};
-    deps.playCardHandler = _refs.GS?.playCard?.bind(_refs.GS);
-    deps.renderCombatCardsHandler = _refs.renderCombatCards;
-    deps.dragStartHandler = _refs.handleCardDragStart;
-    deps.dragEndHandler = _refs.handleCardDragEnd;
-    deps.showTooltipHandler = _refs.showTooltip;
-    deps.hideTooltipHandler = _refs.hideTooltip;
-    return deps;
-}
+    baseCard: () => ({
+        ...(_refs.GAME?.getDeps?.() || {}),
+        playCardHandler: _refs.GS?.playCard?.bind(_refs.GS),
+        renderCombatCardsHandler: _refs.renderCombatCards,
+        dragStartHandler: _refs.handleCardDragStart,
+        dragEndHandler: _refs.handleCardDragEnd,
+        showTooltipHandler: _refs.showTooltip,
+        hideTooltipHandler: _refs.hideTooltip,
+    }),
 
-// ─── Feedback ───
-export function getFeedbackDeps() {
-    return {
-        ...baseDeps(),
+    feedback: () => ({
+        ...buildBaseDeps(),
         audioEngine: _refs.AudioEngine,
         screenShake: _refs.ScreenShake,
-    };
-}
+    }),
 
-// ─── Codex ───
-export function getCodexDeps() {
-    return { ...baseDeps() };
-}
+    codex: () => ({
+        ...buildBaseDeps(),
+    }),
 
-// ─── Deck Modal ───
-export function getDeckModalDeps() {
-    return { ...baseDeps() };
-}
+    deckModal: () => ({
+        ...buildBaseDeps(),
+    }),
 
-// ─── Tooltip ───
-export function getTooltipDeps() {
-    return {
-        ...baseDeps(),
+    tooltip: () => ({
+        ...buildBaseDeps(),
         setBonusSystem: _refs.SetBonusSystem,
-    };
-}
+    }),
 
-// ─── Screen ───
-export function getScreenDeps() {
-    return {
-        ...baseDeps(),
+    screen: () => ({
+        ...buildBaseDeps(),
         onEnterTitle: () => _refs.animateTitle?.(),
-    };
-}
+    }),
 
-// ─── Combat Info ───
-export function getCombatInfoDeps() {
-    return {
-        ...baseDeps(),
+    combatInfo: () => ({
+        ...buildBaseDeps(),
         statusKr: _refs.StatusEffectsUI?.getStatusMap?.() || {},
-    };
-}
+    }),
 
-// ─── Class Select ───
-export function getClassSelectDeps() {
-    return {
-        ...baseDeps(),
+    classSelect: () => ({
+        ...buildBaseDeps(),
         playClassSelect: (cls) => {
             try {
                 _refs.AudioEngine?.init?.();
@@ -203,32 +174,23 @@ export function getClassSelectDeps() {
                 console.warn('Audio error:', e);
             }
         },
-    };
-}
+    }),
 
-// ─── Save System ───
-export function getSaveSystemDeps() {
-    return {
-        ...baseDeps(),
+    saveSystem: () => ({
+        ...buildBaseDeps(),
         runRules: _refs.RunRules,
         isGameStarted: () => _refs._gameStarted?.(),
-    };
-}
+    }),
 
-// ─── Run Mode ───
-export function getRunModeDeps() {
-    return {
-        ...baseDeps(),
+    runMode: () => ({
+        ...buildBaseDeps(),
         runRules: _refs.RunRules,
-        saveMeta: () => _refs.SaveSystem?.saveMeta?.(getSaveSystemDeps()),
+        saveMeta: () => _refs.SaveSystem?.saveMeta?.(createDeps('saveSystem')),
         notice: (msg) => _refs.showWorldMemoryNotice?.(msg),
-    };
-}
+    }),
 
-// ─── Run Start ───
-export function getRunStartDeps() {
-    return {
-        ...baseDeps(),
+    runStart: () => ({
+        ...buildBaseDeps(),
         switchScreen: _refs.switchScreen,
         markGameStarted: _refs.markGameStarted,
         generateMap: _refs.generateMap,
@@ -237,39 +199,30 @@ export function getRunStartDeps() {
         updateClassSpecialUI: _refs.updateClassSpecialUI,
         initGameCanvas: _refs.initGameCanvas,
         gameLoop: _refs.gameLoop,
-        requestAnimationFrame: window.requestAnimationFrame.bind(window),
+        requestAnimationFrame: getRaf(),
         showRunFragment: () => _refs.StorySystem?.showRunFragment?.(),
         showWorldMemoryNotice: _refs.showWorldMemoryNotice,
-    };
-}
+    }),
 
-// ─── Run Setup ───
-export function getRunSetupDeps() {
-    return {
-        ...baseDeps(),
+    runSetup: () => ({
+        ...buildBaseDeps(),
         runRules: _refs.RunRules,
         audioEngine: _refs.AudioEngine,
         getSelectedClass: _refs.getSelectedClass,
         shuffleArray: _refs.shuffleArray,
         resetDeckModalFilter: _refs.resetDeckModalFilter,
-        enterRun: () => _refs.RunStartUI?.enterRun?.(getRunStartDeps()),
-    };
-}
+        enterRun: () => _refs.RunStartUI?.enterRun?.(createDeps('runStart')),
+    }),
 
-// ─── Meta Progression ───
-export function getMetaProgressionDeps() {
-    return {
-        ...baseDeps(),
+    metaProgression: () => ({
+        ...buildBaseDeps(),
         switchScreen: _refs.switchScreen,
         clearSelectedClass: _refs.clearSelectedClass,
         refreshRunModePanel: _refs.refreshRunModePanel,
-    };
-}
+    }),
 
-// ─── Region Transition ───
-export function getRegionTransitionDeps() {
-    return {
-        ...baseDeps(),
+    regionTransition: () => ({
+        ...buildBaseDeps(),
         mazeSystem: _refs.MazeSystem,
         getRegionData: _refs.getRegionData,
         getBaseRegionIndex: _refs.getBaseRegionIndex,
@@ -279,13 +232,10 @@ export function getRegionTransitionDeps() {
         generateMap: _refs.generateMap,
         updateUI: _refs.updateUI,
         showRunFragment: () => _refs.StorySystem?.showRunFragment?.(),
-    };
-}
+    }),
 
-// ─── Help / Pause ───
-export function getHelpPauseDeps() {
-    return {
-        ...baseDeps(),
+    helpPause: () => ({
+        ...buildBaseDeps(),
         showDeckView: _refs.showDeckView,
         closeDeckView: _refs.closeDeckView,
         openCodex: _refs.openCodex,
@@ -302,27 +252,64 @@ export function getHelpPauseDeps() {
         finalizeRunOutcome: _refs.finalizeRunOutcome,
         switchScreen: _refs.switchScreen,
         returnToGame: _refs.returnToGame,
-    };
-}
+    }),
 
-// ─── World Canvas ───
-export function getWorldCanvasDeps() {
-    return {
-        ...baseDeps(),
+    worldCanvas: () => ({
+        ...buildBaseDeps(),
         getRegionData: _refs.getRegionData,
-    };
-}
+    }),
 
-// ─── Game Boot ───
-export function getGameBootDeps() {
-    return {
+    gameBoot: () => ({
         ...(_refs.GAME?.getDeps?.() || {}),
         audioEngine: _refs.AudioEngine,
         runRules: _refs.RunRules,
         saveSystem: _refs.SaveSystem,
-        saveSystemDeps: getSaveSystemDeps(),
+        saveSystemDeps: createDeps('saveSystem'),
         initTitleCanvas: _refs.initTitleCanvas,
         updateUI: _refs.updateUI,
         refreshRunModePanel: _refs.refreshRunModePanel,
+    }),
+});
+
+export const DepContracts = Object.freeze(Object.keys(CONTRACT_BUILDERS));
+
+export function listDepContracts() {
+    return [...DepContracts];
+}
+
+export function createDeps(contractName, overrides = {}) {
+    const builder = CONTRACT_BUILDERS[contractName];
+    if (!builder) throw new Error(`[deps_factory] Unknown dependency contract: ${contractName}`);
+    return {
+        ...builder(),
+        ...overrides,
     };
 }
+
+export function baseDeps() { return createDeps('base'); }
+export function getStoryDeps() { return createDeps('story'); }
+export function getCombatTurnBaseDeps() { return createDeps('combatTurnBase'); }
+export function getEventDeps() { return createDeps('event'); }
+export function getRewardDeps() { return createDeps('reward'); }
+export function getRunReturnDeps() { return createDeps('runReturn'); }
+export function getHudUpdateDeps() { return createDeps('hudUpdate'); }
+export function getCombatHudDeps() { return createDeps('combatHud'); }
+export function getCardTargetDeps() { return createDeps('cardTarget'); }
+export function baseCardDeps() { return createDeps('baseCard'); }
+export function getFeedbackDeps() { return createDeps('feedback'); }
+export function getCodexDeps() { return createDeps('codex'); }
+export function getDeckModalDeps() { return createDeps('deckModal'); }
+export function getTooltipDeps() { return createDeps('tooltip'); }
+export function getScreenDeps() { return createDeps('screen'); }
+export function getCombatInfoDeps() { return createDeps('combatInfo'); }
+export function getClassSelectDeps() { return createDeps('classSelect'); }
+export function getSaveSystemDeps() { return createDeps('saveSystem'); }
+export function getRunModeDeps() { return createDeps('runMode'); }
+export function getRunStartDeps() { return createDeps('runStart'); }
+export function getRunSetupDeps() { return createDeps('runSetup'); }
+export function getMetaProgressionDeps() { return createDeps('metaProgression'); }
+export function getRegionTransitionDeps() { return createDeps('regionTransition'); }
+export function getHelpPauseDeps() { return createDeps('helpPause'); }
+export function getWorldCanvasDeps() { return createDeps('worldCanvas'); }
+export function getGameBootDeps() { return createDeps('gameBoot'); }
+

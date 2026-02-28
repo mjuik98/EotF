@@ -2,11 +2,16 @@
   "name": "echo-of-the-fallen",
   "version": "2.0.0",
   "description": "Roguelike Deckbuilder Game",
+  "type": "module",
   "main": "index.html",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "node scripts/check-architecture.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "quality": "npm run lint && npm run test && npm run build"
   },
   "keywords": [
     "game",
@@ -16,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^3.2.4"
   }
 }

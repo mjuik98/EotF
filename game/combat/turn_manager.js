@@ -1,4 +1,4 @@
-/**
+﻿/**
  * turn_manager.js — 전투 턴 비즈니스 로직 (순수 Model)
  *
  * DOM/window 접근 없이 게임 상태(gs)만 변경합니다.
@@ -6,13 +6,11 @@
  */
 import { LogUtils } from '../utils/log_utils.js';
 import { Actions } from '../core/state_actions.js';
+import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
 
 // ═══════════════════════════════════════
 //  상수
 // ═══════════════════════════════════════
-const TURN_START_DEBUFFS = new Set(['poisoned', 'burning', 'slowed', 'confusion']);
-const ENEMY_TURN_BUFFS = new Set(['mirror', 'immune']);
-
 // ═══════════════════════════════════════
 //  적 이펙트 핸들러 (순수 상태 변경)
 // ═══════════════════════════════════════

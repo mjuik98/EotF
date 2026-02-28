@@ -1,54 +1,55 @@
-import { DescriptionUtils } from '../../utils/description_utils.js';
-import { SecurityUtils } from '../../utils/security.js';
+﻿import { DescriptionUtils } from '../../utils/description_utils.js';
+import { CardCostUtils } from '../../utils/card_cost_utils.js';
+import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
 
 
 const INTENT_DESCRIPTIONS = {
-  attack: { type: '공격', desc: '플레이어에게 직접 피해를 입힙니다.' },
-  heavy: { type: '강타', desc: '강력한 단일 피해를 가합니다.' },
-  double: { type: '연속공격', desc: '피해를 여러 번 나누어 가합니다.' },
-  aoe: { type: '광역공격', desc: '광역 피해를 가합니다. 방어막을 미리 준비하세요.' },
-  guard: { type: '방어', desc: '방어막을 쌓아 다음 피해를 줄입니다.' },
-  barrier: { type: '결계', desc: '강한 방어 효과를 얻습니다.' },
-  shield: { type: '방패', desc: '피해를 줄이는 방어 자세를 취합니다.' },
-  curse: { type: '저주', desc: '플레이어에게 불리한 상태를 부여합니다.' },
-  poison: { type: '독', desc: '턴마다 독 피해를 입힙니다.' },
-  weaken: { type: '약화', desc: '플레이어의 공격 효율을 떨어뜨립니다.' },
-  debuff: { type: '디버프', desc: '불리한 상태 이상을 부여합니다.' },
-  mark: { type: '표식', desc: '다음 공격 피해가 증가할 수 있습니다.' },
-  burning: { type: '화염', desc: '턴마다 화상 피해를 입힙니다.' },
-  heal: { type: '회복', desc: '자신의 HP를 회복합니다.' },
-  life: { type: '생명력 흡수', desc: '플레이어를 공격하며 자신을 회복합니다.' },
-  drain: { type: '흡수', desc: '에너지 또는 Echo를 빼앗을 수 있습니다.' },
-  summon: { type: '소환', desc: '추가 적을 소환합니다.' },
-  enrage: { type: '격노', desc: '이후 공격이 더 강해집니다.' },
+  attack: { type: 'Attack', desc: 'Deals direct damage to the player.' },
+  heavy: { type: 'Heavy Attack', desc: 'Deals high single-target damage.' },
+  double: { type: 'Multi Attack', desc: 'Deals damage multiple times.' },
+  aoe: { type: 'AOE Attack', desc: 'Deals damage to all targets.' },
+  guard: { type: 'Guard', desc: 'Gains defensive shield.' },
+  barrier: { type: 'Barrier', desc: 'Builds a strong defensive barrier.' },
+  shield: { type: 'Shield', desc: 'Reduces incoming damage with shield.' },
+  curse: { type: 'Curse', desc: 'Applies negative effects to the player.' },
+  poison: { type: 'Poison', desc: 'Applies damage-over-time poison.' },
+  weaken: { type: 'Weaken', desc: 'Reduces damage output.' },
+  debuff: { type: 'Debuff', desc: 'Applies a harmful status effect.' },
+  mark: { type: 'Mark', desc: 'Marks target for extra follow-up damage.' },
+  burning: { type: 'Burning', desc: 'Applies damage-over-time burn.' },
+  heal: { type: 'Heal', desc: 'Recovers HP.' },
+  life: { type: 'Lifesteal', desc: 'Deals damage and heals the caster.' },
+  drain: { type: 'Drain', desc: 'Drains player resources.' },
+  summon: { type: 'Summon', desc: 'Summons additional enemies.' },
+  enrage: { type: 'Enrage', desc: 'Increases future attack strength.' },
 };
 
 const ENEMY_STATUS_KR = {
-  stunned: '기절',
-  weakened: '약화',
-  poisoned: '독',
-  marked: '표식',
-  mirror: '반사',
-  immune: '무적',
-  slowed: '감속',
-  burning: '화염',
-  cursed: '저주',
-  dodge: '회피',
-  thorns: '가시 방어',
+  stunned: 'Stunned',
+  weakened: 'Weakened',
+  poisoned: 'Poisoned',
+  marked: 'Marked',
+  mirror: 'Mirror',
+  immune: 'Immune',
+  slowed: 'Slowed',
+  burning: 'Burning',
+  cursed: 'Cursed',
+  dodge: 'Dodge',
+  thorns: 'Thorns',
 };
 
 const ENEMY_STATUS_DESC = {
-  stunned: { icon: '⚡', desc: '이번 턴 행동을 할 수 없습니다.' },
-  weakened: { icon: '💫', desc: '공격 피해가 50% 감소합니다.' },
-  poisoned: { icon: '🐍', desc: '매 턴 3의 독 피해를 받습니다.' },
-  marked: { icon: '💢', desc: '3 턴 후 30 피해가 폭발합니다.' },
-  mirror: { icon: '🪞', desc: '받는 피해를 적에게 반사합니다.' },
-  immune: { icon: '🏛️', desc: '모든 피해를 무효화합니다.' },
-  slowed: { icon: '🐢', desc: '행동이 지연됩니다.' },
-  burning: { icon: '🔥', desc: '매 턴 5의 화염 피해를 받습니다.' },
-  cursed: { icon: '💀', desc: '카드 효과와 회복량이 감소합니다.' },
-  dodge: { icon: '💨', desc: '다음 공격을 회피합니다.' },
-  thorns: { icon: '🌵', desc: '직접 공격을 가한 대상에게 피해를 줍니다.' },
+  stunned: { icon: '⏸', desc: 'Skips the next action.' },
+  weakened: { icon: '🪶', desc: 'Deals reduced damage.' },
+  poisoned: { icon: '☠', desc: 'Takes poison damage each turn.' },
+  marked: { icon: '🎯', desc: 'Takes bonus damage when mark resolves.' },
+  mirror: { icon: '🪞', desc: 'Reflects incoming damage.' },
+  immune: { icon: '🛡', desc: 'Ignores incoming damage.' },
+  slowed: { icon: '🐢', desc: 'Acts more slowly.' },
+  burning: { icon: '🔥', desc: 'Takes burn damage each turn.' },
+  cursed: { icon: '🕸', desc: 'Suffers curse penalties.' },
+  dodge: { icon: '💨', desc: 'Dodges the next attack.' },
+  thorns: { icon: '🌵', desc: 'Reflects melee damage to attacker.' },
 };
 
 let _intentTipTimer = null;
@@ -65,17 +66,17 @@ function _getWin(deps) {
 function _getIntentIcon(intent) {
   if (!intent) return '❓';
   const t = String(intent.type || '').toLowerCase();
-  if (t === 'stunned' || t === 'stun') return '⚡';
+  if (t === 'stunned' || t === 'stun') return '⏸';
   if (t.includes('dodge') || t.includes('phase')) return '💨';
-  if (t.includes('guard') || t.includes('barrier') || t.includes('shield')) return '🛡️';
-  if (t.includes('howl') || t.includes('roar')) return '📣';
+  if (t.includes('guard') || t.includes('barrier') || t.includes('shield')) return '🛡';
+  if (t.includes('howl') || t.includes('roar')) return '🐺';
   if (t.includes('heal') || t.includes('life')) return '💚';
-  if (t.includes('curse') || t.includes('poison') || t.includes('debuff')) return '☠️';
-  if (t.includes('drain') || t.includes('steal')) return '🌀';
+  if (t.includes('curse') || t.includes('poison') || t.includes('debuff')) return '☠';
+  if (t.includes('drain') || t.includes('steal')) return '🩸';
   if (intent.dmg > 0) {
     if (intent.dmg >= 20) return '💥';
-    if (intent.dmg >= 12) return '⚔️';
-    return '🗡️';
+    if (intent.dmg >= 12) return '⚔';
+    return '🗡';
   }
   return '❓';
 }
@@ -83,21 +84,15 @@ function _getIntentIcon(intent) {
 function _formatIntentLabel(intent) {
   let text = String(intent?.intent || '?');
   if (intent?.dmg > 0) {
-    // 숫자만 있는 경우(데미지만 있는 경우) 빈 문자열 반환 (아이콘과 큰 데미지 숫자가 대체)
     if (/^\d+$/.test(text.trim())) return '';
-
-    // "공격 20" 형태에서 숫자 제거 (데미지가 하단에 크게 표시되므로)
     const dmgPattern = new RegExp(`\\s+${intent.dmg}$`);
     if (dmgPattern.test(text)) {
       text = text.replace(dmgPattern, '').trim();
     }
   }
 
-  // "피해" 텍스트 중복 제거 (이미 툴팁이나 별도 피해 숫자가 있으므로)
-  text = text.replace(/피해/g, '').trim();
-
-  // 유틸리티를 사용하여 키워드 하이라이트 적용 (innerHTML로 사용될 예정)
-  return window.DescriptionUtils ? window.DescriptionUtils.highlight(text) : text;
+  text = text.replace(/damage/gi, '').trim();
+  return DescriptionUtils.highlight(text);
 }
 
 function _resolveIntentDescription(intent) {
@@ -106,13 +101,11 @@ function _resolveIntentDescription(intent) {
     if (text.includes(key)) return info;
   }
   if ((intent?.dmg || 0) > 0) return INTENT_DESCRIPTIONS.attack;
-  return { type: _formatIntentLabel(intent), desc: '이 적의 다음 행동 패턴입니다.' };
+  return { type: _formatIntentLabel(intent), desc: 'Shows the enemy\'s next intent.' };
 }
 
 function _enemyHpColor(pct) {
-  if (pct > 60) return 'linear-gradient(90deg,#cc2244,#ff4466)';
-  if (pct > 30) return 'linear-gradient(90deg,#cc5500,#ff8800)';
-  return 'linear-gradient(90deg,#8b0000,#ff2200)';
+  return enemyHpColor(pct);
 }
 
 function _renderEnemyStatuses(statusEffects, doc) {
@@ -121,7 +114,7 @@ function _renderEnemyStatuses(statusEffects, doc) {
 
   statusEntries.forEach(([s, d]) => {
     const kr = ENEMY_STATUS_KR[s] || s;
-    const icon = ENEMY_STATUS_DESC[s]?.icon || '💫';
+    const icon = ENEMY_STATUS_DESC[s]?.icon || '🪶';
     const col = ['weakened', 'poisoned', 'burning', 'cursed', 'marked'].includes(s) ? '#ff6688' : '#88ccff';
     const duration = d > 1 ? `(${d})` : '';
 
@@ -134,30 +127,13 @@ function _renderEnemyStatuses(statusEffects, doc) {
     badge.addEventListener('mouseleave', () => CombatUI.hideEnemyStatusTooltip({ doc }));
 
     fragment.appendChild(badge);
-    // Add a space between badges
     fragment.appendChild(doc.createTextNode(' '));
   });
 
   return fragment;
 }
-
 function _calcSelectedPreview(gs, data, enemy) {
-  if (!gs?.combat?.playerTurn) return null;
-  const atkCards = gs.player.hand.filter(id => {
-    const c = data.cards[id];
-    if (!c || c.type !== 'ATTACK' || !c.dmg) return false;
-    return window.CardCostUtils.canPlay(id, c, gs.player);
-  });
-  if (!atkCards.length) return null;
-
-  const totalDmg = atkCards.reduce((sum, id) => {
-    const c = data.cards[id];
-    const momBonus = gs.getBuff('momentum')?.dmgBonus || 0;
-    return sum + (c.dmg || 0) + momBonus;
-  }, 0);
-  const enemyShield = enemy.shield || 0;
-  const netDmg = Math.max(0, totalDmg - enemyShield);
-  return { netDmg, enemyShield };
+  return calcSelectedPreview(gs, data, enemy, CardCostUtils);
 }
 
 function _renderSelectedPreviewHtml(preview, card, doc) {
@@ -166,16 +142,13 @@ function _renderSelectedPreviewHtml(preview, card, doc) {
   const previewDiv = doc.createElement('div');
   previewDiv.className = cls;
   previewDiv.textContent = preview.enemyShield > 0
-    ? `⚔ 예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})`
-    : `⚔ 예상 총 피해 ${preview.netDmg}`;
+    ? `???덉긽 ?쇳빐 ${preview.netDmg} (諛⑹뼱留?${preview.enemyShield})`
+    : `???덉긽 珥??쇳빐 ${preview.netDmg}`;
   card.appendChild(previewDiv);
 }
 
 function _renderSelectedPreviewText(preview) {
-  if (!preview) return '';
-  return preview.enemyShield > 0
-    ? `⚔ 예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})`
-    : `⚔ 예상 총 피해 ${preview.netDmg}`;
+  return selectedPreviewText(preview);
 }
 
 export const CombatUI = {
@@ -239,12 +212,12 @@ export const CombatUI = {
 
     let intent;
     if (enemy.statusEffects?.stunned > 0) {
-      intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
+      intent = { type: 'stunned', intent: '湲곗젅', dmg: 0, effect: 'stunned' };
     } else {
       try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
     }
 
-    // 전투 첫 턴(turn === 0): 아직 행동이 없으므로 표시 차단 (일반적으로 1부터 시작)
+    // ?꾪닾 泥???turn === 0): ?꾩쭅 ?됰룞???놁쑝誘濡??쒖떆 李⑤떒 (?쇰컲?곸쑝濡?1遺???쒖옉)
     if (gs.combat.turn <= 0) return;
 
     const icon = _getIntentIcon(intent);
@@ -262,26 +235,22 @@ export const CombatUI = {
 
     const title = doc.createElement('div');
     title.className = 'itt-title';
-    title.innerHTML = `${icon} ${label}`;
+    title.textContent = `${icon} ${label}`;
 
     const type = doc.createElement('div');
     type.className = 'itt-type';
-    type.innerHTML = `— ${descInfo.type} —`;
+    type.textContent = '-- ' + String(descInfo.type || '') + ' --';
 
     const desc = doc.createElement('div');
     desc.className = 'itt-desc';
-    if (window.DescriptionUtils) {
-      desc.innerHTML = window.DescriptionUtils.highlight(descInfo.desc);
-    } else {
-      desc.textContent = descInfo.desc;
-    }
+    desc.innerHTML = DescriptionUtils.highlight(descInfo.desc);
 
     el.append(title, type, desc);
 
     if (intent.dmg > 0) {
       const dmg = doc.createElement('div');
       dmg.className = 'itt-dmg';
-      dmg.innerHTML = `💢 예상 피해: <strong>${intent.dmg}</strong>`;
+      dmg.textContent = 'Expected Damage: ' + String(intent.dmg);
       el.appendChild(dmg);
     }
 
@@ -306,10 +275,10 @@ export const CombatUI = {
 
   cleanupAllTooltips(deps = {}) {
     const doc = _getDoc(deps);
-    // 상태이상 툴팁 즉시 숨김
+    // ?곹깭?댁긽 ?댄똻 利됱떆 ?④?
     clearTimeout(_enemyStatusTipTimer);
     doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-    // 의도 툴팁 즉시 숨김
+    // ?섎룄 ?댄똻 利됱떆 ?④?
     clearTimeout(_intentTipTimer);
     doc.getElementById('intentTooltip')?.classList.remove('visible');
   },
@@ -329,7 +298,7 @@ export const CombatUI = {
 
     const existing = zone.querySelectorAll('.enemy-card');
     const expectedCount = gs.combat.enemies.length;
-    // 상태 이상 변경 시에도 전체 렌더링 수행
+    // ?곹깭 ?댁긽 蹂寃??쒖뿉???꾩껜 ?뚮뜑留??섑뻾
     const needsFullRender = deps.forceFullRender || existing.length !== expectedCount || existing.length === 0;
 
     if (needsFullRender) {
@@ -340,7 +309,7 @@ export const CombatUI = {
         const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
         let intent;
         if (e.statusEffects?.stunned > 0) {
-          intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
+          intent = { type: 'stunned', intent: '湲곗젅', dmg: 0, effect: 'stunned' };
         } else {
           try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
         }
@@ -357,7 +326,7 @@ export const CombatUI = {
 
         if (e.hp > 0) {
           card.addEventListener('click', () => {
-            const handler = window[selectTargetHandlerName];
+            const handler = deps.selectTarget || window[selectTargetHandlerName];
             if (typeof handler === 'function') handler(i);
           });
         }
@@ -365,7 +334,7 @@ export const CombatUI = {
         if (isSelected) {
           const targetLabel = doc.createElement('div');
           targetLabel.className = 'target-label-anim';
-          const v = doc.createElement('span'); v.textContent = '▼';
+          const v = doc.createElement('span'); v.textContent = '▶';
           const t = doc.createElement('span'); t.textContent = 'TARGET';
           targetLabel.append(v, t);
           card.appendChild(targetLabel);
@@ -376,7 +345,7 @@ export const CombatUI = {
         sprite.className = 'enemy-sprite';
         const spriteIcon = doc.createElement('span');
         spriteIcon.style.fontSize = '64px';
-        spriteIcon.textContent = e.icon || '👾';
+        spriteIcon.textContent = e.icon || '?뫞';
         sprite.appendChild(spriteIcon);
         card.appendChild(sprite);
 
@@ -386,7 +355,7 @@ export const CombatUI = {
         if (e.isBoss) {
           const phase = doc.createElement('span');
           phase.style.color = 'var(--gold)';
-          phase.textContent = ` ✦ P${e.phase || 1}`;
+          phase.textContent = ` ??P${e.phase || 1}`;
           name.appendChild(phase);
         }
         card.appendChild(name);
@@ -431,7 +400,7 @@ export const CombatUI = {
         const hpText = doc.createElement('div');
         hpText.id = `enemy_hptext_${i}`;
         hpText.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);";
-        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` 🛡️${e.shield}` : ''}`;
+        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` ?썳截?{e.shield}` : ''}`;
         card.appendChild(hpText);
 
         const intentEl = doc.createElement('div');
@@ -444,12 +413,12 @@ export const CombatUI = {
 
         if (gs.combat.turn <= 0) {
           intentIcon = '❓';
-          intentLabel = '알 수 없음';
+          intentLabel = '?????놁쓬';
           intentDmgVal = 0;
         }
 
         const iconSpan = doc.createElement('span'); iconSpan.textContent = intentIcon;
-        const labelSpan = doc.createElement('span'); labelSpan.innerHTML = intentIcon + ' ' + intentLabel;
+        const labelSpan = doc.createElement('span'); labelSpan.textContent = intentIcon + ' ' + intentLabel;
         intentEl.append(labelSpan);
         if (intentDmgVal > 0) {
           const dmgDiv = doc.createElement('div');
@@ -493,12 +462,12 @@ export const CombatUI = {
           fill.style.width = `${hpPct}%`;
           if (!e.isBoss) fill.style.background = _enemyHpColor(hpPct);
         }
-        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` 🛡️${e.shield}` : ''}`;
+        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` ?썳截?{e.shield}` : ''}`;
 
         if (intentEl) {
           let intent;
           if (e.statusEffects?.stunned > 0) {
-            intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
+            intent = { type: 'stunned', intent: '湲곗젅', dmg: 0, effect: 'stunned' };
           } else {
             try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
           }
@@ -512,11 +481,7 @@ export const CombatUI = {
 
           const labelSpan = doc.createElement('span');
           labelSpan.className = 'enemy-intent-label';
-          if (window.DescriptionUtils) {
-            labelSpan.innerHTML = intentLabel;
-          } else {
-            labelSpan.textContent = intentLabel;
-          }
+          labelSpan.textContent = intentLabel;
 
           const dmgDiv = doc.createElement('div');
           dmgDiv.className = 'enemy-intent-dmg';
@@ -545,7 +510,7 @@ export const CombatUI = {
           const isSel = gs._selectedTarget === i;
           card.classList.toggle('selected-target', isSel);
 
-          // 타겟 라벨 관리 (이동)
+          // ?寃??쇰꺼 愿由?(?대룞)
           let labelEl = card.querySelector('.target-label-anim');
           if (isSel) {
             if (!labelEl) {
@@ -553,7 +518,7 @@ export const CombatUI = {
               labelEl.className = 'target-label-anim';
 
               const v = doc.createElement('span');
-              v.textContent = '▼';
+              v.textContent = '▶';
               const t = doc.createElement('span');
               t.textContent = 'TARGET';
 
@@ -599,7 +564,7 @@ export const CombatUI = {
       fill.style.width = `${hpPct}%`;
       if (!enemy.isBoss) fill.style.background = _enemyHpColor(hpPct);
     }
-    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` 🛡️${enemy.shield}` : ''}`;
+    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` ?썳截?{enemy.shield}` : ''}`;
     if (card && enemy.hp <= 0) {
       card.style.opacity = '0.3';
       card.style.filter = 'grayscale(1)';
@@ -615,3 +580,5 @@ export const CombatUI = {
     renderCombatEnemies: (deps) => CombatUI.renderCombatEnemies(deps),
   }
 };
+
+

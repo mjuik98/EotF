@@ -10,13 +10,13 @@ const _getWin = (deps) => deps?.win || window;
 
 export const PlayerMethods = {
     addEcho(amount, skipFullUI = false) {
-        this.dispatch(Actions.PLAYER_ECHO, { amount });
+        this.commit(Actions.PLAYER_ECHO, { amount });
         const updateEchoSkillBtn = window.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
 
     drainEcho(amount) {
-        this.dispatch(Actions.PLAYER_ECHO, { amount: -amount });
+        this.commit(Actions.PLAYER_ECHO, { amount: -amount });
         const updateEchoSkillBtn = window.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
@@ -31,31 +31,32 @@ export const PlayerMethods = {
             adjusted = Math.max(0, Math.floor(adjusted * 0.7));
         }
 
-        const result = this.dispatch(Actions.PLAYER_HEAL, { amount: adjusted });
+        const result = this.commit(Actions.PLAYER_HEAL, { amount: adjusted });
         if (result && result.healed > 0) {
             this.addLog(LogUtils.formatHeal('플레이어', result.healed), 'heal');
         }
     },
 
     addBuff(id, stacks, data = {}) {
-        this.dispatch(Actions.PLAYER_BUFF, { id, stacks, data });
+        this.commit(Actions.PLAYER_BUFF, { id, stacks, data });
     },
 
     getBuff(id) { return this.player.buffs[id] || null; },
 
     addGold(amount, deps = {}) {
-        const result = this.dispatch(Actions.PLAYER_GOLD, { amount });
+        const result = this.commit(Actions.PLAYER_GOLD, { amount });
         if (amount > 0 && result && result.delta > 0) {
             this.addLog(LogUtils.formatStatChange('플레이어', '골드', result.delta), 'system');
         }
     },
 
     addSilence(amount, label = '소음', deps = {}) {
-        this.player.silenceGauge = (this.player.silenceGauge || 0) + amount;
+        const result = this.commit(Actions.PLAYER_SILENCE, { amount });
+        const silenceGauge = Number(result?.silenceGauge || 0);
         const max = 10;
-        this.addLog(LogUtils.formatEcho(`${label} ${this.player.silenceGauge}/${max}`), 'echo');
-        if (this.player.silenceGauge >= max) {
-            this.player.silenceGauge = 0;
+        this.addLog(LogUtils.formatEcho(`${label} ${silenceGauge}/${max}`), 'echo');
+        if (silenceGauge >= max) {
+            this.commit(Actions.PLAYER_SILENCE, { amount: -silenceGauge });
             this.spawnEnemy(deps);
             this.addLog(LogUtils.formatSystem('소음 한계! 파수꾼 등장!'), 'damage');
             const win = _getWin(deps);

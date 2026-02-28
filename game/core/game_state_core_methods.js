@@ -6,6 +6,7 @@ import { PlayerMethods } from '../combat/player_methods.js';
 import { ItemSystem } from '../systems/item_system.js';
 import { DamageSystem } from '../combat/damage_system.js';
 import { EventBus } from './event_bus.js';
+import { CoreEvents } from './event_contracts.js';
 
 /**
  * 게임 상태의 핵심 비즈니스 로직을 담당하는 메서드 모음.
@@ -31,7 +32,7 @@ export const GameStateCoreMethods = {
 
     this.markDirty?.('log');
     // EventBus로 알림 → 구독자가 UI 갱신
-    EventBus.emit('log:add', { msg, type, gs: this });
+    EventBus.emit(CoreEvents.LOG_ADD, { msg, type, gs: this });
   },
 
   // ── 모듈 통합 ──

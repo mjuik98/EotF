@@ -1,6 +1,7 @@
-import { GS } from '../../core/game_state.js';
+﻿import { GS } from '../../core/game_state.js';
 import { DATA } from '../../../data/game_data.js';
 import { SecurityUtils } from '../../utils/security.js';
+import { getEchoTierWindow, getHpBarGradient } from './hud_render_helpers.js';
 
 
 let _uiPending = false;
@@ -59,7 +60,7 @@ export const HudUpdateUI = {
   resetCombatUI(deps = {}) {
     const doc = _getDoc(deps);
     doc.getElementById('combatOverlay')?.classList.remove('active');
-    // deps 패턴을 사용하여 일관성 유지
+    // deps ?⑦꽩???ъ슜?섏뿬 ?쇨????좎?
     const resetPanel = deps?.resetCombatInfoPanel
       || deps?._resetCombatInfoPanel
       || window._resetCombatInfoPanel;
@@ -118,8 +119,8 @@ export const HudUpdateUI = {
   },
 
   /**
-   * 상태 더티 플래그를 확인하고 필요한 UI를 선별적으로 업데이트합니다.
-   * 메인 루프나 틱에서 호출될 수 있습니다.
+   * ?곹깭 ?뷀떚 ?뚮옒洹몃? ?뺤씤?섍퀬 ?꾩슂??UI瑜??좊퀎?곸쑝濡??낅뜲?댄듃?⑸땲??
+   * 硫붿씤 猷⑦봽???깆뿉???몄텧?????덉뒿?덈떎.
    */
   processDirtyFlags(deps = {}) {
     const gs = _getGS(deps);
@@ -129,12 +130,14 @@ export const HudUpdateUI = {
       this.updateUI(deps);
     }
 
-    if (gs.hasDirtyFlag('enemies') && typeof window.renderCombatEnemies === 'function') {
-      window.renderCombatEnemies();
+    const renderCombatEnemies = deps.renderCombatEnemies;
+    if (gs.hasDirtyFlag('enemies') && typeof renderCombatEnemies === 'function') {
+      renderCombatEnemies();
     }
 
-    if (gs.hasDirtyFlag('hand') && typeof window.renderCombatCards === 'function') {
-      window.renderCombatCards();
+    const renderCombatCards = deps.renderCombatCards;
+    if (gs.hasDirtyFlag('hand') && typeof renderCombatCards === 'function') {
+      renderCombatCards();
     }
 
     gs.clearDirty();
@@ -147,8 +150,8 @@ export const HudUpdateUI = {
 
     const doc = _getDoc(deps);
     const data = deps.data;
-    const setBonusSystem = deps.setBonusSystem || window.SetBonusSystem;
-    const getRegionData = deps.getRegionData || window.getRegionData;
+    const setBonusSystem = deps.setBonusSystem;
+    const getRegionData = deps.getRegionData;
     // Use DomValueUI directly instead of deps
     const setBar = (id, pct) => {
       const el = doc.getElementById(id);
@@ -159,12 +162,12 @@ export const HudUpdateUI = {
       if (el) el.textContent = val;
     };
 
-    // HP - 저체력 시 색상 변화
+    // HP - ?泥대젰 ???됱긽 蹂??
     const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
     setBar('hpBar', hpPct);
     setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
-    // 호버 패널 동기화
+    // ?몃쾭 ?⑤꼸 ?숆린??
     setBar('hoverHpBar', hpPct);
     setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
@@ -172,9 +175,7 @@ export const HudUpdateUI = {
     const hoverHpFill = doc.getElementById('hoverHpBar');
     const updateHpBackground = (el, pct) => {
       if (!el) return;
-      if (pct <= 25) el.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
-      else if (pct <= 50) el.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
-      else el.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
+      el.style.background = getHpBarGradient(pct);
     };
     updateHpBackground(hpFill, hpPct);
     updateHpBackground(hoverHpFill, hpPct);
@@ -187,7 +188,7 @@ export const HudUpdateUI = {
         : 'linear-gradient(90deg,#cc2244,#ff4466)';
     }
 
-    // 컴팩트 HUD HP 텍스트 동기화
+    // 而댄뙥??HUD HP ?띿뒪???숆린??
     setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
 
     const hudEchoText = doc.getElementById('hudEchoText');
@@ -198,18 +199,9 @@ export const HudUpdateUI = {
 
     const hudEchoMini = doc.getElementById('hudEchoBarMini');
     if (hudEchoMini) {
-      const echo = Math.floor(p.echo);
-      // 현재 tier threshold 기준으로 표시 (30/60/100)
-      const tierMax = echo >= 100 ? 100 : echo >= 60 ? 100 : echo >= 30 ? 60 : 30;
-      const tierMin = echo >= 60 ? 60 : echo >= 30 ? 30 : 0;
-      const pct = Math.min(100, ((echo - tierMin) / (tierMax - tierMin)) * 100);
-      hudEchoMini.style.width = `${pct}%`;
-      // tier 별 색상 변경
-      hudEchoMini.style.background = echo >= 100
-        ? 'linear-gradient(90deg, var(--gold), #ffd700)'
-        : echo >= 60
-          ? 'linear-gradient(90deg, var(--cyan), #00ffcc)'
-          : 'linear-gradient(90deg, var(--echo), #a855f7)';
+      const echoInfo = getEchoTierWindow(p.echo);
+      hudEchoMini.style.width = `${echoInfo.pct}%`;
+      hudEchoMini.style.background = echoInfo.bg;
     }
 
     setText('hudGoldText', p.gold);
@@ -220,29 +212,29 @@ export const HudUpdateUI = {
 
     if (p.class) {
       const classMeta = data?.classes?.[p.class];
-      const avatarEmoji = classMeta?.emoji || '⚔️';
+      const avatarEmoji = classMeta?.emoji || '?뷂툘';
 
-      // 소형 초상화 (HUD)
+      // ?뚰삎 珥덉긽??(HUD)
       if (avatarEl) {
         avatarEl.style.display = 'block';
         avatarEl.textContent = avatarEmoji;
         avatarEl.style.fontSize = '24px';
       }
 
-      // 대형 초상화 (우측 패널)
+      // ???珥덉긽??(?곗륫 ?⑤꼸)
       if (largeFallback) {
         largeFallback.textContent = avatarEmoji;
         largeFallback.style.fontSize = '80px';
         largeFallback.style.display = 'flex';
       }
 
-      // 캐릭터 이름 및 특성 (우측 패널)
+      // 罹먮┃???대쫫 諛??뱀꽦 (?곗륫 ?⑤꼸)
       const className = classMeta?.name || p.class;
       setText('playerNameDisplay', SecurityUtils.escapeHtml(className));
 
       const specialEl = doc.getElementById('playerSpecialDisplay');
-      if (specialEl && window.ClassMechanics?.[p.class]) {
-        const specialUI = window.ClassMechanics[p.class].getSpecialUI(gs);
+      if (specialEl && deps.classMechanics?.[p.class]) {
+        const specialUI = deps.classMechanics[p.class].getSpecialUI(gs);
         specialEl.textContent = '';
         if (specialUI instanceof HTMLElement) {
           specialEl.appendChild(specialUI);
@@ -257,10 +249,10 @@ export const HudUpdateUI = {
 
 
 
-    // Hover HUD 에도 클래스 특성 표시
+    // Hover HUD ?먮룄 ?대옒???뱀꽦 ?쒖떆
     const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
-    if (hoverSpecialEl && window.ClassMechanics?.[p.class]) {
-      const specialUI = window.ClassMechanics[p.class].getSpecialUI(gs);
+    if (hoverSpecialEl && deps.classMechanics?.[p.class]) {
+      const specialUI = deps.classMechanics[p.class].getSpecialUI(gs);
       hoverSpecialEl.textContent = '';
       if (specialUI instanceof HTMLElement) {
         hoverSpecialEl.appendChild(specialUI);
@@ -271,7 +263,7 @@ export const HudUpdateUI = {
       hoverSpecialEl.textContent = '';
       const none = doc.createElement('span');
       none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
-      none.textContent = '없음';
+      none.textContent = '?놁쓬';
       hoverSpecialEl.appendChild(none);
     }
 
@@ -288,26 +280,16 @@ export const HudUpdateUI = {
     setBar('hoverShieldBar', Math.min(100, (p.shield / p.maxHp) * 100));
     setText('hoverShieldText', p.shield || '0');
 
-    // Echo 바를 tier 기준으로 표시 (30/60/100)
-    const echo = Math.floor(p.echo);
-    const tierMax = echo >= 100 ? 100 : echo >= 60 ? 100 : echo >= 30 ? 60 : 30;
-    const tierMin = echo >= 60 ? 60 : echo >= 30 ? 30 : 0;
-    const echoPct = Math.min(100, ((echo - tierMin) / (tierMax - tierMin)) * 100);
-    setBar('echoBar', echoPct);
-    setText('echoText', `${echo} / ${p.maxEcho}`);
-    setBar('hoverEchoBar', echoPct);
-    setText('hoverEchoText', `${echo} / ${p.maxEcho}`);
+    const echoInfo = getEchoTierWindow(p.echo);
+    setBar('echoBar', echoInfo.pct);
+    setText('echoText', `${echoInfo.echo} / ${p.maxEcho}`);
+    setBar('hoverEchoBar', echoInfo.pct);
+    setText('hoverEchoText', `${echoInfo.echo} / ${p.maxEcho}`);
 
-    // Echo 바 색상 tier 별 변경
     const echoBarEl = doc.getElementById('echoBar');
     const hoverEchoBarEl = doc.getElementById('hoverEchoBar');
-    const echoBarBg = echo >= 100
-      ? 'linear-gradient(90deg, var(--gold), #ffd700)'
-      : echo >= 60
-        ? 'linear-gradient(90deg, var(--cyan), #00ffcc)'
-        : 'linear-gradient(90deg, var(--echo), #a855f7)';
-    if (echoBarEl) echoBarEl.style.background = echoBarBg;
-    if (hoverEchoBarEl) hoverEchoBarEl.style.background = echoBarBg;
+    if (echoBarEl) echoBarEl.style.background = echoInfo.bg;
+    if (hoverEchoBarEl) hoverEchoBarEl.style.background = echoInfo.bg;
 
     const hudOrbs = doc.getElementById('hudEnergyOrbs');
     if (hudOrbs) {
@@ -372,8 +354,8 @@ export const HudUpdateUI = {
     setText('goldCount', p.gold);
 
     const region = typeof getRegionData === 'function'
-      ? (getRegionData(gs.currentRegion, gs) || { name: '알 수 없는 지역', rule: '-', floors: 5 })
-      : { name: '알 수 없는 지역', rule: '-', floors: 5 };
+      ? (getRegionData(gs.currentRegion, gs) || { name: 'Unknown Region', rule: '-', floors: 5 })
+      : { name: 'Unknown Region', rule: '-', floors: 5 };
     setText('regionName', region.name);
     setText('regionRule', region.rule);
 
@@ -383,20 +365,20 @@ export const HudUpdateUI = {
 
     if (regionNameEl && regionRuleEl) {
       const showTooltip = (evt) => {
-        const title = `✨ ${region.name} - ${region.rule}`;
-        const desc = region.ruleDesc || '특수 규칙이 적용되는 지역입니다.';
+        const title = `??${region.name} - ${region.rule}`;
+        const desc = region.ruleDesc || '?뱀닔 洹쒖튃???곸슜?섎뒗 吏??엯?덈떎.';
 
-        if (typeof window.TooltipUI?.showGeneralTooltip === 'function') {
-          window.TooltipUI.showGeneralTooltip(evt, title, desc, { doc, win: window });
-        } else if (typeof window.showGeneralTooltip === 'function') {
-          window.showGeneralTooltip(evt, title, desc, { doc, win: window });
+        if (typeof deps.tooltipUI?.showGeneralTooltip === 'function') {
+          deps.tooltipUI.showGeneralTooltip(evt, title, desc, { doc, win: window });
+        } else if (typeof deps.showGeneralTooltip === 'function') {
+          deps.showGeneralTooltip(evt, title, desc, { doc, win: window });
         }
       };
       const hideTooltip = () => {
-        if (typeof window.TooltipUI?.hideGeneralTooltip === 'function') {
-          window.TooltipUI.hideGeneralTooltip();
-        } else if (typeof window.hideGeneralTooltip === 'function') {
-          window.hideGeneralTooltip();
+        if (typeof deps.tooltipUI?.hideGeneralTooltip === 'function') {
+          deps.tooltipUI.hideGeneralTooltip();
+        } else if (typeof deps.hideGeneralTooltip === 'function') {
+          deps.hideGeneralTooltip();
         }
       };
 
@@ -411,8 +393,8 @@ export const HudUpdateUI = {
 
     const maxFloors = region.floors || 5;
     const displayFloor = Math.min(maxFloors, gs.currentFloor);
-    setText('regionFloor', `${displayFloor} / ${maxFloors}층`);
-    setText('playerFloor', `${region.name} · ${displayFloor}층`);
+    setText('regionFloor', `${displayFloor} / ${maxFloors}F`);
+    setText('playerFloor', `${region.name} - ${displayFloor}F`);
 
     const className = data?.classes?.[p.class]?.name || p.class;
     setText('playerClassDisplay', className);
@@ -423,7 +405,7 @@ export const HudUpdateUI = {
       if (!p.items.length) {
         const none = doc.createElement('span');
         none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
-        none.textContent = '비어있음';
+        none.textContent = '鍮꾩뼱?덉쓬';
         itemEl.appendChild(none);
       } else {
         const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
@@ -441,8 +423,8 @@ export const HudUpdateUI = {
           const inSet = setBonusSystem ? Object.values(setBonusSystem.sets || {}).some(s => s.items.includes(id)) : false;
           if (inSet) slot.style.outline = '1px dashed rgba(0,255,204,0.4)';
           slot.textContent = item.icon;
-          slot.addEventListener('mouseenter', ev => { if (typeof window.showItemTooltip === 'function') window.showItemTooltip(ev, id); });
-          slot.addEventListener('mouseleave', () => { if (typeof window.hideItemTooltip === 'function') window.hideItemTooltip(); });
+          slot.addEventListener('mouseenter', ev => { if (typeof deps.showItemTooltip === 'function') deps.showItemTooltip(ev, id); });
+          slot.addEventListener('mouseleave', () => { if (typeof deps.hideItemTooltip === 'function') deps.hideItemTooltip(); });
           itemEl.appendChild(slot);
         });
       }
@@ -458,7 +440,7 @@ export const HudUpdateUI = {
             div.style.cssText = 'background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:6px;padding:5px 8px;margin-bottom:4px;';
             const name = doc.createElement('div');
             name.style.cssText = "font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--cyan);";
-            name.textContent = `✦ ${s.name} [${s.count}/3]`;
+            name.textContent = `??${s.name} [${s.count}/3]`;
             const bonus = doc.createElement('div');
             bonus.style.cssText = 'font-size:9px;color:var(--text-dim);margin-top:2px;';
             bonus.textContent = s.bonus?.label || '';
@@ -484,13 +466,13 @@ export const HudUpdateUI = {
     if (asc > 0) {
       const ascDiv = doc.createElement('div');
       ascDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--danger); letter-spacing:0.1em; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
-      ascDiv.textContent = `✦ 승천 ${asc}`;
+      ascDiv.textContent = `???뱀쿇 ${asc}`;
       topCont.appendChild(ascDiv);
     }
     if (endless) {
       const endDiv = doc.createElement('div');
       endDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--cyan); letter-spacing:0.1em; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
-      endDiv.textContent = '✦ 무한 모드';
+      endDiv.textContent = '??臾댄븳 紐⑤뱶';
       topCont.appendChild(endDiv);
     }
     modEl.appendChild(topCont);
@@ -506,7 +488,7 @@ export const HudUpdateUI = {
         if (b) {
           const bDiv = doc.createElement('div');
           bDiv.style.cssText = 'font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;';
-          bDiv.title = b.desc; bDiv.textContent = `✨ ${b.name}`;
+          bDiv.title = b.desc; bDiv.textContent = `??${b.name}`;
           midCont.appendChild(bDiv);
         }
       }
@@ -515,7 +497,7 @@ export const HudUpdateUI = {
         if (c) {
           const cDiv = doc.createElement('div');
           cDiv.style.cssText = 'font-size:11px; color:var(--danger); background:rgba(255,51,102,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(255,51,102,0.15); cursor:help;';
-          cDiv.title = c.desc; cDiv.textContent = `💀 ${c.name}`;
+          cDiv.title = c.desc; cDiv.textContent = `?? ${c.name}`;
           midCont.appendChild(cDiv);
         }
       }
@@ -525,24 +507,24 @@ export const HudUpdateUI = {
 
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
-      // deps.updateEchoSkillBtn 이 있으면 gs 를 포함하여 호출
+      // deps.updateEchoSkillBtn ???덉쑝硫?gs 瑜??ы븿?섏뿬 ?몄텧
       if (typeof deps.updateEchoSkillBtn === 'function') {
         deps.updateEchoSkillBtn({ ...deps, gs });
-      } else if (typeof window.updateEchoSkillBtn === 'function') {
-        window.updateEchoSkillBtn();
+      } else if (typeof deps.updateEchoSkillBtn === 'function') {
+        deps.updateEchoSkillBtn({ ...deps, gs });
       } else {
-        // Fallback: 인라인 업데이트
+        // Fallback: ?몃씪???낅뜲?댄듃
         const echoValue = Math.floor(p.echo);
         const tier = echoValue >= 100 ? 3 : echoValue >= 60 ? 2 : echoValue >= 30 ? 1 : 0;
 
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ 잔향 스킬 (${echoValue}/30)`;
+          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 (${echoValue}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✓ (${echoValue})`;
+          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 ??(${echoValue})`;
         }
       }
     }
@@ -556,25 +538,25 @@ export const HudUpdateUI = {
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (gs.combat.active) {
         if (handFull) {
-          drawBtn.textContent = '🃏 손패 가득 참';
-          drawBtn.title = '손패가 가득 찼습니다 (최대 8장)';
+          drawBtn.textContent = 'Hand Full';
+          drawBtn.title = 'Your hand is full (max 8 cards).';
         } else if (p.energy < 1) {
-          drawBtn.textContent = '🃏 에너지 부족';
-          drawBtn.title = '카드 뽑기에는 에너지 1이 필요합니다.';
+          drawBtn.textContent = 'Not Enough Energy';
+          drawBtn.title = 'Drawing a card costs 1 energy.';
         } else {
-          drawBtn.textContent = `🃏 카드 뽑기 (1 에너지)`; // Fixed from ${p.energy}
-          drawBtn.title = '카드를 한 장 뽑습니다.';
+          drawBtn.textContent = 'Draw Card (1 Energy)';
+          drawBtn.title = 'Draw one card.';
         }
       } else {
-        drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
-        drawBtn.title = '전투 중에만 사용할 수 있습니다.';
+        drawBtn.textContent = 'Draw Card (1 Energy)';
+        drawBtn.title = 'Available only during combat.';
       }
     }
 
     if (typeof deps.updateStatusDisplay === 'function') deps.updateStatusDisplay();
     this.updateEndBtnWarn(deps);
 
-    // UI 업데이트 완료 후 HUD 플래그가 있었다면 이미 처리된 것으로 간주
+    // UI ?낅뜲?댄듃 ?꾨즺 ??HUD ?뚮옒洹멸? ?덉뿀?ㅻ㈃ ?대? 泥섎━??寃껋쑝濡?媛꾩＜
     const gs_internal = _getGS(deps);
     if (gs_internal) gs_internal.clearDirtyFlag('hud');
   },
@@ -622,16 +604,16 @@ export const HudUpdateUI = {
       combatEnergyText.textContent = `${p.energy} / ${p.maxEnergy}`;
     }
 
-    // ▼ 드로우 버튼도 함께 동기화
+    // ???쒕줈??踰꾪듉???④퍡 ?숆린??
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn && gs.combat?.active) {
       const handFull = p.hand.length >= 8;
       if (handFull) {
-        drawBtn.textContent = '🃏 손패 가득 참';
+        drawBtn.textContent = 'Hand Full';
       } else if (p.energy < 1) {
-        drawBtn.textContent = '🃏 에너지 부족';
+        drawBtn.textContent = 'Not Enough Energy';
       } else {
-        drawBtn.textContent = `🃏 카드 뽑기 (에너지 ${p.energy})`;
+        drawBtn.textContent = `Draw Card (Energy ${p.energy})`;
       }
       drawBtn.disabled = !gs.combat.playerTurn || p.energy < 1 || handFull;
       drawBtn.style.opacity = drawBtn.disabled ? '0.4' : '1';
@@ -655,15 +637,13 @@ export const HudUpdateUI = {
     setBar('hpBar', hpPct);
     setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
-    // 호버 패널 동기화 (HP)
+    // ?몃쾭 ?⑤꼸 ?숆린??(HP)
     setBar('hoverHpBar', hpPct);
     setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
     const updateHpColor = (el, pct) => {
       if (!el) return;
-      if (pct <= 25) el.style.background = 'linear-gradient(90deg,#8b0000,#cc0000)';
-      else if (pct <= 50) el.style.background = 'linear-gradient(90deg,#aa1122,#dd2244)';
-      else el.style.background = 'linear-gradient(90deg,#cc2244,#ff4466)';
+      el.style.background = getHpBarGradient(pct);
     };
 
     updateHpColor(doc.getElementById('hpBar'), hpPct);
@@ -679,18 +659,9 @@ export const HudUpdateUI = {
 
     const hudEchoMini = doc.getElementById('hudEchoBarMini');
     if (hudEchoMini) {
-      const echo = Math.floor(p.echo);
-      // 현재 tier threshold 기준으로 표시 (30/60/100)
-      const tierMax = echo >= 100 ? 100 : echo >= 60 ? 100 : echo >= 30 ? 60 : 30;
-      const tierMin = echo >= 60 ? 60 : echo >= 30 ? 30 : 0;
-      const pct = Math.min(100, ((echo - tierMin) / (tierMax - tierMin)) * 100);
-      hudEchoMini.style.width = `${pct}%`;
-      // tier 별 색상 변경
-      hudEchoMini.style.background = echo >= 100
-        ? 'linear-gradient(90deg, var(--gold), #ffd700)'
-        : echo >= 60
-          ? 'linear-gradient(90deg, var(--cyan), #00ffcc)'
-          : 'linear-gradient(90deg, var(--echo), #a855f7)';
+      const echoInfo = getEchoTierWindow(p.echo);
+      hudEchoMini.style.width = `${echoInfo.pct}%`;
+      hudEchoMini.style.background = echoInfo.bg;
     }
 
     setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
@@ -706,35 +677,29 @@ export const HudUpdateUI = {
     setBar('shieldBar', shieldPct);
     setText('shieldText', p.shield || '0');
 
-    // 호버 패널 동기화 (Shield)
+    // ?몃쾭 ?⑤꼸 ?숆린??(Shield)
     setBar('hoverShieldBar', shieldPct);
     setText('hoverShieldText', p.shield || '0');
 
-    // Echo 바를 tier 기준으로 표시 (doUpdateUI와 동일한 계산)
-    const echo2 = Math.floor(p.echo);
-    const tierMax2 = echo2 >= 100 ? 100 : echo2 >= 60 ? 100 : echo2 >= 30 ? 60 : 30;
-    const tierMin2 = echo2 >= 60 ? 60 : echo2 >= 30 ? 30 : 0;
-    const echoPct = Math.min(100, ((echo2 - tierMin2) / (tierMax2 - tierMin2)) * 100);
-    setBar('echoBar', echoPct);
-    setText('echoText', `${echo2} / ${p.maxEcho}`);
-
-    // 호버 패널 동기화 (Echo)
-    setBar('hoverEchoBar', echoPct);
-    setText('hoverEchoText', `${echo2} / ${p.maxEcho}`);
+    const echo2 = getEchoTierWindow(p.echo);
+    setBar('echoBar', echo2.pct);
+    setText('echoText', `${echo2.echo} / ${p.maxEcho}`);
+    setBar('hoverEchoBar', echo2.pct);
+    setText('hoverEchoText', `${echo2.echo} / ${p.maxEcho}`);
 
     const mazeEcho2 = doc.getElementById('mazeEcho');
     if (mazeEcho2) mazeEcho2.textContent = Math.floor(p.echo);
 
     // Class Mechanics (e.g. echo, chain)
-    const cm = deps.classMechanics || window.ClassMechanics;
+    const cm = deps.classMechanics;
     if (cm) {
       if (typeof cm.updateUI === 'function') cm.updateUI(gs);
       else if (typeof cm.render === 'function') cm.render(gs);
     }
-    // Echo 스킬 버튼만 업데이트 (드로우 버튼은 updateUI() 에서 일괄 처리)
+    // Echo ?ㅽ궗 踰꾪듉留??낅뜲?댄듃 (?쒕줈??踰꾪듉? updateUI() ?먯꽌 ?쇨큵 泥섎━)
     const updateBtn = deps.updateEchoSkillBtn
       ? (deps) => deps.updateEchoSkillBtn({ ...deps, gs })
-      : (typeof window.updateEchoSkillBtn === 'function' ? window.updateEchoSkillBtn : null);
+      : (typeof deps.updateEchoSkillBtn === 'function' ? deps.updateEchoSkillBtn : null);
     if (typeof updateBtn === 'function') {
       updateBtn(deps);
     } else {
@@ -745,15 +710,15 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ 잔향 스킬 (${echo}/30)`;
+          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 (${echo}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✓ (${echo})`;
+          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 ??(${echo})`;
         }
       }
     }
-    // ────────────────────────────────────────────────
+    // ????????????????????????????????????????????????
   },
 
   // Expose public API for GAME.API
@@ -765,3 +730,4 @@ export const HudUpdateUI = {
     triggerDeckShufflePulse: (deps) => HudUpdateUI.triggerDeckShufflePulse(deps),
   }
 };
+

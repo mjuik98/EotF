@@ -16,6 +16,7 @@ export const Actions = {
     PLAYER_GOLD: 'player:gold',
     PLAYER_ENERGY: 'player:energy',
     PLAYER_ECHO: 'player:echo',
+    PLAYER_SILENCE: 'player:silence',
     PLAYER_BUFF: 'player:buff',
     PLAYER_DEATH: 'player:death',
 
@@ -110,6 +111,12 @@ export const Reducers = {
         gs.player.echo = Math.max(0, Math.min(gs.player.maxEcho, gs.player.echo + amount));
         gs.markDirty('hud');
         return { echoAfter: gs.player.echo };
+    },
+
+    [Actions.PLAYER_SILENCE](gs, { amount }) {
+        gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) + amount);
+        gs.markDirty('hud');
+        return { silenceGauge: gs.player.silenceGauge };
     },
 
     [Actions.PLAYER_BUFF](gs, { id, stacks, data = {} }) {

@@ -40,7 +40,7 @@ export const RegionTransitionUI = {
 
     const desc = doc.createElement('div');
     desc.style.cssText = "font-size:13px;font-style:italic;color:var(--text-dim);max-width:400px;text-align:center;line-height:1.7;animation:fadeInUp 1s ease 1.1s both;opacity:0;";
-    desc.innerHTML = region.ruleDesc || '';
+    desc.textContent = region.ruleDesc || '';
 
     overlay.append(subHead, title, rule, desc);
 

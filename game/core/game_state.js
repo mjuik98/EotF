@@ -48,6 +48,7 @@ export const GS = {
     // ─── Stats ───
     stats: { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 },
     _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
+    _dispatchDepth: 0,
 
     // ═══════════════════════════════════════
     //  Dispatch System (단일 상태 변경 진입점)
@@ -66,12 +67,30 @@ export const GS = {
             return null;
         }
 
-        const result = reducer(this, payload);
+        this._dispatchDepth += 1;
+        let result = null;
+        try {
+            result = reducer(this, payload);
+        } finally {
+            this._dispatchDepth = Math.max(0, this._dispatchDepth - 1);
+        }
 
         // 이벤트 버스로 상태 변경 알림
         EventBus.emit(action, { payload, result, gs: this });
 
         return result;
+    },
+
+    commit(action, payload = {}) {
+        return this.dispatch(action, payload);
+    },
+
+    mutate(action, payload = {}) {
+        return this.dispatch(action, payload);
+    },
+
+    isDispatching() {
+        return this._dispatchDepth > 0;
     },
 
     /**

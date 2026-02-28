@@ -1,9 +1,11 @@
+import { SecurityUtils } from './security.js';
+
 export const DescriptionUtils = {
     highlight(text) {
         if (!text) return '';
 
         // 1. 숫자 하이라이트 (다음에 한글이 오는 경우와 일반적인 숫자)
-        let highlighted = text.replace(/(\d+)/g, '<span class="kw-num">$1</span>');
+        let highlighted = SecurityUtils.escapeHtml(String(text)).replace(/(\d+)/g, '<span class="kw-num">$1</span>');
 
         // 2. 구분자 처리: ", " 또는 " + "를 <br>로 치환하여 줄 바꿈 유도
         // (숫자 내의 쉼표나 단순 기호와 혼동되지 않도록 공백 포함 패턴 사용)

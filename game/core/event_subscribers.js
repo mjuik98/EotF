@@ -11,6 +11,7 @@
 import { EventBus } from './event_bus.js';
 import { GAME } from './global_bridge.js';
 import { Actions } from './state_actions.js';
+import { CoreEvents } from './event_contracts.js';
 
 let _ui = {};  // UI 모듈 참조
 
@@ -77,6 +78,12 @@ export function registerSubscribers(uiRefs) {
     EventBus.on(Actions.PLAYER_ECHO, ({ payload, result, gs }) => {
         const updateEchoSkillBtn = window.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
+    });
+
+    EventBus.on(Actions.PLAYER_SILENCE, ({ payload, result, gs }) => {
+        _ui.HudUpdateUI?.updateUI?.(GAME.getDeps?.() || {});
+        const updateNoiseWidget = _ui.CombatHudUI?.updateNoiseWidget || window.updateNoiseWidget;
+        if (typeof updateNoiseWidget === 'function') updateNoiseWidget();
     });
 
     // 버프 변경 → 상태 효과 디스플레이 갱신
@@ -212,7 +219,7 @@ export function registerSubscribers(uiRefs) {
     //  Combat Log
     // ═══════════════════════════════════════════
 
-    EventBus.on('log:add', ({ msg, type, gs }) => {
+    EventBus.on(CoreEvents.LOG_ADD, ({ msg, type, gs }) => {
         // GAME.API.updateCombatLog → window.updateCombatLog 순서로 호출
         if (typeof GAME.API?.updateCombatLog === 'function') {
             GAME.API.updateCombatLog();

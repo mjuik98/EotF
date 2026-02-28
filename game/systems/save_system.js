@@ -1,5 +1,6 @@
 import { SaveAdapter } from '../core/save_adapter.js';
 import { Logger } from '../utils/logger.js';
+import { META_SAVE_VERSION, RUN_SAVE_VERSION, migrateMetaSave, migrateRunSave } from './save_migrations.js';
 const SAVE_KEY = 'echo_fallen_save';
 const META_KEY = 'echo_fallen_meta';
 
@@ -28,6 +29,7 @@ export const SaveSystem = {
           items: [...meta.codex.items],
         };
       }
+      meta.version = META_SAVE_VERSION;
       SaveAdapter.save(this.META_KEY, meta);
     } catch (e) {
       Logger.error('[SaveSystem] 메타 데이터 저장 실패:', e?.name, e?.message);
@@ -40,7 +42,8 @@ export const SaveSystem = {
     if (!gs?.meta) return;
 
     try {
-      const data = SaveAdapter.load(this.META_KEY);
+      const raw = SaveAdapter.load(this.META_KEY);
+      const data = migrateMetaSave(raw);
       if (data) {
         if (data.codex) {
           data.codex = {
@@ -68,6 +71,7 @@ export const SaveSystem = {
 
   validateSaveData(data) {
     if (!data?.player) return false;
+    if (!Number.isFinite(Number(data.version)) || Number(data.version) < 1) return false;
     const p = data.player;
     if (typeof p.hp !== 'number' || isNaN(p.hp) || p.hp < 0) return false;
     if (typeof p.maxHp !== 'number' || p.maxHp <= 0 || p.maxHp > 9999) return false;
@@ -88,6 +92,7 @@ export const SaveSystem = {
 
     try {
       const save = {
+        version: RUN_SAVE_VERSION,
         player: {
           ...gs.player,
           buffs: gs.combat.active ? {} : { ...gs.player.buffs },
@@ -116,7 +121,8 @@ export const SaveSystem = {
     if (!gs) return false;
 
     try {
-      const data = SaveAdapter.load(this.SAVE_KEY);
+      const raw = SaveAdapter.load(this.SAVE_KEY);
+      const data = migrateRunSave(raw);
       if (!data) return false;
 
       if (!this.validateSaveData(data)) {

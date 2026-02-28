@@ -1,4 +1,5 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
+import { DomSafe } from '../../utils/dom_safe.js';
 
 
 let _tooltipTimer = null;
@@ -54,7 +55,7 @@ export const TooltipUI = {
     doc.getElementById('ttCost').textContent = card.cost;
     doc.getElementById('ttName').textContent = card.name;
     doc.getElementById('ttType').textContent = card.type;
-    doc.getElementById('ttDesc').innerHTML = window.DescriptionUtils ? window.DescriptionUtils.highlight(card.desc) : card.desc;
+    DomSafe.setHighlightedText(doc.getElementById('ttDesc'), card.desc);
     const rarityEl = doc.getElementById('ttRarity');
     rarityEl.textContent = (card.rarity || 'common').toUpperCase();
     rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
@@ -203,11 +204,7 @@ export const TooltipUI = {
 
     const desc = doc.createElement('div');
     desc.style.cssText = 'font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;';
-    if (window.DescriptionUtils) {
-      desc.innerHTML = window.DescriptionUtils.highlight(item.desc);
-    } else {
-      desc.textContent = item.desc;
-    }
+    DomSafe.setHighlightedText(desc, item.desc);
     el.appendChild(desc);
 
     (() => {
