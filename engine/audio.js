@@ -9,15 +9,15 @@
     try {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       masterGain = ctx.createGain();
-      masterGain.gain.value = 0.35;
+      masterGain.gain.value = _volumes.master;
       masterGain.connect(ctx.destination);
       // SFX sub-gain
       sfxGain = ctx.createGain();
-      sfxGain.gain.value = 0.7;
+      sfxGain.gain.value = _volumes.sfx;
       sfxGain.connect(masterGain);
       // Ambient sub-gain
       ambientGainNode = ctx.createGain();
-      ambientGainNode.gain.value = 0.4;
+      ambientGainNode.gain.value = _volumes.ambient;
       ambientGainNode.connect(masterGain);
       // リバーブ
       const convolver = ctx.createConvolver();
