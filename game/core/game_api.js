@@ -190,6 +190,7 @@ export const GameAPI = {
             if ((gs.player._nextCardDiscount || 0) > 0) {
                 gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
             }
+            GAME.Modules?.['CardCostUtils']?.consumeTraitDiscount?.(cardId, gs.player);
 
             // 효과 실행 (동기 처리)
             try {

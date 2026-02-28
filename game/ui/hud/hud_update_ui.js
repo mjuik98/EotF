@@ -69,7 +69,8 @@ export const HudUpdateUI = {
     }
     doc.getElementById('noiseGaugeOverlay')?.remove();
     doc.getElementById('cardTooltip')?.classList.remove('visible');
-    if (handCards) handCards.textContent = '';
+    const combatHandCards = doc.getElementById('combatHandCards');
+    if (combatHandCards) combatHandCards.textContent = '';
     const endZone = doc.getElementById('enemyZone');
     if (endZone) endZone.textContent = '';
 
@@ -152,7 +153,10 @@ export const HudUpdateUI = {
 
     const doc = _getDoc(deps);
     const data = deps.data;
-    const setBonusSystem = deps.setBonusSystem;
+    const setBonusSystem = deps.setBonusSystem
+      || deps.SetBonusSystem
+      || window.SetBonusSystem
+      || window.GAME?.Modules?.['SetBonusSystem'];
     const getRegionData = deps.getRegionData;
     // Use DomValueUI directly instead of deps
     const setBar = (id, pct) => {
@@ -244,6 +248,16 @@ export const HudUpdateUI = {
           specialEl.textContent = specialUI;
         }
         specialEl.style.display = 'flex';
+      } else if (specialEl && window.GAME?.Modules?.['ClassMechanics']?.[p.class]) {
+        // Fallback to GAME object
+        const specialUI = window.GAME.Modules['ClassMechanics'][p.class].getSpecialUI(gs);
+        specialEl.textContent = '';
+        if (specialUI instanceof HTMLElement) {
+          specialEl.appendChild(specialUI);
+        } else if (typeof specialUI === 'string') {
+          specialEl.textContent = specialUI;
+        }
+        specialEl.style.display = 'flex';
       } else if (specialEl) {
         specialEl.style.display = 'none';
       }
@@ -251,10 +265,19 @@ export const HudUpdateUI = {
 
 
 
-    // Hover HUD ?먮룄 ?대옒???뱀꽦 ?쒖떆
+    // Hover HUD 
     const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
     if (hoverSpecialEl && deps.classMechanics?.[p.class]) {
       const specialUI = deps.classMechanics[p.class].getSpecialUI(gs);
+      hoverSpecialEl.textContent = '';
+      if (specialUI instanceof HTMLElement) {
+        hoverSpecialEl.appendChild(specialUI);
+      } else if (typeof specialUI === 'string') {
+        hoverSpecialEl.textContent = specialUI;
+      }
+    } else if (hoverSpecialEl && window.GAME?.Modules?.['ClassMechanics']?.[p.class]) {
+      // Fallback
+      const specialUI = window.GAME.Modules['ClassMechanics'][p.class].getSpecialUI(gs);
       hoverSpecialEl.textContent = '';
       if (specialUI instanceof HTMLElement) {
         hoverSpecialEl.appendChild(specialUI);
@@ -265,7 +288,7 @@ export const HudUpdateUI = {
       hoverSpecialEl.textContent = '';
       const none = doc.createElement('span');
       none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
-      none.textContent = '?놁쓬';
+      none.textContent = '없음';
       hoverSpecialEl.appendChild(none);
     }
 
@@ -336,16 +359,16 @@ export const HudUpdateUI = {
 
     const endBtn = doc.querySelector('.action-btn-end');
     if (endBtn && gs.combat.active && gs.combat.playerTurn) {
-      const hasPlayable = gs.player.hand.some(id => {
+      const cardCostUtils = deps.cardCostUtils
+        || deps.CardCostUtils
+        || window.CardCostUtils
+        || window.GAME?.Modules?.['CardCostUtils'];
+      const hasPlayable = gs.player.hand.some((id, handIndex) => {
         const c = data?.cards?.[id];
         if (!c) return false;
-        const cascade = gs.player._cascadeCards;
-        const isCascadeFree = cascade instanceof Map
-          ? (cascade.get(id) || 0) > 0
-          : !!(cascade && cascade.has && cascade.has(id));
-        const hasFreeCharge = Number(gs.player._freeCardUses || 0) > 0;
-        const totalDiscount = (gs.player.costDiscount || 0) + (gs.player._nextCardDiscount || 0);
-        const cost = (gs.player.zeroCost || isCascadeFree || hasFreeCharge) ? 0 : Math.max(0, c.cost - totalDiscount);
+        const cost = typeof cardCostUtils?.calcEffectiveCost === 'function'
+          ? cardCostUtils.calcEffectiveCost(id, c, gs.player, handIndex)
+          : c.cost;
         return gs.player.energy >= cost;
       });
       endBtn.classList.toggle('energy-warn', hasPlayable && gs.player.energy > 0);
@@ -368,26 +391,33 @@ export const HudUpdateUI = {
 
     if (regionNameEl && regionRuleEl) {
       const showTooltip = (evt) => {
-        const title = `??${region.name} - ${region.rule}`;
-        const desc = region.ruleDesc || '?뱀닔 洹쒖튃???곸슜?섎뒗 吏??엯?덈떎.';
+        const title = `${region.name} - ${region.rule}`;
+        const desc = region.ruleDesc || '특수 규칙이 적용되는 지역입니다.';
+        const tooltipUI = deps.tooltipUI
+          || deps.TooltipUI
+          || window.TooltipUI
+          || window.GAME?.Modules?.['TooltipUI'];
 
-        if (typeof deps.tooltipUI?.showGeneralTooltip === 'function') {
-          deps.tooltipUI.showGeneralTooltip(evt, title, desc, { doc, win: window });
+        if (typeof tooltipUI?.showGeneralTooltip === 'function') {
+          tooltipUI.showGeneralTooltip(evt, title, desc, { doc, win: window });
         } else if (typeof deps.showGeneralTooltip === 'function') {
           deps.showGeneralTooltip(evt, title, desc, { doc, win: window });
         }
       };
       const hideTooltip = () => {
-        if (typeof deps.tooltipUI?.hideGeneralTooltip === 'function') {
-          deps.tooltipUI.hideGeneralTooltip();
+        const tooltipUI = deps.tooltipUI
+          || deps.TooltipUI
+          || window.TooltipUI
+          || window.GAME?.Modules?.['TooltipUI'];
+
+        if (typeof tooltipUI?.hideGeneralTooltip === 'function') {
+          tooltipUI.hideGeneralTooltip();
         } else if (typeof deps.hideGeneralTooltip === 'function') {
           deps.hideGeneralTooltip();
         }
       };
 
-      // Clean up previous listeners if any (simple way is clone and replace, or just rely on the fact that these are static elements)
-      // Since `regionNameEl` is static in HTML, repeated addEventListener might pile up. 
-      // It's safer to use onmouseenter / onmouseleave
+      // Clean up previous listeners
       regionNameEl.onmouseenter = showTooltip;
       regionNameEl.onmouseleave = hideTooltip;
       regionRuleEl.onmouseenter = showTooltip;
@@ -408,7 +438,7 @@ export const HudUpdateUI = {
       if (!p.items.length) {
         const none = doc.createElement('span');
         none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
-        none.textContent = '鍮꾩뼱?덉쓬';
+        none.textContent = '비어있음';
         itemEl.appendChild(none);
       } else {
         const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
@@ -417,6 +447,30 @@ export const HudUpdateUI = {
           const rb = rarityOrder[data?.items?.[b]?.rarity || 'common'] ?? 3;
           return ra - rb;
         });
+        const tooltipUI = deps.tooltipUI
+          || deps.TooltipUI
+          || window.TooltipUI
+          || window.GAME?.Modules?.['TooltipUI'];
+
+        const showItemTooltip = (event, itemId) => {
+          if (typeof deps.showItemTooltip === 'function') {
+            deps.showItemTooltip(event, itemId);
+            return;
+          }
+          if (typeof tooltipUI?.showItemTooltip === 'function') {
+            tooltipUI.showItemTooltip(event, itemId, { doc, win: window, data, gs, setBonusSystem });
+          }
+        };
+
+        const hideItemTooltip = () => {
+          if (typeof deps.hideItemTooltip === 'function') {
+            deps.hideItemTooltip();
+            return;
+          }
+          if (typeof tooltipUI?.hideItemTooltip === 'function') {
+            tooltipUI.hideItemTooltip({ doc, win: window });
+          }
+        };
 
         sortedItems.forEach(id => {
           const item = data?.items?.[id];
@@ -426,8 +480,8 @@ export const HudUpdateUI = {
           const inSet = setBonusSystem ? Object.values(setBonusSystem.sets || {}).some(s => s.items.includes(id)) : false;
           if (inSet) slot.style.outline = '1px dashed rgba(0,255,204,0.4)';
           slot.textContent = item.icon;
-          slot.addEventListener('mouseenter', ev => { if (typeof deps.showItemTooltip === 'function') deps.showItemTooltip(ev, id); });
-          slot.addEventListener('mouseleave', () => { if (typeof deps.hideItemTooltip === 'function') deps.hideItemTooltip(); });
+          slot.addEventListener('mouseenter', ev => showItemTooltip(ev, id));
+          slot.addEventListener('mouseleave', () => hideItemTooltip());
           itemEl.appendChild(slot);
         });
       }
@@ -443,7 +497,7 @@ export const HudUpdateUI = {
             div.style.cssText = 'background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:6px;padding:5px 8px;margin-bottom:4px;';
             const name = doc.createElement('div');
             name.style.cssText = "font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--cyan);";
-            name.textContent = `??${s.name} [${s.count}/3]`;
+            name.textContent = `${s.name} [${s.count}/3]`;
             const bonus = doc.createElement('div');
             bonus.style.cssText = 'font-size:9px;color:var(--text-dim);margin-top:2px;';
             bonus.textContent = s.bonus?.label || '';
@@ -469,13 +523,13 @@ export const HudUpdateUI = {
     if (asc > 0) {
       const ascDiv = doc.createElement('div');
       ascDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--danger); letter-spacing:0.1em; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
-      ascDiv.textContent = `???뱀쿇 ${asc}`;
+      ascDiv.textContent = `승천 ${asc}`;
       topCont.appendChild(ascDiv);
     }
     if (endless) {
       const endDiv = doc.createElement('div');
       endDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--cyan); letter-spacing:0.1em; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
-      endDiv.textContent = '??臾댄븳 紐⑤뱶';
+      endDiv.textContent = '무한 모드';
       topCont.appendChild(endDiv);
     }
     modEl.appendChild(topCont);
@@ -491,7 +545,7 @@ export const HudUpdateUI = {
         if (b) {
           const bDiv = doc.createElement('div');
           bDiv.style.cssText = 'font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;';
-          bDiv.title = b.desc; bDiv.textContent = `??${b.name}`;
+          bDiv.title = b.desc; bDiv.textContent = `${b.name}`;
           midCont.appendChild(bDiv);
         }
       }
@@ -500,7 +554,7 @@ export const HudUpdateUI = {
         if (c) {
           const cDiv = doc.createElement('div');
           cDiv.style.cssText = 'font-size:11px; color:var(--danger); background:rgba(255,51,102,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(255,51,102,0.15); cursor:help;';
-          cDiv.title = c.desc; cDiv.textContent = `?? ${c.name}`;
+          cDiv.title = c.desc; cDiv.textContent = `${c.name}`;
           midCont.appendChild(cDiv);
         }
       }
@@ -516,18 +570,18 @@ export const HudUpdateUI = {
       } else if (typeof deps.updateEchoSkillBtn === 'function') {
         deps.updateEchoSkillBtn({ ...deps, gs });
       } else {
-        // Fallback: ?몃씪???낅뜲?댄듃
+        // Fallback: 렌더링 업데이트
         const echoValue = Math.floor(p.echo);
         const tier = echoValue >= 100 ? 3 : echoValue >= 60 ? 2 : echoValue >= 30 ? 1 : 0;
 
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 (${echoValue}/30)`;
+          echoBtn.textContent = `⚡ 잔향 스킬 (${echoValue}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 ??(${echoValue})`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoValue})`;
         }
       }
     }
@@ -547,11 +601,11 @@ export const HudUpdateUI = {
           drawBtn.textContent = '에너지 부족';
           drawBtn.title = '카드를 뽑으려면 1 에너지가 필요합니다.';
         } else {
-          drawBtn.textContent = '카드 뽑기 (1 에너지)';
+          drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
           drawBtn.title = '카드를 1장 뽑습니다.';
         }
       } else {
-        drawBtn.textContent = '카드 뽑기 (1 에너지)';
+        drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
         drawBtn.title = '전투 중에만 사용할 수 있습니다.';
       }
     }
@@ -607,19 +661,21 @@ export const HudUpdateUI = {
       combatEnergyText.textContent = `${p.energy} / ${p.maxEnergy}`;
     }
 
-    // ???쒕줈??踰꾪듉???④퍡 ?숆린??
+    // 카드 뽑기 버튼 상태 동기화
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn && gs.combat?.active) {
       const handFull = p.hand.length >= 8;
+      const canDraw = gs.combat.playerTurn && p.energy >= 1 && !handFull;
+
       if (handFull) {
         drawBtn.textContent = '손패 가득 참';
       } else if (p.energy < 1) {
         drawBtn.textContent = '에너지 부족';
       } else {
-        drawBtn.textContent = `카드 뽑기 (에너지 ${p.energy})`;
+        drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
       }
-      drawBtn.disabled = !gs.combat.playerTurn || p.energy < 1 || handFull;
-      drawBtn.style.opacity = drawBtn.disabled ? '0.4' : '1';
+      drawBtn.disabled = !canDraw;
+      drawBtn.style.opacity = canDraw ? '1' : '0.4';
     }
   },
 
@@ -713,11 +769,11 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 (${echo}/30)`;
+          echoBtn.textContent = `⚡ 잔향 스킬 (${echo}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `???뷀뼢 ?ㅽ궗 ??(${echo})`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echo})`;
         }
       }
     }

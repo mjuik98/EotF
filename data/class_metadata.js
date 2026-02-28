@@ -21,10 +21,10 @@ export const CLASS_METADATA = {
         name: '메아리술사',
         emoji: '🪄',
         style: 'mage',
-        desc: '다가올 미래의 소리를 미리 듣는 마법사.',
-        traitName: '예지',
-        traitTitle: '예지 (Foresight)',
-        traitDesc: '시간의 메아리를 읽어냅니다. 현재 선택한 대상이 다음 턴에 낼 소리(공격, 방어, 디버프 등)를 미리 파악하여 완벽한 대응을 준비합니다.'
+        desc: '전장의 리듬을 공명시켜 카드 흐름을 왜곡하는 마법사.',
+        traitName: '메아리 공명',
+        traitTitle: '메아리 공명 (Echo Resonance)',
+        traitDesc: '카드를 3번 사용할 때마다 손패의 무작위 카드 1장의 비용이 1 감소합니다.'
     },
     hunter: {
         id: 'hunter',

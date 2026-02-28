@@ -67,7 +67,8 @@ export const CardUI = {
 
       const nextDisc = gs.player._nextCardDiscount || 0;
       const baseDisc = gs.player.costDiscount || 0;
-      const totalDisc = nextDisc + baseDisc;
+      const traitDisc = window.CardCostUtils?.hasTraitDiscount?.(cardId, gs.player) ? 1 : 0;
+      const totalDisc = nextDisc + baseDisc + traitDisc;
 
       const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player, i);
       const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player, i);

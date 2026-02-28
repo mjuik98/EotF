@@ -16,12 +16,14 @@ export function createUIBindings(M, fns) {
             gs: M.GS,
             doc: document,
             statusContainerId: 'statusEffects',
+            tooltipUI: M.TooltipUI,
             refreshCombatInfoPanel: () => fns._refreshCombatInfoPanel?.(),
         });
         M.StatusEffectsUI?.updateStatusDisplay?.({
             gs: M.GS,
             doc: document,
             statusContainerId: 'playerStatusEffects',
+            tooltipUI: M.TooltipUI,
         });
     };
 

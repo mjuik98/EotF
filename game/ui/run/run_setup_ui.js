@@ -1,6 +1,7 @@
 import { AudioEngine } from '../../../engine/audio.js';
 import { GS } from '../../core/game_state.js';
 import { DATA } from '../../../data/game_data.js';
+import { InscriptionSystem } from '../../systems/inscription_system.js';
 
 
 const CLASS_CONFIGS = {
@@ -65,20 +66,21 @@ export const RunSetupUI = {
       endlessMode: !!gs.meta.runConfig.endless,
       blessing: gs.meta.runConfig.blessing || 'none',
       curse: gs.meta.runConfig.curse || 'none',
+      disabledInscriptions: gs.meta.runConfig.disabledInscriptions || [],
     };
     gs._runOutcomeCommitted = false;
 
     gs.player = {
       class: selectedClass,
-      hp: cfg.maxHp + (inscriptions.resilience ? 10 : 0),
-      maxHp: cfg.maxHp + (inscriptions.resilience ? 10 : 0),
+      hp: cfg.maxHp,
+      maxHp: cfg.maxHp,
       shield: 0,
-      echo: cfg.startEcho + (inscriptions.echo_boost ? 30 : 0),
+      echo: cfg.startEcho,
       maxEcho: 100,
       echoChain: 0,
       energy: 3,
       maxEnergy: 3,
-      gold: inscriptions.fortune ? 30 : 10,
+      gold: 10,
       kills: 0,
       deck: [...data.startDecks[selectedClass]],
       hand: [],
@@ -91,6 +93,9 @@ export const RunSetupUI = {
       _freeCardUses: 0,
       costDiscount: 0,
       _cascadeCards: new Map(),
+      _traitCardDiscounts: {},
+      _mageCastCounter: 0,
+      _mageLastDiscountTarget: null,
       upgradedCards: new Set(),
       _cardUpgradeBonus: {},
     };
@@ -104,6 +109,7 @@ export const RunSetupUI = {
       gs.meta.codex.items.add(startItem);
     }
 
+    InscriptionSystem.applyStartBonuses(gs, data);
     runRules.applyRunStart?.(gs);
 
     if (typeof deps.shuffleArray === 'function') deps.shuffleArray(gs.player.deck);

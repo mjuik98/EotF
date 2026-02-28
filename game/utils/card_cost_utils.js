@@ -36,6 +36,16 @@ export const CardCostUtils = {
   },
 
   /**
+   * 클래스 특성 등으로 부여된 카드별 1회성 할인 토큰 보유 여부
+   */
+  hasTraitDiscount(cardId, player) {
+    if (!player || typeof player._traitCardDiscounts !== 'object' || !player._traitCardDiscounts) {
+      return false;
+    }
+    return Number(player._traitCardDiscounts[cardId] || 0) > 0;
+  },
+
+  /**
    * 카드의 실제 사용 비용 계산
    * @returns {number} 실제 에너지 비용 (0 이상)
    */
@@ -47,7 +57,8 @@ export const CardCostUtils = {
     // _nextCardDiscount 는 다음 카드 1 장에만 적용 (우선적으로 차감)
     const nextDisc = player._nextCardDiscount || 0;
     const disc = player.costDiscount || 0;
-    const totalDisc = nextDisc + disc;
+    const traitDisc = CardCostUtils.hasTraitDiscount(cardId, player) ? 1 : 0;
+    const totalDisc = nextDisc + disc + traitDisc;
     return Math.max(0, card.cost - totalDisc);
   },
 
@@ -89,6 +100,18 @@ export const CardCostUtils = {
   },
 
   /**
+   * 카드별 할인 토큰 1회 소모
+   * @returns {boolean} 실제 소모 여부
+   */
+  consumeTraitDiscount(cardId, player) {
+    if (!CardCostUtils.hasTraitDiscount(cardId, player)) return false;
+    const current = Number(player._traitCardDiscounts[cardId] || 0);
+    if (current <= 1) delete player._traitCardDiscounts[cardId];
+    else player._traitCardDiscounts[cardId] = current - 1;
+    return true;
+  },
+
+  /**
    * 카드 UI 렌더링용 — 비용 표시 문자열 + 할인 여부 반환
    * @returns {{ displayCost: number, isFree: boolean, isDiscounted: boolean }}
    */
@@ -97,7 +120,9 @@ export const CardCostUtils = {
       || CardCostUtils.isCascadeFree(cardId, player, handIndex)
       || CardCostUtils.isChargeFree(cardId, player, handIndex);
     const effectiveCost = CardCostUtils.calcEffectiveCost(cardId, card, player, handIndex);
-    const totalDiscount = (player.costDiscount || 0) + (player._nextCardDiscount || 0);
+    const totalDiscount = (player.costDiscount || 0)
+      + (player._nextCardDiscount || 0)
+      + (CardCostUtils.hasTraitDiscount(cardId, player) ? 1 : 0);
     const isDiscounted = !isFree && totalDiscount > 0 && effectiveCost < card.cost;
     return { displayCost: effectiveCost, isFree, isDiscounted };
   },

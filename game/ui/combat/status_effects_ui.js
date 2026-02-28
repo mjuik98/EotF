@@ -1,8 +1,5 @@
-import { GS } from '../../core/game_state.js';
-
-
 const STATUS_KR = {
-  momentum: { name: '가속', icon: '🌪️', buff: true, desc: '이번 턴 피해가 가속 수치만큼 증가합니다.' },
+  momentum: { name: '공명', icon: '🌪️', buff: true, desc: '이번 턴 동안 피해량이 공명 수치만큼 증가합니다.' },
   soul_armor: { name: '영혼의 갑옷', icon: '🛡️', buff: true, desc: '받는 피해를 일부 감소시킵니다.' },
   vanish: { name: '은신', icon: '🌫️', buff: true, desc: '다음 공격이 치명타로 적중합니다.' },
   immune: { name: '무적', icon: '🏛️', buff: true, desc: '이번 턴 동안 모든 피해를 입지 않습니다.' },
@@ -20,7 +17,7 @@ const STATUS_KR = {
   strength: { name: '근력', icon: '💪', buff: true, desc: '주는 피해가 증가합니다.' },
   dexterity: { name: '민첩', icon: '🏃', buff: true, desc: '얻는 방어도가 증가합니다.' },
   vulnerable: { name: '취약', icon: '🎯', buff: false, desc: '받는 피해가 50% 증가합니다.' },
-  blessing_of_light: { name: '빛의 축복', icon: '☀️', buff: true, desc: '매 턴 시작 시 체력을 회복합니다.' },
+  blessing_of_light: { name: '빛의 축복', icon: '☀️', buff: true, desc: '매 턴 시작 시 체력을 회복(회복량)합니다.' },
   divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어도가 일정 비율만큼 추가로 증가합니다.' }
 };
 
@@ -30,6 +27,13 @@ function _getDoc(deps) {
 
 function _getGS(deps) {
   return deps?.gs;
+}
+
+function _getTooltipUI(deps) {
+  return deps?.tooltipUI
+    || deps?.TooltipUI
+    || window.TooltipUI
+    || window.GAME?.Modules?.['TooltipUI'];
 }
 
 export const StatusEffectsUI = {
@@ -79,7 +83,7 @@ export const StatusEffectsUI = {
           // 지속 시간이 99 이상인 경우 (무한 지속), 턴 수 대신 실제 효과 수치를 표시
           let displayVal = buff.stacks;
           if (buff.stacks >= 99) {
-            if (k === 'blessing_of_light') displayVal = '';
+            if (k === 'blessing_of_light') displayVal = buff.healPerTurn || '';
             else if (k === 'soul_armor') displayVal = buff.echoRegen || 0;
             else if (k === 'time_warp') displayVal = buff.energyPerTurn || 0;
             else if (k === 'berserk_mode') displayVal = buff.atkGrowth || 0;
@@ -94,19 +98,20 @@ export const StatusEffectsUI = {
           badge.appendChild(stackSpan);
         }
 
-        const tip = doc.createElement('span');
-        tip.className = 'hud-badge-tip';
+        const tooltipUI = _getTooltipUI(deps);
+        const tooltipTitle = dmgBonus ? `${label} ${dmgBonus}` : label;
+        const tooltipDesc = info?.desc || '효과 정보 없음';
+        badge.addEventListener('mouseenter', (event) => {
+          if (typeof tooltipUI?.showGeneralTooltip === 'function') {
+            tooltipUI.showGeneralTooltip(event, tooltipTitle, tooltipDesc, { doc, win: window });
+          }
+        });
+        badge.addEventListener('mouseleave', () => {
+          if (typeof tooltipUI?.hideGeneralTooltip === 'function') {
+            tooltipUI.hideGeneralTooltip({ doc, win: window });
+          }
+        });
 
-        const tipH = doc.createElement('b'); tipH.textContent = label; tip.appendChild(tipH);
-        if (dmgBonus) tip.appendChild(doc.createTextNode(` ${dmgBonus}`));
-        tip.appendChild(doc.createElement('br'));
-
-        const tipD = doc.createElement('span');
-        tipD.style.cssText = 'color:var(--text-dim);font-size:10px;';
-        tipD.textContent = info?.desc || '효과 정보 없음';
-        tip.appendChild(tipD);
-
-        badge.appendChild(tip);
         fragment.appendChild(badge);
       });
       el.appendChild(fragment);

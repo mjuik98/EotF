@@ -64,16 +64,57 @@ export const ClassMechanics = {
   mage: {
     onCombatStart(gs) {
       const state = _getGS(gs);
-      if (!state) return;
-      state._prediction = true;
+      if (!state?.player) return;
+      state.player._mageCastCounter = 0;
+      state.player._traitCardDiscounts = {};
+      state.player._mageLastDiscountTarget = null;
+    },
+    onPlayCard(gs) {
+      const state = _getGS(gs);
+      const player = state?.player;
+      if (!state || !player) return;
+
+      player._mageCastCounter = (player._mageCastCounter || 0) + 1;
+      if (player._mageCastCounter < 3) {
+        state.markDirty?.('hud');
+        return;
+      }
+
+      player._mageCastCounter = 0;
+      const hand = Array.isArray(player.hand) ? player.hand : [];
+      const dataCards = window.DATA?.cards || {};
+      const candidates = hand.filter((id) => (dataCards[id]?.cost || 0) > 0);
+
+      if (candidates.length === 0) {
+        player._mageLastDiscountTarget = null;
+        state.addLog(LogUtils.formatEcho('🔮 메아리 공명: 할인 대상 카드가 없습니다.'), 'echo');
+        state.markDirty?.('hud');
+        return;
+      }
+
+      const pickedId = candidates[Math.floor(Math.random() * candidates.length)];
+      if (!player._traitCardDiscounts || typeof player._traitCardDiscounts !== 'object') {
+        player._traitCardDiscounts = {};
+      }
+      player._traitCardDiscounts[pickedId] = (player._traitCardDiscounts[pickedId] || 0) + 1;
+      player._mageLastDiscountTarget = pickedId;
+
+      const cardName = dataCards[pickedId]?.name || pickedId;
+      state.addLog(LogUtils.formatEcho(`🔮 메아리 공명: ${cardName} 비용 -1`), 'echo');
+      state.markDirty?.('hand');
+      state.markDirty?.('hud');
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);
-      const target = state?.combat?.enemies ? state.combat.enemies[state._selectedTarget || 0] : null;
-      const next = (target && target.hp > 0) ? target.ai?.(state.combat.turn + 2) : null;
+      const player = state?.player;
+      const progress = Number(player?._mageCastCounter || 0);
+      const cycleProgress = progress % 3;
+      const remaining = cycleProgress === 0 ? 3 : (3 - cycleProgress);
+      const lastTargetId = player?._mageLastDiscountTarget;
+      const lastTargetName = lastTargetId ? (window.DATA?.cards?.[lastTargetId]?.name || lastTargetId) : null;
       const meta = window.DATA?.classes?.mage;
-      const title = meta?.traitTitle || '예지';
-      const desc = meta?.traitDesc || '적의 다음 행동을 미리 파악합니다.';
+      const title = meta?.traitTitle || '메아리 공명';
+      const desc = meta?.traitDesc || '카드를 3번 사용할 때마다 무작위 카드 1장의 비용이 1 감소합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -90,11 +131,16 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '예지';
+      label.textContent = meta?.traitName || '메아리 공명';
       const valEl = document.createElement('div');
-      valEl.style.cssText = "font-size:10px;color:var(--cyan);";
-      valEl.textContent = next?.intent || '활성 적 없음';
-      el.append(label, valEl);
+      valEl.style.cssText = "font-size:10px;color:var(--cyan);line-height:1.4;";
+      valEl.textContent = `발동까지 ${remaining}장 (${progress}/3)`;
+
+      const subEl = document.createElement('div');
+      subEl.style.cssText = "font-size:9px;color:var(--text-dim);margin-top:2px;";
+      subEl.textContent = lastTargetName ? `최근 할인: ${lastTargetName}` : '최근 할인: 없음';
+
+      el.append(label, valEl, subEl);
       return el;
     },
   },

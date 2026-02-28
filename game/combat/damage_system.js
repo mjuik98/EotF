@@ -77,6 +77,15 @@ export const DamageSystem = {
         if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
             dmg = Math.max(0, Math.floor(itemScaled));
         }
+        let chainBonus = 0;
+        if (this.player.echoChain >= 3) {
+            chainBonus = Math.floor(dmg * 0.2);
+            if (this.player.chainBonusMult) {
+                chainBonus = Math.floor(chainBonus * this.player.chainBonusMult);
+            }
+        }
+        dmg += chainBonus;
+
         if (this.player.echoChain > 0) {
             const chainScaled = this.triggerItems('chain_dmg', dmg);
             if (typeof chainScaled === 'number' && Number.isFinite(chainScaled)) {
@@ -102,7 +111,10 @@ export const DamageSystem = {
             this.addEcho(10, true);
             const win = _getWin(deps);
             // 전투 라이프사이클을 통해 UI와 버스트 로직(5돌파) 트리거
-            const updateChainDisplay = deps.updateChainDisplay || win.updateChainDisplay || win.CombatLifecycle?.updateChainDisplay;
+            const updateChainDisplay = deps.updateChainDisplay
+                || this.updateChainDisplay
+                || win.updateChainDisplay
+                || win.CombatLifecycle?.updateChainDisplay;
             if (typeof updateChainDisplay === 'function') {
                 updateChainDisplay.call(win.CombatLifecycle || this, deps);
             } else {
@@ -160,6 +172,10 @@ export const DamageSystem = {
         if ((this.getBuff?.('vulnerable')?.stacks || 0) > 0) {
             dmg = Math.floor(dmg * 1.5);
             if (typeof this.addLog === 'function') this.addLog(LogUtils.formatEcho('💢 취약: 피해량 증가!'), 'damage');
+        }
+
+        if (this.player.dmgTakenMult !== undefined) {
+            dmg = Math.floor(dmg * this.player.dmgTakenMult);
         }
 
         const itemScaled = typeof this.triggerItems === 'function' ? this.triggerItems('damage_taken', dmg) : dmg;

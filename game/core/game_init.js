@@ -68,7 +68,7 @@ export const GameInit = {
             }
         });
 
-        doc.getElementById('mainStartBtn')?.addEventListener('click', () => showCharacterSelect?.());
+        doc.getElementById('mainStartBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); showCharacterSelect?.(); });
         doc.getElementById('mainRunRulesBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openRunSettings?.(); });
         doc.getElementById('mainCodexBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openCodexFromTitle?.(); });
         doc.getElementById('mainSettingsBtn')?.addEventListener('click', () => {

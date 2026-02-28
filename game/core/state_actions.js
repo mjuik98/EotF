@@ -150,6 +150,40 @@ export const Reducers = {
         return { cardId, exhausted: exhaust };
     },
 
+    [Actions.CARD_DRAW](gs, { count }) {
+        let drewCards = false;
+        const previousHandLength = gs.player.hand.length;
+
+        for (let i = 0; i < count; i++) {
+            if (!gs.player.drawPile || gs.player.drawPile.length === 0) {
+                if (!gs.player.graveyard || gs.player.graveyard.length === 0) break;
+
+                // Graveyard를 drawPile로 섞어 넣음
+                gs.player.drawPile = [...gs.player.graveyard];
+                // 배열 순서 섞기 (Fisher-Yates)
+                for (let j = gs.player.drawPile.length - 1; j > 0; j--) {
+                    const k = Math.floor(Math.random() * (j + 1));
+                    [gs.player.drawPile[j], gs.player.drawPile[k]] = [gs.player.drawPile[k], gs.player.drawPile[j]];
+                }
+                gs.player.graveyard = [];
+                if (typeof gs.addLog === 'function') {
+                    gs.addLog('🔄 덱을 섞었다', 'system');
+                }
+            }
+            if (gs.player.hand.length < 8) {
+                gs.player.hand.push(gs.player.drawPile.pop());
+                drewCards = true;
+            }
+        }
+
+        if (drewCards) {
+            gs.markDirty('hand');
+            gs.markDirty('hud');
+        }
+
+        return { drewCards: gs.player.hand.length - previousHandLength };
+    },
+
     [Actions.ENEMY_DAMAGE](gs, { amount, targetIdx }) {
         const enemy = gs.combat.enemies[targetIdx];
         if (!enemy) return { actualDamage: 0 };
@@ -196,14 +230,8 @@ export const Reducers = {
         gs.combat.active = false;
         gs.combat.playerTurn = true;
 
-        // 전투 중 파편화된 덱 복구
-        const fullDeck = [
-            ...(gs.player.deck || []),
-            ...(gs.player.hand || []),
-            ...(gs.player.graveyard || []),
-            ...(gs.player.exhausted || [])
-        ];
-        gs.player.deck = fullDeck;
+        // 전투용 덱 파일 초기화 (COMBAT_END 시 덱에 카드들이 증식하지 않도록 처리)
+        // Deck 자체는 Combat 시작 시의 메인 덱으로 유지됨
         gs.player.hand = [];
         gs.player.graveyard = [];
         gs.player.exhausted = [];
@@ -220,6 +248,9 @@ export const Reducers = {
         gs.player.zeroCost = false;
         gs.player._freeCardUses = 0;
         gs.player._cascadeCards = new Map();
+        gs.player._traitCardDiscounts = {};
+        gs.player._mageCastCounter = 0;
+        gs.player._mageLastDiscountTarget = null;
         gs.player.silenceGauge = 0;
         gs._maskCount = 0;
         gs._batteryUsedTurn = false;
