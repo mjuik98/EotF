@@ -10,7 +10,7 @@ export const REGIONS = [
         boss: ['ancient_echo', 'forest_guardian']
     },
     {
-        id: 1, name: '침묵의 도시', rule: '침묵의 저주', ruleDesc: "고요함 속에 잠긴 도시에서는 작은 소음조차 치명적입니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 카드 사용 시 소음 게이지가 평소보다 50% 더 빠르게 누적됩니다.</span>", quote: '"침묵은 가장 큰 비명이다."', floors: 4,
+        id: 1, name: '침묵의 도시', rule: '침묵의 저주', ruleDesc: "고요함 속에 잠긴 도시에서는 작은 소음조차 치명적입니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 카드 사용 시 소음 게이지가 누적됩니다.</span>", quote: '"침묵은 가장 큰 비명이다."', floors: 4,
         enemies: ['silent_sentinel', 'noise_wraith', 'iron_automaton', 'rust_stalker', 'brass_guardian', 'silent_shade'],
         elites: ['elite_silence_herald', 'elite_gear_titan', 'elite_echo_judge'],
         boss: ['silent_tyrant', 'clockwork_emperor']
@@ -28,7 +28,7 @@ export const REGIONS = [
         boss: ['divine_tyrant', 'grave_executor']
     },
     {
-        id: 4, name: '메아리의 근원', rule: '현실 붕괴', ruleDesc: "현실의 경계가 무너져 내리는 종착지입니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 불안정한 현실로 인해 매 턴 종료 시 최대 에코 수치가 5씩 영구적으로 손실됩니다.</span>", quote: '"모든 시작이자 끝인 곳."', floors: 3,
+        id: 4, name: '잔향의 근원', rule: '현실 붕괴', ruleDesc: "현실의 경계가 무너져 내리는 종착지입니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 불안정한 현실로 인해 매 턴 종료 시 최대 잔향 수치가 5씩 영구적으로 손실됩니다.</span>", quote: '"모든 시작이자 끝인 곳."', floors: 3,
         enemies: ['echo_devourer', 'void_remnant', 'void_eye_enemy', 'void_walker', 'reality_shredder', 'void_core_fragment'],
         elites: ['elite_echo_colossus', 'elite_origin_guard', 'elite_void_templar'],
         boss: ['void_herald', 'echo_origin']
