@@ -309,7 +309,7 @@ export const HelpPauseUI = {
         }
 
         console.log('[ESC Key] currentScreen:', gs?.currentScreen, 'combat.active:', gs?.combat?.active, 'pauseOpen:', _pauseOpen);
-        const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true;
+        const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true || gs?.currentScreen === 'reward';
         const isTitle = gs?.currentScreen === 'title';
 
         // 도감 또는 덱 모달이 열려있으면 닫기
@@ -351,15 +351,11 @@ export const HelpPauseUI = {
           return;
         }
 
-        // reward 화면에서는 ESC 무시 (명시적 선택 필요)
-        if (gs?.currentScreen === 'reward') {
-          console.log('[ESC Key] Reward screen - ignored (explicit selection required)');
-          return;
-        }
+        // reward 화면에서도 일시정지 메뉴 열 수 있도록 허용 (이전 코드 삭제)
         console.log('[ESC Key] Ignored - not in game or help open');
       }
 
-      const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true;
+      const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true || gs?.currentScreen === 'reward';
 
       if ((e.key === '?' || e.key === '/') && isInGame) {
         e.preventDefault();
