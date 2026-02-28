@@ -8,9 +8,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "node scripts/check-architecture.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs",
+    "lint": "node scripts/check-architecture.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "deps:map": "node scripts/generate-dependency-map.mjs",
     "quality": "npm run lint && npm run test && npm run build"
   },
   "keywords": [

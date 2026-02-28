@@ -1,0 +1,48 @@
+{
+  "scanDirs": ["game", "engine", "data"],
+  "layerMatchers": [
+    { "layer": "ui", "prefix": "game/ui/" },
+    { "layer": "combat", "prefix": "game/combat/" },
+    { "layer": "systems", "prefix": "game/systems/" },
+    { "layer": "core", "prefix": "game/core/" },
+    { "layer": "utils", "prefix": "game/utils/" },
+    { "layer": "engine", "prefix": "engine/" },
+    { "layer": "data", "prefix": "data/" }
+  ],
+  "rules": [
+    {
+      "id": "domain-no-ui",
+      "from": ["systems", "combat", "utils"],
+      "to": ["ui"],
+      "message": "systems/combat/utils must not import ui"
+    },
+    {
+      "id": "core-ui-composition-root-only",
+      "from": ["core"],
+      "to": ["ui"],
+      "allowSources": [
+        "game/core/main.js",
+        "game/core/event_bindings.js",
+        "game/core/init_sequence.js",
+        "game/core/deps_factory.js"
+      ],
+      "allowSourcePrefixes": ["game/core/bindings/"],
+      "message": "core file outside composition root importing ui"
+    },
+    {
+      "id": "ui-no-core-composition-root",
+      "from": ["ui"],
+      "denyTargets": [
+        "game/core/main.js",
+        "game/core/event_bindings.js"
+      ],
+      "message": "ui must not import core composition root"
+    },
+    {
+      "id": "engine-data-no-ui",
+      "from": ["engine", "data"],
+      "to": ["ui"],
+      "message": "engine/data must not import ui"
+    }
+  ]
+}

@@ -2,23 +2,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const GAME_DIR = path.join(ROOT, 'game');
-
-const CORE_UI_ALLOWLIST = new Set([
-  'game/core/main.js',
-  'game/core/event_bindings.js',
-  'game/core/init_sequence.js',
-  'game/core/deps_factory.js',
-]);
-
-const CORE_UI_ALLOW_PREFIXES = ['game/core/bindings/'];
-const FORBIDDEN_CORE_IMPORTS_FROM_UI = new Set([
-  'game/core/main.js',
-  'game/core/event_bindings.js',
-]);
+const POLICY_PATH = path.join(ROOT, 'docs', 'architecture_policy.json');
 
 function toPosix(p) {
   return p.split(path.sep).join('/');
+}
+
+async function readPolicy() {
+  const raw = await fs.readFile(POLICY_PATH, 'utf8');
+  return JSON.parse(raw);
 }
 
 async function collectFiles(dir) {
@@ -35,11 +27,10 @@ async function collectFiles(dir) {
   return out;
 }
 
-function getLayer(fileRel) {
-  if (fileRel.startsWith('game/ui/')) return 'ui';
-  if (fileRel.startsWith('game/combat/')) return 'combat';
-  if (fileRel.startsWith('game/systems/')) return 'systems';
-  if (fileRel.startsWith('game/core/')) return 'core';
+function getLayer(fileRel, layerMatchers) {
+  for (const matcher of layerMatchers) {
+    if (fileRel.startsWith(matcher.prefix)) return matcher.layer;
+  }
   return 'other';
 }
 
@@ -51,18 +42,48 @@ function resolveImport(fileAbs, spec) {
   return toPosix(path.relative(ROOT, withExt));
 }
 
-function isCoreUiImportAllowed(fileRel) {
-  if (CORE_UI_ALLOWLIST.has(fileRel)) return true;
-  return CORE_UI_ALLOW_PREFIXES.some((prefix) => fileRel.startsWith(prefix));
+function isSourceAllowed(fileRel, rule) {
+  if (Array.isArray(rule.allowSources) && rule.allowSources.includes(fileRel)) return true;
+  if (Array.isArray(rule.allowSourcePrefixes)) {
+    return rule.allowSourcePrefixes.some((prefix) => fileRel.startsWith(prefix));
+  }
+  return false;
+}
+
+function evaluateRule(rule, fileRel, targetRel, sourceLayer, targetLayer) {
+  const fromMatches = Array.isArray(rule.from) ? rule.from.includes(sourceLayer) : true;
+  if (!fromMatches) return null;
+
+  if (isSourceAllowed(fileRel, rule)) return null;
+
+  if (Array.isArray(rule.denyTargets) && rule.denyTargets.includes(targetRel)) {
+    return `${fileRel} -> ${targetRel} (${rule.message || rule.id})`;
+  }
+
+  if (Array.isArray(rule.to) && rule.to.includes(targetLayer)) {
+    return `${fileRel} -> ${targetRel} (${rule.message || rule.id})`;
+  }
+
+  return null;
 }
 
 async function main() {
-  const files = await collectFiles(GAME_DIR);
+  const policy = await readPolicy();
+  const scanDirs = policy.scanDirs || ['game'];
+  const layerMatchers = policy.layerMatchers || [];
+  const rules = policy.rules || [];
+
+  const files = [];
+  for (const relDir of scanDirs) {
+    const absDir = path.join(ROOT, relDir);
+    files.push(...(await collectFiles(absDir)));
+  }
+
   const violations = [];
 
   for (const fileAbs of files) {
     const fileRel = toPosix(path.relative(ROOT, fileAbs));
-    const layer = getLayer(fileRel);
+    const sourceLayer = getLayer(fileRel, layerMatchers);
     const source = await fs.readFile(fileAbs, 'utf8');
     const importRegex = /^\s*import\s+[^'"]*['"]([^'"]+)['"]/gm;
 
@@ -71,18 +92,11 @@ async function main() {
       const spec = match[1];
       const targetRel = resolveImport(fileAbs, spec);
       if (!targetRel) continue;
-      const targetLayer = getLayer(targetRel);
 
-      if ((layer === 'systems' || layer === 'combat') && targetLayer === 'ui') {
-        violations.push(`${fileRel} -> ${targetRel} (systems/combat must not import ui)`);
-      }
-
-      if (layer === 'core' && targetLayer === 'ui' && !isCoreUiImportAllowed(fileRel)) {
-        violations.push(`${fileRel} -> ${targetRel} (core file outside composition root importing ui)`);
-      }
-
-      if (layer === 'ui' && FORBIDDEN_CORE_IMPORTS_FROM_UI.has(targetRel)) {
-        violations.push(`${fileRel} -> ${targetRel} (ui must not import core composition root)`);
+      const targetLayer = getLayer(targetRel, layerMatchers);
+      for (const rule of rules) {
+        const violation = evaluateRule(rule, fileRel, targetRel, sourceLayer, targetLayer);
+        if (violation) violations.push(violation);
       }
     }
   }
@@ -100,4 +114,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

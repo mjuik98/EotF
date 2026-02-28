@@ -1,6 +1,8 @@
 import { GameStateCoreMethods } from './game_state_core_methods.js';
 import { EventBus } from './event_bus.js';
 import { Reducers } from './state_actions.js';
+import { ErrorCodes, ErrorSeverity } from './error_codes.js';
+import { reportError } from './error_reporter.js';
 
 export const GS = {
     // ─── Game Data (Single Source of Truth) ───
@@ -49,6 +51,7 @@ export const GS = {
     stats: { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 },
     _heartUsed: false, _temporalTurn: 0, _bossAdvancePending: false,
     _dispatchDepth: 0,
+    _dispatchSeq: 0,
 
     // ═══════════════════════════════════════
     //  Dispatch System (단일 상태 변경 진입점)
@@ -63,10 +66,17 @@ export const GS = {
     dispatch(action, payload = {}) {
         const reducer = Reducers[action];
         if (!reducer) {
-            console.warn(`[GS.dispatch] Unknown action: ${action}`);
+            reportError(`Unknown action: ${action}`, {
+                code: ErrorCodes.INVALID_ACTION,
+                severity: ErrorSeverity.WARN,
+                context: 'GS.dispatch',
+                meta: { action },
+            });
             return null;
         }
 
+        const dispatchId = `${action}#${++this._dispatchSeq}`;
+        const dispatchTs = Date.now();
         this._dispatchDepth += 1;
         let result = null;
         try {
@@ -76,7 +86,13 @@ export const GS = {
         }
 
         // 이벤트 버스로 상태 변경 알림
-        EventBus.emit(action, { payload, result, gs: this });
+        EventBus.emit(action, {
+            payload,
+            result,
+            gs: this,
+            dispatchId,
+            ts: dispatchTs,
+        });
 
         return result;
     },

@@ -1,0 +1,30 @@
+{
+  "total": 144,
+  "byPair": {
+    "combat->core": 10,
+    "combat->data": 2,
+    "combat->engine": 7,
+    "combat->systems": 4,
+    "combat->utils": 6,
+    "core->combat": 6,
+    "core->data": 2,
+    "core->engine": 5,
+    "core->systems": 5,
+    "core->ui": 37,
+    "core->utils": 7,
+    "data->engine": 2,
+    "data->utils": 3,
+    "engine->data": 1,
+    "systems->core": 2,
+    "systems->data": 2,
+    "systems->utils": 1,
+    "ui->combat": 2,
+    "ui->core": 14,
+    "ui->data": 6,
+    "ui->engine": 6,
+    "ui->systems": 1,
+    "ui->utils": 12,
+    "utils->core": 1
+  },
+  "generatedAt": "2026-02-28T11:01:42.878Z"
+}

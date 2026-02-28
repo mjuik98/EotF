@@ -5,6 +5,9 @@
  * This keeps module boundaries explicit and prevents hidden global coupling.
  */
 
+import { AppError } from './error_reporter.js';
+import { ErrorCodes } from './error_codes.js';
+
 let _refs = {};
 
 export function initDepsFactory(refs) {
@@ -279,7 +282,13 @@ export function listDepContracts() {
 
 export function createDeps(contractName, overrides = {}) {
     const builder = CONTRACT_BUILDERS[contractName];
-    if (!builder) throw new Error(`[deps_factory] Unknown dependency contract: ${contractName}`);
+    if (!builder) {
+        throw new AppError(
+            ErrorCodes.DEPS_CONTRACT_MISSING,
+            `[deps_factory] Unknown dependency contract: ${contractName}`,
+            { context: 'deps_factory.createDeps', meta: { contractName } },
+        );
+    }
     return {
         ...builder(),
         ...overrides,
@@ -312,4 +321,3 @@ export function getRegionTransitionDeps() { return createDeps('regionTransition'
 export function getHelpPauseDeps() { return createDeps('helpPause'); }
 export function getWorldCanvasDeps() { return createDeps('worldCanvas'); }
 export function getGameBootDeps() { return createDeps('gameBoot'); }
-
