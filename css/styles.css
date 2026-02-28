@@ -99,9 +99,16 @@
 
 .kw-crit {
   color: #ffcc00;
-  font-weight: 600;
+  font-weight: 700;
   text-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
 }
+
+.kw-heal {
+  color: #44ff88;
+  font-weight: 600;
+}
+
+
 
 .kw-debuff {
   color: #cc88ff;

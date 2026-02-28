@@ -317,16 +317,12 @@ export function getWorldCanvasDeps() {
 export function getGameBootDeps() {
     return {
         ...(_refs.GAME?.getDeps?.() || {}),
-        gameBootUI: _refs.GameBootUI,
-        getGameBootDeps: () => ({
-            ...(_refs.GAME?.getDeps?.() || {}),
-            audioEngine: _refs.AudioEngine,
-            runRules: _refs.RunRules,
-            saveSystem: _refs.SaveSystem,
-            saveSystemDeps: getSaveSystemDeps(),
-            initTitleCanvas: _refs.initTitleCanvas,
-            updateUI: _refs.updateUI,
-            refreshRunModePanel: _refs.refreshRunModePanel,
-        }),
+        audioEngine: _refs.AudioEngine,
+        runRules: _refs.RunRules,
+        saveSystem: _refs.SaveSystem,
+        saveSystemDeps: getSaveSystemDeps(),
+        initTitleCanvas: _refs.initTitleCanvas,
+        updateUI: _refs.updateUI,
+        refreshRunModePanel: _refs.refreshRunModePanel,
     };
 }

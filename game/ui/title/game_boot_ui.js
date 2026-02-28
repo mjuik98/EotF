@@ -33,7 +33,15 @@ export const GameBootUI = {
       try { saveSystem?.loadMeta?.(deps.saveSystemDeps || {}); } catch (e) { console.error('[Boot] loadMeta error:', e); }
       try { runRules?.ensureMeta?.(gs?.meta); } catch (e) { console.error('[Boot] ensureMeta error:', e); }
 
-      deps.initTitleCanvas?.();
+      // 타이틀 캔버스 초기화 (DOM 안정성을 위해 약간의 지연 추가)
+      setTimeout(() => {
+        deps.initTitleCanvas?.();
+        // 초기화 직후 리사이즈 강제 호출로 300x150 방지
+        if (typeof window.resizeTitleCanvas === 'function') {
+          window.resizeTitleCanvas();
+        }
+      }, 100);
+
       try { deps.updateUI?.(); } catch (e) { console.warn('updateUI error:', e); }
       deps.refreshRunModePanel?.();
 

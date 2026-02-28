@@ -241,7 +241,7 @@
       <!-- 하단 액션 버튼 바 — 화면 하단 중앙 -->
       <div class="combat-bottom-bar">
         <div class="combat-chain-inline" id="combatChainInline" style="display:none;">
-          <div class="chain-label">CHAIN</div>
+          <div class="chain-label">연쇄</div>
           <div class="chain-count" id="combatChainCount">0</div>
           <div class="chain-dots" id="combatChainDots">
             <div class="chain-dot"></div>
@@ -252,7 +252,7 @@
           </div>
         </div>
         <div class="combat-actions">
-          <button id="useEchoSkillBtn" class="action-btn action-btn-primary">⚡ Echo 스킬<span
+          <button id="useEchoSkillBtn" class="action-btn action-btn-primary">⚡ 잔향 스킬<span
               class="kbd-hint">E</span></button>
           <button id="combatDrawCardBtn" class="action-btn action-btn-secondary">🃏 드로우</button>
           <button id="endPlayerTurnBtn" class="action-btn action-btn-end">턴 종료<span class="kbd-hint">↵</span></button>
@@ -370,19 +370,18 @@
         </div>
         <div class="hud-stat-row">
           <div class="hud-stat-label-row">
-            <span class="hud-stat-label">⚡ Echo 게이지</span>
+            <span class="hud-stat-label">⚡ 잔향 게이지</span>
             <span class="hud-stat-value" id="hoverEchoText">0 / 100</span>
           </div>
           <div class="bar-track">
             <div class="hud-bar-fill bar-echo" id="hoverEchoBar" style="width:0%"></div>
           </div>
-          <div class="hud-stat-tip">카드를 사용하거나 피해를 받으면 Echo가 충전됩니다. 30/60/100에서 Echo 스킬 등급이 올라갑니다. 100 도달 시 Resonance
-            Burst 보너스!</div>
+          <div class="hud-stat-tip">카드를 사용하거나 피해를 받으면 잔향이 충전됩니다. 30/60/100에서 잔향 스킬 등급이 올라갑니다. 100 도달 시 공명 폭발 보너스!</div>
         </div>
       </div>
 
       <div class="hud-section">
-        <div class="hud-section-title">⛓ Echo Chain</div>
+        <div class="hud-section-title">⛓ 잔향 연쇄</div>
         <div class="hud-chain-row-special">
           <div class="chain-count hud-chain-large-val" id="chainCount">0</div>
           <div class="chain-dots" id="chainDots">
@@ -394,7 +393,7 @@
           </div>
         </div>
         <div class="hud-chain-desc-special">
-          카드 사용마다 체인 +1. 5연속 달성 시 <span style="color:var(--cyan);">Resonance Burst</span> 발동 — 추가 피해+효과. 턴 종료 시 초기화.
+          카드 사용마다 체인 +1. 5연속 달성 시 <span style="color:var(--cyan);">공명 폭발</span> 발동 — 추가 피해+효과. 턴 종료 시 초기화.
         </div>
       </div>
 

@@ -140,7 +140,7 @@ export const CombatStartUI = {
           window.updateEchoSkillBtn();
         }
       } else {
-        echoBtn.textContent = `⚡ Echo 스킬 (${echoVal}/30)`;
+        echoBtn.textContent = `⚡ 잔향 스킬 (${echoVal}/30)`;
       }
       console.log('[CombatStart] Echo button initialized - echo:', echoVal, 'disabled:', echoBtn.disabled, 'text:', echoBtn.textContent);
     }

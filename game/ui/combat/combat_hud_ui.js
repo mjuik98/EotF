@@ -58,7 +58,7 @@ export const CombatHudUI = {
 
       const costEl = doc.createElement('span');
       costEl.className = 'echo-skill-tt-cost';
-      costEl.textContent = `(${t.cost} Echo)`;
+      costEl.textContent = `(${t.cost} 잔향)`;
       starsEl.appendChild(costEl);
 
       const descEl = doc.createElement('div');

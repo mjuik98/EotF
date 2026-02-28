@@ -145,8 +145,9 @@ export const DeckModalUI = {
       el.appendChild(desc);
 
       const type = doc.createElement('div');
-      type.style.cssText = `font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;color:${card.upgraded ? 'var(--cyan)' : typeColor};margin-top:8px;font-weight:bold;`;
-      type.textContent = card.upgraded ? '✦ 강화됨' : card.type;
+      type.style.cssText = `font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;color:${typeColor};margin-top:8px;font-weight:bold;`;
+      type.textContent = card.upgraded ? `${card.type} ✦` : card.type;
+      if (card.upgraded) type.style.color = 'var(--cyan)';
       el.appendChild(type);
 
       cardsEl.appendChild(el);

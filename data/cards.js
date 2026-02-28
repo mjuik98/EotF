@@ -82,12 +82,12 @@ export const CARDS = {
         effect(gs) { gs.dealDamage(26); gs.applyEnemyStatus('stunned', 1); }
     },
     echo_wave: {
-        id: 'echo_wave', name: '잔향파', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 8.', rarity: 'uncommon',
+        id: 'echo_wave', name: '잔향파', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적 피해 8.', rarity: 'uncommon',
         image: 'card_echo_wave.png',
         effect(gs) { gs.dealDamageAll(8); }
     },
     echo_wave_plus: {
-        id: 'echo_wave_plus', name: '잔향파+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 14. 잔향 15 충전.', rarity: 'uncommon', upgraded: true,
+        id: 'echo_wave_plus', name: '잔향파+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적 피해 14. 잔향 15 충전.', rarity: 'uncommon', upgraded: true,
         image: 'card_echo_wave.png',
         effect(gs) { gs.dealDamageAll(14); gs.addEcho(15); }
     },
@@ -102,12 +102,12 @@ export const CARDS = {
         effect(gs) { gs.addEcho(50); }
     },
     soul_rend: {
-        id: 'soul_rend', name: '영혼 강탈', icon: '💀', cost: 3, type: 'ATTACK', desc: '피해 24. 체력 4를 흡수합니다.', rarity: 'uncommon',
+        id: 'soul_rend', name: '영혼 강탈', icon: '💀', cost: 3, type: 'ATTACK', desc: '피해 24. 회복 4.', rarity: 'uncommon',
         image: 'card_soul_rend.png',
         effect(gs) { gs.dealDamage(24); gs.heal(4); }
     },
     soul_rend_plus: {
-        id: 'soul_rend_plus', name: '영혼 강탈+', icon: '💀', cost: 2, type: 'ATTACK', desc: '피해 30. 체력 8을 흡수합니다.', rarity: 'uncommon', upgraded: true,
+        id: 'soul_rend_plus', name: '영혼 강탈+', icon: '💀', cost: 2, type: 'ATTACK', desc: '피해 30. 회복 8.', rarity: 'uncommon', upgraded: true,
         image: 'card_soul_rend.png',
         effect(gs) { gs.dealDamage(30); gs.heal(8); }
     },
@@ -281,7 +281,7 @@ export const CARDS = {
         effect(gs) { gs.addShield(15); gs.addBuff('immune', 2, {}); gs.addLog('🏛️ 성역! 2턴 면역', 'echo'); }
     },
     dark_pact: {
-        id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: '체력을 8 잃습니다. 카드 2장 뽑기.', rarity: 'uncommon',
+        id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 1, type: 'SKILL', desc: '체력 소모 8. 카드 2장 뽑기.', rarity: 'uncommon',
         image: 'card_dark_pact.png',
         effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 8); gs.drawCards(2); gs.markDirty('hud'); }
     },
@@ -297,7 +297,7 @@ export const CARDS = {
         effect(gs) { gs.player.energy += 3; gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); gs.markDirty('hud'); }
     },
     overcharge: {
-        id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '이번 턴에 에너지를 4 얻습니다. 체력을 6 잃습니다. 잔향 30 충전.', rarity: 'rare',
+        id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '이번 턴에 에너지를 4 얻습니다. 체력 소모 6. 잔향 30 충전.', rarity: 'rare',
         image: 'card_overcharge.png',
         effect(gs) { gs.player.energy += 4; gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); gs.markDirty('hud'); }
     },
@@ -318,7 +318,7 @@ export const CARDS = {
         effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('burning', 2); gs.addLog('🔥 화염 검격!', 'echo'); }
     },
     ember_wave: {
-        id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 8. 화염 1턴을 부여합니다.', rarity: 'uncommon',
+        id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적 피해 8. 화염 1턴을 부여합니다.', rarity: 'uncommon',
         image: 'card_flame_slash.png',
         effect(gs) { gs.dealDamageAll(8); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); gs.addLog('🌊 불꽃 파동!', 'echo'); }
     },
@@ -345,7 +345,7 @@ export const CARDS = {
         effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
     void_surge: {
-        id: 'void_surge', name: '공허의 쇄도', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴에 모든 카드의 비용이 1 감소합니다. (최소 0)', rarity: 'rare',
+        id: 'void_surge', name: '공허의 쇄도', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴에 모든 카드의 비용이 1 감소합니다.', rarity: 'rare',
         image: 'card_void_surge.png',
         effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addLog('⚡ 허공 급류: 이번 턴 전 카드 비용 -1!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
@@ -400,7 +400,7 @@ export const CARDS = {
         effect(gs) { gs.addShield(6); gs.addEcho(15); }
     },
     blessing_of_light: {
-        id: 'blessing_of_light', name: '빛의 축복', icon: '☀️', cost: 2, type: 'POWER', desc: '매 턴 시작 시 HP 3을 회복합니다.', rarity: 'uncommon',
+        id: 'blessing_of_light', name: '빛의 축복', icon: '☀️', cost: 2, type: 'POWER', desc: '매 턴 회복 3.', rarity: 'uncommon',
         effect(gs) { gs.addBuff('blessing_of_light', 99, { healPerTurn: 3 }); }
     },
 
@@ -422,7 +422,7 @@ export const CARDS = {
         }
     },
     reckless_swing: {
-        id: 'reckless_swing', name: '무모한 휘두르기', icon: '🪓', cost: 1, type: 'ATTACK', desc: '피해 15. 체력을 3 잃습니다.', rarity: 'common',
+        id: 'reckless_swing', name: '무모한 휘두르기', icon: '🪓', cost: 1, type: 'ATTACK', desc: '피해 15. 체력 소모 3.', rarity: 'common',
         effect(gs) {
             gs.player.hp = Math.max(1, gs.player.hp - 3);
             gs.dealDamage(15);

@@ -26,14 +26,14 @@ export const CONSTANTS = Object.freeze({
       3: { cost: 100, desc: '모든 적에게 피해 40. 방어도 20.', shortDesc: '모든 적 피해 40. 방어도 20.', aoedmg: 40, shield: 20, log: '⚔️ 잔향 폭발! 모든 적 피해 40. 방어도 20.' }
     },
     mage: {
-      1: { cost: 30, desc: '적 약화 2턴. 카드 1장 뽑기. 잔향 10 충전.', shortDesc: '약화 2턴. 카드 뽑기. 잔향 10.', weaken: 2, draw: 1, echo: 10, log: '🔮 예지! 적 약화 2턴. 카드 1장 뽑기. 잔향 10 충전.' },
+      1: { cost: 30, desc: '약화 2턴. 카드 1장 뽑기. 잔향 10.', shortDesc: '약화 2턴. 카드 뽑기. 잔향 10.', weaken: 2, draw: 1, echo: 10, log: '🔮 예지! 약화 2턴. 카드 1장 뽑기. 잔향 10.' },
       2: { cost: 60, desc: '모든 적에게 피해 18. 카드 2장 뽑기.', shortDesc: '모든 적 피해 18. 카드 2장 뽑기.', aoedmg: 18, echo: 15, draw: 2, log: '🔮 잔향파! 모든 적 피해 18. 카드 2장 뽑기.' },
-      3: { cost: 100, desc: '모든 적에게 피해 30. 잔향 30 충전. 카드 3장 뽑기.', shortDesc: '모든 적 피해 30. 카드 3장 뽑기.', aoedmg: 30, echo: 30, draw: 3, log: '🔮 비전 폭풍! 모든 적 피해 30. 잔향 30 충전. 카드 3장 뽑기.' }
+      3: { cost: 100, desc: '모든 적에게 피해 30. 잔향 30. 카드 3장 뽑기.', shortDesc: '모든 적 피해 30. 카드 3장 뽑기.', aoedmg: 30, echo: 30, draw: 3, log: '🔮 비전 폭풍! 모든 적 피해 30. 잔향 30. 카드 3장 뽑기.' }
     },
     hunter: {
-      1: { cost: 30, desc: '22 피해 + 독 1', shortDesc: '22↯ + 독 1', dmg: 22, poison: 1, log: '🗡️ 숨격! 22 피해 + 독 1' },
-      2: { cost: 60, desc: '32 피해 + 은신', shortDesc: '32↯ + 은신', dmg: 32, vanish: 1, log: '🗡️ 기습! 32 + 은신' },
-      3: { cost: 100, desc: '암살 50 피해 + 은신 2턴', shortDesc: '기습 50↯ + 은신 2턴', dmg: 50, vanish: 2, log: '🗡️ 암살! 50 피해 + 은신 2턴' }
+      1: { cost: 30, desc: '피해 22. 독 1.', shortDesc: '피해 22. 독 1.', dmg: 22, poison: 1, log: '🗡️ 숨격! 피해 22. 독 1.' },
+      2: { cost: 60, desc: '피해 32. 은신 1턴.', shortDesc: '피해 32. 은신 1턴.', dmg: 32, vanish: 1, log: '🗡️ 기습! 피해 32. 은신 1턴.' },
+      3: { cost: 100, desc: '피해 50. 은신 2턴.', shortDesc: '피해 50. 은신 2턴.', dmg: 50, vanish: 2, log: '🗡️ 암살! 피해 50. 은신 2턴.' }
     },
     paladin: {
       1: { cost: 30, desc: '피해 22. 회복 8.', shortDesc: '피해 22. 회복 8.', dmg: 22, heal: 8, log: '✨ 신벌! 피해 22. 회복 8.' },
@@ -41,14 +41,14 @@ export const CONSTANTS = Object.freeze({
       3: { cost: 100, desc: '모든 적에게 피해 45. 회복 25.', shortDesc: '모든 적 피해 45. 회복 25.', aoedmg: 45, heal: 25, log: '✨ 빛의 심판! 모든 적 피해 45. 회복 25.' }
     },
     berserker: {
-      1: { cost: 30, desc: '25 피해 + 위력 영구 성장(+1)', shortDesc: '25↯ + 성장(+1)', dmg: 25, atkGrowth: 1, log: '😡 광분! 25 + 공격력 +1 성장' },
-      2: { cost: 60, desc: '45 피해 + 위력 영구 성장(+3)', shortDesc: '45↯ + 성장(+3)', dmg: 45, atkGrowth: 3, log: '😡 피의 분노! 45 + 공격력 +3 성장' },
-      3: { cost: 100, desc: '전체 55 피해 + 위력 영구 성장(+7)', shortDesc: '전체 55↯ + 성장(+7)', aoedmg: 55, atkGrowth: 7, log: '😡 끝없는 광기! 전체 55 + 공격력 +7 영구 성장' }
+      1: { cost: 30, desc: '피해 25. 공격력 1 성장.', shortDesc: '피해 25. 성장 +1.', dmg: 25, atkGrowth: 1, log: '😡 광분! 피해 25. 공격력 1 영구 성장.' },
+      2: { cost: 60, desc: '피해 45. 공격력 3 성장.', shortDesc: '피해 45. 성장 +3.', dmg: 45, atkGrowth: 3, log: '😡 피의 분노! 피해 45. 공격력 3 영구 성장.' },
+      3: { cost: 100, desc: '모든 적에게 피해 55. 공격력 7 성장.', shortDesc: '모든 적 피해 55. 성장 +7.', aoedmg: 55, atkGrowth: 7, log: '😡 끝없는 광기! 모든 적 피해 55. 공격력 7 영구 성장.' }
     },
     shielder: {
       1: { cost: 30, desc: '방어도 45.', shortDesc: '방어도 45.', shield: 45, log: '🧱 강철 방패! 방어도 45.' },
       2: { cost: 60, desc: '방어도 55. 모든 적 약화 3.', shortDesc: '방어도 55. 약화 3.', shield: 55, weaken: 3, log: '🧱 철벽 요새! 방어도 55. 모든 적 약화 3.' },
-      3: { cost: 100, desc: '방어도 70. 1턴 동안 모든 피해 면역.', shortDesc: '방어도 70. 면역.', shield: 70, immune: 1, log: '🧱 신의 아이기스! 방어도 70. 1턴 동안 피해 면역.' }
+      3: { cost: 100, desc: '방어도 70. 1턴 동안 모든 피해 면역.', shortDesc: '방어도 70. 면역.', shield: 70, immune: 1, log: '🧱 신의 아이기스! 방어도 70. 1턴 동안 모든 피해 면역.' }
     },
   }),
 

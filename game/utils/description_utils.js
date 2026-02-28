@@ -13,9 +13,14 @@ export const DescriptionUtils = {
         // 3. 주요 게임 시스템 키워드
         const keywords = {
             '피해': 'kw-dmg',
+            '회복': 'kw-heal',
+            '방어도': 'kw-shield',
             '방어막': 'kw-shield',
+            '잔향': 'kw-echo',
+            '충전': 'kw-echo',
             'Echo': 'kw-echo',
             'Chain': 'kw-chain',
+            '연쇄': 'kw-chain',
             '에너지': 'kw-energy',
             '침묵': 'kw-silence',
             '모멘텀': 'kw-momentum',
@@ -24,6 +29,8 @@ export const DescriptionUtils = {
             '골드': 'kw-gold',
             '드로우': 'kw-draw',
             '소진': 'kw-exhaust',
+            '소각': 'kw-exhaust',
+            '소모': 'kw-exhaust',
             '강화': 'kw-upgrade',
             '크리티컬': 'kw-crit',
             '치명타': 'kw-crit',
@@ -36,7 +43,6 @@ export const DescriptionUtils = {
             '버스트': 'kw-burst',
             'Burst': 'kw-burst',
             'Resonance': 'kw-special',
-            '소각': 'kw-exhaust',
             '에너지 -': 'kw-energy',
             '에너지-': 'kw-energy'
         };

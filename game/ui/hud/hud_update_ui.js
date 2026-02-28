@@ -538,11 +538,11 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ Echo 스킬 (${echoValue}/30)`;
+          echoBtn.textContent = `⚡ 잔향 스킬 (${echoValue}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ Echo 스킬 ✓ (${echoValue})`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✓ (${echoValue})`;
         }
       }
     }
@@ -745,11 +745,11 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ Echo 스킬 (${echo}/30)`;
+          echoBtn.textContent = `⚡ 잔향 스킬 (${echo}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ Echo 스킬 ✓ (${echo})`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✓ (${echo})`;
         }
       }
     }
