@@ -15,6 +15,7 @@ const INTENT_DESCRIPTIONS = {
   poison: { type: '중독', desc: '지속적인 독 피해를 줍니다.' },
   weaken: { type: '약화', desc: '공격력을 감소시킵니다.' },
   debuff: { type: '약화 효과', desc: '해로운 상태이상을 부여합니다.' },
+  stun: { type: '기절', desc: '다음 행동을 건너뜁니다.' },
   mark: { type: '표식', desc: '추가 피해를 받도록 표식을 남깁니다.' },
   burning: { type: '화상', desc: '지속적인 화상 피해를 줍니다.' },
   heal: { type: '치유', desc: '체력을 회복합니다.' },
@@ -104,7 +105,10 @@ function _resolveIntentDescription(intent) {
     if (text.includes(key)) return info;
   }
   if ((intent?.dmg || 0) > 0) return INTENT_DESCRIPTIONS.attack;
-  return { type: _formatIntentLabel(intent), desc: 'Shows the enemy\'s next intent.' };
+  const rawLabel = String(intent?.intent || intent?.type || '의도')
+    .replace(/<[^>]*>/g, '')
+    .trim();
+  return { type: rawLabel || '의도', desc: '적의 다음 행동 정보입니다.' };
 }
 
 function _enemyHpColor(pct) {
@@ -215,7 +219,7 @@ export const CombatUI = {
 
     let intent;
     if (enemy.statusEffects?.stunned > 0) {
-      intent = { type: 'stunned', intent: '湲곗젅', dmg: 0, effect: 'stunned' };
+      intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
     } else {
       try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
     }
@@ -238,7 +242,7 @@ export const CombatUI = {
 
     const title = doc.createElement('div');
     title.className = 'itt-title';
-    title.textContent = `${icon} ${label}`;
+    title.innerHTML = `${icon} ${label}`;
 
     const type = doc.createElement('div');
     type.className = 'itt-type';
@@ -312,7 +316,7 @@ export const CombatUI = {
         const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
         let intent;
         if (e.statusEffects?.stunned > 0) {
-          intent = { type: 'stunned', intent: '湲곗젅', dmg: 0, effect: 'stunned' };
+          intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
         } else {
           try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
         }
@@ -348,7 +352,7 @@ export const CombatUI = {
         sprite.className = 'enemy-sprite';
         const spriteIcon = doc.createElement('span');
         spriteIcon.style.fontSize = '64px';
-        spriteIcon.textContent = e.icon || '?뫞';
+        spriteIcon.textContent = e.icon || '❓';
         sprite.appendChild(spriteIcon);
         card.appendChild(sprite);
 
@@ -358,7 +362,7 @@ export const CombatUI = {
         if (e.isBoss) {
           const phase = doc.createElement('span');
           phase.style.color = 'var(--gold)';
-          phase.textContent = ` ??P${e.phase || 1}`;
+          phase.textContent = ` · P${e.phase || 1}`;
           name.appendChild(phase);
         }
         card.appendChild(name);
@@ -403,7 +407,7 @@ export const CombatUI = {
         const hpText = doc.createElement('div');
         hpText.id = `enemy_hptext_${i}`;
         hpText.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);";
-        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` ?썳截?{e.shield}` : ''}`;
+        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어도 ${e.shield})` : ''}`;
         card.appendChild(hpText);
 
         const intentEl = doc.createElement('div');
@@ -416,12 +420,14 @@ export const CombatUI = {
 
         if (gs.combat.turn <= 0) {
           intentIcon = '❓';
-          intentLabel = '?????놁쓬';
+          intentLabel = '의도 없음';
           intentDmgVal = 0;
         }
 
         const iconSpan = doc.createElement('span'); iconSpan.textContent = intentIcon;
-        const labelSpan = doc.createElement('span'); labelSpan.textContent = intentIcon + ' ' + intentLabel;
+        const labelSpan = doc.createElement('span');
+        // HTML 태그가 포함되어 있을 수 있으므로 innerHTML 사용하되, description_utils의 highlight 등을 고려
+        labelSpan.innerHTML = intentIcon + ' ' + intentLabel;
         intentEl.append(labelSpan);
         if (intentDmgVal > 0) {
           const dmgDiv = doc.createElement('div');
@@ -465,26 +471,26 @@ export const CombatUI = {
           fill.style.width = `${hpPct}%`;
           if (!e.isBoss) fill.style.background = _enemyHpColor(hpPct);
         }
-        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` ?썳截?{e.shield}` : ''}`;
+        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어도 ${e.shield})` : ''}`;
 
         if (intentEl) {
           let intent;
           if (e.statusEffects?.stunned > 0) {
-            intent = { type: 'stunned', intent: '湲곗젅', dmg: 0, effect: 'stunned' };
+            intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
           } else {
             try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
           }
           let intentIcon = _getIntentIcon(intent);
           let intentLabel = _formatIntentLabel(intent);
 
-          intentEl.textContent = '';
+          intentEl.innerHTML = '';
           const iconSpan = doc.createElement('span');
           iconSpan.className = 'enemy-intent-icon';
           iconSpan.textContent = intentIcon;
 
           const labelSpan = doc.createElement('span');
           labelSpan.className = 'enemy-intent-label';
-          labelSpan.textContent = intentLabel;
+          labelSpan.innerHTML = intentLabel;
 
           const dmgDiv = doc.createElement('div');
           dmgDiv.className = 'enemy-intent-dmg';
@@ -567,7 +573,7 @@ export const CombatUI = {
       fill.style.width = `${hpPct}%`;
       if (!enemy.isBoss) fill.style.background = _enemyHpColor(hpPct);
     }
-    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` ?썳截?{enemy.shield}` : ''}`;
+    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (방어도 ${enemy.shield})` : ''}`;
     if (card && enemy.hp <= 0) {
       card.style.opacity = '0.3';
       card.style.filter = 'grayscale(1)';
@@ -583,5 +589,4 @@ export const CombatUI = {
     renderCombatEnemies: (deps) => CombatUI.renderCombatEnemies(deps),
   }
 };
-
 

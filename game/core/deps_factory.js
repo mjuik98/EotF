@@ -54,6 +54,8 @@ const CONTRACT_BUILDERS = Object.freeze({
         renderCombatCards: _refs.renderCombatCards,
         updateStatusDisplay: _refs.updateStatusDisplay,
         updateClassSpecialUI: _refs.updateClassSpecialUI,
+        updateCombatEnergy: (gs) => _refs.HudUpdateUI?.updateCombatEnergy?.(gs, _refs.GAME?.getDeps?.() || {}),
+        hudUpdateUI: _refs.HudUpdateUI,
         updateUI: _refs.updateUI,
         showEchoBurstOverlay: _refs.showEchoBurstOverlay,
         showDmgPopup: _refs.showDmgPopup,

@@ -11,6 +11,7 @@ import { ENEMIES } from './enemies.js';
 import { REGIONS, START_DECKS } from './regions.js';
 import { CLASS_METADATA } from './class_metadata.js';
 import { EVENTS, STORY_FRAGMENTS, DEATH_QUOTES } from './events_data.js';
+import { INSCRIPTIONS, INSCRIPTION_SYNERGIES } from './inscriptions.js';
 
 export const DATA = {
   assets: ASSETS,
@@ -23,7 +24,9 @@ export const DATA = {
   classes: CLASS_METADATA,
   events: EVENTS,
   storyFragments: STORY_FRAGMENTS,
-  deathQuotes: DEATH_QUOTES
+  deathQuotes: DEATH_QUOTES,
+  inscriptions: INSCRIPTIONS,
+  synergies: INSCRIPTION_SYNERGIES
 };
 
 // 브라우저 환경 전역 노출 (하위 호환 및 전역 상태 참조용)
@@ -42,5 +45,7 @@ export {
   START_DECKS,
   EVENTS,
   STORY_FRAGMENTS,
-  DEATH_QUOTES
+  DEATH_QUOTES,
+  INSCRIPTIONS,
+  INSCRIPTION_SYNERGIES
 };

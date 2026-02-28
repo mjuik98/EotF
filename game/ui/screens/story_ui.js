@@ -1,3 +1,5 @@
+import { InscriptionSystem } from '../../systems/inscription_system.js';
+
 function _getGS(deps) {
   return deps?.gs;
 }
@@ -31,6 +33,17 @@ export const StoryUI = {
     if (!frag || gs.meta.storyPieces.includes(frag.id)) return;
     gs.meta.storyPieces.push(frag.id);
     this.displayFragment(frag, deps);
+    if (gs.meta.storyPieces.length >= 5) {
+      if (InscriptionSystem.getInscriptionLevel(gs, 'echo_memory') === 0 && data.inscriptions?.echo_memory) {
+        InscriptionSystem.setInscriptionLevel(gs, 'echo_memory', 1);
+        setTimeout(() => {
+          if (typeof deps.showWorldMemoryNotice === 'function') {
+            deps.showWorldMemoryNotice('새로운 각인 해금: 잔향의 기억');
+          }
+        }, 300);
+      }
+    }
+
     if (gs.meta.storyPieces.length >= 8 && !gs.meta._hiddenEndingHinted) {
       gs.meta._hiddenEndingHinted = true;
       setTimeout(() => {
@@ -121,6 +134,15 @@ export const StoryUI = {
       const foot = doc.createElement('div');
       foot.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;";
       foot.textContent = `TRUE ENDING UNLOCKED — ${gs.meta.storyPieces.length}/10 fragments`;
+
+      const data = _getData(deps);
+      if (InscriptionSystem.getInscriptionLevel(gs, 'void_heritage') === 0 && data?.inscriptions?.void_heritage) {
+        InscriptionSystem.setInscriptionLevel(gs, 'void_heritage', 1);
+        const unlockMsg = doc.createElement('div');
+        unlockMsg.style.cssText = "font-family:'Cinzel',serif;font-size:11px;color:var(--cyan);margin-top:8px;animation:fadeInUp 1s ease 4s both;opacity:0;";
+        unlockMsg.textContent = '궁극의 각인 해금: 공허의 유산';
+        foot.appendChild(unlockMsg);
+      }
 
       el.append(h1, h2, body, btnCont, foot);
     } else {

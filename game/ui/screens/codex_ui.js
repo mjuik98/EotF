@@ -41,9 +41,9 @@ export const CodexUI = {
   setCodexTab(tab, deps = {}) {
     _codexTab = tab;
     const doc = _getDoc(deps);
-    const tabs = ['enemies', 'cards', 'items'];
-    const colors = { enemies: 'var(--danger)', cards: 'var(--echo)', items: 'var(--gold)' };
-    const bgColors = { enemies: 'rgba(255,51,102,0.15)', cards: 'rgba(123,47,255,0.15)', items: 'rgba(240,180,41,0.1)' };
+    const tabs = ['enemies', 'cards', 'items', 'inscriptions'];
+    const colors = { enemies: 'var(--danger)', cards: 'var(--echo)', items: 'var(--gold)', inscriptions: 'var(--cyan)' };
+    const bgColors = { enemies: 'rgba(255,51,102,0.15)', cards: 'rgba(123,47,255,0.15)', items: 'rgba(240,180,41,0.1)', inscriptions: 'rgba(0,255,204,0.15)' };
     tabs.forEach(t => {
       const btn = doc.getElementById(`codexTab_${t}`);
       if (!btn) return;
@@ -72,11 +72,15 @@ export const CodexUI = {
     const totalEnemies = Object.keys(data.enemies).length;
     const totalCards = Object.keys(data.cards).length;
     const totalItems = Object.keys(data.items).length;
+    const totalInscriptions = data.inscriptions ? Object.values(data.inscriptions).filter(it => !it.isHidden || gs.meta.inscriptions[it.id]).length : 0;
+
     const seenEnemies = new Set(Array.from(codex.enemies).filter(id => data.enemies[id])).size;
     const seenCards = new Set(Array.from(codex.cards).filter(id => data.cards[id])).size;
     const seenItems = new Set(Array.from(codex.items).filter(id => data.items[id])).size;
-    const totalAll = totalEnemies + totalCards + totalItems;
-    const seenAll = seenEnemies + seenCards + seenItems;
+    const seenInscriptions = data.inscriptions ? Object.keys(data.inscriptions).filter(id => gs.meta.inscriptions[id]).length : 0;
+
+    const totalAll = totalEnemies + totalCards + totalItems + totalInscriptions;
+    const seenAll = seenEnemies + seenCards + seenItems + seenInscriptions;
     const discoveryPct = totalAll > 0 ? Math.round((seenAll / totalAll) * 100) : 0;
 
     if (progressEl) {
@@ -107,6 +111,8 @@ export const CodexUI = {
         createPart('🃏', '카드', seenCards, totalCards, 'var(--echo)'),
         sep(),
         createPart('💎', '유물', seenItems, totalItems, 'var(--gold)'),
+        sep(),
+        createPart('✨', '각인', seenInscriptions, totalInscriptions, 'var(--cyan)'),
         sep()
       );
 
@@ -429,6 +435,85 @@ export const CodexUI = {
         section.appendChild(grid);
         contentEl.appendChild(section);
       });
+    } else if (_codexTab === 'inscriptions' && data.inscriptions) {
+      const section = doc.createElement('div');
+      section.style.marginBottom = '24px';
+
+      const header = doc.createElement('div');
+      header.style.cssText = `font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--cyan);margin-bottom:10px;border-bottom:1px solid rgba(0,255,204,0.22);padding-bottom:7px;`;
+      header.textContent = `◈ 유산과 기억 `;
+      const stats = doc.createElement('span');
+      stats.style.cssText = 'opacity:0.5;font-size:9px;';
+      stats.textContent = `(${seenInscriptions}/${totalInscriptions})`;
+      header.appendChild(stats);
+      section.appendChild(header);
+
+      const grid = doc.createElement('div');
+      grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+
+      const allInscriptions = Object.values(data.inscriptions).filter(it => !it.isHidden || gs.meta.inscriptions[it.id]);
+
+      allInscriptions.forEach(itemInfo => {
+        const level = Number(gs.meta.inscriptions[itemInfo.id]) || 0;
+        const seen = level > 0;
+        const iCard = doc.createElement('div');
+        iCard.style.cssText = `background:var(--glass);border:1px solid ${seen ? 'rgba(0,255,204,0.35)' : 'rgba(60,60,80,0.3)'};border-radius:16px;padding:16px 14px;width:160px;min-height:220px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all 0.15s;`;
+
+        iCard.onmouseenter = () => {
+          iCard.style.transform = 'translateY(-3px)';
+          iCard.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+        };
+        iCard.onmouseleave = () => {
+          iCard.style.transform = '';
+          iCard.style.boxShadow = '';
+        };
+
+        const iconCont = doc.createElement('div');
+        iconCont.style.cssText = 'width:100%;height:60px;display:flex;align-items:center;justify-content:center;margin:6px 0;';
+        const icon = doc.createElement('div');
+        if (seen) {
+          icon.style.fontSize = '42px';
+          icon.textContent = itemInfo.icon;
+        } else {
+          icon.style.cssText = 'font-size:36px;filter:grayscale(1) brightness(0.2);';
+          icon.textContent = '❔';
+        }
+        iconCont.appendChild(icon);
+        iCard.appendChild(iconCont);
+
+        const name = doc.createElement('div');
+        name.style.cssText = `font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${seen ? 'var(--white)' : 'var(--text-dim)'};text-align:center;line-height:1.3;`;
+        name.textContent = seen ? itemInfo.name : '알 수 없는 각인';
+        iCard.appendChild(name);
+
+        if (seen) {
+          const desc = doc.createElement('div');
+          desc.style.cssText = 'font-size:11px;color:var(--text);text-align:center;line-height:1.6;flex:1;';
+          if (window.DescriptionUtils) {
+            desc.innerHTML = window.DescriptionUtils.highlight(itemInfo.desc);
+          } else if (typeof DescriptionUtils !== 'undefined' && DescriptionUtils.highlight) {
+            desc.innerHTML = DescriptionUtils.highlight(itemInfo.desc);
+          } else {
+            desc.textContent = itemInfo.desc;
+          }
+          iCard.appendChild(desc);
+
+          const rTag = doc.createElement('div');
+          rTag.style.cssText = `font-size:11px;color:var(--cyan);font-family:'Cinzel',serif;margin-top:auto;opacity:0.9;font-weight:bold;`;
+          rTag.textContent = `Lv.${level}${itemInfo.maxLevel ? ` / ${itemInfo.maxLevel}` : ''}`;
+          iCard.appendChild(rTag);
+        } else {
+          const hint = doc.createElement('div');
+          hint.style.cssText = 'font-size:10px;color:var(--text-dim);text-align:center;margin-top:auto;';
+          hint.textContent = itemInfo.isHidden ? '조건을 만족하면 해금' : '사망 시 조각으로 해금';
+          iCard.appendChild(hint);
+        }
+
+        grid.appendChild(iCard);
+      });
+
+      section.appendChild(grid);
+      contentEl.appendChild(section);
     }
   },
 };

@@ -1,3 +1,5 @@
+import { InscriptionSystem } from '../../systems/inscription_system.js';
+
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -131,37 +133,108 @@ export const RunModeUI = {
 
   refreshInscriptions(deps = {}) {
     const gs = deps.gs;
-    if (!gs?.meta) return;
+    const data = deps.data || window.DATA;
+    if (!gs?.meta || !data?.inscriptions) return;
     const doc = _getDoc(deps);
     const row = doc.getElementById('inscriptionRow');
     const container = doc.getElementById('inscriptionToggles');
     if (!row || !container) return;
 
+    if (!gs.meta.runConfig) gs.meta.runConfig = { disabledInscriptions: [] };
+    if (!gs.meta.runConfig.disabledInscriptions) gs.meta.runConfig.disabledInscriptions = [];
+
     const insc = gs.meta.inscriptions || {};
-    const hasAny = Object.values(insc).some(v => v !== undefined);
-    if (!hasAny) {
+    const earnedInsc = Object.entries(insc).filter(([k, v]) => Number(v) > 0);
+
+    if (earnedInsc.length === 0) {
       row.style.display = 'none';
       return;
     }
 
     row.style.display = 'flex';
-    const labels = { echo_boost: '⚡Echo+', resilience: '🛡️HP+', fortune: '💰Gold+' };
+    row.style.flexDirection = 'column';
+    row.style.alignItems = 'flex-start';
     container.textContent = '';
     const frag = doc.createDocumentFragment();
-    Object.entries(insc).forEach(([key, val]) => {
+
+    const disableAll = doc.createElement('button');
+    const allDisabled = earnedInsc.every(([k]) => gs.meta.runConfig.disabledInscriptions.includes(k));
+    disableAll.className = `run-mode-pill ${allDisabled ? 'active' : ''}`;
+    disableAll.textContent = '각인 없이 시작';
+    disableAll.style.marginBottom = '12px';
+    disableAll.onclick = () => {
+      if (allDisabled) {
+        gs.meta.runConfig.disabledInscriptions = [];
+      } else {
+        gs.meta.runConfig.disabledInscriptions = earnedInsc.map(([k]) => k);
+      }
+      this.refreshInscriptions(deps);
+      if (typeof deps.saveMeta === 'function') deps.saveMeta();
+    };
+    frag.appendChild(disableAll);
+
+    const togglesRow = doc.createElement('div');
+    togglesRow.className = 'inscription-toggles-container';
+    togglesRow.style.display = 'flex';
+    togglesRow.style.flexWrap = 'wrap';
+
+    earnedInsc.forEach(([key, val]) => {
+      const def = data.inscriptions[key];
+      if (!def) return;
+      const level = Number(val);
+      const disabled = gs.meta.runConfig.disabledInscriptions.includes(key);
       const pill = doc.createElement('div');
-      pill.className = `inscription-pill ${val ? 'active' : ''}`;
-      pill.textContent = labels[key] || key;
+      pill.className = `inscription-pill ${disabled ? '' : 'active'}`;
+      pill.innerHTML = `${def.icon} ${def.name} <span style="opacity:0.7;font-size:0.8em;">Lv.${level}</span>`;
+      pill.title = def.levels[Math.min(level, def.maxLevel) - 1]?.desc || def.desc;
       pill.onclick = () => this.toggleInscription(key, deps);
-      frag.appendChild(pill);
+      togglesRow.appendChild(pill);
     });
+    frag.appendChild(togglesRow);
+
+    if (InscriptionSystem?.getActiveSynergies) {
+      // 임시 적용된 gs를 위해 깊은 복사 혹은 기존 로직 호출
+      // 여기서 InscriptionSystem 은 현재 gs의 상태 (토글 반영 등) 를 기준으로 시너지를 체크
+      const synergies = InscriptionSystem.getActiveSynergies(gs, data);
+      if (synergies.length > 0) {
+        const synRow = doc.createElement('div');
+        synRow.style.marginTop = '12px';
+        synRow.style.display = 'flex';
+        synRow.style.gap = '8px';
+        synRow.style.flexWrap = 'wrap';
+
+        const synTitle = doc.createElement('div');
+        synTitle.style.cssText = 'width:100%; font-size:10px; color:var(--text-dim); margin-bottom:4px;';
+        synTitle.textContent = '활성 시너지';
+        synRow.appendChild(synTitle);
+
+        synergies.forEach(({ syn }) => {
+          const badge = doc.createElement('div');
+          badge.style.cssText = 'background:rgba(0,255,204,0.1); border:1px solid var(--cyan); border-radius:12px; padding:4px 10px; font-size:10px; color:var(--cyan);';
+          badge.textContent = `✦ ${syn.name}`;
+          badge.title = syn.desc;
+          synRow.appendChild(badge);
+        });
+        frag.appendChild(synRow);
+      }
+    }
+
     container.appendChild(frag);
   },
 
   toggleInscription(key, deps = {}) {
     const gs = deps.gs;
-    if (!gs?.meta?.inscriptions) return;
-    gs.meta.inscriptions[key] = !gs.meta.inscriptions[key];
+    if (!gs?.meta) return;
+    if (!gs.meta.runConfig) gs.meta.runConfig = { disabledInscriptions: [] };
+    if (!gs.meta.runConfig.disabledInscriptions) gs.meta.runConfig.disabledInscriptions = [];
+
+    const arr = gs.meta.runConfig.disabledInscriptions;
+    const idx = arr.indexOf(key);
+    if (idx >= 0) {
+      arr.splice(idx, 1);
+    } else {
+      arr.push(key);
+    }
     this.refreshInscriptions(deps);
     if (typeof deps.saveMeta === 'function') deps.saveMeta();
   },

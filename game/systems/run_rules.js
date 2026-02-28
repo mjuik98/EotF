@@ -79,7 +79,10 @@ export const RunRules = {
     }
 
     if (!meta.runConfig || typeof meta.runConfig !== 'object') {
-      meta.runConfig = { ascension: 0, endless: false, blessing: 'none', curse: 'none' };
+      meta.runConfig = { ascension: 0, endless: false, blessing: 'none', curse: 'none', disabledInscriptions: [] };
+    }
+    if (!Array.isArray(meta.runConfig.disabledInscriptions)) {
+      meta.runConfig.disabledInscriptions = [];
     }
     if (typeof meta.runConfig.endless !== 'boolean' && typeof meta.runConfig.endlessMode === 'boolean') {
       meta.runConfig.endless = meta.runConfig.endlessMode;

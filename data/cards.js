@@ -23,7 +23,7 @@ export const UPGRADE_MAP = {
     'silent_stab': 'silent_stab_plus', 'vanish': 'vanish_plus',
     'surge': 'surge_plus',
     'flame_slash': 'ember_wave',
-    'echo_tide': 'void_surge',
+    'echo_tide': 'echo_tide_plus',
     'tempo_strike': 'tempo_strike_plus',
     'holy_strike': 'holy_strike_plus',
     'blood_fury': 'blood_fury_plus',
@@ -356,6 +356,11 @@ export const CARDS = {
         id: 'echo_tide', name: '잔향의 조류', icon: '🌀', cost: 0, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -1. 잔향 10 충전.', rarity: 'uncommon',
         image: 'card_echo_tide.png',
         effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(10); gs.addLog('🌀 잔향의 조류: 이번 턴 전 카드 비용 -1!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
+    },
+    echo_tide_plus: {
+        id: 'echo_tide_plus', name: '잔향의 조류+', icon: '🌀', cost: 0, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -1. 잔향 20 충전.', rarity: 'uncommon', upgraded: true,
+        image: 'card_echo_tide.png',
+        effect(gs) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs.addEcho(20); gs.addLog('🌀 잔향의 조류+: 이번 턴 전 카드 비용 -1!', 'echo'); gs.markDirty('hand'); gs.markDirty('hud'); }
     },
     void_surge: {
         id: 'void_surge', name: '공허의 쇄도', icon: '⚡', cost: 1, type: 'SKILL', desc: '이번 턴 모든 카드 비용 -1.', rarity: 'rare',

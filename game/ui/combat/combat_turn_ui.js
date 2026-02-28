@@ -179,6 +179,10 @@ export const CombatTurnUI = {
       deps.updateCombatEnergy(gs);
     } else if (typeof deps.hudUpdateUI?.updateCombatEnergy === 'function') {
       deps.hudUpdateUI.updateCombatEnergy(gs);
+    } else if (window.HudUpdateUI?.updateCombatEnergy) {
+      window.HudUpdateUI.updateCombatEnergy(gs);
+    } else if (window.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
+      window.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
     }
 
     deps.runRules?.onTurnStart?.(gs);
@@ -205,6 +209,17 @@ export const CombatTurnUI = {
     deps.renderCombatCards?.();
     deps.renderCombatEnemies?.();
     deps.updateUI?.();
+
+    // 최종 동기화 (애니메이션 등 이후 버튼 상태 확정)
+    setTimeout(() => {
+      if (typeof deps.updateCombatEnergy === 'function') {
+        deps.updateCombatEnergy(gs);
+      } else if (window.HudUpdateUI?.updateCombatEnergy) {
+        window.HudUpdateUI.updateCombatEnergy(gs);
+      } else if (window.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
+        window.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
+      }
+    }, 100);
   },
 
   // ── 유틸: UI 액션 디스패치 ──
@@ -234,6 +249,13 @@ export const CombatTurnUI = {
     const result = TurnManager.processPlayerStatusTicks(gs, {
       shuffleArrayFn: deps.shuffleArray,
     });
+
+    if (window.HudUpdateUI?.updateCombatEnergy) {
+      window.HudUpdateUI.updateCombatEnergy(gs);
+    } else if (window.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
+      window.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
+    }
+
     deps.updateStatusDisplay?.();
     deps.updateUI?.();
     return result.alive;
