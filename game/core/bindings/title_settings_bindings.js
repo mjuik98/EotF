@@ -90,24 +90,39 @@ export function createTitleSettingsBindings(M, fns) {
         let val = parseInt(v); if (isNaN(val)) val = 0;
         val = Math.max(0, Math.min(100, val));
         M.AudioEngine?.setVolume?.(val / 100);
-        document.querySelectorAll('#volMasterVal').forEach(el => { if (el) el.textContent = val + '%'; });
-        document.querySelectorAll('#volMasterSlider, #volMaster').forEach(el => { if (el) el.style.setProperty('--fill-percent', val + '%'); });
+        document.querySelectorAll('#volMasterVal, #volMasterSliderVal').forEach(el => { if (el) el.textContent = val + '%'; });
+        document.querySelectorAll('#volMasterSlider, #volMaster').forEach(el => {
+            if (el) {
+                el.value = val;
+                el.style.setProperty('--fill-percent', val + '%');
+            }
+        });
         M.GameInit?.saveVolumes?.(M.AudioEngine);
     };
     fns.setSfxVolume = (v) => {
         let val = parseInt(v); if (isNaN(val)) val = 0;
         val = Math.max(0, Math.min(100, val));
         M.AudioEngine?.setSfxVolume?.(val / 100);
-        document.querySelectorAll('#volSfxVal').forEach(el => { if (el) el.textContent = val + '%'; });
-        document.querySelectorAll('#volSfxSlider, #volSfx').forEach(el => { if (el) el.style.setProperty('--fill-percent', val + '%'); });
+        document.querySelectorAll('#volSfxVal, #volSfxSliderVal').forEach(el => { if (el) el.textContent = val + '%'; });
+        document.querySelectorAll('#volSfxSlider, #volSfx').forEach(el => {
+            if (el) {
+                el.value = val;
+                el.style.setProperty('--fill-percent', val + '%');
+            }
+        });
         M.GameInit?.saveVolumes?.(M.AudioEngine);
     };
     fns.setAmbientVolume = (v) => {
         let val = parseInt(v); if (isNaN(val)) val = 0;
         val = Math.max(0, Math.min(100, val));
         M.AudioEngine?.setAmbientVolume?.(val / 100);
-        document.querySelectorAll('#volAmbientVal').forEach(el => { if (el) el.textContent = val + '%'; });
-        document.querySelectorAll('#volAmbientSlider, #volAmbient').forEach(el => { if (el) el.style.setProperty('--fill-percent', val + '%'); });
+        document.querySelectorAll('#volAmbientVal, #volAmbientSliderVal').forEach(el => { if (el) el.textContent = val + '%'; });
+        document.querySelectorAll('#volAmbientSlider, #volAmbient').forEach(el => {
+            if (el) {
+                el.value = val;
+                el.style.setProperty('--fill-percent', val + '%');
+            }
+        });
         M.GameInit?.saveVolumes?.(M.AudioEngine);
     };
 }

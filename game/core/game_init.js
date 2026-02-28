@@ -38,9 +38,9 @@ export const GameInit = {
         const s = Math.round(vol.sfx * 100);
         const a = Math.round(vol.ambient * 100);
         const doc = document;
-        doc.querySelectorAll('#volMasterVal').forEach(el => el.textContent = m + '%');
-        doc.querySelectorAll('#volSfxVal').forEach(el => el.textContent = s + '%');
-        doc.querySelectorAll('#volAmbientVal').forEach(el => el.textContent = a + '%');
+        doc.querySelectorAll('#volMasterVal, #volMasterSliderVal').forEach(el => el.textContent = m + '%');
+        doc.querySelectorAll('#volSfxVal, #volSfxSliderVal').forEach(el => el.textContent = s + '%');
+        doc.querySelectorAll('#volAmbientVal, #volAmbientSliderVal').forEach(el => el.textContent = a + '%');
         doc.querySelectorAll('#volMasterSlider').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
         doc.querySelectorAll('#volSfxSlider').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
         doc.querySelectorAll('#volAmbientSlider').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });

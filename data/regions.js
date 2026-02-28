@@ -16,7 +16,7 @@ export const REGIONS = [
         boss: ['silent_tyrant', 'clockwork_emperor']
     },
     {
-        id: 2, name: '기억의 미궁', rule: '망각의 안개', ruleDesc: "망각의 안개가 모든 것을 앗아갑니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 매 턴 시작 시 패에 있는 무작위 카드 1장이 안개 속으로 영구히 소실(소각)됩니다.</span>", quote: '"잊혀진 것들이 이곳에 모인다."', floors: 5,
+        id: 2, name: '기억의 미궁', rule: '망각의 안개', ruleDesc: "망각의 안개가 모든 것을 앗아갑니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 매 턴 시작 시 패에 있는 무작위 카드 1장이 안개 속으로 영구히 소멸(소각)됩니다.</span>", quote: '"잊혀진 것들이 이곳에 모인다."', floors: 5,
         enemies: ['memory_specter', 'nightmare_hound', 'phantom_soldier', 'memory_thief', 'mirror_shade', 'labyrinth_shade'],
         elites: ['elite_memory_lich', 'elite_maze_master', 'elite_soul_reaper'],
         boss: ['memory_sovereign', 'memory_weaver']
@@ -28,7 +28,7 @@ export const REGIONS = [
         boss: ['divine_tyrant', 'grave_executor']
     },
     {
-        id: 4, name: '잔향의 근원', rule: '현실 붕괴', ruleDesc: "현실의 경계가 무너져 내리는 종착지입니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 불안정한 현실로 인해 매 턴 종료 시 최대 잔향 수치가 5씩 영구적으로 손실됩니다.</span>", quote: '"모든 시작이자 끝인 곳."', floors: 3,
+        id: 4, name: '잔향의 근원', rule: '현실 붕괴', ruleDesc: "현실의 경계가 무너져 내리는 종착지입니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 불안정한 현실로 인해 매 턴 종료 시 최대 잔향이 5씩 영구적으로 손실됩니다.</span>", quote: '"모든 시작이자 끝인 곳."', floors: 3,
         enemies: ['echo_devourer', 'void_remnant', 'void_eye_enemy', 'void_walker', 'reality_shredder', 'void_core_fragment'],
         elites: ['elite_echo_colossus', 'elite_origin_guard', 'elite_void_templar'],
         boss: ['void_herald', 'echo_origin']

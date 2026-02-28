@@ -12,7 +12,7 @@ export const EVENTS = [
         image: 'event_wanderer.png',
         choices: [
             { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog('골드 +20', 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
-            { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog('Echo +15', 'echo'); return '조심성이 잔향을 강화했다.'; } },
+            { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog('잔향 +15', 'echo'); return '조심성이 잔향을 강화했다.'; } },
         ]
     },
     {
@@ -20,7 +20,7 @@ export const EVENTS = [
         desc: '희미한 빛을 내뿜는 제단이 당신의 기억을 자극한다.',
         image: 'event_echo_shrine.png',
         choices: [
-            { text: '✨ 에고를 바친다 (HP -10, Echo +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '제단이 당신의 기억을 삼키고 힘을 내뿜는다.'; } },
+            { text: '✨ 에고를 바친다 (체력 -10, 잔향 +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '제단이 당신의 기억을 삼키고 힘을 내뿜는다.'; } },
             { text: '🚶 조용히 지나간다', effect(gs) { return '제단은 다시 침묵에 잠겼다.'; } }
         ]
     },
@@ -29,9 +29,9 @@ export const EVENTS = [
         desc: '고대 사당 앞에 잔향 에너지가 모여 있다.',
         image: 'event_shrine.png',
         choices: [
-            { text: '❤️ 체력을 제물로 (HP -10 → Echo +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return 'Echo 게이지가 타오른다.'; } },
+            { text: '❤️ 체력을 제물로 (체력 -10 → 잔향 +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '잔향 게이지가 타오른다.'; } },
             {
-                text: '💰 골드를 제물로 (15골드 → HP +20)', effect(gs) {
+                text: '💰 골드를 제물로 (15골드 → 체력 +20)', effect(gs) {
                     if (gs.player.hp >= gs.player.maxHp) return '이미 체력이 가득 차 있습니다.';
                     if (gs.player.gold >= 15) { gs.player.gold -= 15; gs.heal(20); return '신성한 치유의 빛이 감쌌다.'; }
                     return '골드가 부족하다.';
@@ -54,7 +54,7 @@ export const EVENTS = [
         desc: '공기 중에 강한 에코 에너지가 감지된다.',
         image: 'event_echo_resonance.png',
         choices: [
-            { text: '⚡ 에너지를 흡수한다', effect(gs) { gs.addEcho(60); return 'Echo 게이지가 요동쳤다!'; } },
+            { text: '⚡ 에너지를 흡수한다', effect(gs) { gs.addEcho(60); return '잔향 게이지가 요동쳤다!'; } },
             { text: '🃏 에너지를 카드로 변환', effect(gs) { const c = gs.getRandomCard('rare'); gs.player.deck.push(c); return `에너지가 카드로 응결: ${CARDS[c]?.name}`; } },
         ]
     },
@@ -78,23 +78,23 @@ export const EVENTS = [
                     return `${originName} → ${newName} 강화!`;
                 }
             },
-            { text: '🔥 Echo를 충전한다 (Echo +40)', effect(gs) { gs.addEcho(40); return 'Echo가 충전되었다.'; } },
+            { text: '🔥 잔향을 충전한다 (잔향 +40)', effect(gs) { gs.addEcho(40); return '잔향이 충전되었다.'; } },
             { text: '🚶 지나친다', effect(gs) { return null; } },
         ]
     },
     {
-        id: 'echo_vendor', layer: 1, title: 'Echo 자판기', eyebrow: 'LAYER 1 · 우발적 이벤트',
+        id: 'echo_vendor', layer: 1, title: '잔향 자판기', eyebrow: 'LAYER 1 · 우발적 이벤트',
         desc: '낡은 자판기가 벽에 기대어 있다. "잔향 에너지 교환"이라고 적혀 있다.',
         image: 'event_echo_vendor.png',
         choices: [
             {
-                text: '💊 체력 회복 (골드 10 → HP 15)', effect(gs) {
+                text: '💊 체력 회복 (골드 10 → 체력 15)', effect(gs) {
                     if (gs.player.hp >= gs.player.maxHp) return '이미 체력이 가득 차 있습니다.';
                     if (gs.player.gold >= 10) { gs.player.gold -= 10; gs.heal(15); return '체력이 회복됐다.'; }
                     return '골드가 부족하다.';
                 }
             },
-            { text: '⚡ Echo 구매 (골드 8 → Echo 30)', effect(gs) { if (gs.player.gold >= 8) { gs.player.gold -= 8; gs.addEcho(30); return 'Echo가 충전됐다.'; } return '골드가 부족하다.'; } },
+            { text: '⚡ 잔향 구매 (골드 8 → 잔향 30)', effect(gs) { if (gs.player.gold >= 8) { gs.player.gold -= 8; gs.addEcho(30); return '잔향이 충전됐다.'; } return '골드가 부족하다.'; } },
             { text: '🃏 카드 구매 (골드 15 → 랜덤 카드)', effect(gs) { if (gs.player.gold >= 15) { gs.player.gold -= 15; const c = gs.getRandomCard('uncommon'); gs.player.deck.push(c); AudioEngine.playItemGet(); return `${CARDS[c]?.name} 카드를 얻었다.`; } return '골드가 부족하다.'; } },
             { text: '🚶 지나친다', effect() { return null; } },
         ]
@@ -113,8 +113,8 @@ export const EVENTS = [
         desc: '흐릿한 기억의 조각이 떠돌고 있다. 집중하면 흡수할 수 있을 것 같다.',
         image: 'event_lost_memory.png',
         choices: [
-            { text: '🧠 기억을 흡수한다 (골드 +25, Echo +20)', effect(gs) { gs.addGold(25); gs.addEcho(20); return '기억의 파편이 힘으로 변환됐다.'; } },
-            { text: '💭 기억을 방류한다 (HP +15)', effect(gs) { gs.heal(15); return '기억은 바람이 되어 사라졌다. 마음이 가벼워졌다.'; } },
+            { text: '🧠 기억을 흡수한다 (골드 +25, 잔향 +20)', effect(gs) { gs.addGold(25); gs.addEcho(20); return '기억의 파편이 힘으로 변환됐다.'; } },
+            { text: '💭 기억을 방류한다 (체력 +15)', effect(gs) { gs.heal(15); return '기억은 바람이 되어 사라졌다. 마음이 가벼워졌다.'; } },
         ]
     },
     {
@@ -122,7 +122,7 @@ export const EVENTS = [
         desc: '공간이 갈라져 있다. 저쪽에는 무언가가 있는 것 같다.',
         image: 'event_void_crack.png',
         choices: [
-            { text: '🌀 균열을 통과한다 (HP -20, 아이템 1개)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 20); const itemsList = Object.keys(ITEMS); const item = itemsList[Math.floor(Math.random() * itemsList.length)]; gs.player.items.push(item); AudioEngine.playItemGet(); if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(ITEMS[item]); return `${ITEMS[item].name}을 얻었다. 몸이 떨린다.`; } },
+            { text: '🌀 균열을 통과한다 (체력 -20, 아이템 1개)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 20); const itemsList = Object.keys(ITEMS); const item = itemsList[Math.floor(Math.random() * itemsList.length)]; gs.player.items.push(item); AudioEngine.playItemGet(); if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(ITEMS[item]); return `${ITEMS[item].name}을 얻었다. 몸이 떨린다.`; } },
             { text: '🚶 위험하다, 돌아간다', effect(gs) { return '안전한 길을 선택했다.'; } },
         ]
     }

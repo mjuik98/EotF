@@ -22,7 +22,7 @@ export const EchoSkillUI = {
       tier = 1;
       cost = 30;
     } else {
-      gs.addLog?.('⚠️ Echo 게이지 부족! (30 필요)', 'damage');
+      gs.addLog?.('⚠️ 잔향 게이지 부족! (30 필요)', 'damage');
       return;
     }
 

@@ -256,7 +256,7 @@ export const CARDS = {
         effect(gs) { gs.addShield(15); gs.addBuff('soul_armor', 3, { echoRegen: 10 }); }
     },
     soul_harvest: {
-        id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '피해 20. 이 공격으로 적을 처치하면 체력을 8 회복합니다.', rarity: 'uncommon',
+        id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '피해 20. 이 공격으로 적을 처치하면 회복 8.', rarity: 'uncommon',
         image: 'card_soul_harvest.png',
         effect(gs) { gs.dealDamage(20); }
     },
@@ -333,7 +333,7 @@ export const CARDS = {
         effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 5, null, true); gs.addLog(`⛓️ 연쇄 반응: 체인 ${chain} × 5 = ${chain * 5}!`, 'echo'); }
     },
     revival_echo: {
-        id: 'revival_echo', name: '소생의 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: '체력을 15 회복합니다. 소모한 카드 더미에서 카드 2장을 가져옵니다. 소멸.', rarity: 'rare', exhaust: true,
+        id: 'revival_echo', name: '소생의 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: '회복 15. 소모한 카드 더미에서 카드 2장을 가져옵니다. 소멸.', rarity: 'rare', exhaust: true,
         image: 'card_revival_echo.png',
         effect(gs) { gs.heal(15); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(CARDS[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); gs.markDirty('hand'); }
     },
@@ -388,11 +388,11 @@ export const CARDS = {
 
     // ── 찬송기사 (Paladin) ──
     holy_strike: {
-        id: 'holy_strike', name: '성스러운 강타', icon: '✨', cost: 1, type: 'ATTACK', desc: '피해 8. 체력을 2 회복합니다.', rarity: 'common',
+        id: 'holy_strike', name: '성스러운 강타', icon: '✨', cost: 1, type: 'ATTACK', desc: '피해 8. 회복 2.', rarity: 'common',
         effect(gs) { gs.dealDamage(8); gs.heal(2); }
     },
     holy_strike_plus: {
-        id: 'holy_strike_plus', name: '성스러운 강타+', icon: '✨', cost: 1, type: 'ATTACK', desc: '피해 11. 체력을 4 회복합니다.', rarity: 'common', upgraded: true,
+        id: 'holy_strike_plus', name: '성스러운 강타+', icon: '✨', cost: 1, type: 'ATTACK', desc: '피해 11. 회복 4.', rarity: 'common', upgraded: true,
         effect(gs) { gs.dealDamage(11); gs.heal(4); }
     },
     divine_grace: {

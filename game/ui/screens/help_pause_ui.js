@@ -256,6 +256,15 @@ export const HelpPauseUI = {
         const lbl = doc.createElement('span'); lbl.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;"; lbl.textContent = label;
         const input = doc.createElement('input'); input.type = 'range'; input.id = id; input.min = '0'; input.max = '100'; input.oninput = (e) => handler(e.target.value);
         const val = doc.createElement('span'); val.id = `${id}Val`; val.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;";
+        // 초기값 설정
+        const currentVol = (deps.audioEngine || window.AudioEngine)?.getVolumes?.() || {};
+        let initialV = 0;
+        if (id === 'volMasterSlider') initialV = Math.round((currentVol.master ?? 0.35) * 100);
+        else if (id === 'volSfxSlider') initialV = Math.round((currentVol.sfx ?? 0.7) * 100);
+        else if (id === 'volAmbientSlider') initialV = Math.round((currentVol.ambient ?? 0.4) * 100);
+        input.value = initialV;
+        input.style.setProperty('--fill-percent', initialV + '%');
+        val.textContent = initialV + '%';
         row.append(lbl, input, val);
         return row;
       };

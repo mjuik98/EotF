@@ -18,7 +18,7 @@ export const ENEMIES = {
     orc: {
         id: 'orc', name: '오크', icon: '👹', image: 'enemy_orc.png', hp: 45, maxHp: 45, atk: 8, region: 0, xp: 20, gold: 12,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'block', intent: '방어 (방어막 5)', dmg: 0, effect: 'self_shield' };
+            if (turn % 4 === 0) return { type: 'block', intent: '방어 (방어도 5)', dmg: 0, effect: 'self_shield' };
             return { type: 'strike', intent: `도끼 ${this.atk}`, dmg: this.atk };
         }
     },
@@ -47,7 +47,7 @@ export const ENEMIES = {
     fallen_knight: {
         id: 'fallen_knight', name: '타락한 기사', icon: '⚔️', image: 'enemy_fallen_knight.png', hp: 55, maxHp: 55, atk: 12, region: null, xp: 35, gold: 15,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'guard', intent: '방패 방어 (방어막 8)', dmg: 0, effect: 'self_shield' };
+            if (turn % 3 === 0) return { type: 'guard', intent: '방패 방어 (방어도 8)', dmg: 0, effect: 'self_shield' };
             if (turn % 5 === 0) return { type: 'charge', intent: `돌진 ${this.atk + 8}`, dmg: this.atk + 8 };
             return { type: 'slash', intent: `베기 ${this.atk}`, dmg: this.atk };
         }
@@ -55,7 +55,7 @@ export const ENEMIES = {
     moss_golem: {
         id: 'moss_golem', name: '이끼 골렘', icon: '🪨', image: 'enemy_moss_golem.png', hp: 50, maxHp: 50, atk: 9, region: 0, xp: 28, gold: 12,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'harden', intent: '굳기 (방어막 12)', dmg: 0, effect: 'self_shield' };
+            if (turn % 4 === 0) return { type: 'harden', intent: '굳기 (방어도 12)', dmg: 0, effect: 'self_shield' };
             if (turn % 3 === 0) return { type: 'slam', intent: `대지 강타 ${this.atk + 5}`, dmg: this.atk + 5 };
             return { type: 'strike', intent: `주먹질 ${this.atk}`, dmg: this.atk };
         }
@@ -95,14 +95,14 @@ export const ENEMIES = {
         ai(turn) {
             if (turn % 5 === 0) return { type: 'spore', intent: '독 포자 (독3)', dmg: 8, effect: 'poison_3' };
             if (turn % 3 === 0) return { type: 'root', intent: '뿌리 속박 (에너지-1)', dmg: 10, effect: 'drain_energy' };
-            if (turn % 4 === 0) return { type: 'regen', intent: '생명력 재생 (+15HP)', dmg: 0, effect: 'self_heal_15' };
+            if (turn % 4 === 0) return { type: 'regen', intent: '생명력 재생 (회복 15.)', dmg: 0, effect: 'self_heal_15' };
             return { type: 'branch', intent: `나뭇가지 ${this.atk}`, dmg: this.atk };
         }
     },
     forest_guardian: {
         id: 'forest_guardian', name: '숲의 수호자', icon: '🛡️', image: 'enemy_forest_guardian.png', hp: 160, maxHp: 160, atk: 14, region: 0, xp: 140, gold: 60, isBoss: true, maxPhase: 2,
         ai(turn) {
-            if (turn % 5 === 0) return { type: 'heal', intent: '생명의 기운 (회복 12)', dmg: 0, effect: 'heal_12' };
+            if (turn % 5 === 0) return { type: 'heal', intent: '생명의 기운 (회복 12.)', dmg: 0, effect: 'heal_12' };
             if (turn % 4 === 0) return { type: 'nature_wrath', intent: `자연의 분노 ${this.atk * 2}`, dmg: this.atk * 2 };
             return { type: 'strike', intent: `징벌 ${this.atk}`, dmg: this.atk };
         }
@@ -154,7 +154,7 @@ export const ENEMIES = {
     brass_guardian: {
         id: 'brass_guardian', name: '황동 수호병', icon: '🛡️', image: 'enemy_brass_guardian.png', hp: 70, maxHp: 70, atk: 10, region: 1, xp: 40, gold: 18,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'guard', intent: '황동 방어 (방어막 15)', dmg: 0, effect: 'shield' };
+            if (turn % 3 === 0) return { type: 'guard', intent: '황동 방어 (방어도 15)', dmg: 0, effect: 'shield' };
             return { type: 'strike', intent: `방패 가격 ${this.atk + 5}`, dmg: this.atk + 5 };
         }
     },
@@ -168,7 +168,7 @@ export const ENEMIES = {
     elite_silence_herald: {
         id: 'elite_silence_herald', name: '【정예】침묵 사도', icon: '🗿', image: 'enemy_elite_silence_herald.png', hp: 95, maxHp: 95, atk: 16, region: 1, xp: 70, gold: 38, isElite: true,
         ai(turn) {
-            if (turn === 1) return { type: 'seal', intent: '봉인 (카드 소각)', dmg: 0, effect: 'exhaust_card' };
+            if (turn === 1) return { type: 'seal', intent: '봉인 (카드 소멸)', dmg: 0, effect: 'exhaust_card' };
             if (turn % 3 === 0) return { type: 'noise_crush', intent: `소음 격쇄 ${this.atk + 8} (+5소음)`, dmg: this.atk + 8, effect: 'add_noise_5' };
             if (turn % 2 === 0) return { type: 'strike', intent: `침묵의 검 ${this.atk + 4}`, dmg: this.atk + 4 };
             return { type: 'bash', intent: `강타 ${this.atk}`, dmg: this.atk };
@@ -213,7 +213,7 @@ export const ENEMIES = {
     memory_specter: {
         id: 'memory_specter', name: '기억의 환령', icon: '👁️', image: 'enemy_specter.png', hp: 50, maxHp: 50, atk: 14, region: 2, xp: 35, gold: 14,
         ai(turn) {
-            if (turn % 5 === 0) return { type: 'memory_steal', intent: '기억 훔치기 (카드 소각)', dmg: 0, effect: 'exhaust_card' };
+            if (turn % 5 === 0) return { type: 'memory_steal', intent: '기억 훔치기 (카드 소멸)', dmg: 0, effect: 'exhaust_card' };
             if (turn % 4 === 0) return { type: 'energy_drain', intent: `에너지 흡수 (에너지 -1) ${this.atk}`, dmg: this.atk, effect: 'drain_energy' };
             if (turn % 3 === 0) return { type: 'phase', intent: '위상 이동', dmg: 0, effect: 'dodge' };
             return { type: 'claw', intent: `정신 공격 ${this.atk}`, dmg: this.atk, effect: 'confusion' };
@@ -230,7 +230,7 @@ export const ENEMIES = {
     phantom_soldier: {
         id: 'phantom_soldier', name: '환영 병사', icon: '👤', image: 'enemy_phantom_soldier.png', hp: 40, maxHp: 40, atk: 12, region: 2, xp: 32, gold: 13,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'clone', intent: '분열 (방어막10)', dmg: 0, effect: 'self_shield' };
+            if (turn % 4 === 0) return { type: 'clone', intent: '분열 (방어도 10)', dmg: 0, effect: 'self_shield' };
             if (turn % 2 === 0) return { type: 'phase', intent: '위상 이동', dmg: 0, effect: 'dodge' };
             return { type: 'slash', intent: `환영 검 ${this.atk}`, dmg: this.atk };
         }
@@ -259,7 +259,7 @@ export const ENEMIES = {
     nightmare_specter: {
         id: 'nightmare_specter', name: '악몽의 망령', icon: '👻', image: 'enemy_nightmare_specter.png', hp: 52, maxHp: 52, atk: 14, region: null, xp: 40, gold: 16,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'panic', intent: '공포 (방어막 불가)', dmg: 10, effect: 'no_shield' };
+            if (turn % 3 === 0) return { type: 'panic', intent: '공포 (방어도 획득 불가)', dmg: 10, effect: 'no_shield' };
             return { type: 'strike', intent: `악몽의 손길 ${this.atk + 4}`, dmg: this.atk + 4 };
         }
     },
@@ -267,7 +267,7 @@ export const ENEMIES = {
         id: 'elite_memory_lich', name: '【정예】기억 리치', icon: '💀', image: 'enemy_elite_memory_lich.png', hp: 100, maxHp: 100, atk: 15, region: 2, xp: 72, gold: 42, isElite: true,
         ai(turn) {
             if (turn === 1) return { type: 'memory_curse', intent: '기억 저주 (에너지-2)', dmg: 5, effect: 'drain_energy_2' };
-            if (turn % 4 === 0) return { type: 'drain_cards', intent: '카드 흡수 (소각2)', dmg: 8, effect: 'exhaust_card' };
+            if (turn % 4 === 0) return { type: 'drain_cards', intent: '카드 흡수 (소멸 2)', dmg: 8, effect: 'exhaust_card' };
             if (turn % 3 === 0) return { type: 'mind_blast', intent: `정신 폭발 ${this.atk + 10}`, dmg: this.atk + 10 };
             return { type: 'strike', intent: `사령 강타 ${this.atk}`, dmg: this.atk };
         }
@@ -307,7 +307,7 @@ export const ENEMIES = {
     memory_weaver: {
         id: 'memory_weaver', name: '기억의 직조자', icon: '🕸️', image: 'enemy_memory_weaver.png', hp: 190, maxHp: 190, atk: 16, region: 2, xp: 140, gold: 65, isBoss: true, maxPhase: 2,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'weave', intent: '기억의 실 (카드 소각)', dmg: 0, effect: 'exhaust_card' };
+            if (turn % 4 === 0) return { type: 'weave', intent: '기억의 실 (카드 소멸)', dmg: 0, effect: 'exhaust_card' };
             return { type: 'strike', intent: `환영 타격 ${this.atk + 6}`, dmg: this.atk + 6 };
         }
     },
@@ -318,7 +318,7 @@ export const ENEMIES = {
         ai(turn) {
             if (turn % 5 === 0) return { type: 'energy_smite', intent: `신성 심판 ${this.atk * 2} (에너지 -1)`, dmg: this.atk * 2, effect: 'drain_energy' };
             if (turn % 4 === 0) return { type: 'smite', intent: `신성 심판 ${this.atk * 2}`, dmg: this.atk * 2 };
-            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어막 15', dmg: 0, effect: 'self_shield_15' };
+            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어도 15', dmg: 0, effect: 'self_shield_15' };
             return { type: 'strike', intent: `천벌 ${this.atk}`, dmg: this.atk };
         }
     },
@@ -326,7 +326,7 @@ export const ENEMIES = {
         id: 'cursed_paladin', name: '저주받은 기사단', icon: '⚔️', image: 'enemy_cursed_paladin.png', hp: 65, maxHp: 65, atk: 13, region: 3, xp: 48, gold: 22,
         ai(turn) {
             if (turn % 4 === 0) return { type: 'holy_smite', intent: `성스러운 심판 ${this.atk * 2}`, dmg: this.atk * 2 };
-            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어막 12', dmg: 0, effect: 'self_shield' };
+            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어도 12', dmg: 0, effect: 'self_shield' };
             return { type: 'slash', intent: `성검 ${this.atk}`, dmg: this.atk };
         }
     },
@@ -334,13 +334,13 @@ export const ENEMIES = {
         id: 'tomb_guardian', name: '무덤 파수병', icon: '🛡️', image: 'enemy_tomb_guardian.png', hp: 85, maxHp: 85, atk: 11, region: 3, xp: 45, gold: 20,
         ai(turn) {
             if (turn % 3 === 0) return { type: 'shield_bash', intent: `방패 강타 ${this.atk + 8} (기절)`, dmg: this.atk + 8, effect: 'stun' };
-            return { type: 'guard', intent: '철벽 방어 (방어막 15)', dmg: 0, effect: 'self_shield' };
+            return { type: 'guard', intent: '철벽 방어 (방어도 15)', dmg: 0, effect: 'self_shield' };
         }
     },
     holy_guardian: {
         id: 'holy_guardian', name: '성소 수호병', icon: '🏯', image: 'enemy_holy_guardian.png', hp: 80, maxHp: 80, atk: 12, region: 3, xp: 46, gold: 21,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'holy_shield', intent: '성스러운 방패 (방어막16)', dmg: 0, effect: 'self_shield' };
+            if (turn % 3 === 0) return { type: 'holy_shield', intent: '성스러운 방패 (방어도 16)', dmg: 0, effect: 'self_shield' };
             return { type: 'strike', intent: `심판의 망치 ${this.atk + 4}`, dmg: this.atk + 4 };
         }
     },
@@ -393,7 +393,7 @@ export const ENEMIES = {
             }
             if (this.phase === 2) {
                 if (turn % 3 === 0) return { type: 'smite_all', intent: `천벌 ${this.atk + 8} (약화)`, dmg: this.atk + 8, effect: 'weaken' };
-                return { type: 'barrier', intent: '신성 방어막 20', dmg: 0, effect: 'self_shield_20' };
+                return { type: 'barrier', intent: '신성 방어도 20', dmg: 0, effect: 'self_shield_20' };
             }
             if (turn % 4 === 0) return { type: 'curse', intent: `저주 (디버프) ${this.atk + 4}`, dmg: this.atk + 4, effect: 'curse' };
             return { type: 'smite', intent: `천벌 ${this.atk}`, dmg: this.atk };
@@ -411,7 +411,7 @@ export const ENEMIES = {
     echo_devourer: {
         id: 'echo_devourer', name: '메아리 포식자', icon: '🌑', image: 'enemy_echo_devourer.png', hp: 65, maxHp: 65, atk: 18, region: 4, xp: 60, gold: 30,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'devour', intent: `Echo 흡수 ${this.atk + 5}`, dmg: this.atk + 5, effect: 'drain_echo' };
+            if (turn % 3 === 0) return { type: 'devour', intent: `잔향 흡수 ${this.atk + 5}`, dmg: this.atk + 5, effect: 'drain_echo' };
             if (turn % 5 === 0) return { type: 'void_burst', intent: `허공 폭발 ${this.atk * 1.5 | 0}`, dmg: this.atk * 1.5 | 0 };
             return { type: 'claw', intent: `허공 발톱 ${this.atk}`, dmg: this.atk };
         }
@@ -419,7 +419,7 @@ export const ENEMIES = {
     void_remnant: {
         id: 'void_remnant', name: '허공의 잔재', icon: '🌌', image: 'enemy_void_remnant.png', hp: 55, maxHp: 55, atk: 16, region: 4, xp: 52, gold: 26,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'void_drain', intent: `허공 흡수 ${this.atk + 4} (Echo드레인)`, dmg: this.atk + 4, effect: 'drain_echo' };
+            if (turn % 3 === 0) return { type: 'void_drain', intent: `허공 흡수 ${this.atk + 4} (잔향 감소)`, dmg: this.atk + 4, effect: 'drain_echo' };
             if (turn % 4 === 0) return { type: 'collapse', intent: `붕괴 ${this.atk + 8}`, dmg: this.atk + 8 };
             return { type: 'claw', intent: `허공 발톱 ${this.atk}`, dmg: this.atk };
         }
@@ -463,7 +463,7 @@ export const ENEMIES = {
     elite_echo_colossus: {
         id: 'elite_echo_colossus', name: '【정예】잔향 거신', icon: '🌟', image: 'enemy_elite_echo_colossus.png', hp: 135, maxHp: 135, atk: 20, region: 4, xp: 120, gold: 70, isElite: true,
         ai(turn) {
-            if (turn === 1) return { type: 'echo_suppress', intent: 'Echo 억제 (Max Echo -20)', dmg: 0, effect: 'drain_echo' };
+            if (turn === 1) return { type: 'echo_suppress', intent: '잔향 억제 (최대 잔향 -20)', dmg: 0, effect: 'drain_echo' };
             if (turn % 3 === 0) return { type: 'colossal_slam', intent: `거신 강타 ${this.atk + 15}`, dmg: this.atk + 15 };
             if (turn % 4 === 0) return { type: 'void_aura', intent: '허공 오라 (에너지-1)', dmg: 10, effect: 'drain_energy' };
             return { type: 'strike', intent: `거신 격 ${this.atk}`, dmg: this.atk };
@@ -482,7 +482,7 @@ export const ENEMIES = {
             if (this.hp < this.maxHp * 0.5 && this.phase === 1) { return { type: 'transcend', intent: '⚠️ 허공 초월!', dmg: 0, effect: 'phase_shift' }; }
             if (this.phase === 2) {
                 if (turn % 2 === 0) return { type: 'void_collapse', intent: `허공 붕괴 ${this.atk + 12}`, dmg: this.atk + 12 };
-                return { type: 'echo_nullify', intent: 'Echo 무효화', dmg: this.atk, effect: 'nullify_echo' };
+                return { type: 'echo_nullify', intent: '잔향 무효화', dmg: this.atk, effect: 'nullify_echo' };
             }
             if (turn % 3 === 0) return { type: 'void_pulse', intent: `허공 파동 ${this.atk + 6}`, dmg: this.atk + 6 };
             return { type: 'strike', intent: `허공 강타 ${this.atk}`, dmg: this.atk };
@@ -495,7 +495,7 @@ export const ENEMIES = {
             if (this.hp < this.maxHp * 0.25 && this.phase === 2) { return { type: 'transcend', intent: '⚠️ 근원 초월!', dmg: 0, effect: 'phase_shift' }; }
             if (this.phase === 3) {
                 if (turn % 3 === 0) return { type: 'origin_blast', intent: `근원 폭발 ${this.atk + 20}`, dmg: this.atk + 20 };
-                return { type: 'echo_erase', intent: 'Echo 완전 소거', dmg: this.atk, effect: 'nullify_echo' };
+                return { type: 'echo_erase', intent: '잔향 완전 소거', dmg: this.atk, effect: 'nullify_echo' };
             }
             if (this.phase === 2) {
                 if (turn % 3 === 0) return { type: 'memory_wipe', intent: `기억 소거 ${this.atk + 10}`, dmg: this.atk + 10, effect: 'exhaust_card' };

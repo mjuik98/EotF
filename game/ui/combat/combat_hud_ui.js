@@ -134,7 +134,7 @@ export const CombatHudUI = {
     const cls = gs.player.class;
     let tLevel = echo >= 100 ? 3 : echo >= 60 ? 2 : echo >= 30 ? 1 : 0;
     if (tLevel === 0) {
-      btn.textContent = `⚡ Echo 스킬 (${echo}/30)`;
+      btn.textContent = `⚡ 잔향 스킬 (${echo}/30)`;
       btn.style.opacity = '0.45';
       btn.disabled = true;
       return;
