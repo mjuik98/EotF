@@ -75,7 +75,22 @@ export const StatusEffectsUI = {
         if (k !== 'momentum' && buff.stacks > 0) {
           const stackSpan = doc.createElement('span');
           stackSpan.style.opacity = '0.7';
-          stackSpan.textContent = ` (${buff.stacks})`;
+
+          // 지속 시간이 99 이상인 경우 (무한 지속), 턴 수 대신 실제 효과 수치를 표시
+          let displayVal = buff.stacks;
+          if (buff.stacks >= 99) {
+            if (k === 'blessing_of_light') displayVal = buff.healPerTurn || 0;
+            else if (k === 'soul_armor') displayVal = buff.echoRegen || 0;
+            else if (k === 'time_warp') displayVal = buff.energyPerTurn || 0;
+            else if (k === 'berserk_mode') displayVal = buff.atkGrowth || 0;
+            else if (k === 'divine_grace') displayVal = buff.shieldBonus || 0;
+
+            // 만약 displayVal이 여전히 99 이상이면 (지정된 수치가 없는 경우), 괄호 없이 아이콘만 보이거나 공백 처리 가능
+            // 여기서는 수치가 있는 경우만 괄호 안에 표시하고, 99인 경우(단순 파워)는 괄호를 생략하거나 별도 처리
+            if (displayVal >= 99) displayVal = '';
+          }
+
+          stackSpan.textContent = displayVal !== '' ? ` (${displayVal})` : '';
           badge.appendChild(stackSpan);
         }
 
