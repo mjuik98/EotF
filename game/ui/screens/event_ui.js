@@ -267,7 +267,10 @@ export const EventUI = {
     const cancelBtn = doc.createElement('button');
     cancelBtn.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 24px;cursor:pointer;margin-top:8px;";
     cancelBtn.textContent = '취소';
-    cancelBtn.onclick = () => overlay.remove();
+    cancelBtn.onclick = () => {
+      deps.onCancel?.();
+      overlay.remove();
+    };
 
     overlay.append(titleEl, list, cancelBtn);
     doc.body.appendChild(overlay);

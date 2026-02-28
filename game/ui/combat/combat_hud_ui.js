@@ -110,16 +110,46 @@ export const CombatHudUI = {
     if (!gs?.combat?.log) return;
 
     const doc = _getDoc(deps);
-    const log = doc.getElementById('combatLog');
-    if (!log) return;
-    log.textContent = '';
-    gs.combat.log.slice(-8).forEach(e => {
-      const entry = doc.createElement('div');
-      entry.className = `log-entry ${e.type}`;
-      entry.textContent = e.msg;
-      log.appendChild(entry);
+    const logContainer = doc.getElementById('combatLog');
+    if (!logContainer) return;
+
+    // 현재 DOM에 표시된 로그의 ID들을 셋으로 관리하여 중복 추가 방지
+    const currentIds = Array.from(logContainer.children).map(c => c.dataset.logId);
+    const lastLogs = gs.combat.log.slice(-6); // 화면에 보여줄 개수 제한
+
+    lastLogs.forEach(e => {
+      if (e.id) {
+        const existing = logContainer.querySelector(`[data-log-id="${e.id}"]`);
+        if (existing) {
+          if (existing.textContent !== e.msg) {
+            existing.textContent = e.msg;
+            existing.style.animation = 'none';
+            void existing.offsetWidth; // Trigger reflow to restart animation
+            existing.style.animation = 'logEntryIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+          }
+        } else if (!currentIds.includes(e.id)) {
+          const entry = doc.createElement('div');
+          entry.className = `log-entry ${e.type}`;
+          entry.textContent = e.msg;
+          entry.dataset.logId = e.id;
+          logContainer.prepend(entry);
+        }
+      } else if (!e.id) {
+        // 기존 하위 호환성 (ID 없는 경우 텍스트 비교)
+        const currentMsgs = Array.from(logContainer.children).map(c => c.textContent);
+        if (!currentMsgs.includes(e.msg)) {
+          const entry = doc.createElement('div');
+          entry.className = `log-entry ${e.type}`;
+          entry.textContent = e.msg;
+          logContainer.prepend(entry);
+        }
+      }
     });
-    log.scrollTop = log.scrollHeight;
+
+    // 화면에 너무 많이 쌓이지 않도록 정리
+    while (logContainer.children.length > 6) {
+      logContainer.removeChild(logContainer.lastChild);
+    }
   },
 
   updateEchoSkillBtn(deps = {}) {

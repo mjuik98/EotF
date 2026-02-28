@@ -180,7 +180,9 @@ export const Reducers = {
         gs.stats.damageDealt += remaining;
 
         return {
+            shieldAbsorbed: amount - remaining,
             actualDamage: remaining,
+            totalDamage: amount,
             hpAfter: enemy.hp,
             isDead: enemy.hp <= 0,
             targetIdx,

@@ -96,6 +96,7 @@ export const CardTargetUI = {
     if (typeof deps.renderCombatEnemies === 'function') {
       deps.renderCombatEnemies();
     } else if (typeof window.CombatUI?.renderCombatEnemies === 'function') {
+      const data = _getData(deps) || window.DATA;
       window.CombatUI.renderCombatEnemies({ gs: gs, data: data });
     }
   },

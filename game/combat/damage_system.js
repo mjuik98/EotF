@@ -16,6 +16,8 @@ import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 import { Logger } from '../utils/logger.js';
 
+import { LogUtils } from '../utils/log_utils.js';
+
 const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
 
@@ -51,14 +53,14 @@ export const DamageSystem = {
         if (this.getBuff('vanish')) {
             dmg = Math.floor(dmg * 2);
             delete this.player.buffs['vanish'];
-            this.addLog('💥 크리티컬!', 'echo');
+            this.addLog(LogUtils.formatEcho('💥 크리티컬!'), 'echo');
         }
         if (enemy.statusEffects?.immune > 0) {
-            this.addLog(`🏛️ ${enemy.name}은(는) 무적 상태!`, 'echo');
+            this.addLog(LogUtils.formatEcho(`🏛️ ${enemy.name}은(는) 무적 상태!`), 'echo');
             return 0;
         }
         if (enemy.statusEffects?.dodge > 0) {
-            this.addLog(`💨 ${enemy.name}이(가) 공격을 강회피했습니다!`, 'system');
+            this.addLog(LogUtils.formatSystem(`💨 ${enemy.name}이(가) 공격을 강회피했습니다!`), 'system');
 
             // 후속 상태이상(기절, 독 등)도 함께 무효화시키기 위한 플래그
             this._lastDodgedTarget = targetIdx;
@@ -91,7 +93,7 @@ export const DamageSystem = {
         // 가시 반격 처리
         if (enemy.statusEffects?.thorns > 0) {
             const thornsAmt = enemy.statusEffects.thorns;
-            if (typeof this.addLog === 'function') this.addLog(`🌵 ${enemy.name}: 가시 반격!`, 'damage');
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack(enemy.name, '플레이어', thornsAmt), 'damage');
             this.takeDamage(thornsAmt, deps);
         }
 
@@ -109,8 +111,10 @@ export const DamageSystem = {
             }
         }
 
-        const finalDmg = result?.actualDamage ?? dmg;
-        if (typeof this.addLog === 'function') this.addLog(`⚔️ ${enemy.name}에게 ${finalDmg} 피해!`, 'damage');
+        const totalDmg = result?.totalDamage ?? dmg;
+        if (typeof this.addLog === 'function') {
+            this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
+        }
         this.markDirty('enemies');
 
         // 다중 공격 등에서 DOM 즉각 갱신 보장
@@ -123,7 +127,7 @@ export const DamageSystem = {
             this.onEnemyDeath(enemy, targetIdx, deps);
         }
 
-        return finalDmg;
+        return result?.actualDamage ?? dmg;
     },
 
     dealDamageAll(amount, noChain = false, deps = {}) {
@@ -141,27 +145,27 @@ export const DamageSystem = {
         }
 
         this.dispatch(Actions.PLAYER_SHIELD, { amount: actual });
-        if (typeof this.addLog === 'function') this.addLog(`🛡️ 방어막 +${actual}`, 'system');
+        if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', actual), 'system');
     },
 
     takeDamage(amount, deps = {}) {
         if (amount <= 0) return;
 
         if (typeof this.getBuff === 'function' && this.getBuff('immune')) {
-            if (typeof this.addLog === 'function') this.addLog('🏛️ 면역으로 피해 무효!', 'echo');
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatEcho('🏛️ 면역으로 피해 무효!'), 'echo');
             return;
         }
 
         let dmg = amount;
         if ((this.getBuff?.('vulnerable')?.stacks || 0) > 0) {
             dmg = Math.floor(dmg * 1.5);
-            if (typeof this.addLog === 'function') this.addLog('💢 취약: 피해량 증가!', 'damage');
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatEcho('💢 취약: 피해량 증가!'), 'damage');
         }
 
         const itemScaled = typeof this.triggerItems === 'function' ? this.triggerItems('damage_taken', dmg) : dmg;
         if (itemScaled === true) {
             dmg = 0;
-            if (typeof this.addLog === 'function') this.addLog('🛡️ 피해 무효!', 'echo');
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatEcho('🛡️ 피해 무효!'), 'echo');
         } else if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
             dmg = Math.max(0, Math.floor(itemScaled));
         }
@@ -170,10 +174,10 @@ export const DamageSystem = {
             const result = this.dispatch(Actions.PLAYER_DAMAGE, { amount: dmg, source: 'combat' });
 
             if (result && result.shieldAbsorbed > 0) {
-                if (typeof this.addLog === 'function') this.addLog(`🛡️ 방어막 ${result.shieldAbsorbed} 흡수`, 'system');
+                if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', result.shieldAbsorbed), 'system');
             }
             if (result && result.actualDamage > 0) {
-                if (typeof this.addLog === 'function') this.addLog(`💔 ${result.actualDamage} 피해 받음`, 'damage');
+                if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack('적', '플레이어', result.actualDamage), 'damage');
             }
 
             if (result && result.isDead && typeof this.onPlayerDeath === 'function') {
@@ -198,12 +202,12 @@ export const DamageSystem = {
         // 회피된 타겟이면 상태이상도 무효화 (회피 후 1회 한정)
         if (this._lastDodgedTarget === targetIdx) {
             this._lastDodgedTarget = null;
-            if (typeof this.addLog === 'function') this.addLog(`💨 ${enemy.name}: 강회피로 ${status} 무효화!`, 'system');
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatSystem(`💨 ${enemy.name}: 강회피로 ${status} 무효화!`), 'system');
             return;
         }
 
         const result = this.dispatch(Actions.ENEMY_STATUS, { status, duration, targetIdx });
-        if (typeof this.addLog === 'function') this.addLog(`💫 ${enemy.name}: ${status} ${result?.duration || duration}턴`, 'echo');
+        if (typeof this.addLog === 'function') this.addLog(LogUtils.formatStatus(enemy.name, status, result?.duration || duration), 'echo');
 
         Logger.debug('[applyEnemyStatus] Applied', status, 'for', duration, 'turns to', enemy.name);
     },

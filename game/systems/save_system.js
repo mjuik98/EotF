@@ -130,8 +130,10 @@ export const SaveSystem = {
         gs.player.upgradedCards = new Set(data.player.upgradedCards);
       }
 
-      gs.currentRegion = data.currentRegion || 'forest';
-      gs.currentFloor = data.currentFloor || 1;
+      const loadedRegion = Number(data.currentRegion);
+      const loadedFloor = Number(data.currentFloor);
+      gs.currentRegion = Number.isFinite(loadedRegion) ? loadedRegion : 0;
+      gs.currentFloor = Number.isFinite(loadedFloor) ? loadedFloor : 1;
       gs.stats = data.stats || gs.stats;
       gs.worldMemory = data.worldMemory || gs.worldMemory;
 

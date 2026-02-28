@@ -151,6 +151,13 @@ export const GameAPI = {
             // 새로운 카드 액션이 시작될 때 이전 회피 상태이상 무효화 플래그 초기화
             gs._lastDodgedTarget = null;
 
+            const handCardId = gs.player.hand?.[handIdx];
+            if (handCardId !== cardId) {
+                Logger.warn('Cannot play card: Invalid hand index or card mismatch.');
+                gs.combat._isPlayingCard = false;
+                return false;
+            }
+
             const cost = GAME.Modules?.['CardCostUtils']?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');
@@ -159,8 +166,18 @@ export const GameAPI = {
             }
 
             // 지불 및 손패 제거
+            const energyBefore = gs.player.energy;
+            const handBefore = [...gs.player.hand];
             gs.dispatch(Actions.PLAYER_ENERGY, { amount: -cost });
             gs.player.hand.splice(handIdx, 1);
+
+            const rollbackPlayCost = () => {
+                const restoreEnergy = energyBefore - gs.player.energy;
+                if (restoreEnergy !== 0) {
+                    gs.dispatch(Actions.PLAYER_ENERGY, { amount: restoreEnergy });
+                }
+                gs.player.hand = handBefore;
+            };
 
             // 침묵의 도시 소음 게이지 상승
             const _getBaseRegion = GAME.getDeps()?.getBaseRegionIndex || ((r) => r);
@@ -175,7 +192,12 @@ export const GameAPI = {
             }
 
             // 효과 실행 (동기 처리)
-            card.effect?.(gs);
+            try {
+                card.effect?.(gs);
+            } catch (effectErr) {
+                rollbackPlayCost();
+                throw effectErr;
+            }
 
             // 클래스 특성 훅
             const cm = GAME.Modules?.['ClassMechanics']?.[gs.player.class];

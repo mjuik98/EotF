@@ -12,6 +12,8 @@ import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rul
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 
+import { LogUtils } from '../utils/log_utils.js';
+
 const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
 
@@ -143,7 +145,7 @@ export const CombatLifecycle = {
         ParticleSystem?.burstEffect?.(win.innerWidth / 2, win.innerHeight / 3);
         const showEchoBurstOverlay = deps.showEchoBurstOverlay || win.showEchoBurstOverlay;
         if (typeof showEchoBurstOverlay === 'function') showEchoBurstOverlay();
-        this.addLog(`🌟 RESONANCE BURST! 전체 ${burstDmg} 피해!`, 'echo');
+        this.addLog(LogUtils.formatEcho(`🌟 RESONANCE BURST! 전체 ${burstDmg} 피해!`), 'echo');
         this.stats.maxChain = Math.max(this.stats.maxChain, 5);
         const updateChainUI = deps.updateChainUI || win.updateChainUI;
         if (typeof updateChainUI === 'function') updateChainUI(0);

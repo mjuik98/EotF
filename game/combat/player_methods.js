@@ -3,6 +3,8 @@ import { ParticleSystem } from '../../engine/particles.js';
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
 import { Actions } from '../core/state_actions.js';
 
+import { LogUtils } from '../utils/log_utils.js';
+
 const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
 
@@ -21,7 +23,7 @@ export const PlayerMethods = {
 
     heal(amount, deps = {}) {
         if (getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1)) {
-            this.addLog('❌ 메아리의 근원: 회복 불가!', 'damage');
+            this.addLog(LogUtils.formatSystem('메아리의 근원: 회복 불가!'), 'damage');
             return;
         }
         let adjusted = RunRules.getHealAmount(this, amount);
@@ -31,7 +33,7 @@ export const PlayerMethods = {
 
         const result = this.dispatch(Actions.PLAYER_HEAL, { amount: adjusted });
         if (result && result.healed > 0) {
-            this.addLog(`💚 체력 +${result.healed}`, 'heal');
+            this.addLog(LogUtils.formatHeal('플레이어', result.healed), 'heal');
         }
     },
 
@@ -44,18 +46,18 @@ export const PlayerMethods = {
     addGold(amount, deps = {}) {
         const result = this.dispatch(Actions.PLAYER_GOLD, { amount });
         if (amount > 0 && result && result.delta > 0) {
-            this.addLog(`💰 +${result.delta} Gold`, 'system');
+            this.addLog(LogUtils.formatStatChange('플레이어', '골드', result.delta), 'system');
         }
     },
 
     addSilence(amount, label = '소음', deps = {}) {
         this.player.silenceGauge = (this.player.silenceGauge || 0) + amount;
         const max = 10;
-        this.addLog(`🌑 ${label} ${this.player.silenceGauge}/${max}`, 'echo');
+        this.addLog(LogUtils.formatEcho(`${label} ${this.player.silenceGauge}/${max}`), 'echo');
         if (this.player.silenceGauge >= max) {
             this.player.silenceGauge = 0;
             this.spawnEnemy(deps);
-            this.addLog('⚠️ 소음 한계! 파수꾼 등장!', 'damage');
+            this.addLog(LogUtils.formatSystem('소음 한계! 파수꾼 등장!'), 'damage');
             const win = _getWin(deps);
             const screenShake = deps.screenShake || win.ScreenShake;
             if (screenShake) screenShake.shake(10, 0.5);

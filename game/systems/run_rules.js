@@ -227,7 +227,8 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
   gs.meta.runCount = Math.max(1, (gs.meta.runCount || 1) + 1);
   gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
 
-  if (window.StorySystem?.unlockNextFragment) StorySystem.unlockNextFragment();
+  const storySystem = GAME.Modules?.storySystem || GAME.Modules?.StorySystem || window.StorySystem;
+  storySystem?.unlockNextFragment?.();
   if (GAME.Modules?.['SaveSystem']?.saveMeta) GAME.Modules['SaveSystem'].saveMeta();
   if (GAME.Modules?.['SaveSystem']?.clearSave) GAME.Modules['SaveSystem'].clearSave();
 

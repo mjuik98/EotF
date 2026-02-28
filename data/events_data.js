@@ -1,6 +1,7 @@
 /**
  * events_data.js — 이벤트, 스토리 фраг먼트, 사망 명언
  */
+import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
 import { ITEMS } from './items.js';
 import { AudioEngine } from '../engine/audio.js';
@@ -11,8 +12,8 @@ export const EVENTS = [
         desc: '낡은 여행 가방 하나가 나뭇가지에 걸려 있다.',
         image: 'event_wanderer.png',
         choices: [
-            { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog('골드 +20', 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
-            { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog('잔향 +15', 'echo'); return '조심성이 잔향을 강화했다.'; } },
+            { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog(LogUtils.formatStatChange('플레이어', '골드', 20), 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
+            { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog(LogUtils.formatEcho('잔향 +15'), 'echo'); return '조심성이 잔향을 강화했다.'; } },
         ]
     },
     {
@@ -45,8 +46,8 @@ export const EVENTS = [
         desc: '잔향 에너지에 길을 잃은 상인을 발견했다. 두려움에 떨고 있다.',
         image: 'event_merchant_lost.png',
         choices: [
-            { text: '🤝 상인을 도와준다', effect(gs) { gs.worldMemory.savedMerchant = (gs.worldMemory.savedMerchant || 0) + 1; gs.heal(15); gs.addLog('💚 상인이 치료약을 건넸다', 'heal'); return '상인은 감사하며 치료약을 건넸다.'; } },
-            { text: '💰 상인의 물건을 빼앗는다', effect(gs) { gs.addGold(30); gs.worldMemory.stoleFromMerchant = true; gs.addLog('골드 +30 (약탈)', 'damage'); return '30골드를 얻었다. 상인의 눈에서 빛이 사라졌다.'; } },
+            { text: '🤝 상인을 도와준다', effect(gs) { gs.worldMemory.savedMerchant = (gs.worldMemory.savedMerchant || 0) + 1; gs.heal(15); gs.addLog(LogUtils.formatHeal('상인', 15), 'heal'); return '상인은 감사하며 치료약을 건넸다.'; } },
+            { text: '💰 상인의 물건을 빼앗는다', effect(gs) { gs.addGold(30); gs.worldMemory.stoleFromMerchant = true; gs.addLog(LogUtils.formatStatChange('약탈', '골드', 30), 'damage'); return '30골드를 얻었다. 상인의 눈에서 빛이 사라졌다.'; } },
         ]
     },
     {

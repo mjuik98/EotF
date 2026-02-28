@@ -1,6 +1,7 @@
 /**
  * cards.js — 카드 데이터, 업그레이드 맵, 에셋 경로
  */
+import { LogUtils } from '../game/utils/log_utils.js';
 import { AudioEngine } from '../engine/audio.js';
 
 export const ASSETS = {
@@ -32,12 +33,12 @@ export const UPGRADE_MAP = {
 export const CARDS = {
     // 공통 기본
     strike: {
-        id: 'strike', name: '타격', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 9.', rarity: 'common',
+        id: 'strike', name: '타격', icon: '👊🏻', cost: 1, type: 'ATTACK', desc: '피해 9.', rarity: 'common',
         image: 'card_strike.png',
         effect(gs) { gs.dealDamage(9); AudioEngine.playChain(gs.player.echoChain); }
     },
     strike_plus: {
-        id: 'strike_plus', name: '타격+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 13. 잔향 5 충전.', rarity: 'common', upgraded: true,
+        id: 'strike_plus', name: '타격+', icon: '👊🏻', cost: 1, type: 'ATTACK', desc: '피해 13. 잔향 5 충전.', rarity: 'common', upgraded: true,
         image: 'card_strike.png',
         effect(gs) { gs.dealDamage(13); gs.addEcho(5); AudioEngine.playChain(gs.player.echoChain); }
     },
@@ -165,7 +166,19 @@ export const CARDS = {
     blade_dance: {
         id: 'blade_dance', name: '검무', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 4를 3번 줍니다. 가속 상태라면 잔향 10을 충전합니다.', rarity: 'uncommon',
         image: 'card_blade_dance.png',
-        effect(gs) { for (let i = 0; i < 3; i++) gs.dealDamage(4, null, i < 2); if (gs.getBuff('acceleration')) gs.addEcho(10); }
+        effect(gs) {
+            // 다단 히트 도중 버프가 소모되는 것을 방지하기 위해 '총 데미지'를 한 번에 계산하거나, 
+            // DamageSystem을 수정하여 다단 히트임을 명시해야 함. 
+            // 여기서는 단순하게 3번의 타격을 각각 DamageSystem이 아닌 직접 호출하거나 
+            // DamageSystem의 dealDamage에서 버프 소모 시점을 체크하도록 DamageSystem을 고쳐야 함.
+            // 일단은 카드 쪽에서 보너스를 미리 계산해서 넘기는 방식으로 해결.
+            const accel = gs.getBuff('acceleration');
+            const bonus = accel ? accel.dmgBonus : 0;
+            for (let i = 0; i < 3; i++) {
+                gs.dealDamage(4 + bonus, null, i < 2);
+            }
+            if (accel) gs.addEcho(10);
+        }
     },
     // 메아리술사
     foresight: {
@@ -371,7 +384,7 @@ export const CARDS = {
         }
     },
     tempo_strike: {
-        id: 'tempo_strike', name: '박자 강타', icon: ' drum', cost: 1, type: 'ATTACK', desc: '피해 8. 다음에 사용하는 카드의 비용이 1 감소합니다.', rarity: 'common',
+        id: 'tempo_strike', name: '박자 강타', icon: '🥁', cost: 1, type: 'ATTACK', desc: '피해 8. 다음에 사용하는 카드의 비용이 1 감소합니다.', rarity: 'common',
         image: 'card_tempo_strike.png',
         effect(gs) {
             gs.dealDamage(8);

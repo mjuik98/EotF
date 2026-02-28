@@ -4,6 +4,8 @@
  * DOM/window 접근 없이 게임 상태(gs)만 변경합니다.
  * UI 업데이트는 호출측(combat_turn_ui.js)이 반환값/콜백으로 처리합니다.
  */
+import { LogUtils } from '../utils/log_utils.js';
+import { Actions } from '../core/state_actions.js';
 
 // ═══════════════════════════════════════
 //  상수
@@ -17,19 +19,19 @@ const ENEMY_TURN_BUFFS = new Set(['mirror', 'immune']);
 const ENEMY_EFFECTS = {
     self_atk_up(gs, enemy) {
         enemy.atk += 3;
-        gs.addLog(`💪 ${enemy.name}: 공격 강화 (+3)`, 'system');
+        gs.addLog(LogUtils.formatStatChange(enemy.name, '공격력', 3), 'system');
     },
     self_shield(gs, enemy) {
         enemy.shield = (enemy.shield || 0) + 8;
-        gs.addLog(`🛡️ ${enemy.name}: 방어막 8`, 'system');
+        gs.addLog(LogUtils.formatShield(enemy.name, 8), 'system');
     },
     self_shield_15(gs, enemy) {
         enemy.shield = (enemy.shield || 0) + 15;
-        gs.addLog(`🛡️ ${enemy.name}: 신성 방어막 15`, 'system');
+        gs.addLog(LogUtils.formatShield(enemy.name, 15), 'system');
     },
     self_shield_20(gs, enemy) {
         enemy.shield = (enemy.shield || 0) + 20;
-        gs.addLog(`🛡️ ${enemy.name}: 방어막 20`, 'system');
+        gs.addLog(LogUtils.formatShield(enemy.name, 20), 'system');
     },
     add_noise_5(gs, _enemy, _deps, baseRegion) {
         if (baseRegion === 1) gs.addSilence(5);
@@ -37,22 +39,22 @@ const ENEMY_EFFECTS = {
     mass_debuff(gs) {
         const debuffs = ['weakened', 'slowed', 'burning'];
         debuffs.forEach(d => { gs.player.buffs[d] = { stacks: 1 }; });
-        gs.addLog('⚠️ 전체 디버프 부여!', 'damage');
+        gs.addLog(LogUtils.formatAura('전체 디버프 부여!'), 'damage');
         return { uiAction: 'updateStatusDisplay' };
     },
     curse(gs, enemy) {
         gs.player.buffs.cursed = { stacks: 2 };
-        gs.addLog(`💀 ${enemy.name}: 저주 부여!`, 'damage');
+        gs.addLog(LogUtils.formatStatus(gs.player.name || '플레이어', '저주', 2), 'damage');
         return { uiAction: 'updateStatusDisplay' };
     },
     drain_echo(gs, enemy) {
         gs.drainEcho(20);
-        gs.addLog(`🌑 ${enemy.name}: Echo 흡수!`, 'damage');
+        gs.addLog(LogUtils.formatEcho(`${enemy.name}: Echo 흡수! (-20)`), 'damage');
     },
     nullify_echo(gs) {
         gs.player.echo = 0;
         gs.player.echoChain = 0;
-        gs.addLog('🌑 Echo 완전 무효화!', 'damage');
+        gs.addLog(LogUtils.formatEcho('Echo 완전 무효화!'), 'damage');
         return { uiAction: 'updateChainUI', value: 0 };
     },
     add_noise(gs, _enemy, _deps, baseRegion) {
@@ -69,63 +71,63 @@ const ENEMY_EFFECTS = {
     },
     drain_energy(gs) {
         gs.player.energy = Math.max(0, gs.player.energy - 1);
-        gs.addLog('⚡ 에너지 -1!', 'damage');
+        gs.addLog(LogUtils.formatStatChange('플레이어', '에너지', -1, false), 'damage');
         return { uiAction: 'updateUI' };
     },
     drain_energy_2(gs) {
         gs.player.energy = Math.max(0, gs.player.energy - 2);
-        gs.addLog('⚡ 에너지 -2!', 'damage');
+        gs.addLog(LogUtils.formatStatChange('플레이어', '에너지', -2, false), 'damage');
         return { uiAction: 'updateUI' };
     },
     drain_energy_all(gs) {
         gs.player.energy = 0;
-        gs.addLog('⚡ 에너지 완전 소진!', 'damage');
+        gs.addLog(LogUtils.formatSystem('에너지 완전 소진!'), 'damage');
         return { uiAction: 'updateUI' };
     },
     confusion(gs) {
         // 셔플은 외부에서 처리 필요
-        gs.addLog('🌀 카드 뒤섞임!', 'damage');
+        gs.addLog(LogUtils.formatAura('카드 뒤섞임!'), 'damage');
         return { uiAction: 'shuffleAndRender' };
     },
     weaken(gs, enemy) {
         gs.player.buffs.weakened = { stacks: (gs.player.buffs.weakened?.stacks || 0) + 1 };
-        gs.addLog(`💫 ${enemy.name}: 약화 부여`, 'damage');
+        gs.addLog(LogUtils.formatStatus('플레이어', '약화', 1), 'damage');
         return { uiAction: 'updateStatusDisplay' };
     },
     dodge(gs, enemy) {
         if (!enemy.statusEffects) enemy.statusEffects = {};
         enemy.statusEffects.dodge = (enemy.statusEffects.dodge || 0) + 1;
-        gs.addLog(`💨 ${enemy.name}: 회피 태세!`, 'system');
+        gs.addLog(LogUtils.formatSystem(`${enemy.name}: 회피 태세!`), 'system');
     },
     lifesteal(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp || enemy.hp, (enemy.hp || 0) + 4);
-        gs.addLog(`💚 ${enemy.name}: 생명력 흡수 (+4)`, 'heal');
+        gs.addLog(LogUtils.formatHeal(enemy.name, 4), 'heal');
         return { uiAction: 'updateUI' };
     },
     poison_3(gs, enemy) {
         gs.player.buffs.poisoned = { stacks: 3 };
-        gs.addLog(`☠️ ${enemy.name}: 맹독 부여!`, 'damage');
+        gs.addLog(LogUtils.formatStatus('플레이어', '맹독', 3), 'damage');
         return { uiAction: 'updateStatusDisplay' };
     },
     self_heal_15(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp, (enemy.hp || 0) + 15);
-        gs.addLog(`💚 ${enemy.name}: 체력 회복 (+15)`, 'heal');
+        gs.addLog(LogUtils.formatHeal(enemy.name, 15), 'heal');
     },
     self_atk_up_4(gs, enemy) {
         enemy.atk += 4;
-        gs.addLog(`💪 ${enemy.name}: 공격 대폭 강화 (+4)`, 'system');
+        gs.addLog(LogUtils.formatStatChange(enemy.name, '공격력', 4), 'system');
     },
     all_atk_up(gs) {
         gs.combat.enemies.forEach(e => {
             if (e.hp > 0) {
                 e.atk += 2;
-                gs.addLog(`💪 ${e.name}: 공격력 전술 강화 (+2)`, 'system');
+                gs.addLog(LogUtils.formatStatChange(e.name, '공격력', 2), 'system');
             }
         });
     },
     heal_12(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp, enemy.hp + 12);
-        gs.addLog(`💚 ${enemy.name}: 체력 회복 (+12)`, 'heal');
+        gs.addLog(LogUtils.formatHeal(enemy.name, 12), 'heal');
     },
     heal_15(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp, enemy.hp + 15);
@@ -140,12 +142,12 @@ const ENEMY_EFFECTS = {
         gs.addLog(`💚 ${enemy.name}: 체력 회복 (+30)`, 'heal');
     },
     phase_shift(gs, enemy) {
-        gs.addLog(`⚠️ ${enemy.name}: 위상 전환!`, 'system');
+        gs.addLog(LogUtils.formatSystem(`${enemy.name}: 위상 전환!`), 'system');
     },
     stun(gs, enemy) {
         gs.player.energy = 0;
         gs.player.buffs.stunned = { stacks: 1 };
-        gs.addLog(`⚡ ${enemy.name}: 기절! 에너지 소진`, 'damage');
+        gs.addLog(LogUtils.formatStatus('플레이어', '기절', 1), 'damage');
         return { uiAction: 'updateStatusDisplay' };
     },
     thorns(gs, enemy) {
@@ -237,7 +239,7 @@ export const TurnManager = {
      */
     processEnemyAttack(gs, enemy, index, action) {
         const hitCount = action.multi || 1;
-        gs.addLog?.(`💢 ${enemy.name}: ${action.intent}`, 'damage');
+        gs.addLog?.(LogUtils.formatSystem(`${enemy.name}의 행동: ${action.intent}`), 'damage');
 
         const results = [];
         for (let h = 0; h < hitCount; h++) {
@@ -256,7 +258,7 @@ export const TurnManager = {
 
             if (gs.player.buffs?.mirror) {
                 enemy.hp = Math.max(0, enemy.hp - dmg);
-                gs.addLog?.(`🪞 반사! ${enemy.name}에게 ${dmg} 피해`, 'echo');
+                gs.addLog?.(LogUtils.formatAttack('반사막', enemy.name, dmg), 'echo');
                 delete gs.player.buffs.mirror;
                 reflected = true;
                 if (enemy.hp <= 0) {
@@ -290,7 +292,7 @@ export const TurnManager = {
             if (se.poisoned > 0) {
                 const dmg = se.poisoned * 2;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
-                gs.addLog?.(`🐍 ${enemy.name}: 독 ${dmg}`, 'damage');
+                gs.addLog?.(LogUtils.formatAttack('독', enemy.name, dmg), 'damage');
                 se.poisoned--;
                 if (se.poisoned <= 0) delete se.poisoned;
                 let enemyDied = false;
@@ -305,7 +307,7 @@ export const TurnManager = {
             if (se.burning > 0) {
                 const dmg = 5;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
-                gs.addLog?.(`🔥 ${enemy.name}: 화염 ${dmg}`, 'damage');
+                gs.addLog?.(LogUtils.formatAttack('화염', enemy.name, dmg), 'damage');
                 se.burning--;
                 if (se.burning <= 0) delete se.burning;
                 let enemyDied = false;
@@ -322,7 +324,7 @@ export const TurnManager = {
                 if (se.marked <= 0) {
                     const dmg = 30;
                     enemy.hp = Math.max(0, enemy.hp - dmg);
-                    gs.addLog?.(`💢 ${enemy.name}: 처형 표식 폭발! ${dmg}!`, 'echo');
+                    gs.addLog?.(LogUtils.formatAttack('표식', enemy.name, dmg), 'echo');
                     delete se.marked;
                     let enemyDied = false;
                     if (enemy.hp <= 0) {
@@ -344,7 +346,7 @@ export const TurnManager = {
                 if (se.doom <= 0) {
                     const dmg = 40;
                     gs.takeDamage?.(dmg);
-                    gs.addLog?.(`☠️ ${enemy.name}: 파멸 발동! ${dmg} 피해!`, 'damage');
+                    gs.addLog?.(LogUtils.formatAttack('파멸', '플레이어', dmg), 'damage');
                     delete se.doom;
                     events.push({ index, type: 'doom_explode', dmg, enemyDied: false, color: '#ff00ff' });
                 } else {
@@ -375,7 +377,7 @@ export const TurnManager = {
 
         if ((buffs.burning?.stacks || 0) > 0) {
             gs.takeDamage(5);
-            gs.addLog?.('🔥 화염: 턴 시작 피해 5', 'damage');
+            gs.addLog?.(LogUtils.formatAttack('화염', '플레이어', 5), 'damage');
             decStack('burning');
             if (!gs.combat.active || gs.player.hp <= 0) return { alive: false, actions };
         }
@@ -383,21 +385,21 @@ export const TurnManager = {
         if ((buffs.poisoned?.stacks || 0) > 0) {
             const poisonDmg = 1 + Math.max(1, buffs.poisoned.stacks);
             gs.takeDamage(poisonDmg);
-            gs.addLog?.(`☠️ 독: 턴 시작 피해 ${poisonDmg}`, 'damage');
+            gs.addLog?.(LogUtils.formatAttack('독', '플레이어', poisonDmg), 'damage');
             decStack('poisoned');
             if (!gs.combat.active || gs.player.hp <= 0) return { alive: false, actions };
         }
 
         if ((buffs.slowed?.stacks || 0) > 0) {
             gs.player.energy = Math.max(0, gs.player.energy - 1);
-            gs.addLog?.('🐢 감속: 에너지 -1', 'damage');
+            gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', -1, false), 'damage');
             decStack('slowed');
         }
 
         if ((buffs.confusion?.stacks || 0) > 0) {
             if (gs.player.hand.length > 1 && shuffleArrayFn) {
                 shuffleArrayFn(gs.player.hand);
-                gs.addLog?.('🌀 혼란: 손패가 뒤섞였다', 'damage');
+                gs.addLog?.(LogUtils.formatAura('혼란: 손패가 뒤섞였다'), 'damage');
                 actions.push('renderCombatCards');
             }
             decStack('confusion');
@@ -416,13 +418,13 @@ export const TurnManager = {
 
         if (!enemy.statusEffects) enemy.statusEffects = {};
         enemy.statusEffects.immune = Math.max(enemy.statusEffects.immune || 0, 1);
-        gs.addLog?.(`🛡️ ${enemy.name}: 1턴 무적`, 'echo');
+        gs.addLog?.(LogUtils.formatStatus(enemy.name, '무적', 1), 'echo');
 
         enemy.phase = (enemy.phase || 1) + 1;
 
         let buffsPurged = false;
         if (enemy.phase === 2) {
-            gs.addLog?.(`⚠️ ${enemy.name} 2페이즈 각성!`, 'echo');
+            gs.addLog?.(LogUtils.formatSystem(`${enemy.name} 2페이즈 각성!`), 'echo');
             const permanentBuffs = {};
             Object.keys(gs.player.buffs).forEach(buffId => {
                 const buff = gs.player.buffs[buffId];
@@ -431,7 +433,7 @@ export const TurnManager = {
                 }
             });
             gs.player.buffs = permanentBuffs;
-            gs.addLog?.('💀 플레이어 버프 해제!', 'damage');
+            gs.addLog?.(LogUtils.formatSystem('플레이어 모든 버프 해제!'), 'damage');
             buffsPurged = true;
         } else if (enemy.phase === 3) {
             gs.addLog?.(`💀 ${enemy.name} 최종 페이즈!`, 'damage');
@@ -471,7 +473,7 @@ export const TurnManager = {
         const isStunned = (gs.player.buffs?.stunned?.stacks || 0) > 0;
         if (isStunned) {
             gs.player.energy = 0;
-            gs.addLog?.('🌀 기절 상태: 에너지가 충전되지 않았습니다!', 'damage');
+            gs.addLog?.(LogUtils.formatSystem('기절 상태: 에너지 충전 실패'), 'damage');
         } else {
             gs.player.energy = gs.player.maxEnergy;
         }
@@ -487,17 +489,17 @@ export const TurnManager = {
             if (allCards.length > 0) {
                 const targetCardId = allCards[Math.floor(Math.random() * allCards.length)];
                 gs.dispatch?.(Actions.CARD_DISCARD, { cardId: targetCardId, exhaust: true });
-                gs.addLog?.(`🌫️ 망각의 안개: ${targetCardId} 소각됨`, 'damage');
+                gs.addLog?.(LogUtils.formatSystem(`망각의 안개: ${targetCardId} 소각됨`), 'damage');
             }
         } else if (baseRegionIdx === 3) { // 신의 무덤: 에너지 회복량 -1
             if (!isStunned) {
                 gs.player.energy = Math.max(0, gs.player.energy - 1);
-                gs.addLog?.('⚖️ 신성한 심판: 에너지 회복량 감소', 'damage');
+                gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', -1, false), 'damage');
             }
         } else if (baseRegionIdx === 4) { // 메아리의 근원: 매 턴 최대 에코 -5
             gs.player.maxEcho = Math.max(50, (gs.player.maxEcho || 100) - 5);
             gs.player.echo = Math.min(gs.player.echo, gs.player.maxEcho);
-            gs.addLog?.('🌀 현실 붕괴: 최대 에코 감소', 'damage');
+            gs.addLog?.(LogUtils.formatStatChange('플레이어', '최대 에코', -5, false), 'damage');
         }
 
         gs.drawCards(5);
@@ -508,7 +510,7 @@ export const TurnManager = {
             if (buff?.nextEnergy) {
                 gs.player.energy += buff.nextEnergy;
                 const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
-                gs.addLog?.(`🌀 ${label}: 에너지 +${buff.nextEnergy}`, 'echo');
+                gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', buff.nextEnergy), 'echo');
                 if (Number.isFinite(buff.stacks)) {
                     buff.stacks--;
                     if (buff.stacks <= 0) delete gs.player.buffs[buffId];
@@ -518,7 +520,7 @@ export const TurnManager = {
             } else if (buff?.energyPerTurn) {
                 gs.player.energy += buff.energyPerTurn;
                 const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
-                gs.addLog?.(`🌀 ${label}: 에너지 +${buff.energyPerTurn}`, 'echo');
+                gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', buff.energyPerTurn), 'echo');
                 if (Number.isFinite(buff.stacks)) {
                     buff.stacks--;
                     if (buff.stacks <= 0) delete gs.player.buffs[buffId];

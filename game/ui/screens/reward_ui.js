@@ -408,7 +408,12 @@ export const RewardUI = {
     const eventUI = deps.EventUI;
     if (eventUI && typeof eventUI.showCardDiscard === 'function') {
       eventUI.showCardDiscard(gs, true, {
-        ...deps, returnToGame: (force) => {
+        ...deps,
+        onCancel: () => {
+          gs._rewardLock = false;
+          container?.classList.remove('picked');
+        },
+        returnToGame: (force) => {
           if (typeof deps.returnToGame === 'function') deps.returnToGame(force);
         }
       });

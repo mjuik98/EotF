@@ -54,14 +54,15 @@ export const CombatTurnUI = {
     const win = _getWin(deps);
     const doc = _getDoc(deps);
     if (!gs?.combat?.active) return;
+    if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
     const waitWhileActive = async (ms) => {
       const steps = Math.ceil(ms / 50);
       for (let i = 0; i < steps; i++) {
-        if (!gs.combat.active) return false;
+        if (!gs.combat.active || gs._endCombatScheduled || gs._endCombatRunning) return false;
         await new Promise(r => setTimeout(r, 50));
       }
-      return gs.combat.active;
+      return gs.combat.active && !gs._endCombatScheduled && !gs._endCombatRunning;
     };
 
     // ── 적 상태효과 틱: 로직 위임 → UI 반영 ──
@@ -86,6 +87,7 @@ export const CombatTurnUI = {
 
     // ── 개별 적 행동 ──
     for (let index = 0; index < gs.combat.enemies.length; index++) {
+      if (gs._endCombatScheduled || gs._endCombatRunning) return;
       const enemy = gs.combat.enemies[index];
       if (enemy.hp <= 0) continue;
 
@@ -158,6 +160,7 @@ export const CombatTurnUI = {
 
     // ── 플레이어 턴 시작: 로직 → UI ──
     if (!(await waitWhileActive(600))) return;
+    if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
     console.log('[CombatTurn] Player turn start - energy:', gs.player.energy, 'maxEnergy:', gs.player.maxEnergy);
     console.log('[CombatTurn] Region:', gs.currentRegion, 'baseRegion:', typeof window.getBaseRegionIndex === 'function' ? window.getBaseRegionIndex(gs.currentRegion) : 'N/A');
@@ -167,6 +170,7 @@ export const CombatTurnUI = {
     });
     if (!statusResult.alive) return;
     statusResult.actions.forEach(a => this._dispatchUIAction({ uiAction: a }, deps));
+    if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
     TurnManager.startPlayerTurnLogic(gs);
 

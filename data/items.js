@@ -1,6 +1,7 @@
 /**
  * items.js — 아이템/유물 데이터
  */
+import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { CONSTANTS } from '../game/data/constants.js';
@@ -11,31 +12,31 @@ export const ITEMS = {
         id: 'void_compass', name: '공허의 나침반', icon: '🧭', rarity: 'common',
         desc: '전투 시작 시 카드 1장을 추가로 뽑습니다.',
         image: 'relic_void_compass.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.drawCards(1); gs.addLog('🧭 공허의 나침반: 카드 뽑기 +1', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.drawCards(1); gs.addLog(LogUtils.formatEcho('공허의 나침반: 카드 뽑기 +1'), 'echo'); } }
     },
     void_shard: {
         id: 'void_shard', name: '공허의 파편', icon: '🔷', rarity: 'common',
         desc: '전투 종료 시 잔향을 20 충전합니다.',
         image: 'relic_void_shard.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20); gs.addLog('🔷 공허의 파편: 잔향 +20', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20); gs.addLog(LogUtils.formatEcho('공허의 파편: 잔향 +20'), 'echo'); } }
     },
     cracked_amulet: {
         id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
         desc: '턴 시작 시 회복 2.',
         image: 'relic_cracked_amulet.png',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2); gs.addLog('📿 부서진 목걸이: 체력 +2', 'heal'); } }
+        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2); gs.addLog(LogUtils.formatHeal('부서진 목걸이', 2), 'heal'); } }
     },
     worn_pouch: {
         id: 'worn_pouch', name: '낡은 주머니', icon: '👜', rarity: 'common',
         desc: '전투 시작 시 골드를 5 얻습니다.',
         image: 'relic_worn_pouch.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addGold(5); gs.addLog('👜 낡은 주머니: 골드 +5', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addGold(5); gs.addLog(LogUtils.formatStatChange('낡은 주머니', '골드', 5), 'echo'); } }
     },
     dull_blade: {
         id: 'dull_blade', name: '무딘 검', icon: '🔪', rarity: 'common',
         desc: '카드를 사용할 때마다 10% 확률로 잔향을 10 충전합니다.',
         image: 'relic_dull_blade.png',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10); gs.addLog('🔪 무딘 검: 일정 확률로 잔향 +10', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10); gs.addLog(LogUtils.formatEcho('무딘 검: 일정 확률로 잔향 +10'), 'echo'); } }
     },
     travelers_map: {
         id: 'travelers_map', name: '여행자의 지도', icon: '🗺️', rarity: 'common',
@@ -47,26 +48,26 @@ export const ITEMS = {
         id: 'rift_talisman', name: '균열의 부적', icon: '📿', rarity: 'common',
         desc: '전투 시작 시 방어도를 5 얻습니다.',
         image: 'relic_cracked_amulet.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog('📿 균열의 부적: 방어도 +5', 'system'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatShield('균열의 부적', 5), 'system'); } }
     },
     blood_shard: {
         id: 'blood_shard', name: '핏빛 파편', icon: '🍷', rarity: 'common',
         desc: '적을 처치할 때마다 잔향을 10 충전합니다.',
         image: 'relic_blood_shard.png',
-        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10); gs.addLog('🍷 핏빛 파편: 잔향 +10', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10); gs.addLog(LogUtils.formatEcho('핏빛 파편: 잔향 +10'), 'echo'); } }
     },
     // ══════════════ UNCOMMON (파랑) ══════════════
     blood_gem: {
         id: 'blood_gem', name: '혈정', icon: '🔴', rarity: 'uncommon',
         desc: '피해를 받을 때마다 잔향을 15 충전합니다.',
         image: 'relic_blood_gem.png',
-        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addEcho(15); gs.addLog('🔴 혈정: 잔향 +15', 'echo'); } }
+        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addEcho(15); gs.addLog(LogUtils.formatEcho('혈정: 잔향 +15'), 'echo'); } }
     },
     phantom_cloak: {
         id: 'phantom_cloak', name: '환영 망토', icon: '🧥', rarity: 'uncommon',
         desc: '턴 시작 시 방어도를 4 얻습니다.',
         image: 'relic_phantom_cloak.png',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.addShield(4); gs.addLog('🧥 환영 망토: 방어도 +4', 'system'); } }
+        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.addShield(4); gs.addLog(LogUtils.formatShield('환영 망토', 4), 'system'); } }
     },
     cursed_tome: {
         id: 'cursed_tome', name: '저주받은 마도서', icon: '📕', rarity: 'uncommon',
@@ -78,7 +79,7 @@ export const ITEMS = {
         id: 'ancient_rune', name: '고대의 룬석', icon: '🗿', rarity: 'uncommon',
         desc: '보스전 시작 시 최대 체력이 20% 증가합니다.',
         image: 'relic_ancient_rune.png',
-        passive(gs, trigger) { if (trigger === Trigger.BOSS_START) { gs.player.maxHp = Math.floor(gs.player.maxHp * 1.2); gs.player.hp = Math.min(gs.player.hp + 20, gs.player.maxHp); gs.addLog('🗿 고대의 룬석: 체력 강화!', 'echo'); gs.markDirty?.('hud'); } }
+        passive(gs, trigger) { if (trigger === Trigger.BOSS_START) { gs.player.maxHp = Math.floor(gs.player.maxHp * 1.2); gs.player.hp = Math.min(gs.player.hp + 20, gs.player.maxHp); gs.addLog(LogUtils.formatSystem('고대의 룬석: 체력 강화!'), 'echo'); gs.markDirty?.('hud'); } }
     },
     echo_chain_ring: {
         id: 'echo_chain_ring', name: '연쇄의 반지', icon: '🔗', rarity: 'uncommon',
@@ -90,13 +91,13 @@ export const ITEMS = {
         id: 'bone_charm', name: '뼈 부적', icon: '🦴', rarity: 'uncommon',
         desc: '적을 처치할 때마다 회복 5.',
         image: 'relic_bone_charm.png',
-        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(5); gs.addLog('🦴 뼈 부적: 체력 +5', 'heal'); } }
+        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(5); gs.addLog(LogUtils.formatHeal('뼈 부적', 5), 'heal'); } }
     },
     poison_vial: {
         id: 'poison_vial', name: '독 약병', icon: '🧪', rarity: 'uncommon',
         desc: '전투 시작 시 모든 적에게 독 2중첩을 부여합니다.',
         image: 'relic_poison_vial.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.combat.enemies.forEach((_, i) => gs.applyEnemyStatus('poisoned', 2, i)); gs.addLog('🧪 독 약병: 모든 적에게 독 부여!', 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.combat.enemies.forEach((_, i) => gs.applyEnemyStatus('poisoned', 2, i)); gs.addLog(LogUtils.formatSystem('독 약병: 모든 적에게 독 부여!'), 'echo'); } }
     },
     shadow_mask: {
         id: 'shadow_mask', name: '그림자 가면', icon: '🎭', rarity: 'uncommon',

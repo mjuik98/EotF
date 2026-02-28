@@ -1,4 +1,5 @@
 import { GS } from '../core/game_state.js';
+import { LogUtils } from '../utils/log_utils.js';
 
 
 function _getGS(gs) {
@@ -139,7 +140,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('blessing_of_light');
       if (buff) {
         state.heal(buff.healPerTurn || 0);
-        state.addLog(`☀️ 빛의 축복: HP +${buff.healPerTurn}`, 'heal');
+        state.addLog(LogUtils.formatHeal('플레이어', buff.healPerTurn || 0), 'heal');
       }
     },
     onHeal(gs, amount) {
@@ -151,7 +152,7 @@ export const ClassMechanics = {
 
       const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
 
-      state.addLog(`✨ 성가 발동! 적에게 ${amount} 피해!`, 'echo');
+      state.addLog(LogUtils.formatEcho(`성가 발동! 적에게 ${amount} 피해!`), 'echo');
       // dealDamage takes (amount, targetIdx, isSubDamage, source)
       state.dealDamage(amount, targetIdx, true);
     },
@@ -190,7 +191,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('berserk_mode');
       if (buff) {
         buff.atkGrowth = (buff.atkGrowth || 0) + 2;
-        state.addLog(`😡 광기 어린 투지: 피해 +2 (현재 +${buff.atkGrowth})`, 'echo');
+        state.addLog(LogUtils.formatEcho(`광기 어린 투지: 피해 +2 (현재 +${buff.atkGrowth})`), 'echo');
       }
       return damage;
     },
@@ -233,7 +234,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('unbreakable_wall');
       if (buff && state.player.shield > 0) {
         state.player._preservedShield = Math.floor(state.player.shield / 2);
-        state.addLog(`🧱 불굴의 벽: 방어막 ${state.player._preservedShield} 유지`, 'system');
+        state.addLog(LogUtils.formatShield('플레이어', state.player._preservedShield), 'system');
       }
     },
     onTurnStart(gs) {
