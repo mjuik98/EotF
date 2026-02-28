@@ -112,17 +112,28 @@ export const EventUI = {
     const doc = _getDoc(deps);
     gs._eventLock = true;
 
-    // ── 로직 위임 ──
-    const { resultText, isFail, shouldClose, isItemShop } = EventManager.resolveEventChoice(gs, event, choiceIdx);
+    let resolution = null;
+    try {
+      resolution = EventManager.resolveEventChoice(gs, event, choiceIdx);
+    } catch (err) {
+      console.error('[resolveEvent] choice effect error:', err);
+      gs._eventLock = false;
+      deps.audioEngine?.playHit?.();
+      return;
+    }
+
+    const { resultText, isFail, shouldClose, isItemShop } = resolution || {};
 
     if (typeof deps.updateUI === 'function') deps.updateUI();
     this.updateEventGoldBar(deps);
 
-    // 아이템 상점으로 전환
-    if (isItemShop) return;
+    if (isItemShop) {
+      // Item shop overlay can close without purchase, so keep event choices interactive.
+      gs._eventLock = false;
+      return;
+    }
 
-    // 결과 없음 → 모달 닫기
-    if (!resultText && !isItemShop) {
+    if (!resultText) {
       console.log('[resolveEvent] no result, closing event');
       doc.getElementById('eventModal')?.classList.remove('active');
       _currentEvent = null;
@@ -134,11 +145,9 @@ export const EventUI = {
       return;
     }
 
-    // 결과 텍스트 표시
     const descEl = doc.getElementById('eventDesc');
     if (descEl) descEl.textContent = resultText;
 
-    // 실패 or 지속 이벤트 → 선택지 다시 표시
     if (event.persistent || isFail) {
       _renderChoices(event, doc, deps);
       this.updateEventGoldBar(deps);
@@ -146,14 +155,18 @@ export const EventUI = {
       return;
     }
 
-    // 성공 → "계속" 버튼
+    if (!shouldClose) {
+      gs._eventLock = false;
+      return;
+    }
+
     const choicesEl = doc.getElementById('eventChoices');
     if (choicesEl) {
       choicesEl.textContent = '';
       const continueBtn = doc.createElement('div');
       continueBtn.className = 'event-choice';
       continueBtn.id = 'eventChoiceContinue';
-      continueBtn.textContent = '계속';
+      continueBtn.textContent = '\uACC4\uC18D';
       continueBtn.addEventListener('click', () => {
         console.log('[event continue] clicked');
         doc.getElementById('eventModal')?.classList.remove('active');
@@ -167,7 +180,6 @@ export const EventUI = {
       choicesEl.appendChild(continueBtn);
     }
   },
-
   showShop(deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);

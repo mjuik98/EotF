@@ -484,12 +484,34 @@ export const TurnManager = {
         const regionIdx = gs.currentRegion || 0;
         const baseRegionIdx = typeof window.getBaseRegionIndex === 'function' ? window.getBaseRegionIndex(regionIdx) : (regionIdx % 5);
 
-        if (baseRegionIdx === 2) { // 기억의 미궁: 매 턴 무작위 카드 1장 소각
-            const allCards = [...gs.player.deck, ...gs.player.hand, ...gs.player.graveyard];
-            if (allCards.length > 0) {
-                const targetCardId = allCards[Math.floor(Math.random() * allCards.length)];
-                gs.dispatch?.(Actions.CARD_DISCARD, { cardId: targetCardId, exhaust: true });
-                gs.addLog?.(LogUtils.formatSystem(`망각의 안개: ${targetCardId} 소각됨`), 'damage');
+        if (baseRegionIdx === 2) { // Stage effect: exhaust one random card without duplicating piles
+            const pools = [
+                { key: 'deck', cards: gs.player.deck },
+                { key: 'hand', cards: gs.player.hand },
+                { key: 'graveyard', cards: gs.player.graveyard },
+            ].filter(p => Array.isArray(p.cards) && p.cards.length > 0);
+
+            const totalCards = pools.reduce((sum, p) => sum + p.cards.length, 0);
+            if (totalCards > 0) {
+                let pick = Math.floor(Math.random() * totalCards);
+                let pickedPool = null;
+
+                for (const pool of pools) {
+                    if (pick < pool.cards.length) {
+                        pickedPool = pool;
+                        break;
+                    }
+                    pick -= pool.cards.length;
+                }
+
+                if (pickedPool) {
+                    const [targetCardId] = pickedPool.cards.splice(pick, 1);
+                    if (targetCardId) {
+                        gs.player.exhausted.push(targetCardId);
+                        if (pickedPool.key === 'hand') gs.markDirty?.('hand');
+                        gs.addLog?.(LogUtils.formatSystem(`Stage effect: ${targetCardId} exhausted`), 'damage');
+                    }
+                }
             }
         } else if (baseRegionIdx === 3) { // 신의 무덤: 에너지 회복량 -1
             if (!isStunned) {

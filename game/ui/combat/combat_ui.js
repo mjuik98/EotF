@@ -458,8 +458,8 @@ export const CombatUI = {
           intentEl.appendChild(dmgDiv);
         }
 
-        intentEl.addEventListener('mouseenter', ev => this.showIntentTooltip(ev, i, deps));
-        intentEl.addEventListener('mouseleave', () => this.hideIntentTooltip(deps));
+        intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
+        intentEl.onmouseleave = () => this.hideIntentTooltip(deps);
         card.appendChild(intentEl);
 
         const statusCont = doc.createElement('div');
@@ -525,8 +525,8 @@ export const CombatUI = {
           }
 
           intentEl.append(iconSpan, labelSpan, dmgDiv);
-          intentEl.addEventListener('mouseenter', ev => this.showIntentTooltip(ev, i, deps));
-          intentEl.addEventListener('mouseleave', () => this.hideIntentTooltip(deps));
+          intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
+          intentEl.onmouseleave = () => this.hideIntentTooltip(deps);
         }
 
         if (statusEl) {

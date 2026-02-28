@@ -17,6 +17,8 @@ export const RunReturnUI = {
     gs._rewardLock = false;
     gs._nodeMoveLock = false;
     gs._eventLock = false;
+    gs._endCombatScheduled = false;
+    gs._endCombatRunning = false;
 
     const doc = _getDoc(deps);
     doc.getElementById('combatOverlay')?.classList.remove('active');

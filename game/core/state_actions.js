@@ -202,7 +202,7 @@ export const Reducers = {
         gs.combat.turn = 0;
         gs.combat.playerTurn = true;
         gs.combat.log = [];
-        gs.currentScreen = 'combat';
+        gs.currentScreen = 'game';
         gs.markDirty('hud');
         gs.markDirty('hand');
         return { enemyCount: enemies.length };
