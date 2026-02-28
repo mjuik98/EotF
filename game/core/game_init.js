@@ -69,13 +69,13 @@ export const GameInit = {
         });
 
         doc.getElementById('mainStartBtn')?.addEventListener('click', () => showCharacterSelect?.());
-        doc.getElementById('mainRunRulesBtn')?.addEventListener('click', () => openRunSettings?.());
-        doc.getElementById('mainCodexBtn')?.addEventListener('click', () => openCodexFromTitle?.());
+        doc.getElementById('mainRunRulesBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openRunSettings?.(); });
+        doc.getElementById('mainCodexBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openCodexFromTitle?.(); });
         doc.getElementById('mainSettingsBtn')?.addEventListener('click', () => {
             deps.audioEngine?.playClick?.();
             doc.getElementById('soundSettings')?.classList.toggle('open');
         });
-        doc.getElementById('mainQuitBtn')?.addEventListener('click', () => typeof quitGame === 'function' && quitGame());
+        doc.getElementById('mainQuitBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); typeof quitGame === 'function' && quitGame(); });
 
         doc.querySelectorAll('.class-btn').forEach(btn => {
             btn.addEventListener('click', () => selectClass?.(btn));

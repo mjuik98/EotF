@@ -119,8 +119,8 @@ export const GameAPI = {
     /**
      * 카드를 버리거나 사용 후 처리합니다.
      */
-    discardCard(cardId, isExhaust = false, gs = GAME.State) {
-        gs.dispatch(Actions.CARD_DISCARD, { cardId, exhaust: isExhaust });
+    discardCard(cardId, isExhaust = false, gs = GAME.State, skipHandRemove = false) {
+        gs.dispatch(Actions.CARD_DISCARD, { cardId, exhaust: isExhaust, skipHandRemove });
         Logger.info(`[API] Card ${isExhaust ? 'exhausted' : 'discarded'}: ${cardId}`);
     },
 
@@ -185,7 +185,7 @@ export const GameAPI = {
 
             // 사용 후 처리
             if (!gs.player.graveyard.includes(cardId) && !gs.player.exhausted.includes(cardId)) {
-                this.discardCard(cardId, card.exhaust, gs);
+                this.discardCard(cardId, card.exhaust, gs, true);
             }
 
             gs.stats.cardsPlayed++;

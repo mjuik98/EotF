@@ -44,7 +44,7 @@ export const CLASS_METADATA = {
         desc: '치유의 선율을 부르며 전선을 유지하는 수호자.',
         traitName: '성가',
         traitTitle: '성가 (Sacred Hymn)',
-        traitDesc: '끊이지 않는 생명의 노래가 흘러나옵니다. 매 턴 시작 시 체력을 서서히 회복하여, 기나긴 전투에서도 아군과 자신의 숨결을 이어갑니다.'
+        traitDesc: '자신을 치유할 기회를 심판의 시간으로 바꿉니다. 체력을 회복할 때마다 회복량만큼 무작위 적 하나에게 피해를 입혀 응징합니다.',
     },
     berserker: {
         id: 'berserker',

@@ -1896,6 +1896,67 @@ body {
   margin-bottom: 8px;
 }
 
+.panel-right-buff-container {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 5px 0;
+  min-height: 24px;
+}
+
+.panel-right-buff-container .hud-buff-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.4);
+  cursor: help;
+}
+
+.panel-right-buff-container .hud-buff-stack {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 3px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-family: 'Cinzel', serif;
+}
+
+.region-name-display {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.25em;
+  margin-bottom: 5px;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+  cursor: help;
+}
+
+.region-rule-display {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: var(--danger);
+  letter-spacing: 0.15em;
+  margin-bottom: 5px;
+  padding: 3px 8px;
+  background: rgba(255, 51, 102, 0.1);
+  border: 1px solid rgba(255, 51, 102, 0.2);
+  border-radius: 4px;
+  display: inline-block;
+  cursor: help;
+}
+
 .card-tooltip-name {
   font-family: 'Cinzel', serif;
   font-size: 13px;
@@ -2452,6 +2513,12 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 #combatOverlay.active .combat-arena {
+  pointer-events: none;
+}
+
+#combatOverlay.active .enemy-zone,
+#combatOverlay.active .combat-cards,
+#combatOverlay.active .combat-log {
   pointer-events: auto;
 }
 
@@ -2531,8 +2598,14 @@ body:has(#combatOverlay.active) .panel-bottom {
   overflow: visible;
 }
 
-/* combatOverlay.active 일 때만 활성화 */
+/* combatOverlay.active 일 때 텅 빈 공간은 이벤트를 무시하고 내부 요소만 활성화 */
 #combatOverlay.active .combat-hand-overlay {
+  pointer-events: none;
+}
+
+#combatOverlay.active .combat-hand-cards,
+#combatOverlay.active .combat-bottom-bar,
+#combatOverlay.active .combat-hand-topbar {
   pointer-events: auto;
 }
 
@@ -2574,6 +2647,9 @@ body:has(#combatOverlay.active) .panel-bottom {
   gap: 10px;
   flex-wrap: wrap;
   padding: 4px 0 0;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 300;
 }
 
 .combat-chain-inline {
@@ -2668,7 +2744,9 @@ body:has(#combatOverlay.active) .panel-bottom {
 .combat-actions {
   display: flex;
   gap: 8px;
-  pointer-events: auto;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 305;
   align-items: center;
 }
 
@@ -2682,6 +2760,9 @@ body:has(#combatOverlay.active) .panel-bottom {
   transition: all 0.22s;
   backdrop-filter: blur(12px);
   white-space: nowrap;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 310;
 }
 
 .action-btn-primary {

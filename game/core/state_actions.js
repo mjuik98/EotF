@@ -77,6 +77,14 @@ export const Reducers = {
         const actual = Math.min(amount, player.maxHp - player.hp);
         player.hp = Math.min(player.maxHp, player.hp + actual);
         gs.markDirty('hud');
+
+        if (actual > 0 && gs.combat?.active) {
+            const cm = window.GAME?.Modules?.['ClassMechanics']?.[player.class];
+            if (cm && typeof cm.onHeal === 'function') {
+                cm.onHeal(gs, actual);
+            }
+        }
+
         return { healed: actual, hpAfter: player.hp };
     },
 
@@ -93,7 +101,7 @@ export const Reducers = {
     },
 
     [Actions.PLAYER_ENERGY](gs, { amount }) {
-        gs.player.energy = Math.max(0, Math.min(gs.player.maxEnergy, gs.player.energy + amount));
+        gs.player.energy = Math.max(0, gs.player.energy + amount);
         gs.markDirty('hud');
         return { energyAfter: gs.player.energy };
     },
@@ -143,9 +151,11 @@ export const Reducers = {
         return { drawn, handSize: gs.player.hand.length };
     },
 
-    [Actions.CARD_DISCARD](gs, { cardId, exhaust = false }) {
-        const idx = gs.player.hand.indexOf(cardId);
-        if (idx >= 0) gs.player.hand.splice(idx, 1);
+    [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {
+        if (!skipHandRemove) {
+            const idx = gs.player.hand.indexOf(cardId);
+            if (idx >= 0) gs.player.hand.splice(idx, 1);
+        }
 
         if (exhaust) {
             gs.player.exhausted.push(cardId);

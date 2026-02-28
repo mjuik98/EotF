@@ -17,6 +17,11 @@ const STATUS_KR = {
   stunned: { name: '기절', icon: '⚡', buff: false, desc: '이번 턴 행동을 할 수 없습니다.' },
   confusion: { name: '혼란', icon: '🌀', buff: false, desc: '카드 사용 순서가 무작위로 뒤섞입니다.' },
   dodge: { name: '회피', icon: '💨', buff: true, desc: '다음 공격을 회피합니다.' },
+  strength: { name: '근력', icon: '💪', buff: true, desc: '공격력이 증가합니다.' },
+  dexterity: { name: '민첩', icon: '🏃', buff: true, desc: '방어도 획득량이 증가합니다.' },
+  vulnerable: { name: '취약', icon: '🎯', buff: false, desc: '받는 피해가 50% 증가합니다.' },
+  blessing_of_light: { name: '빛의 축복', icon: '☀️', buff: true, desc: '매 턴 시작 시 체력을 회복합니다.' },
+  divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어도가 일정 비율만큼 추가로 증가합니다.' }
 };
 
 function _getDoc(deps) {

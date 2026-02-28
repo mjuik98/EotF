@@ -255,6 +255,8 @@ export const HudUpdateUI = {
       }
     }
 
+
+
     // Hover HUD 에도 클래스 특성 표시
     const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
     if (hoverSpecialEl && window.ClassMechanics?.[p.class]) {
@@ -374,6 +376,38 @@ export const HudUpdateUI = {
       : { name: '알 수 없는 지역', rule: '-', floors: 5 };
     setText('regionName', region.name);
     setText('regionRule', region.rule);
+
+    // Add tooltip to Region Rule / Name
+    const regionNameEl = doc.getElementById('regionName');
+    const regionRuleEl = doc.getElementById('regionRule');
+
+    if (regionNameEl && regionRuleEl) {
+      const showTooltip = (evt) => {
+        const title = `✨ ${region.name} - ${region.rule}`;
+        const desc = region.ruleDesc || '특수 규칙이 적용되는 지역입니다.';
+
+        if (typeof window.TooltipUI?.showGeneralTooltip === 'function') {
+          window.TooltipUI.showGeneralTooltip(evt, title, desc, { doc, win: window });
+        } else if (typeof window.showGeneralTooltip === 'function') {
+          window.showGeneralTooltip(evt, title, desc, { doc, win: window });
+        }
+      };
+      const hideTooltip = () => {
+        if (typeof window.TooltipUI?.hideGeneralTooltip === 'function') {
+          window.TooltipUI.hideGeneralTooltip();
+        } else if (typeof window.hideGeneralTooltip === 'function') {
+          window.hideGeneralTooltip();
+        }
+      };
+
+      // Clean up previous listeners if any (simple way is clone and replace, or just rely on the fact that these are static elements)
+      // Since `regionNameEl` is static in HTML, repeated addEventListener might pile up. 
+      // It's safer to use onmouseenter / onmouseleave
+      regionNameEl.onmouseenter = showTooltip;
+      regionNameEl.onmouseleave = hideTooltip;
+      regionRuleEl.onmouseenter = showTooltip;
+      regionRuleEl.onmouseleave = hideTooltip;
+    }
 
     const maxFloors = region.floors || 5;
     const displayFloor = Math.min(maxFloors, gs.currentFloor);

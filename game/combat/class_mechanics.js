@@ -139,17 +139,27 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('blessing_of_light');
       if (buff) {
         state.heal(buff.healPerTurn || 0);
-        const trayName = window.DATA?.classes?.paladin?.traitName || '성가';
-        state.addLog(`✨ ${trayName}로 ${buff.healPerTurn} 회복`, 'heal');
+        state.addLog(`☀️ 빛의 축복: HP +${buff.healPerTurn}`, 'heal');
       }
+    },
+    onHeal(gs, amount) {
+      const state = _getGS(gs);
+      if (amount <= 0 || !state.combat?.enemies || state.combat.enemies.length === 0) return;
+
+      const aliveEnemies = state.combat.enemies.map((e, idx) => e.hp > 0 ? idx : -1).filter(idx => idx !== -1);
+      if (aliveEnemies.length === 0) return;
+
+      const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+
+      state.addLog(`✨ 성가 발동! 적에게 ${amount} 피해!`, 'echo');
+      // dealDamage takes (amount, targetIdx, isSubDamage, source)
+      state.dealDamage(amount, targetIdx, true);
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);
-      const buff = state?.getBuff?.('blessing_of_light');
-      const val = buff ? buff.healPerTurn : 0;
       const meta = window.DATA?.classes?.paladin;
       const title = meta?.traitTitle || '빛의 가호 (Divine Grace)';
-      const desc = meta?.traitDesc || '매 턴 시작 시 체력을 회복합니다.';
+      const desc = meta?.traitDesc || '체력을 회복할 때마다 회복량만큼 무작위 적에게 피해를 입힙니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -169,7 +179,7 @@ export const ClassMechanics = {
       label.textContent = meta?.traitName || '성가';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);";
-      value.textContent = `재생: ${val} HP/턴`;
+      value.textContent = `회복 시 적 피해`;
       el.append(label, value);
       return el;
     }

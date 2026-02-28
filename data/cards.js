@@ -289,17 +289,17 @@ export const CARDS = {
     surge: {
         id: 'surge', name: '서지', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +2 (이번 턴)', rarity: 'uncommon',
         image: 'card_surge.png',
-        effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 2, gs.player.energy + 2); gs.addLog('⚡ 서지: 에너지 +2!', 'echo'); gs.markDirty('hud'); }
+        effect(gs) { gs.player.energy += 2; gs.addLog('⚡ 서지: 에너지 +2!', 'echo'); gs.markDirty('hud'); }
     },
     surge_plus: {
         id: 'surge_plus', name: '서지+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 +3, 1장 드로우', rarity: 'uncommon', upgraded: true,
         image: 'card_surge.png',
-        effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 3, gs.player.energy + 3); gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); gs.markDirty('hud'); }
+        effect(gs) { gs.player.energy += 3; gs.drawCards(1); gs.addLog('⚡ 서지+: 에너지 +3!', 'echo'); gs.markDirty('hud'); }
     },
     overcharge: {
         id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '에너지 +4, HP -6, Echo +30', rarity: 'rare',
         image: 'card_overcharge.png',
-        effect(gs) { gs.player.energy = Math.min(gs.player.maxEnergy + 4, gs.player.energy + 4); gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); gs.markDirty('hud'); }
+        effect(gs) { gs.player.energy += 4; gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); gs.markDirty('hud'); }
     },
     void_tap: {
         id: 'void_tap', name: '허공 탭', icon: '🌀', cost: 1, type: 'SKILL', desc: '에너지 소진 후 피해 (소진 에너지 × 6)', rarity: 'rare',
@@ -400,7 +400,7 @@ export const CARDS = {
         effect(gs) { gs.addShield(6); gs.addEcho(15); }
     },
     blessing_of_light: {
-        id: 'blessing_of_light', name: '빛의 축복', icon: '☀️', cost: 2, type: 'POWER', desc: '매 턴 시작 시 HP 3 회복.', rarity: 'uncommon',
+        id: 'blessing_of_light', name: '빛의 축복', icon: '☀️', cost: 2, type: 'POWER', desc: '매 턴 시작 시 HP 3을 회복합니다. (성가 특성 발동)', rarity: 'uncommon',
         effect(gs) { gs.addBuff('blessing_of_light', 99, { healPerTurn: 3 }); }
     },
 
