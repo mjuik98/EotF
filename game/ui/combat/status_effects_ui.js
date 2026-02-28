@@ -18,7 +18,9 @@ const STATUS_KR = {
   dexterity: { name: '민첩', icon: '🏃', buff: true, desc: '얻는 방어도가 증가합니다.' },
   vulnerable: { name: '취약', icon: '🎯', buff: false, desc: '받는 피해가 50% 증가합니다.' },
   blessing_of_light: { name: '빛의 축복', icon: '☀️', buff: true, desc: '매 턴 시작 시 체력을 회복(회복량)합니다.' },
-  divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어도가 일정 비율만큼 추가로 증가합니다.' }
+  divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어도가 일정 비율만큼 추가로 증가합니다.' },
+  time_warp: { name: '시간 왜곡', icon: '🌀', buff: true, desc: '매 턴 시작 시 에너지를 1 추가로 획득합니다.' },
+  berserk_mode: { name: '광폭화', icon: '💢', buff: true, desc: '매 턴 공격력이 서서히 증가합니다.' }
 };
 
 function _getDoc(deps) {
