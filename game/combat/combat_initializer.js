@@ -145,6 +145,11 @@ export const CombatInitializer = {
             gs.player.buffs[debuff] = { stacks: 2 };
             gs.addLog?.(`⚠️ 신의 무덤: ${debuff} 부여!`, 'damage');
         }
+
+        const runRules = window.GAME?.Modules?.['RunRules'];
+        if (runRules && typeof runRules.onCombatStart === 'function') {
+            runRules.onCombatStart(gs);
+        }
     },
 
     /**
@@ -154,8 +159,7 @@ export const CombatInitializer = {
         gs.player.drawPile = [...(gs.player.deck || [])];
         gs.player.discardPile = [];
         gs.player.hand = [];
-        gs.player.deck = [...gs.player.drawPile];
-        if (shuffleArrayFn) shuffleArrayFn(gs.player.deck);
+        if (shuffleArrayFn) shuffleArrayFn(gs.player.drawPile);
 
         // 5장 드로우
         if (drawCardsFn) {
@@ -164,7 +168,7 @@ export const CombatInitializer = {
             gs.drawCards(5);
         } else {
             for (let i = 0; i < 5; i++) {
-                if (gs.player.deck.length > 0) gs.player.hand.push(gs.player.deck.pop());
+                if (gs.player.drawPile.length > 0) gs.player.hand.push(gs.player.drawPile.pop());
             }
         }
 

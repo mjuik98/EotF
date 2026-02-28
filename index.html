@@ -187,16 +187,6 @@
     <div class="turn-indicator turn-player" id="turnIndicator">플레이어 턴</div>
     <div id="turnBanner"></div>
 
-    <!-- 소음 게이지 위젯 (침묵의 도시 전용) -->
-    <div id="noiseWidget">
-      <div class="nw-title">🌑 소음 게이지</div>
-      <div class="nw-dots" id="nwDots"></div>
-      <div class="nw-bar-track">
-        <div class="nw-bar-fill" id="nwBarFill" style="width:0%"></div>
-      </div>
-      <div class="nw-val" id="nwVal">0 / 10</div>
-      <div class="nw-warn" id="nwWarn">⚠ 파수꾼 임박</div>
-    </div>
 
     <div class="combat-arena">
       <div class="enemy-zone" id="enemyZone"></div>
@@ -563,6 +553,17 @@
       <div class="region-name-display" id="regionName">잔향의 숲</div>
       <div class="region-rule-display" id="regionRule">기본 규칙</div>
       <div class="region-floor-display" id="regionFloor">1 / 3층</div>
+      <!-- 소음 게이지 위젯 (침묵의 도시 전용) -->
+      <div id="noiseWidget"
+        style="margin-top: 10px; position:relative; right:auto; top:auto; transform:none; flex-direction:column;">
+        <div class="nw-title" style="margin-bottom: 4px;">🌑 소음 게이지</div>
+        <div class="nw-dots" id="nwDots"></div>
+        <div class="nw-bar-track" style="margin: 4px 0;">
+          <div class="nw-bar-fill" id="nwBarFill" style="width:0%"></div>
+        </div>
+        <div class="nw-val" id="nwVal">0 / 10</div>
+        <div class="nw-warn" id="nwWarn">⚠ 파수꾼 임박</div>
+      </div>
     </div>
 
     <div class="panel-title">캐릭터</div>

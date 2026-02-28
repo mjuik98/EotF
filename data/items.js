@@ -10,49 +10,49 @@ export const ITEMS = {
     // ══════════════ COMMON (회색) ══════════════
     void_compass: {
         id: 'void_compass', name: '공허의 나침반', icon: '🧭', rarity: 'common',
-        desc: '전투 시작 시 카드 1장을 추가로 뽑습니다.',
+        desc: '전투 시작: 카드 1장 드로우.',
         image: 'relic_void_compass.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.drawCards(1); gs.addLog(LogUtils.formatEcho('공허의 나침반: 카드 뽑기 +1'), 'echo'); } }
     },
     void_shard: {
         id: 'void_shard', name: '공허의 파편', icon: '🔷', rarity: 'common',
-        desc: '전투 종료 시 잔향을 20 충전합니다.',
+        desc: '전투 종료: 잔향 20 충전.',
         image: 'relic_void_shard.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20); gs.addLog(LogUtils.formatEcho('공허의 파편: 잔향 +20'), 'echo'); } }
     },
     cracked_amulet: {
         id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
-        desc: '턴 시작 시 회복 2.',
+        desc: '매 턴: 체력 2 회복.',
         image: 'relic_cracked_amulet.png',
         passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2); gs.addLog(LogUtils.formatHeal('부서진 목걸이', 2), 'heal'); } }
     },
     worn_pouch: {
         id: 'worn_pouch', name: '낡은 주머니', icon: '👜', rarity: 'common',
-        desc: '전투 시작 시 골드를 5 얻습니다.',
+        desc: '전투 시작: 골드 5 획득.',
         image: 'relic_worn_pouch.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addGold(5); gs.addLog(LogUtils.formatStatChange('낡은 주머니', '골드', 5), 'echo'); } }
     },
     dull_blade: {
         id: 'dull_blade', name: '무딘 검', icon: '🔪', rarity: 'common',
-        desc: '카드를 사용할 때마다 10% 확률로 잔향을 10 충전합니다.',
+        desc: '카드 사용 시: 10% 확률로 잔향 10 충전.',
         image: 'relic_dull_blade.png',
         passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10); gs.addLog(LogUtils.formatEcho('무딘 검: 일정 확률로 잔향 +10'), 'echo'); } }
     },
     travelers_map: {
         id: 'travelers_map', name: '여행자의 지도', icon: '🗺️', rarity: 'common',
-        desc: '층을 이동할 때마다 회복 3.',
+        desc: '층 이동 시: 체력 3 회복.',
         image: 'relic_travelers_map.png',
         passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3); } }
     },
     rift_talisman: {
         id: 'rift_talisman', name: '균열의 부적', icon: '📿', rarity: 'common',
-        desc: '전투 시작 시 방어도를 5 얻습니다.',
+        desc: '전투 시작: 방어도 5 획득.',
         image: 'relic_cracked_amulet.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatShield('균열의 부적', 5), 'system'); } }
     },
     blood_shard: {
         id: 'blood_shard', name: '핏빛 파편', icon: '🍷', rarity: 'common',
-        desc: '적을 처치할 때마다 잔향을 10 충전합니다.',
+        desc: '적 처치 시: 잔향 10 충전.',
         image: 'relic_blood_shard.png',
         passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10); gs.addLog(LogUtils.formatEcho('핏빛 파편: 잔향 +10'), 'echo'); } }
     },
@@ -65,13 +65,13 @@ export const ITEMS = {
     },
     phantom_cloak: {
         id: 'phantom_cloak', name: '환영 망토', icon: '🧥', rarity: 'uncommon',
-        desc: '턴 시작 시 방어도를 4 얻습니다.',
+        desc: '전투 시작: 회피 1 획득.',
         image: 'relic_phantom_cloak.png',
         passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.addShield(4); gs.addLog(LogUtils.formatShield('환영 망토', 4), 'system'); } }
     },
     cursed_tome: {
         id: 'cursed_tome', name: '저주받은 마도서', icon: '📕', rarity: 'uncommon',
-        desc: '카드를 사용할 때마다 잔향을 5 충전하고, 체력을 2 잃습니다.',
+        desc: '카드 드로우 시: 5% 확률로 잔향 25 충전.',
         image: 'relic_cursed_tome.png',
         passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs.addEcho(5); gs.player.hp = Math.max(1, gs.player.hp - 2); gs.markDirty?.('hud'); } }
     },
@@ -235,7 +235,7 @@ export const ITEMS = {
     },
     surge_crystal: {
         id: 'surge_crystal', name: '쇄도의 수정', icon: '💫', rarity: 'legendary',
-        desc: '에너지가 초과되어도 소멸하지 않으며, 영구적으로 최대 에너지가 1 증가합니다.',
+        desc: '전투 시작: 에너지 1 획득. (전투당 1회)',
         image: 'relic_surge_crystal.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START && !gs._surgeGranted) { gs.player.maxEnergy++; gs.player.energy = gs.player.maxEnergy; gs._surgeGranted = true; gs.addLog('💫 쇄도의 수정: 최대 에너지 +1 영구 증가!', 'echo'); if (typeof updateUI === 'function') updateUI(); } }
     },
@@ -255,7 +255,7 @@ export const ITEMS = {
     },
     void_crown: {
         id: 'void_crown', name: '공허의 왕관', icon: '👁️', rarity: 'rare',
-        desc: '체력이 40% 이하일 때, 모든 카드의 비용이 1 감소합니다. [세트:심연]',
+        desc: '카드 사용 시: 카드 비용이 0이면 잔향 10 추가 충전.',
         image: 'relic_void_crown.png',
         passive(gs, trigger) { if (trigger === Trigger.TURN_START) { const low = gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.HIGH_HP_RATIO; if (low && !gs._crownActive) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs._crownActive = true; gs.addLog('👁️ 공허의 왕관: 모든 카드 비용 -1!', 'echo'); } else if (!low && gs._crownActive) { gs.player.costDiscount = Math.max(0, (gs.player.costDiscount || 0) - 1); gs._crownActive = false; } } }
     },
@@ -296,13 +296,13 @@ export const ITEMS = {
     },
     blood_oath: {
         id: 'blood_oath', name: '혈맹의 서', icon: '📜', rarity: 'uncommon',
-        desc: '체력이 50 이하일 때, 공격의 피해가 6 증가합니다. [세트:혈맹]',
+        desc: '카드 사용 시: 체력 50% 이하일 때 피해 +6. [세트:혈맹]',
         image: 'relic_blood_oath.png',
         passive(gs, trigger, data) { if (trigger === Trigger.DEAL_DAMAGE && gs.player.hp <= 50) return (data || 0) + 6; }
     },
     blood_crown: {
         id: 'blood_crown', name: '혈맹의 왕관', icon: '💉', rarity: 'rare',
-        desc: '적을 처치할 때마다 체력을 8 회복하고 잔향을 20 충전합니다. [세트:혈맹]',
+        desc: '적 처치 시: 체력 8 회복. 잔향 20 충전. [세트:혈맹]',
         image: 'relic_blood_crown.png',
         passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(8); gs.addEcho(20); gs.addLog('💉 혈맹의 왕관: 체력 +8, 잔향 +20', 'heal'); } }
     },
@@ -310,25 +310,25 @@ export const ITEMS = {
     // ══════════════ LEGENDARY (보라/무지개) ══════════════
     echo_heart: {
         id: 'echo_heart', name: '잔향의 심장', icon: '❤️‍🔥', rarity: 'legendary',
-        desc: '사망 시 1회 부활합니다. (체력 50% 복원)',
+        desc: '패시브: 사망 시 1회 부활. (체력 50% 복원)',
         image: 'relic_echo_heart.png',
         passive(gs, trigger) { if (trigger === Trigger.PRE_DEATH && !gs._heartUsed) { gs._heartUsed = true; gs.player.hp = Math.floor(gs.player.maxHp * CONSTANTS.PLAYER.MID_HP_RATIO); gs.addLog('❤️‍🔥 잔향의 심장: 부활!', 'heal'); return true; } }
     },
     void_throne: {
         id: 'void_throne', name: '공허의 왕좌', icon: '👑', rarity: 'legendary',
-        desc: '카드를 5장 사용할 때마다 모든 적에게 피해 15를 줍니다.',
+        desc: '카드 사용 시: 5장마다 모든 적에게 피해 15.',
         image: 'relic_void_throne.png',
         passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs._throneCount = (gs._throneCount || 0) + 1; if (gs._throneCount % 5 === 0) { gs.dealDamageAll(15); gs.addLog('👑 공허의 왕좌: 모든 적 피해 15!', 'echo'); } } }
     },
     echo_genesis: {
         id: 'echo_genesis', name: '잔향의 기원', icon: '🌟', rarity: 'legendary',
-        desc: '잔향이 100에 도달하면, 현재 손패의 카드 중 최대 5장의 비용을 이번 턴 동안 0으로 만듭니다. (전투당 1회 한정)',
+        desc: '잔향 100 도달 시: 손패 최대 5장의 비용 0. (전투당 1회)',
         image: 'relic_echo_genesis.png',
         passive(gs, trigger) { if (trigger === Trigger.TURN_START && gs.player.echo >= CONSTANTS.ECHO.BURST_THRESHOLD && !gs._genesisUsed) { gs.player._freeCardUses = Math.max(gs.player._freeCardUses || 0, Math.min(5, gs.player.hand.length)); gs._genesisUsed = true; gs.addLog('🌟 잔향의 기원: 손패 카드 비용 0!', 'echo'); } if (trigger === Trigger.COMBAT_END) gs._genesisUsed = false; }
     },
     abyss_codex: {
         id: 'abyss_codex', name: '심연의 비전서', icon: '📖', rarity: 'legendary',
-        desc: '전투 시작 시 덱에서 무작위 희귀 카드 1장을 뽑습니다.',
+        desc: '전투 시작: 덱에서 무작위 희귀 카드 1장 드로우.',
         image: 'relic_abyss_codex.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { const source = (gs.player.drawPile && gs.player.drawPile.length > 0) ? gs.player.drawPile : gs.player.deck; const rares = source.filter(id => CARDS[id]?.rarity === 'rare'); if (rares.length > 0) { const c = rares[Math.floor(Math.random() * rares.length)]; const idx = source.indexOf(c); source.splice(idx, 1); if (source === gs.player.drawPile) { const dIdx = gs.player.deck.indexOf(c); if (dIdx !== -1) gs.player.deck.splice(dIdx, 1); } gs.player.hand.push(c); gs.addLog(`📖 심연의 비전서: ${CARDS[c]?.name} 뽑음!`, 'echo'); } } }
     },

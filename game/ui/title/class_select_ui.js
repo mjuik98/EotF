@@ -147,7 +147,7 @@ export const ClassSelectUI = {
         relicEl.style.cursor = 'help';
         relicEl.addEventListener('mouseenter', (e) => {
           e.stopPropagation();
-          const rarityLabel = { common: '일반', uncommon: '고급', rare: '희귀', legendary: '전설' };
+          const rarityLabel = { common: '일반', uncommon: '비범', rare: '희귀', legendary: '전설' };
           const rLabel = rarityLabel[startItem.rarity] || '일반';
           this._showTooltip(e, `${startItem.icon} ${startItem.name} (${rLabel})`, startItem.desc || '시작 유물');
         });

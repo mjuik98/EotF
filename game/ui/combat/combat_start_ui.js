@@ -55,13 +55,13 @@ export const CombatStartUI = {
     // ── 로직: 지역 디버프 ──
     CombatInitializer.applyRegionDebuffs(gs, getBaseRegionIndex);
 
-    // ── 로직: 클래스/런 룰 트리거 ──
+    // ── 로직: 클래스/런 룰 초기화 ──
     const playerClass = gs.player.class;
-    const classMech = classMechanics?.[playerClass];
+    const classMech = window.ClassMechanics?.[playerClass];
     if (classMech && typeof classMech.onCombatStart === 'function') {
       classMech.onCombatStart(gs);
     }
-    runRules?.onCombatStart?.(gs);
+    gs.triggerItems?.('combat_start');
     gs.triggerItems?.(Trigger.COMBAT_START);
 
     // ── 로직: 덱 초기화 ──

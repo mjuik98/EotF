@@ -2,7 +2,7 @@ import { GS } from '../../core/game_state.js';
 
 
 const STATUS_KR = {
-  momentum: { name: '모멘텀', icon: '⚔️', buff: true, desc: '이동 및 공격 시 피해가 누적되어 증가합니다. 연속 공격일수록 위력이 강해집니다.' },
+  momentum: { name: '가속', icon: '🌪️', buff: true, desc: '이번 턴 피해가 가속 수치만큼 증가합니다.' },
   soul_armor: { name: '영혼의 갑옷', icon: '🛡️', buff: true, desc: '받는 피해를 일부 감소시킵니다.' },
   vanish: { name: '은신', icon: '🌫️', buff: true, desc: '다음 공격이 치명타로 적중합니다.' },
   immune: { name: '무적', icon: '🏛️', buff: true, desc: '이번 턴 동안 모든 피해를 입지 않습니다.' },
@@ -79,7 +79,7 @@ export const StatusEffectsUI = {
           // 지속 시간이 99 이상인 경우 (무한 지속), 턴 수 대신 실제 효과 수치를 표시
           let displayVal = buff.stacks;
           if (buff.stacks >= 99) {
-            if (k === 'blessing_of_light') displayVal = buff.healPerTurn || 0;
+            if (k === 'blessing_of_light') displayVal = '';
             else if (k === 'soul_armor') displayVal = buff.echoRegen || 0;
             else if (k === 'time_warp') displayVal = buff.energyPerTurn || 0;
             else if (k === 'berserk_mode') displayVal = buff.atkGrowth || 0;

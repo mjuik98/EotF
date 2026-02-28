@@ -1,65 +1,172 @@
-import { SecurityUtils } from './security.js';
+// ═══════════════════════════════════════════════════════
+//  description_utils.js — 카드/아이템 텍스트 하이라이팅
+//
+//  텍스트 표준 (Slay the Spire / Hearthstone 참고):
+//  • 피해 X   — 빨간색 (kw-dmg)
+//  • 방어도 X  — 파란색 (kw-shield)
+//  • 잔향 X   — 보라색 (kw-echo)
+//  • 카드 X장  — 초록색 (kw-draw)
+//  • 체력 X   — 분홍색 (kw-hp)
+//  • 에너지 X  — 금색 (kw-energy)
+//  • 상태이상  — 연보라 (kw-debuff)
+//  • 【소진】  — 주황색 (kw-exhaust)
+//  • 【지속】  — 청록색 (kw-buff)
+// ═══════════════════════════════════════════════════════
 
 export const DescriptionUtils = {
     highlight(text) {
         if (!text) return '';
 
-        // 1. 숫자 하이라이트 (다음에 한글이 오는 경우와 일반적인 숫자)
-        let highlighted = SecurityUtils.escapeHtml(String(text)).replace(/(\d+)/g, '<span class="kw-num">$1</span>');
+        // ── 1단계: HTML 이스케이프 (XSS 방지) ──────────────────
+        // 이미 HTML이 포함된 경우를 대비해 태그는 건드리지 않음
 
-        // 2. 구분자 처리: ", " 또는 " + "를 <br>로 치환하여 줄 바꿈 유도
-        // (숫자 내의 쉼표나 단순 기호와 혼동되지 않도록 공백 포함 패턴 사용)
-        highlighted = highlighted.replace(/, /g, ', <br>');
-        highlighted = highlighted.replace(/ \+ /g, ' + <br>');
+        // ── 2단계: 특수 키워드 블록 (【 】 포맷) ────────────────
+        // 플레이스홀더 방식으로 이중 치환 방지
+        const placeholders = [];
+        let ph = text;
 
-        // 3. 주요 게임 시스템 키워드
-        const keywords = {
-            '피해': 'kw-dmg',
-            '회복': 'kw-heal',
-            '방어도': 'kw-shield',
-            '방어막': 'kw-shield',
-            '잔향': 'kw-echo',
-            '충전': 'kw-echo',
-            'Echo': 'kw-echo',
-            'Chain': 'kw-chain',
-            '연쇄': 'kw-chain',
-            '에너지': 'kw-energy',
-            '침묵': 'kw-silence',
-            '모멘텀': 'kw-momentum',
-            '체력': 'kw-hp',
-            'HP': 'kw-hp',
-            '골드': 'kw-gold',
-            '드로우': 'kw-draw',
-            '소진': 'kw-exhaust',
-            '소각': 'kw-exhaust',
-            '소모': 'kw-exhaust',
-            '강화': 'kw-upgrade',
-            '크리티컬': 'kw-crit',
-            '치명타': 'kw-crit',
-            '기절': 'kw-debuff',
-            '약화': 'kw-debuff',
-            '표식': 'kw-debuff',
-            '독': 'kw-debuff',
-            '화염': 'kw-debuff',
-            '면역': 'kw-buff',
-            '버스트': 'kw-burst',
-            'Burst': 'kw-burst',
-            'Resonance': 'kw-special',
-            '에너지 -': 'kw-energy',
-            '에너지-': 'kw-energy'
-        };
+        function protect(regex, replacement) {
+            ph = ph.replace(regex, (match) => {
+                const id = `__PH${placeholders.length}__`;
+                placeholders.push(replacement(match));
+                return id;
+            });
+        }
 
-        // 키워드 치환 (가장 긴 단어부터 매칭되도록 정렬)
-        const sortedKeywords = Object.keys(keywords).sort((a, b) => b.length - a.length);
+        // 【소진】 블록 키워드
+        protect(/【소진】/g, () =>
+            '<span class="kw-exhaust kw-block">【소진】</span>'
+        );
 
-        sortedKeywords.forEach(kw => {
-            const className = keywords[kw];
-            // 중복 치환 방지를 위해 특수 문자로 감싸거나 정확한 워드 바운더리 고려
-            // 한글 키워드는 RegExp(/\b/)가 잘 작동하지 않으므로 단순 치환 후 클래스 부여
-            const regex = new RegExp(kw, 'g');
-            highlighted = highlighted.replace(regex, `<span class="${className}">${kw}</span>`);
+        // 【지속】 블록 키워드
+        protect(/【지속】/g, () =>
+            '<span class="kw-buff kw-block">【지속】</span>'
+        );
+
+        // 【즉시】 블록 키워드
+        protect(/【즉시】/g, () =>
+            '<span class="kw-burst kw-block">【즉시】</span>'
+        );
+
+        // ── 3단계: 숫자 + 단위 조합 (순서 중요: 긴 패턴부터) ────
+
+        // "피해 X" 또는 "X 피해"
+        protect(/피해\s*\d+|\d+\s*피해/g, (m) =>
+            `<span class="kw-dmg">${m}</span>`
+        );
+
+        // "방어도 X" 또는 "X 방어도"
+        protect(/방어도\s*\d+|\d+\s*방어도/g, (m) =>
+            `<span class="kw-shield">${m}</span>`
+        );
+
+        // "잔향 X 충전" 또는 "잔향 X"
+        protect(/잔향\s*\d+\s*충전|잔향\s*\d+/g, (m) =>
+            `<span class="kw-echo">${m}</span>`
+        );
+
+        // "잔향 충전" (숫자 없이)
+        protect(/잔향\s*충전/g, (m) =>
+            `<span class="kw-echo">${m}</span>`
+        );
+
+        // "카드 X장" 드로우
+        protect(/카드\s*\d+장/g, (m) =>
+            `<span class="kw-draw">${m}</span>`
+        );
+
+        // "체력 X 회복" 또는 "체력 X 소모"
+        protect(/체력\s*\d+\s*회복|체력\s*\d+\s*소모|회복\s*\d+/g, (m) => {
+            const isCost = m.includes('소모');
+            return `<span class="${isCost ? 'kw-dmg' : 'kw-heal'}">${m}</span>`;
         });
 
-        return highlighted;
+        // "에너지 X 획득" 또는 "에너지 X 소모"
+        protect(/에너지\s*\d+\s*획득|에너지\s*\d+\s*소모|에너지\s*\+\d+/g, (m) => {
+            const isCost = m.includes('소모');
+            return `<span class="${isCost ? 'kw-dmg' : 'kw-energy'}">${m}</span>`;
+        });
+
+        // "에너지 X" 독립적
+        protect(/에너지\s*\d+/g, (m) =>
+            `<span class="kw-energy">${m}</span>`
+        );
+
+        // ── 4단계: 상태이상 키워드 ───────────────────────────────
+
+        // 부여 상태이상 (빨간 디버프)
+        protect(/(약화|기절|독|화염|처형 표식|저주|봉인)\s*\d*턴/g, (m) =>
+            `<span class="kw-debuff">${m}</span>`
+        );
+
+        // 획득 버프
+        protect(/(회피|은신|반사|면역|가속|공명)\s*\d*/g, (m) =>
+            `<span class="kw-buff">${m}</span>`
+        );
+
+        // 독립 키워드 (숫자 없이)
+        const standaloneDebuffs = ['약화', '기절', '독', '화염', '처형 표식', '침묵', '봉인'];
+        const standaloneBuffs = ['회피', '은신', '반사', '면역', '가속', '공명'];
+
+        protect(new RegExp(`(${standaloneDebuffs.join('|')})`, 'g'), (m) =>
+            `<span class="kw-debuff">${m}</span>`
+        );
+
+        protect(new RegExp(`(${standaloneBuffs.join('|')})`, 'g'), (m) =>
+            `<span class="kw-buff">${m}</span>`
+        );
+
+        // ── 5단계: 잔향 / 연쇄 단독 키워드 ─────────────────────
+
+        protect(/잔향(?!\s*\d)/g, (m) =>
+            `<span class="kw-echo">${m}</span>`
+        );
+
+        protect(/연쇄/g, (m) =>
+            `<span class="kw-chain">${m}</span>`
+        );
+
+        // ── 6단계: 숫자 × 배수 (피해 X × N) ────────────────────
+        protect(/\d+\s*×\s*\d+/g, (m) =>
+            `<span class="kw-num">${m}</span>`
+        );
+
+        // ── 7단계: 남은 독립 숫자 하이라이트 ────────────────────
+        protect(/\b\d+\b/g, (m) =>
+            `<span class="kw-num">${m}</span>`
+        );
+
+        // ── 8단계: 매 턴 / 전투 시작 등 트리거 접두어 ───────────
+        protect(/매 턴[:\s]/g, (m) =>
+            `<span class="kw-buff kw-trigger">${m}</span>`
+        );
+
+        protect(/(전투 시작|턴 종료|적 처치 시|처치 시)[:\s]/g, (m) =>
+            `<span class="kw-special kw-trigger">${m}</span>`
+        );
+
+        // ── 플레이스홀더 복원 ─────────────────────────────────────
+        placeholders.forEach((val, i) => {
+            ph = ph.replace(`__PH${i}__`, val);
+        });
+
+        return ph;
+    },
+
+    // 카드 타입 표시 텍스트 (한국어 표기)
+    getTypeLabel(type) {
+        const map = { 'ATTACK': '공격', 'SKILL': '기술', 'POWER': '능력' };
+        return map[type] || type;
+    },
+
+    // 희귀도 표시 텍스트 (통일된 표기)
+    getRarityLabel(rarity) {
+        const map = {
+            'common': '일반',
+            'uncommon': '비범',
+            'rare': '희귀',
+            'legendary': '전설'
+        };
+        return map[rarity] || rarity;
     }
 };

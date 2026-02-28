@@ -207,20 +207,20 @@ export const EventManager = {
         if (deckIdx >= 0) {
             gs.player.deck.splice(deckIdx, 1);
             found = true;
-        }
-
-        // 2. 패에서 제거 (상점/이벤트 중에는 비어있을 수 있지만 안전장치)
-        const handIdx = gs.player.hand.indexOf(cardId);
-        if (handIdx >= 0) {
-            gs.player.hand.splice(handIdx, 1);
-            found = true;
-        }
-
-        // 3. 무덤에서 제거
-        const graveIdx = gs.player.graveyard.indexOf(cardId);
-        if (graveIdx >= 0) {
-            gs.player.graveyard.splice(graveIdx, 1);
-            found = true;
+        } else {
+            // 2. 패에서 제거 
+            const handIdx = gs.player.hand.indexOf(cardId);
+            if (handIdx >= 0) {
+                gs.player.hand.splice(handIdx, 1);
+                found = true;
+            } else {
+                // 3. 무덤에서 제거
+                const graveIdx = gs.player.graveyard.indexOf(cardId);
+                if (graveIdx >= 0) {
+                    gs.player.graveyard.splice(graveIdx, 1);
+                    found = true;
+                }
+            }
         }
 
         if (!found) return { success: false, message: '카드를 찾을 수 없습니다.' };

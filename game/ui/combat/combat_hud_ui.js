@@ -124,15 +124,18 @@ export const CombatHudUI = {
           if (existing.textContent !== e.msg) {
             existing.textContent = e.msg;
             existing.style.animation = 'none';
-            void existing.offsetWidth; // Trigger reflow to restart animation
-            existing.style.animation = 'logEntryIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+            const entry = doc.createElement('div');
+            entry.className = `log-entry ${e.type}`;
+            entry.textContent = e.msg;
+            entry.dataset.logId = e.id;
+            logContainer.appendChild(entry);
           }
         } else if (!currentIds.includes(e.id)) {
           const entry = doc.createElement('div');
           entry.className = `log-entry ${e.type}`;
           entry.textContent = e.msg;
           entry.dataset.logId = e.id;
-          logContainer.prepend(entry);
+          logContainer.appendChild(entry);
         }
       } else if (!e.id) {
         // 기존 하위 호환성 (ID 없는 경우 텍스트 비교)
@@ -141,14 +144,14 @@ export const CombatHudUI = {
           const entry = doc.createElement('div');
           entry.className = `log-entry ${e.type}`;
           entry.textContent = e.msg;
-          logContainer.prepend(entry);
+          logContainer.appendChild(entry);
         }
       }
     });
 
     // 화면에 너무 많이 쌓이지 않도록 정리
     while (logContainer.children.length > 6) {
-      logContainer.removeChild(logContainer.lastChild);
+      logContainer.removeChild(logContainer.firstChild);
     }
   },
 
@@ -170,7 +173,9 @@ export const CombatHudUI = {
       return;
     }
 
-    const skill = CONSTANTS.ECHO_SKILLS[cls]?.[tLevel];
+    const constants = window.CONSTANTS || deps.CONSTANTS || {};
+    const skillList = constants.ECHO_SKILLS || {};
+    const skill = skillList[cls]?.[tLevel];
     const stars = '★'.repeat(tLevel);
     const sDesc = skill?.shortDesc || '';
     btn.textContent = `⚡ ${stars} ${sDesc}`;
@@ -243,6 +248,29 @@ export const CombatHudUI = {
 
     widget.style.borderColor = isWarn ? 'rgba(240,180,41,0.5)' : 'rgba(255,51,102,0.3)';
     widget.style.boxShadow = isWarn ? '0 0 20px rgba(240,180,41,0.15)' : '0 0 20px rgba(255,51,102,0.1)';
+  },
+
+  updateClassSpecialUI(deps = {}) {
+    const gs = deps.gs;
+    const doc = _getDoc(deps);
+    if (!gs || !gs.player || !deps.classMechanics) return;
+
+    const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
+    if (hoverSpecialEl && deps.classMechanics[gs.player.class]) {
+      const specialUI = deps.classMechanics[gs.player.class].getSpecialUI(gs);
+      hoverSpecialEl.textContent = '';
+      if (specialUI instanceof HTMLElement) {
+        hoverSpecialEl.appendChild(specialUI);
+      } else if (typeof specialUI === 'string') {
+        hoverSpecialEl.textContent = specialUI;
+      }
+    } else if (hoverSpecialEl) {
+      hoverSpecialEl.textContent = '';
+      const none = doc.createElement('span');
+      none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
+      none.textContent = '없음';
+      hoverSpecialEl.appendChild(none);
+    }
   },
 
 };

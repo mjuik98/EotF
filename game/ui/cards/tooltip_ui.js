@@ -14,21 +14,26 @@ function _getWin(deps) {
 }
 
 const KEYWORD_MAP = {
-  '소진': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 제외(소멸)됩니다.' },
-  '소각': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 제외(소멸)됩니다.' },
-  'Echo': { title: '잔향 (Echo)', text: '특수 효과 및 카드 발동에 사용되는 에너지 자원입니다.' },
-  'Chain': { title: '체인 (Chain)', text: '연속 공격 횟수입니다. 3회 이상 쌓이면 추가 피해를 입힙니다.' },
-  '침묵': { title: '침묵 (Silence)', text: '침묵 게이지입니다. 최대치(10) 도달 시 다음 공격이 강력해집니다.' },
-  '모멘텀': { title: '모멘텀 (Momentum)', text: '공격력이 일시적으로 상승하는 상태입니다.' },
-  '기절': { title: '기절 (Stun)', text: '적이 다음 턴에 행동을 취하지 못합니다.' },
-  '약화': { title: '약화 (Weakened)', text: '대상의 공격력이 50% 감소합니다.' },
-  '표식': { title: '처형 표식 (Marked)', text: '3턴 후 표식이 폭발하여 큰 피해(30)를 입힙니다.' },
-  '독': { title: '독 (Poison)', text: '매 턴 시작 시 피해를 입습니다. 시간이 지날수록 피해가 서서히 줄어듭니다.' },
-  '화염': { title: '화염 (Burning)', text: '매 턴 시작 시 고정 피해(5)를 입습니다.' },
-  '면역': { title: '면역 (Immune)', text: '모든 피해와 상태이상의 영향을 받지 않습니다.' },
-  '회피': { title: '회피 (Dodge)', text: '다음 적의 공격을 1회 완전 무효화합니다.' },
-  '시간 왜곡': { title: '시간 왜곡 (Time Warp)', text: '공간을 비틀어 매 턴 시작 시 추가 에너지를 얻습니다.' },
-  '드로우': { title: '드로우 (Draw)', text: '덱에서 카드를 손패로 가져옵니다.' }
+  '【소진】': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
+  '소진': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
+  '【지속】': { title: '지속 (Persistent)', text: '전투가 끝날 때까지 계속 효과가 발동되는 능력 카드입니다.' },
+  '【즉시】': { title: '즉시 (Instant)', text: '사용 즉시 발동되는 강력한 일회성 효과입니다.' },
+  '잔향': { title: '잔향 (Echo)', text: '특수 능력을 발동하는 에너지 자원. 0~100 사이를 유지하며, 100 도달 시 잔향 폭발이 발동됩니다.' },
+  '연쇄': { title: '연쇄 (Chain)', text: '연속 공격 횟수를 나타냅니다. 5회 이상 쌓이면 다음 공격에 추가 피해가 적용됩니다.' },
+  '침묵': { title: '침묵 (Silence)', text: '침묵사냥꾼 전용 게이지. 최대치(10) 도달 시 다음 공격이 대폭 강화됩니다.' },
+  '약화': { title: '약화 (Weakened)', text: '대상의 공격력이 50% 감소합니다. 지속 시간이 만료되면 해제됩니다.' },
+  '기절': { title: '기절 (Stunned)', text: '다음 턴에 행동하지 못합니다. 기절 턴에는 공격과 방어 모두 불가합니다.' },
+  '독': { title: '독 (Poison)', text: '매 턴 시작 시 피해를 입습니다. 매 턴 독 스택이 1씩 감소합니다.' },
+  '화염': { title: '화염 (Burning)', text: '매 턴 시작 시 피해 5를 입습니다. 지속 시간이 끝나면 소멸합니다.' },
+  '처형 표식': { title: '처형 표식 (Death Mark)', text: '3턴 후 표식이 폭발하여 피해 30을 입힙니다. 시간이 얼마 남지 않았을 때 더욱 위험합니다.' },
+  '면역': { title: '면역 (Immune)', text: '모든 피해와 상태이상을 완전히 무효화합니다. 지속 시간 동안 무적 상태입니다.' },
+  '회피': { title: '회피 (Dodge)', text: '다음 적의 공격 1회를 완전히 무효화합니다. 회피 후 즉시 소모됩니다.' },
+  '은신': { title: '은신 (Stealth)', text: '다음에 사용하는 공격 카드가 치명타로 적중합니다. 공격 즉시 은신이 해제됩니다.' },
+  '반사': { title: '반사 (Reflect)', text: '피해를 받을 때 해당 피해를 공격자에게 되돌립니다.' },
+  '가속': { title: '가속 (Momentum)', text: '잔향검사 전용 버프. 이번 턴 피해가 가속 수치만큼 증가합니다. 턴 종료 시 소멸합니다.' },
+  '시간 왜곡': { title: '시간 왜곡 (Time Warp)', text: '매 턴 시작 시 에너지를 1 추가로 획득합니다. 전투가 끝날 때까지 지속됩니다.' },
+  '드로우': { title: '드로우 (Draw)', text: '덱에서 카드를 손패로 가져옵니다. 덱이 비면 소모 더미를 섞어 새 덱을 만듭니다.' },
+  '공명': { title: '공명 (Resonance)', text: '잔향검사 고유 특성. 카드를 사용할수록 다음 공격의 위력이 점진적으로 상승합니다. (최대 +30 피해)' },
 };
 
 export const TooltipUI = {
@@ -101,7 +106,7 @@ export const TooltipUI = {
     // Sub-tooltip for keywords
     const st = doc.getElementById('subTooltip');
     if (st) {
-      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc.includes(kw) || (card.exhaust && kw === '소진'));
+      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc?.includes(kw) || (card.exhaust && (kw === '【소진】' || kw === '소진')));
       if (foundKw) {
         const kwData = KEYWORD_MAP[foundKw];
         doc.getElementById('stTitle').textContent = kwData.title;
@@ -173,7 +178,7 @@ export const TooltipUI = {
     };
     const triggerText = item.trigger ? (triggerMap[item.trigger] || item.trigger) : '패시브';
     const tipRarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)', legendary: '#c084fc' };
-    const tipRarityLabel = { common: '일반', uncommon: '고급', rare: '희귀', legendary: '전설' };
+    const tipRarityLabel = { common: '일반', uncommon: '비범', rare: '희귀', legendary: '전설' };
     const tipR = item.rarity || 'common';
     const tipBorder = tipR === 'legendary' ? 'rgba(192,132,252,0.4)' : tipR === 'rare' ? 'rgba(240,180,41,0.35)' : tipR === 'uncommon' ? 'rgba(123,47,255,0.35)' : 'var(--border)';
     el.style.borderColor = tipBorder;

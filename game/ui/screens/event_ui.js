@@ -356,7 +356,7 @@ export const EventUI = {
 
     const rarityConfig = {
       common: { label: '일반', color: 'var(--text)', border: 'rgba(150,150,180,0.3)' },
-      uncommon: { label: '고급', color: 'var(--echo-bright)', border: 'rgba(123,47,255,0.4)' },
+      uncommon: { label: '비범', color: 'var(--echo-bright)', border: 'rgba(123,47,255,0.4)' },
       rare: { label: '희귀', color: 'var(--gold)', border: 'rgba(240,180,41,0.5)' },
       legendary: { label: '전설', color: '#c084fc', border: 'rgba(192,132,252,0.6)' },
     };

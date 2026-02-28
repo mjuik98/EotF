@@ -69,10 +69,12 @@ export const HudUpdateUI = {
     }
     doc.getElementById('noiseGaugeOverlay')?.remove();
     doc.getElementById('cardTooltip')?.classList.remove('visible');
-    const handCards = doc.getElementById('combatHandCards');
     if (handCards) handCards.textContent = '';
     const endZone = doc.getElementById('enemyZone');
     if (endZone) endZone.textContent = '';
+
+    const logContainer = doc.getElementById('combatLog');
+    if (logContainer) logContainer.innerHTML = '';
   },
 
   hideNodeOverlay(deps = {}) {
@@ -353,9 +355,10 @@ export const HudUpdateUI = {
     setText('killCount', p.kills);
     setText('goldCount', p.gold);
 
-    const region = typeof getRegionData === 'function'
-      ? (getRegionData(gs.currentRegion, gs) || { name: 'Unknown Region', rule: '-', floors: 5 })
-      : { name: 'Unknown Region', rule: '-', floors: 5 };
+    const getRegData = typeof getRegionData === 'function' ? getRegionData : (typeof window.getRegionData === 'function' ? window.getRegionData : null);
+    const region = typeof getRegData === 'function'
+      ? (getRegData(gs.currentRegion, gs) || { name: '알 수 없는 지역', rule: '-', floors: 5 })
+      : { name: '알 수 없는 지역', rule: '-', floors: 5 };
     setText('regionName', region.name);
     setText('regionRule', region.rule);
 
@@ -538,18 +541,18 @@ export const HudUpdateUI = {
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (gs.combat.active) {
         if (handFull) {
-          drawBtn.textContent = 'Hand Full';
-          drawBtn.title = 'Your hand is full (max 8 cards).';
+          drawBtn.textContent = '손패 가득 참';
+          drawBtn.title = '손패가 가득 찼습니다 (최대 8장).';
         } else if (p.energy < 1) {
-          drawBtn.textContent = 'Not Enough Energy';
-          drawBtn.title = 'Drawing a card costs 1 energy.';
+          drawBtn.textContent = '에너지 부족';
+          drawBtn.title = '카드를 뽑으려면 1 에너지가 필요합니다.';
         } else {
-          drawBtn.textContent = 'Draw Card (1 Energy)';
-          drawBtn.title = 'Draw one card.';
+          drawBtn.textContent = '카드 뽑기 (1 에너지)';
+          drawBtn.title = '카드를 1장 뽑습니다.';
         }
       } else {
-        drawBtn.textContent = 'Draw Card (1 Energy)';
-        drawBtn.title = 'Available only during combat.';
+        drawBtn.textContent = '카드 뽑기 (1 에너지)';
+        drawBtn.title = '전투 중에만 사용할 수 있습니다.';
       }
     }
 
@@ -609,11 +612,11 @@ export const HudUpdateUI = {
     if (drawBtn && gs.combat?.active) {
       const handFull = p.hand.length >= 8;
       if (handFull) {
-        drawBtn.textContent = 'Hand Full';
+        drawBtn.textContent = '손패 가득 참';
       } else if (p.energy < 1) {
-        drawBtn.textContent = 'Not Enough Energy';
+        drawBtn.textContent = '에너지 부족';
       } else {
-        drawBtn.textContent = `Draw Card (Energy ${p.energy})`;
+        drawBtn.textContent = `카드 뽑기 (에너지 ${p.energy})`;
       }
       drawBtn.disabled = !gs.combat.playerTurn || p.energy < 1 || handFull;
       drawBtn.style.opacity = drawBtn.disabled ? '0.4' : '1';

@@ -155,7 +155,7 @@ export const FeedbackUI = {
     }
     const doc = _getDoc(deps);
     doc.querySelector('.item-toast')?.remove();
-    const rarityLabel = { common: '일반', uncommon: '고급', rare: '희귀' };
+    const rarityLabel = { common: '일반', uncommon: '비범', rare: '희귀' };
     const rarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)' };
     const borderColor = { common: 'var(--border)', uncommon: 'rgba(123,47,255,0.5)', rare: 'rgba(240,180,41,0.5)' };
     const r = item.rarity || 'common';

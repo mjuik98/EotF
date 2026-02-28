@@ -4,52 +4,52 @@ import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat
 
 
 const INTENT_DESCRIPTIONS = {
-  attack: { type: 'Attack', desc: 'Deals direct damage to the player.' },
-  heavy: { type: 'Heavy Attack', desc: 'Deals high single-target damage.' },
-  double: { type: 'Multi Attack', desc: 'Deals damage multiple times.' },
-  aoe: { type: 'AOE Attack', desc: 'Deals damage to all targets.' },
-  guard: { type: 'Guard', desc: 'Gains defensive shield.' },
-  barrier: { type: 'Barrier', desc: 'Builds a strong defensive barrier.' },
-  shield: { type: 'Shield', desc: 'Reduces incoming damage with shield.' },
-  curse: { type: 'Curse', desc: 'Applies negative effects to the player.' },
-  poison: { type: 'Poison', desc: 'Applies damage-over-time poison.' },
-  weaken: { type: 'Weaken', desc: 'Reduces damage output.' },
-  debuff: { type: 'Debuff', desc: 'Applies a harmful status effect.' },
-  mark: { type: 'Mark', desc: 'Marks target for extra follow-up damage.' },
-  burning: { type: 'Burning', desc: 'Applies damage-over-time burn.' },
-  heal: { type: 'Heal', desc: 'Recovers HP.' },
-  life: { type: 'Lifesteal', desc: 'Deals damage and heals the caster.' },
-  drain: { type: 'Drain', desc: 'Drains player resources.' },
-  summon: { type: 'Summon', desc: 'Summons additional enemies.' },
-  enrage: { type: 'Enrage', desc: 'Increases future attack strength.' },
+  attack: { type: '공격', desc: '플레이어에게 피해를 줍니다.' },
+  heavy: { type: '강공격', desc: '단일 대상에게 큰 피해를 줍니다.' },
+  double: { type: '연속 공격', desc: '여러 번 피해를 줍니다.' },
+  aoe: { type: '광역 공격', desc: '모든 대상에게 피해를 줍니다.' },
+  guard: { type: '방어', desc: '방어도를 얻습니다.' },
+  barrier: { type: '방벽', desc: '강력한 방벽을 생성합니다.' },
+  shield: { type: '보호막', desc: '방어막으로 피해를 줄입니다.' },
+  curse: { type: '저주', desc: '플레이어에게 해로운 효과를 부여합니다.' },
+  poison: { type: '중독', desc: '지속적인 독 피해를 줍니다.' },
+  weaken: { type: '약화', desc: '공격력을 감소시킵니다.' },
+  debuff: { type: '약화 효과', desc: '해로운 상태이상을 부여합니다.' },
+  mark: { type: '표식', desc: '추가 피해를 받도록 표식을 남깁니다.' },
+  burning: { type: '화상', desc: '지속적인 화상 피해를 줍니다.' },
+  heal: { type: '치유', desc: '체력을 회복합니다.' },
+  life: { type: '흡혈', desc: '피해를 주고 체력을 회복합니다.' },
+  drain: { type: '흡수', desc: '플레이어의 자원을 흡수합니다.' },
+  summon: { type: '소환', desc: '추가 적을 소환합니다.' },
+  enrage: { type: '격노', desc: '다음 공격력이 증가합니다.' },
 };
 
 const ENEMY_STATUS_KR = {
-  stunned: 'Stunned',
-  weakened: 'Weakened',
-  poisoned: 'Poisoned',
-  marked: 'Marked',
-  mirror: 'Mirror',
-  immune: 'Immune',
-  slowed: 'Slowed',
-  burning: 'Burning',
-  cursed: 'Cursed',
-  dodge: 'Dodge',
-  thorns: 'Thorns',
+  stunned: '기절',
+  weakened: '약화',
+  poisoned: '독',
+  marked: '표식',
+  mirror: '반사',
+  immune: '무적',
+  slowed: '감속',
+  burning: '화상',
+  cursed: '저주',
+  dodge: '회피',
+  thorns: '가시',
 };
 
 const ENEMY_STATUS_DESC = {
-  stunned: { icon: '⏸', desc: 'Skips the next action.' },
-  weakened: { icon: '🪶', desc: 'Deals reduced damage.' },
-  poisoned: { icon: '☠', desc: 'Takes poison damage each turn.' },
-  marked: { icon: '🎯', desc: 'Takes bonus damage when mark resolves.' },
-  mirror: { icon: '🪞', desc: 'Reflects incoming damage.' },
-  immune: { icon: '🛡', desc: 'Ignores incoming damage.' },
-  slowed: { icon: '🐢', desc: 'Acts more slowly.' },
-  burning: { icon: '🔥', desc: 'Takes burn damage each turn.' },
-  cursed: { icon: '🕸', desc: 'Suffers curse penalties.' },
-  dodge: { icon: '💨', desc: 'Dodges the next attack.' },
-  thorns: { icon: '🌵', desc: 'Reflects melee damage to attacker.' },
+  stunned: { icon: '⏸', desc: '다음 행동을 건너뜁니다.' },
+  weakened: { icon: '🪶', desc: '가하는 피해가 감소합니다.' },
+  poisoned: { icon: '☠', desc: '매 턴 독 피해를 입습니다.' },
+  marked: { icon: '🎯', desc: '표식이 터질 때 추가 피해를 입습니다.' },
+  mirror: { icon: '🪞', desc: '받는 피해를 반사합니다.' },
+  immune: { icon: '🛡', desc: '받는 피해를 무시합니다.' },
+  slowed: { icon: '🐢', desc: '행동이 지연됩니다.' },
+  burning: { icon: '🔥', desc: '매 턴 화상 피해를 입습니다.' },
+  cursed: { icon: '🕸', desc: '저주 페널티를 받습니다.' },
+  dodge: { icon: '💨', desc: '다음 공격을 회피합니다.' },
+  thorns: { icon: '🌵', desc: '근접 공격자에게 피해를 반사합니다.' },
 };
 
 let _intentTipTimer = null;
@@ -82,9 +82,12 @@ function _getIntentIcon(intent) {
 }
 
 function _formatIntentLabel(intent) {
+  if (typeof intent?.intent === 'function') {
+    return '의도 파악 불가';
+  }
   let text = String(intent?.intent || '?');
   if (intent?.dmg > 0) {
-    if (/^\d+$/.test(text.trim())) return '';
+    if (/^\d+$/.test(text.trim())) return '공격';
     const dmgPattern = new RegExp(`\\s+${intent.dmg}$`);
     if (dmgPattern.test(text)) {
       text = text.replace(dmgPattern, '').trim();
@@ -250,7 +253,7 @@ export const CombatUI = {
     if (intent.dmg > 0) {
       const dmg = doc.createElement('div');
       dmg.className = 'itt-dmg';
-      dmg.textContent = 'Expected Damage: ' + String(intent.dmg);
+      dmg.textContent = '예상 피해: ' + String(intent.dmg);
       el.appendChild(dmg);
     }
 

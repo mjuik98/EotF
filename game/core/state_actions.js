@@ -133,29 +133,6 @@ export const Reducers = {
         } else {
             buffs[id] = { stacks, ...data };
         }
-        gs.markDirty('hud');
-        return { buff: id, stacks: buffs[id].stacks };
-    },
-
-    [Actions.CARD_DRAW](gs, { count = 1 }) {
-        let drawn = 0;
-        for (let i = 0; i < count; i++) {
-            if (gs.player.deck.length === 0) {
-                if (gs.player.graveyard.length === 0) break;
-                gs.player.deck = [...gs.player.graveyard];
-                gs.player.graveyard = [];
-                gs.addLog?.('🔄 덱을 섞었다', 'system');
-            }
-            if (gs.player.hand.length < 8) {
-                gs.player.hand.push(gs.player.deck.pop());
-                drawn++;
-            }
-        }
-        if (drawn > 0) {
-            gs.markDirty('hand');
-            gs.markDirty('hud');
-        }
-        return { drawn, handSize: gs.player.hand.length };
     },
 
     [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {

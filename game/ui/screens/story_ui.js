@@ -167,7 +167,7 @@ export const StoryUI = {
 
       const foot = doc.createElement('div');
       foot.style.cssText = "font-family:'Crimson Pro',serif;font-size:13px;font-style:italic;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;line-height:1.6;max-width:450px;";
-      foot.innerHTML = '✦ 각인이란? — 사망 시 획득하는 영구 강화입니다.<br><span style="font-size:0.9em;opacity:0.8;">· 에코 증폭: 다음 런 Echo +30으로 시작<br>· 회복력: 다음 런 최대 HP +10<br>· 행운: 다음 런 골드 25로 시작</span><br>각인을 하나도 선택하지 않고 클리어하면 — 다른 결말이 기다립니다.';
+      foot.innerHTML = '✦ 각인이란? — 사망 시 획득하는 영구 강화입니다.<br><span style="font-size:0.9em;opacity:0.8;">· 잔향 증폭: 다음 런 잔향 +30으로 시작<br>· 회복력: 다음 런 최대 HP +10<br>· 행운: 다음 런 골드 25로 시작</span><br>각인을 하나도 선택하지 않고 클리어하면 — 다른 결말이 기다립니다.';
 
       el.append(h1, h2, body, statsCont, btnCont, foot);
     }
