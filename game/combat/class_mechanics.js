@@ -69,7 +69,7 @@ export const ClassMechanics = {
       const res = state.player.buffs.resonance;
       if (res) {
         res.dmgBonus = Math.min(30, (res.dmgBonus || 0) + 3);
-        res.stacks = 99; // ??됱쓽 ?ㅽ깮?쇰줈 ?좎? 蹂댁옣
+        res.stacks = 99; // 이동 기반 스택으로 유지 보장
       } else {
         state.addBuff('resonance', 99, { dmgBonus: 3 });
       }
@@ -79,8 +79,8 @@ export const ClassMechanics = {
       const res = state?.getBuff?.('resonance');
       const val = res ? res.dmgBonus || 0 : 0;
       const meta = globalThis.DATA?.classes?.swordsman;
-      const title = meta?.traitTitle || '怨듬챸 (Resonance)';
-      const desc = meta?.traitDesc || '移대뱶瑜??ъ슜???뚮쭏???꾨젰???곸듅?⑸땲??';
+      const title = meta?.traitTitle || '공명 (Resonance)';
+      const desc = meta?.traitDesc || '카드를 사용할 때마다 공격력이 증가합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -97,10 +97,10 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '怨듬챸';
+      label.textContent = meta?.traitName || '공명';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
-      value.textContent = `+${val} ?곕?吏`;
+      value.textContent = `+${val} 데미지`;
       el.append(label, value);
       return el;
     },
@@ -131,7 +131,7 @@ export const ClassMechanics = {
 
       if (candidates.length === 0) {
         player._mageLastDiscountTarget = null;
-        state.addLog(LogUtils.formatEcho('?뵰 硫붿븘由? ?좎씤 ???移대뱶媛 ?놁뒿?덈떎.'), 'echo');
+        state.addLog(LogUtils.formatEcho('🔮 메아리: 할인 가능한 카드가 없습니다.'), 'echo');
         state.markDirty?.('hud');
         return;
       }
@@ -144,7 +144,7 @@ export const ClassMechanics = {
       player._mageLastDiscountTarget = pickedId;
 
       const cardName = dataCards[pickedId]?.name || pickedId;
-      state.addLog(LogUtils.formatEcho(`?뵰 硫붿븘由? ${cardName} 鍮꾩슜 -1`), 'echo');
+      state.addLog(LogUtils.formatEcho(`🔮 메아리: ${cardName} 비용 -1`), 'echo');
       state.markDirty?.('hand');
       state.markDirty?.('hud');
     },
@@ -157,8 +157,8 @@ export const ClassMechanics = {
       const lastTargetId = player?._mageLastDiscountTarget;
       const lastTargetName = lastTargetId ? (globalThis.DATA?.cards?.[lastTargetId]?.name || lastTargetId) : null;
       const meta = globalThis.DATA?.classes?.mage;
-      const title = meta?.traitTitle || '硫붿븘由?(Echo)';
-      const desc = meta?.traitDesc || '移대뱶瑜?3踰??ъ슜???뚮쭏??臾댁옉??移대뱶 1?μ쓽 鍮꾩슜??1 媛먯냼?⑸땲??';
+      const title = meta?.traitTitle || '메아리 (Echo)';
+      const desc = meta?.traitDesc || '카드를 3번 사용할 때마다 무작위 손패 카드 1장의 비용을 1 감소시킵니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -175,14 +175,14 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || 'Echo';
+      label.textContent = meta?.traitName || '메아리';
       const valEl = document.createElement('div');
       valEl.style.cssText = "font-size:10px;color:var(--cyan);line-height:1.4;";
-      valEl.textContent = `諛쒕룞源뚯? ${remaining}??(${progress}/3)`;
+      valEl.textContent = `발동까지 ${remaining}회 (${progress}/3)`;
 
       const subEl = document.createElement('div');
       subEl.style.cssText = "font-size:9px;color:var(--text-dim);margin-top:2px;";
-      subEl.textContent = lastTargetName ? `理쒓렐 ?좎씤: ${lastTargetName}` : '理쒓렐 ?좎씤: ?놁쓬';
+      subEl.textContent = lastTargetName ? `최근 할인: ${lastTargetName}` : '최근 할인: 없음';
 
       el.append(label, valEl, subEl);
       return el;
@@ -205,7 +205,7 @@ export const ClassMechanics = {
 
       if (player._hunterHitCounts[targetIdx] >= 5) {
         player._hunterHitCounts[targetIdx] = 0;
-        state.addLog(LogUtils.formatEcho('?렞 ?뺤쟻 諛쒕룞: ??遺??諛????'), 'echo');
+        state.addLog(LogUtils.formatEcho('🎯 정적 발동: 독 3 부여 + 은신 1턴'), 'echo');
         state.applyEnemyStatus('poisoned', 3, targetIdx);
         state.addBuff('vanish', 1);
       }
@@ -214,8 +214,8 @@ export const ClassMechanics = {
     getSpecialUI(gs) {
       const state = _getGS(gs);
       const meta = globalThis.DATA?.classes?.hunter;
-      const title = meta?.traitTitle || '?뺤쟻 (Dead Silence)';
-      const desc = meta?.traitDesc || '媛숈? ?곸쓣 5踰?怨듦꺽???뚮쭏???대떦 ?곸뿉寃???3)??遺?ы븯怨? ?먯떊? 1???숈븞 ????곹깭媛 ?⑸땲??';
+      const title = meta?.traitTitle || '정적 (Dead Silence)';
+      const desc = meta?.traitDesc || '같은 적을 5번 공격할 때마다 해당 적에게 독 3을 부여하고, 자신은 1턴 동안 은신 상태가 됩니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -232,10 +232,10 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '?뺤쟻';
+      label.textContent = meta?.traitName || '정적';
       const valEl = document.createElement('div');
       valEl.style.cssText = "font-size:10px;color:var(--cyan);";
-      valEl.textContent = '?곌꺽 吏꾪뻾 以?..';
+      valEl.textContent = '공격 진행 중...';
       el.append(label, valEl);
       return el;
     },
@@ -246,7 +246,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('blessing_of_light');
       if (buff) {
         state.heal(buff.healPerTurn || 0);
-        state.addLog(LogUtils.formatHeal('?뚮젅?댁뼱', buff.healPerTurn || 0), 'heal');
+        state.addLog(LogUtils.formatHeal('플레이어', buff.healPerTurn || 0), 'heal');
       }
     },
     onHeal(gs, amount) {
@@ -258,15 +258,15 @@ export const ClassMechanics = {
 
       const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
 
-      state.addLog(LogUtils.formatEcho(`?깃? 諛쒕룞! ?곸뿉寃?${amount} ?쇳빐!`), 'echo');
+      state.addLog(LogUtils.formatEcho(`성가 발동! 적에게 ${amount} 피해!`), 'echo');
       // dealDamage takes (amount, targetIdx, isSubDamage, source)
       state.dealDamage(amount, targetIdx, true);
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);
       const meta = globalThis.DATA?.classes?.paladin;
-      const title = meta?.traitTitle || '?깃? (Sacred Hymn)';
-      const desc = meta?.traitDesc || '泥대젰???뚮났???뚮쭏???뚮났?됰쭔??臾댁옉???곸뿉寃??쇳빐瑜??낇옓?덈떎.';
+      const title = meta?.traitTitle || '성가 (Sacred Hymn)';
+      const desc = meta?.traitDesc || '체력을 회복할 때마다 회복량만큼 무작위 적에게 피해를 입힙니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -283,10 +283,10 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '?깃?';
+      label.textContent = meta?.traitName || '성가';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);";
-      value.textContent = `?뚮났 ?????쇳빐`;
+      value.textContent = '회복 시 추가 피해';
       el.append(label, value);
       return el;
     }
@@ -297,7 +297,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('berserk_mode');
       if (buff) {
         buff.atkGrowth = (buff.atkGrowth || 0) + 2;
-        state.addLog(LogUtils.formatEcho(`遺덊삊?붿쓬: ?쇳빐 +2 (?꾩옱 +${buff.atkGrowth})`), 'echo');
+        state.addLog(LogUtils.formatEcho(`불협화음: 피해 +2 (현재 +${buff.atkGrowth})`), 'echo');
       }
       return damage;
     },
@@ -308,8 +308,8 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('berserk_mode');
       const growBonus = buff ? buff.atkGrowth || 0 : 0;
       const meta = globalThis.DATA?.classes?.berserker;
-      const title = meta?.traitTitle || '遺덊삊?붿쓬 (Cacophony)';
-      const desc = meta?.traitDesc || '泥대젰????쓣?섎줉 ?쇳빐?됱씠 利앺룺?⑸땲?? 怨듦꺽???쒕룄???뚮쭏??怨듦꺽?μ씠 ?곴뎄?곸쑝濡?異붽? ?깆옣?⑸땲??';
+      const title = meta?.traitTitle || '불협화음 (Cacophony)';
+      const desc = meta?.traitDesc || '체력이 낮을수록 피해 보너스가 증가합니다. 공격할 때마다 공격력이 영구적으로 추가 성장합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -326,10 +326,10 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '遺덊삊?붿쓬';
+      label.textContent = meta?.traitName || '불협화음';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
-      value.textContent = `蹂대꼫?? +${hpBonus + growBonus}`;
+      value.textContent = `보너스 +${hpBonus + growBonus}`;
       el.append(label, value);
       return el;
     }
@@ -339,7 +339,7 @@ export const ClassMechanics = {
       const state = _getGS(gs);
       if (state.player.shield > 0) {
         state.player._preservedShield = Math.floor(state.player.shield / 2);
-        state.addLog(LogUtils.formatShield('?뚮젅?댁뼱', state.player._preservedShield), 'shield');
+        state.addLog(LogUtils.formatShield('플레이어', state.player._preservedShield), 'shield');
       }
     },
     onTurnStart(gs) {
@@ -349,7 +349,7 @@ export const ClassMechanics = {
         state.player._preservedShield = 0;
       }
 
-      // 遺덇뎬??踰쎌? 以묒꺽(99)??諛쒕룞 ?잛닔媛 1?뚯뵫 利앷??쒕떎.
+      // 불굴의 벽 중첩(99)마다 발동 횟수가 1회씩 증가한다.
       const buff = state.getBuff('unbreakable_wall');
       const buffPlus = state.getBuff('unbreakable_wall_plus');
       _triggerUnbreakableWall(state, 'unbreakable_wall', buff, 0.5);
@@ -358,8 +358,8 @@ export const ClassMechanics = {
     getSpecialUI(gs) {
       const state = _getGS(gs);
       const meta = globalThis.DATA?.classes?.guardian;
-      const title = meta?.traitTitle || '?붿쁺 媛묒＜ (Echo Armor)';
-      const desc = meta?.traitDesc || '留???諛⑹뼱留됱쓽 ?쇰?媛 ?좎??⑸땲??';
+      const title = meta?.traitTitle || '유령 갑주 (Echo Armor)';
+      const desc = meta?.traitDesc || '매 턴 종료 시 방어막의 절반을 유지합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -376,10 +376,10 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '?붿쁺 媛묒＜';
+      label.textContent = meta?.traitName || '유령 갑주';
       const value = document.createElement('div');
       value.style.cssText = "font-size:10px;color:var(--white);";
-      value.textContent = '諛⑹뼱留?50% ?곸떆 ?좎?';
+      value.textContent = '방어막 50% 턴 시작 유지';
       el.append(label, value);
       return el;
     }

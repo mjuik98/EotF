@@ -21,7 +21,7 @@ export const GameStateCoreMethods = {
 
   addLog(msg, type = '') {
     const id = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
-    this.combat.log.push({ msg, type, id });
+    this.combat.log.push({ msg, type, id, turn: this.combat?.turn ?? 0 });
     if (this.combat.log.length > 200) this.combat.log.shift();
 
     // EventBus로 알림 → 구독자가 UI 갱신

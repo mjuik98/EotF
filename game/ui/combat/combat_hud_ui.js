@@ -2,6 +2,8 @@
 import { applyEchoSkillButtonState } from '../hud/hud_render_helpers.js';
 
 
+import { typeToCategory } from './card_popup_ui.js';
+
 let _hudPinned = false;
 
 function _getDoc(deps) {
@@ -10,6 +12,133 @@ function _getDoc(deps) {
 
 function _getWin(deps) {
   return deps?.win || window;
+}
+
+function _groupLogsByTurn(logs) {
+  const groups = new Map();
+
+  logs.forEach((entry) => {
+    const rawTurn = entry?.turn;
+    const turn = Number.isFinite(rawTurn) ? rawTurn : 0;
+    if (!groups.has(turn)) groups.set(turn, []);
+    groups.get(turn).push(entry);
+  });
+
+  return Array.from(groups.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([turn, entries]) => ({ turn, entries }));
+}
+
+function _sumByRegex(msg, regex) {
+  if (!msg) return 0;
+  const match = msg.match(regex);
+  return match ? Number.parseInt(match[1], 10) || 0 : 0;
+}
+
+function _summarizeTurnStats(entries) {
+  let totalDamage = 0;
+  let totalHeal = 0;
+  let totalShield = 0;
+
+  entries.forEach(({ msg, type }) => {
+    const category = typeToCategory(type);
+    if (category === 'action') {
+      totalDamage += _sumByRegex(msg, /(?:[:\s])(\d+)\s*피해/);
+    }
+    if (type === 'heal' || category === 'support') {
+      totalHeal += _sumByRegex(msg, /(\d+)\s*회복/);
+    }
+    if (type === 'shield' || category === 'support') {
+      totalShield += _sumByRegex(msg, /방어막\s*\+?(\d+)/);
+    }
+  });
+
+  return { totalDamage, totalHeal, totalShield };
+}
+
+function _renderTurnSummaryCard(doc, group) {
+  const { turn, entries } = group;
+  const wrapper = doc.createElement('div');
+  wrapper.className = 'chronicle-turn-group';
+  wrapper.dataset.turn = String(turn);
+
+  const header = doc.createElement('div');
+  header.className = 'chronicle-turn-header';
+  header.textContent = turn <= 0 ? '전투 시작' : `턴 ${turn}`;
+  wrapper.appendChild(header);
+
+  const stats = _summarizeTurnStats(entries);
+  if (stats.totalDamage > 0 || stats.totalHeal > 0 || stats.totalShield > 0) {
+    const summary = doc.createElement('div');
+    summary.className = 'chronicle-turn-stats';
+    const parts = [];
+    if (stats.totalDamage > 0) parts.push(`피해 ${stats.totalDamage}`);
+    if (stats.totalHeal > 0) parts.push(`회복 ${stats.totalHeal}`);
+    if (stats.totalShield > 0) parts.push(`방어막 ${stats.totalShield}`);
+    summary.textContent = parts.join('  ·  ');
+    wrapper.appendChild(summary);
+  }
+
+  entries.forEach((entry) => {
+    const line = doc.createElement('div');
+    line.className = `log-entry ${entry?.type || ''}`.trim();
+    line.dataset.category = typeToCategory(entry?.type);
+    line.textContent = entry?.msg || '';
+    wrapper.appendChild(line);
+  });
+
+  return wrapper;
+}
+
+function _applyChronicleFilter(list, filter) {
+  const groups = list.querySelectorAll('.chronicle-turn-group');
+  groups.forEach((group) => {
+    const lines = group.querySelectorAll('.log-entry');
+    let visibleCount = 0;
+
+    lines.forEach((line) => {
+      const category = line.dataset.category || 'status';
+      const visible = filter === 'all' || category === filter;
+      line.style.display = visible ? '' : 'none';
+      if (visible) visibleCount += 1;
+    });
+
+    group.style.display = visibleCount > 0 ? '' : 'none';
+  });
+}
+
+function _bindChronicleFilters(doc, list) {
+  const filterBar = doc.getElementById('chronicleFilterBar');
+  if (!filterBar || filterBar.dataset.bound === '1') return;
+
+  filterBar.addEventListener('click', (event) => {
+    const btn = event.target.closest('.chronicle-filter-btn');
+    if (!btn) return;
+
+    const filter = btn.dataset.filter || 'all';
+    filterBar.querySelectorAll('.chronicle-filter-btn').forEach((el) => el.classList.remove('active'));
+    btn.classList.add('active');
+    _applyChronicleFilter(list, filter);
+  });
+
+  filterBar.dataset.bound = '1';
+}
+
+function _bindChronicleWheel(overlay, list) {
+  if (!overlay || !list || overlay.dataset.wheelBound === '1') return;
+
+  overlay.addEventListener('wheel', (event) => {
+    const inPanel = event.target?.closest?.('.battle-chronicle-panel');
+    if (!inPanel) return;
+
+    // 리스트 위에서는 기본 스크롤을 유지한다.
+    if (event.target?.closest?.('#battleChronicleList')) return;
+
+    list.scrollTop += event.deltaY;
+    event.preventDefault();
+  }, { passive: false });
+
+  overlay.dataset.wheelBound = '1';
 }
 
 export const CombatHudUI = {
@@ -294,13 +423,19 @@ export const CombatHudUI = {
 
     list.textContent = '';
 
-    const logs = gs?.combat?.log || [];
-    logs.forEach(e => {
-      const entry = doc.createElement('div');
-      entry.className = `log-entry ${e.type || ''}`;
-      entry.textContent = e.msg || '';
-      list.appendChild(entry);
+    const turnGroups = _groupLogsByTurn(gs?.combat?.log || []);
+    turnGroups.forEach((group) => {
+      list.appendChild(_renderTurnSummaryCard(doc, group));
     });
+
+    const filterBar = doc.getElementById('chronicleFilterBar');
+    if (filterBar) {
+      filterBar.querySelectorAll('.chronicle-filter-btn').forEach((btn) => btn.classList.remove('active'));
+      filterBar.querySelector('.chronicle-filter-btn[data-filter="all"]')?.classList.add('active');
+    }
+    _bindChronicleFilters(doc, list);
+    _bindChronicleWheel(overlay, list);
+    _applyChronicleFilter(list, 'all');
 
     overlay.style.display = '';
     overlay.classList.add('active');

@@ -186,6 +186,7 @@
   <div id="combatOverlay">
     <div class="turn-indicator turn-player" id="turnIndicator">플레이어 턴</div>
     <div id="turnBanner"></div>
+    <div id="cardActionPopupContainer" style="pointer-events:none;"></div>
 
 
     <div class="combat-arena">
@@ -603,6 +604,13 @@
     <div class="battle-chronicle-panel">
       <h2 class="title-sub title-gold">BATTLE CHRONICLE</h2>
       <div class="subtitle-text" style="color:var(--text-dim); font-size:14px; margin-bottom: 20px;">전투 기록</div>
+      <div class="chronicle-filter-bar" id="chronicleFilterBar">
+        <button class="chronicle-filter-btn active" data-filter="all">전체</button>
+        <button class="chronicle-filter-btn" data-filter="action">공격</button>
+        <button class="chronicle-filter-btn" data-filter="support">회복/방어</button>
+        <button class="chronicle-filter-btn" data-filter="status">상태</button>
+        <button class="chronicle-filter-btn" data-filter="system">시스템</button>
+      </div>
       <div id="battleChronicleList" class="battle-chronicle-list">
         <!-- 전투 로그가 여기에 렌더링 됩니다. -->
       </div>
