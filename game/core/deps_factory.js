@@ -253,6 +253,7 @@ const CONTRACT_BUILDERS = Object.freeze({
         closeBattleChronicle: _refs.closeBattleChronicle,
         _syncVolumeUI: _refs._syncVolumeUI || (() => window._syncVolumeUI?.()),
         useEchoSkill: _refs.useEchoSkill,
+        drawCard: _refs.drawCard,
         endPlayerTurn: _refs.endPlayerTurn,
         renderCombatEnemies: _refs.renderCombatEnemies,
         finalizeRunOutcome: _refs.finalizeRunOutcome,

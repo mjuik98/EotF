@@ -243,11 +243,9 @@ export const ClassMechanics = {
   paladin: {
     onTurnStart(gs) {
       const state = _getGS(gs);
-      const buff = state?.getBuff?.('blessing_of_light');
-      if (buff) {
-        state.heal(buff.healPerTurn || 0);
-        state.addLog(LogUtils.formatHeal('플레이어', buff.healPerTurn || 0), 'heal');
-      }
+      const buff = state?.getBuff?.('blessing_of_light_plus') || state?.getBuff?.('blessing_of_light');
+      const healAmount = Number(buff?.healPerTurn || 0);
+      if (healAmount > 0) state.heal(healAmount);
     },
     onHeal(gs, amount) {
       const state = _getGS(gs);

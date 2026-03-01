@@ -124,21 +124,62 @@ function _bindChronicleFilters(doc, list) {
   filterBar.dataset.bound = '1';
 }
 
-function _bindChronicleWheel(overlay, list) {
-  if (!overlay || !list || overlay.dataset.wheelBound === '1') return;
+function _resolveEventElement(event) {
+  const target = event?.target;
+  if (target instanceof Element) return target;
+  if (target && typeof target === 'object' && target.parentElement instanceof Element) {
+    return target.parentElement;
+  }
+  return null;
+}
 
-  overlay.addEventListener('wheel', (event) => {
-    const inPanel = event.target?.closest?.('.battle-chronicle-panel');
-    if (!inPanel) return;
+function _normalizeWheelDelta(event, list) {
+  let delta = Number(event?.deltaY ?? event?.deltaX ?? 0);
+  if (!Number.isFinite(delta) || delta === 0) {
+    const legacy = Number(event?.wheelDelta || 0);
+    if (legacy) delta = -legacy;
+  }
+  if (event?.deltaMode === 1) delta *= 16; // line mode
+  else if (event?.deltaMode === 2) delta *= Math.max(1, list?.clientHeight || 1); // page mode
+  return Number.isFinite(delta) ? delta : 0;
+}
 
-    // 리스트 위에서는 기본 스크롤을 유지한다.
-    if (event.target?.closest?.('#battleChronicleList')) return;
+function _bindChronicleWheel(panel, list) {
+  if (!panel || !list || panel.dataset.wheelBound === '1') return;
 
-    list.scrollTop += event.deltaY;
-    event.preventDefault();
+  list.addEventListener('wheel', (event) => {
+    const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+    if (maxScroll <= 0) return;
+
+    const delta = _normalizeWheelDelta(event, list);
+    if (!delta) return;
+
+    const next = Math.max(0, Math.min(maxScroll, list.scrollTop + delta));
+    if (next !== list.scrollTop) {
+      list.scrollTop = next;
+      event.preventDefault();
+    }
   }, { passive: false });
 
-  overlay.dataset.wheelBound = '1';
+  panel.addEventListener('wheel', (event) => {
+    const targetEl = _resolveEventElement(event);
+    const isOnList = !!targetEl?.closest?.('#battleChronicleList');
+    if (isOnList) return; // list 영역은 브라우저 기본 스크롤 사용
+
+    const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+    if (maxScroll <= 0) return;
+
+    const delta = _normalizeWheelDelta(event, list);
+    if (!delta) return;
+
+    const next = Math.max(0, Math.min(maxScroll, list.scrollTop + delta));
+    if (next !== list.scrollTop) {
+      list.scrollTop = next;
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  panel.dataset.wheelBound = '1';
 }
 
 export const CombatHudUI = {
@@ -418,6 +459,7 @@ export const CombatHudUI = {
     const gs = deps.gs;
     const doc = _getDoc(deps);
     const overlay = doc.getElementById('battleChronicleOverlay');
+    const panel = overlay?.querySelector?.('.battle-chronicle-panel');
     const list = doc.getElementById('battleChronicleList');
     if (!overlay || !list) return;
 
@@ -434,7 +476,7 @@ export const CombatHudUI = {
       filterBar.querySelector('.chronicle-filter-btn[data-filter="all"]')?.classList.add('active');
     }
     _bindChronicleFilters(doc, list);
-    _bindChronicleWheel(overlay, list);
+    _bindChronicleWheel(panel, list);
     _applyChronicleFilter(list, 'all');
 
     overlay.style.display = '';

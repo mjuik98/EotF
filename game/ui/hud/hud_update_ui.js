@@ -1,7 +1,7 @@
 ﻿import { GS } from '../../core/game_state.js';
 import { DATA } from '../../../data/game_data.js';
 import { SecurityUtils } from '../../utils/security.js';
-import { getEchoTierWindow, getHpBarGradient } from './hud_render_helpers.js';
+import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
 
 
 let _uiPending = false;
@@ -577,11 +577,11 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoValue}/30)`;
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echoValue}/30)`, 'E');
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoValue}/100)`;
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echoValue}/100)`, 'E');
         }
       }
     }
@@ -595,17 +595,17 @@ export const HudUpdateUI = {
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (gs.combat.active) {
         if (handFull) {
-          drawBtn.textContent = '손패 가득 참';
+          setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
           drawBtn.title = '손패가 가득 찼습니다 (최대 8장).';
         } else if (p.energy < 1) {
-          drawBtn.textContent = '에너지 부족';
+          setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
           drawBtn.title = '카드를 뽑으려면 1 에너지가 필요합니다.';
         } else {
-          drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
+          setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
           drawBtn.title = '카드를 1장 뽑습니다.';
         }
       } else {
-        drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
+        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
         drawBtn.title = '전투 중에만 사용할 수 있습니다.';
       }
     }
@@ -668,11 +668,11 @@ export const HudUpdateUI = {
       const canDraw = gs.combat.playerTurn && p.energy >= 1 && !handFull;
 
       if (handFull) {
-        drawBtn.textContent = '손패 가득 참';
+        setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
       } else if (p.energy < 1) {
-        drawBtn.textContent = '에너지 부족';
+        setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
       } else {
-        drawBtn.textContent = '🃏 카드 뽑기 (1 에너지)';
+        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
       }
       drawBtn.disabled = !canDraw;
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
@@ -769,11 +769,11 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echo}/30)`;
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/30)`, 'E');
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echo}/100)`;
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/100)`, 'E');
         }
       }
     }

@@ -27,6 +27,27 @@ export function formatEchoSkillButtonText(echoValue) {
     return `\u26A1 \uC794\uD5A5 \uC2A4\uD0AC \u2726(${stageInfo.echo}/${stageInfo.goal})`;
 }
 
+export function setActionButtonLabel(button, label, hint) {
+    if (!button) return;
+
+    const doc = button.ownerDocument || (typeof document !== 'undefined' ? document : null);
+    const resolvedHint = hint
+        || button.dataset.kbdHint
+        || button.querySelector('.kbd-hint')?.textContent?.trim();
+
+    button.textContent = label;
+
+    if (resolvedHint && doc) {
+        const hintEl = doc.createElement('span');
+        hintEl.className = 'kbd-hint';
+        hintEl.textContent = resolvedHint;
+        button.appendChild(hintEl);
+        button.dataset.kbdHint = resolvedHint;
+    } else {
+        delete button.dataset.kbdHint;
+    }
+}
+
 export function getEchoSkillButtonState(echoValue) {
     const stageInfo = getEchoSkillStage(echoValue);
     const stageEcho = Math.min(stageInfo.echo, stageInfo.goal);
@@ -71,7 +92,7 @@ export function applyEchoSkillButtonState(button, echoValue) {
     if (!button) return;
     const state = getEchoSkillButtonState(echoValue);
 
-    button.textContent = formatEchoSkillButtonText(state.echo);
+    setActionButtonLabel(button, formatEchoSkillButtonText(state.echo), 'E');
     button.disabled = state.tier === 0;
     button.style.opacity = state.tier === 0 ? '0.45' : '1';
     button.style.color = state.textColor;

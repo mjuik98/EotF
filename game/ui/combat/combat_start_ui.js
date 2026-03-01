@@ -8,6 +8,7 @@ import { GS } from '../../core/game_state.js';
 import { DATA } from '../../../data/game_data.js';
 import { Trigger } from '../../data/triggers.js';
 import { CombatInitializer } from '../../combat/combat_initializer.js';
+import { setActionButtonLabel } from '../hud/hud_render_helpers.js';
 
 
 function _getDoc(deps) {
@@ -128,13 +129,13 @@ export const CombatStartUI = {
       drawBtn.disabled = !canDraw;
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (handFull) {
-        drawBtn.textContent = '손패 가득 참';
+        setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
         drawBtn.title = '손패가 가득 찼습니다 (최대 8장)';
       } else if (gs.player.energy < 1) {
-        drawBtn.textContent = '에너지 부족';
-        drawBtn.title = '카드 드로우에는 에너지 1이 필요합니다.';
+        setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
+        drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';
       } else {
-        drawBtn.textContent = '🃏 카드 드로우';
+        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
         drawBtn.title = '카드 1장을 뽑습니다 (에너지 1).';
       }
     }
@@ -154,7 +155,7 @@ export const CombatStartUI = {
           globalThis.updateEchoSkillBtn();
         }
       } else {
-        echoBtn.textContent = `⚡ 잔향 스킬 (${echoVal}/30)`;
+        setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 (${echoVal}/30)`, 'E');
       }
       console.log('[CombatStart] Echo button initialized - echo:', echoVal, 'disabled:', echoBtn.disabled, 'text:', echoBtn.textContent);
     }

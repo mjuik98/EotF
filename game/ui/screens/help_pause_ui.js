@@ -56,6 +56,7 @@ export const HelpPauseUI = {
         ['D', '덱 보기'],
         ['?', '도움말 열기'],
         ['E', 'Echo 스킬 발동 (전투 중)'],
+        ['Q', '카드 뽑기 (전투 중)'],
         ['Enter', '턴 종료 (전투 중)'],
         ['1 - 0', '손패 카드 빠른 사용'],
         ['Tab', '다음 적 대상 전환'],
@@ -451,6 +452,11 @@ export const HelpPauseUI = {
 
       if ((e.key === 'e' || e.key === 'E') && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         if (typeof deps.useEchoSkill === 'function') deps.useEchoSkill();
+      }
+
+      if ((e.key === 'q' || e.key === 'Q') && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+        e.preventDefault();
+        if (typeof deps.drawCard === 'function') deps.drawCard();
       }
 
       if (e.key === 'Enter' && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
