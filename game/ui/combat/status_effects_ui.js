@@ -1,30 +1,30 @@
 const STATUS_KR = {
-  resonance: { name: '공명', icon: '🌀', buff: true, desc: '카드를 연계할 때마다 다음 공격의 위력이 상승합니다.' },
-  acceleration: { name: '가속', icon: '👟', buff: true, desc: '이번 턴 동안 피해량이 증가합니다.' },
-  soul_armor: { name: '영혼의 갑옷', icon: '🛡️', buff: true, desc: '받는 피해를 일부 감소시킵니다.' },
-  vanish: { name: '은신', icon: '🌫️', buff: true, desc: '다음 공격이 치명타로 적중합니다.' },
-  immune: { name: '무적', icon: '🏛️', buff: true, desc: '이번 턴 동안 모든 피해를 입지 않습니다.' },
-  shadow_atk: { name: '그림자격', icon: '🌑', buff: true, desc: '그림자 공격 계열 카드의 피해가 증가합니다.' },
-  mirror: { name: '반사', icon: '🪞', buff: true, desc: '다음에 받는 피해를 적에게 그대로 반사합니다.' },
-  zeroCost: { name: '무비용', icon: '✨', buff: true, desc: '이번 턴에 사용하는 모든 카드의 비용이 0이 됩니다.' },
-  weakened: { name: '약화', icon: '💫', buff: false, desc: '적에게 주는 피해가 50% 감소합니다.' },
-  slowed: { name: '감속', icon: '🐢', buff: false, desc: '행동이 지연되어 일부 효과의 효율이 감소합니다.' },
-  burning: { name: '화염', icon: '🔥', buff: false, desc: '매 턴 시작 시 피해 5.를 입습니다.' },
-  cursed: { name: '저주', icon: '💀', buff: false, desc: '카드의 효과와 체력 회복량이 감소합니다.' },
-  poisoned: { name: '독', icon: '🐍', buff: false, desc: '매 턴 시작 시 지속적인 피해를 입습니다. 중첩될수록 피해가 강해집니다.' },
-  stunned: { name: '기절', icon: '⚡', buff: false, desc: '이번 턴 동안 행동할 수 없습니다.' },
-  confusion: { name: '혼란', icon: '🌀', buff: false, desc: '사용하는 카드의 순서가 무작위로 뒤섞입니다.' },
-  dodge: { name: '회피', icon: '💨', buff: true, desc: '다음에 받는 공격을 회피합니다.' },
-  strength: { name: '근력', icon: '💪', buff: true, desc: '주는 피해가 증가합니다.' },
-  dexterity: { name: '민첩', icon: '🏃', buff: true, desc: '얻는 방어막이 증가합니다.' },
-  vulnerable: { name: '취약', icon: '🎯', buff: false, desc: '받는 피해가 50% 증가합니다.' },
-  blessing_of_light: { name: '빛의 축복', icon: '☀️', buff: true, desc: '매 턴 시작 시 체력을 회복합니다.' },
-  divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어막이 일정 비율만큼 추가로 증가합니다.' },
-  time_warp: { name: '시간 왜곡', icon: '🌀', buff: true, desc: '매 턴 시작 시 에너지를 추가로 획득합니다.' },
-  berserk_mode: { name: '광폭화', icon: '💢', buff: true, desc: '매 턴 공격력이 서서히 증가합니다.' },
-  unbreakable_wall: { name: '불굴의 벽', icon: '🧱', buff: true, desc: '턴 시작 시 방어막의 50%만큼 무작위 적에게 피해를 입힙니다.' },
-  unbreakable_wall_plus: { name: '불굴의 벽+', icon: '🧱', buff: true, desc: '턴 시작 시 방어막의 70%만큼 무작위 적에게 피해를 입힙니다.' },
-  echo_on_hit: { name: '반향', icon: '🔊', buff: true, desc: '공격받을 시 잔향을 충전합니다.' }
+  resonance: { name: 'Resonance', icon: 'R', buff: true, desc: 'Gain bonus attack damage by chaining cards.' },
+  acceleration: { name: 'Acceleration', icon: 'A', buff: true, desc: 'Increase damage during this turn.' },
+  soul_armor: { name: 'Soul Armor', icon: 'S', buff: true, desc: 'Reduces incoming damage.' },
+  vanish: { name: 'Vanish', icon: 'V', buff: true, desc: 'The next attack deals critical damage.' },
+  immune: { name: 'Immune', icon: 'I', buff: true, desc: 'Prevents all damage for this turn.' },
+  shadow_atk: { name: 'Shadow Attack', icon: 'H', buff: true, desc: 'Increases shadow-type attack damage.' },
+  mirror: { name: 'Mirror', icon: 'M', buff: true, desc: 'Reflects the next incoming damage to an enemy.' },
+  zeroCost: { name: 'Zero Cost', icon: '0', buff: true, desc: 'Cards played this turn cost 0.' },
+  weakened: { name: 'Weakened', icon: 'W', buff: false, desc: 'Outgoing damage is reduced.' },
+  slowed: { name: 'Slowed', icon: 'L', buff: false, desc: 'Action efficiency is reduced.' },
+  burning: { name: 'Burning', icon: 'B', buff: false, desc: 'Take damage at turn start.' },
+  cursed: { name: 'Cursed', icon: 'C', buff: false, desc: 'Card effects and healing are reduced.' },
+  poisoned: { name: 'Poisoned', icon: 'P', buff: false, desc: 'Take stacking damage at turn start.' },
+  stunned: { name: 'Stunned', icon: 'T', buff: false, desc: 'Cannot act this turn.' },
+  confusion: { name: 'Confusion', icon: 'Q', buff: false, desc: 'Card order is randomized while active.' },
+  dodge: { name: 'Dodge', icon: 'D', buff: true, desc: 'Evades the next incoming attack.' },
+  strength: { name: 'Strength', icon: 'G', buff: true, desc: 'Increases dealt damage.' },
+  dexterity: { name: 'Dexterity', icon: 'X', buff: true, desc: 'Increases gained shield.' },
+  vulnerable: { name: 'Vulnerable', icon: 'U', buff: false, desc: 'Increases incoming damage.' },
+  blessing_of_light: { name: 'Blessing of Light', icon: 'L+', buff: true, desc: 'Heals at turn start.' },
+  divine_grace: { name: 'Divine Grace', icon: 'D+', buff: true, desc: 'Converts part of shield into bonus value.' },
+  time_warp: { name: 'Time Warp', icon: 'TW', buff: true, desc: 'Grants additional energy each turn.' },
+  berserk_mode: { name: 'Berserk', icon: 'BZ', buff: true, desc: 'Attack power ramps up over time.' },
+  unbreakable_wall: { name: 'Unbreakable Wall', icon: 'UW', buff: true, desc: 'Deals damage based on shield at turn start.' },
+  unbreakable_wall_plus: { name: 'Unbreakable Wall+', icon: 'UW+', buff: true, desc: 'Stronger shield-based turn-start damage.' },
+  echo_on_hit: { name: 'Echo on Hit', icon: 'EH', buff: true, desc: 'Gain echo when hit.' },
 };
 
 function _getDoc(deps) {
@@ -38,8 +38,21 @@ function _getGS(deps) {
 function _getTooltipUI(deps) {
   return deps?.tooltipUI
     || deps?.TooltipUI
-    || window.TooltipUI
-    || window.GAME?.Modules?.['TooltipUI'];
+    || globalThis.TooltipUI
+    || globalThis.GAME?.Modules?.['TooltipUI'];
+}
+
+function _getStackDisplay(key, buff) {
+  if (!buff || buff.stacks <= 0) return '';
+  if (buff.stacks < 99) return String(buff.stacks);
+
+  if (key === 'blessing_of_light') return String(buff.healPerTurn || '');
+  if (key === 'soul_armor') return String(buff.echoRegen || 0);
+  if (key === 'time_warp') return String(buff.energyPerTurn || 0);
+  if (key === 'berserk_mode') return String(buff.atkGrowth || 0);
+  if (key === 'divine_grace') return String(buff.shieldBonus || 0);
+
+  return '';
 }
 
 export const StatusEffectsUI = {
@@ -58,14 +71,15 @@ export const StatusEffectsUI = {
     const buffs = gs.player.buffs || {};
     const keys = Object.keys(buffs);
     el.textContent = '';
+
     if (!keys.length) {
       const none = doc.createElement('span');
       none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
-      none.textContent = '없음';
+      none.textContent = 'None';
       el.appendChild(none);
     } else {
       const fragment = doc.createDocumentFragment();
-      keys.forEach(k => {
+      keys.forEach((k) => {
         const buff = buffs[k];
         const info = STATUS_KR[k];
         const isBuff = info ? info.buff : ['resonance', 'acceleration', 'soul_armor', 'vanish', 'immune', 'shadow_atk', 'dodge'].includes(k);
@@ -73,11 +87,9 @@ export const StatusEffectsUI = {
 
         const badge = doc.createElement('span');
         badge.className = `hud-status-badge ${isBuff ? 'status-buff' : 'status-debuff'}`;
+        badge.appendChild(doc.createTextNode(label));
 
-        const labelText = doc.createTextNode(label);
-        badge.appendChild(labelText);
-
-        const dmgBonus = (k === 'resonance' || k === 'acceleration') && buff.dmgBonus ? ` +${buff.dmgBonus}↯` : '';
+        const dmgBonus = (k === 'resonance' || k === 'acceleration') && buff.dmgBonus ? ` +${buff.dmgBonus}` : '';
         if (dmgBonus) {
           badge.appendChild(doc.createTextNode(` ${dmgBonus}`));
         }
@@ -85,36 +97,22 @@ export const StatusEffectsUI = {
         if (k !== 'resonance' && k !== 'acceleration' && buff.stacks > 0) {
           const stackSpan = doc.createElement('span');
           stackSpan.style.opacity = '0.7';
-
-          // 지속 시간이 99 이상인 경우 (무한 지속), 턴 수 대신 실제 효과 수치를 표시
-          let displayVal = buff.stacks;
-          if (buff.stacks >= 99) {
-            if (k === 'blessing_of_light') displayVal = buff.healPerTurn || '';
-            else if (k === 'soul_armor') displayVal = buff.echoRegen || 0;
-            else if (k === 'time_warp') displayVal = buff.energyPerTurn || 0;
-            else if (k === 'berserk_mode') displayVal = buff.atkGrowth || 0;
-            else if (k === 'divine_grace') displayVal = buff.shieldBonus || 0;
-
-            // 만약 displayVal이 여전히 99 이상이면 (지정된 수치가 없는 경우), 괄호 없이 아이콘만 보이거나 공백 처리 가능
-            // 여기서는 수치가 있는 경우만 괄호 안에 표시하고, 99인 경우(단순 파워)는 괄호를 생략하거나 별도 처리
-            if (displayVal >= 99) displayVal = '';
-          }
-
-          stackSpan.textContent = displayVal !== '' ? ` (${displayVal})` : '';
+          const displayVal = _getStackDisplay(k, buff);
+          stackSpan.textContent = displayVal ? ` (${displayVal})` : '';
           badge.appendChild(stackSpan);
         }
 
         const tooltipUI = _getTooltipUI(deps);
         const tooltipTitle = dmgBonus ? `${label} ${dmgBonus}` : label;
-        const tooltipDesc = info?.desc || '효과 정보 없음';
+        const tooltipDesc = info?.desc || 'No description';
         badge.addEventListener('mouseenter', (event) => {
           if (typeof tooltipUI?.showGeneralTooltip === 'function') {
-            tooltipUI.showGeneralTooltip(event, tooltipTitle, tooltipDesc, { doc, win: window });
+            tooltipUI.showGeneralTooltip(event, tooltipTitle, tooltipDesc, { doc, win: globalThis });
           }
         });
         badge.addEventListener('mouseleave', () => {
           if (typeof tooltipUI?.hideGeneralTooltip === 'function') {
-            tooltipUI.hideGeneralTooltip({ doc, win: window });
+            tooltipUI.hideGeneralTooltip({ doc, win: globalThis });
           }
         });
 

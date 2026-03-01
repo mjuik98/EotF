@@ -1,4 +1,4 @@
-import { CONSTANTS } from '../../data/constants.js';
+﻿import { CONSTANTS } from '../../data/constants.js';
 import { applyEchoSkillButtonState } from '../hud/hud_render_helpers.js';
 
 
@@ -114,48 +114,70 @@ export const CombatHudUI = {
     const logContainer = doc.getElementById('combatLog');
     if (!logContainer) return;
 
-    const currentIds = Array.from(logContainer.children).map(c => c.dataset.logId);
-    // 화면에 보여줄 개수 제한 상향 (Hover 시 볼 수 있도록 30개로 설정)
     const MAX_LOGS = 30;
     const lastLogs = gs.combat.log.slice(-MAX_LOGS);
 
-    let logsAdded = false;
+    if (lastLogs.length === 0) {
+      if (logContainer.children.length > 0) logContainer.textContent = '';
+      return;
+    }
 
-    lastLogs.forEach(e => {
+    const existingById = new Map();
+    const existingMsgs = new Set();
+    Array.from(logContainer.children).forEach((child) => {
+      const id = child.dataset.logId;
+      if (id) existingById.set(id, child);
+      if (child.textContent) existingMsgs.add(child.textContent);
+    });
+
+    // 전투 로그 상태에 없는 엔트리는 정리한다.
+    const validIds = new Set(lastLogs.map(e => e.id).filter(Boolean));
+    for (const [id, el] of existingById.entries()) {
+      if (!validIds.has(id)) {
+        el.remove();
+        existingById.delete(id);
+      }
+    }
+
+    let logsAdded = false;
+    const fragment = doc.createDocumentFragment();
+
+    lastLogs.forEach((e) => {
       if (e.id) {
-        const existing = logContainer.querySelector(`[data-log-id="${e.id}"]`);
+        const existing = existingById.get(e.id);
         if (existing) {
           if (existing.textContent !== e.msg) {
             existing.textContent = e.msg;
+            existing.className = `log-entry ${e.type || ''}`.trim();
             existing.style.animation = 'none';
           }
-        } else if (!currentIds.includes(e.id)) {
+        } else {
           const entry = doc.createElement('div');
-          entry.className = `log-entry ${e.type}`;
+          entry.className = `log-entry ${e.type || ''}`.trim();
           entry.textContent = e.msg;
           entry.dataset.logId = e.id;
-          logContainer.appendChild(entry);
+          fragment.appendChild(entry);
           logsAdded = true;
         }
-      } else if (!e.id) {
+      } else if (!existingMsgs.has(e.msg)) {
         // 기존 하위 호환성 (ID 없는 경우 텍스트 비교)
-        const currentMsgs = Array.from(logContainer.children).map(c => c.textContent);
-        if (!currentMsgs.includes(e.msg)) {
-          const entry = doc.createElement('div');
-          entry.className = `log-entry ${e.type}`;
-          entry.textContent = e.msg;
-          logContainer.appendChild(entry);
-          logsAdded = true;
-        }
+        const entry = doc.createElement('div');
+        entry.className = `log-entry ${e.type || ''}`.trim();
+        entry.textContent = e.msg;
+        fragment.appendChild(entry);
+        existingMsgs.add(e.msg);
+        logsAdded = true;
       }
     });
 
-    // 화면에 너무 많이 쌓이지 않도록 정리
+    if (fragment.childNodes.length > 0) {
+      logContainer.appendChild(fragment);
+    }
+
     while (logContainer.children.length > MAX_LOGS) {
       logContainer.removeChild(logContainer.firstChild);
     }
 
-    // 새 로그가 추가되었으면 항상 스크롤을 맨 아래로 이동
     if (logsAdded) {
       logContainer.scrollTop = logContainer.scrollHeight;
     }

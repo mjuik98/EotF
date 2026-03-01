@@ -1,5 +1,3 @@
-import { InscriptionSystem } from '../../systems/inscription_system.js';
-
 function _getGS(deps) {
   return deps?.gs;
 }
@@ -10,6 +8,20 @@ function _getData(deps) {
 
 function _getDoc(deps) {
   return deps?.doc || document;
+}
+
+function _getInscriptionLevel(gs, id) {
+  const inscriptions = gs?.meta?.inscriptions;
+  if (!inscriptions) return 0;
+  const val = inscriptions[id];
+  if (typeof val === 'boolean') return val ? 1 : 0;
+  return Math.max(0, Math.floor(Number(val) || 0));
+}
+
+function _setInscriptionLevel(gs, id, level) {
+  if (!gs?.meta) return;
+  if (!gs.meta.inscriptions) gs.meta.inscriptions = {};
+  gs.meta.inscriptions[id] = Math.max(0, Math.floor(Number(level) || 0));
 }
 
 export const StoryUI = {
@@ -33,9 +45,9 @@ export const StoryUI = {
     if (!frag || gs.meta.storyPieces.includes(frag.id)) return;
     gs.meta.storyPieces.push(frag.id);
     this.displayFragment(frag, deps);
-    if (gs.meta.storyPieces.length >= 5) {
-      if (InscriptionSystem.getInscriptionLevel(gs, 'echo_memory') === 0 && data.inscriptions?.echo_memory) {
-        InscriptionSystem.setInscriptionLevel(gs, 'echo_memory', 1);
+    if (gs.meta.storyPieces.length > 4) {
+      if (_getInscriptionLevel(gs, 'echo_memory') === 0 && data.inscriptions?.echo_memory) {
+        _setInscriptionLevel(gs, 'echo_memory', 1);
         setTimeout(() => {
           if (typeof deps.showWorldMemoryNotice === 'function') {
             deps.showWorldMemoryNotice('새로운 각인 해금: 잔향의 기억');
@@ -44,7 +56,7 @@ export const StoryUI = {
       }
     }
 
-    if (gs.meta.storyPieces.length >= 8 && !gs.meta._hiddenEndingHinted) {
+    if (gs.meta.storyPieces.length > 7 && !gs.meta._hiddenEndingHinted) {
       gs.meta._hiddenEndingHinted = true;
       setTimeout(() => {
         if (typeof deps.showWorldMemoryNotice === 'function') {
@@ -85,7 +97,7 @@ export const StoryUI = {
     const gs = _getGS(deps);
     if (!gs?.meta) return false;
     const noIns = !Object.values(gs.meta.inscriptions).some(v => v);
-    return noIns && gs.meta.storyPieces.length >= 10;
+    return noIns && gs.meta.storyPieces.length > 9;
   },
 
   showNormalEnding(deps = {}) {
@@ -136,8 +148,8 @@ export const StoryUI = {
       foot.textContent = `TRUE ENDING UNLOCKED — ${gs.meta.storyPieces.length}/10 fragments`;
 
       const data = _getData(deps);
-      if (InscriptionSystem.getInscriptionLevel(gs, 'void_heritage') === 0 && data?.inscriptions?.void_heritage) {
-        InscriptionSystem.setInscriptionLevel(gs, 'void_heritage', 1);
+      if (_getInscriptionLevel(gs, 'void_heritage') === 0 && data?.inscriptions?.void_heritage) {
+        _setInscriptionLevel(gs, 'void_heritage', 1);
         const unlockMsg = doc.createElement('div');
         unlockMsg.style.cssText = "font-family:'Cinzel',serif;font-size:11px;color:var(--cyan);margin-top:8px;animation:fadeInUp 1s ease 4s both;opacity:0;";
         unlockMsg.textContent = '궁극의 각인 해금: 공허의 유산';

@@ -23,7 +23,7 @@ export const CombatTurnUI = {
 
     // ── 로직 위임 ──
     const result = TurnManager.endPlayerTurnLogic(gs, data, {
-      canPlayFn: window.CardCostUtils?.canPlay,
+      canPlayFn: globalThis.CardCostUtils?.canPlay,
     });
     if (!result) return;
 
@@ -31,7 +31,7 @@ export const CombatTurnUI = {
     deps.updateChainUI?.(0);
 
     // 클래스 특성 턴 종료 훅 (무음수호자 방어막 유지 등)
-    const classMechanics = deps.classMechanics || window.ClassMechanics || window.GAME?.Modules?.['ClassMechanics'];
+    const classMechanics = deps.classMechanics || globalThis.ClassMechanics || globalThis.GAME?.Modules?.['ClassMechanics'];
     const classMech = classMechanics?.[gs.player.class];
     if (classMech && typeof classMech.onTurnEnd === 'function') {
       classMech.onTurnEnd(gs);
@@ -187,7 +187,7 @@ export const CombatTurnUI = {
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
     console.log('[CombatTurn] Player turn start - energy:', gs.player.energy, 'maxEnergy:', gs.player.maxEnergy);
-    console.log('[CombatTurn] Region:', gs.currentRegion, 'baseRegion:', typeof window.getBaseRegionIndex === 'function' ? window.getBaseRegionIndex(gs.currentRegion) : 'N/A');
+    console.log('[CombatTurn] Region:', gs.currentRegion, 'baseRegion:', typeof globalThis.getBaseRegionIndex === 'function' ? globalThis.getBaseRegionIndex(gs.currentRegion) : 'N/A');
 
     const statusResult = TurnManager.processPlayerStatusTicks(gs, {
       shuffleArrayFn: deps.shuffleArray,
@@ -203,16 +203,16 @@ export const CombatTurnUI = {
       deps.updateCombatEnergy(gs);
     } else if (typeof deps.hudUpdateUI?.updateCombatEnergy === 'function') {
       deps.hudUpdateUI.updateCombatEnergy(gs);
-    } else if (window.HudUpdateUI?.updateCombatEnergy) {
-      window.HudUpdateUI.updateCombatEnergy(gs);
-    } else if (window.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-      window.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
+    } else if (globalThis.HudUpdateUI?.updateCombatEnergy) {
+      globalThis.HudUpdateUI.updateCombatEnergy(gs);
+    } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
+      globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
     }
 
     deps.runRules?.onTurnStart?.(gs);
 
     // 클래스 특성 턴 시작 훅 (찬송기사 회복, 무음수호자 방어막 유지 등)
-    const classMechanics = deps.classMechanics || window.ClassMechanics || window.GAME?.Modules?.['ClassMechanics'];
+    const classMechanics = deps.classMechanics || globalThis.ClassMechanics || globalThis.GAME?.Modules?.['ClassMechanics'];
     const classMech = classMechanics?.[gs.player.class];
     if (classMech && typeof classMech.onTurnStart === 'function') {
       classMech.onTurnStart(gs);
@@ -238,10 +238,10 @@ export const CombatTurnUI = {
     setTimeout(() => {
       if (typeof deps.updateCombatEnergy === 'function') {
         deps.updateCombatEnergy(gs);
-      } else if (window.HudUpdateUI?.updateCombatEnergy) {
-        window.HudUpdateUI.updateCombatEnergy(gs);
-      } else if (window.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-        window.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
+      } else if (globalThis.HudUpdateUI?.updateCombatEnergy) {
+        globalThis.HudUpdateUI.updateCombatEnergy(gs);
+      } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
+        globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
       }
     }, 100);
   },
@@ -274,10 +274,10 @@ export const CombatTurnUI = {
       shuffleArrayFn: deps.shuffleArray,
     });
 
-    if (window.HudUpdateUI?.updateCombatEnergy) {
-      window.HudUpdateUI.updateCombatEnergy(gs);
-    } else if (window.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-      window.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
+    if (globalThis.HudUpdateUI?.updateCombatEnergy) {
+      globalThis.HudUpdateUI.updateCombatEnergy(gs);
+    } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
+      globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
     }
 
     deps.updateStatusDisplay?.();

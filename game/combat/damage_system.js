@@ -27,7 +27,9 @@ export const DamageSystem = {
         const win = _getWin(deps);
 
         Logger.debug('[dealDamage] Called with targetIdx:', targetIdx, '_selectedTarget:', this._selectedTarget);
-        Logger.debug('[dealDamage] Enemies:', this.combat.enemies.map(e => ({ name: e.name, hp: e.hp })));
+        Logger.debug('[dealDamage] Enemies:', this.combat.enemies.map(function (enemy) {
+            return { name: enemy.name, hp: enemy.hp };
+        }));
 
         if (targetIdx === null) {
             const sel = this._selectedTarget;
@@ -78,7 +80,7 @@ export const DamageSystem = {
             dmg = Math.max(0, Math.floor(itemScaled));
         }
         let chainBonus = 0;
-        if (this.player.echoChain >= 3) {
+        if (this.player.echoChain > 2) {
             chainBonus = Math.floor(dmg * 0.2);
             if (this.player.chainBonusMult) {
                 chainBonus = Math.floor(chainBonus * this.player.chainBonusMult);
@@ -197,7 +199,7 @@ export const DamageSystem = {
             if (typeof this.addLog === 'function') this.addLog(LogUtils.formatEcho('💢 취약: 피해량 증가!'), 'damage');
         }
 
-        if (this.player.dmgTakenMult !== undefined) {
+        if ('dmgTakenMult' in this.player) {
             dmg = Math.floor(dmg * this.player.dmgTakenMult);
         }
 

@@ -181,7 +181,8 @@ export const Reducers = {
             gs.markDirty('hud');
         }
 
-        return { drewCards: gs.player.hand.length - previousHandLength };
+        const drawn = gs.player.hand.length - previousHandLength;
+        return { drewCards: drawn, drawn };
     },
 
     [Actions.ENEMY_DAMAGE](gs, { amount, targetIdx }) {

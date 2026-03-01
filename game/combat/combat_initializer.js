@@ -1,12 +1,12 @@
-/**
- * combat_initializer.js — 전투 초기화 비즈니스 로직 (순수 Model)
+﻿/**
+ * combat_initializer.js ???꾪닾 珥덇린??鍮꾩쫰?덉뒪 濡쒖쭅 (?쒖닔 Model)
  *
- * DOM/window 접근 없이 게임 상태(gs)만 변경합니다.
+ * DOM/window ?묎렐 ?놁씠 寃뚯엫 ?곹깭(gs)留?蹂寃쏀빀?덈떎.
  */
 
-// ═══════════════════════════════════════
-//  유틸
-// ═══════════════════════════════════════
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+//  ?좏떥
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
 function _isLastBaseRegion(gs, getBaseRegionIndex, getRegionCount) {
     if (!gs) return false;
     if (typeof getBaseRegionIndex !== 'function' || typeof getRegionCount !== 'function') return false;
@@ -20,32 +20,35 @@ function _spawnScaledEnemy(gs, enemyData, difficultyScaler, extra = {}) {
     gs.combat.enemies.push(enemy);
 }
 
-// ═══════════════════════════════════════
-//  CombatInitializer (순수 로직)
-// ═══════════════════════════════════════
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+//  CombatInitializer (?쒖닔 濡쒖쭅)
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
 export const CombatInitializer = {
 
     /**
-     * 전투 상태 리셋 (적 목록, 에너지, 방어막 등 초기화)
+     * ?꾪닾 ?곹깭 由ъ뀑 (??紐⑸줉, ?먮꼫吏, 諛⑹뼱留???珥덇린??
      */
     resetCombatState(gs) {
-        gs.combat.enemies = [];
-        gs.combat.turn = 1;
-        gs.combat.playerTurn = true;
-        gs.combat.log = [];
-        gs.player.shield = 0;
-        gs.player.echoChain = 0;
-        gs.player.energy = gs.player.maxEnergy;
-        gs.player.zeroCost = false;
-        gs.player.costDiscount = 0;
-        gs.player._nextCardDiscount = 0;
-        gs.player._freeCardUses = 0;
-        gs.player._cascadeCards = new Map();
-        gs.player._traitCardDiscounts = {};
-        gs.player._mageCastCounter = 0;
-        gs.player._mageLastDiscountTarget = null;
-        gs.combat.active = true;
-        gs.combat.bossDefeated = false; // 보스 오인 판정 방지
+        const combat = gs.combat;
+        const player = gs.player;
+
+        combat.enemies = [];
+        combat.turn = 1;
+        combat.playerTurn = true;
+        combat.log = [];
+        player.shield = 0;
+        player.echoChain = 0;
+        player.energy = player.maxEnergy;
+        player.zeroCost = false;
+        player.costDiscount = 0;
+        player._nextCardDiscount = 0;
+        player._freeCardUses = 0;
+        player._cascadeCards = new Map();
+        player._traitCardDiscounts = {};
+        player._mageCastCounter = 0;
+        player._mageLastDiscountTarget = null;
+        combat.active = true;
+        combat.bossDefeated = false; // 蹂댁뒪 ?ㅼ씤 ?먯젙 諛⑹?
         gs._endCombatScheduled = false;
         gs._endCombatRunning = false;
         gs._selectedTarget = null;
@@ -55,8 +58,8 @@ export const CombatInitializer = {
     },
 
     /**
-     * 적 스폰 (보스 / 엘리트 / 일반)
-     * @returns {string[]} 스폰된 적 키 목록 (코덱스 등록용)
+     * ???ㅽ룿 (蹂댁뒪 / ?섎━??/ ?쇰컲)
+     * @returns {string[]} ?ㅽ룿??????紐⑸줉 (肄붾뜳???깅줉??
      */
     spawnEnemies(gs, data, isBoss, {
         getRegionData,
@@ -119,7 +122,7 @@ export const CombatInitializer = {
             }
         }
 
-        // 코덱스 등록
+        // 肄붾뜳???깅줉
         if (gs.meta.codex) {
             spawnedKeys.forEach(k => gs.meta.codex.enemies.add(k));
         }
@@ -128,7 +131,7 @@ export const CombatInitializer = {
     },
 
     /**
-     * 지역별 전투 시작 디버프 부여
+     * 吏??퀎 ?꾪닾 ?쒖옉 ?붾쾭??遺??
      */
     applyRegionDebuffs(gs, getBaseRegionIndex) {
         if (typeof getBaseRegionIndex !== 'function') return;
@@ -139,24 +142,24 @@ export const CombatInitializer = {
             const memoryDebuffs = ['weakened', 'burning', 'confusion'];
             const debuff = memoryDebuffs[Math.floor(Math.random() * memoryDebuffs.length)];
             gs.player.buffs[debuff] = { stacks: 1 };
-            gs.addLog?.(`👁️ 왜곡된 기억: ${debuff} 부여!`, 'damage');
+            gs.addLog?.(`?몓截??쒓끝??湲곗뼲: ${debuff} 遺??`, 'damage');
         }
 
         if (regIdx === 3) {
             const debuffs = ['weakened', 'slowed', 'burning'];
             const debuff = debuffs[Math.floor(Math.random() * debuffs.length)];
             gs.player.buffs[debuff] = { stacks: 2 };
-            gs.addLog?.(`⚠️ 신의 무덤: ${debuff} 부여!`, 'damage');
+            gs.addLog?.(`?좑툘 ?좎쓽 臾대뜡: ${debuff} 遺??`, 'damage');
         }
 
-        const runRules = window.GAME?.Modules?.['RunRules'];
+        const runRules = globalThis.GAME?.Modules?.['RunRules'];
         if (runRules && typeof runRules.onCombatStart === 'function') {
             runRules.onCombatStart(gs);
         }
     },
 
     /**
-     * 덱 초기화 (전투용 drawPile 세팅)
+     * ??珥덇린??(?꾪닾??drawPile ?명똿)
      */
     initDeck(gs, { shuffleArrayFn, drawCardsFn } = {}) {
         gs.player.drawPile = [...(gs.player.deck || [])];
@@ -164,7 +167,7 @@ export const CombatInitializer = {
         gs.player.hand = [];
         if (shuffleArrayFn) shuffleArrayFn(gs.player.drawPile);
 
-        // 5장 드로우
+        // 5???쒕줈??
         if (drawCardsFn) {
             drawCardsFn(5, gs);
         } else if (typeof gs.drawCards === 'function') {
@@ -175,7 +178,7 @@ export const CombatInitializer = {
             }
         }
 
-        // 첫 생존 적 타겟
+        // 泥??앹〈 ???寃?
         const firstAlive = gs.combat.enemies.findIndex(e => e.hp > 0);
         gs._selectedTarget = firstAlive >= 0 ? firstAlive : null;
     },

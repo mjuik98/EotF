@@ -1,4 +1,4 @@
-function _getDoc(deps) {
+﻿function _getDoc(deps) {
   return deps?.doc || document;
 }
 
@@ -15,11 +15,11 @@ export const RegionTransitionUI = {
     gs.currentFloor = 0;
     deps.mazeSystem?.close?.();
 
-    const getRegionData = deps.getRegionData || window.getRegionData;
+    const getRegionData = deps.getRegionData || globalThis.getRegionData;
     const region = getRegionData?.(gs.currentRegion, gs);
     if (!region) return;
 
-    const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
+    const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
     const baseRegion = getBaseRegionIndex ? getBaseRegionIndex(gs.currentRegion) : gs.currentRegion;
     deps.audioEngine?.startAmbient?.(baseRegion);
 
@@ -40,8 +40,8 @@ export const RegionTransitionUI = {
 
     const desc = doc.createElement('div');
     desc.style.cssText = "font-size:13px;font-style:italic;color:var(--text-dim);max-width:400px;text-align:center;line-height:1.7;animation:fadeInUp 1s ease 1.1s both;opacity:0;";
-    if (window.DescriptionUtils) {
-      desc.innerHTML = window.DescriptionUtils.highlight(region.ruleDesc) || '';
+    if (globalThis.DescriptionUtils) {
+      desc.innerHTML = globalThis.DescriptionUtils.highlight(region.ruleDesc) || '';
     } else {
       desc.innerHTML = region.ruleDesc || '';
     }
@@ -67,7 +67,7 @@ export const RegionTransitionUI = {
       }, 800);
     }, 2800);
 
-    deps.particleSystem?.burstEffect?.(window.innerWidth / 2, window.innerHeight / 2);
+    deps.particleSystem?.burstEffect?.(globalThis.innerWidth / 2, globalThis.innerHeight / 2);
     deps.screenShake?.shake?.(8, 0.5);
     deps.audioEngine?.playBossPhase?.();
   },

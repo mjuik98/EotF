@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../utils/description_utils.js';
+﻿import { DescriptionUtils } from '../../utils/description_utils.js';
 
 
 function _getDoc(deps) {
@@ -42,10 +42,10 @@ export const CardUI = {
     if (!zone) return;
 
     const playCardHandler = deps.playCardHandler;
-    const dragStartHandler = deps.dragStartHandler || window.handleCardDragStart;
-    const dragEndHandler = deps.dragEndHandler || window.handleCardDragEnd;
-    const showTooltipHandler = deps.showTooltipHandler || window.showTooltip;
-    const hideTooltipHandler = deps.hideTooltipHandler || window.hideTooltip;
+    const dragStartHandler = deps.dragStartHandler || globalThis.handleCardDragStart;
+    const dragEndHandler = deps.dragEndHandler || globalThis.handleCardDragEnd;
+    const showTooltipHandler = deps.showTooltipHandler || globalThis.showTooltip;
+    const hideTooltipHandler = deps.hideTooltipHandler || globalThis.hideTooltip;
 
     const handSize = gs.player.hand.length;
     const cardScale = handSize <= 5 ? 1.2 : handSize <= 7 ? 1.05 : 0.95;
@@ -60,18 +60,18 @@ export const CardUI = {
 
       const rarityClass = `rarity-${card.rarity || 'common'}`;
 
-      const displayMax = window.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
+      const displayMax = globalThis.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
       const { displayCost: cost, isFree, isDiscounted } = displayMax;
-      const effectiveCost = window.CardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
+      const effectiveCost = globalThis.CardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
       const canPlay = gs.player.energy >= effectiveCost;
 
       const nextDisc = gs.player._nextCardDiscount || 0;
       const baseDisc = gs.player.costDiscount || 0;
-      const traitDisc = window.CardCostUtils?.hasTraitDiscount?.(cardId, gs.player) ? 1 : 0;
+      const traitDisc = globalThis.CardCostUtils?.hasTraitDiscount?.(cardId, gs.player) ? 1 : 0;
       const totalDisc = nextDisc + baseDisc + traitDisc;
 
-      const isCascadeFree = window.CardCostUtils.isCascadeFree(cardId, gs.player, i);
-      const isChargeFree = window.CardCostUtils.isChargeFree(cardId, gs.player, i);
+      const isCascadeFree = globalThis.CardCostUtils.isCascadeFree(cardId, gs.player, i);
+      const isChargeFree = globalThis.CardCostUtils.isChargeFree(cardId, gs.player, i);
       const rarityBorder = card.rarity === 'rare'
         ? 'rgba(240,180,41,0.5)'
         : card.rarity === 'uncommon'
@@ -86,7 +86,7 @@ export const CardUI = {
       el.style.cssText = `width:${cardW}px;height:${cardH}px;${cardFontScale}${rarityBorder ? `border-color:${rarityBorder};` : ''}${isUpgraded}animation-delay:${i * 0.05}s;`;
       el.draggable = true;
 
-      // 클릭 이벤트 - 카드 사용 (전체 카드 존 잠금으로 중복 사용 방지)
+      // ?대┃ ?대깽??- 移대뱶 ?ъ슜 (?꾩껜 移대뱶 議??좉툑?쇰줈 以묐났 ?ъ슜 諛⑹?)
       if (playCardHandler) {
         el.addEventListener('click', async (e) => {
           e.stopPropagation();
@@ -102,11 +102,11 @@ export const CardUI = {
         });
       }
 
-      // 드래그 이벤트
+      // Drag events
       if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
       if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
 
-      // 툴팁 이벤트
+      // Tooltip events
       if (showTooltipHandler) {
         el.addEventListener('mouseenter', (e) => {
           e.stopPropagation();
@@ -163,7 +163,7 @@ export const CardUI = {
       if (card.upgraded) {
         const up = doc.createElement('span');
         up.style.cssText = 'color:var(--cyan);font-size:10px;';
-        up.textContent = ' ✦';
+        up.textContent = ' +';
         name.appendChild(up);
       }
       el.appendChild(name);
@@ -171,8 +171,8 @@ export const CardUI = {
       const desc = doc.createElement('div');
       desc.className = 'card-desc';
       desc.style.display = 'none';
-      if (window.DescriptionUtils) {
-        desc.innerHTML = window.DescriptionUtils.highlight(card.desc);
+      if (globalThis.DescriptionUtils) {
+        desc.innerHTML = globalThis.DescriptionUtils.highlight(card.desc);
       } else {
         desc.textContent = card.desc;
       }
@@ -198,7 +198,7 @@ export const CardUI = {
     if (!zone) return;
 
     const playCardHandler = deps.playCardHandler;
-    const renderCombatCardsHandler = deps.renderCombatCardsHandler || window.renderCombatCards;
+    const renderCombatCardsHandler = deps.renderCombatCardsHandler || globalThis.renderCombatCards;
 
     zone.textContent = '';
     gs.player.hand.forEach((cardId, i) => {
@@ -219,8 +219,8 @@ export const CardUI = {
       const name = doc.createElement('div'); name.className = 'card-name'; name.textContent = card.name;
       const desc = doc.createElement('div');
       desc.className = 'card-desc';
-      if (window.DescriptionUtils) {
-        desc.innerHTML = window.DescriptionUtils.highlight(card.desc);
+      if (globalThis.DescriptionUtils) {
+        desc.innerHTML = globalThis.DescriptionUtils.highlight(card.desc);
       } else {
         desc.textContent = card.desc;
       }

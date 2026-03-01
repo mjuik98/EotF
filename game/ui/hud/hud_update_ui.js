@@ -35,7 +35,7 @@ export const HudUpdateUI = {
     const doc = _getDoc(deps);
     doc.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
       el.style.animation = 'none';
-      const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
+      const raf = deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
       if (typeof raf === 'function') {
         raf(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
       } else {
@@ -48,7 +48,7 @@ export const HudUpdateUI = {
     const doc = _getDoc(deps);
     doc.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
       el.style.animation = 'none';
-      const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
+      const raf = deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
       if (typeof raf === 'function') {
         raf(() => { el.style.animation = 'shake 0.3s ease'; });
       } else {
@@ -63,7 +63,7 @@ export const HudUpdateUI = {
     // deps 
     const resetPanel = deps?.resetCombatInfoPanel
       || deps?._resetCombatInfoPanel
-      || window._resetCombatInfoPanel;
+      || globalThis._resetCombatInfoPanel;
     if (typeof resetPanel === 'function') {
       resetPanel();
     }
@@ -108,7 +108,7 @@ export const HudUpdateUI = {
     if (_uiPending) return;
     _uiPending = true;
 
-    const raf = deps.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
+    const raf = deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
     if (typeof raf === 'function') {
       raf(() => {
         _uiPending = false;
@@ -155,8 +155,8 @@ export const HudUpdateUI = {
     const data = deps.data;
     const setBonusSystem = deps.setBonusSystem
       || deps.SetBonusSystem
-      || window.SetBonusSystem
-      || window.GAME?.Modules?.['SetBonusSystem'];
+      || globalThis.SetBonusSystem
+      || globalThis.GAME?.Modules?.['SetBonusSystem'];
     const getRegionData = deps.getRegionData;
     // Use DomValueUI directly instead of deps
     const setBar = (id, pct) => {
@@ -248,9 +248,9 @@ export const HudUpdateUI = {
           specialEl.textContent = specialUI;
         }
         specialEl.style.display = 'flex';
-      } else if (specialEl && window.GAME?.Modules?.['ClassMechanics']?.[p.class]) {
+      } else if (specialEl && globalThis.GAME?.Modules?.['ClassMechanics']?.[p.class]) {
         // Fallback to GAME object
-        const specialUI = window.GAME.Modules['ClassMechanics'][p.class].getSpecialUI(gs);
+        const specialUI = globalThis.GAME.Modules['ClassMechanics'][p.class].getSpecialUI(gs);
         specialEl.textContent = '';
         if (specialUI instanceof HTMLElement) {
           specialEl.appendChild(specialUI);
@@ -275,9 +275,9 @@ export const HudUpdateUI = {
       } else if (typeof specialUI === 'string') {
         hoverSpecialEl.textContent = specialUI;
       }
-    } else if (hoverSpecialEl && window.GAME?.Modules?.['ClassMechanics']?.[p.class]) {
+    } else if (hoverSpecialEl && globalThis.GAME?.Modules?.['ClassMechanics']?.[p.class]) {
       // Fallback
-      const specialUI = window.GAME.Modules['ClassMechanics'][p.class].getSpecialUI(gs);
+      const specialUI = globalThis.GAME.Modules['ClassMechanics'][p.class].getSpecialUI(gs);
       hoverSpecialEl.textContent = '';
       if (specialUI instanceof HTMLElement) {
         hoverSpecialEl.appendChild(specialUI);
@@ -361,24 +361,24 @@ export const HudUpdateUI = {
     if (endBtn && gs.combat.active && gs.combat.playerTurn) {
       const cardCostUtils = deps.cardCostUtils
         || deps.CardCostUtils
-        || window.CardCostUtils
-        || window.GAME?.Modules?.['CardCostUtils'];
-      const hasPlayable = gs.player.hand.some((id, handIndex) => {
+        || globalThis.CardCostUtils
+        || globalThis.GAME?.Modules?.['CardCostUtils'];
+      const hasPlayable = p.hand.some((id, handIndex) => {
         const c = data?.cards?.[id];
         if (!c) return false;
         const cost = typeof cardCostUtils?.calcEffectiveCost === 'function'
-          ? cardCostUtils.calcEffectiveCost(id, c, gs.player, handIndex)
+          ? cardCostUtils.calcEffectiveCost(id, c, p, handIndex)
           : c.cost;
-        return gs.player.energy >= cost;
+        return p.energy >= cost;
       });
-      endBtn.classList.toggle('energy-warn', hasPlayable && gs.player.energy > 0);
+      endBtn.classList.toggle('energy-warn', hasPlayable && p.energy > 0);
     }
 
     setText('runCount', gs.meta.runCount);
     setText('killCount', p.kills);
     setText('goldCount', p.gold);
 
-    const getRegData = typeof getRegionData === 'function' ? getRegionData : (typeof window.getRegionData === 'function' ? window.getRegionData : null);
+    const getRegData = typeof getRegionData === 'function' ? getRegionData : (typeof globalThis.getRegionData === 'function' ? globalThis.getRegionData : null);
     const region = typeof getRegData === 'function'
       ? (getRegData(gs.currentRegion, gs) || { name: '알 수 없는 지역', rule: '-', floors: 5 })
       : { name: '알 수 없는 지역', rule: '-', floors: 5 };
@@ -395,8 +395,8 @@ export const HudUpdateUI = {
         const desc = region.ruleDesc || '특수 규칙이 적용되는 지역입니다.';
         const tooltipUI = deps.tooltipUI
           || deps.TooltipUI
-          || window.TooltipUI
-          || window.GAME?.Modules?.['TooltipUI'];
+          || globalThis.TooltipUI
+          || globalThis.GAME?.Modules?.['TooltipUI'];
 
         if (typeof tooltipUI?.showGeneralTooltip === 'function') {
           tooltipUI.showGeneralTooltip(evt, title, desc, { doc, win: window });
@@ -407,8 +407,8 @@ export const HudUpdateUI = {
       const hideTooltip = () => {
         const tooltipUI = deps.tooltipUI
           || deps.TooltipUI
-          || window.TooltipUI
-          || window.GAME?.Modules?.['TooltipUI'];
+          || globalThis.TooltipUI
+          || globalThis.GAME?.Modules?.['TooltipUI'];
 
         if (typeof tooltipUI?.hideGeneralTooltip === 'function') {
           tooltipUI.hideGeneralTooltip();
@@ -449,8 +449,8 @@ export const HudUpdateUI = {
         });
         const tooltipUI = deps.tooltipUI
           || deps.TooltipUI
-          || window.TooltipUI
-          || window.GAME?.Modules?.['TooltipUI'];
+          || globalThis.TooltipUI
+          || globalThis.GAME?.Modules?.['TooltipUI'];
 
         const showItemTooltip = (event, itemId) => {
           if (typeof deps.showItemTooltip === 'function') {
@@ -773,7 +773,7 @@ export const HudUpdateUI = {
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echo})`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echo}/100)`;
         }
       }
     }

@@ -1,7 +1,41 @@
-import { InscriptionSystem } from '../../systems/inscription_system.js';
-
 function _getDoc(deps) {
   return deps?.doc || document;
+}
+
+function _getMeta(gs) {
+  return gs?.meta || null;
+}
+
+function _ensureRunConfig(meta) {
+  if (!meta) return null;
+  if (!meta.runConfig) {
+    meta.runConfig = { ascension: 0, endless: false, blessing: 'none', curse: 'none', disabledInscriptions: [] };
+  }
+  if (!Array.isArray(meta.runConfig.disabledInscriptions)) {
+    meta.runConfig.disabledInscriptions = [];
+  }
+  return meta.runConfig;
+}
+
+function _getInscriptionLevel(meta, runConfig, id) {
+  if (!meta?.inscriptions) return 0;
+  if (runConfig?.disabledInscriptions?.includes(id)) return 0;
+  const val = meta.inscriptions[id];
+  if (typeof val === 'boolean') return val ? 1 : 0;
+  return Math.max(0, Math.floor(Number(val) || 0));
+}
+
+function _getActiveSynergies(meta, runConfig, data) {
+  if (!data?.synergies) return [];
+  const active = [];
+  outer: for (const [id, syn] of Object.entries(data.synergies)) {
+    const reqs = id.split('+');
+    for (const req of reqs) {
+      if (_getInscriptionLevel(meta, runConfig, req) < 1) continue outer;
+    }
+    active.push({ id, syn });
+  }
+  return active;
 }
 
 export const RunModeUI = {
@@ -14,10 +48,11 @@ export const RunModeUI = {
     const panel = doc.getElementById('runModePanel');
     if (!panel) return;
 
-    runRules.ensureMeta(gs.meta);
-    const meta = gs.meta;
-    if (!meta.runConfig) meta.runConfig = { ascension: 0, endless: false, blessing: 'none', curse: 'none' };
-    const cfg = meta.runConfig;
+    const meta = _getMeta(gs);
+    if (!meta) return;
+    runRules.ensureMeta(meta);
+    const cfg = _ensureRunConfig(meta);
+
     const maxAsc = Math.max(0, meta.maxAscension || 0);
     const ascUnlocked = !!meta.unlocks?.ascension;
     const endlessUnlocked = !!meta.unlocks?.endless;
@@ -25,9 +60,9 @@ export const RunModeUI = {
     const ascValueEl = doc.getElementById('ascensionValue');
     const ascCapEl = doc.getElementById('ascensionCap');
     if (ascValueEl) ascValueEl.textContent = `A${cfg.ascension}`;
-    if (ascCapEl) ascCapEl.textContent = `최고 A${maxAsc}`;
+    if (ascCapEl) ascCapEl.textContent = `Max A${maxAsc}`;
 
-    panel.querySelectorAll('[onclick^="shiftAscension"]').forEach(btn => {
+    panel.querySelectorAll('[onclick^="shiftAscension"]').forEach((btn) => {
       btn.disabled = !ascUnlocked || maxAsc <= 0;
     });
 
@@ -50,18 +85,16 @@ export const RunModeUI = {
     const descEl = doc.getElementById('runModeDesc');
     if (descEl) {
       const chunks = [];
-      if (cfg.ascension > 0) chunks.push(`승천 A${cfg.ascension}: 적 능력치 상승`);
-      else chunks.push('승천 A0: 기본 난이도');
+      if (cfg.ascension > 0) chunks.push(`Ascension A${cfg.ascension}: enemy scaling increased`);
+      else chunks.push('Ascension A0: normal run');
 
-      if (cfg.endless) chunks.push('엔들리스: 최종 지역 이후 루프 진행');
+      if (cfg.endless) chunks.push('Endless: run loops after the final region');
+      if (blessing.id !== 'none') chunks.push(`Blessing: ${blessing.desc}`);
+      if (curse.id !== 'none') chunks.push(`Curse: ${curse.desc}`);
+      if (!ascUnlocked) chunks.push('Ascension unlocks after chapter 2');
+      if (!endlessUnlocked) chunks.push('Endless unlocks via meta progression');
 
-      if (blessing.id !== 'none') chunks.push(`축복: ${blessing.desc}`);
-      if (curse.id !== 'none') chunks.push(`저주: ${curse.desc}`);
-
-      if (!ascUnlocked) chunks.push('승천은 2회차부터 해금');
-      if (!endlessUnlocked) chunks.push('엔들리스는 승리 누적으로 해금');
-
-      descEl.textContent = chunks.join('  ·  ');
+      descEl.textContent = chunks.join(' | ');
       descEl.style.display = chunks.length > 0 ? 'block' : 'none';
     }
   },
@@ -71,17 +104,20 @@ export const RunModeUI = {
     const runRules = deps.runRules;
     if (!gs || !runRules) return;
 
-    runRules.ensureMeta(gs.meta);
-    const meta = gs.meta;
+    const meta = _getMeta(gs);
+    if (!meta) return;
+    runRules.ensureMeta(meta);
+    const cfg = _ensureRunConfig(meta);
+
     if (!meta.unlocks?.ascension) {
       this.refresh(deps);
       return;
     }
 
-    const cur = Number.isFinite(meta.runConfig.ascension) ? meta.runConfig.ascension : 0;
+    const cur = Number.isFinite(cfg.ascension) ? cfg.ascension : 0;
     const maxAsc = Math.max(0, meta.maxAscension || 0);
     const step = delta < 0 ? -1 : 1;
-    meta.runConfig.ascension = Math.max(0, Math.min(maxAsc, cur + step));
+    cfg.ascension = Math.max(0, Math.min(maxAsc, cur + step));
 
     this.refresh(deps);
     if (typeof deps.saveMeta === 'function') deps.saveMeta();
@@ -92,17 +128,20 @@ export const RunModeUI = {
     const runRules = deps.runRules;
     if (!gs || !runRules) return;
 
-    runRules.ensureMeta(gs.meta);
-    const meta = gs.meta;
+    const meta = _getMeta(gs);
+    if (!meta) return;
+    runRules.ensureMeta(meta);
+    const cfg = _ensureRunConfig(meta);
+
     if (!meta.unlocks?.endless) {
       if (typeof deps.notice === 'function') {
-        deps.notice('엔들리스는 아직 해금되지 않았습니다.');
+        deps.notice('Endless mode is not unlocked yet.');
       }
       this.refresh(deps);
       return;
     }
 
-    meta.runConfig.endless = !meta.runConfig.endless;
+    cfg.endless = !cfg.endless;
     this.refresh(deps);
     if (typeof deps.saveMeta === 'function') deps.saveMeta();
   },
@@ -112,9 +151,12 @@ export const RunModeUI = {
     const runRules = deps.runRules;
     if (!gs || !runRules) return;
 
-    runRules.ensureMeta(gs.meta);
-    const meta = gs.meta;
-    meta.runConfig.blessing = runRules.nextBlessingId(meta.runConfig.blessing || 'none');
+    const meta = _getMeta(gs);
+    if (!meta) return;
+    runRules.ensureMeta(meta);
+    const cfg = _ensureRunConfig(meta);
+
+    cfg.blessing = runRules.nextBlessingId(cfg.blessing || 'none');
     this.refresh(deps);
     if (typeof deps.saveMeta === 'function') deps.saveMeta();
   },
@@ -124,27 +166,32 @@ export const RunModeUI = {
     const runRules = deps.runRules;
     if (!gs || !runRules) return;
 
-    runRules.ensureMeta(gs.meta);
-    const meta = gs.meta;
-    meta.runConfig.curse = runRules.nextCurseId(meta.runConfig.curse || 'none');
+    const meta = _getMeta(gs);
+    if (!meta) return;
+    runRules.ensureMeta(meta);
+    const cfg = _ensureRunConfig(meta);
+
+    cfg.curse = runRules.nextCurseId(cfg.curse || 'none');
     this.refresh(deps);
     if (typeof deps.saveMeta === 'function') deps.saveMeta();
   },
 
   refreshInscriptions(deps = {}) {
     const gs = deps.gs;
-    const data = deps.data || window.DATA;
-    if (!gs?.meta || !data?.inscriptions) return;
+    const data = deps.data || globalThis.DATA;
+    const meta = _getMeta(gs);
+    if (!meta || !data?.inscriptions) return;
+
     const doc = _getDoc(deps);
     const row = doc.getElementById('inscriptionRow');
     const container = doc.getElementById('inscriptionToggles');
     if (!row || !container) return;
 
-    if (!gs.meta.runConfig) gs.meta.runConfig = { disabledInscriptions: [] };
-    if (!gs.meta.runConfig.disabledInscriptions) gs.meta.runConfig.disabledInscriptions = [];
+    const runConfig = _ensureRunConfig(meta);
+    if (!runConfig) return;
 
-    const insc = gs.meta.inscriptions || {};
-    const earnedInsc = Object.entries(insc).filter(([k, v]) => Number(v) > 0);
+    const insc = meta.inscriptions || {};
+    const earnedInsc = Object.entries(insc).filter(([, v]) => Number(v) > 0);
 
     if (earnedInsc.length === 0) {
       row.style.display = 'none';
@@ -155,19 +202,17 @@ export const RunModeUI = {
     row.style.flexDirection = 'column';
     row.style.alignItems = 'flex-start';
     container.textContent = '';
+
     const frag = doc.createDocumentFragment();
 
     const disableAll = doc.createElement('button');
-    const allDisabled = earnedInsc.every(([k]) => gs.meta.runConfig.disabledInscriptions.includes(k));
+    const allDisabled = earnedInsc.every(([k]) => runConfig.disabledInscriptions.includes(k));
     disableAll.className = `run-mode-pill ${allDisabled ? 'active' : ''}`;
-    disableAll.textContent = '각인 없이 시작';
+    disableAll.textContent = 'Start without inscriptions';
     disableAll.style.marginBottom = '12px';
     disableAll.onclick = () => {
-      if (allDisabled) {
-        gs.meta.runConfig.disabledInscriptions = [];
-      } else {
-        gs.meta.runConfig.disabledInscriptions = earnedInsc.map(([k]) => k);
-      }
+      if (allDisabled) runConfig.disabledInscriptions = [];
+      else runConfig.disabledInscriptions = earnedInsc.map(([k]) => k);
       this.refreshInscriptions(deps);
       if (typeof deps.saveMeta === 'function') deps.saveMeta();
     };
@@ -182,41 +227,45 @@ export const RunModeUI = {
       const def = data.inscriptions[key];
       if (!def) return;
       const level = Number(val);
-      const disabled = gs.meta.runConfig.disabledInscriptions.includes(key);
+      const disabled = runConfig.disabledInscriptions.includes(key);
+
       const pill = doc.createElement('div');
       pill.className = `inscription-pill ${disabled ? '' : 'active'}`;
-      pill.innerHTML = `${def.icon} ${def.name} <span style="opacity:0.7;font-size:0.8em;">Lv.${level}</span>`;
-      pill.title = def.levels[Math.min(level, def.maxLevel) - 1]?.desc || def.desc;
+      const label = doc.createElement('span');
+      label.textContent = `${def.icon || ''} ${def.name}`.trim();
+      const levelSpan = doc.createElement('span');
+      levelSpan.style.cssText = 'opacity:0.7;font-size:0.8em;margin-left:4px;';
+      levelSpan.textContent = `Lv.${level}`;
+      pill.textContent = '';
+      pill.append(label, levelSpan);
+      pill.title = def.levels?.[Math.min(level, def.maxLevel) - 1]?.desc || def.desc || '';
       pill.onclick = () => this.toggleInscription(key, deps);
       togglesRow.appendChild(pill);
     });
+
     frag.appendChild(togglesRow);
 
-    if (InscriptionSystem?.getActiveSynergies) {
-      // 임시 적용된 gs를 위해 깊은 복사 혹은 기존 로직 호출
-      // 여기서 InscriptionSystem 은 현재 gs의 상태 (토글 반영 등) 를 기준으로 시너지를 체크
-      const synergies = InscriptionSystem.getActiveSynergies(gs, data);
-      if (synergies.length > 0) {
-        const synRow = doc.createElement('div');
-        synRow.style.marginTop = '12px';
-        synRow.style.display = 'flex';
-        synRow.style.gap = '8px';
-        synRow.style.flexWrap = 'wrap';
+    const synergies = _getActiveSynergies(meta, runConfig, data);
+    if (synergies.length > 0) {
+      const synRow = doc.createElement('div');
+      synRow.style.marginTop = '12px';
+      synRow.style.display = 'flex';
+      synRow.style.gap = '8px';
+      synRow.style.flexWrap = 'wrap';
 
-        const synTitle = doc.createElement('div');
-        synTitle.style.cssText = 'width:100%; font-size:10px; color:var(--text-dim); margin-bottom:4px;';
-        synTitle.textContent = '활성 시너지';
-        synRow.appendChild(synTitle);
+      const synTitle = doc.createElement('div');
+      synTitle.style.cssText = 'width:100%;font-size:10px;color:var(--text-dim);margin-bottom:4px;';
+      synTitle.textContent = 'Active Synergies';
+      synRow.appendChild(synTitle);
 
-        synergies.forEach(({ syn }) => {
-          const badge = doc.createElement('div');
-          badge.style.cssText = 'background:rgba(0,255,204,0.1); border:1px solid var(--cyan); border-radius:12px; padding:4px 10px; font-size:10px; color:var(--cyan);';
-          badge.textContent = `✦ ${syn.name}`;
-          badge.title = syn.desc;
-          synRow.appendChild(badge);
-        });
-        frag.appendChild(synRow);
-      }
+      synergies.forEach(({ syn }) => {
+        const badge = doc.createElement('div');
+        badge.style.cssText = 'background:rgba(0,255,204,0.1);border:1px solid var(--cyan);border-radius:12px;padding:4px 10px;font-size:10px;color:var(--cyan);';
+        badge.textContent = `+ ${syn.name}`;
+        badge.title = syn.desc || '';
+        synRow.appendChild(badge);
+      });
+      frag.appendChild(synRow);
     }
 
     container.appendChild(frag);
@@ -224,17 +273,17 @@ export const RunModeUI = {
 
   toggleInscription(key, deps = {}) {
     const gs = deps.gs;
-    if (!gs?.meta) return;
-    if (!gs.meta.runConfig) gs.meta.runConfig = { disabledInscriptions: [] };
-    if (!gs.meta.runConfig.disabledInscriptions) gs.meta.runConfig.disabledInscriptions = [];
+    const meta = _getMeta(gs);
+    if (!meta) return;
 
-    const arr = gs.meta.runConfig.disabledInscriptions;
+    const runConfig = _ensureRunConfig(meta);
+    if (!runConfig) return;
+
+    const arr = runConfig.disabledInscriptions;
     const idx = arr.indexOf(key);
-    if (idx >= 0) {
-      arr.splice(idx, 1);
-    } else {
-      arr.push(key);
-    }
+    if (idx >= 0) arr.splice(idx, 1);
+    else arr.push(key);
+
     this.refreshInscriptions(deps);
     if (typeof deps.saveMeta === 'function') deps.saveMeta();
   },
@@ -253,6 +302,5 @@ export const RunModeUI = {
     const doc = _getDoc(deps);
     const modal = doc.getElementById('runSettingsModal');
     if (modal) modal.style.display = 'none';
-  }
+  },
 };
-

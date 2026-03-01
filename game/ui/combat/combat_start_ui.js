@@ -1,7 +1,7 @@
-/**
- * combat_start_ui.js — 전투 시작 UI (순수 View)
+﻿/**
+ * combat_start_ui.js ???꾪닾 ?쒖옉 UI (?쒖닔 View)
  *
- * CombatInitializer에서 로직을 처리하고, 이 파일은 DOM 업데이트만 담당합니다.
+ * CombatInitializer?먯꽌 濡쒖쭅??泥섎━?섍퀬, ???뚯씪? DOM ?낅뜲?댄듃留??대떦?⑸땲??
  */
 import { AudioEngine } from '../../../engine/audio.js';
 import { GS } from '../../core/game_state.js';
@@ -20,26 +20,30 @@ export const CombatStartUI = {
 
     const gs = deps.gs;
     const data = deps.data;
-    const getRegionData = deps.getRegionData || window.getRegionData;
-    const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
-    const getRegionCount = deps.getRegionCount || window.getRegionCount;
-    const difficultyScaler = deps.difficultyScaler || window.DifficultyScaler;
+    const getRegionData = deps.getRegionData || globalThis.getRegionData;
+    const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
+    const getRegionCount = deps.getRegionCount || globalThis.getRegionCount;
+    const difficultyScaler = deps.difficultyScaler || globalThis.DifficultyScaler;
     const audioEngine = deps.audioEngine;
     const runRules = deps.runRules;
-    const classMechanics = deps.classMechanics || window.ClassMechanics;
+    const classMechanics = deps.classMechanics || globalThis.ClassMechanics;
 
     if (!gs || !data?.enemies || typeof getRegionData !== 'function') {
       console.error('[CombatStart] Missing dependencies:', { gs: !!gs, data: !!data, getRegionData: typeof getRegionData });
       return;
     }
 
-    // UI: 전투 시작 로그 (가장 먼저 출력)
-    gs.addLog?.('⚔️ 전투 시작!', 'system');
+    const doc = _getDoc(deps);
 
-    // ── 로직: 상태 리셋 ──
+    // ?? 濡쒖쭅: ?곹깭 由ъ뀑 ??
     CombatInitializer.resetCombatState(gs);
+    const logContainer = doc.getElementById('combatLog');
+    if (logContainer) logContainer.textContent = '';
 
-    // ── 로직: 적 스폰 ──
+    // UI: ?꾪닾 ?쒖옉 濡쒓렇 (???꾪닾 湲곗??쇰줈 媛??癒쇱? 異쒕젰)
+    gs.addLog?.('?뷂툘 ?꾪닾 ?쒖옉!', 'system');
+
+    // ?? 濡쒖쭅: ???ㅽ룿 ??
     const spawnResult = CombatInitializer.spawnEnemies(gs, data, isBoss, {
       getRegionData,
       getBaseRegionIndex,
@@ -47,37 +51,33 @@ export const CombatStartUI = {
       difficultyScaler,
     });
 
-    // UI: 보스 효과음
+    // UI: boss entry effects
     if (isBoss) {
       audioEngine?.playBossPhase?.();
       if (spawnResult.isHiddenBoss && typeof deps.showWorldMemoryNotice === 'function') {
-        setTimeout(() => deps.showWorldMemoryNotice('🌟 세계가 기억한다 — 숨겨진 근원이 깨어났다!'), 600);
+        setTimeout(() => deps.showWorldMemoryNotice('?뙚 ?멸퀎媛 湲곗뼲?쒕떎 ???④꺼吏?洹쇱썝??源⑥뼱?щ떎!'), 600);
       }
     }
 
-    // ── 로직: 지역 디버프 ──
+    // ?? 濡쒖쭅: 吏???붾쾭????
     CombatInitializer.applyRegionDebuffs(gs, getBaseRegionIndex);
 
-    // ── 로직: 클래스/런 룰 초기화 ──
+    // ?? 濡쒖쭅: ?대옒????猷?珥덇린????
     const playerClass = gs.player.class;
-    const classMech = window.ClassMechanics?.[playerClass];
+    const classMech = globalThis.ClassMechanics?.[playerClass];
     if (classMech && typeof classMech.onCombatStart === 'function') {
       classMech.onCombatStart(gs);
     }
-    // gs.triggerItems?.('combat_start'); // 중복 제거
+    // gs.triggerItems?.('combat_start'); // 以묐났 ?쒓굅
     gs.triggerItems?.(Trigger.COMBAT_START);
 
-    // ── 로직: 덱 초기화 ──
+    // ?? 濡쒖쭅: ??珥덇린????
     CombatInitializer.initDeck(gs, {
       shuffleArrayFn: deps.shuffleArray,
       drawCardsFn: deps.api?.drawCards,
     });
 
-    // ═══════════════════════════════════════
-    //  UI 업데이트 (아래부터 순수 DOM 조작)
-    // ═══════════════════════════════════════
-    const doc = _getDoc(deps);
-
+    // UI updates
     const zone = doc.getElementById('enemyZone');
     if (zone) zone.innerHTML = '';
 
@@ -93,8 +93,7 @@ export const CombatStartUI = {
 
     deps.renderCombatEnemies?.();
     deps.renderCombatCards?.();
-    // gs.addLog?.('⚔️ 전투 시작!', 'system'); // 위로 이동함
-    deps.updateCombatLog?.();
+    // gs.addLog?.('?뷂툘 ?꾪닾 ?쒖옉!', 'system'); // ?꾨줈 ?대룞??    deps.updateCombatLog?.();
     deps.updateNoiseWidget?.();
 
     const combatOverlay = doc.getElementById('combatOverlay');
@@ -104,12 +103,12 @@ export const CombatStartUI = {
       console.log('[CombatStart] combatOverlay classList:', combatOverlay.classList);
     }
 
-    // 액션 버튼 활성화
-    if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.enableActionButtons === 'function') {
-      window.HudUpdateUI.enableActionButtons();
+    // Enable action buttons
+    if (typeof globalThis.HudUpdateUI !== 'undefined' && typeof globalThis.HudUpdateUI.enableActionButtons === 'function') {
+      globalThis.HudUpdateUI.enableActionButtons();
     }
 
-    // 드로우 버튼 상태 갱신
+    // ?쒕줈??踰꾪듉 ?곹깭 媛깆떊
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn) {
       const handFull = gs.player.hand.length >= 8;
@@ -117,18 +116,18 @@ export const CombatStartUI = {
       drawBtn.disabled = !canDraw;
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (handFull) {
-        drawBtn.textContent = '🃏 손패 가득 참';
-        drawBtn.title = '손패가 가득 찼습니다 (최대 8 장)';
+        drawBtn.textContent = '손패 가득 참';
+        drawBtn.title = '?먰뙣媛 媛??李쇱뒿?덈떎 (理쒕? 8 ??';
       } else if (gs.player.energy < 1) {
-        drawBtn.textContent = '🃏 에너지 부족';
-        drawBtn.title = '카드 뽑기에는 에너지 1 이 필요합니다.';
+        drawBtn.textContent = '에너지 부족';
+        drawBtn.title = '移대뱶 戮묎린?먮뒗 ?먮꼫吏 1 ???꾩슂?⑸땲??';
       } else {
-        drawBtn.textContent = `🃏 카드 뽑기 (1 에너지)`;
-        drawBtn.title = '카드를 한 장 뽑습니다.';
+        drawBtn.textContent = `?깗 移대뱶 戮묎린 (1 ?먮꼫吏)`;
+        drawBtn.title = '移대뱶瑜?????戮묒뒿?덈떎.';
       }
     }
 
-    // Echo 버튼 상태 갱신
+    // Echo 踰꾪듉 ?곹깭 媛깆떊
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
       const echoVal = gs.player.echo || 0;
@@ -139,11 +138,11 @@ export const CombatStartUI = {
       if (echoVal >= 30) {
         if (typeof deps.updateEchoSkillBtn === 'function') {
           deps.updateEchoSkillBtn({ ...deps, gs });
-        } else if (typeof window.updateEchoSkillBtn === 'function') {
-          window.updateEchoSkillBtn();
+        } else if (typeof globalThis.updateEchoSkillBtn === 'function') {
+          globalThis.updateEchoSkillBtn();
         }
       } else {
-        echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoVal}/30)`;
+        echoBtn.textContent = `???뷀뼢 ?ㅽ궗 ??${echoVal}/30)`;
       }
       console.log('[CombatStart] Echo button initialized - echo:', echoVal, 'disabled:', echoBtn.disabled, 'text:', echoBtn.textContent);
     }
@@ -154,8 +153,8 @@ export const CombatStartUI = {
     deps.resetCombatInfoPanel?.();
     deps.refreshCombatInfoPanel?.();
 
-    if (typeof window.HudUpdateUI !== 'undefined' && typeof window.HudUpdateUI.doUpdateUI === 'function') {
-      window.HudUpdateUI.doUpdateUI(deps);
+    if (typeof globalThis.HudUpdateUI !== 'undefined' && typeof globalThis.HudUpdateUI.doUpdateUI === 'function') {
+      globalThis.HudUpdateUI.doUpdateUI(deps);
     } else {
       deps.updateUI?.();
     }

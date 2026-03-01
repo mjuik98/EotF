@@ -1,7 +1,6 @@
 import { AudioEngine } from '../../../engine/audio.js';
 import { GS } from '../../core/game_state.js';
 import { DATA } from '../../../data/game_data.js';
-import { InscriptionSystem } from '../../systems/inscription_system.js';
 
 
 const CLASS_CONFIGS = {
@@ -21,6 +20,59 @@ const CLASS_START_ITEMS = {
   berserker: 'blood_shard',
   guardian: 'rift_talisman',
 };
+
+function _getInscriptionLevel(gs, id) {
+  if (!gs?.meta?.inscriptions) return 0;
+  const disabled = gs.runConfig?.disabledInscriptions || gs.meta.runConfig?.disabledInscriptions || [];
+  if (disabled.includes(id)) return 0;
+  const val = gs.meta.inscriptions[id];
+  if (typeof val === 'boolean') return val ? 1 : 0;
+  return Math.max(0, Math.floor(Number(val) || 0));
+}
+
+function _getActiveInscriptions(gs, data) {
+  if (!data?.inscriptions) return [];
+  const active = [];
+  for (const [id, def] of Object.entries(data.inscriptions)) {
+    const level = _getInscriptionLevel(gs, id);
+    if (level > 0) {
+      active.push({ id, def, level: Math.min(level, def.maxLevel || 1) });
+    }
+  }
+  return active;
+}
+
+function _getActiveSynergies(gs, data) {
+  if (!data?.synergies) return [];
+  const active = [];
+  outer: for (const [id, syn] of Object.entries(data.synergies)) {
+    const reqs = id.split('+');
+    for (const req of reqs) {
+      if (_getInscriptionLevel(gs, req) < 1) continue outer;
+    }
+    active.push({ id, syn });
+  }
+  return active;
+}
+
+function _applyStartBonuses(gs, data) {
+  if (!gs || !data) return;
+  const active = _getActiveInscriptions(gs, data);
+  for (const item of active) {
+    const levelIdx = item.level - 1;
+    const levelDef = item.def.levels?.[levelIdx];
+    if (levelDef && typeof levelDef.apply === 'function') {
+      levelDef.apply(gs);
+    }
+  }
+
+  const synergies = _getActiveSynergies(gs, data);
+  for (const { syn } of synergies) {
+    if (syn.trigger === 'passive' && typeof syn.effect === 'function') {
+      syn.effect(gs);
+    }
+  }
+}
 
 export const RunSetupUI = {
   CLASS_START_ITEMS,
@@ -109,7 +161,7 @@ export const RunSetupUI = {
       gs.meta.codex.items.add(startItem);
     }
 
-    InscriptionSystem.applyStartBonuses(gs, data);
+    _applyStartBonuses(gs, data);
     runRules.applyRunStart?.(gs);
 
     if (typeof deps.shuffleArray === 'function') deps.shuffleArray(gs.player.deck);

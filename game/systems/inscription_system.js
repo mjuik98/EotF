@@ -9,13 +9,15 @@ export const InscriptionSystem = {
 
     setInscriptionLevel(gs, id, level) {
         if (!gs?.meta) return;
-        if (!gs.meta.inscriptions) gs.meta.inscriptions = {};
-        gs.meta.inscriptions[id] = Math.max(0, Math.floor(level));
+        const meta = gs.meta;
+        if (!meta.inscriptions) meta.inscriptions = {};
+        meta.inscriptions[id] = Math.max(0, Math.floor(level));
     },
 
     addInscriptionLevel(gs, id, amount = 1, dataRef = null) {
         if (!gs?.meta) return;
-        if (!gs.meta.inscriptions) gs.meta.inscriptions = {};
+        const meta = gs.meta;
+        if (!meta.inscriptions) meta.inscriptions = {};
 
         // convert boolean to number first if needed
         let current = this.getInscriptionLevel(gs, id);
@@ -26,7 +28,7 @@ export const InscriptionSystem = {
             nextLevel = Math.min(nextLevel, dataRef.inscriptions[id].maxLevel);
         }
 
-        gs.meta.inscriptions[id] = nextLevel;
+        meta.inscriptions[id] = nextLevel;
     },
 
     getActiveInscriptions(gs, dataRef) {
