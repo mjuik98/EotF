@@ -145,41 +145,38 @@ function _normalizeWheelDelta(event, list) {
 }
 
 function _bindChronicleWheel(panel, list) {
-  if (!panel || !list || panel.dataset.wheelBound === '1') return;
+  if (!panel || !list) return;
 
+  // 이전 리스너 정리 (재오픈 시 중복 방지)
+  if (panel._wheelAbort) {
+    panel._wheelAbort.abort();
+  }
+  const controller = new AbortController();
+  panel._wheelAbort = controller;
+  const signal = controller.signal;
+
+  // list 위에서 휠 → JS로 직접 스크롤 (네이티브 스크롤 의존 제거)
   list.addEventListener('wheel', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
     if (maxScroll <= 0) return;
-
     const delta = _normalizeWheelDelta(event, list);
     if (!delta) return;
+    list.scrollTop = Math.max(0, Math.min(maxScroll, list.scrollTop + delta));
+  }, { passive: false, signal });
 
-    const next = Math.max(0, Math.min(maxScroll, list.scrollTop + delta));
-    if (next !== list.scrollTop) {
-      list.scrollTop = next;
-      event.preventDefault();
-    }
-  }, { passive: false });
-
+  // panel 위(list 제외)에서 휠 → list를 같이 스크롤
   panel.addEventListener('wheel', (event) => {
     const targetEl = _resolveEventElement(event);
-    const isOnList = !!targetEl?.closest?.('#battleChronicleList');
-    if (isOnList) return; // list 영역은 브라우저 기본 스크롤 사용
-
+    if (targetEl?.closest?.('#battleChronicleList')) return;
+    event.preventDefault();
     const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
     if (maxScroll <= 0) return;
-
     const delta = _normalizeWheelDelta(event, list);
     if (!delta) return;
-
-    const next = Math.max(0, Math.min(maxScroll, list.scrollTop + delta));
-    if (next !== list.scrollTop) {
-      list.scrollTop = next;
-      event.preventDefault();
-    }
-  }, { passive: false });
-
-  panel.dataset.wheelBound = '1';
+    list.scrollTop = Math.max(0, Math.min(maxScroll, list.scrollTop + delta));
+  }, { passive: false, signal });
 }
 
 export const CombatHudUI = {
@@ -461,6 +458,7 @@ export const CombatHudUI = {
     const overlay = doc.getElementById('battleChronicleOverlay');
     const panel = overlay?.querySelector?.('.battle-chronicle-panel');
     const list = doc.getElementById('battleChronicleList');
+
     if (!overlay || !list) return;
 
     list.textContent = '';
@@ -476,19 +474,27 @@ export const CombatHudUI = {
       filterBar.querySelector('.chronicle-filter-btn[data-filter="all"]')?.classList.add('active');
     }
     _bindChronicleFilters(doc, list);
-    _bindChronicleWheel(panel, list);
     _applyChronicleFilter(list, 'all');
 
     overlay.style.display = '';
     overlay.classList.add('active');
     // 스크롤을 최하단으로
-    requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
+    requestAnimationFrame(() => {
+      _bindChronicleWheel(panel, list);
+      list.scrollTop = list.scrollHeight;
+    });
   },
 
   closeBattleChronicle(deps = {}) {
     const doc = _getDoc(deps);
     const overlay = doc.getElementById('battleChronicleOverlay');
     if (overlay) {
+      // 휠 리스너 정리
+      const panel = overlay.querySelector('.battle-chronicle-panel');
+      if (panel?._wheelAbort) {
+        panel._wheelAbort.abort();
+        panel._wheelAbort = null;
+      }
       overlay.classList.remove('active');
       overlay.style.display = 'none';
     }

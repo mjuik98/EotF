@@ -567,21 +567,20 @@ export const HudUpdateUI = {
       // deps.updateEchoSkillBtn 
       if (typeof deps.updateEchoSkillBtn === 'function') {
         deps.updateEchoSkillBtn({ ...deps, gs });
-      } else if (typeof deps.updateEchoSkillBtn === 'function') {
-        deps.updateEchoSkillBtn({ ...deps, gs });
       } else {
         // Fallback: 렌더링 업데이트
         const echoValue = Math.floor(p.echo);
         const tier = echoValue >= 100 ? 3 : echoValue >= 60 ? 2 : echoValue >= 30 ? 1 : 0;
+        const nextTarget = echoValue < 30 ? 30 : (echoValue < 60 ? 60 : 100);
 
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echoValue}/30)`, 'E');
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echoValue}/${nextTarget})`, 'E');
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echoValue}/100)`, 'E');
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echoValue}/${nextTarget})`, 'E');
         }
       }
     }
@@ -696,7 +695,7 @@ export const HudUpdateUI = {
     setBar('hpBar', hpPct);
     setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
-    // ?몃쾭 ?⑤꼸 ?숆린??(HP)
+    // HP
     setBar('hoverHpBar', hpPct);
     setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
@@ -736,7 +735,7 @@ export const HudUpdateUI = {
     setBar('shieldBar', shieldPct);
     setText('shieldText', p.shield || '0');
 
-    // (Shield)
+    // Shield
     setBar('hoverShieldBar', shieldPct);
     setText('hoverShieldText', p.shield || '0');
 
@@ -755,7 +754,7 @@ export const HudUpdateUI = {
       if (typeof cm.updateUI === 'function') cm.updateUI(gs);
       else if (typeof cm.render === 'function') cm.render(gs);
     }
-    // Echo  (updateUI())
+    // Echo (updateUI())
     const updateBtn = deps.updateEchoSkillBtn
       ? (deps) => deps.updateEchoSkillBtn({ ...deps, gs })
       : (typeof deps.updateEchoSkillBtn === 'function' ? deps.updateEchoSkillBtn : null);
@@ -766,18 +765,19 @@ export const HudUpdateUI = {
       if (echoBtn) {
         const echo = Math.floor(p.echo);
         const tier = echo >= 100 ? 3 : echo >= 60 ? 2 : echo >= 30 ? 1 : 0;
+        const nextTarget = echo < 30 ? 30 : (echo < 60 ? 60 : 100);
+
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/30)`, 'E');
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/${nextTarget})`, 'E');
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/100)`, 'E');
+          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/${nextTarget})`, 'E');
         }
       }
     }
-    // 
   },
 
   // Expose public API for GAME.API
@@ -789,4 +789,3 @@ export const HudUpdateUI = {
     triggerDeckShufflePulse: (deps) => HudUpdateUI.triggerDeckShufflePulse(deps),
   }
 };
-
