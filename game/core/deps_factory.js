@@ -250,6 +250,7 @@ const CONTRACT_BUILDERS = Object.freeze({
         setMasterVolume: _refs.setMasterVolume,
         setSfxVolume: _refs.setSfxVolume,
         setAmbientVolume: _refs.setAmbientVolume,
+        closeBattleChronicle: _refs.closeBattleChronicle,
         _syncVolumeUI: _refs._syncVolumeUI || (() => window._syncVolumeUI?.()),
         useEchoSkill: _refs.useEchoSkill,
         endPlayerTurn: _refs.endPlayerTurn,

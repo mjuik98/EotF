@@ -13,12 +13,43 @@ function _getWin(deps) {
   return deps?.win || window;
 }
 
+const UNBREAKABLE_WALL_STACK_UNIT = 99;
+
+function _isUnbreakableWallCard(cardId) {
+  return cardId === 'unbreakable_wall' || cardId === 'unbreakable_wall_plus';
+}
+
+function _getUnbreakableWallBuffId(cardId) {
+  return cardId === 'unbreakable_wall_plus' ? 'unbreakable_wall_plus' : 'unbreakable_wall';
+}
+
+function _getUnbreakableWallHitCount(buff) {
+  const stacks = Number(buff?.stacks || 0);
+  if (!Number.isFinite(stacks) || stacks <= 0) return 0;
+  return Math.max(1, Math.floor(stacks / UNBREAKABLE_WALL_STACK_UNIT));
+}
+
+function _buildUnbreakableWallCardTooltip(cardId, gs) {
+  if (!_isUnbreakableWallCard(cardId)) return '';
+
+  const buffId = _getUnbreakableWallBuffId(cardId);
+  const currentBuff = gs?.getBuff?.(buffId);
+  const currentHits = _getUnbreakableWallHitCount(currentBuff);
+  const nextHits = Math.max(1, currentHits + 1);
+  const ratio = cardId === 'unbreakable_wall_plus' ? 0.7 : 0.5;
+  const shield = Number(gs?.player?.shield || 0);
+  const safeShield = Number.isFinite(shield) && shield > 0 ? Math.floor(shield) : 0;
+  const perHit = Math.floor(safeShield * ratio);
+  const total = perHit * nextHits;
+
+  return `<br><br>\uD604\uC7AC \uC911\uCCA9: ${currentHits}\uD68C \uBC1C\uB3D9<br>\uC0AC\uC6A9 \uD6C4 \uC608\uC0C1: ${nextHits}\uD68C \uBC1C\uB3D9<br>\uD604\uC7AC \uBC29\uC5B4\uB9C9(${safeShield}) \uAE30\uC900: 1\uD68C ${perHit}, \uCD1D ${total} \uD53C\uD574`;
+}
+
 const KEYWORD_MAP = {
   '【소진】': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
-  '소진': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
   '【지속】': { title: '지속 (Persistent)', text: '전투가 끝날 때까지 계속 효과가 발동되는 능력 카드입니다.' },
   '【즉시】': { title: '즉시 (Instant)', text: '사용 즉시 발동되는 강력한 일회성 효과입니다.' },
-  '잔향': { title: '잔향 (Echo)', text: '특수 능력을 발동하는 에너지 자원. 0~100 사이를 유지하며, 최대치 도달 시 잔향 폭발이 발동됩니다.' },
+  '잔향': { title: '잔향 (Echo)', text: '특수 능력을 발동하는 에너지 자원. 0~100 사이를 유지하며, 게이지에 따라 효과가 달라집니다.' },
   '연쇄': { title: '연쇄 (Chain)', text: '연속 공격 횟수를 나타냅니다. 5회 이상 쌓이면 다음 공격에 추가 피해가 적용됩니다.' },
   '침묵': { title: '침묵 (Silence)', text: '침묵사냥꾼 전용 게이지. 최대치(10) 도달 시 다음 공격이 대폭 강화됩니다.' },
   '약화': { title: '약화 (Weakened)', text: '대상의 공격력이 50% 감소합니다. 지속 시간이 만료되면 해제됩니다.' },
@@ -30,10 +61,8 @@ const KEYWORD_MAP = {
   '회피': { title: '회피 (Dodge)', text: '다음 적의 공격 1회를 완전히 무효화합니다. 회피 후 즉시 소모됩니다.' },
   '은신': { title: '은신 (Stealth)', text: '다음에 사용하는 공격 카드가 치명타로 적중합니다. 공격 즉시 은신이 해제됩니다.' },
   '반사': { title: '반사 (Reflect)', text: '피해를 받을 때 해당 피해를 공격자에게 되돌립니다.' },
-  '공명': { title: '공명 (Resonance)', text: '잔향검사 전용 버프. 이번 턴 피해가 공명 수치만큼 증가합니다. 턴 종료 시 소멸합니다.' },
   '시간 왜곡': { title: '시간 왜곡 (Time Warp)', text: '매 턴 시작 시 에너지를 1 추가로 획득합니다. 전투가 끝날 때까지 지속됩니다.' },
   '드로우': { title: '드로우 (Draw)', text: '덱에서 카드를 손패로 가져옵니다. 덱이 비면 소모 더미를 섞어 새 덱을 만듭니다.' },
-  '공명': { title: '공명 (Resonance)', text: '잔향검사 고유 특성. 카드를 사용할수록 다음 공격의 위력이 점진적으로 상승합니다. (최대 +30 피해)' },
 };
 
 export const TooltipUI = {
@@ -60,7 +89,8 @@ export const TooltipUI = {
     doc.getElementById('ttCost').textContent = card.cost;
     doc.getElementById('ttName').textContent = card.name;
     doc.getElementById('ttType').textContent = card.type;
-    DomSafe.setHighlightedText(doc.getElementById('ttDesc'), card.desc);
+    const wallExtraDesc = _buildUnbreakableWallCardTooltip(cardId, gs);
+    DomSafe.setHighlightedText(doc.getElementById('ttDesc'), `${card.desc || ''}${wallExtraDesc}`);
     const rarityEl = doc.getElementById('ttRarity');
     rarityEl.textContent = (card.rarity || 'common').toUpperCase();
     rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
@@ -114,7 +144,7 @@ export const TooltipUI = {
     // Sub-tooltip for keywords
     const st = doc.getElementById('subTooltip');
     if (st) {
-      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc?.includes(kw) || (card.exhaust && (kw === '【소진】' || kw === '소진')));
+      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc?.includes(kw) || (card.exhaust && kw === '【소진】'));
       if (foundKw) {
         const kwData = KEYWORD_MAP[foundKw];
         doc.getElementById('stTitle').textContent = kwData.title;

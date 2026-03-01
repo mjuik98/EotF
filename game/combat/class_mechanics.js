@@ -6,6 +6,50 @@ function _getGS(gs) {
   return gs;
 }
 
+const UNBREAKABLE_WALL_STACK_UNIT = 99;
+
+function _getUnbreakableWallHits(buff) {
+  const stacks = Number(buff?.stacks || 0);
+  if (!Number.isFinite(stacks) || stacks <= 0) return 0;
+  return Math.max(1, Math.floor(stacks / UNBREAKABLE_WALL_STACK_UNIT));
+}
+
+function _getAliveEnemyIndexes(state) {
+  return state.combat?.enemies
+    ?.map((enemy, idx) => (enemy.hp > 0 ? idx : -1))
+    .filter((idx) => idx !== -1) || [];
+}
+
+function _triggerUnbreakableWall(state, buffKey, buff, ratio) {
+  if (!state || !buff || ratio <= 0) return;
+
+  const shield = Number(state.player?.shield || 0);
+  if (!Number.isFinite(shield) || shield <= 0) return;
+
+  const damagePerHit = Math.floor(shield * ratio);
+  if (damagePerHit <= 0) return;
+
+  const hits = _getUnbreakableWallHits(buff);
+  if (hits <= 0) return;
+
+  const label = buffKey === 'unbreakable_wall_plus'
+    ? '\uBD88\uAD74\uC758 \uBCBD+'
+    : '\uBD88\uAD74\uC758 \uBCBD';
+
+  for (let i = 0; i < hits; i++) {
+    const aliveEnemies = _getAliveEnemyIndexes(state);
+    if (!aliveEnemies.length) break;
+
+    const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+    const hitSuffix = hits > 1 ? ` (${i + 1}/${hits})` : '';
+    state.addLog(
+      LogUtils.formatEcho(`${label}${hitSuffix}: \uC801\uC5D0\uAC8C ${damagePerHit} \uD53C\uD574!`),
+      'echo',
+    );
+    state.dealDamage(damagePerHit, targetIdx, true);
+  }
+}
+
 export const ClassMechanics = {
   swordsman: {
     onPlayCard(gs, { cardId }) {
@@ -295,7 +339,7 @@ export const ClassMechanics = {
       const state = _getGS(gs);
       if (state.player.shield > 0) {
         state.player._preservedShield = Math.floor(state.player.shield / 2);
-        state.addLog(LogUtils.formatShield('플레이어', state.player._preservedShield), 'system');
+        state.addLog(LogUtils.formatShield('플레이어', state.player._preservedShield), 'shield');
       }
     },
     onTurnStart(gs) {
@@ -305,20 +349,11 @@ export const ClassMechanics = {
         state.player._preservedShield = 0;
       }
 
-      // 불굴의 벽 효과: 턴 시작 시 방어막의 일정 비율만큼 무작위 적에게 피해
+      // 불굴의 벽은 중첩(99)당 발동 횟수가 1회씩 증가한다.
       const buff = state.getBuff('unbreakable_wall');
       const buffPlus = state.getBuff('unbreakable_wall_plus');
-      if ((buff || buffPlus) && state.player.shield > 0) {
-        const ratio = buffPlus ? 0.7 : 0.5;
-        const dmg = Math.floor(state.player.shield * ratio);
-        const aliveEnemies = state.combat?.enemies?.map((e, idx) => e.hp > 0 ? idx : -1).filter(idx => idx !== -1) || [];
-        if (aliveEnemies.length > 0) {
-          const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
-          const label = buffPlus ? '불굴의 벽+' : '불굴의 벽';
-          state.addLog(LogUtils.formatEcho(`${label}: 적에게 ${dmg} 피해!`), 'echo');
-          state.dealDamage(dmg, targetIdx, true);
-        }
-      }
+      _triggerUnbreakableWall(state, 'unbreakable_wall', buff, 0.5);
+      _triggerUnbreakableWall(state, 'unbreakable_wall_plus', buffPlus, 0.7);
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);

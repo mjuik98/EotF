@@ -2560,17 +2560,52 @@ body:has(#combatOverlay.active) .panel-right {
   width: 320px;
   max-width: 500px;
   height: 180px;
+  max-height: 180px;
   overflow-y: hidden;
   background: linear-gradient(180deg, rgba(7, 7, 26, 0.4) 0%, rgba(7, 7, 26, 0) 100%);
   border-radius: 0;
   border: none;
   padding: 10px 0;
   display: flex;
-  flex-direction: column-reverse;
-  pointer-events: none;
+  flex-direction: column;
+  pointer-events: auto;
+  /* hover 이벤트를 받기 위해 auto로 변경 */
   z-index: 100;
   -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
   mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.3s ease;
+}
+
+.combat-log:hover {
+  max-height: 400px;
+  /* hover 시 확장될 높이 */
+  overflow-y: auto;
+  background: rgba(7, 7, 26, 0.85);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  -webkit-mask-image: none;
+  /* hover 시 마스크 해제하여 모든 텍스트 명확하게 */
+  mask-image: none;
+  padding: 10px;
+}
+
+/* 전투 로그 전용 커스텀 스크롤바 */
+.combat-log::-webkit-scrollbar {
+  width: 6px;
+}
+
+.combat-log::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.combat-log::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.combat-log::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
 }
 
 .log-entry {
@@ -2603,6 +2638,12 @@ body:has(#combatOverlay.active) .panel-right {
   color: #44ff88;
   border-left: 3px solid #44ff88;
   background: linear-gradient(90deg, rgba(68, 255, 136, 0.1), transparent);
+}
+
+.log-entry.shield {
+  color: #66bbff;
+  border-left: 3px solid #66bbff;
+  background: linear-gradient(90deg, rgba(102, 187, 255, 0.1), transparent);
 }
 
 .log-entry.echo {
@@ -3202,7 +3243,7 @@ body:has(#combatOverlay.active) .panel-right {
 
 /* 선택된 적의 인텐트 색상도 흰색 유지 (예상 피해 제외) */
 .enemy-card.selected-target .enemy-intent,
-.enemy-card.selected-target .enemy-intent span:not(.enemy-intent-dmg):not(.enemy-dmg-preview) {
+.enemy-card.selected-target .enemy-intent span:not(.enemy-intent-dmg):not(.enemy-dmg-preview):not([class^="kw-"]) {
   color: var(--white) !important;
 }
 
@@ -5607,4 +5648,79 @@ body:has(#combatOverlay.active) .panel-right {
   font-size: 11px;
   color: var(--text);
   line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════════════════
+   BATTLE CHRONICLE (전체 전투 기록 오버레이)
+   ══════════════════════════════════════════════════════ */
+.battle-chronicle-panel {
+  background: rgba(10, 10, 20, 0.95);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(240, 180, 41, 0.2), inset 0 0 50px rgba(0, 0, 0, 0.5);
+  padding: 40px;
+  text-align: center;
+  max-width: 700px;
+  width: 90%;
+  animation: fadeInDown 0.3s ease forwards;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.battle-chronicle-panel h2 {
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.battle-chronicle-subtitle {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.battle-chronicle-list {
+  width: 100%;
+  height: 50vh;
+  min-height: 300px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow-y: auto;
+  text-align: left;
+  padding: 15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.battle-chronicle-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.battle-chronicle-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.battle-chronicle-list::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 4px;
+}
+
+.battle-chronicle-list::-webkit-scrollbar-thumb:hover {
+  background: #ffcc66;
+}
+
+.battle-chronicle-list .log-entry {
+  font-size: 15px;
+  padding: 5px 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.battle-chronicle-close-btn {
+  margin-top: 20px;
 }

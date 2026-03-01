@@ -561,12 +561,12 @@ export const CARDS = {
         effect(gs) { gs.dealDamage(gs.player.shield || 0); }
     },
     unbreakable_wall: {
-        id: 'unbreakable_wall', name: '불굴의 벽', icon: '🧱', cost: 2, type: 'POWER', desc: '지속: 턴 시작 시 방어막의 50%만큼 무작위 적에게 피해를 입힙니다.', rarity: 'rare',
+        id: 'unbreakable_wall', name: '불굴의 벽', icon: '🧱', cost: 2, type: 'POWER', desc: '\u3010\uC9C0\uC18D\u3011 \uD134 \uC2DC\uC791 \uC2DC \uBC29\uC5B4\uB9C9\uC758 50%\uB9CC\uD07C \uBB34\uC791\uC704 \uC801\uC5D0\uAC8C \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4. (\uC911\uCCA9 \uC2DC \uBC1C\uB3D9 \uD69F\uC218 +1)', rarity: 'rare',
         image: 'card_unbreakable_wall.png',
         effect(gs) { gs.addBuff('unbreakable_wall', 99); }
     },
     unbreakable_wall_plus: {
-        id: 'unbreakable_wall_plus', name: '불굴의 벽+', icon: '🧱', cost: 1, type: 'POWER', desc: '지속: 턴 시작 시 방어막의 70%만큼 무작위 적에게 피해를 입힙니다.', rarity: 'rare', upgraded: true,
+        id: 'unbreakable_wall_plus', name: '불굴의 벽+', icon: '🧱', cost: 1, type: 'POWER', desc: '\u3010\uC9C0\uC18D\u3011 \uD134 \uC2DC\uC791 \uC2DC \uBC29\uC5B4\uB9C9\uC758 70%\uB9CC\uD07C \uBB34\uC791\uC704 \uC801\uC5D0\uAC8C \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4. (\uC911\uCCA9 \uC2DC \uBC1C\uB3D9 \uD69F\uC218 +1)', rarity: 'rare', upgraded: true,
         image: 'card_unbreakable_wall_plus.png',
         effect(gs) { gs.addBuff('unbreakable_wall_plus', 99); }
     },

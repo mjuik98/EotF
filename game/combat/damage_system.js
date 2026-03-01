@@ -163,7 +163,7 @@ export const DamageSystem = {
         }
 
         this.dispatch(Actions.PLAYER_SHIELD, { amount: actual });
-        if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', actual), 'system');
+        if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
     },
 
     takeDamage(amount, deps = {}) {
@@ -196,10 +196,17 @@ export const DamageSystem = {
             const result = this.dispatch(Actions.PLAYER_DAMAGE, { amount: dmg, source: 'combat' });
 
             if (result && result.shieldAbsorbed > 0) {
-                if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', result.shieldAbsorbed), 'system');
+                if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', result.shieldAbsorbed), 'shield');
             }
             if (result && result.actualDamage > 0) {
                 if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack('적', '플레이어', result.actualDamage), 'damage');
+
+                // 잔향 반향(echo_on_hit) 버프 처리
+                const eoh = this.getBuff('echo_on_hit');
+                if (eoh && typeof this.addEcho === 'function') {
+                    this.addEcho(eoh.echoAmount || 5);
+                    this.addLog(LogUtils.formatEcho(`반향: 잔향 충전 (+${eoh.echoAmount || 5})`), 'echo');
+                }
             }
 
             if (result && result.isDead && typeof this.onPlayerDeath === 'function') {

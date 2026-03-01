@@ -311,6 +311,17 @@ export const HelpPauseUI = {
 
       // ESC: 일시정지 또는 모달 닫기
       if (e.key === 'Escape') {
+        const battleChronicle = doc.getElementById('battleChronicleOverlay');
+        if (battleChronicle && battleChronicle.style.display !== 'none') {
+          console.log('[ESC Key] Close battle chronicle');
+          if (typeof deps.closeBattleChronicle === 'function') {
+            deps.closeBattleChronicle();
+          } else if (window.GAME?.API?.closeBattleChronicle) {
+            window.GAME.API.closeBattleChronicle();
+          }
+          return;
+        }
+
         const helpMenu = doc.getElementById('helpMenu');
         if (helpMenu && helpMenu.style.display !== 'none') {
           this.toggleHelp(deps);

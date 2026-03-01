@@ -38,6 +38,16 @@ export const CombatTurnUI = {
     }
 
     const doc = _getDoc(deps);
+    const win = _getWin(deps);
+    const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
+    if (typeof cleanupTooltips === 'function') cleanupTooltips({ doc, win });
+    else {
+      doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
+      doc.getElementById('intentTooltip')?.classList.remove('visible');
+    }
+    const tooltipUI = deps.tooltipUI || win.TooltipUI;
+    tooltipUI?.hideGeneralTooltip?.({ doc, win });
+
     const turnIndicator = doc.getElementById('turnIndicator');
     if (turnIndicator) {
       turnIndicator.className = 'turn-indicator turn-enemy';
@@ -60,6 +70,13 @@ export const CombatTurnUI = {
     const data = deps.data;
     const win = _getWin(deps);
     const doc = _getDoc(deps);
+    const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
+    if (typeof cleanupTooltips === 'function') cleanupTooltips({ doc, win });
+    else {
+      doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
+      doc.getElementById('intentTooltip')?.classList.remove('visible');
+    }
+
     if (!gs?.combat?.active) return;
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
 

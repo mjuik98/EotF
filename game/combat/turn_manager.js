@@ -8,6 +8,34 @@ import { LogUtils } from '../utils/log_utils.js';
 import { Actions } from '../core/state_actions.js';
 import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
 
+const INFINITE_STACK_BUFF_IDS = new Set([
+    'resonance',
+    'time_warp',
+    'time_warp_plus',
+    'blessing_of_light',
+    'blessing_of_light_plus',
+    'berserk_mode',
+    'berserk_mode_plus',
+    'unbreakable_wall',
+    'unbreakable_wall_plus',
+]);
+
+function _isInfiniteStackBuff(buffId, buff) {
+    if (!buff || typeof buff !== 'object') return false;
+    if (buff.permanent) return true;
+    if (Number.isFinite(buff.stacks) && buff.stacks >= 99) return true;
+    // Backward-compat: recover already-degraded "99 sentinel" buffs (e.g. 98)
+    if (INFINITE_STACK_BUFF_IDS.has(buffId) && Number.isFinite(buff.stacks) && buff.stacks >= 90) return true;
+    return false;
+}
+
+function _normalizeInfiniteStack(buffId, buff) {
+    if (!buff || typeof buff !== 'object') return;
+    if (_isInfiniteStackBuff(buffId, buff) && Number.isFinite(buff.stacks) && buff.stacks < 99) {
+        buff.stacks = 99;
+    }
+}
+
 // ═══════════════════════════════════════
 //  상수
 // ═══════════════════════════════════════
@@ -21,15 +49,15 @@ const ENEMY_EFFECTS = {
     },
     self_shield(gs, enemy) {
         enemy.shield = (enemy.shield || 0) + 8;
-        gs.addLog(LogUtils.formatShield(enemy.name, 8), 'system');
+        gs.addLog(LogUtils.formatShield(enemy.name, 8), 'shield');
     },
     self_shield_15(gs, enemy) {
         enemy.shield = (enemy.shield || 0) + 15;
-        gs.addLog(LogUtils.formatShield(enemy.name, 15), 'system');
+        gs.addLog(LogUtils.formatShield(enemy.name, 15), 'shield');
     },
     self_shield_20(gs, enemy) {
         enemy.shield = (enemy.shield || 0) + 20;
-        gs.addLog(LogUtils.formatShield(enemy.name, 20), 'system');
+        gs.addLog(LogUtils.formatShield(enemy.name, 20), 'shield');
     },
     add_noise_5(gs, _enemy, _deps, baseRegion) {
         if (baseRegion === 1) gs.addSilence(5);
@@ -47,12 +75,12 @@ const ENEMY_EFFECTS = {
     },
     drain_echo(gs, enemy) {
         gs.drainEcho(20);
-        gs.addLog(LogUtils.formatEcho(`${enemy.name}: Echo 흡수! (-20)`), 'damage');
+        gs.addLog(LogUtils.formatEcho(`${enemy.name}: 잔향 흡수! (-20)`), 'damage');
     },
     nullify_echo(gs) {
         gs.player.echo = 0;
         gs.player.echoChain = 0;
-        gs.addLog(LogUtils.formatEcho('Echo 완전 무효화!'), 'damage');
+        gs.addLog(LogUtils.formatEcho('잔향 완전 무효화!'), 'damage');
         return { uiAction: 'updateChainUI', value: 0 };
     },
     add_noise(gs, _enemy, _deps, baseRegion) {
@@ -78,8 +106,7 @@ const ENEMY_EFFECTS = {
         return { uiAction: 'updateUI' };
     },
     drain_energy_all(gs) {
-        gs.player.energy = 0;
-        gs.addLog(LogUtils.formatSystem('에너지 완전 소진!'), 'damage');
+        gs.addLog(LogUtils.formatSystem('에너지 완전 【소진】!'), 'damage');
         return { uiAction: 'updateUI' };
     },
     confusion(gs) {
@@ -129,15 +156,15 @@ const ENEMY_EFFECTS = {
     },
     heal_15(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp, enemy.hp + 15);
-        gs.addLog(`💚 ${enemy.name}: 체력 회복 (+15)`, 'heal');
+        gs.addLog(LogUtils.formatHeal(enemy.name, 15), 'heal');
     },
     heal_20(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp, enemy.hp + 20);
-        gs.addLog(`💚 ${enemy.name}: 체력 회복 (+20)`, 'heal');
+        gs.addLog(LogUtils.formatHeal(enemy.name, 20), 'heal');
     },
     heal_30(gs, enemy) {
         enemy.hp = Math.min(enemy.maxHp, enemy.hp + 30);
-        gs.addLog(`💚 ${enemy.name}: 체력 회복 (+30)`, 'heal');
+        gs.addLog(LogUtils.formatHeal(enemy.name, 30), 'heal');
     },
     phase_shift(gs, enemy) {
         gs.addLog(LogUtils.formatSystem(`${enemy.name}: 위상 전환!`), 'system');
@@ -199,11 +226,13 @@ export const TurnManager = {
         Object.keys(gs.player.buffs).forEach(buffId => {
             const buff = gs.player.buffs[buffId];
             if (!buff || typeof buff !== 'object') return;
+            _normalizeInfiniteStack(buffId, buff);
             if (TURN_START_DEBUFFS.has(buffId)) return;
             if (ENEMY_TURN_BUFFS.has(buffId)) return;
             if (buffId === 'resonance') return; // Resonance does not decay
             if (buff.nextEnergy) return;
             if (buff.echoRegen) gs.addEcho(buff.echoRegen);
+            if (_isInfiniteStackBuff(buffId, buff)) return;
             if (!Number.isFinite(buff.stacks)) return;
             buff.stacks--;
             if (buff.stacks <= 0) delete gs.player.buffs[buffId];
@@ -433,7 +462,8 @@ export const TurnManager = {
             const permanentBuffs = {};
             Object.keys(gs.player.buffs).forEach(buffId => {
                 const buff = gs.player.buffs[buffId];
-                if (buff?.permanent || (Number.isFinite(buff.stacks) && buff.stacks >= 99)) {
+                _normalizeInfiniteStack(buffId, buff);
+                if (_isInfiniteStackBuff(buffId, buff)) {
                     permanentBuffs[buffId] = buff;
                 }
             });
@@ -467,6 +497,8 @@ export const TurnManager = {
         // 적 턴 버프 감소
         ENEMY_TURN_BUFFS.forEach(buffId => {
             const buff = gs.player.buffs?.[buffId];
+            _normalizeInfiniteStack(buffId, buff);
+            if (_isInfiniteStackBuff(buffId, buff)) return;
             if (!buff || !Number.isFinite(buff.stacks)) return;
             buff.stacks--;
             if (buff.stacks <= 0) delete gs.player.buffs[buffId];
@@ -534,13 +566,16 @@ export const TurnManager = {
         // 에너지 버프 처리
         Object.keys(gs.player.buffs || {}).forEach(buffId => {
             const buff = gs.player.buffs[buffId];
+            _normalizeInfiniteStack(buffId, buff);
             if (buff?.nextEnergy) {
                 gs.player.energy += buff.nextEnergy;
                 const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
                 gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', buff.nextEnergy), 'echo');
                 if (Number.isFinite(buff.stacks)) {
-                    buff.stacks--;
-                    if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+                    if (!_isInfiniteStackBuff(buffId, buff)) {
+                        buff.stacks--;
+                        if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+                    }
                 } else {
                     delete gs.player.buffs[buffId];
                 }
@@ -549,8 +584,10 @@ export const TurnManager = {
                 const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
                 gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', buff.energyPerTurn), 'echo');
                 if (Number.isFinite(buff.stacks)) {
-                    buff.stacks--;
-                    if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+                    if (!_isInfiniteStackBuff(buffId, buff)) {
+                        buff.stacks--;
+                        if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+                    }
                 }
             }
         });

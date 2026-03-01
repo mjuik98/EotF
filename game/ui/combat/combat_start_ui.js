@@ -61,7 +61,6 @@ export const CombatStartUI = {
     if (classMech && typeof classMech.onCombatStart === 'function') {
       classMech.onCombatStart(gs);
     }
-    gs.triggerItems?.('combat_start');
     gs.triggerItems?.(Trigger.COMBAT_START);
 
     // ── 로직: 덱 초기화 ──
@@ -90,8 +89,8 @@ export const CombatStartUI = {
 
     deps.renderCombatEnemies?.();
     deps.renderCombatCards?.();
-    deps.updateCombatLog?.();
     gs.addLog?.('⚔️ 전투 시작!', 'system');
+    deps.updateCombatLog?.();
     deps.updateNoiseWidget?.();
 
     const combatOverlay = doc.getElementById('combatOverlay');
@@ -140,7 +139,7 @@ export const CombatStartUI = {
           window.updateEchoSkillBtn();
         }
       } else {
-        echoBtn.textContent = `⚡ 잔향 스킬 (${echoVal}/30)`;
+        echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoVal}/30)`;
       }
       console.log('[CombatStart] Echo button initialized - echo:', echoVal, 'disabled:', echoBtn.disabled, 'text:', echoBtn.textContent);
     }

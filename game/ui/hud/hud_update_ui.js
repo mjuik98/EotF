@@ -581,7 +581,7 @@ export const HudUpdateUI = {
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
-          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoValue})`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoValue}/100)`;
         }
       }
     }

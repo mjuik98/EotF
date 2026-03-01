@@ -48,7 +48,7 @@ export const ITEMS = {
         id: 'rift_talisman', name: '균열의 부적', icon: '💍', rarity: 'common',
         desc: '전투 시작: 방어막 5 획득.',
         image: 'relic_rift_talisman.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatShield('균열의 부적', 5), 'system'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatShield('균열의 부적', 5), 'shield'); } }
     },
     blood_shard: {
         id: 'blood_shard', name: '핏빛 파편', icon: '🍷', rarity: 'common',
@@ -293,7 +293,7 @@ export const ITEMS = {
         id: 'blood_seal', name: '혈인', icon: '🩸', rarity: 'common',
         desc: '피해를 받을 때마다 방어막를 3 얻습니다. [세트:혈맹]',
         image: 'relic_blood_seal.png',
-        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addShield(3); gs.addLog('🩸 혈인: 방어막 +3', 'system'); } }
+        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addShield(3); gs.addLog('🩸 혈인: 방어막 +3', 'shield'); } }
     },
     blood_oath: {
         id: 'blood_oath', name: '혈맹의 서', icon: '📜', rarity: 'uncommon',

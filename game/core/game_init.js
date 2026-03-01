@@ -129,6 +129,24 @@ export const GameInit = {
         doc.getElementById('combatDrawCardBtn')?.addEventListener('click', () => drawCard?.());
         doc.getElementById('endPlayerTurnBtn')?.addEventListener('click', () => endPlayerTurn?.());
 
+        // Battle Chronicle (전투 기록)
+        doc.getElementById('showBattleChronicleBtn')?.addEventListener('click', () => {
+            deps.audioEngine?.playClick?.();
+            GAME.API.toggleBattleChronicle?.();
+        });
+        doc.getElementById('closeBattleChronicleBtn')?.addEventListener('click', () => {
+            deps.audioEngine?.playClick?.();
+            GAME.API.closeBattleChronicle?.();
+        });
+        doc.addEventListener('keydown', (e) => {
+            if (e.key === 'l' || e.key === 'L') {
+                const combatOverlay = doc.getElementById('combatOverlay');
+                if (combatOverlay?.classList.contains('active')) {
+                    GAME.API.toggleBattleChronicle?.();
+                }
+            }
+        });
+
         // HUD
         doc.getElementById('hoverHud')?.addEventListener('click', () => GAME.API.toggleHudPin?.());
 

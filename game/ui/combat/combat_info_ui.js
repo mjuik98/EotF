@@ -14,6 +14,54 @@ function _applyClosedState(doc) {
   }
 }
 
+function _resolveStatusInfo(statusMap, statusKey) {
+  const key = String(statusKey || '');
+  return statusMap?.[key] || statusMap?.[key.replace(/_plus$/i, '')] || null;
+}
+
+const _INFINITE_STATUS_KEYS = new Set([
+  'resonance',
+  'time_warp',
+  'blessing_of_light',
+  'berserk_mode',
+  'unbreakable_wall',
+]);
+
+function _resolveStatusDisplayValue(statusKey, buff) {
+  const stacks = Number(buff?.stacks || 0);
+  if (!Number.isFinite(stacks) || stacks <= 0) return '';
+  const key = String(statusKey || '').replace(/_plus$/i, '');
+  const isInfiniteLike = !!buff?.permanent
+    || stacks >= 99
+    || (_INFINITE_STATUS_KEYS.has(key) && stacks >= 90);
+  if (!isInfiniteLike) return stacks;
+
+  const numericCandidates = [];
+
+  if (key === 'blessing_of_light') numericCandidates.push(buff?.healPerTurn);
+  if (key === 'time_warp') numericCandidates.push(buff?.energyPerTurn, buff?.nextEnergy);
+  if (key === 'berserk_mode') numericCandidates.push(buff?.atkGrowth);
+  if (key === 'divine_grace') numericCandidates.push(buff?.shieldBonus);
+  if (key === 'soul_armor') numericCandidates.push(buff?.echoRegen);
+  if (key === 'resonance' || key === 'acceleration') numericCandidates.push(buff?.dmgBonus);
+  if (key === 'unbreakable_wall') numericCandidates.push(Math.max(1, Math.floor(stacks / 99)));
+
+  numericCandidates.push(
+    buff?.healPerTurn,
+    buff?.energyPerTurn,
+    buff?.nextEnergy,
+    buff?.atkGrowth,
+    buff?.shieldBonus,
+    buff?.echoRegen,
+    buff?.dmgBonus,
+    buff?.amount,
+    buff?.value,
+  );
+
+  const found = numericCandidates.find(v => Number.isFinite(v) && Number(v) > 0);
+  return Number.isFinite(found) ? Math.floor(Number(found)) : '';
+}
+
 export const CombatInfoUI = {
   reset(deps = {}) {
     _combatInfoOpen = false;
@@ -72,6 +120,7 @@ export const CombatInfoUI = {
         shadow_atk: '그림자 공격 강화',
         mirror: '피해 반사',
         zeroCost: '카드 비용 0',
+        dodge: '다음 적 공격 1회 회피',
         weakened: '공격력 50% 감소',
         slowed: '행동 지연',
         burning: '매 턴 5 화염 피해',
@@ -82,10 +131,11 @@ export const CombatInfoUI = {
       const frag = doc.createDocumentFragment();
       keys.forEach(k => {
         const b = buffs[k];
-        const info = statusKr[k];
+        const info = _resolveStatusInfo(statusKr, k);
         const isBuff = info ? info.buff : ['resonance', 'acceleration', 'soul_armor', 'vanish', 'immune', 'shadow_atk'].includes(k);
         const label = info ? `${info.icon} ${info.name}` : k;
-        const stacks = b.stacks > 0 ? ` (${b.stacks})` : '';
+        const displayVal = _resolveStatusDisplayValue(k, b);
+        const stacks = displayVal !== '' ? ` (${displayVal})` : '';
         const desc = descMap[k] || '';
 
         const badge = doc.createElement('div');

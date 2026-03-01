@@ -1,4 +1,5 @@
 import { CONSTANTS } from '../../data/constants.js';
+import { applyEchoSkillButtonState } from '../hud/hud_render_helpers.js';
 
 
 let _hudPinned = false;
@@ -113,9 +114,12 @@ export const CombatHudUI = {
     const logContainer = doc.getElementById('combatLog');
     if (!logContainer) return;
 
-    // 현재 DOM에 표시된 로그의 ID들을 셋으로 관리하여 중복 추가 방지
     const currentIds = Array.from(logContainer.children).map(c => c.dataset.logId);
-    const lastLogs = gs.combat.log.slice(-6); // 화면에 보여줄 개수 제한
+    // 화면에 보여줄 개수 제한 상향 (Hover 시 볼 수 있도록 30개로 설정)
+    const MAX_LOGS = 30;
+    const lastLogs = gs.combat.log.slice(-MAX_LOGS);
+
+    let logsAdded = false;
 
     lastLogs.forEach(e => {
       if (e.id) {
@@ -124,11 +128,6 @@ export const CombatHudUI = {
           if (existing.textContent !== e.msg) {
             existing.textContent = e.msg;
             existing.style.animation = 'none';
-            const entry = doc.createElement('div');
-            entry.className = `log-entry ${e.type}`;
-            entry.textContent = e.msg;
-            entry.dataset.logId = e.id;
-            logContainer.appendChild(entry);
           }
         } else if (!currentIds.includes(e.id)) {
           const entry = doc.createElement('div');
@@ -136,6 +135,7 @@ export const CombatHudUI = {
           entry.textContent = e.msg;
           entry.dataset.logId = e.id;
           logContainer.appendChild(entry);
+          logsAdded = true;
         }
       } else if (!e.id) {
         // 기존 하위 호환성 (ID 없는 경우 텍스트 비교)
@@ -145,13 +145,19 @@ export const CombatHudUI = {
           entry.className = `log-entry ${e.type}`;
           entry.textContent = e.msg;
           logContainer.appendChild(entry);
+          logsAdded = true;
         }
       }
     });
 
     // 화면에 너무 많이 쌓이지 않도록 정리
-    while (logContainer.children.length > 6) {
+    while (logContainer.children.length > MAX_LOGS) {
       logContainer.removeChild(logContainer.firstChild);
+    }
+
+    // 새 로그가 추가되었으면 항상 스크롤을 맨 아래로 이동
+    if (logsAdded) {
+      logContainer.scrollTop = logContainer.scrollHeight;
     }
   },
 
@@ -163,24 +169,7 @@ export const CombatHudUI = {
     const btn = doc.getElementById('useEchoSkillBtn');
     if (!btn) return;
 
-    const echo = gs.player.echo;
-    const cls = gs.player.class;
-    let tLevel = echo >= 100 ? 3 : echo >= 60 ? 2 : echo >= 30 ? 1 : 0;
-    if (tLevel === 0) {
-      btn.textContent = `⚡ 잔향 스킬 (${echo}/30)`;
-      btn.style.opacity = '0.45';
-      btn.disabled = true;
-      return;
-    }
-
-    const constants = window.CONSTANTS || deps.CONSTANTS || {};
-    const skillList = constants.ECHO_SKILLS || {};
-    const skill = skillList[cls]?.[tLevel];
-    const stars = '★'.repeat(tLevel);
-    const sDesc = skill?.shortDesc || '';
-    btn.textContent = `⚡ ${stars} ${sDesc}`;
-    btn.style.opacity = '1';
-    btn.disabled = false;
+    applyEchoSkillButtonState(btn, gs.player.echo);
   },
 
   updateChainUI(chain, deps = {}) {
@@ -270,6 +259,49 @@ export const CombatHudUI = {
       none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
       none.textContent = '없음';
       hoverSpecialEl.appendChild(none);
+    }
+  },
+
+  // ═══ Battle Chronicle (전체 전투 기록) ═══
+  openBattleChronicle(deps = {}) {
+    const gs = deps.gs;
+    const doc = _getDoc(deps);
+    const overlay = doc.getElementById('battleChronicleOverlay');
+    const list = doc.getElementById('battleChronicleList');
+    if (!overlay || !list) return;
+
+    list.textContent = '';
+
+    const logs = gs?.combat?.log || [];
+    logs.forEach(e => {
+      const entry = doc.createElement('div');
+      entry.className = `log-entry ${e.type || ''}`;
+      entry.textContent = e.msg || '';
+      list.appendChild(entry);
+    });
+
+    overlay.style.display = '';
+    overlay.classList.add('active');
+    // 스크롤을 최하단으로
+    requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
+  },
+
+  closeBattleChronicle(deps = {}) {
+    const doc = _getDoc(deps);
+    const overlay = doc.getElementById('battleChronicleOverlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      overlay.style.display = 'none';
+    }
+  },
+
+  toggleBattleChronicle(deps = {}) {
+    const doc = _getDoc(deps);
+    const overlay = doc.getElementById('battleChronicleOverlay');
+    if (overlay && overlay.style.display !== 'none') {
+      this.closeBattleChronicle(deps);
+    } else {
+      this.openBattleChronicle(deps);
     }
   },
 

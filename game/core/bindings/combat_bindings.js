@@ -76,6 +76,11 @@ export function createCombatBindings(M, fns) {
     fns.updateCombatLog = () => M.CombatHudUI?.updateCombatLog?.(M.GAME.getDeps());
     fns.updateEchoSkillBtn = () => M.CombatHudUI?.updateEchoSkillBtn?.(M.GAME.getDeps());
 
+    // Battle Chronicle (전투 기록)
+    fns.toggleBattleChronicle = () => M.CombatHudUI?.toggleBattleChronicle?.(M.GAME.getDeps());
+    fns.openBattleChronicle = () => M.CombatHudUI?.openBattleChronicle?.(M.GAME.getDeps());
+    fns.closeBattleChronicle = () => M.CombatHudUI?.closeBattleChronicle?.(M.GAME.getDeps());
+
     fns.useEchoSkill = () => {
         const deps = M.GAME.getDeps();
         deps.showEchoBurstOverlay = fns.showEchoBurstOverlay;

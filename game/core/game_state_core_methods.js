@@ -20,15 +20,9 @@ export const GameStateCoreMethods = {
   getSetBonuses() { return ItemSystem.getActiveSets(this); },
 
   addLog(msg, type = '') {
-    const lastLog = this.combat.log[this.combat.log.length - 1];
-    if (lastLog && lastLog.baseMsg === msg) {
-      lastLog.count = (lastLog.count || 1) + 1;
-      lastLog.msg = `${msg} (x${lastLog.count})`;
-    } else {
-      const id = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
-      this.combat.log.push({ msg, baseMsg: msg, type, id, count: 1 });
-      if (this.combat.log.length > 200) this.combat.log.shift();
-    }
+    const id = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    this.combat.log.push({ msg, baseMsg: msg, type, id, count: 1 });
+    if (this.combat.log.length > 200) this.combat.log.shift();
 
     this.markDirty?.('log');
     // EventBus로 알림 → 구독자가 UI 갱신
