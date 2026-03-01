@@ -12,13 +12,13 @@ export const ITEMS = {
         id: 'void_compass', name: '공허의 나침반', icon: '🧭', rarity: 'common',
         desc: '전투 시작: 카드 1장 드로우.',
         image: 'relic_void_compass.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.drawCards(1); gs.addLog(LogUtils.formatItem('공허의 나침반', '카드 뽑기 +1'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.drawCards(1, { name: '공허의 나침반', type: 'item' }); } }
     },
     void_shard: {
         id: 'void_shard', name: '공허의 파편', icon: '🔷', rarity: 'common',
         desc: '전투 종료: 잔향 20 충전.',
         image: 'relic_void_shard.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20); gs.addLog(LogUtils.formatItem('공허의 파편', '잔향 +20'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20, { name: '공허의 파편', type: 'item' }); } }
     },
     cracked_amulet: {
         id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
@@ -30,13 +30,13 @@ export const ITEMS = {
         id: 'worn_pouch', name: '낡은 주머니', icon: '👜', rarity: 'common',
         desc: '전투 시작: 골드 5 획득.',
         image: 'relic_worn_pouch.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addGold(5); gs.addLog(LogUtils.formatItem('낡은 주머니', '골드 +5'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addGold(5, { name: '낡은 주머니', type: 'item' }); } }
     },
     dull_blade: {
         id: 'dull_blade', name: '무딘 검', icon: '🔪', rarity: 'common',
         desc: '카드 사용 시: 10% 확률로 잔향 10 충전.',
         image: 'relic_dull_blade.png',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10); gs.addLog(LogUtils.formatEcho('무딘 검: 일정 확률로 잔향 +10'), 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10, { name: '무딘 검', type: 'item' }); } }
     },
     travelers_map: {
         id: 'travelers_map', name: '여행자의 지도', icon: '🗺️', rarity: 'common',
@@ -54,21 +54,21 @@ export const ITEMS = {
         id: 'blood_shard', name: '핏빛 파편', icon: '🍷', rarity: 'common',
         desc: '적 처치 시: 잔향 10 충전.',
         image: 'relic_blood_shard.png',
-        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10); gs.addLog(LogUtils.formatItem('핏빛 파편', '잔향 +10'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10, { name: '핏빛 파편', type: 'item' }); } }
     },
     // ══════════════ UNCOMMON (파랑) ══════════════
     blood_gem: {
         id: 'blood_gem', name: '혈정', icon: '🔴', rarity: 'uncommon',
         desc: '피해를 받을 때마다 잔향을 15 충전합니다.',
         image: 'relic_blood_gem.png',
-        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addEcho(15); gs.addLog(LogUtils.formatItem('혈정', '잔향 +15'), 'item'); } }
+        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addEcho(15, { name: '혈정', type: 'item' }); } }
     },
     phantom_cloak: {
         id: 'phantom_cloak', name: '환영 망토', icon: '🧥', rarity: 'uncommon',
         desc: '전투 시작: 회피 1 획득.',
         image: 'relic_phantom_cloak.png',
         trigger: Trigger.COMBAT_START,
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addBuff('dodge', 1); gs.addLog(LogUtils.formatItem('환영 망토', '회피 획득'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addBuff('dodge', 1, { name: '환영 망토', type: 'item' }); } }
     },
     cursed_tome: {
         id: 'cursed_tome', name: '저주받은 마도서', icon: '📕', rarity: 'uncommon',
@@ -98,13 +98,13 @@ export const ITEMS = {
         id: 'poison_vial', name: '독 약병', icon: '🧪', rarity: 'uncommon',
         desc: '전투 시작 시 모든 적에게 독 2중첩을 부여합니다.',
         image: 'relic_poison_vial.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.combat.enemies.forEach((_, i) => gs.applyEnemyStatus('poisoned', 2, i)); gs.addLog(LogUtils.formatSystem('독 약병: 모든 적에게 독 부여!'), 'echo'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.combat.enemies.forEach((_, i) => gs.applyEnemyStatus('poisoned', 2, i, { name: '독 약병', type: 'item' })); } }
     },
     shadow_mask: {
         id: 'shadow_mask', name: '그림자 가면', icon: '🎭', rarity: 'uncommon',
         desc: '카드를 3장 연속으로 사용할 때마다 방어막를 8 얻습니다.',
         image: 'relic_shadow_mask.png',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs._maskCount = (gs._maskCount || 0) + 1; if (gs._maskCount >= 3) { gs.addShield(8); gs._maskCount = 0; gs.addLog(LogUtils.formatItem('그림자 가면', '방어막 +8'), 'item'); } } }
+        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs._maskCount = (gs._maskCount || 0) + 1; if (gs._maskCount >= 3) { gs.addShield(8, { name: '그림자 가면', type: 'item' }); gs._maskCount = 0; } } }
     },
     // ══════════════ RARE (금색) ══════════════
     resonance_stone: {
@@ -275,9 +275,8 @@ export const ITEMS = {
             if (trigger === Trigger.ECHO_SKILL) {
                 gs.combat._bracerHeal = (gs.combat._bracerHeal || 0);
                 if (gs.combat._bracerHeal < 20) {
-                    gs.heal(3);
+                    gs.heal(3, { name: '잔향의 팔찌', type: 'item' });
                     gs.combat._bracerHeal += 3;
-                    gs.addLog(`🔮 잔향의 팔찌: 체력 +3 (${gs.combat._bracerHeal}/20)`, 'heal');
                 }
             }
         }
@@ -293,7 +292,7 @@ export const ITEMS = {
         id: 'blood_seal', name: '혈인', icon: '🩸', rarity: 'common',
         desc: '피해를 받을 때마다 방어막를 3 얻습니다. [세트:혈맹]',
         image: 'relic_blood_seal.png',
-        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addShield(3); gs.addLog('🩸 혈인: 방어막 +3', 'shield'); } }
+        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addShield(3, { name: '혈인', type: 'item' }); } }
     },
     blood_oath: {
         id: 'blood_oath', name: '혈맹의 서', icon: '📜', rarity: 'uncommon',
@@ -305,7 +304,7 @@ export const ITEMS = {
         id: 'blood_crown', name: '혈맹의 왕관', icon: '💉', rarity: 'rare',
         desc: '적 처치 시: 체력 8 회복. 잔향 20 충전. [세트:혈맹]',
         image: 'relic_blood_crown.png',
-        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(8); gs.addEcho(20); gs.addLog('💉 혈맹의 왕관: 체력 +8, 잔향 +20', 'heal'); } }
+        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(8, { name: '혈맹의 왕관', type: 'item' }); gs.addEcho(20, { name: '혈맹의 왕관', type: 'item' }); } }
     },
 
     // ══════════════ LEGENDARY (보라/무지개) ══════════════

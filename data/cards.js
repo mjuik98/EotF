@@ -45,12 +45,12 @@ export const CARDS = {
     defend: {
         id: 'defend', name: '수비', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 7.', rarity: 'common',
         image: 'card_defend_standard.png',
-        effect(gs) { gs.addShield(7); }
+        effect(gs) { gs.addShield(7, { name: '수비', type: 'card' }); }
     },
     defend_plus: {
         id: 'defend_plus', name: '수비+', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10.', rarity: 'common', upgraded: true,
         image: 'card_defend_plus.png',
-        effect(gs) { gs.addShield(10); }
+        effect(gs) { gs.addShield(10, { name: '수비+', type: 'card' }); }
     },
     echo_strike: {
         id: 'echo_strike', name: '잔향 타격', icon: '💥', cost: 2, type: 'ATTACK', desc: '피해 14. 잔향 20 충전.', rarity: 'uncommon',
@@ -65,12 +65,12 @@ export const CARDS = {
     quick_step: {
         id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 4. 잔향 15 충전.', rarity: 'common',
         image: 'card_quick_step.png',
-        effect(gs) { gs.addShield(4); gs.addEcho(15); }
+        effect(gs) { gs.addShield(4, { name: '잔영 이동', type: 'card' }); gs.addEcho(15, { name: '잔영 이동', type: 'card' }); }
     },
     quick_step_plus: {
         id: 'quick_step_plus', name: '잔영 이동+', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 6. 잔향 20 충전.', rarity: 'common', upgraded: true,
         image: 'card_quick_step.png',
-        effect(gs) { gs.addShield(6); gs.addEcho(20); }
+        effect(gs) { gs.addShield(6, { name: '잔영 이동+', type: 'card' }); gs.addEcho(20, { name: '잔영 이동+', type: 'card' }); }
     },
     heavy_blow: {
         id: 'heavy_blow', name: '중격', icon: '🔨', cost: 3, type: 'ATTACK', desc: '피해 18. 기절 1턴 부여.', rarity: 'common',
@@ -105,12 +105,12 @@ export const CARDS = {
     soul_rend: {
         id: 'soul_rend', name: '영혼 강탈', icon: '💀', cost: 3, type: 'ATTACK', desc: '피해 26. 체력 5 회복.', rarity: 'uncommon',
         image: 'card_soul_rend.png',
-        effect(gs) { gs.dealDamage(26); gs.heal(5); }
+        effect(gs) { gs.dealDamage(26); gs.heal(5, { name: '영혼 강탈', type: 'card' }); }
     },
     soul_rend_plus: {
         id: 'soul_rend_plus', name: '영혼 강탈+', icon: '💀', cost: 2, type: 'ATTACK', desc: '피해 28. 체력 6 회복.', rarity: 'uncommon', upgraded: true,
         image: 'card_soul_rend.png',
-        effect(gs) { gs.dealDamage(28); gs.heal(6); }
+        effect(gs) { gs.dealDamage(28); gs.heal(6, { name: '영혼 강탈+', type: 'card' }); }
     },
     twin_strike: {
         id: 'twin_strike', name: '쌍검격', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 6 × 2.', rarity: 'uncommon',
@@ -125,12 +125,12 @@ export const CARDS = {
     echo_shield: {
         id: 'echo_shield', name: '잔향 방벽', icon: '🔵', cost: 2, type: 'SKILL', desc: '방어막 (잔향 ÷ 5).', rarity: 'uncommon',
         image: 'card_echo_shield.png',
-        effect(gs) { gs.addShield(Math.floor(gs.player.echo / 5)); }
+        effect(gs) { gs.addShield(Math.floor(gs.player.echo / 5), { name: '잔향 방벽', type: 'card' }); }
     },
     echo_shield_plus: {
         id: 'echo_shield_plus', name: '잔향 방벽+', icon: '🔵', cost: 1, type: 'SKILL', desc: '방어막 (잔향 ÷ 4). 잔향 10 충전.', rarity: 'uncommon', upgraded: true,
         image: 'card_echo_shield.png',
-        effect(gs) { gs.addShield(Math.floor(gs.player.echo / 4)); gs.addEcho(10); }
+        effect(gs) { gs.addShield(Math.floor(gs.player.echo / 4), { name: '잔향 방벽+', type: 'card' }); gs.addEcho(10, { name: '잔향 방벽+', type: 'card' }); }
     },
     // 잔향검사
     acceleration: {
@@ -318,7 +318,7 @@ export const CARDS = {
     soul_armor: {
         id: 'soul_armor', name: '영혼 방어구', icon: '💠', cost: 2, type: 'SKILL', desc: '방어막 15. (3턴 동안 매 턴: 잔향 10 충전.)', rarity: 'rare',
         image: 'card_soul_armor.png',
-        effect(gs) { gs.addShield(15); gs.addBuff('soul_armor', 3, { echoRegen: 10 }); }
+        effect(gs) { gs.addShield(15, { name: '영혼 방어구', type: 'card' }); gs.addBuff('soul_armor', 3, { echoRegen: 10 }); }
     },
     soul_harvest: {
         id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '피해 20. (처치 시: 체력 8 회복.)', rarity: 'uncommon',
@@ -343,7 +343,7 @@ export const CARDS = {
     sanctuary: {
         id: 'sanctuary', name: '성역', icon: '🏛️', cost: 3, type: 'SKILL', desc: '방어막 15. 면역 2턴.', rarity: 'rare',
         image: 'card_sanctuary.png',
-        effect(gs) { gs.addShield(15); gs.addBuff('immune', 2, {}); gs.addLog('🏛️ 성역! 2턴 면역', 'echo'); }
+        effect(gs) { gs.addShield(15, { name: '성역', type: 'card' }); gs.addBuff('immune', 2, {}); }
     },
     dark_pact: {
         id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 5 소모. 카드 2장 드로우.', rarity: 'uncommon',
@@ -400,7 +400,7 @@ export const CARDS = {
     revival_echo: {
         id: 'revival_echo', name: '소생의 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: '체력 15 회복. 소모 더미 카드 2장 회수. 【소진】', rarity: 'rare', exhaust: true,
         image: 'card_revival_echo.png',
-        effect(gs) { gs.heal(15); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(CARDS[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); gs.markDirty('hand'); }
+        effect(gs) { gs.heal(15, { name: '소생의 잔향', type: 'card' }); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(CARDS[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); gs.markDirty('hand'); }
     },
 
     // ── 에너지 할인 카드 ──
@@ -485,22 +485,22 @@ export const CARDS = {
     holy_strike: {
         id: 'holy_strike', name: '성스러운 강타', icon: '✨', cost: 1, type: 'ATTACK', desc: '피해 8. 체력 2 회복.', rarity: 'common',
         image: 'card_holy_strike.png',
-        effect(gs) { gs.dealDamage(8); gs.heal(2); }
+        effect(gs) { gs.dealDamage(8); gs.heal(2, { name: '성스러운 강타', type: 'card' }); }
     },
     holy_strike_plus: {
         id: 'holy_strike_plus', name: '성스러운 강타+', icon: '✨', cost: 1, type: 'ATTACK', desc: '피해 11. 체력 4 회복.', rarity: 'common', upgraded: true,
         image: 'card_holy_strike_plus.png',
-        effect(gs) { gs.dealDamage(11); gs.heal(4); }
+        effect(gs) { gs.dealDamage(11); gs.heal(4, { name: '성스러운 강타+', type: 'card' }); }
     },
     divine_grace: {
         id: 'divine_grace', name: '신의 은총', icon: '🙏', cost: 1, type: 'SKILL', desc: '방어막 6. 잔향 15 충전.', rarity: 'common',
         image: 'card_divine_grace.png',
-        effect(gs) { gs.addShield(6); gs.addEcho(15); }
+        effect(gs) { gs.addShield(6, { name: '신의 은총', type: 'card' }); gs.addEcho(15, { name: '신의 은총', type: 'card' }); }
     },
     divine_grace_plus: {
         id: 'divine_grace_plus', name: '신의 은총+', icon: '🙏', cost: 0, type: 'SKILL', desc: '방어막 8. 잔향 20 충전.', rarity: 'common', upgraded: true,
         image: 'card_divine_grace_plus.png',
-        effect(gs) { gs.addShield(8); gs.addEcho(20); }
+        effect(gs) { gs.addShield(8, { name: '신의 은총+', type: 'card' }); gs.addEcho(20, { name: '신의 은총+', type: 'card' }); }
     },
     blessing_of_light: {
         id: 'blessing_of_light', name: '빛의 축복', icon: '☀️', cost: 2, type: 'POWER', desc: '【지속】 매 턴: 체력 3 회복.', rarity: 'uncommon',
@@ -565,12 +565,12 @@ export const CARDS = {
     iron_defense: {
         id: 'iron_defense', name: '무쇠 방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10. 잔향 10 충전.', rarity: 'common',
         image: 'card_iron_defense.png',
-        effect(gs) { gs.addShield(10); gs.addEcho(10); }
+        effect(gs) { gs.addShield(10, { name: '무쇠 방어', type: 'card' }); gs.addEcho(10, { name: '무쇠 방어', type: 'card' }); }
     },
     iron_defense_plus: {
         id: 'iron_defense_plus', name: '무쇠 방어+', icon: '🛡️', cost: 0, type: 'SKILL', desc: '방어막 14. 잔향 20 충전.', rarity: 'common', upgraded: true,
         image: 'card_iron_defense_plus.png',
-        effect(gs) { gs.addShield(14); gs.addEcho(20); }
+        effect(gs) { gs.addShield(14, { name: '무쇠 방어+', type: 'card' }); gs.addEcho(20, { name: '무쇠 방어+', type: 'card' }); }
     },
     shield_slam: {
         id: 'shield_slam', name: '방패 가격', icon: '💥', cost: 1, type: 'ATTACK', desc: '현재 방어막만큼 피해.', rarity: 'uncommon',

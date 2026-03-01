@@ -138,7 +138,7 @@ export const DamageSystem = {
             if (source && source.name) {
                 // 원천(Source) 정보가 있는 경우 통합 로깅
                 const icon = source.type === 'trait' ? '✨' : (source.type === 'item' ? '💍' : '⚔️');
-                this.addLog(`${icon} ${source.name}: ${enemy.name}에게 ${totalDmg} 피해`, 'damage');
+                this.addLog(`${icon} [${source.name}] → ${enemy.name}: ${totalDmg} 피해`, 'damage');
             } else {
                 const _card = this._currentCard;
                 if (_card) {
@@ -232,7 +232,7 @@ export const DamageSystem = {
                 if (typeof this.addLog === 'function') {
                     if (source && source.name) {
                         const icon = source.type === 'item' ? '💍' : '💥';
-                        this.addLog(`${icon} ${source.name}: 플레이어에게 ${result.actualDamage} 피해`, 'damage');
+                        this.addLog(`${icon} ${source.name} → 플레이어: ${result.actualDamage} 피해`, 'damage');
                     } else {
                         this.addLog(LogUtils.formatAttack('적', '플레이어', result.actualDamage), 'damage');
                     }

@@ -2635,8 +2635,8 @@ body:has(#combatOverlay.active) .panel-right {
   overflow-y: hidden;
   background: linear-gradient(180deg, rgba(7, 7, 26, 0.4) 0%, rgba(7, 7, 26, 0) 100%);
   border-radius: 0;
-  border: none;
-  padding: 10px 0;
+  border: 1px solid transparent;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   pointer-events: auto;
@@ -2644,7 +2644,7 @@ body:has(#combatOverlay.active) .panel-right {
   z-index: 100;
   -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
   mask-image: linear-gradient(to top, black 60%, transparent 100%);
-  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .combat-log:hover {
@@ -2653,7 +2653,7 @@ body:has(#combatOverlay.active) .panel-right {
   overflow-y: auto;
   background: rgba(7, 7, 26, 0.85);
   border-radius: 4px;
-  border: 1px solid var(--border);
+  border-color: var(--border);
   -webkit-mask-image: none;
   /* hover 시 마스크 해제하여 모든 텍스트 명확하게 */
   mask-image: none;

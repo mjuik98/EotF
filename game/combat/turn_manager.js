@@ -305,7 +305,7 @@ export const TurnManager = {
                     enemyDied = true;
                 }
             } else {
-                gs.takeDamage?.(dmg);
+                gs.takeDamage?.(dmg, { name: enemy.name, type: 'enemy' });
             }
 
             results.push({ dmg, reflected, enemyDied, weakened, hitIndex: h });
@@ -384,8 +384,7 @@ export const TurnManager = {
                 se.doom--;
                 if (se.doom <= 0) {
                     const dmg = 40;
-                    gs.takeDamage?.(dmg);
-                    gs.addLog?.(LogUtils.formatAttack('파멸', '플레이어', dmg), 'damage');
+                    gs.takeDamage?.(dmg, { name: '파멸', type: 'enemy' });
                     delete se.doom;
                     events.push({ index, type: 'doom_explode', dmg, enemyDied: false, color: '#ff00ff' });
                 } else {
@@ -415,16 +414,14 @@ export const TurnManager = {
         };
 
         if ((buffs.burning?.stacks || 0) > 0) {
-            gs.takeDamage(5);
-            gs.addLog?.(LogUtils.formatAttack('화염', '플레이어', 5), 'damage');
+            gs.takeDamage(5, { name: '화염', type: 'enemy' });
             decStack('burning');
             if (!gs.combat.active || gs.player.hp <= 0) return { alive: false, actions };
         }
 
         if ((buffs.poisoned?.stacks || 0) > 0) {
             const poisonDmg = 1 + Math.max(1, buffs.poisoned.stacks);
-            gs.takeDamage(poisonDmg);
-            gs.addLog?.(LogUtils.formatAttack('독', '플레이어', poisonDmg), 'damage');
+            gs.takeDamage(poisonDmg, { name: '독', type: 'enemy' });
             decStack('poisoned');
             if (!gs.combat.active || gs.player.hp <= 0) return { alive: false, actions };
         }

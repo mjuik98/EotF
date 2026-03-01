@@ -9,8 +9,12 @@ const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
 
 export const PlayerMethods = {
-    addEcho(amount, skipFullUI = false) {
+    addEcho(amount, source = null) {
         this.commit(Actions.PLAYER_ECHO, { amount });
+        if (source && source.name) {
+            const icon = source.type === 'item' ? '💍' : '✨';
+            this.addLog(`${icon} ${source.name}: 잔향 +${amount}`, 'echo');
+        }
         const updateEchoSkillBtn = window.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
@@ -58,10 +62,14 @@ export const PlayerMethods = {
 
     getBuff(id) { return this.player.buffs[id] || null; },
 
-    addGold(amount, deps = {}) {
+    addGold(amount, source = null, deps = {}) {
         const result = this.commit(Actions.PLAYER_GOLD, { amount });
         if (amount > 0 && result && result.delta > 0) {
-            this.addLog(LogUtils.formatStatChange('플레이어', '골드', result.delta), 'system');
+            if (source && source.name) {
+                this.addLog(`💍 ${source.name}: 골드 +${result.delta}`, 'gold');
+            } else {
+                this.addLog(LogUtils.formatStatChange('플레이어', '골드', result.delta), 'system');
+            }
         }
     },
 

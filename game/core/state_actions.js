@@ -242,7 +242,6 @@ export const Reducers = {
         gs.player.zeroCost = false;
         gs.player._freeCardUses = 0;
         gs.player._cascadeCards = new Map();
-        gs.player._cascadeCards = new Map();
         gs.player._traitCardDiscounts = {};
         gs.player._mageCastCounter = 0;
         gs.player._mageLastDiscountTarget = null;
