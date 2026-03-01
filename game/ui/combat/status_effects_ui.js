@@ -1,30 +1,36 @@
 const STATUS_KR = {
-  resonance: { name: 'Resonance', icon: 'R', buff: true, desc: 'Gain bonus attack damage by chaining cards.' },
-  acceleration: { name: 'Acceleration', icon: 'A', buff: true, desc: 'Increase damage during this turn.' },
-  soul_armor: { name: 'Soul Armor', icon: 'S', buff: true, desc: 'Reduces incoming damage.' },
-  vanish: { name: 'Vanish', icon: 'V', buff: true, desc: 'The next attack deals critical damage.' },
-  immune: { name: 'Immune', icon: 'I', buff: true, desc: 'Prevents all damage for this turn.' },
-  shadow_atk: { name: 'Shadow Attack', icon: 'H', buff: true, desc: 'Increases shadow-type attack damage.' },
-  mirror: { name: 'Mirror', icon: 'M', buff: true, desc: 'Reflects the next incoming damage to an enemy.' },
-  zeroCost: { name: 'Zero Cost', icon: '0', buff: true, desc: 'Cards played this turn cost 0.' },
-  weakened: { name: 'Weakened', icon: 'W', buff: false, desc: 'Outgoing damage is reduced.' },
-  slowed: { name: 'Slowed', icon: 'L', buff: false, desc: 'Action efficiency is reduced.' },
-  burning: { name: 'Burning', icon: 'B', buff: false, desc: 'Take damage at turn start.' },
-  cursed: { name: 'Cursed', icon: 'C', buff: false, desc: 'Card effects and healing are reduced.' },
-  poisoned: { name: 'Poisoned', icon: 'P', buff: false, desc: 'Take stacking damage at turn start.' },
-  stunned: { name: 'Stunned', icon: 'T', buff: false, desc: 'Cannot act this turn.' },
-  confusion: { name: 'Confusion', icon: 'Q', buff: false, desc: 'Card order is randomized while active.' },
-  dodge: { name: 'Dodge', icon: 'D', buff: true, desc: 'Evades the next incoming attack.' },
-  strength: { name: 'Strength', icon: 'G', buff: true, desc: 'Increases dealt damage.' },
-  dexterity: { name: 'Dexterity', icon: 'X', buff: true, desc: 'Increases gained shield.' },
-  vulnerable: { name: 'Vulnerable', icon: 'U', buff: false, desc: 'Increases incoming damage.' },
-  blessing_of_light: { name: 'Blessing of Light', icon: 'L+', buff: true, desc: 'Heals at turn start.' },
-  divine_grace: { name: 'Divine Grace', icon: 'D+', buff: true, desc: 'Converts part of shield into bonus value.' },
-  time_warp: { name: 'Time Warp', icon: 'TW', buff: true, desc: 'Grants additional energy each turn.' },
-  berserk_mode: { name: 'Berserk', icon: 'BZ', buff: true, desc: 'Attack power ramps up over time.' },
-  unbreakable_wall: { name: 'Unbreakable Wall', icon: 'UW', buff: true, desc: 'Deals damage based on shield at turn start.' },
-  unbreakable_wall_plus: { name: 'Unbreakable Wall+', icon: 'UW+', buff: true, desc: 'Stronger shield-based turn-start damage.' },
-  echo_on_hit: { name: 'Echo on Hit', icon: 'EH', buff: true, desc: 'Gain echo when hit.' },
+  resonance: { name: '공명', icon: '⚡', buff: true, desc: '카드 연계 시 공격 보너스가 증가합니다.' },
+  acceleration: { name: '가속', icon: '💨', buff: true, desc: '이번 턴의 피해량이 증가합니다.' },
+  soul_armor: { name: '영혼 갑옷', icon: '🛡', buff: true, desc: '받는 피해를 감소시킵니다.' },
+  vanish: { name: '은신', icon: '🌫', buff: true, desc: '다음 공격이 치명타로 적용됩니다.' },
+  immune: { name: '무적', icon: '🏛', buff: true, desc: '피해를 받지 않습니다.' },
+  shadow_atk: { name: '그림자 강화', icon: '🗡', buff: true, desc: '공격 피해가 증가합니다.' },
+  mirror: { name: '반사막', icon: '🪞', buff: true, desc: '다음 피해를 적에게 반사합니다.' },
+  zeroCost: { name: '무소모', icon: '0', buff: true, desc: '카드 비용이 0이 됩니다.' },
+  weakened: { name: '약화', icon: '🪶', buff: false, desc: '가하는 피해가 감소합니다.' },
+  slowed: { name: '감속', icon: '🐢', buff: false, desc: '행동 효율이 감소합니다.' },
+  burning: { name: '화상', icon: '🔥', buff: false, desc: '턴 시작 시 화염 피해를 받습니다.' },
+  cursed: { name: '저주', icon: '☠', buff: false, desc: '카드 효과와 회복 효율이 감소합니다.' },
+  poisoned: { name: '중독', icon: '🧪', buff: false, desc: '턴 시작 시 독 피해를 받습니다.' },
+  stunned: { name: '기절', icon: '⏸', buff: false, desc: '행동할 수 없습니다.' },
+  confusion: { name: '혼란', icon: '🌀', buff: false, desc: '손패 순서가 뒤섞입니다.' },
+  dodge: { name: '회피', icon: '💨', buff: true, desc: '다음 공격을 회피합니다.' },
+  strength: { name: '힘', icon: '💪', buff: true, desc: '가하는 피해가 증가합니다.' },
+  dexterity: { name: '민첩', icon: '🦶', buff: true, desc: '획득 방어막이 증가합니다.' },
+  vulnerable: { name: '취약', icon: '💢', buff: false, desc: '받는 피해가 증가합니다.' },
+  blessing_of_light: { name: '빛의 축복', icon: '✨', buff: true, desc: '턴 시작 시 체력을 회복합니다.' },
+  blessing_of_light_plus: { name: '빛의 축복+', icon: '✨+', buff: true, desc: '턴 시작 시 체력을 더 크게 회복합니다.' },
+  divine_grace: { name: '신성 은총', icon: '✝', buff: true, desc: '방어막 일부를 보너스로 전환합니다.' },
+  time_warp: { name: '시간 왜곡', icon: '⏳', buff: true, desc: '매 턴 추가 에너지를 획득합니다.' },
+  time_warp_plus: { name: '시간 왜곡+', icon: '⏳+', buff: true, desc: '매 턴 추가 에너지를 더 많이 획득합니다.' },
+  berserk_mode: { name: '광전사의 격노', icon: '🩸', buff: true, desc: '시간이 지날수록 공격력이 상승합니다.' },
+  berserk_mode_plus: { name: '광전사의 격노+', icon: '🩸+', buff: true, desc: '시간이 지날수록 공격력이 크게 상승합니다.' },
+  unbreakable_wall: { name: '불굴의 벽', icon: '🧱', buff: true, desc: '턴 시작 시 방어막 비례 피해를 줍니다.' },
+  unbreakable_wall_plus: { name: '불굴의 벽+', icon: '🧱+', buff: true, desc: '불굴의 벽 효과가 강화됩니다.' },
+  echo_on_hit: { name: '피격 잔향', icon: '🔔', buff: true, desc: '피격 시 잔향을 획득합니다.' },
+  marked: { name: '표식', icon: '🎯', buff: false, desc: '지정 턴에 큰 피해가 터집니다.' },
+  thorns: { name: '가시', icon: '🌵', buff: true, desc: '공격자에게 반격 피해를 줍니다.' },
+  doom: { name: '파멸', icon: '☠️', buff: false, desc: '카운트가 끝나면 폭발 피해가 발생합니다.' },
 };
 
 function _getDoc(deps) {
@@ -75,7 +81,7 @@ export const StatusEffectsUI = {
     if (!keys.length) {
       const none = doc.createElement('span');
       none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
-      none.textContent = 'None';
+      none.textContent = '없음';
       el.appendChild(none);
     } else {
       const fragment = doc.createDocumentFragment();
@@ -104,7 +110,7 @@ export const StatusEffectsUI = {
 
         const tooltipUI = _getTooltipUI(deps);
         const tooltipTitle = dmgBonus ? `${label} ${dmgBonus}` : label;
-        const tooltipDesc = info?.desc || 'No description';
+        const tooltipDesc = info?.desc || '설명이 없습니다.';
         badge.addEventListener('mouseenter', (event) => {
           if (typeof tooltipUI?.showGeneralTooltip === 'function') {
             tooltipUI.showGeneralTooltip(event, tooltipTitle, tooltipDesc, { doc, win: globalThis });

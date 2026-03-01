@@ -1,8 +1,4 @@
-import { GS } from '../../core/game_state.js';
-import { DATA } from '../../../data/game_data.js';
-
-
-let _dragCardId = null;
+﻿let _dragCardId = null;
 let _dragIdx = null;
 
 function _getDoc(deps) {

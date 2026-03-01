@@ -2535,6 +2535,76 @@ body:has(#combatOverlay.active) .panel-right {
   pointer-events: auto;
 }
 
+#cardActionPopupContainer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 250;
+}
+
+.card-action-popup {
+  position: absolute;
+  background: rgba(7, 7, 26, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 13px;
+  color: var(--white);
+  backdrop-filter: blur(12px);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: cardPopupIn 0.2s ease forwards;
+  z-index: 250;
+}
+
+.card-action-popup.fade-out {
+  animation: cardPopupOut 0.4s ease forwards;
+}
+
+@keyframes cardPopupIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardPopupOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.card-action-popup .popup-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.6;
+}
+
+.card-action-popup .popup-line.action {
+  color: #ff9944;
+}
+
+.card-action-popup .popup-line.support {
+  color: #88aaff;
+}
+
+.card-action-popup .popup-line.status {
+  color: #bb88ff;
+}
+
 .enemy-zone {
   display: flex;
   gap: 24px;
@@ -2656,6 +2726,35 @@ body:has(#combatOverlay.active) .panel-right {
   color: var(--text);
   font-style: italic;
   opacity: 0.8;
+}
+
+.log-entry.action {
+  color: #ff9944;
+  border-left: 3px solid #ff9944;
+  background: linear-gradient(90deg, rgba(255, 153, 68, 0.12), transparent);
+}
+
+.log-entry.support {
+  color: #88aaff;
+  border-left: 3px solid #88aaff;
+  background: linear-gradient(90deg, rgba(136, 170, 255, 0.1), transparent);
+}
+
+.log-entry.status {
+  color: #bb88ff;
+  border-left: 3px solid #bb88ff;
+  background: linear-gradient(90deg, rgba(187, 136, 255, 0.1), transparent);
+}
+
+.log-entry.turn-divider {
+  color: var(--text-dim);
+  font-size: 10px;
+  text-align: center;
+  letter-spacing: 0.2em;
+  opacity: 0.6;
+  padding: 6px 0 2px;
+  border-left: none;
+  background: none;
 }
 
 /* 하단 투명 오버레이 손패 패널 */
@@ -5174,7 +5273,7 @@ body:has(#combatOverlay.active) .panel-right {
   flex-wrap: wrap;
 }
 
-.codex-tab-btn-enemies {
+.codex-tab-btn {
   font-family: 'Cinzel', serif;
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -5182,19 +5281,15 @@ body:has(#combatOverlay.active) .panel-right {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.codex-tab-btn-enemies {
   border: 1px solid var(--danger);
   background: rgba(255, 51, 102, 0.15);
   color: var(--danger);
 }
 
 .codex-tab-btn-base {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text-dim);
@@ -5213,6 +5308,106 @@ body:has(#combatOverlay.active) .panel-right {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
   color: var(--text-dim);
+}
+
+#codexContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.codex-section {
+  border: 1px solid rgba(123, 47, 255, 0.16);
+  border-radius: 12px;
+  padding: 14px;
+  background: rgba(8, 10, 24, 0.52);
+}
+
+.codex-section-title {
+  margin: 0 0 10px 0;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--echo-bright);
+}
+
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.codex-entry {
+  --codex-accent: rgba(130, 150, 220, 0.4);
+  border: 1px solid var(--codex-accent);
+  border-radius: 12px;
+  background: rgba(14, 18, 38, 0.82);
+  padding: 10px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.codex-entry:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 255, 204, 0.55);
+  box-shadow: 0 6px 18px rgba(0, 255, 204, 0.12);
+}
+
+.codex-entry.is-unknown {
+  filter: grayscale(0.62);
+  opacity: 0.82;
+}
+
+.codex-entry.is-unknown .codex-entry-icon {
+  opacity: 0.4;
+}
+
+.codex-entry-icon {
+  font-size: 32px;
+  text-align: center;
+}
+
+.codex-entry-title {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--white);
+}
+
+.codex-entry-subtitle {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.codex-entry-desc {
+  font-size: 10px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.codex-entry.rarity-legendary {
+  box-shadow: inset 0 0 0 1px rgba(192, 132, 252, 0.35);
+}
+
+.codex-entry.rarity-rare {
+  box-shadow: inset 0 0 0 1px rgba(240, 180, 41, 0.3);
+}
+
+.codex-entry.rarity-uncommon {
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.25);
+}
+
+.codex-empty {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 11px;
 }
 
 .codex-footer {
@@ -5680,10 +5875,50 @@ body:has(#combatOverlay.active) .panel-right {
   letter-spacing: 2px;
 }
 
+.battle-chronicle-panel .title-sub {
+  animation: none;
+  opacity: 1;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
 .battle-chronicle-subtitle {
   color: var(--text-dim);
   font-size: 14px;
   margin-bottom: 20px;
+}
+
+.chronicle-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.chronicle-filter-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chronicle-filter-btn:hover {
+  border-color: var(--echo);
+  color: var(--white);
+}
+
+.chronicle-filter-btn.active {
+  background: rgba(123, 47, 255, 0.2);
+  border-color: var(--echo);
+  color: var(--echo);
 }
 
 .battle-chronicle-list {
@@ -5725,6 +5960,37 @@ body:has(#combatOverlay.active) .panel-right {
   padding: 5px 15px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 4px;
+}
+
+.chronicle-turn-group {
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.chronicle-turn-header {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  background: rgba(240, 180, 41, 0.08);
+  padding: 6px 14px;
+  border-bottom: 1px solid rgba(240, 180, 41, 0.15);
+}
+
+.chronicle-turn-stats {
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 4px 14px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.chronicle-turn-group .log-entry {
+  padding: 3px 14px;
+  white-space: normal;
+  border-radius: 0;
 }
 
 /* 카드 사용 로그 (공격/스킬) */

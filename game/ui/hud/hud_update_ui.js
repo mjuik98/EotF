@@ -218,7 +218,7 @@ export const HudUpdateUI = {
 
     if (p.class) {
       const classMeta = data?.classes?.[p.class];
-      const avatarEmoji = classMeta?.emoji || '?뷂툘';
+      const avatarEmoji = classMeta?.emoji || '⚔️';
 
       // (HUD)
       if (avatarEl) {
@@ -577,7 +577,7 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ 잔향 스킬 (${echoValue}/30)`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echoValue}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';
@@ -769,7 +769,7 @@ export const HudUpdateUI = {
         if (tier === 0) {
           echoBtn.disabled = true;
           echoBtn.style.opacity = '0.45';
-          echoBtn.textContent = `⚡ 잔향 스킬 (${echo}/30)`;
+          echoBtn.textContent = `⚡ 잔향 스킬 ✦(${echo}/30)`;
         } else {
           echoBtn.disabled = false;
           echoBtn.style.opacity = '1';

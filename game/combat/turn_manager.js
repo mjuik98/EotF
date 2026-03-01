@@ -238,8 +238,13 @@ export const TurnManager = {
             if (buff.stacks <= 0) delete gs.player.buffs[buffId];
         });
 
-        // 침묵 게이지
-        if (gs.player.class === 'hunter' && gs.player.silenceGauge > 0) {
+        // 침묵의 도시에서는 모든 클래스가 턴 종료 시 소음을 1 낮춘다.
+        // 헌터는 기존 규칙대로 지역과 무관하게 1 낮춘다.
+        const baseRegionIdx = typeof globalThis.getBaseRegionIndex === 'function'
+            ? globalThis.getBaseRegionIndex(gs.currentRegion)
+            : (Number(gs.currentRegion) || 0) % 5;
+        const shouldReduceSilence = baseRegionIdx === 1 || gs.player.class === 'hunter';
+        if (shouldReduceSilence && gs.player.silenceGauge > 0) {
             gs.player.silenceGauge = Math.max(0, gs.player.silenceGauge - 1);
         }
 
@@ -546,7 +551,8 @@ export const TurnManager = {
                     if (targetCardId) {
                         gs.player.exhausted.push(targetCardId);
                         if (pickedPool.key === 'hand') gs.markDirty?.('hand');
-                        gs.addLog?.(LogUtils.formatSystem(`Stage effect: ${targetCardId} exhausted`), 'damage');
+                        const cardName = globalThis.DATA?.cards?.[targetCardId]?.name || targetCardId;
+                        gs.addLog?.(LogUtils.formatSystem(`지역 효과: ${cardName} 카드가 소멸되었습니다.`), 'damage');
                     }
                 }
             }
@@ -592,7 +598,7 @@ export const TurnManager = {
             }
         });
 
-        gs.addLog?.('─── 새 턴 ───', 'system');
+        gs.addLog?.(`── 턴 ${gs.combat.turn} ──`, 'turn-divider');
         gs.triggerItems?.('turn_start');
 
         return { isStunned };

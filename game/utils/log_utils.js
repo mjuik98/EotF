@@ -1,6 +1,51 @@
 /**
  * 전투 로그 메시지 표준화 유틸리티
  */
+const STATUS_NAME_MAP = {
+    resonance: '공명',
+    acceleration: '가속',
+    soul_armor: '영혼 갑옷',
+    vanish: '은신',
+    immune: '무적',
+    shadow_atk: '그림자 강화',
+    mirror: '반사막',
+    zeroCost: '무소모',
+    weakened: '약화',
+    slowed: '감속',
+    burning: '화상',
+    cursed: '저주',
+    poisoned: '중독',
+    stunned: '기절',
+    confusion: '혼란',
+    dodge: '회피',
+    strength: '힘',
+    dexterity: '민첩',
+    vulnerable: '취약',
+    blessing_of_light: '빛의 축복',
+    blessing_of_light_plus: '빛의 축복+',
+    divine_grace: '신성 은총',
+    time_warp: '시간 왜곡',
+    time_warp_plus: '시간 왜곡+',
+    berserk_mode: '광전사의 격노',
+    berserk_mode_plus: '광전사의 격노+',
+    unbreakable_wall: '불굴의 벽',
+    unbreakable_wall_plus: '불굴의 벽+',
+    echo_on_hit: '피격 잔향',
+    marked: '표식',
+    thorns: '가시',
+    doom: '파멸',
+    silence: '침묵',
+};
+
+function _toStatusName(statusName) {
+    const raw = String(statusName || '');
+    if (!raw) return raw;
+    const key = raw.trim();
+    return STATUS_NAME_MAP[key]
+        || STATUS_NAME_MAP[key.replace(/_plus$/i, '')]
+        || key;
+}
+
 export const LogUtils = {
     // 기본 공격
     formatAttack(attacker, target, damage) {
@@ -27,7 +72,7 @@ export const LogUtils = {
         return `🃏 [${cardName}]: ${buffDesc}`;
     },
     formatCardStatus(cardName, target, statusName, duration) {
-        return `🃏 [${cardName}] → ${target}: ${statusName} ${duration}턴`;
+        return `🃏 [${cardName}] → ${target}: ${_toStatusName(statusName)} ${duration}턴`;
     },
 
     // ★ 아이템 효과
@@ -43,7 +88,7 @@ export const LogUtils = {
         return `🛡️ ${target}: 방어막 +${amount}`;
     },
     formatStatus(target, statusName, duration) {
-        return `💫 ${target}: ${statusName} (${duration}턴)`;
+        return `💫 ${target}: ${_toStatusName(statusName)} (${duration}턴)`;
     },
     formatStatChange(target, statName, amount, isBuff = true) {
         const icon = isBuff ? '🔺' : '🔻';

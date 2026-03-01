@@ -54,9 +54,19 @@ export const RegionTransitionUI = {
       quote.textContent = region.quote;
       overlay.appendChild(quote);
     }
+
+    const closeBtn = doc.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.textContent = '닫기';
+    closeBtn.style.cssText = "margin-top:14px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.25em;color:var(--echo);background:rgba(123,47,255,0.12);border:1px solid var(--border);border-radius:8px;padding:10px 22px;cursor:pointer;animation:fadeInUp 0.7s ease 1.7s both;opacity:0;";
+    overlay.appendChild(closeBtn);
+
     doc.body.appendChild(overlay);
 
-    setTimeout(() => {
+    let closed = false;
+    const closeOverlay = () => {
+      if (closed) return;
+      closed = true;
       overlay.style.transition = 'opacity 0.8s';
       overlay.style.opacity = '0';
       setTimeout(() => {
@@ -65,7 +75,8 @@ export const RegionTransitionUI = {
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.showRunFragment === 'function') deps.showRunFragment();
       }, 800);
-    }, 2800);
+    };
+    closeBtn.addEventListener('click', closeOverlay);
 
     deps.particleSystem?.burstEffect?.(globalThis.innerWidth / 2, globalThis.innerHeight / 2);
     deps.screenShake?.shake?.(8, 0.5);
