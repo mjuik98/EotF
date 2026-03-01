@@ -1,5 +1,5 @@
 export const TURN_START_DEBUFFS = new Set(['poisoned', 'burning', 'slowed', 'confusion']);
-export const ENEMY_TURN_BUFFS = new Set(['mirror', 'immune']);
+export const ENEMY_TURN_BUFFS = new Set(['mirror', 'immune', 'dodge']);
 
 export const TurnManagerHelpers = {
     processEnemyStun(enemy) {
@@ -31,4 +31,3 @@ export const TurnManagerHelpers = {
         }
     },
 };
-

@@ -45,9 +45,9 @@ export const ITEMS = {
         passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3); } }
     },
     rift_talisman: {
-        id: 'rift_talisman', name: '균열의 부적', icon: '📿', rarity: 'common',
+        id: 'rift_talisman', name: '균열의 부적', icon: '💍', rarity: 'common',
         desc: '전투 시작: 방어막 5 획득.',
-        image: 'relic_cracked_amulet.png',
+        image: 'relic_rift_talisman.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatShield('균열의 부적', 5), 'system'); } }
     },
     blood_shard: {
@@ -67,6 +67,7 @@ export const ITEMS = {
         id: 'phantom_cloak', name: '환영 망토', icon: '🧥', rarity: 'uncommon',
         desc: '전투 시작: 회피 1 획득.',
         image: 'relic_phantom_cloak.png',
+        trigger: Trigger.COMBAT_START,
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addBuff('dodge', 1); gs.addLog(LogUtils.formatSystem('환영 망토: 회피 획득!'), 'echo'); } }
     },
     cursed_tome: {

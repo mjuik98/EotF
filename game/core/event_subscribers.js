@@ -30,9 +30,19 @@ export function registerSubscribers(uiRefs) {
     EventBus.on(Actions.PLAYER_DAMAGE, ({ payload, result, gs }) => {
         _ui.HudUpdateUI?.updatePlayerStats?.(gs);
 
-        if (result && result.actualDamage > 0) {
+        const actualDamage = Number(result?.actualDamage || 0);
+        const shieldAbsorbed = Number(result?.shieldAbsorbed || 0);
+
+        // HP가 실제로 감소한 경우: 강한 피격 피드백
+        if (actualDamage > 0) {
             _ui.ScreenShake?.shake?.(8, 0.4);
             _ui.AudioEngine?.playPlayerHit?.();
+            _ui.FeedbackUI?.showPlayerHitVignette?.();
+        } else if (shieldAbsorbed > 0) {
+            // 방어막만 소모된 경우: 방어 성공 피드백
+            _ui.ScreenShake?.shake?.(3, 0.15);
+            _ui.AudioEngine?.playSkill?.();
+            _ui.FeedbackUI?.showShieldBlockEffect?.();
         }
 
         // 체력 낮을 때 경고 이펙트

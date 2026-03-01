@@ -73,6 +73,39 @@ export const FeedbackUI = {
     setTimeout(() => el.remove(), 500);
   },
 
+  showPlayerHitVignette(deps = {}) {
+    const doc = _getDoc(deps);
+    const overlay = _getHudOverlay(doc);
+    if (!overlay) return;
+    const el = doc.createElement('div');
+    el.className = 'player-hit-vignette';
+    overlay.appendChild(el);
+    setTimeout(() => el.remove(), 620);
+  },
+
+  showShieldBlockEffect(deps = {}) {
+    const doc = _getDoc(deps);
+    const overlay = _getHudOverlay(doc);
+    if (!overlay) return;
+    const el = doc.createElement('div');
+    el.style.cssText = [
+      'position:fixed;inset:0;pointer-events:none;',
+      'border:3px solid rgba(90,180,255,0.95);',
+      'box-shadow:inset 0 0 22px rgba(90,180,255,0.45);',
+      'opacity:0;',
+    ].join('');
+    overlay.appendChild(el);
+    el.animate(
+      [
+        { opacity: 0 },
+        { opacity: 0.85, offset: 0.45 },
+        { opacity: 0 },
+      ],
+      { duration: 460, easing: 'ease', fill: 'forwards' },
+    );
+    setTimeout(() => el.remove(), 460);
+  },
+
   showEchoBurstOverlay(deps = {}) {
     const doc = _getDoc(deps);
     const overlay = _getHudOverlay(doc);
