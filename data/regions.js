@@ -5,7 +5,7 @@
 export const REGIONS = [
     {
         id: 0, name: '잔향의 숲', rule: '기본 규칙', ruleDesc: '과거의 기억들이 나무 사이로 조용히 흐르는 숲입니다. 특별한 제약 없이 당신의 의지가 이끄는 대로 여정을 시작하십시오.', quote: '"기억은 언제나 숲으로 돌아온다."', floors: 4,
-        enemies: ['shadow_wolf', 'forest_wraith', 'moss_golem', 'echo_bat', 'verdant_slayer', 'thistle_back'],
+        enemies: ['slime', 'goblin', 'orc', 'fallen_knight', 'shadow_wolf', 'forest_wraith', 'moss_golem', 'echo_bat', 'verdant_slayer', 'thistle_back'],
         elites: ['elite_dire_wolf', 'elite_ancient_tree', 'elite_moss_monarch'],
         boss: ['ancient_echo', 'forest_guardian']
     },
@@ -17,7 +17,7 @@ export const REGIONS = [
     },
     {
         id: 2, name: '기억의 미궁', rule: '망각의 안개', ruleDesc: "망각의 안개가 모든 것을 앗아갑니다. <br><br><span style='color:var(--danger)'>[지역 규칙] 매 턴 시작 시 패에 있는 무작위 카드 1장이 안개 속으로 영구히 소멸(소각)됩니다.</span>", quote: '"잊혀진 것들이 이곳에 모인다."', floors: 5,
-        enemies: ['memory_specter', 'nightmare_hound', 'phantom_soldier', 'memory_thief', 'mirror_shade', 'labyrinth_shade'],
+        enemies: ['memory_specter', 'nightmare_hound', 'phantom_soldier', 'memory_thief', 'mirror_shade', 'labyrinth_shade', 'nightmare_specter'],
         elites: ['elite_memory_lich', 'elite_maze_master', 'elite_soul_reaper'],
         boss: ['memory_sovereign', 'memory_weaver']
     },
@@ -38,8 +38,8 @@ export const REGIONS = [
 export const START_DECKS = {
     swordsman: ['strike', 'strike', 'defend', 'charge', 'echo_strike', 'heavy_blow', 'blade_dance'],
     mage: ['strike', 'strike', 'defend', 'prediction', 'foresight', 'void_mirror', 'time_warp'],
-    hunter: ['strike', 'strike', 'defend', 'momentum', 'tempo_strike', 'quick_step', 'phantom_step'],
+    hunter: ['strike', 'strike', 'defend', 'acceleration', 'tempo_strike', 'quick_step', 'phantom_step'],
     paladin: ['strike', 'defend', 'holy_strike', 'holy_strike', 'divine_grace', 'divine_grace', 'blessing_of_light'],
     berserker: ['strike', 'strike', 'defend', 'blood_fury', 'blood_fury', 'reckless_swing', 'reckless_swing'],
-    shielder: ['strike', 'defend', 'defend', 'iron_defense', 'iron_defense', 'shield_slam', 'unbreakable_wall'],
+    guardian: ['strike', 'defend', 'defend', 'iron_defense', 'iron_defense', 'shield_slam', 'unbreakable_wall'],
 };

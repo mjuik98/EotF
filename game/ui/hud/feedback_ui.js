@@ -40,7 +40,7 @@ export const FeedbackUI = {
     stats.append(
       createRow('가한 피해', dealt, 'var(--danger)'),
       createRow('받은 피해', taken, '#ff8888', "'Share Tech Mono'"),
-      createRow('경험치(처치)', kills, 'var(--cyan)')
+      createRow('처치', kills, 'var(--cyan)')
     );
 
     el.append(head, stats);

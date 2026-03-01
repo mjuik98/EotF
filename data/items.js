@@ -46,7 +46,7 @@ export const ITEMS = {
     },
     rift_talisman: {
         id: 'rift_talisman', name: '균열의 부적', icon: '📿', rarity: 'common',
-        desc: '전투 시작: 방어도 5 획득.',
+        desc: '전투 시작: 방어막 5 획득.',
         image: 'relic_cracked_amulet.png',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatShield('균열의 부적', 5), 'system'); } }
     },
@@ -67,7 +67,7 @@ export const ITEMS = {
         id: 'phantom_cloak', name: '환영 망토', icon: '🧥', rarity: 'uncommon',
         desc: '전투 시작: 회피 1 획득.',
         image: 'relic_phantom_cloak.png',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.addShield(4); gs.addLog(LogUtils.formatShield('환영 망토', 4), 'system'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addBuff('dodge', 1); gs.addLog(LogUtils.formatSystem('환영 망토: 회피 획득!'), 'echo'); } }
     },
     cursed_tome: {
         id: 'cursed_tome', name: '저주받은 마도서', icon: '📕', rarity: 'uncommon',
@@ -101,9 +101,9 @@ export const ITEMS = {
     },
     shadow_mask: {
         id: 'shadow_mask', name: '그림자 가면', icon: '🎭', rarity: 'uncommon',
-        desc: '카드를 3장 연속으로 사용할 때마다 방어도를 8 얻습니다.',
+        desc: '카드를 3장 연속으로 사용할 때마다 방어막를 8 얻습니다.',
         image: 'relic_shadow_mask.png',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs._maskCount = (gs._maskCount || 0) + 1; if (gs._maskCount >= 3) { gs.addShield(8); gs._maskCount = 0; gs.addLog('🎭 그림자 가면: 방어도 +8', 'echo'); } } }
+        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs._maskCount = (gs._maskCount || 0) + 1; if (gs._maskCount >= 3) { gs.addShield(8); gs._maskCount = 0; gs.addLog('🎭 그림자 가면: 방어막 +8', 'echo'); } } }
     },
     // ══════════════ RARE (금색) ══════════════
     resonance_stone: {
@@ -290,9 +290,9 @@ export const ITEMS = {
     // [세트 C] 혈맹의 인장
     blood_seal: {
         id: 'blood_seal', name: '혈인', icon: '🩸', rarity: 'common',
-        desc: '피해를 받을 때마다 방어도를 3 얻습니다. [세트:혈맹]',
+        desc: '피해를 받을 때마다 방어막를 3 얻습니다. [세트:혈맹]',
         image: 'relic_blood_seal.png',
-        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addShield(3); gs.addLog('🩸 혈인: 방어도 +3', 'system'); } }
+        passive(gs, trigger, data) { if (trigger === Trigger.DAMAGE_TAKEN && data > 0) { gs.addShield(3); gs.addLog('🩸 혈인: 방어막 +3', 'system'); } }
     },
     blood_oath: {
         id: 'blood_oath', name: '혈맹의 서', icon: '📜', rarity: 'uncommon',

@@ -8,7 +8,7 @@ const INTENT_DESCRIPTIONS = {
   heavy: { type: '강공격', desc: '단일 대상에게 큰 피해를 줍니다.' },
   double: { type: '연속 공격', desc: '여러 번 피해를 줍니다.' },
   aoe: { type: '광역 공격', desc: '모든 대상에게 피해를 줍니다.' },
-  guard: { type: '방어', desc: '방어도를 얻습니다.' },
+  guard: { type: '방어', desc: '방어막을 얻습니다.' },
   barrier: { type: '방벽', desc: '강력한 방벽을 생성합니다.' },
   shield: { type: '보호막', desc: '방어막으로 피해를 줄입니다.' },
   curse: { type: '저주', desc: '플레이어에게 해로운 효과를 부여합니다.' },
@@ -149,8 +149,8 @@ function _renderSelectedPreviewHtml(preview, card, doc) {
   const previewDiv = doc.createElement('div');
   previewDiv.className = cls;
   previewDiv.textContent = preview.enemyShield > 0
-    ? `???덉긽 ?쇳빐 ${preview.netDmg} (諛⑹뼱留?${preview.enemyShield})`
-    : `???덉긽 珥??쇳빐 ${preview.netDmg}`;
+    ? `예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})`
+    : `예상 총 피해 ${preview.netDmg}`;
   card.appendChild(previewDiv);
 }
 
@@ -407,7 +407,7 @@ export const CombatUI = {
         const hpText = doc.createElement('div');
         hpText.id = `enemy_hptext_${i}`;
         hpText.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);";
-        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어도 ${e.shield})` : ''}`;
+        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어막 ${e.shield})` : ''}`;
         card.appendChild(hpText);
 
         const intentEl = doc.createElement('div');
@@ -471,7 +471,7 @@ export const CombatUI = {
           fill.style.width = `${hpPct}%`;
           if (!e.isBoss) fill.style.background = _enemyHpColor(hpPct);
         }
-        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어도 ${e.shield})` : ''}`;
+        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어막 ${e.shield})` : ''}`;
 
         if (intentEl) {
           let intent;
@@ -573,7 +573,7 @@ export const CombatUI = {
       fill.style.width = `${hpPct}%`;
       if (!enemy.isBoss) fill.style.background = _enemyHpColor(hpPct);
     }
-    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (방어도 ${enemy.shield})` : ''}`;
+    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (방어막 ${enemy.shield})` : ''}`;
     if (card && enemy.hp <= 0) {
       card.style.opacity = '0.3';
       card.style.filter = 'grayscale(1)';

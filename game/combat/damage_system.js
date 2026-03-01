@@ -44,8 +44,8 @@ export const DamageSystem = {
         if (!enemy || enemy.hp <= 0) return 0;
 
         let dmg = amount;
-        const mom = this.getBuff('momentum');
-        if (mom) dmg += mom.dmgBonus || 0;
+        const res = this.getBuff('resonance');
+        if (res) dmg += res.dmgBonus || 0;
         const accel = this.getBuff('acceleration');
         if (accel) dmg += accel.dmgBonus || 0;
         const sha = this.getBuff('shadow_atk');
@@ -124,13 +124,19 @@ export const DamageSystem = {
         }
 
         const totalDmg = result?.totalDamage ?? dmg;
+
+        // 클래스 특성 데미지 훅 (예: 침묵사냥꾼 타격 수 트래킹, 광전사 추가 성장 등)
+        const classMechanics = deps.classMechanics || win.ClassMechanics || win.GAME?.Modules?.['ClassMechanics'];
+        const classMech = classMechanics?.[this.player.class];
+        if (classMech && typeof classMech.onDealDamage === 'function') {
+            classMech.onDealDamage(this, totalDmg, targetIdx);
+        }
+
         if (typeof this.addLog === 'function') {
             this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
         }
         this.markDirty('enemies');
 
-        // 다중 공격 등에서 DOM 즉각 갱신 보장
-        // window 폴백 참조 제거, 순수 DI 의존성으로만 접근
         if (typeof deps?.updateStatusDisplay === 'function') {
             deps.updateStatusDisplay();
         }

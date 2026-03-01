@@ -5,7 +5,7 @@
 export const ENEMIES = {
     // ── 잔향의 숲 추가 몬스터 ──
     slime: {
-        id: 'slime', name: '점액질', icon: '💧', image: 'enemy_slime.png', hp: 20, maxHp: 20, atk: 5, region: 0, xp: 10, gold: 5,
+        id: 'slime', name: '슬라임', icon: '💧', image: 'enemy_slime.png', hp: 20, maxHp: 20, atk: 5, region: 0, xp: 10, gold: 5,
         ai(turn) { return { type: 'strike', intent: `공격 ${this.atk}`, dmg: this.atk }; }
     },
     goblin: {
@@ -18,7 +18,7 @@ export const ENEMIES = {
     orc: {
         id: 'orc', name: '오크', icon: '👹', image: 'enemy_orc.png', hp: 45, maxHp: 45, atk: 8, region: 0, xp: 20, gold: 12,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'block', intent: '방어 (방어도 5)', dmg: 0, effect: 'self_shield' };
+            if (turn % 4 === 0) return { type: 'block', intent: '방어 (방어막 5)', dmg: 0, effect: 'self_shield' };
             return { type: 'strike', intent: `도끼 ${this.atk}`, dmg: this.atk };
         }
     },
@@ -45,9 +45,9 @@ export const ENEMIES = {
         }
     },
     fallen_knight: {
-        id: 'fallen_knight', name: '타락한 기사', icon: '⚔️', image: 'enemy_fallen_knight.png', hp: 55, maxHp: 55, atk: 12, region: null, xp: 35, gold: 15,
+        id: 'fallen_knight', name: '타락한 기사', icon: '⚔️', image: 'enemy_fallen_knight.png', hp: 55, maxHp: 55, atk: 12, region: 0, xp: 35, gold: 15,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'guard', intent: '방패 방어 (방어도 8)', dmg: 0, effect: 'self_shield' };
+            if (turn % 3 === 0) return { type: 'guard', intent: '방패 방어 (방어막 8)', dmg: 0, effect: 'self_shield' };
             if (turn % 5 === 0) return { type: 'charge', intent: `돌진 ${this.atk + 8}`, dmg: this.atk + 8 };
             return { type: 'slash', intent: `베기 ${this.atk}`, dmg: this.atk };
         }
@@ -55,7 +55,7 @@ export const ENEMIES = {
     moss_golem: {
         id: 'moss_golem', name: '이끼 골렘', icon: '🪨', image: 'enemy_moss_golem.png', hp: 50, maxHp: 50, atk: 9, region: 0, xp: 28, gold: 12,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'harden', intent: '굳기 (방어도 12)', dmg: 0, effect: 'self_shield' };
+            if (turn % 4 === 0) return { type: 'harden', intent: '굳기 (방어막 12)', dmg: 0, effect: 'self_shield' };
             if (turn % 3 === 0) return { type: 'slam', intent: `대지 강타 ${this.atk + 5}`, dmg: this.atk + 5 };
             return { type: 'strike', intent: `주먹질 ${this.atk}`, dmg: this.atk };
         }
@@ -154,7 +154,7 @@ export const ENEMIES = {
     brass_guardian: {
         id: 'brass_guardian', name: '황동 수호병', icon: '🛡️', image: 'enemy_brass_guardian.png', hp: 70, maxHp: 70, atk: 10, region: 1, xp: 40, gold: 18,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'guard', intent: '황동 방어 (방어도 15)', dmg: 0, effect: 'shield' };
+            if (turn % 3 === 0) return { type: 'guard', intent: '황동 방어 (방어막 15)', dmg: 0, effect: 'shield' };
             return { type: 'strike', intent: `방패 가격 ${this.atk + 5}`, dmg: this.atk + 5 };
         }
     },
@@ -230,7 +230,7 @@ export const ENEMIES = {
     phantom_soldier: {
         id: 'phantom_soldier', name: '환영 병사', icon: '👤', image: 'enemy_phantom_soldier.png', hp: 40, maxHp: 40, atk: 12, region: 2, xp: 32, gold: 13,
         ai(turn) {
-            if (turn % 4 === 0) return { type: 'clone', intent: '분열 (방어도 10)', dmg: 0, effect: 'self_shield' };
+            if (turn % 4 === 0) return { type: 'clone', intent: '분열 (방어막 10)', dmg: 0, effect: 'self_shield' };
             if (turn % 2 === 0) return { type: 'phase', intent: '위상 이동', dmg: 0, effect: 'dodge' };
             return { type: 'slash', intent: `환영 검 ${this.atk}`, dmg: this.atk };
         }
@@ -257,9 +257,9 @@ export const ENEMIES = {
         }
     },
     nightmare_specter: {
-        id: 'nightmare_specter', name: '악몽의 망령', icon: '👻', image: 'enemy_nightmare_specter.png', hp: 52, maxHp: 52, atk: 14, region: null, xp: 40, gold: 16,
+        id: 'nightmare_specter', name: '악몽의 망령', icon: '👻', image: 'enemy_nightmare_specter.png', hp: 52, maxHp: 52, atk: 14, region: 2, xp: 40, gold: 16,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'panic', intent: '공포 (방어도 획득 불가)', dmg: 10, effect: 'no_shield' };
+            if (turn % 3 === 0) return { type: 'panic', intent: '공포 (방어막 획득 불가)', dmg: 10, effect: 'no_shield' };
             return { type: 'strike', intent: `악몽의 손길 ${this.atk + 4}`, dmg: this.atk + 4 };
         }
     },
@@ -318,7 +318,7 @@ export const ENEMIES = {
         ai(turn) {
             if (turn % 5 === 0) return { type: 'energy_smite', intent: `신성 심판 ${this.atk * 2} (에너지 -1)`, dmg: this.atk * 2, effect: 'drain_energy' };
             if (turn % 4 === 0) return { type: 'smite', intent: `신성 심판 ${this.atk * 2}`, dmg: this.atk * 2 };
-            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어도 15', dmg: 0, effect: 'self_shield_15' };
+            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어막 15', dmg: 0, effect: 'self_shield_15' };
             return { type: 'strike', intent: `천벌 ${this.atk}`, dmg: this.atk };
         }
     },
@@ -326,7 +326,7 @@ export const ENEMIES = {
         id: 'cursed_paladin', name: '저주받은 기사단', icon: '⚔️', image: 'enemy_cursed_paladin.png', hp: 65, maxHp: 65, atk: 13, region: 3, xp: 48, gold: 22,
         ai(turn) {
             if (turn % 4 === 0) return { type: 'holy_smite', intent: `성스러운 심판 ${this.atk * 2}`, dmg: this.atk * 2 };
-            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어도 12', dmg: 0, effect: 'self_shield' };
+            if (turn % 3 === 0) return { type: 'barrier', intent: '신성 방어막 12', dmg: 0, effect: 'self_shield' };
             return { type: 'slash', intent: `성검 ${this.atk}`, dmg: this.atk };
         }
     },
@@ -334,13 +334,13 @@ export const ENEMIES = {
         id: 'tomb_guardian', name: '무덤 파수병', icon: '🛡️', image: 'enemy_tomb_guardian.png', hp: 85, maxHp: 85, atk: 11, region: 3, xp: 45, gold: 20,
         ai(turn) {
             if (turn % 3 === 0) return { type: 'shield_bash', intent: `방패 강타 ${this.atk + 8} (기절)`, dmg: this.atk + 8, effect: 'stun' };
-            return { type: 'guard', intent: '철벽 방어 (방어도 15)', dmg: 0, effect: 'self_shield' };
+            return { type: 'guard', intent: '철벽 방어 (방어막 15)', dmg: 0, effect: 'self_shield' };
         }
     },
     holy_guardian: {
         id: 'holy_guardian', name: '성소 수호병', icon: '🏯', image: 'enemy_holy_guardian.png', hp: 80, maxHp: 80, atk: 12, region: 3, xp: 46, gold: 21,
         ai(turn) {
-            if (turn % 3 === 0) return { type: 'holy_shield', intent: '성스러운 방패 (방어도 16)', dmg: 0, effect: 'self_shield' };
+            if (turn % 3 === 0) return { type: 'holy_shield', intent: '성스러운 방패 (방어막 16)', dmg: 0, effect: 'self_shield' };
             return { type: 'strike', intent: `심판의 망치 ${this.atk + 4}`, dmg: this.atk + 4 };
         }
     },
@@ -393,7 +393,7 @@ export const ENEMIES = {
             }
             if (this.phase === 2) {
                 if (turn % 3 === 0) return { type: 'smite_all', intent: `천벌 ${this.atk + 8} (약화)`, dmg: this.atk + 8, effect: 'weaken' };
-                return { type: 'barrier', intent: '신성 방어도 20', dmg: 0, effect: 'self_shield_20' };
+                return { type: 'barrier', intent: '신성 방어막 20', dmg: 0, effect: 'self_shield_20' };
             }
             if (turn % 4 === 0) return { type: 'curse', intent: `저주 (디버프) ${this.atk + 4}`, dmg: this.atk + 4, effect: 'curse' };
             return { type: 'smite', intent: `천벌 ${this.atk}`, dmg: this.atk };

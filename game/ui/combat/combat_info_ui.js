@@ -64,7 +64,8 @@ export const CombatInfoUI = {
       statusEl.appendChild(none);
     } else {
       const descMap = {
-        momentum: '공격 시 피해 증가',
+        resonance: '공격마다 위력 상승',
+        acceleration: '이번 턴 피해 증가',
         soul_armor: '피해 감소',
         vanish: '다음 공격 크리티컬',
         immune: '이번 턴 피해 무효',
@@ -82,7 +83,7 @@ export const CombatInfoUI = {
       keys.forEach(k => {
         const b = buffs[k];
         const info = statusKr[k];
-        const isBuff = info ? info.buff : ['momentum', 'soul_armor', 'vanish', 'immune', 'shadow_atk'].includes(k);
+        const isBuff = info ? info.buff : ['resonance', 'acceleration', 'soul_armor', 'vanish', 'immune', 'shadow_atk'].includes(k);
         const label = info ? `${info.icon} ${info.name}` : k;
         const stacks = b.stacks > 0 ? ` (${b.stacks})` : '';
         const desc = descMap[k] || '';

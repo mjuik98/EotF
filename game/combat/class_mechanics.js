@@ -11,31 +11,31 @@ export const ClassMechanics = {
     onPlayCard(gs, { cardId }) {
       const state = _getGS(gs);
       if (!state?.player?.buffs) return;
-      const momentum = state.player.buffs.momentum;
-      if (momentum) {
-        momentum.dmgBonus = Math.min(30, (momentum.dmgBonus || 0) + 1);
-        momentum.stacks = 99;
+      const res = state.player.buffs.resonance;
+      if (res) {
+        res.dmgBonus = Math.min(30, (res.dmgBonus || 0) + 1);
+        res.stacks = 99;
       } else {
-        state.addBuff('momentum', 99, { dmgBonus: 1 });
+        state.addBuff('resonance', 99, { dmgBonus: 1 });
       }
     },
     onMove(gs) {
       const state = _getGS(gs);
       if (!state?.player?.buffs) return;
-      const momentum = state.player.buffs.momentum;
-      if (momentum) {
-        momentum.dmgBonus = Math.min(30, (momentum.dmgBonus || 0) + 3);
-        momentum.stacks = 99; // 대량의 스택으로 유지 보장
+      const res = state.player.buffs.resonance;
+      if (res) {
+        res.dmgBonus = Math.min(30, (res.dmgBonus || 0) + 3);
+        res.stacks = 99; // 대량의 스택으로 유지 보장
       } else {
-        state.addBuff('momentum', 99, { dmgBonus: 3 });
+        state.addBuff('resonance', 99, { dmgBonus: 3 });
       }
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);
-      const momentum = state?.getBuff?.('momentum');
-      const val = momentum ? momentum.dmgBonus || 0 : 0;
+      const res = state?.getBuff?.('resonance');
+      const val = res ? res.dmgBonus || 0 : 0;
       const meta = window.DATA?.classes?.swordsman;
-      const title = meta?.traitTitle || '모멘텀 (Momentum)';
+      const title = meta?.traitTitle || '공명 (Resonance)';
       const desc = meta?.traitDesc || '카드를 사용할 때마다 위력이 상승합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
@@ -87,7 +87,7 @@ export const ClassMechanics = {
 
       if (candidates.length === 0) {
         player._mageLastDiscountTarget = null;
-        state.addLog(LogUtils.formatEcho('🔮 메아리 공명: 할인 대상 카드가 없습니다.'), 'echo');
+        state.addLog(LogUtils.formatEcho('🔮 메아리: 할인 대상 카드가 없습니다.'), 'echo');
         state.markDirty?.('hud');
         return;
       }
@@ -100,7 +100,7 @@ export const ClassMechanics = {
       player._mageLastDiscountTarget = pickedId;
 
       const cardName = dataCards[pickedId]?.name || pickedId;
-      state.addLog(LogUtils.formatEcho(`🔮 메아리 공명: ${cardName} 비용 -1`), 'echo');
+      state.addLog(LogUtils.formatEcho(`🔮 메아리: ${cardName} 비용 -1`), 'echo');
       state.markDirty?.('hand');
       state.markDirty?.('hud');
     },
@@ -113,7 +113,7 @@ export const ClassMechanics = {
       const lastTargetId = player?._mageLastDiscountTarget;
       const lastTargetName = lastTargetId ? (window.DATA?.cards?.[lastTargetId]?.name || lastTargetId) : null;
       const meta = window.DATA?.classes?.mage;
-      const title = meta?.traitTitle || '메아리 공명';
+      const title = meta?.traitTitle || '메아리 (Echo)';
       const desc = meta?.traitDesc || '카드를 3번 사용할 때마다 무작위 카드 1장의 비용이 1 감소합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
@@ -131,7 +131,7 @@ export const ClassMechanics = {
       });
       const label = document.createElement('div');
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '메아리 공명';
+      label.textContent = meta?.traitName || '메아리';
       const valEl = document.createElement('div');
       valEl.style.cssText = "font-size:10px;color:var(--cyan);line-height:1.4;";
       valEl.textContent = `발동까지 ${remaining}장 (${progress}/3)`;
@@ -145,15 +145,33 @@ export const ClassMechanics = {
     },
   },
   hunter: {
+    onCombatStart(gs) {
+      const state = _getGS(gs);
+      if (state.player) {
+        state.player._hunterHitCounts = {};
+      }
+    },
+    onDealDamage(gs, damage, targetIdx) {
+      const state = _getGS(gs);
+      const player = state?.player;
+      if (!player || targetIdx === null) return damage;
+
+      if (!player._hunterHitCounts) player._hunterHitCounts = {};
+      player._hunterHitCounts[targetIdx] = (player._hunterHitCounts[targetIdx] || 0) + 1;
+
+      if (player._hunterHitCounts[targetIdx] >= 5) {
+        player._hunterHitCounts[targetIdx] = 0;
+        state.addLog(LogUtils.formatEcho('🎯 정적 발동: 독 부여 및 은신!'), 'echo');
+        state.applyEnemyStatus('poisoned', 3, targetIdx);
+        state.addBuff('vanish', 1);
+      }
+      return damage;
+    },
     getSpecialUI(gs) {
       const state = _getGS(gs);
-      const gauge = state?.player?.silenceGauge || 0;
-      const max = 10;
-      const pct = (gauge / max) * 100;
-      const color = pct > 70 ? 'var(--danger)' : pct > 40 ? 'var(--gold)' : 'var(--cyan)';
       const meta = window.DATA?.classes?.hunter;
-      const title = meta?.traitTitle || '침묵 (Silence)';
-      const desc = meta?.traitDesc || '침묵 원소의 흐름을 조절합니다.';
+      const title = meta?.traitTitle || '정적 (Dead Silence)';
+      const desc = meta?.traitDesc || '같은 적을 5번 공격할 때마다 해당 적에게 독(3)을 부여하고, 자신은 1턴 동안 은신 상태가 됩니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {
@@ -169,14 +187,12 @@ export const ClassMechanics = {
         }
       });
       const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:3px;";
-      label.textContent = `침묵 게이지 ${gauge}/${max}`;
-      const track = document.createElement('div');
-      track.style.cssText = 'height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;';
-      const bar = document.createElement('div');
-      bar.style.cssText = `width:${pct}%;height:100%;background:${color};border-radius:2px;transition:width 0.3s;`;
-      track.appendChild(bar);
-      el.append(label, track);
+      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
+      label.textContent = meta?.traitName || '정적';
+      const valEl = document.createElement('div');
+      valEl.style.cssText = "font-size:10px;color:var(--cyan);";
+      valEl.textContent = '연격 진행 중...';
+      el.append(label, valEl);
       return el;
     },
   },
@@ -205,7 +221,7 @@ export const ClassMechanics = {
     getSpecialUI(gs) {
       const state = _getGS(gs);
       const meta = window.DATA?.classes?.paladin;
-      const title = meta?.traitTitle || '빛의 가호 (Divine Grace)';
+      const title = meta?.traitTitle || '성가 (Sacred Hymn)';
       const desc = meta?.traitDesc || '체력을 회복할 때마다 회복량만큼 무작위 적에게 피해를 입힙니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
@@ -237,7 +253,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('berserk_mode');
       if (buff) {
         buff.atkGrowth = (buff.atkGrowth || 0) + 2;
-        state.addLog(LogUtils.formatEcho(`광기 어린 투지: 피해 +2 (현재 +${buff.atkGrowth})`), 'echo');
+        state.addLog(LogUtils.formatEcho(`불협화음: 피해 +2 (현재 +${buff.atkGrowth})`), 'echo');
       }
       return damage;
     },
@@ -248,7 +264,7 @@ export const ClassMechanics = {
       const buff = state?.getBuff?.('berserk_mode');
       const growBonus = buff ? buff.atkGrowth || 0 : 0;
       const meta = window.DATA?.classes?.berserker;
-      const title = meta?.traitTitle || '광기 어린 투지';
+      const title = meta?.traitTitle || '불협화음 (Cacophony)';
       const desc = meta?.traitDesc || '체력이 낮을수록 피해량이 증폭됩니다. 공격을 시도할 때마다 공격력이 영구적으로 추가 성장합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
@@ -274,11 +290,10 @@ export const ClassMechanics = {
       return el;
     }
   },
-  shielder: {
+  guardian: {
     onTurnEnd(gs) {
       const state = _getGS(gs);
-      const buff = state?.getBuff?.('unbreakable_wall');
-      if (buff && state.player.shield > 0) {
+      if (state.player.shield > 0) {
         state.player._preservedShield = Math.floor(state.player.shield / 2);
         state.addLog(LogUtils.formatShield('플레이어', state.player._preservedShield), 'system');
       }
@@ -289,12 +304,26 @@ export const ClassMechanics = {
         state.addShield(state.player._preservedShield);
         state.player._preservedShield = 0;
       }
+
+      // 불굴의 벽 효과: 턴 시작 시 방어막의 일정 비율만큼 무작위 적에게 피해
+      const buff = state.getBuff('unbreakable_wall');
+      const buffPlus = state.getBuff('unbreakable_wall_plus');
+      if ((buff || buffPlus) && state.player.shield > 0) {
+        const ratio = buffPlus ? 0.7 : 0.5;
+        const dmg = Math.floor(state.player.shield * ratio);
+        const aliveEnemies = state.combat?.enemies?.map((e, idx) => e.hp > 0 ? idx : -1).filter(idx => idx !== -1) || [];
+        if (aliveEnemies.length > 0) {
+          const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+          const label = buffPlus ? '불굴의 벽+' : '불굴의 벽';
+          state.addLog(LogUtils.formatEcho(`${label}: 적에게 ${dmg} 피해!`), 'echo');
+          state.dealDamage(dmg, targetIdx, true);
+        }
+      }
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);
-      const hasWall = !!state?.getBuff?.('unbreakable_wall');
-      const meta = window.DATA?.classes?.shielder;
-      const title = meta?.traitTitle || '영혼 갑주 (Soul Armor)';
+      const meta = window.DATA?.classes?.guardian;
+      const title = meta?.traitTitle || '잔영 갑주 (Echo Armor)';
       const desc = meta?.traitDesc || '매 턴 방어막의 일부가 유지됩니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
@@ -315,8 +344,7 @@ export const ClassMechanics = {
       label.textContent = meta?.traitName || '잔영 갑주';
       const value = document.createElement('div');
       value.style.cssText = "font-size:10px;color:var(--white);";
-      const wallTitle = meta?.traitName || '방패 장벽';
-      value.textContent = hasWall ? `${wallTitle} 활성 (50% 유지)` : '일반 방어 상태';
+      value.textContent = '방어막 50% 상시 유지';
       el.append(label, value);
       return el;
     }

@@ -15,8 +15,9 @@ export function calcSelectedPreview(gs, data, enemy, cardCostUtils) {
 
     const totalDmg = atkCards.reduce((sum, id) => {
         const c = data.cards[id];
-        const momBonus = gs.getBuff('momentum')?.dmgBonus || 0;
-        return sum + (c.dmg || 0) + momBonus;
+        const resBonus = gs.getBuff('resonance')?.dmgBonus || 0;
+        const accelBonus = gs.getBuff('acceleration')?.dmgBonus || 0;
+        return sum + (c.dmg || 0) + resBonus + accelBonus;
     }, 0);
     const enemyShield = enemy.shield || 0;
     const netDmg = Math.max(0, totalDmg - enemyShield);

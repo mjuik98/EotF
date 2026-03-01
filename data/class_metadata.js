@@ -22,24 +22,24 @@ export const CLASS_METADATA = {
         emoji: '🪄',
         style: 'mage',
         desc: '전장의 리듬을 공명시켜 카드 흐름을 왜곡하는 마법사.',
-        traitName: '메아리 공명',
-        traitTitle: '메아리 공명 (Echo Resonance)',
+        traitName: '메아리',
+        traitTitle: '메아리 (Echo)',
         traitDesc: '카드를 3번 사용할 때마다 손패의 무작위 카드 1장의 비용이 1 감소합니다.'
     },
     hunter: {
         id: 'hunter',
         name: '침묵사냥꾼',
-        emoji: '🏹',
+        emoji: '⚔️',
         style: 'hunter',
         desc: '전장의 모든 소음을 지워버리는 암살자.',
         traitName: '정적',
         traitTitle: '정적 (Dead Silence)',
-        traitDesc: '적의 숨소리마저 억제합니다. 침묵 게이지를 전략적으로 활용하여 적의 치명적인 패턴을 사전에 차단하고 봉쇄할 수 있습니다.'
+        traitDesc: '적의 숨소리마저 억제합니다. 같은 적을 5번 공격할 때마다 해당 적에게 독(3)을 부여하고, 자신은 1턴 동안 은신 상태가 됩니다.'
     },
     paladin: {
         id: 'paladin',
         name: '찬송기사',
-        emoji: '⚜️',
+        emoji: '✨',
         style: 'paladin',
         desc: '치유의 선율을 부르며 전선을 유지하는 수호자.',
         traitName: '성가',
@@ -56,14 +56,14 @@ export const CLASS_METADATA = {
         traitTitle: '불협화음 (Cacophony)',
         traitDesc: '고통이 곧 파괴적인 소음이 됩니다. 현재 잃은 체력에 비례하여 적의 고막과 정신을 찢는 공격의 피해량이 최대 50%까지 증폭됩니다.'
     },
-    shielder: {
-        id: 'shielder',
+    guardian: {
+        id: 'guardian',
         name: '무음수호자',
         emoji: '🛡️',
-        style: 'shielder',
+        style: 'guardian',
         desc: '소리 없는 파동의 장벽으로 모든 공격을 흡수합니다.',
         traitName: '잔영 갑주',
         traitTitle: '잔영 갑주 (Echo Armor)',
-        traitDesc: '방어의 개념을 초월합니다. 턴이 종료되어도 방어도가 메아리처럼 남아 전부 소멸하지 않고 다음 턴의 생존을 굳건히 보장합니다.'
+        traitDesc: '방어의 개념을 초월합니다. 턴이 종료되어도 방어막의 50%가 메아리처럼 남아 다음 턴까지 유지됩니다.'
     }
 };

@@ -195,14 +195,13 @@ export const TurnManager = {
                 gs.addLog?.(`💡 사용 가능한 카드 ${skippableCards}장을 남기고 턴 종료`, 'system');
             }
         }
-
         // 버프 스택 감소
         Object.keys(gs.player.buffs).forEach(buffId => {
             const buff = gs.player.buffs[buffId];
             if (!buff || typeof buff !== 'object') return;
             if (TURN_START_DEBUFFS.has(buffId)) return;
             if (ENEMY_TURN_BUFFS.has(buffId)) return;
-            if (buffId === 'momentum') return;
+            if (buffId === 'resonance') return; // Resonance does not decay
             if (buff.nextEnergy) return;
             if (buff.echoRegen) gs.addEcho(buff.echoRegen);
             if (!Number.isFinite(buff.stacks)) return;
@@ -253,6 +252,14 @@ export const TurnManager = {
 
             let reflected = false;
             let enemyDied = false;
+
+            if (gs.player.buffs?.dodge) {
+                gs.addLog?.(LogUtils.formatSystem('💨 회피: 공격을 피했습니다!'), 'system');
+                const buff = gs.player.buffs.dodge;
+                if (buff.stacks > 1) buff.stacks--;
+                else delete gs.player.buffs.dodge;
+                continue;
+            }
 
             if (gs.player.buffs?.mirror) {
                 enemy.hp = Math.max(0, enemy.hp - dmg);

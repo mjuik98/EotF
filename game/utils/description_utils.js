@@ -3,7 +3,7 @@
 //
 //  텍스트 표준 (Slay the Spire / Hearthstone 참고):
 //  • 피해 X   — 빨간색 (kw-dmg)
-//  • 방어도 X  — 파란색 (kw-shield)
+//  • 방어막 X  — 파란색 (kw-shield)
 //  • 잔향 X   — 보라색 (kw-echo)
 //  • 카드 X장  — 초록색 (kw-draw)
 //  • 체력 X   — 분홍색 (kw-hp)
@@ -55,8 +55,8 @@ export const DescriptionUtils = {
             `<span class="kw-dmg">${m}</span>`
         );
 
-        // "방어도 X" 또는 "X 방어도"
-        protect(/방어도\s*\d+|\d+\s*방어도/g, (m) =>
+        // "방어막 X" 또는 "X 방어막"
+        protect(/방어막\s*\d+|\d+\s*방어막/g, (m) =>
             `<span class="kw-shield">${m}</span>`
         );
 

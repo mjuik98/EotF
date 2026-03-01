@@ -10,7 +10,7 @@ const CLASS_CONFIGS = {
   hunter: { maxHp: 65, startEcho: 0 },
   paladin: { maxHp: 85, startEcho: 0 },
   berserker: { maxHp: 90, startEcho: 0 },
-  shielder: { maxHp: 75, startEcho: 0 },
+  guardian: { maxHp: 75, startEcho: 0 },
 };
 
 const CLASS_START_ITEMS = {
@@ -19,7 +19,7 @@ const CLASS_START_ITEMS = {
   hunter: 'travelers_map',
   paladin: 'cracked_amulet',
   berserker: 'blood_shard',
-  shielder: 'phantom_cloak',
+  guardian: 'rift_talisman',
 };
 
 export const RunSetupUI = {

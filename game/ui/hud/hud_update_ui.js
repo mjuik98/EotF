@@ -60,7 +60,7 @@ export const HudUpdateUI = {
   resetCombatUI(deps = {}) {
     const doc = _getDoc(deps);
     doc.getElementById('combatOverlay')?.classList.remove('active');
-    // deps ?⑦꽩???ъ슜?섏뿬 ?쇨????좎?
+    // deps 
     const resetPanel = deps?.resetCombatInfoPanel
       || deps?._resetCombatInfoPanel
       || window._resetCombatInfoPanel;
@@ -122,8 +122,8 @@ export const HudUpdateUI = {
   },
 
   /**
-   * ?곹깭 ?뷀떚 ?뚮옒洹몃? ?뺤씤?섍퀬 ?꾩슂??UI瑜??좊퀎?곸쑝濡??낅뜲?댄듃?⑸땲??
-   * 硫붿씤 猷⑦봽???깆뿉???몄텧?????덉뒿?덈떎.
+   * UI
+   * 
    */
   processDirtyFlags(deps = {}) {
     const gs = _getGS(deps);
@@ -168,12 +168,12 @@ export const HudUpdateUI = {
       if (el) el.textContent = val;
     };
 
-    // HP - ?泥대젰 ???됱긽 蹂??
+    // HP - 
     const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
     setBar('hpBar', hpPct);
     setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
-    // ?몃쾭 ?⑤꼸 ?숆린??
+    // 
     setBar('hoverHpBar', hpPct);
     setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
 
@@ -194,7 +194,7 @@ export const HudUpdateUI = {
         : 'linear-gradient(90deg,#cc2244,#ff4466)';
     }
 
-    // 而댄뙥??HUD HP ?띿뒪???숆린??
+    // HUD HP
     setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
 
     const hudEchoText = doc.getElementById('hudEchoText');
@@ -220,21 +220,21 @@ export const HudUpdateUI = {
       const classMeta = data?.classes?.[p.class];
       const avatarEmoji = classMeta?.emoji || '?뷂툘';
 
-      // ?뚰삎 珥덉긽??(HUD)
+      // (HUD)
       if (avatarEl) {
         avatarEl.style.display = 'block';
         avatarEl.textContent = avatarEmoji;
         avatarEl.style.fontSize = '24px';
       }
 
-      // ???珥덉긽??(?곗륫 ?⑤꼸)
+      // 
       if (largeFallback) {
         largeFallback.textContent = avatarEmoji;
         largeFallback.style.fontSize = '80px';
         largeFallback.style.display = 'flex';
       }
 
-      // 罹먮┃???대쫫 諛??뱀꽦 (?곗륫 ?⑤꼸)
+      // 
       const className = classMeta?.name || p.class;
       setText('playerNameDisplay', SecurityUtils.escapeHtml(className));
 
@@ -564,7 +564,7 @@ export const HudUpdateUI = {
 
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
-      // deps.updateEchoSkillBtn ???덉쑝硫?gs 瑜??ы븿?섏뿬 ?몄텧
+      // deps.updateEchoSkillBtn 
       if (typeof deps.updateEchoSkillBtn === 'function') {
         deps.updateEchoSkillBtn({ ...deps, gs });
       } else if (typeof deps.updateEchoSkillBtn === 'function') {
@@ -613,7 +613,7 @@ export const HudUpdateUI = {
     if (typeof deps.updateStatusDisplay === 'function') deps.updateStatusDisplay();
     this.updateEndBtnWarn(deps);
 
-    // UI ?낅뜲?댄듃 ?꾨즺 ??HUD ?뚮옒洹멸? ?덉뿀?ㅻ㈃ ?대? 泥섎━??寃껋쑝濡?媛꾩＜
+    // UI HUD
     const gs_internal = _getGS(deps);
     if (gs_internal) gs_internal.clearDirtyFlag('hud');
   },
@@ -736,7 +736,7 @@ export const HudUpdateUI = {
     setBar('shieldBar', shieldPct);
     setText('shieldText', p.shield || '0');
 
-    // ?몃쾭 ?⑤꼸 ?숆린??(Shield)
+    // (Shield)
     setBar('hoverShieldBar', shieldPct);
     setText('hoverShieldText', p.shield || '0');
 
@@ -755,7 +755,7 @@ export const HudUpdateUI = {
       if (typeof cm.updateUI === 'function') cm.updateUI(gs);
       else if (typeof cm.render === 'function') cm.render(gs);
     }
-    // Echo ?ㅽ궗 踰꾪듉留??낅뜲?댄듃 (?쒕줈??踰꾪듉? updateUI() ?먯꽌 ?쇨큵 泥섎━)
+    // Echo  (updateUI())
     const updateBtn = deps.updateEchoSkillBtn
       ? (deps) => deps.updateEchoSkillBtn({ ...deps, gs })
       : (typeof deps.updateEchoSkillBtn === 'function' ? deps.updateEchoSkillBtn : null);
@@ -777,7 +777,7 @@ export const HudUpdateUI = {
         }
       }
     }
-    // ????????????????????????????????????????????????
+    // 
   },
 
   // Expose public API for GAME.API

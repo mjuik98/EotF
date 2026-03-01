@@ -30,6 +30,13 @@ export const CombatTurnUI = {
     // ── UI 업데이트 ──
     deps.updateChainUI?.(0);
 
+    // 클래스 특성 턴 종료 훅 (무음수호자 방어막 유지 등)
+    const classMechanics = deps.classMechanics || window.ClassMechanics || window.GAME?.Modules?.['ClassMechanics'];
+    const classMech = classMechanics?.[gs.player.class];
+    if (classMech && typeof classMech.onTurnEnd === 'function') {
+      classMech.onTurnEnd(gs);
+    }
+
     const doc = _getDoc(deps);
     const turnIndicator = doc.getElementById('turnIndicator');
     if (turnIndicator) {

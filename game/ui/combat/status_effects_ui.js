@@ -1,5 +1,6 @@
 const STATUS_KR = {
-  momentum: { name: '공명', icon: '🌪️', buff: true, desc: '이번 턴 동안 피해량이 공명 수치만큼 증가합니다.' },
+  resonance: { name: '공명', icon: '🌀', buff: true, desc: '카드를 연계할 때마다 다음 공격의 위력이 상승합니다.' },
+  acceleration: { name: '가속', icon: '👟', buff: true, desc: '이번 턴 동안 피해량이 증가합니다.' },
   soul_armor: { name: '영혼의 갑옷', icon: '🛡️', buff: true, desc: '받는 피해를 일부 감소시킵니다.' },
   vanish: { name: '은신', icon: '🌫️', buff: true, desc: '다음 공격이 치명타로 적중합니다.' },
   immune: { name: '무적', icon: '🏛️', buff: true, desc: '이번 턴 동안 모든 피해를 입지 않습니다.' },
@@ -15,12 +16,14 @@ const STATUS_KR = {
   confusion: { name: '혼란', icon: '🌀', buff: false, desc: '사용하는 카드의 순서가 무작위로 뒤섞입니다.' },
   dodge: { name: '회피', icon: '💨', buff: true, desc: '다음에 받는 공격을 회피합니다.' },
   strength: { name: '근력', icon: '💪', buff: true, desc: '주는 피해가 증가합니다.' },
-  dexterity: { name: '민첩', icon: '🏃', buff: true, desc: '얻는 방어도가 증가합니다.' },
+  dexterity: { name: '민첩', icon: '🏃', buff: true, desc: '얻는 방어막이 증가합니다.' },
   vulnerable: { name: '취약', icon: '🎯', buff: false, desc: '받는 피해가 50% 증가합니다.' },
   blessing_of_light: { name: '빛의 축복', icon: '☀️', buff: true, desc: '매 턴 시작 시 체력을 회복(회복량)합니다.' },
-  divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어도가 일정 비율만큼 추가로 증가합니다.' },
-  time_warp: { name: '시간 왜곡', icon: '🌀', buff: true, desc: '매 턴 시작 시 에너지를 1 추가로 획득합니다.' },
-  berserk_mode: { name: '광폭화', icon: '💢', buff: true, desc: '매 턴 공격력이 서서히 증가합니다.' }
+  divine_grace: { name: '신의 은총', icon: '🛡️', buff: true, desc: '방어막이 일정 비율만큼 추가로 증가합니다.' },
+  time_warp: { name: '시간 왜곡', icon: '🌀', buff: true, desc: '매 턴 시작 시 에너지를 추가로 획득합니다.' },
+  berserk_mode: { name: '광폭화', icon: '💢', buff: true, desc: '매 턴 공격력이 서서히 증가합니다.' },
+  unbreakable_wall: { name: '불굴의 벽', icon: '🧱', buff: true, desc: '턴 시작 시 방어막의 50%만큼 무작위 적에게 피해를 입힙니다.' },
+  unbreakable_wall_plus: { name: '불굴의 벽+', icon: '🧱', buff: true, desc: '턴 시작 시 방어막의 70%만큼 무작위 적에게 피해를 입힙니다.' }
 };
 
 function _getDoc(deps) {
@@ -64,7 +67,7 @@ export const StatusEffectsUI = {
       keys.forEach(k => {
         const buff = buffs[k];
         const info = STATUS_KR[k];
-        const isBuff = info ? info.buff : ['momentum', 'soul_armor', 'vanish', 'immune', 'shadow_atk', 'dodge'].includes(k);
+        const isBuff = info ? info.buff : ['resonance', 'acceleration', 'soul_armor', 'vanish', 'immune', 'shadow_atk', 'dodge'].includes(k);
         const label = info ? `${info.icon} ${info.name}` : k;
 
         const badge = doc.createElement('span');
@@ -73,12 +76,12 @@ export const StatusEffectsUI = {
         const labelText = doc.createTextNode(label);
         badge.appendChild(labelText);
 
-        const dmgBonus = k === 'momentum' && buff.dmgBonus ? ` +${buff.dmgBonus}↯` : '';
+        const dmgBonus = (k === 'resonance' || k === 'acceleration') && buff.dmgBonus ? ` +${buff.dmgBonus}↯` : '';
         if (dmgBonus) {
           badge.appendChild(doc.createTextNode(` ${dmgBonus}`));
         }
 
-        if (k !== 'momentum' && buff.stacks > 0) {
+        if (k !== 'resonance' && k !== 'acceleration' && buff.stacks > 0) {
           const stackSpan = doc.createElement('span');
           stackSpan.style.opacity = '0.7';
 
