@@ -53,7 +53,7 @@ export const DamageSystem = {
         if (this.getBuff('vanish')) {
             dmg = Math.floor(dmg * 2);
             delete this.player.buffs['vanish'];
-            this.addLog(LogUtils.formatEcho('💥 크리티컬!'), 'echo');
+            // 기존 로그 삭제 (아래 dealDamage 로그에서 통합 처리)
         }
         if (enemy.statusEffects?.immune > 0) {
             this.addLog(LogUtils.formatEcho(`🏛️ ${enemy.name}은(는) 무적 상태!`), 'echo');
@@ -133,7 +133,17 @@ export const DamageSystem = {
         }
 
         if (typeof this.addLog === 'function') {
-            this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
+            const _card = this._currentCard;
+            if (_card) {
+                const isCrit = !!this.getBuff('vanish') || result?.isCrit;
+                if (isCrit) {
+                    this.addLog(LogUtils.formatCardCritical(_card.name, enemy.name, totalDmg), 'card-log');
+                } else {
+                    this.addLog(LogUtils.formatCardAttack(_card.name, enemy.name, totalDmg), 'card-log');
+                }
+            } else {
+                this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
+            }
         }
         this.markDirty('enemies');
 
@@ -163,7 +173,14 @@ export const DamageSystem = {
         }
 
         this.dispatch(Actions.PLAYER_SHIELD, { amount: actual });
-        if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
+        if (typeof this.addLog === 'function') {
+            const _card = this._currentCard;
+            if (_card) {
+                this.addLog(LogUtils.formatCardShield(_card.name, actual), 'buff');
+            } else {
+                this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
+            }
+        }
     },
 
     takeDamage(amount, deps = {}) {

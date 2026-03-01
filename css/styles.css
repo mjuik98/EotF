@@ -5721,6 +5721,28 @@ body:has(#combatOverlay.active) .panel-right {
   border-radius: 4px;
 }
 
+/* 카드 사용 로그 (공격/스킬) */
+.log-entry.card-log {
+  color: #ff9944;
+  border-left: 3px solid #ff9944;
+  background: linear-gradient(90deg, rgba(255, 153, 68, 0.12), transparent);
+}
+
+/* 버프/방어막 카드 로그 */
+.log-entry.buff {
+  color: #88aaff;
+  border-left: 3px solid #88aaff;
+  background: linear-gradient(90deg, rgba(136, 170, 255, 0.1), transparent);
+}
+
+/* 아이템 효과 로그 */
+.log-entry.item {
+  color: #ffcc44;
+  border-left: 3px solid #ffcc44;
+  background: linear-gradient(90deg, rgba(255, 204, 68, 0.08), transparent);
+  font-style: italic;
+}
+
 .battle-chronicle-close-btn {
   margin-top: 20px;
 }

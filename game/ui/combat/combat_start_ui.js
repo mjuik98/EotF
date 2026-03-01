@@ -33,6 +33,9 @@ export const CombatStartUI = {
       return;
     }
 
+    // UI: 전투 시작 로그 (가장 먼저 출력)
+    gs.addLog?.('⚔️ 전투 시작!', 'system');
+
     // ── 로직: 상태 리셋 ──
     CombatInitializer.resetCombatState(gs);
 
@@ -61,6 +64,7 @@ export const CombatStartUI = {
     if (classMech && typeof classMech.onCombatStart === 'function') {
       classMech.onCombatStart(gs);
     }
+    // gs.triggerItems?.('combat_start'); // 중복 제거
     gs.triggerItems?.(Trigger.COMBAT_START);
 
     // ── 로직: 덱 초기화 ──
@@ -89,7 +93,7 @@ export const CombatStartUI = {
 
     deps.renderCombatEnemies?.();
     deps.renderCombatCards?.();
-    gs.addLog?.('⚔️ 전투 시작!', 'system');
+    // gs.addLog?.('⚔️ 전투 시작!', 'system'); // 위로 이동함
     deps.updateCombatLog?.();
     deps.updateNoiseWidget?.();
 

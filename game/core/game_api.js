@@ -194,10 +194,13 @@ export const GameAPI = {
 
             // 효과 실행 (동기 처리)
             try {
+                gs._currentCard = card;
                 card.effect?.(gs);
             } catch (effectErr) {
                 rollbackPlayCost();
                 throw effectErr;
+            } finally {
+                gs._currentCard = null;
             }
 
             // 클래스 특성 훅

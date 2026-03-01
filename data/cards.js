@@ -235,12 +235,18 @@ export const CARDS = {
     vanish: {
         id: 'vanish', name: '은신', icon: '🌑', cost: 1, type: 'SKILL', desc: '은신. (다음 공격이 치명타로 적중.)', rarity: 'common',
         image: 'card_vanish.png',
-        effect(gs) { gs.addBuff('vanish', 1, {}); }
+        effect(gs) {
+            gs.addBuff('vanish', 1, {});
+            gs.addLog(LogUtils.formatCardBuff('은신', '다음 공격 크리티컬'), 'buff');
+        }
     },
     vanish_plus: {
         id: 'vanish_plus', name: '은신+', icon: '🌑', cost: 0, type: 'SKILL', desc: '은신 2턴. (다음 공격이 치명타로 적중.)', rarity: 'common', upgraded: true,
         image: 'card_vanish_plus.png',
-        effect(gs) { gs.addBuff('vanish', 2, {}); }
+        effect(gs) {
+            gs.addBuff('vanish', 2, {});
+            gs.addLog(LogUtils.formatCardBuff('은신+', '다음 공격 크리티컬 (2턴)'), 'buff');
+        }
     },
     death_mark: {
         id: 'death_mark', name: '처형 표식', icon: '💢', cost: 1, type: 'ATTACK', desc: '처형 표식 3턴 부여. (3턴 후 피해 30 폭발)', rarity: 'uncommon',
@@ -255,12 +261,20 @@ export const CARDS = {
     shadow_step: {
         id: 'shadow_step', name: '그림자 도약', icon: '🌑', cost: 1, type: 'SKILL', desc: '방어막 5. 다음 공격 피해 +8.', rarity: 'uncommon',
         image: 'card_shadow_step.png',
-        effect(gs) { gs.addShield(5); gs.addBuff('shadow_atk', 1, { dmgBonus: 8 }); }
+        effect(gs) {
+            gs.addShield(5);
+            gs.addBuff('shadow_atk', 1, { dmgBonus: 8 });
+            gs.addLog(LogUtils.formatCardBuff('그림자 도약', '다음 공격 +8'), 'buff');
+        }
     },
     shadow_step_plus: {
         id: 'shadow_step_plus', name: '그림자 도약+', icon: '🌑', cost: 0, type: 'SKILL', desc: '방어막 8. 다음 공격 피해 +10.', rarity: 'uncommon', upgraded: true,
         image: 'card_shadow_step_plus.png',
-        effect(gs) { gs.addShield(8); gs.addBuff('shadow_atk', 1, { dmgBonus: 10 }); }
+        effect(gs) {
+            gs.addShield(8);
+            gs.addBuff('shadow_atk', 1, { dmgBonus: 10 });
+            gs.addLog(LogUtils.formatCardBuff('그림자 도약+', '다음 공격 +10'), 'buff');
+        }
     },
     poison_blade: {
         id: 'poison_blade', name: '독침 검', icon: '🐍', cost: 1, type: 'ATTACK', desc: '피해 7. 독 3턴 부여.', rarity: 'uncommon',
@@ -275,12 +289,20 @@ export const CARDS = {
     phantom_step: {
         id: 'phantom_step', name: '환영 보폭', icon: '💨', cost: 1, type: 'SKILL', desc: '방어막 10. 회피 1 획득.', rarity: 'uncommon',
         image: 'card_phantom_step.png',
-        effect(gs) { gs.addShield(10); gs.addBuff('dodge', 1, {}); }
+        effect(gs) {
+            gs.addShield(10);
+            gs.addBuff('dodge', 1, {});
+            gs.addLog(LogUtils.formatCardBuff('환영 보폭', '회피 +1'), 'buff');
+        }
     },
     phantom_step_plus: {
         id: 'phantom_step_plus', name: '환영 보폭+', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 12. 회피 1 획득.', rarity: 'uncommon', upgraded: true,
         image: 'card_phantom_step_plus.png',
-        effect(gs) { gs.addShield(12); gs.addBuff('dodge', 1, {}); }
+        effect(gs) {
+            gs.addShield(12);
+            gs.addBuff('dodge', 1, {});
+            gs.addLog(LogUtils.formatCardBuff('환영 보폭+', '회피 +1'), 'buff');
+        }
     },
     // 레어/파워
     echo_burst_card: {
