@@ -24,7 +24,7 @@ export const ITEMS = {
         id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
         desc: '매 턴: 체력 2 회복.',
         image: 'relic_cracked_amulet.png',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2); gs.addLog(LogUtils.formatItem('부서진 목걸이', '체력 +2'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2, { name: '부서진 목걸이', type: 'item' }); } }
     },
     worn_pouch: {
         id: 'worn_pouch', name: '낡은 주머니', icon: '👜', rarity: 'common',
@@ -42,13 +42,13 @@ export const ITEMS = {
         id: 'travelers_map', name: '여행자의 지도', icon: '🗺️', rarity: 'common',
         desc: '층 이동 시: 체력 3 회복.',
         image: 'relic_travelers_map.png',
-        passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3); } }
+        passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3, { name: '여행자의 지도', type: 'item' }); } }
     },
     rift_talisman: {
         id: 'rift_talisman', name: '균열의 부적', icon: '💍', rarity: 'common',
         desc: '전투 시작: 방어막 5 획득.',
         image: 'relic_rift_talisman.png',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5); gs.addLog(LogUtils.formatItem('균열의 부적', '방어막 +5'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5, { name: '균열의 부적', type: 'item' }); } }
     },
     blood_shard: {
         id: 'blood_shard', name: '핏빛 파편', icon: '🍷', rarity: 'common',
@@ -92,7 +92,7 @@ export const ITEMS = {
         id: 'bone_charm', name: '뼈 부적', icon: '🦴', rarity: 'uncommon',
         desc: '적을 처치할 때마다 회복 5.',
         image: 'relic_bone_charm.png',
-        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(5); gs.addLog(LogUtils.formatItem('뼈 부적', '체력 +5'), 'item'); } }
+        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.heal(5, { name: '뼈 부적', type: 'item' }); } }
     },
     poison_vial: {
         id: 'poison_vial', name: '독 약병', icon: '🧪', rarity: 'uncommon',

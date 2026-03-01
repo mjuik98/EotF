@@ -22,7 +22,7 @@ const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
 
 export const DamageSystem = {
-    dealDamage(amount, targetIdx = null, noChain = false, deps = {}) {
+    dealDamage(amount, targetIdx = null, noChain = false, source = null, deps = {}) {
         const doc = _getDoc(deps);
         const win = _getWin(deps);
 
@@ -135,16 +135,22 @@ export const DamageSystem = {
         }
 
         if (typeof this.addLog === 'function') {
-            const _card = this._currentCard;
-            if (_card) {
-                const isCrit = !!this.getBuff('vanish') || result?.isCrit;
-                if (isCrit) {
-                    this.addLog(LogUtils.formatCardCritical(_card.name, enemy.name, totalDmg), 'card-log');
-                } else {
-                    this.addLog(LogUtils.formatCardAttack(_card.name, enemy.name, totalDmg), 'card-log');
-                }
+            if (source && source.name) {
+                // 원천(Source) 정보가 있는 경우 통합 로깅
+                const icon = source.type === 'trait' ? '✨' : (source.type === 'item' ? '💍' : '⚔️');
+                this.addLog(`${icon} ${source.name}: ${enemy.name}에게 ${totalDmg} 피해`, 'damage');
             } else {
-                this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
+                const _card = this._currentCard;
+                if (_card) {
+                    const isCrit = !!this.getBuff('vanish') || result?.isCrit;
+                    if (isCrit) {
+                        this.addLog(LogUtils.formatCardCritical(_card.name, enemy.name, totalDmg), 'card-log');
+                    } else {
+                        this.addLog(LogUtils.formatCardAttack(_card.name, enemy.name, totalDmg), 'card-log');
+                    }
+                } else {
+                    this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
+                }
             }
         }
         this.markDirty('enemies');
@@ -167,7 +173,7 @@ export const DamageSystem = {
         });
     },
 
-    addShield(amount, deps = {}) {
+    addShield(amount, source = null, deps = {}) {
         let actual = amount;
         if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
             actual = Math.max(0, amount - 10);
@@ -176,16 +182,21 @@ export const DamageSystem = {
 
         this.dispatch(Actions.PLAYER_SHIELD, { amount: actual });
         if (typeof this.addLog === 'function') {
-            const _card = this._currentCard;
-            if (_card) {
-                this.addLog(LogUtils.formatCardShield(_card.name, actual), 'buff');
+            if (source && source.name) {
+                const icon = source.type === 'item' ? '💍' : '🛡️';
+                this.addLog(`${icon} ${source.name}: 방어막 +${actual}`, 'shield');
             } else {
-                this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
+                const _card = this._currentCard;
+                if (_card) {
+                    this.addLog(LogUtils.formatCardShield(_card.name, actual), 'buff');
+                } else {
+                    this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
+                }
             }
         }
     },
 
-    takeDamage(amount, deps = {}) {
+    takeDamage(amount, source = null, deps = {}) {
         if (amount <= 0) return;
 
         if (typeof this.getBuff === 'function' && this.getBuff('immune')) {
@@ -218,7 +229,14 @@ export const DamageSystem = {
                 if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', result.shieldAbsorbed), 'shield');
             }
             if (result && result.actualDamage > 0) {
-                if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack('적', '플레이어', result.actualDamage), 'damage');
+                if (typeof this.addLog === 'function') {
+                    if (source && source.name) {
+                        const icon = source.type === 'item' ? '💍' : '💥';
+                        this.addLog(`${icon} ${source.name}: 플레이어에게 ${result.actualDamage} 피해`, 'damage');
+                    } else {
+                        this.addLog(LogUtils.formatAttack('적', '플레이어', result.actualDamage), 'damage');
+                    }
+                }
 
                 // 잔향 반향(echo_on_hit) 버프 처리
                 const eoh = this.getBuff('echo_on_hit');

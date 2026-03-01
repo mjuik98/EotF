@@ -256,9 +256,8 @@ export const ClassMechanics = {
 
       const targetIdx = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
 
-      state.addLog(LogUtils.formatEcho(`성가 발동! 적에게 ${amount} 피해!`), 'echo');
-      // dealDamage takes (amount, targetIdx, isSubDamage, source)
-      state.dealDamage(amount, targetIdx, true);
+      // dealDamage takes (amount, targetIdx, isSubDamage, source, deps)
+      state.dealDamage(amount, targetIdx, true, { name: '성가', type: 'trait' });
     },
     getSpecialUI(gs) {
       const state = _getGS(gs);

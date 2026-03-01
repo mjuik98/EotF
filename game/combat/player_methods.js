@@ -21,7 +21,7 @@ export const PlayerMethods = {
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
 
-    heal(amount, deps = {}) {
+    heal(amount, source = null, deps = {}) {
         if (getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1)) {
             this.addLog(LogUtils.formatSystem('메아리의 근원: 회복 불가!'), 'damage');
             return;
@@ -33,7 +33,22 @@ export const PlayerMethods = {
 
         const result = this.commit(Actions.PLAYER_HEAL, { amount: adjusted });
         if (result && result.healed > 0) {
-            this.addLog(LogUtils.formatHeal('플레이어', result.healed), 'heal');
+            if (source && source.name) {
+                // 원천(Source)이 있는 경우 통합 로그 출력
+                const icon = source.type === 'item' ? '💍' : '✨';
+                this.addLog(`${icon} ${source.name}: ${result.healed} 회복`, 'heal');
+            } else {
+                // 일반적인 경우 기존 로그 출력
+                this.addLog(LogUtils.formatHeal('플레이어', result.healed), 'heal');
+            }
+
+            // 후속 특성 효과 트리거 (예: 성가)
+            if (this.combat?.active) {
+                const cm = window.GAME?.Modules?.['ClassMechanics']?.[this.player.class];
+                if (cm && typeof cm.onHeal === 'function') {
+                    cm.onHeal(this, result.healed);
+                }
+            }
         }
     },
 

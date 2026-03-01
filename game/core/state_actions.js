@@ -79,13 +79,6 @@ export const Reducers = {
         player.hp = Math.min(player.maxHp, player.hp + actual);
         gs.markDirty('hud');
 
-        if (actual > 0 && gs.combat?.active) {
-            const cm = window.GAME?.Modules?.['ClassMechanics']?.[player.class];
-            if (cm && typeof cm.onHeal === 'function') {
-                cm.onHeal(gs, actual);
-            }
-        }
-
         return { healed: actual, hpAfter: player.hp };
     },
 
@@ -248,6 +241,7 @@ export const Reducers = {
         gs.player._nextCardDiscount = 0;
         gs.player.zeroCost = false;
         gs.player._freeCardUses = 0;
+        gs.player._cascadeCards = new Map();
         gs.player._cascadeCards = new Map();
         gs.player._traitCardDiscounts = {};
         gs.player._mageCastCounter = 0;
