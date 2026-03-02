@@ -6041,3 +6041,11 @@ body:has(#combatOverlay.active) .panel-right {
 .action-btn-secondary { background: rgba(0, 255, 204, 0.08); border: 1px solid rgba(0, 255, 204, 0.2); border-bottom: 3px solid rgba(0, 255, 204, 0.4) !important; color: var(--cyan); box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
 .action-btn-secondary:hover { background: rgba(0, 255, 204, 0.16); transform: translateY(1px) !important; border-bottom-width: 1px !important; box-shadow: 0 2px 0 rgba(0,0,0,0.2) !important; }
 .kbd-hint { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 10px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); border-bottom: 2px solid rgba(255, 255, 255, 0.4) !important; border-radius: 4px; padding: 1px 6px; color: #fff !important; margin-left: 8px; vertical-align: middle; text-shadow: 0 1px 2px rgba(0,0,0,0.5); box-shadow: 0 2px 0 rgba(0,0,0,0.3); position: relative; top: -1px; }
+
+/*  PREMIUM CODEX TAB REDESIGN  */
+.codex-tab-btn { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.15em; padding: 12px 24px; border-radius: 10px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(123, 47, 255, 0.15); color: var(--text-dim); text-transform: uppercase; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); position: relative; }
+.codex-tab-btn:hover { background: rgba(123, 47, 255, 0.08); border-color: rgba(123, 47, 255, 0.4); color: var(--white); transform: translateY(-2px); }
+.codex-tab-btn.active { background: rgba(0, 255, 204, 0.1); border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 20px rgba(0, 255, 204, 0.2), inset 0 0 10px rgba(0, 255, 204, 0.05); text-shadow: 0 0 8px rgba(0, 255, 204, 0.4); }
+.codex-tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 20%; right: 20%; height: 2px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); border-radius: 2px; }
+.codex-tab-btn-enemies.active { border-color: var(--danger); color: var(--danger); background: rgba(255, 51, 102, 0.1); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
+.codex-tab-btn-enemies.active::after { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
