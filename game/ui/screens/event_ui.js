@@ -3,11 +3,6 @@
  *
  * EventManager에서 이벤트 데이터/로직 결과를 받아 DOM만 업데이트합니다.
  */
-import { DescriptionUtils } from '../../utils/description_utils.js';
-import { AudioEngine } from '../../../engine/audio.js';
-import { GS } from '../../core/game_state.js';
-import { DATA } from '../../../data/game_data.js';
-import { SecurityUtils } from '../../utils/security.js';
 import { EventManager } from '../../systems/event_manager.js';
 
 
@@ -27,6 +22,10 @@ function _getData(deps) {
 
 function _getRunRules(deps) {
   return deps?.runRules;
+}
+
+function _getAudioEngine(deps) {
+  return deps?.audioEngine || globalThis.AudioEngine;
 }
 
 function _renderChoices(event, doc, deps = {}) {
@@ -134,7 +133,6 @@ export const EventUI = {
     }
 
     if (!resultText) {
-      console.log('[resolveEvent] no result, closing event');
       doc.getElementById('eventModal')?.classList.remove('active');
       _currentEvent = null;
       gs._eventLock = false;
@@ -168,7 +166,6 @@ export const EventUI = {
       continueBtn.id = 'eventChoiceContinue';
       continueBtn.textContent = '\uACC4\uC18D';
       continueBtn.addEventListener('click', () => {
-        console.log('[event continue] clicked');
         doc.getElementById('eventModal')?.classList.remove('active');
         _currentEvent = null;
         gs._eventLock = false;
@@ -240,7 +237,7 @@ export const EventUI = {
 
     if (allCards.length === 0) {
       if (deps.audioEngine) deps.audioEngine.playHit();
-      else if (typeof AudioEngine !== 'undefined') AudioEngine.playHit();
+      else _getAudioEngine(deps)?.playHit?.();
       if (deps.screenShake) deps.screenShake.shake(10, 0.4);
       else if (typeof ScreenShake !== 'undefined') ScreenShake.shake(10, 0.4);
       gs.addLog('⚠️ 소각/처분할 카드가 덱에 없습니다.', 'damage');
@@ -423,8 +420,8 @@ export const EventUI = {
 
       const descEl = doc.createElement('div');
       descEl.style.cssText = 'font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;';
-      if (window.DescriptionUtils) {
-        descEl.innerHTML = window.DescriptionUtils.highlight(item.desc);
+      if (globalThis.DescriptionUtils) {
+        descEl.innerHTML = globalThis.DescriptionUtils.highlight(item.desc);
       } else {
         descEl.textContent = item.desc;
       }

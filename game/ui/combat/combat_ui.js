@@ -139,6 +139,20 @@ function _renderEnemyStatuses(statusEffects, doc) {
 
   return fragment;
 }
+
+function _syncFloatingTooltipAnchors(doc) {
+  const statusTip = doc.getElementById('enemyStatusTooltip');
+  if (statusTip?.classList.contains('visible') && !doc.querySelector('.enemy-status-badge:hover')) {
+    clearTimeout(_enemyStatusTipTimer);
+    statusTip.classList.remove('visible');
+  }
+
+  const intentTip = doc.getElementById('intentTooltip');
+  if (intentTip?.classList.contains('visible') && !doc.querySelector('.enemy-intent:hover')) {
+    clearTimeout(_intentTipTimer);
+    intentTip.classList.remove('visible');
+  }
+}
 function _calcSelectedPreview(gs, data, enemy) {
   return calcSelectedPreview(gs, data, enemy, CardCostUtils);
 }
@@ -309,6 +323,7 @@ export const CombatUI = {
     const needsFullRender = deps.forceFullRender || existing.length !== expectedCount || existing.length === 0;
 
     if (needsFullRender) {
+      this.cleanupAllTooltips({ doc, win: _getWin(deps) });
       zone.textContent = '';
       gs.combat.enemies.forEach((e, i) => {
         if (!e || !e.ai) return;
@@ -559,6 +574,8 @@ export const CombatUI = {
         }
       });
     }
+
+    _syncFloatingTooltipAnchors(doc);
   },
 
   updateEnemyHpUI(idx, enemy, deps = {}) {
@@ -589,4 +606,3 @@ export const CombatUI = {
     renderCombatEnemies: (deps) => CombatUI.renderCombatEnemies(deps),
   }
 };
-

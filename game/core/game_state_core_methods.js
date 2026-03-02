@@ -4,7 +4,6 @@ import { CombatMethods } from '../combat/combat_methods.js';
 import { CardMethods } from '../combat/card_methods.js';
 import { PlayerMethods } from '../combat/player_methods.js';
 import { ItemSystem } from '../systems/item_system.js';
-import { DamageSystem } from '../combat/damage_system.js';
 import { EventBus } from './event_bus.js';
 import { CoreEvents } from './event_contracts.js';
 

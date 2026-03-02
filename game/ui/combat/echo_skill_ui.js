@@ -1,6 +1,5 @@
 import { CONSTANTS } from '../../data/constants.js';
 import { Trigger } from '../../data/triggers.js';
-import { GS } from '../../core/game_state.js';
 
 
 export const EchoSkillUI = {
@@ -26,9 +25,7 @@ export const EchoSkillUI = {
       return;
     }
 
-    console.log('[EchoSkill] Before drain - echo:', echoVal, 'cost:', cost);
     gs.drainEcho(cost);
-    console.log('[EchoSkill] After drain - echo:', gs.player.echo);
 
     gs.triggerItems?.(Trigger.ECHO_SKILL, { cost });
 

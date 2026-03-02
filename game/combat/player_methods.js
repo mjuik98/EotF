@@ -1,5 +1,3 @@
-import { AudioEngine } from '../../engine/audio.js';
-import { ParticleSystem } from '../../engine/particles.js';
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
 import { Actions } from '../core/state_actions.js';
 
@@ -15,13 +13,13 @@ export const PlayerMethods = {
             const icon = source.type === 'item' ? '💍' : '✨';
             this.addLog(`${icon} ${source.name}: 잔향 +${amount}`, 'echo');
         }
-        const updateEchoSkillBtn = window.updateEchoSkillBtn;
+        const updateEchoSkillBtn = globalThis.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
 
     drainEcho(amount) {
         this.commit(Actions.PLAYER_ECHO, { amount: -amount });
-        const updateEchoSkillBtn = window.updateEchoSkillBtn;
+        const updateEchoSkillBtn = globalThis.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
     },
 
@@ -48,7 +46,7 @@ export const PlayerMethods = {
 
             // 후속 특성 효과 트리거 (예: 성가)
             if (this.combat?.active) {
-                const cm = window.GAME?.Modules?.['ClassMechanics']?.[this.player.class];
+                const cm = globalThis.GAME?.Modules?.['ClassMechanics']?.[this.player.class];
                 if (cm && typeof cm.onHeal === 'function') {
                     cm.onHeal(this, result.healed);
                 }

@@ -85,7 +85,7 @@ export const ClassSelectUI = {
       <div style="font-size:10px;color:rgba(200,200,220,0.85);line-height:1.5;">${desc}</div>
     `;
     const rect = e.target.getBoundingClientRect();
-    tip.style.left = `${Math.min(rect.left, window.innerWidth - 300)}px`;
+    tip.style.left = `${Math.min(rect.left, (globalThis.innerWidth || 1280) - 300)}px`;
     tip.style.top = `${rect.bottom + 6}px`;
     tip.style.opacity = '1';
   },
@@ -96,7 +96,6 @@ export const ClassSelectUI = {
   },
 
   renderButtons(container, deps = {}) {
-    console.log('[ClassSelectUI] renderButtons called', { container, hasData: !!deps.data, hasClasses: !!deps.data?.classes });
     if (!container) {
       console.error('[ClassSelectUI] No container found for rendering buttons');
       return;
@@ -104,7 +103,6 @@ export const ClassSelectUI = {
     const data = deps.data;
     const CLASS_START_ITEMS = deps.CLASS_START_ITEMS;
     if (!data?.classes) {
-      console.warn('[ClassSelectUI] No class data available yet');
       return;
     }
 

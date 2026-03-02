@@ -1,4 +1,3 @@
-import { GS } from '../../core/game_state.js';
 import { Trigger } from '../../data/triggers.js';
 
 

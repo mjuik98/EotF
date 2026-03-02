@@ -49,11 +49,8 @@ export const DeathHandler = {
         this.player.kills++; this.meta.totalKills++;
         EventBus.emit(Actions.ENEMY_DEATH, { enemy: { name: enemy.name, id: enemy.id }, idx });
 
-        console.log('[DeathHandler] onEnemyDeath - enemy:', enemy.name, 'isBoss:', enemy.isBoss);
-
         if (enemy.isBoss) {
             this.combat.bossDefeated = true;
-            console.log('[DeathHandler] Boss defeated! Set bossDefeated = true');
         }
 
         const goldGained = enemy.gold || 10;
@@ -73,6 +70,11 @@ export const DeathHandler = {
         this.worldMemory[`killed_${enemy.id}`] = (this.worldMemory[`killed_${enemy.id}`] || 0) + 1;
 
         const doc = _getDoc(deps);
+        const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
+        if (typeof cleanupTooltips === 'function') {
+            cleanupTooltips({ doc, win });
+        }
+
         const cardEl = doc.getElementById(`enemy_${idx}`);
         if (cardEl) {
             cardEl.classList.add('dying');
@@ -133,8 +135,6 @@ export const DeathHandler = {
     },
 
     onPlayerDeath(deps = {}) {
-        console.log('[onPlayerDeath] Called, hp:', this.player.hp);
-
         const heart = this.player.items.find(i => i === 'echo_heart');
         if (heart && !this._heartUsed) {
             const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;

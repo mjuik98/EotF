@@ -82,7 +82,6 @@ import { MetaProgressionUI } from '../ui/screens/meta_progression_ui.js';
 import { HelpPauseUI } from '../ui/screens/help_pause_ui.js';
 
 // ─── UI: Feedback ───
-import { ButtonFeedback } from '../ui/feedback/button_feedback.js';
 
 // ─── UI: Run ───
 import { RunModeUI } from '../ui/run/run_mode_ui.js';
@@ -122,7 +121,7 @@ const modules = {
   CombatStartUI, CombatUI, CombatHudUI, EchoSkillUI, CombatTurnUI,
   StatusEffectsUI, CombatInfoUI, CombatActionsUI,
   CardUI, CardTargetUI, TooltipUI, DeckModalUI,
-  HudUpdateUI, FeedbackUI, DomValueUI, ButtonFeedback,
+  HudUpdateUI, FeedbackUI, DomValueUI,
   WorldCanvasUI, WorldRenderLoopUI, MapGenerationUI, MapNavigationUI,
   MapUI, MazeSystem, RegionTransitionUI,
   ScreenUI, EventUI, RewardUI, CodexUI, StoryUI,

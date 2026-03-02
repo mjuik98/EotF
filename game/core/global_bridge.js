@@ -12,7 +12,6 @@ export const GAME = {
     API: {},
 
     init(gs, data, audio, particle) {
-        console.log('[GAME] Initializing with:', { gs: !!gs, data: !!data, audio: !!audio, particle: !!particle });
         this.State = gs;
         this.Data = data;
         this.Audio = audio;

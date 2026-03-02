@@ -1,5 +1,3 @@
-import { GS } from '../../core/game_state.js';
-
 export const MapGenerationUI = {
   generateMap(regionIdx, deps = {}) {
     const gs = deps.gs;

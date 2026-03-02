@@ -1,8 +1,3 @@
-import { AudioEngine } from '../../../engine/audio.js';
-import { GS } from '../../core/game_state.js';
-import { DATA } from '../../../data/game_data.js';
-
-
 const CLASS_CONFIGS = {
   swordsman: { maxHp: 80, startEcho: 0 },
   mage: { maxHp: 50, startEcho: 0 },
@@ -78,10 +73,8 @@ export const RunSetupUI = {
   CLASS_START_ITEMS,
   startGame(deps = {}) {
     const selectedClass = deps.getSelectedClass?.();
-    console.log('[RunSetupUI] startGame triggered. Selected class:', selectedClass);
 
     if (!selectedClass) {
-      console.warn('[RunSetupUI] No class selected. Cannot start game.');
       return;
     }
 

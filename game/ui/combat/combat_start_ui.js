@@ -3,9 +3,6 @@
  *
  * CombatInitializer?먯꽌 濡쒖쭅??泥섎━?섍퀬, ???뚯씪? DOM ?낅뜲?댄듃留??대떦?⑸땲??
  */
-import { AudioEngine } from '../../../engine/audio.js';
-import { GS } from '../../core/game_state.js';
-import { DATA } from '../../../data/game_data.js';
 import { Trigger } from '../../data/triggers.js';
 import { CombatInitializer } from '../../combat/combat_initializer.js';
 import { setActionButtonLabel } from '../hud/hud_render_helpers.js';
@@ -17,8 +14,6 @@ function _getDoc(deps) {
 
 export const CombatStartUI = {
   startCombat(isBoss = false, deps = {}) {
-    console.log('[CombatStart] Starting combat, isBoss:', isBoss);
-
     const gs = deps.gs;
     const data = deps.data;
     const getRegionData = deps.getRegionData || globalThis.getRegionData;
@@ -30,7 +25,7 @@ export const CombatStartUI = {
     const classMechanics = deps.classMechanics || globalThis.ClassMechanics;
 
     if (!gs || !data?.enemies || typeof getRegionData !== 'function') {
-      console.error('[CombatStart] Missing dependencies:', { gs: !!gs, data: !!data, getRegionData: typeof getRegionData });
+      console.error('[CombatStart] Missing dependencies');
       return;
     }
 
@@ -67,7 +62,7 @@ export const CombatStartUI = {
 
     // ?? 濡쒖쭅: ?대옒????猷?珥덇린????
     const playerClass = gs.player.class;
-    const classMech = globalThis.ClassMechanics?.[playerClass];
+    const classMech = classMechanics?.[playerClass];
     if (classMech && typeof classMech.onCombatStart === 'function') {
       classMech.onCombatStart(gs);
     }
@@ -100,10 +95,8 @@ export const CombatStartUI = {
     deps.updateNoiseWidget?.();
 
     const combatOverlay = doc.getElementById('combatOverlay');
-    console.log('[CombatStart] combatOverlay element:', combatOverlay);
     if (combatOverlay) {
       combatOverlay.classList.add('active');
-      console.log('[CombatStart] combatOverlay classList:', combatOverlay.classList);
     }
 
     // 손패 클릭 잠금 상태가 남아있는 경우 초기화
@@ -125,14 +118,17 @@ export const CombatStartUI = {
     // ?쒕줈??踰꾪듉 ?곹깭 媛깆떊
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn) {
-      const handFull = gs.player.hand.length >= 8;
-      const canDraw = gs.combat.active && gs.combat.playerTurn && gs.player.energy >= 1 && !handFull;
+      const playerState = gs.player;
+      const combatState = gs.combat;
+      const hand = Array.isArray(playerState.hand) ? playerState.hand : [];
+      const handFull = hand.length >= 8;
+      const canDraw = combatState.active && combatState.playerTurn && playerState.energy >= 1 && !handFull;
       drawBtn.disabled = !canDraw;
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (handFull) {
         setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
         drawBtn.title = '손패가 가득 찼습니다 (최대 8장)';
-      } else if (gs.player.energy < 1) {
+      } else if (playerState.energy < 1) {
         setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
         drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';
       } else {
@@ -158,7 +154,6 @@ export const CombatStartUI = {
       } else {
         setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 (${echoVal}/30)`, 'E');
       }
-      console.log('[CombatStart] Echo button initialized - echo:', echoVal, 'disabled:', echoBtn.disabled, 'text:', echoBtn.textContent);
     }
 
     if (typeof deps.showTurnBanner === 'function') {
@@ -175,6 +170,5 @@ export const CombatStartUI = {
     gs.markDirty?.('hud');
     deps.updateClassSpecialUI?.();
 
-    console.log('[CombatStart] Combat start complete, enemies:', gs.combat.enemies.length);
   },
 };

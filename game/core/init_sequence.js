@@ -73,9 +73,6 @@ export function bootGame(modules, fns, Deps) {
     GAME.register('updateNextNodes', fns.updateNextNodes);
     GAME.register('renderMinimap', fns.renderMinimap);
 
-    // ── ButtonFeedback 등록 ──
-    Deps.patchRefs({ ButtonFeedback: modules.ButtonFeedback });
-
     // ── Maze System 설정 ──
     MazeSystem?.configure?.({
         gs: GS,
@@ -89,7 +86,6 @@ export function bootGame(modules, fns, Deps) {
     // ── 캐릭터 선택 버튼 렌더링 (추가 - 약간의 지연으로 DOM 안정성 확보) ──
     setTimeout(() => {
         const classContainer = document.getElementById('classSelectContainer');
-        console.log('[Init] Attempting to render class buttons', { classContainer, hasUI: !!modules.ClassSelectUI });
         if (classContainer && modules.ClassSelectUI) {
             modules.ClassSelectUI.renderButtons(classContainer, {
                 data: DATA,

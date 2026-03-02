@@ -3,8 +3,6 @@
  *
  * TurnManager에서 로직 결과를 받아 DOM만 업데이트합니다.
  */
-import { GS } from '../../core/game_state.js';
-import { DATA } from '../../../data/game_data.js';
 import { TurnManager } from '../../combat/turn_manager.js';
 
 
@@ -185,9 +183,6 @@ export const CombatTurnUI = {
     // ── 플레이어 턴 시작: 로직 → UI ──
     if (!(await waitWhileActive(600))) return;
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
-
-    console.log('[CombatTurn] Player turn start - energy:', gs.player.energy, 'maxEnergy:', gs.player.maxEnergy);
-    console.log('[CombatTurn] Region:', gs.currentRegion, 'baseRegion:', typeof globalThis.getBaseRegionIndex === 'function' ? globalThis.getBaseRegionIndex(gs.currentRegion) : 'N/A');
 
     const statusResult = TurnManager.processPlayerStatusTicks(gs, {
       shuffleArrayFn: deps.shuffleArray,

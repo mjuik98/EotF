@@ -238,7 +238,6 @@ export function registerSubscribers(uiRefs) {
         }
     });
 
-    console.log('[EventSubscribers] Registered all event subscriptions');
 }
 
 /**

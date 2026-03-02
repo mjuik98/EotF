@@ -1,7 +1,3 @@
-import { DescriptionUtils } from '../../utils/description_utils.js';
-import { AudioEngine } from '../../../engine/audio.js';
-
-
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -14,16 +10,17 @@ function _getData(deps) {
   return deps?.data;
 }
 
+function _getAudioEngine(deps) {
+  return deps?.audioEngine || globalThis.AudioEngine;
+}
+
 export const RewardUI = {
   showRewardScreen(isBoss, deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);
     if (!gs || !data) return;
 
-    console.log('[RewardUI] showRewardScreen called - isBoss:', isBoss, 'combat.active:', gs.combat?.active);
-
     if (gs.combat?.active) {
-      console.warn('[RewardUI] Combat still active, forcing deactivation');
       gs.combat.active = false;
     }
 
@@ -31,7 +28,8 @@ export const RewardUI = {
     this.hideSkipConfirm(deps);
 
     const doc = _getDoc(deps);
-    const isElite = gs.currentNode?.type === 'elite';
+    const currentNode = gs.currentNode;
+    const isElite = currentNode?.type === 'elite';
     const eyebrow = doc.getElementById('rewardEyebrow');
     const titleEl = doc.getElementById('rewardTitle');
     if (eyebrow) eyebrow.textContent = isBoss ? '✦ 보스 처치 — 보상 선택 ✦' : isElite ? '✦ 정예 처치 — 보상 선택 ✦' : '✦ 전투 승리 — 보상 선택 ✦';
@@ -394,7 +392,7 @@ export const RewardUI = {
       }
     } else {
       // 강화 대상이 없을 때 경고음 및 취소 방지
-      if (typeof AudioEngine !== 'undefined' && AudioEngine.playHit) AudioEngine.playHit();
+      _getAudioEngine(deps)?.playHit?.();
       return;
     }
   },

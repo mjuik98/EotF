@@ -281,7 +281,7 @@ export const MapUI = {
     }
 
     const getFloorStatusText = deps.getFloorStatusText;
-    const getRegionData = deps.getRegionData || window.getRegionData;
+    const getRegionData = deps.getRegionData || globalThis.getRegionData;
     if (title && typeof getFloorStatusText === 'function') {
       title.textContent = `${getFloorStatusText(gs.currentRegion, gs.currentFloor)} - 이동 경로를 선택하세요`;
     }
@@ -388,15 +388,17 @@ export const MapUI = {
     // 타이틀
     const title = doc.createElement('div');
     title.style.cssText = `font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.3em;color:var(--echo-bright,#b388ff);margin-bottom:20px;`;
-    const getRegionData = deps.getRegionData || window.getRegionData;
+    const getRegionData = deps.getRegionData || globalThis.getRegionData;
     const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: '지역' };
     title.textContent = `📍 ${regionData.name} — ${gs.currentFloor || 0}층`;
     overlay.appendChild(title);
 
     // 캔버스
     // [개선 3] 맵 세로 스크롤 지원 컨테이너
-    const cw = Math.min(720, window.innerWidth - 60);
-    const ch = Math.min(600, window.innerHeight - 200);
+    const viewportW = Number(globalThis.innerWidth || 1280);
+    const viewportH = Number(globalThis.innerHeight || 720);
+    const cw = Math.min(720, viewportW - 60);
+    const ch = Math.min(600, viewportH - 200);
     const canvasContainer = doc.createElement('div');
     canvasContainer.style.cssText = `
       width:${cw}px; height:${ch}px; overflow-y:auto; overflow-x:hidden;
@@ -595,8 +597,10 @@ export const MapUI = {
       const rectT = tooltip.getBoundingClientRect();
       let lx = event.clientX + 20;
       let ly = event.clientY + 20;
-      if (lx + rectT.width > window.innerWidth) lx = event.clientX - rectT.width - 20;
-      if (ly + rectT.height > window.innerHeight) ly = event.clientY - rectT.height - 20;
+      const viewportW = Number(globalThis.innerWidth || 1280);
+      const viewportH = Number(globalThis.innerHeight || 720);
+      if (lx + rectT.width > viewportW) lx = event.clientX - rectT.width - 20;
+      if (ly + rectT.height > viewportH) ly = event.clientY - rectT.height - 20;
       tooltip.style.left = `${lx}px`; tooltip.style.top = `${ly}px`;
     };
 

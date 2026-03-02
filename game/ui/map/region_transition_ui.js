@@ -14,8 +14,6 @@ export const RegionTransitionUI = {
       return;
     }
 
-    console.log('[RegionTransitionUI] advanceToNextRegion called - currentRegion:', gs.currentRegion);
-
     gs.currentRegion++;
     gs.currentFloor = 0;
     deps.mazeSystem?.close?.();

@@ -1,14 +1,4 @@
-import { AudioEngine } from '../../../engine/audio.js';
-
-
-const BOOT_BANNER = `
-╔══════════════════════════════════════════╗
-║  ECHO OF THE FALLEN — SET SYSTEM     ║
-║                                          ║
-╚══════════════════════════════════════════╝
-  `;
-
-function _getDoc(deps) {
+﻿function _getDoc(deps) {
   return deps?.doc || document;
 }
 
@@ -25,7 +15,7 @@ export const GameBootUI = {
         try {
           audioEngine?.init?.();
           audioEngine?.resume?.();
-        } catch (e) {
+        } catch {
           // Ignore init failures from blocked gesture contexts.
         }
       }, { once: false });
@@ -33,12 +23,10 @@ export const GameBootUI = {
       try { saveSystem?.loadMeta?.(deps.saveSystemDeps || {}); } catch (e) { console.error('[Boot] loadMeta error:', e); }
       try { runRules?.ensureMeta?.(gs?.meta); } catch (e) { console.error('[Boot] ensureMeta error:', e); }
 
-      // 타이틀 캔버스 초기화 (DOM 안정성을 위해 약간의 지연 추가)
       setTimeout(() => {
         deps.initTitleCanvas?.();
-        // 초기화 직후 리사이즈 강제 호출로 300x150 방지
-        if (typeof window.resizeTitleCanvas === 'function') {
-          window.resizeTitleCanvas();
+        if (typeof globalThis.resizeTitleCanvas === 'function') {
+          globalThis.resizeTitleCanvas();
         }
       }, 100);
 
@@ -48,14 +36,12 @@ export const GameBootUI = {
       if ((gs?.meta?.runCount || 0) > 1) {
         const badge = doc.createElement('div');
         badge.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);font-family:\'Share Tech Mono\',monospace;font-size:10px;color:rgba(123,47,255,0.5);z-index:5;pointer-events:none;';
-        badge.textContent = `총 ${gs.meta.runCount - 1}회 플레이 · 처치 ${gs.meta.totalKills} · 최고 체인 ${gs.meta.bestChain}`;
+        badge.textContent = `珥?${gs.meta.runCount - 1}???뚮젅??쨌 泥섏튂 ${gs.meta.totalKills} 쨌 理쒓퀬 泥댁씤 ${gs.meta.bestChain}`;
         doc.getElementById('titleScreen')?.appendChild(badge);
       }
     } catch (e) {
       console.error('Boot error:', e);
     }
-
-    console.log(BOOT_BANNER);
   },
 
   bootWhenReady(deps = {}) {

@@ -1,5 +1,13 @@
-function _getDoc(deps) {
+﻿function _getDoc(deps) {
   return deps?.doc || document;
+}
+
+function _afterScreenTransition(deps, delay, cb) {
+  setTimeout(() => {
+    deps.updateUI?.();
+    deps.updateNextNodes?.();
+    cb?.();
+  }, delay);
 }
 
 export const RunReturnUI = {
@@ -10,8 +18,6 @@ export const RunReturnUI = {
       console.error('[RunReturnUI] Missing gs or runRules');
       return;
     }
-
-    console.log('[RunReturnUI] returnToGame called - fromReward:', fromReward, 'wasBoss:', gs._bossRewardPending, 'wasLastRegion:', gs._bossLastRegion);
 
     const wasBoss = gs._bossRewardPending;
     const wasLastRegion = gs._bossLastRegion;
@@ -37,81 +43,28 @@ export const RunReturnUI = {
       nodeOverlay.style.pointerEvents = 'none';
     }
 
-    // rewardScreen 비활성화
     doc.getElementById('rewardScreen')?.classList.remove('active');
 
     if (fromReward && wasBoss) {
-      if (wasLastRegion) {
-        if (!endlessRun) {
-          if (typeof deps.finalizeRunOutcome === 'function') {
-            deps.finalizeRunOutcome('victory', { echoFragments: 5 });
-          }
-          if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
-          else deps.storySystem?.showNormalEnding?.();
-          return;
-        }
-
-        // 무한 모드: 다음 지역로 이동
-        console.log('[RunReturnUI] Endless mode - advancing to next region');
-        if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-
-        setTimeout(() => {
-          console.log('[RunReturnUI] Updating UI after screen transition (endless)');
-          if (typeof deps.updateUI === 'function') deps.updateUI();
-          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-
-          if (typeof deps.advanceToNextRegion === 'function') {
-            console.log('[RunReturnUI] Calling advanceToNextRegion with deps');
-            deps.advanceToNextRegion(deps);
-          } else {
-            console.error('[RunReturnUI] advanceToNextRegion not available');
-          }
-        }, 100);
+      if (wasLastRegion && !endlessRun) {
+        deps.finalizeRunOutcome?.('victory', { echoFragments: 5 });
+        if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
+        else deps.storySystem?.showNormalEnding?.();
         return;
       }
 
-      // 보스 처치 후 다음 지역로 이동
-      console.log('[RunReturnUI] Boss defeated - advancing to next region');
-      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-
-      setTimeout(() => {
-        console.log('[RunReturnUI] Updating UI after screen transition (boss)');
-        if (typeof deps.updateUI === 'function') deps.updateUI();
-        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-
-        if (typeof deps.advanceToNextRegion === 'function') {
-          console.log('[RunReturnUI] Calling advanceToNextRegion with deps');
-          deps.advanceToNextRegion(deps);
-        } else {
-          console.error('[RunReturnUI] advanceToNextRegion not available');
-        }
-      }, 100);
+      deps.switchScreen?.('game');
+      _afterScreenTransition(deps, 100, () => {
+        deps.advanceToNextRegion?.(deps);
+      });
       return;
     }
 
-    // 일반 전투 승리 후 맵 화면으로 복귀
-    console.log('[RunReturnUI] Normal combat victory - returning to map');
-
-    // 1. 먼저 화면 전환
-    if (typeof deps.switchScreen === 'function') {
-      console.log('[RunReturnUI] Calling switchScreen(game)');
-      deps.switchScreen('game');
-    }
-
-    // 2. 화면 전환 후 약간의 지연을 두고 UI 업데이트
-    setTimeout(() => {
-      console.log('[RunReturnUI] Updating UI after screen transition');
-      if (typeof deps.updateUI === 'function') deps.updateUI();
-      if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-
-      // 3. 미니맵 렌더링
+    deps.switchScreen?.('game');
+    _afterScreenTransition(deps, 50, () => {
       if (typeof deps.renderMinimap === 'function') {
-        console.log('[RunReturnUI] Rendering minimap');
         setTimeout(() => deps.renderMinimap(), 50);
-      } else {
-        console.warn('[RunReturnUI] renderMinimap not available');
       }
-      console.log('[RunReturnUI] returnToGame complete');
-    }, 50);
+    });
   },
 };

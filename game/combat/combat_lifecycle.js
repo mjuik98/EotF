@@ -25,6 +25,13 @@ export const CombatLifecycle = {
         const win = _getWin(deps);
         const doc = _getDoc(deps);
 
+        // COMBAT_END 디스패치가 전투 상태를 초기화하므로, 보스 정보는 미리 캡처한다.
+        const combatState = this.combat;
+        const preEndEnemies = Array.isArray(combatState?.enemies) ? [...combatState.enemies] : [];
+        const isBoss = !!combatState?.bossDefeated || preEndEnemies.some(e => e?.isBoss);
+        const regionIdx = this.currentRegion;
+        const isLastRegion = getBaseRegionIndex(regionIdx) === Math.max(0, getRegionCount() - 1);
+
         try {
             this.dispatch(Actions.COMBAT_END, { victory: true });
             const tooltipUI = deps.tooltipUI || win.TooltipUI;
@@ -59,37 +66,22 @@ export const CombatLifecycle = {
             const updateUI = deps.updateUI || win.updateUI;
             if (typeof updateUI === 'function') updateUI();
 
-            const isBoss = this.combat.bossDefeated || this.combat.enemies.some(e => e.isBoss);
-            const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
-
-            console.log('[endCombat] isBoss check:', {
-                bossDefeated: this.combat.bossDefeated,
-                enemies: this.combat.enemies.map(e => ({ name: e.name, isBoss: e.isBoss })),
-                isLastRegion
-            });
-
             const AudioEngine = deps.audioEngine || win.AudioEngine;
             AudioEngine?.playItemGet?.();
             const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
             const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
-            console.log('[endCombat] Showing combat summary:', combatDmgDealt, combatDmgTaken);
             const showCombatSummary = deps.showCombatSummary || win.showCombatSummary;
             if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, this.player.kills - (this._combatStartKills || 0));
 
             if (isBoss) {
                 this._bossRewardPending = true;
                 this._bossLastRegion = isLastRegion;
-                console.log('[endCombat] Boss reward pending:', isLastRegion);
             }
             if (isBoss && isLastRegion && RunRules.isEndless(this)) {
-                console.log('[endCombat] Endless mode - returning to game');
                 setTimeout(() => {
                     const returnToGame = deps.returnToGame || win.returnToGame;
                     if (typeof returnToGame === 'function') {
-                        console.log('[endCombat] Calling returnToGame');
                         returnToGame(true);
-                    } else {
-                        console.error('[endCombat] returnToGame not available');
                     }
                 }, 300);
                 return;
@@ -100,20 +92,13 @@ export const CombatLifecycle = {
                 const nodeOverlay = doc.getElementById('nodeCardOverlay');
                 if (nodeOverlay) nodeOverlay.style.display = 'none';
             }
-            console.log('[endCombat] Waiting 1 second before reward screen...');
             await new Promise(r => setTimeout(r, 1000));
 
             // Ensure combat is deactivated before showing reward screen
             this.combat.active = false;
-            console.log('[endCombat] combat.active set to false');
-
-            console.log('[endCombat] Calling showRewardScreen, isBoss:', isBoss);
             const showRewardScreen = deps.showRewardScreen || win.showRewardScreen;
             if (typeof showRewardScreen === 'function') {
                 showRewardScreen(isBoss);
-                console.log('[endCombat] showRewardScreen called successfully');
-            } else {
-                console.error('[endCombat] showRewardScreen is not available');
             }
         } catch (e) {
             console.error('[endCombat] Error:', e);

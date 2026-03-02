@@ -18,7 +18,7 @@ export const HelpPauseUI = {
 
   showMobileWarning(deps = {}) {
     const doc = _getDoc(deps);
-    const isMobile = globalThis.innerWidth < 900 || 'ontouchstart' in window;
+    const isMobile = globalThis.innerWidth < 900 || 'ontouchstart' in globalThis;
     if (!isMobile || doc.getElementById('mobileWarn')) return;
 
     const warn = doc.createElement('div');
@@ -340,18 +340,13 @@ export const HelpPauseUI = {
   bindGlobalHotkeys(deps = {}) {
     const doc = _getDoc(deps);
 
-    console.log('[bindGlobalHotkeys] _hotkeysBound:', _hotkeysBound);
-
     // ?대? 諛붿씤?⑸맂 寃쎌슦 以묐났 諛⑹?
     if (_hotkeysBound) {
-      console.log('[bindGlobalHotkeys] Already bound, skipping');
       return;
     }
     _hotkeysBound = true;
 
     const self = this;
-
-    console.log('[bindGlobalHotkeys] Binding ESC key listener');
 
     doc.addEventListener('keydown', e => {
       // deps를 통해 현재 상태를 직접 참조
@@ -361,7 +356,6 @@ export const HelpPauseUI = {
       if (e.key === 'Escape') {
         const battleChronicle = doc.getElementById('battleChronicleOverlay');
         if (battleChronicle && battleChronicle.style.display !== 'none') {
-          console.log('[ESC Key] Close battle chronicle');
           if (typeof deps.closeBattleChronicle === 'function') {
             deps.closeBattleChronicle();
           } else if (globalThis.GAME?.API?.closeBattleChronicle) {
@@ -388,51 +382,44 @@ export const HelpPauseUI = {
           return; // Exit early if help menu was handled
         }
 
-        console.log('[ESC Key] currentScreen:', gs?.currentScreen, 'combat.active:', gs?.combat?.active, 'pauseOpen:', _pauseOpen);
         const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true || gs?.currentScreen === 'reward';
         const isTitle = gs?.currentScreen === 'title';
 
         // 도감 및 기타 모달이 열려 있으면 먼저 닫기
-        const deckModal = document.getElementById('deckViewModal');
-        const codexModal = document.getElementById('codexModal');
-        const runSettingsModal = document.getElementById('runSettingsModal');
+        const deckModal = doc.getElementById('deckViewModal');
+        const codexModal = doc.getElementById('codexModal');
+        const runSettingsModal = doc.getElementById('runSettingsModal');
 
         // 덱 모달 확인 (style.display 사용)
         if (deckModal && deckModal.style.display === 'block') {
-          console.log('[ESC Key] Close deck modal');
           if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
           return;
         }
 
         // 도감 모달 확인 (style.display 사용)
         if (codexModal && codexModal.style.display === 'block') {
-          console.log('[ESC Key] Close codex modal');
           if (typeof deps.closeCodex === 'function') deps.closeCodex();
           return;
         }
 
         // 런 설정 모달 확인
         if (runSettingsModal && runSettingsModal.style.display !== 'none') {
-          console.log('[ESC Key] Close run settings modal');
           if (typeof deps.closeRunSettings === 'function') deps.closeRunSettings();
           return;
         }
 
         // 전투 중이거나 게임 화면이면 일시정지 토글
         if (isInGame && !self.isHelpOpen()) {
-          console.log('[ESC Key] Toggle pause');
           self.togglePause(deps);
           return;
         }
 
         // 타이틀 화면에서는 무시 (타이틀 메뉴가 별도 존재)
         if (isTitle) {
-          console.log('[ESC Key] Title screen - ignored');
           return;
         }
 
         // 보상 화면에서도 일시정지 메뉴 사용 허용
-        console.log('[ESC Key] Ignored - not in game or help open');
       }
 
       const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true || gs?.currentScreen === 'reward';
