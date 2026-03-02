@@ -1,6 +1,6 @@
 const STATUS_KR = {
   resonance: { name: '공명', icon: '⚡', buff: true, desc: '카드 연계 시 공격 보너스가 증가합니다.' },
-  acceleration: { name: '가속', icon: '💨', buff: true, desc: '이번 턴의 피해량이 증가합니다.' },
+  acceleration: { name: '가속', icon: '⏩', buff: true, desc: '이번 턴의 피해량이 증가합니다.' },
   soul_armor: { name: '영혼 갑옷', icon: '🛡', buff: true, desc: '받는 피해를 감소시킵니다.' },
   vanish: { name: '은신', icon: '🌫', buff: true, desc: '다음 공격이 치명타로 적용됩니다.' },
   immune: { name: '무적', icon: '🏛', buff: true, desc: '피해를 받지 않습니다.' },

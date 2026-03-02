@@ -22,6 +22,38 @@ const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
 
 export const DamageSystem = {
+    /**
+     * 예상 데미지를 계산합니다 (툴팁용, 부작용 없음).
+     */
+    calculatePotentialDamage(amount, noChain = false) {
+        let dmg = amount;
+        const res = this.getBuff?.('resonance');
+        if (res) dmg += res.dmgBonus || 0;
+        const accel = this.getBuff?.('acceleration');
+        if (accel) dmg += accel.dmgBonus || 0;
+        const sha = this.getBuff?.('shadow_atk');
+        if (sha) dmg += sha.dmgBonus || 0;
+
+        if (this.getBuff?.('vanish')) {
+            dmg = Math.floor(dmg * 2);
+        }
+
+        if ((this.getBuff?.('weakened')?.stacks || 0) > 0) {
+            dmg = Math.max(0, Math.floor(dmg * 0.5));
+        }
+
+        let chainBonus = 0;
+        if (!noChain && this.player.echoChain > 2) {
+            chainBonus = Math.floor(dmg * 0.2);
+            if (this.player.chainBonusMult) {
+                chainBonus = Math.floor(chainBonus * this.player.chainBonusMult);
+            }
+        }
+        dmg += chainBonus;
+
+        return Math.floor(dmg);
+    },
+
     dealDamage(amount, targetIdx = null, noChain = false, source = null, deps = {}) {
         const doc = _getDoc(deps);
         const win = _getWin(deps);
@@ -80,7 +112,7 @@ export const DamageSystem = {
             dmg = Math.max(0, Math.floor(itemScaled));
         }
         let chainBonus = 0;
-        if (this.player.echoChain > 2) {
+        if (!noChain && this.player.echoChain > 2) {
             chainBonus = Math.floor(dmg * 0.2);
             if (this.player.chainBonusMult) {
                 chainBonus = Math.floor(chainBonus * this.player.chainBonusMult);

@@ -23,14 +23,14 @@ export const CardMethods = {
     },
 
     getRandomCard(rarity = 'common') {
-        const rare = ['echo_burst_card', 'void_blade', 'soul_armor', 'echo_dance', 'arcane_storm', 'sanctuary', 'echo_overload'];
-        const uncommon = ['echo_wave', 'resonance', 'soul_rend', 'twin_strike', 'echo_shield', 'afterimage', 'phantom_blade', 'time_echo', 'void_mirror', 'prediction', 'death_mark', 'shadow_step', 'poison_blade', 'soul_harvest', 'desperate_strike', 'reverberation', 'dark_pact', 'surge', 'energy_siphon'];
-        const allCards = Object.keys(DATA.cards);
-        let pool;
-        if (rarity === 'rare') pool = rare;
-        else if (rarity === 'uncommon') pool = uncommon;
-        else pool = allCards.filter(c => !rare.includes(c) && !uncommon.includes(c));
-        if (!pool.length) pool = allCards;
+        const allCards = Object.values(DATA.cards);
+        const pool = allCards.filter(c => c.rarity === rarity && !c.upgraded).map(c => c.id);
+
+        if (!pool.length) {
+            // 해당 희귀도 카드가 없으면 전체 일반 카드 중 선택
+            const commonPool = allCards.filter(c => c.rarity === 'common' && !c.upgraded).map(c => c.id);
+            return commonPool[Math.floor(Math.random() * commonPool.length)];
+        }
         return pool[Math.floor(Math.random() * pool.length)];
     },
 };

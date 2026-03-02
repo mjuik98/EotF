@@ -41,6 +41,7 @@ export const CombatInitializer = {
         player.shield = 0;
         player.echoChain = 0;
         player.energy = player.maxEnergy;
+        player.buffs = {};
         player.zeroCost = false;
         player.costDiscount = 0;
         player._nextCardDiscount = 0;
@@ -49,7 +50,6 @@ export const CombatInitializer = {
         player._traitCardDiscounts = {};
         player._mageCastCounter = 0;
         player._mageLastDiscountTarget = null;
-        combat.active = true;
         combat.bossDefeated = false;
         gs._endCombatScheduled = false;
         gs._endCombatRunning = false;
@@ -140,7 +140,6 @@ export const CombatInitializer = {
      *
      * 참고:
      * - 지역 규칙은 turn_manager.js에서 처리합니다.
-     * - 과거의 "전투 시작 즉시 디버프 부여" 로직은 의도치 않은 난이도 상승으로 제거했습니다.
      */
     applyRegionDebuffs(gs, _getBaseRegionIndex) {
         const runRules = globalThis.GAME?.Modules?.['RunRules'];

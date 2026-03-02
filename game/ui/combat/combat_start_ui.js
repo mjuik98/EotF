@@ -38,6 +38,7 @@ export const CombatStartUI = {
 
     // ?? 濡쒖쭅: ?곹깭 由ъ뀑 ??
     CombatInitializer.resetCombatState(gs);
+    gs.combat.active = true;
     const logContainer = doc.getElementById('combatLog');
     if (logContainer) logContainer.textContent = '';
 

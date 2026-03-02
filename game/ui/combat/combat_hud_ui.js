@@ -206,11 +206,24 @@ export const CombatHudUI = {
     const echo = gs.player.echo;
     const tiers = [1, 2, 3].map(t => {
       const skill = CONSTANTS.ECHO_SKILLS[cls]?.[t];
+      let skillDesc = skill?.desc || '';
+
+      if (typeof gs.calculatePotentialDamage === 'function') {
+        if (skill?.dmg) {
+          const potential = gs.calculatePotentialDamage(skill.dmg, true);
+          skillDesc = skillDesc.replace(/피해 \d+/, `피해 ${potential}`);
+        }
+        if (skill?.aoedmg) {
+          const potential = gs.calculatePotentialDamage(skill.aoedmg, true);
+          skillDesc = skillDesc.replace(/피해 \d+/, `피해 ${potential}`);
+        }
+      }
+
       return {
         stars: '★'.repeat(t),
         cost: skill?.cost || 0,
         active: echo >= (skill?.cost || 0),
-        desc: skill?.desc || ''
+        desc: skillDesc
       };
     });
 

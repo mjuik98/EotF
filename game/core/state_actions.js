@@ -1,3 +1,5 @@
+import { CombatInitializer } from '../combat/combat_initializer.js';
+
 /**
  * state_actions.js — Action 정의 + Reducer
  *
@@ -227,24 +229,15 @@ export const Reducers = {
         // 전투용 덱 파일 초기화 (COMBAT_END 시 덱에 카드들이 증식하지 않도록 처리)
         // Deck 자체는 Combat 시작 시의 메인 덱으로 유지됨
         gs.player.hand = [];
+        // 기본 초기화 (CombatInitializer 활용)
+        CombatInitializer.resetCombatState(gs);
+
+        // 추가 필드 초기화
         gs.player.graveyard = [];
         gs.player.exhausted = [];
         gs.player.drawPile = [];
         gs.player.discardPile = [];
 
-        // 플레이어 상태 초기화
-        gs.player.shield = 0;
-        gs.player.echoChain = 0;
-        gs.player.energy = gs.player.maxEnergy;
-        gs.player.buffs = {};
-        gs.player.costDiscount = 0;
-        gs.player._nextCardDiscount = 0;
-        gs.player.zeroCost = false;
-        gs.player._freeCardUses = 0;
-        gs.player._cascadeCards = new Map();
-        gs.player._traitCardDiscounts = {};
-        gs.player._mageCastCounter = 0;
-        gs.player._mageLastDiscountTarget = null;
         gs.player.silenceGauge = 0;
         gs._maskCount = 0;
         gs._batteryUsedTurn = false;
