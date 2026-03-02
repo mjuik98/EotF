@@ -71,31 +71,38 @@ export const RunModeUI = {
       const endlessOn = !!cfg.endless;
       endlessBtn.disabled = !endlessUnlocked;
       endlessBtn.textContent = endlessOn ? 'ON' : 'OFF';
-      endlessBtn.style.borderColor = endlessOn ? 'rgba(0,255,204,0.6)' : '';
-      endlessBtn.style.color = endlessOn ? 'var(--cyan)' : '';
+      if (endlessOn) endlessBtn.classList.add('active');
+      else endlessBtn.classList.remove('active');
     }
 
     const blessing = runRules.blessings[cfg.blessing] || runRules.blessings.none;
     const curse = runRules.curses[cfg.curse] || runRules.curses.none;
     const blessingBtn = doc.getElementById('blessingCycleBtn');
     const curseBtn = doc.getElementById('curseCycleBtn');
-    if (blessingBtn) blessingBtn.textContent = blessing.name;
-    if (curseBtn) curseBtn.textContent = curse.name;
+    if (blessingBtn) {
+      blessingBtn.textContent = blessing.name;
+      if (blessing.id !== 'none') blessingBtn.classList.add('active');
+      else blessingBtn.classList.remove('active');
+    }
+    if (curseBtn) {
+      curseBtn.textContent = curse.name;
+      if (curse.id !== 'none') curseBtn.classList.add('active');
+      else curseBtn.classList.remove('active');
+    }
 
     const descEl = doc.getElementById('runModeDesc');
     if (descEl) {
       const chunks = [];
-      if (cfg.ascension > 0) chunks.push(`Ascension A${cfg.ascension}: enemy scaling increased`);
-      else chunks.push('Ascension A0: normal run');
+      if (cfg.ascension > 0) chunks.push(`승천 A${cfg.ascension}: 적의 능력치가 강화됩니다`);
+      else chunks.push('승천 A0: 일반적인 탐험입니다');
 
-      if (cfg.endless) chunks.push('Endless: run loops after the final region');
-      if (blessing.id !== 'none') chunks.push(`Blessing: ${blessing.desc}`);
-      if (curse.id !== 'none') chunks.push(`Curse: ${curse.desc}`);
-      if (!ascUnlocked) chunks.push('Ascension unlocks after chapter 2');
-      if (!endlessUnlocked) chunks.push('Endless unlocks via meta progression');
+      if (cfg.endless) chunks.push('무한 모드: 최종 지역 이후 런이 반복됩니다');
+      if (blessing.id !== 'none') chunks.push(`축복: ${blessing.desc}`);
+      if (curse.id !== 'none') chunks.push(`저주: ${curse.desc}`);
+      if (!ascUnlocked) chunks.push('승천 모드는 챕터 2 클리어 후 해금됩니다');
+      if (!endlessUnlocked) chunks.push('무한 모드는 메타 진행도를 통해 해금됩니다');
 
-      descEl.textContent = chunks.join(' | ');
-      descEl.style.display = chunks.length > 0 ? 'block' : 'none';
+      descEl.innerText = chunks.join('\n');
     }
   },
 
@@ -209,7 +216,7 @@ export const RunModeUI = {
     const allDisabled = earnedInsc.every(([k]) => runConfig.disabledInscriptions.includes(k));
     disableAll.className = `run-mode-pill ${allDisabled ? 'active' : ''}`;
     disableAll.textContent = 'Start without inscriptions';
-    disableAll.style.marginBottom = '12px';
+    disableAll.style.marginBottom = '12px'; // keep min-margin for layout
     disableAll.onclick = () => {
       if (allDisabled) runConfig.disabledInscriptions = [];
       else runConfig.disabledInscriptions = earnedInsc.map(([k]) => k);
@@ -231,12 +238,15 @@ export const RunModeUI = {
 
       const pill = doc.createElement('div');
       pill.className = `inscription-pill ${disabled ? '' : 'active'}`;
+
       const label = doc.createElement('span');
+      label.className = 'inscription-label';
       label.textContent = `${def.icon || ''} ${def.name}`.trim();
+
       const levelSpan = doc.createElement('span');
-      levelSpan.style.cssText = 'opacity:0.7;font-size:0.8em;margin-left:4px;';
+      levelSpan.className = 'inscription-level';
       levelSpan.textContent = `Lv.${level}`;
-      pill.textContent = '';
+
       pill.append(label, levelSpan);
       pill.title = def.levels?.[Math.min(level, def.maxLevel) - 1]?.desc || def.desc || '';
       pill.onclick = () => this.toggleInscription(key, deps);
@@ -248,19 +258,16 @@ export const RunModeUI = {
     const synergies = _getActiveSynergies(meta, runConfig, data);
     if (synergies.length > 0) {
       const synRow = doc.createElement('div');
-      synRow.style.marginTop = '12px';
-      synRow.style.display = 'flex';
-      synRow.style.gap = '8px';
-      synRow.style.flexWrap = 'wrap';
+      synRow.className = 'active-synergies-row';
 
       const synTitle = doc.createElement('div');
-      synTitle.style.cssText = 'width:100%;font-size:10px;color:var(--text-dim);margin-bottom:4px;';
+      synTitle.className = 'synergy-title';
       synTitle.textContent = 'Active Synergies';
       synRow.appendChild(synTitle);
 
       synergies.forEach(({ syn }) => {
         const badge = doc.createElement('div');
-        badge.style.cssText = 'background:rgba(0,255,204,0.1);border:1px solid var(--cyan);border-radius:12px;padding:4px 10px;font-size:10px;color:var(--cyan);';
+        badge.className = 'synergy-badge';
         badge.textContent = `+ ${syn.name}`;
         badge.title = syn.desc || '';
         synRow.appendChild(badge);

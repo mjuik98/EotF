@@ -83,13 +83,13 @@ function _createEntryCard(doc, entry) {
   return card;
 }
 
-function _createSection(doc, title, entries) {
+function _createSection(doc, title, entries, icon = '✦') {
   const section = doc.createElement('section');
   section.className = 'codex-section';
 
   const heading = doc.createElement('h3');
   heading.className = 'codex-section-title';
-  heading.textContent = title;
+  heading.innerHTML = `<span style="margin-right:10px; color:var(--cyan);">${icon}</span> ${title}`;
 
   const grid = doc.createElement('div');
   grid.className = 'codex-grid';
@@ -111,7 +111,7 @@ function _renderSections(doc, container, sections) {
   container.textContent = '';
   const frag = doc.createDocumentFragment();
   sections.forEach((section) => {
-    frag.appendChild(_createSection(doc, section.title, section.entries));
+    frag.appendChild(_createSection(doc, section.title, section.entries, section.icon));
   });
   container.appendChild(frag);
 }
@@ -165,15 +165,29 @@ function _toItemEntry(codex, i) {
   };
 }
 
-function _toInscriptionEntry(gs, i) {
+function _toInscriptionEntry(gs, i, allInscriptions, allSynergies) {
   const level = Number(gs.meta?.inscriptions?.[i.id] || 0);
   const isUnlocked = level > 0;
+
+  let synergyInfo = '';
+  if (isUnlocked && allSynergies) {
+    const relatedSynergies = Object.values(allSynergies).filter(s => s.id.includes(i.id));
+    if (relatedSynergies.length > 0) {
+      synergyInfo = '<div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">';
+      synergyInfo += '<span style="color:var(--cyan); font-size:11px; font-weight:bold;">조합 시너지:</span>';
+      relatedSynergies.forEach(s => {
+        synergyInfo += `<div style="font-size:11px; color:rgba(255,255,255,0.6); margin-top:2px;">${s.icon} ${s.name}</div>`;
+      });
+      synergyInfo += '</div>';
+    }
+  }
+
   return {
     seen: isUnlocked,
     icon: i.icon,
     title: i.name,
     subtitle: `레벨 ${level}${i.maxLevel ? ` / ${i.maxLevel}` : ''}`,
-    desc: i.desc || '설명 없음',
+    desc: (i.desc || '설명 없음') + synergyInfo,
     accent: isUnlocked ? 'rgba(0,255,204,0.45)' : 'rgba(100,110,150,0.3)',
   };
 }
@@ -185,7 +199,7 @@ export const CodexUI = {
 
     const doc = _getDoc(deps);
     const modal = doc.getElementById('codexModal');
-    if (modal) modal.style.display = 'block';
+    if (modal) modal.style.display = 'flex';
 
     this.setCodexTab('enemies', deps);
   },
@@ -230,8 +244,16 @@ export const CodexUI = {
     const seenAll = seenEnemies + seenCards + seenItems + seenInscriptions;
     const pct = totalAll > 0 ? Math.round((seenAll / totalAll) * 100) : 0;
 
-    if (progressEl) {
-      progressEl.textContent = `진행도 ${pct}% · 적 ${seenEnemies}/${enemies.length} · 카드 ${seenCards}/${cards.length} · 유물 ${seenItems}/${items.length} · 각인 ${seenInscriptions}/${inscriptions.length}`;
+    const progressTextEl = doc.getElementById('codexProgressText');
+    const progressPctEl = doc.getElementById('codexProgressPercent');
+    const progressFillEl = doc.getElementById('codexProgressFill');
+    const progressStatsEl = doc.getElementById('codexProgressStats');
+
+    if (progressPctEl) progressPctEl.textContent = `${pct}%`;
+    if (progressFillEl) progressFillEl.style.width = `${pct}%`;
+    if (progressTextEl) progressTextEl.textContent = '도감 수집 진행도';
+    if (progressStatsEl) {
+      progressStatsEl.textContent = `적 ${seenEnemies}/${enemies.length} · 카드 ${seenCards}/${cards.length} · 유물 ${seenItems}/${items.length} · 각인 ${seenInscriptions}/${inscriptions.length}`;
     }
 
     if (_codexTab === 'enemies') {
@@ -239,9 +261,9 @@ export const CodexUI = {
       const elite = enemies.filter((e) => e.isElite).map((e) => _toEnemyEntry(codex, e));
       const boss = enemies.filter((e) => e.isBoss).map((e) => _toEnemyEntry(codex, e));
       _renderSections(doc, contentEl, [
-        { title: '일반 적', entries: normal },
-        { title: '정예 적', entries: elite },
-        { title: '보스', entries: boss },
+        { title: '일반 적', entries: normal, icon: '👾' },
+        { title: '정예 적', entries: elite, icon: '🔥' },
+        { title: '보스', entries: boss, icon: '👑' },
       ]);
       return;
     }
@@ -252,10 +274,10 @@ export const CodexUI = {
       const power = cards.filter((c) => String(c.type || '').toUpperCase() === 'POWER').map((c) => _toCardEntry(codex, c));
       const other = cards.filter((c) => !['ATTACK', 'SKILL', 'POWER'].includes(String(c.type || '').toUpperCase())).map((c) => _toCardEntry(codex, c));
       _renderSections(doc, contentEl, [
-        { title: '공격 카드', entries: attack },
-        { title: '스킬 카드', entries: skill },
-        { title: '파워 카드', entries: power },
-        { title: '기타', entries: other },
+        { title: '공격 카드', entries: attack, icon: '⚔️' },
+        { title: '스킬 카드', entries: skill, icon: '🛡️' },
+        { title: '파워 카드', entries: power, icon: '⚡' },
+        { title: '기타', entries: other, icon: '🃏' },
       ]);
       return;
     }
@@ -266,21 +288,21 @@ export const CodexUI = {
       const uncommon = items.filter((i) => String(i.rarity || '').toLowerCase() === 'uncommon').map((i) => _toItemEntry(codex, i));
       const common = items.filter((i) => !['legendary', 'rare', 'uncommon'].includes(String(i.rarity || '').toLowerCase())).map((i) => _toItemEntry(codex, i));
       _renderSections(doc, contentEl, [
-        { title: '전설 유물', entries: legendary },
-        { title: '희귀 유물', entries: rare },
-        { title: '고급 유물', entries: uncommon },
-        { title: '일반 유물', entries: common },
+        { title: '전설 유물', entries: legendary, icon: '💎' },
+        { title: '희귀 유물', entries: rare, icon: '🟡' },
+        { title: '고급 유물', entries: uncommon, icon: '🟢' },
+        { title: '일반 유물', entries: common, icon: '⚪' },
       ]);
       return;
     }
 
     if (_codexTab === 'inscriptions') {
-      const entries = inscriptions.map((i) => _toInscriptionEntry(gs, i));
+      const entries = inscriptions.map((i) => _toInscriptionEntry(gs, i, data.inscriptions, data.inscriptionSynergies));
       const unlocked = entries.filter((e) => e.seen);
       const locked = entries.filter((e) => !e.seen);
       _renderSections(doc, contentEl, [
-        { title: '해금됨', entries: unlocked },
-        { title: '미해금', entries: locked },
+        { title: '해금됨', entries: unlocked, icon: '✨' },
+        { title: '미해금', entries: locked, icon: '🌑' },
       ]);
     }
   },

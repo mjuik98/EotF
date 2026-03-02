@@ -92,7 +92,7 @@
             </div>
             <div id="runModeDesc" class="run-mode-desc"></div>
           </div>
-          <button id="runSettingsConfirmBtn" class="modal-confirm-btn">CONFIRM</button>
+          <button id="runSettingsConfirmBtn" class="modal-confirm-btn">확인</button>
         </div>
       </div>
 
@@ -534,7 +534,16 @@
         </button>
       </div>
       <!-- 진행도 바 -->
-      <div id="codexProgress" class="codex-progress-bar">
+      <div id="codexProgressContainer" class="codex-progress-container">
+        <div class="codex-progress-header">
+          <span id="codexProgressText">분석 중...</span>
+          <span id="codexProgressPercent">0%</span>
+        </div>
+        <div class="codex-progress-track">
+          <div id="codexProgressFill" class="codex-progress-fill"></div>
+        </div>
+        <div id="codexProgressStats" style="font-size:11px; margin-top:8px; color:var(--text-dim); text-align:right;">
+        </div>
       </div>
       <!-- 콘텐츠 -->
       <div id="codexContent"></div>
