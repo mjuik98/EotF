@@ -61,8 +61,8 @@ export const RunReturnUI = {
           if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
 
           if (typeof deps.advanceToNextRegion === 'function') {
-            console.log('[RunReturnUI] Calling advanceToNextRegion');
-            deps.advanceToNextRegion();
+            console.log('[RunReturnUI] Calling advanceToNextRegion with deps');
+            deps.advanceToNextRegion(deps);
           } else {
             console.error('[RunReturnUI] advanceToNextRegion not available');
           }
@@ -80,8 +80,8 @@ export const RunReturnUI = {
         if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
 
         if (typeof deps.advanceToNextRegion === 'function') {
-          console.log('[RunReturnUI] Calling advanceToNextRegion');
-          deps.advanceToNextRegion();
+          console.log('[RunReturnUI] Calling advanceToNextRegion with deps');
+          deps.advanceToNextRegion(deps);
         } else {
           console.error('[RunReturnUI] advanceToNextRegion not available');
         }
