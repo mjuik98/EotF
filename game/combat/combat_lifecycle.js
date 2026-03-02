@@ -62,6 +62,12 @@ export const CombatLifecycle = {
             const isBoss = this.combat.bossDefeated || this.combat.enemies.some(e => e.isBoss);
             const isLastRegion = getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1);
 
+            console.log('[endCombat] isBoss check:', {
+                bossDefeated: this.combat.bossDefeated,
+                enemies: this.combat.enemies.map(e => ({ name: e.name, isBoss: e.isBoss })),
+                isLastRegion
+            });
+
             const AudioEngine = deps.audioEngine || win.AudioEngine;
             AudioEngine?.playItemGet?.();
             const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
