@@ -1121,6 +1121,17 @@ body {
   box-shadow: 0 0 14px rgba(123, 47, 255, 0.35);
 }
 
+#minimapNodeHint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: rgba(0, 255, 204, 0.7);
+  text-align: center;
+  min-height: 16px;
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
 .region-info {
   background: rgba(123, 47, 255, 0.06);
   border: 1px solid var(--border);
