@@ -54,57 +54,64 @@ export const RunReturnUI = {
         // 무한 모드: 다음 지역로 이동
         console.log('[RunReturnUI] Endless mode - advancing to next region');
         if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-        if (typeof deps.updateUI === 'function') deps.updateUI();
-        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
         setTimeout(() => {
+          console.log('[RunReturnUI] Updating UI after screen transition (endless)');
+          if (typeof deps.updateUI === 'function') deps.updateUI();
+          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
           if (typeof deps.advanceToNextRegion === 'function') {
             console.log('[RunReturnUI] Calling advanceToNextRegion');
             deps.advanceToNextRegion();
           } else {
             console.error('[RunReturnUI] advanceToNextRegion not available');
           }
-        }, 300);
+        }, 100);
         return;
       }
 
       // 보스 처치 후 다음 지역로 이동
       console.log('[RunReturnUI] Boss defeated - advancing to next region');
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-      if (typeof deps.updateUI === 'function') deps.updateUI();
-      if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
       setTimeout(() => {
+        console.log('[RunReturnUI] Updating UI after screen transition (boss)');
+        if (typeof deps.updateUI === 'function') deps.updateUI();
+        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
         if (typeof deps.advanceToNextRegion === 'function') {
           console.log('[RunReturnUI] Calling advanceToNextRegion');
           deps.advanceToNextRegion();
         } else {
           console.error('[RunReturnUI] advanceToNextRegion not available');
         }
-      }, 300);
+      }, 100);
       return;
     }
 
     // 일반 전투 승리 후 맵 화면으로 복귀
     console.log('[RunReturnUI] Normal combat victory - returning to map');
+
+    // 1. 먼저 화면 전환
     if (typeof deps.switchScreen === 'function') {
       console.log('[RunReturnUI] Calling switchScreen(game)');
       deps.switchScreen('game');
     }
-    if (typeof deps.updateUI === 'function') {
-      console.log('[RunReturnUI] Calling updateUI');
-      deps.updateUI();
-    }
-    if (typeof deps.updateNextNodes === 'function') {
-      console.log('[RunReturnUI] Calling updateNextNodes');
-      deps.updateNextNodes();
-    }
 
-    // 미니맵 렌더링以确保 노드 선택 가능
-    if (typeof deps.renderMinimap === 'function') {
-      console.log('[RunReturnUI] Calling renderMinimap');
-      setTimeout(() => deps.renderMinimap(), 50);
-    } else {
-      console.warn('[RunReturnUI] renderMinimap not available');
-    }
-    console.log('[RunReturnUI] returnToGame complete');
+    // 2. 화면 전환 후 약간의 지연을 두고 UI 업데이트
+    setTimeout(() => {
+      console.log('[RunReturnUI] Updating UI after screen transition');
+      if (typeof deps.updateUI === 'function') deps.updateUI();
+      if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+
+      // 3. 미니맵 렌더링
+      if (typeof deps.renderMinimap === 'function') {
+        console.log('[RunReturnUI] Rendering minimap');
+        setTimeout(() => deps.renderMinimap(), 50);
+      } else {
+        console.warn('[RunReturnUI] renderMinimap not available');
+      }
+      console.log('[RunReturnUI] returnToGame complete');
+    }, 50);
   },
 };
