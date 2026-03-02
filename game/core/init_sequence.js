@@ -102,10 +102,12 @@ export function bootGame(modules, fns, Deps) {
 
     // ── 최종 부트 ──
     try {
-        GameInit.boot({
+      const gameCanvas = document.getElementById('gameCanvas');
+      GameInit.boot({
             ...GAME.getDeps(),
             audioEngine: AudioEngine,
             particleSystem: ParticleSystem,
+            gameCanvas,
             helpPauseUI: HelpPauseUI,
             gameBootUI: GameBootUI,
             getGameBootDeps: () => Deps.getGameBootDeps(),

@@ -359,17 +359,21 @@ export const FeedbackUI = {
     btn.appendChild(ripple);
     setTimeout(() => ripple.remove(), 500);
 
-    // 3. 에너지 소모 파티클 (Burst) - window.ParticleSystem 사용
-    const rect = btn.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    // window 에 등록된 ParticleSystem 사용 (globalThis 대신)
+    // 3. 에너지 소모 파티클 (Burst) - canvas 로컬 좌표로 변환
     const ps = deps.particleSystem || window.ParticleSystem;
-
     if (ps && typeof ps.emit === 'function') {
+      const btnRect = btn.getBoundingClientRect();
+      const viewportX = btnRect.left + btnRect.width / 2;
+      const viewportY = btnRect.top + btnRect.height / 2;
+
+      // gameCanvas 의 viewport 내 위치를 빼서 canvas 좌표로 변환
+      const canvas = deps.gameCanvas || doc.getElementById('gameCanvas');
+      const canvasRect = canvas?.getBoundingClientRect();
+      const canvasX = canvasRect ? viewportX - canvasRect.left : viewportX;
+      const canvasY = canvasRect ? viewportY - canvasRect.top : viewportY;
+
       // 황금빛 파편
-      ps.emit(centerX, centerY, {
+      ps.emit(canvasX, canvasY, {
         count: 24,
         color: '#f0b429',
         size: 4,
@@ -378,7 +382,7 @@ export const FeedbackUI = {
         type: 'dot'
       });
       // 흰색 섬광
-      ps.emit(centerX, centerY, {
+      ps.emit(canvasX, canvasY, {
         count: 10,
         color: '#ffffff',
         size: 3,

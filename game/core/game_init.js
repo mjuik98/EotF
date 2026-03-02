@@ -59,6 +59,7 @@ export const GameInit = {
             setSfxVolume, setAmbientVolume, drawCard, endPlayerTurn, useEchoSkill
         } = deps.actions;
         const particleSystem = deps.particleSystem || window.ParticleSystem;
+        const gameCanvas = deps.gameCanvas || doc.getElementById('gameCanvas');
 
         // Title Screen
         doc.addEventListener('keydown', (e) => {
@@ -131,7 +132,8 @@ export const GameInit = {
             drawCard?.();
             GAME.Modules.FeedbackUI?.triggerDrawButtonEffect?.('combatDrawCardBtn', {
                 doc: deps.doc || document,
-                particleSystem
+                particleSystem,
+                gameCanvas
             });
         });
         doc.getElementById('endPlayerTurnBtn')?.addEventListener('click', () => endPlayerTurn?.());
