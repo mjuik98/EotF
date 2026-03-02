@@ -531,6 +531,7 @@ body {
   font-size: 10px;
   color: var(--gold);
   opacity: 0.8;
+  padding-right: 25px;
 }
 
 .run-mode-desc {
@@ -6252,7 +6253,7 @@ body:has(#combatOverlay.active) .panel-right {
   border: 1px solid var(--modal-border);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px var(--modal-accent-glow);
   border-radius: 20px;
-  width: 850px !important;
+  width: 850px;
   max-height: 90vh;
   padding: 35px !important;
   display: flex;
@@ -6260,6 +6261,13 @@ body:has(#combatOverlay.active) .panel-right {
   position: relative;
   overflow: hidden;
   color: #fff;
+}
+
+#runSettingsCloseBtn {
+  align-self: center;
+  margin-top: 30px;
+  width: 112px;
+  justify-content: center;
 }
 
 .run-settings-panel::before {
@@ -6292,6 +6300,7 @@ body:has(#combatOverlay.active) .panel-right {
   font-weight: 600;
   color: #aaa;
   font-size: 15px;
+  padding-left: 25px;
 }
 
 .run-mode-pill {
