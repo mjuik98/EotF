@@ -62,7 +62,7 @@ export const HelpPauseUI = {
         ['Tab', '다음 적 대상 전환'],
       ].forEach(([k, v]) => {
         const keyBox = doc.createElement('div');
-        keyBox.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--cyan);background:rgba(0,255,204,0.07);border:1px solid rgba(0,255,204,0.15);border-radius:6px;padding:5px 12px;text-align:center;";
+        keyBox.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:var(--white);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:2px 8px;text-align:center;min-width:40px;height:fit-content;box-shadow: 0 2px 0 rgba(0,0,0,0.3);";
         keyBox.textContent = k;
         const valBox = doc.createElement('div');
         valBox.style.cssText = 'font-size:15px;color:var(--text);display:flex;align-items:center;';
@@ -75,8 +75,9 @@ export const HelpPauseUI = {
       subInfo.textContent = 'Echo tiers: 30 = Tier 1 | 60 = Tier 2 | 100 = Tier 3';
 
       const btn = doc.createElement('button');
-      btn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.1);border:1px solid var(--border);border-radius:8px;padding:14px 32px;cursor:pointer;margin-top:8px;";
-      btn.textContent = '닫기';
+      btn.className = 'action-btn action-btn-secondary';
+      btn.style.marginTop = '16px';
+      btn.innerHTML = '닫기<span class="kbd-hint">ESC</span>';
       btn.onclick = () => this.toggleHelp(deps);
 
       menu.append(head, grid, subInfo, btn);

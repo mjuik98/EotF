@@ -6036,3 +6036,8 @@ body:has(#combatOverlay.active) .panel-right {
 .battle-chronicle-close-btn {
   margin-top: 20px;
 }
+
+/*  3D & PREMIUM UI OVERRIDES  */
+.action-btn-secondary { background: rgba(0, 255, 204, 0.08); border: 1px solid rgba(0, 255, 204, 0.2); border-bottom: 3px solid rgba(0, 255, 204, 0.4) !important; color: var(--cyan); box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+.action-btn-secondary:hover { background: rgba(0, 255, 204, 0.16); transform: translateY(1px) !important; border-bottom-width: 1px !important; box-shadow: 0 2px 0 rgba(0,0,0,0.2) !important; }
+.kbd-hint { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 10px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); border-bottom: 2px solid rgba(255, 255, 255, 0.4) !important; border-radius: 4px; padding: 1px 6px; color: #fff !important; margin-left: 8px; vertical-align: middle; text-shadow: 0 1px 2px rgba(0,0,0,0.5); box-shadow: 0 2px 0 rgba(0,0,0,0.3); position: relative; top: -1px; }

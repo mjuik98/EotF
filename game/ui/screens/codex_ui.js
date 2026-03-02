@@ -27,9 +27,8 @@ function _ensureCodex(gs) {
 function _setTabButtonState(doc, tab, active) {
   const btn = doc.getElementById(`codexTab_${tab}`);
   if (!btn) return;
-  btn.style.background = active ? 'rgba(0,255,204,0.12)' : 'transparent';
-  btn.style.color = active ? 'var(--cyan)' : 'var(--text-dim)';
-  btn.style.borderColor = active ? 'var(--cyan)' : 'var(--border)';
+  if (active) btn.classList.add('active');
+  else btn.classList.remove('active');
 }
 
 function _safeDescHtml(desc) {

@@ -174,38 +174,19 @@ export const MapUI = {
         const cx2 = w * (child.pos + 1) / (child.total + 1);
         const cy2 = h - 10 - floorH * child.floor;
 
-        ctx.beginPath();
-        ctx.moveTo(nx, ny);
-        ctx.lineTo(cx2, cy2);
-
         const isVisited = node.visited && child.visited;
-        const isNext = node.visited && child.accessible;
-        const isCurrentPath = node.id === gs.currentNode?.id || child.id === gs.currentNode?.id;
+        const isCurrentMove = node.id === gs.currentNode?.id && child.accessible;
 
-        if (isCurrentPath) {
-          // 현재 위치 연결선 - 강조
-          ctx.strokeStyle = 'rgba(0, 255, 204, 0.9)';
-          ctx.lineWidth = 2.5;
-          ctx.shadowColor = 'rgba(0, 255, 204, 0.8)';
-          ctx.shadowBlur = 8;
-        } else if (isVisited) {
-          // 방문한 경로 - 밝은 청록색
-          ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)';
-          ctx.lineWidth = 2;
-          ctx.shadowBlur = 0;
-        } else if (isNext) {
-          // 다음 이동 가능 - 보라색
-          ctx.strokeStyle = 'rgba(123, 47, 255, 0.5)';
+        // [단순화] 이미 지나온 노드들 간의 경로(Visited)만 보라색 실선으로 표시
+        if (isVisited) {
+          ctx.beginPath();
+          ctx.moveTo(nx, ny);
+          ctx.lineTo(cx2, cy2);
+          ctx.strokeStyle = 'rgba(123, 47, 255, 0.4)'; // 투명도 약간 조정
           ctx.lineWidth = 1.5;
-          ctx.shadowBlur = 0;
-        } else {
-          // 방문 안 함 - 어두운 회색
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-          ctx.lineWidth = 0.5;
-          ctx.shadowBlur = 0;
+          ctx.setLineDash([]);
+          ctx.stroke();
         }
-        ctx.stroke();
-        ctx.shadowBlur = 0; // 리셋
       });
     });
 
@@ -230,20 +211,17 @@ export const MapUI = {
         ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         ctx.shadowBlur = 12;
         ctx.fillStyle = '#fff';
+      } else if (node.accessible && !node.visited && node.floor === gs.currentFloor + 1) {
+        // [단순화] 이동 가능한 다음 노드만 살짝 노출
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.shadowBlur = 0;
       } else if (node.visited) {
-        // 방문한 노드 - 밝은 청록색
-        ctx.shadowColor = 'rgba(0, 255, 204, 0.6)';
-        ctx.shadowBlur = 6;
-        ctx.fillStyle = 'rgba(0, 255, 204, 0.9)';
-      } else if (node.accessible && !node.visited) {
-        // 이동 가능 - 펄스 강조
-        const pulse = Math.sin(Date.now() / 500 + node.floor * 0.8 + node.pos) * 0.5 + 0.5;
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.45 + pulse * 0.35})`;
-        ctx.shadowColor = `rgba(123, 47, 255, ${0.4 + pulse * 0.5})`;
-        ctx.shadowBlur = 6 + pulse * 10;
+        // [반전] 방문한 노드는 좀 더 잘 보이게 (0.7)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.shadowBlur = 0;
       } else {
-        // 방문 불가 - 어두운 회색
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        // [반전] 지나친 노드 및 비활성 노드는 거의 안 보이게 (0.1)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.shadowBlur = 0;
       }
 
@@ -251,8 +229,9 @@ export const MapUI = {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(nodeMetaInfo.icon || '?', nx, ny);
-      ctx.shadowBlur = 0; // 리셋
+      ctx.shadowBlur = 0;
       ctx.shadowColor = 'transparent';
+      ctx.globalAlpha = 1.0; // 복구
 
       // 현재 위치 추가 강조
       if (isCurrent) {
@@ -377,7 +356,7 @@ export const MapUI = {
     overlay.id = 'fullMapOverlay';
     overlay.style.cssText = `
         position:fixed; inset:0; z-index:300;
-        background:rgba(5,5,18,0.95); backdrop-filter:blur(12px);
+        background:rgba(5,5,18,0.96); backdrop-filter:blur(12px);
         display:flex; flex-direction:column; align-items:center; justify-content:center;
         cursor:default; animation:fadeInDown 0.3s ease both;
       `;
@@ -415,59 +394,75 @@ export const MapUI = {
     overlay.appendChild(title);
 
     // 캔버스
+    // [개선 3] 맵 세로 스크롤 지원 컨테이너
+    const cw = Math.min(720, window.innerWidth - 60);
+    const ch = Math.min(600, window.innerHeight - 200);
+    const canvasContainer = doc.createElement('div');
+    canvasContainer.style.cssText = `
+      width:${cw}px; height:${ch}px; overflow-y:auto; overflow-x:hidden;
+      border:1px solid rgba(123,47,255,0.25); border-radius:12px;
+      background:rgba(0,0,0,0.45); scrollbar-width:thin;
+      scrollbar-color:rgba(123,47,255,0.4) transparent;
+    `;
+
     const canvas = doc.createElement('canvas');
-    const cw = Math.min(700, window.innerWidth - 60);
-    const ch = Math.min(580, window.innerHeight - 160);
-    canvas.width = cw; canvas.height = ch;
-    canvas.style.cssText = `border:1px solid rgba(123,47,255,0.3);border-radius:12px;background:rgba(0,0,0,0.6);`;
-    overlay.appendChild(canvas);
+    const maxFloorNum = Math.max(...gs.mapNodes.map(n => n.floor));
+    const floorSpacing = 110;
+    const contentHeight = Math.max(ch, (maxFloorNum + 1) * floorSpacing + 80);
+    canvas.width = cw;
+    canvas.height = contentHeight;
+    canvas.style.display = 'block';
+    canvasContainer.appendChild(canvas);
+    overlay.appendChild(canvasContainer);
+
+    // [연출 4] 디지털 클리치 효과용 캔버스 (오버레이)
+    const glitchCanvas = doc.createElement('canvas');
+    glitchCanvas.width = cw; glitchCanvas.height = ch;
+    glitchCanvas.style.cssText = `position:absolute; top:calc(50% - ${ch / 2}px); left:calc(50% - ${cw / 2}px); pointer-events:none; z-index:500; opacity:0;`;
+    overlay.appendChild(glitchCanvas);
+    const gctx = glitchCanvas.getContext('2d');
+    let glitchTimer = 22;
+
+    // [연출 1] 파티클 초기화 (지역별 테마)
+    const particles = [];
+    const particleColor = 'rgba(155, 79, 255, ';
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x: Math.random() * cw,
+        y: Math.random() * contentHeight,
+        r: Math.random() * 2 + 1,
+        vy: -0.2 - Math.random() * 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        life: Math.random(),
+      });
+    }
 
     const tooltip = doc.createElement('div');
     tooltip.style.cssText = `
-      position:fixed; z-index:400; pointer-events:none;
-      background:rgba(5,5,18,0.95); border:1px solid rgba(123,47,255,0.6);
-      border-radius:8px; padding:10px 14px; font-family:'Share Tech Mono',monospace;
+      position:fixed; z-index:1000; pointer-events:none;
+      background:rgba(5,5,18,0.95); border:1px solid rgba(123,47,255,0.7);
+      border-radius:8px; padding:12px 16px; font-family:'Share Tech Mono',monospace;
       font-size:12px; color:#fff; transition:opacity 0.15s; opacity:0;
-      box-shadow: 0 0 16px rgba(123,47,255,0.4);
+      box-shadow: 0 0 20px rgba(123,47,255,0.5);
       max-width: 260px;
     `;
     const tooltipTitle = doc.createElement('div');
-    tooltipTitle.style.cssText = `font-weight:700;margin-bottom:5px;`;
+    tooltipTitle.style.cssText = `font-weight:700;margin-bottom:6px;font-size:14px;`;
     const tooltipDesc = doc.createElement('div');
-    tooltipDesc.style.cssText = `color:rgba(255,255,255,0.82);line-height:1.4;margin-bottom:6px;`;
+    tooltipDesc.style.cssText = `color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:8px;`;
     const tooltipStatus = doc.createElement('div');
-    tooltipStatus.style.cssText = `color:rgba(255,255,255,0.68);font-size:11px;`;
+    tooltipStatus.style.cssText = `color:rgba(255,255,255,0.6);font-size:11px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);`;
     tooltip.append(tooltipTitle, tooltipDesc, tooltipStatus);
     overlay.appendChild(tooltip);
 
     const ctx = canvas.getContext('2d');
-    const maxFloor = Math.max(...gs.mapNodes.map(n => n.floor));
-    const padY = 35;
-    const padX = 50;
-    const floorH = (ch - padY * 2) / Math.max(maxFloor, 1);
+    const padX = 60;
     const nodeMeta = _resolveNodeMeta(deps);
     const nodeMap = new Map(gs.mapNodes.map(node => [node.id, node]));
     const nodesByFloor = _groupNodesByFloor(gs.mapNodes);
 
-    // 층 라벨 (좌측)
-    for (let f = 0; f <= maxFloor; f++) {
-      const fy = ch - padY - floorH * f;
-      ctx.fillStyle = (f === gs.currentFloor) ? '#00ffcc' : 'rgba(255,255,255,0.2)';
-      ctx.font = '11px "Share Tech Mono", monospace';
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText(`${f}F`, 8, fy);
-      // 수평 가이드 라인
-      ctx.beginPath();
-      ctx.moveTo(padX - 10, fy);
-      ctx.lineTo(cw - 10, fy);
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    // 노드 위치 계산 함수
     const nodeX = (node) => padX + (cw - padX * 2) * (node.pos + 1) / (node.total + 1);
-    const nodeY = (node) => ch - padY - floorH * node.floor;
+    const nodeY = (node) => contentHeight - 65 - floorSpacing * node.floor;
     const nodeEntries = gs.mapNodes.map(node => ({
       node,
       x: nodeX(node),
@@ -475,180 +470,179 @@ export const MapUI = {
     }));
     const nodeEntryById = new Map(nodeEntries.map(entry => [entry.node.id, entry]));
 
-    // 연결선 그리기
-    gs.mapNodes.forEach(node => {
-      const linkedChildren = _getLinkedChildren(node, nodesByFloor, nodeMap);
-      if (!linkedChildren.length) return;
-      const nodeEntry = nodeEntryById.get(node.id);
-      if (!nodeEntry) return;
-      const nx = nodeEntry.x;
-      const ny = nodeEntry.y;
-      linkedChildren.forEach((child) => {
-        if (!child) return;
-        const childEntry = nodeEntryById.get(child.id);
-        if (!childEntry) return;
-        const cx2 = childEntry.x;
-        const cy2 = childEntry.y;
-        ctx.beginPath();
-        ctx.moveTo(nx, ny);
-        ctx.lineTo(cx2, cy2);
+    // flowOffset 제거 (미사용)
+    let animFrame = null;
 
-        const isPath = node.visited && child.visited;
-        const isNext = node.visited && child.accessible;
-        const isVisitedPath = node.visited && (child.visited || child.id === gs.currentNode?.id);
+    const draw = () => {
+      if (closed) return;
+      ctx.clearRect(0, 0, cw, contentHeight);
 
-        if (isVisitedPath || isPath) {
-          ctx.strokeStyle = 'rgba(0, 255, 204, 0.62)';
-          ctx.lineWidth = 2;
-          ctx.shadowColor = 'rgba(0, 255, 204, 0.45)';
-          ctx.shadowBlur = 4;
-          ctx.setLineDash([6, 4]);
-          ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.shadowBlur = 0;
-
-          const midX = (nx + cx2) / 2;
-          const midY = (ny + cy2) / 2;
-          ctx.fillStyle = 'rgba(0,255,204,0.78)';
-          ctx.beginPath();
-          ctx.arc(midX, midY, 2.4, 0, Math.PI * 2);
-          ctx.fill();
-          return;
-        } else if (isNext) {
-          ctx.strokeStyle = 'rgba(123, 47, 255, 0.6)';
-          ctx.lineWidth = 2;
-          ctx.setLineDash([]);
-        } else {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-          ctx.lineWidth = 1;
-          ctx.setLineDash([5, 5]); // 잠긴 경로는 점선 처리
-        }
-        ctx.stroke();
-        ctx.setLineDash([]); // 리셋
+      // [연출 1] 배경 파티클 상시 렌더링
+      particles.forEach(p => {
+        p.y += p.vy; p.x += p.vx;
+        if (p.y < 0) p.y = contentHeight;
+        if (p.x < 0) p.x = cw; if (p.x > cw) p.x = 0;
+        ctx.fillStyle = particleColor + (0.12 + Math.random() * 0.05) + ')';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
       });
-    });
 
-    // 노드 그리기
-    nodeEntries.forEach(entry => {
-      const { node, x: nx, y: ny } = entry;
-      const meta = nodeMeta[node.type] || { color: '#666', icon: '?', label: '?' };
-      const isCurrent = gs.currentNode?.id === node.id;
-      const r = node.type === 'boss' ? 18 : 14;
-      const isPastVisited = node.visited && !isCurrent && node.floor < gs.currentFloor;
-      const isForwardNode = !node.visited && node.floor > gs.currentFloor;
+      // [개선 2] 층 인디케이터 강조
+      for (let f = 0; f <= maxFloorNum; f++) {
+        const fy = contentHeight - 65 - floorSpacing * f;
+        const isCurrentFloor = f === gs.currentFloor;
 
-      ctx.save();
-      if (isPastVisited) {
-        ctx.globalAlpha = 0.32;
-        ctx.filter = 'grayscale(85%) brightness(0.55)';
+        ctx.strokeStyle = isCurrentFloor ? 'rgba(0, 255, 204, 0.2)' : 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(padX - 25, fy); ctx.lineTo(cw - 25, fy); ctx.stroke();
+
+        ctx.fillStyle = isCurrentFloor ? '#00ffcc' : 'rgba(255,255,255,0.25)';
+        ctx.font = isCurrentFloor ? 'bold 16px "Share Tech Mono"' : '12px "Share Tech Mono"';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${f}F`, padX - 35, fy + 5);
       }
 
-      // 글로우 효과 (현재 위치만 최소화)
-      if (isCurrent) {
-        ctx.beginPath();
-        ctx.arc(nx, ny, r + 4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0,255,204,0.2)';
-        ctx.fill();
-      }
+      // [연출 2] 경로 연결선 단순화 (지난 경로만 점선 표시)
+      gs.mapNodes.forEach(node => {
+        const linkedChildren = _getLinkedChildren(node, nodesByFloor, nodeMap);
+        if (!linkedChildren.length) return;
+        const entry = nodeEntryById.get(node.id);
+        linkedChildren.forEach(child => {
+          const cEntry = nodeEntryById.get(child.id);
+          if (!cEntry) return;
 
-      // 노드 원 장식 제거 (외곽선 및 배경 채우기 모두 제거)
-      // 오직 이모지와 현재 위치 글로우만 남김
+          const isVisited = node.visited && child.visited;
 
-      if (node.accessible && !node.visited) {
-        ctx.beginPath();
-        ctx.arc(nx, ny, r + 3, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(123,47,255,0.65)';
-        ctx.lineWidth = 1.8;
-        ctx.stroke();
-      }
+          if (isVisited) {
+            ctx.beginPath(); ctx.moveTo(entry.x, entry.y); ctx.lineTo(cEntry.x, cEntry.y);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([4, 8]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        });
+      });
 
-      // 아이콘
-      if (isCurrent) {
-        ctx.fillStyle = '#000';
-      } else if (node.accessible && !node.visited) {
-        ctx.fillStyle = '#ffffff';
-      } else if (isForwardNode) {
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      } else if (node.visited) {
-        ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      // [개선 1] 노드 중요도별 시각화
+      const nowTs = Date.now();
+      const pulseVal = Math.sin(nowTs / 450) * 0.5 + 0.5;
+
+      nodeEntries.forEach(entry => {
+        const { node, x, y } = entry;
+        const metaInfo = nodeMeta[node.type] || { color: '#666', icon: '?' };
+        const isPlayerAt = gs.currentNode?.id === node.id;
+
+        let radius = 16;
+        if (node.type === 'boss') radius = 25;
+        else if (node.type === 'elite') radius = 20;
+
+        if (isPlayerAt) {
+          ctx.shadowColor = '#00ffcc'; ctx.shadowBlur = 18 + pulseVal * 12;
+          ctx.beginPath(); ctx.arc(x, y, radius + 6 + pulseVal * 4, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 255, 204, 0.18)'; ctx.fill();
+        }
+
+        ctx.save();
+        if (node.visited && !isPlayerAt) {
+          ctx.globalAlpha = 0.8; // [반전] 방문 노드 시안성 강화
+          ctx.filter = 'grayscale(30%) brightness(0.9)'; // 흑백화 완화
+        }
+
+        // 아이콘 텍스트
+        const isTarget = node.accessible && !node.visited && node.floor === gs.currentFloor + 1;
+        const isInactive = !isPlayerAt && !isTarget;
+        ctx.fillStyle = isPlayerAt ? '#00ffcc' : (isTarget ? '#fff' : (node.visited ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.1)'));
+        ctx.font = `bold ${radius * 1.6}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(metaInfo.icon || '?', x, y);
+
+        // [연출 3] 포그 오브 워 (가려진 먼 층)
+        if (node.floor > gs.currentFloor + 1) {
+          ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(0.75, (node.floor - gs.currentFloor - 0.4) * 0.45)})`;
+          ctx.beginPath(); ctx.arc(x, y, radius + 3, 0, Math.PI * 2); ctx.fill();
+        }
+
+        ctx.restore(); ctx.shadowBlur = 0;
+      });
+
+      // [연출 4] 클리치 효과 처리
+      if (glitchTimer > 0) {
+        gctx.clearRect(0, 0, cw, ch);
+        glitchCanvas.style.opacity = (glitchTimer / 20).toString();
+        for (let i = 0; i < 6; i++) {
+          gctx.fillStyle = `rgba(155, 79, 255, ${0.2 + Math.random() * 0.2})`;
+          gctx.fillRect(Math.random() * cw, Math.random() * ch, Math.random() * 120, Math.random() * 4);
+        }
+        glitchTimer--;
       } else {
-        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        glitchCanvas.style.opacity = '0';
       }
-      ctx.font = `bold ${r * 1.8}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(meta.icon || NODE_TYPE_CONFIG[node.type]?.icon || '?', nx, ny);
-      ctx.restore();
-    });
+
+      animFrame = requestAnimationFrame(draw);
+    };
+
+    draw(); // 애니메이션 루프 시작
 
     const updateTooltip = (node, event) => {
-      if (!node || !event) {
-        tooltip.style.opacity = '0';
-        return;
-      }
-      const meta = nodeMeta[node.type] || { icon: '?', label: '노드', color: '#ffffff', desc: '다음 위치로 이동합니다.' };
-      tooltipTitle.style.color = meta.color || '#ffffff';
+      if (!node || !event) { tooltip.style.opacity = '0'; return; }
+      const meta = nodeMeta[node.type] || { icon: '?', label: '노드', color: '#fff', desc: '' };
+      tooltipTitle.style.color = meta.color || '#fff';
       tooltipTitle.textContent = `${meta.icon || '?'} ${meta.label || '노드'}`;
       tooltipDesc.textContent = meta.desc || '다음 위치로 이동합니다.';
       tooltipStatus.textContent = `${node.floor}층 — ${_getNodeStatusText(node)}`;
       tooltip.style.opacity = '1';
 
-      const margin = 12;
-      const offsetX = 18;
-      const offsetY = 16;
-      let left = event.clientX + offsetX;
-      let top = event.clientY + offsetY;
-      const vw = doc.documentElement?.clientWidth || doc.body?.clientWidth || canvas.width;
-      const vh = doc.documentElement?.clientHeight || doc.body?.clientHeight || canvas.height;
-      const rect = tooltip.getBoundingClientRect();
-      if (left + rect.width + margin > vw) {
-        left = Math.max(margin, event.clientX - rect.width - offsetX);
-      }
-      if (top + rect.height + margin > vh) {
-        top = Math.max(margin, event.clientY - rect.height - offsetY);
-      }
-      tooltip.style.left = `${left}px`;
-      tooltip.style.top = `${top}px`;
+      const rectT = tooltip.getBoundingClientRect();
+      let lx = event.clientX + 20;
+      let ly = event.clientY + 20;
+      if (lx + rectT.width > window.innerWidth) lx = event.clientX - rectT.width - 20;
+      if (ly + rectT.height > window.innerHeight) ly = event.clientY - rectT.height - 20;
+      tooltip.style.left = `${lx}px`; tooltip.style.top = `${ly}px`;
     };
 
-    canvas.addEventListener('mousemove', (event) => {
-      const point = _toCanvasCoords(canvas, event);
-      if (!point) {
-        updateTooltip(null, event);
-        return;
-      }
-      const closest = _findClosestNodeEntry(nodeEntries, point.x, point.y, FULL_MAP_HOVER_THRESHOLD);
-      updateTooltip(closest?.node || null, event);
+    canvas.addEventListener('mousemove', (e) => {
+      const rectC = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rectC.left);
+      const my = (e.clientY - rectC.top);
+      const closest = _findClosestNodeEntry(nodeEntries, mx, my, FULL_MAP_HOVER_THRESHOLD + 5);
+      updateTooltip(closest?.node || null, e);
+      canvas.style.cursor = closest ? 'pointer' : 'default';
     });
-    canvas.addEventListener('mouseleave', () => updateTooltip(null, null));
+    canvas.addEventListener('mouseleave', () => updateTooltip(null));
 
     // 범례
     const legend = doc.createElement('div');
-    legend.style.cssText = `display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;justify-content:center;`;
-    NODE_TYPE_ORDER.forEach((type) => {
-      const meta = nodeMeta[type];
-      if (!meta) return;
+    legend.style.cssText = `display:flex;gap:18px;margin-top:20px;flex-wrap:wrap;justify-content:center;`;
+    NODE_TYPE_ORDER.forEach(type => {
+      const meta = nodeMeta[type]; if (!meta) return;
       const item = doc.createElement('span');
-      item.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:11px;color:${meta.color || '#fff'};`;
-      item.textContent = `${meta.icon || NODE_TYPE_CONFIG[type]?.icon || '?'} ${meta.label || '노드'}`;
+      item.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:12px;color:${meta.color || '#fff'};opacity:0.8;`;
+      item.textContent = `${meta.icon || '?'} ${meta.label || '노드'}`;
       legend.appendChild(item);
     });
     overlay.appendChild(legend);
 
-    const hint = doc.createElement('div');
-    hint.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:10px;`;
-    hint.textContent = '배경 클릭 또는 ESC로 닫기';
-    overlay.appendChild(hint);
-
     const closeBtn = doc.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.className = 'premium-btn close-btn battle-chronicle-close-btn';
-    closeBtn.textContent = '닫기';
-    closeBtn.addEventListener('click', (event) => {
-      event.stopPropagation();
-      closeOverlay();
-    });
+    closeBtn.className = 'action-btn action-btn-secondary';
+    closeBtn.innerHTML = '닫기<span class="kbd-hint">ESC</span>';
+    closeBtn.style.marginTop = '20px';
+
+    // [연출 4] 닫기 시 클리치 효과 후 제거 로직 (선택적) 또는 즉시 종료
+    const finalClose = () => {
+      cancelAnimationFrame(animFrame);
+      overlay.remove();
+      doc.removeEventListener('keydown', escClose);
+    };
+    closeBtn.onclick = finalClose;
+    const escClose = (e) => { if (e.key === 'Escape') finalClose(); };
+    doc.addEventListener('keydown', escClose);
+    overlay.onclick = (e) => { if (e.target === overlay) finalClose(); };
     overlay.appendChild(closeBtn);
 
     doc.body.appendChild(overlay);
+
+    // [개선 3] 현재 층으로 스크롤 자동 이동
+    const startY = nodeY({ floor: gs.currentFloor });
+    canvasContainer.scrollTop = startY - ch / 2;
   },
 };
