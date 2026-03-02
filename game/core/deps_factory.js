@@ -259,6 +259,7 @@ const CONTRACT_BUILDERS = Object.freeze({
         finalizeRunOutcome: _refs.finalizeRunOutcome,
         switchScreen: _refs.switchScreen,
         returnToGame: _refs.returnToGame,
+        buttonFeedback: _refs.ButtonFeedback,
     }),
 
     worldCanvas: () => ({

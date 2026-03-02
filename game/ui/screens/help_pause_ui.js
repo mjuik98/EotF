@@ -458,6 +458,10 @@ export const HelpPauseUI = {
       if ((e.key === 'q' || e.key === 'Q') && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
         if (typeof deps.drawCard === 'function') deps.drawCard();
+        // 카드 뽑기 버튼 시각적 효과
+        if (deps.buttonFeedback) {
+          deps.buttonFeedback.triggerDrawButton();
+        }
       }
 
       if (e.key === 'Enter' && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {

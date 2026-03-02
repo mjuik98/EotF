@@ -73,6 +73,9 @@ export function bootGame(modules, fns, Deps) {
     GAME.register('updateNextNodes', fns.updateNextNodes);
     GAME.register('renderMinimap', fns.renderMinimap);
 
+    // ── ButtonFeedback 등록 ──
+    Deps.patchRefs({ ButtonFeedback: modules.ButtonFeedback });
+
     // ── Maze System 설정 ──
     MazeSystem?.configure?.({
         gs: GS,

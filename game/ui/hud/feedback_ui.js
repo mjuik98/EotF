@@ -1,4 +1,5 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
+import { ButtonFeedback } from '../feedback/button_feedback.js';
 
 
 const _noticeQueue = [];
@@ -344,67 +345,6 @@ export const FeedbackUI = {
    */
   triggerDrawButtonEffect(btnId = 'combatDrawCardBtn', deps = {}) {
     const doc = deps.doc || document;
-    const btn = doc.getElementById(btnId);
-    if (!btn) return;
-
-    // 1. 버튼 반동 효과 (Bounce) - disabled 상태에서도 동작
-    btn.classList.remove('clicked');
-    void btn.offsetWidth; // Trigger reflow
-    btn.classList.add('clicked');
-    setTimeout(() => btn.classList.remove('clicked'), 300);
-
-    // 2. 리플 효과 (Ripple)
-    const ripple = doc.createElement('div');
-    ripple.className = 'btn-ripple';
-    btn.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 500);
-
-    // 3. DOM 파티클 (canvas 대신 — combatOverlay z-index 위에서 렌더링)
-    const rect = btn.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    this._spawnDomBurst(cx, cy, doc);
-  },
-
-  _spawnDomBurst(cx, cy, doc) {
-    const PARTICLES = [
-      ...Array.from({ length: 16 }, () => ({ color: '#f0b429', size: 5 })), // 황금빛
-      ...Array.from({ length: 8 },  () => ({ color: '#ffffff', size: 3 })), // 흰색
-    ];
-
-    PARTICLES.forEach(({ color, size }) => {
-      const el = doc.createElement('div');
-      const angle = Math.random() * Math.PI * 2;
-      const dist  = 40 + Math.random() * 60;
-      const tx    = Math.cos(angle) * dist;
-      const ty    = Math.sin(angle) * dist;
-      const dur   = 400 + Math.random() * 300;
-
-      el.style.cssText = `
-          position: fixed;
-          left: ${cx}px;
-          top: ${cy}px;
-          width: ${size}px;
-          height: ${size}px;
-          border-radius: 50%;
-          background: ${color};
-          box-shadow: 0 0 ${size * 2}px ${color};
-          pointer-events: none;
-          z-index: 9999;
-          transform: translate(-50%, -50%);
-          transition: transform ${dur}ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                      opacity ${dur}ms ease-out;
-      `;
-
-      doc.body.appendChild(el);
-
-      // 다음 프레임에서 최종 위치로 이동 (transition 발동)
-      requestAnimationFrame(() => {
-        el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`;
-        el.style.opacity = '0';
-      });
-
-      setTimeout(() => el.remove(), dur + 50);
-    });
+    ButtonFeedback.triggerEffect(btnId, { doc });
   },
 };
