@@ -298,9 +298,14 @@ export const ClassMechanics = {
     onDealDamage(gs, damage) {
       const state = _getGS(gs);
       const buff = state?.getBuff?.('berserk_mode');
-      if (buff) {
-        buff.atkGrowth = (buff.atkGrowth || 0) + 2;
-        state.addLog(LogUtils.formatEcho(`불협화음: 피해 +2 (현재 +${buff.atkGrowth})`), 'echo');
+      const buffPlus = state?.getBuff?.('berserk_mode_plus');
+      const activeBuff = buff || buffPlus;
+      const growthPerHit = activeBuff === buffPlus ? 3 : 2;
+
+      if (activeBuff) {
+        activeBuff.atkGrowth = (activeBuff.atkGrowth || 0) + growthPerHit;
+        const currentBonus = activeBuff.atkGrowth;
+        state.addLog(LogUtils.formatEcho(`불협화음: 피해 +${growthPerHit} (현재 +${currentBonus})`), 'echo');
       }
       return damage;
     },
@@ -309,7 +314,9 @@ export const ClassMechanics = {
       const lostHp = state ? (state.player.maxHp - state.player.hp) : 0;
       const hpBonus = Math.floor(lostHp / 10) * 3;
       const buff = state?.getBuff?.('berserk_mode');
-      const growBonus = buff ? buff.atkGrowth || 0 : 0;
+      const buffPlus = state?.getBuff?.('berserk_mode_plus');
+      const activeBuff = buff || buffPlus;
+      const growBonus = activeBuff ? activeBuff.atkGrowth || 0 : 0;
       const meta = globalThis.DATA?.classes?.berserker;
       const title = meta?.traitTitle || '불협화음 (Cacophony)';
       const desc = meta?.traitDesc || '체력이 낮을수록 피해 보너스가 증가합니다. 공격할 때마다 공격력이 영구적으로 추가 성장합니다.';

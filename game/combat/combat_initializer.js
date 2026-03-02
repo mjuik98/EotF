@@ -34,6 +34,17 @@ export const CombatInitializer = {
         const combat = gs.combat;
         const player = gs.player;
 
+        // 영구 버프 보존 (berserk_mode 등)
+        const permanentBuffs = {};
+        const PERMANENT_BUFF_IDS = ['berserk_mode', 'berserk_mode_plus', 'resonance'];
+        if (player.buffs) {
+            Object.keys(player.buffs).forEach(buffId => {
+                if (PERMANENT_BUFF_IDS.includes(buffId)) {
+                    permanentBuffs[buffId] = player.buffs[buffId];
+                }
+            });
+        }
+
         combat.enemies = [];
         combat.turn = 1;
         combat.playerTurn = true;
@@ -41,7 +52,7 @@ export const CombatInitializer = {
         player.shield = 0;
         player.echoChain = 0;
         player.energy = player.maxEnergy;
-        player.buffs = {};
+        player.buffs = permanentBuffs;
         player.zeroCost = false;
         player.costDiscount = 0;
         player._nextCardDiscount = 0;

@@ -33,6 +33,10 @@ export const DamageSystem = {
         if (accel) dmg += accel.dmgBonus || 0;
         const sha = this.getBuff?.('shadow_atk');
         if (sha) dmg += sha.dmgBonus || 0;
+        const berserk = this.getBuff?.('berserk_mode');
+        if (berserk) dmg += berserk.atkGrowth || 0;
+        const berserkPlus = this.getBuff?.('berserk_mode_plus');
+        if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
 
         if (this.getBuff?.('vanish')) {
             dmg = Math.floor(dmg * 2);
@@ -84,6 +88,10 @@ export const DamageSystem = {
         if (accel) dmg += accel.dmgBonus || 0;
         const sha = this.getBuff('shadow_atk');
         if (sha) { dmg += sha.dmgBonus || 0; delete this.player.buffs['shadow_atk']; }
+        const berserk = this.getBuff('berserk_mode');
+        if (berserk) dmg += berserk.atkGrowth || 0;
+        const berserkPlus = this.getBuff('berserk_mode_plus');
+        if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
         if (this.getBuff('vanish')) {
             dmg = Math.floor(dmg * 2);
             delete this.player.buffs['vanish'];
