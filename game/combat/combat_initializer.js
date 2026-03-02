@@ -36,7 +36,7 @@ export const CombatInitializer = {
 
         // 영구 버프 보존 (잔향 스킬 등)
         const permanentBuffs = {};
-        const PERMANENT_BUFF_IDS = ['echo_berserk', 'resonance'];
+        const PERMANENT_BUFF_IDS = ['echo_berserk'];
         if (player.buffs) {
             Object.keys(player.buffs).forEach(buffId => {
                 if (PERMANENT_BUFF_IDS.includes(buffId)) {
