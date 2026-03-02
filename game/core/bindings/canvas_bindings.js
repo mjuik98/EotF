@@ -15,11 +15,13 @@ export function createCanvasBindings(M, fns) {
         const refs = M.GameCanvasSetupUI?.init?.(M.GAME.getDeps());
         if (refs) {
             M._canvasRefs = refs;
+            Deps.patchRefs({ _canvasRefs: refs });
         }
     };
     fns.resizeGameCanvas = () => {
         M.GameCanvasSetupUI?.resize?.();
         M._canvasRefs = M.GameCanvasSetupUI?.getRefs?.() || M._canvasRefs;
+        Deps.patchRefs({ _canvasRefs: M._canvasRefs });
     };
 
     // ═══ Game Loop ═══
@@ -30,6 +32,7 @@ export function createCanvasBindings(M, fns) {
         deps.gameLoop = fns.gameLoop;
         deps.renderMinimap = fns.renderMinimap;
         deps.renderNodeInfo = fns.renderNodeInfo;
+        deps.particleSystem = M.ParticleSystem;
         M.WorldRenderLoopUI?.gameLoop?.(timestamp, deps);
     };
     fns.renderGameWorld = (dt, ctx, w, h) => {

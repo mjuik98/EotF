@@ -143,6 +143,8 @@ const CONTRACT_BUILDERS = Object.freeze({
         ...buildBaseDeps(),
         audioEngine: _refs.AudioEngine,
         screenShake: _refs.ScreenShake,
+        particleSystem: _refs.ParticleSystem,
+        gameCanvas: _refs._canvasRefs?.gameCanvas,
     }),
 
     codex: () => ({
