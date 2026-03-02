@@ -84,13 +84,27 @@ export const RunReturnUI = {
     }
 
     // 일반 전투 승리 후 맵 화면으로 복귀
-    if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-    if (typeof deps.updateUI === 'function') deps.updateUI();
-    if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+    console.log('[RunReturnUI] Normal combat victory - returning to map');
+    if (typeof deps.switchScreen === 'function') {
+      console.log('[RunReturnUI] Calling switchScreen(game)');
+      deps.switchScreen('game');
+    }
+    if (typeof deps.updateUI === 'function') {
+      console.log('[RunReturnUI] Calling updateUI');
+      deps.updateUI();
+    }
+    if (typeof deps.updateNextNodes === 'function') {
+      console.log('[RunReturnUI] Calling updateNextNodes');
+      deps.updateNextNodes();
+    }
 
     // 미니맵 렌더링以确保 노드 선택 가능
     if (typeof deps.renderMinimap === 'function') {
+      console.log('[RunReturnUI] Calling renderMinimap');
       setTimeout(() => deps.renderMinimap(), 50);
+    } else {
+      console.warn('[RunReturnUI] renderMinimap not available');
     }
+    console.log('[RunReturnUI] returnToGame complete');
   },
 };
