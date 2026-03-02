@@ -315,8 +315,10 @@ export const ClassMechanics = {
       const hpBonus = Math.floor(lostHp / 10) * 3;
       const buff = state?.getBuff?.('berserk_mode');
       const buffPlus = state?.getBuff?.('berserk_mode_plus');
+      const echoBuff = state?.getBuff?.('echo_berserk');
       const activeBuff = buff || buffPlus;
       const growBonus = activeBuff ? activeBuff.atkGrowth || 0 : 0;
+      const echoGrowBonus = echoBuff ? echoBuff.atkGrowth || 0 : 0;
       const meta = globalThis.DATA?.classes?.berserker;
       const title = meta?.traitTitle || '불협화음 (Cacophony)';
       const desc = meta?.traitDesc || '체력이 낮을수록 피해 보너스가 증가합니다. 공격할 때마다 공격력이 영구적으로 추가 성장합니다.';
@@ -339,7 +341,7 @@ export const ClassMechanics = {
       label.textContent = meta?.traitName || '불협화음';
       const value = document.createElement('div');
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
-      value.textContent = `보너스 +${hpBonus + growBonus}`;
+      value.textContent = `보너스 +${hpBonus + growBonus + echoGrowBonus}`;
       el.append(label, value);
       return el;
     }

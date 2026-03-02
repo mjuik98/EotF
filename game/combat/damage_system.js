@@ -37,6 +37,8 @@ export const DamageSystem = {
         if (berserk) dmg += berserk.atkGrowth || 0;
         const berserkPlus = this.getBuff?.('berserk_mode_plus');
         if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
+        const echoBerserk = this.getBuff?.('echo_berserk');
+        if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
 
         if (this.getBuff?.('vanish')) {
             dmg = Math.floor(dmg * 2);
@@ -92,6 +94,8 @@ export const DamageSystem = {
         if (berserk) dmg += berserk.atkGrowth || 0;
         const berserkPlus = this.getBuff('berserk_mode_plus');
         if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
+        const echoBerserk = this.getBuff('echo_berserk');
+        if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
         if (this.getBuff('vanish')) {
             dmg = Math.floor(dmg * 2);
             delete this.player.buffs['vanish'];

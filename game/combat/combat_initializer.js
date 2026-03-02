@@ -34,9 +34,9 @@ export const CombatInitializer = {
         const combat = gs.combat;
         const player = gs.player;
 
-        // 영구 버프 보존 (berserk_mode 등)
+        // 영구 버프 보존 (잔향 스킬 등)
         const permanentBuffs = {};
-        const PERMANENT_BUFF_IDS = ['berserk_mode', 'berserk_mode_plus', 'resonance'];
+        const PERMANENT_BUFF_IDS = ['echo_berserk', 'resonance'];
         if (player.buffs) {
             Object.keys(player.buffs).forEach(buffId => {
                 if (PERMANENT_BUFF_IDS.includes(buffId)) {
