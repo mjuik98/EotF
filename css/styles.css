@@ -2944,7 +2944,7 @@ body:has(#combatOverlay.active) .panel-right {
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.22s;
+  transition: background 0.22s, border-color 0.22s, opacity 0.22s, box-shadow 0.22s;
   backdrop-filter: blur(12px);
   white-space: nowrap;
   pointer-events: auto !important;
@@ -6086,6 +6086,7 @@ body:has(#combatOverlay.active) .panel-right {
 
 /*  ENHANCED ACTION BUTTON FEEDBACK  */
 .action-btn.clicked {
+  transition: none;
   animation: btnClickBounceStrong 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
