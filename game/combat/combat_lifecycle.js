@@ -76,9 +76,15 @@ export const CombatLifecycle = {
                 console.log('[endCombat] Boss reward pending:', isLastRegion);
             }
             if (isBoss && isLastRegion && RunRules.isEndless(this)) {
+                console.log('[endCombat] Endless mode - returning to game');
                 setTimeout(() => {
                     const returnToGame = deps.returnToGame || win.returnToGame;
-                    if (typeof returnToGame === 'function') returnToGame(true);
+                    if (typeof returnToGame === 'function') {
+                        console.log('[endCombat] Calling returnToGame');
+                        returnToGame(true);
+                    } else {
+                        console.error('[endCombat] returnToGame not available');
+                    }
                 }, 300);
                 return;
             }

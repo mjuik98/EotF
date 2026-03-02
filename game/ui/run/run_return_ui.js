@@ -6,7 +6,12 @@ export const RunReturnUI = {
   returnToGame(fromReward, deps = {}) {
     const gs = deps.gs;
     const runRules = deps.runRules;
-    if (!gs || !runRules) return;
+    if (!gs || !runRules) {
+      console.error('[RunReturnUI] Missing gs or runRules');
+      return;
+    }
+
+    console.log('[RunReturnUI] returnToGame called - fromReward:', fromReward, 'wasBoss:', gs._bossRewardPending, 'wasLastRegion:', gs._bossLastRegion);
 
     const wasBoss = gs._bossRewardPending;
     const wasLastRegion = gs._bossLastRegion;
@@ -47,21 +52,33 @@ export const RunReturnUI = {
         }
 
         // 무한 모드: 다음 지역로 이동
+        console.log('[RunReturnUI] Endless mode - advancing to next region');
         if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
         setTimeout(() => {
-          if (typeof deps.advanceToNextRegion === 'function') deps.advanceToNextRegion();
+          if (typeof deps.advanceToNextRegion === 'function') {
+            console.log('[RunReturnUI] Calling advanceToNextRegion');
+            deps.advanceToNextRegion();
+          } else {
+            console.error('[RunReturnUI] advanceToNextRegion not available');
+          }
         }, 300);
         return;
       }
 
       // 보스 처치 후 다음 지역로 이동
+      console.log('[RunReturnUI] Boss defeated - advancing to next region');
       if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       if (typeof deps.updateUI === 'function') deps.updateUI();
       if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
       setTimeout(() => {
-        if (typeof deps.advanceToNextRegion === 'function') deps.advanceToNextRegion();
+        if (typeof deps.advanceToNextRegion === 'function') {
+          console.log('[RunReturnUI] Calling advanceToNextRegion');
+          deps.advanceToNextRegion();
+        } else {
+          console.error('[RunReturnUI] advanceToNextRegion not available');
+        }
       }, 300);
       return;
     }

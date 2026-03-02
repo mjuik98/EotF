@@ -9,7 +9,12 @@ function _getGS(deps) {
 export const RegionTransitionUI = {
   advanceToNextRegion(deps = {}) {
     const gs = _getGS(deps);
-    if (!gs) return;
+    if (!gs) {
+      console.error('[RegionTransitionUI] Missing gs');
+      return;
+    }
+
+    console.log('[RegionTransitionUI] advanceToNextRegion called - currentRegion:', gs.currentRegion);
 
     gs.currentRegion++;
     gs.currentFloor = 0;
@@ -17,7 +22,10 @@ export const RegionTransitionUI = {
 
     const getRegionData = deps.getRegionData || globalThis.getRegionData;
     const region = getRegionData?.(gs.currentRegion, gs);
-    if (!region) return;
+    if (!region) {
+      console.error('[RegionTransitionUI] No region data for region', gs.currentRegion);
+      return;
+    }
 
     const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
     const baseRegion = getBaseRegionIndex ? getBaseRegionIndex(gs.currentRegion) : gs.currentRegion;
