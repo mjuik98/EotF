@@ -15,13 +15,11 @@ export function createCanvasBindings(M, fns) {
         const refs = M.GameCanvasSetupUI?.init?.(M.GAME.getDeps());
         if (refs) {
             M._canvasRefs = refs;
-            Deps.patchRefs({ _canvasRefs: refs });
         }
     };
     fns.resizeGameCanvas = () => {
         M.GameCanvasSetupUI?.resize?.();
         M._canvasRefs = M.GameCanvasSetupUI?.getRefs?.() || M._canvasRefs;
-        Deps.patchRefs({ _canvasRefs: M._canvasRefs });
     };
 
     // ═══ Game Loop ═══
