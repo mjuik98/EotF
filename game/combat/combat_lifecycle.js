@@ -90,6 +90,11 @@ export const CombatLifecycle = {
             }
             console.log('[endCombat] Waiting 1 second before reward screen...');
             await new Promise(r => setTimeout(r, 1000));
+
+            // Ensure combat is deactivated before showing reward screen
+            this.combat.active = false;
+            console.log('[endCombat] combat.active set to false');
+
             console.log('[endCombat] Calling showRewardScreen, isBoss:', isBoss);
             const showRewardScreen = deps.showRewardScreen || win.showRewardScreen;
             if (typeof showRewardScreen === 'function') {

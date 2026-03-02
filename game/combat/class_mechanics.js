@@ -265,6 +265,19 @@ export const ClassMechanics = {
       // dealDamage takes (amount, targetIdx, isSubDamage, source, deps)
       state.dealDamage(amount, targetIdx, true, { name: '성가', type: 'trait' });
     },
+    onDealDamage(gs, damage, targetIdx) {
+      const state = _getGS(gs);
+      const enemy = state.combat?.enemies[targetIdx];
+      if (!enemy || !enemy.statusEffects?.branded) return damage;
+
+      // 낙인 수치(회복량) 결정
+      const isPlus = state._currentCard?.id === 'brand_of_light_plus';
+      const healAmt = isPlus ? 4 : 2;
+
+      state.addLog(LogUtils.formatEcho(`🕯️ 낙인: 공격 시 체력 ${healAmt} 회복`), 'echo');
+      state.heal(healAmt, { name: '빛의 낙인', type: 'status' });
+      return damage;
+    },
     getSpecialUI(gs) {
       const state = _getGS(gs);
       const meta = globalThis.DATA?.classes?.paladin;
@@ -291,7 +304,6 @@ export const ClassMechanics = {
       value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);";
       value.textContent = '회복 시 추가 피해';
       el.append(label, value);
-      return el;
     }
   },
   berserker: {

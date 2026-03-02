@@ -27,7 +27,14 @@ export const UPGRADE_MAP = {
     'tempo_strike': 'tempo_strike_plus',
     'holy_strike': 'holy_strike_plus',
     'blood_fury': 'blood_fury_plus',
-    'iron_defense': 'iron_defense_plus'
+    'iron_defense': 'iron_defense_plus',
+    'abyssal_thirst': 'abyssal_thirst_plus',
+    'echo_barrier': 'echo_barrier_plus',
+    'vibrations_end': 'vibrations_end_plus',
+    'temporal_echo': 'temporal_echo_plus',
+    'silent_strike': 'silent_strike_plus',
+    'brand_of_light': 'brand_of_light_plus',
+    'resonant_shield': 'resonant_shield_plus'
 };
 
 export const CARDS = {
@@ -180,6 +187,28 @@ export const CARDS = {
             if (accel) gs.addEcho(10);
         }
     },
+    vibrations_end: {
+        id: 'vibrations_end', name: '진동의 끝', icon: '🎸', cost: 1, type: 'ATTACK', desc: '피해 5. 공명 10당 1회 추가 공격.', rarity: 'rare',
+        image: 'card_vibrations_end.png',
+        effect(gs) {
+            const res = gs.getBuff('resonance');
+            const hits = 1 + Math.floor((res ? res.dmgBonus : 0) / 10);
+            for (let i = 0; i < hits; i++) {
+                gs.dealDamage(5, null, i < hits - 1);
+            }
+        }
+    },
+    vibrations_end_plus: {
+        id: 'vibrations_end_plus', name: '진동의 끝+', icon: '🎸', cost: 1, type: 'ATTACK', desc: '피해 7. 공명 8당 1회 추가 공격.', rarity: 'rare', upgraded: true,
+        image: 'card_vibrations_end.png',
+        effect(gs) {
+            const res = gs.getBuff('resonance');
+            const hits = 1 + Math.floor((res ? res.dmgBonus : 0) / 8);
+            for (let i = 0; i < hits; i++) {
+                gs.dealDamage(7, null, i < hits - 1);
+            }
+        }
+    },
     // 메아리술사
     foresight: {
         id: 'foresight', name: '예지', icon: '👁️', cost: 0, type: 'SKILL', desc: '약화 부여. 잔향 5 충전.', rarity: 'common',
@@ -220,6 +249,32 @@ export const CARDS = {
         id: 'time_warp', name: '시간 왜곡', icon: '🌀', cost: 3, type: 'POWER', desc: '【지속】 매 턴: 에너지 1 획득.', rarity: 'rare',
         image: 'card_time_warp.png',
         effect(gs) { gs.addBuff('time_warp', 99, { energyPerTurn: 1 }); }
+    },
+    temporal_echo: {
+        id: 'temporal_echo', name: '기시감', icon: '⏳', cost: 2, type: 'SKILL', desc: '가장 최근에 사용한 카드를 가져옵니다.', rarity: 'uncommon',
+        image: 'card_temporal_echo.png',
+        effect(gs) {
+            if (gs.player.graveyard.length > 0) {
+                const lastCardId = gs.player.graveyard[gs.player.graveyard.length - 1];
+                gs.player.hand.push(lastCardId);
+                gs.addLog(`⏳ 기시감: ${CARDS[lastCardId]?.name}를 메아리칩니다!`, 'echo');
+                gs.markDirty('hand');
+            }
+        }
+    },
+    temporal_echo_plus: {
+        id: 'temporal_echo_plus', name: '기시감+', icon: '⏳', cost: 1, type: 'SKILL', desc: '가장 최근에 사용한 카드를 가져오고 비용을 0으로 만듭니다.', rarity: 'uncommon', upgraded: true,
+        image: 'card_temporal_echo.png',
+        effect(gs) {
+            if (gs.player.graveyard.length > 0) {
+                const lastCardId = gs.player.graveyard[gs.player.graveyard.length - 1];
+                gs.player.hand.push(lastCardId);
+                if (!gs.player._temporaryDiscounts) gs.player._temporaryDiscounts = {};
+                gs.player._temporaryDiscounts[gs.player.hand.length - 1] = 99; // 99는 무료를 의미하는 내부 코드라고 가정
+                gs.addLog(`⏳ 기시감+: ${CARDS[lastCardId]?.name}를 0코스트로 메아리칩니다!`, 'echo');
+                gs.markDirty('hand');
+            }
+        }
     },
     // 침묵사냥꾼
     silent_stab: {
@@ -302,6 +357,24 @@ export const CARDS = {
             gs.addShield(12);
             gs.addBuff('dodge', 1, {});
             gs.addLog(LogUtils.formatCardBuff('환영 보폭+', '회피 +1'), 'buff');
+        }
+    },
+    silent_strike: {
+        id: 'silent_strike', name: '심장 정지', icon: '🗡️', cost: 1, type: 'ATTACK', desc: '피해 7. 적의 [독] 수치 × 4만큼 추가 피해.', rarity: 'uncommon',
+        image: 'card_silent_strike.png',
+        effect(gs) {
+            const enemy = gs.combat.enemies[gs._selectedTarget || 0];
+            const poison = enemy?.statusEffects?.poisoned || 0;
+            gs.dealDamage(7 + (poison * 4));
+        }
+    },
+    silent_strike_plus: {
+        id: 'silent_strike_plus', name: '심장 정지+', icon: '🗡️', cost: 1, type: 'ATTACK', desc: '피해 10. 적의 [독] 수치 × 6만큼 추가 피해.', rarity: 'uncommon', upgraded: true,
+        image: 'card_silent_strike.png',
+        effect(gs) {
+            const enemy = gs.combat.enemies[gs._selectedTarget || 0];
+            const poison = enemy?.statusEffects?.poisoned || 0;
+            gs.dealDamage(10 + (poison * 6));
         }
     },
     // 레어/파워
@@ -512,7 +585,16 @@ export const CARDS = {
         image: 'card_blessing_of_light_plus.png',
         effect(gs) { gs.addBuff('blessing_of_light_plus', 99, { healPerTurn: 4 }); }
     },
-
+    brand_of_light: {
+        id: 'brand_of_light', name: '빛의 낙인', icon: '🕯️', cost: 1, type: 'SKILL', desc: '적에게 2턴간 [낙인] 부여. (피격 시 플레이어 체력 2 회복)', rarity: 'uncommon',
+        image: 'card_brand_of_light.png',
+        effect(gs) { gs.applyEnemyStatus('branded', 2); }
+    },
+    brand_of_light_plus: {
+        id: 'brand_of_light_plus', name: '빛의 낙인+', icon: '🕯️', cost: 0, type: 'SKILL', desc: '적에게 3턴간 [낙인] 부여. (피격 시 플레이어 체력 4 회복)', rarity: 'uncommon', upgraded: true,
+        image: 'card_brand_of_light.png',
+        effect(gs) { gs.applyEnemyStatus('branded', 3); }
+    },
     // ── 파음전사 (Berserker) ──
     blood_fury: {
         id: 'blood_fury', name: '핏빛 분노', icon: '🩸', cost: 1, type: 'ATTACK', desc: '피해 7. (잃은 체력 10마다 피해 +3.)', rarity: 'common',
@@ -560,7 +642,46 @@ export const CARDS = {
         image: 'card_berserk_mode_plus.png',
         effect(gs) { gs.addBuff('berserk_mode_plus', 99, { atkGrowth: 3 }); }
     },
-
+    abyssal_thirst: {
+        id: 'abyssal_thirst', name: '심연의 목마름', icon: '🍷', cost: 2, type: 'SKILL', desc: '현재 체력의 50% 소모. 소모량의 200%만큼 보호막 획득.', rarity: 'rare',
+        image: 'card_abyssal_thirst.png',
+        effect(gs) {
+            const cost = Math.floor(gs.player.hp * 0.5);
+            gs.player.hp = Math.max(1, gs.player.hp - cost);
+            gs.addShield(cost * 2);
+            gs.addLog(`🍷 심연의 목마름: HP ${cost} 소모 -> 방어막 ${cost * 2} 획득!`, 'echo');
+            gs.markDirty('hud');
+        }
+    },
+    abyssal_thirst_plus: {
+        id: 'abyssal_thirst_plus', name: '심연의 목마름+', icon: '🍷', cost: 1, type: 'SKILL', desc: '현재 체력의 50% 소모. 소모량의 300%만큼 보호막 획득.', rarity: 'rare', upgraded: true,
+        image: 'card_abyssal_thirst.png',
+        effect(gs) {
+            const cost = Math.floor(gs.player.hp * 0.5);
+            gs.player.hp = Math.max(1, gs.player.hp - cost);
+            gs.addShield(cost * 3);
+            gs.addLog(`🍷 심연의 목마름+: HP ${cost} 소모 -> 방어막 ${cost * 3} 획득!`, 'echo');
+            gs.markDirty('hud');
+        }
+    },
+    echo_barrier: {
+        id: 'echo_barrier', name: '죽음의 무도', icon: '💃', cost: 1, type: 'SKILL', desc: '방어막 5. 잃은 체력 5당 방어막 +2 추가.', rarity: 'uncommon',
+        image: 'card_echo_barrier.png',
+        effect(gs) {
+            const lostHp = gs.player.maxHp - gs.player.hp;
+            const bonus = Math.floor(lostHp / 5) * 2;
+            gs.addShield(5 + bonus);
+        }
+    },
+    echo_barrier_plus: {
+        id: 'echo_barrier_plus', name: '죽음의 무도+', icon: '💃', cost: 1, type: 'SKILL', desc: '방어막 8. 잃은 체력 4당 방어막 +2 추가.', rarity: 'uncommon', upgraded: true,
+        image: 'card_echo_barrier.png',
+        effect(gs) {
+            const lostHp = gs.player.maxHp - gs.player.hp;
+            const bonus = Math.floor(lostHp / 4) * 2;
+            gs.addShield(8 + bonus);
+        }
+    },
     // ── 무음수호자 (Guardian) ──
     iron_defense: {
         id: 'iron_defense', name: '무쇠 방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10. 잔향 10 충전.', rarity: 'common',
@@ -592,4 +713,20 @@ export const CARDS = {
         image: 'card_unbreakable_wall_plus.png',
         effect(gs) { gs.addBuff('unbreakable_wall_plus', 99); }
     },
+    resonant_shield: {
+        id: 'resonant_shield', name: '공진 방패', icon: '🛡️', cost: 1, type: 'ATTACK', desc: '현재 방어막의 1.5배 피해.', rarity: 'uncommon',
+        image: 'card_resonant_shield.png',
+        effect(gs) {
+            const shield = gs.player.shield || 0;
+            gs.dealDamage(Math.floor(shield * 1.5));
+        }
+    },
+    resonant_shield_plus: {
+        id: 'resonant_shield_plus', name: '공진 방패+', icon: '🛡️', cost: 1, type: 'ATTACK', desc: '현재 방어막의 2배 피해.', rarity: 'uncommon', upgraded: true,
+        image: 'card_resonant_shield.png',
+        effect(gs) {
+            const shield = gs.player.shield || 0;
+            gs.dealDamage(shield * 2);
+        }
+    }
 };

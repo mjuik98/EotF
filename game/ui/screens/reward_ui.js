@@ -19,7 +19,13 @@ export const RewardUI = {
     const gs = _getGS(deps);
     const data = _getData(deps);
     if (!gs || !data) return;
-    if (gs.combat?.active) return;
+
+    console.log('[RewardUI] showRewardScreen called - isBoss:', isBoss, 'combat.active:', gs.combat?.active);
+
+    if (gs.combat?.active) {
+      console.warn('[RewardUI] Combat still active, forcing deactivation');
+      gs.combat.active = false;
+    }
 
     gs._rewardLock = false;
     this.hideSkipConfirm(deps);
