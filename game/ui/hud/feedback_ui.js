@@ -338,4 +338,53 @@ export const FeedbackUI = {
       }, 500);
     }, showDuration);
   },
+
+  /**
+   * 카드 뽑기 버튼에 시각적 효과 적용 (리플, 반동, 파티클)
+   */
+  triggerDrawButtonEffect(btnId = 'combatDrawCardBtn', deps = {}) {
+    const doc = deps.doc || document;
+    const btn = doc.getElementById(btnId);
+    if (!btn) return;
+
+    // 1. 버튼 반동 효과 (Bounce) - disabled 상태에서도 동작
+    btn.classList.remove('clicked');
+    void btn.offsetWidth; // Trigger reflow
+    btn.classList.add('clicked');
+    setTimeout(() => btn.classList.remove('clicked'), 300);
+
+    // 2. 리플 효과 (Ripple)
+    const ripple = doc.createElement('div');
+    ripple.className = 'btn-ripple';
+    btn.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 500);
+
+    // 3. 에너지 소모 파티클 (Burst) - window.ParticleSystem 사용
+    const rect = btn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // window 에 등록된 ParticleSystem 사용 (globalThis 대신)
+    const ps = deps.particleSystem || window.ParticleSystem;
+
+    if (ps && typeof ps.emit === 'function') {
+      // 황금빛 파편
+      ps.emit(centerX, centerY, {
+        count: 24,
+        color: '#f0b429',
+        size: 4,
+        speed: 7,
+        life: 0.8,
+        type: 'dot'
+      });
+      // 흰색 섬광
+      ps.emit(centerX, centerY, {
+        count: 10,
+        color: '#ffffff',
+        size: 3,
+        speed: 4,
+        life: 0.5
+      });
+    }
+  },
 };

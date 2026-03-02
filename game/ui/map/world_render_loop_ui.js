@@ -29,7 +29,8 @@ export const WorldRenderLoopUI = {
     const refs = _getRefs(deps);
     const gameCanvas = refs.gameCanvas;
     const gameCtx = refs.gameCtx;
-    if (!gs || !gameCtx || !gameCanvas || gs.currentScreen !== 'game') {
+    // 게임 화면 또는 전투 중일 때도 렌더링 계속
+    if (!gs || !gameCtx || !gameCanvas || (gs.currentScreen !== 'game' && !gs.combat?.active)) {
       _requestNextFrame(deps);
       return;
     }

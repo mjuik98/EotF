@@ -105,6 +105,7 @@ export function bootGame(modules, fns, Deps) {
         GameInit.boot({
             ...GAME.getDeps(),
             audioEngine: AudioEngine,
+            particleSystem: ParticleSystem,
             helpPauseUI: HelpPauseUI,
             gameBootUI: GameBootUI,
             getGameBootDeps: () => Deps.getGameBootDeps(),

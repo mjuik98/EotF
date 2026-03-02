@@ -58,6 +58,7 @@ export const GameInit = {
             toggleEndlessMode, cycleRunBlessing, cycleRunCurse, setMasterVolume,
             setSfxVolume, setAmbientVolume, drawCard, endPlayerTurn, useEchoSkill
         } = deps.actions;
+        const particleSystem = deps.particleSystem || window.ParticleSystem;
 
         // Title Screen
         doc.addEventListener('keydown', (e) => {
@@ -126,7 +127,13 @@ export const GameInit = {
             echoBtn.addEventListener('mouseenter', (e) => GAME.API.showEchoSkillTooltip?.(e));
             echoBtn.addEventListener('mouseleave', () => GAME.API.hideEchoSkillTooltip?.());
         }
-        doc.getElementById('combatDrawCardBtn')?.addEventListener('click', () => drawCard?.());
+        doc.getElementById('combatDrawCardBtn')?.addEventListener('click', () => {
+            drawCard?.();
+            GAME.Modules.FeedbackUI?.triggerDrawButtonEffect?.('combatDrawCardBtn', {
+                doc: deps.doc || document,
+                particleSystem
+            });
+        });
         doc.getElementById('endPlayerTurnBtn')?.addEventListener('click', () => endPlayerTurn?.());
 
         // Battle Chronicle (전투 기록)

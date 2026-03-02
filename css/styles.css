@@ -2990,8 +2990,10 @@ body:has(#combatOverlay.active) .panel-right {
 .action-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  transform: none !important;
   box-shadow: none !important;
+}
+.action-btn:disabled:not(.clicked) {
+  transform: none !important;
 }
 
 #drawCardBtn.hand-full:disabled {
@@ -6049,3 +6051,46 @@ body:has(#combatOverlay.active) .panel-right {
 .codex-tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 20%; right: 20%; height: 2px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); border-radius: 2px; }
 .codex-tab-btn-enemies.active { border-color: var(--danger); color: var(--danger); background: rgba(255, 51, 102, 0.1); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
 .codex-tab-btn-enemies.active::after { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+/*  ACTION BUTTON FEEDBACK  */
+.action-btn.clicked {
+  animation: btnClickBounce 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes btnClickBounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.action-btn { position: relative; overflow: hidden; }
+
+.action-btn .btn-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 255, 204, 0.25);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  z-index: 1;
+  animation: btnRippleAnim 0.4s ease-out forwards;
+}
+
+@keyframes btnRippleAnim {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+}
+
+/*  ENHANCED ACTION BUTTON FEEDBACK  */
+.action-btn.clicked {
+  animation: btnClickBounceStrong 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes btnClickBounceStrong {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.85); filter: brightness(1.4); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
