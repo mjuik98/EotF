@@ -49,8 +49,11 @@ export const DeathHandler = {
         this.player.kills++; this.meta.totalKills++;
         EventBus.emit(Actions.ENEMY_DEATH, { enemy: { name: enemy.name, id: enemy.id }, idx });
 
+        console.log('[DeathHandler] onEnemyDeath - enemy:', enemy.name, 'isBoss:', enemy.isBoss);
+
         if (enemy.isBoss) {
             this.combat.bossDefeated = true;
+            console.log('[DeathHandler] Boss defeated! Set bossDefeated = true');
         }
 
         const goldGained = enemy.gold || 10;
