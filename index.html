@@ -1,7 +1,5 @@
 ﻿<!DOCTYPE html>
 <html lang="ko">
-<!DOCTYPE html>
-<html lang="ko">
 
 <head>
   <meta charset="UTF-8">
@@ -32,82 +30,133 @@
           <button id="mainStartBtn" class="primary-start-btn">GAME START</button>
           <div class="menu-buttons-sub-container">
             <button id="mainRunRulesBtn" class="settings-trigger-btn">⚙️ 런 규칙</button>
-            <div class="modal-header">
-              <div class="modal-title">런 규칙</div>
-            </div>
-            <div id="runModePanel" class="run-mode-panel run-settings-modal-panel">
-              <div class="run-mode-row">
-                <span class="run-mode-label">승천 단계</span>
-                <div class="run-mode-stepper">
-                  <button class="run-mode-btn" type="button" onclick="shiftAscension(-1)">-</button>
-                  <span id="ascensionValue" class="run-mode-value">A0</span>
-                  <button class="run-mode-btn" type="button" onclick="shiftAscension(1)">+</button>
-                </div>
-                <span id="ascensionCap" class="run-mode-cap">최고 A0</span>
-              </div>
-              <div class="run-mode-row">
-                <span class="run-mode-label">무한 모드</span>
-                <button id="endlessToggleBtn" class="run-mode-pill" type="button"
-                  onclick="toggleEndlessMode()">꺼짐</button>
-                <span class="run-mode-cap">보스 루프</span>
-              </div>
-              <div class="run-mode-row">
-                <span class="run-mode-label">축복</span>
-                <button id="blessingCycleBtn" class="run-mode-pill" type="button"
-                  onclick="cycleRunBlessing()">없음</button>
-                <span class="run-mode-cap">시작 보너스</span>
-              </div>
-              <div class="run-mode-row">
-                <span class="run-mode-label">저주</span>
-                <button id="curseCycleBtn" class="run-mode-pill danger" type="button"
-                  onclick="cycleRunCurse()">없음</button>
-                <span class="run-mode-cap">난이도 상승</span>
-              </div>
-              <div class="run-mode-row inscription-row" id="inscriptionRow" style="display:none;">
-                <span class="run-mode-label">보유 각인</span>
-                <div id="inscriptionToggles" class="inscription-toggles-container"></div>
-              </div>
-              <div id="runModeDesc" class="run-mode-desc"></div>
-            </div>
-            <button id="runSettingsCloseBtn" class="action-btn action-btn-secondary">닫기<span
-                class="kbd-hint">ESC</span></button>
+            <button id="mainCodexBtn" class="settings-trigger-btn">📘 CODEX</button>
+            <button id="mainSettingsBtn" class="settings-trigger-btn">🎚 SETTINGS</button>
+            <button id="mainQuitBtn" class="settings-trigger-btn btn-quit-special">⏻ QUIT</button>
           </div>
         </div>
-
-
-        <!-- 사운드 설정 토글 (우하단 고정) -->
-        <div id="soundToggleBtn" class="sound-toggle-btn">
-          🔊
-        </div>
-        <div id="soundSettings" class="sound-settings-panel" style="display:none;">
-          <div class="sound-settings-title">
-            🔊 SOUND SETTINGS</div>
-          <div class="sound-settings-grid">
-            <div class="sound-settings-row">
-              <span class="sound-settings-label">MASTER</span>
-              <input type="range" id="volMaster" min="0" max="100" value="35">
-              <span id="volMasterVal" class="sound-settings-value">35%</span>
-            </div>
-            <div class="sound-settings-row">
-              <span class="sound-settings-label">SFX</span>
-              <input type="range" id="volSfx" min="0" max="100" value="70">
-              <span id="volSfxVal" class="sound-settings-value">70%</span>
-            </div>
-            <div class="sound-settings-row">
-              <span class="sound-settings-label">AMBIENT</span>
-              <input type="range" id="volAmbient" min="0" max="100" value="40">
-              <span id="volAmbientVal" class="sound-settings-value">40%</span>
-            </div>
-          </div>
-        </div>
-        <!-- Duplicate removed -->
       </div>
-    </div>
 
-    <!-- ═══════════════════════════════════════
+      <!-- 2단계: 캐릭터 선택 화면 (V4) -->
+      <div id="charSelectSubScreen" class="char-select-sub-screen" style="display:none;">
+        <div id="app">
+          <div id="bgGradient" class="bg-gradient"></div>
+          <div class="bg-noise"></div>
+
+          <div id="header" class="intro">
+            <div id="headerTitle" class="title-sub choose-echo-title">CHOOSE YOUR ECHO</div>
+          </div>
+
+          <div id="mainRow" class="intro">
+            <button id="btnLeft" class="arrow-btn" type="button" aria-label="이전 캐릭터">‹</button>
+
+            <div id="charCard" role="region" aria-label="선택된 캐릭터">
+              <canvas id="particleCanvas" width="420" height="640"></canvas>
+              <div id="cardFoil"></div>
+              <div id="cardTitle" style="font-size:10px;letter-spacing:2px;color:#aaa;font-family:'Courier New',monospace;margin-bottom:6px;"></div>
+              <div id="cardEmoji" style="font-size:clamp(44px,8vw,72px);line-height:1;margin-bottom:8px;"></div>
+              <div id="cardName" style="font-size:clamp(14px,2vw,20px);letter-spacing:2px;font-family:'Cinzel',serif;margin-bottom:6px;text-align:center;"></div>
+              <div id="cardDiff" style="font-size:9px;color:#999;font-family:'Courier New',monospace;margin-bottom:8px;"></div>
+              <div id="cardTraitBadge" style="padding:3px 10px;border-radius:12px;font-size:8px;font-family:'Courier New',monospace;margin-bottom:8px;"></div>
+              <div id="cardTags" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;padding:0 10px;margin-bottom:10px;"></div>
+              <div id="cardBottomGrad" style="position:absolute;left:0;right:0;bottom:0;height:40%;pointer-events:none;"></div>
+              <div id="cardShimmer" style="position:absolute;inset:0;pointer-events:none;animation:shimmer 3.2s linear infinite;"></div>
+            </div>
+
+            <div id="infoPanel" style="padding:6px 0;"></div>
+            <button id="btnRight" class="arrow-btn" type="button" aria-label="다음 캐릭터">›</button>
+          </div>
+
+          <div id="dotsRow" class="intro"></div>
+          <div id="buttonsRow" class="intro"></div>
+        </div>
+
+        <div id="skillModal" aria-hidden="true">
+          <div id="modalBox" class="modal-box"></div>
+        </div>
+
+        <div id="phaseOverlay" aria-hidden="true">
+          <div id="phaseCircle"></div>
+          <div id="phaseContent"></div>
+        </div>
+
+        <div id="backToTitleBtn" class="back-to-title-btn" title="타이틀로 돌아가기">↩</div>
+      </div>
+
+      <!-- 런 설정 모달 -->
+      <div id="runSettingsModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content run-settings-panel">
+          <div class="modal-header">
+            <div class="modal-title">런 규칙</div>
+          </div>
+          <div id="runModePanel" class="run-mode-panel run-settings-modal-panel">
+            <div class="run-mode-row">
+              <span class="run-mode-label">승천 단계</span>
+              <div class="run-mode-stepper">
+                <button class="run-mode-btn" type="button" onclick="shiftAscension(-1)">-</button>
+                <span id="ascensionValue" class="run-mode-value">A0</span>
+                <button class="run-mode-btn" type="button" onclick="shiftAscension(1)">+</button>
+              </div>
+              <span id="ascensionCap" class="run-mode-cap">최고 A0</span>
+            </div>
+            <div class="run-mode-row">
+              <span class="run-mode-label">무한 모드</span>
+              <button id="endlessToggleBtn" class="run-mode-pill" type="button" onclick="toggleEndlessMode()">꺼짐</button>
+              <span class="run-mode-cap">보스 루프</span>
+            </div>
+            <div class="run-mode-row">
+              <span class="run-mode-label">축복</span>
+              <button id="blessingCycleBtn" class="run-mode-pill" type="button" onclick="cycleRunBlessing()">없음</button>
+              <span class="run-mode-cap">시작 보너스</span>
+            </div>
+            <div class="run-mode-row">
+              <span class="run-mode-label">저주</span>
+              <button id="curseCycleBtn" class="run-mode-pill danger" type="button" onclick="cycleRunCurse()">없음</button>
+              <span class="run-mode-cap">난이도 상승</span>
+            </div>
+            <div class="run-mode-row inscription-row" id="inscriptionRow" style="display:none;">
+              <span class="run-mode-label">보유 각인</span>
+              <div id="inscriptionToggles" class="inscription-toggles-container"></div>
+            </div>
+            <div id="runModeDesc" class="run-mode-desc"></div>
+          </div>
+          <button id="runSettingsCloseBtn" class="action-btn action-btn-secondary">닫기<span class="kbd-hint">ESC</span></button>
+        </div>
+      </div>
+
+      <!-- 사운드 설정 토글 (우하단 고정) -->
+      <div id="soundToggleBtn" class="sound-toggle-btn">
+        🔊
+      </div>
+      <div id="soundSettings" class="sound-settings-panel" style="display:none;">
+        <div class="sound-settings-title">
+          🔊 SOUND SETTINGS</div>
+        <div class="sound-settings-grid">
+          <div class="sound-settings-row">
+            <span class="sound-settings-label">MASTER</span>
+            <input type="range" id="volMaster" min="0" max="100" value="35">
+            <span id="volMasterVal" class="sound-settings-value">35%</span>
+          </div>
+          <div class="sound-settings-row">
+            <span class="sound-settings-label">SFX</span>
+            <input type="range" id="volSfx" min="0" max="100" value="70">
+            <span id="volSfxVal" class="sound-settings-value">70%</span>
+          </div>
+          <div class="sound-settings-row">
+            <span class="sound-settings-label">AMBIENT</span>
+            <input type="range" id="volAmbient" min="0" max="100" value="40">
+            <span id="volAmbientVal" class="sound-settings-value">40%</span>
+          </div>
+        </div>
+      </div>
+      <!-- Duplicate removed -->
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
      GAME SCREEN
 ═══════════════════════════════════════ -->
-    <div id="gameScreen" class="screen">
+  <div id="gameScreen" class="screen">
       <div class="game-layout">
         <div class="game-canvas-wrapper-special">
           <canvas id="gameCanvas" class="game-canvas-el-special"></canvas>

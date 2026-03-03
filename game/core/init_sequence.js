@@ -108,9 +108,12 @@ export function bootGame(modules, fns, Deps) {
                     // 선택 완료 애니메이션 직후, 클래스만 미리 선택해둡니다.
                     if (fns.selectClass) fns.selectClass(char.id);
                 },
-                onStart: (char) => {
+                onBack: () => {
+                    if (fns.backToTitle) fns.backToTitle();
+                },
+                onStart: () => {
                     // 최종 '여정 시작' 버튼 클릭 시
-                    if (fns.startGame) fns.startGame(char.id);
+                    if (fns.startGame) fns.startGame();
                 }
             });
         }

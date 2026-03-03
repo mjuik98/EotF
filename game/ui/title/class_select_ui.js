@@ -1,7 +1,62 @@
 let _selectedClass = null;
 
+const CLASS_ID_ORDER = ['swordsman', 'mage', 'hunter', 'paladin', 'berserker', 'guardian'];
+
 function _getDoc(deps) {
   return deps?.doc || document;
+}
+
+function _normalizeClassId(raw) {
+  if (typeof raw === 'number' && Number.isInteger(raw)) {
+    return CLASS_ID_ORDER[raw] || null;
+  }
+
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim().toLowerCase();
+  if (!trimmed) return null;
+  if (CLASS_ID_ORDER.includes(trimmed)) return trimmed;
+
+  if (/^\d+$/.test(trimmed)) {
+    const idx = Number.parseInt(trimmed, 10);
+    return CLASS_ID_ORDER[idx] || null;
+  }
+
+  return null;
+}
+
+function _applySelectionState(classId, deps = {}) {
+  _selectedClass = classId;
+
+  const doc = _getDoc(deps);
+  const startBtn = doc.getElementById('startBtn');
+  if (startBtn) startBtn.disabled = !_selectedClass;
+
+  const hint = doc.getElementById('classSelectHint');
+  if (hint) {
+    hint.style.opacity = '0';
+    hint.style.transform = 'translateY(-8px)';
+    hint.style.transition = 'opacity 0.4s,transform 0.4s';
+  }
+
+  const classMeta = deps.data?.classes?.[_selectedClass];
+  const avatarEmoji = classMeta?.emoji || '⚔️';
+
+  const avatarEl = doc.getElementById('playerAvatar');
+  if (avatarEl) {
+    avatarEl.textContent = avatarEmoji;
+    avatarEl.style.fontSize = '24px';
+  }
+
+  const largeFallback = doc.getElementById('playerPortraitFallback');
+  if (largeFallback) {
+    largeFallback.textContent = avatarEmoji;
+    largeFallback.style.fontSize = '80px';
+    largeFallback.style.display = 'flex';
+  }
+
+  if (typeof deps.playClassSelect === 'function' && _selectedClass) {
+    deps.playClassSelect(_selectedClass);
+  }
 }
 
 export const ClassSelectUI = {
@@ -12,6 +67,10 @@ export const ClassSelectUI = {
   selectClass(btn, deps = {}) {
     if (!btn) return;
     if (btn._selecting) return;
+
+    const classId = _normalizeClassId(btn.dataset?.class);
+    if (!classId) return;
+
     btn._selecting = true;
     setTimeout(() => { btn._selecting = false; }, 300);
 
@@ -19,43 +78,25 @@ export const ClassSelectUI = {
     doc.querySelectorAll('.class-btn').forEach(el => el.classList.remove('selected'));
     btn.classList.add('selected');
 
-    _selectedClass = btn.dataset.class ? btn.dataset.class.toLowerCase() : null;
-    const startBtn = doc.getElementById('startBtn');
-    if (startBtn) startBtn.disabled = !_selectedClass;
-
-    const hint = doc.getElementById('classSelectHint');
-    if (hint) {
-      hint.style.opacity = '0';
-      hint.style.transform = 'translateY(-8px)';
-      hint.style.transition = 'opacity 0.4s,transform 0.4s';
-    }
-
-    const data = deps.data;
-    const classMeta = data?.classes?.[_selectedClass];
-    const avatarEmoji = classMeta?.emoji || '⚔️';
-
-    // HUD 소형 초상화 업데이트
-    const avatarEl = doc.getElementById('playerAvatar');
-    if (avatarEl) {
-      avatarEl.textContent = avatarEmoji;
-      avatarEl.style.fontSize = '24px';
-    }
-
-    // 우측 패널 대형 초상화 업데이트 (미리보기)
-    const largeFallback = doc.getElementById('playerPortraitFallback');
-    if (largeFallback) {
-      largeFallback.textContent = avatarEmoji;
-      largeFallback.style.fontSize = '80px';
-      largeFallback.style.display = 'flex';
-    }
+    _applySelectionState(classId, deps);
 
     btn.style.transition = 'transform 0.15s ease';
     btn.style.transform = 'scale(1.04) translateY(-4px)';
     setTimeout(() => { btn.style.transform = ''; }, 200);
+  },
 
-    if (typeof deps.playClassSelect === 'function' && _selectedClass) {
-      deps.playClassSelect(_selectedClass);
-    }
+  selectClassById(classId, deps = {}) {
+    const normalized = _normalizeClassId(classId);
+    if (!normalized) return;
+
+    const doc = _getDoc(deps);
+    doc.querySelectorAll('.class-btn').forEach(el => {
+      const elClassId = _normalizeClassId(el.dataset?.class);
+      if (elClassId === normalized) el.classList.add('selected');
+      else el.classList.remove('selected');
+    });
+
+    _applySelectionState(normalized, deps);
   },
 
   clearSelection(deps = {}) {
@@ -80,10 +121,12 @@ export const ClassSelectUI = {
       `;
       document.body.appendChild(tip);
     }
+
     tip.innerHTML = `
       <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--cyan,#00ffcc);letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
       <div style="font-size:10px;color:rgba(200,200,220,0.85);line-height:1.5;">${desc}</div>
     `;
+
     const rect = e.target.getBoundingClientRect();
     tip.style.left = `${Math.min(rect.left, (globalThis.innerWidth || 1280) - 300)}px`;
     tip.style.top = `${rect.bottom + 6}px`;
@@ -100,13 +143,13 @@ export const ClassSelectUI = {
       console.error('[ClassSelectUI] No container found for rendering buttons');
       return;
     }
+
     const data = deps.data;
     const CLASS_START_ITEMS = deps.CLASS_START_ITEMS;
-    if (!data?.classes) {
-      return;
-    }
+    if (!data?.classes) return;
 
     container.innerHTML = '';
+
     Object.values(data.classes).forEach(cls => {
       const startItemKey = CLASS_START_ITEMS?.[cls.id];
       const startItem = data.items?.[startItemKey];
@@ -128,7 +171,6 @@ export const ClassSelectUI = {
         <div class="class-btn-relic class-btn-starting-relic">${itemInfo}</div>
       `;
 
-      // 고유 특성 호버 툴팁
       const traitEl = btn.querySelector('.class-btn-trait');
       if (traitEl) {
         traitEl.style.cursor = 'help';
@@ -139,7 +181,6 @@ export const ClassSelectUI = {
         traitEl.addEventListener('mouseleave', () => this._hideTooltip());
       }
 
-      // 시작 유물 호버 툴팁
       const relicEl = btn.querySelector('.class-btn-relic');
       if (relicEl && startItem) {
         relicEl.style.cursor = 'help';

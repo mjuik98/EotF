@@ -48,9 +48,14 @@ export function createTitleSettingsBindings(M, fns) {
         M.AudioEngine?.playClick?.();
         M.CodexUI?.openCodex?.({ gs: M.GS, data: M.DATA });
     };
-    fns.selectClass = (btn) => {
+    fns.selectClass = (target) => {
         M.AudioEngine?.playClick?.();
-        M.ClassSelectUI?.selectClass?.(btn, Deps.getClassSelectDeps());
+        const classSelectDeps = Deps.getClassSelectDeps();
+        if (typeof target === 'string' || typeof target === 'number') {
+            M.ClassSelectUI?.selectClassById?.(target, classSelectDeps);
+            return;
+        }
+        M.ClassSelectUI?.selectClass?.(target, classSelectDeps);
     };
 
     // 캐릭터 선택 컨테이너에 이벤트 위임 설정 (추가)
