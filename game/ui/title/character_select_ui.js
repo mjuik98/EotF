@@ -380,32 +380,26 @@ class _Particle {
 // ══════════════════════════════════════════════════════════
 const _STAT_LABELS = { HP: '체력', ATK: '공격', DEF: '방어', ECH: '잔향', RHY: '리듬', RES: '공명' };
 
-function _buildRadar(stats, accent, cmp = null, size = 155) {
+function _buildRadar(stats, accent, cmp = null, size = 240) {
   const keys = Object.keys(stats), n = keys.length;
-  const cx = size / 2, cy = size / 2, maxR = size / 2 - 24;
+  const cx = size / 2, cy = size / 2, maxR = size / 2 - 35;
   const ang = i => (i * 2 * Math.PI / n) - Math.PI / 2;
   const pt = (i, r) => [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))];
   const toD = pts => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join('') + 'Z';
   const sPts = keys.map((k, i) => pt(i, (stats[k] / 100) * maxR));
-  const cPts = cmp ? keys.map((k, i) => pt(i, (cmp[k] / 100) * maxR)) : null;
+  const cPath = ''; // cmp 제거됨
   const fid = `glow${accent.replace('#', '')}`;
   const grids = [0.25, 0.5, 0.75, 1].map(lv =>
-    `<polygon points="${keys.map((_, i) => { const [x, y] = pt(i, maxR * lv); return `${x},${y}`; }).join(' ')}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>`
+    `<polygon points="${keys.map((_, i) => { const [x, y] = pt(i, maxR * lv); return `${x},${y}`; }).join(' ')}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>`
   ).join('');
-  const axes = keys.map((_, i) => { const [x, y] = pt(i, maxR); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>`; }).join('');
-  const cPath = cPts ? `<path d="${toD(cPts)}" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.3)" stroke-width="1.5" stroke-dasharray="3 2"/>` : '';
-  const sPath = `<path d="${toD(sPts)}" fill="${accent}22" stroke="${accent}" stroke-width="1.5" filter="url(#${fid})"/>`;
-  const dots = sPts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.5" fill="${accent}"/>`).join('');
-  const lbls = keys.map((k, i) => { const [x, y] = pt(i, maxR + 15); return `<text x="${x}" y="${y + 3}" text-anchor="middle" font-size="7" fill="#3a3a55" font-family="'Courier New',monospace">${_STAT_LABELS[k] || k}</text>`; }).join('');
-  return `<svg width="${size}" height="${size}" style="overflow:visible"><defs><filter id="${fid}"><feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="${accent}" flood-opacity=".6"/></filter></defs>${grids}${axes}${cPath}${sPath}${dots}${lbls}</svg>`;
+  const axes = keys.map((_, i) => { const [x, y] = pt(i, maxR); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>`; }).join('');
+  const sPath = `<path d="${toD(sPts)}" fill="${accent}22" stroke="${accent}" stroke-width="2" filter="url(#${fid})"/>`;
+  const dots = sPts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="${accent}"/>`).join('');
+  const lbls = keys.map((k, i) => { const [x, y] = pt(i, maxR + 22); return `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" fill="${accent}" font-family="'Courier New',monospace" font-weight="bold">${_STAT_LABELS[k] || k}</text>`; }).join('');
+  return `<svg width="${size}" height="${size}" style="overflow:visible"><defs><filter id="${fid}"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="${accent}" flood-opacity=".6"/></filter></defs>${grids}${axes}${cPath}${sPath}${dots}${lbls}</svg>`;
 }
 
-// ══════════════════════════════════════════════════════════
-// MODULE STATE (인스턴스별 격리)
-// ══════════════════════════════════════════════════════════
-function _createState() {
-  return { idx: 0, phase: 'select', compareIdx: null, activeSkill: null, typingTimer: null };
-}
+
 
 // ══════════════════════════════════════════════════════════
 // PUBLIC EXPORT
@@ -427,7 +421,7 @@ export const CharacterSelectUI = {
    */
   mount(deps = {}) {
     const doc = _getDoc(deps);
-    const S = _createState();
+    const S = { idx: 0, phase: 'select', activeSkill: null, typingTimer: null };
     const chars = CHARS;
 
     // ── 파티클 루프 참조 ───────────────────────────────
@@ -453,7 +447,7 @@ export const CharacterSelectUI = {
       hover: () => _SFX.hover(),
       select: () => _SFX.select(),
       skill: () => _SFX.skill(),
-      compare: () => _SFX.compare(),
+      skill: () => _SFX.skill(),
       echo: () => _SFX.echo(),
     };
 
@@ -468,14 +462,14 @@ export const CharacterSelectUI = {
       S.activeSkill = skill;
       const isEcho = !!skill.echoCost;
       const tiers = skill.tree.map((t, i) => `
-        <div style="padding:12px 14px;border:1px solid ${i === 0 ? accent + '55' : accent + '1a'};border-radius:8px;background:${i === 0 ? accent + '0f' : 'transparent'};display:flex;align-items:flex-start;gap:12px;animation:fadeInUp .3s ease ${i * 0.07}s both">
-          <div style="width:22px;height:22px;flex-shrink:0;border-radius:50%;border:1.5px solid ${i === 0 ? accent : accent + '44'};display:flex;align-items:center;justify-content:center;font-size:9px;color:${i === 0 ? accent : accent + '55'};font-family:'Courier New',monospace;font-weight:bold">${t.tier}</div>
+        <div style="padding:16px 20px;border:1px solid ${i === 0 ? accent + '55' : accent + '1a'};border-radius:10px;background:${i === 0 ? accent + '0f' : 'transparent'};display:flex;align-items:flex-start;gap:16px;animation:fadeInUp .3s ease ${i * 0.07}s both">
+          <div style="width:28px;height:28px;flex-shrink:0;border-radius:50%;border:2px solid ${i === 0 ? accent : accent + '44'};display:flex;align-items:center;justify-content:center;font-size:12px;color:${i === 0 ? accent : accent + '55'};font-family:'Courier New',monospace;font-weight:bold">${t.tier}</div>
           <div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
-              <span style="font-size:12px;color:${i === 0 ? '#fff' : '#555'};letter-spacing:1px">${t.name}</span>
-              <span style="padding:1px 7px;border-radius:10px;font-size:8.5px;background:${accent}1a;color:${accent};font-family:'Courier New',monospace;border:1px solid ${accent}33">${t.bonus}</span>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+              <span style="font-size:15px;color:${i === 0 ? '#fff' : '#555'};letter-spacing:1px">${t.name}</span>
+              <span style="padding:2px 10px;border-radius:12px;font-size:11px;background:${accent}1a;color:${accent};font-family:'Courier New',monospace;border:1px solid ${accent}33">${t.bonus}</span>
             </div>
-            <p style="font-size:11px;color:${i === 0 ? '#999' : '#3a3a50'};margin:0;line-height:1.5">${t.desc}</p>
+            <p style="font-size:13px;color:${i === 0 ? '#aaa' : '#3a3a50'};margin:0;line-height:1.6">${t.desc}</p>
           </div>
         </div>`).join('');
 
@@ -484,17 +478,17 @@ export const CharacterSelectUI = {
       modalBox.style.border = `1px solid ${accent}33`;
       modalBox.style.boxShadow = `0 0 80px ${accent}22,0 30px 80px rgba(0,0,0,.8)`;
       modalBox.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-          <span style="font-size:22px">${skill.icon}</span>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+          <span style="font-size:32px">${skill.icon}</span>
           <div>
-            <p style="font-size:8px;letter-spacing:4px;color:#333;font-family:'Courier New',monospace;margin:0">${isEcho ? 'ECHO SKILL TREE' : 'SKILL TREE'}</p>
-            <h3 style="font-size:16px;color:#fff;margin:0;letter-spacing:1.5px">${skill.name}</h3>
-            ${isEcho ? `<span style="font-size:8px;color:${accent};font-family:'Courier New',monospace">ECH ${skill.echoCost} 소모</span>` : ''}
+            <p style="font-size:10px;letter-spacing:5px;color:#444;font-family:'Courier New',monospace;margin:0">${isEcho ? 'ECHO SKILL TREE' : 'SKILL TREE'}</p>
+            <h3 style="font-size:20px;color:#fff;margin:0;letter-spacing:1.5px">${skill.name}</h3>
+            ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Courier New',monospace">ECH ${skill.echoCost} 소모</span>` : ''}
           </div>
-          <button id="modalClose" style="margin-left:auto;background:none;border:none;color:#444;font-size:18px;cursor:pointer">✕</button>
+          <button id="modalClose" style="margin-left:auto;background:none;border:none;color:#555;font-size:24px;cursor:pointer">✕</button>
         </div>
-        <div style="display:flex;flex-direction:column;gap:9px">${tiers}</div>
-        <p style="font-size:9px;color:#1a1a2a;text-align:center;font-family:'Courier New',monospace;margin:16px 0 0">클릭 또는 ESC로 닫기</p>`;
+        <div style="display:flex;flex-direction:column;gap:12px">${tiers}</div>
+        <p style="font-size:11px;color:#222;text-align:center;font-family:'Courier New',monospace;margin:20px 0 0">클릭 또는 ESC로 닫기</p>`;
 
       $('skillModal').classList.add('open');
       $('modalClose').addEventListener('click', closeModal);
@@ -532,7 +526,7 @@ export const CharacterSelectUI = {
       const cardTags = $('cardTags');
       if (cardTags) {
         cardTags.innerHTML = ch.tags.map(t =>
-          `<span style="padding:2px 6px;border:1px solid ${ch.accent}22;border-radius:8px;font-size:7.5px;color:${ch.accent}aa;font-family:'Courier New',monospace;background:${ch.accent}07">${t}</span>`
+          `<span style="padding:4px 10px;border:1px solid ${ch.accent}22;border-radius:12px;font-size:11px;color:${ch.accent}aa;font-family:'Courier New',monospace;background:${ch.accent}07">${t}</span>`
         ).join('');
       }
       const cardBottomGrad = $('cardBottomGrad');
@@ -557,7 +551,6 @@ export const CharacterSelectUI = {
       const ch = chars[S.idx];
       const panel = $('infoPanel');
       if (!panel) return;
-      if (S.compareIdx !== null) { renderCompare(); return; }
 
       const rel = ch.startRelic;
       const skillBadges = ch.skills.map((s, si) => `
@@ -572,22 +565,22 @@ export const CharacterSelectUI = {
 
       const ec = ch.echoSkill;
       panel.innerHTML = `
-        <div style="padding:10px 12px;border:1px solid ${ch.accent}22;border-radius:8px;background:${ch.accent}06;margin-bottom:14px">
+        <div style="padding:15px 18px;border:1px solid ${ch.accent}22;border-radius:10px;background:${ch.accent}06;margin-bottom:18px">
           ${sLabel('── 고유 특성 ──', ch.accent)}
-          <p style="font-size:10px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 3px;letter-spacing:1px">${ch.traitTitle}</p>
-          <p style="font-size:10px;color:#777;margin:0;line-height:1.7">${ch.traitDesc}</p>
+          <p style="font-size:14px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 5px;letter-spacing:1px">${ch.traitTitle}</p>
+          <p style="font-size:13px;color:#888;margin:0;line-height:1.7">${ch.traitDesc}</p>
         </div>
         ${sLabel('SKILLS — 클릭 시 스킬 트리', ch.accent)}
-        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">${skillBadges}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px">${skillBadges}</div>
         ${sLabel('ECHO SKILL — 잔향 게이지 스킬', ch.accent)}
-        <div style="margin-bottom:13px">
-          <button id="echoBadge" class="echo-badge" style="background:linear-gradient(135deg,${ch.accent}0e,${ch.color}08);border:1px solid ${ch.accent}44">
-            <div style="width:26px;height:26px;flex-shrink:0;border-radius:6px;border:1px solid ${ch.accent}55;background:${ch.accent}14;display:flex;align-items:center;justify-content:center;font-size:13px">${ec.icon}</div>
+        <div style="margin-bottom:20px">
+          <button id="echoBadge" class="echo-badge" style="background:linear-gradient(135deg,${ch.accent}0e,${ch.color}08);border:1px solid ${ch.accent}44;padding:12px 16px">
+            <div style="width:36px;height:36px;flex-shrink:0;border-radius:8px;border:1px solid ${ch.accent}55;background:${ch.accent}14;display:flex;align-items:center;justify-content:center;font-size:18px">${ec.icon}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-size:9px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:1px;margin-bottom:2px">◈ ${ec.name}</div>
-              <div style="font-size:8px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ec.desc}</div>
+              <div style="font-size:12px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:1px;margin-bottom:4px">◈ ${ec.name}</div>
+              <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ec.desc}</div>
             </div>
-            <div style="flex-shrink:0;padding:2px 7px;border:1px solid ${ch.accent}33;border-radius:10px;font-size:7.5px;color:${ch.accent}99;font-family:'Courier New',monospace;background:${ch.accent}0a">ECH ${ec.echoCost}</div>
+            <div style="flex-shrink:0;padding:4px 10px;border:1px solid ${ch.accent}33;border-radius:12px;font-size:10px;color:${ch.accent}99;font-family:'Courier New',monospace;background:${ch.accent}0a">ECH ${ec.echoCost}</div>
           </button>
         </div>
         <div style="display:flex;gap:12px;align-items:flex-start">
@@ -595,32 +588,32 @@ export const CharacterSelectUI = {
             ${sLabel('STATS', ch.accent)}
             ${_buildRadar(ch.stats, ch.accent)}
           </div>
-          <div style="flex:1;min-width:0">
+            <div style="flex:1;min-width:0">
             ${sLabel('시작 유물', ch.accent)}
-            <div style="margin-bottom:12px">
+            <div style="margin-bottom:18px">
               <div class="relic-wrap">
-                <div class="relic-inner" style="border:1px solid ${ch.accent}33;background:${ch.accent}08">
-                  <span style="font-size:16px">${rel.icon}</span>
+                <div class="relic-inner" style="border:1px solid ${ch.accent}33;background:${ch.accent}08;padding:10px 16px">
+                  <span style="font-size:24px">${rel.icon}</span>
                   <div>
-                    <div style="font-size:9px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:.5px">${rel.name}</div>
-                    <div style="font-size:7.5px;color:${ch.accent}66;font-family:'Courier New',monospace">유물</div>
+                    <div style="font-size:13px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:.5px">${rel.name}</div>
+                    <div style="font-size:11px;color:${ch.accent}66;font-family:'Courier New',monospace">유물</div>
                   </div>
                 </div>
-                <div class="relic-tooltip" style="border:1px solid ${ch.accent}44">
-                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-                    <span style="font-size:13px">${rel.icon}</span>
-                    <span style="font-size:10px;color:${ch.accent};font-family:'Courier New',monospace">${rel.name}</span>
+                <div class="relic-tooltip" style="border:1px solid ${ch.accent}44; width: 220px; padding: 14px 18px;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                    <span style="font-size:18px">${rel.icon}</span>
+                    <span style="font-size:13px;color:${ch.accent};font-family:'Courier New',monospace">${rel.name}</span>
                   </div>
-                  <div style="font-size:8.5px;color:#777;line-height:1.6;margin-bottom:6px">${rel.desc}</div>
-                  <div style="padding:4px 7px;border:1px solid ${ch.accent}22;border-radius:4px;background:${ch.accent}0a">
-                    <span style="font-size:7.5px;color:${ch.accent}bb;font-family:'Courier New',monospace">✦ 패시브 · ${rel.passive}</span>
+                  <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:10px">${rel.desc}</div>
+                  <div style="padding:6px 10px;border:1px solid ${ch.accent}22;border-radius:6px;background:${ch.accent}0a">
+                    <span style="font-size:10px;color:${ch.accent}bb;font-family:'Courier New',monospace">✦ 패시브 · ${rel.passive}</span>
                   </div>
-                  <div class="tip-arrow" style="border-top:5px solid ${ch.accent}44"></div>
+                  <div class="tip-arrow" style="border-top:7px solid ${ch.accent}44"></div>
                 </div>
               </div>
             </div>
             ${sLabel('시작 덱', ch.accent)}
-            <div style="display:flex;flex-wrap:wrap;gap:4px">${ch.startDeck.map(c => `<span class="deck-card" style="border:1px solid ${ch.accent}1a">${c}</span>`).join('')}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${ch.startDeck.map(c => `<span class="deck-card" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px">${c}</span>`).join('')}</div>
           </div>
         </div>`;
 
@@ -640,50 +633,7 @@ export const CharacterSelectUI = {
       }
     }
 
-    // ── 비교 패널 렌더 ────────────────────────────────
-    function renderCompare() {
-      const ch = chars[S.idx], cc = chars[S.compareIdx];
-      const keys = Object.keys(ch.stats);
-      const statRows = keys.map(k => {
-        const d = ch.stats[k] - cc.stats[k], col = d > 0 ? '#44ff88' : d < 0 ? '#ff5555' : '#2a2a3a';
-        return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <span style="font-size:8.5px;color:#2a2a3a;font-family:'Courier New',monospace;width:30px">${_STAT_LABELS[k]}</span>
-          <span style="font-size:10px;color:${ch.accent};font-family:'Courier New',monospace;width:22px;text-align:right">${ch.stats[k]}</span>
-          <span style="font-size:9px;font-family:'Courier New',monospace;width:32px;text-align:center;color:${col};font-weight:bold">${d > 0 ? `+${d}` : d < 0 ? d : '—'}</span>
-          <span style="font-size:10px;color:${cc.accent};font-family:'Courier New',monospace;width:22px">${cc.stats[k]}</span>
-        </div>`;
-      }).join('');
 
-      $('infoPanel').innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          ${sLabel('직업 비교', ch.accent)}
-          <button id="closeCompare" style="background:none;border:1px solid #1a1a2a;border-radius:4px;color:#3a3a55;font-size:9px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;padding:3px 10px">✕ 닫기</button>
-        </div>
-        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:12px">
-          ${[ch, cc].map((c, ci) => `<div style="flex:1;text-align:center">
-            <div style="font-size:clamp(22px,4vw,30px);margin-bottom:3px;filter:drop-shadow(0 0 10px ${c.glow})">${c.emoji}</div>
-            <p style="font-size:10px;color:${c.accent};font-family:'Courier New',monospace;letter-spacing:1.5px;margin:0 0 6px">${c.name}</p>
-            ${_buildRadar(c.stats, c.accent, ci === 0 ? cc.stats : ch.stats, 125)}
-          </div>`).join('')}
-        </div>
-        ${sLabel('STAT 차이', ch.accent)}
-        <div style="margin-bottom:10px">${statRows}</div>
-        <div style="padding:9px 12px;border:1px solid #0e0e1a;border-radius:6px;background:rgba(255,255,255,.01)">
-          <p style="font-size:8px;color:#1e1e2e;font-family:'Courier New',monospace;margin:0 0 4px;letter-spacing:2px">시작 유물 비교</p>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <span style="font-size:9.5px;color:${ch.accent};font-family:'Courier New',monospace">${ch.startRelic.icon} ${ch.startRelic.name}</span>
-            <span style="color:#2a2a3a">vs</span>
-            <span style="font-size:9.5px;color:${cc.accent};font-family:'Courier New',monospace">${cc.startRelic.icon} ${cc.startRelic.name}</span>
-          </div>
-        </div>`;
-
-      const ccBtn = $('closeCompare');
-      if (ccBtn) {
-        ccBtn.addEventListener('mouseenter', e => { e.target.style.color = '#aaa'; e.target.style.borderColor = '#555'; });
-        ccBtn.addEventListener('mouseleave', e => { e.target.style.color = '#3a3a55'; e.target.style.borderColor = '#1a1a2a'; });
-        ccBtn.addEventListener('click', () => { S.compareIdx = null; renderInfoPanel(); renderButtons(); });
-      }
-    }
 
     // ── 도트 네비게이션 렌더 ──────────────────────────
     function renderDots() {
@@ -692,30 +642,23 @@ export const CharacterSelectUI = {
       if (!dotsRow) return;
       dotsRow.innerHTML = chars.map((_, i) =>
         `<button class="dot" data-i="${i}"
-          style="width:${i === S.idx ? '24px' : '8px'};background:${i === S.idx ? ch.accent : i === S.compareIdx ? ch.accent + '44' : '#151520'};
+          style="width:${i === S.idx ? '24px' : '8px'};background:${i === S.idx ? ch.accent : '#151520'};
           box-shadow:${i === S.idx ? `0 0 12px ${ch.accent}66` : 'none'};cursor:${i === S.idx ? 'default' : 'pointer'}"></button>`
       ).join('');
       dotsRow.querySelectorAll('.dot').forEach(btn => {
         const i = parseInt(btn.dataset.i);
         btn.addEventListener('mouseenter', () => { if (i !== S.idx) btn.style.background = '#3a3a55'; });
-        btn.addEventListener('mouseleave', () => { if (i !== S.idx) btn.style.background = i === S.compareIdx ? chars[S.idx].accent + '44' : '#151520'; });
+        btn.addEventListener('mouseleave', () => { if (i !== S.idx) btn.style.background = '#151520'; });
         btn.addEventListener('click', () => jumpTo(i));
       });
     }
 
     // ── 버튼 렌더 ─────────────────────────────────────
     function renderButtons() {
-      const ch = chars[S.idx], cmp = S.compareIdx !== null;
-      const buttonsRow = $('buttonsRow');
-      if (!buttonsRow) return;
       buttonsRow.innerHTML = `
-        <button id="btnCmp" style="padding:8px 16px;border:1px solid ${cmp ? ch.accent + '44' : '#0e0e1c'};border-radius:3px;background:transparent;color:${cmp ? ch.accent : '#252535'};font-size:9px;letter-spacing:2px;font-family:'Courier New',monospace;transition:all .2s">${cmp ? '✓ 비교 ON' : '비교 [C]'}</button>
-        <button id="btnCfm" style="padding:10px 36px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-family:'Courier New',monospace;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
+        <button id="btnCfm" style="padding:10px 48px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Courier New',monospace;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
 
-      const bc = $('btnCmp'), bf = $('btnCfm');
-      bc.addEventListener('mouseenter', () => { SFX.hover(); bc.style.borderColor = `${ch.accent}55`; bc.style.color = ch.accent; });
-      bc.addEventListener('mouseleave', () => { bc.style.borderColor = cmp ? `${ch.accent}44` : '#0e0e1c'; bc.style.color = cmp ? ch.accent : '#252535'; });
-      bc.addEventListener('click', toggleCompare);
+      const bf = $('btnCfm');
       bf.addEventListener('mouseenter', () => { SFX.hover(); bf.style.letterSpacing = '5px'; bf.style.boxShadow = `0 0 50px ${ch.accent}44`; bf.style.background = `linear-gradient(135deg,${ch.color}55,${ch.color}2a)`; });
       bf.addEventListener('mouseleave', () => { bf.style.letterSpacing = '3px'; bf.style.boxShadow = `0 0 22px ${ch.accent}22`; bf.style.background = `linear-gradient(135deg,${ch.color}30,${ch.color}15)`; });
       bf.addEventListener('click', handleConfirm);
@@ -742,17 +685,17 @@ export const CharacterSelectUI = {
         ci.style.width = '250vw'; ci.style.height = '250vw';
         ci.style.background = `radial-gradient(circle,${ch.accent}55 0%,${ch.color}22 35%,transparent 60%)`;
         ct.innerHTML = `
-          <div style="font-size:clamp(50px,10vw,84px);margin-bottom:10px;filter:drop-shadow(0 0 50px ${ch.glow});animation:float 3s ease-in-out infinite">${ch.emoji}</div>
-          <p style="font-size:7.5px;letter-spacing:6px;color:#222230;font-family:'Courier New',monospace;margin:0 0 5px">YOUR HERO</p>
-          <h2 style="font-size:clamp(24px,5vw,44px);font-weight:900;letter-spacing:4px;margin:0 0 4px;text-shadow:0 0 50px ${ch.glow}">${ch.name}</h2>
-          <p style="font-size:9px;letter-spacing:4px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 5px">${ch.title}</p>
-          <p style="font-size:9px;color:#3a3a55;font-family:'Courier New',monospace;margin:0 0 16px;letter-spacing:1px">고유 특성 · ${ch.traitName}</p>
-          <div id="typedArea" style="font-size:clamp(10px,1.3vw,12px);color:#5a5a70;line-height:2.3;font-family:'Courier New',monospace;letter-spacing:1px;min-height:6.9em;margin-bottom:20px;white-space:pre-line"></div>
-          <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">${ch.tags.map(t => `<span style="padding:3px 12px;border:1px solid ${ch.accent}44;border-radius:20px;font-size:9px;color:${ch.accent};font-family:'Courier New',monospace;background:${ch.accent}0e">${t}</span>`).join('')}</div>
-          <p style="font-size:8.5px;color:#2a2a3a;font-family:'Courier New',monospace;margin:0 0 20px">시작 유물: ${ch.startRelic.icon} ${ch.startRelic.name}</p>
-          <div style="display:flex;gap:15px;justify-content:center;margin-top:10px;">
-            <button id="btnResel" style="padding:9px 24px;border:1px solid #1a1a28;border-radius:3px;background:transparent;color:#333;font-size:9px;letter-spacing:3px;font-family:'Courier New',monospace;cursor:pointer;transition:all .2s">← 다시 선택</button>
-            <button id="btnRealStart" style="padding:9px 36px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}55,${ch.color}22);color:#fff;font-size:11px;letter-spacing:4px;font-family:'Courier New',monospace;cursor:pointer;box-shadow:0 0 20px ${ch.accent}33;transition:all .2s">여정 시작 →</button>
+          <div style="font-size:clamp(60px,12vw,100px);margin-bottom:15px;filter:drop-shadow(0 0 60px ${ch.glow});animation:float 3s ease-in-out infinite">${ch.emoji}</div>
+          <p style="font-size:11px;letter-spacing:8px;color:#334;font-family:'Courier New',monospace;margin:0 0 8px">YOUR HERO</p>
+          <h2 style="font-size:clamp(32px,7vw,58px);font-weight:900;letter-spacing:6px;margin:0 0 6px;text-shadow:0 0 60px ${ch.glow}">${ch.name}</h2>
+          <p style="font-size:14px;letter-spacing:6px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 8px">${ch.title}</p>
+          <p style="font-size:13px;color:#445;font-family:'Courier New',monospace;margin:0 0 20px;letter-spacing:2px">고유 특성 · ${ch.traitName}</p>
+          <div id="typedArea" style="font-size:clamp(12px,1.5vw,16px);color:#778;line-height:2.4;font-family:'Courier New',monospace;letter-spacing:1px;min-height:7em;margin-bottom:30px;white-space:pre-line"></div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:15px">${ch.tags.map(t => `<span style="padding:4px 16px;border:1px solid ${ch.accent}44;border-radius:24px;font-size:12px;color:${ch.accent};font-family:'Courier New',monospace;background:${ch.accent}0e">${t}</span>`).join('')}</div>
+          <p style="font-size:13px;color:#556;font-family:'Courier New',monospace;margin:0 0 30px">시작 유물: ${ch.startRelic.icon} ${ch.startRelic.name}</p>
+          <div style="display:flex;gap:20px;justify-content:center;margin-top:15px;">
+            <button id="btnResel" style="padding:12px 32px;border:1px solid #1a1a28;border-radius:4px;background:transparent;color:#555;font-size:12px;letter-spacing:4px;font-family:'Courier New',monospace;cursor:pointer;transition:all .2s">← 다시 선택</button>
+            <button id="btnRealStart" style="padding:12px 48px;border:1px solid ${ch.accent}55;border-radius:4px;background:linear-gradient(135deg,${ch.color}55,${ch.color}22);color:#fff;font-size:14px;letter-spacing:5px;font-family:'Courier New',monospace;cursor:pointer;box-shadow:0 0 30px ${ch.accent}33;transition:all .2s">여정 시작 →</button>
           </div>`;
 
         stopTyping();
@@ -811,10 +754,7 @@ export const CharacterSelectUI = {
       setTimeout(() => { S.idx = i; updateAll(); setVisible(true); }, 250);
     }
 
-    function toggleCompare() {
-      if (S.compareIdx === null) { SFX.compare(); S.compareIdx = S.idx; } else S.compareIdx = null;
-      renderInfoPanel(); renderDots(); renderButtons();
-    }
+
 
     function handleConfirm() {
       if (S.phase !== 'select') return;
@@ -884,15 +824,9 @@ export const CharacterSelectUI = {
       if (e.key === 'ArrowLeft') go(-1);
       else if (e.key === 'ArrowRight') go(1);
       else if (e.key === 'Enter' && S.phase === 'select' && !S.activeSkill) handleConfirm();
-      else if (e.key === 'Escape') {
-        if (S.activeSkill) closeModal();
-        else if (S.phase === 'done') { S.phase = 'select'; stopTyping(); renderPhase(); }
-        else if (S.phase === 'select') deps.onBack?.();
-      } else if ((e.key === 'c' || e.key === 'C') && S.phase === 'select') toggleCompare();
     }
     doc.addEventListener('keydown', onKeyDown);
 
-    // ── 화살표 버튼 ───────────────────────────────────
     function initArrows() {
       const setup = (id, dir) => {
         const b = $(id);
@@ -901,21 +835,22 @@ export const CharacterSelectUI = {
         b.addEventListener('mouseenter', () => { SFX.hover(); const ac = chars[S.idx].accent; b.style.background = `${ac}22`; b.style.transform = 'scale(1.1)'; b.style.boxShadow = `0 0 30px ${ac}55`; });
         b.addEventListener('mouseleave', () => { const ac = chars[S.idx].accent; b.style.background = `${ac}08`; b.style.transform = 'scale(1)'; b.style.boxShadow = `0 0 16px ${ac}22`; });
       };
-      setup('btnLeft', -1); setup('btnRight', 1);
+      setup('btnLeft', -1);
+      setup('btnRight', 1);
     }
 
-    // ── 마운트 실행 ───────────────────────────────────
     updateAll();
-    initCardFX(); initDrag(); initArrows();
+    initCardFX();
+    initDrag();
+    initArrows();
     setTimeout(() => doc.querySelectorAll('.intro').forEach(el => el.classList.add('mounted')), 80);
 
-    // destroy 핸들 반환 (언마운트 시 호출)
     return {
       destroy() {
-        cancelAnimationFrame(pRaf);
-        stopTyping();
         doc.removeEventListener('keydown', onKeyDown);
-      },
+        stopTyping();
+        cancelAnimationFrame(pRaf);
+      }
     };
-  },
+  }
 };
