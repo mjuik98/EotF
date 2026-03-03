@@ -16,7 +16,7 @@ export function triggerDeckShufflePulseUI(deps = {}) {
 
 export function enableActionButtonsUI(deps = {}) {
   const doc = getDoc(deps);
-  doc.querySelectorAll('.action-btn').forEach((button) => {
+  doc.querySelectorAll('.combat-actions .action-btn').forEach((button) => {
     button.disabled = false;
   });
 }

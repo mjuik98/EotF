@@ -39,7 +39,7 @@ export const DeathHandler = {
                 if (hudUpdateUI && typeof hudUpdateUI.enableActionButtons === 'function') {
                     hudUpdateUI.enableActionButtons();
                 } else {
-                    _getDoc(deps).querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
+                    _getDoc(deps).querySelectorAll('.combat-actions .action-btn').forEach(b => { b.disabled = false; });
                 }
             }
         }
@@ -104,7 +104,7 @@ export const DeathHandler = {
             // UI를 즉시 잠금 처리하여 여분의 입력을 방어
             const docD = _getDoc(deps);
             if (docD) {
-                docD.querySelectorAll('.action-btn, #combatHandCards .card').forEach(el => {
+                docD.querySelectorAll('.combat-actions .action-btn, #combatHandCards .card').forEach(el => {
                     el.style.pointerEvents = 'none';
                     el.disabled = true;
                 });

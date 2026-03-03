@@ -2,10 +2,15 @@ export const MapGenerationUI = {
   generateMap(regionIdx, deps = {}) {
     const gs = deps.gs;
     const getRegionData = deps.getRegionData || window.getRegionData;
+    const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
     if (!gs || typeof getRegionData !== 'function') return;
 
     const region = getRegionData(regionIdx, gs);
     if (!region) return;
+    const baseRegionIndex = typeof getBaseRegionIndex === 'function'
+      ? getBaseRegionIndex(regionIdx)
+      : Math.max(0, Math.floor(Number(regionIdx) || 0));
+    const isFirstStage = baseRegionIndex === 0;
 
     gs.mapNodes = [];
     gs.currentNode = null;
@@ -14,7 +19,11 @@ export const MapGenerationUI = {
       const isBossFloor = floor === region.floors;
       const isPreBossFloor = floor === region.floors - 1;
       const isLateGame = floor >= Math.ceil(region.floors * 0.5);
-      const count = isBossFloor ? 1 : (Math.random() < 0.5 ? 2 : 3);
+      const count = isBossFloor
+        ? 1
+        : (isFirstStage
+          ? (floor === 1 ? 1 : (Math.floor(Math.random() * 3) + 1))
+          : (Math.random() < 0.5 ? 2 : 3));
       let eliteAssigned = false;
       let shopAssigned = false;
       let eventAssigned = false;
@@ -25,7 +34,7 @@ export const MapGenerationUI = {
           type = 'boss';
         } else if (floor === 1) {
           type = 'combat';
-        } else if (isPreBossFloor && i === 0) {
+        } else if (!isFirstStage && isPreBossFloor && i === 0) {
           // 보스 직전 층의 첫 노드는 상점 고정
           type = 'shop';
           shopAssigned = true;

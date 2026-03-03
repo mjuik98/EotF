@@ -52,7 +52,7 @@ export const CombatTurnUI = {
       turnIndicator.textContent = '적의 턴';
     }
     deps.showTurnBanner?.('enemy');
-    doc.querySelectorAll('.action-btn').forEach(btn => { btn.disabled = true; });
+    doc.querySelectorAll('.combat-actions .action-btn').forEach(btn => { btn.disabled = true; });
 
     setTimeout(async () => {
       try {
@@ -220,7 +220,7 @@ export const CombatTurnUI = {
       turnIndicator.textContent = '플레이어 턴';
     }
     deps.showTurnBanner?.('player');
-    doc.querySelectorAll('.action-btn').forEach(btn => {
+    doc.querySelectorAll('.combat-actions .action-btn').forEach(btn => {
       btn.disabled = false;
       btn.style.pointerEvents = '';
     });

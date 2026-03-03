@@ -410,81 +410,81 @@ export const EventUI = {
     const shopList = doc.getElementById('itemShopList');
     if (!shopList) return;
 
-    shopStock.forEach(({ item, cost, rarity }) => {
-      const rc = rarityConfig[rarity] || rarityConfig.common;
-      const canAfford = gs.player.gold >= cost;
+    const renderShopList = () => {
+      goldVal.textContent = gs.player.gold;
+      shopList.textContent = '';
 
-      const card = doc.createElement('div');
-      card.style.cssText = `width:170px;height:260px;background:rgba(10,5,30,0.95);border:1px solid ${rc.border};border-radius:12px;padding:16px;text-align:center;cursor:${canAfford ? 'pointer' : 'not-allowed'};opacity:${canAfford ? 1 : 0.5};transition:all 0.2s;position:relative;display:flex;flex-direction:column;`;
+      shopStock.forEach(({ item, cost, rarity }) => {
+        const rc = rarityConfig[rarity] || rarityConfig.common;
+        const alreadyOwned = gs.player.items.includes(item.id);
+        const canAfford = gs.player.gold >= cost;
+        const purchasable = !alreadyOwned && canAfford;
 
-      const rarityLabel = doc.createElement('div');
-      rarityLabel.style.cssText = `position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.1em;color:${rc.color};`;
-      rarityLabel.textContent = rc.label;
+        const card = doc.createElement('div');
+        card.style.cssText = `width:170px;height:260px;background:rgba(10,5,30,0.95);border:1px solid ${rc.border};border-radius:12px;padding:16px;text-align:center;cursor:${purchasable ? 'pointer' : 'not-allowed'};opacity:${purchasable ? 1 : 0.5};transition:all 0.2s;position:relative;display:flex;flex-direction:column;`;
 
-      const iconEl = doc.createElement('div');
-      iconEl.style.cssText = 'font-size:46px;margin-bottom:8px;margin-top:20px;';
-      iconEl.textContent = item.icon;
+        const rarityLabel = doc.createElement('div');
+        rarityLabel.style.cssText = `position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.1em;color:${rc.color};`;
+        rarityLabel.textContent = rc.label;
 
-      const nameEl = doc.createElement('div');
-      nameEl.style.cssText = `font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:${rc.color};margin-bottom:6px;`;
-      nameEl.textContent = item.name;
+        const iconEl = doc.createElement('div');
+        iconEl.style.cssText = 'font-size:46px;margin-bottom:8px;margin-top:20px;';
+        iconEl.textContent = item.icon;
 
-      const descEl = doc.createElement('div');
-      descEl.style.cssText = 'font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;';
-      if (globalThis.DescriptionUtils) {
-        descEl.innerHTML = globalThis.DescriptionUtils.highlight(item.desc);
-      } else {
-        descEl.textContent = item.desc;
-      }
+        const nameEl = doc.createElement('div');
+        nameEl.style.cssText = `font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:${rc.color};margin-bottom:6px;`;
+        nameEl.textContent = item.name;
 
-      const costEl = doc.createElement('div');
-      costEl.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--gold);font-weight:700;margin-top:auto;";
-      costEl.textContent = `${cost} 골드`;
+        const descEl = doc.createElement('div');
+        descEl.style.cssText = 'font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;';
+        if (globalThis.DescriptionUtils) {
+          descEl.innerHTML = globalThis.DescriptionUtils.highlight(item.desc);
+        } else {
+          descEl.textContent = item.desc;
+        }
 
-      card.append(rarityLabel, iconEl, nameEl, descEl, costEl);
+        const costEl = doc.createElement('div');
+        costEl.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--gold);font-weight:700;margin-top:auto;";
+        costEl.textContent = `${cost} \uACE8\uB4DC`;
 
-      const alreadyOwned = gs.player.items.includes(item.id);
-      if (alreadyOwned) {
-        card.style.opacity = '0.35';
-        card.style.cursor = 'not-allowed';
-        const ownedOverlay = doc.createElement('div');
-        ownedOverlay.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(3,3,10,0.5);";
-        const ownedLabel = doc.createElement('span');
-        ownedLabel.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;color:var(--text-dim);";
-        ownedLabel.textContent = '보유 중';
-        ownedOverlay.appendChild(ownedLabel);
-        card.appendChild(ownedOverlay);
-      } else if (canAfford) {
-        card.onmouseenter = () => {
-          card.style.borderColor = 'var(--cyan)';
-          card.style.transform = 'translateY(-3px)';
-          card.style.boxShadow = '0 8px 24px rgba(0,255,204,0.2)';
-        };
-        card.onmouseleave = () => {
-          card.style.borderColor = rc.border;
-          card.style.transform = '';
-          card.style.boxShadow = '';
-        };
-        card.onclick = () => {
-          // ── 로직 위임 ──
-          const result = EventManager.purchaseItem(gs, item, cost);
-          if (result.success) {
+        card.append(rarityLabel, iconEl, nameEl, descEl, costEl);
+
+        if (alreadyOwned) {
+          const ownedOverlay = doc.createElement('div');
+          ownedOverlay.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(3,3,10,0.5);";
+          const ownedLabel = doc.createElement('span');
+          ownedLabel.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;color:var(--text-dim);";
+          ownedLabel.textContent = '\uBCF4\uC720 \uC911';
+          ownedOverlay.appendChild(ownedLabel);
+          card.appendChild(ownedOverlay);
+        } else if (purchasable) {
+          card.onmouseenter = () => {
+            card.style.borderColor = 'var(--cyan)';
+            card.style.transform = 'translateY(-3px)';
+            card.style.boxShadow = '0 8px 24px rgba(0,255,204,0.2)';
+          };
+          card.onmouseleave = () => {
+            card.style.borderColor = rc.border;
+            card.style.transform = '';
+            card.style.boxShadow = '';
+          };
+          card.onclick = () => {
+            const result = EventManager.purchaseItem(gs, item, cost);
+            if (!result.success) return;
+
             if (typeof deps.playItemGet === 'function') deps.playItemGet();
             if (typeof deps.showItemToast === 'function') deps.showItemToast(item);
-          }
+            if (typeof deps.updateUI === 'function') deps.updateUI();
+            EventUI.updateEventGoldBar(deps);
+            renderShopList();
+          };
+        }
 
-          overlay.remove();
-          doc.getElementById('eventModal')?.classList.remove('active');
-          _currentEvent = null;
-          gs._eventLock = false;
-          if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-          if (typeof deps.updateUI === 'function') deps.updateUI();
-          if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
-          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-        };
-      }
-      shopList.appendChild(card);
-    });
+        shopList.appendChild(card);
+      });
+    };
+
+    renderShopList();
   },
 
   // Expose public API for GAME.API
