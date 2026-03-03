@@ -11,6 +11,19 @@ function _isInGame(gs) {
   return gs?.currentScreen === 'game' || gs?.combat?.active === true;
 }
 
+function _isVisibleModal(el, doc) {
+  if (!el) return false;
+  if (el.classList?.contains('active')) return true;
+
+  const inlineDisplay = String(el.style?.display || '').trim().toLowerCase();
+  if (inlineDisplay === 'none') return false;
+  if (inlineDisplay) return true;
+
+  const view = doc?.defaultView || globalThis;
+  if (typeof view?.getComputedStyle !== 'function') return true;
+  return view.getComputedStyle(el).display !== 'none';
+}
+
 export const HelpPauseUI = {
   isHelpOpen() {
     return _helpOpen;
@@ -355,7 +368,7 @@ export const HelpPauseUI = {
       // ESC: 일시정지 또는 모달 닫기
       if (e.key === 'Escape') {
         const battleChronicle = doc.getElementById('battleChronicleOverlay');
-        if (battleChronicle && battleChronicle.style.display !== 'none') {
+        if (_isVisibleModal(battleChronicle, doc)) {
           if (typeof deps.closeBattleChronicle === 'function') {
             deps.closeBattleChronicle();
           } else if (globalThis.GAME?.API?.closeBattleChronicle) {
@@ -390,20 +403,20 @@ export const HelpPauseUI = {
         const codexModal = doc.getElementById('codexModal');
         const runSettingsModal = doc.getElementById('runSettingsModal');
 
-        // 덱 모달 확인 (style.display 사용)
-        if (deckModal && deckModal.style.display === 'block') {
+        // 덱 모달 확인
+        if (_isVisibleModal(deckModal, doc)) {
           if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
           return;
         }
 
-        // 도감 모달 확인 (style.display 사용)
-        if (codexModal && codexModal.style.display === 'block') {
+        // 도감 모달 확인
+        if (_isVisibleModal(codexModal, doc)) {
           if (typeof deps.closeCodex === 'function') deps.closeCodex();
           return;
         }
 
         // 런 설정 모달 확인
-        if (runSettingsModal && runSettingsModal.style.display !== 'none') {
+        if (_isVisibleModal(runSettingsModal, doc)) {
           if (typeof deps.closeRunSettings === 'function') deps.closeRunSettings();
           return;
         }

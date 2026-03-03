@@ -116,44 +116,79 @@ export const CombatLifecycle = {
         if (typeof updateChainUI === 'function') updateChainUI(chain);
         const AudioEngine = deps.audioEngine || win.AudioEngine;
         if (chain > 0) AudioEngine?.playChain?.(chain);
-        if (chain >= 5) this.triggerResonanceBurst(deps);
+        // 5연쇄 이상일 때 공명 폭발 발동 (하지만 체인은 초기화하지 않음)
+        if (chain >= 5) {
+            // 처음 5연쇄 도달 시에만 알림 표시 (선택적)
+            if (chain === 5 && typeof win.showChainAnnounce === 'function') {
+                win.showChainAnnounce('RESONANCE MODE!!');
+            }
+            this.triggerResonanceBurst(deps, { isPassive: true });
+        }
     },
 
-    triggerResonanceBurst(deps = {}) {
-        this.player.echoChain = 0;
-        this.drainEcho(50);
+    triggerResonanceBurst(deps = {}, options = {}) {
+        const isPassive = !!options.isPassive;
         const win = _getWin(deps);
+
+        if (!isPassive) {
+            this.player.echoChain = 0;
+            this.drainEcho(50);
+        }
+
         const AudioEngine = deps.audioEngine || win.AudioEngine;
         const ScreenShake = deps.screenShake || win.ScreenShake;
         const ParticleSystem = deps.particleSystem || win.ParticleSystem;
 
         AudioEngine?.playResonanceBurst?.();
-        ScreenShake?.shake?.(15, 0.8);
-        let burstDmg = 35 + Math.floor(this.player.echo / 3);
+
+        // 패시브 발동 시에는 화면 흔들림을 약하게
+        if (isPassive) {
+            ScreenShake?.shake?.(5, 0.3);
+        } else {
+            ScreenShake?.shake?.(15, 0.8);
+        }
+
+        let burstDmg = isPassive ? 5 : 0;
+        if (!isPassive) return; // 기존의 강력한 고정 데미지 폭발은 제거함.
+
         const burstMod = this.triggerItems('resonance_burst', burstDmg);
-        if (burstMod === true) {
-            burstDmg = Math.floor(burstDmg * 2);
-        } else if (typeof burstMod === 'number' && Number.isFinite(burstMod)) {
+        if (typeof burstMod === 'number' && Number.isFinite(burstMod)) {
             burstDmg = Math.max(0, Math.floor(burstMod));
         }
+
         this.combat.enemies.forEach((e, i) => {
             if (e.hp > 0) {
+                const hpBefore = e.hp;
                 e.hp = Math.max(0, e.hp - burstDmg);
+                const dealt = Math.max(0, hpBefore - e.hp);
+                if (dealt > 0) this.stats.damageDealt = (this.stats.damageDealt || 0) + dealt;
+
                 const showDmgPopup = deps.showDmgPopup || win.showDmgPopup;
-                if (typeof showDmgPopup === 'function') showDmgPopup(burstDmg, win.innerWidth / 2 + (i - 0.5) * 200, 200, '#00ffcc');
+                if (typeof showDmgPopup === 'function') {
+                    // 적 위치 계산 (간단하게)
+                    const x = win.innerWidth / 2 + (i - (this.combat.enemies.length - 1) / 2) * 200;
+                    showDmgPopup(burstDmg, x, 200, '#00ffcc');
+                }
+
+                // 패시브 시에는 적 위치에 파티클
+                if (isPassive && typeof ParticleSystem?.hitEffect === 'function') {
+                    const x = win.innerWidth / 2 + (i - (this.combat.enemies.length - 1) / 2) * 200;
+                    ParticleSystem.hitEffect(x, 200, false);
+                }
+
                 if (e.hp <= 0) this.onEnemyDeath(e, i, deps);
             }
         });
-        ParticleSystem?.burstEffect?.(win.innerWidth / 2, win.innerHeight / 3);
-        const showEchoBurstOverlay = deps.showEchoBurstOverlay || win.showEchoBurstOverlay;
-        if (typeof showEchoBurstOverlay === 'function') showEchoBurstOverlay();
-        this.addLog(LogUtils.formatEcho(`🌟 RESONANCE BURST! 전체 ${burstDmg} 피해!`), 'echo');
-        this.stats.maxChain = Math.max(this.stats.maxChain, 5);
-        const updateChainUI = deps.updateChainUI || win.updateChainUI;
-        if (typeof updateChainUI === 'function') updateChainUI(0);
+
+        if (!isPassive) {
+            // 기존의 강력한 BURST 효과(오버레이 등)는 제거
+            this.stats.maxChain = Math.max(this.stats.maxChain, 5);
+        } else {
+            // 패시브용 로그
+            this.addLog(LogUtils.formatEcho(`✨ Resonance: ${burstDmg} 피해!`), 'echo');
+        }
+
         const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
         if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
-        const showChainAnnounce = deps.showChainAnnounce || win.showChainAnnounce;
-        if (typeof showChainAnnounce === 'function') showChainAnnounce('RESONANCE BURST!!');
     },
 };

@@ -159,6 +159,7 @@ export const GameAPI = {
             }
 
             const cardCostUtils = GAME.Modules?.['CardCostUtils'];
+            const nextCardDiscountBeforePlay = Number(gs.player._nextCardDiscount || 0);
             const cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');
@@ -198,7 +199,7 @@ export const GameAPI = {
                 gs.addSilence?.(1);
             }
 
-            if ((gs.player._nextCardDiscount || 0) > 0) {
+            if (nextCardDiscountBeforePlay > 0) {
                 gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
             }
 
@@ -209,6 +210,20 @@ export const GameAPI = {
             const cm = GAME.Modules?.['ClassMechanics']?.[gs.player.class];
             if (cm && typeof cm.onPlayCard === 'function') {
                 cm.onPlayCard(gs, { cardId });
+            }
+
+            // 5연쇄 이상일 때 매 카드마다 공명 폭발 발동
+            if (gs.player.echoChain >= 5) {
+                if (typeof gs.triggerResonanceBurst === 'function') {
+                    gs.triggerResonanceBurst({
+                        audioEngine: GAME.Audio,
+                        screenShake: GAME.getDeps()?.ScreenShake,
+                        particleSystem: GAME.getDeps()?.ParticleSystem,
+                        showDmgPopup: GAME.getDeps()?.showDmgPopup,
+                        updateUI: GAME.getDeps()?.updateUI,
+                        renderCombatEnemies: GAME.getDeps()?.renderCombatEnemies
+                    }, { isPassive: true });
+                }
             }
 
             // 사용 후 처리

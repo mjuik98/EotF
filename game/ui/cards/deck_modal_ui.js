@@ -31,7 +31,7 @@ export const DeckModalUI = {
     const deckCards = gs.player.deck ? [...gs.player.deck] : [];
     const handCards = gs.player.hand ? [...gs.player.hand] : [];
     const graveCards = gs.player.graveyard ? [...gs.player.graveyard] : [];
-    const allCards = [...deckCards, ...handCards, ...graveCards];
+    const ownedCards = [...deckCards];
 
     const bar = doc.getElementById('deckStatusBar');
     if (bar) {
@@ -62,7 +62,7 @@ export const DeckModalUI = {
 
     const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
     const countMap = {};
-    allCards.forEach(id => { countMap[id] = (countMap[id] || 0) + 1; });
+    ownedCards.forEach(id => { countMap[id] = (countMap[id] || 0) + 1; });
     const rarityBorder = {
       rare: 'rgba(240,180,41,0.35)',
       uncommon: 'rgba(123,47,255,0.35)',
@@ -83,7 +83,7 @@ export const DeckModalUI = {
     });
 
     const countEl = doc.getElementById('deckModalCount');
-    if (countEl) countEl.textContent = allCards.length;
+    if (countEl) countEl.textContent = ownedCards.length;
 
     const cardsEl = doc.getElementById('deckModalCards');
     if (!cardsEl) return;

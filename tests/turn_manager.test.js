@@ -23,6 +23,9 @@ function createTurnState() {
       enemies: [],
       turn: 1,
     },
+    stats: {
+      damageDealt: 0,
+    },
     addLog: () => {},
     addEcho: () => {},
     takeDamage: () => {},
@@ -75,5 +78,27 @@ describe('TurnManager dodge handling', () => {
 
     expect(result).toBeUndefined();
     expect(enemy.atk).toBe(10);
+  });
+
+  it('tracks reflected and status-tick damage in damageDealt stats', () => {
+    const gs = createTurnState();
+    const enemy = {
+      name: 'Status Dummy',
+      hp: 20,
+      atk: 10,
+      statusEffects: {},
+    };
+    gs.combat.enemies = [enemy];
+    gs.onEnemyDeath = vi.fn();
+
+    gs.player.buffs.mirror = { stacks: 1 };
+    TurnManager.processEnemyAttack(gs, enemy, 0, { dmg: 7, intent: '공격' });
+    expect(gs.stats.damageDealt).toBe(7);
+
+    enemy.statusEffects = { poisoned: 2, burning: 1, marked: 1 };
+    TurnManager.processEnemyStatusTicks(gs);
+
+    // Remaining HP 13 -> poison(4), burn(5), marked(4) = 13 additional dealt
+    expect(gs.stats.damageDealt).toBe(20);
   });
 });

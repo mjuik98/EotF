@@ -160,6 +160,46 @@ describe('runtime state flow guards', () => {
     expect(gs.stats.cardsPlayed).toBe(1);
   });
 
+  it('does not consume a next-card discount granted by the card being played', () => {
+    const cardId = 'tempo_like_card';
+    const gs = createPlayableState(cardId, {
+      player: {
+        energy: 3,
+        _nextCardDiscount: 0,
+      },
+    });
+
+    GAME.Data = {
+      cards: {
+        [cardId]: {
+          id: cardId,
+          name: 'Tempo Like',
+          cost: 2,
+          effect: (state) => {
+            state.player._nextCardDiscount = (state.player._nextCardDiscount || 0) + 1;
+          },
+        },
+      },
+    };
+    GAME.Modules = {
+      CardCostUtils,
+      ClassMechanics: {},
+      HudUpdateUI: { processDirtyFlags: vi.fn() },
+    };
+    GAME.getDeps = () => ({
+      getBaseRegionIndex: () => 0,
+      renderCombatCards: vi.fn(),
+    });
+
+    const discardSpy = vi.spyOn(GameAPI, 'discardCard').mockImplementation(() => {});
+    const played = GameAPI.playCard(cardId, 0, gs);
+
+    expect(played).toBe(true);
+    expect(discardSpy).toHaveBeenCalledTimes(1);
+    expect(gs.player.energy).toBe(1);
+    expect(gs.player._nextCardDiscount).toBe(1);
+  });
+
   it('passes deps through dealDamageAll to each damage call', () => {
     const deps = { marker: 'runtime-deps' };
     const host = {

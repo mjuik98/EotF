@@ -303,7 +303,7 @@ export const FeedbackUI = {
   showChainAnnounce(text, deps = {}) {
     const doc = _getDoc(deps);
     const el = doc.createElement('div');
-    el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:\'Cinzel Decorative\',serif;font-size:clamp(24px,4vw,48px);font-weight:900;color:var(--cyan);text-shadow:0 0 30px rgba(0,255,204,0.8);animation:fadeInUp 0.5s ease,fadeIn 0.5s ease 1.5s reverse both;z-index:1000;pointer-events:none;';
+    el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:\'Cinzel Decorative\',serif;font-size:clamp(24px,4vw,48px);font-weight:900;color:var(--cyan);text-shadow:0 0 30px rgba(0,255,204,0.8);animation:fadeIn 0.5s ease both, fadeOut 0.5s ease 1.5s forwards;z-index:9000;pointer-events:none;';
     el.textContent = text;
     doc.body.appendChild(el);
     setTimeout(() => el.remove(), 2000);

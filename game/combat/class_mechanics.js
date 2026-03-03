@@ -57,14 +57,22 @@ export const ClassMechanics = {
       if (!state?.player?.buffs) return;
       const res = state.player.buffs.resonance;
       if (res) {
-        res.dmgBonus = Math.min(30, (res.dmgBonus || 0) + 1);
-        res.stacks = 99;
+        const prev = Number(res.dmgBonus || 0);
+        const next = Math.min(30, prev + 1);
+        const delta = Math.max(0, next - prev);
+        if (delta > 0) {
+          // Dispatch-based update keeps status UI in sync every card play.
+          state.addBuff('resonance', 0, { dmgBonus: delta });
+        }
+        state.player.buffs.resonance.stacks = 99;
       } else {
         state.addBuff('resonance', 99, { dmgBonus: 1 });
       }
+      state.markDirty?.('hud');
     },
     onMove(gs) {
       const state = _getGS(gs);
+      if (!state?.combat?.active) return;
       if (!state?.player?.buffs) return;
       const res = state.player.buffs.resonance;
       if (res) {
@@ -99,8 +107,8 @@ export const ClassMechanics = {
       label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
       label.textContent = meta?.traitName || '공명';
       const value = document.createElement('div');
-      value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
-      value.textContent = `+${val} 데미지`;
+      value.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:12px;color:${val > 0 ? 'var(--danger)' : 'var(--text-dim)'};`;
+      value.textContent = val > 0 ? `+${val} 데미지` : '공명 누적 없음';
       el.append(label, value);
       return el;
     },

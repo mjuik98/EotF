@@ -195,6 +195,7 @@ export function registerSubscribers(uiRefs = {}) {
 
   EventBus.on(Actions.COMBAT_END, () => {
     _callAction('updateUI');
+    _callAction('updateStatusDisplay');
   });
 
   EventBus.on(Actions.TURN_START, ({ payload }) => {

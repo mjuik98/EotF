@@ -563,7 +563,10 @@ export const HudUpdateUI = {
       }
     }
 
-    if (typeof deps.updateStatusDisplay === 'function') deps.updateStatusDisplay();
+    const updateStatusDisplay = deps.updateStatusDisplay
+      || globalThis.updateStatusDisplay
+      || globalThis.GAME?.API?.updateStatusDisplay;
+    if (typeof updateStatusDisplay === 'function') updateStatusDisplay();
     this.updateEndBtnWarn(deps);
 
     // UI HUD

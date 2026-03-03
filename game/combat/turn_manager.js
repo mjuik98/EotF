@@ -296,7 +296,10 @@ export const TurnManager = {
             }
 
             if (gs.player.buffs?.mirror) {
+                const hpBefore = enemy.hp;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
+                const dealt = Math.max(0, hpBefore - enemy.hp);
+                if (dealt > 0 && gs.stats) gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
                 gs.addLog?.(LogUtils.formatAttack('반사막', enemy.name, dmg), 'echo');
                 delete gs.player.buffs.mirror;
                 reflected = true;
@@ -330,7 +333,10 @@ export const TurnManager = {
 
             if (se.poisoned > 0) {
                 const dmg = se.poisoned * 2;
+                const hpBefore = enemy.hp;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
+                const dealt = Math.max(0, hpBefore - enemy.hp);
+                if (dealt > 0 && gs.stats) gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
                 gs.addLog?.(LogUtils.formatAttack('독', enemy.name, dmg), 'damage');
                 se.poisoned--;
                 if (se.poisoned <= 0) delete se.poisoned;
@@ -345,7 +351,10 @@ export const TurnManager = {
 
             if (se.burning > 0) {
                 const dmg = 5;
+                const hpBefore = enemy.hp;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
+                const dealt = Math.max(0, hpBefore - enemy.hp);
+                if (dealt > 0 && gs.stats) gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
                 gs.addLog?.(LogUtils.formatAttack('화염', enemy.name, dmg), 'damage');
                 se.burning--;
                 if (se.burning <= 0) delete se.burning;
@@ -362,7 +371,10 @@ export const TurnManager = {
                 se.marked--;
                 if (se.marked <= 0) {
                     const dmg = 30;
+                    const hpBefore = enemy.hp;
                     enemy.hp = Math.max(0, enemy.hp - dmg);
+                    const dealt = Math.max(0, hpBefore - enemy.hp);
+                    if (dealt > 0 && gs.stats) gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
                     gs.addLog?.(LogUtils.formatAttack('표식', enemy.name, dmg), 'echo');
                     delete se.marked;
                     let enemyDied = false;

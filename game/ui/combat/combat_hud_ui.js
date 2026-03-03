@@ -144,6 +144,17 @@ function _normalizeWheelDelta(event, list) {
   return Number.isFinite(delta) ? delta : 0;
 }
 
+function _isOverlayOpen(overlay, doc) {
+  if (!overlay) return false;
+  if (overlay.classList?.contains('active')) return true;
+  const inlineDisplay = String(overlay.style?.display || '').trim().toLowerCase();
+  if (inlineDisplay === 'none') return false;
+  if (inlineDisplay) return true;
+  const view = doc?.defaultView || globalThis;
+  if (typeof view?.getComputedStyle !== 'function') return false;
+  return view.getComputedStyle(overlay).display !== 'none';
+}
+
 function _bindChronicleWheel(panel, list) {
   if (!panel || !list) return;
 
@@ -489,7 +500,7 @@ export const CombatHudUI = {
     _bindChronicleFilters(doc, list);
     _applyChronicleFilter(list, 'all');
 
-    overlay.style.display = '';
+    overlay.style.display = 'flex';
     overlay.classList.add('active');
     // 스크롤을 최하단으로
     requestAnimationFrame(() => {
@@ -516,7 +527,7 @@ export const CombatHudUI = {
   toggleBattleChronicle(deps = {}) {
     const doc = _getDoc(deps);
     const overlay = doc.getElementById('battleChronicleOverlay');
-    if (overlay && overlay.style.display !== 'none') {
+    if (_isOverlayOpen(overlay, doc)) {
       this.closeBattleChronicle(deps);
     } else {
       this.openBattleChronicle(deps);
