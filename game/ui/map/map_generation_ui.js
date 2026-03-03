@@ -18,6 +18,9 @@ export const MapGenerationUI = {
     for (let floor = 1; floor <= region.floors; floor++) {
       const isBossFloor = floor === region.floors;
       const isPreBossFloor = floor === region.floors - 1;
+      const preBossSupportType = isPreBossFloor
+        ? (Math.random() < 0.5 ? 'shop' : 'rest')
+        : null;
       const isLateGame = floor >= Math.ceil(region.floors * 0.5);
       const count = isBossFloor
         ? 1
@@ -32,12 +35,12 @@ export const MapGenerationUI = {
         let type;
         if (isBossFloor) {
           type = 'boss';
-        } else if (floor === 1) {
+        } else if (floor === 1 && !isPreBossFloor) {
           type = 'combat';
-        } else if (!isFirstStage && isPreBossFloor && i === 0) {
-          // 보스 직전 층의 첫 노드는 상점 고정
-          type = 'shop';
-          shopAssigned = true;
+        } else if (isPreBossFloor && i === 0) {
+          // 보스 직전 층의 첫 노드는 상점/휴식 중 하나를 강제 배치
+          type = preBossSupportType;
+          if (type === 'shop') shopAssigned = true;
         } else if (!eliteAssigned && isLateGame && count > 1 && Math.random() < 0.35) {
           type = 'elite';
           eliteAssigned = true;

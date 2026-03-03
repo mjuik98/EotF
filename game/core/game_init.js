@@ -52,6 +52,18 @@ export const GameInit = {
 
     initEventHandlers(deps) {
         const doc = deps.doc || document;
+        const isTitleScreen = () => deps.gs?.currentScreen === 'title';
+        const isEscapeKey = (event) => event?.key === 'Escape' || event?.key === 'Esc';
+        const isVisibleModal = (el) => {
+            if (!el) return false;
+            if (el.classList?.contains('active')) return true;
+            const inlineDisplay = String(el.style?.display || '').trim().toLowerCase();
+            if (inlineDisplay === 'none') return false;
+            if (inlineDisplay) return true;
+            const view = doc?.defaultView || globalThis;
+            if (typeof view?.getComputedStyle !== 'function') return true;
+            return view.getComputedStyle(el).display !== 'none';
+        };
         const {
             showCharacterSelect, openRunSettings, openCodexFromTitle, quitGame,
             selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
@@ -59,12 +71,37 @@ export const GameInit = {
             setSfxVolume, setAmbientVolume, drawCard, endPlayerTurn, useEchoSkill
         } = deps.actions;
 
-        // Title Screen
+        // Title-screen-only Escape Handler
+        // (Combat/game ESC is handled by help_pause_ui.js bindGlobalHotkeys)
         doc.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
+            if (!isTitleScreen()) return;
+            if (isEscapeKey(e)) {
+                // Codex (opened from title)
+                const codexModal = doc.getElementById('codexModal');
+                if (isVisibleModal(codexModal)) {
+                    GAME.API.closeCodex?.();
+                    return;
+                }
+
+                // Run Settings (opened from title)
+                const runSettings = doc.getElementById('runSettingsModal');
+                if (isVisibleModal(runSettings)) {
+                    closeRunSettings?.();
+                    return;
+                }
+
+                // Sound Settings (Toggle)
+                const soundSettings = doc.getElementById('soundSettings');
+                if (soundSettings?.classList.contains('open')) {
+                    soundSettings.classList.remove('open');
+                    return;
+                }
+
+                // Character Select (Title Screen)
                 const char = doc.getElementById('charSelectSubScreen');
                 if (char && char.style.display === 'block') {
                     backToTitle?.();
+                    return;
                 }
             }
         });

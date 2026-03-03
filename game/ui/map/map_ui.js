@@ -368,6 +368,9 @@ export const MapUI = {
       if (onOverlayKeyDown) {
         doc.removeEventListener('keydown', onOverlayKeyDown, true);
       }
+      if (typeof animFrame === 'number') {
+        cancelAnimationFrame(animFrame);
+      }
       overlay.remove();
     };
     overlay._closeFullMap = closeOverlay;
@@ -632,15 +635,7 @@ export const MapUI = {
     closeBtn.style.marginTop = '20px';
 
     // [연출 4] 닫기 시 클리치 효과 후 제거 로직 (선택적) 또는 즉시 종료
-    const finalClose = () => {
-      cancelAnimationFrame(animFrame);
-      overlay.remove();
-      doc.removeEventListener('keydown', escClose);
-    };
-    closeBtn.onclick = finalClose;
-    const escClose = (e) => { if (e.key === 'Escape') finalClose(); };
-    doc.addEventListener('keydown', escClose);
-    overlay.onclick = (e) => { if (e.target === overlay) finalClose(); };
+    closeBtn.onclick = closeOverlay;
     overlay.appendChild(closeBtn);
 
     doc.body.appendChild(overlay);
