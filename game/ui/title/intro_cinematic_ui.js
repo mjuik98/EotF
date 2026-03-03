@@ -221,6 +221,8 @@ export const IntroCinematicUI = {
         const runCount = gs?.meta?.runCount ?? 1;
         const isFirstRun = runCount <= 1;
 
+        console.log('[IntroCinematicUI] play()', { selectedClass, runCount, isFirstRun });
+
         _cleanup();
 
         const { overlay, textBox } = _buildOverlay();

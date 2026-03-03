@@ -447,7 +447,6 @@ export const CharacterSelectUI = {
       hover: () => _SFX.hover(),
       select: () => _SFX.select(),
       skill: () => _SFX.skill(),
-      skill: () => _SFX.skill(),
       echo: () => _SFX.echo(),
     };
 
@@ -686,15 +685,15 @@ export const CharacterSelectUI = {
         ci.style.background = `radial-gradient(circle,${ch.accent}55 0%,${ch.color}22 35%,transparent 60%)`;
         ct.innerHTML = `
           <div style="font-size:clamp(60px,12vw,100px);margin-bottom:15px;filter:drop-shadow(0 0 60px ${ch.glow});animation:float 3s ease-in-out infinite">${ch.emoji}</div>
-          <p style="font-size:11px;letter-spacing:8px;color:#334;font-family:'Courier New',monospace;margin:0 0 8px">YOUR HERO</p>
-          <h2 style="font-size:clamp(32px,7vw,58px);font-weight:900;letter-spacing:6px;margin:0 0 6px;text-shadow:0 0 60px ${ch.glow}">${ch.name}</h2>
+          <p style="font-size:11px;letter-spacing:8px;color:#889;font-family:'Courier New',monospace;margin:0 0 8px">YOUR HERO</p>
+          <h2 style="font-size:clamp(32px,7vw,58px);font-weight:900;letter-spacing:6px;margin:0 0 6px;text-shadow:0 0 60px ${ch.glow};color:#fff">${ch.name}</h2>
           <p style="font-size:14px;letter-spacing:6px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 8px">${ch.title}</p>
-          <p style="font-size:13px;color:#445;font-family:'Courier New',monospace;margin:0 0 20px;letter-spacing:2px">고유 특성 · ${ch.traitName}</p>
-          <div id="typedArea" style="font-size:clamp(12px,1.5vw,16px);color:#778;line-height:2.4;font-family:'Courier New',monospace;letter-spacing:1px;min-height:7em;margin-bottom:30px;white-space:pre-line"></div>
+          <p style="font-size:13px;color:#aaa;font-family:'Courier New',monospace;margin:0 0 20px;letter-spacing:2px">고유 특성 · ${ch.traitName}</p>
+          <div id="typedArea" style="font-size:clamp(12px,1.5vw,16px);color:#ddd;line-height:2.4;font-family:'Courier New',monospace;letter-spacing:1px;min-height:7em;margin-bottom:30px;white-space:pre-line"></div>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:15px">${ch.tags.map(t => `<span style="padding:4px 16px;border:1px solid ${ch.accent}44;border-radius:24px;font-size:12px;color:${ch.accent};font-family:'Courier New',monospace;background:${ch.accent}0e">${t}</span>`).join('')}</div>
-          <p style="font-size:13px;color:#556;font-family:'Courier New',monospace;margin:0 0 30px">시작 유물: ${ch.startRelic.icon} ${ch.startRelic.name}</p>
+          <p style="font-size:13px;color:#ccc;font-family:'Courier New',monospace;margin:0 0 30px">시작 유물: ${ch.startRelic.icon} ${ch.startRelic.name}</p>
           <div style="display:flex;gap:20px;justify-content:center;margin-top:15px;">
-            <button id="btnResel" style="padding:12px 32px;border:1px solid #1a1a28;border-radius:4px;background:transparent;color:#555;font-size:12px;letter-spacing:4px;font-family:'Courier New',monospace;cursor:pointer;transition:all .2s">← 다시 선택</button>
+            <button id="btnResel" style="padding:12px 32px;border:1px solid rgba(255,255,255,0.2);border-radius:4px;background:transparent;color:#99a;font-size:12px;letter-spacing:4px;font-family:'Courier New',monospace;cursor:pointer;transition:all .2s">← 다시 선택</button>
             <button id="btnRealStart" style="padding:12px 48px;border:1px solid ${ch.accent}55;border-radius:4px;background:linear-gradient(135deg,${ch.color}55,${ch.color}22);color:#fff;font-size:14px;letter-spacing:5px;font-family:'Courier New',monospace;cursor:pointer;box-shadow:0 0 30px ${ch.accent}33;transition:all .2s">여정 시작 →</button>
           </div>`;
 
@@ -720,6 +719,7 @@ export const CharacterSelectUI = {
           sb.addEventListener('mouseenter', () => { sb.style.boxShadow = `0 0 40px ${ch.accent}66`; sb.style.background = `linear-gradient(135deg,${ch.color}77,${ch.color}44)`; });
           sb.addEventListener('mouseleave', () => { sb.style.boxShadow = `0 0 20px ${ch.accent}33`; sb.style.background = `linear-gradient(135deg,${ch.color}55,${ch.color}22)`; });
           sb.addEventListener('click', () => {
+            console.log('[CharacterSelectUI] Journey Start clicked:', chars[S.idx]);
             deps.onStart?.(chars[S.idx]);
           });
         }
@@ -758,9 +758,11 @@ export const CharacterSelectUI = {
 
     function handleConfirm() {
       if (S.phase !== 'select') return;
+      console.log('[CharacterSelectUI] Character selected:', chars[S.idx]);
       SFX.select(); S.phase = 'burst'; renderPhase();
       setTimeout(() => {
         S.phase = 'done'; renderPhase();
+        console.log('[CharacterSelectUI] Firing onConfirm callback');
         deps.onConfirm?.(chars[S.idx]);
       }, 650);
     }
