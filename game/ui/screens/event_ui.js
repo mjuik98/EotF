@@ -34,6 +34,71 @@ function _getAudioEngine(deps) {
   return deps?.audioEngine || globalThis.AudioEngine;
 }
 
+const OVERLAY_DISMISS_MS = 320;
+
+function _nextFrame(cb) {
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(cb);
+    return;
+  }
+  setTimeout(cb, 16);
+}
+
+function _dismissTransientOverlay(overlay, onDone) {
+  if (!overlay) {
+    onDone?.();
+    return;
+  }
+
+  overlay.style.pointerEvents = 'none';
+  overlay.style.opacity = '1';
+  overlay.style.filter = 'blur(0)';
+  overlay.style.transform = 'translateY(0) scale(1)';
+  overlay.style.transition = 'opacity 0.32s ease, filter 0.32s ease, transform 0.32s ease';
+
+  _nextFrame(() => {
+    overlay.style.opacity = '0';
+    overlay.style.filter = 'blur(12px)';
+    overlay.style.transform = 'translateY(10px) scale(0.985)';
+  });
+
+  setTimeout(() => {
+    overlay.remove();
+    onDone?.();
+  }, OVERLAY_DISMISS_MS);
+}
+
+function _dismissEventModal(modal, onDone) {
+  if (!modal) {
+    onDone?.();
+    return;
+  }
+
+  modal.classList.remove('active');
+  modal.style.display = 'flex';
+  modal.style.pointerEvents = 'none';
+  modal.style.opacity = '1';
+  modal.style.filter = 'blur(0)';
+  modal.style.transform = 'translateY(0) scale(1)';
+  modal.style.transition = 'opacity 0.32s ease, filter 0.32s ease, transform 0.32s ease';
+
+  _nextFrame(() => {
+    modal.style.opacity = '0';
+    modal.style.filter = 'blur(10px)';
+    modal.style.transform = 'translateY(10px) scale(0.985)';
+  });
+
+  setTimeout(() => {
+    modal.style.display = '';
+    modal.style.pointerEvents = '';
+    modal.style.opacity = '';
+    modal.style.filter = '';
+    modal.style.transform = '';
+    modal.style.transition = '';
+    onDone?.();
+  }, OVERLAY_DISMISS_MS);
+}
+
 function _getShopItemIcon(item, rarity = 'common') {
   const raw = String(item?.icon || '').trim();
   if (raw && raw !== '?' && !raw.includes('�')) {
@@ -153,6 +218,7 @@ export const EventUI = {
         return;
       }
 
+      const selectedChoice = event?.choices?.[choiceIdx];
       const { resultText, isFail, shouldClose, isItemShop } = resolution || {};
 
       if (typeof deps.updateUI === 'function') deps.updateUI();
@@ -165,18 +231,32 @@ export const EventUI = {
       }
 
       if (!resultText) {
-        doc.getElementById('eventModal')?.classList.remove('active');
-        _currentEvent = null;
-        gs._eventLock = false;
-        if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-        if (typeof deps.updateUI === 'function') deps.updateUI();
-        if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
-        if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+        _dismissEventModal(doc.getElementById('eventModal'), () => {
+          _currentEvent = null;
+          gs._eventLock = false;
+          if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+          if (typeof deps.updateUI === 'function') deps.updateUI();
+          if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+        });
         return;
       }
 
       const descEl = doc.getElementById('eventDesc');
       if (descEl) descEl.textContent = resultText;
+      const choiceText = String(selectedChoice?.text || '');
+      const choiceClass = String(selectedChoice?.cssClass || '');
+      const isUpgradeChoice = choiceClass.includes('shop-choice-upgrade')
+        || /\uCE74\uB4DC\s*\uAC15\uD654|\uAC15\uD654/.test(choiceText);
+      if (!isFail && isUpgradeChoice && typeof deps.showItemToast === 'function') {
+        const upgradedName = String(resultText || '').match(/(?:\u2728\s*)?(.+?)\s+\uAC15\uD654\s*\uC644\uB8CC/i)?.[1]?.trim()
+          || 'Upgraded Card';
+        deps.showItemToast({
+          name: `Upgrade: ${upgradedName}`,
+          icon: '\u2728',
+          desc: resultText,
+        });
+      }
 
       if (event.persistent || isFail) {
         _renderChoices(event, doc, deps);
@@ -198,13 +278,14 @@ export const EventUI = {
         continueBtn.id = 'eventChoiceContinue';
         continueBtn.textContent = '\uACC4\uC18D';
         continueBtn.addEventListener('click', () => {
-          doc.getElementById('eventModal')?.classList.remove('active');
-          _currentEvent = null;
-          gs._eventLock = false;
-          if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-          if (typeof deps.updateUI === 'function') deps.updateUI();
-          if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
-          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+          _dismissEventModal(doc.getElementById('eventModal'), () => {
+            _currentEvent = null;
+            gs._eventLock = false;
+            if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+            if (typeof deps.updateUI === 'function') deps.updateUI();
+            if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+            if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+          });
         }, { once: true });
         choicesEl.appendChild(continueBtn);
       }
@@ -407,8 +488,7 @@ export const EventUI = {
     cancelBtn.textContent = '취소';
     cancelBtn.onclick = () => {
       deps.onCancel?.();
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 300);
+      _dismissTransientOverlay(overlay);
     };
 
     overlay.append(titleEl, list, cancelBtn);
@@ -463,11 +543,11 @@ export const EventUI = {
           if (typeof deps.playItemGet === 'function') deps.playItemGet();
           if (typeof deps.updateUI === 'function') deps.updateUI();
         }
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.remove(), 300);
-        if (isBurn && typeof deps.returnToGame === 'function') {
-          deps.returnToGame(true);
-        }
+        _dismissTransientOverlay(overlay, () => {
+          if (isBurn && typeof deps.returnToGame === 'function') {
+            deps.returnToGame(true);
+          }
+        });
       };
       discardList.appendChild(btn);
     });
@@ -523,8 +603,7 @@ export const EventUI = {
     closeBtn.className = 'item-shop-close-btn';
     closeBtn.textContent = '닫기';
     closeBtn.onclick = () => {
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 300);
+      _dismissTransientOverlay(overlay);
     };
 
     overlay.append(titleCont, list, closeBtn);
