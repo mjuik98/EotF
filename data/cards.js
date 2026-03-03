@@ -34,7 +34,22 @@ export const UPGRADE_MAP = {
     'temporal_echo': 'temporal_echo_plus',
     'silent_strike': 'silent_strike_plus',
     'brand_of_light': 'brand_of_light_plus',
-    'resonant_shield': 'resonant_shield_plus'
+    'resonant_shield': 'resonant_shield_plus',
+    // Newly mapped/created upgrades
+    'charge': 'charge_plus', 'afterimage': 'afterimage_plus', 'phantom_blade': 'phantom_blade_plus',
+    'echo_dance': 'echo_dance_plus', 'blade_dance': 'blade_dance_plus', 'counter': 'counter_plus',
+    'time_echo': 'time_echo_plus', 'void_mirror': 'void_mirror_plus', 'arcane_storm': 'arcane_storm_plus',
+    'prediction': 'prediction_plus', 'time_warp': 'time_warp_plus', 'death_mark': 'death_mark_plus',
+    'shadow_step': 'shadow_step_plus', 'poison_blade': 'poison_blade_plus', 'phantom_step': 'phantom_step_plus',
+    'echo_burst_card': 'echo_burst_plus', 'void_blade': 'void_blade_plus', 'soul_armor': 'soul_armor_plus',
+    'soul_harvest': 'soul_harvest_plus', 'echo_overload': 'echo_overload_plus', 'desperate_strike': 'desperate_strike_plus',
+    'reverberation': 'reverberation_plus', 'sanctuary': 'sanctuary_plus', 'dark_pact': 'dark_pact_plus',
+    'overcharge': 'overcharge_plus', 'void_tap': 'void_tap_plus', 'energy_siphon': 'energy_siphon_plus',
+    'ember_wave': 'ember_wave_plus', 'echo_reflect': 'echo_reflect_plus', 'chain_reaction': 'chain_reaction_plus',
+    'revival_echo': 'revival_echo_plus', 'void_surge': 'void_surge_plus', 'resonance_flow': 'resonance_flow_plus',
+    'echo_cascade': 'echo_cascade_plus', 'echo_lull': 'echo_lull_plus', 'divine_grace': 'divine_grace_plus',
+    'blessing_of_light': 'blessing_of_light_plus', 'reckless_swing': 'reckless_swing_plus',
+    'berserk_mode': 'berserk_mode_plus', 'shield_slam': 'shield_slam_plus', 'unbreakable_wall': 'unbreakable_wall_plus'
 };
 
 export const CARDS = {
@@ -132,32 +147,54 @@ export const CARDS = {
         id: 'charge', name: '돌진', icon: '⚡', cost: 1, type: 'ATTACK', desc: '피해 9. 가속 수치만큼 추가 피해.', rarity: 'common',
         effect(gs) { const a = gs.getBuff('acceleration'); gs.dealDamage(9 + (a ? a.dmgBonus : 0)); }
     },
+    charge_plus: {
+        id: 'charge_plus', name: '돌진+', icon: '⚡', cost: 1, type: 'ATTACK', desc: '피해 12. 가속 수치만큼 추가 피해.', rarity: 'common', upgraded: true,
+        effect(gs) { const a = gs.getBuff('acceleration'); gs.dealDamage(12 + (a ? a.dmgBonus : 0)); }
+    },
     afterimage: {
         id: 'afterimage', name: '잔영', icon: '👥', cost: 1, type: 'SKILL', desc: '방어막 4. 가속 수치만큼 추가 방어막.', rarity: 'uncommon',
         effect(gs) { const a = gs.getBuff('acceleration'); gs.addShield(4 + (a ? a.dmgBonus : 0)); }
+    },
+    afterimage_plus: {
+        id: 'afterimage_plus', name: '잔영+', icon: '👥', cost: 0, type: 'SKILL', desc: '방어막 5. 가속 수치만큼 추가 방어막.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { const a = gs.getBuff('acceleration'); gs.addShield(5 + (a ? a.dmgBonus : 0)); }
     },
     phantom_blade: {
         id: 'phantom_blade', name: '환영 검', icon: '🌀', cost: 2, type: 'ATTACK', desc: '피해 9 × 2. 두 번째 타격은 치명타.', rarity: 'uncommon',
         effect(gs) { gs.dealDamage(9); gs.addBuff('vanish', 1, {}); gs.dealDamage(9); }
     },
+    phantom_blade_plus: {
+        id: 'phantom_blade_plus', name: '환영 검+', icon: '🌀', cost: 2, type: 'ATTACK', desc: '피해 12 × 2. 두 번째 타격은 치명타.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.dealDamage(12); gs.addBuff('vanish', 1, {}); gs.dealDamage(12); }
+    },
     echo_dance: {
         id: 'echo_dance', name: '잔향의 춤', icon: '💃', cost: 3, type: 'ATTACK', desc: '피해 6 × 4. 타격마다 잔향 6 충전.', rarity: 'rare',
         effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, null, true); gs.addEcho(8); } gs.dealDamage(6, null); gs.addEcho(8); }
     },
+    echo_dance_plus: {
+        id: 'echo_dance_plus', name: '잔향의 춤+', icon: '💃', cost: 2, type: 'ATTACK', desc: '피해 7 × 4. 타격마다 잔향 8 충전.', rarity: 'rare', upgraded: true,
+        effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(7, null, true); gs.addEcho(10); } gs.dealDamage(7, null); gs.addEcho(10); }
+    },
     blade_dance: {
         id: 'blade_dance', name: '검무', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 4 × 3. (가속 상태: 잔향 10 충전.)', rarity: 'uncommon',
         effect(gs) {
-            // 다단 히트 도중 버프가 소모되는 것을 방지하기 위해 '총 데미지'를 한 번에 계산하거나, 
-            // DamageSystem을 수정하여 다단 히트임을 명시해야 함. 
-            // 여기서는 단순하게 3번의 타격을 각각 DamageSystem이 아닌 직접 호출하거나 
-            // DamageSystem의 dealDamage에서 버프 소모 시점을 체크하도록 DamageSystem을 고쳐야 함.
-            // 일단은 카드 쪽에서 보너스를 미리 계산해서 넘기는 방식으로 해결.
             const accel = gs.getBuff('acceleration');
             const bonus = accel ? accel.dmgBonus : 0;
             for (let i = 0; i < 3; i++) {
                 gs.dealDamage(4 + bonus, null, i < 2);
             }
             if (accel) gs.addEcho(10);
+        }
+    },
+    blade_dance_plus: {
+        id: 'blade_dance_plus', name: '검무+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 6 × 3. (가속 상태: 잔향 15 충전.)', rarity: 'uncommon', upgraded: true,
+        effect(gs) {
+            const accel = gs.getBuff('acceleration');
+            const bonus = accel ? accel.dmgBonus : 0;
+            for (let i = 0; i < 3; i++) {
+                gs.dealDamage(6 + bonus, null, i < 2);
+            }
+            if (accel) gs.addEcho(15);
         }
     },
     vibrations_end: {
@@ -193,24 +230,48 @@ export const CARDS = {
         id: 'counter', name: '반격', icon: '🔄', cost: 2, type: 'ATTACK', desc: '적 예고 피해 × 1.5만큼 피해. (최대 30)', rarity: 'common',
         effect(gs) { gs.dealDamage(Math.min(30, Math.floor(gs.getEnemyIntent() * 1.5))); }
     },
+    counter_plus: {
+        id: 'counter_plus', name: '반격+', icon: '🔄', cost: 1, type: 'ATTACK', desc: '적 예고 피해 × 2만큼 피해. (최대 40)', rarity: 'common', upgraded: true,
+        effect(gs) { gs.dealDamage(Math.min(40, Math.floor(gs.getEnemyIntent() * 2))); }
+    },
     time_echo: {
         id: 'time_echo', name: '시간의 잔향', icon: '⏳', cost: 1, type: 'SKILL', desc: '소모 더미 최근 카드 1장 회수.', rarity: 'uncommon',
         effect(gs) { if (gs.player.graveyard.length > 0) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); gs.addLog(`⏳ ${CARDS[c]?.name} 회수!`, 'echo'); } }
+    },
+    time_echo_plus: {
+        id: 'time_echo_plus', name: '시간의 잔향+', icon: '⏳', cost: 0, type: 'SKILL', desc: '소모 더미 최근 카드 1장 회수. 카드 1장 드로우.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { if (gs.player.graveyard.length > 0) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); gs.addLog(`⏳ ${CARDS[c]?.name} 회수!`, 'echo'); } gs.drawCards(1); }
     },
     void_mirror: {
         id: 'void_mirror', name: '공허의 거울', icon: '🪞', cost: 2, type: 'ATTACK', desc: '반사 획득. 다음 공격을 적에게 돌려준다.', rarity: 'uncommon',
         effect(gs) { gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🪞 반사 준비', 'echo'); }
     },
+    void_mirror_plus: {
+        id: 'void_mirror_plus', name: '공허의 거울+', icon: '🪞', cost: 1, type: 'ATTACK', desc: '반사 획득. 다음 공격을 적에게 돌려준다. 잔향 10 충전.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.addBuff('mirror', 1, { reflect: true }); gs.addEcho(10); gs.addLog('🪞 반사 준비+', 'echo'); }
+    },
     arcane_storm: {
         id: 'arcane_storm', name: '비전 폭풍', icon: '🌩️', cost: 3, type: 'ATTACK', desc: '모든 적에게 피해 16. 연쇄 +2.', rarity: 'rare',
         effect(gs) { gs.dealDamageAll(16); gs.player.echoChain += 2; gs.updateChainDisplay(); }
     },
+    arcane_storm_plus: {
+        id: 'arcane_storm_plus', name: '비전 폭풍+', icon: '🌩️', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 20. 연쇄 +3.', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.dealDamageAll(20); gs.player.echoChain += 3; gs.updateChainDisplay(); }
+    },
     prediction: {
-        id: 'prediction', name: '예언', icon: '🔭', cost: 1, type: 'SKILL', desc: '카드 2장 드로우. 잔향 15 충전.', rarity: 'uncommon',
+        id: 'prediction', name: '예언', icon: ' Telescope', cost: 1, type: 'SKILL', desc: '카드 2장 드로우. 잔향 15 충전.', rarity: 'uncommon',
         effect(gs) { if (gs.combat.active) gs.drawCards(2); gs.addEcho(15); }
+    },
+    prediction_plus: {
+        id: 'prediction_plus', name: '예언+', icon: ' Telescope', cost: 1, type: 'SKILL', desc: '카드 3장 드로우. 잔향 20 충전.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { if (gs.combat.active) gs.drawCards(3); gs.addEcho(20); }
     },
     time_warp: {
         id: 'time_warp', name: '시간 왜곡', icon: '🌀', cost: 3, type: 'POWER', desc: '【지속】 매 턴: 에너지 1 획득.', rarity: 'rare',
+        effect(gs) { gs.addBuff('time_warp', 99, { energyPerTurn: 1 }); }
+    },
+    time_warp_plus: {
+        id: 'time_warp_plus', name: '시간 왜곡+', icon: '🌀', cost: 2, type: 'POWER', desc: '【지속】 매 턴: 에너지 1 획득.', rarity: 'rare', upgraded: true,
         effect(gs) { gs.addBuff('time_warp', 99, { energyPerTurn: 1 }); }
     },
     temporal_echo: {
@@ -329,37 +390,73 @@ export const CARDS = {
         id: 'echo_burst_card', name: '잔향 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '【즉시】 잔향 폭발 발동.', rarity: 'rare',
         effect(gs) { gs.triggerResonanceBurst(); }
     },
+    echo_burst_plus: {
+        id: 'echo_burst_plus', name: '잔향 폭발+', icon: '🌟', cost: 2, type: 'POWER', desc: '【즉시】 잔향 폭발 발동.', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.triggerResonanceBurst(); }
+    },
     void_blade: {
         id: 'void_blade', name: '공허의 도검', icon: '🌀', cost: 2, type: 'ATTACK', desc: '피해 30. 【소진】', rarity: 'rare', exhaust: true,
         effect(gs) { gs.dealDamage(30); }
+    },
+    void_blade_plus: {
+        id: 'void_blade_plus', name: '공허의 도검+', icon: '🌀', cost: 2, type: 'ATTACK', desc: '피해 40. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
+        effect(gs) { gs.dealDamage(40); }
     },
     soul_armor: {
         id: 'soul_armor', name: '영혼 방어구', icon: '💠', cost: 2, type: 'SKILL', desc: '방어막 15. (3턴 동안 매 턴: 잔향 10 충전.)', rarity: 'rare',
         effect(gs) { gs.addShield(15, { name: '영혼 방어구', type: 'card' }); gs.addBuff('soul_armor', 3, { echoRegen: 10 }); }
     },
+    soul_armor_plus: {
+        id: 'soul_armor_plus', name: '영혼 방어구+', icon: '💠', cost: 1, type: 'SKILL', desc: '방어막 18. (3턴 동안 매 턴: 잔향 12 충전.)', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.addShield(18, { name: '영혼 방어구+', type: 'card' }); gs.addBuff('soul_armor', 3, { echoRegen: 12 }); }
+    },
     soul_harvest: {
         id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '피해 20. (처치 시: 체력 8 회복.)', rarity: 'uncommon',
         effect(gs) { gs.dealDamage(20); }
+    },
+    soul_harvest_plus: {
+        id: 'soul_harvest_plus', name: '영혼 수확+', icon: '💫', cost: 1, type: 'ATTACK', desc: '피해 25. (처치 시: 체력 10 회복.)', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.dealDamage(25); }
     },
     echo_overload: {
         id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: '잔향 100 충전. 체력 15 소모.', rarity: 'rare',
         effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ Echo 과부하! HP-15', 'damage'); gs.markDirty('hud'); }
     },
+    echo_overload_plus: {
+        id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 1, type: 'SKILL', desc: '잔향 120 충전. 체력 12 소모.', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.player.echo = 120; gs.player.hp = Math.max(1, gs.player.hp - 12); gs.addLog('⚡ Echo 과부하+! HP-12', 'damage'); gs.markDirty('hud'); }
+    },
     desperate_strike: {
         id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '잃은 체력에 비례한 피해. (최대 40)', rarity: 'uncommon',
         effect(gs) { const d = Math.floor((1 - gs.player.hp / gs.player.maxHp) * 40) + 5; gs.dealDamage(d); }
+    },
+    desperate_strike_plus: {
+        id: 'desperate_strike_plus', name: '결사의 일격+', icon: '☠️', cost: 0, type: 'ATTACK', desc: '잃은 체력에 비례한 피해. (최대 50)', rarity: 'uncommon', upgraded: true,
+        effect(gs) { const d = Math.floor((1 - gs.player.hp / gs.player.maxHp) * 50) + 8; gs.dealDamage(d); }
     },
     reverberation: {
         id: 'reverberation', name: '반향', icon: '🔊', cost: 2, type: 'ATTACK', desc: '연쇄 수치 × 8 피해. (최대 40)', rarity: 'uncommon',
         effect(gs) { gs.dealDamage(Math.min(40, (gs.player.echoChain || 1) * 8)); }
     },
+    reverberation_plus: {
+        id: 'reverberation_plus', name: '반향+', icon: '🔊', cost: 2, type: 'ATTACK', desc: '연쇄 수치 × 12 피해. (최대 60)', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.dealDamage(Math.min(60, (gs.player.echoChain || 1) * 12)); }
+    },
     sanctuary: {
         id: 'sanctuary', name: '성역', icon: '🏛️', cost: 3, type: 'SKILL', desc: '방어막 15. 면역 2턴.', rarity: 'rare',
         effect(gs) { gs.addShield(15, { name: '성역', type: 'card' }); gs.addBuff('immune', 2, {}); }
     },
+    sanctuary_plus: {
+        id: 'sanctuary_plus', name: '성역+', icon: '🏛️', cost: 3, type: 'SKILL', desc: '방어막 20. 면역 3턴.', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.addShield(20, { name: '성역+', type: 'card' }); gs.addBuff('immune', 3, {}); }
+    },
     dark_pact: {
         id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 5 소모. 카드 2장 드로우.', rarity: 'uncommon',
         effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 5); gs.drawCards(2); gs.markDirty('hud'); }
+    },
+    dark_pact_plus: {
+        id: 'dark_pact_plus', name: '어둠의 계약+', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 3 소모. 카드 3장 드로우.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 3); gs.drawCards(3); gs.markDirty('hud'); }
     },
     // ── 에너지 관련 카드 ──
     surge: {
@@ -374,13 +471,25 @@ export const CARDS = {
         id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '에너지 4 획득. 체력 6 소모. 잔향 30 충전.', rarity: 'rare',
         effect(gs) { gs.player.energy += 4; gs.player.hp = Math.max(1, gs.player.hp - 6); gs.addEcho(30); gs.addLog('🔋 과충전! 에너지 +4', 'echo'); gs.markDirty('hud'); }
     },
+    overcharge_plus: {
+        id: 'overcharge_plus', name: '과충전+', icon: '🔋', cost: 1, type: 'SKILL', desc: '에너지 4 획득. 체력 4 소모. 잔향 40 충전.', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.player.energy += 4; gs.player.hp = Math.max(1, gs.player.hp - 4); gs.addEcho(40); gs.addLog('🔋 과충전+! 에너지 +4', 'echo'); gs.markDirty('hud'); }
+    },
     void_tap: {
         id: 'void_tap', name: '공허 흡수', icon: '🌀', cost: 1, type: 'SKILL', desc: '사용된 에너지 × 6 피해.', rarity: 'rare',
         effect(gs) { const spent = gs.player.maxEnergy - gs.player.energy; const dmg = (spent + 1) * 6; gs.dealDamage(dmg); gs.addLog(`🌀 허공 탭: ${dmg} 피해!`, 'echo'); }
     },
+    void_tap_plus: {
+        id: 'void_tap_plus', name: '공허 흡수+', icon: '🌀', cost: 0, type: 'SKILL', desc: '사용된 에너지 × 8 피해.', rarity: 'rare', upgraded: true,
+        effect(gs) { const spent = gs.player.maxEnergy - gs.player.energy; const dmg = (spent + 1) * 8; gs.dealDamage(dmg); gs.addLog(`🌀 허공 탭+: ${dmg} 피해!`, 'echo'); }
+    },
     energy_siphon: {
         id: 'energy_siphon', name: '에너지 사이펀', icon: '🔵', cost: 0, type: 'ATTACK', desc: '에너지 1 소모 → 피해 12. 【소진】', rarity: 'uncommon', exhaust: true,
         effect(gs) { if (gs.player.energy > 0) { gs.player.energy--; gs.dealDamage(12); gs.addLog('🔵 에너지 사이펀: 에너지 1 → 12 피해', 'echo'); } else { gs.addLog('🔵 에너지 사이펀: 에너지 없음!', 'damage'); } gs.markDirty('hud'); }
+    },
+    energy_siphon_plus: {
+        id: 'energy_siphon_plus', name: '에너지 사이펀+', icon: '🔵', cost: 0, type: 'ATTACK', desc: '에너지 1 소모 → 피해 18. 【소진】', rarity: 'uncommon', upgraded: true, exhaust: true,
+        effect(gs) { if (gs.player.energy > 0) { gs.player.energy--; gs.dealDamage(18); gs.addLog('🔵 에너지 사이펀+: 에너지 1 → 18 피해', 'echo'); } else { gs.addLog('🔵 에너지 사이펀+: 에너지 없음!', 'damage'); } gs.markDirty('hud'); }
     },
     // ── 새 카드: 화염 / 전략 계열 ──
     flame_slash: {
@@ -391,17 +500,33 @@ export const CARDS = {
         id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 8. 화염 1턴 부여.', rarity: 'uncommon',
         effect(gs) { gs.dealDamageAll(8); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); gs.addLog('🌊 불꽃 파동!', 'echo'); }
     },
+    ember_wave_plus: {
+        id: 'ember_wave_plus', name: '불꽃 파동+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 11. 화염 2턴 부여.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.dealDamageAll(11); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 2, i); }); gs.addLog('🌊 불꽃 파동+!', 'echo'); }
+    },
     echo_reflect: {
         id: 'echo_reflect', name: '잔향 반향', icon: '🔊', cost: 1, type: 'SKILL', desc: '방어막 8. 반사 획득. (피해 받을 시 적에게 반사)', rarity: 'rare',
         effect(gs) { gs.addShield(8); gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🔊 잔향 반향! 반사 준비', 'echo'); }
+    },
+    echo_reflect_plus: {
+        id: 'echo_reflect_plus', name: '잔향 반향+', icon: '🔊', cost: 0, type: 'SKILL', desc: '방어막 10. 반사 획득. (피해 받을 시 적에게 반사)', rarity: 'rare', upgraded: true,
+        effect(gs) { gs.addShield(10); gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🔊 잔향 반향+! 반사 준비', 'echo'); }
     },
     chain_reaction: {
         id: 'chain_reaction', name: '연쇄 반응', icon: '⛓️', cost: 2, type: 'ATTACK', desc: '연쇄 수치 × 5 피해. (연쇄 유지)', rarity: 'rare',
         effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 5, null, true); gs.addLog(`⛓️ 연쇄 반응: 체인 ${chain} × 5 = ${chain * 5}!`, 'echo'); }
     },
+    chain_reaction_plus: {
+        id: 'chain_reaction_plus', name: '연쇄 반응+', icon: '⛓️', cost: 1, type: 'ATTACK', desc: '연쇄 수치 × 7 피해. (연쇄 유지)', rarity: 'rare', upgraded: true,
+        effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 7, null, true); gs.addLog(`⛓️ 연쇄 반응+: 체인 ${chain} × 7 = ${chain * 7}!`, 'echo'); }
+    },
     revival_echo: {
         id: 'revival_echo', name: '소생의 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: '체력 15 회복. 소모 더미 카드 2장 회수. 【소진】', rarity: 'rare', exhaust: true,
         effect(gs) { gs.heal(15, { name: '소생의 잔향', type: 'card' }); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(CARDS[c]?.name || c); } gs.addLog(`💠 소생 잔향: ${rev.join(', ')} 회수!`, 'echo'); gs.markDirty('hand'); }
+    },
+    revival_echo_plus: {
+        id: 'revival_echo_plus', name: '소생의 잔향+', icon: '💠', cost: 2, type: 'SKILL', desc: '체력 20 회복. 소모 더미 카드 2장 회수. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
+        effect(gs) { gs.heal(20, { name: '소생의 잔향+', type: 'card' }); const rev = []; for (let i = 0; i < 2 && gs.player.graveyard.length > 0; i++) { const c = gs.player.graveyard.pop(); gs.player.hand.push(c); rev.push(CARDS[c]?.name || c); } gs.addLog(`💠 소생 잔향+: ${rev.join(', ')} 회수!`, 'echo'); gs.markDirty('hand'); }
     },
 
     // ── 에너지 할인 카드 ──
@@ -440,6 +565,21 @@ export const CARDS = {
                 if (!gs.player._cascadeCards) gs.player._cascadeCards = new Map();
                 gs.player._cascadeCards.set(gs.player.hand.length - 1, cardId);
                 gs.addLog(`💧 잔향의 폭포: ${CARDS[cardId]?.name} 드로우, 비용 0!`, 'echo');
+            }
+            gs.markDirty('hand');
+        }
+    },
+    echo_cascade_plus: {
+        id: 'echo_cascade_plus', name: '잔향의 폭포+', icon: '💧', cost: 1, type: 'SKILL', desc: '카드 1장 드로우. 해당 카드 비용 0. 【소진】', rarity: 'rare', upgraded: true,
+        effect(gs) {
+            const before = gs.player.hand.length;
+            gs.drawCards(1);
+            const newCardIds = gs.player.hand.slice(before);
+            if (newCardIds.length > 0) {
+                const cardId = newCardIds[0];
+                if (!gs.player._cascadeCards) gs.player._cascadeCards = new Map();
+                gs.player._cascadeCards.set(gs.player.hand.length - 1, cardId);
+                gs.addLog(`💧 잔향의 폭포+: ${CARDS[cardId]?.name} 드로우, 비용 0!`, 'echo');
             }
             gs.markDirty('hand');
         }
@@ -607,17 +747,21 @@ export const CARDS = {
         effect(gs) { gs.addBuff('unbreakable_wall_plus', 99); }
     },
     resonant_shield: {
-        id: 'resonant_shield', name: '공진 방패', icon: '🛡️', cost: 1, type: 'ATTACK', desc: '현재 방어막의 1.5배 피해.', rarity: 'uncommon',
+        id: 'resonant_shield', name: '공진 방패', icon: '🛡️', cost: 1, type: 'ATTACK', desc: '현재 방어막의 1.5배 피해. 모든 방어막 소모.', rarity: 'uncommon',
         effect(gs) {
             const shield = gs.player.shield || 0;
             gs.dealDamage(Math.floor(shield * 1.5));
+            gs.player.shield = 0;
+            gs.markDirty?.('hud');
         }
     },
     resonant_shield_plus: {
-        id: 'resonant_shield_plus', name: '공진 방패+', icon: '🛡️', cost: 1, type: 'ATTACK', desc: '현재 방어막의 2배 피해.', rarity: 'uncommon', upgraded: true,
+        id: 'resonant_shield_plus', name: '공진 방패+', icon: '🛡️', cost: 1, type: 'ATTACK', desc: '현재 방어막의 2배 피해. 모든 방어막 소모.', rarity: 'uncommon', upgraded: true,
         effect(gs) {
             const shield = gs.player.shield || 0;
             gs.dealDamage(shield * 2);
+            gs.player.shield = 0;
+            gs.markDirty?.('hud');
         }
     }
 };
