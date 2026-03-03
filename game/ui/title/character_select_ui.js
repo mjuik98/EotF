@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════
-//  CharacterSelectV4UI
-//  game/ui/title/character_select_v4_ui.js
+//  CharacterSelectUI
+//  game/ui/title/character_select_ui.js
 //
 //  HTML 프로토타입(character-select-v4.html)을 프로젝트
 //  아키텍처에 맞게 변환한 ES 모듈입니다.
@@ -23,7 +23,7 @@ function _$(id, deps) {
 
 // ══════════════════════════════════════════════════════════
 // CHARACTER DATA
-// 권장: data/classes.js 로 이동 후 deps.data.classesV4 로 주입
+// 권장: data/classes.js 로 이동 후 deps.data.classes 로 주입
 // ══════════════════════════════════════════════════════════
 const CHARS = [
   {
@@ -410,7 +410,7 @@ function _createState() {
 // ══════════════════════════════════════════════════════════
 // PUBLIC EXPORT
 // ══════════════════════════════════════════════════════════
-export const CharacterSelectV4UI = {
+export const CharacterSelectUI = {
 
   // 외부에서 직접 참조할 수 있도록 캐릭터 데이터 노출
   CHARS,

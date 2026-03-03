@@ -98,10 +98,10 @@ export function bootGame(modules, fns, Deps) {
         startCombat: (isBoss) => fns.startCombat(isBoss),
     });
 
-    // ── 캐릭터 선택 V4 UI 렌더링 ──
+    // ── 캐릭터 선택 UI 렌더링 ──
     setTimeout(() => {
-        if (modules.CharacterSelectV4UI) {
-            modules.CharacterSelectV4UI.mount({
+        if (modules.CharacterSelectUI) {
+            modules.CharacterSelectUI.mount({
                 doc: document,
                 audioEngine: AudioEngine,
                 onConfirm: (char) => {
@@ -111,9 +111,9 @@ export function bootGame(modules, fns, Deps) {
                 onBack: () => {
                     if (fns.backToTitle) fns.backToTitle();
                 },
-                onStart: () => {
+                onStart: (char) => {
                     // 최종 '여정 시작' 버튼 클릭 시
-                    if (fns.startGame) fns.startGame();
+                    if (fns.startGame) fns.startGame(char.id);
                 }
             });
         }
