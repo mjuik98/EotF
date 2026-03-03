@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-03T05:09:38.384Z
-- Nodes: 110
-- Edges: 208
+- Generated: 2026-03-03T05:36:26.980Z
+- Nodes: 113
+- Edges: 209
 
 ## Layer Edges
 
@@ -33,12 +33,11 @@
 | systems->systems | 3 |
 | systems->utils | 1 |
 | ui->combat | 2 |
-| ui->core | 4 |
-| ui->data | 1 |
+| ui->core | 3 |
 | ui->engine | 1 |
 | ui->other | 5 |
 | ui->systems | 1 |
-| ui->ui | 6 |
+| ui->ui | 9 |
 | ui->utils | 12 |
 | utils->core | 1 |
 | utils->utils | 2 |
@@ -68,8 +67,8 @@
 | File | In Degree |
 |---|---:|
 | game/core/state_actions.js | 10 |
-| data/game_data.js | 8 |
 | game/utils/log_utils.js | 8 |
+| data/game_data.js | 7 |
 | game/core/deps_factory.js | 7 |
 | game/utils/description_utils.js | 7 |
 | game/core/event_bus.js | 6 |
@@ -77,9 +76,9 @@
 | game/utils/logger.js | 6 |
 | engine/audio.js | 5 |
 | game/core/error_codes.js | 5 |
-| game/core/game_state.js | 5 |
 | game/systems/run_rules.js | 5 |
 | game/core/error_reporter.js | 4 |
+| game/core/game_state.js | 4 |
 | game/data/constants.js | 4 |
 | game/data/triggers.js | 4 |
 

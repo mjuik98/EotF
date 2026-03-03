@@ -11,9 +11,12 @@ Implemented:
 - Architecture gate in `scripts/check-architecture.mjs`
 - Dependency visibility report in `docs/metrics/dependency_map.md`
 - Composition registry split from entrypoint (`game/core/bindings/module_registry.js`)
+- HUD module split for lower change surface:
+  - `game/ui/hud/hud_effects_ui.js`
+  - `game/ui/hud/hud_stats_ui.js`
 
 Next:
-- Split large `game/core/game_state_core_methods.js` into domain files
+- Continue splitting large UI screens (`map_ui`, `combat_ui`) into render/interaction/state modules
 
 ## 2) Separation (Layering)
 
@@ -34,9 +37,10 @@ Implemented:
 - Idempotency guard for high-risk UI actions (`run:start-game`, `run:enter-run`, reward claims, event resolves)
 - Retry-safe persistence outbox with exponential backoff in `game/systems/save_system.js`
 - Outbox telemetry (`queueDepth`, retry/success/failure counters) via `SaveSystem.getOutboxMetrics()`
+- Event subscriber action-port injection to reduce direct `window` coupling (`game/core/event_subscribers.js`)
 
 Next:
-- Add top action-frequency and error-rate trend counters to runtime metrics
+- Route remaining subscriber/bridge side effects through injected actions instead of globals
 
 ## 4) Standardization
 
@@ -53,13 +57,14 @@ Next:
 ## 5) CI and Contract Gates
 
 Implemented:
-- `npm run lint` now checks architecture, state mutation growth, window usage growth, event contract integrity, import coupling growth, and content-data integrity.
-- Existing `quality-gate` workflow already runs `lint`, `test`, and `build`.
+- `npm run lint` now checks architecture, window/document/globalThis targets, state mutation targets, event contracts, import coupling growth, content-data integrity, and asset-manifest integrity.
+- `quality-gate` runs `lint`, `test:coverage`, and `build`.
 - `quality-gate` uploads dependency-map artifacts (`dependency_map.json`, `dependency_map.md`) for each run.
 - `quality-gate` posts/updates PR dependency-map diff summary comments.
+- PRs run dependency-map threshold guard via `scripts/check-dependency-delta-threshold.mjs`.
 
 Next:
-- Add threshold-based failure rule when dependency-map deltas exceed agreed limits
+- Raise coverage thresholds progressively after new integration tests are added
 
 ## 6) Operational Metrics
 
@@ -67,6 +72,10 @@ Implemented:
 - Import coupling baseline: `docs/metrics/import_coupling_baseline.json`
 - Dependency graph export: `docs/metrics/dependency_map.json`
 - Runtime metrics for action frequency and error-rate trend in `game/core/runtime_metrics.js`
+- Explicit quality cap files:
+  - `docs/metrics/state_mutation_targets.json`
+  - `docs/metrics/window_usage_targets.json`
+  - `docs/metrics/dependency_delta_thresholds.json`
 
 Next:
 - Add periodic metrics snapshot logging/export for long-run balancing analysis

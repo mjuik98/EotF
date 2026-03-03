@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-03T05:09:38.384Z",
-  "nodeCount": 110,
-  "edgeCount": 208,
+  "generatedAt": "2026-03-03T05:36:26.980Z",
+  "nodeCount": 113,
+  "edgeCount": 209,
   "layerEdges": {
     "combat->combat": 5,
     "combat->core": 10,
@@ -28,12 +28,11 @@
     "systems->systems": 3,
     "systems->utils": 1,
     "ui->combat": 2,
-    "ui->core": 4,
-    "ui->data": 1,
+    "ui->core": 3,
     "ui->engine": 1,
     "ui->other": 5,
     "ui->systems": 1,
-    "ui->ui": 6,
+    "ui->ui": 9,
     "ui->utils": 12,
     "utils->core": 1,
     "utils->utils": 2
@@ -61,7 +60,7 @@
       "file": "data/game_data.js",
       "layer": "data",
       "outDegree": 7,
-      "inDegree": 8
+      "inDegree": 7
     },
     {
       "file": "game/core/event_bindings.js",
@@ -91,7 +90,7 @@
       "file": "game/core/game_state.js",
       "layer": "core",
       "outDegree": 5,
-      "inDegree": 5
+      "inDegree": 4
     },
     {
       "file": "data/events_data.js",
@@ -138,16 +137,16 @@
       "inDegree": 10
     },
     {
-      "file": "data/game_data.js",
-      "layer": "data",
-      "outDegree": 7,
-      "inDegree": 8
-    },
-    {
       "file": "game/utils/log_utils.js",
       "layer": "utils",
       "outDegree": 0,
       "inDegree": 8
+    },
+    {
+      "file": "data/game_data.js",
+      "layer": "data",
+      "outDegree": 7,
+      "inDegree": 7
     },
     {
       "file": "game/core/deps_factory.js",
@@ -192,12 +191,6 @@
       "inDegree": 5
     },
     {
-      "file": "game/core/game_state.js",
-      "layer": "core",
-      "outDegree": 5,
-      "inDegree": 5
-    },
-    {
       "file": "game/systems/run_rules.js",
       "layer": "systems",
       "outDegree": 2,
@@ -207,6 +200,12 @@
       "file": "game/core/error_reporter.js",
       "layer": "core",
       "outDegree": 3,
+      "inDegree": 4
+    },
+    {
+      "file": "game/core/game_state.js",
+      "layer": "core",
+      "outDegree": 5,
       "inDegree": 4
     },
     {
@@ -244,6 +243,7 @@
       "data/items.js",
       "data/regions.js"
     ],
+    "data/image_fallbacks.js": [],
     "data/inscriptions.js": [],
     "data/items.js": [
       "data/cards.js",
@@ -539,11 +539,15 @@
       "game/ui/feedback/button_feedback.js",
       "game/utils/description_utils.js"
     ],
+    "game/ui/hud/hud_effects_ui.js": [],
     "game/ui/hud/hud_render_helpers.js": [],
+    "game/ui/hud/hud_stats_ui.js": [
+      "game/ui/hud/hud_render_helpers.js"
+    ],
     "game/ui/hud/hud_update_ui.js": [
-      "data/game_data.js",
-      "game/core/game_state.js",
+      "game/ui/hud/hud_effects_ui.js",
       "game/ui/hud/hud_render_helpers.js",
+      "game/ui/hud/hud_stats_ui.js",
       "game/utils/security.js"
     ],
     "game/ui/map/map_generation_ui.js": [],
