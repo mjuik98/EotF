@@ -50,6 +50,21 @@ export function bootGame(modules, fns, Deps) {
         ParticleSystem,
         ScreenShake: modules.ScreenShake,
         HitStop: modules.HitStop,
+        doc: document,
+        win: window,
+        actions: {
+            renderHand: fns.renderHand,
+            renderCombatCards: fns.renderCombatCards,
+            updateEchoSkillBtn: fns.updateEchoSkillBtn,
+            updateNoiseWidget: fns.updateNoiseWidget,
+            updateStatusDisplay: fns.updateStatusDisplay,
+            showCardPlayEffect: fns.showCardPlayEffect,
+            showDmgPopup: fns.showDmgPopup,
+            renderCombatEnemies: fns.renderCombatEnemies,
+            updateUI: fns.updateUI,
+            showTurnBanner: fns.showTurnBanner,
+            updateCombatLog: fns.updateCombatLog,
+        },
     });
 
     // ── StorySystem 브릿지 ──

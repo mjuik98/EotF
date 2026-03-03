@@ -1,7 +1,14 @@
-﻿import { GS } from '../../core/game_state.js';
-import { DATA } from '../../../data/game_data.js';
-import { SecurityUtils } from '../../utils/security.js';
+﻿import { SecurityUtils } from '../../utils/security.js';
 import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
+import {
+  triggerDeckShufflePulseUI,
+  enableActionButtonsUI,
+  triggerDrawCardAnimationUI,
+  triggerCardShakeAnimationUI,
+  resetCombatUIUI,
+  hideNodeOverlayUI,
+} from './hud_effects_ui.js';
+import { updateCombatEnergyUI, updatePlayerStatsUI } from './hud_stats_ui.js';
 
 
 let _uiPending = false;
@@ -16,72 +23,27 @@ function _getGS(deps) {
 
 export const HudUpdateUI = {
   triggerDeckShufflePulse(deps = {}) {
-    const doc = _getDoc(deps);
-    const deckEls = doc.querySelectorAll('#deckCount, #combatDeckCount');
-    deckEls.forEach(el => {
-      el.style.transition = 'color 0.15s, text-shadow 0.15s';
-      el.style.color = 'var(--cyan)';
-      el.style.textShadow = '0 0 10px rgba(0,255,204,0.8)';
-      setTimeout(() => { el.style.color = ''; el.style.textShadow = ''; }, 600);
-    });
+    triggerDeckShufflePulseUI(deps);
   },
 
   enableActionButtons(deps = {}) {
-    const doc = _getDoc(deps);
-    doc.querySelectorAll('.action-btn').forEach(b => { b.disabled = false; });
+    enableActionButtonsUI(deps);
   },
 
   triggerDrawCardAnimation(deps = {}) {
-    const doc = _getDoc(deps);
-    doc.querySelectorAll('#handCards .card, #combatHandCards .card').forEach((el, i) => {
-      el.style.animation = 'none';
-      const raf = deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
-      if (typeof raf === 'function') {
-        raf(() => { el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`; });
-      } else {
-        el.style.animation = `cardDraw 0.25s ease ${i * 0.04}s both`;
-      }
-    });
+    triggerDrawCardAnimationUI(deps);
   },
 
   triggerCardShakeAnimation(deps = {}) {
-    const doc = _getDoc(deps);
-    doc.querySelectorAll('#combatHandCards .card:not(.playable)').forEach(el => {
-      el.style.animation = 'none';
-      const raf = deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
-      if (typeof raf === 'function') {
-        raf(() => { el.style.animation = 'shake 0.3s ease'; });
-      } else {
-        el.style.animation = 'shake 0.3s ease';
-      }
-    });
+    triggerCardShakeAnimationUI(deps);
   },
 
   resetCombatUI(deps = {}) {
-    const doc = _getDoc(deps);
-    doc.getElementById('combatOverlay')?.classList.remove('active');
-    // deps 
-    const resetPanel = deps?.resetCombatInfoPanel
-      || deps?._resetCombatInfoPanel
-      || globalThis._resetCombatInfoPanel;
-    if (typeof resetPanel === 'function') {
-      resetPanel();
-    }
-    doc.getElementById('noiseGaugeOverlay')?.remove();
-    doc.getElementById('cardTooltip')?.classList.remove('visible');
-    const combatHandCards = doc.getElementById('combatHandCards');
-    if (combatHandCards) combatHandCards.textContent = '';
-    const endZone = doc.getElementById('enemyZone');
-    if (endZone) endZone.textContent = '';
-
-    const logContainer = doc.getElementById('combatLog');
-    if (logContainer) logContainer.innerHTML = '';
+    resetCombatUIUI(deps);
   },
 
   hideNodeOverlay(deps = {}) {
-    const doc = _getDoc(deps);
-    const nodeOverlay = doc.getElementById('nodeCardOverlay');
-    if (nodeOverlay) nodeOverlay.style.display = 'none';
+    hideNodeOverlayUI(deps);
   },
 
   updateEndBtnWarn(deps = {}) {
@@ -618,166 +580,11 @@ export const HudUpdateUI = {
   },
 
   updateCombatEnergy(gs, deps = {}) {
-    if (!gs?.player) return;
-    const p = gs.player;
-    const doc = _getDoc(deps);
-
-    // Update HUD energy orbs (Top Layout)
-    const hudOrbs = doc.getElementById('hudEnergyOrbs');
-    if (hudOrbs) {
-      hudOrbs.textContent = '';
-      for (let i = 0; i < p.maxEnergy; i++) {
-        const orb = doc.createElement('div');
-        orb.className = `hud-energy-orb ${i < p.energy ? 'filled' : ''}`;
-        hudOrbs.appendChild(orb);
-      }
-    }
-    const hudEnergyText = doc.getElementById('hudEnergyText');
-    if (hudEnergyText) {
-      hudEnergyText.textContent = `${p.energy}/${p.maxEnergy}`;
-    }
-
-    // Update combat energy orbs
-    const combatOrbs = doc.getElementById('combatEnergyOrbs');
-    if (combatOrbs) {
-      const displayMax2 = Math.max(p.maxEnergy, p.energy);
-      combatOrbs.textContent = '';
-      for (let i = 0; i < displayMax2; i++) {
-        const filled = i < p.energy;
-        const isOverflow = i >= p.maxEnergy;
-        const orb = doc.createElement('div');
-        orb.className = `energy-orb ${filled ? 'filled' : ''}`;
-        if (isOverflow && filled) {
-          orb.style.cssText = 'background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,255,204,0.8);';
-        }
-        combatOrbs.appendChild(orb);
-      }
-    }
-
-    // Update energy text
-    const combatEnergyText = doc.getElementById('combatEnergyText');
-    if (combatEnergyText) {
-      combatEnergyText.textContent = `${p.energy} / ${p.maxEnergy}`;
-    }
-
-    // 카드 뽑기 버튼 상태 동기화
-    const drawBtn = doc.getElementById('combatDrawCardBtn');
-    if (drawBtn && gs.combat?.active) {
-      const handFull = p.hand.length >= 8;
-      const canDraw = gs.combat.playerTurn && p.energy >= 1 && !handFull;
-
-      if (handFull) {
-        setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-      } else if (p.energy < 1) {
-        setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
-      } else {
-        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
-      }
-      drawBtn.disabled = !canDraw;
-      drawBtn.style.opacity = canDraw ? '1' : '0.4';
-    }
+    updateCombatEnergyUI(gs, deps);
   },
 
   updatePlayerStats(gs, deps = {}) {
-    if (!gs?.player) return;
-    const p = gs.player;
-    const doc = _getDoc(deps);
-    const setText = deps.setText || ((id, val) => {
-      const el = doc.getElementById(id);
-      if (el) el.textContent = val;
-    });
-    const setBar = deps.setBar || ((id, pct) => {
-      const el = doc.getElementById(id);
-      if (el) el.style.width = `${pct}%`;
-    });
-
-    const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
-    setBar('hpBar', hpPct);
-    setText('hpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
-
-    // HP
-    setBar('hoverHpBar', hpPct);
-    setText('hoverHpText', `${Math.max(0, p.hp)} / ${p.maxHp}`);
-
-    const updateHpColor = (el, pct) => {
-      if (!el) return;
-      el.style.background = getHpBarGradient(pct);
-    };
-
-    updateHpColor(doc.getElementById('hpBar'), hpPct);
-    updateHpColor(doc.getElementById('hoverHpBar'), hpPct);
-
-    const hudHpMini = doc.getElementById('hudHpBarMini');
-    if (hudHpMini) {
-      hudHpMini.style.width = `${hpPct}%`;
-      hudHpMini.style.background = hpPct <= 25
-        ? 'linear-gradient(90deg,#8b0000,#cc0000)'
-        : 'linear-gradient(90deg,#cc2244,#ff4466)';
-    }
-
-    const hudEchoMini = doc.getElementById('hudEchoBarMini');
-    if (hudEchoMini) {
-      const echoInfo = getEchoTierWindow(p.echo);
-      hudEchoMini.style.width = `${echoInfo.pct}%`;
-      hudEchoMini.style.background = echoInfo.bg;
-    }
-
-    setText('hudHpText', `${Math.max(0, p.hp)}/${p.maxHp}`);
-    setText('hudEchoText', Math.floor(p.echo));
-
-    const shieldTrigger = doc.getElementById('hudShieldTrigger');
-    if (shieldTrigger) {
-      shieldTrigger.style.opacity = p.shield > 0 ? '1' : '0.3';
-      setText('hudShieldText', p.shield);
-    }
-
-    const shieldPct = Math.min(100, (p.shield / p.maxHp) * 100);
-    setBar('shieldBar', shieldPct);
-    setText('shieldText', p.shield || '0');
-
-    // Shield
-    setBar('hoverShieldBar', shieldPct);
-    setText('hoverShieldText', p.shield || '0');
-
-    const echo2 = getEchoTierWindow(p.echo);
-    setBar('echoBar', echo2.pct);
-    setText('echoText', `${echo2.echo} / ${p.maxEcho}`);
-    setBar('hoverEchoBar', echo2.pct);
-    setText('hoverEchoText', `${echo2.echo} / ${p.maxEcho}`);
-
-    const mazeEcho2 = doc.getElementById('mazeEcho');
-    if (mazeEcho2) mazeEcho2.textContent = Math.floor(p.echo);
-
-    // Class Mechanics (e.g. echo, chain)
-    const cm = deps.classMechanics;
-    if (cm) {
-      if (typeof cm.updateUI === 'function') cm.updateUI(gs);
-      else if (typeof cm.render === 'function') cm.render(gs);
-    }
-    // Echo (updateUI())
-    const updateBtn = deps.updateEchoSkillBtn
-      ? (deps) => deps.updateEchoSkillBtn({ ...deps, gs })
-      : (typeof deps.updateEchoSkillBtn === 'function' ? deps.updateEchoSkillBtn : null);
-    if (typeof updateBtn === 'function') {
-      updateBtn(deps);
-    } else {
-      const echoBtn = doc.getElementById('useEchoSkillBtn');
-      if (echoBtn) {
-        const echo = Math.floor(p.echo);
-        const tier = echo >= 100 ? 3 : echo >= 60 ? 2 : echo >= 30 ? 1 : 0;
-        const nextTarget = echo < 30 ? 30 : (echo < 60 ? 60 : 100);
-
-        if (tier === 0) {
-          echoBtn.disabled = true;
-          echoBtn.style.opacity = '0.45';
-          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/${nextTarget})`, 'E');
-        } else {
-          echoBtn.disabled = false;
-          echoBtn.style.opacity = '1';
-          setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/${nextTarget})`, 'E');
-        }
-      }
-    }
+    updatePlayerStatsUI(gs, deps);
   },
 
   // Expose public API for GAME.API
