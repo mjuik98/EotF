@@ -8,12 +8,16 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "node scripts/check-architecture.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs && node scripts/check-content-data.mjs",
+    "lint": "node scripts/check-architecture.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs && node scripts/check-content-data.mjs && node scripts/check-asset-manifest.mjs",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "deps:map": "node scripts/generate-dependency-map.mjs",
+    "deps:threshold": "node scripts/check-dependency-delta-threshold.mjs",
     "check:data": "node scripts/check-content-data.mjs",
-    "quality": "npm run lint && npm run test && npm run build"
+    "assets:manifest": "node scripts/generate-asset-manifest.mjs",
+    "check:assets": "node scripts/check-asset-manifest.mjs",
+    "quality": "npm run lint && npm run test:coverage && npm run build"
   },
   "keywords": [
     "game",
@@ -23,6 +27,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
     "vite": "^7.3.1",
     "vitest": "^3.2.4"
   }

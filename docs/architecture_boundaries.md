@@ -53,9 +53,12 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   - `scripts/check-event-contracts.mjs`
   - `scripts/check-import-coupling.mjs`
   - `scripts/check-content-data.mjs`
+  - `scripts/check-asset-manifest.mjs`
 - `npm run deps:map`
   - writes `docs/metrics/dependency_map.json`
   - writes `docs/metrics/dependency_map.md`
+- `npm run deps:threshold`
+  - compares dependency deltas against `docs/metrics/dependency_delta_thresholds.json`
 
 ## Baseline Maintenance
 
@@ -66,3 +69,12 @@ When a deliberate architectural expansion is approved, update baselines in the s
 - `node scripts/check-import-coupling.mjs --write-baseline`
 - `node scripts/check-content-data.mjs --write-baseline`
 - `npm run deps:map`
+
+## Target Maintenance
+
+Target files are used for explicit caps (instead of passive growth-only baselines):
+
+- `node scripts/check-window-usage.mjs --write-targets`
+  - writes `docs/metrics/window_usage_targets.json`
+- `node scripts/check-state-mutations.mjs --write-targets`
+  - writes `docs/metrics/state_mutation_targets.json`

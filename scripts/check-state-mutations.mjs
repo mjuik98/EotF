@@ -1,8 +1,9 @@
-import fs from 'node:fs/promises';
+﻿import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
 const BASELINE_PATH = path.join(ROOT, 'docs', 'metrics', 'state_mutation_baseline.json');
+const TARGETS_PATH = path.join(ROOT, 'docs', 'metrics', 'state_mutation_targets.json');
 const TARGET_DIRS = ['game'];
 
 const ALLOW_MUTATION_FILES = new Set([
@@ -11,7 +12,7 @@ const ALLOW_MUTATION_FILES = new Set([
 ]);
 
 const MUTATION_PATTERNS = [
-  /\b(?:gs|this)\.(?:player|combat|meta|currentRegion|currentFloor|mapNodes|currentNode|visitedNodes|stats|worldMemory)\b.*(?:\+\+|--|\+=|-=|\*=|\/=|%=|=(?!=))/,
+  /\b(?:gs|this)\.(?:player|combat|meta|currentRegion|currentFloor|mapNodes|currentNode|visitedNodes|stats|worldMemory)\b.*(?:\+\+|--|\+=|-=|\*=|\/=|%=|=(?!=))/, 
   /\b(?:gs|this)\.(?:_selectedTarget|_bossRewardPending|_bossLastRegion|_endCombatRunning|_endCombatScheduled)\b.*(?:\+\+|--|\+=|-=|\*=|\/=|%=|=(?!=))/,
 ];
 
@@ -64,19 +65,14 @@ function sumCounts(byFile) {
   return Object.values(byFile).reduce((sum, n) => sum + n, 0);
 }
 
-async function writeBaseline(byFile) {
-  const payload = {
-    generatedAt: new Date().toISOString(),
-    total: sumCounts(byFile),
-    byFile,
-  };
-  await fs.mkdir(path.dirname(BASELINE_PATH), { recursive: true });
-  await fs.writeFile(BASELINE_PATH, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+async function writeJson(filePath, payload) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
 }
 
-async function readBaseline() {
+async function readJson(filePath) {
   try {
-    const raw = await fs.readFile(BASELINE_PATH, 'utf8');
+    const raw = await fs.readFile(filePath, 'utf8');
     return JSON.parse(raw);
   } catch {
     return null;
@@ -97,17 +93,73 @@ function compareAgainstBaseline(current, baseline) {
   return failures;
 }
 
-async function main() {
-  const shouldWrite = process.argv.includes('--write-baseline');
-  const current = await computeCounts();
+function compareAgainstTargets(current, targets) {
+  const failures = [];
+  const total = sumCounts(current);
 
-  if (shouldWrite) {
-    await writeBaseline(current);
-    console.log(`State mutation baseline written (${sumCounts(current)} total).`);
+  const totalMax = Number(targets?.totalMax);
+  if (Number.isFinite(totalMax) && total > totalMax) {
+    failures.push(`total: ${total} (target ${totalMax})`);
+  }
+
+  const defaultPerFileMax = Number(targets?.defaultPerFileMax);
+  const byFileMax = targets?.byFileMax || {};
+
+  for (const [file, count] of Object.entries(current)) {
+    const explicitMax = Number(byFileMax[file]);
+    const cap = Number.isFinite(explicitMax)
+      ? explicitMax
+      : (Number.isFinite(defaultPerFileMax) ? defaultPerFileMax : null);
+
+    if (cap !== null && count > cap) {
+      failures.push(`${file}: ${count} (target ${cap})`);
+    }
+  }
+
+  return failures;
+}
+
+async function main() {
+  const shouldWriteBaseline = process.argv.includes('--write-baseline');
+  const shouldWriteTargets = process.argv.includes('--write-targets');
+  const current = await computeCounts();
+  const total = sumCounts(current);
+
+  if (shouldWriteBaseline) {
+    await writeJson(BASELINE_PATH, {
+      generatedAt: new Date().toISOString(),
+      total,
+      byFile: current,
+    });
+    console.log(`State mutation baseline written (${total} total).`);
     return;
   }
 
-  const baseline = await readBaseline();
+  if (shouldWriteTargets) {
+    await writeJson(TARGETS_PATH, {
+      generatedAt: new Date().toISOString(),
+      totalMax: total,
+      defaultPerFileMax: null,
+      byFileMax: current,
+    });
+    console.log(`State mutation targets written (${total} total max).`);
+    return;
+  }
+
+  const targets = await readJson(TARGETS_PATH);
+  if (targets) {
+    const failures = compareAgainstTargets(current, targets);
+    if (failures.length > 0) {
+      console.error('State mutation target check failed:');
+      for (const line of failures) console.error(`- ${line}`);
+      process.exit(1);
+    }
+
+    console.log(`State mutation target check passed (${total} current, target ${targets.totalMax}).`);
+    return;
+  }
+
+  const baseline = await readJson(BASELINE_PATH);
   if (!baseline) {
     console.error(`Missing baseline: ${toPosix(path.relative(ROOT, BASELINE_PATH))}`);
     console.error('Run: node scripts/check-state-mutations.mjs --write-baseline');
@@ -121,11 +173,10 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`State mutation check passed (${sumCounts(current)} current, baseline ${baseline.total}).`);
+  console.log(`State mutation check passed (${total} current, baseline ${baseline.total}).`);
 }
 
 main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

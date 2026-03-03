@@ -25,9 +25,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
-      - run: npm run test
+      - run: npm run test:coverage
       - run: npm run build
       - run: npm run deps:map
+      - name: Check dependency map delta thresholds
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-dependency-delta-threshold.mjs --base-sha "${{ github.event.pull_request.base.sha }}"
       - name: Upload dependency map artifact
         uses: actions/upload-artifact@v4
         with:
