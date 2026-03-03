@@ -10,12 +10,14 @@ export const GAME = {
     Particle: null,
     Modules: {},
     API: {},
+    _depsBase: null,
 
     init(gs, data, audio, particle) {
         this.State = gs;
         this.Data = data;
         this.Audio = audio;
         this.Particle = particle;
+        this._depsBase = null;
 
         // Direct global pointers (Legacy Support)
         window.GS = gs;
@@ -28,27 +30,34 @@ export const GAME = {
 
     register(moduleName, moduleObj) {
         this.Modules[moduleName] = moduleObj;
+        this._depsBase = null;
         if (moduleObj && moduleObj.api) {
             Object.assign(this.API, moduleObj.api);
         }
     },
 
     getDeps() {
+        if (!this._depsBase) {
+            this._depsBase = {
+                gs: this.State,
+                State: this.State,
+                state: this.State,
+                data: this.Data,
+                Data: this.Data,
+                audio: this.Audio,
+                audioEngine: this.Audio,
+                particles: this.Particle,
+                particleSystem: this.Particle,
+                doc: document,
+                win: window,
+                api: this.API,
+                ...this.Modules,
+            };
+        }
+
         return {
-            gs: this.State,
-            State: this.State,
-            state: this.State,
-            data: this.Data,
-            Data: this.Data,
-            audio: this.Audio,
-            audioEngine: this.Audio,
-            particles: this.Particle,
-            particleSystem: this.Particle,
-            doc: document,
-            win: window,
-            api: this.API,
+            ...this._depsBase,
             runRules: window.RunRules || this.Modules['RunRules'],
-            ...this.Modules
         };
     },
 

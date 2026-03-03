@@ -78,10 +78,6 @@ export const GameInit = {
         });
         doc.getElementById('mainQuitBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); typeof quitGame === 'function' && quitGame(); });
 
-        doc.querySelectorAll('.class-btn').forEach(btn => {
-            btn.addEventListener('click', () => selectClass?.(btn));
-        });
-
         doc.getElementById('startBtn')?.addEventListener('click', () => startGame?.());
         doc.getElementById('backToTitleBtn')?.addEventListener('click', () => backToTitle?.());
 

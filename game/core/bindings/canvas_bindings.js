@@ -6,6 +6,8 @@
 import * as Deps from '../deps_factory.js';
 
 export function createCanvasBindings(M, fns) {
+    const requestAnimationFrameFn = window.requestAnimationFrame.bind(window);
+
     // ═══ Canvas ═══
     fns.initTitleCanvas = () => M.TitleCanvasUI?.init?.({ doc: document });
     fns.resizeTitleCanvas = () => M.TitleCanvasUI?.resize?.({ doc: document });
@@ -26,7 +28,7 @@ export function createCanvasBindings(M, fns) {
     fns.gameLoop = (timestamp) => {
         const deps = M.GAME.getDeps();
         deps.refs = { gameCanvas: M._canvasRefs?.gameCanvas, gameCtx: M._canvasRefs?.gameCtx };
-        deps.requestAnimationFrame = window.requestAnimationFrame.bind(window);
+        deps.requestAnimationFrame = requestAnimationFrameFn;
         deps.gameLoop = fns.gameLoop;
         deps.renderMinimap = fns.renderMinimap;
         deps.renderNodeInfo = fns.renderNodeInfo;
