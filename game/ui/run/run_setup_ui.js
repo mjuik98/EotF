@@ -1,3 +1,5 @@
+import { runIdempotent } from '../../utils/idempotency_utils.js';
+
 const CLASS_CONFIGS = {
   swordsman: { maxHp: 80, startEcho: 0 },
   mage: { maxHp: 50, startEcho: 0 },
@@ -73,10 +75,7 @@ export const RunSetupUI = {
   CLASS_START_ITEMS,
   startGame(deps = {}) {
     const selectedClass = deps.getSelectedClass?.();
-
-    if (!selectedClass) {
-      return;
-    }
+    if (!selectedClass) return;
 
     const gs = deps.gs;
     const data = deps.data;
@@ -89,14 +88,10 @@ export const RunSetupUI = {
         data: !!data,
         startDecks: !!data?.startDecks,
         runRules: !!runRules,
-        audioEngine: !!audioEngine
+        audioEngine: !!audioEngine,
       });
       return;
     }
-
-    audioEngine.init?.();
-    audioEngine.resume?.();
-    runRules.ensureMeta?.(gs.meta);
 
     const cfg = CLASS_CONFIGS[selectedClass];
     if (!cfg) {
@@ -104,77 +99,81 @@ export const RunSetupUI = {
       return;
     }
 
-    const inscriptions = gs.meta.inscriptions || {};
-    gs.runConfig = {
-      ascension: gs.meta.runConfig.ascension || 0,
-      endless: !!gs.meta.runConfig.endless,
-      endlessMode: !!gs.meta.runConfig.endless,
-      blessing: gs.meta.runConfig.blessing || 'none',
-      curse: gs.meta.runConfig.curse || 'none',
-      disabledInscriptions: gs.meta.runConfig.disabledInscriptions || [],
-    };
-    gs._runOutcomeCommitted = false;
+    return runIdempotent('run:start-game', () => {
+      audioEngine.init?.();
+      audioEngine.resume?.();
+      runRules.ensureMeta?.(gs.meta);
 
-    gs.player = {
-      class: selectedClass,
-      hp: cfg.maxHp,
-      maxHp: cfg.maxHp,
-      shield: 0,
-      echo: cfg.startEcho,
-      maxEcho: 100,
-      echoChain: 0,
-      energy: 3,
-      maxEnergy: 3,
-      gold: 10,
-      kills: 0,
-      deck: [...data.startDecks[selectedClass]],
-      hand: [],
-      graveyard: [],
-      exhausted: [],
-      items: [],
-      buffs: {},
-      silenceGauge: 0,
-      zeroCost: false,
-      _freeCardUses: 0,
-      costDiscount: 0,
-      _cascadeCards: new Map(),
-      _traitCardDiscounts: {},
-      _mageCastCounter: 0,
-      _mageLastDiscountTarget: null,
-      upgradedCards: new Set(),
-      _cardUpgradeBonus: {},
-    };
+      gs.runConfig = {
+        ascension: gs.meta.runConfig.ascension || 0,
+        endless: !!gs.meta.runConfig.endless,
+        endlessMode: !!gs.meta.runConfig.endless,
+        blessing: gs.meta.runConfig.blessing || 'none',
+        curse: gs.meta.runConfig.curse || 'none',
+        disabledInscriptions: gs.meta.runConfig.disabledInscriptions || [],
+      };
+      gs._runOutcomeCommitted = false;
 
-    if (!gs.meta.codex) gs.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
-    gs.player.deck.forEach(id => gs.meta.codex.cards.add(id));
+      gs.player = {
+        class: selectedClass,
+        hp: cfg.maxHp,
+        maxHp: cfg.maxHp,
+        shield: 0,
+        echo: cfg.startEcho,
+        maxEcho: 100,
+        echoChain: 0,
+        energy: 3,
+        maxEnergy: 3,
+        gold: 10,
+        kills: 0,
+        deck: [...data.startDecks[selectedClass]],
+        hand: [],
+        graveyard: [],
+        exhausted: [],
+        items: [],
+        buffs: {},
+        silenceGauge: 0,
+        zeroCost: false,
+        _freeCardUses: 0,
+        costDiscount: 0,
+        _cascadeCards: new Map(),
+        _traitCardDiscounts: {},
+        _mageCastCounter: 0,
+        _mageLastDiscountTarget: null,
+        upgradedCards: new Set(),
+        _cardUpgradeBonus: {},
+      };
 
-    const startItem = CLASS_START_ITEMS[selectedClass];
-    if (startItem) {
-      gs.player.items.push(startItem);
-      gs.meta.codex.items.add(startItem);
-    }
+      if (!gs.meta.codex) gs.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
+      gs.player.deck.forEach((id) => gs.meta.codex.cards.add(id));
 
-    _applyStartBonuses(gs, data);
-    runRules.applyRunStart?.(gs);
+      const startItem = CLASS_START_ITEMS[selectedClass];
+      if (startItem) {
+        gs.player.items.push(startItem);
+        gs.meta.codex.items.add(startItem);
+      }
 
-    if (typeof deps.shuffleArray === 'function') deps.shuffleArray(gs.player.deck);
-    gs.currentRegion = 0;
-    gs.currentFloor = 0;
-    gs.mapNodes = [];
-    gs.currentNode = null;
-    gs.visitedNodes = new Set();
-    gs.worldMemory = { ...gs.meta.worldMemory };
-    gs.stats = { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 };
-    gs.combat = { active: false, enemies: [], turn: 0, playerTurn: true, log: [] };
-    gs._heartUsed = false;
-    gs._temporalTurn = 0;
-    gs._bossAdvancePending = false;
+      _applyStartBonuses(gs, data);
+      runRules.applyRunStart?.(gs);
 
-    if (typeof deps.resetDeckModalFilter === 'function') deps.resetDeckModalFilter();
-    if (typeof deps.enterRun === 'function') deps.enterRun();
+      if (typeof deps.shuffleArray === 'function') deps.shuffleArray(gs.player.deck);
+      gs.currentRegion = 0;
+      gs.currentFloor = 0;
+      gs.mapNodes = [];
+      gs.currentNode = null;
+      gs.visitedNodes = new Set();
+      gs.worldMemory = { ...gs.meta.worldMemory };
+      gs.stats = { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 };
+      gs.combat = { active: false, enemies: [], turn: 0, playerTurn: true, log: [] };
+      gs._heartUsed = false;
+      gs._temporalTurn = 0;
+      gs._bossAdvancePending = false;
 
-    // 게임 시작 직후 HUD 즉시 갱신 (초기 상태와의 불일치 방지)
-    if (typeof deps.updateUI === 'function') deps.updateUI();
-    gs.markDirty('hud');
+      if (typeof deps.resetDeckModalFilter === 'function') deps.resetDeckModalFilter();
+      if (typeof deps.enterRun === 'function') deps.enterRun();
+
+      if (typeof deps.updateUI === 'function') deps.updateUI();
+      gs.markDirty('hud');
+    }, { ttlMs: 2500 });
   },
 };

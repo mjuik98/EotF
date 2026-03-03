@@ -7,11 +7,18 @@ on:
       - master
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -20,4 +27,49 @@ jobs:
       - run: npm run lint
       - run: npm run test
       - run: npm run build
-
+      - run: npm run deps:map
+      - name: Upload dependency map artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-map-${{ github.run_id }}
+          path: |
+            docs/metrics/dependency_map.json
+            docs/metrics/dependency_map.md
+      - name: Build dependency map PR summary
+        if: github.event_name == 'pull_request'
+        run: node scripts/ci/dependency-map-pr-summary.mjs --base-sha "${{ github.event.pull_request.base.sha }}" --output .github/depmap-summary.md
+      - name: Comment dependency map PR summary
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const marker = '<!-- dependency-map-summary -->';
+            const body = fs.readFileSync('.github/depmap-summary.md', 'utf8');
+            const issue_number = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) =>
+              comment.user?.type === 'Bot' && comment.body?.includes(marker)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }

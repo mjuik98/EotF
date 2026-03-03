@@ -2,6 +2,7 @@ import { normalizeEventPayload, validateEventPayload } from './event_contracts.j
 import { AppConfig } from './app_config.js';
 import { ErrorCodes, ErrorSeverity } from './error_codes.js';
 import { reportError } from './error_reporter.js';
+import { recordRuntimeEvent } from './runtime_metrics.js';
 import { Logger } from '../utils/logger.js';
 
 class GameEventBus {
@@ -83,6 +84,7 @@ class GameEventBus {
       Logger.debug(`[EventBus] ${event}`, normalized);
     }
 
+    recordRuntimeEvent(event);
     this._history.push({ event, data: normalized, timestamp: Date.now() });
     if (this._history.length > this._historyMax) this._history.shift();
 

@@ -1,3 +1,5 @@
+import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
+
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -14,6 +16,9 @@ function _getAudioEngine(deps) {
   return deps?.audioEngine || globalThis.AudioEngine;
 }
 
+const REWARD_CLAIM_KEY = 'reward:claim';
+const REWARD_SKIP_KEY = 'reward:skip';
+
 export const RewardUI = {
   showRewardScreen(isBoss, deps = {}) {
     const gs = _getGS(deps);
@@ -25,6 +30,7 @@ export const RewardUI = {
     }
 
     gs._rewardLock = false;
+    clearIdempotencyPrefix('reward:');
     this.hideSkipConfirm(deps);
 
     const doc = _getDoc(deps);
@@ -318,61 +324,64 @@ export const RewardUI = {
     const gs = _getGS(deps);
     const data = _getData(deps);
     if (!gs || !data) return;
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
+    return runIdempotent(REWARD_CLAIM_KEY, () => {
+      if (gs._rewardLock) return;
+      gs._rewardLock = true;
 
-    const doc = _getDoc(deps);
-    const container = doc.getElementById('rewardCards');
-    if (container) {
-      const wrappers = container.querySelectorAll('.reward-card-wrapper');
-      wrappers.forEach(wrapper => {
-        // Note: we can't reliably check the onclick content anymore, 
-        // but we can store the selection state in the closure or a data attribute.
-        // For simplicity, we just mark the parent container as picked.
-      });
-      container.classList.add('picked');
-    }
+      const doc = _getDoc(deps);
+      const container = doc.getElementById('rewardCards');
+      if (container) {
+        const wrappers = container.querySelectorAll('.reward-card-wrapper');
+        wrappers.forEach(() => {
+          // Keep current behavior: mark container as picked.
+        });
+        container.classList.add('picked');
+      }
 
-    gs.player.deck.unshift(cardId);
-    if (gs.meta.codex) gs.meta.codex.cards.add(cardId);
-    const card = data.cards[cardId];
-    if (typeof deps.playItemGet === 'function') deps.playItemGet();
-    if (typeof deps.showItemToast === 'function') {
-      deps.showItemToast({ name: card?.name, icon: card?.icon, desc: card?.desc });
-    }
-    if (typeof deps.returnToGame === 'function') {
-      setTimeout(() => deps.returnToGame(true), 350);
-    }
+      gs.player.deck.unshift(cardId);
+      if (gs.meta.codex) gs.meta.codex.cards.add(cardId);
+      const card = data.cards[cardId];
+      if (typeof deps.playItemGet === 'function') deps.playItemGet();
+      if (typeof deps.showItemToast === 'function') {
+        deps.showItemToast({ name: card?.name, icon: card?.icon, desc: card?.desc });
+      }
+      if (typeof deps.returnToGame === 'function') {
+        setTimeout(() => deps.returnToGame(true), 350);
+      }
+    }, { ttlMs: 3000 });
   },
 
   takeRewardItem(itemKey, deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);
     if (!gs || !data) return;
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
+    return runIdempotent(REWARD_CLAIM_KEY, () => {
+      if (gs._rewardLock) return;
+      gs._rewardLock = true;
 
-    const doc = _getDoc(deps);
-    const container = doc.getElementById('rewardCards');
-    if (container) {
-      container.classList.add('picked');
-    }
+      const doc = _getDoc(deps);
+      const container = doc.getElementById('rewardCards');
+      if (container) {
+        container.classList.add('picked');
+      }
 
-    gs.player.items.push(itemKey);
-    if (gs.meta.codex) gs.meta.codex.items.add(itemKey);
-    const item = data.items[itemKey];
-    if (typeof deps.playItemGet === 'function') deps.playItemGet();
-    if (typeof deps.showItemToast === 'function') deps.showItemToast(item);
-    if (typeof deps.returnToGame === 'function') {
-      setTimeout(() => deps.returnToGame(true), 350);
-    }
+      gs.player.items.push(itemKey);
+      if (gs.meta.codex) gs.meta.codex.items.add(itemKey);
+      const item = data.items[itemKey];
+      if (typeof deps.playItemGet === 'function') deps.playItemGet();
+      if (typeof deps.showItemToast === 'function') deps.showItemToast(item);
+      if (typeof deps.returnToGame === 'function') {
+        setTimeout(() => deps.returnToGame(true), 350);
+      }
+    }, { ttlMs: 3000 });
   },
 
   takeRewardUpgrade(deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);
     if (!gs || !data) return;
-    if (gs._rewardLock) return;
+    return runIdempotent(REWARD_CLAIM_KEY, () => {
+      if (gs._rewardLock) return;
 
     const upgradable = gs.player.deck.filter(id => data.upgradeMap[id]);
     if (upgradable.length > 0) {
@@ -395,14 +404,16 @@ export const RewardUI = {
       _getAudioEngine(deps)?.playHit?.();
       return;
     }
+    }, { ttlMs: 3000 });
   },
 
   takeRewardRemove(deps = {}) {
     const gs = _getGS(deps);
     if (!gs) return;
-    if (gs._rewardLock) return;
+    return runIdempotent(REWARD_CLAIM_KEY, () => {
+      if (gs._rewardLock) return;
 
-    gs._rewardLock = true;
+      gs._rewardLock = true;
     const doc = _getDoc(deps);
     const container = doc.getElementById('rewardCards');
     if (container) container.classList.add('picked');
@@ -415,6 +426,7 @@ export const RewardUI = {
         ...deps,
         onCancel: () => {
           gs._rewardLock = false;
+          clearIdempotencyKey(REWARD_CLAIM_KEY);
           container?.classList.remove('picked');
         },
         returnToGame: (force) => {
@@ -424,6 +436,7 @@ export const RewardUI = {
     } else {
       if (typeof deps.returnToGame === 'function') deps.returnToGame(true);
     }
+    }, { ttlMs: 3000 });
   },
 
   showSkipConfirm(deps = {}) {
@@ -445,8 +458,10 @@ export const RewardUI = {
   skipReward(deps = {}) {
     const gs = _getGS(deps);
     if (!gs) return;
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
-    if (typeof deps.returnToGame === 'function') deps.returnToGame(true);
+    return runIdempotent(REWARD_SKIP_KEY, () => {
+      if (gs._rewardLock) return;
+      gs._rewardLock = true;
+      if (typeof deps.returnToGame === 'function') deps.returnToGame(true);
+    }, { ttlMs: 3000 });
   },
 };

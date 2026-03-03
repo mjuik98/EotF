@@ -12,6 +12,7 @@
  * - bindings/title_settings_bindings.js:  Title + Help + Sound + Utility
  */
 import * as Deps from './deps_factory.js';
+import { getRuntimeMetrics, resetRuntimeMetrics } from './runtime_metrics.js';
 import { createCanvasBindings } from './bindings/canvas_bindings.js';
 import { createCombatBindings } from './bindings/combat_bindings.js';
 import { createEventRewardBindings } from './bindings/event_reward_bindings.js';
@@ -102,6 +103,10 @@ function registerGameAPI(fns) {
         getBaseRegionIndex: M.getBaseRegionIndex, getRegionCount: M.getRegionCount,
         ClassMechanics: M.ClassMechanics, SetBonusSystem: M.SetBonusSystem,
         SaveSystem: M.SaveSystem, CardCostUtils: M.CardCostUtils,
+        getSaveOutboxMetrics: () => M.SaveSystem?.getOutboxMetrics?.() || null,
+        flushSaveOutbox: () => M.SaveSystem?.flushOutbox?.() || 0,
+        getRuntimeMetrics: (options) => getRuntimeMetrics(options),
+        resetRuntimeMetrics: () => resetRuntimeMetrics(),
         // UI
         updateUI: () => M.HudUpdateUI?.updateUI?.(Deps.getHudUpdateDeps()),
         updateCombatLog: fns.updateCombatLog,

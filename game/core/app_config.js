@@ -5,6 +5,8 @@ const DEFAULT_CONFIG = Object.freeze({
   eventHistoryMax: 100,
   eventDedupeWindowMs: 350,
   strictEventContracts: true,
+  metricsWindowMinutes: 15,
+  metricsTopN: 10,
 });
 
 function readViteEnv() {
@@ -62,6 +64,18 @@ function resolveConfig() {
       typeof winCfg.strictEventContracts === 'boolean'
         ? winCfg.strictEventContracts
         : DEFAULT_CONFIG.strictEventContracts,
+    metricsWindowMinutes: clampNumber(
+      winCfg.metricsWindowMinutes,
+      DEFAULT_CONFIG.metricsWindowMinutes,
+      1,
+      240,
+    ),
+    metricsTopN: clampNumber(
+      winCfg.metricsTopN,
+      DEFAULT_CONFIG.metricsTopN,
+      1,
+      50,
+    ),
   });
 }
 

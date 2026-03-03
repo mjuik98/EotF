@@ -52,6 +52,7 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   - `scripts/check-state-mutations.mjs`
   - `scripts/check-event-contracts.mjs`
   - `scripts/check-import-coupling.mjs`
+  - `scripts/check-content-data.mjs`
 - `npm run deps:map`
   - writes `docs/metrics/dependency_map.json`
   - writes `docs/metrics/dependency_map.md`
@@ -63,4 +64,5 @@ When a deliberate architectural expansion is approved, update baselines in the s
 - `node scripts/check-window-usage.mjs --write-baseline`
 - `node scripts/check-state-mutations.mjs --write-baseline`
 - `node scripts/check-import-coupling.mjs --write-baseline`
+- `node scripts/check-content-data.mjs --write-baseline`
 - `npm run deps:map`

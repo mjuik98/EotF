@@ -6,12 +6,13 @@ This document defines the implementation path for scaling architecture work.
 
 Implemented:
 - Dependency contracts in `game/core/deps_factory.js`
+- Dependency contract builders split by domain (`game/core/deps/contracts/*`)
 - Layer policy in `docs/architecture_policy.json`
 - Architecture gate in `scripts/check-architecture.mjs`
 - Dependency visibility report in `docs/metrics/dependency_map.md`
+- Composition registry split from entrypoint (`game/core/bindings/module_registry.js`)
 
 Next:
-- Reduce `game/core/main.js` fan-out by introducing per-domain composition modules
 - Split large `game/core/game_state_core_methods.js` into domain files
 
 ## 2) Separation (Layering)
@@ -30,10 +31,12 @@ Implemented:
 - Event normalization and contract validation in `game/core/event_contracts.js`
 - Event dedupe window support in `game/core/event_bus.js`
 - Dispatch correlation fields (`dispatchId`, `ts`) emitted from `GS.dispatch`
+- Idempotency guard for high-risk UI actions (`run:start-game`, `run:enter-run`, reward claims, event resolves)
+- Retry-safe persistence outbox with exponential backoff in `game/systems/save_system.js`
+- Outbox telemetry (`queueDepth`, retry/success/failure counters) via `SaveSystem.getOutboxMetrics()`
 
 Next:
-- Add idempotency keys to high-risk UI actions
-- Add retry-safe outbox flow for persistence side effects
+- Add top action-frequency and error-rate trend counters to runtime metrics
 
 ## 4) Standardization
 
@@ -50,17 +53,20 @@ Next:
 ## 5) CI and Contract Gates
 
 Implemented:
-- `npm run lint` now checks architecture, state mutation growth, window usage growth, event contract integrity, and import coupling growth.
+- `npm run lint` now checks architecture, state mutation growth, window usage growth, event contract integrity, import coupling growth, and content-data integrity.
 - Existing `quality-gate` workflow already runs `lint`, `test`, and `build`.
+- `quality-gate` uploads dependency-map artifacts (`dependency_map.json`, `dependency_map.md`) for each run.
+- `quality-gate` posts/updates PR dependency-map diff summary comments.
 
 Next:
-- Add a CI job artifact upload for dependency map diff
+- Add threshold-based failure rule when dependency-map deltas exceed agreed limits
 
 ## 6) Operational Metrics
 
 Implemented:
 - Import coupling baseline: `docs/metrics/import_coupling_baseline.json`
 - Dependency graph export: `docs/metrics/dependency_map.json`
+- Runtime metrics for action frequency and error-rate trend in `game/core/runtime_metrics.js`
 
 Next:
-- Add runtime event counters for top action frequency and error-rate trend
+- Add periodic metrics snapshot logging/export for long-run balancing analysis

@@ -4,9 +4,15 @@
  * EventManager에서 이벤트 데이터/로직 결과를 받아 DOM만 업데이트합니다.
  */
 import { EventManager } from '../../systems/event_manager.js';
+import { clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
 
 let _currentEvent = null;
+
+function _getEventId(event) {
+  if (!event || typeof event !== 'object') return 'unknown';
+  return event.id || event.key || event.title || 'unknown';
+}
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -74,6 +80,7 @@ export const EventUI = {
     const doc = _getDoc(deps);
     _currentEvent = event;
     gs._eventLock = false;
+    clearIdempotencyPrefix('event:resolve:');
 
     const eyebrowEl = doc.getElementById('eventEyebrow');
     const titleEl = doc.getElementById('eventTitle');
@@ -108,64 +115,34 @@ export const EventUI = {
     if (!event) return;
     if (!event.persistent && gs._eventLock) return;
 
-    const doc = _getDoc(deps);
-    gs._eventLock = true;
+    const eventId = _getEventId(event);
+    const guardKey = `event:resolve:${eventId}:${choiceIdx}`;
+    return runIdempotent(guardKey, () => {
+      const doc = _getDoc(deps);
+      gs._eventLock = true;
 
-    let resolution = null;
-    try {
-      resolution = EventManager.resolveEventChoice(gs, event, choiceIdx);
-    } catch (err) {
-      console.error('[resolveEvent] choice effect error:', err);
-      gs._eventLock = false;
-      deps.audioEngine?.playHit?.();
-      return;
-    }
+      let resolution = null;
+      try {
+        resolution = EventManager.resolveEventChoice(gs, event, choiceIdx);
+      } catch (err) {
+        console.error('[resolveEvent] choice effect error:', err);
+        gs._eventLock = false;
+        deps.audioEngine?.playHit?.();
+        return;
+      }
 
-    const { resultText, isFail, shouldClose, isItemShop } = resolution || {};
+      const { resultText, isFail, shouldClose, isItemShop } = resolution || {};
 
-    if (typeof deps.updateUI === 'function') deps.updateUI();
-    this.updateEventGoldBar(deps);
-
-    if (isItemShop) {
-      // Item shop overlay can close without purchase, so keep event choices interactive.
-      gs._eventLock = false;
-      return;
-    }
-
-    if (!resultText) {
-      doc.getElementById('eventModal')?.classList.remove('active');
-      _currentEvent = null;
-      gs._eventLock = false;
-      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       if (typeof deps.updateUI === 'function') deps.updateUI();
-      if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
-      if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-      return;
-    }
-
-    const descEl = doc.getElementById('eventDesc');
-    if (descEl) descEl.textContent = resultText;
-
-    if (event.persistent || isFail) {
-      _renderChoices(event, doc, deps);
       this.updateEventGoldBar(deps);
-      gs._eventLock = false;
-      return;
-    }
 
-    if (!shouldClose) {
-      gs._eventLock = false;
-      return;
-    }
+      if (isItemShop) {
+        // Item shop overlay can close without purchase, so keep event choices interactive.
+        gs._eventLock = false;
+        return;
+      }
 
-    const choicesEl = doc.getElementById('eventChoices');
-    if (choicesEl) {
-      choicesEl.textContent = '';
-      const continueBtn = doc.createElement('div');
-      continueBtn.className = 'event-choice';
-      continueBtn.id = 'eventChoiceContinue';
-      continueBtn.textContent = '\uACC4\uC18D';
-      continueBtn.addEventListener('click', () => {
+      if (!resultText) {
         doc.getElementById('eventModal')?.classList.remove('active');
         _currentEvent = null;
         gs._eventLock = false;
@@ -173,9 +150,43 @@ export const EventUI = {
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
         if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
-      }, { once: true });
-      choicesEl.appendChild(continueBtn);
-    }
+        return;
+      }
+
+      const descEl = doc.getElementById('eventDesc');
+      if (descEl) descEl.textContent = resultText;
+
+      if (event.persistent || isFail) {
+        _renderChoices(event, doc, deps);
+        this.updateEventGoldBar(deps);
+        gs._eventLock = false;
+        return;
+      }
+
+      if (!shouldClose) {
+        gs._eventLock = false;
+        return;
+      }
+
+      const choicesEl = doc.getElementById('eventChoices');
+      if (choicesEl) {
+        choicesEl.textContent = '';
+        const continueBtn = doc.createElement('div');
+        continueBtn.className = 'event-choice';
+        continueBtn.id = 'eventChoiceContinue';
+        continueBtn.textContent = '\uACC4\uC18D';
+        continueBtn.addEventListener('click', () => {
+          doc.getElementById('eventModal')?.classList.remove('active');
+          _currentEvent = null;
+          gs._eventLock = false;
+          if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
+          if (typeof deps.updateUI === 'function') deps.updateUI();
+          if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
+          if (typeof deps.updateNextNodes === 'function') deps.updateNextNodes();
+        }, { once: true });
+        choicesEl.appendChild(continueBtn);
+      }
+    }, { ttlMs: 800 });
   },
   showShop(deps = {}) {
     const gs = _getGS(deps);

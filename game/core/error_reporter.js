@@ -1,5 +1,6 @@
 import { Logger } from '../utils/logger.js';
 import { ErrorCodes, ErrorSeverity } from './error_codes.js';
+import { recordRuntimeError } from './runtime_metrics.js';
 
 export class AppError extends Error {
   constructor(code, message, options = {}) {
@@ -33,6 +34,7 @@ export function toAppError(input, options = {}) {
 
 export function reportError(input, options = {}) {
   const appError = toAppError(input, options);
+  recordRuntimeError(appError.code);
   const logPayload = {
     code: appError.code,
     context: appError.context,
