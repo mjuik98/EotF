@@ -28,9 +28,12 @@ export const GS = {
     },
     currentRegion: 0, currentFloor: 1,
     regionFloors: {},
+    regionRoute: {},
     mapNodes: [], currentNode: null, visitedNodes: new Set(),
     combat: { active: false, enemies: [], turn: 0, playerTurn: true, log: [] },
     _selectedTarget: null,
+    _activeRegionId: null,
+    _stagnationVault: [],
     worldMemory: {},
 
     // ─── runConfig accessor ───

@@ -52,6 +52,9 @@ export const DeathHandler = {
         if (enemy.isBoss) {
             this.combat.bossDefeated = true;
         }
+        if (enemy.isMiniBoss) {
+            this.combat.miniBossDefeated = true;
+        }
 
         const goldGained = enemy.gold || 10;
         this.addGold(goldGained, deps);

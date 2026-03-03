@@ -26,6 +26,44 @@ function _ensureCodexEnemySet(gs) {
     return codex.enemies;
 }
 
+function _applyAbyssEmpowerment(enemy) {
+    if (!enemy) return null;
+    const roll = Math.floor(Math.random() * 4);
+    enemy.statusEffects = enemy.statusEffects || {};
+
+    if (roll === 0) {
+        enemy.shield = (enemy.shield || 0) + 20;
+        return 'shield';
+    }
+    if (roll === 1) {
+        enemy.atk = Math.max(1, Math.ceil((enemy.atk || 1) * 1.3));
+        return 'atk';
+    }
+    if (roll === 2) {
+        enemy.statusEffects.abyss_regen = 5;
+        return 'regen';
+    }
+    enemy.statusEffects.draw_block = 1;
+    return 'draw_block';
+}
+
+function _applyAbyssRegionBuffs(gs, region) {
+    if (!gs || !region || Number(region.id) !== 6) return;
+    const labelByBuff = {
+        shield: 'Abyss Buff: Shield +20',
+        atk: 'Abyss Buff: Attack +30%',
+        regen: 'Abyss Buff: Regen 5/turn',
+        draw_block: 'Abyss Buff: Draw interference',
+    };
+    gs.combat.enemies.forEach((enemy) => {
+        if (!enemy || enemy.hp <= 0) return;
+        const buffKey = _applyAbyssEmpowerment(enemy);
+        if (buffKey && typeof gs.addLog === 'function') {
+            gs.addLog(`${enemy.name} ${labelByBuff[buffKey] || 'Abyss Buff'}`, 'system');
+        }
+    });
+}
+
 export const CombatInitializer = {
     /**
      * 전투 상태 리셋
@@ -62,6 +100,7 @@ export const CombatInitializer = {
         player._mageCastCounter = 0;
         player._mageLastDiscountTarget = null;
         combat.bossDefeated = false;
+        combat.miniBossDefeated = false;
         gs._endCombatScheduled = false;
         gs._endCombatRunning = false;
         gs._selectedTarget = null;
@@ -73,7 +112,7 @@ export const CombatInitializer = {
     /**
      * 적 스폰 (보스/정예/일반)
      */
-    spawnEnemies(gs, data, isBoss, {
+    spawnEnemies(gs, data, mode, {
         getRegionData,
         getBaseRegionIndex,
         getRegionCount,
@@ -83,6 +122,11 @@ export const CombatInitializer = {
         if (!region) return { spawnedKeys: [], isHiddenBoss: false };
 
         const spawnedKeys = [];
+        const combatMode = mode === true
+            ? 'boss'
+            : (mode === false ? 'normal' : (typeof mode === 'string' ? mode : 'normal'));
+        const isBoss = combatMode === 'boss';
+        const isMiniBoss = combatMode === 'mini_boss';
 
         if (isBoss) {
             const isHiddenEligible = _isLastBaseRegion(gs, getBaseRegionIndex, getRegionCount)
@@ -104,6 +148,16 @@ export const CombatInitializer = {
             spawnedKeys.push(bossKey);
 
             gs.triggerItems?.('boss_start');
+        } else if (isMiniBoss) {
+            const miniBossPool = Array.isArray(region.miniBoss) && region.miniBoss.length > 0
+                ? region.miniBoss
+                : (Array.isArray(region.elites) && region.elites.length > 0
+                    ? region.elites
+                    : (Array.isArray(region.boss) && region.boss.length > 0 ? region.boss : ['ancient_echo']));
+            const miniBossKey = miniBossPool[Math.floor(Math.random() * miniBossPool.length)];
+            const miniBossData = data.enemies[miniBossKey] || data.enemies.ancient_echo;
+            _spawnScaledEnemy(gs, miniBossData, difficultyScaler, { phase: 1, isMiniBoss: true, isBoss: false });
+            spawnedKeys.push(miniBossKey);
         } else {
             const isEliteNode = gs.currentNode?.type === 'elite';
             if (isEliteNode && region.elites?.length) {
@@ -137,6 +191,8 @@ export const CombatInitializer = {
                 }
             }
         }
+
+        _applyAbyssRegionBuffs(gs, region);
 
         const codexEnemySet = _ensureCodexEnemySet(gs);
         if (codexEnemySet) {

@@ -288,6 +288,8 @@ export const SaveSystem = {
         },
         currentRegion: gs.currentRegion,
         currentFloor: gs.currentFloor,
+        regionFloors: gs.regionFloors || {},
+        regionRoute: gs.regionRoute || {},
         mapNodes: gs.mapNodes || null,
         visitedNodes: gs.visitedNodes ? Array.from(gs.visitedNodes) : [],
         currentNode: gs.currentNode !== undefined ? gs.currentNode : null,
@@ -329,6 +331,12 @@ export const SaveSystem = {
       const loadedFloor = Number(data.currentFloor);
       gs.currentRegion = Number.isFinite(loadedRegion) ? loadedRegion : 0;
       gs.currentFloor = Number.isFinite(loadedFloor) ? loadedFloor : 1;
+      gs.regionFloors = (data.regionFloors && typeof data.regionFloors === 'object' && !Array.isArray(data.regionFloors))
+        ? data.regionFloors
+        : {};
+      gs.regionRoute = (data.regionRoute && typeof data.regionRoute === 'object' && !Array.isArray(data.regionRoute))
+        ? data.regionRoute
+        : {};
       gs.stats = data.stats || gs.stats;
       gs.worldMemory = data.worldMemory || gs.worldMemory;
 

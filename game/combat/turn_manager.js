@@ -367,6 +367,14 @@ export const TurnManager = {
                 if (enemyDied) return;
             }
 
+            if (se.abyss_regen > 0) {
+                const heal = Math.max(0, Math.floor(Number(se.abyss_regen) || 0));
+                if (heal > 0) {
+                    enemy.hp = Math.min(enemy.maxHp || enemy.hp, (enemy.hp || 0) + heal);
+                    gs.addLog?.(LogUtils.formatHeal(enemy.name, heal), 'heal');
+                }
+            }
+
             if (se.marked !== undefined) {
                 se.marked--;
                 if (se.marked <= 0) {
@@ -580,7 +588,14 @@ export const TurnManager = {
             gs.addLog?.(LogUtils.formatStatChange('플레이어', '최대 에코', -5, false), 'damage');
         }
 
-        gs.drawCards(5);
+        const drawBlocked = gs.combat.enemies.some(
+            (enemy) => enemy.hp > 0 && (enemy.statusEffects?.draw_block || 0) > 0,
+        );
+        const drawCount = drawBlocked ? 4 : 5;
+        if (drawBlocked) {
+            gs.addLog?.(LogUtils.formatSystem('Abyss interference: draw -1 this turn.'), 'damage');
+        }
+        gs.drawCards(drawCount);
 
         // 에너지 버프 처리
         Object.keys(gs.player.buffs || {}).forEach(buffId => {

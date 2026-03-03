@@ -29,8 +29,16 @@ export const CombatLifecycle = {
         const combatState = this.combat;
         const preEndEnemies = Array.isArray(combatState?.enemies) ? [...combatState.enemies] : [];
         const isBoss = !!combatState?.bossDefeated || preEndEnemies.some(e => e?.isBoss);
+        const isMiniBoss = !!combatState?.miniBossDefeated
+            || preEndEnemies.some(e => e?.isMiniBoss)
+            || this.currentNode?.type === 'mini_boss';
         const regionIdx = this.currentRegion;
         const isLastRegion = getBaseRegionIndex(regionIdx) === Math.max(0, getRegionCount() - 1);
+
+        // Capture combat summary stats BEFORE dispatch resets them
+        const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
+        const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
+        const combatKills = this.player.kills - (this._combatStartKills || 0);
 
         try {
             this.dispatch(Actions.COMBAT_END, { victory: true });
@@ -68,10 +76,8 @@ export const CombatLifecycle = {
 
             const AudioEngine = deps.audioEngine || win.AudioEngine;
             AudioEngine?.playItemGet?.();
-            const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
-            const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
             const showCombatSummary = deps.showCombatSummary || win.showCombatSummary;
-            if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, this.player.kills - (this._combatStartKills || 0));
+            if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, combatKills);
 
             if (isBoss) {
                 this._bossRewardPending = true;
@@ -98,7 +104,8 @@ export const CombatLifecycle = {
             this.combat.active = false;
             const showRewardScreen = deps.showRewardScreen || win.showRewardScreen;
             if (typeof showRewardScreen === 'function') {
-                showRewardScreen(isBoss);
+                const rewardMode = isBoss ? 'boss' : (isMiniBoss ? 'mini_boss' : false);
+                showRewardScreen(rewardMode);
             }
         } catch (e) {
             console.error('[endCombat] Error:', e);

@@ -13,7 +13,7 @@ function _getDoc(deps) {
 }
 
 export const CombatStartUI = {
-  startCombat(isBoss = false, deps = {}) {
+  startCombat(mode = 'normal', deps = {}) {
     const gs = deps.gs;
     const data = deps.data;
     const getRegionData = deps.getRegionData || globalThis.getRegionData;
@@ -29,7 +29,15 @@ export const CombatStartUI = {
       return;
     }
 
+    const combatMode = mode === true
+      ? 'boss'
+      : (mode === false ? 'normal' : (typeof mode === 'string' ? mode : 'normal'));
+    const isBoss = combatMode === 'boss';
+    const isMiniBoss = combatMode === 'mini_boss';
+
     const doc = _getDoc(deps);
+    const region = getRegionData(gs.currentRegion, gs);
+    gs._activeRegionId = Number.isFinite(Number(region?.id)) ? Number(region.id) : null;
 
     // ?? 濡쒖쭅: ?곹깭 由ъ뀑 ??
     CombatInitializer.resetCombatState(gs);
@@ -42,7 +50,7 @@ export const CombatStartUI = {
     gs.addLog?.(`── 턴 ${gs.combat.turn} ──`, 'turn-divider');
 
     // ?? 濡쒖쭅: ???ㅽ룿 ??
-    const spawnResult = CombatInitializer.spawnEnemies(gs, data, isBoss, {
+    const spawnResult = CombatInitializer.spawnEnemies(gs, data, combatMode, {
       getRegionData,
       getBaseRegionIndex,
       getRegionCount,
@@ -55,6 +63,8 @@ export const CombatStartUI = {
       if (spawnResult.isHiddenBoss && typeof deps.showWorldMemoryNotice === 'function') {
         setTimeout(() => deps.showWorldMemoryNotice('⚠️ 봉인된 심연이 깨어난다! 근원의 잔향이 모습을 드러낸다!'), 600);
       }
+    } else if (isMiniBoss) {
+      audioEngine?.playBossPhase?.();
     }
 
     // ?? 濡쒖쭅: 吏???붾쾭????
@@ -116,7 +126,7 @@ export const CombatStartUI = {
       });
     }
 
-    if (isBoss) {
+    if (isBoss || isMiniBoss) {
       const bossName = gs.combat.enemies[0]?.name ?? 'BOSS';
       deps.screenShake?.shake?.(20, 1.2);
 
@@ -125,7 +135,7 @@ export const CombatStartUI = {
 
       const sub = doc.createElement('div');
       sub.className = 'boss-encounter-sub';
-      sub.textContent = 'BOSS ENCOUNTER';
+      sub.textContent = isMiniBoss ? 'MINI BOSS' : 'BOSS ENCOUNTER';
 
       const name = doc.createElement('div');
       name.className = 'boss-encounter-name';

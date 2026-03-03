@@ -27,7 +27,7 @@ export const MapNavigationUI = {
       gs.currentNode = node;
       const prevFloor = gs.currentFloor;
       gs.currentFloor = node.floor;
-      const isCombatNode = node.type === 'combat' || node.type === 'elite' || node.type === 'boss';
+      const isCombatNode = node.type === 'combat' || node.type === 'elite' || node.type === 'mini_boss' || node.type === 'boss';
       if (gs.currentFloor !== prevFloor) {
         gs.triggerItems?.(Trigger.FLOOR_START, { floor: gs.currentFloor });
       }
@@ -48,9 +48,10 @@ export const MapNavigationUI = {
         try {
           if (!isCombatNode) deps.updateNextNodes?.();
           const NODE_HANDLERS = {
-            combat: (d) => d.startCombat?.(false),
-            elite: (d) => d.startCombat?.(false),
-            boss: (d) => d.startCombat?.(true),
+            combat: (d) => d.startCombat?.('normal'),
+            elite: (d) => d.startCombat?.('normal'),
+            mini_boss: (d) => d.startCombat?.('mini_boss'),
+            boss: (d) => d.startCombat?.('boss'),
             event: (d) => d.triggerRandomEvent?.(),
             shop: (d) => d.showShop?.(),
             rest: (d) => d.showRestSite?.(),

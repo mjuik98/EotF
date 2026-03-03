@@ -4,6 +4,7 @@ import { GS } from '../../core/game_state.js';
 const NODE_TYPE_CONFIG = {
   combat: { color: '#ff3366', icon: 'C' },
   elite: { color: '#f0b429', icon: 'E' },
+  mini_boss: { color: '#ff6600', icon: 'M' },
   boss: { color: '#7b2fff', icon: 'B' },
   event: { color: '#00ffcc', icon: '?' },
   shop: { color: '#f0b429', icon: '$' },
@@ -12,7 +13,7 @@ const NODE_TYPE_CONFIG = {
 
 const MINIMAP_HOVER_THRESHOLD = 12;
 const FULL_MAP_HOVER_THRESHOLD = 18;
-const NODE_TYPE_ORDER = ['combat', 'elite', 'boss', 'event', 'shop', 'rest'];
+const NODE_TYPE_ORDER = ['combat', 'elite', 'mini_boss', 'boss', 'event', 'shop', 'rest'];
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -194,7 +195,7 @@ export const MapUI = {
     gs.mapNodes.forEach(node => {
       const nx = w * (node.pos + 1) / (node.total + 1);
       const ny = h - 10 - floorH * node.floor;
-      const r = node.type === 'boss' ? 8 : 5;
+      const r = node.type === 'boss' ? 8 : (node.type === 'mini_boss' ? 7 : 5);
       const isCurrent = gs.currentNode?.id === node.id;
       nodeEntries.push({ node, x: nx, y: ny });
 
@@ -539,6 +540,7 @@ export const MapUI = {
 
         let radius = 16;
         if (node.type === 'boss') radius = 25;
+        else if (node.type === 'mini_boss') radius = 22;
         else if (node.type === 'elite') radius = 20;
 
         if (isPlayerAt) {

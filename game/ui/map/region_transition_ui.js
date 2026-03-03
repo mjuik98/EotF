@@ -14,7 +14,20 @@ export const RegionTransitionUI = {
       return;
     }
 
+    const targetRegionIdRaw = Number(deps.targetRegionId);
+    const targetRegionId = Number.isFinite(targetRegionIdRaw)
+      ? Math.max(0, Math.floor(targetRegionIdRaw))
+      : null;
+
     gs.currentRegion++;
+    if (!gs.regionRoute || typeof gs.regionRoute !== 'object' || Array.isArray(gs.regionRoute)) {
+      gs.regionRoute = {};
+    }
+    if (targetRegionId !== null) {
+      gs.regionRoute[String(gs.currentRegion)] = targetRegionId;
+    } else {
+      delete gs.regionRoute[String(gs.currentRegion)];
+    }
     gs.currentFloor = 0;
     deps.mazeSystem?.close?.();
 

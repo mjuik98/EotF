@@ -1,10 +1,11 @@
-'use strict';
+﻿'use strict';
 
 export const NODE_META = {
-    combat: { icon: '⚔️', label: '전투', color: '#cc2244', glow: 'rgba(204,34,68,', desc: '적과 싸워 카드를 획득한다' },
-    elite: { icon: '⭐', label: '정예', color: '#d4a017', glow: 'rgba(212,160,23,', desc: '강력한 적. 더 좋은 보상을 획득한다' },
-    boss: { icon: '💀', label: '보스', color: '#7b2fff', glow: 'rgba(123,47,255,', desc: '지역의 보스. 처치하면 새 지역이 열린다' },
-    event: { icon: '🎭', label: '이벤트', color: '#0099cc', glow: 'rgba(0,153,204,', desc: '선택지에 따라 좋을 수도, 나쁠 수도' },
-    shop: { icon: '🏪', label: '상점', color: '#00cc88', glow: 'rgba(0,204,136,', desc: '골드로 카드·유물을 구입·강화한다' },
-    rest: { icon: '🔥', label: '휴식', color: '#cc5500', glow: 'rgba(204,85,0,', desc: '체력을 회복하거나 카드를 강화한다' },
+    combat: { icon: 'C', label: 'Combat', color: '#cc2244', glow: 'rgba(204,34,68,', desc: 'Fight enemies and earn card rewards.' },
+    elite: { icon: 'E', label: 'Elite', color: '#d4a017', glow: 'rgba(212,160,23,', desc: 'Hard encounter with better rewards.' },
+    mini_boss: { icon: 'M', label: 'Mini Boss', color: '#ff6600', glow: 'rgba(255,102,0,', desc: 'Mid-region boss with guaranteed bonus rewards.' },
+    boss: { icon: 'B', label: 'Boss', color: '#7b2fff', glow: 'rgba(123,47,255,', desc: 'Region boss. Defeat to progress.' },
+    event: { icon: '?', label: 'Event', color: '#0099cc', glow: 'rgba(0,153,204,', desc: 'A choice-based random encounter.' },
+    shop: { icon: '$', label: 'Shop', color: '#00cc88', glow: 'rgba(0,204,136,', desc: 'Buy cards, relics, and upgrades.' },
+    rest: { icon: '+', label: 'Rest', color: '#cc5500', glow: 'rgba(204,85,0,', desc: 'Recover HP or improve your deck.' },
 };

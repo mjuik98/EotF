@@ -80,7 +80,10 @@ export function createTitleSettingsBindings(M, fns) {
     fns.cycleRunBlessing = () => M.RunModeUI?.cycleBlessing?.(Deps.getRunModeDeps());
     fns.cycleRunCurse = () => M.RunModeUI?.cycleCurse?.(Deps.getRunModeDeps());
     fns.selectFragment = (effect) => M.MetaProgressionUI?.selectFragment?.(effect, Deps.getMetaProgressionDeps());
-    fns.advanceToNextRegion = () => M.RegionTransitionUI?.advanceToNextRegion?.(Deps.getRegionTransitionDeps());
+    fns.advanceToNextRegion = (overrideDeps = {}) => {
+        const baseDeps = Deps.getRegionTransitionDeps();
+        M.RegionTransitionUI?.advanceToNextRegion?.({ ...baseDeps, ...overrideDeps });
+    };
 
     // ═══ Help / Pause ═══
     fns.toggleHelp = () => {

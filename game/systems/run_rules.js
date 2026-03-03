@@ -1,4 +1,4 @@
-import { DATA } from '../../data/game_data.js';
+﻿import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
 
 const MIN_REGION_FLOORS = 6;
@@ -27,7 +27,35 @@ function _resolveRegionFloors(gs, regionAbsIdx, baseFloors) {
   return rolled;
 }
 export function getRegionCount() {
-  return Array.isArray(DATA?.regions) ? DATA.regions.length : 0;
+  const fromData = Array.isArray(DATA?.baseRegionSequence) ? DATA.baseRegionSequence : [];
+  if (fromData.length > 0) return fromData.length;
+  return 5;
+}
+
+function _getBaseRegionSequence() {
+  const fromData = Array.isArray(DATA?.baseRegionSequence)
+    ? DATA.baseRegionSequence
+    : [];
+  if (fromData.length > 0) {
+    return fromData
+      .map((v) => Math.max(0, Math.floor(Number(v) || 0)))
+      .filter((v, idx, arr) => arr.indexOf(v) === idx);
+  }
+  return [0, 1, 2, 3, 4];
+}
+
+function _getRegionById(regionId) {
+  if (!Array.isArray(DATA?.regions) || DATA.regions.length === 0) return null;
+  const normalized = Math.max(0, Math.floor(Number(regionId) || 0));
+  return DATA.regions.find((r) => Number(r?.id) === normalized) || null;
+}
+
+function _resolveRegionRouteMap(gs) {
+  if (!gs) return null;
+  if (!gs.regionRoute || typeof gs.regionRoute !== 'object' || Array.isArray(gs.regionRoute)) {
+    gs.regionRoute = {};
+  }
+  return gs.regionRoute;
 }
 
 export function getBaseRegionIndex(regionIdx = 0) {
@@ -37,43 +65,69 @@ export function getBaseRegionIndex(regionIdx = 0) {
   return idx % count;
 }
 
+export function getRegionIdForStage(regionIdx = 0, gsRef = null) {
+  const count = getRegionCount();
+  if (!count) return 0;
+
+  const sequence = _getBaseRegionSequence();
+  const idx = Math.max(0, Math.floor(Number(regionIdx) || 0));
+  const baseIdx = getBaseRegionIndex(idx);
+  const fallbackRegionId = sequence[baseIdx] ?? baseIdx;
+
+  const gs = gsRef || GAME.State || null;
+  const routeMap = _resolveRegionRouteMap(gs);
+  if (!routeMap) return fallbackRegionId;
+
+  const explicit = Number(routeMap[String(idx)]);
+  if (Number.isFinite(explicit)) return Math.max(0, Math.floor(explicit));
+  return fallbackRegionId;
+}
+
 export function getRegionData(regionIdx = 0, gsRef = null) {
   const count = getRegionCount();
   if (!count) return null;
 
   const idx = Math.max(0, Math.floor(Number(regionIdx) || 0));
   const baseIdx = getBaseRegionIndex(idx);
-  const baseRegion = DATA.regions[baseIdx];
+  const resolvedRegionId = getRegionIdForStage(idx, gsRef);
+
+  const baseRegion = _getRegionById(resolvedRegionId)
+    || _getRegionById(_getBaseRegionSequence()[baseIdx] ?? baseIdx)
+    || _getRegionById(baseIdx);
   if (!baseRegion) return null;
 
   const gs = gsRef || GAME.State || null;
   const endless = !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
   const floors = _resolveRegionFloors(gs, idx, baseRegion.floors);
-  const regionWithFloors = { ...baseRegion, floors };
+  const regionWithFloors = {
+    ...baseRegion,
+    floors,
+    _baseRegion: baseIdx,
+    _resolvedRegionId: resolvedRegionId,
+  };
   if (!endless || idx < count) return regionWithFloors;
 
   const cycle = Math.floor(idx / count);
   return {
     ...regionWithFloors,
-    _baseRegion: baseIdx,
     _endlessCycle: cycle,
-    name: `${baseRegion.name} · 루프 ${cycle + 1}`,
+    name: `${baseRegion.name} · Loop ${cycle + 1}`,
   };
 }
 
 export const RunRules = {
   blessings: {
-    none: { id: 'none', name: '없음', desc: '기본 규칙으로 시작' },
-    vigor: { id: 'vigor', name: '활력의 축복', desc: '시작 최대 HP +15' },
-    wealth: { id: 'wealth', name: '풍요의 축복', desc: '시작 골드 +35' },
-    spark: { id: 'spark', name: '잔향의 축복', desc: '시작 Echo +30' },
+    none: { id: 'none', name: 'None', desc: 'No starting blessing.' },
+    vigor: { id: 'vigor', name: 'Vigor Blessing', desc: 'Start with +15 max HP.' },
+    wealth: { id: 'wealth', name: 'Wealth Blessing', desc: 'Start with +35 gold.' },
+    spark: { id: 'spark', name: 'Spark Blessing', desc: 'Start with +30 Echo.' },
   },
 
   curses: {
-    none: { id: 'none', name: '없음', desc: '추가 불이익 없음' },
-    tax: { id: 'tax', name: '탐욕의 저주', desc: '상점 가격 +20%' },
-    fatigue: { id: 'fatigue', name: '피로의 저주', desc: '회복량 -25% & 최대 방어막 -10' },
-    frail: { id: 'frail', name: '쇠약의 저주', desc: '시작 최대 HP -10' },
+    none: { id: 'none', name: 'None', desc: 'No curse applied.' },
+    tax: { id: 'tax', name: 'Tax Curse', desc: 'Shop costs +20%.' },
+    fatigue: { id: 'fatigue', name: 'Fatigue Curse', desc: 'Healing -25% and max shield -10.' },
+    frail: { id: 'frail', name: 'Frail Curse', desc: 'Start with -10 max HP.' },
   },
 
   ensureMeta(meta) {
@@ -144,7 +198,7 @@ export const RunRules = {
   },
 
   getEnemyScaleMultiplier(gs, regionAbs = 0) {
-    // 밸런스 조정: 승천 단계별 스케일링 완화 (8% -> 6%) 및 상한 적용
+    // 諛몃윴??議곗젙: ?뱀쿇 ?④퀎蹂??ㅼ??쇰쭅 ?꾪솕 (8% -> 6%) 諛??곹븳 ?곸슜
     let ascMul = 1 + this.getAscension(gs) * 0.06;
     if (ascMul > 1.5) ascMul = 1.5;
 
@@ -265,3 +319,5 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
 
   return shardGain;
 }
+
+

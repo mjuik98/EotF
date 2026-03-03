@@ -8,7 +8,7 @@
 import { ASSETS, UPGRADE_MAP, CARDS } from './cards.js';
 import { ITEMS } from './items.js';
 import { ENEMIES } from './enemies.js';
-import { REGIONS, START_DECKS } from './regions.js';
+import { REGIONS, START_DECKS, BASE_REGION_SEQUENCE, BRANCH_ROUTES } from './regions.js';
 import { CLASS_METADATA } from './class_metadata.js';
 import { EVENTS, STORY_FRAGMENTS, DEATH_QUOTES } from './events_data.js';
 import { INSCRIPTIONS, INSCRIPTION_SYNERGIES } from './inscriptions.js';
@@ -20,6 +20,8 @@ export const DATA = {
   items: ITEMS,
   enemies: ENEMIES,
   regions: REGIONS,
+  baseRegionSequence: BASE_REGION_SEQUENCE,
+  branchRoutes: BRANCH_ROUTES,
   startDecks: START_DECKS,
   classes: CLASS_METADATA,
   events: EVENTS,
@@ -42,6 +44,8 @@ export {
   ITEMS,
   ENEMIES,
   REGIONS,
+  BASE_REGION_SEQUENCE,
+  BRANCH_ROUTES,
   START_DECKS,
   EVENTS,
   STORY_FRAGMENTS,

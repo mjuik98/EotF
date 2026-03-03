@@ -1,15 +1,15 @@
-import { CombatInitializer } from '../combat/combat_initializer.js';
+﻿import { CombatInitializer } from '../combat/combat_initializer.js';
 
 /**
- * state_actions.js — Action 정의 + Reducer
+ * state_actions.js ??Action ?뺤쓽 + Reducer
  *
- * 모든 상태 변경은 Action을 통해 dispatch됩니다.
- * 각 Reducer는 gs(state)를 직접 변경하고, 변경 내용을 반환합니다.
+ * 紐⑤뱺 ?곹깭 蹂寃쎌? Action???듯빐 dispatch?⑸땲??
+ * 媛?Reducer??gs(state)瑜?吏곸젒 蹂寃쏀븯怨? 蹂寃??댁슜??諛섑솚?⑸땲??
  */
 
-// ═══════════════════════════════════════
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
 //  Action Types
-// ═══════════════════════════════════════
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
 export const Actions = {
     // Player
     PLAYER_DAMAGE: 'player:damage',
@@ -45,15 +45,15 @@ export const Actions = {
     MAP_MOVE: 'map:move',
 };
 
-// ═══════════════════════════════════════
-//  Reducers (상태 변경 함수)
-// ═══════════════════════════════════════
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+//  Reducers (?곹깭 蹂寃??⑥닔)
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
 export const Reducers = {
     [Actions.PLAYER_DAMAGE](gs, { amount, source = 'unknown' }) {
         const player = gs.player;
         let remaining = amount;
 
-        // 방어막 우선 소모
+        // 諛⑹뼱留??곗꽑 ?뚮え
         if (player.shield > 0) {
             const absorbed = Math.min(player.shield, remaining);
             player.shield -= absorbed;
@@ -153,16 +153,16 @@ export const Reducers = {
             if (!gs.player.drawPile || gs.player.drawPile.length === 0) {
                 if (!gs.player.graveyard || gs.player.graveyard.length === 0) break;
 
-                // Graveyard를 drawPile로 섞어 넣음
+                // Graveyard瑜?drawPile濡??욎뼱 ?ｌ쓬
                 gs.player.drawPile = [...gs.player.graveyard];
-                // 배열 순서 섞기 (Fisher-Yates)
+                // 諛곗뿴 ?쒖꽌 ?욊린 (Fisher-Yates)
                 for (let j = gs.player.drawPile.length - 1; j > 0; j--) {
                     const k = Math.floor(Math.random() * (j + 1));
                     [gs.player.drawPile[j], gs.player.drawPile[k]] = [gs.player.drawPile[k], gs.player.drawPile[j]];
                 }
                 gs.player.graveyard = [];
                 if (typeof gs.addLog === 'function') {
-                    gs.addLog('🔄 덱을 섞었다', 'system');
+                    gs.addLog('Discard pile shuffled into draw pile.', 'system');
                 }
             }
             if (gs.player.hand.length < 8) {
@@ -222,17 +222,37 @@ export const Reducers = {
         return { enemyCount: enemies.length };
     },
 
-    [Actions.COMBAT_END](gs, { victory = true }) {
+        [Actions.COMBAT_END](gs, { victory = true }) {
+        const activeRegionId = Number(gs._activeRegionId);
+        const stagnationActive = activeRegionId === 5;
+        const preCombatGraveyard = Array.isArray(gs.player.graveyard) ? [...gs.player.graveyard] : [];
+        const preCombatExhausted = Array.isArray(gs.player.exhausted) ? [...gs.player.exhausted] : [];
+
         gs.combat.active = false;
         gs.combat.playerTurn = true;
 
-        // 전투용 덱 파일 초기화 (COMBAT_END 시 덱에 카드들이 증식하지 않도록 처리)
-        // Deck 자체는 Combat 시작 시의 메인 덱으로 유지됨
         gs.player.hand = [];
-        // 기본 초기화 (CombatInitializer 활용)
         CombatInitializer.resetCombatState(gs);
 
-        // 추가 필드 초기화
+        if (stagnationActive && Array.isArray(gs.player.deck)) {
+            const toRemove = [...preCombatGraveyard, ...preCombatExhausted];
+            const removed = [];
+            toRemove.forEach((cardId) => {
+                const idx = gs.player.deck.indexOf(cardId);
+                if (idx >= 0) {
+                    gs.player.deck.splice(idx, 1);
+                    removed.push(cardId);
+                }
+            });
+            if (removed.length > 0) {
+                if (!Array.isArray(gs._stagnationVault)) gs._stagnationVault = [];
+                gs._stagnationVault.push(...removed);
+                if (typeof gs.addLog === 'function') {
+                    gs.addLog(`Stagnation consumed ${removed.length} card(s).`, 'damage');
+                }
+            }
+        }
+
         gs.player.graveyard = [];
         gs.player.exhausted = [];
         gs.player.drawPile = [];
@@ -242,6 +262,7 @@ export const Reducers = {
         gs._maskCount = 0;
         gs._batteryUsedTurn = false;
         gs._temporalTurn = 0;
+        gs._activeRegionId = null;
 
         gs.markDirty('hud');
         return { victory };
@@ -263,3 +284,4 @@ export const Reducers = {
         return { prev, current: screen };
     },
 };
+
