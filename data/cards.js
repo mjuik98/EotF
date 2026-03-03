@@ -20,35 +20,25 @@ export const UPGRADE_MAP = {
     'quick_step': 'quick_step_plus', 'heavy_blow': 'heavy_blow_plus', 'echo_wave': 'echo_wave_plus',
     'resonance': 'resonance_plus', 'soul_rend': 'soul_rend_plus', 'twin_strike': 'twin_strike_plus',
     'echo_shield': 'echo_shield_plus', 'acceleration': 'acceleration_plus', 'foresight': 'foresight_plus',
-    'silent_stab': 'silent_stab_plus', 'vanish': 'vanish_plus',
-    'surge': 'surge_plus',
-    'flame_slash': 'ember_wave',
-    'echo_tide': 'echo_tide_plus',
-    'tempo_strike': 'tempo_strike_plus',
-    'holy_strike': 'holy_strike_plus',
-    'blood_fury': 'blood_fury_plus',
-    'iron_defense': 'iron_defense_plus',
-    'abyssal_thirst': 'abyssal_thirst_plus',
-    'echo_barrier': 'echo_barrier_plus',
-    'vibrations_end': 'vibrations_end_plus',
-    'temporal_echo': 'temporal_echo_plus',
-    'silent_strike': 'silent_strike_plus',
-    'brand_of_light': 'brand_of_light_plus',
-    'resonant_shield': 'resonant_shield_plus',
-    // Newly mapped/created upgrades
-    'charge': 'charge_plus', 'afterimage': 'afterimage_plus', 'phantom_blade': 'phantom_blade_plus',
-    'echo_dance': 'echo_dance_plus', 'blade_dance': 'blade_dance_plus', 'counter': 'counter_plus',
-    'time_echo': 'time_echo_plus', 'void_mirror': 'void_mirror_plus', 'arcane_storm': 'arcane_storm_plus',
-    'prediction': 'prediction_plus', 'time_warp': 'time_warp_plus', 'death_mark': 'death_mark_plus',
-    'shadow_step': 'shadow_step_plus', 'poison_blade': 'poison_blade_plus', 'phantom_step': 'phantom_step_plus',
-    'echo_burst_card': 'echo_burst_plus', 'void_blade': 'void_blade_plus', 'soul_armor': 'soul_armor_plus',
-    'soul_harvest': 'soul_harvest_plus', 'echo_overload': 'echo_overload_plus', 'desperate_strike': 'desperate_strike_plus',
-    'reverberation': 'reverberation_plus', 'sanctuary': 'sanctuary_plus', 'dark_pact': 'dark_pact_plus',
-    'overcharge': 'overcharge_plus', 'void_tap': 'void_tap_plus', 'energy_siphon': 'energy_siphon_plus',
-    'ember_wave': 'ember_wave_plus', 'echo_reflect': 'echo_reflect_plus', 'chain_reaction': 'chain_reaction_plus',
-    'revival_echo': 'revival_echo_plus', 'void_surge': 'void_surge_plus', 'resonance_flow': 'resonance_flow_plus',
-    'echo_cascade': 'echo_cascade_plus', 'echo_lull': 'echo_lull_plus', 'divine_grace': 'divine_grace_plus',
-    'blessing_of_light': 'blessing_of_light_plus', 'reckless_swing': 'reckless_swing_plus',
+    'silent_stab': 'silent_stab_plus', 'vanish': 'vanish_plus', 'surge': 'surge_plus',
+    'flame_slash': 'ember_wave', 'echo_tide': 'echo_tide_plus', 'tempo_strike': 'tempo_strike_plus',
+    'holy_strike': 'holy_strike_plus', 'blood_fury': 'blood_fury_plus', 'iron_defense': 'iron_defense_plus',
+    'abyssal_thirst': 'abyssal_thirst_plus', 'echo_barrier': 'echo_barrier_plus',
+    'vibrations_end': 'vibrations_end_plus', 'temporal_echo': 'temporal_echo_plus',
+    'silent_strike': 'silent_strike_plus', 'brand_of_light': 'brand_of_light_plus',
+    'resonant_shield': 'resonant_shield_plus', 'charge': 'charge_plus', 'afterimage': 'afterimage_plus',
+    'phantom_blade': 'phantom_blade_plus', 'echo_dance': 'echo_dance_plus', 'blade_dance': 'blade_dance_plus',
+    'counter': 'counter_plus', 'time_echo': 'time_echo_plus', 'void_mirror': 'void_mirror_plus',
+    'arcane_storm': 'arcane_storm_plus', 'prediction': 'prediction_plus', 'time_warp': 'time_warp_plus',
+    'death_mark': 'death_mark_plus', 'shadow_step': 'shadow_step_plus', 'poison_blade': 'poison_blade_plus',
+    'phantom_step': 'phantom_step_plus', 'echo_burst_card': 'echo_burst_plus', 'void_blade': 'void_blade_plus',
+    'soul_armor': 'soul_armor_plus', 'soul_harvest': 'soul_harvest_plus', 'echo_overload': 'echo_overload_plus',
+    'desperate_strike': 'desperate_strike_plus', 'reverberation': 'reverberation_plus', 'sanctuary': 'sanctuary_plus',
+    'dark_pact': 'dark_pact_plus', 'overcharge': 'overcharge_plus', 'void_tap': 'void_tap_plus',
+    'energy_siphon': 'energy_siphon_plus', 'ember_wave': 'ember_wave_plus', 'echo_reflect': 'echo_reflect_plus',
+    'chain_reaction': 'chain_reaction_plus', 'revival_echo': 'revival_echo_plus', 'void_surge': 'void_surge_plus',
+    'resonance_flow': 'resonance_flow_plus', 'echo_cascade': 'echo_cascade_plus', 'echo_lull': 'echo_lull_plus',
+    'divine_grace': 'divine_grace_plus', 'blessing_of_light': 'blessing_of_light_plus', 'reckless_swing': 'reckless_swing_plus',
     'berserk_mode': 'berserk_mode_plus', 'shield_slam': 'shield_slam_plus', 'unbreakable_wall': 'unbreakable_wall_plus'
 };
 
@@ -124,7 +114,7 @@ export const CARDS = {
     },
     twin_strike_plus: {
         id: 'twin_strike_plus', name: '쌍검격+', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 8 × 2.', rarity: 'uncommon', upgraded: true,
-        effect(gs) { gs.dealDamage(9, 0, true); gs.dealDamage(9); }
+        effect(gs) { gs.dealDamage(8, 0, true); gs.dealDamage(8); }
     },
     echo_shield: {
         id: 'echo_shield', name: '잔향 방벽', icon: '🔵', cost: 2, type: 'SKILL', desc: '방어막 (잔향 ÷ 5).', rarity: 'uncommon',
@@ -169,11 +159,11 @@ export const CARDS = {
     },
     echo_dance: {
         id: 'echo_dance', name: '잔향의 춤', icon: '💃', cost: 3, type: 'ATTACK', desc: '피해 6 × 4. 타격마다 잔향 6 충전.', rarity: 'rare',
-        effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, null, true); gs.addEcho(8); } gs.dealDamage(6, null); gs.addEcho(8); }
+        effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(6, null, true); gs.addEcho(6); } gs.dealDamage(6, null); gs.addEcho(6); }
     },
     echo_dance_plus: {
         id: 'echo_dance_plus', name: '잔향의 춤+', icon: '💃', cost: 2, type: 'ATTACK', desc: '피해 7 × 4. 타격마다 잔향 8 충전.', rarity: 'rare', upgraded: true,
-        effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(7, null, true); gs.addEcho(10); } gs.dealDamage(7, null); gs.addEcho(10); }
+        effect(gs) { for (let i = 0; i < 3; i++) { gs.dealDamage(7, null, true); gs.addEcho(8); } gs.dealDamage(7, null); gs.addEcho(8); }
     },
     blade_dance: {
         id: 'blade_dance', name: '검무', icon: '⚔️', cost: 1, type: 'ATTACK', desc: '피해 4 × 3. (가속 상태: 잔향 10 충전.)', rarity: 'uncommon',
@@ -259,11 +249,11 @@ export const CARDS = {
         effect(gs) { gs.dealDamageAll(20); gs.player.echoChain += 3; gs.updateChainDisplay(); }
     },
     prediction: {
-        id: 'prediction', name: '예언', icon: ' Telescope', cost: 1, type: 'SKILL', desc: '카드 2장 드로우. 잔향 15 충전.', rarity: 'uncommon',
+        id: 'prediction', name: '예언', icon: '🔮', cost: 1, type: 'SKILL', desc: '카드 2장 드로우. 잔향 15 충전.', rarity: 'uncommon',
         effect(gs) { if (gs.combat.active) gs.drawCards(2); gs.addEcho(15); }
     },
     prediction_plus: {
-        id: 'prediction_plus', name: '예언+', icon: ' Telescope', cost: 1, type: 'SKILL', desc: '카드 3장 드로우. 잔향 20 충전.', rarity: 'uncommon', upgraded: true,
+        id: 'prediction_plus', name: '예언+', icon: '🔮', cost: 1, type: 'SKILL', desc: '카드 3장 드로우. 잔향 20 충전.', rarity: 'uncommon', upgraded: true,
         effect(gs) { if (gs.combat.active) gs.drawCards(3); gs.addEcho(20); }
     },
     time_warp: {
@@ -286,7 +276,7 @@ export const CARDS = {
         }
     },
     temporal_echo_plus: {
-        id: 'temporal_echo_plus', name: '기시감+', icon: '⏳', cost: 1, type: 'SKILL', desc: '가장 최근에 사용한 카드를 가져오고 비용을 0으로 만듭니다.', rarity: 'uncommon', upgraded: true,
+        id: 'temporal_echo_plus', name: '기시감+', icon: '⏳', cost: 1, type: 'SKILL', desc: '가장 최근에 사용한 카드를 가져오고 비용 0.', rarity: 'uncommon', upgraded: true,
         effect(gs) {
             if (gs.player.graveyard.length > 0) {
                 const lastCardId = gs.player.graveyard[gs.player.graveyard.length - 1];
@@ -301,11 +291,11 @@ export const CARDS = {
     // 침묵사냥꾼
     silent_stab: {
         id: 'silent_stab', name: '자상', icon: '🔪', cost: 1, type: 'ATTACK', desc: '피해를 7 입히고 독(2)을 부여합니다.', rarity: 'common',
-        effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('poisoned', 2, targetIdx); }
+        effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('poisoned', 2); }
     },
     silent_stab_plus: {
         id: 'silent_stab_plus', name: '자상+', icon: '🔪', cost: 0, type: 'ATTACK', desc: '피해를 11 입히고 독(3)을 부여합니다.', rarity: 'common', upgraded: true,
-        effect(gs) { gs.dealDamage(11); gs.applyEnemyStatus('poisoned', 3, targetIdx); }
+        effect(gs) { gs.dealDamage(11); gs.applyEnemyStatus('poisoned', 3); }
     },
     vanish: {
         id: 'vanish', name: '은신', icon: '🌑', cost: 1, type: 'SKILL', desc: '은신. (다음 공격이 치명타로 적중.)', rarity: 'common',
@@ -315,10 +305,10 @@ export const CARDS = {
         }
     },
     vanish_plus: {
-        id: 'vanish_plus', name: '은신+', icon: '🌑', cost: 0, type: 'SKILL', desc: '은신 2턴. (다음 공격이 치명타로 적중.)', rarity: 'common', upgraded: true,
+        id: 'vanish_plus', name: '은신+', icon: '🌑', cost: 0, type: 'SKILL', desc: '은신. (다음 공격이 치명타로 적중.)', rarity: 'common', upgraded: true,
         effect(gs) {
-            gs.addBuff('vanish', 2, {});
-            gs.addLog(LogUtils.formatCardBuff('은신+', '다음 공격 크리티컬 (2턴)'), 'buff');
+            gs.addBuff('vanish', 1, {});
+            gs.addLog(LogUtils.formatCardBuff('은신', '다음 공격 크리티컬)'), 'buff');
         }
     },
     death_mark: {
@@ -412,19 +402,33 @@ export const CARDS = {
     },
     soul_harvest: {
         id: 'soul_harvest', name: '영혼 수확', icon: '💫', cost: 2, type: 'ATTACK', desc: '피해 20. (처치 시: 체력 8 회복.)', rarity: 'uncommon',
-        effect(gs) { gs.dealDamage(20); }
+        effect(gs) {
+            const targetIdx = gs._selectedTarget ?? gs.combat.enemies.findIndex(e => e.hp > 0);
+            const enemy = gs.combat.enemies[targetIdx];
+            gs.dealDamage(20, targetIdx);
+            if (enemy && enemy.hp <= 0) {
+                gs.heal(8, { name: '영혼 수확', type: 'card' });
+            }
+        }
     },
     soul_harvest_plus: {
         id: 'soul_harvest_plus', name: '영혼 수확+', icon: '💫', cost: 1, type: 'ATTACK', desc: '피해 25. (처치 시: 체력 10 회복.)', rarity: 'uncommon', upgraded: true,
-        effect(gs) { gs.dealDamage(25); }
+        effect(gs) {
+            const targetIdx = gs._selectedTarget ?? gs.combat.enemies.findIndex(e => e.hp > 0);
+            const enemy = gs.combat.enemies[targetIdx];
+            gs.dealDamage(25, targetIdx);
+            if (enemy && enemy.hp <= 0) {
+                gs.heal(10, { name: '영혼 수확+', type: 'card' });
+            }
+        }
     },
     echo_overload: {
         id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: '잔향 100 충전. 체력 15 소모.', rarity: 'rare',
-        effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ Echo 과부하! HP-15', 'damage'); gs.markDirty('hud'); }
+        effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ 잔향 과부하! HP-15', 'damage'); gs.markDirty('hud'); }
     },
     echo_overload_plus: {
         id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 1, type: 'SKILL', desc: '잔향 120 충전. 체력 12 소모.', rarity: 'rare', upgraded: true,
-        effect(gs) { gs.player.echo = 120; gs.player.hp = Math.max(1, gs.player.hp - 12); gs.addLog('⚡ Echo 과부하+! HP-12', 'damage'); gs.markDirty('hud'); }
+        effect(gs) { gs.player.echo = 120; gs.player.hp = Math.max(1, gs.player.hp - 12); gs.addLog('⚡ 잔향 과부하+! HP-12', 'damage'); gs.markDirty('hud'); }
     },
     desperate_strike: {
         id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '잃은 체력에 비례한 피해. (최대 40)', rarity: 'uncommon',
@@ -494,31 +498,35 @@ export const CARDS = {
     // ── 새 카드: 화염 / 전략 계열 ──
     flame_slash: {
         id: 'flame_slash', name: '화염 검격', icon: '🔥', cost: 1, type: 'ATTACK', desc: '피해 7. 화염 2턴 부여.', rarity: 'uncommon',
-        effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('burning', 2); gs.addLog('🔥 화염 검격!', 'echo'); }
+        effect(gs) { gs.dealDamage(7); gs.applyEnemyStatus('burning', 2); }
+    },
+    flame_slash_plus: {
+        id: 'flame_slash_plus', name: '화염 검격+', icon: '🔥', cost: 1, type: 'ATTACK', desc: '피해 10. 화염 2턴 부여.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.dealDamage(10); gs.applyEnemyStatus('burning', 2); }
     },
     ember_wave: {
         id: 'ember_wave', name: '불꽃 파동', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 8. 화염 1턴 부여.', rarity: 'uncommon',
-        effect(gs) { gs.dealDamageAll(8); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); gs.addLog('🌊 불꽃 파동!', 'echo'); }
+        effect(gs) { gs.dealDamageAll(8); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 1, i); }); }
     },
     ember_wave_plus: {
         id: 'ember_wave_plus', name: '불꽃 파동+', icon: '🌊', cost: 2, type: 'ATTACK', desc: '모든 적에게 피해 11. 화염 2턴 부여.', rarity: 'uncommon', upgraded: true,
-        effect(gs) { gs.dealDamageAll(11); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 2, i); }); gs.addLog('🌊 불꽃 파동+!', 'echo'); }
+        effect(gs) { gs.dealDamageAll(11); gs.combat.enemies.forEach((_, i) => { if (gs.combat.enemies[i].hp > 0) gs.applyEnemyStatus('burning', 2, i); }); }
     },
     echo_reflect: {
         id: 'echo_reflect', name: '잔향 반향', icon: '🔊', cost: 1, type: 'SKILL', desc: '방어막 8. 반사 획득. (피해 받을 시 적에게 반사)', rarity: 'rare',
-        effect(gs) { gs.addShield(8); gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🔊 잔향 반향! 반사 준비', 'echo'); }
+        effect(gs) { gs.addShield(8); gs.addBuff('mirror', 1, { reflect: true }); }
     },
     echo_reflect_plus: {
         id: 'echo_reflect_plus', name: '잔향 반향+', icon: '🔊', cost: 0, type: 'SKILL', desc: '방어막 10. 반사 획득. (피해 받을 시 적에게 반사)', rarity: 'rare', upgraded: true,
-        effect(gs) { gs.addShield(10); gs.addBuff('mirror', 1, { reflect: true }); gs.addLog('🔊 잔향 반향+! 반사 준비', 'echo'); }
+        effect(gs) { gs.addShield(10); gs.addBuff('mirror', 1, { reflect: true }); }
     },
     chain_reaction: {
         id: 'chain_reaction', name: '연쇄 반응', icon: '⛓️', cost: 2, type: 'ATTACK', desc: '연쇄 수치 × 5 피해. (연쇄 유지)', rarity: 'rare',
-        effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 5, null, true); gs.addLog(`⛓️ 연쇄 반응: 체인 ${chain} × 5 = ${chain * 5}!`, 'echo'); }
+        effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 5, null, true); }
     },
     chain_reaction_plus: {
         id: 'chain_reaction_plus', name: '연쇄 반응+', icon: '⛓️', cost: 1, type: 'ATTACK', desc: '연쇄 수치 × 7 피해. (연쇄 유지)', rarity: 'rare', upgraded: true,
-        effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 7, null, true); gs.addLog(`⛓️ 연쇄 반응+: 체인 ${chain} × 7 = ${chain * 7}!`, 'echo'); }
+        effect(gs) { const chain = Math.max(1, gs.player.echoChain); gs.dealDamage(chain * 7, null, true); }
     },
     revival_echo: {
         id: 'revival_echo', name: '소생의 잔향', icon: '💠', cost: 3, type: 'SKILL', desc: '체력 15 회복. 소모 더미 카드 2장 회수. 【소진】', rarity: 'rare', exhaust: true,
