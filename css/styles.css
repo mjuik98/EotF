@@ -4480,6 +4480,23 @@ body:has(#combatOverlay.active) .panel-right {
   color: var(--echo-bright);
 }
 
+.reward-card-type.rarity-common {
+  color: var(--text-dim);
+}
+
+.reward-card-type.rarity-uncommon {
+  color: var(--echo-bright);
+}
+
+.reward-card-type.rarity-rare {
+  color: var(--gold);
+}
+
+.reward-card-type.rarity-legendary {
+  color: #c084fc;
+  text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+}
+
 .reward-card-wrapper:hover {
   transform: none;
   box-shadow: none;

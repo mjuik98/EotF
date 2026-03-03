@@ -60,7 +60,7 @@ export const RunModeUI = {
     const ascValueEl = doc.getElementById('ascensionValue');
     const ascCapEl = doc.getElementById('ascensionCap');
     if (ascValueEl) ascValueEl.textContent = `A${cfg.ascension}`;
-    if (ascCapEl) ascCapEl.textContent = `Max A${maxAsc}`;
+    if (ascCapEl) ascCapEl.textContent = `최고 A${maxAsc}`;
 
     panel.querySelectorAll('[onclick^="shiftAscension"]').forEach((btn) => {
       btn.disabled = !ascUnlocked || maxAsc <= 0;
@@ -70,7 +70,7 @@ export const RunModeUI = {
     if (endlessBtn) {
       const endlessOn = !!cfg.endless;
       endlessBtn.disabled = !endlessUnlocked;
-      endlessBtn.textContent = endlessOn ? 'ON' : 'OFF';
+      endlessBtn.textContent = endlessOn ? '켜짐' : '꺼짐';
       if (endlessOn) endlessBtn.classList.add('active');
       else endlessBtn.classList.remove('active');
     }
@@ -142,7 +142,7 @@ export const RunModeUI = {
 
     if (!meta.unlocks?.endless) {
       if (typeof deps.notice === 'function') {
-        deps.notice('Endless mode is not unlocked yet.');
+        deps.notice('무한 모드가 아직 해금되지 않았습니다.');
       }
       this.refresh(deps);
       return;
@@ -215,7 +215,7 @@ export const RunModeUI = {
     const disableAll = doc.createElement('button');
     const allDisabled = earnedInsc.every(([k]) => runConfig.disabledInscriptions.includes(k));
     disableAll.className = `run-mode-pill ${allDisabled ? 'active' : ''}`;
-    disableAll.textContent = 'Start without inscriptions';
+    disableAll.textContent = '각인 없이 시작';
     disableAll.style.marginBottom = '12px'; // keep min-margin for layout
     disableAll.onclick = () => {
       if (allDisabled) runConfig.disabledInscriptions = [];
@@ -245,7 +245,7 @@ export const RunModeUI = {
 
       const levelSpan = doc.createElement('span');
       levelSpan.className = 'inscription-level';
-      levelSpan.textContent = `Lv.${level}`;
+      levelSpan.textContent = `레벨 ${level}`;
 
       pill.append(label, levelSpan);
       pill.title = def.levels?.[Math.min(level, def.maxLevel) - 1]?.desc || def.desc || '';
@@ -262,7 +262,7 @@ export const RunModeUI = {
 
       const synTitle = doc.createElement('div');
       synTitle.className = 'synergy-title';
-      synTitle.textContent = 'Active Synergies';
+      synTitle.textContent = '활성 시너지';
       synRow.appendChild(synTitle);
 
       synergies.forEach(({ syn }) => {

@@ -222,7 +222,7 @@ export const Reducers = {
         return { enemyCount: enemies.length };
     },
 
-        [Actions.COMBAT_END](gs, { victory = true }) {
+    [Actions.COMBAT_END](gs, { victory = true }) {
         const activeRegionId = Number(gs._activeRegionId);
         const stagnationActive = activeRegionId === 5;
         const preCombatGraveyard = Array.isArray(gs.player.graveyard) ? [...gs.player.graveyard] : [];
@@ -235,20 +235,33 @@ export const Reducers = {
         CombatInitializer.resetCombatState(gs);
 
         if (stagnationActive && Array.isArray(gs.player.deck)) {
-            const toRemove = [...preCombatGraveyard, ...preCombatExhausted];
-            const removed = [];
-            toRemove.forEach((cardId) => {
-                const idx = gs.player.deck.indexOf(cardId);
-                if (idx >= 0) {
-                    gs.player.deck.splice(idx, 1);
-                    removed.push(cardId);
+            const combinedPool = [...preCombatGraveyard, ...preCombatExhausted];
+            if (combinedPool.length > 0) {
+                // 무작위로 최대 2장 선택
+                const countToRemove = Math.min(combinedPool.length, 2);
+                const toRemove = [];
+                const poolCopy = [...combinedPool];
+
+                for (let i = 0; i < countToRemove; i++) {
+                    const randIdx = Math.floor(Math.random() * poolCopy.length);
+                    toRemove.push(poolCopy.splice(randIdx, 1)[0]);
                 }
-            });
-            if (removed.length > 0) {
-                if (!Array.isArray(gs._stagnationVault)) gs._stagnationVault = [];
-                gs._stagnationVault.push(...removed);
-                if (typeof gs.addLog === 'function') {
-                    gs.addLog(`🕳️ 정체 영역이 카드 ${removed.length}장을 삼켰습니다.`, 'damage');
+
+                const removed = [];
+                toRemove.forEach((cardId) => {
+                    const idx = gs.player.deck.indexOf(cardId);
+                    if (idx >= 0) {
+                        gs.player.deck.splice(idx, 1);
+                        removed.push(cardId);
+                    }
+                });
+
+                if (removed.length > 0) {
+                    if (!Array.isArray(gs._stagnationVault)) gs._stagnationVault = [];
+                    gs._stagnationVault.push(...removed);
+                    if (typeof gs.addLog === 'function') {
+                        gs.addLog(`🕳️ 정체 영역이 카드 ${removed.length}장을 삼켰습니다.`, 'damage');
+                    }
                 }
             }
         }

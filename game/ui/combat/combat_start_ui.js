@@ -104,9 +104,6 @@ export const CombatStartUI = {
     deps.updateCombatLog?.();
     deps.updateNoiseWidget?.();
 
-    const bladeOverlay = doc.getElementById('bladeSplitOverlay');
-    const combatOverlay = doc.getElementById('combatOverlay');
-
     // 지역별 진입 플래시 색상 매핑
     const REGION_FLASH_COLORS = ['#00cc88', '#4488ff', '#cc44ff', '#ffaa00', '#ff3366'];
     const baseRegionIdx = typeof getBaseRegionIndex === 'function'
@@ -116,14 +113,6 @@ export const CombatStartUI = {
 
     if (combatOverlay) {
       combatOverlay.style.setProperty('--entry-flash-color', flashColor);
-    }
-    if (bladeOverlay) {
-      const bladeSlash = bladeOverlay.querySelector('.blade-slash');
-      if (bladeSlash) bladeSlash.style.background = flashColor;
-      const bladeParts = bladeOverlay.querySelectorAll('.blade-part');
-      bladeParts.forEach((part) => {
-        part.style.boxShadow = `0 0 50px ${flashColor}55`;
-      });
     }
 
     if (isBoss || isMiniBoss) {
@@ -149,20 +138,7 @@ export const CombatStartUI = {
       setTimeout(() => bossBanner.remove(), 2200);
     }
 
-    if (bladeOverlay && combatOverlay) {
-      bladeOverlay.classList.remove('ending');
-      bladeOverlay.classList.add('active');
-      setTimeout(() => {
-        combatOverlay.classList.add('active');
-      }, 350);
-      setTimeout(() => {
-        bladeOverlay.classList.add('ending');
-      }, 900);
-      setTimeout(() => {
-        bladeOverlay.classList.remove('active');
-        bladeOverlay.classList.remove('ending');
-      }, 1450);
-    } else if (combatOverlay) {
+    if (combatOverlay) {
       combatOverlay.classList.add('active');
     }
 

@@ -111,23 +111,23 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
   return {
     ...regionWithFloors,
     _endlessCycle: cycle,
-    name: `${baseRegion.name} · Loop ${cycle + 1}`,
+    name: `${baseRegion.name} · 순환 ${cycle + 1}`,
   };
 }
 
 export const RunRules = {
   blessings: {
-    none: { id: 'none', name: 'None', desc: 'No starting blessing.' },
-    vigor: { id: 'vigor', name: 'Vigor Blessing', desc: 'Start with +15 max HP.' },
-    wealth: { id: 'wealth', name: 'Wealth Blessing', desc: 'Start with +35 gold.' },
-    spark: { id: 'spark', name: 'Spark Blessing', desc: 'Start with +30 Echo.' },
+    none: { id: 'none', name: '없음', desc: '시작 축복이 없습니다.' },
+    vigor: { id: 'vigor', name: '활력의 축복', desc: '최대 HP +15로 시작합니다.' },
+    wealth: { id: 'wealth', name: '풍요의 축복', desc: '골드 +35로 시작합니다.' },
+    spark: { id: 'spark', name: '불꽃의 축복', desc: '잔향 +30으로 시작합니다.' },
   },
 
   curses: {
-    none: { id: 'none', name: 'None', desc: 'No curse applied.' },
-    tax: { id: 'tax', name: 'Tax Curse', desc: 'Shop costs +20%.' },
-    fatigue: { id: 'fatigue', name: 'Fatigue Curse', desc: 'Healing -25% and max shield -10.' },
-    frail: { id: 'frail', name: 'Frail Curse', desc: 'Start with -10 max HP.' },
+    none: { id: 'none', name: '없음', desc: '적용되는 저주가 없습니다.' },
+    tax: { id: 'tax', name: '탐욕의 저주', desc: '상점 비용이 +20% 증가합니다.' },
+    fatigue: { id: 'fatigue', name: '피로의 저주', desc: '회복량 -25%, 최대 방어막 -10.' },
+    frail: { id: 'frail', name: '허약의 저주', desc: '최대 HP -10으로 시작합니다.' },
   },
 
   ensureMeta(meta) {

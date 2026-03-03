@@ -414,14 +414,23 @@ export const CombatHudUI = {
 
   updateNoiseWidget(deps = {}) {
     const gs = deps.gs;
-    const getBaseRegionIndex = deps.getBaseRegionIndex;
-    if (!gs || typeof getBaseRegionIndex !== 'function') return;
+    if (!gs) return;
 
     const doc = _getDoc(deps);
     const widget = doc.getElementById('noiseWidget');
     if (!widget) return;
 
-    const inSilenceCity = getBaseRegionIndex(gs.currentRegion) === 1 && gs.combat.active;
+    const combatActive = !!gs.combat?.active;
+    let combatRegionId = Number.isFinite(Number(gs._activeRegionId))
+      ? Number(gs._activeRegionId)
+      : null;
+    if (combatRegionId == null && typeof globalThis.getRegionIdForStage === 'function') {
+      const resolved = Number(globalThis.getRegionIdForStage(gs.currentRegion, gs));
+      if (Number.isFinite(resolved)) {
+        combatRegionId = Math.max(0, Math.floor(resolved));
+      }
+    }
+    const inSilenceCity = combatActive && combatRegionId === 1;
     widget.style.display = inSilenceCity ? 'block' : 'none';
     if (!inSilenceCity) return;
 

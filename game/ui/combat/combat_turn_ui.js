@@ -14,6 +14,20 @@ function _getWin(deps) {
   return deps?.win || window;
 }
 
+function _getCombatRegionId(gs) {
+  const activeRegionId = Number(gs?._activeRegionId);
+  if (Number.isFinite(activeRegionId)) {
+    return Math.max(0, Math.floor(activeRegionId));
+  }
+
+  if (typeof globalThis.getRegionIdForStage === 'function') {
+    const resolved = Number(globalThis.getRegionIdForStage(gs?.currentRegion, gs));
+    if (Number.isFinite(resolved)) return Math.max(0, Math.floor(resolved));
+  }
+
+  return Math.max(0, Math.floor(Number(gs?.currentRegion) || 0));
+}
+
 export const CombatTurnUI = {
   endPlayerTurn(deps = {}) {
     const gs = deps.gs;
@@ -167,7 +181,7 @@ export const CombatTurnUI = {
 
       // 이펙트 처리: 로직 → UI
       const effectResult = TurnManager.handleEnemyEffect(action.effect, gs, enemy, {
-        baseRegion: deps.getBaseRegionIndex?.(gs.currentRegion),
+        regionId: _getCombatRegionId(gs),
         data,
       });
       if (effectResult?.uiAction) {
@@ -308,8 +322,8 @@ export const CombatTurnUI = {
   handleEnemyEffect(effect, enemy, idx, deps = {}) {
     const gs = deps.gs;
     const data = deps.data;
-    const baseRegion = deps.getBaseRegionIndex?.(gs.currentRegion);
-    const result = TurnManager.handleEnemyEffect(effect, gs, enemy, { baseRegion, data });
+    const regionId = _getCombatRegionId(gs);
+    const result = TurnManager.handleEnemyEffect(effect, gs, enemy, { regionId, data });
     if (result?.uiAction) this._dispatchUIAction(result, deps);
   },
 };

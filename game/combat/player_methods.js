@@ -1,4 +1,4 @@
-import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
+import { RunRules, getRegionIdForStage } from '../systems/run_rules.js';
 import { Actions } from '../core/state_actions.js';
 
 import { LogUtils } from '../utils/log_utils.js';
@@ -24,7 +24,11 @@ export const PlayerMethods = {
     },
 
     heal(amount, source = null, deps = {}) {
-        if (getBaseRegionIndex(this.currentRegion) === Math.max(0, getRegionCount() - 1)) {
+        const activeRegionId = Number(this._activeRegionId);
+        const regionId = Number.isFinite(activeRegionId)
+            ? Math.max(0, Math.floor(activeRegionId))
+            : getRegionIdForStage(this.currentRegion, this);
+        if (regionId === 4) {
             this.addLog(LogUtils.formatSystem('메아리의 근원: 회복 불가!'), 'damage');
             return;
         }

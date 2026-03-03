@@ -194,8 +194,20 @@ export const GameAPI = {
 
             // 성공적으로 카드가 발동된 뒤에만 카드 사용 부가 상태를 소모한다.
             // (예외 경로에서 상태 불일치가 남지 않도록 보장)
-            const _getBaseRegion = GAME.getDeps()?.getBaseRegionIndex || ((r) => r);
-            if (gs.combat?.active && _getBaseRegion(gs.currentRegion) === 1) {
+            const activeRegionId = Number(gs._activeRegionId);
+            let combatRegionId = Number.isFinite(activeRegionId)
+                ? Math.max(0, Math.floor(activeRegionId))
+                : null;
+            if (combatRegionId == null) {
+                const getRegionData = GAME.getDeps()?.getRegionData;
+                const regionIdFromData = Number(getRegionData?.(gs.currentRegion, gs)?.id);
+                if (Number.isFinite(regionIdFromData)) {
+                    combatRegionId = Math.max(0, Math.floor(regionIdFromData));
+                } else {
+                    combatRegionId = Math.max(0, Math.floor(Number(gs.currentRegion) || 0));
+                }
+            }
+            if (gs.combat?.active && combatRegionId === 1) {
                 gs.addSilence?.(1);
             }
 

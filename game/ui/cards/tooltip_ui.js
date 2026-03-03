@@ -92,7 +92,7 @@ export const TooltipUI = {
     const wallExtraDesc = _buildUnbreakableWallCardTooltip(cardId, gs);
     DomSafe.setHighlightedText(doc.getElementById('ttDesc'), `${card.desc || ''}${wallExtraDesc}`);
     const rarityEl = doc.getElementById('ttRarity');
-    rarityEl.textContent = (card.rarity || 'common').toUpperCase();
+    rarityEl.textContent = DescriptionUtils.getRarityLabel(card.rarity || 'common');
     rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
 
     const predEl = doc.getElementById('ttPredicted');

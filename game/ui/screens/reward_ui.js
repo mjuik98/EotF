@@ -61,15 +61,6 @@ function _toTypeClass(type) {
   return '';
 }
 
-function _toTypeLabelClass(type) {
-  if (!type) return '';
-  const t = String(type).toLowerCase();
-  if (t === 'attack') return 'card-type-attack';
-  if (t === 'skill') return 'card-type-skill';
-  if (t === 'power') return 'card-type-power';
-  return '';
-}
-
 function _markRewardSelection(container, wrapper) {
   if (!container || !wrapper) return;
   container.querySelectorAll('.reward-card-wrapper.selected').forEach((el) => el.classList.remove('selected'));
@@ -92,7 +83,7 @@ function _ensureMiniBossBonus(gs, data, deps) {
     const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
     gs.player.items.push(guaranteed.id);
     gs.meta?.codex?.items?.add?.(guaranteed.id);
-    deps.showItemToast?.(guaranteed);
+    gs.addLog?.(`🔥 미니보스 유물 획득: ${guaranteed.icon || '💎'} ${guaranteed.name}`, 'system');
   }
 }
 
@@ -136,8 +127,7 @@ function _renderRewardCardOption(container, cardId, data, deps, onPick, idx) {
   }
 
   const rarity = doc.createElement('div');
-  const typeLabelClass = _toTypeLabelClass(card.type);
-  rarity.className = `card-type reward-card-type ${typeLabelClass}`.trim();
+  rarity.className = `card-type reward-card-type ${rarityClass}`.trim();
   rarity.textContent = _toRarityLabel(card.rarity);
 
   cardEl.append(cost, icon, name, desc, rarity);
@@ -183,7 +173,7 @@ function _renderItemOption(container, item, deps, onPick, idx) {
   }
 
   const rarity = doc.createElement('div');
-  rarity.className = 'card-type reward-card-type';
+  rarity.className = `card-type reward-card-type ${rarityClass}`.trim();
   rarity.textContent = `아이템 · ${_toRarityLabel(item.rarity)}`;
 
   cardEl.append(icon, name, desc, rarity);

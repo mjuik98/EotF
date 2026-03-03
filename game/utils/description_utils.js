@@ -60,6 +60,11 @@ export const DescriptionUtils = {
             `<span class="kw-shield">${m}</span>`
         );
 
+        // "방어막의", "방어막만큼", "보호막 획득" 같은 비숫자 문맥
+        protect(/방어막|보호막/g, (m) =>
+            `<span class="kw-shield">${m}</span>`
+        );
+
         // "잔향 X 충전" 또는 "잔향 X"
         protect(/잔향\s*\d+\s*충전|잔향\s*\d+/g, (m) =>
             `<span class="kw-echo">${m}</span>`

@@ -7,6 +7,7 @@
 import { LogUtils } from '../utils/log_utils.js';
 import { Actions } from '../core/state_actions.js';
 import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
+import { getRegionIdForStage } from '../systems/run_rules.js';
 
 const INFINITE_STACK_BUFF_IDS = new Set([
     'resonance',
@@ -36,6 +37,20 @@ function _normalizeInfiniteStack(buffId, buff) {
     }
 }
 
+function _resolveActiveRegionId(gs) {
+    const activeRegionId = Number(gs?._activeRegionId);
+    if (Number.isFinite(activeRegionId)) {
+        return Math.max(0, Math.floor(activeRegionId));
+    }
+
+    const regionIdx = Math.max(0, Math.floor(Number(gs?.currentRegion) || 0));
+    const resolved = Number(getRegionIdForStage(regionIdx, gs));
+    if (Number.isFinite(resolved)) {
+        return Math.max(0, Math.floor(resolved));
+    }
+    return regionIdx;
+}
+
 // ═══════════════════════════════════════
 //  상수
 // ═══════════════════════════════════════
@@ -59,8 +74,8 @@ const ENEMY_EFFECTS = {
         enemy.shield = (enemy.shield || 0) + 20;
         gs.addLog(LogUtils.formatShield(enemy.name, 20), 'shield');
     },
-    add_noise_5(gs, _enemy, _deps, baseRegion) {
-        if (baseRegion === 1) gs.addSilence(5);
+    add_noise_5(gs, _enemy, _deps, regionId) {
+        if (regionId === 1) gs.addSilence(5);
     },
     mass_debuff(gs) {
         const debuffs = ['weakened', 'slowed', 'burning'];
@@ -83,8 +98,8 @@ const ENEMY_EFFECTS = {
         gs.addLog(LogUtils.formatEcho('잔향 완전 무효화!'), 'damage');
         return { uiAction: 'updateChainUI', value: 0 };
     },
-    add_noise(gs, _enemy, _deps, baseRegion) {
-        if (baseRegion === 1) gs.addSilence(3);
+    add_noise(gs, _enemy, _deps, regionId) {
+        if (regionId === 1) gs.addSilence(3);
     },
     exhaust_card(gs, _enemy, _deps, _baseRegion, data) {
         if (gs.player.hand.length > 0) {
@@ -240,10 +255,8 @@ export const TurnManager = {
 
         // 침묵의 도시에서는 모든 클래스가 턴 종료 시 소음을 1 낮춘다.
         // 헌터는 기존 규칙대로 지역과 무관하게 1 낮춘다.
-        const baseRegionIdx = typeof globalThis.getBaseRegionIndex === 'function'
-            ? globalThis.getBaseRegionIndex(gs.currentRegion)
-            : (Number(gs.currentRegion) || 0) % 5;
-        const shouldReduceSilence = baseRegionIdx === 1 || gs.player.class === 'hunter';
+        const activeRegionId = _resolveActiveRegionId(gs);
+        const shouldReduceSilence = activeRegionId === 1 || gs.player.class === 'hunter';
         if (shouldReduceSilence && gs.player.silenceGauge > 0) {
             gs.player.silenceGauge = Math.max(0, gs.player.silenceGauge - 1);
         }
@@ -504,14 +517,14 @@ export const TurnManager = {
      * 적 이펙트 디스패치 (이펙트 실행 후 필요한 UI 액션 반환)
      * @returns {{ uiAction?: string, value?: any } | undefined}
      */
-    handleEnemyEffect(effect, gs, enemy, { baseRegion, data } = {}) {
+    handleEnemyEffect(effect, gs, enemy, { regionId, data } = {}) {
         if (!effect || !gs || !enemy) return undefined;
         if (enemy.hp <= 0) return undefined;
         if (!(gs.combat?.active ?? true)) return undefined;
         const playerHp = Number(gs.player?.hp);
         if (Number.isFinite(playerHp) && playerHp < 1) return undefined;
         const handler = ENEMY_EFFECTS[effect];
-        if (handler) return handler(gs, enemy, {}, baseRegion, data);
+        if (handler) return handler(gs, enemy, {}, regionId, data);
         else console.warn('[TurnManager] 알 수 없는 효과:', effect);
         return undefined;
     },
@@ -544,10 +557,9 @@ export const TurnManager = {
         gs.player.shield = 0;
 
         // ── 지역별 스테이지 효과 (Stage Effects) 발동 ──
-        const regionIdx = gs.currentRegion || 0;
-        const baseRegionIdx = typeof window.getBaseRegionIndex === 'function' ? window.getBaseRegionIndex(regionIdx) : (regionIdx % 5);
+        const activeRegionId = _resolveActiveRegionId(gs);
 
-        if (baseRegionIdx === 2) { // Stage effect: exhaust one random card without duplicating piles
+        if (activeRegionId === 2) { // 기억의 미궁: 카드 1장 소멸
             const pools = [
                 { key: 'deck', cards: gs.player.deck },
                 { key: 'hand', cards: gs.player.hand },
@@ -577,12 +589,12 @@ export const TurnManager = {
                     }
                 }
             }
-        } else if (baseRegionIdx === 3) { // 신의 무덤: 에너지 회복량 -1
+        } else if (activeRegionId === 3) { // 신의 무덤: 에너지 회복량 -1
             if (!isStunned) {
                 gs.player.energy = Math.max(0, gs.player.energy - 1);
                 gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', -1, false), 'damage');
             }
-        } else if (baseRegionIdx === 4) { // 메아리의 근원: 매 턴 최대 에코 -5
+        } else if (activeRegionId === 4) { // 메아리의 근원: 매 턴 최대 에코 -5
             gs.player.maxEcho = Math.max(50, (gs.player.maxEcho || 100) - 5);
             gs.player.echo = Math.min(gs.player.echo, gs.player.maxEcho);
             gs.addLog?.(LogUtils.formatStatChange('플레이어', '최대 에코', -5, false), 'damage');
