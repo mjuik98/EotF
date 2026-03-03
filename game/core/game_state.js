@@ -27,6 +27,7 @@ export const GS = {
         upgradedCards: new Set(), _cardUpgradeBonus: {},
     },
     currentRegion: 0, currentFloor: 1,
+    regionFloors: {},
     mapNodes: [], currentNode: null, visitedNodes: new Set(),
     combat: { active: false, enemies: [], turn: 0, playerTurn: true, log: [] },
     _selectedTarget: null,

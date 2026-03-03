@@ -366,7 +366,18 @@ export const HelpPauseUI = {
       const gs = deps.gs;
 
       // ESC: 일시정지 또는 모달 닫기
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        const fullMapOverlay = doc.getElementById('fullMapOverlay');
+        if (_isVisibleModal(fullMapOverlay, doc)) {
+          e.preventDefault();
+          if (typeof fullMapOverlay._closeFullMap === 'function') {
+            fullMapOverlay._closeFullMap();
+          } else {
+            fullMapOverlay.remove();
+          }
+          return;
+        }
+
         const battleChronicle = doc.getElementById('battleChronicleOverlay');
         if (_isVisibleModal(battleChronicle, doc)) {
           if (typeof deps.closeBattleChronicle === 'function') {
@@ -423,6 +434,7 @@ export const HelpPauseUI = {
 
         // 전투 중이거나 게임 화면이면 일시정지 토글
         if (isInGame && !self.isHelpOpen()) {
+          e.preventDefault();
           self.togglePause(deps);
           return;
         }
@@ -494,6 +506,6 @@ export const HelpPauseUI = {
           }
         }
       }
-    });
+    }, true);
   },
 };

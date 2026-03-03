@@ -97,6 +97,48 @@ export const CombatStartUI = {
     const bladeOverlay = doc.getElementById('bladeSplitOverlay');
     const combatOverlay = doc.getElementById('combatOverlay');
 
+    // 지역별 진입 플래시 색상 매핑
+    const REGION_FLASH_COLORS = ['#00cc88', '#4488ff', '#cc44ff', '#ffaa00', '#ff3366'];
+    const baseRegionIdx = typeof getBaseRegionIndex === 'function'
+      ? getBaseRegionIndex(gs.currentRegion)
+      : 0;
+    const flashColor = REGION_FLASH_COLORS[baseRegionIdx] ?? '#7b2fff';
+
+    if (combatOverlay) {
+      combatOverlay.style.setProperty('--entry-flash-color', flashColor);
+    }
+    if (bladeOverlay) {
+      const bladeSlash = bladeOverlay.querySelector('.blade-slash');
+      if (bladeSlash) bladeSlash.style.background = flashColor;
+      const bladeParts = bladeOverlay.querySelectorAll('.blade-part');
+      bladeParts.forEach((part) => {
+        part.style.boxShadow = `0 0 50px ${flashColor}55`;
+      });
+    }
+
+    if (isBoss) {
+      const bossName = gs.combat.enemies[0]?.name ?? 'BOSS';
+      deps.screenShake?.shake?.(20, 1.2);
+
+      const bossBanner = doc.createElement('div');
+      bossBanner.className = 'boss-encounter-banner';
+
+      const sub = doc.createElement('div');
+      sub.className = 'boss-encounter-sub';
+      sub.textContent = 'BOSS ENCOUNTER';
+
+      const name = doc.createElement('div');
+      name.className = 'boss-encounter-name';
+      name.textContent = bossName;
+
+      const line = doc.createElement('div');
+      line.className = 'boss-encounter-line';
+
+      bossBanner.append(sub, name, line);
+      doc.body.appendChild(bossBanner);
+      setTimeout(() => bossBanner.remove(), 2200);
+    }
+
     if (bladeOverlay && combatOverlay) {
       bladeOverlay.classList.add('active');
       setTimeout(() => {
@@ -108,6 +150,28 @@ export const CombatStartUI = {
     } else if (combatOverlay) {
       combatOverlay.classList.add('active');
     }
+
+    setTimeout(() => {
+      doc.querySelectorAll('#enemyZone > *').forEach((card, i) => {
+        card.style.setProperty('--enter-delay', `${i * 120}ms`);
+        card.classList.add('enemy-enter');
+        setTimeout(() => {
+          card.classList.remove('enemy-enter');
+          card.style.removeProperty('--enter-delay');
+        }, 800 + i * 120);
+      });
+    }, 420);
+
+    setTimeout(() => {
+      doc.querySelectorAll('#combatHandCards .card').forEach((card, i) => {
+        card.style.setProperty('--deal-delay', `${i * 65}ms`);
+        card.classList.add('card-deal-in');
+        setTimeout(() => {
+          card.classList.remove('card-deal-in');
+          card.style.removeProperty('--deal-delay');
+        }, 600 + i * 65);
+      });
+    }, 480);
 
     // 손패 클릭 잠금 상태가 남아있는 경우 초기화
     const handZone = doc.getElementById('combatHandCards');

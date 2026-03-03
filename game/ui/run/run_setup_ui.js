@@ -159,6 +159,7 @@ export const RunSetupUI = {
       if (typeof deps.shuffleArray === 'function') deps.shuffleArray(gs.player.deck);
       gs.currentRegion = 0;
       gs.currentFloor = 0;
+      gs.regionFloors = {};
       gs.mapNodes = [];
       gs.currentNode = null;
       gs.visitedNodes = new Set();

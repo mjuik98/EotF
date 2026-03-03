@@ -382,6 +382,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(3, 2, 10, 0.96);
+  -webkit-backdrop-filter: blur(15px);
   backdrop-filter: blur(15px);
   z-index: 700;
   display: flex !important;
@@ -1337,6 +1338,7 @@ body {
   width: 125px;
   height: 180px;
   flex-shrink: 0;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -2215,17 +2217,19 @@ body {
   bottom: 220px;
   right: 260px;
   transform: none;
-  background: rgba(7, 7, 26, 0.94);
-  border: 1px solid var(--border);
+  background: rgba(7, 7, 26, 0.85);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(123, 47, 255, 0.4);
   border-radius: 12px;
   padding: 16px 24px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 13px;
   color: var(--text);
   z-index: 9000;
-  /* 미니맵보다 위로 */
   min-width: 240px;
   animation: fadeInUp 0.4s ease both;
+  transition: bottom 0.2s ease;
   pointer-events: none;
   box-shadow: 0 0 40px rgba(123, 47, 255, 0.2);
 }
@@ -2239,6 +2243,158 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+}
+
+/* ── REST SITE: FILLING OVERLAY ── */
+.rest-fill-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+
+.rest-fill-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rest-fill-overlay.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.rest-fill-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center bottom, rgba(255, 140, 50, 0.15) 0%, rgba(3, 2, 10, 0.97) 70%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.rest-fill-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 420px;
+  width: 90vw;
+  padding: 40px 36px;
+  background: rgba(10, 8, 25, 0.7);
+  border: 1px solid rgba(255, 160, 60, 0.25);
+  border-radius: 20px;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(255, 120, 40, 0.08),
+    inset 0 1px 0 rgba(255, 200, 100, 0.1);
+  animation: restContentRise 0.8s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+@keyframes restContentRise {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rest-fill-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
+  animation: restFireGlow 2s ease-in-out infinite;
+}
+
+@keyframes restFireGlow {
+
+  0%,
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+
+  50% {
+    filter: brightness(1.3);
+    transform: scale(1.08);
+  }
+}
+
+.rest-fill-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffd6a0;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+  text-shadow: 0 0 20px rgba(255, 160, 60, 0.4);
+}
+
+.rest-fill-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(255, 200, 140, 0.6);
+  margin-bottom: 32px;
+}
+
+.rest-fill-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rest-fill-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rest-fill-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--text-dim);
+  min-width: 60px;
+  text-align: left;
+}
+
+.rest-fill-bar-track {
+  flex: 1;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rest-fill-bar {
+  height: 100%;
+  border-radius: 7px;
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+}
+
+.rest-fill-bar.hp-fill {
+  background: linear-gradient(90deg, #ff3366, #ff6699);
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.5);
+}
+
+.rest-fill-bar.echo-fill {
+  background: linear-gradient(90deg, #7b2fff, #a855f7);
+  box-shadow: 0 0 12px rgba(123, 47, 255, 0.5);
+}
+
+.rest-fill-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  min-width: 70px;
+  text-align: right;
 }
 
 .boss-phase-bar {
@@ -2335,12 +2491,17 @@ body {
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  visibility: hidden;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.4s;
 }
 
 #deckViewModal.active {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s;
 }
 
 #deckViewModal .deck-modal-inner {
@@ -2455,20 +2616,10 @@ body:has(#combatOverlay.active) .panel-right {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle, var(--echo-bright) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--entry-flash-color, var(--echo-bright)) 0%, transparent 70%);
   z-index: 2000;
   pointer-events: none;
   animation: combatEntryFlash 0.8s cubic-bezier(0.2, 0, 0.2, 1) forwards;
-}
-
-#combatOverlay.active::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, 1), inset 0 0 200px rgba(123, 47, 255, 0.3);
-  z-index: 1999;
-  pointer-events: none;
-  animation: combatEntryVignette 1.2s ease-out forwards;
 }
 
 @keyframes combatOverlayFadeIn {
@@ -2539,6 +2690,42 @@ body:has(#combatOverlay.active) .panel-right {
   display: block;
 }
 
+/* ── ALTERNATIVE: WARP FLASH (FAST) ── */
+.warp-flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: white;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+}
+
+.warp-flash-overlay.active {
+  display: block;
+  animation: warpFlashAnim 0.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+@keyframes warpFlashAnim {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+    filter: brightness(2) blur(20px);
+  }
+
+  20% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(3) blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+    filter: brightness(1) blur(10px);
+  }
+}
+
 .blade-part {
   position: absolute;
   width: 150%;
@@ -2598,6 +2785,137 @@ body:has(#combatOverlay.active) .panel-right {
   100% {
     transform: translate(-50%, -50%) rotate(-15deg) scaleX(1.2);
     opacity: 0;
+  }
+}
+
+@keyframes enemyEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.88);
+    filter: brightness(2);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.03);
+    filter: brightness(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+.enemy-enter {
+  animation: enemyEnter 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: var(--enter-delay, 0ms) !important;
+}
+
+@keyframes cardDealIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.85) rotate(-6deg);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.02) rotate(0.5deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+.card-deal-in {
+  animation: cardDealIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+  animation-delay: var(--deal-delay, 0ms) !important;
+}
+
+@keyframes bossEncounterIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(0.4) scaleY(1.2);
+    filter: blur(12px);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scaleX(1.04) scaleY(0.97);
+    filter: blur(0);
+  }
+
+  60% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+    filter: blur(6px);
+  }
+}
+
+.boss-encounter-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3500;
+  text-align: center;
+  pointer-events: none;
+  animation: bossEncounterIn 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.boss-encounter-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.6em;
+  color: var(--danger);
+  opacity: 0.85;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(255, 51, 102, 0.8);
+}
+
+.boss-encounter-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(28px, 5vw, 56px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow:
+    0 0 20px rgba(255, 51, 102, 0.9),
+    0 0 60px rgba(255, 51, 102, 0.4),
+    0 4px 30px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.boss-encounter-line {
+  width: 180px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--danger), transparent);
+  margin: 12px auto 0;
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.6);
+  animation: bossLinePulse 0.4s ease 0.5s both;
+}
+
+@keyframes bossLinePulse {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scaleX(1);
+    opacity: 1;
   }
 }
 
@@ -4052,8 +4370,8 @@ body:has(#combatOverlay.active) .panel-right {
 
 .item-toast {
   position: fixed;
-  bottom: 220px;
-  /* 전투 요약창과 정렬 */
+  bottom: 340px;
+  /* 전투 요약창 위에 배치 */
   right: 260px;
   /* 우측 패널(240px) + 여백(20px) */
   background: rgba(16, 16, 46, 0.98);
@@ -4065,6 +4383,7 @@ body:has(#combatOverlay.active) .panel-right {
   align-items: center;
   z-index: 1000;
   animation: toastRevealRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  transition: bottom 0.2s ease;
   backdrop-filter: blur(32px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(123, 47, 255, 0.2);
 }
@@ -4539,7 +4858,9 @@ body:has(#combatOverlay.active) .panel-right {
   letter-spacing: 0.6em;
 }
 
-.primary-start-btn:hover::before {
+.primary-start-btn:hover::before,
+.settings-trigger-btn:hover::before,
+.btn-quit-special:hover::before {
   animation: gleam 1.2s infinite;
 }
 
@@ -4633,12 +4954,19 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 .settings-trigger-btn {
-  background: rgba(123, 47, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 10px 24px;
-  border-radius: 2px;
+  background: linear-gradient(180deg, var(--panel) 0%, rgba(20, 10, 40, 0.4) 100%);
+  border: 1px solid rgba(123, 47, 255, 0.3);
+  padding: 12px 32px;
+  border-radius: 4px;
   color: var(--text-dim);
   font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 /* ── MOBILE RESPONSIVENESS (Basic) ── */
@@ -4731,11 +5059,23 @@ body:has(#combatOverlay.active) .panel-right {
 
 
 .settings-trigger-btn:hover {
-  background: rgba(123, 47, 255, 0.15);
+  background: linear-gradient(180deg, rgba(30, 15, 60, 0.6) 0%, var(--echo) 100%);
   border-color: var(--echo);
   color: var(--white);
-  letter-spacing: 0.35em;
-  box-shadow: 0 0 15px rgba(123, 47, 255, 0.3);
+  letter-spacing: 0.3em;
+  box-shadow: 0 0 25px var(--echo-glow);
+  transform: translateY(-2px);
+}
+
+.settings-trigger-btn::before,
+.btn-quit-special::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
 #startBtn.start-btn {
@@ -4783,6 +5123,9 @@ body:has(#combatOverlay.active) .panel-right {
 
 #startBtn.start-btn:disabled {
   background: rgba(20, 20, 40, 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   border-color: rgba(123, 47, 255, 0.2);
   color: rgba(255, 255, 255, 0.2);
   box-shadow: none;
@@ -4977,9 +5320,20 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 .btn-quit-special {
-  background: rgba(255, 51, 102, 0.1) !important;
-  border-color: rgba(255, 51, 102, 0.3) !important;
+  background: rgba(255, 51, 102, 0.05) !important;
+  border-color: rgba(255, 51, 102, 0.25) !important;
   color: var(--danger) !important;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-quit-special:hover {
+  background: rgba(255, 51, 102, 0.2) !important;
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 20px rgba(255, 51, 102, 0.3) !important;
+  letter-spacing: 0.3em !important;
+  transform: translateY(-2px);
 }
 
 /* Character Select Utility */
@@ -5778,19 +6132,20 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 .deck-footer {
-  display: block !important;
+  display: block;
   text-align: center;
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
-  visibility: visible !important;
-  opacity: 1 !important;
 }
 
 .deck-footer .premium-btn.close-btn {
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+  display: inline-block;
+}
+
+#deckViewModal:not(.active),
+#deckViewModal:not(.active) * {
+  pointer-events: none !important;
 }
 
 .codex-close-btn,

@@ -1,5 +1,31 @@
 import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
+
+const MIN_REGION_FLOORS = 6;
+const MAX_REGION_FLOORS = 9;
+
+function _rollRegionFloors() {
+  return MIN_REGION_FLOORS + Math.floor(Math.random() * (MAX_REGION_FLOORS - MIN_REGION_FLOORS + 1));
+}
+
+function _resolveRegionFloors(gs, regionAbsIdx, baseFloors) {
+  const fallback = Math.max(1, Math.floor(Number(baseFloors) || 1));
+  if (!gs) return fallback;
+
+  if (!gs.regionFloors || typeof gs.regionFloors !== 'object' || Array.isArray(gs.regionFloors)) {
+    gs.regionFloors = {};
+  }
+
+  const key = String(Math.max(0, Math.floor(Number(regionAbsIdx) || 0)));
+  const existing = Number(gs.regionFloors[key]);
+  if (Number.isFinite(existing) && existing >= MIN_REGION_FLOORS && existing <= MAX_REGION_FLOORS) {
+    return Math.floor(existing);
+  }
+
+  const rolled = _rollRegionFloors();
+  gs.regionFloors[key] = rolled;
+  return rolled;
+}
 export function getRegionCount() {
   return Array.isArray(DATA?.regions) ? DATA.regions.length : 0;
 }
@@ -22,11 +48,13 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
 
   const gs = gsRef || GAME.State || null;
   const endless = !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
-  if (!endless || idx < count) return baseRegion;
+  const floors = _resolveRegionFloors(gs, idx, baseRegion.floors);
+  const regionWithFloors = { ...baseRegion, floors };
+  if (!endless || idx < count) return regionWithFloors;
 
   const cycle = Math.floor(idx / count);
   return {
-    ...baseRegion,
+    ...regionWithFloors,
     _baseRegion: baseIdx,
     _endlessCycle: cycle,
     name: `${baseRegion.name} · 루프 ${cycle + 1}`,

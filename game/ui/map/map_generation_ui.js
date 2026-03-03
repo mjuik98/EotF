@@ -22,7 +22,7 @@ export const MapGenerationUI = {
         ? (Math.random() < 0.5 ? 'shop' : 'rest')
         : null;
       const isLateGame = floor >= Math.ceil(region.floors * 0.5);
-      const count = isBossFloor
+      const count = (isBossFloor || isPreBossFloor)
         ? 1
         : (isFirstStage
           ? (floor === 1 ? 1 : (Math.floor(Math.random() * 3) + 1))
