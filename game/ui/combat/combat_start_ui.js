@@ -94,8 +94,18 @@ export const CombatStartUI = {
     deps.updateCombatLog?.();
     deps.updateNoiseWidget?.();
 
+    const bladeOverlay = doc.getElementById('bladeSplitOverlay');
     const combatOverlay = doc.getElementById('combatOverlay');
-    if (combatOverlay) {
+
+    if (bladeOverlay && combatOverlay) {
+      bladeOverlay.classList.add('active');
+      setTimeout(() => {
+        combatOverlay.classList.add('active');
+      }, 350);
+      setTimeout(() => {
+        bladeOverlay.classList.remove('active');
+      }, 1200);
+    } else if (combatOverlay) {
       combatOverlay.classList.add('active');
     }
 

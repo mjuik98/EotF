@@ -16,7 +16,7 @@ export const DeckModalUI = {
     this.renderDeckModal(deps);
     const doc = _getDoc(deps);
     const modal = doc.getElementById('deckViewModal');
-    if (modal) modal.style.display = 'block';
+    if (modal) modal.classList.add('active');
   },
 
   renderDeckModal(deps = {}) {
@@ -177,7 +177,7 @@ export const DeckModalUI = {
     const doc = deps?.doc || document;
     const modal = doc.getElementById('deckViewModal');
     if (modal) {
-      modal.style.display = 'none';
+      modal.classList.remove('active');
     }
   },
 };

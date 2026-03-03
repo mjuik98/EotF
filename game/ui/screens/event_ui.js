@@ -261,7 +261,13 @@ export const EventUI = {
     const doc = _getDoc(deps);
     const overlay = doc.createElement('div');
     overlay.id = 'cardDiscardOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.94);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px;gap:20px;z-index:800;backdrop-filter:blur(12px);overflow-y:auto;animation:fadeIn 0.3s ease both;';
+    overlay.style.cssText = `
+      position:fixed;inset:0;background:rgba(3,3,10,0.96);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+      padding:40px 24px;gap:20px;z-index:900;backdrop-filter:blur(20px);
+      overflow-y:auto; transition: opacity 0.3s ease;
+      animation: modalFadeInDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    `;
 
     const titleEl = doc.createElement('div');
     titleEl.style.textAlign = 'center';
@@ -289,7 +295,8 @@ export const EventUI = {
     cancelBtn.textContent = '취소';
     cancelBtn.onclick = () => {
       deps.onCancel?.();
-      overlay.remove();
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.remove(), 300);
     };
 
     overlay.append(titleEl, list, cancelBtn);
@@ -344,7 +351,8 @@ export const EventUI = {
           if (typeof deps.playItemGet === 'function') deps.playItemGet();
           if (typeof deps.updateUI === 'function') deps.updateUI();
         }
-        overlay.remove();
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
         if (isBurn && typeof deps.returnToGame === 'function') {
           deps.returnToGame(true);
         }
@@ -372,7 +380,13 @@ export const EventUI = {
     const doc = _getDoc(deps);
     const overlay = doc.createElement('div');
     overlay.id = 'itemShopOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:800;backdrop-filter:blur(12px);animation:fadeIn 0.3s ease both;';
+    overlay.style.cssText = `
+      position:fixed;inset:0;background:rgba(3,3,10,0.96);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:24px;z-index:900;backdrop-filter:blur(20px);
+      transition: opacity 0.3s ease;
+      animation: modalFadeInDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    `;
 
     const titleCont = doc.createElement('div');
     titleCont.style.textAlign = 'center';
@@ -402,7 +416,10 @@ export const EventUI = {
     const closeBtn = doc.createElement('button');
     closeBtn.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 24px;cursor:pointer;";
     closeBtn.textContent = '닫기';
-    closeBtn.onclick = () => overlay.remove();
+    closeBtn.onclick = () => {
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.remove(), 300);
+    };
 
     overlay.append(titleCont, list, closeBtn);
     doc.body.appendChild(overlay);
