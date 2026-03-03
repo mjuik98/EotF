@@ -295,9 +295,8 @@ body {
   background: var(--glass);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 40px 24px;
-  width: 320px;
-  /* Scale UP (기존 240px) */
+  padding: 24px 16px;
+  width: 210px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -307,22 +306,21 @@ body {
 
 .class-btn:hover {
   border-color: var(--echo);
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 15px 40px rgba(123, 47, 255, 0.3), 0 0 20px var(--echo-glow);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(123, 47, 255, 0.2), 0 0 15px var(--echo-glow);
 }
 
 .class-btn.selected {
   border-color: var(--cyan);
-  background: rgba(0, 255, 204, 0.08);
-  box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
-  transform: translateY(-8px) scale(1.02);
+  background: rgba(0, 255, 204, 0.1);
+  box-shadow: 0 0 25px rgba(0, 255, 204, 0.3);
+  transform: translateY(-5px);
 }
 
 .class-btn-icon-container {
-  width: 180px;
-  /* Scale UP (기존 140px) */
-  height: 180px;
-  margin: 0 auto 24px;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
   border-radius: 50%;
   background: rgba(123, 47, 255, 0.12);
   border: 1px solid rgba(123, 47, 255, 0.25);
@@ -347,27 +345,37 @@ body {
 
 .class-btn-name {
   font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
   color: var(--white);
   margin-bottom: 4px;
-  text-align: center;
+  letter-spacing: 0.1em;
 }
 
 .class-btn-style {
-  font-size: 11px;
+  font-size: 9px;
   color: var(--echo);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
   margin-bottom: 12px;
-  text-align: center;
+  opacity: 0.8;
 }
 
 .class-btn-desc {
-  font-size: 12px;
-  color: var(--text-dim);
+  font-size: 10px;
   line-height: 1.5;
-  text-align: center;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  min-height: 45px;
+}
+
+.class-btn-trait,
+.class-btn-relic {
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  text-align: left;
+  padding-left: 8px;
+  border-left: 2px solid var(--echo);
 }
 
 /* ── RUN MODE PANEL PREMIUM REDESIGN ── */
@@ -1276,6 +1284,7 @@ body {
   font-size: 18px;
   font-weight: 900;
   color: var(--white);
+  line-height: 1;
 }
 
 .deck-count-label {
@@ -2388,6 +2397,70 @@ body:has(#combatOverlay.active) .panel-right {
 
 #combatOverlay.active {
   display: block !important;
+  animation: combatOverlayFadeIn 0.5s ease-out both;
+}
+
+#combatOverlay.active::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, var(--echo-bright) 0%, transparent 70%);
+  z-index: 2000;
+  pointer-events: none;
+  animation: combatEntryFlash 0.8s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+}
+
+#combatOverlay.active::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 1), inset 0 0 200px rgba(123, 47, 255, 0.3);
+  z-index: 1999;
+  pointer-events: none;
+  animation: combatEntryVignette 1.2s ease-out forwards;
+}
+
+@keyframes combatOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes combatEntryFlash {
+  0% {
+    opacity: 0;
+    transform: scale(2);
+    filter: blur(20px);
+  }
+
+  30% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes combatEntryVignette {
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.5;
+  }
 }
 
 #combatOverlay.active>* {
@@ -3037,7 +3110,7 @@ body:has(#combatOverlay.active) .panel-right {
   text-align: center;
   padding: 5px 10px;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 6px;
 }
 
@@ -3921,6 +3994,24 @@ body:has(#combatOverlay.active) .panel-right {
   }
 }
 
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease forwards !important;
+}
+
+.fade-out {
+  animation: fadeOut 0.2s ease forwards !important;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -4510,29 +4601,55 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 #startBtn.start-btn {
-  background: linear-gradient(135deg, var(--echo) 0%, #3e1b7c 100%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 20px var(--echo-glow);
+  background: linear-gradient(135deg, var(--echo) 0%, #1a0b36 100%);
+  border: 1px solid var(--echo);
+  box-shadow: 0 0 15px var(--echo-glow), inset 0 0 10px rgba(123, 47, 255, 0.4);
   font-family: 'Cinzel', serif;
-  font-weight: 900;
-  letter-spacing: 0.3em;
-  border-radius: 4px;
-  padding: 16px 60px;
-  transition: all 0.4s;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  border-radius: 50px;
+  padding: 18px 80px;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+#startBtn.start-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: 0.5s;
+}
+
+#startBtn.start-btn:not(:disabled):hover::before {
+  left: 100%;
 }
 
 #startBtn.start-btn:not(:disabled):hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 40px var(--echo-glow);
-  border-color: var(--white);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 30px var(--echo-glow), 0 0 20px var(--cyan-glow);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+#startBtn.start-btn:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 #startBtn.start-btn:disabled {
-  background: #111;
-  border-color: #333;
-  color: #444;
+  background: rgba(20, 20, 40, 0.6);
+  border-color: rgba(123, 47, 255, 0.2);
+  color: rgba(255, 255, 255, 0.2);
   box-shadow: none;
   cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 /* ── 사운드 슬라이더 스타일 ── */
@@ -4757,9 +4874,30 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 .back-to-title-btn {
-  opacity: 0.7;
-  border: none !important;
-  background: transparent !important;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(7, 7, 26, 0.85);
+  border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--white);
+  transition: all 0.2s;
+}
+
+.back-to-title-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--echo);
+  box-shadow: 0 0 15px var(--echo-glow);
 }
 
 .class-select-hint {
@@ -4770,6 +4908,55 @@ body:has(#combatOverlay.active) .panel-right {
   opacity: 0.6;
   margin-top: 12px;
   transition: opacity 0.4s;
+}
+
+/* Redesigned Run Stats Badge */
+.title-run-stats {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 24px;
+  background: rgba(3, 3, 10, 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(123, 47, 255, 0.2);
+  border-radius: 30px;
+  z-index: 5;
+  pointer-events: none;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: fadeInDown 0.8s ease backwards;
+}
+
+.title-run-stats .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-run-stats .stat-label {
+  opacity: 0.6;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.title-run-stats .stat-value {
+  color: var(--echo);
+  font-weight: 700;
+  text-shadow: 0 0 8px var(--echo-glow);
+}
+
+.title-run-stats .stat-sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(123, 47, 255, 0.2);
 }
 
 /* Run Rules & Modals Cleanup */
@@ -4796,28 +4983,35 @@ body:has(#combatOverlay.active) .panel-right {
 /* Sound Settings Float Panel */
 .sound-toggle-btn {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 100;
+  bottom: 20px;
+  left: 72px;
+  z-index: 1000;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   background: rgba(7, 7, 26, 0.85);
   border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 18px;
-  transition: transform 0.2s;
+  transition: all 0.2s;
+}
+
+.sound-toggle-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--echo);
+  box-shadow: 0 0 15px var(--echo-glow);
 }
 
 .sound-settings-panel {
   position: fixed;
   bottom: 64px;
-  right: 16px;
-  z-index: 100;
+  left: 20px;
+  z-index: 1001;
   padding: 14px 18px;
   background: rgba(7, 7, 26, 0.92);
   border: 1px solid var(--border);
@@ -5148,6 +5342,7 @@ body:has(#combatOverlay.active) .panel-right {
   letter-spacing: 0.1em;
 }
 
+/* Hide run stats on char select screen */
 .skip-btn-danger {
   color: var(--danger) !important;
   border-color: rgba(255, 51, 102, 0.4) !important;
@@ -5383,6 +5578,15 @@ body:has(#combatOverlay.active) .panel-right {
 
 .codex-entry.is-unknown .codex-entry-icon {
   opacity: 0.4;
+}
+
+.codex-empty {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 11px;
 }
 
 .codex-entry-icon {

@@ -35,8 +35,28 @@ export const GameBootUI = {
 
       if ((gs?.meta?.runCount || 0) > 1) {
         const badge = doc.createElement('div');
-        badge.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);font-family:\'Share Tech Mono\',monospace;font-size:10px;color:rgba(123,47,255,0.5);z-index:5;pointer-events:none;';
-        badge.textContent = `珥?${gs.meta.runCount - 1}???뚮젅??쨌 泥섏튂 ${gs.meta.totalKills} 쨌 理쒓퀬 泥댁씤 ${gs.meta.bestChain}`;
+        badge.className = 'title-run-stats';
+
+        const runCount = gs.meta.runCount - 1;
+        const totalKills = gs.meta.totalKills || 0;
+        const bestChain = gs.meta.bestChain || 0;
+
+        badge.innerHTML = `
+          <div class="stat-item">
+            <span class="stat-label">TOTAL RUNS</span>
+            <span class="stat-value">${runCount}</span>
+          </div>
+          <div class="stat-sep"></div>
+          <div class="stat-item">
+            <span class="stat-label">KILLS</span>
+            <span class="stat-value">${totalKills}</span>
+          </div>
+          <div class="stat-sep"></div>
+          <div class="stat-item">
+            <span class="stat-label">BEST CHAIN</span>
+            <span class="stat-value">${bestChain}</span>
+          </div>
+        `;
         doc.getElementById('titleScreen')?.appendChild(badge);
       }
     } catch (e) {

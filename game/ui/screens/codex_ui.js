@@ -199,7 +199,11 @@ export const CodexUI = {
 
     const doc = _getDoc(deps);
     const modal = doc.getElementById('codexModal');
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+      modal.classList.remove('fade-out');
+      modal.style.display = 'flex';
+      modal.classList.add('fade-in');
+    }
 
     this.setCodexTab('enemies', deps);
   },
@@ -207,7 +211,21 @@ export const CodexUI = {
   closeCodex(deps = {}) {
     const doc = _getDoc(deps);
     const modal = doc.getElementById('codexModal');
-    if (modal) modal.style.display = 'none';
+    if (!modal) return;
+
+    modal.classList.remove('fade-in');
+    modal.classList.add('fade-out');
+    const onEnd = () => {
+      modal.style.display = 'none';
+      modal.classList.remove('fade-out');
+      modal.removeEventListener('animationend', onEnd);
+    };
+    modal.addEventListener('animationend', onEnd);
+
+    // fallback
+    setTimeout(() => {
+      if (modal.style.display !== 'none') onEnd();
+    }, 250);
   },
 
   setCodexTab(tab, deps = {}) {

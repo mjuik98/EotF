@@ -347,4 +347,12 @@ export const FeedbackUI = {
     const doc = deps.doc || document;
     ButtonFeedback.triggerEffect(btnId, { doc });
   },
+
+  /**
+   * 잔향 스킬 버튼에 시각적 효과 적용 (청록색 파르티클)
+   */
+  triggerEchoButtonEffect(btnId = 'useEchoSkillBtn', deps = {}) {
+    const doc = deps.doc || document;
+    ButtonFeedback.triggerEchoButton(doc);
+  },
 };

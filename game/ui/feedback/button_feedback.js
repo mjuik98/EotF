@@ -15,19 +15,19 @@
  * @param {number} cy - 파티클 생성 중심점 Y 좌표 (viewport 기준)
  * @param {Document} doc - document 객체
  */
-function spawnDomBurst(cx, cy, doc) {
+function spawnDomBurst(cx, cy, doc, mainColor = '#f0b429') {
   const PARTICLES = [
-    ...Array.from({ length: 16 }, () => ({ color: '#f0b429', size: 5 })), // 황금빛
-    ...Array.from({ length: 8 },  () => ({ color: '#ffffff', size: 3 })), // 흰색
+    ...Array.from({ length: 16 }, () => ({ color: mainColor, size: 5 })),
+    ...Array.from({ length: 8 }, () => ({ color: '#ffffff', size: 3 })),
   ];
 
   PARTICLES.forEach(({ color, size }) => {
     const el = doc.createElement('div');
     const angle = Math.random() * Math.PI * 2;
-    const dist  = 40 + Math.random() * 60;
-    const tx    = Math.cos(angle) * dist;
-    const ty    = Math.sin(angle) * dist;
-    const dur   = 400 + Math.random() * 300;
+    const dist = 40 + Math.random() * 60;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+    const dur = 400 + Math.random() * 300;
 
     el.style.cssText = `
         position: fixed;
@@ -67,6 +67,7 @@ export const ButtonFeedback = {
     const doc = options.doc || document;
     const btn = typeof btnOrId === 'string' ? doc.getElementById(btnOrId) : btnOrId;
     if (!btn) return;
+    const mainColor = options.color || '#f0b429';
 
     // 1. Bounce
     btn.classList.remove('clicked');
@@ -84,7 +85,7 @@ export const ButtonFeedback = {
     const rect = btn.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    spawnDomBurst(cx, cy, doc);
+    spawnDomBurst(cx, cy, doc, mainColor);
   },
 
   /**
@@ -100,7 +101,7 @@ export const ButtonFeedback = {
    * @param {Document} doc - document 객체
    */
   triggerEchoButton(doc = document) {
-    this.triggerEffect('useEchoSkillBtn', { doc });
+    this.triggerEffect('useEchoSkillBtn', { doc, color: '#00ffcc' }); // Cyan for Echo
   },
 
   /**

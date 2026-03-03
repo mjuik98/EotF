@@ -118,7 +118,12 @@ export const GameInit = {
         // Combat
         const echoBtn = doc.getElementById('useEchoSkillBtn');
         if (echoBtn) {
-            echoBtn.addEventListener('click', () => useEchoSkill?.());
+            echoBtn.addEventListener('click', () => {
+                useEchoSkill?.();
+                GAME.Modules.FeedbackUI?.triggerEchoButtonEffect?.('useEchoSkillBtn', {
+                    doc: deps.doc || document
+                });
+            });
             echoBtn.addEventListener('mouseenter', (e) => GAME.API.showEchoSkillTooltip?.(e));
             echoBtn.addEventListener('mouseleave', () => GAME.API.hideEchoSkillTooltip?.());
         }
