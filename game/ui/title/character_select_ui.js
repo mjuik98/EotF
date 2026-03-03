@@ -654,6 +654,7 @@ export const CharacterSelectUI = {
 
     // ── 버튼 렌더 ─────────────────────────────────────
     function renderButtons() {
+      const ch = chars[S.idx];
       buttonsRow.innerHTML = `
         <button id="btnCfm" style="padding:10px 48px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Courier New',monospace;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
 
