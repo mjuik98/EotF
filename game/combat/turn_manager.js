@@ -593,7 +593,7 @@ export const TurnManager = {
         );
         const drawCount = drawBlocked ? 4 : 5;
         if (drawBlocked) {
-            gs.addLog?.(LogUtils.formatSystem('Abyss interference: draw -1 this turn.'), 'damage');
+            gs.addLog?.(LogUtils.formatSystem('심연 간섭: 이번 턴 드로우 -1'), 'damage');
         }
         gs.drawCards(drawCount);
 

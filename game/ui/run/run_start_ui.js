@@ -45,14 +45,6 @@ export const RunStartUI = {
         }
       }, 1000);
 
-      if (gs.meta?.runCount > 1) {
-        setTimeout(() => {
-          const badge = doc.createElement('div');
-          badge.style.cssText = 'position:fixed;top:16px;right:16px;font-family:\'Share Tech Mono\',monospace;font-size:10px;color:rgba(123,47,255,0.6);z-index:20;';
-          badge.textContent = `RUN ${gs.meta.runCount}`;
-          doc.getElementById('gameScreen')?.appendChild(badge);
-        }, 500);
-      }
     }, { ttlMs: 2000 });
   },
 };

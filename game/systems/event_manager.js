@@ -59,37 +59,43 @@ export const EventManager = {
     return {
       id: 'shop',
       persistent: true,
-      eyebrow: savedMerchant ? 'World Memory Shop' : 'Layer 1 Shop',
-      title: savedMerchant ? 'Grateful Merchant' : 'Echo Merchant',
+      eyebrow: savedMerchant ? '세계 기억 상점' : '1층 상점',
+      title: savedMerchant ? '은혜를 갚는 상인' : '잔향 상인',
       desc: savedMerchant
-        ? 'The merchant remembers your help and lowers prices.'
-        : 'A wandering merchant offers deals from fractured timelines.',
+        ? '당신의 도움을 기억한 상인이 가격을 낮춰 주었다.'
+        : '부서진 시간대 사이를 떠도는 상인이 거래를 제안한다.',
       choices: [
         {
-          text: `Potion (HP +30) - ${costPotion} gold`,
+          text: `🧪 포션 (HP +30) - ${costPotion} 골드`,
+          cssClass: 'shop-choice-potion',
           effect: (state) => this._shopBuyPotion(state, costPotion),
         },
         {
-          text: `Random uncommon card - ${costCard} gold`,
+          text: `🃏 랜덤 비범 카드 - ${costCard} 골드`,
+          cssClass: 'shop-choice-card',
           effect: (state) => this._shopBuyCard(state, data, costCard),
         },
         {
-          text: `Upgrade random card - ${costUpgrade} gold`,
+          text: `✨ 무작위 카드 강화 - ${costUpgrade} 골드`,
+          cssClass: 'shop-choice-upgrade',
           effect: (state) => this._shopUpgradeCard(state, data, costUpgrade),
         },
         {
-          text: `Max energy +1 - ${costEnergy} gold`,
+          text: `⚡ 최대 에너지 +1 - ${costEnergy} 골드`,
+          cssClass: 'shop-choice-energy',
           effect: (state) => this._shopBuyEnergy(state, costEnergy),
         },
         {
-          text: 'Open relic shop',
+          text: '🛍️ 유물 상점 열기',
+          cssClass: 'shop-choice-relic',
           effect: (state) => {
             if (showItemShopFn) showItemShopFn(state);
             return '__item_shop_open__';
           },
         },
         {
-          text: 'Leave',
+          text: '🚶 떠난다',
+          cssClass: 'shop-choice-leave',
           effect: () => null,
         },
       ],
@@ -109,30 +115,30 @@ export const EventManager = {
 
     const choices = [
       {
-        text: 'Burn a card',
+        text: '카드 1장 소각',
         effect: (state) => {
           if (showCardDiscardFn) showCardDiscardFn(state, true);
           return null;
         },
       },
       {
-        text: 'Upgrade random card',
+        text: '무작위 카드 강화',
         effect: (state) => this._restUpgradeCard(state, data),
       },
     ];
 
     if (canResetStagnation) {
       choices.push({
-        text: 'Reset stagnation deck',
+        text: '정체 덱 복원',
         effect: (state) => this._restResetStagnationDeck(state, data),
       });
     }
 
     return {
       id: 'rest',
-      eyebrow: 'Layer 1 Rest Site',
-      title: 'Echo Sanctuary',
-      desc: 'A still pocket of resonance where your deck can be repaired.',
+      eyebrow: '1층 휴식처',
+      title: '잔향의 안식처',
+      desc: '고요한 공명 속에서 덱을 정비할 수 있다.',
       choices,
     };
   },
@@ -167,13 +173,13 @@ export const EventManager = {
 
   purchaseItem(gs, item, cost) {
     if (gs.player.gold < cost) {
-      return { success: false, message: `Not enough gold (${gs.player.gold}/${cost}).` };
+      return { success: false, message: `골드가 부족합니다 (${gs.player.gold}/${cost}).` };
     }
     gs.player.gold -= cost;
     gs.player.items.push(item.id);
     if (gs.meta?.codex) gs.meta.codex.items.add(item.id);
-    gs.addLog?.(`Purchased ${item.name}.`, 'echo');
-    return { success: true, message: `${item.name} purchased.` };
+    gs.addLog?.(`🛒 ${item.name} 구매 완료.`, 'echo');
+    return { success: true, message: `${item.name}을(를) 구매했습니다.` };
   },
 
   discardCard(gs, cardId, data, isBurn = false) {
@@ -182,84 +188,84 @@ export const EventManager = {
     else if (_removeFirst(gs.player.hand, cardId)) found = true;
     else if (_removeFirst(gs.player.graveyard, cardId)) found = true;
 
-    if (!found) return { success: false, message: 'Card not found.' };
+    if (!found) return { success: false, message: '카드를 찾을 수 없습니다.' };
 
     const card = data.cards?.[cardId];
     if (!isBurn) {
       gs.addGold?.(8);
-      gs.addLog?.(`${card?.name || cardId} sold for 8 gold.`, 'system');
+      gs.addLog?.(`💰 ${card?.name || cardId} 판매: 골드 +8`, 'system');
     } else {
-      gs.addLog?.(`${card?.name || cardId} burned.`, 'system');
+      gs.addLog?.(`🔥 ${card?.name || cardId} 소각`, 'system');
     }
 
     return {
       success: true,
       message: isBurn
-        ? `${card?.name || cardId} burned.`
-        : `${card?.name || cardId} sold (+8 gold).`,
+        ? `${card?.name || cardId} 소각 완료.`
+        : `${card?.name || cardId} 판매 완료 (+8 골드).`,
     };
   },
 
   _shopBuyPotion(state, cost) {
-    if (state.player.gold < cost) return `Not enough gold (${state.player.gold}/${cost}).`;
+    if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
     state.player.gold -= cost;
     state.heal?.(30);
-    return `Recovered 30 HP. Gold left: ${state.player.gold}`;
+    return `❤️ 체력 30 회복. 남은 골드: ${state.player.gold}`;
   },
 
   _shopBuyCard(state, data, cost) {
-    if (state.player.gold < cost) return `Not enough gold (${state.player.gold}/${cost}).`;
+    if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
     const cardId = state.getRandomCard?.('uncommon');
-    if (!cardId) return 'No card available.';
+    if (!cardId) return '획득 가능한 카드가 없습니다.';
     state.player.gold -= cost;
     state.player.deck.push(cardId);
     state.meta?.codex?.cards?.add?.(cardId);
-    return `Obtained ${data.cards?.[cardId]?.name || cardId}. Gold left: ${state.player.gold}`;
+    return `🃏 ${data.cards?.[cardId]?.name || cardId} 획득. 남은 골드: ${state.player.gold}`;
   },
 
   _shopUpgradeCard(state, data, cost) {
-    if (state.player.gold < cost) return `Not enough gold (${state.player.gold}/${cost}).`;
+    if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
     const upgradable = (state.player.deck || []).filter((id) => data.upgradeMap?.[id]);
-    if (!upgradable.length) return 'No upgradable card.';
+    if (!upgradable.length) return '강화 가능한 카드가 없습니다.';
     const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
     const upgId = data.upgradeMap[cardId];
     const idx = state.player.deck.indexOf(cardId);
     if (idx >= 0) state.player.deck[idx] = upgId;
     state.player.gold -= cost;
     state.meta?.codex?.cards?.add?.(upgId);
-    return `${data.cards?.[cardId]?.name || cardId} upgraded. Gold left: ${state.player.gold}`;
+    return `✨ ${data.cards?.[cardId]?.name || cardId} 강화 완료. 남은 골드: ${state.player.gold}`;
   },
 
   _shopBuyEnergy(state, cost) {
-    if (state.player.gold < cost) return `Not enough gold (${state.player.gold}/${cost}).`;
-    if (state.player.maxEnergy >= 6) return 'Already at max energy.';
+    if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
+    if (state.player.maxEnergy >= 6) return '이미 최대 에너지입니다.';
     state.player.gold -= cost;
     state.player.maxEnergy += 1;
     state.player.energy = Math.min(state.player.maxEnergy, (state.player.energy || 0) + 1);
-    state.addLog?.(`Max energy increased to ${state.player.maxEnergy}.`, 'echo');
-    return `Max energy is now ${state.player.maxEnergy}. Gold left: ${state.player.gold}`;
+    state.addLog?.(`⚡ 최대 에너지 증가: ${state.player.maxEnergy}`, 'echo');
+    return `⚡ 최대 에너지 ${state.player.maxEnergy}. 남은 골드: ${state.player.gold}`;
   },
 
   _restResetStagnationDeck(state) {
     if (!Array.isArray(state._stagnationVault) || state._stagnationVault.length === 0) {
-      return 'No cards are waiting for restoration.';
+      return '복원 대기 중인 카드가 없습니다.';
     }
     const restored = [...state._stagnationVault];
     state._stagnationVault = [];
     state.player.deck.push(...restored);
     restored.forEach((cardId) => state.meta?.codex?.cards?.add?.(cardId));
-    state.addLog?.(`Restored ${restored.length} card(s) from stagnation.`, 'echo');
-    return `${restored.length} card(s) restored to deck.`;
+    state.addLog?.(`🧩 정체 영역 복원: 카드 ${restored.length}장`, 'echo');
+    return `덱에 카드 ${restored.length}장을 복원했습니다.`;
   },
 
   _restUpgradeCard(state, data) {
     const upgradable = (state.player.deck || []).filter((id) => data.upgradeMap?.[id]);
-    if (!upgradable.length) return 'No upgradable card.';
+    if (!upgradable.length) return '강화 가능한 카드가 없습니다.';
     const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
     const upgId = data.upgradeMap[cardId];
     const idx = state.player.deck.indexOf(cardId);
     if (idx >= 0) state.player.deck[idx] = upgId;
-    state.addLog?.(`${data.cards?.[cardId]?.name || cardId} upgraded.`, 'echo');
-    return `${data.cards?.[cardId]?.name || cardId} upgraded.`;
+    state.addLog?.(`✨ ${data.cards?.[cardId]?.name || cardId} 강화`, 'echo');
+    return `${data.cards?.[cardId]?.name || cardId} 강화 완료.`;
   },
 };

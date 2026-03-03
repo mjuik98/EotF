@@ -50,16 +50,16 @@ function _applyAbyssEmpowerment(enemy) {
 function _applyAbyssRegionBuffs(gs, region) {
     if (!gs || !region || Number(region.id) !== 6) return;
     const labelByBuff = {
-        shield: 'Abyss Buff: Shield +20',
-        atk: 'Abyss Buff: Attack +30%',
-        regen: 'Abyss Buff: Regen 5/turn',
-        draw_block: 'Abyss Buff: Draw interference',
+        shield: '심연 강화: 방어막 +20',
+        atk: '심연 강화: 공격력 +30%',
+        regen: '심연 강화: 턴당 재생 5',
+        draw_block: '심연 강화: 드로우 간섭',
     };
     gs.combat.enemies.forEach((enemy) => {
         if (!enemy || enemy.hp <= 0) return;
         const buffKey = _applyAbyssEmpowerment(enemy);
         if (buffKey && typeof gs.addLog === 'function') {
-            gs.addLog(`${enemy.name} ${labelByBuff[buffKey] || 'Abyss Buff'}`, 'system');
+            gs.addLog(`${enemy.name} ${labelByBuff[buffKey] || '심연 강화'}`, 'system');
         }
     });
 }

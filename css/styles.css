@@ -2619,7 +2619,7 @@ body:has(#combatOverlay.active) .panel-right {
   background: radial-gradient(circle, var(--entry-flash-color, var(--echo-bright)) 0%, transparent 70%);
   z-index: 2000;
   pointer-events: none;
-  animation: combatEntryFlash 0.8s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  animation: combatEntryFlash 0.95s cubic-bezier(0.2, 0, 0.2, 1) forwards;
 }
 
 @keyframes combatOverlayFadeIn {
@@ -2635,12 +2635,12 @@ body:has(#combatOverlay.active) .panel-right {
 @keyframes combatEntryFlash {
   0% {
     opacity: 0;
-    transform: scale(2);
-    filter: blur(20px);
+    transform: scale(1.6);
+    filter: blur(14px);
   }
 
-  30% {
-    opacity: 1;
+  35% {
+    opacity: 0.72;
     transform: scale(1);
     filter: blur(0);
   }
@@ -2684,10 +2684,17 @@ body:has(#combatOverlay.active) .panel-right {
   z-index: 3000;
   pointer-events: none;
   display: none;
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
 }
 
 .blade-split-overlay.active {
   display: block;
+  opacity: 1;
+}
+
+.blade-split-overlay.ending {
+  opacity: 0;
 }
 
 /* ── ALTERNATIVE: WARP FLASH (FAST) ── */
@@ -2728,11 +2735,12 @@ body:has(#combatOverlay.active) .panel-right {
 
 .blade-part {
   position: absolute;
-  width: 150%;
+  width: 135%;
   height: 100%;
-  background: var(--void);
-  box-shadow: 0 0 50px rgba(123, 47, 255, 0.5);
-  transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+  background: rgba(3, 3, 10, 0.76);
+  box-shadow: 0 0 24px rgba(123, 47, 255, 0.32);
+  transition: transform 0.62s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.3s ease-out;
+  opacity: 0.9;
 }
 
 .blade-part-top {
@@ -2748,27 +2756,36 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 .blade-split-overlay.active .blade-part-top {
-  transform: rotate(-15deg) translateY(-10%);
+  transform: rotate(-15deg) translateY(-22%);
 }
 
 .blade-split-overlay.active .blade-part-bottom {
-  transform: rotate(-15deg) translateY(10%);
+  transform: rotate(-15deg) translateY(22%);
+}
+
+.blade-split-overlay.ending .blade-part {
+  opacity: 0;
 }
 
 .blade-slash {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 200%;
-  height: 4px;
+  width: 170%;
+  height: 3px;
   background: var(--cyan);
-  box-shadow: 0 0 30px var(--cyan-glow), 0 0 60px var(--echo-glow);
+  box-shadow: 0 0 18px var(--cyan-glow), 0 0 34px var(--echo-glow);
   transform: translate(-50%, -50%) rotate(-15deg) scaleX(0);
   z-index: 3001;
 }
 
 .blade-split-overlay.active .blade-slash {
-  animation: bladeSlashMove 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation: bladeSlashMove 0.72s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.blade-split-overlay.ending .blade-slash {
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
 }
 
 @keyframes bladeSlashMove {
@@ -2783,7 +2800,7 @@ body:has(#combatOverlay.active) .panel-right {
   }
 
   100% {
-    transform: translate(-50%, -50%) rotate(-15deg) scaleX(1.2);
+    transform: translate(-50%, -50%) rotate(-15deg) scaleX(1.05);
     opacity: 0;
   }
 }
@@ -2878,7 +2895,7 @@ body:has(#combatOverlay.active) .panel-right {
 .boss-encounter-sub {
   font-family: 'Cinzel', serif;
   font-size: 11px;
-  letter-spacing: 0.6em;
+  letter-spacing: 0.22em;
   color: var(--danger);
   opacity: 0.85;
   margin-bottom: 10px;
@@ -4231,7 +4248,174 @@ body:has(#combatOverlay.active) .panel-right {
   color: var(--white);
 }
 
+.event-choice-shop {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  background: linear-gradient(90deg, rgba(123, 47, 255, 0.14), rgba(0, 255, 204, 0.04));
+  border-color: rgba(123, 47, 255, 0.35);
+}
+
+.event-choice-shop:hover {
+  background: linear-gradient(90deg, rgba(123, 47, 255, 0.2), rgba(0, 255, 204, 0.08));
+  border-color: var(--cyan);
+}
+
+.shop-choice-potion {
+  border-left: 2px solid #44ff88;
+}
+
+.shop-choice-card {
+  border-left: 2px solid var(--echo-bright);
+}
+
+.shop-choice-upgrade {
+  border-left: 2px solid var(--cyan);
+}
+
+.shop-choice-energy {
+  border-left: 2px solid var(--gold);
+}
+
+.shop-choice-relic {
+  border-left: 2px solid #c084fc;
+}
+
+.shop-choice-leave {
+  border-left: 2px solid rgba(255, 255, 255, 0.25);
+}
+
 /* ── REWARD SCREEN ── */
+.item-shop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 3, 10, 0.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 6000;
+  backdrop-filter: blur(20px);
+  transition: opacity 0.3s ease;
+  animation: modalFadeInDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.item-shop-title {
+  text-align: center;
+}
+
+.item-shop-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.item-shop-main-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+
+.item-shop-gold {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+.item-shop-list {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 700px;
+}
+
+.item-shop-close-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+}
+
+.item-shop-card {
+  width: 170px;
+  height: 260px;
+  background: rgba(10, 5, 30, 0.95);
+  border: 1px solid var(--shop-border-color, var(--border));
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-shop-rarity {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.item-shop-icon {
+  font-size: 46px;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.item-shop-name {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.item-shop-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-bottom: 10px;
+  flex: 1;
+}
+
+.item-shop-cost {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px;
+  color: var(--gold);
+  font-weight: 700;
+  margin-top: auto;
+}
+
+.item-shop-owned-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(3, 3, 10, 0.5);
+}
+
+.item-shop-owned-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
 #rewardScreen {
   flex-direction: column;
   gap: 32px;
@@ -4254,11 +4438,55 @@ body:has(#combatOverlay.active) .panel-right {
 
 .reward-card-wrapper {
   cursor: pointer;
+  display: block;
   transition: transform 0.2s;
   animation: rewardCardIn 0.4s ease both;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.reward-card-wrapper:focus-visible {
+  outline: none;
+}
+
+.reward-card-wrapper .card {
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.reward-card-wrapper .card-name,
+.reward-card-name {
+  font-size: 15px;
+  color: var(--white);
+  text-align: center;
+}
+
+.reward-card-wrapper .card-desc,
+.reward-card-desc {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.reward-card-wrapper .card-type,
+.reward-card-type {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: var(--echo-bright);
 }
 
 .reward-card-wrapper:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.reward-card-wrapper:hover .card,
+.reward-card-wrapper:focus-visible .card {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 0 12px 40px rgba(123, 47, 255, 0.3);
 }

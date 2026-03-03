@@ -8,20 +8,49 @@ function _getDoc(deps) {
 
 function _isInGame(gs) {
   // game 화면이거나 combat 활성 상태면 게임 내 상태로 간주
-  return gs?.currentScreen === 'game' || gs?.combat?.active === true;
+  return gs?.currentScreen === 'game' || gs?.currentScreen === 'combat' || gs?.currentScreen === 'reward' || gs?.combat?.active === true;
+}
+
+function _resolveGs(deps = {}) {
+  return deps?.gs
+    || deps?.State
+    || deps?.state
+    || globalThis.GAME?.State
+    || globalThis.GAME?.gs
+    || globalThis.GS
+    || globalThis.GameState
+    || globalThis.gs
+    || null;
+}
+
+function _isCombatOverlayActive(doc) {
+  const overlay = doc?.getElementById?.('combatOverlay');
+  return Boolean(overlay?.classList?.contains('active'));
 }
 
 function _isVisibleModal(el, doc) {
   if (!el) return false;
-  if (el.classList?.contains('active')) return true;
+  if (el.hidden) return false;
 
   const inlineDisplay = String(el.style?.display || '').trim().toLowerCase();
   if (inlineDisplay === 'none') return false;
-  if (inlineDisplay) return true;
 
   const view = doc?.defaultView || globalThis;
-  if (typeof view?.getComputedStyle !== 'function') return true;
-  return view.getComputedStyle(el).display !== 'none';
+  if (typeof view?.getComputedStyle !== 'function') {
+    return Boolean(el.classList?.contains('active') || inlineDisplay);
+  }
+
+  const computed = view.getComputedStyle(el);
+  if (computed.display === 'none') return false;
+  if (computed.visibility === 'hidden') return false;
+
+  const opacity = Number.parseFloat(computed.opacity || '1');
+  const pointerEvents = String(computed.pointerEvents || '').toLowerCase();
+  if (!el.classList?.contains('active') && opacity <= 0 && pointerEvents === 'none') {
+    return false;
+  }
+
+  return true;
 }
 
 export const HelpPauseUI = {
@@ -56,7 +85,7 @@ export const HelpPauseUI = {
     if (_helpOpen) {
       menu = doc.createElement('div');
       menu.id = 'helpMenu';
-      menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:1000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
+      menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:12000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
       const head = doc.createElement('div');
       head.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:900;color:var(--white);margin-bottom:12px;";
       head.textContent = '컨트롤 안내';
@@ -104,7 +133,7 @@ export const HelpPauseUI = {
     const doc = _getDoc(deps);
     const confirmEl = doc.createElement('div');
     confirmEl.id = 'abandonConfirm';
-    confirmEl.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:2000;animation:fadeIn 0.2s ease;backdrop-filter:blur(12px);';
+    confirmEl.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:12100;animation:fadeIn 0.2s ease;backdrop-filter:blur(12px);';
     const eyebrow = doc.createElement('div');
     eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--danger);opacity:0.8;";
     eyebrow.textContent = '경고';
@@ -145,7 +174,7 @@ export const HelpPauseUI = {
 
     const confirmEl = doc.createElement('div');
     confirmEl.id = 'returnTitleConfirm';
-    confirmEl.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:2000;animation:fadeIn 0.2s ease;backdrop-filter:blur(12px);';
+    confirmEl.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:12100;animation:fadeIn 0.2s ease;backdrop-filter:blur(12px);';
 
     const eyebrow = doc.createElement('div');
     eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--text-dim);opacity:0.85;";
@@ -182,7 +211,7 @@ export const HelpPauseUI = {
   },
 
   confirmAbandon(deps = {}) {
-    const gs = deps.gs;
+    const gs = _resolveGs(deps);
     if (!gs) return;
 
     const doc = _getDoc(deps);
@@ -249,16 +278,23 @@ export const HelpPauseUI = {
   },
 
   togglePause(deps = {}) {
-    const gs = deps.gs;
+    const gs = _resolveGs(deps);
     if (!gs) return;
 
     const doc = _getDoc(deps);
-    _pauseOpen = !_pauseOpen;
-    let menu = doc.getElementById('pauseMenu');
+    const existingMenu = doc.getElementById('pauseMenu');
+    // 내부 상태보다 실제 DOM 표시 상태를 우선한다.
+    _pauseOpen = _isVisibleModal(existingMenu, doc);
     if (_pauseOpen) {
-      menu = doc.createElement('div');
-      menu.id = 'pauseMenu';
-      menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:1000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
+      existingMenu?.remove();
+      _pauseOpen = false;
+      return;
+    }
+
+    _pauseOpen = true;
+    const menu = doc.createElement('div');
+    menu.id = 'pauseMenu';
+      menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:12000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
       const eyebrow = doc.createElement('div');
       eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.5em;color:var(--text-dim);";
       eyebrow.textContent = '일시정지';
@@ -344,10 +380,6 @@ export const HelpPauseUI = {
       menu.append(eyebrow, head, mainBtns, volPanel, info);
       doc.body.appendChild(menu);
       if (typeof deps._syncVolumeUI === 'function') deps._syncVolumeUI();
-    } else {
-      // 硫붾돱 ?쒓굅
-      if (menu) menu.remove();
-    }
   },
 
   bindGlobalHotkeys(deps = {}) {
@@ -363,13 +395,29 @@ export const HelpPauseUI = {
 
     doc.addEventListener('keydown', e => {
       // deps를 통해 현재 상태를 직접 참조
-      const gs = deps.gs;
+      const gs = _resolveGs(deps);
 
       // ESC: 일시정지 또는 모달 닫기
       if (e.key === 'Escape' || e.key === 'Esc') {
+        if (e.repeat) return;
+        const swallowEsc = () => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof e.stopImmediatePropagation === 'function') {
+            e.stopImmediatePropagation();
+          }
+        };
+
+        const pauseMenu = doc.getElementById('pauseMenu');
+        if (_isVisibleModal(pauseMenu, doc)) {
+          swallowEsc();
+          self.togglePause(deps);
+          return;
+        }
+
         const fullMapOverlay = doc.getElementById('fullMapOverlay');
         if (_isVisibleModal(fullMapOverlay, doc)) {
-          e.preventDefault();
+          swallowEsc();
           if (typeof fullMapOverlay._closeFullMap === 'function') {
             fullMapOverlay._closeFullMap();
           } else {
@@ -380,6 +428,7 @@ export const HelpPauseUI = {
 
         const battleChronicle = doc.getElementById('battleChronicleOverlay');
         if (_isVisibleModal(battleChronicle, doc)) {
+          swallowEsc();
           if (typeof deps.closeBattleChronicle === 'function') {
             deps.closeBattleChronicle();
           } else if (globalThis.GAME?.API?.closeBattleChronicle) {
@@ -390,23 +439,26 @@ export const HelpPauseUI = {
 
         const returnTitleConfirm = doc.getElementById('returnTitleConfirm');
         if (returnTitleConfirm) {
+          swallowEsc();
           returnTitleConfirm.remove();
           return;
         }
 
         const abandonConfirm = doc.getElementById('abandonConfirm');
         if (abandonConfirm) {
+          swallowEsc();
           abandonConfirm.remove();
           return;
         }
 
         const helpMenu = doc.getElementById('helpMenu');
         if (helpMenu && helpMenu.style.display !== 'none') {
-          this.toggleHelp(deps);
+          swallowEsc();
+          self.toggleHelp(deps);
           return; // Exit early if help menu was handled
         }
 
-        const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true || gs?.currentScreen === 'reward';
+        const isInGame = _isInGame(gs) || _isCombatOverlayActive(doc);
         const isTitle = gs?.currentScreen === 'title';
 
         // 도감 및 기타 모달이 열려 있으면 먼저 닫기
@@ -416,25 +468,28 @@ export const HelpPauseUI = {
 
         // 덱 모달 확인
         if (_isVisibleModal(deckModal, doc)) {
+          swallowEsc();
           if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
           return;
         }
 
         // 도감 모달 확인
         if (_isVisibleModal(codexModal, doc)) {
+          swallowEsc();
           if (typeof deps.closeCodex === 'function') deps.closeCodex();
           return;
         }
 
         // 런 설정 모달 확인
         if (_isVisibleModal(runSettingsModal, doc)) {
+          swallowEsc();
           if (typeof deps.closeRunSettings === 'function') deps.closeRunSettings();
           return;
         }
 
         // 전투 중이거나 게임 화면이면 일시정지 토글
         if (isInGame && !self.isHelpOpen()) {
-          e.preventDefault();
+          swallowEsc();
           self.togglePause(deps);
           return;
         }
@@ -447,7 +502,7 @@ export const HelpPauseUI = {
         // 보상 화면에서도 일시정지 메뉴 사용 허용
       }
 
-      const isInGame = gs?.currentScreen === 'game' || gs?.combat?.active === true || gs?.currentScreen === 'reward';
+      const isInGame = _isInGame(gs) || _isCombatOverlayActive(doc);
 
       if ((e.key === '?' || e.key === '/') && isInGame) {
         e.preventDefault();

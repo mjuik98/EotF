@@ -34,6 +34,21 @@ function _getAudioEngine(deps) {
   return deps?.audioEngine || globalThis.AudioEngine;
 }
 
+function _getShopItemIcon(item, rarity = 'common') {
+  const raw = String(item?.icon || '').trim();
+  if (raw && raw !== '?' && !raw.includes('�')) {
+    const asciiOnly = /^[\x20-\x7E]+$/.test(raw);
+    if (!asciiOnly) return raw;
+  }
+  const fallback = {
+    common: '🧩',
+    uncommon: '🧿',
+    rare: '💎',
+    legendary: '👑',
+  };
+  return fallback[rarity] || '🎁';
+}
+
 function _renderChoices(event, doc, deps = {}) {
   const choicesEl = doc.getElementById('eventChoices');
   if (!choicesEl) return;
@@ -41,6 +56,13 @@ function _renderChoices(event, doc, deps = {}) {
   event.choices.forEach((choice, idx) => {
     const btn = doc.createElement('div');
     btn.className = 'event-choice';
+    if (event?.id === 'shop') btn.classList.add('event-choice-shop');
+    if (choice?.cssClass) {
+      String(choice.cssClass)
+        .split(/\s+/)
+        .filter(Boolean)
+        .forEach((className) => btn.classList.add(className));
+    }
     btn.textContent = choice.text;
     btn.addEventListener('click', () => EventUI.resolveEvent(idx, deps));
     choicesEl.appendChild(btn);
@@ -225,14 +247,104 @@ export const EventUI = {
     if (!gs || !data || !runRules) return;
 
     const self = this;
+    const doc = _getDoc(deps);
+    const audioEngine = _getAudioEngine(deps);
 
-    // ── 로직 위임 ──
-    const rest = EventManager.createRestEvent(gs, data, runRules, {
-      showCardDiscardFn: (state, isBurn) => self.showCardDiscard(state, isBurn, deps),
+    // ── 자동 HP/Echo 회복 ──
+    const baseHeal = Math.floor(gs.player.maxHp * 0.25);
+    const healAmount = runRules.getHealAmount(gs, baseHeal);
+    const echoGain = 30;
+    const oldHp = gs.player.hp;
+    const oldEcho = gs.player.echo || 0;
+
+    gs.heal(healAmount);
+    gs.addEcho(echoGain);
+
+    const newHp = gs.player.hp;
+    const newEcho = gs.player.echo || 0;
+
+    // ── 차오르는 시각적 연출 ──
+    const overlay = doc.createElement('div');
+    overlay.className = 'rest-fill-overlay';
+    overlay.innerHTML = `
+      <div class="rest-fill-bg"></div>
+      <div class="rest-fill-content">
+        <div class="rest-fill-icon">🔥</div>
+        <div class="rest-fill-title">잔향의 모닥불</div>
+        <div class="rest-fill-subtitle">따뜻한 불꽃이 상처를 치유한다...</div>
+        <div class="rest-fill-bars">
+          <div class="rest-fill-stat">
+            <span class="rest-fill-label">❤️ HP</span>
+            <div class="rest-fill-bar-track">
+              <div class="rest-fill-bar hp-fill" id="restHpFill" style="width: ${(oldHp / gs.player.maxHp) * 100}%"></div>
+            </div>
+            <span class="rest-fill-value" id="restHpValue">${oldHp}/${gs.player.maxHp}</span>
+          </div>
+          <div class="rest-fill-stat">
+            <span class="rest-fill-label">⚡ Echo</span>
+            <div class="rest-fill-bar-track">
+              <div class="rest-fill-bar echo-fill" id="restEchoFill" style="width: ${Math.min(oldEcho, 100)}%"></div>
+            </div>
+            <span class="rest-fill-value" id="restEchoValue">${oldEcho}/100</span>
+          </div>
+        </div>
+      </div>
+    `;
+    doc.body.appendChild(overlay);
+
+    // Trigger entrance animation
+    requestAnimationFrame(() => {
+      overlay.classList.add('active');
     });
-    if (!rest) return;
 
-    self.showEvent(rest, deps);
+    // Animate bars filling up
+    setTimeout(() => {
+      const hpBar = doc.getElementById('restHpFill');
+      const echoBar = doc.getElementById('restEchoFill');
+      const hpVal = doc.getElementById('restHpValue');
+      const echoVal = doc.getElementById('restEchoValue');
+
+      if (hpBar) hpBar.style.width = `${(newHp / gs.player.maxHp) * 100}%`;
+      if (echoBar) echoBar.style.width = `${Math.min(newEcho, 100)}%`;
+
+      // Animate number counting
+      const duration = 1200;
+      const startTime = performance.now();
+      const animateNumbers = (now) => {
+        const elapsed = Math.min(now - startTime, duration);
+        const progress = elapsed / duration;
+        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+
+        const currentHp = Math.round(oldHp + (newHp - oldHp) * eased);
+        const currentEcho = Math.round(oldEcho + (newEcho - oldEcho) * eased);
+
+        if (hpVal) hpVal.textContent = `${currentHp}/${gs.player.maxHp}`;
+        if (echoVal) echoVal.textContent = `${currentEcho}/100`;
+
+        if (elapsed < duration) requestAnimationFrame(animateNumbers);
+      };
+      requestAnimationFrame(animateNumbers);
+
+      audioEngine?.playHeal?.();
+    }, 600);
+
+    // After animation, transition to rest choices
+    setTimeout(() => {
+      overlay.classList.remove('active');
+      overlay.classList.add('fade-out');
+      setTimeout(() => overlay.remove(), 500);
+
+      // ── 로직 위임: 선택지만 표시 ──
+      const rest = EventManager.createRestEvent(gs, data, runRules, {
+        showCardDiscardFn: (state, isBurn) => self.showCardDiscard(state, isBurn, deps),
+      });
+      if (!rest) return;
+
+      // Update description to reflect recovery
+      rest.desc = `체력이 ${newHp - oldHp} 회복되고, 잔향이 ${newEcho - oldEcho} 충전되었다. 추가 행동을 선택하세요.`;
+      self.showEvent(rest, deps);
+      if (typeof deps.updateUI === 'function') deps.updateUI();
+    }, 3000);
   },
 
   showCardDiscard(gsArg, isBurn = false, deps = {}) {
@@ -264,7 +376,7 @@ export const EventUI = {
     overlay.style.cssText = `
       position:fixed;inset:0;background:rgba(3,3,10,0.96);
       display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-      padding:40px 24px;gap:20px;z-index:900;backdrop-filter:blur(20px);
+      padding:40px 24px;gap:20px;z-index:6000;backdrop-filter:blur(20px);
       overflow-y:auto; transition: opacity 0.3s ease;
       animation: modalFadeInDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
     `;
@@ -380,27 +492,21 @@ export const EventUI = {
     const doc = _getDoc(deps);
     const overlay = doc.createElement('div');
     overlay.id = 'itemShopOverlay';
-    overlay.style.cssText = `
-      position:fixed;inset:0;background:rgba(3,3,10,0.96);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:24px;z-index:900;backdrop-filter:blur(20px);
-      transition: opacity 0.3s ease;
-      animation: modalFadeInDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    `;
+    overlay.className = 'item-shop-overlay';
 
     const titleCont = doc.createElement('div');
-    titleCont.style.textAlign = 'center';
+    titleCont.className = 'item-shop-title';
 
     const eyebrow = doc.createElement('div');
-    eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--gold);margin-bottom:8px;";
+    eyebrow.className = 'item-shop-eyebrow';
     eyebrow.textContent = '🏪 아이템 상점';
 
     const bigTitle = doc.createElement('div');
-    bigTitle.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:22px;font-weight:900;color:var(--white);margin-bottom:6px;";
+    bigTitle.className = 'item-shop-main-title';
     bigTitle.textContent = '무엇을 구하시겠습니까?';
 
     const goldInfo = doc.createElement('div');
-    goldInfo.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);";
+    goldInfo.className = 'item-shop-gold';
     goldInfo.textContent = '보유 골드: ';
     const goldVal = doc.createElement('span');
     goldVal.id = 'itemShopGold';
@@ -411,10 +517,10 @@ export const EventUI = {
 
     const list = doc.createElement('div');
     list.id = 'itemShopList';
-    list.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:700px;';
+    list.className = 'item-shop-list';
 
     const closeBtn = doc.createElement('button');
-    closeBtn.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 24px;cursor:pointer;";
+    closeBtn.className = 'item-shop-close-btn';
     closeBtn.textContent = '닫기';
     closeBtn.onclick = () => {
       overlay.style.opacity = '0';
@@ -438,22 +544,28 @@ export const EventUI = {
         const purchasable = !alreadyOwned && canAfford;
 
         const card = doc.createElement('div');
-        card.style.cssText = `width:170px;height:260px;background:rgba(10,5,30,0.95);border:1px solid ${rc.border};border-radius:12px;padding:16px;text-align:center;cursor:${purchasable ? 'pointer' : 'not-allowed'};opacity:${purchasable ? 1 : 0.5};transition:all 0.2s;position:relative;display:flex;flex-direction:column;`;
+        card.className = `item-shop-card rarity-${rarity}`;
+        card.style.setProperty('--shop-border-color', rc.border);
+        card.style.setProperty('--shop-rarity-color', rc.color);
+        card.style.opacity = purchasable ? '1' : '0.5';
+        card.style.cursor = purchasable ? 'pointer' : 'not-allowed';
 
         const rarityLabel = doc.createElement('div');
-        rarityLabel.style.cssText = `position:absolute;top:8px;right:10px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.1em;color:${rc.color};`;
+        rarityLabel.className = 'item-shop-rarity';
+        rarityLabel.style.color = rc.color;
         rarityLabel.textContent = rc.label;
 
         const iconEl = doc.createElement('div');
-        iconEl.style.cssText = 'font-size:46px;margin-bottom:8px;margin-top:20px;';
-        iconEl.textContent = item.icon;
+        iconEl.className = 'item-shop-icon';
+        iconEl.textContent = _getShopItemIcon(item, rarity);
 
         const nameEl = doc.createElement('div');
-        nameEl.style.cssText = `font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:${rc.color};margin-bottom:6px;`;
+        nameEl.className = 'item-shop-name';
+        nameEl.style.color = rc.color;
         nameEl.textContent = item.name;
 
         const descEl = doc.createElement('div');
-        descEl.style.cssText = 'font-size:13px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;flex:1;';
+        descEl.className = 'item-shop-desc';
         if (globalThis.DescriptionUtils) {
           descEl.innerHTML = globalThis.DescriptionUtils.highlight(item.desc);
         } else {
@@ -461,16 +573,16 @@ export const EventUI = {
         }
 
         const costEl = doc.createElement('div');
-        costEl.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--gold);font-weight:700;margin-top:auto;";
+        costEl.className = 'item-shop-cost';
         costEl.textContent = `${cost} \uACE8\uB4DC`;
 
         card.append(rarityLabel, iconEl, nameEl, descEl, costEl);
 
         if (alreadyOwned) {
           const ownedOverlay = doc.createElement('div');
-          ownedOverlay.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(3,3,10,0.5);";
+          ownedOverlay.className = 'item-shop-owned-overlay';
           const ownedLabel = doc.createElement('span');
-          ownedLabel.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;color:var(--text-dim);";
+          ownedLabel.className = 'item-shop-owned-label';
           ownedLabel.textContent = '\uBCF4\uC720 \uC911';
           ownedOverlay.appendChild(ownedLabel);
           card.appendChild(ownedOverlay);

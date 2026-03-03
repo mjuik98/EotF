@@ -12,6 +12,10 @@ function _getData(deps) {
   return deps?.data;
 }
 
+function _getDescriptionUtils(deps) {
+  return deps?.DescriptionUtils || globalThis.DescriptionUtils || null;
+}
+
 function _normalizeRewardMode(mode) {
   if (mode === true) return 'boss';
   if (mode === false || mode == null) return 'normal';
@@ -37,6 +41,41 @@ function _drawRewardCards(gs, count, rarities) {
   return out;
 }
 
+function _toRarityLabel(rarity) {
+  switch (rarity) {
+    case 'uncommon': return '비범';
+    case 'rare': return '희귀';
+    case 'legendary': return '전설';
+    case 'common':
+    default:
+      return '일반';
+  }
+}
+
+function _toTypeClass(type) {
+  if (!type) return '';
+  const t = String(type).toLowerCase();
+  if (t === 'attack') return 'type-attack';
+  if (t === 'skill') return 'type-skill';
+  if (t === 'power') return 'type-power';
+  return '';
+}
+
+function _toTypeLabelClass(type) {
+  if (!type) return '';
+  const t = String(type).toLowerCase();
+  if (t === 'attack') return 'card-type-attack';
+  if (t === 'skill') return 'card-type-skill';
+  if (t === 'power') return 'card-type-power';
+  return '';
+}
+
+function _markRewardSelection(container, wrapper) {
+  if (!container || !wrapper) return;
+  container.querySelectorAll('.reward-card-wrapper.selected').forEach((el) => el.classList.remove('selected'));
+  wrapper.classList.add('selected');
+}
+
 function _ensureMiniBossBonus(gs, data, deps) {
   const heal = Math.max(1, Math.floor((gs.player.maxHp || 1) * 0.15));
   const hpBefore = gs.player.hp || 0;
@@ -44,7 +83,7 @@ function _ensureMiniBossBonus(gs, data, deps) {
 
   const goldGain = Math.max(12, Math.floor((gs.currentRegion + 1) * 6));
   gs.player.gold = (gs.player.gold || 0) + goldGain;
-  gs.addLog?.(`Mini boss reward: +${goldGain} gold, +${gs.player.hp - hpBefore} HP`, 'system');
+  gs.addLog?.(`🔥 미니보스 보상: 골드 +${goldGain}, HP +${gs.player.hp - hpBefore}`, 'system');
 
   const rareItems = Object.values(data.items || {}).filter((item) => {
     return (item.rarity === 'rare' || item.rarity === 'legendary') && !gs.player.items.includes(item.id);
@@ -66,10 +105,12 @@ function _renderRewardCardOption(container, cardId, data, deps, onPick, idx) {
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
   wrapper.style.animationDelay = `${idx * 0.08}s`;
-  wrapper.style.cursor = 'pointer';
+  wrapper.setAttribute('aria-label', `${card.name || cardId} 카드 선택`);
 
   const cardEl = doc.createElement('div');
-  cardEl.className = 'card';
+  const rarityClass = `rarity-${card.rarity || 'common'}`;
+  const typeClass = _toTypeClass(card.type);
+  cardEl.className = `card ${rarityClass} ${typeClass}`.trim();
   cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;';
 
   const cost = doc.createElement('div');
@@ -79,28 +120,32 @@ function _renderRewardCardOption(container, cardId, data, deps, onPick, idx) {
   const icon = doc.createElement('div');
   icon.className = 'card-icon';
   icon.style.fontSize = '36px';
-  icon.textContent = card.icon || '*';
+  icon.textContent = card.icon || '🃏';
 
   const name = doc.createElement('div');
-  name.className = 'card-name';
+  name.className = 'card-name reward-card-name';
   name.textContent = card.name || cardId;
 
   const desc = doc.createElement('div');
-  desc.className = 'card-desc';
-  desc.style.cssText = 'font-size:12px;line-height:1.4;';
-  if (deps.DescriptionUtils) {
-    desc.innerHTML = deps.DescriptionUtils.highlight(card.desc || '');
+  desc.className = 'card-desc reward-card-desc';
+  const DescriptionUtils = _getDescriptionUtils(deps);
+  if (DescriptionUtils) {
+    desc.innerHTML = DescriptionUtils.highlight(card.desc || '');
   } else {
     desc.textContent = card.desc || '';
   }
 
   const rarity = doc.createElement('div');
-  rarity.className = 'card-type';
-  rarity.textContent = card.rarity || 'common';
+  const typeLabelClass = _toTypeLabelClass(card.type);
+  rarity.className = `card-type reward-card-type ${typeLabelClass}`.trim();
+  rarity.textContent = _toRarityLabel(card.rarity);
 
   cardEl.append(cost, icon, name, desc, rarity);
   wrapper.appendChild(cardEl);
-  wrapper.addEventListener('click', onPick);
+  wrapper.addEventListener('click', () => {
+    _markRewardSelection(container, wrapper);
+    onPick?.();
+  });
   container.appendChild(wrapper);
 }
 
@@ -112,37 +157,41 @@ function _renderItemOption(container, item, deps, onPick, idx) {
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
   wrapper.style.animationDelay = `${idx * 0.08}s`;
-  wrapper.style.cursor = 'pointer';
+  wrapper.setAttribute('aria-label', `${item.name || item.id} 아이템 선택`);
 
   const cardEl = doc.createElement('div');
-  cardEl.className = 'card';
+  const rarityClass = `rarity-${item.rarity || 'common'}`;
+  cardEl.className = `card ${rarityClass}`;
   cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;border-color:var(--gold);';
 
   const icon = doc.createElement('div');
   icon.className = 'card-icon';
   icon.style.fontSize = '40px';
-  icon.textContent = item.icon || 'I';
+  icon.textContent = item.icon || '🎁';
 
   const name = doc.createElement('div');
-  name.className = 'card-name';
+  name.className = 'card-name reward-card-name';
   name.textContent = item.name || item.id;
 
   const desc = doc.createElement('div');
-  desc.className = 'card-desc';
-  desc.style.cssText = 'font-size:12px;line-height:1.4;';
-  if (deps.DescriptionUtils) {
-    desc.innerHTML = deps.DescriptionUtils.highlight(item.desc || '');
+  desc.className = 'card-desc reward-card-desc';
+  const DescriptionUtils = _getDescriptionUtils(deps);
+  if (DescriptionUtils) {
+    desc.innerHTML = DescriptionUtils.highlight(item.desc || '');
   } else {
     desc.textContent = item.desc || '';
   }
 
   const rarity = doc.createElement('div');
-  rarity.className = 'card-type';
-  rarity.textContent = `item · ${item.rarity || 'common'}`;
+  rarity.className = 'card-type reward-card-type';
+  rarity.textContent = `아이템 · ${_toRarityLabel(item.rarity)}`;
 
   cardEl.append(icon, name, desc, rarity);
   wrapper.appendChild(cardEl);
-  wrapper.addEventListener('click', onPick);
+  wrapper.addEventListener('click', () => {
+    _markRewardSelection(container, wrapper);
+    onPick?.();
+  });
   container.appendChild(wrapper);
 }
 
@@ -186,21 +235,21 @@ export const RewardUI = {
 
     if (eyebrow) {
       eyebrow.textContent = isBoss
-        ? 'Boss Reward'
-        : (isMiniBoss ? 'Mini Boss Reward' : (isElite ? 'Elite Reward' : 'Combat Reward'));
+        ? '✦ 보스 처치 — 보상 선택 ✦'
+        : (isMiniBoss ? '✦ 미니보스 처치 — 보상 선택 ✦' : (isElite ? '✦ 정예 처치 — 보상 선택 ✦' : '✦ 전투 승리 — 보상 선택 ✦'));
     }
 
     if (titleEl) {
       if (isBoss) {
-        titleEl.textContent = 'BOSS DEFEATED';
+        titleEl.textContent = '👑 보스 처치!';
         titleEl.style.display = 'block';
         titleEl.style.color = 'var(--gold)';
       } else if (isMiniBoss) {
-        titleEl.textContent = 'MINI BOSS DOWN';
+        titleEl.textContent = '🔥 미니보스 처치!';
         titleEl.style.display = 'block';
         titleEl.style.color = '#ff7a33';
       } else if (isElite) {
-        titleEl.textContent = 'ELITE DEFEATED';
+        titleEl.textContent = '⚔️ 정예 처치!';
         titleEl.style.display = 'block';
         titleEl.style.color = '#d4a017';
       } else {
@@ -250,7 +299,7 @@ export const RewardUI = {
 
       const card = data.cards?.[cardId];
       deps.playItemGet?.();
-      deps.showItemToast?.({ name: card?.name || cardId, icon: card?.icon || '*', desc: card?.desc || '' });
+      deps.showItemToast?.({ name: card?.name || cardId, icon: card?.icon || '🃏', desc: card?.desc || '' });
       setTimeout(() => deps.returnToGame?.(true), 350);
     }, { ttlMs: 3000 });
   },
@@ -299,7 +348,7 @@ export const RewardUI = {
       gs.meta?.codex?.cards?.add?.(upgId);
 
       deps.playItemGet?.();
-      deps.showItemToast?.({ name: `Upgraded: ${data.cards?.[upgId]?.name || upgId}`, icon: '+', desc: 'A random card was upgraded.' });
+      deps.showItemToast?.({ name: `🛠️ 강화 완료: ${data.cards?.[upgId]?.name || upgId}`, icon: '✨', desc: '무작위 카드 1장이 업그레이드되었습니다.' });
       setTimeout(() => deps.returnToGame?.(true), 350);
     }, { ttlMs: 3000 });
   },

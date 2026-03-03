@@ -34,6 +34,7 @@ export const GameBootUI = {
       deps.refreshRunModePanel?.();
 
       if ((gs?.meta?.runCount || 0) > 1) {
+        doc.querySelector('.title-run-stats')?.remove();
         const badge = doc.createElement('div');
         badge.className = 'title-run-stats';
 
@@ -57,7 +58,7 @@ export const GameBootUI = {
             <span class="stat-value">${bestChain}</span>
           </div>
         `;
-        doc.getElementById('titleScreen')?.appendChild(badge);
+        doc.getElementById('mainTitleSubScreen')?.appendChild(badge);
       }
     } catch (e) {
       console.error('Boot error:', e);

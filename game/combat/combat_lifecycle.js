@@ -192,7 +192,7 @@ export const CombatLifecycle = {
             this.stats.maxChain = Math.max(this.stats.maxChain, 5);
         } else {
             // 패시브용 로그
-            this.addLog(LogUtils.formatEcho(`✨ Resonance: ${burstDmg} 피해!`), 'echo');
+            this.addLog(LogUtils.formatEcho(`✨ 공명 폭발: ${burstDmg} 피해!`), 'echo');
         }
 
         const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;

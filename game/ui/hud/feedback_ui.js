@@ -5,6 +5,13 @@ import { ButtonFeedback } from '../feedback/button_feedback.js';
 const _noticeQueue = [];
 let _noticeActive = false;
 
+const _toastQueue = [];
+const _activeToasts = [];
+const TOAST_BASE_BOTTOM = 220;
+const TOAST_STACK_GAP = 12;
+const TOAST_FALLBACK_HEIGHT = 100;
+const MAX_VISIBLE_TOASTS = 4;
+
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -17,39 +24,101 @@ function _getHudOverlay(doc) {
   return doc.getElementById('hudOverlay');
 }
 
+function _layoutToastStack() {
+  let bottom = TOAST_BASE_BOTTOM;
+  for (const entry of _activeToasts) {
+    if (!entry?.el?.isConnected) continue;
+    const measured = entry.el.offsetHeight || entry.height || TOAST_FALLBACK_HEIGHT;
+    entry.height = measured;
+    entry.el.style.bottom = `${bottom}px`;
+    bottom += measured + TOAST_STACK_GAP;
+  }
+}
+
+function _removeStackedToast(entry) {
+  const idx = _activeToasts.indexOf(entry);
+  if (idx >= 0) {
+    _activeToasts.splice(idx, 1);
+  }
+  entry?.el?.remove();
+  _layoutToastStack();
+  _drainToastQueue();
+}
+
+function _drainToastQueue() {
+  while (_toastQueue.length && _activeToasts.length < MAX_VISIBLE_TOASTS) {
+    const next = _toastQueue.shift();
+    if (!next || typeof next.createEl !== 'function') continue;
+    const doc = _getDoc(next.deps);
+    const el = next.createEl(doc);
+    if (!el) continue;
+
+    if (!el.style.position) el.style.position = 'fixed';
+    if (!el.style.right) el.style.right = '260px';
+    el.style.bottom = `${TOAST_BASE_BOTTOM}px`;
+
+    doc.body.appendChild(el);
+    const entry = {
+      el,
+      height: next.height || el.offsetHeight || TOAST_FALLBACK_HEIGHT,
+    };
+    _activeToasts.push(entry);
+    _layoutToastStack();
+
+    setTimeout(() => {
+      if (typeof next.onBeforeRemove === 'function') {
+        next.onBeforeRemove(el);
+      }
+      const removeDelay = Number(next.removeDelayMs) || 0;
+      setTimeout(() => _removeStackedToast(entry), removeDelay);
+    }, Math.max(0, Number(next.durationMs) || 0));
+  }
+}
+
+function _enqueueStackedToast(config) {
+  _toastQueue.push(config);
+  _drainToastQueue();
+}
+
 export const FeedbackUI = {
   showCombatSummary(dealt, taken, kills, deps = {}) {
-    const doc = _getDoc(deps);
-    const el = doc.createElement('div');
-    el.className = 'combat-stat-summary';
-    const head = doc.createElement('div');
-    head.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.3em;color:var(--text-dim);margin-bottom:12px;text-align:center;";
-    head.textContent = '⚔️ 전투 요약 ⚔️';
+    _enqueueStackedToast({
+      deps,
+      durationMs: 4000,
+      removeDelayMs: 600,
+      height: 132,
+      createEl: (doc) => {
+        const el = doc.createElement('div');
+        el.className = 'combat-stat-summary';
+        const head = doc.createElement('div');
+        head.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.3em;color:var(--text-dim);margin-bottom:12px;text-align:center;";
+        head.textContent = '⚔️ 전투 요약 ⚔️';
 
-    const stats = doc.createElement('div');
-    stats.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+        const stats = doc.createElement('div');
+        stats.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
 
-    const createRow = (label, value, color, font = "'Share Tech Mono'") => {
-      const row = doc.createElement('div');
-      row.style.cssText = 'display:flex;justify-content:space-between;gap:20px;align-items:center;';
-      const lbl = doc.createElement('span'); lbl.style.cssText = 'color:var(--text-dim);font-size:13px;'; lbl.textContent = label;
-      const val = doc.createElement('span'); val.style.cssText = `color:${color};font-weight:700;font-size:20px;font-family:${font};`; val.textContent = value;
-      row.append(lbl, val);
-      return row;
-    };
+        const createRow = (label, value, color, font = "'Share Tech Mono'") => {
+          const row = doc.createElement('div');
+          row.style.cssText = 'display:flex;justify-content:space-between;gap:20px;align-items:center;';
+          const lbl = doc.createElement('span'); lbl.style.cssText = 'color:var(--text-dim);font-size:13px;'; lbl.textContent = label;
+          const val = doc.createElement('span'); val.style.cssText = `color:${color};font-weight:700;font-size:20px;font-family:${font};`; val.textContent = value;
+          row.append(lbl, val);
+          return row;
+        };
 
-    stats.append(
-      createRow('가한 피해', dealt, 'var(--danger)'),
-      createRow('받은 피해', taken, '#ff8888', "'Share Tech Mono'"),
-      createRow('처치', kills, 'var(--cyan)')
-    );
+        stats.append(
+          createRow('가한 피해', dealt, 'var(--danger)'),
+          createRow('받은 피해', taken, '#ff8888', "'Share Tech Mono'"),
+          createRow('처치', kills, 'var(--cyan)')
+        );
 
-    el.append(head, stats);
-    doc.body.appendChild(el);
-    setTimeout(() => {
-      el.classList.add('fadeout');
-      setTimeout(() => el.remove(), 500);
-    }, 2500);
+        el.append(head, stats);
+        return el;
+      },
+      onBeforeRemove: (el) => {
+        el.classList.add('fadeout');
+      },
+    });
   },
 
   showDmgPopup(dmg, x, y, color = '#ff3366', deps = {}) {
@@ -187,37 +256,44 @@ export const FeedbackUI = {
       this.showLegendaryAcquire(item, deps);
       return;
     }
-    const doc = _getDoc(deps);
-    doc.querySelector('.item-toast')?.remove();
-    const rarityLabel = { common: '일반', uncommon: '비범', rare: '희귀' };
-    const rarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)' };
-    const borderColor = { common: 'var(--border)', uncommon: 'rgba(123,47,255,0.5)', rare: 'rgba(240,180,41,0.5)' };
-    const r = item.rarity || 'common';
-    const el = doc.createElement('div');
-    el.className = 'item-toast';
-    el.style.borderColor = borderColor[r] || 'var(--border)';
-    const icon = doc.createElement('div'); icon.className = 'toast-icon'; icon.textContent = item.icon || '✨';
-    const content = doc.createElement('div');
-    const rarityInfo = doc.createElement('div');
-    rarityInfo.style.cssText = `font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${rarityColor[r] || 'var(--text-dim)'};margin-bottom:2px;`;
-    rarityInfo.textContent = `${rarityLabel[r] || r} 아이템 획득`;
+    _enqueueStackedToast({
+      deps,
+      durationMs: 3500,
+      height: 108,
+      createEl: (doc) => {
+        const rarityLabel = { common: '일반', uncommon: '비범', rare: '희귀' };
+        const rarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)' };
+        const borderColor = { common: 'var(--border)', uncommon: 'rgba(123,47,255,0.5)', rare: 'rgba(240,180,41,0.5)' };
+        const r = item.rarity || 'common';
+        const el = doc.createElement('div');
+        el.className = 'item-toast';
+        el.style.borderColor = borderColor[r] || 'var(--border)';
+        const icon = doc.createElement('div');
+        icon.className = 'toast-icon';
+        icon.textContent = item.icon || '✨';
+        const content = doc.createElement('div');
+        const rarityInfo = doc.createElement('div');
+        rarityInfo.style.cssText = `font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${rarityColor[r] || 'var(--text-dim)'};margin-bottom:2px;`;
+        rarityInfo.textContent = `${rarityLabel[r] || r} 아이템 획득`;
 
-    const name = doc.createElement('div');
-    name.className = 'toast-text'; name.style.color = rarityColor[r] || 'var(--white)';
-    name.textContent = item.name;
+        const name = doc.createElement('div');
+        name.className = 'toast-text';
+        name.style.color = rarityColor[r] || 'var(--white)';
+        name.textContent = item.name;
 
-    const sub = doc.createElement('div');
-    sub.className = 'toast-sub';
-    if (window.DescriptionUtils) {
-      sub.innerHTML = window.DescriptionUtils.highlight(item.desc);
-    } else {
-      sub.textContent = item.desc;
-    }
+        const sub = doc.createElement('div');
+        sub.className = 'toast-sub';
+        if (window.DescriptionUtils) {
+          sub.innerHTML = window.DescriptionUtils.highlight(item.desc);
+        } else {
+          sub.textContent = item.desc;
+        }
 
-    content.append(rarityInfo, name, sub);
-    el.append(icon, content);
-    doc.body.appendChild(el);
-    setTimeout(() => el.remove(), 3500);
+        content.append(rarityInfo, name, sub);
+        el.append(icon, content);
+        return el;
+      },
+    });
   },
 
   showLegendaryAcquire(item, deps = {}) {
@@ -349,10 +425,11 @@ export const FeedbackUI = {
   },
 
   /**
-   * 잔향 스킬 버튼에 시각적 효과 적용 (청록색 파르티클)
+   * 잔향 스킬 버튼에 시각적 효과 적용 (청록색 파티클)
    */
   triggerEchoButtonEffect(btnId = 'useEchoSkillBtn', deps = {}) {
     const doc = deps.doc || document;
     ButtonFeedback.triggerEchoButton(doc);
   },
 };
+

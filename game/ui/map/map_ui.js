@@ -36,6 +36,20 @@ function _groupNodesByFloor(nodes = []) {
   return byFloor;
 }
 
+function _getVisibleFloors(gs) {
+  const floors = new Set();
+  if (!gs?.mapNodes?.length) return floors;
+  gs.mapNodes.forEach((node) => {
+    if (node?.visited || node?.id === gs.currentNode?.id) {
+      floors.add(node.floor);
+    }
+  });
+  if (Number.isFinite(gs?.currentFloor)) {
+    floors.add(gs.currentFloor);
+  }
+  return floors;
+}
+
 function _getLinkedChildren(node, nodesByFloor, nodesById) {
   if (!node) return [];
   if (Array.isArray(node.children) && node.children.length > 0) {
@@ -163,15 +177,23 @@ export const MapUI = {
     const nodeEntries = [];
     const nodesByFloor = _groupNodesByFloor(gs.mapNodes);
     const nodesById = new Map(gs.mapNodes.map(node => [node.id, node]));
+    const visibleFloors = _getVisibleFloors(gs);
+    const visibleNodeIds = new Set(
+      gs.mapNodes
+        .filter((node) => visibleFloors.has(node.floor))
+        .map((node) => node.id),
+    );
 
     // 연결선 그리기
     gs.mapNodes.forEach(node => {
+      if (!visibleNodeIds.has(node.id)) return;
       const linkedChildren = _getLinkedChildren(node, nodesByFloor, nodesById);
       if (!linkedChildren.length) return;
       const nx = w * (node.pos + 1) / (node.total + 1);
       const ny = h - 10 - floorH * node.floor;
 
       linkedChildren.forEach((child) => {
+        if (!visibleNodeIds.has(child.id)) return;
         const cx2 = w * (child.pos + 1) / (child.total + 1);
         const cy2 = h - 10 - floorH * child.floor;
 
@@ -193,6 +215,7 @@ export const MapUI = {
 
     // 노드 그리기
     gs.mapNodes.forEach(node => {
+      if (!visibleNodeIds.has(node.id)) return;
       const nx = w * (node.pos + 1) / (node.total + 1);
       const ny = h - 10 - floorH * node.floor;
       const r = node.type === 'boss' ? 8 : (node.type === 'mini_boss' ? 7 : 5);
@@ -466,10 +489,13 @@ export const MapUI = {
     const nodeMeta = _resolveNodeMeta(deps);
     const nodeMap = new Map(gs.mapNodes.map(node => [node.id, node]));
     const nodesByFloor = _groupNodesByFloor(gs.mapNodes);
+    const visibleFloors = _getVisibleFloors(gs);
+    const visibleNodes = gs.mapNodes.filter((node) => visibleFloors.has(node.floor));
+    const visibleNodeIds = new Set(visibleNodes.map((node) => node.id));
 
     const nodeX = (node) => padX + (cw - padX * 2) * (node.pos + 1) / (node.total + 1);
     const nodeY = (node) => contentHeight - 65 - floorSpacing * node.floor;
-    const nodeEntries = gs.mapNodes.map(node => ({
+    const nodeEntries = visibleNodes.map(node => ({
       node,
       x: nodeX(node),
       y: nodeY(node),
@@ -509,10 +535,13 @@ export const MapUI = {
 
       // [연출 2] 경로 연결선 단순화 (지난 경로만 점선 표시)
       gs.mapNodes.forEach(node => {
+        if (!visibleNodeIds.has(node.id)) return;
         const linkedChildren = _getLinkedChildren(node, nodesByFloor, nodeMap);
         if (!linkedChildren.length) return;
         const entry = nodeEntryById.get(node.id);
+        if (!entry) return;
         linkedChildren.forEach(child => {
+          if (!visibleNodeIds.has(child.id)) return;
           const cEntry = nodeEntryById.get(child.id);
           if (!cEntry) return;
 

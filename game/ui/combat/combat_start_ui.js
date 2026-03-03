@@ -127,7 +127,7 @@ export const CombatStartUI = {
     }
 
     if (isBoss || isMiniBoss) {
-      const bossName = gs.combat.enemies[0]?.name ?? 'BOSS';
+      const bossName = gs.combat.enemies[0]?.name ?? '보스';
       deps.screenShake?.shake?.(20, 1.2);
 
       const bossBanner = doc.createElement('div');
@@ -135,7 +135,7 @@ export const CombatStartUI = {
 
       const sub = doc.createElement('div');
       sub.className = 'boss-encounter-sub';
-      sub.textContent = isMiniBoss ? 'MINI BOSS' : 'BOSS ENCOUNTER';
+      sub.textContent = isMiniBoss ? '⚠️ 미니보스 출현' : '⚠️ 보스 출현';
 
       const name = doc.createElement('div');
       name.className = 'boss-encounter-name';
@@ -150,13 +150,18 @@ export const CombatStartUI = {
     }
 
     if (bladeOverlay && combatOverlay) {
+      bladeOverlay.classList.remove('ending');
       bladeOverlay.classList.add('active');
       setTimeout(() => {
         combatOverlay.classList.add('active');
       }, 350);
       setTimeout(() => {
+        bladeOverlay.classList.add('ending');
+      }, 900);
+      setTimeout(() => {
         bladeOverlay.classList.remove('active');
-      }, 1200);
+        bladeOverlay.classList.remove('ending');
+      }, 1450);
     } else if (combatOverlay) {
       combatOverlay.classList.add('active');
     }

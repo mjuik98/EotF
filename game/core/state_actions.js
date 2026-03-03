@@ -162,7 +162,7 @@ export const Reducers = {
                 }
                 gs.player.graveyard = [];
                 if (typeof gs.addLog === 'function') {
-                    gs.addLog('Discard pile shuffled into draw pile.', 'system');
+                    gs.addLog('🌀 버린 카드 더미를 뽑기 더미로 섞었습니다.', 'system');
                 }
             }
             if (gs.player.hand.length < 8) {
@@ -248,7 +248,7 @@ export const Reducers = {
                 if (!Array.isArray(gs._stagnationVault)) gs._stagnationVault = [];
                 gs._stagnationVault.push(...removed);
                 if (typeof gs.addLog === 'function') {
-                    gs.addLog(`Stagnation consumed ${removed.length} card(s).`, 'damage');
+                    gs.addLog(`🕳️ 정체 영역이 카드 ${removed.length}장을 삼켰습니다.`, 'damage');
                 }
             }
         }

@@ -24,8 +24,8 @@ function _normalizeRouteOptions(rawRoutes = []) {
       if (!Number.isFinite(regionId)) return null;
       return {
         regionId: Math.max(0, Math.floor(regionId)),
-        label: route.label || `Region ${regionId}`,
-        difficulty: route.difficulty || 'Unknown',
+        label: route.label || `지역 ${regionId}`,
+        difficulty: route.difficulty || '미확인',
         rewardMod: Number.isFinite(Number(route.rewardMod)) ? Number(route.rewardMod) : 1,
       };
     })
@@ -65,11 +65,11 @@ function _showBranchChoiceOverlay(routes, deps = {}) {
 
     const title = doc.createElement('div');
     title.style.cssText = "font-family:'Cinzel',serif;font-size:18px;letter-spacing:0.12em;color:var(--echo-bright,#b388ff);text-align:center;margin-bottom:8px;";
-    title.textContent = 'Choose The Next Route';
+    title.textContent = '다음 경로를 선택하세요';
 
     const subtitle = doc.createElement('div');
     subtitle.style.cssText = "font-size:12px;color:rgba(230,230,245,0.7);text-align:center;margin-bottom:18px;";
-    subtitle.textContent = 'The echo diverges. Select a path before entering the next region.';
+    subtitle.textContent = '잔향이 갈라집니다. 다음 지역으로 진입하기 전 경로를 정하세요.';
 
     const grid = doc.createElement('div');
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;';
@@ -100,12 +100,12 @@ function _showBranchChoiceOverlay(routes, deps = {}) {
       const info = doc.createElement('div');
       info.style.cssText = 'font-size:12px;line-height:1.5;color:rgba(235,235,250,0.8);';
       const rewardText = `${Math.round(Math.max(0, option.rewardMod) * 100)}%`;
-      info.innerHTML = `Difficulty: <b>${option.difficulty}</b><br>Reward Mod: <b>${rewardText}</b>`;
+      info.innerHTML = `난이도: <b>${option.difficulty}</b><br>보상 배율: <b>${rewardText}</b>`;
 
       if (idx === 0) {
         const recommended = doc.createElement('div');
         recommended.style.cssText = 'display:inline-block;margin-top:10px;padding:4px 8px;border-radius:999px;font-size:10px;letter-spacing:0.08em;color:#0d2a1e;background:#38d39f;';
-        recommended.textContent = 'RECOMMENDED';
+        recommended.textContent = '추천';
         card.append(heading, info, recommended);
       } else {
         card.append(heading, info);
@@ -127,7 +127,7 @@ function _showBranchChoiceOverlay(routes, deps = {}) {
 
     const skipHint = doc.createElement('div');
     skipHint.style.cssText = 'margin-top:12px;text-align:center;font-size:11px;color:rgba(220,220,235,0.5);';
-    skipHint.textContent = 'Press ESC to pick the recommended route.';
+    skipHint.textContent = 'ESC를 누르면 추천 경로를 즉시 선택합니다.';
 
     const onKeyDown = (event) => {
       if (event.key !== 'Escape') return;
