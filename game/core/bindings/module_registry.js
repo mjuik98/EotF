@@ -32,6 +32,7 @@ import { DescriptionUtils } from '../../utils/description_utils.js';
 import { TitleCanvasUI } from '../../ui/title/title_canvas_ui.js';
 import { GameCanvasSetupUI } from '../../ui/title/game_canvas_setup_ui.js';
 import { ClassSelectUI } from '../../ui/title/class_select_ui.js';
+import { CharacterSelectV4UI } from '../../ui/title/character_select_v4_ui.js';
 import { GameBootUI } from '../../ui/title/game_boot_ui.js';
 
 import { CombatStartUI } from '../../ui/combat/combat_start_ui.js';
@@ -112,6 +113,7 @@ export function createModuleRegistry() {
     TitleCanvasUI,
     GameCanvasSetupUI,
     ClassSelectUI,
+    CharacterSelectV4UI,
     GameBootUI,
 
     CombatStartUI,

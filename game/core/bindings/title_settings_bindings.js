@@ -4,6 +4,7 @@
  * 책임: 타이틀 화면, 도움말/일시정지, 사운드 설정, 유틸리티 래퍼
  */
 import * as Deps from '../deps_factory.js';
+import { IntroCinematicUI } from '../../ui/title/intro_cinematic_ui.js';
 
 export function createTitleSettingsBindings(M, fns) {
     const clampVolumePercent = (value) => {
@@ -65,7 +66,17 @@ export function createTitleSettingsBindings(M, fns) {
 
     fns.startGame = () => {
         M.AudioEngine?.playClick?.();
-        M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
+
+        // 인트로 연출 → 완료 후 실제 게임 시작
+        IntroCinematicUI.play(
+            {
+                gs: M.GS,
+                getSelectedClass: () => M.ClassSelectUI?.getSelectedClass?.(),
+            },
+            () => {
+                M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
+            }
+        );
     };
 
     fns.refreshRunModePanel = () => {

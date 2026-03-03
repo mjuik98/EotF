@@ -98,13 +98,20 @@ export function bootGame(modules, fns, Deps) {
         startCombat: (isBoss) => fns.startCombat(isBoss),
     });
 
-    // ── 캐릭터 선택 버튼 렌더링 (추가 - 약간의 지연으로 DOM 안정성 확보) ──
+    // ── 캐릭터 선택 V4 UI 렌더링 ──
     setTimeout(() => {
-        const classContainer = document.getElementById('classSelectContainer');
-        if (classContainer && modules.ClassSelectUI) {
-            modules.ClassSelectUI.renderButtons(classContainer, {
-                data: DATA,
-                CLASS_START_ITEMS: modules.RunSetupUI?.CLASS_START_ITEMS
+        if (modules.CharacterSelectV4UI) {
+            modules.CharacterSelectV4UI.mount({
+                doc: document,
+                audioEngine: AudioEngine,
+                onConfirm: (char) => {
+                    // 선택 완료 애니메이션 직후, 클래스만 미리 선택해둡니다.
+                    if (fns.selectClass) fns.selectClass(char.id);
+                },
+                onStart: (char) => {
+                    // 최종 '여정 시작' 버튼 클릭 시
+                    if (fns.startGame) fns.startGame(char.id);
+                }
             });
         }
     }, 50);
@@ -116,7 +123,7 @@ export function bootGame(modules, fns, Deps) {
 
     // ── 최종 부트 ──
     try {
-      GameInit.boot({
+        GameInit.boot({
             ...GAME.getDeps(),
             audioEngine: AudioEngine,
             particleSystem: ParticleSystem,
