@@ -1,10 +1,4 @@
-﻿function getDoc(deps) {
-  return deps?.doc || document;
-}
-
-function getRaf(deps) {
-  return deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
-}
+import { getDoc, getRaf } from '../../utils/runtime_deps.js';
 
 export function triggerDeckShufflePulseUI(deps = {}) {
   const doc = getDoc(deps);

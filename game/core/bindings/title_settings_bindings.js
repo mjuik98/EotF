@@ -6,6 +6,25 @@
 import * as Deps from '../deps_factory.js';
 
 export function createTitleSettingsBindings(M, fns) {
+    const clampVolumePercent = (value) => {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isNaN(parsed)) return 0;
+        return Math.max(0, Math.min(100, parsed));
+    };
+
+    const setVolume = (value, applyFn, valueSelectors, sliderSelectors) => {
+        const val = clampVolumePercent(value);
+
+        applyFn?.(val / 100);
+        document.querySelectorAll(valueSelectors).forEach(el => { if (el) el.textContent = `${val}%`; });
+        document.querySelectorAll(sliderSelectors).forEach(el => {
+            if (!el) return;
+            el.value = val;
+            el.style.setProperty('--fill-percent', `${val}%`);
+        });
+        M.GameInit?.saveVolumes?.(M.AudioEngine);
+    };
+
     // ═══ Title / Navigation ═══
     fns.showCharacterSelect = () => {
         M.AudioEngine?.playClick?.();
@@ -86,43 +105,22 @@ export function createTitleSettingsBindings(M, fns) {
     };
 
     // ═══ Sound Settings ═══
-    fns.setMasterVolume = (v) => {
-        let val = parseInt(v); if (isNaN(val)) val = 0;
-        val = Math.max(0, Math.min(100, val));
-        M.AudioEngine?.setVolume?.(val / 100);
-        document.querySelectorAll('#volMasterVal, #volMasterSliderVal').forEach(el => { if (el) el.textContent = val + '%'; });
-        document.querySelectorAll('#volMasterSlider, #volMaster').forEach(el => {
-            if (el) {
-                el.value = val;
-                el.style.setProperty('--fill-percent', val + '%');
-            }
-        });
-        M.GameInit?.saveVolumes?.(M.AudioEngine);
-    };
-    fns.setSfxVolume = (v) => {
-        let val = parseInt(v); if (isNaN(val)) val = 0;
-        val = Math.max(0, Math.min(100, val));
-        M.AudioEngine?.setSfxVolume?.(val / 100);
-        document.querySelectorAll('#volSfxVal, #volSfxSliderVal').forEach(el => { if (el) el.textContent = val + '%'; });
-        document.querySelectorAll('#volSfxSlider, #volSfx').forEach(el => {
-            if (el) {
-                el.value = val;
-                el.style.setProperty('--fill-percent', val + '%');
-            }
-        });
-        M.GameInit?.saveVolumes?.(M.AudioEngine);
-    };
-    fns.setAmbientVolume = (v) => {
-        let val = parseInt(v); if (isNaN(val)) val = 0;
-        val = Math.max(0, Math.min(100, val));
-        M.AudioEngine?.setAmbientVolume?.(val / 100);
-        document.querySelectorAll('#volAmbientVal, #volAmbientSliderVal').forEach(el => { if (el) el.textContent = val + '%'; });
-        document.querySelectorAll('#volAmbientSlider, #volAmbient').forEach(el => {
-            if (el) {
-                el.value = val;
-                el.style.setProperty('--fill-percent', val + '%');
-            }
-        });
-        M.GameInit?.saveVolumes?.(M.AudioEngine);
-    };
+    fns.setMasterVolume = (v) => setVolume(
+        v,
+        (normalized) => M.AudioEngine?.setVolume?.(normalized),
+        '#volMasterVal, #volMasterSliderVal',
+        '#volMasterSlider, #volMaster',
+    );
+    fns.setSfxVolume = (v) => setVolume(
+        v,
+        (normalized) => M.AudioEngine?.setSfxVolume?.(normalized),
+        '#volSfxVal, #volSfxSliderVal',
+        '#volSfxSlider, #volSfx',
+    );
+    fns.setAmbientVolume = (v) => setVolume(
+        v,
+        (normalized) => M.AudioEngine?.setAmbientVolume?.(normalized),
+        '#volAmbientVal, #volAmbientSliderVal',
+        '#volAmbientSlider, #volAmbient',
+    );
 }

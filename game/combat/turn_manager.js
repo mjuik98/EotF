@@ -485,7 +485,11 @@ export const TurnManager = {
      * @returns {{ uiAction?: string, value?: any } | undefined}
      */
     handleEnemyEffect(effect, gs, enemy, { baseRegion, data } = {}) {
-        if (!effect) return undefined;
+        if (!effect || !gs || !enemy) return undefined;
+        if (enemy.hp <= 0) return undefined;
+        if (!(gs.combat?.active ?? true)) return undefined;
+        const playerHp = Number(gs.player?.hp);
+        if (Number.isFinite(playerHp) && playerHp < 1) return undefined;
         const handler = ENEMY_EFFECTS[effect];
         if (handler) return handler(gs, enemy, {}, baseRegion, data);
         else console.warn('[TurnManager] 알 수 없는 효과:', effect);

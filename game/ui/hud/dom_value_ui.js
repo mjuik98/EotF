@@ -1,10 +1,9 @@
-function _getDoc(deps) {
-    return deps?.doc || document;
-  }
+import { getDoc as _getDoc } from '../../utils/runtime_deps.js';
 
-  export const DomValueUI = {
+export const DomValueUI = {
     setBar(id, pct, deps = {}) {
       const doc = _getDoc(deps);
+      if (!doc) return;
       const el = doc.getElementById(id);
       if (!el) return;
       const clamped = Math.max(0, Math.min(100, Number(pct) || 0));
@@ -13,6 +12,7 @@ function _getDoc(deps) {
 
     setText(id, value, deps = {}) {
       const doc = _getDoc(deps);
+      if (!doc) return;
       const el = doc.getElementById(id);
       if (!el) return;
       el.textContent = value;

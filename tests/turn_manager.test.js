@@ -61,4 +61,19 @@ describe('TurnManager dodge handling', () => {
     expect(gs.player.buffs.dodge).toBeUndefined();
     expect(hitResults).toHaveLength(0);
   });
+
+  it('does not apply enemy effects when the enemy is already dead', () => {
+    const gs = createTurnState();
+    const enemy = {
+      name: 'Dead Enemy',
+      hp: 0,
+      atk: 10,
+      statusEffects: {},
+    };
+
+    const result = TurnManager.handleEnemyEffect('self_atk_up', gs, enemy, { baseRegion: 0, data: {} });
+
+    expect(result).toBeUndefined();
+    expect(enemy.atk).toBe(10);
+  });
 });

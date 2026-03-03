@@ -1,4 +1,4 @@
-﻿import { SecurityUtils } from '../../utils/security.js';
+import { SecurityUtils } from '../../utils/security.js';
 import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
 import {
   triggerDeckShufflePulseUI,
@@ -9,13 +9,11 @@ import {
   hideNodeOverlayUI,
 } from './hud_effects_ui.js';
 import { updateCombatEnergyUI, updatePlayerStatsUI } from './hud_stats_ui.js';
+import { DomValueUI } from './dom_value_ui.js';
+import { getDoc as _getDoc, getRaf } from '../../utils/runtime_deps.js';
 
 
 let _uiPending = false;
-
-function _getDoc(deps) {
-  return deps?.doc || document;
-}
 
 function _getGS(deps) {
   return deps?.gs;
@@ -70,7 +68,7 @@ export const HudUpdateUI = {
     if (_uiPending) return;
     _uiPending = true;
 
-    const raf = deps.requestAnimationFrame || globalThis.requestAnimationFrame?.bind(window);
+    const raf = getRaf(deps);
     if (typeof raf === 'function') {
       raf(() => {
         _uiPending = false;
@@ -120,15 +118,9 @@ export const HudUpdateUI = {
       || globalThis.SetBonusSystem
       || globalThis.GAME?.Modules?.['SetBonusSystem'];
     const getRegionData = deps.getRegionData;
-    // Use DomValueUI directly instead of deps
-    const setBar = (id, pct) => {
-      const el = doc.getElementById(id);
-      if (el) el.style.width = `${Math.max(0, Math.min(100, Number(pct) || 0))}%`;
-    };
-    const setText = (id, val) => {
-      const el = doc.getElementById(id);
-      if (el) el.textContent = val;
-    };
+    const domDeps = deps?.doc ? deps : { ...deps, doc };
+    const setBar = (id, pct) => DomValueUI.setBar(id, pct, domDeps);
+    const setText = (id, val) => DomValueUI.setText(id, val, domDeps);
 
     // HP - 
     const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);

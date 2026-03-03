@@ -1,8 +1,6 @@
-﻿import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
-
-function getDoc(deps) {
-  return deps?.doc || document;
-}
+import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
+import { DomValueUI } from './dom_value_ui.js';
+import { getDoc } from '../../utils/runtime_deps.js';
 
 export function updateCombatEnergyUI(gs, deps = {}) {
   if (!gs?.player) return;
@@ -67,14 +65,9 @@ export function updatePlayerStatsUI(gs, deps = {}) {
   const p = gs.player;
   const doc = getDoc(deps);
 
-  const setText = deps.setText || ((id, val) => {
-    const el = doc.getElementById(id);
-    if (el) el.textContent = val;
-  });
-  const setBar = deps.setBar || ((id, pct) => {
-    const el = doc.getElementById(id);
-    if (el) el.style.width = `${pct}%`;
-  });
+  const domDeps = deps?.doc ? deps : { ...deps, doc };
+  const setText = deps.setText || ((id, val) => DomValueUI.setText(id, val, domDeps));
+  const setBar = deps.setBar || ((id, pct) => DomValueUI.setBar(id, pct, domDeps));
 
   const hpPct = Math.max(0, (p.hp / p.maxHp) * 100);
   setBar('hpBar', hpPct);

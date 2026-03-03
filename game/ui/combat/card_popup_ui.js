@@ -1,3 +1,5 @@
+import { getDoc as _getDoc } from '../../utils/runtime_deps.js';
+
 const EXCLUDED_LOG_TYPES = new Set(['system', 'turn-divider']);
 
 export function typeToCategory(type) {
@@ -21,10 +23,6 @@ export function collectCardResultLines(gs, logLengthBefore = 0) {
       category: typeToCategory(entry?.type),
     }))
     .filter((line) => line.text.length > 0);
-}
-
-function _getDoc(deps) {
-  return deps?.doc || document;
 }
 
 function _buildPopup(doc, lines) {

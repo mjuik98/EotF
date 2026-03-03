@@ -213,7 +213,7 @@ export const DamageSystem = {
     dealDamageAll(amount, noChain = false, deps = {}) {
         const alive = this.combat.enemies.map((_, i) => i).filter(i => this.combat.enemies[i].hp > 0);
         alive.forEach((i, idx) => {
-            this.dealDamage(amount, i, noChain || (idx < alive.length - 1), deps);
+            this.dealDamage(amount, i, noChain || (idx < alive.length - 1), null, deps);
         });
     },
 

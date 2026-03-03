@@ -158,7 +158,8 @@ export const GameAPI = {
                 return false;
             }
 
-            const cost = GAME.Modules?.['CardCostUtils']?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
+            const cardCostUtils = GAME.Modules?.['CardCostUtils'];
+            const cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');
                 gs.combat._isPlayingCard = false;
@@ -179,19 +180,6 @@ export const GameAPI = {
                 gs.player.hand = handBefore;
             };
 
-            // 침묵의 도시 소음 게이지 상승
-            const _getBaseRegion = GAME.getDeps()?.getBaseRegionIndex || ((r) => r);
-            if (gs.combat?.active && _getBaseRegion(gs.currentRegion) === 1) {
-                // 추가 방어 로직: 1지역(침묵의 도시) 외에서 소음 관련 로그가 뜨는 것을 방지
-                gs.addSilence?.(1);
-            }
-
-            // _nextCardDiscount 소비 (효과 발동 전 차감하여 차후 획득 버프 보호)
-            if ((gs.player._nextCardDiscount || 0) > 0) {
-                gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
-            }
-            GAME.Modules?.['CardCostUtils']?.consumeTraitDiscount?.(cardId, gs.player);
-
             // 효과 실행 (동기 처리)
             try {
                 gs._currentCard = card;
@@ -202,6 +190,20 @@ export const GameAPI = {
             } finally {
                 gs._currentCard = null;
             }
+
+            // 성공적으로 카드가 발동된 뒤에만 카드 사용 부가 상태를 소모한다.
+            // (예외 경로에서 상태 불일치가 남지 않도록 보장)
+            const _getBaseRegion = GAME.getDeps()?.getBaseRegionIndex || ((r) => r);
+            if (gs.combat?.active && _getBaseRegion(gs.currentRegion) === 1) {
+                gs.addSilence?.(1);
+            }
+
+            if ((gs.player._nextCardDiscount || 0) > 0) {
+                gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
+            }
+
+            cardCostUtils?.consumeTraitDiscount?.(cardId, gs.player);
+            cardCostUtils?.consumeFreeCharge?.(cardId, gs.player, handIdx);
 
             // 클래스 특성 훅
             const cm = GAME.Modules?.['ClassMechanics']?.[gs.player.class];
