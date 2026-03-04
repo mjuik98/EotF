@@ -41,6 +41,7 @@ export const EchoSkillUI = {
       if (skillDef.vanish) gs.addBuff('vanish', skillDef.vanish, {});
       if (skillDef.heal) gs.heal(skillDef.heal);
       if (skillDef.atkGrowth) gs.addBuff('echo_berserk', 99, { atkGrowth: skillDef.atkGrowth });
+      if (skillDef.maxHpGrowth) gs.increaseMaxHp(skillDef.maxHpGrowth);
       if (skillDef.immune) gs.addBuff('immune', skillDef.immune, {});
       gs.addLog?.(skillDef.log, 'echo');
     }

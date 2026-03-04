@@ -20,6 +20,7 @@ export const Actions = {
     PLAYER_ECHO: 'player:echo',
     PLAYER_SILENCE: 'player:silence',
     PLAYER_BUFF: 'player:buff',
+    PLAYER_MAX_HP_GROWTH: 'player:max_hp_growth',
     PLAYER_DEATH: 'player:death',
 
     // Card
@@ -136,6 +137,19 @@ export const Reducers = {
         } else {
             buffs[id] = { stacks, ...data };
         }
+    },
+
+    [Actions.PLAYER_MAX_HP_GROWTH](gs, { amount }) {
+        const player = gs.player;
+        player.maxHp = Math.max(1, player.maxHp + amount);
+        // 최대 체력 증가 시 현재 체력도 같은 양만큼 증가 (회복)
+        if (amount > 0) {
+            player.hp = Math.min(player.maxHp, player.hp + amount);
+        } else {
+            player.hp = Math.min(player.maxHp, player.hp);
+        }
+        gs.markDirty('hud');
+        return { maxHpAfter: player.maxHp, hpAfter: player.hp };
     },
 
     [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {
@@ -325,4 +339,3 @@ export const Reducers = {
         return { prev, current: screen };
     },
 };
-

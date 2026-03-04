@@ -26,17 +26,17 @@
         <div class="title-tagline">"기억은 사라지지 않는다. 잔향이 될 뿐."</div>
 
         <div class="main-menu-buttons menu-buttons-container">
-          <button id="mainStartBtn" class="primary-start-btn">GAME START</button>
+          <button id="mainStartBtn" class="primary-start-btn">잔향 속으로</button>
           <div class="menu-buttons-sub-container">
-            <button id="mainRunRulesBtn" class="settings-trigger-btn">⚙️ 런 규칙</button>
-            <button id="mainCodexBtn" class="settings-trigger-btn">📘 CODEX</button>
-            <button id="mainSettingsBtn" class="settings-trigger-btn">🎚 SETTINGS</button>
-            <button id="mainQuitBtn" class="settings-trigger-btn btn-quit-special">⏻ QUIT</button>
+            <button id="mainRunRulesBtn" class="settings-trigger-btn">📖 런 규칙</button>
+            <button id="mainCodexBtn" class="settings-trigger-btn">📘 도감</button>
+            <button id="mainSettingsBtn" class="settings-trigger-btn">⚙️ 설정</button>
+            <button id="mainQuitBtn" class="settings-trigger-btn btn-quit-special">❌ 종료</button>
           </div>
         </div>
       </div>
 
-      <!-- 2단계: 캐릭터 선택 화면 (V4) -->
+      <!-- 2단계: 캐릭터 선택 화면 -->
       <div id="charSelectSubScreen" class="char-select-sub-screen" style="display:none;">
         <div id="app">
           <div id="bgGradient" class="bg-gradient"></div>
@@ -118,7 +118,8 @@
               </div>
               <div class="run-mode-row">
                 <span class="run-mode-label">축복</span>
-                <button id="blessingCycleBtn" class="run-mode-pill" type="button" onclick="cycleRunBlessing()">없음</button>
+                <button id="blessingCycleBtn" class="run-mode-pill" type="button"
+                  onclick="cycleRunBlessing()">없음</button>
                 <span class="run-mode-cap">시작 보너스</span>
               </div>
               <div class="run-mode-row">

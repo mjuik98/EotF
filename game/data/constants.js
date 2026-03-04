@@ -27,29 +27,29 @@ export const CONSTANTS = Object.freeze({
       3: { cost: 100, desc: '모든 적에게 피해 48. 방어막 22.', shortDesc: '전체 피해 48 / 방어막 22', aoedmg: 48, shield: 22, log: '🗡️ 공명 폭풍! 모든 적 피해 48. 방어막 22.' }
     },
     mage: {
-      1: { cost: 30, desc: '약화 2턴 부여. 카드 1장 드로우. 잔향 10 충전.', shortDesc: '약화 2턴 / 드로우 1 / 잔향 10', weaken: 2, draw: 1, echo: 10, log: '🪄 메아리 연쇄! 약화 2턴. 카드 1장 뽑기. 잔향 10.' },
-      2: { cost: 60, desc: '모든 적에게 피해 25. 카드 2장 드로우. 잔향 10 충전.', shortDesc: '전체 피해 25 / 드로우 2 / 잔향 10', aoedmg: 25, echo: 10, draw: 2, log: '🪄 메아리 연쇄! 모든 적 피해 25. 카드 2장 뽑기. 잔향 10.' },
-      3: { cost: 100, desc: '모든 적에게 피해 38. 카드 3장 드로우. 잔향 20 충전.', shortDesc: '전체 피해 38 / 드로우 3 / 잔향 20', aoedmg: 38, echo: 20, draw: 3, log: '🪄 메아리 연쇄! 모든 적 피해 38.  카드 3장 뽑기. 잔향 20.' }
+      1: { cost: 30, desc: '약화 2턴 부여. 카드 1장 드로우. 잔향 10 충전.', shortDesc: '약화 2턴 / 드로우 1 / 잔향 10', weaken: 2, draw: 1, echo: 10, log: '🪄 메아리 연쇄! 약화 2턴 부여. 카드 1장 드로우. 잔향 10 충전.' },
+      2: { cost: 60, desc: '모든 적에게 피해 25. 카드 2장 드로우. 잔향 10 충전.', shortDesc: '전체 피해 25 / 드로우 2 / 잔향 10', aoedmg: 25, echo: 10, draw: 2, log: '🪄 메아리 연쇄! 모든 적 피해 25. 카드 2장 드로우. 잔향 10 충전.' },
+      3: { cost: 100, desc: '모든 적에게 피해 38. 카드 3장 드로우. 잔향 20 충전.', shortDesc: '전체 피해 38 / 드로우 3 / 잔향 20', aoedmg: 38, echo: 20, draw: 3, log: '🪄 메아리 연쇄! 모든 적 피해 38. 카드 3장 드로우. 잔향 20 충전.' }
     },
     hunter: {
-      1: { cost: 30, desc: '피해 22. 독 2턴 부여.', shortDesc: '피해 22 / 독 2', dmg: 22, poison: 2, log: '⚔️ 잔향 포획! 피해 22. 독 2턴.' },
-      2: { cost: 60, desc: '피해 32. 은신 1턴.', shortDesc: '피해 32 / 은신', dmg: 32, vanish: 1, log: '⚔️ 잔향 포획! 피해 32. 은신 1턴.' },
-      3: { cost: 100, desc: '피해 45. 은신 2턴.', shortDesc: '피해 45 / 은신 2', dmg: 45, vanish: 2, log: '⚔️ 잔향 포획! 피해 45. 은신 2턴.' }
+      1: { cost: 30, desc: '피해 22. 독 2턴 부여.', shortDesc: '피해 22 / 독 2', dmg: 22, poison: 2, log: '⚔️ 잔향 포획! 피해 22. 독 2턴 부여.' },
+      2: { cost: 60, desc: '피해 32. 은신 1턴 부여.', shortDesc: '피해 32 / 은신', dmg: 32, vanish: 1, log: '⚔️ 잔향 포획! 피해 32. 은신 1턴 부여.' },
+      3: { cost: 100, desc: '피해 45. 은신 2턴 부여.', shortDesc: '피해 45 / 은신 2', dmg: 45, vanish: 2, log: '⚔️ 잔향 포획! 피해 45. 은신 2턴 부여.' }
     },
     paladin: {
-      1: { cost: 30, desc: '피해 20. 체력 8 회복.', shortDesc: '피해 20 / 회복 8', dmg: 20, heal: 8, log: '✨ 성가 잔향! 피해 20. 회복 8.' },
-      2: { cost: 60, desc: '피해 30. 체력 12 회복.', shortDesc: '피해 30 / 회복 12', dmg: 30, heal: 12, log: '✨ 성가 잔향! 피해 30. 회복 12.' },
-      3: { cost: 100, desc: '모든 적에게 피해 38. 체력 20 회복.', shortDesc: '전체 피해 38 / 회복 20', aoedmg: 38, heal: 20, log: '✨ 성가 잔향! 모든 적 피해 38. 회복 20.' }
+      1: { cost: 30, desc: '피해 20. 체력 8 회복.', shortDesc: '피해 20 / 회복 8', dmg: 20, heal: 8, log: '✨ 성가 잔향! 피해 20. 체력 8 회복.' },
+      2: { cost: 60, desc: '피해 30. 체력 12 회복.', shortDesc: '피해 30 / 회복 12', dmg: 30, heal: 12, log: '✨ 성가 잔향! 피해 30. 체력 12 회복.' },
+      3: { cost: 100, desc: '모든 적에게 피해 38. 체력 20 회복.', shortDesc: '전체 피해 38 / 회복 20', aoedmg: 38, heal: 20, log: '✨ 성가 잔향! 모든 적에게 피해 38. 체력 20 회복.' }
     },
     berserker: {
-      1: { cost: 30, desc: '피해 22. 공격력 영구 +1.', shortDesc: '피해 22 / 성장 +1', dmg: 22, atkGrowth: 1, log: '🪓 파음 해방! 피해 22. 공격력 1 영구 성장.' },
-      2: { cost: 60, desc: '피해 36. 공격력 영구 +2.', shortDesc: '피해 36 / 성장 +2', dmg: 36, atkGrowth: 2, log: '🪓 파음 해방! 피해 36. 공격력 2 영구 성장.' },
-      3: { cost: 100, desc: '모든 적에게 피해 45. 공격력 영구 +4.', shortDesc: '전체 피해 45 / 성장 +4', aoedmg: 45, atkGrowth: 4, log: '🪓 파음 해방! 모든 적 피해 45. 공격력 4 영구 성장.' }
+      1: { cost: 30, desc: '피해 22. 공격력 +1 (영구). 최대 체력 +2 (영구).', dmg: 22, atkGrowth: 1, maxHpGrowth: 2, log: '🪓 파음 해방! 피해 22. 공격력 +1. 최대 체력 +2' },
+      2: { cost: 60, desc: '피해 45. 공격력 +2 (영구). 최대 체력 +4 (영구).', dmg: 45, atkGrowth: 2, maxHpGrowth: 4, log: '🪓 파음 해방! 피해 45. 공격력 +2. 최대 체력 +4' },
+      3: { cost: 100, desc: '모든 적 피해 45. 공격력 +3 (영구). 최대 체력 +6 (영구).', aoedmg: 45, atkGrowth: 3, maxHpGrowth: 6, log: '🪓 파음 해방! 모든 적에게 피해 45. 공격력 +3. 최대 체력 +6' }
     },
     guardian: {
       1: { cost: 30, desc: '방어막 28.', shortDesc: '방어막 28', shield: 28, log: '🛡️ 잔영 공명! 방어막 28.' },
-      2: { cost: 60, desc: '방어막 38. 모든 적에게 약화 2턴 부여.', shortDesc: '방어막 38 / 약화 2', shield: 38, weaken: 2, log: '🛡️ 잔영 공명! 방어막 38. 모든 적 약화 2.' },
-      3: { cost: 100, desc: '방어막 50. 면역 1턴.', shortDesc: '방어막 50 / 면역 1', shield: 50, immune: 1, log: '🛡️ 잔영 공명! 방어막 50. 1턴 동안 모든 피해 면역.' }
+      2: { cost: 60, desc: '방어막 38. 모든 적에게 약화 2턴 부여.', shortDesc: '방어막 38 / 약화 2', shield: 38, weaken: 2, log: '🛡️ 잔영 공명! 방어막 38. 모든 적에게 약화 2턴 부여.' },
+      3: { cost: 100, desc: '방어막 50. 면역 1턴 부여.', shortDesc: '방어막 50 / 면역 1', shield: 50, immune: 1, log: '🛡️ 잔영 공명! 방어막 50. 1턴 동안 모든 피해 면역 부여.' }
     },
   }),
 

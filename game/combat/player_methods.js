@@ -134,4 +134,8 @@ export const PlayerMethods = {
         clearTimeout(this._pulseTimer);
         this._pulseTimer = setTimeout(() => el.remove(), 5000);
     },
+
+    increaseMaxHp(amount) {
+        this.commit(Actions.PLAYER_MAX_HP_GROWTH, { amount });
+    },
 };
