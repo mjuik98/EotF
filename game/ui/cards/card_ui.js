@@ -85,7 +85,7 @@ export const CardUI = {
       el.dataset.cardId = cardId;
       el.dataset.handIdx = String(i);
 
-      // ?대┃ ?대깽??- 移대뱶 ?ъ슜 (?꾩껜 移대뱶 議??좉툑?쇰줈 以묐났 ?ъ슜 諛⑹?)
+      //
       if (playCardHandler) {
         el.addEventListener('click', async (e) => {
           e.stopPropagation();

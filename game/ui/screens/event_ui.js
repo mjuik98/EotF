@@ -445,9 +445,6 @@ export const EventUI = {
       if (deps.screenShake) deps.screenShake.shake(10, 0.4);
       else if (typeof ScreenShake !== 'undefined') ScreenShake.shake(10, 0.4);
       gs.addLog('⚠️ 소각/처분할 카드가 덱에 없습니다.', 'damage');
-      if (typeof deps.returnToGame === 'function') {
-        setTimeout(() => deps.returnToGame(true), 500);
-      }
       return;
     }
 
@@ -543,11 +540,7 @@ export const EventUI = {
           if (typeof deps.playItemGet === 'function') deps.playItemGet();
           if (typeof deps.updateUI === 'function') deps.updateUI();
         }
-        _dismissTransientOverlay(overlay, () => {
-          if (isBurn && typeof deps.returnToGame === 'function') {
-            deps.returnToGame(true);
-          }
-        });
+        _dismissTransientOverlay(overlay);
       };
       discardList.appendChild(btn);
     });

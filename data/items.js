@@ -62,8 +62,14 @@ export const ITEMS = {
     },
     cursed_tome: {
         id: 'cursed_tome', name: '저주받은 마도서', icon: '📕', rarity: 'uncommon',
-        desc: '카드 드로우 시: 5% 확률로 잔향 25 충전.',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY) { gs.addEcho(5); gs.player.hp = Math.max(1, gs.player.hp - 2); gs.markDirty?.('hud'); } }
+        desc: '카드 드로우 시: 30% 확률로 잔향 10 충전, 체력 1 감소.',
+        passive(gs, trigger) {
+            if (trigger === Trigger.CARD_DRAW && Math.random() < 0.3) {
+                gs.addEcho(10, { name: '저주받은 마도서', type: 'item' });
+                gs.player.hp = Math.max(1, gs.player.hp - 1);
+                gs.markDirty?.('hud');
+            }
+        }
     },
     ancient_rune: {
         id: 'ancient_rune', name: '고대의 룬석', icon: '🗿', rarity: 'uncommon',
@@ -209,6 +215,16 @@ export const ITEMS = {
         id: 'surge_crystal', name: '쇄도의 수정', icon: '💫', rarity: 'legendary',
         desc: '전투 시작: 에너지 1 획득. (전투당 1회)',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START && !gs._surgeGranted) { gs.player.maxEnergy++; gs.player.energy = gs.player.maxEnergy; gs._surgeGranted = true; gs.addLog('💫 쇄도의 수정: 최대 에너지 +1 영구 증가!', 'echo'); if (typeof updateUI === 'function') updateUI(); } }
+    },
+    exhaust_fan: {
+        id: 'exhaust_fan', name: '소멸의 부채', icon: '🎐', rarity: 'uncommon',
+        desc: '카드가 소멸할 때마다 방어막 3 획득.',
+        passive(gs, trigger) { if (trigger === Trigger.CARD_EXHAUST) { gs.addShield(3, { name: '소멸의 부채', type: 'item' }); } }
+    },
+    energy_battery: {
+        id: 'energy_battery', name: '에너지 전지', icon: '🔋', rarity: 'uncommon',
+        desc: '에너지 획득 시 20% 확률로 잔향 10 충전.',
+        passive(gs, trigger) { if (trigger === Trigger.ENERGY_GAIN) { if (Math.random() < 0.2) { gs.addEcho(10, { name: '에너지 전지', type: 'item' }); } } }
     },
     // ══════════════ SET ITEMS — 조각 세트 (2/3개 효과) ══════════════
     // [세트 A] 심연의 삼위일체

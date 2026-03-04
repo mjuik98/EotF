@@ -2,14 +2,14 @@
  * cards.js — 카드 데이터, 업그레이드 맵, 에셋 경로
  */
 import { LogUtils } from '../game/utils/log_utils.js';
-import { AudioEngine } from '../engine/audio.js';
+
 
 export const ASSETS = {
     avatars: {
         swordsman: '🗡️',
         mage: '🪄',
-        hunter: '🏹',
-        paladin: '⚜️',
+        hunter: '⚔️',
+        paladin: '✨',
         berserker: '🪓',
         guardian: '🛡️'
     }
@@ -46,11 +46,11 @@ export const CARDS = {
     // 공통 기본
     strike: {
         id: 'strike', name: '타격', icon: '👊🏻', cost: 1, type: 'ATTACK', desc: '피해 9.', rarity: 'common',
-        effect(gs) { gs.dealDamage(9); AudioEngine.playChain(gs.player.echoChain); }
+        effect(gs) { gs.dealDamage(9); }
     },
     strike_plus: {
         id: 'strike_plus', name: '타격+', icon: '👊🏻', cost: 1, type: 'ATTACK', desc: '피해 13. 잔향 5 충전.', rarity: 'common', upgraded: true,
-        effect(gs) { gs.dealDamage(13); gs.addEcho(5); AudioEngine.playChain(gs.player.echoChain); }
+        effect(gs) { gs.dealDamage(13); gs.addEcho(5); }
     },
     defend: {
         id: 'defend', name: '수비', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 7.', rarity: 'common',

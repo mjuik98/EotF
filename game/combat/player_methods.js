@@ -8,6 +8,9 @@ const _getWin = (deps) => deps?.win || window;
 
 export const PlayerMethods = {
     addEcho(amount, source = null) {
+        if (this._currentCard) {
+            this._echoAddedThisAction = true;
+        }
         this.commit(Actions.PLAYER_ECHO, { amount });
         if (source && source.name) {
             const icon = source.type === 'item' ? '💍' : '✨';

@@ -12,7 +12,7 @@ export const EVENTS = [
         desc: '낡은 여행 가방 하나가 나뭇가지에 걸려 있다.',
         choices: [
             { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog(LogUtils.formatStatChange('플레이어', '골드', 20), 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
-            { text: '⚔️ 함정일지도 모른다 (무시)', effect(gs) { gs.addEcho(15); gs.addLog(LogUtils.formatEcho('잔향 +15'), 'echo'); return '조심성이 잔향을 강화했다.'; } },
+            { text: '🚶 조용히 지나간다', effect(gs) { gs.addEcho(15); gs.addLog(LogUtils.formatEcho('잔향 +15'), 'echo'); return '조심성이 잔향을 강화했다.'; } },
         ]
     },
     {
@@ -35,7 +35,7 @@ export const EVENTS = [
                     return '골드가 부족하다.';
                 }
             },
-            { text: '🚶 통과한다', effect(gs) { return '사당을 지나쳤다.'; } },
+            { text: '🚶 조용히 지나간다', effect(gs) { return '사당을 지나쳤다.'; } },
         ]
     },
     {
@@ -74,7 +74,7 @@ export const EVENTS = [
                 }
             },
             { text: '🔥 잔향을 충전한다 (잔향 +40)', effect(gs) { gs.addEcho(40); return '잔향이 충전되었다.'; } },
-            { text: '🚶 지나친다', effect(gs) { return null; } },
+            { text: '🚶 조용히 지나간다', effect(gs) { return null; } },
         ]
     },
     {
@@ -90,7 +90,7 @@ export const EVENTS = [
             },
             { text: '⚡ 잔향 구매 (골드 8 → 잔향 30)', effect(gs) { if (gs.player.gold >= 8) { gs.player.gold -= 8; gs.addEcho(30); return '잔향이 충전됐다.'; } return '골드가 부족하다.'; } },
             { text: '🃏 카드 구매 (골드 15 → 랜덤 카드)', effect(gs) { if (gs.player.gold >= 15) { gs.player.gold -= 15; const c = gs.getRandomCard('uncommon'); gs.player.deck.push(c); AudioEngine.playItemGet(); return `${CARDS[c]?.name} 카드를 얻었다.`; } return '골드가 부족하다.'; } },
-            { text: '🚶 지나친다', effect() { return null; } },
+            { text: '🚶 조용히 지나간다', effect() { return null; } },
         ]
     },
     {

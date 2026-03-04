@@ -8033,3 +8033,40 @@ body:has(#combatOverlay.active) .panel-right {
   font-family: 'Courier New', monospace;
   background: rgba(255, 255, 255, .02);
 }
+/* Character Select Card Tooltip */
+.deck-card-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.deck-card-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  padding: 12px;
+  background: #080814;
+  border-radius: 8px;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, .95);
+  display: none;
+  animation: tooltipIn .12s ease;
+  text-align: left;
+}
+
+.deck-card-tooltip .tip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+
+.deck-card-wrap:hover .deck-card-tooltip {
+  display: block;
+}

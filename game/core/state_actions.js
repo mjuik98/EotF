@@ -1,15 +1,15 @@
 ﻿import { CombatInitializer } from '../combat/combat_initializer.js';
 
-/**
- * state_actions.js ??Action ?뺤쓽 + Reducer
+/*
+ * state_actions.js 전역 Action 정의 + Reducer
  *
- * 紐⑤뱺 ?곹깭 蹂寃쎌? Action???듯빐 dispatch?⑸땲??
- * 媛?Reducer??gs(state)瑜?吏곸젒 蹂寃쏀븯怨? 蹂寃??댁슜??諛섑솚?⑸땲??
+ * 모든 상태 변경은 Action을 통해 dispatch됩니다.
+ * Reducer는 gs(state)를 통해 상태를 변경합니다.
  */
 
-// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+// ===========================================================================
 //  Action Types
-// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+// ===========================================================================
 export const Actions = {
     // Player
     PLAYER_DAMAGE: 'player:damage',
@@ -45,15 +45,15 @@ export const Actions = {
     MAP_MOVE: 'map:move',
 };
 
-// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
-//  Reducers (?곹깭 蹂寃??⑥닔)
-// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
+// ===========================================================================
+// Reducers (상태 변경 함수)
+// ===========================================================================
 export const Reducers = {
     [Actions.PLAYER_DAMAGE](gs, { amount, source = 'unknown' }) {
         const player = gs.player;
         let remaining = amount;
 
-        // 諛⑹뼱留??곗꽑 ?뚮え
+        // 방어막 우선 소모
         if (player.shield > 0) {
             const absorbed = Math.min(player.shield, remaining);
             player.shield -= absorbed;
@@ -97,6 +97,10 @@ export const Reducers = {
     },
 
     [Actions.PLAYER_ENERGY](gs, { amount }) {
+        if (amount > 0 && typeof gs.triggerItems === 'function') {
+            const scaled = gs.triggerItems('energy_gain', { amount });
+            if (typeof scaled === 'number' && Number.isFinite(scaled)) amount = scaled;
+        }
         gs.player.energy = Math.max(0, gs.player.energy + amount);
         gs.markDirty('hud');
         return { energyAfter: gs.player.energy };
@@ -138,6 +142,9 @@ export const Reducers = {
 
         if (exhaust) {
             gs.player.exhausted.push(cardId);
+            if (typeof gs.triggerItems === 'function') {
+                gs.triggerItems('card_exhaust', { cardId });
+            }
         } else {
             gs.player.graveyard.push(cardId);
         }
@@ -153,9 +160,9 @@ export const Reducers = {
             if (!gs.player.drawPile || gs.player.drawPile.length === 0) {
                 if (!gs.player.graveyard || gs.player.graveyard.length === 0) break;
 
-                // Graveyard瑜?drawPile濡??욎뼱 ?ｌ쓬
+                // Graveyard를 drawPile로 옮겨 넣음
                 gs.player.drawPile = [...gs.player.graveyard];
-                // 諛곗뿴 ?쒖꽌 ?욊린 (Fisher-Yates)
+                // 배열 순서 섞기 (Fisher-Yates)
                 for (let j = gs.player.drawPile.length - 1; j > 0; j--) {
                     const k = Math.floor(Math.random() * (j + 1));
                     [gs.player.drawPile[j], gs.player.drawPile[k]] = [gs.player.drawPile[k], gs.player.drawPile[j]];
@@ -166,8 +173,13 @@ export const Reducers = {
                 }
             }
             if (gs.player.hand.length < 8) {
-                gs.player.hand.push(gs.player.drawPile.pop());
+                const cardId = gs.player.drawPile.pop();
+                gs.player.hand.push(cardId);
                 drewCards = true;
+
+                if (typeof gs.triggerItems === 'function') {
+                    gs.triggerItems('card_draw', { cardId });
+                }
             }
         }
 

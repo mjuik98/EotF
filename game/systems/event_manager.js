@@ -118,7 +118,7 @@ export const EventManager = {
         text: '카드 1장 소각',
         effect: (state) => {
           if (showCardDiscardFn) showCardDiscardFn(state, true);
-          return null;
+          return '소각할 카드를 선택했습니다.';
         },
       },
       {

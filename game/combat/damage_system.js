@@ -154,7 +154,7 @@ export const DamageSystem = {
 
         if (!noChain) {
             this.player.echoChain++;
-            this.addEcho(10, true);
+            this.addEcho(10);
             const win = _getWin(deps);
             // 전투 라이프사이클을 통해 UI와 버스트 로직(5돌파) 트리거
             const updateChainDisplay = deps.updateChainDisplay
@@ -167,6 +167,9 @@ export const DamageSystem = {
                 const updateChainUI = deps.updateChainUI || win.updateChainUI;
                 if (typeof updateChainUI === 'function') updateChainUI(this.player.echoChain);
             }
+        } else if (enemy.hp <= 0 && this._echoAddedThisAction === false) {
+            // 적을 처치했다면, 다단 히트 카드의 중간 타격이라도 잔향은 채워준다 (아직 안 채워졌을 때만)
+            this.addEcho(10);
         }
 
         const totalDmg = result?.totalDamage ?? dmg;
