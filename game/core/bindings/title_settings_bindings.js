@@ -71,6 +71,11 @@ export function createTitleSettingsBindings(M, fns) {
 
     fns.startGame = () => {
         M.AudioEngine?.playClick?.();
+        // Prevent character-select flash during the stage entry transition.
+        const main = document.getElementById('mainTitleSubScreen');
+        const char = document.getElementById('charSelectSubScreen');
+        if (char) char.style.display = 'none';
+        if (main) main.style.display = 'block';
 
         // 인트로 연출 → 완료 후 실제 게임 시작
         IntroCinematicUI.play(

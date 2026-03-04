@@ -2,12 +2,6 @@
 //  CharacterSelectUI
 //  game/ui/title/character_select_ui.js
 //
-//  HTML 프로토타입(character-select-v4.html)을 프로젝트
-//  아키텍처에 맞게 변환한 ES 모듈입니다.
-//
-//  의존성 방향: game/ui/* (아키텍처 규칙 준수)
-//  사용처: game/core/init_sequence.js 또는 bindings에서 주입
-//
 //  NOTE: CHARS 데이터는 현재 이 파일에 포함되어 있지만
 //        data/classes.js 또는 game/data/ 로 이동을 권장합니다.
 // ══════════════════════════════════════════════════════════
@@ -34,9 +28,13 @@ const CHARS = Object.values(CLASS_METADATA)
   .slice()
   .sort((a, b) => Number(a?.id ?? 0) - Number(b?.id ?? 0))
   .map((cls) => {
+    const particle = cls.class === 'berserker'
+      ? 'rage'
+      : (cls.class === 'guardian' ? 'aegis' : cls.particle);
     const startRelic = ITEMS[cls.startRelic];
     return {
       ...cls,
+      particle,
       startRelic: startRelic ? {
         icon: startRelic.icon || '?',
         name: startRelic.name || cls.startRelic,
@@ -107,13 +105,38 @@ class _Particle {
       this.x = W * 0.2 + Math.random() * W * 0.6; this.y = H + 5;
       this.vx = (Math.random() - 0.5) * 1.8; this.vy = -(Math.random() * 2.5 + 1); this.s = Math.random() * 3 + 1;
     } else if (t === 'orb') {
-      this.angle = Math.random() * Math.PI * 2; this.r = 50 + Math.random() * 55;
-      this.speed = (Math.random() * 0.01 + 0.004) * (Math.random() > 0.5 ? 1 : -1);
-      this.s = Math.random() * 4 + 1.5;
+      // Orb particles use a wider orbit radius so the field fills more of the card.
+      const maxOrbit = Math.min(W, H);
+      this.angle = Math.random() * Math.PI * 2;
+      this.r = maxOrbit * (0.18 + Math.random() * 0.32);
+      this.speed = (Math.random() * 0.005 + 0.0025) * (Math.random() > 0.5 ? 1 : -1);
+      this.s = Math.random() * 3 + 1.2;
       this.x = W / 2 + Math.cos(this.angle) * this.r; this.y = H / 2 + Math.sin(this.angle) * this.r;
+    } else if (t === 'rage') {
+      // Berserker: widen spread to fill most of the card area.
+      this.x = W * 0.1 + Math.random() * W * 0.8; this.y = H * 0.32 + Math.random() * H * 0.62;
+      this.vx = (Math.random() - 0.5) * 1.1; this.vy = -(Math.random() * 1.4 + 0.5);
+      this.s = Math.random() * 2.6 + 1.2;
+      this.len = Math.random() * 10 + 6;
+      this.rot = (Math.random() - 0.5) * 1.2;
+      this.decay = 0.0035 + Math.random() * 0.0045;
     } else if (t === 'smoke') {
-      this.x = W * 0.3 + Math.random() * W * 0.4; this.y = H * 0.6 + Math.random() * H * 0.4;
-      this.vx = (Math.random() - 0.5) * 0.6; this.vy = -(Math.random() * 0.8 + 0.2); this.s = Math.random() * 7 + 3;
+      // Keep smoke spread wide but inside the visible card area.
+      this.x = W * 0.12 + Math.random() * W * 0.76; this.y = H * 0.55 + Math.random() * H * 0.4;
+      this.vx = (Math.random() - 0.5) * 0.45; this.vy = -(Math.random() * 0.7 + 0.15); this.s = Math.random() * 8 + 6;
+      this.decay = 0.0025 + Math.random() * 0.0035;
+    } else if (t === 'aegis') {
+      // Guardian: shield-glyph diamonds orbiting in stable rings.
+      const maxOrbit = Math.min(W, H);
+      this.angle = Math.random() * Math.PI * 2;
+      this.r = maxOrbit * (0.24 + Math.random() * 0.34);
+      this.speed = (Math.random() * 0.0025 + 0.001) * (Math.random() > 0.5 ? 1 : -1);
+      this.s = Math.random() * 2 + 2.2;
+      this.pulse = Math.random() * Math.PI * 2;
+      this.rot = Math.random() * Math.PI * 2;
+      this.decay = 0.003 + Math.random() * 0.003;
+      this.x = W / 2 + Math.cos(this.angle) * this.r;
+      this.y = H / 2 + Math.sin(this.angle) * this.r;
     } else if (t === 'holy') {
       this.x = Math.random() * W; this.y = Math.random() * H;
       this.vx = (Math.random() - 0.5) * 0.4; this.vy = -(Math.random() * 0.6 + 0.1);
@@ -123,7 +146,13 @@ class _Particle {
   update() {
     this.life -= this.decay;
     if (this.t === 'orb') { this.angle += this.speed; this.x = this.W / 2 + Math.cos(this.angle) * this.r; this.y = this.H / 2 + Math.sin(this.angle) * this.r; }
+    else if (this.t === 'rage') { this.x += this.vx; this.y += this.vy; this.vy += 0.025; this.vx *= 0.987; this.len *= 0.995; this.rot += (Math.random() - 0.5) * 0.05; }
     else if (this.t === 'smoke') { this.x += this.vx; this.y += this.vy; this.s += 0.04; }
+    else if (this.t === 'aegis') {
+      this.angle += this.speed; this.pulse += 0.04; this.rot += this.speed * 1.8;
+      const pr = this.r * (1 + 0.04 * Math.sin(this.pulse));
+      this.x = this.W / 2 + Math.cos(this.angle) * pr; this.y = this.H / 2 + Math.sin(this.angle) * pr;
+    }
     else if (this.t === 'holy') { this.pulse += 0.05; this.x += this.vx; this.y += this.vy; }
     else { this.x += this.vx; this.y += this.vy; }
     if (this.life <= 0) this.reset();
@@ -133,8 +162,37 @@ class _Particle {
     ctx.save();
     if (this.t === 'smoke') {
       const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.s);
-      g.addColorStop(0, `rgba(${rgb},${al * 0.22})`); g.addColorStop(1, `rgba(${rgb},0)`);
+      g.addColorStop(0, `rgba(${rgb},${al * 0.34})`);
+      g.addColorStop(0.7, `rgba(${rgb},${al * 0.15})`);
+      g.addColorStop(1, `rgba(${rgb},0)`);
+      ctx.shadowBlur = 14; ctx.shadowColor = `rgba(${rgb},${al * 0.16})`;
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI * 2); ctx.fill();
+    } else if (this.t === 'rage') {
+      ctx.translate(this.x, this.y); ctx.rotate(this.rot);
+      const len = Math.max(3, this.len);
+      const lg = ctx.createLinearGradient(-len * 0.5, 0, len * 0.55, 0);
+      lg.addColorStop(0, `rgba(${rgb},0)`);
+      lg.addColorStop(0.45, `rgba(${rgb},${al * 0.25})`);
+      lg.addColorStop(1, `rgba(${rgb},${al * 0.9})`);
+      ctx.strokeStyle = lg;
+      ctx.lineWidth = this.s;
+      ctx.lineCap = 'round';
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = `rgba(${rgb},${al * 0.7})`;
+      ctx.beginPath();
+      ctx.moveTo(-len * 0.5, 0);
+      ctx.lineTo(len * 0.55, 0);
+      ctx.stroke();
+    } else if (this.t === 'aegis') {
+      ctx.translate(this.x, this.y); ctx.rotate(this.rot);
+      const ps = this.s * (1 + 0.2 * Math.sin(this.pulse));
+      ctx.shadowBlur = 10; ctx.shadowColor = `rgba(${rgb},${al * 0.45})`;
+      ctx.strokeStyle = `rgba(${rgb},${al * 0.74})`; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(0, -ps); ctx.lineTo(ps, 0); ctx.lineTo(0, ps); ctx.lineTo(-ps, 0); ctx.closePath();
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(${rgb},${al * 0.34})`; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.arc(0, 0, ps * 1.8, 0, Math.PI * 2); ctx.stroke();
     } else if (this.t === 'holy') {
       const ps = this.s * (1 + 0.3 * Math.sin(this.pulse));
       ctx.shadowBlur = 12; ctx.shadowColor = `rgba(${rgb},.9)`;
@@ -208,8 +266,14 @@ export const CharacterSelectUI = {
       cancelAnimationFrame(pRaf);
       const cv = doc.getElementById('particleCanvas');
       if (!cv) return;
-      const ctx = cv.getContext('2d'), w = cv.width, h = cv.height;
-      particles = Array.from({ length: 40 }, () => new _Particle(type, accent, w, h));
+      const w = Math.max(1, Math.floor(cv.clientWidth || cv.width));
+      const h = Math.max(1, Math.floor(cv.clientHeight || cv.height));
+      if (cv.width !== w) cv.width = w;
+      if (cv.height !== h) cv.height = h;
+      const ctx = cv.getContext('2d');
+      if (!ctx) return;
+      const count = type === 'rage' ? 56 : (type === 'aegis' ? 34 : 40);
+      particles = Array.from({ length: count }, () => new _Particle(type, accent, w, h));
       const loop = () => {
         ctx.clearRect(0, 0, w, h);
         particles.forEach(p => { p.update(); p.draw(ctx); });
@@ -387,9 +451,9 @@ export const CharacterSelectUI = {
             </div>
             ${sLabel('시작 덱', ch.accent)}
             <div style="display:flex;flex-wrap:wrap;gap:6px">${ch.startDeck.map(cId => {
-              const card = CARDS[cId] || { name: cId };
-              return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
-            }).join('')}</div>
+        const card = CARDS[cId] || { name: cId };
+        return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
+      }).join('')}</div>
           </div>
         </div>`;
 

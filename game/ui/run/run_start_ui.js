@@ -14,11 +14,13 @@ export const RunStartUI = {
     if (!gs) return;
 
     return runIdempotent('run:enter-run', () => {
-      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
-
       const doc = _getDoc(deps);
-      doc.getElementById('mainTitleSubScreen').style.display = 'block';
-      doc.getElementById('charSelectSubScreen').style.display = 'none';
+      const mainTitleSubScreen = doc.getElementById('mainTitleSubScreen');
+      const charSelectSubScreen = doc.getElementById('charSelectSubScreen');
+      if (mainTitleSubScreen) mainTitleSubScreen.style.display = 'block';
+      if (charSelectSubScreen) charSelectSubScreen.style.display = 'none';
+
+      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
 
       if (typeof deps.markGameStarted === 'function') deps.markGameStarted();
       if (typeof deps.generateMap === 'function') deps.generateMap(0);
