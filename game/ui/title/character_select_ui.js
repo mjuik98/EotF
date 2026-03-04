@@ -113,13 +113,13 @@ class _Particle {
       this.s = Math.random() * 3 + 1.2;
       this.x = W / 2 + Math.cos(this.angle) * this.r; this.y = H / 2 + Math.sin(this.angle) * this.r;
     } else if (t === 'rage') {
-      // Berserker: widen spread to fill most of the card area.
-      this.x = W * 0.1 + Math.random() * W * 0.8; this.y = H * 0.32 + Math.random() * H * 0.62;
-      this.vx = (Math.random() - 0.5) * 1.1; this.vy = -(Math.random() * 1.4 + 0.5);
-      this.s = Math.random() * 2.6 + 1.2;
-      this.len = Math.random() * 10 + 6;
-      this.rot = (Math.random() - 0.5) * 1.2;
-      this.decay = 0.0035 + Math.random() * 0.0045;
+      // Berserker: aggressive slash field across most of the card.
+      this.x = W * 0.06 + Math.random() * W * 0.88; this.y = H * 0.2 + Math.random() * H * 0.72;
+      this.vx = (Math.random() - 0.5) * 1.5; this.vy = -(Math.random() * 1.8 + 0.6);
+      this.s = Math.random() * 3.2 + 1.4;
+      this.len = Math.random() * 14 + 8;
+      this.rot = (Math.random() - 0.5) * 1.6;
+      this.decay = 0.0028 + Math.random() * 0.0038;
     } else if (t === 'smoke') {
       // Keep smoke spread wide but inside the visible card area.
       this.x = W * 0.12 + Math.random() * W * 0.76; this.y = H * 0.55 + Math.random() * H * 0.4;
@@ -129,12 +129,12 @@ class _Particle {
       // Guardian: shield-glyph diamonds orbiting in stable rings.
       const maxOrbit = Math.min(W, H);
       this.angle = Math.random() * Math.PI * 2;
-      this.r = maxOrbit * (0.24 + Math.random() * 0.34);
-      this.speed = (Math.random() * 0.0025 + 0.001) * (Math.random() > 0.5 ? 1 : -1);
-      this.s = Math.random() * 2 + 2.2;
+      this.r = maxOrbit * (0.18 + Math.random() * 0.44);
+      this.speed = (Math.random() * 0.0032 + 0.0012) * (Math.random() > 0.5 ? 1 : -1);
+      this.s = Math.random() * 2.8 + 2.4;
       this.pulse = Math.random() * Math.PI * 2;
       this.rot = Math.random() * Math.PI * 2;
-      this.decay = 0.003 + Math.random() * 0.003;
+      this.decay = 0.0024 + Math.random() * 0.003;
       this.x = W / 2 + Math.cos(this.angle) * this.r;
       this.y = H / 2 + Math.sin(this.angle) * this.r;
     } else if (t === 'holy') {
@@ -146,11 +146,15 @@ class _Particle {
   update() {
     this.life -= this.decay;
     if (this.t === 'orb') { this.angle += this.speed; this.x = this.W / 2 + Math.cos(this.angle) * this.r; this.y = this.H / 2 + Math.sin(this.angle) * this.r; }
-    else if (this.t === 'rage') { this.x += this.vx; this.y += this.vy; this.vy += 0.025; this.vx *= 0.987; this.len *= 0.995; this.rot += (Math.random() - 0.5) * 0.05; }
+    else if (this.t === 'rage') {
+      this.x += this.vx; this.y += this.vy;
+      this.vx += (Math.random() - 0.5) * 0.03; this.vx *= 0.985; this.vy += 0.02;
+      this.len *= 0.996; this.rot += (Math.random() - 0.5) * 0.06;
+    }
     else if (this.t === 'smoke') { this.x += this.vx; this.y += this.vy; this.s += 0.04; }
     else if (this.t === 'aegis') {
-      this.angle += this.speed; this.pulse += 0.04; this.rot += this.speed * 1.8;
-      const pr = this.r * (1 + 0.04 * Math.sin(this.pulse));
+      this.angle += this.speed; this.pulse += 0.06; this.rot += this.speed * 2.2;
+      const pr = this.r * (1 + 0.08 * Math.sin(this.pulse));
       this.x = this.W / 2 + Math.cos(this.angle) * pr; this.y = this.H / 2 + Math.sin(this.angle) * pr;
     }
     else if (this.t === 'holy') { this.pulse += 0.05; this.x += this.vx; this.y += this.vy; }
@@ -177,22 +181,46 @@ class _Particle {
       ctx.strokeStyle = lg;
       ctx.lineWidth = this.s;
       ctx.lineCap = 'round';
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = `rgba(${rgb},${al * 0.7})`;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = `rgba(${rgb},${al * 0.82})`;
       ctx.beginPath();
       ctx.moveTo(-len * 0.5, 0);
       ctx.lineTo(len * 0.55, 0);
       ctx.stroke();
+      const lg2 = ctx.createLinearGradient(-len * 0.22, this.s * 0.35, len * 0.35, -this.s * 0.28);
+      lg2.addColorStop(0, `rgba(${rgb},0)`);
+      lg2.addColorStop(1, `rgba(${rgb},${al * 0.6})`);
+      ctx.strokeStyle = lg2;
+      ctx.lineWidth = Math.max(0.9, this.s * 0.45);
+      ctx.beginPath();
+      ctx.moveTo(-len * 0.22, this.s * 0.35);
+      ctx.lineTo(len * 0.35, -this.s * 0.28);
+      ctx.stroke();
+      ctx.fillStyle = `rgba(${rgb},${al * 0.88})`;
+      ctx.beginPath();
+      ctx.arc(len * 0.58, 0, this.s * 0.48, 0, Math.PI * 2);
+      ctx.fill();
     } else if (this.t === 'aegis') {
       ctx.translate(this.x, this.y); ctx.rotate(this.rot);
-      const ps = this.s * (1 + 0.2 * Math.sin(this.pulse));
-      ctx.shadowBlur = 10; ctx.shadowColor = `rgba(${rgb},${al * 0.45})`;
-      ctx.strokeStyle = `rgba(${rgb},${al * 0.74})`; ctx.lineWidth = 1.2;
+      const ps = this.s * (1 + 0.28 * Math.sin(this.pulse));
+      ctx.shadowBlur = 14; ctx.shadowColor = `rgba(${rgb},${al * 0.55})`;
+      ctx.fillStyle = `rgba(${rgb},${al * 0.16})`;
+      ctx.beginPath();
+      ctx.moveTo(0, -ps); ctx.lineTo(ps, 0); ctx.lineTo(0, ps); ctx.lineTo(-ps, 0); ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = `rgba(${rgb},${al * 0.88})`; ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.moveTo(0, -ps); ctx.lineTo(ps, 0); ctx.lineTo(0, ps); ctx.lineTo(-ps, 0); ctx.closePath();
       ctx.stroke();
-      ctx.strokeStyle = `rgba(${rgb},${al * 0.34})`; ctx.lineWidth = 0.8;
-      ctx.beginPath(); ctx.arc(0, 0, ps * 1.8, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = `rgba(${rgb},${al * 0.46})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(0, 0, ps * (1.85 + 0.16 * Math.sin(this.pulse * 1.3)), 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = `rgba(${rgb},${al * 0.26})`; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.arc(0, 0, ps * 2.35, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = `rgba(${rgb},${al * 0.38})`; ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(-ps * 1.2, 0); ctx.lineTo(ps * 1.2, 0);
+      ctx.moveTo(0, -ps * 1.2); ctx.lineTo(0, ps * 1.2);
+      ctx.stroke();
     } else if (this.t === 'holy') {
       const ps = this.s * (1 + 0.3 * Math.sin(this.pulse));
       ctx.shadowBlur = 12; ctx.shadowColor = `rgba(${rgb},.9)`;
@@ -272,11 +300,13 @@ export const CharacterSelectUI = {
       if (cv.height !== h) cv.height = h;
       const ctx = cv.getContext('2d');
       if (!ctx) return;
-      const count = type === 'rage' ? 56 : (type === 'aegis' ? 34 : 40);
+      const count = type === 'rage' ? 84 : (type === 'aegis' ? 52 : 40);
       particles = Array.from({ length: count }, () => new _Particle(type, accent, w, h));
       const loop = () => {
         ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = (type === 'rage' || type === 'aegis') ? 'lighter' : 'source-over';
         particles.forEach(p => { p.update(); p.draw(ctx); });
+        ctx.globalCompositeOperation = 'source-over';
         pRaf = requestAnimationFrame(loop);
       };
       loop();
