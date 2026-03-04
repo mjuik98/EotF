@@ -331,7 +331,7 @@ export const MapUI = {
         desc: '다음 교전을 준비합니다.',
       };
       const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: '지역' };
-      const pos = ['A', 'B', 'C', 'D'][n.pos] || String(n.pos + 1);
+      const pos = ['A', 'B', 'C', 'D', 'E'][n.pos] || String(n.pos + 1);
 
       const card = doc.createElement('div');
       card.className = 'node-card';

@@ -62,7 +62,8 @@ function _normalizeRouteOptions(rawRoutes = []) {
         rewardMod: Number.isFinite(Number(route.rewardMod)) ? Number(route.rewardMod) : 1,
       };
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .slice(0, 2);
 }
 
 function _showBranchChoiceOverlay(routes, deps = {}) {

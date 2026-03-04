@@ -76,9 +76,7 @@
         continue;
       }
 
-      const count = isFirstStage
-        ? Math.floor(Math.random() * 3) + 1
-        : (Math.random() < 0.5 ? 2 : 3);
+      const count = Math.floor(Math.random() * 5) + 1;
       const isLateGame = floor >= Math.ceil(totalFloors * 0.5);
 
       let eliteAssigned = false;
