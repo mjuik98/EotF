@@ -32,7 +32,7 @@ export const CONSTANTS = Object.freeze({
       3: { cost: 100, desc: '모든 적에게 피해 38. 카드 3장 드로우. 잔향 20 충전.', shortDesc: '전체 피해 38 / 드로우 3 / 잔향 20', aoedmg: 38, echo: 20, draw: 3, log: '🪄 메아리 연쇄! 모든 적 피해 38. 카드 3장 드로우. 잔향 20 충전.' }
     },
     hunter: {
-      1: { cost: 30, desc: '피해 22. 독 2턴 부여.', shortDesc: '피해 22 / 독 2', dmg: 22, poison: 2, log: '⚔️ 잔향 포획! 피해 22. 독 2턴 부여.' },
+      1: { cost: 30, desc: '피해 22. 독 2턴 부여.', shortDesc: '피해 22 / 독 2턴', dmg: 22, poison: 2, log: '⚔️ 잔향 포획! 피해 22. 독 2턴 부여.' },
       2: { cost: 60, desc: '피해 32. 은신 1턴 부여.', shortDesc: '피해 32 / 은신', dmg: 32, vanish: 1, log: '⚔️ 잔향 포획! 피해 32. 은신 1턴 부여.' },
       3: { cost: 100, desc: '피해 45. 은신 2턴 부여.', shortDesc: '피해 45 / 은신 2', dmg: 45, vanish: 2, log: '⚔️ 잔향 포획! 피해 45. 은신 2턴 부여.' }
     },

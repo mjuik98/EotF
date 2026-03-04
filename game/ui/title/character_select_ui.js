@@ -240,7 +240,7 @@ class _Particle {
 // ══════════════════════════════════════════════════════════
 // RADAR SVG BUILDER
 // ══════════════════════════════════════════════════════════
-const _STAT_LABELS = { HP: '체력', ATK: '공격', DEF: '방어', ECH: '잔향', RHY: '리듬', RES: '공명' };
+const _STAT_LABELS = { HP: '체력', ATK: '공격', DEF: '방어', ECH: '잔향', RHY: '리듬', RES: '회복' };
 
 function _buildRadar(stats, accent, cmp = null, size = 240) {
   const keys = Object.keys(stats), n = keys.length;
@@ -257,7 +257,7 @@ function _buildRadar(stats, accent, cmp = null, size = 240) {
   const axes = keys.map((_, i) => { const [x, y] = pt(i, maxR); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>`; }).join('');
   const sPath = `<path d="${toD(sPts)}" fill="${accent}22" stroke="${accent}" stroke-width="2" filter="url(#${fid})"/>`;
   const dots = sPts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="${accent}"/>`).join('');
-  const lbls = keys.map((k, i) => { const [x, y] = pt(i, maxR + 22); return `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" fill="${accent}" font-family="'Courier New',monospace" font-weight="bold">${_STAT_LABELS[k] || k}</text>`; }).join('');
+  const lbls = keys.map((k, i) => { const [x, y] = pt(i, maxR + 22); return `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" fill="${accent}" font-family="'Share Tech Mono',monospace" font-weight="bold">${_STAT_LABELS[k] || k}</text>`; }).join('');
   return `<svg width="${size}" height="${size}" style="overflow:visible"><defs><filter id="${fid}"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="${accent}" flood-opacity=".6"/></filter></defs>${grids}${axes}${cPath}${sPath}${dots}${lbls}</svg>`;
 }
 
@@ -331,11 +331,11 @@ export const CharacterSelectUI = {
       const isEcho = !!skill.echoCost;
       const tiers = skill.tree.map((t, i) => `
         <div style="padding:16px 20px;border:1px solid ${i === 0 ? accent + '55' : accent + '1a'};border-radius:10px;background:${i === 0 ? accent + '0f' : 'transparent'};display:flex;align-items:flex-start;gap:16px;animation:fadeInUp .3s ease ${i * 0.07}s both">
-          <div style="width:28px;height:28px;flex-shrink:0;border-radius:50%;border:2px solid ${i === 0 ? accent : accent + '44'};display:flex;align-items:center;justify-content:center;font-size:12px;color:${i === 0 ? accent : accent + '55'};font-family:'Courier New',monospace;font-weight:bold">${t.tier}</div>
+          <div style="width:28px;height:28px;flex-shrink:0;border-radius:50%;border:2px solid ${i === 0 ? accent : accent + '44'};display:flex;align-items:center;justify-content:center;font-size:12px;color:${i === 0 ? accent : accent + '55'};font-family:'Share Tech Mono',monospace;font-weight:bold">${t.tier}</div>
           <div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
               <span style="font-size:15px;color:${i === 0 ? '#fff' : '#555'};letter-spacing:1px">${t.name}</span>
-              <span style="padding:2px 10px;border-radius:12px;font-size:11px;background:${accent}1a;color:${accent};font-family:'Courier New',monospace;border:1px solid ${accent}33">${t.bonus}</span>
+              <span style="padding:2px 10px;border-radius:12px;font-size:11px;background:${accent}1a;color:${accent};font-family:'Share Tech Mono',monospace;border:1px solid ${accent}33">${t.bonus}</span>
             </div>
             <p style="font-size:13px;color:${i === 0 ? '#aaa' : '#3a3a50'};margin:0;line-height:1.6">${t.desc}</p>
           </div>
@@ -349,14 +349,14 @@ export const CharacterSelectUI = {
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
           <span style="font-size:32px">${skill.icon}</span>
           <div>
-            <p style="font-size:10px;letter-spacing:5px;color:#444;font-family:'Courier New',monospace;margin:0">${isEcho ? 'ECHO SKILL TREE' : 'SKILL TREE'}</p>
+            <p style="font-size:10px;letter-spacing:5px;color:#444;font-family:'Share Tech Mono',monospace;margin:0">${isEcho ? 'ECHO SKILL TREE' : 'SKILL TREE'}</p>
             <h3 style="font-size:20px;color:#fff;margin:0;letter-spacing:1.5px">${skill.name}</h3>
-            ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Courier New',monospace"> ${skill.echoCost} 소모</span>` : ''}
+            ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Share Tech Mono',monospace"> ${skill.echoCost} 소모</span>` : ''}
           </div>
           <button id="modalClose" style="margin-left:auto;background:none;border:none;color:#555;font-size:24px;cursor:pointer">✕</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px">${tiers}</div>
-        <p style="font-size:11px;color:#222;text-align:center;font-family:'Courier New',monospace;margin:20px 0 0">클릭 또는 ESC로 닫기</p>`;
+        <p style="font-size:11px;color:#222;text-align:center;font-family:'Share Tech Mono',monospace;margin:20px 0 0">클릭 또는 ESC로 닫기</p>`;
 
       $('skillModal').classList.add('open');
       $('modalClose').addEventListener('click', closeModal);
@@ -394,7 +394,7 @@ export const CharacterSelectUI = {
       const cardTags = $('cardTags');
       if (cardTags) {
         cardTags.innerHTML = ch.tags.map(t =>
-          `<span style="padding:4px 10px;border:1px solid ${ch.accent}22;border-radius:12px;font-size:11px;color:${ch.accent}aa;font-family:'Courier New',monospace;background:${ch.accent}07">${t}</span>`
+          `<span style="padding:4px 10px;border:1px solid ${ch.accent}22;border-radius:12px;font-size:11px;color:${ch.accent}aa;font-family:'Share Tech Mono',monospace;background:${ch.accent}07">${t}</span>`
         ).join('');
       }
       const cardBottomGrad = $('cardBottomGrad');
@@ -426,7 +426,7 @@ export const CharacterSelectUI = {
       panel.innerHTML = `
         <div style="padding:15px 18px;border:1px solid ${ch.accent}22;border-radius:10px;background:${ch.accent}06;margin-bottom:18px">
           ${sLabel('── 고유 특성 ──', ch.accent)}
-          <p style="font-size:14px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 5px;letter-spacing:1px">${ch.traitTitle}</p>
+          <p style="font-size:14px;color:${ch.accent};font-family:'Share Tech Mono',monospace;margin:0 0 5px;letter-spacing:1px">${ch.traitTitle}</p>
           <p style="font-size:13px;color:#888;margin:0;line-height:1.7">${ch.traitDesc}</p>
         </div>
         ${sLabel('ECHO SKILL — 잔향 게이지 스킬', ch.accent)}
@@ -434,10 +434,10 @@ export const CharacterSelectUI = {
           <button id="echoBadge" class="echo-badge" style="background:linear-gradient(135deg,${ch.accent}0e,${ch.color}08);border:1px solid ${ch.accent}44;padding:12px 16px">
             <div style="width:36px;height:36px;flex-shrink:0;border-radius:8px;border:1px solid ${ch.accent}55;background:${ch.accent}14;display:flex;align-items:center;justify-content:center;font-size:18px">${ec.icon}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-size:12px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:1px;margin-bottom:4px">◈ ${ec.name}</div>
+              <div style="font-size:12px;color:${ch.accent};font-family:'Share Tech Mono',monospace;letter-spacing:1px;margin-bottom:4px">◈ ${ec.name}</div>
               <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ec.desc}</div>
             </div>
-            <div style="flex-shrink:0;padding:4px 10px;border:1px solid ${ch.accent}33;border-radius:12px;font-size:10px;color:${ch.accent}99;font-family:'Courier New',monospace;background:${ch.accent}0a"> ${ec.echoCost}</div>
+            <div style="flex-shrink:0;padding:4px 10px;border:1px solid ${ch.accent}33;border-radius:12px;font-size:10px;color:${ch.accent}99;font-family:'Share Tech Mono',monospace;background:${ch.accent}0a"> ${ec.echoCost}</div>
           </button>
         </div>
         <div style="display:flex;gap:12px;align-items:flex-start">
@@ -452,14 +452,14 @@ export const CharacterSelectUI = {
                 <div class="relic-inner" style="border:1px solid ${ch.accent}33;background:${ch.accent}08;padding:10px 16px">
                   <span style="font-size:24px">${rel.icon}</span>
                   <div>
-                    <div style="font-size:13px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:.5px">${rel.name}</div>
-                    <div style="font-size:11px;color:${ch.accent}66;font-family:'Courier New',monospace">유물</div>
+                    <div style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace;letter-spacing:.5px">${rel.name}</div>
+                    <div style="font-size:11px;color:${ch.accent}66;font-family:'Share Tech Mono',monospace">유물</div>
                   </div>
                 </div>
                 <div class="relic-tooltip" style="border:1px solid ${ch.accent}44; width: 220px; padding: 14px 18px;">
                   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
                     <span style="font-size:18px">${rel.icon}</span>
-                    <span style="font-size:13px;color:${ch.accent};font-family:'Courier New',monospace">${rel.name}</span>
+                    <span style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace">${rel.name}</span>
                   </div>
                   <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:10px">${rel.desc}</div>
                   <div class="tip-arrow" style="border-top:7px solid ${ch.accent}44"></div>
@@ -522,7 +522,7 @@ export const CharacterSelectUI = {
     function renderButtons() {
       const ch = chars[S.idx];
       buttonsRow.innerHTML = `
-        <button id="btnCfm" style="padding:10px 48px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Courier New',monospace;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
+        <button id="btnCfm" style="padding:10px 48px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
 
       const bf = $('btnCfm');
       bf.addEventListener('mouseenter', () => { SFX.hover(); bf.style.letterSpacing = '5px'; bf.style.boxShadow = `0 0 50px ${ch.accent}44`; bf.style.background = `linear-gradient(135deg,${ch.color}55,${ch.color}2a)`; });
@@ -552,16 +552,16 @@ export const CharacterSelectUI = {
         ci.style.background = `radial-gradient(circle,${ch.accent}55 0%,${ch.color}22 35%,transparent 60%)`;
         ct.innerHTML = `
           <div style="font-size:clamp(60px,12vw,100px);margin-bottom:15px;filter:drop-shadow(0 0 60px ${ch.glow});animation:float 3s ease-in-out infinite">${ch.emoji}</div>
-          <p style="font-size:11px;letter-spacing:8px;color:#889;font-family:'Courier New',monospace;margin:0 0 8px">YOUR HERO</p>
+          <p style="font-size:11px;letter-spacing:8px;color:#889;font-family:'Share Tech Mono',monospace;margin:0 0 8px">YOUR HERO</p>
           <h2 style="font-size:clamp(32px,7vw,58px);font-weight:900;letter-spacing:6px;margin:0 0 6px;text-shadow:0 0 60px ${ch.glow};color:#fff">${ch.name}</h2>
-          <p style="font-size:14px;letter-spacing:6px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 8px">${ch.title}</p>
-          <p style="font-size:13px;color:#aaa;font-family:'Courier New',monospace;margin:0 0 20px;letter-spacing:2px">고유 특성 · ${ch.traitName}</p>
-          <div id="typedArea" style="font-size:clamp(12px,1.5vw,16px);color:#ddd;line-height:2.4;font-family:'Courier New',monospace;letter-spacing:1px;min-height:7em;margin-bottom:30px;white-space:pre-line"></div>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:15px">${ch.tags.map(t => `<span style="padding:4px 16px;border:1px solid ${ch.accent}44;border-radius:24px;font-size:12px;color:${ch.accent};font-family:'Courier New',monospace;background:${ch.accent}0e">${t}</span>`).join('')}</div>
-          <p style="font-size:13px;color:#ccc;font-family:'Courier New',monospace;margin:0 0 30px">시작 유물: ${ch.startRelic.icon} ${ch.startRelic.name}</p>
+          <p style="font-size:14px;letter-spacing:6px;color:${ch.accent};font-family:'Share Tech Mono',monospace;margin:0 0 8px">${ch.title}</p>
+          <p style="font-size:13px;color:#aaa;font-family:'Share Tech Mono',monospace;margin:0 0 20px;letter-spacing:2px">고유 특성 · ${ch.traitName}</p>
+          <div id="typedArea" style="font-size:clamp(12px,1.5vw,16px);color:#ddd;line-height:2.1;font-family:'Crimson Pro',serif;letter-spacing:.3px;min-height:7em;margin-bottom:30px;white-space:pre-line"></div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:15px">${ch.tags.map(t => `<span style="padding:4px 16px;border:1px solid ${ch.accent}44;border-radius:24px;font-size:12px;color:${ch.accent};font-family:'Share Tech Mono',monospace;background:${ch.accent}0e">${t}</span>`).join('')}</div>
+          <p style="font-size:13px;color:#ccc;font-family:'Share Tech Mono',monospace;margin:0 0 30px">시작 유물: ${ch.startRelic.icon} ${ch.startRelic.name}</p>
           <div style="display:flex;gap:20px;justify-content:center;margin-top:15px;">
-            <button id="btnResel" style="padding:12px 32px;border:1px solid rgba(255,255,255,0.2);border-radius:4px;background:transparent;color:#99a;font-size:12px;letter-spacing:4px;font-family:'Courier New',monospace;cursor:pointer;transition:all .2s">← 다시 선택</button>
-            <button id="btnRealStart" style="padding:12px 48px;border:1px solid ${ch.accent}55;border-radius:4px;background:linear-gradient(135deg,${ch.color}55,${ch.color}22);color:#fff;font-size:14px;letter-spacing:5px;font-family:'Courier New',monospace;cursor:pointer;box-shadow:0 0 30px ${ch.accent}33;transition:all .2s">여정 시작 →</button>
+            <button id="btnResel" style="padding:12px 32px;border:1px solid rgba(255,255,255,0.2);border-radius:4px;background:transparent;color:#99a;font-size:12px;letter-spacing:4px;font-family:'Cinzel',serif;cursor:pointer;transition:all .2s">← 다시 선택</button>
+            <button id="btnRealStart" style="padding:12px 48px;border:1px solid ${ch.accent}55;border-radius:4px;background:linear-gradient(135deg,${ch.color}55,${ch.color}22);color:#fff;font-size:14px;letter-spacing:5px;font-family:'Cinzel',serif;cursor:pointer;box-shadow:0 0 30px ${ch.accent}33;transition:all .2s">여정 시작 →</button>
           </div>`;
 
         stopTyping();

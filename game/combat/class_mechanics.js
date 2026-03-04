@@ -213,9 +213,9 @@ export const ClassMechanics = {
 
       if (player._hunterHitCounts[targetIdx] >= 5) {
         player._hunterHitCounts[targetIdx] = 0;
-        state.addLog(LogUtils.formatEcho('🎯 정적 발동: 독 3 부여 + 은신 1턴'), 'echo');
+        state.addLog(LogUtils.formatEcho('🎯 정적 발동: 독 3턴 부여 + 카드 1장 드로우'), 'echo');
         state.applyEnemyStatus('poisoned', 3, targetIdx);
-        state.addBuff('vanish', 1);
+        state.drawCards?.(1);
       }
       return damage;
     },
@@ -223,7 +223,7 @@ export const ClassMechanics = {
       const state = _getGS(gs);
       const meta = globalThis.DATA?.classes?.hunter;
       const title = meta?.traitTitle || '정적 (Dead Silence)';
-      const desc = meta?.traitDesc || '같은 적을 5번 공격할 때마다 해당 적에게 독 3을 부여하고, 자신은 1턴 동안 은신 상태가 됩니다.';
+      const desc = meta?.traitDesc || '같은 적을 5번 공격할 때마다 해당 적에게 독 3턴 부여하고, 카드를 1장 드로우합니다.';
       const el = document.createElement('div');
       el.style.cursor = 'help';
       el.addEventListener('mouseenter', e => {

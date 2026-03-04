@@ -5698,7 +5698,7 @@ body:has(#combatOverlay.active) .panel-right {
   letter-spacing: 0.1em;
   color: var(--text-dim);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  animation: fadeInDown 0.8s ease backwards;
+  animation: titleRunStatsFadeIn 0.5s ease backwards;
 }
 
 .title-run-stats .stat-item {
@@ -5723,6 +5723,18 @@ body:has(#combatOverlay.active) .panel-right {
   width: 1px;
   height: 12px;
   background: rgba(123, 47, 255, 0.2);
+}
+
+@keyframes titleRunStatsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
 }
 
 /* Run Rules & Modals Cleanup */
@@ -7877,7 +7889,7 @@ body:has(#combatOverlay.active) .panel-right {
   font-size: 11px;
   letter-spacing: 4px;
   color: #555;
-  font-family: 'Courier New', monospace;
+  font-family: 'Share Tech Mono', monospace;
   margin: 0 0 10px;
   padding-left: 10px;
 }
@@ -8010,7 +8022,7 @@ body:has(#combatOverlay.active) .panel-right {
   border-radius: 8px;
   font-size: 8.5px;
   color: #555;
-  font-family: 'Courier New', monospace;
+  font-family: 'Share Tech Mono', monospace;
   background: rgba(255, 255, 255, .02);
 }
 

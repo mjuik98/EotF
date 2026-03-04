@@ -14,11 +14,11 @@ export const CLASS_METADATA = {
         emoji: '🗡️',
         style: 'swordsman',
         difficulty: '★★★☆☆',
-        color: '#1A6B9A',
-        glow: '#5DADE2',
-        accent: '#55AAFF',
-        tags: ['스택형', '연속 공격', '입문 추천'],
-        stats: { HP: 80, ATK: 75, DEF: 60, ECH: 85, RHY: 65, RES: 70 },
+        color: '#2F8FCB',
+        glow: '#8EDCFF',
+        accent: '#7CC8FF',
+        tags: ['상태이상', '강화', '균형잡힌'],
+        stats: { HP: 80, ATK: 75, DEF: 60, ECH: 85, RHY: 65, RES: 40 },
         desc: '검격이 거듭될수록 파동이 짙어지는 검사.',
         traitName: '공명',
         traitTitle: '공명 (Resonance)',
@@ -30,7 +30,7 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "공명 폭풍 Lv.3", bonus: "100", desc: "모든 적 피해 48. 방어막 22." },
             ]
         },
-        startDeck: ["strike", "strike", "defend", "charge", "echo_strike", "heavy_blow", "blade_dance"],
+        startDeck: ["strike", "strike", "defend", "defend", "foot_step", "blade_dance", "echo_strike", "heavy_blow"],
         startRelic: "dull_blade",
         story: "검이 울렸다...\n그 울림은 전장을 가득 채웠다.\n공명은 끝나지 않는다.",
         particle: "ember"
@@ -46,8 +46,8 @@ export const CLASS_METADATA = {
         color: '#7D3C98',
         glow: '#C39BD3',
         accent: '#BB77FF',
-        tags: ['흐름 왜곡', '카드 비용', '고화력'],
-        stats: { HP: 50, ATK: 95, DEF: 30, ECH: 90, RHY: 70, RES: 80 },
+        tags: ['드로우', '비용 감소', '고화력'],
+        stats: { HP: 50, ATK: 95, DEF: 30, ECH: 90, RHY: 70, RES: 25 },
         desc: '전장의 리듬을 공명시켜 카드 흐름을 왜곡하는 마법사.',
         traitName: '메아리',
         traitTitle: '메아리 (Echo)',
@@ -59,7 +59,7 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "메아리 연쇄 Lv.3", bonus: "100", desc: "모든 적에게 피해 38. 카드 3장 드로우. 잔향 20 충전." },
             ]
         },
-        startDeck: ["strike", "strike", "defend", "prediction", "foresight", "void_mirror", "time_warp"],
+        startDeck: ["strike", "strike", "defend", "defend", "foresight", "prediction", "void_mirror", "time_warp"],
         startRelic: "void_shard",
         story: "메아리는 결코 사라지지 않는다...\n카드 한 장 한 장이 울림을 남긴다.\n패가 울리는 순간, 전장이 무너진다.",
         particle: "orb"
@@ -75,12 +75,12 @@ export const CLASS_METADATA = {
         color: '#1A6B3C',
         glow: '#58D68D',
         accent: '#44FF88',
-        tags: ['침묵 게이지', '은신', '숙련자용'],
-        stats: { HP: 65, ATK: 85, DEF: 45, ECH: 60, RHY: 95, RES: 65 },
+        tags: ['드로우', '상태이상', '균형잡힌'],
+        stats: { HP: 65, ATK: 85, DEF: 45, ECH: 60, RHY: 95, RES: 30 },
         desc: '전장의 모든 소음을 지워버리는 암살자.',
         traitName: '정적',
         traitTitle: '정적 (Dead Silence)',
-        traitDesc: '침묵 속에서 표적을 추적합니다. 적을 5번 공격할 때마다 독(3)을 부여하고, 자신은 1턴 은신합니다.',
+        traitDesc: '침묵 속에서 표적을 추적합니다. 적을 5번 공격할 때마다 독 3턴 부여하고, 카드를 1장 드로우합니다.',
         echoSkill: {
             name: "잔향 포획", icon: "⚡", desc: "침묵 속에서 잔향이 죽음의 낫이 된다.", echoCost: ["잔향 게이지"], tree: [
                 { tier: 1, name: "잔향 포획 Lv.1", bonus: "30", desc: "피해 22. 독 2턴 부여." },
@@ -88,8 +88,8 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "잔향 포획 Lv.3", bonus: "100", desc: "피해 45. 은신 2턴 부여." },
             ]
         },
-        startDeck: ["strike", "strike", "defend", "acceleration", "tempo_strike", "quick_step", "phantom_step"],
-        startRelic: "travelers_map",
+        startDeck: ["strike", "strike", "defend", "defend", "silent_stab", "poison_blade", "phantom_step", "silent_strike"],
+        startRelic: "blood_shard",
         story: "소리가 죽는 그 순간...\n사냥꾼은 이미 사라진 후였다.\n침묵이 곧 죽음이다.",
         particle: "smoke"
     },
@@ -104,8 +104,8 @@ export const CLASS_METADATA = {
         color: '#9A7D0A',
         glow: '#F9E79F',
         accent: '#FFD700',
-        tags: ['치유형', '역공 특성', '파티 핵심'],
-        stats: { HP: 85, ATK: 65, DEF: 80, ECH: 70, RHY: 55, RES: 90 },
+        tags: ['상태이상', '강화', '안정적인'],
+        stats: { HP: 85, ATK: 65, DEF: 80, ECH: 70, RHY: 55, RES: 95 },
         desc: '치유의 선율을 부르며 전선을 유지하는 수호자.',
         traitName: '성가',
         traitTitle: '성가 (Sacred Hymn)',
@@ -117,7 +117,7 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "성가 잔향 Lv.3", bonus: "100", desc: "모든 적에게 피해 38. 체력 20 회복." },
             ]
         },
-        startDeck: ["strike", "defend", "holy_strike", "holy_strike", "divine_grace", "divine_grace", "blessing_of_light"],
+        startDeck: ["strike", "strike", "defend", "defend", "holy_strike", "divine_grace", "brand_of_light", "blessing_of_light"],
         startRelic: "cracked_amulet",
         story: "신은 그에게 단 한 가지를 가르쳤다...\n치유는 곧 응징이라는 것을.\n빛이 닿는 곳에서 적은 쓰러진다.",
         particle: "holy"
@@ -133,8 +133,8 @@ export const CLASS_METADATA = {
         color: '#922B21',
         glow: '#EC7063',
         accent: '#FF4444',
-        tags: ['고위험', '역전형', '고화력'],
-        stats: { HP: 90, ATK: 98, DEF: 40, ECH: 55, RHY: 75, RES: 60 },
+        tags: ['드로우', '강화', '고화력'],
+        stats: { HP: 90, ATK: 98, DEF: 40, ECH: 55, RHY: 75, RES: 20 },
         desc: '상처를 입을수록 치명적인 파열음을 내뿜는 투사.',
         traitName: '불협화음',
         traitTitle: '불협화음 (Cacophony)',
@@ -146,8 +146,8 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "파음 해방 Lv.3", bonus: "100", desc: "모든 적 피해 45. 공격력 +3 (영구). 최대 체력 +6 (영구)." },
             ]
         },
-        startDeck: ["strike", "strike", "defend", "blood_fury", "blood_fury", "reckless_swing", "reckless_swing"],
-        startRelic: "blood_shard",
+        startDeck: ["strike", "strike", "defend", "defend", "blood_fury", "reckless_swing", "battle_dance", "berserk_mode"],
+        startRelic: "travelers_map",
         story: "상처는 그를 죽이지 못했다...\n오히려 더 날카롭게 만들었다.\n고통이 곧 파괴의 선율이다.",
         particle: "ember"
     },
@@ -159,11 +159,11 @@ export const CLASS_METADATA = {
         emoji: '🛡️',
         style: 'guardian',
         difficulty: '★★☆☆☆',
-        color: '#1F3A52',
-        glow: '#85C1E9',
-        accent: '#6BB8E8',
-        tags: ['방어형', '잔영 갑주', '지속전'],
-        stats: { HP: 75, ATK: 50, DEF: 98, ECH: 80, RHY: 45, RES: 85 },
+        color: '#7A2F0F',
+        glow: '#FF9A63',
+        accent: '#FF7A2F',
+        tags: ['상태이상', '강화', '안정적인'],
+        stats: { HP: 75, ATK: 50, DEF: 98, ECH: 80, RHY: 45, RES: 70 },
         desc: '소리 없는 파동의 장벽으로 모든 공격을 흡수합니다.',
         traitName: '잔영 갑주',
         traitTitle: '잔영 갑주 (Echo Armor)',
@@ -175,9 +175,9 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "잔영 공명 Lv.3", bonus: "100", desc: "방어막 50. 면역 1턴 부여." },
             ]
         },
-        startDeck: ["strike", "defend", "defend", "iron_defense", "iron_defense", "shield_slam", "unbreakable_wall"],
+        startDeck: ["strike", "strike", "defend", "defend", "iron_defense", "shield_slam", "resonant_shield", "unbreakable_wall"],
         startRelic: "rift_talisman",
-        story: "소리조차 그를 뚫지 못했다...\n방벽은 무너지지 않는다.\n침묵 속에서 수호자는 영원히 선다.",
+        story: "소리조차 그를 뚫지 못했다...\n방벽은 무너지지 않는다.\n침묵 속에서 수호자는 영원하다.",
         particle: "smoke"
     }
 };

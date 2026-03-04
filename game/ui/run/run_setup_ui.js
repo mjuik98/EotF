@@ -12,9 +12,9 @@ const CLASS_CONFIGS = {
 const CLASS_START_ITEMS = {
   swordsman: 'dull_blade',
   mage: 'void_shard',
-  hunter: 'travelers_map',
+  hunter: 'blood_shard',
   paladin: 'cracked_amulet',
-  berserker: 'blood_shard',
+  berserker: 'travelers_map',
   guardian: 'rift_talisman',
 };
 

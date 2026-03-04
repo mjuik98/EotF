@@ -125,7 +125,7 @@ export const CombatInfoUI = {
         slowed: '행동 지연',
         burning: '매 턴 5 화염 피해',
         cursed: '효과 감소',
-        poisoned: '매 턴 독 피해',
+        poisoned: '턴 시작 시 독 스택 × 5 피해',
         stunned: '행동 불가',
       };
       const frag = doc.createDocumentFragment();

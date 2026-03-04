@@ -11,7 +11,7 @@ const STATUS_KR = {
   slowed: { name: '감속', icon: '🐢', buff: false, desc: '행동 효율이 감소합니다.' },
   burning: { name: '화상', icon: '🔥', buff: false, desc: '턴 시작 시 화염 피해를 받습니다.' },
   cursed: { name: '저주', icon: '☠', buff: false, desc: '카드 효과와 회복 효율이 감소합니다.' },
-  poisoned: { name: '중독', icon: '🧪', buff: false, desc: '턴 시작 시 독 피해를 받습니다.' },
+  poisoned: { name: '중독', icon: '🧪', buff: false, desc: '턴 시작 시 독 스택 × 5 피해를 받습니다.' },
   stunned: { name: '기절', icon: '⏸', buff: false, desc: '행동할 수 없습니다.' },
   confusion: { name: '혼란', icon: '🌀', buff: false, desc: '손패 순서가 뒤섞입니다.' },
   dodge: { name: '회피', icon: '💨', buff: true, desc: '다음 공격을 회피합니다.' },

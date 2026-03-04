@@ -345,6 +345,13 @@ export const DamageSystem = {
             return;
         }
 
+        if (typeof this.triggerItems === 'function') {
+            const adjusted = this.triggerItems('enemy_status_apply', { status, duration, targetIdx });
+            if (typeof adjusted === 'number' && Number.isFinite(adjusted)) {
+                duration = Math.max(0, Math.floor(adjusted));
+            }
+        }
+
         const result = this.dispatch(Actions.ENEMY_STATUS, { status, duration, targetIdx });
         if (typeof this.addLog === 'function') this.addLog(LogUtils.formatStatus(enemy.name, status, result?.duration || duration), 'echo');
 

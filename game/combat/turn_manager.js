@@ -351,7 +351,15 @@ export const TurnManager = {
             const se = enemy.statusEffects;
 
             if (se.poisoned > 0) {
-                const dmg = se.poisoned * 2;
+                let dmg = se.poisoned * 5;
+                if (typeof gs.triggerItems === 'function') {
+                    const scaled = gs.triggerItems('poison_damage', { amount: dmg, targetIdx: index });
+                    if (typeof scaled === 'number' && Number.isFinite(scaled)) {
+                        dmg = Math.max(0, Math.floor(scaled));
+                    } else if (scaled && typeof scaled.amount === 'number') {
+                        dmg = Math.max(0, Math.floor(scaled.amount));
+                    }
+                }
                 const hpBefore = enemy.hp;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
                 const dealt = Math.max(0, hpBefore - enemy.hp);
@@ -459,7 +467,7 @@ export const TurnManager = {
         }
 
         if ((buffs.poisoned?.stacks || 0) > 0) {
-            const poisonDmg = 1 + Math.max(1, buffs.poisoned.stacks);
+            const poisonDmg = Math.max(0, Number(buffs.poisoned.stacks || 0)) * 5;
             gs.takeDamage(poisonDmg, { name: '독', type: 'enemy' });
             decStack('poisoned');
             if (!gs.combat.active || gs.player.hp <= 0) return { alive: false, actions };

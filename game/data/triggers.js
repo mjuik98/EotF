@@ -39,4 +39,7 @@ export const Trigger = Object.freeze({
     SHIELD_GAIN: 'shield_gain',
     SHIELD_BREAK: 'shield_break',
     BEFORE_CARD_COST: 'before_card_cost',
+
+    ENEMY_STATUS_APPLY: 'enemy_status_apply',
+    POISON_DAMAGE: 'poison_damage',
 });

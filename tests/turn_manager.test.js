@@ -102,7 +102,7 @@ describe('TurnManager dodge handling', () => {
     enemy.statusEffects = { poisoned: 2, burning: 1, marked: 1 };
     TurnManager.processEnemyStatusTicks(gs);
 
-    // Remaining HP 13 -> poison(4), burn(5), marked(4) = 13 additional dealt
+    // Remaining HP 13 -> poison(10), burn(3) = 13 additional dealt
     expect(gs.stats.damageDealt).toBe(20);
   });
 });

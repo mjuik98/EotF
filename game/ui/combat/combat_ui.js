@@ -12,7 +12,7 @@ const INTENT_DESCRIPTIONS = {
   barrier: { type: '방벽', desc: '강력한 방벽을 생성합니다.' },
   shield: { type: '보호막', desc: '방어막으로 피해를 줄입니다.' },
   curse: { type: '저주', desc: '플레이어에게 해로운 효과를 부여합니다.' },
-  poison: { type: '중독', desc: '지속적인 독 피해를 줍니다.' },
+  poison: { type: '중독', desc: '턴 시작 시 독 스택 × 5 피해를 줍니다.' },
   weaken: { type: '약화', desc: '공격력을 감소시킵니다.' },
   debuff: { type: '약화 효과', desc: '해로운 상태이상을 부여합니다.' },
   stun: { type: '기절', desc: '다음 행동을 건너뜁니다.' },
@@ -42,7 +42,7 @@ const ENEMY_STATUS_KR = {
 const ENEMY_STATUS_DESC = {
   stunned: { icon: '⏸', desc: '다음 행동을 건너뜁니다.' },
   weakened: { icon: '🪶', desc: '가하는 피해가 감소합니다.' },
-  poisoned: { icon: '☠', desc: '매 턴 독 피해를 입습니다.' },
+  poisoned: { icon: '☠', desc: '턴 시작 시 독 스택 × 5 피해를 입습니다.' },
   marked: { icon: '🎯', desc: '표식이 터질 때 추가 피해를 입습니다.' },
   mirror: { icon: '🪞', desc: '받는 피해를 반사합니다.' },
   immune: { icon: '🛡', desc: '받는 피해를 무시합니다.' },
