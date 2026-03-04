@@ -1,5 +1,7 @@
 ﻿import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
+import { CONSTANTS } from '../../data/constants.js';
+
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -10,6 +12,14 @@ function _getGS(deps) {
 
 function _getData(deps) {
   return deps?.data;
+}
+
+function _getMaxEnergyCap(gs) {
+  const overrideCap = Number(gs?.player?.maxEnergyCap);
+  if (Number.isFinite(overrideCap) && overrideCap >= 1) return Math.floor(overrideCap);
+  const configCap = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP);
+  if (Number.isFinite(configCap) && configCap >= 1) return Math.floor(configCap);
+  return 5;
 }
 
 function _getDescriptionUtils(deps) {
@@ -203,12 +213,18 @@ function _renderItemOption(container, item, deps, onPick, idx) {
 function _renderBlessingOption(container, blessing, deps, onPick, idx) {
   const doc = _getDoc(deps);
   if (!blessing) return;
+  const isDisabled = !!blessing.disabled;
 
   const wrapper = doc.createElement('button');
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
   wrapper.style.animationDelay = `${idx * 0.08}s`;
   wrapper.setAttribute('aria-label', `${blessing.name} 축복 선택`);
+  if (isDisabled) {
+    wrapper.disabled = true;
+    wrapper.setAttribute('aria-disabled', 'true');
+    if (blessing.disabledReason) wrapper.title = blessing.disabledReason;
+  }
 
   const cardEl = doc.createElement('div');
   cardEl.className = 'card rarity-rare'; // 축복은 희귀 등급 스타일 적용
@@ -233,10 +249,12 @@ function _renderBlessingOption(container, blessing, deps, onPick, idx) {
 
   cardEl.append(icon, name, desc, type);
   wrapper.appendChild(cardEl);
-  wrapper.addEventListener('click', () => {
-    _markRewardSelection(container, wrapper);
-    onPick?.();
-  });
+  if (!isDisabled) {
+    wrapper.addEventListener('click', () => {
+      _markRewardSelection(container, wrapper);
+      onPick?.();
+    });
+  }
   container.appendChild(wrapper);
 }
 
@@ -313,8 +331,19 @@ export const RewardUI = {
     // 보스/미니보스는 확정, 일반 전투는 30% 확률
     const shouldOfferBlessing = isBoss || isMiniBoss || Math.random() < 0.3;
     if (shouldOfferBlessing) {
+      const maxEnergyCap = _getMaxEnergyCap(gs);
+      const isEnergyBlessingDisabled = (gs.player.maxEnergy || 0) >= maxEnergyCap;
       const blessingHp = { id: 'blessing_hp', name: '영구적인 활력', icon: '❤️', desc: '최대 체력이 영구적으로 20 증가합니다.', type: 'hp', amount: 20 };
-      const blessingEnergy = { id: 'blessing_energy', name: '영구적인 기운', icon: '⚡', desc: '최대 에너지가 영구적으로 1 증가합니다.', type: 'energy', amount: 1 };
+      const blessingEnergy = {
+        id: 'blessing_energy',
+        name: '영구적인 기운',
+        icon: '⚡',
+        desc: '최대 에너지가 영구적으로 1 증가합니다.',
+        type: 'energy',
+        amount: 1,
+        disabled: isEnergyBlessingDisabled,
+        disabledReason: `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`,
+      };
 
       _renderBlessingOption(container, blessingHp, deps, () => this.takeRewardBlessing(blessingHp, deps), rewardCards.length);
       _renderBlessingOption(container, blessingEnergy, deps, () => this.takeRewardBlessing(blessingEnergy, deps), rewardCards.length + 1);
@@ -343,6 +372,19 @@ export const RewardUI = {
 
     return runIdempotent(REWARD_CLAIM_KEY, () => {
       if (gs._rewardLock) return;
+      if (blessing.type === 'energy') {
+        const maxEnergyCap = _getMaxEnergyCap(gs);
+        if ((gs.player.maxEnergy || 0) >= maxEnergyCap) {
+          deps.audioEngine?.playHit?.();
+          deps.showItemToast?.({
+            name: blessing.name,
+            icon: blessing.icon || '⚡',
+            desc: `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`,
+          });
+          return;
+        }
+      }
+
       gs._rewardLock = true;
 
       const doc = _getDoc(deps);

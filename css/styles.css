@@ -4248,6 +4248,20 @@ body:has(#combatOverlay.active) .panel-right {
   color: var(--white);
 }
 
+.event-choice.disabled,
+.event-choice[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: grayscale(0.15);
+}
+
+.event-choice.disabled:hover,
+.event-choice[aria-disabled='true']:hover {
+  background: rgba(123, 47, 255, 0.06);
+  border-color: var(--border);
+  color: var(--text);
+}
+
 .event-choice-shop {
   font-family: 'Cinzel', serif;
   font-size: 12px;
@@ -4502,10 +4516,23 @@ body:has(#combatOverlay.active) .panel-right {
   box-shadow: none;
 }
 
+.reward-card-wrapper:disabled,
+.reward-card-wrapper[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .reward-card-wrapper:hover .card,
 .reward-card-wrapper:focus-visible .card {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 0 12px 40px rgba(123, 47, 255, 0.3);
+}
+
+.reward-card-wrapper:disabled .card,
+.reward-card-wrapper[aria-disabled='true'] .card {
+  transform: none;
+  box-shadow: none;
+  filter: grayscale(0.2);
 }
 
 @keyframes rewardCardIn {

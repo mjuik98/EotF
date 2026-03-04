@@ -2,6 +2,8 @@
  * event_manager.js - pure event/shop/rest business logic.
  */
 
+import { CONSTANTS } from '../data/constants.js';
+
 function _totalDeckCards(player) {
   return (player?.deck?.length || 0) + (player?.hand?.length || 0) + (player?.graveyard?.length || 0);
 }
@@ -20,6 +22,28 @@ function _isItemObtainableFrom(item, source) {
   return routes.includes(source);
 }
 
+function _getMaxEnergyCap(state) {
+  const overrideCap = Number(state?.player?.maxEnergyCap);
+  if (Number.isFinite(overrideCap) && overrideCap >= 1) return Math.floor(overrideCap);
+  const configCap = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP);
+  if (Number.isFinite(configCap) && configCap >= 1) return Math.floor(configCap);
+  return 5;
+}
+
+function _isChoiceDisabled(choice, state) {
+  if (!choice) return false;
+  if (typeof choice.isDisabled === 'function') return !!choice.isDisabled(state);
+  return !!choice.disabled;
+}
+
+function _getItemShopCacheKey(gs) {
+  const runCount = Number(gs?.meta?.runCount || 0);
+  const region = Number(gs?.currentRegion || 0);
+  const floor = Number(gs?.currentFloor || 0);
+  const nodeId = gs?.currentNode?.id || 'shop';
+  return `${runCount}:${region}:${floor}:${nodeId}`;
+}
+
 export const EventManager = {
   pickRandomEvent(gs, data) {
     if (!gs || !data?.events) return null;
@@ -36,6 +60,14 @@ export const EventManager = {
     const choice = event.choices?.[choiceIdx];
     if (!choice || typeof choice.effect !== 'function') {
       return { resultText: null, isFail: false, shouldClose: true, isItemShop: false };
+    }
+    if (_isChoiceDisabled(choice, gs)) {
+      return {
+        resultText: choice?.disabledReason || '현재 선택할 수 없는 선택지입니다.',
+        isFail: true,
+        shouldClose: false,
+        isItemShop: false,
+      };
     }
 
     const result = choice.effect(gs);
@@ -61,11 +93,12 @@ export const EventManager = {
     const costCard = runRules.getShopCost(gs, 15);
     const costUpgrade = runRules.getShopCost(gs, 20);
     const costEnergy = runRules.getShopCost(gs, 30);
+    const maxEnergyCap = _getMaxEnergyCap(gs);
 
     return {
       id: 'shop',
       persistent: true,
-      eyebrow: savedMerchant ? '세계 기억 상점' : '1층 상점',
+      eyebrow: savedMerchant ? '세계 기억 상점' : '상점',
       title: savedMerchant ? '은혜를 갚는 상인' : '잔향 상인',
       desc: savedMerchant
         ? '당신의 도움을 기억한 상인이 가격을 낮춰 주었다.'
@@ -77,7 +110,7 @@ export const EventManager = {
           effect: (state) => this._shopBuyPotion(state, costPotion),
         },
         {
-          text: `🃏 랜덤 비범 카드 - ${costCard} 골드`,
+          text: `🃏 랜덤 무작위 카드 - ${costCard} 골드`,
           cssClass: 'shop-choice-card',
           effect: (state) => this._shopBuyCard(state, data, costCard),
         },
@@ -89,6 +122,8 @@ export const EventManager = {
         {
           text: `⚡ 최대 에너지 +1 - ${costEnergy} 골드`,
           cssClass: 'shop-choice-energy',
+          isDisabled: (state) => (state?.player?.maxEnergy || 0) >= maxEnergyCap,
+          disabledReason: `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`,
           effect: (state) => this._shopBuyEnergy(state, costEnergy),
         },
         {
@@ -121,15 +156,15 @@ export const EventManager = {
 
     const choices = [
       {
+        text: '무작위 카드 강화',
+        effect: (state) => this._restUpgradeCard(state, data),
+      },
+      {
         text: '카드 1장 소각',
         effect: (state) => {
           if (showCardDiscardFn) showCardDiscardFn(state, true);
           return '소각할 카드를 선택했습니다.';
         },
-      },
-      {
-        text: '무작위 카드 강화',
-        effect: (state) => this._restUpgradeCard(state, data),
       },
     ];
 
@@ -142,7 +177,7 @@ export const EventManager = {
 
     return {
       id: 'rest',
-      eyebrow: '1층 휴식처',
+      eyebrow: '휴식',
       title: '잔향의 안식처',
       desc: '고요한 공명 속에서 덱을 정비할 수 있다.',
       choices,
@@ -151,6 +186,10 @@ export const EventManager = {
 
   generateItemShopStock(gs, data, runRules) {
     if (!gs?.player || !data?.items || !runRules) return [];
+    const cacheKey = _getItemShopCacheKey(gs);
+    if (gs._itemShopStockCacheKey === cacheKey && Array.isArray(gs._itemShopStockCache)) {
+      return gs._itemShopStockCache;
+    }
 
     const rarityConfig = {
       common: { baseCost: 10 },
@@ -175,6 +214,8 @@ export const EventManager = {
       shopItems.push({ item, cost, rarity });
     });
 
+    gs._itemShopStockCacheKey = cacheKey;
+    gs._itemShopStockCache = shopItems;
     return shopItems;
   },
 
@@ -222,7 +263,13 @@ export const EventManager = {
 
   _shopBuyCard(state, data, cost) {
     if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
-    const cardId = state.getRandomCard?.('uncommon');
+    const cardPool = Object.values(data?.cards || {})
+      .filter((card) => card && !card.upgraded)
+      .map((card) => card.id)
+      .filter(Boolean);
+    const cardId = cardPool.length
+      ? cardPool[Math.floor(Math.random() * cardPool.length)]
+      : null;
     if (!cardId) return '획득 가능한 카드가 없습니다.';
     state.player.gold -= cost;
     state.player.deck.push(cardId);
@@ -244,10 +291,11 @@ export const EventManager = {
   },
 
   _shopBuyEnergy(state, cost) {
+    const maxEnergyCap = _getMaxEnergyCap(state);
     if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
-    if (state.player.maxEnergy >= 6) return '이미 최대 에너지입니다.';
+    if (state.player.maxEnergy >= maxEnergyCap) return `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`;
     state.player.gold -= cost;
-    state.player.maxEnergy += 1;
+    state.player.maxEnergy = Math.min(maxEnergyCap, state.player.maxEnergy + 1);
     state.player.energy = Math.min(state.player.maxEnergy, (state.player.energy || 0) + 1);
     state.addLog?.(`⚡ 최대 에너지 증가: ${state.player.maxEnergy}`, 'echo');
     return `⚡ 최대 에너지 ${state.player.maxEnergy}. 남은 골드: ${state.player.gold}`;

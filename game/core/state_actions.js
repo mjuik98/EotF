@@ -1,5 +1,12 @@
 ﻿import { CombatInitializer } from '../combat/combat_initializer.js';
 
+import { CONSTANTS } from '../data/constants.js';
+
+const CONFIG_MAX_ENERGY_CAP = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP);
+const MAX_ENERGY_CAP = Number.isFinite(CONFIG_MAX_ENERGY_CAP) && CONFIG_MAX_ENERGY_CAP >= 1
+    ? Math.floor(CONFIG_MAX_ENERGY_CAP)
+    : 5;
+
 /*
  * state_actions.js 전역 Action 정의 + Reducer
  *
@@ -155,12 +162,17 @@ export const Reducers = {
 
     [Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount }) {
         const player = gs.player;
-        player.maxEnergy = Math.max(1, player.maxEnergy + amount);
-        // 에너지 증가 시 현재 에너지도 보정
+        const cap = Math.max(1, Number(player.maxEnergyCap || MAX_ENERGY_CAP));
+        const previousMax = Math.max(1, Number(player.maxEnergy || 1));
+        const previousEnergy = Math.max(0, Number(player.energy || 0));
+        const requestedMax = Math.max(1, previousMax + amount);
+        player.maxEnergy = Math.min(cap, requestedMax);
+        // 최대 에너지 증가분만큼만 현재 에너지 보정
         if (amount > 0) {
-            player.energy = Math.min(player.maxEnergy, player.energy + amount);
+            const actualIncrease = Math.max(0, player.maxEnergy - previousMax);
+            player.energy = Math.min(player.maxEnergy, previousEnergy + actualIncrease);
         } else {
-            player.energy = Math.min(player.maxEnergy, player.energy);
+            player.energy = Math.min(player.maxEnergy, previousEnergy);
         }
         gs.markDirty('hud');
         return { maxEnergyAfter: player.maxEnergy, energyAfter: player.energy };

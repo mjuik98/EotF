@@ -186,9 +186,7 @@ export const TooltipUI = {
 
   showItemTooltip(event, itemId, deps = {}) {
     const data = deps.data;
-    const gs = deps.gs;
-    const setBonusSystem = deps.setBonusSystem;
-    if (!data?.items || !gs || !setBonusSystem?.sets) return;
+    if (!data?.items) return;
 
     const item = data.items[itemId];
     if (!item) return;
@@ -249,35 +247,6 @@ export const TooltipUI = {
     desc.style.cssText = 'font-size:11px;color:var(--text);line-height:1.65;border-top:1px solid var(--border);padding-top:8px;';
     DomSafe.setHighlightedText(desc, item.desc);
     el.appendChild(desc);
-
-    (() => {
-      const setEntry = Object.entries(setBonusSystem.sets).find(([, s]) => s.items.includes(itemId));
-      if (!setEntry) return;
-      const [, setData] = setEntry;
-      const owned = gs.player.items.filter(id => setData.items.includes(id)).length;
-      const total = setData.items.length;
-      const setColor = owned >= 3 ? 'var(--gold)' : owned >= 2 ? 'var(--cyan)' : 'rgba(0,255,204,0.4)';
-      const b2Label = setData.bonuses[2]?.label || '';
-      const b3Label = setData.bonuses[3]?.label || '';
-
-      const setDiv = doc.createElement('div');
-      setDiv.style.cssText = 'margin-top:8px;padding:6px 8px;background:rgba(0,255,204,0.05);border:1px solid rgba(0,255,204,0.2);border-radius:6px;';
-
-      const setH = doc.createElement('div');
-      setH.style.cssText = `font-family:Cinzel,serif;font-size:8px;letter-spacing:0.15em;color:${setColor};margin-bottom:3px;`;
-      setH.textContent = `✦ 세트: ${setData.name} [${owned}/${total}]`;
-
-      const b2 = doc.createElement('div');
-      b2.style.cssText = `font-size:9px;color:${owned >= 2 ? 'var(--cyan)' : 'var(--text-dim)'};margin-bottom:1px;`;
-      b2.textContent = `2개: ${b2Label}`;
-
-      const b3 = doc.createElement('div');
-      b3.style.cssText = `font-size:9px;color:${owned >= 3 ? 'var(--gold)' : 'var(--text-dim)'};`;
-      b3.textContent = `3개: ${b3Label}`;
-
-      setDiv.append(setH, b2, b3);
-      el.appendChild(setDiv);
-    })();
 
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + 10;

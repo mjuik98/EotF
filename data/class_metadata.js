@@ -17,17 +17,17 @@ export const CLASS_METADATA = {
         color: '#1A6B9A',
         glow: '#5DADE2',
         accent: '#55AAFF',
-        tags: ['리듬형', '연속 공격', '입문 추천'],
+        tags: ['스택형', '연속 공격', '입문 추천'],
         stats: { HP: 80, ATK: 75, DEF: 60, ECH: 85, RHY: 65, RES: 70 },
         desc: '검격이 거듭될수록 파동이 짙어지는 검사.',
         traitName: '공명',
         traitTitle: '공명 (Resonance)',
         traitDesc: '검의 진동이 겹겹이 쌓이며 공명이 깊어집니다. 카드를 사용할 때마다 피해가 +1씩 중첩됩니다.',
         echoSkill: {
-            name: "공명 폭풍", icon: "⚡", desc: "잔향을 해방하여 전장을 공명파로 뒤덮는다.", echoCost: [30, 60, 100], tree: [
-                { tier: 1, name: "공명 폭풍", bonus: "Lv.1", desc: "피해 24. 방어막 10." },
-                { tier: 2, name: "공명 폭풍", bonus: "Lv.2", desc: "피해 38. 방어막 15." },
-                { tier: 3, name: "공명 폭풍", bonus: "Lv.3", desc: "모든 적 피해 48. 방어막 22." },
+            name: "공명 폭풍", icon: "⚡", desc: "잔향을 해방하여 전장을 공명파로 뒤덮는다.", echoCost: ["잔향 게이지"], tree: [
+                { tier: 1, name: "공명 폭풍 Lv.1", bonus: "30", desc: "피해 24. 방어막 10." },
+                { tier: 2, name: "공명 폭풍 Lv.2", bonus: "60", desc: "피해 38. 방어막 15." },
+                { tier: 3, name: "공명 폭풍 Lv.3", bonus: "100", desc: "모든 적 피해 48. 방어막 22." },
             ]
         },
         startDeck: ["strike", "strike", "defend", "charge", "echo_strike", "heavy_blow", "blade_dance"],
@@ -53,10 +53,10 @@ export const CLASS_METADATA = {
         traitTitle: '메아리 (Echo)',
         traitDesc: '주문이 남긴 메아리가 패에 스며듭니다. 카드를 3번 사용할 때마다 손패의 무작위 카드 1장의 비용이 1 감소합니다.',
         echoSkill: {
-            name: "메아리 연쇄", icon: "⚡", desc: "메아리가 시간을 거슬러 카드를 불러온다.", echoCost: [30, 60, 100], tree: [
-                { tier: 1, name: "메아리 연쇄", bonus: "Lv.1", desc: "약화 2턴 부여. 카드 1장 드로우. 잔향 10 충전." },
-                { tier: 2, name: "메아리 연쇄", bonus: "Lv.2", desc: "모든 적에게 피해 25. 카드 2장 드로우. 잔향 10 충전." },
-                { tier: 3, name: "메아리 연쇄", bonus: "Lv.3", desc: "모든 적에게 피해 38. 카드 3장 드로우. 잔향 20 충전." },
+            name: "메아리 연쇄", icon: "⚡", desc: "메아리가 시간을 거슬러 카드를 불러온다.", echoCost: ["잔향 게이지"], tree: [
+                { tier: 1, name: "메아리 연쇄 Lv.1", bonus: "30", desc: "약화 2턴 부여. 카드 1장 드로우. 잔향 10 충전." },
+                { tier: 2, name: "메아리 연쇄 Lv.2", bonus: "60", desc: "모든 적에게 피해 25. 카드 2장 드로우. 잔향 10 충전." },
+                { tier: 3, name: "메아리 연쇄 Lv.3", bonus: "100", desc: "모든 적에게 피해 38. 카드 3장 드로우. 잔향 20 충전." },
             ]
         },
         startDeck: ["strike", "strike", "defend", "prediction", "foresight", "void_mirror", "time_warp"],
@@ -82,10 +82,10 @@ export const CLASS_METADATA = {
         traitTitle: '정적 (Dead Silence)',
         traitDesc: '침묵 속에서 표적을 추적합니다. 적을 5번 공격할 때마다 독(3)을 부여하고, 자신은 1턴 은신합니다.',
         echoSkill: {
-            name: "잔향 포획", icon: "⚡", desc: "침묵 속에서 잔향이 죽음의 낫이 된다.", echoCost: [30, 60, 100], tree: [
-                { tier: 1, name: "잔향 포획", bonus: "Lv.1", desc: "피해 22. 독 2턴 부여." },
-                { tier: 2, name: "잔향 포획", bonus: "Lv.2", desc: "피해 32. 은신 1턴 부여." },
-                { tier: 3, name: "잔향 포획", bonus: "Lv.3", desc: "피해 45. 은신 2턴 부여." },
+            name: "잔향 포획", icon: "⚡", desc: "침묵 속에서 잔향이 죽음의 낫이 된다.", echoCost: ["잔향 게이지"], tree: [
+                { tier: 1, name: "잔향 포획 Lv.1", bonus: "30", desc: "피해 22. 독 2턴 부여." },
+                { tier: 2, name: "잔향 포획 Lv.2", bonus: "60", desc: "피해 32. 은신 1턴 부여." },
+                { tier: 3, name: "잔향 포획 Lv.3", bonus: "100", desc: "피해 45. 은신 2턴 부여." },
             ]
         },
         startDeck: ["strike", "strike", "defend", "acceleration", "tempo_strike", "quick_step", "phantom_step"],
@@ -111,10 +111,10 @@ export const CLASS_METADATA = {
         traitTitle: '성가 (Sacred Hymn)',
         traitDesc: '치유의 선율이 심판의 빛으로 전환됩니다. 체력을 회복할 때마다 회복량만큼 무작위 적 1명에게 피해를 입힙니다.',
         echoSkill: {
-            name: "성가 잔향", icon: "⚡", desc: "성가가 전장에 울려 퍼지며 신성한 잔향이 상처를 완전히 치유한다.", echoCost: [30, 60, 100], tree: [
-                { tier: 1, name: "성가 잔향", bonus: "Lv.1", desc: "피해 20. 체력 8 회복." },
-                { tier: 2, name: "성가 잔향", bonus: "Lv.2", desc: "피해 30. 체력 12 회복." },
-                { tier: 3, name: "성가 잔향", bonus: "Lv.3", desc: "모든 적에게 피해 38. 체력 20 회복." },
+            name: "성가 잔향", icon: "⚡", desc: "성가가 전장에 울려 퍼지며 신성한 잔향이 상처를 완전히 치유한다.", echoCost: ["잔향 게이지"], tree: [
+                { tier: 1, name: "성가 잔향 Lv.1", bonus: "30", desc: "피해 20. 체력 8 회복." },
+                { tier: 2, name: "성가 잔향 Lv.2", bonus: "60", desc: "피해 30. 체력 12 회복." },
+                { tier: 3, name: "성가 잔향 Lv.3", bonus: "100", desc: "모든 적에게 피해 38. 체력 20 회복." },
             ]
         },
         startDeck: ["strike", "defend", "holy_strike", "holy_strike", "divine_grace", "divine_grace", "blessing_of_light"],
@@ -140,10 +140,10 @@ export const CLASS_METADATA = {
         traitTitle: '불협화음 (Cacophony)',
         traitDesc: '상처가 깊어질수록 파괴적인 힘이 깨어납니다. 잃은 체력에 비례해 공격 피해가 최대 50%까지 증가합니다.',
         echoSkill: {
-            name: "파음 해방", icon: "⚡", desc: "한계를 넘어선 파음이 연쇄 폭발한다.", echoCost: [30, 60, 100], tree: [
-                { tier: 1, name: "파음 해방", bonus: "Lv.1", desc: "피해 22. 공격력 +1 (영구). 최대 체력 +2 (영구)." },
-                { tier: 2, name: "파음 해방", bonus: "Lv.2", desc: "피해 45. 공격력 +2 (영구). 최대 체력 +4 (영구)." },
-                { tier: 3, name: "파음 해방", bonus: "Lv.3", desc: "모든 적 피해 45. 공격력 +3 (영구). 최대 체력 +6 (영구)." },
+            name: "파음 해방", icon: "⚡", desc: "한계를 넘어선 파음이 연쇄 폭발한다.", echoCost: ["잔향 게이지"], tree: [
+                { tier: 1, name: "파음 해방 Lv.1", bonus: "30", desc: "피해 22. 공격력 +1 (영구). 최대 체력 +2 (영구)." },
+                { tier: 2, name: "파음 해방 Lv.2", bonus: "60", desc: "피해 45. 공격력 +2 (영구). 최대 체력 +4 (영구)." },
+                { tier: 3, name: "파음 해방 Lv.3", bonus: "100", desc: "모든 적 피해 45. 공격력 +3 (영구). 최대 체력 +6 (영구)." },
             ]
         },
         startDeck: ["strike", "strike", "defend", "blood_fury", "blood_fury", "reckless_swing", "reckless_swing"],
@@ -169,10 +169,10 @@ export const CLASS_METADATA = {
         traitTitle: '잔영 갑주 (Echo Armor)',
         traitDesc: '방어의 잔향이 사라지지 않습니다. 턴 종료 시 방어막의 50%가 유지됩니다.',
         echoSkill: {
-            name: "잔영 공명", icon: "⚡", desc: "잔영이 공명하며 완벽한 방어가 완성된다.", echoCost: [30, 60, 100], tree: [
-                { tier: 1, name: "잔영 공명", bonus: "Lv.1", desc: "방어막 28." },
-                { tier: 2, name: "잔영 공명", bonus: "Lv.2", desc: "방어막 38. 모든 적에게 약화 2턴 부여." },
-                { tier: 3, name: "잔영 공명", bonus: "Lv.3", desc: "방어막 50. 면역 1턴 부여." },
+            name: "잔영 공명", icon: "⚡", desc: "잔영이 공명하며 완벽한 방어가 완성된다.", echoCost: ["잔향 게이지"], tree: [
+                { tier: 1, name: "잔영 공명 Lv.1", bonus: "30", desc: "방어막 28." },
+                { tier: 2, name: "잔영 공명 Lv.2", bonus: "60", desc: "방어막 38. 모든 적에게 약화 2턴 부여." },
+                { tier: 3, name: "잔영 공명 Lv.3", bonus: "100", desc: "방어막 50. 면역 1턴 부여." },
             ]
         },
         startDeck: ["strike", "defend", "defend", "iron_defense", "iron_defense", "shield_slam", "unbreakable_wall"],

@@ -14,10 +14,14 @@ export const RegionTransitionUI = {
       return;
     }
 
-    const targetRegionIdRaw = Number(deps.targetRegionId);
-    const targetRegionId = Number.isFinite(targetRegionIdRaw)
-      ? Math.max(0, Math.floor(targetRegionIdRaw))
-      : null;
+    const rawTargetRegionId = deps.targetRegionId;
+    let targetRegionId = null;
+    if (rawTargetRegionId !== null && rawTargetRegionId !== undefined && rawTargetRegionId !== '') {
+      const parsedTargetRegionId = Number(rawTargetRegionId);
+      if (Number.isFinite(parsedTargetRegionId)) {
+        targetRegionId = Math.max(0, Math.floor(parsedTargetRegionId));
+      }
+    }
 
     gs.currentRegion++;
     if (!gs.regionRoute || typeof gs.regionRoute !== 'object' || Array.isArray(gs.regionRoute)) {

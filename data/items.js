@@ -229,12 +229,11 @@ export const ITEMS = {
         id: 'echo_gauntlet', name: '잔향의 건틀릿', icon: '🥊', rarity: 'rare',
         desc: '연쇄가 5에 도달하면, 즉시 적에게 기절 1턴을 부여합니다.',
         passive(gs, trigger) {
-            if (trigger === Trigger.CARD_PLAY && gs.player.echoChain >= CONSTANTS.COMBAT.CHAIN_BURST_THRESHOLD) {
+            if (trigger === Trigger.CHAIN_REACH_5) {
                 const aliveIdx = gs.combat.enemies.findIndex(e => e.hp > 0);
                 if (aliveIdx >= 0) {
                     gs.applyEnemyStatus('stunned', 1, aliveIdx);
                     gs.addLog('🥊 잔향의 건틀릿: 적 기절!', 'echo');
-                    gs.player.echoChain = 0;
                 }
             }
         }
@@ -886,7 +885,16 @@ export const ITEMS = {
     void_eye: {
         id: 'void_eye', name: '공허의 눈', icon: '🌑', rarity: 'uncommon',
         desc: '적을 공격할 때마다 15% 확률로 적에게 약화를 부여합니다. [세트:심연]',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.15) { const idx = gs.combat.enemies.findIndex(e => e.hp > 0); if (idx >= 0) { gs.applyEnemyStatus('weakened', 1, idx); gs.addLog('🌑 공허의 눈: 약화 부여!', 'echo'); } } }
+        passive(gs, trigger, data) {
+            const card = CARDS[data?.cardId];
+            if (trigger === Trigger.CARD_PLAY && card?.type === 'ATTACK' && Math.random() < 0.15) {
+                const idx = gs.combat.enemies.findIndex(e => e.hp > 0);
+                if (idx >= 0) {
+                    gs.applyEnemyStatus('weakened', 1, idx);
+                    gs.addLog('🌑 공허의 눈: 약화 부여!', 'echo');
+                }
+            }
+        }
     },
     void_fang: {
         id: 'void_fang', name: '공허의 송곳니', icon: '🦷', rarity: 'uncommon',
@@ -896,7 +904,15 @@ export const ITEMS = {
     void_crown: {
         id: 'void_crown', name: '공허의 왕관', icon: '👁️', rarity: 'rare',
         desc: '카드 사용 시: 카드 비용이 0이면 잔향 10 추가 충전.',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { const low = gs.player.hp < gs.player.maxHp * CONSTANTS.PLAYER.HIGH_HP_RATIO; if (low && !gs._crownActive) { gs.player.costDiscount = (gs.player.costDiscount || 0) + 1; gs._crownActive = true; gs.addLog('👁️ 공허의 왕관: 모든 카드 비용 -1!', 'echo'); } else if (!low && gs._crownActive) { gs.player.costDiscount = Math.max(0, (gs.player.costDiscount || 0) - 1); gs._crownActive = false; } } }
+        passive(gs, trigger, data) {
+            if (trigger !== Trigger.CARD_PLAY) return;
+            const playedCost = Number.isFinite(Number(data?.cost))
+                ? Number(data.cost)
+                : getCardCost(data?.cardId);
+            if (playedCost === 0) {
+                gs.addEcho(10, { name: '공허의 왕관', type: 'item' });
+            }
+        }
     },
     // [세트 B] 잔향의 삼각
     echo_pendant: {
@@ -1338,7 +1354,7 @@ export const ITEMS = {
 
         storm_herald: {
             id: 'storm_herald', name: '폭풍의 전령', icon: '🦅', rarity: 'rare',
-            desc: '공명 폭발 발동 시: 모든 적에게 기절 1턴 부여 시도. [세트:폭풍]\n세트 2개: 카드 사용마다 잔향 +4\n세트 3개: 연쇄 3↑ 공격 피해 +10%',
+            desc: '공명 폭발 발동 시: 모든 적에게 기절 1턴 부여 시도. [세트:폭풍]',
             passive(gs, trigger, data) {
                 // 단독 효과
                 if (trigger === Trigger.RESONANCE_BURST) {
@@ -1384,7 +1400,7 @@ export const ITEMS = {
 
         circuit_board: {
             id: 'circuit_board', name: '회로 기판', icon: '🖥️', rarity: 'rare',
-            desc: '전투 시작: 소멸 덱에 카드가 있으면 에너지 +1. [세트:기계]\n세트 2개: 소멸마다 에너지 +1(전투당 4회)\n세트 3개: 턴마다 소멸 1장당 주는 피해 +5 누적',
+            desc: '전투 시작: 소멸 덱에 카드가 있으면 에너지 +1. [세트:기계]',
             passive(gs, trigger, data) {
                 if (trigger === Trigger.COMBAT_START) {
                     gs._circuitEnergyUsed = 0;
@@ -1435,7 +1451,7 @@ export const ITEMS = {
 
         moon_crest: {
             id: 'moon_crest', name: '달의 문장', icon: '🌛', rarity: 'rare',
-            desc: '매 턴 종료: 방어막 3 획득. [세트:달]\n세트 2개: 회복 시 방어막 +2\n세트 3개: 턴 시작 방어막 15↑이면 체력 3 회복',
+            desc: '매 턴 종료: 방어막 3 획득. [세트:달]',
             passive(gs, trigger, data) {
                 if (trigger === Trigger.TURN_END) gs.addShield(3, { name: '달의 문장', type: 'item' });
 
@@ -1458,7 +1474,7 @@ export const ITEMS = {
 
         dusk_fang: {
             id: 'dusk_fang', name: '황혼의 독니', icon: '🌆', rarity: 'uncommon',
-            desc: '전투 시작: 모든 적 독 3 부여. [세트:황혼]\n세트 2개: 독 적 공격 시 피해 +8',
+            desc: '전투 시작: 모든 적 독 3 부여. [세트:황혼]',
             passive(gs, trigger, data) {
                 if (trigger === Trigger.COMBAT_START) {
                     gs.combat?.enemies?.forEach?.((_, i) => gs.applyEnemyStatus('poisoned', 3, i, { name: '황혼의 독니', type: 'item' }));
@@ -1484,9 +1500,15 @@ export const ITEMS = {
             id: 'dusk_mark', name: '황혼의 낙인', icon: '🌇', rarity: 'uncommon',
             desc: '약화된 적을 공격할 때: 약화 1 추가 부여. [세트:황혼]',
             passive(gs, trigger, data) {
-                if (trigger === Trigger.CARD_PLAY) {
-                    const idx = gs.combat?.enemies?.findIndex?.(e => e.hp > 0 && (e.statusEffects?.weakened || 0) > 0) ?? -1;
-                    if (idx >= 0) gs.applyEnemyStatus('weakened', 1, idx, { name: '황혼의 낙인', type: 'item' });
+                if (trigger === Trigger.DEAL_DAMAGE) {
+                    const selected = Number(gs._selectedTarget);
+                    const targetIdx = Number.isInteger(selected) && selected >= 0 && (gs.combat?.enemies?.[selected]?.hp || 0) > 0
+                        ? selected
+                        : (gs.combat?.enemies?.findIndex?.(e => e.hp > 0) ?? -1);
+                    if (targetIdx < 0) return;
+                    if ((gs.combat?.enemies?.[targetIdx]?.statusEffects?.weakened || 0) > 0) {
+                        gs.applyEnemyStatus('weakened', 1, targetIdx, { name: '황혼의 낙인', type: 'item' });
+                    }
                 }
             }
         },

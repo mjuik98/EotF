@@ -10,6 +10,7 @@ function createBaseState() {
             shield: 0,
             gold: 0,
             energy: 3,
+            maxEnergy: 3,
             maxEcho: 100,
             echo: 0,
             buffs: {},
@@ -80,5 +81,32 @@ describe('Reducers', () => {
         Reducers[Actions.CARD_DISCARD](gs, { cardId: 'defend', exhaust: true });
         expect(gs.player.exhausted).toContain('defend');
         expect(gs.triggerItems).toHaveBeenCalledWith('card_exhaust', { cardId: 'defend' });
+    });
+
+    it('PLAYER_MAX_ENERGY_GROWTH is capped and does not grant extra energy at cap', () => {
+        const gs = createBaseState();
+        gs.player.maxEnergy = 5;
+        gs.player.energy = 2;
+
+        const result = Reducers[Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount: 1 });
+
+        expect(result.maxEnergyAfter).toBe(5);
+        expect(result.energyAfter).toBe(2);
+        expect(gs.player.maxEnergy).toBe(5);
+        expect(gs.player.energy).toBe(2);
+        expect(gs.isDirty('hud')).toBe(true);
+    });
+
+    it('PLAYER_MAX_ENERGY_GROWTH increases current energy only by actual max-energy gain', () => {
+        const gs = createBaseState();
+        gs.player.maxEnergy = 4;
+        gs.player.energy = 1;
+
+        const result = Reducers[Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount: 3 });
+
+        expect(result.maxEnergyAfter).toBe(5);
+        expect(result.energyAfter).toBe(2);
+        expect(gs.player.maxEnergy).toBe(5);
+        expect(gs.player.energy).toBe(2);
     });
 });

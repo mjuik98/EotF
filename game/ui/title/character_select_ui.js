@@ -351,7 +351,7 @@ export const CharacterSelectUI = {
           <div>
             <p style="font-size:10px;letter-spacing:5px;color:#444;font-family:'Courier New',monospace;margin:0">${isEcho ? 'ECHO SKILL TREE' : 'SKILL TREE'}</p>
             <h3 style="font-size:20px;color:#fff;margin:0;letter-spacing:1.5px">${skill.name}</h3>
-            ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Courier New',monospace">ECH ${skill.echoCost} 소모</span>` : ''}
+            ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Courier New',monospace"> ${skill.echoCost} 소모</span>` : ''}
           </div>
           <button id="modalClose" style="margin-left:auto;background:none;border:none;color:#555;font-size:24px;cursor:pointer">✕</button>
         </div>
@@ -437,7 +437,7 @@ export const CharacterSelectUI = {
               <div style="font-size:12px;color:${ch.accent};font-family:'Courier New',monospace;letter-spacing:1px;margin-bottom:4px">◈ ${ec.name}</div>
               <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ec.desc}</div>
             </div>
-            <div style="flex-shrink:0;padding:4px 10px;border:1px solid ${ch.accent}33;border-radius:12px;font-size:10px;color:${ch.accent}99;font-family:'Courier New',monospace;background:${ch.accent}0a">ECH ${ec.echoCost}</div>
+            <div style="flex-shrink:0;padding:4px 10px;border:1px solid ${ch.accent}33;border-radius:12px;font-size:10px;color:${ch.accent}99;font-family:'Courier New',monospace;background:${ch.accent}0a"> ${ec.echoCost}</div>
           </button>
         </div>
         <div style="display:flex;gap:12px;align-items:flex-start">

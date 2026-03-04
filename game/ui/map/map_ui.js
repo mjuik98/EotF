@@ -1,6 +1,3 @@
-import { GS } from '../../core/game_state.js';
-
-
 const NODE_TYPE_CONFIG = {
   combat: { color: '#ff3366', icon: 'C' },
   elite: { color: '#f0b429', icon: 'E' },
@@ -141,14 +138,9 @@ function _bindMinimapHover(canvas) {
     _updateMinimapHint(canvas, null, nodeMeta);
   });
 
-  canvas.addEventListener('click', () => {
-    if (typeof MapUI.showFullMap === 'function') {
-      // deps가 여기서 직접 전달되지 않으므로, 
-      // renderMinimap에서 저장해둔 deps를 활용하거나 전역 GS 사용
-      const gs = globalThis.GS || window.GS;
-      MapUI.showFullMap({ gs, doc: document });
-    }
-  });
+  // Full-map click handling is bound in GameCanvasSetupUI.
+  // Keeping a second click handler here causes duplicate toggle calls
+  // (open -> immediate close) on a single click.
 
   canvas.addEventListener('mouseleave', () => {
     canvas.style.cursor = 'default';

@@ -36,9 +36,12 @@ export const MapNavigationUI = {
         deps.classMechanics?.swordsman?.onMove?.(gs);
       }
 
-      gs.mapNodes
-        .filter(n => n.floor === node.floor + 1)
-        .forEach(n => { n.accessible = true; });
+      const nextFloorNodes = gs.mapNodes.filter(n => n.floor === node.floor + 1);
+      const hasExplicitChildren = Array.isArray(node.children) && node.children.length > 0;
+      const allowedChildren = hasExplicitChildren ? new Set(node.children) : null;
+      nextFloorNodes.forEach((nextNode) => {
+        nextNode.accessible = hasExplicitChildren ? allowedChildren.has(nextNode.id) : true;
+      });
 
       deps.audioEngine?.playFootstep?.();
       deps.renderMinimap?.();

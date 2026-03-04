@@ -114,9 +114,16 @@ function _getShopItemIcon(item, rarity = 'common') {
   return fallback[rarity] || '🎁';
 }
 
+function _isChoiceDisabled(choice, gs) {
+  if (!choice) return false;
+  if (typeof choice.isDisabled === 'function') return !!choice.isDisabled(gs);
+  return !!choice.disabled;
+}
+
 function _renderChoices(event, doc, deps = {}) {
   const choicesEl = doc.getElementById('eventChoices');
   if (!choicesEl) return;
+  const gs = _getGS(deps);
   choicesEl.textContent = '';
   event.choices.forEach((choice, idx) => {
     const btn = doc.createElement('div');
@@ -129,7 +136,15 @@ function _renderChoices(event, doc, deps = {}) {
         .forEach((className) => btn.classList.add(className));
     }
     btn.textContent = choice.text;
-    btn.addEventListener('click', () => EventUI.resolveEvent(idx, deps));
+    const disabled = _isChoiceDisabled(choice, gs);
+    if (disabled) {
+      btn.classList.add('disabled');
+      btn.setAttribute('aria-disabled', 'true');
+      btn.setAttribute('tabindex', '-1');
+      if (choice?.disabledReason) btn.title = choice.disabledReason;
+    } else {
+      btn.addEventListener('click', () => EventUI.resolveEvent(idx, deps));
+    }
     choicesEl.appendChild(btn);
   });
 }
@@ -674,7 +689,7 @@ export const EventUI = {
             if (!result.success) return;
 
             if (typeof deps.playItemGet === 'function') deps.playItemGet();
-            if (typeof deps.showItemToast === 'function') deps.showItemToast(item);
+            if (typeof deps.showItemToast === 'function') deps.showItemToast(item, { forceQueue: true });
             if (typeof deps.updateUI === 'function') deps.updateUI();
             EventUI.updateEventGoldBar(deps);
             renderShopList();

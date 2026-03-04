@@ -250,9 +250,10 @@ export const FeedbackUI = {
     setTimeout(() => nameEl.remove(), 500);
   },
 
-  showItemToast(item, deps = {}) {
+  showItemToast(item, deps = {}, options = {}) {
     if (!item) return;
-    if (item.rarity === 'legendary') {
+    const forceQueue = options?.forceQueue === true;
+    if (item.rarity === 'legendary' && !forceQueue) {
       this.showLegendaryAcquire(item, deps);
       return;
     }
@@ -432,4 +433,3 @@ export const FeedbackUI = {
     ButtonFeedback.triggerEchoButton(doc);
   },
 };
-

@@ -102,7 +102,7 @@ export function createCombatBindings(M, fns) {
     fns.showEdgeDamage = () => M.FeedbackUI?.showEdgeDamage?.(Deps.getFeedbackDeps());
     fns.showEchoBurstOverlay = () => M.FeedbackUI?.showEchoBurstOverlay?.(Deps.getFeedbackDeps());
     fns.showCardPlayEffect = (card) => M.FeedbackUI?.showCardPlayEffect?.(card, Deps.getFeedbackDeps());
-    fns.showItemToast = (item) => M.FeedbackUI?.showItemToast?.(item, Deps.getFeedbackDeps());
+    fns.showItemToast = (item, options = {}) => M.FeedbackUI?.showItemToast?.(item, Deps.getFeedbackDeps(), options);
     fns.showLegendaryAcquire = (item) => M.FeedbackUI?.showLegendaryAcquire?.(item, Deps.getFeedbackDeps());
     fns.showChainAnnounce = (text) => M.FeedbackUI?.showChainAnnounce?.(text, Deps.getFeedbackDeps());
     fns.showWorldMemoryNotice = (text) => M.FeedbackUI?.showWorldMemoryNotice?.(text, Deps.getFeedbackDeps());

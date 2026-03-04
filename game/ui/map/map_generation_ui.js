@@ -1,4 +1,92 @@
-﻿export const MapGenerationUI = {
+function _groupByFloor(nodes = []) {
+  const byFloor = new Map();
+  nodes.forEach((node) => {
+    const list = byFloor.get(node.floor);
+    if (list) list.push(node);
+    else byFloor.set(node.floor, [node]);
+  });
+  return byFloor;
+}
+
+function _linkMapNodes(nodes = [], totalFloors = 1) {
+  const byFloor = _groupByFloor(nodes);
+
+  for (let floor = 1; floor < totalFloors; floor++) {
+    const parents = byFloor.get(floor) || [];
+    const children = byFloor.get(floor + 1) || [];
+    if (!parents.length || !children.length) continue;
+
+    const sortedChildren = [...children].sort((a, b) => (a.pos || 0) - (b.pos || 0));
+    const childIndexById = new Map(sortedChildren.map((node, idx) => [node.id, idx]));
+    const incoming = new Map(sortedChildren.map((node) => [node.id, 0]));
+
+    parents.forEach((node) => { node.children = []; });
+
+    const addEdge = (parent, child) => {
+      if (!parent || !child) return false;
+      if (!Array.isArray(parent.children)) parent.children = [];
+      if (parent.children.includes(child.id)) return false;
+      if (parent.children.length >= 3) return false;
+      parent.children.push(child.id);
+      incoming.set(child.id, (incoming.get(child.id) || 0) + 1);
+      return true;
+    };
+
+    // 1) 모든 다음 층 노드가 최소 1개 부모를 갖도록 선연결
+    sortedChildren.forEach((child, childIdx) => {
+      let bestParent = null;
+      let bestScore = Infinity;
+
+      parents.forEach((parent) => {
+        const parentChildren = Array.isArray(parent.children) ? parent.children.length : 0;
+        if (parentChildren >= 3) return;
+        const parentRatio = (parent.pos + 1) / (Math.max(1, parent.total) + 1);
+        const parentPivot = parentRatio * (sortedChildren.length - 1);
+        const score = Math.abs(parentPivot - childIdx) + parentChildren * 0.2;
+        if (score < bestScore) {
+          bestScore = score;
+          bestParent = parent;
+        }
+      });
+
+      if (bestParent) addEdge(bestParent, child);
+    });
+
+    // 2) 모든 부모 노드가 최소 1개 분기를 갖도록 보정
+    parents.forEach((parent) => {
+      if ((parent.children?.length || 0) > 0 || sortedChildren.length === 0) return;
+      const parentRatio = (parent.pos + 1) / (Math.max(1, parent.total) + 1);
+      const parentPivot = parentRatio * (sortedChildren.length - 1);
+      const nearest = sortedChildren
+        .map((child, idx) => ({ child, score: Math.abs(idx - parentPivot) }))
+        .sort((a, b) => a.score - b.score)[0]?.child;
+      if (nearest) addEdge(parent, nearest);
+    });
+
+    // 3) 부모별 목표 분기(1~3)까지 랜덤 보강
+    parents.forEach((parent) => {
+      const maxBranches = Math.min(3, sortedChildren.length);
+      if (maxBranches <= 0) return;
+      const desiredBranches = 1 + Math.floor(Math.random() * maxBranches);
+      const parentRatio = (parent.pos + 1) / (Math.max(1, parent.total) + 1);
+      const parentPivot = parentRatio * (sortedChildren.length - 1);
+
+      const candidates = sortedChildren
+        .map((child) => {
+          const idx = childIndexById.get(child.id) || 0;
+          return { child, score: Math.abs(idx - parentPivot) + Math.random() * 0.35 };
+        })
+        .sort((a, b) => a.score - b.score)
+        .map((entry) => entry.child);
+
+      for (let i = 0; i < candidates.length && (parent.children?.length || 0) < desiredBranches; i++) {
+        addEdge(parent, candidates[i]);
+      }
+    });
+  }
+}
+
+export const MapGenerationUI = {
   generateMap(regionIdx, deps = {}) {
     const gs = deps.gs;
     const getRegionData = deps.getRegionData || window.getRegionData;
@@ -33,6 +121,7 @@
           type: 'combat',
           visited: false,
           accessible: true,
+          children: [],
         });
         continue;
       }
@@ -46,6 +135,7 @@
           type: 'boss',
           visited: false,
           accessible: false,
+          children: [],
         });
         continue;
       }
@@ -59,6 +149,7 @@
           type: 'shop',
           visited: false,
           accessible: false,
+          children: [],
         });
         continue;
       }
@@ -72,11 +163,16 @@
           type: 'mini_boss',
           visited: false,
           accessible: false,
+          children: [],
         });
         continue;
       }
 
-      const count = Math.floor(Math.random() * 5) + 1;
+      const prevFloorCount = gs.mapNodes.filter((node) => node.floor === floor - 1).length || 1;
+      const maxNodeCount = floor === 1
+        ? 5
+        : Math.max(1, Math.min(5, prevFloorCount * 3));
+      const count = Math.floor(Math.random() * maxNodeCount) + 1;
       const isLateGame = floor >= Math.ceil(totalFloors * 0.5);
 
       let eliteAssigned = false;
@@ -109,9 +205,12 @@
           type,
           visited: false,
           accessible: floor === 1,
+          children: [],
         });
       }
     }
+
+    _linkMapNodes(gs.mapNodes, totalFloors);
 
     gs.currentFloor = 0;
     deps.updateNextNodes?.();
