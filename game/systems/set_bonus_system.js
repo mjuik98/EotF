@@ -25,6 +25,37 @@ const SetBonusSystem = {
                 3: { label: '혈맹의 완성 — 피해 받을 때 20% 확률 완전 무효', apply(gs) { gs._bloodSet3 = true; } },
             }
         },
+        storm_set: {
+            name: '폭풍의 세 검',
+            items: ['storm_needle', 'storm_crest', 'storm_herald'],
+            bonuses: {
+                2: { label: '카드 사용 시 잔향 +4', apply() {} },
+                3: { label: '연쇄 3 이상이면 공격 피해 +10%', apply() {} },
+            }
+        },
+        machine_set: {
+            name: '기계의 심장',
+            items: ['gear_cog', 'piston_drive', 'circuit_board'],
+            bonuses: {
+                2: { label: '소멸 시 에너지 +1 (전투당 4회)', apply() {} },
+                3: { label: '소멸 누적에 비례한 추가 피해', apply() {} },
+            }
+        },
+        moon_set: {
+            name: '달의 삼위',
+            items: ['moon_veil', 'moon_ward', 'moon_crest'],
+            bonuses: {
+                2: { label: '회복 시 방어막 +2', apply() {} },
+                3: { label: '턴 시작 방어막 15 이상이면 체력 3 회복', apply() {} },
+            }
+        },
+        dusk_set: {
+            name: '황혼의 쌍인',
+            items: ['dusk_fang', 'dusk_mark'],
+            bonuses: {
+                2: { label: '독 대상 공격 시 피해 +8', apply() {} },
+            }
+        },
     },
 
     getActiveSets(gs) {

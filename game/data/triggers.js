@@ -37,5 +37,6 @@ export const Trigger = Object.freeze({
     ECHO_GAIN: 'echo_gain',
     HEAL_AMOUNT: 'heal_amount',
     SHIELD_GAIN: 'shield_gain',
+    SHIELD_BREAK: 'shield_break',
     BEFORE_CARD_COST: 'before_card_cost',
 });

@@ -290,10 +290,16 @@ export const DamageSystem = {
         }
 
         if (dmg > 0) {
+            const shieldBefore = Number(this.player?.shield || 0);
             const result = this.dispatch(Actions.PLAYER_DAMAGE, { amount: dmg, source: 'combat' });
 
             if (result && result.shieldAbsorbed > 0) {
                 if (typeof this.addLog === 'function') this.addLog(LogUtils.formatShield('플레이어', result.shieldAbsorbed), 'shield');
+                const shieldAfter = Number(this.player?.shield || 0);
+                const brokeShield = shieldBefore > 0 && shieldAfter <= 0 && result.shieldAbsorbed >= shieldBefore;
+                if (brokeShield && typeof this.triggerItems === 'function') {
+                    this.triggerItems('shield_break', shieldBefore);
+                }
             }
             if (result && result.actualDamage > 0) {
                 if (typeof this.addLog === 'function') {

@@ -146,8 +146,16 @@ export const Reducers = {
 
         if (exhaust) {
             gs.player.exhausted.push(cardId);
+            let preventedExhaust = false;
             if (typeof gs.triggerItems === 'function') {
-                gs.triggerItems('card_exhaust', { cardId });
+                preventedExhaust = gs.triggerItems('card_exhaust', { cardId }) === true;
+            }
+            if (preventedExhaust) {
+                const exIdx = gs.player.exhausted.lastIndexOf(cardId);
+                if (exIdx >= 0) gs.player.exhausted.splice(exIdx, 1);
+                gs.player.graveyard.push(cardId);
+                gs.markDirty('hand');
+                return { cardId, exhausted: false, preventedExhaust: true };
             }
         } else {
             gs.player.graveyard.push(cardId);
