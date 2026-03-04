@@ -62,6 +62,18 @@ function _toTypeClass(type) {
   return '';
 }
 
+function _isItemObtainableFrom(item, source = 'reward') {
+  const routes = item?.obtainableFrom;
+  if (!Array.isArray(routes) || routes.length === 0) return true;
+  return routes.includes(source);
+}
+
+function _getRewardItemPool(gs, data, source = 'reward') {
+  return Object.values(data.items || {}).filter((item) => {
+    return !gs.player.items.includes(item.id) && _isItemObtainableFrom(item, source);
+  });
+}
+
 function _markRewardSelection(container, wrapper) {
   if (!container || !wrapper) return;
   container.querySelectorAll('.reward-card-wrapper.selected').forEach((el) => el.classList.remove('selected'));
@@ -78,7 +90,9 @@ function _ensureMiniBossBonus(gs, data, deps) {
   gs.addLog?.(`🔥 미니보스 보상: 골드 +${goldGain}, HP +${gs.player.hp - hpBefore}`, 'system');
 
   const rareItems = Object.values(data.items || {}).filter((item) => {
-    return (item.rarity === 'rare' || item.rarity === 'legendary') && !gs.player.items.includes(item.id);
+    return (item.rarity === 'rare' || item.rarity === 'legendary')
+      && !gs.player.items.includes(item.id)
+      && _isItemObtainableFrom(item, 'reward');
   });
   if (rareItems.length > 0) {
     const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
@@ -308,13 +322,12 @@ export const RewardUI = {
 
     const shouldOfferItem = isBoss || isMiniBoss || Math.random() < 0.3;
     if (shouldOfferItem) {
+      const availableItems = _getRewardItemPool(gs, data, 'reward');
       const targetRarity = isBoss ? ['boss', 'legendary', 'rare'] : (isMiniBoss ? ['rare', 'legendary'] : ['common', 'uncommon']);
-      const pool = Object.values(data.items || {}).filter((item) => {
-        return targetRarity.includes(item.rarity) && !gs.player.items.includes(item.id);
-      });
+      const pool = availableItems.filter((item) => targetRarity.includes(item.rarity));
       const itemPool = pool.length > 0
         ? pool
-        : Object.values(data.items || {}).filter((item) => !gs.player.items.includes(item.id));
+        : availableItems;
       if (itemPool.length > 0) {
         const item = itemPool[Math.floor(Math.random() * itemPool.length)];
         _renderItemOption(container, item, deps, () => this.takeRewardItem(item.id, deps), rewardCards.length + (shouldOfferBlessing ? 2 : 0));

@@ -6,6 +6,96 @@ import { CARDS } from './cards.js';
 import { ITEMS } from './items.js';
 import { AudioEngine } from '../engine/audio.js';
 
+const MAP_NODE_TYPE_LABELS = {
+    combat: '전투',
+    elite: '정예 전투',
+    event: '이벤트',
+    shop: '상점',
+    rest: '휴식처',
+    mini_boss: '미니 보스',
+    boss: '보스',
+};
+
+function pickRandom(arr) {
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    return arr[Math.floor(Math.random() * arr.length)] || null;
+}
+
+function getUpcomingMutableNodes(gs, depth = 1) {
+    if (!gs || !Array.isArray(gs.mapNodes)) return [];
+    const currentFloor = Number(gs.currentFloor);
+    if (!Number.isFinite(currentFloor)) return [];
+    const targetFloor = currentFloor + Math.max(1, Math.floor(Number(depth) || 1));
+
+    return gs.mapNodes.filter((node) => {
+        if (!node || node.floor !== targetFloor || node.visited) return false;
+        return node.type !== 'boss' && node.type !== 'mini_boss';
+    });
+}
+
+function rewriteUpcomingNodeType(gs, {
+    toType,
+    preferFrom = [],
+    fallbackFrom = ['combat', 'event', 'shop', 'rest', 'elite'],
+    excludeIds = null,
+    depth = 1,
+} = {}) {
+    if (!toType) return null;
+
+    const blocked = excludeIds instanceof Set ? excludeIds : new Set();
+    const nodes = getUpcomingMutableNodes(gs, depth)
+        .filter((node) => !blocked.has(node.id) && node.type !== toType);
+    if (!nodes.length) return null;
+
+    const preferSet = new Set(preferFrom);
+    const fallbackSet = new Set(fallbackFrom);
+    let pool = preferSet.size ? nodes.filter((node) => preferSet.has(node.type)) : [];
+    if (!pool.length) {
+        pool = fallbackSet.size ? nodes.filter((node) => fallbackSet.has(node.type)) : nodes;
+    }
+    if (!pool.length) return null;
+
+    const targetNode = pickRandom(pool);
+    if (!targetNode) return null;
+
+    const fromType = targetNode.type;
+    targetNode.type = toType;
+    return { node: targetNode, from: fromType, to: toType };
+}
+
+function formatNodeRef(node) {
+    if (!node) return '다음 층';
+    const slotMap = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const slot = slotMap[node.pos] || String((Number(node.pos) || 0) + 1);
+    return `${node.floor}층 ${slot} 구역`;
+}
+
+function formatNodeType(type) {
+    return MAP_NODE_TYPE_LABELS[type] || type || '미확인';
+}
+
+function isItemObtainableFrom(item, source = 'event') {
+    const routes = item?.obtainableFrom;
+    if (!Array.isArray(routes) || routes.length === 0) return true;
+    return routes.includes(source);
+}
+
+function pickObtainableItem(gs, {
+    source = 'event',
+    specialOfferOnly = false,
+    excludeOwned = false,
+} = {}) {
+    const owned = new Set(excludeOwned ? (gs?.player?.items || []) : []);
+    const pool = Object.values(ITEMS).filter((item) => {
+        if (!item || !item.id) return false;
+        if (!isItemObtainableFrom(item, source)) return false;
+        if (specialOfferOnly && item.specialOffer !== true) return false;
+        if (excludeOwned && owned.has(item.id)) return false;
+        return true;
+    });
+    return pickRandom(pool) || null;
+}
+
 export const EVENTS = [
     {
         id: 'wanderer', layer: 1, title: '방랑자의 흔적', eyebrow: 'LAYER 1 · 우발적 이벤트',
@@ -156,7 +246,7 @@ export const EVENTS = [
             {
                 text: '🚶 보지 않은 척 지나간다',
                 effect(gs) {
-                    return null;
+                    return '화로를 지나치며 장갑끈만 고쳐 맸다. 오늘은 강철보다 침묵을 택했다.';
                 }
             },
         ]
@@ -204,7 +294,7 @@ export const EVENTS = [
             {
                 text: '🚶 조용히 지나간다',
                 effect() {
-                    return null;
+                    return '저울은 끝내 기울지 않았다. 당신도 아무것도 올리지 않은 채 발걸음을 옮겼다.';
                 }
             },
         ]
@@ -268,19 +358,59 @@ export const EVENTS = [
             {
                 text: '🌀 균열이 삼키는 대로 둔다 (체력 -20, 아이템 1개)',
                 effect(gs) {
+                    const picked = pickObtainableItem(gs, { source: 'event' }) || pickRandom(Object.values(ITEMS));
+                    if (!picked) return '균열 너머에 닿을 수 있는 것이 없었다. 공허만 남아 있다.';
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
-                    const itemsList = Object.keys(ITEMS);
-                    const item = itemsList[Math.floor(Math.random() * itemsList.length)];
-                    gs.player.items.push(item);
+                    gs.player.items.push(picked.id);
+                    gs.meta?.codex?.items?.add?.(picked.id);
                     AudioEngine.playItemGet();
-                    if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(ITEMS[item]);
-                    return `${ITEMS[item].name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
+                    if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(picked);
+                    return `${picked.name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
                 }
             },
             {
                 text: '🚶 아직은 아니다',
                 effect(gs) {
                     return '돌아섰다. 균열이 천천히 닫혔다. 아니, 당신을 기다리고 있는 것일 수도 있다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'sealed_reliquary', layer: 2, title: '봉인된 성유물고', eyebrow: 'LAYER 2 · 특수 유물 이벤트',
+        desc: '검은 석관들이 원형으로 배치되어 있다. 봉인마다 다른 심장이 뛴다. 강한 힘이 잠들어 있지만, 꺼내는 순간 대가도 함께 깨어날 것이다.',
+        choices: [
+            {
+                text: '🗝️ 봉인을 연다 (체력 -12, 특수 유물 1개 획득)',
+                effect(gs) {
+                    const relic = pickObtainableItem(gs, {
+                        source: 'special_event',
+                        specialOfferOnly: true,
+                        excludeOwned: true,
+                    });
+                    if (!relic) return '열 수 있는 특수 유물이 더는 없다. 봉인들은 조용히 식어 있다.';
+
+                    gs.player.hp = Math.max(1, gs.player.hp - 12);
+                    gs.player.items.push(relic.id);
+                    gs.meta?.codex?.items?.add?.(relic.id);
+                    AudioEngine.playItemGet();
+                    if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(relic);
+
+                    return `${relic.name}을(를) 손에 넣었다. 힘은 선명하고, 대가도 분명하다.`;
+                }
+            },
+            {
+                text: '📜 봉인식을 기록한다 (골드 +30, 잔향 +35)',
+                effect(gs) {
+                    gs.addGold(30);
+                    gs.addEcho(35);
+                    return '유물은 건드리지 않았다. 대신 봉인식을 베껴 적었다. 위험은 줄었고, 통찰은 남았다.';
+                }
+            },
+            {
+                text: '🚶 뒤돌아선다',
+                effect() {
+                    return '석관의 심장 소리를 등지고 걸어 나왔다. 오늘은 생존이 탐욕보다 앞섰다.';
                 }
             },
         ]
@@ -294,7 +424,15 @@ export const EVENTS = [
                 effect(gs) {
                     gs.addGold(20);
                     gs.addEcho(15);
-                    return '선들이 뇌리에 박혔다. 이 길을 걸은 자가 남긴 것인지, 내가 이미 걸었던 것인지. 판단하기 전에 몸이 먼저 움직이고 있었다.';
+                    const rerouted = rewriteUpcomingNodeType(gs, {
+                        toType: 'event',
+                        preferFrom: ['combat'],
+                        fallbackFrom: ['rest', 'shop', 'elite'],
+                    });
+                    if (!rerouted) {
+                        return '선들이 뇌리에 박혔다. 이 길을 걸은 자가 남긴 것인지, 내가 이미 걸었던 것인지. 이번엔 지도가 조용히 접혔다.';
+                    }
+                    return `선들이 뇌리에 박혔다. ${formatNodeRef(rerouted.node)}의 경로가 ${formatNodeType(rerouted.from)}에서 ${formatNodeType(rerouted.to)}로 다시 그려졌다.`;
                 }
             },
             {
@@ -303,12 +441,38 @@ export const EVENTS = [
                     if (gs.player.gold < 15) return '동기화에 필요한 것이 없다. 지도가 당신을 거부한다. 아직은.';
                     gs.player.gold -= 15;
                     gs.addEcho(40);
-                    return '지도의 잔향과 당신의 것이 뒤섞인다. 위험한 것들이 진동으로 느껴진다. 이 감각이 선물인지 저주인지, 지금은 알 수 없다.';
+                    const touched = new Set();
+                    const dangerShift = rewriteUpcomingNodeType(gs, {
+                        toType: 'elite',
+                        preferFrom: ['combat', 'event', 'rest', 'shop'],
+                        excludeIds: touched,
+                    });
+                    if (dangerShift?.node?.id) touched.add(dangerShift.node.id);
+
+                    const rewardShift = rewriteUpcomingNodeType(gs, {
+                        toType: 'shop',
+                        preferFrom: ['combat', 'event', 'rest'],
+                        fallbackFrom: ['elite'],
+                        excludeIds: touched,
+                    });
+
+                    if (dangerShift && rewardShift) {
+                        return `지도의 잔향과 당신의 것이 뒤섞인다. ${formatNodeRef(dangerShift.node)}는 ${formatNodeType(dangerShift.to)}로, ${formatNodeRef(rewardShift.node)}는 ${formatNodeType(rewardShift.to)}으로 뒤틀렸다.`;
+                    }
+                    if (dangerShift) {
+                        return `지도의 잔향과 당신의 것이 뒤섞인다. ${formatNodeRef(dangerShift.node)}에서 위험 신호가 증폭되어 ${formatNodeType(dangerShift.to)}가 떠올랐다.`;
+                    }
+                    if (rewardShift) {
+                        return `지도의 잔향과 당신의 것이 뒤섞인다. ${formatNodeRef(rewardShift.node)}에 거래의 잔향이 맺혀 ${formatNodeType(rewardShift.to)}이 열렸다.`;
+                    }
+                    return '지도의 잔향과 당신의 것이 뒤섞인다. 감각은 또렷했지만 이번엔 경로가 크게 흔들리진 않았다.';
                 }
             },
             {
                 text: '🚶 못 본 척 지나간다',
-                effect() { return null; }
+                effect() {
+                    return '양피지를 접어 시야 밖으로 밀어냈다. 지도는 남았고, 선택만 미뤄졌다.';
+                }
             }
         ]
     },
@@ -320,19 +484,37 @@ export const EVENTS = [
                 text: '🔍 적들이 보이는 대로 기억한다 (잔향 +20)',
                 effect(gs) {
                     gs.addEcho(20);
-                    return '움직임이 보인다. 패턴이 보인다. 다음 교전은 내 것이다 — 라고 생각하는 것이 함정일 수도 있다.';
+                    const softened = rewriteUpcomingNodeType(gs, {
+                        toType: 'combat',
+                        preferFrom: ['elite'],
+                        fallbackFrom: [],
+                    });
+                    if (!softened) {
+                        return '움직임이 보인다. 패턴이 보인다. 다음 교전의 빈틈만 정확하게 새겨 넣었다.';
+                    }
+                    return `움직임이 보인다. 패턴이 보인다. ${formatNodeRef(softened.node)}의 위협 징후를 벗겨내 ${formatNodeType(softened.to)}로 낮췄다.`;
                 }
             },
             {
                 text: '💤 고요에 삼켜진다 (HP +20)',
                 effect(gs) {
                     gs.heal(20);
-                    return '망루가 조용하다. 바람만 있다. 상처가 아무는 것인지 감각이 무뎌지는 것인지 — 구분하지 않기로 했다.';
+                    const refuge = rewriteUpcomingNodeType(gs, {
+                        toType: 'rest',
+                        preferFrom: ['combat', 'event'],
+                        fallbackFrom: ['elite', 'shop'],
+                    });
+                    if (!refuge) {
+                        return '망루가 조용하다. 바람만 있다. 몸은 회복됐고, 지형은 그대로 남았다.';
+                    }
+                    return `망루가 조용하다. 바람이 ${formatNodeRef(refuge.node)}에 머물며 ${formatNodeType(refuge.to)} 하나를 남겼다.`;
                 }
             },
             {
                 text: '🚶 내려간다',
-                effect() { return null; }
+                effect() {
+                    return '난간에서 손을 떼고 계단을 내려왔다. 높이는 사라졌지만 시야는 남아 있었다.';
+                }
             }
         ]
     }

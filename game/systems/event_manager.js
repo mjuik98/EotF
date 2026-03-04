@@ -14,6 +14,12 @@ function _removeFirst(arr, value) {
   return true;
 }
 
+function _isItemObtainableFrom(item, source) {
+  const routes = item?.obtainableFrom;
+  if (!Array.isArray(routes) || routes.length === 0) return true;
+  return routes.includes(source);
+}
+
 export const EventManager = {
   pickRandomEvent(gs, data) {
     if (!gs || !data?.events) return null;
@@ -155,6 +161,7 @@ export const EventManager = {
 
     const byRarity = {};
     Object.values(data.items).forEach((item) => {
+      if (!_isItemObtainableFrom(item, 'shop')) return;
       if (!byRarity[item.rarity]) byRarity[item.rarity] = [];
       byRarity[item.rarity].push(item);
     });

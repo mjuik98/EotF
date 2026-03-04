@@ -45,6 +45,43 @@ function exhaustDrawnCard(gs, cardId, sourceName) {
     return true;
 }
 
+function getSpecialRelicProgress(gs) {
+    if (!gs?.player) return {};
+    const current = gs.player._specialRelicProgress;
+    if (!current || typeof current !== 'object' || Array.isArray(current)) {
+        gs.player._specialRelicProgress = {};
+    }
+    return gs.player._specialRelicProgress;
+}
+
+function advanceSpecialRelicAwakening(gs, {
+    dormantId,
+    awakenedId,
+    awakenedName = null,
+    requiredCombats,
+    sourceName,
+}) {
+    if (!gs?.player || !dormantId || !awakenedId) return false;
+    const idx = gs.player.items?.indexOf?.(dormantId) ?? -1;
+    if (idx < 0) return false;
+
+    const progress = getSpecialRelicProgress(gs);
+    const current = Number(progress[dormantId]) || 0;
+    const next = Math.min(requiredCombats, current + 1);
+    progress[dormantId] = next;
+
+    if (next < requiredCombats) {
+        gs.addLog?.(`🌱 ${sourceName}: 개화 진행 ${next}/${requiredCombats}`, 'echo');
+        return false;
+    }
+
+    gs.player.items[idx] = awakenedId;
+    delete progress[dormantId];
+    gs.meta?.codex?.items?.add?.(awakenedId);
+    gs.addLog?.(`🌌 ${sourceName} 개화: ${awakenedName || awakenedId}`, 'item');
+    return true;
+}
+
 export const ITEMS = {
     // ══════════════ COMMON (회색) ══════════════
     void_compass: {
@@ -1450,6 +1487,156 @@ export const ITEMS = {
                 if (trigger === Trigger.CARD_PLAY) {
                     const idx = gs.combat?.enemies?.findIndex?.(e => e.hp > 0 && (e.statusEffects?.weakened || 0) > 0) ?? -1;
                     if (idx >= 0) gs.applyEnemyStatus('weakened', 1, idx, { name: '황혼의 낙인', type: 'item' });
+                }
+            }
+        },
+        // ──────────── 특수 유물 (이벤트 전용) ────────────
+        oath_of_abyss: {
+            id: 'oath_of_abyss', name: '심연의 서약', icon: '🜏', rarity: 'legendary',
+            desc: '주는 피해 +40%. 대신 받는 피해 +25%.',
+            special: true, specialOffer: true, obtainableFrom: ['special_event'],
+            passive(gs, trigger, data) {
+                if (trigger === Trigger.DEAL_DAMAGE && typeof data === 'number') {
+                    return Math.max(1, Math.floor(data * 1.4));
+                }
+                if (trigger === Trigger.DAMAGE_TAKEN && typeof data === 'number' && data > 0) {
+                    return Math.max(0, Math.ceil(data * 1.25));
+                }
+            }
+        },
+        reactive_reactor: {
+            id: 'reactive_reactor', name: '반응성 원자로', icon: '☢️', rarity: 'legendary',
+            desc: '턴 시작: 체력 -4, 에너지 +1, 잔향 +12.',
+            special: true, specialOffer: true, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger !== Trigger.TURN_START) return;
+                gs.player.hp = Math.max(1, (gs.player.hp || 1) - 4);
+                gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
+                gs.addEcho(12, { name: '반응성 원자로', type: 'item' });
+                gs.markDirty?.('hud');
+            }
+        },
+        executioners_tithe: {
+            id: 'executioners_tithe', name: '집행자의 십일조', icon: '🩸', rarity: 'rare',
+            desc: '전투 시작: 체력 10% 손실. 적 처치 시: 체력 8 회복, 골드 12 획득.',
+            special: true, specialOffer: true, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger === Trigger.COMBAT_START) {
+                    const loss = Math.max(1, Math.floor((gs.player.maxHp || 1) * 0.1));
+                    gs.player.hp = Math.max(1, (gs.player.hp || 1) - loss);
+                    gs.markDirty?.('hud');
+                    return;
+                }
+                if (trigger === Trigger.ENEMY_KILL) {
+                    gs.heal(8, { name: '집행자의 십일조', type: 'item' });
+                    gs.addGold(12, { name: '집행자의 십일조', type: 'item' });
+                }
+            }
+        },
+        sealed_lotus: {
+            id: 'sealed_lotus', name: '봉인된 연화', icon: '🪷', rarity: 'uncommon',
+            desc: '아무 능력이 없다. 전투 종료 3회 후 개화한다.',
+            special: true, specialOffer: true, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger !== Trigger.COMBAT_END) return;
+                advanceSpecialRelicAwakening(gs, {
+                    dormantId: 'sealed_lotus',
+                    awakenedId: 'lotus_reborn',
+                    awakenedName: '윤회의 연화',
+                    requiredCombats: 3,
+                    sourceName: '봉인된 연화',
+                });
+            }
+        },
+        lotus_reborn: {
+            id: 'lotus_reborn', name: '윤회의 연화', icon: '🌺', rarity: 'legendary',
+            desc: '전투 시작: 카드 2장 드로우, 잔향 +25. 턴 시작: 체력 -1, 방어막 +6.',
+            special: true, specialOffer: false, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger === Trigger.COMBAT_START) {
+                    gs.drawCards?.(2, { name: '윤회의 연화', type: 'item' });
+                    gs.addEcho(25, { name: '윤회의 연화', type: 'item' });
+                    return;
+                }
+                if (trigger === Trigger.TURN_START) {
+                    gs.player.hp = Math.max(1, (gs.player.hp || 1) - 1);
+                    gs.addShield(6, { name: '윤회의 연화', type: 'item' });
+                }
+            }
+        },
+        mute_chrysalis: {
+            id: 'mute_chrysalis', name: '침묵의 번데기', icon: '🥚', rarity: 'rare',
+            desc: '턴 시작: 방어막 3 상실. 전투 종료 4회 후 개화한다.',
+            special: true, specialOffer: true, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger === Trigger.TURN_START) {
+                    gs.player.shield = Math.max(0, (gs.player.shield || 0) - 3);
+                }
+                if (trigger === Trigger.COMBAT_END) {
+                    advanceSpecialRelicAwakening(gs, {
+                        dormantId: 'mute_chrysalis',
+                        awakenedId: 'thunder_chrysalis',
+                        awakenedName: '천둥의 번데기',
+                        requiredCombats: 4,
+                        sourceName: '침묵의 번데기',
+                    });
+                }
+            }
+        },
+        thunder_chrysalis: {
+            id: 'thunder_chrysalis', name: '천둥의 번데기', icon: '⚡', rarity: 'legendary',
+            desc: '전투 시작: 회피 1, 잔향 +20. 턴마다 첫 카드 사용 시 35% 확률로 에너지 +1.',
+            special: true, specialOffer: false, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger === Trigger.COMBAT_START) {
+                    gs.addBuff('dodge', 1, { name: '천둥의 번데기', type: 'item' });
+                    gs.addEcho(20, { name: '천둥의 번데기', type: 'item' });
+                    gs._thunderChrysalisProc = false;
+                    return;
+                }
+                if (trigger === Trigger.TURN_START) {
+                    gs._thunderChrysalisProc = false;
+                    return;
+                }
+                if (trigger === Trigger.CARD_PLAY && !gs._thunderChrysalisProc && Math.random() < 0.35) {
+                    gs._thunderChrysalisProc = true;
+                    gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
+                    gs.addLog?.('⚡ 천둥의 번데기: 에너지 +1', 'item');
+                    gs.markDirty?.('hud');
+                }
+            }
+        },
+        cinder_seed: {
+            id: 'cinder_seed', name: '잿빛 씨앗', icon: '🌱', rarity: 'uncommon',
+            desc: '전투 시작: 체력 -3. 전투 종료 5회 후 개화한다.',
+            special: true, specialOffer: true, obtainableFrom: ['special_event'],
+            passive(gs, trigger) {
+                if (trigger === Trigger.COMBAT_START) {
+                    gs.player.hp = Math.max(1, (gs.player.hp || 1) - 3);
+                    gs.markDirty?.('hud');
+                    return;
+                }
+                if (trigger === Trigger.COMBAT_END) {
+                    advanceSpecialRelicAwakening(gs, {
+                        dormantId: 'cinder_seed',
+                        awakenedId: 'cinder_crown',
+                        awakenedName: '재의 왕관',
+                        requiredCombats: 5,
+                        sourceName: '잿빛 씨앗',
+                    });
+                }
+            }
+        },
+        cinder_crown: {
+            id: 'cinder_crown', name: '재의 왕관', icon: '👑', rarity: 'legendary',
+            desc: '주는 피해 +12. 전투 종료 시 체력 6 회복.',
+            special: true, specialOffer: false, obtainableFrom: ['special_event'],
+            passive(gs, trigger, data) {
+                if (trigger === Trigger.DEAL_DAMAGE && typeof data === 'number') {
+                    return (data || 0) + 12;
+                }
+                if (trigger === Trigger.COMBAT_END) {
+                    gs.heal(6, { name: '재의 왕관', type: 'item' });
                 }
             }
         },
