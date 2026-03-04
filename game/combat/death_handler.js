@@ -138,21 +138,17 @@ export const DeathHandler = {
     },
 
     onPlayerDeath(deps = {}) {
-        const heart = this.player.items.find(i => i === 'echo_heart');
-        if (heart && !this._heartUsed) {
-            const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
-            if (DATA.items.echo_heart.passive(this, 'pre_death')) {
-                AudioEngine?.playHeal?.();
-                const updateUI = deps.updateUI || _getWin(deps).updateUI;
-                if (typeof updateUI === 'function') updateUI();
-                return;
-            }
+        const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
+        const preDeathResult = this.triggerItems?.('pre_death');
+        if (preDeathResult === true) {
+            AudioEngine?.playHeal?.();
+            const updateUI = deps.updateUI || _getWin(deps).updateUI;
+            if (typeof updateUI === 'function') updateUI();
+            return;
         }
 
         const win = _getWin(deps);
         const doc = _getDoc(deps);
-
-        const AudioEngine = deps.audioEngine || win.AudioEngine;
         const ScreenShake = deps.screenShake || win.ScreenShake;
         const ParticleSystem = deps.particleSystem || win.ParticleSystem;
 

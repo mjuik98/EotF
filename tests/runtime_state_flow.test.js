@@ -160,6 +160,39 @@ describe('runtime state flow guards', () => {
     expect(gs.stats.cardsPlayed).toBe(1);
   });
 
+  it('fires card_play item trigger after successful card play', () => {
+    const cardId = 'runtime_item_hook_card';
+    const triggerItems = vi.fn();
+    const gs = createPlayableState(cardId, { triggerItems });
+
+    GAME.Data = {
+      cards: {
+        [cardId]: {
+          id: cardId,
+          name: 'Item Hook Probe',
+          cost: 2,
+          effect: () => {},
+        },
+      },
+    };
+    GAME.Modules = {
+      CardCostUtils,
+      ClassMechanics: {},
+      HudUpdateUI: { processDirtyFlags: vi.fn() },
+    };
+    GAME.getDeps = () => ({
+      getBaseRegionIndex: () => 0,
+      renderCombatCards: vi.fn(),
+    });
+
+    const discardSpy = vi.spyOn(GameAPI, 'discardCard').mockImplementation(() => {});
+    const played = GameAPI.playCard(cardId, 0, gs);
+
+    expect(played).toBe(true);
+    expect(discardSpy).toHaveBeenCalledTimes(1);
+    expect(triggerItems).toHaveBeenCalledWith('card_play', { cardId, cost: 2 });
+  });
+
   it('does not consume a next-card discount granted by the card being played', () => {
     const cardId = 'tempo_like_card';
     const gs = createPlayableState(cardId, {
@@ -198,6 +231,45 @@ describe('runtime state flow guards', () => {
     expect(discardSpy).toHaveBeenCalledTimes(1);
     expect(gs.player.energy).toBe(1);
     expect(gs.player._nextCardDiscount).toBe(1);
+  });
+
+  it('applies before_card_cost item hook before energy check', () => {
+    const cardId = 'runtime_cost_hook_card';
+    const triggerItems = vi.fn((trigger) => (trigger === 'before_card_cost' ? -1 : undefined));
+    const gs = createPlayableState(cardId, {
+      player: {
+        energy: 1,
+      },
+      triggerItems,
+    });
+
+    GAME.Data = {
+      cards: {
+        [cardId]: {
+          id: cardId,
+          name: 'Coupon Check',
+          cost: 2,
+          effect: () => {},
+        },
+      },
+    };
+    GAME.Modules = {
+      CardCostUtils,
+      ClassMechanics: {},
+      HudUpdateUI: { processDirtyFlags: vi.fn() },
+    };
+    GAME.getDeps = () => ({
+      getBaseRegionIndex: () => 0,
+      renderCombatCards: vi.fn(),
+    });
+
+    const discardSpy = vi.spyOn(GameAPI, 'discardCard').mockImplementation(() => {});
+    const played = GameAPI.playCard(cardId, 0, gs);
+
+    expect(played).toBe(true);
+    expect(triggerItems).toHaveBeenCalledWith('before_card_cost', { cardId, cost: 2, baseCost: 2 });
+    expect(discardSpy).toHaveBeenCalledTimes(1);
+    expect(gs.player.energy).toBe(0);
   });
 
   it('passes deps through dealDamageAll to each damage call', () => {

@@ -97,11 +97,15 @@ export const Reducers = {
     },
 
     [Actions.PLAYER_ENERGY](gs, { amount }) {
+        const prevEnergy = Number(gs.player.energy || 0);
         if (amount > 0 && typeof gs.triggerItems === 'function') {
             const scaled = gs.triggerItems('energy_gain', { amount });
             if (typeof scaled === 'number' && Number.isFinite(scaled)) amount = scaled;
         }
         gs.player.energy = Math.max(0, gs.player.energy + amount);
+        if (amount < 0 && prevEnergy > 0 && gs.player.energy === 0 && typeof gs.triggerItems === 'function') {
+            gs.triggerItems('energy_empty', { previous: prevEnergy, delta: amount });
+        }
         gs.markDirty('hud');
         return { energyAfter: gs.player.energy };
     },
@@ -147,6 +151,9 @@ export const Reducers = {
             }
         } else {
             gs.player.graveyard.push(cardId);
+            if (typeof gs.triggerItems === 'function') {
+                gs.triggerItems('card_discard', { cardId });
+            }
         }
         gs.markDirty('hand');
         return { cardId, exhausted: exhaust };
@@ -155,6 +162,7 @@ export const Reducers = {
     [Actions.CARD_DRAW](gs, { count }) {
         let drewCards = false;
         const previousHandLength = gs.player.hand.length;
+        const handCap = Math.max(1, 8 - Math.max(0, Number(gs.player._handCapMinus || 0)));
 
         for (let i = 0; i < count; i++) {
             if (!gs.player.drawPile || gs.player.drawPile.length === 0) {
@@ -172,7 +180,7 @@ export const Reducers = {
                     gs.addLog('🌀 버린 카드 더미를 뽑기 더미로 섞었습니다.', 'system');
                 }
             }
-            if (gs.player.hand.length < 8) {
+            if (gs.player.hand.length < handCap) {
                 const cardId = gs.player.drawPile.pop();
                 gs.player.hand.push(cardId);
                 drewCards = true;

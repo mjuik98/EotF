@@ -24,10 +24,18 @@ export const Trigger = Object.freeze({
 
     ECHO_SKILL: 'echo_skill',
     CHAIN_DMG: 'chain_dmg',
+    CHAIN_GAIN: 'chain_gain',
+    CHAIN_BREAK: 'chain_break',
+    CHAIN_REACH_5: 'chain_reach_5',
     RESONANCE_BURST: 'resonance_burst',
 
     PRE_DEATH: 'pre_death',
     FLOOR_START: 'floor_start',
 
     ENERGY_GAIN: 'energy_gain',
+    ENERGY_EMPTY: 'energy_empty',
+    ECHO_GAIN: 'echo_gain',
+    HEAL_AMOUNT: 'heal_amount',
+    SHIELD_GAIN: 'shield_gain',
+    BEFORE_CARD_COST: 'before_card_cost',
 });

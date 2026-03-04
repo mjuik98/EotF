@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Actions, Reducers } from '../game/core/state_actions.js';
 
 function createBaseState() {
@@ -66,5 +66,19 @@ describe('Reducers', () => {
         expect(gs.player.graveyard.length).toBe(0);
         expect(gs.isDirty('hand')).toBe(true);
     });
-});
 
+    it('CARD_DISCARD dispatches correct item trigger by discard type', () => {
+        const gs = createBaseState();
+        gs.triggerItems = vi.fn();
+
+        gs.player.hand = ['strike'];
+        Reducers[Actions.CARD_DISCARD](gs, { cardId: 'strike', exhaust: false });
+        expect(gs.player.graveyard).toContain('strike');
+        expect(gs.triggerItems).toHaveBeenCalledWith('card_discard', { cardId: 'strike' });
+
+        gs.player.hand = ['defend'];
+        Reducers[Actions.CARD_DISCARD](gs, { cardId: 'defend', exhaust: true });
+        expect(gs.player.exhausted).toContain('defend');
+        expect(gs.triggerItems).toHaveBeenCalledWith('card_exhaust', { cardId: 'defend' });
+    });
+});

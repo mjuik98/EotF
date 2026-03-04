@@ -40,7 +40,7 @@ export const DamageSystem = {
         const echoBerserk = this.getBuff?.('echo_berserk');
         if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
 
-        if (this.getBuff?.('vanish')) {
+        if (this.getBuff?.('vanish') || this.getBuff?.('focus') || this.getBuff?.('critical_turn')) {
             dmg = Math.floor(dmg * 2);
         }
 
@@ -96,10 +96,12 @@ export const DamageSystem = {
         if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
         const echoBerserk = this.getBuff('echo_berserk');
         if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
-        if (this.getBuff('vanish')) {
+        if (this.getBuff('vanish') || this.getBuff('focus') || this.getBuff('critical_turn')) {
             dmg = Math.floor(dmg * 2);
-            delete this.player.buffs['vanish'];
-            // 기존 로그 삭제 (아래 dealDamage 로그에서 통합 처리)
+            if (!this.getBuff('critical_turn')) {
+                delete this.player.buffs['vanish'];
+                delete this.player.buffs['focus'];
+            }
         }
         if (enemy.statusEffects?.immune > 0) {
             this.addLog(LogUtils.formatEcho(`🏛️ ${enemy.name}은(는) 무적 상태!`), 'echo');
@@ -153,7 +155,10 @@ export const DamageSystem = {
         }
 
         if (!noChain) {
-            this.player.echoChain++;
+            const prevChain = this.player.echoChain || 0;
+            this.player.echoChain = prevChain + 1;
+            this.triggerItems?.('chain_gain', { chain: this.player.echoChain });
+            if (prevChain < 5 && this.player.echoChain >= 5) this.triggerItems?.('chain_reach_5', { chain: this.player.echoChain });
             this.addEcho(10);
             const win = _getWin(deps);
             // 전투 라이프사이클을 통해 UI와 버스트 로직(5돌파) 트리거
@@ -189,7 +194,7 @@ export const DamageSystem = {
             } else {
                 const _card = this._currentCard;
                 if (_card) {
-                    const isCrit = !!this.getBuff('vanish') || result?.isCrit;
+                    const isCrit = !!(this.getBuff('vanish') || this.getBuff('focus') || this.getBuff('critical_turn')) || result?.isCrit;
                     if (isCrit) {
                         this.addLog(LogUtils.formatCardCritical(_card.name, enemy.name, totalDmg), 'card-log');
                     } else {
@@ -198,6 +203,15 @@ export const DamageSystem = {
                 } else {
                     this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
                 }
+            }
+        }
+
+        // 흡혈 처리
+        const ls = this.getBuff('lifesteal');
+        if (ls && ls.percent && totalDmg > 0) {
+            const healAmt = Math.floor(totalDmg * (ls.percent / 100));
+            if (healAmt > 0) {
+                this.heal(healAmt, { name: '흡혈', type: 'buff' });
             }
         }
         this.markDirty('enemies');
@@ -225,6 +239,12 @@ export const DamageSystem = {
         if (this.runConfig?.curse === 'fatigue' || this.meta?.runConfig?.curse === 'fatigue') {
             actual = Math.max(0, amount - 10);
             if (actual < amount && typeof this.addLog === 'function') this.addLog('📉 피로의 저주: 방어막 획득 감소 (-10)', 'system');
+        }
+        if (typeof this.triggerItems === 'function') {
+            const scaled = this.triggerItems('shield_gain', actual);
+            if (typeof scaled === 'number' && Number.isFinite(scaled)) {
+                actual = Math.max(0, Math.floor(scaled));
+            }
         }
 
         this.dispatch(Actions.PLAYER_SHIELD, { amount: actual });

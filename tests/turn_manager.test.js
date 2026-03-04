@@ -36,6 +36,8 @@ describe('TurnManager dodge handling', () => {
   it('keeps dodge until enemy turn when ending player turn', () => {
     const gs = createTurnState();
     gs.player.buffs.dodge = { stacks: 1 };
+    gs.player.echoChain = 3;
+    gs.triggerItems = vi.fn();
 
     const result = TurnManager.endPlayerTurnLogic(gs, { cards: {} }, {
       canPlayFn: () => false,
@@ -43,6 +45,8 @@ describe('TurnManager dodge handling', () => {
 
     expect(result).not.toBeNull();
     expect(gs.player.buffs.dodge?.stacks).toBe(1);
+    expect(gs.triggerItems).toHaveBeenCalledWith('turn_end');
+    expect(gs.triggerItems).toHaveBeenCalledWith('chain_break', { chain: 3 });
   });
 
   it('consumes dodge and prevents damage on enemy attack', () => {

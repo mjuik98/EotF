@@ -96,7 +96,7 @@ export const GameAPI = {
     executePlayerDraw(gs = GAME.State) {
         if (!gs.combat?.active || !gs.combat?.playerTurn) return false;
 
-        const maxHand = 8;
+        const maxHand = Math.max(1, 8 - Math.max(0, Number(gs.player._handCapMinus || 0)));
         if (gs.player.hand.length >= maxHand) {
             gs.addLog?.(`⚠️ 손패가 가득 찼습니다 (최대 ${maxHand}장)`, 'damage');
             GAME.Audio?.playHit?.();
@@ -160,7 +160,13 @@ export const GameAPI = {
 
             const cardCostUtils = GAME.Modules?.['CardCostUtils'];
             const nextCardDiscountBeforePlay = Number(gs.player._nextCardDiscount || 0);
-            const cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
+            let cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
+            if (typeof gs.triggerItems === 'function') {
+                const delta = gs.triggerItems('before_card_cost', { cardId, cost, baseCost: card.cost });
+                if (typeof delta === 'number' && Number.isFinite(delta)) {
+                    cost = Math.max(0, Math.floor(cost + delta));
+                }
+            }
             if (gs.player.energy < cost) {
                 Logger.warn('Not enough energy.');
                 gs.combat._isPlayingCard = false;
@@ -223,6 +229,9 @@ export const GameAPI = {
             if (cm && typeof cm.onPlayCard === 'function') {
                 cm.onPlayCard(gs, { cardId });
             }
+
+            // 카드 사용 기반 유물 트리거
+            gs.triggerItems?.('card_play', { cardId, cost });
 
             // 5연쇄 이상일 때 매 카드마다 공명 폭발 발동
             if (gs.player.echoChain >= 5) {

@@ -11,10 +11,18 @@ export const PlayerMethods = {
         if (this._currentCard) {
             this._echoAddedThisAction = true;
         }
-        this.commit(Actions.PLAYER_ECHO, { amount });
+        let adjusted = amount;
+        if (adjusted > 0 && typeof this.triggerItems === 'function') {
+            const scaled = this.triggerItems('echo_gain', { amount: adjusted, source });
+            if (typeof scaled === 'number' && Number.isFinite(scaled)) {
+                adjusted = Math.max(0, Math.floor(scaled));
+            }
+        }
+
+        this.commit(Actions.PLAYER_ECHO, { amount: adjusted });
         if (source && source.name) {
             const icon = source.type === 'item' ? '💍' : '✨';
-            this.addLog(`${icon} ${source.name}: 잔향 +${amount}`, 'echo');
+            this.addLog(`${icon} ${source.name}: 잔향 +${adjusted}`, 'echo');
         }
         const updateEchoSkillBtn = globalThis.updateEchoSkillBtn;
         if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
@@ -38,6 +46,12 @@ export const PlayerMethods = {
         let adjusted = RunRules.getHealAmount(this, amount);
         if ((this.getBuff('cursed')?.stacks || 0) > 0) {
             adjusted = Math.max(0, Math.floor(adjusted * 0.7));
+        }
+        if (typeof this.triggerItems === 'function') {
+            const scaled = this.triggerItems('heal_amount', adjusted);
+            if (typeof scaled === 'number' && Number.isFinite(scaled)) {
+                adjusted = Math.max(0, Math.floor(scaled));
+            }
         }
 
         const result = this.commit(Actions.PLAYER_HEAL, { amount: adjusted });
@@ -63,6 +77,17 @@ export const PlayerMethods = {
 
     addBuff(id, stacks, data = {}) {
         this.commit(Actions.PLAYER_BUFF, { id, stacks, data });
+    },
+
+    applyPlayerStatus(status, stacks = 1, source = null) {
+        if (!status || stacks <= 0) return;
+        this.addBuff(status, stacks, {});
+        if (source && source.name) {
+            const icon = source.type === 'item' ? '💍' : '✨';
+            this.addLog(`${icon} ${source.name}: ${status} ${stacks}턴`, 'damage');
+        } else {
+            this.addLog(LogUtils.formatStatus('플레이어', status, stacks), 'damage');
+        }
     },
 
     getBuff(id) { return this.player.buffs[id] || null; },

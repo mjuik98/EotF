@@ -54,4 +54,14 @@ describe('New Relic Triggers', () => {
         expect(gs.triggerItems).not.toHaveBeenCalledWith('energy_gain', expect.anything());
         expect(gs.player.energy).toBe(2);
     });
+
+    it('PLAYER_ENERGY reaching zero should trigger energy_empty', () => {
+        const gs = createBaseState();
+        gs.player.energy = 1;
+
+        Reducers[Actions.PLAYER_ENERGY](gs, { amount: -1 });
+
+        expect(gs.triggerItems).toHaveBeenCalledWith('energy_empty', { previous: 1, delta: -1 });
+        expect(gs.player.energy).toBe(0);
+    });
 });
