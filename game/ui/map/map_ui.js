@@ -141,6 +141,15 @@ function _bindMinimapHover(canvas) {
     _updateMinimapHint(canvas, null, nodeMeta);
   });
 
+  canvas.addEventListener('click', () => {
+    if (typeof MapUI.showFullMap === 'function') {
+      // deps가 여기서 직접 전달되지 않으므로, 
+      // renderMinimap에서 저장해둔 deps를 활용하거나 전역 GS 사용
+      const gs = globalThis.GS || window.GS;
+      MapUI.showFullMap({ gs, doc: document });
+    }
+  });
+
   canvas.addEventListener('mouseleave', () => {
     canvas.style.cursor = 'default';
     _updateMinimapHint(canvas, null, canvas._minimapNodeMeta || {});

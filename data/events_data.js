@@ -1,5 +1,5 @@
 /**
- * events_data.js — 이벤트, 스토리 фраг먼트, 사망 명언
+ * events_data.js — 이벤트, 스토리 프래그먼트, 사망 명언
  */
 import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
@@ -9,59 +9,132 @@ import { AudioEngine } from '../engine/audio.js';
 export const EVENTS = [
     {
         id: 'wanderer', layer: 1, title: '방랑자의 흔적', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '낡은 여행 가방 하나가 나뭇가지에 걸려 있다.',
+        desc: '나뭇가지에 가방 하나가 걸려 있다. 누군가 두고 간 것인지, 아니면 던져버린 것인지. 혹은 — 당신이 먼저 이 길을 걸었는지.',
         choices: [
-            { text: '🎒 가방을 열어본다', effect(gs) { gs.addGold(20); gs.addLog(LogUtils.formatStatChange('플레이어', '골드', 20), 'heal'); return '오래된 동전들이 쏟아졌다.'; } },
-            { text: '🚶 조용히 지나간다', effect(gs) { gs.addEcho(15); gs.addLog(LogUtils.formatEcho('잔향 +15'), 'echo'); return '조심성이 잔향을 강화했다.'; } },
+            {
+                text: '🎒 손이 먼저 움직인다',
+                effect(gs) {
+                    gs.addGold(20);
+                    gs.addLog(LogUtils.formatStatChange('플레이어', '골드', 20), 'heal');
+                    return '낡은 동전들이 쏟아진다. 누군가의 마지막 재산이었을 것이다. 지금은 당신의 것이다.';
+                }
+            },
+            {
+                text: '🚶 못 본 척 지나간다',
+                effect(gs) {
+                    gs.addEcho(15);
+                    gs.addLog(LogUtils.formatEcho('잔향 +15'), 'echo');
+                    return '가방은 당신을 보았다. 당신은 가방을 보지 않았다. 그 선택이 잔향으로 쌓인다.';
+                }
+            },
         ]
     },
     {
         id: 'echo_shrine', layer: 1, title: '잔향의 제단', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '희미한 빛을 내뿜는 제단이 당신의 기억을 자극한다.',
+        desc: '제단이 빛난다. 기억의 색깔로. 당신이 이 앞에 선 것이 처음이 아니라는 사실을, 제단은 알고 있다.',
         choices: [
-            { text: '✨ 에고를 바친다 (체력 -10, 잔향 +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '제단이 당신의 기억을 삼키고 힘을 내뿜는다.'; } },
-            { text: '🚶 조용히 지나간다', effect(gs) { return '제단은 다시 침묵에 잠겼다.'; } }
+            {
+                text: '✨ 제단이 원하는 것을 준다 (체력 -10, 잔향 +50)',
+                effect(gs) {
+                    gs.player.hp = Math.max(1, gs.player.hp - 10);
+                    gs.addEcho(50);
+                    return '제단은 당신의 살 한 점을 먹었다. 대가는 공정하다. 잔향은 거짓말하지 않는다.';
+                }
+            },
+            {
+                text: '🚶 외면한다',
+                effect(gs) {
+                    return '제단이 침묵한다. 무언가를 기다리는 침묵이다. 다음 루프엔 바칠 수 있을까.';
+                }
+            }
         ]
     },
     {
         id: 'shrine', layer: 1, title: '잔향의 사당', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '고대 사당 앞에 잔향 에너지가 모여 있다.',
+        desc: '사당 앞에 잔향이 고여 있다. 오래된 것들이 기도하다 흘린 에너지가 이곳에 남아 있다. 신은 없다. 잔향만 있다.',
         choices: [
-            { text: '❤️ 체력을 제물로 (체력 -10 → 잔향 +50)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addEcho(50); return '잔향 게이지가 타오른다.'; } },
             {
-                text: '💰 골드를 제물로 (15골드 → 체력 +20)', effect(gs) {
-                    if (gs.player.hp >= gs.player.maxHp) return '이미 체력이 가득 차 있습니다.';
-                    if (gs.player.gold >= 15) { gs.player.gold -= 15; gs.heal(20); return '신성한 치유의 빛이 감쌌다.'; }
-                    return '골드가 부족하다.';
+                text: '❤️ 피를 바친다 (체력 -10 → 잔향 +50)',
+                effect(gs) {
+                    gs.player.hp = Math.max(1, gs.player.hp - 10);
+                    gs.addEcho(50);
+                    return '피가 제단석에 닿는 순간, 잔향이 타오른다. 몸이 더 가벼워진 건지 가벼워진 척하는 건지.';
                 }
             },
-            { text: '🚶 조용히 지나간다', effect(gs) { return '사당을 지나쳤다.'; } },
+            {
+                text: '💰 동전을 떨어뜨린다 (15골드 → 체력 +20)',
+                effect(gs) {
+                    if (gs.player.hp >= gs.player.maxHp) return '상처가 없다. 신도 쓸모없는 것은 받지 않는다.';
+                    if (gs.player.gold >= 15) {
+                        gs.player.gold -= 15;
+                        gs.heal(20);
+                        return '동전이 빛으로 변했다. 치유가 스며든다. 돈으로 살 수 있는 것들이 있다는 사실이 위안이 되기도, 불편하기도 하다.';
+                    }
+                    return '기억이 얕다. 사당은 빈 손을 원하지 않는다.';
+                }
+            },
+            {
+                text: '🚶 등을 보인다',
+                effect(gs) {
+                    return '사당을 등졌다. 뒤에서 무언가 보는 느낌이 있었지만, 돌아보지 않았다.';
+                }
+            },
         ]
     },
     {
         id: 'merchant_lost', layer: 2, title: '길 잃은 상인', eyebrow: 'LAYER 2 · 연속 이벤트',
-        desc: '잔향 에너지에 길을 잃은 상인을 발견했다. 두려움에 떨고 있다.',
+        desc: '상인이 주저앉아 있다. 잔향 에너지에 방향을 잃었다. 눈이 흐리다. 당신을 보자 입술이 떨렸다 — 두려움인지, 안도인지.',
         choices: [
-            { text: '🤝 상인을 도와준다', effect(gs) { gs.worldMemory.savedMerchant = (gs.worldMemory.savedMerchant || 0) + 1; gs.heal(15); gs.addLog(LogUtils.formatHeal('상인', 15), 'heal'); return '상인은 감사하며 치료약을 건넸다.'; } },
-            { text: '💰 상인의 물건을 빼앗는다', effect(gs) { gs.addGold(30); gs.worldMemory.stoleFromMerchant = true; gs.addLog(LogUtils.formatStatChange('약탈', '골드', 30), 'damage'); return '30골드를 얻었다. 상인의 눈에서 빛이 사라졌다.'; } },
+            {
+                text: '🤝 손을 내민다',
+                effect(gs) {
+                    gs.worldMemory.savedMerchant = (gs.worldMemory.savedMerchant || 0) + 1;
+                    gs.heal(15);
+                    gs.addLog(LogUtils.formatHeal('상인', 15), 'heal');
+                    return '상인은 치료약을 내밀었다. 말은 없었다. 이 표정을 어디선가 본 것 같다 — 당신이 구해준 것이 이번이 처음이 아닌 것처럼.';
+                }
+            },
+            {
+                text: '💰 빼앗는다',
+                effect(gs) {
+                    gs.addGold(30);
+                    gs.worldMemory.stoleFromMerchant = true;
+                    gs.addLog(LogUtils.formatStatChange('약탈', '골드', 30), 'damage');
+                    return '동전 서른 닢. 상인은 저항하지 않았다. 세계는 이 선택을 기억한다. 당신도 기억하게 될 것이다.';
+                }
+            },
         ]
     },
     {
         id: 'echo_resonance', layer: 1, title: '잔향 공명', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '공기 중에 강한 에코 에너지가 감지된다.',
+        desc: '공기가 진동한다. 누군가 이 길을 걸었다 — 아마 당신 자신이. 에너지는 발걸음을 기억하고, 기억은 에너지가 된다.',
         choices: [
-            { text: '⚡ 에너지를 흡수한다', effect(gs) { gs.addEcho(60); return '잔향 게이지가 요동쳤다!'; } },
-            { text: '🃏 에너지를 카드로 변환', effect(gs) { const c = gs.getRandomCard('rare'); gs.player.deck.push(c); return `에너지가 카드로 응결: ${CARDS[c]?.name}`; } },
+            {
+                text: '⚡ 흡수당한다',
+                effect(gs) {
+                    gs.addEcho(60);
+                    return '잔향이 흉곽을 가득 채운다. 다른 루프의 기억들이 잠깐 스쳐 지나갔다. 보이지 않아서 다행이다.';
+                }
+            },
+            {
+                text: '🃏 에너지가 카드를 원한다',
+                effect(gs) {
+                    const c = gs.getRandomCard('rare');
+                    gs.player.deck.push(c);
+                    return `에너지가 응결한다. 기억이 기술이 된다 — ${CARDS[c]?.name}. 배운 적 없는데 손이 먼저 안다.`;
+                }
+            },
         ]
     },
     {
         id: 'forge', layer: 1, title: '잔향의 대장간', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '에코 에너지로 달구어진 대장간이 있다.',
+        desc: '대장간은 아무도 없는데 불이 켜져 있다. 잔향 에너지로 달구어진 화로가 무언가를 기다린다. 아니면 — 당신을 기억하고 있다.',
         choices: [
             {
-                text: '⚒️ 카드를 강화한다', effect(gs) {
+                text: '⚒️ 화로가 원하는 것을 준다',
+                effect(gs) {
                     const upgradable = gs.player.deck.filter(id => window.DATA?.upgradeMap?.[id]);
-                    if (!upgradable.length) return '강화 가능한 카드가 없습니다.';
+                    if (!upgradable.length) return '화로가 식는다. 더 나아질 것이 없다는 뜻인지, 아직 때가 아니라는 뜻인지.';
 
                     const target = upgradable[Math.floor(Math.random() * upgradable.length)];
                     const upgraded = window.DATA.upgradeMap[target];
@@ -70,74 +143,251 @@ export const EVENTS = [
 
                     const originName = window.DATA.cards[target]?.name || '알 수 없음';
                     const newName = window.DATA.cards[upgraded]?.name || '알 수 없음';
-                    return `${originName} → ${newName} 강화!`;
+                    return `${originName}이 불 속에서 다시 태어났다. ${newName}. 같은 카드가 아니다.`;
                 }
             },
-            { text: '🔥 잔향을 충전한다 (잔향 +40)', effect(gs) { gs.addEcho(40); return '잔향이 충전되었다.'; } },
-            { text: '🚶 조용히 지나간다', effect(gs) { return null; } },
+            {
+                text: '🔥 흡수당한다',
+                effect(gs) {
+                    gs.addEcho(40);
+                    return '화로 앞에 서자 잔향이 스며든다. 뜨겁지 않다. 익숙한 온도다.';
+                }
+            },
+            {
+                text: '🚶 보지 않은 척 지나간다',
+                effect(gs) {
+                    return null;
+                }
+            },
         ]
     },
     {
-        id: 'echo_vendor', layer: 1, title: '잔향 자판기', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '낡은 자판기가 벽에 기대어 있다. "잔향 에너지 교환"이라고 적혀 있다.',
+        id: 'echo_scale', layer: 1, title: '기억의 저울', eyebrow: 'LAYER 1 · 우발적 이벤트',
+        desc: '허공에 녹슨 저울 하나가 떠 있다. 한쪽 접시에는 황금이 쌓여 있고, 다른 쪽은 비어 있다. 저울대에는 "기억은 금보다 무겁고, 생명은 그보다 소중하다"는 문구가 새겨져 있다.',
         choices: [
             {
-                text: '💊 체력 회복 (골드 10 → 체력 15)', effect(gs) {
-                    if (gs.player.hp >= gs.player.maxHp) return '이미 체력이 가득 차 있습니다.';
-                    if (gs.player.gold >= 10) { gs.player.gold -= 10; gs.heal(15); return '체력이 회복됐다.'; }
-                    return '골드가 부족하다.';
+                text: '❤️ 생명의 무게 (골드 10 → 체력 15)',
+                effect(gs) {
+                    if (gs.player.hp >= gs.player.maxHp) return '당신의 생명은 이미 가득 차 있다. 저울이 불균형하게 흔들리다 멈춘다.';
+                    if (gs.player.gold >= 10) {
+                        gs.player.gold -= 10;
+                        gs.heal(15);
+                        return '금화가 사라지고 빈 접시에 온기가 차오른다. 치유의 기억이 몸을 감싼다.';
+                    }
+                    return '저울은 빈 손을 허락하지 않는다. 차가운 금속성 소리만 들릴 뿐이다.';
                 }
             },
-            { text: '⚡ 잔향 구매 (골드 8 → 잔향 30)', effect(gs) { if (gs.player.gold >= 8) { gs.player.gold -= 8; gs.addEcho(30); return '잔향이 충전됐다.'; } return '골드가 부족하다.'; } },
-            { text: '🃏 카드 구매 (골드 15 → 랜덤 카드)', effect(gs) { if (gs.player.gold >= 15) { gs.player.gold -= 15; const c = gs.getRandomCard('uncommon'); gs.player.deck.push(c); AudioEngine.playItemGet(); return `${CARDS[c]?.name} 카드를 얻었다.`; } return '골드가 부족하다.'; } },
-            { text: '🚶 조용히 지나간다', effect() { return null; } },
+            {
+                text: '⚡ 잔향의 평형 (골드 8 → 잔향 30)',
+                effect(gs) {
+                    if (gs.player.gold >= 8) {
+                        gs.player.gold -= 8;
+                        gs.addEcho(30);
+                        return '금화를 올리자 저울이 수평을 이룬다. 그 찰나의 평형 속에서 순수한 잔향이 흘러나온다.';
+                    }
+                    return '대가가 부족하다. 저울은 요지부동이다.';
+                }
+            },
+            {
+                text: '📜 지식의 등가교환 (골드 15 → 랜덤 카드 추가)',
+                effect(gs) {
+                    if (gs.player.gold >= 15) {
+                        gs.player.gold -= 15;
+                        const c = gs.getRandomCard();
+                        gs.player.deck.push(c);
+                        AudioEngine.playItemGet();
+                        return `금화 한 자루가 사라지고, 대신 빛바랜 ${CARDS[c]?.name} 카드가 나타났다. 공정한 거래였다.`;
+                    }
+                    return '저울 너머로 환상적인 지식이 보이지만, 당신이 가진 금만큼은 아니다.';
+                }
+            },
+            {
+                text: '🚶 조용히 지나간다',
+                effect() {
+                    return null;
+                }
+            },
         ]
     },
     {
         id: 'silent_pool', layer: 1, title: '침묵의 웅덩이', eyebrow: 'LAYER 2 · 신비한 이벤트',
-        desc: '잔향 에너지가 고인 웅덩이가 빛나고 있다.',
+        desc: '잔향이 고여 웅덩이가 됐다. 수면이 거울처럼 당신을 비추는데 — 반사된 얼굴이 이쪽을 먼저 보고 있었다.',
         choices: [
-            { text: '🌊 웅덩이를 마신다 (HP -5, 덱에 레어 카드)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 5); const c = gs.getRandomCard('rare'); gs.player.deck.push(c); return `${CARDS[c]?.name} 카드를 얻었다. 혀가 타는 듯하다.`; } },
-            { text: '🔮 관찰만 한다 (Echo +30)', effect(gs) { gs.addEcho(30); return '잔향 에너지를 흡수했다.'; } },
+            {
+                text: '🍵 들이킨다 (HP -10, 덱에 비범 카드 추가)',
+                effect(gs) {
+                    gs.player.hp = Math.max(1, gs.player.hp - 10);
+                    const c = gs.getRandomCard('uncommon');
+                    gs.player.deck.push(c);
+                    return `목구멍이 서늘하다. 온전한 기억이 아닌, 파편화된 기술이 뇌리에 박힌다. ${CARDS[c]?.name}을(를) 배웠다.`;
+                }
+            },
+            {
+                text: '🌊 삼켜진다 (HP -20, 덱에 레어 카드 추가)',
+                effect(gs) {
+                    gs.player.hp = Math.max(1, gs.player.hp - 20);
+                    const c = gs.getRandomCard('rare');
+                    gs.player.deck.push(c);
+                    return `${CARDS[c]?.name}. 혀가 타는 것 같다. 하지만 손에 카드가 있다. 누군가의 기억을 마신 것이다.`;
+                }
+            },
+            {
+                text: '🔮 관찰만 한다 (Echo +30)',
+                effect(gs) {
+                    gs.addEcho(30);
+                    return '마시지 않았다. 바라보기만 했다. 잔향이 눈을 통해 스며든다. 이쪽이 더 안전한지는 모르겠다.';
+                }
+            },
         ]
     },
     {
         id: 'lost_memory', layer: 2, title: '잃어버린 기억', eyebrow: 'LAYER 2 · 연속 이벤트',
-        desc: '흐릿한 기억의 조각이 떠돌고 있다. 집중하면 흡수할 수 있을 것 같다.',
+        desc: '기억의 조각이 허공에 떠 있다. 누구의 것인지 알 수 없다. 하지만 손을 뻗으면 닿는다. 그것이 이미 답인지도 모른다.',
         choices: [
-            { text: '🧠 기억을 흡수한다 (골드 +25, 잔향 +20)', effect(gs) { gs.addGold(25); gs.addEcho(20); return '기억의 파편이 힘으로 변환됐다.'; } },
-            { text: '💭 기억을 방류한다 (체력 +15)', effect(gs) { gs.heal(15); return '기억은 바람이 되어 사라졌다. 마음이 가벼워졌다.'; } },
+            {
+                text: '🧠 남의 기억을 집어삼킨다 (골드 +25, 잔향 +20)',
+                effect(gs) {
+                    gs.addGold(25);
+                    gs.addEcho(20);
+                    return '남의 기억이 당신 안으로 들어온다. 낯선데 익숙하다. 이 모순에 이제 놀라지 않는다는 것이 더 이상하다.';
+                }
+            },
+            {
+                text: '💭 놓아준다 (체력 +15)',
+                effect(gs) {
+                    gs.heal(15);
+                    return '기억을 보내줬다. 바람이 됐다. 몸이 가벼워진다. 기억을 쥐는 것보다 놓는 것이 때로 더 많은 것을 남긴다.';
+                }
+            },
         ]
     },
     {
         id: 'void_crack', layer: 2, title: '허공의 균열', eyebrow: 'LAYER 2 · 위험한 이벤트',
-        desc: '공간이 갈라져 있다. 저쪽에는 무언가가 있는 것 같다.',
+        desc: '공간이 찢겨 있다. 균열 너머로 무언가가 있다. 빛인지 어둠인지 판단이 서지 않는다. 당신이 이미 저편에서 이쪽을 보고 있는 것 같기도 하다.',
         choices: [
-            { text: '🌀 균열을 통과한다 (체력 -20, 아이템 1개)', effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 20); const itemsList = Object.keys(ITEMS); const item = itemsList[Math.floor(Math.random() * itemsList.length)]; gs.player.items.push(item); AudioEngine.playItemGet(); if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(ITEMS[item]); return `${ITEMS[item].name}을 얻었다. 몸이 떨린다.`; } },
-            { text: '🚶 위험하다, 돌아간다', effect(gs) { return '안전한 길을 선택했다.'; } },
+            {
+                text: '🌀 균열이 삼키는 대로 둔다 (체력 -20, 아이템 1개)',
+                effect(gs) {
+                    gs.player.hp = Math.max(1, gs.player.hp - 20);
+                    const itemsList = Object.keys(ITEMS);
+                    const item = itemsList[Math.floor(Math.random() * itemsList.length)];
+                    gs.player.items.push(item);
+                    AudioEngine.playItemGet();
+                    if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(ITEMS[item]);
+                    return `${ITEMS[item].name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
+                }
+            },
+            {
+                text: '🚶 아직은 아니다',
+                effect(gs) {
+                    return '돌아섰다. 균열이 천천히 닫혔다. 아니, 당신을 기다리고 있는 것일 수도 있다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'cartographer', layer: 1, title: '지도 제작자의 잔향', eyebrow: 'LAYER 1 · 탐색 이벤트',
+        desc: '낡은 양피지가 허공을 떠돌고 있다. 잔향 에너지를 먹은 선들이 살아 움직인다. 지도가 당신을 따라 변하는 것인지, 당신이 지도를 따라 변한 것인지. 둘 다일 수도 있다.',
+        choices: [
+            {
+                text: '🧩 눈에 새긴다 (20골드 획득, 잔향 +15)',
+                effect(gs) {
+                    gs.addGold(20);
+                    gs.addEcho(15);
+                    return '선들이 뇌리에 박혔다. 이 길을 걸은 자가 남긴 것인지, 내가 이미 걸었던 것인지. 판단하기 전에 몸이 먼저 움직이고 있었다.';
+                }
+            },
+            {
+                text: '👁️ 지도가 원하는 대로 얽힌다 (골드 15 소모, 잔향 +40)',
+                effect(gs) {
+                    if (gs.player.gold < 15) return '동기화에 필요한 것이 없다. 지도가 당신을 거부한다. 아직은.';
+                    gs.player.gold -= 15;
+                    gs.addEcho(40);
+                    return '지도의 잔향과 당신의 것이 뒤섞인다. 위험한 것들이 진동으로 느껴진다. 이 감각이 선물인지 저주인지, 지금은 알 수 없다.';
+                }
+            },
+            {
+                text: '🚶 못 본 척 지나간다',
+                effect() { return null; }
+            }
+        ]
+    },
+    {
+        id: 'lookout', layer: 1, title: '감시자의 망루', eyebrow: 'LAYER 1 · 탐색 이벤트',
+        desc: '정체불명의 구조물 꼭대기에 올라섰다. 아래가 보인다. 다음 구역의 잔향 흐름이 한눈에 들어온다. 여기서 오래 있으면 — 내려가고 싶지 않아질 것 같다.',
+        choices: [
+            {
+                text: '🔍 적들이 보이는 대로 기억한다 (잔향 +20)',
+                effect(gs) {
+                    gs.addEcho(20);
+                    return '움직임이 보인다. 패턴이 보인다. 다음 교전은 내 것이다 — 라고 생각하는 것이 함정일 수도 있다.';
+                }
+            },
+            {
+                text: '💤 고요에 삼켜진다 (HP +20)',
+                effect(gs) {
+                    gs.heal(20);
+                    return '망루가 조용하다. 바람만 있다. 상처가 아무는 것인지 감각이 무뎌지는 것인지 — 구분하지 않기로 했다.';
+                }
+            },
+            {
+                text: '🚶 내려간다',
+                effect() { return null; }
+            }
         ]
     }
 ];
 
 export const STORY_FRAGMENTS = [
-    { id: 1, run: 1, title: '첫 번째 잔향', text: '"눈을 뜬다. 검이 익숙하다. 하지만 이 장소는... 처음인 것 같기도, 아닌 것 같기도 하다."' },
-    { id: 2, run: 2, title: '기억하는 자들', text: '"타락한 기사가 나를 알아보았다. \'또 왔군\'. 그는 이미 내 이름을 알고 있었다."' },
-    { id: 3, run: 3, title: '막으려 했던 것', text: '"대침묵 이전, 나는 신들의 전쟁을 막으려 했다. 그 방법이 — 더 많은 희생을 요구했다."' },
-    { id: 4, run: 4, title: '속삭이는 잔향', text: '"잔향 에너지가 속삭인다: 충분한 기억이 쌓이면, 루프를 끊을 수 있다고. 하지만 그게 진정한 끝인가?"' },
-    { id: 5, run: 5, title: '두 가지 선택', text: '"상인의 눈빛 — 내가 도왔을 때와 빼앗았을 때. 세계는 두 선택 모두 기억한다."' },
-    { id: 6, run: 6, title: '자초한 루프', text: '"신의 무덤에서 발견한 비문: \'잔향자여, 루프를 만든 것은 너다. 대침묵을 막기 위해 시간을 되감은 것은.\'"' },
-    { id: 7, run: 7, title: '진실의 대가', text: '"에코의 핵심에 도달하면 모든 것이 보인다고 한다. 하지만 진실을 알게 되면, 계속 싸울 이유가 있는가?"' },
-    { id: 8, run: 8, title: '잊혀진 이름', text: '"나는 기억한다 — 처음 루프를 시작할 때, 나는 누군가를 구하려 했다. 그 이름을 아직 기억하지 못한다."' },
-    { id: 9, run: 9, title: '세계의 의지', text: '"기억이 돌아왔다. 구하려 했던 것은 사람이 아니었다. 세계 그 자체였다. 하지만 세계는 — 구원받기를 원하는가?"' },
-    { id: 10, run: 10, title: '최후의 선택', text: '"충분히 이해했다. 이제 선택의 시간이다. 루프를 계속할 것인가, 아니면 진짜 끝을 받아들일 것인가."' }
+    {
+        id: 1, run: 1, title: '첫 번째 잔향',
+        text: '"눈을 뜬다. 검의 무게는 기억하는데, 왜 검을 쥐었는지는 기억나지 않는다. 이 장소가 낯선 것인지, 내가 낯선 것인지."'
+    },
+    {
+        id: 2, run: 2, title: '기억하는 자들',
+        text: '"타락한 기사가 나를 알아보았다. \'또 왔군\'. 그는 이미 내 이름을 알고 있었다. 나는 그의 이름을 아직 모른다. 이것이 공평한가."'
+    },
+    {
+        id: 3, run: 3, title: '막으려 했던 것',
+        text: '"대침묵 이전, 나는 신들의 전쟁을 막으려 했다. 그 방법이 더 많은 것을 요구했다. 그 많은 것이 무엇이었는지, 아직 다 기억하지 못했다."'
+    },
+    {
+        id: 4, run: 4, title: '속삭이는 잔향',
+        text: '"잔향이 속삭인다. 충분히 쌓이면 루프를 끊을 수 있다고. 하지만 끊은 뒤에 무엇이 남는지는 말하지 않는다. 그것이 더 두렵다."'
+    },
+    {
+        id: 5, run: 5, title: '두 가지 선택',
+        text: '"상인의 눈빛을 기억한다. 내가 도왔을 때와 빼앗았을 때. 세계는 두 선택 모두를 갖고 있다. 나는 하나만 갖고 있다."'
+    },
+    {
+        id: 6, run: 6, title: '자초한 루프',
+        text: '"신의 무덤에서 비문을 읽었다. \'잔향자여, 루프를 만든 것은 너다.\' 알고 있었다. 다만 기억하고 싶지 않았던 것이다."'
+    },
+    {
+        id: 7, run: 7, title: '진실의 대가',
+        text: '"에코의 핵심에 닿으면 모든 것이 보인다고 한다. 두렵지 않다. 두려운 것은 — 진실을 보고도 계속 싸우고 싶어질까 하는 것이다."'
+    },
+    {
+        id: 8, run: 8, title: '잊혀진 이름',
+        text: '"나는 루프를 시작할 때 누군가를 구하려 했다. 그 이름이 생각나지 않는다. 기억을 이렇게 많이 쌓았는데, 정작 처음의 이유는 없다."'
+    },
+    {
+        id: 9, run: 9, title: '세계의 의지',
+        text: '"기억했다. 사람이 아니었다. 세계였다. 그런데 세계는 — 구원받겠다고 한 적이 없다. 구원은 항상 구하는 쪽의 이야기다."'
+    },
+    {
+        id: 10, run: 10, title: '최후의 선택',
+        text: '"이제 안다. 루프를 끊는다는 것은 끝이 아닐 수 있다. 하지만 계속한다는 것도 시작이 아닐 수 있다. 선택의 시간이다. 처음이자 마지막으로."'
+    }
 ];
 
 export const DEATH_QUOTES = [
-    '"이 죽음도 기억이 된다."',
-    '"다음엔... 다르게 선택하겠다."',
-    '"잔향은 사라지지 않는다. 형태가 바뀔 뿐."',
-    '"무엇이 옳은가. 아직 알 수 없다."',
-    '"세계는 내 선택을 기억한다."',
-    '"두려움이 없다. 이미 수백 번 죽었으니."',
-    '"다시, 처음부터."'
+    '"죽음도 잔향을 남긴다. 특히 억울한 것은."',
+    '"처음이 아니다. 그것이 위안인지 저주인지, 이번엔 판단이 서지 않는다."',
+    '"다르게 선택할 수 있었다. 그 생각이 다음 루프까지 간다."',
+    '"잔향은 사라지지 않는다. 형태가 바뀔 뿐이다. 나처럼."',
+    '"세계는 이 죽음을 기억한다. 나는 잊고 싶었는데."',
+    '"두려움이 없다. 이미 수백 번 죽었으니. 그게 두렵다."',
+    '"아직 기억하지 못한 이름이 있다. 죽기 전에 찾고 싶었다."',
+    '"다시. 처음이 아닌 처음부터."',
 ];

@@ -186,6 +186,46 @@ function _renderItemOption(container, item, deps, onPick, idx) {
   container.appendChild(wrapper);
 }
 
+function _renderBlessingOption(container, blessing, deps, onPick, idx) {
+  const doc = _getDoc(deps);
+  if (!blessing) return;
+
+  const wrapper = doc.createElement('button');
+  wrapper.type = 'button';
+  wrapper.className = 'reward-card-wrapper';
+  wrapper.style.animationDelay = `${idx * 0.08}s`;
+  wrapper.setAttribute('aria-label', `${blessing.name} 축복 선택`);
+
+  const cardEl = doc.createElement('div');
+  cardEl.className = 'card rarity-rare'; // 축복은 희귀 등급 스타일 적용
+  cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;border-color:var(--glow);box-shadow: 0 0 15px var(--glow);';
+
+  const icon = doc.createElement('div');
+  icon.className = 'card-icon';
+  icon.style.fontSize = '40px';
+  icon.textContent = blessing.icon || '✨';
+
+  const name = doc.createElement('div');
+  name.className = 'card-name reward-card-name';
+  name.textContent = blessing.name;
+
+  const desc = doc.createElement('div');
+  desc.className = 'card-desc reward-card-desc';
+  desc.textContent = blessing.desc;
+
+  const type = doc.createElement('div');
+  type.className = 'card-type reward-card-type rarity-rare';
+  type.textContent = '축복';
+
+  cardEl.append(icon, name, desc, type);
+  wrapper.appendChild(cardEl);
+  wrapper.addEventListener('click', () => {
+    _markRewardSelection(container, wrapper);
+    onPick?.();
+  });
+  container.appendChild(wrapper);
+}
+
 const REWARD_CLAIM_KEY = 'reward:claim';
 const REWARD_SKIP_KEY = 'reward:skip';
 
@@ -255,6 +295,17 @@ export const RewardUI = {
       _renderRewardCardOption(container, cardId, data, deps, () => this.takeRewardCard(cardId, deps), idx);
     });
 
+    // --- 축복(Blessing) 보상 추가 ---
+    // 보스/미니보스는 확정, 일반 전투는 30% 확률
+    const shouldOfferBlessing = isBoss || isMiniBoss || Math.random() < 0.3;
+    if (shouldOfferBlessing) {
+      const blessingHp = { id: 'blessing_hp', name: '영구적인 활력', icon: '❤️', desc: '최대 체력이 영구적으로 20 증가합니다.', type: 'hp', amount: 20 };
+      const blessingEnergy = { id: 'blessing_energy', name: '영구적인 기운', icon: '⚡', desc: '최대 에너지가 영구적으로 1 증가합니다.', type: 'energy', amount: 1 };
+
+      _renderBlessingOption(container, blessingHp, deps, () => this.takeRewardBlessing(blessingHp, deps), rewardCards.length);
+      _renderBlessingOption(container, blessingEnergy, deps, () => this.takeRewardBlessing(blessingEnergy, deps), rewardCards.length + 1);
+    }
+
     const shouldOfferItem = isBoss || isMiniBoss || Math.random() < 0.3;
     if (shouldOfferItem) {
       const targetRarity = isBoss ? ['boss', 'legendary', 'rare'] : (isMiniBoss ? ['rare', 'legendary'] : ['common', 'uncommon']);
@@ -266,11 +317,34 @@ export const RewardUI = {
         : Object.values(data.items || {}).filter((item) => !gs.player.items.includes(item.id));
       if (itemPool.length > 0) {
         const item = itemPool[Math.floor(Math.random() * itemPool.length)];
-        _renderItemOption(container, item, deps, () => this.takeRewardItem(item.id, deps), rewardCards.length);
+        _renderItemOption(container, item, deps, () => this.takeRewardItem(item.id, deps), rewardCards.length + (shouldOfferBlessing ? 2 : 0));
       }
     }
 
     deps.switchScreen?.('reward');
+  },
+
+  takeRewardBlessing(blessing, deps = {}) {
+    const gs = _getGS(deps);
+    if (!gs) return;
+
+    return runIdempotent(REWARD_CLAIM_KEY, () => {
+      if (gs._rewardLock) return;
+      gs._rewardLock = true;
+
+      const doc = _getDoc(deps);
+      doc.getElementById('rewardCards')?.classList.add('picked');
+
+      if (blessing.type === 'hp') {
+        gs.dispatch('player:max_hp_growth', { amount: blessing.amount });
+      } else if (blessing.type === 'energy') {
+        gs.dispatch('player:max_energy_growth', { amount: blessing.amount });
+      }
+
+      deps.playItemGet?.();
+      deps.showItemToast?.({ name: blessing.name, icon: blessing.icon, desc: blessing.desc });
+      setTimeout(() => deps.returnToGame?.(true), 350);
+    }, { ttlMs: 3000 });
   },
 
   takeRewardCard(cardId, deps = {}) {

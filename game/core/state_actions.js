@@ -21,6 +21,7 @@ export const Actions = {
     PLAYER_SILENCE: 'player:silence',
     PLAYER_BUFF: 'player:buff',
     PLAYER_MAX_HP_GROWTH: 'player:max_hp_growth',
+    PLAYER_MAX_ENERGY_GROWTH: 'player:max_energy_growth',
     PLAYER_DEATH: 'player:death',
 
     // Card
@@ -150,6 +151,19 @@ export const Reducers = {
         }
         gs.markDirty('hud');
         return { maxHpAfter: player.maxHp, hpAfter: player.hp };
+    },
+
+    [Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount }) {
+        const player = gs.player;
+        player.maxEnergy = Math.max(1, player.maxEnergy + amount);
+        // 에너지 증가 시 현재 에너지도 보정
+        if (amount > 0) {
+            player.energy = Math.min(player.maxEnergy, player.energy + amount);
+        } else {
+            player.energy = Math.min(player.maxEnergy, player.energy);
+        }
+        gs.markDirty('hud');
+        return { maxEnergyAfter: player.maxEnergy, energyAfter: player.energy };
     },
 
     [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {

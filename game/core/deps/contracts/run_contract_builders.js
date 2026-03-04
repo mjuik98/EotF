@@ -25,7 +25,7 @@ export function buildRunContractBuilders(ctx) {
         initGameCanvas: refs.initGameCanvas,
         gameLoop: refs.gameLoop,
         requestAnimationFrame: getRaf(),
-        showRunFragment: () => refs.StorySystem?.showRunFragment?.(),
+        showRunFragment: (overrides) => refs.StorySystem?.showRunFragment?.(overrides),
         showWorldMemoryNotice: refs.showWorldMemoryNotice,
       };
     },

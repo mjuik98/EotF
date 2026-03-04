@@ -1,3 +1,5 @@
+import { startEchoRippleDissolve } from '../effects/echo_ripple_transition.js';
+
 function _getGS(deps) {
   return deps?.gs;
 }
@@ -39,58 +41,91 @@ export const StoryUI = {
   showRunFragment(deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);
-    if (!gs?.meta || !data?.storyFragments) return;
+    if (!gs?.meta || !data?.storyFragments) return false;
+
     const run = gs.meta.runCount;
-    const frag = data.storyFragments.find(f => f.run === run);
-    if (!frag || gs.meta.storyPieces.includes(frag.id)) return;
-    gs.meta.storyPieces.push(frag.id);
-    this.displayFragment(frag, deps);
-    if (gs.meta.storyPieces.length > 4) {
+    const frag = data.storyFragments.find((f) => f.run === run);
+    const fallbackFrag = {
+      id: '-',
+      title: '\uC5EC\uC815 \uC2DC\uC791',
+      text: '\uBA54\uC544\uB9AC\uAC00 \uB2E4\uC2DC \uC6B8\uB9B0\uB2E4.\n\uB2E4\uC74C \uCE35\uC73C\uB85C \uB0B4\uB824\uAC00\uB77C.',
+    };
+
+    const pickedFrag = frag || fallbackFrag;
+    const alreadyUnlocked = !!frag && gs.meta.storyPieces.includes(frag.id);
+    if (frag && !alreadyUnlocked) gs.meta.storyPieces.push(frag.id);
+
+    const shown = this.displayFragment(pickedFrag, deps);
+    if (shown === false) return false;
+
+    if (frag && !alreadyUnlocked && gs.meta.storyPieces.length > 4) {
       if (_getInscriptionLevel(gs, 'echo_memory') === 0 && data.inscriptions?.echo_memory) {
         _setInscriptionLevel(gs, 'echo_memory', 1);
         setTimeout(() => {
           if (typeof deps.showWorldMemoryNotice === 'function') {
-            deps.showWorldMemoryNotice('새로운 각인 해금: 잔향의 기억');
+            deps.showWorldMemoryNotice('\uC0C8\uB85C\uC6B4 \uAC01\uC778 \uD574\uAE08: \uC794\uD5A5\uC758 \uAE30\uC5B5');
           }
         }, 300);
       }
     }
 
-    if (gs.meta.storyPieces.length > 7 && !gs.meta._hiddenEndingHinted) {
+    if (frag && !alreadyUnlocked && gs.meta.storyPieces.length > 7 && !gs.meta._hiddenEndingHinted) {
       gs.meta._hiddenEndingHinted = true;
       setTimeout(() => {
         if (typeof deps.showWorldMemoryNotice === 'function') {
-          deps.showWorldMemoryNotice('진실에 가까워지고 있다 — 각인 없이 클리어하라');
+          deps.showWorldMemoryNotice('\uC9C4\uC2E4\uC5D0 \uAC00\uAE4C\uC6CC\uC9C0\uACE0 \uC788\uB2E4 - \uAC01\uC778 \uC5C6\uC774 \uD074\uB9AC\uC5B4\uD558\uB77C');
         }
       }, 500);
     }
+
+    return true;
   },
 
   displayFragment(frag, deps = {}) {
     const doc = _getDoc(deps);
     const el = doc.createElement('div');
-    el.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:2000;animation:fadeIn 1s ease both;';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:28px 20px;box-sizing:border-box;z-index:2000;animation:fadeIn 1s ease both;';
     const head = doc.createElement('div');
-    head.style.cssText = "font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:rgba(123,47,255,0.6);";
-    head.textContent = `FRAGMENT ${frag.id} — ${frag.title}`;
+    head.style.cssText = "font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.32em;color:rgba(123,47,255,0.72);";
+    head.textContent = `FRAGMENT ${frag.id} - ${frag.title}`;
 
     const body = doc.createElement('div');
-    body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(15px,2vw,20px);color:var(--text);max-width:560px;text-align:center;line-height:1.9;animation:fadeInUp 1s ease 0.5s both;opacity:0;";
+    body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(20px,3vw,31px);color:var(--text);max-width:760px;text-align:center;line-height:1.7;animation:fadeInUp 1s ease 0.35s both;opacity:0;";
     body.textContent = frag.text;
 
     const bar = doc.createElement('div');
-    bar.style.cssText = 'width:40px;height:1px;background:var(--echo);animation:fadeInUp 1s ease 1s both;opacity:0;';
+    bar.style.cssText = 'width:72px;height:2px;background:var(--echo);animation:fadeInUp 1s ease 0.75s both;opacity:0;';
 
     const btn = doc.createElement('button');
-    btn.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--text-dim);background:none;border:1px solid var(--border);border-radius:6px;padding:10px 28px;cursor:pointer;animation:fadeInUp 1s ease 1.5s both;opacity:0;transition:all 0.3s;";
-    btn.textContent = '계속';
+    btn.id = 'storyContinueBtn';
+    btn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.16em;color:var(--text-dim);background:rgba(123,47,255,0.16);border:1px solid var(--border);border-radius:8px;padding:13px 36px;cursor:pointer;opacity:1;transition:all 0.3s;";
+    btn.textContent = '\uACC4\uC18D';
     btn.onmouseover = () => { btn.style.color = 'var(--white)'; };
     btn.onmouseout = () => { btn.style.color = 'var(--text-dim)'; };
-    btn.onclick = () => el.remove();
+    let completed = false;
+    const finish = () => {
+      if (completed) return;
+      completed = true;
+      if (typeof deps.onFragmentClosed === 'function') deps.onFragmentClosed();
+    };
+
+    btn.onclick = () => {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+      startEchoRippleDissolve(el, {
+        doc,
+        win: deps?.win,
+        requestAnimationFrame: deps?.requestAnimationFrame,
+        cancelAnimationFrame: deps?.cancelAnimationFrame,
+        onComplete: finish,
+      });
+    };
 
     el.append(head, body, bar, btn);
     doc.body.appendChild(el);
     deps.audioEngine?.playHeal?.();
+    return true;
   },
 
   checkHiddenEnding(deps = {}) {

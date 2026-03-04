@@ -70,7 +70,10 @@ export function bootGame(modules, fns, Deps) {
     // ── StorySystem 브릿지 ──
     const StorySystem = {
         unlockNextFragment: () => StoryUI?.unlockNextFragment?.(Deps.getStoryDeps()),
-        showRunFragment: () => StoryUI?.showRunFragment?.(Deps.getStoryDeps()),
+        showRunFragment: (overrides = {}) => StoryUI?.showRunFragment?.({
+            ...Deps.getStoryDeps(),
+            ...overrides,
+        }),
         displayFragment: (frag) => StoryUI?.displayFragment?.(frag, Deps.getStoryDeps()),
         checkHiddenEnding: () => !!StoryUI?.checkHiddenEnding?.(Deps.getStoryDeps()),
         showNormalEnding: () => StoryUI?.showNormalEnding?.(Deps.getStoryDeps()),
