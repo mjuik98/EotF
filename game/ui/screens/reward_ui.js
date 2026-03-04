@@ -328,8 +328,8 @@ export const RewardUI = {
     });
 
     // --- 축복(Blessing) 보상 추가 ---
-    // 보스/미니보스는 확정, 일반 전투는 30% 확률
-    const shouldOfferBlessing = isBoss || isMiniBoss || Math.random() < 0.3;
+    // 지역 보스는 확정, 미니보스는 30% 확률, 그 외 전투는 미출현
+    const shouldOfferBlessing = isBoss || (isMiniBoss && Math.random() < 0.3);
     if (shouldOfferBlessing) {
       const maxEnergyCap = _getMaxEnergyCap(gs);
       const isEnergyBlessingDisabled = (gs.player.maxEnergy || 0) >= maxEnergyCap;

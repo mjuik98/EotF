@@ -211,7 +211,7 @@ export const EVENTS = [
                 effect(gs) {
                     const c = gs.getRandomCard('rare');
                     gs.player.deck.push(c);
-                    return `에너지가 응결한다. 기억이 기술이 된다 — ${CARDS[c]?.name}. 배운 적 없는데 손이 먼저 안다.`;
+                    return `에너지가 응결한다. 기억이 기술이 된다 — ${CARDS[c]?.name}. 배운 기억이 흐릿한데 손이 먼저 안다.`;
                 }
             },
         ]
