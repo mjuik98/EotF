@@ -15,12 +15,12 @@ export const RunStartUI = {
 
     return runIdempotent('run:enter-run', () => {
       const doc = _getDoc(deps);
+      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
       const mainTitleSubScreen = doc.getElementById('mainTitleSubScreen');
       const charSelectSubScreen = doc.getElementById('charSelectSubScreen');
+      // Reset title UI state after screen switch so hidden title content never flashes.
       if (mainTitleSubScreen) mainTitleSubScreen.style.display = 'block';
       if (charSelectSubScreen) charSelectSubScreen.style.display = 'none';
-
-      if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
 
       if (typeof deps.markGameStarted === 'function') deps.markGameStarted();
       if (typeof deps.generateMap === 'function') deps.generateMap(0);
