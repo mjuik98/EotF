@@ -16,6 +16,7 @@
 import { ITEMS } from '../../../data/items.js';
 import { CARDS } from '../../../data/cards.js';
 import { CLASS_METADATA } from '../../../data/class_metadata.js';
+import { TooltipUI } from '../cards/tooltip_ui.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -36,9 +37,6 @@ const CHARS = Object.values(CLASS_METADATA)
     const startRelic = ITEMS[cls.startRelic];
     return {
       ...cls,
-      startDeck: Array.isArray(cls.startDeck)
-        ? cls.startDeck.map((cardId) => CARDS[cardId]?.name || cardId)
-        : [],
       startRelic: startRelic ? {
         icon: startRelic.icon || '?',
         name: startRelic.name || cls.startRelic,
@@ -383,15 +381,15 @@ export const CharacterSelectUI = {
                     <span style="font-size:13px;color:${ch.accent};font-family:'Courier New',monospace">${rel.name}</span>
                   </div>
                   <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:10px">${rel.desc}</div>
-                  <div style="padding:6px 10px;border:1px solid ${ch.accent}22;border-radius:6px;background:${ch.accent}0a">
-                    <span style="font-size:10px;color:${ch.accent}bb;font-family:'Courier New',monospace">✦ 패시브 · ${rel.passive}</span>
-                  </div>
                   <div class="tip-arrow" style="border-top:7px solid ${ch.accent}44"></div>
                 </div>
               </div>
             </div>
             ${sLabel('시작 덱', ch.accent)}
-            <div style="display:flex;flex-wrap:wrap;gap:6px">${ch.startDeck.map(c => `<span class="deck-card" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px">${c}</span>`).join('')}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${ch.startDeck.map(cId => {
+              const card = CARDS[cId] || { name: cId };
+              return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
+            }).join('')}</div>
           </div>
         </div>`;
 
@@ -409,6 +407,16 @@ export const CharacterSelectUI = {
         eb.addEventListener('mouseleave', () => { eb.style.borderColor = `${ch.accent}44`; eb.style.background = `linear-gradient(135deg,${ch.accent}0e,${ch.color}08)`; eb.style.boxShadow = 'none'; });
         eb.addEventListener('click', () => { SFX.echo(); openModal(ch.echoSkill, ch.accent); });
       }
+
+      // ??? ?????: ??? ??? ???????? TooltipUI ???
+      const mockGs = { getBuff: () => null, player: { echoChain: 0 } };
+      panel.querySelectorAll('.deck-card').forEach(el => {
+        el.addEventListener('mouseenter', (e) => {
+          SFX.hover();
+          TooltipUI.showTooltip(e, el.dataset.cid, { data: { cards: CARDS }, gs: mockGs });
+        });
+        el.addEventListener('mouseleave', () => TooltipUI.hideTooltip());
+      });
     }
 
 
@@ -418,6 +426,11 @@ export const CharacterSelectUI = {
       const ch = chars[S.idx];
       const dotsRow = $('dotsRow');
       if (!dotsRow) return;
+      dotsRow.style.width = '100%';
+      dotsRow.style.display = 'flex';
+      dotsRow.style.justifyContent = 'center';
+      dotsRow.style.gap = '7px';
+      dotsRow.style.marginTop = '12px';
       dotsRow.innerHTML = chars.map((_, i) =>
         `<button class="dot" data-i="${i}"
           style="width:${i === S.idx ? '24px' : '8px'};background:${i === S.idx ? ch.accent : '#151520'};
