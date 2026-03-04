@@ -5200,18 +5200,20 @@ body:has(#combatOverlay.active) .panel-right {
 
 .settings-trigger-btn {
   background: linear-gradient(180deg, var(--panel) 0%, rgba(20, 10, 40, 0.4) 100%);
-  border: 1px solid rgba(123, 47, 255, 0.3);
+  border: 1px solid rgba(123, 47, 255, 0.5);
   padding: 12px 32px;
   border-radius: 4px;
-  color: var(--text-dim);
+  color: var(--white);
   font-family: 'Cinzel', serif;
-  font-size: 13px;
-  letter-spacing: 0.2em;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   position: relative;
   overflow: hidden;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 /* ── MOBILE RESPONSIVENESS (Basic) ── */
@@ -8083,6 +8085,9 @@ body:has(#combatOverlay.active) .panel-right {
 #runModePanel {
   flex: 0 0 var(--run-settings-main-width, min(500px, 95vw));
   width: var(--run-settings-main-width, min(500px, 95vw));
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px !important;
   min-width: 0;
 }
 
