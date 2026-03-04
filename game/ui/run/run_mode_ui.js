@@ -190,9 +190,15 @@ export const RunModeUI = {
     if (!meta || !data?.inscriptions) return;
 
     const doc = _getDoc(deps);
+    const settingsPanel = doc.querySelector('#runSettingsModal .run-settings-panel');
     const row = doc.getElementById('inscriptionRow');
+    const summaryEl = doc.getElementById('inscriptionSummary');
+    const toggleLayoutBtn = doc.getElementById('toggleInscriptionLayoutBtn');
+    const layout = doc.getElementById('inscriptionLayout');
     const container = doc.getElementById('inscriptionToggles');
-    if (!row || !container) return;
+    const synergiesWrap = doc.getElementById('inscriptionSynergies');
+    const toggleAllBtn = doc.getElementById('toggleAllInscriptionsBtn');
+    if (!row || !summaryEl || !toggleLayoutBtn || !layout || !container || !synergiesWrap || !toggleAllBtn) return;
 
     const runConfig = _ensureRunConfig(meta);
     if (!runConfig) return;
@@ -202,38 +208,47 @@ export const RunModeUI = {
 
     if (earnedInsc.length === 0) {
       row.style.display = 'none';
+      layout.style.display = 'none';
+      layout.dataset.open = 'false';
+      settingsPanel?.classList.remove('run-settings-with-inscription-layout');
       return;
     }
 
-    row.style.display = 'flex';
-    row.style.flexDirection = 'column';
-    row.style.alignItems = 'flex-start';
-    container.textContent = '';
+    row.style.display = '';
 
-    const frag = doc.createDocumentFragment();
+    const disabledSet = new Set(runConfig.disabledInscriptions || []);
+    const activeCount = earnedInsc.filter(([key]) => !disabledSet.has(key)).length;
+    const allDisabled = activeCount === 0;
+    const isLayoutOpen = layout.dataset.open === 'true';
+    settingsPanel?.classList.toggle('run-settings-with-inscription-layout', isLayoutOpen);
 
-    const disableAll = doc.createElement('button');
-    const allDisabled = earnedInsc.every(([k]) => runConfig.disabledInscriptions.includes(k));
-    disableAll.className = `run-mode-pill ${allDisabled ? 'active' : ''}`;
-    disableAll.textContent = '각인 없이 시작';
-    disableAll.style.marginBottom = '12px'; // keep min-margin for layout
-    disableAll.onclick = () => {
+    summaryEl.textContent = `획득 ${earnedInsc.length}개 · 활성 ${activeCount}개`;
+
+    toggleLayoutBtn.classList.toggle('active', isLayoutOpen);
+    toggleLayoutBtn.textContent = isLayoutOpen ? '각인 상세 닫기' : '각인 상세 열기';
+    toggleLayoutBtn.onclick = () => {
+      layout.dataset.open = isLayoutOpen ? 'false' : 'true';
+      this.refreshInscriptions(deps);
+    };
+
+    layout.style.display = isLayoutOpen ? 'block' : 'none';
+    if (!isLayoutOpen) return;
+
+    toggleAllBtn.className = `run-mode-pill ${allDisabled ? 'active' : ''}`;
+    toggleAllBtn.textContent = allDisabled ? '전체 각인 활성화' : '각인 없이 시작';
+    toggleAllBtn.onclick = () => {
       if (allDisabled) runConfig.disabledInscriptions = [];
       else runConfig.disabledInscriptions = earnedInsc.map(([k]) => k);
       this.refreshInscriptions(deps);
       if (typeof deps.saveMeta === 'function') deps.saveMeta();
     };
-    frag.appendChild(disableAll);
 
-    const togglesRow = doc.createElement('div');
-    togglesRow.className = 'inscription-toggles-container';
-    togglesRow.style.display = 'flex';
-    togglesRow.style.flexWrap = 'wrap';
-
+    container.textContent = '';
+    const frag = doc.createDocumentFragment();
     earnedInsc.forEach(([key, val]) => {
       const def = data.inscriptions[key];
       if (!def) return;
-      const level = Number(val);
+      const level = Math.max(1, Math.floor(Number(val) || 1));
       const disabled = runConfig.disabledInscriptions.includes(key);
 
       const pill = doc.createElement('div');
@@ -245,37 +260,36 @@ export const RunModeUI = {
 
       const levelSpan = doc.createElement('span');
       levelSpan.className = 'inscription-level';
-      levelSpan.textContent = `레벨 ${level}`;
+      levelSpan.textContent = `Lv.${level}`;
 
       pill.append(label, levelSpan);
       pill.title = def.levels?.[Math.min(level, def.maxLevel) - 1]?.desc || def.desc || '';
       pill.onclick = () => this.toggleInscription(key, deps);
-      togglesRow.appendChild(pill);
+      frag.appendChild(pill);
     });
-
-    frag.appendChild(togglesRow);
+    container.appendChild(frag);
 
     const synergies = _getActiveSynergies(meta, runConfig, data);
+    synergiesWrap.textContent = '';
     if (synergies.length > 0) {
-      const synRow = doc.createElement('div');
-      synRow.className = 'active-synergies-row';
-
       const synTitle = doc.createElement('div');
       synTitle.className = 'synergy-title';
       synTitle.textContent = '활성 시너지';
-      synRow.appendChild(synTitle);
+      synergiesWrap.appendChild(synTitle);
 
       synergies.forEach(({ syn }) => {
         const badge = doc.createElement('div');
         badge.className = 'synergy-badge';
         badge.textContent = `+ ${syn.name}`;
         badge.title = syn.desc || '';
-        synRow.appendChild(badge);
+        synergiesWrap.appendChild(badge);
       });
-      frag.appendChild(synRow);
+    } else {
+      const emptyEl = doc.createElement('div');
+      emptyEl.className = 'inscription-synergy-empty';
+      emptyEl.textContent = '활성된 시너지가 없습니다.';
+      synergiesWrap.appendChild(emptyEl);
     }
-
-    container.appendChild(frag);
   },
 
   toggleInscription(key, deps = {}) {
@@ -302,6 +316,10 @@ export const RunModeUI = {
       modal.classList.remove('fade-out');
       modal.style.display = 'flex';
       modal.classList.add('fade-in');
+      const settingsPanel = doc.querySelector('#runSettingsModal .run-settings-panel');
+      const layout = doc.getElementById('inscriptionLayout');
+      if (settingsPanel) settingsPanel.classList.remove('run-settings-with-inscription-layout');
+      if (layout) layout.dataset.open = 'false';
       this.refresh(deps);
       this.refreshInscriptions(deps);
     }
@@ -311,6 +329,13 @@ export const RunModeUI = {
     const doc = _getDoc(deps);
     const modal = doc.getElementById('runSettingsModal');
     if (!modal) return;
+    const settingsPanel = doc.querySelector('#runSettingsModal .run-settings-panel');
+    const layout = doc.getElementById('inscriptionLayout');
+    if (settingsPanel) settingsPanel.classList.remove('run-settings-with-inscription-layout');
+    if (layout) {
+      layout.dataset.open = 'false';
+      layout.style.display = 'none';
+    }
 
     modal.classList.remove('fade-in');
     modal.classList.add('fade-out');

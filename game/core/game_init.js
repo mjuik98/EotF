@@ -127,6 +127,8 @@ export const GameInit = {
         doc.getElementById('endlessToggleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); toggleEndlessMode?.(); });
         doc.getElementById('blessingCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunBlessing?.(); });
         doc.getElementById('curseCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunCurse?.(); });
+        doc.getElementById('toggleInscriptionLayoutBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
+        doc.getElementById('toggleAllInscriptionsBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
 
         // Sound
         doc.getElementById('soundToggleBtn')?.addEventListener('click', () => {

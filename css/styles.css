@@ -8070,3 +8070,227 @@ body:has(#combatOverlay.active) .panel-right {
 .deck-card-wrap:hover .deck-card-tooltip {
   display: block;
 }
+
+/* Run Rules: scalable inscription layout */
+#runSettingsBody {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--run-settings-side-gap, 14px);
+  width: 100%;
+  min-height: 0;
+}
+
+#runModePanel {
+  flex: 0 0 var(--run-settings-main-width, min(500px, 95vw));
+  width: var(--run-settings-main-width, min(500px, 95vw));
+  min-width: 0;
+}
+
+.run-settings-panel {
+  --run-settings-main-width: min(500px, 95vw);
+  --run-settings-side-width: 330px;
+  --run-settings-side-gap: 12px;
+  transition: width 0.22s ease, max-width 0.22s ease;
+}
+
+.run-settings-panel.run-settings-with-inscription-layout {
+  width: calc(var(--run-settings-main-width) + var(--run-settings-side-width) + var(--run-settings-side-gap));
+  max-width: min(96vw, calc(var(--run-settings-main-width) + var(--run-settings-side-width) + var(--run-settings-side-gap)));
+}
+
+#runModePanel .run-mode-row {
+  display: grid;
+  grid-template-columns: 132px 172px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+}
+
+#runModePanel .inscription-row {
+  grid-template-columns: 132px minmax(0, 1fr);
+}
+
+#runModePanel .run-mode-label {
+  min-width: 0;
+  padding-left: 0;
+}
+
+#runModePanel .run-mode-cap {
+  padding-right: 0;
+  white-space: nowrap;
+}
+
+#runModePanel #endlessToggleBtn,
+#runModePanel #blessingCycleBtn,
+#runModePanel #curseCycleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 116px;
+}
+
+.run-inscription-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#runModePanel .inscription-row .run-inscription-controls {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.run-inscription-summary {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.run-inscription-layout {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(0, 255, 204, 0.16);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  flex: 0 1 var(--run-settings-side-width, 330px);
+  width: var(--run-settings-side-width, 330px);
+  min-width: 280px;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.run-inscription-layout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.run-inscription-layout-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+}
+
+#inscriptionLayout .inscription-toggles-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+#inscriptionLayout .inscription-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+#inscriptionLayout .inscription-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#inscriptionLayout .inscription-level {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 0.95;
+  flex-shrink: 0;
+}
+
+#inscriptionLayout .active-synergies-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+#inscriptionLayout .synergy-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-right: 2px;
+}
+
+#inscriptionLayout .synergy-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 255, 204, 0.22);
+  background: rgba(0, 255, 204, 0.1);
+  color: var(--cyan);
+}
+
+#inscriptionLayout .inscription-synergy-empty {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Align text positioning of close(ESC) buttons consistently */
+#runSettingsCloseBtn,
+#deckViewCloseBtn,
+#codexCloseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#runSettingsCloseBtn .kbd-hint,
+#deckViewCloseBtn .kbd-hint,
+#codexCloseBtn .kbd-hint {
+  margin-left: 0;
+  top: 0;
+}
+
+@media (max-width: 900px) {
+  #runSettingsBody {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .run-settings-panel.run-settings-with-inscription-layout {
+    width: var(--run-settings-main-width);
+    max-width: 95vw;
+  }
+
+  #runModePanel .run-mode-row {
+    grid-template-columns: 122px minmax(0, 1fr) auto;
+  }
+
+  #runModePanel .inscription-row {
+    grid-template-columns: 122px minmax(0, 1fr);
+  }
+
+  #runSettingsBody .run-inscription-layout {
+    width: auto;
+    margin-top: 10px;
+    flex: 1 1 auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .run-inscription-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  #runModePanel .inscription-row .run-inscription-controls {
+    justify-content: space-between;
+  }
+
+  #inscriptionLayout .inscription-toggles-container {
+    grid-template-columns: 1fr;
+    max-height: 220px;
+  }
+}
