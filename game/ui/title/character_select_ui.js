@@ -83,7 +83,6 @@ const _SFX = {
   nav: () => { _tone(360, 0.1, 'triangle', 0.06); _tone(520, 0.1, 'triangle', 0.05, 0.09); },
   hover: () => _tone(900, 0.035, 'sine', 0.022),
   select: () => [261, 329, 392, 523, 659, 880].forEach((f, i) => _tone(f, 0.8, 'triangle', 0.05, i * 0.065)),
-  skill: () => { _tone(500, 0.12, 'triangle', 0.05); _tone(700, 0.1, 'sine', 0.04, 0.1); },
   compare: () => { _tone(440, 0.1, 'sine', 0.05); _tone(660, 0.15, 'triangle', 0.05, 0.09); },
   echo: () => { _tone(300, 0.15, 'sine', 0.05); _tone(600, 0.2, 'triangle', 0.04, 0.12); _tone(900, 0.15, 'sine', 0.03, 0.25); },
 };
@@ -317,7 +316,6 @@ export const CharacterSelectUI = {
       nav: () => deps.audioEngine?.playClick?.() ?? _SFX.nav(),
       hover: () => _SFX.hover(),
       select: () => _SFX.select(),
-      skill: () => _SFX.skill(),
       echo: () => _SFX.echo(),
     };
 
@@ -423,15 +421,6 @@ export const CharacterSelectUI = {
       if (!panel) return;
 
       const rel = ch.startRelic;
-      const skillBadges = ch.skills.map((s, si) => `
-        <div class="skill-badge">
-          <button class="skill-badge-btn" data-si="${si}" style="border:1px solid ${ch.accent}2a;color:${ch.accent};background:${ch.accent}08">${s.icon} ${s.name}</button>
-          <div class="skill-tooltip" style="border:1px solid ${ch.accent}33">
-            ${s.desc}
-            <span style="display:block;font-size:8px;color:${ch.accent};margin-top:2px;font-family:'Courier New',monospace">클릭하여 스킬 트리 보기 →</span>
-            <div class="tip-arrow" style="border-top:5px solid ${ch.accent}33"></div>
-          </div>
-        </div>`).join('');
 
       const ec = ch.echoSkill;
       panel.innerHTML = `
@@ -440,8 +429,6 @@ export const CharacterSelectUI = {
           <p style="font-size:14px;color:${ch.accent};font-family:'Courier New',monospace;margin:0 0 5px;letter-spacing:1px">${ch.traitTitle}</p>
           <p style="font-size:13px;color:#888;margin:0;line-height:1.7">${ch.traitDesc}</p>
         </div>
-        ${sLabel('SKILLS — 클릭 시 스킬 트리', ch.accent)}
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px">${skillBadges}</div>
         ${sLabel('ECHO SKILL — 잔향 게이지 스킬', ch.accent)}
         <div style="margin-bottom:20px">
           <button id="echoBadge" class="echo-badge" style="background:linear-gradient(135deg,${ch.accent}0e,${ch.color}08);border:1px solid ${ch.accent}44;padding:12px 16px">
@@ -487,13 +474,6 @@ export const CharacterSelectUI = {
           </div>
         </div>`;
 
-      // 스킬 배지 이벤트
-      panel.querySelectorAll('.skill-badge-btn').forEach(btn => {
-        const si = parseInt(btn.dataset.si), s = ch.skills[si];
-        btn.addEventListener('mouseenter', () => { SFX.hover(); btn.style.borderColor = `${ch.accent}66`; btn.style.color = '#fff'; btn.style.background = `${ch.accent}1a`; btn.style.boxShadow = `0 0 14px ${ch.accent}44`; });
-        btn.addEventListener('mouseleave', () => { btn.style.borderColor = `${ch.accent}2a`; btn.style.color = ch.accent; btn.style.background = `${ch.accent}08`; btn.style.boxShadow = 'none'; });
-        btn.addEventListener('click', () => { SFX.skill(); openModal(s, ch.accent); });
-      });
       // 에코 배지 이벤트
       const eb = $('echoBadge');
       if (eb) {

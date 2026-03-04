@@ -7855,55 +7855,6 @@ body:has(#combatOverlay.active) .panel-right {
   padding-left: 10px;
 }
 
-/* Skill badge */
-.skill-badge {
-  position: relative;
-  display: inline-block;
-}
-
-.skill-badge-btn {
-  padding: 6px 14px;
-  border-radius: 25px;
-  font-size: 13px;
-  font-family: 'Courier New', monospace;
-  transition: all .18s;
-  background: transparent;
-}
-
-.skill-tooltip {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #080814;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 13px;
-  color: #bbb;
-  line-height: 1.6;
-  white-space: nowrap;
-  z-index: 50;
-  pointer-events: none;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, .9);
-  animation: tooltipIn .12s ease;
-  display: none;
-}
-
-.skill-tooltip .tip-arrow {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-}
-
-.skill-badge:hover .skill-tooltip {
-  display: block;
-}
-
 /* Echo badge */
 .echo-badge {
   width: 100%;
@@ -8035,6 +7986,7 @@ body:has(#combatOverlay.active) .panel-right {
   font-family: 'Courier New', monospace;
   background: rgba(255, 255, 255, .02);
 }
+
 /* Character Select Card Tooltip */
 .deck-card-wrap {
   position: relative;
