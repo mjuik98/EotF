@@ -541,7 +541,8 @@ export const HudUpdateUI = {
 
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn) {
-      const handFull = p.hand.length >= 8;
+      const maxHand = Math.max(1, 8 - Math.max(0, Number(p._handCapMinus || 0)));
+      const handFull = p.hand.length >= maxHand;
       const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1 && !handFull;
       drawBtn.disabled = !canDraw;
       drawBtn.classList.toggle('hand-full', handFull);
@@ -549,7 +550,7 @@ export const HudUpdateUI = {
       if (gs.combat.active) {
         if (handFull) {
           setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-          drawBtn.title = '손패가 가득 찼습니다 (최대 8장).';
+          drawBtn.title = `손패가 가득 찼습니다 (최대 ${maxHand}장).`;
         } else if (p.energy < 1) {
           setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
           drawBtn.title = '카드를 뽑으려면 1 에너지가 필요합니다.';

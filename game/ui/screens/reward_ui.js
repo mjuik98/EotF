@@ -43,6 +43,7 @@ function _drawRewardCards(gs, count, rarities) {
 
 function _toRarityLabel(rarity) {
   switch (rarity) {
+    case 'boss': return '보스';
     case 'uncommon': return '비범';
     case 'rare': return '희귀';
     case 'legendary': return '전설';
@@ -256,7 +257,7 @@ export const RewardUI = {
 
     const shouldOfferItem = isBoss || isMiniBoss || Math.random() < 0.3;
     if (shouldOfferItem) {
-      const targetRarity = isBoss || isMiniBoss ? ['rare', 'legendary'] : ['common', 'uncommon'];
+      const targetRarity = isBoss ? ['boss', 'legendary', 'rare'] : (isMiniBoss ? ['rare', 'legendary'] : ['common', 'uncommon']);
       const pool = Object.values(data.items || {}).filter((item) => {
         return targetRarity.includes(item.rarity) && !gs.player.items.includes(item.id);
       });

@@ -186,13 +186,14 @@ export const CombatStartUI = {
       const playerState = gs.player;
       const combatState = gs.combat;
       const hand = Array.isArray(playerState.hand) ? playerState.hand : [];
-      const handFull = hand.length >= 8;
+      const maxHand = Math.max(1, 8 - Math.max(0, Number(playerState._handCapMinus || 0)));
+      const handFull = hand.length >= maxHand;
       const canDraw = combatState.active && combatState.playerTurn && playerState.energy >= 1 && !handFull;
       drawBtn.disabled = !canDraw;
       drawBtn.style.opacity = canDraw ? '1' : '0.4';
       if (handFull) {
         setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-        drawBtn.title = '손패가 가득 찼습니다 (최대 8장)';
+        drawBtn.title = `손패가 가득 찼습니다 (최대 ${maxHand}장)`;
       } else if (playerState.energy < 1) {
         setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
         drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';

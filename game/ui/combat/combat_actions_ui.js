@@ -9,7 +9,8 @@ export const CombatActionsUI = {
     if (!gs) return;
 
     if (gs.combat?.active && gs.combat?.playerTurn) {
-      if (gs.player.energy >= 1 && gs.player.hand.length < 8) {
+      const maxHand = Math.max(1, 8 - Math.max(0, Number(gs.player._handCapMinus || 0)));
+      if (gs.player.energy >= 1 && gs.player.hand.length < maxHand) {
         gs.dispatch(Actions.PLAYER_ENERGY, { amount: -1 });
         gs.drawCards?.(1);
       }

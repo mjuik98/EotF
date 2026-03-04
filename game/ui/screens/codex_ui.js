@@ -47,6 +47,7 @@ function _cardTypeLabel(type) {
 
 function _itemRarityLabel(rarity) {
   const r = String(rarity || 'common').toLowerCase();
+  if (r === 'boss') return '보스';
   if (r === 'legendary') return '전설';
   if (r === 'rare') return '희귀';
   if (r === 'uncommon') return '고급';
@@ -154,7 +155,9 @@ function _toItemEntry(codex, i) {
     title: i.name,
     subtitle: _itemRarityLabel(rarity),
     desc: i.desc || '설명 없음',
-    accent: rarity === 'legendary'
+    accent: rarity === 'boss'
+      ? 'rgba(255,90,90,0.55)'
+      : rarity === 'legendary'
       ? 'rgba(192,132,252,0.55)'
       : rarity === 'rare'
         ? 'rgba(240,180,41,0.5)'
@@ -301,11 +304,13 @@ export const CodexUI = {
     }
 
     if (_codexTab === 'items') {
+      const boss = items.filter((i) => String(i.rarity || '').toLowerCase() === 'boss').map((i) => _toItemEntry(codex, i));
       const legendary = items.filter((i) => String(i.rarity || '').toLowerCase() === 'legendary').map((i) => _toItemEntry(codex, i));
       const rare = items.filter((i) => String(i.rarity || '').toLowerCase() === 'rare').map((i) => _toItemEntry(codex, i));
       const uncommon = items.filter((i) => String(i.rarity || '').toLowerCase() === 'uncommon').map((i) => _toItemEntry(codex, i));
-      const common = items.filter((i) => !['legendary', 'rare', 'uncommon'].includes(String(i.rarity || '').toLowerCase())).map((i) => _toItemEntry(codex, i));
+      const common = items.filter((i) => !['boss', 'legendary', 'rare', 'uncommon'].includes(String(i.rarity || '').toLowerCase())).map((i) => _toItemEntry(codex, i));
       _renderSections(doc, contentEl, [
+        { title: '보스 유물', entries: boss, icon: '🔥' },
         { title: '전설 유물', entries: legendary, icon: '💎' },
         { title: '희귀 유물', entries: rare, icon: '🟡' },
         { title: '고급 유물', entries: uncommon, icon: '🟢' },
