@@ -659,14 +659,21 @@ export const ITEMS = {
         id: 'paradox_contract', name: '역설 계약', icon: '📜', rarity: 'legendary',
         desc: '전투 시작: 전투 한정 최대 에너지 +1. 대신 첫 턴 받는 피해 +25%.',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.COMBAT_START) {
+            if (trigger === Trigger.COMBAT_START && !gs._paradoxActive) {
+                gs._paradoxActive = true;
                 gs._paradoxFirstTurn = true;
                 gs._paradoxBaseMax = gs.player.maxEnergy;
                 gs.player.maxEnergy += 1;
             }
             if (trigger === Trigger.DAMAGE_TAKEN && gs._paradoxFirstTurn && data > 0) return Math.floor(data * 1.25);
             if (trigger === Trigger.TURN_END && gs._paradoxFirstTurn) gs._paradoxFirstTurn = false;
-            if (trigger === Trigger.COMBAT_END) gs.player.maxEnergy = gs._paradoxBaseMax ?? gs.player.maxEnergy;
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._paradoxActive) {
+                gs.player.maxEnergy = gs._paradoxBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
+                gs.player.energy = Math.min(gs.player.energy, gs.player.maxEnergy);
+                gs._paradoxFirstTurn = false;
+                gs._paradoxActive = false;
+                gs._paradoxBaseMax = undefined;
+            }
         }
     },
     generator_core: {

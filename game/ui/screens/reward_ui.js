@@ -33,6 +33,9 @@ function _normalizeRewardMode(mode) {
   return 'normal';
 }
 
+const RELIC_REWARD_CHANCE_NORMAL = 0.15;
+const RELIC_REWARD_CHANCE_ELITE = 0.2;
+
 function _drawRewardCards(gs, count, rarities) {
   const out = [];
   const used = new Set();
@@ -369,7 +372,8 @@ export const RewardUI = {
       _renderBlessingOption(container, blessingEnergy, deps, () => this.takeRewardBlessing(blessingEnergy, deps), rewardCards.length + 1);
     }
 
-    const shouldOfferItem = isBoss || isMiniBoss || Math.random() < 0.3;
+    const relicChance = isElite ? RELIC_REWARD_CHANCE_ELITE : RELIC_REWARD_CHANCE_NORMAL;
+    const shouldOfferItem = isBoss || isMiniBoss || Math.random() < relicChance;
     if (shouldOfferItem) {
       const availableItems = _getRewardItemPool(gs, data, 'reward');
       const targetRarity = isBoss ? ['boss', 'legendary', 'rare'] : (isMiniBoss ? ['rare', 'legendary'] : ['common', 'uncommon']);

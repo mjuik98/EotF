@@ -64,4 +64,36 @@ describe('item logic fixes', () => {
         expect(gs.applyEnemyStatus).toHaveBeenCalledTimes(1);
         expect(gs.applyEnemyStatus).toHaveBeenCalledWith('weakened', 1, 0, { name: '황혼의 낙인', type: 'item' });
     });
+    it('paradox_contract does not permanently increase max energy when combat start triggers twice', () => {
+        const relic = ITEMS.paradox_contract;
+        const gs = {
+            player: { maxEnergy: 3, energy: 3 },
+        };
+
+        relic.passive(gs, Trigger.COMBAT_START);
+        relic.passive(gs, Trigger.COMBAT_START);
+        expect(gs.player.maxEnergy).toBe(4);
+
+        relic.passive(gs, Trigger.COMBAT_END);
+        expect(gs.player.maxEnergy).toBe(3);
+        expect(gs._paradoxActive).toBe(false);
+        expect(gs._paradoxBaseMax).toBeUndefined();
+
+        relic.passive(gs, Trigger.COMBAT_START);
+        expect(gs.player.maxEnergy).toBe(4);
+    });
+
+    it('paradox_contract reverts max energy on death cleanup', () => {
+        const relic = ITEMS.paradox_contract;
+        const gs = {
+            player: { maxEnergy: 3, energy: 5 },
+        };
+
+        relic.passive(gs, Trigger.COMBAT_START);
+        relic.passive(gs, 'death');
+
+        expect(gs.player.maxEnergy).toBe(3);
+        expect(gs.player.energy).toBe(3);
+        expect(gs._paradoxActive).toBe(false);
+    });
 });
