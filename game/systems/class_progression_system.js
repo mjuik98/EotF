@@ -3,6 +3,7 @@ import {
   MAX_CLASS_MASTERY_LEVEL,
   getClassMasteryRoadmap,
 } from '../../data/class_progression_data.js';
+import { registerCardDiscovered } from './codex_records_system.js';
 
 const DEFAULT_MAX_ENERGY_CAP = 5;
 
@@ -324,7 +325,7 @@ export const ClassProgressionSystem = {
 
     const upgradedIds = applyStarterDeckUpgrades(gs, bonuses, options.data);
     if (upgradedIds.length > 0) {
-      upgradedIds.forEach((cardId) => gs.meta?.codex?.cards?.add?.(cardId));
+      upgradedIds.forEach((cardId) => registerCardDiscovered(gs, cardId));
     }
 
     gs._classMasteryRunStartApplied = true;

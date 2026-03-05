@@ -13,6 +13,7 @@
 import { DATA } from '../../data/game_data.js';
 import { DifficultyScaler } from './difficulty_scaler.js';
 import { getRegionData } from '../systems/run_rules.js';
+import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 
@@ -65,7 +66,7 @@ export const DeathHandler = {
 
         // 도감에 적 등록
         if (this.meta.codex && enemy.id) {
-            this.meta.codex.enemies.add(enemy.id);
+            registerEnemyKill(this, enemy.id);
         }
 
         const win = _getWin(deps);

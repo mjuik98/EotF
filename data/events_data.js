@@ -5,6 +5,7 @@ import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
 import { ITEMS } from './items.js';
 import { AudioEngine } from '../engine/audio.js';
+import { registerItemFound } from '../game/systems/codex_records_system.js';
 
 const MAP_NODE_TYPE_LABELS = {
     combat: '전투',
@@ -362,7 +363,7 @@ export const EVENTS = [
                     if (!picked) return '균열 너머에 닿을 수 있는 것이 없었다. 공허만 남아 있다.';
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
                     gs.player.items.push(picked.id);
-                    gs.meta?.codex?.items?.add?.(picked.id);
+                    registerItemFound(gs, picked.id);
                     AudioEngine.playItemGet();
                     if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(picked);
                     return `${picked.name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
@@ -392,7 +393,7 @@ export const EVENTS = [
 
                     gs.player.hp = Math.max(1, gs.player.hp - 12);
                     gs.player.items.push(relic.id);
-                    gs.meta?.codex?.items?.add?.(relic.id);
+                    registerItemFound(gs, relic.id);
                     AudioEngine.playItemGet();
                     if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(relic);
 

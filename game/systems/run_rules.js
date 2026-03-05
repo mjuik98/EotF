@@ -1,6 +1,7 @@
 ﻿import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
 import { ClassProgressionSystem } from './class_progression_system.js';
+import { ensureCodexRecords, ensureCodexState } from './codex_records_system.js';
 
 const MIN_REGION_FLOORS = 6;
 const MAX_REGION_FLOORS = 9;
@@ -140,18 +141,8 @@ export const RunRules = {
     }
     if (!Array.isArray(meta.storyPieces)) meta.storyPieces = [];
 
-    if (!meta.codex || typeof meta.codex !== 'object') {
-      meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
-    } else {
-      // Normalize: if loaded from JSON as Array, convert back to Set
-      if (Array.isArray(meta.codex.enemies)) meta.codex.enemies = new Set(meta.codex.enemies);
-      if (Array.isArray(meta.codex.cards)) meta.codex.cards = new Set(meta.codex.cards);
-      if (Array.isArray(meta.codex.items)) meta.codex.items = new Set(meta.codex.items);
-
-      if (!(meta.codex.enemies instanceof Set)) meta.codex.enemies = new Set();
-      if (!(meta.codex.cards instanceof Set)) meta.codex.cards = new Set();
-      if (!(meta.codex.items instanceof Set)) meta.codex.items = new Set();
-    }
+    ensureCodexState({ meta });
+    ensureCodexRecords({ meta });
 
     if (!meta.unlocks || typeof meta.unlocks !== 'object') meta.unlocks = {};
     if (typeof meta.unlocks.ascension !== 'boolean') meta.unlocks.ascension = (meta.runCount || 1) > 1;
@@ -349,6 +340,8 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
 
   return shardGain;
 }
+
+
 
 
 

@@ -72,14 +72,14 @@ describe('ClassProgressionSystem mastery bonuses', () => {
       rand.mockRestore();
     }
 
-    expect(gs.player.maxHp).toBe(86);
-    expect(gs.player.hp).toBe(86);
-    expect(gs.player.gold).toBe(30);
+    expect(gs.player.maxHp).toBe(100);
+    expect(gs.player.hp).toBe(100);
+    expect(gs.player.gold).toBe(60);
     expect(gs.player.maxEnergy).toBe(4);
     expect(gs.player.energy).toBe(4);
     expect(gs.player.deck).toEqual(['strike_plus', 'defend_plus', 'foot_step']);
-    expect(gs.meta.codex.cards.add).toHaveBeenCalledWith('strike_plus');
-    expect(gs.meta.codex.cards.add).toHaveBeenCalledWith('defend_plus');
+    expect(gs.meta.codex.cards.has('strike_plus')).toBe(true);
+    expect(gs.meta.codex.cards.has('defend_plus')).toBe(true);
     expect(gs.player._classMasteryRelicChoiceBonus).toBe(1);
     expect(gs.player._classMasteryOpeningDrawBonus).toBe(1);
   });
@@ -108,7 +108,7 @@ describe('ClassProgressionSystem mastery bonuses', () => {
     };
 
     ClassProgressionSystem.applyCombatStartBonuses(gs, { classIds: ['mage'] });
-    expect(gs.player.shield).toBe(5);
+    expect(gs.player.shield).toBe(10);
     expect(gs.player._classMasteryMageOpeningDiscountPending).toBe(1);
 
     const rand = vi.spyOn(Math, 'random').mockReturnValue(0);

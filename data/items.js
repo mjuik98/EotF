@@ -5,6 +5,7 @@ import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { CONSTANTS } from '../game/data/constants.js';
+import { registerItemFound } from '../game/systems/codex_records_system.js';
 
 function getCardCost(cardId) {
     return CARDS?.[cardId]?.cost ?? 0;
@@ -77,7 +78,7 @@ function advanceSpecialRelicAwakening(gs, {
 
     gs.player.items[idx] = awakenedId;
     delete progress[dormantId];
-    gs.meta?.codex?.items?.add?.(awakenedId);
+    registerItemFound(gs, awakenedId);
     gs.addLog?.(`🌌 ${sourceName} 개화: ${awakenedName || awakenedId}`, 'item');
     return true;
 }

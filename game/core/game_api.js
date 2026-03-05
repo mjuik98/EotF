@@ -1,6 +1,7 @@
 import { Logger } from '../utils/logger.js';
 import { Actions } from './state_actions.js';
 import { GAME } from './global_bridge.js';
+import { registerCardUsed } from '../systems/codex_records_system.js';
 
 /**
  * GAME.API - 게임 상태 변조를 위한 공식 인터페이스.
@@ -271,6 +272,7 @@ export const GameAPI = {
             }
 
             gs.stats.cardsPlayed++;
+            registerCardUsed(gs, cardId);
 
             // EventBus 알림
             gs.bus?.emit(Actions.CARD_PLAY, { cardId, card, cost });

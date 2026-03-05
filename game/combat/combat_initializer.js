@@ -1,8 +1,10 @@
-/**
- * combat_initializer.js - 전투 초기화 순수 로직
+﻿/**
+ * combat_initializer.js - ?꾪닾 珥덇린???쒖닔 濡쒖쭅
  *
- * DOM 접근 없이 게임 상태(gs)만 변경합니다.
+ * DOM ?묎렐 ?놁씠 寃뚯엫 ?곹깭(gs)留?蹂寃쏀빀?덈떎.
  */
+
+import { registerEnemyEncounter } from '../systems/codex_records_system.js';
 
 function _isLastBaseRegion(gs, getBaseRegionIndex, getRegionCount) {
     if (!gs) return false;
@@ -15,15 +17,6 @@ function _spawnScaledEnemy(gs, enemyData, difficultyScaler, extra = {}) {
     const payload = { ...enemyData, statusEffects: {}, ...extra };
     const enemy = difficultyScaler?.scaleEnemy?.(payload, gs) || payload;
     gs.combat.enemies.push(enemy);
-}
-
-function _ensureCodexEnemySet(gs) {
-    if (!gs?.meta?.codex) return null;
-    const codex = gs.meta.codex;
-    if (!(codex.enemies instanceof Set)) {
-        codex.enemies = new Set(Array.isArray(codex.enemies) ? codex.enemies : []);
-    }
-    return codex.enemies;
 }
 
 function _applyAbyssEmpowerment(enemy) {
@@ -50,29 +43,29 @@ function _applyAbyssEmpowerment(enemy) {
 function _applyAbyssRegionBuffs(gs, region) {
     if (!gs || !region || Number(region.id) !== 6) return;
     const labelByBuff = {
-        shield: '심연 강화: 방어막 +20',
-        atk: '심연 강화: 공격력 +30%',
-        regen: '심연 강화: 턴당 재생 5',
-        draw_block: '심연 강화: 드로우 간섭',
+        shield: '?ъ뿰 媛뺥솕: 諛⑹뼱留?+20',
+        atk: '?ъ뿰 媛뺥솕: 怨듦꺽??+30%',
+        regen: '?ъ뿰 媛뺥솕: ?대떦 ?ъ깮 5',
+        draw_block: '?ъ뿰 媛뺥솕: ?쒕줈??媛꾩꽠',
     };
     gs.combat.enemies.forEach((enemy) => {
         if (!enemy || enemy.hp <= 0) return;
         const buffKey = _applyAbyssEmpowerment(enemy);
         if (buffKey && typeof gs.addLog === 'function') {
-            gs.addLog(`${enemy.name} ${labelByBuff[buffKey] || '심연 강화'}`, 'system');
+            gs.addLog(`${enemy.name} ${labelByBuff[buffKey] || '?ъ뿰 媛뺥솕'}`, 'system');
         }
     });
 }
 
 export const CombatInitializer = {
     /**
-     * 전투 상태 리셋
+     * ?꾪닾 ?곹깭 由ъ뀑
      */
     resetCombatState(gs) {
         const combat = gs.combat;
         const player = gs.player;
 
-        // 영구 버프 보존 (잔향 스킬 등)
+        // ?곴뎄 踰꾪봽 蹂댁〈 (?뷀뼢 ?ㅽ궗 ??
         const permanentBuffs = {};
         const PERMANENT_BUFF_IDS = ['echo_berserk'];
         if (player.buffs) {
@@ -110,7 +103,7 @@ export const CombatInitializer = {
     },
 
     /**
-     * 적 스폰 (보스/정예/일반)
+     * ???ㅽ룿 (蹂댁뒪/?뺤삁/?쇰컲)
      */
     spawnEnemies(gs, data, mode, {
         getRegionData,
@@ -194,19 +187,22 @@ export const CombatInitializer = {
 
         _applyAbyssRegionBuffs(gs, region);
 
-        const codexEnemySet = _ensureCodexEnemySet(gs);
-        if (codexEnemySet) {
-            spawnedKeys.forEach((key) => codexEnemySet.add(key));
-        }
+        const encounterCounts = {};
+        spawnedKeys.forEach((key) => {
+            if (!key) return;
+            encounterCounts[key] = (encounterCounts[key] || 0) + 1;
+        });
+        Object.entries(encounterCounts).forEach(([key, count]) => {
+            registerEnemyEncounter(gs, key, count);
+        });
 
         return { spawnedKeys, isHiddenBoss: isBoss && spawnedKeys[0] === 'echo_origin' };
     },
 
     /**
-     * 전투 시작 시 공통 훅
-     *
-     * 참고:
-     * - 지역 규칙은 turn_manager.js에서 처리합니다.
+     * ?꾪닾 ?쒖옉 ??怨듯넻 ??     *
+     * 李멸퀬:
+     * - 吏??洹쒖튃? turn_manager.js?먯꽌 泥섎━?⑸땲??
      */
     applyRegionDebuffs(gs, _getBaseRegionIndex) {
         const runRules = globalThis.GAME?.Modules?.['RunRules'];
@@ -216,7 +212,7 @@ export const CombatInitializer = {
     },
 
     /**
-     * 덱 초기화 (전투용 draw/discard/hand)
+     * ??珥덇린??(?꾪닾??draw/discard/hand)
      */
     initDeck(gs, { shuffleArrayFn, drawCardsFn } = {}) {
         gs.player.drawPile = [...(gs.player.deck || [])];
@@ -241,3 +237,6 @@ export const CombatInitializer = {
         gs._selectedTarget = firstAlive >= 0 ? firstAlive : null;
     },
 };
+
+
+

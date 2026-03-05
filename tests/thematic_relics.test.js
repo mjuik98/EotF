@@ -60,6 +60,9 @@ function createGS() {
             }
             const enemy = this.combat.enemies[targetIdx];
             enemy.statusEffects[status] = (enemy.statusEffects[status] || 0) + duration;
+            if (status === 'poisoned') {
+                enemy.statusEffects.poisonDuration = 3;
+            }
         },
 
         addEcho(amount) {
@@ -119,8 +122,9 @@ describe('Thematic Relic Sets', () => {
 
             TurnManager.processEnemyStatusTicks(gs);
 
-            // Expected: Enemy 1 gets 2 poison, then TurnManager processes Enemy 1 and decrements it to 1.
-            expect(gs.combat.enemies[1].statusEffects.poisoned).toBe(1);
+            // Enemy 1 gets poison spread, then poison ticks once (duration decreases, stacks remain).
+            expect(gs.combat.enemies[1].statusEffects.poisoned).toBe(2);
+            expect(gs.combat.enemies[1].statusEffects.poisonDuration).toBe(2);
             expect(gs.addLog).toHaveBeenCalled();
             vi.spyOn(Math, 'random').mockRestore();
         });

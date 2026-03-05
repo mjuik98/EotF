@@ -547,3 +547,42 @@ Original prompt:
   - No new `errors-*.json` emitted.
 - TODO / suggestion:
   - Status metadata tables (`STATUS_KR`, `ENEMY_STATUS_*`, `STATUS_NAME_MAP`) are still duplicated across UI/log layers; consider a dedicated `data/status_metadata.js` consolidation pass when encoding normalization is scheduled.
+- Follow-up prompt: ¿ÜºÎ µµ°¨(codex_ui.js + codex_v3.css) ÄÚµå¸¦ ±âÁ¸ ÇÁ·ÎÁ§Æ®¿¡ ÅëÇÕÇØ ±âÁ¸ µµ°¨ ±â´É °³¼±.
+- Integration analysis summary:
+  - Existing codex runtime path confirmed via `game/ui/screens/codex_ui.js` + title/pause open bindings + `#codexModal` in `index.html`.
+  - Existing data linkage confirmed on `gs.meta.codex` (`enemies/cards/items` Set) with save/load migration support.
+  - External v3 codex code reviewed: runtime modal structure injection (`.codex-modal-inner[data-v3]`), `cx-*` namespaced UI, filter/sort/search/detail popup flow.
+- Applied changes:
+  - Replaced `game/ui/screens/codex_ui.js` with external v3 implementation.
+  - Added compatibility hardening in integrated codex module:
+    - Prevent stale closure deps in injected handlers by rendering/tab switching/close using `_popupDeps`.
+    - Added click SFX hook support on injected close/tab buttons (`_popupDeps?.audioEngine?.playClick?.()`).
+    - Fixed keyboard popup navigation path by tracking current popup opener in `_popupOpenFn` and using it on ArrowLeft/ArrowRight.
+    - Added guard in `_navPopup` when opener fn is missing.
+    - Unified element creation in filter bar (`doc.createElement`) for doc-injection compatibility.
+    - Added zero-division guard for set progress ring when a set has 0 configured items.
+  - Added new stylesheet file `css/codex_v3.css` from external source.
+  - Linked v3 stylesheet in `index.html` head: `<link rel="stylesheet" href="css/codex_v3.css">`.
+- Validation:
+  - `node --check game/ui/screens/codex_ui.js` PASS.
+  - `npm test` NOT PASS due existing unrelated baseline failures (6 tests across class progression / description utils / thematic relics suites).
+  - Playwright skill client run (dev server `http://127.0.0.1:4173`, click `#mainCodexBtn`) completed:
+    - Screenshots refreshed: `output/web-game/shot-0.png`, `output/web-game/shot-1.png`, `output/web-game/shot-2.png`.
+    - No `errors-*.json` emitted by the skill client.
+  - Additional full-page codex modal visual check via Playwright:
+    - `output/web-game/codex-full.png`, `output/web-game/codex-modal.png` generated and visually inspected (v3 layout/styles active).
+    - `output/web-game/codex-errors.json` = `[]` (no console/page errors captured).
+- Residual notes / suggestion:
+  - `css/styles.css` still contains legacy duplicated `.codex-*` blocks; v3 works via separate stylesheet and `data-v3` scoping, but legacy cleanup can be done in a follow-up CSS-only pass.
+  - `gs.meta.codexRecords` remains optional; UI supports it, but encounter/use/found counters are not yet broadly recorded in gameplay flow.
+- Follow-up prompt: ì§„í–‰í•´ì¤˜ (remaining baseline failures cleanup).
+- Updated stale tests to align with current game behavior:
+  - `tests/class_progression_system.test.js`: boss reward assertion now checks localized label (`ë³´ìŠ¤`).
+  - `tests/class_progression_bonuses.test.js`: expected mastery values updated to current roadmap values; codex assertions now validate Set membership after codex normalization.
+  - `tests/description_utils_highlight.test.js`: rewritten in UTF-8 and set-label assertions updated to current rendered block format (`kw-special kw-block`).
+  - `tests/thematic_relics.test.js`: test double `applyEnemyStatus` now mirrors production poison duration behavior; serpent 2-set expectation updated for duration-based poison ticks.
+- Validation:
+  - `npm test -- tests/class_progression_system.test.js tests/class_progression_bonuses.test.js tests/description_utils_highlight.test.js tests/thematic_relics.test.js` PASS.
+  - `npm test` PASS (37 files, 140 tests).
+  - `npm run build` PASS.
+  - Playwright skill client rerun (`web_game_playwright_client.js`, url `http://127.0.0.1:4191`, `#mainCodexBtn` click attempt, 3 iterations) completed; screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and visually inspected; no new `errors-*.json` emitted.

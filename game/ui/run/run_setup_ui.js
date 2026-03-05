@@ -1,4 +1,5 @@
 import { runIdempotent } from '../../utils/idempotency_utils.js';
+import { registerCardDiscovered, registerItemFound } from '../../systems/codex_records_system.js';
 
 function _getInscriptionLevel(gs, id) {
   if (!gs?.meta?.inscriptions) return 0;
@@ -131,12 +132,12 @@ export const RunSetupUI = {
       };
 
       if (!gs.meta.codex) gs.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
-      gs.player.deck.forEach((id) => gs.meta.codex.cards.add(id));
+      gs.player.deck.forEach((id) => registerCardDiscovered(gs, id));
 
       const startItem = classMeta.startRelic;
       if (startItem) {
         gs.player.items.push(startItem);
-        gs.meta.codex.items.add(startItem);
+        registerItemFound(gs, startItem);
       }
 
       _applyStartBonuses(gs, data);

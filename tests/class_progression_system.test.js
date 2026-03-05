@@ -53,7 +53,7 @@ describe('ClassProgressionSystem', () => {
     expect(summary).toBeTruthy();
     expect(summary.totalGain).toBeGreaterThan(0);
     expect(summary.after.totalXp).toBe(summary.before.totalXp + summary.totalGain);
-    expect(summary.rewards.some((row) => row.label.includes('Boss'))).toBe(true);
+    expect(summary.rewards.some((row) => row.label.includes('보스'))).toBe(true);
     expect(gs.meta.classProgress.pendingSummaries).toHaveLength(1);
   });
 

@@ -1,6 +1,7 @@
 import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
 import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
+import { registerCardDiscovered, registerItemFound } from '../../systems/codex_records_system.js';
 import { CONSTANTS } from '../../data/constants.js';
 import { RARITY_LABELS } from '../../../data/rarity_meta.js';
 
@@ -117,7 +118,7 @@ function _ensureMiniBossBonus(gs, data, deps) {
   if (rareItems.length > 0) {
     const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
     gs.player.items.push(guaranteed.id);
-    gs.meta?.codex?.items?.add?.(guaranteed.id);
+    registerItemFound(gs, guaranteed.id);
     gs.addLog?.(`🔥 미니보스 유물 획득: ${guaranteed.icon || '💎'} ${guaranteed.name}`, 'system');
   }
 }
@@ -458,7 +459,7 @@ export const RewardUI = {
       doc.getElementById('rewardCards')?.classList.add('picked');
 
       gs.player.deck.unshift(cardId);
-      gs.meta?.codex?.cards?.add?.(cardId);
+      registerCardDiscovered(gs, cardId);
 
       const card = data.cards?.[cardId];
       deps.playItemGet?.();
@@ -480,7 +481,7 @@ export const RewardUI = {
       doc.getElementById('rewardCards')?.classList.add('picked');
 
       gs.player.items.push(itemKey);
-      gs.meta?.codex?.items?.add?.(itemKey);
+      registerItemFound(gs, itemKey);
 
       const item = data.items?.[itemKey];
       deps.playItemGet?.();
@@ -508,7 +509,7 @@ export const RewardUI = {
       const upgId = data.upgradeMap[cardId];
       const idx = gs.player.deck.indexOf(cardId);
       if (idx >= 0) gs.player.deck[idx] = upgId;
-      gs.meta?.codex?.cards?.add?.(upgId);
+      registerCardDiscovered(gs, upgId);
 
       deps.playItemGet?.();
       deps.showItemToast?.({ name: `🛠️ 강화 완료: ${data.cards?.[upgId]?.name || upgId}`, icon: '✨', desc: '무작위 카드 1장이 업그레이드되었습니다.' });

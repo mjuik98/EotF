@@ -4,6 +4,7 @@
 
 import { CONSTANTS } from '../data/constants.js';
 import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../data/event_shop_data.js';
+import { registerCardDiscovered, registerItemFound } from './codex_records_system.js';
 
 function _totalDeckCards(player) {
   return (player?.deck?.length || 0) + (player?.hand?.length || 0) + (player?.graveyard?.length || 0);
@@ -210,7 +211,7 @@ export const EventManager = {
     }
     gs.player.gold -= cost;
     gs.player.items.push(item.id);
-    if (gs.meta?.codex) gs.meta.codex.items.add(item.id);
+    registerItemFound(gs, item.id);
     gs.addLog?.(`🛒 ${item.name} 구매 완료.`, 'echo');
     return { success: true, message: `${item.name}을(를) 구매했습니다.` };
   },
@@ -258,7 +259,7 @@ export const EventManager = {
     if (!cardId) return '획득 가능한 카드가 없습니다.';
     state.player.gold -= cost;
     state.player.deck.push(cardId);
-    state.meta?.codex?.cards?.add?.(cardId);
+    registerCardDiscovered(state, cardId);
     return `🃏 ${data.cards?.[cardId]?.name || cardId} 획득. 남은 골드: ${state.player.gold}`;
   },
 
@@ -271,7 +272,7 @@ export const EventManager = {
     const idx = state.player.deck.indexOf(cardId);
     if (idx >= 0) state.player.deck[idx] = upgId;
     state.player.gold -= cost;
-    state.meta?.codex?.cards?.add?.(upgId);
+    registerCardDiscovered(state, upgId);
     return `✨ ${data.cards?.[cardId]?.name || cardId} 강화 완료. 남은 골드: ${state.player.gold}`;
   },
 
@@ -293,7 +294,7 @@ export const EventManager = {
     const restored = [...state._stagnationVault];
     state._stagnationVault = [];
     state.player.deck.push(...restored);
-    restored.forEach((cardId) => state.meta?.codex?.cards?.add?.(cardId));
+    restored.forEach((cardId) => registerCardDiscovered(state, cardId));
     state.addLog?.(`🧩 정체 영역 복원: 카드 ${restored.length}장`, 'echo');
     return `덱에 카드 ${restored.length}장을 복원했습니다.`;
   },
@@ -305,6 +306,7 @@ export const EventManager = {
     const upgId = data.upgradeMap[cardId];
     const idx = state.player.deck.indexOf(cardId);
     if (idx >= 0) state.player.deck[idx] = upgId;
+    registerCardDiscovered(state, upgId);
     state.addLog?.(`✨ ${data.cards?.[cardId]?.name || cardId} 강화`, 'echo');
     return `${data.cards?.[cardId]?.name || cardId} 강화 완료.`;
   },
