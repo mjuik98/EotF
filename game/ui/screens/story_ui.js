@@ -142,6 +142,24 @@ export const StoryUI = {
       if (btn.disabled) return;
       btn.disabled = true;
       btn.style.pointerEvents = 'none';
+      const closeEffect = deps?.closeEffect || 'ripple';
+      if (closeEffect === 'none') {
+        el.remove();
+        finish();
+        return;
+      }
+
+      if (closeEffect === 'fade') {
+        el.style.transition = 'opacity 0.34s ease, filter 0.34s ease';
+        el.style.filter = 'blur(6px)';
+        el.style.opacity = '0';
+        setTimeout(() => {
+          el.remove();
+          finish();
+        }, 350);
+        return;
+      }
+
       startEchoRippleDissolve(el, {
         doc,
         win: deps?.win,

@@ -1,4 +1,5 @@
 import { runIdempotent } from '../../utils/idempotency_utils.js';
+import { startEchoRippleDissolve } from '../effects/echo_ripple_transition.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -10,6 +11,81 @@ function _getGS(deps) {
 
 function _getWin(deps) {
   return deps?.win || window;
+}
+
+function _playRunEntryTransition(deps = {}, onComplete = () => {}) {
+  const doc = _getDoc(deps);
+  const win = _getWin(deps);
+
+  if (!doc?.body || !win) {
+    onComplete();
+    return;
+  }
+
+  const overlay = doc.createElement('div');
+  overlay.id = 'runEntryTransitionOverlay';
+  overlay.style.cssText = [
+    'position:fixed',
+    'inset:0',
+    'background:radial-gradient(circle at center, rgba(94, 50, 170, 0.24) 0%, rgba(3, 3, 10, 0.95) 62%, rgba(0, 0, 0, 1) 100%)',
+    'z-index:2100',
+    'pointer-events:none',
+    'opacity:1',
+  ].join(';');
+  doc.body.appendChild(overlay);
+
+  startEchoRippleDissolve(overlay, {
+    doc,
+    win,
+    requestAnimationFrame: deps.requestAnimationFrame,
+    cancelAnimationFrame: deps.cancelAnimationFrame,
+    onComplete,
+  });
+}
+
+function _playStageEntryFadeTransition(deps = {}, onMidpoint = () => {}) {
+  const doc = _getDoc(deps);
+  const win = _getWin(deps);
+
+  if (!doc?.body || !win) {
+    onMidpoint();
+    return;
+  }
+
+  const fadeInMs = 220;
+  const holdMs = 110;
+  const fadeOutMs = 260;
+
+  const overlay = doc.createElement('div');
+  overlay.id = 'runStageFadeTransitionOverlay';
+  overlay.style.cssText = [
+    'position:fixed',
+    'inset:0',
+    'background:#000',
+    'opacity:0',
+    'z-index:2102',
+    'pointer-events:none',
+  ].join(';');
+  doc.body.appendChild(overlay);
+
+  const raf = deps.requestAnimationFrame || win?.requestAnimationFrame;
+  if (typeof raf === 'function') {
+    raf(() => {
+      overlay.style.transition = `opacity ${fadeInMs}ms ease`;
+      overlay.style.opacity = '1';
+    });
+  } else {
+    overlay.style.transition = `opacity ${fadeInMs}ms ease`;
+    overlay.style.opacity = '1';
+  }
+
+  setTimeout(() => {
+    onMidpoint();
+
+    overlay.style.transition = `opacity ${fadeOutMs}ms ease`;
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), fadeOutMs + 20);
+  }, fadeInMs + holdMs);
 }
 
 export const RunStartUI = {
@@ -58,11 +134,20 @@ export const RunStartUI = {
         }, 1000);
       };
 
+      const beginGameplayWithStageFade = () => {
+        _playStageEntryFadeTransition({
+          doc,
+          win,
+          requestAnimationFrame: deps.requestAnimationFrame,
+        }, beginGameplay);
+      };
+
       let fragmentShown = false;
       if (typeof deps.showRunFragment === 'function') {
         try {
           fragmentShown = !!deps.showRunFragment({
-            onFragmentClosed: beginGameplay,
+            closeEffect: 'none',
+            onFragmentClosed: beginGameplayWithStageFade,
           });
         } catch (err) {
           console.error('[RunStartUI] showRunFragment failed:', err);
@@ -71,7 +156,19 @@ export const RunStartUI = {
       }
 
       if (!fragmentShown) {
-        beginGameplay();
+        const preRunRipplePlayed = !!gs._preRunRipplePlayed;
+        gs._preRunRipplePlayed = false;
+
+        if (preRunRipplePlayed) {
+          beginGameplayWithStageFade();
+        } else {
+          _playRunEntryTransition({
+            doc,
+            win,
+            requestAnimationFrame: deps.requestAnimationFrame,
+            cancelAnimationFrame: deps.cancelAnimationFrame,
+          }, beginGameplayWithStageFade);
+        }
       }
     }, { ttlMs: 2000 });
   },

@@ -5,6 +5,7 @@
  */
 import * as Deps from '../deps_factory.js';
 import { IntroCinematicUI } from '../../ui/title/intro_cinematic_ui.js';
+import { startEchoRippleDissolve } from '../../ui/effects/echo_ripple_transition.js';
 
 export function createTitleSettingsBindings(M, fns) {
     const clampVolumePercent = (value) => {
@@ -70,6 +71,48 @@ export function createTitleSettingsBindings(M, fns) {
         });
     }
 
+    const playPreRunRipple = (onComplete) => {
+        const finish = () => {
+            if (typeof onComplete === 'function') onComplete();
+        };
+
+        if (!document?.body) {
+            finish();
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.id = 'titleRunPreludeOverlay';
+        overlay.style.cssText = [
+            'position:fixed',
+            'inset:0',
+            'background:radial-gradient(circle at center, rgba(94, 50, 170, 0.24) 0%, rgba(3, 3, 10, 0.95) 62%, rgba(0, 0, 0, 1) 100%)',
+            'z-index:2100',
+            'pointer-events:none',
+            'opacity:1',
+        ].join(';');
+        document.body.appendChild(overlay);
+
+        let completed = false;
+        const done = () => {
+            if (completed) return;
+            completed = true;
+            finish();
+        };
+
+        try {
+            startEchoRippleDissolve(overlay, {
+                doc: document,
+                win: window,
+                onComplete: done,
+            });
+        } catch (error) {
+            console.error('[TitleSettingsBindings] pre-run ripple failed:', error);
+            overlay.remove();
+            done();
+        }
+    };
+
     fns.startGame = () => {
         M.AudioEngine?.playClick?.();
         // Keep title subscreens hidden until game screen activation to avoid
@@ -80,15 +123,20 @@ export function createTitleSettingsBindings(M, fns) {
         if (main) main.style.display = 'none';
 
         // 인트로 연출 → 완료 후 실제 게임 시작
-        IntroCinematicUI.play(
-            {
-                gs: M.GS,
-                getSelectedClass: () => M.ClassSelectUI?.getSelectedClass?.(),
-            },
-            () => {
-                M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
-            }
-        );
+        const startRunFlow = () => {
+            if (M.GS) M.GS._preRunRipplePlayed = true;
+            IntroCinematicUI.play(
+                {
+                    gs: M.GS,
+                    getSelectedClass: () => M.ClassSelectUI?.getSelectedClass?.(),
+                },
+                () => {
+                    M.RunSetupUI?.startGame?.(Deps.getRunSetupDeps());
+                }
+            );
+        };
+
+        playPreRunRipple(startRunFlow);
     };
 
     fns.refreshRunModePanel = () => {
