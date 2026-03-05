@@ -2,10 +2,18 @@
  * Game Initialization & Bootstrapping
  */
 import { GAME } from './global_bridge.js';
+import { SettingsManager } from './settings_manager.js';
+import { SettingsUI } from '../ui/screens/settings_ui.js';
 
 export const GameInit = {
     boot(deps) {
         this.loadVolumes(deps.audioEngine);
+        SettingsUI.applyOnBoot({
+            doc: document,
+            ScreenShake: deps.ScreenShake,
+            HitStop: deps.HitStop,
+            ParticleSystem: deps.ParticleSystem,
+        });
         this.syncVolumeUI(deps.audioEngine);
         this.initEventHandlers(deps);
         this.initHelpPauseUI(deps);
@@ -13,23 +21,19 @@ export const GameInit = {
     },
 
     loadVolumes(audioEngine) {
-        try {
-            const saved = localStorage.getItem('eotf_settings');
-            if (saved) {
-                const { volumes } = JSON.parse(saved);
-                if (volumes && audioEngine) {
-                    if (Number.isFinite(volumes.master)) audioEngine.setVolume(Math.max(0, Math.min(1, volumes.master)));
-                    if (Number.isFinite(volumes.sfx)) audioEngine.setSfxVolume(Math.max(0, Math.min(1, volumes.sfx)));
-                    if (Number.isFinite(volumes.ambient)) audioEngine.setAmbientVolume(Math.max(0, Math.min(1, volumes.ambient)));
-                }
-            }
-        } catch (e) { console.warn('Load settings error:', e); }
+        const data = SettingsManager.load();
+        if (!audioEngine) return;
+        if (Number.isFinite(data?.volumes?.master)) audioEngine.setVolume(data.volumes.master);
+        if (Number.isFinite(data?.volumes?.sfx)) audioEngine.setSfxVolume(data.volumes.sfx);
+        if (Number.isFinite(data?.volumes?.ambient)) audioEngine.setAmbientVolume(data.volumes.ambient);
     },
 
     saveVolumes(audioEngine) {
         if (!audioEngine) return;
         const vol = audioEngine.getVolumes();
-        localStorage.setItem('eotf_settings', JSON.stringify({ volumes: vol }));
+        SettingsManager.set('volumes.master', vol.master);
+        SettingsManager.set('volumes.sfx', vol.sfx);
+        SettingsManager.set('volumes.ambient', vol.ambient);
     },
 
     syncVolumeUI(audioEngine) {
@@ -39,15 +43,15 @@ export const GameInit = {
         const s = Math.round(vol.sfx * 100);
         const a = Math.round(vol.ambient * 100);
         const doc = document;
-        doc.querySelectorAll('#volMasterVal, #volMasterSliderVal').forEach(el => el.textContent = m + '%');
-        doc.querySelectorAll('#volSfxVal, #volSfxSliderVal').forEach(el => el.textContent = s + '%');
-        doc.querySelectorAll('#volAmbientVal, #volAmbientSliderVal').forEach(el => el.textContent = a + '%');
-        doc.querySelectorAll('#volMasterSlider').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
-        doc.querySelectorAll('#volSfxSlider').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
-        doc.querySelectorAll('#volAmbientSlider').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
-        doc.querySelectorAll('#volMaster').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
-        doc.querySelectorAll('#volSfx').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
-        doc.querySelectorAll('#volAmbient').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
+        doc.querySelectorAll('#settings-vol-master-val, #volMasterSliderVal').forEach(el => el.textContent = m + '%');
+        doc.querySelectorAll('#settings-vol-sfx-val, #volSfxSliderVal').forEach(el => el.textContent = s + '%');
+        doc.querySelectorAll('#settings-vol-ambient-val, #volAmbientSliderVal').forEach(el => el.textContent = a + '%');
+        doc.querySelectorAll('#settings-vol-master-slider, #volMasterSlider').forEach(el => { el.value = m; el.style.setProperty('--fill-percent', m + '%'); });
+        doc.querySelectorAll('#settings-vol-sfx-slider, #volSfxSlider').forEach(el => { el.value = s; el.style.setProperty('--fill-percent', s + '%'); });
+        doc.querySelectorAll('#settings-vol-ambient-slider, #volAmbientSlider').forEach(el => { el.value = a; el.style.setProperty('--fill-percent', a + '%'); });
+        doc.querySelectorAll('#settings-vol-master-icon').forEach(el => { el.textContent = m === 0 ? '🔇' : m < 40 ? '🔈' : m < 70 ? '🔉' : '🔊'; });
+        doc.querySelectorAll('#settings-vol-sfx-icon').forEach(el => { el.textContent = s === 0 ? '🔇' : s < 40 ? '🔈' : s < 70 ? '🔉' : '🔊'; });
+        doc.querySelectorAll('#settings-vol-ambient-icon').forEach(el => { el.textContent = a === 0 ? '🔇' : a < 40 ? '🔈' : a < 70 ? '🔉' : '🔊'; });
     },
 
     initEventHandlers(deps) {
@@ -67,8 +71,8 @@ export const GameInit = {
         const {
             showCharacterSelect, openRunSettings, openCodexFromTitle, quitGame,
             selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
-            toggleEndlessMode, cycleRunBlessing, cycleRunCurse, setMasterVolume,
-            setSfxVolume, setAmbientVolume, drawCard, endPlayerTurn, useEchoSkill
+            toggleEndlessMode, cycleRunBlessing, cycleRunCurse, drawCard, endPlayerTurn, useEchoSkill,
+            openSettings, closeSettings
         } = deps.actions;
 
         // Title-screen-only Escape Handler
@@ -90,10 +94,10 @@ export const GameInit = {
                     return;
                 }
 
-                // Sound Settings (Toggle)
-                const soundSettings = doc.getElementById('soundSettings');
-                if (soundSettings?.classList.contains('open')) {
-                    soundSettings.classList.remove('open');
+                // Settings modal (opened from title)
+                const settingsModal = doc.getElementById('settingsModal');
+                if (isVisibleModal(settingsModal)) {
+                    closeSettings?.();
                     return;
                 }
 
@@ -111,7 +115,7 @@ export const GameInit = {
         doc.getElementById('mainCodexBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openCodexFromTitle?.(); });
         doc.getElementById('mainSettingsBtn')?.addEventListener('click', () => {
             deps.audioEngine?.playClick?.();
-            doc.getElementById('soundSettings')?.classList.toggle('open');
+            openSettings?.();
         });
         doc.getElementById('mainQuitBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); typeof quitGame === 'function' && quitGame(); });
 
@@ -129,15 +133,6 @@ export const GameInit = {
         doc.getElementById('curseCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunCurse?.(); });
         doc.getElementById('toggleInscriptionLayoutBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
         doc.getElementById('toggleAllInscriptionsBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
-
-        // Sound
-        doc.getElementById('soundToggleBtn')?.addEventListener('click', () => {
-            deps.audioEngine?.playClick?.();
-            doc.getElementById('soundSettings')?.classList.toggle('open');
-        });
-        doc.getElementById('volMaster')?.addEventListener('input', (e) => setMasterVolume?.(e.target.value));
-        doc.getElementById('volSfx')?.addEventListener('input', (e) => setSfxVolume?.(e.target.value));
-        doc.getElementById('volAmbient')?.addEventListener('input', (e) => setAmbientVolume?.(e.target.value));
 
         // Maze
         doc.getElementById('mazeMinimapCanvas')?.addEventListener('click', (e) => {

@@ -126,6 +126,8 @@ export function buildUiContractBuilders(ctx) {
         openCodex: refs.openCodex,
         closeCodex: refs.closeCodex,
         closeRunSettings: refs.closeRunSettings,
+        openSettings: refs.openSettings,
+        closeSettings: refs.closeSettings,
         quitGame: refs.quitGame,
         setMasterVolume: refs.setMasterVolume,
         setSfxVolume: refs.setSfxVolume,
@@ -148,6 +150,20 @@ export function buildUiContractBuilders(ctx) {
       return {
         ...buildBaseDeps(),
         getRegionData: refs.getRegionData,
+      };
+    },
+
+    settings: () => {
+      const refs = getRefs();
+      return {
+        ...buildBaseDeps(),
+        audioEngine: refs.AudioEngine,
+        ScreenShake: refs.ScreenShake,
+        HitStop: refs.HitStop,
+        ParticleSystem: refs.ParticleSystem,
+        openSettings: refs.openSettings,
+        closeSettings: refs.closeSettings,
+        setSettingsTab: refs.setSettingsTab,
       };
     },
   };

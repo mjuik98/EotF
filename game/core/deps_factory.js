@@ -119,4 +119,5 @@ export function getMetaProgressionDeps() { return createDeps('metaProgression');
 export function getRegionTransitionDeps() { return createDeps('regionTransition'); }
 export function getHelpPauseDeps() { return createDeps('helpPause'); }
 export function getWorldCanvasDeps() { return createDeps('worldCanvas'); }
+export function getSettingsDeps() { return createDeps('settings'); }
 export function getGameBootDeps() { return createDeps('gameBoot'); }

@@ -27,6 +27,7 @@ const EXPECTED_CONTRACTS = [
   'classSelect',
   'helpPause',
   'worldCanvas',
+  'settings',
   'runMode',
   'runStart',
   'runSetup',

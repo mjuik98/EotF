@@ -1,6 +1,9 @@
-﻿let _helpOpen = false;
+﻿import { SettingsManager } from '../../core/settings_manager.js';
+
+let _helpOpen = false;
 let _pauseOpen = false;
 let _hotkeysBound = false;
+
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -53,6 +56,42 @@ function _isVisibleModal(el, doc) {
   return true;
 }
 
+function _eventMatchesCode(e, code) {
+  if (!e || !code) return false;
+  if (e.code === code) return true;
+
+  if (code === 'Escape') return e.key === 'Escape' || e.key === 'Esc';
+  if (code === 'Enter') return e.key === 'Enter';
+  if (code === 'Tab') return e.key === 'Tab';
+  if (code === 'Slash') return e.key === '/' || e.key === '?';
+
+  if (code.startsWith('Key')) {
+    return String(e.key || '').toUpperCase() === code.slice(3);
+  }
+  if (code.startsWith('Digit')) {
+    return e.key === code.slice(5);
+  }
+  return false;
+}
+
+function _getKeybindingCode(action, fallback) {
+  const code = SettingsManager.get(`keybindings.${action}`);
+  if (typeof code === 'string' && code.trim()) return code;
+  return fallback;
+}
+
+function _keyCodeToLabel(code) {
+  if (!code || typeof code !== 'string') return '';
+  if (code === 'Escape') return 'ESC';
+  if (code === 'Enter') return 'Enter';
+  if (code === 'Tab') return 'Tab';
+  if (code === 'Slash') return '?';
+  if (code === 'Space') return 'SPACE';
+  if (code.startsWith('Key')) return code.slice(3).toUpperCase();
+  if (code.startsWith('Digit')) return code.slice(5);
+  return code;
+}
+
 export const HelpPauseUI = {
   isHelpOpen() {
     return _helpOpen;
@@ -93,16 +132,17 @@ export const HelpPauseUI = {
       const grid = doc.createElement('div');
       grid.style.cssText = 'background:rgba(16,16,46,0.85);border:1px solid var(--border);border-radius:16px;padding:24px 40px;display:grid;grid-template-columns:1fr 1.2fr;gap:12px 40px;max-width:600px;width:90%;';
 
-      [
-        ['ESC', '일시정지 (창 닫기)'],
-        ['D', '덱 보기'],
-        ['?', '도움말 열기'],
-        ['E', 'Echo 스킬 발동 (전투 중)'],
-        ['Q', '카드 뽑기 (전투 중)'],
-        ['Enter', '턴 종료 (전투 중)'],
+      const keyRows = [
+        [_keyCodeToLabel(_getKeybindingCode('pause', 'Escape')), '일시정지 (창 닫기)'],
+        [_keyCodeToLabel(_getKeybindingCode('deckView', 'KeyD')), '덱 보기'],
+        [_keyCodeToLabel(_getKeybindingCode('help', 'Slash')), '도움말 열기'],
+        [_keyCodeToLabel(_getKeybindingCode('echoSkill', 'KeyE')), 'Echo 스킬 발동 (전투 중)'],
+        [_keyCodeToLabel(_getKeybindingCode('drawCard', 'KeyQ')), '카드 뽑기 (전투 중)'],
+        [_keyCodeToLabel(_getKeybindingCode('endTurn', 'Enter')), '턴 종료 (전투 중)'],
         ['1 - 0', '손패 카드 빠른 사용'],
-        ['Tab', '다음 적 대상 전환'],
-      ].forEach(([k, v]) => {
+        [_keyCodeToLabel(_getKeybindingCode('nextTarget', 'Tab')), '다음 적 대상 전환'],
+      ];
+      keyRows.forEach(([k, v]) => {
         const keyBox = doc.createElement('div');
         keyBox.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:var(--white);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:2px 8px;text-align:center;min-width:40px;height:fit-content;box-shadow: 0 2px 0 rgba(0,0,0,0.3);";
         keyBox.textContent = k;
@@ -322,6 +362,15 @@ export const HelpPauseUI = {
     codexBtn.onclick = () => { if (typeof deps.openCodex === 'function') deps.openCodex(); this.togglePause(deps); };
     midRow.append(deckBtn, codexBtn);
 
+    const settingsBtn = doc.createElement('button');
+    settingsBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;width:100%;";
+    settingsBtn.textContent = '환경 설정';
+    settingsBtn.onclick = () => {
+      this.togglePause(deps);
+      if (typeof deps.openSettings === 'function') deps.openSettings();
+      else globalThis.GAME?.API?.openSettings?.();
+    };
+
     const helpBtn = doc.createElement('button');
     helpBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.3);border-radius:8px;padding:16px;cursor:pointer;";
     helpBtn.textContent = '컨트롤 안내 (?)';
@@ -342,7 +391,7 @@ export const HelpPauseUI = {
     quitBtn.textContent = '게임 종료';
     quitBtn.onclick = () => { if (typeof deps.quitGame === 'function') deps.quitGame(); };
 
-    mainBtns.append(resBtn, midRow, helpBtn, abnBtn, startBtn, quitBtn);
+    mainBtns.append(resBtn, midRow, settingsBtn, helpBtn, abnBtn, startBtn, quitBtn);
 
     const volPanel = doc.createElement('div');
     volPanel.style.cssText = 'display:flex;flex-direction:column;gap:16px;margin-top:12px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;width:280px;';
@@ -396,9 +445,25 @@ export const HelpPauseUI = {
     doc.addEventListener('keydown', e => {
       // deps를 통해 현재 상태를 직접 참조
       const gs = _resolveGs(deps);
+      const keyPause = _getKeybindingCode('pause', 'Escape');
+      const keyHelp = _getKeybindingCode('help', 'Slash');
+      const keyDeckView = _getKeybindingCode('deckView', 'KeyD');
+      const keyCodex = _getKeybindingCode('codex', 'KeyC');
+      const keyEchoSkill = _getKeybindingCode('echoSkill', 'KeyE');
+      const keyDrawCard = _getKeybindingCode('drawCard', 'KeyQ');
+      const keyEndTurn = _getKeybindingCode('endTurn', 'Enter');
+      const keyNextTarget = _getKeybindingCode('nextTarget', 'Tab');
+      const isEscapeKey = e.key === 'Escape' || e.key === 'Esc';
+      const isPauseKey = _eventMatchesCode(e, keyPause);
+      const isSettingsRebinding = Boolean(doc.querySelector?.('.settings-keybind-btn.listening'));
+
+      // 설정 리바인딩 중에는 키 입력을 전역 hotkey가 가로채지 않도록 우회한다.
+      if (isSettingsRebinding) {
+        return;
+      }
 
       // ESC: 일시정지 또는 모달 닫기
-      if (e.key === 'Escape' || e.key === 'Esc') {
+      if (isEscapeKey || isPauseKey) {
         if (e.repeat) return;
         const swallowEsc = () => {
           e.preventDefault();
@@ -487,6 +552,15 @@ export const HelpPauseUI = {
           return;
         }
 
+        // 설정 모달 확인
+        const settingsModal = doc.getElementById('settingsModal');
+        if (_isVisibleModal(settingsModal, doc)) {
+          swallowEsc();
+          if (typeof deps.closeSettings === 'function') deps.closeSettings();
+          else globalThis.GAME?.API?.closeSettings?.();
+          return;
+        }
+
         // 전투 중이거나 게임 화면이면 일시정지 토글
         if (isInGame && !self.isHelpOpen()) {
           swallowEsc();
@@ -504,12 +578,12 @@ export const HelpPauseUI = {
 
       const isInGame = _isInGame(gs) || _isCombatOverlayActive(doc);
 
-      if ((e.key === '?' || e.key === '/') && isInGame) {
+      if (_eventMatchesCode(e, keyHelp) && isInGame) {
         e.preventDefault();
         self.toggleHelp(deps);
       }
 
-      if ((e.key === 'd' || e.key === 'D') && isInGame && !_helpOpen) {
+      if (_eventMatchesCode(e, keyDeckView) && isInGame && !_helpOpen) {
         const modal = doc.getElementById('deckViewModal');
         if (modal?.classList.contains('active')) {
           if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
@@ -518,11 +592,22 @@ export const HelpPauseUI = {
         }
       }
 
-      if ((e.key === 'e' || e.key === 'E') && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+      if (_eventMatchesCode(e, keyCodex) && isInGame && !_helpOpen) {
+        const modal = doc.getElementById('codexModal');
+        if (_isVisibleModal(modal, doc)) {
+          if (typeof deps.closeCodex === 'function') deps.closeCodex();
+        } else if (typeof deps.openCodex === 'function') {
+          deps.openCodex();
+        } else if (globalThis.GAME?.API?.openCodex) {
+          globalThis.GAME.API.openCodex();
+        }
+      }
+
+      if (_eventMatchesCode(e, keyEchoSkill) && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         if (typeof deps.useEchoSkill === 'function') deps.useEchoSkill();
       }
 
-      if ((e.key === 'q' || e.key === 'Q') && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+      if (_eventMatchesCode(e, keyDrawCard) && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
         if (typeof deps.drawCard === 'function') deps.drawCard();
         // 카드 뽑기 버튼 시각적 효과
@@ -531,7 +616,7 @@ export const HelpPauseUI = {
         }
       }
 
-      if (e.key === 'Enter' && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+      if (_eventMatchesCode(e, keyEndTurn) && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
         if (typeof deps.endPlayerTurn === 'function') deps.endPlayerTurn();
       }
@@ -546,7 +631,7 @@ export const HelpPauseUI = {
         }
       }
 
-      if (e.key === 'Tab' && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+      if (_eventMatchesCode(e, keyNextTarget) && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
         const enemies = gs?.combat?.enemies;
         const aliveIndices = enemies.map((enemy, idx) => enemy.hp > 0 ? idx : -1).filter(idx => idx >= 0);
@@ -564,3 +649,4 @@ export const HelpPauseUI = {
     }, true);
   },
 };
+

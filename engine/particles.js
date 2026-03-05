@@ -2,12 +2,14 @@ export const ParticleSystem = (() => {
   const POOL_SIZE = 300;
   const pool = Array.from({ length: POOL_SIZE }, () => ({ active: false }));
   let canvas, ctx;
+  let enabled = true;
 
   function init(c) {
     canvas = c; ctx = c.getContext('2d');
   }
 
   function spawn(x, y, { count = 8, color = '#7b2fff', size = 3, speed = 3, life = 0.6, type = 'dot' } = {}) {
+    if (!enabled) return;
     let spawned = 0;
     for (let p of pool) {
       if (spawned >= count) break;
@@ -46,6 +48,7 @@ export const ParticleSystem = (() => {
   function emit(x, y, opts) { spawn(x, y, opts); }
 
   function update() {
+    if (!enabled) return;
     if (!ctx || !canvas) return;
     for (const p of pool) {
       if (!p.active) continue;
@@ -69,7 +72,18 @@ export const ParticleSystem = (() => {
     }
   }
 
-  return { init, update, hitEffect, burstEffect, healEffect, deathEffect, emit };
+  function setEnabled(value) {
+    enabled = Boolean(value);
+    if (!enabled) {
+      for (const p of pool) p.active = false;
+    }
+  }
+
+  function isEnabled() {
+    return enabled;
+  }
+
+  return { init, update, hitEffect, burstEffect, healEffect, deathEffect, emit, setEnabled, isEnabled };
 })();
 
 

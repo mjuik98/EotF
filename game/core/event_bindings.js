@@ -77,6 +77,9 @@ function exposeToWindow(fns) {
         'abandonRun', 'confirmAbandon', 'showDeckView', 'useEchoSkill', 'drawCard',
         'resolveEvent', 'returnToGame', 'openCodex', 'toggleCombatInfo', 'updateStatusDisplay',
         'showCardPlayEffect',
+        'openSettings', 'closeSettings', 'setSettingsTab', 'resetSettings',
+        'applySettingVolume', 'applySettingVisual', 'applySettingAccessibility',
+        'startSettingsRebind', 'toggleSettingMute',
     ];
     windowExpose.forEach(name => { if (fns[name]) window[name] = fns[name]; });
 
@@ -129,6 +132,16 @@ function registerGameAPI(fns) {
         showSkipConfirm: fns.showSkipConfirm, skipReward: fns.skipReward, hideSkipConfirm: fns.hideSkipConfirm,
         showWorldMemoryNotice: fns.showWorldMemoryNotice,
         shiftAscension: fns.shiftAscension,
+        openSettings: fns.openSettings,
+        closeSettings: fns.closeSettings,
+        setSettingsTab: fns.setSettingsTab,
+        resetSettings: fns.resetSettings,
+        applySettingVolume: fns.applySettingVolume,
+        applySettingVisual: fns.applySettingVisual,
+        applySettingAccessibility: fns.applySettingAccessibility,
+        startSettingsRebind: fns.startSettingsRebind,
+        toggleSettingMute: fns.toggleSettingMute,
+        SettingsUI: M.SettingsUI,
     });
 }
 
@@ -143,6 +156,7 @@ function registerModules() {
     G.register('RunModeUI', M.RunModeUI);
     G.register('MetaProgressionUI', M.MetaProgressionUI);
     G.register('HelpPauseUI', M.HelpPauseUI);
+    G.register('SettingsUI', M.SettingsUI);
     G.register('TooltipUI', M.TooltipUI);
     G.register('FeedbackUI', M.FeedbackUI);
     G.register('ScreenUI', M.ScreenUI);

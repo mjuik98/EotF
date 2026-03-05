@@ -155,6 +155,8 @@ export function bootGame(modules, fns, Deps) {
                 setMasterVolume: (v) => fns.setMasterVolume(v),
                 setSfxVolume: (v) => fns.setSfxVolume(v),
                 setAmbientVolume: (v) => fns.setAmbientVolume(v),
+                openSettings: fns.openSettings,
+                closeSettings: fns.closeSettings,
                 drawCard: fns.drawCard,
                 endPlayerTurn: fns.endPlayerTurn,
                 useEchoSkill: fns.useEchoSkill,

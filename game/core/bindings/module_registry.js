@@ -68,6 +68,7 @@ import { CodexUI } from '../../ui/screens/codex_ui.js';
 import { StoryUI } from '../../ui/screens/story_ui.js';
 import { MetaProgressionUI } from '../../ui/screens/meta_progression_ui.js';
 import { HelpPauseUI } from '../../ui/screens/help_pause_ui.js';
+import { SettingsUI } from '../../ui/screens/settings_ui.js';
 
 import { RunModeUI } from '../../ui/run/run_mode_ui.js';
 import { RunStartUI } from '../../ui/run/run_start_ui.js';
@@ -149,6 +150,7 @@ export function createModuleRegistry() {
     StoryUI,
     MetaProgressionUI,
     HelpPauseUI,
+    SettingsUI,
 
     RunModeUI,
     RunStartUI,

@@ -182,19 +182,30 @@ export function createTitleSettingsBindings(M, fns) {
     fns.setMasterVolume = (v) => setVolume(
         v,
         (normalized) => M.AudioEngine?.setVolume?.(normalized),
-        '#volMasterVal, #volMasterSliderVal',
-        '#volMasterSlider, #volMaster',
+        '#settings-vol-master-val, #volMasterSliderVal',
+        '#settings-vol-master-slider, #volMasterSlider',
     );
     fns.setSfxVolume = (v) => setVolume(
         v,
         (normalized) => M.AudioEngine?.setSfxVolume?.(normalized),
-        '#volSfxVal, #volSfxSliderVal',
-        '#volSfxSlider, #volSfx',
+        '#settings-vol-sfx-val, #volSfxSliderVal',
+        '#settings-vol-sfx-slider, #volSfxSlider',
     );
     fns.setAmbientVolume = (v) => setVolume(
         v,
         (normalized) => M.AudioEngine?.setAmbientVolume?.(normalized),
-        '#volAmbientVal, #volAmbientSliderVal',
-        '#volAmbientSlider, #volAmbient',
+        '#settings-vol-ambient-val, #volAmbientSliderVal',
+        '#settings-vol-ambient-slider, #volAmbientSlider',
     );
+
+    // Settings modal bindings
+    fns.openSettings = () => M.SettingsUI?.openSettings?.(Deps.getSettingsDeps());
+    fns.closeSettings = () => M.SettingsUI?.closeSettings?.(Deps.getSettingsDeps());
+    fns.setSettingsTab = (tab) => M.SettingsUI?.setTab?.(tab, Deps.getSettingsDeps());
+    fns.resetSettings = () => M.SettingsUI?.resetToDefaults?.(Deps.getSettingsDeps());
+    fns.applySettingVolume = (type, val) => M.SettingsUI?.applyVolume?.(type, val, Deps.getSettingsDeps());
+    fns.applySettingVisual = (key, val) => M.SettingsUI?.applyVisual?.(key, val, Deps.getSettingsDeps());
+    fns.applySettingAccessibility = (key, val) => M.SettingsUI?.applyAccessibility?.(key, val, Deps.getSettingsDeps());
+    fns.startSettingsRebind = (action) => M.SettingsUI?.startRebind?.(action, Deps.getSettingsDeps());
+    fns.toggleSettingMute = (type) => M.SettingsUI?.muteToggle?.(type, Deps.getSettingsDeps());
 }
