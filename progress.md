@@ -482,3 +482,47 @@ Original prompt:
 - Verification:
   - `npm test -- tests/map_branching.test.js tests/event_manager_item_shop_cache.test.js tests/event_merchant_resolution.test.js` PASS.
   - `npm test` reports existing unrelated failures in pre-modified areas (`class_progression_bonuses`, `description_utils_highlight`, `thematic_relics`), while modified map/event tests remain passing.
+- Follow-up prompt: 여정 시작 버튼 전환 중 `검정 -> 배경 잠깐 노출 -> 검정` 플래시 제거.
+- Transition flash fix (`game/ui/run/run_start_ui.js`):
+  - `_playStageEntryFadeTransition` 오버레이 초기 opacity를 `0 -> 1`로 변경해, 스테이지 페이드 시작 시 배경이 한 프레임 보이는 구간 제거.
+  - 기존 전환 템포(타이밍)는 유지하고 페이드아웃만 적용되도록 조정.
+- Regression test update (`tests/run_start_ui.test.js`):
+  - pre-run ripple 경로에서 stage fade 오버레이가 처음부터 `opacity:1`로 생성되는지 검증 추가.
+- Validation:
+  - `npm test -- tests/run_start_ui.test.js tests/title_settings_bindings.test.js` PASS.
+  - Playwright skill client run: `node C:/Users/mjuik/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4182 --actions-file C:/Users/mjuik/.codex/skills/develop-web-game/references/action_payloads.json --click-selector #mainStartBtn --iterations 3 --pause-ms 250`
+  - Screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`; `errors-*.json` 미생성.
+- Follow-up prompt: 여정 시작 전환에서 여전히 `파동 -> 검정 -> 배경 -> RUN 9` 노출이 있어 프레임 단위 재검증 요청.
+- Dense transition investigation:
+  - Playwright screenshot 루프(30ms 목표)는 캡처 오버헤드로 실제 간격이 커져(약 0.3~2.3s) 전환 미세구간 분석에 부적합함을 확인.
+  - 브라우저 내부 `requestAnimationFrame` 샘플링(약 16ms)으로 `btnRealStart` 클릭 이후 5.2s/7.6s 타임라인을 별도 기록(`tmp/transition-raf-run9*.json`).
+  - 재현된 원인:
+    - prelude 블랙아웃이 빠지는 구간과 intro 오버레이의 `opacity:0 -> 1` 페이드인이 겹치며 유효 암전 강도가 약 `0.72`까지 하락(배경 노출 체감).
+- Fix (`game/ui/title/intro_cinematic_ui.js`):
+  - 인트로 오버레이 초기 `opacity`를 `1`로 고정.
+  - 인트로 시작 시 `requestAnimationFrame` 기반 페이드인 코드 제거.
+- Post-fix verification (rAF dense sampling):
+  - 같은 `RUN 9` 조건에서 전환 초반(`~0.9s~1.7s`) 유효 암전 강도가 `1.00` 유지되어 배경 노출 구간 해소 확인.
+  - 참고: 인트로 종료 후 스토리 조각 오버레이(`StoryUI.displayFragment`)는 현재도 `fadeIn 1s` + `rgba(...,0.95)`로 올라오므로, 해당 구간에서는 의도된 반투명 배경 노출이 존재.
+- Validation:
+  - `npm test -- tests/title_settings_bindings.test.js tests/run_start_ui.test.js` PASS.
+  - Playwright skill client run: `node C:/Users/mjuik/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4190 --actions-file C:/Users/mjuik/.codex/skills/develop-web-game/references/action_payloads.json --click-selector #mainStartBtn --iterations 3 --pause-ms 250`
+  - Screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`; `errors-*.json` 미생성.
+- Follow-up prompt: `RUN 9 -> 배경 -> 암전 -> 스테이지` 구간에서도 배경 노출 제거.
+- Additional transition fixes:
+  - `game/ui/screens/story_ui.js`
+    - run fragment 오버레이 배경을 `rgba(3,3,10,0.95)` + `fadeIn`에서 `#000` + 즉시 표시(`opacity:1`)로 변경.
+  - `game/ui/title/intro_cinematic_ui.js`
+    - 런 인트로 자동 종료 시 500ms 페이드아웃을 제거하고 즉시 black handoff 오버레이 설치 후 run setup으로 진행하도록 변경.
+    - `runStartHandoffBlackoutOverlay` 설치 helper 추가.
+  - `game/ui/run/run_start_ui.js`
+    - handoff 오버레이 제거 유틸 추가.
+    - 스토리 조각 표시 경로에서는 조각 오버레이 표시 직후 handoff 제거.
+    - 스토리 없음/직접 진입 경로에서는 stage fade 오버레이 부착 시점에 handoff 제거.
+- Dense verification (rAF timeline):
+  - `tmp/transition-raf-run9-final2.json` 기준, `RUN 9` 이후 스토리 조각 진입 구간에서 유효 암전 강도 최솟값 `1.000`(배경 노출 프레임 없음).
+  - 스토리 조각 없는 경로도 `tmp/transition-raf-run9-nofragment-final.json`으로 점검.
+- Validation:
+  - `npm test -- tests/story_ui.test.js tests/run_start_ui.test.js tests/title_settings_bindings.test.js` PASS.
+  - Playwright skill client run: `node C:/Users/mjuik/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4191 --actions-file C:/Users/mjuik/.codex/skills/develop-web-game/references/action_payloads.json --click-selector #mainStartBtn --iterations 3 --pause-ms 250`
+  - Screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`; `errors-*.json` 미생성.

@@ -88,6 +88,8 @@ describe('RunStartUI transition flow', () => {
     expect(deps.showRunFragment).toHaveBeenCalledTimes(1);
     expect(startEchoRippleDissolve).not.toHaveBeenCalled();
     expect(deps.switchScreen).not.toHaveBeenCalled();
+    expect(deps.doc.body.appendChild).toHaveBeenCalledTimes(1);
+    expect(deps.doc.body.appendChild.mock.calls[0][0].style.cssText).toContain('opacity:1');
 
     vi.advanceTimersByTime(330);
     expect(deps.switchScreen).toHaveBeenCalledWith('game');

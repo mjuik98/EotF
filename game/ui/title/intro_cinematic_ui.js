@@ -55,12 +55,24 @@ function _getReturnLine(runCount) {
 let _overlay = null;
 let _skipHandlers = [];
 let _animTimer = null;
+const RUN_START_HANDOFF_BLACKOUT_ID = 'runStartHandoffBlackoutOverlay';
 
 function _cleanup() {
     _skipHandlers.forEach(({ type, fn }) => document.removeEventListener(type, fn));
     _skipHandlers = [];
     if (_animTimer) { clearTimeout(_animTimer); _animTimer = null; }
     if (_overlay) { _overlay.remove(); _overlay = null; }
+}
+
+function _installRunStartHandoffBlackout() {
+    const doc = typeof document !== 'undefined' ? document : null;
+    if (!doc?.body) return;
+
+    doc.getElementById(RUN_START_HANDOFF_BLACKOUT_ID)?.remove();
+    const el = doc.createElement('div');
+    el.id = RUN_START_HANDOFF_BLACKOUT_ID;
+    el.style.cssText = 'position:fixed;inset:0;background:#000;opacity:1;z-index:2101;pointer-events:none;';
+    doc.body.appendChild(el);
 }
 
 // ── 애니메이션 헬퍼 ───────────────────────────────────────────────
@@ -87,7 +99,7 @@ function _buildOverlay() {
     background: #000;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    opacity: 0; transition: opacity 500ms ease;
+    opacity: 1;
     cursor: pointer; user-select: none;
   `;
 
@@ -234,6 +246,7 @@ export const IntroCinematicUI = {
         const skip = () => {
             if (skipped) return;
             skipped = true;
+            if (typeof onComplete === 'function') _installRunStartHandoffBlackout();
             _cleanup();
             onComplete?.();
         };
@@ -267,9 +280,6 @@ export const IntroCinematicUI = {
         // ── 타임라인 ──
         const totalDuration = isFirstRun ? 4800 : 3800;
 
-        // 오버레이 페이드인
-        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-
         // 각 라인 순차 등장
         const delays = isFirstRun
             ? [400, 1000, 1700, 1900, 2700]
@@ -291,11 +301,10 @@ export const IntroCinematicUI = {
         });
 
         // 자동 종료
-        _animTimer = setTimeout(async () => {
-            if (skipped) return;
-            await _fadeOut(overlay, 500);
+        _animTimer = setTimeout(() => {
             if (skipped) return;
             skipped = true;
+            if (typeof onComplete === 'function') _installRunStartHandoffBlackout();
             _cleanup();
             onComplete?.();
         }, totalDuration);

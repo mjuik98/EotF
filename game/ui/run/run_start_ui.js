@@ -1,6 +1,8 @@
 import { runIdempotent } from '../../utils/idempotency_utils.js';
 import { startEchoRippleDissolve } from '../effects/echo_ripple_transition.js';
 
+const RUN_START_HANDOFF_BLACKOUT_ID = 'runStartHandoffBlackoutOverlay';
+
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -11,6 +13,11 @@ function _getGS(deps) {
 
 function _getWin(deps) {
   return deps?.win || window;
+}
+
+function _removeRunStartHandoffBlackout(doc) {
+  if (!doc) return;
+  doc.getElementById?.(RUN_START_HANDOFF_BLACKOUT_ID)?.remove?.();
 }
 
 function _playRunEntryTransition(deps = {}, onComplete = () => {}) {
@@ -52,6 +59,7 @@ function _playStageEntryFadeTransition(deps = {}, onMidpoint = () => {}) {
     return;
   }
 
+  // Keep overall pacing, but start fully black to avoid a brief background flash.
   const fadeInMs = 220;
   const holdMs = 110;
   const fadeOutMs = 260;
@@ -62,22 +70,11 @@ function _playStageEntryFadeTransition(deps = {}, onMidpoint = () => {}) {
     'position:fixed',
     'inset:0',
     'background:#000',
-    'opacity:0',
+    'opacity:1',
     'z-index:2102',
     'pointer-events:none',
   ].join(';');
   doc.body.appendChild(overlay);
-
-  const raf = deps.requestAnimationFrame || win?.requestAnimationFrame;
-  if (typeof raf === 'function') {
-    raf(() => {
-      overlay.style.transition = `opacity ${fadeInMs}ms ease`;
-      overlay.style.opacity = '1';
-    });
-  } else {
-    overlay.style.transition = `opacity ${fadeInMs}ms ease`;
-    overlay.style.opacity = '1';
-  }
 
   setTimeout(() => {
     onMidpoint();
@@ -101,6 +98,7 @@ export const RunStartUI = {
       const beginGameplay = () => {
         if (gameplayStarted) return;
         gameplayStarted = true;
+        _removeRunStartHandoffBlackout(doc);
 
         if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
         const mainTitleSubScreen = doc.getElementById('mainTitleSubScreen');
@@ -140,6 +138,7 @@ export const RunStartUI = {
           win,
           requestAnimationFrame: deps.requestAnimationFrame,
         }, beginGameplay);
+        _removeRunStartHandoffBlackout(doc);
       };
 
       let fragmentShown = false;
@@ -149,6 +148,7 @@ export const RunStartUI = {
             closeEffect: 'none',
             onFragmentClosed: beginGameplayWithStageFade,
           });
+          if (fragmentShown) _removeRunStartHandoffBlackout(doc);
         } catch (err) {
           console.error('[RunStartUI] showRunFragment failed:', err);
           fragmentShown = false;
@@ -162,6 +162,7 @@ export const RunStartUI = {
         if (preRunRipplePlayed) {
           beginGameplayWithStageFade();
         } else {
+          _removeRunStartHandoffBlackout(doc);
           _playRunEntryTransition({
             doc,
             win,
