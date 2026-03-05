@@ -1,6 +1,7 @@
-﻿import { DescriptionUtils } from '../../utils/description_utils.js';
+import { DescriptionUtils } from '../../utils/description_utils.js';
 import { CardCostUtils } from '../../utils/card_cost_utils.js';
 import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
+import { StatusTooltipUI } from './status_tooltip_builder.js';
 
 
 const INTENT_DESCRIPTIONS = {
@@ -199,56 +200,43 @@ function _renderSelectedPreviewText(preview) {
 export const CombatUI = {
   showEnemyStatusTooltip(event, statusKey, statusValueOrDeps = null, deps = {}) {
     const statusValue = typeof statusValueOrDeps === 'number' ? statusValueOrDeps : null;
-    const resolvedDeps = statusValueOrDeps && typeof statusValueOrDeps === 'object'
+    const resolvedDeps = (statusValueOrDeps && typeof statusValueOrDeps === 'object')
       ? statusValueOrDeps
       : deps;
-    const doc = _getDoc(resolvedDeps);
-    const win = _getWin(resolvedDeps);
 
-    clearTimeout(_enemyStatusTipTimer);
+    const doc = resolvedDeps?.doc ?? globalThis.document;
+    const win = resolvedDeps?.win ?? globalThis.window ?? globalThis;
 
-    const status = ENEMY_STATUS_DESC[statusKey];
-    if (!status) return;
+    const statusMeta = ENEMY_STATUS_DESC[statusKey];
+    if (!statusMeta) return;
 
-    let el = doc.getElementById('enemyStatusTooltip');
-    if (!el) {
-      el = doc.createElement('div');
-      el.id = 'enemyStatusTooltip';
-      doc.body.appendChild(el);
-    }
+    // ENEMY_STATUS_DESC 를 StatusTooltipUI 가 기대하는 infoKR 포맷으로 변환
+    const infoKR = {
+      icon: statusMeta.icon,
+      name: ENEMY_STATUS_KR[statusKey] ?? statusKey,
+      buff: !['weakened', 'poisoned', 'burning', 'cursed', 'marked', 'branded', 'draw_block', 'doom'].includes(statusKey),
+      desc: statusMeta.desc,
+    };
 
-    el.textContent = '';
-    const title = doc.createElement('div');
-    title.className = 'est-title';
-    title.textContent = `${status.icon} ${ENEMY_STATUS_KR[statusKey] || statusKey}`;
+    // [개선 5] 적 상태이상은 항상 '적 부여'
+    const source = {
+      type: 'enemy',
+      label: '적 부여',
+      name: '전투 중 부여됨',
+      color: infoKR.buff ? '#88ccff' : '#ff6688',
+    };
 
-    const desc = doc.createElement('div');
-    desc.className = 'est-desc';
-    desc.textContent = status.desc;
-
-    const metrics = resolveEnemyStatusTooltipMetrics(statusKey, statusValue);
-    const meta = doc.createElement('div');
-    meta.style.cssText = 'font-size:10px;line-height:1.45;color:var(--text-dim);margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.12);';
-    meta.innerHTML = `지속시간: <b>${metrics.duration}</b><br>스택: <b>${metrics.stacks}</b>`;
-
-    el.append(title, desc, meta);
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    let x = rect.right + 10;
-    let y = rect.top;
-    if (x + 200 > win.innerWidth) x = rect.left - 210;
-    if (y + 120 > win.innerHeight) y = win.innerHeight - 125;
-
-    el.style.left = `${Math.max(6, x)}px`;
-    el.style.top = `${Math.max(6, y)}px`;
-    el.classList.add('visible');
+    StatusTooltipUI.show(event, statusKey, infoKR, statusValue, {
+      rawValue: statusValue,
+      source,
+      doc,
+      win,
+    });
   },
 
   hideEnemyStatusTooltip(deps = {}) {
-    const doc = _getDoc(deps);
-    _enemyStatusTipTimer = setTimeout(() => {
-      doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-    }, 80);
+    const doc = deps?.doc ?? globalThis.document;
+    StatusTooltipUI.hide({ doc });
   },
 
   showIntentTooltip(event, enemyIdx, deps = {}) {
