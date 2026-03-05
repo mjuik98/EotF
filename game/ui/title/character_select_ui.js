@@ -10,6 +10,9 @@
 import { ITEMS } from '../../../data/items.js';
 import { CARDS } from '../../../data/cards.js';
 import { CLASS_METADATA } from '../../../data/class_metadata.js';
+import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
+import { LevelUpPopupUI } from './level_up_popup_ui.js';
+import { RunEndScreenUI } from './run_end_screen_ui.js';
 import { TooltipUI } from '../cards/tooltip_ui.js';
 
 function _getDoc(deps) {
@@ -270,6 +273,11 @@ export const CharacterSelectUI = {
 
   // 외부에서 직접 참조할 수 있도록 캐릭터 데이터 노출
   CHARS,
+  _runtime: null,
+
+  onEnter() {
+    this._runtime?.onEnter?.();
+  },
 
   /**
    * 캐릭터 선택 화면을 초기화하고 마운트합니다.
@@ -282,9 +290,118 @@ export const CharacterSelectUI = {
    * @returns {{ destroy: Function }} - 이벤트 리스너 정리 함수 반환
    */
   mount(deps = {}) {
+    const owner = this;
     const doc = _getDoc(deps);
     const S = { idx: 0, phase: 'select', activeSkill: null, typingTimer: null };
     const chars = CHARS;
+    const classIds = chars.map((ch) => ch.class);
+    const levelUpPopup = new LevelUpPopupUI();
+    const runEndScreen = new RunEndScreenUI();
+    let isReplayingSummary = false;
+
+    ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
+
+    function getClassProgress(classId) {
+      const fallback = {
+        classId,
+        level: 1,
+        totalXp: 0,
+        currentLevelXp: 0,
+        nextLevelXp: 100,
+        progress: 0,
+      };
+      if (!deps?.gs?.meta || !classId) return fallback;
+      return ClassProgressionSystem.getClassState(deps.gs.meta, classId, classIds) || fallback;
+    }
+
+    function saveProgressMeta() {
+      if (typeof deps.onProgressConsumed === 'function') deps.onProgressConsumed();
+    }
+
+    function resolveClass(classId) {
+      return chars.find((entry) => entry.class === classId) || chars[S.idx] || chars[0];
+    }
+
+    function ensureCardProgressNodes(card) {
+      let badge = card.querySelector('#cardLevelBadge');
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'cardLevelBadge';
+        badge.innerHTML = '<div class="csm-card-level"></div>';
+        card.appendChild(badge);
+      }
+
+      let xpWrap = card.querySelector('#cardXpBarWrap');
+      if (!xpWrap) {
+        xpWrap = document.createElement('div');
+        xpWrap.id = 'cardXpBarWrap';
+        xpWrap.innerHTML = `
+          <div class="csm-card-xp-track"><div class="csm-card-xp-fill"></div></div>
+          <div class="csm-card-xp-text"></div>
+        `;
+        card.appendChild(xpWrap);
+      }
+
+      return {
+        badge: badge.querySelector('.csm-card-level'),
+        xpFill: xpWrap.querySelector('.csm-card-xp-fill'),
+        xpText: xpWrap.querySelector('.csm-card-xp-text'),
+      };
+    }
+
+    function finishSummaryReplay() {
+      isReplayingSummary = false;
+      saveProgressMeta();
+      updateAll();
+      setTimeout(() => consumePendingSummaries(), 10);
+    }
+
+    function showLevelUpChain(summary, index = 0) {
+      const levelUps = Array.isArray(summary?.levelUps) ? summary.levelUps : [];
+      if (index >= levelUps.length) {
+        finishSummaryReplay();
+        return;
+      }
+
+      const ch = resolveClass(summary.classId);
+      const level = levelUps[index];
+      const roadmap = ClassProgressionSystem.getRoadmap(summary.classId);
+      const roadmapEntry = roadmap.find((row) => row.lv === level);
+      const bonusText = roadmapEntry?.desc || '클래스 보너스가 강화되었습니다.';
+
+      levelUpPopup.onClose = () => showLevelUpChain(summary, index + 1);
+      levelUpPopup.show({
+        classTitle: ch?.title || ch?.name || 'CLASS',
+        newLevel: level,
+        bonusText,
+        accent: ch?.accent || '#8b6dff',
+      });
+    }
+
+    function playRunSummary(summary) {
+      const ch = resolveClass(summary?.classId);
+      isReplayingSummary = true;
+      runEndScreen.onClose = () => {
+        if (Array.isArray(summary?.levelUps) && summary.levelUps.length > 0) {
+          showLevelUpChain(summary, 0);
+          return;
+        }
+        finishSummaryReplay();
+      };
+      runEndScreen.show(summary, {
+        title: ch?.title,
+        name: ch?.name,
+        accent: ch?.accent,
+      });
+    }
+
+    function consumePendingSummaries() {
+      if (isReplayingSummary) return;
+      const next = ClassProgressionSystem.consumePendingSummary(deps?.gs?.meta, classIds);
+      if (!next) return;
+      saveProgressMeta();
+      playRunSummary(next);
+    }
 
     // ── 파티클 루프 참조 ───────────────────────────────
     let particles = [], pRaf = null;
@@ -373,10 +490,17 @@ export const CharacterSelectUI = {
       const ch = chars[S.idx];
       const card = $('charCard');
       if (!card) return;
+      const progress = getClassProgress(ch.class);
+      const isMax = progress.level >= ClassProgressionSystem.MAX_LEVEL;
 
-      card.style.border = `1px solid ${ch.accent}44`;
-      card.style.background = `linear-gradient(158deg,${ch.color}18 0%,#060610 50%,${ch.color}08 100%)`;
-      card.style.boxShadow = `0 0 65px ${ch.glow}22,inset 0 1px 0 ${ch.accent}18`;
+      card.classList.toggle('csm-max', isMax);
+      card.style.border = isMax ? `1.6px solid ${ch.accent}aa` : `1px solid ${ch.accent}44`;
+      card.style.background = isMax
+        ? `linear-gradient(158deg,${ch.color}2d 0%,#080610 48%,${ch.color}18 100%)`
+        : `linear-gradient(158deg,${ch.color}18 0%,#060610 50%,${ch.color}08 100%)`;
+      card.style.boxShadow = isMax
+        ? `0 0 80px ${ch.glow}44,inset 0 1px 0 ${ch.accent}33`
+        : `0 0 65px ${ch.glow}22,inset 0 1px 0 ${ch.accent}18`;
 
       const cardTitle = $('cardTitle');
       if (cardTitle) { cardTitle.style.color = ch.accent; cardTitle.textContent = ch.title; }
@@ -402,7 +526,24 @@ export const CharacterSelectUI = {
       const cardShimmer = $('cardShimmer');
       if (cardShimmer) cardShimmer.style.background = `linear-gradient(105deg,transparent 40%,${ch.accent}07 50%,transparent 60%)`;
 
-      // 코너 장식
+      const progressNodes = ensureCardProgressNodes(card);
+      if (progressNodes.badge) {
+        progressNodes.badge.textContent = isMax ? 'MAX' : `Lv.${progress.level}`;
+        progressNodes.badge.style.color = ch.accent;
+        progressNodes.badge.style.borderColor = `${ch.accent}${isMax ? 'bb' : '66'}`;
+        progressNodes.badge.style.background = isMax ? `${ch.accent}26` : `${ch.accent}14`;
+      }
+      if (progressNodes.xpFill) {
+        progressNodes.xpFill.style.width = `${Math.round(progress.progress * 100)}%`;
+        progressNodes.xpFill.style.background = ch.accent;
+        progressNodes.xpFill.style.boxShadow = `0 0 8px ${ch.accent}88`;
+      }
+      if (progressNodes.xpText) {
+        progressNodes.xpText.textContent = progress.nextLevelXp === null
+          ? `MAX LEVEL · ${progress.totalXp} XP`
+          : `${progress.totalXp} / ${progress.nextLevelXp} XP`;
+      }
+
       card.querySelectorAll('.card-corner').forEach(c => c.remove());
       [['top', 'left'], ['top', 'right'], ['bottom', 'left'], ['bottom', 'right']].forEach(([v, h]) => {
         const d = doc.createElement('div');
@@ -421,9 +562,38 @@ export const CharacterSelectUI = {
       if (!panel) return;
 
       const rel = ch.startRelic;
+      const progress = getClassProgress(ch.class);
+      const roadmapRows = ClassProgressionSystem.getRoadmap(ch.class).map((row) => {
+        const earned = row.lv <= progress.level;
+        const current = row.lv === progress.level + 1;
+        const classes = ['csm-roadmap-row', earned ? 'earned' : '', current ? 'current' : ''].filter(Boolean).join(' ');
+        return `
+          <div class="${classes}">
+            <span class="csm-roadmap-lv">Lv.${row.lv}</span>
+            <span class="csm-roadmap-icon">${row.icon}</span>
+            <span class="csm-roadmap-desc">${row.desc}</span>
+          </div>
+        `;
+      }).join('');
+      const progressPct = Math.round(progress.progress * 100);
 
       const ec = ch.echoSkill;
       panel.innerHTML = `
+        <div class="csm-mastery-panel" style="border-color:${ch.accent}2f;background:${ch.accent}0a;">
+          <div class="csm-mastery-head">
+            <div>
+              <div class="csm-mastery-title" style="color:${ch.accent}">CLASS MASTERY</div>
+              <div class="csm-mastery-level">${progress.level >= ClassProgressionSystem.MAX_LEVEL ? 'MAX' : `Lv.${progress.level}`}</div>
+            </div>
+            <div class="csm-mastery-xp">
+              ${progress.nextLevelXp === null ? 'MAX LEVEL' : `${progress.totalXp} / ${progress.nextLevelXp} XP`}
+            </div>
+          </div>
+          <div class="csm-mastery-bar">
+            <div class="csm-mastery-fill" style="width:${progressPct}%;background:${ch.accent};box-shadow:0 0 10px ${ch.accent}55"></div>
+          </div>
+          <div class="csm-roadmap">${roadmapRows}</div>
+        </div>
         <div style="padding:15px 18px;border:1px solid ${ch.accent}22;border-radius:10px;background:${ch.accent}06;margin-bottom:18px">
           ${sLabel('── 고유 특성 ──', ch.accent)}
           <p style="font-size:14px;color:${ch.accent};font-family:'Share Tech Mono',monospace;margin:0 0 5px;letter-spacing:1px">${ch.traitTitle}</p>
@@ -521,6 +691,8 @@ export const CharacterSelectUI = {
     // ── 버튼 렌더 ─────────────────────────────────────
     function renderButtons() {
       const ch = chars[S.idx];
+      const buttonsRow = $('buttonsRow');
+      if (!buttonsRow) return;
       buttonsRow.innerHTML = `
         <button id="btnCfm" style="padding:10px 48px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
 
@@ -635,6 +807,7 @@ export const CharacterSelectUI = {
     }
 
     function updateAll() {
+      ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
       renderCard(); renderInfoPanel(); renderDots(); renderButtons();
       const bgGradient = $('bgGradient');
       if (bgGradient) bgGradient.style.background = `radial-gradient(ellipse 70% 65% at 50% 50%,${chars[S.idx].glow}10 0%,transparent 70%)`;
@@ -713,12 +886,21 @@ export const CharacterSelectUI = {
     initDrag();
     initArrows();
     setTimeout(() => doc.querySelectorAll('.intro').forEach(el => el.classList.add('mounted')), 80);
+    owner._runtime = {
+      onEnter() {
+        updateAll();
+        consumePendingSummaries();
+      },
+    };
 
     return {
       destroy() {
+        owner._runtime = null;
         doc.removeEventListener('keydown', onKeyDown);
         stopTyping();
         cancelAnimationFrame(pRaf);
+        levelUpPopup.destroy();
+        runEndScreen.destroy();
       }
     };
   }

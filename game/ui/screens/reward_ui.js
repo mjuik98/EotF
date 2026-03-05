@@ -1,5 +1,6 @@
 ﻿import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
+import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
 import { CONSTANTS } from '../../data/constants.js';
 
 function _getDoc(deps) {
@@ -85,6 +86,18 @@ function _getRewardItemPool(gs, data, source = 'reward') {
   return Object.values(data.items || {}).filter((item) => {
     return !gs.player.items.includes(item.id) && _isItemObtainableFrom(item, source);
   });
+}
+function _drawUniqueItems(pool, count) {
+  if (!Array.isArray(pool) || pool.length === 0 || count <= 0) return [];
+  const available = [...pool];
+  const picked = [];
+  const target = Math.min(available.length, Math.max(0, Math.floor(count)));
+  for (let i = 0; i < target; i += 1) {
+    const idx = Math.floor(Math.random() * available.length);
+    const [item] = available.splice(idx, 1);
+    if (item) picked.push(item);
+  }
+  return picked;
 }
 
 function _markRewardSelection(container, wrapper) {
@@ -382,8 +395,20 @@ export const RewardUI = {
         ? pool
         : availableItems;
       if (itemPool.length > 0) {
-        const item = itemPool[Math.floor(Math.random() * itemPool.length)];
-        _renderItemOption(container, item, deps, () => this.takeRewardItem(item.id, deps), rewardCards.length + (shouldOfferBlessing ? 2 : 0));
+        const classIds = Object.keys(data?.classes || {});
+        const extraChoices = ClassProgressionSystem.getRewardRelicChoiceBonus(gs, { classIds });
+        const totalChoices = 1 + Math.max(0, extraChoices);
+        const pickedItems = _drawUniqueItems(itemPool, totalChoices);
+        const itemBaseIndex = rewardCards.length + (shouldOfferBlessing ? 2 : 0);
+        pickedItems.forEach((item, offset) => {
+          _renderItemOption(
+            container,
+            item,
+            deps,
+            () => this.takeRewardItem(item.id, deps),
+            itemBaseIndex + offset,
+          );
+        });
       }
     }
 
@@ -552,3 +577,4 @@ export const RewardUI = {
     }, { ttlMs: 3000 });
   },
 };
+

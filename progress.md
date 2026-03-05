@@ -276,4 +276,55 @@ Original prompt:
 - Re-validation:
   - `npm test` PASS (30 files, 111 tests).
   - Playwright skill client rerun (`http://127.0.0.1:4173`, action payload reference, `--click-selector '#mainStartBtn'`, 3 iterations); screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and visually inspected.
-  - No `errors-*.json` emitted.
+  - No `errors-*.json` emitted.- Follow-up prompt: `C:\Users\mjuik\Downloads\class_select_level_preview\` 내부 파일을 분석해 현재 프로젝트에 맞는 통합 설계안(구현 순서 포함) 제시 후 실제 반영.
+- Preview integration analysis:
+  - Mapped preview concepts into current architecture instead of full screen replacement:
+    1) data-driven class mastery progression,
+    2) run-end XP aggregation + persistence,
+    3) character-select mastery visualization,
+    4) run-end summary + level-up popup replay chain.
+- Implementation added:
+  - `data/class_progression_data.js` (mastery thresholds + roadmap text)
+  - `game/systems/class_progression_system.js` (meta init/state/reward aggregation/pending summary queue)
+  - `game/ui/title/run_end_screen_ui.js` (run summary overlay)
+  - `game/ui/title/level_up_popup_ui.js` (level-up popup + particles)
+  - `css/class_progression.css` (new UI styles)
+  - `tests/class_progression_system.test.js` (system regression tests)
+- Integration changes:
+  - `game/systems/run_rules.js`: initialize class progression in meta + award mastery XP at run finalize.
+  - `game/ui/run/run_return_ui.js`: pass `bossCleared: true` on victory finalize.
+  - `game/ui/screens/help_pause_ui.js`: pass `abandoned: true` on give-up finalize.
+  - `game/ui/title/character_select_ui.js`: render mastery level/xp on card, roadmap panel, and replay pending run summary + level-up chain on entry.
+  - `game/core/bindings/title_settings_bindings.js`: call `CharacterSelectUI.onEnter()` when opening character-select sub-screen.
+  - `game/core/init_sequence.js`: pass `gs` and `onProgressConsumed` save callback into CharacterSelectUI mount deps.
+  - `index.html`: include `css/class_progression.css`.
+- Text/encoding cleanup pass:
+  - Rewrote newly added progression/overlay/test files to remove mojibake and keep stable ASCII labels.
+- Validation:
+  - `npm test -- tests/class_progression_system.test.js tests/deps_factory.test.js tests/story_ui.test.js` PASS.
+  - `node -e "import('./data/class_progression_data.js')"` PASS.
+  - `node -e "import('./game/ui/title/run_end_screen_ui.js')"` PASS.
+  - `npm test` still has existing unrelated fail in `tests/status_tooltip_metrics.test.js` (expected `3턴`, got `무한`).
+- Playwright loop (`develop-web-game` skill client):
+  - Ran client against local static server with action payload reference.
+  - Updated screenshots: `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`.
+  - Cleared old `errors-*.json`; no new error files emitted on latest run.
+- TODO / suggestion:
+  - If mastery effects should be gameplay-active (not only roadmap text/UI), add an effect-applier hook at run start and reward generation.
+  - Optional: isolate/fix unrelated tooltip duration regression in `tests/status_tooltip_metrics.test.js` separately from this feature branch.
+- Follow-up prompt: 진행해줘 (class mastery gameplay-integration continuation).
+- Verification pass for mastery gameplay hooks:
+  - Confirmed integration points and syntax for:
+    - `game/systems/class_progression_system.js`
+    - `game/systems/run_rules.js`
+    - `game/ui/screens/reward_ui.js`
+    - combat hooks (`combat_initializer`, `damage_system`, `class_mechanics`, `combat_start_ui`, `run_setup_ui`).
+- Test validation:
+  - `npm test -- tests/class_progression_bonuses.test.js tests/class_progression_system.test.js tests/class_mechanics.test.js tests/reward_ui.test.js` PASS (4 files / 12 tests).
+  - `npm test` rerun: only existing unrelated failure remains in `tests/status_tooltip_metrics.test.js` (`weakened` finite duration expected `3턴`, got `무한`).
+- Playwright validation (`develop-web-game` client):
+  - Ran client against `http://127.0.0.1:4173` with reference action payload + `#mainStartBtn` click attempt.
+  - Refreshed screenshots: `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`.
+  - No new `errors-*.json` generated.
+- TODO / suggestion:
+  - If full green CI is required for this branch, fix/isolate the pre-existing `tests/status_tooltip_metrics.test.js` duration-metrics mismatch in a separate scoped patch.

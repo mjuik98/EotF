@@ -113,6 +113,8 @@ export const RunSetupUI = {
         disabledInscriptions: gs.meta.runConfig.disabledInscriptions || [],
       };
       gs._runOutcomeCommitted = false;
+      gs._classMasteryRunStartApplied = false;
+      gs._classMasteryAppliedClassId = null;
 
       gs.player = {
         class: selectedClass,

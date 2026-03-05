@@ -1,5 +1,6 @@
 ﻿import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
+import { ClassProgressionSystem } from './class_progression_system.js';
 
 const MIN_REGION_FLOORS = 6;
 const MAX_REGION_FLOORS = 9;
@@ -186,6 +187,9 @@ export const RunRules = {
     meta.maxAscension = Math.max(0, Math.floor(meta.maxAscension));
     meta.runConfig.ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(meta.runConfig.ascension)));
     if (!meta.unlocks.endless) meta.runConfig.endless = false;
+
+    const classIds = Object.keys(DATA?.classes || {});
+    ClassProgressionSystem.ensureMeta(meta, classIds);
   },
 
   getAscension(gs) {
@@ -249,9 +253,27 @@ export const RunRules = {
       gs.player.maxHp = Math.max(1, gs.player.maxHp - 10);
       gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
     }
+
+    ClassProgressionSystem.applyRunStartBonuses(gs, {
+      classIds: Object.keys(DATA?.classes || {}),
+      data: DATA,
+    });
   },
 
-  onCombatStart() { },
+  onCombatStart(gs) {
+    if (!gs?.player) return;
+    ClassProgressionSystem.applyCombatStartBonuses(gs, {
+      classIds: Object.keys(DATA?.classes || {}),
+    });
+  },
+
+  onCombatDeckReady(gs) {
+    if (!gs?.player) return;
+    ClassProgressionSystem.applyDeckReadyBonuses(gs, {
+      classIds: Object.keys(DATA?.classes || {}),
+      data: DATA,
+    });
+  },
   onTurnStart() { },
 
   onVictory(gs) {
@@ -309,6 +331,16 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
     shardGain = isVictory ? RunRules.onVictory(gs) : RunRules.onDefeat(gs);
   }
 
+  try {
+    ClassProgressionSystem.awardRunXP(gs, kind, {
+      ...options,
+      classIds: Object.keys(DATA?.classes || {}),
+      regionCount: getRegionCount(),
+    });
+  } catch (e) {
+    console.warn('[RunRules] Class progression update failed:', e?.message || e);
+  }
+
   gs.meta.runCount = Math.max(1, (gs.meta.runCount || 1) + 1);
   gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
 
@@ -317,5 +349,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
 
   return shardGain;
 }
+
+
 
 

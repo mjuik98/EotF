@@ -265,7 +265,10 @@ export const RunReturnUI = {
         setTimeout(() => {
           rewardScreen?.classList.remove('active');
           clearRewardExitStyles();
-          deps.finalizeRunOutcome?.('victory', { echoFragments: 5 });
+          deps.finalizeRunOutcome?.('victory', {
+            echoFragments: 5,
+            bossCleared: true,
+          });
           if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
           else deps.storySystem?.showNormalEnding?.();
         }, rewardExitDelay);

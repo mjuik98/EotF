@@ -1,0 +1,362 @@
+/* Class mastery additions for character select + run-end overlays */
+
+#charCard.csm-max {
+  animation: csmMaxPulse 2.8s ease infinite;
+}
+
+@keyframes csmMaxPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 58px rgba(255, 214, 85, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 90px rgba(255, 214, 85, 0.38), 0 0 130px rgba(255, 214, 85, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+}
+
+#cardLevelBadge {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  z-index: 11;
+}
+
+.csm-card-level {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid;
+  background: rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 10px currentColor;
+}
+
+#cardXpBarWrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 0 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: linear-gradient(to top, rgba(3, 3, 10, 0.88) 58%, transparent 100%);
+}
+
+.csm-card-xp-track {
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.csm-card-xp-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.7s ease;
+}
+
+.csm-card-xp-text {
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: rgba(235, 236, 255, 0.36);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.csm-mastery-panel {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  padding: 13px 14px;
+}
+
+.csm-mastery-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.csm-mastery-title {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  font-family: 'Cinzel', serif;
+}
+
+.csm-mastery-level {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 24px;
+  line-height: 1;
+  color: #f6f7ff;
+}
+
+.csm-mastery-xp {
+  font-size: 11px;
+  color: rgba(240, 240, 255, 0.62);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.csm-mastery-bar {
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.09);
+  margin-bottom: 8px;
+}
+
+.csm-mastery-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 0.8s ease;
+}
+
+.csm-roadmap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.csm-roadmap-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: rgba(239, 239, 255, 0.42);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.csm-roadmap-row.earned {
+  color: rgba(247, 248, 255, 0.9);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.csm-roadmap-row.current {
+  border-left: 2px solid rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.csm-roadmap-lv {
+  width: 34px;
+  text-align: right;
+  font-size: 9px;
+  font-family: 'Cinzel', serif;
+}
+
+.csm-roadmap-icon {
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.csm-roadmap-desc {
+  flex: 1;
+  min-width: 0;
+}
+
+#classLvupBlur {
+  position: fixed;
+  inset: 0;
+  z-index: 4100;
+  display: none;
+  background: rgba(4, 4, 10, 0.56);
+  backdrop-filter: blur(10px);
+}
+
+#classLvupParticleCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 4101;
+  display: none;
+  pointer-events: none;
+}
+
+.class-lvup-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4102;
+  min-width: 340px;
+  max-width: min(88vw, 460px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(5, 5, 14, 0.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 38px;
+  text-align: center;
+  animation: fadeInUp 0.3s ease both;
+  cursor: pointer;
+}
+
+.class-lvup-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.36em;
+  font-family: 'Cinzel', serif;
+}
+
+.class-lvup-num {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 66px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.class-lvup-bonus {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: rgba(240, 240, 255, 0.75);
+  line-height: 1.5;
+}
+
+.class-lvup-dismiss {
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: rgba(240, 240, 255, 0.26);
+}
+
+#classRunEndOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 4, 12, 0.86);
+  backdrop-filter: blur(8px);
+}
+
+.class-run-end-panel {
+  width: min(520px, 90vw);
+  border-radius: 16px;
+  padding: 30px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 7, 22, 0.96);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: fadeInUp 0.35s ease both;
+}
+
+.class-run-end-eyebrow {
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 0.44em;
+  color: rgba(241, 241, 255, 0.3);
+  margin-bottom: 7px;
+}
+
+.class-run-end-title {
+  text-align: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 30px;
+  margin-bottom: 18px;
+}
+
+.class-run-end-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 10px;
+}
+
+.class-run-end-label {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  font-family: 'Cinzel', serif;
+  color: rgba(242, 243, 255, 0.34);
+  margin-bottom: 8px;
+}
+
+.class-run-end-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: rgba(242, 242, 255, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.class-run-end-row:last-child {
+  border-bottom: none;
+}
+
+.class-run-end-total {
+  margin-top: 10px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(243, 243, 255, 0.8);
+  font-family: 'Cinzel', serif;
+}
+
+.class-run-end-total span:last-child {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 24px;
+}
+
+.class-run-end-bar-wrap {
+  margin-top: 14px;
+}
+
+.class-run-end-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(244, 244, 255, 0.48);
+}
+
+.class-run-end-bar-track {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.class-run-end-bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.class-run-end-close {
+  margin-top: 18px;
+  align-self: center;
+  border-radius: 4px;
+  padding: 10px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(244, 244, 255, 0.58);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.class-run-end-close:hover {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.08);
+}
+

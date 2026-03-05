@@ -208,6 +208,13 @@ export const ClassMechanics = {
       const player = state?.player;
       if (!player || targetIdx === null) return damage;
 
+      const pendingMark = Number(player._classMasteryHunterMarkPending || 0);
+      if (pendingMark > 0 && Number(damage || 0) > 0 && targetIdx >= 0) {
+        state.applyEnemyStatus?.('marked', pendingMark, targetIdx);
+        player._classMasteryHunterMarkPending = 0;
+        state.addLog?.(LogUtils.formatEcho(`Hunter awakening: Mark ${pendingMark} applied.`), 'echo');
+      }
+
       if (!player._hunterHitCounts) player._hunterHitCounts = {};
       player._hunterHitCounts[targetIdx] = (player._hunterHitCounts[targetIdx] || 0) + 1;
 

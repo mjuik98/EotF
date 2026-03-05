@@ -225,7 +225,7 @@ export const HelpPauseUI = {
     }
 
     if (typeof deps.finalizeRunOutcome === 'function') {
-      deps.finalizeRunOutcome('defeat', { echoFragments: 2 });
+      deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true });
     }
 
     const deathFloor = doc.getElementById('deathFloor');

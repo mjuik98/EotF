@@ -32,6 +32,7 @@ export function createTitleSettingsBindings(M, fns) {
         const main = document.getElementById('mainTitleSubScreen');
         const char = document.getElementById('charSelectSubScreen');
         if (main && char) { main.style.display = 'none'; char.style.display = 'block'; }
+        M.CharacterSelectUI?.onEnter?.();
     };
     fns.backToTitle = () => {
         M.AudioEngine?.playClick?.();

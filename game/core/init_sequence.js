@@ -106,7 +106,9 @@ export function bootGame(modules, fns, Deps) {
         if (modules.CharacterSelectUI) {
             modules.CharacterSelectUI.mount({
                 doc: document,
+                gs: GS,
                 audioEngine: AudioEngine,
+                onProgressConsumed: () => modules.SaveSystem?.saveMeta?.(Deps.getSaveSystemDeps()),
                 onConfirm: (char) => {
                     // 선택 완료 애니메이션 직후, 클래스만 미리 선택해둡니다.
                     if (fns.selectClass) fns.selectClass(char.id);

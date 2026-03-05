@@ -39,6 +39,8 @@ export const DamageSystem = {
         if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
         const echoBerserk = this.getBuff?.('echo_berserk');
         if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
+        const masteryFlat = Number(this.player?._classMasteryFlatDamageBonus || 0);
+        if (Number.isFinite(masteryFlat) && masteryFlat > 0) dmg += Math.floor(masteryFlat);
 
         if (this.getBuff?.('vanish') || this.getBuff?.('focus') || this.getBuff?.('critical_turn')) {
             dmg = Math.floor(dmg * 2);
@@ -107,6 +109,8 @@ export const DamageSystem = {
         if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
         const echoBerserk = getBuff('echo_berserk');
         if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
+        const masteryFlat = Number(this.player?._classMasteryFlatDamageBonus || 0);
+        if (Number.isFinite(masteryFlat) && masteryFlat > 0) dmg += Math.floor(masteryFlat);
         if (getBuff('vanish') || getBuff('focus') || getBuff('critical_turn')) {
             dmg = Math.floor(dmg * 2);
             if (!getBuff('critical_turn') && this.player?.buffs) {

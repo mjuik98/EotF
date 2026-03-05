@@ -224,12 +224,15 @@ export const CombatInitializer = {
         gs.player.hand = [];
         if (shuffleArrayFn) shuffleArrayFn(gs.player.drawPile);
 
+        const masteryOpeningDraw = Math.max(0, Math.floor(Number(gs.player._classMasteryOpeningDrawBonus || 0)));
+        const openingDrawCount = 5 + masteryOpeningDraw;
+
         if (drawCardsFn) {
-            drawCardsFn(5, gs);
+            drawCardsFn(openingDrawCount, gs);
         } else if (typeof gs.drawCards === 'function') {
-            gs.drawCards(5);
+            gs.drawCards(openingDrawCount);
         } else {
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < openingDrawCount; i++) {
                 if (gs.player.drawPile.length > 0) gs.player.hand.push(gs.player.drawPile.pop());
             }
         }

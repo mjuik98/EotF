@@ -87,6 +87,9 @@ export const CombatStartUI = {
       shuffleArrayFn: deps.shuffleArray,
       drawCardsFn: deps.api?.drawCards,
     });
+    if (runRules && typeof runRules.onCombatDeckReady === 'function') {
+      runRules.onCombatDeckReady(gs);
+    }
 
     // UI updates
     const zone = doc.getElementById('enemyZone');
