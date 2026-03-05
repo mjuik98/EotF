@@ -13,3 +13,4 @@ Thumbs.db
 # Temporary/generated files
 *.log
 eslint_report.txt
+tmp/
