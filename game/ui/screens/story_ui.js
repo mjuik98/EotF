@@ -26,39 +26,68 @@ function _setInscriptionLevel(gs, id, level) {
   gs.meta.inscriptions[id] = Math.max(0, Math.floor(Number(level) || 0));
 }
 
+function _ensureStoryPieces(gs) {
+  if (!gs?.meta) return [];
+  if (!Array.isArray(gs.meta.storyPieces)) gs.meta.storyPieces = [];
+  return gs.meta.storyPieces;
+}
+
+function _getSortedStoryFragments(data) {
+  if (!Array.isArray(data?.storyFragments)) return [];
+  return [...data.storyFragments]
+    .filter((frag) => frag && frag.id !== undefined)
+    .sort((a, b) => {
+      const runA = Number.isFinite(Number(a?.run)) ? Number(a.run) : Number.POSITIVE_INFINITY;
+      const runB = Number.isFinite(Number(b?.run)) ? Number(b.run) : Number.POSITIVE_INFINITY;
+      if (runA !== runB) return runA - runB;
+
+      const idA = Number.isFinite(Number(a?.id)) ? Number(a.id) : Number.POSITIVE_INFINITY;
+      const idB = Number.isFinite(Number(b?.id)) ? Number(b.id) : Number.POSITIVE_INFINITY;
+      return idA - idB;
+    });
+}
+
+function _pickNextLockedFragment(gs, data) {
+  const storyPieces = _ensureStoryPieces(gs);
+  const unlocked = new Set(storyPieces);
+  const fragments = _getSortedStoryFragments(data);
+  if (!fragments.length) return null;
+  return fragments.find((frag) => !unlocked.has(frag.id)) || null;
+}
+
 export const StoryUI = {
   unlockNextFragment(deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);
-    if (!gs?.meta || !data?.storyFragments) return;
-    const run = gs.meta.runCount;
-    const frag = data.storyFragments.find(f => f.run === run);
-    if (frag && !gs.meta.storyPieces.includes(frag.id)) {
-      gs.meta.storyPieces.push(frag.id);
-    }
+    if (!gs?.meta) return;
+
+    const storyPieces = _ensureStoryPieces(gs);
+    const frag = _pickNextLockedFragment(gs, data);
+    if (frag && !storyPieces.includes(frag.id)) storyPieces.push(frag.id);
   },
 
   showRunFragment(deps = {}) {
     const gs = _getGS(deps);
     const data = _getData(deps);
-    if (!gs?.meta || !data?.storyFragments) return false;
+    if (!gs?.meta) return false;
 
-    const run = gs.meta.runCount;
-    const frag = data.storyFragments.find((f) => f.run === run);
-    const fallbackFrag = {
-      id: '-',
-      title: '\uC5EC\uC815 \uC2DC\uC791',
-      text: '\uBA54\uC544\uB9AC\uAC00 \uB2E4\uC2DC \uC6B8\uB9B0\uB2E4.\n\uB2E4\uC74C \uCE35\uC73C\uB85C \uB0B4\uB824\uAC00\uB77C.',
-    };
+    const storyPieces = _ensureStoryPieces(gs);
+    const frag = _pickNextLockedFragment(gs, data);
+    if (!frag) return false;
 
-    const pickedFrag = frag || fallbackFrag;
-    const alreadyUnlocked = !!frag && gs.meta.storyPieces.includes(frag.id);
-    if (frag && !alreadyUnlocked) gs.meta.storyPieces.push(frag.id);
+    const alreadyUnlocked = storyPieces.includes(frag.id);
+    if (!alreadyUnlocked) storyPieces.push(frag.id);
 
-    const shown = this.displayFragment(pickedFrag, deps);
-    if (shown === false) return false;
+    const shown = this.displayFragment(frag, deps);
+    if (shown === false) {
+      if (!alreadyUnlocked) {
+        const idx = storyPieces.lastIndexOf(frag.id);
+        if (idx !== -1) storyPieces.splice(idx, 1);
+      }
+      return false;
+    }
 
-    if (frag && !alreadyUnlocked && gs.meta.storyPieces.length > 4) {
+    if (!alreadyUnlocked && storyPieces.length > 4) {
       if (_getInscriptionLevel(gs, 'echo_memory') === 0 && data.inscriptions?.echo_memory) {
         _setInscriptionLevel(gs, 'echo_memory', 1);
         setTimeout(() => {
@@ -69,7 +98,7 @@ export const StoryUI = {
       }
     }
 
-    if (frag && !alreadyUnlocked && gs.meta.storyPieces.length > 7 && !gs.meta._hiddenEndingHinted) {
+    if (!alreadyUnlocked && storyPieces.length > 7 && !gs.meta._hiddenEndingHinted) {
       gs.meta._hiddenEndingHinted = true;
       setTimeout(() => {
         if (typeof deps.showWorldMemoryNotice === 'function') {

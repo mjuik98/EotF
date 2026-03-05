@@ -7,6 +7,9 @@ import { Trigger } from '../../data/triggers.js';
 import { CombatInitializer } from '../../combat/combat_initializer.js';
 import { setActionButtonLabel } from '../hud/hud_render_helpers.js';
 
+const DEFAULT_PLAYER_TURN_BANNER_DELAY_MS = 300;
+const BOSS_NAME_BANNER_DURATION_MS = 2200;
+const PLAYER_TURN_AFTER_BOSS_GAP_MS = 150;
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -135,7 +138,7 @@ export const CombatStartUI = {
 
       bossBanner.append(sub, name, line);
       doc.body.appendChild(bossBanner);
-      setTimeout(() => bossBanner.remove(), 2200);
+      setTimeout(() => bossBanner.remove(), BOSS_NAME_BANNER_DURATION_MS);
     }
 
     if (combatOverlay) {
@@ -223,7 +226,10 @@ export const CombatStartUI = {
     }
 
     if (typeof deps.showTurnBanner === 'function') {
-      setTimeout(() => deps.showTurnBanner('player'), 300);
+      const playerTurnBannerDelay = (isBoss || isMiniBoss)
+        ? BOSS_NAME_BANNER_DURATION_MS + PLAYER_TURN_AFTER_BOSS_GAP_MS
+        : DEFAULT_PLAYER_TURN_BANNER_DELAY_MS;
+      setTimeout(() => deps.showTurnBanner('player'), playerTurnBannerDelay);
     }
     deps.resetCombatInfoPanel?.();
     deps.refreshCombatInfoPanel?.();
