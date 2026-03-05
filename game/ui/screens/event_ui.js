@@ -212,8 +212,9 @@ class _RestFillParticle {
   }
 }
 
-function _resolveRestFillParticleBounds(doc) {
-  const target = doc?.querySelector?.('.game-canvas-wrapper-special')
+function _resolveRestFillParticleBounds(doc, refs = {}) {
+  const target = refs.target
+    || doc?.querySelector?.('.game-canvas-wrapper-special')
     || doc?.querySelector?.('#gameCanvas')
     || doc?.querySelector?.('#hudOverlay');
   if (target?.getBoundingClientRect) {
@@ -232,7 +233,7 @@ function _resolveRestFillParticleBounds(doc) {
   const viewportW = Math.max(1, Math.floor(win?.innerWidth || doc?.documentElement?.clientWidth || 1));
   const viewportH = Math.max(1, Math.floor(win?.innerHeight || doc?.documentElement?.clientHeight || 1));
   let rightEdge = viewportW;
-  const panel = doc?.querySelector?.('.panel-right');
+  const panel = refs.panel || doc?.querySelector?.('.panel-right');
   if (panel?.getBoundingClientRect) {
     const style = win?.getComputedStyle?.(panel);
     const visible = style
@@ -263,12 +264,28 @@ function _startRestFillParticles(overlay, doc) {
     return { setBoost: () => { }, stop: () => { } };
   }
 
+  const docRef = doc || overlay?.ownerDocument;
+  const win = docRef?.defaultView;
+  const refs = {
+    target: docRef?.querySelector?.('.game-canvas-wrapper-special')
+      || docRef?.querySelector?.('#gameCanvas')
+      || docRef?.querySelector?.('#hudOverlay')
+      || null,
+    panel: docRef?.querySelector?.('.panel-right') || null,
+  };
+
   let width = 0;
   let height = 0;
+  let styleKey = '';
   let hpParticles = [];
   let echoParticles = [];
+  let targetHpCount = 0;
+  let targetEchoCount = 0;
   let boost = 0.1;
   let rafId = null;
+  let resizeQueued = false;
+  let settleTimer = null;
+  let resizeObserver = null;
 
   const requestFrame = (cb) => {
     if (typeof requestAnimationFrame === 'function') return requestAnimationFrame(cb);
@@ -283,39 +300,69 @@ function _startRestFillParticles(overlay, doc) {
     clearTimeout(id);
   };
 
-  const resize = () => {
-    const bounds = _resolveRestFillParticleBounds(doc || overlay?.ownerDocument);
-    canvas.style.left = `${Math.round(bounds.left)}px`;
-    canvas.style.top = `${Math.round(bounds.top)}px`;
-    canvas.style.width = `${Math.round(bounds.width)}px`;
-    canvas.style.height = `${Math.round(bounds.height)}px`;
+  const syncBounds = (force = false) => {
+    const bounds = _resolveRestFillParticleBounds(docRef, refs);
+    const styleToken = `${Math.round(bounds.left)}:${Math.round(bounds.top)}:${Math.round(bounds.width)}:${Math.round(bounds.height)}`;
+    if (force || styleToken !== styleKey) {
+      styleKey = styleToken;
+      canvas.style.left = `${Math.round(bounds.left)}px`;
+      canvas.style.top = `${Math.round(bounds.top)}px`;
+      canvas.style.width = `${Math.round(bounds.width)}px`;
+      canvas.style.height = `${Math.round(bounds.height)}px`;
+    }
 
     const nextW = Math.max(1, Math.floor(bounds.width || canvas.clientWidth || canvas.width || 1));
     const nextH = Math.max(1, Math.floor(bounds.height || canvas.clientHeight || canvas.height || 1));
-    if (nextW === width && nextH === height) return false;
+    if (!force && nextW === width && nextH === height) return false;
 
     width = nextW;
     height = nextH;
     canvas.width = width;
     canvas.height = height;
-    if (!hpParticles.length || !echoParticles.length) {
-      const density = Math.max(0.7, Math.min(1.6, width / 1200));
-      const hpCount = Math.round(58 * density);
-      const echoCount = Math.round(52 * density);
-      hpParticles = Array.from({ length: hpCount }, () => new _RestFillParticle('hp', width, height));
-      echoParticles = Array.from({ length: echoCount }, () => new _RestFillParticle('echo', width, height));
+
+    const density = Math.max(0.72, Math.min(1.45, Math.sqrt((width * height) / (1200 * 700))));
+    targetHpCount = Math.max(26, Math.round(56 * density));
+    targetEchoCount = Math.max(22, Math.round(50 * density));
+
+    if (!hpParticles.length && !echoParticles.length) {
+      const initialHp = Math.min(targetHpCount, 18);
+      const initialEcho = Math.min(targetEchoCount, 16);
+      hpParticles = Array.from({ length: initialHp }, () => new _RestFillParticle('hp', width, height));
+      echoParticles = Array.from({ length: initialEcho }, () => new _RestFillParticle('echo', width, height));
     } else {
       [...hpParticles, ...echoParticles].forEach((particle) => {
         particle.setBounds(width, height);
-        particle.reset();
       });
     }
     return true;
   };
 
+  const scheduleBoundsSync = () => {
+    if (resizeQueued) return;
+    resizeQueued = true;
+    requestFrame(() => {
+      resizeQueued = false;
+      syncBounds();
+    });
+  };
+
+  const growParticles = () => {
+    const hpNeed = Math.max(0, targetHpCount - hpParticles.length);
+    const echoNeed = Math.max(0, targetEchoCount - echoParticles.length);
+    const hpBatch = Math.min(4, hpNeed);
+    const echoBatch = Math.min(4, echoNeed);
+    for (let i = 0; i < hpBatch; i++) hpParticles.push(new _RestFillParticle('hp', width, height));
+    for (let i = 0; i < echoBatch; i++) echoParticles.push(new _RestFillParticle('echo', width, height));
+  };
+
   const render = () => {
     if (!overlay.isConnected) return;
-    resize();
+    if (width <= 1 || height <= 1) {
+      syncBounds();
+      rafId = requestFrame(render);
+      return;
+    }
+    growParticles();
     ctx.clearRect(0, 0, width, height);
     ctx.globalCompositeOperation = 'lighter';
     hpParticles.forEach((particle) => {
@@ -330,7 +377,19 @@ function _startRestFillParticles(overlay, doc) {
     rafId = requestFrame(render);
   };
 
-  resize();
+  if (win?.addEventListener) {
+    win.addEventListener('resize', scheduleBoundsSync, { passive: true });
+    win.addEventListener('orientationchange', scheduleBoundsSync, { passive: true });
+  }
+
+  if (typeof win?.ResizeObserver === 'function') {
+    resizeObserver = new win.ResizeObserver(() => scheduleBoundsSync());
+    if (refs.target) resizeObserver.observe(refs.target);
+    if (refs.panel) resizeObserver.observe(refs.panel);
+  }
+
+  syncBounds(true);
+  settleTimer = setTimeout(() => scheduleBoundsSync(), 120);
   render();
 
   return {
@@ -340,6 +399,18 @@ function _startRestFillParticles(overlay, doc) {
       boost = Math.max(0.06, Math.min(1, value));
     },
     stop() {
+      if (win?.removeEventListener) {
+        win.removeEventListener('resize', scheduleBoundsSync);
+        win.removeEventListener('orientationchange', scheduleBoundsSync);
+      }
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
+      if (settleTimer) {
+        clearTimeout(settleTimer);
+        settleTimer = null;
+      }
       cancelFrame(rafId);
       rafId = null;
       ctx.clearRect(0, 0, width, height);
