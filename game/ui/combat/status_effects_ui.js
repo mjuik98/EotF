@@ -100,7 +100,7 @@ export function resolvePlayerStatusTooltipMetrics(statusKey, buff) {
   const key = String(statusKey || '').replace(/_plus$/i, '');
   if (!Number.isFinite(stacks) || stacks <= 0) return { duration: '-', stacks: '-' };
 
-  const isInfinite = !buff?.permanent
+  const isInfinite = buff?.permanent === true
     || stacks >= 99
     || (_INFINITE_STATUS_KEYS.has(key) && stacks >= 90);
   const duration = isInfinite ? '무한' : `${Math.floor(stacks)}턴`;

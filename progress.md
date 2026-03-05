@@ -328,3 +328,11 @@ Original prompt:
   - No new `errors-*.json` generated.
 - TODO / suggestion:
   - If full green CI is required for this branch, fix/isolate the pre-existing `tests/status_tooltip_metrics.test.js` duration-metrics mismatch in a separate scoped patch.
+- Follow-up prompt: 남은 작업 진행 (status tooltip metrics failing test fix).
+- Fix applied (`game/ui/combat/status_effects_ui.js`):
+  - `resolvePlayerStatusTooltipMetrics` infinite-duration condition corrected from implicit `!buff?.permanent` to explicit `buff?.permanent === true`.
+  - This prevents finite statuses without `permanent` flag (e.g., `weakened`, stacks=3) from being mislabeled as infinite.
+- Validation:
+  - `npm test -- tests/status_tooltip_metrics.test.js` PASS (7/7).
+  - `npm test` PASS (32 files, 118 tests).
+  - Playwright client rerun against `http://127.0.0.1:4173`; screenshots refreshed (`output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`), no `errors-*.json` generated.
