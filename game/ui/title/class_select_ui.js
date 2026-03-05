@@ -1,3 +1,5 @@
+import { RARITY_LABELS } from '../../../data/rarity_meta.js';
+
 let _selectedClass = null;
 
 const CLASS_ID_ORDER = ['swordsman', 'mage', 'hunter', 'paladin', 'berserker', 'guardian'];
@@ -145,13 +147,12 @@ export const ClassSelectUI = {
     }
 
     const data = deps.data;
-    const CLASS_START_ITEMS = deps.CLASS_START_ITEMS;
     if (!data?.classes) return;
 
     container.innerHTML = '';
 
     Object.values(data.classes).forEach(cls => {
-      const startItemKey = CLASS_START_ITEMS?.[cls.id];
+      const startItemKey = cls.startRelic;
       const startItem = data.items?.[startItemKey];
       const itemInfo = startItem ? `${startItem.icon} 시작 유물: ${startItem.name}` : '';
 
@@ -186,8 +187,7 @@ export const ClassSelectUI = {
         relicEl.style.cursor = 'help';
         relicEl.addEventListener('mouseenter', (e) => {
           e.stopPropagation();
-          const rarityLabel = { common: '일반', uncommon: '비범', rare: '희귀', legendary: '전설' };
-          const rLabel = rarityLabel[startItem.rarity] || '일반';
+          const rLabel = RARITY_LABELS[startItem.rarity] || RARITY_LABELS.common;
           this._showTooltip(e, `${startItem.icon} ${startItem.name} (${rLabel})`, startItem.desc || '시작 유물');
         });
         relicEl.addEventListener('mouseleave', () => this._hideTooltip());

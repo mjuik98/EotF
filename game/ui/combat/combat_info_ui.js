@@ -1,3 +1,5 @@
+import { RARITY_SORT_ORDER, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
+
 let _combatInfoOpen = false;
 
 function _getDoc(deps) {
@@ -160,10 +162,8 @@ export const CombatInfoUI = {
       none.textContent = '없음';
       itemEl.appendChild(none);
     } else {
-      const rarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)', legendary: '#c084fc' };
       const rarityBorderCol = { common: 'rgba(150,150,180,0.2)', uncommon: 'rgba(123,47,255,0.35)', rare: 'rgba(240,180,41,0.4)', legendary: 'rgba(192,132,252,0.5)' };
-      const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
-      const sorted = [...items].sort((a, b) => (rarityOrder[data.items[a]?.rarity || 'common'] ?? 3) - (rarityOrder[data.items[b]?.rarity || 'common'] ?? 3));
+      const sorted = [...items].sort((a, b) => (RARITY_SORT_ORDER[data.items[a]?.rarity || 'common'] ?? 3) - (RARITY_SORT_ORDER[data.items[b]?.rarity || 'common'] ?? 3));
 
       const frag = doc.createDocumentFragment();
       sorted.forEach(id => {
@@ -180,7 +180,7 @@ export const CombatInfoUI = {
 
         const info = doc.createElement('div');
         const name = doc.createElement('div');
-        name.style.cssText = `font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:${rarityColor[rc]};line-height:1.5;`;
+        name.style.cssText = `font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:${RARITY_TEXT_COLORS[rc] || 'var(--white)'};line-height:1.5;`;
         name.textContent = item.name;
         const desc = doc.createElement('div');
         desc.style.cssText = 'font-size:9px;color:var(--text-dim);line-height:1.5;';

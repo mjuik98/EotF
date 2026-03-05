@@ -1,7 +1,8 @@
-﻿import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
+import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
 import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
 import { CONSTANTS } from '../../data/constants.js';
+import { RARITY_LABELS } from '../../../data/rarity_meta.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -56,15 +57,8 @@ function _drawRewardCards(gs, count, rarities) {
 }
 
 function _toRarityLabel(rarity) {
-  switch (rarity) {
-    case 'boss': return '보스';
-    case 'uncommon': return '비범';
-    case 'rare': return '희귀';
-    case 'legendary': return '전설';
-    case 'common':
-    default:
-      return '일반';
-  }
+  const key = String(rarity || 'common');
+  return RARITY_LABELS[key] || RARITY_LABELS.common;
 }
 
 function _toTypeClass(type) {
@@ -577,4 +571,3 @@ export const RewardUI = {
     }, { ttlMs: 3000 });
   },
 };
-

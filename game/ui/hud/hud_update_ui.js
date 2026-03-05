@@ -12,6 +12,7 @@ import { updateCombatEnergyUI, updatePlayerStatsUI } from './hud_stats_ui.js';
 import { DomValueUI } from './dom_value_ui.js';
 import { resolveDrawAvailability } from '../combat/draw_availability.js';
 import { getDoc as _getDoc, getRaf } from '../../utils/runtime_deps.js';
+import { RARITY_SORT_ORDER } from '../../../data/rarity_meta.js';
 
 
 let _uiPending = false;
@@ -396,10 +397,9 @@ export const HudUpdateUI = {
         none.textContent = '비어있음';
         itemEl.appendChild(none);
       } else {
-        const rarityOrder = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
         const sortedItems = [...p.items].sort((a, b) => {
-          const ra = rarityOrder[data?.items?.[a]?.rarity || 'common'] ?? 3;
-          const rb = rarityOrder[data?.items?.[b]?.rarity || 'common'] ?? 3;
+          const ra = RARITY_SORT_ORDER[data?.items?.[a]?.rarity || 'common'] ?? 3;
+          const rb = RARITY_SORT_ORDER[data?.items?.[b]?.rarity || 'common'] ?? 3;
           return ra - rb;
         });
         const tooltipUI = deps.tooltipUI

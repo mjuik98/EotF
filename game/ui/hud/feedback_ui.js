@@ -1,5 +1,6 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
 import { ButtonFeedback } from '../feedback/button_feedback.js';
+import { RARITY_LABELS, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
 
 
 const _noticeQueue = [];
@@ -262,8 +263,6 @@ export const FeedbackUI = {
       durationMs: 3500,
       height: 108,
       createEl: (doc) => {
-        const rarityLabel = { common: '일반', uncommon: '비범', rare: '희귀' };
-        const rarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)' };
         const borderColor = { common: 'var(--border)', uncommon: 'rgba(123,47,255,0.5)', rare: 'rgba(240,180,41,0.5)' };
         const r = item.rarity || 'common';
         const el = doc.createElement('div');
@@ -274,12 +273,12 @@ export const FeedbackUI = {
         icon.textContent = item.icon || '✨';
         const content = doc.createElement('div');
         const rarityInfo = doc.createElement('div');
-        rarityInfo.style.cssText = `font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${rarityColor[r] || 'var(--text-dim)'};margin-bottom:2px;`;
-        rarityInfo.textContent = `${rarityLabel[r] || r} 아이템 획득`;
+        rarityInfo.style.cssText = `font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${RARITY_TEXT_COLORS[r] || 'var(--text-dim)'};margin-bottom:2px;`;
+        rarityInfo.textContent = `${RARITY_LABELS[r] || r} 아이템 획득`;
 
         const name = doc.createElement('div');
         name.className = 'toast-text';
-        name.style.color = rarityColor[r] || 'var(--white)';
+        name.style.color = RARITY_TEXT_COLORS[r] || 'var(--white)';
         name.textContent = item.name;
 
         const sub = doc.createElement('div');

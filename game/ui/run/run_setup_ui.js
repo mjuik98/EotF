@@ -1,23 +1,5 @@
 import { runIdempotent } from '../../utils/idempotency_utils.js';
 
-const CLASS_CONFIGS = {
-  swordsman: { maxHp: 80, startEcho: 0 },
-  mage: { maxHp: 50, startEcho: 0 },
-  hunter: { maxHp: 65, startEcho: 0 },
-  paladin: { maxHp: 85, startEcho: 0 },
-  berserker: { maxHp: 90, startEcho: 0 },
-  guardian: { maxHp: 75, startEcho: 0 },
-};
-
-const CLASS_START_ITEMS = {
-  swordsman: 'dull_blade',
-  mage: 'void_shard',
-  hunter: 'blood_shard',
-  paladin: 'cracked_amulet',
-  berserker: 'travelers_map',
-  guardian: 'rift_talisman',
-};
-
 function _getInscriptionLevel(gs, id) {
   if (!gs?.meta?.inscriptions) return 0;
   const disabled = gs.runConfig?.disabledInscriptions || gs.meta.runConfig?.disabledInscriptions || [];
@@ -72,32 +54,34 @@ function _applyStartBonuses(gs, data) {
 }
 
 export const RunSetupUI = {
-  CLASS_START_ITEMS,
   startGame(deps = {}) {
     const selectedClass = deps.getSelectedClass?.();
     if (!selectedClass) return;
 
     const gs = deps.gs;
     const data = deps.data;
+    const classMeta = data?.classes?.[selectedClass];
     const runRules = deps.runRules;
     const audioEngine = deps.audioEngine;
 
-    if (!gs || !data?.startDecks || !runRules || !audioEngine) {
+    if (!gs || !data?.startDecks || !classMeta || !runRules || !audioEngine) {
       console.error('[RunSetupUI] Missing dependencies:', {
         gs: !!gs,
         data: !!data,
         startDecks: !!data?.startDecks,
+        classMeta: !!classMeta,
         runRules: !!runRules,
         audioEngine: !!audioEngine,
       });
       return;
     }
 
-    const cfg = CLASS_CONFIGS[selectedClass];
-    if (!cfg) {
-      console.error('[RunSetupUI] Invalid class config for:', selectedClass);
+    const maxHp = Number(classMeta?.stats?.HP);
+    if (!Number.isFinite(maxHp) || maxHp <= 0) {
+      console.error('[RunSetupUI] Invalid class HP config for:', selectedClass, classMeta?.stats);
       return;
     }
+    const startEcho = 0;
 
     return runIdempotent('run:start-game', () => {
       audioEngine.init?.();
@@ -118,10 +102,10 @@ export const RunSetupUI = {
 
       gs.player = {
         class: selectedClass,
-        hp: cfg.maxHp,
-        maxHp: cfg.maxHp,
+        hp: maxHp,
+        maxHp,
         shield: 0,
-        echo: cfg.startEcho,
+        echo: startEcho,
         maxEcho: 100,
         echoChain: 0,
         energy: 3,
@@ -149,7 +133,7 @@ export const RunSetupUI = {
       if (!gs.meta.codex) gs.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
       gs.player.deck.forEach((id) => gs.meta.codex.cards.add(id));
 
-      const startItem = CLASS_START_ITEMS[selectedClass];
+      const startItem = classMeta.startRelic;
       if (startItem) {
         gs.player.items.push(startItem);
         gs.meta.codex.items.add(startItem);

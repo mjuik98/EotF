@@ -1,5 +1,6 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
 import { DomSafe } from '../../utils/dom_safe.js';
+import { RARITY_LABELS, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
 
 
 let _tooltipTimer = null;
@@ -226,8 +227,6 @@ export const TooltipUI = {
       energy_empty: '에너지 소진 시',
     };
     const triggerText = item.trigger ? (triggerMap[item.trigger] || item.trigger) : '패시브';
-    const tipRarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)', legendary: '#c084fc', boss: '#ff3366' };
-    const tipRarityLabel = { common: '일반', uncommon: '비범', rare: '희귀', legendary: '전설', boss: '보스' };
     const tipR = item.rarity || 'common';
     const tipBorder = tipR === 'legendary' ? 'rgba(192,132,252,0.4)' : tipR === 'rare' ? 'rgba(240,180,41,0.35)' : tipR === 'uncommon' ? 'rgba(123,47,255,0.35)' : 'var(--border)';
     el.style.borderColor = tipBorder;
@@ -240,14 +239,14 @@ export const TooltipUI = {
 
     const info = doc.createElement('div');
     const name = doc.createElement('div');
-    name.style.cssText = `font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${tipRarityColor[tipR] || 'var(--white)'};`;
+    name.style.cssText = `font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${RARITY_TEXT_COLORS[tipR] || 'var(--white)'};`;
     name.textContent = item.name;
 
     const sub = doc.createElement('div');
     sub.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:3px;';
     const rLabel = doc.createElement('span');
-    rLabel.style.cssText = `font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.15em;background:rgba(123,47,255,0.15);border-radius:3px;padding:1px 5px;color:${tipRarityColor[tipR]};`;
-    rLabel.textContent = tipRarityLabel[tipR] || tipR;
+    rLabel.style.cssText = `font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.15em;background:rgba(123,47,255,0.15);border-radius:3px;padding:1px 5px;color:${RARITY_TEXT_COLORS[tipR] || 'var(--text-dim)'};`;
+    rLabel.textContent = RARITY_LABELS[tipR] || tipR;
     const tText = doc.createElement('span');
     tText.style.cssText = "font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.1em;color:var(--text-dim);";
     tText.textContent = triggerText;
