@@ -4,6 +4,7 @@ node_modules/
 # Build output
 dist/
 coverage/
+output/
 
 # OS/editor noise
 .DS_Store
