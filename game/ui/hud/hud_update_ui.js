@@ -10,6 +10,7 @@ import {
 } from './hud_effects_ui.js';
 import { updateCombatEnergyUI, updatePlayerStatsUI } from './hud_stats_ui.js';
 import { DomValueUI } from './dom_value_ui.js';
+import { resolveDrawAvailability } from '../combat/draw_availability.js';
 import { getDoc as _getDoc, getRaf } from '../../utils/runtime_deps.js';
 
 
@@ -538,32 +539,31 @@ export const HudUpdateUI = {
         }
       }
     }
-
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn) {
-      const maxHand = Math.max(1, 8 - Math.max(0, Number(p._handCapMinus || 0)));
-      const handFull = p.hand.length >= maxHand;
-      const canDraw = gs.combat.active && gs.combat.playerTurn && p.energy >= 1 && !handFull;
-      drawBtn.disabled = !canDraw;
-      drawBtn.classList.toggle('hand-full', handFull);
-      drawBtn.style.opacity = canDraw ? '1' : '0.4';
-      if (gs.combat.active) {
-        if (handFull) {
+      const drawState = resolveDrawAvailability(gs);
+      drawBtn.disabled = !drawState.canDraw;
+      drawBtn.classList.toggle('hand-full', drawState.handFull);
+      drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
+      if (drawState.inCombat) {
+        if (!drawState.playerTurn) {
+          setActionButtonLabel(drawBtn, '적 턴', 'Q');
+          drawBtn.title = '적 턴에는 카드를 뽑을 수 없습니다.';
+        } else if (drawState.handFull) {
           setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-          drawBtn.title = `손패가 가득 찼습니다 (최대 ${maxHand}장).`;
-        } else if (p.energy < 1) {
+          drawBtn.title = `손패가 가득 찼습니다 (최대 ${drawState.maxHand}장)`;
+        } else if (!drawState.hasEnergy) {
           setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
-          drawBtn.title = '카드를 뽑으려면 1 에너지가 필요합니다.';
+          drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';
         } else {
           setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
-          drawBtn.title = '카드를 1장 뽑습니다.';
+          drawBtn.title = '카드를 1장 뽑습니다 (에너지 1).';
         }
       } else {
         setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
         drawBtn.title = '전투 중에만 사용할 수 있습니다.';
       }
     }
-
     const updateStatusDisplay = deps.updateStatusDisplay
       || globalThis.updateStatusDisplay
       || globalThis.GAME?.API?.updateStatusDisplay;

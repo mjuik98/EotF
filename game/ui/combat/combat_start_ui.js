@@ -6,6 +6,7 @@
 import { Trigger } from '../../data/triggers.js';
 import { CombatInitializer } from '../../combat/combat_initializer.js';
 import { setActionButtonLabel } from '../hud/hud_render_helpers.js';
+import { resolveDrawAvailability } from './draw_availability.js';
 
 const DEFAULT_PLAYER_TURN_BANNER_DELAY_MS = 300;
 const BOSS_NAME_BANNER_DURATION_MS = 2200;
@@ -189,18 +190,20 @@ export const CombatStartUI = {
     // ?쒕줈??踰꾪듉 ?곹깭 媛깆떊
     const drawBtn = doc.getElementById('combatDrawCardBtn');
     if (drawBtn) {
-      const playerState = gs.player;
-      const combatState = gs.combat;
-      const hand = Array.isArray(playerState.hand) ? playerState.hand : [];
-      const maxHand = Math.max(1, 8 - Math.max(0, Number(playerState._handCapMinus || 0)));
-      const handFull = hand.length >= maxHand;
-      const canDraw = combatState.active && combatState.playerTurn && playerState.energy >= 1 && !handFull;
-      drawBtn.disabled = !canDraw;
-      drawBtn.style.opacity = canDraw ? '1' : '0.4';
-      if (handFull) {
+      const drawState = resolveDrawAvailability(gs);
+      drawBtn.disabled = !drawState.canDraw;
+      drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
+
+      if (!drawState.inCombat) {
+        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
+        drawBtn.title = '전투 중에만 사용할 수 있습니다.';
+      } else if (!drawState.playerTurn) {
+        setActionButtonLabel(drawBtn, '적 턴', 'Q');
+        drawBtn.title = '적 턴에는 카드를 뽑을 수 없습니다.';
+      } else if (drawState.handFull) {
         setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-        drawBtn.title = `손패가 가득 찼습니다 (최대 ${maxHand}장)`;
-      } else if (playerState.energy < 1) {
+        drawBtn.title = `손패가 가득 찼습니다 (최대 ${drawState.maxHand}장)`;
+      } else if (!drawState.hasEnergy) {
         setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
         drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';
       } else {

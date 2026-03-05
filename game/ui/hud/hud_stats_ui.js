@@ -1,6 +1,7 @@
 import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
 import { DomValueUI } from './dom_value_ui.js';
 import { getDoc } from '../../utils/runtime_deps.js';
+import { resolveDrawAvailability } from '../combat/draw_availability.js';
 
 export function updateCombatEnergyUI(gs, deps = {}) {
   if (!gs?.player) return;
@@ -42,21 +43,20 @@ export function updateCombatEnergyUI(gs, deps = {}) {
   if (combatEnergyText) {
     combatEnergyText.textContent = `${p.energy} / ${p.maxEnergy}`;
   }
-
   const drawBtn = doc.getElementById('combatDrawCardBtn');
   if (drawBtn && gs.combat?.active) {
-    const handFull = p.hand.length >= 8;
-    const canDraw = gs.combat.playerTurn && p.energy >= 1 && !handFull;
-
-    if (handFull) {
+    const drawState = resolveDrawAvailability(gs);
+    if (!drawState.playerTurn) {
+      setActionButtonLabel(drawBtn, '적 턴', 'Q');
+    } else if (drawState.handFull) {
       setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-    } else if (p.energy < 1) {
+    } else if (!drawState.hasEnergy) {
       setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
     } else {
       setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
     }
-    drawBtn.disabled = !canDraw;
-    drawBtn.style.opacity = canDraw ? '1' : '0.4';
+    drawBtn.disabled = !drawState.canDraw;
+    drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
   }
 }
 
