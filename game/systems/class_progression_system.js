@@ -134,9 +134,9 @@ function resolveMasteryBonuses(classId, level) {
   };
 
   if (lv >= 2) bonuses.runStart.starterAttackUpgrades = 1;
-  if (lv >= 3) bonuses.runStart.maxHp += 6;
-  if (lv >= 4) bonuses.runStart.gold += 20;
-  if (lv >= 5) bonuses.combatStart.block += 5;
+  if (lv >= 3) bonuses.runStart.maxHp += 20;
+  if (lv >= 4) bonuses.runStart.gold += 50;
+  if (lv >= 5) bonuses.combatStart.block += 10;
   if (lv >= 6) bonuses.runStart.maxEnergy += 1;
   if (lv >= 7) bonuses.runStart.starterRandomUpgrades += 1;
   if (lv >= 8) bonuses.reward.extraRelicChoices += 1;

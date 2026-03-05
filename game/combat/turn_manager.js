@@ -374,13 +374,22 @@ export const TurnManager = {
                 const dealt = Math.max(0, hpBefore - enemy.hp);
                 if (dealt > 0 && gs.stats) gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
                 gs.addLog?.(LogUtils.formatAttack('독', enemy.name, dmg), 'damage');
-                se.poisoned--;
-                if (se.poisoned <= 0) delete se.poisoned;
+
                 let enemyDied = false;
                 if (enemy.hp <= 0) {
                     gs.onEnemyDeath?.(enemy, index);
                     enemyDied = true;
                 }
+
+                // 지속시간 감소
+                if (!enemyDied) {
+                    se.poisonDuration = (se.poisonDuration || 1) - 1;
+                    if (se.poisonDuration <= 0) {
+                        delete se.poisoned;
+                        delete se.poisonDuration;
+                    }
+                }
+
                 events.push({ index, type: 'poison', dmg, enemyDied, color: '#44ff88' });
                 if (enemyDied) return;
             }
@@ -478,7 +487,12 @@ export const TurnManager = {
         if ((buffs.poisoned?.stacks || 0) > 0) {
             const poisonDmg = Math.max(0, Number(buffs.poisoned.stacks || 0)) * 5;
             gs.takeDamage(poisonDmg, { name: '독', type: 'enemy' });
-            decStack('poisoned');
+
+            // 플레이어 독 지속시간 처리
+            buffs.poisoned.poisonDuration = (buffs.poisoned.poisonDuration || 1) - 1;
+            if (buffs.poisoned.poisonDuration <= 0) {
+                delete buffs.poisoned;
+            }
             if (!gs.combat.active || gs.player.hp <= 0) return { alive: false, actions };
         }
 

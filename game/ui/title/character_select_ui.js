@@ -655,9 +655,9 @@ export const CharacterSelectUI = {
               <div class="char-info-block">
                 ${sLabel('시작 덱', ch.accent)}
                 <div class="char-start-deck">${ch.startDeck.map((cId) => {
-                  const card = CARDS[cId] || { name: cId };
-                  return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
-                }).join('')}</div>
+        const card = CARDS[cId] || { name: cId };
+        return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
+      }).join('')}</div>
               </div>
             </section>
           </div>
@@ -690,9 +690,7 @@ export const CharacterSelectUI = {
       const relicBadge = panel.querySelector('.relic-inner');
       if (relicBadge) {
         const relicTitle = `${rel.icon} ${rel.name}`;
-        const relicBody = rel.passive
-          ? `${rel.desc}<br><br><span style="color:${ch.accent};font-size:10px;">${rel.passive}</span>`
-          : rel.desc;
+        const relicBody = rel.desc;
         relicBadge.addEventListener('mouseenter', (e) => {
           SFX.hover();
           TooltipUI.showGeneralTooltip(e, relicTitle, relicBody, { doc, win: window });

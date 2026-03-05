@@ -167,6 +167,64 @@ export const ITEMS = {
         desc: '전투 시작 시 모든 적에게 독 2턴 부여.',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.combat.enemies.forEach((_, i) => gs.applyEnemyStatus('poisoned', 2, i, { name: '독 약병', type: 'item' })); } }
     },
+    viper_kiss: {
+        id: 'viper_kiss', name: '독사의 입맞춤', icon: '🐍', rarity: 'rare',
+        desc: '독에 걸린 적 처치 시, 그 독 중첩의 50%를 무작위 적에게 전수합니다.',
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.ENEMY_KILL && data?.enemy?.statusEffects?.poisoned) {
+                const transferStacks = Math.floor(data.enemy.statusEffects.poisoned * 0.5);
+                if (transferStacks > 0) {
+                    const aliveIdx = gs.combat.enemies.map((e, i) => i).filter(i => gs.combat.enemies[i].hp > 0);
+                    if (aliveIdx.length > 0) {
+                        const target = aliveIdx[Math.floor(Math.random() * aliveIdx.length)];
+                        gs.applyEnemyStatus('poisoned', transferStacks, target, { name: '독사의 입맞춤', type: 'item' });
+                    }
+                }
+            }
+        }
+    },
+    neurotoxin: {
+        id: 'neurotoxin', name: '신경독', icon: '🧠', rarity: 'rare',
+        desc: '적이 독 피해를 입을 때마다 15% 확률로 약화 1을 부여합니다.',
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.POISON_DAMAGE && Math.random() < 0.15) {
+                gs.applyEnemyStatus('weakened', 1, data.targetIdx, { name: '신경독', type: 'item' });
+            }
+        }
+    },
+    acid_mist: {
+        id: 'acid_mist', name: '산성 안개', icon: '🌫️', rarity: 'uncommon',
+        desc: '적이 독 피해를 입을 때, 그 피해만큼 방어막을 추가로 깎습니다.',
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.POISON_DAMAGE) {
+                const enemy = gs.combat.enemies[data.targetIdx];
+                if (enemy && enemy.shield > 0) {
+                    const reduction = Math.min(enemy.shield, data.amount);
+                    enemy.shield -= reduction;
+                    gs.addLog(LogUtils.formatItem('산성 안개', `${enemy.name}의 방어막 ${reduction} 부식`), 'item');
+                }
+            }
+        }
+    },
+    venom_extractor: {
+        id: 'venom_extractor', name: '독기 추출기', icon: '💉', rarity: 'uncommon',
+        desc: '적에게 독을 부여할 때마다 잔향을 4 충전합니다.',
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.ENEMY_STATUS_APPLY && data.status === 'poisoned') {
+                gs.addEcho(4, { name: '독기 추출기', type: 'item' });
+            }
+        }
+    },
+    chemical_catalyst: {
+        id: 'chemical_catalyst', name: '화학 촉매', icon: '🧬', rarity: 'legendary',
+        desc: '독 부여 시 25% 확률로 부여하는 독 중첩이 2배가 됩니다.',
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.ENEMY_STATUS_APPLY && data.status === 'poisoned' && Math.random() < 0.25) {
+                gs.addLog('🧬 화학 촉매: 독 중첩 2배 증폭!', 'item');
+                return data.duration * 2;
+            }
+        }
+    },
     shadow_mask: {
         id: 'shadow_mask', name: '그림자 가면', icon: '🎭', rarity: 'uncommon',
         desc: '카드를 3장 연속으로 사용할 때마다 방어막를 8 얻습니다.',

@@ -282,6 +282,14 @@ export const Reducers = {
         const enemy = gs.combat.enemies[targetIdx];
         if (!enemy) return {};
         if (!enemy.statusEffects) enemy.statusEffects = {};
+
+        if (status === 'poisoned') {
+            // 독은 중첩(데미지)은 쌓이되 지속시간은 3으로 고정/갱신됩니다.
+            enemy.statusEffects.poisoned = (enemy.statusEffects.poisoned || 0) + duration;
+            enemy.statusEffects.poisonDuration = 3;
+            return { status, duration: enemy.statusEffects.poisoned, poisonDuration: 3, targetIdx };
+        }
+
         enemy.statusEffects[status] = (enemy.statusEffects[status] || 0) + duration;
         return { status, duration: enemy.statusEffects[status], targetIdx };
     },

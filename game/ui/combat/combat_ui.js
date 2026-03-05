@@ -2,6 +2,7 @@ import { DescriptionUtils } from '../../utils/description_utils.js';
 import { CardCostUtils } from '../../utils/card_cost_utils.js';
 import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
 import { StatusTooltipUI } from './status_tooltip_builder.js';
+import { DEBUFF_STATUS_KEYS } from '../../../data/status_key_data.js';
 
 
 const INTENT_DESCRIPTIONS = {
@@ -129,19 +130,32 @@ function _renderEnemyStatuses(statusEffects, doc) {
   const fragment = doc.createDocumentFragment();
 
   statusEntries.forEach(([s, d]) => {
+    if (s === 'poisonDuration') return; // 내부 변수는 배지로 표시하지 않음
+
     const kr = ENEMY_STATUS_KR[s] || s;
     const icon = ENEMY_STATUS_DESC[s]?.icon || '🪶';
-    const col = ['weakened', 'poisoned', 'burning', 'cursed', 'marked', 'branded', 'draw_block', 'doom'].includes(s)
+    const col = DEBUFF_STATUS_KEYS.includes(s)
       ? '#ff6688'
       : '#88ccff';
-    const duration = d > 1 ? `(${d})` : '';
+
+    // 독은 별도의 poisonDuration 변수를 사용
+    let displayDuration = d;
+    if (s === 'poisoned' && statusEffects.poisonDuration !== undefined) {
+      displayDuration = statusEffects.poisonDuration;
+    }
+
+    const durationText = displayDuration > 1 ? `(${displayDuration})` : '';
 
     const badge = doc.createElement('span');
     badge.className = 'enemy-status-badge';
     badge.style.cssText = `font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};cursor:help;`;
-    badge.textContent = `${icon} ${kr}${duration}`;
+    badge.textContent = `${icon} ${kr}${durationText}`;
 
-    badge.addEventListener('mouseenter', (e) => CombatUI.showEnemyStatusTooltip(e, s, d, { doc }));
+    // 툴팁 호출 시 전체 statusEffects 전달 고려 (독의 경우 duration 정보가 필요하므로)
+    badge.addEventListener('mouseenter', (e) => CombatUI.showEnemyStatusTooltip(e, s, d, {
+      doc,
+      poisonDuration: statusEffects.poisonDuration
+    }));
     badge.addEventListener('mouseleave', () => CombatUI.hideEnemyStatusTooltip({ doc }));
 
     fragment.appendChild(badge);
@@ -214,7 +228,7 @@ export const CombatUI = {
     const infoKR = {
       icon: statusMeta.icon,
       name: ENEMY_STATUS_KR[statusKey] ?? statusKey,
-      buff: !['weakened', 'poisoned', 'burning', 'cursed', 'marked', 'branded', 'draw_block', 'doom'].includes(statusKey),
+      buff: !DEBUFF_STATUS_KEYS.includes(statusKey),
       desc: statusMeta.desc,
     };
 
@@ -231,6 +245,7 @@ export const CombatUI = {
       source,
       doc,
       win,
+      poisonDuration: resolvedDeps.poisonDuration // 추가 정보 전달
     });
   },
 

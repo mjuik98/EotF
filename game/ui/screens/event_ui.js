@@ -129,6 +129,40 @@ function _hexToRgb(hex, fallback = [255, 255, 255]) {
   return fallback;
 }
 
+const _PARTICLE_SPRITES = {
+  hp: null,
+  echo: null,
+};
+
+function _ensureParticleSprites(doc) {
+  if (_PARTICLE_SPRITES.hp && _PARTICLE_SPRITES.echo) return;
+
+  const createGradientSprite = (color, size = 64) => {
+    const canvas = (doc || document).createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const center = size / 2;
+
+    // Core glow
+    const [r, g, b] = _hexToRgb(color);
+    const radGlow = ctx.createRadialGradient(center, center, 0, center, center, size / 2);
+    radGlow.addColorStop(0, `rgba(${r},${g},${b}, 1)`);
+    radGlow.addColorStop(0.3, `rgba(${r},${g},${b}, 0.4)`);
+    radGlow.addColorStop(1, `rgba(${r},${g},${b}, 0)`);
+
+    ctx.fillStyle = radGlow;
+    ctx.beginPath();
+    ctx.arc(center, center, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    return canvas;
+  };
+
+  if (!_PARTICLE_SPRITES.hp) _PARTICLE_SPRITES.hp = createGradientSprite('#ff5c96');
+  if (!_PARTICLE_SPRITES.echo) _PARTICLE_SPRITES.echo = createGradientSprite('#9c63ff');
+}
+
 class _RestFillParticle {
   constructor(kind, width, height) {
     this.kind = kind === 'echo' ? 'echo' : 'hp';
@@ -171,44 +205,31 @@ class _RestFillParticle {
     if (alpha <= 0) return;
 
     const [r, g, b] = this.color;
-    const flicker = 0.78 + Math.sin(this.phase * 2.4) * 0.22;
     const radius = this.size * (0.9 + boost * 0.65);
+    const sprite = _PARTICLE_SPRITES[this.kind];
 
-    ctx.save();
-    ctx.globalAlpha = Math.max(0.08, Math.min(1, alpha * flicker));
-    ctx.shadowBlur = 8 + boost * 16;
-    ctx.shadowColor = `rgba(${r},${g},${b},${Math.min(1, alpha * 1.25)})`;
-
-    const trail = ctx.createLinearGradient(
-      this.x,
-      this.y + radius * 2.2,
-      this.x,
-      this.y - radius * 2.6,
-    );
-    trail.addColorStop(0, `rgba(${r},${g},${b},0)`);
-    trail.addColorStop(1, `rgba(${r},${g},${b},${Math.min(1, alpha * 0.9)})`);
-    ctx.strokeStyle = trail;
-    ctx.lineWidth = Math.max(0.7, radius * 0.52);
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y + radius * 2.3);
-    ctx.lineTo(this.x, this.y - radius * 1.7);
-    ctx.stroke();
-
-    const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, radius * 2.1);
-    glow.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1, alpha * 1.15)})`);
-    glow.addColorStop(0.5, `rgba(${r},${g},${b},${Math.min(1, alpha * 0.45)})`);
-    glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, radius * 1.65, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, alpha * 1.35)})`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, radius * 0.7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    if (sprite) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, alpha * 1.5);
+      const drawSize = radius * 4; // Expanded for glow
+      ctx.drawImage(
+        sprite,
+        this.x - drawSize / 2,
+        this.y - drawSize / 2,
+        drawSize,
+        drawSize
+      );
+      ctx.restore();
+    } else {
+      // Fallback if sprite not ready
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.08, Math.min(1, alpha));
+      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 }
 
@@ -265,6 +286,7 @@ function _startRestFillParticles(overlay, doc) {
   }
 
   const docRef = doc || overlay?.ownerDocument;
+  _ensureParticleSprites(docRef);
   const win = docRef?.defaultView;
   const refs = {
     target: docRef?.querySelector?.('.game-canvas-wrapper-special')

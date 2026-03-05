@@ -464,3 +464,21 @@ Original prompt:
   - No `errors-*.json` emitted by Playwright run.
 - TODO / suggestion:
   - If you want even stricter visual pacing, tune stage fade timing constants (`fadeInMs`, `holdMs`, `fadeOutMs`) in `run_start_ui.js` based on real-device feedback.
+- Follow-up prompt: 프로젝트 전체 JS 파일 스캔하여 정적 데이터 구조 분석 및 데이터 모듈 분리.
+- Data-module refactor (logic -> data):
+  - Added `data/map_node_data.js` with map-node static tables moved from UI/logic:
+    - `MAP_NODE_TYPE_VISUAL_FALLBACK`
+    - `MAP_NODE_TYPE_ORDER`
+    - `MAP_COMBAT_NODE_TYPES`
+    - `MAP_RANDOM_NODE_TYPE_POOL`
+  - Added `data/event_shop_data.js` with event shop rarity static tables moved from `event_manager.js`:
+    - `ITEM_SHOP_RARITY_BASE_COSTS`
+    - `ITEM_SHOP_RARITY_ORDER`
+- Updated imports/usages:
+  - `game/ui/map/map_ui.js` now imports node order/visual fallback from `data/map_node_data.js`.
+  - `game/ui/map/map_generation_ui.js` now imports and uses `MAP_RANDOM_NODE_TYPE_POOL`.
+  - `game/ui/map/map_navigation_ui.js` now imports and uses `MAP_COMBAT_NODE_TYPES`.
+  - `game/systems/event_manager.js` now imports and uses `ITEM_SHOP_RARITY_BASE_COSTS` and `ITEM_SHOP_RARITY_ORDER`.
+- Verification:
+  - `npm test -- tests/map_branching.test.js tests/event_manager_item_shop_cache.test.js tests/event_merchant_resolution.test.js` PASS.
+  - `npm test` reports existing unrelated failures in pre-modified areas (`class_progression_bonuses`, `description_utils_highlight`, `thematic_relics`), while modified map/event tests remain passing.

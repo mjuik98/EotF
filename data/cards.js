@@ -402,11 +402,11 @@ export const CARDS = {
     // ── [4] 메아리술사 (Mage) ──
     foresight: {
         id: 'foresight', name: '예지', icon: '👁️', cost: 0, type: 'SKILL', desc: '에너지 1 획득.', rarity: 'common',
-        effect(gs) { gs.gainEnergy(1); }
+        effect(gs) { gs.player.energy += 1; gs.markDirty('hud'); }
     },
     foresight_plus: {
         id: 'foresight_plus', name: '예지+', icon: '👁️', cost: 0, type: 'SKILL', desc: '에너지 1 획득. 잔향 10 충전.', rarity: 'common', upgraded: true,
-        effect(gs) { gs.gainEnergy(1); gs.addEcho(10); }
+        effect(gs) { gs.player.energy += 1; gs.markDirty('hud'); gs.addEcho(10); }
     },
     time_echo: {
         id: 'time_echo', name: '시간의 잔향', icon: '⏳', cost: 1, type: 'SKILL', desc: '소모 더미 최근 카드 1장 회수.', rarity: 'uncommon',
@@ -852,11 +852,11 @@ export const CARDS = {
     },
     frenzy_strike: {
         id: 'frenzy_strike', name: '광분 타격', icon: '🪓', cost: 1, type: 'ATTACK', desc: '피해 12. 에너지 1 회복.', rarity: 'uncommon',
-        effect(gs) { gs.dealDamage(12); gs.gainEnergy(1); }
+        effect(gs) { gs.dealDamage(12); gs.player.energy += 1; gs.markDirty('hud'); }
     },
     frenzy_strike_plus: {
         id: 'frenzy_strike_plus', name: '광분 타격+', icon: '🪓', cost: 1, type: 'ATTACK', desc: '피해 16. 에너지 1 회복. 카드 1장 드로우.', rarity: 'uncommon', upgraded: true,
-        effect(gs) { gs.dealDamage(16); gs.gainEnergy(1); gs.drawCards(1); }
+        effect(gs) { gs.dealDamage(16); gs.player.energy += 1; gs.drawCards(1); gs.markDirty('hud'); }
     },
     endure: {
         id: 'endure', name: '인내', icon: '🧘', cost: 1, type: 'SKILL', desc: '방어막 10. 다음 턴 공격 피해 +5.', rarity: 'uncommon',
@@ -868,11 +868,11 @@ export const CARDS = {
     },
     blood_contract: {
         id: 'blood_contract', name: '피의 계약', icon: '📜', cost: 0, type: 'SKILL', desc: '카드 2장 드로우. 현 체력의 10% 소모. 에너지 1 획득.', rarity: 'rare',
-        effect(gs) { const cost = Math.floor(gs.player.hp * 0.1); gs.player.hp = Math.max(1, gs.player.hp - cost); gs.drawCards(2); gs.gainEnergy(1); gs.markDirty('hud'); }
+        effect(gs) { const cost = Math.floor(gs.player.hp * 0.1); gs.player.hp = Math.max(1, gs.player.hp - cost); gs.drawCards(2); gs.player.energy += 1; gs.markDirty('hud'); }
     },
     blood_contract_plus: {
         id: 'blood_contract_plus', name: '피의 계약+', icon: '📜', cost: 0, type: 'SKILL', desc: '카드 3장 드로우. 현 체력의 10% 소모. 에너지 1 획득.', rarity: 'rare', upgraded: true,
-        effect(gs) { const cost = Math.floor(gs.player.hp * 0.1); gs.player.hp = Math.max(1, gs.player.hp - cost); gs.drawCards(3); gs.gainEnergy(1); gs.markDirty('hud'); }
+        effect(gs) { const cost = Math.floor(gs.player.hp * 0.1); gs.player.hp = Math.max(1, gs.player.hp - cost); gs.drawCards(3); gs.player.energy += 1; gs.markDirty('hud'); }
     },
     wild_slash: {
         id: 'wild_slash', name: '공포의 난도질', icon: '⚔️', cost: 2, type: 'ATTACK', desc: '피해 13. 잔향 15 충전.', rarity: 'uncommon',

@@ -33,12 +33,16 @@ export const STATUS_TOOLTIP_META = {
     nameEn: 'Poisoned', typeLabel: '디버프 · 스택',
     accent: '#c026d3', nameColor: '#e879a0',
     typeBg: 'rgba(192,38,211,.12)', typeColor: '#c026d3',
-    nextTurnText: (buff, val) => `다음 턴 독 피해 (${val ?? buff?.stacks ?? buff ?? '?'}스택 × 5)`,
-    nextTurnDmg: (buff, val) => {
-      const s = Number(val ?? buff?.stacks ?? buff);
+    nextTurnText: (buff, val) => {
+      const s = Number(buff?.stacks ?? buff);
+      const d = Number(val ?? buff?.poisonDuration ?? 1);
+      return `다음 턴 독 피해 (${s}중첩 × 5 = ${s * 5}), 남은 지속: ${d}턴`;
+    },
+    nextTurnDmg: (buff, _val) => {
+      const s = Number(buff?.stacks ?? buff);
       return Number.isFinite(s) && s > 0 ? s * 5 : null;
     },
-    statLabel: '스택', statValue: (buff, val) => String(val ?? buff?.stacks ?? buff ?? '?'),
+    statLabel: '스택', statValue: (buff, _val) => String(buff?.stacks ?? buff ?? '?'),
     statUnit: '중첩', statColor: '#c026d3',
   },
   weakened: {
@@ -330,19 +334,23 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
   // 출처 (개선 5)
   const sourceHtml = _buildSource(source);
 
+  // 지속시간 수치 계산 (독의 경우 별도 필드 확인)
+  const isPoison = statusKey === 'poisoned';
+  const durationValue = isPoison
+    ? (options.poisonDuration ?? buff?.poisonDuration ?? 1)
+    : (rawValue ?? (Number.isFinite(buff) ? buff : buff?.stacks));
+
   // 카운트다운 (파멸 등 특수)
-  const countdownVal = rawValue ?? buff?.stacks ?? buff;
   const countdownHtml = meta?.countdown
-    ? _buildCountdown(countdownVal)
+    ? _buildCountdown(durationValue)
     : '';
 
   // 태그형 버프 (면역, 은신 등)
   const tagsHtml = _buildTags(meta?.tags);
 
   // 수치 2분할 (디버프 또는 수치 있는 버프)
-  // 수치 2분할 (디버프 또는 수치 있는 버프)
   const statsHtml = !meta?.tags && !meta?.countdown
-    ? _buildStats(meta, buff, rawValue)
+    ? _buildStats(meta, buff, (isPoison ? durationValue : rawValue))
     : '';
 
   // 게이지 (개선 1)
@@ -350,7 +358,7 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
   if (meta?.gauge?.infinite) {
     gaugeHtml = _buildGauge(99, true, pal.accent);
   } else if (!meta?.countdown) {
-    const stacks = rawValue ?? Number(buff?.stacks ?? buff);
+    const stacks = Number(durationValue);
     if (Number.isFinite(stacks) && stacks > 0) {
       gaugeHtml = _buildGauge(stacks, false, pal.accent);
     }
@@ -421,7 +429,7 @@ export const StatusTooltipUI = {
   },
 
   _position(event, el, win) {
-    const TW = 226, margin = 10;
+    const TW = 280, margin = 10;
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + margin;
     let y = rect.top;
