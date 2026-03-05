@@ -23,7 +23,7 @@ export const GS = {
         echo: 0, maxEcho: 100, echoChain: 0,
         energy: 3, maxEnergy: 3, gold: 0, kills: 0,
         deck: [], hand: [], graveyard: [], exhausted: [],
-        items: [], buffs: {}, silenceGauge: 0, zeroCost: false, _freeCardUses: 0, costDiscount: 0, _nextCardDiscount: 0, _cascadeCards: new Map(), _traitCardDiscounts: {}, _mageCastCounter: 0, _mageLastDiscountTarget: null,
+        items: [], buffs: {}, silenceGauge: 0, timeRiftGauge: 0, zeroCost: false, _freeCardUses: 0, costDiscount: 0, _nextCardDiscount: 0, _cascadeCards: new Map(), _traitCardDiscounts: {}, _mageCastCounter: 0, _mageLastDiscountTarget: null,
         upgradedCards: new Set(), _cardUpgradeBonus: {},
     },
     currentRegion: 0, currentFloor: 1,

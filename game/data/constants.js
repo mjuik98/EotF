@@ -63,11 +63,11 @@ export const CONSTANTS = Object.freeze({
   }),
 
   DIFFICULTY: Object.freeze({
-    RUN_SCALE: 0.05,
-    REGION_SCALE: 0.10,
-    FLOOR_SCALE: 0.03,
+
+    REGION_SCALE: 0.18,
+    FLOOR_SCALE: 0.06,
     ASCENSION_GOLD_SCALE: 0.02,
-    BASE_MULTIPLIER_CAP: 3.0,
+    BASE_MULTIPLIER_CAP: 12.0,
   }),
 
   BOSS_PHASES: Object.freeze({

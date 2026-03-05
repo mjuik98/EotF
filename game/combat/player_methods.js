@@ -123,6 +123,39 @@ export const PlayerMethods = {
         if (typeof updateClassSpecialUI === 'function') updateClassSpecialUI();
     },
 
+    addTimeRift(amount, label = '시간의 균열', deps = {}) {
+        const result = this.commit(Actions.PLAYER_TIME_RIFT, { amount });
+        const timeRiftGauge = Number(result?.timeRiftGauge || 0);
+        const max = 10;
+
+        let labelText = `${label} ${timeRiftGauge}/${max}`;
+        if (timeRiftGauge >= max) {
+            labelText += ' - 시간 강제 재조정!';
+        }
+        this.addLog(LogUtils.formatEcho(labelText), 'echo');
+
+        const win = _getWin(deps);
+        const updateNoiseWidget = deps.updateNoiseWidget || win.updateNoiseWidget;
+        if (typeof updateNoiseWidget === 'function') updateNoiseWidget();
+
+        if (timeRiftGauge >= max) {
+            this.commit(Actions.PLAYER_TIME_RIFT, { amount: -timeRiftGauge });
+
+            this.player.energy = 0;
+            this.addLog(LogUtils.formatSystem('시간의 왜곡이 임계점에 달했습니다. 에너지를 모두 잃고 턴이 강제로 종료됩니다!'), 'damage');
+
+            const screenShake = deps.screenShake || win.ScreenShake;
+            if (screenShake) screenShake.shake(15, 0.6);
+
+            setTimeout(() => {
+                const endPlayerTurn = deps.endPlayerTurn || win.endPlayerTurn;
+                if (typeof endPlayerTurn === 'function') {
+                    endPlayerTurn();
+                }
+            }, 300);
+        }
+    },
+
     showLowHpWarning(deps = {}) {
         const doc = _getDoc(deps);
         let el = doc.querySelector('.pulse-overlay');

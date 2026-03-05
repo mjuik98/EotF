@@ -26,6 +26,7 @@ export const Actions = {
     PLAYER_ENERGY: 'player:energy',
     PLAYER_ECHO: 'player:echo',
     PLAYER_SILENCE: 'player:silence',
+    PLAYER_TIME_RIFT: 'player:time_rift',
     PLAYER_BUFF: 'player:buff',
     PLAYER_MAX_HP_GROWTH: 'player:max_hp_growth',
     PLAYER_MAX_ENERGY_GROWTH: 'player:max_energy_growth',
@@ -129,6 +130,12 @@ export const Reducers = {
         gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) + amount);
         gs.markDirty('hud');
         return { silenceGauge: gs.player.silenceGauge };
+    },
+
+    [Actions.PLAYER_TIME_RIFT](gs, { amount }) {
+        gs.player.timeRiftGauge = Math.max(0, (gs.player.timeRiftGauge || 0) + amount);
+        gs.markDirty('hud');
+        return { timeRiftGauge: gs.player.timeRiftGauge };
     },
 
     [Actions.PLAYER_BUFF](gs, { id, stacks, data = {} }) {
@@ -303,6 +310,7 @@ export const Reducers = {
         gs.player.discardPile = [];
 
         gs.player.silenceGauge = 0;
+        gs.player.timeRiftGauge = 0;
         gs._maskCount = 0;
         gs._batteryUsedTurn = false;
         gs._temporalTurn = 0;

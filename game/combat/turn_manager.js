@@ -261,6 +261,10 @@ export const TurnManager = {
             gs.player.silenceGauge = Math.max(0, gs.player.silenceGauge - 1);
         }
 
+        if (activeRegionId === 5) {
+            gs.player.timeRiftGauge = 0;
+        }
+
         // 턴 종료 기반 유물 트리거 (남은 에너지/상태 참조)
         gs.triggerItems?.('turn_end');
         if ((gs.player.echoChain || 0) > 0) {
