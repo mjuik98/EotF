@@ -78,7 +78,7 @@ export const EventManager = {
       return { resultText: null, isFail: false, shouldClose: false, isItemShop: true };
     }
 
-    const failPattern = /(not enough|insufficient|none available|없|부족)/i;
+    const failPattern = /(not enough|insufficient|none available|없다|부족)/i;
     const isFail = typeof result === 'string' && failPattern.test(result);
     const shouldClose = !event.persistent && !isFail;
 
