@@ -431,13 +431,19 @@ export const CombatHudUI = {
       }
     }
     const inSilenceCity = combatActive && combatRegionId === 1;
-    widget.style.display = inSilenceCity ? 'block' : 'none';
-    if (!inSilenceCity) return;
+    const inTimeWasteland = combatActive && combatRegionId === 5;
+    widget.style.display = (inSilenceCity || inTimeWasteland) ? 'flex' : 'none';
+    if (!inSilenceCity && !inTimeWasteland) return;
 
     const MAX = 10;
-    const gauge = gs.player.silenceGauge || 0;
+    const gauge = inSilenceCity ? (gs.player.silenceGauge || 0) : (gs.player.timeRiftGauge || 0);
     const pct = (gauge / MAX) * 100;
     const isWarn = gauge >= 7;
+
+    const titleEl = widget.querySelector('.nw-title');
+    if (titleEl) {
+      titleEl.textContent = inSilenceCity ? '🌑 소음 게이지' : '⏳ 시간의 균열';
+    }
 
     const dots = doc.getElementById('nwDots');
     if (dots) {
@@ -451,14 +457,22 @@ export const CombatHudUI = {
       }
     }
     const fill = doc.getElementById('nwBarFill');
-    if (fill) fill.style.width = `${pct}%`;
+    if (fill) {
+      fill.style.width = `${pct}%`;
+      fill.style.background = inSilenceCity ? 'var(--danger)' : '#b066ff';
+    }
     const val = doc.getElementById('nwVal');
     if (val) val.textContent = `${gauge} / ${MAX}`;
     const warnEl = doc.getElementById('nwWarn');
-    if (warnEl) warnEl.style.display = isWarn ? 'block' : 'none';
+    if (warnEl) {
+      warnEl.textContent = inSilenceCity ? '⚠ 파수꾼 임박' : '⚠ 강제 턴 종료 임박';
+      warnEl.style.display = isWarn ? 'block' : 'none';
+    }
 
-    widget.style.borderColor = isWarn ? 'rgba(240,180,41,0.5)' : 'rgba(255,51,102,0.3)';
-    widget.style.boxShadow = isWarn ? '0 0 20px rgba(240,180,41,0.15)' : '0 0 20px rgba(255,51,102,0.1)';
+    const warnColor = inSilenceCity ? '240,180,41' : '180,100,255';
+    const defaultColor = inSilenceCity ? '255,51,102' : '130,51,255';
+    widget.style.borderColor = isWarn ? `rgba(${warnColor},0.5)` : `rgba(${defaultColor},0.3)`;
+    widget.style.boxShadow = isWarn ? `0 0 20px rgba(${warnColor},0.15)` : `0 0 20px rgba(${defaultColor},0.1)`;
   },
 
   updateClassSpecialUI(deps = {}) {

@@ -629,7 +629,7 @@ export const TurnManager = {
         let drawCount = drawBlocked ? 4 : 5;
         if (activeRegionId === 5) {
             drawCount += 1;
-            gs.addLog?.(LogUtils.formatSystem('지역 효과: 시간 가속으로 카드 1장을 추가로 뽑습니다.'), 'echo');
+            gs.addLog?.(LogUtils.formatSystem('지역 효과: 시간의 왜곡으로 카드 1장을 추가로 뽑습니다.'), 'echo');
         }
         if (drawBlocked) {
             gs.addLog?.(LogUtils.formatSystem('심연 간섭: 이번 턴 드로우 -1'), 'damage');

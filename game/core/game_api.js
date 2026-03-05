@@ -86,8 +86,26 @@ export const GameAPI = {
      * 카드를 뽑습니다 (단순 상태 변경).
      */
     drawCards(count = 1, gs = GAME.State) {
-        gs.dispatch(Actions.CARD_DRAW, { count });
+        const result = gs.dispatch(Actions.CARD_DRAW, { count });
         // 카드 UI 갱신은 EventBus 구독자가 처리
+
+        const activeRegionId = Number(gs?._activeRegionId);
+        let combatRegionId = Number.isFinite(activeRegionId) ? Math.max(0, Math.floor(activeRegionId)) : null;
+        if (combatRegionId == null) {
+            const getRegionData = globalThis.GAME?.getDeps?.()?.getRegionData;
+            const regionIdFromData = Number(getRegionData?.(gs.currentRegion, gs)?.id);
+            if (Number.isFinite(regionIdFromData)) {
+                combatRegionId = Math.max(0, Math.floor(regionIdFromData));
+            } else {
+                combatRegionId = Math.max(0, Math.floor(Number(gs.currentRegion) || 0));
+            }
+        }
+
+        if (combatRegionId === 5 && gs.combat?.active) {
+            if (typeof gs.addTimeRift === \'function\' && result?.drawn > 0) {
+                gs.addTimeRift(result.drawn, \'시간의 균열\', globalThis.GAME?.getDeps?.() || {});
+            }
+        }
     },
 
     /**
