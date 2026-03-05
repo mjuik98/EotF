@@ -89,8 +89,7 @@ export const TooltipUI = {
     doc.getElementById('ttCost').textContent = card.cost;
     doc.getElementById('ttName').textContent = card.name;
     doc.getElementById('ttType').textContent = card.type;
-    const wallExtraDesc = _buildUnbreakableWallCardTooltip(cardId, gs);
-    DomSafe.setHighlightedText(doc.getElementById('ttDesc'), `${card.desc || ''}${wallExtraDesc}`);
+    DomSafe.setHighlightedText(doc.getElementById('ttDesc'), card.desc || '');
     const rarityEl = doc.getElementById('ttRarity');
     rarityEl.textContent = DescriptionUtils.getRarityLabel(card.rarity || 'common');
     rarityEl.className = `card-tooltip-rarity rarity-${card.rarity || 'common'}`;
@@ -208,13 +207,27 @@ export const TooltipUI = {
       combat_start: '전투 시작 시',
       card_play: '카드 사용 시',
       turn_start: '턴 시작 시',
+      turn_end: '턴 종료 시',
       damage_taken: '피해 받을 때',
       boss_start: '보스 조우 시',
       combat_end: '전투 종료 시',
+      enemy_kill: '적 처치 시',
+      card_draw: '카드 드로우 시',
+      card_exhaust: '카드 소멸 시',
+      card_discard: '카드 버릴 때',
+      floor_start: '층 이동 시',
+      resonance_burst: '공명 폭발 시',
+      poison_damage: '독 피해 시',
+      enemy_status_apply: '적 상태이상 부여 시',
+      echo_gain: '잔향 획득 시',
+      chain_gain: '연쇄 증가 시',
+      chain_break: '연쇄 단절 시',
+      energy_gain: '에너지 획득 시',
+      energy_empty: '에너지 소진 시',
     };
     const triggerText = item.trigger ? (triggerMap[item.trigger] || item.trigger) : '패시브';
-    const tipRarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)', legendary: '#c084fc' };
-    const tipRarityLabel = { common: '일반', uncommon: '비범', rare: '희귀', legendary: '전설' };
+    const tipRarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)', legendary: '#c084fc', boss: '#ff3366' };
+    const tipRarityLabel = { common: '일반', uncommon: '비범', rare: '희귀', legendary: '전설', boss: '보스' };
     const tipR = item.rarity || 'common';
     const tipBorder = tipR === 'legendary' ? 'rgba(192,132,252,0.4)' : tipR === 'rare' ? 'rgba(240,180,41,0.35)' : tipR === 'uncommon' ? 'rgba(123,47,255,0.35)' : 'var(--border)';
     el.style.borderColor = tipBorder;

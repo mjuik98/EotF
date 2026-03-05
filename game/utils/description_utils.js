@@ -169,6 +169,12 @@ export const DescriptionUtils = {
             `<span class="kw-special kw-trigger">${m}</span>`
         );
 
+        // 세트 아이템 태그 처리 [세트:이름]
+        protect(/\[세트:[^\]\n]+\]/g, (m) => {
+            const setName = m.replace(/^\[세트:|\s*\]$/g, '');
+            return `<div class="kw-special kw-block" style="border: 1px solid var(--gold); background: rgba(240,180,41,0.05); color: var(--gold); font-size: 9px; padding: 4px 8px; border-radius: 4px; margin-top: 8px; display: inline-block; font-weight: 600; font-family: 'Cinzel', serif;">◈ 세트: ${setName}</div>`;
+        });
+
         // ── 플레이스홀더 복원 ─────────────────────────────────────
         placeholders.forEach((val, i) => {
             ph = ph.replace(`__PH${i}__`, val);
@@ -192,8 +198,9 @@ export const DescriptionUtils = {
             'common': '일반',
             'uncommon': '비범',
             'rare': '희귀',
-            'legendary': '전설'
+            'legendary': '전설',
+            'boss': '보스'
         };
         return map[rarity] || rarity;
     }
-};
+}
