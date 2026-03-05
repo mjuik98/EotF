@@ -560,6 +560,7 @@ export const CharacterSelectUI = {
       const ch = chars[S.idx];
       const panel = $('infoPanel');
       if (!panel) return;
+      TooltipUI.hideGeneralTooltip({ doc, win: window });
 
       const rel = ch.startRelic;
       const progress = getClassProgress(ch.class);
@@ -647,14 +648,6 @@ export const CharacterSelectUI = {
                         <div style="font-size:11px;color:${ch.accent}66;font-family:'Share Tech Mono',monospace">유물</div>
                       </div>
                     </div>
-                    <div class="relic-tooltip" style="border:1px solid ${ch.accent}44; width: 220px; padding: 14px 18px;">
-                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-                        <span style="font-size:18px">${rel.icon}</span>
-                        <span style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace">${rel.name}</span>
-                      </div>
-                      <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:10px">${rel.desc}</div>
-                      <div class="tip-arrow" style="border-top:7px solid ${ch.accent}44"></div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -692,6 +685,19 @@ export const CharacterSelectUI = {
         eb.addEventListener('mouseenter', () => { SFX.hover(); eb.style.borderColor = `${ch.accent}aa`; eb.style.background = `linear-gradient(135deg,${ch.accent}1e,${ch.color}1a)`; eb.style.boxShadow = `0 0 16px ${ch.accent}33`; });
         eb.addEventListener('mouseleave', () => { eb.style.borderColor = `${ch.accent}44`; eb.style.background = `linear-gradient(135deg,${ch.accent}0e,${ch.color}08)`; eb.style.boxShadow = 'none'; });
         eb.addEventListener('click', () => { SFX.echo(); openModal(ch.echoSkill, ch.accent); });
+      }
+
+      const relicBadge = panel.querySelector('.relic-inner');
+      if (relicBadge) {
+        const relicTitle = `${rel.icon} ${rel.name}`;
+        const relicBody = rel.passive
+          ? `${rel.desc}<br><br><span style="color:${ch.accent};font-size:10px;">${rel.passive}</span>`
+          : rel.desc;
+        relicBadge.addEventListener('mouseenter', (e) => {
+          SFX.hover();
+          TooltipUI.showGeneralTooltip(e, relicTitle, relicBody, { doc, win: window });
+        });
+        relicBadge.addEventListener('mouseleave', () => TooltipUI.hideGeneralTooltip({ doc, win: window }));
       }
 
       // ??? ?????: ??? ??? ???????? TooltipUI ???

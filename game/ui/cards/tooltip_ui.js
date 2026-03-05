@@ -251,11 +251,23 @@ export const TooltipUI = {
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + 10;
     let y = rect.top - 10;
-    if (x + 212 > win.innerWidth) x = rect.left - 214;
-    if (y + 140 > win.innerHeight) y = win.innerHeight - 145;
-    el.style.left = `${Math.max(6, x)}px`;
-    el.style.top = `${Math.max(6, y)}px`;
+    const margin = 8;
+    el.style.left = '0px';
+    el.style.top = '0px';
     doc.body.appendChild(el);
+    const tipRect = el.getBoundingClientRect();
+    const tipW = Math.max(180, tipRect.width || 200);
+    const tipH = Math.max(80, tipRect.height || 120);
+
+    if (x + tipW + margin > win.innerWidth) x = rect.left - tipW - 10;
+    if (x < margin) x = margin;
+    if (x + tipW + margin > win.innerWidth) x = Math.max(margin, win.innerWidth - tipW - margin);
+
+    if (y + tipH + margin > win.innerHeight) y = win.innerHeight - tipH - margin;
+    if (y < margin) y = margin;
+
+    el.style.left = `${Math.round(x)}px`;
+    el.style.top = `${Math.round(y)}px`;
     _itemTipEl = el;
   },
 
@@ -290,22 +302,31 @@ export const TooltipUI = {
     el.append(titleEl, contentEl);
 
     const rect = event.currentTarget.getBoundingClientRect();
-    const rightPanelWidth = 240; // 우측 패널 너비
     let x = rect.right + 10;
     let y = rect.top;
+    const margin = 8;
+    const rightPanel = doc.querySelector('.panel-right');
+    const rightPanelWidth = rightPanel && win.getComputedStyle(rightPanel).display !== 'none'
+      ? rightPanel.getBoundingClientRect().width
+      : 0;
+    const maxRight = Math.max(margin, win.innerWidth - rightPanelWidth - margin);
 
-    // 우측 패널과의 충돌 확인
-    if (x + 220 > win.innerWidth - rightPanelWidth) {
-      x = rect.left - 230; // 왼쪽으로 표시
-    }
-    if (x < 6) x = 6; // 왼쪽 벽 충돌 방지
-
-    if (y + 120 > win.innerHeight) y = win.innerHeight - 125;
-    if (y < 6) y = 6;
-
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
+    el.style.left = '0px';
+    el.style.top = '0px';
     doc.body.appendChild(el);
+    const tipRect = el.getBoundingClientRect();
+    const tipW = Math.max(180, tipRect.width || 220);
+    const tipH = Math.max(80, tipRect.height || 120);
+
+    if (x + tipW > maxRight) x = rect.left - tipW - 10;
+    if (x < margin) x = margin;
+    if (x + tipW > maxRight) x = Math.max(margin, maxRight - tipW);
+
+    if (y + tipH + margin > win.innerHeight) y = win.innerHeight - tipH - margin;
+    if (y < margin) y = margin;
+
+    el.style.left = `${Math.round(x)}px`;
+    el.style.top = `${Math.round(y)}px`;
     window._generalTipEl = el;
   },
 

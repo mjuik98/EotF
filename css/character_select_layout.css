@@ -11,20 +11,25 @@
 }
 
 #mainRow {
+  --char-card-width: clamp(280px, 28vw, 420px);
   --char-card-height: clamp(450px, 45vw, 620px);
+  --char-panel-width: clamp(420px, 44vw, 760px);
   align-items: stretch;
   flex: 1 1 auto;
   min-height: 0;
 }
 
 #charCard {
+  flex: 0 0 var(--char-card-width);
+  width: var(--char-card-width);
   height: var(--char-card-height);
 }
 
 #infoPanel {
-  flex: 1 1 0;
-  min-width: 400px;
-  max-width: 760px;
+  flex: 0 0 var(--char-panel-width);
+  width: var(--char-panel-width);
+  min-width: var(--char-panel-width);
+  max-width: var(--char-panel-width);
   height: var(--char-card-height);
   min-height: 0;
   --char-accent: var(--echo);
@@ -51,6 +56,7 @@
 .char-confirm-wrap {
   display: flex;
   justify-content: center;
+  width: 100%;
   padding: 10px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -70,6 +76,9 @@
   font-family: 'Cinzel', serif;
   box-shadow: 0 0 20px var(--char-accent);
   padding: 11px 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: transform .2s ease, box-shadow .2s ease, letter-spacing .2s ease;
 }
 
@@ -84,6 +93,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   background: linear-gradient(165deg, rgba(7, 7, 22, 0.84), rgba(4, 4, 14, 0.92));
@@ -139,6 +149,7 @@
   border-radius: 10px;
   padding: 12px 14px;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .char-info-heading {
@@ -153,6 +164,7 @@
   font-size: 12px;
   color: #8d8daa;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .char-loadout-grid {
@@ -200,6 +212,7 @@
   font-family: 'Share Tech Mono', monospace;
   letter-spacing: 0.08em;
   margin-bottom: 3px;
+  overflow-wrap: anywhere;
 }
 
 .char-echo-desc {
@@ -249,13 +262,9 @@
 
 @media (max-width: 1220px) {
   #mainRow {
+    --char-panel-width: clamp(360px, 56vw, 680px);
     gap: 14px;
     padding: 0 20px;
-  }
-
-  #infoPanel {
-    min-width: 0;
-    max-width: min(56vw, 680px);
   }
 
   .arrow-btn {
@@ -279,19 +288,13 @@
   }
 
   #mainRow {
+    --char-card-width: clamp(248px, 24vw, 344px);
     --char-card-height: clamp(360px, 39vw, 500px);
     gap: clamp(8px, 2vw, 18px);
     padding: 0 22px;
   }
 
-  #charCard {
-    width: clamp(248px, 24vw, 344px);
-    border-radius: 16px;
-  }
-
-  #infoPanel {
-    min-width: 340px;
-  }
+  #charCard { border-radius: 16px; }
 
   .char-info-shell {
     padding: 10px;
@@ -326,6 +329,7 @@
 
   #mainRow {
     --char-card-height: auto;
+    --char-panel-width: min(92vw, 760px);
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
@@ -333,8 +337,9 @@
   }
 
   #infoPanel {
-    width: min(92vw, 760px);
-    max-width: 100%;
+    width: var(--char-panel-width);
+    max-width: var(--char-panel-width);
+    min-width: 0;
     height: auto;
     max-height: min(52vh, 520px);
   }
