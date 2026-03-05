@@ -136,7 +136,7 @@ export const CombatInfoUI = {
         const label = info ? `${info.icon} ${info.name}` : k;
         const displayVal = _resolveStatusDisplayValue(k, b);
         const stacks = displayVal !== '' ? ` (${displayVal})` : '';
-        const desc = descMap[k] || '';
+        const desc = info?.desc || descMap[k] || '';
 
         const badge = doc.createElement('div');
         badge.title = desc;

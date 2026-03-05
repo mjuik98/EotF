@@ -140,7 +140,7 @@ function _renderEnemyStatuses(statusEffects, doc) {
     badge.style.cssText = `font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};cursor:help;`;
     badge.textContent = `${icon} ${kr}${duration}`;
 
-    badge.addEventListener('mouseenter', (e) => CombatUI.showEnemyStatusTooltip(e, s, { doc }));
+    badge.addEventListener('mouseenter', (e) => CombatUI.showEnemyStatusTooltip(e, s, d, { doc }));
     badge.addEventListener('mouseleave', () => CombatUI.hideEnemyStatusTooltip({ doc }));
 
     fragment.appendChild(badge);
@@ -148,6 +148,20 @@ function _renderEnemyStatuses(statusEffects, doc) {
   });
 
   return fragment;
+}
+
+export function resolveEnemyStatusTooltipMetrics(_statusKey, statusValue) {
+  const value = Number(statusValue);
+  if (!Number.isFinite(value) || value <= 0) {
+    return { duration: '-', stacks: '-' };
+  }
+
+  const normalized = Math.floor(value);
+  const duration = normalized >= 99 ? '무한' : `${normalized}턴`;
+  return {
+    duration,
+    stacks: String(normalized),
+  };
 }
 
 function _syncFloatingTooltipAnchors(doc) {
@@ -183,9 +197,13 @@ function _renderSelectedPreviewText(preview) {
 }
 
 export const CombatUI = {
-  showEnemyStatusTooltip(event, statusKey, deps = {}) {
-    const doc = _getDoc(deps);
-    const win = _getWin(deps);
+  showEnemyStatusTooltip(event, statusKey, statusValueOrDeps = null, deps = {}) {
+    const statusValue = typeof statusValueOrDeps === 'number' ? statusValueOrDeps : null;
+    const resolvedDeps = statusValueOrDeps && typeof statusValueOrDeps === 'object'
+      ? statusValueOrDeps
+      : deps;
+    const doc = _getDoc(resolvedDeps);
+    const win = _getWin(resolvedDeps);
 
     clearTimeout(_enemyStatusTipTimer);
 
@@ -208,13 +226,18 @@ export const CombatUI = {
     desc.className = 'est-desc';
     desc.textContent = status.desc;
 
-    el.append(title, desc);
+    const metrics = resolveEnemyStatusTooltipMetrics(statusKey, statusValue);
+    const meta = doc.createElement('div');
+    meta.style.cssText = 'font-size:10px;line-height:1.45;color:var(--text-dim);margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.12);';
+    meta.innerHTML = `지속시간: <b>${metrics.duration}</b><br>스택: <b>${metrics.stacks}</b>`;
+
+    el.append(title, desc, meta);
 
     const rect = event.currentTarget.getBoundingClientRect();
     let x = rect.right + 10;
     let y = rect.top;
     if (x + 200 > win.innerWidth) x = rect.left - 210;
-    if (y + 80 > win.innerHeight) y = win.innerHeight - 85;
+    if (y + 120 > win.innerHeight) y = win.innerHeight - 125;
 
     el.style.left = `${Math.max(6, x)}px`;
     el.style.top = `${Math.max(6, y)}px`;
