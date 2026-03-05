@@ -120,16 +120,19 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
 export const RunRules = {
   blessings: {
     none: { id: 'none', name: '없음', desc: '시작 축복이 없습니다.' },
-    vigor: { id: 'vigor', name: '활력의 축복', desc: '최대 HP +15로 시작합니다.' },
-    wealth: { id: 'wealth', name: '풍요의 축복', desc: '골드 +35로 시작합니다.' },
-    spark: { id: 'spark', name: '불꽃의 축복', desc: '잔향 +30으로 시작합니다.' },
+    vigor: { id: 'vigor', name: '활력의 축복', icon: '💚', desc: '최대 HP +15로 시작합니다.' },
+    wealth: { id: 'wealth', name: '풍요의 축복', icon: '💰', desc: '골드 +35로 시작합니다.' },
+    spark: { id: 'spark', name: '불꽃의 축복', icon: '🔥', desc: '잔향 +30으로 시작합니다.' },
+    forge: { id: 'forge', name: '정련의 축복', icon: '🛠️', desc: '시작 시 덱의 무작위 카드 1장을 강화 카드로 교체합니다.' },
   },
 
   curses: {
     none: { id: 'none', name: '없음', desc: '적용되는 저주가 없습니다.' },
-    tax: { id: 'tax', name: '탐욕의 저주', desc: '상점 비용이 +20% 증가합니다.' },
-    fatigue: { id: 'fatigue', name: '피로의 저주', desc: '회복량 -25%, 최대 방어막 -10.' },
-    frail: { id: 'frail', name: '허약의 저주', desc: '최대 HP -10으로 시작합니다.' },
+    tax: { id: 'tax', name: '탐욕의 저주', icon: '🧾', desc: '상점 비용이 +20% 증가합니다.' },
+    fatigue: { id: 'fatigue', name: '피로의 저주', icon: '🫠', desc: '회복량 -25%, 최대 방어막 -10.' },
+    frail: { id: 'frail', name: '허약의 저주', icon: '🩸', desc: '최대 HP -10으로 시작합니다.' },
+    decay: { id: 'decay', name: '부식의 저주', icon: '☠️', desc: '전투 종료 시 최대 HP가 2 감소합니다.' },
+    silence: { id: 'silence', name: '침묵의 저주', icon: '🔕', desc: '전투 첫 3턴 동안 최대 에너지가 1로 제한됩니다.' },
   },
 
   ensureMeta(meta) {
@@ -192,6 +195,23 @@ export const RunRules = {
     return !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
   },
 
+  getDifficultyScore(gs) {
+    const cfg = gs?.runConfig || {};
+    let score = this.getAscension(gs) * 15;
+    if (this.isEndless(gs)) score += 10;
+
+    const curseWeight = { tax: 5, fatigue: 10, frail: 8, decay: 10, silence: 8 };
+    const blessingWeight = { vigor: -5, wealth: -5, spark: -4, forge: -8 };
+
+    score += curseWeight[cfg.curse || 'none'] || 0;
+    score += blessingWeight[cfg.blessing || 'none'] || 0;
+    return Math.max(0, score);
+  },
+
+  getRewardMultiplier(gs) {
+    return +(1 + this.getDifficultyScore(gs) * 0.015).toFixed(2);
+  },
+
   getEnemyScaleMultiplier(gs, regionAbs = 0) {
     // 諛몃윴??議곗젙: ?뱀쿇 ?④퀎蹂??ㅼ??쇰쭅 ?꾪솕 (8% -> 6%) 諛??곹븳 ?곸슜
     let ascMul = 1 + this.getAscension(gs) * 0.06;
@@ -237,6 +257,18 @@ export const RunRules = {
       gs.player.gold += 35;
     } else if (blessing === 'spark') {
       gs.player.echo = Math.min(gs.player.maxEcho, gs.player.echo + 30);
+    } else if (blessing === 'forge') {
+      const upgradeMap = DATA?.upgradeMap || null;
+      if (upgradeMap) {
+        const upgradable = (gs.player.deck || []).filter((id) => upgradeMap[id]);
+        if (upgradable.length > 0) {
+          const pick = upgradable[Math.floor(Math.random() * upgradable.length)];
+          const upgradedId = upgradeMap[pick];
+          const idx = gs.player.deck.indexOf(pick);
+          if (idx >= 0 && upgradedId) gs.player.deck[idx] = upgradedId;
+          gs.meta?.codex?.cards?.add?.(upgradedId);
+        }
+      }
     }
 
     const curse = cfg.curse || 'none';
@@ -265,7 +297,27 @@ export const RunRules = {
       data: DATA,
     });
   },
-  onTurnStart() { },
+  onTurnStart(gs) {
+    if (!gs?.player || !gs?.combat) return;
+
+    if ((gs.runConfig?.curse || 'none') === 'silence') {
+      if (gs.combat.turn <= 3) {
+        gs.player.energy = Math.min(gs.player.energy, 1);
+        gs.player.maxEnergy = Math.min(gs.player.maxEnergy, 1);
+      } else if (gs.combat.turn === 4) {
+        gs.player.maxEnergy = Math.max(gs.player.maxEnergy, 3);
+      }
+    }
+  },
+
+  onCombatEnd(gs) {
+    if (!gs?.player) return;
+
+    if ((gs.runConfig?.curse || 'none') === 'decay') {
+      gs.player.maxHp = Math.max(1, gs.player.maxHp - 2);
+      gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
+    }
+  },
 
   onVictory(gs) {
     if (!gs?.meta) return 5;

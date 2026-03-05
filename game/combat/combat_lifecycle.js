@@ -41,6 +41,9 @@ export const CombatLifecycle = {
         const combatKills = this.player.kills - (this._combatStartKills || 0);
 
         try {
+            const runRulesModule = deps.runRules || globalThis.GAME?.Modules?.['RunRules'];
+            runRulesModule?.onCombatEnd?.(this);
+
             this.dispatch(Actions.COMBAT_END, { victory: true });
             const tooltipUI = deps.tooltipUI || win.TooltipUI;
             tooltipUI?.hideTooltip?.({ doc });

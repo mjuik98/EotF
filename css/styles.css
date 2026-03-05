@@ -470,68 +470,6 @@ body {
   color: var(--white);
 }
 
-.run-mode-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.run-mode-label {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-  min-width: 80px;
-  /* 수직 정렬을 위한 고정 너비 */
-}
-
-.run-mode-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(123, 47, 255, 0.1);
-  border: 1px solid rgba(123, 47, 255, 0.3);
-  color: var(--white);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.run-mode-btn:hover {
-  background: var(--echo);
-  border-color: var(--white);
-  box-shadow: 0 0 10px var(--echo-glow);
-}
-
-.run-mode-value {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 18px;
-  color: var(--white);
-  min-width: 40px;
-  text-align: center;
-}
-
-.run-mode-pill {
-  background: rgba(0, 255, 204, 0.05);
-  border: 1px solid rgba(0, 255, 204, 0.3);
-  color: var(--cyan);
-  padding: 6px 20px;
-  border-radius: 20px;
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.run-mode-pill:hover {
-  background: rgba(0, 255, 204, 0.2);
-  box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
-}
 
 .modal-confirm-btn {
   width: 100%;
@@ -558,21 +496,6 @@ body {
   border-color: var(--white);
 }
 
-.run-mode-cap {
-  font-family: 'NanumSquareRound', sans-serif;
-  font-size: 10px;
-  color: var(--gold);
-  opacity: 0.8;
-  padding-right: 25px;
-}
-
-.run-mode-desc {
-  grid-column: 1 / -1;
-  font-size: 11px;
-  color: var(--text-dim);
-  line-height: 1.55;
-  min-height: 18px;
-}
 
 /* ── GAME SCREEN ── */
 #gameScreen {
@@ -1494,33 +1417,6 @@ body {
   line-height: 1.22;
 }
 
-.run-settings-panel {
-  width: 90%;
-  max-width: 600px;
-  min-height: 480px;
-  display: flex;
-  flex-direction: column;
-}
-
-.run-mode-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 10px 0;
-}
-
-.run-mode-desc {
-  margin-top: auto;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  border-left: 3px solid var(--echo);
-  color: var(--text-dim);
-  font-size: 11px;
-  line-height: 1.6;
-  min-height: 60px;
-}
 
 .card-desc {
   font-size: 13px;
@@ -7166,14 +7062,13 @@ body:has(#combatOverlay.active) .panel-right {
   }
 }
 
-/* ?? UI REDESIGN & MODAL OVERLAYS (GLASSMORPHISM) ?? */
+/* ── Modal Theme Tokens ── */
 
 :root {
   --modal-bg: rgba(20, 22, 28, 0.9);
   --modal-accent: #00ffcc;
   --modal-accent-glow: rgba(0, 255, 204, 0.4);
   --modal-border: rgba(255, 255, 255, 0.1);
-  --modal-panel-bg: rgba(0, 0, 0, 0.4);
 }
 
 /* Global Overlay centering */
@@ -7202,92 +7097,11 @@ body:has(#combatOverlay.active) .panel-right {
   justify-content: center;
 }
 
-/* RUN RULES PANEL */
-.run-settings-panel {
-  background: var(--modal-bg);
-  border: 1px solid var(--modal-border);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px var(--modal-accent-glow);
-  border-radius: 20px;
-  width: 850px;
-  max-height: 90vh;
-  padding: 35px !important;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  color: #fff;
-}
-
 #runSettingsCloseBtn {
   align-self: center;
   margin-top: 30px;
   width: 112px;
   justify-content: center;
-}
-
-.run-settings-panel::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, var(--modal-accent), transparent);
-}
-
-.run-mode-panel {
-  background: var(--modal-panel-bg);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.run-mode-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.run-mode-label {
-  font-weight: 600;
-  color: #aaa;
-  font-size: 15px;
-  padding-left: 25px;
-}
-
-.run-mode-pill {
-  padding: 8px 20px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--modal-border);
-  color: #888;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.run-mode-pill.active {
-  background: rgba(0, 255, 204, 0.15);
-  border-color: var(--modal-accent);
-  color: var(--modal-accent);
-  box-shadow: 0 0 15px var(--modal-accent-glow);
-}
-
-.run-mode-desc {
-  margin-top: 20px;
-  padding: 15px;
-  background: rgba(0, 255, 204, 0.05);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--modal-accent);
-  border-left: 3px solid var(--modal-accent);
-  min-height: 100px;
-  white-space: pre-wrap;
 }
 
 /* CODEX PANEL */
@@ -7428,61 +7242,6 @@ body:has(#combatOverlay.active) .panel-right {
   flex: 1;
   overflow-y: auto;
   padding-right: 10px;
-}
-
-.run-mode-panel {
-  background: var(--modal-panel-bg);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.run-mode-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.run-mode-label {
-  font-weight: 600;
-  color: #aaa;
-  font-size: 15px;
-  padding-left: 25px;
-}
-
-.run-mode-pill {
-  padding: 8px 20px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--modal-border);
-  color: #888;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.run-mode-pill.active {
-  background: rgba(0, 255, 204, 0.15);
-  border-color: var(--modal-accent);
-  color: var(--modal-accent);
-  box-shadow: 0 0 15px var(--modal-accent-glow);
-}
-
-.run-mode-desc {
-  margin-top: 20px;
-  padding: 15px;
-  background: rgba(0, 255, 204, 0.05);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--modal-accent);
-  border-left: 3px solid var(--modal-accent);
-  min-height: 100px;
-  white-space: pre-wrap;
 }
 
 /* ── CHARACTER SELECT UI STYLES (Merged) ── */
@@ -7887,7 +7646,7 @@ body:has(#combatOverlay.active) .panel-right {
   display: block;
 }
 
-/* Run Rules: scalable inscription layout */
+/* ── Run Rules Layout (shared with run-rules-redesign.css) ── */
 #runSettingsBody {
   display: flex;
   align-items: flex-start;
@@ -7931,20 +7690,6 @@ body:has(#combatOverlay.active) .panel-right {
 #runModePanel .run-mode-label {
   min-width: 0;
   padding-left: 0;
-}
-
-#runModePanel .run-mode-cap {
-  padding-right: 0;
-  white-space: nowrap;
-}
-
-#runModePanel #endlessToggleBtn,
-#runModePanel #blessingCycleBtn,
-#runModePanel #curseCycleBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 116px;
 }
 
 .run-inscription-controls {
@@ -8113,7 +7858,6 @@ body:has(#combatOverlay.active) .panel-right {
     max-height: 220px;
   }
 }
-/* ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
 /* ─────────────────────────────────────────────────────────────────────────────
    STATUS TOOLTIP v2
    — status_tooltip_builder.js 와 함께 사용

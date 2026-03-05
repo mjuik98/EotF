@@ -1,0 +1,453 @@
+/**
+ * css/run-rules-redesign.css
+ *
+ * 런 규칙 모달 v2 전용 스타일시트.
+ * index.html 의 <link> 추가로 적용하세요:
+ *   <link rel="stylesheet" href="css/run-rules-redesign.css">
+ * (기존 styles.css 의 run-settings 관련 규칙은 그대로 둬도 됩니다 — 이쪽이 우선됩니다)
+ */
+
+/* ── 변수 ──────────────────────────────────────────────────────── */
+:root {
+  --rm-echo:    #00ffcc;
+  --rm-echo-d:  rgba(0,255,204,0.12);
+  --rm-danger:  #ff3366;
+  --rm-danger-d:rgba(255,51,102,0.12);
+  --rm-gold:    #ffcc55;
+  --rm-gold-d:  rgba(255,204,85,0.12);
+  --rm-purple:  #aa77ff;
+  --rm-warn:    #ffaa00;
+  --rm-secret:  #cc44ff;
+  --rm-surface: rgba(18,18,32,0.88);
+  --rm-border:  rgba(255,255,255,0.07);
+  --rm-border-h:rgba(255,255,255,0.16);
+  --rm-text:    rgba(255,255,255,0.88);
+  --rm-text-d:  rgba(255,255,255,0.35);
+  --rm-text-m:  rgba(255,255,255,0.58);
+}
+
+/* ── 패널 너비 확장 ─────────────────────────────────────────────── */
+#runSettingsModal .run-settings-panel {
+  width: 900px;
+  max-width: min(96vw, 900px);
+  padding: 28px 30px 24px !important;
+  overflow-y: auto;
+}
+
+/* ── TOP ROW: 3컬럼 카드 ────────────────────────────────────────── */
+.rm-top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.rm-top-card {
+  background: var(--rm-surface);
+  border: 1px solid var(--rm-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.rm-card-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--rm-text-d);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* 승천 스텝퍼 */
+.rm-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.rm-step-btn {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--rm-border);
+  border-radius: 7px;
+  color: var(--rm-text-m);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  font-family: 'Share Tech Mono', monospace;
+}
+.rm-step-btn:hover:not(:disabled),
+.rm-step-btn:focus-visible:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--rm-echo);
+  color: var(--rm-echo);
+  transform: scale(1.08);
+  outline: none;
+}
+.rm-step-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+.rm-asc-val {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 22px; font-weight: 900;
+  min-width: 50px; text-align: center;
+  transition: color 0.3s;
+}
+.rm-sub-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 12px; font-style: italic;
+  color: var(--rm-text-d);
+  line-height: 1.4;
+}
+.rm-lock-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 0.08em;
+  color: var(--rm-text-d);
+  background: rgba(255,200,0,0.05);
+  border: 1px solid rgba(255,200,0,0.15);
+  border-radius: 5px;
+  padding: 3px 7px; margin-top: 6px;
+}
+
+/* 무한 토글 */
+.rm-endless-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px;
+}
+.rm-toggle {
+  width: 42px; height: 23px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--rm-border);
+  border-radius: 999px;
+  cursor: pointer; position: relative;
+  transition: all 0.25s; flex-shrink: 0;
+}
+.rm-toggle.on {
+  background: rgba(0,255,204,0.2);
+  border-color: rgba(0,255,204,0.5);
+  box-shadow: 0 0 10px rgba(0,255,204,0.15);
+}
+.rm-toggle.locked { cursor: not-allowed; opacity: 0.3; }
+.rm-toggle::after {
+  content: ''; position: absolute;
+  top: 3px; left: 3px;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.rm-toggle.on::after {
+  left: 22px;
+  background: var(--rm-echo);
+  box-shadow: 0 0 8px rgba(0,255,204,0.35);
+}
+.rm-toggle-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: var(--rm-text-d);
+  transition: color 0.25s;
+}
+.rm-toggle-label.on { color: var(--rm-echo); }
+
+/* 난이도 카드 */
+.rm-diff-header {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-bottom: 6px;
+}
+.rm-diff-num {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 28px; font-weight: 900; line-height: 1;
+}
+.rm-diff-label {
+  font-family: 'Cinzel', serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.12em;
+}
+.rm-diff-bar-track {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px; overflow: hidden;
+  margin-bottom: 8px;
+}
+.rm-diff-bar-fill {
+  height: 100%; border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.34,1,0.64,1), background 0.4s;
+}
+.rm-diff-bottom {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 6px;
+}
+.rm-diff-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: 11px; font-style: italic;
+  color: var(--rm-text-d);
+}
+.rm-diff-reward {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--rm-gold);
+  background: var(--rm-gold-d);
+  padding: 2px 8px; border-radius: 5px;
+  border: 1px solid rgba(255,204,85,0.18);
+}
+
+/* ── 섹션 레이블 ─────────────────────────────────────────────────── */
+.rm-section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px; letter-spacing: 0.3em;
+  color: var(--rm-text-d);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 9px; margin-top: 14px;
+}
+.rm-section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--rm-border), transparent);
+}
+.rm-section-hint {
+  font-family: 'Crimson Pro', serif;
+  font-size: 11px; font-style: italic;
+  letter-spacing: 0; opacity: 0.6; text-transform: none;
+}
+
+/* ── 옵션 그리드 ─────────────────────────────────────────────────── */
+.rm-option-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.rm-opt {
+  background: var(--rm-surface);
+  border: 1px solid var(--rm-border);
+  border-radius: 11px;
+  padding: 11px 10px 10px;
+  cursor: pointer;
+  position: relative; overflow: hidden;
+  transition: border-color 0.18s, background 0.18s, transform 0.15s, box-shadow 0.18s;
+  text-align: left;
+  outline: none;
+}
+.rm-opt::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.rm-opt:hover:not(.none-opt),
+.rm-opt:focus-visible {
+  border-color: var(--rm-border-h);
+  transform: translateY(-2px);
+  outline: 2px solid rgba(255,255,255,0.15);
+  outline-offset: 2px;
+}
+/* blessing selected */
+.rm-opt.blessing.selected {
+  border-color: rgba(0,255,204,0.45);
+  background: rgba(0,255,204,0.07);
+  box-shadow: 0 4px 18px rgba(0,255,204,0.1), inset 0 1px 0 rgba(0,255,204,0.15);
+}
+.rm-opt.blessing.selected::before {
+  background: linear-gradient(90deg, var(--rm-echo), #44ddff);
+  opacity: 1;
+}
+/* curse selected */
+.rm-opt.curse.selected {
+  border-color: rgba(255,51,102,0.55);
+  background: rgba(255,51,102,0.09);
+  box-shadow: 0 4px 24px rgba(255,30,60,0.18), inset 0 1px 0 rgba(255,51,102,0.2);
+}
+.rm-opt.curse.selected::before {
+  background: linear-gradient(90deg, var(--rm-danger), #ff6600);
+  opacity: 1;
+}
+.rm-opt.curse:not(.none-opt):hover:not(.selected) {
+  border-color: rgba(255,51,102,0.3);
+  box-shadow: 0 2px 12px rgba(255,30,60,0.1);
+}
+/* conflict highlight */
+.rm-opt.conflict {
+  border-color: rgba(255,170,0,0.4) !important;
+  box-shadow: 0 0 10px rgba(255,170,0,0.08) !important;
+}
+.rm-conflict-dot {
+  position: absolute; bottom: 5px; right: 6px;
+  font-size: 9px; opacity: 0.7;
+}
+/* check mark */
+.rm-opt-check {
+  position: absolute; top: 7px; right: 7px;
+  width: 14px; height: 14px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: bold;
+  opacity: 0; transform: scale(0.4);
+  transition: opacity 0.2s, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.rm-opt.blessing.selected .rm-opt-check {
+  opacity: 1; transform: scale(1);
+  background: var(--rm-echo); color: #000;
+}
+.rm-opt.curse.selected .rm-opt-check {
+  opacity: 1; transform: scale(1);
+  background: var(--rm-danger); color: #fff;
+}
+.rm-opt-icon  { font-size: 16px; margin-bottom: 5px; line-height: 1; }
+.rm-opt-name  {
+  font-family: 'Cinzel', serif;
+  font-size: 10px; font-weight: 700;
+  color: var(--rm-text); margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.none-opt .rm-opt-name { color: var(--rm-text-d); }
+.rm-opt-desc  {
+  font-family: 'Crimson Pro', serif;
+  font-size: 11px; color: var(--rm-text-d); line-height: 1.4;
+}
+.rm-new-badge {
+  font-size: 8px;
+  background: linear-gradient(90deg, var(--rm-echo), #44ddff);
+  color: #000; font-family: 'Share Tech Mono', monospace;
+  padding: 1px 5px; border-radius: 3px; font-weight: bold;
+  margin-left: 3px; vertical-align: middle;
+}
+
+/* ── 애니메이션 ───────────────────────────────────────────────────── */
+@keyframes rm-select-flash {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.92); filter: brightness(1.8); }
+  65%  { transform: scale(1.04); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes rm-curse-flash {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(0.88); filter: brightness(2.2) saturate(2); }
+  50%  { transform: scale(1.06); }
+  70%  { transform: scale(0.98); }
+  100% { transform: scale(1); filter: brightness(1) saturate(1); }
+}
+@keyframes rm-ripple-out {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.9; }
+  100% { transform: translate(-50%,-50%) scale(16); opacity: 0; }
+}
+@keyframes rm-shake {
+  0%,100% { transform: translateX(0); }
+  15%     { transform: translateX(-5px) rotate(-0.4deg); }
+  30%     { transform: translateX(5px) rotate(0.4deg); }
+  45%     { transform: translateX(-4px); }
+  60%     { transform: translateX(4px); }
+  75%     { transform: translateX(-2px); }
+  90%     { transform: translateX(2px); }
+}
+@keyframes rm-banner-in {
+  from { opacity: 0; transform: translateY(-5px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes rm-secret-pulse {
+  0%,100% { box-shadow: 0 0 8px rgba(204,68,255,0.1); }
+  50%     { box-shadow: 0 0 20px rgba(204,68,255,0.22); }
+}
+
+.rm-select-flash { animation: rm-select-flash 0.28s cubic-bezier(0.34,1.56,0.64,1) !important; }
+.rm-curse-flash  { animation: rm-curse-flash  0.38s cubic-bezier(0.34,1.56,0.64,1) !important; }
+.rm-curse-shake  { animation: rm-shake 0.45s cubic-bezier(0.36,0.07,0.19,0.97) both; }
+.rm-curse-ripple {
+  position: absolute; top: 50%; left: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,40,80,0.6);
+  transform: translate(-50%,-50%) scale(0);
+  pointer-events: none;
+  animation: rm-ripple-out 0.6s ease-out forwards;
+}
+
+/* 모달 cursed 상태 */
+.run-settings-panel.cursed {
+  box-shadow:
+    0 25px 50px rgba(0,0,0,0.6),
+    0 0 30px rgba(255,51,102,0.12),
+    0 0 0 1px rgba(255,51,102,0.15);
+}
+.run-settings-panel.cursed::before {
+  background: linear-gradient(90deg, transparent, var(--rm-danger), #ff6600, transparent);
+  opacity: 0.85;
+}
+
+/* ── 충돌 경고 배너 ─────────────────────────────────────────────── */
+.rm-conflict-banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(255,170,0,0.07);
+  border: 1px solid rgba(255,170,0,0.3);
+  border-radius: 10px; padding: 11px 14px;
+  margin-bottom: 4px;
+  animation: rm-banner-in 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.rm-conflict-icon { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+.rm-conflict-body { flex: 1; }
+.rm-conflict-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px; letter-spacing: 0.14em;
+  color: var(--rm-warn); margin-bottom: 3px;
+}
+.rm-conflict-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: 12px; color: rgba(255,200,100,0.75);
+  line-height: 1.5;
+}
+.rm-conflict-net {
+  display: inline-block; margin-top: 5px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: var(--rm-warn);
+  background: rgba(255,170,0,0.1);
+  padding: 2px 8px; border-radius: 4px;
+}
+
+/* ── 히든 엔딩 배너 ─────────────────────────────────────────────── */
+.rm-hidden-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, rgba(204,68,255,0.07), rgba(100,20,150,0.05));
+  border: 1px solid rgba(204,68,255,0.35);
+  border-radius: 10px; padding: 13px 16px;
+  margin-top: 10px;
+  animation: rm-banner-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both,
+             rm-secret-pulse 2.5s ease-in-out 0.4s infinite;
+}
+.rm-hidden-icon {
+  font-size: 22px; flex-shrink: 0;
+}
+.rm-hidden-body { flex: 1; }
+.rm-hidden-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px; letter-spacing: 0.16em;
+  color: var(--rm-secret); margin-bottom: 4px;
+}
+.rm-hidden-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: 12px; font-style: italic;
+  color: rgba(204,150,255,0.7); line-height: 1.5;
+}
+.rm-hidden-tag {
+  display: inline-block; margin-top: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 0.08em;
+  color: var(--rm-secret);
+  background: rgba(204,68,255,0.1);
+  border: 1px solid rgba(204,68,255,0.3);
+  padding: 2px 9px; border-radius: 999px;
+}
+
+/* ── prefers-reduced-motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rm-select-flash,
+  .rm-curse-flash,
+  .rm-curse-shake { animation: none !important; }
+  .rm-diff-bar-fill { transition: none; }
+  .rm-hidden-banner { animation: rm-banner-in 0.01s both; }
+  .rm-conflict-banner { animation: rm-banner-in 0.01s both; }
+  .rm-toggle::after { transition: none; }
+}
+
+/* ── 반응형 ──────────────────────────────────────────────────────── */
+@media (max-width: 780px) {
+  .rm-top-row { grid-template-columns: 1fr 1fr; }
+  .rm-top-row .rm-top-card:last-child { grid-column: 1 / -1; }
+  .rm-option-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 520px) {
+  .rm-top-row { grid-template-columns: 1fr; }
+  .rm-option-grid { grid-template-columns: repeat(2, 1fr); }
+  .rm-opt.none-opt { grid-column: 1 / -1; }
+  #runSettingsModal .run-settings-panel { padding: 16px 14px 16px !important; }
+}
