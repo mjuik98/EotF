@@ -116,7 +116,7 @@ export const StoryUI = {
     el.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:28px 20px;box-sizing:border-box;z-index:2000;animation:fadeIn 1s ease both;';
     const head = doc.createElement('div');
     head.style.cssText = "font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.32em;color:rgba(123,47,255,0.72);";
-    head.textContent = `FRAGMENT ${frag.id} - ${frag.title}`;
+    head.textContent = `조각 ${frag.id} - ${frag.title}`;
 
     const body = doc.createElement('div');
     body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(20px,3vw,31px);color:var(--text);max-width:760px;text-align:center;line-height:1.7;animation:fadeInUp 1s ease 0.35s both;opacity:0;";
@@ -203,14 +203,14 @@ export const StoryUI = {
     if (isHidden) {
       const h1 = doc.createElement('div');
       h1.style.cssText = "font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--cyan);animation:fadeInDown 1s ease 0.5s both;opacity:0;";
-      h1.textContent = 'TRUE ENDING — 초월';
+      h1.textContent = '진 엔딩 — 초월';
 
       const h2 = doc.createElement('div');
       h2.style.cssText = `font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,56px);font-weight:900;color:var(--cyan);text-shadow:0 0 40px ${glowColor};animation:titleReveal 1.5s ease 0.8s both;opacity:0;`;
       h2.textContent = '루프의 끝';
       const subH2 = doc.createElement('span');
       subH2.style.cssText = 'font-size:0.5em;color:var(--text-dim);';
-      subH2.textContent = ' THE END OF ECHOES';
+      subH2.textContent = '메아리의 끝';
       h2.appendChild(subH2);
 
       const body = doc.createElement('div');
@@ -227,7 +227,7 @@ export const StoryUI = {
 
       const foot = doc.createElement('div');
       foot.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;";
-      foot.textContent = `TRUE ENDING UNLOCKED — ${gs.meta.storyPieces.length}/10 fragments`;
+      foot.textContent = `진 엔딩 해금 — ${gs.meta.storyPieces.length}/10 fragments`;
 
       const data = _getData(deps);
       if (_getInscriptionLevel(gs, 'void_heritage') === 0 && data?.inscriptions?.void_heritage) {
@@ -242,14 +242,14 @@ export const StoryUI = {
     } else {
       const h1 = doc.createElement('div');
       h1.style.cssText = "font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--echo);animation:fadeInDown 1s ease 0.5s both;opacity:0;";
-      h1.textContent = 'ENDING — 클리어';
+      h1.textContent = '엔딩 — 클리어';
 
       const h2 = doc.createElement('div');
       h2.style.cssText = `font-family:'Cinzel Decorative',serif;font-size:clamp(26px,4.5vw,50px);font-weight:900;color:var(--white);text-shadow:0 0 30px ${glowColor};animation:titleReveal 1.5s ease 0.8s both;opacity:0;`;
       h2.textContent = '메아리의 근원 정복';
       const subH2 = doc.createElement('span');
       subH2.style.cssText = 'font-size:0.45em;color:var(--text-dim);';
-      subH2.textContent = ' RESONANT VICTOR';
+      subH2.textContent = '공명하는 승리자';
       h2.appendChild(subH2);
 
       const body = doc.createElement('div');

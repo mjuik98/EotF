@@ -114,7 +114,7 @@ export const HelpPauseUI = {
 
       const subInfo = doc.createElement('div');
       subInfo.style.cssText = "margin-top:12px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--text-dim);";
-      subInfo.textContent = 'Echo tiers: 30 = Tier 1 | 60 = Tier 2 | 100 = Tier 3';
+      subInfo.textContent = '잔향 등급: 30 = 1단계 | 60 = 2단계 | 100 = 3단계';
 
       const btn = doc.createElement('button');
       btn.className = 'action-btn action-btn-secondary';
@@ -261,7 +261,7 @@ export const HelpPauseUI = {
       if (hints.length) {
         const hTitle = doc.createElement('div');
         hTitle.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);width:100%;text-align:center;margin-bottom:6px;";
-        hTitle.textContent = 'World Memory';
+        hTitle.textContent = '세계의 기억';
         wmEl.appendChild(hTitle);
         hints.forEach(h => {
           const badge = doc.createElement('span');
@@ -294,92 +294,92 @@ export const HelpPauseUI = {
     _pauseOpen = true;
     const menu = doc.createElement('div');
     menu.id = 'pauseMenu';
-      menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:12000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
-      const eyebrow = doc.createElement('div');
-      eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.5em;color:var(--text-dim);";
-      eyebrow.textContent = '일시정지';
+    menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:12000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
+    const eyebrow = doc.createElement('div');
+    eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.5em;color:var(--text-dim);";
+    eyebrow.textContent = '일시정지';
 
-      const head = doc.createElement('div');
-      head.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:48px;font-weight:900;color:var(--white);text-shadow:0 0 20px rgba(255,255,255,0.2);";
-      head.textContent = 'PAUSED';
+    const head = doc.createElement('div');
+    head.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:48px;font-weight:900;color:var(--white);text-shadow:0 0 20px rgba(255,255,255,0.2);";
+    head.textContent = '일시정지';
 
-      const mainBtns = doc.createElement('div');
-      mainBtns.style.cssText = 'display:flex;flex-direction:column;gap:12px;width:280px;';
+    const mainBtns = doc.createElement('div');
+    mainBtns.style.cssText = 'display:flex;flex-direction:column;gap:12px;width:280px;';
 
-      const resBtn = doc.createElement('button');
-      resBtn.style.cssText = "font-family:'Cinzel',serif;font-size:16px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.12);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;";
-      resBtn.textContent = '계속하기';
-      resBtn.onclick = () => this.togglePause(deps);
+    const resBtn = doc.createElement('button');
+    resBtn.style.cssText = "font-family:'Cinzel',serif;font-size:16px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.12);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;";
+    resBtn.textContent = '계속하기';
+    resBtn.onclick = () => this.togglePause(deps);
 
-      const midRow = doc.createElement('div'); midRow.style.display = 'flex'; midRow.style.gap = '8px';
-      const deckBtn = doc.createElement('button');
-      deckBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
-      deckBtn.textContent = '덱 보기';
-      deckBtn.onclick = () => { if (typeof deps.showDeckView === 'function') deps.showDeckView(); this.togglePause(deps); };
-      const codexBtn = doc.createElement('button');
-      codexBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
-      codexBtn.textContent = '도감';
-      codexBtn.onclick = () => { if (typeof deps.openCodex === 'function') deps.openCodex(); this.togglePause(deps); };
-      midRow.append(deckBtn, codexBtn);
+    const midRow = doc.createElement('div'); midRow.style.display = 'flex'; midRow.style.gap = '8px';
+    const deckBtn = doc.createElement('button');
+    deckBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
+    deckBtn.textContent = '덱 보기';
+    deckBtn.onclick = () => { if (typeof deps.showDeckView === 'function') deps.showDeckView(); this.togglePause(deps); };
+    const codexBtn = doc.createElement('button');
+    codexBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
+    codexBtn.textContent = '도감';
+    codexBtn.onclick = () => { if (typeof deps.openCodex === 'function') deps.openCodex(); this.togglePause(deps); };
+    midRow.append(deckBtn, codexBtn);
 
-      const helpBtn = doc.createElement('button');
-      helpBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.3);border-radius:8px;padding:16px;cursor:pointer;";
-      helpBtn.textContent = '컨트롤 안내 (?)';
-      helpBtn.onclick = () => { this.toggleHelp(deps); this.togglePause(deps); };
+    const helpBtn = doc.createElement('button');
+    helpBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.3);border-radius:8px;padding:16px;cursor:pointer;";
+    helpBtn.textContent = '컨트롤 안내 (?)';
+    helpBtn.onclick = () => { this.toggleHelp(deps); this.togglePause(deps); };
 
-      const abnBtn = doc.createElement('button');
-      abnBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.3);border-radius:8px;padding:16px;cursor:pointer;";
-      abnBtn.textContent = '런 포기하기';
-      abnBtn.onclick = () => this.abandonRun(deps);
+    const abnBtn = doc.createElement('button');
+    abnBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.3);border-radius:8px;padding:16px;cursor:pointer;";
+    abnBtn.textContent = '런 포기하기';
+    abnBtn.onclick = () => this.abandonRun(deps);
 
-      const startBtn = doc.createElement('button');
-      startBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;cursor:pointer;";
-      startBtn.textContent = '처음으로';
-      startBtn.onclick = () => this.confirmReturnToTitle(deps);
+    const startBtn = doc.createElement('button');
+    startBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;cursor:pointer;";
+    startBtn.textContent = '처음으로';
+    startBtn.onclick = () => this.confirmReturnToTitle(deps);
 
-      const quitBtn = doc.createElement('button');
-      quitBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.05);border:1px solid rgba(255,51,102,0.2);border-radius:8px;padding:14px;cursor:pointer;margin-top:4px;";
-      quitBtn.textContent = '게임 종료';
-      quitBtn.onclick = () => { if (typeof deps.quitGame === 'function') deps.quitGame(); };
+    const quitBtn = doc.createElement('button');
+    quitBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.05);border:1px solid rgba(255,51,102,0.2);border-radius:8px;padding:14px;cursor:pointer;margin-top:4px;";
+    quitBtn.textContent = '게임 종료';
+    quitBtn.onclick = () => { if (typeof deps.quitGame === 'function') deps.quitGame(); };
 
-      mainBtns.append(resBtn, midRow, helpBtn, abnBtn, startBtn, quitBtn);
+    mainBtns.append(resBtn, midRow, helpBtn, abnBtn, startBtn, quitBtn);
 
-      const volPanel = doc.createElement('div');
-      volPanel.style.cssText = 'display:flex;flex-direction:column;gap:16px;margin-top:12px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;width:280px;';
+    const volPanel = doc.createElement('div');
+    volPanel.style.cssText = 'display:flex;flex-direction:column;gap:16px;margin-top:12px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;width:280px;';
 
-      const createSliderRow = (label, id, handler) => {
-        const row = doc.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:15px;';
-        const lbl = doc.createElement('span'); lbl.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;"; lbl.textContent = label;
-        const input = doc.createElement('input'); input.type = 'range'; input.id = id; input.min = '0'; input.max = '100'; input.oninput = (e) => handler(e.target.value);
-        const val = doc.createElement('span'); val.id = `${id}Val`; val.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;";
-        // 초기값 설정
-        const currentVol = (deps.audioEngine || globalThis.AudioEngine)?.getVolumes?.() || {};
-        let initialV = 0;
-        if (id === 'volMasterSlider') initialV = Math.round((currentVol.master ?? 0.35) * 100);
-        else if (id === 'volSfxSlider') initialV = Math.round((currentVol.sfx ?? 0.7) * 100);
-        else if (id === 'volAmbientSlider') initialV = Math.round((currentVol.ambient ?? 0.4) * 100);
-        input.value = initialV;
-        input.style.setProperty('--fill-percent', initialV + '%');
-        val.textContent = initialV + '%';
-        row.append(lbl, input, val);
-        return row;
-      };
+    const createSliderRow = (label, id, handler) => {
+      const row = doc.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:15px;';
+      const lbl = doc.createElement('span'); lbl.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;"; lbl.textContent = label;
+      const input = doc.createElement('input'); input.type = 'range'; input.id = id; input.min = '0'; input.max = '100'; input.oninput = (e) => handler(e.target.value);
+      const val = doc.createElement('span'); val.id = `${id}Val`; val.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;";
+      // 초기값 설정
+      const currentVol = (deps.audioEngine || globalThis.AudioEngine)?.getVolumes?.() || {};
+      let initialV = 0;
+      if (id === 'volMasterSlider') initialV = Math.round((currentVol.master ?? 0.35) * 100);
+      else if (id === 'volSfxSlider') initialV = Math.round((currentVol.sfx ?? 0.7) * 100);
+      else if (id === 'volAmbientSlider') initialV = Math.round((currentVol.ambient ?? 0.4) * 100);
+      input.value = initialV;
+      input.style.setProperty('--fill-percent', initialV + '%');
+      val.textContent = initialV + '%';
+      row.append(lbl, input, val);
+      return row;
+    };
 
-      volPanel.append(
-        createSliderRow('MASTER', 'volMasterSlider', (v) => { if (typeof deps.setMasterVolume === 'function') deps.setMasterVolume(v); }),
-        createSliderRow('SFX', 'volSfxSlider', (v) => { if (typeof deps.setSfxVolume === 'function') deps.setSfxVolume(v); }),
-        createSliderRow('BGM', 'volAmbientSlider', (v) => { if (typeof deps.setAmbientVolume === 'function') deps.setAmbientVolume(v); })
-      );
+    volPanel.append(
+      createSliderRow('MASTER', 'volMasterSlider', (v) => { if (typeof deps.setMasterVolume === 'function') deps.setMasterVolume(v); }),
+      createSliderRow('SFX', 'volSfxSlider', (v) => { if (typeof deps.setSfxVolume === 'function') deps.setSfxVolume(v); }),
+      createSliderRow('BGM', 'volAmbientSlider', (v) => { if (typeof deps.setAmbientVolume === 'function') deps.setAmbientVolume(v); })
+    );
 
-      const info = doc.createElement('div');
-      info.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text-dim);text-align:center;";
-      // The info element already uses textContent with a template literal, which is a safe method.
-      info.textContent = `총 ${gs.meta.runCount}회차 | 지역 ${gs.currentRegion + 1} | ${gs.currentFloor}층 | 스토리 조각 ${gs.meta.storyPieces.length}/10`;
+    const info = doc.createElement('div');
+    info.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text-dim);text-align:center;";
+    // The info element already uses textContent with a template literal, which is a safe method.
+    info.textContent = `총 ${gs.meta.runCount}회차 | 지역 ${gs.currentRegion + 1} | ${gs.currentFloor}층 | 스토리 조각 ${gs.meta.storyPieces.length}/10`;
 
-      menu.append(eyebrow, head, mainBtns, volPanel, info);
-      doc.body.appendChild(menu);
-      if (typeof deps._syncVolumeUI === 'function') deps._syncVolumeUI();
+    menu.append(eyebrow, head, mainBtns, volPanel, info);
+    doc.body.appendChild(menu);
+    if (typeof deps._syncVolumeUI === 'function') deps._syncVolumeUI();
   },
 
   bindGlobalHotkeys(deps = {}) {
