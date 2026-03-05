@@ -109,4 +109,20 @@ describe('Reducers', () => {
         expect(gs.player.maxEnergy).toBe(5);
         expect(gs.player.energy).toBe(2);
     });
+
+    it('COMBAT_END in region 5 no longer removes cards from deck', () => {
+        const gs = createBaseState();
+        gs.combat.active = true;
+        gs._activeRegionId = 5;
+        gs.player.deck = ['strike', 'defend', 'bash'];
+        gs.player.graveyard = ['strike'];
+        gs.player.exhausted = ['defend'];
+        gs._stagnationVault = [];
+
+        const result = Reducers[Actions.COMBAT_END](gs, { victory: true });
+
+        expect(result.victory).toBe(true);
+        expect(gs.player.deck).toEqual(['strike', 'defend', 'bash']);
+        expect(gs._stagnationVault).toEqual([]);
+    });
 });

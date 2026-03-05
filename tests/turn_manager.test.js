@@ -105,4 +105,14 @@ describe('TurnManager dodge handling', () => {
     // Remaining HP 13 -> poison(10), burn(3) = 13 additional dealt
     expect(gs.stats.damageDealt).toBe(20);
   });
+
+  it('adds one extra draw at turn start in region 5', () => {
+    const gs = createTurnState();
+    gs._activeRegionId = 5;
+    gs.drawCards = vi.fn();
+
+    TurnManager.startPlayerTurnLogic(gs);
+
+    expect(gs.drawCards).toHaveBeenCalledWith(6);
+  });
 });
