@@ -8632,7 +8632,7 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 #statusTooltip .stt-tag::before {
-  content: '??;
+  content: '';
   font-size: 7px;
 }
 

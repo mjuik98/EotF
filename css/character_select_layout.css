@@ -1,0 +1,341 @@
+/* Character select layout overrides:
+   - sticky confirm bar
+   - two-tab info panel
+   - compact mode for short viewports */
+
+#characterSelectSubScreen #app {
+  height: 100vh;
+  justify-content: flex-start;
+  padding: 18px 0 106px;
+  overflow: hidden;
+}
+
+#mainRow {
+  --char-card-height: clamp(450px, 45vw, 620px);
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#charCard {
+  height: var(--char-card-height);
+}
+
+#infoPanel {
+  flex: 1 1 0;
+  min-width: 400px;
+  max-width: 760px;
+  height: var(--char-card-height);
+  min-height: 0;
+  --char-accent: var(--echo);
+  --char-color: var(--surface);
+}
+
+#dotsRow {
+  margin-top: 12px;
+  margin-bottom: 88px;
+}
+
+#buttonsRow {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(640px, calc(100vw - 28px));
+  z-index: 30;
+  pointer-events: auto;
+  --char-accent: var(--echo);
+  --char-color: var(--surface);
+}
+
+.char-confirm-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(6, 6, 18, 0.86);
+  backdrop-filter: blur(12px);
+}
+
+.char-confirm-btn {
+  width: min(460px, 100%);
+  border-radius: 6px;
+  border: 1px solid var(--char-accent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(6, 6, 22, 0.9));
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-family: 'Cinzel', serif;
+  box-shadow: 0 0 20px var(--char-accent);
+  padding: 11px 30px;
+  transition: transform .2s ease, box-shadow .2s ease, letter-spacing .2s ease;
+}
+
+.char-confirm-btn:hover {
+  transform: translateY(-1px);
+  letter-spacing: 0.24em;
+  box-shadow: 0 0 34px var(--char-accent);
+}
+
+.char-info-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: linear-gradient(165deg, rgba(7, 7, 22, 0.84), rgba(4, 4, 14, 0.92));
+  padding: 12px;
+}
+
+.char-info-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.char-info-tab {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  color: #8e92b8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.char-info-tab.is-active {
+  border-color: var(--char-accent);
+  color: var(--char-accent);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.char-info-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-right: 3px;
+  scrollbar-width: thin;
+}
+
+.char-info-pane {
+  display: none;
+}
+
+.char-info-pane.is-active {
+  display: block;
+}
+
+.char-info-block {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.char-info-heading {
+  font-size: 13px;
+  font-family: 'Share Tech Mono', monospace;
+  margin: 0 0 6px;
+  letter-spacing: 0.04em;
+}
+
+.char-info-text {
+  margin: 0;
+  font-size: 12px;
+  color: #8d8daa;
+  line-height: 1.7;
+}
+
+.char-loadout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+
+.char-radar-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.char-radar-wrap svg {
+  width: min(100%, 210px);
+  height: auto;
+}
+
+.char-echo-badge {
+  padding: 11px 14px;
+  border-radius: 10px;
+}
+
+.char-echo-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
+
+.char-echo-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.char-echo-name {
+  font-size: 11px;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.char-echo-desc {
+  font-size: 10px;
+  color: #71718c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.char-echo-cost {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border: 1px solid;
+  border-radius: 10px;
+  font-size: 9px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.char-start-deck {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.csm-roadmap-details {
+  margin-top: 6px;
+}
+
+.csm-roadmap-summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(239, 239, 255, 0.52);
+  font-family: 'Share Tech Mono', monospace;
+  margin-bottom: 7px;
+}
+
+.csm-roadmap-summary::-webkit-details-marker {
+  display: none;
+}
+
+.csm-roadmap-details[open] .csm-roadmap-summary {
+  color: var(--char-accent);
+}
+
+@media (max-width: 1220px) {
+  #mainRow {
+    gap: 14px;
+    padding: 0 20px;
+  }
+
+  #infoPanel {
+    min-width: 0;
+    max-width: min(56vw, 680px);
+  }
+
+  .arrow-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 28px;
+  }
+
+  .char-loadout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 940px) {
+  #characterSelectSubScreen #app {
+    padding: 12px 0 94px;
+  }
+
+  #header {
+    margin-bottom: 10px;
+  }
+
+  #mainRow {
+    --char-card-height: clamp(360px, 39vw, 500px);
+    gap: clamp(8px, 2vw, 18px);
+    padding: 0 22px;
+  }
+
+  #charCard {
+    width: clamp(248px, 24vw, 344px);
+    border-radius: 16px;
+  }
+
+  #infoPanel {
+    min-width: 340px;
+  }
+
+  .char-info-shell {
+    padding: 10px;
+  }
+
+  .char-info-tab {
+    padding: 7px 10px;
+    font-size: 9px;
+  }
+
+  .char-info-block {
+    padding: 10px 12px;
+    margin-bottom: 9px;
+  }
+
+  .char-radar-wrap svg {
+    width: min(100%, 180px);
+  }
+
+  #dotsRow {
+    margin-bottom: 74px;
+  }
+}
+
+@media (max-width: 980px) {
+  #characterSelectSubScreen #app {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding-bottom: 108px;
+  }
+
+  #mainRow {
+    --char-card-height: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    flex: 0 0 auto;
+  }
+
+  #infoPanel {
+    width: min(92vw, 760px);
+    max-width: 100%;
+    height: auto;
+    max-height: min(52vh, 520px);
+  }
+}

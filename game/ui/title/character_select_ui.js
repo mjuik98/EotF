@@ -578,73 +578,115 @@ export const CharacterSelectUI = {
       const progressPct = Math.round(progress.progress * 100);
 
       const ec = ch.echoSkill;
+      panel.style.setProperty('--char-accent', ch.accent);
+      panel.style.setProperty('--char-color', ch.color);
       panel.innerHTML = `
-        <div class="csm-mastery-panel" style="border-color:${ch.accent}2f;background:${ch.accent}0a;">
-          <div class="csm-mastery-head">
-            <div>
-              <div class="csm-mastery-title" style="color:${ch.accent}">CLASS MASTERY</div>
-              <div class="csm-mastery-level">${progress.level >= ClassProgressionSystem.MAX_LEVEL ? 'MAX' : `Lv.${progress.level}`}</div>
-            </div>
-            <div class="csm-mastery-xp">
-              ${progress.nextLevelXp === null ? 'MAX LEVEL' : `${progress.totalXp} / ${progress.nextLevelXp} XP`}
-            </div>
+        <div class="char-info-shell">
+          <div class="char-info-tabs" role="tablist" aria-label="캐릭터 상세 탭">
+            <button class="char-info-tab is-active" type="button" role="tab" aria-selected="true" data-tab="mastery">
+              마스터리 + 특성
+            </button>
+            <button class="char-info-tab" type="button" role="tab" aria-selected="false" data-tab="loadout">
+              스탯 + 시작 장비
+            </button>
           </div>
-          <div class="csm-mastery-bar">
-            <div class="csm-mastery-fill" style="width:${progressPct}%;background:${ch.accent};box-shadow:0 0 10px ${ch.accent}55"></div>
-          </div>
-          <div class="csm-roadmap">${roadmapRows}</div>
-        </div>
-        <div style="padding:15px 18px;border:1px solid ${ch.accent}22;border-radius:10px;background:${ch.accent}06;margin-bottom:18px">
-          ${sLabel('── 고유 특성 ──', ch.accent)}
-          <p style="font-size:14px;color:${ch.accent};font-family:'Share Tech Mono',monospace;margin:0 0 5px;letter-spacing:1px">${ch.traitTitle}</p>
-          <p style="font-size:13px;color:#888;margin:0;line-height:1.7">${ch.traitDesc}</p>
-        </div>
-        ${sLabel('ECHO SKILL — 잔향 게이지 스킬', ch.accent)}
-        <div style="margin-bottom:20px">
-          <button id="echoBadge" class="echo-badge" style="background:linear-gradient(135deg,${ch.accent}0e,${ch.color}08);border:1px solid ${ch.accent}44;padding:12px 16px">
-            <div style="width:36px;height:36px;flex-shrink:0;border-radius:8px;border:1px solid ${ch.accent}55;background:${ch.accent}14;display:flex;align-items:center;justify-content:center;font-size:18px">${ec.icon}</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;color:${ch.accent};font-family:'Share Tech Mono',monospace;letter-spacing:1px;margin-bottom:4px">◈ ${ec.name}</div>
-              <div style="font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ec.desc}</div>
-            </div>
-            <div style="flex-shrink:0;padding:4px 10px;border:1px solid ${ch.accent}33;border-radius:12px;font-size:10px;color:${ch.accent}99;font-family:'Share Tech Mono',monospace;background:${ch.accent}0a"> ${ec.echoCost}</div>
-          </button>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start">
-          <div>
-            ${sLabel('STATS', ch.accent)}
-            ${_buildRadar(ch.stats, ch.accent)}
-          </div>
-            <div style="flex:1;min-width:0">
-            ${sLabel('시작 유물', ch.accent)}
-            <div style="margin-bottom:18px">
-              <div class="relic-wrap">
-                <div class="relic-inner" style="border:1px solid ${ch.accent}33;background:${ch.accent}08;padding:10px 16px">
-                  <span style="font-size:24px">${rel.icon}</span>
+          <div class="char-info-body">
+            <section class="char-info-pane is-active" data-pane="mastery" role="tabpanel">
+              <div class="csm-mastery-panel" style="border-color:${ch.accent}2f;background:${ch.accent}0a;">
+                <div class="csm-mastery-head">
                   <div>
-                    <div style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace;letter-spacing:.5px">${rel.name}</div>
-                    <div style="font-size:11px;color:${ch.accent}66;font-family:'Share Tech Mono',monospace">유물</div>
+                    <div class="csm-mastery-title" style="color:${ch.accent}">CLASS MASTERY</div>
+                    <div class="csm-mastery-level">${progress.level >= ClassProgressionSystem.MAX_LEVEL ? 'MAX' : `Lv.${progress.level}`}</div>
+                  </div>
+                  <div class="csm-mastery-xp">
+                    ${progress.nextLevelXp === null ? 'MAX LEVEL' : `${progress.totalXp} / ${progress.nextLevelXp} XP`}
                   </div>
                 </div>
-                <div class="relic-tooltip" style="border:1px solid ${ch.accent}44; width: 220px; padding: 14px 18px;">
-                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-                    <span style="font-size:18px">${rel.icon}</span>
-                    <span style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace">${rel.name}</span>
+                <div class="csm-mastery-bar">
+                  <div class="csm-mastery-fill" style="width:${progressPct}%;background:${ch.accent};box-shadow:0 0 10px ${ch.accent}55"></div>
+                </div>
+                <details class="csm-roadmap-details">
+                  <summary class="csm-roadmap-summary">마스터리 로드맵</summary>
+                  <div class="csm-roadmap">${roadmapRows}</div>
+                </details>
+              </div>
+
+              <div class="char-info-block" style="border-color:${ch.accent}22;background:${ch.accent}06;">
+                ${sLabel('고유 특성', ch.accent)}
+                <p class="char-info-heading" style="color:${ch.accent}">${ch.traitTitle}</p>
+                <p class="char-info-text">${ch.traitDesc}</p>
+              </div>
+
+              <div class="char-info-block">
+                ${sLabel('잔향 스킬', ch.accent)}
+                <button id="echoBadge" class="echo-badge char-echo-badge" style="background:linear-gradient(135deg,${ch.accent}0e,${ch.color}08);border:1px solid ${ch.accent}44;">
+                  <div class="char-echo-icon" style="border-color:${ch.accent}55;background:${ch.accent}14;">${ec.icon}</div>
+                  <div class="char-echo-copy">
+                    <div class="char-echo-name" style="color:${ch.accent}">${ec.name}</div>
+                    <div class="char-echo-desc">${ec.desc}</div>
                   </div>
-                  <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:10px">${rel.desc}</div>
-                  <div class="tip-arrow" style="border-top:7px solid ${ch.accent}44"></div>
+                  <div class="char-echo-cost" style="border-color:${ch.accent}33;color:${ch.accent}99;background:${ch.accent}0a;">${ec.echoCost}</div>
+                </button>
+              </div>
+            </section>
+
+            <section class="char-info-pane" data-pane="loadout" role="tabpanel">
+              <div class="char-loadout-grid">
+                <div class="char-info-block">
+                  ${sLabel('스탯', ch.accent)}
+                  <div class="char-radar-wrap">${_buildRadar(ch.stats, ch.accent, null, 210)}</div>
+                </div>
+
+                <div class="char-info-block">
+                  ${sLabel('시작 유물', ch.accent)}
+                  <div class="relic-wrap">
+                    <div class="relic-inner" style="border:1px solid ${ch.accent}33;background:${ch.accent}08;padding:10px 16px">
+                      <span style="font-size:24px">${rel.icon}</span>
+                      <div>
+                        <div style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace;letter-spacing:.5px">${rel.name}</div>
+                        <div style="font-size:11px;color:${ch.accent}66;font-family:'Share Tech Mono',monospace">유물</div>
+                      </div>
+                    </div>
+                    <div class="relic-tooltip" style="border:1px solid ${ch.accent}44; width: 220px; padding: 14px 18px;">
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                        <span style="font-size:18px">${rel.icon}</span>
+                        <span style="font-size:13px;color:${ch.accent};font-family:'Share Tech Mono',monospace">${rel.name}</span>
+                      </div>
+                      <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:10px">${rel.desc}</div>
+                      <div class="tip-arrow" style="border-top:7px solid ${ch.accent}44"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            ${sLabel('시작 덱', ch.accent)}
-            <div style="display:flex;flex-wrap:wrap;gap:6px">${ch.startDeck.map(cId => {
-        const card = CARDS[cId] || { name: cId };
-        return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
-      }).join('')}</div>
+
+              <div class="char-info-block">
+                ${sLabel('시작 덱', ch.accent)}
+                <div class="char-start-deck">${ch.startDeck.map((cId) => {
+                  const card = CARDS[cId] || { name: cId };
+                  return `<span class="deck-card" data-cid="${cId}" style="border:1px solid ${ch.accent}1a;padding:4px 10px;font-size:11px;background:${ch.accent}05;cursor:help">${card.name}</span>`;
+                }).join('')}</div>
+              </div>
+            </section>
           </div>
         </div>`;
 
-      // 에코 배지 이벤트
+      const tabButtons = panel.querySelectorAll('.char-info-tab');
+      const tabPanes = panel.querySelectorAll('.char-info-pane');
+      const activateTab = (tabName) => {
+        tabButtons.forEach((btn) => {
+          const active = btn.dataset.tab === tabName;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        tabPanes.forEach((pane) => pane.classList.toggle('is-active', pane.dataset.pane === tabName));
+      };
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (!btn.classList.contains('is-active')) SFX.hover();
+          activateTab(btn.dataset.tab);
+        });
+      });
+
       const eb = $('echoBadge');
       if (eb) {
         eb.addEventListener('mouseenter', () => { SFX.hover(); eb.style.borderColor = `${ch.accent}aa`; eb.style.background = `linear-gradient(135deg,${ch.accent}1e,${ch.color}1a)`; eb.style.boxShadow = `0 0 16px ${ch.accent}33`; });
@@ -693,12 +735,15 @@ export const CharacterSelectUI = {
       const ch = chars[S.idx];
       const buttonsRow = $('buttonsRow');
       if (!buttonsRow) return;
+      buttonsRow.style.setProperty('--char-accent', ch.accent);
+      buttonsRow.style.setProperty('--char-color', ch.color);
       buttonsRow.innerHTML = `
-        <button id="btnCfm" style="padding:10px 48px;border:1px solid ${ch.accent}55;border-radius:3px;background:linear-gradient(135deg,${ch.color}30,${ch.color}15);color:#fff;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif;box-shadow:0 0 22px ${ch.accent}22;transition:all .25s ease">선택 확정 — ${ch.name}</button>`;
+        <div class="char-confirm-wrap">
+          <button id="btnCfm" class="char-confirm-btn" type="button">선택 확정 · ${ch.name}</button>
+        </div>`;
 
       const bf = $('btnCfm');
-      bf.addEventListener('mouseenter', () => { SFX.hover(); bf.style.letterSpacing = '5px'; bf.style.boxShadow = `0 0 50px ${ch.accent}44`; bf.style.background = `linear-gradient(135deg,${ch.color}55,${ch.color}2a)`; });
-      bf.addEventListener('mouseleave', () => { bf.style.letterSpacing = '3px'; bf.style.boxShadow = `0 0 22px ${ch.accent}22`; bf.style.background = `linear-gradient(135deg,${ch.color}30,${ch.color}15)`; });
+      bf.addEventListener('mouseenter', () => SFX.hover());
       bf.addEventListener('click', handleConfirm);
     }
 
