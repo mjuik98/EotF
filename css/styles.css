@@ -2283,6 +2283,7 @@ body {
   max-width: 420px;
   width: 90vw;
   padding: 40px 36px;
+  overflow: hidden;
   background: rgba(10, 8, 25, 0.7);
   border: 1px solid rgba(255, 160, 60, 0.25);
   border-radius: 20px;
@@ -2291,6 +2292,23 @@ body {
     0 0 80px rgba(255, 120, 40, 0.08),
     inset 0 1px 0 rgba(255, 200, 100, 0.1);
   animation: restContentRise 0.8s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.rest-fill-particle-canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.92;
+}
+
+.rest-fill-content > :not(.rest-fill-particle-canvas) {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes restContentRise {

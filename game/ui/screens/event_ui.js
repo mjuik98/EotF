@@ -120,6 +120,233 @@ function _isChoiceDisabled(choice, gs) {
   return !!choice.disabled;
 }
 
+function _hexToRgb(hex, fallback = [255, 255, 255]) {
+  const raw = String(hex || '').trim();
+  const normalized = raw.startsWith('#') ? raw.slice(1) : raw;
+  if (/^[0-9a-fA-F]{6}$/.test(normalized)) {
+    return [0, 2, 4].map((idx) => parseInt(normalized.slice(idx, idx + 2), 16));
+  }
+  return fallback;
+}
+
+class _RestFillParticle {
+  constructor(kind, width, height) {
+    this.kind = kind === 'echo' ? 'echo' : 'hp';
+    this.color = _hexToRgb(this.kind === 'echo' ? '#9c63ff' : '#ff5c96');
+    this.setBounds(width, height);
+    this.reset();
+  }
+
+  setBounds(width, height) {
+    this.width = Math.max(1, width || 1);
+    this.height = Math.max(1, height || 1);
+  }
+
+  reset() {
+    const isEcho = this.kind === 'echo';
+    this.life = 0.62 + Math.random() * 0.38;
+    this.decay = 0.004 + Math.random() * 0.0048;
+    this.x = this.width * (0.03 + Math.random() * 0.94);
+    this.y = this.height * (isEcho ? 0.9 : 0.94) + Math.random() * (isEcho ? 26 : 30);
+    this.vx = (Math.random() - 0.5) * (isEcho ? 0.45 : 0.58);
+    this.vy = -(Math.random() * (isEcho ? 1.8 : 2.2) + (isEcho ? 1.05 : 1.3));
+    this.size = Math.random() * (isEcho ? 2.2 : 2.8) + (isEcho ? 1.1 : 1.3);
+    this.phase = Math.random() * Math.PI * 2;
+    this.wave = 0.03 + Math.random() * 0.035;
+  }
+
+  update(boost = 0) {
+    const flow = 1 + boost * 1.35;
+    this.life -= this.decay * flow;
+    this.phase += this.wave;
+    this.x += this.vx * flow + Math.sin(this.phase) * 0.12 * flow;
+    this.y += this.vy * flow;
+
+    const outOfBounds = this.y < -20 || this.x < -16 || this.x > this.width + 16;
+    if (this.life <= 0 || outOfBounds) this.reset();
+  }
+
+  draw(ctx, boost = 0) {
+    const alpha = Math.max(0, this.life) * (0.26 + boost * 0.62);
+    if (alpha <= 0) return;
+
+    const [r, g, b] = this.color;
+    const flicker = 0.78 + Math.sin(this.phase * 2.4) * 0.22;
+    const radius = this.size * (0.9 + boost * 0.65);
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(0.08, Math.min(1, alpha * flicker));
+    ctx.shadowBlur = 8 + boost * 16;
+    ctx.shadowColor = `rgba(${r},${g},${b},${Math.min(1, alpha * 1.25)})`;
+
+    const trail = ctx.createLinearGradient(
+      this.x,
+      this.y + radius * 2.2,
+      this.x,
+      this.y - radius * 2.6,
+    );
+    trail.addColorStop(0, `rgba(${r},${g},${b},0)`);
+    trail.addColorStop(1, `rgba(${r},${g},${b},${Math.min(1, alpha * 0.9)})`);
+    ctx.strokeStyle = trail;
+    ctx.lineWidth = Math.max(0.7, radius * 0.52);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y + radius * 2.3);
+    ctx.lineTo(this.x, this.y - radius * 1.7);
+    ctx.stroke();
+
+    const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, radius * 2.1);
+    glow.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1, alpha * 1.15)})`);
+    glow.addColorStop(0.5, `rgba(${r},${g},${b},${Math.min(1, alpha * 0.45)})`);
+    glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, radius * 1.65, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, alpha * 1.35)})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, radius * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function _resolveRestFillParticleBounds(doc) {
+  const target = doc?.querySelector?.('.game-canvas-wrapper-special')
+    || doc?.querySelector?.('#gameCanvas')
+    || doc?.querySelector?.('#hudOverlay');
+  if (target?.getBoundingClientRect) {
+    const rect = target.getBoundingClientRect();
+    if (rect.width > 8 && rect.height > 8) {
+      return {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
+  }
+
+  const win = doc?.defaultView;
+  const viewportW = Math.max(1, Math.floor(win?.innerWidth || doc?.documentElement?.clientWidth || 1));
+  const viewportH = Math.max(1, Math.floor(win?.innerHeight || doc?.documentElement?.clientHeight || 1));
+  let rightEdge = viewportW;
+  const panel = doc?.querySelector?.('.panel-right');
+  if (panel?.getBoundingClientRect) {
+    const style = win?.getComputedStyle?.(panel);
+    const visible = style
+      ? style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'
+      : true;
+    if (visible) {
+      const rect = panel.getBoundingClientRect();
+      if (rect.left > 0 && rect.left < rightEdge) rightEdge = rect.left;
+    }
+  }
+
+  return {
+    left: 0,
+    top: 0,
+    width: Math.max(1, rightEdge),
+    height: viewportH,
+  };
+}
+
+function _startRestFillParticles(overlay, doc) {
+  const canvas = overlay?.querySelector('#restFillParticleCanvas');
+  if (!canvas) {
+    return { setBoost: () => { }, stop: () => { } };
+  }
+
+  const ctx = canvas.getContext?.('2d');
+  if (!ctx) {
+    return { setBoost: () => { }, stop: () => { } };
+  }
+
+  let width = 0;
+  let height = 0;
+  let hpParticles = [];
+  let echoParticles = [];
+  let boost = 0.1;
+  let rafId = null;
+
+  const requestFrame = (cb) => {
+    if (typeof requestAnimationFrame === 'function') return requestAnimationFrame(cb);
+    return setTimeout(() => cb(performance.now()), 16);
+  };
+  const cancelFrame = (id) => {
+    if (id === null || id === undefined) return;
+    if (typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(id);
+      return;
+    }
+    clearTimeout(id);
+  };
+
+  const resize = () => {
+    const bounds = _resolveRestFillParticleBounds(doc || overlay?.ownerDocument);
+    canvas.style.left = `${Math.round(bounds.left)}px`;
+    canvas.style.top = `${Math.round(bounds.top)}px`;
+    canvas.style.width = `${Math.round(bounds.width)}px`;
+    canvas.style.height = `${Math.round(bounds.height)}px`;
+
+    const nextW = Math.max(1, Math.floor(bounds.width || canvas.clientWidth || canvas.width || 1));
+    const nextH = Math.max(1, Math.floor(bounds.height || canvas.clientHeight || canvas.height || 1));
+    if (nextW === width && nextH === height) return false;
+
+    width = nextW;
+    height = nextH;
+    canvas.width = width;
+    canvas.height = height;
+    if (!hpParticles.length || !echoParticles.length) {
+      const density = Math.max(0.7, Math.min(1.6, width / 1200));
+      const hpCount = Math.round(58 * density);
+      const echoCount = Math.round(52 * density);
+      hpParticles = Array.from({ length: hpCount }, () => new _RestFillParticle('hp', width, height));
+      echoParticles = Array.from({ length: echoCount }, () => new _RestFillParticle('echo', width, height));
+    } else {
+      [...hpParticles, ...echoParticles].forEach((particle) => {
+        particle.setBounds(width, height);
+        particle.reset();
+      });
+    }
+    return true;
+  };
+
+  const render = () => {
+    if (!overlay.isConnected) return;
+    resize();
+    ctx.clearRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'lighter';
+    hpParticles.forEach((particle) => {
+      particle.update(boost);
+      particle.draw(ctx, boost);
+    });
+    echoParticles.forEach((particle) => {
+      particle.update(boost * 0.95);
+      particle.draw(ctx, boost * 0.95);
+    });
+    ctx.globalCompositeOperation = 'source-over';
+    rafId = requestFrame(render);
+  };
+
+  resize();
+  render();
+
+  return {
+    setBoost(nextBoost) {
+      const value = Number(nextBoost);
+      if (!Number.isFinite(value)) return;
+      boost = Math.max(0.06, Math.min(1, value));
+    },
+    stop() {
+      cancelFrame(rafId);
+      rafId = null;
+      ctx.clearRect(0, 0, width, height);
+    },
+  };
+}
+
 function _renderChoices(event, doc, deps = {}) {
   const choicesEl = doc.getElementById('eventChoices');
   if (!choicesEl) return;
@@ -364,6 +591,7 @@ export const EventUI = {
     overlay.className = 'rest-fill-overlay';
     overlay.innerHTML = `
       <div class="rest-fill-bg"></div>
+      <canvas id="restFillParticleCanvas" class="rest-fill-particle-canvas"></canvas>
       <div class="rest-fill-content">
         <div class="rest-fill-icon">🔥</div>
         <div class="rest-fill-title">잔향의 모닥불</div>
@@ -387,6 +615,7 @@ export const EventUI = {
       </div>
     `;
     doc.body.appendChild(overlay);
+    const restParticleFx = _startRestFillParticles(overlay, doc);
 
     // Trigger entrance animation
     requestAnimationFrame(() => {
@@ -410,6 +639,7 @@ export const EventUI = {
         const elapsed = Math.min(now - startTime, duration);
         const progress = elapsed / duration;
         const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        restParticleFx.setBoost(0.14 + eased * 0.86);
 
         const currentHp = Math.round(oldHp + (newHp - oldHp) * eased);
         const currentEcho = Math.round(oldEcho + (newEcho - oldEcho) * eased);
@@ -418,6 +648,7 @@ export const EventUI = {
         if (echoVal) echoVal.textContent = `${currentEcho}/100`;
 
         if (elapsed < duration) requestAnimationFrame(animateNumbers);
+        else restParticleFx.setBoost(0.18);
       };
       requestAnimationFrame(animateNumbers);
 
@@ -426,9 +657,13 @@ export const EventUI = {
 
     // After animation, transition to rest choices
     setTimeout(() => {
+      restParticleFx.setBoost(0.08);
       overlay.classList.remove('active');
       overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 500);
+      setTimeout(() => {
+        restParticleFx.stop();
+        overlay.remove();
+      }, 500);
 
       // ── 로직 위임: 선택지만 표시 ──
       const rest = EventManager.createRestEvent(gs, data, runRules, {

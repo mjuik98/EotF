@@ -332,7 +332,7 @@ export const RewardUI = {
     const shouldOfferBlessing = isBoss || (isMiniBoss && Math.random() < 0.3);
     if (shouldOfferBlessing) {
       const maxEnergyCap = _getMaxEnergyCap(gs);
-      const isEnergyBlessingDisabled = (gs.player.maxEnergy || 0) >= maxEnergyCap;
+      const isEnergyCapReached = (gs.player.maxEnergy || 0) >= maxEnergyCap;
       const blessingHp = { id: 'blessing_hp', name: '영구적인 활력', icon: '❤️', desc: '최대 체력이 영구적으로 20 증가합니다.', type: 'hp', amount: 20 };
       const blessingEnergy = {
         id: 'blessing_energy',
@@ -341,7 +341,7 @@ export const RewardUI = {
         desc: '최대 에너지가 영구적으로 1 증가합니다.',
         type: 'energy',
         amount: 1,
-        disabled: isEnergyBlessingDisabled,
+        disabled: isEnergyCapReached,
         disabledReason: `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`,
       };
 

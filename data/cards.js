@@ -32,7 +32,7 @@ export const UPGRADE_MAP = {
     'counter': 'counter_plus', 'time_echo': 'time_echo_plus', 'void_mirror': 'void_mirror_plus',
     'arcane_storm': 'arcane_storm_plus', 'prediction': 'prediction_plus', 'time_warp': 'time_warp_plus',
     'death_mark': 'death_mark_plus', 'shadow_step': 'shadow_step_plus', 'poison_blade': 'poison_blade_plus',
-    'phantom_step': 'phantom_step_plus', 'echo_burst_card': 'echo_burst_plus', 'void_blade': 'void_blade_plus',
+    'phantom_step': 'phantom_step_plus', 'echo_burst': 'echo_burst_plus', 'void_blade': 'void_blade_plus',
     'soul_armor': 'soul_armor_plus', 'soul_harvest': 'soul_harvest_plus', 'echo_overload': 'echo_overload_plus',
     'desperate_strike': 'desperate_strike_plus', 'reverberation': 'reverberation_plus', 'sanctuary': 'sanctuary_plus',
     'dark_pact': 'dark_pact_plus', 'overcharge': 'overcharge_plus', 'void_tap': 'void_tap_plus',
@@ -118,8 +118,8 @@ export const CARDS = {
     },
 
     // ── [2.1] 희귀 및 특수 카드 (Rare & Special) ──
-    echo_burst_card: {
-        id: 'echo_burst_card', name: '잔향 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '【즉시】 잔향 폭발 발동.', rarity: 'rare',
+    echo_burst: {
+        id: 'echo_burst', name: '잔향 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '【즉시】 잔향 폭발 발동.', rarity: 'rare',
         effect(gs) { gs.triggerResonanceBurst(); }
     },
     echo_burst_plus: {
@@ -555,51 +555,57 @@ export const CARDS = {
     silent_strike: {
         id: 'silent_strike', name: '심장 정지', icon: '🗡️', cost: 1, type: 'ATTACK', desc: '피해 7. 적의 [독] 수치 × 4만큼 추가 피해.', rarity: 'uncommon',
         effect(gs) {
-            const enemy = gs.combat.enemies[gs._selectedTarget || 0];
+            const targetIdx = Number.isInteger(gs._selectedTarget)
+                ? gs._selectedTarget
+                : gs.combat.enemies.findIndex(e => e.hp > 0);
+            const enemy = gs.combat.enemies[targetIdx];
             const poison = enemy?.statusEffects?.poisoned || 0;
-            gs.dealDamage(7 + (poison * 4));
+            gs.dealDamage(7 + (poison * 4), targetIdx);
         }
     },
     silent_strike_plus: {
         id: 'silent_strike_plus', name: '심장 정지+', icon: '🗡️', cost: 1, type: 'ATTACK', desc: '피해 10. 적의 [독] 수치 × 6만큼 추가 피해.', rarity: 'uncommon', upgraded: true,
         effect(gs) {
-            const enemy = gs.combat.enemies[gs._selectedTarget || 0];
+            const targetIdx = Number.isInteger(gs._selectedTarget)
+                ? gs._selectedTarget
+                : gs.combat.enemies.findIndex(e => e.hp > 0);
+            const enemy = gs.combat.enemies[targetIdx];
             const poison = enemy?.statusEffects?.poisoned || 0;
-            gs.dealDamage(10 + (poison * 6));
+            gs.dealDamage(10 + (poison * 6), targetIdx);
         }
     },
 
     // ── [2.3] 신규 메커니즘 (New Mechanics) ──
     focus: {
-        id: 'focus', name: '집중', icon: '�', cost: 0, type: 'SKILL', desc: '다음 1회 공격이 [치명타]로 적중합니다.', rarity: 'common',
+        id: 'focus', name: '집중', icon: '🎯', cost: 0, type: 'SKILL', desc: '다음 1회 공격이 [치명타]로 적중합니다.', rarity: 'common',
         effect(gs) { gs.addBuff('focus', 1, {}); gs.addLog(LogUtils.formatCardBuff('집중', '다음 공격 치명타'), 'buff'); }
     },
     focus_plus: {
-        id: 'focus_plus', name: '집중+', icon: '�', cost: 0, type: 'SKILL', desc: '다음 1회 공격이 [치명타]로 적중합니다. 카드 1장 드로우.', rarity: 'common', upgraded: true,
+        id: 'focus_plus', name: '집중+', icon: '🎯', cost: 0, type: 'SKILL', desc: '다음 1회 공격이 [치명타]로 적중합니다. 카드 1장 드로우.', rarity: 'common', upgraded: true,
         effect(gs) { gs.addBuff('focus', 1, {}); gs.drawCards(1); gs.addLog(LogUtils.formatCardBuff('집중+', '다음 공격 치명타'), 'buff'); }
     },
     combat_frenzy: {
-        id: 'combat_frenzy', name: '전투 광란', icon: '�', cost: 2, type: 'SKILL', desc: '이번 턴 동안 모든 공격이 [치명타]로 적중합니다.', rarity: 'uncommon',
+        id: 'combat_frenzy', name: '전투 광란', icon: '🔥', cost: 2, type: 'SKILL', desc: '이번 턴 동안 모든 공격이 [치명타]로 적중합니다.', rarity: 'uncommon',
         effect(gs) { gs.addBuff('critical_turn', 1, {}); gs.addLog(LogUtils.formatCardBuff('전체 치명타', '이번 턴 모든 공격 치명타'), 'buff'); }
     },
     combat_frenzy_plus: {
-        id: 'combat_frenzy_plus', name: '전투 광란+', icon: '�', cost: 1, type: 'SKILL', desc: '이번 턴 동안 모든 공격이 [치명타]로 적중합니다.', rarity: 'uncommon', upgraded: true,
+        id: 'combat_frenzy_plus', name: '전투 광란+', icon: '🔥', cost: 1, type: 'SKILL', desc: '이번 턴 동안 모든 공격이 [치명타]로 적중합니다.', rarity: 'uncommon', upgraded: true,
         effect(gs) { gs.addBuff('critical_turn', 1, {}); gs.addLog(LogUtils.formatCardBuff('전체 치명타+', '이번 턴 모든 공격 치명타'), 'buff'); }
     },
     vampiric_touch: {
-        id: 'vampiric_touch', name: '흡혈의 손길', icon: '�', cost: 1, type: 'SKILL', desc: '다음 2턴 동안 가한 피해량의 30%만큼 회복합니다. [소진].', rarity: 'rare', exhaust: true,
+        id: 'vampiric_touch', name: '흡혈의 손길', icon: '🧛', cost: 1, type: 'SKILL', desc: '다음 2턴 동안 가한 피해량의 30%만큼 회복합니다. [소진].', rarity: 'rare', exhaust: true,
         effect(gs) { gs.addBuff('lifesteal', 2, { percent: 30 }); gs.addLog(LogUtils.formatCardBuff('흡혈', '피해량 30% 회복'), 'buff'); }
     },
     vampiric_touch_plus: {
-        id: 'vampiric_touch_plus', name: '흡혈의 손길+', icon: '�', cost: 1, type: 'SKILL', desc: '다음 3턴 동안 가한 피해량의 40%만큼 회복합니다. [소진].', rarity: 'rare', upgraded: true, exhaust: true,
+        id: 'vampiric_touch_plus', name: '흡혈의 손길+', icon: '🧛', cost: 1, type: 'SKILL', desc: '다음 3턴 동안 가한 피해량의 40%만큼 회복합니다. [소진].', rarity: 'rare', upgraded: true, exhaust: true,
         effect(gs) { gs.addBuff('lifesteal', 3, { percent: 40 }); gs.addLog(LogUtils.formatCardBuff('흡혈+', '피해량 40% 회복'), 'buff'); }
     },
     spike_shield: {
-        id: 'spike_shield', name: '가시 방패', icon: '�', cost: 2, type: 'SKILL', desc: '이번 턴 동안 받은 피해량만큼 적에게 반사합니다.', rarity: 'rare',
+        id: 'spike_shield', name: '가시 방패', icon: '🦔', cost: 2, type: 'SKILL', desc: '이번 턴 동안 적의 공격을 반사하고 피해를 받지 않습니다.', rarity: 'rare',
         effect(gs) { gs.addBuff('spike_shield', 1, {}); gs.addLog(LogUtils.formatCardBuff('가시 방패', '피해 반사'), 'buff'); }
     },
     spike_shield_plus: {
-        id: 'spike_shield_plus', name: '가시 방패+', icon: '�', cost: 1, type: 'SKILL', desc: '이번 턴 동안 받은 피해량만큼 적에게 반사합니다.', rarity: 'rare', upgraded: true,
+        id: 'spike_shield_plus', name: '가시 방패+', icon: '🦔', cost: 1, type: 'SKILL', desc: '이번 턴 동안 적의 공격을 반사하고 피해를 받지 않습니다.', rarity: 'rare', upgraded: true,
         effect(gs) { gs.addBuff('spike_shield', 1, {}); gs.addLog(LogUtils.formatCardBuff('가시 방패+', '피해 반사'), 'buff'); }
     },
 
@@ -727,17 +733,23 @@ export const CARDS = {
     judgement: {
         id: 'judgement', name: '심판', icon: '⚖️', cost: 2, type: 'ATTACK', desc: '피해 15. 적의 디버프 개수당 피해 +6.', rarity: 'uncommon',
         effect(gs) {
-            const enemy = gs.combat.enemies[gs._selectedTarget || 0];
+            const targetIdx = Number.isInteger(gs._selectedTarget)
+                ? gs._selectedTarget
+                : gs.combat.enemies.findIndex(e => e.hp > 0);
+            const enemy = gs.combat.enemies[targetIdx];
             const debuffCount = Object.keys(enemy?.statusEffects || {}).length;
-            gs.dealDamage(15 + (debuffCount * 6));
+            gs.dealDamage(15 + (debuffCount * 6), targetIdx);
         }
     },
     judgement_plus: {
         id: 'judgement_plus', name: '심판+', icon: '⚖️', cost: 1, type: 'ATTACK', desc: '피해 18. 적의 디버프 개수당 피해 +8.', rarity: 'uncommon', upgraded: true,
         effect(gs) {
-            const enemy = gs.combat.enemies[gs._selectedTarget || 0];
+            const targetIdx = Number.isInteger(gs._selectedTarget)
+                ? gs._selectedTarget
+                : gs.combat.enemies.findIndex(e => e.hp > 0);
+            const enemy = gs.combat.enemies[targetIdx];
             const debuffCount = Object.keys(enemy?.statusEffects || {}).length;
-            gs.dealDamage(18 + (debuffCount * 8));
+            gs.dealDamage(18 + (debuffCount * 8), targetIdx);
         }
     },
 
