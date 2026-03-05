@@ -10,6 +10,7 @@
  */
 
 import { StatusTooltipUI } from './status_tooltip_builder.js';
+import { INFINITE_DURATION_STATUS_KEYS, PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../data/status_key_data.js';
 
 const STATUS_KR = {
   resonance:            { name: '공명',        icon: '✨',  buff: true,  desc: '카드 연계에 따라 공격 보너스가 증가합니다.' },
@@ -74,9 +75,7 @@ function _getStackDisplay(key, buff) {
   return '';
 }
 
-const _INFINITE_STATUS_KEYS = new Set([
-  'resonance', 'time_warp', 'blessing_of_light', 'berserk_mode', 'unbreakable_wall',
-]);
+const _INFINITE_STATUS_KEYS = new Set(INFINITE_DURATION_STATUS_KEYS);
 
 function _resolveEffectStackValue(statusKey, buff) {
   if (!buff || typeof buff !== 'object') return null;
@@ -164,9 +163,7 @@ export const StatusEffectsUI = {
         const info   = STATUS_KR[k];
         const isBuff = info
           ? info.buff
-          : ['resonance','acceleration','soul_armor','vanish','immune','shadow_atk',
-             'dodge','focus','critical_turn','lifesteal','spike_shield','protection',
-             'divine_aura','endure_buff','echo_berserk'].includes(k);
+          : PLAYER_STATUS_FALLBACK_BUFF_KEYS.includes(k);
 
         const label = info ? `${info.icon} ${info.name}` : k;
 

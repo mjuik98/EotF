@@ -3,6 +3,7 @@
  */
 
 import { CONSTANTS } from '../data/constants.js';
+import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../data/event_shop_data.js';
 
 function _totalDeckCards(player) {
   return (player?.deck?.length || 0) + (player?.hand?.length || 0) + (player?.graveyard?.length || 0);
@@ -182,13 +183,6 @@ export const EventManager = {
       return gs._itemShopStockCache;
     }
 
-    const rarityConfig = {
-      common: { baseCost: 10 },
-      uncommon: { baseCost: 20 },
-      rare: { baseCost: 35 },
-      legendary: { baseCost: 60 },
-    };
-
     const byRarity = {};
     Object.values(data.items).forEach((item) => {
       if (!_isItemObtainableFrom(item, 'shop')) return;
@@ -197,11 +191,11 @@ export const EventManager = {
     });
 
     const shopItems = [];
-    ['common', 'uncommon', 'rare', 'legendary'].forEach((rarity) => {
+    ITEM_SHOP_RARITY_ORDER.forEach((rarity) => {
       const pool = (byRarity[rarity] || []).filter((item) => !gs.player.items.includes(item.id));
       if (!pool.length) return;
       const item = pool[Math.floor(Math.random() * pool.length)];
-      const cost = runRules.getShopCost(gs, rarityConfig[rarity]?.baseCost || 10);
+      const cost = runRules.getShopCost(gs, ITEM_SHOP_RARITY_BASE_COSTS[rarity]?.baseCost || 10);
       shopItems.push({ item, cost, rarity });
     });
 

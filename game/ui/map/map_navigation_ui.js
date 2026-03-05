@@ -1,4 +1,5 @@
 import { Trigger } from '../../data/triggers.js';
+import { MAP_COMBAT_NODE_TYPES } from '../../../data/map_node_data.js';
 
 
 export const MapNavigationUI = {
@@ -27,7 +28,7 @@ export const MapNavigationUI = {
       gs.currentNode = node;
       const prevFloor = gs.currentFloor;
       gs.currentFloor = node.floor;
-      const isCombatNode = node.type === 'combat' || node.type === 'elite' || node.type === 'mini_boss' || node.type === 'boss';
+      const isCombatNode = MAP_COMBAT_NODE_TYPES.includes(node.type);
       if (gs.currentFloor !== prevFloor) {
         gs.triggerItems?.(Trigger.FLOOR_START, { floor: gs.currentFloor });
       }

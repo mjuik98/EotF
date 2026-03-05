@@ -1,3 +1,5 @@
+import { MAP_RANDOM_NODE_TYPE_POOL } from '../../../data/map_node_data.js';
+
 function _groupByFloor(nodes = []) {
   const byFloor = new Map();
   nodes.forEach((node) => {
@@ -186,8 +188,7 @@ export const MapGenerationUI = {
           type = 'elite';
           eliteAssigned = true;
         } else {
-          const pool = ['combat', 'combat', 'combat', 'event', 'shop', 'rest'];
-          const filteredPool = pool.filter((t) => {
+          const filteredPool = MAP_RANDOM_NODE_TYPE_POOL.filter((t) => {
             if (t === 'shop' && shopAssigned) return false;
             if (t === 'event' && eventAssigned) return false;
             return true;

@@ -1,16 +1,7 @@
-const NODE_TYPE_CONFIG = {
-  combat: { color: '#ff3366', icon: 'C' },
-  elite: { color: '#f0b429', icon: 'E' },
-  mini_boss: { color: '#ff6600', icon: 'M' },
-  boss: { color: '#7b2fff', icon: 'B' },
-  event: { color: '#00ffcc', icon: '?' },
-  shop: { color: '#f0b429', icon: '$' },
-  rest: { color: '#44ff88', icon: '+' },
-};
+import { MAP_NODE_TYPE_ORDER, MAP_NODE_TYPE_VISUAL_FALLBACK } from '../../../data/map_node_data.js';
 
 const MINIMAP_HOVER_THRESHOLD = 12;
 const FULL_MAP_HOVER_THRESHOLD = 18;
-const NODE_TYPE_ORDER = ['combat', 'elite', 'mini_boss', 'boss', 'event', 'shop', 'rest'];
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -318,7 +309,7 @@ export const MapUI = {
     nodes.forEach((n, idx) => {
       const m = nodeMeta[n.type] || nodeMeta.combat || {
         color: '#ff3366',
-        icon: NODE_TYPE_CONFIG.combat.icon,
+        icon: MAP_NODE_TYPE_VISUAL_FALLBACK.combat.icon,
         label: '전투',
         desc: '다음 교전을 준비합니다.',
       };
@@ -337,7 +328,7 @@ export const MapUI = {
 
       const icon = doc.createElement('div');
       icon.className = 'node-card-icon';
-      icon.textContent = m.icon || NODE_TYPE_CONFIG[n.type]?.icon || '?';
+      icon.textContent = m.icon || MAP_NODE_TYPE_VISUAL_FALLBACK[n.type]?.icon || '?';
 
       const label = doc.createElement('div');
       label.className = 'node-card-label';
@@ -652,7 +643,7 @@ export const MapUI = {
     // 범례
     const legend = doc.createElement('div');
     legend.style.cssText = `display:flex;gap:18px;margin-top:20px;flex-wrap:wrap;justify-content:center;`;
-    NODE_TYPE_ORDER.forEach(type => {
+    MAP_NODE_TYPE_ORDER.forEach(type => {
       const meta = nodeMeta[type]; if (!meta) return;
       const item = doc.createElement('span');
       item.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:12px;color:${meta.color || '#fff'};opacity:0.8;`;
