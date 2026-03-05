@@ -25,29 +25,37 @@ const INTENT_DESCRIPTIONS = {
   enrage: { type: '격노', desc: '다음 공격력이 증가합니다.' },
 };
 
-const ENEMY_STATUS_KR = {
+export const ENEMY_STATUS_KR = {
   stunned: '기절',
   weakened: '약화',
   poisoned: '독',
   marked: '표식',
+  branded: '낙인',
   mirror: '반사',
   immune: '무적',
   slowed: '감속',
   burning: '화상',
+  abyss_regen: '심연 재생',
+  draw_block: '드로우 간섭',
+  doom: '파멸',
   cursed: '저주',
   dodge: '회피',
   thorns: '가시',
 };
 
-const ENEMY_STATUS_DESC = {
+export const ENEMY_STATUS_DESC = {
   stunned: { icon: '⏸', desc: '다음 행동을 건너뜁니다.' },
   weakened: { icon: '🪶', desc: '가하는 피해가 감소합니다.' },
   poisoned: { icon: '☠', desc: '턴 시작 시 독 스택 × 5 피해를 입습니다.' },
   marked: { icon: '🎯', desc: '표식이 터질 때 추가 피해를 입습니다.' },
+  branded: { icon: '🕯', desc: '이 적을 공격하면 공격자가 체력을 회복합니다.' },
   mirror: { icon: '🪞', desc: '받는 피해를 반사합니다.' },
   immune: { icon: '🛡', desc: '받는 피해를 무시합니다.' },
   slowed: { icon: '🐢', desc: '행동이 지연됩니다.' },
   burning: { icon: '🔥', desc: '매 턴 화상 피해를 입습니다.' },
+  abyss_regen: { icon: '💚', desc: '턴 시작마다 체력을 회복합니다.' },
+  draw_block: { icon: '🕳️', desc: '플레이어의 턴 시작 드로우 수를 1 감소시킵니다.' },
+  doom: { icon: '☠️', desc: '카운트다운이 끝나면 플레이어에게 큰 피해를 줍니다.' },
   cursed: { icon: '🕸', desc: '저주 페널티를 받습니다.' },
   dodge: { icon: '💨', desc: '다음 공격을 회피합니다.' },
   thorns: { icon: '🌵', desc: '근접 공격자에게 피해를 반사합니다.' },
@@ -122,7 +130,9 @@ function _renderEnemyStatuses(statusEffects, doc) {
   statusEntries.forEach(([s, d]) => {
     const kr = ENEMY_STATUS_KR[s] || s;
     const icon = ENEMY_STATUS_DESC[s]?.icon || '🪶';
-    const col = ['weakened', 'poisoned', 'burning', 'cursed', 'marked'].includes(s) ? '#ff6688' : '#88ccff';
+    const col = ['weakened', 'poisoned', 'burning', 'cursed', 'marked', 'branded', 'draw_block', 'doom'].includes(s)
+      ? '#ff6688'
+      : '#88ccff';
     const duration = d > 1 ? `(${d})` : '';
 
     const badge = doc.createElement('span');

@@ -32,8 +32,11 @@ const STATUS_NAME_MAP = {
     unbreakable_wall_plus: '불굴의 벽+',
     echo_on_hit: '피격 잔향',
     marked: '표식',
+    branded: '낙인',
     thorns: '가시',
     doom: '파멸',
+    abyss_regen: '심연 재생',
+    draw_block: '드로우 간섭',
     silence: '침묵',
 };
 
