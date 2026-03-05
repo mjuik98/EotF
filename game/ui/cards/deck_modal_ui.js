@@ -1,5 +1,6 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
 import { RARITY_SORT_ORDER } from '../../../data/rarity_meta.js';
+import { DECK_MODAL_RARITY_BORDER_COLORS } from '../../../data/ui_rarity_styles.js';
 
 
 let _deckFilterType = 'all';
@@ -63,12 +64,7 @@ export const DeckModalUI = {
 
     const countMap = {};
     ownedCards.forEach(id => { countMap[id] = (countMap[id] || 0) + 1; });
-    const rarityBorder = {
-      rare: 'rgba(240,180,41,0.35)',
-      uncommon: 'rgba(123,47,255,0.35)',
-      legendary: 'rgba(192,132,252,0.45)',
-      common: 'var(--border)',
-    };
+    const rarityBorder = DECK_MODAL_RARITY_BORDER_COLORS;
 
     const sorted = Object.entries(countMap).sort(([a], [b]) => {
       const ra = RARITY_SORT_ORDER[data.cards[a]?.rarity || 'common'] ?? 3;

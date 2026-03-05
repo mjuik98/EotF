@@ -1,4 +1,5 @@
 import { RARITY_SORT_ORDER, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
+import { COMBAT_INFO_ITEM_RARITY_BORDER_COLORS } from '../../../data/ui_rarity_styles.js';
 
 let _combatInfoOpen = false;
 
@@ -162,7 +163,7 @@ export const CombatInfoUI = {
       none.textContent = '없음';
       itemEl.appendChild(none);
     } else {
-      const rarityBorderCol = { common: 'rgba(150,150,180,0.2)', uncommon: 'rgba(123,47,255,0.35)', rare: 'rgba(240,180,41,0.4)', legendary: 'rgba(192,132,252,0.5)' };
+      const rarityBorderCol = COMBAT_INFO_ITEM_RARITY_BORDER_COLORS;
       const sorted = [...items].sort((a, b) => (RARITY_SORT_ORDER[data.items[a]?.rarity || 'common'] ?? 3) - (RARITY_SORT_ORDER[data.items[b]?.rarity || 'common'] ?? 3));
 
       const frag = doc.createDocumentFragment();

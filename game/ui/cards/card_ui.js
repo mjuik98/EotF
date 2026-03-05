@@ -1,4 +1,6 @@
-﻿function _getDoc(deps) {
+import { HAND_CARD_RARITY_BORDER_COLORS } from '../../../data/ui_rarity_styles.js';
+
+function _getDoc(deps) {
   return deps?.doc || document;
 }
 
@@ -69,11 +71,7 @@ export const CardUI = {
 
       const isCascadeFree = globalThis.CardCostUtils.isCascadeFree(cardId, gs.player, i);
       const isChargeFree = globalThis.CardCostUtils.isChargeFree(cardId, gs.player, i);
-      const rarityBorder = card.rarity === 'rare'
-        ? 'rgba(240,180,41,0.5)'
-        : card.rarity === 'uncommon'
-          ? 'rgba(123,47,255,0.5)'
-          : '';
+      const rarityBorder = HAND_CARD_RARITY_BORDER_COLORS[card.rarity] || '';
       const isUpgraded = card.upgraded ? 'box-shadow:0 0 15px rgba(0,255,204,0.6), inset 0 0 10px rgba(0,255,204,0.2); border-width:2px; border-color:var(--cyan);' : '';
       const typeClass = _getCardTypeClass(card.type);
       const typeLabelClass = _getCardTypeLabelClass(card.type);

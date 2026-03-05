@@ -5,6 +5,8 @@
  */
 import { EventManager } from '../../systems/event_manager.js';
 import { clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
+import { RARITY_LABELS } from '../../../data/rarity_meta.js';
+import { EVENT_DISCARD_CARD_RARITY_COLORS, ITEM_SHOP_RARITY_BORDER_COLORS, ITEM_SHOP_RARITY_TEXT_COLORS } from '../../../data/ui_rarity_styles.js';
 
 
 let _currentEvent = null;
@@ -837,7 +839,7 @@ export const EventUI = {
     const discardList = doc.getElementById('discardCardList');
     if (!discardList) return;
     const uniqueCards = [...new Set(allCards)];
-    const rarityColor = { common: 'var(--text-dim)', uncommon: 'var(--echo-bright)', rare: 'var(--gold)', legendary: '#c084fc' };
+    const rarityColor = EVENT_DISCARD_CARD_RARITY_COLORS;
 
     uniqueCards.forEach(cardId => {
       const card = data.cards[cardId];
@@ -899,10 +901,10 @@ export const EventUI = {
     const shopStock = EventManager.generateItemShopStock(gs, data, runRules);
 
     const rarityConfig = {
-      common: { label: '일반', color: 'var(--text)', border: 'rgba(150,150,180,0.3)' },
-      uncommon: { label: '비범', color: 'var(--echo-bright)', border: 'rgba(123,47,255,0.4)' },
-      rare: { label: '희귀', color: 'var(--gold)', border: 'rgba(240,180,41,0.5)' },
-      legendary: { label: '전설', color: '#c084fc', border: 'rgba(192,132,252,0.6)' },
+      common: { label: RARITY_LABELS.common, color: ITEM_SHOP_RARITY_TEXT_COLORS.common, border: ITEM_SHOP_RARITY_BORDER_COLORS.common },
+      uncommon: { label: RARITY_LABELS.uncommon, color: ITEM_SHOP_RARITY_TEXT_COLORS.uncommon, border: ITEM_SHOP_RARITY_BORDER_COLORS.uncommon },
+      rare: { label: RARITY_LABELS.rare, color: ITEM_SHOP_RARITY_TEXT_COLORS.rare, border: ITEM_SHOP_RARITY_BORDER_COLORS.rare },
+      legendary: { label: RARITY_LABELS.legendary, color: ITEM_SHOP_RARITY_TEXT_COLORS.legendary, border: ITEM_SHOP_RARITY_BORDER_COLORS.legendary },
     };
 
     const doc = _getDoc(deps);

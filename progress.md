@@ -526,3 +526,24 @@ Original prompt:
   - `npm test -- tests/story_ui.test.js tests/run_start_ui.test.js tests/title_settings_bindings.test.js` PASS.
   - Playwright skill client run: `node C:/Users/mjuik/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4191 --actions-file C:/Users/mjuik/.codex/skills/develop-web-game/references/action_payloads.json --click-selector #mainStartBtn --iterations 3 --pause-ms 250`
   - Screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`; `errors-*.json` 미생성.
+- Follow-up prompt: 프로젝트 전체 JS 파일 스캔하여 데이터 구조 분석 및 모듈 구조 개선.
+- Data-module refactor (logic -> data) for rarity UI static tables:
+  - Added `data/ui_rarity_styles.js` and moved static rarity style tables from UI logic files:
+    - `HAND_CARD_RARITY_BORDER_COLORS`
+    - `DECK_MODAL_RARITY_BORDER_COLORS`
+    - `COMBAT_INFO_ITEM_RARITY_BORDER_COLORS`
+    - `EVENT_DISCARD_CARD_RARITY_COLORS`
+    - `ITEM_SHOP_RARITY_TEXT_COLORS`
+    - `ITEM_SHOP_RARITY_BORDER_COLORS`
+- Updated imports/usages:
+  - `game/ui/cards/card_ui.js` now imports `HAND_CARD_RARITY_BORDER_COLORS`.
+  - `game/ui/cards/deck_modal_ui.js` now imports `DECK_MODAL_RARITY_BORDER_COLORS`.
+  - `game/ui/combat/combat_info_ui.js` now imports `COMBAT_INFO_ITEM_RARITY_BORDER_COLORS`.
+  - `game/ui/screens/event_ui.js` now imports rarity labels/styles from data modules and removed local rarity color/config tables.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test -- tests/deps_factory.test.js tests/event_manager_item_shop_cache.test.js` PASS.
+  - develop-web-game Playwright client run against `vite preview` (`http://127.0.0.1:4205`); screenshots refreshed at `output/web-game/shot-0.png`, `shot-1.png` and visually inspected.
+  - No new `errors-*.json` emitted.
+- TODO / suggestion:
+  - Status metadata tables (`STATUS_KR`, `ENEMY_STATUS_*`, `STATUS_NAME_MAP`) are still duplicated across UI/log layers; consider a dedicated `data/status_metadata.js` consolidation pass when encoding normalization is scheduled.
