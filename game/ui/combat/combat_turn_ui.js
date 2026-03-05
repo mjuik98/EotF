@@ -205,6 +205,12 @@ export const CombatTurnUI = {
     statusResult.actions.forEach(a => this._dispatchUIAction({ uiAction: a }, deps));
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
+    // 잔영 갑주: 적 공격 후 실제 남은 방어막 기준으로 _preservedShield 재계산
+    // (onTurnEnd에서 적 공격 전에 저장한 값이 적 공격 후 변경된 방어막을 반영하지 않는 버그 수정)
+    if (gs.player.class === 'guardian') {
+      gs.player._preservedShield = gs.player.shield > 0 ? Math.floor(gs.player.shield / 2) : 0;
+    }
+
     TurnManager.startPlayerTurnLogic(gs);
 
     // 에너지 상태 변경(드로우 버튼 활성화 등) 즉시 반영

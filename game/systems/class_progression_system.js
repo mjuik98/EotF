@@ -75,33 +75,33 @@ function buildRunRewards(gs, outcome, options = {}) {
 
   const baseXp = abandoned ? 24 : (isVictory ? 120 : 60);
   rewards.push({
-    label: abandoned ? 'Run Abandoned' : (isVictory ? 'Run Victory' : 'Run Defeat'),
+    label: abandoned ? '런 포기' : (isVictory ? '런 승리' : '런 패배'),
     xp: baseXp,
   });
 
   const floor = Math.max(0, toNonNegativeInt(options.floor, toNonNegativeInt(gs?.currentFloor, 0)));
   const floorBonus = Math.min(80, floor * 8);
-  if (floorBonus > 0) rewards.push({ label: `Floor Bonus (${floor}F)`, xp: floorBonus });
+  if (floorBonus > 0) rewards.push({ label: `층 보너스 (${floor}층)`, xp: floorBonus });
 
   const kills = Math.max(0, toNonNegativeInt(options.kills, toNonNegativeInt(gs?.player?.kills, 0)));
   const killBonus = Math.min(60, kills * 3);
-  if (killBonus > 0) rewards.push({ label: `Kill Bonus (${kills})`, xp: killBonus });
+  if (killBonus > 0) rewards.push({ label: `처치 보너스 (${kills})`, xp: killBonus });
 
   const miniBossCleared = !!(options.miniBossCleared || gs?.combat?.miniBossDefeated);
-  if (miniBossCleared) rewards.push({ label: 'Mini Boss Defeated', xp: 36 });
+  if (miniBossCleared) rewards.push({ label: '미니 보스 처치', xp: 36 });
 
   const bossCleared = isVictory || !!options.bossCleared || !!gs?.combat?.bossDefeated;
-  if (bossCleared) rewards.push({ label: 'Region Boss Defeated', xp: 80 });
+  if (bossCleared) rewards.push({ label: '지역 보스 처치', xp: 80 });
 
   const ascension = toNonNegativeInt(
     options.ascension,
     toNonNegativeInt(gs?.meta?.runConfig?.ascension, 0),
   );
-  if (ascension > 0) rewards.push({ label: `Ascension Bonus (A${ascension})`, xp: Math.min(80, ascension * 8) });
+  if (ascension > 0) rewards.push({ label: `승천 보너스 (승천 ${ascension})`, xp: Math.min(80, ascension * 8) });
 
   const regionCount = Math.max(1, toNonNegativeInt(options.regionCount, 5));
   const cycle = Math.floor(Math.max(0, toNonNegativeInt(gs?.currentRegion, 0)) / regionCount);
-  if (cycle > 0) rewards.push({ label: `Cycle Bonus (Loop ${cycle + 1})`, xp: Math.min(90, cycle * 18) });
+  if (cycle > 0) rewards.push({ label: `사이클 보너스 (루프 ${cycle + 1})`, xp: Math.min(90, cycle * 18) });
 
   return rewards;
 }

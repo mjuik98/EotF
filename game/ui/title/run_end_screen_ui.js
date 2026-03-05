@@ -38,13 +38,13 @@ export class RunEndScreenUI {
     overlay.style.display = 'none';
     overlay.innerHTML = `
       <div class="class-run-end-panel">
-        <div id="classRunEndEyebrow" class="class-run-end-eyebrow">RUN COMPLETE</div>
+        <div id="classRunEndEyebrow" class="class-run-end-eyebrow">런 완료</div>
         <div id="classRunEndTitle" class="class-run-end-title"></div>
         <div class="class-run-end-divider"></div>
-        <div class="class-run-end-label">CLASS MASTERY XP</div>
+        <div class="class-run-end-label">클래스 마스터리 XP</div>
         <div id="classRunEndRows"></div>
         <div class="class-run-end-total">
-          <span>TOTAL XP</span>
+          <span>총 XP</span>
           <span id="classRunEndTotalVal">+0</span>
         </div>
         <div class="class-run-end-bar-wrap">
@@ -56,7 +56,7 @@ export class RunEndScreenUI {
             <div id="classRunEndBarFill" class="class-run-end-bar-fill"></div>
           </div>
         </div>
-        <button id="classRunEndCloseBtn" class="class-run-end-close">CONTINUE</button>
+        <button id="classRunEndCloseBtn" class="class-run-end-close">계속하기</button>
       </div>
     `;
     document.body.appendChild(overlay);
@@ -89,10 +89,10 @@ export class RunEndScreenUI {
     const before = summary?.before || null;
     const after = summary?.after || null;
 
-    this._els.title.textContent = summary?.outcome === 'victory' ? 'VICTORY' : 'DEFEAT';
+    this._els.title.textContent = summary?.outcome === 'victory' ? '승리' : '패배';
     this._els.title.style.color = accent;
     this._els.title.style.textShadow = `0 0 28px ${accent}66`;
-    this._els.eyebrow.textContent = `${classTitle} - RUN SUMMARY`;
+    this._els.eyebrow.textContent = `${classTitle} - 런 요약`;
 
     this._els.rows.innerHTML = rewards.map((row, idx) => `
       <div class="class-run-end-row">
