@@ -14,6 +14,7 @@ export const REGIONS = [
         floors: 7,
         enemies: ['slime', 'goblin', 'orc', 'fallen_knight', 'shadow_wolf', 'forest_wraith', 'moss_golem', 'echo_bat', 'verdant_slayer', 'thistle_back'],
         elites: ['elite_dire_wolf', 'elite_ancient_tree', 'elite_moss_monarch'],
+        miniBoss: ['grove_behemoth'],
         boss: ['ancient_echo', 'forest_guardian'],
     },
     {
@@ -25,6 +26,7 @@ export const REGIONS = [
         floors: 7,
         enemies: ['silent_sentinel', 'noise_wraith', 'iron_automaton', 'rust_stalker', 'brass_guardian', 'silent_shade'],
         elites: ['elite_silence_herald', 'elite_gear_titan', 'elite_echo_judge'],
+        miniBoss: ['hush_enforcer'],
         boss: ['silent_tyrant', 'clockwork_emperor'],
     },
     {
@@ -36,6 +38,7 @@ export const REGIONS = [
         floors: 7,
         enemies: ['memory_specter', 'nightmare_hound', 'phantom_soldier', 'memory_thief', 'mirror_shade', 'labyrinth_shade', 'nightmare_specter'],
         elites: ['elite_memory_lich', 'elite_maze_master', 'elite_soul_reaper'],
+        miniBoss: ['labyrinth_heart'],
         boss: ['memory_sovereign', 'memory_weaver'],
     },
     {
@@ -47,6 +50,7 @@ export const REGIONS = [
         floors: 7,
         enemies: ['divine_remnant', 'cursed_paladin', 'tomb_guardian', 'holy_specter', 'holy_guardian', 'divine_servant'],
         elites: ['elite_fallen_deity', 'elite_grave_lord', 'elite_judgement_hand'],
+        miniBoss: ['sepulcher_arbiter'],
         boss: ['divine_tyrant', 'grave_executor'],
     },
     {
@@ -58,6 +62,7 @@ export const REGIONS = [
         floors: 7,
         enemies: ['echo_devourer', 'void_remnant', 'void_eye_enemy', 'void_walker', 'reality_shredder', 'void_core_fragment'],
         elites: ['elite_echo_colossus', 'elite_origin_guard', 'elite_void_templar'],
+        miniBoss: ['rift_collector'],
         boss: ['void_herald', 'echo_origin'],
     },
     {

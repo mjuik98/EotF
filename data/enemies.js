@@ -120,6 +120,7 @@ export const ENEMIES = {
   elite_dire_wolf: makeEliteEnemy({ id: 'elite_dire_wolf', name: '【정예】다이어 울프', icon: '🐾', hp: 80, atk: 12, region: 0, xp: 50, gold: 30 }),
   elite_ancient_tree: makeEliteEnemy({ id: 'elite_ancient_tree', name: '【정예】고목 수호자', icon: '🌳', hp: 110, atk: 11, region: 0, xp: 75, gold: 40 }),
   elite_moss_monarch: makeEliteEnemy({ id: 'elite_moss_monarch', name: '【정예】이끼 군주', icon: '👑', hp: 90, atk: 12, region: 0, xp: 70, gold: 40 }),
+  grove_behemoth: makeMiniBossEnemy({ id: 'grove_behemoth', name: '숲의 거수', icon: '🦬', hp: 130, atk: 13, region: 0, xp: 95, gold: 50, maxPhase: 2, specialEffect: 'self_shield', specialBonus: 8 }),
   ancient_echo: makeBossEnemy({ id: 'ancient_echo', name: '태고의 잔향', icon: '🌑', hp: 145, atk: 16, region: 0, xp: 120, gold: 50, maxPhase: 2, specialEffect: 'drain_echo' }),
   forest_guardian: makeBossEnemy({ id: 'forest_guardian', name: '숲의 수호자', icon: '🛡️', hp: 160, atk: 14, region: 0, xp: 140, gold: 60, maxPhase: 2, specialEffect: 'heal_12' }),
 
@@ -133,6 +134,7 @@ export const ENEMIES = {
   elite_silence_herald: makeEliteEnemy({ id: 'elite_silence_herald', name: '【정예】침묵 사도', icon: '🗿', hp: 95, atk: 16, region: 1, xp: 70, gold: 38 }),
   elite_gear_titan: makeEliteEnemy({ id: 'elite_gear_titan', name: '【정예】톱니 타이탄', icon: '⚙️', hp: 120, atk: 15, region: 1, xp: 80, gold: 45 }),
   elite_echo_judge: makeEliteEnemy({ id: 'elite_echo_judge', name: '【정예】잔향 심판관', icon: '⚖️', hp: 100, atk: 14, region: 1, xp: 75, gold: 40 }),
+  hush_enforcer: makeMiniBossEnemy({ id: 'hush_enforcer', name: '정적 집행자', icon: '🔕', hp: 165, atk: 16, region: 1, xp: 112, gold: 60, maxPhase: 2, specialEffect: 'add_noise', specialBonus: 9 }),
   silent_tyrant: makeBossEnemy({ id: 'silent_tyrant', name: '침묵의 폭군', icon: '🗣️', hp: 200, atk: 17, region: 1, xp: 130, gold: 55, maxPhase: 2, specialEffect: 'add_noise' }),
   clockwork_emperor: makeBossEnemy({ id: 'clockwork_emperor', name: '태엽 황제', icon: '⚙️', hp: 220, atk: 18, region: 1, xp: 150, gold: 70, maxPhase: 2, specialEffect: 'heal_15' }),
 
@@ -147,6 +149,7 @@ export const ENEMIES = {
   elite_memory_lich: makeEliteEnemy({ id: 'elite_memory_lich', name: '【정예】기억 리치', icon: '💀', hp: 100, atk: 15, region: 2, xp: 72, gold: 42 }),
   elite_maze_master: makeEliteEnemy({ id: 'elite_maze_master', name: '【정예】미궁 주권자', icon: '🌀', hp: 115, atk: 17, region: 2, xp: 85, gold: 50 }),
   elite_soul_reaper: makeEliteEnemy({ id: 'elite_soul_reaper', name: '【정예】영혼 수확자', icon: '⚔️', hp: 110, atk: 18, region: 2, xp: 90, gold: 55 }),
+  labyrinth_heart: makeMiniBossEnemy({ id: 'labyrinth_heart', name: '미궁의 심장', icon: '🧿', hp: 175, atk: 17, region: 2, xp: 124, gold: 66, maxPhase: 2, specialEffect: 'exhaust_card', specialBonus: 10 }),
   memory_sovereign: makeBossEnemy({ id: 'memory_sovereign', name: '기억의 군주', icon: '👑', hp: 220, atk: 18, region: 2, xp: 150, gold: 70, maxPhase: 3, specialEffect: 'drain_echo' }),
   memory_weaver: makeBossEnemy({ id: 'memory_weaver', name: '기억의 직조자', icon: '🕸️', hp: 190, atk: 16, region: 2, xp: 140, gold: 65, maxPhase: 2, specialEffect: 'exhaust_card' }),
 
@@ -160,6 +163,7 @@ export const ENEMIES = {
   elite_fallen_deity: makeEliteEnemy({ id: 'elite_fallen_deity', name: '【정예】타락천사', icon: '👼', hp: 130, atk: 18, region: 3, xp: 90, gold: 55 }),
   elite_grave_lord: makeEliteEnemy({ id: 'elite_grave_lord', name: '【정예】무덤 군주', icon: '☠️', hp: 140, atk: 20, region: 3, xp: 100, gold: 60 }),
   elite_judgement_hand: makeEliteEnemy({ id: 'elite_judgement_hand', name: '【정예】심판의 손', icon: '🖐️', hp: 135, atk: 21, region: 3, xp: 95, gold: 58 }),
+  sepulcher_arbiter: makeMiniBossEnemy({ id: 'sepulcher_arbiter', name: '묘지 중재자', icon: '⚱️', hp: 205, atk: 19, region: 3, xp: 145, gold: 74, maxPhase: 2, specialEffect: 'drain_energy', specialBonus: 11 }),
   divine_tyrant: makeBossEnemy({ id: 'divine_tyrant', name: '신의 심판관', icon: '⚖️', hp: 240, atk: 19, region: 3, xp: 160, gold: 75, maxPhase: 3, specialEffect: 'mass_debuff' }),
   grave_executor: makeBossEnemy({ id: 'grave_executor', name: '무덤의 집행자', icon: '🪓', hp: 210, atk: 19, region: 3, xp: 155, gold: 72, maxPhase: 2, specialEffect: 'lifesteal' }),
 
@@ -173,6 +177,7 @@ export const ENEMIES = {
   elite_echo_colossus: makeEliteEnemy({ id: 'elite_echo_colossus', name: '【정예】잔향 거신', icon: '🌟', hp: 135, atk: 20, region: 4, xp: 120, gold: 70 }),
   elite_origin_guard: makeEliteEnemy({ id: 'elite_origin_guard', name: '【정예】근원 수호자', icon: '🛡️', hp: 160, atk: 20, region: 4, xp: 140, gold: 80 }),
   elite_void_templar: makeEliteEnemy({ id: 'elite_void_templar', name: '【정예】허공 기사', icon: '⚔️', hp: 155, atk: 19, region: 4, xp: 130, gold: 75 }),
+  rift_collector: makeMiniBossEnemy({ id: 'rift_collector', name: '균열 수집자', icon: '🌀', hp: 245, atk: 20, region: 4, xp: 172, gold: 90, maxPhase: 3, specialEffect: 'drain_echo', specialBonus: 12 }),
   void_herald: makeBossEnemy({ id: 'void_herald', name: '허공의 사도', icon: '🌌', hp: 280, atk: 20, region: 4, xp: 200, gold: 100, maxPhase: 2, specialEffect: 'drain_echo' }),
   echo_origin: makeBossEnemy({ id: 'echo_origin', name: '잔향의 근원', icon: '🌟', hp: 320, atk: 22, region: 4, xp: 300, gold: 150, isHidden: true, maxPhase: 3, specialEffect: 'nullify_echo' }),
 
