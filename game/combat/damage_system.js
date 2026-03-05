@@ -61,67 +61,78 @@ export const DamageSystem = {
     },
 
     dealDamage(amount, targetIdx = null, noChain = false, source = null, deps = {}) {
-        const doc = _getDoc(deps);
         const win = _getWin(deps);
+        const enemies = Array.isArray(this.combat?.enemies) ? this.combat.enemies : [];
+        const getBuff = (id) => {
+            if (typeof this.getBuff === 'function') return this.getBuff(id);
+            return this.player?.buffs?.[id] || null;
+        };
+        const triggerItem = (trigger, payload) => (
+            typeof this.triggerItems === 'function' ? this.triggerItems(trigger, payload) : undefined
+        );
 
         Logger.debug('[dealDamage] Called with targetIdx:', targetIdx, '_selectedTarget:', this._selectedTarget);
-        Logger.debug('[dealDamage] Enemies:', this.combat.enemies.map(function (enemy) {
+        Logger.debug('[dealDamage] Enemies:', enemies.map(function (enemy) {
             return { name: enemy.name, hp: enemy.hp };
         }));
+        if (enemies.length === 0) return 0;
 
         if (targetIdx === null) {
             const sel = this._selectedTarget;
-            if (sel !== null && sel !== undefined && this.combat.enemies[sel]?.hp > 0) {
+            if (sel !== null && sel !== undefined && enemies[sel]?.hp > 0) {
                 targetIdx = sel;
                 Logger.debug('[dealDamage] Using _selectedTarget:', targetIdx);
             } else {
-                targetIdx = this.combat.enemies.findIndex(e => e.hp > 0);
+                targetIdx = enemies.findIndex(e => e.hp > 0);
                 Logger.debug('[dealDamage] Using first alive enemy:', targetIdx);
                 if (targetIdx < 0) return 0;
             }
         }
-        const enemy = this.combat.enemies[targetIdx];
+        const enemy = enemies[targetIdx];
         if (!enemy || enemy.hp <= 0) return 0;
 
         let dmg = amount;
-        const res = this.getBuff('resonance');
+        const res = getBuff('resonance');
         if (res) dmg += res.dmgBonus || 0;
-        const accel = this.getBuff('acceleration');
+        const accel = getBuff('acceleration');
         if (accel) dmg += accel.dmgBonus || 0;
-        const sha = this.getBuff('shadow_atk');
-        if (sha) { dmg += sha.dmgBonus || 0; delete this.player.buffs['shadow_atk']; }
-        const berserk = this.getBuff('berserk_mode');
+        const sha = getBuff('shadow_atk');
+        if (sha) {
+            dmg += sha.dmgBonus || 0;
+            if (this.player?.buffs) delete this.player.buffs['shadow_atk'];
+        }
+        const berserk = getBuff('berserk_mode');
         if (berserk) dmg += berserk.atkGrowth || 0;
-        const berserkPlus = this.getBuff('berserk_mode_plus');
+        const berserkPlus = getBuff('berserk_mode_plus');
         if (berserkPlus) dmg += berserkPlus.atkGrowth || 0;
-        const echoBerserk = this.getBuff('echo_berserk');
+        const echoBerserk = getBuff('echo_berserk');
         if (echoBerserk) dmg += echoBerserk.atkGrowth || 0;
-        if (this.getBuff('vanish') || this.getBuff('focus') || this.getBuff('critical_turn')) {
+        if (getBuff('vanish') || getBuff('focus') || getBuff('critical_turn')) {
             dmg = Math.floor(dmg * 2);
-            if (!this.getBuff('critical_turn')) {
+            if (!getBuff('critical_turn') && this.player?.buffs) {
                 delete this.player.buffs['vanish'];
                 delete this.player.buffs['focus'];
             }
         }
         if (enemy.statusEffects?.immune > 0) {
-            this.addLog(LogUtils.formatEcho(`🏛️ ${enemy.name}은(는) 무적 상태!`), 'echo');
+            this.addLog(LogUtils.formatEcho(`${enemy.name} immune`), 'echo');
             return 0;
         }
         if (enemy.statusEffects?.dodge > 0) {
-            this.addLog(LogUtils.formatSystem(`💨 ${enemy.name}이(가) 공격을 강회피했습니다!`), 'system');
+            this.addLog(LogUtils.formatSystem(`${enemy.name} dodge`), 'system');
 
-            // 후속 상태이상(기절, 독 등)도 함께 무효화시키기 위한 플래그
+            // Keep track so immediate follow-up status effects are skipped as well.
             this._lastDodgedTarget = targetIdx;
 
             enemy.statusEffects.dodge--;
             if (enemy.statusEffects.dodge <= 0) delete enemy.statusEffects.dodge;
             return 0;
         }
-        if ((this.getBuff('weakened')?.stacks || 0) > 0) {
+        if ((getBuff('weakened')?.stacks || 0) > 0) {
             dmg = Math.max(0, Math.floor(dmg * 0.5));
         }
 
-        const itemScaled = this.triggerItems('deal_damage', dmg);
+        const itemScaled = triggerItem('deal_damage', dmg);
         if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
             dmg = Math.max(0, Math.floor(itemScaled));
         }
@@ -135,23 +146,76 @@ export const DamageSystem = {
         dmg += chainBonus;
 
         if (this.player.echoChain > 0) {
-            const chainScaled = this.triggerItems('chain_dmg', dmg);
+            const chainScaled = triggerItem('chain_dmg', dmg);
             if (typeof chainScaled === 'number' && Number.isFinite(chainScaled)) {
                 dmg = Math.max(0, Math.floor(chainScaled));
             }
         }
 
-        const prevHp = enemy.hp;
+        const prevHp = Number(enemy.hp || 0);
+        const prevShield = Number(enemy.shield || 0);
+        const prevDamageDealt = Number(this.stats?.damageDealt || 0);
         const isCrit = (dmg > prevHp * 0.3) || (typeof this.getBuff === 'function' && this._lastCrit);
 
-        // 상태값 변경 및 EventBus 이벤트 발생(이펙트/UI 갱신 트리거)
-        const result = this.dispatch(Actions.ENEMY_DAMAGE, { amount: dmg, targetIdx, isCrit });
+        const buildObservedResult = () => {
+            const hpAfter = Number(enemy.hp || 0);
+            const shieldAfter = Number(enemy.shield || 0);
+            const shieldAbsorbed = Math.max(0, prevShield - shieldAfter);
+            const actualDamage = Math.max(0, prevHp - hpAfter);
+            return {
+                shieldAbsorbed,
+                actualDamage,
+                totalDamage: shieldAbsorbed + actualDamage,
+                hpAfter,
+                isDead: hpAfter <= 0,
+                targetIdx,
+            };
+        };
 
-        // 가시 반격 처리
+        const applyFallbackDamage = () => {
+            let remaining = Math.max(0, Math.floor(dmg));
+            if (prevShield > 0) {
+                const absorbed = Math.min(prevShield, remaining);
+                enemy.shield = Math.max(0, prevShield - absorbed);
+                remaining -= absorbed;
+            }
+            enemy.hp = Math.max(0, prevHp - remaining);
+            const actualDamage = Math.max(0, prevHp - enemy.hp);
+            if (this.stats) {
+                this.stats.damageDealt = Math.max(0, Number(this.stats.damageDealt || 0)) + actualDamage;
+            }
+            return {
+                shieldAbsorbed: Math.max(0, prevShield - Number(enemy.shield || 0)),
+                actualDamage,
+                totalDamage: Math.max(0, Math.floor(dmg)),
+                hpAfter: enemy.hp,
+                isDead: enemy.hp <= 0,
+                targetIdx,
+            };
+        };
+
+        let result = null;
+        if (typeof this.dispatch === 'function') {
+            try {
+                result = this.dispatch(Actions.ENEMY_DAMAGE, { amount: dmg, targetIdx, isCrit });
+            } catch (dispatchErr) {
+                Logger.warn('[dealDamage] ENEMY_DAMAGE dispatch failed; applying fallback mutation.', dispatchErr);
+            }
+        }
+        const hasDispatchMutation = (
+            Number(enemy.hp || 0) !== prevHp
+            || Number(enemy.shield || 0) !== prevShield
+            || Number(this.stats?.damageDealt || 0) !== prevDamageDealt
+        );
+        if (!result || typeof result !== 'object' || !Number.isFinite(result.actualDamage)) {
+            result = hasDispatchMutation ? buildObservedResult() : applyFallbackDamage();
+        }
+
+        // Thorn retaliation
         if (enemy.statusEffects?.thorns > 0) {
             const thornsAmt = enemy.statusEffects.thorns;
-            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack(enemy.name, '플레이어', thornsAmt), 'damage');
-            this.takeDamage(thornsAmt, deps);
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack(enemy.name, 'player', thornsAmt), 'damage');
+            this.takeDamage?.(thornsAmt, { name: enemy.name, type: 'enemy' }, deps);
         }
 
         if (!noChain) {
@@ -160,8 +224,6 @@ export const DamageSystem = {
             this.triggerItems?.('chain_gain', { chain: this.player.echoChain });
             if (prevChain < 5 && this.player.echoChain >= 5) this.triggerItems?.('chain_reach_5', { chain: this.player.echoChain });
             this.addEcho(10);
-            const win = _getWin(deps);
-            // 전투 라이프사이클을 통해 UI와 버스트 로직(5돌파) 트리거
             const updateChainDisplay = deps.updateChainDisplay
                 || this.updateChainDisplay
                 || win.updateChainDisplay
@@ -173,13 +235,11 @@ export const DamageSystem = {
                 if (typeof updateChainUI === 'function') updateChainUI(this.player.echoChain);
             }
         } else if (enemy.hp <= 0 && this._echoAddedThisAction === false) {
-            // 적을 처치했다면, 다단 히트 카드의 중간 타격이라도 잔향은 채워준다 (아직 안 채워졌을 때만)
             this.addEcho(10);
         }
 
         const totalDmg = result?.totalDamage ?? dmg;
 
-        // 클래스 특성 데미지 훅 (예: 침묵사냥꾼 타격 수 트래킹, 광전사 추가 성장 등)
         const classMechanics = deps.classMechanics || win.ClassMechanics || win.GAME?.Modules?.['ClassMechanics'];
         const classMech = classMechanics?.[this.player.class];
         if (classMech && typeof classMech.onDealDamage === 'function') {
@@ -188,33 +248,31 @@ export const DamageSystem = {
 
         if (typeof this.addLog === 'function') {
             if (source && source.name) {
-                // 원천(Source) 정보가 있는 경우 통합 로깅
-                const icon = source.type === 'trait' ? '✨' : (source.type === 'item' ? '💍' : '⚔️');
-                this.addLog(`${icon} [${source.name}] → ${enemy.name}: ${totalDmg} 피해`, 'damage');
+                const icon = source.type === 'trait' ? '[trait]' : (source.type === 'item' ? '[item]' : '[hit]');
+                this.addLog(`${icon} [${source.name}] -> ${enemy.name}: ${totalDmg} dmg`, 'damage');
             } else {
                 const _card = this._currentCard;
                 if (_card) {
-                    const isCrit = !!(this.getBuff('vanish') || this.getBuff('focus') || this.getBuff('critical_turn')) || result?.isCrit;
+                    const isCrit = !!(getBuff('vanish') || getBuff('focus') || getBuff('critical_turn')) || result?.isCrit;
                     if (isCrit) {
                         this.addLog(LogUtils.formatCardCritical(_card.name, enemy.name, totalDmg), 'card-log');
                     } else {
                         this.addLog(LogUtils.formatCardAttack(_card.name, enemy.name, totalDmg), 'card-log');
                     }
                 } else {
-                    this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
+                    this.addLog(LogUtils.formatAttack('player', enemy.name, totalDmg), 'damage');
                 }
             }
         }
 
-        // 흡혈 처리
-        const ls = this.getBuff('lifesteal');
+        const ls = getBuff('lifesteal');
         if (ls && ls.percent && totalDmg > 0) {
             const healAmt = Math.floor(totalDmg * (ls.percent / 100));
             if (healAmt > 0) {
-                this.heal(healAmt, { name: '흡혈', type: 'buff' });
+                this.heal(healAmt, { name: 'lifesteal', type: 'buff' });
             }
         }
-        this.markDirty('enemies');
+        this.markDirty?.('enemies');
 
         if (typeof deps?.updateStatusDisplay === 'function') {
             deps.updateStatusDisplay();
@@ -226,7 +284,6 @@ export const DamageSystem = {
 
         return result?.actualDamage ?? dmg;
     },
-
     dealDamageAll(amount, noChain = false, deps = {}) {
         const alive = this.combat.enemies.map((_, i) => i).filter(i => this.combat.enemies[i].hp > 0);
         alive.forEach((i, idx) => {

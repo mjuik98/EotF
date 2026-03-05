@@ -314,13 +314,18 @@ export const TurnManager = {
                 continue;
             }
 
-            if (gs.player.buffs?.mirror) {
+            const mirrorBuff = gs.player.buffs?.mirror;
+            const spikeShieldBuff = gs.player.buffs?.spike_shield;
+            if (mirrorBuff || spikeShieldBuff) {
                 const hpBefore = enemy.hp;
                 enemy.hp = Math.max(0, enemy.hp - dmg);
                 const dealt = Math.max(0, hpBefore - enemy.hp);
                 if (dealt > 0 && gs.stats) gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
                 gs.addLog?.(LogUtils.formatAttack('반사막', enemy.name, dmg), 'echo');
-                delete gs.player.buffs.mirror;
+                if (mirrorBuff) {
+                    if (Number.isFinite(mirrorBuff.stacks) && mirrorBuff.stacks > 1) mirrorBuff.stacks--;
+                    else delete gs.player.buffs.mirror;
+                }
                 reflected = true;
                 if (enemy.hp <= 0) {
                     gs.onEnemyDeath?.(enemy, index);
