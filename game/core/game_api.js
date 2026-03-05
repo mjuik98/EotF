@@ -102,8 +102,8 @@ export const GameAPI = {
         }
 
         if (combatRegionId === 5 && gs.combat?.active) {
-            if (typeof gs.addTimeRift === 'function' && result?.drawn > 0) {
-                gs.addTimeRift(result.drawn, '시간의 균열', globalThis.GAME?.getDeps?.() || {});
+            if (typeof gs.addTimeRift === 'function' && result?.attempts > 0) {
+                gs.addTimeRift(result.attempts, '시간의 균열', globalThis.GAME?.getDeps?.() || {});
             }
         }
     },

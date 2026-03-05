@@ -218,7 +218,7 @@ export const DamageSystem = {
         // Thorn retaliation
         if (enemy.statusEffects?.thorns > 0) {
             const thornsAmt = enemy.statusEffects.thorns;
-            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack(enemy.name, 'player', thornsAmt), 'damage');
+            if (typeof this.addLog === 'function') this.addLog(LogUtils.formatAttack(enemy.name, '플레이어', thornsAmt), 'damage');
             this.takeDamage?.(thornsAmt, { name: enemy.name, type: 'enemy' }, deps);
         }
 
@@ -264,7 +264,7 @@ export const DamageSystem = {
                         this.addLog(LogUtils.formatCardAttack(_card.name, enemy.name, totalDmg), 'card-log');
                     }
                 } else {
-                    this.addLog(LogUtils.formatAttack('player', enemy.name, totalDmg), 'damage');
+                    this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDmg), 'damage');
                 }
             }
         }

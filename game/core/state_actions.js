@@ -215,11 +215,13 @@ export const Reducers = {
     },
 
     [Actions.CARD_DRAW](gs, { count }) {
-        let drewCards = false;
+        let drewCards = 0;
+        let attempts = 0;
         const previousHandLength = gs.player.hand.length;
         const handCap = Math.max(1, 8 - Math.max(0, Number(gs.player._handCapMinus || 0)));
 
         for (let i = 0; i < count; i++) {
+            // 1. 덱/무덤 확인 및 셔플
             if (!gs.player.drawPile || gs.player.drawPile.length === 0) {
                 if (!gs.player.graveyard || gs.player.graveyard.length === 0) break;
 
@@ -235,24 +237,30 @@ export const Reducers = {
                     gs.addLog('🌀 버린 카드 더미를 뽑기 더미로 섞었습니다.', 'system');
                 }
             }
-            if (gs.player.hand.length < handCap) {
-                const cardId = gs.player.drawPile.pop();
-                gs.player.hand.push(cardId);
-                drewCards = true;
 
-                if (typeof gs.triggerItems === 'function') {
-                    gs.triggerItems('card_draw', { cardId });
+            // 2. 드로우 시도 가능 여부 (덱에 카드가 있음)
+            if (gs.player.drawPile.length > 0) {
+                attempts++;
+
+                // 3. 실제 드로우 (손패 여유가 있음)
+                if (gs.player.hand.length < handCap) {
+                    const cardId = gs.player.drawPile.pop();
+                    gs.player.hand.push(cardId);
+                    drewCards++;
+
+                    if (typeof gs.triggerItems === 'function') {
+                        gs.triggerItems('card_draw', { cardId });
+                    }
                 }
             }
         }
 
-        if (drewCards) {
+        if (drewCards > 0) {
             gs.markDirty('hand');
             gs.markDirty('hud');
         }
 
-        const drawn = gs.player.hand.length - previousHandLength;
-        return { drewCards: drawn, drawn };
+        return { drewCards, drawn: drewCards, attempts };
     },
 
     [Actions.ENEMY_DAMAGE](gs, { amount, targetIdx }) {

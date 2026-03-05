@@ -46,6 +46,12 @@ export const DescriptionUtils = {
             });
         }
 
+        // 세트 아이템 태그 처리 [세트:이름]
+        protect(/\[세트:[^\]\n]+\]/g, (m) => {
+            const setName = m.replace(/^\[세트:|\s*\]$/g, '');
+            return `<div class="kw-special kw-block" style="border: 1px solid var(--gold); background: rgba(240,180,41,0.05); color: var(--gold); font-size: 9px; padding: 4px 8px; border-radius: 4px; margin-top: 8px; display: inline-block; font-weight: 600; font-family: 'Cinzel', serif;">◈ 세트: ${setName}</div>`;
+        });
+
         // 대괄호/겹괄호 블록 키워드
         const bracketKeywordClassMap = {
             소진: 'kw-exhaust',
@@ -169,16 +175,15 @@ export const DescriptionUtils = {
             `<span class="kw-special kw-trigger">${m}</span>`
         );
 
-        // 세트 아이템 태그 처리 [세트:이름]
-        protect(/\[세트:[^\]\n]+\]/g, (m) => {
-            const setName = m.replace(/^\[세트:|\s*\]$/g, '');
-            return `<div class="kw-special kw-block" style="border: 1px solid var(--gold); background: rgba(240,180,41,0.05); color: var(--gold); font-size: 9px; padding: 4px 8px; border-radius: 4px; margin-top: 8px; display: inline-block; font-weight: 600; font-family: 'Cinzel', serif;">◈ 세트: ${setName}</div>`;
-        });
 
         // ── 플레이스홀더 복원 ─────────────────────────────────────
-        placeholders.forEach((val, i) => {
-            ph = ph.replace(`__PH${i}__`, val);
-        });
+        // 역순으로 복원해야 중첩된 플레이스홀더가 정상적으로 치환됩니다.
+        for (let i = placeholders.length - 1; i >= 0; i--) {
+            // 정규 표현식을 사용하거나, 검색 문자열 자체에 $ 등이 포함될 수 있으므로
+            // 안전하게 함수를 전달하여 치환한다.
+            ph = ph.split(`__PH${i}__`).join(placeholders[i]);
+            // 또는: ph = ph.replace(new RegExp(`__PH${i}__`, 'g'), () => placeholders[i]);
+        }
 
         // 설명 문자열 개행을 실제 줄바꿈으로 렌더링한다.
         ph = ph.replace(/\r?\n/g, '<br>');

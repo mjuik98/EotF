@@ -119,11 +119,11 @@ export const CARDS = {
 
     // ── [2.1] 희귀 및 특수 카드 (Rare & Special) ──
     echo_burst: {
-        id: 'echo_burst', name: '잔향 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '【즉시】 잔향 폭발 발동.', rarity: 'rare',
+        id: 'echo_burst', name: '공명 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '【즉시】 공명 폭발 발동.', rarity: 'rare',
         effect(gs) { gs.triggerResonanceBurst(); }
     },
     echo_burst_plus: {
-        id: 'echo_burst_plus', name: '잔향 폭발+', icon: '🌟', cost: 2, type: 'POWER', desc: '【즉시】 잔향 폭발 발동.', rarity: 'rare', upgraded: true,
+        id: 'echo_burst_plus', name: '공명 폭발+', icon: '🌟', cost: 2, type: 'POWER', desc: '【즉시】 공명 폭발 발동.', rarity: 'rare', upgraded: true,
         effect(gs) { gs.triggerResonanceBurst(); }
     },
     void_blade: {

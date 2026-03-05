@@ -124,10 +124,10 @@ export const CombatLifecycle = {
         const AudioEngine = deps.audioEngine || win.AudioEngine;
         if (chain > 0) AudioEngine?.playChain?.(chain);
         // 5연쇄 이상일 때 공명 폭발 발동 (하지만 체인은 초기화하지 않음)
-        if (chain >= 5) {
+        if (chain >= 5 && chain % 5 === 0) {
             // 처음 5연쇄 도달 시에만 알림 표시 (선택적)
             if (chain === 5 && typeof win.showChainAnnounce === 'function') {
-                win.showChainAnnounce('RESONANCE MODE!!');
+                win.showChainAnnounce('RESONANCE BURST!!');
             }
             this.triggerResonanceBurst(deps, { isPassive: true });
         }
@@ -155,7 +155,7 @@ export const CombatLifecycle = {
             ScreenShake?.shake?.(15, 0.8);
         }
 
-        let burstDmg = isPassive ? 5 : 0;
+        let burstDmg = isPassive ? (this.player.echoChain || 0) : 0;
         if (!isPassive) return; // 기존의 강력한 고정 데미지 폭발은 제거함.
 
         const burstMod = this.triggerItems('resonance_burst', burstDmg);
