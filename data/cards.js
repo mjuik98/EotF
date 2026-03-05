@@ -127,12 +127,12 @@ export const CARDS = {
         effect(gs) { gs.triggerResonanceBurst(); }
     },
     void_blade: {
-        id: 'void_blade', name: '공허의 도검', icon: '🌀', cost: 2, type: 'ATTACK', desc: '피해 30. 【소진】', rarity: 'rare', exhaust: true,
+        id: 'void_blade', name: '공허의 도검', icon: '🌀', cost: 1, type: 'ATTACK', desc: '피해 30. 【소진】', rarity: 'rare', exhaust: true,
         effect(gs) { gs.dealDamage(30); }
     },
     void_blade_plus: {
-        id: 'void_blade_plus', name: '공허의 도검+', icon: '🌀', cost: 2, type: 'ATTACK', desc: '피해 40. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
-        effect(gs) { gs.dealDamage(40); }
+        id: 'void_blade_plus', name: '공허의 도검+', icon: '🌀', cost: 1, type: 'ATTACK', desc: '피해 40. 잔향 20 충전. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
+        effect(gs) { gs.dealDamage(40); gs.addEcho(20); }
     },
     soul_armor: {
         id: 'soul_armor', name: '영혼 방어구', icon: '💠', cost: 2, type: 'SKILL', desc: '방어막 15. (3턴 동안 매 턴: 잔향 10 충전.)', rarity: 'rare',
@@ -601,11 +601,11 @@ export const CARDS = {
         effect(gs) { gs.addBuff('lifesteal', 3, { percent: 40 }); gs.addLog(LogUtils.formatCardBuff('흡혈+', '피해량 40% 회복'), 'buff'); }
     },
     spike_shield: {
-        id: 'spike_shield', name: '가시 방패', icon: '🦔', cost: 2, type: 'SKILL', desc: '이번 턴 동안 적의 공격을 반사하고 피해를 받지 않습니다.', rarity: 'rare',
+        id: 'spike_shield', name: '가시 방패', icon: '🦔', cost: 2, type: 'SKILL', desc: '이번 턴 동안 적의 공격을 반사하고 피해를 받지 않습니다. [소진].', rarity: 'rare', exhaust: true,
         effect(gs) { gs.addBuff('spike_shield', 1, {}); gs.addLog(LogUtils.formatCardBuff('가시 방패', '피해 반사'), 'buff'); }
     },
     spike_shield_plus: {
-        id: 'spike_shield_plus', name: '가시 방패+', icon: '🦔', cost: 1, type: 'SKILL', desc: '이번 턴 동안 적의 공격을 반사하고 피해를 받지 않습니다.', rarity: 'rare', upgraded: true,
+        id: 'spike_shield_plus', name: '가시 방패+', icon: '🦔', cost: 1, type: 'SKILL', desc: '이번 턴 동안 적의 공격을 반사하고 피해를 받지 않습니다. [소진].', rarity: 'rare', upgraded: true, exhaust: true,
         effect(gs) { gs.addBuff('spike_shield', 1, {}); gs.addLog(LogUtils.formatCardBuff('가시 방패+', '피해 반사'), 'buff'); }
     },
 

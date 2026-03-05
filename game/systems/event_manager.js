@@ -92,8 +92,6 @@ export const EventManager = {
     const costPotion = runRules.getShopCost(gs, savedMerchant ? 8 : 12);
     const costCard = runRules.getShopCost(gs, 15);
     const costUpgrade = runRules.getShopCost(gs, 20);
-    const costEnergy = runRules.getShopCost(gs, 30);
-    const maxEnergyCap = _getMaxEnergyCap(gs);
 
     return {
       id: 'shop',
@@ -118,13 +116,6 @@ export const EventManager = {
           text: `✨ 무작위 카드 강화 - ${costUpgrade} 골드`,
           cssClass: 'shop-choice-upgrade',
           effect: (state) => this._shopUpgradeCard(state, data, costUpgrade),
-        },
-        {
-          text: `⚡ 최대 에너지 +1 - ${costEnergy} 골드`,
-          cssClass: 'shop-choice-energy',
-          isDisabled: (state) => (state?.player?.maxEnergy || 0) >= maxEnergyCap,
-          disabledReason: `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`,
-          effect: (state) => this._shopBuyEnergy(state, costEnergy),
         },
         {
           text: '🛍️ 유물 상점 열기',

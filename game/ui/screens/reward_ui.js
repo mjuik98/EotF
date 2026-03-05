@@ -218,16 +218,21 @@ function _renderBlessingOption(container, blessing, deps, onPick, idx) {
   const wrapper = doc.createElement('button');
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
+  wrapper.classList.add('reward-blessing-option');
+  if (blessing.type) wrapper.classList.add(`reward-blessing-${blessing.type}`);
   wrapper.style.animationDelay = `${idx * 0.08}s`;
   wrapper.setAttribute('aria-label', `${blessing.name} 축복 선택`);
   if (isDisabled) {
     wrapper.disabled = true;
     wrapper.setAttribute('aria-disabled', 'true');
+    wrapper.classList.add('is-disabled');
+    if (blessing.type === 'energy') wrapper.classList.add('reward-permanent-energy-disabled');
     if (blessing.disabledReason) wrapper.title = blessing.disabledReason;
   }
 
   const cardEl = doc.createElement('div');
   cardEl.className = 'card rarity-rare'; // 축복은 희귀 등급 스타일 적용
+  cardEl.classList.add('reward-blessing-card');
   cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;border-color:var(--glow);box-shadow: 0 0 15px var(--glow);';
 
   const icon = doc.createElement('div');
@@ -248,6 +253,21 @@ function _renderBlessingOption(container, blessing, deps, onPick, idx) {
   type.textContent = '축복';
 
   cardEl.append(icon, name, desc, type);
+  if (isDisabled && blessing.type === 'energy') {
+    const overlay = doc.createElement('div');
+    overlay.className = 'reward-disabled-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+
+    const badge = doc.createElement('div');
+    badge.className = 'reward-disabled-state-badge';
+    badge.textContent = '최대치 도달';
+
+    const reason = doc.createElement('div');
+    reason.className = 'reward-disabled-reason';
+    reason.textContent = blessing.disabledReason || '선택할 수 없습니다.';
+
+    cardEl.append(overlay, badge, reason);
+  }
   wrapper.appendChild(cardEl);
   if (!isDisabled) {
     wrapper.addEventListener('click', () => {

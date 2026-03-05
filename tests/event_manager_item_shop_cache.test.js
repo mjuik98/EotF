@@ -64,38 +64,17 @@ describe('EventManager item shop stock cache', () => {
     randomSpy.mockRestore();
   });
 
-  it('disables shop energy choice when max energy already reached cap', () => {
+  it('does not include max-energy purchase in shop choices', () => {
     const gs = {
-      player: { gold: 200, energy: 3, maxEnergy: 5 },
+      player: { gold: 200, energy: 3, maxEnergy: 3 },
       worldMemory: {},
     };
     const data = {};
     const runRules = { getShopCost: (_gs, baseCost) => baseCost };
     const shopEvent = EventManager.createShopEvent(gs, data, runRules);
-    const energyChoiceIndex = shopEvent.choices.findIndex((choice) => choice.cssClass === 'shop-choice-energy');
-    const energyChoice = shopEvent.choices[energyChoiceIndex];
 
-    expect(typeof energyChoice.isDisabled).toBe('function');
-    expect(energyChoice.isDisabled(gs)).toBe(true);
-
-    const resolution = EventManager.resolveEventChoice(gs, shopEvent, energyChoiceIndex);
-    expect(resolution.isFail).toBe(true);
-    expect(resolution.shouldClose).toBe(false);
-    expect(String(resolution.resultText)).toContain('이미 최대 에너지');
-    expect(gs.player.gold).toBe(200);
-    expect(gs.player.maxEnergy).toBe(5);
-  });
-
-  it('does not allow buying energy above cap in shop logic', () => {
-    const state = {
-      player: { gold: 100, energy: 2, maxEnergy: 5 },
-      addLog: vi.fn(),
-    };
-
-    const result = EventManager._shopBuyEnergy(state, 30);
-    expect(result).toContain('이미 최대 에너지');
-    expect(state.player.gold).toBe(100);
-    expect(state.player.maxEnergy).toBe(5);
-    expect(state.player.energy).toBe(2);
+    const energyChoice = shopEvent.choices.find((choice) => choice.cssClass === 'shop-choice-energy');
+    expect(energyChoice).toBeUndefined();
+    expect(shopEvent.choices).toHaveLength(5);
   });
 });

@@ -4553,6 +4553,72 @@ body:has(#combatOverlay.active) .panel-right {
   filter: grayscale(0.2);
 }
 
+.reward-card-wrapper:disabled .card::after,
+.reward-card-wrapper[aria-disabled='true'] .card::after {
+  animation: none;
+  opacity: 0.08;
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled {
+  opacity: 0.92;
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled .card {
+  border-color: rgba(255, 51, 102, 0.75) !important;
+  box-shadow: 0 0 0 1px rgba(255, 51, 102, 0.45), inset 0 0 0 1px rgba(255, 51, 102, 0.22), 0 10px 24px rgba(0, 0, 0, 0.35);
+  filter: grayscale(0.35) saturate(0.75) brightness(1);
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled .reward-card-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(255, 112, 145, 0.82);
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled .card>*:not(.reward-disabled-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled .reward-disabled-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, rgba(6, 6, 12, 0), rgba(6, 6, 12, 0.12)),
+    repeating-linear-gradient(-36deg,
+      rgba(255, 51, 102, 0.16) 0 10px,
+      rgba(14, 14, 28, 0.08) 10px 20px);
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled .reward-disabled-state-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 7;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 112, 145, 0.9);
+  background: rgba(31, 8, 14, 0.92);
+  color: #ff9ab2;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.3);
+  line-height: 1.2;
+}
+
+.reward-card-wrapper.reward-permanent-energy-disabled .reward-disabled-reason {
+  margin-top: auto;
+  font-size: 10px;
+  line-height: 1.35;
+  text-align: center;
+  color: #ff8ea7;
+}
+
 @keyframes rewardCardIn {
   from {
     opacity: 0;
