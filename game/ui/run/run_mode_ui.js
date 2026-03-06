@@ -471,7 +471,7 @@ function _renderInscriptionOverview(doc, meta, cfg, data, deps = {}) {
   `;
 }
 
-function _renderPresetDialog(doc) {
+function _renderPresetDialog(doc, deps = {}) {
   const existing = doc.getElementById('rmPresetDialog');
   existing?.remove();
 
@@ -495,7 +495,18 @@ function _renderPresetDialog(doc) {
   `;
 
   overlay.addEventListener('click', (event) => {
-    if (event.target === overlay) RunModeUI.closePresetDialog({ doc });
+    const actionTarget = event.target.closest('[data-action]');
+    if (actionTarget) {
+      if (actionTarget.dataset.action === 'cancel-preset-save') {
+        RunModeUI.closePresetDialog(deps);
+        return;
+      }
+      if (actionTarget.dataset.action === 'confirm-preset-save') {
+        RunModeUI.confirmPresetSave(deps);
+        return;
+      }
+    }
+    if (event.target === overlay) RunModeUI.closePresetDialog(deps);
   });
 
   doc.body.appendChild(overlay);
@@ -852,7 +863,7 @@ export const RunModeUI = {
 
     _renderPanel(doc, cfg, meta, runRules, gs, deps.data || globalThis.DATA);
     _bindPanelEvents(deps);
-    _renderPresetDialog(doc);
+    _renderPresetDialog(doc, deps);
     _syncModalMood(doc, cfg);
 
     this.refreshInscriptions(deps);
@@ -1001,7 +1012,7 @@ export const RunModeUI = {
       slot: idx,
       name: existing?.name || `프리셋 ${idx + 1}`,
     };
-    _renderPresetDialog(_getDoc(deps));
+    _renderPresetDialog(_getDoc(deps), deps);
   },
 
   closePresetDialog(deps = {}) {
