@@ -168,6 +168,8 @@ export const RunRules = {
     if (typeof meta.runConfig.endless !== 'boolean') meta.runConfig.endless = false;
     if (!this.blessings[meta.runConfig.blessing]) meta.runConfig.blessing = 'none';
     if (!this.curses[meta.runConfig.curse]) meta.runConfig.curse = 'none';
+    if (!Array.isArray(meta.runConfigPresets)) meta.runConfigPresets = [];
+    if (!Array.isArray(meta.runHistory)) meta.runHistory = [];
 
     if (!meta.progress || typeof meta.progress !== 'object') {
       meta.progress = { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} };
@@ -181,6 +183,41 @@ export const RunRules = {
     meta.maxAscension = Math.max(0, Math.floor(meta.maxAscension));
     meta.runConfig.ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(meta.runConfig.ascension)));
     if (!meta.unlocks.endless) meta.runConfig.endless = false;
+    meta.runConfigPresets = Array.from({ length: 4 }, (_, idx) => {
+      const preset = Array.isArray(meta.runConfigPresets) ? meta.runConfigPresets[idx] : null;
+      if (!preset || typeof preset !== 'object') return null;
+        const config = preset.config && typeof preset.config === 'object' ? preset.config : {};
+        const ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(Number(config.ascension) || 0)));
+        const endless = meta.unlocks.endless ? !!config.endless : false;
+        const blessing = this.blessings[config.blessing] ? config.blessing : 'none';
+        const curse = this.curses[config.curse] ? config.curse : 'none';
+        const disabledInscriptions = Array.isArray(config.disabledInscriptions)
+          ? [...new Set(config.disabledInscriptions.map((id) => String(id)))]
+          : [];
+        return {
+          id: String(preset.id || `preset-${idx + 1}`),
+          name: String(preset.name || `Preset ${idx + 1}`).slice(0, 32),
+          config: {
+            ascension,
+            endless,
+            blessing,
+            curse,
+            disabledInscriptions,
+          },
+        };
+      });
+    meta.runHistory = meta.runHistory
+      .filter((entry) => entry && typeof entry === 'object')
+      .slice(0, 6)
+      .map((entry) => ({
+        at: Number(entry.at) || 0,
+        result: entry.result === 'victory' ? 'victory' : 'defeat',
+        score: Math.max(0, Math.floor(Number(entry.score) || 0)),
+        ascension: Math.max(0, Math.floor(Number(entry.ascension) || 0)),
+        endless: !!entry.endless,
+        blessing: this.blessings[entry.blessing] ? entry.blessing : 'none',
+        curse: this.curses[entry.curse] ? entry.curse : 'none',
+      }));
 
     const classIds = Object.keys(DATA?.classes || {});
     ClassProgressionSystem.ensureMeta(meta, classIds);
@@ -363,6 +400,18 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
   RunRules.ensureMeta(gs.meta);
   Object.assign(gs.meta.worldMemory, gs.worldMemory || {});
   gs.meta.bestChain = Math.max(gs.meta.bestChain || 0, gs.stats?.maxChain || 0);
+  gs.meta.runHistory = [
+    {
+      at: Date.now(),
+      result: kind === 'victory' ? 'victory' : 'defeat',
+      score: RunRules.getDifficultyScore(gs),
+      ascension: RunRules.getAscension(gs),
+      endless: RunRules.isEndless(gs),
+      blessing: RunRules.blessings[gs.runConfig?.blessing] ? gs.runConfig.blessing : 'none',
+      curse: RunRules.curses[gs.runConfig?.curse] ? gs.runConfig.curse : 'none',
+    },
+    ...(Array.isArray(gs.meta.runHistory) ? gs.meta.runHistory : []),
+  ].slice(0, 6);
 
   const isVictory = kind === 'victory';
   let shardGain = 0;
