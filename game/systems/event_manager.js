@@ -150,6 +150,11 @@ export const EventManager = {
     const choices = [
       {
         text: '무작위 카드 강화',
+        isDisabled: (state) => {
+          const upgradable = (state.player.deck || []).filter((id) => data.upgradeMap?.[id]);
+          return upgradable.length === 0;
+        },
+        disabledReason: '강화 가능한 카드가 없습니다.',
         effect: (state) => this._restUpgradeCard(state, data),
       },
       {

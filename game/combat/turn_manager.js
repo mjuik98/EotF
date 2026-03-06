@@ -121,7 +121,7 @@ const ENEMY_EFFECTS = {
         return { uiAction: 'updateUI' };
     },
     drain_energy_all(gs) {
-        gs.addLog(LogUtils.formatSystem('에너지 완전 【소진】!'), 'damage');
+        gs.addLog(LogUtils.formatSystem('에너지 완전 [소진]!'), 'damage');
         return { uiAction: 'updateUI' };
     },
     confusion(gs) {

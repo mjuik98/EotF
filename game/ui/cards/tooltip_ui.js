@@ -47,9 +47,9 @@ function _buildUnbreakableWallCardTooltip(cardId, gs) {
 }
 
 const KEYWORD_MAP = {
-  '【소진】': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
-  '【지속】': { title: '지속 (Persistent)', text: '전투가 끝날 때까지 계속 효과가 발동되는 능력 카드입니다.' },
-  '【즉시】': { title: '즉시 (Instant)', text: '사용 즉시 발동되는 강력한 일회성 효과입니다.' },
+  '[소진]': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
+  '[지속]': { title: '지속 (Persistent)', text: '전투가 끝날 때까지 계속 효과가 발동되는 능력 카드입니다.' },
+  '[즉시]': { title: '즉시 (Instant)', text: '사용 즉시 발동되는 강력한 일회성 효과입니다.' },
   '잔향': { title: '잔향 (Echo)', text: '특수 능력을 발동하는 에너지 자원. 0~100 사이를 유지하며, 게이지에 따라 효과가 달라집니다.' },
   '연쇄': { title: '연쇄 (Chain)', text: '연속 공격 횟수를 나타냅니다. 5회 이상 쌓이면 다음 공격에 추가 피해가 적용됩니다.' },
   '침묵': { title: '침묵 (Silence)', text: '침묵사냥꾼 전용 게이지. 최대치(10) 도달 시 다음 공격이 대폭 강화됩니다.' },
@@ -145,7 +145,7 @@ export const TooltipUI = {
     // Sub-tooltip for keywords
     const st = doc.getElementById('subTooltip');
     if (st) {
-      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc?.includes(kw) || (card.exhaust && kw === '【소진】'));
+      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc?.includes(kw) || (card.exhaust && kw === '[소진]'));
       if (foundKw) {
         const kwData = KEYWORD_MAP[foundKw];
         doc.getElementById('stTitle').textContent = kwData.title;

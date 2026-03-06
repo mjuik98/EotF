@@ -1,4 +1,4 @@
-import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
+﻿import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
 import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
 import { registerCardDiscovered, registerItemFound } from '../../systems/codex_records_system.js';
@@ -359,7 +359,7 @@ export const RewardUI = {
     });
 
     // --- 축복(Blessing) 보상 추가 ---
-    // 지역 보스는 확정, 미니보스는 30% 확률, 그 외 전투는 미출현
+    // 지역 보스는 확정, 중간 보스는 30% 확률, 그 외 전투는 미출현
     const shouldOfferBlessing = isBoss || (isMiniBoss && Math.random() < 0.3);
     if (shouldOfferBlessing) {
       const maxEnergyCap = _getMaxEnergyCap(gs);

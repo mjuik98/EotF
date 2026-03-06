@@ -9,8 +9,8 @@
 //  • 체력 X   — 분홍색 (kw-hp)
 //  • 에너지 X  — 금색 (kw-energy)
 //  • 상태이상  — 연보라 (kw-debuff)
-//  • 【소진】  — 주황색 (kw-exhaust)
-//  • 【지속】  — 청록색 (kw-buff)
+//  • [소진]  — 주황색 (kw-exhaust)
+//  • [지속]  — 청록색 (kw-buff)
 // ═══════════════════════════════════════════════════════
 
 export const DescriptionUtils = {
@@ -33,7 +33,7 @@ export const DescriptionUtils = {
         // ── 1단계: HTML 이스케이프 (XSS 방지) ──────────────────
         // 이미 HTML이 포함된 경우를 대비해 태그는 건드리지 않음
 
-        // ── 2단계: 특수 키워드 블록 (【 】 포맷) ────────────────
+        // ── 2단계: 특수 키워드 블록 ([ ] 포맷) ────────────────
         // 플레이스홀더 방식으로 이중 치환 방지
         const placeholders = [];
         let ph = normalizedText;
@@ -61,10 +61,10 @@ export const DescriptionUtils = {
             독: 'kw-debuff',
             낙인: 'kw-debuff',
         };
-        protect(/[\[【]\s*(소진|지속|즉시|치명타|독|낙인)\s*[\]】]/g, (match) => {
-            const keyword = match.replace(/^[\[【]\s*|\s*[\]】]$/g, '');
-            const open = match.trim().startsWith('【') ? '【' : '[';
-            const close = open === '【' ? '】' : ']';
+        protect(/[\[[]\s*(소진|지속|즉시|치명타|독|낙인)\s*[\]]]/g, (match) => {
+            const keyword = match.replace(/^[\[[]\s*|\s*[\]]]$/g, '');
+            const open = match.trim().startsWith('[') ? '[' : '[';
+            const close = open === '[' ? ']' : ']';
             const className = bracketKeywordClassMap[keyword] || 'kw-special';
             return `<span class="${className} kw-block">${open}${keyword}${close}</span>`;
         });

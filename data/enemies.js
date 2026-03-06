@@ -145,7 +145,7 @@ function makeMiniBossEnemy({
           multi: hits,
         };
       }
-      return { type: 'strike', intent: `미니보스 강습 ${this.atk + 3}`, dmg: this.atk + 3 };
+      return { type: 'strike', intent: `중간 보스 강습 ${this.atk + 3}`, dmg: this.atk + 3 };
     },
   };
 }
