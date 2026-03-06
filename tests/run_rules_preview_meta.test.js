@@ -12,7 +12,7 @@ describe('RunRules preview meta support', () => {
     vi.restoreAllMocks();
   });
 
-  it('initializes preview preset and history containers', () => {
+  it('initializes preview preset containers', () => {
     const meta = {
       runCount: 1,
       unlocks: { ascension: true, endless: true },
@@ -23,11 +23,10 @@ describe('RunRules preview meta support', () => {
     RunRules.ensureMeta(meta);
 
     expect(meta.runConfigPresets).toEqual([null, null, null, null]);
-    expect(meta.runHistory).toEqual([]);
     expect(meta.runConfig).not.toHaveProperty('blessing');
   });
 
-  it('records a compact history entry on run finalize', () => {
+  it('finalizes a run without creating recent-run history entries', () => {
     const saveMeta = vi.fn();
     const clearSave = vi.fn();
     GAME.Modules = { SaveSystem: { saveMeta, clearSave } };
@@ -40,7 +39,6 @@ describe('RunRules preview meta support', () => {
         runCount: 2,
         worldMemory: {},
         inscriptions: { echo_boost: 2, fortune: 1, resilience: 0 },
-        runHistory: [],
         runConfig: { ascension: 2, endless: true, curse: 'tax', disabledInscriptions: ['fortune'] },
         unlocks: { ascension: true, endless: true },
         maxAscension: 4,
@@ -51,15 +49,7 @@ describe('RunRules preview meta support', () => {
     const gain = finalizeRunOutcome('victory');
 
     expect(gain).toBe(5);
-    expect(GAME.State.meta.runHistory).toHaveLength(1);
-    expect(GAME.State.meta.runHistory[0]).toMatchObject({
-      result: 'victory',
-      ascension: 2,
-      endless: true,
-      curse: 'tax',
-      activeInscriptions: 1,
-      score: expect.any(Number),
-    });
+    expect(GAME.State.meta.runHistory).toBeUndefined();
     expect(saveMeta).toHaveBeenCalledTimes(1);
     expect(clearSave).toHaveBeenCalledTimes(1);
   });

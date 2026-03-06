@@ -66,13 +66,6 @@ function _reducedMotion() {
   return !!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 }
 
-function _formatSigned(value) {
-  const n = Number(value) || 0;
-  if (n > 0) return `+${n}`;
-  if (n < 0) return `${n}`;
-  return '0';
-}
-
 function _cloneRunConfig(cfg) {
   return {
     ascension: Math.max(0, Math.floor(Number(cfg?.ascension) || 0)),
@@ -90,17 +83,6 @@ function _getPresetSlots(meta) {
     preset: Array.isArray(meta?.runConfigPresets) ? meta.runConfigPresets[idx] || null : null,
   }));
   return slots;
-}
-
-function _formatRunAge(ts) {
-  const value = Number(ts) || 0;
-  if (!value) return '-';
-  const diffMin = Math.max(0, Math.floor((Date.now() - value) / 60000));
-  if (diffMin < 1) return '방금 전';
-  if (diffMin < 60) return `${diffMin}분 전`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  return `${Math.floor(diffHour / 24)}일 전`;
 }
 
 function _escapeAttr(value) {
@@ -124,119 +106,6 @@ function _getEarnedInscriptionCount(meta) {
 function _getInscriptionEffectText(def, lvl) {
   const levelDef = def?.levels?.[Math.max(0, lvl - 1)];
   return String(levelDef?.desc || def?.desc || '효과 정보 없음');
-}
-
-function _getStartStatSnapshot(meta, cfg, runRules, gs, data) {
-  const player = gs?.player || {};
-  const snapshot = {
-    maxHp: Math.max(1, Number(player.maxHp) || 1),
-    hp: Math.max(1, Number(player.hp) || Number(player.maxHp) || 1),
-    gold: Math.max(0, Number(player.gold) || 0),
-    echo: Math.max(0, Number(player.echo) || 0),
-    maxEcho: Math.max(0, Number(player.maxEcho) || Number(player.echo) || 100),
-  };
-  const baseline = { ...snapshot };
-
-  const asc = runRules?.getAscension?.(gs) || 0;
-  const ascHpLoss = Math.min(20, asc * 2);
-  if (ascHpLoss > 0) {
-    snapshot.maxHp = Math.max(1, snapshot.maxHp - ascHpLoss);
-    snapshot.hp = Math.min(snapshot.hp, snapshot.maxHp);
-  }
-
-  const curse = cfg?.curse || 'none';
-  if (curse === 'frail') {
-    snapshot.maxHp = Math.max(1, snapshot.maxHp - 10);
-    snapshot.hp = Math.min(snapshot.hp, snapshot.maxHp);
-  }
-
-  const tempGs = { player: snapshot };
-  for (const [id, rawLevel] of Object.entries(meta?.inscriptions || {})) {
-    if ((cfg?.disabledInscriptions || []).includes(id)) continue;
-    const level = Math.max(0, Math.floor(Number(rawLevel) || 0));
-    if (!level) continue;
-    const def = data?.inscriptions?.[id];
-    const apply = def?.levels?.[Math.min(level, def?.maxLevel || level) - 1]?.apply;
-    if (typeof apply === 'function') {
-      try {
-        apply(tempGs);
-      } catch (_) {
-        // Ignore inscription effects that are not valid in preview math.
-      }
-    }
-  }
-
-  snapshot.hp = Math.min(snapshot.hp, snapshot.maxHp);
-  snapshot.echo = Math.min(snapshot.echo, snapshot.maxEcho);
-
-  return {
-    baseline,
-    current: snapshot,
-    delta: {
-      hp: snapshot.maxHp - baseline.maxHp,
-      gold: snapshot.gold - baseline.gold,
-      echo: snapshot.echo - baseline.echo,
-    },
-  };
-}
-
-function _renderStatSimulator(doc, cfg, meta, runRules, gs, data) {
-  const zone = doc.getElementById('rmStatSimZone');
-  if (!zone) return;
-
-  const stats = _getStartStatSnapshot(meta, cfg, runRules, gs, data);
-  const maxHpRef = Math.max(stats.baseline.maxHp, stats.current.maxHp, 1);
-  const goldRef = Math.max(stats.baseline.gold, stats.current.gold, 1);
-  const echoRef = Math.max(stats.baseline.maxEcho, stats.current.maxEcho, 1);
-  const curse = cfg?.curse || 'none';
-
-  const cards = [
-    {
-      key: 'hp',
-      label: '최대 HP',
-      value: stats.current.maxHp,
-      delta: stats.delta.hp,
-      note: curse === 'decay' ? '전투 종료 후 최대 HP가 추가로 감소합니다' : '시작 최대 체력 기준',
-      width: `${Math.max(10, (stats.current.maxHp / maxHpRef) * 100)}%`,
-    },
-    {
-      key: 'gold',
-      label: '골드',
-      value: stats.current.gold,
-      delta: stats.delta.gold,
-      note: curse === 'tax' ? '상점 비용 +20%가 적용됩니다' : '시작 골드 기준',
-      width: `${Math.max(10, (stats.current.gold / goldRef) * 100)}%`,
-    },
-    {
-      key: 'echo',
-      label: '잔향',
-      value: stats.current.echo,
-      delta: stats.delta.echo,
-      note: curse === 'silence' ? '초반 3턴 동안 에너지가 제한됩니다' : '시작 잔향 기준',
-      width: `${Math.max(10, (stats.current.echo / echoRef) * 100)}%`,
-    },
-  ];
-
-  zone.innerHTML = `
-    <div class="rm-stat-sim${curse !== 'none' ? ' cursed' : ''}">
-      <div class="rm-section-label">시작 스탯 시뮬레이션 <span class="rm-section-hint">현재 설정 기준</span></div>
-      <div class="rm-stat-grid">
-        ${cards.map((card) => `
-          <div class="rm-stat-card ${card.key}${card.delta > 0 ? ' buffed' : ''}${card.delta < 0 ? ' nerfed' : ''}">
-            <div class="rm-stat-label">${card.label}</div>
-            <div class="rm-stat-val-row">
-              <span class="rm-stat-base">${card.value}</span>
-              <span class="rm-stat-delta ${card.delta > 0 ? 'pos' : card.delta < 0 ? 'neg' : 'none'}">${_formatSigned(card.delta)}</span>
-            </div>
-            <div class="rm-stat-bar-track">
-              <div class="rm-stat-bar-fill" style="width:${card.width}"></div>
-            </div>
-            <div class="rm-stat-desc">${card.note}</div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
 }
 
 function _renderSummaryBar(doc, cfg, meta, runRules, gs, data) {
@@ -317,47 +186,6 @@ function _renderPresets(doc, cfg, meta, runRules) {
           <span class="rm-preset-inline-name empty">빈 슬롯</span>
           <span class="rm-preset-inline-desc empty">이 슬롯을 선택한 뒤 현재 설정을 저장할 수 있습니다.</span>
         `}
-      </div>
-    </div>
-  `;
-}
-
-function _renderRunHistory(doc, cfg, meta, runRules, gs) {
-  const zone = doc.getElementById('rmHistoryZone');
-  if (!zone) return;
-
-  const history = Array.isArray(meta?.runHistory) ? meta.runHistory.slice(0, 5) : [];
-  const last = history[0] || null;
-  const score = _calcDiffScore(runRules, gs);
-  const compare = last ? score - (Number(last.score) || 0) : 0;
-
-  zone.innerHTML = `
-    <div class="rm-history-wrap">
-      <div class="rm-section-label">최근 런 <span class="rm-section-hint">직전 기록 비교</span></div>
-      <div class="rm-history-compare${last && last.result === 'defeat' ? ' defeat' : ''}">
-        <div class="rm-history-kicker">직전 런</div>
-        ${last ? `
-          <div class="rm-history-main">
-            <span class="rm-history-result ${last.result}">${last.result === 'victory' ? '승리' : '패배'}</span>
-            <span class="rm-history-score">${last.score}점</span>
-            <span class="rm-history-delta ${compare > 0 ? 'up' : compare < 0 ? 'down' : 'same'}">${compare === 0 ? '직전과 동일 난이도' : `직전 대비 ${_formatSigned(compare)}`}</span>
-          </div>
-          <div class="rm-history-sub">A${last.ascension || 0} / ${last.endless ? '무한' : '일반'} / 활성 각인 ${last.activeInscriptions || 0} / ${runRules?.curses?.[last.curse]?.icon || ''} ${runRules?.curses?.[last.curse]?.name || '저주 없음'} / ${_formatRunAge(last.at)}</div>
-        ` : `
-          <div class="rm-history-main empty">아직 완료한 런이 없습니다</div>
-          <div class="rm-history-sub">한 번 완료하면 난이도, 경로, 수정자 흐름을 여기서 비교할 수 있습니다.</div>
-        `}
-      </div>
-      <div class="rm-history-strip">
-        ${history.length ? history.map((entry) => `
-          <div class="rm-history-chip ${entry.result}">
-            <span class="rm-history-chip-result">${entry.result === 'victory' ? '승' : '패'}</span>
-            <span class="rm-history-chip-score">${entry.score}</span>
-            <span class="rm-history-chip-meta">A${entry.ascension || 0}${entry.endless ? ' / 무한' : ''}</span>
-            <span class="rm-history-chip-icons">${runRules?.curses?.[entry.curse]?.icon || ''}</span>
-            <span class="rm-history-chip-label">각인 ${entry.activeInscriptions || 0}${entry.curse && entry.curse !== 'none' ? ` · ${runRules?.curses?.[entry.curse]?.name || '저주 없음'}` : ''}</span>
-          </div>
-        `).join('') : '<div class="rm-history-empty">런을 완료하면 최근 기록이 여기에 쌓입니다.</div>'}
       </div>
     </div>
   `;
@@ -751,19 +579,15 @@ function _renderPanel(doc, cfg, meta, runRules, gs, data) {
     <div class="rm-section-label">저주 선택 <span class="rm-section-hint">난이도 상승</span></div>
     <div id="rmCurseGrid" class="rm-option-grid" role="radiogroup" aria-label="저주 선택"></div>
 
-    <div id="rmStatSimZone"></div>
     <div id="rmInscriptionZone"></div>
 
     <div id="rmHiddenEndingZone"></div>
-    <div id="rmHistoryZone"></div>
     <div id="rmSummaryBarZone"></div>
   `;
 
   _renderPresets(doc, cfg, meta, runRules);
   _renderOptionGrid(doc.getElementById('rmCurseGrid'), Object.values(runRules.curses || {}), cfg.curse, 'curse', doc);
-  _renderStatSimulator(doc, cfg, meta, runRules, gs, data);
   _renderInscriptionOverview(doc, meta, cfg, data);
-  _renderRunHistory(doc, cfg, meta, runRules, gs);
   _renderSummaryBar(doc, cfg, meta, runRules, gs, data);
 }
 

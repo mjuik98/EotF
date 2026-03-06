@@ -168,8 +168,6 @@ export const RunRules = {
     if ('blessing' in meta.runConfig) delete meta.runConfig.blessing;
     if (!this.curses[meta.runConfig.curse]) meta.runConfig.curse = 'none';
     if (!Array.isArray(meta.runConfigPresets)) meta.runConfigPresets = [];
-    if (!Array.isArray(meta.runHistory)) meta.runHistory = [];
-
     if (!meta.progress || typeof meta.progress !== 'object') {
       meta.progress = { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} };
     }
@@ -203,19 +201,6 @@ export const RunRules = {
           },
         };
       });
-    meta.runHistory = meta.runHistory
-      .filter((entry) => entry && typeof entry === 'object')
-      .slice(0, 6)
-      .map((entry) => ({
-        at: Number(entry.at) || 0,
-        result: entry.result === 'victory' ? 'victory' : 'defeat',
-        score: Math.max(0, Math.floor(Number(entry.score) || 0)),
-        ascension: Math.max(0, Math.floor(Number(entry.ascension) || 0)),
-        endless: !!entry.endless,
-        activeInscriptions: Math.max(0, Math.floor(Number(entry.activeInscriptions) || 0)),
-        curse: this.curses[entry.curse] ? entry.curse : 'none',
-      }));
-
     const classIds = Object.keys(DATA?.classes || {});
     ClassProgressionSystem.ensureMeta(meta, classIds);
   },
@@ -389,22 +374,6 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
   RunRules.ensureMeta(gs.meta);
   Object.assign(gs.meta.worldMemory, gs.worldMemory || {});
   gs.meta.bestChain = Math.max(gs.meta.bestChain || 0, gs.stats?.maxChain || 0);
-  gs.meta.runHistory = [
-    {
-      at: Date.now(),
-      result: kind === 'victory' ? 'victory' : 'defeat',
-      score: RunRules.getDifficultyScore(gs),
-      ascension: RunRules.getAscension(gs),
-      endless: RunRules.isEndless(gs),
-      activeInscriptions: Object.entries(gs.meta?.inscriptions || {})
-        .filter(([, value]) => Number(value) > 0)
-        .filter(([id]) => !(gs.runConfig?.disabledInscriptions || []).includes(id))
-        .length,
-      curse: RunRules.curses[gs.runConfig?.curse] ? gs.runConfig.curse : 'none',
-    },
-    ...(Array.isArray(gs.meta.runHistory) ? gs.meta.runHistory : []),
-  ].slice(0, 6);
-
   const isVictory = kind === 'victory';
   let shardGain = 0;
   if (Number.isFinite(options.echoFragments)) {
