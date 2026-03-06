@@ -252,7 +252,7 @@ export const DamageSystem = {
 
         if (typeof this.addLog === 'function') {
             if (source && source.name) {
-                const icon = source.type === 'trait' ? '[trait]' : (source.type === 'item' ? '[item]' : '[hit]');
+                const icon = source.type === 'trait' ? '[특성]' : (source.type === 'item' ? '[유물]' : '[타격]');
                 this.addLog(`${icon} [${source.name}] -> ${enemy.name}: ${totalDmg} dmg`, 'damage');
             } else {
                 const _card = this._currentCard;

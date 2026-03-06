@@ -717,60 +717,85 @@ export const EventUI = {
       overlay.classList.add('active');
     });
 
-    // Animate bars filling up
-    setTimeout(() => {
-      const hpBar = doc.getElementById('restHpFill');
-      const echoBar = doc.getElementById('restEchoFill');
-      const hpVal = doc.getElementById('restHpValue');
-      const echoVal = doc.getElementById('restEchoValue');
+    const totalSeqDuration = 3200;
+    const healStartDelay = 600;
+    const healDuration = 1400;
+    const startTime = performance.now();
 
-      if (hpBar) hpBar.style.width = `${(newHp / gs.player.maxHp) * 100}%`;
-      if (echoBar) echoBar.style.width = `${Math.min(newEcho, 100)}%`;
+    const updateSequence = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / totalSeqDuration, 1);
 
-      // Animate number counting
-      const duration = 1200;
-      const startTime = performance.now();
-      const animateNumbers = (now) => {
-        const elapsed = Math.min(now - startTime, duration);
-        const progress = elapsed / duration;
-        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-        restParticleFx.setBoost(0.14 + eased * 0.86);
+      // --- 파티클 부스트(boost) 곡선 제어 ---
+      // 0~600ms: 0.1 -> 0.16 (준비)
+      // 600~2000ms: 0.16 -> 1.0 (치유 절정)
+      // 2000~3200ms: 1.0 -> 0.08 (여운)
+      let currentBoost = 0.1;
+
+      if (elapsed < healStartDelay) {
+        const p = elapsed / healStartDelay;
+        currentBoost = 0.1 + p * 0.06;
+      } else if (elapsed < healStartDelay + healDuration) {
+        const p = (elapsed - healStartDelay) / healDuration;
+        const eased = 1 - Math.pow(1 - p, 2); // easeOutQuad
+        currentBoost = 0.16 + eased * 0.84;
+      } else {
+        const p = Math.min(1, (elapsed - (healStartDelay + healDuration)) / (totalSeqDuration - (healStartDelay + healDuration)));
+        const eased = Math.pow(p, 0.5); // easeInSine or similar
+        currentBoost = 1.0 - eased * 0.92;
+      }
+      restParticleFx.setBoost(currentBoost);
+
+      // --- 숫자 및 게이지 애니메이션 (600ms~2000ms 구간) ---
+      if (elapsed >= healStartDelay && elapsed <= healStartDelay + healDuration) {
+        const p = (elapsed - healStartDelay) / healDuration;
+        const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+
+        const hpBar = doc.getElementById('restHpFill');
+        const echoBar = doc.getElementById('restEchoFill');
+        const hpVal = doc.getElementById('restHpValue');
+        const echoVal = doc.getElementById('restEchoValue');
 
         const currentHp = Math.round(oldHp + (newHp - oldHp) * eased);
         const currentEcho = Math.round(oldEcho + (newEcho - oldEcho) * eased);
 
+        if (hpBar) hpBar.style.width = `${(currentHp / gs.player.maxHp) * 100}%`;
+        if (echoBar) echoBar.style.width = `${Math.min(currentEcho, 100)}%`;
         if (hpVal) hpVal.textContent = `${currentHp}/${gs.player.maxHp}`;
         if (echoVal) echoVal.textContent = `${currentEcho}/100`;
 
-        if (elapsed < duration) requestAnimationFrame(animateNumbers);
-        else restParticleFx.setBoost(0.18);
-      };
-      requestAnimationFrame(animateNumbers);
+        // 사운드는 시작 시 한 번만
+        if (!updateSequence._playedSound) {
+          audioEngine?.playHeal?.();
+          updateSequence._playedSound = true;
+        }
+      }
 
-      audioEngine?.playHeal?.();
-    }, 600);
+      if (progress < 1) {
+        requestAnimationFrame(updateSequence);
+      } else {
+        // 연출 종료 및 선택창 전환
+        overlay.classList.remove('active');
+        overlay.classList.add('fade-out');
 
-    // After animation, transition to rest choices
-    setTimeout(() => {
-      restParticleFx.setBoost(0.08);
-      overlay.classList.remove('active');
-      overlay.classList.add('fade-out');
-      setTimeout(() => {
-        restParticleFx.stop();
-        overlay.remove();
-      }, 500);
+        setTimeout(() => {
+          restParticleFx.stop();
+          overlay.remove();
 
-      // ── 로직 위임: 선택지만 표시 ──
-      const rest = EventManager.createRestEvent(gs, data, runRules, {
-        showCardDiscardFn: (state, isBurn) => self.showCardDiscard(state, isBurn, deps),
-      });
-      if (!rest) return;
+          // ── 로직 위임: 선택지만 표시 ──
+          const rest = EventManager.createRestEvent(gs, data, runRules, {
+            showCardDiscardFn: (state, isBurn) => self.showCardDiscard(state, isBurn, deps),
+          });
+          if (!rest) return;
 
-      // Update description to reflect recovery
-      rest.desc = `체력이 ${newHp - oldHp} 회복되고, 잔향이 ${newEcho - oldEcho} 충전되었다. 추가 행동을 선택하세요.`;
-      self.showEvent(rest, deps);
-      if (typeof deps.updateUI === 'function') deps.updateUI();
-    }, 3000);
+          rest.desc = `체력이 ${newHp - oldHp} 회복되고, 잔향이 ${newEcho - oldEcho} 충전되었다. 추가 행동을 선택하세요.`;
+          self.showEvent(rest, deps);
+          if (typeof deps.updateUI === 'function') deps.updateUI();
+        }, 500);
+      }
+    };
+
+    requestAnimationFrame(updateSequence);
   },
 
   showCardDiscard(gsArg, isBurn = false, deps = {}) {

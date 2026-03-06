@@ -987,3 +987,10 @@ Original prompt:
     - direct Playwright screenshot at `output/web-game/title-debug.png` visually inspected; redesigned two-panel title UI rendered correctly.
     - Playwright skill client still produced `shot-0.png` showing only the background canvas, despite DOM/layout checks confirming the title UI exists; likely a client capture limitation specific to this screen composition.
   - No `errors-*.json` emitted in `output/web-game/`.
+- Follow-up prompt: 프리셋 저장 다이얼로그의 취소/저장 버튼이 눌리지 않는 버그 수정.
+- Root cause: preset dialog buttons live outside `#runModePanel`, so panel-level click delegation never handled them.
+- Fix: handle `data-action` clicks directly on `#rmPresetDialog` overlay and route cancel/save through the current run-mode deps.
+- Validation:
+  - `node --check game/ui/run/run_mode_ui.js` PASS.
+  - `npm run build` PASS.
+  - Browser verification: dialog opens, cancel closes it, confirm save closes it and updates the inline preset name.
