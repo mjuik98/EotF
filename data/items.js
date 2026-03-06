@@ -1978,7 +1978,7 @@ export const ITEMS = {
 
     // ──────────── [세트 F] 달의 삼위 ────────────
     moon_veil: {
-        id: 'moon_veil', name: '달의 장막', icon: '🌙', rarity: 'common', set: 'moon',
+        id: 'moon_veil', name: '달의 장막', icon: '🌙', rarity: 'common', set: 'moon_set',
         desc: '전투 시작: 방어막 6 [세트:달]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) gs.addShield(6, { name: '달의 장막', type: 'item' });
@@ -1986,7 +1986,7 @@ export const ITEMS = {
     },
 
     moon_ward: {
-        id: 'moon_ward', name: '달의 결계', icon: '🌕', rarity: 'uncommon', set: 'moon',
+        id: 'moon_ward', name: '달의 결계', icon: '🌕', rarity: 'uncommon', set: 'moon_set',
         desc: '피격 시: 받는 피해 -1 (최소 0) [세트:달]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_TAKEN && data > 0) return Math.max(0, data - 1);
@@ -1994,7 +1994,7 @@ export const ITEMS = {
     },
 
     moon_crest: {
-        id: 'moon_crest', name: '달의 문장', icon: '🌛', rarity: 'rare', set: 'moon',
+        id: 'moon_crest', name: '달의 문장', icon: '🌛', rarity: 'rare', set: 'moon_set',
         desc: '턴 종료: 방어막 3 [세트:달]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_END) gs.addShield(3, { name: '달의 문장', type: 'item' });
@@ -2050,8 +2050,8 @@ export const ITEMS = {
 
     // ──────────── [세트 G] 황혼의 쌍인 ────────────
     dusk_fang: {
-        id: 'dusk_fang', name: '황혼의 독니', icon: '🌆', rarity: 'uncommon', set: 'dusk',
-        desc: '전투 시작: 모든 적 독 3턴 [세트:황혼]',
+        id: 'dusk_fang', name: '황혼의 독니', icon: '🌆', rarity: 'uncommon', set: 'dusk_set',
+        desc: '전투 시작: 모든 적 독 3턴 [세트:황혼의 쌍인]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.COMBAT_START) {
                 gs.combat?.enemies?.forEach?.((_, i) => gs.applyEnemyStatus('poisoned', 3, i, { name: '황혼의 독니', type: 'item' }));
@@ -2074,8 +2074,8 @@ export const ITEMS = {
     },
 
     dusk_mark: {
-        id: 'dusk_mark', name: '황혼의 낙인', icon: '🌇', rarity: 'uncommon', set: 'dusk',
-        desc: '약화된 적 공격 시: 약화 1 추가 [세트:황혼]',
+        id: 'dusk_mark', name: '황혼의 낙인', icon: '🌇', rarity: 'uncommon', set: 'dusk_set',
+        desc: '약화된 적 공격 시: 약화 1 추가 [세트:황혼의 쌍인]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE) {
                 const selected = Number(gs._selectedTarget);
@@ -2242,8 +2242,8 @@ export const ITEMS = {
 
     // ──────────── [세트 H] 역병의 결사 ────────────
     poison_gland_flask: {
-        id: 'poison_gland_flask', name: '독샘 호리병', icon: '🧪', rarity: 'uncommon', set: 'plague',
-        desc: '독 부여 시: 부여 수치 +1 [세트:역병]',
+        id: 'poison_gland_flask', name: '독샘 호리병', icon: '🧪', rarity: 'uncommon', set: 'plague_coven',
+        desc: '독 부여 시: 부여 수치 +1 [세트:역병의 결사]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.ENEMY_STATUS_APPLY && data?.status === 'poisoned') {
                 return (data.duration || 0) + 1;
@@ -2251,8 +2251,8 @@ export const ITEMS = {
         }
     },
     thornvine_heart: {
-        id: 'thornvine_heart', name: '가시넝쿨 심장', icon: '🌿', rarity: 'uncommon', set: 'plague',
-        desc: '회복 시: 잃은 체력의 10%만큼 추가 회복 [세트:역병]',
+        id: 'thornvine_heart', name: '가시넝쿨 심장', icon: '🌿', rarity: 'uncommon', set: 'plague_coven',
+        desc: '회복 시: 잃은 체력의 10%만큼 추가 회복 [세트:역병의 결사]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.HEAL_AMOUNT && typeof data === 'number' && data > 0) {
                 const missingHp = (gs.player.maxHp || 0) - (gs.player.hp || 0);
@@ -2262,8 +2262,8 @@ export const ITEMS = {
         }
     },
     plague_doctor_scalpel: {
-        id: 'plague_doctor_scalpel', name: '역병 의사의 메스', icon: '🔪', rarity: 'rare', set: 'plague',
-        desc: '독 부여 시: 방어막 3 [세트:역병]',
+        id: 'plague_doctor_scalpel', name: '역병 의사의 메스', icon: '🔪', rarity: 'rare', set: 'plague_coven',
+        desc: '독 부여 시: 방어막 3 [세트:역병의 결사]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.ENEMY_STATUS_APPLY && data?.status === 'poisoned') {
                 gs.addShield(3, { name: '역병 의사의 메스', type: 'item' });
@@ -2271,8 +2271,8 @@ export const ITEMS = {
         }
     },
     decaying_shroud: {
-        id: 'decaying_shroud', name: '부패한 수의', icon: '🧥', rarity: 'rare', set: 'plague',
-        desc: '턴 시작: 체력 50% 이하 시 잃은 체력의 15%만큼 방어막 획득 [세트:역병]',
+        id: 'decaying_shroud', name: '부패한 수의', icon: '🧥', rarity: 'rare', set: 'plague_coven',
+        desc: '턴 시작: 체력 50% 이하 시 잃은 체력의 15%만큼 방어막 획득 [세트:역병의 결사]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && (gs.player.hp || 0) <= (gs.player.maxHp || 0) * 0.5) {
                 const missingHp = (gs.player.maxHp || 0) - (gs.player.hp || 0);
@@ -2284,8 +2284,8 @@ export const ITEMS = {
 
     // ──────────── [세트 I] 독사의 시선 ────────────
     serpent_fang_dagger: {
-        id: 'serpent_fang_dagger', name: '독사의 송곳니', icon: '🗡️', rarity: 'common', set: 'serpent',
-        desc: '전투 시작: 무작위 적에게 독 4 [세트:독사]',
+        id: 'serpent_fang_dagger', name: '독사의 송곳니', icon: '🗡️', rarity: 'common', set: 'serpents_gaze',
+        desc: '전투 시작: 무작위 적에게 독 4 [세트:독사의 시선]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 const enemies = gs.combat?.enemies || [];
@@ -2298,8 +2298,8 @@ export const ITEMS = {
         }
     },
     acidic_vial: {
-        id: 'acidic_vial', name: '산성 유리병', icon: '🧪', rarity: 'uncommon', set: 'serpent',
-        desc: '독 상태인 적 공격 시: 20% 확률로 독 +1 [세트:독사]',
+        id: 'acidic_vial', name: '산성 유리병', icon: '🧪', rarity: 'uncommon', set: 'serpents_gaze',
+        desc: '독 상태인 적 공격 시: 20% 확률로 독 +1 [세트:독사의 시선]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE) {
                 const selected = Number(gs._selectedTarget);
@@ -2313,8 +2313,8 @@ export const ITEMS = {
         }
     },
     cobra_scale_charm: {
-        id: 'cobra_scale_charm', name: '코브라 비늘', icon: '🐍', rarity: 'uncommon', set: 'serpent',
-        desc: '적 독 피해 발생 시: 잔향 15 충전 (턴당 2회) [세트:독사]',
+        id: 'cobra_scale_charm', name: '코브라 비늘', icon: '🐍', rarity: 'uncommon', set: 'serpents_gaze',
+        desc: '적 독 피해 발생 시: 잔향 15 충전 (턴당 2회) [세트:독사의 시선]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) gs._cobraCount = 0;
             if (trigger === Trigger.POISON_DAMAGE && (gs._cobraCount || 0) < 2) {
@@ -2326,15 +2326,15 @@ export const ITEMS = {
 
     // ──────────── [세트 J] 생명의 성배 ────────────
     monks_rosary: {
-        id: 'monks_rosary', name: '수도사의 묵주', icon: '📿', rarity: 'common', set: 'grail',
-        desc: '매 턴 시작: 체력 3 회복 [세트:성배]',
+        id: 'monks_rosary', name: '수도사의 묵주', icon: '📿', rarity: 'common', set: 'holy_grail',
+        desc: '매 턴 시작: 체력 3 회복 [세트:생명의 성배]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) gs.heal(3, { name: '수도사의 묵주', type: 'item' });
         }
     },
     fountain_essence: {
-        id: 'fountain_essence', name: '샘물의 정수', icon: '💧', rarity: 'uncommon', set: 'grail',
-        desc: '회복 효과 +25% [세트:성배]',
+        id: 'fountain_essence', name: '샘물의 정수', icon: '💧', rarity: 'uncommon', set: 'holy_grail',
+        desc: '회복 효과 +25% [세트:생명의 성배]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.HEAL_AMOUNT && typeof data === 'number') {
                 return Math.floor(data * 1.25);
@@ -2342,8 +2342,8 @@ export const ITEMS = {
         }
     },
     life_bloom_seed: {
-        id: 'life_bloom_seed', name: '생명 개화의 씨앗', icon: '🌱', rarity: 'rare', set: 'grail',
-        desc: '전투 종료 시: 체력 10 회복 [세트:성배]',
+        id: 'life_bloom_seed', name: '생명 개화의 씨앗', icon: '🌱', rarity: 'rare', set: 'holy_grail',
+        desc: '전투 종료 시: 체력 10 회복 [세트:생명의 성배]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_END) gs.heal(10, { name: '생명 개화의 씨앗', type: 'item' });
         }
@@ -2351,8 +2351,8 @@ export const ITEMS = {
 
     // ──────────── [세트 K] 거인의 인내 ────────────
     titans_belt: {
-        id: 'titans_belt', name: '거인의 벨트', icon: '🥋', rarity: 'common', set: 'titan',
-        desc: '최대 체력 +15 [세트:거인]',
+        id: 'titans_belt', name: '거인의 벨트', icon: '🥋', rarity: 'common', set: 'titans_endurance',
+        desc: '최대 체력 +15 [세트:거인의 인내]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && !gs._titansBeltActive) {
                 gs._titansBeltBaseMax = gs.player.maxHp;
@@ -2371,8 +2371,8 @@ export const ITEMS = {
         }
     },
     endurance_medal: {
-        id: 'endurance_medal', name: '인내의 훈장', icon: '🎖️', rarity: 'uncommon', set: 'titan',
-        desc: '체력 30% 이하 시: 받는 피해 -5 [세트:거인]',
+        id: 'endurance_medal', name: '인내의 훈장', icon: '🎖️', rarity: 'uncommon', set: 'titans_endurance',
+        desc: '체력 30% 이하 시: 받는 피해 -5 [세트:거인의 인내]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_TAKEN && data > 0 && gs.player.hp <= gs.player.maxHp * 0.3) {
                 return Math.max(0, data - 5);
@@ -2380,8 +2380,8 @@ export const ITEMS = {
         }
     },
     ancient_heart_stone: {
-        id: 'ancient_heart_stone', name: '고대 심장석', icon: '💎', rarity: 'rare', set: 'titan',
-        desc: '층 이동 시: 최대 체력 1 영구 증가 [세트:거인]',
+        id: 'ancient_heart_stone', name: '고대 심장석', icon: '💎', rarity: 'rare', set: 'titans_endurance',
+        desc: '층 이동 시: 최대 체력 1 영구 증가 [세트:거인의 인내]',
         passive(gs, trigger) {
             if (trigger === Trigger.FLOOR_START) {
                 gs.player.maxHp += 1;
@@ -2394,14 +2394,14 @@ export const ITEMS = {
 
     // ──────────── [세트 L] 철옹성 ────────────
     bastion_shield_plate: {
-        id: 'bastion_shield_plate', name: '요새의 방패판', icon: '🛡️', rarity: 'common',
+        id: 'bastion_shield_plate', name: '요새의 방패판', icon: '🛡️', rarity: 'common', set: 'iron_fortress',
         desc: '턴 종료: 방어막 5 [세트:철옹성]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END) gs.addShield(5, { name: '요새의 방패판', type: 'item' });
         }
     },
     spiked_buckler: {
-        id: 'spiked_buckler', name: '가시 박힌 버클러', icon: '🛡️', rarity: 'uncommon',
+        id: 'spiked_buckler', name: '가시 박힌 버클러', icon: '🛡️', rarity: 'uncommon', set: 'iron_fortress',
         desc: '방어막 보유 중 피격 시: 적에게 피해 6 (가시) [세트:철옹성]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_TAKEN && data > 0 && (gs.player.shield || 0) > 0) {
@@ -2416,7 +2416,7 @@ export const ITEMS = {
         }
     },
     fortified_gauntlet: {
-        id: 'fortified_gauntlet', name: '강화된 건틀릿', icon: '🧤', rarity: 'rare',
+        id: 'fortified_gauntlet', name: '강화된 건틀릿', icon: '🧤', rarity: 'rare', set: 'iron_fortress',
         desc: '방어막 획득 시: 15% 확률로 획득량 2배 [세트:철옹성]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.SHIELD_GAIN && typeof data === 'number' && data > 0 && Math.random() < 0.15) {
@@ -2427,7 +2427,7 @@ export const ITEMS = {
             const setCount = ['bastion_shield_plate', 'spiked_buckler', 'fortified_gauntlet', 'guardian_seal', 'unyielding_fort']
                 .filter(id => gs.player.items?.includes?.(id)).length;
 
-            if (setCount >= 4 && trigger === Trigger.DEAL_DAMAGE && (gs._isReflectDamage || data?.isReflect)) {
+            if (setCount >= 3 && trigger === Trigger.DEAL_DAMAGE && (gs._isReflectDamage || data?.isReflect)) {
                 // 가시 피해 증가 (기존 로직 보강)
                 return (data || 0) + 5;
             }
@@ -2440,7 +2440,7 @@ export const ITEMS = {
     },
 
     guardian_seal: {
-        id: 'guardian_seal', name: '수호의 인장', icon: '☄️', rarity: 'uncommon',
+        id: 'guardian_seal', name: '수호의 인장', icon: '☄️', rarity: 'uncommon', set: 'iron_fortress',
         desc: '피격 시: 30% 확률로 방어막 5 [세트:철옹성]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_TAKEN && data > 0 && Math.random() < 0.3) {
@@ -2450,7 +2450,7 @@ export const ITEMS = {
     },
 
     unyielding_fort: {
-        id: 'unyielding_fort', name: '불굴의 요새', icon: '🏰', rarity: 'rare',
+        id: 'unyielding_fort', name: '불굴의 요새', icon: '🏰', rarity: 'rare', set: 'iron_fortress',
         desc: '턴 종료: 방어막 10 미만 시 10으로 보충 [세트:철옹성]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END && (gs.player.shield || 0) < 10) {
@@ -2463,7 +2463,7 @@ export const ITEMS = {
     // ──────────── [세트 M] 심판의 불꽃 ────────────
     judgement_torch: {
         id: 'judgement_torch', name: '심판의 횃불', icon: '🔦', rarity: 'common', set: 'judgement',
-        desc: '3번째 카드 사용 시: 무작위 적에게 피해 5 [세트:심판]',
+        desc: '3번째 카드 사용 시: 무작위 적에게 피해 5 [세트:심판의 불꽃]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) gs._judgementTorchCount = 0;
             if (trigger === Trigger.CARD_PLAY) {
@@ -2481,14 +2481,14 @@ export const ITEMS = {
     },
     judgement_ash: {
         id: 'judgement_ash', name: '심판의 잿더미', icon: '💨', rarity: 'uncommon', set: 'judgement',
-        desc: '적 처치 시: 잔향 10 충전 [세트:심판]',
+        desc: '적 처치 시: 잔향 10 충전 [세트:심판의 불꽃]',
         passive(gs, trigger) {
             if (trigger === Trigger.ENEMY_KILL) gs.addEcho(10, { name: '심판의 잿더미', type: 'item' });
         }
     },
     judgement_censer: {
         id: 'judgement_censer', name: '심판의 향로', icon: '🏺', rarity: 'uncommon', set: 'judgement',
-        desc: '전투 시작: 모든 적 약화 1 [세트:심판]',
+        desc: '전투 시작: 모든 적 약화 1 [세트:심판의 불꽃]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 gs.combat?.enemies?.forEach((_, i) => gs.applyEnemyStatus('weakened', 1, i, { name: '심판의 향로', type: 'item' }));
@@ -2497,7 +2497,7 @@ export const ITEMS = {
     },
     judgement_scroll: {
         id: 'judgement_scroll', name: '심판의 두루마리', icon: '📜', rarity: 'rare', set: 'judgement',
-        desc: '매 턴 첫 공격 피해 +6 [세트:심판]',
+        desc: '매 턴 첫 공격 피해 +6 [세트:심판의 불꽃]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START) gs._judgementScrollUsed = false;
             if (trigger === Trigger.DEAL_DAMAGE && !gs._judgementScrollUsed) {
@@ -2508,7 +2508,7 @@ export const ITEMS = {
     },
     judgement_blade: {
         id: 'judgement_blade', name: '심판의 칼날', icon: '⚔️', rarity: 'rare', set: 'judgement',
-        desc: '상태이상이 있는 적 공격 시: 피해 +8 [세트:심판]',
+        desc: '상태이상이 있는 적 공격 시: 피해 +8 [세트:심판의 불꽃]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE) {
                 const selected = Number(gs._selectedTarget);
@@ -2527,7 +2527,7 @@ export const ITEMS = {
 
                     if (setCount >= 2 && trigger === Trigger.COMBAT_START && !gs._judgementSetStartEcho) {
                         gs._judgementSetStartEcho = true;
-                        gs.addEcho(15, { name: '심판 세트(2)', type: 'item' });
+                        gs.addEcho(15, { name: '심판의 불꽃 세트(2)', type: 'item' });
                     }
                     if (trigger === Trigger.COMBAT_END) gs._judgementSetStartEcho = false;
 
@@ -2536,14 +2536,14 @@ export const ITEMS = {
                         if (gs._judgementSetCardCount % 3 === 0 && !gs._judgementSetEnergyProc) {
                             gs._judgementSetEnergyProc = true;
                             gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
-                            gs.addLog?.('🔥 심판 세트(3): 에너지 회복', 'item');
+                            gs.addLog?.('🔥 심판의 불꽃 세트(3): 에너지 회복', 'item');
                         }
                     }
                     if (trigger === Trigger.TURN_START) gs._judgementSetEnergyProc = false;
 
                     if (setCount >= 5 && trigger === Trigger.ENEMY_KILL) {
-                        gs.heal(5, { name: '심판 세트(5)', type: 'item' });
-                        gs.addShield(10, { name: '심판 세트(5)', type: 'item' });
+                        gs.heal(5, { name: '심판의 불꽃 세트(5)', type: 'item' });
+                        gs.addShield(10, { name: '심판의 불꽃 세트(5)', type: 'item' });
                     }
 
                     return result;
@@ -2555,7 +2555,7 @@ export const ITEMS = {
     // ──────────── [세트 N] 독사의 그림자 ────────────
     venom_dagger: {
         id: 'venom_dagger', name: '독니 단검', icon: '🗡️', rarity: 'common', set: 'shadow_venom',
-        desc: '공격 카드 사용 시: 대상에게 독 1 [세트:독사그림자]',
+        desc: '공격 카드 사용 시: 대상에게 독 1 [세트:독사의 그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_PLAY && CARDS[data?.cardId]?.type === 'ATTACK') {
                 const targetIdx = gs._selectedTarget ?? gs.combat?.enemies?.findIndex(e => e.hp > 0);
@@ -2565,7 +2565,7 @@ export const ITEMS = {
     },
     shadow_cloak: {
         id: 'shadow_cloak', name: '그림자 망토', icon: '🧥', rarity: 'uncommon', set: 'shadow_venom',
-        desc: '피격 시: 공격자에게 독 2 [세트:독사그림자]',
+        desc: '피격 시: 공격자에게 독 2 [세트:독사의 그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_TAKEN && data > 0) {
                 const attackerIdx = gs.combat?._currentAttackerIdx; // 시스템에 따라 확인 필요, 보통 0~N
@@ -2575,7 +2575,7 @@ export const ITEMS = {
     },
     venom_extract: {
         id: 'venom_extract', name: '맹독 농축액', icon: '🧪', rarity: 'uncommon', set: 'shadow_venom',
-        desc: '신규 부여 독 수치 +1 [세트:독사그림자]',
+        desc: '신규 부여 독 수치 +1 [세트:독사의 그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.ENEMY_STATUS_APPLY && data?.status === 'poisoned') {
                 return (data.duration || 0) + 1;
@@ -2592,7 +2592,7 @@ export const ITEMS = {
     },
     venom_mist_charm: {
         id: 'venom_mist_charm', name: '독안개 부적', icon: '🧿', rarity: 'rare', set: 'shadow_venom',
-        desc: '턴 시작: 모든 적 독 2 [세트:독사그림자]',
+        desc: '턴 시작: 모든 적 독 2 [세트:독사의 그림자]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
                 gs.combat?.enemies?.forEach((_, i) => gs.applyEnemyStatus('poisoned', 2, i, { name: '독안개 부적', type: 'item' }));
@@ -2602,13 +2602,13 @@ export const ITEMS = {
                 .filter(id => gs.player.items?.includes?.(id)).length;
 
             if (setCount >= 3 && trigger === Trigger.ENEMY_KILL && gs._lastKillByPoison) {
-                gs.drawCards(1, { name: '독사그림자 세트(3)', type: 'item' });
+                gs.drawCards(1, { name: '독사의 그림자 세트(3)', type: 'item' });
             }
         }
     },
     venom_commander_eye: {
         id: 'venom_commander_eye', name: '독사령의 눈', icon: '👁️', rarity: 'rare', set: 'shadow_venom',
-        desc: '독 10 중첩 이상인 적 상대 시: 공격 피해 +50% [세트:독사그림자]',
+        desc: '독 10 중첩 이상인 적 상대 시: 공격 피해 +50% [세트:독사의 그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE) {
                 const targetIdx = gs._selectedTarget ?? gs.combat?.enemies?.findIndex(e => e.hp > 0);
@@ -2620,7 +2620,7 @@ export const ITEMS = {
                 .filter(id => gs.player.items?.includes?.(id)).length;
 
             if (setCount >= 5 && trigger === Trigger.POISON_DAMAGE) {
-                gs.addShield(2, { name: '독사그림자 세트(5)', type: 'item' });
+                gs.addShield(2, { name: '독사의 그림자 세트(5)', type: 'item' });
             }
         }
     },
@@ -2628,7 +2628,7 @@ export const ITEMS = {
     // ──────────── [세트 O] 성역의 은총 ────────────
     prayer_rosary: {
         id: 'prayer_rosary', name: '기도의 묵주', icon: '📿', rarity: 'common', set: 'sanctuary',
-        desc: '턴 종료: 체력 미달 시 2 회복 [세트:성역]',
+        desc: '턴 종료: 체력 미달 시 2 회복 [세트:성역의 은총]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END && (gs.player.hp || 0) < (gs.player.maxHp || 0)) {
                 gs.heal(2, { name: '기도의 묵주', type: 'item' });
@@ -2637,7 +2637,7 @@ export const ITEMS = {
     },
     grace_chalice: {
         id: 'grace_chalice', name: '은총의 성배', icon: '🍷', rarity: 'uncommon', set: 'sanctuary',
-        desc: '회복 효과 +3 [세트:성역]',
+        desc: '회복 효과 +3 [세트:성역의 은총]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.HEAL_AMOUNT && typeof data === 'number' && data > 0) {
                 return data + 3;
@@ -2656,7 +2656,7 @@ export const ITEMS = {
     },
     light_shroud: {
         id: 'light_shroud', name: '빛의 수의', icon: '✨', rarity: 'uncommon', set: 'sanctuary',
-        desc: '회복 시: 방어막 4 [세트:성역]',
+        desc: '회복 시: 방어막 4 [세트:성역의 은총]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.HEAL_AMOUNT && typeof data === 'number' && data > 0) {
                 gs.addShield(4, { name: '빛의 수의', type: 'item' });
@@ -2670,14 +2670,14 @@ export const ITEMS = {
                 const maxHp = gs.player.maxHp || 0;
                 const overflow = Math.max(0, (currentHp + data) - maxHp);
                 if (overflow > 0) {
-                    gs.addShield(overflow, { name: '성역 세트(3): 초과 회복', type: 'item' });
+                    gs.addShield(overflow, { name: '성역의 은총 세트(3): 초과 회복', type: 'item' });
                 }
             }
         }
     },
     sanctuary_lantern: {
         id: 'sanctuary_lantern', name: '성역의 등불', icon: '🏮', rarity: 'rare', set: 'sanctuary',
-        desc: '전투 시작: 체력 10 회복 [세트:성역]',
+        desc: '전투 시작: 체력 10 회복 [세트:성역의 은총]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) gs.heal(10, { name: '성역의 등불', type: 'item' });
 
@@ -2685,13 +2685,13 @@ export const ITEMS = {
                 .filter(id => gs.player.items?.includes?.(id)).length;
 
             if (setCount >= 5 && trigger === Trigger.TURN_START) {
-                gs.heal(5, { name: '성역 세트(5)', type: 'item' });
+                gs.heal(5, { name: '성역의 은총 세트(5)', type: 'item' });
                 if (gs.player.statusEffects) {
                     const debuffs = Object.keys(gs.player.statusEffects).filter(k => gs.player.statusEffects[k] > 0);
                     if (debuffs.length > 0) {
                         const target = debuffs[Math.floor(Math.random() * debuffs.length)];
                         gs.player.statusEffects[target] = 0;
-                        gs.addLog?.(`✨ 성역 세트(5): ${target} 제거!`, 'item');
+                        gs.addLog?.(`✨ 성역의 은총 세트(5): ${target} 제거!`, 'item');
                     }
                 }
             }
@@ -2699,7 +2699,7 @@ export const ITEMS = {
     },
     celestial_wing: {
         id: 'celestial_wing', name: '천상의 날개', icon: '🪽', rarity: 'rare', set: 'sanctuary',
-        desc: '체력 최대일 때: 공격 피해 +30% [세트:성역]',
+        desc: '체력 최대일 때: 공격 피해 +30% [세트:성역의 은총]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE && (gs.player.hp || 0) >= (gs.player.maxHp || 0)) {
                 return Math.floor((data || 0) * 1.3);

@@ -30,7 +30,7 @@ export const CLASS_METADATA = {
                 { tier: 3, name: "공명 폭풍 Lv.3", bonus: "100", desc: "모든 적 피해 48. 방어막 22." },
             ]
         },
-        startDeck: ["strike", "strike", "defend", "defend", "foot_step", "blade_dance", "echo_strike", "heavy_blow"],
+        startDeck: ["strike", "strike", "defend", "defend", "foot_step", "twin_strike", "echo_strike", "heavy_blow"],
         startRelic: "dull_blade",
         story: "검이 울렸다...\n그 울림은 전장을 가득 채웠다.\n공명은 끝나지 않는다.",
         particle: "ember"

@@ -136,8 +136,8 @@ export const HelpPauseUI = {
         [_keyCodeToLabel(_getKeybindingCode('pause', 'Escape')), '일시정지 (창 닫기)'],
         [_keyCodeToLabel(_getKeybindingCode('deckView', 'KeyD')), '덱 보기'],
         [_keyCodeToLabel(_getKeybindingCode('help', 'Slash')), '도움말 열기'],
-        [_keyCodeToLabel(_getKeybindingCode('echoSkill', 'KeyE')), 'Echo 스킬 발동 (전투 중)'],
-        [_keyCodeToLabel(_getKeybindingCode('drawCard', 'KeyQ')), '카드 뽑기 (전투 중)'],
+        [_keyCodeToLabel(_getKeybindingCode('echoSkill', 'KeyE')), '잔향 스킬 발동 (전투 중)'],
+        [_keyCodeToLabel(_getKeybindingCode('drawCard', 'KeyQ')), '카드 드로우 (전투 중)'],
         [_keyCodeToLabel(_getKeybindingCode('endTurn', 'Enter')), '턴 종료 (전투 중)'],
         ['1 - 0', '손패 카드 빠른 사용'],
         [_keyCodeToLabel(_getKeybindingCode('nextTarget', 'Tab')), '다음 적 대상 전환'],
@@ -610,7 +610,7 @@ export const HelpPauseUI = {
       if (_eventMatchesCode(e, keyDrawCard) && isInGame && gs?.combat?.active && gs?.combat?.playerTurn) {
         e.preventDefault();
         if (typeof deps.drawCard === 'function') deps.drawCard();
-        // 카드 뽑기 버튼 시각적 효과
+        // 카드 드로우 버튼 시각적 효과
         if (deps.buttonFeedback) {
           deps.buttonFeedback.triggerDrawButton();
         }

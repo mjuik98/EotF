@@ -53,7 +53,7 @@ export function updateCombatEnergyUI(gs, deps = {}) {
     } else if (!drawState.hasEnergy) {
       setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
     } else {
-      setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
+      setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
     }
     drawBtn.disabled = !drawState.canDraw;
     drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';

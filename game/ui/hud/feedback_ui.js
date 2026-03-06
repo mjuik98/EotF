@@ -417,7 +417,7 @@ export const FeedbackUI = {
   },
 
   /**
-   * 카드 뽑기 버튼에 시각적 효과 적용 (리플, 반동, 파티클)
+   * 카드 드로우 버튼에 시각적 효과 적용 (리플, 반동, 파티클)
    */
   triggerDrawButtonEffect(btnId = 'combatDrawCardBtn', deps = {}) {
     const doc = deps.doc || document;

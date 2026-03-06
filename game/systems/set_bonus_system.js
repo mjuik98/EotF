@@ -29,24 +29,24 @@ export // Set Bonus System extraction: logic moved from data/game_data.js
                 name: '폭풍의 세 검',
                 items: ['storm_needle', 'storm_crest', 'storm_herald'],
                 bonuses: {
-                    2: { label: '카드 사용 시 잔향 +4', apply() { } },
-                    3: { label: '연쇄 3 이상이면 공격 피해 +10%', apply() { } },
+                    2: { label: '폭풍의 세 검 — 카드 사용 시 잔향 +4', apply() { } },
+                    3: { label: '폭풍의 세 검 — 연쇄 3 이상이면 공격 피해 +10%', apply() { } },
                 }
             },
             machine_set: {
                 name: '기계의 심장',
                 items: ['gear_cog', 'piston_drive', 'circuit_board'],
                 bonuses: {
-                    2: { label: '소멸 시 에너지 +1 (전투당 4회)', apply() { } },
-                    3: { label: '소멸 누적에 비례한 추가 피해', apply() { } },
+                    2: { label: '기계의 심장 — 소멸 시 에너지 +1 (전투당 4회)', apply() { } },
+                    3: { label: '기계의 심장 — 소멸 누적에 비례한 추가 피해', apply() { } },
                 }
             },
             moon_set: {
                 name: '달의 삼위',
                 items: ['moon_veil', 'moon_ward', 'moon_crest'],
                 bonuses: {
-                    2: { label: '회복 시 방어막 +2', apply() { } },
-                    3: { label: '턴 시작 방어막 15 이상이면 체력 3 회복', apply() { } },
+                    2: { label: '달의 삼위 — 회복 시 방어막 +2', apply() { } },
+                    3: { label: '달의 삼위 — 턴 시작 방어막 15 이상이면 체력 3 회복', apply() { } },
                 }
             },
             dusk_set: {
@@ -90,10 +90,38 @@ export // Set Bonus System extraction: logic moved from data/game_data.js
             },
             iron_fortress: {
                 name: '철옹성',
-                items: ['bastion_shield_plate', 'spiked_buckler', 'fortified_gauntlet'],
+                items: ['bastion_shield_plate', 'spiked_buckler', 'fortified_gauntlet', 'guardian_seal', 'unyielding_fort'],
                 bonuses: {
-                    2: { label: '철옹성의 비축 — 턴 시작 시 방어막 보유 시 25% 확률로 에너지 +1', apply(gs) { gs._fortSet2 = true; } },
-                    3: { label: '철옹성의 반격 — 공격 시 현재 방어막의 20%만큼 추가 피해', apply(gs) { gs._fortSet3 = true; } },
+                    2: { label: '철옹성의 방패 — 공격 시 현재 방어막의 20%만큼 추가 피해', apply(gs) { gs._fortSet2 = true; } },
+                    3: { label: '철옹성의 가시 — 가시 및 반사 피해 +5', apply(gs) { gs._fortSet3 = true; } },
+                    5: { label: '철옹성의 완성 — 턴 시작 시 방어막이 40 이상이면 에너지 1 회복', apply(gs) { gs._fortSet5 = true; } },
+                }
+            },
+            judgement: {
+                name: '심판의 불꽃',
+                items: ['judgement_torch', 'judgement_ash', 'judgement_censer', 'judgement_scroll', 'judgement_blade'],
+                bonuses: {
+                    2: { label: '심판의 개시 — 전투 시작 시 잔향 15 획득', apply(gs) { gs._judgementSet2 = true; } },
+                    3: { label: '심판의 순환 — 카드 3장 사용할 때마다 에너지 1 회복', apply(gs) { gs._judgementSet3 = true; } },
+                    5: { label: '심판의 완수 — 적 처치 시 체력 5 회복 및 방어막 10 획득', apply(gs) { gs._judgementSet5 = true; } },
+                }
+            },
+            shadow_venom: {
+                name: '독사의 그림자',
+                items: ['venom_dagger', 'shadow_cloak', 'venom_extract', 'venom_mist_charm', 'venom_commander_eye'],
+                bonuses: {
+                    2: { label: '독사의 순환 — 독 피해 +2', apply(gs) { gs._shadowVenomSet2 = true; } },
+                    3: { label: '독사의 수확 — 독으로 적 처치 시 카드 1장 드로우', apply(gs) { gs._shadowVenomSet3 = true; } },
+                    5: { label: '독사의 완성 — 독 피해 발생 시 방어막 2 획득', apply(gs) { gs._shadowVenomSet5 = true; } },
+                }
+            },
+            sanctuary: {
+                name: '성역의 은총',
+                items: ['prayer_rosary', 'grace_chalice', 'light_shroud', 'sanctuary_lantern', 'celestial_wing'],
+                bonuses: {
+                    2: { label: '성역의 축복 — 전투 시작 시 최대 체력 +10, 현재 체력도 +10', apply(gs) { gs._sanctuarySet2 = true; } },
+                    3: { label: '성역의 순환 — 회복량이 최대 체력을 초과하면 초과분만큼 방어막 획득', apply(gs) { gs._sanctuarySet3 = true; } },
+                    5: { label: '성역의 가호 — 턴 시작 시 체력 5 회복 + 무작위 디버프 1개 제거', apply(gs) { gs._sanctuarySet5 = true; } },
                 }
             },
         },

@@ -89,7 +89,7 @@ export const ButtonFeedback = {
   },
 
   /**
-   * 카드 뽑기 버튼 전용 효과
+   * 카드 드로우 버튼 전용 효과
    * @param {Document} doc - document 객체
    */
   triggerDrawButton(doc = document) {

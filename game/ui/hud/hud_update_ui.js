@@ -564,11 +564,11 @@ export const HudUpdateUI = {
           setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
           drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';
         } else {
-          setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
+          setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
           drawBtn.title = '카드를 1장 뽑습니다 (에너지 1).';
         }
       } else {
-        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
+        setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
         drawBtn.title = '전투 중에만 사용할 수 있습니다.';
       }
     }

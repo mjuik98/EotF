@@ -195,7 +195,7 @@ export const CombatStartUI = {
       drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
 
       if (!drawState.inCombat) {
-        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
+        setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
         drawBtn.title = '전투 중에만 사용할 수 있습니다.';
       } else if (!drawState.playerTurn) {
         setActionButtonLabel(drawBtn, '적 턴', 'Q');
@@ -205,10 +205,10 @@ export const CombatStartUI = {
         drawBtn.title = `손패가 가득 찼습니다 (최대 ${drawState.maxHand}장)`;
       } else if (!drawState.hasEnergy) {
         setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
-        drawBtn.title = '카드를 뽑으려면 에너지 1이 필요합니다.';
+        drawBtn.title = '카드를 드로우하려면 에너지 1이 필요합니다.';
       } else {
-        setActionButtonLabel(drawBtn, '🃏 카드 뽑기 (1 에너지)', 'Q');
-        drawBtn.title = '카드 1장을 뽑습니다 (에너지 1).';
+        setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
+        drawBtn.title = '카드 1장을 드로우합니다 (에너지 1).';
       }
     }
 

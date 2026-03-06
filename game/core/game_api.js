@@ -126,7 +126,7 @@ export const GameAPI = {
         }
 
         if (gs.player.energy < 1) {
-            gs.addLog?.('⚠️ 에너지 부족! (카드 뽑기: 1 에너지)', 'damage');
+            gs.addLog?.('⚠️ 에너지 부족! (카드 드로우: 1 에너지)', 'damage');
             GAME.Audio?.playHit?.();
             GAME.getDeps()?.updateUI?.();
             return false;

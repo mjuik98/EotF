@@ -29,8 +29,8 @@ const CODE_LABEL_MAP = {
 
 const KEYBIND_ACTION_LABELS = {
   endTurn: '턴 종료',
-  echoSkill: '에코 스킬',
-  drawCard: '카드 뽑기',
+  echoSkill: '잔향 스킬',
+  drawCard: '카드 드로우',
   nextTarget: '다음 대상',
   pause: '일시정지',
   help: '도움말',
