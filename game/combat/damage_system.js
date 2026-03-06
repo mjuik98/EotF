@@ -113,9 +113,10 @@ export const DamageSystem = {
         if (Number.isFinite(masteryFlat) && masteryFlat > 0) dmg += Math.floor(masteryFlat);
         if (getBuff('vanish') || getBuff('focus') || getBuff('critical_turn')) {
             dmg = Math.floor(dmg * 2);
+            // 치명타 버프 소모: critical_turn 은 소모되지 않음
             if (!getBuff('critical_turn') && this.player?.buffs) {
-                delete this.player.buffs['vanish'];
-                delete this.player.buffs['focus'];
+                if (getBuff('vanish')) delete this.player.buffs['vanish'];
+                if (getBuff('focus')) delete this.player.buffs['focus'];
             }
         }
         if (enemy.statusEffects?.immune > 0) {

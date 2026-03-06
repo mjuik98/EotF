@@ -1,5 +1,6 @@
 export const TURN_START_DEBUFFS = new Set(['poisoned', 'burning', 'slowed', 'confusion']);
-export const ENEMY_TURN_BUFFS = new Set(['mirror', 'spike_shield', 'immune', 'dodge']);
+// 적의 턴에도 소모되지 않는 버프 (공격 시에만 소모)
+export const ENEMY_TURN_BUFFS = new Set(['mirror', 'spike_shield', 'immune', 'dodge', 'focus', 'focus_plus', 'vanish', 'critical_turn']);
 
 export const TurnManagerHelpers = {
     processEnemyStun(enemy) {
