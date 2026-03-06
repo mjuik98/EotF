@@ -29,17 +29,17 @@ import {
 /* ════════════════════════════════════════
    MODULE STATE
 ════════════════════════════════════════ */
-let _codexTab        = 'enemies';
-let _codexFilter     = 'all';
-let _codexSort       = 'default';
-let _codexSearch     = '';
-let _showUnknown     = true;
+let _codexTab = 'enemies';
+let _codexFilter = 'all';
+let _codexSort = 'default';
+let _codexSearch = '';
+let _showUnknown = true;
 let _isTransitioning = false;
 
 // popup navigation
-let _popupList  = [];
-let _popupIdx   = 0;
-let _popupDeps  = null;
+let _popupList = [];
+let _popupIdx = 0;
+let _popupDeps = null;
 let _popupOpenFn = null;
 
 /* ════════════════════════════════════════
@@ -61,8 +61,8 @@ function _ensureCodex(gs) {
   if (!gs.meta.codex) gs.meta.codex = {};
   const c = gs.meta.codex;
   c.enemies = _toSet(c.enemies);
-  c.cards   = _toSet(c.cards);
-  c.items   = _toSet(c.items);
+  c.cards = _toSet(c.cards);
+  c.items = _toSet(c.items);
   return c;
 }
 
@@ -113,32 +113,35 @@ function _cardTypeCls(type) {
   return t === 'ATTACK' ? 'b-attack' : t === 'SKILL' ? 'b-skill' : t === 'POWER' ? 'b-power' : 'b-item';
 }
 function _rarityLabel(r) {
-  const m = { boss:'보스', legendary:'전설', rare:'희귀', uncommon:'고급', common:'일반' };
+  const m = { boss: '보스', legendary: '전설', rare: '희귀', uncommon: '고급', common: '일반' };
   return m[String(r || 'common').toLowerCase()] || '일반';
 }
 function _rarityBadgeCls(r) {
-  const m = { boss:'b-boss', legendary:'b-legendary', rare:'b-rare', uncommon:'b-skill', common:'b-item' };
+  const m = { boss: 'b-boss', legendary: 'b-legendary', rare: 'b-rare', uncommon: 'b-skill', common: 'b-item' };
   return m[String(r || 'common').toLowerCase()] || 'b-item';
 }
 function _enemyTypeCls(e) {
-  if (e.isBoss)  return 't-boss';
+  if (e.isBoss) return 't-boss';
+  if (e.isMiniBoss) return 't-miniboss';
   if (e.isElite) return 't-elite';
   return 't-enemy';
 }
 function _enemyBadgeCls(e) {
-  if (e.isBoss)  return 'b-boss';
+  if (e.isBoss) return 'b-boss';
+  if (e.isMiniBoss) return 'b-miniboss';
   if (e.isElite) return 'b-elite';
   return 'b-enemy';
 }
 function _enemyTypeLabel(e) {
-  if (e.isBoss)  return '보스';
+  if (e.isBoss) return '보스';
+  if (e.isMiniBoss) return '중간 보스';
   if (e.isElite) return '정예';
   return '일반';
 }
 function _rarityCardCls(r) {
   const s = String(r || '').toLowerCase();
   if (s === 'legendary') return 'r-legendary';
-  if (s === 'rare')      return 'r-rare';
+  if (s === 'rare') return 'r-rare';
   return '';
 }
 
@@ -151,11 +154,11 @@ function _filterDefs(data) {
     k: `set:${k}`, l: `◈ ${s.name}`, c: `f-set-${k}`,
   }));
   return {
-    enemies:      [{ k:'all', l:'전체' }, { k:'enemy', l:'일반', c:'f-enemy' }, { k:'elite', l:'정예', c:'f-elite' }, { k:'boss', l:'보스', c:'f-boss' }],
-    cards:        [{ k:'all', l:'전체' }, { k:'attack', l:'공격', c:'f-attack' }, { k:'skill', l:'스킬', c:'f-skill' }, { k:'power', l:'파워', c:'f-power' }],
-    items:        [{ k:'all', l:'전체' }, { k:'common', l:'일반' }, { k:'uncommon', l:'고급' }, { k:'rare', l:'희귀', c:'f-rare' }, { k:'legendary', l:'전설', c:'f-legendary' }, { k:'boss', l:'보스', c:'f-boss' },
-                   ...(setFilters.length ? [null, ...setFilters] : [])],
-    inscriptions: [{ k:'all', l:'전체' }],
+    enemies: [{ k: 'all', l: '전체' }, { k: 'enemy', l: '일반', c: 'f-enemy' }, { k: 'elite', l: '정예', c: 'f-elite' }, { k: 'miniboss', l: '중간 보스', c: 'f-miniboss' }, { k: 'boss', l: '보스', c: 'f-boss' }],
+    cards: [{ k: 'all', l: '전체' }, { k: 'attack', l: '공격', c: 'f-attack' }, { k: 'skill', l: '스킬', c: 'f-skill' }, { k: 'power', l: '파워', c: 'f-power' }],
+    items: [{ k: 'all', l: '전체' }, { k: 'common', l: '일반' }, { k: 'uncommon', l: '고급' }, { k: 'rare', l: '희귀', c: 'f-rare' }, { k: 'legendary', l: '전설', c: 'f-legendary' }, { k: 'boss', l: '보스', c: 'f-boss' },
+    ...(setFilters.length ? [null, ...setFilters] : [])],
+    inscriptions: [{ k: 'all', l: '전체' }],
   };
 }
 
@@ -248,7 +251,7 @@ function _injectModalStructure(doc, deps) {
   });
 
   // 탭 버튼
-  ['enemies','cards','items','inscriptions'].forEach(tab => {
+  ['enemies', 'cards', 'items', 'inscriptions'].forEach(tab => {
     doc.getElementById(`codexTab_${tab}`)?.addEventListener('click', () => {
       _popupDeps?.audioEngine?.playClick?.();
       CodexUI.setCodexTab(tab, _popupDeps);
@@ -263,26 +266,26 @@ function _renderProgress(doc, gs, data) {
   const section = doc.getElementById('cxProgressSection');
   if (!section) return;
 
-  const codex   = _ensureCodex(gs);
+  const codex = _ensureCodex(gs);
   const enemies = Object.values(data.enemies || {});
-  const cards   = _getBaseCards(data);
-  const items   = Object.values(data.items   || {});
+  const cards = _getBaseCards(data);
+  const items = Object.values(data.items || {});
   const inscriptions = Object.values(data.inscriptions || {});
 
   const se = enemies.filter(e => codex.enemies.has(e.id)).length;
-  const sc = cards  .filter(c => codex.cards  .has(c.id)).length;
-  const si = items  .filter(i => codex.items  .has(i.id)).length;
+  const sc = cards.filter(c => codex.cards.has(c.id)).length;
+  const si = items.filter(i => codex.items.has(i.id)).length;
   const sn = inscriptions.filter(i => Number(gs.meta?.inscriptions?.[i.id] || 0) > 0).length;
 
   const total = enemies.length + cards.length + items.length + inscriptions.length;
-  const seen  = se + sc + si + sn;
-  const pct   = total > 0 ? Math.round((seen / total) * 100) : 0;
-  const circ  = 2 * Math.PI * 29;
+  const seen = se + sc + si + sn;
+  const pct = total > 0 ? Math.round((seen / total) * 100) : 0;
+  const circ = 2 * Math.PI * 29;
   const offset = circ - (circ * pct / 100);
 
   // update tab badges
-  [['enemies',se,enemies.length],['cards',sc,cards.length],
-   ['items',si,items.length],['inscriptions',sn,inscriptions.length]].forEach(([t,s,tot]) => {
+  [['enemies', se, enemies.length], ['cards', sc, cards.length],
+  ['items', si, items.length], ['inscriptions', sn, inscriptions.length]].forEach(([t, s, tot]) => {
     const b = doc.getElementById(`cxBadge_${t}`);
     if (b) b.textContent = `${s}/${tot}`;
   });
@@ -308,10 +311,10 @@ function _renderProgress(doc, gs, data) {
       </div>
     </div>
     <div class="cx-cat-bars">
-      ${_catBar('👾 적',     se, enemies.length,      'fill-enemy',  'enemies')}
-      ${_catBar('🃏 카드',   sc, cards.length,         'fill-cards',  'cards')}
-      ${_catBar('💎 유물',   si, items.length,          'fill-items',  'items')}
-      ${_catBar('✨ 각인',   sn, inscriptions.length,  'fill-inscr',  'inscriptions')}
+      ${_catBar('👾 적', se, enemies.length, 'fill-enemy', 'enemies')}
+      ${_catBar('🃏 카드', sc, cards.length, 'fill-cards', 'cards')}
+      ${_catBar('💎 유물', si, items.length, 'fill-items', 'items')}
+      ${_catBar('✨ 각인', sn, inscriptions.length, 'fill-inscr', 'inscriptions')}
     </div>
   `;
 
@@ -347,11 +350,23 @@ function _catBar(label, seen, total, fillCls, tab) {
 function _renderFilterBar(doc, data) {
   const bar = doc.getElementById('cxFilterBar');
   if (!bar) return;
-  bar.innerHTML = `<span class="cx-filter-label">FILTER</span>`;
+
+  // Clear existing content safely
+  bar.textContent = '';
+
+  const label = doc.createElement('span');
+  label.className = 'cx-filter-label';
+  label.textContent = 'FILTER';
+  bar.appendChild(label);
 
   const defs = _filterDefs(data)[_codexTab] || [];
   defs.forEach(d => {
-    if (!d) { bar.innerHTML += '<div class="cx-filter-sep"></div>'; return; }
+    if (!d) {
+      const sep = doc.createElement('div');
+      sep.className = 'cx-filter-sep';
+      bar.appendChild(sep);
+      return;
+    }
     const btn = doc.createElement('button');
     btn.className = 'cx-filter-pill' + (_codexFilter === d.k ? ' ' + (d.c || 'f-all') : '');
     btn.textContent = d.l;
@@ -363,7 +378,10 @@ function _renderFilterBar(doc, data) {
     bar.appendChild(btn);
   });
 
-  bar.innerHTML += '<div class="cx-filter-sep"></div>';
+  const endSep = doc.createElement('div');
+  endSep.className = 'cx-filter-sep';
+  bar.appendChild(endSep);
+
   const tog = doc.createElement('button');
   tog.className = 'cx-unknown-toggle';
   tog.innerHTML = `<span>미발견 표시</span><div class="cx-toggle-track ${_showUnknown ? 'on' : ''}"></div>`;
@@ -390,7 +408,16 @@ function _applyFilter(arr, codex, category) {
     out = out.filter(e => e.set === setKey);
   } else if (_codexFilter !== 'all') {
     out = out.filter(e => {
-      const type   = String(e.type   || '').toLowerCase();
+      // Enemy specific handling
+      if (category === 'enemies') {
+        if (_codexFilter === 'boss') return !!e.isBoss;
+        if (_codexFilter === 'miniboss') return !!e.isMiniBoss;
+        if (_codexFilter === 'elite') return !!e.isElite;
+        if (_codexFilter === 'enemy') return !e.isBoss && !e.isElite && !e.isMiniBoss;
+        return false;
+      }
+      // Default handling (cards, items)
+      const type = String(e.type || '').toLowerCase();
       const rarity = String(e.rarity || '').toLowerCase();
       return type === _codexFilter || rarity === _codexFilter;
     });
@@ -412,12 +439,12 @@ function _applyFilter(arr, codex, category) {
       return (a.name || '').localeCompare(b.name || '', 'ko');
     });
   } else if (_codexSort === 'rarity') {
-    const ord = { legendary:0, boss:1, rare:2, uncommon:3, common:4 };
+    const ord = { legendary: 0, boss: 1, rare: 2, uncommon: 3, common: 4 };
     out.sort((a, b) => {
       if (!seenSet.has(a.id) && !seenSet.has(b.id)) return 0;
       if (!seenSet.has(a.id)) return 1;
       if (!seenSet.has(b.id)) return -1;
-      return (ord[String(a.rarity||'').toLowerCase()] ?? 5) - (ord[String(b.rarity||'').toLowerCase()] ?? 5);
+      return (ord[String(a.rarity || '').toLowerCase()] ?? 5) - (ord[String(b.rarity || '').toLowerCase()] ?? 5);
     });
   } else if (_codexSort === 'count') {
     out.sort((a, b) => {
@@ -438,7 +465,7 @@ function _applyFilter(arr, codex, category) {
    SECTION RENDERER
 ════════════════════════════════════════ */
 function _renderSection(doc, container, title, icon, entries, cardFn, navList) {
-  const sec  = doc.createElement('div');
+  const sec = doc.createElement('div');
   sec.className = 'cx-section';
 
   const seenCount = entries.filter(e => ((_popupDeps?.gs?.meta?.codex?.enemies ||
@@ -497,13 +524,13 @@ function _baseCard(doc, entry, typeClass, rarityClass, seen) {
 ════════════════════════════════════════ */
 function _makeEnemyCard(e, idx, navList, doc) {
   const codex = _ensureCodex(_popupDeps?.gs);
-  const seen  = codex.enemies.has(e.id);
-  const card  = _baseCard(doc, e, _enemyTypeCls(e), '', seen);
+  const seen = codex.enemies.has(e.id);
+  const card = _baseCard(doc, e, _enemyTypeCls(e), '', seen);
   card.style.animationDelay = `${(idx % 12) * 0.03}s`;
 
-  const rec   = _getRecords(_popupDeps?.gs, 'enemies', e.id);
+  const rec = _getRecords(_popupDeps?.gs, 'enemies', e.id);
   const killsBadge = seen && rec ? `<div class="cx-record-badge">💀 ${rec.kills ?? 0}</div>` : '';
-  const hintBadge  = !seen && e.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${e.hint}</div></div>` : '';
+  const hintBadge = !seen && e.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${e.hint}</div></div>` : '';
 
   card.innerHTML += `
     <div class="cx-num">#${String(idx + 1).padStart(3, '0')}</div>
@@ -529,15 +556,15 @@ function _makeEnemyCard(e, idx, navList, doc) {
 ════════════════════════════════════════ */
 function _makeCardEntry(c, idx, navList, doc) {
   const codex = _ensureCodex(_popupDeps?.gs);
-  const seen  = _isSeenCard(codex, c.id);
-  const card  = _baseCard(doc, c, `t-${String(c.type || 'skill').toLowerCase()}`, _rarityCardCls(c.rarity), seen);
+  const seen = _isSeenCard(codex, c.id);
+  const card = _baseCard(doc, c, `t-${String(c.type || 'skill').toLowerCase()}`, _rarityCardCls(c.rarity), seen);
   card.style.animationDelay = `${(idx % 12) * 0.03}s`;
 
-  const rec      = _getRecords(_popupDeps?.gs, 'cards', c.id);
+  const rec = _getRecords(_popupDeps?.gs, 'cards', c.id);
   const usedBadge = seen && rec ? `<div class="cx-record-badge">✦ ${rec.used ?? 0}</div>` : '';
   const upgradeBadge = seen && rec?.upgradedDiscovered ? '<div class="cx-record-badge" style="right:auto;left:12px">+</div>' : '';
   const hintBadge = !seen && c.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${c.hint}</div></div>` : '';
-  const rLabel   = _rarityLabel(c.rarity);
+  const rLabel = _rarityLabel(c.rarity);
 
   card.innerHTML += `
     <div class="cx-num">#${String(idx + 1).padStart(3, '0')}</div>
@@ -563,10 +590,10 @@ function _makeCardEntry(c, idx, navList, doc) {
    ITEM CARD
 ════════════════════════════════════════ */
 function _makeItemCard(item, idx, navList, doc) {
-  const codex  = _ensureCodex(_popupDeps?.gs);
-  const seen   = codex.items.has(item.id);
+  const codex = _ensureCodex(_popupDeps?.gs);
+  const seen = codex.items.has(item.id);
   const setDef = item.set ? _getSets(_popupDeps?.data)[item.set] : null;
-  const card   = _baseCard(doc, item, 't-item',
+  const card = _baseCard(doc, item, 't-item',
     item.rarity === 'legendary' || item.rarity === 'boss' ? 'r-legendary' : _rarityCardCls(item.rarity), seen);
   card.style.animationDelay = `${(idx % 12) * 0.03}s`;
   if (setDef && seen) card.style.setProperty('--cx-card-border', setDef.border || 'rgba(0,255,204,.2)');
@@ -576,6 +603,7 @@ function _makeItemCard(item, idx, navList, doc) {
   card.innerHTML += `
     <div class="cx-num">#${String(idx + 1).padStart(3, '0')}</div>
     ${seen ? `<div class="cx-badge ${_rarityBadgeCls(item.rarity)}">${_rarityLabel(item.rarity)}</div>` : ''}
+    ${seen && item.set ? `<div class="cx-badge b-set" style="top:26px;">세트</div>` : ''}
     <div class="cx-icon-area">
       <div class="cx-icon-bg"></div>
       ${seen ? `<div class="cx-icon">${item.icon || '?'}</div>` : `<div class="cx-silhouette">${item.icon || '?'}</div>`}
@@ -597,29 +625,29 @@ function _makeItemCard(item, idx, navList, doc) {
    SET VIEW (유물 탭 상단)
 ════════════════════════════════════════ */
 function _renderSetView(doc, container, data, gs) {
-  const sets  = _getSets(data);
+  const sets = _getSets(data);
   const items = Object.values(data.items || {});
   const codex = _ensureCodex(gs);
 
   Object.entries(sets).forEach(([key, def]) => {
-    const setItems   = (def.items || []).map(id => items.find(x => x.id === id)).filter(Boolean);
-    const owned      = setItems.filter(x => codex.items.has(x.id)).length;
-    const total      = setItems.length;
-    const r          = 17;
-    const circ       = 2 * Math.PI * r;
-    const ratio      = total > 0 ? (owned / total) : 0;
-    const offset     = circ - (circ * ratio);
+    const setItems = (def.items || []).map(id => items.find(x => x.id === id)).filter(Boolean);
+    const owned = setItems.filter(x => codex.items.has(x.id)).length;
+    const total = setItems.length;
+    const r = 17;
+    const circ = 2 * Math.PI * r;
+    const ratio = total > 0 ? (owned / total) : 0;
+    const offset = circ - (circ * ratio);
     const isComplete = total > 0 && owned >= total;
 
     const block = doc.createElement('div');
     block.className = 'cx-set-block';
-    block.style.setProperty('--sv-color',  def.color  || '#00ffcc');
+    block.style.setProperty('--sv-color', def.color || '#00ffcc');
     block.style.setProperty('--sv-border', def.border || 'rgba(0,255,204,.4)');
-    block.style.setProperty('--sv-glow',   def.glow   || 'rgba(0,255,204,.15)');
+    block.style.setProperty('--sv-glow', def.glow || 'rgba(0,255,204,.15)');
 
     const itemsHtml = setItems.map(it => {
       const itSeen = codex.items.has(it.id);
-      const hint   = !itSeen && it.hint ? `<span class="cx-svi-hint">${it.hint}</span>` : '';
+      const hint = !itSeen && it.hint ? `<span class="cx-svi-hint">${it.hint}</span>` : '';
       return `<div class="cx-svi ${itSeen ? 'owned' : 'missing'}" data-item-id="${it.id}">
         <span class="cx-svi-icon">${itSeen ? (it.icon || '?') : '❔'}</span>
         <span class="cx-svi-name">${itSeen ? it.name : '???'}</span>
@@ -648,8 +676,8 @@ function _renderSetView(doc, container, data, gs) {
         <span class="cx-set-effect-text">
           <span style="color:${def.color || '#00ffcc'};font-weight:600">${owned}/${total} 보유</span>
           ${isComplete
-            ? ` · <span style="color:${def.color || '#00ffcc'};font-weight:600">세트 효과 활성화</span>`
-            : ' · 세트 미완성'}
+        ? ` · <span style="color:${def.color || '#00ffcc'};font-weight:600">세트 효과 활성화</span>`
+        : ' · 세트 미완성'}
           <br>${def.effect || ''}
         </span>
       </div>
@@ -658,7 +686,7 @@ function _renderSetView(doc, container, data, gs) {
     // 보유 아이템 클릭 → 팝업
     block.querySelectorAll('.cx-svi.owned').forEach(el => {
       const itemId = el.dataset.itemId;
-      const item   = items.find(x => x.id === itemId);
+      const item = items.find(x => x.id === itemId);
       if (item) el.addEventListener('click', () => _openItemPopup(item, items.filter(x => codex.items.has(x.id))));
     });
 
@@ -704,10 +732,10 @@ function _closePopup(doc) {
 function _setPopupTheme(doc, bg1, bg2, border, glow) {
   const b = doc.getElementById('cxPopupBox');
   if (!b) return;
-  b.style.setProperty('--pb1',    bg1);
-  b.style.setProperty('--pb2',    bg2);
+  b.style.setProperty('--pb1', bg1);
+  b.style.setProperty('--pb2', bg2);
   b.style.setProperty('--pb-border', border);
-  b.style.setProperty('--pb-glow',   glow);
+  b.style.setProperty('--pb-glow', glow);
 }
 
 function _quoteBlock(quote) {
@@ -731,7 +759,7 @@ function _setPopupBlock(item, data) {
     </div>`;
   }).join('');
   return `
-    <div class="cx-popup-set" style="--set-color:${def.color||'#00ffcc'};--set-border:${def.border||'rgba(0,255,204,.3)'};--set-glow:${def.glow||'transparent'}">
+    <div class="cx-popup-set" style="--set-color:${def.color || '#00ffcc'};--set-border:${def.border || 'rgba(0,255,204,.3)'};--set-glow:${def.glow || 'transparent'}">
       <div class="cx-popup-set-hdr">
         <span>${def.icon || '◈'}</span>
         <span class="cx-popup-set-name">${def.name} 세트</span>
@@ -771,8 +799,8 @@ function _navBlock() {
   if (!_popupList || _popupList.length <= 1) return '';
   const hasPrev = _popupIdx > 0;
   const hasNext = _popupIdx < _popupList.length - 1;
-  const prev    = hasPrev ? _popupList[_popupIdx - 1] : null;
-  const next    = hasNext ? _popupList[_popupIdx + 1] : null;
+  const prev = hasPrev ? _popupList[_popupIdx - 1] : null;
+  const next = hasNext ? _popupList[_popupIdx + 1] : null;
   return `
     <div class="cx-popup-nav">
       <button class="cx-popup-nav-btn" id="cxNavPrev" ${!hasPrev ? 'disabled' : ''}>
@@ -788,7 +816,7 @@ function _navBlock() {
 function _bindNavButtons(doc, openFn) {
   _popupOpenFn = openFn;
   doc.getElementById('cxNavPrev')?.addEventListener('click', () => _navPopup(-1, openFn));
-  doc.getElementById('cxNavNext')?.addEventListener('click', () => _navPopup(1,  openFn));
+  doc.getElementById('cxNavNext')?.addEventListener('click', () => _navPopup(1, openFn));
 }
 
 function _navPopup(dir, openFn) {
@@ -808,11 +836,12 @@ function _openEnemyPopup(e, list, idx) {
   _getPopupOverlay(doc); // ensure exists
 
   const tc = {
-    boss:  { bg1:'#16100a', border:'rgba(240,180,41,.3)',  glow:'rgba(240,180,41,.1)'  },
-    elite: { bg1:'#12081c', border:'rgba(192,132,252,.3)', glow:'rgba(192,132,252,.1)' },
-    enemy: { bg1:'#140810', border:'rgba(255,51,102,.25)', glow:'rgba(255,51,102,.08)' },
+    boss: { bg1: '#16100a', border: 'rgba(240,180,41,.3)', glow: 'rgba(240,180,41,.1)' },
+    miniboss: { bg1: '#160806', border: 'rgba(255,107,74,.3)', glow: 'rgba(255,107,74,.1)' },
+    elite: { bg1: '#12081c', border: 'rgba(192,132,252,.3)', glow: 'rgba(192,132,252,.1)' },
+    enemy: { bg1: '#140810', border: 'rgba(255,51,102,.25)', glow: 'rgba(255,51,102,.08)' },
   };
-  const t = e.isBoss ? tc.boss : e.isElite ? tc.elite : tc.enemy;
+  const t = e.isBoss ? tc.boss : e.isMiniBoss ? tc.miniboss : e.isElite ? tc.elite : tc.enemy;
   _setPopupTheme(doc, t.bg1, '#08080f', t.border, t.glow);
 
   doc.getElementById('cxPopupBox').innerHTML = `
@@ -851,14 +880,14 @@ function _openCardPopup(c, list, idx) {
   _getPopupOverlay(doc);
 
   const tc = {
-    legendary: { bg1:'#12081c', border:'rgba(192,132,252,.32)', glow:'rgba(192,132,252,.1)' },
-    rare:      { bg1:'#100c06', border:'rgba(240,180,41,.28)',   glow:'rgba(240,180,41,.1)'  },
-    attack:    { bg1:'#140810', border:'rgba(255,51,102,.25)',   glow:'rgba(255,51,102,.08)' },
-    skill:     { bg1:'#080c16', border:'rgba(80,180,255,.25)',   glow:'rgba(80,180,255,.08)' },
-    power:     { bg1:'#100c06', border:'rgba(240,180,41,.25)',   glow:'rgba(240,180,41,.08)' },
+    legendary: { bg1: '#12081c', border: 'rgba(192,132,252,.32)', glow: 'rgba(192,132,252,.1)' },
+    rare: { bg1: '#100c06', border: 'rgba(240,180,41,.28)', glow: 'rgba(240,180,41,.1)' },
+    attack: { bg1: '#140810', border: 'rgba(255,51,102,.25)', glow: 'rgba(255,51,102,.08)' },
+    skill: { bg1: '#080c16', border: 'rgba(80,180,255,.25)', glow: 'rgba(80,180,255,.08)' },
+    power: { bg1: '#100c06', border: 'rgba(240,180,41,.25)', glow: 'rgba(240,180,41,.08)' },
   };
   const r = String(c.rarity || '').toLowerCase();
-  const theme = r === 'legendary' ? tc.legendary : r === 'rare' ? tc.rare : tc[String(c.type||'').toLowerCase()] || tc.skill;
+  const theme = r === 'legendary' ? tc.legendary : r === 'rare' ? tc.rare : tc[String(c.type || '').toLowerCase()] || tc.skill;
   _setPopupTheme(doc, theme.bg1, '#08080f', theme.border, theme.glow);
 
   const rLabel = _rarityLabel(c.rarity);
@@ -874,11 +903,11 @@ function _openCardPopup(c, list, idx) {
         <span class="cx-badge ${rBadge}" style="position:static">${upgradeCard.cost ?? 0} cost</span>
       </div>
       ${rec?.upgradedDiscovered
-        ? _safeHtml(upgradeCard.desc || '')
-        : '<span style="opacity:.72">강화 버전은 아직 도감에 기록되지 않았습니다.</span>'}
+      ? _safeHtml(upgradeCard.desc || '')
+      : '<span style="opacity:.72">강화 버전은 아직 도감에 기록되지 않았습니다.</span>'}
       ${rec?.upgradedDiscovered
-        ? `<div style="margin-top:10px;color:#88ccff;font-size:12px">강화 사용 횟수 ${rec.upgradeUsed ?? 0}회</div>`
-        : ''}
+      ? `<div style="margin-top:10px;color:#88ccff;font-size:12px">강화 사용 횟수 ${rec.upgradeUsed ?? 0}회</div>`
+      : ''}
     </div>
   ` : '';
 
@@ -910,13 +939,13 @@ function _openCardPopup(c, list, idx) {
 
 function _openItemPopup(item, list, idx) {
   if (list !== undefined) { _popupList = list; _popupIdx = list.indexOf(item); }
-  const doc    = _getDoc(_popupDeps);
-  const data   = _popupDeps?.data;
+  const doc = _getDoc(_popupDeps);
+  const data = _popupDeps?.data;
   const setDef = item.set ? _getSets(data)[item.set] : null;
   _getPopupOverlay(doc);
 
   const border = setDef?.border || 'rgba(0,255,204,.2)';
-  const glow   = setDef?.glow   || 'rgba(0,255,204,.07)';
+  const glow = setDef?.glow || 'rgba(0,255,204,.07)';
   _setPopupTheme(doc, setDef ? '#0e0a1e' : '#0c0a1a', '#08080f', border, glow);
 
   const rLabel = _rarityLabel(item.rarity);
@@ -930,7 +959,7 @@ function _openItemPopup(item, list, idx) {
         <div class="cx-popup-tags">
           <span class="cx-badge b-item" style="position:static">유물</span>
           <span class="cx-badge ${rBadge}" style="position:static">${rLabel}</span>
-          ${setDef ? `<span class="cx-badge" style="position:static;background:rgba(0,0,0,.3);border:1px solid ${setDef.border};color:${setDef.color}">${setDef.icon || '◈'} ${setDef.name}</span>` : ''}
+          ${item.set ? `<span class="cx-badge b-set" style="position:static">세트</span>` : ''}
         </div>
         <div class="cx-popup-name">${item.name}</div>
         <div class="cx-popup-sub">${rLabel} 등급 유물</div>
@@ -953,7 +982,7 @@ function _openItemPopup(item, list, idx) {
    TAB BUTTON STATE
 ════════════════════════════════════════ */
 function _setTabState(doc, tab) {
-  ['enemies','cards','items','inscriptions'].forEach(t => {
+  ['enemies', 'cards', 'items', 'inscriptions'].forEach(t => {
     doc.getElementById(`codexTab_${t}`)?.classList.toggle('active', t === tab);
   });
 }
@@ -965,15 +994,15 @@ export const CodexUI = {
 
   openCodex(deps = {}) {
     _ensureCodex(deps.gs);
-    _popupDeps      = deps;
-    _codexTab       = 'enemies';
-    _codexFilter    = 'all';
-    _codexSearch    = '';
-    _codexSort      = 'default';
-    _showUnknown    = true;
+    _popupDeps = deps;
+    _codexTab = 'enemies';
+    _codexFilter = 'all';
+    _codexSearch = '';
+    _codexSort = 'default';
+    _showUnknown = true;
     _isTransitioning = false;
 
-    const doc   = _getDoc(deps);
+    const doc = _getDoc(deps);
     const modal = doc.getElementById('codexModal');
     if (modal) {
       modal.classList.remove('fade-out');
@@ -989,7 +1018,7 @@ export const CodexUI = {
   },
 
   closeCodex(deps = {}) {
-    const doc   = _getDoc(deps);
+    const doc = _getDoc(deps);
     const modal = doc.getElementById('codexModal');
     if (!modal) return;
     _closePopup(doc);
@@ -1006,7 +1035,7 @@ export const CodexUI = {
 
   setCodexTab(tab, deps = {}) {
     if (tab === _codexTab && !deps._force) return;
-    _popupDeps   = deps;
+    _popupDeps = deps;
     _codexFilter = 'all';
     _codexSearch = '';
 
@@ -1056,23 +1085,24 @@ export const CodexUI = {
     const { gs, data } = deps;
     if (!gs || !data) return;
 
-    const doc     = _getDoc(deps);
+    const doc = _getDoc(deps);
     const content = doc.getElementById('codexContent');
     if (!content) return;
 
-    const codex   = _ensureCodex(gs);
+    const codex = _ensureCodex(gs);
     content.textContent = '';
 
-    const enemies      = Object.values(data.enemies      || {});
-    const cards        = _getBaseCards(data);
-    const items        = Object.values(data.items        || {});
+    const enemies = Object.values(data.enemies || {});
+    const cards = _getBaseCards(data);
+    const items = Object.values(data.items || {});
     const inscriptions = Object.values(data.inscriptions || {});
 
     if (_codexTab === 'enemies') {
       const secs = [
-        { title:'일반 적', icon:'👾', filter: e => !e.isBoss && !e.isElite },
-        { title:'정예 적', icon:'🔥', filter: e => e.isElite && !e.isBoss  },
-        { title:'보스',    icon:'👑', filter: e => !!e.isBoss               },
+        { title: '일반 적', icon: '👾', filter: e => !e.isBoss && !e.isElite && !e.isMiniBoss },
+        { title: '정예 적', icon: '🔥', filter: e => !!e.isElite && !e.isBoss },
+        { title: '중간 보스', icon: '👹', filter: e => !!e.isMiniBoss },
+        { title: '보스', icon: '👑', filter: e => !!e.isBoss },
       ];
       let any = false;
       secs.forEach(s => {
@@ -1086,13 +1116,13 @@ export const CodexUI = {
 
     else if (_codexTab === 'cards') {
       const secs = [
-        { title:'공격 카드', icon:'⚔️', filter: c => String(c.type||'').toUpperCase() === 'ATTACK' },
-        { title:'스킬 카드', icon:'🛡️', filter: c => String(c.type||'').toUpperCase() === 'SKILL'  },
-        { title:'파워 카드', icon:'⚡',  filter: c => String(c.type||'').toUpperCase() === 'POWER'  },
+        { title: '공격 카드', icon: '⚔️', filter: c => String(c.type || '').toUpperCase() === 'ATTACK' },
+        { title: '스킬 카드', icon: '🛡️', filter: c => String(c.type || '').toUpperCase() === 'SKILL' },
+        { title: '파워 카드', icon: '⚡', filter: c => String(c.type || '').toUpperCase() === 'POWER' },
       ];
       let any = false;
       secs.forEach(s => {
-      const entries = _applyFilter(_getBaseCards(data).filter(s.filter), codex, 'cards');
+        const entries = _applyFilter(_getBaseCards(data).filter(s.filter), codex, 'cards');
         if (!entries.length) return;
         any = true;
         _renderSection(doc, content, s.title, s.icon, entries, _makeCardEntry, entries);
@@ -1110,21 +1140,21 @@ export const CodexUI = {
     }
 
     else if (_codexTab === 'inscriptions') {
-      const seenEntries   = inscriptions.filter(i => Number(gs.meta?.inscriptions?.[i.id] || 0) > 0);
+      const seenEntries = inscriptions.filter(i => Number(gs.meta?.inscriptions?.[i.id] || 0) > 0);
       const unseenEntries = inscriptions.filter(i => Number(gs.meta?.inscriptions?.[i.id] || 0) <= 0);
       // simple render (각인은 기존 방식 유지 가능, 필요하면 확장)
       if (!seenEntries.length && !unseenEntries.length) {
         _renderEmpty(doc, content, '각인을 발견하면 이곳에 기록됩니다');
         return;
       }
-      [{ title:'해금됨', icon:'✨', list:seenEntries }, { title:'미해금', icon:'🌑', list:unseenEntries }].forEach(s => {
+      [{ title: '해금됨', icon: '✨', list: seenEntries }, { title: '미해금', icon: '🌑', list: unseenEntries }].forEach(s => {
         if (!s.list.length) return;
         const sec = doc.createElement('div'); sec.className = 'cx-section';
         sec.innerHTML = `<div class="cx-section-hdr"><span class="cx-section-icon">${s.icon}</span><span class="cx-section-title">${s.title}</span><span class="cx-section-count">${s.list.length}</span></div>`;
         const grid = doc.createElement('div'); grid.className = 'cx-grid';
         s.list.forEach((ins, idx) => {
           const unlocked = s.title === '해금됨';
-          const card     = doc.createElement('article');
+          const card = doc.createElement('article');
           card.className = `cx-card t-item${unlocked ? '' : ' is-unknown'}`;
           card.style.animationDelay = `${(idx % 12) * 0.03}s`;
           card.innerHTML = `
@@ -1159,8 +1189,8 @@ if (typeof document !== 'undefined') {
   document.addEventListener('keydown', e => {
     const popup = document.getElementById('cxDetailPopup');
     if (!popup?.classList.contains('open')) return;
-    if (e.key === 'Escape')      { _closePopup(document); }
-    if (e.key === 'ArrowRight')  { _navPopup(1, _popupOpenFn); }
-    if (e.key === 'ArrowLeft')   { _navPopup(-1, _popupOpenFn); }
+    if (e.key === 'Escape') { _closePopup(document); }
+    if (e.key === 'ArrowRight') { _navPopup(1, _popupOpenFn); }
+    if (e.key === 'ArrowLeft') { _navPopup(-1, _popupOpenFn); }
   });
 }

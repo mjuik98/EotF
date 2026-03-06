@@ -3,12 +3,12 @@ import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
 
 export const CardMethods = {
-    drawCards(count = 1) {
+    drawCards(count = 1, options = {}) {
         const gs = this;
 
         const api = GAME?.Modules?.['GameAPI'];
         if (typeof api?.drawCards === 'function') {
-            api.drawCards(count, gs);
+            api.drawCards(count, gs, options);
         } else if (typeof gs.dispatch === 'function') {
             // 폴백: Dispatch를 직접 호출
             gs.dispatch('card:draw', { count });

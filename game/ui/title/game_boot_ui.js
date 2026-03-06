@@ -99,7 +99,7 @@ function _stopAudioWave() {
   waveRaf = 0;
 }
 
-function _fireWarpBurst(doc, onDone = () => {}) {
+function _fireWarpBurst(doc, onDone = () => { }) {
   const canvas = doc.getElementById('titleWarpCanvas');
   if (!canvas) {
     onDone();
@@ -336,6 +336,21 @@ function _setupKeyboardNav(doc) {
     updateCursor(index);
   };
 
+  const getNextVisibleIndex = (currentIndex, direction) => {
+    let nextIndex = currentIndex;
+    if (nextIndex < 0) {
+      nextIndex = direction > 0 ? -1 : 0;
+    }
+    for (let i = 0; i < navItems.length; i++) {
+      nextIndex = (nextIndex + direction + navItems.length) % navItems.length;
+      const rect = navItems[nextIndex].getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return nextIndex;
+      }
+    }
+    return Math.max(0, currentIndex);
+  };
+
   navItems.forEach((item) => item.addEventListener('mouseenter', () => setFocus(-1)));
 
   if (navBound) return;
@@ -348,13 +363,13 @@ function _setupKeyboardNav(doc) {
 
     if (event.key === 'ArrowDown' || (event.key === 'Tab' && !event.shiftKey)) {
       event.preventDefault();
-      setFocus((navIndex + 1 + navItems.length) % navItems.length);
+      setFocus(getNextVisibleIndex(navIndex, 1));
       return;
     }
 
     if (event.key === 'ArrowUp' || (event.key === 'Tab' && event.shiftKey)) {
       event.preventDefault();
-      setFocus((navIndex - 1 + navItems.length) % navItems.length);
+      setFocus(getNextVisibleIndex(navIndex, -1));
       return;
     }
 
@@ -364,14 +379,16 @@ function _setupKeyboardNav(doc) {
     }
 
     if (event.key === 'n' || event.key === 'N') {
-      setFocus(navItems.findIndex((item) => item.id === 'mainStartBtn'));
+      const idx = navItems.findIndex((item) => item.id === 'mainStartBtn');
+      if (idx >= 0) setFocus(idx);
       return;
     }
 
     if (event.key === 'c' || event.key === 'C') {
       const continueBtn = doc.getElementById('mainContinueBtn');
       if (!continueBtn || continueBtn.closest('#titleContinueWrap')?.style.display === 'none') return;
-      setFocus(navItems.findIndex((item) => item === continueBtn));
+      const idx = navItems.findIndex((item) => item === continueBtn);
+      if (idx >= 0) setFocus(idx);
     }
   });
 }
@@ -448,7 +465,7 @@ export const GameBootUI = {
     }
   },
 
-  fireWarpTransition(doc, onComplete = () => {}) {
+  fireWarpTransition(doc, onComplete = () => { }) {
     _fireWarpBurst(doc, onComplete);
   },
 

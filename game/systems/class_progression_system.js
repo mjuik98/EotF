@@ -89,7 +89,7 @@ function buildRunRewards(gs, outcome, options = {}) {
   if (killBonus > 0) rewards.push({ label: `처치 보너스 (${kills})`, xp: killBonus });
 
   const miniBossCleared = !!(options.miniBossCleared || gs?.combat?.miniBossDefeated);
-  if (miniBossCleared) rewards.push({ label: '미니 보스 처치', xp: 36 });
+  if (miniBossCleared) rewards.push({ label: '중간 보스 처치', xp: 36 });
 
   const bossCleared = isVictory || !!options.bossCleared || !!gs?.combat?.bossDefeated;
   if (bossCleared) rewards.push({ label: '지역 보스 처치', xp: 80 });

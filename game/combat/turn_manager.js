@@ -648,7 +648,7 @@ export const TurnManager = {
         if (drawBlocked) {
             gs.addLog?.(LogUtils.formatSystem('심연 간섭: 이번 턴 드로우 -1'), 'damage');
         }
-        gs.drawCards(drawCount);
+        gs.drawCards(drawCount, { skipRift: true });
 
         // 에너지 버프 처리
         Object.keys(gs.player.buffs || {}).forEach(buffId => {

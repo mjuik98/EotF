@@ -176,6 +176,32 @@ export const STATUS_TOOLTIP_META = {
     nextTurnText: (buff, val) => `${val ?? '?'}턴 후 큰 피해 폭발`,
     nextTurnDmg: () => null,
   },
+  unbreakable_wall: {
+    nameEn: 'Indomitable Wall', typeLabel: '파워 · 중첩',
+    accent: '#94a3b8', nameColor: '#cbd5e1',
+    typeBg: 'rgba(148,163,184,.12)', typeColor: '#94a3b8',
+    gauge: { infinite: true, color: '#94a3b8' },
+    nextTurnText: (buff, val) => {
+      const hits = Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99));
+      return `턴 시작 시 방어막의 50% 피해 (${hits}회 발동)`;
+    },
+    nextTurnDmg: () => null,
+    statLabel: '발동 횟수', statValue: (buff, val) => String(Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99))),
+    statUnit: '회', statColor: '#cbd5e1',
+  },
+  unbreakable_wall_plus: {
+    nameEn: 'Indomitable Wall+', typeLabel: '파워 · 중첩',
+    accent: '#fcd34d', nameColor: '#fbbf24',
+    typeBg: 'rgba(252,211,77,.12)', typeColor: '#fcd34d',
+    gauge: { infinite: true, color: '#fcd34d' },
+    nextTurnText: (buff, val) => {
+      const hits = Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99));
+      return `턴 시작 시 방어막의 70% 피해 (${hits}회 발동)`;
+    },
+    nextTurnDmg: () => null,
+    statLabel: '발동 횟수', statValue: (buff, val) => String(Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99))),
+    statUnit: '회', statColor: '#fbbf24',
+  },
 };
 
 // ── 기본 폴백 팔레트 ─────────────────────────────────────────────

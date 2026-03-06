@@ -87,6 +87,10 @@ function _getStackDisplay(key, buff) {
   if (key === 'time_warp') return String(buff.energyPerTurn || 0);
   if (key === 'berserk_mode') return String(buff.atkGrowth || 0);
   if (key === 'divine_grace') return String(buff.shieldBonus || 0);
+  if (key === 'unbreakable_wall' || key === 'unbreakable_wall_plus') {
+    const hits = Math.max(1, Math.floor(buff.stacks / 99));
+    return `×${hits}`;
+  }
   return '';
 }
 
@@ -103,6 +107,9 @@ function _resolveEffectStackValue(statusKey, buff) {
   if (key === 'divine_grace') candidates.push(buff.shieldBonus);
   if (key === 'resonance' || key === 'acceleration') candidates.push(buff.dmgBonus);
   if (key === 'lifesteal') candidates.push(buff.percent);
+  if (key === 'unbreakable_wall' || key === 'unbreakable_wall_plus') {
+    candidates.push(Math.max(1, Math.floor(buff.stacks / 99)));
+  }
   candidates.push(buff.amount, buff.value);
   const found = candidates.find((v) => Number.isFinite(v) && Number(v) > 0);
   if (!Number.isFinite(found)) return null;
@@ -140,6 +147,9 @@ export const StatusEffectsUI = {
   updateStatusDisplay(deps = {}) {
     const gs = _getGS(deps);
     if (!gs?.player) return;
+
+    // 배지가 갱신되기 전에 현재 툴팁을 명시적으로 숨겨 잔상이 남지 않도록 함
+    StatusTooltipUI.hide({ doc: _getDoc(deps) });
 
     const doc = _getDoc(deps);
     const el = doc.getElementById(deps.statusContainerId || 'statusEffects');

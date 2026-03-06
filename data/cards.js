@@ -165,12 +165,12 @@ export const CARDS = {
         }
     },
     echo_overload: {
-        id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: '잔향 100 충전. 체력 15 소모.', rarity: 'rare',
-        effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 15); gs.addLog('⚡ 잔향 과부하! HP-15', 'damage'); gs.markDirty('hud'); }
+        id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 2 획득. 【소진】', rarity: 'rare', exhaust: true,
+        effect(gs) { gs.addEcho(100); gs.player.energy += 2; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하! HP-20', 'damage'); gs.markDirty('hud'); }
     },
     echo_overload_plus: {
-        id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 1, type: 'SKILL', desc: '잔향 100 충전. 체력 10 소모.', rarity: 'rare', upgraded: true,
-        effect(gs) { gs.player.echo = 100; gs.player.hp = Math.max(1, gs.player.hp - 10); gs.addLog('⚡ 잔향 과부하+! HP-10', 'damage'); gs.markDirty('hud'); }
+        id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 1, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 3 획득. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
+        effect(gs) { gs.addEcho(100); gs.player.energy += 2; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하+! HP-20', 'damage'); gs.markDirty('hud'); }
     },
     desperate_strike: {
         id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '잃은 체력에 비례한 피해. (최대 40)', rarity: 'uncommon',
@@ -197,12 +197,12 @@ export const CARDS = {
         effect(gs) { gs.addShield(20, { name: '성역+', type: 'card' }); gs.addBuff('immune', 1, {}); }
     },
     dark_pact: {
-        id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 5 소모. 카드 2장 드로우.', rarity: 'uncommon',
-        effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 5); gs.drawCards(2); gs.markDirty('hud'); }
+        id: 'dark_pact', name: '어둠의 계약', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 5 소모. 카드 1장 드로우.', rarity: 'uncommon',
+        effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 5); gs.drawCards(1); gs.markDirty('hud'); }
     },
     dark_pact_plus: {
-        id: 'dark_pact_plus', name: '어둠의 계약+', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 3 소모. 카드 3장 드로우.', rarity: 'uncommon', upgraded: true,
-        effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 3); gs.drawCards(3); gs.markDirty('hud'); }
+        id: 'dark_pact_plus', name: '어둠의 계약+', icon: '📜', cost: 0, type: 'SKILL', desc: '체력 5 소모. 카드 2장 드로우.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.player.hp = Math.max(1, gs.player.hp - 5); gs.drawCards(2); gs.markDirty('hud'); }
     },
     quick_step: {
         id: 'quick_step', name: '잔영 이동', icon: '💨', cost: 0, type: 'SKILL', desc: '방어막 4. 잔향 10 충전.', rarity: 'common',
@@ -213,12 +213,12 @@ export const CARDS = {
         effect(gs) { gs.addShield(6, { name: '잔영 이동+', type: 'card' }); gs.addEcho(20, { name: '잔영 이동+', type: 'card' }); }
     },
     surge: {
-        id: 'surge', name: '쇄도', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 2 획득.', rarity: 'uncommon',
-        effect(gs) { gs.player.energy += 2; gs.markDirty('hud'); }
+        id: 'surge', name: '쇄도', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 1 획득.', rarity: 'uncommon',
+        effect(gs) { gs.player.energy += 1; gs.markDirty('hud'); }
     },
     surge_plus: {
-        id: 'surge_plus', name: '쇄도+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 2 획득. 카드 1장 드로우.', rarity: 'uncommon', upgraded: true,
-        effect(gs) { gs.player.energy += 2; gs.drawCards(1); gs.markDirty('hud'); }
+        id: 'surge_plus', name: '쇄도+', icon: '⚡', cost: 0, type: 'SKILL', desc: '에너지 1 획득. 카드 1장 드로우.', rarity: 'uncommon', upgraded: true,
+        effect(gs) { gs.player.energy += 1; gs.drawCards(1); gs.markDirty('hud'); }
     },
     overcharge: {
         id: 'overcharge', name: '과충전', icon: '🔋', cost: 2, type: 'SKILL', desc: '에너지 4 획득. 체력 6 소모. 잔향 30 충전.', rarity: 'rare',
@@ -885,12 +885,12 @@ export const CARDS = {
 
     // ── [8] 무음수호자 (Guardian) ──
     iron_defense: {
-        id: 'iron_defense', name: '무쇠 방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10. 잔향 10 충전.', rarity: 'common',
-        effect(gs) { gs.addShield(10, { name: '무쇠 방어', type: 'card' }); gs.addEcho(10, { name: '무쇠 방어', type: 'card' }); }
+        id: 'iron_defense', name: '무쇠 방어', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 10. 잔향 5 충전.', rarity: 'common',
+        effect(gs) { gs.addShield(10, { name: '무쇠 방어', type: 'card' }); gs.addEcho(5, { name: '무쇠 방어', type: 'card' }); }
     },
     iron_defense_plus: {
-        id: 'iron_defense_plus', name: '무쇠 방어+', icon: '🛡️', cost: 0, type: 'SKILL', desc: '방어막 14. 잔향 20 충전.', rarity: 'common', upgraded: true,
-        effect(gs) { gs.addShield(14, { name: '무쇠 방어+', type: 'card' }); gs.addEcho(20, { name: '무쇠 방어+', type: 'card' }); }
+        id: 'iron_defense_plus', name: '무쇠 방어+', icon: '🛡️', cost: 0, type: 'SKILL', desc: '방어막 14. 잔향 10 충전.', rarity: 'common', upgraded: true,
+        effect(gs) { gs.addShield(14, { name: '무쇠 방어+', type: 'card' }); gs.addEcho(10, { name: '무쇠 방어+', type: 'card' }); }
     },
     shield_slam: {
         id: 'shield_slam', name: '방패 강타', icon: '🔰', cost: 2, type: 'ATTACK', desc: '현재 방어막만큼 피해.', rarity: 'uncommon',
@@ -943,12 +943,12 @@ export const CARDS = {
         effect(gs) { gs.addBuff('thorns', 99, { reflectDmg: 6 }); }
     },
     fortify: {
-        id: 'fortify', name: '무장', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 15. 【소진】', rarity: 'rare', exhaust: true,
-        effect(gs) { gs.addShield(15); }
+        id: 'fortify', name: '무장', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 20. 【소진】', rarity: 'rare', exhaust: true,
+        effect(gs) { gs.addShield(20); }
     },
     fortify_plus: {
-        id: 'fortify_plus', name: '무장+', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 20. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
-        effect(gs) { gs.addShield(20); }
+        id: 'fortify_plus', name: '무장+', icon: '🛡️', cost: 1, type: 'SKILL', desc: '방어막 30. 【소진】', rarity: 'rare', upgraded: true, exhaust: true,
+        effect(gs) { gs.addShield(30); }
     },
     impulse: {
         id: 'impulse', name: '충격파', icon: '💥', cost: 1, type: 'ATTACK', desc: '피해 8. 방어막 수치의 50%만큼 추가 피해.', rarity: 'uncommon',

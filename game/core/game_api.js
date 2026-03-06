@@ -86,9 +86,11 @@ export const GameAPI = {
     /**
      * 카드를 뽑습니다 (단순 상태 변경).
      */
-    drawCards(count = 1, gs = GAME.State) {
+    drawCards(count = 1, gs = GAME.State, options = {}) {
         const result = gs.dispatch(Actions.CARD_DRAW, { count });
         // 카드 UI 갱신은 EventBus 구독자가 처리
+
+        if (options.skipRift) return;
 
         const activeRegionId = Number(gs?._activeRegionId);
         let combatRegionId = Number.isFinite(activeRegionId) ? Math.max(0, Math.floor(activeRegionId)) : null;
@@ -103,8 +105,8 @@ export const GameAPI = {
         }
 
         if (combatRegionId === 5 && gs.combat?.active) {
-            if (typeof gs.addTimeRift === 'function' && result?.attempts > 0) {
-                gs.addTimeRift(result.attempts, '시간의 균열', globalThis.GAME?.getDeps?.() || {});
+            if (typeof gs.addTimeRift === 'function' && result?.drawn > 0) {
+                gs.addTimeRift(result.drawn, '시간의 균열', globalThis.GAME?.getDeps?.() || {});
             }
         }
     },

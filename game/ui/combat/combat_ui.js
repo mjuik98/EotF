@@ -332,10 +332,13 @@ export const CombatUI = {
 
   cleanupAllTooltips(deps = {}) {
     const doc = _getDoc(deps);
-    // ?곹깭?댁긽 ?댄똻 利됱떆 ?④?
+    // 상태이상 툴팁 즉시 숨기기
+    const StatusTooltipUI = globalThis.StatusTooltipUI || globalThis.GAME?.Modules?.StatusTooltipUI;
+    if (StatusTooltipUI) StatusTooltipUI.hide({ doc });
+
     clearTimeout(_enemyStatusTipTimer);
     doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-    // ?섎룄 ?댄똻 利됱떆 ?④?
+    // 의도 툴팁 즉시 숨기기
     clearTimeout(_intentTipTimer);
     doc.getElementById('intentTooltip')?.classList.remove('visible');
   },

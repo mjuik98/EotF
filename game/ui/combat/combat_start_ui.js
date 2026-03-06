@@ -131,7 +131,7 @@ export const CombatStartUI = {
 
       const sub = doc.createElement('div');
       sub.className = 'boss-encounter-sub';
-      sub.textContent = isMiniBoss ? '⚠️ 미니보스 출현' : '⚠️ 보스 출현';
+      sub.textContent = isMiniBoss ? '⚠️ 중간 보스 출현' : '⚠️ 보스 출현';
 
       const name = doc.createElement('div');
       name.className = 'boss-encounter-name';

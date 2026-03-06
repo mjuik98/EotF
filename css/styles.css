@@ -9061,18 +9061,81 @@ body:has(#combatOverlay.active) .panel-right {
   cursor: pointer;
   margin-bottom: 20px;
   display: block;
+  background: rgba(255, 255, 255, 0.08); /* Empty track color */
+  outline: none;
+  transition: all 0.2s;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.settings-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, 
+    var(--slider-fill-color, var(--echo)) 0%, 
+    var(--slider-fill-color, var(--echo)) var(--fill-percent, 0%), 
+    transparent var(--fill-percent, 0%), 
+    transparent 100%
+  );
+  box-shadow: 0 0 8px var(--slider-glow-color, rgba(123, 47, 255, 0.15));
+}
+
+.settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--slider-fill-color, var(--echo));
+  cursor: pointer;
+  margin-top: -5px; /* Centers thumb on track */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 5px var(--slider-fill-color, var(--echo));
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.settings-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+/* Firefox */
+.settings-slider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.settings-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--slider-fill-color, var(--echo));
+  box-shadow: 0 0 8px var(--slider-glow-color, rgba(123, 47, 255, 0.15));
+}
+
+.settings-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--slider-fill-color, var(--echo));
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 5px var(--slider-fill-color, var(--echo));
 }
 
 .settings-slider-master {
-  accent-color: var(--echo);
+  --slider-fill-color: var(--echo);
+  --slider-glow-color: rgba(123, 47, 255, 0.35);
 }
 
 .settings-slider-sfx {
-  accent-color: var(--cyan);
+  --slider-fill-color: var(--cyan);
+  --slider-glow-color: rgba(0, 255, 204, 0.3);
 }
 
 .settings-slider-ambient {
-  accent-color: #44ff88;
+  --slider-fill-color: #44ff88;
+  --slider-glow-color: rgba(68, 255, 136, 0.25);
 }
 
 .settings-row {
