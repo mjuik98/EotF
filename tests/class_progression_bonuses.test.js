@@ -78,8 +78,8 @@ describe('ClassProgressionSystem mastery bonuses', () => {
     expect(gs.player.maxEnergy).toBe(4);
     expect(gs.player.energy).toBe(4);
     expect(gs.player.deck).toEqual(['strike_plus', 'defend_plus', 'foot_step']);
-    expect(gs.meta.codex.cards.has('strike_plus')).toBe(true);
-    expect(gs.meta.codex.cards.has('defend_plus')).toBe(true);
+    expect(gs.meta.codex.cards.has('strike')).toBe(true);
+    expect(gs.meta.codex.cards.has('defend')).toBe(true);
     expect(gs.player._classMasteryRelicChoiceBonus).toBe(1);
     expect(gs.player._classMasteryOpeningDrawBonus).toBe(1);
   });

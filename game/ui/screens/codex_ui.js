@@ -20,6 +20,11 @@
  */
 
 import { DescriptionUtils } from '../../utils/description_utils.js';
+import {
+  getCardUpgradeId,
+  isCardUpgradeVariant,
+  resolveCodexCardId,
+} from '../../systems/codex_records_system.js';
 
 /* ════════════════════════════════════════
    MODULE STATE
@@ -62,13 +67,28 @@ function _ensureCodex(gs) {
 }
 
 function _getRecords(gs, category, id) {
-  return gs?.meta?.codexRecords?.[category]?.[id] || null;
+  const key = category === 'cards' ? resolveCodexCardId(id) : id;
+  return gs?.meta?.codexRecords?.[category]?.[key] || null;
 }
 
 function _safeHtml(desc) {
   if (!desc) return '';
   if (typeof DescriptionUtils?.highlight === 'function') return DescriptionUtils.highlight(desc);
   return desc;
+}
+
+function _getBaseCards(data) {
+  return Object.values(data?.cards || {}).filter((card) => !isCardUpgradeVariant(card?.id));
+}
+
+function _isSeenCard(codex, cardId) {
+  return codex.cards.has(resolveCodexCardId(cardId));
+}
+
+function _getCardUpgradeEntry(data, cardId) {
+  const upgradedId = getCardUpgradeId(cardId);
+  if (!upgradedId) return null;
+  return data?.cards?.[upgradedId] || null;
 }
 
 /* ════════════════════════════════════════
@@ -245,7 +265,7 @@ function _renderProgress(doc, gs, data) {
 
   const codex   = _ensureCodex(gs);
   const enemies = Object.values(data.enemies || {});
-  const cards   = Object.values(data.cards   || {});
+  const cards   = _getBaseCards(data);
   const items   = Object.values(data.items   || {});
   const inscriptions = Object.values(data.inscriptions || {});
 
@@ -509,12 +529,13 @@ function _makeEnemyCard(e, idx, navList, doc) {
 ════════════════════════════════════════ */
 function _makeCardEntry(c, idx, navList, doc) {
   const codex = _ensureCodex(_popupDeps?.gs);
-  const seen  = codex.cards.has(c.id);
+  const seen  = _isSeenCard(codex, c.id);
   const card  = _baseCard(doc, c, `t-${String(c.type || 'skill').toLowerCase()}`, _rarityCardCls(c.rarity), seen);
   card.style.animationDelay = `${(idx % 12) * 0.03}s`;
 
   const rec      = _getRecords(_popupDeps?.gs, 'cards', c.id);
   const usedBadge = seen && rec ? `<div class="cx-record-badge">✦ ${rec.used ?? 0}</div>` : '';
+  const upgradeBadge = seen && rec?.upgradedDiscovered ? '<div class="cx-record-badge" style="right:auto;left:12px">+</div>' : '';
   const hintBadge = !seen && c.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${c.hint}</div></div>` : '';
   const rLabel   = _rarityLabel(c.rarity);
 
@@ -525,7 +546,7 @@ function _makeCardEntry(c, idx, navList, doc) {
       <div class="cx-icon-bg"></div>
       ${seen ? `<div class="cx-icon">${c.icon || '?'}</div>` : `<div class="cx-silhouette">${c.icon || '?'}</div>`}
     </div>
-    ${hintBadge}${usedBadge}
+    ${hintBadge}${usedBadge}${upgradeBadge}
     <div class="cx-info">
       <div class="cx-name">${seen ? c.name : '???'}</div>
       <div class="cx-sub">${seen ? rLabel : '미발견'}</div>
@@ -534,7 +555,7 @@ function _makeCardEntry(c, idx, navList, doc) {
     ${seen && c.isNew ? '<div class="cx-new-dot"></div>' : ''}
   `;
 
-  if (seen) card.addEventListener('click', () => _openCardPopup(c, navList.filter(x => codex.cards.has(x.id))));
+  if (seen) card.addEventListener('click', () => _openCardPopup(c, navList.filter(x => _isSeenCard(codex, x.id))));
   return card;
 }
 
@@ -842,6 +863,24 @@ function _openCardPopup(c, list, idx) {
 
   const rLabel = _rarityLabel(c.rarity);
   const rBadge = r === 'legendary' ? 'b-legendary' : r === 'rare' ? 'b-rare' : 'b-item';
+  const upgradeCard = _getCardUpgradeEntry(_popupDeps?.data, c.id);
+  const rec = _getRecords(_popupDeps?.gs, 'cards', c.id);
+  const upgradeBlock = upgradeCard ? `
+    <div class="cx-popup-divider"></div>
+    <div class="cx-popup-sub" style="margin-bottom:10px">${rec?.upgradedDiscovered ? '강화 카드 발견' : '강화 카드 미발견'}</div>
+    <div class="cx-popup-desc" style="margin-top:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
+        <span class="cx-badge ${_cardTypeCls(upgradeCard.type)}" style="position:static">${upgradeCard.name}</span>
+        <span class="cx-badge ${rBadge}" style="position:static">${upgradeCard.cost ?? 0} cost</span>
+      </div>
+      ${rec?.upgradedDiscovered
+        ? _safeHtml(upgradeCard.desc || '')
+        : '<span style="opacity:.72">강화 버전은 아직 도감에 기록되지 않았습니다.</span>'}
+      ${rec?.upgradedDiscovered
+        ? `<div style="margin-top:10px;color:#88ccff;font-size:12px">강화 사용 횟수 ${rec.upgradeUsed ?? 0}회</div>`
+        : ''}
+    </div>
+  ` : '';
 
   doc.getElementById('cxPopupBox').innerHTML = `
     <button class="cx-popup-close" id="cxPopupClose">✕</button>
@@ -859,6 +898,7 @@ function _openCardPopup(c, list, idx) {
     <div class="cx-popup-divider"></div>
     ${_recordBlock(_popupDeps?.gs, 'cards', c.id)}
     <div class="cx-popup-desc">${_safeHtml(c.desc || '')}</div>
+    ${upgradeBlock}
     ${_quoteBlock(c.quote)}
     ${_navBlock()}
   `;
@@ -1024,7 +1064,7 @@ export const CodexUI = {
     content.textContent = '';
 
     const enemies      = Object.values(data.enemies      || {});
-    const cards        = Object.values(data.cards        || {});
+    const cards        = _getBaseCards(data);
     const items        = Object.values(data.items        || {});
     const inscriptions = Object.values(data.inscriptions || {});
 
@@ -1052,7 +1092,7 @@ export const CodexUI = {
       ];
       let any = false;
       secs.forEach(s => {
-        const entries = _applyFilter(cards.filter(s.filter), codex, 'cards');
+      const entries = _applyFilter(_getBaseCards(data).filter(s.filter), codex, 'cards');
         if (!entries.length) return;
         any = true;
         _renderSection(doc, content, s.title, s.icon, entries, _makeCardEntry, entries);
