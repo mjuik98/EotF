@@ -61,4 +61,42 @@ describe('RunRules preview meta support', () => {
     expect(saveMeta).toHaveBeenCalledTimes(1);
     expect(clearSave).toHaveBeenCalledTimes(1);
   });
+
+  it('reduces difficulty score for offsetting blessing/curse conflicts', () => {
+    const base = {
+      runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'none' },
+    };
+    const vigorOnly = {
+      runConfig: { ascension: 0, endless: false, blessing: 'vigor', curse: 'none' },
+    };
+    const frailOnly = {
+      runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'frail' },
+    };
+    const conflicted = {
+      runConfig: { ascension: 0, endless: false, blessing: 'vigor', curse: 'frail' },
+    };
+
+    expect(RunRules.getDifficultyScore(base)).toBe(0);
+    expect(RunRules.getDifficultyScore(vigorOnly)).toBe(0);
+    expect(RunRules.getDifficultyScore(frailOnly)).toBe(8);
+    expect(RunRules.getConflictScoreAdjustment(conflicted)).toBe(-6);
+    expect(RunRules.getDifficultyScore(conflicted)).toBe(0);
+    expect(RunRules.getRewardMultiplier(conflicted)).toBe(1);
+  });
+
+  it('applies smaller conflict reductions to partial-offset combinations', () => {
+    const wealthTax = {
+      runConfig: { ascension: 0, endless: false, blessing: 'wealth', curse: 'tax' },
+    };
+    const sparkSilence = {
+      runConfig: { ascension: 0, endless: false, blessing: 'spark', curse: 'silence' },
+    };
+    const vigorDecay = {
+      runConfig: { ascension: 0, endless: false, blessing: 'vigor', curse: 'decay' },
+    };
+
+    expect(RunRules.getDifficultyScore(wealthTax)).toBe(0);
+    expect(RunRules.getDifficultyScore(sparkSilence)).toBe(2);
+    expect(RunRules.getDifficultyScore(vigorDecay)).toBe(3);
+  });
 });

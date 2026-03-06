@@ -974,6 +974,14 @@
   margin-bottom: 12px;
 }
 
+.rm-insc-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .rm-insc-title {
   font-family: 'Cinzel', serif;
   font-size: 9px;

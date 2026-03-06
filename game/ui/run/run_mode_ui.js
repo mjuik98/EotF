@@ -423,7 +423,9 @@ function _renderInscriptionOverview(doc, meta, cfg, data, deps = {}) {
     <div class="rm-insc-section${allOff ? ' secret-glow' : ''}">
       <div class="rm-insc-header">
         <div class="rm-insc-title">🔮 보유 각인</div>
-        <div class="rm-insc-summary">획득 ${earned.length}개 · 활성 <span class="ac">${activeCount}</span>개 · <span class="rm-insc-summary-hint">클릭으로 비활성화</span></div>
+        <div class="rm-insc-controls">
+          <div id="inscriptionSummary" class="rm-insc-summary">획득 ${earned.length}개 · 활성 <span class="ac">${activeCount}</span>개 · <span class="rm-insc-summary-hint">클릭으로 비활성화</span></div>
+        </div>
       </div>
       <div class="rm-insc-grid">
         ${earned.map(([id, rawLevel]) => {
@@ -818,14 +820,6 @@ function _renderPanel(doc, cfg, meta, runRules, gs, data) {
     <div id="rmStatSimZone"></div>
     <div id="rmInscriptionZone"></div>
 
-    <div class="run-mode-row inscription-row" id="inscriptionRow" style="display:none;">
-      <span class="run-mode-label">보유 각인</span>
-      <div class="run-inscription-controls">
-        <span id="inscriptionSummary" class="run-inscription-summary"></span>
-        <button id="toggleInscriptionLayoutBtn" class="run-mode-pill" type="button">각인 상세</button>
-      </div>
-    </div>
-
     <div id="rmHiddenEndingZone"></div>
     <div id="rmHistoryZone"></div>
     <div id="rmSummaryBarZone"></div>
@@ -1091,15 +1085,13 @@ export const RunModeUI = {
 
     const doc = _getDoc(deps);
     const settingsPanel = doc.querySelector('#runSettingsModal .run-settings-panel');
-    const row = doc.getElementById('inscriptionRow');
     const summaryEl = doc.getElementById('inscriptionSummary');
-    const toggleLayoutBtn = doc.getElementById('toggleInscriptionLayoutBtn');
     const layout = doc.getElementById('inscriptionLayout');
     const container = doc.getElementById('inscriptionToggles');
     const synergiesWrap = doc.getElementById('inscriptionSynergies');
     const toggleAllBtn = doc.getElementById('toggleAllInscriptionsBtn');
 
-    if (!row || !summaryEl || !toggleLayoutBtn || !layout || !container || !synergiesWrap || !toggleAllBtn) return;
+    if (!summaryEl || !layout || !container || !synergiesWrap || !toggleAllBtn) return;
 
     const runConfig = _ensureRunConfig(meta);
     if (!runConfig) return;
@@ -1110,30 +1102,20 @@ export const RunModeUI = {
     if (earnedInsc.length === 0) {
       const previewZone = doc.getElementById('rmInscriptionZone');
       if (previewZone) previewZone.innerHTML = '';
-      row.style.display = 'none';
       layout.style.display = 'none';
       layout.dataset.open = 'false';
       settingsPanel?.classList.remove('run-settings-with-inscription-layout');
       return;
     }
 
-    row.style.display = '';
-
     const disabledSet = new Set(runConfig.disabledInscriptions || []);
     const activeCount = earnedInsc.filter(([key]) => !disabledSet.has(key)).length;
     const allDisabled = activeCount === 0;
-    const isLayoutOpen = layout.dataset.open === 'true';
-    settingsPanel?.classList.toggle('run-settings-with-inscription-layout', isLayoutOpen);
+    settingsPanel?.classList.remove('run-settings-with-inscription-layout');
 
     summaryEl.textContent = `획득 ${earnedInsc.length}개 · 활성 ${activeCount}개`;
-
-    toggleLayoutBtn.classList.toggle('active', isLayoutOpen);
-    toggleLayoutBtn.textContent = isLayoutOpen ? '닫기' : '각인 상세';
-    toggleLayoutBtn.onclick = () => {
-      layout.dataset.open = isLayoutOpen ? 'false' : 'true';
-      layout.style.display = isLayoutOpen ? 'none' : '';
-      this.refreshInscriptions(deps);
-    };
+    layout.dataset.open = 'false';
+    layout.style.display = 'none';
 
     toggleAllBtn.textContent = allDisabled ? '각인 모두 활성화' : '각인 없이 시작';
     toggleAllBtn.onclick = () => {

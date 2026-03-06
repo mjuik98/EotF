@@ -5,6 +5,12 @@ import { ensureCodexRecords, ensureCodexState } from './codex_records_system.js'
 
 const MIN_REGION_FLOORS = 6;
 const MAX_REGION_FLOORS = 9;
+const RUN_RULE_CONFLICT_SCORE_ADJUSTMENTS = {
+  'vigor:frail': -6,
+  'wealth:tax': -3,
+  'spark:silence': -2,
+  'vigor:decay': -2,
+};
 
 function _rollRegionFloors() {
   return MIN_REGION_FLOORS + Math.floor(Math.random() * (MAX_REGION_FLOORS - MIN_REGION_FLOORS + 1));
@@ -242,7 +248,14 @@ export const RunRules = {
 
     score += curseWeight[cfg.curse || 'none'] || 0;
     score += blessingWeight[cfg.blessing || 'none'] || 0;
+    score += this.getConflictScoreAdjustment(gs);
     return Math.max(0, score);
+  },
+
+  getConflictScoreAdjustment(gs) {
+    const blessing = String(gs?.runConfig?.blessing || 'none');
+    const curse = String(gs?.runConfig?.curse || 'none');
+    return RUN_RULE_CONFLICT_SCORE_ADJUSTMENTS[`${blessing}:${curse}`] || 0;
   },
 
   getRewardMultiplier(gs) {
