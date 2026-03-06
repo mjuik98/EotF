@@ -5,11 +5,12 @@ import { ensureCodexRecords, ensureCodexState } from './codex_records_system.js'
 
 const MIN_REGION_FLOORS = 6;
 const MAX_REGION_FLOORS = 9;
-const RUN_RULE_CONFLICT_SCORE_ADJUSTMENTS = {
-  'vigor:frail': -6,
-  'wealth:tax': -3,
-  'spark:silence': -2,
-  'vigor:decay': -2,
+const INSCRIPTION_SCORE_WEIGHTS = {
+  echo_boost: [-2, -4, -7],
+  resilience: [-3, -6, -10],
+  fortune: [-2, -4, -6],
+  echo_memory: [-10],
+  void_heritage: [-12],
 };
 
 function _rollRegionFloors() {
@@ -124,14 +125,6 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
 }
 
 export const RunRules = {
-  blessings: {
-    none: { id: 'none', name: '없음', desc: '시작 축복이 없습니다.' },
-    vigor: { id: 'vigor', name: '활력의 축복', icon: '💚', desc: '최대 HP +15로 시작합니다.' },
-    wealth: { id: 'wealth', name: '풍요의 축복', icon: '💰', desc: '골드 +35로 시작합니다.' },
-    spark: { id: 'spark', name: '불꽃의 축복', icon: '🔥', desc: '잔향 +30으로 시작합니다.' },
-    forge: { id: 'forge', name: '정련의 축복', icon: '🛠️', desc: '시작 시 덱의 무작위 카드 1장을 강화 카드로 교체합니다.' },
-  },
-
   curses: {
     none: { id: 'none', name: '없음', desc: '적용되는 저주가 없습니다.' },
     tax: { id: 'tax', name: '탐욕의 저주', icon: '🧾', desc: '상점 비용이 +20% 증가합니다.' },
@@ -162,7 +155,7 @@ export const RunRules = {
     }
 
     if (!meta.runConfig || typeof meta.runConfig !== 'object') {
-      meta.runConfig = { ascension: 0, endless: false, blessing: 'none', curse: 'none', disabledInscriptions: [] };
+      meta.runConfig = { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] };
     }
     if (!Array.isArray(meta.runConfig.disabledInscriptions)) {
       meta.runConfig.disabledInscriptions = [];
@@ -172,7 +165,7 @@ export const RunRules = {
     }
     if (!Number.isFinite(meta.runConfig.ascension)) meta.runConfig.ascension = 0;
     if (typeof meta.runConfig.endless !== 'boolean') meta.runConfig.endless = false;
-    if (!this.blessings[meta.runConfig.blessing]) meta.runConfig.blessing = 'none';
+    if ('blessing' in meta.runConfig) delete meta.runConfig.blessing;
     if (!this.curses[meta.runConfig.curse]) meta.runConfig.curse = 'none';
     if (!Array.isArray(meta.runConfigPresets)) meta.runConfigPresets = [];
     if (!Array.isArray(meta.runHistory)) meta.runHistory = [];
@@ -195,7 +188,6 @@ export const RunRules = {
         const config = preset.config && typeof preset.config === 'object' ? preset.config : {};
         const ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(Number(config.ascension) || 0)));
         const endless = meta.unlocks.endless ? !!config.endless : false;
-        const blessing = this.blessings[config.blessing] ? config.blessing : 'none';
         const curse = this.curses[config.curse] ? config.curse : 'none';
         const disabledInscriptions = Array.isArray(config.disabledInscriptions)
           ? [...new Set(config.disabledInscriptions.map((id) => String(id)))]
@@ -206,7 +198,6 @@ export const RunRules = {
           config: {
             ascension,
             endless,
-            blessing,
             curse,
             disabledInscriptions,
           },
@@ -221,7 +212,7 @@ export const RunRules = {
         score: Math.max(0, Math.floor(Number(entry.score) || 0)),
         ascension: Math.max(0, Math.floor(Number(entry.ascension) || 0)),
         endless: !!entry.endless,
-        blessing: this.blessings[entry.blessing] ? entry.blessing : 'none',
+        activeInscriptions: Math.max(0, Math.floor(Number(entry.activeInscriptions) || 0)),
         curse: this.curses[entry.curse] ? entry.curse : 'none',
       }));
 
@@ -244,18 +235,31 @@ export const RunRules = {
     if (this.isEndless(gs)) score += 10;
 
     const curseWeight = { tax: 5, fatigue: 10, frail: 8, decay: 10, silence: 8 };
-    const blessingWeight = { vigor: -5, wealth: -5, spark: -4, forge: -8 };
 
     score += curseWeight[cfg.curse || 'none'] || 0;
-    score += blessingWeight[cfg.blessing || 'none'] || 0;
-    score += this.getConflictScoreAdjustment(gs);
+    score += this.getInscriptionScoreAdjustment(gs);
     return Math.max(0, score);
   },
 
-  getConflictScoreAdjustment(gs) {
-    const blessing = String(gs?.runConfig?.blessing || 'none');
-    const curse = String(gs?.runConfig?.curse || 'none');
-    return RUN_RULE_CONFLICT_SCORE_ADJUSTMENTS[`${blessing}:${curse}`] || 0;
+  getInscriptionScoreAdjustment(gs) {
+    if (!gs?.meta?.inscriptions) return 0;
+
+    const disabled = new Set(gs?.runConfig?.disabledInscriptions || []);
+    let score = 0;
+
+    for (const [id, rawLevel] of Object.entries(gs.meta.inscriptions)) {
+      if (disabled.has(id)) continue;
+      const level = typeof rawLevel === 'boolean'
+        ? (rawLevel ? 1 : 0)
+        : Math.max(0, Math.floor(Number(rawLevel) || 0));
+      if (level <= 0) continue;
+
+      const weights = INSCRIPTION_SCORE_WEIGHTS[id];
+      if (!weights?.length) continue;
+      score += weights[Math.min(level, weights.length) - 1] || 0;
+    }
+
+    return score;
   },
 
   getRewardMultiplier(gs) {
@@ -297,28 +301,6 @@ export const RunRules = {
     if (ascHpLoss > 0) {
       gs.player.maxHp = Math.max(1, gs.player.maxHp - ascHpLoss);
       gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-    }
-
-    const blessing = cfg.blessing || 'none';
-    if (blessing === 'vigor') {
-      gs.player.maxHp += 15;
-      gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 15);
-    } else if (blessing === 'wealth') {
-      gs.player.gold += 35;
-    } else if (blessing === 'spark') {
-      gs.player.echo = Math.min(gs.player.maxEcho, gs.player.echo + 30);
-    } else if (blessing === 'forge') {
-      const upgradeMap = DATA?.upgradeMap || null;
-      if (upgradeMap) {
-        const upgradable = (gs.player.deck || []).filter((id) => upgradeMap[id]);
-        if (upgradable.length > 0) {
-          const pick = upgradable[Math.floor(Math.random() * upgradable.length)];
-          const upgradedId = upgradeMap[pick];
-          const idx = gs.player.deck.indexOf(pick);
-          if (idx >= 0 && upgradedId) gs.player.deck[idx] = upgradedId;
-          gs.meta?.codex?.cards?.add?.(upgradedId);
-        }
-      }
     }
 
     const curse = cfg.curse || 'none';
@@ -391,12 +373,6 @@ export const RunRules = {
     return 3;
   },
 
-  nextBlessingId(current = 'none') {
-    const ids = Object.keys(this.blessings);
-    const idx = Math.max(0, ids.indexOf(current));
-    return ids[(idx + 1) % ids.length];
-  },
-
   nextCurseId(current = 'none') {
     const ids = Object.keys(this.curses);
     const idx = Math.max(0, ids.indexOf(current));
@@ -420,7 +396,10 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
       score: RunRules.getDifficultyScore(gs),
       ascension: RunRules.getAscension(gs),
       endless: RunRules.isEndless(gs),
-      blessing: RunRules.blessings[gs.runConfig?.blessing] ? gs.runConfig.blessing : 'none',
+      activeInscriptions: Object.entries(gs.meta?.inscriptions || {})
+        .filter(([, value]) => Number(value) > 0)
+        .filter(([id]) => !(gs.runConfig?.disabledInscriptions || []).includes(id))
+        .length,
       curse: RunRules.curses[gs.runConfig?.curse] ? gs.runConfig.curse : 'none',
     },
     ...(Array.isArray(gs.meta.runHistory) ? gs.meta.runHistory : []),

@@ -17,13 +17,14 @@ describe('RunRules preview meta support', () => {
       runCount: 1,
       unlocks: { ascension: true, endless: true },
       maxAscension: 3,
-      runConfig: { ascension: 1, endless: true, blessing: 'forge', curse: 'silence', disabledInscriptions: [] },
+      runConfig: { ascension: 1, endless: true, curse: 'silence', disabledInscriptions: [] },
     };
 
     RunRules.ensureMeta(meta);
 
     expect(meta.runConfigPresets).toEqual([null, null, null, null]);
     expect(meta.runHistory).toEqual([]);
+    expect(meta.runConfig).not.toHaveProperty('blessing');
   });
 
   it('records a compact history entry on run finalize', () => {
@@ -32,14 +33,15 @@ describe('RunRules preview meta support', () => {
     GAME.Modules = { SaveSystem: { saveMeta, clearSave } };
     GAME.State = {
       _runOutcomeCommitted: false,
-      runConfig: { ascension: 2, endless: true, blessing: 'spark', curse: 'tax' },
+      runConfig: { ascension: 2, endless: true, curse: 'tax', disabledInscriptions: ['fortune'] },
       worldMemory: {},
       stats: { maxChain: 4 },
       meta: {
         runCount: 2,
         worldMemory: {},
+        inscriptions: { echo_boost: 2, fortune: 1, resilience: 0 },
         runHistory: [],
-        runConfig: { ascension: 2, endless: true, blessing: 'spark', curse: 'tax', disabledInscriptions: [] },
+        runConfig: { ascension: 2, endless: true, curse: 'tax', disabledInscriptions: ['fortune'] },
         unlocks: { ascension: true, endless: true },
         maxAscension: 4,
         progress: { victories: 0, failures: 0, echoShards: 0, totalDamage: 0, bossKills: {} },
@@ -54,49 +56,56 @@ describe('RunRules preview meta support', () => {
       result: 'victory',
       ascension: 2,
       endless: true,
-      blessing: 'spark',
       curse: 'tax',
+      activeInscriptions: 1,
       score: expect.any(Number),
     });
     expect(saveMeta).toHaveBeenCalledTimes(1);
     expect(clearSave).toHaveBeenCalledTimes(1);
   });
 
-  it('reduces difficulty score for offsetting blessing/curse conflicts', () => {
+  it('reduces difficulty score for active inscriptions', () => {
     const base = {
-      runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'none' },
+      runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
+      meta: { inscriptions: {} },
     };
-    const vigorOnly = {
-      runConfig: { ascension: 0, endless: false, blessing: 'vigor', curse: 'none' },
+    const echoOnly = {
+      runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
+      meta: { inscriptions: { echo_boost: 1 } },
     };
     const frailOnly = {
-      runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'frail' },
+      runConfig: { ascension: 0, endless: false, curse: 'frail', disabledInscriptions: [] },
+      meta: { inscriptions: {} },
     };
-    const conflicted = {
-      runConfig: { ascension: 0, endless: false, blessing: 'vigor', curse: 'frail' },
+    const mitigated = {
+      runConfig: { ascension: 0, endless: false, curse: 'frail', disabledInscriptions: [] },
+      meta: { inscriptions: { resilience: 1 } },
     };
 
     expect(RunRules.getDifficultyScore(base)).toBe(0);
-    expect(RunRules.getDifficultyScore(vigorOnly)).toBe(0);
+    expect(RunRules.getDifficultyScore(echoOnly)).toBe(0);
     expect(RunRules.getDifficultyScore(frailOnly)).toBe(8);
-    expect(RunRules.getConflictScoreAdjustment(conflicted)).toBe(-6);
-    expect(RunRules.getDifficultyScore(conflicted)).toBe(0);
-    expect(RunRules.getRewardMultiplier(conflicted)).toBe(1);
+    expect(RunRules.getInscriptionScoreAdjustment(mitigated)).toBe(-3);
+    expect(RunRules.getDifficultyScore(mitigated)).toBe(5);
+    expect(RunRules.getRewardMultiplier(mitigated)).toBe(1.07);
   });
 
-  it('applies smaller conflict reductions to partial-offset combinations', () => {
-    const wealthTax = {
-      runConfig: { ascension: 0, endless: false, blessing: 'wealth', curse: 'tax' },
+  it('ignores disabled inscriptions and scales stronger inscription stacks', () => {
+    const taxWithFortune = {
+      runConfig: { ascension: 0, endless: false, curse: 'tax', disabledInscriptions: [] },
+      meta: { inscriptions: { fortune: 2 } },
     };
-    const sparkSilence = {
-      runConfig: { ascension: 0, endless: false, blessing: 'spark', curse: 'silence' },
+    const silenceWithEcho = {
+      runConfig: { ascension: 0, endless: false, curse: 'silence', disabledInscriptions: [] },
+      meta: { inscriptions: { echo_boost: 3 } },
     };
-    const vigorDecay = {
-      runConfig: { ascension: 0, endless: false, blessing: 'vigor', curse: 'decay' },
+    const disabledFortune = {
+      runConfig: { ascension: 0, endless: false, curse: 'tax', disabledInscriptions: ['fortune'] },
+      meta: { inscriptions: { fortune: 2 } },
     };
 
-    expect(RunRules.getDifficultyScore(wealthTax)).toBe(0);
-    expect(RunRules.getDifficultyScore(sparkSilence)).toBe(2);
-    expect(RunRules.getDifficultyScore(vigorDecay)).toBe(3);
+    expect(RunRules.getDifficultyScore(taxWithFortune)).toBe(1);
+    expect(RunRules.getDifficultyScore(silenceWithEcho)).toBe(1);
+    expect(RunRules.getDifficultyScore(disabledFortune)).toBe(5);
   });
 });

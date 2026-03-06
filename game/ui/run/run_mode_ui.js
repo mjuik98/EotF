@@ -9,11 +9,12 @@ function _getMeta(gs) {
 function _ensureRunConfig(meta) {
   if (!meta) return null;
   if (!meta.runConfig) {
-    meta.runConfig = { ascension: 0, endless: false, blessing: 'none', curse: 'none', disabledInscriptions: [] };
+    meta.runConfig = { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] };
   }
   if (!Array.isArray(meta.runConfig.disabledInscriptions)) {
     meta.runConfig.disabledInscriptions = [];
   }
+  if ('blessing' in meta.runConfig) delete meta.runConfig.blessing;
   return meta.runConfig;
 }
 
@@ -45,33 +46,6 @@ const DIFF_LEVELS = [
   { max: 999, label: '지옥', color: '#cc33ff', desc: '숙련자 전용' },
 ];
 
-const CONFLICTS = [
-  {
-    b: 'vigor',
-    c: 'frail',
-    msg: '활력의 축복과 허약의 저주가 서로 상쇄됩니다.',
-    net: '실효: 최대 HP +5',
-  },
-  {
-    b: 'vigor',
-    c: 'decay',
-    msg: '초반 최대 HP는 늘어나지만 전투 종료마다 감소합니다.',
-    net: '실효: 장기전에서 HP 손실 누적',
-  },
-  {
-    b: 'wealth',
-    c: 'tax',
-    msg: '초기 골드는 늘어나지만 상점 비용도 함께 증가합니다.',
-    net: '실효: 초반 구매 유연성 증가, 후반 효율 감소',
-  },
-  {
-    b: 'spark',
-    c: 'silence',
-    msg: '초반 3턴 에너지 제한으로 잔향 활용 타이밍이 제한됩니다.',
-    net: '실효: 초반 전개 템포 감소',
-  },
-];
-
 function _calcDiffScore(runRules, gs) {
   if (typeof runRules?.getDifficultyScore === 'function') return runRules.getDifficultyScore(gs);
   const cfg = gs?.runConfig || {};
@@ -79,18 +53,13 @@ function _calcDiffScore(runRules, gs) {
   let score = asc * 15;
   if (cfg.endless || cfg.endlessMode) score += 10;
   const curseWeight = { tax: 5, fatigue: 10, frail: 8, decay: 10, silence: 8 };
-  const blessWeight = { vigor: -5, wealth: -5, spark: -4, forge: -8 };
   score += curseWeight[cfg.curse || 'none'] || 0;
-  score += blessWeight[cfg.blessing || 'none'] || 0;
+  score += runRules?.getInscriptionScoreAdjustment?.(gs) || 0;
   return Math.max(0, score);
 }
 
 function _getDiffLevel(score) {
   return DIFF_LEVELS.find((item) => score <= item.max) || DIFF_LEVELS[DIFF_LEVELS.length - 1];
-}
-
-function _getConflict(blessing, curse) {
-  return CONFLICTS.find((item) => item.b === blessing && item.c === curse) || null;
 }
 
 function _reducedMotion() {
@@ -108,7 +77,6 @@ function _cloneRunConfig(cfg) {
   return {
     ascension: Math.max(0, Math.floor(Number(cfg?.ascension) || 0)),
     endless: !!cfg?.endless,
-    blessing: String(cfg?.blessing || 'none'),
     curse: String(cfg?.curse || 'none'),
     disabledInscriptions: Array.isArray(cfg?.disabledInscriptions)
       ? [...new Set(cfg.disabledInscriptions.map((id) => String(id)))]
@@ -174,16 +142,6 @@ function _getStartStatSnapshot(meta, cfg, runRules, gs, data) {
   if (ascHpLoss > 0) {
     snapshot.maxHp = Math.max(1, snapshot.maxHp - ascHpLoss);
     snapshot.hp = Math.min(snapshot.hp, snapshot.maxHp);
-  }
-
-  const blessing = cfg?.blessing || 'none';
-  if (blessing === 'vigor') {
-    snapshot.maxHp += 15;
-    snapshot.hp = Math.min(snapshot.maxHp, snapshot.hp + 15);
-  } else if (blessing === 'wealth') {
-    snapshot.gold += 35;
-  } else if (blessing === 'spark') {
-    snapshot.echo = Math.min(snapshot.maxEcho, snapshot.echo + 30);
   }
 
   const curse = cfg?.curse || 'none';
@@ -286,7 +244,6 @@ function _renderSummaryBar(doc, cfg, meta, runRules, gs, data) {
   if (!zone) return;
 
   const tags = [];
-  const blessing = runRules?.blessings?.[cfg?.blessing || 'none'];
   const curse = runRules?.curses?.[cfg?.curse || 'none'];
   const score = _calcDiffScore(runRules, gs);
   const reward = typeof runRules?.getRewardMultiplier === 'function'
@@ -298,8 +255,8 @@ function _renderSummaryBar(doc, cfg, meta, runRules, gs, data) {
 
   tags.push({ tone: 'neutral', text: `A${cfg?.ascension || 0}` });
   if (cfg?.endless) tags.push({ tone: 'echo', text: '무한 모드' });
-  if (blessing && blessing.id !== 'none') tags.push({ tone: 'echo', text: `${blessing.icon || ''} ${blessing.name}`.trim() });
   if (curse && curse.id !== 'none') tags.push({ tone: 'danger', text: `${curse.icon || ''} ${curse.name}`.trim() });
+  if (_getActiveInscriptionCount(meta, cfg) > 0) tags.push({ tone: 'echo', text: `활성 각인 ${_getActiveInscriptionCount(meta, cfg)}` });
   if (activeSyn.length > 0) tags.push({ tone: 'purple', text: `시너지 ${activeSyn.length}` });
   if (allOff) tags.push({ tone: 'secret', text: '각인 없이 시작' });
 
@@ -350,8 +307,10 @@ function _renderPresets(doc, cfg, meta, runRules) {
           <span class="rm-preset-inline-desc">
             A${selectedPreset.config?.ascension || 0}
             / ${selectedPreset.config?.endless ? '무한' : '일반'}
-            / ${runRules?.blessings?.[selectedPreset.config?.blessing]?.name || '축복 없음'}
             / ${runRules?.curses?.[selectedPreset.config?.curse]?.name || '저주 없음'}
+            / 각인 ${Array.isArray(selectedPreset.config?.disabledInscriptions)
+              ? Math.max(0, _getEarnedInscriptionCount(meta) - selectedPreset.config.disabledInscriptions.length)
+              : _getActiveInscriptionCount(meta, selectedPreset.config || {})}
           </span>
         ` : `
           <span class="rm-preset-inline-slot empty">슬롯 ${selectedSlot + 1}</span>
@@ -383,7 +342,7 @@ function _renderRunHistory(doc, cfg, meta, runRules, gs) {
             <span class="rm-history-score">${last.score}점</span>
             <span class="rm-history-delta ${compare > 0 ? 'up' : compare < 0 ? 'down' : 'same'}">${compare === 0 ? '직전과 동일 난이도' : `직전 대비 ${_formatSigned(compare)}`}</span>
           </div>
-          <div class="rm-history-sub">A${last.ascension || 0} / ${last.endless ? '무한' : '일반'} / ${runRules?.blessings?.[last.blessing]?.icon || ''} ${runRules?.blessings?.[last.blessing]?.name || '축복 없음'} / ${runRules?.curses?.[last.curse]?.icon || ''} ${runRules?.curses?.[last.curse]?.name || '저주 없음'} / ${_formatRunAge(last.at)}</div>
+          <div class="rm-history-sub">A${last.ascension || 0} / ${last.endless ? '무한' : '일반'} / 활성 각인 ${last.activeInscriptions || 0} / ${runRules?.curses?.[last.curse]?.icon || ''} ${runRules?.curses?.[last.curse]?.name || '저주 없음'} / ${_formatRunAge(last.at)}</div>
         ` : `
           <div class="rm-history-main empty">아직 완료한 런이 없습니다</div>
           <div class="rm-history-sub">한 번 완료하면 난이도, 경로, 수정자 흐름을 여기서 비교할 수 있습니다.</div>
@@ -395,8 +354,8 @@ function _renderRunHistory(doc, cfg, meta, runRules, gs) {
             <span class="rm-history-chip-result">${entry.result === 'victory' ? '승' : '패'}</span>
             <span class="rm-history-chip-score">${entry.score}</span>
             <span class="rm-history-chip-meta">A${entry.ascension || 0}${entry.endless ? ' / 무한' : ''}</span>
-            <span class="rm-history-chip-icons">${runRules?.blessings?.[entry.blessing]?.icon || ''}${runRules?.curses?.[entry.curse]?.icon || ''}</span>
-            <span class="rm-history-chip-label">${runRules?.curses?.[entry.curse]?.name || '저주 없음'}</span>
+            <span class="rm-history-chip-icons">${runRules?.curses?.[entry.curse]?.icon || ''}</span>
+            <span class="rm-history-chip-label">각인 ${entry.activeInscriptions || 0}${entry.curse && entry.curse !== 'none' ? ` · ${runRules?.curses?.[entry.curse]?.name || '저주 없음'}` : ''}</span>
           </div>
         `).join('') : '<div class="rm-history-empty">런을 완료하면 최근 기록이 여기에 쌓입니다.</div>'}
       </div>
@@ -485,7 +444,7 @@ function _renderPresetDialog(doc, deps = {}) {
     <div class="rm-preset-dialog" role="dialog" aria-modal="true" aria-labelledby="rmPresetDialogTitle">
       <div class="rm-preset-dialog-kicker">프리셋 저장</div>
       <div id="rmPresetDialogTitle" class="rm-preset-dialog-title">이 구성을 저장합니다</div>
-      <div class="rm-preset-dialog-desc">슬롯 ${state.slot + 1}에 현재 승천, 모드, 축복, 저주, 각인 설정을 저장합니다.</div>
+      <div class="rm-preset-dialog-desc">슬롯 ${state.slot + 1}에 현재 승천, 모드, 저주, 각인 설정을 저장합니다.</div>
       <input id="rmPresetNameInput" class="rm-preset-input" type="text" maxlength="32" value="${_escapeAttr(state.name || '')}" placeholder="프리셋 이름" />
       <div class="rm-preset-dialog-actions">
         <button type="button" class="rm-preset-btn subtle" data-action="cancel-preset-save">취소</button>
@@ -548,28 +507,6 @@ function _curseFlash(el, modalEl) {
   setTimeout(() => ripple.remove(), 700);
 }
 
-function _renderConflict(cfg, doc) {
-  const zone = doc.getElementById('rmConflictZone');
-  if (!zone) return;
-
-  const conflict = _getConflict(cfg.blessing || 'none', cfg.curse || 'none');
-  if (!conflict) {
-    zone.innerHTML = '';
-    return;
-  }
-
-  zone.innerHTML = `
-    <div class="rm-conflict-banner">
-      <div class="rm-conflict-icon">!</div>
-      <div class="rm-conflict-body">
-        <div class="rm-conflict-title">조합 충돌 경고</div>
-        <div class="rm-conflict-desc">${conflict.msg}</div>
-        <div class="rm-conflict-net">${conflict.net}</div>
-      </div>
-    </div>
-  `;
-}
-
 function _renderHiddenEnding(meta, cfg, doc) {
   const zone = doc.getElementById('rmHiddenEndingZone');
   if (!zone) return;
@@ -600,22 +537,18 @@ function _renderOptionGrid(container, items, selected, type, doc) {
   if (!container) return;
 
   const isCurse = type === 'curse';
-  const blessing = type === 'blessing' ? selected : (doc.querySelector('#rmBlessingGrid .rm-opt.selected')?.dataset.id || 'none');
-  const curse = type === 'curse' ? selected : (doc.querySelector('#rmCurseGrid .rm-opt.selected')?.dataset.id || 'none');
-  const conflict = _getConflict(blessing, curse);
 
   container.innerHTML = '';
 
   for (const opt of items) {
     const isSelected = opt.id === selected;
     const isNone = opt.id === 'none';
-    const isConflict = conflict && ((type === 'blessing' && opt.id === conflict.b) || (type === 'curse' && opt.id === conflict.c));
 
     const card = doc.createElement('button');
     card.type = 'button';
-    card.className = `rm-opt ${isCurse ? 'curse' : 'blessing'}${isSelected ? ' selected' : ''}${isNone ? ' none-opt' : ''}${isConflict ? ' conflict' : ''}`;
+    card.className = `rm-opt option-modifier${isCurse ? ' curse' : ''}${isSelected ? ' selected' : ''}${isNone ? ' none-opt' : ''}`;
     card.dataset.id = opt.id;
-    card.dataset.action = isCurse ? 'select-curse' : 'select-blessing';
+    card.dataset.action = 'select-curse';
     card.setAttribute('role', 'radio');
     card.setAttribute('aria-checked', isSelected ? 'true' : 'false');
     card.setAttribute('tabindex', isSelected ? '0' : '-1');
@@ -626,7 +559,6 @@ function _renderOptionGrid(container, items, selected, type, doc) {
       <div class="rm-opt-icon">${opt.icon || '*'}</div>
       <div class="rm-opt-name">${opt.name}${opt.isNew ? '<span class="rm-new-badge">NEW</span>' : ''}</div>
       <div class="rm-opt-desc">${opt.desc || ''}</div>
-      ${isConflict ? '<div class="rm-conflict-dot" title="조합 충돌">*</div>' : ''}
     `;
 
     container.appendChild(card);
@@ -653,10 +585,6 @@ function _bindPanelEvents(deps = {}) {
     }
     if (action === 'toggle-endless') {
       RunModeUI.toggleEndlessMode(deps);
-      return;
-    }
-    if (action === 'select-blessing') {
-      RunModeUI.selectBlessing(id, deps);
       return;
     }
     if (action === 'select-curse') {
@@ -820,11 +748,6 @@ function _renderPanel(doc, cfg, meta, runRules, gs, data) {
       </div>
     </div>
 
-    <div id="rmConflictZone"></div>
-
-    <div class="rm-section-label">축복 선택 <span class="rm-section-hint">시작 보너스</span></div>
-    <div id="rmBlessingGrid" class="rm-option-grid" role="radiogroup" aria-label="축복 선택"></div>
-
     <div class="rm-section-label">저주 선택 <span class="rm-section-hint">난이도 상승</span></div>
     <div id="rmCurseGrid" class="rm-option-grid" role="radiogroup" aria-label="저주 선택"></div>
 
@@ -837,9 +760,6 @@ function _renderPanel(doc, cfg, meta, runRules, gs, data) {
   `;
 
   _renderPresets(doc, cfg, meta, runRules);
-  _renderConflict(cfg, doc);
-
-  _renderOptionGrid(doc.getElementById('rmBlessingGrid'), Object.values(runRules.blessings || {}), cfg.blessing, 'blessing', doc);
   _renderOptionGrid(doc.getElementById('rmCurseGrid'), Object.values(runRules.curses || {}), cfg.curse, 'curse', doc);
   _renderStatSimulator(doc, cfg, meta, runRules, gs, data);
   _renderInscriptionOverview(doc, meta, cfg, data);
@@ -885,25 +805,6 @@ export const RunModeUI = {
     this.refresh(deps);
   },
 
-  selectBlessing(id, deps = {}) {
-    const { gs, runRules } = deps;
-    if (!gs || !runRules) return;
-
-    const meta = _getMeta(gs);
-    if (!meta) return;
-
-    runRules.ensureMeta(meta);
-    const cfg = _ensureRunConfig(meta);
-    cfg.blessing = runRules.blessings[id] ? id : 'none';
-
-    const doc = _getDoc(deps);
-    const card = doc.querySelector(`#rmBlessingGrid .rm-opt[data-id="${cfg.blessing}"]`);
-    _flash(card);
-
-    this.refresh(deps);
-    deps.saveMeta?.();
-  },
-
   selectCurse(id, deps = {}) {
     const { gs, runRules } = deps;
     if (!gs || !runRules) return;
@@ -920,20 +821,6 @@ export const RunModeUI = {
     const modal = doc.querySelector('#runSettingsModal .run-settings-panel');
     if (cfg.curse !== 'none') _curseFlash(card, modal);
     else _flash(card);
-
-    this.refresh(deps);
-    deps.saveMeta?.();
-  },
-
-  cycleBlessing(deps = {}) {
-    const { gs, runRules } = deps;
-    if (!gs || !runRules) return;
-    const meta = _getMeta(gs);
-    if (!meta) return;
-
-    runRules.ensureMeta(meta);
-    const cfg = _ensureRunConfig(meta);
-    cfg.blessing = runRules.nextBlessingId(cfg.blessing || 'none');
 
     this.refresh(deps);
     deps.saveMeta?.();
@@ -1062,7 +949,6 @@ export const RunModeUI = {
     Object.assign(cfg, _cloneRunConfig(preset.config));
     cfg.ascension = Math.max(0, Math.min(meta.maxAscension || 0, cfg.ascension));
     if (!meta.unlocks?.endless) cfg.endless = false;
-    if (!runRules.blessings[cfg.blessing]) cfg.blessing = 'none';
     if (!runRules.curses[cfg.curse]) cfg.curse = 'none';
 
     this.refresh(deps);

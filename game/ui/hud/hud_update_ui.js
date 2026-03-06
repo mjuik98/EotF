@@ -489,20 +489,28 @@ export const HudUpdateUI = {
     }
     modEl.appendChild(topCont);
 
-    const blessingId = gs.runConfig?.blessing || 'none';
     const curseId = gs.runConfig?.curse || 'none';
+    const disabledInscriptions = new Set(gs.runConfig?.disabledInscriptions || []);
+    const activeInscriptions = Object.entries(gs.meta?.inscriptions || {})
+      .filter(([, value]) => Number(value) > 0)
+      .filter(([id]) => !disabledInscriptions.has(id));
 
-    if (blessingId !== 'none' || curseId !== 'none') {
+    if (activeInscriptions.length > 0 || curseId !== 'none') {
       const midCont = doc.createElement('div');
       midCont.style.cssText = 'margin-top:4px; display:flex; flex-direction:column; gap:4px;';
-      if (blessingId !== 'none') {
-        const b = runRules?.blessings?.[blessingId];
-        if (b) {
-          const bDiv = doc.createElement('div');
-          bDiv.style.cssText = 'font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;';
-          bDiv.title = b.desc; bDiv.textContent = `${b.name}`;
-          midCont.appendChild(bDiv);
-        }
+      if (activeInscriptions.length > 0) {
+        const previewIds = activeInscriptions.slice(0, 3).map(([id]) => id);
+        const previewNames = previewIds
+          .map((id) => deps.data?.inscriptions?.[id]?.name)
+          .filter(Boolean);
+        const remaining = activeInscriptions.length - previewNames.length;
+        const inscDiv = doc.createElement('div');
+        inscDiv.style.cssText = 'font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;';
+        inscDiv.title = previewNames.join(', ');
+        inscDiv.textContent = remaining > 0
+          ? `활성 각인 ${activeInscriptions.length}개 · ${previewNames.join(', ')} 외 ${remaining}`
+          : `활성 각인 ${activeInscriptions.length}개${previewNames.length ? ` · ${previewNames.join(', ')}` : ''}`;
+        midCont.appendChild(inscDiv);
       }
       if (curseId !== 'none') {
         const c = runRules?.curses?.[curseId];

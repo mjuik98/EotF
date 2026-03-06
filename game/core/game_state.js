@@ -15,7 +15,7 @@ export const GS = {
         codex: { enemies: new Set(), cards: new Set(), items: new Set() },
         unlocks: { ascension: false, endless: false },
         maxAscension: 0,
-        runConfig: { ascension: 0, endless: false, blessing: 'none', curse: 'none' },
+        runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
         progress: { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} },
     },
     player: {

@@ -151,7 +151,6 @@ export function bootGame(modules, fns, Deps) {
                 closeRunSettings: fns.closeRunSettings,
                 shiftAscension: fns.shiftAscension,
                 toggleEndlessMode: fns.toggleEndlessMode,
-                cycleRunBlessing: fns.cycleRunBlessing,
                 cycleRunCurse: fns.cycleRunCurse,
                 setMasterVolume: (v) => fns.setMasterVolume(v),
                 setSfxVolume: (v) => fns.setSfxVolume(v),

@@ -93,7 +93,6 @@ export const RunSetupUI = {
         ascension: gs.meta.runConfig.ascension || 0,
         endless: !!gs.meta.runConfig.endless,
         endlessMode: !!gs.meta.runConfig.endless,
-        blessing: gs.meta.runConfig.blessing || 'none',
         curse: gs.meta.runConfig.curse || 'none',
         disabledInscriptions: gs.meta.runConfig.disabledInscriptions || [],
       };

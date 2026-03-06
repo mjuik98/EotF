@@ -71,7 +71,7 @@ export const GameInit = {
         const {
             showCharacterSelect, continueRun, openRunSettings, openCodexFromTitle, quitGame,
             selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
-            toggleEndlessMode, cycleRunBlessing, cycleRunCurse, drawCard, endPlayerTurn, useEchoSkill,
+            toggleEndlessMode, cycleRunCurse, drawCard, endPlayerTurn, useEchoSkill,
             openSettings, closeSettings
         } = deps.actions;
 
@@ -130,7 +130,6 @@ export const GameInit = {
             btn.addEventListener('click', () => { deps.audioEngine?.playClick?.(); shiftAscension?.(i === 0 ? -1 : 1); });
         });
         doc.getElementById('endlessToggleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); toggleEndlessMode?.(); });
-        doc.getElementById('blessingCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunBlessing?.(); });
         doc.getElementById('curseCycleBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); cycleRunCurse?.(); });
         doc.getElementById('toggleInscriptionLayoutBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
         doc.getElementById('toggleAllInscriptionsBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });

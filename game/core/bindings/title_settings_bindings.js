@@ -174,9 +174,7 @@ export function createTitleSettingsBindings(M, fns) {
         M.RunModeUI?.refreshInscriptions?.(Deps.getRunModeDeps());
     };
     fns.toggleEndlessMode = () => M.RunModeUI?.toggleEndlessMode?.(Deps.getRunModeDeps());
-    fns.cycleRunBlessing = () => M.RunModeUI?.cycleBlessing?.(Deps.getRunModeDeps());
     fns.cycleRunCurse = () => M.RunModeUI?.cycleCurse?.(Deps.getRunModeDeps());
-    fns.selectRunBlessing = (id) => M.RunModeUI?.selectBlessing?.(id, Deps.getRunModeDeps());
     fns.selectRunCurse = (id) => M.RunModeUI?.selectCurse?.(id, Deps.getRunModeDeps());
     fns.selectFragment = (effect) => M.MetaProgressionUI?.selectFragment?.(effect, Deps.getMetaProgressionDeps());
     fns.advanceToNextRegion = (overrideDeps = {}) => {
