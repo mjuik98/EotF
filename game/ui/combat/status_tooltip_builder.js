@@ -23,7 +23,7 @@ export const STATUS_TOOLTIP_META = {
     accent: '#ff3366', nameColor: '#e879a0',
     typeBg: 'rgba(255,51,102,.12)', typeColor: '#ff3366',
     /** @param {object} buff @returns {string|null} 다음 턴 예고 텍스트 */
-    nextTurnText: (_buff) => '다음 턴 화염 피해 -5',
+    nextTurnText: (_buff) => '다음 턴 화염 피해 5',
     /** @param {object} buff @returns {number|null} 피해 수치 (null = 수치 표시 안 함) */
     nextTurnDmg: (_buff) => 5,
     statLabel: '피해량', statValue: (buff) => '5',
@@ -36,7 +36,7 @@ export const STATUS_TOOLTIP_META = {
     nextTurnText: (buff, val) => {
       const s = Number(buff?.stacks ?? buff);
       const d = Number(val ?? buff?.poisonDuration ?? 1);
-      return `다음 턴 독 피해 (${s}중첩 × 5 = ${s * 5}), 남은 지속: ${d}턴`;
+      return `다음 턴 독 피해 (${s}×5 = ${s * 5}), 지속 ${d}턴`;
     },
     nextTurnDmg: (buff, _val) => {
       const s = Number(buff?.stacks ?? buff);
@@ -49,7 +49,7 @@ export const STATUS_TOOLTIP_META = {
     nameEn: 'Weakened', typeLabel: '디버프',
     accent: '#f97316', nameColor: '#fb923c',
     typeBg: 'rgba(249,115,22,.12)', typeColor: '#f97316',
-    nextTurnText: (_buff) => '공격력 50% 감소 지속',
+    nextTurnText: (_buff) => '공격 피해 50% 감소',
     nextTurnDmg: () => null,
     statLabel: '공격 감소', statValue: () => '50',
     statUnit: '%', statColor: '#fb923c',
@@ -58,7 +58,7 @@ export const STATUS_TOOLTIP_META = {
     nameEn: 'Stunned', typeLabel: '디버프',
     accent: '#f59e0b', nameColor: '#fbbf24',
     typeBg: 'rgba(245,158,11,.12)', typeColor: '#f59e0b',
-    nextTurnText: (_buff) => '다음 턴 행동 불가',
+    nextTurnText: (_buff) => '행동 불가',
     nextTurnDmg: () => null,
     statLabel: '에너지', statValue: () => '0',
     statUnit: '강제', statColor: '#fbbf24',
@@ -67,7 +67,7 @@ export const STATUS_TOOLTIP_META = {
     nameEn: 'Cursed', typeLabel: '디버프',
     accent: '#7c3aed', nameColor: '#a78bfa',
     typeBg: 'rgba(124,58,237,.12)', typeColor: '#7c3aed',
-    nextTurnText: (_buff) => '카드 효과 및 회복 감소 지속',
+    nextTurnText: (_buff) => '카드 효과 및 회복 감소',
     nextTurnDmg: () => null,
     statLabel: '지속', statValue: (buff, val) => String(val ?? buff?.stacks ?? buff ?? '?'),
     statUnit: '턴', statColor: '#a78bfa',
@@ -76,7 +76,7 @@ export const STATUS_TOOLTIP_META = {
     nameEn: 'Vulnerable', typeLabel: '디버프',
     accent: '#ef4444', nameColor: '#fca5a5',
     typeBg: 'rgba(239,68,68,.12)', typeColor: '#ef4444',
-    nextTurnText: (_buff) => '받는 피해 50% 증가 지속',
+    nextTurnText: (_buff) => '받는 피해 50% 증가',
     nextTurnDmg: () => null,
     statLabel: '피해 증폭', statValue: () => '50',
     statUnit: '%', statColor: '#fca5a5',
@@ -85,7 +85,7 @@ export const STATUS_TOOLTIP_META = {
     nameEn: 'Confusion', typeLabel: '디버프',
     accent: '#8b5cf6', nameColor: '#c4b5fd',
     typeBg: 'rgba(139,92,246,.12)', typeColor: '#8b5cf6',
-    nextTurnText: (_buff) => '다음 턴 손패 무작위 셔플',
+    nextTurnText: (_buff) => '손패 무작위 셔플',
     nextTurnDmg: () => null,
     statLabel: '지속', statValue: (buff, val) => String(val ?? buff?.stacks ?? buff ?? '?'),
     statUnit: '턴', statColor: '#c4b5fd',
@@ -162,7 +162,7 @@ export const STATUS_TOOLTIP_META = {
     accent: '#fcd34d', nameColor: '#fef08a',
     typeBg: 'rgba(252,211,77,.1)', typeColor: '#fcd34d',
     gauge: { infinite: true, color: '#fcd34d' },
-    nextTurnText: (buff) => `다음 턴 체력 +${buff?.healPerTurn ?? '?'} 회복`,
+    nextTurnText: (buff) => `다음 턴 체력 +${buff?.healPerTurn ?? '?'}`,
     nextTurnDmg: () => null,
     statLabel: '회복량', statValue: (buff) => String(buff?.healPerTurn ?? '?'),
     statUnit: '/턴', statColor: '#fef08a',
@@ -173,7 +173,7 @@ export const STATUS_TOOLTIP_META = {
     accent: '#f0b429', nameColor: '#f0b429',
     typeBg: 'rgba(240,180,41,.1)', typeColor: '#f0b429',
     countdown: true,
-    nextTurnText: (buff, val) => `${val ?? '?'}턴 후 큰 피해 폭발`,
+    nextTurnText: (buff, val) => `${val ?? '?'}턴 후 피해 폭발`,
     nextTurnDmg: () => null,
   },
   unbreakable_wall: {
@@ -183,7 +183,7 @@ export const STATUS_TOOLTIP_META = {
     gauge: { infinite: true, color: '#94a3b8' },
     nextTurnText: (buff, val) => {
       const hits = Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99));
-      return `턴 시작 시 방어막의 50% 피해 (${hits}회 발동)`;
+      return `턴 시작 시 방어막의 50% 피해 (${hits}회)`;
     },
     nextTurnDmg: () => null,
     statLabel: '발동 횟수', statValue: (buff, val) => String(Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99))),
@@ -196,7 +196,7 @@ export const STATUS_TOOLTIP_META = {
     gauge: { infinite: true, color: '#fcd34d' },
     nextTurnText: (buff, val) => {
       const hits = Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99));
-      return `턴 시작 시 방어막의 70% 피해 (${hits}회 발동)`;
+      return `턴 시작 시 방어막의 70% 피해 (${hits}회)`;
     },
     nextTurnDmg: () => null,
     statLabel: '발동 횟수', statValue: (buff, val) => String(Math.max(1, Math.floor((Number(buff?.stacks ?? val) || 0) / 99))),
