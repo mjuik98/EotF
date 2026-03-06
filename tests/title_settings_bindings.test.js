@@ -59,6 +59,7 @@ function createModules() {
     GS: {},
     AudioEngine: { playClick: vi.fn() },
     SaveSystem: { loadRun: vi.fn(() => true) },
+    CharacterSelectUI: { onEnter: vi.fn(), showPendingSummaries: vi.fn() },
     ClassSelectUI: { getSelectedClass: vi.fn(() => 'swordsman') },
     RunSetupUI: { startGame: vi.fn() },
     GameInit: { saveVolumes: vi.fn() },
@@ -147,5 +148,25 @@ describe('title start flow transition', () => {
     expect(fns.renderMinimap).toHaveBeenCalledTimes(1);
 
     vi.useRealTimers();
+  });
+
+  it('does not replay run summary when merely opening character select', () => {
+    const doc = createMockDocument();
+    globalThis.document = doc;
+    globalThis.window = {};
+
+    const modules = createModules();
+    modules.CharacterSelectUI.onEnter = vi.fn();
+    modules.CharacterSelectUI.showPendingSummaries = vi.fn();
+
+    const fns = {};
+    createTitleSettingsBindings(modules, fns);
+
+    fns.showCharacterSelect();
+
+    expect(modules.CharacterSelectUI.onEnter).toHaveBeenCalledTimes(1);
+    expect(modules.CharacterSelectUI.showPendingSummaries).not.toHaveBeenCalled();
+    expect(doc.elements.mainTitleSubScreen.style.display).toBe('none');
+    expect(doc.elements.charSelectSubScreen.style.display).toBe('block');
   });
 });

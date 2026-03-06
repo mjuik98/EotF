@@ -50,6 +50,7 @@ export function buildRunContractBuilders(ctx) {
         switchScreen: refs.switchScreen,
         clearSelectedClass: refs.clearSelectedClass,
         refreshRunModePanel: refs.refreshRunModePanel,
+        showPendingClassProgressSummary: refs.showPendingClassProgressSummary,
       };
     },
 

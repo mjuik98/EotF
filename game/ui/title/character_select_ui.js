@@ -279,6 +279,10 @@ export const CharacterSelectUI = {
     this._runtime?.onEnter?.();
   },
 
+  showPendingSummaries() {
+    this._runtime?.showPendingSummaries?.();
+  },
+
   /**
    * 캐릭터 선택 화면을 초기화하고 마운트합니다.
    *
@@ -938,6 +942,8 @@ export const CharacterSelectUI = {
     owner._runtime = {
       onEnter() {
         updateAll();
+      },
+      showPendingSummaries() {
         consumePendingSummaries();
       },
     };

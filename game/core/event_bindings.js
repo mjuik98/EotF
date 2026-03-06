@@ -54,6 +54,7 @@ export function setupBindings(modules) {
         markGameStarted: () => { M._gameStarted = true; },
         getSelectedClass: () => M.ClassSelectUI?.getSelectedClass?.() || null,
         clearSelectedClass: () => M.ClassSelectUI?.clearSelection?.(Deps.getClassSelectDeps()),
+        showPendingClassProgressSummary: () => M.CharacterSelectUI?.showPendingSummaries?.(),
         resetDeckModalFilter: () => M.DeckModalUI?.resetFilter?.(),
     });
 
