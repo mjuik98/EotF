@@ -21,23 +21,132 @@
 ═══════════════════════════════════════ -->
   <div id="titleScreen" class="screen active">
     <canvas id="titleCanvas"></canvas>
+    <canvas id="titleWarpCanvas"></canvas>
     <div class="title-content">
       <!-- 1단계: 메인 타이틀 화면 -->
       <div id="mainTitleSubScreen">
-        <div class="title-eyebrow">A ROGUELIKE DECKBUILDER</div>
-        <div class="title-main">ECHO OF<br>THE FALLEN</div>
-        <div class="title-sub">잔향의 연대기</div>
-        <div class="title-tagline">"기억은 사라지지 않는다. 잔향이 될 뿐."</div>
-
-        <div class="main-menu-buttons menu-buttons-container">
-          <button id="mainStartBtn" class="primary-start-btn">잔향 속으로</button>
-          <div class="menu-buttons-sub-container">
-            <button id="mainRunRulesBtn" class="settings-trigger-btn">📖 런 규칙</button>
-            <button id="mainCodexBtn" class="settings-trigger-btn">📘 도감</button>
-            <button id="mainSettingsBtn" class="settings-trigger-btn">⚙️ 설정</button>
-            <button id="mainQuitBtn" class="settings-trigger-btn btn-quit-special">❌ 종료</button>
+        <section class="title-panel-left" aria-labelledby="titleBrandHeading">
+          <div class="title-brand-eyebrow">A ROGUELIKE DECKBUILDER</div>
+          <div class="title-rune-wrap" aria-hidden="true">
+            <div class="title-rune-ring title-rune-ring--outer"></div>
+            <div class="title-rune-ring title-rune-ring--inner"></div>
+            <div class="title-brand-main" id="titleBrandHeading">
+              <span class="title-brand-main-top">ECHO OF</span>
+              <span class="title-brand-main-bottom" data-text="THE FALLEN">THE FALLEN</span>
+            </div>
           </div>
-        </div>
+          <div class="title-brand-sub">잔향의 연대기</div>
+          <div class="title-divider-line"></div>
+          <p class="title-brand-tagline">기억은 사라지지 않는다. 잔향이 될 뿐.</p>
+
+          <div class="title-wave-wrap" aria-hidden="true">
+            <div class="title-wave-label">
+              <span class="title-wave-dot"></span>
+              <span>Echo Resonance</span>
+            </div>
+            <canvas id="titleAudioWave" width="300" height="32"></canvas>
+          </div>
+
+          <div class="title-stats-block" id="titleStatsBlock" style="display:none;">
+            <div class="title-section-label">
+              <span>Run Record</span>
+              <div class="title-section-line"></div>
+            </div>
+            <div class="title-stats-row">
+              <div class="title-stat-item">
+                <div class="title-stat-value title-stat-value--gold" id="titleTotalRuns">0</div>
+                <div class="title-stat-label">Total Runs</div>
+              </div>
+              <div class="title-stat-item">
+                <div class="title-stat-value title-stat-value--cyan" id="titleTotalKills">0</div>
+                <div class="title-stat-label">Total Kills</div>
+              </div>
+              <div class="title-stat-item">
+                <div class="title-stat-value" id="titleBestChain">0</div>
+                <div class="title-stat-label">Best Chain</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="title-panel-right" id="titleMenuPanel" aria-label="메인 메뉴">
+          <div class="title-nav-cursor" id="titleNavCursor" aria-hidden="true"></div>
+
+          <div class="title-menu-head">
+            <div class="title-menu-kicker">Main Menu</div>
+            <div class="title-menu-summary">가장 자주 쓰는 동선은 새 런 시작, 규칙 확인, 도감 확인입니다.</div>
+          </div>
+
+          <div class="title-continue-wrap" id="titleContinueWrap" style="display:none;">
+            <button id="mainContinueBtn" class="title-continue-btn" data-nav="0" type="button">
+              <span class="title-continue-icon" aria-hidden="true">↺</span>
+              <span class="title-continue-copy">
+                <span class="title-continue-title">이어하기</span>
+                <span class="title-continue-meta" id="titleContinueMeta">최근 저장된 런</span>
+              </span>
+              <span class="title-menu-arrow" aria-hidden="true">→</span>
+            </button>
+            <div class="title-save-tooltip" id="titleSaveTooltip" role="note">
+              <div class="title-save-tooltip-title">
+                <span class="title-save-tooltip-dot"></span>
+                <span>저장 프리뷰</span>
+              </div>
+              <div class="title-save-row"><span>클래스</span><strong id="sttClass">-</strong></div>
+              <div class="title-save-row"><span>진행도</span><strong id="sttFloor">-</strong></div>
+              <div class="title-save-row"><span>승천</span><strong id="sttAscension">A0</strong></div>
+              <div class="title-save-row"><span>HP</span><strong id="sttHp">-</strong></div>
+              <div class="title-save-row"><span>골드</span><strong id="sttGold">0</strong></div>
+              <div class="title-save-deck">
+                <div class="title-save-deck-label">덱 구성</div>
+                <div class="title-save-deck-pills" id="sttDeckPills"></div>
+              </div>
+              <div class="title-save-relics" id="sttRelics"></div>
+            </div>
+          </div>
+
+          <div class="title-menu-divider" id="titleMenuDivider" style="display:none;"></div>
+
+          <div class="title-menu-list">
+            <button id="mainStartBtn" class="title-menu-btn title-menu-btn--primary" data-nav="1" type="button">
+              <span class="title-menu-icon" aria-hidden="true">✦</span>
+              <span class="title-menu-text">잔향 속으로</span>
+              <span class="title-menu-meta">새 런 시작</span>
+              <span class="title-menu-arrow" aria-hidden="true">→</span>
+            </button>
+            <button id="mainRunRulesBtn" class="title-menu-btn" data-nav="2" type="button">
+              <span class="title-menu-icon" aria-hidden="true">⌘</span>
+              <span class="title-menu-text">런 규칙</span>
+              <span class="title-menu-meta">모드와 각인 확인</span>
+              <span class="title-menu-shortcut">R</span>
+              <span class="title-menu-arrow" aria-hidden="true">→</span>
+            </button>
+            <button id="mainCodexBtn" class="title-menu-btn" data-nav="3" type="button">
+              <span class="title-menu-icon" aria-hidden="true">◫</span>
+              <span class="title-menu-text">도감</span>
+              <span class="title-menu-meta">해금한 적과 카드</span>
+              <span class="title-menu-shortcut">D</span>
+              <span class="title-menu-arrow" aria-hidden="true">→</span>
+            </button>
+            <button id="mainSettingsBtn" class="title-menu-btn" data-nav="4" type="button">
+              <span class="title-menu-icon" aria-hidden="true">⋯</span>
+              <span class="title-menu-text">설정</span>
+              <span class="title-menu-meta">오디오와 연출 조정</span>
+              <span class="title-menu-shortcut">S</span>
+              <span class="title-menu-arrow" aria-hidden="true">→</span>
+            </button>
+            <button id="mainQuitBtn" class="title-menu-btn title-menu-btn--danger" data-nav="5" type="button">
+              <span class="title-menu-icon" aria-hidden="true">×</span>
+              <span class="title-menu-text">종료</span>
+              <span class="title-menu-meta">게임 닫기</span>
+              <span class="title-menu-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+
+          <div class="title-lore-ticker">
+            <div class="title-lore-line"></div>
+            <div class="title-lore-text" id="titleLoreText">모든 기억은 사라지지 않는다.<br>형태만 잔향으로 남는다.</div>
+          </div>
+        </section>
       </div>
 
       <!-- 2단계: 캐릭터 선택 화면 -->

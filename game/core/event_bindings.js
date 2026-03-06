@@ -63,7 +63,7 @@ export function setupBindings(modules) {
 function exposeToWindow(fns) {
     const windowExpose = [
         'shiftAscension', 'toggleEndlessMode', 'cycleRunBlessing', 'cycleRunCurse', 'selectRunBlessing', 'selectRunCurse',
-        'openCodexFromTitle', 'showCharacterSelect', 'backToTitle', 'openRunSettings',
+        'openCodexFromTitle', 'showCharacterSelect', 'continueRun', 'backToTitle', 'openRunSettings',
         'closeRunSettings', 'startGame', 'selectClass', 'showDmgPopup', 'showCombatSummary',
         'showItemTooltip', 'hideItemTooltip', 'showWorldMemoryNotice', 'quitGame',
         'showFullMap', 'toggleHudPin', 'showIntentTooltip', 'hideIntentTooltip',

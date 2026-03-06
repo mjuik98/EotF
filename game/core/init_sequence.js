@@ -141,6 +141,7 @@ export function bootGame(modules, fns, Deps) {
             getHelpPauseDeps: () => Deps.getHelpPauseDeps(),
             actions: {
                 showCharacterSelect: fns.showCharacterSelect,
+                continueRun: fns.continueRun,
                 openRunSettings: fns.openRunSettings,
                 openCodexFromTitle: fns.openCodexFromTitle,
                 quitGame: fns.quitGame,

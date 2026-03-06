@@ -69,7 +69,7 @@ export const GameInit = {
             return view.getComputedStyle(el).display !== 'none';
         };
         const {
-            showCharacterSelect, openRunSettings, openCodexFromTitle, quitGame,
+            showCharacterSelect, continueRun, openRunSettings, openCodexFromTitle, quitGame,
             selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
             toggleEndlessMode, cycleRunBlessing, cycleRunCurse, drawCard, endPlayerTurn, useEchoSkill,
             openSettings, closeSettings
@@ -110,6 +110,7 @@ export const GameInit = {
             }
         });
 
+        doc.getElementById('mainContinueBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); continueRun?.(); });
         doc.getElementById('mainStartBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); showCharacterSelect?.(); });
         doc.getElementById('mainRunRulesBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openRunSettings?.(); });
         doc.getElementById('mainCodexBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); openCodexFromTitle?.(); });

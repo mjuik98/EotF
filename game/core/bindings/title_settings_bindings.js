@@ -41,6 +41,32 @@ export function createTitleSettingsBindings(M, fns) {
         const char = document.getElementById('charSelectSubScreen');
         if (main && char) { main.style.display = 'block'; char.style.display = 'none'; }
     };
+    fns.continueRun = () => {
+        M.AudioEngine?.playClick?.();
+        const saveDeps = Deps.getSaveSystemDeps();
+        const loaded = M.SaveSystem?.loadRun?.(saveDeps);
+        if (!loaded) return;
+
+        const runStartDeps = Deps.getRunStartDeps();
+        const main = document.getElementById('mainTitleSubScreen');
+        const char = document.getElementById('charSelectSubScreen');
+        if (main) main.style.display = 'block';
+        if (char) char.style.display = 'none';
+
+        runStartDeps.markGameStarted?.();
+        runStartDeps.switchScreen?.('game');
+        runStartDeps.audioEngine?.startAmbient?.(M.GS.currentRegion || 0);
+        runStartDeps.updateUI?.();
+        runStartDeps.updateClassSpecialUI?.();
+
+        setTimeout(() => {
+            runStartDeps.initGameCanvas?.();
+            if (typeof runStartDeps.requestAnimationFrame === 'function' && typeof runStartDeps.gameLoop === 'function') {
+                runStartDeps.requestAnimationFrame(runStartDeps.gameLoop);
+            }
+            fns.renderMinimap?.();
+        }, 80);
+    };
     fns.openRunSettings = () => {
         M.AudioEngine?.playClick?.();
         M.RunModeUI?.openSettings?.(Deps.getRunModeDeps());

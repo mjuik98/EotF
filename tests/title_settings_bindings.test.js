@@ -6,6 +6,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getMetaProgressionDeps: vi.fn(() => ({})),
   getRegionTransitionDeps: vi.fn(() => ({})),
   getHelpPauseDeps: vi.fn(() => ({})),
+  getSaveSystemDeps: vi.fn(() => ({ gs: { currentRegion: 2 } })),
+  getRunStartDeps: vi.fn(() => ({
+    switchScreen: vi.fn(),
+    markGameStarted: vi.fn(),
+    audioEngine: { startAmbient: vi.fn() },
+    updateUI: vi.fn(),
+    updateClassSpecialUI: vi.fn(),
+    initGameCanvas: vi.fn(),
+    gameLoop: vi.fn(),
+    requestAnimationFrame: vi.fn(),
+  })),
   getRunSetupDeps: vi.fn(() => ({ token: 'run-setup-deps' })),
 }));
 
@@ -23,6 +34,7 @@ vi.mock('../game/ui/effects/echo_ripple_transition.js', () => ({
 }));
 
 import { createTitleSettingsBindings } from '../game/core/bindings/title_settings_bindings.js';
+import * as Deps from '../game/core/deps_factory.js';
 import { IntroCinematicUI } from '../game/ui/title/intro_cinematic_ui.js';
 import { startEchoRippleDissolve } from '../game/ui/effects/echo_ripple_transition.js';
 
@@ -46,6 +58,7 @@ function createModules() {
   return {
     GS: {},
     AudioEngine: { playClick: vi.fn() },
+    SaveSystem: { loadRun: vi.fn(() => true) },
     ClassSelectUI: { getSelectedClass: vi.fn(() => 'swordsman') },
     RunSetupUI: { startGame: vi.fn() },
     GameInit: { saveVolumes: vi.fn() },
@@ -110,5 +123,29 @@ describe('title start flow transition', () => {
     expect(IntroCinematicUI.play).toHaveBeenCalledTimes(1);
     expect(modules.RunSetupUI.startGame).toHaveBeenCalledTimes(1);
     expect(modules.GS._preRunRipplePlayed).toBe(true);
+  });
+
+  it('loads save data and switches directly into gameplay on continue', () => {
+    vi.useFakeTimers();
+    const doc = createMockDocument();
+    globalThis.document = doc;
+    globalThis.window = {};
+
+    const modules = createModules();
+    const fns = { renderMinimap: vi.fn() };
+    createTitleSettingsBindings(modules, fns);
+
+    fns.continueRun();
+    vi.advanceTimersByTime(90);
+
+    const runStartDeps = Deps.getRunStartDeps.mock.results.at(-1)?.value;
+    expect(modules.SaveSystem.loadRun).toHaveBeenCalledTimes(1);
+    expect(runStartDeps.markGameStarted).toHaveBeenCalledTimes(1);
+    expect(runStartDeps.switchScreen).toHaveBeenCalledWith('game');
+    expect(runStartDeps.audioEngine.startAmbient).toHaveBeenCalledWith(0);
+    expect(runStartDeps.initGameCanvas).toHaveBeenCalledTimes(1);
+    expect(fns.renderMinimap).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 });
