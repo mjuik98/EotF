@@ -3,10 +3,13 @@
    - two-tab info panel
    - compact mode for short viewports */
 
-#characterSelectSubScreen #app {
-  height: 100vh;
-  justify-content: flex-start;
-  padding: 18px 0 106px;
+#charSelectSubScreen #app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 0 118px;
   overflow: hidden;
 }
 
@@ -14,9 +17,11 @@
   --char-card-width: clamp(280px, 28vw, 420px);
   --char-card-height: clamp(450px, 45vw, 620px);
   --char-panel-width: clamp(420px, 44vw, 760px);
-  align-items: stretch;
-  flex: 1 1 auto;
-  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: var(--char-card-height);
+  margin: 0 auto;
 }
 
 #charCard {
@@ -39,6 +44,10 @@
 #dotsRow {
   margin-top: 12px;
   margin-bottom: 88px;
+}
+
+#header {
+  margin-bottom: 18px;
 }
 
 #buttonsRow {
@@ -278,12 +287,12 @@
 }
 
 @media (max-height: 940px) {
-  #characterSelectSubScreen #app {
-    padding: 12px 0 94px;
+  #charSelectSubScreen #app {
+    padding: 20px 0 104px;
   }
 
   #header {
-    margin-bottom: 10px;
+    margin-bottom: 14px;
   }
 
   #mainRow {
@@ -291,6 +300,7 @@
     --char-card-height: clamp(360px, 39vw, 500px);
     gap: clamp(8px, 2vw, 18px);
     padding: 0 22px;
+    min-height: var(--char-card-height);
   }
 
   #charCard { border-radius: 16px; }
@@ -319,7 +329,7 @@
 }
 
 @media (max-width: 980px) {
-  #characterSelectSubScreen #app {
+  #charSelectSubScreen #app {
     height: auto;
     min-height: 100vh;
     overflow: visible;
@@ -331,8 +341,9 @@
     --char-panel-width: min(92vw, 760px);
     flex-wrap: wrap;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     flex: 0 0 auto;
+    min-height: auto;
   }
 
   #infoPanel {
@@ -342,4 +353,9 @@
     height: auto;
     max-height: min(52vh, 520px);
   }
+}
+
+.arrow-btn {
+  align-self: center;
+  margin-top: calc(var(--char-card-height, 500px) * 0.08);
 }
