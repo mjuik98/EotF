@@ -104,7 +104,7 @@ export const RunStartUI = {
         const mainTitleSubScreen = doc.getElementById('mainTitleSubScreen');
         const charSelectSubScreen = doc.getElementById('charSelectSubScreen');
         // Reset title UI state after screen switch so hidden title content never flashes.
-        if (mainTitleSubScreen) mainTitleSubScreen.style.display = 'block';
+        if (mainTitleSubScreen) mainTitleSubScreen.style.display = '';
         if (charSelectSubScreen) charSelectSubScreen.style.display = 'none';
 
         if (typeof deps.markGameStarted === 'function') deps.markGameStarted();

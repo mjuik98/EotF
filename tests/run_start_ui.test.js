@@ -93,7 +93,7 @@ describe('RunStartUI transition flow', () => {
 
     vi.advanceTimersByTime(330);
     expect(deps.switchScreen).toHaveBeenCalledWith('game');
-    expect(deps.doc.refs.mainTitleSubScreen.style.display).toBe('block');
+    expect(deps.doc.refs.mainTitleSubScreen.style.display).toBe('');
     expect(deps.doc.refs.charSelectSubScreen.style.display).toBe('none');
   });
 

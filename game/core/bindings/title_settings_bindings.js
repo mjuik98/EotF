@@ -39,7 +39,7 @@ export function createTitleSettingsBindings(M, fns) {
         M.AudioEngine?.playClick?.();
         const main = document.getElementById('mainTitleSubScreen');
         const char = document.getElementById('charSelectSubScreen');
-        if (main && char) { main.style.display = 'block'; char.style.display = 'none'; }
+        if (main && char) { main.style.display = ''; char.style.display = 'none'; }
     };
     fns.continueRun = () => {
         M.AudioEngine?.playClick?.();
@@ -50,7 +50,7 @@ export function createTitleSettingsBindings(M, fns) {
         const runStartDeps = Deps.getRunStartDeps();
         const main = document.getElementById('mainTitleSubScreen');
         const char = document.getElementById('charSelectSubScreen');
-        if (main) main.style.display = 'block';
+        if (main) main.style.display = '';
         if (char) char.style.display = 'none';
 
         runStartDeps.markGameStarted?.();
