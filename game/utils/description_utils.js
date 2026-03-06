@@ -61,10 +61,10 @@ export const DescriptionUtils = {
             독: 'kw-debuff',
             낙인: 'kw-debuff',
         };
-        protect(/[\[[]\s*(소진|지속|즉시|치명타|독|낙인)\s*[\]]]/g, (match) => {
-            const keyword = match.replace(/^[\[[]\s*|\s*[\]]]$/g, '');
-            const open = match.trim().startsWith('[') ? '[' : '[';
-            const close = open === '[' ? ']' : ']';
+        protect(/[\[【]\s*(소진|지속|즉시|치명타|독|낙인)\s*[\]】]/g, (match) => {
+            const keyword = match.replace(/^[\[【]\s*|\s*[\]】]$/g, '');
+            const open = match.trim().startsWith('【') ? '【' : '[';
+            const close = open === '【' ? '】' : ']';
             const className = bracketKeywordClassMap[keyword] || 'kw-special';
             return `<span class="${className} kw-block">${open}${keyword}${close}</span>`;
         });
