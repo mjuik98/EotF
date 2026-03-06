@@ -212,6 +212,9 @@ export const EventManager = {
     gs.player.gold -= cost;
     gs.player.items.push(item.id);
     registerItemFound(gs, item.id);
+    if (typeof item.onAcquire === 'function') {
+      item.onAcquire(gs);
+    }
     gs.addLog?.(`🛒 ${item.name} 구매 완료.`, 'echo');
     return { success: true, message: `${item.name}을(를) 구매했습니다.` };
   },

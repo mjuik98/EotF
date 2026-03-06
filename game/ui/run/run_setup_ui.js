@@ -138,6 +138,10 @@ export const RunSetupUI = {
       if (startItem) {
         gs.player.items.push(startItem);
         registerItemFound(gs, startItem);
+        const itemDef = data.items?.[startItem];
+        if (itemDef && typeof itemDef.onAcquire === 'function') {
+          itemDef.onAcquire(gs);
+        }
       }
 
       _applyStartBonuses(gs, data);

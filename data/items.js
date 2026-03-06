@@ -1852,7 +1852,15 @@ export const ITEMS = {
 
     boss_fracture_bell: {
         id: 'boss_fracture_bell', name: '보스 유물: 균열의 종', icon: '🔔', rarity: 'boss',
-        desc: '공명 폭발의 기본 피해가 체력 수치로 강화되며, 추가 피해 +20 및 잔향 +20 충전. 대신 최대 체력 -20.',
+        desc: '공명 폭발의 기본 피해가 체력 수치로 강화되며, 추가 피해 +20 및 잔향 +20 충전. 즉시 최대 체력 -20.',
+        onAcquire(gs) {
+            if (!gs._fractureBellApplied) {
+                gs._fractureBellApplied = true;
+                gs.player.maxHp = Math.max(1, (gs.player.maxHp || 1) - 20);
+                gs.player.hp = Math.min(gs.player.hp || 1, gs.player.maxHp);
+                gs.markDirty?.('hud');
+            }
+        },
         passive(gs, trigger, data) {
             if (trigger === Trigger.COMBAT_START && !gs._fractureBellApplied) {
                 gs._fractureBellApplied = true;
@@ -2454,7 +2462,7 @@ export const ITEMS = {
 
     // ──────────── [세트 M] 심판의 불꽃 ────────────
     judgement_torch: {
-        id: 'judgement_torch', name: '심판의 횃불', icon: '🔦', rarity: 'common',
+        id: 'judgement_torch', name: '심판의 횃불', icon: '🔦', rarity: 'common', set: 'judgement',
         desc: '3번째 카드 사용 시: 무작위 적에게 피해 5. [세트:심판]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) gs._judgementTorchCount = 0;
@@ -2472,14 +2480,14 @@ export const ITEMS = {
         }
     },
     judgement_ash: {
-        id: 'judgement_ash', name: '심판의 잿더미', icon: '💨', rarity: 'uncommon',
+        id: 'judgement_ash', name: '심판의 잿더미', icon: '💨', rarity: 'uncommon', set: 'judgement',
         desc: '적 처치 시: 잔향 +10. [세트:심판]',
         passive(gs, trigger) {
             if (trigger === Trigger.ENEMY_KILL) gs.addEcho(10, { name: '심판의 잿더미', type: 'item' });
         }
     },
     judgement_censer: {
-        id: 'judgement_censer', name: '심판의 향로', icon: '🏺', rarity: 'uncommon',
+        id: 'judgement_censer', name: '심판의 향로', icon: '🏺', rarity: 'uncommon', set: 'judgement',
         desc: '전투 시작 시: 모든 적에게 약화 1 부여. [세트:심판]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
@@ -2488,7 +2496,7 @@ export const ITEMS = {
         }
     },
     judgement_scroll: {
-        id: 'judgement_scroll', name: '심판의 두루마리', icon: '📜', rarity: 'rare',
+        id: 'judgement_scroll', name: '심판의 두루마리', icon: '📜', rarity: 'rare', set: 'judgement',
         desc: '매 턴 첫 공격 피해 +6. [세트:심판]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START) gs._judgementScrollUsed = false;
@@ -2499,7 +2507,7 @@ export const ITEMS = {
         }
     },
     judgement_blade: {
-        id: 'judgement_blade', name: '심판의 칼날', icon: '⚔️', rarity: 'rare',
+        id: 'judgement_blade', name: '심판의 칼날', icon: '⚔️', rarity: 'rare', set: 'judgement',
         desc: '상태이상이 있는 적 공격 시: 피해 +8. [세트:심판]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE) {
@@ -2546,7 +2554,7 @@ export const ITEMS = {
 
     // ──────────── [세트 N] 독사의 그림자 ────────────
     venom_dagger: {
-        id: 'venom_dagger', name: '독니 단검', icon: '🗡️', rarity: 'common',
+        id: 'venom_dagger', name: '독니 단검', icon: '🗡️', rarity: 'common', set: 'shadow_venom',
         desc: '공격 카드 사용 시: 대상에게 독 1 부여. [세트:독사그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_PLAY && CARDS[data?.cardId]?.type === 'ATTACK') {
@@ -2556,7 +2564,7 @@ export const ITEMS = {
         }
     },
     shadow_cloak: {
-        id: 'shadow_cloak', name: '그림자 망토', icon: '🧥', rarity: 'uncommon',
+        id: 'shadow_cloak', name: '그림자 망토', icon: '🧥', rarity: 'uncommon', set: 'shadow_venom',
         desc: '피해를 입을 때: 공격자에게 독 2 부여. [세트:독사그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_TAKEN && data > 0) {
@@ -2566,7 +2574,7 @@ export const ITEMS = {
         }
     },
     venom_extract: {
-        id: 'venom_extract', name: '맹독 농축액', icon: '🧪', rarity: 'uncommon',
+        id: 'venom_extract', name: '맹독 농축액', icon: '🧪', rarity: 'uncommon', set: 'shadow_venom',
         desc: '신규 부여하는 독 수치 +1. [세트:독사그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.ENEMY_STATUS_APPLY && data?.status === 'poisoned') {
@@ -2583,7 +2591,7 @@ export const ITEMS = {
         }
     },
     venom_mist_charm: {
-        id: 'venom_mist_charm', name: '독안개 부적', icon: '🧿', rarity: 'rare',
+        id: 'venom_mist_charm', name: '독안개 부적', icon: '🧿', rarity: 'rare', set: 'shadow_venom',
         desc: '턴 시작 시: 모든 적에게 독 2 부여. [세트:독사그림자]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
@@ -2599,7 +2607,7 @@ export const ITEMS = {
         }
     },
     venom_commander_eye: {
-        id: 'venom_commander_eye', name: '독사령의 눈', icon: '👁️', rarity: 'rare',
+        id: 'venom_commander_eye', name: '독사령의 눈', icon: '👁️', rarity: 'rare', set: 'shadow_venom',
         desc: '독이 10 중첩 이상인 적에게 주는 피해 +50%. [세트:독사그림자]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE) {
@@ -2619,7 +2627,7 @@ export const ITEMS = {
 
     // ──────────── [세트 O] 성역의 은총 ────────────
     prayer_rosary: {
-        id: 'prayer_rosary', name: '기도의 묵주', icon: '📿', rarity: 'common',
+        id: 'prayer_rosary', name: '기도의 묵주', icon: '📿', rarity: 'common', set: 'sanctuary',
         desc: '턴 종료 시 체력이 낮으면: 2 회복. [세트:성역]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END && (gs.player.hp || 0) < (gs.player.maxHp || 0)) {
@@ -2628,7 +2636,7 @@ export const ITEMS = {
         }
     },
     grace_chalice: {
-        id: 'grace_chalice', name: '은총의 성배', icon: '🍷', rarity: 'uncommon',
+        id: 'grace_chalice', name: '은총의 성배', icon: '🍷', rarity: 'uncommon', set: 'sanctuary',
         desc: '회복 효과 +3. [세트:성역]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.HEAL_AMOUNT && typeof data === 'number' && data > 0) {
@@ -2647,7 +2655,7 @@ export const ITEMS = {
         }
     },
     light_shroud: {
-        id: 'light_shroud', name: '빛의 수의', icon: '✨', rarity: 'uncommon',
+        id: 'light_shroud', name: '빛의 수의', icon: '✨', rarity: 'uncommon', set: 'sanctuary',
         desc: '회복 시: 방어막 4 획득. [세트:성역]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.HEAL_AMOUNT && typeof data === 'number' && data > 0) {
@@ -2668,7 +2676,7 @@ export const ITEMS = {
         }
     },
     sanctuary_lantern: {
-        id: 'sanctuary_lantern', name: '성역의 등불', icon: '🏮', rarity: 'rare',
+        id: 'sanctuary_lantern', name: '성역의 등불', icon: '🏮', rarity: 'rare', set: 'sanctuary',
         desc: '전투 시작 시: 체력 10 회복. [세트:성역]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) gs.heal(10, { name: '성역의 등불', type: 'item' });
@@ -2690,7 +2698,7 @@ export const ITEMS = {
         }
     },
     celestial_wing: {
-        id: 'celestial_wing', name: '천상의 날개', icon: '🪽', rarity: 'rare',
+        id: 'celestial_wing', name: '천상의 날개', icon: '🪽', rarity: 'rare', set: 'sanctuary',
         desc: '체력이 최대일 때: 주는 피해 +30%. [세트:성역]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE && (gs.player.hp || 0) >= (gs.player.maxHp || 0)) {

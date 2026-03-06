@@ -108,7 +108,7 @@ function _ensureMiniBossBonus(gs, data, deps) {
 
   const goldGain = Math.max(12, Math.floor((gs.currentRegion + 1) * 6));
   gs.player.gold = (gs.player.gold || 0) + goldGain;
-  gs.addLog?.(`🔥 미니보스 보상: 골드 +${goldGain}, HP +${gs.player.hp - hpBefore}`, 'system');
+  gs.addLog?.(`🔥 중간 보스 보상: 골드 +${goldGain}, HP +${gs.player.hp - hpBefore}`, 'system');
 
   const rareItems = Object.values(data.items || {}).filter((item) => {
     return (item.rarity === 'rare' || item.rarity === 'legendary')
@@ -119,7 +119,7 @@ function _ensureMiniBossBonus(gs, data, deps) {
     const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
     gs.player.items.push(guaranteed.id);
     registerItemFound(gs, guaranteed.id);
-    gs.addLog?.(`🔥 미니보스 유물 획득: ${guaranteed.icon || '💎'} ${guaranteed.name}`, 'system');
+    gs.addLog?.(`🔥 중간 보스 유물 획득: ${guaranteed.icon || '💎'} ${guaranteed.name}`, 'system');
   }
 }
 
@@ -330,7 +330,7 @@ export const RewardUI = {
     if (eyebrow) {
       eyebrow.textContent = isBoss
         ? '✦ 보스 처치 — 보상 선택 ✦'
-        : (isMiniBoss ? '✦ 미니보스 처치 — 보상 선택 ✦' : (isElite ? '✦ 정예 처치 — 보상 선택 ✦' : '✦ 전투 승리 — 보상 선택 ✦'));
+        : (isMiniBoss ? '✦ 중간 보스 처치 — 보상 선택 ✦' : (isElite ? '✦ 정예 처치 — 보상 선택 ✦' : '✦ 전투 승리 — 보상 선택 ✦'));
     }
 
     if (titleEl) {
@@ -339,7 +339,7 @@ export const RewardUI = {
         titleEl.style.display = 'block';
         titleEl.style.color = 'var(--gold)';
       } else if (isMiniBoss) {
-        titleEl.textContent = '🔥 미니보스 처치!';
+        titleEl.textContent = '🔥 중간 보스 처치!';
         titleEl.style.display = 'block';
         titleEl.style.color = '#ff7a33';
       } else if (isElite) {
@@ -484,6 +484,10 @@ export const RewardUI = {
       registerItemFound(gs, itemKey);
 
       const item = data.items?.[itemKey];
+      if (item && typeof item.onAcquire === 'function') {
+        item.onAcquire(gs);
+      }
+
       deps.playItemGet?.();
       deps.showItemToast?.(item);
       setTimeout(() => deps.returnToGame?.(true), 350);

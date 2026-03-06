@@ -13,7 +13,7 @@ const MAP_NODE_TYPE_LABELS = {
     event: '이벤트',
     shop: '상점',
     rest: '휴식처',
-    mini_boss: '미니 보스',
+    mini_boss: '중간 보스',
     boss: '보스',
 };
 
@@ -364,6 +364,9 @@ export const EVENTS = [
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
                     gs.player.items.push(picked.id);
                     registerItemFound(gs, picked.id);
+                    if (typeof picked.onAcquire === 'function') {
+                        picked.onAcquire(gs);
+                    }
                     AudioEngine.playItemGet();
                     if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(picked);
                     return `${picked.name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
@@ -394,6 +397,9 @@ export const EVENTS = [
                     gs.player.hp = Math.max(1, gs.player.hp - 12);
                     gs.player.items.push(relic.id);
                     registerItemFound(gs, relic.id);
+                    if (typeof relic.onAcquire === 'function') {
+                        relic.onAcquire(gs);
+                    }
                     AudioEngine.playItemGet();
                     if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(relic);
 
