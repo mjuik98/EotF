@@ -212,7 +212,10 @@ export const EVENTS = [
                 effect(gs) {
                     const c = gs.getRandomCard('rare');
                     gs.player.deck.push(c);
-                    return `에너지가 응결한다. 기억이 기술이 된다 — ${CARDS[c]?.name}. 배운 기억이 흐릿한데 손이 먼저 안다.`;
+                    return {
+                        resultText: `에너지가 응결한다. 기억이 기술이 된다 — ${CARDS[c]?.name}. 배운 기억이 흐릿한데 손이 먼저 안다.`,
+                        acquiredCard: c
+                    };
                 }
             },
         ]
@@ -287,7 +290,10 @@ export const EVENTS = [
                         const c = gs.getRandomCard();
                         gs.player.deck.push(c);
                         AudioEngine.playItemGet();
-                        return `금화 한 자루가 사라지고, 대신 빛바랜 ${CARDS[c]?.name} 카드가 나타났다. 공정한 거래였다.`;
+                        return {
+                            resultText: `금화 한 자루가 사라지고, 대신 빛바랜 ${CARDS[c]?.name} 카드가 나타났다. 공정한 거래였다.`,
+                            acquiredCard: c
+                        };
                     }
                     return '저울 너머로 환상적인 지식이 보이지만, 당신이 가진 금만큼은 아니다.';
                 }
@@ -310,7 +316,10 @@ export const EVENTS = [
                     gs.player.hp = Math.max(1, gs.player.hp - 10);
                     const c = gs.getRandomCard('uncommon');
                     gs.player.deck.push(c);
-                    return `목구멍이 서늘하다. 온전한 기억이 아닌, 파편화된 기술이 뇌리에 박힌다. ${CARDS[c]?.name}을(를) 배웠다.`;
+                    return {
+                        resultText: `목구멍이 서늘하다. 온전한 기억이 아닌, 파편화된 기술이 뇌리에 박힌다. ${CARDS[c]?.name}을(를) 배웠다.`,
+                        acquiredCard: c
+                    };
                 }
             },
             {
@@ -319,7 +328,10 @@ export const EVENTS = [
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
                     const c = gs.getRandomCard('rare');
                     gs.player.deck.push(c);
-                    return `${CARDS[c]?.name}. 혀가 타는 것 같다. 하지만 손에 카드가 있다. 누군가의 기억을 마신 것이다.`;
+                    return {
+                        resultText: `${CARDS[c]?.name}. 혀가 타는 것 같다. 하지만 손에 카드가 있다. 누군가의 기억을 마신 것이다.`,
+                        acquiredCard: c
+                    };
                 }
             },
             {

@@ -384,20 +384,20 @@ export const CARDS = {
         effect(gs) { gs.dealDamage(12); gs.addBuff('vanish', 1, {}); gs.dealDamage(12); }
     },
     vibrations_end: {
-        id: 'vibrations_end', name: '진동의 끝', icon: '🎸', cost: 1, type: 'ATTACK', desc: '피해 5. 공명 5당 1회 추가 공격', rarity: 'rare',
+        id: 'vibrations_end', name: '진동의 끝', icon: '🎸', cost: 1, type: 'ATTACK', desc: '피해 5. 가속 5당 1회 추가 공격', rarity: 'rare',
         effect(gs) {
-            const res = gs.getBuff('resonance');
-            const hits = 1 + Math.floor((res ? res.dmgBonus : 0) / 5);
+            const acc = gs.getBuff('acceleration');
+            const hits = 1 + Math.floor((acc ? acc.dmgBonus : 0) / 5);
             for (let i = 0; i < hits; i++) {
                 gs.dealDamage(5, null, i < hits - 1);
             }
         }
     },
     vibrations_end_plus: {
-        id: 'vibrations_end_plus', name: '진동의 끝+', icon: '🎸', cost: 1, type: 'ATTACK', desc: '피해 7. 공명 4당 1회 추가 공격', rarity: 'rare', upgraded: true,
+        id: 'vibrations_end_plus', name: '진동의 끝+', icon: '🎸', cost: 1, type: 'ATTACK', desc: '피해 7. 가속 4당 1회 추가 공격', rarity: 'rare', upgraded: true,
         effect(gs) {
-            const res = gs.getBuff('resonance');
-            const hits = 1 + Math.floor((res ? res.dmgBonus : 0) / 4);
+            const acc = gs.getBuff('acceleration');
+            const hits = 1 + Math.floor((acc ? acc.dmgBonus : 0) / 4);
             for (let i = 0; i < hits; i++) {
                 gs.dealDamage(7, null, i < hits - 1);
             }

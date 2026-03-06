@@ -272,9 +272,8 @@ export const FeedbackUI = {
         icon.className = 'toast-icon';
         icon.textContent = item.icon || '✨';
         const content = doc.createElement('div');
-        const rarityInfo = doc.createElement('div');
-        rarityInfo.style.cssText = `font-size:9px;font-family:'Cinzel',serif;letter-spacing:0.2em;color:${RARITY_TEXT_COLORS[r] || 'var(--text-dim)'};margin-bottom:2px;`;
-        rarityInfo.textContent = `${RARITY_LABELS[r] || r} 아이템 획득`;
+        const label = options?.typeLabel || `${RARITY_LABELS[r] || r} 아이템 획득`;
+        rarityInfo.textContent = label;
 
         const name = doc.createElement('div');
         name.className = 'toast-text';

@@ -65,7 +65,7 @@ export const CombatLifecycle = {
                 if (endZone) endZone.textContent = '';
             }
 
-            this.triggerItems('combat_end');
+            this.triggerItems('combat_end', { isBoss });
             this.triggerItems('void_shard');
 
             const updateChainUI = deps.updateChainUI || win.updateChainUI;

@@ -84,7 +84,13 @@ export const EventManager = {
     const isFail = typeof result === 'string' && failPattern.test(result);
     const shouldClose = !event.persistent && !isFail;
 
-    return { resultText: result, isFail, shouldClose, isItemShop: false };
+    const resolution = { resultText: result, isFail, shouldClose, isItemShop: false };
+    if (typeof result === 'object' && result !== null) {
+      resolution.resultText = result.resultText;
+      resolution.acquiredCard = result.acquiredCard;
+      resolution.acquiredItem = result.acquiredItem;
+    }
+    return resolution;
   },
 
   createShopEvent(gs, data, runRules, { showItemShopFn } = {}) {
@@ -268,7 +274,10 @@ export const EventManager = {
     state.player.gold -= cost;
     state.player.deck.push(cardId);
     registerCardDiscovered(state, cardId);
-    return `🃏 ${data.cards?.[cardId]?.name || cardId} 획득. 남은 골드: ${state.player.gold}`;
+    return {
+      resultText: `🃏 ${data.cards?.[cardId]?.name || cardId} 획득. 남은 골드: ${state.player.gold}`,
+      acquiredCard: cardId
+    };
   },
 
   _shopUpgradeCard(state, data, cost) {

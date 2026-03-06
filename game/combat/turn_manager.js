@@ -292,6 +292,7 @@ export const TurnManager = {
      * @returns {{ reflected: boolean, enemyDied: boolean, dmgDealt: number }}
      */
     processEnemyAttack(gs, enemy, index, action) {
+        gs.combat._currentAttackerIdx = index;
         const hitCount = action.multi || 1;
         gs.addLog?.(LogUtils.formatSystem(`${enemy.name}의 행동: ${action.intent}`), 'damage');
 

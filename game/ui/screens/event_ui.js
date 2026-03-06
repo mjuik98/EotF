@@ -556,10 +556,28 @@ export const EventUI = {
       }
 
       const selectedChoice = event?.choices?.[choiceIdx];
-      const { resultText, isFail, shouldClose, isItemShop } = resolution || {};
+      const { resultText, isFail, shouldClose, isItemShop, acquiredCard, acquiredItem } = resolution || {};
 
       if (typeof deps.updateUI === 'function') deps.updateUI();
       this.updateEventGoldBar(deps);
+
+      // Trigger Card Toast
+      if (acquiredCard && typeof deps.showItemToast === 'function') {
+        const cardData = window.DATA?.cards?.[acquiredCard];
+        if (cardData) {
+          deps.showItemToast(cardData, deps, {
+            typeLabel: `${RARITY_LABELS[cardData.rarity] || cardData.rarity} 카드 획득`
+          });
+        }
+      }
+
+      // Trigger Item Toast (already supported but ensuring it works with new resolution structure)
+      if (acquiredItem && typeof deps.showItemToast === 'function') {
+        const itemData = window.DATA?.items?.[acquiredItem];
+        if (itemData) {
+          deps.showItemToast(itemData, deps);
+        }
+      }
 
       if (isItemShop) {
         // Item shop overlay can close without purchase, so keep event choices interactive.
