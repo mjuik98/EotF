@@ -772,3 +772,59 @@ Original prompt:
 - Validation:
   - `npm run build` PASS.
   - `npm test` PASS (40 files, 150 tests).
+- Follow-up request: make run-rules UI closer to imported external system.
+- Applied external-guide structural alignment in `index.html` run settings modal:
+  - Replaced legacy static rows inside `#runModePanel` with JS-render target container only.
+  - Added header close button (`closeRunSettings`) matching external guide pattern.
+  - Kept inscription layout block and added `data-open="false"` default.
+  - Added `onclick="closeRunSettings()"` on footer close button for parity.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test` PASS (40 files, 150 tests).
+- Note:
+  - Full-page browser capture for modal-level visual diff was attempted but blocked by missing local `playwright` package in repo context; existing skill client remains canvas-focused.
+- Follow-up prompt: 시각적으로 예시 결과물에 비해서 부족하다고 느껴지는데 다시 확인.
+- Visual parity pass for run-rules modal (`css/run-rules-redesign.css`):
+  - Added scoped shell overrides for `#runSettingsModal` overlay, modal panel, sticky header, title, close buttons, run body spacing, and inscription side panel.
+  - Strengthened card/grid visual treatment (`.rm-top-card`, `.rm-opt`) so the imported design reads closer to the external patch instead of the project's default modal theme.
+  - Kept all changes scoped to the run-rules modal to avoid global button/modal regressions.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test` PASS (40 files, 150 tests).
+- Residual note:
+  - This pass closes the main code-level mismatch, but exact visual parity still depends on in-browser screenshot comparison against the external example. The current repo environment still has no straightforward full-modal capture flow wired into this pass.
+- Visual re-check with actual browser capture:
+  - Installed `playwright` with `npm install --no-save playwright` for local-only validation.
+  - Captured full-page modal screenshot at `output/web-game/run-rules-modal-full.png` via headless browser after opening `#mainRunRulesBtn`.
+  - Measured live layout and found the main issue was not the shell anymore but `styles.css` forcing `#runModePanel` to `min(500px,95vw)`, leaving most of the modal empty.
+- Follow-up visual fix (`css/run-rules-redesign.css`):
+  - Overrode `#runModePanel` to fill the modal width inside `#runSettingsModal`.
+  - Increased label/body contrast slightly for readability.
+- Verification after fix:
+  - Live DOM widths after browser capture: panel `900px`, `#runModePanel` `846px`, option grid `842px`.
+  - Updated full-page screenshot saved again to `output/web-game/run-rules-modal-full.png` and visually inspected.
+  - `npm run build` PASS.
+  - `npm test` PASS (40 files, 150 tests).
+- Additional visual polish pass for run-rules modal:
+  - Added subtle entrance animation for top cards and option cards.
+  - Added gentle floating motion for currently selected option cards.
+  - Converted option cards to flex layout so descriptions anchor consistently near the bottom.
+  - Center-aligned bottom close button and kept mobile stretch behavior.
+- Refreshed browser screenshot at `output/web-game/run-rules-modal-full.png` after waiting for animations to settle.
+- Verification:
+  - `npm run build` PASS.
+  - `npm test` PASS (40 files, 150 tests).
+- Micro-tuning pass for visual parity:
+  - Increased modal/header padding and title scale slightly.
+  - Raised text contrast and card spacing.
+  - Increased option-card name size and description readability.
+  - Refined bottom close button sizing/placement.
+- Refreshed screenshot: `output/web-game/run-rules-modal-full.png`.
+- Verification:
+  - `npm run build` PASS.
+  - `npm test` PASS (40 files, 150 tests).
+- Removed bottom run-rules modal close button from `index.html` and deleted its dedicated CSS hooks.
+- The run-rules modal now uses only the header close control, matching the imported example more closely.
+- Verification:
+  - `npm run build` PASS.
+  - `npm test` PASS (40 files, 150 tests).

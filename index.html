@@ -102,46 +102,14 @@
         <div class="modal-content run-settings-panel">
           <div class="modal-header">
             <div class="modal-title">런 규칙</div>
+            <button class="action-btn action-btn-secondary" style="margin-left:auto;padding:6px 14px;font-size:11px"
+              onclick="closeRunSettings()">닫기 <span class="kbd-hint">ESC</span></button>
           </div>
+
           <div id="runSettingsBody" class="run-settings-body">
-            <div id="runModePanel" class="run-mode-panel run-settings-modal-panel">
-              <div class="run-mode-row">
-                <span class="run-mode-label">승천 단계</span>
-                <div class="run-mode-stepper">
-                  <button class="run-mode-btn" type="button" onclick="shiftAscension(-1)">-</button>
-                  <span id="ascensionValue" class="run-mode-value">A0</span>
-                  <button class="run-mode-btn" type="button" onclick="shiftAscension(1)">+</button>
-                </div>
-                <span id="ascensionCap" class="run-mode-cap">최고 A0</span>
-              </div>
-              <div class="run-mode-row">
-                <span class="run-mode-label">무한 모드</span>
-                <button id="endlessToggleBtn" class="run-mode-pill" type="button"
-                  onclick="toggleEndlessMode()">꺼짐</button>
-                <span class="run-mode-cap">보스 루프</span>
-              </div>
-              <div class="run-mode-row">
-                <span class="run-mode-label">축복</span>
-                <button id="blessingCycleBtn" class="run-mode-pill" type="button"
-                  onclick="cycleRunBlessing()">없음</button>
-                <span class="run-mode-cap">시작 보너스</span>
-              </div>
-              <div class="run-mode-row">
-                <span class="run-mode-label">저주</span>
-                <button id="curseCycleBtn" class="run-mode-pill danger" type="button"
-                  onclick="cycleRunCurse()">없음</button>
-                <span class="run-mode-cap">난이도 상승</span>
-              </div>
-              <div class="run-mode-row inscription-row" id="inscriptionRow" style="display:none;">
-                <span class="run-mode-label">보유 각인</span>
-                <div class="run-inscription-controls">
-                  <span id="inscriptionSummary" class="run-inscription-summary"></span>
-                  <button id="toggleInscriptionLayoutBtn" class="run-mode-pill" type="button">각인 상세</button>
-                </div>
-              </div>
-              <div id="runModeDesc" class="run-mode-desc"></div>
-            </div>
-            <div id="inscriptionLayout" class="run-inscription-layout" style="display:none;">
+            <div id="runModePanel" class="run-mode-panel run-settings-modal-panel"></div>
+
+            <div id="inscriptionLayout" class="run-inscription-layout" style="display:none;" data-open="false">
               <div class="run-inscription-layout-header">
                 <span class="run-inscription-layout-title">각인 상세 설정</span>
                 <button id="toggleAllInscriptionsBtn" class="run-mode-pill" type="button">각인 없이 시작</button>
@@ -150,8 +118,6 @@
               <div id="inscriptionSynergies" class="active-synergies-row"></div>
             </div>
           </div>
-          <button id="runSettingsCloseBtn" class="action-btn action-btn-secondary">닫기<span
-              class="kbd-hint">ESC</span></button>
         </div>
       </div>
 
