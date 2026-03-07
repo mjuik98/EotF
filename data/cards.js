@@ -165,12 +165,12 @@ export const CARDS = {
         }
     },
     echo_overload: {
-        id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 2, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 2 획득 [소진]', rarity: 'rare', exhaust: true,
+        id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 1, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 2 획득 [소진]', rarity: 'rare', exhaust: true,
         effect(gs) { gs.addEcho(100); gs.player.energy += 2; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하! HP-20', 'damage'); gs.markDirty('hud'); }
     },
     echo_overload_plus: {
-        id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 1, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 3 획득 [소진]', rarity: 'rare', upgraded: true, exhaust: true,
-        effect(gs) { gs.addEcho(100); gs.player.energy += 2; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하+! HP-20', 'damage'); gs.markDirty('hud'); }
+        id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 0, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 3 획득 [소진]', rarity: 'rare', upgraded: true, exhaust: true,
+        effect(gs) { gs.addEcho(100); gs.player.energy += 3; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하+! HP-20', 'damage'); gs.markDirty('hud'); }
     },
     desperate_strike: {
         id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '피해 잃은 체력 비례 (최대 40)', rarity: 'uncommon',

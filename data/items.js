@@ -194,13 +194,22 @@ export const ITEMS = {
     },
     ancient_rune: {
         id: 'ancient_rune', name: '고대의 룬석', icon: '🗿', rarity: 'uncommon',
-        desc: '보스전 시작: 최대 체력 +20%',
+        desc: '보스전 시작: 최대 체력 +20% (전투 종료 시 복구)',
         passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START && gs.combat?.isBoss) {
+            if (trigger === Trigger.COMBAT_START && gs.combat?.isBoss && !gs._ancientRuneActive) {
                 const bonus = Math.floor(gs.player.maxHp * 0.2);
+                gs._ancientRuneBonus = bonus;
                 gs.player.maxHp += bonus;
                 gs.player.hp += bonus;
+                gs._ancientRuneActive = true;
                 gs.markDirty?.('hud');
+            }
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._ancientRuneActive) {
+                const bonus = gs._ancientRuneBonus || 0;
+                gs.player.maxHp = Math.max(1, gs.player.maxHp - bonus);
+                gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
+                gs._ancientRuneActive = false;
+                gs._ancientRuneBonus = 0;
             }
         }
     },
@@ -430,17 +439,16 @@ export const ITEMS = {
         desc: '전투 시작: 에너지 1 (전투 중 지속)',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && !gs._warDrumActive) {
-                gs._warDrumBaseMax = gs.player.maxEnergy;
                 gs.player.maxEnergy += 1;
                 gs.player.energy = Math.min(gs.player.energy + 1, gs.player.maxEnergy);
                 gs._warDrumActive = true;
-                gs.addLog('🥁 전쟁의 북: 에너지 +1!', 'echo');
+                gs.addLog?.('🥁 전쟁의 북: 에너지 +1!', 'echo');
                 gs.markDirty?.('hud');
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._warDrumActive) {
-                gs.player.maxEnergy = gs._warDrumBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
+                gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1);
+                gs.player.energy = Math.min(gs.player.energy, gs.player.maxEnergy);
                 gs._warDrumActive = false;
-                gs._warDrumBaseMax = undefined;
             }
         }
     },
@@ -484,18 +492,16 @@ export const ITEMS = {
         desc: '전투 시작: 최대 에너지 +1 (전투 중 지속)',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && !gs._surgeActive) {
-                gs._surgeBaseMax = gs.player.maxEnergy;
                 gs.player.maxEnergy += 1;
                 gs.player.energy = gs.player.maxEnergy;
                 gs._surgeActive = true;
-                gs.addLog('💫 쇄도의 수정: 이번 전투 최대 에너지 +1!', 'echo');
+                gs.addLog?.('💫 쇄도의 수정: 이번 전투 최대 에너지 +1!', 'echo');
                 if (typeof updateUI === 'function') updateUI();
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._surgeActive) {
-                gs.player.maxEnergy = gs._surgeBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
+                gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1);
                 gs.player.energy = Math.min(gs.player.energy, gs.player.maxEnergy);
                 gs._surgeActive = false;
-                gs._surgeBaseMax = undefined;
             }
         }
     },
@@ -941,17 +947,15 @@ export const ITEMS = {
             if (trigger === Trigger.COMBAT_START && !gs._paradoxActive) {
                 gs._paradoxActive = true;
                 gs._paradoxFirstTurn = true;
-                gs._paradoxBaseMax = gs.player.maxEnergy;
                 gs.player.maxEnergy += 1;
             }
             if (trigger === Trigger.DAMAGE_TAKEN && gs._paradoxFirstTurn && data > 0) return Math.floor(data * 1.25);
             if (trigger === Trigger.TURN_END && gs._paradoxFirstTurn) gs._paradoxFirstTurn = false;
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._paradoxActive) {
-                gs.player.maxEnergy = gs._paradoxBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
+                gs.player.maxEnergy = Math.max(1, gs.player.maxEnergy - 1);
                 gs.player.energy = Math.min(gs.player.energy, gs.player.maxEnergy);
                 gs._paradoxFirstTurn = false;
                 gs._paradoxActive = false;
-                gs._paradoxBaseMax = undefined;
             }
         }
     },
