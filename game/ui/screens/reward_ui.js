@@ -1,4 +1,4 @@
-﻿import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
+import { clearIdempotencyKey, clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 
 import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
 import { registerCardDiscovered, registerItemFound } from '../../systems/codex_records_system.js';
@@ -170,6 +170,21 @@ function _renderRewardCardOption(container, cardId, data, deps, onPick, idx) {
 
   cardEl.append(cost, icon, name, desc, rarity);
   wrapper.appendChild(cardEl);
+
+  // Tooltip events
+  wrapper.addEventListener('mouseenter', (ev) => {
+    const tooltipUI = deps.tooltipUI || globalThis.TooltipUI || globalThis.GAME?.Modules?.['TooltipUI'];
+    if (typeof tooltipUI?.showTooltip === 'function') {
+      tooltipUI.showTooltip(ev, cardId, { ...deps, data, gs });
+    }
+  });
+  wrapper.addEventListener('mouseleave', () => {
+    const tooltipUI = deps.tooltipUI || globalThis.TooltipUI || globalThis.GAME?.Modules?.['TooltipUI'];
+    if (typeof tooltipUI?.hideTooltip === 'function') {
+      tooltipUI.hideTooltip();
+    }
+  });
+
   wrapper.addEventListener('click', () => {
     _markRewardSelection(container, wrapper);
     onPick?.();

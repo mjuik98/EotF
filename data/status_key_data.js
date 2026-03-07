@@ -27,6 +27,7 @@ export const PLAYER_STATUS_FALLBACK_BUFF_KEYS = Object.freeze([
   'divine_aura',
   'endure_buff',
   'echo_berserk',
+  'stunImmune',
 ]);
 
 export const INFINITE_DURATION_STATUS_KEYS = Object.freeze([

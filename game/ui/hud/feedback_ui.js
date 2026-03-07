@@ -272,6 +272,8 @@ export const FeedbackUI = {
         icon.className = 'toast-icon';
         icon.textContent = item.icon || '✨';
         const content = doc.createElement('div');
+        const rarityInfo = doc.createElement('div');
+        rarityInfo.className = 'toast-rarity';
         const label = options?.typeLabel || `${RARITY_LABELS[r] || r} 아이템 획득`;
         rarityInfo.textContent = label;
 

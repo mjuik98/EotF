@@ -145,7 +145,9 @@ export const TooltipUI = {
     // Sub-tooltip for keywords
     const st = doc.getElementById('subTooltip');
     if (st) {
-      const foundKw = Object.keys(KEYWORD_MAP).find(kw => card.desc?.includes(kw) || (card.exhaust && kw === '[소진]'));
+      // Sort keys by length descending to match "기절 면역" before "기절"
+      const sortedKeys = Object.keys(KEYWORD_MAP).sort((a, b) => b.length - a.length);
+      const foundKw = sortedKeys.find(kw => card.desc?.includes(kw) || (card.exhaust && kw === '[소진]'));
       if (foundKw) {
         const kwData = KEYWORD_MAP[foundKw];
         doc.getElementById('stTitle').textContent = kwData.title;

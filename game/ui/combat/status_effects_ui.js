@@ -56,6 +56,7 @@ const STATUS_KR = {
   unbreakable_wall: { name: '불굴의 벽', icon: '🧱', buff: true, desc: '턴 시작 시 방어막 비례 비례 피해' },
   unbreakable_wall_plus: { name: '불굴의 벽+', icon: '🧱+', buff: true, desc: '턴 시작 시 방어막 비례 큰 피해' },
   thorns: { name: '가시', icon: '⚙️', buff: true, desc: '피격 시 공격자에게 고정 피해 반사' },
+  stunImmune: { name: '기절 면역', icon: '🛡️', buff: true, desc: '지정된 횟수만큼 기절 효과를 무효화' },
 
   // ── 디버프 ──
   weakened: { name: '약화', icon: '🪶', buff: false, desc: '가하는 피해 크게 감소' },

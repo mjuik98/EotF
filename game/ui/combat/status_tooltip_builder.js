@@ -167,6 +167,18 @@ export const STATUS_TOOLTIP_META = {
     statLabel: '회복량', statValue: (buff) => String(buff?.healPerTurn ?? '?'),
     statUnit: '/턴', statColor: '#fef08a',
   },
+  stunImmune: {
+    nameEn: 'Stun Immunity', typeLabel: '버프 · 소모형',
+    accent: '#38bdf8', nameColor: '#7dd3fc',
+    typeBg: 'rgba(56,189,248,.12)', typeColor: '#38bdf8',
+    tags: [
+      { label: '기절 무효', color: '#7dd3fc', border: 'rgba(125,211,252,.2)', bg: 'rgba(125,211,252,.07)' },
+      { label: '횟수 차감', color: '#7dd3fc', border: 'rgba(125,211,252,.2)', bg: 'rgba(125,211,252,.07)' },
+    ],
+    nextTurnText: null, nextTurnDmg: () => null,
+    statLabel: '면역 횟수', statValue: (buff, val) => String(val ?? buff?.stacks ?? buff ?? '?'),
+    statUnit: '회', statColor: '#7dd3fc',
+  },
   // ── 적 전용 ──────────────────────────────────────────────────────
   doom: {
     nameEn: 'Doom', typeLabel: '특수 · 카운트다운',
