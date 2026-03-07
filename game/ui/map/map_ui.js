@@ -697,7 +697,7 @@ export const MapUI = {
       },
     };
     const rewardClassMap = {
-      카드: 'card',
+      카드: 'nc-card-rwd',
       유물: 'relic',
       골드: 'gold',
       'HP 회복': 'hp',

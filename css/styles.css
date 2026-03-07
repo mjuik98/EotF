@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    ECHO OF THE FALLEN v2 — Master Stylesheet
 ═══════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=Share+Tech+Mono&display=swap');
@@ -9671,6 +9671,7 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 @keyframes ncFnPulse {
+
   0%,
   100% {
     box-shadow: 0 0 10px rgba(var(--nc-accent-rgb), 0.45), 0 0 20px rgba(var(--nc-accent-rgb), 0.18);
@@ -9714,6 +9715,7 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 @keyframes ncDotBlink {
+
   0%,
   100% {
     opacity: 1;
@@ -10074,9 +10076,15 @@ body:has(#combatOverlay.active) .panel-right {
   gap: 3px;
   flex-wrap: wrap;
   margin-top: 1px;
+  align-items: flex-start;
 }
 
 .nc-trait-tag {
+  display: inline-block;
+  width: fit-content;
+  height: auto;
+  min-height: 0;
+  max-height: 20px;
   font-size: 7px;
   letter-spacing: 0.06em;
   padding: 1px 6px;
@@ -10098,9 +10106,15 @@ body:has(#combatOverlay.active) .panel-right {
   flex-wrap: wrap;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 7px;
+  align-items: flex-start;
 }
 
 .nc-reward-tag {
+  display: inline-block;
+  width: fit-content;
+  height: auto;
+  min-height: 0;
+  max-height: 20px;
   font-size: 8px;
   letter-spacing: 0.07em;
   padding: 2px 7px;
@@ -10108,7 +10122,7 @@ body:has(#combatOverlay.active) .panel-right {
   border: 1px solid;
 }
 
-.nc-reward-tag.card {
+.nc-reward-tag.nc-card-rwd {
   color: #b38cff;
   border-color: rgba(123, 47, 255, 0.3);
   background: rgba(123, 47, 255, 0.07);
@@ -10330,6 +10344,7 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 @keyframes ncRelicPulse {
+
   0%,
   100% {
     box-shadow: none;
