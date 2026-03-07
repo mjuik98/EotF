@@ -226,7 +226,7 @@ export const HelpPauseUI = {
 
     const body = doc.createElement('div');
     body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:15px;color:var(--text-dim);text-align:center;max-width:340px;line-height:1.7;";
-    body.innerHTML = '현재 진행 중인 런은 종료됩니다.<br>실수 클릭 방지를 위해 한 번 더 확인합니다.';
+    body.innerHTML = '현재 진행 상황이 저장되고 타이틀로 돌아갑니다.<br>다음에 이어하기로 재개할 수 있습니다.';
 
     const btns = doc.createElement('div');
     btns.style.display = 'flex';
@@ -242,6 +242,19 @@ export const HelpPauseUI = {
     okBtn.textContent = '처음으로';
     okBtn.onclick = () => {
       confirmEl.remove();
+
+      // 수동 저장: 타이틀로 돌아가기 전 현재 런 상태 저장
+      const gs = _resolveGs(deps);
+      if (gs) {
+        const SaveSystem =
+          globalThis.GAME?.Modules?.SaveSystem ?? globalThis.SaveSystem;
+        if (SaveSystem && typeof SaveSystem.saveRun === 'function') {
+          SaveSystem.saveRun({ gs, isGameStarted: () => true });
+        } else if (typeof deps.saveRun === 'function') {
+          deps.saveRun();
+        }
+      }
+
       location.reload();
     };
 

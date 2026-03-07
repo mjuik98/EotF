@@ -65,6 +65,7 @@ export function createTitleSettingsBindings(M, fns) {
                 runStartDeps.requestAnimationFrame(runStartDeps.gameLoop);
             }
             fns.renderMinimap?.();
+            fns.updateNextNodes?.();
         }, 80);
     };
     fns.openRunSettings = () => {

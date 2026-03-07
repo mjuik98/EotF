@@ -146,6 +146,7 @@ describe('title start flow transition', () => {
     expect(runStartDeps.audioEngine.startAmbient).toHaveBeenCalledWith(0);
     expect(runStartDeps.initGameCanvas).toHaveBeenCalledTimes(1);
     expect(fns.renderMinimap).toHaveBeenCalledTimes(1);
+    expect(fns.updateNextNodes).toHaveBeenCalledTimes(1);
 
     vi.useRealTimers();
   });

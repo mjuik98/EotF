@@ -1001,3 +1001,15 @@ Original prompt:
   - `node --check game/ui/run/run_mode_ui.js` PASS.
   - `npm run build` PASS.
   - Browser verification: dialog opens, cancel closes it, confirm save closes it and updates the inline preset name.
+- Stage-select UI integration:
+  - Integrated redesigned region-choice overlay into `game/ui/map/map_ui.js` while preserving the existing `canvas_bindings -> MapUI.updateNextNodes -> MapNavigationUI.moveToNode` flow.
+  - Added floor progress rail, region rule banner, relic side panel, hover tint, select animation, and numeric hotkeys to the node-choice overlay.
+  - Appended override styles and responsive adjustments to `css/styles.css` rather than rewriting existing node-card styles in place.
+  - Added focused regression coverage in `tests/map_ui_update_next_nodes.test.js` for overlay activation, card rendering, and relic-panel attachment.
+- Validation:
+  - `npm test -- tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client run against `http://127.0.0.1:4173`; `output/web-game/shot-0.png` generated and no `errors-*.json` emitted.
+  - Additional Playwright DOM verification reached the live node overlay after title flow; `output/web-game/map-ui-overlay.png` captured with `nodeCardOverlay` displayed as `flex`, `flex-direction: row`, one first-floor node card visible, and `ncRelicPanel` attached.
+- Residual note:
+  - `npm test` currently fails on pre-existing unrelated suites: `tests/time_rift_bug.test.js`, `tests/turn_manager.test.js`, and `tests/thematic_relics.test.js`. These failures were present outside the stage-select UI scope and were not addressed here.
