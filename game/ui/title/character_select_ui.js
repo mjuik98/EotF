@@ -916,7 +916,18 @@ export const CharacterSelectUI = {
 
     // ── 키보드 ────────────────────────────────────────
     function onKeyDown(e) {
-      if (e.key === 'ArrowLeft') go(-1);
+      if (e.key === 'Escape') {
+        if (S.activeSkill) {
+          closeModal();
+        } else if (S.phase === 'done') {
+          S.phase = 'select';
+          stopTyping();
+          renderPhase();
+        } else if (S.phase === 'select') {
+          deps.onBack?.();
+        }
+      }
+      else if (e.key === 'ArrowLeft') go(-1);
       else if (e.key === 'ArrowRight') go(1);
       else if (e.key === 'Enter' && S.phase === 'select' && !S.activeSkill) handleConfirm();
     }

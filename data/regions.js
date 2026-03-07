@@ -1,4 +1,4 @@
-﻿/**
+/**
  * regions.js - 리전 데이터 및 캐릭터별 시작 덱
  */
 
@@ -100,9 +100,17 @@ export const BRANCH_ROUTES = {
         { regionId: 1, label: '🏙️ 침묵의 도시', difficulty: '어려움', rewardMod: 1.3 },
         { regionId: 5, label: '⏳ 시간의 황무지', difficulty: '보통', rewardMod: 1.0 },
     ],
+    after_region_1: [
+        { regionId: 2, label: '🌀 기억의 미궁', difficulty: '보통', rewardMod: 1.0 },
+        { regionId: 5, label: '⏳ 시간의 황무지', difficulty: '어려움', rewardMod: 1.2 },
+    ],
     after_region_2: [
         { regionId: 3, label: '⚰️ 신의 무덤', difficulty: '어려움', rewardMod: 1.3 },
         { regionId: 6, label: '🌊 심연의 해안', difficulty: '극한', rewardMod: 1.6 },
+    ],
+    after_region_3: [
+        { regionId: 4, label: '🌌 잔향의 근원', difficulty: '보통', rewardMod: 1.0 },
+        { regionId: 6, label: '🌊 심연의 해안', difficulty: '어려움', rewardMod: 1.3 },
     ],
 };
 

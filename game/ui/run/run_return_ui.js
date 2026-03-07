@@ -1,4 +1,4 @@
-﻿function _getDoc(deps) {
+function _getDoc(deps) {
   return deps?.doc || document;
 }
 const OVERLAY_DISMISS_MS = 320;
@@ -186,7 +186,8 @@ async function _resolveBranchTargetRegion(gs, deps = {}) {
     : 5;
   const cycle = Math.floor(Math.max(0, Number(gs.currentRegion) || 0) / stageCount);
 
-  if (cycle > 0) return null;
+  // cycle > 0(무한 루프 중)에도 분기가 정의되어 있다면 선택할 수 있도록 제한 제거
+  // if (cycle > 0) return null;
 
   const baseRegion = typeof getBaseRegionIndex === 'function'
     ? getBaseRegionIndex(gs.currentRegion)
@@ -279,7 +280,7 @@ export const RunReturnUI = {
         clearRewardExitStyles();
         _afterScreenTransition(deps, 100, () => {
           void (async () => {
-            const targetRegionId = endlessRun ? null : await _resolveBranchTargetRegion(gs, deps);
+            const targetRegionId = await _resolveBranchTargetRegion(gs, deps);
             deps.advanceToNextRegion?.({ ...deps, targetRegionId });
           })();
         });

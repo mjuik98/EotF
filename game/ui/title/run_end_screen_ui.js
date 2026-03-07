@@ -79,6 +79,13 @@ export class RunEndScreenUI {
     this._els.overlay?.addEventListener('click', (event) => {
       if (event.target === this._els.overlay) this.close();
     });
+
+    this._onKeyDown = (event) => {
+      if (this._els.overlay.style.display === 'flex' && event.key === 'Escape') {
+        this.close();
+      }
+    };
+    document.addEventListener('keydown', this._onKeyDown);
   }
 
   show(summary, classInfo = {}) {
@@ -172,6 +179,9 @@ export class RunEndScreenUI {
 
   destroy() {
     this.close();
+    if (this._onKeyDown) {
+      document.removeEventListener('keydown', this._onKeyDown);
+    }
     this._els.overlay?.remove();
   }
 }
