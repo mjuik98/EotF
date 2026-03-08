@@ -371,6 +371,23 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
   if (gs._runOutcomeCommitted) return 0;
   gs._runOutcomeCommitted = true;
 
+  if (gs.stats && typeof gs.stats === 'object') {
+    const now = Date.now();
+    const runStartTs = Number(gs.stats._runStartTs);
+    if (Number.isFinite(runStartTs) && runStartTs > 0) {
+      gs.stats.clearTimeMs = Math.max(0, now - runStartTs);
+    }
+
+    if (!gs.stats.regionClearTimes || typeof gs.stats.regionClearTimes !== 'object' || Array.isArray(gs.stats.regionClearTimes)) {
+      gs.stats.regionClearTimes = {};
+    }
+    const regionIndex = Math.max(0, Math.floor(Number(gs.currentRegion) || 0));
+    const regionStartTs = Number(gs.stats._regionStartTs);
+    if (Number.isFinite(regionStartTs) && regionStartTs > 0) {
+      gs.stats.regionClearTimes[regionIndex] = Math.max(0, now - regionStartTs);
+    }
+  }
+
   RunRules.ensureMeta(gs.meta);
   Object.assign(gs.meta.worldMemory, gs.worldMemory || {});
   gs.meta.bestChain = Math.max(gs.meta.bestChain || 0, gs.stats?.maxChain || 0);

@@ -1013,3 +1013,37 @@ Original prompt:
   - Additional Playwright DOM verification reached the live node overlay after title flow; `output/web-game/map-ui-overlay.png` captured with `nodeCardOverlay` displayed as `flex`, `flex-direction: row`, one first-floor node card visible, and `ncRelicPanel` attached.
 - Residual note:
   - `npm test` currently fails on pre-existing unrelated suites: `tests/time_rift_bug.test.js`, `tests/turn_manager.test.js`, and `tests/thematic_relics.test.js`. These failures were present outside the stage-select UI scope and were not addressed here.
+- Follow-up prompt: 외부 엔딩 스크린(`ending_screen_ui.js`, `ending_screen.css`, `PATCH_GUIDE.js`) 구조를 기존 프로젝트에 맞게 통합.
+- Ending screen integration:
+  - Added new runtime module `game/ui/screens/ending_screen_ui.js` with animated normal-ending overlay, rank badge, summary counters, timeline, deck snapshot, inscription pills, and optional codex entry button.
+  - Added stylesheet `css/ending_screen.css`; runtime loader now uses absolute path `/css/ending_screen.css` so both root app and `/tmp/` preview routes resolve correctly.
+  - Rewrote `game/ui/screens/story_ui.js` as UTF-8-safe source and routed the normal ending branch through `EndingScreenUI.show(false, deps)` while keeping hidden-ending flow intact.
+  - Updated `game/ui/screens/meta_progression_ui.js` to call `EndingScreenUI.cleanup(...)` so restart closes all ending overlay layers, not just `#endingScreen`.
+  - Extended story deps in `game/core/deps/contracts/core_contract_builders.js` with `openCodex`, enabling the ending screen's secondary "도감 보기" action when available.
+- Data/runtime support:
+  - `game/ui/run/run_setup_ui.js` now initializes `gs.stats.clearTimeMs`, `regionClearTimes`, `_runStartTs`, and `_regionStartTs`.
+  - `game/ui/map/region_transition_ui.js` now records completed-region clear times before advancing and resets the next region timer after transition close.
+  - `game/systems/run_rules.js::finalizeRunOutcome()` now stamps total clear time and the current region clear time before meta/save finalization.
+- Validation:
+  - `node --check game/ui/screens/ending_screen_ui.js` PASS.
+  - `node --check game/ui/screens/story_ui.js` PASS.
+  - `node --check game/ui/screens/meta_progression_ui.js` PASS.
+  - `npm test -- tests/story_ui.test.js tests/meta_progression_ui.test.js tests/region_transition_ui.test.js tests/run_rules_preview_meta.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client run against preview URL `http://127.0.0.1:4173/tmp/ending-screen-preview.html` completed; `output/web-game/state-2.json` confirmed ending DOM structure (`stats:6`, `timeline:5`, `deck:8`, `pills:2`).
+  - Because the skill client capture is canvas-biased for this composition, an additional full-page Playwright screenshot was taken at `output/web-game/ending-page-full.png` and visually inspected; the redesigned ending panel rendered correctly.
+  - `output/web-game/ending-page-errors.json` = `[]`.
+- Temporary verification assets:
+  - Added `tmp/ending-screen-preview.html` and `tmp/ending-screen-preview.js` as local preview harnesses for browser verification.
+- Follow-up prompt: 예시 미리보기 `C:\Users\mjuik\Downloads\ending_screen\ending_preview_v5.html` 와 더 가깝게 엔딩 화면을 맞춤.
+- Preview-match pass:
+  - Rebuilt `game/ui/screens/ending_screen_ui.js` around the external preview's actual stage composition: curtain, 4-layer canvas stack, custom cursor, floating runes, sigil rank badge, typewriter quote, horizontal timeline, compact deck strip, clear-time/info column, and preview-style button/footer layout.
+  - Replaced `css/ending_screen.css` with a preview-matching stylesheet derived from the external HTML structure and timings rather than the earlier panel-card interpretation.
+  - Updated `tmp/ending-screen-preview.js` sample data to mirror the reference composition more closely for visual diffing.
+- Validation:
+  - Captured external reference preview to `tmp/ending-preview-reference.png`.
+  - Captured integrated preview to `output/web-game/ending-page-full.png`; visually confirmed the layout now closely matches the reference stage arrangement.
+  - `output/web-game/ending-page-errors.json` = `[]`.
+  - `node --check game/ui/screens/ending_screen_ui.js` PASS.
+  - `npm test -- tests/story_ui.test.js tests/meta_progression_ui.test.js tests/region_transition_ui.test.js tests/run_rules_preview_meta.test.js` PASS.
+  - `npm run build` PASS.

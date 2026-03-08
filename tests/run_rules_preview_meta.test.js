@@ -32,9 +32,10 @@ describe('RunRules preview meta support', () => {
     GAME.Modules = { SaveSystem: { saveMeta, clearSave } };
     GAME.State = {
       _runOutcomeCommitted: false,
+      currentRegion: 2,
       runConfig: { ascension: 2, endless: true, curse: 'tax', disabledInscriptions: ['fortune'] },
       worldMemory: {},
-      stats: { maxChain: 4 },
+      stats: { maxChain: 4, _runStartTs: 1000, _regionStartTs: 3000, regionClearTimes: {} },
       meta: {
         runCount: 2,
         worldMemory: {},
@@ -45,11 +46,14 @@ describe('RunRules preview meta support', () => {
         progress: { victories: 0, failures: 0, echoShards: 0, totalDamage: 0, bossKills: {} },
       },
     };
+    vi.spyOn(Date, 'now').mockReturnValue(6100);
 
     const gain = finalizeRunOutcome('victory');
 
     expect(gain).toBe(5);
     expect(GAME.State.meta.runHistory).toBeUndefined();
+    expect(GAME.State.stats.clearTimeMs).toBe(5100);
+    expect(GAME.State.stats.regionClearTimes[2]).toBe(3100);
     expect(saveMeta).toHaveBeenCalledTimes(1);
     expect(clearSave).toHaveBeenCalledTimes(1);
   });

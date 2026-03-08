@@ -14,6 +14,7 @@ export function buildCoreContractBuilders(ctx) {
         particleSystem: refs.ParticleSystem,
         showWorldMemoryNotice: refs.showWorldMemoryNotice,
         restartFromEnding: refs.restartFromEnding,
+        openCodex: refs.openCodex,
       };
     },
 

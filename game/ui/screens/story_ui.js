@@ -1,4 +1,5 @@
 import { startEchoRippleDissolve } from '../effects/echo_ripple_transition.js';
+import { EndingScreenUI } from './ending_screen_ui.js';
 
 function _getGS(deps) {
   return deps?.gs;
@@ -92,7 +93,7 @@ export const StoryUI = {
         _setInscriptionLevel(gs, 'echo_memory', 1);
         setTimeout(() => {
           if (typeof deps.showWorldMemoryNotice === 'function') {
-            deps.showWorldMemoryNotice('\uC0C8\uB85C\uC6B4 \uAC01\uC778 \uD574\uAE08: \uC794\uD5A5\uC758 \uAE30\uC5B5');
+            deps.showWorldMemoryNotice('새로운 각인 해금: 잔향의 기억');
           }
         }, 300);
       }
@@ -102,7 +103,7 @@ export const StoryUI = {
       gs.meta._hiddenEndingHinted = true;
       setTimeout(() => {
         if (typeof deps.showWorldMemoryNotice === 'function') {
-          deps.showWorldMemoryNotice('\uC9C4\uC2E4\uC5D0 \uAC00\uAE4C\uC6CC\uC9C0\uACE0 \uC788\uB2E4 - \uAC01\uC778 \uC5C6\uC774 \uD074\uB9AC\uC5B4\uD558\uB77C');
+          deps.showWorldMemoryNotice('진실에 가까워지고 있다 - 각인 없이 클리어하라');
         }
       }, 500);
     }
@@ -114,6 +115,7 @@ export const StoryUI = {
     const doc = _getDoc(deps);
     const el = doc.createElement('div');
     el.style.cssText = 'position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:28px 20px;box-sizing:border-box;z-index:2000;opacity:1;';
+
     const head = doc.createElement('div');
     head.style.cssText = "font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.32em;color:rgba(123,47,255,0.72);";
     head.textContent = `조각 ${frag.id} - ${frag.title}`;
@@ -128,9 +130,10 @@ export const StoryUI = {
     const btn = doc.createElement('button');
     btn.id = 'storyContinueBtn';
     btn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.16em;color:var(--text-dim);background:rgba(123,47,255,0.16);border:1px solid var(--border);border-radius:8px;padding:13px 36px;cursor:pointer;opacity:1;transition:all 0.3s;";
-    btn.textContent = '\uACC4\uC18D';
+    btn.textContent = '계속';
     btn.onmouseover = () => { btn.style.color = 'var(--white)'; };
     btn.onmouseout = () => { btn.style.color = 'var(--text-dim)'; };
+
     let completed = false;
     const finish = () => {
       if (completed) return;
@@ -143,6 +146,7 @@ export const StoryUI = {
       btn.disabled = true;
       btn.style.pointerEvents = 'none';
       const closeEffect = deps?.closeEffect || 'ripple';
+
       if (closeEffect === 'none') {
         el.remove();
         finish();
@@ -178,7 +182,7 @@ export const StoryUI = {
   checkHiddenEnding(deps = {}) {
     const gs = _getGS(deps);
     if (!gs?.meta) return false;
-    const noIns = !Object.values(gs.meta.inscriptions).some(v => v);
+    const noIns = !Object.values(gs.meta.inscriptions).some((v) => v);
     return noIns && gs.meta.storyPieces.length > 9;
   },
 
@@ -194,105 +198,63 @@ export const StoryUI = {
     const gs = _getGS(deps);
     if (!gs?.meta || !gs.player || !gs.stats) return;
 
+    if (!isHidden) {
+      EndingScreenUI.show(false, deps);
+      return;
+    }
+
     const doc = _getDoc(deps);
     const el = doc.createElement('div');
     el.id = 'endingScreen';
     el.style.cssText = 'position:fixed;inset:0;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;z-index:3000;animation:fadeIn 2s ease both;';
-    const glowColor = isHidden ? 'rgba(0,255,204,0.7)' : 'var(--echo-glow)';
+    const glowColor = 'rgba(0,255,204,0.7)';
 
-    if (isHidden) {
-      const h1 = doc.createElement('div');
-      h1.style.cssText = "font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--cyan);animation:fadeInDown 1s ease 0.5s both;opacity:0;";
-      h1.textContent = '진 엔딩 — 초월';
+    const h1 = doc.createElement('div');
+    h1.style.cssText = "font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--cyan);animation:fadeInDown 1s ease 0.5s both;opacity:0;";
+    h1.textContent = '진 엔딩 초월';
 
-      const h2 = doc.createElement('div');
-      h2.style.cssText = `font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,56px);font-weight:900;color:var(--cyan);text-shadow:0 0 40px ${glowColor};animation:titleReveal 1.5s ease 0.8s both;opacity:0;`;
-      h2.textContent = '루프의 끝';
-      const subH2 = doc.createElement('span');
-      subH2.style.cssText = 'font-size:0.5em;color:var(--text-dim);';
-      subH2.textContent = '메아리의 끝';
-      h2.appendChild(subH2);
+    const h2 = doc.createElement('div');
+    h2.style.cssText = `font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,56px);font-weight:900;color:var(--cyan);text-shadow:0 0 40px ${glowColor};animation:titleReveal 1.5s ease 0.8s both;opacity:0;`;
+    h2.textContent = '루프의 바깥';
+    const subH2 = doc.createElement('span');
+    subH2.style.cssText = 'font-size:0.5em;color:var(--text-dim);';
+    subH2.textContent = '메아리의 끝';
+    h2.appendChild(subH2);
 
-      const body = doc.createElement('div');
-      body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(14px,1.8vw,19px);color:var(--text);max-width:520px;text-align:center;line-height:1.9;animation:fadeInUp 1s ease 1.8s both;opacity:0;";
-      body.innerHTML = '"잔향자는 처음으로 손을 내려놓았다.<br>각인의 힘도, 과거의 기억도 사용하지 않은 채.<br>그것이 진짜 선택이었다.<br><br>세계는 침묵을 되찾았다.<br>그리고 마침내 — 쉬었다."';
+    const body = doc.createElement('div');
+    body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(14px,1.8vw,19px);color:var(--text);max-width:520px;text-align:center;line-height:1.9;animation:fadeInUp 1s ease 1.8s both;opacity:0;";
+    body.innerHTML = '"메아리는 처음으로 자신을 내려놓았다.<br>각인도, 과거의 기억도 쓰지 않은 채<br>그럼에도 진짜 선택을 해냈다.<br><br>경계는 침묵으로 갈라졌고,<br>마침내 너는 밖으로 걸어 나갔다."';
 
-      const btnCont = doc.createElement('div');
-      btnCont.style.cssText = 'animation:fadeInUp 1s ease 3s both;opacity:0;';
-      const btn = doc.createElement('button');
-      btn.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--cyan),var(--echo));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;";
-      btn.textContent = '새로운 잔향';
-      btn.onclick = () => { if (typeof deps.restartFromEnding === 'function') deps.restartFromEnding(); };
-      btnCont.appendChild(btn);
+    const btnCont = doc.createElement('div');
+    btnCont.style.cssText = 'animation:fadeInUp 1s ease 3s both;opacity:0;';
+    const btn = doc.createElement('button');
+    btn.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--cyan),var(--echo));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;";
+    btn.textContent = '메아리로 돌아가기';
+    btn.onclick = () => { if (typeof deps.restartFromEnding === 'function') deps.restartFromEnding(); };
+    btnCont.appendChild(btn);
 
-      const foot = doc.createElement('div');
-      foot.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;";
-      foot.textContent = `진 엔딩 해금 — ${gs.meta.storyPieces.length}/10 fragments`;
+    const foot = doc.createElement('div');
+    foot.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;";
+    foot.textContent = `진 엔딩 해금 ${gs.meta.storyPieces.length}/10 fragments`;
 
-      const data = _getData(deps);
-      if (_getInscriptionLevel(gs, 'void_heritage') === 0 && data?.inscriptions?.void_heritage) {
-        _setInscriptionLevel(gs, 'void_heritage', 1);
-        const unlockMsg = doc.createElement('div');
-        unlockMsg.style.cssText = "font-family:'Cinzel',serif;font-size:11px;color:var(--cyan);margin-top:8px;animation:fadeInUp 1s ease 4s both;opacity:0;";
-        unlockMsg.textContent = '궁극의 각인 해금: 공허의 유산';
-        foot.appendChild(unlockMsg);
-      }
-
-      el.append(h1, h2, body, btnCont, foot);
-    } else {
-      const h1 = doc.createElement('div');
-      h1.style.cssText = "font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.5em;color:var(--echo);animation:fadeInDown 1s ease 0.5s both;opacity:0;";
-      h1.textContent = '엔딩 — 클리어';
-
-      const h2 = doc.createElement('div');
-      h2.style.cssText = `font-family:'Cinzel Decorative',serif;font-size:clamp(26px,4.5vw,50px);font-weight:900;color:var(--white);text-shadow:0 0 30px ${glowColor};animation:titleReveal 1.5s ease 0.8s both;opacity:0;`;
-      h2.textContent = '메아리의 근원 정복';
-      const subH2 = doc.createElement('span');
-      subH2.style.cssText = 'font-size:0.45em;color:var(--text-dim);';
-      subH2.textContent = '공명하는 승리자';
-      h2.appendChild(subH2);
-
-      const body = doc.createElement('div');
-      body.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(14px,1.8vw,18px);color:var(--text);max-width:500px;text-align:center;line-height:1.9;animation:fadeInUp 1s ease 1.8s both;opacity:0;";
-      body.innerHTML = '"잔향자는 에코의 핵심을 돌파했다.<br>하지만 루프는 아직 끝나지 않았다.<br>진실을 알기에는 — 아직 이르다."';
-
-      const statsCont = doc.createElement('div');
-      statsCont.style.cssText = 'display:flex;gap:28px;animation:fadeInUp 1s ease 2.5s both;opacity:0;flex-wrap:wrap;justify-content:center;';
-      [
-        { n: gs.player.kills, l: '처치 수' },
-        { n: gs.stats.maxChain, l: '최고 체인' },
-        { n: gs.stats.damageDealt, l: '총 피해' },
-        { n: gs.meta.runCount, l: '런 횟수' },
-        { n: `${gs.meta.storyPieces.length}/10`, l: '스토리 조각' },
-      ].forEach(s => {
-        const sDiv = doc.createElement('div');
-        sDiv.style.textAlign = 'center';
-        const val = doc.createElement('div'); val.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:900;color:var(--echo);"; val.textContent = s.n;
-        const lbl = doc.createElement('div'); lbl.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:var(--text-dim);margin-top:4px;"; lbl.textContent = s.l;
-        sDiv.append(val, lbl);
-        statsCont.appendChild(sDiv);
-      });
-
-      const btnCont = doc.createElement('div');
-      btnCont.style.cssText = 'animation:fadeInUp 1s ease 3s both;opacity:0;';
-      const btn = doc.createElement('button');
-      btn.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--echo),var(--echo-bright));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;";
-      btn.textContent = '다시 잔향 속으로';
-      btn.onclick = () => { if (typeof deps.restartFromEnding === 'function') deps.restartFromEnding(); };
-      btnCont.appendChild(btn);
-
-      const foot = doc.createElement('div');
-      foot.style.cssText = "font-family:'Crimson Pro',serif;font-size:13px;font-style:italic;color:var(--text-dim);animation:fadeInUp 1s ease 3.5s both;opacity:0;line-height:1.6;max-width:450px;";
-      foot.innerHTML = '✦ 각인이란? — 사망 시 획득하는 영구 강화입니다.<br><span style="font-size:0.9em;opacity:0.8;">· 잔향 증폭: 다음 런 잔향 +30으로 시작<br>· 회복력: 다음 런 최대 HP +10<br>· 행운: 다음 런 골드 25로 시작</span><br>각인을 하나도 선택하지 않고 클리어하면 — 다른 결말이 기다립니다.';
-
-      el.append(h1, h2, body, statsCont, btnCont, foot);
+    const data = _getData(deps);
+    if (_getInscriptionLevel(gs, 'void_heritage') === 0 && data?.inscriptions?.void_heritage) {
+      _setInscriptionLevel(gs, 'void_heritage', 1);
+      const unlockMsg = doc.createElement('div');
+      unlockMsg.style.cssText = "font-family:'Cinzel',serif;font-size:11px;color:var(--cyan);margin-top:8px;animation:fadeInUp 1s ease 4s both;opacity:0;";
+      unlockMsg.textContent = '권역 각인 해금: 공허의 유산';
+      foot.appendChild(unlockMsg);
     }
 
+    el.append(h1, h2, body, btnCont, foot);
     doc.body.appendChild(el);
     setTimeout(() => {
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 5; i += 1) {
         setTimeout(() => {
-          deps.particleSystem?.burstEffect?.(innerWidth * (0.2 + Math.random() * 0.6), innerHeight * (0.2 + Math.random() * 0.6));
+          deps.particleSystem?.burstEffect?.(
+            innerWidth * (0.2 + (Math.random() * 0.6)),
+            innerHeight * (0.2 + (Math.random() * 0.6)),
+          );
         }, i * 300);
       }
       deps.audioEngine?.playResonanceBurst?.();

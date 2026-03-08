@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
 import { MetaProgressionUI } from '../game/ui/screens/meta_progression_ui.js';
 
 describe('MetaProgressionUI', () => {
@@ -38,14 +39,12 @@ describe('MetaProgressionUI', () => {
   });
 
   it('replays pending class summary after closing ending screen', () => {
-    const remove = vi.fn();
-    const doc = {
-      getElementById: vi.fn(() => ({ remove })),
-    };
+    const doc = { getElementById: vi.fn() };
     const switchScreen = vi.fn();
     const clearSelectedClass = vi.fn();
     const refreshRunModePanel = vi.fn();
     const showPendingClassProgressSummary = vi.fn();
+    const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
 
     MetaProgressionUI.restartFromEnding({
       doc,
@@ -55,7 +54,7 @@ describe('MetaProgressionUI', () => {
       showPendingClassProgressSummary,
     });
 
-    expect(remove).toHaveBeenCalledTimes(1);
+    expect(cleanupSpy).toHaveBeenCalledWith({ doc });
     expect(switchScreen).toHaveBeenCalledWith('title');
     expect(clearSelectedClass).toHaveBeenCalledTimes(1);
     expect(refreshRunModePanel).toHaveBeenCalledTimes(1);

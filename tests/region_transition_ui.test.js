@@ -78,5 +78,18 @@ describe('RegionTransitionUI target region parsing', () => {
     expect(deps.gs.currentRegion).toBe(2);
     expect(deps.gs.regionRoute['2']).toBe(6);
   });
-});
 
+  it('records clear time for the completed region', () => {
+    const deps = createDeps(null);
+    deps.gs.stats = {
+      regionClearTimes: {},
+      _regionStartTs: 1000,
+    };
+    vi.spyOn(Date, 'now').mockReturnValue(4600);
+
+    RegionTransitionUI.advanceToNextRegion(deps);
+
+    expect(deps.gs.stats.regionClearTimes[1]).toBe(3600);
+    expect(deps.gs.stats._regionStartTs).toBe(4600);
+  });
+});

@@ -1,3 +1,5 @@
+import { EndingScreenUI } from './ending_screen_ui.js';
+
 function _getGS(deps) {
   return deps?.gs;
 }
@@ -37,7 +39,7 @@ export const MetaProgressionUI = {
 
   restartFromEnding(deps = {}) {
     const doc = _getDoc(deps);
-    doc.getElementById('endingScreen')?.remove();
+    EndingScreenUI.cleanup({ doc });
     if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
     if (typeof deps.clearSelectedClass === 'function') deps.clearSelectedClass();
     if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();

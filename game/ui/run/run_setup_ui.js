@@ -157,7 +157,17 @@ export const RunSetupUI = {
       gs._activeRegionId = null;
       gs._stagnationVault = [];
       gs.worldMemory = { ...gs.meta.worldMemory };
-      gs.stats = { damageDealt: 0, damageTaken: 0, cardsPlayed: 0, maxChain: 0 };
+      const runStartTs = Date.now();
+      gs.stats = {
+        damageDealt: 0,
+        damageTaken: 0,
+        cardsPlayed: 0,
+        maxChain: 0,
+        clearTimeMs: 0,
+        regionClearTimes: {},
+        _runStartTs: runStartTs,
+        _regionStartTs: runStartTs,
+      };
       gs.combat = { active: false, enemies: [], turn: 0, playerTurn: true, log: [] };
       gs._heartUsed = false;
       gs._temporalTurn = 0;

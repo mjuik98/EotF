@@ -14,6 +14,19 @@ export const RegionTransitionUI = {
       return;
     }
 
+    const now = Date.now();
+    if (gs.stats && typeof gs.stats === 'object') {
+      if (!gs.stats.regionClearTimes || typeof gs.stats.regionClearTimes !== 'object' || Array.isArray(gs.stats.regionClearTimes)) {
+        gs.stats.regionClearTimes = {};
+      }
+      const regionIndex = Math.max(0, Math.floor(Number(gs.currentRegion) || 0));
+      const regionStartTs = Number(gs.stats._regionStartTs);
+      if (Number.isFinite(regionStartTs) && regionStartTs > 0) {
+        gs.stats.regionClearTimes[regionIndex] = Math.max(0, now - regionStartTs);
+      }
+      gs.stats._regionStartTs = now;
+    }
+
     const rawTargetRegionId = deps.targetRegionId;
     let targetRegionId = null;
     if (rawTargetRegionId !== null && rawTargetRegionId !== undefined && rawTargetRegionId !== '') {
@@ -94,6 +107,9 @@ export const RegionTransitionUI = {
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.remove();
+        if (gs.stats && typeof gs.stats === 'object') {
+          gs.stats._regionStartTs = Date.now();
+        }
         if (typeof deps.generateMap === 'function') deps.generateMap(gs.currentRegion);
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.showRunFragment === 'function') deps.showRunFragment();

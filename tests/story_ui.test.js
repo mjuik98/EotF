@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StoryUI } from '../game/ui/screens/story_ui.js';
+import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
 
 function createDeps({ storyPieces = [], fragments = [], runCount = 1 } = {}) {
   return {
@@ -92,5 +93,21 @@ describe('StoryUI stage fragment flow', () => {
     StoryUI.unlockNextFragment(deps);
 
     expect(deps.gs.meta.storyPieces).toEqual([1, 2]);
+  });
+
+  it('delegates normal ending rendering to EndingScreenUI', () => {
+    const deps = {
+      gs: {
+        meta: { runCount: 3, storyPieces: [1, 2], inscriptions: {} },
+        player: { kills: 12, deck: [] },
+        stats: { damageDealt: 300, damageTaken: 40, cardsPlayed: 8, maxChain: 3 },
+      },
+      data: { storyFragments: [] },
+    };
+    const showSpy = vi.spyOn(EndingScreenUI, 'show').mockReturnValue(true);
+
+    StoryUI.showNormalEnding(deps);
+
+    expect(showSpy).toHaveBeenCalledWith(false, deps);
   });
 });
