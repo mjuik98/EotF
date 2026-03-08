@@ -416,6 +416,7 @@ function _ncPlaySelectAnim(doc, card, color, rgb, onDone) {
 
   let overlay = doc.getElementById('ncSelectOverlay');
   let flash = doc.getElementById('ncSelectFlash');
+
   if (!overlay) {
     overlay = doc.createElement('div');
     overlay.id = 'ncSelectOverlay';
@@ -432,22 +433,32 @@ function _ncPlaySelectAnim(doc, card, color, rgb, onDone) {
   overlay.classList.add('active');
 
   const rect = card.getBoundingClientRect();
-  const clone = doc.createElement('div');
-  clone.className = 'nc-select-clone';
-  clone.style.cssText = [
-    `left:${rect.left}px`,
-    `top:${rect.top}px`,
-    `width:${rect.width}px`,
-    `height:${rect.height}px`,
-    'background:linear-gradient(160deg,rgba(14,10,38,.98),rgba(7,5,22,.99))',
-    `border:2px solid ${color}`,
-    `box-shadow:0 0 55px rgba(${rgb},.5)`,
-  ].join(';');
+
+  // 빈 div 대신 실제 카드 복제
+  const clone = card.cloneNode(true);
+  clone.classList.add('nc-select-clone');
+  clone.style.position = 'fixed';
+  clone.style.margin = '0';
+  clone.style.left = `${rect.left}px`;
+  clone.style.top = `${rect.top}px`;
+  clone.style.width = `${rect.width}px`;
+  clone.style.height = `${rect.height}px`;
+  clone.style.zIndex = '9999';
+  clone.style.pointerEvents = 'none';
+  clone.style.border = `2px solid ${color}`;
+  clone.style.boxShadow = `0 0 55px rgba(${rgb},.5)`;
+  clone.style.transition = 'all 0.42s cubic-bezier(.22,.8,.2,1), opacity 0.3s ease, transform 0.3s ease';
+
   overlay.appendChild(clone);
+
+  // 원본 카드는 잠깐 숨김
+  const prevVisibility = card.style.visibility;
+  card.style.visibility = 'hidden';
 
   _runOnNextFrame(() => _runOnNextFrame(() => {
     const targetWidth = Math.min(rect.width * 1.08, 280);
     const targetHeight = rect.height * 1.05;
+
     clone.style.left = `${((globalThis.innerWidth || 1280) - targetWidth) / 2}px`;
     clone.style.top = `${((globalThis.innerHeight || 720) - targetHeight) / 2}px`;
     clone.style.width = `${targetWidth}px`;
@@ -458,10 +469,15 @@ function _ncPlaySelectAnim(doc, card, color, rgb, onDone) {
     if (flash) flash.style.background = `rgba(${rgb},.2)`;
     clone.style.opacity = '0';
     clone.style.transform = 'scale(1.12)';
+
     setTimeout(() => {
       if (flash) flash.style.background = 'transparent';
       overlay.classList.remove('active');
       clone.remove();
+
+      // 원본 복구
+      card.style.visibility = prevVisibility;
+
       onDone?.();
     }, 300);
   }, 400);
@@ -713,7 +729,6 @@ export const MapUI = {
     }
 
     doc.getElementById('ncMainArea')?.remove();
-    doc.getElementById('ncRelicPanel')?.remove();
     doc.getElementById('ncHoverTint')?.remove();
     _ncCleanup(doc);
 
@@ -851,10 +866,6 @@ export const MapUI = {
     mainArea.appendChild(row);
     mainArea.appendChild(_ncBuildRuleBanner(doc, regionData));
     overlay.appendChild(mainArea);
-
-    const relicPanel = _ncBuildRelicPanel(doc, gs, data);
-    relicPanel.id = 'ncRelicPanel';
-    overlay.appendChild(relicPanel);
 
     const keyHandler = (event) => {
       if (overlay.style.display === 'none') return;

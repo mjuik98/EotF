@@ -255,23 +255,10 @@ function _resolveRestFillParticleBounds(doc, refs = {}) {
   const win = doc?.defaultView;
   const viewportW = Math.max(1, Math.floor(win?.innerWidth || doc?.documentElement?.clientWidth || 1));
   const viewportH = Math.max(1, Math.floor(win?.innerHeight || doc?.documentElement?.clientHeight || 1));
-  let rightEdge = viewportW;
-  const panel = refs.panel || doc?.querySelector?.('.panel-right');
-  if (panel?.getBoundingClientRect) {
-    const style = win?.getComputedStyle?.(panel);
-    const visible = style
-      ? style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'
-      : true;
-    if (visible) {
-      const rect = panel.getBoundingClientRect();
-      if (rect.left > 0 && rect.left < rightEdge) rightEdge = rect.left;
-    }
-  }
-
   return {
     left: 0,
     top: 0,
-    width: Math.max(1, rightEdge),
+    width: viewportW,
     height: viewportH,
   };
 }
@@ -295,7 +282,6 @@ function _startRestFillParticles(overlay, doc) {
       || docRef?.querySelector?.('#gameCanvas')
       || docRef?.querySelector?.('#hudOverlay')
       || null,
-    panel: docRef?.querySelector?.('.panel-right') || null,
   };
 
   let width = 0;

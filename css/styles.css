@@ -1400,7 +1400,7 @@ body {
 
 .game-layout {
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr;
   grid-template-rows: 1fr;
   /* 하단 패널 제거로 인한 전체 화면 활용 */
   width: 100vw;
@@ -3389,11 +3389,6 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* 전투 중 상단 패널(지역 정보 등)이 보이도록 강제 가시성 확보 */
-body:has(#combatOverlay.active) .panel-right {
-  display: flex !important;
-  z-index: 210 !important;
-}
-
 /* 전투 UI 고정 요소들 — combatOverlay 비활성 시 숨김 */
 #combatOverlay:not(.active) #noiseWidget,
 #combatOverlay:not(.active) .combat-hand-overlay,
@@ -4862,101 +4857,6 @@ body:has(#combatOverlay.active) .panel-right {
 }
 
 /* ── DEATH SCREEN ── */
-#deathScreen {
-  flex-direction: column;
-  gap: 28px;
-  text-align: center;
-  background: radial-gradient(ellipse at center, rgba(123, 47, 255, 0.06), var(--void));
-}
-
-.death-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(28px, 5vw, 56px);
-  font-weight: 900;
-  color: var(--white);
-  text-shadow: 0 0 40px var(--echo-glow);
-  animation: fadeInDown 1s ease both;
-}
-
-.death-quote {
-  font-family: 'Crimson Pro', serif;
-  font-style: italic;
-  font-size: clamp(15px, 2vw, 20px);
-  color: var(--text);
-  max-width: 500px;
-  line-height: 1.8;
-  animation: fadeInUp 1s ease 0.5s both;
-}
-
-.death-stats {
-  display: flex;
-  gap: 32px;
-  animation: fadeInUp 1s ease 1s both;
-}
-
-.death-stat {
-  text-align: center;
-}
-
-.death-stat-num {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 36px;
-  font-weight: 900;
-  color: var(--echo);
-}
-
-.death-stat-label {
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: var(--text-dim);
-}
-
-.echo-fragment-select {
-  display: flex;
-  gap: 16px;
-  animation: fadeInUp 1s ease 1.5s both;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.fragment-btn {
-  background: var(--glass);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 24px;
-  width: 160px;
-  cursor: pointer;
-  transition: all 0.3s;
-  backdrop-filter: blur(20px);
-  text-align: center;
-}
-
-.fragment-btn:hover {
-  border-color: var(--echo);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px var(--echo-glow);
-}
-
-.fragment-icon {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.fragment-name {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 6px;
-}
-
-.fragment-desc {
-  font-size: 11px;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
 /* ── EVENT MODAL ── */
 #eventModal {
   position: fixed;
@@ -10486,6 +10386,8 @@ body:has(#combatOverlay.active) .panel-right {
 
 .nc-select-clone {
   position: fixed;
+  box-sizing: border-box;
+  transform-origin: center center;
   border-radius: 16px;
   pointer-events: none;
   transition: all 0.42s cubic-bezier(0.23, 1, 0.32, 1);

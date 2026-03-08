@@ -830,50 +830,6 @@
     <div id="echoSkillTtContent"></div>
   </div>
 
-
-  <div class="panel-right">
-    <div class="panel-title">미니맵</div>
-    <canvas id="minimapCanvas"></canvas>
-    <div id="minimapNodeHint" aria-live="polite"></div>
-
-    <div class="region-info">
-      <div class="region-name-display" id="regionName">잔향의 숲</div>
-      <div class="region-rule-display" id="regionRule">기본 규칙</div>
-      <div class="region-floor-display" id="regionFloor">1 / 3층</div>
-      <!-- 소음/시간 게이지 위젯 -->
-      <div id="noiseWidget"
-        style="margin-top: 10px; position:relative; left:-8px; right:auto; top:auto; transform:none; flex-direction:column;">
-        <div class="nw-title" style="margin-bottom: 4px;">🌑 소음 게이지</div>
-        <div class="nw-dots" id="nwDots"></div>
-        <div class="nw-bar-track" style="margin: 4px 0;">
-          <div class="nw-bar-fill" id="nwBarFill" style="width:0%"></div>
-        </div>
-        <div class="nw-val" id="nwVal">0 / 10</div>
-        <div class="nw-warn" id="nwWarn">⚠ 파수꾼 임박</div>
-      </div>
-    </div>
-
-    <div class="panel-title">캐릭터</div>
-    <div id="playerPortraitSection" class="ingame-portrait-container">
-      <div id="largePlayerPortraitGlow" class="ingame-portrait-glow"></div>
-      <div id="playerPortraitFallback" class="ingame-portrait-fallback">⚔️</div>
-    </div>
-    <div id="playerNameDisplay" class="ingame-player-name">
-    </div>
-    <div id="playerSpecialDisplay" class="panel-right-special-container">
-    </div>
-    <div class="panel-title" style="margin-top: 5px;">상태이상</div>
-    <div id="playerStatusEffects" class="panel-right-buff-container">
-    </div>
-
-    <div id="nextNodes" style="display:none;"></div>
-
-    <div class="panel-right-footer-glue">
-      <div class="panel-title">런 모디파이어</div>
-      <div id="runModifiersSection" class="run-modifiers-container"></div>
-    </div>
-  </div>
-
   <script type="module" src="./game/core/main.js?v=3"></script>
   <!-- 전체 전투 기록 창 (Battle Chronicle) -->
   <div id="battleChronicleOverlay" class="modal-overlay" style="display:none; z-index: 9000;">

@@ -320,11 +320,7 @@ export const TooltipUI = {
     let x = rect.right + 10;
     let y = rect.top;
     const margin = 8;
-    const rightPanel = doc.querySelector('.panel-right');
-    const rightPanelWidth = rightPanel && win.getComputedStyle(rightPanel).display !== 'none'
-      ? rightPanel.getBoundingClientRect().width
-      : 0;
-    const maxRight = Math.max(margin, win.innerWidth - rightPanelWidth - margin);
+    const maxRight = Math.max(margin, win.innerWidth - margin);
 
     el.style.left = '0px';
     el.style.top = '0px';

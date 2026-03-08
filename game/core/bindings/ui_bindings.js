@@ -19,12 +19,6 @@ export function createUIBindings(M, fns) {
             tooltipUI: M.TooltipUI,
             refreshCombatInfoPanel: () => fns._refreshCombatInfoPanel?.(),
         });
-        M.StatusEffectsUI?.updateStatusDisplay?.({
-            gs: M.GS,
-            doc: document,
-            statusContainerId: 'playerStatusEffects',
-            tooltipUI: M.TooltipUI,
-        });
     };
 
     fns._resetCombatInfoPanel = () => M.CombatInfoUI?.reset?.(Deps.getCombatInfoDeps());

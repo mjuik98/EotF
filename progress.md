@@ -1062,3 +1062,31 @@ Original prompt:
   - `npm run build` PASS.
   - Playwright skill client rerun against `http://127.0.0.1:4173` with `#mainStartBtn`; no new browser-run errors surfaced, though the generated `shot-0.png` remained canvas-biased for this composition.
   - Direct browser capture of the defeat-result overlay saved to `output/web-game/death-ending-preview.png` and visually inspected: fragment cards render within the cinematic ending layout.
+- External patch set review/fix in `C:\Users\mjuik\Downloads\toast_que`:
+  - Fixed EventBus dedupe GC so custom `dedupeWindowMs` values are preserved per key rather than truncated by the global default window.
+  - Stopped reward/item pickup SFX from firing on negative `PLAYER_MAX_HP_GROWTH` / `PLAYER_MAX_ENERGY_GROWTH` payloads.
+  - Reworked silence-curse energy limiting to use temporary combat cap state (`player._turnMaxEnergyCap`) instead of mutating permanent `player.maxEnergy`.
+  - Updated energy reducers to respect the temporary cap for set/gain/start-of-turn flows.
+  - Routed mirror reflect damage through `ENEMY_DAMAGE`, and through enemy death flow when the reflected hit kills the target.
+- Toast flow cleanup in `C:\Users\mjuik\Downloads\toast_que`:
+  - Added `toast_notifier.js` as the single toast entrypoint for card acquire/upgrade/remove, item acquire, blessing, and warning toasts.
+  - Reworked `event_subscribers.js` to route card/item toasts through `ToastNotifier` instead of building toast payloads inline.
+  - Extended action-driven toasts to `CARD_BURN` and `CARD_SELL`, so removal/sell flows now also use the toast queue.
+  - Updated `reward_ui.js` blessing/warning paths to use `ToastNotifier` instead of direct `deps.showItemToast` calls.
+- Pending validation for the external patch set:
+  - `node --check` passed for `event_bus.js`, `event_subscribers.js`, `reward_ui.js`, `run_rules.js`, `state_actions.js`, `toast_notifier.js`, and `turn_manager.js`.
+- Follow-up prompt: 우측 패널을 새롭게 개선할 생각이라서 우측 패널과 그곳에 있는 미니맵, 캐릭터, 상태이상, 런 모디파이, 현재 유물을 모두 제거해줘
+- Right-panel removal pass:
+  - Removed the in-game right panel markup from `index.html`, including minimap, region summary, noise widget, character, player status list, and run modifier section.
+  - Updated `css/styles.css` so `.game-layout` no longer reserves a fixed 240px right column.
+  - Removed the extra player-side status render call in `game/core/bindings/ui_bindings.js`.
+  - Removed the node-choice overlay relic sidebar append in `game/ui/map/map_ui.js`, so the current relic panel no longer renders.
+- Follow-up cleanup for the same right-panel removal:
+  - Removed the remaining screen toggle dependency on `.panel-right` in `game/ui/screens/screen_ui.js`.
+  - Updated general tooltip placement in `game/ui/cards/tooltip_ui.js` so it no longer reserves space for a removed right panel.
+  - Updated rest-event particle bounds in `game/ui/screens/event_ui.js` to use the full viewport instead of clipping around a removed side panel.
+- Validation:
+  - `npm run build` PASS.
+  - Verified `dist/index.html` no longer contains the old in-game right-panel DOM ids/classes (`panel-right`, `minimapCanvas`, `playerPortraitSection`, `runModifiersSection`, `playerStatusEffects`).
+  - Ran the Playwright skill client against `http://127.0.0.1:4173`; fresh screenshots were generated at `output/web-game/shot-0.png` and `output/web-game/shot-1.png`.
+  - Screenshot capture reached only the title background during this run, so DOM/build verification was used as the source of truth for panel removal.
