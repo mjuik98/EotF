@@ -183,6 +183,13 @@ function _ncCleanup(doc) {
   }
 }
 
+function _ncResolveTooltipUI(deps = {}) {
+  return deps.tooltipUI
+    || deps.TooltipUI
+    || globalThis.TooltipUI
+    || globalThis.GAME?.Modules?.['TooltipUI'];
+}
+
 function _ncEnsureOverlayStructure(doc, overlay) {
   let title = doc.getElementById('nodeCardTitle');
   if (!title) {
@@ -356,7 +363,7 @@ function _ncBuildBottomDock(doc, regionData, options = {}) {
   return dock;
 }
 
-function _ncBuildRelicPanel(doc, gs, data) {
+function _ncBuildRelicPanel(doc, gs, data, tooltipUI) {
   const rarityMeta = {
     legendary: { pip: '#c084fc', rgb: '192, 132, 252', label: '전설' },
     boss: { pip: '#ff3366', rgb: '255, 51, 102', label: '보스' },
@@ -408,6 +415,9 @@ function _ncBuildRelicPanel(doc, gs, data) {
       const slot = doc.createElement('div');
       slot.className = `nc-relic-slot rarity-${rarity}${isActive ? ' is-active' : ''}`;
       slot.style.setProperty('--rl-rgb', meta.rgb);
+      slot.tabIndex = 0;
+      slot.setAttribute('role', 'note');
+      slot.setAttribute('aria-label', `${item.name || itemId}: ${rawDesc || ''}`);
 
       const iconWrap = doc.createElement('div');
       iconWrap.className = 'nc-relic-icon-wrap';
@@ -429,6 +439,27 @@ function _ncBuildRelicPanel(doc, gs, data) {
       const pip = doc.createElement('div');
       pip.className = 'nc-relic-pip';
       pip.style.cssText = `background:${meta.pip};box-shadow:0 0 5px ${meta.pip};`;
+      const tooltipTitle = `${item.icon || '◆'} ${item.name || itemId}`;
+      const tooltipBody = [
+        `<div style="color:${meta.pip};font-size:9px;letter-spacing:0.15em;margin-bottom:6px;">${meta.label}</div>`,
+        `<div>${rawDesc || '설명 없음'}</div>`,
+        isActive
+          ? `<div style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08);color:rgba(${meta.rgb},0.92);font-size:10px;letter-spacing:0.03em;">전투 시작 또는 층 진입 시 자동 발동</div>`
+          : '',
+      ].join('');
+      const showTooltip = (event) => {
+        if (typeof tooltipUI?.showGeneralTooltip !== 'function') return;
+        tooltipUI.showGeneralTooltip(event, tooltipTitle, tooltipBody, { doc, win: window });
+      };
+      const hideTooltip = () => {
+        if (typeof tooltipUI?.hideGeneralTooltip !== 'function') return;
+        tooltipUI.hideGeneralTooltip({ doc, win: window });
+      };
+
+      slot.addEventListener('mouseenter', showTooltip);
+      slot.addEventListener('mouseleave', hideTooltip);
+      slot.addEventListener('focus', showTooltip);
+      slot.addEventListener('blur', hideTooltip);
 
       const tip = doc.createElement('div');
       tip.className = 'nc-relic-tip';
@@ -466,12 +497,22 @@ function _ncBuildRelicPanel(doc, gs, data) {
 
   const updateFades = () => {
     if (!scrollWrap.classList?.toggle) return;
-    const { scrollTop = 0, scrollHeight = 0, clientHeight = 0 } = list;
+    const { scrollTop = 0, scrollHeight = 0, clientHeight = 0 } = scrollWrap;
     scrollWrap.classList.toggle('show-top', scrollTop > 8);
     scrollWrap.classList.toggle('show-bottom', scrollTop + clientHeight < scrollHeight - 8);
   };
 
-  list.addEventListener?.('scroll', updateFades, { passive: true });
+  const handleWheel = (event) => {
+    const canScroll = (scrollWrap.scrollHeight || 0) > (scrollWrap.clientHeight || 0) + 4;
+    if (!canScroll) return;
+    event.preventDefault?.();
+    scrollWrap.scrollTop = (scrollWrap.scrollTop || 0) + (event.deltaY || 0);
+    tooltipUI?.hideGeneralTooltip?.({ doc, win: window });
+    updateFades();
+  };
+
+  scrollWrap.addEventListener?.('scroll', updateFades, { passive: true });
+  scrollWrap.addEventListener?.('wheel', handleWheel, { passive: false });
   _runOnNextFrame(updateFades);
 
   return panel;
@@ -799,6 +840,7 @@ export const MapUI = {
 
     doc.getElementById('ncMainArea')?.remove();
     doc.getElementById('ncBottomDock')?.remove();
+    doc.getElementById('ncRelicPanel')?.remove();
     doc.getElementById('ncHoverTint')?.remove();
     _ncCleanup(doc);
 
@@ -817,6 +859,7 @@ export const MapUI = {
 
     const titleArea = doc.createElement('div');
     titleArea.className = 'nc-title-area';
+    const tooltipUI = _ncResolveTooltipUI(deps);
 
     const tag = doc.createElement('div');
     tag.className = 'nc-region-tag';
@@ -827,10 +870,6 @@ export const MapUI = {
     const tagText = doc.createElement('span');
     tagText.textContent = `${shortRegionName} · ${regionData.rule || '이동 경로'}`;
     tag.append(dot, tagText);
-    const tooltipUI = deps.tooltipUI
-      || deps.TooltipUI
-      || globalThis.TooltipUI
-      || globalThis.GAME?.Modules?.['TooltipUI'];
     const tagTooltipTitle = `${regionData.name || shortRegionName} - ${regionData.rule || '기본 규칙'}`;
     const tagTooltipBody = regionData.ruleDesc || regionData.desc || '이 지역의 규칙 설명이 아직 준비되지 않았습니다.';
     const showRegionTooltip = (event) => {
@@ -955,6 +994,9 @@ export const MapUI = {
 
     mainArea.appendChild(row);
     overlay.appendChild(mainArea);
+    const relicPanel = _ncBuildRelicPanel(doc, gs, data, tooltipUI);
+    relicPanel.id = 'ncRelicPanel';
+    overlay.appendChild(relicPanel);
     const toggleDeckView = () => {
       const deckModal = doc.getElementById('deckViewModal');
       const isOpen = deckModal?.classList?.contains('active');
@@ -1007,7 +1049,7 @@ export const MapUI = {
     overlay._ncKey = keyHandler;
 
     overlay.style.display = 'flex';
-    overlay.style.flexDirection = 'column';
+    overlay.style.flexDirection = 'row';
     overlay.style.alignItems = 'stretch';
     overlay.style.pointerEvents = 'auto';
   },

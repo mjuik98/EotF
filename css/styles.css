@@ -9433,6 +9433,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 .node-card-overlay-special {
   --nc-accent: #44aa66;
   --nc-accent-rgb: 68, 170, 102;
+  --nc-side-panel-width: 192px;
+  --nc-visual-center-shift: calc(var(--nc-side-panel-width) / 2);
   position: absolute;
   inset: 0;
   display: none;
@@ -9457,9 +9459,9 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 14px;
-  padding: 18px 24px 112px;
+  padding: 28px 24px 112px;
   pointer-events: auto;
 }
 
@@ -9481,6 +9483,9 @@ body:has(#combatOverlay.active) .panel-bottom {
   max-width: 620px;
   position: relative;
   z-index: 2;
+  margin-top: 0;
+  margin-bottom: 10px;
+  transform: translateX(var(--nc-visual-center-shift));
 }
 
 .nc-floor-bar-label {
@@ -9589,6 +9594,9 @@ body:has(#combatOverlay.active) .panel-bottom {
   gap: 6px;
   position: relative;
   z-index: 2;
+  width: 100%;
+  text-align: center;
+  transform: translateX(var(--nc-visual-center-shift));
 }
 
 .nc-region-tag {
@@ -9642,6 +9650,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   pointer-events: auto;
   position: relative;
   z-index: 2;
+  transform: translateX(var(--nc-visual-center-shift));
 }
 
 .nc-or-divider {
@@ -9737,17 +9746,24 @@ body:has(#combatOverlay.active) .panel-bottom {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.038) 0%, transparent 55%);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.028) 0%, transparent 52%),
+    linear-gradient(0deg, rgba(var(--node-rgb), 0.22) 0%, rgba(var(--node-rgb), 0.1) 11%, transparent 22%);
   pointer-events: none;
   border-radius: 16px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transform: translateY(8px);
+  transition: opacity 0.26s ease, transform 0.3s ease;
 }
 
 .node-card:hover {
   transform: translateY(-13px) scale(1.028) !important;
   border-color: var(--node-color);
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.82), 0 0 36px rgba(var(--node-rgb), 0.3), inset 0 0 22px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.82),
+    0 0 36px rgba(var(--node-rgb), 0.22),
+    inset 0 -68px 78px rgba(var(--node-rgb), 0.14),
+    inset 0 0 22px rgba(0, 0, 0, 0.3);
   opacity: 1 !important;
   filter: none !important;
 }
@@ -9758,7 +9774,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .node-card:hover::after {
-  opacity: 1;
+  opacity: 0.92;
+  transform: translateY(0);
 }
 
 .nc-kbd-badge {
@@ -9809,14 +9826,21 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .nc-icon-bg {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(var(--node-rgb), 0.22) 0%, transparent 68%);
+  left: 50%;
+  top: 48%;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(var(--node-rgb), 0.16) 0%, rgba(var(--node-rgb), 0.1) 30%, rgba(var(--node-rgb), 0.04) 54%, transparent 76%);
+  filter: blur(16px);
   opacity: 0.5;
-  transition: opacity 0.3s ease;
+  transform: translate(-50%, -50%) scale(0.94);
+  transition: opacity 0.3s ease, transform 0.34s ease;
 }
 
 .node-card:hover .nc-icon-bg {
-  opacity: 1;
+  opacity: 0.72;
+  transform: translate(-50%, -50%) scale(1.04);
 }
 
 .nc-icon-grid {
@@ -9831,13 +9855,14 @@ body:has(#combatOverlay.active) .panel-bottom {
   line-height: 1;
   position: relative;
   z-index: 2;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2));
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0.08)) drop-shadow(0 0 12px rgba(var(--node-rgb), 0.12));
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.32s ease;
   margin-bottom: 0;
 }
 
 .node-card:hover .node-card-icon {
-  transform: scale(1.2) rotate(6deg);
+  transform: translateY(-1px) scale(1.12);
+  filter: drop-shadow(0 1px 8px rgba(255, 255, 255, 0.1)) drop-shadow(0 0 18px rgba(var(--node-rgb), 0.18));
 }
 
 .nc-danger-skulls {
@@ -9866,6 +9891,32 @@ body:has(#combatOverlay.active) .panel-bottom {
   flex-direction: column;
   gap: 7px;
   flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.nc-body::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 94px;
+  background: linear-gradient(to top, rgba(var(--node-rgb), 0.28) 0%, rgba(var(--node-rgb), 0.18) 28%, rgba(var(--node-rgb), 0.06) 46%, transparent 72%);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.28s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+.node-card:hover .nc-body::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nc-body>* {
+  position: relative;
+  z-index: 1;
 }
 
 .node-card-label {
@@ -10053,18 +10104,39 @@ body:has(#combatOverlay.active) .panel-bottom {
   letter-spacing: 0.3em;
   text-align: center;
   color: var(--white);
-  background: var(--node-color);
-  padding: 8px;
+  position: relative;
+  overflow: hidden;
+  border-top: 0;
+  background: linear-gradient(180deg, rgba(var(--node-rgb), 0.58) 0%, rgba(var(--node-rgb), 0.88) 54%, rgba(var(--node-rgb), 1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 10px;
   border-radius: 0 0 14px 14px;
   margin-top: 0;
   opacity: 0;
   transform: translateY(5px);
-  transition: all 0.28s ease;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 rgba(var(--node-rgb), 0);
+  transition: all 0.28s ease, box-shadow 0.32s ease;
 }
 
 .node-card:hover .node-card-cta {
   opacity: 1;
   transform: translateY(0);
+  box-shadow: 0 -12px 32px rgba(var(--node-rgb), 0.36), 0 0 26px rgba(var(--node-rgb), 0.26);
+}
+
+.node-card-cta::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0.18) 50%, rgba(255, 255, 255, 0.1) 82%, transparent 100%);
+  opacity: 0.4;
 }
 
 .nc-bottom-dock {
@@ -10222,7 +10294,22 @@ body:has(#combatOverlay.active) .panel-bottom {
   position: relative;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+.nc-relic-scroll-wrap::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nc-relic-scroll-wrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
 }
 
 .nc-relic-scroll-wrap::before,
@@ -10257,24 +10344,12 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-relic-list {
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
+  position: relative;
+  inset: auto;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 2px 2px 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
-}
-
-.nc-relic-list::-webkit-scrollbar {
-  width: 2px;
-}
-
-.nc-relic-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  padding: 2px 0 6px 2px;
 }
 
 .nc-relic-slot {
@@ -10295,6 +10370,12 @@ body:has(#combatOverlay.active) .panel-bottom {
   border-color: rgba(var(--rl-rgb, 255, 255, 255), 0.38);
   background: rgba(var(--rl-rgb, 255, 255, 255), 0.05);
   transform: translateX(2px);
+}
+
+.nc-relic-slot:focus-visible {
+  outline: none;
+  border-color: rgba(var(--rl-rgb, 255, 255, 255), 0.48);
+  box-shadow: 0 0 0 1px rgba(var(--rl-rgb, 255, 255, 255), 0.28);
 }
 
 .nc-relic-slot.rarity-legendary {
@@ -10384,24 +10465,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-relic-tip {
-  position: absolute;
-  right: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 178px;
-  background: rgba(5, 5, 18, 0.97);
-  border: 1px solid rgba(var(--rl-rgb, 200, 200, 255), 0.3);
-  border-radius: 10px;
-  padding: 11px 13px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 100;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75);
-}
-
-.nc-relic-slot:hover .nc-relic-tip {
-  opacity: 1;
+  display: none;
 }
 
 .nc-relic-tip-name {
@@ -10473,6 +10537,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 @media (max-width: 1180px) {
   .node-card-overlay-special {
+    --nc-visual-center-shift: 0px;
     flex-direction: column;
     overflow-y: auto;
   }

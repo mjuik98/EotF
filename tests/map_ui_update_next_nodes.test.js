@@ -111,6 +111,14 @@ class MockElement {
     this.listeners[type].push(handler);
   }
 
+  setAttribute(name, value) {
+    this[name] = String(value);
+  }
+
+  getAttribute(name) {
+    return this[name] ?? null;
+  }
+
   querySelectorAll(selector) {
     if (!selector.startsWith('.')) return [];
     const classToken = selector.slice(1);
@@ -214,6 +222,7 @@ describe('MapUI.updateNextNodes', () => {
 
     expect(overlay.style.display).toBe('flex');
     expect(overlay.style.flexDirection).toBe('row');
+    expect(overlay.style.alignItems).toBe('stretch');
     expect(overlay.style.pointerEvents).toBe('auto');
     expect(title.style.display).toBe('none');
     expect(cardCount).toBe(2);

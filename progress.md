@@ -359,6 +359,62 @@ Original prompt:
   - `content: '';`�� ������ ���/��Ÿ�� CSS �Ľ� ����.
 - Validation:
   - `npm run build` PASS.
+- Hover polish follow-up:
+  - Updated `css/styles.css` so node cards now show a stronger bottom-up color rise inside `.nc-body` on hover, closer to `stage_mockup_v3.html`.
+  - Increased `.node-card-icon` glow intensity and hover glow radius so the node emoji/icon reads brighter during hover.
+  - Restored the intended stage overlay desktop structure in `game/ui/map/map_ui.js`: `#nodeCardOverlay` is back to `flex-direction: row`, and the relic side panel is appended again as `#ncRelicPanel`.
+  - Expanded the node overlay test double in `tests/map_ui_update_next_nodes.test.js` with `setAttribute/getAttribute`, and aligned the layout assertion with the restored row layout.
+- Validation:
+  - `npm test -- tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `http://127.0.0.1:4173`.
+  - Captured and visually checked hover state screenshot at `output/web-game/map-ui-hover.png`; computed DOM state confirmed hover CTA visible, `.nc-body::after` active, enlarged icon glow applied, and `#ncRelicPanel` present.
+- Hover/relic refinement follow-up:
+  - Softened the stage-card icon glow in `css/styles.css` so hover reads less artificially while keeping a stronger icon-area aura behind it.
+  - Strengthened the card-bottom hover tint and CTA band so the selected lower section is visibly colored, matching the mockup direction more closely.
+  - Moved the region progress path (`.nc-floor-bar`) upward for a less cramped center stack.
+  - Reworked the relic panel hover behavior in `game/ui/map/map_ui.js` to use the shared floating general tooltip for each relic slot, with keyboard focus support.
+  - Moved relic panel scrolling responsibility to `.nc-relic-scroll-wrap` and added smoother scrollbar styling/focus styling in `css/styles.css`.
+- Validation:
+  - `npm test -- tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright visual check: `output/web-game/map-ui-hover-refined.png` and `output/web-game/map-ui-relic-tooltip.png`.
+  - Browser-side DOM check confirmed relic tooltip creation via `_generalTip`.
+  - Browser-side overflow check with injected relic entries confirmed smooth panel scrolling (`scrollTop` reached `620` after `scrollTo` + wait).
+- Hover bottom-tint bugfix:
+  - Strengthened the card-level bottom hover overlay in `css/styles.css` so the lower selection section visibly changes color even before focusing on the CTA text itself.
+  - Increased the `.nc-body::after` lower tint density and the `.node-card-cta` gradient/glow so the full bottom section reads as selected on hover.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test -- tests/map_ui_update_next_nodes.test.js` PASS.
+  - Playwright hover capture refreshed at `output/web-game/map-ui-hover-bottom-fix.png`.
+  - Browser-side computed style check confirmed `card::after opacity=0.92`, `nc-body::after opacity=1`, and visible CTA gradient on hover.
+- Hover seam/layout follow-up:
+  - Removed the stepped lower-hover look by reducing the card-level lower overlay and consolidating more of the bottom tint into `.nc-body::after`.
+  - Softened the CTA top separator so the hover-selected bottom area reads as one continuous section instead of layered bands.
+  - Moved the region progress path upward again by switching `.nc-main-area` to top alignment and tightening its top padding.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test -- tests/map_ui_update_next_nodes.test.js` PASS.
+  - Playwright hover/layout capture refreshed at `output/web-game/map-ui-hover-layout-fix.png`.
+  - Browser-side layout check confirmed `floorBarTop: 2`, with hover CTA visible and bottom hover overlays active.
+- Centering/layout follow-up:
+  - Added a desktop-only visual center offset in `css/styles.css` so the main selection stack (`.nc-floor-bar`, `.nc-title-area`, `.node-card-row-special`) reads centered against the right relic panel weight.
+  - Lowered the progress path slightly from the very top by increasing `.nc-main-area` top padding and resetting `.nc-floor-bar` top margin.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test -- tests/map_ui_update_next_nodes.test.js` PASS.
+  - Playwright layout capture refreshed at `output/web-game/map-ui-center-adjust.png`.
+  - Browser-side geometry check showed the main stack centered near overlay center (`overlayCenterX: 720`, `card/title/floor center: 710`) and the progress path positioned lower (`floorBarTop: 28`).
+- Hover polish follow-up:
+  - Matched the CTA bar body and top highlight treatment more closely by giving `.node-card-cta` a fixed minimum height and a thicker, softer `::before` highlight line.
+  - Reduced the lower hover overlay height in both `.node-card::after` and `.nc-body::after` so the selected bottom area reads shorter and cleaner.
+  - Changed the icon glow to a circular, softer halo by reworking `.nc-icon-bg` into a centered 50% radius aura and reducing the icon drop-shadow intensity.
+- Validation:
+  - `npm run build` PASS.
+  - `npm test -- tests/map_ui_update_next_nodes.test.js` PASS.
+  - Playwright hover capture refreshed at `output/web-game/map-ui-hover-glow-soft.png`.
+  - Browser-side computed style check confirmed `ctaMinHeight: 36px`, `ctaBeforeHeight: 2px`, `bodyAfterHeight: 94px`, and circular icon aura (`borderRadius: 50%`).
   - `npm test -- tests/class_progression_system.test.js tests/deps_factory.test.js` PASS.
   - develop-web-game Playwright client rerun: `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` ����, `errors-*.json` �̻���.
   - Additional full-page capture: `output/web-game/fullpage-title.png`.
