@@ -287,6 +287,75 @@ function _ncBuildRuleBanner(doc, regionData) {
   return banner;
 }
 
+function _ncBuildBottomBar(doc, options = {}) {
+  const {
+    nodeCount = 0,
+    onShowFullMap = null,
+    onToggleDeckView = null,
+  } = options;
+  const bar = doc.createElement('div');
+  bar.className = 'nc-bottom-bar';
+
+  const items = [
+    { keys: ['M'], label: '전체 지도', action: onShowFullMap },
+    { keys: ['TAB'], label: '덱 보기', action: onToggleDeckView },
+    {
+      keys: Array.from({ length: Math.max(1, Math.min(3, nodeCount)) }, (_, index) => String(index + 1)),
+      label: '경로 선택',
+      action: null,
+    },
+    { keys: ['ESC'], label: '설정', action: null },
+  ];
+
+  items.forEach((item, index) => {
+    const entry = doc.createElement('div');
+    entry.className = 'nc-bottom-item';
+    if (typeof item.action === 'function') {
+      entry.classList.add('is-actionable');
+      entry.tabIndex = 0;
+      entry.setAttribute('role', 'button');
+      entry.addEventListener('click', () => item.action());
+      entry.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        item.action();
+      });
+    }
+
+    item.keys.forEach((key) => {
+      const keyEl = doc.createElement('span');
+      keyEl.className = 'nc-bottom-kbd';
+      keyEl.textContent = key;
+      entry.appendChild(keyEl);
+    });
+
+    const label = doc.createElement('span');
+    label.className = 'nc-bottom-label';
+    label.textContent = item.label;
+    entry.appendChild(label);
+    bar.appendChild(entry);
+
+    if (index < items.length - 1) {
+      const sep = doc.createElement('div');
+      sep.className = 'nc-bottom-sep';
+      bar.appendChild(sep);
+    }
+  });
+
+  return bar;
+}
+
+function _ncBuildBottomDock(doc, regionData, options = {}) {
+  const dock = doc.createElement('div');
+  dock.id = 'ncBottomDock';
+  dock.className = 'nc-bottom-dock';
+  dock.append(
+    _ncBuildRuleBanner(doc, regionData),
+    _ncBuildBottomBar(doc, options),
+  );
+  return dock;
+}
+
 function _ncBuildRelicPanel(doc, gs, data) {
   const rarityMeta = {
     legendary: { pip: '#c084fc', rgb: '192, 132, 252', label: '전설' },
@@ -729,6 +798,7 @@ export const MapUI = {
     }
 
     doc.getElementById('ncMainArea')?.remove();
+    doc.getElementById('ncBottomDock')?.remove();
     doc.getElementById('ncHoverTint')?.remove();
     _ncCleanup(doc);
 
@@ -750,11 +820,31 @@ export const MapUI = {
 
     const tag = doc.createElement('div');
     tag.className = 'nc-region-tag';
+    tag.tabIndex = 0;
+    tag.setAttribute('role', 'note');
     const dot = doc.createElement('div');
     dot.className = 'nc-region-dot';
     const tagText = doc.createElement('span');
     tagText.textContent = `${shortRegionName} · ${regionData.rule || '이동 경로'}`;
     tag.append(dot, tagText);
+    const tooltipUI = deps.tooltipUI
+      || deps.TooltipUI
+      || globalThis.TooltipUI
+      || globalThis.GAME?.Modules?.['TooltipUI'];
+    const tagTooltipTitle = `${regionData.name || shortRegionName} - ${regionData.rule || '기본 규칙'}`;
+    const tagTooltipBody = regionData.ruleDesc || regionData.desc || '이 지역의 규칙 설명이 아직 준비되지 않았습니다.';
+    const showRegionTooltip = (event) => {
+      if (typeof tooltipUI?.showGeneralTooltip !== 'function') return;
+      tooltipUI.showGeneralTooltip(event, tagTooltipTitle, tagTooltipBody, { doc, win: window });
+    };
+    const hideRegionTooltip = () => {
+      if (typeof tooltipUI?.hideGeneralTooltip !== 'function') return;
+      tooltipUI.hideGeneralTooltip({ doc, win: window });
+    };
+    tag.addEventListener('mouseenter', showRegionTooltip);
+    tag.addEventListener('mouseleave', hideRegionTooltip);
+    tag.addEventListener('focus', showRegionTooltip);
+    tag.addEventListener('blur', hideRegionTooltip);
 
     const subtitle = doc.createElement('div');
     subtitle.className = 'nc-subtitle';
@@ -864,11 +954,40 @@ export const MapUI = {
     });
 
     mainArea.appendChild(row);
-    mainArea.appendChild(_ncBuildRuleBanner(doc, regionData));
     overlay.appendChild(mainArea);
+    const toggleDeckView = () => {
+      const deckModal = doc.getElementById('deckViewModal');
+      const isOpen = deckModal?.classList?.contains('active');
+      if (isOpen) {
+        deps.closeDeckView?.();
+      } else {
+        deps.showDeckView?.();
+      }
+    };
+    overlay.appendChild(_ncBuildBottomDock(doc, regionData, {
+      nodeCount: nodes.length,
+      onShowFullMap: typeof deps.showFullMap === 'function' ? () => deps.showFullMap() : null,
+      onToggleDeckView: (typeof deps.showDeckView === 'function' || typeof deps.closeDeckView === 'function')
+        ? toggleDeckView
+        : null,
+    }));
 
     const keyHandler = (event) => {
       if (overlay.style.display === 'none') return;
+      if (event.key === 'm' || event.key === 'M') {
+        if (typeof deps.showFullMap === 'function') {
+          deps.showFullMap();
+          event.preventDefault();
+        }
+        return;
+      }
+      if (event.key === 'Tab') {
+        if (typeof deps.showDeckView === 'function' || typeof deps.closeDeckView === 'function') {
+          event.preventDefault();
+          toggleDeckView();
+        }
+        return;
+      }
       const index = parseInt(event.key, 10) - 1;
       if (!Number.isFinite(index) || index < 0 || index >= nodes.length) return;
       const cards = typeof row.querySelectorAll === 'function'
@@ -888,7 +1007,7 @@ export const MapUI = {
     overlay._ncKey = keyHandler;
 
     overlay.style.display = 'flex';
-    overlay.style.flexDirection = 'row';
+    overlay.style.flexDirection = 'column';
     overlay.style.alignItems = 'stretch';
     overlay.style.pointerEvents = 'auto';
   },

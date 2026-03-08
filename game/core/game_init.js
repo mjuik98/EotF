@@ -187,9 +187,6 @@ export const GameInit = {
             }
         });
 
-        // HUD
-        doc.getElementById('hoverHud')?.addEventListener('click', () => GAME.API.toggleHudPin?.());
-
         // Rewards
         doc.getElementById('rewardSkipInitBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.showSkipConfirm?.(); });
         doc.getElementById('rewardSkipConfirmBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.skipReward?.(); });

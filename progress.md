@@ -1090,3 +1090,35 @@ Original prompt:
   - Verified `dist/index.html` no longer contains the old in-game right-panel DOM ids/classes (`panel-right`, `minimapCanvas`, `playerPortraitSection`, `runModifiersSection`, `playerStatusEffects`).
   - Ran the Playwright skill client against `http://127.0.0.1:4173`; fresh screenshots were generated at `output/web-game/shot-0.png` and `output/web-game/shot-1.png`.
   - Screenshot capture reached only the title background during this run, so DOM/build verification was used as the source of truth for panel removal.
+- Follow-up prompt: 좌측 패널을 새롭게 개선할 생각이라서 좌측 패널과 그곳에 있는 체력, 방어막, 잔향 게이지 등... 모두 제거해줘
+- Left-panel removal pass:
+  - Removed the entire in-game left HUD markup block (`#hoverHud`) from `index.html`, including compact top stats, expanded status panel, chain widget, player status effects, class trait, relic list, and run info.
+  - Removed the screen switch visibility handling for `#hoverHud` in `game/ui/screens/screen_ui.js`.
+  - Removed the click binding that toggled pinned HUD state in `game/core/game_init.js`.
+- Validation:
+  - `npm run build` PASS.
+  - Verified `dist/index.html` no longer contains left-panel ids such as `hoverHud`, `hoverHpText`, `hudHpText`, `statusEffects`, `itemSlots`, `runCount`, `killCount`, `goldCount`, `playerFloor`.
+  - Ran the Playwright skill client against `http://127.0.0.1:4173`; fresh screenshots were generated at `output/web-game/shot-0.png` and `output/web-game/shot-1.png`.
+  - Screenshot capture again stayed on the title background, so final verification used the built DOM output as the source of truth for left-panel removal.
+- Follow-up prompt: `stage_mockup_v3.html`의 하단 부분처럼 스테이지 선택 하단을 개선
+- Stage overlay bottom-bar pass:
+  - Added a mockup-style bottom action bar to the node-choice overlay in `game/ui/map/map_ui.js`, under the existing rule banner.
+  - Bottom bar now shows `M 전체 지도`, `D 덱 보기`, numeric route select keys, and `ESC 설정` in the same compact keyboard-hint style.
+  - Hooked `M` and `D` keys inside the node-choice overlay to `showFullMap` and `showDeckView`, and passed those handlers through `game/core/bindings/canvas_bindings.js`.
+  - Updated `css/styles.css` so the rule banner and new bottom bar match the slimmer mockup treatment.
+- Validation:
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `http://127.0.0.1:4173`; fresh screenshots were generated at `output/web-game/shot-0.png` and `output/web-game/shot-1.png`.
+  - That run still captured only the title background, so visual verification of the new lower overlay section remains based on code/build output rather than an in-game overlay screenshot.
+- Bottom-dock follow-up:
+  - Moved the rule banner and key guide into a dedicated bottom dock so the stage overlay footer sits at the screen bottom instead of inside the centered main area.
+  - Changed the overlay deck shortcut from `D` to `Tab` in both the displayed keycap and the actual overlay key handler.
+- Validation:
+  - `npm run build` PASS.
+  - Re-ran the Playwright skill client; refreshed captures were written to `output/web-game/shot-0.png` and `output/web-game/shot-1.png`.
+  - As with previous runs, the capture did not reach the in-game stage overlay, so bottom-dock placement was verified from code/build output.
+- Region-tag tooltip follow-up:
+  - Added hover/focus tooltip handling to the stage overlay region tag in `game/ui/map/map_ui.js`.
+  - Hovering `잔향의 숲 · 기본 규칙` now uses the shared general tooltip UI to show the region rule description (`ruleDesc`, fallback to `desc`).
+- Validation:
+  - `npm run build` PASS.

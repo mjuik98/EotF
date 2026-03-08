@@ -74,6 +74,9 @@ export function createCanvasBindings(M, fns) {
         deps.nodeMeta = M.NODE_META;
         deps.getFloorStatusText = fns.getFloorStatusText;
         deps.moveToNodeHandlerName = 'moveToNode';
+        deps.showFullMap = fns.showFullMap;
+        deps.showDeckView = fns.showDeckView;
+        deps.closeDeckView = fns.closeDeckView;
         M.MapUI?.updateNextNodes?.(deps);
     };
     fns.showFullMap = () => {
