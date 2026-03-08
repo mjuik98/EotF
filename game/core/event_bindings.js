@@ -132,6 +132,7 @@ function registerGameAPI(fns) {
         showEchoSkillTooltip: fns.showEchoSkillTooltip, hideEchoSkillTooltip: fns.hideEchoSkillTooltip,
         showSkipConfirm: fns.showSkipConfirm, skipReward: fns.skipReward, hideSkipConfirm: fns.hideSkipConfirm,
         showWorldMemoryNotice: fns.showWorldMemoryNotice,
+        selectFragment: fns.selectFragment,
         shiftAscension: fns.shiftAscension,
         openSettings: fns.openSettings,
         closeSettings: fns.closeSettings,

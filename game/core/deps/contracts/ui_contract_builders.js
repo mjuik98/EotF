@@ -139,6 +139,8 @@ export function buildUiContractBuilders(ctx) {
         endPlayerTurn: refs.endPlayerTurn,
         renderCombatEnemies: refs.renderCombatEnemies,
         finalizeRunOutcome: refs.finalizeRunOutcome,
+        restartFromEnding: refs.restartFromEnding,
+        selectFragment: refs.selectFragment,
         switchScreen: refs.switchScreen,
         returnToGame: refs.returnToGame,
         buttonFeedback: refs.ButtonFeedback,

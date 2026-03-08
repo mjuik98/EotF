@@ -4,8 +4,7 @@
  * 책임: 적/플레이어 사망 처리 + 사망 화면 구성
  * - onEnemyDeath: 적 사망 시 보상, 도감 등록, UI 정리
  * - onPlayerDeath: 플레이어 사망 연출
- * - showDeathScreen: 사망 화면 구성
- * - generateFragmentChoices: 에코 파편 선택지 생성
+ * - showDeathScreen: 사망 결과 연출 및 후처리
  * - spawnEnemy: 적 소환 (적 생사 관리)
  */
 
@@ -16,6 +15,7 @@ import { getRegionData } from '../systems/run_rules.js';
 import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
+import { EndingScreenUI } from '../ui/screens/ending_screen_ui.js';
 
 const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
@@ -186,19 +186,12 @@ export const DeathHandler = {
         const win = _getWin(deps);
         const finalizeRunOutcome = deps.finalizeRunOutcome || win.finalizeRunOutcome;
         if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 });
-
-        const doc = _getDoc(deps);
-        const dFloor = doc.getElementById('deathFloor');
-        if (dFloor) dFloor.textContent = this.currentFloor;
-        const dKills = doc.getElementById('deathKills');
-        if (dKills) dKills.textContent = this.player.kills;
-        const dChain = doc.getElementById('deathChain');
-        if (dChain) dChain.textContent = this.stats.maxChain;
-        const dRun = doc.getElementById('deathRun');
-        if (dRun) dRun.textContent = this.meta.runCount - 1;
-        const dQuote = doc.getElementById('deathQuote');
-        if (dQuote) dQuote.textContent = DATA.deathQuotes[Math.floor(Math.random() * DATA.deathQuotes.length)];
-
+        EndingScreenUI.showOutcome('defeat', {
+            ...deps,
+            gs: this,
+            selectFragment: deps.selectFragment || globalThis.GAME?.API?.selectFragment || globalThis.selectFragment,
+        });
+        return;
         const wmEl = doc.getElementById('deathWorldMemory');
         if (wmEl) {
             const wm = this.meta.worldMemory;
@@ -225,9 +218,6 @@ export const DeathHandler = {
             }
         }
 
-        this.generateFragmentChoices(deps);
-        const switchScreen = deps.switchScreen || win.switchScreen;
-        if (typeof switchScreen === 'function') switchScreen('death');
     },
 
     generateFragmentChoices(deps = {}) {

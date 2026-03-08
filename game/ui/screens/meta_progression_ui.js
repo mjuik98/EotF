@@ -12,6 +12,7 @@ export const MetaProgressionUI = {
   selectFragment(effect, deps = {}) {
     const gs = _getGS(deps);
     if (!gs?.meta) return;
+    EndingScreenUI.cleanup({ doc: _getDoc(deps) });
 
     const meta = gs.meta;
     switch (effect) {

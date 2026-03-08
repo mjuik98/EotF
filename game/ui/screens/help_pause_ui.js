@@ -1,4 +1,5 @@
 ﻿import { SettingsManager } from '../../core/settings_manager.js';
+import { EndingScreenUI } from './ending_screen_ui.js';
 
 let _helpOpen = false;
 let _pauseOpen = false;
@@ -281,52 +282,8 @@ export const HelpPauseUI = {
       deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true });
     }
 
-    const deathFloor = doc.getElementById('deathFloor');
-    const deathKills = doc.getElementById('deathKills');
-    const deathChain = doc.getElementById('deathChain');
-    const deathRun = doc.getElementById('deathRun');
-    const deathQuote = doc.getElementById('deathQuote');
-    if (deathFloor) deathFloor.textContent = gs.currentFloor;
-    if (deathKills) deathKills.textContent = gs.player.kills;
-    if (deathChain) deathChain.textContent = gs.stats.maxChain;
-    if (deathRun) deathRun.textContent = gs.meta.runCount - 1;
-    if (deathQuote) deathQuote.textContent = '스스로 멈추기로 한 자의 잔향은... 더 오래 남는다.';
-
-    if (typeof gs.generateFragmentChoices === 'function') {
-      gs.generateFragmentChoices();
-    }
-
-    // Bug fix: 월드 메모리 힌트 구성
-    const wmEl = doc.getElementById('deathWorldMemory');
-    if (wmEl) {
-      const wm = gs.worldMemory || gs.meta?.worldMemory || {};
-      const hints = [];
-      if ((wm.savedMerchant || 0) > 0) hints.push(`🛒 상인을 구함 ×${wm.savedMerchant}`);
-      if (wm.stoleFromMerchant) hints.push('상인에게서 물건을 훔쳤다');
-      if (wm['killed_ancient_echo']) hints.push(`💀 태고의 잔향 처치 ×${wm['killed_ancient_echo']}`);
-      if (wm['killed_void_herald']) hints.push(`🕳️ 파멸의 전령 처치 ×${wm['killed_void_herald']}`);
-      if (wm['killed_memory_sovereign']) hints.push(`👑 기억의 군주 처치 ×${wm['killed_memory_sovereign']}`);
-      const storyCount = gs.meta?.storyPieces?.length || 0;
-      if (storyCount > 0) hints.push(`📜 스토리 조각 ${storyCount}/10 획득`);
-
-      wmEl.textContent = '';
-
-      if (hints.length) {
-        const hTitle = doc.createElement('div');
-        hTitle.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);width:100%;text-align:center;margin-bottom:6px;";
-        hTitle.textContent = '세계의 기억';
-        wmEl.appendChild(hTitle);
-        hints.forEach(h => {
-          const badge = doc.createElement('span');
-          badge.className = 'wm-badge';
-          badge.textContent = h;
-          wmEl.appendChild(badge);
-        });
-      }
-    }
-
-    if (typeof deps.switchScreen === 'function') {
-      deps.switchScreen('death');
+    if (EndingScreenUI.showOutcome('abandon', deps)) {
+      return;
     }
   },
 
@@ -662,4 +619,3 @@ export const HelpPauseUI = {
     }, true);
   },
 };
-

@@ -26,6 +26,11 @@ const insLv = (gs, id) => {
   return typeof v === 'boolean' ? (v ? 1 : 0) : Math.max(0, Math.floor(num(v, 0)));
 };
 const rankOf = (score) => RANKS.find((r) => score >= r.min) || RANKS[RANKS.length - 1];
+const FRAGMENT_CHOICES = [
+  { icon: '⚡', name: 'Echo 강화', desc: '다음 런 시작 시 Echo +30', effect: 'echo_boost' },
+  { icon: '🛡️', name: '회복력', desc: '최대 체력 +10', effect: 'resilience' },
+  { icon: '🍀', name: '행운', desc: '시작 골드 +25', effect: 'fortune' },
+];
 
 function ensureStyle(doc) {
   if (!doc?.head || doc.getElementById(STYLE_ID)) return;
@@ -102,6 +107,91 @@ function payloadOf(gs, data) {
   };
 }
 
+function decoratePayloadForOutcome(payload, outcome = 'victory') {
+  if (!payload || outcome === 'victory') return payload;
+
+  if (outcome === 'abandon') {
+    payload.title = '멈춘 메아리';
+    payload.subtitle = '스스로 닫힌 귀환';
+    payload.eyebrow = '포기한 런의 기록';
+    payload.quote = '"끝까지 닿지 못했더라도\n이 선택 또한 하나의 흔적이다.\n멈춘 자리의 메아리가 다음 길을 비춘다."';
+    payload.chips = Array.from(new Set(['런 포기', ...payload.chips]));
+    return payload;
+  }
+
+  payload.title = '무너진 메아리';
+  payload.subtitle = '부서진 귀환';
+  payload.eyebrow = '패배한 런의 기록';
+  payload.quote = '"메아리는 꺾였지만\n기억은 여기서 끝나지 않는다.\n남은 잔향이 다시 길을 만든다."';
+  payload.chips = Array.from(new Set(['패배', ...payload.chips]));
+  return payload;
+}
+
+function showOutcomeScreen(outcome = 'victory', deps = {}) {
+  const doc = docOf(deps);
+  const gs = deps?.gs;
+  const data = deps?.data;
+  if (!doc?.body || !gs?.meta || !gs?.player || !gs?.stats) return false;
+
+  EndingScreenUI.cleanup({ doc });
+  ensureStyle(doc);
+  const p = decoratePayloadForOutcome(payloadOf(gs, data), outcome);
+  const root = buildDOM(doc, p);
+  doc.body.appendChild(root);
+  _session = { cleanups: [], timers: [], payload: p };
+  buildMeta(doc, p);
+  buildFragmentChoices(doc, deps, outcome);
+  applyRank(doc, p.rank, p.score);
+  const { wisps } = initFx(doc, deps, p);
+  const sigil = doc.getElementById('sigilWrap');
+  let ri = RANKS.findIndex((r) => r.glyph === p.rank.glyph);
+  const onSigil = () => {
+    ri = (ri + 1) % RANKS.length;
+    applyRank(doc, RANKS[ri], p.score);
+    const rect = sigil?.getBoundingClientRect?.();
+    if (rect) burst(wisps, rect.left + (rect.width / 2), rect.top + (rect.height / 2), 12);
+  };
+  sigil?.addEventListener('click', onSigil);
+  _session.cleanups.push(() => sigil?.removeEventListener('click', onSigil));
+
+  const btnR = doc.getElementById('btnR');
+  const onR = () => {
+    const rect = btnR?.getBoundingClientRect?.();
+    if (rect) {
+      for (let i = 0; i < 5; i += 1) {
+        _session.timers.push(
+          winOf(deps).setTimeout(
+            () => burst(wisps, rect.left + (rect.width / 2) + ((Math.random() - 0.5) * rect.width * 0.85), rect.top + (rect.height / 2), 14),
+            i * 70,
+          ),
+        );
+      }
+    }
+    deps.audioEngine?.playResonanceBurst?.();
+    _session.timers.push(winOf(deps).setTimeout(() => {
+      EndingScreenUI.cleanup({ doc });
+      deps.restartFromEnding?.();
+    }, 420));
+  };
+  btnR?.addEventListener('click', onR);
+  _session.cleanups.push(() => btnR?.removeEventListener('click', onR));
+
+  const btnC = doc.getElementById('btnCodex');
+  if (typeof deps.openCodex === 'function') {
+    const onC = () => {
+      deps.audioEngine?.playClick?.();
+      deps.openCodex();
+    };
+    btnC?.addEventListener('click', onC);
+    _session.cleanups.push(() => btnC?.removeEventListener('click', onC));
+  } else if (btnC) {
+    btnC.disabled = true;
+  }
+
+  runScene(doc, deps, p, wisps);
+  return true;
+}
+
 function buildDOM(doc, p) {
   const root = doc.createElement('div');
   root.id = ROOT_ID;
@@ -175,6 +265,49 @@ function buildMeta(doc, p) {
   p.inscriptions.forEach((entry) => { const el = doc.createElement('div'); el.className = 'pill'; el.textContent = `${entry.icon} ${entry.name}${entry.level > 1 ? ` Lv.${entry.level}` : ''}`; pills?.appendChild(el); });
 }
 
+function buildFragmentChoices(doc, deps, outcome) {
+  const gs = deps?.gs;
+  if (!gs?.meta || outcome === 'victory') return;
+
+  const shardCount = Math.max(0, Math.floor(num(gs.meta.echoFragments, 0)));
+  const pick = deps.selectFragment || globalThis.GAME?.API?.selectFragment || globalThis.selectFragment;
+  if (!shardCount || typeof pick !== 'function') return;
+
+  const anchor = doc.getElementById('s7');
+  if (!anchor?.parentNode) return;
+
+  const wrap = doc.createElement('div');
+  wrap.id = 's6b';
+  wrap.className = 'frag-wrap sc';
+
+  const title = doc.createElement('div');
+  title.className = 'frag-title';
+  title.textContent = `메아리 조각 ${shardCount}개 - 각인을 선택하라`;
+
+  const grid = doc.createElement('div');
+  grid.className = 'frag-grid';
+
+  FRAGMENT_CHOICES.forEach((entry) => {
+    const btn = doc.createElement('button');
+    btn.type = 'button';
+    btn.className = 'frag-card';
+    btn.innerHTML = `<div class="frag-icon">${entry.icon}</div><div class="frag-name">${entry.name}</div><div class="frag-desc">${entry.desc}</div>`;
+    const onPick = () => {
+      if (btn.disabled) return;
+      grid.querySelectorAll('.frag-card').forEach((el) => { el.disabled = true; });
+      deps.audioEngine?.playClick?.();
+      pick(entry.effect);
+      _session.timers.push(winOf(deps).setTimeout(() => EndingScreenUI.cleanup({ doc }), 420));
+    };
+    btn.addEventListener('click', onPick);
+    _session.cleanups.push(() => btn.removeEventListener('click', onPick));
+    grid.appendChild(btn);
+  });
+
+  wrap.append(title, grid);
+  anchor.parentNode.insertBefore(wrap, anchor);
+}
+
 function initFx(doc, deps, p) {
   const cvA = doc.getElementById('endingCvA'), cvS = doc.getElementById('endingCvS'), cvW = doc.getElementById('endingCvW'), cvT = doc.getElementById('endingCvT');
   const xA = cvA?.getContext?.('2d'), xS = cvS?.getContext?.('2d'), xW = cvW?.getContext?.('2d'), xT = cvT?.getContext?.('2d');
@@ -217,7 +350,7 @@ function burst(wisps, x, y, n = 16) {
 }
 
 function runScene(doc, deps, p, wisps) {
-  const reveal = [{ id: 's0', d: 400 }, { id: 's1', d: 900 }, { id: 's2', d: 1600 }, { id: 's3', d: 3800 }, { id: 's4', d: 4100 }, { id: 's5', d: 4600 }, { id: 's6', d: 5200 }, { id: 's7', d: 5900 }, { id: 's8', d: 6300 }];
+  const reveal = [{ id: 's0', d: 400 }, { id: 's1', d: 900 }, { id: 's2', d: 1600 }, { id: 's3', d: 3800 }, { id: 's4', d: 4100 }, { id: 's5', d: 4600 }, { id: 's6', d: 5200 }, { id: 's6b', d: 5600 }, { id: 's7', d: 5900 }, { id: 's8', d: 6300 }];
   reveal.forEach((s) => _session.timers.push(winOf(deps).setTimeout(() => doc.getElementById(s.id)?.classList.add('show'), s.d)));
   const quote = doc.getElementById('quote'), cur = doc.getElementById('qcursor'); if (quote && cur) { quote.textContent = ''; quote.appendChild(cur); let i = 0; const step = () => { if (i >= p.quote.length) { _session.timers.push(winOf(deps).setTimeout(() => { cur.style.display = 'none'; }, 1200)); return; } const ch = p.quote[i]; if (ch === '\n') quote.insertBefore(doc.createElement('br'), cur); else { const s = doc.createElement('span'); s.textContent = ch; quote.insertBefore(s, cur); } i += 1; _session.timers.push(winOf(deps).setTimeout(step, 38)); }; _session.timers.push(winOf(deps).setTimeout(step, 1600)); }
   [['sv0', p.stats[0].value, 550], ['sv1', p.stats[1].value, 500], ['sv2', p.stats[2].value, 950], ['sv3', p.stats[3].value, 850], ['sv4', p.stats[4].value, 700]].forEach(([id, target, dur], idx) => _session.timers.push(winOf(deps).setTimeout(() => { const el = doc.getElementById(id); if (!el) return; const start = performance.now(), raf = rafOf(deps), caf = cafOf(deps); let rid = 0; const tick = (now) => { const t = Math.min((now - start) / dur, 1), e = 1 - ((1 - t) ** 3); el.textContent = fmt(Math.floor(num(target) * e)); if (t < 1) rid = raf(tick); }; rid = raf(tick); _session.cleanups.push(() => caf(rid)); }, 4100 + (idx * 120))));
@@ -229,24 +362,11 @@ function runScene(doc, deps, p, wisps) {
 export const EndingScreenUI = {
   show(isHidden, deps = {}) {
     if (isHidden) return false;
-    const doc = docOf(deps), gs = deps?.gs, data = deps?.data;
-    if (!doc?.body || !gs?.meta || !gs?.player || !gs?.stats) return false;
-    this.cleanup({ doc });
-    ensureStyle(doc);
-    const p = payloadOf(gs, data);
-    const root = buildDOM(doc, p);
-    doc.body.appendChild(root);
-    _session = { cleanups: [], timers: [], payload: p };
-    buildMeta(doc, p); applyRank(doc, p.rank, p.score);
-    const { wisps } = initFx(doc, deps, p);
-    const sigil = doc.getElementById('sigilWrap'); let ri = RANKS.findIndex((r) => r.glyph === p.rank.glyph);
-    const onSigil = () => { ri = (ri + 1) % RANKS.length; applyRank(doc, RANKS[ri], p.score); const rect = sigil?.getBoundingClientRect?.(); if (rect) burst(wisps, rect.left + (rect.width / 2), rect.top + (rect.height / 2), 12); };
-    sigil?.addEventListener('click', onSigil); _session.cleanups.push(() => sigil?.removeEventListener('click', onSigil));
-    const btnR = doc.getElementById('btnR'); const onR = () => { const rect = btnR?.getBoundingClientRect?.(); if (rect) for (let i = 0; i < 5; i += 1) _session.timers.push(winOf(deps).setTimeout(() => burst(wisps, rect.left + (rect.width / 2) + ((Math.random() - .5) * rect.width * .85), rect.top + (rect.height / 2), 14), i * 70)); deps.audioEngine?.playResonanceBurst?.(); _session.timers.push(winOf(deps).setTimeout(() => { this.cleanup({ doc }); deps.restartFromEnding?.(); }, 420)); };
-    btnR?.addEventListener('click', onR); _session.cleanups.push(() => btnR?.removeEventListener('click', onR));
-    const btnC = doc.getElementById('btnCodex'); if (typeof deps.openCodex === 'function') { const onC = () => { deps.audioEngine?.playClick?.(); deps.openCodex(); }; btnC?.addEventListener('click', onC); _session.cleanups.push(() => btnC?.removeEventListener('click', onC)); } else if (btnC) btnC.disabled = true;
-    runScene(doc, deps, p, wisps);
-    return true;
+    return showOutcomeScreen('victory', deps);
+  },
+
+  showOutcome(outcome = 'victory', deps = {}) {
+    return showOutcomeScreen(outcome, deps);
   },
 
   cleanup(deps = {}) {

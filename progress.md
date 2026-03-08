@@ -1047,3 +1047,18 @@ Original prompt:
   - `node --check game/ui/screens/ending_screen_ui.js` PASS.
   - `npm test -- tests/story_ui.test.js tests/meta_progression_ui.test.js tests/region_transition_ui.test.js tests/run_rules_preview_meta.test.js` PASS.
   - `npm run build` PASS.
+- Follow-up prompt: 런 포기/실패 시에도 같은 결과창을 쓰고, 기존 death 화면 관련 코드를 정리.
+- Result-screen unification pass:
+  - `HelpPauseUI.confirmAbandon()` now routes to `EndingScreenUI.showOutcome('abandon', deps)` instead of the legacy `death` screen.
+  - `EndingScreenUI` now renders fragment-selection cards for defeat/abandon outcomes when `echoFragments` are available, preserving immediate meta-progression inside the new cinematic overlay.
+  - `MetaProgressionUI.selectFragment()` now cleans up the ending overlay before returning to title.
+  - `DeathHandler.showDeathScreen()` now routes defeat outcomes into `EndingScreenUI.showOutcome('defeat', ...)`.
+  - Added `selectFragment` to `GAME.API` and to the help/pause dep contract so fragment picks work from both death and abandon flows.
+  - Removed the legacy death-screen markup from `index.html` and removed the corresponding CSS block from `css/styles.css`.
+- Validation:
+  - `node --check game/ui/screens/ending_screen_ui.js` PASS.
+  - `node --check game/combat/death_handler.js` PASS.
+  - `npm test -- tests/death_handler.test.js tests/help_pause_ui.test.js tests/meta_progression_ui.test.js tests/story_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client rerun against `http://127.0.0.1:4173` with `#mainStartBtn`; no new browser-run errors surfaced, though the generated `shot-0.png` remained canvas-biased for this composition.
+  - Direct browser capture of the defeat-result overlay saved to `output/web-game/death-ending-preview.png` and visually inspected: fragment cards render within the cinematic ending layout.

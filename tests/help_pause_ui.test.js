@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
+import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
 import { HelpPauseUI } from '../game/ui/screens/help_pause_ui.js';
 
 function createLocalStorageMock(initial = {}) {
@@ -137,5 +138,48 @@ describe('HelpPauseUI help overlay', () => {
 
     expect(deps.closeSettings).not.toHaveBeenCalled();
     expect(event.preventDefault).not.toHaveBeenCalled();
+  });
+});
+
+describe('HelpPauseUI abandon flow', () => {
+  it('shows the cinematic ending result instead of switching to death screen', () => {
+    const doc = createDoc();
+    const abandonConfirm = doc.createElement('div');
+    abandonConfirm.id = 'abandonConfirm';
+    doc.body.appendChild(abandonConfirm);
+
+    const pauseMenu = doc.createElement('div');
+    pauseMenu.id = 'pauseMenu';
+    doc.body.appendChild(pauseMenu);
+
+    const combatOverlay = doc.createElement('div');
+    combatOverlay.id = 'combatOverlay';
+    combatOverlay.classList = { remove: vi.fn() };
+    doc.body.appendChild(combatOverlay);
+
+    const deps = {
+      doc,
+      gs: {
+        combat: { active: true },
+        player: { kills: 4 },
+        stats: { maxChain: 7 },
+        meta: { runCount: 3, storyPieces: [], inscriptions: {} },
+        currentFloor: 12,
+      },
+      finalizeRunOutcome: vi.fn(),
+      switchScreen: vi.fn(),
+    };
+
+    const showOutcomeSpy = vi.spyOn(EndingScreenUI, 'showOutcome').mockReturnValue(true);
+
+    HelpPauseUI.confirmAbandon(deps);
+
+    expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true });
+    expect(showOutcomeSpy).toHaveBeenCalledWith('abandon', deps);
+    expect(deps.switchScreen).not.toHaveBeenCalled();
+    expect(deps.gs.combat.active).toBe(false);
+    expect(combatOverlay.classList.remove).toHaveBeenCalledWith('active');
+    expect(doc.getElementById('abandonConfirm')).toBeNull();
+    expect(doc.getElementById('pauseMenu')).toBeNull();
   });
 });

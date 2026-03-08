@@ -11,6 +11,8 @@ describe('MetaProgressionUI', () => {
     const clearSelectedClass = vi.fn();
     const refreshRunModePanel = vi.fn();
     const showPendingClassProgressSummary = vi.fn();
+    const doc = { getElementById: vi.fn() };
+    const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
     const gs = {
       meta: {
         echoFragments: 3,
@@ -19,6 +21,7 @@ describe('MetaProgressionUI', () => {
     };
 
     MetaProgressionUI.selectFragment('echo_boost', {
+      doc,
       gs,
       switchScreen,
       clearSelectedClass,
@@ -30,6 +33,7 @@ describe('MetaProgressionUI', () => {
 
     expect(gs.meta.echoFragments).toBe(2);
     expect(gs.meta.inscriptions.echo_boost).toBe(true);
+    expect(cleanupSpy).toHaveBeenCalledWith({ doc });
     expect(switchScreen).toHaveBeenCalledWith('title');
     expect(clearSelectedClass).toHaveBeenCalledTimes(1);
     expect(refreshRunModePanel).toHaveBeenCalledTimes(1);
