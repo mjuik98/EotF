@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { HudUpdateUI } from '../game/ui/hud/hud_update_ui.js';
 
 class MockElement {
@@ -98,6 +98,9 @@ function createMockDocument() {
     getElementById(id) {
       return this._elements.get(id) || null;
     },
+    querySelector() {
+      return null;
+    },
   };
   doc.body = new MockElement(doc, 'body');
   return doc;
@@ -128,5 +131,49 @@ describe('HudUpdateUI.updatePlayerStats', () => {
     HudUpdateUI.updatePlayerStats(gs, { doc });
     shell = doc.getElementById('ncFloatingHpShell');
     expect(shell.querySelectorAll('.nc-hp-shield-bar-fill')).toHaveLength(0);
+  });
+});
+
+describe('HudUpdateUI.doUpdateUI', () => {
+  it('still refreshes status badges when optional run modifier HUD is missing', () => {
+    const doc = createMockDocument();
+    const updateStatusDisplay = vi.fn();
+    const gs = {
+      meta: { runCount: 1, inscriptions: {} },
+      runConfig: { curse: 'none', disabledInscriptions: [] },
+      currentRegion: 0,
+      currentFloor: 1,
+      combat: { active: true, playerTurn: true },
+      clearDirtyFlag: vi.fn(),
+      player: {
+        class: 'guardian',
+        hp: 42,
+        maxHp: 100,
+        shield: 12,
+        echo: 0,
+        maxEcho: 100,
+        gold: 0,
+        kills: 0,
+        energy: 3,
+        maxEnergy: 3,
+        hand: [],
+        deck: [],
+        graveyard: [],
+        exhausted: [],
+        items: [],
+        buffs: { unbreakable_wall: { stacks: 99 } },
+      },
+    };
+
+    HudUpdateUI.doUpdateUI({
+      doc,
+      gs,
+      data: { classes: {}, items: {}, inscriptions: {} },
+      runRules: { getAscension: () => 0, isEndless: () => false },
+      updateStatusDisplay,
+    });
+
+    expect(doc.getElementById('ncFloatingHpShell')).not.toBeNull();
+    expect(updateStatusDisplay).toHaveBeenCalledTimes(1);
   });
 });

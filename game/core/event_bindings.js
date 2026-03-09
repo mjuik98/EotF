@@ -152,6 +152,7 @@ function registerModules() {
     G.register('EventUI', M.EventUI);
     G.register('CombatUI', M.CombatUI);
     G.register('HudUpdateUI', M.HudUpdateUI);
+    G.register('StatusEffectsUI', M.StatusEffectsUI);
     G.register('MazeSystem', M.MazeSystem);
     G.register('StoryUI', M.StoryUI);
     G.register('CodexUI', M.CodexUI);

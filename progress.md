@@ -1,5 +1,28 @@
 Original prompt: 
 
+- Follow-up prompt: 불굴의 벽 카드가 사용 시 HUD에 표시되지 않는 버그 수정.
+- HUD status refresh fix (`game/core/bindings/ui_bindings.js`):
+  - `updateStatusDisplay` no longer targets only the legacy `statusEffects` container.
+  - It now refreshes all mounted player-status containers, including the floating HP panel badge row (`ncFloatingHpStatusBadges`), so power-card buffs like `unbreakable_wall` appear immediately after play.
+- Root cause follow-up:
+  - `StatusEffectsUI` was not registered into `GAME.Modules` or exposed globally during boot, so floating HP panel rendering could not resolve the status renderer on full HUD refresh.
+  - `HudUpdateUI.doUpdateUI()` also exited early when optional `#hudRunModifiers` was absent, which skipped the trailing `updateStatusDisplay()` call and left the freshly rebuilt status container empty.
+- Additional fixes:
+  - Registered/exposed `StatusEffectsUI` in boot wiring (`game/core/event_bindings.js`, `game/core/init_sequence.js`).
+  - Removed the blocking early-return behavior in `game/ui/hud/hud_update_ui.js` by making `hudRunModifiers` optional without aborting the rest of HUD refresh.
+- Added regression test (`tests/ui_bindings_status_display.test.js`):
+  - Verifies floating HP panel status badges are refreshed when mounted.
+  - Verifies legacy + floating containers both continue to receive updates when present.
+- Added regression coverage:
+  - `tests/event_bindings_status_effects_registration.test.js`: `setupBindings()` registers `StatusEffectsUI` into `GAME.Modules`.
+  - `tests/hud_update_ui_hp_panel.test.js`: `doUpdateUI()` still calls `updateStatusDisplay()` even if `hudRunModifiers` is missing.
+  - `tests/player_hp_panel_ui.test.js`: floating panel resolves globally registered `StatusEffectsUI` fallback.
+- Validation:
+  - `npm test -- tests/hud_update_ui_hp_panel.test.js tests/event_bindings_status_effects_registration.test.js tests/player_hp_panel_ui.test.js tests/ui_bindings_status_display.test.js` PASS.
+  - `npm run build` PASS.
+  - Browser repro via Playwright: forced combat state with `gs.player.buffs = { unbreakable_wall: { stacks: 99 } }`, `window.updateUI()` now leaves `#ncFloatingHpStatusBadges` populated with `🧱 불굴의 벽∞` (confirmed before/after with screenshots).
+  - Ran Playwright skill client against local Vite preview (`http://127.0.0.1:4177`) with the action payload reference and `#mainStartBtn` click; refreshed screenshots `output/web-game/shot-0.png`, `shot-1.png` reviewed, and no `errors-*.json` were emitted.
+
 - Initialized investigation for runtime state/branch exception handling.
 - Identified runtime state-flow mismatches:
   - `spike_shield` buff existed in cards but was excluded from enemy-turn buff lifecycle and enemy-attack reflection branch.

@@ -32,6 +32,7 @@ export function bootGame(modules, fns, Deps) {
         RunModeUI: modules.RunModeUI, ScreenUI: modules.ScreenUI,
         TitleCanvasUI: modules.TitleCanvasUI, ClassSelectUI: modules.ClassSelectUI,
         CombatHudUI: modules.CombatHudUI, HudUpdateUI: modules.HudUpdateUI,
+        StatusEffectsUI: modules.StatusEffectsUI,
         RewardUI: modules.RewardUI, CombatActionsUI: modules.CombatActionsUI,
         TooltipUI: modules.TooltipUI, HelpPauseUI, RunSetupUI: modules.RunSetupUI,
         DescriptionUtils: modules.DescriptionUtils,

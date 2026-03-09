@@ -12,12 +12,23 @@ export function createUIBindings(M, fns) {
     fns._updateEndBtnWarn = () => M.HudUpdateUI?.updateEndBtnWarn?.(Deps.getHudUpdateDeps());
 
     fns.updateStatusDisplay = () => {
-        M.StatusEffectsUI?.updateStatusDisplay?.({
-            gs: M.GS,
-            doc: document,
-            statusContainerId: 'statusEffects',
-            tooltipUI: M.TooltipUI,
-            refreshCombatInfoPanel: () => fns._refreshCombatInfoPanel?.(),
+        const doc = document;
+        const containerIds = ['statusEffects', 'ncFloatingHpStatusBadges']
+            .filter((id, idx, arr) => arr.indexOf(id) === idx)
+            .filter((id) => doc.getElementById(id));
+
+        if (!containerIds.length) {
+            containerIds.push('statusEffects');
+        }
+
+        containerIds.forEach((statusContainerId) => {
+            M.StatusEffectsUI?.updateStatusDisplay?.({
+                gs: M.GS,
+                doc,
+                statusContainerId,
+                tooltipUI: M.TooltipUI,
+                refreshCombatInfoPanel: () => fns._refreshCombatInfoPanel?.(),
+            });
         });
     };
 

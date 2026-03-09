@@ -167,6 +167,43 @@ describe('player_hp_panel_ui', () => {
     });
   });
 
+  it('uses the globally registered StatusEffectsUI fallback when deps do not provide one', () => {
+    const doc = createMockDocument();
+    const updateStatusDisplay = vi.fn();
+    const originalGame = globalThis.GAME;
+    globalThis.GAME = {
+      Modules: {
+        StatusEffectsUI: { updateStatusDisplay },
+      },
+    };
+
+    const gs = {
+      currentScreen: 'combat',
+      combat: { active: true },
+      player: {
+        hp: 50,
+        maxHp: 100,
+        shield: 0,
+        buffs: { unbreakable_wall: { stacks: 99 } },
+      },
+    };
+
+    try {
+      renderFloatingPlayerHpPanel({
+        doc,
+        gs,
+      });
+    } finally {
+      globalThis.GAME = originalGame;
+    }
+
+    expect(updateStatusDisplay).toHaveBeenCalledWith({
+      doc,
+      gs,
+      statusContainerId: 'ncFloatingHpStatusBadges',
+    });
+  });
+
   it('removes the fixed panel outside the run screens', () => {
     const doc = createMockDocument();
     renderFloatingPlayerHpPanel({

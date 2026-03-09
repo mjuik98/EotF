@@ -469,7 +469,7 @@ export const HudUpdateUI = {
     }
 
     const modEl = doc.getElementById('hudRunModifiers');
-    if (!modEl) return;
+    if (modEl) {
     modEl.textContent = '';
     const runRules = deps.runRules;
     const asc = runRules?.getAscension?.(gs) || 0;
@@ -526,6 +526,8 @@ export const HudUpdateUI = {
       modEl.appendChild(midCont);
     }
 
+
+    }
 
     const echoBtn = doc.getElementById('useEchoSkillBtn');
     if (echoBtn) {
