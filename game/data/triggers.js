@@ -42,4 +42,10 @@ export const Trigger = Object.freeze({
 
     ENEMY_STATUS_APPLY: 'enemy_status_apply',
     POISON_DAMAGE: 'poison_damage',
+
+    DAMAGE_CALC:     'damage_calc',
+    SHOP_PRICE_MOD:  'shop_price_mod',
+    SHOP_BUY:        'shop_buy',
+    ITEM_USE:        'item_use',
+    REWARD_GENERATE: 'reward_generate',
 });

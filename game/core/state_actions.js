@@ -1,4 +1,4 @@
-﻿import { CombatInitializer } from '../combat/combat_initializer.js';
+import { CombatInitializer } from '../combat/combat_initializer.js';
 
 import { CONSTANTS } from '../data/constants.js';
 
@@ -26,10 +26,10 @@ export const Actions = {
     PLAYER_ENERGY: 'player:energy',
     PLAYER_ECHO: 'player:echo',
     PLAYER_SILENCE: 'player:silence',
-    PLAYER_TIME_RIFT: 'player:time_rift',
+    PLAYER_TIME_RIFT: 'player:time-rift',
     PLAYER_BUFF: 'player:buff',
-    PLAYER_MAX_HP_GROWTH: 'player:max_hp_growth',
-    PLAYER_MAX_ENERGY_GROWTH: 'player:max_energy_growth',
+    PLAYER_MAX_HP_GROWTH: 'player:max-hp-growth',
+    PLAYER_MAX_ENERGY_GROWTH: 'player:max-energy-growth',
     PLAYER_DEATH: 'player:death',
 
     // Card
@@ -218,7 +218,6 @@ export const Reducers = {
     [Actions.CARD_DRAW](gs, { count }) {
         let drewCards = 0;
         let attempts = 0;
-        const previousHandLength = gs.player.hand.length;
         const handCap = Math.max(1, 8 - Math.max(0, Number(gs.player._handCapMinus || 0)));
 
         for (let i = 0; i < count; i++) {
@@ -269,7 +268,8 @@ export const Reducers = {
         if (!enemy) return { actualDamage: 0 };
 
         let remaining = amount;
-        if (enemy.shield > 0) {
+        // 방어막 무시 로직 추가 (예: 심연의 눈)
+        if (!gs._ignoreShield && enemy.shield > 0) {
             const absorbed = Math.min(enemy.shield, remaining);
             enemy.shield -= absorbed;
             remaining -= absorbed;

@@ -377,8 +377,6 @@ export const RewardUI = {
       _renderRewardCardOption(container, cardId, data, gs, deps, () => this.takeRewardCard(cardId, deps), idx);
     });
 
-    // --- 축복(Blessing) 보상 추가 ---
-    // 지역 보스는 확정, 중간 보스는 30% 확률, 그 외 전투는 미출현
     const shouldOfferBlessing = isBoss || (isMiniBoss && Math.random() < 0.3);
     if (shouldOfferBlessing) {
       const maxEnergyCap = _getMaxEnergyCap(gs);
@@ -407,45 +405,28 @@ export const RewardUI = {
     const shouldOfferItem = Math.random() < relicChance;
     if (shouldOfferItem) {
       const allAvailable = _getRewardItemPool(gs, data, 'reward');
-      const isBossEncounter = isBoss;
-
       let itemPool = [];
-      if (isBossEncounter) {
-        // 보스전: 보스 등급 유물 우선, 없으면 전설/희귀로 대체
+      if (isBoss) {
         itemPool = allAvailable.filter(item => item.rarity === 'boss');
-        if (itemPool.length === 0) {
-          itemPool = allAvailable.filter(item => ['legendary', 'rare'].includes(item.rarity));
-        }
+        if (itemPool.length === 0) itemPool = allAvailable.filter(item => ['legendary', 'rare'].includes(item.rarity));
       } else {
-        // 일반/정예/중간보스: 보스 등급 완전 제외
         const nonBossPool = allAvailable.filter(item => item.rarity !== 'boss');
-        
-        if (isMiniBoss) {
-          itemPool = nonBossPool.filter(item => ['rare', 'legendary'].includes(item.rarity));
-        } else {
-          itemPool = nonBossPool.filter(item => ['common', 'uncommon'].includes(item.rarity));
-        }
-
-        // 특정 등급 고갈 시 보스를 제외한 상위/하위 등급으로 폴백
-        if (itemPool.length === 0) {
-          itemPool = nonBossPool;
-        }
+        if (isMiniBoss) itemPool = nonBossPool.filter(item => ['rare', 'legendary'].includes(item.rarity));
+        else itemPool = nonBossPool.filter(item => ['common', 'uncommon'].includes(item.rarity));
+        if (itemPool.length === 0) itemPool = nonBossPool;
       }
 
       if (itemPool.length > 0) {
-        const classIds = Object.keys(data?.classes || {});
-        const extraChoices = ClassProgressionSystem.getRewardRelicChoiceBonus(gs, { classIds });
-        const totalChoices = 1 + Math.max(0, extraChoices);
+        let totalChoices = 1 + Math.max(0, ClassProgressionSystem.getRewardRelicChoiceBonus(gs, { classIds: Object.keys(data?.classes || {}) }));
+        if (typeof gs.triggerItems === 'function') {
+          const res = gs.triggerItems('reward_generate', { type: 'item', count: totalChoices });
+          if (typeof res === 'number' && Number.isFinite(res)) totalChoices = Math.max(1, Math.floor(res));
+        }
+
         const pickedItems = _drawUniqueItems(itemPool, totalChoices);
         const itemBaseIndex = rewardCards.length + (shouldOfferBlessing ? 2 : 0);
         pickedItems.forEach((item, offset) => {
-          _renderItemOption(
-            container,
-            item,
-            deps,
-            () => this.takeRewardItem(item.id, deps),
-            itemBaseIndex + offset,
-          );
+          _renderItemOption(container, item, deps, () => this.takeRewardItem(item.id, deps), itemBaseIndex + offset);
         });
       }
     }
@@ -463,25 +444,15 @@ export const RewardUI = {
         const maxEnergyCap = _getMaxEnergyCap(gs);
         if ((gs.player.maxEnergy || 0) >= maxEnergyCap) {
           deps.audioEngine?.playHit?.();
-          deps.showItemToast?.({
-            name: blessing.name,
-            icon: blessing.icon || '⚡',
-            desc: `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`,
-          });
           return;
         }
       }
-
       gs._rewardLock = true;
-
       const doc = _getDoc(deps);
       doc.getElementById('rewardCards')?.classList.add('picked');
 
-      if (blessing.type === 'hp') {
-        gs.dispatch('player:max_hp_growth', { amount: blessing.amount });
-      } else if (blessing.type === 'energy') {
-        gs.dispatch('player:max_energy_growth', { amount: blessing.amount });
-      }
+      if (blessing.type === 'hp') gs.dispatch('player:max-hp-growth', { amount: blessing.amount });
+      else if (blessing.type === 'energy') gs.dispatch('player:max-energy-growth', { amount: blessing.amount });
 
       deps.playItemGet?.();
       deps.showItemToast?.({ name: blessing.name, icon: blessing.icon, desc: blessing.desc });
@@ -497,7 +468,6 @@ export const RewardUI = {
     return runIdempotent(REWARD_CLAIM_KEY, () => {
       if (gs._rewardLock) return;
       gs._rewardLock = true;
-
       const doc = _getDoc(deps);
       doc.getElementById('rewardCards')?.classList.add('picked');
 
@@ -519,7 +489,6 @@ export const RewardUI = {
     return runIdempotent(REWARD_CLAIM_KEY, () => {
       if (gs._rewardLock) return;
       gs._rewardLock = true;
-
       const doc = _getDoc(deps);
       doc.getElementById('rewardCards')?.classList.add('picked');
 
@@ -544,13 +513,11 @@ export const RewardUI = {
 
     return runIdempotent(REWARD_CLAIM_KEY, () => {
       if (gs._rewardLock) return;
-
       const upgradable = (gs.player.deck || []).filter((id) => data.upgradeMap?.[id]);
       if (!upgradable.length) {
         deps.audioEngine?.playHit?.();
         return;
       }
-
       gs._rewardLock = true;
       const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
       const upgId = data.upgradeMap[cardId];
@@ -571,7 +538,6 @@ export const RewardUI = {
     return runIdempotent(REWARD_CLAIM_KEY, () => {
       if (gs._rewardLock) return;
       gs._rewardLock = true;
-
       const doc = _getDoc(deps);
       doc.getElementById('rewardCards')?.classList.add('picked');
 

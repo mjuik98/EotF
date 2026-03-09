@@ -1,4 +1,4 @@
-﻿import { DATA } from '../../data/game_data.js';
+import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
 import { ClassProgressionSystem } from './class_progression_system.js';
 import { ensureCodexRecords, ensureCodexState } from './codex_records_system.js';
@@ -252,7 +252,6 @@ export const RunRules = {
   },
 
   getEnemyScaleMultiplier(gs, regionAbs = 0) {
-    // 諛몃윴??議곗젙: ?뱀쿇 ?④퀎蹂??ㅼ??쇰쭅 ?꾪솕 (8% -> 6%) 諛??곹븳 ?곸슜
     let ascMul = 1 + this.getAscension(gs) * 0.06;
     if (ascMul > 1.5) ascMul = 1.5;
 
@@ -273,6 +272,15 @@ export const RunRules = {
     const base = Math.max(1, Math.floor(Number(baseCost) || 1));
     let mult = 1 + this.getAscension(gs) * 0.03;
     if ((gs?.runConfig?.curse || 'none') === 'tax') mult *= 1.2;
+
+    // 아이템 트리거 추가 (예: 녹슨 열쇠 10% 할인)
+    if (typeof gs?.triggerItems === 'function') {
+      const itemMult = gs.triggerItems('shop_price_mod', 1.0);
+      if (typeof itemMult === 'number' && Number.isFinite(itemMult)) {
+        mult *= itemMult;
+      }
+    }
+
     return Math.max(1, Math.ceil(base * mult));
   },
 
@@ -419,9 +427,3 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
 
   return shardGain;
 }
-
-
-
-
-
-

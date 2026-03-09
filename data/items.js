@@ -202,7 +202,8 @@ const COMMON_ITEMS = {
     ancient_leather: {
         id: 'ancient_leather', name: '고대인의 가죽', icon: '革', rarity: 'common',
         desc: '[고대인의 유산] 최대 체력 +2.',
-        onAcquire(gs) { gs.player.maxHp += 2; gs.player.hp += 2; }
+        onAcquire(gs) { gs.player.maxHp += 2; gs.player.hp += 2; },
+        passive() {}
     },
 };
 
@@ -283,13 +284,25 @@ const UNCOMMON_ITEMS = {
     crystal_ball: {
         id: 'crystal_ball', name: '수정구슬', icon: '🔮', rarity: 'uncommon',
         desc: '전투 시작 시: 무작위 카드 3장의 비용을 이번 전투 동안 1 감소.',
-        passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START) {
-                const deck = gs.player.deck;
-                for (let i = 0; i < 3; i++) {
-                    const r = Math.floor(Math.random() * deck.length);
-                    gs.addLog?.(`🔮 수정구슬: ${CARDS[deck[r]]?.name} 강화`, 'item');
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.COMBAT_START && gs.player.deck?.length > 0) {
+                gs._crystalDiscounted = new Set();
+                const deck = [...gs.player.deck];
+                const picks = new Set();
+                while (picks.size < Math.min(3, deck.length)) {
+                    picks.add(Math.floor(Math.random() * deck.length));
                 }
+                picks.forEach(r => {
+                    const cardId = deck[r];
+                    gs._crystalDiscounted.add(cardId);
+                    gs.addLog?.(`🔮 수정구슬: ${CARDS[cardId]?.name} 비용 -1`, 'item');
+                });
+            }
+            if (trigger === Trigger.BEFORE_CARD_COST && gs._crystalDiscounted?.has(data?.cardId)) {
+                return Math.max(0, (data?.cost ?? 0) - 1);
+            }
+            if (trigger === Trigger.COMBAT_END) {
+                gs._crystalDiscounted = null;
             }
         }
     },
@@ -308,8 +321,8 @@ const UNCOMMON_ITEMS = {
         id: 'adrenaline_shot', name: '아드레날린 주사', icon: '💉', rarity: 'uncommon',
         desc: '체력이 25% 이하일 때: 주는 피해 25% 증가.',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.DAMAGE_CALC && gs.player.hp <= gs.player.maxHp * 0.25) {
-                return data * 1.25;
+            if (trigger === Trigger.DEAL_DAMAGE && gs.player.hp <= gs.player.maxHp * 0.25) {
+                return typeof data === 'number' ? Math.floor(data * 1.25) : data;
             }
         }
     },
@@ -319,7 +332,7 @@ const UNCOMMON_ITEMS = {
         id: 'ancient_blade', name: '고대인의 칼날', icon: '刃', rarity: 'uncommon',
         desc: '[고대인의 유산] 공격 피해 +1.',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.DAMAGE_CALC && data?.type === 'attack') return data + 1;
+            if (trigger === Trigger.DEAL_DAMAGE && typeof data === 'number') return data + 1;
         }
     },
     ancient_scroll: {
@@ -354,7 +367,7 @@ const RARE_ITEMS = {
         id: 'phoenix_feather', name: '불사조의 깃털', icon: '🔥', rarity: 'rare',
         desc: '사망 시: 체력을 50% 회복하고 부활합니다 (전체 게임 중 1회).',
         passive(gs, trigger) {
-            if (trigger === Trigger.PLAYER_DEATH && !gs._phoenixUsed) {
+            if (trigger === Trigger.PRE_DEATH && !gs._phoenixUsed) {
                 gs._phoenixUsed = true;
                 gs.player.hp = Math.floor(gs.player.maxHp * 0.5);
                 gs.addLog?.('🔥 불사조의 깃털: 죽음에서 돌아왔습니다!', 'item');
@@ -425,8 +438,10 @@ const RARE_ITEMS = {
     abyssal_eye: {
         id: 'abyssal_eye', name: '심연의 눈', icon: '👁️', rarity: 'rare',
         desc: '[심연의 삼위일체] 적의 방어도를 무시하고 피해를 줍니다.',
-        passive(gs, trigger, data) {
-            if (trigger === Trigger.DAMAGE_CALC) return { ...data, ignoreShield: true };
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) gs._ignoreShield = false;
+            if (trigger === Trigger.DEAL_DAMAGE) gs._ignoreShield = true;
+            if (trigger === Trigger.COMBAT_END) gs._ignoreShield = false;
         }
     },
     abyssal_hand: {

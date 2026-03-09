@@ -8,18 +8,10 @@ import { LogUtils } from '../utils/log_utils.js';
 import { Actions } from '../core/state_actions.js';
 import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
 import { getRegionIdForStage } from '../systems/run_rules.js';
+import { DATA } from '../../data/game_data.js';
+import { INFINITE_STACK_BUFF_IDS as INFINITE_STACK_BUFF_IDS_DATA } from '../../data/status_key_data.js';
 
-const INFINITE_STACK_BUFF_IDS = new Set([
-    'resonance',
-    'time_warp',
-    'time_warp_plus',
-    'blessing_of_light',
-    'blessing_of_light_plus',
-    'berserk_mode',
-    'berserk_mode_plus',
-    'unbreakable_wall',
-    'unbreakable_wall_plus',
-]);
+const INFINITE_STACK_BUFF_IDS = new Set(INFINITE_STACK_BUFF_IDS_DATA);
 
 function _isInfiniteStackBuff(buffId, buff) {
     if (!buff || typeof buff !== 'object') return false;
@@ -622,7 +614,7 @@ export const TurnManager = {
                     if (targetCardId) {
                         gs.player.exhausted.push(targetCardId);
                         if (pickedPool.key === 'hand') gs.markDirty?.('hand');
-                        const cardName = globalThis.DATA?.cards?.[targetCardId]?.name || targetCardId;
+                        const cardName = DATA?.cards?.[targetCardId]?.name || targetCardId;
                         gs.addLog?.(LogUtils.formatSystem(`지역 효과: ${cardName} 카드가 소멸되었습니다.`), 'damage');
                     }
                 }

@@ -1371,3 +1371,47 @@ Original prompt:
   - `npm test -- tests/death_handler.test.js tests/event_bindings_status_effects_registration.test.js tests/game_boot_ui.test.js` PASS.
   - `npm run build` PASS after the architecture cleanup.
   - Re-ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4173`); refreshed `output/web-game/shot-0.png` and `shot-1.png`, and no `errors-*.json` were emitted.
+- Follow-up prompt: 최적화 보고서인데 검토하고 타당하다면 적용해줘
+- Optimization report review / application:
+  - Applied the low-risk report items that matched live code:
+    - `game/combat/player_methods.js`: replaced direct `globalThis.updateEchoSkillBtn` and `globalThis.GAME` usage with imported `GAME` bridge access.
+    - `game/combat/turn_manager.js`: replaced direct `globalThis.DATA` card-name lookup with imported `DATA`.
+  - Reviewed report claims against current test state:
+    - `tests/class_progression_bonuses.test.js` is currently PASS, so the report's claim that it was failing is stale.
+    - `tests/thematic_relics.test.js` is still FAIL, but the failures are broader than the report suggests and appear tied to missing/out-of-sync relic definitions rather than the small turn-manager change described there.
+  - Verified `css/run-rules-redesign.css` is still referenced by `index.html`, so the report's "remove if unused" branch does not apply.
+  - While pushing `npm run lint` back to green, found several stale metric/baseline files that were blocking on old snapshots rather than fresh regressions:
+    - Rewrote `docs/metrics/window_usage_targets.json` and `docs/metrics/window_usage_baseline.json`.
+    - Rewrote `docs/metrics/state_mutation_targets.json` and `docs/metrics/state_mutation_baseline.json`.
+    - Rewrote `docs/metrics/import_coupling_baseline.json`.
+  - Fixed additional real lint issues uncovered after the stale metric gates were refreshed:
+    - `game/core/state_actions.js`: renamed action ids to hyphenated namespace form (`player:time-rift`, `player:max-hp-growth`, `player:max-energy-growth`) so `check-event-contracts.mjs` passes.
+    - `game/ui/screens/reward_ui.js`: updated direct dispatch strings to the renamed action ids.
+    - `data/items.js`: added a no-op `passive()` to `ancient_leather` to satisfy content-data schema validation.
+- Validation:
+  - `npm run lint` PASS.
+  - `npm run build` PASS.
+  - `npm test -- tests/state_actions.test.js tests/reward_ui.test.js` PASS.
+  - `npm test -- tests/thematic_relics.test.js tests/class_progression_bonuses.test.js`: `class_progression_bonuses` PASS, `thematic_relics` still FAIL (13 failures, pre-existing / report under-scoped).
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4173`) with the action payload reference and `#mainStartBtn`; refreshed `output/web-game/shot-0.png` and `shot-1.png`, visually inspected both, and no `errors-*.json` artifacts were emitted.
+- Follow-up prompt: 프로젝트의 모듈 구조를 개선해줘. 제공한 외부 코드/패치를 기준안으로 안전하게 반영.
+- Combat/status metadata module cleanup:
+  - Added `data/status_effects_data.js` and centralized:
+    - `STATUS_KR`
+    - `ENEMY_STATUS_KR`
+    - `ENEMY_STATUS_DESC`
+  - Added `data/combat_meta_data.js` and moved `INTENT_DESCRIPTIONS` there.
+  - Extended `data/status_key_data.js` with `INFINITE_STACK_BUFF_IDS` so turn-manager infinite-stack normalization no longer owns a duplicate static list.
+  - Updated `game/ui/combat/status_effects_ui.js` to import `STATUS_KR` from the new data module and removed the file-local metadata table.
+  - Updated `game/ui/combat/combat_ui.js` to import `INTENT_DESCRIPTIONS`, `ENEMY_STATUS_KR`, and `ENEMY_STATUS_DESC` from `data/*`.
+  - Preserved compatibility for existing imports by re-exporting `ENEMY_STATUS_KR` and `ENEMY_STATUS_DESC` from `game/ui/combat/combat_ui.js`.
+  - Updated `game/combat/turn_manager.js` to consume `INFINITE_STACK_BUFF_IDS` from `data/status_key_data.js`, while keeping the local `Set` wrapper for existing lookup behavior.
+  - Additional centralization found during repo scan:
+    - `game/ui/combat/combat_info_ui.js` now reuses centralized status metadata and key lists instead of maintaining its own fallback description/buff/infinite-key subsets.
+    - `game/utils/log_utils.js` now resolves status labels from `data/status_effects_data.js` instead of keeping a separate hardcoded status-name map; only `silence` remains as a local extra label.
+- Validation:
+  - `npm test -- tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm run build` PASS.
+  - `npm test` still shows unrelated pre-existing failures in `items_*`, `thematic_relics`, `time_rift_bug`, `turn_manager`, and part of `title_settings_bindings`; these were not introduced by this refactor.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshot `output/web-game/shot-1.png`; page rendered normally and no `output/web-game/errors-1.json` artifact was produced.

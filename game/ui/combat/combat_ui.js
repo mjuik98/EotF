@@ -3,65 +3,10 @@ import { CardCostUtils } from '../../utils/card_cost_utils.js';
 import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
 import { StatusTooltipUI } from './status_tooltip_builder.js';
 import { DEBUFF_STATUS_KEYS } from '../../../data/status_key_data.js';
+import { ENEMY_STATUS_DESC, ENEMY_STATUS_KR } from '../../../data/status_effects_data.js';
+import { INTENT_DESCRIPTIONS } from '../../../data/combat_meta_data.js';
 
-
-const INTENT_DESCRIPTIONS = {
-  attack: { type: '공격', desc: '플레이어에게 피해' },
-  heavy: { type: '강공격', desc: '단일 대상에게 큰 피해' },
-  double: { type: '연속 공격', desc: '여러 번 피해' },
-  aoe: { type: '광역 공격', desc: '모든 대상에게 피해' },
-  guard: { type: '방어', desc: '방어막 획득' },
-  barrier: { type: '방벽', desc: '강력한 방벽 생성' },
-  shield: { type: '보호막', desc: '방어막으로 피해 경감' },
-  curse: { type: '저주', desc: '해로운 효과 부여' },
-  poison: { type: '중독', desc: '턴 시작 시 독 중첩 × 5 피해' },
-  weaken: { type: '약화', desc: '공격력 감소' },
-  debuff: { type: '약화 효과', desc: '해로운 상태이상 부여' },
-  stun: { type: '기절', desc: '행동 불가' },
-  mark: { type: '표식', desc: '추가 피해 표식 부여' },
-  burning: { type: '화상', desc: '지속적인 화상 피해' },
-  heal: { type: '치유', desc: '체력 회복' },
-  life: { type: '흡혈', desc: '피해 및 체력 회복' },
-  drain: { type: '흡수', desc: '자원 흡수' },
-  summon: { type: '소환', desc: '추가 적 소환' },
-  enrage: { type: '격노', desc: '공격력 증가' },
-};
-
-export const ENEMY_STATUS_KR = {
-  stunned: '기절',
-  weakened: '약화',
-  poisoned: '독',
-  marked: '표식',
-  branded: '낙인',
-  mirror: '반사',
-  immune: '무적',
-  slowed: '감속',
-  burning: '화상',
-  abyss_regen: '심연 재생',
-  draw_block: '드로우 간섭',
-  doom: '파멸',
-  cursed: '저주',
-  dodge: '회피',
-  thorns: '가시',
-};
-
-export const ENEMY_STATUS_DESC = {
-  stunned: { icon: '⏸', desc: '행동 불가' },
-  weakened: { icon: '🪶', desc: '가하는 피해 감소' },
-  poisoned: { icon: '☠', desc: '턴 시작 시 독 중첩 × 5 피해' },
-  marked: { icon: '🎯', desc: '표식 폭발 시 추가 피해' },
-  branded: { icon: '🕯', desc: '대상 공격 시 공격자 체력 회복' },
-  mirror: { icon: '🪞', desc: '받는 피해 반사' },
-  immune: { icon: '🛡', desc: '받는 피해 무시' },
-  slowed: { icon: '🐢', desc: '행동 지연' },
-  burning: { icon: '🔥', desc: '매 턴 화상 피해' },
-  abyss_regen: { icon: '💚', desc: '턴 시작 시 체력 회복' },
-  draw_block: { icon: '🕳️', desc: '플레이어 드로우 1 감소' },
-  doom: { icon: '☠️', desc: '카운트다운 종료 시 플레이어 대폭 피해' },
-  cursed: { icon: '🕸', desc: '저주 페널티' },
-  dodge: { icon: '💨', desc: '다음 공격 회피' },
-  thorns: { icon: '🌵', desc: '근접 공격자에게 피해 반사' },
-};
+export { ENEMY_STATUS_DESC, ENEMY_STATUS_KR };
 
 let _intentTipTimer = null;
 let _enemyStatusTipTimer = null;

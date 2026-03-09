@@ -1,5 +1,6 @@
 import { RARITY_SORT_ORDER, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
 import { COMBAT_INFO_ITEM_RARITY_BORDER_COLORS } from '../../../data/ui_rarity_styles.js';
+import { INFINITE_DURATION_STATUS_KEYS, PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../data/status_key_data.js';
 
 let _combatInfoOpen = false;
 
@@ -22,13 +23,9 @@ function _resolveStatusInfo(statusMap, statusKey) {
   return statusMap?.[key] || statusMap?.[key.replace(/_plus$/i, '')] || null;
 }
 
-const _INFINITE_STATUS_KEYS = new Set([
-  'resonance',
-  'time_warp',
-  'blessing_of_light',
-  'berserk_mode',
-  'unbreakable_wall',
-]);
+const _INFINITE_STATUS_KEYS = new Set(
+  INFINITE_DURATION_STATUS_KEYS.map((statusKey) => String(statusKey).replace(/_plus$/i, ''))
+);
 
 function _resolveStatusDisplayValue(statusKey, buff) {
   const stacks = Number(buff?.stacks || 0);
@@ -114,32 +111,15 @@ export const CombatInfoUI = {
       none.textContent = '없음';
       statusEl.appendChild(none);
     } else {
-      const descMap = {
-        resonance: '공격마다 위력 상승',
-        acceleration: '이번 턴 피해 증가',
-        soul_armor: '피해 감소',
-        vanish: '다음 공격 크리티컬',
-        immune: '이번 턴 피해 무효',
-        shadow_atk: '그림자 공격 강화',
-        mirror: '피해 반사',
-        zeroCost: '카드 비용 0',
-        dodge: '다음 적 공격 1회 회피',
-        weakened: '공격력 50% 감소',
-        slowed: '행동 지연',
-        burning: '매 턴 5 화염 피해',
-        cursed: '효과 감소',
-        poisoned: '턴 시작 시 독 스택 × 5 피해',
-        stunned: '행동 불가',
-      };
       const frag = doc.createDocumentFragment();
       keys.forEach(k => {
         const b = buffs[k];
         const info = _resolveStatusInfo(statusKr, k);
-        const isBuff = info ? info.buff : ['resonance', 'acceleration', 'soul_armor', 'vanish', 'immune', 'shadow_atk'].includes(k);
+        const isBuff = info ? info.buff : PLAYER_STATUS_FALLBACK_BUFF_KEYS.includes(k);
         const label = info ? `${info.icon} ${info.name}` : k;
         const displayVal = _resolveStatusDisplayValue(k, b);
         const stacks = displayVal !== '' ? ` (${displayVal})` : '';
-        const desc = info?.desc || descMap[k] || '';
+        const desc = info?.desc || '';
 
         const badge = doc.createElement('div');
         badge.title = desc;

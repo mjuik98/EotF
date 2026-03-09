@@ -1,4 +1,4 @@
-﻿/**
+/**
  * event_manager.js - pure event/shop/rest business logic.
  */
 
@@ -225,6 +225,10 @@ export const EventManager = {
     registerItemFound(gs, item.id);
     if (typeof item.onAcquire === 'function') {
       item.onAcquire(gs);
+    }
+    // 상점 구매 트리거 추가 (예: 상인의 펜던트)
+    if (typeof gs.triggerItems === 'function') {
+      gs.triggerItems('shop_buy', { item, cost });
     }
     gs.addLog?.(`🛒 ${item.name} 구매 완료.`, 'echo');
     return { success: true, message: `${item.name}을(를) 구매했습니다.` };

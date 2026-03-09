@@ -1,5 +1,6 @@
 import { RunRules, getRegionIdForStage } from '../systems/run_rules.js';
 import { Actions } from '../core/state_actions.js';
+import { GAME } from '../core/global_bridge.js';
 
 import { LogUtils } from '../utils/log_utils.js';
 
@@ -24,14 +25,12 @@ export const PlayerMethods = {
             const icon = source.type === 'item' ? '💍' : '✨';
             this.addLog(`${icon} ${source.name}: 잔향 +${adjusted}`, 'echo');
         }
-        const updateEchoSkillBtn = globalThis.updateEchoSkillBtn;
-        if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
+        GAME?.API?.updateEchoSkillBtn?.();
     },
 
     drainEcho(amount) {
         this.commit(Actions.PLAYER_ECHO, { amount: -amount });
-        const updateEchoSkillBtn = globalThis.updateEchoSkillBtn;
-        if (typeof updateEchoSkillBtn === 'function') updateEchoSkillBtn();
+        GAME?.API?.updateEchoSkillBtn?.();
     },
 
     heal(amount, source = null, deps = {}) {
@@ -67,7 +66,7 @@ export const PlayerMethods = {
 
             // 후속 특성 효과 트리거 (예: 성가)
             if (this.combat?.active) {
-                const cm = globalThis.GAME?.Modules?.['ClassMechanics']?.[this.player.class];
+                const cm = GAME?.Modules?.['ClassMechanics']?.[this.player.class];
                 if (cm && typeof cm.onHeal === 'function') {
                     cm.onHeal(this, result.healed);
                 }

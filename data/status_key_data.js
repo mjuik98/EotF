@@ -62,3 +62,15 @@ export const INFINITE_DURATION_STATUS_KEYS = Object.freeze([
   'spike_shield',
   'stunImmune',
 ]);
+
+export const INFINITE_STACK_BUFF_IDS = Object.freeze([
+  'resonance',
+  'time_warp',
+  'time_warp_plus',
+  'blessing_of_light',
+  'blessing_of_light_plus',
+  'berserk_mode',
+  'berserk_mode_plus',
+  'unbreakable_wall',
+  'unbreakable_wall_plus',
+]);
