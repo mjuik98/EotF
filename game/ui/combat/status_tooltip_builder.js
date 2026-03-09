@@ -676,6 +676,43 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
 // ════════════════════════════════════════════════════════════════
 let _hideTipTimer = null;
 
+function _ensureTooltipRoot(doc) {
+  let el = doc.getElementById('statusTooltip');
+  if (!el) {
+    el = doc.createElement('div');
+    el.id = 'statusTooltip';
+    el.className = 'stt';
+    doc.body.appendChild(el);
+  }
+  return el;
+}
+
+function _renderTooltip(el, statusKey, infoKR, buff, options = {}) {
+  el.innerHTML = buildStatusTooltipHTML(statusKey, infoKR, buff, options);
+  el.dataset.statusKey = statusKey;
+  el.dataset.statusContainerId = options.statusContainerId || '';
+
+  const isBuff = !!infoKR?.buff;
+  const pal = _palette(statusKey, isBuff);
+  const glowAlpha = isBuff ? ',.1)' : ',.18)';
+  const rgb = pal.accent.startsWith('#')
+    ? _hexToRgb(pal.accent)
+    : '255,51,102';
+  el.style.boxShadow = `0 16px 48px rgba(0,0,0,.88),0 0 22px rgba(${rgb}${glowAlpha}`;
+}
+
+function _positionToRect(rect, el, win) {
+  const TW = 280;
+  const margin = 10;
+  let x = rect.right + margin;
+  let y = rect.top;
+  if (x + TW > win.innerWidth - 8) x = rect.left - TW - margin;
+  const th = el.offsetHeight || 320;
+  if (y + th > win.innerHeight - 8) y = win.innerHeight - th - 8;
+  el.style.left = `${Math.max(8, x)}px`;
+  el.style.top = `${Math.max(8, y)}px`;
+}
+
 export const StatusTooltipUI = {
   /**
    * @param {MouseEvent} event
@@ -690,27 +727,24 @@ export const StatusTooltipUI = {
     const doc = options.doc ?? globalThis.document;
     const win = options.win ?? globalThis.window ?? globalThis;
 
-    let el = doc.getElementById('statusTooltip');
-    if (!el) {
-      el = doc.createElement('div');
-      el.id = 'statusTooltip';
-      el.className = 'stt';
-      doc.body.appendChild(el);
-    }
-
-    el.innerHTML = buildStatusTooltipHTML(statusKey, infoKR, buff, options);
-
-    // 글로우 색상
-    const isBuff = !!infoKR?.buff;
-    const meta = _getMeta(statusKey);
-    const pal = _palette(statusKey, isBuff);
-    const glowAlpha = isBuff ? ',.1)' : ',.18)';
-    const rgb = pal.accent.startsWith('#')
-      ? _hexToRgb(pal.accent)
-      : '255,51,102';
-    el.style.boxShadow = `0 16px 48px rgba(0,0,0,.88),0 0 22px rgba(${rgb}${glowAlpha}`;
-
+    const el = _ensureTooltipRoot(doc);
+    _renderTooltip(el, statusKey, infoKR, buff, options);
     this._position(event, el, win);
+    el.classList.add('visible');
+  },
+
+  showForAnchor(anchorEl, statusKey, infoKR, buff, options = {}) {
+    if (!anchorEl || typeof anchorEl.getBoundingClientRect !== 'function') return;
+
+    clearTimeout(_hideTipTimer);
+
+    const doc = options.doc ?? globalThis.document;
+    const win = options.win ?? globalThis.window ?? globalThis;
+    const rect = anchorEl.getBoundingClientRect();
+    const el = _ensureTooltipRoot(doc);
+
+    _renderTooltip(el, statusKey, infoKR, buff, options);
+    _positionToRect(rect, el, win);
     el.classList.add('visible');
   },
 
@@ -726,15 +760,8 @@ export const StatusTooltipUI = {
   },
 
   _position(event, el, win) {
-    const TW = 280, margin = 10;
     const rect = event.currentTarget.getBoundingClientRect();
-    let x = rect.right + margin;
-    let y = rect.top;
-    if (x + TW > win.innerWidth - 8) x = rect.left - TW - margin;
-    const th = el.offsetHeight || 320;
-    if (y + th > win.innerHeight - 8) y = win.innerHeight - th - 8;
-    el.style.left = `${Math.max(8, x)}px`;
-    el.style.top = `${Math.max(8, y)}px`;
+    _positionToRect(rect, el, win);
   },
 };
 

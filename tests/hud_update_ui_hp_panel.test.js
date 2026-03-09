@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { HudUpdateUI } from '../game/ui/hud/hud_update_ui.js';
+import { initDepsFactory } from '../game/core/deps_factory.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {
@@ -131,6 +132,53 @@ describe('HudUpdateUI.updatePlayerStats', () => {
     HudUpdateUI.updatePlayerStats(gs, { doc });
     shell = doc.getElementById('ncFloatingHpShell');
     expect(shell.querySelectorAll('.nc-hp-shield-bar-fill')).toHaveLength(0);
+  });
+
+  it('self-resolves hud update deps for floating status badges when callers omit deps', () => {
+    const doc = createMockDocument();
+    const originalDocument = globalThis.document;
+    const originalWindow = globalThis.window;
+    const updateStatusDisplay = vi.fn(({ doc: renderDoc, statusContainerId }) => {
+      const container = renderDoc.getElementById(statusContainerId);
+      const badge = renderDoc.createElement('span');
+      badge.className = 'hud-status-badge';
+      badge.dataset.buffKey = 'unbreakable_wall';
+      container?.appendChild(badge);
+    });
+    const gs = {
+      currentScreen: 'combat',
+      combat: { active: true },
+      player: {
+        hp: 42,
+        maxHp: 100,
+        shield: 12,
+        echo: 0,
+        maxEcho: 100,
+        buffs: { unbreakable_wall: { stacks: 99 } },
+      },
+    };
+
+    globalThis.document = doc;
+    globalThis.window = { innerWidth: 1280, innerHeight: 720 };
+    initDepsFactory({
+      GAME: { getDeps: () => ({ doc, win: globalThis.window }) },
+      StatusEffectsUI: { updateStatusDisplay, getStatusMap: () => ({}) },
+      TooltipUI: {},
+      _gameStarted: () => true,
+    });
+
+    try {
+      HudUpdateUI.updatePlayerStats(gs);
+    } finally {
+      globalThis.document = originalDocument;
+      globalThis.window = originalWindow;
+      initDepsFactory({});
+    }
+
+    const shell = doc.getElementById('ncFloatingHpShell');
+    expect(shell).not.toBeNull();
+    expect(updateStatusDisplay).toHaveBeenCalled();
+    expect(shell.querySelectorAll('.hud-status-badge')).toHaveLength(1);
   });
 });
 

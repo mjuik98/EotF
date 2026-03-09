@@ -14,12 +14,31 @@ import { resolveDrawAvailability } from '../combat/draw_availability.js';
 import { getDoc as _getDoc, getRaf } from '../../utils/runtime_deps.js';
 import { RARITY_SORT_ORDER } from '../../../data/rarity_meta.js';
 import { renderFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
+import { createDeps } from '../../core/deps_factory.js';
 
 
 let _uiPending = false;
 
 function _getGS(deps) {
   return deps?.gs;
+}
+
+function _resolvePartialHudDeps(gs, deps = {}) {
+  const resolvedDoc = _getDoc(deps);
+  const resolvedWin = deps?.win || globalThis.window || globalThis;
+  const factoryDeps = createDeps('hudUpdate', {
+    gs,
+    doc: resolvedDoc,
+    win: resolvedWin,
+  });
+
+  return {
+    ...factoryDeps,
+    ...deps,
+    gs,
+    doc: deps?.doc || factoryDeps.doc || resolvedDoc,
+    win: deps?.win || factoryDeps.win || resolvedWin,
+  };
 }
 
 export const HudUpdateUI = {
@@ -588,12 +607,13 @@ export const HudUpdateUI = {
   },
 
   updateCombatEnergy(gs, deps = {}) {
-    updateCombatEnergyUI(gs, deps);
+    updateCombatEnergyUI(gs, _resolvePartialHudDeps(gs, deps));
   },
 
   updatePlayerStats(gs, deps = {}) {
-    renderFloatingPlayerHpPanel({ ...deps, gs, doc: _getDoc(deps) });
-    updatePlayerStatsUI(gs, deps);
+    const resolvedDeps = _resolvePartialHudDeps(gs, deps);
+    renderFloatingPlayerHpPanel(resolvedDeps);
+    updatePlayerStatsUI(gs, resolvedDeps);
   },
 
   // Expose public API for GAME.API

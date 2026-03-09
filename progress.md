@@ -1453,3 +1453,37 @@ Original prompt:
   - `npm run build` PASS.
   - `npm run lint` PASS.
   - Updated `docs/metrics/import_coupling_baseline.json` via `node scripts/check-import-coupling.mjs --write-baseline` because this refactor intentionally increases approved `logic/ui -> data` imports.
+- Follow-up prompt: 적에게 공격 받을 시 불굴의 벽 툴팁이 HUD에서 사라지는 버그를 수정.
+- Floating HP HUD tooltip persistence fix:
+  - `game/ui/combat/status_tooltip_builder.js` now stores the active status key/container on `#statusTooltip` and adds `showForAnchor(...)` so a tooltip can be restored after its badge node is recreated.
+  - `game/ui/combat/status_effects_ui.js` now passes the originating status container id when opening player status tooltips.
+  - `game/ui/shared/player_hp_panel_ui.js` now captures the visible floating-HUD status tooltip before rerender and restores it onto the rebuilt badge if the buff still exists.
+- Added regression coverage:
+  - `tests/player_hp_panel_ui.test.js` verifies the floating HP panel reopens the `unbreakable_wall` tooltip after a rerender caused by HP changes.
+- Validation:
+  - `npm test -- tests/player_hp_panel_ui.test.js tests/hud_update_ui_hp_panel.test.js tests/ui_bindings_status_display.test.js tests/player_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with `#mainStartBtn`; fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` reviewed and no `errors-*.json` artifacts were emitted.
+- Follow-up prompt: 적의 턴에 공격을 받으면 불굴의 벽 상태 툴팁 버프가 사라졌다가 내 턴이 돌아오면 다시 생성되는 버그를 수정.
+- Enemy-turn player-damage HUD status persistence fix:
+  - Root cause: `game/core/event_subscribers.js` refreshed player HUD via `HudUpdateUI.updatePlayerStats(gs)` without passing HUD deps, so floating HP panel rerenders during `PLAYER_DAMAGE` / `PLAYER_SHIELD` / `PLAYER_HEAL` / `PLAYER_GOLD` could miss `StatusEffectsUI` and rebuild without status badges until the next full-turn `updateUI()`.
+  - Added `_getHudUpdateDeps(gs)` in `game/core/event_subscribers.js` and now pass those deps into player-stat refresh subscribers so the floating HP panel can resolve `StatusEffectsUI`, tooltip hooks, and status refresh callbacks immediately on enemy hits.
+- Added regression coverage:
+  - `tests/event_subscribers_player_damage.test.js` verifies `PLAYER_DAMAGE` subscriber forwards `StatusEffectsUI` and HUD refresh callbacks into `HudUpdateUI.updatePlayerStats(...)`.
+- Validation:
+  - `npm test -- tests/event_subscribers_player_damage.test.js tests/player_hp_panel_ui.test.js tests/hud_update_ui_hp_panel.test.js tests/ui_bindings_status_display.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with `#mainStartBtn`; refreshed screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` reviewed and no `errors-*.json` artifacts were emitted.
+- Follow-up prompt: 지금 이번 채팅에서 비슷한 버그를 두 번 수정했는데 이와같은 현상을 방지하려면 어떻게 해야돼? 갱신을 모듈화해야되나? 진행해줘
+- HUD refresh contract consolidation:
+  - `game/core/deps/contracts/ui_contract_builders.js` `hudUpdate` contract now explicitly includes `StatusEffectsUI` / `statusEffectsUI` and `TooltipUI`, so partial HUD refreshes can rebuild floating status badges without caller-specific manual wiring.
+  - `game/ui/hud/hud_update_ui.js` now resolves partial HUD deps internally through `createDeps('hudUpdate', ...)` via `_resolvePartialHudDeps(gs, deps)`.
+  - As a result, `updatePlayerStats(gs)` and `updateCombatEnergy(gs)` are now safe single-entry partial refresh calls even when callers omit deps.
+  - `game/core/event_subscribers.js` no longer assembles HUD deps ad hoc; player stat events now route through the centralized `HudUpdateUI.updatePlayerStats(gs)` path only.
+- Added regression coverage:
+  - `tests/hud_update_ui_hp_panel.test.js` verifies `HudUpdateUI.updatePlayerStats(gs)` can self-resolve deps and still render floating `unbreakable_wall` badges when callers pass no deps.
+  - `tests/event_subscribers_player_damage.test.js` now verifies player-damage subscribers call the central player-stat refresh entry point directly.
+- Validation:
+  - `npm test -- tests/event_subscribers_player_damage.test.js tests/hud_update_ui_hp_panel.test.js tests/player_hp_panel_ui.test.js tests/ui_bindings_status_display.test.js tests/deps_factory.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with `#mainStartBtn`; fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` reviewed and no `errors-*.json` artifacts were emitted.

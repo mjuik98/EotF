@@ -138,7 +138,12 @@ export const StatusEffectsUI = {
 
         badge.addEventListener('mouseenter', (event) => {
           if (!info) return;
-          StatusTooltipUI.show(event, statusKey, info, buff, { source, doc, win: winRef });
+          StatusTooltipUI.show(event, statusKey, info, buff, {
+            source,
+            doc,
+            win: winRef,
+            statusContainerId: deps.statusContainerId || 'statusEffects',
+          });
         });
         badge.addEventListener('mousemove', (event) => {
           const tipEl = doc.getElementById('statusTooltip');

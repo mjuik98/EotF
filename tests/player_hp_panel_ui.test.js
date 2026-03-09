@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { getPlayerHpPanelLevel, renderFloatingPlayerHpPanel } from '../game/ui/shared/player_hp_panel_ui.js';
+import { StatusTooltipUI } from '../game/ui/combat/status_tooltip_builder.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {
@@ -56,6 +57,17 @@ class MockElement {
     node.parentNode = this;
     this.children.push(node);
     return node;
+  }
+
+  getBoundingClientRect() {
+    return {
+      left: 20,
+      top: 20,
+      right: 160,
+      bottom: 48,
+      width: 140,
+      height: 28,
+    };
   }
 
   remove() {
@@ -202,6 +214,65 @@ describe('player_hp_panel_ui', () => {
       gs,
       statusContainerId: 'ncFloatingHpStatusBadges',
     });
+  });
+
+  it('restores the floating status tooltip after hp panel rerender', () => {
+    const doc = createMockDocument();
+    const showForAnchor = vi.spyOn(StatusTooltipUI, 'showForAnchor').mockImplementation(() => {});
+    const statusEffectsUI = {
+      getStatusMap: () => ({
+        unbreakable_wall: {
+          name: '불굴의 벽',
+          icon: '🧱',
+          buff: true,
+          desc: '턴 시작 시 방어막 비례 피해를 가합니다.',
+        },
+      }),
+      updateStatusDisplay: vi.fn(({ doc: renderDoc, statusContainerId }) => {
+        const container = renderDoc.getElementById(statusContainerId);
+        const badge = renderDoc.createElement('span');
+        badge.className = 'hud-status-badge';
+        badge.dataset.buffKey = 'unbreakable_wall';
+        container?.appendChild(badge);
+      }),
+    };
+    const gs = {
+      currentScreen: 'combat',
+      combat: { active: true },
+      player: {
+        hp: 50,
+        maxHp: 100,
+        shield: 8,
+        buffs: { unbreakable_wall: { stacks: 99 } },
+      },
+    };
+
+    const originalWindow = globalThis.window;
+    globalThis.window = { innerWidth: 1280, innerHeight: 720 };
+
+    try {
+      renderFloatingPlayerHpPanel({ doc, gs, StatusEffectsUI: statusEffectsUI });
+
+      const tooltip = doc.createElement('div');
+      tooltip.id = 'statusTooltip';
+      tooltip.className = 'visible';
+      tooltip.dataset.statusKey = 'unbreakable_wall';
+      tooltip.dataset.statusContainerId = 'ncFloatingHpStatusBadges';
+      doc.body.appendChild(tooltip);
+
+      showForAnchor.mockClear();
+      gs.player.hp = 43;
+      renderFloatingPlayerHpPanel({ doc, gs, StatusEffectsUI: statusEffectsUI });
+      expect(showForAnchor).toHaveBeenCalledTimes(1);
+      expect(showForAnchor.mock.calls[0][1]).toBe('unbreakable_wall');
+      expect(showForAnchor.mock.calls[0][4]).toMatchObject({
+        doc,
+        statusContainerId: 'ncFloatingHpStatusBadges',
+      });
+    } finally {
+      showForAnchor.mockRestore();
+      globalThis.window = originalWindow;
+    }
   });
 
   it('removes the fixed panel outside the run screens', () => {
