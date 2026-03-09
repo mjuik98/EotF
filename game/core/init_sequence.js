@@ -1,24 +1,20 @@
-/**
- * init_sequence.js — 부트 시퀀스 / 초기화
- *
- * GAME.init, MazeSystem 설정, StorySystem 생성, 최종 GameInit.boot 실행.
- */
 import { registerSubscribers } from './event_subscribers.js';
+import {
+    buildGameBootPayload,
+    configureMazeSystem,
+    mountCharacterSelect,
+    registerInitSequenceBindings,
+    setupStorySystemBridge,
+} from './init_sequence_steps.js';
 
-/**
- * 게임 부팅 실행
- */
 export function bootGame(modules, fns, Deps) {
     const {
         GAME, GS, DATA, AudioEngine, ParticleSystem, FovEngine,
-        MazeSystem, StoryUI, GameInit, HelpPauseUI, GameBootUI,
-        CombatStartUI, exposeGlobals,
+        MazeSystem, GameInit, HelpPauseUI, GameBootUI, exposeGlobals,
     } = modules;
 
-    // ── GAME 네임스페이스 초기화 ──
     GAME.init(GS, DATA, AudioEngine, ParticleSystem);
 
-    // ── 레거시 전역 노출 (exposeGlobals는 global_bridge.js에서 가져옴) ──
     exposeGlobals({
         AudioEngine, ParticleSystem, ScreenShake: modules.ScreenShake,
         HitStop: modules.HitStop, FovEngine, DifficultyScaler: modules.DifficultyScaler,
@@ -40,7 +36,6 @@ export function bootGame(modules, fns, Deps) {
         ...fns,
     });
 
-    // ── EventBus 구독 등록 (Pub/Sub 와이어링) ──
     registerSubscribers({
         HudUpdateUI: modules.HudUpdateUI,
         CombatHudUI: modules.CombatHudUI,
@@ -68,102 +63,33 @@ export function bootGame(modules, fns, Deps) {
         },
     });
 
-    // ── StorySystem 브릿지 ──
-    const StorySystem = {
-        unlockNextFragment: () => StoryUI?.unlockNextFragment?.(Deps.getStoryDeps()),
-        showRunFragment: (overrides = {}) => StoryUI?.showRunFragment?.({
-            ...Deps.getStoryDeps(),
-            ...overrides,
-        }),
-        displayFragment: (frag) => StoryUI?.displayFragment?.(frag, Deps.getStoryDeps()),
-        checkHiddenEnding: () => !!StoryUI?.checkHiddenEnding?.(Deps.getStoryDeps()),
-        showNormalEnding: () => StoryUI?.showNormalEnding?.(Deps.getStoryDeps()),
-        showHiddenEnding: () => StoryUI?.showHiddenEnding?.(Deps.getStoryDeps()),
-    };
-    GAME.register('storySystem', StorySystem);
-    modules.StorySystem = StorySystem;
-    Deps.patchRefs({ StorySystem });
+    const StorySystem = setupStorySystemBridge({ modules, deps: Deps });
+    registerInitSequenceBindings({ game: GAME, modules, fns });
 
-    // ── GAME.register 추가 등록 ──
-    GAME.register('advanceToNextRegion', fns.advanceToNextRegion);
-    GAME.register('finalizeRunOutcome', modules.finalizeRunOutcome);
-    GAME.register('switchScreen', fns.switchScreen);
-    GAME.register('updateUI', fns.updateUI);
-    GAME.register('updateNextNodes', fns.updateNextNodes);
-    GAME.register('renderMinimap', fns.renderMinimap);
-
-    // ── Maze System 설정 ──
-    MazeSystem?.configure?.({
+    configureMazeSystem({
+        mazeSystem: MazeSystem,
         gs: GS,
+        fovEngine: FovEngine,
+        fns,
         doc: document,
         win: window,
-        fovEngine: FovEngine,
-        showWorldMemoryNotice: (text) => fns.showWorldMemoryNotice(text),
-        startCombat: (isBoss) => fns.startCombat(isBoss),
     });
 
-    // ── 캐릭터 선택 UI 렌더링 ──
     setTimeout(() => {
-        if (modules.CharacterSelectUI) {
-            modules.CharacterSelectUI.mount({
-                doc: document,
-                gs: GS,
-                audioEngine: AudioEngine,
-                onProgressConsumed: () => modules.SaveSystem?.saveMeta?.(Deps.getSaveSystemDeps()),
-                onConfirm: (char) => {
-                    // 선택 완료 애니메이션 직후, 클래스만 미리 선택해둡니다.
-                    if (fns.selectClass) fns.selectClass(char.id);
-                },
-                onBack: () => {
-                    if (fns.backToTitle) fns.backToTitle();
-                },
-                onStart: (char) => {
-                    // 최종 '여정 시작' 버튼 클릭 시
-                    if (fns.startGame) fns.startGame(char.id);
-                }
-            });
-        }
+        mountCharacterSelect({
+            modules,
+            deps: Deps,
+            fns,
+            doc: document,
+        });
     }, 50);
 
-    // ── 볼륨 동기화 ──
     exposeGlobals({
         _syncVolumeUI: () => GameInit.syncVolumeUI(AudioEngine),
     });
 
-    // ── 최종 부트 ──
     try {
-        GameInit.boot({
-            ...GAME.getDeps(),
-            audioEngine: AudioEngine,
-            particleSystem: ParticleSystem,
-            helpPauseUI: HelpPauseUI,
-            gameBootUI: GameBootUI,
-            settingsUI: modules.SettingsUI,
-            getGameBootDeps: () => Deps.getGameBootDeps(),
-            getHelpPauseDeps: () => Deps.getHelpPauseDeps(),
-            actions: {
-                showCharacterSelect: fns.showCharacterSelect,
-                continueRun: fns.continueRun,
-                openRunSettings: fns.openRunSettings,
-                openCodexFromTitle: fns.openCodexFromTitle,
-                quitGame: fns.quitGame,
-                selectClass: fns.selectClass,
-                startGame: fns.startGame,
-                backToTitle: fns.backToTitle,
-                closeRunSettings: fns.closeRunSettings,
-                shiftAscension: fns.shiftAscension,
-                toggleEndlessMode: fns.toggleEndlessMode,
-                cycleRunCurse: fns.cycleRunCurse,
-                setMasterVolume: (v) => fns.setMasterVolume(v),
-                setSfxVolume: (v) => fns.setSfxVolume(v),
-                setAmbientVolume: (v) => fns.setAmbientVolume(v),
-                openSettings: fns.openSettings,
-                closeSettings: fns.closeSettings,
-                drawCard: fns.drawCard,
-                endPlayerTurn: fns.endPlayerTurn,
-                useEchoSkill: fns.useEchoSkill,
-            },
-        });
+        GameInit.boot(buildGameBootPayload({ modules, deps: Deps, fns }));
     } catch (e) {
         console.error('Critical Boot Error:', e);
     }

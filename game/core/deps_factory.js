@@ -1,85 +1,41 @@
-/**
- * Dependency factory for feature modules.
- *
- * Each contract defines the exact dependency surface a feature can use.
- * This keeps module boundaries explicit and prevents hidden global coupling.
- */
-
 import { AppError } from './error_reporter.js';
 import { ErrorCodes } from './error_codes.js';
-import { buildCoreContractBuilders } from './deps/contracts/core_contract_builders.js';
-import { buildUiContractBuilders } from './deps/contracts/ui_contract_builders.js';
-import { buildRunContractBuilders } from './deps/contracts/run_contract_builders.js';
+import { createDepsFactoryRuntime } from './deps_factory_runtime.js';
+import { buildDepContractBuilders } from './deps_contract_registry.js';
 
-let _refs = {};
+const runtime = createDepsFactoryRuntime();
+let contractBuilders = null;
+
+function getContractBuilders() {
+  if (!contractBuilders) {
+    contractBuilders = buildDepContractBuilders({
+      getRefs: runtime.getRefs,
+      buildBaseDeps: runtime.buildBaseDeps,
+      getGameDeps: runtime.getGameDeps,
+      getRaf: runtime.getRaf,
+      getSyncVolumeUIFallback: runtime.getSyncVolumeUIFallback,
+      createDeps,
+    });
+  }
+  return contractBuilders;
+}
 
 export function initDepsFactory(refs) {
-  _refs = refs || {};
+  runtime.initRefs(refs);
 }
 
 export function patchRefs(partial) {
-  Object.assign(_refs, partial || {});
+  runtime.patchRefs(partial);
 }
 
-function getRefs() {
-  return _refs;
-}
-
-function getGameDeps() {
-  return _refs.GAME?.getDeps?.() || {};
-}
-
-function getRaf() {
-  if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
-    return window.requestAnimationFrame.bind(window);
-  }
-  return (cb) => setTimeout(cb, 16);
-}
-
-function getSyncVolumeUIFallback() {
-  if (typeof window === 'undefined') {
-    return () => undefined;
-  }
-  return () => window._syncVolumeUI?.();
-}
-
-function buildBaseDeps() {
-  return {
-    ...getGameDeps(),
-    isGameStarted: () => _refs._gameStarted?.(),
-  };
-}
-
-const CONTRACT_BUILDERS = Object.freeze({
-  ...buildCoreContractBuilders({
-    getRefs,
-    buildBaseDeps,
-    getGameDeps,
-  }),
-  ...buildUiContractBuilders({
-    getRefs,
-    buildBaseDeps,
-    getGameDeps,
-    getRaf,
-    getSyncVolumeUIFallback,
-  }),
-  ...buildRunContractBuilders({
-    getRefs,
-    buildBaseDeps,
-    getGameDeps,
-    getRaf,
-    createDeps,
-  }),
-});
-
-export const DepContracts = Object.freeze(Object.keys(CONTRACT_BUILDERS));
+export const DepContracts = Object.freeze(Object.keys(getContractBuilders()));
 
 export function listDepContracts() {
   return [...DepContracts];
 }
 
 export function createDeps(contractName, overrides = {}) {
-  const builder = CONTRACT_BUILDERS[contractName];
+  const builder = getContractBuilders()[contractName];
   if (!builder) {
     throw new AppError(
       ErrorCodes.DEPS_CONTRACT_MISSING,

@@ -97,10 +97,14 @@ function createDeps({ maxEnergy }) {
   const rewardEyebrow = createMockElement('div');
   const rewardTitle = createMockElement('div');
   const rewardCards = createMockElement('div');
+  const rewardSkipInitBtn = createMockElement('button');
+  const skipConfirmRow = createMockElement('div');
 
   doc.register('rewardEyebrow', rewardEyebrow);
   doc.register('rewardTitle', rewardTitle);
   doc.register('rewardCards', rewardCards);
+  doc.register('rewardSkipInitBtn', rewardSkipInitBtn);
+  doc.register('skipConfirmRow', skipConfirmRow);
 
   const cardIds = ['card_a', 'card_b', 'card_c', 'card_d', 'card_e'];
   let cardPickIndex = 0;
@@ -159,18 +163,18 @@ function findChildByClass(node, className) {
   return (node.children || []).find((child) => child?.classList?.contains?.(className));
 }
 
-describe('RewardUI blessing disabled visuals', () => {
+describe('RewardUI', () => {
   it('marks permanent energy blessing with emphasized disabled visuals at cap', () => {
     const cap = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP) || 5;
     const deps = createDeps({ maxEnergy: cap });
 
     RewardUI.showRewardScreen('boss', deps);
 
-    const energyBlessing = findBlessingWrapper(deps.rewardCards, '영구적인 기운');
+    const energyBlessing = findBlessingWrapper(deps.rewardCards, 'Energy Blessing');
     expect(energyBlessing).toBeTruthy();
     expect(energyBlessing.disabled).toBe(true);
     expect(energyBlessing.classList.contains('reward-permanent-energy-disabled')).toBe(true);
-    expect(energyBlessing.title).toContain(`최대 ${cap}`);
+    expect(energyBlessing.title).toContain(`${cap}`);
 
     const blessingCard = energyBlessing.children[0];
     const overlay = findChildByClass(blessingCard, 'reward-disabled-overlay');
@@ -178,8 +182,8 @@ describe('RewardUI blessing disabled visuals', () => {
     const reason = findChildByClass(blessingCard, 'reward-disabled-reason');
 
     expect(overlay).toBeTruthy();
-    expect(badge?.textContent).toBe('최대치 도달');
-    expect(reason?.textContent).toContain(`최대 ${cap}`);
+    expect(badge?.textContent).toBe('Cap Reached');
+    expect(reason?.textContent).toContain(`${cap}`);
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
   });
 
@@ -189,7 +193,7 @@ describe('RewardUI blessing disabled visuals', () => {
 
     RewardUI.showRewardScreen('boss', deps);
 
-    const energyBlessing = findBlessingWrapper(deps.rewardCards, '영구적인 기운');
+    const energyBlessing = findBlessingWrapper(deps.rewardCards, 'Energy Blessing');
     expect(energyBlessing).toBeTruthy();
     expect(energyBlessing.disabled).toBe(false);
     expect(energyBlessing.classList.contains('reward-permanent-energy-disabled')).toBe(false);
@@ -260,5 +264,27 @@ describe('RewardUI blessing disabled visuals', () => {
       clearIdempotencyPrefix('reward:');
       vi.useRealTimers();
     }
+  });
+
+  it('clears picked state and unlocks reward flow when remove selection is cancelled', () => {
+    clearIdempotencyPrefix('reward:');
+
+    const deps = createDeps({ maxEnergy: 3 });
+    deps.gs._rewardLock = false;
+    deps.EventUI = {
+      showCardDiscard: vi.fn((gs, isBurn, forwardedDeps) => {
+        expect(gs).toBe(deps.gs);
+        expect(isBurn).toBe(true);
+        forwardedDeps.onCancel();
+      }),
+    };
+
+    RewardUI.takeRewardRemove(deps);
+
+    expect(deps.EventUI.showCardDiscard).toHaveBeenCalledTimes(1);
+    expect(deps.gs._rewardLock).toBe(false);
+    expect(deps.rewardCards.classList.contains('picked')).toBe(false);
+
+    clearIdempotencyPrefix('reward:');
   });
 });

@@ -5,6 +5,7 @@ import { StatusTooltipUI } from './status_tooltip_builder.js';
 import { DEBUFF_STATUS_KEYS } from '../../../data/status_key_data.js';
 import { ENEMY_STATUS_DESC, ENEMY_STATUS_KR } from '../../../data/status_effects_data.js';
 import { INTENT_DESCRIPTIONS } from '../../../data/combat_meta_data.js';
+import { createEnemyCardView, updateEnemyCardView, updateEnemyHpView } from './combat_enemy_card_ui.js';
 
 export { ENEMY_STATUS_DESC, ENEMY_STATUS_KR };
 
@@ -20,30 +21,30 @@ function _getWin(deps) {
 }
 
 function _getIntentIcon(intent) {
-  if (!intent) return '❓';
-  const t = String(intent.type || '').toLowerCase();
-  if (t === 'stunned' || t === 'stun') return '⏸';
-  if (t.includes('dodge') || t.includes('phase')) return '💨';
-  if (t.includes('guard') || t.includes('barrier') || t.includes('shield')) return '🛡';
-  if (t.includes('howl') || t.includes('roar')) return '🐺';
-  if (t.includes('heal') || t.includes('life')) return '💚';
-  if (t.includes('curse') || t.includes('poison') || t.includes('debuff')) return '☠';
-  if (t.includes('drain') || t.includes('steal')) return '🩸';
-  if (intent.dmg > 0) {
-    if (intent.dmg >= 20) return '💥';
-    if (intent.dmg >= 12) return '⚔';
-    return '🗡';
+  if (!intent) return '?';
+  const type = String(intent.type || '').toLowerCase();
+  if (type === 'stunned' || type === 'stun') return '!';
+  if (type.includes('dodge') || type.includes('phase')) return '~';
+  if (type.includes('guard') || type.includes('barrier') || type.includes('shield')) return '#';
+  if (type.includes('howl') || type.includes('roar')) return '*';
+  if (type.includes('heal') || type.includes('life')) return '+';
+  if (type.includes('curse') || type.includes('poison') || type.includes('debuff')) return '-';
+  if (type.includes('drain') || type.includes('steal')) return '%';
+  if ((intent.dmg || 0) > 0) {
+    if (intent.dmg >= 20) return '!!!';
+    if (intent.dmg >= 12) return '!!';
+    return '!';
   }
-  return '❓';
+  return '?';
 }
 
 function _formatIntentLabel(intent) {
   if (typeof intent?.intent === 'function') {
-    return '의도 파악 불가';
+    return 'Intent pending';
   }
   let text = String(intent?.intent || '?');
-  if (intent?.dmg > 0) {
-    if (/^\d+$/.test(text.trim())) return '공격';
+  if ((intent?.dmg || 0) > 0) {
+    if (/^\d+$/.test(text.trim())) return 'Attack';
     const dmgPattern = new RegExp(`\\s+${intent.dmg}$`);
     if (dmgPattern.test(text)) {
       text = text.replace(dmgPattern, '').trim();
@@ -60,54 +61,128 @@ function _resolveIntentDescription(intent) {
     if (text.includes(key)) return info;
   }
   if ((intent?.dmg || 0) > 0) return INTENT_DESCRIPTIONS.attack;
-  const rawLabel = String(intent?.intent || intent?.type || '의도')
+  const rawLabel = String(intent?.intent || intent?.type || 'Intent')
     .replace(/<[^>]*>/g, '')
     .trim();
-  return { type: rawLabel || '의도', desc: '적의 다음 행동 정보입니다.' };
+  return { type: rawLabel || 'Intent', desc: 'The enemy is preparing its next action.' };
 }
 
 function _enemyHpColor(pct) {
   return enemyHpColor(pct);
 }
 
-function _renderEnemyStatuses(statusEffects, doc) {
+function _renderEnemyStatuses(statusEffects, doc, handlers) {
   const statusEntries = statusEffects ? Object.entries(statusEffects) : [];
   const fragment = doc.createDocumentFragment();
 
-  statusEntries.forEach(([s, d]) => {
-    if (s === 'poisonDuration') return; // 내부 변수는 배지로 표시하지 않음
+  statusEntries.forEach(([statusKey, statusValue]) => {
+    if (statusKey === 'poisonDuration') return;
 
-    const kr = ENEMY_STATUS_KR[s] || s;
-    const icon = ENEMY_STATUS_DESC[s]?.icon || '🪶';
-    const col = DEBUFF_STATUS_KEYS.includes(s)
-      ? '#ff6688'
-      : '#88ccff';
+    const label = ENEMY_STATUS_KR[statusKey] || statusKey;
+    const icon = ENEMY_STATUS_DESC[statusKey]?.icon || '?';
+    const color = DEBUFF_STATUS_KEYS.includes(statusKey) ? '#ff6688' : '#88ccff';
 
-    // 독은 별도의 poisonDuration 변수를 사용
-    let displayDuration = d;
-    if (s === 'poisoned' && statusEffects.poisonDuration !== undefined) {
+    let displayDuration = statusValue;
+    if (statusKey === 'poisoned' && statusEffects.poisonDuration !== undefined) {
       displayDuration = statusEffects.poisonDuration;
     }
 
     const durationText = displayDuration > 1 ? `(${displayDuration})` : '';
-
     const badge = doc.createElement('span');
     badge.className = 'enemy-status-badge';
-    badge.style.cssText = `font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${col};cursor:help;`;
-    badge.textContent = `${icon} ${kr}${durationText}`;
-
-    // 툴팁 호출 시 전체 statusEffects 전달 고려 (독의 경우 duration 정보가 필요하므로)
-    badge.addEventListener('mouseenter', (e) => CombatUI.showEnemyStatusTooltip(e, s, d, {
+    badge.style.cssText = `font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${color};cursor:help;`;
+    badge.textContent = `${icon} ${label}${durationText}`;
+    badge.addEventListener('mouseenter', (event) => handlers.onShowStatusTooltip(event, statusKey, statusValue, {
       doc,
-      poisonDuration: statusEffects.poisonDuration
+      poisonDuration: statusEffects.poisonDuration,
     }));
-    badge.addEventListener('mouseleave', () => CombatUI.hideEnemyStatusTooltip({ doc }));
+    badge.addEventListener('mouseleave', () => handlers.onHideStatusTooltip({ doc }));
 
     fragment.appendChild(badge);
     fragment.appendChild(doc.createTextNode(' '));
   });
 
   return fragment;
+}
+
+function _syncFloatingTooltipAnchors(doc) {
+  const statusTip = doc.getElementById('enemyStatusTooltip');
+  if (statusTip?.classList.contains('visible') && !doc.querySelector('.enemy-status-badge:hover')) {
+    clearTimeout(_enemyStatusTipTimer);
+    statusTip.classList.remove('visible');
+  }
+
+  const intentTip = doc.getElementById('intentTooltip');
+  if (intentTip?.classList.contains('visible') && !doc.querySelector('.enemy-intent:hover')) {
+    clearTimeout(_intentTipTimer);
+    intentTip.classList.remove('visible');
+  }
+}
+
+function _calcSelectedPreview(gs, data, enemy) {
+  return calcSelectedPreview(gs, data, enemy, CardCostUtils);
+}
+
+function _renderSelectedPreviewText(preview) {
+  return selectedPreviewText(preview);
+}
+
+function _resolveEnemyIntent(enemy, turn) {
+  if (enemy?.statusEffects?.stunned > 0) {
+    return { type: 'stunned', intent: 'Stunned', dmg: 0, effect: 'stunned' };
+  }
+
+  try {
+    return enemy?.ai ? enemy.ai(turn) : { intent: '?', dmg: 0 };
+  } catch {
+    return { intent: '?', dmg: 0 };
+  }
+}
+
+function _buildEnemyHpText(enemy) {
+  return `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (Shield ${enemy.shield})` : ''}`;
+}
+
+function _buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers }) {
+  const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
+  const intent = _resolveEnemyIntent(enemy, gs.combat.turn);
+  let intentIcon = _getIntentIcon(intent);
+  let intentLabel = _formatIntentLabel(intent);
+  let intentDmgVal = intent.dmg;
+
+  if (gs.combat.turn <= 0) {
+    intentIcon = '?';
+    intentLabel = 'No intent';
+    intentDmgVal = 0;
+  }
+
+  const isSelected = gs._selectedTarget === index && enemy.hp > 0;
+  const preview = isSelected ? _calcSelectedPreview(gs, data, enemy) : null;
+
+  return {
+    doc,
+    enemy,
+    index,
+    hpPct,
+    isSelected,
+    hpText: _buildEnemyHpText(enemy),
+    spriteIcon: enemy.icon || '?',
+    intentIcon,
+    intentLabelHtml: intentLabel,
+    intentDmgVal,
+    statusFragment: _renderEnemyStatuses(enemy.statusEffects, doc, handlers),
+    previewText: preview ? _renderSelectedPreviewText(preview) : '',
+    hpBarBackground: _enemyHpColor(hpPct),
+    selectedMarkerText: '',
+    onSelectTarget: enemy.hp > 0
+      ? () => {
+        const selectHandler = deps.selectTarget || _getWin(deps)[deps.selectTargetHandlerName || 'selectTarget'];
+        if (typeof selectHandler === 'function') selectHandler(index);
+      }
+      : null,
+    onIntentEnter: (event) => handlers.onShowIntentTooltip(event, index, deps),
+    onIntentLeave: () => handlers.onHideIntentTooltip(deps),
+  };
 }
 
 export function resolveEnemyStatusTooltipMetrics(_statusKey, statusValue) {
@@ -124,38 +199,6 @@ export function resolveEnemyStatusTooltipMetrics(_statusKey, statusValue) {
   };
 }
 
-function _syncFloatingTooltipAnchors(doc) {
-  const statusTip = doc.getElementById('enemyStatusTooltip');
-  if (statusTip?.classList.contains('visible') && !doc.querySelector('.enemy-status-badge:hover')) {
-    clearTimeout(_enemyStatusTipTimer);
-    statusTip.classList.remove('visible');
-  }
-
-  const intentTip = doc.getElementById('intentTooltip');
-  if (intentTip?.classList.contains('visible') && !doc.querySelector('.enemy-intent:hover')) {
-    clearTimeout(_intentTipTimer);
-    intentTip.classList.remove('visible');
-  }
-}
-function _calcSelectedPreview(gs, data, enemy) {
-  return calcSelectedPreview(gs, data, enemy, CardCostUtils);
-}
-
-function _renderSelectedPreviewHtml(preview, card, doc) {
-  if (!preview) return;
-  const cls = preview.netDmg > preview.enemyShield ? 'enemy-dmg-preview hp-hit' : 'enemy-dmg-preview shield-only';
-  const previewDiv = doc.createElement('div');
-  previewDiv.className = cls;
-  previewDiv.textContent = preview.enemyShield > 0
-    ? `예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})`
-    : `예상 총 피해 ${preview.netDmg}`;
-  card.appendChild(previewDiv);
-}
-
-function _renderSelectedPreviewText(preview) {
-  return selectedPreviewText(preview);
-}
-
 export const CombatUI = {
   showEnemyStatusTooltip(event, statusKey, statusValueOrDeps = null, deps = {}) {
     const statusValue = typeof statusValueOrDeps === 'number' ? statusValueOrDeps : null;
@@ -165,11 +208,9 @@ export const CombatUI = {
 
     const doc = resolvedDeps?.doc ?? globalThis.document;
     const win = resolvedDeps?.win ?? globalThis.window ?? globalThis;
-
     const statusMeta = ENEMY_STATUS_DESC[statusKey];
     if (!statusMeta) return;
 
-    // ENEMY_STATUS_DESC 를 StatusTooltipUI 가 기대하는 infoKR 포맷으로 변환
     const infoKR = {
       icon: statusMeta.icon,
       name: ENEMY_STATUS_KR[statusKey] ?? statusKey,
@@ -177,11 +218,10 @@ export const CombatUI = {
       desc: statusMeta.desc,
     };
 
-    // [개선 5] 적 상태이상은 항상 '적 부여'
     const source = {
       type: 'enemy',
-      label: '적 부여',
-      name: '전투 중 부여됨',
+      label: 'Enemy',
+      name: 'Enemy status',
       color: infoKR.buff ? '#88ccff' : '#ff6688',
     };
 
@@ -190,7 +230,7 @@ export const CombatUI = {
       source,
       doc,
       win,
-      poisonDuration: resolvedDeps.poisonDuration // 추가 정보 전달
+      poisonDuration: resolvedDeps.poisonDuration,
     });
   },
 
@@ -212,14 +252,7 @@ export const CombatUI = {
     const enemy = gs.combat.enemies[idx];
     if (!enemy?.ai) return;
 
-    let intent;
-    if (enemy.statusEffects?.stunned > 0) {
-      intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
-    } else {
-      try { intent = enemy.ai(gs.combat.turn); } catch (e) { intent = { intent: '?', dmg: 0 }; }
-    }
-
-    // ?꾪닾 泥???turn === 0): ?꾩쭅 ?됰룞???놁쑝誘濡??쒖떆 李⑤떒 (?쇰컲?곸쑝濡?1遺???쒖옉)
+    const intent = _resolveEnemyIntent(enemy, gs.combat.turn);
     if (gs.combat.turn <= 0) return;
 
     const icon = _getIntentIcon(intent);
@@ -241,7 +274,7 @@ export const CombatUI = {
 
     const type = doc.createElement('div');
     type.className = 'itt-type';
-    type.textContent = '-- ' + String(descInfo.type || '') + ' --';
+    type.textContent = `-- ${String(descInfo.type || '')} --`;
 
     const desc = doc.createElement('div');
     desc.className = 'itt-desc';
@@ -249,10 +282,10 @@ export const CombatUI = {
 
     el.append(title, type, desc);
 
-    if (intent.dmg > 0) {
+    if ((intent.dmg || 0) > 0) {
       const dmg = doc.createElement('div');
       dmg.className = 'itt-dmg';
-      dmg.textContent = '예상 피해: ' + String(intent.dmg);
+      dmg.textContent = `Expected damage: ${String(intent.dmg)}`;
       el.appendChild(dmg);
     }
 
@@ -277,13 +310,11 @@ export const CombatUI = {
 
   cleanupAllTooltips(deps = {}) {
     const doc = _getDoc(deps);
-    // 상태이상 툴팁 즉시 숨기기
-    const StatusTooltipUI = globalThis.StatusTooltipUI || globalThis.GAME?.Modules?.StatusTooltipUI;
-    if (StatusTooltipUI) StatusTooltipUI.hide({ doc });
+    const tooltipModule = globalThis.StatusTooltipUI || globalThis.GAME?.Modules?.StatusTooltipUI;
+    if (tooltipModule) tooltipModule.hide({ doc });
 
     clearTimeout(_enemyStatusTipTimer);
     doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-    // 의도 툴팁 즉시 숨기기
     clearTimeout(_intentTipTimer);
     doc.getElementById('intentTooltip')?.classList.remove('visible');
   },
@@ -297,265 +328,31 @@ export const CombatUI = {
     const zone = doc.getElementById('enemyZone');
     if (!zone) return;
 
-    const selectTargetHandlerName = deps.selectTargetHandlerName || 'selectTarget';
-    const showIntentTooltipHandlerName = deps.showIntentTooltipHandlerName || 'showIntentTooltip';
-    const hideIntentTooltipHandlerName = deps.hideIntentTooltipHandlerName || 'hideIntentTooltip';
+    const handlers = {
+      onShowStatusTooltip: this.showEnemyStatusTooltip,
+      onHideStatusTooltip: this.hideEnemyStatusTooltip,
+      onShowIntentTooltip: this.showIntentTooltip,
+      onHideIntentTooltip: this.hideIntentTooltip,
+    };
 
     const existing = zone.querySelectorAll('.enemy-card');
     const expectedCount = gs.combat.enemies.length;
-    // ?곹깭 ?댁긽 蹂寃??쒖뿉???꾩껜 ?뚮뜑留??섑뻾
     const needsFullRender = deps.forceFullRender || existing.length !== expectedCount || existing.length === 0;
 
     if (needsFullRender) {
       this.cleanupAllTooltips({ doc, win: _getWin(deps) });
       zone.textContent = '';
-      gs.combat.enemies.forEach((e, i) => {
-        if (!e || !e.ai) return;
-
-        const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
-        let intent;
-        if (e.statusEffects?.stunned > 0) {
-          intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
-        } else {
-          try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
-        }
-
-        const isSelected = gs._selectedTarget === i && e.hp > 0;
-
-        const card = doc.createElement('div');
-        card.id = `enemy_${i}`;
-        card.className = `enemy-card${e.hp <= 0 ? ' dead' : ''}${isSelected ? ' selected-target' : ''}${e.isBoss ? ' boss' : ''}`;
-
-        const deadStyle = e.hp <= 0 ? 'opacity:0.3;filter:grayscale(1);pointer-events:none;' : '';
-        const selStyle = isSelected ? 'outline:2px solid var(--cyan);box-shadow:0 0 18px rgba(0,255,204,0.45);' : '';
-        card.style.cssText = `${deadStyle}${selStyle}cursor:${e.hp > 0 ? 'pointer' : 'default'};`;
-
-        if (e.hp > 0) {
-          card.addEventListener('click', () => {
-            const handler = deps.selectTarget || window[selectTargetHandlerName];
-            if (typeof handler === 'function') handler(i);
-          });
-        }
-
-        if (isSelected) {
-          const targetLabel = doc.createElement('div');
-          targetLabel.className = 'target-label-anim';
-          const v = doc.createElement('span'); v.textContent = '▶';
-          const t = doc.createElement('span'); t.textContent = 'TARGET';
-          targetLabel.append(v, t);
-          card.appendChild(targetLabel);
-        }
-
-        const sprite = doc.createElement('div');
-        sprite.id = `enemy_sprite_${i}`;
-        sprite.className = 'enemy-sprite';
-        const spriteIcon = doc.createElement('span');
-        spriteIcon.style.fontSize = '64px';
-        spriteIcon.textContent = e.icon || '❓';
-        sprite.appendChild(spriteIcon);
-        card.appendChild(sprite);
-
-        const name = doc.createElement('div');
-        name.className = 'enemy-name';
-        name.textContent = e.name;
-        if (e.isBoss) {
-          const phase = doc.createElement('span');
-          phase.style.color = 'var(--gold)';
-          phase.textContent = ` · P${e.phase || 1}`;
-          name.appendChild(phase);
-        }
-        card.appendChild(name);
-
-        if (e.isBoss) {
-          const phaseBar = doc.createElement('div');
-          phaseBar.className = 'boss-phase-bar';
-          phaseBar.style.marginBottom = '2px';
-
-          const seg = doc.createElement('div');
-          seg.className = 'boss-phase-segment';
-          seg.style.cssText = 'left:50%;width:50%;background:rgba(255,100,0,0.2);';
-
-          const fill = doc.createElement('div');
-          fill.id = `enemy_hpfill_${i}`;
-          fill.className = 'boss-phase-fill';
-          fill.style.width = `${hpPct}%`;
-
-          phaseBar.append(seg, fill);
-          card.appendChild(phaseBar);
-
-          const phaseDots = doc.createElement('div');
-          phaseDots.style.cssText = 'display:flex;gap:4px;justify-content:center;margin-bottom:2px;';
-          for (let p = 1; p <= (e.maxPhase || 2); p++) {
-            const dot = doc.createElement('div');
-            const isActive = p <= (e.phase || 1);
-            dot.style.cssText = `width:6px;height:6px;border-radius:50%;background:${isActive ? 'var(--gold)' : 'rgba(255,255,255,0.1)'};box-shadow:${isActive ? '0 0 6px rgba(240,180,41,0.6)' : 'none'};`;
-            phaseDots.appendChild(dot);
-          }
-          card.appendChild(phaseDots);
-        } else {
-          const hpBar = doc.createElement('div');
-          hpBar.className = 'enemy-hp-bar';
-          const fill = doc.createElement('div');
-          fill.id = `enemy_hpfill_${i}`;
-          fill.className = 'enemy-hp-fill';
-          fill.style.cssText = `width:${hpPct}%;background:${_enemyHpColor(hpPct)};`;
-          hpBar.appendChild(fill);
-          card.appendChild(hpBar);
-        }
-
-        const hpText = doc.createElement('div');
-        hpText.id = `enemy_hptext_${i}`;
-        hpText.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);";
-        hpText.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어막 ${e.shield})` : ''}`;
-        card.appendChild(hpText);
-
-        const intentEl = doc.createElement('div');
-        intentEl.id = `enemy_intent_${i}`;
-        intentEl.className = 'enemy-intent';
-
-        let intentIcon = _getIntentIcon(intent);
-        let intentLabel = _formatIntentLabel(intent);
-        let intentDmgVal = intent.dmg;
-
-        if (gs.combat.turn <= 0) {
-          intentIcon = '❓';
-          intentLabel = '의도 없음';
-          intentDmgVal = 0;
-        }
-
-        const iconSpan = doc.createElement('span'); iconSpan.textContent = intentIcon;
-        const labelSpan = doc.createElement('span');
-        // HTML 태그가 포함되어 있을 수 있으므로 innerHTML 사용하되, description_utils의 highlight 등을 고려
-        labelSpan.innerHTML = intentIcon + ' ' + intentLabel;
-        intentEl.append(labelSpan);
-        if (intentDmgVal > 0) {
-          const dmgDiv = doc.createElement('div');
-          dmgDiv.className = 'enemy-intent-dmg';
-          dmgDiv.textContent = intentDmgVal;
-          intentEl.appendChild(dmgDiv);
-        }
-
-        intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
-        intentEl.onmouseleave = () => this.hideIntentTooltip(deps);
-        card.appendChild(intentEl);
-
-        const statusCont = doc.createElement('div');
-        statusCont.id = `enemy_status_${i}`;
-        statusCont.style.cssText = 'display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:4px;';
-        statusCont.appendChild(_renderEnemyStatuses(e.statusEffects, doc));
-        card.appendChild(statusCont);
-
-        const preview = isSelected ? _calcSelectedPreview(gs, data, e) : null;
-        if (preview) {
-          const previewEl = doc.createElement('div');
-          previewEl.className = 'enemy-dmg-preview';
-          previewEl.textContent = _renderSelectedPreviewText(preview);
-          card.appendChild(previewEl);
-        }
-
-        zone.appendChild(card);
+      gs.combat.enemies.forEach((enemy, index) => {
+        if (!enemy || !enemy.ai) return;
+        const viewModel = _buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers });
+        zone.appendChild(createEnemyCardView(viewModel));
       });
     } else {
-      gs.combat.enemies.forEach((e, i) => {
-        if (!e) return;
-
-        const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
-        const fill = doc.getElementById(`enemy_hpfill_${i}`);
-        const txt = doc.getElementById(`enemy_hptext_${i}`);
-        const intentEl = doc.getElementById(`enemy_intent_${i}`);
-        const statusEl = doc.getElementById(`enemy_status_${i}`);
-        const card = doc.getElementById(`enemy_${i}`);
-
-        if (fill) {
-          fill.style.width = `${hpPct}%`;
-          if (!e.isBoss) fill.style.background = _enemyHpColor(hpPct);
-        }
-        if (txt) txt.textContent = `${e.hp} / ${e.maxHp}${e.shield ? ` (방어막 ${e.shield})` : ''}`;
-
-        if (intentEl) {
-          let intent;
-          if (e.statusEffects?.stunned > 0) {
-            intent = { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
-          } else {
-            try { intent = e.ai(gs.combat.turn); } catch (err) { intent = { intent: '?', dmg: 0 }; }
-          }
-          let intentIcon = _getIntentIcon(intent);
-          let intentLabel = _formatIntentLabel(intent);
-
-          intentEl.innerHTML = '';
-          const iconSpan = doc.createElement('span');
-          iconSpan.className = 'enemy-intent-icon';
-          iconSpan.textContent = intentIcon;
-
-          const labelSpan = doc.createElement('span');
-          labelSpan.className = 'enemy-intent-label';
-          labelSpan.innerHTML = intentLabel;
-
-          const dmgDiv = doc.createElement('div');
-          dmgDiv.className = 'enemy-intent-dmg';
-          if (intent.dmg > 0) {
-            dmgDiv.textContent = intent.dmg;
-          }
-
-          intentEl.append(iconSpan, labelSpan, dmgDiv);
-          intentEl.onmouseenter = ev => this.showIntentTooltip(ev, i, deps);
-          intentEl.onmouseleave = () => this.hideIntentTooltip(deps);
-        }
-
-        if (statusEl) {
-          statusEl.textContent = '';
-          statusEl.appendChild(_renderEnemyStatuses(e.statusEffects, doc));
-        }
-
-        if (card && e.hp <= 0) {
-          card.style.opacity = '0.3';
-          card.style.filter = 'grayscale(1)';
-          card.style.pointerEvents = 'none';
-          card.style.outline = '';
-        }
-
-        if (card && e.hp > 0) {
-          const isSel = gs._selectedTarget === i;
-          card.classList.toggle('selected-target', isSel);
-
-          // ?寃??쇰꺼 愿由?(?대룞)
-          let labelEl = card.querySelector('.target-label-anim');
-          if (isSel) {
-            if (!labelEl) {
-              labelEl = doc.createElement('div');
-              labelEl.className = 'target-label-anim';
-
-              const v = doc.createElement('span');
-              v.textContent = '▶';
-              const t = doc.createElement('span');
-              t.textContent = 'TARGET';
-
-              labelEl.append(v, t);
-              card.prepend(labelEl);
-            }
-          } else {
-            labelEl?.remove();
-            card.style.outline = '';
-            card.style.boxShadow = '';
-          }
-
-          let previewEl = card.querySelector('.enemy-dmg-preview');
-          if (isSel && gs.combat.playerTurn) {
-            const preview = _calcSelectedPreview(gs, data, e);
-            if (preview) {
-              if (!previewEl) {
-                previewEl = doc.createElement('div');
-                previewEl.className = 'enemy-dmg-preview';
-                card.appendChild(previewEl);
-              }
-              previewEl.textContent = _renderSelectedPreviewText(preview);
-            } else {
-              previewEl?.remove();
-            }
-          } else {
-            previewEl?.remove();
-          }
-        }
+      gs.combat.enemies.forEach((enemy, index) => {
+        if (!enemy) return;
+        const viewModel = _buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers });
+        if (!gs.combat.playerTurn) viewModel.previewText = '';
+        updateEnemyCardView(viewModel);
       });
     }
 
@@ -566,27 +363,20 @@ export const CombatUI = {
     if (!enemy) return;
     const doc = _getDoc(deps);
     const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
-    const fill = doc.getElementById(`enemy_hpfill_${idx}`);
-    const txt = doc.getElementById(`enemy_hptext_${idx}`);
-    const card = doc.getElementById(`enemy_${idx}`);
-
-    if (fill) {
-      fill.style.width = `${hpPct}%`;
-      if (!enemy.isBoss) fill.style.background = _enemyHpColor(hpPct);
-    }
-    if (txt) txt.textContent = `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (방어막 ${enemy.shield})` : ''}`;
-    if (card && enemy.hp <= 0) {
-      card.style.opacity = '0.3';
-      card.style.filter = 'grayscale(1)';
-      card.style.pointerEvents = 'none';
-    }
+    updateEnemyHpView({
+      doc,
+      index: idx,
+      enemy,
+      hpPct,
+      hpText: _buildEnemyHpText(enemy),
+      hpBarBackground: _enemyHpColor(hpPct),
+    });
   },
 
-  // Expose public API for GAME.API
   api: {
-    updateCombatUI: (deps) => CombatUI.updateCombatUI(deps),
+    updateCombatUI: (deps) => CombatUI.renderCombatEnemies(deps),
     showIntentTooltip: (event, idx, deps) => CombatUI.showIntentTooltip(event, idx, deps),
     hideIntentTooltip: (deps) => CombatUI.hideIntentTooltip(deps),
     renderCombatEnemies: (deps) => CombatUI.renderCombatEnemies(deps),
-  }
+  },
 };

@@ -61,4 +61,27 @@ describe('ScreenUI', () => {
     expect(floatingHpShell.remove).not.toHaveBeenCalled();
     expect(gs.currentScreen).toBe('game');
   });
+
+  it('does not fire the title hook for non-title screens', () => {
+    const combatScreen = makeScreenElement();
+    const gameScreen = makeScreenElement();
+    const floatingHpShell = {
+      remove: vi.fn(),
+    };
+    const doc = {
+      querySelectorAll: vi.fn(() => [combatScreen, gameScreen]),
+      getElementById: vi.fn((id) => ({
+        combatScreen,
+        gameScreen,
+        ncFloatingHpShell: floatingHpShell,
+      }[id] || null)),
+    };
+    const onEnterTitle = vi.fn();
+
+    ScreenUI.switchScreen('combat', { doc, onEnterTitle });
+
+    expect(combatScreen.classList.add).toHaveBeenCalledWith('active');
+    expect(onEnterTitle).not.toHaveBeenCalled();
+    expect(floatingHpShell.remove).not.toHaveBeenCalled();
+  });
 });

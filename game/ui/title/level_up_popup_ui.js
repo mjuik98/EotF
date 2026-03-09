@@ -1,20 +1,19 @@
-function drawStar4(ctx, cx, cy, outerR, innerR) {
-  ctx.beginPath();
-  for (let i = 0; i < 8; i += 1) {
-    const r = i % 2 === 0 ? outerR : innerR;
-    const a = (Math.PI / 4) * i - Math.PI / 2;
-    const x = cx + Math.cos(a) * r;
-    const y = cy + Math.sin(a) * r;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.closePath();
-  ctx.fill();
-}
+import {
+  buildLevelUpParticles,
+  buildLevelUpPopupMarkup,
+  drawStar4,
+  normalizeLevelUpPayload,
+  parseAccentRgb,
+  resizeFullscreenCanvas,
+} from './level_up_popup_helpers.js';
 
 export class LevelUpPopupUI {
-  constructor() {
+  constructor(deps = {}) {
     this.onClose = null;
+    this._doc = deps.doc || document;
+    this._win = deps.win || window;
+    this._rafImpl = deps.raf || globalThis.requestAnimationFrame;
+    this._cancelRafImpl = deps.cancelRaf || globalThis.cancelAnimationFrame;
     this._raf = null;
     this._particles = [];
 
@@ -23,20 +22,10 @@ export class LevelUpPopupUI {
   }
 
   _buildDom() {
-    const wrap = document.createElement('div');
+    const wrap = this._doc.createElement('div');
     wrap.id = 'classLevelUpWrap';
-    wrap.innerHTML = `
-      <div id="classLvupBlur"></div>
-      <canvas id="classLvupParticleCanvas"></canvas>
-      <div id="classLvupToast" class="class-lvup-toast" style="display:none;">
-        <div id="classLvupEyebrow" class="class-lvup-eyebrow"></div>
-        <div id="classLvupNum" class="class-lvup-num"></div>
-        <div id="classLvupBonus" class="class-lvup-bonus"></div>
-        <div class="class-lvup-dismiss">Click or press ESC to close</div>
-      </div>
-    `;
-
-    document.body.appendChild(wrap);
+    wrap.innerHTML = buildLevelUpPopupMarkup();
+    this._doc.body.appendChild(wrap);
     this._els = {
       wrap,
       blur: wrap.querySelector('#classLvupBlur'),
@@ -57,44 +46,41 @@ export class LevelUpPopupUI {
       if (this._els.toast?.style.display === 'none') return;
       if (event.key === 'Escape' || event.key === ' ') this.close();
     };
-    document.addEventListener('keydown', this._onKeyDown);
+    this._doc.addEventListener('keydown', this._onKeyDown);
 
     this._onResize = () => {
       if (this._els.canvas?.style.display === 'none') return;
       this._resizeCanvas();
     };
-    window.addEventListener('resize', this._onResize);
+    this._win.addEventListener('resize', this._onResize);
   }
 
   _resizeCanvas() {
-    const canvas = this._els.canvas;
-    if (!canvas) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    resizeFullscreenCanvas(this._els.canvas, this._win);
   }
 
-  show({ classTitle, newLevel, bonusText, accent }) {
-    const safeAccent = accent || '#8b6dff';
-    this._els.eyebrow.textContent = `${classTitle || 'CLASS'} - LEVEL UP`;
-    this._els.eyebrow.style.color = safeAccent;
-    this._els.num.textContent = `Lv.${Math.max(1, Number(newLevel) || 1)}`;
-    this._els.num.style.color = safeAccent;
-    this._els.num.style.textShadow = `0 0 40px ${safeAccent}88`;
-    this._els.bonus.textContent = bonusText || 'A class mastery bonus has been unlocked.';
+  show(payload) {
+    const normalized = normalizeLevelUpPayload(payload);
+    this._els.eyebrow.textContent = normalized.eyebrow;
+    this._els.eyebrow.style.color = normalized.accent;
+    this._els.num.textContent = normalized.levelText;
+    this._els.num.style.color = normalized.accent;
+    this._els.num.style.textShadow = `0 0 40px ${normalized.accent}88`;
+    this._els.bonus.textContent = normalized.bonusText;
 
     this._els.blur.style.display = 'block';
     this._els.toast.style.display = 'flex';
-    this._els.toast.style.borderColor = `${safeAccent}66`;
+    this._els.toast.style.borderColor = `${normalized.accent}66`;
     this._els.canvas.style.display = 'block';
     this._resizeCanvas();
-    this._startParticles(safeAccent);
+    this._startParticles(normalized.accent);
   }
 
   close() {
     this._els.blur.style.display = 'none';
     this._els.toast.style.display = 'none';
     this._els.canvas.style.display = 'none';
-    cancelAnimationFrame(this._raf);
+    this._cancelRafImpl?.(this._raf);
     this._raf = null;
     this._particles = [];
     this.onClose?.();
@@ -105,64 +91,46 @@ export class LevelUpPopupUI {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const [r, g, b] = [1, 3, 5].map((idx) => Number.parseInt(accent.slice(idx, idx + 2), 16) || 255);
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-
-    this._particles = Array.from({ length: 130 }, (_, i) => {
-      const angle = (Math.PI * 2 * i) / 130 + (Math.random() - 0.5) * 0.45;
-      const speed = Math.random() * 7 + 3;
-      return {
-        x: cx,
-        y: cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - Math.random() * 2.8,
-        life: 1,
-        decay: 0.011 + Math.random() * 0.014,
-        s: Math.random() * 4 + 1,
-        star: i < 44,
-        t: 0,
-      };
-    });
-
-    cancelAnimationFrame(this._raf);
+    const [r, g, b] = parseAccentRgb(accent);
+    this._particles = buildLevelUpParticles(accent, canvas.width, canvas.height);
+    this._cancelRafImpl?.(this._raf);
 
     const frame = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       let alive = false;
 
-      for (const p of this._particles) {
-        if (p.life <= 0) continue;
+      for (const particle of this._particles) {
+        if (particle.life <= 0) continue;
         alive = true;
 
-        p.life -= p.decay;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.12;
-        p.vx *= 0.98;
-        p.t += 1;
+        particle.life -= particle.decay;
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        particle.vy += 0.12;
+        particle.vx *= 0.98;
+        particle.t += 1;
 
-        const alpha = Math.max(0, Math.min(0.9, p.life));
-        if (p.star) {
-          const useGold = Math.floor(p.t / 7) % 2 === 0;
+        const alpha = Math.max(0, Math.min(0.9, particle.life));
+        if (particle.star) {
+          const useGold = Math.floor(particle.t / 7) % 2 === 0;
           ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.t * 0.08);
+          ctx.translate(particle.x, particle.y);
+          ctx.rotate(particle.t * 0.08);
           ctx.globalAlpha = alpha;
           ctx.fillStyle = useGold ? 'rgb(255,215,0)' : `rgba(${r},${g},${b},0.9)`;
-          drawStar4(ctx, 0, 0, p.s * 1.8, p.s * 0.72);
+          drawStar4(ctx, 0, 0, particle.s * 1.8, particle.s * 0.72);
           ctx.restore();
         } else {
           ctx.globalAlpha = alpha * 0.8;
           ctx.fillStyle = `rgb(${r},${g},${b})`;
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+          ctx.arc(particle.x, particle.y, particle.s, 0, Math.PI * 2);
           ctx.fill();
         }
       }
 
       ctx.globalAlpha = 1;
-      if (alive) this._raf = requestAnimationFrame(frame);
+      if (alive) this._raf = this._rafImpl?.(frame);
       else this._els.canvas.style.display = 'none';
     };
 
@@ -171,8 +139,8 @@ export class LevelUpPopupUI {
 
   destroy() {
     this.close();
-    document.removeEventListener('keydown', this._onKeyDown);
-    window.removeEventListener('resize', this._onResize);
+    this._doc.removeEventListener('keydown', this._onKeyDown);
+    this._win.removeEventListener('resize', this._onResize);
     this._els.wrap?.remove();
   }
 }

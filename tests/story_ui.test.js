@@ -19,6 +19,61 @@ function createDeps({ storyPieces = [], fragments = [], runCount = 1 } = {}) {
   };
 }
 
+function createDoc() {
+  const elements = new Map();
+  const body = {
+    children: [],
+    appendChild(node) {
+      this.children.push(node);
+      if (node?.id) elements.set(node.id, node);
+      return node;
+    },
+  };
+
+  const unregisterNode = (node) => {
+    if (!node) return;
+    if (node.id) elements.delete(node.id);
+    if (Array.isArray(node.children)) {
+      node.children.forEach(unregisterNode);
+    }
+  };
+
+  function createElement(tagName) {
+    const el = {
+      tagName: String(tagName || '').toUpperCase(),
+      id: '',
+      style: {},
+      textContent: '',
+      innerHTML: '',
+      disabled: false,
+      children: [],
+      append(...nodes) {
+        this.children.push(...nodes);
+        nodes.forEach((node) => {
+          if (node?.id) elements.set(node.id, node);
+        });
+      },
+      appendChild(node) {
+        this.children.push(node);
+        if (node?.id) elements.set(node.id, node);
+        return node;
+      },
+      remove() {
+        unregisterNode(this);
+      },
+    };
+    return el;
+  }
+
+  return {
+    body,
+    createElement,
+    getElementById(id) {
+      return elements.get(id) || null;
+    },
+  };
+}
+
 describe('StoryUI stage fragment flow', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -109,5 +164,24 @@ describe('StoryUI stage fragment flow', () => {
     StoryUI.showNormalEnding(deps);
 
     expect(showSpy).toHaveBeenCalledWith(false, deps);
+  });
+
+  it('displayFragment with closeEffect none removes overlay immediately and fires close callback', () => {
+    const doc = createDoc();
+    const onFragmentClosed = vi.fn();
+
+    const shown = StoryUI.displayFragment(
+      { id: 1, run: 1, title: 'A', text: 'A' },
+      { doc, closeEffect: 'none', onFragmentClosed },
+    );
+
+    expect(shown).toBe(true);
+    const button = doc.getElementById('storyContinueBtn');
+    expect(button).toBeTruthy();
+
+    button.onclick();
+
+    expect(onFragmentClosed).toHaveBeenCalledTimes(1);
+    expect(doc.getElementById('storyContinueBtn')).toBeNull();
   });
 });

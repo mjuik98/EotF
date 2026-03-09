@@ -1,0 +1,136 @@
+import { CONSTANTS } from '../../data/constants.js';
+import { Actions } from '../state_action_types.js';
+
+const CONFIG_MAX_ENERGY_CAP = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP);
+const MAX_ENERGY_CAP =
+  Number.isFinite(CONFIG_MAX_ENERGY_CAP) && CONFIG_MAX_ENERGY_CAP >= 1
+    ? Math.floor(CONFIG_MAX_ENERGY_CAP)
+    : 5;
+
+export const PlayerReducers = {
+  [Actions.PLAYER_DAMAGE](gs, { amount }) {
+    const player = gs.player;
+    let remaining = amount;
+
+    if (player.shield > 0) {
+      const absorbed = Math.min(player.shield, remaining);
+      player.shield -= absorbed;
+      remaining -= absorbed;
+    }
+
+    if (remaining > 0) {
+      player.hp = Math.max(0, player.hp - remaining);
+      gs.stats.damageTaken += remaining;
+    }
+
+    gs.markDirty('hud');
+
+    return {
+      shieldAbsorbed: amount - remaining,
+      actualDamage: remaining,
+      hpAfter: player.hp,
+      isDead: player.hp <= 0,
+    };
+  },
+
+  [Actions.PLAYER_HEAL](gs, { amount }) {
+    const player = gs.player;
+    const actual = Math.min(amount, player.maxHp - player.hp);
+    player.hp = Math.min(player.maxHp, player.hp + actual);
+    gs.markDirty('hud');
+
+    return { healed: actual, hpAfter: player.hp };
+  },
+
+  [Actions.PLAYER_SHIELD](gs, { amount }) {
+    gs.player.shield = Math.max(0, gs.player.shield + amount);
+    gs.markDirty('hud');
+    return { shieldAfter: gs.player.shield };
+  },
+
+  [Actions.PLAYER_GOLD](gs, { amount }) {
+    gs.player.gold += amount;
+    gs.markDirty('hud');
+    return { goldAfter: gs.player.gold, delta: amount };
+  },
+
+  [Actions.PLAYER_ENERGY](gs, { amount }) {
+    const prevEnergy = Number(gs.player.energy || 0);
+    if (amount > 0 && typeof gs.triggerItems === 'function') {
+      const scaled = gs.triggerItems('energy_gain', { amount });
+      if (typeof scaled === 'number' && Number.isFinite(scaled)) amount = scaled;
+    }
+    gs.player.energy = Math.max(0, gs.player.energy + amount);
+    if (amount < 0 && prevEnergy > 0 && gs.player.energy === 0 && typeof gs.triggerItems === 'function') {
+      gs.triggerItems('energy_empty', { previous: prevEnergy, delta: amount });
+    }
+    gs.markDirty('hud');
+    return { energyAfter: gs.player.energy };
+  },
+
+  [Actions.PLAYER_ECHO](gs, { amount }) {
+    gs.player.echo = Math.max(0, Math.min(gs.player.maxEcho, gs.player.echo + amount));
+    gs.markDirty('hud');
+    return { echoAfter: gs.player.echo };
+  },
+
+  [Actions.PLAYER_SILENCE](gs, { amount }) {
+    gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) + amount);
+    gs.markDirty('hud');
+    return { silenceGauge: gs.player.silenceGauge };
+  },
+
+  [Actions.PLAYER_TIME_RIFT](gs, { amount }) {
+    gs.player.timeRiftGauge = Math.max(0, (gs.player.timeRiftGauge || 0) + amount);
+    gs.markDirty('hud');
+    return { timeRiftGauge: gs.player.timeRiftGauge };
+  },
+
+  [Actions.PLAYER_BUFF](gs, { id, stacks, data = {} }) {
+    const buffs = gs.player.buffs;
+    if (buffs[id]) {
+      buffs[id].stacks += stacks;
+      for (const key in data) {
+        if (typeof data[key] === 'number') {
+          buffs[id][key] = (buffs[id][key] || 0) + data[key];
+        } else {
+          buffs[id][key] = data[key];
+        }
+      }
+    } else {
+      buffs[id] = { stacks, ...data };
+    }
+    gs.markDirty('hud');
+  },
+
+  [Actions.PLAYER_MAX_HP_GROWTH](gs, { amount }) {
+    const player = gs.player;
+    player.maxHp = Math.max(1, player.maxHp + amount);
+    if (amount > 0) {
+      player.hp = Math.min(player.maxHp, player.hp + amount);
+    } else {
+      player.hp = Math.min(player.maxHp, player.hp);
+    }
+    gs.markDirty('hud');
+    return { maxHpAfter: player.maxHp, hpAfter: player.hp };
+  },
+
+  [Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount }) {
+    const player = gs.player;
+    const cap = Math.max(1, Number(player.maxEnergyCap || MAX_ENERGY_CAP));
+    const previousMax = Math.max(1, Number(player.maxEnergy || 1));
+    const previousEnergy = Math.max(0, Number(player.energy || 0));
+    const requestedMax = Math.max(1, previousMax + amount);
+    player.maxEnergy = Math.min(cap, requestedMax);
+
+    if (amount > 0) {
+      const actualIncrease = Math.max(0, player.maxEnergy - previousMax);
+      player.energy = Math.min(player.maxEnergy, previousEnergy + actualIncrease);
+    } else {
+      player.energy = Math.min(player.maxEnergy, previousEnergy);
+    }
+
+    gs.markDirty('hud');
+    return { maxEnergyAfter: player.maxEnergy, energyAfter: player.energy };
+  },
+};

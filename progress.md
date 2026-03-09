@@ -78,6 +78,99 @@ Original prompt:
   - `npm test -- tests/story_ui.test.js tests/region_transition_ui.test.js tests/deps_factory.test.js` PASS.
   - `npm test` PASS (22 files, 86 tests).
   - Playwright skill client run against `http://127.0.0.1:4173` with action payload reference; screenshots refreshed at `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and visually inspected.
+
+- Follow-up prompt: 우리 프로젝트에서 모듈화 해야할 것과 중앙화 해야 될 것을 구분해줘 -> 진행해줘
+- Architecture refactor pass (`game/core/state_actions.js`):
+  - Preserved the centralized `Actions` + `Reducers` entry surface while splitting reducer implementations by domain.
+  - Added `game/core/state_action_types.js` for shared action keys.
+  - Added reducer modules under `game/core/state_reducers/`:
+    - `player_reducers.js`
+    - `card_reducers.js`
+    - `enemy_reducers.js`
+    - `combat_reducers.js`
+    - `system_reducers.js`
+  - Rebuilt `game/core/state_actions.js` as a thin composition layer that merges domain reducers.
+- Validation:
+  - `npm test -- tests/state_actions.test.js tests/runtime_state_flow.test.js` PASS.
+  - `npm run build` PASS.
+  - `npm test` revealed an existing unrelated failure in `tests/thematic_relics.test.js`:
+    - `Iron Fortress > bastion_shield_plate gives shield at turn end` expected shield `5`, received `0`.
+  - `npm run lint` stopped on pre-existing window/globalThis target overages:
+    - total `321` target `319`
+    - globalThis `201` target `199`
+  - Playwright skill client run against `http://127.0.0.1:4173` with action payload reference and `#mainStartBtn`; refreshed `output/web-game/shot-0.png`, `shot-1.png` reviewed, no `errors-*.json` emitted.
+- Suggested next refactor targets:
+  - Keep centralization: `game/core/game_state.js`, `game/core/event_bus.js`, `game/core/event_contracts.js`, `game/core/deps_factory.js`
+  - Modularize next: `game/ui/hud/hud_update_ui.js`, `game/ui/combat/combat_ui.js`, `game/systems/run_rules.js`
+- Follow-up prompt: 진행해줘
+- HUD modularization pass (`game/ui/hud/hud_update_ui.js`):
+  - Rebuilt `HudUpdateUI` as a thin orchestration layer.
+  - Moved HUD section rendering logic into new helper module `game/ui/hud/hud_panel_sections.js`.
+  - `hud_update_ui.js` now focuses on scheduling, dirty-flag flow, floating panel refresh, and calling:
+    - `updatePlayerStatsUI`
+    - `updateCombatEnergyUI`
+    - `updateHudPanels`
+  - `hud_panel_sections.js` now owns:
+    - class/avatar/special panel updates
+    - run stats + resource counters
+    - region panel + tooltip binding
+    - item slots + set bonus panel
+    - run modifiers panel
+    - echo/draw/end button state
+- Validation:
+  - `npm test -- tests/hud_update_ui_hp_panel.test.js tests/ui_bindings_status_display.test.js tests/player_hp_panel_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client run against `http://127.0.0.1:4173` with action payload reference and `#mainStartBtn`; refreshed `output/web-game/shot-0.png`, `shot-1.png` reviewed, no `errors-*.json` emitted.
+- Note:
+  - The new HUD helper uses ASCII-safe fallback/button labels to avoid the repo's existing mojibake string corruption from breaking JS parsing again.
+- Suggested next refactor target:
+  - `game/ui/combat/combat_ui.js`
+- Follow-up prompt: 진행해줘
+- CombatUI modularization pass (`game/ui/combat/combat_ui.js`):
+  - Rebuilt `CombatUI` around a thinner orchestration shape while preserving the public surface:
+    - `showEnemyStatusTooltip`
+    - `hideEnemyStatusTooltip`
+    - `showIntentTooltip`
+    - `hideIntentTooltip`
+    - `renderCombatEnemies`
+    - `updateEnemyHpUI`
+  - Added `game/ui/combat/combat_enemy_card_ui.js` for enemy-card DOM assembly/update responsibilities:
+    - full card creation
+    - incremental card patching
+    - hp-only patching
+  - Kept intent/status/preview calculation inside `combat_ui.js` and moved DOM building concerns into the helper module.
+  - Normalized `CombatUI.api.updateCombatUI` to route to `renderCombatEnemies(...)` instead of a missing method reference.
+- Added regression coverage:
+  - `tests/combat_ui_render.test.js` verifies `CombatUI.renderCombatEnemies(...)` can full-render one enemy card and then incrementally update hp/preview state.
+- Validation:
+  - `npm test -- tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js tests/status_tooltip_builder_focus.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client run against `http://127.0.0.1:4173` with action payload reference and `#mainStartBtn`; refreshed `output/web-game/shot-0.png`, `shot-1.png` reviewed, no `errors-*.json` emitted.
+- Note:
+  - As with the HUD pass, some fallback strings in the newly organized `CombatUI` path were rewritten into ASCII-safe/clear labels to avoid further mojibake-driven parse hazards during future refactors.
+- Suggested next refactor target:
+  - `game/systems/run_rules.js`
+- Follow-up prompt: 진행해줘
+- RunRules modularization pass (`game/systems/run_rules.js`):
+  - Rebuilt `RunRules` as a facade while preserving the public API and named exports.
+  - Added helper modules:
+    - `game/systems/run_rules_curses.js`
+    - `game/systems/run_rules_regions.js`
+    - `game/systems/run_rules_difficulty.js`
+    - `game/systems/run_rules_meta.js`
+  - `run_rules.js` now delegates:
+    - region sequence/route/floor resolution to `run_rules_regions.js`
+    - difficulty, inscription scoring, reward/enemy/heal/shop scaling to `run_rules_difficulty.js`
+    - preview/meta normalization to `run_rules_meta.js`
+  - Kept lifecycle hooks (`applyRunStart`, `onCombatStart`, `onTurnStart`, `onVictory`, `finalizeRunOutcome`) on the facade to avoid changing call sites.
+- Added regression coverage:
+  - `tests/run_rules_regions.test.js` verifies explicit route overrides and endless-cycle region metadata.
+- Validation:
+  - `npm test -- tests/run_rules_preview_meta.test.js tests/run_rules_regions.test.js tests/region_transition_ui.test.js tests/relic_price_verification.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client run against `http://127.0.0.1:4173` with action payload reference and `#mainStartBtn`; refreshed `output/web-game/shot-0.png`, `shot-1.png` reviewed, no `errors-*.json` emitted.
+- Suggested next refactor target:
+  - `game/core/game_state.js` together with `game/core/game_state_core_methods.js`
 - Follow-up prompt: 전투 중 게임을 포기한 이후에도 HUD가 남아있는 버그를 수정.
 - Abandon/title HUD cleanup fix:
   - Added `removeFloatingPlayerHpPanel()` to `game/ui/shared/player_hp_panel_ui.js` and reused it when the floating HP shell should be hidden.
@@ -1487,3 +1580,573 @@ Original prompt:
   - `npm test -- tests/event_subscribers_player_damage.test.js tests/hud_update_ui_hp_panel.test.js tests/player_hp_panel_ui.test.js tests/ui_bindings_status_display.test.js tests/deps_factory.test.js` PASS.
   - `npm run build` PASS.
   - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with `#mainStartBtn`; fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` reviewed and no `errors-*.json` artifacts were emitted.
+- Follow-up prompt: 진행해줘
+- GameState centralization pass (`game/core/game_state.js`):
+  - Kept `GS` as the single state facade and extracted nested default state shape creation into new helper module `game/core/game_state_defaults.js`.
+  - Added shared factories for:
+    - `createDefaultRunConfig`
+    - `createDefaultMetaState`
+    - `createDefaultPlayerState`
+    - `createDefaultCombatState`
+    - `createDefaultStatsState`
+    - `createDefaultRuntimeState`
+    - `createDefaultGameStateShape`
+  - Rebuilt `game/core/game_state.js` to consume the shared default shape instead of inlining the full nested object graph.
+- Run start alignment (`game/ui/run/run_setup_ui.js`):
+  - Replaced ad-hoc run reset literals with the shared game-state factories so runtime reset shape now matches the centralized `GS` defaults.
+  - `startGame()` now builds run config through `createDefaultRunConfig(...)`, player state through `createDefaultPlayerState(...)`, and map/combat/stats/runtime reset through `createDefaultRuntimeState(...)`.
+  - This keeps newer runtime fields like `timeRiftGauge`, `_nextCardDiscount`, `regionClearTimes`, and timestamp slots aligned between boot state and in-run reset state.
+- Added regression coverage:
+  - `tests/game_state_defaults.test.js` verifies fresh nested collections and cloned override refs from the new default-state factories.
+  - `tests/run_setup_ui.test.js` verifies `RunSetupUI.startGame()` resets runtime state from the shared defaults while preserving configured run settings.
+- Validation:
+  - `npm test -- tests/game_state_defaults.test.js tests/run_setup_ui.test.js tests/run_rules_preview_meta.test.js tests/title_settings_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4173`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/core/game_state_core_methods.js` can stay as the facade, but the next useful split is extracting its local/common helpers (`addLog`, item-trigger helpers) into a small helper module so the facade becomes a pure composition layer.
+- Follow-up prompt: 진행해줘
+- GameStateCoreMethods facade cleanup:
+  - Extracted local/common state helpers into new module `game/core/game_state_common_methods.js`:
+    - `triggerItems`
+    - `getSetBonuses`
+    - `addLog`
+  - Rebuilt `game/core/game_state_core_methods.js` as a pure composition facade over:
+    - `GameStateCommonMethods`
+    - `CombatMethods`
+    - `CardMethods`
+    - `PlayerMethods`
+  - Removed stale unused imports from the core-method facade while preserving the public `GS` method surface.
+- Event contract bug fixed during verification:
+  - Root cause: `game/core/event_contracts.js` treated any event name containing `:` as an action event, so the core event `log:add` was incorrectly wrapped into an action envelope and always triggered a contract mismatch warning at runtime.
+  - Fixed by switching action-event detection to the actual `Actions` registry instead of the colon heuristic.
+  - Added regression coverage so `CoreEvents.LOG_ADD` now remains a plain core payload.
+- Added regression coverage:
+  - `tests/game_state_core_methods.test.js` verifies the new common-method module delegates to `ItemSystem` correctly and still emits capped combat log updates through `EventBus`.
+  - `tests/event_contracts.test.js` now verifies core events are not wrapped into action envelopes.
+- Validation:
+  - `npm test -- tests/game_state_core_methods.test.js tests/event_contracts.test.js tests/game_state_defaults.test.js tests/run_setup_ui.test.js tests/state_actions.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4174`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/core/event_bindings.js` is now the highest-value remaining "centralized but too broad" file. It should stay a composition root, but the window/API exposure lists and feature-group binding registration can be split into smaller declaration modules without losing central control.
+- Follow-up prompt: 진행해줘
+- Event bindings composition-root cleanup:
+  - Kept `game/core/event_bindings.js` as the central boot/composition root, but moved registration declarations into new helper module `game/core/event_binding_registry.js`.
+  - `event_binding_registry.js` now owns:
+    - `WINDOW_EXPOSE_NAMES`
+    - `exposeBindingsToWindow(...)`
+    - `registerGameAPIBindings(...)`
+    - `registerGameModules(...)`
+  - `event_bindings.js` now focuses only on:
+    - building `fns` through the feature binding modules
+    - calling the registration helpers in order
+    - initializing `deps_factory`
+- Added regression coverage:
+  - `tests/event_bindings_registry.test.js` verifies:
+    - plain `fns` window exposure still works (`window.startGame`)
+    - special window hooks still route correctly (`window.updateUI`, `window._syncVolumeUI`, enemy status tooltip helpers)
+    - `GAME.API.updateUI()` and `GAME.API.processDirtyFlags()` still wrap the same HUD deps path
+  - Existing `tests/event_bindings_status_effects_registration.test.js` continued to verify `StatusEffectsUI` registration on `GAME.Modules`.
+- Validation:
+  - `npm test -- tests/event_bindings_registry.test.js tests/event_bindings_status_effects_registration.test.js tests/title_settings_bindings.test.js tests/deps_factory.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4175`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/core/deps_factory.js` is now the next central file worth thinning. It should remain the single dependency assembly point, but the contract-group builders and runtime helper assembly can be split further so the factory reads more like orchestration than data shaping.
+- Follow-up prompt: 진행해줘
+- Deps factory orchestration cleanup:
+  - Kept `game/core/deps_factory.js` as the single public dependency-assembly entry point.
+  - Extracted mutable refs/runtime helpers into new module `game/core/deps_factory_runtime.js`:
+    - refs init/patch/get
+    - `getGameDeps()`
+    - `buildBaseDeps()`
+    - browser fallbacks for `requestAnimationFrame` and `_syncVolumeUI`
+  - Extracted contract-group merging into new module `game/core/deps_contract_registry.js`.
+  - `deps_factory.js` now mainly:
+    - initializes runtime helpers
+    - lazily builds contract builders
+    - exposes `createDeps(...)` and the stable public helper wrappers
+- Added regression coverage:
+  - `tests/deps_factory.test.js` now verifies `patchRefs(...)` updates live contract output without changing the public contract list.
+- Validation:
+  - `npm test -- tests/deps_factory.test.js tests/event_bindings_registry.test.js tests/hud_update_ui_hp_panel.test.js tests/title_settings_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4176`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/core/init_sequence.js` is now the next composition-level file worth thinning. It should stay the startup coordinator, but boot-step grouping and module registration sequencing can be split into smaller setup helpers without changing the boot surface.
+- Follow-up prompt: 진행해줘
+- Init sequence startup-coordinator cleanup:
+  - Kept `game/core/init_sequence.js` as the central startup coordinator.
+  - Moved boot-step assembly into new helper module `game/core/init_sequence_steps.js`:
+    - `setupStorySystemBridge(...)`
+    - `registerInitSequenceBindings(...)`
+    - `configureMazeSystem(...)`
+    - `mountCharacterSelect(...)`
+    - `buildGameBootPayload(...)`
+  - `init_sequence.js` now mainly:
+    - calls `GAME.init(...)`
+    - exposes globals
+    - registers subscribers
+    - runs the extracted boot steps in order
+    - invokes `GameInit.boot(...)`
+- Added regression coverage:
+  - `tests/init_sequence.test.js` verifies:
+    - `GAME.init(...)` call wiring
+    - StorySystem bridge registration + `Deps.patchRefs(...)`
+    - extra `GAME.register(...)` boot bindings
+    - `MazeSystem.configure(...)`
+    - delayed `CharacterSelectUI.mount(...)`
+    - `GameInit.boot(...)` payload assembly
+    - Story bridge methods still forward through `Deps.getStoryDeps()`
+- Validation:
+  - `npm test -- tests/init_sequence.test.js tests/event_bindings_registry.test.js tests/deps_factory.test.js tests/title_settings_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/core/main.js` is now the next thin-but-still-central file to clean up. It should stay the top-level entry point, but module-registry creation, binding setup, and boot kickoff can be wrapped into a small bootstrap helper so `main.js` becomes almost declarative.
+- Follow-up prompt: 진행해줘
+- Main entry-point cleanup:
+  - Kept `game/core/main.js` as the top-level stable entry point.
+  - Moved actual bootstrap orchestration into new helper module `game/core/bootstrap_game.js`.
+  - `bootstrap_game.js` now owns:
+    - module registry creation
+    - `CustomCursor.init(...)`
+    - `setupBindings(modules)`
+    - `bootGame(modules, fns, Deps)`
+  - `main.js` now reads almost declaratively:
+    - call `bootstrapGameApp()`
+    - export stable `fns`
+    - keep `updateNextNodes()` as the existing import target wrapper
+- Added regression coverage:
+  - `tests/bootstrap_game.test.js` verifies:
+    - registry creation -> cursor init -> bindings setup -> boot wiring
+    - boot still proceeds when `CustomCursor.init(...)` throws
+- Validation:
+  - `npm test -- tests/bootstrap_game.test.js tests/init_sequence.test.js tests/event_bindings_registry.test.js tests/deps_factory.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4178`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - The next useful pass is no longer another core boot file. At this point the highest-value remaining work is domain-level reduction in a large logic file, especially `game/combat/damage_system.js`, which still mixes calculation, mutation, trigger dispatch, logging, and presentation-side hooks.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- DamageSystem facade cleanup:
+  - Kept `game/combat/damage_system.js` as the public combat-damage surface, but reduced it to orchestration over a new helper module `game/combat/damage_system_helpers.js`.
+  - Extracted reusable damage/status helpers:
+    - runtime accessors (`createDamageRuntime`, `getWinFromDeps`)
+    - base/potential damage calculation
+    - target selection and dodge/immune gating
+    - dispatch/fallback enemy damage application
+    - chain/class/lifesteal follow-up hooks
+    - player incoming-damage/shield/status adjustment helpers
+  - Preserved the existing centralized public method surface on `DamageSystem`:
+    - `calculatePotentialDamage`
+    - `dealDamage`
+    - `dealDamageAll`
+    - `addShield`
+    - `takeDamage`
+    - `applyEnemyStatus`
+    - `getEnemyIntent`
+  - Split resolved-damage calculation into:
+    - pre-prevention single-use buff consumption
+    - post-prevention weakening/item/chain scaling
+  - This keeps the old sequencing intact so dodge/immune still consume single-use crit buffs without incorrectly firing post-hit item triggers.
+- Added regression coverage:
+  - `tests/damage_system_facade.test.js` verifies:
+    - `calculatePotentialDamage()` does not consume single-use crit buffs
+    - `dealDamage()` still consumes `focus` before a dodge while skipping `deal_damage` / `chain_dmg` triggers on the prevented hit
+    - `applyEnemyStatus()` still skips the immediate follow-up status on a target that just dodged
+- Validation:
+  - `npm test -- tests/damage_system_facade.test.js tests/new_mechanics.test.js tests/runtime_state_flow.test.js` PASS.
+  - `npm test -- tests/thematic_relics.test.js` still shows the pre-existing unrelated failure:
+    - `Iron Fortress > bastion_shield_plate gives shield at turn end` expected `5`, received `0`.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/settings_ui.js` is now the next high-value modularization target. It still mixes panel orchestration, binding setup, and DOM sync work that can be split while keeping a single screen-level entry point.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- SettingsUI modularization pass:
+  - Kept `game/ui/screens/settings_ui.js` as the single screen-level facade for the settings modal.
+  - Moved view/sync helpers into new module `game/ui/screens/settings_ui_helpers.js`:
+    - tab-panel display transitions
+    - volume display sync
+    - keybinding label/conflict rendering
+    - row sorting helpers
+    - boot-time visual/accessibility application
+  - Moved DOM event wiring into new module `game/ui/screens/settings_ui_bindings.js`.
+  - Preserved the existing public and semi-private `SettingsUI` surface by leaving wrapper methods in place:
+    - `openSettings`, `closeSettings`, `setTab`, `applyVolume`, `applyVisual`, `applyAccessibility`, `startRebind`
+    - `_syncAllTabs`, `_checkConflicts`, `_sortKeybindingRows`, `_bindDomEvents`
+  - This keeps title/help-pause bindings stable while making `settings_ui.js` primarily orchestration plus stateful modal/rebind flow.
+- Added regression coverage:
+  - `tests/settings_ui.test.js` now verifies `_bindDomEvents(doc)` is idempotent and does not double-register listeners when the same settings document is opened again.
+- Validation:
+  - `npm test -- tests/settings_ui.test.js tests/title_settings_bindings.test.js tests/help_pause_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/help_pause_ui.js` is now the next useful UI modularization target. It still mixes overlay state, button routing, abandon flow, and key-hint rendering in one file.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- HelpPauseUI modularization pass:
+  - Kept `game/ui/screens/help_pause_ui.js` as the single overlay/hotkey facade.
+  - Moved pure modal/state helpers into new module `game/ui/screens/help_pause_ui_helpers.js`:
+    - gs/doc resolution
+    - in-game / overlay visibility checks
+    - active-save clearing
+    - keybinding lookup and key-event matching
+  - Moved DOM overlay construction into new module `game/ui/screens/help_pause_ui_overlays.js`:
+    - mobile warning
+    - help overlay
+    - abandon confirm
+    - return-to-title confirm
+    - pause menu shell
+  - `help_pause_ui.js` now mainly orchestrates:
+    - toggle state (`_helpOpen`, `_pauseOpen`, `_hotkeysBound`)
+    - confirm-abandon side effects
+    - save-before-return flow
+    - global hotkey routing across deck/codex/settings/pause/help overlays
+- Added regression coverage:
+  - `tests/help_pause_ui.test.js` now verifies `bindGlobalHotkeys(...)` only registers one keydown listener per module instance.
+- Validation:
+  - `npm test -- tests/help_pause_ui.test.js tests/title_settings_bindings.test.js tests/settings_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/run/run_mode_ui.js` is now the next high-value UI target. It still holds run-settings orchestration, ascension controls, curse selection, and modal DOM updates in one file.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- RunModeUI modularization pass:
+  - Kept `game/ui/run/run_mode_ui.js` as the stateful facade for run-settings interactions.
+  - Moved pure config/math/state helpers into new module `game/ui/run/run_mode_ui_helpers.js`:
+    - run-config normalization
+    - inscription/synergy queries
+    - difficulty score/label resolution
+    - preset slot cloning and escaping helpers
+  - Moved DOM rendering into new module `game/ui/run/run_mode_ui_render.js`:
+    - summary bar
+    - preset strip/dialog
+    - curse/inscription overview
+    - hidden-ending banner
+    - modal mood + flash effects
+  - Moved panel event wiring into new module `game/ui/run/run_mode_ui_bindings.js`.
+  - `run_mode_ui.js` now mainly orchestrates preset state, selection mutations, save/load/delete actions, and open/close modal flow while preserving the existing public surface.
+- Added regression coverage:
+  - `tests/run_mode_ui.test.js` verifies `bindRunModePanelEvents(...)` only binds a given panel/document once and does not duplicate ESC/close handlers on repeat calls.
+- Validation:
+  - `npm test -- tests/run_mode_ui.test.js tests/title_settings_bindings.test.js tests/help_pause_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/story_ui.js` is now a good next UI/domain target. It still mixes progression bookkeeping, fragment selection, and overlay rendering logic in one module.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- StoryUI modularization pass:
+  - Kept `game/ui/screens/story_ui.js` as the public story/progression facade.
+  - Moved story progression helpers into new module `game/ui/screens/story_ui_helpers.js`:
+    - `storyPieces` normalization
+    - inscription getter/setter helpers
+    - sorted fragment selection
+    - next-unseen fragment resolution
+  - Moved overlay rendering into new module `game/ui/screens/story_ui_render.js`:
+    - run-fragment overlay rendering/close effects
+    - hidden-ending overlay rendering
+    - hidden-ending inscription unlock VFX/audio trigger
+  - `story_ui.js` now mainly orchestrates:
+    - unlock/show sequencing
+    - fragment display delegation
+    - world-memory / hidden-ending hint side effects
+    - ending branch selection
+- Added regression coverage:
+  - `tests/story_ui.test.js` now verifies `displayFragment(..., { closeEffect: 'none' })` removes the overlay immediately and still fires `onFragmentClosed`.
+- Validation:
+  - `npm test -- tests/story_ui.test.js tests/run_start_ui.test.js tests/region_transition_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/title/game_boot_ui.js` is now the next worthwhile UI orchestration target. It still mixes title boot wiring, DOM bootstrap, and continue/start visibility sync in one module.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- GameBootUI modularization pass:
+  - Kept `game/ui/title/game_boot_ui.js` as the title boot facade.
+  - Moved continue/save-preview helpers into new module `game/ui/title/game_boot_ui_helpers.js`:
+    - save-preview text/reset helpers
+    - continue button visibility sync
+    - save tooltip population
+  - Moved title FX/runtime helpers into new module `game/ui/title/game_boot_ui_fx.js`:
+    - stat count-up animation
+    - audio wave canvas loop
+    - lore ticker
+    - warp-burst effect
+    - keyboard navigation setup + teardown state reset
+  - `game_boot_ui.js` now mainly orchestrates:
+    - audio gesture unlock
+    - meta bootstrap
+    - title canvas boot timing
+    - UI refresh / run-mode refresh
+    - stats and continue-state sync
+- Added regression coverage:
+  - `tests/game_boot_ui.test.js` now verifies repeated `bootGame(...)` calls still register title keyboard navigation only once while preserving the click-based audio unlock listener behavior.
+- Validation:
+  - `npm test -- tests/game_boot_ui.test.js tests/title_settings_bindings.test.js tests/meta_progression_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and state artifacts `output/web-game/state-1.json`, `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/event_ui.js` is now the next worthwhile UI/system target. It still mixes modal orchestration, particle-layer lifecycle, and event choice rendering in one module.
+- Follow-up prompt: 筌욊쑵六??곸㉭
+- EventUI modularization pass:
+  - Kept `game/ui/screens/event_ui.js` as the public event facade.
+  - Moved shared dependency/modal helpers into new module `game/ui/screens/event_ui_helpers.js`:
+    - deps accessors
+    - event id lookup
+    - modal/overlay dismiss transitions
+    - item icon fallback and color parsing helpers
+  - Moved choice/gold-bar DOM updates into new module `game/ui/screens/event_ui_dom.js`:
+    - `renderChoices(...)`
+    - `updateEventGoldBar(...)`
+  - Moved rest-site particle layer lifecycle into new module `game/ui/screens/event_ui_particles.js`.
+  - `event_ui.js` now mainly orchestrates:
+    - event modal open/close flow
+    - event resolution and continue-state handling
+    - shop/rest/discard/item-shop entry wiring
+    - toast/update callbacks and return-to-game sequencing
+- Added regression coverage:
+  - `tests/event_ui.test.js` verifies `showEvent(...)` renders disabled/enabled choices correctly and `updateEventGoldBar(...)` still syncs gold/hp/deck totals through the public facade.
+- Validation:
+  - `npm test -- tests/event_ui.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/screen_ui.js` is the next clean UI orchestration target if the current modularization pass should continue.
+- Follow-up prompt: 嶺뚯쉳?듸쭛??怨멥돪
+- ScreenUI modularization pass:
+  - Kept `game/ui/screens/screen_ui.js` as the public screen-switch facade.
+  - Moved small screen-transition helpers into new module `game/ui/screens/screen_ui_helpers.js`:
+    - doc resolution
+    - active-screen class switching
+    - floating HP panel preservation/removal rule
+  - `screen_ui.js` now mainly orchestrates:
+    - current screen state update
+    - floating HP panel teardown for non-run screens
+    - title-entry callback dispatch
+- Added regression coverage:
+  - `tests/screen_ui.test.js` now verifies `onEnterTitle` is not fired for non-title screen switches while run-screen transitions continue to preserve the floating HP panel.
+- Validation:
+  - `npm test -- tests/screen_ui.test.js tests/help_pause_ui.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/reward_ui.js` is the next worthwhile UI orchestration target. It is still large enough to split into reward-rendering helpers, selection/apply helpers, and modal flow orchestration.
+- Follow-up prompt: 癲ル슣???몄춿???⑤ı??
+- RewardUI modularization pass:
+  - Kept `game/ui/screens/reward_ui.js` as the public reward facade.
+  - Moved reward helper/policy logic into new module `game/ui/screens/reward_ui_helpers.js`:
+    - reward mode normalization
+    - card/item draw helpers
+    - rarity/type label helpers
+    - reward item pool filtering
+    - max-energy cap lookup
+  - Moved reward DOM rendering into new module `game/ui/screens/reward_ui_render.js`:
+    - reward header text/state
+    - card/item/blessing option rendering
+    - picked-state and skip-confirm visibility toggles
+  - Moved reward application helpers into new module `game/ui/screens/reward_ui_claims.js`:
+    - mini-boss guaranteed bonus
+    - card/item/blessing application
+    - random upgrade application
+  - `reward_ui.js` now mainly orchestrates:
+    - reward offer composition
+    - idempotent claim/skip flow
+    - EventUI remove-card delegation
+    - toast / return-to-game timing
+- Added regression coverage:
+  - `tests/reward_ui.test.js` now verifies reward-remove cancellation clears picked state and unlocks reward flow again.
+  - Existing blessing-disabled and reward-item queue coverage was updated to the new public reward labels.
+- Validation:
+  - `npm test -- tests/reward_ui.test.js tests/event_ui.test.js tests/run_mode_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/title/character_select_ui.js` is now the highest-value UI target. It is still large and mixes selection state, card-detail rendering, and interaction wiring in one module.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- CharacterSelectUI support extraction pass:
+  - Kept `game/ui/title/character_select_ui.js` as the stateful character-select facade.
+  - Extracted static character catalog building into new module `game/ui/title/character_select_catalog.js`:
+    - class metadata id sorting
+    - particle override mapping (`berserker -> rage`, `guardian -> aegis`)
+    - start-relic display metadata resolution
+  - Extracted fallback audio/SFX helpers into new module `game/ui/title/character_select_audio.js`.
+  - Extracted radar SVG builder into new module `game/ui/title/character_select_radar.js`.
+  - `character_select_ui.js` now consumes the external catalog/SFX/radar helpers for:
+    - exported `CHARS`
+    - local `SFX` facade creation
+    - mastery/loadout radar rendering
+- Added regression coverage:
+  - `tests/character_select_support.test.js` verifies the extracted character catalog stays id-sorted with resolved relic metadata and that radar SVG generation still emits labeled compare-capable markup.
+- Validation:
+  - `npm test -- tests/character_select_support.test.js tests/init_sequence.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Residual note:
+  - `game/ui/title/character_select_ui.js` still contains legacy in-file fallback audio/radar helpers that are no longer on the active rendering path. A follow-up cleanup pass can delete those dead local definitions and then split the remaining mount/render/binding logic further.
+- Suggested next refactor target:
+  - Continue on `game/ui/title/character_select_ui.js` itself: next pass should split the remaining mount body into `character_select_render.js` and `character_select_bindings.js`.
+- Follow-up prompt: 진행해줘
+- CharacterSelectUI binding extraction pass:
+  - Kept `game/ui/title/character_select_ui.js` as the stateful facade and removed the dead inline `renderButtons()` fallback body.
+  - Added `game/ui/title/character_select_bindings.js` for interaction wiring:
+    - keyboard flow (`Escape`, arrows, `Enter`)
+    - mouse drag / touch swipe navigation thresholds
+    - left/right arrow hover + click handlers
+    - combined cleanup helper for mount teardown
+  - `character_select_ui.js` now delegates mount-time interaction setup to `setupCharacterSelectBindings(...)`, so the main file keeps orchestration while the binding details live in a focused helper.
+  - Existing `character_select_render.js` helper is now the only active path for dot/button/arrow rendering updates from `character_select_ui.js`.
+- Added regression coverage:
+  - `tests/character_select_render.test.js` verifies dot/button/arrow render helpers wire their handlers correctly.
+  - `tests/character_select_bindings.test.js` verifies keyboard flow, drag/swipe thresholds, arrow hover/click wiring, and combined cleanup behavior.
+- Validation:
+  - `npm test -- tests/character_select_bindings.test.js tests/character_select_render.test.js tests/character_select_support.test.js tests/init_sequence.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Residual note:
+  - `game/ui/title/character_select_ui.js` still retains the inactive legacy fallback audio/radar block near the top of the file. It no longer drives runtime behavior, but it should be deleted in a follow-up cleanup pass once patching around the file's encoding noise is safe.
+- Suggested next refactor target:
+  - Stay on `game/ui/title/character_select_ui.js` for one more pass and extract the remaining large info/phase rendering sections into dedicated helpers so the facade is mostly state transitions plus composition.
+- Follow-up prompt: 진행해줘
+- CharacterSelectUI panel extraction pass:
+  - Added `game/ui/title/character_select_panels.js` for the remaining large panel/overlay rendering responsibilities:
+    - info-panel DOM assembly
+    - mastery/loadout tab activation wiring
+    - echo badge / relic tooltip / deck-card tooltip wiring
+    - phase overlay rendering for `select`, `burst`, `done`
+    - story typing timer setup and end-state button handlers
+  - `game/ui/title/character_select_ui.js` now routes the active `renderInfoPanel()` and `renderPhase()` paths through the new helper module, keeping the facade focused on state transitions and orchestration.
+  - Because of the file's encoding noise, the previous in-file `renderInfoPanel()` / `renderPhase()` bodies were left as unreachable fallback code after an early `return`; follow-up cleanup can safely delete those dead blocks once patching is stable.
+- Added regression coverage:
+  - `tests/character_select_panels.test.js` verifies:
+    - info-panel content generation
+    - tab switching
+    - echo/relic/deck tooltip event wiring
+    - done/select/burst phase rendering
+    - story typing and end-state button behavior
+- Validation:
+  - `npm test -- tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/character_select_render.test.js tests/character_select_support.test.js tests/init_sequence.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - One more cleanup pass on `game/ui/title/character_select_ui.js` should remove the now-dead inline support/render blocks and leave the file as a true facade over `catalog`, `audio`, `radar`, `render`, `bindings`, and `panels` helpers.
+- Follow-up prompt: 진행해줘
+- CharacterSelectUI cleanup pass:
+  - Rewrote `game/ui/title/character_select_ui.js` as a clean facade file instead of carrying unreachable legacy blocks.
+  - Removed the old in-file fallback audio/radar/info/phase implementations that were no longer on the active path.
+  - Kept only the live responsibilities in the facade:
+    - summary replay orchestration
+    - particle canvas lifecycle
+    - modal orchestration
+    - card shell rendering
+    - state transitions and mount/destroy wiring
+  - Preserved helper-driven composition through:
+    - `character_select_audio.js`
+    - `character_select_catalog.js`
+    - `character_select_radar.js`
+    - `character_select_render.js`
+    - `character_select_bindings.js`
+    - `character_select_panels.js`
+- Validation:
+  - `npm test -- tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/character_select_render.test.js tests/character_select_support.test.js tests/init_sequence.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Residual note:
+  - The modal copy in `character_select_ui.js` was normalized during the cleanup rewrite, so if exact legacy tooltip/modal strings matter, that text can be aligned separately without reopening the architecture work.
+- Suggested next refactor target:
+  - `game/ui/run/run_setup_ui.js` or `game/ui/title/run_end_screen_ui.js` are the next natural UI facade candidates near this flow.
+- Follow-up prompt: 진행해줘
+- RunEndScreenUI facade pass:
+  - Rebuilt `game/ui/title/run_end_screen_ui.js` as a thinner facade around helper modules while preserving the public `RunEndScreenUI` class surface.
+  - Added `game/ui/title/run_end_screen_helpers.js` for:
+    - summary normalization
+    - progress percentage calculation
+    - row duration policy
+    - overlay/row markup generation
+    - count-up animation primitive
+  - `RunEndScreenUI` now focuses on:
+    - DOM mount
+    - event binding
+    - calling helper-derived summary/render data
+    - animation orchestration
+  - Added optional constructor deps (`doc`, `raf`, `setTimeout`) to make the facade more testable without changing existing call sites.
+- Added regression coverage:
+  - `tests/run_end_screen_helpers.test.js` verifies summary normalization, progress clamping, row-duration bounds, overlay/row markup generation, and injected-RAF count-up behavior.
+- Validation:
+  - `npm test -- tests/run_end_screen_helpers.test.js tests/game_boot_ui.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/run/run_setup_ui.js` is the next natural facade target in the same title-to-run flow.
+- Follow-up prompt: 진행해줘
+- RunSetupUI facade pass:
+  - Rebuilt `game/ui/run/run_setup_ui.js` as a thinner orchestration file around helper modules.
+  - Added `game/ui/run/run_setup_helpers.js` for:
+    - inscription level lookup
+    - active inscription/synergy resolution
+    - passive start-bonus application
+    - dependency/class-hp validation
+    - run-config reset
+    - player loadout setup
+    - runtime-state reset
+  - `RunSetupUI.startGame()` now mainly orchestrates:
+    - dependency resolution
+    - idempotent run start
+    - audio + run-rule entry hooks
+    - helper-driven player/runtime initialization
+    - UI enter/update hooks
+- Added regression coverage:
+  - `tests/run_setup_helpers.test.js` verifies disabled inscription filtering, passive synergy gating, dependency validation, and run-config reset behavior.
+  - Existing `tests/run_setup_ui.test.js` still verifies shared-default runtime reset and configured run-setting preservation through the public facade.
+- Validation:
+  - `npm test -- tests/run_setup_helpers.test.js tests/run_setup_ui.test.js tests/title_settings_bindings.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/title/level_up_popup_ui.js` or `game/ui/title/intro_cinematic_ui.js` are the next nearby UI candidates if the title-to-run flow cleanup continues.
+- Follow-up prompt: 진행해줘
+- LevelUpPopupUI facade pass:
+  - Rebuilt `game/ui/title/level_up_popup_ui.js` as a thin lifecycle/orchestration class.
+  - Added `game/ui/title/level_up_popup_helpers.js` for:
+    - popup markup generation
+    - payload normalization
+    - accent rgb parsing
+    - fullscreen canvas sizing
+    - particle burst seed generation
+    - 4-point star drawing primitive
+  - `LevelUpPopupUI` now mainly handles:
+    - DOM mount
+    - event binding
+    - show/close lifecycle
+    - particle frame loop orchestration using helper-generated seeds
+  - Added optional constructor deps (`doc`, `win`, `raf`, `cancelRaf`) to improve testability without changing existing call sites.
+- Added regression coverage:
+  - `tests/level_up_popup_helpers.test.js` verifies payload defaults, markup shape, rgb parsing, particle seed generation, fullscreen resize, and star polygon drawing.
+- Validation:
+  - `npm test -- tests/level_up_popup_helpers.test.js tests/run_end_screen_helpers.test.js tests/game_boot_ui.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/title/intro_cinematic_ui.js` is now the next natural title-flow facade candidate.

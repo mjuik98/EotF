@@ -4,6 +4,7 @@ import {
   createDeps,
   initDepsFactory,
   listDepContracts,
+  patchRefs,
 } from '../game/core/deps_factory.js';
 
 const EXPECTED_CONTRACTS = [
@@ -101,5 +102,20 @@ describe('deps factory', () => {
     const gameBoot = createDeps('gameBoot');
     expect(gameBoot.saveSystem).toBeDefined();
     expect(gameBoot.saveSystemDeps.runRules).toEqual({ id: 'run-rules' });
+  });
+
+  it('uses patched refs without rebuilding the public contract list', () => {
+    seedRefs({
+      RunRules: { id: 'initial-rules' },
+    });
+
+    patchRefs({
+      RunRules: { id: 'patched-rules' },
+    });
+
+    const deps = createDeps('runMode');
+
+    expect(deps.runRules).toEqual({ id: 'patched-rules' });
+    expect(listDepContracts()).toEqual(EXPECTED_CONTRACTS);
   });
 });

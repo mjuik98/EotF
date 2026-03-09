@@ -2,286 +2,75 @@ import { DATA } from '../../data/game_data.js';
 import { GAME } from '../core/global_bridge.js';
 import { ClassProgressionSystem } from './class_progression_system.js';
 import { ensureCodexRecords, ensureCodexState } from './codex_records_system.js';
+import { CURSES } from './run_rules_curses.js';
+import {
+  getRegionCount,
+  getBaseRegionIndex,
+  getRegionIdForStage,
+  getRegionData,
+} from './run_rules_regions.js';
+import {
+  getAscension,
+  isEndless,
+  getDifficultyScore,
+  getInscriptionScoreAdjustment,
+  getRewardMultiplier,
+  getEnemyScaleMultiplier,
+  getHealAmount,
+  getShopCost,
+} from './run_rules_difficulty.js';
+import { ensureRunMeta } from './run_rules_meta.js';
 
-const MIN_REGION_FLOORS = 6;
-const MAX_REGION_FLOORS = 9;
-const INSCRIPTION_SCORE_WEIGHTS = {
-  echo_boost: [-2, -4, -7],
-  resilience: [-3, -6, -10],
-  fortune: [-2, -4, -6],
-  echo_memory: [-10],
-  void_heritage: [-12],
-};
-
-function _rollRegionFloors() {
-  return MIN_REGION_FLOORS + Math.floor(Math.random() * (MAX_REGION_FLOORS - MIN_REGION_FLOORS + 1));
-}
-
-function _resolveRegionFloors(gs, regionAbsIdx, baseFloors) {
-  const fallback = Math.max(1, Math.floor(Number(baseFloors) || 1));
-  if (!gs) return fallback;
-
-  if (!gs.regionFloors || typeof gs.regionFloors !== 'object' || Array.isArray(gs.regionFloors)) {
-    gs.regionFloors = {};
-  }
-
-  const key = String(Math.max(0, Math.floor(Number(regionAbsIdx) || 0)));
-  const existing = Number(gs.regionFloors[key]);
-  if (Number.isFinite(existing) && existing >= MIN_REGION_FLOORS && existing <= MAX_REGION_FLOORS) {
-    return Math.floor(existing);
-  }
-
-  const rolled = _rollRegionFloors();
-  gs.regionFloors[key] = rolled;
-  return rolled;
-}
-export function getRegionCount() {
-  const fromData = Array.isArray(DATA?.baseRegionSequence) ? DATA.baseRegionSequence : [];
-  if (fromData.length > 0) return fromData.length;
-  return 5;
-}
-
-function _getBaseRegionSequence() {
-  const fromData = Array.isArray(DATA?.baseRegionSequence)
-    ? DATA.baseRegionSequence
-    : [];
-  if (fromData.length > 0) {
-    return fromData
-      .map((v) => Math.max(0, Math.floor(Number(v) || 0)))
-      .filter((v, idx, arr) => arr.indexOf(v) === idx);
-  }
-  return [0, 1, 2, 3, 4];
-}
-
-function _getRegionById(regionId) {
-  if (!Array.isArray(DATA?.regions) || DATA.regions.length === 0) return null;
-  const normalized = Math.max(0, Math.floor(Number(regionId) || 0));
-  return DATA.regions.find((r) => Number(r?.id) === normalized) || null;
-}
-
-function _resolveRegionRouteMap(gs) {
-  if (!gs) return null;
-  if (!gs.regionRoute || typeof gs.regionRoute !== 'object' || Array.isArray(gs.regionRoute)) {
-    gs.regionRoute = {};
-  }
-  return gs.regionRoute;
-}
-
-export function getBaseRegionIndex(regionIdx = 0) {
-  const count = getRegionCount();
-  if (!count) return 0;
-  const idx = Math.max(0, Math.floor(Number(regionIdx) || 0));
-  return idx % count;
-}
-
-export function getRegionIdForStage(regionIdx = 0, gsRef = null) {
-  const count = getRegionCount();
-  if (!count) return 0;
-
-  const sequence = _getBaseRegionSequence();
-  const idx = Math.max(0, Math.floor(Number(regionIdx) || 0));
-  const baseIdx = getBaseRegionIndex(idx);
-  const fallbackRegionId = sequence[baseIdx] ?? baseIdx;
-
-  const gs = gsRef || GAME.State || null;
-  const routeMap = _resolveRegionRouteMap(gs);
-  if (!routeMap) return fallbackRegionId;
-
-  const explicit = Number(routeMap[String(idx)]);
-  if (Number.isFinite(explicit)) return Math.max(0, Math.floor(explicit));
-  return fallbackRegionId;
-}
-
-export function getRegionData(regionIdx = 0, gsRef = null) {
-  const count = getRegionCount();
-  if (!count) return null;
-
-  const idx = Math.max(0, Math.floor(Number(regionIdx) || 0));
-  const baseIdx = getBaseRegionIndex(idx);
-  const resolvedRegionId = getRegionIdForStage(idx, gsRef);
-
-  const baseRegion = _getRegionById(resolvedRegionId)
-    || _getRegionById(_getBaseRegionSequence()[baseIdx] ?? baseIdx)
-    || _getRegionById(baseIdx);
-  if (!baseRegion) return null;
-
-  const gs = gsRef || GAME.State || null;
-  const endless = !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
-  const floors = _resolveRegionFloors(gs, idx, baseRegion.floors);
-  const regionWithFloors = {
-    ...baseRegion,
-    floors,
-    _baseRegion: baseIdx,
-    _resolvedRegionId: resolvedRegionId,
-  };
-  if (!endless || idx < count) return regionWithFloors;
-
-  const cycle = Math.floor(idx / count);
-  return {
-    ...regionWithFloors,
-    _endlessCycle: cycle,
-    name: `${baseRegion.name} · 순환 ${cycle + 1}`,
-  };
-}
+export {
+  getRegionCount,
+  getBaseRegionIndex,
+  getRegionIdForStage,
+  getRegionData,
+} from './run_rules_regions.js';
 
 export const RunRules = {
-  curses: {
-    none: { id: 'none', name: '없음', desc: '적용되는 저주가 없습니다.' },
-    tax: { id: 'tax', name: '탐욕의 저주', icon: '🧾', desc: '상점 비용이 +20% 증가합니다.' },
-    fatigue: { id: 'fatigue', name: '피로의 저주', icon: '🫠', desc: '회복량 -25%, 최대 방어막 -10.' },
-    frail: { id: 'frail', name: '허약의 저주', icon: '🩸', desc: '최대 HP -10으로 시작합니다.' },
-    decay: { id: 'decay', name: '부식의 저주', icon: '☠️', desc: '전투 종료 시 최대 HP가 2 감소합니다.' },
-    silence: { id: 'silence', name: '침묵의 저주', icon: '🔕', desc: '전투 첫 3턴 동안 최대 에너지가 1로 제한됩니다.' },
-  },
+  curses: CURSES,
 
   ensureMeta(meta) {
-    if (!meta || typeof meta !== 'object') return;
-
-    if (!meta.worldMemory || typeof meta.worldMemory !== 'object') meta.worldMemory = {};
-    if (!meta.inscriptions || typeof meta.inscriptions !== 'object') {
-      meta.inscriptions = { echo_boost: false, resilience: false, fortune: false };
-    }
-    if (!Array.isArray(meta.storyPieces)) meta.storyPieces = [];
-
-    ensureCodexState({ meta });
-    ensureCodexRecords({ meta });
-
-    if (!meta.unlocks || typeof meta.unlocks !== 'object') meta.unlocks = {};
-    if (typeof meta.unlocks.ascension !== 'boolean') meta.unlocks.ascension = (meta.runCount || 1) > 1;
-    if (typeof meta.unlocks.endless !== 'boolean') meta.unlocks.endless = false;
-
-    if (!Number.isFinite(meta.maxAscension)) {
-      meta.maxAscension = meta.unlocks.ascension ? 1 : 0;
-    }
-
-    if (!meta.runConfig || typeof meta.runConfig !== 'object') {
-      meta.runConfig = { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] };
-    }
-    if (!Array.isArray(meta.runConfig.disabledInscriptions)) {
-      meta.runConfig.disabledInscriptions = [];
-    }
-    if (typeof meta.runConfig.endless !== 'boolean' && typeof meta.runConfig.endlessMode === 'boolean') {
-      meta.runConfig.endless = meta.runConfig.endlessMode;
-    }
-    if (!Number.isFinite(meta.runConfig.ascension)) meta.runConfig.ascension = 0;
-    if (typeof meta.runConfig.endless !== 'boolean') meta.runConfig.endless = false;
-    if ('blessing' in meta.runConfig) delete meta.runConfig.blessing;
-    if (!this.curses[meta.runConfig.curse]) meta.runConfig.curse = 'none';
-    if (!Array.isArray(meta.runConfigPresets)) meta.runConfigPresets = [];
-    if (!meta.progress || typeof meta.progress !== 'object') {
-      meta.progress = { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} };
-    }
-    if (!Number.isFinite(meta.progress.echoShards)) meta.progress.echoShards = 0;
-    if (!Number.isFinite(meta.progress.totalDamage)) meta.progress.totalDamage = 0;
-    if (!Number.isFinite(meta.progress.victories)) meta.progress.victories = 0;
-    if (!Number.isFinite(meta.progress.failures)) meta.progress.failures = 0;
-    if (!meta.progress.bossKills || typeof meta.progress.bossKills !== 'object') meta.progress.bossKills = {};
-
-    meta.maxAscension = Math.max(0, Math.floor(meta.maxAscension));
-    meta.runConfig.ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(meta.runConfig.ascension)));
-    if (!meta.unlocks.endless) meta.runConfig.endless = false;
-    meta.runConfigPresets = Array.from({ length: 4 }, (_, idx) => {
-      const preset = Array.isArray(meta.runConfigPresets) ? meta.runConfigPresets[idx] : null;
-      if (!preset || typeof preset !== 'object') return null;
-        const config = preset.config && typeof preset.config === 'object' ? preset.config : {};
-        const ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(Number(config.ascension) || 0)));
-        const endless = meta.unlocks.endless ? !!config.endless : false;
-        const curse = this.curses[config.curse] ? config.curse : 'none';
-        const disabledInscriptions = Array.isArray(config.disabledInscriptions)
-          ? [...new Set(config.disabledInscriptions.map((id) => String(id)))]
-          : [];
-        return {
-          id: String(preset.id || `preset-${idx + 1}`),
-          name: String(preset.name || `Preset ${idx + 1}`).slice(0, 32),
-          config: {
-            ascension,
-            endless,
-            curse,
-            disabledInscriptions,
-          },
-        };
-      });
-    const classIds = Object.keys(DATA?.classes || {});
-    ClassProgressionSystem.ensureMeta(meta, classIds);
+    ensureRunMeta(meta, {
+      curses: this.curses,
+      data: DATA,
+      ensureCodexState,
+      ensureCodexRecords,
+      ensureClassProgressionMeta: (metaRef, classIds) => ClassProgressionSystem.ensureMeta(metaRef, classIds),
+    });
   },
 
   getAscension(gs) {
-    const lvl = gs?.runConfig?.ascension;
-    return Number.isFinite(lvl) ? Math.max(0, Math.floor(lvl)) : 0;
+    return getAscension(gs);
   },
 
   isEndless(gs) {
-    return !!(gs?.runConfig?.endlessMode || gs?.runConfig?.endless);
+    return isEndless(gs);
   },
 
   getDifficultyScore(gs) {
-    const cfg = gs?.runConfig || {};
-    let score = this.getAscension(gs) * 15;
-    if (this.isEndless(gs)) score += 10;
-
-    const curseWeight = { tax: 5, fatigue: 10, frail: 8, decay: 10, silence: 8 };
-
-    score += curseWeight[cfg.curse || 'none'] || 0;
-    score += this.getInscriptionScoreAdjustment(gs);
-    return Math.max(0, score);
+    return getDifficultyScore(gs);
   },
 
   getInscriptionScoreAdjustment(gs) {
-    if (!gs?.meta?.inscriptions) return 0;
-
-    const disabled = new Set(gs?.runConfig?.disabledInscriptions || []);
-    let score = 0;
-
-    for (const [id, rawLevel] of Object.entries(gs.meta.inscriptions)) {
-      if (disabled.has(id)) continue;
-      const level = typeof rawLevel === 'boolean'
-        ? (rawLevel ? 1 : 0)
-        : Math.max(0, Math.floor(Number(rawLevel) || 0));
-      if (level <= 0) continue;
-
-      const weights = INSCRIPTION_SCORE_WEIGHTS[id];
-      if (!weights?.length) continue;
-      score += weights[Math.min(level, weights.length) - 1] || 0;
-    }
-
-    return score;
+    return getInscriptionScoreAdjustment(gs);
   },
 
   getRewardMultiplier(gs) {
-    return +(1 + this.getDifficultyScore(gs) * 0.015).toFixed(2);
+    return getRewardMultiplier(gs);
   },
 
   getEnemyScaleMultiplier(gs, regionAbs = 0) {
-    let ascMul = 1 + this.getAscension(gs) * 0.06;
-    if (ascMul > 1.5) ascMul = 1.5;
-
-    const cycle = this.isEndless(gs) ? Math.floor(Math.max(0, regionAbs) / Math.max(1, getRegionCount())) : 0;
-    const endlessMul = 1 + cycle * 0.12;
-    return ascMul * endlessMul;
+    return getEnemyScaleMultiplier(gs, regionAbs);
   },
 
   getHealAmount(gs, baseAmount) {
-    const base = Math.max(0, Math.floor(Number(baseAmount) || 0));
-    if (!base) return 0;
-    let mult = 1 - this.getAscension(gs) * 0.02;
-    if ((gs?.runConfig?.curse || 'none') === 'fatigue') mult *= 0.75;
-    return Math.max(0, Math.floor(base * Math.max(0.2, mult)));
+    return getHealAmount(gs, baseAmount);
   },
 
   getShopCost(gs, baseCost) {
-    const base = Math.max(1, Math.floor(Number(baseCost) || 1));
-    let mult = 1 + this.getAscension(gs) * 0.03;
-    if ((gs?.runConfig?.curse || 'none') === 'tax') mult *= 1.2;
-
-    // 아이템 트리거 추가 (예: 녹슨 열쇠 10% 할인)
-    if (typeof gs?.triggerItems === 'function') {
-      const itemMult = gs.triggerItems('shop_price_mod', 1.0);
-      if (typeof itemMult === 'number' && Number.isFinite(itemMult)) {
-        mult *= itemMult;
-      }
-    }
-
-    return Math.max(1, Math.ceil(base * mult));
+    return getShopCost(gs, baseCost);
   },
 
   applyRunStart(gs) {
@@ -322,6 +111,7 @@ export const RunRules = {
       data: DATA,
     });
   },
+
   onTurnStart(gs) {
     if (!gs?.player || !gs?.combat) return;
 

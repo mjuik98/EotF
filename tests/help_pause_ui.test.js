@@ -139,6 +139,21 @@ describe('HelpPauseUI help overlay', () => {
     expect(deps.closeSettings).not.toHaveBeenCalled();
     expect(event.preventDefault).not.toHaveBeenCalled();
   });
+
+  it('binds global hotkeys only once per module instance', async () => {
+    vi.resetModules();
+    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/ui/screens/help_pause_ui.js');
+    const doc = {
+      addEventListener: vi.fn(),
+      querySelector: () => null,
+      getElementById: () => null,
+    };
+
+    FreshHelpPauseUI.bindGlobalHotkeys({ doc });
+    FreshHelpPauseUI.bindGlobalHotkeys({ doc });
+
+    expect(doc.addEventListener).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('HelpPauseUI abandon flow', () => {

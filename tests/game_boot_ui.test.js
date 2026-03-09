@@ -3,11 +3,14 @@ import { GameBootUI } from '../game/ui/title/game_boot_ui.js';
 
 function makeElement() {
   return {
+    id: '',
     style: {},
     textContent: '',
     innerHTML: '',
     classList: { contains: vi.fn(() => true), add: vi.fn(), remove: vi.fn(), toggle: vi.fn() },
     addEventListener: vi.fn(),
+    closest: vi.fn(() => null),
+    click: vi.fn(),
     getBoundingClientRect: vi.fn(() => ({ top: 10, height: 40 })),
     getContext: vi.fn(() => ({
       clearRect: vi.fn(),
@@ -29,35 +32,35 @@ function makeElement() {
 
 function createMockDocument() {
   const elements = {
-    titleAudioWave: { ...makeElement(), width: 300, height: 32 },
-    titleTimeLabel: makeElement(),
-    titleTimeText: makeElement(),
-    titleTimeDot: makeElement(),
-    titleStatsBlock: makeElement(),
-    titleTotalRuns: makeElement(),
-    titleTotalKills: makeElement(),
-    titleBestChain: makeElement(),
-    titleContinueWrap: makeElement(),
-    titleMenuDivider: makeElement(),
-    titleMenuPanel: { ...makeElement(), getBoundingClientRect: vi.fn(() => ({ top: 0 })) },
-    titleNavCursor: makeElement(),
-    titleLoreText: makeElement(),
-    mainContinueBtn: makeElement(),
-    mainStartBtn: makeElement(),
-    mainRunRulesBtn: makeElement(),
-    mainCodexBtn: makeElement(),
-    mainSettingsBtn: makeElement(),
-    mainQuitBtn: makeElement(),
-    titleScreen: { ...makeElement(), classList: { contains: vi.fn(() => true) } },
-    mainTitleSubScreen: makeElement(),
-    sttClass: makeElement(),
-    sttFloor: makeElement(),
-    sttAscension: makeElement(),
-    sttHp: makeElement(),
-    sttGold: makeElement(),
-    titleContinueMeta: makeElement(),
-    sttDeckPills: makeElement(),
-    sttRelics: makeElement(),
+    titleAudioWave: { ...makeElement(), id: 'titleAudioWave', width: 300, height: 32 },
+    titleTimeLabel: { ...makeElement(), id: 'titleTimeLabel' },
+    titleTimeText: { ...makeElement(), id: 'titleTimeText' },
+    titleTimeDot: { ...makeElement(), id: 'titleTimeDot' },
+    titleStatsBlock: { ...makeElement(), id: 'titleStatsBlock' },
+    titleTotalRuns: { ...makeElement(), id: 'titleTotalRuns' },
+    titleTotalKills: { ...makeElement(), id: 'titleTotalKills' },
+    titleBestChain: { ...makeElement(), id: 'titleBestChain' },
+    titleContinueWrap: { ...makeElement(), id: 'titleContinueWrap' },
+    titleMenuDivider: { ...makeElement(), id: 'titleMenuDivider' },
+    titleMenuPanel: { ...makeElement(), id: 'titleMenuPanel', getBoundingClientRect: vi.fn(() => ({ top: 0 })) },
+    titleNavCursor: { ...makeElement(), id: 'titleNavCursor' },
+    titleLoreText: { ...makeElement(), id: 'titleLoreText' },
+    mainContinueBtn: { ...makeElement(), id: 'mainContinueBtn' },
+    mainStartBtn: { ...makeElement(), id: 'mainStartBtn' },
+    mainRunRulesBtn: { ...makeElement(), id: 'mainRunRulesBtn' },
+    mainCodexBtn: { ...makeElement(), id: 'mainCodexBtn' },
+    mainSettingsBtn: { ...makeElement(), id: 'mainSettingsBtn' },
+    mainQuitBtn: { ...makeElement(), id: 'mainQuitBtn' },
+    titleScreen: { ...makeElement(), id: 'titleScreen', classList: { contains: vi.fn(() => true) } },
+    mainTitleSubScreen: { ...makeElement(), id: 'mainTitleSubScreen' },
+    sttClass: { ...makeElement(), id: 'sttClass' },
+    sttFloor: { ...makeElement(), id: 'sttFloor' },
+    sttAscension: { ...makeElement(), id: 'sttAscension' },
+    sttHp: { ...makeElement(), id: 'sttHp' },
+    sttGold: { ...makeElement(), id: 'sttGold' },
+    titleContinueMeta: { ...makeElement(), id: 'titleContinueMeta' },
+    sttDeckPills: { ...makeElement(), id: 'sttDeckPills' },
+    sttRelics: { ...makeElement(), id: 'sttRelics' },
   };
 
   return {
@@ -167,5 +170,35 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleContinueMeta.textContent).toBe('');
     expect(doc.elements.sttDeckPills.innerHTML).toBe('');
     expect(doc.elements.sttRelics.innerHTML).toBe('');
+  });
+
+  it('boots keyboard navigation only once across repeated bootGame calls', () => {
+    const doc = createMockDocument();
+    const gs = {
+      meta: { runCount: 1, totalKills: 0, bestChain: 0, runConfig: { ascension: 0 } },
+      player: {},
+      currentFloor: 1,
+      currentRegion: 0,
+    };
+    const deps = {
+      doc,
+      gs,
+      audioEngine: {},
+      runRules: { ensureMeta: vi.fn() },
+      saveSystem: { hasSave: vi.fn(() => false), loadRun: vi.fn(() => false), loadMeta: vi.fn() },
+      saveSystemDeps: {},
+      initTitleCanvas: vi.fn(),
+      updateUI: vi.fn(),
+      refreshRunModePanel: vi.fn(),
+    };
+
+    GameBootUI.bootGame(deps);
+    GameBootUI.bootGame(deps);
+
+    const keydownCalls = doc.addEventListener.mock.calls.filter(([name]) => name === 'keydown');
+    const clickCalls = doc.addEventListener.mock.calls.filter(([name]) => name === 'click');
+
+    expect(keydownCalls).toHaveLength(1);
+    expect(clickCalls).toHaveLength(2);
   });
 });

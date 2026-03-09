@@ -28,4 +28,12 @@ describe('event contracts', () => {
     const valid = validateEventPayload(CoreEvents.LOG_ADD, { msg: 'hello', type: 'system' });
     expect(valid.length).toBe(0);
   });
+
+  it('does not wrap core events into action envelopes', () => {
+    const payload = { msg: 'hello', type: 'system' };
+
+    const normalized = normalizeEventPayload(CoreEvents.LOG_ADD, payload);
+
+    expect(normalized).toEqual(payload);
+  });
 });

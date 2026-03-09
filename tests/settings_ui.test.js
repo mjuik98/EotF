@@ -124,6 +124,61 @@ function createConflictDoc() {
   };
 }
 
+function createBindDoc() {
+  const tabBtn = {
+    dataset: { tab: 'accessibility' },
+    addEventListener: vi.fn(),
+  };
+  const keybindBtn = {
+    dataset: { keybind: 'pause' },
+    addEventListener: vi.fn(),
+  };
+  const fontBtn = {
+    dataset: { fontSize: 'large' },
+    addEventListener: vi.fn(),
+    classList: { toggle: vi.fn() },
+  };
+  const slider = { addEventListener: vi.fn() };
+  const icon = { addEventListener: vi.fn() };
+  const visualToggle = { addEventListener: vi.fn() };
+  const accessToggle = { addEventListener: vi.fn() };
+  const resetBtn = { addEventListener: vi.fn() };
+  const closeBtn = { addEventListener: vi.fn() };
+
+  return {
+    querySelectorAll: vi.fn((selector) => {
+      if (selector === '.settings-tab-btn[data-tab]') return [tabBtn];
+      if (selector === '.settings-font-btn[data-font-size]') return [fontBtn];
+      if (selector === '.settings-keybind-btn[data-keybind]') return [keybindBtn];
+      return [];
+    }),
+    querySelector: vi.fn((selector) => {
+      if (selector === '.settings-reset-btn') return resetBtn;
+      if (selector === '.settings-close-btn') return closeBtn;
+      return null;
+    }),
+    getElementById: vi.fn((id) => {
+      if (id === 'settings-vol-master-slider') return slider;
+      if (id === 'settings-vol-master-icon') return icon;
+      if (id === 'settings-visual-particles') return visualToggle;
+      if (id === 'settings-access-highContrast') return accessToggle;
+      return null;
+    }),
+    documentElement: { classList: createClassList(), dataset: {} },
+    refs: {
+      tabBtn,
+      keybindBtn,
+      fontBtn,
+      slider,
+      icon,
+      visualToggle,
+      accessToggle,
+      resetBtn,
+      closeBtn,
+    },
+  };
+}
+
 describe('SettingsUI', () => {
   beforeEach(() => {
     const localStorageMock = createLocalStorageMock();
@@ -227,5 +282,21 @@ describe('SettingsUI', () => {
     expect(doc.refs.banner.textContent).toContain('일시정지');
     expect(doc.refs.banner.textContent).toContain('덱 보기');
     expect(sortSpy).toHaveBeenCalledWith(doc, expect.any(Set));
+  });
+  it('bindDomEvents only wires a document once', () => {
+    const doc = createBindDoc();
+
+    SettingsUI._bindDomEvents(doc);
+    SettingsUI._bindDomEvents(doc);
+
+    expect(doc.refs.tabBtn.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.keybindBtn.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.fontBtn.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.slider.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.icon.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.visualToggle.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.accessToggle.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.resetBtn.addEventListener).toHaveBeenCalledTimes(1);
+    expect(doc.refs.closeBtn.addEventListener).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,6 +5,7 @@ export const CoreEvents = Object.freeze({
 });
 
 const ACTION_ENVELOPE_REQUIRED_KEYS = ['type', 'ts', 'payload'];
+const ACTION_EVENT_NAMES = new Set(Object.values(Actions));
 
 function isPlainObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -54,7 +55,7 @@ export const EventContracts = Object.freeze({
 });
 
 function isActionEvent(eventName) {
-  return typeof eventName === 'string' && eventName.includes(':');
+  return ACTION_EVENT_NAMES.has(eventName);
 }
 
 export function listContractEvents() {
