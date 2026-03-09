@@ -121,11 +121,13 @@ function _ensureMiniBossBonus(gs, data, deps) {
     const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
     gs.player.items.push(guaranteed.id);
     registerItemFound(gs, guaranteed.id);
+    deps.playItemGet?.();
+    deps.showItemToast?.(guaranteed, { forceQueue: true });
     gs.addLog?.(`🔥 중간 보스 유물 획득: ${guaranteed.icon || '💎'} ${guaranteed.name}`, 'system');
   }
 }
 
-function _renderRewardCardOption(container, cardId, data, deps, onPick, idx) {
+function _renderRewardCardOption(container, cardId, data, gs, deps, onPick, idx) {
   const doc = _getDoc(deps);
   const card = data.cards?.[cardId];
   if (!card) return;
@@ -200,7 +202,7 @@ function _renderItemOption(container, item, deps, onPick, idx) {
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
   wrapper.style.animationDelay = `${idx * 0.08}s`;
-  wrapper.setAttribute('aria-label', `${item.name || item.id} 아이템 선택`);
+  wrapper.setAttribute('aria-label', `${item.name || item.id} 유물 선택`);
 
   const cardEl = doc.createElement('div');
   const rarityClass = `rarity-${item.rarity || 'common'}`;
@@ -227,7 +229,7 @@ function _renderItemOption(container, item, deps, onPick, idx) {
 
   const rarity = doc.createElement('div');
   rarity.className = `card-type reward-card-type ${rarityClass}`.trim();
-  rarity.textContent = `아이템 · ${_toRarityLabel(item.rarity)}`;
+  rarity.textContent = `유물 · ${_toRarityLabel(item.rarity)}`;
 
   cardEl.append(icon, name, desc, rarity);
   wrapper.appendChild(cardEl);
@@ -372,7 +374,7 @@ export const RewardUI = {
     container.classList.remove('picked');
 
     rewardCards.forEach((cardId, idx) => {
-      _renderRewardCardOption(container, cardId, data, deps, () => this.takeRewardCard(cardId, deps), idx);
+      _renderRewardCardOption(container, cardId, data, gs, deps, () => this.takeRewardCard(cardId, deps), idx);
     });
 
     // --- 축복(Blessing) 보상 추가 ---
@@ -404,12 +406,32 @@ export const RewardUI = {
 
     const shouldOfferItem = Math.random() < relicChance;
     if (shouldOfferItem) {
-      const availableItems = _getRewardItemPool(gs, data, 'reward');
-      const targetRarity = isBoss ? ['boss', 'legendary', 'rare'] : (isMiniBoss ? ['rare', 'legendary'] : ['common', 'uncommon']);
-      const pool = availableItems.filter((item) => targetRarity.includes(item.rarity));
-      const itemPool = pool.length > 0
-        ? pool
-        : availableItems;
+      const allAvailable = _getRewardItemPool(gs, data, 'reward');
+      const isBossEncounter = isBoss;
+
+      let itemPool = [];
+      if (isBossEncounter) {
+        // 보스전: 보스 등급 유물 우선, 없으면 전설/희귀로 대체
+        itemPool = allAvailable.filter(item => item.rarity === 'boss');
+        if (itemPool.length === 0) {
+          itemPool = allAvailable.filter(item => ['legendary', 'rare'].includes(item.rarity));
+        }
+      } else {
+        // 일반/정예/중간보스: 보스 등급 완전 제외
+        const nonBossPool = allAvailable.filter(item => item.rarity !== 'boss');
+        
+        if (isMiniBoss) {
+          itemPool = nonBossPool.filter(item => ['rare', 'legendary'].includes(item.rarity));
+        } else {
+          itemPool = nonBossPool.filter(item => ['common', 'uncommon'].includes(item.rarity));
+        }
+
+        // 특정 등급 고갈 시 보스를 제외한 상위/하위 등급으로 폴백
+        if (itemPool.length === 0) {
+          itemPool = nonBossPool;
+        }
+      }
+
       if (itemPool.length > 0) {
         const classIds = Object.keys(data?.classes || {});
         const extraChoices = ClassProgressionSystem.getRewardRelicChoiceBonus(gs, { classIds });
@@ -510,7 +532,7 @@ export const RewardUI = {
       }
 
       deps.playItemGet?.();
-      deps.showItemToast?.(item);
+      deps.showItemToast?.(item, { forceQueue: true });
       setTimeout(() => deps.returnToGame?.(true), 350);
     }, { ttlMs: 3000 });
   },

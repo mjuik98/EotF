@@ -551,7 +551,7 @@ export const EventUI = {
       if (acquiredCard && typeof deps.showItemToast === 'function') {
         const cardData = window.DATA?.cards?.[acquiredCard];
         if (cardData) {
-          deps.showItemToast(cardData, deps, {
+          deps.showItemToast(cardData, {
             typeLabel: `${RARITY_LABELS[cardData.rarity] || cardData.rarity} 카드 획득`
           });
         }
@@ -561,7 +561,7 @@ export const EventUI = {
       if (acquiredItem && typeof deps.showItemToast === 'function') {
         const itemData = window.DATA?.items?.[acquiredItem];
         if (itemData) {
-          deps.showItemToast(itemData, deps);
+          deps.showItemToast(itemData);
         }
       }
 
@@ -651,7 +651,9 @@ export const EventUI = {
       const originalEffect = choice.effect;
       choice.effect = (state) => {
         const result = originalEffect(state);
-        if (result && !result.includes('부족') && !result.includes('없다') && result !== '__item_shop_open__') {
+        const resultText = (typeof result === 'object' && result !== null) ? result.resultText : result;
+        const isSkip = typeof resultText === 'string' && (resultText.includes('부족') || resultText.includes('없다'));
+        if (result && !isSkip && result !== '__item_shop_open__') {
           if (typeof deps.playItemGet === 'function') deps.playItemGet();
           if (typeof deps.updateUI === 'function') deps.updateUI();
         }

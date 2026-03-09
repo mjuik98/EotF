@@ -1268,3 +1268,13 @@ Original prompt:
   - `npm test -- tests/meta_progression_ui.test.js tests/game_boot_ui.test.js tests/run_rules_preview_meta.test.js` PASS.
   - `npm run build` PASS.
   - Re-ran the Playwright skill client against `http://127.0.0.1:4173`; no new runtime errors were reported in terminal output.
+- Toast queue follow-up:
+  - Raised queued toast fallback stacking priority in `game/ui/hud/feedback_ui.js` so item toasts render above reward/shop overlays.
+  - Fixed reward item acquisition flow in `game/ui/screens/reward_ui.js` to force relic gains through the toast queue, including the mini-boss guaranteed relic grant that previously only logged the reward.
+  - Cleaned the event reward toast calls in `game/ui/screens/event_ui.js` to use the current `(item, options)` signature instead of passing stale deps as the options payload.
+  - Added regression coverage in `tests/reward_ui.test.js` and `tests/feedback_ui.test.js` for mini-boss guaranteed relic toasts, reward relic `forceQueue`, and queued toast z-index.
+- Validation:
+  - `npm test -- tests/reward_ui.test.js tests/feedback_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright web-game client against `http://127.0.0.1:4173`; fresh capture `output/web-game/shot-0.png` was generated with no `errors-*.json`.
+  - Browser-side Playwright check confirmed `window.showItemToast(..., { forceQueue: true })` creates `.item-toast` at computed `z-index: 9500`, above a synthetic blocking overlay at `z-index: 6000` (`output/web-game/toast-zindex-check.png`).

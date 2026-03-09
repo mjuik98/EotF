@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { RewardUI } from '../game/ui/screens/reward_ui.js';
 import { CONSTANTS } from '../game/data/constants.js';
+import { clearIdempotencyPrefix } from '../game/utils/idempotency_utils.js';
 
 function querySelectorAllByClass(root, selector) {
   if (typeof selector !== 'string' || !selector.startsWith('.')) return [];
@@ -141,6 +142,9 @@ function createDeps({ maxEnergy }) {
     data: { cards, items: {} },
     doc,
     switchScreen: vi.fn(),
+    showItemToast: vi.fn(),
+    playItemGet: vi.fn(),
+    returnToGame: vi.fn(),
     rewardCards,
   };
 }
@@ -194,5 +198,67 @@ describe('RewardUI blessing disabled visuals', () => {
     expect(findChildByClass(blessingCard, 'reward-disabled-overlay')).toBeFalsy();
     expect(findChildByClass(blessingCard, 'reward-disabled-state-badge')).toBeFalsy();
     expect(findChildByClass(blessingCard, 'reward-disabled-reason')).toBeFalsy();
+  });
+
+  it('queues the guaranteed mini-boss relic toast', () => {
+    const originalRandom = Math.random;
+    Math.random = vi.fn()
+      .mockReturnValueOnce(0)
+      .mockReturnValue(1);
+
+    const deps = createDeps({ maxEnergy: 3 });
+    deps.data.items = {
+      relic_test: {
+        id: 'relic_test',
+        name: 'Mini Boss Relic',
+        desc: 'reward relic',
+        rarity: 'rare',
+        obtainableFrom: ['reward'],
+      },
+    };
+
+    try {
+      RewardUI.showRewardScreen('mini_boss', deps);
+    } finally {
+      Math.random = originalRandom;
+    }
+
+    expect(deps.gs.player.items).toContain('relic_test');
+    expect(deps.playItemGet).toHaveBeenCalledTimes(1);
+    expect(deps.showItemToast).toHaveBeenCalledWith(
+      deps.data.items.relic_test,
+      { forceQueue: true },
+    );
+  });
+
+  it('forces reward item acquisition through the toast queue', () => {
+    vi.useFakeTimers();
+    clearIdempotencyPrefix('reward:');
+
+    const deps = createDeps({ maxEnergy: 3 });
+    deps.data.items = {
+      relic_reward: {
+        id: 'relic_reward',
+        name: 'Reward Relic',
+        desc: 'reward relic',
+        rarity: 'legendary',
+      },
+    };
+
+    try {
+      RewardUI.takeRewardItem('relic_reward', deps);
+
+      expect(deps.showItemToast).toHaveBeenCalledWith(
+        deps.data.items.relic_reward,
+        { forceQueue: true },
+      );
+      expect(deps.playItemGet).toHaveBeenCalledTimes(1);
+
+      vi.advanceTimersByTime(350);
+      expect(deps.returnToGame).toHaveBeenCalledWith(true);
+    } finally {
+      clearIdempotencyPrefix('reward:');
+      vi.useRealTimers();
+    }
   });
 });

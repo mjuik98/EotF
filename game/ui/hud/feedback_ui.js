@@ -51,11 +51,13 @@ function _drainToastQueue() {
     const next = _toastQueue.shift();
     if (!next || typeof next.createEl !== 'function') continue;
     const doc = _getDoc(next.deps);
+    if (!doc?.body) continue;
     const el = next.createEl(doc);
     if (!el) continue;
 
     if (!el.style.position) el.style.position = 'fixed';
     if (!el.style.right) el.style.right = '260px';
+    if (!el.style.zIndex) el.style.zIndex = '9500';
     el.style.bottom = `${TOAST_BASE_BOTTOM}px`;
 
     doc.body.appendChild(el);
