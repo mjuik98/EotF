@@ -167,6 +167,7 @@ describe('HelpPauseUI abandon flow', () => {
         currentFloor: 12,
       },
       finalizeRunOutcome: vi.fn(),
+      clearActiveRunSave: vi.fn(),
       switchScreen: vi.fn(),
     };
 
@@ -175,6 +176,7 @@ describe('HelpPauseUI abandon flow', () => {
     HelpPauseUI.confirmAbandon(deps);
 
     expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true });
+    expect(deps.clearActiveRunSave).toHaveBeenCalledTimes(1);
     expect(showOutcomeSpy).toHaveBeenCalledWith('abandon', deps);
     expect(deps.switchScreen).not.toHaveBeenCalled();
     expect(deps.gs.combat.active).toBe(false);

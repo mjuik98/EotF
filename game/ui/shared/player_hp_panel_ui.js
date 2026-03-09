@@ -156,27 +156,29 @@ function _buildPlayerHpPanel(doc, gs, deps = {}, options = {}) {
     wrap.appendChild(banner);
   }
 
-  const buffs = gs?.player?.buffs || {};
-  if (Object.keys(buffs).length > 0) {
-    const statusSection = doc.createElement('div');
-    statusSection.className = 'nc-hp-status-section';
-    const statusLabel = _createEl(doc, 'div', 'nc-hp-status-label');
-    statusLabel.textContent = 'status';
-    const statusBadges = doc.createElement('div');
-    statusBadges.id = statusContainerId;
-    statusBadges.className = 'nc-hp-status-badges';
-    statusSection.append(statusLabel, statusBadges);
-    wrap.appendChild(statusSection);
+  const statusSection = doc.createElement('div');
+  statusSection.className = 'nc-hp-status-section';
+  const statusLabel = _createEl(doc, 'div', 'nc-hp-status-label');
+  statusLabel.textContent = 'status';
+  const statusBadges = doc.createElement('div');
+  statusBadges.id = statusContainerId;
+  statusBadges.className = 'nc-hp-status-badges';
+  statusSection.append(statusLabel, statusBadges);
+  wrap.appendChild(statusSection);
 
-    const statusEffectsUI = _resolveStatusEffectsUI(deps);
-    if (typeof statusEffectsUI?.updateStatusDisplay === 'function') {
-      statusEffectsUI.updateStatusDisplay({
-        ...deps,
-        gs,
-        doc,
-        statusContainerId,
-      });
-    }
+  const statusEffectsUI = _resolveStatusEffectsUI(deps);
+  if (typeof statusEffectsUI?.updateStatusDisplay === 'function') {
+    statusEffectsUI.updateStatusDisplay({
+      ...deps,
+      gs,
+      doc,
+      statusContainerId,
+    });
+  } else {
+    const none = doc.createElement('span');
+    none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
+    none.textContent = '없음';
+    statusBadges.appendChild(none);
   }
 
   return wrap;

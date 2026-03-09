@@ -152,6 +152,7 @@ export const Reducers = {
         } else {
             buffs[id] = { stacks, ...data };
         }
+        gs.markDirty('hud');
     },
 
     [Actions.PLAYER_MAX_HP_GROWTH](gs, { amount }) {

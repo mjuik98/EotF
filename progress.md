@@ -1278,3 +1278,38 @@ Original prompt:
   - `npm run build` PASS.
   - Ran the Playwright web-game client against `http://127.0.0.1:4173`; fresh capture `output/web-game/shot-0.png` was generated with no `errors-*.json`.
   - Browser-side Playwright check confirmed `window.showItemToast(..., { forceQueue: true })` creates `.item-toast` at computed `z-index: 9500`, above a synthetic blocking overlay at `z-index: 6000` (`output/web-game/toast-zindex-check.png`).
+- Ending-screen button cleanup:
+  - Removed the ending screen codex-button behavior in `game/ui/screens/ending_screen_ui.js`; the outcome screen now keeps only the restart button in the primary action row.
+  - Added `tests/ending_screen_ui.test.js` to assert the rendered ending-screen markup no longer includes `btnCodex`.
+- Validation:
+  - `npm test -- tests/ending_screen_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; fresh `output/web-game/shot-0.png` generated with no `errors-*.json`.
+- Continue-save abandon follow-up:
+  - Hardened `game/ui/screens/help_pause_ui.js` so `confirmAbandon()` explicitly clears the active run save in addition to finalizing run outcome, preventing stale continue data from surviving if the run-finalize path does not refresh storage state promptly.
+  - Exposed `clearActiveRunSave` through the help/pause deps contract in `game/core/deps/contracts/ui_contract_builders.js`.
+  - Extended `tests/help_pause_ui.test.js` to verify the abandon flow clears the active run save while still routing through the cinematic outcome screen.
+- Validation:
+  - `npm test -- tests/help_pause_ui.test.js tests/meta_progression_ui.test.js tests/game_boot_ui.test.js tests/run_rules_preview_meta.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; fresh `output/web-game/shot-0.png` generated with no `errors-*.json`.
+- Resonance buff-tooltip follow-up:
+  - Investigated `잔향기사`/swordsman trait `resonance`; tooltip/status metadata already existed in `game/ui/combat/status_effects_ui.js` and `game/ui/combat/status_tooltip_builder.js`.
+  - Root cause was UI refresh timing: `Reducers[Actions.PLAYER_BUFF]` updated `player.buffs` but did not mark `hud` dirty, so buffs that first appear during combat could miss the full HUD rerender that creates/refreshes buff panels.
+  - Added `gs.markDirty('hud')` to `game/core/state_actions.js` `PLAYER_BUFF`.
+  - Added regression coverage in `tests/state_actions.test.js` to assert creating `resonance` marks the HUD dirty.
+- Validation:
+  - `npm test -- tests/state_actions.test.js tests/class_mechanics.test.js tests/player_hp_panel_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; fresh `output/web-game/shot-0.png` generated, and no `errors-*.json` artifacts were present.
+  - Latest screenshot still captured the title/background scene rather than an in-combat state, so browser verification here was limited to successful launch/render with no new runtime error artifacts.
+- Mirror / Time Warp HUD follow-up:
+  - Investigated `공허의 거울` (`mirror`) and `시간 왜곡` (`time_warp`) buff display paths; both card effects already used `gs.addBuff(...)`, and status metadata existed.
+  - Root cause was the floating HP HUD structure: `game/ui/shared/player_hp_panel_ui.js` only mounted the status container when buffs already existed at render time, so buffs gained mid-combat could not populate the panel immediately.
+  - Updated `player_hp_panel_ui.js` to always mount the status section/container and let `StatusEffectsUI.updateStatusDisplay(...)` render either badges or the empty-state text.
+  - Added regression coverage in `tests/player_hp_panel_ui.test.js` to keep the status container mounted even before the first buff is gained.
+- Validation:
+  - `npm test -- tests/player_hp_panel_ui.test.js tests/hud_update_ui_hp_panel.test.js tests/state_actions.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; no new `errors-*.json` artifacts were present.
+  - The client again did not refresh the screenshot timestamp despite completing, so browser-side verification remained limited to successful launch and absence of captured runtime errors.

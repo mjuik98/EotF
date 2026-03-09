@@ -110,6 +110,19 @@ describe('Reducers', () => {
         expect(gs.player.energy).toBe(2);
     });
 
+    it('PLAYER_BUFF marks the hud dirty when a new combat buff appears', () => {
+        const gs = createBaseState();
+
+        Reducers[Actions.PLAYER_BUFF](gs, {
+            id: 'resonance',
+            stacks: 99,
+            data: { dmgBonus: 1 },
+        });
+
+        expect(gs.player.buffs.resonance).toEqual({ stacks: 99, dmgBonus: 1 });
+        expect(gs.isDirty('hud')).toBe(true);
+    });
+
     it('COMBAT_END in region 5 no longer removes cards from deck', () => {
         const gs = createBaseState();
         gs.combat.active = true;

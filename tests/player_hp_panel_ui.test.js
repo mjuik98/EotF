@@ -138,6 +138,35 @@ describe('player_hp_panel_ui', () => {
     });
   });
 
+  it('keeps the status container mounted even before the first buff is gained', () => {
+    const doc = createMockDocument();
+    const updateStatusDisplay = vi.fn();
+    const gs = {
+      currentScreen: 'combat',
+      combat: { active: true },
+      player: {
+        hp: 50,
+        maxHp: 100,
+        shield: 0,
+        buffs: {},
+      },
+    };
+
+    const shell = renderFloatingPlayerHpPanel({
+      doc,
+      gs,
+      StatusEffectsUI: { updateStatusDisplay },
+    });
+
+    expect(shell.querySelectorAll('.nc-hp-status-badges')).toHaveLength(1);
+    expect(updateStatusDisplay).toHaveBeenCalledWith({
+      doc,
+      gs,
+      StatusEffectsUI: { updateStatusDisplay },
+      statusContainerId: 'ncFloatingHpStatusBadges',
+    });
+  });
+
   it('removes the fixed panel outside the run screens', () => {
     const doc = createMockDocument();
     renderFloatingPlayerHpPanel({

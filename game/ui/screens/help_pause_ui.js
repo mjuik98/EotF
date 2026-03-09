@@ -27,6 +27,16 @@ function _resolveGs(deps = {}) {
     || null;
 }
 
+function _clearActiveRunSave(deps = {}) {
+  if (typeof deps.clearActiveRunSave === 'function') {
+    deps.clearActiveRunSave();
+    return;
+  }
+
+  const saveSystem = globalThis.GAME?.Modules?.SaveSystem ?? globalThis.SaveSystem;
+  saveSystem?.clearSave?.();
+}
+
 function _isCombatOverlayActive(doc) {
   const overlay = doc?.getElementById?.('combatOverlay');
   return Boolean(overlay?.classList?.contains('active'));
@@ -281,6 +291,8 @@ export const HelpPauseUI = {
     if (typeof deps.finalizeRunOutcome === 'function') {
       deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true });
     }
+
+    _clearActiveRunSave(deps);
 
     if (EndingScreenUI.showOutcome('abandon', deps)) {
       return;

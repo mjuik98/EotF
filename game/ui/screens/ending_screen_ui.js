@@ -157,6 +157,9 @@ function showOutcomeScreen(outcome = 'victory', deps = {}) {
   const btnR = doc.getElementById('btnR');
   const onR = () => {
     const rect = btnR?.getBoundingClientRect?.();
+    const audio = deps.audioEngine || globalThis.GAME?.Audio || globalThis.AudioEngine;
+    const restart = deps.restartFromEnding || globalThis.GAME?.API?.restartFromEnding || globalThis.restartFromEnding;
+
     if (rect) {
       for (let i = 0; i < 5; i += 1) {
         _session.timers.push(
@@ -167,26 +170,14 @@ function showOutcomeScreen(outcome = 'victory', deps = {}) {
         );
       }
     }
-    deps.audioEngine?.playResonanceBurst?.();
+    audio?.playResonanceBurst?.();
     _session.timers.push(winOf(deps).setTimeout(() => {
       EndingScreenUI.cleanup({ doc });
-      deps.restartFromEnding?.();
+      if (typeof restart === 'function') restart();
     }, 420));
   };
   btnR?.addEventListener('click', onR);
   _session.cleanups.push(() => btnR?.removeEventListener('click', onR));
-
-  const btnC = doc.getElementById('btnCodex');
-  if (typeof deps.openCodex === 'function') {
-    const onC = () => {
-      deps.audioEngine?.playClick?.();
-      deps.openCodex();
-    };
-    btnC?.addEventListener('click', onC);
-    _session.cleanups.push(() => btnC?.removeEventListener('click', onC));
-  } else if (btnC) {
-    btnC.disabled = true;
-  }
 
   runScene(doc, deps, p, wisps);
   return true;
@@ -229,6 +220,7 @@ function buildDOM(doc, p) {
       <div class="btn-row sc" id="s7"><button class="btn-p" id="btnR">다시 잔향 속으로</button><button class="btn-g" id="btnCodex">도감 보기</button></div>
       <div class="fnote sc" id="s8">각인 없이 클리어하면 다른 결말이 기다립니다.<br><span class="h">무각인 클리어는 숨겨진 결말 조건입니다.</span></div>
     </div>`;
+  root.innerHTML = root.innerHTML.replace(/<button class="btn-g" id="btnCodex">[\s\S]*?<\/button>/, '');
   return root;
 }
 
@@ -356,7 +348,7 @@ function runScene(doc, deps, p, wisps) {
   [['sv0', p.stats[0].value, 550], ['sv1', p.stats[1].value, 500], ['sv2', p.stats[2].value, 950], ['sv3', p.stats[3].value, 850], ['sv4', p.stats[4].value, 700]].forEach(([id, target, dur], idx) => _session.timers.push(winOf(deps).setTimeout(() => { const el = doc.getElementById(id); if (!el) return; const start = performance.now(), raf = rafOf(deps), caf = cafOf(deps); let rid = 0; const tick = (now) => { const t = Math.min((now - start) / dur, 1), e = 1 - ((1 - t) ** 3); el.textContent = fmt(Math.floor(num(target) * e)); if (t < 1) rid = raf(tick); }; rid = raf(tick); _session.cleanups.push(() => caf(rid)); }, 4100 + (idx * 120))));
   _session.timers.push(winOf(deps).setTimeout(() => { const line = doc.getElementById('tlLine'), track = doc.querySelector('.tl-track'); if (line && track) line.style.width = `${track.offsetWidth - 32}px`; }, 4800));
   _session.timers.push(winOf(deps).setTimeout(() => { const clr = doc.getElementById('clrT'); if (clr) clr.textContent = p.clear; }, 5200));
-  _session.timers.push(winOf(deps).setTimeout(() => { for (let i = 0; i < 8; i += 1) _session.timers.push(winOf(deps).setTimeout(() => burst(wisps, winOf(deps).innerWidth * (.12 + (Math.random() * .76)), winOf(deps).innerHeight * (.12 + (Math.random() * .76)), 13), i * 200)); deps.audioEngine?.playResonanceBurst?.(); }, 1200));
+  _session.timers.push(winOf(deps).setTimeout(() => { for (let i = 0; i < 8; i += 1) _session.timers.push(winOf(deps).setTimeout(() => burst(wisps, winOf(deps).innerWidth * (.12 + (Math.random() * .76)), winOf(deps).innerHeight * (.12 + (Math.random() * .76)), 13), i * 200)); (deps.audioEngine || globalThis.GAME?.Audio || globalThis.AudioEngine)?.playResonanceBurst?.(); }, 1200));
 }
 
 export const EndingScreenUI = {
