@@ -74,3 +74,41 @@ export const INFINITE_STACK_BUFF_IDS = Object.freeze([
   'unbreakable_wall',
   'unbreakable_wall_plus',
 ]);
+
+export const TURN_START_DEBUFF_KEYS = Object.freeze([
+  'poisoned',
+  'burning',
+  'slowed',
+  'confusion',
+]);
+
+export const ENEMY_TURN_BUFF_KEYS = Object.freeze([
+  'mirror',
+  'spike_shield',
+  'immune',
+  'dodge',
+  'focus',
+  'focus_plus',
+  'vanish',
+  'critical_turn',
+]);
+
+export const UNBREAKABLE_WALL_STACK_UNIT = 99;
+
+export const STATUS_EFFECT_VALUE_FIELDS = Object.freeze({
+  blessing_of_light: Object.freeze(['healPerTurn']),
+  time_warp: Object.freeze(['energyPerTurn', 'nextEnergy']),
+  berserk_mode: Object.freeze(['atkGrowth']),
+  echo_berserk: Object.freeze(['atkGrowth']),
+  soul_armor: Object.freeze(['echoRegen']),
+  divine_grace: Object.freeze(['shieldBonus']),
+  divine_aura: Object.freeze(['shieldBonus']),
+  resonance: Object.freeze(['dmgBonus']),
+  acceleration: Object.freeze(['dmgBonus']),
+  lifesteal: Object.freeze(['percent']),
+});
+
+export const STATUS_EFFECT_VALUE_FALLBACK_FIELDS = Object.freeze([
+  'amount',
+  'value',
+]);

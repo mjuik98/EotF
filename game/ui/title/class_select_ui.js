@@ -1,8 +1,7 @@
+import { CLASS_ID_ORDER } from '../../../data/class_metadata.js';
 import { RARITY_LABELS } from '../../../data/rarity_meta.js';
 
 let _selectedClass = null;
-
-const CLASS_ID_ORDER = ['swordsman', 'mage', 'hunter', 'paladin', 'berserker', 'guardian'];
 
 function _getDoc(deps) {
   return deps?.doc || document;

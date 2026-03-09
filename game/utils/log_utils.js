@@ -1,11 +1,7 @@
 /**
  * 전투 로그 메시지 표준화 유틸리티
  */
-import { ENEMY_STATUS_KR, STATUS_KR } from '../../data/status_effects_data.js';
-
-const EXTRA_STATUS_NAME_MAP = Object.freeze({
-    silence: '침묵',
-});
+import { ENEMY_STATUS_KR, STATUS_KR, STATUS_NAME_OVERRIDES } from '../../data/status_effects_data.js';
 
 function _toStatusName(statusName) {
     const raw = String(statusName || '');
@@ -16,8 +12,8 @@ function _toStatusName(statusName) {
         || STATUS_KR[normalizedKey]?.name
         || ENEMY_STATUS_KR[key]
         || ENEMY_STATUS_KR[normalizedKey]
-        || EXTRA_STATUS_NAME_MAP[key]
-        || EXTRA_STATUS_NAME_MAP[normalizedKey]
+        || STATUS_NAME_OVERRIDES[key]
+        || STATUS_NAME_OVERRIDES[normalizedKey]
         || key;
 }
 

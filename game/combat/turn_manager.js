@@ -585,9 +585,11 @@ export const TurnManager = {
         }
 
         gs.player.shield = 0;
+        let drawCount = 5;
 
         // ── 지역별 스테이지 효과 (Stage Effects) 발동 ──
         const activeRegionId = _resolveActiveRegionId(gs);
+        if (activeRegionId === 5) drawCount = 6;
 
         if (activeRegionId === 2) { // 기억의 미궁: 카드 1장 소멸
             const pools = [

@@ -1,8 +1,8 @@
 {
-  "total": 168,
+  "total": 180,
   "byPair": {
     "combat->core": 11,
-    "combat->data": 3,
+    "combat->data": 5,
     "combat->engine": 5,
     "combat->systems": 7,
     "combat->utils": 6,
@@ -21,11 +21,12 @@
     "systems->utils": 1,
     "ui->combat": 2,
     "ui->core": 4,
-    "ui->data": 21,
+    "ui->data": 26,
     "ui->engine": 1,
     "ui->systems": 6,
-    "ui->utils": 17,
-    "utils->core": 1
+    "ui->utils": 20,
+    "utils->core": 1,
+    "utils->data": 2
   },
-  "generatedAt": "2026-03-09T04:51:39.837Z"
+  "generatedAt": "2026-03-09T06:26:30.388Z"
 }

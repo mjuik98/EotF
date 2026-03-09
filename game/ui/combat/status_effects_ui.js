@@ -3,82 +3,31 @@
  */
 
 import { StatusTooltipUI } from './status_tooltip_builder.js';
-import { INFINITE_DURATION_STATUS_KEYS, PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../data/status_key_data.js';
+import { PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../data/status_key_data.js';
 import { STATUS_KR } from '../../../data/status_effects_data.js';
+import {
+  getRawStatusStacks,
+  getStatusDisplayValue,
+  isInfiniteStatusDuration,
+  resolveStatusEffectValue,
+} from '../../utils/status_value_utils.js';
 
 function _getDoc(deps) { return deps?.doc || document; }
 function _getGS(deps) { return deps?.gs; }
 
-function _normalizeStatusKey(statusKey) {
-  return String(statusKey || '').replace(/_plus$/i, '');
-}
-
-const INFINITE_STATUS_KEY_SET = new Set(INFINITE_DURATION_STATUS_KEYS);
-
 function _isInfinitePlayerStatus(statusKey, buff, isBuff = true) {
   if (!isBuff) return false;
-  const normalizedKey = _normalizeStatusKey(statusKey);
-  return buff?.permanent === true
-    || INFINITE_STATUS_KEY_SET.has(statusKey)
-    || INFINITE_STATUS_KEY_SET.has(normalizedKey);
-}
-
-function _getRawStackCount(buff) {
-  if (Number.isFinite(buff?.stacks)) return Number(buff.stacks);
-  if (Number.isFinite(buff)) return Number(buff);
-  return null;
-}
-
-function _getStackDisplay(statusKey, buff) {
-  const stacks = _getRawStackCount(buff);
-  if (!Number.isFinite(stacks) || stacks <= 0) return '';
-
-  const key = _normalizeStatusKey(statusKey);
-  if (stacks < 99) return String(Math.floor(stacks));
-  if (key === 'blessing_of_light') return String(buff?.healPerTurn || '');
-  if (key === 'soul_armor') return String(buff?.echoRegen || 0);
-  if (key === 'time_warp') return String(buff?.energyPerTurn || 0);
-  if (key === 'berserk_mode' || key === 'echo_berserk') return String(buff?.atkGrowth || 0);
-  if (key === 'divine_grace' || key === 'divine_aura') return String(buff?.shieldBonus || 0);
-  if (key === 'resonance' || key === 'acceleration') return String(buff?.dmgBonus || 0);
-  if (key === 'unbreakable_wall') {
-    const hits = Math.max(1, Math.floor(stacks / 99));
-    return `x${hits}`;
-  }
-  return '';
-}
-
-function _resolveEffectStackValue(statusKey, buff) {
-  if (!buff || typeof buff !== 'object') return null;
-
-  const key = _normalizeStatusKey(statusKey);
-  const candidates = [];
-  if (key === 'blessing_of_light') candidates.push(buff.healPerTurn);
-  if (key === 'time_warp') candidates.push(buff.energyPerTurn, buff.nextEnergy);
-  if (key === 'berserk_mode' || key === 'echo_berserk') candidates.push(buff.atkGrowth);
-  if (key === 'soul_armor') candidates.push(buff.echoRegen);
-  if (key === 'divine_grace' || key === 'divine_aura') candidates.push(buff.shieldBonus);
-  if (key === 'resonance' || key === 'acceleration') candidates.push(buff.dmgBonus);
-  if (key === 'lifesteal') candidates.push(buff.percent);
-  if (key === 'unbreakable_wall') candidates.push(Math.max(1, Math.floor((Number(buff.stacks) || 0) / 99)));
-  candidates.push(buff.amount, buff.value);
-
-  const found = candidates.find((value) => Number.isFinite(value) && Number(value) > 0);
-  if (!Number.isFinite(found)) return null;
-  return Math.floor(Number(found));
+  return isInfiniteStatusDuration(statusKey, buff);
 }
 
 export function resolvePlayerStatusTooltipMetrics(statusKey, buff) {
-  const stacks = _getRawStackCount(buff);
-  const normalizedKey = _normalizeStatusKey(statusKey);
+  const stacks = getRawStatusStacks(buff);
   if (!Number.isFinite(stacks) || stacks <= 0) {
     return { duration: '-', stacks: '-' };
   }
 
-  const isInfinite = _isInfinitePlayerStatus(statusKey, buff)
-    || stacks >= 99
-    || (INFINITE_STATUS_KEY_SET.has(normalizedKey) && stacks >= 90);
-  const effectStack = _resolveEffectStackValue(statusKey, buff);
+  const isInfinite = isInfiniteStatusDuration(statusKey, buff, { allowDegradedSentinel: true });
+  const effectStack = resolveStatusEffectValue(statusKey, buff);
 
   return {
     duration: isInfinite ? '무한' : `${Math.floor(stacks)}턴`,
@@ -151,8 +100,8 @@ export const StatusEffectsUI = {
           : PLAYER_STATUS_FALLBACK_BUFF_KEYS.includes(statusKey);
         const isInfinite = _isInfinitePlayerStatus(statusKey, buff, isBuff);
         const label = info ? `${info.icon} ${info.name}` : statusKey;
-        const rawStacks = _getRawStackCount(buff);
-        const displayVal = _getStackDisplay(statusKey, buff);
+        const rawStacks = getRawStatusStacks(buff);
+        const displayVal = getStatusDisplayValue(statusKey, buff);
 
         const badge = doc.createElement('span');
         const typeClass = !isBuff

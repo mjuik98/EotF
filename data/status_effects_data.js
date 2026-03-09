@@ -51,6 +51,10 @@ export const STATUS_KR = Object.freeze({
   doom: { name: '파멸', icon: '💀', buff: false, desc: '카운트다운 종료 시 큰 피해가 발생합니다.' },
 });
 
+export const STATUS_NAME_OVERRIDES = Object.freeze({
+  silence: '移⑤У',
+});
+
 export const ENEMY_STATUS_KR = Object.freeze({
   stunned: '기절',
   weakened: '약화',

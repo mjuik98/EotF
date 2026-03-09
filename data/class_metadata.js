@@ -181,3 +181,10 @@ export const CLASS_METADATA = {
         particle: "smoke"
     }
 };
+
+export const CLASS_ID_ORDER = Object.freeze(
+    Object.values(CLASS_METADATA)
+        .slice()
+        .sort((a, b) => Number(a.id) - Number(b.id))
+        .map((cls) => cls.class),
+);

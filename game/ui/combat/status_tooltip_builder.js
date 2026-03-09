@@ -1,4 +1,4 @@
-import { INFINITE_DURATION_STATUS_KEYS } from '../../../data/status_key_data.js';
+import { isInfiniteStatusDuration } from '../../utils/status_value_utils.js';
 
 /**
  * status_tooltip_builder.js — 통합 상태이상 툴팁 빌더
@@ -258,18 +258,8 @@ const BUFF_INFINITE_PALETTE = {
   typeBg: 'rgba(139,92,246,.12)', typeColor: '#8b5cf6',
 };
 
-const INFINITE_DURATION_STATUS_KEY_SET = new Set(INFINITE_DURATION_STATUS_KEYS);
-
-function _normalizeStatusKey(statusKey) {
-  return String(statusKey || '').replace(/_plus$/i, '');
-}
-
 function _isInfiniteDurationStatus(statusKey, buff) {
-  const normalizedKey = _normalizeStatusKey(statusKey);
-  return buff?.permanent === true
-    || INFINITE_DURATION_STATUS_KEY_SET.has(statusKey)
-    || INFINITE_DURATION_STATUS_KEY_SET.has(normalizedKey)
-    || (Number.isFinite(Number(buff?.stacks)) && Number(buff?.stacks) >= 99);
+  return isInfiniteStatusDuration(statusKey, buff);
 }
 
 function _makeInfiniteBuffMeta(extra = {}) {

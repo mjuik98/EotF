@@ -1,6 +1,7 @@
 import { RARITY_SORT_ORDER, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
 import { COMBAT_INFO_ITEM_RARITY_BORDER_COLORS } from '../../../data/ui_rarity_styles.js';
-import { INFINITE_DURATION_STATUS_KEYS, PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../data/status_key_data.js';
+import { PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../data/status_key_data.js';
+import { getStatusDisplayValue } from '../../utils/status_value_utils.js';
 
 let _combatInfoOpen = false;
 
@@ -21,45 +22,6 @@ function _applyClosedState(doc) {
 function _resolveStatusInfo(statusMap, statusKey) {
   const key = String(statusKey || '');
   return statusMap?.[key] || statusMap?.[key.replace(/_plus$/i, '')] || null;
-}
-
-const _INFINITE_STATUS_KEYS = new Set(
-  INFINITE_DURATION_STATUS_KEYS.map((statusKey) => String(statusKey).replace(/_plus$/i, ''))
-);
-
-function _resolveStatusDisplayValue(statusKey, buff) {
-  const stacks = Number(buff?.stacks || 0);
-  if (!Number.isFinite(stacks) || stacks <= 0) return '';
-  const key = String(statusKey || '').replace(/_plus$/i, '');
-  const isInfiniteLike = !!buff?.permanent
-    || stacks >= 99
-    || (_INFINITE_STATUS_KEYS.has(key) && stacks >= 90);
-  if (!isInfiniteLike) return stacks;
-
-  const numericCandidates = [];
-
-  if (key === 'blessing_of_light') numericCandidates.push(buff?.healPerTurn);
-  if (key === 'time_warp') numericCandidates.push(buff?.energyPerTurn, buff?.nextEnergy);
-  if (key === 'berserk_mode') numericCandidates.push(buff?.atkGrowth);
-  if (key === 'divine_grace') numericCandidates.push(buff?.shieldBonus);
-  if (key === 'soul_armor') numericCandidates.push(buff?.echoRegen);
-  if (key === 'resonance' || key === 'acceleration') numericCandidates.push(buff?.dmgBonus);
-  if (key === 'unbreakable_wall') numericCandidates.push(Math.max(1, Math.floor(stacks / 99)));
-
-  numericCandidates.push(
-    buff?.healPerTurn,
-    buff?.energyPerTurn,
-    buff?.nextEnergy,
-    buff?.atkGrowth,
-    buff?.shieldBonus,
-    buff?.echoRegen,
-    buff?.dmgBonus,
-    buff?.amount,
-    buff?.value,
-  );
-
-  const found = numericCandidates.find(v => Number.isFinite(v) && Number(v) > 0);
-  return Number.isFinite(found) ? Math.floor(Number(found)) : '';
 }
 
 export const CombatInfoUI = {
@@ -117,7 +79,7 @@ export const CombatInfoUI = {
         const info = _resolveStatusInfo(statusKr, k);
         const isBuff = info ? info.buff : PLAYER_STATUS_FALLBACK_BUFF_KEYS.includes(k);
         const label = info ? `${info.icon} ${info.name}` : k;
-        const displayVal = _resolveStatusDisplayValue(k, b);
+        const displayVal = getStatusDisplayValue(k, b, { allowDegradedSentinel: true });
         const stacks = displayVal !== '' ? ` (${displayVal})` : '';
         const desc = info?.desc || '';
 

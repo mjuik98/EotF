@@ -1435,3 +1435,21 @@ Original prompt:
   - `npm run lint` still fails on pre-existing import-coupling baseline drift (`combat->data`, `ui->data`, `utils->data`) that is not caused by this patch set.
   - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with the action payload reference and `#mainStartBtn`.
   - Reviewed fresh screenshots `output/web-game/shot-0.png` and `output/web-game/shot-1.png`; character-select flow rendered normally and no `errors-*.json` artifacts were emitted.
+- Follow-up prompt: 프로젝트의 모듈 구조를 개선해줘. 제공한 외부 리포트/패치를 기준안으로 삼되 현재 구조를 스캔해서 안전하게 반영.
+- Data-module refactor pass:
+  - Scanned current `data/`, `game/combat`, `game/ui`, `game/utils` layout against the supplied patch files and applied only the still-relevant pieces.
+  - Moved static class ordering into `data/class_metadata.js` as `CLASS_ID_ORDER` and re-exported it from `data/game_data.js` for compatibility.
+  - Moved turn-manager status key lists into `data/status_key_data.js` as `TURN_START_DEBUFF_KEYS` and `ENEMY_TURN_BUFF_KEYS`; `game/combat/turn_manager_helpers.js` now re-exports the legacy `Set` surfaces from those arrays so existing imports continue to work.
+  - Centralized status-derived display metadata in `data/status_key_data.js` (`UNBREAKABLE_WALL_STACK_UNIT`, `STATUS_EFFECT_VALUE_FIELDS`, `STATUS_EFFECT_VALUE_FALLBACK_FIELDS`) and added shared resolver logic in `game/utils/status_value_utils.js`.
+  - Updated `game/ui/combat/status_effects_ui.js` and `game/ui/combat/combat_info_ui.js` to consume the shared resolver instead of duplicating per-status value rules.
+  - Moved the log-only fallback status name map (`silence`) into `data/status_effects_data.js` as `STATUS_NAME_OVERRIDES`, and switched `game/utils/log_utils.js` to use it.
+  - Updated `game/ui/cards/tooltip_ui.js` to use the centralized `UNBREAKABLE_WALL_STACK_UNIT`.
+  - Added regression coverage in `tests/data_module_refactor.test.js` for class order derivation, turn-manager key sourcing, and shared status-value resolution.
+- Additional runtime fix found during verification:
+  - `game/combat/turn_manager.js` had an existing `drawCount` reference bug in `startPlayerTurnLogic()` that broke the region-5 extra-draw test. Fixed by defining the draw count locally (`5`, or `6` for region 5).
+- Validation:
+  - `npm test -- tests/data_module_refactor.test.js tests/player_status_metadata.test.js tests/status_tooltip_metrics.test.js tests/enemy_status_metadata.test.js tests/turn_manager.test.js` PASS.
+  - `npm test` PASS (57 files, 198 tests).
+  - `npm run build` PASS.
+  - `npm run lint` PASS.
+  - Updated `docs/metrics/import_coupling_baseline.json` via `node scripts/check-import-coupling.mjs --write-baseline` because this refactor intentionally increases approved `logic/ui -> data` imports.

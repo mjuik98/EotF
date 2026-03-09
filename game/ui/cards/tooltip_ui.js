@@ -1,6 +1,7 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
 import { DomSafe } from '../../utils/dom_safe.js';
 import { RARITY_LABELS, RARITY_TEXT_COLORS } from '../../../data/rarity_meta.js';
+import { UNBREAKABLE_WALL_STACK_UNIT } from '../../../data/status_key_data.js';
 
 
 let _tooltipTimer = null;
@@ -13,8 +14,6 @@ function _getDoc(deps) {
 function _getWin(deps) {
   return deps?.win || window;
 }
-
-const UNBREAKABLE_WALL_STACK_UNIT = 99;
 
 function _isUnbreakableWallCard(cardId) {
   return cardId === 'unbreakable_wall' || cardId === 'unbreakable_wall_plus';
