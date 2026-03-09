@@ -34,6 +34,7 @@ export const MetaProgressionUI = {
       if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
       if (typeof deps.clearSelectedClass === 'function') deps.clearSelectedClass();
       if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();
+      if (typeof deps.refreshTitleSaveState === 'function') deps.refreshTitleSaveState();
       if (typeof deps.showPendingClassProgressSummary === 'function') deps.showPendingClassProgressSummary();
     }, 500);
   },
@@ -44,6 +45,7 @@ export const MetaProgressionUI = {
     if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
     if (typeof deps.clearSelectedClass === 'function') deps.clearSelectedClass();
     if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();
+    if (typeof deps.refreshTitleSaveState === 'function') deps.refreshTitleSaveState();
     if (typeof deps.showPendingClassProgressSummary === 'function') deps.showPendingClassProgressSummary();
   },
 };

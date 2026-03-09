@@ -1260,3 +1260,11 @@ Original prompt:
   - Hovering `잔향의 숲 · 기본 규칙` now uses the shared general tooltip UI to show the region rule description (`ruleDesc`, fallback to `desc`).
 - Validation:
   - `npm run build` PASS.
+- Continue-save cleanup follow-up:
+  - Fixed the stale title `이어하기` state after clearing a continued run by adding a reusable title save refresh path in `game/ui/title/game_boot_ui.js`.
+  - Wired ending return flows in `game/ui/screens/meta_progression_ui.js` through `game/core/deps/contracts/run_contract_builders.js` so returning to the title after victory refreshes continue visibility, button state, and save preview contents immediately.
+  - Added regression coverage in `tests/game_boot_ui.test.js` and `tests/meta_progression_ui.test.js` for save-less title re-entry and ending return refresh behavior.
+- Validation:
+  - `npm test -- tests/meta_progression_ui.test.js tests/game_boot_ui.test.js tests/run_rules_preview_meta.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright skill client against `http://127.0.0.1:4173`; no new runtime errors were reported in terminal output.

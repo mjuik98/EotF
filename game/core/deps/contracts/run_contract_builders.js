@@ -50,6 +50,7 @@ export function buildRunContractBuilders(ctx) {
         switchScreen: refs.switchScreen,
         clearSelectedClass: refs.clearSelectedClass,
         refreshRunModePanel: refs.refreshRunModePanel,
+        refreshTitleSaveState: () => refs.GameBootUI?.refreshTitleSaveState?.(createDeps('gameBoot')),
         showPendingClassProgressSummary: refs.showPendingClassProgressSummary,
       };
     },

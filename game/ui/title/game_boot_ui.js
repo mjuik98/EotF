@@ -263,6 +263,21 @@ function _setText(doc, id, value) {
   if (el) el.textContent = value;
 }
 
+function _clearSavePreview(doc) {
+  _setText(doc, 'sttClass', '-');
+  _setText(doc, 'sttFloor', '-');
+  _setText(doc, 'sttAscension', '-');
+  _setText(doc, 'sttHp', '- / -');
+  _setText(doc, 'sttGold', '0');
+  _setText(doc, 'titleContinueMeta', '');
+
+  const pillsEl = doc.getElementById('sttDeckPills');
+  if (pillsEl) pillsEl.innerHTML = '';
+
+  const relicsEl = doc.getElementById('sttRelics');
+  if (relicsEl) relicsEl.innerHTML = '';
+}
+
 function _populateSaveTooltip(doc, saveSystem, gs) {
   try {
     const saveLoaded = saveSystem?.loadRun?.({ gs });
@@ -305,6 +320,25 @@ function _populateSaveTooltip(doc, saveSystem, gs) {
   } catch (error) {
     console.warn('[GameBootUI] Save tooltip populate failed:', error);
   }
+}
+
+function _refreshTitleSaveState(doc, saveSystem, gs) {
+  const hasSave = saveSystem?.hasSave?.() ?? false;
+  const continueWrap = doc.getElementById('titleContinueWrap');
+  const menuDivider = doc.getElementById('titleMenuDivider');
+  const continueBtn = doc.getElementById('mainContinueBtn');
+
+  if (continueWrap) continueWrap.style.display = hasSave ? 'block' : 'none';
+  if (menuDivider) menuDivider.style.display = hasSave ? 'block' : 'none';
+  if (continueBtn) continueBtn.disabled = !hasSave;
+
+  if (hasSave) {
+    _populateSaveTooltip(doc, saveSystem, gs);
+  } else {
+    _clearSavePreview(doc);
+  }
+
+  return hasSave;
 }
 
 function _setupKeyboardNav(doc) {
@@ -394,6 +428,11 @@ function _setupKeyboardNav(doc) {
 }
 
 export const GameBootUI = {
+  refreshTitleSaveState(deps = {}) {
+    const doc = _getDoc(deps);
+    return _refreshTitleSaveState(doc, deps.saveSystem, deps.gs);
+  },
+
   bootGame(deps = {}) {
     const gs = deps.gs;
     const doc = _getDoc(deps);
@@ -452,14 +491,7 @@ export const GameBootUI = {
         }, 350);
       }
 
-      const hasSave = saveSystem?.hasSave?.() ?? false;
-      const continueWrap = doc.getElementById('titleContinueWrap');
-      const menuDivider = doc.getElementById('titleMenuDivider');
-      if (continueWrap) continueWrap.style.display = hasSave ? 'block' : 'none';
-      if (menuDivider) menuDivider.style.display = hasSave ? 'block' : 'none';
-      if (hasSave) {
-        _populateSaveTooltip(doc, saveSystem, gs);
-      }
+      this.refreshTitleSaveState({ doc, saveSystem, gs });
     } catch (error) {
       console.error('[GameBootUI] boot error:', error);
     }

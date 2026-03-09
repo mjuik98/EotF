@@ -10,6 +10,7 @@ describe('MetaProgressionUI', () => {
     const switchScreen = vi.fn();
     const clearSelectedClass = vi.fn();
     const refreshRunModePanel = vi.fn();
+    const refreshTitleSaveState = vi.fn();
     const showPendingClassProgressSummary = vi.fn();
     const doc = { getElementById: vi.fn() };
     const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
@@ -26,6 +27,7 @@ describe('MetaProgressionUI', () => {
       switchScreen,
       clearSelectedClass,
       refreshRunModePanel,
+      refreshTitleSaveState,
       showPendingClassProgressSummary,
     });
 
@@ -37,6 +39,7 @@ describe('MetaProgressionUI', () => {
     expect(switchScreen).toHaveBeenCalledWith('title');
     expect(clearSelectedClass).toHaveBeenCalledTimes(1);
     expect(refreshRunModePanel).toHaveBeenCalledTimes(1);
+    expect(refreshTitleSaveState).toHaveBeenCalledTimes(1);
     expect(showPendingClassProgressSummary).toHaveBeenCalledTimes(1);
 
     vi.useRealTimers();
@@ -47,6 +50,7 @@ describe('MetaProgressionUI', () => {
     const switchScreen = vi.fn();
     const clearSelectedClass = vi.fn();
     const refreshRunModePanel = vi.fn();
+    const refreshTitleSaveState = vi.fn();
     const showPendingClassProgressSummary = vi.fn();
     const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
 
@@ -55,6 +59,7 @@ describe('MetaProgressionUI', () => {
       switchScreen,
       clearSelectedClass,
       refreshRunModePanel,
+      refreshTitleSaveState,
       showPendingClassProgressSummary,
     });
 
@@ -62,6 +67,7 @@ describe('MetaProgressionUI', () => {
     expect(switchScreen).toHaveBeenCalledWith('title');
     expect(clearSelectedClass).toHaveBeenCalledTimes(1);
     expect(refreshRunModePanel).toHaveBeenCalledTimes(1);
+    expect(refreshTitleSaveState).toHaveBeenCalledTimes(1);
     expect(showPendingClassProgressSummary).toHaveBeenCalledTimes(1);
   });
 });
