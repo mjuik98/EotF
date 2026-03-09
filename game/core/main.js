@@ -8,8 +8,16 @@ import { setupBindings } from './event_bindings.js';
 import * as Deps from './deps_factory.js';
 import { bootGame } from './init_sequence.js';
 import { createModuleRegistry } from './bindings/module_registry.js';
+import { CustomCursor } from '../ui/common/custom_cursor.js';
 
 const modules = createModuleRegistry();
+
+// Global Custom Cursor
+try {
+  CustomCursor.init({ doc: document, win: window });
+} catch (e) {
+  console.error('[Main] CustomCursor init failed:', e);
+}
 
 // Step 1: helper function wiring + window/GAME binding setup
 const fns = setupBindings(modules);

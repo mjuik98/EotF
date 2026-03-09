@@ -156,6 +156,7 @@ function registerModules() {
     G.register('MazeSystem', M.MazeSystem);
     G.register('StoryUI', M.StoryUI);
     G.register('CodexUI', M.CodexUI);
+    G.register('EndingScreenUI', M.EndingScreenUI);
     G.register('RunModeUI', M.RunModeUI);
     G.register('MetaProgressionUI', M.MetaProgressionUI);
     G.register('HelpPauseUI', M.HelpPauseUI);

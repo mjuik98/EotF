@@ -157,6 +157,14 @@ describe('HelpPauseUI abandon flow', () => {
     combatOverlay.classList = { remove: vi.fn() };
     doc.body.appendChild(combatOverlay);
 
+    const floatingHpShell = doc.createElement('div');
+    floatingHpShell.id = 'ncFloatingHpShell';
+    doc.body.appendChild(floatingHpShell);
+
+    const hudUpdateUI = {
+      resetCombatUI: vi.fn(),
+    };
+
     const deps = {
       doc,
       gs: {
@@ -166,6 +174,7 @@ describe('HelpPauseUI abandon flow', () => {
         meta: { runCount: 3, storyPieces: [], inscriptions: {} },
         currentFloor: 12,
       },
+      hudUpdateUI,
       finalizeRunOutcome: vi.fn(),
       clearActiveRunSave: vi.fn(),
       switchScreen: vi.fn(),
@@ -180,8 +189,9 @@ describe('HelpPauseUI abandon flow', () => {
     expect(showOutcomeSpy).toHaveBeenCalledWith('abandon', deps);
     expect(deps.switchScreen).not.toHaveBeenCalled();
     expect(deps.gs.combat.active).toBe(false);
-    expect(combatOverlay.classList.remove).toHaveBeenCalledWith('active');
+    expect(hudUpdateUI.resetCombatUI).toHaveBeenCalledWith(expect.objectContaining({ doc, gs: deps.gs }));
     expect(doc.getElementById('abandonConfirm')).toBeNull();
     expect(doc.getElementById('pauseMenu')).toBeNull();
+    expect(doc.getElementById('ncFloatingHpShell')).toBeNull();
   });
 });

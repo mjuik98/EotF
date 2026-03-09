@@ -1,3 +1,5 @@
+import { removeFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
+
 function _getDoc(deps) {
   return deps?.doc || document;
 }
@@ -10,6 +12,9 @@ export const ScreenUI = {
     if (target) target.classList.add('active');
 
     if (deps?.gs) deps.gs.currentScreen = screen;
+    if (screen !== 'game' && screen !== 'combat') {
+      removeFloatingPlayerHpPanel({ doc });
+    }
     if (screen === 'title' && typeof deps.onEnterTitle === 'function') {
       deps.onEnterTitle();
     }

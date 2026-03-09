@@ -138,6 +138,7 @@ export function bootGame(modules, fns, Deps) {
             particleSystem: ParticleSystem,
             helpPauseUI: HelpPauseUI,
             gameBootUI: GameBootUI,
+            settingsUI: modules.SettingsUI,
             getGameBootDeps: () => Deps.getGameBootDeps(),
             getHelpPauseDeps: () => Deps.getHelpPauseDeps(),
             actions: {

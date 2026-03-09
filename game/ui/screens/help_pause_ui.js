@@ -1,5 +1,6 @@
 ﻿import { SettingsManager } from '../../core/settings_manager.js';
 import { EndingScreenUI } from './ending_screen_ui.js';
+import { removeFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
 
 let _helpOpen = false;
 let _pauseOpen = false;
@@ -285,8 +286,16 @@ export const HelpPauseUI = {
 
     if (gs.combat.active) {
       gs.combat.active = false;
-      doc.getElementById('combatOverlay')?.classList.remove('active');
+      const hudUpdateUI = deps.hudUpdateUI
+        || globalThis.GAME?.Modules?.HudUpdateUI
+        || globalThis.HudUpdateUI;
+      if (typeof hudUpdateUI?.resetCombatUI === 'function') {
+        hudUpdateUI.resetCombatUI({ ...deps, doc, gs });
+      } else {
+        doc.getElementById('combatOverlay')?.classList.remove('active');
+      }
     }
+    removeFloatingPlayerHpPanel({ doc });
 
     if (typeof deps.finalizeRunOutcome === 'function') {
       deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true });

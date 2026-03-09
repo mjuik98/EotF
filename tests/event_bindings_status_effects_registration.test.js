@@ -59,6 +59,7 @@ function createModules() {
     MazeSystem: {},
     StoryUI: {},
     CodexUI: {},
+    EndingScreenUI: {},
     RunModeUI: {},
     MetaProgressionUI: {},
     HelpPauseUI: {},

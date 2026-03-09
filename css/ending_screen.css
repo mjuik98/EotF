@@ -11,8 +11,6 @@
 #endingCvA{z-index:0} #endingCvS{z-index:1} #endingCvW{z-index:2} #endingCvT{z-index:3}
 #endingScreen .vignette{position:fixed;inset:0;z-index:4;pointer-events:none;background:radial-gradient(ellipse 88% 75% at 50% 50%,transparent 38%,rgba(2,2,11,.82) 100%)}
 #endingScreen .noise{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-#cDot{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal),0 0 20px rgba(74,243,204,.5);pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
-#cRing{position:fixed;border-radius:50%;border:1.5px solid rgba(74,243,204,.4);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);width:30px;height:30px;transition:width .3s,height .3s,border-color .3s,opacity .4s}
 #pxLayer{position:fixed;inset:0;z-index:6;pointer-events:none}
 .rune-f{position:absolute;font-family:'Cinzel',serif;color:rgba(155,127,232,.09);animation:runeFloat linear infinite;will-change:transform}
 @keyframes runeFloat{0%{transform:translateY(0) rotate(0);opacity:.09}50%{opacity:.17}100%{transform:translateY(-70px) rotate(18deg);opacity:0}}

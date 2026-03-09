@@ -3,12 +3,11 @@
  */
 import { GAME } from './global_bridge.js';
 import { SettingsManager } from './settings_manager.js';
-import { SettingsUI } from '../ui/screens/settings_ui.js';
 
 export const GameInit = {
     boot(deps) {
         this.loadVolumes(deps.audioEngine);
-        SettingsUI.applyOnBoot({
+        deps.settingsUI?.applyOnBoot?.({
             doc: document,
             ScreenShake: deps.ScreenShake,
             HitStop: deps.HitStop,

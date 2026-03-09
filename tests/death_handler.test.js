@@ -9,7 +9,7 @@ describe('DeathHandler.showDeathScreen', () => {
     const selectFragment = vi.fn();
     const showOutcomeSpy = vi.spyOn(EndingScreenUI, 'showOutcome').mockReturnValue(true);
 
-    globalThis.GAME = { API: { selectFragment } };
+    globalThis.GAME = { API: { selectFragment }, Modules: { EndingScreenUI } };
 
     const gs = {
       meta: {

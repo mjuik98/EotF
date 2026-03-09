@@ -78,6 +78,19 @@ Original prompt:
   - `npm test -- tests/story_ui.test.js tests/region_transition_ui.test.js tests/deps_factory.test.js` PASS.
   - `npm test` PASS (22 files, 86 tests).
   - Playwright skill client run against `http://127.0.0.1:4173` with action payload reference; screenshots refreshed at `output/web-game/shot-0.png`, `output/web-game/shot-1.png` and visually inspected.
+- Follow-up prompt: 전투 중 게임을 포기한 이후에도 HUD가 남아있는 버그를 수정.
+- Abandon/title HUD cleanup fix:
+  - Added `removeFloatingPlayerHpPanel()` to `game/ui/shared/player_hp_panel_ui.js` and reused it when the floating HP shell should be hidden.
+  - `HelpPauseUI.confirmAbandon()` now resets combat HUD through `HudUpdateUI.resetCombatUI()` when available and always removes the floating HP shell before showing the abandon ending overlay.
+  - `ScreenUI.switchScreen()` now removes the floating HP shell whenever the target screen is not an in-run screen (`game`/`combat`), preventing stale combat HUD from leaking onto the title screen after abandon/restart flows.
+- Added regression coverage:
+  - `tests/help_pause_ui.test.js` now verifies abandon cleanup removes the floating HP shell and routes through `resetCombatUI()`.
+  - `tests/screen_ui.test.js` verifies title/non-run screen transitions clear the floating HP shell while run-screen transitions keep it mounted.
+- Validation:
+  - `npm test -- tests/help_pause_ui.test.js tests/player_hp_panel_ui.test.js tests/screen_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Playwright skill client run against `http://127.0.0.1:4173` with `#mainStartBtn` click and action payload reference; refreshed `output/web-game/shot-0.png`, `output/web-game/shot-1.png` reviewed, no `errors-*.json` emitted.
+  - Browser runtime repro via Playwright inline script confirmed `HelpPauseUI.confirmAbandon()` leaves `shellAfterAbandon: false`, `overlayActiveAfterAbandon: false`, and subsequent `ScreenUI.switchScreen('title')` leaves `shellAfterTitleSwitch: false`; artifact saved to `output/web-game/abandon-hud-check.json` and screenshot reviewed at `output/web-game/abandon-hud-clean.png`.
   - No `errors-*.json` emitted by the Playwright client run.
 - Follow-up prompt: �̴Ϻ���/�������� ���� ���� �� �� �̸� ��ʿ� "�÷��̾� ��" ��� ��ħ ����.
 - Timing adjustment in `game/ui/combat/combat_start_ui.js`:
@@ -1336,3 +1349,25 @@ Original prompt:
   - `npm run build` PASS.
   - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; no new `errors-*.json` artifacts were present.
   - The client again did not refresh the screenshot timestamp despite completing, so browser-side verification remained limited to successful launch and absence of captured runtime errors.
+- Follow-up prompt: 코드베이스 전체를 점검하여 유지되지 않는 구버전 스크립트, 더미 데이터, 성능 저하를 유발하는 비효율 요소를 식별하고 제거·수정하여 구조 및 빌드 성능을 최적화.
+- Repo cleanup + build optimization:
+  - Removed unreferenced repository dump files from the project root: `final_search.txt`, `final_mini_boss_search.txt`, `exhaustive_mini_search.txt`, `mini_*search/context*.txt`, `unicode_search.txt`, `test.txt`, `test.tap`, `test_output.txt`.
+  - Removed unused `data/keys.txt` after verifying there were no references in code, docs, scripts, or tests.
+  - Tightened `.gitignore` with `build_error*.log` and `vite-dev*.log` so local debug logs stop accumulating in the workspace root.
+  - Reworked `vite.config.js` chunking to split stable, low-coupling bundles only (`data/cards.js`, `codex_ui.js`, `run_mode_ui.js`) after rejecting broader folder-based chunking that produced circular-chunk warnings.
+- Validation:
+  - Baseline build before optimization: single JS chunk `708.15 kB`, build time about `1.07s`.
+  - Optimized build after config change: main JS chunk `596.92 kB` plus separate `data-cards` (`49.45 kB`), `ui-codex` (`37.90 kB`), and `ui-run-mode` (`23.90 kB`) chunks; build time about `0.87s`.
+  - `npm run build` PASS after the final chunking change.
+  - Playwright skill client run against `vite preview` (`http://127.0.0.1:4173`) with action payload reference and `#mainStartBtn`; refreshed `output/web-game/shot-0.png` and `shot-1.png`, no `errors-*.json` emitted.
+- Residual note:
+  - `npm test` still has unrelated pre-existing failures in the current branch (`items_*`, `thematic_relics`, `time_rift_bug`, `turn_manager`, part of `title_settings_bindings`); not introduced by this cleanup/build pass.
+- Architecture follow-up:
+  - Removed the `game/core/game_init.js -> game/ui/screens/settings_ui.js` import by moving settings boot application behind injected `settingsUI`.
+  - Removed the `game/combat/death_handler.js -> game/ui/screens/ending_screen_ui.js` import by resolving `EndingScreenUI` from injected deps / registered modules instead of direct cross-layer import.
+  - Registered `EndingScreenUI` in the composition root/module registry and updated affected tests.
+- Validation:
+  - `npm run lint` now passes the architecture-boundary check, but still fails the pre-existing window/document/globalThis usage target gate.
+  - `npm test -- tests/death_handler.test.js tests/event_bindings_status_effects_registration.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS after the architecture cleanup.
+  - Re-ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4173`); refreshed `output/web-game/shot-0.png` and `shot-1.png`, and no `errors-*.json` were emitted.

@@ -1,2 +1,0 @@
-C:\Users\mjuik\RoguelikeRPG\game\ui\map\map_ui.js:357:  /** 미니맵 클릭 시 전체 지도를 큰 오버레이로 표시 */
-C:\Users\mjuik\RoguelikeRPG\game\ui\screens\reward_ui.js:362:    // 지역 보스는 확정, 중간 보스는 30% 확률, 그 외 전투는 미출현

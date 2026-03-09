@@ -189,7 +189,7 @@ function buildDOM(doc, p) {
   root.innerHTML = `
     <div id="endingCurtain"></div>
     <canvas id="endingCvA"></canvas><canvas id="endingCvS"></canvas><canvas id="endingCvW"></canvas><canvas id="endingCvT"></canvas>
-    <div class="vignette"></div><div class="noise"></div><div id="pxLayer"></div><div id="cDot"></div><div id="cRing"></div>
+    <div class="vignette"></div><div class="noise"></div><div id="pxLayer"></div>
     <div id="stage">
       <div class="eyebrow sc" id="s0">${p.eyebrow}</div>
       <div class="title-row sc" id="s1">
@@ -301,9 +301,9 @@ function buildFragmentChoices(doc, deps, outcome) {
 }
 
 function initFx(doc, deps, p) {
-  const cvA = doc.getElementById('endingCvA'), cvS = doc.getElementById('endingCvS'), cvW = doc.getElementById('endingCvW'), cvT = doc.getElementById('endingCvT');
-  const xA = cvA?.getContext?.('2d'), xS = cvS?.getContext?.('2d'), xW = cvW?.getContext?.('2d'), xT = cvT?.getContext?.('2d');
-  if (!xA || !xS || !xW || !xT) return { wisps: [], trail: [] };
+  const cvA = doc.getElementById('endingCvA'), cvS = doc.getElementById('endingCvS'), cvW = doc.getElementById('endingCvW');
+  const xA = cvA?.getContext?.('2d'), xS = cvS?.getContext?.('2d'), xW = cvW?.getContext?.('2d');
+  if (!xA || !xS || !xW) return { wisps: [], trail: [] };
   const w = winOf(deps), raf = rafOf(deps), caf = cafOf(deps), trail = [], wisps = [];
   const orb = [
     { x: .15, y: .22, r: .54, h: 'rgba(85,45,195,', p: 0, s: .00027 }, { x: .85, y: .18, r: .46, h: 'rgba(28,165,148,', p: 1.7, s: .00035 },
@@ -315,19 +315,18 @@ function initFx(doc, deps, p) {
   const resize = () => [cvA, cvS, cvW, cvT].forEach((c) => { c.width = w.innerWidth; c.height = w.innerHeight; });
   resize(); w.addEventListener('resize', resize); _session.cleanups.push(() => w.removeEventListener('resize', resize));
   const mouse = { x: w.innerWidth / 2, y: w.innerHeight / 2, rx: w.innerWidth / 2, ry: w.innerHeight / 2, px: 0, py: 0 };
-  const mm = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.px = ((e.clientX / w.innerWidth) - .5) * 2; mouse.py = ((e.clientY / w.innerHeight) - .5) * 2; trail.push({ x: mouse.x, y: mouse.y, life: 1 }); if (trail.length > 32) trail.shift(); };
+  const mm = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.px = ((e.clientX / w.innerWidth) - .5) * 2; mouse.py = ((e.clientY / w.innerHeight) - .5) * 2; };
   doc.addEventListener('mousemove', mm); _session.cleanups.push(() => doc.removeEventListener('mousemove', mm));
   for (let i = 0; i < 24; i += 1) { const el = doc.createElement('div'); el.className = 'rune-f'; el.textContent = RUNES[Math.floor(Math.random() * RUNES.length)]; el.style.left = `${4 + (Math.random() * 92)}%`; el.style.top = `${4 + (Math.random() * 92)}%`; el.style.fontSize = `${11 + (Math.random() * 24)}px`; el.style.animationDuration = `${14 + (Math.random() * 22)}s`; el.style.animationDelay = `${-Math.random() * 18}s`; doc.getElementById('pxLayer')?.appendChild(el); }
   const spawn = () => wisps.push({ x: Math.random() * w.innerWidth, y: w.innerHeight + 6, vx: (Math.random() - .5) * 13, vy: -(6 + (Math.random() * 22)), life: 5 + (Math.random() * 6), ml: 11, sz: .8 + (Math.random() * 2.2), c: WCOLORS[Math.floor(Math.random() * 3)], a: true });
   const interval = w.setInterval(spawn, 105); _session.cleanups.push(() => w.clearInterval(interval));
   let id = 0;
   const loop = (ts) => {
-    xA.clearRect(0, 0, cvA.width, cvA.height); xS.clearRect(0, 0, cvS.width, cvS.height); xW.clearRect(0, 0, cvW.width, cvW.height); xT.clearRect(0, 0, cvT.width, cvT.height);
+    xA.clearRect(0, 0, cvA.width, cvA.height); xS.clearRect(0, 0, cvS.width, cvS.height); xW.clearRect(0, 0, cvW.width, cvW.height);
     orb.forEach((o) => { const px = (o.x + (Math.sin(ts * o.s + o.p) * .13)) * cvA.width, py = (o.y + (Math.cos(ts * o.s * .7 + o.p) * .11)) * cvA.height, r = o.r * Math.min(cvA.width, cvA.height), a = .05 + (Math.sin(ts * .00046 + o.p) * .018), g = xA.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, `${o.h}${a + .025})`); g.addColorStop(.5, `${o.h}${a * .35})`); g.addColorStop(1, `${o.h}0)`); xA.fillStyle = g; xA.beginPath(); xA.ellipse(px, py, r, r * .62, (ts * .00005) + (o.p * .28), 0, Math.PI * 2); xA.fill(); });
     stars.forEach((s) => { const a = s.b * (.42 + (.58 * Math.sin(ts * s.t + s.p))), sx = s.x * cvS.width, sy = s.y * cvS.height; s.n.forEach((j) => { const t = stars[j]; if (!t) return; const la = Math.max(0, (1 - (Math.hypot((s.x - t.x) * cvS.width, (s.y - t.y) * cvS.height) / 90)) * .07 * a); xS.strokeStyle = `rgba(155,127,232,${la})`; xS.lineWidth = .4; xS.beginPath(); xS.moveTo(sx, sy); xS.lineTo(t.x * cvS.width, t.y * cvS.height); xS.stroke(); }); if (s.z > 1) { const g = xS.createRadialGradient(sx, sy, 0, sx, sy, s.z * 3.5); g.addColorStop(0, `rgba(210,195,255,${a * .35})`); g.addColorStop(1, 'rgba(210,195,255,0)'); xS.fillStyle = g; xS.beginPath(); xS.arc(sx, sy, s.z * 3.5, 0, Math.PI * 2); xS.fill(); } xS.globalAlpha = a; xS.fillStyle = '#ece8ff'; xS.beginPath(); xS.arc(sx, sy, s.z, 0, Math.PI * 2); xS.fill(); }); xS.globalAlpha = 1;
     for (let i = wisps.length - 1; i >= 0; i -= 1) { const wisp = wisps[i]; wisp.x += wisp.vx / 60; wisp.y += wisp.vy / 60; wisp.vy += wisp.a ? 0 : (110 / 60); wisp.life -= 1 / 60; if (wisp.life <= 0) { wisps.splice(i, 1); continue; } const r = wisp.life / wisp.ml, a = wisp.a ? Math.sin(r * Math.PI) * .35 : Math.pow(r, 1.6) * .88, g = xW.createRadialGradient(wisp.x, wisp.y, 0, wisp.x, wisp.y, wisp.sz * 5.5); g.addColorStop(0, `${wisp.c}${a * .65})`); g.addColorStop(1, `${wisp.c}0)`); xW.fillStyle = g; xW.beginPath(); xW.arc(wisp.x, wisp.y, wisp.sz * 5.5, 0, Math.PI * 2); xW.fill(); xW.globalAlpha = a; xW.fillStyle = `${wisp.c}1)`; xW.beginPath(); xW.arc(wisp.x, wisp.y, wisp.sz, 0, Math.PI * 2); xW.fill(); } xW.globalAlpha = 1;
-    for (let i = trail.length - 1; i >= 0; i -= 1) { const pnt = trail[i]; pnt.life -= .055; if (pnt.life <= 0) { trail.splice(i, 1); continue; } const a = pnt.life * .4, r = 2.5 * pnt.life, g = xT.createRadialGradient(pnt.x, pnt.y, 0, pnt.x, pnt.y, r * 5); g.addColorStop(0, `rgba(74,243,204,${a * .6})`); g.addColorStop(1, 'rgba(74,243,204,0)'); xT.fillStyle = g; xT.beginPath(); xT.arc(pnt.x, pnt.y, r * 5, 0, Math.PI * 2); xT.fill(); xT.globalAlpha = a; xT.fillStyle = 'rgba(74,243,204,.9)'; xT.beginPath(); xT.arc(pnt.x, pnt.y, r, 0, Math.PI * 2); xT.fill(); } xT.globalAlpha = 1;
-    mouse.rx += (mouse.x - mouse.rx) * .12; mouse.ry += (mouse.y - mouse.ry) * .12; const dot = doc.getElementById('cDot'), ring = doc.getElementById('cRing'), px = doc.getElementById('pxLayer'); if (dot && ring) { dot.style.left = `${mouse.x}px`; dot.style.top = `${mouse.y}px`; ring.style.left = `${mouse.rx}px`; ring.style.top = `${mouse.ry}px`; } if (px) px.style.transform = `translate(${mouse.px * w.innerWidth * .018}px,${mouse.py * w.innerHeight * .018}px)`;
+    const px = doc.getElementById('pxLayer'); if (px) px.style.transform = `translate(${mouse.px * w.innerWidth * .018}px,${mouse.py * w.innerHeight * .018}px)`;
     id = raf(loop);
   };
   id = raf(loop); _session.cleanups.push(() => caf(id));

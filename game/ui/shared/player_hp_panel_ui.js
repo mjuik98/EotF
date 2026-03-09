@@ -192,14 +192,19 @@ function _shouldShowFloatingPlayerHpPanel(gs) {
   );
 }
 
+export function removeFloatingPlayerHpPanel(deps = {}) {
+  const doc = _getDoc(deps);
+  doc.getElementById('ncFloatingHpShell')?.remove();
+  return null;
+}
+
 export function renderFloatingPlayerHpPanel(deps = {}) {
   const doc = _getDoc(deps);
   const gs = deps.gs;
   const existingShell = doc.getElementById('ncFloatingHpShell');
 
   if (!_shouldShowFloatingPlayerHpPanel(gs)) {
-    existingShell?.remove();
-    return null;
+    return removeFloatingPlayerHpPanel({ doc });
   }
 
   const shell = existingShell || doc.createElement('div');

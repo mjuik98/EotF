@@ -15,7 +15,6 @@ import { getRegionData } from '../systems/run_rules.js';
 import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
-import { EndingScreenUI } from '../ui/screens/ending_screen_ui.js';
 
 const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
@@ -185,8 +184,12 @@ export const DeathHandler = {
     showDeathScreen(deps = {}) {
         const win = _getWin(deps);
         const finalizeRunOutcome = deps.finalizeRunOutcome || win.finalizeRunOutcome;
+        const endingScreenUI = deps.endingScreenUI
+            || deps.EndingScreenUI
+            || win.GAME?.Modules?.EndingScreenUI
+            || globalThis.GAME?.Modules?.EndingScreenUI;
         if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 });
-        EndingScreenUI.showOutcome('defeat', {
+        endingScreenUI?.showOutcome?.('defeat', {
             ...deps,
             gs: this,
             selectFragment: deps.selectFragment || globalThis.GAME?.API?.selectFragment || globalThis.selectFragment,
