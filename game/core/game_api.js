@@ -95,7 +95,7 @@ export const GameAPI = {
         const activeRegionId = Number(gs?._activeRegionId);
         let combatRegionId = Number.isFinite(activeRegionId) ? Math.max(0, Math.floor(activeRegionId)) : null;
         if (combatRegionId == null) {
-            const getRegionData = globalThis.GAME?.getDeps?.()?.getRegionData;
+            const getRegionData = GAME.getDeps?.()?.getRegionData;
             const regionIdFromData = Number(getRegionData?.(gs.currentRegion, gs)?.id);
             if (Number.isFinite(regionIdFromData)) {
                 combatRegionId = Math.max(0, Math.floor(regionIdFromData));
@@ -104,9 +104,10 @@ export const GameAPI = {
             }
         }
 
-        if (combatRegionId === 5 && gs.combat?.active) {
-            if (typeof gs.addTimeRift === 'function' && result?.drawn > 0) {
-                gs.addTimeRift(result.drawn, '시간의 균열', globalThis.GAME?.getDeps?.() || {});
+        const attempts = Math.max(0, Number(result?.attempts || 0));
+        if (combatRegionId === 5 && gs.combat?.active && attempts > 0) {
+            if (typeof gs.addTimeRift === 'function') {
+                gs.addTimeRift(attempts, '시간의 균열', GAME.getDeps?.() || {});
             }
         }
     },

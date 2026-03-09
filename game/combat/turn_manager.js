@@ -1,4 +1,4 @@
-﻿/**
+/**
  * turn_manager.js — 전투 턴 비즈니스 로직 (순수 Model)
  *
  * DOM/window 접근 없이 게임 상태(gs)만 변경합니다.
@@ -630,50 +630,8 @@ export const TurnManager = {
             gs.addLog?.(LogUtils.formatStatChange('플레이어', '최대 에코', -5, false), 'damage');
         }
 
-        const drawBlocked = gs.combat.enemies.some(
-            (enemy) => enemy.hp > 0 && (enemy.statusEffects?.draw_block || 0) > 0,
-        );
-        let drawCount = drawBlocked ? 4 : 5;
-        if (activeRegionId === 5) {
-            drawCount += 1;
-            gs.addLog?.(LogUtils.formatSystem('지역 효과: 시간의 왜곡으로 카드 1장을 추가로 뽑습니다.'), 'echo');
-        }
-        if (drawBlocked) {
-            gs.addLog?.(LogUtils.formatSystem('심연 간섭: 이번 턴 드로우 -1'), 'damage');
-        }
-        gs.drawCards(drawCount, { skipRift: true });
-
-        // 에너지 버프 처리
-        Object.keys(gs.player.buffs || {}).forEach(buffId => {
-            const buff = gs.player.buffs[buffId];
-            _normalizeInfiniteStack(buffId, buff);
-            if (buff?.nextEnergy) {
-                gs.player.energy += buff.nextEnergy;
-                const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
-                gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', buff.nextEnergy), 'echo');
-                if (Number.isFinite(buff.stacks)) {
-                    if (!_isInfiniteStackBuff(buffId, buff)) {
-                        buff.stacks--;
-                        if (buff.stacks <= 0) delete gs.player.buffs[buffId];
-                    }
-                } else {
-                    delete gs.player.buffs[buffId];
-                }
-            } else if (buff?.energyPerTurn) {
-                gs.player.energy += buff.energyPerTurn;
-                const label = buffId === 'time_warp' ? '시간 왜곡' : (buff.name || '효과');
-                gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', buff.energyPerTurn), 'echo');
-                if (Number.isFinite(buff.stacks)) {
-                    if (!_isInfiniteStackBuff(buffId, buff)) {
-                        buff.stacks--;
-                        if (buff.stacks <= 0) delete gs.player.buffs[buffId];
-                    }
-                }
-            }
-        });
-
-        gs.addLog?.(`── 턴 ${gs.combat.turn} ──`, 'turn-divider');
         gs.triggerItems?.('turn_start');
+        gs.drawCards(drawCount, { skipRift: true });
 
         return { isStunned };
     },

@@ -113,6 +113,6 @@ describe('TurnManager dodge handling', () => {
 
     TurnManager.startPlayerTurnLogic(gs);
 
-    expect(gs.drawCards).toHaveBeenCalledWith(6);
+    expect(gs.drawCards).toHaveBeenCalledWith(6, { skipRift: true });
   });
 });

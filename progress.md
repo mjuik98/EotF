@@ -1415,3 +1415,23 @@ Original prompt:
   - `npm test` still shows unrelated pre-existing failures in `items_*`, `thematic_relics`, `time_rift_bug`, `turn_manager`, and part of `title_settings_bindings`; these were not introduced by this refactor.
   - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with the action payload reference and `#mainStartBtn`.
   - Reviewed fresh screenshot `output/web-game/shot-1.png`; page rendered normally and no `output/web-game/errors-1.json` artifact was produced.
+- Follow-up prompt: 최적화 보고서인데 검토하고 타당하다면 적용해줘
+- Optimization report review + application:
+  - Re-validated the report against the live repo instead of trusting its "already done" / "root cause" sections.
+  - Accepted and implemented the still-valid parts:
+    - Fixed the actual region-5 time-rift bug in `game/core/game_api.js` by charging `addTimeRift()` from draw attempts, not only successfully drawn cards.
+    - Hardened `game/core/global_bridge.js` so `GAME.getDeps()` no longer crashes in non-DOM test environments.
+    - Added the missing thematic relic definitions in `data/items.js` and completed the broader missing-item set exposed by existing tests (`thematic_relics`, `items_logic_fixes`, `items_boss_relics`, `energy_core`).
+    - Added legacy set-tier flag compatibility in `game/systems/set_bonus_system.js` so older tests / transitional state still map to current set-bonus logic without changing the live item-count path.
+    - Added safe extra build chunks in `vite.config.js` for `data/enemies.js` and `game/ui/screens/ending_screen_ui.js`.
+    - Updated the stale `tests/turn_manager.test.js` expectation for the current `drawCards(count, options)` signature and fixed `tests/title_settings_bindings.test.js` to stub `updateNextNodes`.
+  - Rejected or deferred report items that were outdated against current repo policy:
+    - Did not keep the proposed `RunModeUI -> DATA import` and `Logger` import replacements because they tripped the repo's import-coupling guard; reverted those after verification.
+    - Did not change `events_data.js` item-toast routing because the repo still lacks a non-global consumer path for `acquiredItem`, so the report's suggested dispatch path was not yet wired end-to-end.
+- Validation:
+  - `npm test -- tests/thematic_relics.test.js tests/turn_manager.test.js tests/time_rift_bug.test.js` PASS.
+  - `npm test` PASS (56 files, 195 tests).
+  - `npm run build` PASS.
+  - `npm run lint` still fails on pre-existing import-coupling baseline drift (`combat->data`, `ui->data`, `utils->data`) that is not caused by this patch set.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4177`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-0.png` and `output/web-game/shot-1.png`; character-select flow rendered normally and no `errors-*.json` artifacts were emitted.

@@ -38,6 +38,8 @@ export const GAME = {
 
     getDeps() {
         if (!this._depsBase) {
+            const doc = typeof document !== 'undefined' ? document : null;
+            const win = typeof window !== 'undefined' ? window : null;
             this._depsBase = {
                 gs: this.State,
                 State: this.State,
@@ -48,8 +50,8 @@ export const GAME = {
                 audioEngine: this.Audio,
                 particles: this.Particle,
                 particleSystem: this.Particle,
-                doc: document,
-                win: window,
+                doc,
+                win,
                 api: this.API,
                 ...this.Modules,
             };
@@ -57,7 +59,7 @@ export const GAME = {
 
         return {
             ...this._depsBase,
-            runRules: window.RunRules || this.Modules['RunRules'],
+            runRules: (typeof window !== 'undefined' ? window.RunRules : null) || this.Modules['RunRules'],
         };
     },
 

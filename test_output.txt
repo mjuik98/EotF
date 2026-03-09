@@ -1,0 +1,411 @@
+﻿
+> echo-of-the-fallen@2.0.0 test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/mjuik/RoguelikeRPG[39m
+
+ [32m??[39m tests/game_boot_ui.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m??[39m tests/ending_screen_ui.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 18[2mms[22m[39m
+node.exe : [90mstderr
+[2m | tests/title_setti
+ngs_bindings.test.js[2
+m > [22m[2mtitle star
+t flow transition[2m >
+ [22m[2mcontinues run
+ start flow even if pre
+-run ripple fails
+위치 줄:1 문자:1
++ & "C:\Program Files\n
+odejs/node.exe" "C:\Pro
+gram Files\nodejs/node_
+mo ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecified
+: ([9    0mstderr[2m.
+..un ripp    le fails:S
+tring) [], R    emoteEx
+ception
+    + FullyQualifiedErr
+orI    d : NativeComman
+dError
+ 
+[22m[39m[TitleSetting
+sBindings] pre-run ripp
+le failed: Error: rippl
+e fail
+    at [90mC:\Users\mj
+uik\RoguelikeRPG\[39mt
+ests\title_settings_bin
+dings.test.js:112:13
+    at mockCall [90m(f
+ile:///C:/Users/mjuik/R
+oguelikeRPG/[39mnode_m
+odules/[4m@vitest/spy
+[24m/dist/index.js:96:1
+5[90m)[39m
+    at spy [90m(file:/
+//C:/Users/mjuik/Roguel
+ikeRPG/[39mnode_module
+s/[4mtinyspy[24m/dist
+/index.js:47:80[90m)[
+39m
+    at playPreRunRipple
+ [90m(C:\Users\mjuik\R
+oguelikeRPG\[39mgame\c
+ore\bindings\title_sett
+ings_bindings.js:131:36
+[90m)[39m
+    at Object.fns.start
+Game [90m(C:\Users\mju
+ik\RoguelikeRPG\[39mga
+me\core\bindings\title_
+settings_bindings.js:16
+6:9[90m)[39m
+    at [90mC:\Users\mj
+uik\RoguelikeRPG\[39mt
+ests\title_settings_bin
+dings.test.js:122:9
+    at [90mfile:///C:/
+Users/mjuik/RoguelikeRP
+G/[39mnode_modules/[4
+m@vitest/runner[24m/di
+st/chunk-hooks.js:155:1
+1
+    at [90mfile:///C:/
+Users/mjuik/RoguelikeRP
+G/[39mnode_modules/[4
+m@vitest/runner[24m/di
+st/chunk-hooks.js:752:2
+6
+    at [90mfile:///C:/
+Users/mjuik/RoguelikeRP
+G/[39mnode_modules/[4
+m@vitest/runner[24m/di
+st/chunk-hooks.js:1897:
+20
+    at new Promise (<an
+onymous>)
+
+ [32m??[39m tests/title_settings_bindings.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m??[39m tests/settings_ui.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/run_start_ui.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m??[39m tests/map_branching.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m??[39m tests/help_pause_ui.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m??[39m tests/class_progression_bonuses.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstderr[2m | tests
+/save_system_outbox.tes
+t.js[2m > [22m[2mSav
+eSystem outbox[2m > [
+22m[2mqueues failed me
+ta saves and flushes wh
+en adapter recovers
+[22m[39m[WARN][echo-o
+f-the-fallen][2026-01-0
+1T00:00:00.000Z] [SaveS
+ystem] Save failed for 
+"echo_fallen_meta". Que
+ued for retry.
+
+[90mstderr[2m | tests
+/save_system_outbox.tes
+t.js[2m > [22m[2mSav
+eSystem outbox[2m > [
+22m[2mcoalesces queued
+ entries by key and kee
+ps the latest payload
+[22m[39m[WARN][echo-o
+f-the-fallen][2026-01-0
+1T00:00:00.000Z] [SaveS
+ystem] Save failed for 
+"echo_fallen_save". Que
+ued for retry.
+[WARN][echo-of-the-fall
+en][2026-01-01T00:00:00
+.000Z] [SaveSystem] Sav
+e failed for "echo_fall
+en_save". Queued for re
+try.
+
+ [32m??[39m tests/reward_ui.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[90mstderr[2m | tests
+/runtime_metrics.test.j
+s[2m > [22m[2mruntim
+e metrics[2m > [22m[
+2mtracks error counts a
+nd minute-level error-r
+ate trend
+[22m[39m[WARN][echo-o
+f-the-fallen][2026-01-0
+1T00:00:00.000Z] [Error
+Reporter] {
+  code: [32m'invalid_a
+ction'[39m,
+  context: [32m'runtim
+e_metrics_test'[39m,
+  severity: [32m'warn'
+[39m,
+  message: [32m'first'
+[39m
+}
+[ERROR][echo-of-the-fal
+len][2026-01-01T00:01:0
+0.000Z] [ErrorReporter]
+ {
+  code: [32m'save_load
+_failed'[39m,
+  context: [32m'runtim
+e_metrics_test'[39m,
+  severity: [32m'error
+'[39m,
+  message: [32m'second
+'[39m
+}
+[ERROR][echo-of-the-fal
+len][2026-01-01T00:01:0
+0.000Z] [ErrorReporter]
+ {
+  code: [32m'save_load
+_failed'[39m,
+  context: [32m'runtim
+e_metrics_test'[39m,
+  severity: [32m'error
+'[39m,
+  message: [32m'third'
+[39m
+}
+
+[90mstderr[2m | tests
+/save_system_outbox.tes
+t.js[2m > [22m[2mSav
+eSystem outbox[2m > [
+22m[2mretries queued w
+rites with exponential 
+backoff
+[22m[39m[WARN][echo-o
+f-the-fallen][2026-01-0
+1T00:00:00.000Z] [SaveS
+ystem] Save failed for 
+"echo_fallen_meta". Que
+ued for retry.
+
+ [32m??[39m tests/combat_start_ui.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstderr[2m | tests
+/save_system_outbox.tes
+t.js[2m > [22m[2mSav
+eSystem outbox[2m > [
+22m[2mpreserves run sa
+ve snapshot while queue
+d
+[22m[39m[WARN][echo-o
+f-the-fallen][2026-01-0
+1T00:00:00.000Z] [SaveS
+ystem] Save failed for 
+"echo_fallen_save". Que
+ued for retry.
+
+[90mstderr[2m | tests
+/save_system_outbox.tes
+t.js[2m > [22m[2mSav
+eSystem outbox[2m > [
+22m[2mtracks outbox te
+lemetry for failures, r
+etries, and success
+[22m[39m[WARN][echo-o
+f-the-fallen][2026-01-0
+1T00:00:00.000Z] [SaveS
+ystem] Save failed for 
+"echo_fallen_save". Que
+ued for retry.
+
+ [32m??[39m tests/runtime_metrics.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m??[39m tests/save_system_outbox.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+[90mstdout[2m | tests/runtime_state_flow.test.js[2m > [22m[2mruntime state flow guards[2m > [22m[2mrolls back transient card-play state when card effect throws
+[22m[39m[GROUP] API: Play Card (Explosive Script)
+
+[90mstderr[2m | tests
+/runtime_state_flow.tes
+t.js[2m > [22m[2mrun
+time state flow guards
+[2m > [22m[2mrolls ba
+ck transient card-play 
+state when card effect 
+throws
+[22m[39m  [ERROR][ech
+o-of-the-fallen][2026-0
+3-09T05:45:32.777Z] Err
+or playing card: Error:
+ effect failed
+      at Object.effect 
+[90m(C:\Users\mjuik\Ro
+guelikeRPG\[39mtests\r
+untime_state_flow.test.
+js:97:19[90m)[39m
+      at Object.playCar
+d [90m(C:\Users\mjuik\
+RoguelikeRPG\[39mgame\
+core\game_api.js:215:30
+[90m)[39m
+      at [90mC:\Users\
+mjuik\RoguelikeRPG\[39
+mtests\runtime_state_fl
+ow.test.js:113:28
+      at [90mfile:///C
+:/Users/mjuik/Roguelike
+RPG/[39mnode_modules/
+[4m@vitest/runner[24m/
+dist/chunk-hooks.js:155
+:11
+      at [90mfile:///C
+:/Users/mjuik/Roguelike
+RPG/[39mnode_modules/
+[4m@vitest/runner[24m/
+dist/chunk-hooks.js:752
+:26
+      at [90mfile:///C
+:/Users/mjuik/Roguelike
+RPG/[39mnode_modules/
+[4m@vitest/runner[24m/
+dist/chunk-hooks.js:189
+7:20
+      at new Promise (<
+anonymous>)
+      at runWithTimeout
+ [90m(file:///C:/Users
+/mjuik/RoguelikeRPG/[3
+9mnode_modules/[4m@vit
+est/runner[24m/dist/ch
+unk-hooks.js:1863:10[9
+0m)[39m
+      at runTest [90m(
+file:///C:/Users/mjuik/
+RoguelikeRPG/[39mnode_
+modules/[4m@vitest/run
+ner[24m/dist/chunk-hoo
+ks.js:1574:12[90m)[39
+m
+  [90m    at processTi
+cksAndRejections (node:
+internal/process/task_q
+ueues:103:5)[39m
+
+[90mstdout[2m | tests/runtime_state_flow.test.js[2m > [22m[2mruntime state flow guards[2m > [22m[2mconsumes free-charge state after successful card play
+[22m[39m[GROUP] API: Play Card (Free Pulse)
+
+[90mstdout[2m | tests/runtime_state_flow.test.js[2m > [22m[2mruntime state flow guards[2m > [22m[2mfires card_play item trigger after successful card play
+[22m[39m[GROUP] API: Play Card (Item Hook Probe)
+
+[90mstdout[2m | tests/runtime_state_flow.test.js[2m > [22m[2mruntime state flow guards[2m > [22m[2mdoes not consume a next-card discount granted by the card being played
+[22m[39m[GROUP] API: Play Card (Tempo Like)
+
+[90mstdout[2m | tests/runtime_state_flow.test.js[2m > [22m[2mruntime state flow guards[2m > [22m[2mapplies before_card_cost item hook before energy check
+[22m[39m[GROUP] API: Play Card (Coupon Check)
+
+ [32m??[39m tests/runtime_state_flow.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [31m??[39m tests/turn_manager.test.js [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 13[2mms[22m[39m
+   [32m??[39m TurnManager dodge handling[2m > [22mkeeps dodge until enemy turn when ending player turn[32m 4[2mms[22m[39m
+   [32m??[39m TurnManager dodge handling[2m > [22mconsumes dodge and prevents damage on enemy attack[32m 1[2mms[22m[39m
+   [32m??[39m TurnManager dodge handling[2m > [22mdoes not apply enemy effects when the enemy is already dead[32m 0[2mms[22m[39m
+   [32m??[39m TurnManager dodge handling[2m > [22mtracks reflected and status-tick damage in damageDealt stats[32m 1[2mms[22m[39m
+[31m   [31m횞[31m TurnManager dodge handling[2m > [22madds one extra draw at turn start in region 5[39m[32m 7[2mms[22m[39m
+[31m     ??drawCount is not defined[39m
+ [32m??[39m tests/thematic_relics.test.js [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m??[39m tests/description_utils_highlight.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m??[39m tests/meta_progression_ui.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/codex_records_system.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/deps_factory.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m??[39m tests/state_actions.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/trigger_extension.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/settings_manager.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/idempotency_utils.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/stage_mini_boss_spawn.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/class_mechanics.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/story_ui.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/items_logic_fixes.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/hud_update_ui_hp_panel.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/map_ui_update_next_nodes.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/run_rules_preview_meta.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/time_rift_bug.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/player_hp_panel_ui.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m??[39m tests/death_handler.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/screen_ui.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/player_status_metadata.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/region_transition_ui.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/ui_bindings_status_display.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/event_manager_item_shop_cache.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/energy_core.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/feedback_ui.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m??[39m tests/event_bindings_status_effects_registration.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m??[39m tests/items_boss_relics.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m??[39m tests/new_mechanics.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m??[39m tests/status_tooltip_metrics.test.js [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m??[39m tests/class_progression_system.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m??[39m tests/event_contracts.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/enemy_status_metadata.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/draw_availability.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/enemy_patterns.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/status_tooltip_builder_focus.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/event_resonance_choice_limit.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/card_cost_utils.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m??[39m tests/rest_site_upgrade_button.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m??[39m tests/event_bus.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m??[39m tests/event_merchant_resolution.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m??[39m tests/relic_price_verification.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[31m??렞??렞??렞??[39m[1
+m[41m Failed Tests 1 
+[49m[22m[31m??렞??렞??렞
+??[39m
+
+[41m[1m FAIL [22m[4
+9m tests/turn_manager.t
+est.js[2m > [22mTurnM
+anager dodge handling[
+2m > [22madds one extr
+a draw at turn start in
+ region 5
+[31m[1mReferenceError
+[22m: drawCount is not
+ defined[39m
+[36m [2m??[22m Object
+.startPlayerTurnLogic g
+ame/combat/turn_manager
+.js:[2m634:22[22m[39
+m
+    [90m632| [39m
+    [90m633| [39m    
+    gs[33m.[39m[34mt
+riggerItems[39m[33m?.
+[39m([32m'turn_start'
+[39m)[33m;[39m
+    [90m634| [39m    
+    gs[33m.[39m[34md
+rawCards[39m(drawCount
+[33m,[39m { skipRift
+[33m:[39m [35mtrue[3
+9m })[33m;[39m
+    [90m   | [39m    
+                 [31m^
+[39m
+    [90m635| [39m
+    [90m636| [39m    
+    [35mreturn[39m { 
+isStunned }[33m;[39m
+[90m [2m??[22m tests/
+turn_manager.test.js:[
+2m114:17[22m[39m
+
+[31m[2m??렞??렞??렞??렞??
+렞??렞??렞??렞??렞??렞??렞??렞[
+1/1]??[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m55 passed[39m[22m[90m (56)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m194 passed[39m[22m[90m (195)[39m
+[2m   Start at [22m 14:45:32
+[2m   Duration [22m 2.12s[2m (transform 1.34s, setup 0ms, collect 5.47s, tests 380ms, environment 9ms, prepare 10.02s)[22m
+

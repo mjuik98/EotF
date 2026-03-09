@@ -1,4 +1,10 @@
 const MAX_SET_BONUS_TIER = 5;
+const LEGACY_SET_TIER_FLAGS = Object.freeze({
+    serpents_gaze: Object.freeze({ 2: '_serpentSet2', 3: '_serpentSet3' }),
+    holy_grail: Object.freeze({ 2: '_grailSet2', 3: '_grailSet3' }),
+    titans_endurance: Object.freeze({ 2: '_titanSet2', 3: '_titanSet3' }),
+    iron_fortress: Object.freeze({ 2: '_fortSet2', 3: '_fortSet3' }),
+});
 
 function normalizeTrigger(trigger) {
     return String(trigger || '').toLowerCase();
@@ -29,6 +35,15 @@ function getHighestUnlockedTier(bonuses, count) {
         Math.max(0, ...Object.keys(bonuses || {}).map((tier) => Number(tier) || 0), 0),
         MAX_SET_BONUS_TIER,
     );
+}
+
+function hasLegacySetTier(gs, setKey, tier) {
+    const flag = LEGACY_SET_TIER_FLAGS[setKey]?.[tier];
+    return !!(flag && gs?.[flag]);
+}
+
+function hasSetTier(gs, counts, setKey, tier) {
+    return (counts[setKey] || 0) >= tier || hasLegacySetTier(gs, setKey, tier);
 }
 
 const SETS = {
@@ -317,7 +332,7 @@ export const SetBonusSystem = {
             if (data && typeof data.amount === 'number') return { ...data, amount: Math.floor(data.amount * 1.2) };
         }
 
-        if (counts.serpents_gaze >= 2 && normalizedTrigger === 'poison_damage' && data?.amount > 0 && Math.random() < 0.1) {
+        if (hasSetTier(gs, counts, 'serpents_gaze', 2) && normalizedTrigger === 'poison_damage' && data?.amount > 0 && Math.random() < 0.1) {
             const aliveIndices = (gs.combat?.enemies || [])
                 .map((enemy, idx) => (enemy.hp > 0 ? idx : -1))
                 .filter((idx) => idx !== -1);
@@ -330,14 +345,14 @@ export const SetBonusSystem = {
                 }
             }
         }
-        if (counts.serpents_gaze >= 3 && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
+        if (hasSetTier(gs, counts, 'serpents_gaze', 3) && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
             const targetIdx = resolveTargetIdx(gs);
             if (targetIdx >= 0 && (gs.combat?.enemies?.[targetIdx]?.statusEffects?.poisoned || 0) >= 10) {
                 return Math.floor(data * 1.25);
             }
         }
 
-        if (counts.holy_grail >= 2 && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
+        if (hasSetTier(gs, counts, 'holy_grail', 2) && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
             const currentHp = gs.player.hp || 0;
             const maxHp = gs.player.maxHp || 0;
             const overflow = Math.max(0, currentHp + data - maxHp);
@@ -346,24 +361,28 @@ export const SetBonusSystem = {
                 return Math.max(0, maxHp - currentHp);
             }
         }
-        if (counts.holy_grail >= 3 && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
+        if (hasSetTier(gs, counts, 'holy_grail', 3) && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
             gs._grailNextBonus = (gs._grailNextBonus || 0) + 4;
         }
-        if (counts.holy_grail >= 3 && normalizedTrigger === 'deal_damage' && typeof data === 'number' && (gs._grailNextBonus || 0) > 0) {
+        if (hasSetTier(gs, counts, 'holy_grail', 3) && normalizedTrigger === 'deal_damage' && typeof data === 'number' && (gs._grailNextBonus || 0) > 0) {
             const bonus = gs._grailNextBonus;
             gs._grailNextBonus = 0;
             return data + bonus;
         }
 
-        if (counts.titans_endurance >= 2 && normalizedTrigger === 'deal_damage' && typeof data === 'number' && (gs.player.hp || 0) >= (gs.player.maxHp || 0) * 0.8) {
+        if (hasSetTier(gs, counts, 'titans_endurance', 2) && normalizedTrigger === 'deal_damage' && typeof data === 'number' && (gs.player.hp || 0) >= (gs.player.maxHp || 0) * 0.8) {
             return data + 5;
         }
-        if (counts.titans_endurance >= 3 && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data >= (gs.player.hp || 0) && !gs._titanUsed) {
+        if (hasSetTier(gs, counts, 'titans_endurance', 3) && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data >= (gs.player.hp || 0) && !gs._titanUsed) {
             gs._titanUsed = true;
             gs.player.hp = 1;
             gs.markDirty?.('hud');
             gs.addLog?.('🛡️ 거인의 불사: 치명적 피해 방지!', 'echo');
             return true;
+        }
+
+        if (hasLegacySetTier(gs, 'iron_fortress', 3) && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
+            return data + Math.floor((gs.player.shield || 0) * 0.2);
         }
 
         if (counts.iron_fortress >= 2 && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
@@ -375,10 +394,21 @@ export const SetBonusSystem = {
             }
             return result;
         }
-        if (counts.iron_fortress >= 5 && normalizedTrigger === 'turn_start' && (gs.player.shield || 0) >= 40) {
+        if (
+            normalizedTrigger === 'turn_start'
+            && (
+                (counts.iron_fortress >= 5 && (gs.player.shield || 0) >= 40)
+                || (hasLegacySetTier(gs, 'iron_fortress', 2) && (gs.player.shield || 0) > 0 && Math.random() < 0.25)
+            )
+        ) {
             gs.player.energy = Math.min(gs.player.maxEnergy || 0, (gs.player.energy || 0) + 1);
             gs.markDirty?.('hud');
-            gs.addLog?.('🛡️ 철옹성 세트(5): 에너지 +1', 'item');
+            gs.addLog?.(
+                counts.iron_fortress >= 5
+                    ? '🛡️ 철옹성 세트(5): 에너지 +1'
+                    : '🛡️ 철옹성 세트(구 2): 에너지 +1',
+                'item',
+            );
         }
 
         if (counts.judgement >= 2 && normalizedTrigger === 'combat_start') {

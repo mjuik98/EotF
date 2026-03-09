@@ -333,6 +333,15 @@ export const Reducers = {
         gs._temporalTurn = 0;
         gs._activeRegionId = null;
 
+        // 아이템 관련 플래그 초기화
+        gs._ignoreShield = false;
+        gs._scrollTempCard = null;
+        gs._fragmentActive = false;
+        gs._fragmentBaseMax = undefined;
+        gs._glitch0 = null;
+        gs._glitchPlus = null;
+        gs._eternityActive = false;
+
         gs.markDirty('hud');
         return { victory };
     },

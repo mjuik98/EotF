@@ -6,7 +6,9 @@ function getManualChunk(id) {
   if (normalized.includes('/node_modules/')) return 'vendor';
 
   if (normalized.endsWith('/data/cards.js')) return 'data-cards';
+  if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
   if (normalized.endsWith('/game/ui/screens/codex_ui.js')) return 'ui-codex';
+  if (normalized.endsWith('/game/ui/screens/ending_screen_ui.js')) return 'ui-ending';
   if (normalized.endsWith('/game/ui/run/run_mode_ui.js')) return 'ui-run-mode';
 
   return null;

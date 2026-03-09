@@ -133,7 +133,7 @@ describe('title start flow transition', () => {
     globalThis.window = {};
 
     const modules = createModules();
-    const fns = { renderMinimap: vi.fn() };
+    const fns = { renderMinimap: vi.fn(), updateNextNodes: vi.fn() };
     createTitleSettingsBindings(modules, fns);
 
     fns.continueRun();
