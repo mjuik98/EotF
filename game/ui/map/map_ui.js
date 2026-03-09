@@ -1,4 +1,5 @@
 import { MAP_NODE_TYPE_ORDER, MAP_NODE_TYPE_VISUAL_FALLBACK } from '../../../data/map_node_data.js';
+import { getPlayerHpPanelLevel } from '../shared/player_hp_panel_ui.js';
 
 const MINIMAP_HOVER_THRESHOLD = 12;
 const FULL_MAP_HOVER_THRESHOLD = 18;
@@ -208,6 +209,14 @@ function _ncEnsureOverlayStructure(doc, overlay) {
   }
 
   return { title, row };
+}
+
+function _ncApplyHpDangerClass(overlay, gs) {
+  if (!overlay?.classList) return;
+  overlay.classList.remove('nc-danger-critical', 'nc-danger-low');
+  const level = getPlayerHpPanelLevel(gs);
+  if (level === 'critical') overlay.classList.add('nc-danger-critical');
+  if (level === 'low') overlay.classList.add('nc-danger-low');
 }
 
 function _ncBuildFloorBar(doc, gs, regionData, nodeMeta) {
@@ -547,6 +556,8 @@ function _ncPlaySelectAnim(doc, card, color, rgb, onDone) {
   // 빈 div 대신 실제 카드 복제
   const clone = card.cloneNode(true);
   clone.classList.add('nc-select-clone');
+  clone.classList.add('is-cloned'); // [중요] 호버 상태의 디자인을 그대로 유지하도록 클래스 부여
+  
   clone.style.position = 'fixed';
   clone.style.margin = '0';
   clone.style.left = `${rect.left}px`;
@@ -555,9 +566,8 @@ function _ncPlaySelectAnim(doc, card, color, rgb, onDone) {
   clone.style.height = `${rect.height}px`;
   clone.style.zIndex = '9999';
   clone.style.pointerEvents = 'none';
-  clone.style.border = `2px solid ${color}`;
-  clone.style.boxShadow = `0 0 55px rgba(${rgb},.5)`;
-  clone.style.transition = 'all 0.42s cubic-bezier(.22,.8,.2,1), opacity 0.3s ease, transform 0.3s ease';
+  // inline 스타일(border, box-shadow)은 CSS .is-cloned에서 정의하므로 수동 설정 제거
+  clone.style.transition = 'all 0.45s cubic-bezier(0.23, 1, 0.32, 1)';
 
   overlay.appendChild(clone);
 
@@ -566,8 +576,8 @@ function _ncPlaySelectAnim(doc, card, color, rgb, onDone) {
   card.style.visibility = 'hidden';
 
   _runOnNextFrame(() => _runOnNextFrame(() => {
-    const targetWidth = Math.min(rect.width * 1.08, 280);
-    const targetHeight = rect.height * 1.05;
+    const targetWidth = Math.min(rect.width * 1.12, 340);
+    const targetHeight = rect.height * 1.08;
 
     clone.style.left = `${((globalThis.innerWidth || 1280) - targetWidth) / 2}px`;
     clone.style.top = `${((globalThis.innerHeight || 720) - targetHeight) / 2}px`;
@@ -741,6 +751,7 @@ export const MapUI = {
     ) {
       overlay.style.display = 'none';
       overlay.style.pointerEvents = 'none';
+      overlay.classList.remove('nc-danger-critical', 'nc-danger-low');
       _ncCleanup(doc);
       return;
     }
@@ -794,7 +805,7 @@ export const MapUI = {
         enemies: '없음',
         traits: ['선택지', '결과 다양'],
         rewards: ['골드', '유물'],
-        preview: '선택에 따라 이득과 리스크가 달라집니다.',
+        preview: '이동 후 특수 상황이 발생할 수 있습니다.',
         badge: false,
       },
       shop: {
@@ -856,6 +867,7 @@ export const MapUI = {
     mainArea.id = 'ncMainArea';
     mainArea.className = 'nc-main-area';
     mainArea.appendChild(_ncBuildFloorBar(doc, gs, regionData, nodeMeta));
+    _ncApplyHpDangerClass(overlay, gs);
 
     const titleArea = doc.createElement('div');
     titleArea.className = 'nc-title-area';

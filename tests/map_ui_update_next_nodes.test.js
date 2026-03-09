@@ -230,4 +230,45 @@ describe('MapUI.updateNextNodes', () => {
     expect(overlay.children.some(child => child.id === 'ncRelicPanel')).toBe(true);
     expect(overlay.children.some(child => child.id === 'ncMainArea')).toBe(true);
   });
+
+  it('applies hp danger styling to the overlay', () => {
+    const doc = createMockDocument();
+    const { overlay } = createOverlay(doc);
+    const gs = {
+      currentScreen: 'game',
+      currentRegion: 0,
+      currentFloor: 0,
+      currentNode: null,
+      combat: { active: false },
+      player: {
+        hp: 28,
+        maxHp: 100,
+        shield: 12,
+        buffs: { vulnerable: 1 },
+        items: [],
+      },
+      mapNodes: [
+        { id: '1-0', floor: 1, pos: 0, total: 1, type: 'combat', accessible: true, visited: false },
+      ],
+    };
+
+    MapUI.updateNextNodes({
+      gs,
+      doc,
+      data: { items: {} },
+      nodeMeta: {
+        combat: { icon: 'C', label: 'Combat', color: '#cc2244', desc: 'Fight enemies.' },
+      },
+      getRegionData: () => ({
+        name: 'Region Zero',
+        rule: 'No Rule',
+        floors: 7,
+        accent: '#228855',
+      }),
+      getFloorStatusText: () => '1F',
+    });
+
+    expect(overlay.classList.contains('nc-danger-low')).toBe(true);
+    expect(overlay.classList.contains('nc-danger-critical')).toBe(false);
+  });
 });

@@ -359,6 +359,59 @@ Original prompt:
   - `content: '';`�� ������ ���/��Ÿ�� CSS �Ľ� ����.
 - Validation:
   - `npm run build` PASS.
+- Follow-up prompt: 외부에서 가져온 전투 UI 개선(`patch_map_ui_hp.js`, `patch_nc_hp.css`) 코드를 기존 프로젝트에 통합.
+- Map overlay HP integration:
+  - Integrated an HP summary panel into `game/ui/map/map_ui.js` under the existing floor-progress bar instead of replacing the current stage-select overlay structure.
+  - Added `_ncHpLevel`, `_ncApplyHpDangerClass`, `_ncBuildHpBar`, and `_ncEl`, then wired `updateNextNodes` so low-HP state decorates the overlay and the HP widget renders on every node-choice refresh.
+  - Resolved `StatusEffectsUI` through injected deps first and only then through `GAME.Modules`, matching the current project dependency flow.
+  - Cleared `nc-danger-critical` / `nc-danger-low` when the overlay is hidden so danger tint does not leak across unrelated renders.
+- Map overlay HP styling:
+  - Merged the external HP card and danger-overlay styles into the existing stage-select redesign section of `css/styles.css`.
+  - Reused `--nc-visual-center-shift` so the new HP panel aligns with the current centered layout.
+- Regression coverage:
+  - Extended `tests/map_ui_update_next_nodes.test.js` to verify HP widget rendering, low-HP danger class application, shield bar visibility, and `StatusEffectsUI.updateStatusDisplay` invocation with `ncHpStatusBadges`.
+- Validation:
+  - `npm test -- tests/map_ui_update_next_nodes.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright web-game client against `http://127.0.0.1:4173`; refreshed `output/web-game/shot-0.png` and `output/web-game/shot-1.png` with no `errors-*.json`.
+  - The stock client still captured only the main canvas, so DOM-based map overlay visuals were only partially observable there.
+  - Ran a direct Playwright runtime check that forced `GAME.Modules.updateNextNodes` with low HP and confirmed: overlay class `nc-danger-critical`, `1` HP widget, `1` danger banner, `1` status badge section, and `2` node cards.
+- Follow-up prompt: HP 패널을 좌측 상단으로 이동하고 전투 중에도 계속 표시.
+- Floating HP panel follow-up:
+  - Replaced the node-overlay-only HP widget with a shared floating player HP panel module at `game/ui/shared/player_hp_panel_ui.js`.
+  - `game/ui/hud/hud_update_ui.js` now refreshes the floating panel on every `doUpdateUI` pass, so the panel stays visible during combat as well as regular in-run game screens.
+  - `game/ui/map/map_ui.js` now keeps only the overlay danger tint (`nc-danger-low` / `nc-danger-critical`) and no longer renders a second centered HP panel inside the node-choice overlay.
+  - Updated `css/styles.css` so the panel is fixed at the top-left of the viewport, with responsive width on smaller screens.
+- Regression coverage:
+  - Added `tests/player_hp_panel_ui.test.js` for HP level mapping, floating-shell creation, status badge forwarding, and cleanup when leaving gameplay screens.
+  - Updated `tests/map_ui_update_next_nodes.test.js` to reflect the new single-panel architecture while still checking danger tint on the overlay.
+- Validation:
+  - `npm test -- tests/map_ui_update_next_nodes.test.js tests/player_hp_panel_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; no `errors-*.json` were emitted.
+  - Ran a direct Playwright runtime check forcing combat state and `HudUpdateUI.doUpdateUI`; confirmed a floating shell at top `14px`, left `14px`, width `360px`, with `1` HP panel, `1` danger banner, `1` shield bar, and `1` status badge area.
+  - Saved the visual verification capture to `output/web-game/floating-hp-panel-combat.png`.
+- Follow-up prompt: 유저가 적의 공격을 받았을 때 방어막 갱신이 안되는 버그
+- Shield refresh bug fix:
+  - Root cause: `Actions.PLAYER_DAMAGE` subscribers call `HudUpdateUI.updatePlayerStats(gs)`, but the floating HP panel had been refreshed only in `HudUpdateUI.doUpdateUI()`.
+  - Fixed `game/ui/hud/hud_update_ui.js` so `updatePlayerStats()` also rerenders the floating HP panel before updating the legacy HUD bars/text.
+- Regression coverage:
+  - Added `tests/hud_update_ui_hp_panel.test.js` to verify the floating panel updates from `shield > 0` to `shield = 0` when `HudUpdateUI.updatePlayerStats()` is called.
+- Validation:
+  - `npm test -- tests/hud_update_ui_hp_panel.test.js tests/player_hp_panel_ui.test.js tests/map_ui_update_next_nodes.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; no `errors-*.json` were emitted.
+  - Direct runtime check confirmed `HudUpdateUI.updatePlayerStats()` changes floating shield bar count from `1` to `0` after shield drops to zero.
+- Follow-up prompt: 집중 카드를 사용하여 버프를 받았을 때, 툴팁에 표시되지 않는 버그
+- Focus tooltip fix:
+  - Added explicit `focus` tooltip metadata to `game/ui/combat/status_tooltip_builder.js`, matching the consume-on-hit critical buff behavior used by the card and damage system.
+  - Added `critical_turn` tooltip metadata alongside it so the full-turn critical buff uses the same richer tooltip path instead of sparse fallback rendering.
+- Regression coverage:
+  - Added `tests/status_tooltip_builder_focus.test.js` to verify `focus` and `critical_turn` produce tooltip HTML with their intended English title and action tags.
+- Validation:
+  - `npm test -- tests/status_tooltip_builder_focus.test.js tests/player_status_metadata.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm run build` PASS.
+  - Re-ran the Playwright web-game client against `http://127.0.0.1:4173`; no `errors-*.json` were emitted.
 - Follow-up prompt: 외부 전투 UI 패치(status badge / tooltip / infinite buff styling) 통합.
 - Combat status UI integration:
   - `data/status_key_data.js`

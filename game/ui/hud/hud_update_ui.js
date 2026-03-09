@@ -13,6 +13,7 @@ import { DomValueUI } from './dom_value_ui.js';
 import { resolveDrawAvailability } from '../combat/draw_availability.js';
 import { getDoc as _getDoc, getRaf } from '../../utils/runtime_deps.js';
 import { RARITY_SORT_ORDER } from '../../../data/rarity_meta.js';
+import { renderFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
 
 
 let _uiPending = false;
@@ -114,6 +115,7 @@ export const HudUpdateUI = {
     if (!gs || !p) return;
 
     const doc = _getDoc(deps);
+    renderFloatingPlayerHpPanel({ ...deps, doc, gs });
     const data = deps.data;
     const setBonusSystem = deps.setBonusSystem
       || deps.SetBonusSystem
@@ -588,6 +590,7 @@ export const HudUpdateUI = {
   },
 
   updatePlayerStats(gs, deps = {}) {
+    renderFloatingPlayerHpPanel({ ...deps, gs, doc: _getDoc(deps) });
     updatePlayerStatsUI(gs, deps);
   },
 

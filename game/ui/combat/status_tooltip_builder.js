@@ -124,6 +124,31 @@ export const STATUS_TOOLTIP_META = {
     gauge: { infinite: true, color: '#475569' },
     nextTurnText: null, nextTurnDmg: () => null,
   },
+  focus: {
+    nameEn: 'Focus', typeLabel: '버프 · 소모형',
+    accent: '#0f766e', nameColor: '#5eead4',
+    typeBg: 'rgba(15,118,110,.18)', typeColor: '#2dd4bf',
+    tags: [
+      { label: '다음 공격 치명타', color: '#5eead4', border: 'rgba(94,234,212,.22)', bg: 'rgba(45,212,191,.08)' },
+      { label: '공격 즉시 해제', color: '#5eead4', border: 'rgba(94,234,212,.22)', bg: 'rgba(45,212,191,.08)' },
+    ],
+    gauge: { infinite: true, color: '#0f766e' },
+    nextTurnText: null, nextTurnDmg: () => null,
+  },
+  critical_turn: {
+    nameEn: 'Critical Turn', typeLabel: '버프',
+    accent: '#dc2626', nameColor: '#fca5a5',
+    typeBg: 'rgba(220,38,38,.16)', typeColor: '#f87171',
+    tags: [
+      { label: '이번 턴 전체 치명타', color: '#fca5a5', border: 'rgba(252,165,165,.22)', bg: 'rgba(248,113,113,.08)' },
+      { label: '턴 종료 시 해제', color: '#fca5a5', border: 'rgba(252,165,165,.22)', bg: 'rgba(248,113,113,.08)' },
+    ],
+    nextTurnText: null, nextTurnDmg: () => null,
+    statLabel: '지속',
+    statValue: (buff, val) => String(val ?? buff?.stacks ?? buff ?? 1),
+    statUnit: '턴',
+    statColor: '#fca5a5',
+  },
   dodge: {
     nameEn: 'Dodge', typeLabel: '버프 · 소모형',
     accent: '#00ffcc', nameColor: '#67e8cc',
