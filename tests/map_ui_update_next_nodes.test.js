@@ -271,4 +271,36 @@ describe('MapUI.updateNextNodes', () => {
     expect(overlay.classList.contains('nc-danger-low')).toBe(true);
     expect(overlay.classList.contains('nc-danger-critical')).toBe(false);
   });
+
+  it('hides the overlay when movement is locked', () => {
+    const doc = createMockDocument();
+    const { overlay } = createOverlay(doc);
+    overlay.style.display = 'flex';
+    overlay.style.pointerEvents = 'auto';
+    overlay.classList.add('nc-danger-low');
+
+    MapUI.updateNextNodes({
+      gs: {
+        currentScreen: 'game',
+        currentRegion: 0,
+        currentFloor: 0,
+        currentNode: null,
+        combat: { active: false },
+        _nodeMoveLock: true,
+        player: { items: [] },
+        mapNodes: [
+          { id: '1-0', floor: 1, pos: 0, total: 1, type: 'combat', accessible: true, visited: false },
+        ],
+      },
+      doc,
+      data: { items: {} },
+      nodeMeta: {
+        combat: { icon: 'C', label: 'Combat', color: '#cc2244', desc: 'Fight enemies.' },
+      },
+    });
+
+    expect(overlay.style.display).toBe('none');
+    expect(overlay.style.pointerEvents).toBe('none');
+    expect(overlay.classList.contains('nc-danger-low')).toBe(false);
+  });
 });

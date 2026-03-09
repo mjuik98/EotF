@@ -2150,3 +2150,270 @@ Original prompt:
   - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
 - Suggested next refactor target:
   - `game/ui/title/intro_cinematic_ui.js` is now the next natural title-flow facade candidate.
+- Follow-up prompt: 진행해줘
+- IntroCinematicUI facade pass:
+  - Rebuilt `game/ui/title/intro_cinematic_ui.js` as a thin orchestration module.
+  - Added `game/ui/title/intro_cinematic_helpers.js` for:
+    - class-specific and repeat-run line catalogs
+    - return-line selection
+    - sequence construction (nodes/delays/total duration)
+    - overlay shell generation
+    - intro style injection
+    - particle seed generation
+    - run-start blackout mount
+  - `IntroCinematicUI.play()` now mainly handles:
+    - runtime cleanup
+    - overlay mount
+    - particle loop orchestration
+    - skip/finish wiring
+    - reveal scheduling
+  - Removed the previous mixed helper/runtime globals and folded them into a smaller runtime record plus explicit cleanup.
+- Added regression coverage:
+  - `tests/intro_cinematic_helpers.test.js` verifies return-line clamping, first/repeat-run sequence shape, overlay shell generation, particle seed bounds, and blackout overlay mounting.
+- Validation:
+  - `npm test -- tests/intro_cinematic_helpers.test.js tests/title_settings_bindings.test.js tests/game_boot_ui.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Reviewed fresh screenshots `output/web-game/shot-1.png`, `output/web-game/shot-2.png` and state artifact `output/web-game/state-2.json`; no `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - Title-to-run flow around `game/core/bindings/title_settings_bindings.js` is now small enough that the next high-value target is likely outside this path, such as another remaining large screen/controller module.
+- Follow-up prompt: 진행해줘
+- EndingScreenUI facade pass:
+  - Rebuilt `game/ui/screens/ending_screen_ui.js` as a thinner orchestration module.
+  - Added `game/ui/screens/ending_screen_helpers.js` for:
+    - ending payload assembly
+    - outcome-specific copy decoration
+    - root DOM shell generation
+    - rank badge application
+    - meta/timeline/deck/pill population
+    - fragment-choice row mounting
+    - shared doc/window helper accessors
+  - Added `game/ui/screens/ending_screen_fx.js` for:
+    - ending background/floating rune canvas setup
+    - wisp burst primitive
+    - staged reveal / quote typing / stat count-up orchestration
+  - `EndingScreenUI` now mainly handles:
+    - session lifecycle
+    - style injection
+    - helper wiring
+    - sigil rank-cycle interaction
+    - restart button orchestration
+  - Fixed a latent resize bug while extracting FX by resolving `endingCvT` explicitly instead of relying on the previous undeclared `cvT` reference.
+- Added regression coverage:
+  - `tests/ending_screen_helpers.test.js` verifies payload fallback data, abandon-outcome decoration, and codex-button stripping from generated markup.
+  - Existing `tests/ending_screen_ui.test.js`, `tests/death_handler.test.js`, `tests/help_pause_ui.test.js`, `tests/meta_progression_ui.test.js`, and `tests/story_ui.test.js` continue to cover the public facade wiring.
+- Validation:
+  - `npm test -- tests/ending_screen_helpers.test.js tests/ending_screen_ui.test.js tests/death_handler.test.js tests/help_pause_ui.test.js tests/meta_progression_ui.test.js tests/story_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Refreshed artifacts `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and `output/web-game/state-2.json`; no new `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/map/map_ui.js` or `game/ui/screens/codex_ui.js` are now the largest remaining facade candidates outside the title/run ending flow.
+- Follow-up prompt: 진행해줘
+- MapUI next-node overlay extraction pass:
+  - Added `game/ui/map/map_ui_next_nodes.js` and moved the `updateNextNodes()` overlay flow into a dedicated helper module.
+  - The new helper now owns:
+    - accessible-next-node filtering
+    - node-card/relic-panel/bottom-dock DOM assembly
+    - region tooltip wiring
+    - HP danger styling
+    - card select animation and keyboard shortcuts for node selection
+  - `game/ui/map/map_ui.js` now keeps the public `MapUI.updateNextNodes()` surface but delegates the overlay path to the helper module.
+  - This keeps the existing public entry stable while isolating the heaviest `map_ui` UI path behind a separable module boundary.
+- Added regression coverage:
+  - `tests/map_ui_next_nodes.test.js` verifies that only unvisited accessible nodes on the next floor are selected.
+  - Extended `tests/map_ui_update_next_nodes.test.js` to verify the overlay hides and clears its danger state when movement is locked.
+- Validation:
+  - `npm test -- tests/map_ui_next_nodes.test.js tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js tests/title_settings_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Refreshed artifacts `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and `output/web-game/state-2.json`; no new `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/codex_ui.js` is now the clearest remaining large screen module to split next.
+- Follow-up prompt: 진행해줘
+- CodexUI helper extraction pass:
+  - Added `game/ui/screens/codex_ui_helpers.js` and moved the reusable codex data/presentation helpers out of `codex_ui.js`.
+  - The helper module now owns:
+    - codex state normalization / record lookup
+    - base-card and upgrade lookup helpers
+    - label/badge class helpers
+    - item-set filter definitions
+    - codex progress summary calculation
+    - generic filter/sort application with explicit options
+  - `game/ui/screens/codex_ui.js` still keeps the existing public API and module state, but now delegates its data/filter/progress logic to imported helpers.
+  - This keeps the current modal/popup flow stable while carving out a testable pure helper layer.
+- Added regression coverage:
+  - `tests/codex_ui_helpers.test.js` verifies codex normalization, filtered enemy selection, progress calculation against base cards only, and item-set filter generation.
+- Validation:
+  - `npm test -- tests/codex_ui_helpers.test.js tests/codex_records_system.test.js tests/class_progression_bonuses.test.js tests/deps_factory.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Refreshed artifacts `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and `output/web-game/state-2.json`; no new `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - Continue `game/ui/screens/codex_ui.js` by extracting modal/popup rendering (`_renderProgress`, `_renderFilterBar`, `_renderSection`, popup openers) into dedicated helper modules.
+- Follow-up prompt: 진행해줘
+- CodexUI renderer extraction pass:
+  - Added `game/ui/screens/codex_ui_render.js` and moved the reusable renderer layer out of `codex_ui.js`.
+  - The renderer module now owns:
+    - progress ring / category bar rendering
+    - filter bar DOM assembly
+    - generic section rendering
+    - enemy/card/item card DOM builders
+    - item-set section rendering
+    - empty-state rendering
+  - `game/ui/screens/codex_ui.js` now keeps modal state, popup navigation, and popup openers, but delegates progress/filter/content card DOM generation to renderer helpers.
+- Added regression coverage:
+  - `tests/codex_ui_render.test.js` verifies progress badge/ring markup, filter-bar handler wiring, and section/card rendering for seen card entries.
+  - Existing `tests/codex_ui_helpers.test.js` continues to cover the pure helper layer from the previous pass.
+- Validation:
+  - `npm test -- tests/codex_ui_helpers.test.js tests/codex_ui_render.test.js tests/codex_records_system.test.js tests/class_progression_bonuses.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Refreshed artifacts `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and `output/web-game/state-2.json`; no new `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - Finish `game/ui/screens/codex_ui.js` by extracting popup openers / popup chrome (`_openEnemyPopup`, `_openCardPopup`, `_openItemPopup`, popup overlay helpers) into a dedicated popup module.
+- Follow-up prompt: 진행해줘
+- CodexUI popup extraction pass:
+  - Added `game/ui/screens/codex_ui_popup.js` and moved popup chrome/content helpers out of `codex_ui.js`.
+  - The popup module now owns:
+    - popup overlay shell creation/open/close helpers
+    - popup theme application
+    - quote block / set block / record block / nav block generation
+    - enemy/card/item popup payload builders (theme + HTML)
+  - `game/ui/screens/codex_ui.js` still owns popup navigation state and opener wiring, but now delegates popup content/theme assembly to the popup helper module.
+  - This leaves `codex_ui.js` mostly as modal state + tab orchestration + popup state flow, with renderer/helper/popup assembly now outside the main file.
+- Added regression coverage:
+  - `tests/codex_ui_popup.test.js` verifies popup overlay shell toggling, nav/set block generation, and enemy/card/item popup payload assembly.
+- Validation:
+  - `npm test -- tests/codex_ui_helpers.test.js tests/codex_ui_render.test.js tests/codex_ui_popup.test.js tests/codex_records_system.test.js tests/class_progression_bonuses.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Refreshed artifacts `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png` and `output/web-game/state-2.json`; no new `errors-*.json` artifacts were emitted.
+- Suggested next refactor target:
+  - `game/ui/screens/codex_ui.js` can now be finished by extracting the remaining modal state/controller glue (`_injectModalStructure`, tab transition flow, popup index/nav state) or moving on to another remaining large controller file.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- CodexUI structure/controller extraction pass:
+  - Added `game/ui/screens/codex_ui_structure.js` for modal markup injection and tab-button active-state helpers.
+  - Added `game/ui/screens/codex_ui_controller.js` for shared codex controller state, popup navigation state, modal open/close helpers, and tab-transition choreography.
+  - Updated `game/ui/screens/codex_ui.js` to keep the public `CodexUI` facade while delegating:
+    - modal shell injection / tab active-state sync to the structure helper
+    - session reset / popup nav / modal visibility / tab transitions to the controller helper
+  - `codex_ui.js` now mostly owns section selection and popup opener orchestration; the remaining stateful glue is outside the main file.
+- Added regression coverage:
+  - `tests/codex_ui_structure.test.js` verifies modal markup anchors, one-time event wiring, and tab active-state toggling.
+  - `tests/codex_ui_controller.test.js` verifies state reset, popup navigation callback flow, tab transition animation choreography, and shared modal show/close behavior.
+- Validation:
+  - `npm test -- tests/codex_ui_helpers.test.js tests/codex_ui_render.test.js tests/codex_ui_popup.test.js tests/codex_ui_structure.test.js tests/codex_ui_controller.test.js tests/codex_records_system.test.js tests/class_progression_bonuses.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor target:
+  - Move off `codex_ui.js` and take the next large controller outside codex, or do a smaller cleanup pass to extract the remaining inscriptions renderer from `codex_ui.js`.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- CodexUI inscriptions cleanup pass:
+  - Added `game/ui/screens/codex_ui_inscriptions.js` and moved the remaining inscriptions section rendering out of `codex_ui.js`.
+  - Rewrote `game/ui/screens/codex_ui.js` as a cleaner facade around the already-extracted helper layers:
+    - filter/progress/content orchestration remains in the main module
+    - popup mount/navigation stays delegated through the controller + popup helpers
+    - inscriptions now render through a dedicated helper instead of an inline branch
+  - This removes the last large inline renderer block from `codex_ui.js` and leaves the file mostly as tab routing and popup orchestration.
+- Added regression coverage:
+  - `tests/codex_ui_inscriptions.test.js` verifies unlocked vs locked inscription rendering and empty-state behavior.
+- Validation:
+  - `npm test -- tests/codex_ui_helpers.test.js tests/codex_ui_render.test.js tests/codex_ui_popup.test.js tests/codex_ui_structure.test.js tests/codex_ui_controller.test.js tests/codex_ui_inscriptions.test.js tests/codex_records_system.test.js tests/class_progression_bonuses.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Refreshed artifacts `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`; no `errors-*.json` artifacts were present.
+- Suggested next refactor target:
+  - Codex flow is now essentially done; move to the next remaining large controller outside codex.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- CombatHudUI chronicle extraction pass:
+  - Added `game/ui/combat/combat_hud_chronicle.js` and moved the battle chronicle log grouping, per-turn stat summarization, turn-card rendering, filter handling, wheel-scroll normalization, and overlay open/close helpers out of `combat_hud_ui.js`.
+  - Updated `game/ui/combat/combat_hud_ui.js` so `CombatHudUI` keeps the public HUD facade and delegates battle chronicle behavior to the new helper module.
+  - This leaves the main HUD module focused on echo tooltip / banner / chain / noise / class-special orchestration, while the chronicle overlay becomes a separable sub-feature.
+- Added regression coverage:
+  - `tests/combat_hud_chronicle.test.js` verifies turn grouping + summary totals, overlay open/render/filter behavior, and wheel-listener cleanup on close.
+- Validation:
+  - `npm test -- tests/combat_hud_chronicle.test.js tests/event_bindings_registry.test.js tests/init_sequence.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor target:
+  - Continue `game/ui/combat/combat_hud_ui.js` by extracting echo tooltip / turn-banner helpers, or move to another remaining large controller such as `game/ui/hud/feedback_ui.js`.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- CombatHudUI feedback extraction pass:
+  - Added `game/ui/combat/combat_hud_feedback.js` and moved echo-skill tooltip tier calculation/rendering, tooltip hide, and turn-banner show/hide lifecycle out of `combat_hud_ui.js`.
+  - Rewrote `game/ui/combat/combat_hud_ui.js` as a cleaner facade that now delegates:
+    - battle chronicle behavior to `combat_hud_chronicle.js`
+    - echo tooltip / turn banner behavior to `combat_hud_feedback.js`
+  - The main HUD file now mostly owns public API entrypoints plus combat log / chain / noise / class-special orchestration.
+- Added regression coverage:
+  - `tests/combat_hud_feedback.test.js` verifies tooltip tier calculation, tooltip show/hide rendering, and turn-banner timer-driven hide behavior.
+- Validation:
+  - `npm test -- tests/combat_hud_feedback.test.js tests/combat_hud_chronicle.test.js tests/event_bindings_registry.test.js tests/init_sequence.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor target:
+  - Continue the HUD layer with `game/ui/hud/feedback_ui.js`, or finish `combat_hud_ui.js` by extracting the remaining combat log updater.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- FeedbackUI toast extraction pass:
+  - Added `game/ui/hud/feedback_ui_toasts.js` and moved the stacked toast queue/layout subsystem out of `feedback_ui.js`.
+  - The new helper now owns:
+    - toast queue + active-stack bookkeeping
+    - stack layout/reflow
+    - queued combat-summary toast rendering
+    - queued item-toast rendering with rarity labels and highlighted descriptions
+  - Rewrote `game/ui/hud/feedback_ui.js` as a cleaner facade that now delegates `showCombatSummary()` and queued `showItemToast()` handling to the toast helper while keeping legendary acquire, vignette/flash, chain announce, world-memory notice, and button-feedback orchestration in the main file.
+- Added regression coverage:
+  - `tests/feedback_ui_toasts.test.js` verifies queued combat-summary toast rendering and queued item-toast content/label rendering.
+  - Existing `tests/feedback_ui.test.js` still verifies queued item toasts stay above modal overlays.
+- Validation:
+  - `npm test -- tests/feedback_ui.test.js tests/feedback_ui_toasts.test.js tests/event_bindings_registry.test.js tests/event_bindings_status_effects_registration.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor target:
+  - Continue `game/ui/hud/feedback_ui.js` by extracting legendary/world-notice helpers, or move to the remaining combat-log updater inside `game/ui/combat/combat_hud_ui.js`.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- FeedbackUI notices extraction pass:
+  - Added `game/ui/hud/feedback_ui_notices.js` and moved the remaining stateful notice flows out of `feedback_ui.js`.
+  - The new helper now owns:
+    - legendary item acquisition overlay mount/effects
+    - world-memory notice queueing
+    - queued world-memory notice flush lifecycle
+  - Updated `game/ui/hud/feedback_ui.js` so the public facade delegates `showLegendaryAcquire()` and `showWorldMemoryNotice()` / `_flushNoticeQueue()` to the new helper module.
+  - `feedback_ui.js` is now mostly facade + direct visual effects (`showDmgPopup`, vignette/flash, chain announce, card-play effect, button feedback).
+- Added regression coverage:
+  - `tests/feedback_ui_notices.test.js` verifies legendary overlay mount/side effects and sequential world-memory notice flushing.
+  - Existing `tests/feedback_ui_toasts.test.js` and `tests/feedback_ui.test.js` continue to cover the toast helper split from the previous pass.
+- Validation:
+  - `npm test -- tests/feedback_ui.test.js tests/feedback_ui_toasts.test.js tests/feedback_ui_notices.test.js tests/event_bindings_registry.test.js tests/event_bindings_status_effects_registration.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor target:
+  - Finish `game/ui/hud/feedback_ui.js` by extracting card-play / overlay flash helpers, or switch back to `game/ui/combat/combat_hud_ui.js` and split the remaining combat-log updater.
+- Follow-up prompt: 吏꾪뻾?댁쨾
+- FeedbackUI effects extraction pass:
+  - Added `game/ui/hud/feedback_ui_effects.js` and moved the direct HUD visual-effect helpers out of `feedback_ui.js`.
+  - The new helper now owns:
+    - damage popup rendering
+    - named overlay flashes (`screen-edge-damage`, `player-hit-vignette`, `echo-burst-overlay`)
+    - shield-block overlay animation
+    - card-play flash/name-flyover effect plus audio routing
+    - chain announce overlay
+  - Updated `game/ui/hud/feedback_ui.js` so the public facade now delegates all toast/notice/effect subfeatures to dedicated helpers.
+  - At this point `feedback_ui.js` is mostly a thin facade over:
+    - `feedback_ui_toasts.js`
+    - `feedback_ui_notices.js`
+    - `feedback_ui_effects.js`
+- Added regression coverage:
+  - `tests/feedback_ui_effects.test.js` verifies damage popup / overlay mount, shield-block + chain announce effects, and card-play audio/effect routing.
+- Validation:
+  - `npm test -- tests/feedback_ui.test.js tests/feedback_ui_toasts.test.js tests/feedback_ui_notices.test.js tests/feedback_ui_effects.test.js tests/event_bindings_registry.test.js tests/event_bindings_status_effects_registration.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4179`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor target:
+  - `game/ui/hud/feedback_ui.js` is effectively done; switch back to `game/ui/combat/combat_hud_ui.js` and split the remaining combat-log updater.
