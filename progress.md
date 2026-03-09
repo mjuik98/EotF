@@ -359,6 +359,35 @@ Original prompt:
   - `content: '';`�� ������ ���/��Ÿ�� CSS �Ľ� ����.
 - Validation:
   - `npm run build` PASS.
+- Follow-up prompt: 외부 전투 UI 패치(status badge / tooltip / infinite buff styling) 통합.
+- Combat status UI integration:
+  - `data/status_key_data.js`
+    - Expanded `PLAYER_STATUS_FALLBACK_BUFF_KEYS` and `INFINITE_DURATION_STATUS_KEYS` to cover the current combat runtime's persistent buff set (`time_warp_plus`, `blessing_of_light_plus`, `berserk_mode_plus`, `mirror`, `divine_aura`, `echo_on_hit`, `echo_berserk`, `spike_shield`, `soul_armor`, `thorns`, `stunImmune`).
+  - `game/ui/combat/status_effects_ui.js`
+    - Rebuilt the player status badge renderer around explicit 3-way classification: `status-debuff`, `status-buff`, `status-buff-infinite`.
+    - Finite statuses now render a compact duration chip; infinite buffs render an `∞` marker instead of the old stacked text suffix.
+    - Normalized `_plus` keys in metric/effect-stack helpers so tooltip metrics and badge display stay consistent across upgraded buffs.
+  - `game/ui/combat/status_tooltip_builder.js`
+    - Added infinite-duration palette/type handling using `INFINITE_DURATION_STATUS_KEYS`.
+    - Introduced override metadata for persistent buffs so missing or partial tooltip meta now resolves cleanly for `acceleration`, `time_warp[_plus]`, `blessing_of_light[_plus]`, `berserk_mode[_plus]`, `mirror`, `divine_aura`, `soul_armor`, `spike_shield`, `echo_on_hit`, `echo_berserk`, `thorns`, `immune`, `stunImmune`, and `unbreakable_wall[_plus]`.
+    - Default tooltip type label now distinguishes `버프 · 무한` when appropriate, even without bespoke meta.
+  - `css/styles.css`
+    - Added dedicated infinite buff badge styling (double border + violet palette).
+    - Added duration chip / urgent chip / infinite marker styles and shimmer support for infinite tooltip gauges.
+  - Tests:
+    - Rewrote `tests/player_status_metadata.test.js` and `tests/status_tooltip_metrics.test.js` in UTF-8-safe form and extended them to cover the expanded status set and infinite-duration metrics.
+- Validation:
+  - `npm test -- tests/player_status_metadata.test.js tests/status_tooltip_metrics.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - `npm test` still FAILS, but failures are unrelated to this status UI pass and reproduce in other areas:
+    - `tests/title_settings_bindings.test.js`
+    - `tests/time_rift_bug.test.js`
+    - `tests/turn_manager.test.js`
+    - `tests/thematic_relics.test.js`
+    - `tests/items_logic_fixes.test.js`
+    - `tests/items_boss_relics.test.js`
+  - Ran the Playwright skill client against `http://127.0.0.1:4173` with `tmp/tooltip-actions.json`; fresh screenshots were generated at `output/web-game/shot-0.png`, `shot-1.png`, `shot-2.png`.
+  - Visual inspection of `shot-0.png` / `shot-2.png` showed the capture remained on the animated title background, so browser-side validation of the new combat status badges/tooltips is still limited to build + unit tests in this pass.
 - Hover polish follow-up:
   - Updated `css/styles.css` so node cards now show a stronger bottom-up color rise inside `.nc-body` on hover, closer to `stage_mockup_v3.html`.
   - Increased `.node-card-icon` glow intensity and hover glow radius so the node emoji/icon reads brighter during hover.

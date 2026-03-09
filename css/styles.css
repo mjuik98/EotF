@@ -4935,20 +4935,23 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .event-choice {
-  background: rgba(123, 47, 255, 0.06);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 16px;
+  background: rgba(123, 47, 255, 0.08);
+  border: 1px solid rgba(123, 47, 255, 0.15);
+  border-radius: 10px;
+  padding: 12px 18px;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.28s ease;
   font-size: 13px;
   color: var(--text);
+  position: relative;
+  overflow: hidden;
 }
 
 .event-choice:hover {
-  background: rgba(123, 47, 255, 0.15);
-  border-color: var(--echo);
+  background: rgba(var(--echo-rgb, 123, 47, 255), 0.12);
+  border-color: rgba(var(--echo-rgb, 123, 47, 255), 0.4);
   color: var(--white);
+  transform: translateY(-1px);
 }
 
 .event-choice.disabled,
@@ -5641,125 +5644,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   border-radius: 2px;
 }
 
-/* ── 노드 선택 카드 ── */
-.node-card {
-  background: linear-gradient(135deg, rgba(20, 15, 45, 0.98) 0%, rgba(10, 5, 25, 0.99) 100%);
-  border: 1.5px solid rgba(123, 47, 255, 0.4);
-  border-radius: 12px;
-  width: 280px;
-  /* Scale UP (기존 220px) */
-  padding: 40px 24px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  animation: nodeCardIn 0.4s ease both;
-}
-
-@keyframes nodeCardIn {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.node-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: 16px 16px 0 0;
-  background: var(--node-color, #7b2fff);
-  opacity: 0.7;
-  transition: opacity 0.18s;
-}
-
-.node-card:hover {
-  transform: translateY(-12px) scale(1.02);
-  border-color: var(--white);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px var(--node-color, #7b2fff);
-}
-
-.node-card:hover::before {
-  opacity: 1;
-  height: 6px;
-}
-
-.node-card-icon {
-  font-size: 80px;
-  /* Scale UP (기존 60px) */
-  line-height: 1;
-  margin-bottom: 4px;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.node-card:hover .node-card-icon {
-  transform: scale(1.15) rotate(5deg);
-}
-
-.node-card-label {
-  font-family: 'Cinzel', serif;
-  font-size: 22px;
-  /* Scale UP (기존 18px) */
-  font-weight: 900;
-  color: var(--white);
-  letter-spacing: 0.15em;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-.node-card-sub {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 14px;
-  /* Scale UP */
-  color: var(--text-dim);
-  opacity: 0.7;
-}
-
-.node-card-desc {
-  font-size: 15px;
-  /* Scale UP (기존 13px) */
-  color: rgba(176, 180, 216, 0.7);
-  line-height: 1.6;
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.node-card-cta {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  /* Scale UP */
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  color: var(--white);
-  background: var(--node-color, #7b2fff);
-  padding: 6px 24px;
-  border-radius: 4px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s ease;
-  margin-top: 12px;
-}
-
-.node-card:hover .node-card-cta {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 
 /* ── 적 카드 hover 강조 — 의도 섹션 부각 ── */
@@ -8872,10 +8756,18 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .hud-status-badge.status-buff {
   border-style: dashed;
-  border-width: 1px;
-  border-color: rgba(0, 255, 204, 0.25);
-  background: rgba(0, 255, 204, 0.07);
-  color: var(--kw-buff);
+  border-width: 1.5px;
+  border-color: rgba(74, 222, 128, 0.28);
+  background: rgba(74, 222, 128, 0.07);
+  color: #4ade80;
+}
+
+.hud-status-badge.status-buff-infinite {
+  border-style: double;
+  border-width: 3px;
+  border-color: rgba(139, 92, 246, 0.38);
+  background: rgba(139, 92, 246, 0.09);
+  color: #c4b5fd;
 }
 
 /* ?�???�디케?�터 �?(배�? 좌측) */
@@ -8901,6 +8793,16 @@ body:has(#combatOverlay.active) .panel-bottom {
   background: var(--cyan);
 }
 
+.hud-status-badge.status-buff-infinite::before {
+  background: #8b5cf6;
+  animation: buffInfBarBreathe 2.4s ease-in-out infinite;
+}
+
+@keyframes buffInfBarBreathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
 /* ?�버 */
 .hud-status-badge:hover {
   filter: brightness(1.28);
@@ -8912,7 +8814,87 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .hud-status-badge.status-buff:hover {
-  box-shadow: 0 4px 14px rgba(0, 255, 204, 0.2);
+  box-shadow: 0 4px 14px rgba(74, 222, 128, 0.2);
+}
+
+.hud-status-badge.status-buff-infinite:hover {
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.28);
+}
+
+.hud-status-badge .badge-dur-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  line-height: 1.6;
+  flex-shrink: 0;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+.hud-status-badge.status-debuff .badge-dur-chip {
+  background: rgba(255, 51, 102, 0.15);
+  color: rgba(255, 100, 130, 0.85);
+  border: 1px solid rgba(255, 51, 102, 0.22);
+}
+
+.hud-status-badge.status-buff .badge-dur-chip {
+  background: rgba(74, 222, 128, 0.12);
+  color: rgba(100, 220, 140, 0.85);
+  border: 1px solid rgba(74, 222, 128, 0.22);
+}
+
+.hud-status-badge.status-debuff .badge-dur-chip.urgent {
+  background: rgba(255, 51, 102, 0.25);
+  color: #ff6688;
+  border-color: rgba(255, 51, 102, 0.5);
+  animation: durChipUrgent 0.9s ease-in-out infinite;
+}
+
+.hud-status-badge.status-buff .badge-dur-chip.urgent {
+  background: rgba(74, 222, 128, 0.22);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.5);
+  animation: durChipUrgentGreen 0.9s ease-in-out infinite;
+}
+
+@keyframes durChipUrgent {
+  0%, 100% { opacity: 0.7; box-shadow: none; }
+  50% { opacity: 1; box-shadow: 0 0 6px rgba(255, 51, 102, 0.5); }
+}
+
+@keyframes durChipUrgentGreen {
+  0%, 100% { opacity: 0.7; box-shadow: none; }
+  50% { opacity: 1; box-shadow: 0 0 6px rgba(74, 222, 128, 0.45); }
+}
+
+.hud-status-badge .badge-inf-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(167, 139, 250, 0.65);
+  flex-shrink: 0;
+  animation: infMarkFade 3s ease-in-out infinite;
+}
+
+@keyframes infMarkFade {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes sttShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+#statusTooltip .stt-gauge-fill[style*="sttShimmer"] {
+  background-size: 300% 100%;
 }
 
 /* SETTINGS MODAL */
@@ -9680,7 +9662,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 .node-card {
   --node-color: #7b2fff;
   --node-rgb: 123, 47, 255;
-  width: 228px;
+  width: 280px;
   background: linear-gradient(160deg, rgba(14, 10, 38, 0.98) 0%, rgba(7, 5, 22, 0.99) 100%);
   border: 1.5px solid rgba(var(--node-rgb), 0.28);
   border-radius: 16px;
@@ -9793,7 +9775,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   transition: all 0.2s ease;
 }
 
-.node-card:hover .nc-kbd-badge {
+.node-card:hover .nc-kbd-badge,
+.node-card.is-cloned .nc-kbd-badge {
   border-color: var(--node-color);
   color: var(--node-color);
   background: rgba(var(--node-rgb), 0.1);
@@ -9801,12 +9784,12 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .nc-floor-badge {
   position: absolute;
-  top: 9px;
-  right: 9px;
+  top: 10px;
+  right: 10px;
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.12em;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 4px;
   z-index: 4;
   background: rgba(var(--node-rgb), 0.18);
@@ -9816,7 +9799,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .nc-icon-area {
   position: relative;
-  height: 106px;
+  height: 132px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9828,8 +9811,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   position: absolute;
   left: 50%;
   top: 48%;
-  width: 92px;
-  height: 92px;
+  width: 112px;
+  height: 112px;
   border-radius: 50%;
   background: radial-gradient(circle at center, rgba(var(--node-rgb), 0.16) 0%, rgba(var(--node-rgb), 0.1) 30%, rgba(var(--node-rgb), 0.04) 54%, transparent 76%);
   filter: blur(16px);
@@ -9838,7 +9821,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   transition: opacity 0.3s ease, transform 0.34s ease;
 }
 
-.node-card:hover .nc-icon-bg {
+.node-card:hover .nc-icon-bg,
+.node-card.is-cloned .nc-icon-bg {
   opacity: 0.72;
   transform: translate(-50%, -50%) scale(1.04);
 }
@@ -9847,11 +9831,11 @@ body:has(#combatOverlay.active) .panel-bottom {
   position: absolute;
   inset: 0;
   background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: 18px 18px;
+  background-size: 22px 22px;
 }
 
 .node-card-icon {
-  font-size: 52px;
+  font-size: 64px;
   line-height: 1;
   position: relative;
   z-index: 2;
@@ -9860,7 +9844,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   margin-bottom: 0;
 }
 
-.node-card:hover .node-card-icon {
+.node-card:hover .node-card-icon,
+.node-card.is-cloned .node-card-icon {
   transform: translateY(-1px) scale(1.12);
   filter: drop-shadow(0 1px 8px rgba(255, 255, 255, 0.1)) drop-shadow(0 0 18px rgba(var(--node-rgb), 0.18));
 }
@@ -9876,7 +9861,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-skull {
-  font-size: 9px;
+  font-size: 11px;
+  padding: 0 1px;
   opacity: 0.2;
   line-height: 1;
 }
@@ -9886,10 +9872,10 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-body {
-  padding: 12px 15px;
+  padding: 15px 18px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -9909,7 +9895,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   pointer-events: none;
 }
 
-.node-card:hover .nc-body::after {
+.node-card:hover .nc-body::after,
+.node-card.is-cloned .nc-body::after {
   opacity: 1;
   transform: translateY(0);
 }
@@ -9921,7 +9908,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .node-card-label {
   font-family: 'Cinzel', serif;
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 900;
   color: var(--white);
   letter-spacing: 0.1em;
@@ -9930,29 +9917,29 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .node-card-sub {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(176, 180, 216, 0.48);
   letter-spacing: 0.05em;
   opacity: 1;
 }
 
 .node-card-desc {
-  font-size: 10px;
+  font-size: 12px;
   color: rgba(176, 180, 216, 0.6);
   line-height: 1.65;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 7px;
+  padding-top: 8px;
   min-height: unset;
   display: block;
   text-align: left;
 }
 
 .nc-preview-hint {
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(var(--node-rgb), 0.82);
   border: 1px dashed rgba(var(--node-rgb), 0.2);
   border-radius: 5px;
-  padding: 4px 8px;
+  padding: 5px 10px;
   letter-spacing: 0.04em;
   line-height: 1.5;
 }
@@ -9964,10 +9951,10 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-diff-label {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.15em;
   color: rgba(176, 180, 216, 0.38);
-  width: 34px;
+  width: 42px;
   flex-shrink: 0;
 }
 
@@ -9987,9 +9974,9 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-diff-val {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--node-color);
-  width: 20px;
+  width: 24px;
   text-align: right;
 }
 
@@ -10010,7 +9997,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-info-cell-label {
-  font-size: 7px;
+  font-size: 9px;
   letter-spacing: 0.2em;
   color: rgba(176, 180, 216, 0.38);
   text-transform: uppercase;
@@ -10018,7 +10005,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .nc-info-cell-value {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--white);
 }
 
@@ -10035,10 +10022,10 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: fit-content;
   height: auto;
   min-height: 0;
-  max-height: 20px;
-  font-size: 7px;
+  max-height: 24px;
+  font-size: 9px;
   letter-spacing: 0.06em;
-  padding: 1px 6px;
+  padding: 2px 8px;
   border-radius: 20px;
   border: 1px solid rgba(var(--node-rgb), 0.28);
   background: rgba(var(--node-rgb), 0.07);
@@ -10065,10 +10052,10 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: fit-content;
   height: auto;
   min-height: 0;
-  max-height: 20px;
-  font-size: 8px;
+  max-height: 24px;
+  font-size: 10px;
   letter-spacing: 0.07em;
-  padding: 2px 7px;
+  padding: 3px 10px;
   border-radius: 20px;
   border: 1px solid;
 }
@@ -10080,7 +10067,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-reward-tag.relic {
-  color: var(--echo);
+  color: var(--cyan);
   border-color: rgba(0, 255, 204, 0.22);
   background: rgba(0, 255, 204, 0.05);
 }
@@ -10099,33 +10086,32 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .node-card-cta {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.35em;
   text-align: center;
   color: var(--white);
   position: relative;
   overflow: hidden;
-  border-top: 0;
-  background: linear-gradient(180deg, rgba(var(--node-rgb), 0.58) 0%, rgba(var(--node-rgb), 0.88) 54%, rgba(var(--node-rgb), 1) 100%);
+  background: var(--node-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 8px 10px;
+  min-height: 48px;
+  width: 100%;
+  padding: 10px;
   border-radius: 0 0 14px 14px;
-  margin-top: 0;
+  margin-top: auto;
   opacity: 0;
   transform: translateY(5px);
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 rgba(var(--node-rgb), 0);
-  transition: all 0.28s ease, box-shadow 0.32s ease;
+  transition: all 0.28s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.node-card:hover .node-card-cta {
+.node-card:hover .node-card-cta,
+.node-card.is-cloned .node-card-cta {
   opacity: 1;
   transform: translateY(0);
-  box-shadow: 0 -12px 32px rgba(var(--node-rgb), 0.36), 0 0 26px rgba(var(--node-rgb), 0.26);
 }
 
 .node-card-cta::before {
@@ -10153,7 +10139,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   pointer-events: none;
 }
 
-.nc-bottom-dock > * {
+.nc-bottom-dock>* {
   pointer-events: auto;
 }
 

@@ -1,3 +1,5 @@
+import { INFINITE_DURATION_STATUS_KEYS } from '../../../data/status_key_data.js';
+
 /**
  * status_tooltip_builder.js — 통합 상태이상 툴팁 빌더
  *
@@ -226,13 +228,254 @@ const BUFF_FALLBACK = {
   typeBg: 'rgba(0,255,204,.08)', typeColor: '#00ffcc',
 };
 
+const BUFF_INFINITE_PALETTE = {
+  accent: '#8b5cf6', nameColor: '#c4b5fd',
+  typeBg: 'rgba(139,92,246,.12)', typeColor: '#8b5cf6',
+};
+
+const INFINITE_DURATION_STATUS_KEY_SET = new Set(INFINITE_DURATION_STATUS_KEYS);
+
+function _normalizeStatusKey(statusKey) {
+  return String(statusKey || '').replace(/_plus$/i, '');
+}
+
+function _isInfiniteDurationStatus(statusKey, buff) {
+  const normalizedKey = _normalizeStatusKey(statusKey);
+  return buff?.permanent === true
+    || INFINITE_DURATION_STATUS_KEY_SET.has(statusKey)
+    || INFINITE_DURATION_STATUS_KEY_SET.has(normalizedKey)
+    || (Number.isFinite(Number(buff?.stacks)) && Number(buff?.stacks) >= 99);
+}
+
+function _makeInfiniteBuffMeta(extra = {}) {
+  return {
+    ...BUFF_INFINITE_PALETTE,
+    typeLabel: '버프 · 무한',
+    gauge: { infinite: true, color: '#8b5cf6' },
+    ...extra,
+  };
+}
+
+const STATUS_TOOLTIP_META_OVERRIDES = {
+  resonance: _makeInfiniteBuffMeta({
+    nameEn: 'Resonance',
+    nextTurnText: (buff) => {
+      const bonus = buff?.dmgBonus ?? 0;
+      return bonus > 0 ? `카드 사용 피해 +${bonus}` : '카드 사용 피해가 증가합니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '피해 보너스',
+    statValue: (buff) => String(buff?.dmgBonus ?? 0),
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  acceleration: _makeInfiniteBuffMeta({
+    nameEn: 'Acceleration',
+    nextTurnText: (buff) => {
+      const bonus = buff?.dmgBonus ?? 0;
+      return bonus > 0 ? `이번 공격 피해 +${bonus}` : '이번 공격 피해가 증가합니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '피해 보너스',
+    statValue: (buff) => String(buff?.dmgBonus ?? 0),
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  berserk_mode: _makeInfiniteBuffMeta({
+    nameEn: 'Berserk',
+    nextTurnText: (buff) => {
+      const growth = buff?.atkGrowth ?? 0;
+      return growth > 0 ? `공격 시 피해 +${growth} 영구 누적` : '공격 시 피해가 영구 누적됩니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '누적 증가',
+    statValue: (buff) => String(buff?.atkGrowth ?? 0),
+    statUnit: '/회',
+    statColor: '#c4b5fd',
+  }),
+  berserk_mode_plus: _makeInfiniteBuffMeta({
+    nameEn: 'Berserk+',
+    nextTurnText: (buff) => {
+      const growth = buff?.atkGrowth ?? 0;
+      return growth > 0 ? `공격 시 피해 +${growth} 영구 누적 (강화)` : '공격 시 피해가 더 크게 영구 누적됩니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '누적 증가',
+    statValue: (buff) => String(buff?.atkGrowth ?? 0),
+    statUnit: '/회',
+    statColor: '#c4b5fd',
+  }),
+  time_warp: _makeInfiniteBuffMeta({
+    nameEn: 'Time Warp',
+    nextTurnText: (buff) => `매 턴 시작 시 에너지 +${buff?.energyPerTurn ?? 1}`,
+    nextTurnDmg: () => null,
+    statLabel: '에너지/턴',
+    statValue: (buff) => String(buff?.energyPerTurn ?? 1),
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  time_warp_plus: _makeInfiniteBuffMeta({
+    nameEn: 'Time Warp+',
+    nextTurnText: (buff) => `매 턴 시작 시 에너지 +${buff?.energyPerTurn ?? 2}`,
+    nextTurnDmg: () => null,
+    statLabel: '에너지/턴',
+    statValue: (buff) => String(buff?.energyPerTurn ?? 2),
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  blessing_of_light: _makeInfiniteBuffMeta({
+    nameEn: 'Blessing of Light',
+    nextTurnText: (buff) => {
+      const heal = buff?.healPerTurn ?? 0;
+      return heal > 0 ? `매 턴 종료 시 HP +${heal} 회복` : '매 턴 체력을 회복합니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '회복량',
+    statValue: (buff) => String(buff?.healPerTurn ?? 0),
+    statUnit: 'HP',
+    statColor: '#4ade80',
+  }),
+  blessing_of_light_plus: _makeInfiniteBuffMeta({
+    nameEn: 'Blessing of Light+',
+    nextTurnText: (buff) => {
+      const heal = buff?.healPerTurn ?? 0;
+      return heal > 0 ? `매 턴 종료 시 HP +${heal} 회복 (강화)` : '매 턴 더 많은 체력을 회복합니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '회복량',
+    statValue: (buff) => String(buff?.healPerTurn ?? 0),
+    statUnit: 'HP',
+    statColor: '#4ade80',
+  }),
+  unbreakable_wall: _makeInfiniteBuffMeta({
+    nameEn: 'Unbreakable Wall',
+    nextTurnText: (buff) => {
+      const hits = Math.max(1, Math.floor((Number(buff?.stacks) || 99) / 99));
+      return `턴 시작 시 방어막의 50% 피해 (${hits}회)`;
+    },
+    nextTurnDmg: () => null,
+    statLabel: '발동 횟수',
+    statValue: (buff) => String(Math.max(1, Math.floor((Number(buff?.stacks) || 99) / 99))),
+    statUnit: '회',
+    statColor: '#c4b5fd',
+  }),
+  unbreakable_wall_plus: _makeInfiniteBuffMeta({
+    nameEn: 'Unbreakable Wall+',
+    nextTurnText: (buff) => {
+      const hits = Math.max(1, Math.floor((Number(buff?.stacks) || 99) / 99));
+      return `턴 시작 시 방어막의 70% 피해 (${hits}회)`;
+    },
+    nextTurnDmg: () => null,
+    statLabel: '발동 횟수',
+    statValue: (buff) => String(Math.max(1, Math.floor((Number(buff?.stacks) || 99) / 99))),
+    statUnit: '회',
+    statColor: '#c4b5fd',
+  }),
+  thorns: _makeInfiniteBuffMeta({
+    nameEn: 'Thorns',
+    nextTurnText: () => '피격 시 공격자에게 반사 피해를 줍니다.',
+    nextTurnDmg: () => null,
+    statLabel: '반사 피해',
+    statValue: (buff) => String(buff?.dmg ?? buff?.stacks ?? '?'),
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  immune: _makeInfiniteBuffMeta({
+    nameEn: 'Immune',
+    tags: [
+      { label: '모든 피해 무시', bg: 'rgba(139,92,246,.12)', color: '#c4b5fd', border: 'rgba(139,92,246,.3)' },
+      { label: '상태 이상 면역', bg: 'rgba(139,92,246,.08)', color: '#a78bfa', border: 'rgba(139,92,246,.2)' },
+    ],
+    nextTurnText: () => null,
+    nextTurnDmg: () => null,
+    statLabel: null,
+    statValue: () => '',
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  soul_armor: _makeInfiniteBuffMeta({
+    nameEn: 'Soul Armor',
+    nextTurnText: (buff) => {
+      const regen = buff?.echoRegen ?? 0;
+      return regen > 0 ? `받는 피해 감소 + 잔향 ${regen} 회복` : '받는 피해가 감소합니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '잔향 회복',
+    statValue: (buff) => String(buff?.echoRegen ?? 0),
+    statUnit: '/턴',
+    statColor: '#c4b5fd',
+  }),
+  stunImmune: _makeInfiniteBuffMeta({
+    nameEn: 'Stun Immune',
+    nextTurnText: (buff) => `기절 무효 ${buff?.stacks ?? 1}회`,
+    nextTurnDmg: () => null,
+    statLabel: '무효 횟수',
+    statValue: (buff) => String(buff?.stacks ?? 1),
+    statUnit: '회',
+    statColor: '#c4b5fd',
+  }),
+  mirror: _makeInfiniteBuffMeta({
+    nameEn: 'Mirror Shield',
+    nextTurnText: () => '받은 피해를 그대로 반사합니다.',
+    nextTurnDmg: () => null,
+    statLabel: '반사율',
+    statValue: () => '100',
+    statUnit: '%',
+    statColor: '#c4b5fd',
+  }),
+  divine_aura: _makeInfiniteBuffMeta({
+    nameEn: 'Divine Aura',
+    nextTurnText: (buff) => {
+      const shield = buff?.shieldBonus ?? 0;
+      return shield > 0 ? `턴 종료 시 방어막 +${shield}` : '턴 종료 시 방어막을 획득합니다.';
+    },
+    nextTurnDmg: () => null,
+    statLabel: '방어막',
+    statValue: (buff) => String(buff?.shieldBonus ?? 0),
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  spike_shield: _makeInfiniteBuffMeta({
+    nameEn: 'Spike Shield',
+    nextTurnText: () => '이번 턴 적 공격을 반사하고 무효화합니다.',
+    nextTurnDmg: () => null,
+    statLabel: null,
+    statValue: () => '',
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  echo_on_hit: _makeInfiniteBuffMeta({
+    nameEn: 'Echo on Hit',
+    nextTurnText: () => '공격 적중 시 추가 잔향을 획득합니다.',
+    nextTurnDmg: () => null,
+    statLabel: null,
+    statValue: () => '',
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+  echo_berserk: _makeInfiniteBuffMeta({
+    nameEn: 'Echo Berserk',
+    nextTurnText: () => '잔향 스킬 발동 시 영구 공격 보너스를 얻습니다.',
+    nextTurnDmg: () => null,
+    statLabel: null,
+    statValue: () => '',
+    statUnit: '',
+    statColor: '#c4b5fd',
+  }),
+};
+
 function _getMeta(statusKey) {
-  return STATUS_TOOLTIP_META[statusKey] ?? null;
+  const baseMeta = STATUS_TOOLTIP_META[statusKey] ?? null;
+  const overrideMeta = STATUS_TOOLTIP_META_OVERRIDES[statusKey] ?? null;
+  if (!baseMeta) return overrideMeta;
+  if (!overrideMeta) return baseMeta;
+  return { ...baseMeta, ...overrideMeta };
 }
 
 function _palette(statusKey, isBuff) {
   const m = _getMeta(statusKey);
   if (m) return m;
+  if (isBuff && _isInfiniteDurationStatus(statusKey)) return BUFF_INFINITE_PALETTE;
   return isBuff ? BUFF_FALLBACK : DEBUFF_FALLBACK;
 }
 
@@ -351,11 +594,12 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
   const isBuff = !!infoKR?.buff;
   const meta = _getMeta(statusKey);
   const pal = _palette(statusKey, isBuff);
-  const isInfinite = meta?.gauge?.infinite
-    || (Number.isFinite(Number(buff?.stacks)) && Number(buff?.stacks) >= 99);
+  const isInfinite = meta?.gauge?.infinite || _isInfiniteDurationStatus(statusKey, buff);
 
   // 타입 레이블 결정
-  const typeLabel = meta?.typeLabel ?? (isBuff ? '버프' : '디버프');
+  const typeLabel = meta?.typeLabel ?? (isBuff
+    ? (isInfinite ? '버프 · 무한' : '버프')
+    : '디버프');
 
   // 헤더
   const header = `
@@ -393,7 +637,7 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
 
   // 게이지 (개선 1)
   let gaugeHtml = '';
-  if (meta?.gauge?.infinite) {
+  if (isInfinite && !meta?.countdown) {
     gaugeHtml = _buildGauge(99, true, pal.accent);
   } else if (!meta?.countdown) {
     const stacks = Number(durationValue);

@@ -13,6 +13,11 @@ describe('status tooltip metrics', () => {
     expect(metrics).toEqual({ duration: '무한', stacks: '4' });
   });
 
+  it('recognizes configured infinite buffs even when the sentinel value degraded slightly', () => {
+    const metrics = resolvePlayerStatusTooltipMetrics('time_warp_plus', { stacks: 95, energyPerTurn: 2 });
+    expect(metrics).toEqual({ duration: '무한', stacks: '2' });
+  });
+
   it('resolves resonance stacks from bonus payload', () => {
     const metrics = resolvePlayerStatusTooltipMetrics('resonance', { stacks: 99, dmgBonus: 7 });
     expect(metrics).toEqual({ duration: '무한', stacks: '7' });
