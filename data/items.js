@@ -1,5 +1,336 @@
-/**
+/*
  * items.js — 아이템/유물 데이터
+ *
+ * desc 작성 규칙
+ *
+ * [목적]
+ * - 플레이어가 유물 효과를 한눈에 이해할 수 있도록 짧고 일관된 문장으로 작성한다
+ * - desc는 코드 로직 설명문이 아니라 플레이어용 효과 설명문으로 작성한다
+ * - 같은 유형의 효과는 항상 같은 문장 구조와 용어를 사용한다
+ * - 짧더라도 발동 조건, 대상, 수치 중 핵심 정보는 반드시 남긴다
+ * - 세트 정보는 효과 본문과 분리하여 보이도록 작성한다
+ *
+ * ─────────────────────────────────────
+ * 1. 기본 원칙
+ * ─────────────────────────────────────
+ * 1) desc는 짧고 즉시 이해 가능해야 한다
+ * 2) 구현 방식이 아니라 플레이 결과를 기준으로 작성한다
+ * 3) 한 문장에는 가능한 한 하나의 규칙만 담는다
+ * 4) 복합 효과는 문장을 늘이지 말고 ' / ' 로 구분한다
+ * 5) 실제 코드 동작과 다른 과장 표현을 금지한다
+ * 6) 플레이 판단에 필요 없는 내부 처리 설명은 생략한다
+ * 7) 세트 아이템은 효과와 세트 소속을 한 줄에 섞지 않는다
+ *
+ * ─────────────────────────────────────
+ * 2. 기본 형식
+ * ─────────────────────────────────────
+ * 기본 형식: [조건 또는 시점]: [효과]
+ *
+ * 예시
+ * - 전투 시작: 카드 1장 드로우
+ * - 턴 시작: 체력 2 회복
+ * - 적 처치 시: 잔향 10 충전
+ * - 체력이 25% 이하일 때: 주는 피해 25% 증가
+ *
+ * ─────────────────────────────────────
+ * 3. 효과 분류별 형식
+ * ─────────────────────────────────────
+ * 1) 획득 즉시 적용 효과
+ *    형식: 획득: [효과]
+ *    예: 획득: 최대 체력 +20
+ *
+ * 2) 상시 지속 효과
+ *    형식: 상시: [효과]
+ *    예: 상시: 엘리트 및 보스에게 주는 피해 50% 증가
+ *
+ * 3) 특정 시점 발동 효과
+ *    형식: [시점]: [효과]
+ *    예: 전투 시작: 방어막 5 획득
+ *
+ * 4) 조건부 효과
+ *    형식: [조건]일 때: [효과]
+ *    예: 체력이 25% 이하일 때: 주는 피해 25% 증가
+ *
+ * 5) 확률 효과
+ *    형식: [행동] 시 [확률]% 확률: [효과]
+ *    예: 카드 사용 시 10% 확률: 잔향 10 충전
+ *
+ * 6) 누적/주기 효과
+ *    주기형: [행동] [횟수]회마다: [효과]
+ *    누적형: [행동]: [카운트 변화] / [횟수]회 누적 시: [효과]
+ *    예: 카드 10장 사용할 때마다: 잔향 15 충전
+ *    예: 타격 시: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화
+ *
+ * 7) 제한 횟수 효과
+ *    형식: [범위] [횟수]회: [효과]
+ *    예: 전투당 1회: 처음 소멸한 카드를 덱 맨 위로 되돌림
+ *    예: 게임당 1회: 사망 시 체력 50% 회복 후 부활
+ *
+ * 8) 세트 유물
+ *    형식:
+ *    [효과 설명]
+ *    [세트: 세트명]
+ *
+ *    예:
+ *    전투 시작: 모든 적에게 독 2 부여
+ *    [세트: 독사의 시선]
+ *
+ * 9) 효과 없는 세트 구성품
+ *    형식:
+ *    세트 구성품
+ *    [세트: 세트명]
+ *
+ *    예:
+ *    세트 구성품
+ *    [세트: 철옹성]
+ *
+ * ─────────────────────────────────────
+ * 4. 복합 효과 작성 규칙
+ * ─────────────────────────────────────
+ * 1) 서로 다른 효과가 함께 있으면 ' / ' 로 구분한다
+ * 2) 서로 다른 발동 조건도 ' / ' 로 구분한다
+ * 3) 한 desc에 구분자는 최대 2개까지를 권장한다
+ * 4) 너무 길어지면 핵심 효과만 남기고 세부 제약은 상세 설명으로 분리한다
+ * 5) 세트 정보는 복합 효과 구분자와 섞지 않고 반드시 별도 줄에 둔다
+ *
+ * 예시
+ * - 획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1
+ * - 상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우
+ *
+ * ─────────────────────────────────────
+ * 5. 표현 우선순위
+ * ─────────────────────────────────────
+ * desc는 아래 순서로 정보를 배치한다
+ * 1) 언제 발동하는가
+ * 2) 무엇이 대상인가
+ * 3) 어떤 효과가 발생하는가
+ * 4) 횟수/확률/제한은 뒤에 붙인다
+ * 5) 세트 소속은 마지막 줄에 따로 표기한다
+ *
+ * 좋은 예
+ * - 전투 시작: 모든 적에게 독 2 부여
+ *   [세트: 독사의 시선]
+ * - 카드 사용 시 10% 확률: 잔향 10 충전
+ *
+ * 나쁜 예
+ * - [독사의 시선] 전투 시작: 모든 적에게 독 2 부여
+ * - 독 2를 모든 적에게 전투 시작 시 부여
+ * - 10% 확률로 카드 사용 시 잔향 10 충전
+ *
+ * ─────────────────────────────────────
+ * 6. 트리거 표현 통일
+ * ─────────────────────────────────────
+ * 아래 표현만 사용한다
+ *
+ * - 전투 시작:
+ * - 전투 종료:
+ * - 턴 시작:
+ * - 턴 종료:
+ * - 층 이동:
+ * - 카드 사용 시:
+ * - 공격 카드 사용 시:
+ * - 피해를 줄 때:
+ * - 적 처치 시:
+ * - 사망 시:
+ * - 보스 전투 승리 시:
+ * - 휴식에서 카드 강화 시:
+ * - 첫 턴 시작:
+ * - 전투당 1회:
+ * - 게임당 1회:
+ * - 턴당 1회:
+ *
+ * 금지 예시
+ * - 매 전투 시작 시
+ * - 매 턴 시작 시
+ * - ~할 경우
+ * - ~하면
+ * - ~마다 발동
+ *
+ * 허용 예외
+ * - '일 때'가 더 자연스러운 조건형은 허용
+ *   예: 체력이 25% 이하일 때: 주는 피해 25% 증가
+ *
+ * ─────────────────────────────────────
+ * 7. 용어 통일
+ * ─────────────────────────────────────
+ * 1) 카드 관련
+ * - 드로우는 '카드 N장 드로우'로 통일
+ * - 임시 획득은 '카드 N장 임시 획득'으로 통일
+ * - 복사 생성은 '복사본 N장을 손패에 추가'로 통일
+ *
+ * 2) 수치 관련
+ * - 증가/감소는 +N, -N 형식 사용
+ * - 비율은 N% 증가, N% 감소 형식 사용
+ * - 비용 증감은 비용 -1, 비용 +1 형식 사용
+ *
+ * 3) 방어/회복 관련
+ * - 방어막은 '방어막 N 획득'으로 통일
+ * - 체력 회복은 '체력 N 회복'으로 통일
+ * - 에너지 회복은 '에너지 N 회복'으로 통일
+ *
+ * 4) 상태이상 관련
+ * - 단일 대상: 대상에게 [상태] N 부여
+ * - 전체 적: 모든 적에게 [상태] N 부여
+ * - 자신 버프: [버프명] N 획득
+ *
+ * 5) 자주 쓰는 표현
+ * - 원래 수치로 되돌림 → 원래 수치로 복원
+ * - 비용을 0으로 만듦 → 비용 0
+ * - 에너지를 소모하지 않음 → 에너지 소모 없음
+ *
+ * ─────────────────────────────────────
+ * 8. 상태이상/버프 명칭 표준
+ * ─────────────────────────────────────
+ * desc에서 사용하는 상태이상/버프 명칭은 아래 표기를 기준으로 통일한다
+ *
+ * - poisoned → 독
+ * - weakened → 약화
+ * - vulnerable → 취약
+ * - stunned → 기절
+ * - evasion → 회피
+ * - shield → 방어막
+ * - energy → 에너지
+ *
+ * 주의
+ * - 같은 상태를 독 / 중독 / 포이즌처럼 혼용하지 않는다
+ * - 같은 버프를 회피 / 회피율처럼 혼용하지 않는다
+ *
+ * ─────────────────────────────────────
+ * 9. 지속 시간 / 제한 표기 규칙
+ * ─────────────────────────────────────
+ * 1) 지속 범위가 중요하면 desc에 반드시 포함한다
+ * 2) 지속/제한 정보는 효과 뒤에 괄호로 붙인다
+ * 3) 괄호 표기는 짧고 고정된 형식으로 유지한다
+ *
+ * 사용 형식
+ * - (이번 턴)
+ * - (이번 전투)
+ * - (영구)
+ * - (최대 N)
+ * - (전투당 1회)
+ * - (게임당 1회)
+ *
+ * 예시
+ * - 턴 시작: 무작위 카드 1장의 비용 0(이번 턴)
+ * - 전투 시작: 무작위 카드 3장의 비용 -1(이번 전투)
+ * - 턴 종료: 남은 에너지 이월(최대 3)
+ *
+ * 주의
+ * - 지속/제한 정보가 효과 이해에 중요하지 않다면 반복 표기를 줄일 수 있다
+ * - 패널티, 횟수 제한, 지속 범위는 가능하면 생략하지 않는다
+ *
+ * ─────────────────────────────────────
+ * 10. 상시 / 획득 / 조건 효과 구분 규칙
+ * ─────────────────────────────────────
+ * 1) 아이템을 얻는 즉시 영구 적용되면 '획득:' 사용
+ *    예: 획득: 최대 체력 +50
+ *
+ * 2) 별도 트리거 없이 항상 적용되면 '상시:' 사용
+ *    예: 상시: 적 방어도 무시
+ *
+ * 3) 전투 중에만 유지되면 반드시 조건을 명시한다
+ *    예: 전투 시작: 최대 에너지 +1 / 전투 종료: 원래 수치로 복원
+ *
+ * 4) 코드상 onAcquire라도 플레이어가 체감하는 효과가 전투 중 한정이면
+ *    '획득:' 대신 전투 조건을 우선 표기한다
+ *
+ * ─────────────────────────────────────
+ * 11. 세트 표기 규칙
+ * ─────────────────────────────────────
+ * 1) setId가 있는 아이템은 desc 마지막 줄에 반드시 세트 태그를 넣는다
+ * 2) 세트 태그는 항상 아래 형식으로 통일한다
+ *    [세트: 세트명]
+ * 3) 세트 태그는 효과 본문과 같은 줄에 쓰지 않는다
+ * 4) 세트가 없는 일반 유물에는 세트 태그를 넣지 않는다
+ * 5) 실제 문자열에는 줄바꿈 문자 \n 으로 분리한다
+ *
+ * 예시
+ * - '전투 시작: 모든 적에게 독 2 부여\n[세트: 독사의 시선]'
+ * - '세트 구성품\n[세트: 철옹성]'
+ *
+ * ─────────────────────────────────────
+ * 12. 작성 금지 표현
+ * ─────────────────────────────────────
+ * 아래 표현은 desc에서 사용하지 않는다
+ *
+ * - 마침표
+ * - 불필요한 조사 남용
+ * - "~합니다", "~됩니다" 같은 서술형 종결
+ * - "더 자세히", "강화하는", "건강해진 느낌" 같은 모호한 표현
+ * - 코드 구현 관점 표현
+ *   예: 상태 초기화, 변수 저장, 내부 플래그 활성화
+ * - 세트명과 효과를 같은 줄에 섞는 표현
+ *   예: [독사의 시선] 전투 시작: 모든 적에게 독 2 부여
+ *
+ * 예시
+ * - 나쁨: 세트 효과를 강화하는 부적입니다
+ * - 좋음: 세트 구성품
+ *   [세트: 독사의 시선]
+ *
+ * - 나쁨: 적의 다음 행동을 더 자세히 분석
+ * - 좋음: 턴 시작: 적 공격 의도 10% 감소
+ *
+ * ─────────────────────────────────────
+ * 13. 축약 규칙
+ * ─────────────────────────────────────
+ * 1) 설명이 길어질 경우, 플레이 판단에 중요한 정보만 남긴다
+ * 2) 구현상 자동 복원/초기화가 당연한 경우 반복 설명을 줄인다
+ * 3) 단, 패널티/제한/횟수 제한은 생략하지 않는다
+ * 4) 세트 아이템도 세트명 설명문을 길게 늘이지 말고 세트 태그만 유지한다
+ *
+ * 예시
+ * - 좋음: 전투당 1회: 처음 소멸한 카드를 덱 맨 위로 되돌림
+ * - 나쁨: 전투 중 처음 소모한 카드를 덱 맨 위로 되돌림 (전투당 1회)
+ *
+ * ─────────────────────────────────────
+ * 14. 우선 표기해야 하는 정보
+ * ─────────────────────────────────────
+ * 아래 요소는 가능하면 반드시 desc에 포함한다
+ *
+ * 1) 발동 시점
+ * 2) 대상
+ * 3) 수치
+ * 4) 확률
+ * 5) 횟수 제한
+ * 6) 패널티
+ * 7) 지속 범위(이번 턴, 이번 전투, 영구 등)
+ * 8) 세트 소속(setId가 있는 경우)
+ *
+ * 예시
+ * - 전투 시작: 무작위 카드 3장의 비용 -1(이번 전투)
+ * - 상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우
+ * - 전투 시작: 모든 적에게 독 2 부여
+ *   [세트: 독사의 시선]
+ *
+ * ─────────────────────────────────────
+ * 15. 설명 우선 / 구현 후순위 원칙
+ * ─────────────────────────────────────
+ * 1) desc는 내부 구현 방식보다 플레이어가 체감하는 결과를 우선 설명한다
+ * 2) 내부 처리 과정은 플레이 판단에 필요할 때만 최소한으로 드러낸다
+ * 3) 코드상 복잡한 처리라도 플레이어 기준으로 단순하게 요약한다
+ * 4) 세트 정보는 효과 설명의 일부가 아니라 분류 정보로 취급한다
+ *
+ * 예시
+ * - 나쁨: 소멸된 카드를 exhausted에서 제거하고 덱으로 되돌림
+ * - 좋음: 전투당 1회: 처음 소멸한 카드를 덱 맨 위로 되돌림
+ *
+ * - 나쁨: 적 intent value를 10% 감소
+ * - 좋음: 턴 시작: 적 공격 의도 10% 감소
+ *
+ * ─────────────────────────────────────
+ * 16. 권장 예시 패턴
+ * ─────────────────────────────────────
+ * - 전투 시작: 카드 1장 드로우
+ * - 턴 시작: 체력 2 회복
+ * - 카드 사용 시 10% 확률: 잔향 10 충전
+ * - 적 처치 시: 최대 체력 +2
+ * - 상시: 엘리트 및 보스에게 주는 피해 50% 증가
+ * - 획득: 최대 체력 +20
+ * - 전투당 1회: 처음 소멸한 카드를 덱 맨 위로 되돌림
+ * - 턴 시작: 체력 3 회복
+ *   [세트: 생명의 성배]
+ * - 세트 구성품
+ *   [세트: 철옹성]
  */
 import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
@@ -97,7 +428,7 @@ const COMMON_ITEMS = {
     },
     cracked_amulet: {
         id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
-        desc: '매 턴: 체력 2 회복',
+        desc: '턴 시작: 체력 2 회복',
         passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2, { name: '부서진 목걸이', type: 'item' }); } }
     },
     worn_pouch: {
@@ -107,38 +438,32 @@ const COMMON_ITEMS = {
     },
     dull_blade: {
         id: 'dull_blade', name: '무딘 검', icon: '🗡️', rarity: 'common',
-        desc: '카드 사용 시 10% 확률로 잔향 10 충전',
+        desc: '카드 사용 시 10% 확률: 잔향 10 충전',
         passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10, { name: '무딘 검', type: 'item' }); } }
     },
     travelers_map: {
         id: 'travelers_map', name: '여행자의 지도', icon: '🗺️', rarity: 'common',
-        desc: '층 이동 시 체력 3 회복',
+        desc: '층 이동: 체력 3 회복',
         passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3, { name: '여행자의 지도', type: 'item' }); } }
     },
     rift_talisman: {
         id: 'rift_talisman', name: '균열의 부적', icon: '🧿', rarity: 'common',
-        desc: '전투 시작: 방어막 5',
+        desc: '전투 시작: 방어막 5 획득',
         passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5, { name: '균열의 부적', type: 'item' }); } }
     },
     blood_shard: {
         id: 'blood_shard', name: '핏빛 파편', icon: '🩸', rarity: 'common',
-        desc: '적 처치 시 잔향 10 충전',
+        desc: '적 처치 시: 잔향 10 충전',
         passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10, { name: '핏빛 파편', type: 'item' }); } }
     },
     morning_dew: {
         id: 'morning_dew', name: '아침 이슬', icon: '💧', rarity: 'common',
-        desc: '전투 첫 번째 턴: 방어막 8',
-        passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START) gs._morningDewFirst = true;
-            if (trigger === Trigger.TURN_START && gs._morningDewFirst) {
-                gs._morningDewFirst = false;
-                gs.addShield(8, { name: '아침 이슬', type: 'item' });
-            }
-        }
+        desc: '턴 시작: 방어막 3 획득',
+        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.addShield(3, { name: '아침 이슬', type: 'item' }); } }
     },
     thin_codex: {
         id: 'thin_codex', name: '얇은 문서', icon: '📄', rarity: 'common',
-        desc: '전투 시작: 덱 10장 이하 시 카드 1장 드로우',
+        desc: '전투 시작: 덱 10장 이하일 때: 카드 1장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && (gs.player.deck?.length || 0) <= 10) {
                 gs.drawCards(1, { name: '얇은 문서', type: 'item' });
@@ -147,7 +472,7 @@ const COMMON_ITEMS = {
     },
     tally_stone: {
         id: 'tally_stone', name: '집계석', icon: '🧮', rarity: 'common',
-        desc: '타격 시 집계 +1. 5회 누적 시 방어막 12 획득 및 초기화',
+        desc: '피해를 줄 때: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화',
         passive(gs, trigger) {
             if (trigger === Trigger.DEAL_DAMAGE) {
                 gs._tallyCount = (gs._tallyCount || 0) + 1;
@@ -160,8 +485,8 @@ const COMMON_ITEMS = {
         }
     },
     echo_bell: {
-        id: 'echo_bell', name: '잔향의 종', icon: 'Bell', rarity: 'common',
-        desc: '카드 10장 사용 시마다 잔향 15 충전',
+        id: 'echo_bell', name: '잔향의 종', icon: '🔔', rarity: 'common',
+        desc: '카드 10장 사용할 때마다: 잔향 15 충전',
         passive(gs, trigger) {
             if (trigger === Trigger.CARD_PLAY) {
                 gs._bellCount = (gs._bellCount || 0) + 1;
@@ -173,7 +498,7 @@ const COMMON_ITEMS = {
     },
     lucky_coin: {
         id: 'lucky_coin', name: '행운의 주화', icon: '🪙', rarity: 'common',
-        desc: '매 턴 5% 확률로 에너지 1 회복',
+        desc: '턴 시작 시 5% 확률: 에너지 1 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && Math.random() < 0.05) {
                 gs.player.energy = Math.min(gs.player.maxEnergy, gs.player.energy + 1);
@@ -183,7 +508,7 @@ const COMMON_ITEMS = {
     },
     rusty_key: {
         id: 'rusty_key', name: '녹슨 열쇠', icon: '🔑', rarity: 'common',
-        desc: '상점 방문 시: 유물 가격 10% 할인가 적용.',
+        desc: '상시: 유물 가격 10% 감소',
         passive(gs, trigger, data) {
             if (trigger === Trigger.SHOP_PRICE_MOD && data?.type === 'relic') {
                 return 0.9;
@@ -193,17 +518,28 @@ const COMMON_ITEMS = {
 
     // 세트: 고대인의 유산
     ancient_handle: {
-        id: 'ancient_handle', name: '고대인의 자루', icon: '柄', rarity: 'common',
-        desc: '[고대인의 유산] 전투 시작 시: 방어막 3 획득.',
-        passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START) gs.addShield(3, { name: '고대인의 자루', type: 'item' });
-        }
+        id: 'ancient_handle', name: '고대인의 자루', icon: '🐻', rarity: 'common', setId: 'ancient_set',
+        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        passive() { }
     },
     ancient_leather: {
-        id: 'ancient_leather', name: '고대인의 가죽', icon: '革', rarity: 'common',
-        desc: '[고대인의 유산] 최대 체력 +2.',
-        onAcquire(gs) { gs.player.maxHp += 2; gs.player.hp += 2; },
-        passive() {}
+        id: 'ancient_leather', name: '고대인의 가죽', icon: '🐻‍❄️', rarity: 'common', setId: 'ancient_set',
+        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        passive() { }
+    },
+    ancient_belt: {
+        id: 'ancient_belt', name: '고대인의 허리띠', icon: '🐼', rarity: 'common', setId: 'ancient_set',
+        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        passive() { }
+    },
+    ancient_cape: {
+        id: 'ancient_cape', name: '고대인의 망토', icon: '🐨', rarity: 'common', setId: 'ancient_set',
+        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        passive() { }
     },
 };
 
@@ -211,7 +547,7 @@ const UNCOMMON_ITEMS = {
     // ══════════════ [ 대분류: 특별 유물 ] ══════════════
     serpent_fang_dagger: {
         id: 'serpent_fang_dagger', name: '독사의 단검', icon: '🗡️', rarity: 'uncommon', setId: 'serpents_gaze',
-        desc: '[독사의 시선] 전투 시작 시 모든 적에게 독 2를 부여합니다.',
+        desc: '전투 시작: 모든 적에게 독 2 부여\n[세트: 독사의 시선]',
         passive(gs, trigger) {
             if (trigger !== Trigger.COMBAT_START) return;
             (gs.combat?.enemies || []).forEach((_, idx) => {
@@ -221,7 +557,7 @@ const UNCOMMON_ITEMS = {
     },
     acidic_vial: {
         id: 'acidic_vial', name: '산성 유리병', icon: '🧪', rarity: 'uncommon', setId: 'serpents_gaze',
-        desc: '[독사의 시선] 피해를 줄 때 20% 확률로 대상의 독을 1 증가시킵니다.',
+        desc: '피해를 줄 때 20% 확률: 대상의 독 +1\n[세트: 독사의 시선]',
         passive(gs, trigger) {
             if (trigger !== Trigger.DEAL_DAMAGE || Math.random() >= 0.2) return;
             const targetIdx = Number.isInteger(gs?._selectedTarget) ? gs._selectedTarget : 0;
@@ -233,29 +569,29 @@ const UNCOMMON_ITEMS = {
     },
     cobra_scale_charm: {
         id: 'cobra_scale_charm', name: '코브라 비늘 부적', icon: '🐍', rarity: 'uncommon', setId: 'serpents_gaze',
-        desc: '[독사의 시선] 세트 효과를 강화하는 부적입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 독사의 시선]',
+        passive() { }
     },
     monks_rosary: {
         id: 'monks_rosary', name: '수도사의 묵주', icon: '📿', rarity: 'uncommon', setId: 'holy_grail',
-        desc: '[생명의 성배] 턴 시작 시 체력을 3 회복합니다.',
+        desc: '턴 시작: 체력 3 회복\n[세트: 생명의 성배]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) gs.heal?.(3, { name: '수도사의 묵주', type: 'item' });
         }
     },
     fountain_essence: {
         id: 'fountain_essence', name: '샘물의 정수', icon: '💧', rarity: 'uncommon', setId: 'holy_grail',
-        desc: '[생명의 성배] 세트 효과를 구성하는 정수입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 생명의 성배]',
+        passive() { }
     },
     life_bloom_seed: {
         id: 'life_bloom_seed', name: '생명의 개화 씨앗', icon: '🌱', rarity: 'uncommon', setId: 'holy_grail',
-        desc: '[생명의 성배] 세트 효과를 구성하는 씨앗입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 생명의 성배]',
+        passive() { }
     },
     titans_belt: {
         id: 'titans_belt', name: '거인의 허리띠', icon: '🪢', rarity: 'uncommon', setId: 'titans_endurance',
-        desc: '[거인의 인내] 전투 중 최대 체력과 현재 체력이 15 증가합니다.',
+        desc: '전투 시작: 최대 체력 +15 / 체력 15 회복 / 전투 종료: 원래 수치로 복원\n[세트: 거인의 인내]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && !gs._titansBeltApplied) {
                 gs._titansBeltApplied = 15;
@@ -274,34 +610,34 @@ const UNCOMMON_ITEMS = {
     },
     endurance_medal: {
         id: 'endurance_medal', name: '인내의 메달', icon: '🎖️', rarity: 'uncommon', setId: 'titans_endurance',
-        desc: '[거인의 인내] 세트 효과를 구성하는 메달입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 거인의 인내]',
+        passive() { }
     },
     ancient_heart_stone: {
         id: 'ancient_heart_stone', name: '고대 심장석', icon: '🫀', rarity: 'uncommon', setId: 'titans_endurance',
-        desc: '[거인의 인내] 세트 효과를 구성하는 심장석입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 거인의 인내]',
+        passive() { }
     },
     bastion_shield_plate: {
         id: 'bastion_shield_plate', name: '보루 방패판', icon: '🛡️', rarity: 'uncommon', setId: 'iron_fortress',
-        desc: '[철옹성] 턴 종료 시 방어막 5를 얻습니다.',
+        desc: '턴 시작: 방어막 5 획득\n[세트: 철옹성]',
         passive(gs, trigger) {
-            if (trigger === Trigger.TURN_END) gs.addShield?.(5, { name: '보루 방패판', type: 'item' });
+            if (trigger === Trigger.TURN_START) gs.addShield?.(5, { name: '보루 방패판', type: 'item' });
         }
     },
     spiked_buckler: {
         id: 'spiked_buckler', name: '가시 버클러', icon: '🛡', rarity: 'uncommon', setId: 'iron_fortress',
-        desc: '[철옹성] 세트 효과를 구성하는 방패입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 철옹성]',
+        passive() { }
     },
     fortified_gauntlet: {
         id: 'fortified_gauntlet', name: '강화 건틀릿', icon: '🥊', rarity: 'uncommon', setId: 'iron_fortress',
-        desc: '[철옹성] 세트 효과를 구성하는 건틀릿입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 철옹성]',
+        passive() { }
     },
     magnifying_glass: {
         id: 'magnifying_glass', name: '돋보기', icon: '🔍', rarity: 'uncommon',
-        desc: '매 턴 시작 시: 적의 다음 행동을 더 자세히 분석 (의도 공격력 10% 감소).',
+        desc: '턴 시작: 모든 적 공격 의도 10% 감소',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
                 gs.enemies?.forEach(e => {
@@ -312,26 +648,26 @@ const UNCOMMON_ITEMS = {
     },
     echo_gauntlet: {
         id: 'echo_gauntlet', name: '잔향 건틀릿', icon: '🥊', rarity: 'uncommon',
-        desc: '연쇄 5 도달 시 가장 앞의 적을 기절시킵니다.',
+        desc: '연쇄 5 도달 시: 무작위 적에게 기절 1 부여',
         passive(gs, trigger) {
             if (trigger !== Trigger.CHAIN_REACH_5) return;
-            const targetIdx = (gs.combat?.enemies || []).findIndex((enemy) => (enemy?.hp || 0) > 0);
+            const targetIdx = (gs.combat?.enemies || []).findIndex((enemy) => (enemy?.hp || 0) > 0); // 무작위 적 기절로 변경
             if (targetIdx >= 0) {
                 gs.applyEnemyStatus?.('stunned', 1, targetIdx);
-                gs.addLog?.('🥊 잔향 건틀릿: 선두 적 기절!', 'item');
+                gs.addLog?.('🥊 잔향 건틀릿: 무작위 적 기절!', 'item');
             }
         }
     },
     golden_feather: {
         id: 'golden_feather', name: '황금 깃털', icon: '🪶', rarity: 'uncommon',
-        desc: '매 전투 시작 시: 회피 1을 획득.',
+        desc: '전투 시작: 회피 1 획득',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) gs.addBuff('evasion', 1, { name: '황금 깃털', type: 'item' });
         }
     },
     heavy_anvil: {
         id: 'heavy_anvil', name: '무거운 모루', icon: '⚙️', rarity: 'uncommon',
-        desc: '휴식 지점에서 카드 강화 시: 무작위 카드 1장을 추가로 강화.',
+        desc: '휴식에서 카드 강화 시: 무작위 카드 1장 추가 강화',
         passive(gs, trigger, data) {
             if (trigger === Trigger.REST_UPGRADE) {
                 const upgradeable = gs.player.deck.filter(c => !CARDS[c]?.upgraded);
@@ -345,7 +681,7 @@ const UNCOMMON_ITEMS = {
     },
     liquid_memory: {
         id: 'liquid_memory', name: '액체 기억', icon: '🧪', rarity: 'uncommon',
-        desc: '전투 중 처음 소모한 카드를 덱 맨 위로 되돌림 (전투당 1회).',
+        desc: '전투당 1회: 처음 소멸한 카드를 덱 맨 위로 되돌림',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_EXHAUST && !gs._liquidMemoryUsed) {
                 gs._liquidMemoryUsed = true;
@@ -361,7 +697,7 @@ const UNCOMMON_ITEMS = {
     },
     balanced_scale: {
         id: 'balanced_scale', name: '균형의 저울', icon: '⚖️', rarity: 'uncommon',
-        desc: '턴 종료 시 에너지가 0이라면, 다음 턴 드로우 +1.',
+        desc: '턴 종료 시 에너지가 0일 때: 다음 턴 카드 1장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END && gs.player.energy === 0) gs._scaleActive = true;
             if (trigger === Trigger.TURN_START && gs._scaleActive) {
@@ -378,14 +714,14 @@ const UNCOMMON_ITEMS = {
     },
     vampiric_fang: {
         id: 'vampiric_fang', name: '흡혈귀의 송곳니', icon: '🧛', rarity: 'uncommon',
-        desc: '공격으로 적 처치 시: 체력 3 회복.',
+        desc: '적 처치 시: 체력 3 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.ENEMY_KILL) gs.heal(3, { name: '흡혈귀의 송곳니', type: 'item' });
         }
     },
     crystal_ball: {
         id: 'crystal_ball', name: '수정구슬', icon: '🔮', rarity: 'uncommon',
-        desc: '전투 시작 시: 무작위 카드 3장의 비용을 이번 전투 동안 1 감소.',
+        desc: '전투 시작: 무작위 카드 3장의 비용 -1(이번 전투)',
         passive(gs, trigger, data) {
             if (trigger === Trigger.COMBAT_START && gs.player.deck?.length > 0) {
                 gs._crystalDiscounted = new Set();
@@ -410,7 +746,7 @@ const UNCOMMON_ITEMS = {
     },
     merchants_pendant: {
         id: 'merchants_pendant', name: '상인의 펜던트', icon: '📿', rarity: 'uncommon',
-        desc: '상점에서 물건을 구매할 때마다 최대 체력 +1.',
+        desc: '상점 구매 시: 최대 체력 +1',
         passive(gs, trigger) {
             if (trigger === Trigger.SHOP_BUY) {
                 gs.player.maxHp += 1;
@@ -421,7 +757,7 @@ const UNCOMMON_ITEMS = {
     },
     adrenaline_shot: {
         id: 'adrenaline_shot', name: '아드레날린 주사', icon: '💉', rarity: 'uncommon',
-        desc: '체력이 25% 이하일 때: 주는 피해 25% 증가.',
+        desc: '체력이 25% 이하일 때: 주는 피해 25% 증가',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE && gs.player.hp <= gs.player.maxHp * 0.25) {
                 return typeof data === 'number' ? Math.floor(data * 1.25) : data;
@@ -432,14 +768,14 @@ const UNCOMMON_ITEMS = {
     // 세트: 고대인의 유산
     ancient_blade: {
         id: 'ancient_blade', name: '고대인의 칼날', icon: '刃', rarity: 'uncommon',
-        desc: '[고대인의 유산] 공격 피해 +1.',
+        desc: '피해를 줄 때: 피해 +1',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DEAL_DAMAGE && typeof data === 'number') return data + 1;
         }
     },
     ancient_scroll: {
         id: 'ancient_scroll', name: '고대인의 두루마리', icon: '卷', rarity: 'uncommon',
-        desc: '[고대인의 유산] 매 전투 시작 시: 무작위 카드 1장 임시 획득.',
+        desc: '전투 시작: 무작위 카드 1장 임시 획득',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 const allKeys = Object.keys(CARDS);
@@ -469,7 +805,7 @@ const UNCOMMON_ITEMS = {
     },
     dusk_mark: {
         id: 'dusk_mark', name: '황혼의 낙인', icon: '🌘', rarity: 'uncommon', setId: 'dusk_set',
-        desc: '[황혼의 쌍인] 약화된 적에게 피해를 주면 약화를 1 더 부여합니다.',
+        desc: '약화된 적에게 피해를 줄 때: 대상에게 약화 1 부여\n[세트: 황혼의 쌍인]',
         passive(gs, trigger) {
             if (trigger !== Trigger.DEAL_DAMAGE) return;
             const targetIdx = Number.isInteger(gs?._selectedTarget) ? gs._selectedTarget : 0;
@@ -481,12 +817,12 @@ const UNCOMMON_ITEMS = {
     },
     void_fang: {
         id: 'void_fang', name: '공허의 송곳니', icon: '🦷', rarity: 'uncommon', setId: 'void_set',
-        desc: '[심연의 삼위일체] 세트 효과를 구성하는 송곳니입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 심연의 삼위일체]',
+        passive() { }
     },
     void_eye: {
         id: 'void_eye', name: '공허의 눈', icon: '👁️', rarity: 'uncommon', setId: 'void_set',
-        desc: '[심연의 삼위일체] 공격 카드를 사용하면 20% 확률로 대상에게 약화 1을 부여합니다.',
+        desc: '공격 카드 사용 시 20% 확률: 대상에게 약화 1 부여\n[세트: 심연의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger !== Trigger.CARD_PLAY || Math.random() >= 0.2) return;
             const cardType = String(CARDS?.[data?.cardId]?.type || '').toUpperCase();
@@ -497,7 +833,7 @@ const UNCOMMON_ITEMS = {
     },
     void_crown: {
         id: 'void_crown', name: '공허의 왕관', icon: '👑', rarity: 'uncommon', setId: 'void_set',
-        desc: '[심연의 삼위일체] 비용이 0인 카드를 사용하면 잔향 10을 얻습니다.',
+        desc: '비용 0인 카드 사용 시: 잔향 10 충전\n[세트: 심연의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_PLAY && Number(data?.cost) === 0) {
                 gs.addEcho?.(10, { name: '공허의 왕관', type: 'item' });
@@ -506,7 +842,7 @@ const UNCOMMON_ITEMS = {
     },
     paradox_contract: {
         id: 'paradox_contract', name: '역설 계약', icon: '⏳', rarity: 'uncommon',
-        desc: '전투 시작 시 최대 에너지 +1. 전투 종료 또는 사망 시 원래 수치로 되돌립니다.',
+        desc: '전투 시작: 최대 에너지 +1 / 전투 종료: 원래 수치로 복원',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 if (gs._paradoxActive) return;
@@ -530,7 +866,7 @@ const RARE_ITEMS = {
     // ══════════════ [ 대분류: 희귀 유물 ] ══════════════
     everlasting_oil: {
         id: 'everlasting_oil', name: '꺼지지 않는 기름', icon: '🕯️', rarity: 'rare',
-        desc: '매 턴 시작 시: 무작위 카드 1장의 비용을 이번 턴 동안 0으로 만듭니다.',
+        desc: '턴 시작: 무작위 카드 1장의 비용 0(이번 턴)',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && gs.player.hand?.length > 0) {
                 const h = gs.player.hand;
@@ -542,7 +878,7 @@ const RARE_ITEMS = {
     },
     phoenix_feather: {
         id: 'phoenix_feather', name: '불사조의 깃털', icon: '🔥', rarity: 'rare',
-        desc: '사망 시: 체력을 50% 회복하고 부활합니다 (전체 게임 중 1회).',
+        desc: '게임당 1회: 사망 시 체력 50% 회복 후 부활',
         passive(gs, trigger) {
             if (trigger === Trigger.PRE_DEATH && !gs._phoenixUsed) {
                 gs._phoenixUsed = true;
@@ -554,7 +890,7 @@ const RARE_ITEMS = {
     },
     dimension_pocket: {
         id: 'dimension_pocket', name: '차원 주머니', icon: '🎒', rarity: 'rare',
-        desc: '최대 에너지 +1. 매 턴 시작 시 저주 카드 1장을 덱에 섞어넣습니다.',
+        desc: '획득: 최대 에너지 +1 / 턴 시작: 덱에 [노이즈] 1장 추가',
         onAcquire(gs) { gs.player.maxEnergy += 1; },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
@@ -565,7 +901,7 @@ const RARE_ITEMS = {
     },
     mana_battery: {
         id: 'mana_battery', name: '마력 배터리', icon: '🔋', rarity: 'rare',
-        desc: '턴 종료 시: 남은 에너지를 다음 턴으로 이월합니다 (최대 3).',
+        desc: '턴 종료: 남은 에너지 이월(최대 3)',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END) gs._manaStored = Math.min(3, gs.player.energy);
             if (trigger === Trigger.TURN_START && gs._manaStored) {
@@ -577,7 +913,7 @@ const RARE_ITEMS = {
     },
     bloody_contract: {
         id: 'bloody_contract', name: '핏빛 계약', icon: '📜', rarity: 'rare',
-        desc: '전투 시작 시: 체력을 6 소모하고 카드 2장을 추가로 드로우합니다.',
+        desc: '전투 시작: 체력 6 소모 / 카드 2장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 gs.player.hp = Math.max(1, gs.player.hp - 6);
@@ -588,7 +924,7 @@ const RARE_ITEMS = {
     },
     soul_magnet: {
         id: 'soul_magnet', name: '영혼 자석', icon: '🧲', rarity: 'rare',
-        desc: '적 처치 시: 최대 체력 +2.',
+        desc: '적 처치 시: 최대 체력 +2',
         passive(gs, trigger) {
             if (trigger === Trigger.ENEMY_KILL) {
                 gs.player.maxHp += 2;
@@ -599,7 +935,7 @@ const RARE_ITEMS = {
     },
     clockwork_butterfly: {
         id: 'clockwork_butterfly', name: '태엽 나비', icon: '🦋', rarity: 'rare',
-        desc: '3턴마다 에너지를 모두 회복합니다.',
+        desc: '턴 시작 3회마다: 에너지 모두 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
                 gs._butterflyCount = (gs._butterflyCount || 0) + 1;
@@ -613,7 +949,7 @@ const RARE_ITEMS = {
     },
     energy_core: {
         id: 'energy_core', name: '에너지 핵', icon: '🔋', rarity: 'rare',
-        desc: '보스 전투 승리 시 최대 에너지가 최대 2회까지 1 증가합니다.',
+        desc: '보스 전투 승리 시: 최대 에너지 +1(최대 2)',
         passive(gs, trigger, data) {
             if (trigger !== Trigger.COMBAT_END || !data?.isBoss) return;
             const count = Number(gs.player._energyCoreCount || 0);
@@ -627,19 +963,19 @@ const RARE_ITEMS = {
     },
     guardian_seal: {
         id: 'guardian_seal', name: '수호자의 인장', icon: '🪬', rarity: 'rare', setId: 'iron_fortress',
-        desc: '[철옹성] 세트 효과를 구성하는 인장입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 철옹성]',
+        passive() { }
     },
     unyielding_fort: {
         id: 'unyielding_fort', name: '불굴의 성채', icon: '🏰', rarity: 'rare', setId: 'iron_fortress',
-        desc: '[철옹성] 세트 효과를 구성하는 상징입니다.',
-        passive() {}
+        desc: '세트 구성품\n[세트: 철옹성]',
+        passive() { }
     },
 
     // 세트: 심연의 삼위일체
     abyssal_eye: {
-        id: 'abyssal_eye', name: '심연의 눈', icon: '👁️', rarity: 'rare',
-        desc: '[심연의 삼위일체] 전투 동안 적의 방어도를 무시하고 피해를 줍니다.',
+        id: 'abyssal_eye', name: '심연의 눈', icon: '👁️', rarity: 'rare', setId: 'abyssal_trinity',
+        desc: '상시: 적 방어막 무시\n[세트: 심연의 삼위일체]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 gs._ignoreShield = true;
@@ -651,8 +987,8 @@ const RARE_ITEMS = {
         }
     },
     abyssal_hand: {
-        id: 'abyssal_hand', name: '심연의 손', icon: '🤚', rarity: 'rare',
-        desc: '[심연의 삼위일체] 매 턴 처음 사용하는 카드를 2번 발동합니다.',
+        id: 'abyssal_hand', name: '심연의 손', icon: '🤚', rarity: 'rare', setId: 'abyssal_trinity',
+        desc: '턴마다 처음 사용하는 카드: 2번 발동\n[세트: 심연의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START) gs._abyssalUsed = false;
             if (trigger === Trigger.CARD_PLAY && !gs._abyssalUsed) {
@@ -662,8 +998,8 @@ const RARE_ITEMS = {
         }
     },
     abyssal_heart: {
-        id: 'abyssal_heart', name: '심연의 심장', icon: '🖤', rarity: 'rare',
-        desc: '[심연의 삼위일체] 체력이 50% 이하일 때, 매 턴 에너지 +1.',
+        id: 'abyssal_heart', name: '심연의 심장', icon: '🖤', rarity: 'rare', setId: 'abyssal_trinity',
+        desc: '체력이 50% 이하일 때 턴 시작: 에너지 1 회복\n[세트: 심연의 삼위일체]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && gs.player.hp <= gs.player.maxHp * 0.5) {
                 gs.player.energy += 1;
@@ -677,7 +1013,7 @@ const LEGENDARY_ITEMS = {
     // ══════════════ [ 대분류: 전설 유물 ] ══════════════
     eternity_core: {
         id: 'eternity_core', name: '영겁의 핵심', icon: '💎', rarity: 'legendary',
-        desc: '매 턴 시작 시: 에너지를 1 추가로 얻고 카드 1장을 추가로 드로우합니다.',
+        desc: '턴 시작: 에너지 1 회복 / 카드 1장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
                 gs.player.energy += 1;
@@ -688,7 +1024,7 @@ const LEGENDARY_ITEMS = {
     },
     god_slayer_blade: {
         id: 'god_slayer_blade', name: '신살의 검', icon: '🗡️', rarity: 'legendary',
-        desc: '엘리트 및 보스에게 주는 피해가 50% 증가합니다.',
+        desc: '상시: 엘리트 및 보스에게 주는 피해 50% 증가',
         passive(gs, trigger, data) {
             if (trigger === Trigger.DAMAGE_CALC && (gs.enemies?.some(e => e.isElite || e.isBoss))) {
                 return data * 1.5;
@@ -697,7 +1033,7 @@ const LEGENDARY_ITEMS = {
     },
     infinite_loop: {
         id: 'infinite_loop', name: '무한의 루프', icon: '🌀', rarity: 'legendary',
-        desc: '카드를 3장 사용할 때마다, 무작위 카드 1장을 소멸시키고 그 복사본 2장을 손패로 가져옵니다.',
+        desc: '카드 3장 사용할 때마다: 무작위 카드 1장 제거 / 복사본 2장을 손패에 추가',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_PLAY) {
                 gs._loopCount = (gs._loopCount || 0) + 1;
@@ -717,7 +1053,7 @@ const BOSS_ITEMS = {
     // ══════════════ [ 대분류: 보스 유물 ] ══════════════
     boss_soul_mirror: {
         id: 'boss_soul_mirror', name: '영혼 거울', icon: '🪞', rarity: 'boss',
-        desc: '최대 체력 -15. 전투마다 한 번 치명적 피해를 막고 체력을 25로 회복합니다.',
+        desc: '획득: 최대 체력 -15 / 전투당 1회: 사망 시 체력 25 회복 후 부활',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 if (!gs._bossSoulMirrorPenaltyApplied) {
@@ -737,7 +1073,7 @@ const BOSS_ITEMS = {
     },
     boss_black_lotus: {
         id: 'boss_black_lotus', name: '흑연꽃', icon: '🪷', rarity: 'boss',
-        desc: '손패 제한 -1. 카드 5장 사용할 때마다 카드 2장을 뽑습니다.',
+        desc: '상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
@@ -761,7 +1097,7 @@ const BOSS_ITEMS = {
     },
     titan_heart: {
         id: 'titan_heart', name: '티탄의 심장', icon: '❤️', rarity: 'boss',
-        desc: '최대 체력이 50 증가하지만, 더 이상 일반적인 방법으로 체력을 회복할 수 없습니다.',
+        desc: '획득: 최대 체력 +50 / 상시: 체력 회복 불가',
         onAcquire(gs) { gs.player.maxHp += 50; gs.player.hp += 50; },
         passive(gs, trigger) {
             if (trigger === Trigger.HEAL) return 0;
@@ -769,7 +1105,7 @@ const BOSS_ITEMS = {
     },
     eye_of_storm: {
         id: 'eye_of_storm', name: '폭풍의 눈', icon: '🌀', rarity: 'boss',
-        desc: '매 턴 시작 시: 모든 적에게 취약 1을 부여합니다. 최대 에너지가 1 증가합니다.',
+        desc: '획득: 최대 에너지 +1 / 턴 시작: 모든 적에게 취약 1 부여',
         onAcquire(gs) { gs.player.maxEnergy += 1; },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
@@ -784,7 +1120,7 @@ const SPECIAL_ITEMS = {
     // ══════════════ [ 대분류: 특수/이벤트 유물 ] ══════════════
     eternal_fragment: {
         id: 'eternal_fragment', name: '영원의 파편', icon: '💎', rarity: 'special',
-        desc: '최대 체력 +20, 최대 에너지 +1, 드로우 +1',
+        desc: '획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1 / 카드 1장 드로우 / 전투 종료: 원래 수치로 복원',
         onAcquire(gs) {
             gs.player.maxHp += 20;
             gs.player.hp += 20;
@@ -808,7 +1144,7 @@ const SPECIAL_ITEMS = {
     },
     dimension_key: {
         id: 'dimension_key', name: '차원 열쇠', icon: '🔑', rarity: 'special',
-        desc: '전투 종료 시: 카드 보상 선택지 +1.',
+        desc: '전투 종료: 카드 보상 선택지 +1',
         passive(gs, trigger, data) {
             if (trigger === Trigger.REWARD_GENERATE && data?.type === 'card') {
                 return (data.count || 3) + 1;
@@ -817,7 +1153,7 @@ const SPECIAL_ITEMS = {
     },
     glitch_circuit: {
         id: 'glitch_circuit', name: '글리치 회로', icon: '📼', rarity: 'special',
-        desc: '턴 시작: 무작위 카드 1장의 비용 0, 다른 1장의 비용 +1.',
+        desc: '턴 시작: 무작위 카드 1장의 비용 0 / 다른 카드 1장의 비용 +1(이번 턴)',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START && gs.player.hand?.length >= 2) {
                 const h = gs.player.hand;
@@ -840,7 +1176,7 @@ const SPECIAL_ITEMS = {
     },
     ancient_battery: {
         id: 'ancient_battery', name: '고대 배터리', icon: '🔋', rarity: 'special',
-        desc: '매 턴 첫 번째 소모품 사용 시: 에너지를 소모하지 않음.',
+        desc: '턴마다 처음 사용하는 소모품: 에너지 소모 없음',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START) gs._batteryUsed = false;
             if (trigger === Trigger.ITEM_USE && !gs._batteryUsed) {
