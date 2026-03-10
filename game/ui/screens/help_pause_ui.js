@@ -1,6 +1,7 @@
 import {
   getDoc,
   isVisibleModal,
+  resolveGs,
 } from './help_pause_ui_helpers.js';
 import {
   createAbandonConfirm,

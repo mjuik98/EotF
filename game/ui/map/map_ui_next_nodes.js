@@ -394,21 +394,13 @@ function buildRelicPanel(doc, gs, data, tooltipUI) {
       const pip = doc.createElement('div');
       pip.className = 'nc-relic-pip';
       pip.style.cssText = `background:${meta.pip};box-shadow:0 0 5px ${meta.pip};`;
-      const tooltipTitle = `${item.icon || '◆'} ${item.name || itemId}`;
-      const tooltipBody = [
-        `<div style="color:${meta.pip};font-size:9px;letter-spacing:0.15em;margin-bottom:6px;">${meta.label}</div>`,
-        `<div>${rawDesc || '설명 없음'}</div>`,
-        isActive
-          ? `<div style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08);color:rgba(${meta.rgb},0.92);font-size:10px;letter-spacing:0.03em;">전투 시작 또는 층 진입 시 자동 발동</div>`
-          : '',
-      ].join('');
       const showTooltip = (event) => {
-        if (typeof tooltipUI?.showGeneralTooltip !== 'function') return;
-        tooltipUI.showGeneralTooltip(event, tooltipTitle, tooltipBody, { doc, win });
+        if (typeof tooltipUI?.showItemTooltip !== 'function') return;
+        tooltipUI.showItemTooltip(event, itemId, { doc, win, gs, data });
       };
       const hideTooltip = () => {
-        if (typeof tooltipUI?.hideGeneralTooltip !== 'function') return;
-        tooltipUI.hideGeneralTooltip({ doc, win });
+        if (typeof tooltipUI?.hideItemTooltip !== 'function') return;
+        tooltipUI.hideItemTooltip({ doc, win });
       };
 
       slot.addEventListener('mouseenter', showTooltip);
@@ -416,33 +408,7 @@ function buildRelicPanel(doc, gs, data, tooltipUI) {
       slot.addEventListener('focus', showTooltip);
       slot.addEventListener('blur', hideTooltip);
 
-      const tip = doc.createElement('div');
-      tip.className = 'nc-relic-tip';
-      tip.style.setProperty('--rl-rgb', meta.rgb);
-
-      const tipName = doc.createElement('div');
-      tipName.className = 'nc-relic-tip-name';
-      tipName.textContent = `${item.icon || '✦'} ${item.name || itemId}`;
-
-      const tipRarity = doc.createElement('div');
-      tipRarity.className = 'nc-relic-tip-rarity';
-      tipRarity.style.color = meta.pip;
-      tipRarity.textContent = meta.label;
-
-      const tipDesc = doc.createElement('div');
-      tipDesc.className = 'nc-relic-tip-desc';
-      tipDesc.textContent = rawDesc || '설명 없음';
-
-      tip.append(tipName, tipRarity, tipDesc);
-
-      if (isActive) {
-        const tipEffect = doc.createElement('div');
-        tipEffect.className = 'nc-relic-tip-effect';
-        tipEffect.textContent = '전투 시작 또는 층 진입 시 자동 발동';
-        tip.appendChild(tipEffect);
-      }
-
-      slot.append(iconWrap, info, pip, tip);
+      slot.append(iconWrap, info, pip);
       list.appendChild(slot);
     });
   }

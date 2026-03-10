@@ -15,7 +15,7 @@
  *    1) 핵심 효과
  *    2) 부가 효과
  *    3) 조건 / 계산식
- *    4) 태그([지속], [즉시], [소진])
+ *    4) 태그([지속], [소진])
  *
  * 3. 내부 구현명, 코드용 표현, 시스템 변수명은 desc에 직접 노출하지 않는다.
  *    - 예: vanish, mirror, lifesteal 같은 내부 명칭은 사용하지 않는다.
@@ -77,15 +77,13 @@
  * - 피해 7 (잃은 체력 10당 +3)
  * - 피해 10. 디버프 1개당 +6
  *
- * [지속 / 즉시 / 소진 태그]
+ * [지속 / 소진 태그]
  * - 태그는 항상 문장 마지막에 작성한다.
  * - 사용 가능한 태그:
  *   - [지속]
- *   - [즉시]
  *   - [소진]
  *
  * 예)
- * - 공명 폭발 발동 [즉시]
  * - 턴 종료 시: 방어막 5 획득 [지속]
  * - 피해 30 [소진]
  *
@@ -225,11 +223,11 @@ export const CARDS = {
 
     // ── [2.1] 희귀 및 특수 카드 (Rare & Special) ──
     echo_burst: {
-        id: 'echo_burst', name: '공명 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '공명 폭발 발동 [즉시]', rarity: 'rare',
+        id: 'echo_burst', name: '공명 폭발', icon: '🌟', cost: 3, type: 'POWER', desc: '공명 폭발 발동', rarity: 'rare',
         effect(gs) { gs.triggerResonanceBurst(); }
     },
     echo_burst_plus: {
-        id: 'echo_burst_plus', name: '공명 폭발+', icon: '🌟', cost: 2, type: 'POWER', desc: '공명 폭발 발동 [즉시]', rarity: 'rare', upgraded: true,
+        id: 'echo_burst_plus', name: '공명 폭발+', icon: '🌟', cost: 2, type: 'POWER', desc: '공명 폭발 발동', rarity: 'rare', upgraded: true,
         effect(gs) { gs.triggerResonanceBurst(); }
     },
     void_blade: {

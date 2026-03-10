@@ -3193,3 +3193,130 @@ Original prompt:
   - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
 - Suggested next refactor / hardening target:
   - `codex_ui.js` and `ending_screen_ui.js` are now facade-driven. The next productive target is another remaining orchestration-heavy screen/controller module outside the run/title/codex/ending cluster.
+- Game-boot runtime extraction (`game/ui/title/game_boot_ui_runtime.js`, `game/ui/title/game_boot_ui.js`):
+  - Added `game_boot_ui_runtime.js` to own title boot orchestration, including audio unlock binding, meta preload, run-meta ensure, deferred title-canvas init, title stat count-up scheduling, and DOMContentLoaded boot gating.
+  - Simplified `game_boot_ui.js` so `bootGame(...)` and `bootWhenReady(...)` now delegate to the extracted runtime helper while save-preview refresh, warp transition, and teardown remain on the facade.
+- Added regression coverage:
+  - Added `tests/game_boot_ui_runtime.test.js` to verify boot orchestration still schedules title-canvas/stat updates and waits for `DOMContentLoaded` when needed.
+  - Added `tests/game_boot_ui_facade.test.js` to pin facade delegation for the game-boot public API.
+- Validation:
+  - `npm test -- tests/game_boot_ui_runtime.test.js tests/game_boot_ui_facade.test.js tests/game_boot_ui.test.js tests/title_canvas_runtime.test.js tests/title_canvas_ui_facade.test.js tests/character_select_ui_mount.test.js tests/title_settings_bindings.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4224`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The title boot path is now facade-driven too. The next productive target is another remaining orchestration-heavy module such as `story_ui.js`, `screen_ui.js`, or a follow-up extraction in the title intro/game-canvas path.
+- Story/screen runtime extraction (`game/ui/screens/story_ui_runtime.js`, `game/ui/screens/story_ui.js`, `game/ui/screens/screen_ui_runtime.js`, `game/ui/screens/screen_ui.js`):
+  - Added `story_ui_runtime.js` to own fragment unlock/show flow, failed-overlay rollback, hidden-ending eligibility checks, and ending dispatch.
+  - Simplified `story_ui.js` so it now delegates fragment progression and ending resolution while keeping only `displayFragment(...)` as the direct render entry.
+  - Added `screen_ui_runtime.js` to own active-screen toggling, `gs.currentScreen` mutation, floating HP panel teardown, and title-entry callback firing.
+  - Simplified `screen_ui.js` into a thin facade that resolves `doc` and delegates the screen-switch side effects.
+- Added regression coverage:
+  - Added `tests/story_ui_runtime.test.js` to verify failed fragment renders roll back the unlocked piece and normal endings still delegate to `EndingScreenUI`.
+  - Added `tests/story_ui_facade.test.js`, `tests/screen_ui_runtime.test.js`, and `tests/screen_ui_facade.test.js` to pin the new facade/runtime surfaces.
+- Validation:
+  - `npm test -- tests/story_ui_runtime.test.js tests/story_ui_facade.test.js tests/story_ui.test.js tests/screen_ui_runtime.test.js tests/screen_ui_facade.test.js tests/screen_ui.test.js tests/ending_screen_ui_runtime.test.js tests/ending_screen_ui_facade.test.js tests/game_boot_ui_runtime.test.js tests/game_boot_ui_facade.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4225`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The small screen/story surfaces are facade-driven now. The next productive target is the remaining intro/title orchestration path such as `intro_cinematic_ui.js`, `game_canvas_setup_ui.js`, or `meta_progression_ui.js`.
+- Intro/meta/canvas runtime extraction (`game/ui/title/intro_cinematic_runtime.js`, `game/ui/title/intro_cinematic_ui.js`, `game/ui/screens/meta_progression_ui_runtime.js`, `game/ui/screens/meta_progression_ui.js`, `game/ui/title/game_canvas_setup_ui_runtime.js`, `game/ui/title/game_canvas_setup_ui.js`):
+  - Added `intro_cinematic_runtime.js` to own intro overlay session cleanup, particle loop setup, reveal timing, skip handling, and blackout handoff.
+  - Simplified `intro_cinematic_ui.js` into a thin `play(...)` facade over the extracted runtime.
+  - Added `meta_progression_ui_runtime.js` to own fragment selection mutations, ending cleanup, and title-return side effects.
+  - Simplified `meta_progression_ui.js` so fragment selection and ending restart now delegate directly to the runtime helper.
+  - Added `game_canvas_setup_ui_runtime.js` to own canvas ref wiring, minimap click patching, particle-system init, resize binding, and resize observer setup.
+  - Simplified `game_canvas_setup_ui.js` into a stateful facade over the extracted runtime helper.
+- Added regression coverage:
+  - Added `tests/intro_cinematic_ui_runtime.test.js` and `tests/intro_cinematic_ui_facade.test.js` to pin intro overlay mount/skip behavior and facade delegation.
+  - Added `tests/meta_progression_ui_runtime.test.js` and `tests/meta_progression_ui_facade.test.js` to pin fragment selection and ending-restart delegation.
+  - Added `tests/game_canvas_setup_ui_runtime.test.js` and `tests/game_canvas_setup_ui_facade.test.js` to pin canvas init, minimap click fallback, resize observer wiring, and facade delegation.
+- Validation:
+  - `npm test -- tests/game_canvas_setup_ui_runtime.test.js tests/game_canvas_setup_ui_facade.test.js tests/intro_cinematic_ui_runtime.test.js tests/intro_cinematic_ui_facade.test.js tests/intro_cinematic_helpers.test.js tests/meta_progression_ui_runtime.test.js tests/meta_progression_ui_facade.test.js tests/meta_progression_ui.test.js tests/game_boot_ui_runtime.test.js tests/game_boot_ui_facade.test.js tests/title_canvas_runtime.test.js tests/title_canvas_ui_facade.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4227`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - Most screen/title orchestration paths are now facade-driven. The next productive target is likely a remaining presentation-heavy runtime such as `run_end_screen_ui.js`, `level_up_popup_ui.js`, or a follow-up pass on shared helper modules that still carry mixed DOM/runtime responsibilities.
+- Run-end / level-up runtime extraction (`game/ui/title/run_end_screen_runtime.js`, `game/ui/title/run_end_screen_ui.js`, `game/ui/title/level_up_popup_runtime.js`, `game/ui/title/level_up_popup_ui.js`):
+  - Added `run_end_screen_runtime.js` to own overlay DOM creation, event binding, row/total XP animation sequencing, close behavior, and teardown.
+  - Simplified `run_end_screen_ui.js` so the class now mainly stores injected dependencies and delegates `show`, `close`, and `destroy` to the extracted runtime.
+  - Added `level_up_popup_runtime.js` to own popup DOM creation, close/key/resize bindings, fullscreen canvas resize, particle animation loop, and teardown.
+  - Simplified `level_up_popup_ui.js` so the class now mainly stores injected dependencies and delegates `show`, `close`, and `destroy` to the extracted runtime.
+- Added regression coverage:
+  - Added `tests/run_end_screen_runtime.test.js` and `tests/run_end_screen_ui_facade.test.js` to pin overlay mount/show/close/destroy behavior and class delegation.
+  - Added `tests/level_up_popup_runtime.test.js` and `tests/level_up_popup_ui_facade.test.js` to pin popup show/close/destroy behavior and class delegation.
+- Validation:
+  - `npm test -- tests/run_end_screen_runtime.test.js tests/run_end_screen_ui_facade.test.js tests/run_end_screen_helpers.test.js tests/level_up_popup_runtime.test.js tests/level_up_popup_ui_facade.test.js tests/level_up_popup_helpers.test.js tests/class_progression_system.test.js tests/character_select_summary_replay.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4228`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The remaining non-facade-heavy areas are mostly shared helper/presentation modules now. The next productive target is likely `help_pause_ui_overlays.js`, `reward_ui_render.js`, or another helper file that still mixes data shaping with DOM/runtime work.
+- Reward/help overlay helper extraction (`game/ui/screens/reward_ui_option_renderers.js`, `game/ui/screens/reward_ui_render.js`, `game/ui/screens/help_pause_ui_overlay_dom.js`, `game/ui/screens/help_pause_ui_dialog_overlays.js`, `game/ui/screens/help_pause_ui_pause_menu_overlay.js`, `game/ui/screens/help_pause_ui_overlays.js`):
+  - Added `reward_ui_option_renderers.js` to own reward card, item, and blessing option DOM rendering, tooltip wiring, and selection marking.
+  - Slimmed `reward_ui_render.js` down to header/state helpers plus re-exports of the extracted option renderers.
+  - Added `help_pause_ui_overlay_dom.js` for the shared text-node builder used by pause/help overlays.
+  - Added `help_pause_ui_dialog_overlays.js` for mobile warning, help menu, abandon confirm, and return-to-title confirm builders.
+  - Added `help_pause_ui_pause_menu_overlay.js` for the pause menu and volume slider row composition.
+  - Simplified `help_pause_ui_overlays.js` into a thin re-export surface over the extracted overlay builders.
+- Added regression coverage:
+  - Added `tests/reward_ui_option_renderers.test.js` to verify reward card tooltip/click wiring and disabled energy blessing overlay rendering.
+  - Added `tests/help_pause_ui_pause_menu_overlay.test.js` to verify pause-menu slider seeding from audio-engine volume state and run-summary footer text.
+- Validation:
+  - `npm test -- tests/reward_ui_option_renderers.test.js tests/reward_ui.test.js tests/reward_ui_options.test.js tests/reward_ui_runtime.test.js tests/help_pause_ui_pause_menu_overlay.test.js tests/help_pause_ui.test.js tests/help_pause_ui_runtime.test.js tests/help_pause_ui_abandon_runtime.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4229`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The remaining large surfaces are mostly presentation helper files now. The next productive target is likely `codex_ui_render.js`, `character_select_panels.js`, or `game_boot_ui_fx.js` if you want to keep shaving mixed render/runtime responsibilities.
+- Codex/title helper extraction (`game/ui/screens/codex_ui_entry_renderers.js`, `game/ui/screens/codex_ui_render.js`, `game/ui/title/game_boot_ui_lore_fx.js`, `game/ui/title/game_boot_ui_nav_fx.js`, `game/ui/title/game_boot_ui_fx.js`):
+  - Added `codex_ui_entry_renderers.js` to own codex enemy/card/item entry card rendering, set-view rendering, and empty-state markup.
+  - Slimmed `codex_ui_render.js` down to progress/filter/section rendering plus re-exports of the extracted entry renderers.
+  - Added `game_boot_ui_lore_fx.js` for lore ticker markup/drift/timer lifecycle and `game_boot_ui_nav_fx.js` for title keyboard navigation state/binding/reset.
+  - Simplified `game_boot_ui_fx.js` so it now keeps count-up, audio-wave, and warp-burst logic while re-exporting the extracted lore/nav helpers and using `resetKeyboardNav()` during teardown.
+- Added regression coverage:
+  - Added `tests/codex_ui_entry_renderers.test.js` to verify seen item/set entry rendering and empty-state markup.
+  - Added `tests/game_boot_ui_nav_fx.test.js` to verify title keyboard navigation only binds once until reset.
+- Validation:
+  - `npm test -- tests/codex_ui_entry_renderers.test.js tests/codex_ui_render.test.js tests/codex_ui_runtime.test.js tests/codex_ui_facade.test.js tests/codex_ui_controller.test.js tests/codex_ui_popup.test.js tests/codex_ui_structure.test.js tests/game_boot_ui_nav_fx.test.js tests/game_boot_ui.test.js tests/game_boot_ui_runtime.test.js tests/game_boot_ui_facade.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4230`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The remaining larger modules are mostly presentation-heavy helpers now. The next productive target is likely `character_select_panels.js` or a further split of `game_boot_ui_fx.js`/`codex_ui_render.js` into even smaller pure formatting helpers if you want to keep going.
+- Character-select panel extraction (`game/ui/title/character_select_info_panel.js`, `game/ui/title/character_select_phase_panel.js`, `game/ui/title/character_select_panels.js`):
+  - Added `character_select_info_panel.js` to own character info/mastery/loadout panel rendering, tab activation, tooltip wiring, and echo modal click behavior.
+  - Added `character_select_phase_panel.js` to own select/burst/done phase rendering, story typing, and end-state button wiring.
+  - Simplified `character_select_panels.js` into a thin re-export surface over the extracted info/phase helpers.
+- Added regression coverage:
+  - Added `tests/character_select_info_panel.test.js` to pin tab switching, tooltip wiring, and echo modal click behavior through the extracted info helper.
+  - Added `tests/character_select_phase_panel.test.js` to pin done/select/burst phase rendering, typing timer setup, and end-state button callbacks through the extracted phase helper.
+- Validation:
+  - `npm test -- tests/character_select_info_panel.test.js tests/character_select_phase_panel.test.js tests/character_select_panels.test.js tests/character_select_render.test.js tests/character_select_bindings.test.js tests/character_select_ui_mount.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4231`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - At this point the remaining larger files are mostly pure helper/render collections. The next productive target is a micro-split of `game_boot_ui_fx.js`, `codex_ui_render.js`, or a similar helper file only if the goal is to finish facade/helper normalization completely.
+- Run-mode section helper extraction (`game/ui/run/run_mode_ui_render.js`, `game/ui/run/run_mode_ui_summary_render.js`, `game/ui/run/run_mode_ui_presets_render.js`):
+  - Finished the previously-started split by turning `run_mode_ui_render.js` into an orchestration/re-export surface over the extracted summary/preset helpers.
+  - `renderPanel(...)` now delegates the difficulty shell to `renderDifficultyPanel(...)`, uses the extracted preset/summary helpers directly, and keeps inscription/grid rendering local.
+  - Added `tests/run_mode_ui_render_sections.test.js` to pin difficulty shell markup, inscriptionless summary/hidden-ending banners, preset inline metadata, preset dialog wiring, and `syncModalMood(...)`.
+- Validation:
+  - `npm test -- tests/run_mode_ui_render_sections.test.js tests/run_mode_ui.test.js tests/run_mode_ui_runtime.test.js tests/run_mode_ui_facade.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4232`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Title boot FX micro-split (`game/ui/title/game_boot_ui_fx.js`, `game/ui/title/game_boot_ui_count_fx.js`, `game/ui/title/game_boot_ui_audio_fx.js`, `game/ui/title/game_boot_ui_warp_fx.js`):
+  - Split numeric count-up, title audio wave, and warp burst implementations into dedicated helper modules while keeping `game_boot_ui_fx.js` as the export/teardown surface.
+  - `game_boot_ui_runtime.js` and `game_boot_ui.js` continue to consume the same public API, but the implementation details are now isolated by effect type.
+  - Added `tests/game_boot_ui_count_fx.test.js`, `tests/game_boot_ui_audio_fx.test.js`, and `tests/game_boot_ui_warp_fx.test.js` to pin the extracted effect helpers.
+- Validation:
+  - `npm test -- tests/game_boot_ui_count_fx.test.js tests/game_boot_ui_audio_fx.test.js tests/game_boot_ui_warp_fx.test.js tests/game_boot_ui_nav_fx.test.js tests/game_boot_ui_runtime.test.js tests/game_boot_ui_facade.test.js tests/game_boot_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4233`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural helper-only target is `game/ui/screens/codex_ui_render.js` if you want to keep breaking pure render collections into smaller progress/filter/section modules.

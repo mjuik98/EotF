@@ -11060,3 +11060,812 @@ body:has(#combatOverlay.active) .panel-bottom {
     padding: 0 12px 0;
   }
 }
+
+/* ─── 유물 툴팁 애니메이션 (styles.css 에 추가) ─────────────────
+   기존 fadeIn / fadeOut 과 별도로 itemTip 전용 애니메이션을 선언합니다.
+   스프링 효과(cubic-bezier(0.34,1.4,0.64,1))로 카드 팝업처럼 등장합니다.
+──────────────────────────────────────────────────────────────── */
+
+@keyframes itemTipIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes itemTipOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.94) translateY(3px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CRYSTAL SHARD CARD REDESIGN
+   손패 카드 비주얼 개선 — 등급/강화/태그/에너지/설명 하이라이팅
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 카드 포지셔닝 기반: transform-origin & 팬 변수 ── */
+#combatHandCards .card {
+  transform-origin: bottom center;
+  transform: rotate(var(--fan-rot, 0deg)) translateY(var(--fan-lift, 0px));
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+/* ── Legendary 레인보우 테두리 ──────────────────────────────── */
+.card-legendary-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #c084fc, #818cf8, #38bdf8, #a78bfa, #c084fc);
+  background-size: 300% 300%;
+  animation: cardLegendaryBorder 3.5s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes cardLegendaryBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Legendary 카드 배경 및 상시 글로우 */
+.card.rarity-legendary {
+  background: linear-gradient(150deg, rgba(18, 6, 28, 0.97), rgba(10, 2, 18, 0.99)) !important;
+  animation: cardLegendaryPulse 3s ease-in-out infinite;
+}
+
+@keyframes cardLegendaryPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgba(192, 132, 252, 0.35), 0 4px 20px rgba(0, 0, 0, 0.65);
+  }
+
+  50% {
+    box-shadow: 0 0 28px rgba(192, 132, 252, 0.6), 0 4px 20px rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* Rare 카드 배경 */
+.card.rarity-rare {
+  background: linear-gradient(150deg, rgba(20, 14, 4, 0.97), rgba(10, 6, 2, 0.99)) !important;
+}
+
+/* ── 등급 상단 컬러 스트립 ──────────────────────────────────── */
+.card-rarity-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 12px 12px 0 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card-rarity-strip-uncommon {
+  background: linear-gradient(90deg, transparent, rgba(123, 47, 255, 0.8), transparent);
+}
+
+.card-rarity-strip-rare {
+  background: linear-gradient(90deg, transparent, rgba(240, 180, 41, 0.9), transparent);
+}
+
+.card-rarity-strip-legendary {
+  background: linear-gradient(90deg, #c084fc, #818cf8, #38bdf8, #c084fc);
+  background-size: 200% 100%;
+  animation: cardLegendaryBorder 3.5s linear infinite;
+  height: 3px;
+}
+
+/* ── 크리스탈 패싯 (우상단 코너 장식) ──────────────────────── */
+.card-crystal-facet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  pointer-events: none;
+  z-index: 1;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  opacity: 0.55;
+}
+
+.card-crystal-facet-type-attack {
+  background: linear-gradient(225deg, rgba(255, 85, 119, 0.35), transparent 65%);
+}
+
+.card-crystal-facet-type-skill {
+  background: linear-gradient(225deg, rgba(80, 200, 255, 0.3), transparent 65%);
+}
+
+.card-crystal-facet-type-power {
+  background: linear-gradient(225deg, rgba(240, 180, 41, 0.3), transparent 65%);
+}
+
+/* ── 강화 배지 ✦ ────────────────────────────────────────────── */
+.card-upgraded-badge {
+  position: absolute;
+  bottom: 29px;
+  right: 6px;
+  width: 17px;
+  height: 17px;
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.22), rgba(0, 255, 204, 0.1));
+  border: 1px solid rgba(0, 255, 204, 0.75);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--cyan);
+  box-shadow: 0 0 7px rgba(0, 255, 204, 0.45);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 강화 카드 — 테두리/글로우 (인라인 스타일 대체) */
+.card.card-upgraded {
+  border-width: 2px !important;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 16px rgba(0, 255, 204, 0.5), inset 0 0 10px rgba(0, 255, 204, 0.12) !important;
+}
+
+.card.card-upgraded:hover,
+.card.card-upgraded.playable:hover {
+  box-shadow: 0 0 26px rgba(0, 255, 204, 0.7), inset 0 0 14px rgba(0, 255, 204, 0.18) !important;
+}
+
+/* ── 코스트 젬 상태별 스타일 ──────────────────────────────── */
+.card-cost-free {
+  background: rgba(0, 200, 140, 0.28) !important;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.55) !important;
+  color: var(--cyan) !important;
+}
+
+.card-cost-discounted {
+  background: rgba(0, 200, 100, 0.22) !important;
+  border-color: rgba(0, 255, 136, 0.7) !important;
+  box-shadow: 0 0 8px rgba(0, 255, 100, 0.45) !important;
+  color: #00ff88 !important;
+}
+
+/* FREE / 할인 서브배지 (코스트 위 작은 텍스트) */
+.card-cost-sub {
+  position: absolute;
+  top: -5px;
+  left: -3px;
+  font-size: 6.5px;
+  font-family: 'Share Tech Mono', monospace;
+  background: rgba(0, 20, 12, 0.92);
+  border-radius: 3px;
+  padding: 1px 2px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 3;
+  color: inherit;
+}
+
+/* ── 태그 컨테이너 ──────────────────────────────────────────── */
+.card-tags {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 5px;
+  margin-top: 2px;
+  min-height: 14px;
+}
+
+.card-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.07em;
+  padding: 1px 4px;
+  border-radius: 3px;
+  line-height: 1.5;
+}
+
+/* [소진] — 주황 */
+.card-tag-exhaust {
+  color: #ff8844;
+  background: rgba(255, 136, 68, 0.1);
+  border: 1px solid rgba(255, 136, 68, 0.38);
+}
+
+/* [지속] — 청록 */
+.card-tag-persistent {
+  color: var(--cyan);
+  background: rgba(0, 255, 204, 0.08);
+  border: 1px solid rgba(0, 255, 204, 0.32);
+}
+
+/* [즉시] — 골드 */
+.card-tag-instant {
+  color: var(--gold);
+  background: rgba(240, 180, 41, 0.08);
+  border: 1px solid rgba(240, 180, 41, 0.32);
+}
+
+/* ── 에너지 부족 오버레이 ────────────────────────────────────── */
+.card-no-energy {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* 사용 불가 카드에서만 오버레이 표시 */
+.card:not(.playable) .card-no-energy {
+  opacity: 1;
+}
+
+.card-no-energy-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 90, 90, 0.7);
+  background: rgba(0, 0, 0, 0.58);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 80, 80, 0.2);
+}
+
+/* 사용 불가 카드 — 전체 투명도/채도 낮춤 */
+.card:not(.playable) {
+  opacity: 0.55;
+  filter: saturate(0.5);
+}
+
+/* ── 파티클 (Rare / Legendary) ──────────────────────────────── */
+.card-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: cardParticleFloat linear infinite;
+}
+
+@keyframes cardParticleFloat {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0) scale(0.55);
+  }
+
+  12% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift-x, 0px), calc(var(--rise-y, 32px) * -1), 0) scale(1.2);
+  }
+}
+
+/* ── Uncommon 쉬머 애니메이션 ───────────────────────────────── */
+.card.rarity-uncommon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(123, 47, 255, 0.12) 50%, transparent 70%);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  animation: cardShimmer 4.5s 1s infinite ease-in-out;
+}
+
+/* Legendary 쉬머는 별도 처리 (기존 rare shimmer와 충돌 방지) */
+.card.rarity-legendary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(192, 132, 252, 0.14) 50%, transparent 70%);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  animation: cardShimmer 3.8s 0.5s infinite ease-in-out;
+}
+
+/* ── 설명 텍스트 키워드 컬러 (DescriptionUtils 연동) ──────── */
+/* 손패 카드 내 desc 표시 개선: 호버 시 desc 표시 */
+#combatHandCards .card .card-desc {
+  display: block;
+  font-size: 11px;
+  line-height: 1.38;
+  max-height: none;
+}
+
+/* kw-* 클래스는 description_utils.js 에서 생성됨 */
+#combatHandCards .card .kw-dmg {
+  color: #ff6677;
+  font-weight: 600;
+}
+
+#combatHandCards .card .kw-shield {
+  color: #60c8ff;
+  font-weight: 600;
+}
+
+#combatHandCards .card .kw-heal {
+  color: #44ee88;
+  font-weight: 600;
+}
+
+#combatHandCards .card .kw-echo {
+  color: #b080ff;
+  font-weight: 600;
+}
+
+#combatHandCards .card .kw-energy {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+#combatHandCards .card .kw-draw {
+  color: #66dd66;
+  font-weight: 600;
+}
+
+#combatHandCards .card .kw-exhaust.kw-block {
+  color: #ff8844;
+  background: rgba(255, 136, 68, 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+#combatHandCards .card .kw-buff.kw-block {
+  color: var(--cyan);
+  background: rgba(0, 255, 204, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+#combatHandCards .card .kw-burst.kw-block {
+  color: var(--gold);
+  background: rgba(240, 180, 41, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD CLONE — ×2.0 호버 클론 스타일
+   card_redesign.css 와 함께 로드. CSS 변수(--cyan, --gold 등)는
+   기존 :root 정의를 그대로 사용.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 클론 고정 레이어 — position:fixed, opacity 상속 완전 차단 ── */
+#handCardCloneLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  /* opacity:1 고정 → 부모 카드의 dim 상태가 클론에 전달되지 않음 */
+}
+
+/* ── 원본 카드 dim 상태 (클론 표시 중) ─────────────────────── */
+/* card_redesign.css 의 transition 과 충돌하지 않도록 별도 클래스 */
+#combatHandCards .card.card-clone-dimmed {
+  opacity: 0.42 !important;
+  filter: saturate(0.5) brightness(0.68) !important;
+}
+
+/* 클론 표시 중 손패 배경 글로우 */
+#combatHandCards.has-active-clone {
+  background: radial-gradient(ellipse 60% 40% at 50% 100%,
+      rgba(80, 40, 160, 0.1) 0%,
+      transparent 70%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   카드 클론 베이스 (200 × 292 px = 원본 ×2.0)
+   ═══════════════════════════════════════════════════════════════ */
+.card-clone {
+  /* CloneManager 가 top/left 를 런타임에 주입 */
+  position: fixed;
+  width: 200px;
+  height: 292px;
+  border-radius: 16px;
+  border: 2px solid rgba(80, 70, 130, 0.4);
+  background: linear-gradient(160deg, rgba(18, 12, 32, 0.99), rgba(8, 5, 18, 0.999));
+  pointer-events: none;
+  box-shadow:
+    0 -14px 55px rgba(0, 0, 0, 0.88),
+    0 6px 22px rgba(0, 0, 0, 0.60),
+    0 0 28px rgba(60, 40, 120, 0.28);
+
+  /* 등장 애니메이션 초기값 — scale 만 사용 (translateY 제거로 파티클 기준점 통일) */
+  opacity: 0;
+  transform: scale(0.88);
+  transform-origin: bottom center;
+  transition:
+    opacity 0.18s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px 14px;
+}
+
+/* 완전 표시 상태 */
+.card-clone.card-clone-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── 등급별 테두리 / 배경 ───────────────────────────────────── */
+.card-clone.clone-rarity-uncommon {
+  border-color: rgba(123, 47, 255, 0.55) !important;
+}
+
+.card-clone.clone-rarity-rare {
+  border-color: rgba(240, 180, 41, 0.6) !important;
+  background: linear-gradient(150deg, rgba(20, 14, 4, 0.98), rgba(10, 6, 2, 0.999)) !important;
+}
+
+.card-clone.clone-rarity-legendary {
+  border-color: rgba(192, 132, 252, 0.65) !important;
+  background: linear-gradient(150deg, rgba(18, 6, 28, 0.98), rgba(10, 2, 18, 0.999)) !important;
+  animation: cardLegendaryPulse 3s ease-in-out infinite;
+}
+
+/* ── 강화 클론 ─────────────────────────────────────────────── */
+.card-clone.clone-upgraded {
+  border-color: var(--cyan) !important;
+  box-shadow:
+    0 -14px 55px rgba(0, 0, 0, 0.88),
+    0 0 32px rgba(0, 255, 204, 0.38),
+    inset 0 0 22px rgba(0, 255, 204, 0.09) !important;
+}
+
+/* ── Legendary 레인보우 테두리 ─────────────────────────────── */
+.card-clone-legendary-border {
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #c084fc, #818cf8, #38bdf8, #a78bfa, #c084fc);
+  background-size: 300% 300%;
+  animation: cardLegendaryBorder 3.5s linear infinite;
+  /* card_redesign.css 에 정의됨 */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── 상단 컬러 스트립 ──────────────────────────────────────── */
+.card-clone-rarity-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card-clone-rarity-strip-uncommon {
+  height: 3px;
+  /* 원본 2px × ≈1.5 */
+  background: linear-gradient(90deg, transparent, rgba(123, 47, 255, 0.8), transparent);
+}
+
+.card-clone-rarity-strip-rare {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(240, 180, 41, 0.9), transparent);
+}
+
+.card-clone-rarity-strip-legendary {
+  height: 4px;
+  background: linear-gradient(90deg, #c084fc, #818cf8, #38bdf8, #c084fc);
+  background-size: 200% 100%;
+  animation: cardLegendaryBorder 3.5s linear infinite;
+}
+
+/* ── 크리스탈 패싯 (우상단 코너 장식) ─────────────────────── */
+.card-clone-crystal-facet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  /* 원본 38px × ≈1.58 */
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-clone-crystal-facet-type-attack {
+  background: linear-gradient(225deg, rgba(255, 85, 119, 0.35), transparent 65%);
+}
+
+.card-clone-crystal-facet-type-skill {
+  background: linear-gradient(225deg, rgba(80, 200, 255, 0.3), transparent 65%);
+}
+
+.card-clone-crystal-facet-type-power {
+  background: linear-gradient(225deg, rgba(240, 180, 41, 0.3), transparent 65%);
+}
+
+/* ── 코스트 젬 ─────────────────────────────────────────────── */
+.card-clone-cost {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(40, 30, 60, 0.9);
+  border: 1.5px solid rgba(100, 80, 160, 0.5);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cyan);
+  z-index: 2;
+}
+
+.card-clone-cost.card-clone-cost-free {
+  background: rgba(0, 200, 140, 0.28) !important;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 12px rgba(0, 255, 204, 0.5) !important;
+}
+
+.card-clone-cost.card-clone-cost-discounted {
+  background: rgba(0, 200, 100, 0.22) !important;
+  border-color: rgba(0, 255, 136, 0.7) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 100, 0.4) !important;
+  color: #00ff88 !important;
+}
+
+/* FREE / 할인 서브배지 (코스트 젬 위) */
+.card-clone-cost-sub {
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  font-size: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  background: rgba(0, 20, 12, 0.92);
+  border-radius: 3px;
+  padding: 1px 2px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 3;
+  color: inherit;
+}
+
+/* ── 강화 배지 ✦ ──────────────────────────────────────────── */
+.card-clone-upgraded-badge {
+  position: absolute;
+  bottom: 44px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.22), rgba(0, 255, 204, 0.1));
+  border: 1.5px solid rgba(0, 255, 204, 0.75);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--cyan);
+  box-shadow: 0 0 9px rgba(0, 255, 204, 0.45);
+  z-index: 3;
+}
+
+/* ── 아이콘 ────────────────────────────────────────────────── */
+.card-clone-icon {
+  font-size: 62px;
+  margin: 6px 0 4px;
+  z-index: 1;
+  line-height: 1;
+}
+
+/* ── 이름 ──────────────────────────────────────────────────── */
+.card-clone-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(230, 220, 255, 0.95);
+  text-align: center;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  z-index: 1;
+}
+
+/* ── 구분선 ────────────────────────────────────────────────── */
+.card-clone-divider {
+  width: 75%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120, 90, 200, 0.45), transparent);
+  margin: 0 0 9px;
+  flex-shrink: 0;
+}
+
+/* ── 설명 텍스트 ────────────────────────────────────────────── */
+.card-clone-desc {
+  font-size: 11.5px;
+  line-height: 1.58;
+  color: rgba(200, 190, 230, 0.88);
+  text-align: center;
+  padding: 0 4px;
+  z-index: 1;
+  flex: 1;
+}
+
+/* 클론 내 kw-* 키워드 컬러 — card_redesign.css 와 동일 패턴 적용 */
+.card-clone-desc .kw-dmg {
+  color: #ff6677;
+  font-weight: 600;
+}
+
+.card-clone-desc .kw-shield {
+  color: #60c8ff;
+  font-weight: 600;
+}
+
+.card-clone-desc .kw-heal {
+  color: #44ee88;
+  font-weight: 600;
+}
+
+.card-clone-desc .kw-echo {
+  color: #b080ff;
+  font-weight: 600;
+}
+
+.card-clone-desc .kw-energy {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.card-clone-desc .kw-draw {
+  color: #66dd66;
+  font-weight: 600;
+}
+
+.card-clone-desc .kw-exhaust.kw-block {
+  color: #ff8844;
+  background: rgba(255, 136, 68, 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+.card-clone-desc .kw-buff.kw-block {
+  color: var(--cyan);
+  background: rgba(0, 255, 204, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+.card-clone-desc .kw-burst.kw-block {
+  color: var(--gold);
+  background: rgba(240, 180, 41, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+/* ── 태그 (card_redesign.css 의 tag 클래스 재활용) ─────────── */
+.card-clone-tags {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 5px;
+  z-index: 1;
+}
+
+/* 클론 태그는 기존 .card-tag, .card-tag-exhaust 등을 그대로 재사용 */
+.card-clone-tags .card-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+/* ── 카드 타입 ──────────────────────────────────────────────── */
+.card-clone-type {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(120, 110, 160, 0.7);
+  z-index: 1;
+}
+
+.card-clone-type.card-type-attack {
+  color: rgba(255, 100, 110, 0.8);
+}
+
+.card-clone-type.card-type-skill {
+  color: rgba(80, 190, 255, 0.8);
+}
+
+.card-clone-type.card-type-power {
+  color: rgba(240, 180, 41, 0.8);
+}
+
+/* 기존 클론 전용 파티클 클래스와 애니메이션(.card-clone-particles 등)은 통합 파티클 렌더러로 교체되며 삭제됨 */
+
+/* ── 화살표 (클론 → 원본 카드 연결) ────────────────────────── */
+.card-clone-arrow {
+  position: absolute;
+  bottom: -10px;
+  /* left 는 CloneManager 가 런타임에 주입 */
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid rgba(80, 70, 130, 0.45);
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.card-clone.clone-rarity-uncommon .card-clone-arrow {
+  border-top-color: rgba(123, 47, 255, 0.50);
+}
+
+.card-clone.clone-rarity-rare .card-clone-arrow {
+  border-top-color: rgba(240, 180, 41, 0.55);
+}
+
+.card-clone.clone-rarity-legendary .card-clone-arrow {
+  border-top-color: rgba(192, 132, 252, 0.60);
+}
+
+.card-clone.clone-upgraded .card-clone-arrow {
+  border-top-color: rgba(0, 255, 204, 0.60) !important;
+}

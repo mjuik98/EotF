@@ -1,8 +1,9 @@
 'use strict';
 
 export const HAND_CARD_RARITY_BORDER_COLORS = Object.freeze({
-  rare: 'rgba(240,180,41,0.5)',
-  uncommon: 'rgba(123,47,255,0.5)',
+  uncommon:  'rgba(123,47,255,0.5)',
+  rare:      'rgba(240,180,41,0.5)',
+  legendary: 'rgba(192,132,252,0.6)',
 });
 
 export const DECK_MODAL_RARITY_BORDER_COLORS = Object.freeze({

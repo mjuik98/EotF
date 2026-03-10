@@ -1,0 +1,27 @@
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('../game/ui/title/run_end_screen_runtime.js', () => ({
+  initRunEndScreenRuntime: vi.fn(),
+  showRunEndScreenRuntime: vi.fn(),
+  closeRunEndScreenRuntime: vi.fn(),
+  destroyRunEndScreenRuntime: vi.fn(),
+}));
+
+describe('RunEndScreenUI facade', () => {
+  it('delegates constructor setup and instance methods to the extracted runtime helper', async () => {
+    const runtime = await import('../game/ui/title/run_end_screen_runtime.js');
+    const { RunEndScreenUI } = await import('../game/ui/title/run_end_screen_ui.js');
+    const summary = { outcome: 'victory' };
+    const classInfo = { title: 'Mage' };
+    const ui = new RunEndScreenUI({ doc: { createElement: vi.fn(), body: { appendChild: vi.fn() }, addEventListener: vi.fn() } });
+
+    ui.show(summary, classInfo);
+    ui.close();
+    ui.destroy();
+
+    expect(runtime.initRunEndScreenRuntime).toHaveBeenCalledWith(ui);
+    expect(runtime.showRunEndScreenRuntime).toHaveBeenCalledWith(ui, summary, classInfo);
+    expect(runtime.closeRunEndScreenRuntime).toHaveBeenCalledWith(ui);
+    expect(runtime.destroyRunEndScreenRuntime).toHaveBeenCalledWith(ui);
+  });
+});
