@@ -2947,3 +2947,130 @@ Original prompt:
   - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
 - Suggested next refactor / hardening target:
   - `character_select_ui.js` still owns the particle engine and modal/summary replay flow. The next clean pass should extract either `initCardFX(...)` or the run-summary/modal orchestration so the mount body keeps shrinking symmetrically.
+- Character select card FX extraction (`game/ui/title/character_select_fx.js`, `game/ui/title/character_select_ui.js`):
+  - Added `setupCharacterCardFx(...)` to own hover tilt, foil-gradient positioning, mouseleave reset, and listener cleanup for the select card.
+  - Updated `character_select_ui.js` to delegate card FX setup to the helper and dispose the returned cleanup during `destroy()`.
+- Added regression coverage:
+  - Added `tests/character_select_fx.test.js` to verify:
+    - hover tilt and foil gradient coordinates are applied from card bounds
+    - mouseleave reset and listener cleanup behavior
+- Validation:
+  - `npm test -- tests/character_select_fx.test.js tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4208`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `character_select_ui.js` still owns the particle engine plus run-summary / level-up replay flow. The next clean pass should extract one of those orchestration stacks into a dedicated runtime helper.
+- Character select summary replay helper extraction (`game/ui/title/character_select_summary_replay.js`, `game/ui/title/character_select_ui.js`):
+  - Added `createCharacterSummaryReplay(...)` to own pending-summary consumption, run-end screen presentation, chained level-up popups, and replay-finish rerender scheduling.
+  - Wired `CharacterSelectUI.showPendingSummaries()` through the new helper so the active replay entry path no longer depends on the inline logic in `character_select_ui.js`.
+  - Residual note: the old local replay wrapper functions still remain in `character_select_ui.js`; they are now secondary and can be removed in the next cleanup pass once the helper wiring is fully inlined.
+- Added regression coverage:
+  - Added `tests/character_select_summary_replay.test.js` to verify:
+    - pending summaries chain from run-end screen into multi-level level-up popups and finish by rerendering
+    - fallback bonus text and replay guard behavior
+- Validation:
+  - `npm test -- tests/character_select_summary_replay.test.js tests/character_select_fx.test.js tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/title_settings_bindings.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4209`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - Finish the summary cleanup by deleting the now-redundant local replay wrappers, or move to the particle engine (`Particle` + `initParticles(...)`) if you want the next bigger extraction.
+- Character select particle runtime extraction and summary wrapper cleanup (`game/ui/title/character_select_particles.js`, `game/ui/title/character_select_ui.js`):
+  - Added `createCharacterParticleRuntime(...)` to own particle seeding, canvas sizing, render-loop scheduling, and RAF cleanup for the select screen background FX.
+  - Updated `character_select_ui.js` so `updateAll()` now calls `particleRuntime.start(...)` and `destroy()` calls `particleRuntime.stop()`.
+  - Removed the legacy inline particle implementation (`hexToRgbChannels`, `Particle`, local `initParticles(...)`) from `character_select_ui.js`.
+  - Finished the previous summary cleanup by deleting the redundant local replay wrappers; `showPendingSummaries()` now reaches the extracted summary helper path directly.
+- Added regression coverage:
+  - Added `tests/character_select_particles.test.js` to verify:
+    - particle canvas sizing, first-frame render, and RAF scheduling
+    - graceful stop behavior when canvas/context are missing
+- Validation:
+  - `npm test -- tests/character_select_particles.test.js tests/character_select_summary_replay.test.js tests/character_select_fx.test.js tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/title_settings_bindings.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4210`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - `character_select_ui.js` is now mostly orchestration plus modal markup. The next clean pass should extract the skill-tree modal (`openModal` / `closeModal`) or go one level up and add a thin facade test around the remaining mount/runtime surface.
+- Character select skill modal extraction (`game/ui/title/character_select_modal.js`, `game/ui/title/character_select_ui.js`):
+  - Added `openCharacterSkillModal(...)` and `closeCharacterSkillModal(...)` to own skill-tree modal markup, accent styling, echo-cost labeling, and close wiring.
+  - Updated `character_select_ui.js` so `openModal(...)` / `closeModal(...)` now just delegate state + DOM access through the extracted helper.
+- Added regression coverage:
+  - Added `tests/character_select_modal.test.js` to verify:
+    - echo skill modal markup, open class application, and close button/backdrop wiring
+    - modal close resets `activeSkill` and removes the open state
+- Validation:
+  - `npm test -- tests/character_select_modal.test.js tests/character_select_particles.test.js tests/character_select_summary_replay.test.js tests/character_select_fx.test.js tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/title_settings_bindings.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4211`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - `character_select_ui.js` is now close to a facade. The next pass should add a thin mount/runtime facade test or extract the remaining visibility/navigation orchestration (`setVisible`, `go`, `jumpTo`, `handleConfirm`).
+- Character select flow extraction and facade coverage (`game/ui/title/character_select_flow.js`, `game/ui/title/character_select_ui.js`):
+  - Added `setCharacterSelectVisibility(...)` and `createCharacterSelectFlow(...)` to own select-card visibility transitions, left/right navigation, dot jumping, and confirm/burst/done sequencing.
+  - Updated `character_select_ui.js` so dots, confirm button, and keyboard bindings all route through the extracted flow helper.
+- Added facade coverage:
+  - Added `tests/character_select_ui_facade.test.js` to lock the thin public runtime surface (`onEnter`, `showPendingSummaries`) to delegated `_runtime` methods and no-op behavior when unmounted.
+- Added regression coverage:
+  - Added `tests/character_select_flow.test.js` to verify:
+    - visibility style transitions for card/info panel
+    - timer-driven nav/jump/confirm sequencing and callback delivery
+- Validation:
+  - `npm test -- tests/character_select_flow.test.js tests/character_select_ui_facade.test.js tests/character_select_modal.test.js tests/character_select_particles.test.js tests/character_select_summary_replay.test.js tests/character_select_fx.test.js tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/title_settings_bindings.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4212`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - `character_select_ui.js` is now essentially orchestration plus mount wiring. The next logical move is either a final mount-focused facade test or switching to the next large title/UI module.
+- Character select mount facade coverage (`tests/character_select_ui_mount.test.js`):
+  - Added a mount-focused wiring test that mocks the extracted helpers and verifies `CharacterSelectUI.mount(...)`:
+    - builds the helper graph with the expected deps
+    - performs the initial render/update pass
+    - exposes `_runtime` entry points for `onEnter()` and `showPendingSummaries()`
+    - runs destroy cleanup for bindings, card FX, particle runtime, level-up popup, and run-end screen
+- Validation:
+  - `npm test -- tests/character_select_ui_mount.test.js tests/character_select_flow.test.js tests/character_select_ui_facade.test.js tests/character_select_modal.test.js tests/character_select_particles.test.js tests/character_select_summary_replay.test.js tests/character_select_fx.test.js tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js tests/title_settings_bindings.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4213`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - The character select path is now effectively closed out. The next productive module is another large title/UI surface such as `title_canvas_ui.js` or `class_select_ui.js`, depending on whether you want visual orchestration cleanup or run-mode/title flow cleanup next.
+- Title canvas runtime extraction (`game/ui/title/title_canvas_runtime.js`, `game/ui/title/title_canvas_ui.js`):
+  - Added `createTitleCanvasRuntime(...)` to own star/particle state, viewport resize handling, animation loop scheduling, and RAF cleanup.
+  - Simplified `title_canvas_ui.js` into a thin facade that resolves `#titleCanvas`, creates the runtime, and delegates `init/resize/animate/stop`.
+- Added regression coverage:
+  - Added `tests/title_canvas_runtime.test.js` to verify:
+    - initial canvas sizing, resize binding, first-frame draw, and RAF scheduling
+    - retry path when the canvas remains too small before animation starts
+  - Added `tests/title_canvas_ui_facade.test.js` to verify the public `TitleCanvasUI` surface delegates to the extracted runtime helper.
+- Validation:
+  - `npm test -- tests/title_canvas_runtime.test.js tests/title_canvas_ui_facade.test.js tests/character_select_ui_mount.test.js tests/title_settings_bindings.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4214`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - The next large title/UI module is `class_select_ui.js`; the clean first pass there is extracting tooltip DOM ownership (`_showTooltip` / `_hideTooltip`) or button rendering from selection state mutations.
+- Class select helper extraction (`game/ui/title/class_select_selection_ui.js`, `game/ui/title/class_select_tooltip_ui.js`, `game/ui/title/class_select_buttons_ui.js`, `game/ui/title/class_select_ui.js`):
+  - Added `class_select_selection_ui.js` for class-id normalization, selection state mutation, button selection animation, and clear/reset behavior.
+  - Added `class_select_tooltip_ui.js` for tooltip DOM ownership, positioning, and hide behavior.
+  - Added `class_select_buttons_ui.js` for button markup generation and trait/relic tooltip wiring.
+  - Simplified `class_select_ui.js` into a facade that owns only `_selectedClass` state and delegates selection, tooltip, and rendering responsibilities to the extracted helpers.
+- Added regression coverage:
+  - `tests/class_select_selection_ui.test.js` covers normalization, selection state application, select-by-button, select-by-id, and clear behavior.
+  - `tests/class_select_tooltip_ui.test.js` covers tooltip creation, positioning, and hide behavior.
+  - `tests/class_select_buttons_ui.test.js` covers button markup and trait/relic tooltip wiring.
+  - `tests/class_select_ui_facade.test.js` covers public facade delegation.
+- Validation:
+  - `npm test -- tests/class_select_selection_ui.test.js tests/class_select_tooltip_ui.test.js tests/class_select_buttons_ui.test.js tests/class_select_ui_facade.test.js tests/title_settings_bindings.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4215`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - The title screen path is now heavily decomposed. The next productive target is a different remaining large screen/controller rather than another title helper split.
