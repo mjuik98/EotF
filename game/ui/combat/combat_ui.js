@@ -1,10 +1,8 @@
-import { StatusTooltipUI } from './status_tooltip_builder.js';
 import {
   hideEnemyStatusTooltipOverlay,
   showEnemyStatusTooltipOverlay,
 } from './combat_enemy_status_tooltip_ui.js';
 import {
-  cleanupEnemyIntentTooltip,
   hideEnemyIntentTooltip,
   showEnemyIntentTooltip,
 } from './combat_intent_ui.js';
@@ -15,15 +13,16 @@ import {
 import { createEnemyCardView, updateEnemyCardView, updateEnemyHpView } from './combat_enemy_card_ui.js';
 import { buildEnemyViewModel } from './combat_enemy_view_model_ui.js';
 import { buildEnemyHpUpdateViewModel, syncCombatEnemyFloatingTooltips } from './combat_enemy_runtime_ui.js';
+import {
+  buildCombatEnemyHandlers,
+  cleanupCombatTooltips,
+  renderCombatEnemyList,
+} from './combat_ui_runtime_helpers.js';
 
 export { ENEMY_STATUS_DESC, ENEMY_STATUS_KR };
 
 function _getDoc(deps) {
   return deps?.doc || document;
-}
-
-function _getWin(deps) {
-  return deps?.win || window;
 }
 
 export function resolveEnemyStatusTooltipMetrics(_statusKey, statusValue) {
@@ -58,11 +57,7 @@ export const CombatUI = {
   },
 
   cleanupAllTooltips(deps = {}) {
-    const doc = _getDoc(deps);
-    StatusTooltipUI.hide({ doc });
-
-    doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-    cleanupEnemyIntentTooltip({ ...deps, doc });
+    cleanupCombatTooltips({ ...deps, doc: _getDoc(deps) });
   },
 
   renderCombatEnemies(deps = {}) {
@@ -74,35 +69,19 @@ export const CombatUI = {
     const zone = doc.getElementById('enemyZone');
     if (!zone) return;
 
-    const handlers = {
-      onShowStatusTooltip: this.showEnemyStatusTooltip,
-      onHideStatusTooltip: this.hideEnemyStatusTooltip,
-      onShowIntentTooltip: this.showIntentTooltip,
-      onHideIntentTooltip: this.hideIntentTooltip,
-    };
-
-    const existing = zone.querySelectorAll('.enemy-card');
-    const expectedCount = gs.combat.enemies.length;
-    const needsFullRender = deps.forceFullRender || existing.length !== expectedCount || existing.length === 0;
-
-    if (needsFullRender) {
-      this.cleanupAllTooltips({ doc, win: _getWin(deps) });
-      zone.textContent = '';
-      gs.combat.enemies.forEach((enemy, index) => {
-        if (!enemy || !enemy.ai) return;
-        const viewModel = buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers });
-        zone.appendChild(createEnemyCardView(viewModel));
-      });
-    } else {
-      gs.combat.enemies.forEach((enemy, index) => {
-        if (!enemy) return;
-        const viewModel = buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers });
-        if (!gs.combat.playerTurn) viewModel.previewText = '';
-        updateEnemyCardView(viewModel);
-      });
-    }
-
-    syncCombatEnemyFloatingTooltips(doc);
+    renderCombatEnemyList({
+      createEnemyCardView,
+      data,
+      deps,
+      doc,
+      buildEnemyViewModel,
+      gs,
+      handlers: buildCombatEnemyHandlers(this),
+      syncCombatEnemyFloatingTooltips,
+      ui: this,
+      updateEnemyCardView,
+      zone,
+    });
   },
 
   updateEnemyHpUI(idx, enemy, deps = {}) {

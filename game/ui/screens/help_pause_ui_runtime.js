@@ -6,6 +6,10 @@ import {
   isVisibleModal,
   resolveGs,
 } from './help_pause_ui_helpers.js';
+import {
+  cycleNextTarget,
+  handleEscapeHotkey,
+} from './help_pause_hotkeys_runtime_ui.js';
 
 export function saveRunBeforeReturn(deps = {}) {
   const gs = resolveGs(deps);
@@ -72,116 +76,6 @@ export function createPauseMenuCallbacks({ deps = {}, ui }) {
   };
 }
 
-function closeOverlayOnEscape(event, element, onClose) {
-  if (!element) return false;
-  swallowEscape(event);
-  onClose();
-  return true;
-}
-
-function closeVisibleModalById(event, doc, id, onClose) {
-  const el = doc.getElementById(id);
-  if (!isVisibleModal(el, doc)) return false;
-  swallowEscape(event);
-  onClose(el);
-  return true;
-}
-
-function cycleNextTarget(gs, deps) {
-  const enemies = gs?.combat?.enemies || [];
-  const aliveIndices = enemies
-    .map((enemy, idx) => (enemy.hp > 0 ? idx : -1))
-    .filter((idx) => idx >= 0);
-
-  if (aliveIndices.length <= 1) return;
-
-  const cur = aliveIndices.indexOf(gs._selectedTarget ?? -1);
-  gs._selectedTarget = aliveIndices[(cur + 1) % aliveIndices.length];
-  if (typeof gs?.addLog === 'function') {
-    gs.addLog(`🎯 대상: ${enemies[gs._selectedTarget].name}`, 'system');
-  }
-  if (typeof deps.renderCombatEnemies === 'function') {
-    deps.renderCombatEnemies();
-  }
-}
-
-function handleEscapeHotkey(event, { deps, doc, gs, ui }) {
-  const pauseMenu = doc.getElementById('pauseMenu');
-  if (isVisibleModal(pauseMenu, doc)) {
-    swallowEscape(event);
-    ui.togglePause(deps);
-    return true;
-  }
-
-  if (closeVisibleModalById(event, doc, 'fullMapOverlay', (overlay) => {
-    if (typeof overlay._closeFullMap === 'function') overlay._closeFullMap();
-    else overlay.remove();
-  })) {
-    return true;
-  }
-
-  if (closeVisibleModalById(event, doc, 'battleChronicleOverlay', () => {
-    if (typeof deps.closeBattleChronicle === 'function') deps.closeBattleChronicle();
-    else globalThis.GAME?.API?.closeBattleChronicle?.();
-  })) {
-    return true;
-  }
-
-  if (closeOverlayOnEscape(event, doc.getElementById('returnTitleConfirm'), () => {
-    doc.getElementById('returnTitleConfirm')?.remove();
-  })) {
-    return true;
-  }
-
-  if (closeOverlayOnEscape(event, doc.getElementById('abandonConfirm'), () => {
-    doc.getElementById('abandonConfirm')?.remove();
-  })) {
-    return true;
-  }
-
-  const helpMenu = doc.getElementById('helpMenu');
-  if (helpMenu && helpMenu.style.display !== 'none') {
-    swallowEscape(event);
-    ui.toggleHelp(deps);
-    return true;
-  }
-
-  if (closeVisibleModalById(event, doc, 'deckViewModal', () => {
-    if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
-  })) {
-    return true;
-  }
-
-  if (closeVisibleModalById(event, doc, 'codexModal', () => {
-    if (typeof deps.closeCodex === 'function') deps.closeCodex();
-  })) {
-    return true;
-  }
-
-  if (closeVisibleModalById(event, doc, 'runSettingsModal', () => {
-    if (typeof deps.closeRunSettings === 'function') deps.closeRunSettings();
-  })) {
-    return true;
-  }
-
-  if (closeVisibleModalById(event, doc, 'settingsModal', () => {
-    if (typeof deps.closeSettings === 'function') deps.closeSettings();
-    else globalThis.GAME?.API?.closeSettings?.();
-  })) {
-    return true;
-  }
-
-  const inGame = isInGame(gs) || isCombatOverlayActive(doc);
-  const isTitle = gs?.currentScreen === 'title';
-  if (inGame && !ui.isHelpOpen()) {
-    swallowEscape(event);
-    ui.togglePause(deps);
-    return true;
-  }
-
-  return isTitle;
-}
-
 export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
   const gs = resolveGs(deps);
   const keyPause = getKeybindingCode('pause', 'Escape');
@@ -200,7 +94,7 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
 
   if (isEscapeKey || isPauseKey) {
     if (event.repeat) return;
-    if (handleEscapeHotkey(event, { deps, doc, gs, ui })) return;
+    if (handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape })) return;
   }
 
   const inGame = isInGame(gs) || isCombatOverlayActive(doc);

@@ -1,3 +1,9 @@
+import {
+  applyCodexModalOpen,
+  runCodexModalClose,
+  runCodexTabTransition,
+} from './codex_ui_controller_helpers.js';
+
 export function createCodexUiState() {
   return {
     tab: 'enemies',
@@ -29,39 +35,12 @@ export function resetCodexUiState(state, deps = null) {
 
 export function showCodexModal(doc) {
   const modal = doc?.getElementById?.('codexModal');
-  if (!modal) return null;
-  modal.classList.remove('fade-out');
-  modal.style.display = 'flex';
-  modal.classList.add('fade-in');
-  return modal;
+  return applyCodexModalOpen(modal);
 }
 
 export function closeCodexModal(doc, options = {}) {
   const modal = doc?.getElementById?.('codexModal');
-  if (!modal) return false;
-
-  const {
-    onBeforeHide,
-    timeoutMs = 300,
-    setTimeoutFn = setTimeout,
-  } = options;
-
-  onBeforeHide?.();
-  modal.classList.remove('fade-in');
-  modal.classList.add('fade-out');
-
-  const onEnd = () => {
-    modal.style.display = 'none';
-    modal.classList.remove('fade-out');
-    modal.removeEventListener?.('animationend', onEnd);
-  };
-
-  modal.addEventListener?.('animationend', onEnd);
-  setTimeoutFn(() => {
-    if (modal.style.display !== 'none') onEnd();
-  }, timeoutMs);
-
-  return true;
+  return runCodexModalClose(modal, options);
 }
 
 export function setCodexPopupNavigation(state, currentEntry, list, openFn) {
@@ -92,52 +71,5 @@ export function navigateCodexPopup(state, dir) {
 }
 
 export function transitionCodexTab(doc, state, nextTab, options = {}) {
-  const {
-    force = false,
-    onBeforeRender,
-    onRender,
-  } = options;
-
-  if (nextTab === state.tab && !force) return false;
-
-  state.filter = 'all';
-  state.search = '';
-
-  const searchInput = doc?.getElementById?.('cxSearch');
-  if (searchInput) searchInput.value = '';
-
-  if (state.isTransitioning) {
-    state.tab = nextTab;
-    onBeforeRender?.(nextTab);
-    onRender?.(nextTab);
-    return true;
-  }
-
-  state.isTransitioning = true;
-  state.tab = nextTab;
-  onBeforeRender?.(nextTab);
-
-  const content = doc?.getElementById?.('codexContent');
-  if (!content) {
-    onRender?.(nextTab);
-    state.isTransitioning = false;
-    return true;
-  }
-
-  content.classList.add('cx-tab-exit');
-  const onExit = () => {
-    content.classList.remove('cx-tab-exit');
-    content.removeEventListener?.('animationend', onExit);
-    onRender?.(nextTab);
-    content.classList.add('cx-tab-enter');
-    const onEnter = () => {
-      content.classList.remove('cx-tab-enter');
-      content.removeEventListener?.('animationend', onEnter);
-      state.isTransitioning = false;
-    };
-    content.addEventListener?.('animationend', onEnter);
-  };
-  content.addEventListener?.('animationend', onExit);
-
-  return true;
+  return runCodexTabTransition(doc, state, nextTab, options);
 }

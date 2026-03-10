@@ -8,29 +8,16 @@ import {
   buildCodexQuoteBlock,
   buildEnemyPopupPayload,
   buildItemPopupPayload,
-  closeCodexPopup,
-  ensureCodexPopupOverlay,
-  openCodexPopup,
-  setCodexPopupTheme,
 } from './codex_ui_popup.js';
 import {
-  clearCodexPopupNavigation,
-  navigateCodexPopup,
   setCodexPopupNavigation,
 } from './codex_ui_controller.js';
+import {
+  closeCodexDetailPopup,
+  mountPopup,
+} from './codex_ui_popup_runtime_helpers.js';
 
-export function closeCodexDetailPopup(state, doc) {
-  closeCodexPopup(doc);
-  clearCodexPopupNavigation(state);
-}
-
-function ensurePopupShell(state, doc) {
-  return ensureCodexPopupOverlay(doc, (popupDoc) => closeCodexDetailPopup(state, popupDoc));
-}
-
-function setPopupTheme(doc, theme) {
-  setCodexPopupTheme(doc, theme.bg1, theme.bg2, theme.border, theme.glow);
-}
+export { closeCodexDetailPopup };
 
 function quoteBlock(quote) {
   return buildCodexQuoteBlock(quote);
@@ -38,23 +25,6 @@ function quoteBlock(quote) {
 
 function navBlock(state) {
   return buildCodexNavBlock(state.popupList, state.popupIndex);
-}
-
-function bindPopupNavigation(state, doc, reopen) {
-  setCodexPopupNavigation(state, null, null, reopen);
-  doc.getElementById('cxNavPrev')?.addEventListener('click', () => navigateCodexPopup(state, -1));
-  doc.getElementById('cxNavNext')?.addEventListener('click', () => navigateCodexPopup(state, 1));
-}
-
-function mountPopup(state, doc, payload, reopen) {
-  ensurePopupShell(state, doc);
-  setPopupTheme(doc, payload.theme);
-  const box = doc.getElementById('cxPopupBox');
-  if (!box) return;
-  box.innerHTML = payload.html;
-  doc.getElementById('cxPopupClose')?.addEventListener('click', () => closeCodexDetailPopup(state, doc));
-  bindPopupNavigation(state, doc, reopen);
-  openCodexPopup(doc);
 }
 
 export function openEnemyCodexPopup(state, enemy, list) {

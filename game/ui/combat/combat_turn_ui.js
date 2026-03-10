@@ -11,6 +11,12 @@ import {
   showBossPhaseShiftUi,
   syncCombatTurnEnergy,
 } from './combat_turn_runtime_ui.js';
+import {
+  dispatchCombatTurnUiAction,
+  playEnemyAttackHitUi,
+  playEnemyStatusTickEffects,
+  waitWhileCombatActive,
+} from './combat_turn_flow_ui.js';
 
 
 function _getDoc(deps) {
@@ -78,33 +84,9 @@ export const CombatTurnUI = {
     if (!gs?.combat?.active) return;
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
-    const waitWhileActive = async (ms) => {
-      const steps = Math.ceil(ms / 50);
-      for (let i = 0; i < steps; i++) {
-        if (!gs.combat.active || gs._endCombatScheduled || gs._endCombatRunning) return false;
-        await new Promise(r => setTimeout(r, 50));
-      }
-      return gs.combat.active && !gs._endCombatScheduled && !gs._endCombatRunning;
-    };
-
     // ── 적 상태효과 틱: 로직 위임 → UI 반영 ──
     const tickEvents = TurnManager.processEnemyStatusTicks(gs);
-    for (const evt of tickEvents) {
-      const ex = win.innerWidth / 2 + (evt.index - 0.5) * 200;
-      deps.showDmgPopup?.(evt.dmg, ex, 200, evt.color);
-      if (evt.type === 'poison') {
-        deps.particleSystem?.emit?.(ex, 200, { count: 5, color: '#00ff44', size: 2, speed: 2, life: 0.5 });
-      } else if (evt.type === 'burning') {
-        deps.particleSystem?.emit?.(ex, 180, { count: 6, color: '#ff6600', size: 3, speed: 3, life: 0.4 });
-      } else if (evt.type === 'marked_explode') {
-        deps.screenShake?.shake?.(10, 0.5);
-        deps.particleSystem?.burstEffect?.(ex, 200);
-        deps.audioEngine?.playChain?.(4);
-      } else if (evt.type === 'doom_explode') {
-        deps.showDmgPopup?.(evt.dmg, win.innerWidth / 2, 300, evt.color);
-        deps.screenShake?.shake?.(10, 0.5);
-      }
-    }
+    playEnemyStatusTickEffects(tickEvents, deps, win);
     deps.renderCombatEnemies?.();
 
     // ── 개별 적 행동 ──
@@ -113,7 +95,7 @@ export const CombatTurnUI = {
       const enemy = gs.combat.enemies[index];
       if (enemy.hp <= 0) continue;
 
-      if (!(await waitWhileActive(800))) return;
+      if (!(await waitWhileCombatActive(gs, 800))) return;
 
       // 기절 처리 (로직)
       if (TurnManager.processEnemyStun(enemy)) {
@@ -134,19 +116,7 @@ export const CombatTurnUI = {
         // 공격 처리: 로직 → UI
         const hitResults = TurnManager.processEnemyAttack(gs, enemy, index, action);
         for (const hit of hitResults) {
-          // 피격 애니메이션
-          const card = doc.getElementById(`enemy_${index}`);
-          if (card) {
-            card.classList.add('hit');
-            setTimeout(() => card.classList.remove('hit'), 400);
-          }
-          if (hit.hitIndex < (action.multi || 1) - 1) {
-            await new Promise(r => setTimeout(r, 200));
-          }
-          if (hit.enemyDied) {
-            deps.renderCombatEnemies?.();
-            break;
-          }
+          if (await playEnemyAttackHitUi(index, hit, action, deps, doc)) break;
         }
       }
 
@@ -155,9 +125,7 @@ export const CombatTurnUI = {
         regionId: _getCombatRegionId(gs),
         data,
       });
-      if (effectResult?.uiAction) {
-        this._dispatchUIAction(effectResult, deps);
-      }
+      if (effectResult?.uiAction) dispatchCombatTurnUiAction(effectResult, deps);
 
       // 약화 감소 (로직)
       TurnManager.decayEnemyWeaken(enemy);
@@ -166,14 +134,14 @@ export const CombatTurnUI = {
     }
 
     // ── 플레이어 턴 시작: 로직 → UI ──
-    if (!(await waitWhileActive(600))) return;
+    if (!(await waitWhileCombatActive(gs, 600))) return;
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
     const statusResult = TurnManager.processPlayerStatusTicks(gs, {
       shuffleArrayFn: deps.shuffleArray,
     });
     if (!statusResult.alive) return;
-    statusResult.actions.forEach(a => this._dispatchUIAction({ uiAction: a }, deps));
+    statusResult.actions.forEach(a => dispatchCombatTurnUiAction({ uiAction: a }, deps));
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
 
     // 잔영 갑주: 적 공격 후 실제 남은 방어막 기준으로 _preservedShield 재계산
@@ -202,17 +170,7 @@ export const CombatTurnUI = {
 
   // ── 유틸: UI 액션 디스패치 ──
   _dispatchUIAction(result, deps) {
-    if (!result?.uiAction) return;
-    switch (result.uiAction) {
-      case 'updateStatusDisplay': deps.updateStatusDisplay?.(); break;
-      case 'updateChainUI': deps.updateChainUI?.(result.value ?? 0); break;
-      case 'renderCombatCards': deps.renderCombatCards?.(); break;
-      case 'updateUI': deps.updateUI?.(); break;
-      case 'shuffleAndRender':
-        deps.shuffleArray?.(deps.gs?.player?.hand);
-        deps.renderCombatCards?.();
-        break;
-    }
+    dispatchCombatTurnUiAction(result, deps);
   },
 
   // ── 하위 호환: 기존 API 유지 ──
@@ -252,6 +210,6 @@ export const CombatTurnUI = {
     const data = deps.data;
     const regionId = _getCombatRegionId(gs);
     const result = TurnManager.handleEnemyEffect(effect, gs, enemy, { regionId, data });
-    if (result?.uiAction) this._dispatchUIAction(result, deps);
+    if (result?.uiAction) dispatchCombatTurnUiAction(result, deps);
   },
 };

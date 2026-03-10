@@ -1,3 +1,9 @@
+import {
+  setCombatActionButtonsDisabled,
+  setCombatTurnIndicator,
+  triggerBossPhaseShiftSprite,
+} from './combat_turn_render_ui.js';
+
 function getDoc(deps) {
   return deps?.doc || document;
 }
@@ -23,15 +29,9 @@ export function cleanupCombatTurnTooltips(deps = {}) {
 
 export function setEnemyTurnUiState(deps = {}) {
   const doc = getDoc(deps);
-  const turnIndicator = doc.getElementById('turnIndicator');
-  if (turnIndicator) {
-    turnIndicator.className = 'turn-indicator turn-enemy';
-    turnIndicator.textContent = '적의 턴';
-  }
+  setCombatTurnIndicator(doc, 'enemy', '적의 턴');
   deps.showTurnBanner?.('enemy');
-  doc.querySelectorAll('.combat-actions .action-btn').forEach((btn) => {
-    btn.disabled = true;
-  });
+  setCombatActionButtonsDisabled(doc, true);
 }
 
 export function syncCombatTurnEnergy(gs, deps = {}) {
@@ -48,16 +48,9 @@ export function syncCombatTurnEnergy(gs, deps = {}) {
 
 export function setPlayerTurnUiState(gs, deps = {}) {
   const doc = getDoc(deps);
-  const turnIndicator = doc.getElementById('turnIndicator');
-  if (turnIndicator) {
-    turnIndicator.className = 'turn-indicator turn-player';
-    turnIndicator.textContent = '플레이어 턴';
-  }
+  setCombatTurnIndicator(doc, 'player', '플레이어 턴');
   deps.showTurnBanner?.('player');
-  doc.querySelectorAll('.combat-actions .action-btn').forEach((btn) => {
-    btn.disabled = false;
-    btn.style.pointerEvents = '';
-  });
+  setCombatActionButtonsDisabled(doc, false);
 
   deps.renderCombatCards?.();
   deps.renderCombatEnemies?.();
@@ -69,11 +62,7 @@ export function setPlayerTurnUiState(gs, deps = {}) {
 export function showBossPhaseShiftUi(gs, idx, deps = {}) {
   const doc = getDoc(deps);
   const win = getWin(deps);
-  const sprite = doc.getElementById(`enemy_sprite_${idx}`);
-  if (sprite) {
-    sprite.style.animation = 'none';
-    setTimeout(() => { sprite.style.animation = 'enemyHit 0.8s ease 3'; }, 10);
-  }
+  triggerBossPhaseShiftSprite(doc, idx);
   deps.screenShake?.shake?.(15, 1.0);
   deps.audioEngine?.playBossPhase?.();
   deps.particleSystem?.burstEffect?.(

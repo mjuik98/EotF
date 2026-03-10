@@ -46,7 +46,7 @@ export function renderInscriptionOverview(doc, meta, cfg, data) {
       <div class="rm-insc-header">
         <div class="rm-insc-title">🔮 보유 각인</div>
         <div class="rm-insc-controls">
-          <div id="inscriptionSummary" class="rm-insc-summary">획득 ${earned.length}개 · 활성 <span class="ac">${activeCount}</span>개 · <span class="rm-insc-summary-hint">클릭으로 비활성화</span></div>
+          <div id="inscriptionSummary" class="rm-insc-summary" data-action="toggle-inscription-layout" style="cursor:pointer">획득 ${earned.length}개 · 활성 <span class="ac">${activeCount}</span>개 · <span class="rm-insc-summary-hint">클릭으로 상세 설정</span></div>
         </div>
       </div>
       <div class="rm-insc-grid">
@@ -196,11 +196,20 @@ export function refreshInscriptionPanel(ui, deps = {}) {
   const disabledSet = new Set(runConfig.disabledInscriptions || []);
   const activeCount = earnedInsc.filter(([key]) => !disabledSet.has(key)).length;
   const allDisabled = activeCount === 0;
-  settingsPanel?.classList.remove('run-settings-with-inscription-layout');
+
+  const isOpen = layout.dataset.open === 'true';
+  layout.style.display = isOpen ? 'block' : 'none';
+  if (isOpen) settingsPanel?.classList.add('run-settings-with-inscription-layout');
+  else settingsPanel?.classList.remove('run-settings-with-inscription-layout');
 
   summaryEl.textContent = `획득 ${earnedInsc.length}개 · 활성 ${activeCount}개`;
-  layout.dataset.open = 'false';
-  layout.style.display = 'none';
+  summaryEl.onclick = () => {
+    const nowOpen = layout.dataset.open !== 'true';
+    layout.dataset.open = nowOpen ? 'true' : 'false';
+    layout.style.display = nowOpen ? 'block' : 'none';
+    if (nowOpen) settingsPanel?.classList.add('run-settings-with-inscription-layout');
+    else settingsPanel?.classList.remove('run-settings-with-inscription-layout');
+  };
 
   toggleAllBtn.textContent = allDisabled ? '각인 모두 활성화' : '각인 없이 시작';
   toggleAllBtn.onclick = () => {

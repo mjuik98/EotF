@@ -1,3 +1,9 @@
+import {
+  CARD_CODEX_SECTIONS,
+  ENEMY_CODEX_SECTIONS,
+  renderCodexCategorizedSections,
+} from './codex_ui_content_sections.js';
+
 export function renderEnemyCodexTab(state, doc, content, enemies, codex, helpers = {}) {
   const {
     applyFilter,
@@ -5,31 +11,14 @@ export function renderEnemyCodexTab(state, doc, content, enemies, codex, helpers
     renderEmpty,
     makeEnemyCard,
   } = helpers;
-  const sections = [
-    { title: '일반 적', icon: '✦', filter: (enemy) => !enemy.isBoss && !enemy.isElite && !enemy.isMiniBoss },
-    { title: '엘리트 적', icon: '◆', filter: (enemy) => !!enemy.isElite && !enemy.isBoss },
-    { title: '중간 보스', icon: '◈', filter: (enemy) => !!enemy.isMiniBoss },
-    { title: '보스', icon: '✹', filter: (enemy) => !!enemy.isBoss },
-  ];
-
-  let hasEntries = false;
-  sections.forEach((section) => {
-    const entries = applyFilter(state, enemies.filter(section.filter), codex, 'enemies');
-    if (!entries.length) return;
-    hasEntries = true;
-    renderSection(
-      state,
-      doc,
-      content,
-      section.title,
-      section.icon,
-      entries,
-      (entry, index, navList, entryDoc) => makeEnemyCard(state, entry, index, navList, entryDoc),
-      entries,
-    );
+  renderCodexCategorizedSections(state, doc, content, enemies, codex, {
+    sections: ENEMY_CODEX_SECTIONS,
+    category: 'enemies',
+    applyFilter,
+    renderSection,
+    renderEmpty,
+    buildEntry: makeEnemyCard,
   });
-
-  if (!hasEntries) renderEmpty(content);
 }
 
 export function renderCardsCodexTab(state, doc, content, data, codex, helpers = {}) {
@@ -40,30 +29,14 @@ export function renderCardsCodexTab(state, doc, content, data, codex, helpers = 
     makeCardEntry,
     getBaseCodexCards,
   } = helpers;
-  const sections = [
-    { title: '공격 카드', icon: '⚔', filter: (card) => String(card.type || '').toUpperCase() === 'ATTACK' },
-    { title: '스킬 카드', icon: '✧', filter: (card) => String(card.type || '').toUpperCase() === 'SKILL' },
-    { title: '파워 카드', icon: '☼', filter: (card) => String(card.type || '').toUpperCase() === 'POWER' },
-  ];
-
-  let hasEntries = false;
-  sections.forEach((section) => {
-    const entries = applyFilter(state, getBaseCodexCards(data).filter(section.filter), codex, 'cards');
-    if (!entries.length) return;
-    hasEntries = true;
-    renderSection(
-      state,
-      doc,
-      content,
-      section.title,
-      section.icon,
-      entries,
-      (entry, index, navList, entryDoc) => makeCardEntry(state, entry, index, navList, entryDoc),
-      entries,
-    );
+  renderCodexCategorizedSections(state, doc, content, getBaseCodexCards(data), codex, {
+    sections: CARD_CODEX_SECTIONS,
+    category: 'cards',
+    applyFilter,
+    renderSection,
+    renderEmpty,
+    buildEntry: makeCardEntry,
   });
-
-  if (!hasEntries) renderEmpty(content);
 }
 
 export function renderItemsCodexTab(state, doc, content, data, gs, codex, helpers = {}) {
