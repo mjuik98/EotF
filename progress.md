@@ -3320,3 +3320,92 @@ Original prompt:
   - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
 - Suggested next refactor / hardening target:
   - The next natural helper-only target is `game/ui/screens/codex_ui_render.js` if you want to keep breaking pure render collections into smaller progress/filter/section modules.
+- Codex render helper extraction (`game/ui/screens/codex_ui_render.js`, `game/ui/screens/codex_ui_progress_render.js`, `game/ui/screens/codex_ui_filter_render.js`, `game/ui/screens/codex_ui_section_render.js`):
+  - Split the remaining progress/filter/section rendering responsibilities out of `codex_ui_render.js`.
+  - `codex_ui_render.js` is now a thin re-export surface over the entry renderers plus the new progress/filter/section helpers.
+  - Added `tests/codex_ui_progress_render.test.js`, `tests/codex_ui_filter_render.test.js`, and `tests/codex_ui_section_render.test.js` to pin the extracted helpers directly while keeping the existing `codex_ui_render.test.js` facade/import coverage in place.
+- Validation:
+  - `npm test -- tests/codex_ui_progress_render.test.js tests/codex_ui_filter_render.test.js tests/codex_ui_section_render.test.js tests/codex_ui_entry_renderers.test.js tests/codex_ui_render.test.js tests/codex_ui_runtime.test.js tests/codex_ui_facade.test.js tests/codex_ui_controller.test.js tests/codex_ui_popup.test.js tests/codex_ui_structure.test.js tests/codex_ui_inscriptions.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4234`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural micro-split is `codex_ui_runtime.js` itself, especially the tab-specific `renderEnemyTab` / `renderCardsTab` / `renderItemsTab` flow, if the goal is to keep flattening orchestration-heavy screen helpers.
+- Codex runtime tab-flow extraction (`game/ui/screens/codex_ui_runtime.js`, `game/ui/screens/codex_ui_content_runtime.js`):
+  - Split the tab-specific content dispatch for enemies/cards/items out of `codex_ui_runtime.js` into `codex_ui_content_runtime.js`.
+  - `codex_ui_runtime.js` now keeps popup/navigation/orchestration concerns, while the extracted helper owns section selection, empty fallback, and item set-view gating for each tab.
+  - Added `tests/codex_ui_content_runtime.test.js` to pin enemy/card/item tab rendering behavior directly.
+- Validation:
+  - `npm test -- tests/codex_ui_content_runtime.test.js tests/codex_ui_progress_render.test.js tests/codex_ui_filter_render.test.js tests/codex_ui_section_render.test.js tests/codex_ui_entry_renderers.test.js tests/codex_ui_render.test.js tests/codex_ui_runtime.test.js tests/codex_ui_facade.test.js tests/codex_ui_controller.test.js tests/codex_ui_popup.test.js tests/codex_ui_structure.test.js tests/codex_ui_inscriptions.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4235`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural codex cleanup is popup payload/open routing inside `codex_ui_runtime.js`, or move on to another orchestration-heavy screen if you want to keep broader facade normalization momentum.
+- Codex popup/runtime extraction (`game/ui/screens/codex_ui_runtime.js`, `game/ui/screens/codex_ui_popup_runtime.js`):
+  - Split popup payload/open routing, popup mount, close wiring, and popup nav button binding out of `codex_ui_runtime.js` into `codex_ui_popup_runtime.js`.
+  - `codex_ui_runtime.js` now focuses on codex screen orchestration, while popup-specific runtime behavior is isolated behind `openEnemyCodexPopup(...)`, `openCardCodexPopup(...)`, `openItemCodexPopup(...)`, and `closeCodexDetailPopup(...)`.
+  - Added `tests/codex_ui_popup_runtime.test.js` to pin popup payload context, mount behavior, close wiring, and nav button callbacks.
+- Validation:
+  - `npm test -- tests/codex_ui_popup_runtime.test.js tests/codex_ui_content_runtime.test.js tests/codex_ui_progress_render.test.js tests/codex_ui_filter_render.test.js tests/codex_ui_section_render.test.js tests/codex_ui_entry_renderers.test.js tests/codex_ui_render.test.js tests/codex_ui_runtime.test.js tests/codex_ui_facade.test.js tests/codex_ui_controller.test.js tests/codex_ui_popup.test.js tests/codex_ui_structure.test.js tests/codex_ui_inscriptions.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4236`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The codex path is now close to facade/helper completion. The next natural target is a different orchestration-heavy screen/controller module rather than further micro-splitting codex.
+- Combat turn UI helper extraction (`game/ui/combat/combat_turn_ui.js`, `game/ui/combat/combat_turn_runtime_ui.js`):
+  - Split combat-turn UI side effects out of `combat_turn_ui.js` into `combat_turn_runtime_ui.js`.
+  - Tooltip cleanup, enemy/player turn indicator + action-button state changes, combat-energy resync, and boss phase-shift FX now live in the extracted helper while `CombatTurnUI` keeps turn sequencing and TurnManager orchestration.
+  - Added `tests/combat_turn_runtime_ui.test.js` to pin tooltip cleanup fallback, turn-state button toggles, energy-sync fallback priority, and boss phase-shift visual side effects.
+- Validation:
+  - `npm test -- tests/combat_turn_runtime_ui.test.js tests/turn_manager.test.js tests/class_mechanics.test.js tests/combat_start_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4237`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural combat-side target is `game/ui/combat/combat_start_ui.js` or another remaining large pure helper such as `tooltip_ui.js`, depending on whether you want to stay on orchestration cleanup or switch to presentation helper normalization.
+- Combat start UI helper extraction (`game/ui/combat/combat_start_ui.js`, `game/ui/combat/combat_start_runtime_ui.js`):
+  - Split combat-start UI side effects out of `combat_start_ui.js` into `combat_start_runtime_ui.js`.
+  - Surface reset, combat entry overlay flash, boss encounter banner, entry animation scheduling, draw/echo/action button sync, player-turn banner timing, and final HUD refresh now live in the extracted helper while `CombatStartUI` keeps start-of-combat orchestration.
+  - Added `tests/combat_start_runtime_ui.test.js` to pin overlay flash, boss banner lifecycle, entry animation scheduling, action/draw/echo button sync, and final HUD refresh behavior.
+- Validation:
+  - `npm test -- tests/combat_start_runtime_ui.test.js tests/combat_start_ui.test.js tests/combat_turn_runtime_ui.test.js tests/turn_manager.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4238`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural presentation-heavy target is `game/ui/cards/tooltip_ui.js`, or if you want to stay combat-focused, `combat_enemy_card_ui.js` and adjacent enemy-card presentation helpers.
+- Tooltip helper extraction follow-up (`game/ui/cards/tooltip_ui.js`, `game/ui/cards/tooltip_general_ui.js`, `game/ui/cards/tooltip_item_ui.js`):
+  - Finished the pending tooltip split by converting `TooltipUI.showItemTooltip(...)`, `hideItemTooltip(...)`, `showGeneralTooltip(...)`, and `hideGeneralTooltip(...)` into thin delegations to the new helper modules.
+  - Removed the duplicated item/general tooltip implementation and metadata from `tooltip_ui.js`; card-tooltip behavior remains in the facade.
+  - Restored the item set-bonus rows inside `tooltip_item_ui.js` after the first regression test pass exposed that the extracted helper had dropped bonus-label rendering.
+  - Added `tests/tooltip_general_ui.test.js` and `tests/tooltip_item_ui.test.js` to pin tooltip replacement/removal, window-scoped element storage, item tooltip positioning, runtime charge text, set membership rows, and delayed hide cleanup.
+- Validation:
+  - `npm test -- tests/tooltip_general_ui.test.js tests/tooltip_item_ui.test.js tests/reward_ui_option_renderers.test.js tests/character_select_info_panel.test.js tests/character_select_ui_mount.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4239`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `game/ui/cards/tooltip_ui.js` is now mostly a card-tooltip facade, so the next natural target is the remaining presentation-heavy card/enemy surfaces around `combat_enemy_card_ui.js` or adjacent combat card/render helpers.
+- Enemy card renderer extraction (`game/ui/combat/combat_enemy_card_ui.js`, `game/ui/combat/combat_enemy_card_renderers_ui.js`):
+  - Split enemy-card section rendering out of `combat_enemy_card_ui.js` into `combat_enemy_card_renderers_ui.js`.
+  - Boss/non-boss HP section rendering, intent DOM composition, selected-target badge syncing, preview badge syncing, and dead-card visual state now live in the extracted helper while `combat_enemy_card_ui.js` keeps enemy-card structure orchestration.
+  - Added `tests/combat_enemy_card_renderers_ui.test.js` to pin boss phase bars, combined intent labels, selection badge lifecycle, preview badge lifecycle, and dead-state styling.
+- Validation:
+  - `npm test -- tests/combat_enemy_card_renderers_ui.test.js tests/combat_ui_render.test.js tests/combat_enemy_view_model_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_start_runtime_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4240`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural combat presentation target is `game/ui/combat/combat_enemy_card_ui.js` facade hardening around sprite/name/header sub-sections, or the adjacent `combat_card_render_ui.js` / hand-card rendering path if you want to continue thinning combat UI surfaces.
+- Combat info panel section extraction (`game/ui/combat/combat_info_ui.js`, `game/ui/combat/combat_info_status_ui.js`, `game/ui/combat/combat_info_items_ui.js`):
+  - Split combat-info panel rendering out of `combat_info_ui.js` into dedicated status and item helpers.
+  - `combat_info_ui.js` now keeps open/close panel state and delegates the status badge list plus item row rendering to the extracted helpers.
+  - Added `tests/combat_info_status_ui.test.js` and `tests/combat_info_items_ui.test.js` to pin empty fallbacks, buff/debuff badge rendering, and rarity-sorted item rows.
+- Validation:
+  - `npm test -- tests/combat_info_status_ui.test.js tests/combat_info_items_ui.test.js tests/combat_ui_render.test.js tests/combat_enemy_card_renderers_ui.test.js tests/combat_start_runtime_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4241`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next natural combat-side target is the remaining `combat_info_ui.js` facade hardening around panel toggle state, or a move into `combat_actions_ui.js` / `echo_skill_ui.js` if you want to continue shaving small UI control surfaces.

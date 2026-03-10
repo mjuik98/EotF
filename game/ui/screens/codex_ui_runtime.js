@@ -7,9 +7,19 @@ import {
   getCodexFilterDefinitions,
   getCodexRecord,
   getEnemyTypeClass,
-  highlightCodexDescription,
   isSeenCodexCard,
 } from './codex_ui_helpers.js';
+import {
+  renderCardsCodexTab,
+  renderEnemyCodexTab,
+  renderItemsCodexTab,
+} from './codex_ui_content_runtime.js';
+import {
+  closeCodexDetailPopup,
+  openCardCodexPopup,
+  openEnemyCodexPopup,
+  openItemCodexPopup,
+} from './codex_ui_popup_runtime.js';
 import {
   createCodexCardEntry,
   createCodexEnemyCard,
@@ -22,26 +32,13 @@ import {
 } from './codex_ui_render.js';
 import { renderCodexInscriptions } from './codex_ui_inscriptions.js';
 import {
-  buildCardPopupPayload,
-  buildCodexNavBlock,
-  buildCodexQuoteBlock,
-  buildEnemyPopupPayload,
-  buildItemPopupPayload,
-  closeCodexPopup,
-  ensureCodexPopupOverlay,
-  openCodexPopup,
-  setCodexPopupTheme,
-} from './codex_ui_popup.js';
-import {
   injectCodexModalStructure,
   setCodexTabState,
 } from './codex_ui_structure.js';
 import {
-  clearCodexPopupNavigation,
   closeCodexModal,
   navigateCodexPopup,
   resetCodexUiState,
-  setCodexPopupNavigation,
   showCodexModal,
   transitionCodexTab,
 } from './codex_ui_controller.js';
@@ -96,93 +93,12 @@ function renderSection(state, doc, container, title, icon, entries, buildCard, n
   });
 }
 
-function getPopupOverlay(doc, closePopup) {
-  return ensureCodexPopupOverlay(doc, () => closePopup(doc));
-}
-
-function openPopup(doc, closePopup) {
-  getPopupOverlay(doc, closePopup);
-  openCodexPopup(doc);
-}
-
-function closePopup(state, doc) {
-  closeCodexPopup(doc);
-  clearCodexPopupNavigation(state);
-}
-
-function setPopupTheme(doc, theme) {
-  setCodexPopupTheme(doc, theme.bg1, theme.bg2, theme.border, theme.glow);
-}
-
-function quoteBlock(quote) {
-  return buildCodexQuoteBlock(quote);
-}
-
-function navBlock(state) {
-  return buildCodexNavBlock(state.popupList, state.popupIndex);
-}
-
-function bindNavButtons(state, doc, openFn) {
-  setCodexPopupNavigation(state, null, null, openFn);
-  doc.getElementById('cxNavPrev')?.addEventListener('click', () => navigateCodexPopup(state, -1));
-  doc.getElementById('cxNavNext')?.addEventListener('click', () => navigateCodexPopup(state, 1));
-}
-
-function mountPopup(state, doc, payload, openFn) {
-  getPopupOverlay(doc, (popupDoc) => closePopup(state, popupDoc));
-  setPopupTheme(doc, payload.theme);
-  const box = doc.getElementById('cxPopupBox');
-  if (!box) return;
-  box.innerHTML = payload.html;
-  doc.getElementById('cxPopupClose')?.addEventListener('click', () => closePopup(state, doc));
-  bindNavButtons(state, doc, openFn);
-  openPopup(doc, (popupDoc) => closePopup(state, popupDoc));
-}
-
-function openEnemyPopup(state, enemy, list) {
-  if (list !== undefined) setCodexPopupNavigation(state, enemy, list, (entry, popupList) => openEnemyPopup(state, entry, popupList));
-  const doc = getCodexDoc(state.deps);
-  const payload = buildEnemyPopupPayload(enemy, {
-    gs: state.deps?.gs,
-    safeHtml: highlightCodexDescription,
-    quoteHtml: quoteBlock(enemy.quote),
-    navHtml: navBlock(state),
-  });
-  mountPopup(state, doc, payload, (entry, popupList) => openEnemyPopup(state, entry, popupList));
-}
-
-function openCardPopup(state, card, list) {
-  if (list !== undefined) setCodexPopupNavigation(state, card, list, (entry, popupList) => openCardPopup(state, entry, popupList));
-  const doc = getCodexDoc(state.deps);
-  const payload = buildCardPopupPayload(card, {
-    gs: state.deps?.gs,
-    data: state.deps?.data,
-    safeHtml: highlightCodexDescription,
-    quoteHtml: quoteBlock(card.quote),
-    navHtml: navBlock(state),
-  });
-  mountPopup(state, doc, payload, (entry, popupList) => openCardPopup(state, entry, popupList));
-}
-
-function openItemPopup(state, item, list) {
-  if (list !== undefined) setCodexPopupNavigation(state, item, list, (entry, popupList) => openItemPopup(state, entry, popupList));
-  const doc = getCodexDoc(state.deps);
-  const payload = buildItemPopupPayload(item, {
-    gs: state.deps?.gs,
-    data: state.deps?.data,
-    safeHtml: highlightCodexDescription,
-    quoteHtml: quoteBlock(item.quote),
-    navHtml: navBlock(state),
-  });
-  mountPopup(state, doc, payload, (entry, popupList) => openItemPopup(state, entry, popupList));
-}
-
 function makeEnemyCard(state, enemy, index, navList, doc) {
   const codex = ensureCodexState(state.deps?.gs);
   return createCodexEnemyCard(doc, enemy, index, {
     gs: state.deps?.gs,
     typeClass: getEnemyTypeClass(enemy),
-    onOpen: (entry) => openEnemyPopup(state, entry, navList.filter((candidate) => codex.enemies.has(candidate.id))),
+    onOpen: (entry) => openEnemyCodexPopup(state, entry, navList.filter((candidate) => codex.enemies.has(candidate.id))),
   });
 }
 
@@ -190,7 +106,7 @@ function makeCardEntry(state, cardEntry, index, navList, doc) {
   const codex = ensureCodexState(state.deps?.gs);
   return createCodexCardEntry(doc, cardEntry, index, {
     gs: state.deps?.gs,
-    onOpen: (entry) => openCardPopup(state, entry, navList.filter((candidate) => isSeenCodexCard(codex, candidate.id))),
+    onOpen: (entry) => openCardCodexPopup(state, entry, navList.filter((candidate) => isSeenCodexCard(codex, candidate.id))),
   });
 }
 
@@ -199,7 +115,7 @@ function makeItemCard(state, item, index, navList, doc) {
   return createCodexItemCard(doc, item, index, {
     gs: state.deps?.gs,
     data: state.deps?.data,
-    onOpen: (entry) => openItemPopup(state, entry, navList.filter((candidate) => codex.items.has(candidate.id))),
+    onOpen: (entry) => openItemCodexPopup(state, entry, navList.filter((candidate) => codex.items.has(candidate.id))),
   });
 }
 
@@ -207,64 +123,12 @@ function renderSetView(state, doc, container, data, gs) {
   const items = Object.values(data.items || {});
   const codex = ensureCodexState(gs);
   renderCodexSetView(doc, container, data, gs, {
-    onOpenItem: (item) => openItemPopup(state, item, items.filter((entry) => codex.items.has(entry.id))),
+    onOpenItem: (item) => openItemCodexPopup(state, item, items.filter((entry) => codex.items.has(entry.id))),
   });
 }
 
 function renderEmpty(container, message) {
   renderCodexEmpty(container, message);
-}
-
-function renderEnemyTab(state, doc, content, enemies, codex) {
-  const sections = [
-    { title: '일반 적', icon: '✦', filter: (enemy) => !enemy.isBoss && !enemy.isElite && !enemy.isMiniBoss },
-    { title: '엘리트 적', icon: '◆', filter: (enemy) => !!enemy.isElite && !enemy.isBoss },
-    { title: '중간 보스', icon: '◈', filter: (enemy) => !!enemy.isMiniBoss },
-    { title: '보스', icon: '✹', filter: (enemy) => !!enemy.isBoss },
-  ];
-
-  let hasEntries = false;
-  sections.forEach((section) => {
-    const entries = applyFilter(state, enemies.filter(section.filter), codex, 'enemies');
-    if (!entries.length) return;
-    hasEntries = true;
-    renderSection(state, doc, content, section.title, section.icon, entries, (entry, index, navList, entryDoc) => makeEnemyCard(state, entry, index, navList, entryDoc), entries);
-  });
-
-  if (!hasEntries) renderEmpty(content);
-}
-
-function renderCardsTab(state, doc, content, data, codex) {
-  const sections = [
-    { title: '공격 카드', icon: '⚔', filter: (card) => String(card.type || '').toUpperCase() === 'ATTACK' },
-    { title: '스킬 카드', icon: '✧', filter: (card) => String(card.type || '').toUpperCase() === 'SKILL' },
-    { title: '파워 카드', icon: '☼', filter: (card) => String(card.type || '').toUpperCase() === 'POWER' },
-  ];
-
-  let hasEntries = false;
-  sections.forEach((section) => {
-    const entries = applyFilter(state, getBaseCodexCards(data).filter(section.filter), codex, 'cards');
-    if (!entries.length) return;
-    hasEntries = true;
-    renderSection(state, doc, content, section.title, section.icon, entries, (entry, index, navList, entryDoc) => makeCardEntry(state, entry, index, navList, entryDoc), entries);
-  });
-
-  if (!hasEntries) renderEmpty(content);
-}
-
-function renderItemsTab(state, doc, content, data, gs, codex) {
-  const items = Object.values(data.items || {});
-  if (state.filter === 'all' && !state.search) {
-    renderSetView(state, doc, content, data, gs);
-  }
-
-  const entries = applyFilter(state, items, codex, 'items');
-  if (!entries.length) {
-    renderEmpty(content);
-    return;
-  }
-
-  renderSection(state, doc, content, '전체 유물', '❖', entries, (entry, index, navList, entryDoc) => makeItemCard(state, entry, index, navList, entryDoc), entries);
 }
 
 export function openCodexRuntime(state, ui, deps = {}) {
@@ -302,7 +166,7 @@ export function openCodexRuntime(state, ui, deps = {}) {
 export function closeCodexRuntime(state, deps = {}) {
   const doc = getCodexDoc(deps);
   closeCodexModal(doc, {
-    onBeforeHide: () => closePopup(state, doc),
+    onBeforeHide: () => closeCodexDetailPopup(state, doc),
   });
 }
 
@@ -338,11 +202,28 @@ export function renderCodexContentRuntime(state, ui, deps = {}) {
   const inscriptions = Object.values(data.inscriptions || {});
 
   if (state.tab === 'enemies') {
-    renderEnemyTab(state, doc, content, enemies, codex);
+    renderEnemyCodexTab(state, doc, content, enemies, codex, {
+      applyFilter,
+      renderSection,
+      renderEmpty,
+      makeEnemyCard,
+    });
   } else if (state.tab === 'cards') {
-    renderCardsTab(state, doc, content, data, codex);
+    renderCardsCodexTab(state, doc, content, data, codex, {
+      applyFilter,
+      renderSection,
+      renderEmpty,
+      makeCardEntry,
+      getBaseCodexCards,
+    });
   } else if (state.tab === 'items') {
-    renderItemsTab(state, doc, content, data, gs, codex);
+    renderItemsCodexTab(state, doc, content, data, gs, codex, {
+      applyFilter,
+      renderEmpty,
+      renderSection,
+      renderSetView,
+      makeItemCard,
+    });
   } else if (state.tab === 'inscriptions') {
     renderCodexInscriptions(doc, content, inscriptions, gs);
   }
@@ -356,7 +237,7 @@ export function bindCodexGlobalKeys(state) {
   document.addEventListener('keydown', (event) => {
     const popup = document.getElementById('cxDetailPopup');
     if (!popup?.classList.contains('open')) return;
-    if (event.key === 'Escape') closePopup(state, document);
+    if (event.key === 'Escape') closeCodexDetailPopup(state, document);
     if (event.key === 'ArrowRight') navigateCodexPopup(state, 1);
     if (event.key === 'ArrowLeft') navigateCodexPopup(state, -1);
   });

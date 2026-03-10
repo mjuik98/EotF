@@ -4,6 +4,13 @@
  * TurnManager에서 로직 결과를 받아 DOM만 업데이트합니다.
  */
 import { TurnManager } from '../../combat/turn_manager.js';
+import {
+  cleanupCombatTurnTooltips,
+  setEnemyTurnUiState,
+  setPlayerTurnUiState,
+  showBossPhaseShiftUi,
+  syncCombatTurnEnergy,
+} from './combat_turn_runtime_ui.js';
 
 
 function _getDoc(deps) {
@@ -49,24 +56,8 @@ export const CombatTurnUI = {
       classMech.onTurnEnd(gs);
     }
 
-    const doc = _getDoc(deps);
-    const win = _getWin(deps);
-    const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
-    if (typeof cleanupTooltips === 'function') cleanupTooltips({ doc, win });
-    else {
-      doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-      doc.getElementById('intentTooltip')?.classList.remove('visible');
-    }
-    const tooltipUI = deps.tooltipUI || win.TooltipUI;
-    tooltipUI?.hideGeneralTooltip?.({ doc, win });
-
-    const turnIndicator = doc.getElementById('turnIndicator');
-    if (turnIndicator) {
-      turnIndicator.className = 'turn-indicator turn-enemy';
-      turnIndicator.textContent = '적의 턴';
-    }
-    deps.showTurnBanner?.('enemy');
-    doc.querySelectorAll('.combat-actions .action-btn').forEach(btn => { btn.disabled = true; });
+    cleanupCombatTurnTooltips(deps);
+    setEnemyTurnUiState(deps);
 
     setTimeout(async () => {
       try {
@@ -82,12 +73,7 @@ export const CombatTurnUI = {
     const data = deps.data;
     const win = _getWin(deps);
     const doc = _getDoc(deps);
-    const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
-    if (typeof cleanupTooltips === 'function') cleanupTooltips({ doc, win });
-    else {
-      doc.getElementById('enemyStatusTooltip')?.classList.remove('visible');
-      doc.getElementById('intentTooltip')?.classList.remove('visible');
-    }
+    cleanupCombatTurnTooltips(deps);
 
     if (!gs?.combat?.active) return;
     if (gs._endCombatScheduled || gs._endCombatRunning) return;
@@ -143,22 +129,7 @@ export const CombatTurnUI = {
         // 보스 페이즈 전환: 로직 → UI
         const phaseResult = TurnManager.handleBossPhaseShiftLogic(gs, enemy);
         // UI 이펙트
-        const sprite = doc.getElementById(`enemy_sprite_${index}`);
-        if (sprite) {
-          sprite.style.animation = 'none';
-          setTimeout(() => { sprite.style.animation = 'enemyHit 0.8s ease 3'; }, 10);
-        }
-        deps.screenShake?.shake?.(15, 1.0);
-        deps.audioEngine?.playBossPhase?.();
-        deps.particleSystem?.burstEffect?.(
-          win.innerWidth / 2 + (index - (gs.combat.enemies.length / 2 - 0.5)) * 200,
-          220,
-        );
-        setTimeout(() => {
-          deps.renderCombatEnemies?.();
-          deps.updateStatusDisplay?.();
-        }, 50);
-        deps.showEchoBurstOverlay?.();
+        showBossPhaseShiftUi(gs, index, deps);
       } else if (action.dmg > 0) {
         // 공격 처리: 로직 → UI
         const hitResults = TurnManager.processEnemyAttack(gs, enemy, index, action);
@@ -214,15 +185,7 @@ export const CombatTurnUI = {
     TurnManager.startPlayerTurnLogic(gs);
 
     // 에너지 상태 변경(드로우 버튼 활성화 등) 즉시 반영
-    if (typeof deps.updateCombatEnergy === 'function') {
-      deps.updateCombatEnergy(gs);
-    } else if (typeof deps.hudUpdateUI?.updateCombatEnergy === 'function') {
-      deps.hudUpdateUI.updateCombatEnergy(gs);
-    } else if (globalThis.HudUpdateUI?.updateCombatEnergy) {
-      globalThis.HudUpdateUI.updateCombatEnergy(gs);
-    } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-      globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
-    }
+    syncCombatTurnEnergy(gs, deps);
 
     deps.runRules?.onTurnStart?.(gs);
 
@@ -234,31 +197,7 @@ export const CombatTurnUI = {
     }
 
     // UI 반영
-    const turnIndicator = doc.getElementById('turnIndicator');
-    if (turnIndicator) {
-      turnIndicator.className = 'turn-indicator turn-player';
-      turnIndicator.textContent = '플레이어 턴';
-    }
-    deps.showTurnBanner?.('player');
-    doc.querySelectorAll('.combat-actions .action-btn').forEach(btn => {
-      btn.disabled = false;
-      btn.style.pointerEvents = '';
-    });
-
-    deps.renderCombatCards?.();
-    deps.renderCombatEnemies?.();
-    deps.updateUI?.();
-
-    // 최종 동기화 (애니메이션 등 이후 버튼 상태 확정)
-    setTimeout(() => {
-      if (typeof deps.updateCombatEnergy === 'function') {
-        deps.updateCombatEnergy(gs);
-      } else if (globalThis.HudUpdateUI?.updateCombatEnergy) {
-        globalThis.HudUpdateUI.updateCombatEnergy(gs);
-      } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-        globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
-      }
-    }, 100);
+    setPlayerTurnUiState(gs, deps);
   },
 
   // ── 유틸: UI 액션 디스패치 ──
@@ -303,26 +242,9 @@ export const CombatTurnUI = {
   handleBossPhaseShift(enemy, idx, deps = {}) {
     const gs = deps.gs;
     const doc = _getDoc(deps);
-    const win = _getWin(deps);
 
     TurnManager.handleBossPhaseShiftLogic(gs, enemy);
-
-    const sprite = doc.getElementById(`enemy_sprite_${idx}`);
-    if (sprite) {
-      sprite.style.animation = 'none';
-      setTimeout(() => { sprite.style.animation = 'enemyHit 0.8s ease 3'; }, 10);
-    }
-    deps.screenShake?.shake?.(15, 1.0);
-    deps.audioEngine?.playBossPhase?.();
-    deps.particleSystem?.burstEffect?.(
-      win.innerWidth / 2 + (idx - (gs.combat.enemies.length / 2 - 0.5)) * 200,
-      220,
-    );
-    setTimeout(() => {
-      deps.renderCombatEnemies?.();
-      deps.updateStatusDisplay?.();
-    }, 50);
-    deps.showEchoBurstOverlay?.();
+    showBossPhaseShiftUi(gs, idx, deps);
   },
 
   handleEnemyEffect(effect, enemy, idx, deps = {}) {
