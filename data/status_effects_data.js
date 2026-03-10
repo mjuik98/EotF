@@ -51,6 +51,84 @@ export const STATUS_KR = Object.freeze({
   doom: { name: '파멸', icon: '💀', buff: false, desc: '카운트다운 종료 시 큰 피해가 발생합니다.' },
 });
 
+export function normalizeStatusKey(statusKey) {
+  const raw = String(statusKey || '').trim();
+  if (!raw) return raw;
+  return raw.replace(/_plus$/i, '');
+}
+
+export function getPlayerStatusMeta(statusKey) {
+  if (!statusKey) return null;
+  return STATUS_KR[statusKey] || STATUS_KR[normalizeStatusKey(statusKey)] || null;
+}
+
+export function getEnemyStatusName(statusKey) {
+  if (!statusKey) return '';
+  return ENEMY_STATUS_KR[statusKey] || ENEMY_STATUS_KR[normalizeStatusKey(statusKey)] || '';
+}
+
+export function getEnemyStatusMeta(statusKey) {
+  if (!statusKey) return null;
+  return ENEMY_STATUS_DESC[statusKey] || ENEMY_STATUS_DESC[normalizeStatusKey(statusKey)] || null;
+}
+
+export function getStatusDisplayName(statusKey) {
+  if (!statusKey) return '';
+
+  const playerMeta = getPlayerStatusMeta(statusKey);
+  if (playerMeta?.name) return playerMeta.name;
+
+  const enemyName = getEnemyStatusName(statusKey);
+  if (enemyName) return enemyName;
+
+  const normalizedKey = normalizeStatusKey(statusKey);
+  return STATUS_NAME_OVERRIDES[statusKey]
+    || STATUS_NAME_OVERRIDES[normalizedKey]
+    || String(statusKey || '');
+}
+
+export const STATUS_TOOLTIP_SEMANTICS = Object.freeze({
+  acceleration: { nameEn: 'Acceleration', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  berserk_mode: { nameEn: 'Berserk', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  berserk_mode_plus: { nameEn: 'Berserk+', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  blessing_of_light: { nameEn: 'Blessing of Light', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  blessing_of_light_plus: { nameEn: 'Blessing of Light+', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  burning: { nameEn: 'Burning', typeLabel: '\uB514\uBC84\uD504' },
+  confusion: { nameEn: 'Confusion', typeLabel: '\uB514\uBC84\uD504' },
+  critical_turn: { nameEn: 'Critical Turn', typeLabel: '\uBC84\uD504' },
+  cursed: { nameEn: 'Cursed', typeLabel: '\uB514\uBC84\uD504' },
+  divine_aura: { nameEn: 'Divine Aura', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  dodge: { nameEn: 'Dodge', typeLabel: '\uBC84\uD504 \u00B7 \uC18C\uBAA8\uD615' },
+  doom: { nameEn: 'Doom', typeLabel: '\uD2B9\uC218 \u00B7 \uCE74\uC6B4\uD2B8\uB2E4\uC6B4' },
+  echo_berserk: { nameEn: 'Echo Berserk', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  echo_on_hit: { nameEn: 'Echo on Hit', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  focus: { nameEn: 'Focus', typeLabel: '\uBC84\uD504 \u00B7 \uC18C\uBAA8\uD615' },
+  immune: { nameEn: 'Immune', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  mirror: { nameEn: 'Mirror Shield', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  poisoned: { nameEn: 'Poisoned', typeLabel: '\uB514\uBC84\uD504 \u00B7 \uC2A4\uD0DD' },
+  resonance: { nameEn: 'Resonance', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  slowed: { nameEn: 'Slowed', typeLabel: '\uB514\uBC84\uD504' },
+  soul_armor: { nameEn: 'Soul Armor', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  spike_shield: { nameEn: 'Spike Shield', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  stunImmune: { nameEn: 'Stun Immune', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  stunned: { nameEn: 'Stunned', typeLabel: '\uB514\uBC84\uD504' },
+  thorns: { nameEn: 'Thorns', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  time_warp: { nameEn: 'Time Warp', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  time_warp_plus: { nameEn: 'Time Warp+', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  unbreakable_wall: { nameEn: 'Unbreakable Wall', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  unbreakable_wall_plus: { nameEn: 'Unbreakable Wall+', typeLabel: '\uBC84\uD504 \u00B7 \uBB34\uD55C' },
+  vanish: { nameEn: 'Stealth', typeLabel: '\uBC84\uD504 \u00B7 \uC18C\uBAA8\uD615' },
+  vulnerable: { nameEn: 'Vulnerable', typeLabel: '\uB514\uBC84\uD504' },
+  weakened: { nameEn: 'Weakened', typeLabel: '\uB514\uBC84\uD504' },
+});
+
+export function getStatusTooltipSemanticMeta(statusKey) {
+  if (!statusKey) return null;
+  return STATUS_TOOLTIP_SEMANTICS[statusKey]
+    || STATUS_TOOLTIP_SEMANTICS[normalizeStatusKey(statusKey)]
+    || null;
+}
+
 export const STATUS_NAME_OVERRIDES = Object.freeze({
   silence: '移⑤У',
 });

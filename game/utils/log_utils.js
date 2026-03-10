@@ -1,20 +1,10 @@
 /**
  * 전투 로그 메시지 표준화 유틸리티
  */
-import { ENEMY_STATUS_KR, STATUS_KR, STATUS_NAME_OVERRIDES } from '../../data/status_effects_data.js';
+import { getStatusDisplayName } from '../../data/status_effects_data.js';
 
 function _toStatusName(statusName) {
-    const raw = String(statusName || '');
-    if (!raw) return raw;
-    const key = raw.trim();
-    const normalizedKey = key.replace(/_plus$/i, '');
-    return STATUS_KR[key]?.name
-        || STATUS_KR[normalizedKey]?.name
-        || ENEMY_STATUS_KR[key]
-        || ENEMY_STATUS_KR[normalizedKey]
-        || STATUS_NAME_OVERRIDES[key]
-        || STATUS_NAME_OVERRIDES[normalizedKey]
-        || key;
+    return getStatusDisplayName(statusName);
 }
 
 export const LogUtils = {

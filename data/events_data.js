@@ -155,7 +155,9 @@ export const EVENTS = [
             {
                 text: '💰 동전을 떨어뜨린다 (15골드 → 체력 +20)',
                 effect(gs) {
-                    if (gs.player.hp >= gs.player.maxHp) return '상처가 없다. 신도 쓸모없는 것은 받지 않는다.';
+                    if (gs.player.hp >= gs.player.maxHp) {
+                        return { resultText: '상처가 없다. 신도 쓸모없는 것은 받지 않는다.', isFail: true };
+                    }
                     if (gs.player.gold >= 15) {
                         gs.player.gold -= 15;
                         gs.heal(20);
@@ -228,7 +230,9 @@ export const EVENTS = [
                 text: '⚒️ 화로가 원하는 것을 준다',
                 effect(gs) {
                     const upgradable = gs.player.deck.filter(id => window.DATA?.upgradeMap?.[id]);
-                    if (!upgradable.length) return '화로가 식는다. 더 나아질 것이 없다는 뜻인지, 아직 때가 아니라는 뜻인지.';
+                    if (!upgradable.length) {
+                        return { resultText: '화로가 식는다. 더 나아질 것이 없다는 뜻인지, 아직 때가 아니라는 뜻인지.', isFail: true };
+                    }
 
                     const target = upgradable[Math.floor(Math.random() * upgradable.length)];
                     const upgraded = window.DATA.upgradeMap[target];
@@ -279,7 +283,7 @@ export const EVENTS = [
                         gs.addEcho(30);
                         return '금화를 올리자 저울이 수평을 이룬다. 그 찰나의 평형 속에서 순수한 잔향이 흘러나온다.';
                     }
-                    return '대가가 부족하다. 저울은 요지부동이다.';
+                    return { resultText: '대가가 부족하다. 저울은 요지부동이다.', isFail: true };
                 }
             },
             {
@@ -372,7 +376,9 @@ export const EVENTS = [
                 text: '🌀 균열이 삼키는 대로 둔다 (체력 -20, 아이템 1개)',
                 effect(gs) {
                     const picked = pickObtainableItem(gs, { source: 'event' }) || pickRandom(Object.values(ITEMS));
-                    if (!picked) return '균열 너머에 닿을 수 있는 것이 없었다. 공허만 남아 있다.';
+                    if (!picked) {
+                        return { resultText: '균열 너머에 닿을 수 있는 것이 없었다. 공허만 남아 있다.', isFail: true };
+                    }
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
                     gs.player.items.push(picked.id);
                     registerItemFound(gs, picked.id);
@@ -404,7 +410,9 @@ export const EVENTS = [
                         specialOfferOnly: true,
                         excludeOwned: true,
                     });
-                    if (!relic) return '열 수 있는 특수 유물이 더는 없다. 봉인들은 조용히 식어 있다.';
+                    if (!relic) {
+                        return { resultText: '열 수 있는 특수 유물이 더는 없다. 봉인들은 조용히 식어 있다.', isFail: true };
+                    }
 
                     gs.player.hp = Math.max(1, gs.player.hp - 12);
                     gs.player.items.push(relic.id);
@@ -457,7 +465,9 @@ export const EVENTS = [
             {
                 text: '👁️ 지도가 원하는 대로 얽힌다 (골드 15 소모, 잔향 +40)',
                 effect(gs) {
-                    if (gs.player.gold < 15) return '동기화에 필요한 것이 없다. 지도가 당신을 거부한다. 아직은.';
+                    if (gs.player.gold < 15) {
+                        return { resultText: '동기화에 필요한 것이 없다. 지도가 당신을 거부한다. 아직은.', isFail: true };
+                    }
                     gs.player.gold -= 15;
                     gs.addEcho(40);
                     const touched = new Set();

@@ -46,6 +46,54 @@ function _getItemShopCacheKey(gs) {
   return `${runCount}:${region}:${floor}:${nodeId}`;
 }
 
+function _createEventChoiceResult(resultText, {
+  isFail = false,
+  shouldClose = false,
+  isItemShop = false,
+  acquiredCard,
+  acquiredItem,
+} = {}) {
+  const resolution = {
+    resultText: resultText ?? null,
+    isFail,
+    shouldClose,
+    isItemShop,
+  };
+  if (acquiredCard) resolution.acquiredCard = acquiredCard;
+  if (acquiredItem) resolution.acquiredItem = acquiredItem;
+  return resolution;
+}
+
+function _createFailedEventChoiceResult(resultText, extra = {}) {
+  return _createEventChoiceResult(resultText, {
+    ...extra,
+    isFail: true,
+    shouldClose: false,
+  });
+}
+
+function _normalizeEventChoiceResult(event, result) {
+  if (!result) {
+    return _createEventChoiceResult(null, { shouldClose: true });
+  }
+  if (result === '__item_shop_open__') {
+    return _createEventChoiceResult(null, { shouldClose: false, isItemShop: true });
+  }
+  if (typeof result === 'object' && result !== null) {
+    const isFail = result.isFail === true;
+    return _createEventChoiceResult(result.resultText, {
+      isFail,
+      shouldClose: typeof result.shouldClose === 'boolean'
+        ? result.shouldClose
+        : !event?.persistent && !isFail,
+      isItemShop: result.isItemShop === true,
+      acquiredCard: result.acquiredCard,
+      acquiredItem: result.acquiredItem,
+    });
+  }
+  return _createEventChoiceResult(result, { shouldClose: !event?.persistent });
+}
+
 export const EventManager = {
   pickRandomEvent(gs, data) {
     if (!gs || !data?.events) return null;
@@ -58,10 +106,10 @@ export const EventManager = {
   },
 
   resolveEventChoice(gs, event, choiceIdx) {
-    if (!event || !gs) return { resultText: null, isFail: false, shouldClose: true, isItemShop: false };
+    if (!event || !gs) return _createEventChoiceResult(null, { shouldClose: true });
     const choice = event.choices?.[choiceIdx];
     if (!choice || typeof choice.effect !== 'function') {
-      return { resultText: null, isFail: false, shouldClose: true, isItemShop: false };
+      return _createEventChoiceResult(null, { shouldClose: true });
     }
     if (_isChoiceDisabled(choice, gs)) {
       return {
@@ -80,11 +128,17 @@ export const EventManager = {
       return { resultText: null, isFail: false, shouldClose: false, isItemShop: true };
     }
 
-    const failPattern = /(not enough|insufficient|none available|없다|부족)/i;
-    const isFail = typeof result === 'string' && failPattern.test(result);
-    const shouldClose = !event.persistent && !isFail;
+    const isFail = typeof result === 'object' && result !== null ? result.isFail === true : false;
+    const shouldClose = typeof result === 'object' && result !== null && typeof result.shouldClose === 'boolean'
+      ? result.shouldClose
+      : !event.persistent && !isFail;
 
-    const resolution = { resultText: result, isFail, shouldClose, isItemShop: false };
+    const resolution = {
+      resultText: typeof result === 'object' && result !== null ? result.resultText : result,
+      isFail,
+      shouldClose,
+      isItemShop: typeof result === 'object' && result !== null ? result.isItemShop === true : false,
+    };
     if (typeof result === 'object' && result !== null) {
       resolution.resultText = result.resultText;
       resolution.acquiredCard = result.acquiredCard;
@@ -113,17 +167,17 @@ export const EventManager = {
         {
           text: `🧪 포션 (HP +30) - ${costPotion} 골드`,
           cssClass: 'shop-choice-potion',
-          effect: (state) => this._shopBuyPotion(state, costPotion),
+          effect: (state) => this._resolveShopPotionChoice(state, costPotion),
         },
         {
           text: `🃏 랜덤 무작위 카드 - ${costCard} 골드`,
           cssClass: 'shop-choice-card',
-          effect: (state) => this._shopBuyCard(state, data, costCard),
+          effect: (state) => this._resolveShopCardChoice(state, data, costCard),
         },
         {
           text: `✨ 무작위 카드 강화 - ${costUpgrade} 골드`,
           cssClass: 'shop-choice-upgrade',
-          effect: (state) => this._shopUpgradeCard(state, data, costUpgrade),
+          effect: (state) => this._resolveShopUpgradeChoice(state, data, costUpgrade),
         },
         {
           text: '🛍️ 유물 상점 열기',
@@ -161,7 +215,7 @@ export const EventManager = {
           return upgradable.length === 0;
         },
         disabledReason: '강화 가능한 카드가 없습니다.',
-        effect: (state) => this._restUpgradeCard(state, data),
+        effect: (state) => this._resolveRestUpgradeChoice(state, data),
       },
       {
         text: '카드 1장 소각',
@@ -175,7 +229,7 @@ export const EventManager = {
     if (canResetStagnation) {
       choices.push({
         text: '정체 덱 복원',
-        effect: (state) => this._restResetStagnationDeck(state, data),
+        effect: (state) => this._resolveRestResetStagnationChoice(state),
       });
     }
 
@@ -256,6 +310,67 @@ export const EventManager = {
         ? `${card?.name || cardId} 소각 완료.`
         : `${card?.name || cardId} 판매 완료 (+8 골드).`,
     };
+  },
+
+  _resolveShopPotionChoice(state, cost) {
+    if (state.player.gold < cost) {
+      return _createFailedEventChoiceResult(`怨⑤뱶媛 遺議깊빀?덈떎 (${state.player.gold}/${cost}).`);
+    }
+    return this._shopBuyPotion(state, cost);
+  },
+
+  _resolveShopCardChoice(state, data, cost) {
+    if (state.player.gold < cost) {
+      return _createFailedEventChoiceResult(`怨⑤뱶媛 遺議깊빀?덈떎 (${state.player.gold}/${cost}).`);
+    }
+
+    const cardPool = Object.values(data?.cards || {})
+      .filter((card) => card && !card.upgraded)
+      .map((card) => card.id)
+      .filter(Boolean);
+    const cardId = cardPool.length
+      ? cardPool[Math.floor(Math.random() * cardPool.length)]
+      : null;
+
+    if (!cardId) {
+      return _createFailedEventChoiceResult('?띾뱷 媛?ν븳 移대뱶媛 ?놁뒿?덈떎.');
+    }
+
+    state.player.gold -= cost;
+    state.player.deck.push(cardId);
+    registerCardDiscovered(state, cardId);
+    return _createEventChoiceResult(
+      `?깗 ${data.cards?.[cardId]?.name || cardId} ?띾뱷. ?⑥? 怨⑤뱶: ${state.player.gold}`,
+      { acquiredCard: cardId },
+    );
+  },
+
+  _resolveShopUpgradeChoice(state, data, cost) {
+    if (state.player.gold < cost) {
+      return _createFailedEventChoiceResult(`怨⑤뱶媛 遺議깊빀?덈떎 (${state.player.gold}/${cost}).`);
+    }
+
+    const upgradable = (state.player.deck || []).filter((id) => data.upgradeMap?.[id]);
+    if (!upgradable.length) {
+      return _createFailedEventChoiceResult('媛뺥솕 媛?ν븳 移대뱶媛 ?놁뒿?덈떎.');
+    }
+
+    return this._shopUpgradeCard(state, data, cost);
+  },
+
+  _resolveRestResetStagnationChoice(state) {
+    if (!Array.isArray(state._stagnationVault) || state._stagnationVault.length === 0) {
+      return _createFailedEventChoiceResult('蹂듭썝 ?湲?以묒씤 移대뱶媛 ?놁뒿?덈떎.');
+    }
+    return this._restResetStagnationDeck(state);
+  },
+
+  _resolveRestUpgradeChoice(state, data) {
+    const upgradable = (state.player.deck || []).filter((id) => data.upgradeMap?.[id]);
+    if (!upgradable.length) {
+      return _createFailedEventChoiceResult('媛뺥솕 媛?ν븳 移대뱶媛 ?놁뒿?덈떎.');
+    }
+    return this._restUpgradeCard(state, data);
   },
 
   _shopBuyPotion(state, cost) {

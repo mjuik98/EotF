@@ -1,0 +1,66 @@
+import { CardCostUtils } from '../../utils/card_cost_utils.js';
+import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
+import { buildEnemyStatusBadges } from './combat_enemy_status_badges_ui.js';
+import {
+  formatEnemyIntentLabel,
+  getEnemyIntentIcon,
+  resolveEnemyIntent,
+} from './combat_intent_ui.js';
+
+function _getWin(deps) {
+  return deps?.win || window;
+}
+
+function _calcSelectedPreview(gs, data, enemy) {
+  return calcSelectedPreview(gs, data, enemy, CardCostUtils);
+}
+
+function _renderSelectedPreviewText(preview) {
+  return selectedPreviewText(preview);
+}
+
+export function buildEnemyHpText(enemy) {
+  return `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (Shield ${enemy.shield})` : ''}`;
+}
+
+export function buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers }) {
+  const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
+  const intent = resolveEnemyIntent(enemy, gs.combat.turn);
+  let intentIcon = getEnemyIntentIcon(intent);
+  let intentLabel = formatEnemyIntentLabel(intent);
+  let intentDmgVal = intent.dmg;
+
+  if (gs.combat.turn <= 0) {
+    intentIcon = '?';
+    intentLabel = 'No intent';
+    intentDmgVal = 0;
+  }
+
+  const isSelected = gs._selectedTarget === index && enemy.hp > 0;
+  const preview = isSelected ? _calcSelectedPreview(gs, data, enemy) : null;
+
+  return {
+    doc,
+    enemy,
+    index,
+    hpPct,
+    isSelected,
+    hpText: buildEnemyHpText(enemy),
+    spriteIcon: enemy.icon || '?',
+    intentIcon,
+    intentLabelHtml: intentLabel,
+    intentDmgVal,
+    statusFragment: buildEnemyStatusBadges(enemy.statusEffects, doc, handlers),
+    previewText: preview ? _renderSelectedPreviewText(preview) : '',
+    hpBarBackground: enemyHpColor(hpPct),
+    selectedMarkerText: '',
+    onSelectTarget: enemy.hp > 0
+      ? () => {
+        const selectHandler = deps.selectTarget || _getWin(deps)[deps.selectTargetHandlerName || 'selectTarget'];
+        if (typeof selectHandler === 'function') selectHandler(index);
+      }
+      : null,
+    onIntentEnter: (event) => handlers.onShowIntentTooltip(event, index, deps),
+    onIntentLeave: () => handlers.onHideIntentTooltip(deps),
+  };
+}

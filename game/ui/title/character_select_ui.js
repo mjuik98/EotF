@@ -14,6 +14,7 @@ import {
   updateCharacterArrows,
 } from './character_select_render.js';
 import { buildCharacterRadar } from './character_select_radar.js';
+import { renderCharacterCard } from './character_select_card_ui.js';
 import { LevelUpPopupUI } from './level_up_popup_ui.js';
 import { RunEndScreenUI } from './run_end_screen_ui.js';
 
@@ -319,33 +320,6 @@ export const CharacterSelectUI = {
       return chars.find((entry) => entry.class === classId) || chars[state.idx] || chars[0];
     }
 
-    function ensureCardProgressNodes(card) {
-      let badge = card.querySelector('#cardLevelBadge');
-      if (!badge) {
-        badge = doc.createElement('div');
-        badge.id = 'cardLevelBadge';
-        badge.innerHTML = '<div class="csm-card-level"></div>';
-        card.appendChild(badge);
-      }
-
-      let xpWrap = card.querySelector('#cardXpBarWrap');
-      if (!xpWrap) {
-        xpWrap = doc.createElement('div');
-        xpWrap.id = 'cardXpBarWrap';
-        xpWrap.innerHTML = `
-          <div class="csm-card-xp-track"><div class="csm-card-xp-fill"></div></div>
-          <div class="csm-card-xp-text"></div>
-        `;
-        card.appendChild(xpWrap);
-      }
-
-      return {
-        badge: badge.querySelector('.csm-card-level'),
-        xpFill: xpWrap.querySelector('.csm-card-xp-fill'),
-        xpText: xpWrap.querySelector('.csm-card-xp-text'),
-      };
-    }
-
     function updateAll() {
       ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
       renderCard();
@@ -499,77 +473,17 @@ export const CharacterSelectUI = {
       const card = getById('charCard');
       if (!card) return;
       const progress = getClassProgress(ch.class);
-      const isMax = progress.level >= ClassProgressionSystem.MAX_LEVEL;
-
-      card.classList.toggle('csm-max', isMax);
-      card.style.border = isMax ? `1.6px solid ${ch.accent}aa` : `1px solid ${ch.accent}44`;
-      card.style.background = isMax
-        ? `linear-gradient(158deg,${ch.color}2d 0%,#080610 48%,${ch.color}18 100%)`
-        : `linear-gradient(158deg,${ch.color}18 0%,#060610 50%,${ch.color}08 100%)`;
-      card.style.boxShadow = isMax
-        ? `0 0 80px ${ch.glow}44,inset 0 1px 0 ${ch.accent}33`
-        : `0 0 65px ${ch.glow}22,inset 0 1px 0 ${ch.accent}18`;
-
-      const cardTitle = getById('cardTitle');
-      if (cardTitle) {
-        cardTitle.style.color = ch.accent;
-        cardTitle.textContent = ch.title;
-      }
-      const cardEmoji = getById('cardEmoji');
-      if (cardEmoji) {
-        cardEmoji.textContent = ch.emoji;
-        cardEmoji.style.filter = `drop-shadow(0 0 28px ${ch.glow})`;
-      }
-      const cardName = getById('cardName');
-      if (cardName) {
-        cardName.textContent = ch.name;
-        cardName.style.textShadow = `0 0 20px ${ch.glow}`;
-      }
-      const cardDiff = getById('cardDiff');
-      if (cardDiff) cardDiff.textContent = ch.difficulty;
-      const cardTraitBadge = getById('cardTraitBadge');
-      if (cardTraitBadge) {
-        cardTraitBadge.textContent = `??${ch.traitName}`;
-        cardTraitBadge.style.cssText += `;border:1px solid ${ch.accent}33;color:${ch.accent};background:${ch.accent}0a;`;
-      }
-      const cardTags = getById('cardTags');
-      if (cardTags) {
-        cardTags.innerHTML = ch.tags.map((tag) => (
-          `<span style="padding:4px 10px;border:1px solid ${ch.accent}22;border-radius:12px;font-size:11px;color:${ch.accent}aa;font-family:'Share Tech Mono',monospace;background:${ch.accent}07">${tag}</span>`
-        )).join('');
-      }
-      const cardBottomGrad = getById('cardBottomGrad');
-      if (cardBottomGrad) cardBottomGrad.style.background = `linear-gradient(to top,${ch.color}44,transparent)`;
-      const cardShimmer = getById('cardShimmer');
-      if (cardShimmer) cardShimmer.style.background = `linear-gradient(105deg,transparent 40%,${ch.accent}07 50%,transparent 60%)`;
-
-      const progressNodes = ensureCardProgressNodes(card);
-      if (progressNodes.badge) {
-        progressNodes.badge.textContent = isMax ? 'MAX' : `Lv.${progress.level}`;
-        progressNodes.badge.style.color = ch.accent;
-        progressNodes.badge.style.borderColor = `${ch.accent}${isMax ? 'bb' : '66'}`;
-        progressNodes.badge.style.background = isMax ? `${ch.accent}26` : `${ch.accent}14`;
-      }
-      if (progressNodes.xpFill) {
-        progressNodes.xpFill.style.width = `${Math.round(progress.progress * 100)}%`;
-        progressNodes.xpFill.style.background = ch.accent;
-        progressNodes.xpFill.style.boxShadow = `0 0 8px ${ch.accent}88`;
-      }
-      if (progressNodes.xpText) {
-        progressNodes.xpText.textContent = progress.nextLevelXp === null
+      renderCharacterCard({
+        card,
+        selectedChar: ch,
+        classProgress: progress,
+        maxLevel: ClassProgressionSystem.MAX_LEVEL,
+        resolveById: getById,
+        doc,
+        traitBadgeText: `??${ch.traitName}`,
+        xpText: progress.nextLevelXp === null
           ? `MAX LEVEL 쨌 ${progress.totalXp} XP`
-          : `${progress.totalXp} / ${progress.nextLevelXp} XP`;
-      }
-
-      card.querySelectorAll('.card-corner').forEach((corner) => corner.remove());
-      [['top', 'left'], ['top', 'right'], ['bottom', 'left'], ['bottom', 'right']].forEach(([vertical, horizontal]) => {
-        const corner = doc.createElement('div');
-        corner.className = 'card-corner';
-        corner.style[vertical] = '9px';
-        corner.style[horizontal] = '9px';
-        corner.style[`border${vertical[0].toUpperCase() + vertical.slice(1)}`] = `1px solid ${ch.accent}77`;
-        corner.style[`border${horizontal[0].toUpperCase() + horizontal.slice(1)}`] = `1px solid ${ch.accent}77`;
-        card.appendChild(corner);
+          : `${progress.totalXp} / ${progress.nextLevelXp} XP`,
       });
     }
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildStatusTooltipHTML } from '../game/ui/combat/status_tooltip_builder.js';
+import { getEnemyStatusMeta, getEnemyStatusName } from '../data/status_effects_data.js';
 
 describe('status tooltip builder focus coverage', () => {
   it('renders focus buff tooltip details instead of falling back to a bare description', () => {
@@ -25,5 +26,13 @@ describe('status tooltip builder focus coverage', () => {
     expect(html).toContain('Critical Turn');
     expect(html).toContain('이번 턴 전체 치명타');
     expect(html).toContain('턴 종료 시 해제');
+  });
+  it('fills missing enemy tooltip fields from the shared status metadata accessors', () => {
+    const meta = getEnemyStatusMeta('draw_block');
+    const html = buildStatusTooltipHTML('draw_block', null, 2);
+
+    expect(html).toContain(getEnemyStatusName('draw_block'));
+    expect(html).toContain(meta?.icon ?? '');
+    expect(html).toContain(meta?.desc ?? '');
   });
 });

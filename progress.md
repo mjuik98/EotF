@@ -2417,3 +2417,533 @@ Original prompt:
   - Re-checked `output/web-game/shot-1.png`; no `errors-*.json` artifacts were present in `output/web-game`.
 - Suggested next refactor target:
   - `game/ui/hud/feedback_ui.js` is effectively done; switch back to `game/ui/combat/combat_hud_ui.js` and split the remaining combat-log updater.
+- Follow-up prompt: combat_hud_ui.js의 남은 combat log updater 분리.
+- Combat HUD log split (`game/ui/combat/combat_hud_ui.js`):
+  - Extracted the remaining combat log updater into `game/ui/combat/combat_hud_log_ui.js`.
+  - `CombatHudUI.updateCombatLog()` is now a thin delegation layer, matching the prior feedback/chronicle helper split pattern.
+  - Preserved id-based patching, stale-entry pruning, id-less dedupe, 30-entry trimming, and auto-scroll-on-append behavior.
+- Added regression coverage:
+  - `tests/combat_hud_log_ui.test.js` verifies initial render, id-based update/prune behavior, id-less dedupe, and empty-log clearing.
+- Validation:
+  - `npm test -- tests/combat_hud_log_ui.test.js tests/combat_start_ui.test.js tests/init_sequence.test.js tests/event_bindings_registry.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4181`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Follow-up prompt: event_manager 문자열 실패 판정 구조화.
+- Event resolution hardening (`game/systems/event_manager.js`, `data/events_data.js`, `game/ui/screens/event_ui.js`):
+  - Removed dependence on text-keyword failure parsing in event resolution flow; object results with explicit `isFail` / optional `shouldClose` now drive close/fail behavior.
+  - Updated real event-data failure branches that previously returned plain strings (`shrine`, `forge`, `echo_scale`, `void_crack`, `sealed_reliquary`, `cartographer`) to return structured failure objects.
+  - Updated shop choice wrapping in `event_ui.js` to respect explicit failure objects instead of scanning result text for English keywords.
+  - Added structured choice wrappers in `EventManager` for shop/rest validation paths so insufficient-gold / no-upgrade / empty-stock cases no longer rely on string content.
+- Added regression coverage:
+  - `tests/event_manager_resolution_flags.test.js` verifies:
+    - explicit success objects still close even if result text contains words like `없었다`
+    - explicit failure objects stay open
+    - real `shrine` full-HP branch returns a structured failure
+    - shop purchase validation returns a structured failure object
+- Validation:
+  - `npm test -- tests/event_manager_resolution_flags.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js tests/event_manager_item_shop_cache.test.js tests/event_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4182`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - Add the focused draw-button HUD unit test noted earlier (`playerTurn`, `handFull`, `noEnergy`) to lock down the shared `draw_availability.js` path.
+- Follow-up prompt: draw button HUD 회귀 테스트 추가.
+- Draw button HUD regression coverage (`tests/hud_panel_sections_draw_button.test.js`):
+  - Added focused unit coverage for the shared draw-availability HUD path through `updateHudPanels(...)`.
+  - Verified draw button label/title/disabled state transitions for:
+    - enemy turn -> `Turn Locked`
+    - full hand -> `Hand Full`
+    - no energy -> `No Energy`
+    - normal available state -> `Draw Card (1 Energy)`
+  - Kept the lower-level resolver coverage in `tests/draw_availability.test.js`; the new test locks the user-visible HUD mapping on top of it.
+- Validation:
+  - `npm test -- tests/hud_panel_sections_draw_button.test.js tests/draw_availability.test.js tests/event_manager_resolution_flags.test.js tests/event_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4183`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next clean hardening pass is consolidating remaining duplicated status metadata across UI/log layers into one data module, now that event resolution and draw-button HUD regressions are covered.
+- Follow-up prompt: 상태 메타데이터 공통 accessor 통합.
+- Status metadata accessor consolidation (`data/status_effects_data.js`, `game/utils/log_utils.js`, `game/ui/combat/combat_ui.js`):
+  - Added shared lookup/accessor helpers in `data/status_effects_data.js`:
+    - `normalizeStatusKey(...)`
+    - `getPlayerStatusMeta(...)`
+    - `getEnemyStatusName(...)`
+    - `getEnemyStatusMeta(...)`
+    - `getStatusDisplayName(...)`
+  - Updated `game/utils/log_utils.js` to use `getStatusDisplayName(...)` instead of maintaining its own layered fallback chain.
+  - Updated `game/ui/combat/combat_ui.js` to use shared enemy-status accessors for label/icon/tooltip metadata lookup.
+  - Kept the existing exported tables (`STATUS_KR`, `ENEMY_STATUS_KR`, `ENEMY_STATUS_DESC`) intact so current callers/tests keep working while lookup logic is centralized.
+- Added regression coverage:
+  - `tests/status_effects_data_accessors.test.js` verifies:
+    - `_plus` suffix normalization
+    - player status metadata lookup
+    - enemy status name/meta lookup
+    - unified display-name resolution across player/enemy/override-only keys
+- Validation:
+  - `npm test -- tests/status_effects_data_accessors.test.js tests/enemy_status_metadata.test.js tests/player_status_metadata.test.js tests/event_manager_resolution_flags.test.js tests/hud_panel_sections_draw_button.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4184`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next useful pass is reducing remaining duplicated status-presentation metadata between `status_effects_data.js` and `status_tooltip_builder.js` if you want to keep pushing status-system consolidation.
+- Follow-up prompt: 진행해줘
+- Status tooltip shared-fallback consolidation (`game/ui/combat/status_tooltip_builder.js`):
+  - Imported the centralized status accessors from `data/status_effects_data.js` so the tooltip builder can recover missing `name` / `icon` / `desc` / `buff` fields from shared status metadata instead of relying on every caller to pass a fully-shaped `infoKR`.
+  - Added local `_resolveInfo(...)` in `status_tooltip_builder.js` and switched both `buildStatusTooltipHTML(...)` and tooltip glow palette resolution to use the normalized shared fallback result.
+  - Updated `_getMeta(...)` to also check `normalizeStatusKey(statusKey)` so `_plus`-style keys can reuse base tooltip meta when no exact tooltip-only override exists.
+  - Left tooltip-only presentation concerns (`STATUS_TOOLTIP_META`, tags, palette accents, next-turn copy) in the builder for now; this pass only centralized duplicated status identity/description lookup.
+- Added regression coverage:
+  - `tests/status_tooltip_builder_focus.test.js` now verifies that `buildStatusTooltipHTML('draw_block', null, 2)` still renders the shared enemy status name/icon/description via the centralized accessors.
+- Validation:
+  - `npm test -- tests/status_tooltip_builder_focus.test.js tests/status_tooltip_metrics.test.js tests/status_effects_data_accessors.test.js tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4185`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - If status-system consolidation continues, the next clean step is extracting the tooltip-only presentation tables (`STATUS_TOOLTIP_META` / `STATUS_TOOLTIP_META_OVERRIDES`) into a dedicated data module so `status_tooltip_builder.js` becomes mostly rendering logic plus shared accessors.
+- Follow-up prompt: 진행해줘
+- Tooltip meta data extraction (`data/status_tooltip_meta_data.js`, `game/ui/combat/status_tooltip_builder.js`):
+  - Moved the tooltip-only presentation tables and lookup merge path out of `game/ui/combat/status_tooltip_builder.js` into new `data/status_tooltip_meta_data.js`.
+  - Added shared exports in the new data module:
+    - `getStatusTooltipMeta(...)`
+    - `resolveStatusTooltipPalette(...)`
+  - Updated `status_tooltip_builder.js` to consume the extracted tooltip-meta accessors plus the previously added shared status-info accessors from `status_effects_data.js`.
+  - Rewrote `status_tooltip_builder.js` into a clean rendering-focused module after the extraction exposed encoding-sensitive helper text; public API (`buildStatusTooltipHTML`, `StatusTooltipUI.show/showForAnchor/hide/cancelHide`) and DOM contract were kept intact.
+  - Kept generic tooltip helper labels (`다음 턴`, `지속시간`, `버프/디버프`) in the builder with ASCII-safe Unicode escapes so the file stays parse-stable without depending on console encoding.
+- Added regression coverage:
+  - Added `tests/status_tooltip_meta_data.test.js` to verify:
+    - direct tooltip-meta lookup for explicit and normalized keys
+    - fallback palette resolution for unknown statuses
+  - Kept the existing `tests/status_tooltip_builder_focus.test.js` fallback coverage for missing `infoKR`.
+- Validation:
+  - `npm test -- tests/status_tooltip_meta_data.test.js tests/status_tooltip_builder_focus.test.js tests/status_tooltip_metrics.test.js tests/status_effects_data_accessors.test.js tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4187`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next clean status pass is consolidating the remaining duplicated semantic fields between `status_effects_data.js` and `status_tooltip_meta_data.js` (for example English names/type-label intent) so tooltip data becomes purely presentation-focused.
+- Follow-up prompt: 진행해줘
+- Tooltip semantic metadata consolidation (`data/status_effects_data.js`, `data/status_tooltip_meta_data.js`):
+  - Added `STATUS_TOOLTIP_SEMANTICS` plus `getStatusTooltipSemanticMeta(...)` to `data/status_effects_data.js` so tooltip English names and type-label intent now come from the same shared status-data layer as the other status accessors.
+  - Removed local `nameEn` / `typeLabel` fields from `data/status_tooltip_meta_data.js` and changed `getStatusTooltipMeta(...)` to merge shared semantic metadata with tooltip-only presentation metadata.
+  - Kept palette/next-turn/tags/stats data inside `status_tooltip_meta_data.js`, so that file is now closer to pure presentation config instead of carrying identity/semantic fields too.
+- Added regression coverage:
+  - `tests/status_effects_data_accessors.test.js` now verifies the shared tooltip semantic accessor.
+  - `tests/status_tooltip_meta_data.test.js` now verifies merged tooltip meta still exposes `nameEn` and `typeLabel` after the semantic fields were removed from the presentation table.
+- Validation:
+  - `npm test -- tests/status_effects_data_accessors.test.js tests/status_tooltip_meta_data.test.js tests/status_tooltip_builder_focus.test.js tests/status_tooltip_metrics.test.js tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4188`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next small cleanup is separating tooltip chrome copy (`다음 턴`, `지속시간`, source-label wording) from `status_tooltip_builder.js` so the builder becomes almost entirely structural rendering plus data access.
+- Follow-up prompt: 진행해줘
+- Tooltip chrome copy extraction (`game/ui/combat/status_tooltip_copy.js`, `game/ui/combat/status_tooltip_builder.js`):
+  - Added `game/ui/combat/status_tooltip_copy.js` to hold tooltip chrome strings and tiny formatting helpers:
+    - `STATUS_TOOLTIP_COPY`
+    - `getStatusTooltipTypeLabel(...)`
+    - `getStatusTooltipSourceIcon(...)`
+    - `formatStatusTooltipUrgentDuration(...)`
+  - Updated `status_tooltip_builder.js` to stop embedding direct chrome strings for:
+    - next-turn header
+    - duration labels / infinite text
+    - countdown text
+    - source icons
+    - default buff/debuff type badges
+  - After this pass, `status_tooltip_builder.js` is mostly structure + shared metadata composition, with less string ownership.
+- Added regression coverage:
+  - Added `tests/status_tooltip_copy.test.js` to verify the extracted type-label/source-icon/urgent-duration helpers.
+- Validation:
+  - `npm test -- tests/status_tooltip_copy.test.js tests/status_tooltip_meta_data.test.js tests/status_tooltip_builder_focus.test.js tests/status_tooltip_metrics.test.js tests/status_effects_data_accessors.test.js tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4189`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next clean pass is reducing the remaining builder-only logic by pulling tooltip section assembly (`next turn`, `gauge`, `stats`, `source`) into small render helpers or a formatter module if you want `status_tooltip_builder.js` to become a very thin composition layer.
+- Follow-up prompt: 진행해줘
+- Tooltip section helper extraction (`game/ui/combat/status_tooltip_sections.js`, `game/ui/combat/status_tooltip_builder.js`):
+  - Added `game/ui/combat/status_tooltip_sections.js` and moved the remaining tooltip section assembly helpers there:
+    - `buildStatusTooltipNextTurnHTML(...)`
+    - `buildStatusTooltipGaugeHTML(...)`
+    - `buildStatusTooltipCountdownHTML(...)`
+    - `buildStatusTooltipTagsHTML(...)`
+    - `buildStatusTooltipStatsHTML(...)`
+    - `buildStatusTooltipSourceHTML(...)`
+  - Updated `status_tooltip_builder.js` to delegate section rendering to the extracted helpers, leaving the file mostly responsible for:
+    - shared status/info lookup
+    - header assembly
+    - section composition order
+    - tooltip root/show/hide positioning
+- Added regression coverage:
+  - Added `tests/status_tooltip_sections.test.js` to verify the extracted next-turn/source/gauge/countdown/stats helpers directly.
+- Validation:
+  - `npm test -- tests/status_tooltip_sections.test.js tests/status_tooltip_copy.test.js tests/status_tooltip_meta_data.test.js tests/status_tooltip_builder_focus.test.js tests/status_tooltip_metrics.test.js tests/status_effects_data_accessors.test.js tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4190`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next very small tooltip pass is extracting the remaining header/body composition inside `buildStatusTooltipHTML(...)` so `status_tooltip_builder.js` becomes a minimal facade over `copy`, `sections`, and shared metadata accessors.
+- Follow-up prompt: 진행해줘
+- Tooltip layout helper extraction (`game/ui/combat/status_tooltip_layout.js`, `game/ui/combat/status_tooltip_builder.js`):
+  - Added `game/ui/combat/status_tooltip_layout.js` for the last composition-only helpers:
+    - `buildStatusTooltipHeaderHTML(...)`
+    - `composeStatusTooltipBodyHTML(...)`
+  - Updated `status_tooltip_builder.js` so `buildStatusTooltipHTML(...)` now mostly does:
+    - shared status/info lookup
+    - semantic/palette resolution
+    - section data selection
+    - delegation to layout/section helpers
+  - At this point the file is effectively a facade plus tooltip-root positioning/show/hide behavior.
+- Added regression coverage:
+  - Added `tests/status_tooltip_layout.test.js` to verify the extracted header/body layout helpers directly.
+- Validation:
+  - `npm test -- tests/status_tooltip_layout.test.js tests/status_tooltip_sections.test.js tests/status_tooltip_copy.test.js tests/status_tooltip_meta_data.test.js tests/status_tooltip_builder_focus.test.js tests/status_tooltip_metrics.test.js tests/status_effects_data_accessors.test.js tests/player_status_metadata.test.js tests/enemy_status_metadata.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4191`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The tooltip path is now thin enough that the next useful pass can move elsewhere, for example another remaining large combat/UI module outside the tooltip builder chain.
+- Combat intent UI extraction (`game/ui/combat/combat_intent_ui.js`, `game/ui/combat/combat_ui.js`):
+  - Added `game/ui/combat/combat_intent_ui.js` and moved enemy intent-specific responsibilities out of `combat_ui.js`:
+    - intent icon mapping
+    - intent label normalization/highlighting
+    - intent description resolution
+    - stunned-aware intent resolution
+    - intent tooltip show/hide/hover-anchor cleanup
+  - Updated `combat_ui.js` to delegate enemy intent behavior to the new module while keeping the existing `CombatUI.showIntentTooltip(...)` / `hideIntentTooltip(...)` surface intact.
+  - Simplified `cleanupAllTooltips(...)` to use the imported `StatusTooltipUI` directly plus the extracted intent-tooltip cleanup helper.
+- Added regression coverage:
+  - Added `tests/combat_intent_ui.test.js` to verify:
+    - tooltip creation and edge-aware positioning
+    - delayed hide plus stale-hover cleanup
+    - stunned override and basic attack-label normalization
+  - Re-ran existing `tests/combat_ui_render.test.js` to confirm the enemy card render/update path still composes the extracted intent helpers correctly.
+- Validation:
+  - `npm test -- tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm test -- tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js tests/combat_start_ui.test.js tests/event_bindings_registry.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4192`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next small `combat_ui.js` pass is extracting enemy status-badge fragment assembly (`_renderEnemyStatuses(...)`) into a dedicated helper/module so badge copy, poison-duration display, and hover wiring are isolated from the enemy-card view-model builder.
+- Enemy status badge helper extraction (`game/ui/combat/combat_enemy_status_badges_ui.js`, `game/ui/combat/combat_ui.js`):
+  - Added `game/ui/combat/combat_enemy_status_badges_ui.js` and moved enemy status badge fragment assembly out of `combat_ui.js`.
+  - The new helper now owns:
+    - badge label/icon/color lookup
+    - poison duration display override
+    - badge DOM creation
+    - hover event wiring for status tooltip show/hide
+  - Updated `combat_ui.js` so the enemy-card view-model builder only consumes `buildEnemyStatusBadges(...)` instead of building badge fragments inline.
+- Added regression coverage:
+  - Added `tests/combat_enemy_status_badges_ui.test.js` to verify:
+    - poison duration override is shown on the badge
+    - debuff/buff colors are preserved
+    - status tooltip hover callbacks still receive the original status value plus `poisonDuration`
+    - empty status payload returns an empty fragment
+  - Re-ran `tests/combat_ui_render.test.js` to confirm the extracted helper still composes correctly in enemy cards.
+- Validation:
+  - `npm test -- tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm test -- tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js tests/combat_start_ui.test.js tests/event_bindings_registry.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4193`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next small `combat_ui.js` pass is extracting enemy status tooltip payload resolution (`showEnemyStatusTooltip(...)` info/source assembly) into a dedicated helper so `CombatUI` keeps only orchestration and render entrypoints.
+- Enemy status tooltip helper extraction (`game/ui/combat/combat_enemy_status_tooltip_ui.js`, `game/ui/combat/combat_ui.js`):
+  - Added `game/ui/combat/combat_enemy_status_tooltip_ui.js` to isolate enemy status tooltip-specific responsibilities:
+    - window-compatible `statusValue` / deps argument normalization
+    - shared metadata to `infoKR` / `source` payload resolution
+    - `StatusTooltipUI.show(...)` forwarding
+    - `StatusTooltipUI.hide(...)` forwarding
+  - Updated `combat_ui.js` so `CombatUI.showEnemyStatusTooltip(...)` / `hideEnemyStatusTooltip(...)` now delegate to the extracted helper and no longer assemble tooltip payloads inline.
+- Added regression coverage:
+  - Added `tests/combat_enemy_status_tooltip_ui.test.js` to verify:
+    - value/deps normalization for the legacy window-call shape
+    - payload resolution for enemy debuff/buff statuses
+    - forwarding of `rawValue`, `source`, `doc`, `win`, and `poisonDuration` into `StatusTooltipUI.show(...)`
+    - hide delegation into `StatusTooltipUI.hide(...)`
+- Validation:
+  - `npm test -- tests/combat_enemy_status_tooltip_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm test -- tests/combat_enemy_status_tooltip_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js tests/combat_start_ui.test.js tests/event_bindings_registry.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4194`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next useful `combat_ui.js` pass is extracting `_buildEnemyViewModel(...)` into a dedicated view-model helper so target selection, preview resolution, hp text, and per-enemy handler wiring stop living in the render entrypoint module.
+- Enemy view-model helper extraction (`game/ui/combat/combat_enemy_view_model_ui.js`, `game/ui/combat/combat_ui.js`):
+  - Added `game/ui/combat/combat_enemy_view_model_ui.js` and moved per-enemy view-model assembly out of `combat_ui.js`.
+  - The new helper now owns:
+    - HP text formatting
+    - stunned/no-intent resolution for pre-turn state
+    - selected target / preview text calculation
+    - status badge fragment attachment
+    - target select handler resolution
+    - per-enemy intent hover handler wiring
+  - Updated `combat_ui.js` so enemy rendering only orchestrates:
+    - choosing full render vs incremental update
+    - calling `buildEnemyViewModel(...)`
+    - passing the view model into `createEnemyCardView(...)` / `updateEnemyCardView(...)`
+  - `updateEnemyHpUI(...)` now also reuses the extracted `buildEnemyHpText(...)` helper.
+- Added regression coverage:
+  - Added `tests/combat_enemy_view_model_ui.test.js` to verify:
+    - selected target preview generation and click handler wiring
+    - intent hover handler wiring
+    - pre-turn `No intent` fallback
+    - dead enemies not exposing `onSelectTarget`
+    - HP text formatting with and without shield values
+- Validation:
+  - `npm test -- tests/combat_enemy_view_model_ui.test.js tests/combat_enemy_status_tooltip_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm test -- tests/combat_enemy_view_model_ui.test.js tests/combat_enemy_status_tooltip_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js tests/combat_start_ui.test.js tests/event_bindings_registry.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4195`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `combat_ui.js` is now mostly orchestration. The next small pass is extracting the remaining floating-tooltip synchronization (`_syncFloatingTooltipAnchors(...)`) and enemy HP-only update formatting into a tiny facade/helper split, or else moving on to the next larger UI module outside combat enemy rendering.
+- Enemy runtime helper extraction (`game/ui/combat/combat_enemy_runtime_ui.js`, `game/ui/combat/combat_ui.js`):
+  - Added `game/ui/combat/combat_enemy_runtime_ui.js` for the last enemy-rendering runtime-only helpers:
+    - `syncCombatEnemyFloatingTooltips(doc)`
+    - `buildEnemyHpUpdateViewModel(...)`
+  - Updated `combat_ui.js` so:
+    - floating status/intent tooltip stale-hover cleanup is delegated to `syncCombatEnemyFloatingTooltips(...)`
+    - `updateEnemyHpUI(...)` now forwards a prebuilt HP update payload into `updateEnemyHpView(...)`
+  - After this pass, `combat_ui.js` is essentially limited to public surface methods plus render/update orchestration.
+- Added regression coverage:
+  - Added `tests/combat_enemy_runtime_ui.test.js` to verify:
+    - stale floating status/intent tooltips are removed when anchors are no longer hovered
+    - hovered anchors preserve visibility
+    - HP-only update payloads reuse the shared HP text and color data
+- Validation:
+  - `npm test -- tests/combat_enemy_runtime_ui.test.js tests/combat_enemy_view_model_ui.test.js tests/combat_enemy_status_tooltip_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js` PASS.
+  - `npm test -- tests/combat_enemy_runtime_ui.test.js tests/combat_enemy_view_model_ui.test.js tests/combat_enemy_status_tooltip_ui.test.js tests/combat_enemy_status_badges_ui.test.js tests/combat_intent_ui.test.js tests/combat_ui_render.test.js tests/status_tooltip_metrics.test.js tests/combat_start_ui.test.js tests/event_bindings_registry.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4196`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `combat_ui.js` is now sufficiently thin. The next useful patch should move to another larger UI module, with `combat_hud_ui.js` feedback/widget branches or a non-combat screen module as the next cleanup target.
+- Combat HUD widget helper extraction (`game/ui/combat/combat_hud_widgets_ui.js`, `game/ui/combat/combat_hud_ui.js`):
+  - Added `game/ui/combat/combat_hud_widgets_ui.js` and moved the larger HUD widget branches out of `combat_hud_ui.js`:
+    - chain counter/dot rendering (`applyChainWidgetState`, `updateCombatChainWidgets`)
+    - noise widget state resolution + DOM application (`resolveNoiseWidgetState`, `applyNoiseWidgetState`, `updateNoiseWidgetUI`)
+  - Updated `combat_hud_ui.js` so `updateChainUI(...)` and `updateNoiseWidget(...)` now delegate to the extracted helper module, leaving the file focused on orchestration and overlay entrypoints.
+- Added regression coverage:
+  - Added `tests/combat_hud_widgets_ui.test.js` to verify:
+    - chain widget burst state and combat inline visibility
+    - silence-city / time-wasteland noise widget state resolution
+    - DOM application for noise widget dots, fill width, text, and hide/show behavior
+- Validation:
+  - `npm test -- tests/combat_hud_widgets_ui.test.js tests/combat_hud_feedback.test.js tests/combat_hud_log_ui.test.js tests/combat_start_ui.test.js` PASS.
+  - `npm test -- tests/combat_hud_widgets_ui.test.js tests/combat_hud_feedback.test.js tests/combat_hud_log_ui.test.js tests/combat_start_ui.test.js tests/init_sequence.test.js tests/run_start_ui.test.js tests/title_settings_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4197`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - Note: `tests/title_settings_bindings.test.js` still prints the known expected `pre-run ripple failed` stderr line while passing.
+- Suggested next refactor / hardening target:
+  - The next useful `combat_hud_ui.js` pass is extracting `updateClassSpecialUI(...)` into a dedicated helper so class-specific special rendering and empty-state fallback leave the HUD facade, or else moving directly to another non-combat screen module.
+- Combat HUD class special helper extraction (`game/ui/combat/combat_hud_special_ui.js`, `game/ui/combat/combat_hud_ui.js`):
+  - Added `game/ui/combat/combat_hud_special_ui.js` and moved class-specific HUD special rendering out of `combat_hud_ui.js`.
+  - The new helper now owns:
+    - looking up the current class mechanic
+    - rendering string-returning special UI
+    - rendering element-returning special UI with an injected/derived element constructor
+    - empty fallback rendering when no class mechanic is available
+  - Updated `combat_hud_ui.js` so `updateClassSpecialUI(...)` now delegates to `renderCombatHudClassSpecial(...)`, leaving the HUD module focused on orchestration.
+  - As part of the extraction, the `HTMLElement` check no longer relies on an unguarded global and is safe to unit test.
+- Added regression coverage:
+  - Added `tests/combat_hud_special_ui.test.js` to verify:
+    - string-based class special rendering
+    - element-based class special rendering
+    - fallback span rendering when no mechanic exists
+- Validation:
+  - `npm test -- tests/combat_hud_special_ui.test.js tests/combat_hud_widgets_ui.test.js tests/combat_hud_feedback.test.js tests/combat_hud_log_ui.test.js tests/combat_start_ui.test.js` PASS.
+  - `npm test -- tests/combat_hud_special_ui.test.js tests/combat_hud_widgets_ui.test.js tests/combat_hud_feedback.test.js tests/combat_hud_log_ui.test.js tests/combat_start_ui.test.js tests/init_sequence.test.js tests/run_start_ui.test.js tests/title_settings_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4198`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - Note: `tests/title_settings_bindings.test.js` still prints the known expected `pre-run ripple failed` stderr line while passing.
+- Suggested next refactor / hardening target:
+  - `combat_hud_ui.js` is now close to facade level. The next useful patch should move to another larger UI module outside the combat HUD path, unless you want to also extract the remaining pin/chronicle toggle surface into a tiny overlay helper for symmetry.
+- Event card discard helper extraction (`game/ui/screens/event_ui_card_discard.js`, `game/ui/screens/event_ui.js`):
+  - Added `game/ui/screens/event_ui_card_discard.js` and moved the card discard/burn overlay flow out of `event_ui.js`.
+  - The new helper now owns:
+    - empty-card guard feedback (`playHit`, screen shake, log entry)
+    - discard/burn overlay creation
+    - unique-card list rendering with count badges
+    - cancel behavior
+    - discard/burn click handling plus success hooks (`playItemGet`, `updateUI`)
+  - Updated `event_ui.js` so `showCardDiscard(...)` now delegates to `showEventCardDiscardOverlay(...)`, reducing one of the larger embedded overlay builders from the event screen module.
+- Added regression coverage:
+  - Added `tests/event_ui_card_discard.test.js` to verify:
+    - empty-card feedback path
+    - unique-card rendering with duplicate count badges
+    - cancel cleanup
+    - successful discard/burn triggering `EventManager.discardCard(...)`, `playItemGet`, and `updateUI`
+- Validation:
+  - `npm test -- tests/event_ui_card_discard.test.js tests/event_ui.test.js` PASS.
+  - `npm test -- tests/event_ui_card_discard.test.js tests/event_ui.test.js tests/event_manager_resolution_flags.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js tests/event_manager_item_shop_cache.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4199`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next clean `event_ui.js` pass is extracting `showItemShop(...)` into its own overlay/helper module, since it is the next largest self-contained event-screen branch after the discard overlay.
+- Event item shop helper extraction (`game/ui/screens/event_ui_item_shop.js`, `game/ui/screens/event_ui.js`):
+  - Added `game/ui/screens/event_ui_item_shop.js` and moved the item shop overlay flow out of `event_ui.js`.
+  - The new helper now owns:
+    - item shop overlay creation
+    - rarity config application
+    - owned / unaffordable / purchasable item card rendering
+    - close-button dismissal
+    - purchase click handling plus success hooks (`playItemGet`, `showItemToast`, `updateUI`, event gold bar refresh)
+    - rerendering the shop list after a successful purchase
+  - Updated `event_ui.js` so `showItemShop(...)` now delegates to `showEventItemShopOverlay(...)` and passes only the event-gold refresh callback through deps.
+- Added regression coverage:
+  - Added `tests/event_ui_item_shop.test.js` to verify:
+    - owned and purchasable item cards render correctly with current gold
+    - successful purchases call `EventManager.purchaseItem(...)`, rerender gold, and trigger success hooks
+    - close button dismisses the overlay
+- Validation:
+  - `npm test -- tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js` PASS.
+  - `npm test -- tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js tests/event_manager_resolution_flags.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js tests/event_manager_item_shop_cache.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4200`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The next clean `event_ui.js` pass is extracting the remaining rest-site / fill-overlay sequence, since that is now the largest self-contained branch left in the event screen module.
+- Event rest-site helper extraction (`game/ui/screens/event_ui_rest_site.js`, `game/ui/screens/event_ui.js`):
+  - Added `game/ui/screens/event_ui_rest_site.js` and moved the rest-site recovery / fill-overlay sequence out of `event_ui.js`.
+  - The new helper now owns:
+    - heal + echo snapshot creation
+    - recovery result text composition
+    - rest overlay creation
+    - fill/boost timing curves and per-frame bar updates
+    - heal SFX gating
+    - handing the generated rest event back to `EventUI` after the overlay finishes
+  - Updated `event_ui.js` so `showRestSite(...)` now delegates to `showEventRestSiteOverlay(...)` and only passes the small bridge callbacks (`showCardDiscard`, `showEvent`, `updateUI`, `audioEngine`, `doc`).
+- Added regression coverage:
+  - Added `tests/event_ui_rest_site.test.js` to verify:
+    - recovery snapshot + result text generation
+    - rest fill bar updates and one-shot heal audio during the heal window
+    - full overlay sequence completion and handoff to `EventUI`
+- Validation:
+  - `npm test -- tests/event_ui_rest_site.test.js tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js` PASS.
+  - `npm test -- tests/event_ui_rest_site.test.js tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js tests/event_manager_resolution_flags.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js tests/event_manager_item_shop_cache.test.js tests/rest_site_upgrade_button.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4201`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `event_ui.js` is now much thinner. The next clean pass should extract the remaining event resolve-flow / wrapper orchestration, or move to the next large UI module such as `map_ui.js` if you want to keep the same decomposition pattern.
+- Event resolve-flow helper extraction (`game/ui/screens/event_ui_flow.js`, `game/ui/screens/event_ui.js`):
+  - Added `game/ui/screens/event_ui_flow.js` and moved the event-screen finish / resolution branch out of `event_ui.js`.
+  - The new helper now owns:
+    - event modal finish cleanup and post-dismiss callbacks
+    - acquired card/item toast dispatch
+    - upgrade-result toast detection
+    - persistent / fail rerender handling
+    - continue-button rendering for closable results
+    - resolve-choice error handling and event-lock transitions
+  - Updated `event_ui.js` so `resolveEvent(...)` now delegates to `resolveEventChoiceFlow(...)` and `finishEventFlow(...)`, leaving the module closer to a screen-level facade plus entry wrappers.
+- Added regression coverage:
+  - Added `tests/event_ui_flow.test.js` to verify:
+    - modal finish cleanup callbacks
+    - persistent choice rerender with acquired card/item toasts
+    - closable upgrade results rendering the continue button
+    - resolve-choice error handling with hit SFX and lock reset
+- Validation:
+  - `npm test -- tests/event_ui_flow.test.js tests/event_ui_rest_site.test.js tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js` PASS.
+  - `npm test -- tests/event_ui_flow.test.js tests/event_ui_rest_site.test.js tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js tests/event_manager_resolution_flags.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js tests/event_manager_item_shop_cache.test.js tests/rest_site_upgrade_button.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4202`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `event_ui.js` is now mostly entry wrappers. The next small symmetric pass would extract the `showShop(...)` event-construction wrapper and its purchase side-effect decoration, or move on to the next larger screen module such as `map_ui.js`.
+- Event shop wrapper extraction (`game/ui/screens/event_ui_shop.js`, `game/ui/screens/event_ui.js`):
+  - Added `game/ui/screens/event_ui_shop.js` and moved the shop-event construction / effect decoration out of `event_ui.js`.
+  - The new helper now owns:
+    - creating the shop event through `EventManager.createShopEvent(...)`
+    - wiring the `showItemShop` callback back into `EventUI`
+    - decorating shop choice effects so successful purchases trigger `playItemGet` and `updateUI`
+    - skipping those side effects for fail results and the `__item_shop_open__` sentinel
+  - Updated `event_ui.js` so `showShop(...)` now just builds the decorated event through `createEventShop(...)` and passes it into `showEvent(...)`.
+- Added regression coverage:
+  - Added `tests/event_ui_shop.test.js` to verify:
+    - successful shop choices trigger `playItemGet` and `updateUI`
+    - fail results and `__item_shop_open__` skip purchase success hooks
+    - `showItemShop` is wired through `EventManager.createShopEvent(...)`
+- Validation:
+  - `npm test -- tests/event_ui_shop.test.js tests/event_ui_flow.test.js tests/event_ui_rest_site.test.js tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js` PASS.
+  - `npm test -- tests/event_ui_shop.test.js tests/event_ui_flow.test.js tests/event_ui_rest_site.test.js tests/event_ui_item_shop.test.js tests/event_ui_card_discard.test.js tests/event_ui.test.js tests/event_manager_resolution_flags.test.js tests/event_merchant_resolution.test.js tests/event_resonance_choice_limit.test.js tests/event_manager_item_shop_cache.test.js tests/rest_site_upgrade_button.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4203`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `event_ui.js` is now down to thin entry wrappers plus `showEvent(...)`. The next logical move is leaving the event screen path and switching to the next larger UI module, with `map_ui.js` or `character_select_ui.js` as the cleanest candidates.
+- Map full-map helper extraction (`game/ui/map/map_ui_full_map.js`, `game/ui/map/map_ui.js`):
+  - Added `game/ui/map/map_ui_full_map.js` and moved the full-map overlay flow out of `map_ui.js`.
+  - The new helper now owns:
+    - full-map overlay create/toggle-close behavior
+    - canvas/glitch/tooltip/legend construction
+    - Escape/backdrop dismissal and animation-frame cleanup
+    - full-map node visibility, tooltip, and drawing orchestration
+  - Updated `map_ui.js` so `showFullMap(...)` now delegates to `showFullMapOverlay(...)`.
+  - While extracting, fixed multiple broken legacy string literals in `map_ui.js` and rewrote the file back to valid UTF-8/valid JS syntax so existing map UI tests could import it again.
+- Added regression coverage:
+  - Added `tests/map_ui_full_map.test.js` to verify:
+    - full-map overlay creation plus Escape dismissal
+    - repeated invocation toggling the overlay back off
+- Validation:
+  - `npm test -- tests/map_ui_full_map.test.js tests/map_ui_next_nodes.test.js tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4204`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `map_ui.js` still has a large `renderMinimap(...)` branch and several node-card helpers. The next clean pass should extract the minimap renderer/hover path, or switch to `character_select_ui.js` if you want a lower-risk facade cleanup.
+- Map minimap helper extraction (`game/ui/map/map_ui_minimap.js`, `game/ui/map/map_ui.js`):
+  - Added `game/ui/map/map_ui_minimap.js` and moved the minimap render/hover path out of `map_ui.js`.
+  - The new helper now owns:
+    - visible floor / child-link resolution for minimap rendering
+    - minimap canvas draw pass for visited links and visible nodes
+    - hover coordinate conversion and closest-node detection
+    - minimap hint updates and pointer cursor behavior
+    - empty/minimap-reset cleanup when no drawable map data exists
+  - Updated `map_ui.js` so `renderMinimap(...)` now delegates to `renderMinimapUI(...)`, leaving the file focused on node-card helpers plus high-level map surface methods.
+- Added regression coverage:
+  - Added `tests/map_ui_minimap.test.js` to verify:
+    - minimap hover data and hint updates on node hover
+    - minimap hint clearing when no map data is drawable
+- Validation:
+  - `npm test -- tests/map_ui_minimap.test.js tests/map_ui_full_map.test.js tests/map_ui_next_nodes.test.js tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4205`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `map_ui.js` is now down to the node-card / relic overlay path. The next symmetric pass should extract that overlay composition stack, or move to `character_select_ui.js` if you want to switch to a lower-risk cleanup target.
+- Map UI facade cleanup (`game/ui/map/map_ui.js`):
+  - Removed the now-unreferenced legacy `_nc*` duplicate helper block from `game/ui/map/map_ui.js`.
+  - `map_ui.js` is now a thin facade that only delegates:
+    - `renderMinimap(...)` -> `renderMinimapUI(...)`
+    - `updateNextNodes(...)` -> `updateNextNodesOverlay(...)`
+    - `showFullMap(...)` -> `showFullMapOverlay(...)`
+- Added regression coverage:
+  - Added `tests/map_ui_facade.test.js` to verify the `MapUI` public surface delegates to the extracted helper modules.
+- Validation:
+  - `npm test -- tests/map_ui_facade.test.js tests/map_ui_minimap.test.js tests/map_ui_full_map.test.js tests/map_ui_next_nodes.test.js tests/map_ui_update_next_nodes.test.js tests/map_branching.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4206`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The map path is now effectively decomposed. The next higher-value module is `game/ui/title/character_select_ui.js`, since it already has several extracted helper siblings and should respond well to the same facade-cleanup pass.
+- Character select card helper extraction (`game/ui/title/character_select_card_ui.js`, `game/ui/title/character_select_ui.js`):
+  - Added `renderCharacterCard(...)` and `ensureCharacterCardProgressNodes(...)` to own `charCard` DOM updates, progress badge/xp node creation, accent styling, and corner regeneration.
+  - Updated `character_select_ui.js` so `renderCard()` now delegates to the new helper and keeps only progress-string assembly plus mount/runtime orchestration.
+- Added regression coverage:
+  - Added `tests/character_select_card_ui.test.js` to verify:
+    - card content + progress node creation when the badge/xp DOM is missing
+    - max-level styling and legacy corner replacement behavior
+- Validation:
+  - `npm test -- tests/character_select_card_ui.test.js tests/character_select_render.test.js tests/character_select_panels.test.js tests/character_select_bindings.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4207`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `character_select_ui.js` still owns the particle engine and modal/summary replay flow. The next clean pass should extract either `initCardFX(...)` or the run-summary/modal orchestration so the mount body keeps shrinking symmetrically.
