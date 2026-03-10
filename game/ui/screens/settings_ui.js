@@ -14,6 +14,14 @@ import {
   updateConflictBanner,
   updateToggleVisual,
 } from './settings_ui_helpers.js';
+import {
+  cancelSettingsRebind,
+  cleanupSettingsRebind,
+  closeSettingsModal,
+  getLiveSettingsDeps,
+  openSettingsModal,
+  startSettingsRebind,
+} from './settings_ui_runtime.js';
 
 export const SettingsUI = {
   _activeTab: 'sound',
@@ -24,28 +32,11 @@ export const SettingsUI = {
   _runtimeDeps: {},
 
   openSettings(deps = {}) {
-    const doc = getDoc(deps);
-    const modal = doc.getElementById('settingsModal');
-    if (!modal) {
-      console.warn('[SettingsUI] #settingsModal not found');
-      return;
-    }
-
-    this._runtimeDeps = deps;
-    this._bindDomEvents(doc);
-    SettingsManager.load();
-    this._syncAllTabs(doc);
-    this.setTab(this._activeTab, deps);
-    modal.classList.add('active');
-    deps.audioEngine?.playClick?.();
+    openSettingsModal(this, deps);
   },
 
   closeSettings(deps = {}) {
-    const doc = getDoc(deps);
-    const modal = doc.getElementById('settingsModal');
-    modal?.classList.remove('active');
-    this._cancelRebind(deps);
-    deps.audioEngine?.playClick?.();
+    closeSettingsModal(this, deps);
   },
 
   isOpen(deps = {}) {
@@ -131,53 +122,15 @@ export const SettingsUI = {
   },
 
   startRebind(action, deps = {}) {
-    const doc = getDoc(deps);
-    this._cancelRebind(deps);
-
-    this._listeningAction = action;
-    this._rebindWindow = getWin(deps);
-
-    const btn = doc.querySelector(`[data-keybind="${action}"]`);
-    if (btn) {
-      btn.textContent = '입력...';
-      btn.classList.add('listening');
-    }
-
-    this._keydownHandler = (e) => {
-      e.preventDefault();
-      if (e.code === 'Escape') {
-        this._cancelRebind(deps);
-        return;
-      }
-
-      SettingsManager.set(`keybindings.${action}`, e.code);
-      this._syncKeybindingDisplay(action, doc);
-      this._cleanupRebind(action, doc);
-    };
-
-    this._rebindWindow?.addEventListener('keydown', this._keydownHandler);
+    startSettingsRebind(this, action, deps);
   },
 
   _cancelRebind(deps = {}) {
-    if (!this._listeningAction) return;
-
-    const doc = getDoc(deps);
-    this._syncKeybindingDisplay(this._listeningAction, doc);
-    this._cleanupRebind(this._listeningAction, doc);
+    cancelSettingsRebind(this, deps);
   },
 
   _cleanupRebind(action, doc) {
-    const btn = doc.querySelector(`[data-keybind="${action}"]`);
-    btn?.classList.remove('listening');
-
-    if (this._keydownHandler) {
-      this._rebindWindow?.removeEventListener('keydown', this._keydownHandler);
-      this._keydownHandler = null;
-    }
-
-    this._listeningAction = null;
-    this._rebindWindow = null;
-    this._checkConflicts(doc);
+    cleanupSettingsRebind(this, action, doc);
   },
 
   resetToDefaults(deps = {}) {
@@ -238,11 +191,7 @@ export const SettingsUI = {
   },
 
   _getLiveDeps(doc) {
-    return {
-      ...(this._runtimeDeps || {}),
-      doc,
-      win: getWin(this._runtimeDeps || {}),
-    };
+    return getLiveSettingsDeps(this, doc);
   },
 
   _bindDomEvents(doc) {

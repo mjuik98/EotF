@@ -1,0 +1,37 @@
+import { EndingScreenUI } from './ending_screen_ui.js';
+import { removeFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
+import {
+  clearActiveRunSave,
+  getDoc,
+  resolveGs,
+} from './help_pause_ui_helpers.js';
+
+export function confirmAbandonRun(deps = {}, onClosePauseMenu = () => {}) {
+  const gs = resolveGs(deps);
+  if (!gs) return false;
+
+  const doc = getDoc(deps);
+  doc.getElementById('abandonConfirm')?.remove();
+  onClosePauseMenu(doc);
+
+  if (gs.combat.active) {
+    gs.combat.active = false;
+    const hudUpdateUI = deps.hudUpdateUI
+      || globalThis.GAME?.Modules?.HudUpdateUI
+      || globalThis.HudUpdateUI;
+    if (typeof hudUpdateUI?.resetCombatUI === 'function') {
+      hudUpdateUI.resetCombatUI({ ...deps, doc, gs });
+    } else {
+      doc.getElementById('combatOverlay')?.classList.remove('active');
+    }
+  }
+
+  removeFloatingPlayerHpPanel({ doc });
+
+  if (typeof deps.finalizeRunOutcome === 'function') {
+    deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true });
+  }
+
+  clearActiveRunSave(deps);
+  return EndingScreenUI.showOutcome('abandon', deps);
+}

@@ -3074,3 +3074,122 @@ Original prompt:
   - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
 - Suggested next refactor / hardening target:
   - The title screen path is now heavily decomposed. The next productive target is a different remaining large screen/controller rather than another title helper split.
+- Help/pause runtime extraction (`game/ui/screens/help_pause_ui_runtime.js`, `game/ui/screens/help_pause_ui.js`):
+  - Added `help_pause_ui_runtime.js` to own `saveRunBeforeReturn(...)`, pause-menu close helpers, Escape consumption, pause-menu callback wiring, and the full global hotkey router.
+  - Simplified `help_pause_ui.js` so it mostly owns module state (`_helpOpen`, `_pauseOpen`, `_hotkeysBound`) plus public facade methods while delegating hotkey/runtime behavior to the extracted helper.
+  - Preserved existing modal priority on Escape: pause menu, full map, battle chronicle, return-to-title confirm, abandon confirm, help menu, deck/codex/run settings/settings, then in-game pause toggle.
+- Added regression coverage:
+  - Added `tests/help_pause_ui_runtime.test.js` to verify:
+    - Escape consumes the event and closes the pause menu through the facade callback path
+    - `Tab` target-cycling skips dead enemies, logs the new target, and re-renders combat enemies
+    - `saveRunBeforeReturn(...)` prefers `SaveSystem.saveRun(...)` when available
+  - Existing `tests/help_pause_ui.test.js` still covers help overlay key labels, rebinding guard, single-bind behavior, and abandon flow.
+- Validation:
+  - `npm test -- tests/help_pause_ui_runtime.test.js tests/help_pause_ui.test.js tests/title_settings_bindings.test.js tests/init_sequence.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4216`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+  - `title_settings_bindings.test.js` still emits the expected `pre-run ripple failed` stderr while passing.
+- Suggested next refactor / hardening target:
+  - `help_pause_ui.js` is now much thinner; the next remaining cleanup in this screen is extracting `confirmAbandon(...)` side-effect orchestration or moving to another large screen/controller module such as `reward_ui.js` or `settings_ui.js`.
+- Reward option composition extraction (`game/ui/screens/reward_ui_options.js`, `game/ui/screens/reward_ui.js`):
+  - Added `reward_ui_options.js` to own reward option composition rules: relic chance by mode, permanent blessing generation, reward-card rendering, blessing rendering, item-pool resolution, item-choice count, and the shared `renderRewardOptions(...)` entry.
+  - Simplified `reward_ui.js` so `showRewardScreen(...)` now mostly handles screen setup, card draw config, header reset, and delegates option generation to the extracted helper.
+  - Preserved existing boss/mini-boss/elite behavior, including energy-cap disabled blessing state and relic-choice count overrides via `gs.triggerItems('reward_generate', ...)`.
+- Added regression coverage:
+  - Added `tests/reward_ui_options.test.js` to verify:
+    - energy blessing is disabled when the player is already at the energy cap
+    - boss reward option composition renders cards, blessings, and multiple relic choices through the shared helper
+  - Existing `tests/reward_ui.test.js` still covers disabled blessing visuals, mini-boss guaranteed relic toast, forced item-toast queueing, and remove-selection cancel unlock.
+- Validation:
+  - `npm test -- tests/reward_ui_options.test.js tests/reward_ui.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4217`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The remaining heavy branch in `reward_ui.js` is claim-side orchestration (`takeReward*`, `takeRewardRemove`, `finishReward`); after that, the next natural screen-level candidate is `settings_ui.js` rebind/runtime cleanup.
+- Reward claim runtime extraction (`game/ui/screens/reward_ui_runtime.js`, `game/ui/screens/reward_ui.js`):
+  - Added `reward_ui_runtime.js` to own `finishReward(...)`, blessing/card/item/upgrade/remove/skip claim orchestration, idempotency guards, picked-state toggling, discard-cancel unlock, and reward return timing.
+  - Simplified `reward_ui.js` so public `takeReward*` methods now delegate to the extracted runtime helper, leaving the facade focused on screen setup and public API shape.
+- Added regression coverage:
+  - Added `tests/reward_ui_runtime.test.js` to verify:
+    - upgrade failure plays hit feedback without locking the reward flow
+    - remove flow without `EventUI.showCardDiscard(...)` falls back to direct `returnToGame(true)`
+    - skip flow locks the reward and returns to game
+- Settings runtime extraction (`game/ui/screens/settings_ui_runtime.js`, `game/ui/screens/settings_ui.js`):
+  - Added `settings_ui_runtime.js` to own modal open/close orchestration, live dependency resolution, and keybinding rebind start/cancel/cleanup flow.
+  - Simplified `settings_ui.js` so `openSettings`, `closeSettings`, `startRebind`, `_cancelRebind`, `_cleanupRebind`, and `_getLiveDeps` now delegate to the extracted runtime helper while existing sync/apply methods stay in the facade.
+- Added regression coverage:
+  - Added `tests/settings_ui_runtime.test.js` to verify:
+    - opening the settings modal loads/syncs tabs and activates the modal
+    - rebind start followed by Escape cancels listening and restores cleanup/conflict checks
+    - modal close path and live-deps helper continue to work through the extracted runtime module
+- Validation:
+  - `npm test -- tests/settings_ui_runtime.test.js tests/settings_ui.test.js tests/settings_manager.test.js tests/reward_ui_runtime.test.js tests/reward_ui_options.test.js tests/reward_ui.test.js tests/class_progression_system.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4218`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `reward_ui.js` and `settings_ui.js` are both close to facade status now. The next productive target is another remaining large screen/controller such as `run_start_ui.js`, `screen_ui.js`, or a follow-up pass to split `help_pause_ui.confirmAbandon(...)` side effects.
+- Run-start runtime extraction (`game/ui/run/run_start_ui_runtime.js`, `game/ui/run/run_start_ui.js`):
+  - Added `run_start_ui_runtime.js` to own run-entry ripple, stage fade transition, blackout cleanup, gameplay handoff sequencing, delayed canvas/game-loop start, and world-memory notice scheduling.
+  - Simplified `run_start_ui.js` into a thin facade that delegates `enterRun(...)` to the extracted runtime helper.
+- Added regression coverage:
+  - Added `tests/run_start_ui_runtime.test.js` to verify world-memory notice composition still fires after gameplay handoff starts.
+  - Existing `tests/run_start_ui.test.js` still covers pre-run ripple skip, fallback ripple path, and fragment-close handoff timing.
+- Help/pause abandon runtime extraction (`game/ui/screens/help_pause_ui_abandon_runtime.js`, `game/ui/screens/help_pause_ui.js`):
+  - Added `confirmAbandonRun(...)` helper to own abandon confirm removal, pause close callback, combat shutdown, HUD reset fallback, floating HP panel cleanup, finalize outcome, save clearing, and ending-screen handoff.
+  - Simplified `HelpPauseUI.confirmAbandon(...)` into a thin wrapper that only wires pause-close state reset into the extracted helper.
+- Added regression coverage:
+  - Added `tests/help_pause_ui_abandon_runtime.test.js` to verify fallback combat-overlay cleanup when `resetCombatUI(...)` is unavailable.
+  - Existing `tests/help_pause_ui.test.js` and `tests/help_pause_ui_runtime.test.js` continue to cover abandon flow, help overlay key labels, rebinding guard, single-bind behavior, and hotkey routing.
+- Validation:
+  - `npm test -- tests/run_start_ui_runtime.test.js tests/run_start_ui.test.js tests/help_pause_ui_abandon_runtime.test.js tests/help_pause_ui_runtime.test.js tests/help_pause_ui.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4219`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `run_start_ui.js` and `help_pause_ui.js` are both close to facade status now. The next productive target is another remaining orchestration-heavy surface such as `run_return_ui.js`, `run_setup_ui.js`, or a facade test pass for these newly thinned modules.
+- Run UI facade coverage (`tests/run_return_ui_facade.test.js`, `tests/run_start_ui_facade.test.js`):
+  - Added thin-facade delegation tests so `run_return_ui.js` and `run_start_ui.js` are pinned to their extracted runtime helpers.
+  - This closes out the run-entry / run-return helper split with explicit public-surface regression coverage.
+- Validation:
+  - `npm test -- tests/run_return_ui_facade.test.js tests/run_return_ui_branch_ui.test.js tests/run_return_ui_runtime.test.js tests/run_start_ui_facade.test.js tests/run_start_ui_runtime.test.js tests/run_start_ui.test.js tests/help_pause_ui_abandon_runtime.test.js tests/help_pause_ui_runtime.test.js tests/help_pause_ui.test.js tests/run_setup_ui.test.js tests/run_setup_helpers.test.js` PASS.
+  - No additional build/browser rerun was needed after this step because only test files were added after the previous `npm run build` + Playwright validation on `http://127.0.0.1:4219`.
+- Suggested next refactor / hardening target:
+  - The run-entry / return / pause path is now mostly facade-driven. The next large remaining UI surface is likely outside this cluster, for example `run_mode_ui.js` or another non-run screen/controller module.
+- Run-mode runtime extraction (`game/ui/run/run_mode_ui_runtime.js`, `game/ui/run/run_mode_ui.js`):
+  - Added `run_mode_ui_runtime.js` to own run-mode panel refresh orchestration, preset slot selection, preset save/confirm/load/delete, and settings modal open/close behavior.
+  - Simplified `run_mode_ui.js` so refresh/preset/modal methods delegate to the extracted runtime helper while mutation-focused actions (`selectCurse`, `shiftAscension`, `toggleEndlessMode`, `toggleInscription`) remain on the facade.
+- Added regression coverage:
+  - Added `tests/run_mode_ui_runtime.test.js` to verify empty preset-slot selection refreshes instead of loading, preset save writes the cloned config, and settings close hides the inscription layout while toggling modal state.
+  - Added `tests/run_mode_ui_facade.test.js` to verify preset/modal public methods delegate to the extracted runtime helper.
+- Run-setup runtime extraction (`game/ui/run/run_setup_ui_runtime.js`, `game/ui/run/run_setup_ui.js`):
+  - Added `startGameRuntime(...)` helper for start-run orchestration so `run_setup_ui.js` is now a thin facade.
+  - Added `tests/run_setup_ui_facade.test.js` to pin that delegation.
+- Validation:
+  - `npm test -- tests/run_mode_ui_runtime.test.js tests/run_mode_ui_facade.test.js tests/run_mode_ui.test.js tests/run_return_ui_facade.test.js tests/run_return_ui_branch_ui.test.js tests/run_return_ui_runtime.test.js tests/run_start_ui_facade.test.js tests/run_start_ui_runtime.test.js tests/run_start_ui.test.js tests/run_setup_ui_facade.test.js tests/run_setup_ui.test.js tests/run_setup_helpers.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4221`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - The run cluster (`run_mode_ui`, `run_return_ui`, `run_start_ui`, `run_setup_ui`) is now largely facade-driven. The next productive target is outside this cluster, likely another remaining title/screen/controller module or a follow-up pass to trim `run_mode_ui` mutation methods into a dedicated config-mutation helper.
+- Codex runtime extraction (`game/ui/screens/codex_ui_runtime.js`, `game/ui/screens/codex_ui.js`):
+  - Added `codex_ui_runtime.js` to own codex open/close orchestration, tab switching, content rendering dispatch, and global key binding behavior.
+  - Simplified `codex_ui.js` so it now keeps only the shared controller state and delegates its public surface to the extracted runtime helper.
+- Added regression coverage:
+  - Added `tests/codex_ui_runtime.test.js` to verify codex open reset/show/filter/progress/render flow and inscriptions-tab dispatch.
+  - Added `tests/codex_ui_facade.test.js` to pin facade delegation for the codex public API.
+- Ending-screen runtime extraction (`game/ui/screens/ending_screen_ui_runtime.js`, `game/ui/screens/ending_screen_ui.js`):
+  - Added `ending_screen_ui_runtime.js` to own ending-screen session creation, outcome rendering, restart/title wiring, and cleanup teardown.
+  - Simplified `ending_screen_ui.js` so it now only stores the active session and delegates `show`, `showOutcome`, and `cleanup`.
+- Added regression coverage:
+  - Added `tests/ending_screen_ui_runtime.test.js` to verify outcome-screen creation and cleanup teardown.
+  - Added `tests/ending_screen_ui_facade.test.js` to pin facade delegation for the ending-screen public API.
+- Validation:
+  - `npm test -- tests/ending_screen_ui_runtime.test.js tests/ending_screen_ui_facade.test.js tests/ending_screen_ui.test.js tests/codex_ui_runtime.test.js tests/codex_ui_facade.test.js tests/codex_ui_controller.test.js tests/codex_ui_popup.test.js tests/codex_ui_render.test.js tests/codex_ui_structure.test.js tests/codex_ui_inscriptions.test.js` PASS.
+  - `npm run build` PASS.
+  - Ran the Playwright skill client against `vite preview` (`http://127.0.0.1:4223`) with the action payload reference and `#mainStartBtn`.
+  - Re-checked `output/web-game/shot-2.png` and `output/web-game/state-2.json`; no `errors-*.json` artifacts were present in `output/web-game`.
+- Suggested next refactor / hardening target:
+  - `codex_ui.js` and `ending_screen_ui.js` are now facade-driven. The next productive target is another remaining orchestration-heavy screen/controller module outside the run/title/codex/ending cluster.
