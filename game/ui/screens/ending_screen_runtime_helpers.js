@@ -54,8 +54,8 @@ export function bindEndingRestartButton(doc, deps, session, wisps, hooks = {}) {
   const restartButton = doc.getElementById('btnR');
   const onRestart = () => {
     const rect = restartButton?.getBoundingClientRect?.();
-    const audio = deps.audioEngine || globalThis.GAME?.Audio || globalThis.AudioEngine;
-    const restart = deps.restartFromEnding || globalThis.GAME?.API?.restartFromEnding || globalThis.restartFromEnding;
+    const audio = deps.audioEngine || null;
+    const restart = deps.restartFromEnding;
 
     if (rect) {
       for (let i = 0; i < 5; i += 1) {

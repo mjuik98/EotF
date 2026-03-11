@@ -1,15 +1,26 @@
 let audioCtx = null;
 
-function getAudioCtx() {
+function resolveAudioContextCtor(deps = {}) {
+  return deps.AudioContext
+    || deps.webkitAudioContext
+    || deps.win?.AudioContext
+    || deps.win?.webkitAudioContext
+    || null;
+}
+
+function getAudioCtx(deps = {}) {
   if (!audioCtx) {
-    audioCtx = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+    const AudioContextCtor = resolveAudioContextCtor(deps);
+    if (!AudioContextCtor) return null;
+    audioCtx = new AudioContextCtor();
   }
   return audioCtx;
 }
 
-function tone(frequency, duration, type = 'sine', volume = 0.06, delay = 0) {
+function tone(frequency, duration, type = 'sine', volume = 0.06, delay = 0, deps = {}) {
   try {
-    const ctx = getAudioCtx();
+    const ctx = getAudioCtx(deps);
+    if (!ctx) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
@@ -27,25 +38,28 @@ function tone(frequency, duration, type = 'sine', volume = 0.06, delay = 0) {
   }
 }
 
-const fallbackSfx = {
+function createFallbackSfx(deps = {}) {
+  return {
   nav: () => {
-    tone(360, 0.1, 'triangle', 0.06);
-    tone(520, 0.1, 'triangle', 0.05, 0.09);
+    tone(360, 0.1, 'triangle', 0.06, 0, deps);
+    tone(520, 0.1, 'triangle', 0.05, 0.09, deps);
   },
-  hover: () => tone(900, 0.035, 'sine', 0.022),
-  select: () => [261, 329, 392, 523, 659, 880].forEach((f, i) => tone(f, 0.8, 'triangle', 0.05, i * 0.065)),
+  hover: () => tone(900, 0.035, 'sine', 0.022, 0, deps),
+  select: () => [261, 329, 392, 523, 659, 880].forEach((f, i) => tone(f, 0.8, 'triangle', 0.05, i * 0.065, deps)),
   compare: () => {
-    tone(440, 0.1, 'sine', 0.05);
-    tone(660, 0.15, 'triangle', 0.05, 0.09);
+    tone(440, 0.1, 'sine', 0.05, 0, deps);
+    tone(660, 0.15, 'triangle', 0.05, 0.09, deps);
   },
   echo: () => {
-    tone(300, 0.15, 'sine', 0.05);
-    tone(600, 0.2, 'triangle', 0.04, 0.12);
-    tone(900, 0.15, 'sine', 0.03, 0.25);
+    tone(300, 0.15, 'sine', 0.05, 0, deps);
+    tone(600, 0.2, 'triangle', 0.04, 0.12, deps);
+    tone(900, 0.15, 'sine', 0.03, 0.25, deps);
   },
-};
+  };
+}
 
 export function createCharacterSelectSfx(deps = {}) {
+  const fallbackSfx = createFallbackSfx(deps);
   return {
     nav: () => deps.audioEngine?.playClick?.() ?? fallbackSfx.nav(),
     hover: () => fallbackSfx.hover(),

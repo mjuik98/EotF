@@ -88,28 +88,26 @@ describe('codex_ui_progress_render', () => {
       const badge = doc.createElement('span');
       badge.id = `cxBadge_${tab}`;
     });
-    const originalRaf = globalThis.requestAnimationFrame;
-    globalThis.requestAnimationFrame = (cb) => {
+    const requestAnimationFrame = vi.fn((cb) => {
       cb();
       return 1;
-    };
+    });
 
-    try {
-      renderCodexProgress(doc, {
-        enemies: { seen: 1, total: 2 },
-        cards: { seen: 2, total: 4 },
-        items: { seen: 3, total: 5 },
-        inscriptions: { seen: 1, total: 1 },
-        percent: 58,
-        circumference: 100,
-        offset: 42,
-      });
+    renderCodexProgress(doc, {
+      enemies: { seen: 1, total: 2 },
+      cards: { seen: 2, total: 4 },
+      items: { seen: 3, total: 5 },
+      inscriptions: { seen: 1, total: 1 },
+      percent: 58,
+      circumference: 100,
+      offset: 42,
+    }, {
+      requestAnimationFrame,
+    });
 
-      expect(doc.getElementById('cxBadge_cards').textContent).toBe('2/4');
-      expect(section.innerHTML).toContain('58%');
-      expect(section.innerHTML).toContain('stroke-dashoffset="42.0"');
-    } finally {
-      globalThis.requestAnimationFrame = originalRaf;
-    }
+    expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+    expect(doc.getElementById('cxBadge_cards').textContent).toBe('2/4');
+    expect(section.innerHTML).toContain('58%');
+    expect(section.innerHTML).toContain('stroke-dashoffset="42.0"');
   });
 });

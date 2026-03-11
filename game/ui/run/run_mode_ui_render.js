@@ -94,14 +94,14 @@ export function renderInscriptionOverview(doc, meta, cfg, data) {
 }
 
 export function flash(el) {
-  if (!el || reducedMotion()) return;
+  if (!el || reducedMotion({ doc: el?.ownerDocument })) return;
   el.classList.remove('rm-select-flash');
   void el.offsetWidth;
   el.classList.add('rm-select-flash');
 }
 
 export function curseFlash(el, modalEl) {
-  if (!el || reducedMotion()) return;
+  if (!el || reducedMotion({ doc: el?.ownerDocument || modalEl?.ownerDocument })) return;
   el.classList.remove('rm-curse-flash');
   void el.offsetWidth;
   el.classList.add('rm-curse-flash');
@@ -113,7 +113,9 @@ export function curseFlash(el, modalEl) {
     setTimeout(() => modalEl.classList.remove('rm-curse-shake'), 500);
   }
 
-  const ripple = document.createElement('div');
+  const doc = el?.ownerDocument || modalEl?.ownerDocument || null;
+  const ripple = doc?.createElement?.('div');
+  if (!ripple) return;
   ripple.className = 'rm-curse-ripple';
   el.appendChild(ripple);
   setTimeout(() => ripple.remove(), 700);
@@ -164,7 +166,7 @@ export function renderPanel(ui, doc, cfg, meta, runRules, gs, data) {
 
 export function refreshInscriptionPanel(ui, deps = {}) {
   const { gs } = deps;
-  const data = deps.data || globalThis.DATA;
+  const data = deps.data || null;
   const meta = getMeta(gs);
   if (!meta || !data?.inscriptions) return;
 

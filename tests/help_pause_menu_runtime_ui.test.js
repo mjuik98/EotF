@@ -7,20 +7,12 @@ import {
 } from '../game/ui/screens/help_pause_menu_runtime_ui.js';
 
 describe('help_pause_menu_runtime_ui', () => {
-  it('prefers SaveSystem for return-to-title save fallback and falls back to deps.saveRun', () => {
-    const saveRun = vi.fn();
-    globalThis.SaveSystem = { saveRun };
-
-    expect(saveRunBeforeReturnRuntime({ gs: { currentScreen: 'game' }, saveRun: vi.fn() })).toBe(true);
-    expect(saveRun).toHaveBeenCalledWith({
-      gs: { currentScreen: 'game' },
-      isGameStarted: expect.any(Function),
-    });
-
-    delete globalThis.SaveSystem;
+  it('uses injected saveRun when returning to title', () => {
     const depsSaveRun = vi.fn();
     expect(saveRunBeforeReturnRuntime({ gs: { currentScreen: 'game' }, saveRun: depsSaveRun })).toBe(true);
-    expect(depsSaveRun).toHaveBeenCalledTimes(1);
+    expect(depsSaveRun).toHaveBeenCalledWith({
+      gs: { currentScreen: 'game' },
+    });
   });
 
   it('closes the pause menu and swallows escape events', () => {

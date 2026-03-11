@@ -272,6 +272,7 @@ describe('character select ui mount wiring', () => {
     expect(hoisted.ensureMeta).toHaveBeenCalledWith({}, ['paladin', 'berserker']);
     expect(hoisted.createCharacterParticleRuntime).toHaveBeenCalledWith({
       doc,
+      win: {},
       requestAnimationFrameImpl: requestAnimationFrame,
       cancelAnimationFrameImpl: cancelAnimationFrame,
     });

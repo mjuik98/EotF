@@ -12,6 +12,8 @@ export function buildUiContractBuilders(ctx) {
         statusEffectsUI: refs.StatusEffectsUI,
         TooltipUI: refs.TooltipUI,
         tooltipUI: refs.TooltipUI,
+        cardCostUtils: refs.CardCostUtils,
+        CardCostUtils: refs.CardCostUtils,
         runRules: refs.RunRules,
         isGameStarted: () => refs._gameStarted?.(),
         requestAnimationFrame: getRaf(),
@@ -69,6 +71,7 @@ export function buildUiContractBuilders(ctx) {
         ...buildBaseDeps(),
         audioEngine: refs.AudioEngine,
         screenShake: refs.ScreenShake,
+        requestAnimationFrame: getRaf(),
       };
     },
 
@@ -124,6 +127,7 @@ export function buildUiContractBuilders(ctx) {
       const refs = getRefs();
       return {
         ...buildBaseDeps(),
+        audioEngine: refs.AudioEngine,
         showDeckView: refs.showDeckView,
         closeDeckView: refs.closeDeckView,
         openCodex: refs.openCodex,
@@ -142,6 +146,11 @@ export function buildUiContractBuilders(ctx) {
         endPlayerTurn: refs.endPlayerTurn,
         renderCombatEnemies: refs.renderCombatEnemies,
         finalizeRunOutcome: refs.finalizeRunOutcome,
+        hudUpdateUI: refs.HudUpdateUI,
+        saveRun: (override = {}) => refs.SaveSystem?.saveRun?.({
+          gs: override.gs || refs.GS,
+          isGameStarted: () => refs._gameStarted?.(),
+        }),
         clearActiveRunSave: () => refs.SaveSystem?.clearSave?.(),
         restartFromEnding: refs.restartFromEnding,
         selectFragment: refs.selectFragment,

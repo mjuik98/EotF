@@ -24,7 +24,7 @@ export function refreshRunModeUI(ui, deps = {}) {
   runRules.ensureMeta(meta);
   const cfg = ensureRunConfig(meta);
 
-  renderPanel(ui, doc, cfg, meta, runRules, gs, deps.data || globalThis.DATA);
+  renderPanel(ui, doc, cfg, meta, runRules, gs, deps.data || null);
   bindRunModePanelEvents(ui, deps);
   renderPresetDialog(ui, doc, deps);
   syncModalMood(doc, cfg);

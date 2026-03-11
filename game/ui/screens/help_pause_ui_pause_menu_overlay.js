@@ -17,7 +17,7 @@ function createSliderRow(doc, deps, label, id, handler) {
   val.id = `${id}Val`;
   val.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;";
 
-  const currentVol = (deps.audioEngine || globalThis.AudioEngine)?.getVolumes?.() || {};
+  const currentVol = deps.audioEngine?.getVolumes?.() || {};
   let initialV = 0;
   if (id === 'volMasterSlider') initialV = Math.round((currentVol.master ?? 0.35) * 100);
   else if (id === 'volSfxSlider') initialV = Math.round((currentVol.sfx ?? 0.7) * 100);

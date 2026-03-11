@@ -7,7 +7,7 @@ import {
 } from './reward_ui_helpers.js';
 
 function resolveTooltipUI(deps) {
-  return deps.tooltipUI || globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
+  return deps?.tooltipUI || deps?.TooltipUI || null;
 }
 
 export function renderRewardCardOption(container, cardId, data, gs, deps, onPick, idx) {

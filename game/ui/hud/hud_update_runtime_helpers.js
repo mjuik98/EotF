@@ -5,7 +5,7 @@ let _uiPending = false;
 
 export function resolvePartialHudDeps(gs, deps = {}, getDoc) {
   const resolvedDoc = getDoc(deps);
-  const resolvedWin = deps?.win || globalThis.window || globalThis;
+  const resolvedWin = deps?.win || resolvedDoc?.defaultView || null;
   const factoryDeps = createDeps('hudUpdate', {
     gs,
     doc: resolvedDoc,
@@ -101,9 +101,7 @@ export function performHudRefresh({
 
   updateHudPanels({ gs, deps, doc, data, setText: setDomText });
 
-  const updateStatusDisplay = deps.updateStatusDisplay
-    || globalThis.updateStatusDisplay
-    || globalThis.GAME?.API?.updateStatusDisplay;
+  const updateStatusDisplay = deps.updateStatusDisplay;
   if (typeof updateStatusDisplay === 'function') updateStatusDisplay();
   updateEndBtnWarn?.();
 

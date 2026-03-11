@@ -4,14 +4,8 @@ export function saveRunBeforeReturnRuntime(deps = {}) {
   const gs = resolveGs(deps);
   if (!gs) return false;
 
-  const saveSystem = globalThis.GAME?.Modules?.SaveSystem ?? globalThis.SaveSystem;
-  if (saveSystem && typeof saveSystem.saveRun === 'function') {
-    saveSystem.saveRun({ gs, isGameStarted: () => true });
-    return true;
-  }
-
   if (typeof deps.saveRun === 'function') {
-    deps.saveRun();
+    deps.saveRun({ gs });
     return true;
   }
 
@@ -45,7 +39,6 @@ export function createPauseMenuRuntimeCallbacks({ deps = {}, ui }) {
     onOpenSettings: () => {
       ui.togglePause(deps);
       if (typeof deps.openSettings === 'function') deps.openSettings();
-      else globalThis.GAME?.API?.openSettings?.();
     },
     onOpenHelp: () => {
       ui.toggleHelp(deps);

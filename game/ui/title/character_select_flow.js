@@ -25,7 +25,7 @@ export function createCharacterSelectFlow({
   updateAll,
   renderPhase,
   onConfirm,
-  setTimeoutImpl = globalThis.setTimeout,
+  setTimeoutImpl = setTimeout,
   log = (...args) => console.log(...args),
 } = {}) {
   function setVisible(isVisible, dir) {

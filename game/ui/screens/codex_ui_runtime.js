@@ -32,6 +32,7 @@ export function openCodexRuntime(state, ui, deps = {}) {
   resetCodexUiState(state, deps);
 
   const doc = getCodexDoc(deps);
+  bindCodexGlobalKeys(state, deps);
   showCodexModal(doc);
 
   injectCodexModalStructure(doc, createCodexModalCallbacks(state, ui));
@@ -68,14 +69,22 @@ export function renderCodexContentRuntime(state, ui, deps = {}) {
   renderCodexTabContent(state, ui, doc, deps, codex, getBaseCodexCards);
 }
 
-export function bindCodexGlobalKeys(state) {
-  if (typeof document === 'undefined') return;
+export function bindCodexGlobalKeys(state, deps = {}) {
+  const doc = getCodexDoc(deps);
+  if (!doc?.addEventListener || state._codexKeyDoc === doc) return;
+  if (state._codexKeyDoc && state._codexKeyHandler) {
+    state._codexKeyDoc.removeEventListener?.('keydown', state._codexKeyHandler);
+  }
 
-  document.addEventListener('keydown', (event) => {
-    const popup = document.getElementById('cxDetailPopup');
+  const onKeyDown = (event) => {
+    const popup = doc.getElementById('cxDetailPopup');
     if (!popup?.classList.contains('open')) return;
-    if (event.key === 'Escape') closeCodexDetailPopup(state, document);
+    if (event.key === 'Escape') closeCodexDetailPopup(state, doc);
     if (event.key === 'ArrowRight') navigateCodexPopup(state, 1);
     if (event.key === 'ArrowLeft') navigateCodexPopup(state, -1);
-  });
+  };
+
+  doc.addEventListener('keydown', onKeyDown);
+  state._codexKeyDoc = doc;
+  state._codexKeyHandler = onKeyDown;
 }

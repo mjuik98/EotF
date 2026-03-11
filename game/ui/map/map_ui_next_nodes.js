@@ -83,7 +83,7 @@ function playSelectAnim(doc, card, rgb, onDone, deps = {}) {
     clone.style.top = `${((win.innerHeight || 720) - targetHeight) / 2}px`;
     clone.style.width = `${targetWidth}px`;
     clone.style.height = `${targetHeight}px`;
-  }));
+  }, deps), deps);
 
   setTimeout(() => {
     if (flash) flash.style.background = `rgba(${rgb},.2)`;
@@ -260,7 +260,7 @@ export function updateNextNodesOverlay(deps = {}) {
   mainArea.appendChild(row);
   overlay.appendChild(mainArea);
 
-  const relicPanel = buildRelicPanel(doc, gs, data, tooltipUI);
+  const relicPanel = buildRelicPanel(doc, gs, data, tooltipUI, deps);
   relicPanel.id = 'ncRelicPanel';
   overlay.appendChild(relicPanel);
 

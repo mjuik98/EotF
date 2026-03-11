@@ -67,7 +67,7 @@ export function resolveEventChoiceFlow(choiceIdx, {
   doc,
   audioEngine,
   deps = {},
-  sharedData = globalThis.DATA || {},
+  sharedData = deps?.data || {},
   resolveChoice = EventManager.resolveEventChoice,
   onResolveChoice,
   onFinish,

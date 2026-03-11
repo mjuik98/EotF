@@ -58,7 +58,11 @@ export function renderCodexProgress(doc, progress, handlers = {}) {
     element.addEventListener('click', () => handlers.onSelectTab?.(element.dataset.tab));
   });
 
-  const raf = globalThis.requestAnimationFrame || ((cb) => setTimeout(cb, 16));
+  const defaultView = doc?.defaultView || null;
+  const raf = handlers.requestAnimationFrame
+    || (typeof defaultView?.requestAnimationFrame === 'function'
+      ? defaultView.requestAnimationFrame.bind(defaultView)
+      : ((cb) => setTimeout(cb, 16)));
   raf(() => {
     const fill = section.querySelector('.cx-ring-fill');
     if (fill) fill.style.strokeDashoffset = progress.offset;

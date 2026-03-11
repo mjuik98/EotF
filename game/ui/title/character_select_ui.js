@@ -15,7 +15,17 @@ import { RunEndScreenUI } from './run_end_screen_ui.js';
 import { createCharacterSelectMountRuntime } from './character_select_mount_runtime.js';
 
 function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
+}
+
+function bindBrowserFn(fn, context) {
+  if (typeof fn !== 'function') return null;
+  if (typeof fn.bind !== 'function') return fn;
+  return fn.bind(context);
+}
+
+function getWin(deps, doc) {
+  return deps?.win || doc?.defaultView || null;
 }
 
 const CHARS = CHARACTER_SELECT_CHARS;
@@ -35,7 +45,11 @@ export const CharacterSelectUI = {
   mount(deps = {}) {
     const owner = this;
     const doc = getDoc(deps);
-    const win = deps?.win || globalThis.window || globalThis;
+    const win = getWin(deps, doc);
+    const requestAnimationFrameImpl = deps?.requestAnimationFrame || bindBrowserFn(win?.requestAnimationFrame, win);
+    const cancelAnimationFrameImpl = deps?.cancelAnimationFrame || bindBrowserFn(win?.cancelAnimationFrame, win);
+    const setTimeoutImpl = deps?.setTimeout || bindBrowserFn(win?.setTimeout, win) || setTimeout;
+    const clearIntervalImpl = deps?.clearInterval || bindBrowserFn(win?.clearInterval, win) || clearInterval;
     const state = { idx: 0, phase: 'select', activeSkill: null, typingTimer: null };
     const chars = CHARS;
     const classIds = chars.map((ch) => ch.class);
@@ -44,8 +58,9 @@ export const CharacterSelectUI = {
     let isReplayingSummary = false;
     const particleRuntime = createCharacterParticleRuntime({
       doc,
-      requestAnimationFrameImpl: deps?.requestAnimationFrame || globalThis.requestAnimationFrame,
-      cancelAnimationFrameImpl: deps?.cancelAnimationFrame || globalThis.cancelAnimationFrame,
+      win,
+      requestAnimationFrameImpl,
+      cancelAnimationFrameImpl,
     });
 
     ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
@@ -69,7 +84,7 @@ export const CharacterSelectUI = {
         isReplayingSummary = value;
       },
       isReplaying: () => isReplayingSummary,
-      setTimeoutImpl: setTimeout,
+      setTimeoutImpl,
       fallbackBonusText: '?????癰귣?瑗??? 揶쏅벤???뤿???щ빍??',
     });
 
@@ -82,7 +97,7 @@ export const CharacterSelectUI = {
       updateAll: () => mountRuntime?.updateAll(),
       renderPhase: () => mountRuntime?.renderPhase(),
       onConfirm: (selectedChar) => deps.onConfirm?.(selectedChar),
-      setTimeoutImpl: setTimeout,
+      setTimeoutImpl,
     });
 
     function openModal(skill, accent) {
@@ -104,7 +119,7 @@ export const CharacterSelectUI = {
 
     function stopTyping() {
       if (!state.typingTimer) return;
-      clearInterval(state.typingTimer);
+      clearIntervalImpl(state.typingTimer);
       state.typingTimer = null;
     }
     mountRuntime = createCharacterSelectMountRuntime({
@@ -141,7 +156,7 @@ export const CharacterSelectUI = {
     });
 
     mountRuntime.updateAll();
-    setTimeout(() => doc.querySelectorAll('.intro').forEach((element) => element.classList.add('mounted')), 80);
+    setTimeoutImpl(() => doc.querySelectorAll('.intro').forEach((element) => element.classList.add('mounted')), 80);
     owner._runtime = {
       onEnter() {
         mountRuntime.updateAll();

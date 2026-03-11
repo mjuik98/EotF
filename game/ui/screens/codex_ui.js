@@ -2,7 +2,6 @@ import {
   createCodexUiState,
 } from './codex_ui_controller.js';
 import {
-  bindCodexGlobalKeys,
   closeCodexRuntime,
   openCodexRuntime,
   renderCodexContentRuntime,
@@ -28,5 +27,3 @@ export const CodexUI = {
     renderCodexContentRuntime(_state, this, deps);
   },
 };
-
-bindCodexGlobalKeys(_state);

@@ -1,9 +1,16 @@
 function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 function getWin(deps) {
-  return deps?.win || window;
+  return deps?.win || deps?.doc?.defaultView || null;
+}
+
+function getScheduleFrame(deps, win) {
+  const raf = deps?.requestAnimationFrame;
+  if (typeof raf === 'function') return raf;
+  if (typeof win?.requestAnimationFrame === 'function') return win.requestAnimationFrame.bind(win);
+  return (callback) => setTimeout(callback, 16);
 }
 
 function getHudOverlay(doc) {
@@ -100,8 +107,10 @@ export function showCardPlayEffectOverlay(card, deps = {}) {
 
   const aliveIdx = gs.combat.enemies.findIndex((enemy) => enemy.hp > 0);
   const targetCard = aliveIdx >= 0 ? doc.getElementById(`enemy_${aliveIdx}`) : null;
-  let tx = win.innerWidth / 2;
-  let ty = win.innerHeight * 0.3;
+  const viewportWidth = Number(win?.innerWidth) || 1280;
+  const viewportHeight = Number(win?.innerHeight) || 720;
+  let tx = viewportWidth / 2;
+  let ty = viewportHeight * 0.3;
   if (targetCard) {
     const rect = targetCard.getBoundingClientRect();
     tx = rect.left + rect.width / 2;
@@ -109,8 +118,8 @@ export function showCardPlayEffectOverlay(card, deps = {}) {
   }
 
   const nameEl = doc.createElement('div');
-  const startX = win.innerWidth / 2;
-  const startY = win.innerHeight * 0.65;
+  const startX = viewportWidth / 2;
+  const startY = viewportHeight * 0.65;
   nameEl.style.cssText = `
     position:fixed; left:${startX}px; top:${startY}px;
     transform:translate(-50%,-50%);
@@ -123,7 +132,7 @@ export function showCardPlayEffectOverlay(card, deps = {}) {
   nameEl.textContent = `${card.icon} ${card.name}`;
   doc.body.appendChild(nameEl);
 
-  const scheduleFrame = win.requestAnimationFrame || globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
+  const scheduleFrame = getScheduleFrame(deps, win);
   scheduleFrame(() => {
     nameEl.style.left = `${tx}px`;
     nameEl.style.top = `${ty}px`;

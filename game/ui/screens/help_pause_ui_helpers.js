@@ -1,7 +1,7 @@
 import { SettingsManager } from '../../core/settings_manager.js';
 
 export function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 export function isInGame(gs) {
@@ -17,11 +17,6 @@ export function resolveGs(deps = {}) {
   return deps?.gs
     || deps?.State
     || deps?.state
-    || globalThis.GAME?.State
-    || globalThis.GAME?.gs
-    || globalThis.GS
-    || globalThis.GameState
-    || globalThis.gs
     || null;
 }
 
@@ -31,7 +26,7 @@ export function clearActiveRunSave(deps = {}) {
     return;
   }
 
-  const saveSystem = globalThis.GAME?.Modules?.SaveSystem ?? globalThis.SaveSystem;
+  const saveSystem = deps.saveSystem || deps.SaveSystem || null;
   saveSystem?.clearSave?.();
 }
 
@@ -47,7 +42,7 @@ export function isVisibleModal(el, doc) {
   const inlineDisplay = String(el.style?.display || '').trim().toLowerCase();
   if (inlineDisplay === 'none') return false;
 
-  const view = doc?.defaultView || globalThis;
+  const view = doc?.defaultView || null;
   if (typeof view?.getComputedStyle !== 'function') {
     return Boolean(el.classList?.contains('active') || inlineDisplay);
   }

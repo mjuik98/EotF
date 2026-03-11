@@ -441,7 +441,7 @@ body {
 
 .title-brand-main-bottom {
   position: relative;
-  color: transparent;
+  color: rgba(123, 47, 255, 0.15);
   -webkit-text-stroke: 1.5px rgba(172, 143, 255, 0.88);
   text-shadow: 0 0 68px rgba(123, 47, 255, 0.5);
 }
@@ -845,7 +845,7 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: transparent;
   color: rgba(228, 232, 242, 0.86);
-  transition: background 0.24s ease, transform 0.24s ease, border-color 0.24s ease, color 0.24s ease;
+  transition: background 0.24s ease, transform 0.24s ease, border-color 0.24s ease, color 0.24s ease, text-shadow 0.24s ease;
   animation: titleFadeSlideLeft 0.55s ease both;
 }
 
@@ -875,9 +875,11 @@ body {
 
 .title-menu-btn:hover,
 .title-menu-btn.kb-focus {
-  background: linear-gradient(90deg, rgba(123, 47, 255, 0.12), transparent 85%);
-  transform: translateX(6px);
-  border-color: rgba(123, 47, 255, 0.18);
+  background: linear-gradient(90deg, rgba(80, 200, 120, 0.15), transparent 85%);
+  transform: translateX(6px) scale(1.02);
+  border-color: rgba(80, 200, 120, 0.3);
+  color: #fff;
+  text-shadow: 0 0 8px rgba(80, 200, 120, 0.4);
 }
 
 .title-menu-btn--primary {
@@ -890,8 +892,11 @@ body {
 
 .title-menu-btn--primary:hover,
 .title-menu-btn--primary.kb-focus {
-  border-color: rgba(123, 47, 255, 0.54);
-  box-shadow: 0 0 28px rgba(123, 47, 255, 0.16);
+  transform: translateX(6px) scale(1.02);
+  border-color: rgba(123, 47, 255, 0.64);
+  box-shadow: 0 0 32px rgba(123, 47, 255, 0.24);
+  color: #fff;
+  text-shadow: 0 0 10px rgba(123, 47, 255, 0.5);
 }
 
 .title-menu-btn--danger:hover,
@@ -905,6 +910,12 @@ body {
   grid-row: 1 / span 2;
   font-size: 15px;
   color: rgba(178, 186, 214, 0.85);
+  transition: color 0.24s ease, text-shadow 0.24s ease;
+}
+
+.title-menu-btn:hover .title-menu-icon,
+.title-menu-btn.kb-focus .title-menu-icon {
+  color: #fff;
 }
 
 .title-menu-btn--primary .title-menu-icon {
@@ -919,7 +930,7 @@ body {
 
 .title-menu-meta {
   grid-column: 2;
-  color: rgba(177, 184, 205, 0.58);
+  color: rgba(200, 210, 230, 0.8);
   font-size: 12px;
 }
 
@@ -962,7 +973,7 @@ body {
 
 .title-lore-text {
   max-width: 210px;
-  color: rgba(203, 208, 224, 0.64);
+  color: rgba(220, 225, 235, 0.85);
   font-family: 'Crimson Pro', serif;
   font-size: 12px;
   line-height: 1.55;

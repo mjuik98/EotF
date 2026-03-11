@@ -1,5 +1,5 @@
 export function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 export function getMeta(gs) {
@@ -62,8 +62,9 @@ export function getDiffLevel(score) {
   return DIFF_LEVELS.find((item) => score <= item.max) || DIFF_LEVELS[DIFF_LEVELS.length - 1];
 }
 
-export function reducedMotion() {
-  return !!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+export function reducedMotion(deps = {}) {
+  const win = deps?.win || deps?.doc?.defaultView || null;
+  return !!win?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 }
 
 export function cloneRunConfig(cfg) {

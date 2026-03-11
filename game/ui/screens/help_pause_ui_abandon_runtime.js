@@ -16,9 +16,7 @@ export function confirmAbandonRun(deps = {}, onClosePauseMenu = () => {}) {
 
   if (gs.combat.active) {
     gs.combat.active = false;
-    const hudUpdateUI = deps.hudUpdateUI
-      || globalThis.GAME?.Modules?.HudUpdateUI
-      || globalThis.HudUpdateUI;
+    const hudUpdateUI = deps.hudUpdateUI || null;
     if (typeof hudUpdateUI?.resetCombatUI === 'function') {
       hudUpdateUI.resetCombatUI({ ...deps, doc, gs });
     } else {

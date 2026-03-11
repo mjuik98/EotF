@@ -76,8 +76,6 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
       if (typeof deps.closeCodex === 'function') deps.closeCodex();
     } else if (typeof deps.openCodex === 'function') {
       deps.openCodex();
-    } else {
-      globalThis.GAME?.API?.openCodex?.();
     }
   }
 

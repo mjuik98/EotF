@@ -23,25 +23,35 @@ export function startAudioWave(doc, deps = {}) {
 
   const draw = () => {
     ctx.clearRect(0, 0, width, height);
-    const t = Date.now() * 0.001;
+    const time = Date.now() * 0.0015;
 
-    ctx.beginPath();
-    points.forEach((point, index) => {
-      const x = (index / (points.length - 1)) * width;
-      const y = centerY + Math.sin(t * 50 * point.speed + point.phase) * point.amp;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
+    const numBars = 36;
+    const barWidth = width / numBars - 2;
+    
+    // Create base gradient for the bars
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, 'rgba(123, 47, 255, 0)');
+    gradient.addColorStop(0.3, 'rgba(123, 47, 255, 0.7)');
+    gradient.addColorStop(0.5, 'rgba(0, 255, 204, 0.9)');
+    gradient.addColorStop(0.7, 'rgba(123, 47, 255, 0.7)');
+    gradient.addColorStop(1, 'rgba(123, 47, 255, 0)');
 
-    const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0, 'rgba(123,47,255,0)');
-    gradient.addColorStop(0.2, 'rgba(123,47,255,0.55)');
-    gradient.addColorStop(0.5, 'rgba(0,255,204,0.66)');
-    gradient.addColorStop(0.8, 'rgba(123,47,255,0.55)');
-    gradient.addColorStop(1, 'rgba(123,47,255,0)');
-    ctx.strokeStyle = gradient;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    ctx.fillStyle = gradient;
+
+    for (let i = 0; i < numBars; i++) {
+      const x = i * (width / numBars);
+      let totalAmp = 0;
+
+      // Add together a few sine waves for complex organic movement
+      totalAmp += Math.sin(i * 0.2 + time * 3) * 6;
+      totalAmp += Math.sin(i * 0.5 - time * 2) * 4;
+      totalAmp += Math.sin(i * 0.1 + time * 5) * 2;
+
+      // Base height + absolute amplitude
+      const barHeight = Math.max(4, Math.abs(totalAmp) * 1.5 + 4);
+
+      ctx.fillRect(x, centerY - barHeight / 2, barWidth, barHeight);
+    }
 
     if (typeof win?.requestAnimationFrame === 'function') {
       state.waveRaf = win.requestAnimationFrame(draw);

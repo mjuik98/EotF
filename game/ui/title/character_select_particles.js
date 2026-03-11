@@ -244,11 +244,17 @@ function getParticleCount(type) {
   return 40;
 }
 
-export function createCharacterParticleRuntime({
-  doc = document,
-  requestAnimationFrameImpl = globalThis.requestAnimationFrame,
-  cancelAnimationFrameImpl = globalThis.cancelAnimationFrame,
-} = {}) {
+function bindBrowserFn(fn, context) {
+  if (typeof fn !== 'function') return null;
+  if (typeof fn.bind !== 'function') return fn;
+  return fn.bind(context);
+}
+
+export function createCharacterParticleRuntime(options = {}) {
+  const doc = options.doc || options.win?.document || null;
+  const view = options.win || doc?.defaultView || null;
+  const requestAnimationFrameImpl = options.requestAnimationFrameImpl || bindBrowserFn(view?.requestAnimationFrame, view);
+  const cancelAnimationFrameImpl = options.cancelAnimationFrameImpl || bindBrowserFn(view?.cancelAnimationFrame, view);
   let particles = [];
   let particleRaf = null;
 

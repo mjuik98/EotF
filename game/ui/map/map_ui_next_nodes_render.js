@@ -21,9 +21,12 @@ const REWARD_CLASS_MAP = {
   축복: 'relic',
 };
 
-export function runOnNextFrame(cb) {
-  if (typeof globalThis.requestAnimationFrame === 'function') {
-    return globalThis.requestAnimationFrame(cb);
+export function runOnNextFrame(cb, deps = {}) {
+  const raf = deps?.requestAnimationFrame;
+  if (typeof raf === 'function') return raf(cb);
+  const win = deps?.win || deps?.doc?.defaultView || null;
+  if (typeof win?.requestAnimationFrame === 'function') {
+    return win.requestAnimationFrame(cb);
   }
   return setTimeout(cb, 16);
 }
@@ -208,7 +211,7 @@ export function buildBottomDock(doc, regionData, options = {}) {
   return dock;
 }
 
-export function buildRelicPanel(doc, gs, data, tooltipUI) {
+export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   const rarityMeta = {
     legendary: { pip: '#c084fc', rgb: '192, 132, 252' },
     boss: { pip: '#ff3366', rgb: '255, 51, 102' },
@@ -219,7 +222,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI) {
   const rarityOrder = { legendary: 0, boss: 0, rare: 1, uncommon: 2, common: 3 };
   const activeTriggers = new Set(['combat_start', 'floor_start', 'on_enter']);
   const items = Array.isArray(gs?.player?.items) ? gs.player.items : [];
-  const win = globalThis.window || globalThis;
+  const win = deps?.win || doc?.defaultView || null;
   const panel = doc.createElement('div');
   panel.className = 'nc-relic-panel';
 
@@ -304,7 +307,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI) {
   };
   scrollWrap.addEventListener?.('scroll', updateFades, { passive: true });
   scrollWrap.addEventListener?.('wheel', handleWheel, { passive: false });
-  runOnNextFrame(updateFades);
+  runOnNextFrame(updateFades, deps);
 
   return panel;
 }

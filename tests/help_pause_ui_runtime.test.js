@@ -121,19 +121,16 @@ describe('help_pause_ui_runtime', () => {
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
   });
 
-  it('prefers SaveSystem.saveRun when returning to title', () => {
+  it('uses injected saveRun when returning to title', () => {
     const saveRun = vi.fn();
-    globalThis.SaveSystem = { saveRun };
 
     saveRunBeforeReturn({
       gs: { currentScreen: 'game' },
-      saveRun: vi.fn(),
+      saveRun,
     });
 
     expect(saveRun).toHaveBeenCalledWith({
       gs: { currentScreen: 'game' },
-      isGameStarted: expect.any(Function),
     });
-    delete globalThis.SaveSystem;
   });
 });

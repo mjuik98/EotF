@@ -1,5 +1,5 @@
 function getRunReturnDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 export function getBranchRoutes(deps) {
@@ -138,8 +138,8 @@ export function showBranchChoiceOverlay(routes, deps = {}) {
 }
 
 export async function resolveBranchTargetRegion(gs, deps = {}) {
-  const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
-  const getRegionCount = deps.getRegionCount || globalThis.getRegionCount;
+  const getBaseRegionIndex = deps.getBaseRegionIndex || null;
+  const getRegionCount = deps.getRegionCount || null;
   const stageCount = typeof getRegionCount === 'function'
     ? Math.max(1, Number(getRegionCount()) || 1)
     : 5;

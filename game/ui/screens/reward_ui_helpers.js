@@ -7,7 +7,7 @@ export const RELIC_REWARD_CHANCE_MINIBOSS = 0.25;
 export const RELIC_REWARD_CHANCE_BOSS = 0.5;
 
 export function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 export function getGS(deps) {
@@ -27,7 +27,7 @@ export function getMaxEnergyCap(gs) {
 }
 
 export function getDescriptionUtils(deps) {
-  return deps?.DescriptionUtils || globalThis.DescriptionUtils || null;
+  return deps?.descriptionUtils || deps?.DescriptionUtils || null;
 }
 
 export function normalizeRewardMode(mode) {

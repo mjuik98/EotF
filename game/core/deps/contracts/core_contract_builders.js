@@ -66,6 +66,10 @@ export function buildCoreContractBuilders(ctx) {
         switchScreen: refs.switchScreen,
         returnToGame: refs.returnToGame,
         showItemToast: refs.showItemToast,
+        tooltipUI: refs.TooltipUI,
+        TooltipUI: refs.TooltipUI,
+        descriptionUtils: refs.DescriptionUtils,
+        DescriptionUtils: refs.DescriptionUtils,
         playItemGet: () => refs.AudioEngine?.playItemGet?.(),
       };
     },

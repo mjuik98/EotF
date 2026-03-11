@@ -54,7 +54,6 @@ export function handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape }) 
 
   if (closeVisibleModalById(event, doc, 'battleChronicleOverlay', () => {
     if (typeof deps.closeBattleChronicle === 'function') deps.closeBattleChronicle();
-    else globalThis.GAME?.API?.closeBattleChronicle?.();
   }, swallowEscape)) {
     return true;
   }
@@ -98,7 +97,6 @@ export function handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape }) 
 
   if (closeVisibleModalById(event, doc, 'settingsModal', () => {
     if (typeof deps.closeSettings === 'function') deps.closeSettings();
-    else globalThis.GAME?.API?.closeSettings?.();
   }, swallowEscape)) {
     return true;
   }

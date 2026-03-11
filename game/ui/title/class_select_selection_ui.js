@@ -17,7 +17,7 @@ export function normalizeClassId(raw, classIdOrder = []) {
 }
 
 function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 export function applyClassSelectionState(classId, deps = {}) {
@@ -62,7 +62,7 @@ export function selectClassButton(btn, deps = {}) {
   if (!normalized) return;
 
   btn._selecting = true;
-  (deps.setTimeoutImpl || globalThis.setTimeout)(() => {
+  (deps.setTimeoutImpl || setTimeout)(() => {
     btn._selecting = false;
   }, 300);
 
@@ -74,7 +74,7 @@ export function selectClassButton(btn, deps = {}) {
 
   btn.style.transition = 'transform 0.15s ease';
   btn.style.transform = 'scale(1.04) translateY(-4px)';
-  (deps.setTimeoutImpl || globalThis.setTimeout)(() => {
+  (deps.setTimeoutImpl || setTimeout)(() => {
     btn.style.transform = '';
   }, 200);
 }

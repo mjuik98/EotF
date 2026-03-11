@@ -5,28 +5,25 @@ import { setActionButtonLabel } from './hud_render_helpers.js';
 function resolveSetBonusSystem(deps) {
   return deps.setBonusSystem
     || deps.SetBonusSystem
-    || globalThis.SetBonusSystem
-    || globalThis.GAME?.Modules?.['SetBonusSystem'];
+    || null;
 }
 
 function resolveTooltipUI(deps) {
   return deps.tooltipUI
     || deps.TooltipUI
-    || globalThis.TooltipUI
-    || globalThis.GAME?.Modules?.['TooltipUI'];
+    || null;
 }
 
 function resolveCardCostUtils(deps) {
   return deps.cardCostUtils
     || deps.CardCostUtils
-    || globalThis.CardCostUtils
-    || globalThis.GAME?.Modules?.['CardCostUtils'];
+    || null;
 }
 
 export function updateItemPanels({ gs, deps, doc, data }) {
   const setBonusSystem = resolveSetBonusSystem(deps);
   const tooltipUI = resolveTooltipUI(deps);
-  const win = deps.win || globalThis.window || globalThis;
+  const win = deps.win || doc?.defaultView || null;
   const itemEl = doc.getElementById('itemSlots');
   if (!itemEl) return;
 

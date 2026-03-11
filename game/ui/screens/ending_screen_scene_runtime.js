@@ -2,6 +2,11 @@ import { cafOf, rafOf, winOf } from './ending_screen_helpers.js';
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');
+const perfNow = (deps) => {
+  if (typeof deps?.performance?.now === 'function') return deps.performance.now();
+  if (typeof deps?.win?.performance?.now === 'function') return deps.win.performance.now();
+  return Date.now();
+};
 
 export function runEndingScene(doc, deps, payload, wisps, session, burst) {
   const reveal = [
@@ -58,7 +63,7 @@ export function runEndingScene(doc, deps, payload, wisps, session, burst) {
     session.timers.push(winOf(deps).setTimeout(() => {
       const element = doc.getElementById(id);
       if (!element) return;
-      const start = performance.now();
+      const start = perfNow(deps);
       const raf = rafOf(deps);
       const caf = cafOf(deps);
       let rid = 0;
@@ -95,6 +100,6 @@ export function runEndingScene(doc, deps, payload, wisps, session, burst) {
         );
       }, i * 200));
     }
-    (deps.audioEngine || globalThis.GAME?.Audio || globalThis.AudioEngine)?.playResonanceBurst?.();
+    deps.audioEngine?.playResonanceBurst?.();
   }, 1200));
 }

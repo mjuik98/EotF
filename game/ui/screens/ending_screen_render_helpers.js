@@ -122,7 +122,7 @@ export function appendEndingFragmentChoices(doc, deps, outcome, session, cleanup
   if (!gs?.meta || outcome === 'victory') return;
 
   const shardCount = Math.max(0, Math.floor(num(gs.meta.echoFragments, 0)));
-  const pick = deps.selectFragment || globalThis.GAME?.API?.selectFragment || globalThis.selectFragment;
+  const pick = deps.selectFragment;
   if (!shardCount || typeof pick !== 'function') return;
 
   const anchor = doc.getElementById('s7');

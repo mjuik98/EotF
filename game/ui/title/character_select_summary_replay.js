@@ -9,7 +9,7 @@ export function createCharacterSummaryReplay({
   updateAll,
   setReplaying,
   isReplaying,
-  setTimeoutImpl = globalThis.setTimeout,
+  setTimeoutImpl = setTimeout,
   fallbackBonusText = '',
 } = {}) {
   function finishSummaryReplay() {

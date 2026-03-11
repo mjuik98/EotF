@@ -3,8 +3,7 @@ import { StatusTooltipUI } from '../combat/status_tooltip_builder.js';
 export function resolveStatusEffectsUI(deps = {}) {
   return deps.StatusEffectsUI
     || deps.statusEffectsUI
-    || globalThis.GAME?.Modules?.StatusEffectsUI
-    || globalThis.GAME?.Modules?.['StatusEffectsUI'];
+    || null;
 }
 
 export function shouldShowFloatingPlayerHpPanel(gs) {
@@ -53,7 +52,7 @@ export function restoreFloatingTooltipState(doc, gs, deps, tooltipState) {
 
   StatusTooltipUI.showForAnchor(badge, tooltipState.statusKey, info, buff, {
     doc,
-    win: deps.win || globalThis.window || globalThis,
+    win: deps.win || doc?.defaultView || null,
     statusContainerId: 'ncFloatingHpStatusBadges',
   });
 }
