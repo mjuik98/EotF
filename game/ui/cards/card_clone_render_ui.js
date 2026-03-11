@@ -87,8 +87,9 @@ export function createHandCardCloneElement(doc, cardId, card, costDisplay) {
 
   const desc = doc.createElement('div');
   desc.className = 'card-clone-desc';
-  if (globalThis.DescriptionUtils) {
-    desc.innerHTML = globalThis.DescriptionUtils.highlight(card.desc);
+  const descriptionUtils = doc?.descriptionUtils || null;
+  if (typeof descriptionUtils?.highlight === 'function') {
+    desc.innerHTML = descriptionUtils.highlight(card.desc);
   } else {
     desc.textContent = card.desc || '';
   }

@@ -498,7 +498,7 @@ const COMMON_ITEMS = {
     },
     lucky_coin: {
         id: 'lucky_coin', name: '행운의 주화', icon: '🪙', rarity: 'common',
-        desc: '턴 시작 시 5% 확률: 에너지 1 회복',
+        desc: '턴 시작 5% 확률: 에너지 1 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && Math.random() < 0.05) {
                 gs.player.energy = Math.min(gs.player.maxEnergy, gs.player.energy + 1);
@@ -519,25 +519,25 @@ const COMMON_ITEMS = {
     // 세트: 고대인의 유산
     ancient_handle: {
         id: 'ancient_handle', name: '고대인의 자루', icon: '🐻', rarity: 'common', setId: 'ancient_set',
-        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
         onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
         passive() { }
     },
     ancient_leather: {
         id: 'ancient_leather', name: '고대인의 가죽', icon: '🐻‍❄️', rarity: 'common', setId: 'ancient_set',
-        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
         onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
         passive() { }
     },
     ancient_belt: {
         id: 'ancient_belt', name: '고대인의 허리띠', icon: '🐼', rarity: 'common', setId: 'ancient_set',
-        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
         onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
         passive() { }
     },
     ancient_cape: {
         id: 'ancient_cape', name: '고대인의 망토', icon: '🐨', rarity: 'common', setId: 'ancient_set',
-        desc: '상시: 최대 체력 +5\n[세트: 고대인의 유산]',
+        desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
         onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
         passive() { }
     },
@@ -557,7 +557,7 @@ const UNCOMMON_ITEMS = {
     },
     acidic_vial: {
         id: 'acidic_vial', name: '산성 유리병', icon: '🧪', rarity: 'uncommon', setId: 'serpents_gaze',
-        desc: '피해를 줄 때 20% 확률: 대상의 독 +1\n[세트: 독사의 시선]',
+        desc: '독이 있는 적에게 피해를 줄 때 20% 확률: 대상의 독 +1\n[세트: 독사의 시선]',
         passive(gs, trigger) {
             if (trigger !== Trigger.DEAL_DAMAGE || Math.random() >= 0.2) return;
             const targetIdx = Number.isInteger(gs?._selectedTarget) ? gs._selectedTarget : 0;
@@ -599,7 +599,7 @@ const UNCOMMON_ITEMS = {
                 gs.player.hp += 15;
                 gs.markDirty?.('hud');
             }
-            if (trigger === Trigger.COMBAT_END && gs._titansBeltApplied) {
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._titansBeltApplied) {
                 const bonus = gs._titansBeltApplied;
                 gs.player.maxHp = Math.max(1, gs.player.maxHp - bonus);
                 gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
@@ -620,9 +620,9 @@ const UNCOMMON_ITEMS = {
     },
     bastion_shield_plate: {
         id: 'bastion_shield_plate', name: '보루 방패판', icon: '🛡️', rarity: 'uncommon', setId: 'iron_fortress',
-        desc: '턴 시작: 방어막 5 획득\n[세트: 철옹성]',
+        desc: '턴 종료: 방어막 5 획득\n[세트: 철옹성]',
         passive(gs, trigger) {
-            if (trigger === Trigger.TURN_START) gs.addShield?.(5, { name: '보루 방패판', type: 'item' });
+            if (trigger === Trigger.TURN_END) gs.addShield?.(5, { name: '보루 방패판', type: 'item' });
         }
     },
     spiked_buckler: {
@@ -706,7 +706,7 @@ const UNCOMMON_ITEMS = {
                 gs._scaleDrawReset = true;
                 gs.addLog?.('⚖️ 균형의 저울: 추가 드로우!', 'item');
             }
-            if (trigger === Trigger.TURN_END && gs._scaleDrawReset) {
+            if ((trigger === Trigger.TURN_END || trigger === 'death') && gs._scaleDrawReset) {
                 gs.player.drawCount = Math.max(1, gs.player.drawCount - 1);
                 gs._scaleDrawReset = false;
             }
@@ -721,7 +721,7 @@ const UNCOMMON_ITEMS = {
     },
     crystal_ball: {
         id: 'crystal_ball', name: '수정구슬', icon: '🔮', rarity: 'uncommon',
-        desc: '전투 시작: 무작위 카드 3장의 비용 -1(이번 전투)',
+        desc: '전투 시작: 무작위 카드 3종류의 비용 -1(이번 전투)',
         passive(gs, trigger, data) {
             if (trigger === Trigger.COMBAT_START && gs.player.deck?.length > 0) {
                 gs._crystalDiscounted = new Set();
@@ -867,12 +867,18 @@ const RARE_ITEMS = {
     everlasting_oil: {
         id: 'everlasting_oil', name: '꺼지지 않는 기름', icon: '🕯️', rarity: 'rare',
         desc: '턴 시작: 무작위 카드 1장의 비용 0(이번 턴)',
-        passive(gs, trigger) {
+        passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START && gs.player.hand?.length > 0) {
                 const h = gs.player.hand;
                 const r = Math.floor(Math.random() * h.length);
                 gs._oilTarget = h[r];
                 gs.addLog?.(`🕯️ 꺼지지 않는 기름: ${CARDS[h[r]]?.name} 비용이 0이 되었습니다!`, 'item');
+            }
+            if (trigger === Trigger.BEFORE_CARD_COST && data?.cardId === gs._oilTarget) {
+                return -99;
+            }
+            if (trigger === Trigger.TURN_END || trigger === Trigger.COMBAT_END) {
+                gs._oilTarget = null;
             }
         }
     },
@@ -884,7 +890,7 @@ const RARE_ITEMS = {
                 gs._phoenixUsed = true;
                 gs.player.hp = Math.floor(gs.player.maxHp * 0.5);
                 gs.addLog?.('🔥 불사조의 깃털: 죽음에서 돌아왔습니다!', 'item');
-                return { cancelDeath: true };
+                return true;
             }
         }
     },
@@ -905,7 +911,7 @@ const RARE_ITEMS = {
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END) gs._manaStored = Math.min(3, gs.player.energy);
             if (trigger === Trigger.TURN_START && gs._manaStored) {
-                gs.player.energy += gs._manaStored;
+                gs.player.energy = Math.min(gs.player.maxEnergy, gs.player.energy + gs._manaStored);
                 gs.addLog?.(`🔋 마력 배터리: 에너지 ${gs._manaStored} 이월 완료.`, 'item');
                 gs._manaStored = 0;
             }
@@ -944,6 +950,9 @@ const RARE_ITEMS = {
                     gs.player.energy = gs.player.maxEnergy;
                     gs.addLog?.('🦋 태엽 나비: 시간을 가속하여 에너지를 보충합니다!', 'item');
                 }
+            }
+            if (trigger === Trigger.COMBAT_END) {
+                gs._butterflyCount = 0;
             }
         }
     },
@@ -1002,7 +1011,7 @@ const RARE_ITEMS = {
         desc: '체력이 50% 이하일 때 턴 시작: 에너지 1 회복\n[세트: 심연의 삼위일체]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && gs.player.hp <= gs.player.maxHp * 0.5) {
-                gs.player.energy += 1;
+                gs.player.energy = Math.min(gs.player.energy + 1, gs.player.maxEnergy);
                 gs.addLog?.('🖤 심연의 심장: 고동소리가 빨라집니다.', 'item');
             }
         }
@@ -1016,7 +1025,7 @@ const LEGENDARY_ITEMS = {
         desc: '턴 시작: 에너지 1 회복 / 카드 1장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                gs.player.energy += 1;
+                gs.player.energy = Math.min(gs.player.energy + 1, gs.player.maxEnergy);
                 gs.drawCards(1, { name: '영겁의 핵심', type: 'item' });
                 gs.addLog?.('💎 영겁의 핵심: 시간이 가속됩니다.', 'item');
             }
@@ -1026,14 +1035,14 @@ const LEGENDARY_ITEMS = {
         id: 'god_slayer_blade', name: '신살의 검', icon: '🗡️', rarity: 'legendary',
         desc: '상시: 엘리트 및 보스에게 주는 피해 50% 증가',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.DAMAGE_CALC && (gs.enemies?.some(e => e.isElite || e.isBoss))) {
+            if (trigger === Trigger.DAMAGE_CALC && (gs.combat?.enemies?.some(e => e.isElite || e.isBoss))) {
                 return data * 1.5;
             }
         }
     },
     infinite_loop: {
         id: 'infinite_loop', name: '무한의 루프', icon: '🌀', rarity: 'legendary',
-        desc: '카드 3장 사용할 때마다: 무작위 카드 1장 제거 / 복사본 2장을 손패에 추가',
+        desc: '카드 3장 사용할 때마다: 손패의 무작위 카드 1장 소모 후 복사본 2장 추가',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_PLAY) {
                 gs._loopCount = (gs._loopCount || 0) + 1;
@@ -1044,6 +1053,9 @@ const LEGENDARY_ITEMS = {
                     gs.player.hand.push(card, card);
                     gs.addLog?.(`🌀 무한의 루프: ${CARDS[card]?.name} 자가 증식!`, 'item');
                 }
+            }
+            if (trigger === Trigger.COMBAT_END) {
+                gs._loopCount = 0;
             }
         }
     },
@@ -1057,9 +1069,9 @@ const BOSS_ITEMS = {
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 if (!gs._bossSoulMirrorPenaltyApplied) {
-                    gs._bossSoulMirrorPenaltyApplied = true;
                     gs.player.maxHp = Math.max(1, gs.player.maxHp - 15);
                     gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
+                    gs._bossSoulMirrorPenaltyApplied = true;
                 }
                 gs._bossSoulMirrorRevived = false;
                 return;
@@ -1109,7 +1121,7 @@ const BOSS_ITEMS = {
         onAcquire(gs) { gs.player.maxEnergy += 1; },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                gs.enemies?.forEach(e => gs.addBuff('vulnerable', 1, { target: e }));
+                gs.combat?.enemies?.forEach(e => gs.addBuff('vulnerable', 1, { target: e }));
                 gs.addLog?.('🌀 폭풍의 눈: 폭풍이 몰아칩니다.', 'item');
             }
         }
@@ -1120,7 +1132,7 @@ const SPECIAL_ITEMS = {
     // ══════════════ [ 대분류: 특수/이벤트 유물 ] ══════════════
     eternal_fragment: {
         id: 'eternal_fragment', name: '영원의 파편', icon: '💎', rarity: 'special',
-        desc: '획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1 / 카드 1장 드로우 / 전투 종료: 원래 수치로 복원',
+        desc: '획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1 / 매 턴 드로우 +1 / 전투 종료: 원래 수치로 복원',
         onAcquire(gs) {
             gs.player.maxHp += 20;
             gs.player.hp += 20;
@@ -1144,7 +1156,7 @@ const SPECIAL_ITEMS = {
     },
     dimension_key: {
         id: 'dimension_key', name: '차원 열쇠', icon: '🔑', rarity: 'special',
-        desc: '전투 종료: 카드 보상 선택지 +1',
+        desc: '상시: 카드 보상 선택지 +1',
         passive(gs, trigger, data) {
             if (trigger === Trigger.REWARD_GENERATE && data?.type === 'card') {
                 return (data.count || 3) + 1;

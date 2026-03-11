@@ -2,7 +2,7 @@ import { StatusTooltipUI } from './status_tooltip_builder.js';
 import { cleanupEnemyIntentTooltip } from './combat_intent_ui.js';
 
 function getCombatWin(deps = {}) {
-  return deps?.win || globalThis.window || globalThis;
+  return deps?.win || deps?.doc?.defaultView || null;
 }
 
 export function cleanupCombatTooltips(deps = {}) {

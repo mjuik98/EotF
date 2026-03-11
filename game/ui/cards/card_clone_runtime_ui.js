@@ -4,9 +4,10 @@ export function createCardCloneRuntime(options = {}) {
     cloneHeight = 292,
     cloneGap = 16,
     viewportMargin = 14,
-    requestFrame = (callback) => globalThis.requestAnimationFrame(callback),
-    view = globalThis.window || globalThis,
   } = options;
+
+  let requestFrame = options.requestFrame || ((callback) => setTimeout(callback, 16));
+  let view = options.view || null;
 
   let layer = null;
   let active = null;
@@ -16,13 +17,21 @@ export function createCardCloneRuntime(options = {}) {
     layer = el;
   }
 
+  function setView(nextView) {
+    view = nextView || null;
+  }
+
+  function setRequestFrame(nextRequestFrame) {
+    requestFrame = nextRequestFrame || ((callback) => setTimeout(callback, 16));
+  }
+
   function register(cardEl, cloneEl) {
     cloneMap.set(cardEl, cloneEl);
   }
 
   function calcPosition(cardEl) {
     const rect = cardEl.getBoundingClientRect();
-    const viewportWidth = view.innerWidth;
+    const viewportWidth = Number(view?.innerWidth) || 1280;
     const centerX = rect.left + rect.width / 2;
 
     let left = centerX - cloneWidth / 2;
@@ -109,7 +118,9 @@ export function createCardCloneRuntime(options = {}) {
     hideImmediate,
     register,
     reposition,
+    setRequestFrame,
     setLayer,
+    setView,
     show,
   };
 }

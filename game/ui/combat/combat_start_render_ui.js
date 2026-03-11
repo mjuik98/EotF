@@ -124,8 +124,6 @@ export function syncCombatEchoButton(echoBtn, echoVal, deps = {}, gs = null) {
   if (echoVal >= 30) {
     if (typeof deps.updateEchoSkillBtn === 'function') {
       deps.updateEchoSkillBtn({ ...deps, gs });
-    } else if (typeof globalThis.updateEchoSkillBtn === 'function') {
-      globalThis.updateEchoSkillBtn();
     }
   } else {
     setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 (${echoVal}/30)`, 'E');
@@ -140,7 +138,7 @@ export function getCombatStartBannerDelay(isBoss, isMiniBoss, defaultDelayMs, bo
     : defaultDelayMs;
 }
 
-export function refreshCombatStartHud(gs, deps = {}, hudUpdateUI = globalThis.HudUpdateUI) {
+export function refreshCombatStartHud(gs, deps = {}, hudUpdateUI = deps.hudUpdateUI || deps.HudUpdateUI || null) {
   deps.resetCombatInfoPanel?.();
   deps.refreshCombatInfoPanel?.();
 

@@ -69,6 +69,25 @@
   - `tests/ending_screen_ui_runtime.test.js`
   모두 통과했다.
 
+### 7. Remaining Window Usage Hotspot Cleanup Completed
+
+- 남아 있던 `check-window-usage` 대상들을 정리했다:
+  - `game/combat/damage_system_helpers.js`
+  - `game/core/deps_factory_runtime.js`
+  - `game/core/event_binding_registry.js`
+  - `game/ui/cards/card_clone_*.js`
+  - `game/ui/combat/combat_enemy_status_tooltip_ui.js`
+  - `game/ui/combat/combat_hud_chronicle_runtime_ui.js`
+  - `game/ui/combat/combat_hud_feedback.js`
+  - `game/ui/combat/combat_hud_special_ui.js`
+  - `game/ui/combat/combat_hud_widgets_ui.js`
+  - `game/ui/combat/combat_start_render_ui.js`
+  - `game/ui/combat/combat_start_runtime_ui.js`
+  - `game/ui/combat/combat_ui_runtime_helpers.js`
+  - `game/ui/combat/status_tooltip_builder.js`
+- core bridge는 host resolver helper로 바꾸고, UI/runtime/helper 파일은 `deps`, `doc.defaultView`, injected RAF/timer/utility를 우선 사용하도록 맞췄다.
+- 관련 집중 테스트 13개 묶음이 통과했고, `node scripts/check-window-usage.mjs`도 현재 통과한다.
+
 ## Validation Baseline
 
 - 반복적으로 통과:
@@ -77,9 +96,9 @@
   - Playwright 기반 브라우저 검증
 - 현재 통과:
   - `node scripts/check-architecture.mjs`
+  - `node scripts/check-window-usage.mjs`
 - 아직 남아 있는 기준 초과:
   - `node scripts/check-import-coupling.mjs`
-  - `node scripts/check-window-usage.mjs`
 
 ## Remaining Issues
 
@@ -89,12 +108,35 @@
 
 ## Next Priorities
 
-1. `game/ui/screens/codex_ui_runtime.js`와 `game/ui/screens/codex_ui_progress_render.js` 정리
-2. `game/ui/run/run_return_ui_branch_ui.js`와 `game/ui/shared/player_hp_panel_runtime_ui.js` 정리
-3. combat/cards/shared runtime helper에서 남은 `window/globalThis` fallback 제거
-4. `check-import-coupling`과 `check-window-usage` 기준치를 실제로 낮출 수 있는 파일부터 순차 정리
+1. `check-import-coupling` 기준을 실제로 낮출 수 있는 composition root / facade fan-out 정리
+2. `game/core/bindings/module_registry.js`와 binding layer import fan-out 축소
+3. `game/core/game_api.js`와 binding wrapper들의 legacy facade 정리
+4. 남은 global bridge 성격 파일을 platform/bridge 층으로 더 명확히 격리
 
 ## Note
 
 - 이 문서는 상세 세션 로그가 아니라 현재 상태와 최근 핵심 변화만 남긴 요약본이다.
 - 세부 실행 로그, 반복 `PASS` 기록, preview 포트, follow-up prompt 누적 기록은 제거했다.
+
+## Latest Recovery
+
+- 중단 원인이던 회귀 7건을 복구했다.
+- `deps factory`에서 빠졌던 `getRaf` 주입을 다시 연결해 전체 contract 생성이 정상화됐다.
+- 타이틀 부트 FX는 host/window fallback을 안전하게 복구했고, waveform 렌더러는 path 기반 canvas mock에서도 동작하도록 보강했다.
+- floating HP panel은 `StatusEffectsUI` 전역 fallback을 host resolver 경유로 다시 찾도록 조정했다.
+- `data/items.js`에서 리팩토링과 무관하게 섞인 회귀를 바로잡았다:
+  - `boss_soul_mirror` 최대 체력 페널티가 다시 전투 시작 시 1회만 적용됨
+  - `bastion_shield_plate`가 다시 턴 종료 방어막 트리거로 동작함
+
+## Latest Validation
+
+- 현재 통과:
+  - `npm test`
+  - `npm run build`
+  - `node scripts/check-window-usage.mjs`
+- Playwright 브라우저 확인:
+  - `http://127.0.0.1:4173` preview에서 `#mainStartBtn` 클릭 후 캐릭터 선택 화면까지 정상 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game-verify-20260311-1357/shot-0.png`
+    - `output/web-game-verify-20260311-1357/shot-1.png`
+  - 새 검증 디렉터리에는 console/page error artifact가 생성되지 않았다.

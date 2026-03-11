@@ -19,11 +19,11 @@ const PLAYER_TURN_AFTER_BOSS_GAP_MS = 150;
 const REGION_FLASH_COLORS = ['#00cc88', '#4488ff', '#cc44ff', '#ffaa00', '#ff3366'];
 
 function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 function getOverlay(deps) {
-  return deps?.combatOverlay || globalThis.combatOverlay || null;
+  return deps?.combatOverlay || getDoc(deps)?.getElementById?.('combatOverlay') || null;
 }
 
 export function resetCombatStartSurface(gs, deps = {}) {
@@ -39,7 +39,7 @@ export function resetCombatStartSurface(gs, deps = {}) {
 
 export function applyCombatEntryOverlay(gs, deps = {}) {
   const overlay = getOverlay(deps);
-  const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
+  const getBaseRegionIndex = deps.getBaseRegionIndex || null;
   const baseRegionIdx = typeof getBaseRegionIndex === 'function'
     ? getBaseRegionIndex(gs.currentRegion)
     : 0;
@@ -65,8 +65,10 @@ export function scheduleCombatEntryAnimations(deps = {}) {
 export function syncCombatStartButtons(gs, deps = {}) {
   const doc = getDoc(deps);
 
-  if (typeof globalThis.HudUpdateUI !== 'undefined' && typeof globalThis.HudUpdateUI.enableActionButtons === 'function') {
-    globalThis.HudUpdateUI.enableActionButtons();
+  if (typeof deps.hudUpdateUI?.enableActionButtons === 'function') {
+    deps.hudUpdateUI.enableActionButtons();
+  } else if (typeof deps.HudUpdateUI?.enableActionButtons === 'function') {
+    deps.HudUpdateUI.enableActionButtons();
   }
   enableCombatActionButtons(doc);
 
@@ -92,7 +94,8 @@ export function scheduleCombatStartBanner(isBoss, isMiniBoss, deps = {}) {
     BOSS_NAME_BANNER_DURATION_MS,
     PLAYER_TURN_AFTER_BOSS_GAP_MS,
   );
-  setTimeout(() => deps.showTurnBanner('player'), playerTurnBannerDelay);
+  const scheduleTimeout = deps.setTimeout || deps.win?.setTimeout || setTimeout;
+  scheduleTimeout(() => deps.showTurnBanner('player'), playerTurnBannerDelay);
 }
 
 export function finalizeCombatStartUi(gs, deps = {}) {

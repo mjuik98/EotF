@@ -94,7 +94,7 @@ export function isChronicleOverlayOpen(overlay, doc) {
   const inlineDisplay = String(overlay.style?.display || '').trim().toLowerCase();
   if (inlineDisplay === 'none') return false;
   if (inlineDisplay) return true;
-  const view = doc?.defaultView || globalThis;
+  const view = doc?.defaultView || null;
   if (typeof view?.getComputedStyle !== 'function') return false;
   return view.getComputedStyle(overlay).display !== 'none';
 }
@@ -119,7 +119,11 @@ export function openBattleChronicleOverlay(doc, logs = [], options = {}) {
   overlay.style.display = 'flex';
   overlay.classList.add('active');
 
-  const scheduleFrame = options.requestAnimationFrame || globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
+  const defaultView = doc?.defaultView || null;
+  const scheduleFrame = options.requestAnimationFrame
+    || (typeof defaultView?.requestAnimationFrame === 'function'
+      ? defaultView.requestAnimationFrame.bind(defaultView)
+      : ((callback) => setTimeout(callback, 16)));
   scheduleFrame(() => {
     bindChronicleWheel(panel, list);
     list.scrollTop = list.scrollHeight;

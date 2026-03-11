@@ -46,9 +46,6 @@ describe('combat_start_runtime_ui', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    delete globalThis.combatOverlay;
-    delete globalThis.HudUpdateUI;
-    delete globalThis.updateEchoSkillBtn;
   });
 
   it('resets combat start surface and refreshes initial combat renderers', () => {
@@ -98,7 +95,6 @@ describe('combat_start_runtime_ui', () => {
 
   it('applies entry overlay flash color and shows boss banner cleanup', () => {
     const overlay = createElement();
-    globalThis.combatOverlay = overlay;
     const line = createElement();
     const sub = createElement();
     const name = createElement();
@@ -107,10 +103,14 @@ describe('combat_start_runtime_ui', () => {
     const doc = {
       body: createElement(),
       createElement: vi.fn(() => queue.shift()),
+      getElementById: vi.fn((id) => ({
+        combatOverlay: overlay,
+      }[id] || null)),
     };
     const gs = { currentRegion: 1, combat: { enemies: [{ name: 'Test Boss' }] } };
 
     applyCombatEntryOverlay(gs, {
+      doc,
       getBaseRegionIndex: vi.fn(() => 1),
     });
     expect(overlay.style.setProperty).toHaveBeenCalledWith('--entry-flash-color', '#4488ff');
@@ -156,7 +156,7 @@ describe('combat_start_runtime_ui', () => {
       }[id] || null)),
       querySelectorAll: vi.fn(() => [actionBtn]),
     };
-    globalThis.HudUpdateUI = { enableActionButtons: vi.fn() };
+    const hudUpdateUI = { enableActionButtons: vi.fn() };
     const updateEchoSkillBtn = vi.fn();
     const showTurnBanner = vi.fn();
     const gs = {
@@ -164,8 +164,8 @@ describe('combat_start_runtime_ui', () => {
       player: { energy: 1, hand: [], echo: 40 },
     };
 
-    syncCombatStartButtons(gs, { doc, updateEchoSkillBtn });
-    expect(globalThis.HudUpdateUI.enableActionButtons).toHaveBeenCalledTimes(1);
+    syncCombatStartButtons(gs, { doc, updateEchoSkillBtn, hudUpdateUI });
+    expect(hudUpdateUI.enableActionButtons).toHaveBeenCalledTimes(1);
     expect(actionBtn.disabled).toBe(false);
     expect(actionBtn.style.pointerEvents).toBe('');
     expect(drawBtn.disabled).toBe(false);
@@ -181,7 +181,6 @@ describe('combat_start_runtime_ui', () => {
 
   it('finalizes combat start UI through HUD refresh fallback and class special update', () => {
     const doUpdateUI = vi.fn();
-    globalThis.HudUpdateUI = { doUpdateUI };
     const resetCombatInfoPanel = vi.fn();
     const refreshCombatInfoPanel = vi.fn();
     const updateClassSpecialUI = vi.fn();
@@ -192,6 +191,7 @@ describe('combat_start_runtime_ui', () => {
       resetCombatInfoPanel,
       refreshCombatInfoPanel,
       updateClassSpecialUI,
+      hudUpdateUI: { doUpdateUI },
     });
 
     expect(resetCombatInfoPanel).toHaveBeenCalledTimes(1);

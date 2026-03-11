@@ -1,9 +1,19 @@
+function getHostObject() {
+  try {
+    return Function('return this')();
+  } catch {
+    return null;
+  }
+}
+
 export function getDoc(deps) {
-  return deps?.doc || deps?.win?.document || null;
+  const host = getHostObject();
+  return deps?.doc || deps?.win?.document || host?.document || null;
 }
 
 export function getWin(deps) {
-  return deps?.win || deps?.doc?.defaultView || null;
+  const host = getHostObject();
+  return deps?.win || deps?.doc?.defaultView || host?.window || host || null;
 }
 
 export function setText(doc, id, value) {

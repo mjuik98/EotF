@@ -66,7 +66,9 @@ export function showEchoSkillTooltip(doc, win, event, gs) {
   tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
   tooltip.classList.add('visible');
 
-  const scheduleFrame = win.requestAnimationFrame || globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
+  const scheduleFrame = typeof win?.requestAnimationFrame === 'function'
+    ? win.requestAnimationFrame.bind(win)
+    : ((callback) => setTimeout(callback, 16));
   scheduleFrame(() => {
     const height = tooltip.offsetHeight;
     const top = rect.top - height - 10;

@@ -11,16 +11,16 @@
  * ── 사용법 ──
  * 1) 게임 초기화 시 1회:
  *      import { HandCardCloneUI } from './card_clone_ui.js';
- *      HandCardCloneUI.init({ doc: document });
- *      globalThis.HandCardCloneUI = HandCardCloneUI;
+ *      HandCardCloneUI.init({ doc });
+ *      expose HandCardCloneUI through your host runtime if needed.
  *
  * 2) card_ui.js renderCombatCards() 내부,
  *    zone.textContent = ''; 바로 뒤에 추가:
- *      globalThis.HandCardCloneUI?.destroyAll({ doc });
+ *      HandCardCloneUI?.destroyAll({ doc });
  *
  *    zone.appendChild(el); 바로 앞에 추가:
- *      if (globalThis.HandCardCloneUI) {
- *        globalThis.HandCardCloneUI.attachToCard(el, card, {
+ *      if (HandCardCloneUI) {
+ *        HandCardCloneUI.attachToCard(el, card, {
  *          doc, canPlay, displayCost: cost, anyFree, totalDisc,
  *        });
  *      }
@@ -41,7 +41,8 @@ const _HOVER_ENTER_MS  = 100;  // 클론 표시 딜레이 (빠른 이동 시 깜
 const _HOVER_LEAVE_MS  = 60;   // 클론 숨김 딜레이
 
 /* ── 내부 헬퍼 ─────────────────────────────────────────────── */
-function _getDoc(deps) { return deps?.doc || document; }
+function _getDoc(deps) { return deps?.doc || deps?.win?.document || null; }
+function _getWin(deps) { return deps?.win || deps?.doc?.defaultView || null; }
 
 /* ══════════════════════════════════════════════════════════════
    CloneManager — 클론 생명주기 관리 (싱글톤 IIFE)
@@ -51,13 +52,9 @@ const _cloneRuntime = createCardCloneRuntime({
   cloneHeight: _CLONE_H,
   cloneGap: _CLONE_GAP,
   viewportMargin: _VIEWPORT_MARGIN,
-  requestFrame: (callback) => requestAnimationFrame(callback),
 });
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('resize', _cloneRuntime.reposition);
-  window.addEventListener('scroll', _cloneRuntime.reposition, true);
-}
+let _boundView = null;
 
 /* ══════════════════════════════════════════════════════════════
    HandCardCloneUI — 외부 공개 API
@@ -71,7 +68,23 @@ export const HandCardCloneUI = {
    */
   init(deps = {}) {
     const doc = _getDoc(deps);
+    const win = _getWin(deps);
+    if (!doc) return;
     if (doc.getElementById(_LAYER_ID)) return; // 중복 방지
+
+    _cloneRuntime.setView(win);
+    _cloneRuntime.setRequestFrame(
+      typeof win?.requestAnimationFrame === 'function'
+        ? win.requestAnimationFrame.bind(win)
+        : ((callback) => setTimeout(callback, 16)),
+    );
+    if (win && _boundView !== win) {
+      _boundView?.removeEventListener?.('resize', _cloneRuntime.reposition);
+      _boundView?.removeEventListener?.('scroll', _cloneRuntime.reposition, true);
+      win.addEventListener?.('resize', _cloneRuntime.reposition);
+      win.addEventListener?.('scroll', _cloneRuntime.reposition, true);
+      _boundView = win;
+    }
 
     const layer = doc.createElement('div');
     layer.id = _LAYER_ID;
@@ -101,7 +114,9 @@ export const HandCardCloneUI = {
     if (!costDisplay.canPlay) return;
 
     const doc         = _getDoc(deps);
+    if (!doc) return;
     const handZoneEl  = doc.getElementById('combatHandCards');
+    doc.descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || doc.descriptionUtils || null;
     const cloneEl     = createHandCardCloneElement(doc, cardId, card, costDisplay);
 
     _cloneRuntime.register(cardEl, cloneEl);
@@ -133,6 +148,7 @@ export const HandCardCloneUI = {
    */
   destroyAll(deps = {}) {
     const doc        = _getDoc(deps);
+    if (!doc) return;
     const handZoneEl = doc.getElementById('combatHandCards');
     _cloneRuntime.hideImmediate(handZoneEl);
   },

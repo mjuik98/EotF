@@ -36,8 +36,8 @@ export function showEnemyStatusTooltipOverlay(event, statusKey, statusValueOrDep
   const payload = resolveEnemyStatusTooltipPayload(statusKey);
   if (!payload) return;
 
-  const doc = resolvedDeps?.doc ?? globalThis.document;
-  const win = resolvedDeps?.win ?? globalThis.window ?? globalThis;
+  const doc = resolvedDeps?.doc ?? resolvedDeps?.win?.document ?? null;
+  const win = resolvedDeps?.win ?? doc?.defaultView ?? null;
   StatusTooltipUI.show(event, statusKey, payload.infoKR, statusValue, {
     rawValue: statusValue,
     source: payload.source,
@@ -48,6 +48,6 @@ export function showEnemyStatusTooltipOverlay(event, statusKey, statusValueOrDep
 }
 
 export function hideEnemyStatusTooltipOverlay(deps = {}) {
-  const doc = deps?.doc ?? globalThis.document;
+  const doc = deps?.doc ?? deps?.win?.document ?? null;
   StatusTooltipUI.hide({ doc });
 }

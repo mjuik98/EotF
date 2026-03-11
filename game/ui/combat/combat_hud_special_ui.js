@@ -1,4 +1,4 @@
-export function renderCombatHudClassSpecial(doc, gs, classMechanics, elementCtor = doc?.defaultView?.HTMLElement || globalThis.HTMLElement) {
+export function renderCombatHudClassSpecial(doc, gs, classMechanics, elementCtor = doc?.defaultView?.HTMLElement || null) {
   if (!gs || !gs.player || !classMechanics) return;
 
   const hoverSpecialEl = doc.getElementById('hoverHudSpecial');

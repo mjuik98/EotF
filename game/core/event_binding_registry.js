@@ -42,18 +42,33 @@ const MODULE_REGISTRY_NAMES = [
   'GameAPI',
 ];
 
+function resolveBindingRoot(modules) {
+  const gameDeps = modules?.GAME?.getDeps?.() || {};
+  if (gameDeps.win) return gameDeps.win;
+  if (gameDeps.doc?.defaultView) return gameDeps.doc.defaultView;
+  try {
+    const host = Function('return this')();
+    return host?.window || host || null;
+  } catch {
+    return null;
+  }
+}
+
 export function exposeBindingsToWindow(modules, fns, deps) {
+  const root = resolveBindingRoot(modules);
+  if (!root) return;
+
   WINDOW_EXPOSE_NAMES.forEach((name) => {
-    if (fns[name]) window[name] = fns[name];
+    if (fns[name]) root[name] = fns[name];
   });
 
-  window.updateUI = () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps());
-  window._syncVolumeUI = () => modules.GameInit?.syncVolumeUI?.(modules.AudioEngine);
-  window.showEnemyStatusTooltip = (event, statusKey) => modules.CombatUI?.showEnemyStatusTooltip?.(event, statusKey, modules.GAME.getDeps());
-  window.hideEnemyStatusTooltip = () => modules.CombatUI?.hideEnemyStatusTooltip?.(modules.GAME.getDeps());
-  window.DescriptionUtils = modules.DescriptionUtils;
-  window.CardCostUtils = modules.CardCostUtils;
-  window._resetCombatInfoPanel = fns._resetCombatInfoPanel;
+  root.updateUI = () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps());
+  root._syncVolumeUI = () => modules.GameInit?.syncVolumeUI?.(modules.AudioEngine);
+  root.showEnemyStatusTooltip = (event, statusKey) => modules.CombatUI?.showEnemyStatusTooltip?.(event, statusKey, modules.GAME.getDeps());
+  root.hideEnemyStatusTooltip = () => modules.CombatUI?.hideEnemyStatusTooltip?.(modules.GAME.getDeps());
+  root.DescriptionUtils = modules.DescriptionUtils;
+  root.CardCostUtils = modules.CardCostUtils;
+  root._resetCombatInfoPanel = fns._resetCombatInfoPanel;
 }
 
 export function registerGameAPIBindings(modules, fns, deps, runtimeMetrics) {

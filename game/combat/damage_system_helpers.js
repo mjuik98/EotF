@@ -2,11 +2,11 @@ import { Actions } from '../core/state_actions.js';
 import { Logger } from '../utils/logger.js';
 
 export function getDocFromDeps(deps) {
-  return deps?.doc || globalThis.document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 export function getWinFromDeps(deps) {
-  return deps?.win || globalThis.window;
+  return deps?.win || deps?.doc?.defaultView || null;
 }
 
 export function createDamageRuntime(gs, deps = {}) {

@@ -1,5 +1,10 @@
 export function buildCoreContractBuilders(ctx) {
-  const { getRefs, buildBaseDeps, getGameDeps } = ctx;
+  const {
+    getRefs,
+    buildBaseDeps,
+    getGameDeps,
+    getRaf,
+  } = ctx;
 
   return {
     base: () => ({

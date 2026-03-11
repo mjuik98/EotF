@@ -104,12 +104,20 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
 
 let _hideTipTimer = null;
 
+function resolveTooltipDoc(options = {}) {
+  return options.doc ?? options.win?.document ?? null;
+}
+
+function resolveTooltipWin(options = {}, doc = null) {
+  return options.win ?? doc?.defaultView ?? null;
+}
+
 export const StatusTooltipUI = {
   show(event, statusKey, infoKR, buff, options = {}) {
     clearTimeout(_hideTipTimer);
 
-    const doc = options.doc ?? globalThis.document;
-    const win = options.win ?? globalThis.window ?? globalThis;
+    const doc = resolveTooltipDoc(options);
+    const win = resolveTooltipWin(options, doc);
 
     const el = ensureStatusTooltipRoot(doc);
     renderStatusTooltipElement(el, statusKey, infoKR, buff, buildStatusTooltipHTML(statusKey, infoKR, buff, options), options);
@@ -122,8 +130,8 @@ export const StatusTooltipUI = {
 
     clearTimeout(_hideTipTimer);
 
-    const doc = options.doc ?? globalThis.document;
-    const win = options.win ?? globalThis.window ?? globalThis;
+    const doc = resolveTooltipDoc(options);
+    const win = resolveTooltipWin(options, doc);
     const rect = anchorEl.getBoundingClientRect();
     const el = ensureStatusTooltipRoot(doc);
 
@@ -133,7 +141,7 @@ export const StatusTooltipUI = {
   },
 
   hide(options = {}) {
-    const doc = options.doc ?? globalThis.document;
+    const doc = resolveTooltipDoc(options);
     _hideTipTimer = scheduleStatusTooltipHide(doc);
   },
 

@@ -1,6 +1,20 @@
 export function createDepsFactoryRuntime() {
   let refs = {};
 
+  function getHostObject() {
+    try {
+      return Function('return this')();
+    } catch {
+      return null;
+    }
+  }
+
+  function getHostWindow() {
+    const gameDeps = refs.GAME?.getDeps?.() || {};
+    const host = getHostObject();
+    return gameDeps.win || gameDeps.doc?.defaultView || host?.window || host || null;
+  }
+
   function initRefs(nextRefs) {
     refs = nextRefs || {};
   }
@@ -18,17 +32,19 @@ export function createDepsFactoryRuntime() {
   }
 
   function getRaf() {
-    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
-      return window.requestAnimationFrame.bind(window);
+    const hostWin = getHostWindow();
+    if (typeof hostWin?.requestAnimationFrame === 'function') {
+      return hostWin.requestAnimationFrame.bind(hostWin);
     }
     return (cb) => setTimeout(cb, 16);
   }
 
   function getSyncVolumeUIFallback() {
-    if (typeof window === 'undefined') {
+    const hostWin = getHostWindow();
+    if (!hostWin) {
       return () => undefined;
     }
-    return () => window._syncVolumeUI?.();
+    return () => hostWin._syncVolumeUI?.();
   }
 
   function buildBaseDeps() {

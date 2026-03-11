@@ -25,7 +25,7 @@ export function updateCombatChainWidgets(doc, chain, combatActive) {
   );
 }
 
-export function resolveNoiseWidgetState(gs, resolveRegionId = globalThis.getRegionIdForStage) {
+export function resolveNoiseWidgetState(gs, resolveRegionId = null) {
   if (!gs) return { visible: false };
 
   const combatActive = !!gs.combat?.active;
@@ -112,6 +112,6 @@ export function applyNoiseWidgetState(doc, state) {
   widget.style.boxShadow = state.boxShadow;
 }
 
-export function updateNoiseWidgetUI(doc, gs, resolveRegionId = globalThis.getRegionIdForStage) {
+export function updateNoiseWidgetUI(doc, gs, resolveRegionId = null) {
   applyNoiseWidgetState(doc, resolveNoiseWidgetState(gs, resolveRegionId));
 }
