@@ -1,6 +1,7 @@
 import { TurnManager } from '../../../combat/turn_manager.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
 import { syncGuardianPreservedShield } from '../../../state/commands/combat_runtime_commands.js';
+import { beginPlayerTurnUseCase } from './begin_player_turn_use_case.js';
 
 function getCombatRegionId(gs) {
   return resolveActiveRegionId(gs);
@@ -77,16 +78,14 @@ export async function runEnemyTurnUseCase({
   statusResult.actions.forEach((uiAction) => dispatchUiAction?.({ uiAction }));
   if (shouldAbortTurn(gs)) return;
 
-  syncGuardianPreservedShield(gs);
-  beforeStartPlayerTurn?.();
-  TurnManager.startPlayerTurnLogic(gs);
-  syncCombatEnergy?.();
-  onTurnStart?.(gs);
-
-  const classMech = classMechanics?.[gs.player.class];
-  if (classMech && typeof classMech.onTurnStart === 'function') {
-    classMech.onTurnStart(gs);
-  }
-
-  onPlayerTurnStarted?.();
+  beginPlayerTurnUseCase({
+    gs,
+    classMechanics,
+    preserveGuardianShield: syncGuardianPreservedShield,
+    beforeStartPlayerTurn,
+    startPlayerTurn: () => TurnManager.startPlayerTurnLogic(gs),
+    syncCombatEnergy,
+    onTurnStart,
+    presentPlayerTurnReady: onPlayerTurnStarted,
+  });
 }

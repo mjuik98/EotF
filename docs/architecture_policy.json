@@ -3,8 +3,10 @@
   "layerMatchers": [
     { "layer": "app", "prefix": "game/app/" },
     { "layer": "domain", "prefix": "game/domain/" },
+    { "layer": "feature", "prefix": "game/features/" },
     { "layer": "state", "prefix": "game/state/" },
     { "layer": "presentation", "prefix": "game/presentation/" },
+    { "layer": "shared", "prefix": "game/shared/" },
     { "layer": "legacy", "prefix": "game/platform/legacy/" },
     { "layer": "platform", "prefix": "game/platform/" },
     { "layer": "ui", "prefix": "game/ui/" },

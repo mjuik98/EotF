@@ -1,86 +1,152 @@
 # Dependency Map
 
-- Generated: 2026-03-03T05:36:26.980Z
-- Nodes: 113
-- Edges: 209
+- Generated: 2026-03-11T17:57:21.654Z
+- Nodes: 585
+- Edges: 907
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| combat->combat | 5 |
-| combat->core | 10 |
-| combat->data | 2 |
-| combat->engine | 5 |
+| app->app | 15 |
+| app->combat | 1 |
+| app->core | 4 |
+| app->data | 2 |
+| app->domain | 7 |
+| app->feature | 1 |
+| app->other | 1 |
+| app->state | 2 |
+| app->systems | 11 |
+| combat->combat | 11 |
+| combat->core | 9 |
+| combat->data | 6 |
+| combat->domain | 7 |
+| combat->feature | 4 |
+| combat->legacy | 1 |
 | combat->other | 1 |
-| combat->systems | 4 |
-| combat->utils | 6 |
-| core->combat | 6 |
-| core->core | 51 |
-| core->data | 2 |
-| core->engine | 5 |
+| combat->state | 2 |
+| combat->systems | 6 |
+| combat->utils | 7 |
+| core->combat | 3 |
+| core->core | 131 |
+| core->domain | 4 |
+| core->feature | 21 |
+| core->legacy | 4 |
 | core->other | 1 |
-| core->systems | 5 |
-| core->ui | 37 |
-| core->utils | 7 |
-| data->data | 10 |
-| data->engine | 2 |
+| core->systems | 1 |
+| core->utils | 2 |
+| data->data | 17 |
+| data->engine | 1 |
 | data->other | 2 |
-| data->utils | 3 |
+| data->systems | 2 |
+| data->utils | 4 |
+| domain->combat | 3 |
+| domain->core | 1 |
+| domain->data | 4 |
+| domain->domain | 8 |
+| domain->systems | 1 |
+| domain->ui | 1 |
+| domain->utils | 2 |
 | engine->data | 1 |
+| engine->engine | 2 |
+| feature->app | 8 |
+| feature->core | 6 |
+| feature->domain | 6 |
+| feature->feature | 15 |
+| feature->presentation | 1 |
+| feature->systems | 2 |
+| feature->ui | 6 |
+| feature->utils | 2 |
+| legacy->app | 2 |
+| legacy->core | 3 |
+| legacy->domain | 1 |
+| legacy->feature | 3 |
+| legacy->legacy | 51 |
+| legacy->utils | 3 |
+| platform->combat | 1 |
+| platform->core | 4 |
+| platform->data | 1 |
+| platform->domain | 1 |
+| platform->engine | 5 |
+| platform->feature | 3 |
+| platform->legacy | 2 |
+| platform->other | 1 |
+| platform->platform | 17 |
+| platform->presentation | 3 |
+| platform->systems | 3 |
+| platform->ui | 38 |
+| platform->utils | 4 |
+| presentation->app | 1 |
+| presentation->domain | 1 |
+| presentation->feature | 4 |
+| presentation->presentation | 1 |
+| presentation->ui | 5 |
+| presentation->utils | 1 |
+| state->domain | 1 |
+| systems->app | 3 |
 | systems->core | 2 |
-| systems->data | 2 |
-| systems->systems | 3 |
+| systems->data | 6 |
+| systems->domain | 1 |
+| systems->feature | 1 |
+| systems->other | 1 |
+| systems->platform | 1 |
+| systems->state | 1 |
+| systems->systems | 11 |
 | systems->utils | 1 |
+| ui->app | 23 |
 | ui->combat | 2 |
-| ui->core | 3 |
+| ui->core | 8 |
+| ui->data | 37 |
+| ui->domain | 20 |
 | ui->engine | 1 |
+| ui->feature | 2 |
 | ui->other | 5 |
-| ui->systems | 1 |
-| ui->ui | 9 |
-| ui->utils | 12 |
+| ui->presentation | 1 |
+| ui->ui | 231 |
+| ui->utils | 24 |
 | utils->core | 1 |
+| utils->data | 2 |
 | utils->utils | 2 |
 
 ## Top Outgoing Dependencies
 
 | File | Out Degree |
 |---|---:|
-| game/core/bindings/module_registry.js | 56 |
-| game/combat/damage_system.js | 8 |
-| game/core/game_state_core_methods.js | 8 |
+| game/ui/title/character_select_ui.js | 12 |
+| game/combat/death_handler.js | 11 |
+| data/events_data.js | 9 |
+| game/combat/turn_manager.js | 9 |
+| game/systems/run_rules.js | 9 |
+| game/platform/browser/composition/build_combat_core_modules.js | 8 |
+| game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
-| game/core/event_bindings.js | 7 |
-| game/core/event_bus.js | 6 |
-| game/combat/death_handler.js | 5 |
-| game/core/deps_factory.js | 5 |
-| game/core/game_state.js | 5 |
-| data/events_data.js | 4 |
-| data/items.js | 4 |
-| game/combat/combat_lifecycle.js | 4 |
-| game/core/event_subscribers.js | 4 |
-| game/core/main.js | 4 |
-| game/ui/hud/hud_update_ui.js | 4 |
+| game/combat/combat_lifecycle.js | 7 |
+| game/platform/browser/composition/build_run_map_modules.js | 7 |
+| game/systems/event_manager.js | 7 |
+| game/ui/combat/combat_ui.js | 7 |
+| game/ui/combat/status_tooltip_builder.js | 7 |
+| game/ui/hud/hud_update_ui.js | 7 |
+| game/ui/screens/reward_ui_runtime.js | 7 |
 
 ## Top Incoming Dependencies
 
 | File | In Degree |
 |---|---:|
-| game/core/state_actions.js | 10 |
-| game/utils/log_utils.js | 8 |
-| data/game_data.js | 7 |
-| game/core/deps_factory.js | 7 |
-| game/utils/description_utils.js | 7 |
-| game/core/event_bus.js | 6 |
-| game/core/global_bridge.js | 6 |
-| game/utils/logger.js | 6 |
-| engine/audio.js | 5 |
-| game/core/error_codes.js | 5 |
-| game/systems/run_rules.js | 5 |
-| game/core/error_reporter.js | 4 |
-| game/core/game_state.js | 4 |
-| game/data/constants.js | 4 |
-| game/data/triggers.js | 4 |
+| game/domain/audio/audio_event_helpers.js | 34 |
+| game/core/state_actions.js | 21 |
+| data/game_data.js | 15 |
+| game/systems/codex_records_system.js | 11 |
+| game/utils/log_utils.js | 11 |
+| game/utils/logger.js | 10 |
+| data/rarity_meta.js | 9 |
+| game/app/shared/use_cases/runtime_state_use_case.js | 9 |
+| game/core/event_bus.js | 9 |
+| data/status_effects_data.js | 8 |
+| data/status_key_data.js | 8 |
+| game/core/deps_factory.js | 8 |
+| game/data/constants.js | 8 |
+| game/domain/run/region_service.js | 8 |
+| game/utils/runtime_deps.js | 8 |
 
 > Full graph is available in `docs/metrics/dependency_map.json`.
 

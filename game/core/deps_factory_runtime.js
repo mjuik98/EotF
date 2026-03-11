@@ -1,16 +1,13 @@
+import {
+  getLegacyFeatureDeps,
+  getLegacyGameDeps,
+} from '../platform/legacy/adapters/legacy_runtime_resolvers.js';
+
 export function createDepsFactoryRuntime() {
   let refs = {};
 
   function getFeatureDeps(feature = 'run') {
-    const game = refs.GAME;
-    if (!game) return {};
-
-    if (feature === 'combat') return game.getCombatDeps?.() || {};
-    if (feature === 'event') return game.getEventDeps?.() || {};
-    if (feature === 'hud') return game.getHudDeps?.() || {};
-    if (feature === 'ui') return game.getUiDeps?.() || {};
-    if (feature === 'canvas') return game.getCanvasDeps?.() || {};
-    return game.getRunDeps?.() || {};
+    return getLegacyFeatureDeps(refs.GAME, feature);
   }
 
   function getHostObject() {
@@ -46,7 +43,7 @@ export function createDepsFactoryRuntime() {
   }
 
   function getGameDeps() {
-    return refs.GAME?.getDeps?.() || {};
+    return getLegacyGameDeps(refs.GAME);
   }
 
   function getRunDeps() {

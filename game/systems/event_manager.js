@@ -7,19 +7,22 @@ import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../data/
 import { createRestEventService } from '../app/event/rest_service.js';
 import { createShopEventService } from '../app/event/shop_service.js';
 import { resolveEventChoiceService } from '../app/event/resolve_event_choice_service.js';
+import {
+  applyRestCardUpgradeState,
+  applyShopCardPurchaseState,
+  applyShopCardUpgradeState,
+  applyShopEnergyPurchaseState,
+  applyShopPotionPurchaseState,
+  discardEventCardState,
+  purchaseEventShopItemState,
+  readItemShopStockCache,
+  restoreStagnationDeckState,
+  writeItemShopStockCache,
+} from '../features/event/state/event_state_commands.js';
 import { resolveActiveRegionId } from '../domain/run/region_service.js';
-import { registerCardDiscovered, registerItemFound } from './codex_records_system.js';
 
 function _totalDeckCards(player) {
   return (player?.deck?.length || 0) + (player?.hand?.length || 0) + (player?.graveyard?.length || 0);
-}
-
-function _removeFirst(arr, value) {
-  if (!Array.isArray(arr)) return false;
-  const idx = arr.indexOf(value);
-  if (idx < 0) return false;
-  arr.splice(idx, 1);
-  return true;
 }
 
 function _isItemObtainableFrom(item, source) {
@@ -170,9 +173,8 @@ export const EventManager = {
   generateItemShopStock(gs, data, runRules) {
     if (!gs?.player || !data?.items || !runRules) return [];
     const cacheKey = _getItemShopCacheKey(gs);
-    if (gs._itemShopStockCacheKey === cacheKey && Array.isArray(gs._itemShopStockCache)) {
-      return gs._itemShopStockCache;
-    }
+    const cached = readItemShopStockCache(gs, cacheKey);
+    if (cached) return cached;
 
     const byRarity = {};
     Object.values(data.items).forEach((item) => {
@@ -190,21 +192,14 @@ export const EventManager = {
       shopItems.push({ item, cost, rarity });
     });
 
-    gs._itemShopStockCacheKey = cacheKey;
-    gs._itemShopStockCache = shopItems;
-    return shopItems;
+    return writeItemShopStockCache(gs, cacheKey, shopItems);
   },
 
   purchaseItem(gs, item, cost) {
     if (gs.player.gold < cost) {
       return { success: false, message: `골드가 부족합니다 (${gs.player.gold}/${cost}).` };
     }
-    gs.player.gold -= cost;
-    gs.player.items.push(item.id);
-    registerItemFound(gs, item.id);
-    if (typeof item.onAcquire === 'function') {
-      item.onAcquire(gs);
-    }
+    purchaseEventShopItemState(gs, item, cost);
     // 상점 구매 트리거 추가 (예: 상인의 펜던트)
     if (typeof gs.triggerItems === 'function') {
       gs.triggerItems('shop_buy', { item, cost });
@@ -214,11 +209,7 @@ export const EventManager = {
   },
 
   discardCard(gs, cardId, data, isBurn = false) {
-    let found = false;
-    if (_removeFirst(gs.player.deck, cardId)) found = true;
-    else if (_removeFirst(gs.player.hand, cardId)) found = true;
-    else if (_removeFirst(gs.player.graveyard, cardId)) found = true;
-
+    const found = discardEventCardState(gs, cardId);
     if (!found) return { success: false, message: '카드를 찾을 수 없습니다.' };
 
     const card = data.cards?.[cardId];
@@ -261,9 +252,7 @@ export const EventManager = {
       return _createFailedEventChoiceResult('?띾뱷 媛?ν븳 移대뱶媛 ?놁뒿?덈떎.');
     }
 
-    state.player.gold -= cost;
-    state.player.deck.push(cardId);
-    registerCardDiscovered(state, cardId);
+    applyShopCardPurchaseState(state, cardId, cost);
     return _createEventChoiceResult(
       `?깗 ${data.cards?.[cardId]?.name || cardId} ?띾뱷. ?⑥? 怨⑤뱶: ${state.player.gold}`,
       { acquiredCard: cardId },
@@ -300,8 +289,7 @@ export const EventManager = {
 
   _shopBuyPotion(state, cost) {
     if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
-    state.player.gold -= cost;
-    state.heal?.(30);
+    applyShopPotionPurchaseState(state, cost);
     return `❤️ 체력 30 회복. 남은 골드: ${state.player.gold}`;
   },
 
@@ -315,9 +303,7 @@ export const EventManager = {
       ? cardPool[Math.floor(Math.random() * cardPool.length)]
       : null;
     if (!cardId) return '획득 가능한 카드가 없습니다.';
-    state.player.gold -= cost;
-    state.player.deck.push(cardId);
-    registerCardDiscovered(state, cardId);
+    applyShopCardPurchaseState(state, cardId, cost);
     return {
       resultText: `🃏 ${data.cards?.[cardId]?.name || cardId} 획득. 남은 골드: ${state.player.gold}`,
       acquiredCard: cardId
@@ -330,10 +316,7 @@ export const EventManager = {
     if (!upgradable.length) return '강화 가능한 카드가 없습니다.';
     const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
     const upgId = data.upgradeMap[cardId];
-    const idx = state.player.deck.indexOf(cardId);
-    if (idx >= 0) state.player.deck[idx] = upgId;
-    state.player.gold -= cost;
-    registerCardDiscovered(state, upgId);
+    applyShopCardUpgradeState(state, cardId, upgId, cost);
     return `✨ ${data.cards?.[cardId]?.name || cardId} 강화 완료. 남은 골드: ${state.player.gold}`;
   },
 
@@ -341,9 +324,7 @@ export const EventManager = {
     const maxEnergyCap = _getMaxEnergyCap(state);
     if (state.player.gold < cost) return `골드가 부족합니다 (${state.player.gold}/${cost}).`;
     if (state.player.maxEnergy >= maxEnergyCap) return `이미 최대 에너지입니다. (최대 ${maxEnergyCap})`;
-    state.player.gold -= cost;
-    state.player.maxEnergy = Math.min(maxEnergyCap, state.player.maxEnergy + 1);
-    state.player.energy = Math.min(state.player.maxEnergy, (state.player.energy || 0) + 1);
+    applyShopEnergyPurchaseState(state, cost, maxEnergyCap);
     state.addLog?.(`⚡ 최대 에너지 증가: ${state.player.maxEnergy}`, 'echo');
     return `⚡ 최대 에너지 ${state.player.maxEnergy}. 남은 골드: ${state.player.gold}`;
   },
@@ -352,10 +333,7 @@ export const EventManager = {
     if (!Array.isArray(state._stagnationVault) || state._stagnationVault.length === 0) {
       return '복원 대기 중인 카드가 없습니다.';
     }
-    const restored = [...state._stagnationVault];
-    state._stagnationVault = [];
-    state.player.deck.push(...restored);
-    restored.forEach((cardId) => registerCardDiscovered(state, cardId));
+    const restored = restoreStagnationDeckState(state);
     state.addLog?.(`🧩 정체 영역 복원: 카드 ${restored.length}장`, 'echo');
     return `덱에 카드 ${restored.length}장을 복원했습니다.`;
   },
@@ -365,9 +343,7 @@ export const EventManager = {
     if (!upgradable.length) return '강화 가능한 카드가 없습니다.';
     const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
     const upgId = data.upgradeMap[cardId];
-    const idx = state.player.deck.indexOf(cardId);
-    if (idx >= 0) state.player.deck[idx] = upgId;
-    registerCardDiscovered(state, upgId);
+    applyRestCardUpgradeState(state, cardId, upgId);
     state.addLog?.(`✨ ${data.cards?.[cardId]?.name || cardId} 강화`, 'echo');
     return `${data.cards?.[cardId]?.name || cardId} 강화 완료.`;
   },

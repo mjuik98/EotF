@@ -29,4 +29,15 @@ describe('createLegacyRuntimePorts', () => {
     expect(ports.getAudioEngine()).toBe(audio);
     expect(ports.getDefaultState()).toBe(state);
   });
+
+  it('falls back to empty feature dep bags when a legacy getter is missing', () => {
+    const ports = createLegacyRuntimePorts({
+      Modules: {},
+      Data: {},
+    });
+
+    expect(ports.getRuntimeDeps()).toEqual({});
+    expect(ports.getCombatRuntimeDeps()).toEqual({});
+    expect(ports.getUiRuntimeDeps()).toEqual({});
+  });
 });

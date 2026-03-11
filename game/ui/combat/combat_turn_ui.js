@@ -3,7 +3,7 @@
  *
  * TurnManager에서 로직 결과를 받아 DOM만 업데이트합니다.
  */
-import { endPlayerTurnService } from '../../app/combat/end_turn_service.js';
+import { endPlayerTurnUseCase } from '../../app/combat/use_cases/end_player_turn_use_case.js';
 import { runEnemyTurnUseCase } from '../../app/combat/use_cases/run_enemy_turn_use_case.js';
 import { TurnManager } from '../../combat/turn_manager.js';
 import { resolveActiveRegionId } from '../../domain/run/region_service.js';
@@ -37,26 +37,16 @@ function _getCombatRegionId(gs) {
 
 export const CombatTurnUI = {
   endPlayerTurn(deps = {}) {
-    const outcome = endPlayerTurnService({
+    endPlayerTurnUseCase({
       gs: deps.gs,
       data: deps.data,
       canPlay: deps.cardCostUtils?.canPlay,
       classMechanics: deps.classMechanics,
+      resetChainUi: (value) => deps.updateChainUI?.(value),
+      cleanupTurnUi: () => cleanupCombatTurnTooltips(deps),
+      showEnemyTurnUi: () => setEnemyTurnUiState(deps),
+      runEnemyTurn: () => deps.enemyTurn?.(),
     });
-    if (!outcome) return;
-
-    // ── UI 업데이트 ──
-    if (outcome.ui.resetChain) deps.updateChainUI?.(0);
-    if (outcome.ui.cleanupTooltips) cleanupCombatTurnTooltips(deps);
-    if (outcome.ui.setEnemyTurn) setEnemyTurnUiState(deps);
-
-    setTimeout(async () => {
-      try {
-        await deps.enemyTurn?.();
-      } catch (e) {
-        console.error('[CombatTurn] 적 턴 오류:', e);
-      }
-    }, outcome.ui.enemyTurnDelayMs);
   },
 
   async enemyTurn(deps = {}) {

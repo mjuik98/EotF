@@ -80,4 +80,31 @@ describe('DeathHandler', () => {
       vi.useRealTimers();
     }
   });
+
+  it('spawns a region enemy and refreshes combat render hooks on the player turn', () => {
+    const gs = {
+      currentRegion: 0,
+      currentFloor: 1,
+      combat: {
+        enemies: [],
+        playerTurn: true,
+      },
+      meta: {
+        runCount: 1,
+      },
+    };
+    const renderCombatEnemies = vi.fn();
+    const enableActionButtons = vi.fn();
+
+    DeathHandler.spawnEnemy.call(gs, {
+      doc: { querySelectorAll: vi.fn(() => []) },
+      hudUpdateUI: { enableActionButtons },
+      renderCombatEnemies,
+      win: {},
+    });
+
+    expect(gs.combat.enemies).toHaveLength(1);
+    expect(renderCombatEnemies).toHaveBeenCalledTimes(1);
+    expect(enableActionButtons).toHaveBeenCalledTimes(1);
+  });
 });

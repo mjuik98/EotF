@@ -1,4 +1,9 @@
 ﻿import { playEventBossPhase } from '../../domain/audio/audio_event_helpers.js';
+import {
+  advanceRegionState,
+  markRegionIntroStartState,
+  normalizeTargetRegionId,
+} from '../../features/run/state/region_state_commands.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;
@@ -24,38 +29,11 @@ export const RegionTransitionUI = {
       return;
     }
 
-    const now = Date.now();
-    if (gs.stats && typeof gs.stats === 'object') {
-      if (!gs.stats.regionClearTimes || typeof gs.stats.regionClearTimes !== 'object' || Array.isArray(gs.stats.regionClearTimes)) {
-        gs.stats.regionClearTimes = {};
-      }
-      const regionIndex = Math.max(0, Math.floor(Number(gs.currentRegion) || 0));
-      const regionStartTs = Number(gs.stats._regionStartTs);
-      if (Number.isFinite(regionStartTs) && regionStartTs > 0) {
-        gs.stats.regionClearTimes[regionIndex] = Math.max(0, now - regionStartTs);
-      }
-      gs.stats._regionStartTs = now;
-    }
-
-    const rawTargetRegionId = deps.targetRegionId;
-    let targetRegionId = null;
-    if (rawTargetRegionId !== null && rawTargetRegionId !== undefined && rawTargetRegionId !== '') {
-      const parsedTargetRegionId = Number(rawTargetRegionId);
-      if (Number.isFinite(parsedTargetRegionId)) {
-        targetRegionId = Math.max(0, Math.floor(parsedTargetRegionId));
-      }
-    }
-
-    gs.currentRegion++;
-    if (!gs.regionRoute || typeof gs.regionRoute !== 'object' || Array.isArray(gs.regionRoute)) {
-      gs.regionRoute = {};
-    }
-    if (targetRegionId !== null) {
-      gs.regionRoute[String(gs.currentRegion)] = targetRegionId;
-    } else {
-      delete gs.regionRoute[String(gs.currentRegion)];
-    }
-    gs.currentFloor = 0;
+    const targetRegionId = normalizeTargetRegionId(deps.targetRegionId);
+    advanceRegionState(gs, {
+      now: Date.now(),
+      targetRegionId,
+    });
     deps.mazeSystem?.close?.();
 
     const getRegionData = deps.getRegionData;
@@ -115,9 +93,7 @@ export const RegionTransitionUI = {
       const setTimeoutFn = deps.setTimeoutFn || win?.setTimeout?.bind?.(win) || setTimeout;
       setTimeoutFn(() => {
         overlay.remove();
-        if (gs.stats && typeof gs.stats === 'object') {
-          gs.stats._regionStartTs = Date.now();
-        }
+        markRegionIntroStartState(gs, Date.now());
         if (typeof deps.generateMap === 'function') deps.generateMap(gs.currentRegion);
         if (typeof deps.updateUI === 'function') deps.updateUI();
         if (typeof deps.showRunFragment === 'function') deps.showRunFragment();

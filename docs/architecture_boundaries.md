@@ -4,15 +4,29 @@ This project uses explicit layer boundaries and quality gates to keep growth man
 
 ## Layer Model
 
+Current target model:
+
 1. `engine/`, `data/`
-2. `game/core/`, `game/systems/`, `game/combat/`, `game/utils/`
-3. `game/ui/`
+2. `game/core/` runtime shell only
+3. `game/features/*` feature slices
+4. `game/presentation/`, `game/ui/`
+5. `game/platform/browser/`, `game/platform/legacy/`, `game/platform/storage/`
+
+Practical note:
+
+- The repository is still in transition, so legacy locations such as `game/app/`, `game/combat/`, `game/systems/`, and `game/state/` remain active.
+- New feature work should prefer `game/features/<feature>/{app,state,presentation,platform}` over adding more logic to cross-cutting legacy folders.
 
 The boundary policy is stored in `docs/architecture_policy.json`.
 
 ## Dependency Direction
 
-- `game/ui/*` may depend on core/systems/combat/utils/engine/data.
+- `game/core/*` should stay orchestration-only and avoid feature/business logic.
+- `game/features/*/app` should coordinate use cases, not own browser globals or direct legacy calls.
+- `game/features/*/presentation` should adapt app outputs into UI-facing payloads.
+- `game/features/*/platform` and `game/platform/browser/*` own `window`, `document`, canvas, timers, storage, and audio bindings.
+- `game/platform/legacy/*` is the only place where new `GAME.*` / `window.*` compatibility exposure should be added.
+- `game/ui/*` may depend on core/systems/combat/utils/engine/data during the transition, but new UI-facing composition should prefer feature/presentation boundaries.
 - `game/systems/*`, `game/combat/*`, and `game/utils/*` must not import `game/ui/*`.
 - `game/core/*` must not import `game/ui/*` except composition root files:
   - `game/core/main.js`
@@ -32,6 +46,7 @@ The boundary policy is stored in `docs/architecture_policy.json`.
 
 - State changes should enter through `GS.dispatch(action, payload)`.
 - Reducers in `game/core/state_actions.js` are the preferred mutation point.
+- Feature-local state commands/use cases are the preferred migration path when extracting logic away from UI/runtime files.
 - Direct mutations outside reducers are tracked by `scripts/check-state-mutations.mjs` with a baseline.
 
 ## Event Contract Rule

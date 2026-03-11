@@ -6,11 +6,11 @@ const { dismissEventModalSpy } = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock('../game/ui/screens/event_ui_helpers.js', async () => {
-  const actual = await vi.importActual('../game/ui/screens/event_ui_helpers.js');
+vi.mock('../game/features/event/platform/event_runtime_dom.js', async () => {
+  const actual = await vi.importActual('../game/features/event/platform/event_runtime_dom.js');
   return {
     ...actual,
-    dismissEventModal: dismissEventModalSpy,
+    dismissEventModalRuntime: dismissEventModalSpy,
   };
 });
 
@@ -125,7 +125,7 @@ describe('event_ui_flow', () => {
 
     finishEventFlow(doc, gs, deps, clearCurrentEvent);
 
-    expect(dismissEventModalSpy).toHaveBeenCalledWith(doc.refs.eventModal, expect.any(Function));
+    expect(dismissEventModalSpy).toHaveBeenCalledWith(doc.refs.eventModal, expect.any(Function), deps);
     expect(clearCurrentEvent).toHaveBeenCalledTimes(1);
     expect(gs._eventLock).toBe(false);
     expect(deps.switchScreen).toHaveBeenCalledWith('game');

@@ -1,19 +1,12 @@
 import { EventManager } from '../../systems/event_manager.js';
+import { clearCurrentEvent, getCurrentEvent, setCurrentEvent } from './event_session_store.js';
+import { createResolveEventSessionUseCase } from './use_cases/resolve_event_session_use_case.js';
+import { createShowEventSessionUseCase } from './use_cases/show_event_session_use_case.js';
 
-let currentEvent = null;
+const showEventSessionUseCase = createShowEventSessionUseCase({ setCurrentEvent });
+const resolveEventSessionUseCase = createResolveEventSessionUseCase({ clearCurrentEvent });
 
-export function getCurrentEvent() {
-  return currentEvent;
-}
-
-export function setCurrentEvent(event) {
-  currentEvent = event || null;
-  return currentEvent;
-}
-
-export function clearCurrentEvent() {
-  currentEvent = null;
-}
+export { clearCurrentEvent, getCurrentEvent, setCurrentEvent };
 
 export function triggerRandomEventService({
   gs,
@@ -35,18 +28,15 @@ export function showEventService({
   refreshGoldBar,
   resolveEvent,
 }) {
-  if (!event || !gs) return false;
-
-  setCurrentEvent(event);
-  gs._eventLock = false;
-  clearResolveGuards?.('event:resolve:');
-  renderEventShell(event, {
-    doc,
+  return showEventSessionUseCase({
+    event,
     gs,
+    doc,
+    clearResolveGuards,
+    renderEventShell,
     refreshGoldBar,
-    resolveChoice: resolveEvent,
+    resolveEvent,
   });
-  return true;
 }
 
 export function resolveEventService({
@@ -63,18 +53,18 @@ export function resolveEventService({
   refreshGoldBar,
   resolveEvent,
 }) {
-  if (!gs || !event) return undefined;
-  if (!event.persistent && gs._eventLock) return undefined;
-
-  const guardKey = `event:resolve:${getEventId(event)}:${choiceIdx}`;
-  return runIdempotent(guardKey, () => resolveEventChoiceFlow(choiceIdx, {
+  return resolveEventSessionUseCase({
+    choiceIdx,
     gs,
     event,
     doc,
-    audioEngine,
     deps,
-    onResolveChoice: resolveEvent,
-    onFinish: () => finishEventFlow(doc, gs, deps, clearCurrentEvent),
-    onRefreshGoldBar: refreshGoldBar,
-  }), { ttlMs: 800 });
+    audioEngine,
+    getEventId,
+    runIdempotent,
+    resolveEventChoiceFlow,
+    finishEventFlow,
+    refreshGoldBar,
+    resolveEvent,
+  });
 }

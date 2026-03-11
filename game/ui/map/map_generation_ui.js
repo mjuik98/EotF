@@ -1,4 +1,5 @@
 import { MAP_RANDOM_NODE_TYPE_POOL } from '../../../data/map_node_data.js';
+import { replaceGeneratedMapState } from '../../features/run/state/region_state_commands.js';
 
 function _groupByFloor(nodes = []) {
   const byFloor = new Map();
@@ -106,8 +107,7 @@ export const MapGenerationUI = {
     const totalFloors = Math.max(1, Math.floor(Number(region.floors) || 1));
     const midBossFloor = Math.max(2, Math.min(totalFloors - 2, Math.floor(totalFloors / 2)));
 
-    gs.mapNodes = [];
-    gs.currentNode = null;
+    const mapNodes = [];
 
     for (let floor = 1; floor <= totalFloors; floor++) {
       const isBossFloor = floor === totalFloors;
@@ -115,7 +115,7 @@ export const MapGenerationUI = {
       const isMiniBossFloor = floor === midBossFloor && !isBossFloor && !isPreBossFloor;
 
       if (isFirstStage && floor === 1) {
-        gs.mapNodes.push({
+        mapNodes.push({
           id: `${floor}-0`,
           floor,
           pos: 0,
@@ -129,7 +129,7 @@ export const MapGenerationUI = {
       }
 
       if (isBossFloor) {
-        gs.mapNodes.push({
+        mapNodes.push({
           id: `${floor}-0`,
           floor,
           pos: 0,
@@ -143,7 +143,7 @@ export const MapGenerationUI = {
       }
 
       if (isPreBossFloor) {
-        gs.mapNodes.push({
+        mapNodes.push({
           id: `${floor}-0`,
           floor,
           pos: 0,
@@ -157,7 +157,7 @@ export const MapGenerationUI = {
       }
 
       if (isMiniBossFloor) {
-        gs.mapNodes.push({
+        mapNodes.push({
           id: `${floor}-0`,
           floor,
           pos: 0,
@@ -170,7 +170,7 @@ export const MapGenerationUI = {
         continue;
       }
 
-      const prevFloorCount = gs.mapNodes.filter((node) => node.floor === floor - 1).length || 1;
+      const prevFloorCount = mapNodes.filter((node) => node.floor === floor - 1).length || 1;
       const maxNodeCount = floor === 1
         ? 5
         : Math.max(1, Math.min(5, prevFloorCount * 3));
@@ -198,7 +198,7 @@ export const MapGenerationUI = {
           if (type === 'event') eventAssigned = true;
         }
 
-        gs.mapNodes.push({
+        mapNodes.push({
           id: `${floor}-${i}`,
           floor,
           pos: i,
@@ -211,9 +211,8 @@ export const MapGenerationUI = {
       }
     }
 
-    _linkMapNodes(gs.mapNodes, totalFloors);
-
-    gs.currentFloor = 0;
+    _linkMapNodes(mapNodes, totalFloors);
+    replaceGeneratedMapState(gs, mapNodes);
     deps.updateNextNodes?.();
     deps.updateUI?.();
 

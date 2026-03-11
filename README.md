@@ -52,7 +52,13 @@ npm run preview
 
 ```text
 .
-├── game/            # 게임 로직, 서비스, UI, runtime
+├── game/
+│   ├── core/        # bootstrap, registry, runtime contracts
+│   ├── features/    # title/run/combat/event 등 기능 단위 slice
+│   ├── platform/    # browser/legacy/storage adapters
+│   ├── presentation/# presenter/facade/view-model
+│   ├── state/       # cross-feature state commands
+│   └── ui/          # 기존 UI 구현 및 compat re-export 경계
 ├── data/            # 카드, 적, 이벤트, 유물, 지역 데이터
 ├── tests/           # 회귀 테스트
 ├── docs/            # 아키텍처/운영 문서
@@ -80,15 +86,15 @@ npm run quality
 
 ## Architecture Notes
 
-이 프로젝트는 레이어 경계를 강하게 유지하는 편입니다.
+이 프로젝트는 전면 재작성보다 점진적 구조 개선을 우선합니다.
 
-- UI는 `game/ui/`
-- 핵심 규칙과 계산은 `game/domain/`, `game/combat/`
-- 유스케이스/서비스 조합은 `game/app/`
-- 진입점, 상태, composition은 `game/core/`
-- 정적 게임 데이터는 `data/`
+- `game/core/`: bootstrap, registry, runtime contracts만 유지
+- `game/features/`: 기능 단위의 `app/state/presentation/platform` 경계로 신규 코드 추가
+- `game/platform/legacy/`: `GAME`, `window.*`, 기존 API 이름을 유지하는 호환 shim
+- `game/ui/`: 기존 UI 구현과 compat entry를 단계적으로 축소
+- `data/`: 정적 게임 데이터, 브라우저 전역 side effect는 platform/legacy 쪽으로 이동 중
 
-최근 리팩터링은 전역 접근을 줄이고, UI와 도메인 로직을 더 명확히 분리하는 방향으로 진행 중입니다.
+최근 리팩터링의 기준은 feature slice 중심 모듈화, 레거시 의존성 고립, 상태 변경 경로 축소입니다.
 
 ## Developer Docs
 

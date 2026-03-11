@@ -12,6 +12,10 @@ import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rul
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 import {
+    applyPassiveResonanceBurstState,
+    syncCombatMaxChainState,
+} from '../features/combat/state/combat_chain_state_commands.js';
+import {
     beginCombatResolution,
     completeCombatResolution,
     resetPlayerEchoChain,
@@ -127,7 +131,7 @@ export const CombatLifecycle = {
 
     updateChainDisplay(deps = {}) {
         const chain = this.player.echoChain;
-        this.stats.maxChain = Math.max(this.stats.maxChain, chain);
+        syncCombatMaxChainState(this, chain);
         const win = _getWin(deps);
         const updateChainUI = deps.updateChainUI || win.updateChainUI;
         if (typeof updateChainUI === 'function') updateChainUI(chain);
@@ -173,27 +177,19 @@ export const CombatLifecycle = {
             burstDmg = Math.max(0, Math.floor(burstMod));
         }
 
-        this.combat.enemies.forEach((e, i) => {
-            if (e.hp > 0) {
-                const hpBefore = e.hp;
-                e.hp = Math.max(0, e.hp - burstDmg);
-                const dealt = Math.max(0, hpBefore - e.hp);
-                if (dealt > 0) this.stats.damageDealt = (this.stats.damageDealt || 0) + dealt;
+        const hitResults = applyPassiveResonanceBurstState(this, burstDmg, {
+            onEnemyDeath: (enemy, index) => this.onEnemyDeath(enemy, index, deps),
+        });
+        hitResults.forEach(({ index, dealt }) => {
+            if (dealt <= 0) return;
+            const x = win.innerWidth / 2 + (index - (this.combat.enemies.length - 1) / 2) * 200;
+            const showDmgPopup = deps.showDmgPopup || win.showDmgPopup;
+            if (typeof showDmgPopup === 'function') {
+                showDmgPopup(burstDmg, x, 200, '#00ffcc');
+            }
 
-                const showDmgPopup = deps.showDmgPopup || win.showDmgPopup;
-                if (typeof showDmgPopup === 'function') {
-                    // 적 위치 계산 (간단하게)
-                    const x = win.innerWidth / 2 + (i - (this.combat.enemies.length - 1) / 2) * 200;
-                    showDmgPopup(burstDmg, x, 200, '#00ffcc');
-                }
-
-                // 패시브 시에는 적 위치에 파티클
-                if (isPassive && typeof ParticleSystem?.hitEffect === 'function') {
-                    const x = win.innerWidth / 2 + (i - (this.combat.enemies.length - 1) / 2) * 200;
-                    ParticleSystem.hitEffect(x, 200, false);
-                }
-
-                if (e.hp <= 0) this.onEnemyDeath(e, i, deps);
+            if (isPassive && typeof ParticleSystem?.hitEffect === 'function') {
+                ParticleSystem.hitEffect(x, 200, false);
             }
         });
 

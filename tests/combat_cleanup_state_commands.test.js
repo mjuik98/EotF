@@ -1,0 +1,58 @@
+import { describe, expect, it } from 'vitest';
+
+import { applyCombatEndCleanupState } from '../game/features/combat/state/combat_cleanup_state_commands.js';
+
+describe('combat_cleanup_state_commands', () => {
+  it('centralizes combat end cleanup without touching the player deck', () => {
+    const state = {
+      combat: {
+        active: true,
+        playerTurn: false,
+        enemies: [{ hp: 5 }],
+      },
+      player: {
+        deck: ['strike', 'guard'],
+        hand: ['strike'],
+        graveyard: ['guard'],
+        exhausted: ['curse'],
+        drawPile: ['a'],
+        discardPile: ['b'],
+        maxEnergy: 3,
+        shield: 4,
+        echoChain: 2,
+        kills: 1,
+        buffs: {},
+        silenceGauge: 3,
+        timeRiftGauge: 2,
+      },
+      stats: {
+        damageDealt: 12,
+        damageTaken: 5,
+      },
+      _maskCount: 1,
+      _batteryUsedTurn: true,
+      _temporalTurn: 2,
+      _activeRegionId: 5,
+      _ignoreShield: true,
+      _scrollTempCard: 'tmp',
+      _fragmentActive: true,
+      _fragmentBaseMax: 3,
+      _glitch0: 'g0',
+      _glitchPlus: 'gp',
+      _eternityActive: true,
+    };
+
+    const result = applyCombatEndCleanupState(state);
+
+    expect(result).toEqual({ combatActive: false, playerTurn: true });
+    expect(state.player.deck).toEqual(['strike', 'guard']);
+    expect(state.player.hand).toEqual([]);
+    expect(state.player.graveyard).toEqual([]);
+    expect(state.player.exhausted).toEqual([]);
+    expect(state.player.drawPile).toEqual([]);
+    expect(state.player.discardPile).toEqual([]);
+    expect(state.player.silenceGauge).toBe(0);
+    expect(state._activeRegionId).toBeNull();
+    expect(state._eternityActive).toBe(false);
+  });
+});

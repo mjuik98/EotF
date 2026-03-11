@@ -138,4 +138,23 @@ describe('Reducers', () => {
         expect(gs.player.deck).toEqual(['strike', 'defend', 'bash']);
         expect(gs._stagnationVault).toEqual([]);
     });
+
+    it('COMBAT_START centralizes base combat state before turn flow begins', () => {
+        const gs = createBaseState();
+        gs.currentScreen = 'title';
+        gs.combat.turn = 7;
+        gs.combat.playerTurn = false;
+        gs.combat.log = ['stale'];
+
+        const result = Reducers[Actions.COMBAT_START](gs, { enemies: [{ id: 'echo' }] });
+
+        expect(result).toEqual({ enemyCount: 1 });
+        expect(gs.combat.active).toBe(true);
+        expect(gs.combat.turn).toBe(0);
+        expect(gs.combat.playerTurn).toBe(true);
+        expect(gs.combat.log).toEqual([]);
+        expect(gs.currentScreen).toBe('game');
+        expect(gs.isDirty('hud')).toBe(true);
+        expect(gs.isDirty('hand')).toBe(true);
+    });
 });

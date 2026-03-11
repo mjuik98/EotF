@@ -1,5 +1,11 @@
 import { playUiItemGetFeedback } from '../../../domain/audio/audio_event_helpers.js';
-import { registerCardDiscovered, registerItemFound } from '../../../systems/codex_records_system.js';
+import {
+  addRewardCardToDeck,
+  addRewardItemToInventory,
+  applyBlessingRewardState,
+  applyMiniBossBonusState,
+  upgradeRandomRewardCardState,
+} from '../../../features/reward/state/reward_state_commands.js';
 import { getRewardMaxEnergyCap } from './build_reward_options_use_case.js';
 
 export function playRewardClaimFeedback(deps = {}) {
@@ -7,27 +13,15 @@ export function playRewardClaimFeedback(deps = {}) {
 }
 
 export function ensureMiniBossBonus(gs, data, deps = {}) {
-  const heal = Math.max(1, Math.floor((gs.player.maxHp || 1) * 0.15));
-  const hpBefore = gs.player.hp || 0;
-  gs.player.hp = Math.min(gs.player.maxHp || 1, hpBefore + heal);
+  const result = applyMiniBossBonusState(gs, data);
+  if (!result) return null;
 
-  const goldGain = Math.max(12, Math.floor((gs.currentRegion + 1) * 6));
-  gs.player.gold = (gs.player.gold || 0) + goldGain;
-  gs.addLog?.(`Mini-boss reward: +${goldGain} gold, +${gs.player.hp - hpBefore} HP`, 'system');
-
-  const rareItems = Object.values(data.items || {}).filter((item) => {
-    const isRareEnough = item.rarity === 'rare' || item.rarity === 'legendary';
-    return isRareEnough && !(gs.player.items || []).includes(item.id);
-  });
-  if (rareItems.length === 0) return null;
-
-  const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
-  gs.player.items.push(guaranteed.id);
-  registerItemFound(gs, guaranteed.id);
+  gs.addLog?.(`Mini-boss reward: +${result.goldGain} gold, +${result.healed} HP`, 'system');
+  if (!result.guaranteed) return null;
   playRewardClaimFeedback(deps);
-  deps.showItemToast?.(guaranteed, { forceQueue: true });
-  gs.addLog?.(`Mini-boss relic: ${guaranteed.icon || '@'} ${guaranteed.name}`, 'system');
-  return guaranteed;
+  deps.showItemToast?.(result.guaranteed, { forceQueue: true });
+  gs.addLog?.(`Mini-boss relic: ${result.guaranteed.icon || '@'} ${result.guaranteed.name}`, 'system');
+  return result.guaranteed;
 }
 
 export function claimReward({
@@ -45,15 +39,7 @@ export function claimReward({
       return { success: false, reason: 'max-energy' };
     }
 
-    if (blessing?.type === 'hp') {
-      if (typeof gs.dispatch === 'function') gs.dispatch('player:max-hp-growth', { amount: blessing.amount });
-      else gs.player.maxHp = (gs.player.maxHp || 0) + blessing.amount;
-    }
-
-    if (blessing?.type === 'energy') {
-      if (typeof gs.dispatch === 'function') gs.dispatch('player:max-energy-growth', { amount: blessing.amount });
-      else gs.player.maxEnergy = (gs.player.maxEnergy || 0) + blessing.amount;
-    }
+    applyBlessingRewardState(gs, blessing);
 
     return {
       success: true,
@@ -63,8 +49,7 @@ export function claimReward({
   }
 
   if (rewardType === 'card') {
-    gs.player.deck.unshift(rewardId);
-    registerCardDiscovered(gs, rewardId);
+    addRewardCardToDeck(gs, rewardId);
     const card = data?.cards?.[rewardId];
     return {
       success: true,
@@ -74,11 +59,8 @@ export function claimReward({
   }
 
   if (rewardType === 'item') {
-    gs.player.items.push(rewardId);
-    registerItemFound(gs, rewardId);
-
     const item = data?.items?.[rewardId];
-    if (item && typeof item.onAcquire === 'function') item.onAcquire(gs);
+    addRewardItemToInventory(gs, rewardId, item);
     return {
       success: true,
       notification: { payload: item, options: { forceQueue: true } },
@@ -92,11 +74,10 @@ export function claimReward({
       return { success: false, reason: 'no-upgrade-target' };
     }
 
-    const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
-    const upgradedId = data.upgradeMap[cardId];
-    const idx = gs.player.deck.indexOf(cardId);
-    if (idx >= 0) gs.player.deck[idx] = upgradedId;
-    registerCardDiscovered(gs, upgradedId);
+    const upgradedId = upgradeRandomRewardCardState(gs, data);
+    if (!upgradedId) {
+      return { success: false, reason: 'no-upgrade-target' };
+    }
 
     return {
       success: true,

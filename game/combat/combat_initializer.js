@@ -4,19 +4,20 @@
  * DOM ?묎렐 ?놁씠 寃뚯엫 ?곹깭(gs)留?蹂寃쏀빀?덈떎.
  */
 
+import {
+    addCombatEnemyState,
+    prepareCombatDeckState,
+    resetCombatSetupState,
+    syncCombatSelectedTargetState,
+} from '../features/combat/state/combat_setup_state_commands.js';
+import { createEnemySpawnPlan } from '../features/combat/app/enemy_spawn_planner.js';
 import { registerEnemyEncounter } from '../systems/codex_records_system.js';
-
-function _isLastBaseRegion(gs, getBaseRegionIndex, getRegionCount) {
-    if (!gs) return false;
-    if (typeof getBaseRegionIndex !== 'function' || typeof getRegionCount !== 'function') return false;
-    return getBaseRegionIndex(gs.currentRegion) === Math.max(0, getRegionCount() - 1);
-}
 
 function _spawnScaledEnemy(gs, enemyData, difficultyScaler, extra = {}) {
     if (!gs || !enemyData) return;
     const payload = { ...enemyData, statusEffects: {}, ...extra };
     const enemy = difficultyScaler?.scaleEnemy?.(payload, gs) || payload;
-    gs.combat.enemies.push(enemy);
+    addCombatEnemyState(gs, enemy);
 }
 
 function _applyAbyssEmpowerment(enemy) {
@@ -62,44 +63,7 @@ export const CombatInitializer = {
      * ?꾪닾 ?곹깭 由ъ뀑
      */
     resetCombatState(gs) {
-        const combat = gs.combat;
-        const player = gs.player;
-
-        // ?곴뎄 踰꾪봽 蹂댁〈 (?뷀뼢 ?ㅽ궗 ??
-        const permanentBuffs = {};
-        const PERMANENT_BUFF_IDS = ['echo_berserk'];
-        if (player.buffs) {
-            Object.keys(player.buffs).forEach(buffId => {
-                if (PERMANENT_BUFF_IDS.includes(buffId)) {
-                    permanentBuffs[buffId] = player.buffs[buffId];
-                }
-            });
-        }
-
-        combat.enemies = [];
-        combat.turn = 1;
-        combat.playerTurn = true;
-        combat.log = [];
-        player.shield = 0;
-        player.echoChain = 0;
-        player.energy = player.maxEnergy;
-        player.buffs = permanentBuffs;
-        player.zeroCost = false;
-        player.costDiscount = 0;
-        player._nextCardDiscount = 0;
-        player._freeCardUses = 0;
-        player._cascadeCards = new Map();
-        player._traitCardDiscounts = {};
-        player._mageCastCounter = 0;
-        player._mageLastDiscountTarget = null;
-        combat.bossDefeated = false;
-        combat.miniBossDefeated = false;
-        gs._endCombatScheduled = false;
-        gs._endCombatRunning = false;
-        gs._selectedTarget = null;
-        gs._combatStartDmg = gs.stats.damageDealt;
-        gs._combatStartTaken = gs.stats.damageTaken;
-        gs._combatStartKills = gs.player.kills;
+        resetCombatSetupState(gs);
     },
 
     /**
@@ -111,84 +75,28 @@ export const CombatInitializer = {
         getRegionCount,
         difficultyScaler,
     }) {
-        const region = getRegionData(gs.currentRegion, gs);
+        const plan = createEnemySpawnPlan({
+            gs,
+            data,
+            mode,
+            getRegionData,
+            getBaseRegionIndex,
+            getRegionCount,
+        });
+        const region = plan.region;
         if (!region) return { spawnedKeys: [], isHiddenBoss: false };
-
-        const spawnedKeys = [];
-        const combatMode = mode === true
-            ? 'boss'
-            : (mode === false ? 'normal' : (typeof mode === 'string' ? mode : 'normal'));
-        const isBoss = combatMode === 'boss';
-        const isMiniBoss = combatMode === 'mini_boss';
-
-        if (isBoss) {
-            const isHiddenEligible = _isLastBaseRegion(gs, getBaseRegionIndex, getRegionCount)
-                && (gs.worldMemory.savedMerchant || 0) >= 1
-                && gs.meta.storyPieces.length >= 5;
-
-            let bossKey;
-            if (isHiddenEligible) {
-                bossKey = 'echo_origin';
-            } else {
-                const bossArray = region.boss || ['ancient_echo'];
-                bossKey = Array.isArray(bossArray)
-                    ? bossArray[Math.floor(Math.random() * bossArray.length)]
-                    : bossArray;
-            }
-
-            const bossData = data.enemies[bossKey] || data.enemies.ancient_echo;
-            _spawnScaledEnemy(gs, bossData, difficultyScaler, { phase: 1 });
-            spawnedKeys.push(bossKey);
-
+        plan.entries.forEach(({ key, extra }) => {
+            const enemyData = data.enemies[key] || data.enemies.ancient_echo;
+            _spawnScaledEnemy(gs, enemyData, difficultyScaler, extra);
+        });
+        if (plan.combatMode === 'boss') {
             gs.triggerItems?.('boss_start');
-        } else if (isMiniBoss) {
-            const miniBossPool = Array.isArray(region.miniBoss) && region.miniBoss.length > 0
-                ? region.miniBoss
-                : (Array.isArray(region.elites) && region.elites.length > 0
-                    ? region.elites
-                    : (Array.isArray(region.boss) && region.boss.length > 0 ? region.boss : ['ancient_echo']));
-            const miniBossKey = miniBossPool[Math.floor(Math.random() * miniBossPool.length)];
-            const miniBossData = data.enemies[miniBossKey] || data.enemies.ancient_echo;
-            _spawnScaledEnemy(gs, miniBossData, difficultyScaler, { phase: 1, isMiniBoss: true, isBoss: false });
-            spawnedKeys.push(miniBossKey);
-        } else {
-            const isEliteNode = gs.currentNode?.type === 'elite';
-            if (isEliteNode && region.elites?.length) {
-                const eliteKey = region.elites[Math.floor(Math.random() * region.elites.length)];
-                if (data.enemies[eliteKey]) {
-                    _spawnScaledEnemy(gs, data.enemies[eliteKey], difficultyScaler);
-                    spawnedKeys.push(eliteKey);
-                }
-            } else {
-                let count = 1;
-                const regIdx = typeof getBaseRegionIndex === 'function'
-                    ? getBaseRegionIndex(gs.currentRegion)
-                    : gs.currentRegion;
-
-                if (gs.currentFloor > 1) {
-                    if (regIdx === 0) {
-                        count = Math.random() < 0.4 ? 2 : 1;
-                    } else {
-                        const roll = Math.random();
-                        if (roll < 0.2) count = 3;
-                        else if (roll < 0.7) count = 2;
-                        else count = 1;
-                    }
-                }
-
-                for (let i = 0; i < count; i++) {
-                    const enemyKey = region.enemies[Math.floor(Math.random() * region.enemies.length)];
-                    if (!data.enemies[enemyKey]) continue;
-                    _spawnScaledEnemy(gs, data.enemies[enemyKey], difficultyScaler);
-                    spawnedKeys.push(enemyKey);
-                }
-            }
         }
 
         _applyAbyssRegionBuffs(gs, region);
 
         const encounterCounts = {};
-        spawnedKeys.forEach((key) => {
+        plan.spawnedKeys.forEach((key) => {
             if (!key) return;
             encounterCounts[key] = (encounterCounts[key] || 0) + 1;
         });
@@ -196,7 +104,7 @@ export const CombatInitializer = {
             registerEnemyEncounter(gs, key, count);
         });
 
-        return { spawnedKeys, isHiddenBoss: isBoss && spawnedKeys[0] === 'echo_origin' };
+        return { spawnedKeys: plan.spawnedKeys, isHiddenBoss: plan.isHiddenBoss };
     },
 
     /**
@@ -215,9 +123,7 @@ export const CombatInitializer = {
      * ??珥덇린??(?꾪닾??draw/discard/hand)
      */
     initDeck(gs, { shuffleArrayFn, drawCardsFn } = {}) {
-        gs.player.drawPile = [...(gs.player.deck || [])];
-        gs.player.discardPile = [];
-        gs.player.hand = [];
+        prepareCombatDeckState(gs);
         if (shuffleArrayFn) shuffleArrayFn(gs.player.drawPile);
 
         const masteryOpeningDraw = Math.max(0, Math.floor(Number(gs.player._classMasteryOpeningDrawBonus || 0)));
@@ -233,8 +139,7 @@ export const CombatInitializer = {
             }
         }
 
-        const firstAlive = gs.combat.enemies.findIndex((enemy) => enemy.hp > 0);
-        gs._selectedTarget = firstAlive >= 0 ? firstAlive : null;
+        syncCombatSelectedTargetState(gs);
     },
 };
 

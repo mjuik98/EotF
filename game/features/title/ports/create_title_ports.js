@@ -13,6 +13,7 @@ export function createTitlePorts(modules, fns, options = {}) {
     win,
     fns,
     modules,
+    setTimeoutFn: options.setTimeoutFn || win?.setTimeout?.bind?.(win) || setTimeout,
     playIntroCinematic: (deps, onComplete) => IntroCinematicUI.play(deps, onComplete),
     startPreRunRipple: (overlay, deps) => startEchoRippleDissolve(overlay, deps),
     getClassSelectDeps: () => Deps.getClassSelectDeps(),

@@ -8,9 +8,17 @@
  * - spawnEnemy: 적 소환 (적 생사 관리)
  */
 
-// 엔진 기능은 deps를 통해 주입받도록 수정하여 하드코딩 연결 제거
 import { DATA } from '../../data/game_data.js';
-import { DifficultyScaler } from './difficulty_scaler.js';
+import { applyEnemyDeathState } from './death_handler_enemy_state.js';
+import { showDeathOutcomeScreen } from './death_handler_outcome.js';
+import {
+    cleanupEnemyDeathTooltips,
+    lockCombatEndInputs,
+    runPlayerDeathSequence,
+    scheduleCombatEndFlow,
+    scheduleEnemyRemoval,
+    showDefeatOutcome,
+} from './death_handler_runtime.js';
 import { getRegionData } from '../systems/run_rules.js';
 import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
@@ -22,8 +30,8 @@ import {
     setCombatActive,
     syncSelectedTarget,
 } from '../state/commands/combat_runtime_commands.js';
+import { spawnScaledEnemyForRegion } from './death_handler_spawn.js';
 import {
-    playAttackSlash,
     playReactionEnemyDeath,
     playReactionPlayerDeath,
     playStatusHeal,
@@ -34,67 +42,38 @@ const _getWin = (deps) => deps?.win || window;
 
 export const DeathHandler = {
     spawnEnemy(deps = {}) {
-        const region = getRegionData(this.currentRegion, this);
-        if (!region) return;
-
-        const pool = (this.currentFloor <= 1 && region.strongEnemies) ? region.enemies : [...region.enemies, ...(region.strongEnemies || [])];
-        const eKey = pool[Math.floor(Math.random() * pool.length)];
-        const eData = DATA.enemies[eKey];
-        if (eData && this.combat.enemies.length < 3) {
-            this.combat.enemies.push(DifficultyScaler.scaleEnemy({ ...eData, statusEffects: {} }, this, undefined, undefined, this.currentFloor));
-            const win = _getWin(deps);
-            const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
-            if (typeof renderCombatEnemies === 'function') {
-                renderCombatEnemies();
-            }
-            if (this.combat.playerTurn) {
-                const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
-                if (hudUpdateUI && typeof hudUpdateUI.enableActionButtons === 'function') {
-                    hudUpdateUI.enableActionButtons();
-                } else {
-                    _getDoc(deps).querySelectorAll('.combat-actions .action-btn').forEach(b => { b.disabled = false; });
-                }
-            }
-        }
+        const win = _getWin(deps);
+        const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
+        return spawnScaledEnemyForRegion(this, {
+            getRegionData,
+            renderCombatEnemies: deps.renderCombatEnemies || win.renderCombatEnemies,
+            enableActionButtons: hudUpdateUI?.enableActionButtons?.bind?.(hudUpdateUI),
+            doc: _getDoc(deps),
+            win,
+        });
     },
 
     onEnemyDeath(enemy, idx, deps = {}) {
-        this.player.kills++; this.meta.totalKills++;
-        EventBus.emit(Actions.ENEMY_DEATH, { enemy: { name: enemy.name, id: enemy.id }, idx });
-
-        if (enemy.isBoss) {
-            this.combat.bossDefeated = true;
-        }
-        if (enemy.isMiniBoss) {
-            this.combat.miniBossDefeated = true;
-        }
-
-        const goldGained = enemy.gold || 10;
-        this.addGold(goldGained, deps);
-        const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
-        playReactionEnemyDeath(AudioEngine);
-        this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
-        this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
-
-        // 도감에 적 등록
-        if (this.meta.codex && enemy.id) {
-            registerEnemyKill(this, enemy.id);
-        }
-
         const win = _getWin(deps);
-        // _selectedTarget 즉시 조정 제거 (setTimeout 내부에서 일괄 처리)
-        recordEnemyWorldKill(this, enemy.id);
-
         const doc = _getDoc(deps);
         const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
-        if (typeof cleanupTooltips === 'function') {
-            cleanupTooltips({ doc, win });
-        }
+        const AudioEngine = deps.audioEngine || win.AudioEngine;
+        const deathResult = applyEnemyDeathState(this, enemy, idx, {
+            addGold: (amount) => this.addGold(amount, deps),
+            addLog: (message, type) => this.addLog(message, type),
+            emitEnemyDeath: (payload) => EventBus.emit(Actions.ENEMY_DEATH, payload),
+            isCombatEndScheduled: () => !!this._endCombatScheduled,
+            playEnemyDeath: () => playReactionEnemyDeath(AudioEngine),
+            recordEnemyWorldKill: (enemyId) => recordEnemyWorldKill(this, enemyId),
+            registerEnemyKill: (enemyId) => registerEnemyKill(this, enemyId),
+            scheduleCombatEnd: () => scheduleCombatEnd(this),
+            triggerItems: (trigger, payload) => this.triggerItems(trigger, payload),
+        });
+
+        cleanupEnemyDeathTooltips(cleanupTooltips, doc, win);
 
         const cardEl = doc.getElementById(`enemy_${idx}`);
-        if (cardEl) {
-            cardEl.classList.add('dying');
-            setTimeout(() => {
+        scheduleEnemyRemoval(cardEl, setTimeout, () => {
                 // 죽은 적을 배열에서 실제로 제거
                 replaceCombatEnemies(this, this.combat.enemies.filter(e => e.hp > 0));
                 syncSelectedTarget(this);
@@ -102,41 +81,16 @@ export const DeathHandler = {
 
                 const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
                 if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
-            }, 700);
-        }
+        });
 
-        const alive = this.combat.enemies.filter(e => e.hp > 0);
-        if (alive.length === 0 && !this._endCombatScheduled) {
-            scheduleCombatEnd(this); // 전투 종료 예정: 추가 행동 차단
-
-            // UI를 즉시 잠금 처리하여 여분의 입력을 방어
-            const docD = _getDoc(deps);
-            if (docD) {
-                docD.querySelectorAll('.combat-actions .action-btn, #combatHandCards .card').forEach(el => {
-                    el.style.pointerEvents = 'none';
-                    el.disabled = true;
-                });
-            }
-
-            setTimeout(() => {
-                // deps 가 비어있을 경우 window globals 로 폴백
-                const win = _getWin(deps);
-                const endCombatDeps = {
-                    ...deps,
-                    showRewardScreen: deps.showRewardScreen || win.showRewardScreen,
-                    showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
-                    switchScreen: deps.switchScreen || win.switchScreen,
-                    returnToGame: deps.returnToGame || win.returnToGame,
-                    updateUI: deps.updateUI || win.updateUI,
-                    renderHand: deps.renderHand || win.renderHand,
-                    updateChainUI: deps.updateChainUI || win.updateChainUI,
-                    tooltipUI: deps.tooltipUI || win.TooltipUI,
-                    hudUpdateUI: deps.hudUpdateUI || win.HudUpdateUI,
-                };
-                if (typeof deps.cleanupAllTooltips === 'function') deps.cleanupAllTooltips();
-                if (typeof deps.renderCombatCards === 'function') deps.renderCombatCards();
-                this.endCombat(endCombatDeps);
-            }, 900);
+        if (deathResult.shouldEndCombat) {
+            lockCombatEndInputs(doc);
+            scheduleCombatEndFlow({
+                deps,
+                endCombat: (endCombatDeps) => this.endCombat(endCombatDeps),
+                schedule: setTimeout,
+                win,
+            });
         }
         const updateUI = deps.updateUI || win.updateUI;
         if (typeof updateUI === 'function') updateUI();
@@ -158,73 +112,25 @@ export const DeathHandler = {
         const ParticleSystem = deps.particleSystem || win.ParticleSystem;
 
         playReactionPlayerDeath(AudioEngine);
-        ScreenShake?.shake?.(20, 1.2);
-        ParticleSystem?.deathEffect?.(win.innerWidth / 2, win.innerHeight / 2);
 
         // 전투 상태 해제 및 유물 트리거 (death)
         setCombatActive(this, false);
         this.triggerItems('death');
-        doc.getElementById('combatOverlay')?.classList.remove('active');
-
-        doc.body.style.transition = 'filter 1s';
-        doc.body.style.filter = 'saturate(0.2) brightness(0.6)';
-        setTimeout(() => {
-            const quote = DATA.deathQuotes[Math.floor(Math.random() * DATA.deathQuotes.length)];
-            const mono = doc.createElement('div');
-            mono.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1800;pointer-events:none;';
-            const monoInner = doc.createElement('div');
-            monoInner.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:clamp(18px,3vw,28px);color:rgba(238,240,255,0.9);text-align:center;max-width:500px;line-height:1.8;text-shadow:0 0 40px rgba(123,47,255,0.8);animation:fadeInUp 1s ease both;";
-            monoInner.textContent = quote;
-            mono.appendChild(monoInner);
-            doc.body.appendChild(mono);
-            setTimeout(() => {
-                mono.remove();
-                doc.body.style.filter = '';
-                doc.body.style.transition = '';
-                this.showDeathScreen(deps);
-            }, 2500);
-        }, 800);
+        runPlayerDeathSequence({
+            combatOverlay: doc.getElementById('combatOverlay'),
+            deathQuotes: DATA.deathQuotes,
+            doc,
+            particleSystem: ParticleSystem,
+            schedule: setTimeout,
+            screenShake: ScreenShake,
+            showDeathScreen: () => this.showDeathScreen(deps),
+            win,
+        });
     },
 
     showDeathScreen(deps = {}) {
         const win = _getWin(deps);
-        const finalizeRunOutcome = deps.finalizeRunOutcome || win.finalizeRunOutcome;
-        const endingScreenUI = deps.endingScreenUI
-            || deps.EndingScreenUI;
-        const selectFragment = deps.selectFragment || win.selectFragment;
-        if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 }, { gs: this });
-        endingScreenUI?.showOutcome?.('defeat', {
-            ...deps,
-            gs: this,
-            selectFragment,
-        });
-        return;
-        const wmEl = doc.getElementById('deathWorldMemory');
-        if (wmEl) {
-            const wm = this.meta.worldMemory;
-            const hints = [];
-            if ((wm.savedMerchant || 0) > 0) hints.push(`🤝 상인을 구함 ×${wm.savedMerchant}`);
-            if (wm.stoleFromMerchant) hints.push('⚠️ 상인에게서 약탈함');
-            if (wm['killed_ancient_echo']) hints.push(`💀 태고의 잔향 처치 ×${wm['killed_ancient_echo']}`);
-            if (wm['killed_void_herald']) hints.push(`🌌 허공의 사도 처치 ×${wm['killed_void_herald']}`);
-            if (wm['killed_memory_sovereign']) hints.push(`👑 기억의 군주 처치 ×${wm['killed_memory_sovereign']}`);
-            const storyCount = this.meta.storyPieces.length;
-            if (storyCount > 0) hints.push(`📖 스토리 ${storyCount}/10 해금`);
-            wmEl.textContent = '';
-            if (hints.length) {
-                const title = doc.createElement('div');
-                title.style.cssText = "font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.3em;color:var(--text-dim);width:100%;text-align:center;margin-bottom:6px;";
-                title.textContent = '◈ 세계의 기억 ◈';
-                wmEl.appendChild(title);
-                hints.forEach(h => {
-                    const badge = doc.createElement('span');
-                    badge.className = 'wm-badge';
-                    badge.textContent = h;
-                    wmEl.appendChild(badge);
-                });
-            }
-        }
-
+        showDeathOutcomeScreen(this, deps, win);
     },
 
     generateFragmentChoices(deps = {}) {

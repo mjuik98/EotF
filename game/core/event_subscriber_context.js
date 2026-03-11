@@ -1,22 +1,19 @@
 import { GAME } from './global_bridge.js';
+import { resolveLegacyAction } from '../platform/legacy/adapters/legacy_runtime_resolvers.js';
 
 export function createEventSubscriberContext(uiRefs = {}) {
   const ui = uiRefs || {};
   const actions = ui.actions || {};
   const doc = ui.doc || (typeof document !== 'undefined' ? document : null);
   const win = ui.win || (typeof window !== 'undefined' ? window : null);
+  const legacyRoot = ui.legacyRoot || GAME;
 
   const resolveAction = (name) => {
-    const injected = actions?.[name];
-    if (typeof injected === 'function') return injected;
-
-    const api = GAME.API?.[name];
-    if (typeof api === 'function') return api;
-
-    const globalFn = win?.[name];
-    if (typeof globalFn === 'function') return globalFn;
-
-    return null;
+    return resolveLegacyAction(name, {
+      actions,
+      root: legacyRoot,
+      win,
+    });
   };
 
   const callAction = (name, ...args) => {
@@ -39,6 +36,7 @@ export function createEventSubscriberContext(uiRefs = {}) {
     callAction,
     createFloatingGold,
     doc,
+    legacyRoot,
     resolveAction,
     ui,
     win,

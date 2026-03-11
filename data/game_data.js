@@ -2,7 +2,8 @@
  * game_data.js — 게임 데이터 통합 Re-export
  *
  * 기존 1400줄 가량의 거대한 데이터 파일을 도메인별로 분리하고,
- * 기존 코드와의 호환성을 위해 이 파일에서 모두 모아서 `window.DATA` 및 개별 상수로 export 합니다.
+ * 이 파일은 통합 export surface만 제공합니다.
+ * 브라우저 전역 노출은 platform/legacy bootstrap 경계에서 처리합니다.
  */
 
 import { ASSETS, UPGRADE_MAP, CARDS } from './cards.js';
@@ -31,11 +32,6 @@ export const DATA = {
   inscriptions: INSCRIPTIONS,
   synergies: INSCRIPTION_SYNERGIES
 };
-
-// 브라우저 환경 전역 노출 (하위 호환 및 전역 상태 참조용)
-if (typeof window !== 'undefined') {
-  window.DATA = DATA;
-}
 
 // 개별 import를 지원하기 위해 모두 re-export
 export {
