@@ -4,7 +4,36 @@ import {
   startAudioWave,
   startLoreTicker,
 } from './game_boot_ui_fx.js';
-import { getDoc } from './game_boot_ui_helpers.js';
+import { getDoc, getWin } from './game_boot_ui_helpers.js';
+
+function bindTimer(fn, context) {
+  if (typeof fn !== 'function') return fn;
+  if (typeof fn.bind !== 'function') return fn;
+  return fn.bind(context);
+}
+
+function getTimerApi(deps = {}) {
+  const timerHost = deps.timerHost || getWin(deps) || null;
+  const timerContext = deps.timerContext || timerHost;
+  return {
+    setTimeout: bindTimer(
+      deps.setTimeout || timerHost?.setTimeout || setTimeout,
+      timerContext,
+    ),
+    clearTimeout: bindTimer(
+      deps.clearTimeout || timerHost?.clearTimeout || clearTimeout,
+      timerContext,
+    ),
+    setInterval: bindTimer(
+      deps.setInterval || timerHost?.setInterval || setInterval,
+      timerContext,
+    ),
+    clearInterval: bindTimer(
+      deps.clearInterval || timerHost?.clearInterval || clearInterval,
+      timerContext,
+    ),
+  };
+}
 
 function registerAudioUnlock(doc, audioEngine) {
   doc.addEventListener('click', () => {
@@ -33,11 +62,13 @@ function ensureRunMeta(runRules, gs) {
   }
 }
 
-function scheduleTitleCanvasInit(deps) {
-  globalThis.setTimeout(() => {
+function scheduleTitleCanvasInit(deps, timers, win) {
+  timers.setTimeout(() => {
     deps.initTitleCanvas?.();
-    if (typeof globalThis.resizeTitleCanvas === 'function') {
-      globalThis.resizeTitleCanvas();
+    if (typeof deps.resizeTitleCanvas === 'function') {
+      deps.resizeTitleCanvas();
+    } else if (typeof win?.resizeTitleCanvas === 'function') {
+      win.resizeTitleCanvas();
     }
   }, 100);
 }
@@ -51,14 +82,14 @@ function refreshTitlePanels(deps) {
   deps.refreshRunModePanel?.();
 }
 
-function scheduleTitleStats(doc, gs) {
+function scheduleTitleStats(doc, gs, timers) {
   const runCount = Math.max(0, (gs?.meta?.runCount ?? 1) - 1);
   if (runCount <= 0) return;
 
   const statsBlock = doc.getElementById('titleStatsBlock');
   if (statsBlock) statsBlock.style.display = 'block';
 
-  globalThis.setTimeout(() => {
+  timers.setTimeout(() => {
     countUp(doc.getElementById('titleTotalRuns'), runCount, 1100);
     countUp(doc.getElementById('titleTotalKills'), gs?.meta?.totalKills ?? 0, 1250);
     countUp(doc.getElementById('titleBestChain'), gs?.meta?.bestChain ?? 0, 1350);
@@ -68,6 +99,8 @@ function scheduleTitleStats(doc, gs) {
 export function bootGameRuntime(ui, deps = {}) {
   const gs = deps.gs;
   const doc = getDoc(deps);
+  const win = getWin(deps);
+  const timers = getTimerApi(deps);
   const audioEngine = deps.audioEngine;
   const runRules = deps.runRules;
   const saveSystem = deps.saveSystem;
@@ -76,13 +109,19 @@ export function bootGameRuntime(ui, deps = {}) {
     registerAudioUnlock(doc, audioEngine);
     loadBootMeta(saveSystem, deps);
     ensureRunMeta(runRules, gs);
-    scheduleTitleCanvasInit(deps);
+    scheduleTitleCanvasInit(deps, timers, win);
     refreshTitlePanels(deps);
 
-    startAudioWave(doc);
-    startLoreTicker(doc);
+    startAudioWave(doc, { win });
+    startLoreTicker(doc, {
+      win,
+      setTimeout: timers.setTimeout,
+      clearTimeout: timers.clearTimeout,
+      setInterval: timers.setInterval,
+      clearInterval: timers.clearInterval,
+    });
     setupKeyboardNav(doc);
-    scheduleTitleStats(doc, gs);
+    scheduleTitleStats(doc, gs, timers);
 
     ui.refreshTitleSaveState({ doc, saveSystem, gs });
   } catch (error) {

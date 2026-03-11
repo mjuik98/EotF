@@ -19,12 +19,6 @@ vi.mock('../game/core/init_sequence.js', () => ({
   bootGame: hoisted.bootGame,
 }));
 
-vi.mock('../game/ui/common/custom_cursor.js', () => ({
-  CustomCursor: {
-    init: hoisted.cursorInit,
-  },
-}));
-
 import * as Deps from '../game/core/deps_factory.js';
 import { bootstrapGameApp } from '../game/core/bootstrap_game.js';
 
@@ -37,7 +31,7 @@ describe('bootstrapGameApp', () => {
   });
 
   it('creates modules, initializes cursor, wires bindings, and boots the game', () => {
-    const modules = { GAME: {} };
+    const modules = { GAME: {}, CustomCursor: { init: hoisted.cursorInit } };
     const fns = { updateNextNodes: vi.fn() };
     const doc = { body: {} };
     const win = { location: {} };
@@ -55,7 +49,7 @@ describe('bootstrapGameApp', () => {
   });
 
   it('continues boot even if CustomCursor init fails', () => {
-    const modules = { GAME: {} };
+    const modules = { GAME: {}, CustomCursor: { init: hoisted.cursorInit } };
     const fns = { updateNextNodes: vi.fn() };
     const doc = { body: {} };
     const win = { location: {} };

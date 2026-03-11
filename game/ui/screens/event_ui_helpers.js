@@ -1,3 +1,5 @@
+import { getAudioEngine as resolveAudioEngine, getRaf } from '../../utils/runtime_deps.js';
+
 const OVERLAY_DISMISS_MS = 320;
 
 export function getEventId(event) {
@@ -22,18 +24,19 @@ export function getRunRules(deps) {
 }
 
 export function getAudioEngine(deps) {
-  return deps?.audioEngine || globalThis.AudioEngine;
+  return resolveAudioEngine(deps);
 }
 
-function nextFrame(cb) {
-  if (typeof globalThis.requestAnimationFrame === 'function') {
-    globalThis.requestAnimationFrame(cb);
+function nextFrame(cb, deps = {}) {
+  const raf = getRaf(deps);
+  if (typeof raf === 'function') {
+    raf(cb);
     return;
   }
   setTimeout(cb, 16);
 }
 
-export function dismissTransientOverlay(overlay, onDone) {
+export function dismissTransientOverlay(overlay, onDone, deps = {}) {
   if (!overlay) {
     onDone?.();
     return;
@@ -49,7 +52,7 @@ export function dismissTransientOverlay(overlay, onDone) {
     overlay.style.opacity = '0';
     overlay.style.filter = 'blur(12px)';
     overlay.style.transform = 'translateY(10px) scale(0.985)';
-  });
+  }, deps);
 
   setTimeout(() => {
     overlay.remove();
@@ -57,7 +60,7 @@ export function dismissTransientOverlay(overlay, onDone) {
   }, OVERLAY_DISMISS_MS);
 }
 
-export function dismissEventModal(modal, onDone) {
+export function dismissEventModal(modal, onDone, deps = {}) {
   if (!modal) {
     onDone?.();
     return;
@@ -75,7 +78,7 @@ export function dismissEventModal(modal, onDone) {
     modal.style.opacity = '0';
     modal.style.filter = 'blur(10px)';
     modal.style.transform = 'translateY(10px) scale(0.985)';
-  });
+  }, deps);
 
   setTimeout(() => {
     modal.style.display = '';

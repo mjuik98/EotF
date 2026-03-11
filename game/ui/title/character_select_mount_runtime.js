@@ -1,0 +1,145 @@
+import { CARDS } from '../../../data/cards.js';
+import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
+import { TooltipUI } from '../cards/tooltip_ui.js';
+import {
+  renderCharacterInfoPanel,
+  renderCharacterPhase,
+} from './character_select_panels.js';
+import {
+  renderCharacterButtons,
+  renderCharacterDots,
+  updateCharacterArrows,
+} from './character_select_render.js';
+import { buildCharacterRadar } from './character_select_radar.js';
+import { renderCharacterCard } from './character_select_card_ui.js';
+
+export function buildCharacterSelectSectionLabel(text, accent) {
+  return `<span class="s-label" style="border-left:2px solid ${accent}44">${text}</span>`;
+}
+
+export function getCharacterClassProgress(meta, classId, classIds) {
+  const fallback = {
+    classId,
+    level: 1,
+    totalXp: 0,
+    currentLevelXp: 0,
+    nextLevelXp: 100,
+    progress: 0,
+  };
+  if (!meta || !classId) return fallback;
+  return ClassProgressionSystem.getClassState(meta, classId, classIds) || fallback;
+}
+
+export function createCharacterSelectMountRuntime(options = {}) {
+  const {
+    chars = [],
+    deps = {},
+    doc,
+    flow,
+    getById,
+    openModal,
+    particleRuntime,
+    sfx,
+    state,
+    stopTyping,
+    win,
+  } = options;
+
+  const classIds = chars.map((ch) => ch.class);
+
+  function resolveClass(classId) {
+    return chars.find((entry) => entry.class === classId) || chars[state.idx] || chars[0];
+  }
+
+  function saveProgressMeta() {
+    if (typeof deps.onProgressConsumed === 'function') deps.onProgressConsumed();
+  }
+
+  function renderCard() {
+    const ch = chars[state.idx];
+    const card = getById('charCard');
+    if (!card) return;
+    const progress = getCharacterClassProgress(deps?.gs?.meta, ch.class, classIds);
+    renderCharacterCard({
+      card,
+      selectedChar: ch,
+      classProgress: progress,
+      maxLevel: ClassProgressionSystem.MAX_LEVEL,
+      resolveById: getById,
+      doc,
+      traitBadgeText: `??${ch.traitName}`,
+      xpText: progress.nextLevelXp === null
+        ? `MAX LEVEL 쨌 ${progress.totalXp} XP`
+        : `${progress.totalXp} / ${progress.nextLevelXp} XP`,
+    });
+  }
+
+  function renderInfoPanel() {
+    const ch = chars[state.idx];
+    renderCharacterInfoPanel({
+      panel: getById('infoPanel'),
+      selectedChar: ch,
+      classProgress: getCharacterClassProgress(deps?.gs?.meta, ch.class, classIds),
+      roadmap: ClassProgressionSystem.getRoadmap(ch.class),
+      buildSectionLabel: buildCharacterSelectSectionLabel,
+      buildRadar: buildCharacterRadar,
+      cards: CARDS,
+      generalTooltipUI: TooltipUI,
+      cardTooltipUI: TooltipUI,
+      doc,
+      win,
+      hover: () => sfx.hover(),
+      echo: () => sfx.echo(),
+      openModal,
+    });
+  }
+
+  function renderDots() {
+    renderCharacterDots(getById('dotsRow'), chars, state.idx, flow.jumpTo);
+  }
+
+  function renderButtons() {
+    renderCharacterButtons(getById('buttonsRow'), chars[state.idx], () => sfx.hover(), flow.handleConfirm);
+  }
+
+  function renderPhaseRuntime() {
+    renderCharacterPhase({
+      state,
+      selectedChar: chars[state.idx],
+      resolveById: getById,
+      stopTyping,
+      rerender: renderPhaseRuntime,
+      onStart: () => {
+        deps.onStart?.(chars[state.idx]);
+      },
+    });
+  }
+
+  function updateArrows() {
+    updateCharacterArrows(getById, chars[state.idx].accent);
+  }
+
+  function updateAll() {
+    ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
+    renderCard();
+    renderInfoPanel();
+    renderDots();
+    renderButtons();
+    const bgGradient = getById('bgGradient');
+    if (bgGradient) {
+      bgGradient.style.background = `radial-gradient(ellipse 70% 65% at 50% 50%,${chars[state.idx].glow}10 0%,transparent 70%)`;
+    }
+    const headerTitle = getById('headerTitle');
+    if (headerTitle) headerTitle.style.textShadow = `0 0 40px ${chars[state.idx].glow}44`;
+    particleRuntime.start(chars[state.idx].particle, chars[state.idx].accent);
+    updateArrows();
+  }
+
+  return {
+    classIds,
+    renderPhase: renderPhaseRuntime,
+    resolveClass,
+    saveProgressMeta,
+    updateAll,
+  };
+}

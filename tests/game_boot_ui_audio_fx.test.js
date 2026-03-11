@@ -36,17 +36,21 @@ describe('game_boot_ui_audio_fx', () => {
     const originalCancel = globalThis.cancelAnimationFrame;
     globalThis.requestAnimationFrame = vi.fn(() => 77);
     globalThis.cancelAnimationFrame = vi.fn();
+    const win = {
+      requestAnimationFrame: vi.fn(() => 77),
+      cancelAnimationFrame: vi.fn(),
+    };
 
-    startAudioWave(doc);
+    startAudioWave(doc, { win });
 
     expect(ctx.clearRect).toHaveBeenCalledTimes(1);
     expect(ctx.beginPath).toHaveBeenCalledTimes(1);
     expect(ctx.stroke).toHaveBeenCalledTimes(1);
-    expect(globalThis.requestAnimationFrame).toHaveBeenCalledWith(expect.any(Function));
+    expect(win.requestAnimationFrame).toHaveBeenCalledWith(expect.any(Function));
 
-    stopAudioWave();
+    stopAudioWave({ win });
 
-    expect(globalThis.cancelAnimationFrame).toHaveBeenCalledWith(77);
+    expect(win.cancelAnimationFrame).toHaveBeenCalledWith(77);
     globalThis.requestAnimationFrame = originalRaf;
     globalThis.cancelAnimationFrame = originalCancel;
   });

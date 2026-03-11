@@ -39,10 +39,10 @@ export function syncCombatTurnEnergy(gs, deps = {}) {
     deps.updateCombatEnergy(gs);
   } else if (typeof deps.hudUpdateUI?.updateCombatEnergy === 'function') {
     deps.hudUpdateUI.updateCombatEnergy(gs);
-  } else if (globalThis.HudUpdateUI?.updateCombatEnergy) {
-    globalThis.HudUpdateUI.updateCombatEnergy(gs);
-  } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-    globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
+  } else if (typeof deps.win?.HudUpdateUI?.updateCombatEnergy === 'function') {
+    deps.win.HudUpdateUI.updateCombatEnergy(gs);
+  } else if (typeof deps.win?.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy === 'function') {
+    deps.win.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
   }
 }
 

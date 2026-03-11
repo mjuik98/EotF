@@ -108,29 +108,15 @@ function createMockDocument() {
 }
 
 describe('map_ui_full_map', () => {
-  const previousInnerWidth = globalThis.innerWidth;
-  const previousInnerHeight = globalThis.innerHeight;
-  const previousRaf = globalThis.requestAnimationFrame;
-  const previousCancelRaf = globalThis.cancelAnimationFrame;
-
-  beforeEach(() => {
-    globalThis.innerWidth = 1280;
-    globalThis.innerHeight = 720;
-    globalThis.requestAnimationFrame = vi.fn(() => 11);
-    globalThis.cancelAnimationFrame = vi.fn();
-  });
-
-  afterEach(() => {
-    globalThis.innerWidth = previousInnerWidth;
-    globalThis.innerHeight = previousInnerHeight;
-    globalThis.requestAnimationFrame = previousRaf;
-    globalThis.cancelAnimationFrame = previousCancelRaf;
-  });
-
   it('creates the full-map overlay and closes it on Escape', () => {
     const doc = createMockDocument();
+    const requestAnimationFrame = vi.fn(() => 11);
+    const cancelAnimationFrame = vi.fn();
     showFullMapOverlay({
       doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      requestAnimationFrame,
+      cancelAnimationFrame,
       gs: {
         currentRegion: 0,
         currentFloor: 1,
@@ -151,7 +137,7 @@ describe('map_ui_full_map', () => {
     expect(overlay).toBeTruthy();
     expect(typeof overlay._closeFullMap).toBe('function');
     expect(doc.body.children.includes(overlay)).toBe(true);
-    expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
+    expect(requestAnimationFrame).toHaveBeenCalled();
     expect((doc._listeners.keydown || [])).toHaveLength(1);
 
     const onKeyDown = doc._listeners.keydown[0];
@@ -162,7 +148,7 @@ describe('map_ui_full_map', () => {
       stopImmediatePropagation: vi.fn(),
     });
 
-    expect(globalThis.cancelAnimationFrame).toHaveBeenCalledWith(11);
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(11);
     expect(doc.getElementById('fullMapOverlay')).toBeNull();
   });
 
@@ -170,6 +156,9 @@ describe('map_ui_full_map', () => {
     const doc = createMockDocument();
     const deps = {
       doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      requestAnimationFrame: vi.fn(() => 11),
+      cancelAnimationFrame: vi.fn(),
       gs: {
         currentRegion: 0,
         currentFloor: 0,

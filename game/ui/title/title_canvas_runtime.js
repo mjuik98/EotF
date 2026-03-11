@@ -1,22 +1,28 @@
-function createTitleStars() {
+function createTitleStars(random = Math.random) {
   return Array.from({ length: 200 }, () => ({
-    x: Math.random(),
-    y: Math.random(),
-    r: Math.random() * 2 + 0.5,
-    v: Math.random() * 0.0003 + 0.0001,
-    alpha: Math.random() * 0.8 + 0.2,
+    x: random(),
+    y: random(),
+    r: random() * 2 + 0.5,
+    v: random() * 0.0003 + 0.0001,
+    alpha: random() * 0.8 + 0.2,
   }));
 }
 
-function createTitleParticles() {
+function createTitleParticles(random = Math.random) {
   return Array.from({ length: 40 }, () => ({
-    x: Math.random(),
-    y: Math.random(),
-    vx: (Math.random() - 0.5) * 0.0005,
-    vy: (Math.random() - 0.5) * 0.0005,
-    r: Math.random() * 40 + 10,
-    alpha: Math.random() * 0.06 + 0.01,
+    x: random(),
+    y: random(),
+    vx: (random() - 0.5) * 0.0005,
+    vy: (random() - 0.5) * 0.0005,
+    r: random() * 40 + 10,
+    alpha: random() * 0.06 + 0.01,
   }));
+}
+
+function bindBrowserFn(fn, context) {
+  if (typeof fn !== 'function') return null;
+  if (typeof fn.bind !== 'function') return fn;
+  return fn.bind(context);
 }
 
 function getViewportSize(win, doc) {
@@ -27,11 +33,17 @@ function getViewportSize(win, doc) {
 }
 
 export function createTitleCanvasRuntime({
-  win = globalThis.window,
-  doc = globalThis.document,
+  win = null,
+  doc = null,
+  setTimeoutFn = null,
+  now = Date.now,
+  random = Math.random,
 } = {}) {
-  const stars = createTitleStars();
-  const particles = createTitleParticles();
+  const requestFrame = bindBrowserFn(win?.requestAnimationFrame, win);
+  const cancelFrame = bindBrowserFn(win?.cancelAnimationFrame, win);
+  const scheduleTimeout = setTimeoutFn || bindBrowserFn(win?.setTimeout, win) || setTimeout;
+  const stars = createTitleStars(random);
+  const particles = createTitleParticles(random);
   let canvas = null;
   let ctx = null;
   let raf = 0;
@@ -46,13 +58,13 @@ export function createTitleCanvasRuntime({
 
   function animate() {
     if (!ctx || !canvas) return;
-    if (raf) win?.cancelAnimationFrame?.(raf);
+    if (raf) cancelFrame?.(raf);
 
     const tick = () => {
       const w = canvas.width;
       const h = canvas.height;
       if (w === 0 || h === 0) {
-        raf = win?.requestAnimationFrame?.(tick) || 0;
+        raf = requestFrame?.(tick) || 0;
         return;
       }
 
@@ -89,7 +101,7 @@ export function createTitleCanvasRuntime({
         if (s.y < -0.05) s.y = 1.05;
 
         ctx.save();
-        ctx.globalAlpha = s.alpha * (0.6 + 0.4 * Math.sin(Date.now() * 0.0015 + s.x * 20));
+        ctx.globalAlpha = s.alpha * (0.6 + 0.4 * Math.sin(now() * 0.0015 + s.x * 20));
         ctx.fillStyle = '#f0f4ff';
         ctx.beginPath();
         const size = s.r * (w / 1600);
@@ -99,14 +111,14 @@ export function createTitleCanvasRuntime({
       });
 
       ctx.globalCompositeOperation = 'source-over';
-      raf = win?.requestAnimationFrame?.(tick) || 0;
+      raf = requestFrame?.(tick) || 0;
     };
 
     tick();
   }
 
   function stop() {
-    if (raf) win?.cancelAnimationFrame?.(raf);
+    if (raf) cancelFrame?.(raf);
     raf = 0;
   }
 
@@ -126,7 +138,7 @@ export function createTitleCanvasRuntime({
       if (canvas && (canvas.width < 100 || canvas.height < 100) && retry < 5) {
         resize();
         retry += 1;
-        globalThis.setTimeout(checkSize, 200);
+        scheduleTimeout(checkSize, 200);
       } else {
         animate();
       }

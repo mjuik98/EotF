@@ -1,5 +1,6 @@
-export function countUp({ from, to, durationMs, onStep, onDone, raf = globalThis.requestAnimationFrame } = {}) {
+export function countUp({ from, to, durationMs, onStep, onDone, raf = null, setTimeoutFn = setTimeout } = {}) {
   const totalFrames = Math.max(8, Math.floor(durationMs / 16));
+  const scheduleFrame = raf || ((callback) => setTimeoutFn(callback, 16));
   let frame = 0;
 
   const tick = () => {
@@ -12,10 +13,10 @@ export function countUp({ from, to, durationMs, onStep, onDone, raf = globalThis
       onDone?.();
       return;
     }
-    raf?.(tick);
+    scheduleFrame(tick);
   };
 
-  raf?.(tick);
+  scheduleFrame(tick);
 }
 
 export function globalProgress(snapshot) {

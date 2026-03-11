@@ -13,8 +13,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
 
   if (allCards.length === 0) {
     getAudioEngine(deps)?.playHit?.();
-    if (deps.screenShake) deps.screenShake.shake(10, 0.4);
-    else if (globalThis.ScreenShake) globalThis.ScreenShake.shake(10, 0.4);
+    deps.screenShake?.shake?.(10, 0.4);
     gs.addLog('No cards are available for this action.', 'damage');
     return;
   }

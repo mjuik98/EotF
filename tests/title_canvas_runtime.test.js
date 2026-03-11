@@ -88,16 +88,10 @@ describe('title canvas runtime', () => {
         clientHeight: 50,
       },
     };
-    const originalSetTimeout = globalThis.setTimeout;
     const setTimeoutSpy = vi.fn();
-    globalThis.setTimeout = setTimeoutSpy;
 
-    try {
-      const runtime = createTitleCanvasRuntime({ win, doc });
-      runtime.init(canvas);
-      expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 200);
-    } finally {
-      globalThis.setTimeout = originalSetTimeout;
-    }
+    const runtime = createTitleCanvasRuntime({ win, doc, setTimeoutFn: setTimeoutSpy });
+    runtime.init(canvas);
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 200);
   });
 });

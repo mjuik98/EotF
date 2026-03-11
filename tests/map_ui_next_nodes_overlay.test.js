@@ -1,0 +1,144 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { updateNextNodesOverlay } from '../game/ui/map/map_ui_next_nodes.js';
+
+function createElement(doc, tag = 'div') {
+  const el = {
+    ownerDocument: doc,
+    tagName: tag.toUpperCase(),
+    children: [],
+    style: {
+      setProperty: vi.fn(),
+    },
+    dataset: {},
+    className: '',
+    textContent: '',
+    innerHTML: '',
+    parentNode: null,
+    listeners: {},
+    classList: {
+      _tokens: new Set(),
+      add: (...tokens) => tokens.forEach((token) => el.classList._tokens.add(token)),
+      remove: (...tokens) => tokens.forEach((token) => el.classList._tokens.delete(token)),
+      contains: (token) => el.classList._tokens.has(token),
+      toggle: vi.fn(),
+    },
+    append: (...nodes) => nodes.forEach((node) => el.appendChild(node)),
+    appendChild(node) {
+      if (!node) return node;
+      node.parentNode = el;
+      el.children.push(node);
+      if (node.id) doc._elements.set(node.id, node);
+      return node;
+    },
+    insertBefore(node) {
+      return el.appendChild(node);
+    },
+    addEventListener(type, handler) {
+      el.listeners[type] = handler;
+    },
+    remove() {
+      if (el.id) doc._elements.delete(el.id);
+    },
+    setAttribute: vi.fn(),
+    getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 80 }),
+    cloneNode: () => createElement(doc, tag),
+    querySelectorAll(selector) {
+      const results = [];
+      const visit = (node) => {
+        if (!node) return;
+        if (selector === '.node-card' && String(node.className || '').includes('node-card')) {
+          results.push(node);
+        }
+        for (const child of node.children || []) visit(child);
+      };
+      visit(el);
+      return results;
+    },
+  };
+  Object.defineProperty(el, 'id', {
+    get: () => el._id || '',
+    set: (value) => {
+      el._id = value;
+      if (value) doc._elements.set(value, el);
+    },
+  });
+  return el;
+}
+
+function createDoc() {
+  const doc = {
+    _elements: new Map(),
+    body: null,
+    createElement(tag) {
+      return createElement(doc, tag);
+    },
+    getElementById(id) {
+      return doc._elements.get(id) || null;
+    },
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  };
+  doc.body = createElement(doc, 'body');
+  const overlay = createElement(doc);
+  overlay.id = 'nodeCardOverlay';
+  doc._elements.set('nodeCardOverlay', overlay);
+  return doc;
+}
+
+describe('map_ui_next_nodes overlay', () => {
+  const previousRaf = globalThis.requestAnimationFrame;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    globalThis.requestAnimationFrame = (cb) => {
+      cb();
+      return 1;
+    };
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    globalThis.requestAnimationFrame = previousRaf;
+  });
+
+  it('uses injected moveToNode callback instead of global handlers', () => {
+    const doc = createDoc();
+    const moveToNode = vi.fn();
+
+    updateNextNodesOverlay({
+      doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      moveToNode,
+      showDeckView: vi.fn(),
+      closeDeckView: vi.fn(),
+      showFullMap: vi.fn(),
+      gs: {
+        currentScreen: 'game',
+        currentRegion: 0,
+        currentFloor: 1,
+        combat: { active: false },
+        _nodeMoveLock: false,
+        _rewardLock: false,
+        _endCombatScheduled: false,
+        _endCombatRunning: false,
+        player: { hp: 10, maxHp: 10, items: [], deck: [], graveyard: [], exhausted: [] },
+        mapNodes: [
+          { id: 'n1', floor: 2, accessible: true, visited: false, type: 'combat' },
+        ],
+      },
+      nodeMeta: {
+        combat: { color: '#ff4455', icon: 'C', label: 'Combat', desc: 'fight' },
+      },
+      getRegionData: () => ({ name: 'Region', rule: 'Rule' }),
+      getFloorStatusText: () => '1F',
+      data: { items: {} },
+    });
+
+    const overlay = doc.getElementById('nodeCardOverlay');
+    expect(overlay.style.display).toBe('flex');
+    const keyHandler = overlay._ncKey;
+    keyHandler({ key: '1' });
+    vi.advanceTimersByTime(800);
+    expect(moveToNode).toHaveBeenCalledWith('n1');
+  });
+});

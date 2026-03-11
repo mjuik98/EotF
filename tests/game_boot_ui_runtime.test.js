@@ -9,6 +9,7 @@ vi.mock('../game/ui/title/game_boot_ui_fx.js', () => ({
 
 vi.mock('../game/ui/title/game_boot_ui_helpers.js', () => ({
   getDoc: vi.fn(),
+  getWin: vi.fn(),
 }));
 
 describe('game_boot_ui_runtime', () => {
@@ -40,6 +41,7 @@ describe('game_boot_ui_runtime', () => {
       }),
     };
     helpers.getDoc.mockReturnValue(doc);
+    helpers.getWin.mockReturnValue(globalThis);
 
     const ui = {
       refreshTitleSaveState: vi.fn(),
@@ -75,8 +77,16 @@ describe('game_boot_ui_runtime', () => {
     expect(deps.runRules.ensureMeta).toHaveBeenCalledWith(deps.gs.meta);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
     expect(deps.refreshRunModePanel).toHaveBeenCalledTimes(1);
-    expect(fx.startAudioWave).toHaveBeenCalledWith(doc);
-    expect(fx.startLoreTicker).toHaveBeenCalledWith(doc);
+    expect(fx.startAudioWave).toHaveBeenCalledWith(doc, expect.objectContaining({
+      win: globalThis,
+    }));
+    expect(fx.startLoreTicker).toHaveBeenCalledWith(doc, expect.objectContaining({
+      win: globalThis,
+      setTimeout: expect.any(Function),
+      clearTimeout: expect.any(Function),
+      setInterval: expect.any(Function),
+      clearInterval: expect.any(Function),
+    }));
     expect(fx.setupKeyboardNav).toHaveBeenCalledWith(doc);
     expect(ui.refreshTitleSaveState).toHaveBeenCalledWith({
       doc,
@@ -103,6 +113,7 @@ describe('game_boot_ui_runtime', () => {
       addEventListener: vi.fn(),
     };
     helpers.getDoc.mockReturnValue(doc);
+    helpers.getWin.mockReturnValue(globalThis);
 
     const ui = {
       bootGame: vi.fn(),

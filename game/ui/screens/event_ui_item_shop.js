@@ -107,7 +107,7 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
 
       const descEl = doc.createElement('div');
       descEl.className = 'item-shop-desc';
-      if (globalThis.DescriptionUtils) descEl.innerHTML = globalThis.DescriptionUtils.highlight(item.desc);
+      if (deps.descriptionUtils?.highlight) descEl.innerHTML = deps.descriptionUtils.highlight(item.desc);
       else descEl.textContent = item.desc;
 
       const costEl = doc.createElement('div');

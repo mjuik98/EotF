@@ -16,7 +16,7 @@ function getDoc(deps) {
 }
 
 function resolveNodeMeta(deps = {}) {
-  return deps.nodeMeta || (typeof NODE_META !== 'undefined' ? NODE_META : {});
+  return deps.nodeMeta || {};
 }
 
 function cleanupNextNodeOverlay(doc) {
@@ -30,11 +30,10 @@ function cleanupNextNodeOverlay(doc) {
 function resolveTooltipUI(deps = {}) {
   return deps.tooltipUI
     || deps.TooltipUI
-    || globalThis.TooltipUI
-    || globalThis.GAME?.Modules?.TooltipUI;
+    || null;
 }
 
-function playSelectAnim(doc, card, rgb, onDone) {
+function playSelectAnim(doc, card, rgb, onDone, deps = {}) {
   if (!doc?.body || !card?.getBoundingClientRect) {
     onDone?.();
     return;
@@ -78,9 +77,10 @@ function playSelectAnim(doc, card, rgb, onDone) {
   runOnNextFrame(() => runOnNextFrame(() => {
     const targetWidth = Math.min(rect.width * 1.12, 340);
     const targetHeight = rect.height * 1.08;
+    const win = deps.win || { innerWidth: 1280, innerHeight: 720 };
 
-    clone.style.left = `${((globalThis.innerWidth || 1280) - targetWidth) / 2}px`;
-    clone.style.top = `${((globalThis.innerHeight || 720) - targetHeight) / 2}px`;
+    clone.style.left = `${((win.innerWidth || 1280) - targetWidth) / 2}px`;
+    clone.style.top = `${((win.innerHeight || 720) - targetHeight) / 2}px`;
     clone.style.width = `${targetWidth}px`;
     clone.style.height = `${targetHeight}px`;
   }));
@@ -133,10 +133,10 @@ export function updateNextNodesOverlay(deps = {}) {
   }
 
   const getFloorStatusText = deps.getFloorStatusText;
-  const getRegionData = deps.getRegionData || globalThis.getRegionData;
+  const getRegionData = deps.getRegionData;
   const moveToNodeHandlerName = deps.moveToNodeHandlerName || 'moveToNode';
   const nodeMeta = resolveNodeMeta(deps);
-  const data = deps.data || globalThis.DATA || {};
+  const data = deps.data || {};
   const regionData = (typeof getRegionData === 'function'
     ? getRegionData(gs.currentRegion, gs)
     : null) || { name: '지역' };
@@ -144,7 +144,7 @@ export function updateNextNodesOverlay(deps = {}) {
   const accent = regionData.accent || nodeMeta[nodes[0]?.type]?.color || '#44aa66';
   const accentRgb = hexToRgb(accent);
   const tooltipUI = resolveTooltipUI(deps);
-  const win = globalThis.window || globalThis;
+  const win = deps.win || { innerWidth: 1280, innerHeight: 720 };
 
   if (title) {
     title.style.display = 'none';
@@ -236,7 +236,11 @@ export function updateNextNodesOverlay(deps = {}) {
     });
 
     const triggerMove = () => {
-      const handler = globalThis[moveToNodeHandlerName];
+      if (typeof deps.moveToNode === 'function') {
+        deps.moveToNode(node.id);
+        return;
+      }
+      const handler = win[moveToNodeHandlerName];
       if (typeof handler === 'function') handler(node.id);
     };
 
@@ -247,7 +251,7 @@ export function updateNextNodesOverlay(deps = {}) {
       hoverTint.style.background = 'transparent';
     });
     card.addEventListener('click', () => {
-      playSelectAnim(doc, card, rgb, triggerMove);
+      playSelectAnim(doc, card, rgb, triggerMove, deps);
     });
 
     row.appendChild(card);
@@ -305,9 +309,13 @@ export function updateNextNodesOverlay(deps = {}) {
     const meta = nodeMeta[nodes[index].type] || nodeMeta.combat || { color: '#7b2fff' };
     const rgb = hexToRgb(meta.color);
     playSelectAnim(doc, targetCard, rgb, () => {
-      const handler = globalThis[moveToNodeHandlerName];
+      if (typeof deps.moveToNode === 'function') {
+        deps.moveToNode(nodes[index].id);
+        return;
+      }
+      const handler = win[moveToNodeHandlerName];
       if (typeof handler === 'function') handler(nodes[index].id);
-    });
+    }, deps);
   };
   doc.addEventListener('keydown', keyHandler);
   overlay._ncKey = keyHandler;

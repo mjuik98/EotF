@@ -24,7 +24,16 @@ export function dispatchCombatTurnUiAction(result, deps) {
   }
 }
 
-export function playEnemyStatusTickEffects(events = [], deps = {}, win = globalThis.window || globalThis) {
+function resolveWin(winArg, deps = {}) {
+  return winArg || deps.win || { innerWidth: 0 };
+}
+
+function resolveDoc(docArg, deps = {}) {
+  return docArg || deps.doc || null;
+}
+
+export function playEnemyStatusTickEffects(events = [], deps = {}, winArg = null) {
+  const win = resolveWin(winArg, deps);
   events.forEach((evt) => {
     const ex = win.innerWidth / 2 + (evt.index - 0.5) * 200;
     deps.showDmgPopup?.(evt.dmg, ex, 200, evt.color);
@@ -43,7 +52,8 @@ export function playEnemyStatusTickEffects(events = [], deps = {}, win = globalT
   });
 }
 
-export async function playEnemyAttackHitUi(index, hit, action, deps = {}, doc = globalThis.document, sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))) {
+export async function playEnemyAttackHitUi(index, hit, action, deps = {}, docArg = null, sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))) {
+  const doc = resolveDoc(docArg, deps);
   const card = doc?.getElementById?.(`enemy_${index}`);
   if (card) {
     card.classList.add('hit');

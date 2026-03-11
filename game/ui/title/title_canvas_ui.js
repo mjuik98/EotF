@@ -11,7 +11,10 @@ export const TitleCanvasUI = {
     const doc = _getDoc(deps);
     const canvas = doc.getElementById('titleCanvas');
     if (!canvas) return;
-    _runtime = createTitleCanvasRuntime({ doc });
+    const runtimeDeps = { doc };
+    const win = deps?.win || doc?.defaultView || null;
+    if (win) runtimeDeps.win = win;
+    _runtime = createTitleCanvasRuntime(runtimeDeps);
     _runtime.init(canvas);
   },
 

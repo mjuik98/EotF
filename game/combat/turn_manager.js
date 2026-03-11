@@ -7,7 +7,7 @@
 import { LogUtils } from '../utils/log_utils.js';
 import { Actions } from '../core/state_actions.js';
 import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
-import { getRegionIdForStage } from '../systems/run_rules.js';
+import { resolveActiveRegionId } from '../domain/run/region_service.js';
 import { DATA } from '../../data/game_data.js';
 import { INFINITE_STACK_BUFF_IDS as INFINITE_STACK_BUFF_IDS_DATA } from '../../data/status_key_data.js';
 
@@ -27,20 +27,6 @@ function _normalizeInfiniteStack(buffId, buff) {
     if (_isInfiniteStackBuff(buffId, buff) && Number.isFinite(buff.stacks) && buff.stacks < 99) {
         buff.stacks = 99;
     }
-}
-
-function _resolveActiveRegionId(gs) {
-    const activeRegionId = Number(gs?._activeRegionId);
-    if (Number.isFinite(activeRegionId)) {
-        return Math.max(0, Math.floor(activeRegionId));
-    }
-
-    const regionIdx = Math.max(0, Math.floor(Number(gs?.currentRegion) || 0));
-    const resolved = Number(getRegionIdForStage(regionIdx, gs));
-    if (Number.isFinite(resolved)) {
-        return Math.max(0, Math.floor(resolved));
-    }
-    return regionIdx;
 }
 
 // ═══════════════════════════════════════
@@ -247,7 +233,7 @@ export const TurnManager = {
 
         // 침묵의 도시에서는 모든 클래스가 턴 종료 시 소음을 1 낮춘다.
         // 헌터는 기존 규칙대로 지역과 무관하게 1 낮춘다.
-        const activeRegionId = _resolveActiveRegionId(gs);
+        const activeRegionId = resolveActiveRegionId(gs);
         const shouldReduceSilence = activeRegionId === 1 || gs.player.class === 'hunter';
         if (shouldReduceSilence && gs.player.silenceGauge > 0) {
             gs.player.silenceGauge = Math.max(0, gs.player.silenceGauge - 1);
@@ -588,7 +574,7 @@ export const TurnManager = {
         let drawCount = 5;
 
         // ── 지역별 스테이지 효과 (Stage Effects) 발동 ──
-        const activeRegionId = _resolveActiveRegionId(gs);
+        const activeRegionId = resolveActiveRegionId(gs);
         if (activeRegionId === 5) drawCount = 6;
 
         if (activeRegionId === 2) { // 기억의 미궁: 카드 1장 소멸

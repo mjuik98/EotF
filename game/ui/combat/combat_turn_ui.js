@@ -3,7 +3,9 @@
  *
  * TurnManager에서 로직 결과를 받아 DOM만 업데이트합니다.
  */
+import { endPlayerTurnService } from '../../app/combat/end_turn_service.js';
 import { TurnManager } from '../../combat/turn_manager.js';
+import { resolveActiveRegionId } from '../../domain/run/region_service.js';
 import {
   cleanupCombatTurnTooltips,
   setEnemyTurnUiState,
@@ -28,42 +30,23 @@ function _getWin(deps) {
 }
 
 function _getCombatRegionId(gs) {
-  const activeRegionId = Number(gs?._activeRegionId);
-  if (Number.isFinite(activeRegionId)) {
-    return Math.max(0, Math.floor(activeRegionId));
-  }
-
-  if (typeof globalThis.getRegionIdForStage === 'function') {
-    const resolved = Number(globalThis.getRegionIdForStage(gs?.currentRegion, gs));
-    if (Number.isFinite(resolved)) return Math.max(0, Math.floor(resolved));
-  }
-
-  return Math.max(0, Math.floor(Number(gs?.currentRegion) || 0));
+  return resolveActiveRegionId(gs);
 }
 
 export const CombatTurnUI = {
   endPlayerTurn(deps = {}) {
-    const gs = deps.gs;
-    const data = deps.data;
-
-    // ── 로직 위임 ──
-    const result = TurnManager.endPlayerTurnLogic(gs, data, {
-      canPlayFn: globalThis.CardCostUtils?.canPlay,
+    const outcome = endPlayerTurnService({
+      gs: deps.gs,
+      data: deps.data,
+      canPlay: deps.cardCostUtils?.canPlay,
+      classMechanics: deps.classMechanics,
     });
-    if (!result) return;
+    if (!outcome) return;
 
     // ── UI 업데이트 ──
-    deps.updateChainUI?.(0);
-
-    // 클래스 특성 턴 종료 훅 (무음수호자 방어막 유지 등)
-    const classMechanics = deps.classMechanics || globalThis.ClassMechanics || globalThis.GAME?.Modules?.['ClassMechanics'];
-    const classMech = classMechanics?.[gs.player.class];
-    if (classMech && typeof classMech.onTurnEnd === 'function') {
-      classMech.onTurnEnd(gs);
-    }
-
-    cleanupCombatTurnTooltips(deps);
-    setEnemyTurnUiState(deps);
+    if (outcome.ui.resetChain) deps.updateChainUI?.(0);
+    if (outcome.ui.cleanupTooltips) cleanupCombatTurnTooltips(deps);
+    if (outcome.ui.setEnemyTurn) setEnemyTurnUiState(deps);
 
     setTimeout(async () => {
       try {
@@ -71,7 +54,7 @@ export const CombatTurnUI = {
       } catch (e) {
         console.error('[CombatTurn] 적 턴 오류:', e);
       }
-    }, 700);
+    }, outcome.ui.enemyTurnDelayMs);
   },
 
   async enemyTurn(deps = {}) {
@@ -109,7 +92,7 @@ export const CombatTurnUI = {
 
       if (action.type === 'phase_shift' || action.effect === 'phase_shift') {
         // 보스 페이즈 전환: 로직 → UI
-        const phaseResult = TurnManager.handleBossPhaseShiftLogic(gs, enemy);
+        TurnManager.handleBossPhaseShiftLogic(gs, enemy);
         // UI 이펙트
         showBossPhaseShiftUi(gs, index, deps);
       } else if (action.dmg > 0) {
@@ -158,7 +141,7 @@ export const CombatTurnUI = {
     deps.runRules?.onTurnStart?.(gs);
 
     // 클래스 특성 턴 시작 훅 (찬송기사 회복, 무음수호자 방어막 유지 등)
-    const classMechanics = deps.classMechanics || globalThis.ClassMechanics || globalThis.GAME?.Modules?.['ClassMechanics'];
+    const classMechanics = deps.classMechanics;
     const classMech = classMechanics?.[gs.player.class];
     if (classMech && typeof classMech.onTurnStart === 'function') {
       classMech.onTurnStart(gs);
@@ -199,7 +182,6 @@ export const CombatTurnUI = {
 
   handleBossPhaseShift(enemy, idx, deps = {}) {
     const gs = deps.gs;
-    const doc = _getDoc(deps);
 
     TurnManager.handleBossPhaseShiftLogic(gs, enemy);
     showBossPhaseShiftUi(gs, idx, deps);

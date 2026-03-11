@@ -28,6 +28,7 @@ import {
 import { RandomUtils } from '../../utils/random_utils.js';
 import { CardCostUtils } from '../../utils/card_cost_utils.js';
 import { DescriptionUtils } from '../../utils/description_utils.js';
+import { CustomCursor } from '../../ui/common/custom_cursor.js';
 
 import { TitleCanvasUI } from '../../ui/title/title_canvas_ui.js';
 import { GameCanvasSetupUI } from '../../ui/title/game_canvas_setup_ui.js';
@@ -111,6 +112,7 @@ export function createModuleRegistry() {
     RandomUtils,
     CardCostUtils,
     DescriptionUtils,
+    CustomCursor,
 
     TitleCanvasUI,
     GameCanvasSetupUI,

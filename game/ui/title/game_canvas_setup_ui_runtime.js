@@ -1,9 +1,9 @@
 function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
 function getWin(deps) {
-  return deps?.win || globalThis.window || globalThis;
+  return deps?.win || deps?.doc?.defaultView || null;
 }
 
 export function getGameCanvasRefs(state) {
@@ -35,7 +35,6 @@ export function resizeGameCanvasRuntime(state, deps = {}) {
   if (!state.gameCanvas) return;
   const win = getWin(deps);
   const resizeObserverCtor = deps?.resizeObserverCtor
-    || globalThis.ResizeObserver
     || win.ResizeObserver;
 
   const rect = state.gameCanvas.getBoundingClientRect();
@@ -77,7 +76,7 @@ export function initGameCanvasRuntime(state, ui, deps = {}) {
   ui.resize(deps);
 
   if (!state.resizeBound) {
-    win.addEventListener('resize', () => ui.resize(deps));
+    win?.addEventListener?.('resize', () => ui.resize(deps));
     state.resizeBound = true;
   }
 

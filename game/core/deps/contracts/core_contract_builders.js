@@ -32,6 +32,8 @@ export function buildCoreContractBuilders(ctx) {
         updateCombatEnergy: (gs) => refs.HudUpdateUI?.updateCombatEnergy?.(gs, getGameDeps()),
         hudUpdateUI: refs.HudUpdateUI,
         updateUI: refs.updateUI,
+        cardCostUtils: refs.CardCostUtils,
+        classMechanics: refs.ClassMechanics,
         showEchoBurstOverlay: refs.showEchoBurstOverlay,
         showDmgPopup: refs.showDmgPopup,
         shuffleArray: (arr) => refs.RandomUtils?.shuffleArray?.(arr) || arr,
@@ -51,6 +53,8 @@ export function buildCoreContractBuilders(ctx) {
         showItemToast: refs.showItemToast,
         audioEngine: refs.AudioEngine,
         screenShake: refs.ScreenShake,
+        descriptionUtils: refs.DescriptionUtils,
+        requestAnimationFrame: getRaf(),
         playItemGet: () => refs.AudioEngine?.playItemGet?.(),
       };
     },

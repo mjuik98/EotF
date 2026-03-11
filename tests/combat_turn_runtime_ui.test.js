@@ -21,8 +21,6 @@ describe('combat_turn_runtime_ui', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    delete globalThis.HudUpdateUI;
-    delete globalThis.GAME;
   });
 
   it('cleans combat tooltips via explicit cleanup helper or fallback nodes', () => {
@@ -70,16 +68,31 @@ describe('combat_turn_runtime_ui', () => {
     expect(buttons.every((button) => button.disabled)).toBe(true);
   });
 
-  it('syncs combat energy with explicit deps first, then fallback globals', () => {
+  it('syncs combat energy with explicit deps first, then injected window fallbacks', () => {
     const gs = { combat: true };
     const explicit = vi.fn();
     syncCombatTurnEnergy(gs, { updateCombatEnergy: explicit });
     expect(explicit).toHaveBeenCalledWith(gs);
 
-    const globalUpdate = vi.fn();
-    globalThis.HudUpdateUI = { updateCombatEnergy: globalUpdate };
-    syncCombatTurnEnergy(gs, {});
-    expect(globalUpdate).toHaveBeenCalledWith(gs);
+    const winUpdate = vi.fn();
+    syncCombatTurnEnergy(gs, {
+      win: {
+        HudUpdateUI: { updateCombatEnergy: winUpdate },
+      },
+    });
+    expect(winUpdate).toHaveBeenCalledWith(gs);
+
+    const gameUpdate = vi.fn();
+    syncCombatTurnEnergy(gs, {
+      win: {
+        GAME: {
+          Modules: {
+            HudUpdateUI: { updateCombatEnergy: gameUpdate },
+          },
+        },
+      },
+    });
+    expect(gameUpdate).toHaveBeenCalledWith(gs);
   });
 
   it('toggles player turn UI, rerenders combat views, and resyncs energy after a delay', () => {

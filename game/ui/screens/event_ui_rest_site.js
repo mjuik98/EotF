@@ -6,9 +6,9 @@ const REST_FILL_HEAL_START_DELAY = 600;
 const REST_FILL_HEAL_DURATION = 1400;
 const REST_FILL_ECHO_GAIN = 30;
 
-function requestFrame(cb) {
-  if (typeof globalThis.requestAnimationFrame === 'function') {
-    return globalThis.requestAnimationFrame(cb);
+function requestFrame(cb, deps = {}) {
+  if (typeof deps.requestAnimationFrame === 'function') {
+    return deps.requestAnimationFrame(cb);
   }
   return setTimeout(() => cb(Date.now()), 16);
 }
@@ -117,16 +117,17 @@ export function showEventRestSiteOverlay(gs, data, runRules, deps = {}) {
   if (!gs || !data || !runRules) return;
 
   const doc = deps.doc || document;
-  const audioEngine = deps.audioEngine || globalThis.AudioEngine;
+  const audioEngine = deps.audioEngine;
   const snapshot = buildRestRecoverySnapshot(gs, runRules);
   const overlay = createRestFillOverlay(doc, snapshot);
   const restParticleFx = startRestFillParticles(overlay, doc);
   const state = { playedSound: false };
-  const startTime = globalThis.performance?.now?.() || Date.now();
+  const now = deps.now || Date.now;
+  const startTime = now();
 
   requestFrame(() => {
     overlay.classList.add('active');
-  });
+  }, deps);
 
   const updateSequence = (now) => {
     const elapsed = now - startTime;
@@ -135,7 +136,7 @@ export function showEventRestSiteOverlay(gs, data, runRules, deps = {}) {
     applyRestFillSequenceFrame(doc, snapshot, elapsed, audioEngine, state);
 
     if (progress < 1) {
-      requestFrame(updateSequence);
+      requestFrame(updateSequence, deps);
       return;
     }
 
@@ -157,5 +158,5 @@ export function showEventRestSiteOverlay(gs, data, runRules, deps = {}) {
     }, 500);
   };
 
-  requestFrame(updateSequence);
+  requestFrame(updateSequence, deps);
 }

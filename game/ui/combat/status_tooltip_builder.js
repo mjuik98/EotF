@@ -23,6 +23,13 @@ import {
   composeStatusTooltipBodyHTML,
 } from './status_tooltip_layout.js';
 import { isInfiniteStatusDuration } from '../../utils/status_value_utils.js';
+import {
+  ensureStatusTooltipRoot,
+  positionStatusTooltipFromEvent,
+  positionStatusTooltipToRect,
+  renderStatusTooltipElement,
+  scheduleStatusTooltipHide,
+} from './status_tooltip_runtime_ui.js';
 
 function _isInfiniteDurationStatus(statusKey, buff) {
   return isInfiniteStatusDuration(statusKey, buff);
@@ -97,45 +104,6 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
 
 let _hideTipTimer = null;
 
-function _ensureTooltipRoot(doc) {
-  let el = doc.getElementById('statusTooltip');
-  if (!el) {
-    el = doc.createElement('div');
-    el.id = 'statusTooltip';
-    el.className = 'stt';
-    doc.body.appendChild(el);
-  }
-  return el;
-}
-
-function _renderTooltip(el, statusKey, infoKR, buff, options = {}) {
-  el.innerHTML = buildStatusTooltipHTML(statusKey, infoKR, buff, options);
-  el.dataset.statusKey = statusKey;
-  el.dataset.statusContainerId = options.statusContainerId || '';
-
-  const isBuff = !!_resolveInfo(statusKey, infoKR).buff;
-  const pal = resolveStatusTooltipPalette(statusKey, isBuff, {
-    isInfinite: _isInfiniteDurationStatus(statusKey, buff),
-  });
-  const glowAlpha = isBuff ? ',.1)' : ',.18)';
-  const rgb = pal.accent.startsWith('#')
-    ? _hexToRgb(pal.accent)
-    : '255,51,102';
-  el.style.boxShadow = `0 16px 48px rgba(0,0,0,.88),0 0 22px rgba(${rgb}${glowAlpha}`;
-}
-
-function _positionToRect(rect, el, win) {
-  const tooltipWidth = 280;
-  const margin = 10;
-  let x = rect.right + margin;
-  let y = rect.top;
-  if (x + tooltipWidth > win.innerWidth - 8) x = rect.left - tooltipWidth - margin;
-  const tooltipHeight = el.offsetHeight || 320;
-  if (y + tooltipHeight > win.innerHeight - 8) y = win.innerHeight - tooltipHeight - 8;
-  el.style.left = `${Math.max(8, x)}px`;
-  el.style.top = `${Math.max(8, y)}px`;
-}
-
 export const StatusTooltipUI = {
   show(event, statusKey, infoKR, buff, options = {}) {
     clearTimeout(_hideTipTimer);
@@ -143,8 +111,8 @@ export const StatusTooltipUI = {
     const doc = options.doc ?? globalThis.document;
     const win = options.win ?? globalThis.window ?? globalThis;
 
-    const el = _ensureTooltipRoot(doc);
-    _renderTooltip(el, statusKey, infoKR, buff, options);
+    const el = ensureStatusTooltipRoot(doc);
+    renderStatusTooltipElement(el, statusKey, infoKR, buff, buildStatusTooltipHTML(statusKey, infoKR, buff, options), options);
     this._position(event, el, win);
     el.classList.add('visible');
   },
@@ -157,18 +125,16 @@ export const StatusTooltipUI = {
     const doc = options.doc ?? globalThis.document;
     const win = options.win ?? globalThis.window ?? globalThis;
     const rect = anchorEl.getBoundingClientRect();
-    const el = _ensureTooltipRoot(doc);
+    const el = ensureStatusTooltipRoot(doc);
 
-    _renderTooltip(el, statusKey, infoKR, buff, options);
-    _positionToRect(rect, el, win);
+    renderStatusTooltipElement(el, statusKey, infoKR, buff, buildStatusTooltipHTML(statusKey, infoKR, buff, options), options);
+    positionStatusTooltipToRect(rect, el, win);
     el.classList.add('visible');
   },
 
   hide(options = {}) {
     const doc = options.doc ?? globalThis.document;
-    _hideTipTimer = setTimeout(() => {
-      doc.getElementById('statusTooltip')?.classList.remove('visible');
-    }, 80);
+    _hideTipTimer = scheduleStatusTooltipHide(doc);
   },
 
   cancelHide() {
@@ -176,16 +142,6 @@ export const StatusTooltipUI = {
   },
 
   _position(event, el, win) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    _positionToRect(rect, el, win);
+    positionStatusTooltipFromEvent(event, el, win);
   },
 };
-
-function _hexToRgb(hex) {
-  const clean = hex.replace('#', '');
-  const normalized = clean.length === 3
-    ? clean.split('').map((char) => char + char).join('')
-    : clean;
-  const value = parseInt(normalized, 16);
-  return `${(value >> 16) & 255},${(value >> 8) & 255},${value & 255}`;
-}

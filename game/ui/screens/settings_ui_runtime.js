@@ -3,6 +3,11 @@ import {
   getDoc,
   getWin,
 } from './settings_ui_helpers.js';
+import {
+  beginSettingsRebindUi,
+  cleanupSettingsRebindUi,
+  setSettingsModalActive,
+} from './settings_ui_runtime_helpers.js';
 
 export function getLiveSettingsDeps(ui, doc) {
   return {
@@ -25,30 +30,20 @@ export function openSettingsModal(ui, deps = {}) {
   SettingsManager.load();
   ui._syncAllTabs(doc);
   ui.setTab(ui._activeTab, deps);
-  modal.classList.add('active');
+  setSettingsModalActive(modal, true);
   deps.audioEngine?.playClick?.();
   return true;
 }
 
 export function closeSettingsModal(ui, deps = {}) {
   const doc = getDoc(deps);
-  doc.getElementById('settingsModal')?.classList.remove('active');
+  setSettingsModalActive(doc.getElementById('settingsModal'), false);
   cancelSettingsRebind(ui, deps);
   deps.audioEngine?.playClick?.();
 }
 
 export function cleanupSettingsRebind(ui, action, doc) {
-  const btn = doc.querySelector(`[data-keybind="${action}"]`);
-  btn?.classList.remove('listening');
-
-  if (ui._keydownHandler) {
-    ui._rebindWindow?.removeEventListener('keydown', ui._keydownHandler);
-    ui._keydownHandler = null;
-  }
-
-  ui._listeningAction = null;
-  ui._rebindWindow = null;
-  ui._checkConflicts(doc);
+  cleanupSettingsRebindUi(ui, action, doc);
 }
 
 export function cancelSettingsRebind(ui, deps = {}) {
@@ -62,15 +57,7 @@ export function cancelSettingsRebind(ui, deps = {}) {
 export function startSettingsRebind(ui, action, deps = {}) {
   const doc = getDoc(deps);
   cancelSettingsRebind(ui, deps);
-
-  ui._listeningAction = action;
-  ui._rebindWindow = getWin(deps);
-
-  const btn = doc.querySelector(`[data-keybind="${action}"]`);
-  if (btn) {
-    btn.textContent = '입력...';
-    btn.classList.add('listening');
-  }
+  beginSettingsRebindUi(ui, action, doc, getWin(deps));
 
   ui._keydownHandler = (e) => {
     e.preventDefault();

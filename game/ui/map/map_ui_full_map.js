@@ -13,19 +13,23 @@ function getDoc(deps) {
 }
 
 function resolveNodeMeta(deps = {}) {
-  return deps.nodeMeta || (typeof NODE_META !== 'undefined' ? NODE_META : {});
+  return deps.nodeMeta || {};
 }
 
-function requestFrame(cb) {
-  if (typeof globalThis.requestAnimationFrame === 'function') {
-    return globalThis.requestAnimationFrame(cb);
+function getWin(deps = {}) {
+  return deps.win || { innerWidth: 1280, innerHeight: 720 };
+}
+
+function requestFrame(cb, deps = {}) {
+  if (typeof deps.requestAnimationFrame === 'function') {
+    return deps.requestAnimationFrame(cb);
   }
   return setTimeout(cb, 16);
 }
 
-function cancelFrame(handle) {
-  if (typeof globalThis.cancelAnimationFrame === 'function') {
-    globalThis.cancelAnimationFrame(handle);
+function cancelFrame(handle, deps = {}) {
+  if (typeof deps.cancelAnimationFrame === 'function') {
+    deps.cancelAnimationFrame(handle);
     return;
   }
   clearTimeout(handle);
@@ -34,6 +38,7 @@ function cancelFrame(handle) {
 export function showFullMapOverlay(deps = {}) {
   const gs = deps.gs;
   const doc = getDoc(deps);
+  const win = getWin(deps);
   if (!gs || !gs.mapNodes?.length) return;
 
   const existing = doc.getElementById('fullMapOverlay');
@@ -54,7 +59,7 @@ export function showFullMapOverlay(deps = {}) {
     if (onOverlayKeyDown) {
       doc.removeEventListener('keydown', onOverlayKeyDown, true);
     }
-    if (typeof animFrame === 'number') cancelFrame(animFrame);
+    if (typeof animFrame === 'number') cancelFrame(animFrame, deps);
     overlay.remove();
   };
 
@@ -69,10 +74,10 @@ export function showFullMapOverlay(deps = {}) {
   };
   doc.addEventListener('keydown', onOverlayKeyDown, true);
 
-  const getRegionData = deps.getRegionData || globalThis.getRegionData;
+  const getRegionData = deps.getRegionData;
   const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: 'Region' };
-  const viewportW = Number(globalThis.innerWidth || 1280);
-  const viewportH = Number(globalThis.innerHeight || 720);
+  const viewportW = Number(win.innerWidth || 1280);
+  const viewportH = Number(win.innerHeight || 720);
   const cw = Math.min(720, viewportW - 60);
   const ch = Math.min(600, viewportH - 200);
   const maxFloorNum = Math.max(...gs.mapNodes.map(n => n.floor));
@@ -135,7 +140,7 @@ export function showFullMapOverlay(deps = {}) {
       particles,
       scene,
     });
-    animFrame = requestFrame(draw);
+    animFrame = requestFrame(draw, deps);
   };
 
   draw();

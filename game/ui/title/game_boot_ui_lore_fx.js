@@ -11,9 +11,50 @@ const state = {
   loreEnterTimeout: 0,
 };
 
-export function startLoreTicker(doc) {
+function getTimerHost(deps = {}) {
+  if (deps.timerHost) return deps.timerHost;
+  if (deps.win) return deps.win;
+  return null;
+}
+
+function bindTimer(fn, context) {
+  if (typeof fn !== 'function') return fn;
+  if (typeof fn.bind !== 'function') return fn;
+  return fn.bind(context);
+}
+
+function getTimerApi(deps = {}) {
+  const timerHost = getTimerHost(deps);
+  const timerContext = deps.timerContext || timerHost;
+  return {
+    setInterval: bindTimer(
+      deps.setInterval || timerHost?.setInterval || setInterval,
+      timerContext,
+    ),
+    clearInterval: bindTimer(
+      deps.clearInterval || timerHost?.clearInterval || clearInterval,
+      timerContext,
+    ),
+    setTimeout: bindTimer(
+      deps.setTimeout || timerHost?.setTimeout || setTimeout,
+      timerContext,
+    ),
+    clearTimeout: bindTimer(
+      deps.clearTimeout || timerHost?.clearTimeout || clearTimeout,
+      timerContext,
+    ),
+  };
+}
+
+function getRandom(deps = {}) {
+  return deps.random || Math.random;
+}
+
+export function startLoreTicker(doc, deps = {}) {
   const el = doc.getElementById('titleLoreText');
   if (!el) return;
+  const timers = getTimerApi(deps);
+  const random = getRandom(deps);
 
   const escapeHtml = (value) => String(value)
     .replaceAll('&', '&amp;')
@@ -39,9 +80,9 @@ export function startLoreTicker(doc) {
 
   const seedDrift = () => {
     el.querySelectorAll('.title-lore-char').forEach((charEl, index) => {
-      const spreadX = (Math.random() - 0.5) * 56;
-      const spreadY = (Math.random() - 0.5) * 26;
-      const rotate = (Math.random() - 0.5) * 36;
+      const spreadX = (random() - 0.5) * 56;
+      const spreadY = (random() - 0.5) * 26;
+      const rotate = (random() - 0.5) * 36;
       const glow = index % 2 === 0 ? 'rgba(123,47,255,0.44)' : 'rgba(0,255,204,0.28)';
       charEl.style.setProperty('--drift-x', `${spreadX.toFixed(2)}px`);
       charEl.style.setProperty('--drift-y', `${spreadY.toFixed(2)}px`);
@@ -57,35 +98,36 @@ export function startLoreTicker(doc) {
 
   setLoreLine(LORE_LINES[0]);
   el.classList.add('is-entering');
-  state.loreEnterTimeout = globalThis.setTimeout(() => {
+  state.loreEnterTimeout = timers.setTimeout(() => {
     el.classList.remove('is-entering');
   }, 1100);
 
   let loreIndex = 0;
-  state.loreInterval = globalThis.setInterval(() => {
+  state.loreInterval = timers.setInterval(() => {
     loreIndex = (loreIndex + 1) % LORE_LINES.length;
     el.classList.remove('is-entering');
     seedDrift();
     el.classList.add('is-exiting');
 
-    if (state.loreSwapTimeout) globalThis.clearTimeout(state.loreSwapTimeout);
-    if (state.loreEnterTimeout) globalThis.clearTimeout(state.loreEnterTimeout);
+    if (state.loreSwapTimeout) timers.clearTimeout(state.loreSwapTimeout);
+    if (state.loreEnterTimeout) timers.clearTimeout(state.loreEnterTimeout);
 
-    state.loreSwapTimeout = globalThis.setTimeout(() => {
+    state.loreSwapTimeout = timers.setTimeout(() => {
       el.classList.remove('is-exiting');
       setLoreLine(LORE_LINES[loreIndex]);
       el.classList.add('is-entering');
-      state.loreEnterTimeout = globalThis.setTimeout(() => {
+      state.loreEnterTimeout = timers.setTimeout(() => {
         el.classList.remove('is-entering');
       }, 1100);
     }, 520);
   }, 4200);
 }
 
-export function stopLoreTicker() {
-  if (state.loreInterval) globalThis.clearInterval(state.loreInterval);
-  if (state.loreSwapTimeout) globalThis.clearTimeout(state.loreSwapTimeout);
-  if (state.loreEnterTimeout) globalThis.clearTimeout(state.loreEnterTimeout);
+export function stopLoreTicker(deps = {}) {
+  const timers = getTimerApi(deps);
+  if (state.loreInterval) timers.clearInterval(state.loreInterval);
+  if (state.loreSwapTimeout) timers.clearTimeout(state.loreSwapTimeout);
+  if (state.loreEnterTimeout) timers.clearTimeout(state.loreEnterTimeout);
   state.loreInterval = 0;
   state.loreSwapTimeout = 0;
   state.loreEnterTimeout = 0;

@@ -14,15 +14,49 @@ const runtime = {
   timeoutIds: [],
 };
 
-export function cleanupIntroCinematic(doc = document, win = window, cancelRaf = globalThis.cancelAnimationFrame) {
-  runtime.timeoutIds.forEach((id) => clearTimeout(id));
+function bindBrowserFn(fn, context) {
+  if (typeof fn !== 'function') return null;
+  if (typeof fn.bind !== 'function') return fn;
+  return fn.bind(context);
+}
+
+function resolveDoc(deps = {}) {
+  return deps.doc || null;
+}
+
+function resolveWin(deps = {}, doc = null) {
+  return deps.win || doc?.defaultView || null;
+}
+
+function resolveTimerApi(deps = {}, win = null) {
+  return {
+    setTimeout: deps.setTimeoutFn || bindBrowserFn(win?.setTimeout, win) || setTimeout,
+    clearTimeout: deps.clearTimeoutFn || bindBrowserFn(win?.clearTimeout, win) || clearTimeout,
+  };
+}
+
+function resolveRaf(deps = {}, win = null) {
+  return deps.raf || bindBrowserFn(win?.requestAnimationFrame, win) || null;
+}
+
+function resolveCancelRaf(deps = {}, win = null) {
+  return deps.cancelRaf || bindBrowserFn(win?.cancelAnimationFrame, win) || null;
+}
+
+export function cleanupIntroCinematic(deps = {}) {
+  const doc = resolveDoc(deps);
+  const win = resolveWin(deps, doc);
+  const timers = resolveTimerApi(deps, win);
+  const cancelRaf = resolveCancelRaf(deps, win);
+
+  runtime.timeoutIds.forEach((id) => timers.clearTimeout(id));
   runtime.timeoutIds = [];
 
-  if (runtime.skipKeyHandler) {
+  if (doc && runtime.skipKeyHandler) {
     doc.removeEventListener('keydown', runtime.skipKeyHandler);
     runtime.skipKeyHandler = null;
   }
-  if (runtime.resizeHandler) {
+  if (win && runtime.resizeHandler) {
     win.removeEventListener('resize', runtime.resizeHandler);
     runtime.resizeHandler = null;
   }
@@ -36,7 +70,11 @@ export function cleanupIntroCinematic(doc = document, win = window, cancelRaf = 
   }
 }
 
-function startParticleLoop(canvas, win, raf = globalThis.requestAnimationFrame, cancelRaf = globalThis.cancelAnimationFrame) {
+function startParticleLoop(canvas, deps = {}) {
+  const win = resolveWin(deps, canvas?.ownerDocument);
+  const raf = resolveRaf(deps, win);
+  const cancelRaf = resolveCancelRaf(deps, win);
+  const random = deps.random || Math.random;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -61,7 +99,7 @@ function startParticleLoop(canvas, win, raf = globalThis.requestAnimationFrame, 
       particle.y += particle.vy;
       if (particle.y < 0) {
         particle.y = canvas.height;
-        particle.x = Math.random() * canvas.width;
+        particle.x = random() * canvas.width;
       }
       ctx.fillStyle = 'rgba(123,47,255,0.8)';
       ctx.beginPath();
@@ -74,9 +112,9 @@ function startParticleLoop(canvas, win, raf = globalThis.requestAnimationFrame, 
   draw();
 }
 
-function revealSequence(sequence) {
+function revealSequence(sequence, setTimeoutFn = setTimeout) {
   sequence.nodes.forEach((node, index) => {
-    const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeoutFn(() => {
       const el = sequence.nodes[index];
       if (!el?.isConnected) return;
       if (el.dataset.kind === 'divider') {
@@ -92,10 +130,11 @@ function revealSequence(sequence) {
 }
 
 export function playIntroCinematicRuntime(deps = {}, onComplete) {
-  const doc = deps.doc || document;
-  const win = deps.win || window;
-  const raf = deps.raf || globalThis.requestAnimationFrame;
-  const cancelRaf = deps.cancelRaf || globalThis.cancelAnimationFrame;
+  const doc = resolveDoc(deps);
+  const win = resolveWin(deps, doc);
+  const timers = resolveTimerApi(deps, win);
+  const raf = resolveRaf(deps, win);
+  const cancelRaf = resolveCancelRaf(deps, win);
   const gs = deps.gs;
   const selectedClass = deps.getSelectedClass?.() || 'swordsman';
   const runCount = gs?.meta?.runCount ?? 1;
@@ -106,13 +145,23 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
     selectedClass,
   });
 
-  cleanupIntroCinematic(doc, win, cancelRaf);
+  cleanupIntroCinematic({
+    doc,
+    win,
+    cancelRaf,
+    clearTimeoutFn: timers.clearTimeout,
+  });
   ensureIntroStyle(doc);
 
   const { canvas, overlay, textBox } = buildIntroOverlay(doc);
   runtime.overlay = overlay;
   doc.body.appendChild(overlay);
-  startParticleLoop(canvas, win, raf, cancelRaf);
+  startParticleLoop(canvas, {
+    win,
+    raf,
+    cancelRaf,
+    random: deps.random,
+  });
 
   const sequence = buildIntroSequence(doc, selectedClass, runCount);
   sequence.nodes.forEach((node) => textBox.appendChild(node));
@@ -122,7 +171,12 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
     if (skipped) return;
     skipped = true;
     if (typeof onComplete === 'function') mountRunStartHandoffBlackout(doc);
-    cleanupIntroCinematic(doc, win, cancelRaf);
+    cleanupIntroCinematic({
+      doc,
+      win,
+      cancelRaf,
+      clearTimeoutFn: timers.clearTimeout,
+    });
     onComplete?.();
   };
 
@@ -132,6 +186,6 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
   doc.addEventListener('keydown', runtime.skipKeyHandler);
   overlay.addEventListener('click', finish, { once: true });
 
-  revealSequence(sequence);
-  runtime.timeoutIds.push(setTimeout(finish, sequence.totalDuration));
+  revealSequence(sequence, timers.setTimeout);
+  runtime.timeoutIds.push(timers.setTimeout(finish, sequence.totalDuration));
 }

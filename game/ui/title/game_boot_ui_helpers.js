@@ -1,9 +1,9 @@
 export function getDoc(deps) {
-  return deps?.doc || document;
+  return deps?.doc || deps?.win?.document || null;
 }
 
-export function getWin() {
-  return globalThis.window || globalThis;
+export function getWin(deps) {
+  return deps?.win || deps?.doc?.defaultView || null;
 }
 
 export function setText(doc, id, value) {

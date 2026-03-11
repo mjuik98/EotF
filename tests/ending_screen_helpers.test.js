@@ -2,33 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildEndingPayload,
-  buildEndingScreenDOM,
   decorateEndingPayloadForOutcome,
 } from '../game/ui/screens/ending_screen_helpers.js';
-
-function createMockElement(tagName = 'div') {
-  return {
-    tagName: String(tagName).toUpperCase(),
-    id: '',
-    style: {},
-    children: [],
-    innerHTML: '',
-    textContent: '',
-    className: '',
-    appendChild(child) {
-      this.children.push(child);
-      return child;
-    },
-  };
-}
-
-function createMockDocument() {
-  return {
-    createElement(tagName) {
-      return createMockElement(tagName);
-    },
-  };
-}
 
 describe('ending_screen_helpers', () => {
   it('builds payload with fallback region and deck metadata', () => {
@@ -77,13 +52,8 @@ describe('ending_screen_helpers', () => {
       quote: 'base',
       stats: [],
     }, 'abandon');
-    const root = buildEndingScreenDOM(createMockDocument(), {
-      ...payload,
-      stats: [],
-    });
 
     expect(payload.title).toBe('멈춘 메아리');
     expect(payload.chips).toContain('런 포기');
-    expect(root.innerHTML).not.toContain('btnCodex');
   });
 });

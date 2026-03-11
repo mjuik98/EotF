@@ -4,7 +4,7 @@ const state = {
   waveRaf: 0,
 };
 
-export function startAudioWave(doc) {
+export function startAudioWave(doc, deps = {}) {
   const canvas = doc.getElementById('titleAudioWave');
   if (!canvas) return;
 
@@ -19,7 +19,7 @@ export function startAudioWave(doc) {
     phase: Math.random() * Math.PI * 2,
     speed: Math.random() * 0.016 + 0.009,
   }));
-  const win = getWin();
+  const win = getWin({ ...deps, doc });
 
   const draw = () => {
     ctx.clearRect(0, 0, width, height);
@@ -43,7 +43,7 @@ export function startAudioWave(doc) {
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    if (typeof win.requestAnimationFrame === 'function') {
+    if (typeof win?.requestAnimationFrame === 'function') {
       state.waveRaf = win.requestAnimationFrame(draw);
     }
   };
@@ -51,9 +51,9 @@ export function startAudioWave(doc) {
   draw();
 }
 
-export function stopAudioWave() {
-  const win = getWin();
-  if (state.waveRaf && typeof win.cancelAnimationFrame === 'function') {
+export function stopAudioWave(deps = {}) {
+  const win = getWin(deps);
+  if (state.waveRaf && typeof win?.cancelAnimationFrame === 'function') {
     win.cancelAnimationFrame(state.waveRaf);
   }
   state.waveRaf = 0;
