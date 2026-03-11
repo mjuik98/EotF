@@ -1,1 +1,1 @@
-export { GAME, exposeGlobals } from '../../core/global_bridge.js';
+export { GAME, exposeGlobals } from './global_bridge_runtime.js';

@@ -26,7 +26,7 @@
         "game/core/init_sequence.js",
         "game/core/deps_factory.js"
       ],
-      "allowSourcePrefixes": ["game/core/bindings/"],
+      "allowSourcePrefixes": ["game/core/bindings/", "game/core/composition/"],
       "message": "core file outside composition root importing ui"
     },
     {

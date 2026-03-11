@@ -1,4 +1,4 @@
-import { TurnManager } from '../../combat/turn_manager.js';
+import { endPlayerTurnPolicy } from '../../domain/combat/turn/end_player_turn_policy.js';
 
 export function endPlayerTurnService({
   gs,
@@ -6,7 +6,7 @@ export function endPlayerTurnService({
   canPlay,
   classMechanics,
 }) {
-  const result = TurnManager.endPlayerTurnLogic(gs, data, {
+  const result = endPlayerTurnPolicy(gs, data, {
     canPlayFn: canPlay,
   });
   if (!result) return null;

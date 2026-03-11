@@ -4,7 +4,10 @@
 
 import { CONSTANTS } from '../data/constants.js';
 import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../data/event_shop_data.js';
+import { createRestEventService } from '../app/event/rest_service.js';
+import { createShopEventService } from '../app/event/shop_service.js';
 import { resolveEventChoiceService } from '../app/event/resolve_event_choice_service.js';
+import { resolveActiveRegionId } from '../domain/run/region_service.js';
 import { registerCardDiscovered, registerItemFound } from './codex_records_system.js';
 
 function _totalDeckCards(player) {
@@ -130,97 +133,38 @@ export const EventManager = {
 
   createShopEvent(gs, data, runRules, { showItemShopFn } = {}) {
     if (!gs || !data || !runRules) return null;
-
-    const savedMerchant = (gs.worldMemory?.savedMerchant || 0) > 0;
-    const costPotion = runRules.getShopCost(gs, savedMerchant ? 8 : 12);
-    const costCard = runRules.getShopCost(gs, 15);
-    const costUpgrade = runRules.getShopCost(gs, 20);
-
-    return {
-      id: 'shop',
-      persistent: true,
-      eyebrow: savedMerchant ? '세계 기억 상점' : '상점',
-      title: savedMerchant ? '은혜를 갚는 상인' : '잔향 상인',
-      desc: savedMerchant
-        ? '당신의 도움을 기억한 상인이 가격을 낮춰 주었다.'
-        : '부서진 시간대 사이를 떠도는 상인이 거래를 제안한다.',
-      choices: [
-        {
-          text: `🧪 포션 (HP +30) - ${costPotion} 골드`,
-          cssClass: 'shop-choice-potion',
-          effect: (state) => this._resolveShopPotionChoice(state, costPotion),
-        },
-        {
-          text: `🃏 랜덤 무작위 카드 - ${costCard} 골드`,
-          cssClass: 'shop-choice-card',
-          effect: (state) => this._resolveShopCardChoice(state, data, costCard),
-        },
-        {
-          text: `✨ 무작위 카드 강화 - ${costUpgrade} 골드`,
-          cssClass: 'shop-choice-upgrade',
-          effect: (state) => this._resolveShopUpgradeChoice(state, data, costUpgrade),
-        },
-        {
-          text: '🛍️ 유물 상점 열기',
-          cssClass: 'shop-choice-relic',
-          effect: (state) => {
+    return createShopEventService({
+      uiActions: {
+        handleChoice: (choiceId, state, serviceData, costs) => {
+          if (choiceId === 'buy_potion') return this._resolveShopPotionChoice(state, costs.costPotion);
+          if (choiceId === 'buy_card') return this._resolveShopCardChoice(state, serviceData, costs.costCard);
+          if (choiceId === 'upgrade_card') return this._resolveShopUpgradeChoice(state, serviceData, costs.costUpgrade);
+          if (choiceId === 'open_item_shop') {
             if (showItemShopFn) showItemShopFn(state);
             return '__item_shop_open__';
-          },
+          }
+          return null;
         },
-        {
-          text: '🚶 떠난다',
-          cssClass: 'shop-choice-leave',
-          effect: () => null,
-        },
-      ],
-    };
+      },
+    }).create(gs, data, runRules);
   },
 
   createRestEvent(gs, data, runRules, { showCardDiscardFn } = {}) {
     if (!gs || !data || !runRules) return null;
-
-    const regionData = typeof globalThis.getRegionData === 'function'
-      ? globalThis.getRegionData(gs.currentRegion, gs)
-      : null;
-    const activeRegionId = Number(gs._activeRegionId ?? regionData?.id);
-    const canResetStagnation = activeRegionId === 5
-      && Array.isArray(gs._stagnationVault)
-      && gs._stagnationVault.length > 0;
-
-    const choices = [
-      {
-        text: '무작위 카드 강화',
-        isDisabled: (state) => {
-          const upgradable = (state.player.deck || []).filter((id) => data.upgradeMap?.[id]);
-          return upgradable.length === 0;
-        },
-        disabledReason: '강화 가능한 카드가 없습니다.',
-        effect: (state) => this._resolveRestUpgradeChoice(state, data),
-      },
-      {
-        text: '카드 1장 소각',
-        effect: (state) => {
-          if (showCardDiscardFn) showCardDiscardFn(state, true);
-          return '소각할 카드를 선택했습니다.';
+    return createRestEventService({
+      regionResolver: (state) => resolveActiveRegionId(state),
+      uiActions: {
+        handleChoice: (choiceId, state, serviceData) => {
+          if (choiceId === 'upgrade_random') return this._resolveRestUpgradeChoice(state, serviceData);
+          if (choiceId === 'burn_one') {
+            if (showCardDiscardFn) showCardDiscardFn(state, true);
+            return '소각할 카드를 선택했습니다.';
+          }
+          if (choiceId === 'reset_stagnation') return this._resolveRestResetStagnationChoice(state);
+          return null;
         },
       },
-    ];
-
-    if (canResetStagnation) {
-      choices.push({
-        text: '정체 덱 복원',
-        effect: (state) => this._resolveRestResetStagnationChoice(state),
-      });
-    }
-
-    return {
-      id: 'rest',
-      eyebrow: '휴식',
-      title: '잔향의 안식처',
-      desc: '고요한 공명 속에서 덱을 정비할 수 있다.',
-      choices,
-    };
+    }).create(gs, data);
   },
 
   generateItemShopStock(gs, data, runRules) {

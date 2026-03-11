@@ -6,10 +6,12 @@ import { createEventRewardBindings } from './bindings/event_reward_bindings.js';
 import { createUIBindings } from './bindings/ui_bindings.js';
 import { createTitleSettingsBindings } from './bindings/title_settings_bindings.js';
 import {
-    exposeBindingsToWindow,
-    registerGameAPIBindings,
-    registerGameModules,
-} from './event_binding_registry.js';
+  attachLegacyWindowBindings,
+} from '../platform/legacy/window_bindings.js';
+import {
+  registerLegacyGameAPIBindings,
+  registerLegacyGameModules,
+} from '../platform/legacy/game_api_registry.js';
 
 let M = {};
 
@@ -24,9 +26,9 @@ export function setupBindings(modules) {
     createUIBindings(M, fns);
     createTitleSettingsBindings(M, fns);
 
-    exposeBindingsToWindow(M, fns, Deps);
-    registerGameAPIBindings(M, fns, Deps, { getRuntimeMetrics, resetRuntimeMetrics });
-    registerGameModules(M);
+    attachLegacyWindowBindings(M, fns, Deps);
+    registerLegacyGameAPIBindings(M, fns, Deps, { getRuntimeMetrics, resetRuntimeMetrics });
+    registerLegacyGameModules(M);
 
     Deps.initDepsFactory({
         ...M,

@@ -192,3 +192,74 @@
   - 최신 캡처:
     - `output/web-game-verify-20260311-1430/shot-0.png`
     - `output/web-game-verify-20260311-1430/shot-1.png`
+
+## Latest Architecture Slice Refactor
+
+- composition root를 feature registry로 분해했다:
+  - `game/core/composition/register_core_modules.js`
+  - `game/core/composition/register_title_modules.js`
+  - `game/core/composition/register_combat_modules.js`
+  - `game/core/composition/register_run_modules.js`
+  - `game/core/composition/register_screen_modules.js`
+- `game/core/bindings/module_registry.js`는 위 registry 조합 레이어만 담당하도록 축소했다.
+- legacy bridge 구현을 platform으로 이동했다:
+  - `game/platform/legacy/global_bridge_runtime.js`
+  - `game/platform/legacy/game_api_compat.js`
+  - `game/platform/legacy/window_bindings.js`
+  - `game/platform/legacy/game_api_registry.js`
+- 기존 경로 호환을 위해 아래 파일들은 re-export shim으로 유지했다:
+  - `game/core/global_bridge.js`
+  - `game/core/game_api.js`
+  - `game/core/event_binding_registry.js`
+- `game/core/init_sequence.js`는 legacy surface 등록과 runtime boot 흐름을 helper로 나눴다:
+  - `game/core/bootstrap/register_legacy_surface.js`
+  - `game/core/bootstrap/boot_runtime_features.js`
+- 전투 턴 규칙을 domain policy로 추출했다:
+  - `game/domain/combat/turn/infinite_stack_buffs.js`
+  - `game/domain/combat/turn/end_player_turn_policy.js`
+  - `game/domain/combat/turn/start_player_turn_policy.js`
+  - `game/domain/combat/turn/enemy_effect_resolver.js`
+- `game/combat/turn_manager.js`는 facade 유지 + 위 policy/delegate 호출 방식으로 얇아졌다.
+- 이벤트 생성 규칙도 일부 분리했다:
+  - `game/domain/event/rest/build_rest_options.js`
+  - `game/app/event/rest_service.js`
+  - `game/domain/event/shop/build_shop_config.js`
+  - `game/app/event/shop_service.js`
+- `game/systems/event_manager.js`는 `createRestEvent`, `createShopEvent`에서 app/domain service를 호출하도록 변경했다.
+
+## Latest Validation
+
+- 통과:
+  - `tests/bootstrap_game.test.js`
+  - `tests/event_bindings_registry.test.js`
+  - `tests/turn_manager.test.js`
+  - `tests/event_manager_resolution_flags.test.js`
+  - `tests/event_manager_item_shop_cache.test.js`
+  - `tests/rest_site_upgrade_button.test.js`
+  - `tests/runtime_state_flow.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/event_ui_rest_site.test.js`
+  - `tests/event_ui_shop.test.js`
+  - `tests/event_ui_flow.test.js`
+  - `tests/event_ui_item_shop.test.js`
+  - `tests/event_ui_card_discard.test.js`
+  - `tests/time_rift_bug.test.js`
+  - `tests/run_rules_preview_meta.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `vite build`
+- Playwright smoke:
+  - `python3 -m http.server 4173 -d dist`로 정적 서빙
+  - Playwright client로 `#mainStartBtn` 클릭 후 캐릭터 선택 화면 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game/shot-0.png`
+    - `output/web-game/shot-1.png`
+- 아직 남음:
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-state-mutations.mjs`
+
+## Next Follow-up
+
+1. `check-import-coupling` baseline과 현재 수치 차이가 이번 변경 때문인지 기존 baseline drift인지 먼저 분리 확인
+2. 새 domain turn policy들의 mutation을 reducer/mutator helper로 더 내릴지, target 정책을 architecture evolution에 맞게 조정할지 결정
+3. `GameAPI` 내부를 `player/combat/screen` command 단위로 추가 분해
