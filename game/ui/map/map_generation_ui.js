@@ -91,8 +91,8 @@ function _linkMapNodes(nodes = [], totalFloors = 1) {
 export const MapGenerationUI = {
   generateMap(regionIdx, deps = {}) {
     const gs = deps.gs;
-    const getRegionData = deps.getRegionData || window.getRegionData;
-    const getBaseRegionIndex = deps.getBaseRegionIndex || window.getBaseRegionIndex;
+    const getRegionData = deps.getRegionData;
+    const getBaseRegionIndex = deps.getBaseRegionIndex;
     if (!gs || typeof getRegionData !== 'function') return;
 
     const region = getRegionData(regionIdx, gs);

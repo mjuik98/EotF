@@ -14,9 +14,16 @@ function readViteEnv() {
   return import.meta.env;
 }
 
-function readWindowConfig() {
-  if (typeof globalThis === 'undefined') return {};
-  const value = globalThis.__GAME_CONFIG__;
+function getHostObject() {
+  try {
+    return Function('return this')();
+  } catch {
+    return null;
+  }
+}
+
+function readWindowConfig(host = getHostObject()) {
+  const value = host?.__GAME_CONFIG__;
   if (!value || typeof value !== 'object') return {};
   return value;
 }

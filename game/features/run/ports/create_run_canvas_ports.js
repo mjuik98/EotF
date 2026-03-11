@@ -1,8 +1,10 @@
 import * as Deps from '../../../core/deps_factory.js';
 
-function buildCanvasDeps(game, extra = {}) {
+function buildCanvasDeps(game, options = {}, extra = {}) {
   const deps = game?.getCanvasDeps?.() || {};
-  return { ...deps, ...extra };
+  const doc = options.doc || deps.doc || null;
+  const win = options.win || deps.win || doc?.defaultView || null;
+  return { ...deps, doc, win, ...extra };
 }
 
 export function createRunCanvasPorts(modules, options = {}) {
@@ -17,8 +19,9 @@ export function createRunCanvasPorts(modules, options = {}) {
 
   return {
     doc,
+    win,
     requestAnimationFrame,
-    getCanvasDeps: (extra = {}) => buildCanvasDeps(modules.GAME, extra),
+    getCanvasDeps: (extra = {}) => buildCanvasDeps(modules.GAME, { doc, win }, extra),
     getWorldCanvasDeps: () => Deps.getWorldCanvasDeps(),
   };
 }

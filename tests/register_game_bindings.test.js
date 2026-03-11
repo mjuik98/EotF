@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
+  buildGameBindingRegistrars: vi.fn(),
   registerCanvasBindingGroup: vi.fn(),
   registerCombatBindingGroup: vi.fn(),
   registerEventBindingGroup: vi.fn(),
@@ -8,24 +9,8 @@ const hoisted = vi.hoisted(() => ({
   registerTitleBindingGroup: vi.fn(),
 }));
 
-vi.mock('../game/core/composition/register_canvas_binding_group.js', () => ({
-  registerCanvasBindingGroup: hoisted.registerCanvasBindingGroup,
-}));
-
-vi.mock('../game/core/composition/register_combat_binding_group.js', () => ({
-  registerCombatBindingGroup: hoisted.registerCombatBindingGroup,
-}));
-
-vi.mock('../game/core/composition/register_event_binding_group.js', () => ({
-  registerEventBindingGroup: hoisted.registerEventBindingGroup,
-}));
-
-vi.mock('../game/core/composition/register_screen_binding_group.js', () => ({
-  registerScreenBindingGroup: hoisted.registerScreenBindingGroup,
-}));
-
-vi.mock('../game/core/composition/register_title_binding_group.js', () => ({
-  registerTitleBindingGroup: hoisted.registerTitleBindingGroup,
+vi.mock('../game/core/composition/build_game_binding_registrars.js', () => ({
+  buildGameBindingRegistrars: hoisted.buildGameBindingRegistrars,
 }));
 
 import { registerGameBindings } from '../game/core/composition/register_game_bindings.js';
@@ -33,6 +18,13 @@ import { registerGameBindings } from '../game/core/composition/register_game_bin
 describe('registerGameBindings', () => {
   beforeEach(() => {
     Object.values(hoisted).forEach((fn) => fn.mockReset());
+    hoisted.buildGameBindingRegistrars.mockReturnValue([
+      hoisted.registerCanvasBindingGroup,
+      hoisted.registerCombatBindingGroup,
+      hoisted.registerEventBindingGroup,
+      hoisted.registerScreenBindingGroup,
+      hoisted.registerTitleBindingGroup,
+    ]);
   });
 
   it('delegates binding setup to feature binding groups in order', () => {
@@ -41,6 +33,7 @@ describe('registerGameBindings', () => {
 
     const result = registerGameBindings(modules, fns);
 
+    expect(hoisted.buildGameBindingRegistrars).toHaveBeenCalledTimes(1);
     expect(hoisted.registerCanvasBindingGroup).toHaveBeenCalledWith(modules, fns);
     expect(hoisted.registerCombatBindingGroup).toHaveBeenCalledWith(modules, fns);
     expect(hoisted.registerEventBindingGroup).toHaveBeenCalledWith(modules, fns);

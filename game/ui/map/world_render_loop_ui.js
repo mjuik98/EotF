@@ -12,11 +12,11 @@ function _getRefs(deps) {
 }
 
 function _getRegionDataFn(deps) {
-  return deps?.getRegionData || window.getRegionData;
+  return deps?.getRegionData || null;
 }
 
 function _requestNextFrame(deps) {
-  const raf = deps?.requestAnimationFrame || window.requestAnimationFrame?.bind(window);
+  const raf = deps?.requestAnimationFrame;
   const loopFn = deps?.gameLoop;
   if (typeof raf === 'function' && typeof loopFn === 'function') {
     raf(loopFn);
@@ -35,7 +35,7 @@ export const WorldRenderLoopUI = {
       return;
     }
 
-    const hitStop = deps.hitStop || window.HitStop;
+    const hitStop = deps.hitStop;
     if (hitStop?.active?.()) {
       hitStop.update?.();
       _requestNextFrame(deps);
@@ -45,7 +45,7 @@ export const WorldRenderLoopUI = {
     const dt = Math.min((timestamp - _lastTimestamp) / 1000, 0.05);
     _lastTimestamp = timestamp;
 
-    const screenShake = deps.screenShake || window.ScreenShake;
+    const screenShake = deps.screenShake;
     const particleSystem = deps.particleSystem;
 
     screenShake?.update?.();

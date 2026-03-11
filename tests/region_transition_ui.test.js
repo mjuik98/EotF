@@ -28,6 +28,11 @@ function createMockDoc() {
 }
 
 function createDeps(targetRegionId) {
+  const win = {
+    innerHeight: 720,
+    innerWidth: 1280,
+    setTimeout: vi.fn((fn) => fn()),
+  };
   const gs = {
     currentRegion: 1,
     currentFloor: 4,
@@ -38,6 +43,7 @@ function createDeps(targetRegionId) {
     gs,
     targetRegionId,
     doc: createMockDoc(),
+    win,
     mazeSystem: { close: vi.fn() },
     getRegionData: vi.fn(() => ({
       name: 'Test Region',
@@ -47,6 +53,7 @@ function createDeps(targetRegionId) {
       accent: '#ffffff',
     })),
     getBaseRegionIndex: vi.fn((idx) => idx),
+    descriptionUtils: { highlight: vi.fn((text) => `hl:${text}`) },
     audioEngine: {
       startAmbient: vi.fn(),
       playBossPhase: vi.fn(),
@@ -68,6 +75,8 @@ describe('RegionTransitionUI target region parsing', () => {
     expect(deps.gs.currentRegion).toBe(2);
     expect(deps.gs.currentFloor).toBe(0);
     expect(deps.gs.regionRoute['2']).toBeUndefined();
+    expect(deps.particleSystem.burstEffect).toHaveBeenCalledWith(640, 360);
+    expect(deps.descriptionUtils.highlight).toHaveBeenCalledWith('Test Desc');
   });
 
   it('stores explicit target region when targetRegionId is provided', () => {

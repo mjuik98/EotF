@@ -1,20 +1,18 @@
-import { registerCombatModules } from '../composition/register_combat_modules.js';
-import { registerCoreModules } from '../composition/register_core_modules.js';
-import { registerRunModules } from '../composition/register_run_modules.js';
-import { registerScreenModules } from '../composition/register_screen_modules.js';
-import { registerTitleModules } from '../composition/register_title_modules.js';
+import { buildModuleRegistryGroups } from './build_module_registry_groups.js';
 
 /**
  * Builds a single module registry for composition root wiring.
  * Keeping this map out of main.js reduces entry-point fan-out.
  */
 export function createModuleRegistry() {
+  const groups = buildModuleRegistryGroups();
+
   return {
-    ...registerCoreModules(),
-    ...registerTitleModules(),
-    ...registerCombatModules(),
-    ...registerRunModules(),
-    ...registerScreenModules(),
+    ...groups.core,
+    ...groups.title,
+    ...groups.combat,
+    ...groups.run,
+    ...groups.screen,
     _gameStarted: false,
     _canvasRefs: null,
   };

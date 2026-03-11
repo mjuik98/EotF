@@ -57,8 +57,18 @@ export const CharacterSelectUI = {
     const state = { idx: 0, phase: 'select', activeSkill: null, typingTimer: null };
     const chars = CHARS;
     const classIds = chars.map((ch) => ch.class);
-    const levelUpPopup = new LevelUpPopupUI();
-    const runEndScreen = new RunEndScreenUI();
+    const levelUpPopup = new LevelUpPopupUI({
+      cancelRaf: cancelAnimationFrameImpl,
+      doc,
+      raf: requestAnimationFrameImpl,
+      win,
+    });
+    const runEndScreen = new RunEndScreenUI({
+      doc,
+      raf: requestAnimationFrameImpl,
+      setTimeout: setTimeoutImpl,
+      win,
+    });
     let isReplayingSummary = false;
     const particleRuntime = createCharacterParticleRuntime({
       doc,

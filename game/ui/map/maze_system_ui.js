@@ -36,11 +36,15 @@ function _doc() {
 }
 
 function _win() {
-  return _deps.win || window;
+  return _deps.win || _doc()?.defaultView || null;
 }
 
 function _fov() {
-  return _deps.fovEngine || window.FovEngine;
+  return _deps.fovEngine || null;
+}
+
+function _requestAnimationFrame() {
+  return _deps.requestAnimationFrame || _win()?.requestAnimationFrame?.bind?.(_win()) || null;
 }
 
 function _gs() {
@@ -82,7 +86,7 @@ function _draw() {
     fovActive,
     fovEngine: _fov(),
     now: Date.now(),
-    requestAnimationFrame: _win().requestAnimationFrame.bind(_win()),
+    requestAnimationFrame: _requestAnimationFrame(),
     redraw: _draw,
   });
 }
@@ -99,9 +103,9 @@ function _shakeAnim() {
     shakeX = (Math.random() - 0.5) * 8;
     shakeY = (Math.random() - 0.5) * 8;
     _draw();
-    _win().requestAnimationFrame(loop);
+    _requestAnimationFrame()?.(loop);
   };
-  _win().requestAnimationFrame(loop);
+  _requestAnimationFrame()?.(loop);
 }
 
 function _onExit() {
@@ -110,7 +114,7 @@ function _onExit() {
     pendingCombat,
     showWorldMemoryNotice: _deps.showWorldMemoryNotice,
     startCombat: _deps.startCombat,
-    setTimeoutFn: _win().setTimeout?.bind(_win()) || setTimeout,
+    setTimeoutFn: _deps.setTimeoutFn || _win()?.setTimeout?.bind?.(_win()) || setTimeout,
   });
 }
 

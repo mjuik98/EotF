@@ -8,9 +8,10 @@ import {
 export class RunEndScreenUI {
   constructor(deps = {}) {
     this.onClose = null;
-    this._doc = deps.doc || document;
-    this._raf = deps.raf || globalThis.requestAnimationFrame;
-    this._setTimeout = deps.setTimeout || globalThis.setTimeout;
+    this._doc = deps.doc || deps.win?.document || null;
+    const win = deps.win || this._doc?.defaultView || null;
+    this._raf = deps.raf || win?.requestAnimationFrame?.bind?.(win) || null;
+    this._setTimeout = deps.setTimeout || win?.setTimeout?.bind?.(win) || setTimeout;
     initRunEndScreenRuntime(this);
   }
 

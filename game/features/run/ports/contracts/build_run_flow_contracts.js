@@ -43,6 +43,8 @@ export function buildRunFlowContractBuilders(ctx) {
         audioEngine: refs.AudioEngine,
         particleSystem: refs.ParticleSystem,
         screenShake: refs.ScreenShake,
+        descriptionUtils: refs.DescriptionUtils,
+        DescriptionUtils: refs.DescriptionUtils,
         generateMap: refs.generateMap,
         updateUI: refs.updateUI,
         showRunFragment: () => refs.StorySystem?.showRunFragment?.(),

@@ -6,6 +6,14 @@ function _getGS(deps) {
   return deps?.gs;
 }
 
+function _getWin(deps, doc) {
+  return deps?.win || doc?.defaultView || null;
+}
+
+function _getDescriptionUtils(deps) {
+  return deps?.descriptionUtils || deps?.DescriptionUtils || null;
+}
+
 export const RegionTransitionUI = {
   advanceToNextRegion(deps = {}) {
     const gs = _getGS(deps);
@@ -48,18 +56,19 @@ export const RegionTransitionUI = {
     gs.currentFloor = 0;
     deps.mazeSystem?.close?.();
 
-    const getRegionData = deps.getRegionData || globalThis.getRegionData;
+    const getRegionData = deps.getRegionData;
     const region = getRegionData?.(gs.currentRegion, gs);
     if (!region) {
       console.error('[RegionTransitionUI] No region data for region', gs.currentRegion);
       return;
     }
 
-    const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
+    const getBaseRegionIndex = deps.getBaseRegionIndex;
     const baseRegion = getBaseRegionIndex ? getBaseRegionIndex(gs.currentRegion) : gs.currentRegion;
     deps.audioEngine?.startAmbient?.(baseRegion);
 
     const doc = _getDoc(deps);
+    const win = _getWin(deps, doc);
     const overlay = doc.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:2000;animation:fadeIn 0.8s ease both;';
     const subHead = doc.createElement('div');
@@ -76,11 +85,7 @@ export const RegionTransitionUI = {
 
     const desc = doc.createElement('div');
     desc.style.cssText = "font-size:13px;font-style:italic;color:var(--text-dim);max-width:400px;text-align:center;line-height:1.7;animation:fadeInUp 1s ease 1.1s both;opacity:0;";
-    if (globalThis.DescriptionUtils) {
-      desc.innerHTML = globalThis.DescriptionUtils.highlight(region.ruleDesc) || '';
-    } else {
-      desc.innerHTML = region.ruleDesc || '';
-    }
+    desc.innerHTML = _getDescriptionUtils(deps)?.highlight?.(region.ruleDesc) || region.ruleDesc || '';
 
     overlay.append(subHead, title, rule, desc);
 
@@ -105,7 +110,8 @@ export const RegionTransitionUI = {
       closed = true;
       overlay.style.transition = 'opacity 0.8s';
       overlay.style.opacity = '0';
-      setTimeout(() => {
+      const setTimeoutFn = deps.setTimeoutFn || win?.setTimeout?.bind?.(win) || setTimeout;
+      setTimeoutFn(() => {
         overlay.remove();
         if (gs.stats && typeof gs.stats === 'object') {
           gs.stats._regionStartTs = Date.now();
@@ -117,7 +123,7 @@ export const RegionTransitionUI = {
     };
     closeBtn.addEventListener('click', closeOverlay);
 
-    deps.particleSystem?.burstEffect?.(globalThis.innerWidth / 2, globalThis.innerHeight / 2);
+    deps.particleSystem?.burstEffect?.((win?.innerWidth || 0) / 2, (win?.innerHeight || 0) / 2);
     deps.screenShake?.shake?.(8, 0.5);
     deps.audioEngine?.playBossPhase?.();
   },

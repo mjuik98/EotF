@@ -28,7 +28,11 @@ describe('createCanvasBindings', () => {
         minimapCtx: { id: 'minimapCtx' },
       },
       NODE_META: { marker: true },
+      HitStop: { active: vi.fn(() => false), update: vi.fn() },
       ParticleSystem: { marker: 'particles' },
+      ScreenShake: { update: vi.fn(), apply: vi.fn() },
+      getBaseRegionIndex: vi.fn(() => 0),
+      getRegionData: vi.fn(() => ({ id: 2 })),
       TitleCanvasUI: {
         init: vi.fn(),
         resize: vi.fn(),
@@ -84,16 +88,25 @@ describe('createCanvasBindings', () => {
     fns.moveToNode('1-0');
 
     expect(modules.TitleCanvasUI.init).toHaveBeenCalledWith({ doc: globalThis.document });
-    expect(modules.GameCanvasSetupUI.init).toHaveBeenCalledWith({ token: 'canvas-deps' });
+    expect(modules.GameCanvasSetupUI.init).toHaveBeenCalledWith(expect.objectContaining({
+      token: 'canvas-deps',
+      doc: globalThis.document,
+      win: globalThis.window,
+    }));
     expect(modules.WorldRenderLoopUI.gameLoop).toHaveBeenCalledWith(16, expect.objectContaining({
       token: 'canvas-deps',
+      getRegionData: modules.getRegionData,
+      hitStop: modules.HitStop,
       renderMinimap: fns.renderMinimap,
       particleSystem: modules.ParticleSystem,
+      screenShake: modules.ScreenShake,
     }));
     expect(modules.WorldRenderLoopUI.gameLoop.mock.calls[0][1].requestAnimationFrame).toEqual(expect.any(Function));
     expect(modules.WorldCanvasUI.renderNodeInfo).toHaveBeenCalledWith('ctx', 100, 200, { token: 'world-canvas-deps' });
     expect(modules.MapGenerationUI.generateMap).toHaveBeenCalledWith(2, expect.objectContaining({
       token: 'canvas-deps',
+      getBaseRegionIndex: modules.getBaseRegionIndex,
+      getRegionData: modules.getRegionData,
       updateNextNodes: fns.updateNextNodes,
       showWorldMemoryNotice: fns.showWorldMemoryNotice,
     }));

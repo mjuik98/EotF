@@ -276,6 +276,18 @@ describe('character select ui mount wiring', () => {
       requestAnimationFrameImpl: requestAnimationFrame,
       cancelAnimationFrameImpl: cancelAnimationFrame,
     });
+    expect(hoisted.LevelUpPopupUI).toHaveBeenCalledWith({
+      cancelRaf: cancelAnimationFrame,
+      doc,
+      raf: requestAnimationFrame,
+      win: {},
+    });
+    expect(hoisted.RunEndScreenUI).toHaveBeenCalledWith({
+      doc,
+      raf: requestAnimationFrame,
+      setTimeout: expect.any(Function),
+      win: {},
+    });
     expect(hoisted.createCharacterSummaryReplay).toHaveBeenCalledWith(expect.objectContaining({
       meta: {},
       classIds: ['paladin', 'berserker'],

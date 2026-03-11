@@ -154,6 +154,17 @@ describe('HelpPauseUI help overlay', () => {
 
     expect(doc.addEventListener).toHaveBeenCalledTimes(1);
   });
+
+  it('uses injected window to decide whether to show the mobile warning', () => {
+    const doc = createDoc();
+
+    HelpPauseUI.showMobileWarning({
+      doc,
+      win: { innerWidth: 640 },
+    });
+
+    expect(doc.getElementById('mobileWarn')).toBeTruthy();
+  });
 });
 
 describe('HelpPauseUI abandon flow', () => {

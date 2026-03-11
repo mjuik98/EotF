@@ -1,18 +1,22 @@
 import * as Deps from './deps_factory.js';
+import { createBindingSetupContext } from './bootstrap/create_binding_setup_context.js';
+import { executeBindingSetupSequence } from './bootstrap/execute_binding_setup_sequence.js';
 import { initBindingDeps } from './bootstrap/init_binding_deps.js';
 import { registerBindingLegacySurface } from './bootstrap/register_binding_legacy_surface.js';
 import { registerGameBindings } from './composition/register_game_bindings.js';
 
-let M = {};
-
 export function setupBindings(modules) {
-    M = modules;
+  const context = createBindingSetupContext(modules, Deps);
 
-    const fns = {};
-
-    registerGameBindings(M, fns);
-    registerBindingLegacySurface({ modules: M, fns, deps: Deps });
-    initBindingDeps({ modules: M, fns, deps: Deps });
-
-    return fns;
+  return executeBindingSetupSequence(context, [
+    ({ modules: currentModules, fns }) => {
+      registerGameBindings(currentModules, fns);
+    },
+    ({ modules: currentModules, fns, deps }) => {
+      registerBindingLegacySurface({ modules: currentModules, fns, deps });
+    },
+    ({ modules: currentModules, fns, deps }) => {
+      initBindingDeps({ modules: currentModules, fns, deps });
+    },
+  ]);
 }

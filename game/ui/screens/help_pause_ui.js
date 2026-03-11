@@ -22,6 +22,10 @@ let _helpOpen = false;
 let _pauseOpen = false;
 let _hotkeysBound = false;
 
+function getWin(deps = {}, doc = null) {
+  return deps?.win || doc?.defaultView || null;
+}
+
 export const HelpPauseUI = {
   isHelpOpen() {
     return _helpOpen;
@@ -29,7 +33,8 @@ export const HelpPauseUI = {
 
   showMobileWarning(deps = {}) {
     const doc = getDoc(deps);
-    const isMobile = globalThis.innerWidth < 900 || 'ontouchstart' in globalThis;
+    const win = getWin(deps, doc);
+    const isMobile = Boolean(win && (win.innerWidth < 900 || 'ontouchstart' in win));
     if (!isMobile || doc.getElementById('mobileWarn')) return;
 
     const warn = createMobileWarning(doc, () => warn.remove());
@@ -61,6 +66,7 @@ export const HelpPauseUI = {
 
   confirmReturnToTitle(deps = {}) {
     const doc = getDoc(deps);
+    const win = getWin(deps, doc);
     const old = doc.getElementById('returnTitleConfirm');
     if (old) {
       old.remove();
@@ -73,7 +79,7 @@ export const HelpPauseUI = {
       () => {
         confirmEl.remove();
         saveRunBeforeReturn(deps);
-        location.reload();
+        deps.reload?.() || win?.location?.reload?.();
       },
     );
     doc.body.appendChild(confirmEl);

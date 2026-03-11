@@ -25,6 +25,8 @@ export function createRunCanvasActions(modules, fns, ports) {
     gameLoop(timestamp) {
       const deps = ports.getCanvasDeps({
         gameLoop: fns.gameLoop,
+        getRegionData: modules.getRegionData,
+        hitStop: modules.HitStop,
         particleSystem: modules.ParticleSystem,
         refs: {
           gameCanvas: modules._canvasRefs?.gameCanvas,
@@ -33,6 +35,7 @@ export function createRunCanvasActions(modules, fns, ports) {
         renderMinimap: fns.renderMinimap,
         renderNodeInfo: fns.renderNodeInfo,
         requestAnimationFrame: ports.requestAnimationFrame,
+        screenShake: modules.ScreenShake,
       });
       modules.WorldRenderLoopUI?.gameLoop?.(timestamp, deps);
     },
@@ -50,11 +53,15 @@ export function createRunCanvasActions(modules, fns, ports) {
     },
 
     renderRegionBackground(ctx, w, h) {
-      modules.WorldRenderLoopUI?.renderRegionBackground?.(ctx, w, h, ports.getCanvasDeps());
+      modules.WorldRenderLoopUI?.renderRegionBackground?.(ctx, w, h, ports.getCanvasDeps({
+        getRegionData: modules.getRegionData,
+      }));
     },
 
     renderDynamicLights(ctx, w, h) {
-      modules.WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, ports.getCanvasDeps());
+      modules.WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, ports.getCanvasDeps({
+        getRegionData: modules.getRegionData,
+      }));
     },
 
     renderNodeInfo(ctx, w, h) {
@@ -79,6 +86,8 @@ export function createRunCanvasActions(modules, fns, ports) {
 
     generateMap(regionIdx) {
       const deps = ports.getCanvasDeps({
+        getBaseRegionIndex: modules.getBaseRegionIndex,
+        getRegionData: modules.getRegionData,
         showWorldMemoryNotice: fns.showWorldMemoryNotice,
         updateNextNodes: fns.updateNextNodes,
         updateUI: fns.updateUI,

@@ -55,7 +55,7 @@ export function resetCombatUIUI(deps = {}) {
   const doc = getDoc(deps);
   doc.getElementById('combatOverlay')?.classList.remove('active');
 
-  const resetPanel = deps?.resetCombatInfoPanel || deps?._resetCombatInfoPanel || globalThis._resetCombatInfoPanel;
+  const resetPanel = deps?.resetCombatInfoPanel || deps?._resetCombatInfoPanel;
   if (typeof resetPanel === 'function') {
     resetPanel();
   }

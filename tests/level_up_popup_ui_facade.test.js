@@ -12,9 +12,13 @@ describe('LevelUpPopupUI facade', () => {
     const runtime = await import('../game/ui/title/level_up_popup_runtime.js');
     const { LevelUpPopupUI } = await import('../game/ui/title/level_up_popup_ui.js');
     const payload = { newLevel: 2 };
+    const raf = vi.fn();
+    const cancelRaf = vi.fn();
     const ui = new LevelUpPopupUI({
       doc: { createElement: vi.fn(), body: { appendChild: vi.fn() }, addEventListener: vi.fn(), removeEventListener: vi.fn() },
       win: { addEventListener: vi.fn(), removeEventListener: vi.fn() },
+      raf,
+      cancelRaf,
     });
 
     ui.show(payload);
@@ -22,6 +26,8 @@ describe('LevelUpPopupUI facade', () => {
     ui.destroy();
 
     expect(runtime.initLevelUpPopupRuntime).toHaveBeenCalledWith(ui);
+    expect(ui._rafImpl).toBe(raf);
+    expect(ui._cancelRafImpl).toBe(cancelRaf);
     expect(runtime.showLevelUpPopupRuntime).toHaveBeenCalledWith(ui, payload);
     expect(runtime.closeLevelUpPopupRuntime).toHaveBeenCalledWith(ui);
     expect(runtime.destroyLevelUpPopupRuntime).toHaveBeenCalledWith(ui);

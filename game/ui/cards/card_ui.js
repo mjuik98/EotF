@@ -10,6 +10,10 @@ function _getDoc(deps) {
   return deps?.doc || document;
 }
 
+function _getCardCostUtils(deps) {
+  return deps?.cardCostUtils || deps?.CardCostUtils || null;
+}
+
 export const CardUI = {
   getCardTypeClass(type) {
     return getCardTypeClass(type);
@@ -33,8 +37,10 @@ export const CardUI = {
     if (!zone) return;
 
     const playCardHandler = deps.playCardHandler;
-    const dragStartHandler = deps.dragStartHandler || globalThis.handleCardDragStart;
-    const dragEndHandler = deps.dragEndHandler || globalThis.handleCardDragEnd;
+    const dragStartHandler = deps.dragStartHandler;
+    const dragEndHandler = deps.dragEndHandler;
+    const cardCostUtils = _getCardCostUtils(deps);
+    if (!cardCostUtils) return;
 
     // 클론 레이어를 body 에 생성 (최초 1회 동작)
     HandCardCloneUI.init({ doc });
@@ -54,18 +60,18 @@ export const CardUI = {
       const card = data.cards[cardId];
       if (!card) return;
 
-      const displayMax = globalThis.CardCostUtils.getCostDisplay(cardId, card, gs.player, i);
+      const displayMax = cardCostUtils.getCostDisplay(cardId, card, gs.player, i);
       const { displayCost: cost } = displayMax;
-      const effectiveCost = globalThis.CardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
+      const effectiveCost = cardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
       const canPlay = gs.player.energy >= effectiveCost;
 
       const nextDisc = gs.player._nextCardDiscount || 0;
       const baseDisc = gs.player.costDiscount || 0;
-      const traitDisc = globalThis.CardCostUtils?.hasTraitDiscount?.(cardId, gs.player) ? 1 : 0;
+      const traitDisc = cardCostUtils.hasTraitDiscount?.(cardId, gs.player) ? 1 : 0;
       const totalDisc = nextDisc + baseDisc + traitDisc;
 
-      const isCascadeFree = globalThis.CardCostUtils.isCascadeFree(cardId, gs.player, i);
-      const isChargeFree = globalThis.CardCostUtils.isChargeFree(cardId, gs.player, i);
+      const isCascadeFree = cardCostUtils.isCascadeFree(cardId, gs.player, i);
+      const isChargeFree = cardCostUtils.isChargeFree(cardId, gs.player, i);
       const anyFree = isCascadeFree || isChargeFree;
       const el = createCombatCardElement(doc, {
         cardId,
@@ -119,7 +125,7 @@ export const CardUI = {
     if (!zone) return;
 
     const playCardHandler = deps.playCardHandler;
-    const renderCombatCardsHandler = deps.renderCombatCardsHandler || globalThis.renderCombatCards;
+    const renderCombatCardsHandler = deps.renderCombatCardsHandler;
 
     zone.textContent = '';
     gs.player.hand.forEach((cardId, i) => {

@@ -6,29 +6,6 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getClassSelectDeps: vi.fn(() => ({ token: 'class-select-deps' })),
 }));
 
-vi.mock('../game/core/bindings/canvas_bindings.js', () => ({
-  createCanvasBindings: vi.fn((modules, fns) => {
-    fns.startGame = vi.fn();
-    fns._resetCombatInfoPanel = vi.fn();
-  }),
-}));
-
-vi.mock('../game/core/bindings/combat_bindings.js', () => ({
-  createCombatBindings: vi.fn(),
-}));
-
-vi.mock('../game/core/bindings/event_reward_bindings.js', () => ({
-  createEventRewardBindings: vi.fn(),
-}));
-
-vi.mock('../game/core/bindings/ui_bindings.js', () => ({
-  createUIBindings: vi.fn(),
-}));
-
-vi.mock('../game/core/bindings/title_settings_bindings.js', () => ({
-  createTitleSettingsBindings: vi.fn(),
-}));
-
 import { setupBindings } from '../game/core/event_bindings.js';
 
 function createModules() {

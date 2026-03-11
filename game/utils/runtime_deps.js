@@ -11,7 +11,7 @@ export function getWin(deps = {}) {
 }
 
 export function getAudioEngine(deps = {}) {
-  return deps?.audioEngine || globalThis.AudioEngine;
+  return deps?.audioEngine || getWin(deps)?.AudioEngine || null;
 }
 
 export function getRaf(deps = {}) {
@@ -22,10 +22,6 @@ export function getRaf(deps = {}) {
   const win = getWin(deps);
   if (win && typeof win.requestAnimationFrame === 'function') {
     return win.requestAnimationFrame.bind(win);
-  }
-
-  if (typeof globalThis.requestAnimationFrame === 'function') {
-    return globalThis.requestAnimationFrame.bind(globalThis);
   }
 
   return null;

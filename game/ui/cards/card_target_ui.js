@@ -89,11 +89,6 @@ export const CardTargetUI = {
       gs.addLog(`🎯 ${enemy.name} 타겟 지정`, 'system');
     }
 
-    if (typeof deps.renderCombatEnemies === 'function') {
-      deps.renderCombatEnemies();
-    } else if (typeof window.CombatUI?.renderCombatEnemies === 'function') {
-      const data = _getData(deps) || window.DATA;
-      window.CombatUI.renderCombatEnemies({ gs: gs, data: data });
-    }
+    deps.renderCombatEnemies?.();
   },
 };
