@@ -22,7 +22,9 @@ describe('createUIBindings.updateStatusDisplay', () => {
     };
     const fns = {};
     const originalDocument = globalThis.document;
+    const mockWindow = { innerWidth: 1280, innerHeight: 720 };
     const mockDocument = {
+      defaultView: mockWindow,
       getElementById: vi.fn((id) => {
         if (id === 'ncFloatingHpStatusBadges') return { id };
         return null;
@@ -44,6 +46,7 @@ describe('createUIBindings.updateStatusDisplay', () => {
       doc: mockDocument,
       statusContainerId: 'ncFloatingHpStatusBadges',
       tooltipUI: modules.TooltipUI,
+      win: mockWindow,
       refreshCombatInfoPanel: expect.any(Function),
     });
   });
@@ -57,7 +60,9 @@ describe('createUIBindings.updateStatusDisplay', () => {
     };
     const fns = {};
     const originalDocument = globalThis.document;
+    const mockWindow = { innerWidth: 1280, innerHeight: 720 };
     const mockDocument = {
+      defaultView: mockWindow,
       getElementById: vi.fn((id) => {
         if (id === 'statusEffects' || id === 'ncFloatingHpStatusBadges') return { id };
         return null;
@@ -75,6 +80,8 @@ describe('createUIBindings.updateStatusDisplay', () => {
 
     expect(updateStatusDisplay).toHaveBeenCalledTimes(2);
     expect(updateStatusDisplay.mock.calls[0][0].statusContainerId).toBe('statusEffects');
+    expect(updateStatusDisplay.mock.calls[0][0].win).toBe(mockWindow);
     expect(updateStatusDisplay.mock.calls[1][0].statusContainerId).toBe('ncFloatingHpStatusBadges');
+    expect(updateStatusDisplay.mock.calls[1][0].win).toBe(mockWindow);
   });
 });

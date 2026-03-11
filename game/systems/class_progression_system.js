@@ -391,7 +391,7 @@ export const ClassProgressionSystem = {
     const pendingDiscounts = toNonNegativeInt(player._classMasteryMageOpeningDiscountPending, 0);
     if (pendingDiscounts <= 0) return bonuses;
 
-    const cards = options.data?.cards || globalThis.DATA?.cards || {};
+    const cards = options.cards || options.data?.cards || {};
     const hand = Array.isArray(player.hand) ? player.hand : [];
     const candidates = hand.filter((cardId) => Number(cards?.[cardId]?.cost || 0) > 0);
     if (candidates.length === 0) {

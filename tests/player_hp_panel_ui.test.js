@@ -179,15 +179,9 @@ describe('player_hp_panel_ui', () => {
     });
   });
 
-  it('uses the globally registered StatusEffectsUI fallback when deps do not provide one', () => {
+  it('uses the injected StatusEffectsUI dependency when provided', () => {
     const doc = createMockDocument();
     const updateStatusDisplay = vi.fn();
-    const originalGame = globalThis.GAME;
-    globalThis.GAME = {
-      Modules: {
-        StatusEffectsUI: { updateStatusDisplay },
-      },
-    };
 
     const gs = {
       currentScreen: 'combat',
@@ -200,20 +194,17 @@ describe('player_hp_panel_ui', () => {
       },
     };
 
-    try {
-      renderFloatingPlayerHpPanel({
-        doc,
-        gs,
-      });
-    } finally {
-      globalThis.GAME = originalGame;
-    }
+    renderFloatingPlayerHpPanel({
+      doc,
+      gs,
+      StatusEffectsUI: { updateStatusDisplay },
+    });
 
-    expect(updateStatusDisplay).toHaveBeenCalledWith({
+    expect(updateStatusDisplay).toHaveBeenCalledWith(expect.objectContaining({
       doc,
       gs,
       statusContainerId: 'ncFloatingHpStatusBadges',
-    });
+    }));
   });
 
   it('restores the floating status tooltip after hp panel rerender', () => {

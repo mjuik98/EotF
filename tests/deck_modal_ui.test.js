@@ -84,6 +84,9 @@ describe('deck_modal_ui', () => {
           b: { type: 'SKILL' },
         },
       },
+      showTooltip: vi.fn(),
+      hideTooltip: vi.fn(),
+      descriptionUtils: { highlight: vi.fn((text) => `hl:${text}`) },
     };
 
     DeckModalUI.renderDeckModal(deps);
@@ -92,7 +95,16 @@ describe('deck_modal_ui', () => {
     expect(getDeckModalFilterSpy).toHaveBeenCalled();
     expect(buildDeckModalEntriesSpy).toHaveBeenCalledWith(deps.gs, deps.data, 'all');
     expect(renderDeckStatusBarSpy).toHaveBeenCalled();
-    expect(renderDeckModalCardsSpy).toHaveBeenCalled();
+    expect(renderDeckModalCardsSpy).toHaveBeenCalledWith(
+      doc,
+      expect.any(Object),
+      expect.any(Array),
+      expect.objectContaining({
+        showTooltip: deps.showTooltip,
+        hideTooltip: deps.hideTooltip,
+        highlightDescription: deps.descriptionUtils.highlight,
+      }),
+    );
     expect(setDeckModalFilterSpy).toHaveBeenCalledWith('ATTACK');
     expect(applyDeckFilterButtonStylesSpy).toHaveBeenCalledWith(doc, 'ATTACK');
   });

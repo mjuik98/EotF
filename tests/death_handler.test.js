@@ -9,8 +9,6 @@ describe('DeathHandler.showDeathScreen', () => {
     const selectFragment = vi.fn();
     const showOutcomeSpy = vi.spyOn(EndingScreenUI, 'showOutcome').mockReturnValue(true);
 
-    globalThis.GAME = { API: { selectFragment }, Modules: { EndingScreenUI } };
-
     const gs = {
       meta: {
         echoFragments: 3,
@@ -21,7 +19,9 @@ describe('DeathHandler.showDeathScreen', () => {
     };
 
     DeathHandler.showDeathScreen.call(gs, {
+      endingScreenUI: EndingScreenUI,
       finalizeRunOutcome,
+      selectFragment,
       win: {},
     });
 

@@ -1,3 +1,5 @@
+import { buildRuntimeDebugHooks } from './build_runtime_debug_hooks.js';
+
 function toFiniteNumber(value, fallback = 0) {
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
@@ -307,78 +309,19 @@ export function createRuntimeDebugSnapshot({ modules, doc, win }) {
   };
 }
 
-function resolveSetTimeout(win) {
-  if (typeof win?.setTimeout === 'function') return win.setTimeout.bind(win);
-  return setTimeout;
-}
-
-function resolveAnimationFrame(win) {
-  if (typeof win?.requestAnimationFrame === 'function') return win.requestAnimationFrame.bind(win);
-  return null;
-}
-
-function waitForFrame(win, callback) {
-  const raf = resolveAnimationFrame(win);
-  if (raf) {
-    raf(() => callback());
-    return;
-  }
-  resolveSetTimeout(win)(callback, 16);
-}
-
-function waitForFrames(win, count, callback) {
-  const frames = Math.max(1, toFiniteNumber(count, 1));
-  const step = (remaining) => {
-    if (remaining <= 0) {
-      callback();
-      return;
-    }
-    waitForFrame(win, () => step(remaining - 1));
-  };
-  step(frames);
-}
-
-function createAdvanceTimeHook({ modules, fns, win }) {
-  return (ms = 16) => {
-    const duration = Math.max(0, toFiniteNumber(ms, 16));
-    const frameCount = Math.max(1, Math.round(duration / (1000 / 60)));
-    const timeout = resolveSetTimeout(win);
-
-    return new Promise((resolve) => {
-      timeout(() => {
-        waitForFrames(win, frameCount, () => {
-          try {
-            fns?.updateUI?.();
-            if (modules?.GS?.combat?.active) {
-              fns?.renderCombatEnemies?.();
-              fns?.renderCombatCards?.();
-              fns?.updateCombatLog?.();
-              fns?.updateEchoSkillBtn?.();
-            }
-            if (modules?.GS?.currentScreen === 'game') {
-              fns?.renderMinimap?.();
-            }
-          } catch (error) {
-            console.warn('[RuntimeDebugHooks] advanceTime refresh failed:', error);
-          }
-          resolve(duration);
-        });
-      }, duration);
-    });
-  };
-}
-
 export function registerRuntimeDebugHooks({ modules, fns, doc, win }) {
-  const renderGameToText = () => JSON.stringify(createRuntimeDebugSnapshot({ modules, doc, win }));
-  const advanceTime = createAdvanceTimeHook({ modules, fns, win });
-
-  modules?.exposeGlobals?.({
-    render_game_to_text: renderGameToText,
-    advanceTime,
+  const hooks = buildRuntimeDebugHooks({
+    modules,
+    fns,
+    doc,
+    win,
+    createSnapshot: createRuntimeDebugSnapshot,
   });
 
-  return {
-    render_game_to_text: renderGameToText,
-    advanceTime,
-  };
+  modules?.exposeGlobals?.({
+    render_game_to_text: hooks.render_game_to_text,
+    advanceTime: hooks.advanceTime,
+  });
+
+  return hooks;
 }

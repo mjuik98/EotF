@@ -24,6 +24,7 @@ import { RandomUtils } from '../../../utils/random_utils.js';
 import { CardCostUtils } from '../../../utils/card_cost_utils.js';
 import { DescriptionUtils } from '../../../utils/description_utils.js';
 import { CustomCursor } from '../../../ui/common/custom_cursor.js';
+import { bindFinalizeRunOutcome } from '../../../features/run/app/bind_run_outcome_action.js';
 
 export function registerCoreModules() {
   return {
@@ -47,7 +48,7 @@ export function registerCoreModules() {
     getRegionData,
     getBaseRegionIndex,
     getRegionCount,
-    finalizeRunOutcome,
+    finalizeRunOutcome: bindFinalizeRunOutcome(finalizeRunOutcome, SaveSystem),
     RandomUtils,
     CardCostUtils,
     DescriptionUtils,

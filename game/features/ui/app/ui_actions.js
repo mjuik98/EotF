@@ -1,4 +1,14 @@
 export function createUiActions(modules, fns, ports) {
+  function getDeckModalDeps() {
+    return {
+      ...ports.getDeckModalDeps(),
+      DescriptionUtils: modules.DescriptionUtils,
+      descriptionUtils: modules.DescriptionUtils,
+      hideTooltip: () => modules.TooltipUI?.hideTooltip?.(ports.getTooltipDeps()),
+      showTooltip: (event, cardId) => modules.TooltipUI?.showTooltip?.(event, cardId, ports.getTooltipDeps()),
+    };
+  }
+
   return {
     updateUI() {
       modules.HudUpdateUI?.updateUI?.(ports.getHudUpdateDeps());
@@ -31,6 +41,7 @@ export function createUiActions(modules, fns, ports) {
           refreshCombatInfoPanel: () => fns._refreshCombatInfoPanel?.(),
           statusContainerId,
           tooltipUI: modules.TooltipUI,
+          win: doc.defaultView || null,
         });
       });
     },
@@ -68,15 +79,15 @@ export function createUiActions(modules, fns, ports) {
     },
 
     showDeckView() {
-      modules.DeckModalUI?.showDeckView?.(ports.getDeckModalDeps());
+      modules.DeckModalUI?.showDeckView?.(getDeckModalDeps());
     },
 
     _renderDeckModal() {
-      modules.DeckModalUI?.renderDeckModal?.(ports.getDeckModalDeps());
+      modules.DeckModalUI?.renderDeckModal?.(getDeckModalDeps());
     },
 
     setDeckFilter(type) {
-      modules.DeckModalUI?.setDeckFilter?.(type, ports.getDeckModalDeps());
+      modules.DeckModalUI?.setDeckFilter?.(type, getDeckModalDeps());
     },
 
     closeDeckView() {

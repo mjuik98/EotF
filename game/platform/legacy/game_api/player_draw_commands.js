@@ -1,16 +1,13 @@
-import { drawCardsService, executePlayerDrawService } from '../../../app/combat/card_draw_service.js';
+import { executePlayerDrawService } from '../../../app/combat/card_draw_service.js';
+import { drawStateCards } from '../../../features/combat/app/game_state_card_actions.js';
 import { getAudioEngine, getDefaultState, getRunRuntimeDeps } from './runtime_context.js';
 
 export function drawCards(count = 1, gs = getDefaultState(), options = {}) {
-  const runtimeDeps = getRunRuntimeDeps();
-  return drawCardsService({
+  return drawStateCards({
     count,
     gs,
     options,
-    deps: {
-      getRegionData: runtimeDeps.getRegionData,
-      runtimeDeps,
-    },
+    runRuntimeDeps: getRunRuntimeDeps(),
   });
 }
 

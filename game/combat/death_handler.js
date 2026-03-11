@@ -185,14 +185,13 @@ export const DeathHandler = {
         const win = _getWin(deps);
         const finalizeRunOutcome = deps.finalizeRunOutcome || win.finalizeRunOutcome;
         const endingScreenUI = deps.endingScreenUI
-            || deps.EndingScreenUI
-            || win.GAME?.Modules?.EndingScreenUI
-            || globalThis.GAME?.Modules?.EndingScreenUI;
+            || deps.EndingScreenUI;
+        const selectFragment = deps.selectFragment || win.selectFragment;
         if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 });
         endingScreenUI?.showOutcome?.('defeat', {
             ...deps,
             gs: this,
-            selectFragment: deps.selectFragment || globalThis.GAME?.API?.selectFragment || globalThis.selectFragment,
+            selectFragment,
         });
         return;
         const wmEl = doc.getElementById('deathWorldMemory');
@@ -245,7 +244,7 @@ export const DeathHandler = {
                 const btn = doc.createElement('div');
                 btn.className = 'fragment-btn';
                 btn.onclick = () => {
-                    const selectFragment = deps.selectFragment || win.selectFragment || window.selectFragment;
+                    const selectFragment = deps.selectFragment || win.selectFragment;
                     selectFragment?.(c.effect);
                 };
 

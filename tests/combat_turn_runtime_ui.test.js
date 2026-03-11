@@ -68,7 +68,7 @@ describe('combat_turn_runtime_ui', () => {
     expect(buttons.every((button) => button.disabled)).toBe(true);
   });
 
-  it('syncs combat energy with explicit deps first, then injected window fallbacks', () => {
+  it('syncs combat energy with explicit deps first, then injected hud fallbacks', () => {
     const gs = { combat: true };
     const explicit = vi.fn();
     syncCombatTurnEnergy(gs, { updateCombatEnergy: explicit });
@@ -84,13 +84,7 @@ describe('combat_turn_runtime_ui', () => {
 
     const gameUpdate = vi.fn();
     syncCombatTurnEnergy(gs, {
-      win: {
-        GAME: {
-          Modules: {
-            HudUpdateUI: { updateCombatEnergy: gameUpdate },
-          },
-        },
-      },
+      hudUpdateUI: { updateCombatEnergy: gameUpdate },
     });
     expect(gameUpdate).toHaveBeenCalledWith(gs);
   });

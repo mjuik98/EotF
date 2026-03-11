@@ -29,7 +29,6 @@ describe('RunRules preview meta support', () => {
   it('finalizes a run without creating recent-run history entries', () => {
     const saveMeta = vi.fn();
     const clearSave = vi.fn();
-    GAME.Modules = { SaveSystem: { saveMeta, clearSave } };
     GAME.State = {
       _runOutcomeCommitted: false,
       currentRegion: 2,
@@ -48,7 +47,9 @@ describe('RunRules preview meta support', () => {
     };
     vi.spyOn(Date, 'now').mockReturnValue(6100);
 
-    const gain = finalizeRunOutcome('victory');
+    const gain = finalizeRunOutcome('victory', {}, {
+      saveSystem: { saveMeta, clearSave },
+    });
 
     expect(gain).toBe(5);
     expect(GAME.State.meta.runHistory).toBeUndefined();

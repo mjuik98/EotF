@@ -95,7 +95,11 @@ describe('createUIBindings', () => {
     expect(modules.CombatInfoUI.reset).toHaveBeenCalledWith({ token: 'combat-info-deps' });
     expect(modules.CombatHudUI.updateChainUI).toHaveBeenCalledWith(3, { token: 'combat-hud-deps' });
     expect(modules.DomValueUI.setBar).toHaveBeenCalledWith('hp', 40, { doc });
-    expect(modules.DeckModalUI.showDeckView).toHaveBeenCalledWith({ token: 'deck-modal-deps' });
+    expect(modules.DeckModalUI.showDeckView).toHaveBeenCalledWith(expect.objectContaining({
+      token: 'deck-modal-deps',
+      showTooltip: expect.any(Function),
+      hideTooltip: expect.any(Function),
+    }));
     expect(modules.AudioEngine.playClick).toHaveBeenCalledTimes(1);
     expect(modules.CodexUI.openCodex).toHaveBeenCalledWith({ token: 'codex-deps' });
     expect(modules.TooltipUI.showTooltip).toHaveBeenCalledWith({ type: 'mouseenter' }, 'strike', { token: 'tooltip-deps' });

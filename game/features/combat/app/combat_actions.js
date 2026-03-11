@@ -9,6 +9,11 @@ export function createCombatActions(modules, fns, ports) {
   return {
     startCombat(isBoss = false) {
       const deps = ports.getCombatDeps({
+        classMechanics: modules.ClassMechanics,
+        difficultyScaler: modules.DifficultyScaler,
+        getBaseRegionIndex: modules.RunRules?.getBaseRegionIndex?.bind(modules.RunRules),
+        getRegionCount: modules.RunRules?.getRegionCount?.bind(modules.RunRules),
+        getRegionData: modules.RunRules?.getRegionData?.bind(modules.RunRules),
         refreshCombatInfoPanel: fns._refreshCombatInfoPanel,
         renderCombatCards: fns.renderCombatCards,
         renderCombatEnemies: fns.renderCombatEnemies,

@@ -17,7 +17,14 @@ function createModules() {
       getHudDeps: vi.fn(() => ({ token: 'hud-deps' })),
     },
     GS: { token: 'gs' },
+    ClassMechanics: { swordsman: { onCombatStart: vi.fn() } },
+    DifficultyScaler: { scaleEnemy: vi.fn() },
     RandomUtils: { shuffleArray: vi.fn((items) => [...items].reverse()) },
+    RunRules: {
+      getBaseRegionIndex: vi.fn(() => 0),
+      getRegionCount: vi.fn(() => 5),
+      getRegionData: vi.fn(() => ({ id: 0 })),
+    },
     CombatStartUI: { startCombat: vi.fn() },
     CombatTurnUI: {
       endPlayerTurn: vi.fn(),
@@ -107,6 +114,11 @@ describe('createCombatBindings', () => {
 
     expect(modules.CombatStartUI.startCombat).toHaveBeenCalledWith(true, expect.objectContaining({
       token: 'combat-deps',
+      classMechanics: modules.ClassMechanics,
+      difficultyScaler: modules.DifficultyScaler,
+      getBaseRegionIndex: expect.any(Function),
+      getRegionCount: expect.any(Function),
+      getRegionData: expect.any(Function),
       renderCombatCards: fns.renderCombatCards,
       renderCombatEnemies: fns.renderCombatEnemies,
       showWorldMemoryNotice: fns.showWorldMemoryNotice,

@@ -1,3 +1,5 @@
+import { buildGameBootActions } from './build_game_boot_actions.js';
+
 export function buildGameBootPayload({ modules, deps, fns }) {
   return {
     ...(modules.GAME.getRunDeps?.() || {}),
@@ -8,39 +10,6 @@ export function buildGameBootPayload({ modules, deps, fns }) {
     settingsUI: modules.SettingsUI,
     getGameBootDeps: () => deps.getGameBootDeps(),
     getHelpPauseDeps: () => deps.getHelpPauseDeps(),
-    actions: {
-      showCharacterSelect: fns.showCharacterSelect,
-      continueRun: fns.continueRun,
-      openRunSettings: fns.openRunSettings,
-      openCodexFromTitle: fns.openCodexFromTitle,
-      quitGame: fns.quitGame,
-      selectClass: fns.selectClass,
-      startGame: fns.startGame,
-      backToTitle: fns.backToTitle,
-      closeRunSettings: fns.closeRunSettings,
-      shiftAscension: fns.shiftAscension,
-      toggleEndlessMode: fns.toggleEndlessMode,
-      cycleRunCurse: fns.cycleRunCurse,
-      setMasterVolume: (value) => fns.setMasterVolume(value),
-      setSfxVolume: (value) => fns.setSfxVolume(value),
-      setAmbientVolume: (value) => fns.setAmbientVolume(value),
-      openSettings: fns.openSettings,
-      closeSettings: fns.closeSettings,
-      showFullMap: fns.showFullMap,
-      showEchoSkillTooltip: fns.showEchoSkillTooltip,
-      hideEchoSkillTooltip: fns.hideEchoSkillTooltip,
-      drawCard: fns.drawCard,
-      endPlayerTurn: fns.endPlayerTurn,
-      useEchoSkill: fns.useEchoSkill,
-      toggleBattleChronicle: fns.toggleBattleChronicle,
-      closeBattleChronicle: fns.closeBattleChronicle,
-      showSkipConfirm: fns.showSkipConfirm,
-      skipReward: fns.skipReward,
-      hideSkipConfirm: fns.hideSkipConfirm,
-      setDeckFilter: fns.setDeckFilter,
-      closeDeckView: fns.closeDeckView,
-      setCodexTab: fns.setCodexTab,
-      closeCodex: fns.closeCodex,
-    },
+    actions: buildGameBootActions(fns),
   };
 }

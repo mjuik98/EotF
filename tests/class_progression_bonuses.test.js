@@ -138,4 +138,33 @@ describe('ClassProgressionSystem mastery bonuses', () => {
     const bonus = ClassProgressionSystem.getRewardRelicChoiceBonus(gs, { classIds: ['hunter'] });
     expect(bonus).toBe(1);
   });
+
+  it('applies deck-ready discounts from explicit cards input without global data', () => {
+    const gs = {
+      meta: createMeta({ mage: 10 }),
+      player: {
+        class: 'mage',
+        hand: ['strike'],
+        _traitCardDiscounts: {},
+      },
+      addLog: vi.fn(),
+    };
+
+    ClassProgressionSystem.applyCombatStartBonuses(gs, { classIds: ['mage'] });
+
+    const rand = vi.spyOn(Math, 'random').mockReturnValue(0);
+    try {
+      ClassProgressionSystem.applyDeckReadyBonuses(gs, {
+        classIds: ['mage'],
+        cards: {
+          strike: { cost: 1, name: 'Strike' },
+        },
+      });
+    } finally {
+      rand.mockRestore();
+    }
+
+    expect(gs.player._traitCardDiscounts.strike).toBe(1);
+    expect(gs.player._classMasteryMageOpeningDiscountPending).toBe(0);
+  });
 });

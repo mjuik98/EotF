@@ -23,13 +23,13 @@ export const CombatStartUI = {
   startCombat(mode = 'normal', deps = {}) {
     const gs = deps.gs;
     const data = deps.data;
-    const getRegionData = deps.getRegionData || globalThis.getRegionData;
-    const getBaseRegionIndex = deps.getBaseRegionIndex || globalThis.getBaseRegionIndex;
-    const getRegionCount = deps.getRegionCount || globalThis.getRegionCount;
-    const difficultyScaler = deps.difficultyScaler || globalThis.DifficultyScaler;
+    const getRegionData = deps.getRegionData;
+    const getBaseRegionIndex = deps.getBaseRegionIndex;
+    const getRegionCount = deps.getRegionCount;
+    const difficultyScaler = deps.difficultyScaler;
     const audioEngine = deps.audioEngine;
     const runRules = deps.runRules;
-    const classMechanics = deps.classMechanics || globalThis.ClassMechanics;
+    const classMechanics = deps.classMechanics;
 
     if (!gs || !data?.enemies || typeof getRegionData !== 'function') {
       console.error('[CombatStart] Missing dependencies');
@@ -73,7 +73,7 @@ export const CombatStartUI = {
     }
 
     // ?? 濡쒖쭅: 吏???붾쾭????
-    CombatInitializer.applyRegionDebuffs(gs, getBaseRegionIndex);
+    CombatInitializer.applyRegionDebuffs(gs, getBaseRegionIndex, { runRules });
 
     // ?? 濡쒖쭅: ?대옒????猷?珥덇린????
     const playerClass = gs.player.class;

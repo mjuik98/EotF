@@ -1,25 +1,36 @@
-import { AudioEngine } from '../../engine/audio.js';
 import { DATA } from '../../data/game_data.js';
-import { GAME } from '../core/global_bridge.js';
+import {
+  drawStateCards,
+  playStateCard,
+} from '../features/combat/app/game_state_card_actions.js';
+import { createLegacyGameStateCardPorts } from '../platform/legacy/adapters/create_legacy_game_state_card_ports.js';
 
 export const CardMethods = {
     drawCards(count = 1, options = {}) {
         const gs = this;
-
-        const api = GAME?.Modules?.['GameAPI'];
-        if (typeof api?.drawCards === 'function') {
-            api.drawCards(count, gs, options);
-        } else if (typeof gs.dispatch === 'function') {
-            // 폴백: Dispatch를 직접 호출
-            gs.dispatch('card:draw', { count });
-        }
+        const ports = createLegacyGameStateCardPorts();
+        return drawStateCards({
+            count,
+            gs,
+            options,
+            runRuntimeDeps: ports.getRunRuntimeDeps(),
+        });
     },
 
     playCard(cardId, handIdx) {
         const gs = this;
-        // GameAPI는 순환참조 방지 위해 GAME.Modules 지연 참조
-        const api = GAME?.Modules?.['GameAPI'];
-        return api?.playCard?.(cardId, handIdx, gs);
+        const ports = createLegacyGameStateCardPorts();
+        return playStateCard({
+            cardId,
+            handIdx,
+            gs,
+            card: ports.getCurrentCard(cardId),
+            cardCostUtils: ports.getCardCostUtils(),
+            classMechanics: ports.getClassMechanics(),
+            audioEngine: ports.getAudioEngine(),
+            combatRuntimeDeps: ports.getCombatRuntimeDeps(),
+            hudUpdateUI: ports.getHudUpdateUI(),
+        });
     },
 
     getRandomCard(rarity = 'common') {

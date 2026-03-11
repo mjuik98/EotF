@@ -1,6 +1,9 @@
 import { Logger } from '../../../utils/logger.js';
-import { playCardService } from '../../../app/combat/play_card_service.js';
 import { Actions } from '../../../core/state_actions.js';
+import {
+  discardStateCard,
+  playStateCard,
+} from '../../../features/combat/app/game_state_card_actions.js';
 import {
   getAudioEngine,
   getCombatRuntimeDeps,
@@ -19,24 +22,24 @@ export function applyEnemyDamage(amount, targetIdx, gs = getDefaultState()) {
 }
 
 export function discardCard(cardId, isExhaust = false, gs = getDefaultState(), skipHandRemove = false) {
-  gs.dispatch(Actions.CARD_DISCARD, { cardId, exhaust: isExhaust, skipHandRemove });
-  Logger.info(`[API] Card ${isExhaust ? 'exhausted' : 'discarded'}: ${cardId}`);
+  discardStateCard(cardId, isExhaust, gs, skipHandRemove, Logger);
 }
 
 export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
-  return playCardService({
+  return playStateCard({
     cardId,
     handIdx,
     gs,
     card: getCurrentCard(cardId),
     cardCostUtils: getModule('CardCostUtils'),
     classMechanics: getModule('ClassMechanics'),
-    discardCard: (nextCardId, isExhaust, state, skipHandRemove) =>
-      api.discardCard(nextCardId, isExhaust, state, skipHandRemove),
     logger: Logger,
     audioEngine: getAudioEngine(),
-    runtimeDeps: getCombatRuntimeDeps(),
+    combatRuntimeDeps: getCombatRuntimeDeps(),
     hudUpdateUI: getModule('HudUpdateUI'),
+    discardCard: (nextCardId, isExhaust, state, skipHandRemove) =>
+      api?.discardCard?.(nextCardId, isExhaust, state, skipHandRemove)
+      || discardStateCard(nextCardId, isExhaust, state, skipHandRemove, Logger),
   });
 }
 

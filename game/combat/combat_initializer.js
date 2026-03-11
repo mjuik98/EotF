@@ -204,8 +204,8 @@ export const CombatInitializer = {
      * 李멸퀬:
      * - 吏??洹쒖튃? turn_manager.js?먯꽌 泥섎━?⑸땲??
      */
-    applyRegionDebuffs(gs, _getBaseRegionIndex) {
-        const runRules = globalThis.GAME?.Modules?.['RunRules'];
+    applyRegionDebuffs(gs, _getBaseRegionIndex, deps = {}) {
+        const runRules = deps.runRules;
         if (runRules && typeof runRules.onCombatStart === 'function') {
             runRules.onCombatStart(gs);
         }

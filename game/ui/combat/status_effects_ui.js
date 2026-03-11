@@ -14,6 +14,7 @@ import {
 
 function _getDoc(deps) { return deps?.doc || document; }
 function _getGS(deps) { return deps?.gs; }
+function _getWin(deps, doc = null) { return deps?.win || doc?.defaultView || null; }
 
 function _isInfinitePlayerStatus(statusKey, buff, isBuff = true) {
   if (!isBuff) return false;
@@ -52,6 +53,7 @@ export const StatusEffectsUI = {
     if (!gs?.player) return;
 
     const doc = _getDoc(deps);
+    const win = _getWin(deps, doc);
     StatusTooltipUI.hide({ doc });
 
     const el = doc.getElementById(deps.statusContainerId || 'statusEffects');
@@ -134,21 +136,20 @@ export const StatusEffectsUI = {
         }
 
         const source = _defaultSource(isBuff);
-        const winRef = globalThis.window ?? globalThis;
 
         badge.addEventListener('mouseenter', (event) => {
           if (!info) return;
           StatusTooltipUI.show(event, statusKey, info, buff, {
             source,
             doc,
-            win: winRef,
+            win,
             statusContainerId: deps.statusContainerId || 'statusEffects',
           });
         });
         badge.addEventListener('mousemove', (event) => {
           const tipEl = doc.getElementById('statusTooltip');
           if (tipEl?.classList.contains('visible')) {
-            StatusTooltipUI._position(event, tipEl, winRef);
+            StatusTooltipUI._position(event, tipEl, win);
           }
         });
         badge.addEventListener('mouseleave', () => {

@@ -66,6 +66,7 @@ function createDeps() {
     })),
     getBaseRegionIndex: vi.fn(() => 0),
     getRegionCount: vi.fn(() => 5),
+    runRules: { onCombatStart: vi.fn(), onCombatDeckReady: vi.fn() },
     showTurnBanner: vi.fn(),
     renderCombatEnemies: vi.fn(),
     renderCombatCards: vi.fn(),

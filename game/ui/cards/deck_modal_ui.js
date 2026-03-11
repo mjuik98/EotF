@@ -45,10 +45,13 @@ export const DeckModalUI = {
 
     const cardsEl = doc.getElementById('deckModalCards');
     if (!cardsEl) return;
+    const highlightDescription = deps.highlightDescription
+      || deps.descriptionUtils?.highlight
+      || deps.DescriptionUtils?.highlight;
     renderDeckModalCards(doc, cardsEl, summary.entries, {
-      showTooltip: globalThis.window?.showTooltip,
-      hideTooltip: globalThis.window?.hideTooltip,
-      highlightDescription: globalThis.window?.DescriptionUtils?.highlight,
+      showTooltip: deps.showTooltip,
+      hideTooltip: deps.hideTooltip,
+      highlightDescription,
     });
   },
 

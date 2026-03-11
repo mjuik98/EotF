@@ -41,8 +41,6 @@ export function syncCombatTurnEnergy(gs, deps = {}) {
     deps.hudUpdateUI.updateCombatEnergy(gs);
   } else if (typeof deps.win?.HudUpdateUI?.updateCombatEnergy === 'function') {
     deps.win.HudUpdateUI.updateCombatEnergy(gs);
-  } else if (typeof deps.win?.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy === 'function') {
-    deps.win.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
   }
 }
 

@@ -1,18 +1,8 @@
 import { StatusTooltipUI } from '../combat/status_tooltip_builder.js';
 
-function getHostObject() {
-  try {
-    return Function('return this')();
-  } catch {
-    return null;
-  }
-}
-
 export function resolveStatusEffectsUI(deps = {}) {
-  const host = getHostObject();
   return deps.StatusEffectsUI
     || deps.statusEffectsUI
-    || host?.GAME?.Modules?.StatusEffectsUI
     || null;
 }
 

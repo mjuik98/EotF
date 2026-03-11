@@ -168,13 +168,7 @@ export const CombatTurnUI = {
     const result = TurnManager.processPlayerStatusTicks(gs, {
       shuffleArrayFn: deps.shuffleArray,
     });
-
-    if (globalThis.HudUpdateUI?.updateCombatEnergy) {
-      globalThis.HudUpdateUI.updateCombatEnergy(gs);
-    } else if (globalThis.GAME?.Modules?.['HudUpdateUI']?.updateCombatEnergy) {
-      globalThis.GAME.Modules['HudUpdateUI'].updateCombatEnergy(gs);
-    }
-
+    syncCombatTurnEnergy(gs, deps);
     deps.updateStatusDisplay?.();
     deps.updateUI?.();
     return result.alive;

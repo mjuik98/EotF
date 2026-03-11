@@ -163,7 +163,13 @@ export const RunRules = {
   },
 };
 
-export function finalizeRunOutcome(kind = 'defeat', options = {}) {
+function persistRunOutcomeMeta(deps = {}) {
+  const saveSystem = deps.saveSystem;
+  saveSystem?.saveMeta?.();
+  saveSystem?.clearSave?.();
+}
+
+export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
   const gs = GAME.State;
   if (!gs) return 0;
   if (gs._runOutcomeCommitted) return 0;
@@ -211,9 +217,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}) {
 
   gs.meta.runCount = Math.max(1, (gs.meta.runCount || 1) + 1);
   gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
-
-  if (GAME.Modules?.['SaveSystem']?.saveMeta) GAME.Modules['SaveSystem'].saveMeta();
-  if (GAME.Modules?.['SaveSystem']?.clearSave) GAME.Modules['SaveSystem'].clearSave();
+  persistRunOutcomeMeta(deps);
 
   return shardGain;
 }

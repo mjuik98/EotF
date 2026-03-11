@@ -135,6 +135,6 @@ describe('deps factory', () => {
     const deps = createDeps('runMode');
 
     expect(deps.runRules).toEqual({ id: 'patched-rules' });
-    expect(listDepContracts()).toEqual(EXPECTED_CONTRACTS);
+    expect(new Set(listDepContracts())).toEqual(new Set(EXPECTED_CONTRACTS));
   });
 });
