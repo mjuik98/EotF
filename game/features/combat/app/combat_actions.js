@@ -5,15 +5,28 @@ function createShuffleArray(modules) {
   return (items) => items.sort(() => Math.random() - 0.5);
 }
 
+function resolveRunRuleHelper(modules, namedExportKey) {
+  if (typeof modules?.[namedExportKey] === 'function') {
+    return modules[namedExportKey];
+  }
+
+  const methodName = namedExportKey;
+  if (typeof modules?.RunRules?.[methodName] === 'function') {
+    return modules.RunRules[methodName].bind(modules.RunRules);
+  }
+
+  return undefined;
+}
+
 export function createCombatActions(modules, fns, ports) {
   return {
     startCombat(isBoss = false) {
       const deps = ports.getCombatDeps({
         classMechanics: modules.ClassMechanics,
         difficultyScaler: modules.DifficultyScaler,
-        getBaseRegionIndex: modules.RunRules?.getBaseRegionIndex?.bind(modules.RunRules),
-        getRegionCount: modules.RunRules?.getRegionCount?.bind(modules.RunRules),
-        getRegionData: modules.RunRules?.getRegionData?.bind(modules.RunRules),
+        getBaseRegionIndex: resolveRunRuleHelper(modules, 'getBaseRegionIndex'),
+        getRegionCount: resolveRunRuleHelper(modules, 'getRegionCount'),
+        getRegionData: resolveRunRuleHelper(modules, 'getRegionData'),
         refreshCombatInfoPanel: fns._refreshCombatInfoPanel,
         renderCombatCards: fns.renderCombatCards,
         renderCombatEnemies: fns.renderCombatEnemies,

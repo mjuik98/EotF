@@ -1,3 +1,5 @@
+import { playUiClick } from '../../domain/audio/audio_event_helpers.js';
+
 let audioCtx = null;
 
 function resolveAudioContextCtor(deps = {}) {
@@ -61,7 +63,7 @@ function createFallbackSfx(deps = {}) {
 export function createCharacterSelectSfx(deps = {}) {
   const fallbackSfx = createFallbackSfx(deps);
   return {
-    nav: () => deps.audioEngine?.playClick?.() ?? fallbackSfx.nav(),
+    nav: () => playUiClick(deps.audioEngine) || fallbackSfx.nav(),
     hover: () => fallbackSfx.hover(),
     select: () => fallbackSfx.select(),
     compare: () => fallbackSfx.compare(),

@@ -1,5 +1,11 @@
+import { playUiClick, playUiFootstep } from '../../../domain/audio/audio_event_helpers.js';
+
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);
+}
+
+function playFootstep(audio) {
+  return playUiFootstep(audio);
 }
 
 export function registerRunEntryBindings({
@@ -19,7 +25,7 @@ export function registerRunEntryBindings({
 
   const moveMaze = (dx, dy) => {
     audio?.resume?.();
-    audio?.playFootstep?.();
+    playFootstep(audio);
     mazeSystem?.move?.(dx, dy);
   };
 
@@ -44,11 +50,11 @@ export function registerRunEntryBindings({
   });
   bindClick(resolvedDoc, 'endPlayerTurnBtn', () => actions.endPlayerTurn?.());
   bindClick(resolvedDoc, 'showBattleChronicleBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.toggleBattleChronicle?.();
   });
   bindClick(resolvedDoc, 'closeBattleChronicleBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.closeBattleChronicle?.();
   });
 
@@ -62,37 +68,37 @@ export function registerRunEntryBindings({
   });
 
   bindClick(resolvedDoc, 'rewardSkipInitBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.showSkipConfirm?.();
   });
   bindClick(resolvedDoc, 'rewardSkipConfirmBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.skipReward?.();
   });
   bindClick(resolvedDoc, 'rewardSkipCancelBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.hideSkipConfirm?.();
   });
 
   resolvedDoc.querySelectorAll?.('.deck-filter-btn')?.forEach?.((button) => {
     button.addEventListener('click', () => {
-      audio?.playClick?.();
+      playUiClick(audio);
       actions.setDeckFilter?.(button.dataset.filter);
     });
   });
   bindClick(resolvedDoc, 'deckViewCloseBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.closeDeckView?.();
   });
 
   resolvedDoc.querySelectorAll?.('.codex-tab-btn')?.forEach?.((button) => {
     button.addEventListener('click', () => {
-      audio?.playClick?.();
+      playUiClick(audio);
       actions.setCodexTab?.(button.dataset.tab);
     });
   });
   bindClick(resolvedDoc, 'codexCloseBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.closeCodex?.();
   });
 }

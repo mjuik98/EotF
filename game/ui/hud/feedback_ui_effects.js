@@ -1,3 +1,10 @@
+import {
+  playAttackSlash,
+  playStatusEcho,
+  playStatusSkill,
+  playUiCard,
+} from '../../domain/audio/audio_event_helpers.js';
+
 function getDoc(deps) {
   return deps?.doc || deps?.win?.document || null;
 }
@@ -81,10 +88,10 @@ function resolveCardPlayStyle(card) {
 
 function playCardFeedbackAudio(audioEngine, style) {
   if (!audioEngine) return;
-  if (style.isAtk) audioEngine.playHit?.();
-  else if (style.isHeal) audioEngine.playSkill?.();
-  else if (style.isEcho) audioEngine.playEcho?.();
-  else audioEngine.playCard?.();
+  if (style.isAtk) playAttackSlash(audioEngine);
+  else if (style.isHeal) playStatusSkill(audioEngine);
+  else if (style.isEcho) playStatusEcho(audioEngine);
+  else playUiCard(audioEngine);
 }
 
 export function showCardPlayEffectOverlay(card, deps = {}) {

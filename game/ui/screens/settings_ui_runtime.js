@@ -1,4 +1,5 @@
 import { SettingsManager } from '../../core/settings_manager.js';
+import { playUiClick } from '../../domain/audio/audio_event_helpers.js';
 import {
   getDoc,
   getWin,
@@ -31,7 +32,7 @@ export function openSettingsModal(ui, deps = {}) {
   ui._syncAllTabs(doc);
   ui.setTab(ui._activeTab, deps);
   setSettingsModalActive(modal, true);
-  deps.audioEngine?.playClick?.();
+  playUiClick(deps.audioEngine);
   return true;
 }
 
@@ -39,7 +40,7 @@ export function closeSettingsModal(ui, deps = {}) {
   const doc = getDoc(deps);
   setSettingsModalActive(doc.getElementById('settingsModal'), false);
   cancelSettingsRebind(ui, deps);
-  deps.audioEngine?.playClick?.();
+  playUiClick(deps.audioEngine);
 }
 
 export function cleanupSettingsRebind(ui, action, doc) {

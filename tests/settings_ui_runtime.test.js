@@ -77,7 +77,7 @@ describe('settings_ui_runtime', () => {
     const doc = {
       getElementById: vi.fn((id) => (id === 'settingsModal' ? modal : null)),
     };
-    const audioEngine = { playClick: vi.fn() };
+    const audioEngine = { playEvent: vi.fn(), playClick: vi.fn() };
     const ui = createUi();
 
     const didOpen = openSettingsModal(ui, { doc, audioEngine });
@@ -88,7 +88,8 @@ describe('settings_ui_runtime', () => {
     expect(ui._syncAllTabs).toHaveBeenCalledWith(doc);
     expect(ui.setTab).toHaveBeenCalledWith('sound', { doc, audioEngine });
     expect(modal.classList.contains('active')).toBe(true);
-    expect(audioEngine.playClick).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'click');
+    expect(audioEngine.playClick).not.toHaveBeenCalled();
   });
 
   it('starts rebind and cancels cleanly on Escape', () => {
@@ -132,7 +133,7 @@ describe('settings_ui_runtime', () => {
       querySelector: vi.fn(() => null),
     };
     const win = { marker: true };
-    const audioEngine = { playClick: vi.fn() };
+    const audioEngine = { playEvent: vi.fn(), playClick: vi.fn() };
     const ui = createUi({
       _runtimeDeps: { audioEngine, extra: 1, win },
       _listeningAction: 'pause',
@@ -148,6 +149,7 @@ describe('settings_ui_runtime', () => {
     closeSettingsModal(ui, { doc, audioEngine });
 
     expect(modal.classList.contains('active')).toBe(false);
-    expect(audioEngine.playClick).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'click');
+    expect(audioEngine.playClick).not.toHaveBeenCalled();
   });
 });

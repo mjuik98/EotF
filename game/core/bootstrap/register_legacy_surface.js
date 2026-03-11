@@ -1,17 +1,9 @@
-import { buildLegacySurfaceGlobals } from './build_legacy_surface_globals.js';
+import { buildLegacySurfaceRegistrationPayload } from './build_legacy_surface_registration_payload.js';
+import { executeLegacySurfaceRegistration } from './execute_legacy_surface_registration.js';
 
 export function registerLegacySurface({ modules, fns }) {
-  const {
-    GAME,
-    GS,
-    DATA,
-    AudioEngine,
-    ParticleSystem,
-    FovEngine,
-    HelpPauseUI,
-    exposeGlobals,
-  } = modules;
-
-  GAME.init(GS, DATA, AudioEngine, ParticleSystem);
-  exposeGlobals(buildLegacySurfaceGlobals({ modules, fns }));
+  executeLegacySurfaceRegistration({
+    modules,
+    payload: buildLegacySurfaceRegistrationPayload({ modules, fns }),
+  });
 }

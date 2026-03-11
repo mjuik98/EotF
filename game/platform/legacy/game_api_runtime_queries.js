@@ -1,10 +1,11 @@
+import { buildLegacyGameAPIRuntimeQueryGroups } from './build_legacy_game_api_runtime_query_groups.js';
+
 export function buildLegacyGameAPIRuntimeQueries(modules, deps, runtimeMetrics) {
+  const groups = buildLegacyGameAPIRuntimeQueryGroups(modules, deps, runtimeMetrics);
+
   return {
-    getSaveOutboxMetrics: () => modules.SaveSystem?.getOutboxMetrics?.() || null,
-    flushSaveOutbox: () => modules.SaveSystem?.flushOutbox?.() || 0,
-    getRuntimeMetrics: (options) => runtimeMetrics.getRuntimeMetrics(options),
-    resetRuntimeMetrics: () => runtimeMetrics.resetRuntimeMetrics(),
-    updateUI: () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
-    processDirtyFlags: () => modules.HudUpdateUI?.processDirtyFlags?.(deps.getHudUpdateDeps()),
+    ...groups.save,
+    ...groups.metrics,
+    ...groups.hud,
   };
 }

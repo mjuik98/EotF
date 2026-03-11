@@ -1,4 +1,5 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
+import { playUiLegendary } from '../../domain/audio/audio_event_helpers.js';
 
 const noticeQueue = [];
 let noticeActive = false;
@@ -13,7 +14,7 @@ export function showLegendaryAcquireOverlay(item, deps = {}) {
   const screenShake = deps.screenShake;
   if (!doc?.body || !item) return false;
 
-  audioEngine?.playLegendary?.();
+  playUiLegendary(audioEngine);
   screenShake?.shake?.(8, 0.6);
 
   const overlay = doc.createElement('div');

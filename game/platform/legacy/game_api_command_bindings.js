@@ -1,15 +1,13 @@
-import { buildLegacyGameAPICombatBindings } from './game_api_combat_bindings.js';
-import { buildLegacyGameAPICodexBindings } from './game_api_codex_bindings.js';
-import { buildLegacyGameAPIRewardBindings } from './game_api_reward_bindings.js';
-import { buildLegacyGameAPIRunBindings } from './game_api_run_bindings.js';
-import { buildLegacyGameAPISettingsBindings } from './game_api_settings_bindings.js';
+import { buildLegacyGameAPICommandGroups } from './build_legacy_game_api_command_groups.js';
 
 export function buildLegacyGameAPICommandBindings(modules, fns) {
+  const groups = buildLegacyGameAPICommandGroups(modules, fns);
+
   return {
-    ...buildLegacyGameAPICombatBindings(modules, fns),
-    ...buildLegacyGameAPICodexBindings(modules, fns),
-    ...buildLegacyGameAPIRewardBindings(modules, fns),
-    ...buildLegacyGameAPIRunBindings(modules, fns),
-    ...buildLegacyGameAPISettingsBindings(modules, fns),
+    ...groups.combat,
+    ...groups.codex,
+    ...groups.reward,
+    ...groups.run,
+    ...groups.settings,
   };
 }

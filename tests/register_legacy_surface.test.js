@@ -1,8 +1,27 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const hoisted = vi.hoisted(() => ({
+  buildLegacySurfaceRegistrationPayload: vi.fn(),
+  executeLegacySurfaceRegistration: vi.fn(),
+}));
+
+vi.mock('../game/core/bootstrap/build_legacy_surface_registration_payload.js', () => ({
+  buildLegacySurfaceRegistrationPayload: hoisted.buildLegacySurfaceRegistrationPayload,
+}));
+
+vi.mock('../game/core/bootstrap/execute_legacy_surface_registration.js', () => ({
+  executeLegacySurfaceRegistration: hoisted.executeLegacySurfaceRegistration,
+}));
+
 import { registerLegacySurface } from '../game/core/bootstrap/register_legacy_surface.js';
 
 describe('registerLegacySurface', () => {
-  it('composes engine, system, ui, and binding globals into a single expose call', () => {
+  beforeEach(() => {
+    hoisted.buildLegacySurfaceRegistrationPayload.mockReset();
+    hoisted.executeLegacySurfaceRegistration.mockReset();
+  });
+
+  it('builds legacy surface registration payload and executes the expose flow', () => {
     const exposeGlobals = vi.fn();
     const modules = {
       GAME: { init: vi.fn() },
@@ -43,23 +62,16 @@ describe('registerLegacySurface', () => {
       exposeGlobals,
     };
     const fns = { startGame: vi.fn(), drawCard: vi.fn() };
+    const payload = {
+      initArgs: [modules.GS, modules.DATA, modules.AudioEngine, modules.ParticleSystem],
+      globals: { startGame: fns.startGame, drawCard: fns.drawCard },
+    };
+
+    hoisted.buildLegacySurfaceRegistrationPayload.mockReturnValue(payload);
 
     registerLegacySurface({ modules, fns });
 
-    expect(modules.GAME.init).toHaveBeenCalledWith(
-      modules.GS,
-      modules.DATA,
-      modules.AudioEngine,
-      modules.ParticleSystem,
-    );
-    expect(exposeGlobals).toHaveBeenCalledTimes(1);
-    expect(exposeGlobals).toHaveBeenCalledWith(expect.objectContaining({
-      AudioEngine: modules.AudioEngine,
-      RunRules: modules.RunRules,
-      CombatUI: modules.CombatUI,
-      startGame: fns.startGame,
-      drawCard: fns.drawCard,
-      classMechanics: modules.ClassMechanics,
-    }));
+    expect(hoisted.buildLegacySurfaceRegistrationPayload).toHaveBeenCalledWith({ modules, fns });
+    expect(hoisted.executeLegacySurfaceRegistration).toHaveBeenCalledWith({ modules, payload });
   });
 });

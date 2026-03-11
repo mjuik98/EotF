@@ -1,10 +1,11 @@
-import { buildLegacyWindowUIQueries } from './window_binding_ui_queries.js';
-import { buildLegacyWindowUtilityQueries } from './window_binding_utility_queries.js';
+import { buildLegacyWindowQueryGroups } from './build_legacy_window_query_groups.js';
 
 function buildLegacyWindowQueryBindings(modules, fns, deps) {
+  const groups = buildLegacyWindowQueryGroups(modules, fns, deps);
+
   return {
-    ...buildLegacyWindowUIQueries(modules, fns, deps),
-    ...buildLegacyWindowUtilityQueries(modules),
+    ...groups.ui,
+    ...groups.utility,
   };
 }
 

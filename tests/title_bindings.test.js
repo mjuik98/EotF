@@ -64,7 +64,7 @@ describe('registerTitleBindings', () => {
       startGame: vi.fn(),
       toggleEndlessMode: vi.fn(),
     };
-    const audio = { playClick: vi.fn() };
+    const audio = { playEvent: vi.fn(), playClick: vi.fn() };
 
     registerTitleBindings({
       actions,
@@ -99,7 +99,8 @@ describe('registerTitleBindings', () => {
     expect(actions.toggleEndlessMode).toHaveBeenCalledTimes(1);
     expect(actions.shiftAscension).toHaveBeenNthCalledWith(1, -1);
     expect(actions.shiftAscension).toHaveBeenNthCalledWith(2, 1);
-    expect(audio.playClick).toHaveBeenCalled();
+    expect(audio.playEvent).toHaveBeenCalled();
+    expect(audio.playClick).not.toHaveBeenCalled();
 
     const [, onKeyDown] = doc.addEventListener.mock.calls.find(([name]) => name === 'keydown');
     onKeyDown({ key: 'Escape' });

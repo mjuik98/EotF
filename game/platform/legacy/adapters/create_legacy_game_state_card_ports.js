@@ -1,13 +1,15 @@
-import { GAME } from '../global_bridge.js';
+import { createLegacyRuntimePorts } from './create_legacy_runtime_ports.js';
 
 export function createLegacyGameStateCardPorts() {
+  const runtimePorts = createLegacyRuntimePorts();
+
   return {
-    getRunRuntimeDeps: () => GAME.getRunDeps?.() || {},
-    getCombatRuntimeDeps: () => GAME.getCombatDeps?.() || {},
-    getCurrentCard: (cardId) => GAME.Data?.cards?.[cardId],
-    getCardCostUtils: () => GAME.Modules?.CardCostUtils,
-    getClassMechanics: () => GAME.Modules?.ClassMechanics,
-    getHudUpdateUI: () => GAME.Modules?.HudUpdateUI,
-    getAudioEngine: () => GAME.Audio,
+    getRunRuntimeDeps: () => runtimePorts.getRunRuntimeDeps(),
+    getCombatRuntimeDeps: () => runtimePorts.getCombatRuntimeDeps(),
+    getCurrentCard: (cardId) => runtimePorts.getCurrentCard(cardId),
+    getCardCostUtils: () => runtimePorts.getModule('CardCostUtils'),
+    getClassMechanics: () => runtimePorts.getModule('ClassMechanics'),
+    getHudUpdateUI: () => runtimePorts.getModule('HudUpdateUI'),
+    getAudioEngine: () => runtimePorts.getAudioEngine(),
   };
 }

@@ -1,5 +1,10 @@
 import { EventBus } from './event_bus.js';
 import { Actions } from './state_actions.js';
+import {
+  playAttackCritical,
+  playAttackHeavy,
+  playAttackSlash,
+} from '../domain/audio/audio_event_helpers.js';
 
 export function registerCombatEventSubscribers(ctx) {
   EventBus.on(Actions.ENEMY_DAMAGE, ({ payload, result, gs }) => {
@@ -22,7 +27,7 @@ export function registerCombatEventSubscribers(ctx) {
 
     const overlay = ctx.doc?.getElementById?.('hudOverlay');
     if (isCrit || dmg > 25) {
-      ctx.ui.AudioEngine?.playCritical?.();
+      playAttackCritical(ctx.ui.AudioEngine);
       const critFlash = ctx.doc?.createElement?.('div');
       if (critFlash) {
         critFlash.className = 'crit-flash-overlay';
@@ -30,7 +35,7 @@ export function registerCombatEventSubscribers(ctx) {
         setTimeout(() => critFlash.remove(), 450);
       }
     } else if (dmg > 12) {
-      ctx.ui.AudioEngine?.playHeavyHit?.();
+      playAttackHeavy(ctx.ui.AudioEngine);
       const heavyFlash = ctx.doc?.createElement?.('div');
       if (heavyFlash) {
         heavyFlash.className = 'heavy-hit-overlay';
@@ -38,7 +43,7 @@ export function registerCombatEventSubscribers(ctx) {
         setTimeout(() => heavyFlash.remove(), 500);
       }
     } else {
-      ctx.ui.AudioEngine?.playHit?.();
+      playAttackSlash(ctx.ui.AudioEngine);
     }
 
     const enemyCard = ctx.doc?.getElementById?.(`enemy_${result.targetIdx}`);

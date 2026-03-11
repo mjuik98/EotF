@@ -1,3 +1,4 @@
+import { playUiClick } from '../../domain/audio/audio_event_helpers.js';
 import {
   renderCardsCodexTab,
   renderEnemyCodexTab,
@@ -28,11 +29,11 @@ export function createCodexModalCallbacks(state, ui) {
       ui.renderCodexContent(state.deps);
     },
     onClose: () => {
-      state.deps?.audioEngine?.playClick?.();
+      playUiClick(state.deps?.audioEngine);
       ui.closeCodex(state.deps);
     },
     onTabSelect: (tab) => {
-      state.deps?.audioEngine?.playClick?.();
+      playUiClick(state.deps?.audioEngine);
       ui.setCodexTab(tab, state.deps);
     },
   };

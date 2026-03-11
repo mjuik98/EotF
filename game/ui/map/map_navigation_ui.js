@@ -1,5 +1,6 @@
 import { Trigger } from '../../data/triggers.js';
 import { MAP_COMBAT_NODE_TYPES } from '../../../data/map_node_data.js';
+import { playUiFootstep } from '../../domain/audio/audio_event_helpers.js';
 
 
 export const MapNavigationUI = {
@@ -44,7 +45,7 @@ export const MapNavigationUI = {
         nextNode.accessible = hasExplicitChildren ? allowedChildren.has(nextNode.id) : true;
       });
 
-      deps.audioEngine?.playFootstep?.();
+      playUiFootstep(deps.audioEngine);
       deps.renderMinimap?.();
       deps.updateUI?.();
 

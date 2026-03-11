@@ -1,3 +1,5 @@
+import { playUiClick } from '../../../domain/audio/audio_event_helpers.js';
+
 export function createUiActions(modules, fns, ports) {
   function getDeckModalDeps() {
     return {
@@ -95,7 +97,7 @@ export function createUiActions(modules, fns, ports) {
     },
 
     openCodex() {
-      modules.AudioEngine?.playClick?.();
+      playUiClick(modules.AudioEngine);
       modules.CodexUI?.openCodex?.(ports.getCodexDeps());
     },
 

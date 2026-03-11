@@ -1,5 +1,6 @@
 import { EventManager } from '../../systems/event_manager.js';
 import { startRestFillParticles } from './event_ui_particles.js';
+import { playStatusHeal } from '../../domain/audio/audio_event_helpers.js';
 
 const REST_FILL_TOTAL_DURATION = 3200;
 const REST_FILL_HEAL_START_DELAY = 600;
@@ -108,7 +109,7 @@ export function applyRestFillSequenceFrame(doc, snapshot, elapsed, audioEngine, 
   if (echoVal) echoVal.textContent = `${currentEcho}/${snapshot.echoMax}`;
 
   if (!state.playedSound) {
-    audioEngine?.playHeal?.();
+    playStatusHeal(audioEngine);
     state.playedSound = true;
   }
 }

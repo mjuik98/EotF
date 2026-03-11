@@ -1,3 +1,4 @@
+import { playUiClick } from '../../domain/audio/audio_event_helpers.js';
 import { FRAGMENT_CHOICES, ROOT_ID, STYLE_ID, winOf } from './ending_screen_helpers.js';
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
@@ -150,7 +151,7 @@ export function appendEndingFragmentChoices(doc, deps, outcome, session, cleanup
       grid.querySelectorAll('.frag-card').forEach((element) => {
         element.disabled = true;
       });
-      deps.audioEngine?.playClick?.();
+      playUiClick(deps.audioEngine);
       pick(entry.effect);
       session.timers.push(winOf(deps).setTimeout(() => cleanup({ doc }), 420));
     };

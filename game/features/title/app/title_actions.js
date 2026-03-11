@@ -3,6 +3,7 @@ import {
   showCharacterSelectScreen,
   showMainTitleScreen,
 } from '../ui/title_screen_dom.js';
+import { playUiClick } from '../../../domain/audio/audio_event_helpers.js';
 
 function clampVolumePercent(value) {
   const parsed = Number.parseInt(value, 10);
@@ -78,7 +79,7 @@ export function createTitleActions(ports) {
   const { doc, fns, modules, win } = ports;
 
   const saveVolumes = () => modules.GameInit?.saveVolumes?.(modules.AudioEngine);
-  const playClick = () => modules.AudioEngine?.playClick?.();
+  const playClick = () => playUiClick(modules.AudioEngine);
 
   return {
     showCharacterSelect() {

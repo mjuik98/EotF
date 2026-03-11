@@ -1,26 +1,13 @@
-import { attachLegacyWindowCommands } from './window_binding_commands.js';
-import { attachLegacyWindowQueries } from './window_binding_queries.js';
-
-function resolveBindingRoot(modules) {
-  const gameDeps =
-    modules?.GAME?.getUiDeps?.()
-    || modules?.GAME?.getRunDeps?.()
-    || modules?.GAME?.getCombatDeps?.()
-    || {};
-  if (gameDeps.win) return gameDeps.win;
-  if (gameDeps.doc?.defaultView) return gameDeps.doc.defaultView;
-  try {
-    const host = Function('return this')();
-    return host?.window || host || null;
-  } catch {
-    return null;
-  }
-}
+import { buildLegacyWindowBindingSteps } from './build_legacy_window_binding_steps.js';
+import { executeLegacyWindowBindingSteps } from './execute_legacy_window_binding_steps.js';
+import { resolveLegacyWindowBindingRoot } from './resolve_legacy_window_binding_root.js';
 
 export function attachLegacyWindowBindings(modules, fns, deps) {
-  const root = resolveBindingRoot(modules);
+  const root = resolveLegacyWindowBindingRoot(modules);
   if (!root) return;
 
-  attachLegacyWindowCommands(root, fns);
-  attachLegacyWindowQueries(root, modules, fns, deps);
+  executeLegacyWindowBindingSteps(
+    { root, modules, fns, deps },
+    buildLegacyWindowBindingSteps(),
+  );
 }

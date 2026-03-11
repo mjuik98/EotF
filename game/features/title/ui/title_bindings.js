@@ -1,3 +1,5 @@
+import { playUiClick } from '../../../domain/audio/audio_event_helpers.js';
+
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);
 }
@@ -42,57 +44,57 @@ export function registerTitleBindings({
   });
 
   bindClick(resolvedDoc, 'mainContinueBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.continueRun?.();
   });
   bindClick(resolvedDoc, 'mainStartBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.showCharacterSelect?.();
   });
   bindClick(resolvedDoc, 'mainRunRulesBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.openRunSettings?.();
   });
   bindClick(resolvedDoc, 'mainCodexBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.openCodexFromTitle?.();
   });
   bindClick(resolvedDoc, 'mainSettingsBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.openSettings?.();
   });
   bindClick(resolvedDoc, 'mainQuitBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.quitGame?.();
   });
   bindClick(resolvedDoc, 'startBtn', () => actions.startGame?.());
   bindClick(resolvedDoc, 'backToTitleBtn', () => actions.backToTitle?.());
   bindClick(resolvedDoc, 'runSettingsCloseBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.closeRunSettings?.();
   });
   bindClick(resolvedDoc, 'runSettingsConfirmBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.closeRunSettings?.();
   });
   bindClick(resolvedDoc, 'endlessToggleBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.toggleEndlessMode?.();
   });
   bindClick(resolvedDoc, 'curseCycleBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
     actions.cycleRunCurse?.();
   });
   bindClick(resolvedDoc, 'toggleInscriptionLayoutBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
   });
   bindClick(resolvedDoc, 'toggleAllInscriptionsBtn', () => {
-    audio?.playClick?.();
+    playUiClick(audio);
   });
 
   resolvedDoc.querySelectorAll?.('.run-mode-stepper .run-mode-btn')?.forEach?.((button, index) => {
     button.addEventListener('click', () => {
-      audio?.playClick?.();
+      playUiClick(audio);
       actions.shiftAscension?.(index === 0 ? -1 : 1);
     });
   });

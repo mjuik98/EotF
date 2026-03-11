@@ -1,6 +1,10 @@
 import { EventBus } from './event_bus.js';
-import { GAME } from './global_bridge.js';
 import { Actions } from './state_actions.js';
+import {
+  playReactionPlayerHit,
+  playStatusHeal,
+  playStatusSkill,
+} from '../domain/audio/audio_event_helpers.js';
 
 export function registerPlayerEventSubscribers(ctx) {
   EventBus.on(Actions.PLAYER_DAMAGE, ({ result, gs }) => {
@@ -11,11 +15,11 @@ export function registerPlayerEventSubscribers(ctx) {
 
     if (actualDamage > 0) {
       ctx.ui.ScreenShake?.shake?.(8, 0.4);
-      ctx.ui.AudioEngine?.playPlayerHit?.();
+      playReactionPlayerHit(ctx.ui.AudioEngine);
       ctx.ui.FeedbackUI?.showPlayerHitVignette?.();
     } else if (shieldAbsorbed > 0) {
       ctx.ui.ScreenShake?.shake?.(3, 0.15);
-      ctx.ui.AudioEngine?.playSkill?.();
+      playStatusSkill(ctx.ui.AudioEngine);
       ctx.ui.FeedbackUI?.showShieldBlockEffect?.();
     }
 
@@ -30,7 +34,7 @@ export function registerPlayerEventSubscribers(ctx) {
       const width = Number(ctx.win?.innerWidth) || 1280;
       const height = Number(ctx.win?.innerHeight) || 720;
       ctx.ui.ParticleSystem?.healEffect?.(width / 2, height / 2);
-      ctx.ui.AudioEngine?.playHeal?.();
+      playStatusHeal(ctx.ui.AudioEngine);
     }
   });
 
@@ -54,7 +58,7 @@ export function registerPlayerEventSubscribers(ctx) {
   });
 
   EventBus.on(Actions.PLAYER_SILENCE, () => {
-    ctx.ui.HudUpdateUI?.updateUI?.(GAME.getHudDeps?.() || {});
+    ctx.callAction('updateUI');
     const updateNoiseWidget = ctx.ui.CombatHudUI?.updateNoiseWidget || ctx.resolveAction('updateNoiseWidget');
     if (typeof updateNoiseWidget === 'function') updateNoiseWidget();
   });

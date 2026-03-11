@@ -141,6 +141,7 @@ describe('ending_screen_render_helpers', () => {
 
     const cleanup = vi.fn();
     const selectFragment = vi.fn();
+    const playEvent = vi.fn();
     const playClick = vi.fn();
     const setTimeout = vi.fn((fn) => {
       fn();
@@ -152,7 +153,7 @@ describe('ending_screen_render_helpers', () => {
       gs: { meta: { echoFragments: 2 } },
       win: { setTimeout },
       selectFragment,
-      audioEngine: { playClick },
+      audioEngine: { playEvent, playClick },
     }, 'defeat', session, cleanup);
 
     expect(parent.children[0].id).toBe('s6b');
@@ -161,7 +162,8 @@ describe('ending_screen_render_helpers', () => {
 
     grid.children[0].on_click();
 
-    expect(playClick).toHaveBeenCalled();
+    expect(playEvent).toHaveBeenCalledWith('ui', 'click');
+    expect(playClick).not.toHaveBeenCalled();
     expect(selectFragment).toHaveBeenCalledWith('echo_boost');
     expect(cleanup).toHaveBeenCalledWith({ doc });
     expect(grid.children.every((child) => child.disabled)).toBe(true);

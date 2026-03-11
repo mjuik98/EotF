@@ -1,9 +1,10 @@
-import { buildLegacyGameAPIModuleQueries } from './game_api_module_queries.js';
-import { buildLegacyGameAPIRuntimeQueries } from './game_api_runtime_queries.js';
+import { buildLegacyGameAPIQueryGroups } from './build_legacy_game_api_query_groups.js';
 
 export function buildLegacyGameAPIQueryBindings(modules, deps, runtimeMetrics) {
+  const groups = buildLegacyGameAPIQueryGroups(modules, deps, runtimeMetrics);
+
   return {
-    ...buildLegacyGameAPIModuleQueries(modules),
-    ...buildLegacyGameAPIRuntimeQueries(modules, deps, runtimeMetrics),
+    ...groups.module,
+    ...groups.runtime,
   };
 }

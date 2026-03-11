@@ -1,4 +1,5 @@
 import { EventManager } from '../../systems/event_manager.js';
+import { playAttackSlash } from '../../domain/audio/audio_event_helpers.js';
 import { RARITY_LABELS } from '../../../data/rarity_meta.js';
 import { dismissEventModal } from './event_ui_helpers.js';
 import { renderChoices } from './event_ui_dom.js';
@@ -83,7 +84,7 @@ export function resolveEventChoiceFlow(choiceIdx, {
   } catch (err) {
     console.error('[resolveEvent] choice effect error:', err);
     gs._eventLock = false;
-    audioEngine?.playHit?.();
+    playAttackSlash(audioEngine);
     return null;
   }
 

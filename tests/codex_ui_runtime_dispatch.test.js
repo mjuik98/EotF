@@ -43,7 +43,7 @@ describe('codex_ui_runtime_dispatch', () => {
   });
 
   it('creates codex modal callbacks that mutate state and call facade actions', () => {
-    const state = { search: '', sort: 'default', deps: { audioEngine: { playClick: vi.fn() } } };
+    const state = { search: '', sort: 'default', deps: { audioEngine: { playEvent: vi.fn(), playClick: vi.fn() } } };
     const ui = { renderCodexContent: vi.fn(), closeCodex: vi.fn(), setCodexTab: vi.fn() };
     const callbacks = dispatch.createCodexModalCallbacks(state, ui);
 
@@ -57,6 +57,8 @@ describe('codex_ui_runtime_dispatch', () => {
     expect(ui.renderCodexContent).toHaveBeenCalledTimes(2);
     expect(ui.closeCodex).toHaveBeenCalledWith(state.deps);
     expect(ui.setCodexTab).toHaveBeenCalledWith('cards', state.deps);
+    expect(state.deps.audioEngine.playEvent).toHaveBeenCalledWith('ui', 'click');
+    expect(state.deps.audioEngine.playClick).not.toHaveBeenCalled();
   });
 
   it('dispatches tab content rendering and tab transition callbacks', () => {

@@ -1,4 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
+
+const hoisted = vi.hoisted(() => ({
+  applyPlayerDamage: vi.fn(),
+  drawCards: vi.fn(),
+  executePlayerDraw: vi.fn(),
+  modifyEnergy: vi.fn(),
+}));
+
+vi.mock('../game/platform/legacy/game_api/player_commands.js', () => ({
+  applyPlayerDamage: hoisted.applyPlayerDamage,
+  drawCards: hoisted.drawCards,
+  executePlayerDraw: hoisted.executePlayerDraw,
+  modifyEnergy: hoisted.modifyEnergy,
+}));
+
 import { buildLegacyGameAPICommandBindings } from '../game/platform/legacy/game_api_command_bindings.js';
 
 function createFns() {
@@ -46,11 +61,6 @@ describe('buildLegacyGameAPICommandBindings', () => {
       GS: { token: 'gs' },
       GAME: { getHudDeps: vi.fn(() => ({ token: 'hud-deps' })) },
       CombatHudUI: { updateEchoSkillBtn: vi.fn() },
-      GameAPI: {
-        applyPlayerDamage: vi.fn(),
-        drawCards: vi.fn(),
-        executePlayerDraw: vi.fn(),
-      },
     };
 
     const bindings = buildLegacyGameAPICommandBindings(modules, fns);
@@ -65,9 +75,12 @@ describe('buildLegacyGameAPICommandBindings', () => {
     bindings.openSettings();
 
     expect(modules.CombatHudUI.updateEchoSkillBtn).toHaveBeenCalledWith({ token: 'hud-deps' });
-    expect(modules.GameAPI.applyPlayerDamage).toHaveBeenCalledWith(7, modules.GS);
-    expect(modules.GameAPI.drawCards).toHaveBeenCalledWith(2, modules.GS);
-    expect(modules.GameAPI.executePlayerDraw).toHaveBeenCalledWith(modules.GS);
+    expect(hoisted.applyPlayerDamage).toHaveBeenCalledWith(7, modules.GS);
+    expect(hoisted.drawCards).toHaveBeenCalledWith(2, modules.GS, {});
+    expect(hoisted.executePlayerDraw).toHaveBeenCalledWith(modules.GS, {
+      modifyEnergy: hoisted.modifyEnergy,
+      drawCards: hoisted.drawCards,
+    });
     expect(fns.setCodexTab).toHaveBeenCalledWith('relics');
     expect(fns.skipReward).toHaveBeenCalledTimes(1);
     expect(fns.startGame).toHaveBeenCalledTimes(1);
