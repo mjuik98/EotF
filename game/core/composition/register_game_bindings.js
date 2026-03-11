@@ -1,14 +1,14 @@
-import { createCanvasBindings } from '../bindings/canvas_bindings.js';
-import { createCombatBindings } from '../bindings/combat_bindings.js';
-import { createEventRewardBindings } from '../bindings/event_reward_bindings.js';
-import { createUIBindings } from '../bindings/ui_bindings.js';
-import { createTitleSettingsBindings } from '../bindings/title_settings_bindings.js';
+import { registerCanvasBindingGroup } from './register_canvas_binding_group.js';
+import { registerCombatBindingGroup } from './register_combat_binding_group.js';
+import { registerEventBindingGroup } from './register_event_binding_group.js';
+import { registerScreenBindingGroup } from './register_screen_binding_group.js';
+import { registerTitleBindingGroup } from './register_title_binding_group.js';
 
 export function registerGameBindings(modules, fns) {
-  createCanvasBindings(modules, fns);
-  createCombatBindings(modules, fns);
-  createEventRewardBindings(modules, fns);
-  createUIBindings(modules, fns);
-  createTitleSettingsBindings(modules, fns);
+  registerCanvasBindingGroup(modules, fns);
+  registerCombatBindingGroup(modules, fns);
+  registerEventBindingGroup(modules, fns);
+  registerScreenBindingGroup(modules, fns);
+  registerTitleBindingGroup(modules, fns);
   return fns;
 }

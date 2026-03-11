@@ -1,14 +1,5 @@
-import { buildLegacyGameAPICombatFacade } from './game_api_combat_facade.js';
-import { buildLegacyGameAPIPlayerFacade } from './game_api_player_facade.js';
-import { buildLegacyGameAPIScreenFacade } from './game_api_screen_facade.js';
-import { buildLegacyGameAPIUIFacade } from './game_api_ui_facade.js';
+import { buildLegacyGameAPIFacade } from './game_api_facade.js';
 
 export const GameAPI = {};
 
-Object.assign(
-  GameAPI,
-  buildLegacyGameAPIPlayerFacade(GameAPI),
-  buildLegacyGameAPICombatFacade(GameAPI),
-  buildLegacyGameAPIScreenFacade(),
-  buildLegacyGameAPIUIFacade(),
-);
+Object.assign(GameAPI, buildLegacyGameAPIFacade(GameAPI));

@@ -20,9 +20,12 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   - `game/core/init_sequence.js`
   - `game/core/deps_factory.js`
   - `game/core/bindings/*`
+- New UI-facing composition should live under `game/platform/browser/composition/*`.
+- `game/core/composition/*` should stay as thin orchestration or re-export shims, not regain direct UI fan-out.
 - `game/ui/*` must not import composition-root entry files:
   - `game/core/main.js`
   - `game/core/event_bindings.js`
+- New legacy global exposure must go through `game/platform/legacy/*` builders instead of direct `window.*` or `GAME.*` expansion from unrelated layers.
 - `engine/*` and `data/*` must not import `game/ui/*`.
 
 ## State Mutation Rule

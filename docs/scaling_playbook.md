@@ -11,6 +11,7 @@ Implemented:
 - Architecture gate in `scripts/check-architecture.mjs`
 - Dependency visibility report in `docs/metrics/dependency_map.md`
 - Composition registry split from entrypoint (`game/core/bindings/module_registry.js`)
+- Browser composition imports moved under `game/platform/browser/composition/*`, leaving `game/core/composition/*` as thin orchestration/shim layers
 - HUD module split for lower change surface:
   - `game/ui/hud/hud_effects_ui.js`
   - `game/ui/hud/hud_stats_ui.js`
@@ -24,6 +25,7 @@ Implemented:
 - Layer model and boundary documentation in `docs/architecture_boundaries.md`
 - Explicit composition-root allowlist for UI wiring
 - Growth guard for cross-layer import count (`check-import-coupling`)
+- Legacy/global exposure is now expected to flow through `game/platform/legacy/*` builders, not ad hoc core/window expansion
 
 Next:
 - Move cross-domain helpers from `data/*` into dedicated adapters in `game/systems/*`
