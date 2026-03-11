@@ -78,7 +78,7 @@ export const CombatHudUI = {
   },
 
   updateClassSpecialUI(deps = {}) {
-    renderCombatHudClassSpecial(_getDoc(deps), deps.gs, deps.classMechanics);
+    renderCombatHudClassSpecial(_getDoc(deps), deps.gs, deps.classMechanics, deps);
   },
 
   openBattleChronicle(deps = {}) {

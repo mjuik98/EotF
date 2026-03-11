@@ -15,7 +15,11 @@ export function playCardService({
   runtimeDeps,
   hudUpdateUI,
 }) {
-  if (gs.combat._isPlayingCard) {
+  const combat = gs.combat;
+  const player = gs.player;
+  const stats = gs.stats;
+
+  if (combat._isPlayingCard) {
     logger.warn('Already playing a card. Ignoring input.');
     return false;
   }
@@ -23,46 +27,46 @@ export function playCardService({
   if (!card) return false;
 
   logger.group(`API: Play Card (${card.name})`);
-  gs.combat._isPlayingCard = true;
+  combat._isPlayingCard = true;
 
   try {
-    if (!gs.combat?.active || !gs.combat?.playerTurn) {
+    if (!combat?.active || !combat?.playerTurn) {
       logger.warn('Cannot play card: Not player turn.');
       return false;
     }
 
     gs._lastDodgedTarget = null;
 
-    const handCardId = gs.player.hand?.[handIdx];
+    const handCardId = player.hand?.[handIdx];
     if (handCardId !== cardId) {
       logger.warn('Cannot play card: Invalid hand index or card mismatch.');
       return false;
     }
 
-    const nextCardDiscountBeforePlay = Number(gs.player._nextCardDiscount || 0);
-    let cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, gs.player, handIdx) ?? card.cost;
+    const nextCardDiscountBeforePlay = Number(player._nextCardDiscount || 0);
+    let cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, player, handIdx) ?? card.cost;
     if (typeof gs.triggerItems === 'function') {
       const delta = gs.triggerItems('before_card_cost', { cardId, cost, baseCost: card.cost });
       if (typeof delta === 'number' && Number.isFinite(delta)) {
         cost = Math.max(0, Math.floor(cost + delta));
       }
     }
-    if (gs.player.energy < cost) {
+    if (player.energy < cost) {
       logger.warn('Not enough energy.');
       return false;
     }
 
-    const energyBefore = gs.player.energy;
-    const handBefore = [...gs.player.hand];
+    const energyBefore = player.energy;
+    const handBefore = [...player.hand];
     gs.dispatch(Actions.PLAYER_ENERGY, { amount: -cost });
-    gs.player.hand.splice(handIdx, 1);
+    player.hand.splice(handIdx, 1);
 
     const rollbackPlayCost = () => {
-      const restoreEnergy = energyBefore - gs.player.energy;
+      const restoreEnergy = energyBefore - player.energy;
       if (restoreEnergy !== 0) {
         gs.dispatch(Actions.PLAYER_ENERGY, { amount: restoreEnergy });
       }
-      gs.player.hand = handBefore;
+      player.hand = handBefore;
     };
 
     try {
@@ -78,25 +82,25 @@ export function playCardService({
     const combatRegionId = resolveActiveRegionId(gs, {
       getRegionData: runtimeDeps?.getRegionData,
     });
-    if (gs.combat?.active && combatRegionId === 1) {
+    if (combat?.active && combatRegionId === 1) {
       gs.addSilence?.(1);
     }
 
     if (nextCardDiscountBeforePlay > 0) {
-      gs.player._nextCardDiscount = Math.max(0, gs.player._nextCardDiscount - 1);
+      player._nextCardDiscount = Math.max(0, player._nextCardDiscount - 1);
     }
 
-    cardCostUtils?.consumeTraitDiscount?.(cardId, gs.player);
-    cardCostUtils?.consumeFreeCharge?.(cardId, gs.player, handIdx);
+    cardCostUtils?.consumeTraitDiscount?.(cardId, player);
+    cardCostUtils?.consumeFreeCharge?.(cardId, player, handIdx);
 
-    const classMech = classMechanics?.[gs.player.class];
+    const classMech = classMechanics?.[player.class];
     if (classMech && typeof classMech.onPlayCard === 'function') {
       classMech.onPlayCard(gs, { cardId });
     }
 
     gs.triggerItems?.('card_play', { cardId, cost });
 
-    if (gs.player.echoChain >= 5 && typeof gs.triggerResonanceBurst === 'function') {
+    if (player.echoChain >= 5 && typeof gs.triggerResonanceBurst === 'function') {
       gs.triggerResonanceBurst({
         audioEngine,
         screenShake: runtimeDeps?.ScreenShake,
@@ -107,11 +111,11 @@ export function playCardService({
       }, { isPassive: true });
     }
 
-    if (!gs.player.graveyard.includes(cardId) && !gs.player.exhausted.includes(cardId)) {
+    if (!player.graveyard.includes(cardId) && !player.exhausted.includes(cardId)) {
       discardCard(cardId, card.exhaust, gs, true);
     }
 
-    gs.stats.cardsPlayed++;
+    stats.cardsPlayed++;
     registerCardUsed(gs, cardId);
     gs.bus?.emit(Actions.CARD_PLAY, { cardId, card, cost });
 
@@ -124,7 +128,7 @@ export function playCardService({
     logger.error('Error playing card:', e);
     return false;
   } finally {
-    gs.combat._isPlayingCard = false;
+    combat._isPlayingCard = false;
     logger.groupEnd();
   }
 }

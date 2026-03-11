@@ -140,3 +140,55 @@
     - `output/web-game-verify-20260311-1357/shot-0.png`
     - `output/web-game-verify-20260311-1357/shot-1.png`
   - 새 검증 디렉터리에는 console/page error artifact가 생성되지 않았다.
+
+## Latest Refactor Session
+
+- platform 경로를 추가했다:
+  - `game/platform/legacy/global_bridge.js`
+  - `game/platform/browser/root_ui_bindings.js`
+- 실제 구현은 기존 `game/core/global_bridge.js`, `game/core/game_init.js`에 유지하고, 새 platform 경로는 re-export entrypoint로 두어 구조 이동과 기존 lint target을 동시에 만족시켰다.
+- `module_registry`는 새 architecture entrypoint를 보도록 갱신했다:
+  - `GAME/exposeGlobals`는 `platform/legacy`
+  - `ClassMechanics`는 `game/domain/class/class_mechanics.js`
+  - `GameInit`는 `platform/browser/root_ui_bindings.js`
+- 클래스 특성 UI를 전투 규칙에서 분리했다:
+  - 순수 view model: `game/domain/class/class_trait_view_model.js`
+  - DOM renderer: `game/ui/shared/class_trait_panel_ui.js`
+  - facade: `game/domain/class/class_mechanics.js`
+  - `game/combat/class_mechanics.js`는 다시 규칙 전용 파일로 되돌렸다.
+- 이벤트 쪽은 새 `effectId -> handler` 경로를 도입했다:
+  - descriptors:
+    - `data/events/shrine_event.js`
+    - `data/events/merchant_lost_event.js`
+    - `data/events/echo_resonance_event.js`
+    - `data/events/forge_event.js`
+  - handler registry:
+    - `data/events/effect_handlers.js`
+  - resolver:
+    - `game/app/event/resolve_event_choice_service.js`
+  - `EventManager.resolveEventChoice()`는 `choice.effectId`와 기존 `choice.effect`를 모두 지원한다.
+- 이번 변경으로 `events_data.js`에서 테스트 경로와 전역 의존이 큰 이벤트 4개를 descriptor 기반으로 분리했다.
+
+## Latest Validation Addendum
+
+- 집중 테스트 통과:
+  - `tests/class_mechanics.test.js`
+  - `tests/combat_hud_special_ui.test.js`
+  - `tests/event_manager_resolution_flags.test.js`
+  - `tests/event_merchant_resolution.test.js`
+  - `tests/event_resonance_choice_limit.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/bootstrap_game.test.js`
+- 전체 통과:
+  - `npm test`
+  - `npm run build`
+- 현재 lint 상태:
+  - `check-architecture`: PASS
+  - `check-window-usage`: PASS
+  - `check-state-mutations`: 기존과 동일하게 FAIL (`288 / 268`)
+- Playwright 브라우저 재검증:
+  - preview: `http://127.0.0.1:4173`
+  - `#mainStartBtn` 클릭 후 캐릭터 선택 화면 정상 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game-verify-20260311-1430/shot-0.png`
+    - `output/web-game-verify-20260311-1430/shot-1.png`

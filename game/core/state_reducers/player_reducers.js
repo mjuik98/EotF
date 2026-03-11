@@ -10,6 +10,7 @@ const MAX_ENERGY_CAP =
 export const PlayerReducers = {
   [Actions.PLAYER_DAMAGE](gs, { amount }) {
     const player = gs.player;
+    const stats = gs.stats;
     let remaining = amount;
 
     if (player.shield > 0) {
@@ -20,7 +21,7 @@ export const PlayerReducers = {
 
     if (remaining > 0) {
       player.hp = Math.max(0, player.hp - remaining);
-      gs.stats.damageTaken += remaining;
+      stats.damageTaken += remaining;
     }
 
     gs.markDirty('hud');
@@ -43,51 +44,58 @@ export const PlayerReducers = {
   },
 
   [Actions.PLAYER_SHIELD](gs, { amount }) {
-    gs.player.shield = Math.max(0, gs.player.shield + amount);
+    const player = gs.player;
+    player.shield = Math.max(0, player.shield + amount);
     gs.markDirty('hud');
-    return { shieldAfter: gs.player.shield };
+    return { shieldAfter: player.shield };
   },
 
   [Actions.PLAYER_GOLD](gs, { amount }) {
-    gs.player.gold += amount;
+    const player = gs.player;
+    player.gold += amount;
     gs.markDirty('hud');
-    return { goldAfter: gs.player.gold, delta: amount };
+    return { goldAfter: player.gold, delta: amount };
   },
 
   [Actions.PLAYER_ENERGY](gs, { amount }) {
-    const prevEnergy = Number(gs.player.energy || 0);
+    const player = gs.player;
+    const prevEnergy = Number(player.energy || 0);
     if (amount > 0 && typeof gs.triggerItems === 'function') {
       const scaled = gs.triggerItems('energy_gain', { amount });
       if (typeof scaled === 'number' && Number.isFinite(scaled)) amount = scaled;
     }
-    gs.player.energy = Math.max(0, gs.player.energy + amount);
-    if (amount < 0 && prevEnergy > 0 && gs.player.energy === 0 && typeof gs.triggerItems === 'function') {
+    player.energy = Math.max(0, player.energy + amount);
+    if (amount < 0 && prevEnergy > 0 && player.energy === 0 && typeof gs.triggerItems === 'function') {
       gs.triggerItems('energy_empty', { previous: prevEnergy, delta: amount });
     }
     gs.markDirty('hud');
-    return { energyAfter: gs.player.energy };
+    return { energyAfter: player.energy };
   },
 
   [Actions.PLAYER_ECHO](gs, { amount }) {
-    gs.player.echo = Math.max(0, Math.min(gs.player.maxEcho, gs.player.echo + amount));
+    const player = gs.player;
+    player.echo = Math.max(0, Math.min(player.maxEcho, player.echo + amount));
     gs.markDirty('hud');
-    return { echoAfter: gs.player.echo };
+    return { echoAfter: player.echo };
   },
 
   [Actions.PLAYER_SILENCE](gs, { amount }) {
-    gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) + amount);
+    const player = gs.player;
+    player.silenceGauge = Math.max(0, (player.silenceGauge || 0) + amount);
     gs.markDirty('hud');
-    return { silenceGauge: gs.player.silenceGauge };
+    return { silenceGauge: player.silenceGauge };
   },
 
   [Actions.PLAYER_TIME_RIFT](gs, { amount }) {
-    gs.player.timeRiftGauge = Math.max(0, (gs.player.timeRiftGauge || 0) + amount);
+    const player = gs.player;
+    player.timeRiftGauge = Math.max(0, (player.timeRiftGauge || 0) + amount);
     gs.markDirty('hud');
-    return { timeRiftGauge: gs.player.timeRiftGauge };
+    return { timeRiftGauge: player.timeRiftGauge };
   },
 
   [Actions.PLAYER_BUFF](gs, { id, stacks, data = {} }) {
-    const buffs = gs.player.buffs;
+    const player = gs.player;
+    const buffs = player.buffs;
     if (buffs[id]) {
       buffs[id].stacks += stacks;
       for (const key in data) {

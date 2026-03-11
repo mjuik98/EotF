@@ -1,4 +1,4 @@
-﻿import { GS } from '../core/game_state.js';
+﻿import { DATA } from '../../data/game_data.js';
 import { LogUtils } from '../utils/log_utils.js';
 
 
@@ -82,36 +82,6 @@ export const ClassMechanics = {
         state.addBuff('resonance', 99, { dmgBonus: 3 });
       }
     },
-    getSpecialUI(gs) {
-      const state = _getGS(gs);
-      const res = state?.getBuff?.('resonance');
-      const val = res ? res.dmgBonus || 0 : 0;
-      const meta = globalThis.DATA?.classes?.swordsman;
-      const title = meta?.traitTitle || '공명 (Resonance)';
-      const desc = meta?.traitDesc || '카드를 사용할 때마다 공격력이 증가합니다.';
-      const el = document.createElement('div');
-      el.style.cursor = 'help';
-      el.addEventListener('mouseenter', e => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.showGeneralTooltip) {
-          tt.showGeneralTooltip(e, title, desc, { doc: document, win: window });
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.hideGeneralTooltip) {
-          tt.hideGeneralTooltip({ doc: document, win: window });
-        }
-      });
-      const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '공명';
-      const value = document.createElement('div');
-      value.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:12px;color:${val > 0 ? 'var(--danger)' : 'var(--text-dim)'};`;
-      value.textContent = val > 0 ? `+${val} 데미지` : '공명 누적 없음';
-      el.append(label, value);
-      return el;
-    },
   },
   mage: {
     onCombatStart(gs) {
@@ -134,7 +104,7 @@ export const ClassMechanics = {
 
       player._mageCastCounter = 0;
       const hand = Array.isArray(player.hand) ? player.hand : [];
-      const dataCards = globalThis.DATA?.cards || {};
+      const dataCards = DATA?.cards || {};
       const candidates = hand.filter((id) => (dataCards[id]?.cost || 0) > 0);
 
       if (candidates.length === 0) {
@@ -155,45 +125,6 @@ export const ClassMechanics = {
       state.addLog(LogUtils.formatEcho(`🔮 메아리: ${cardName} 비용 -1`), 'echo');
       state.markDirty?.('hand');
       state.markDirty?.('hud');
-    },
-    getSpecialUI(gs) {
-      const state = _getGS(gs);
-      const player = state?.player;
-      const progress = Number(player?._mageCastCounter || 0);
-      const cycleProgress = progress % 3;
-      const remaining = cycleProgress === 0 ? 3 : (3 - cycleProgress);
-      const lastTargetId = player?._mageLastDiscountTarget;
-      const lastTargetName = lastTargetId ? (globalThis.DATA?.cards?.[lastTargetId]?.name || lastTargetId) : null;
-      const meta = globalThis.DATA?.classes?.mage;
-      const title = meta?.traitTitle || '메아리 (Echo)';
-      const desc = meta?.traitDesc || '카드를 3번 사용할 때마다 무작위 손패 카드 1장의 비용을 1 감소시킵니다.';
-      const el = document.createElement('div');
-      el.style.cursor = 'help';
-      el.addEventListener('mouseenter', e => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.showGeneralTooltip) {
-          tt.showGeneralTooltip(e, title, desc, { doc: document, win: window });
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.hideGeneralTooltip) {
-          tt.hideGeneralTooltip({ doc: document, win: window });
-        }
-      });
-      const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '메아리';
-      const valEl = document.createElement('div');
-      valEl.style.cssText = "font-size:10px;color:var(--cyan);line-height:1.4;";
-      valEl.textContent = `발동까지 ${remaining}회 (${progress}/3)`;
-
-      const subEl = document.createElement('div');
-      subEl.style.cssText = "font-size:9px;color:var(--text-dim);margin-top:2px;";
-      subEl.textContent = lastTargetName ? `최근 할인: ${lastTargetName}` : '최근 할인: 없음';
-
-      el.append(label, valEl, subEl);
-      return el;
     },
   },
   hunter: {
@@ -225,34 +156,6 @@ export const ClassMechanics = {
         state.drawCards?.(1);
       }
       return damage;
-    },
-    getSpecialUI(gs) {
-      const state = _getGS(gs);
-      const meta = globalThis.DATA?.classes?.hunter;
-      const title = meta?.traitTitle || '정적 (Dead Silence)';
-      const desc = meta?.traitDesc || '같은 적을 5번 공격할 때마다 해당 적에게 독 3턴 부여하고, 카드를 1장 드로우합니다.';
-      const el = document.createElement('div');
-      el.style.cursor = 'help';
-      el.addEventListener('mouseenter', e => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.showGeneralTooltip) {
-          tt.showGeneralTooltip(e, title, desc, { doc: document, win: window });
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.hideGeneralTooltip) {
-          tt.hideGeneralTooltip({ doc: document, win: window });
-        }
-      });
-      const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '정적';
-      const valEl = document.createElement('div');
-      valEl.style.cssText = "font-size:10px;color:var(--cyan);";
-      valEl.textContent = '공격 진행 중...';
-      el.append(label, valEl);
-      return el;
     },
   },
   paladin: {
@@ -293,33 +196,6 @@ export const ClassMechanics = {
       state.heal(healAmt, { name: '빛의 낙인', type: 'status' });
       return damage;
     },
-    getSpecialUI(gs) {
-      const state = _getGS(gs);
-      const meta = globalThis.DATA?.classes?.paladin;
-      const title = meta?.traitTitle || '성가 (Sacred Hymn)';
-      const desc = meta?.traitDesc || '체력을 회복할 때마다 회복량만큼 무작위 적에게 피해를 입힙니다.';
-      const el = document.createElement('div');
-      el.style.cursor = 'help';
-      el.addEventListener('mouseenter', e => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.showGeneralTooltip) {
-          tt.showGeneralTooltip(e, title, desc, { doc: document, win: window });
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.hideGeneralTooltip) {
-          tt.hideGeneralTooltip({ doc: document, win: window });
-        }
-      });
-      const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '성가';
-      const value = document.createElement('div');
-      value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);";
-      value.textContent = '회복 시 추가 피해';
-      el.append(label, value);
-    }
   },
   berserker: {
     onDealDamage(gs, damage) {
@@ -336,42 +212,6 @@ export const ClassMechanics = {
       }
       return damage;
     },
-    getSpecialUI(gs) {
-      const state = _getGS(gs);
-      const lostHp = state ? (state.player.maxHp - state.player.hp) : 0;
-      const hpBonus = Math.floor(lostHp / 10) * 3;
-      const buff = state?.getBuff?.('berserk_mode');
-      const buffPlus = state?.getBuff?.('berserk_mode_plus');
-      const echoBuff = state?.getBuff?.('echo_berserk');
-      const activeBuff = buff || buffPlus;
-      const growBonus = activeBuff ? activeBuff.atkGrowth || 0 : 0;
-      const echoGrowBonus = echoBuff ? echoBuff.atkGrowth || 0 : 0;
-      const meta = globalThis.DATA?.classes?.berserker;
-      const title = meta?.traitTitle || '불협화음 (Cacophony)';
-      const desc = meta?.traitDesc || '체력이 낮을수록 피해 보너스가 증가합니다. 공격할 때마다 공격력이 영구적으로 추가 성장합니다.';
-      const el = document.createElement('div');
-      el.style.cursor = 'help';
-      el.addEventListener('mouseenter', e => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.showGeneralTooltip) {
-          tt.showGeneralTooltip(e, title, desc, { doc: document, win: window });
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.hideGeneralTooltip) {
-          tt.hideGeneralTooltip({ doc: document, win: window });
-        }
-      });
-      const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '불협화음';
-      const value = document.createElement('div');
-      value.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--danger);";
-      value.textContent = `보너스 +${hpBonus + growBonus + echoGrowBonus}`;
-      el.append(label, value);
-      return el;
-    }
   },
   guardian: {
     onTurnEnd(gs) {
@@ -394,33 +234,5 @@ export const ClassMechanics = {
       _triggerUnbreakableWall(state, 'unbreakable_wall', buff, 0.5);
       _triggerUnbreakableWall(state, 'unbreakable_wall_plus', buffPlus, 0.7);
     },
-    getSpecialUI(gs) {
-      const state = _getGS(gs);
-      const meta = globalThis.DATA?.classes?.guardian;
-      const title = meta?.traitTitle || '유령 갑주 (Echo Armor)';
-      const desc = meta?.traitDesc || '매 턴 종료 시 방어막의 절반을 유지합니다.';
-      const el = document.createElement('div');
-      el.style.cursor = 'help';
-      el.addEventListener('mouseenter', e => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.showGeneralTooltip) {
-          tt.showGeneralTooltip(e, title, desc, { doc: document, win: window });
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        const tt = globalThis.TooltipUI || globalThis.GAME?.Modules?.TooltipUI;
-        if (tt?.hideGeneralTooltip) {
-          tt.hideGeneralTooltip({ doc: document, win: window });
-        }
-      });
-      const label = document.createElement('div');
-      label.style.cssText = "font-size:9px;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.1em;margin-bottom:2px;";
-      label.textContent = meta?.traitName || '유령 갑주';
-      const value = document.createElement('div');
-      value.style.cssText = "font-size:10px;color:var(--white);";
-      value.textContent = '방어막 50% 턴 시작 유지';
-      el.append(label, value);
-      return el;
-    }
   }
 };

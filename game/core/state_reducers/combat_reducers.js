@@ -3,10 +3,11 @@ import { Actions } from '../state_action_types.js';
 
 export const CombatReducers = {
   [Actions.COMBAT_START](gs, { enemies = [] }) {
-    gs.combat.active = true;
-    gs.combat.turn = 0;
-    gs.combat.playerTurn = true;
-    gs.combat.log = [];
+    const combat = gs.combat;
+    combat.active = true;
+    combat.turn = 0;
+    combat.playerTurn = true;
+    combat.log = [];
     gs.currentScreen = 'game';
     gs.markDirty('hud');
     gs.markDirty('hand');
@@ -14,19 +15,21 @@ export const CombatReducers = {
   },
 
   [Actions.COMBAT_END](gs, { victory = true }) {
-    gs.combat.active = false;
-    gs.combat.playerTurn = true;
+    const combat = gs.combat;
+    const player = gs.player;
+    combat.active = false;
+    combat.playerTurn = true;
 
-    gs.player.hand = [];
+    player.hand = [];
     CombatInitializer.resetCombatState(gs);
 
-    gs.player.graveyard = [];
-    gs.player.exhausted = [];
-    gs.player.drawPile = [];
-    gs.player.discardPile = [];
+    player.graveyard = [];
+    player.exhausted = [];
+    player.drawPile = [];
+    player.discardPile = [];
 
-    gs.player.silenceGauge = 0;
-    gs.player.timeRiftGauge = 0;
+    player.silenceGauge = 0;
+    player.timeRiftGauge = 0;
     gs._maskCount = 0;
     gs._batteryUsedTurn = false;
     gs._temporalTurn = 0;
@@ -45,9 +48,10 @@ export const CombatReducers = {
   },
 
   [Actions.TURN_START](gs, { isPlayerTurn }) {
-    gs.combat.turn++;
-    gs.combat.playerTurn = isPlayerTurn;
-    return { turn: gs.combat.turn, isPlayerTurn };
+    const combat = gs.combat;
+    combat.turn++;
+    combat.playerTurn = isPlayerTurn;
+    return { turn: combat.turn, isPlayerTurn };
   },
 
   [Actions.TURN_END](gs, { isPlayerTurn }) {

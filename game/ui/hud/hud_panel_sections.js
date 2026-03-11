@@ -60,7 +60,7 @@ function updateClassPanels({ gs, deps, doc, data, setText }) {
     setText('playerClassDisplay', className);
 
     if (specialEl && classMechanics?.[player.class]) {
-      setSpecialContent(specialEl, classMechanics[player.class].getSpecialUI(gs), doc);
+      setSpecialContent(specialEl, classMechanics[player.class].getSpecialUI(gs, deps), doc);
       specialEl.style.display = 'flex';
     } else if (specialEl) {
       specialEl.style.display = 'none';
@@ -68,7 +68,7 @@ function updateClassPanels({ gs, deps, doc, data, setText }) {
   }
 
   if (hoverSpecialEl && classMechanics?.[player.class]) {
-    setSpecialContent(hoverSpecialEl, classMechanics[player.class].getSpecialUI(gs), doc);
+    setSpecialContent(hoverSpecialEl, classMechanics[player.class].getSpecialUI(gs, deps), doc);
   } else if (hoverSpecialEl) {
     hoverSpecialEl.textContent = '';
     const none = doc.createElement('span');

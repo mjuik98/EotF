@@ -3,6 +3,7 @@ import { Actions } from '../state_action_types.js';
 export const EnemyReducers = {
   [Actions.ENEMY_DAMAGE](gs, { amount, targetIdx }) {
     const enemy = gs.combat.enemies[targetIdx];
+    const stats = gs.stats;
     if (!enemy) return { actualDamage: 0 };
 
     let remaining = amount;
@@ -12,7 +13,7 @@ export const EnemyReducers = {
       remaining -= absorbed;
     }
     enemy.hp = Math.max(0, enemy.hp - remaining);
-    gs.stats.damageDealt += remaining;
+    stats.damageDealt += remaining;
 
     return {
       shieldAbsorbed: amount - remaining,

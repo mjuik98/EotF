@@ -81,7 +81,7 @@ describe('combat_hud_special_ui', () => {
       guardian: {
         getSpecialUI: vi.fn(() => specialNode),
       },
-    }, MockElement);
+    }, {}, MockElement);
 
     expect(hover.children[0]).toBe(specialNode);
   });

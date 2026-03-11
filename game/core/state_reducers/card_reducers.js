@@ -2,26 +2,28 @@ import { Actions } from '../state_action_types.js';
 
 export const CardReducers = {
   [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {
+    const player = gs.player;
+
     if (!skipHandRemove) {
-      const idx = gs.player.hand.indexOf(cardId);
-      if (idx >= 0) gs.player.hand.splice(idx, 1);
+      const idx = player.hand.indexOf(cardId);
+      if (idx >= 0) player.hand.splice(idx, 1);
     }
 
     if (exhaust) {
-      gs.player.exhausted.push(cardId);
+      player.exhausted.push(cardId);
       let preventedExhaust = false;
       if (typeof gs.triggerItems === 'function') {
         preventedExhaust = gs.triggerItems('card_exhaust', { cardId }) === true;
       }
       if (preventedExhaust) {
-        const exIdx = gs.player.exhausted.lastIndexOf(cardId);
-        if (exIdx >= 0) gs.player.exhausted.splice(exIdx, 1);
-        gs.player.graveyard.push(cardId);
+        const exIdx = player.exhausted.lastIndexOf(cardId);
+        if (exIdx >= 0) player.exhausted.splice(exIdx, 1);
+        player.graveyard.push(cardId);
         gs.markDirty('hand');
         return { cardId, exhausted: false, preventedExhaust: true };
       }
     } else {
-      gs.player.graveyard.push(cardId);
+      player.graveyard.push(cardId);
       if (typeof gs.triggerItems === 'function') {
         gs.triggerItems('card_discard', { cardId });
       }
@@ -31,31 +33,32 @@ export const CardReducers = {
   },
 
   [Actions.CARD_DRAW](gs, { count }) {
+    const player = gs.player;
     let drewCards = 0;
     let attempts = 0;
-    const handCap = Math.max(1, 8 - Math.max(0, Number(gs.player._handCapMinus || 0)));
+    const handCap = Math.max(1, 8 - Math.max(0, Number(player._handCapMinus || 0)));
 
     for (let i = 0; i < count; i++) {
-      if (!gs.player.drawPile || gs.player.drawPile.length === 0) {
-        if (!gs.player.graveyard || gs.player.graveyard.length === 0) break;
+      if (!player.drawPile || player.drawPile.length === 0) {
+        if (!player.graveyard || player.graveyard.length === 0) break;
 
-        gs.player.drawPile = [...gs.player.graveyard];
-        for (let j = gs.player.drawPile.length - 1; j > 0; j--) {
+        player.drawPile = [...player.graveyard];
+        for (let j = player.drawPile.length - 1; j > 0; j--) {
           const k = Math.floor(Math.random() * (j + 1));
-          [gs.player.drawPile[j], gs.player.drawPile[k]] = [gs.player.drawPile[k], gs.player.drawPile[j]];
+          [player.drawPile[j], player.drawPile[k]] = [player.drawPile[k], player.drawPile[j]];
         }
-        gs.player.graveyard = [];
+        player.graveyard = [];
         if (typeof gs.addLog === 'function') {
           gs.addLog('Discard pile reshuffled into draw pile.', 'system');
         }
       }
 
-      if (gs.player.drawPile.length > 0) {
+      if (player.drawPile.length > 0) {
         attempts++;
 
-        if (gs.player.hand.length < handCap) {
-          const cardId = gs.player.drawPile.pop();
-          gs.player.hand.push(cardId);
+        if (player.hand.length < handCap) {
+          const cardId = player.drawPile.pop();
+          player.hand.push(cardId);
           drewCards++;
 
           if (typeof gs.triggerItems === 'function') {

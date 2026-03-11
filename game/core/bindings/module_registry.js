@@ -8,12 +8,12 @@ import { DATA } from '../../../data/game_data.js';
 import { NODE_META } from '../../data/node_meta.js';
 
 import { GS } from '../game_state.js';
-import { GAME, exposeGlobals } from '../global_bridge.js';
-import { GameInit } from '../game_init.js';
+import { GAME, exposeGlobals } from '../../platform/legacy/global_bridge.js';
+import { RootUIBindings as GameInit } from '../../platform/browser/root_ui_bindings.js';
 import { GameAPI } from '../game_api.js';
 
 import { DifficultyScaler } from '../../combat/difficulty_scaler.js';
-import { ClassMechanics } from '../../combat/class_mechanics.js';
+import { ClassMechanics } from '../../domain/class/class_mechanics.js';
 
 import { SetBonusSystem } from '../../systems/set_bonus_system.js';
 import { SaveSystem } from '../../systems/save_system.js';

@@ -1,4 +1,4 @@
-export function renderCombatHudClassSpecial(doc, gs, classMechanics, elementCtor = doc?.defaultView?.HTMLElement || null) {
+export function renderCombatHudClassSpecial(doc, gs, classMechanics, deps = {}, elementCtor = doc?.defaultView?.HTMLElement || null) {
   if (!gs || !gs.player || !classMechanics) return;
 
   const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
@@ -8,7 +8,7 @@ export function renderCombatHudClassSpecial(doc, gs, classMechanics, elementCtor
   hoverSpecialEl.textContent = '';
 
   if (mechanic) {
-    const specialUI = mechanic.getSpecialUI(gs);
+    const specialUI = mechanic.getSpecialUI(gs, { ...deps, doc });
     if (elementCtor && specialUI instanceof elementCtor) {
       hoverSpecialEl.appendChild(specialUI);
       return;

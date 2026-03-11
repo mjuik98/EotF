@@ -69,38 +69,32 @@ export const GameInit = {
         };
         const {
             showCharacterSelect, continueRun, openRunSettings, openCodexFromTitle, quitGame,
-            selectClass, startGame, backToTitle, closeRunSettings, shiftAscension,
+            startGame, backToTitle, closeRunSettings, shiftAscension,
             toggleEndlessMode, cycleRunCurse, drawCard, endPlayerTurn, useEchoSkill,
             openSettings, closeSettings
         } = deps.actions;
 
-        // Title-screen-only Escape Handler
-        // (Combat/game ESC is handled by help_pause_ui.js bindGlobalHotkeys)
         doc.addEventListener('keydown', (e) => {
             if (!isTitleScreen()) return;
             if (isEscapeKey(e)) {
-                // Codex (opened from title)
                 const codexModal = doc.getElementById('codexModal');
                 if (isVisibleModal(codexModal)) {
                     GAME.API.closeCodex?.();
                     return;
                 }
 
-                // Run Settings (opened from title)
                 const runSettings = doc.getElementById('runSettingsModal');
                 if (isVisibleModal(runSettings)) {
                     closeRunSettings?.();
                     return;
                 }
 
-                // Settings modal (opened from title)
                 const settingsModal = doc.getElementById('settingsModal');
                 if (isVisibleModal(settingsModal)) {
                     closeSettings?.();
                     return;
                 }
 
-                // Character Select (Title Screen)
                 const char = doc.getElementById('charSelectSubScreen');
                 if (char && char.style.display === 'block') {
                     backToTitle?.();
@@ -122,7 +116,6 @@ export const GameInit = {
         doc.getElementById('startBtn')?.addEventListener('click', () => startGame?.());
         doc.getElementById('backToTitleBtn')?.addEventListener('click', () => backToTitle?.());
 
-        // Run Rules
         doc.getElementById('runSettingsCloseBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); closeRunSettings?.(); });
         doc.getElementById('runSettingsConfirmBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); closeRunSettings?.(); });
         doc.querySelectorAll('.run-mode-stepper .run-mode-btn').forEach((btn, i) => {
@@ -133,7 +126,6 @@ export const GameInit = {
         doc.getElementById('toggleInscriptionLayoutBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
         doc.getElementById('toggleAllInscriptionsBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); });
 
-        // Maze
         doc.getElementById('mazeMinimapCanvas')?.addEventListener('click', (e) => {
             e.stopPropagation();
             window.MapUI?.showFullMap?.();
@@ -148,7 +140,6 @@ export const GameInit = {
         doc.getElementById('mazeMoveDown')?.addEventListener('click', () => mazeMove(0, 1));
         doc.getElementById('mazeMoveRight')?.addEventListener('click', () => mazeMove(1, 0));
 
-        // Combat
         const echoBtn = doc.getElementById('useEchoSkillBtn');
         if (echoBtn) {
             echoBtn.addEventListener('click', () => {
@@ -168,7 +159,6 @@ export const GameInit = {
         });
         doc.getElementById('endPlayerTurnBtn')?.addEventListener('click', () => endPlayerTurn?.());
 
-        // Battle Chronicle (전투 기록)
         doc.getElementById('showBattleChronicleBtn')?.addEventListener('click', () => {
             deps.audioEngine?.playClick?.();
             GAME.API.toggleBattleChronicle?.();
@@ -186,18 +176,15 @@ export const GameInit = {
             }
         });
 
-        // Rewards
         doc.getElementById('rewardSkipInitBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.showSkipConfirm?.(); });
         doc.getElementById('rewardSkipConfirmBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.skipReward?.(); });
         doc.getElementById('rewardSkipCancelBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.hideSkipConfirm?.(); });
 
-        // Deck View
         doc.querySelectorAll('.deck-filter-btn').forEach(btn => {
             btn.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.setDeckFilter?.(btn.dataset.filter); });
         });
         doc.getElementById('deckViewCloseBtn')?.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.closeDeckView?.(); });
 
-        // Codex
         doc.querySelectorAll('.codex-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => { deps.audioEngine?.playClick?.(); GAME.API.setCodexTab?.(btn.dataset.tab); });
         });

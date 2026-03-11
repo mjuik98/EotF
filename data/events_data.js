@@ -4,6 +4,10 @@
 import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
 import { ITEMS } from './items.js';
+import { echoResonanceEvent } from './events/echo_resonance_event.js';
+import { forgeEvent } from './events/forge_event.js';
+import { merchantLostEvent } from './events/merchant_lost_event.js';
+import { shrineEvent } from './events/shrine_event.js';
 import { AudioEngine } from '../engine/audio.js';
 import { registerItemFound } from '../game/systems/codex_records_system.js';
 
@@ -140,125 +144,10 @@ export const EVENTS = [
             }
         ]
     },
-    {
-        id: 'shrine', layer: 1, title: '잔향의 사당', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '사당 앞에 잔향이 고여 있다. 오래된 것들이 기도하다 흘린 에너지가 이곳에 남아 있다. 신은 없다. 잔향만 있다.',
-        choices: [
-            {
-                text: '❤️ 피를 바친다 (체력 -10 → 잔향 +50)',
-                effect(gs) {
-                    gs.player.hp = Math.max(1, gs.player.hp - 10);
-                    gs.addEcho(50);
-                    return '피가 제단석에 닿는 순간, 잔향이 타오른다. 몸이 더 가벼워진 건지 가벼워진 척하는 건지.';
-                }
-            },
-            {
-                text: '💰 동전을 떨어뜨린다 (15골드 → 체력 +20)',
-                effect(gs) {
-                    if (gs.player.hp >= gs.player.maxHp) {
-                        return { resultText: '상처가 없다. 신도 쓸모없는 것은 받지 않는다.', isFail: true };
-                    }
-                    if (gs.player.gold >= 15) {
-                        gs.player.gold -= 15;
-                        gs.heal(20);
-                        return '동전이 빛으로 변했다. 치유가 스며든다. 돈으로 살 수 있는 것들이 있다는 사실이 위안이 되기도, 불편하기도 하다.';
-                    }
-                    return '기억이 얕다. 사당은 빈 손을 원하지 않는다.';
-                }
-            },
-            {
-                text: '🚶 등을 보인다',
-                effect(gs) {
-                    return '사당을 등졌다. 뒤에서 무언가 보는 느낌이 있었지만, 돌아보지 않았다.';
-                }
-            },
-        ]
-    },
-    {
-        id: 'merchant_lost', layer: 2, title: '길 잃은 상인', eyebrow: 'LAYER 2 · 연속 이벤트',
-        desc: '상인이 주저앉아 있다. 잔향 에너지에 방향을 잃었다. 눈이 흐리다. 당신을 보자 입술이 떨렸다 — 두려움인지, 안도인지.',
-        choices: [
-            {
-                text: '🤝 손을 내민다',
-                effect(gs) {
-                    gs.worldMemory.savedMerchant = (gs.worldMemory.savedMerchant || 0) + 1;
-                    gs.heal(15);
-                    gs.addLog(LogUtils.formatHeal('상인', 15), 'heal');
-                    return '상인은 치료약을 내밀었다. 말은 없었다. 이 표정을 어디선가 본 것 같다 — 당신이 구해준 것이 이번이 처음이 아닌 것처럼.';
-                }
-            },
-            {
-                text: '💰 빼앗는다',
-                effect(gs) {
-                    gs.addGold(30);
-                    gs.worldMemory.stoleFromMerchant = true;
-                    gs.addLog(LogUtils.formatStatChange('약탈', '골드', 30), 'damage');
-                    return '동전 서른 닢. 상인은 저항하지 않았다. 세계는 이 선택을 기억한다. 당신도 기억하게 될 것이다.';
-                }
-            },
-        ]
-    },
-    {
-        id: 'echo_resonance', layer: 1, title: '잔향 공명', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '공기가 진동한다. 누군가 이 길을 걸었다 — 아마 당신 자신이. 에너지는 발걸음을 기억하고, 기억은 에너지가 된다.',
-        choices: [
-            {
-                text: '⚡ 흡수당한다',
-                effect(gs) {
-                    gs.addEcho(60);
-                    return '잔향이 흉곽을 가득 채운다. 다른 루프의 기억들이 잠깐 스쳐 지나갔다. 보이지 않아서 다행이다.';
-                }
-            },
-            {
-                text: '🃏 에너지가 카드를 원한다',
-                effect(gs) {
-                    const c = gs.getRandomCard('rare');
-                    gs.player.deck.push(c);
-                    return {
-                        resultText: `에너지가 응결한다. 기억이 기술이 된다 — ${CARDS[c]?.name}. 배운 기억이 흐릿한데 손이 먼저 안다.`,
-                        acquiredCard: c
-                    };
-                }
-            },
-        ]
-    },
-    {
-        id: 'forge', layer: 1, title: '잔향의 대장간', eyebrow: 'LAYER 1 · 우발적 이벤트',
-        desc: '대장간은 아무도 없는데 불이 켜져 있다. 잔향 에너지로 달구어진 화로가 무언가를 기다린다. 아니면 — 당신을 기억하고 있다.',
-        choices: [
-            {
-                text: '⚒️ 화로가 원하는 것을 준다',
-                effect(gs) {
-                    const upgradable = gs.player.deck.filter(id => window.DATA?.upgradeMap?.[id]);
-                    if (!upgradable.length) {
-                        return { resultText: '화로가 식는다. 더 나아질 것이 없다는 뜻인지, 아직 때가 아니라는 뜻인지.', isFail: true };
-                    }
-
-                    const target = upgradable[Math.floor(Math.random() * upgradable.length)];
-                    const upgraded = window.DATA.upgradeMap[target];
-                    const idx = gs.player.deck.indexOf(target);
-                    if (idx !== -1) gs.player.deck[idx] = upgraded;
-
-                    const originName = window.DATA.cards[target]?.name || '알 수 없음';
-                    const newName = window.DATA.cards[upgraded]?.name || '알 수 없음';
-                    return `${originName}이 불 속에서 다시 태어났다. ${newName}. 같은 카드가 아니다.`;
-                }
-            },
-            {
-                text: '🔥 흡수당한다',
-                effect(gs) {
-                    gs.addEcho(40);
-                    return '화로 앞에 서자 잔향이 스며든다. 뜨겁지 않다. 익숙한 온도다.';
-                }
-            },
-            {
-                text: '🚶 보지 않은 척 지나간다',
-                effect(gs) {
-                    return '화로를 지나치며 장갑끈만 고쳐 맸다. 오늘은 강철보다 침묵을 택했다.';
-                }
-            },
-        ]
-    },
+    shrineEvent,
+    merchantLostEvent,
+    echoResonanceEvent,
+    forgeEvent,
     {
         id: 'echo_scale', layer: 1, title: '기억의 저울', eyebrow: 'LAYER 1 · 우발적 이벤트',
         desc: '허공에 녹슨 저울 하나가 떠 있다. 한쪽 접시에는 황금이 쌓여 있고, 다른 쪽은 비어 있다. 저울대에는 "기억은 금보다 무겁고, 생명은 그보다 소중하다"는 문구가 새겨져 있다.',

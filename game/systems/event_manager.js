@@ -4,6 +4,7 @@
 
 import { CONSTANTS } from '../data/constants.js';
 import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../data/event_shop_data.js';
+import { resolveEventChoiceService } from '../app/event/resolve_event_choice_service.js';
 import { registerCardDiscovered, registerItemFound } from './codex_records_system.js';
 
 function _totalDeckCards(player) {
@@ -108,7 +109,7 @@ export const EventManager = {
   resolveEventChoice(gs, event, choiceIdx) {
     if (!event || !gs) return _createEventChoiceResult(null, { shouldClose: true });
     const choice = event.choices?.[choiceIdx];
-    if (!choice || typeof choice.effect !== 'function') {
+    if (!choice || (!choice.effectId && typeof choice.effect !== 'function')) {
       return _createEventChoiceResult(null, { shouldClose: true });
     }
     if (_isChoiceDisabled(choice, gs)) {
@@ -120,31 +121,11 @@ export const EventManager = {
       };
     }
 
-    const result = choice.effect(gs);
-    if (!result) {
-      return { resultText: null, isFail: false, shouldClose: true, isItemShop: false };
-    }
-    if (result === '__item_shop_open__') {
-      return { resultText: null, isFail: false, shouldClose: false, isItemShop: true };
-    }
+    const result = choice.effectId
+      ? resolveEventChoiceService({ gs, event, choice })
+      : choice.effect(gs);
 
-    const isFail = typeof result === 'object' && result !== null ? result.isFail === true : false;
-    const shouldClose = typeof result === 'object' && result !== null && typeof result.shouldClose === 'boolean'
-      ? result.shouldClose
-      : !event.persistent && !isFail;
-
-    const resolution = {
-      resultText: typeof result === 'object' && result !== null ? result.resultText : result,
-      isFail,
-      shouldClose,
-      isItemShop: typeof result === 'object' && result !== null ? result.isItemShop === true : false,
-    };
-    if (typeof result === 'object' && result !== null) {
-      resolution.resultText = result.resultText;
-      resolution.acquiredCard = result.acquiredCard;
-      resolution.acquiredItem = result.acquiredItem;
-    }
-    return resolution;
+    return _normalizeEventChoiceResult(event, result);
   },
 
   createShopEvent(gs, data, runRules, { showItemShopFn } = {}) {
