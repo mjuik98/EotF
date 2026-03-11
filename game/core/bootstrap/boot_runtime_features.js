@@ -6,6 +6,7 @@ import {
   registerInitSequenceBindings,
   setupStorySystemBridge,
 } from '../init_sequence_steps.js';
+import { registerRuntimeDebugHooks } from './register_runtime_debug_hooks.js';
 
 export function bootRuntimeFeatures({ modules, fns, deps, doc, win }) {
   registerSubscribers({
@@ -58,6 +59,13 @@ export function bootRuntimeFeatures({ modules, fns, deps, doc, win }) {
 
   modules.exposeGlobals({
     _syncVolumeUI: () => modules.GameInit.syncVolumeUI(modules.AudioEngine),
+  });
+
+  registerRuntimeDebugHooks({
+    modules,
+    fns,
+    doc,
+    win,
   });
 
   try {

@@ -16,6 +16,7 @@ function createModules() {
     GAME: {
       init: vi.fn(),
       getDeps: vi.fn(() => ({ token: 'game-deps' })),
+      getRunDeps: vi.fn(() => ({ token: 'run-deps' })),
       register: vi.fn((name, value) => {
         registered[name] = value;
       }),
@@ -176,7 +177,7 @@ describe('bootGame', () => {
     }));
 
     expect(modules.GameInit.boot).toHaveBeenCalledWith(expect.objectContaining({
-      token: 'game-deps',
+      token: 'run-deps',
       audioEngine: modules.AudioEngine,
       particleSystem: modules.ParticleSystem,
       helpPauseUI: modules.HelpPauseUI,

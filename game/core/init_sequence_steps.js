@@ -62,7 +62,7 @@ export function mountCharacterSelect({ modules, deps, fns, doc }) {
 
 export function buildGameBootPayload({ modules, deps, fns }) {
   return {
-    ...modules.GAME.getDeps(),
+    ...(modules.GAME.getRunDeps?.() || {}),
     audioEngine: modules.AudioEngine,
     particleSystem: modules.ParticleSystem,
     helpPauseUI: modules.HelpPauseUI,

@@ -1,4 +1,4 @@
-import { SaveAdapter } from '../core/save_adapter.js';
+import { SaveAdapter } from '../platform/storage/save_adapter.js';
 import { Logger } from '../utils/logger.js';
 import { META_SAVE_VERSION, RUN_SAVE_VERSION, migrateMetaSave, migrateRunSave } from './save_migrations.js';
 

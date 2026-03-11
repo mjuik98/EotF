@@ -1,11 +1,11 @@
 export function buildRunContractBuilders(ctx) {
-  const { getRefs, buildBaseDeps, getGameDeps, getRaf, createDeps } = ctx;
+  const { getRefs, buildBaseDeps, getRunDeps, getRaf, createDeps } = ctx;
 
   return {
     runMode: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         runRules: refs.RunRules,
         saveMeta: () => refs.SaveSystem?.saveMeta?.(createDeps('saveSystem')),
         notice: (msg) => refs.showWorldMemoryNotice?.(msg),
@@ -15,7 +15,7 @@ export function buildRunContractBuilders(ctx) {
     runStart: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         switchScreen: refs.switchScreen,
         markGameStarted: refs.markGameStarted,
         generateMap: refs.generateMap,
@@ -33,7 +33,7 @@ export function buildRunContractBuilders(ctx) {
     runSetup: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         runRules: refs.RunRules,
         audioEngine: refs.AudioEngine,
         getSelectedClass: refs.getSelectedClass,
@@ -46,7 +46,7 @@ export function buildRunContractBuilders(ctx) {
     metaProgression: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         switchScreen: refs.switchScreen,
         clearSelectedClass: refs.clearSelectedClass,
         refreshRunModePanel: refs.refreshRunModePanel,
@@ -58,7 +58,7 @@ export function buildRunContractBuilders(ctx) {
     regionTransition: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         mazeSystem: refs.MazeSystem,
         getRegionData: refs.getRegionData,
         getBaseRegionIndex: refs.getBaseRegionIndex,
@@ -74,7 +74,7 @@ export function buildRunContractBuilders(ctx) {
     gameBoot: () => {
       const refs = getRefs();
       return {
-        ...getGameDeps(),
+        ...getRunDeps(),
         audioEngine: refs.AudioEngine,
         runRules: refs.RunRules,
         saveSystem: refs.SaveSystem,

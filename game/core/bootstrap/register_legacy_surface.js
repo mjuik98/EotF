@@ -1,3 +1,8 @@
+import { buildLegacySurfaceBindingGlobals } from './legacy_surface_binding_globals.js';
+import { buildLegacySurfaceEngineGlobals } from './legacy_surface_engine_globals.js';
+import { buildLegacySurfaceSystemGlobals } from './legacy_surface_system_globals.js';
+import { buildLegacySurfaceUIGlobals } from './legacy_surface_ui_globals.js';
+
 export function registerLegacySurface({ modules, fns }) {
   const {
     GAME,
@@ -13,39 +18,17 @@ export function registerLegacySurface({ modules, fns }) {
   GAME.init(GS, DATA, AudioEngine, ParticleSystem);
 
   exposeGlobals({
-    AudioEngine,
-    ParticleSystem,
-    ScreenShake: modules.ScreenShake,
-    HitStop: modules.HitStop,
-    FovEngine,
-    DifficultyScaler: modules.DifficultyScaler,
-    RandomUtils: modules.RandomUtils,
-    RunRules: modules.RunRules,
-    getRegionData: modules.getRegionData,
-    getBaseRegionIndex: modules.getBaseRegionIndex,
-    getRegionCount: modules.getRegionCount,
-    ClassMechanics: modules.ClassMechanics,
-    SetBonusSystem: modules.SetBonusSystem,
-    SaveSystem: modules.SaveSystem,
-    CardCostUtils: modules.CardCostUtils,
-    CodexUI: modules.CodexUI,
-    EventUI: modules.EventUI,
-    CombatUI: modules.CombatUI,
-    DeckModalUI: modules.DeckModalUI,
-    RunModeUI: modules.RunModeUI,
-    ScreenUI: modules.ScreenUI,
-    TitleCanvasUI: modules.TitleCanvasUI,
-    ClassSelectUI: modules.ClassSelectUI,
-    CombatHudUI: modules.CombatHudUI,
-    HudUpdateUI: modules.HudUpdateUI,
-    StatusEffectsUI: modules.StatusEffectsUI,
-    RewardUI: modules.RewardUI,
-    CombatActionsUI: modules.CombatActionsUI,
-    TooltipUI: modules.TooltipUI,
-    HelpPauseUI,
-    RunSetupUI: modules.RunSetupUI,
-    DescriptionUtils: modules.DescriptionUtils,
-    classMechanics: modules.ClassMechanics,
-    ...fns,
+    ...buildLegacySurfaceEngineGlobals({
+      AudioEngine,
+      ParticleSystem,
+      FovEngine,
+      ...modules,
+    }),
+    ...buildLegacySurfaceSystemGlobals(modules),
+    ...buildLegacySurfaceUIGlobals({
+      HelpPauseUI,
+      ...modules,
+    }),
+    ...buildLegacySurfaceBindingGlobals(fns),
   });
 }

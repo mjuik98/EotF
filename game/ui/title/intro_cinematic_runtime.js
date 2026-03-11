@@ -21,11 +21,16 @@ function bindBrowserFn(fn, context) {
 }
 
 function resolveDoc(deps = {}) {
-  return deps.doc || null;
+  if (deps.doc) return deps.doc;
+  if (typeof document !== 'undefined') return document;
+  return null;
 }
 
 function resolveWin(deps = {}, doc = null) {
-  return deps.win || doc?.defaultView || null;
+  if (deps.win) return deps.win;
+  if (doc?.defaultView) return doc.defaultView;
+  if (typeof window !== 'undefined') return window;
+  return null;
 }
 
 function resolveTimerApi(deps = {}, win = null) {

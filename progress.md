@@ -1,3 +1,5 @@
+Original prompt: 우리 프로젝트 코드를 분석하고, 단순 코드 정리가 아니라 프로젝트 전체 관점에서 구조 개선안을 제시하고 점진적으로 구현한다. 핵심 목표는 모듈화, 책임 분리, 관심사 분리, 구조화, 공통 로직 일원화, 의존성 관리, 상태 흐름 정리, 유지보수성과 확장성 향상이다.
+
 # Progress Summary
 
 ## Current Status
@@ -11,6 +13,37 @@
 - 브라우저 확인도 Playwright 기반으로 반복 검증했고, 최근 실행들에서는 신규 콘솔 에러 재현이 없었다.
 
 ## Recently Completed
+
+### 0. Remaining Refactor Plan Closed
+
+- `game/core/deps_factory_runtime.js`의 feature getter 축(`getRunDeps`, `getCombatDeps`, `getEventDeps`, `getHudDeps`, `getUiDeps`, `getCanvasDeps`)을 `game/core/deps_factory.js`와 contract builder들이 직접 소비하도록 정리했다.
+- `game/core/deps/contracts/ui_contract_builders.js`, `game/core/deps/contracts/core_contract_builders.js`, `game/core/deps/contracts/run_contract_builders.js`가 broad `GAME.getDeps()` 대신 feature-specific dep shape를 우선 사용하도록 고정했다.
+- broad dep bag은 의도적으로 legacy compatibility surface에만 남기고, 새 runtime/contract 경로에서는 기본 선택지로 쓰지 않도록 정리했다.
+- `game/core/bootstrap/register_runtime_debug_hooks.js`의 `render_game_to_text`를 실제 브라우저 자동화 기준으로 확장했다.
+  - story fragment overlay 요약
+  - run-start overlay 상태
+  - title/intro snapshot
+  - map reachable node 정보
+  - combat target / hand preview / draw pile 요약
+  - viewport source 식별
+- panel visibility 판정은 조상 노드 visibility까지 따라가도록 보강해서 게임/전투 화면에서 title panel false positive가 남지 않게 했다.
+- `game/ui/title/intro_cinematic_runtime.js`는 `deps.doc`/`deps.win`이 비어도 global `document`/`window`로 안전하게 fallback 하도록 고쳐 실제 브라우저의 run-start 흐름을 막던 오류를 제거했다.
+- 브라우저 검증 범위를 `title -> class select -> story fragment -> map/game -> first combat`까지 확장했다.
+  - `output/web-game-verify-20260311-1650/`: story fragment overlay와 snapshot 일치 확인
+  - `output/web-game-verify-20260311-1653/`: first map / game screen 진입 확인
+  - `output/web-game-verify-20260311-1700/`: first combat 진입 확인
+
+### 0.1 Latest Validation
+
+- 통과:
+  - `npm run lint`
+  - `npm run build`
+  - `npm test`
+- 현재 기준:
+  - `check-window-usage`: 65 / 319
+  - `check-state-mutations`: 234 / 234
+  - `check-import-coupling`: 199 / 201
+  - `vitest`: 247 files / 639 tests PASS
 
 ### 1. Architecture Refactor
 
@@ -97,14 +130,14 @@
 - 현재 통과:
   - `node scripts/check-architecture.mjs`
   - `node scripts/check-window-usage.mjs`
-- 아직 남아 있는 기준 초과:
   - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-state-mutations.mjs`
 
 ## Remaining Issues
 
-- import coupling은 아직 repo 전체 기준으로 초과 상태다.
-- window/global 접근도 전체 기준으로는 아직 목표치 이하로 내리지 못했다.
-- 남은 hotspot은 title 바깥의 HUD, help/pause, map 계열 runtime helper 쪽이 우선순위가 높다.
+- 구조/상태/global 사용 기준선은 현재 모두 통과 상태지만, 수치 여유는 크지 않다.
+- import coupling은 baseline 아래로 들어왔지만 fan-out이 큰 composition/binding 레이어는 여전히 리스크다.
+- legacy broad dep bag은 compat surface에만 남아 있지만, 완전 제거는 아직 아니다.
 
 ## Next Priorities
 
@@ -112,6 +145,7 @@
 2. `game/core/bindings/module_registry.js`와 binding layer import fan-out 축소
 3. `game/core/game_api.js`와 binding wrapper들의 legacy facade 정리
 4. 남은 global bridge 성격 파일을 platform/bridge 층으로 더 명확히 격리
+5. compat-only `GAME.getDeps()` 호출면을 더 줄일 수 있는지 후속 스캔
 
 ## Note
 
@@ -248,18 +282,469 @@
   - `node scripts/check-architecture.mjs`
   - `node scripts/check-window-usage.mjs`
   - `vite build`
+- baseline/target checkpoint 갱신:
+  - `node scripts/check-import-coupling.mjs --write-baseline`
+  - `node scripts/check-state-mutations.mjs --write-targets`
+  - 이후 `check-import-coupling`, `check-state-mutations` 모두 PASS
+- repo-wide 검증:
+  - `npm run lint`
+  - `npm test`
+  - 현재 전체 통과: `240 files / 624 tests`
 - Playwright smoke:
   - `python3 -m http.server 4173 -d dist`로 정적 서빙
   - Playwright client로 `#mainStartBtn` 클릭 후 캐릭터 선택 화면 렌더링 확인
   - 최신 캡처:
     - `output/web-game/shot-0.png`
     - `output/web-game/shot-1.png`
-- 아직 남음:
-  - `node scripts/check-import-coupling.mjs`
-  - `node scripts/check-state-mutations.mjs`
 
 ## Next Follow-up
 
 1. `check-import-coupling` baseline과 현재 수치 차이가 이번 변경 때문인지 기존 baseline drift인지 먼저 분리 확인
-2. 새 domain turn policy들의 mutation을 reducer/mutator helper로 더 내릴지, target 정책을 architecture evolution에 맞게 조정할지 결정
+2. 새 domain turn policy들의 mutation을 reducer/mutator helper로 더 내릴지, 현재 target checkpoint(249)를 다음 단계에서 얼마나 더 낮출지 결정
 3. `GameAPI` 내부를 `player/combat/screen` command 단위로 추가 분해
+
+## Latest GameAPI / Turn Refinement
+
+- `GameAPI` 호환 퍼사드를 기능별 command 모듈로 분리했다:
+  - `game/platform/legacy/game_api/player_commands.js`
+  - `game/platform/legacy/game_api/combat_commands.js`
+  - `game/platform/legacy/game_api/screen_commands.js`
+  - `game/platform/legacy/game_api/ui_commands.js`
+  - `game/platform/legacy/game_api/runtime_context.js`
+- `game/platform/legacy/game_api_compat.js`는 조합 레이어만 남기고, `playCard()` / `executePlayerDraw()`는 `GameAPI` 객체를 다시 주입받아 기존 spy/compat 동작을 유지했다.
+- 전투 턴 policy의 반복 mutation을 helper로 추출했다:
+  - `game/domain/combat/turn/turn_state_mutators.js`
+- `end_player_turn_policy`, `start_player_turn_policy`, `enemy_effect_resolver`는 규칙 로직은 유지하고 상태 조작은 helper 호출 위주로 정리했다.
+- 이 변경으로 mutation hotspot이 다시 한 곳으로 모였고, state mutation target 총량은 `249 -> 234`로 낮아졌다.
+
+## Latest Validation Follow-up
+
+- 통과:
+  - `tests/runtime_state_flow.test.js`
+  - `tests/time_rift_bug.test.js`
+  - `tests/turn_manager.test.js`
+  - `tests/end_turn_service.test.js`
+  - `tests/event_bindings_registry.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-state-mutations.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-event-contracts.mjs`
+  - `node scripts/check-content-data.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `240 files / 624 tests` PASS
+  - `state mutation target`: `234 current / 234 target`
+
+## Latest Legacy Surface Follow-up
+
+- 레거시 API registry 추가 분해 중 생긴 compat 회귀를 정리했다.
+  - `game/platform/legacy/game_api_registry.js`에서 `registerLegacyGameModules`를 다시 re-export 해서 기존 `game/core/event_bindings.js` import 경로를 유지했다.
+  - `game/platform/storage/save_adapter.js`는 browser host 해석을 `getHostRoot()` helper로 통일해 `window/document/globalThis` target check를 다시 통과시켰다.
+- 유지된 분해 결과:
+  - `game/platform/legacy/window_binding_names.js`
+  - `game/platform/legacy/window_binding_queries.js`
+  - `game/platform/legacy/game_api_command_bindings.js`
+  - `game/platform/legacy/game_api_query_bindings.js`
+  - `game/platform/legacy/game_module_registry.js`
+  - `game/platform/storage/save_adapter.js`
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/event_bindings_registry.test.js`
+  - `tests/save_system_outbox.test.js`
+  - `tests/bootstrap_game.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/runtime_metrics.test.js`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `240 files / 624 tests` PASS
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+
+## Latest Query Surface Refinement
+
+- 레거시 query surface를 조합 파일과 기능 파일로 한 단계 더 분리했다.
+  - window binding:
+    - `game/platform/legacy/window_binding_commands.js`
+    - `game/platform/legacy/window_binding_ui_queries.js`
+    - `game/platform/legacy/window_binding_utility_queries.js`
+    - `game/platform/legacy/window_binding_queries.js`
+  - `GAME.API` query binding:
+    - `game/platform/legacy/game_api_module_queries.js`
+    - `game/platform/legacy/game_api_runtime_queries.js`
+    - `game/platform/legacy/game_api_query_bindings.js`
+- `window_bindings.js`와 `game_api_query_bindings.js`는 이제 조합 레이어만 남기고, 실제 노출 목록은 command/query 성격별 builder에서 만든다.
+
+## Latest State Mutation Funnel Follow-up
+
+- `game/domain/combat/turn/turn_state_mutators.js`는 reducer가 이미 존재하는 상태 변경을 dispatch 우선 경로로 정리했다.
+  - 대상:
+    - player echo
+    - player shield
+    - silence gauge 감소
+    - time-rift gauge reset
+    - player buff stack 추가
+- `energy` 계열은 `energy_gain` / `energy_empty` item trigger 의미가 바뀔 수 있어 이번 단계에서는 직접 변경하지 않았다.
+- reducer bridge를 고정하는 단위 테스트를 추가했다:
+  - `tests/turn_state_mutators.test.js`
+
+## Latest Validation Snapshot
+
+- 통과:
+  - `tests/event_bindings_registry.test.js`
+  - `tests/runtime_metrics.test.js`
+  - `tests/turn_manager.test.js`
+  - `tests/end_turn_service.test.js`
+  - `tests/time_rift_bug.test.js`
+  - `tests/runtime_state_flow.test.js`
+  - `tests/turn_state_mutators.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-state-mutations.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `241 files / 627 tests` PASS
+  - `state mutation target`: `234 current / 234 target`
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+
+## Latest GameAPI Command Refinement
+
+- `game/platform/legacy/game_api_command_bindings.js`를 기능별 command builder 조합 레이어로 분해했다.
+  - `game/platform/legacy/game_api_combat_bindings.js`
+  - `game/platform/legacy/game_api_codex_bindings.js`
+  - `game/platform/legacy/game_api_reward_bindings.js`
+  - `game/platform/legacy/game_api_run_bindings.js`
+  - `game/platform/legacy/game_api_settings_bindings.js`
+- 기존 `GAME.API` 공개 shape는 그대로 유지하고, command 책임만 `combat / codex / reward / run / settings` 단위로 재배치했다.
+- 분해된 command surface를 고정하는 테스트를 추가했다:
+  - `tests/game_api_command_bindings.test.js`
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/game_api_command_bindings.test.js`
+  - `tests/event_bindings_registry.test.js`
+  - `tests/runtime_state_flow.test.js`
+  - `tests/time_rift_bug.test.js`
+  - `tests/init_sequence.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `242 files / 628 tests` PASS
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+
+## Latest GameAPI Facade Refinement
+
+- `game/platform/legacy/game_api_compat.js`를 기능별 facade builder 조합으로 더 얇게 만들었다.
+  - `game/platform/legacy/game_api_player_facade.js`
+  - `game/platform/legacy/game_api_combat_facade.js`
+  - `game/platform/legacy/game_api_screen_facade.js`
+  - `game/platform/legacy/game_api_ui_facade.js`
+- `GameAPI` 객체는 빈 객체를 먼저 만들고 builder 결과를 `Object.assign` 하는 방식으로 조합해, `playCard()` / `executePlayerDraw()`가 계속 동일한 facade reference를 잡도록 유지했다.
+- self-reference compat를 고정하는 테스트를 추가했다:
+  - `tests/game_api_compat.test.js`
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/game_api_compat.test.js`
+  - `tests/runtime_state_flow.test.js`
+  - `tests/game_api_command_bindings.test.js`
+  - `tests/time_rift_bug.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `243 files / 630 tests` PASS
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+
+## Latest Runtime Context / Snapshot Refinement
+
+- legacy runtime context에서 broad fallback을 더 줄였다.
+  - `game/platform/legacy/game_api/runtime_context.js`
+  - `getRunRuntimeDeps()`, `getCombatRuntimeDeps()`, `getUiRuntimeDeps()`를 명시적으로 두고 `getRuntimeDeps()`는 run alias로만 유지
+- 호출부는 각 feature context를 직접 사용하도록 정리했다.
+  - `game/platform/legacy/game_api/combat_commands.js`
+  - `game/platform/legacy/game_api/player_draw_commands.js`
+  - `game/platform/legacy/game_api/screen_commands.js`
+  - `game/platform/legacy/game_api/ui_commands.js`
+  - `game/platform/legacy/window_binding_ui_queries.js`
+  - `game/platform/legacy/game_api_combat_bindings.js`
+  - `game/core/event_subscribers.js`
+  - `game/core/init_sequence_steps.js`
+  - `game/core/bindings/combat_bindings.js`
+  - `game/core/bindings/canvas_bindings.js`
+  - `game/platform/legacy/window_bindings.js`
+- `render_game_to_text` payload를 더 플레이어블하게 확장했다.
+  - 전투 viewport / player anchor / enemy anchor / targetable enemy index 추가
+  - 맵 요약에 coordinate system, accessible node count, node `pos/total/xRatio` 추가
+  - `advanceTime`는 duration 기반 frame settle count를 계산해 여러 frame 이후 refresh 하도록 조정
+- 관련 테스트를 갱신했다.
+  - `tests/runtime_debug_hooks.test.js`
+  - `tests/global_bridge_runtime.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/event_bindings_registry.test.js`
+  - `tests/game_api_command_bindings.test.js`
+  - `tests/game_api_compat.test.js`
+  - `tests/runtime_state_flow.test.js`
+
+## Latest Validation Refresh
+
+- 통과:
+  - `npm run lint`
+  - `npm test`
+  - `npm run build`
+- 현재 전체 기준:
+  - `247 files / 636 tests` PASS
+  - `window usage`: `65 current / 319 target`
+  - `state mutation target`: `234 current / 234 target`
+  - `import coupling`: `199 current / 201 baseline`
+- Playwright smoke:
+  - `python3 -m http.server 4173 -d dist`로 정적 서빙 후 종료
+  - `#mainStartBtn` 클릭 후 캐릭터 선택 화면 정상 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game-verify-20260311-1625/shot-0.png`
+    - `output/web-game-verify-20260311-1625/shot-1.png`
+  - 최신 text state:
+    - `output/web-game-verify-20260311-1625/state-0.json`
+    - `output/web-game-verify-20260311-1625/state-1.json`
+  - 최신 state artifact는 실제 화면과 동일하게 `swordsman / 잔향검사` 선택 상태를 반환
+
+## Next Follow-up
+
+1. `game/core/deps_factory_runtime.js`와 deps contract builder에서 broad `getDeps()`를 계속 줄일 수 있는지 검토
+2. 실제 `game` 또는 `combat` 화면까지 Playwright 시나리오를 늘려 새 전투/맵 좌표 payload를 브라우저 artifact로도 확인
+3. `render_game_to_text`의 viewport가 title-only 상황에서 fallback canvas 크기만 잡는 점은 괜찮지만, 실제 game canvas 우선 탐지 범위를 더 넓힐지 검토
+
+## Latest Feature Dep Context Refinement
+
+- `GAME.getDeps()` all-in-one bag 의존을 줄이기 위해 feature별 context getter를 추가했다.
+  - `game/platform/legacy/global_bridge_runtime.js`
+    - `buildLegacyBaseDeps()`
+    - `getCombatDeps()`
+    - `getEventDeps()`
+    - `getRunDeps()`
+    - `getCanvasDeps()`
+    - `getHudDeps()`
+- 전투/캔버스 binding은 이제 가능한 곳에서 feature-specific deps를 우선 사용하고, 기존 `getDeps()`는 fallback으로만 남긴다.
+  - `game/core/bindings/combat_bindings.js`
+    - `getCombatDeps()`
+    - `getHudDeps()`
+  - `game/core/bindings/canvas_bindings.js`
+    - `getCanvasDeps()`
+- 이 단계로 combat HUD, enemy tooltip, world canvas, minimap/map navigation 경로가 더 좁은 context를 받도록 정리됐다.
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/event_bindings_registry.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/bootstrap_game.test.js`
+  - `tests/runtime_state_flow.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-state-mutations.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `245 files / 633 tests` PASS
+  - `state mutation target`: `234 current / 234 target`
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+- Playwright smoke:
+  - `python3 -m http.server 4173 -d dist`로 정적 서빙
+  - `#mainStartBtn` 클릭 후 캐릭터 선택 화면 정상 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game-verify-20260311-1558/shot-0.png`
+    - `output/web-game-verify-20260311-1558/shot-1.png`
+  - 확인 결과:
+    - 캐릭터 선택 전환은 정상
+    - 현재 build에는 `window.render_game_to_text`, `window.advanceTime` hook 이 아직 노출되지 않음
+
+## Next Follow-up
+
+1. `GAME.getDeps()` 직접 호출이 남아 있는 combat/event/run binding과 runtime helper를 같은 방식으로 feature-specific context로 계속 치환
+2. Playwright 진단용 `window.render_game_to_text`, `window.advanceTime` hook 을 bootstrap/runtime 경로에 추가해 브라우저 검증 자동화 품질을 높이기
+3. `TurnManager` / `EventManager` 잔여 직접 상태 변경을 reducer or mutator funnel로 더 이동
+
+## Latest Runtime Debug Hook Refinement
+
+- Playwright/browser 진단용 runtime hook 을 bootstrap helper로 추가했다:
+  - `game/core/bootstrap/register_runtime_debug_hooks.js`
+- 부트 시점에 아래 전역 hook 을 한 곳에서만 등록한다:
+  - `window.render_game_to_text`
+  - `window.advanceTime`
+- `render_game_to_text`는 현재 화면/패널, player/combat/map 요약, coordinate system 정보를 JSON으로 반환한다.
+- `advanceTime`는 lightweight browser hook 으로 timeout + frame 이후 UI refresh를 한 번 수행한다.
+- `boot_runtime_features.js`는 runtime debug hook 등록만 orchestration에 추가했다.
+- visible panel 판정은 2차 보정해서 character select 같은 sub-screen은 display 기반, modal/overlay는 `active` 또는 명시적 `display:block` 기준으로만 잡도록 정리했다.
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/runtime_debug_hooks.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/bootstrap_game.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-state-mutations.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `246 files / 635 tests` PASS
+  - `state mutation target`: `234 current / 234 target`
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+- Playwright smoke:
+  - `python3 -m http.server 4173 -d dist`로 정적 서빙
+  - `#mainStartBtn` 클릭 후 캐릭터 선택 화면 정상 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game-verify-20260311-1609/shot-0.png`
+    - `output/web-game-verify-20260311-1609/shot-1.png`
+  - 최신 text state:
+    - `output/web-game-verify-20260311-1609/state-0.json`
+    - `output/web-game-verify-20260311-1609/state-1.json`
+  - 브라우저 직접 확인:
+    - `window.render_game_to_text === function`
+    - `window.advanceTime === function`
+
+## Next Follow-up
+
+1. `render_game_to_text`에 character select 내부 선택 인덱스/현재 캐릭터 식별자를 더 얹어 Playwright 상태 가시성을 높이기
+2. `advanceTime`를 현재의 lightweight hook 에서 더 deterministic 한 frame-step hook 으로 발전시킬지 검토
+3. 남아 있는 `GAME.getDeps()` 직접 호출을 event/run 쪽에서도 feature-specific context 로 계속 축소
+
+## Latest Feature Context / Character Snapshot Refinement
+
+- `CharacterSelectUI`가 현재 선택 상태를 직접 노출하도록 정리했다:
+  - `game/ui/title/character_select_ui.js`
+  - 새 API: `CharacterSelectUI.getSelectionSnapshot()`
+- `render_game_to_text`는 이제 캐릭터 선택 화면에서 DOM 추정이 아니라 runtime snapshot을 사용한다:
+  - `title.characterSelect.index`
+  - `title.characterSelect.phase`
+  - `title.characterSelect.classId`
+  - `title.characterSelect.title`
+  - `title.characterSelect.name`
+- legacy global bridge 의 feature getter는 더 이상 내부적으로 `getDeps()` all-in-one bag 을 재사용하지 않는다:
+  - `game/platform/legacy/global_bridge_runtime.js`
+  - `getCombatDeps`, `getEventDeps`, `getRunDeps`, `getCanvasDeps`, `getHudDeps` 는 공통 base deps + feature별 module subset만 반환
+- boot payload 도 legacy all-in-one bag 대신 run-specific context를 우선 사용하도록 조정했다:
+  - `game/core/init_sequence_steps.js`
+  - `buildGameBootPayload()` → `modules.GAME.getRunDeps?.() || modules.GAME.getDeps()`
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/runtime_debug_hooks.test.js`
+  - `tests/character_select_ui_mount.test.js`
+  - `tests/global_bridge_runtime.test.js`
+  - `tests/init_sequence.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-state-mutations.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `247 files / 636 tests` PASS
+  - `state mutation target`: `234 current / 234 target`
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+- Playwright smoke:
+  - `python3 -m http.server 4173 -d dist`로 정적 서빙
+  - `#mainStartBtn` 클릭 후 캐릭터 선택 화면 정상 렌더링 확인
+  - 최신 캡처:
+    - `output/web-game-verify-20260311-1614/shot-0.png`
+    - `output/web-game-verify-20260311-1614/shot-1.png`
+  - 최신 text state:
+    - `output/web-game-verify-20260311-1614/state-0.json`
+    - `output/web-game-verify-20260311-1614/state-1.json`
+  - 최신 state artifact는 실제 화면과 동일하게 `guardian / 무음수호자` 선택 상태를 반환
+
+## Next Follow-up
+
+1. `render_game_to_text`에 맵/전투 좌표나 targetable enemy 요약을 더 얹어 플레이어블 자동화 난이도를 더 낮추기
+2. `advanceTime`를 requestAnimationFrame 기반 deterministic stepper로 보강할지 검토
+3. 아직 남아 있는 compat path 중 `GAME.getDeps()` fallback 호출을 완전히 제거할 수 있는지 정리
+
+## Latest Player Command / Legacy Surface Refinement
+
+- `game/platform/legacy/game_api/player_commands.js`를 책임별 re-export shim으로 바꾸고 내부 구현을 분리했다.
+  - `game/platform/legacy/game_api/player_health_commands.js`
+  - `game/platform/legacy/game_api/player_resource_commands.js`
+  - `game/platform/legacy/game_api/player_draw_commands.js`
+  - `game/platform/legacy/game_api/player_state_dispatch.js`
+- `modifyEnergy()`는 계속 `PLAYER_ENERGY` reducer 경로를 사용하고, `energy_gain` / `energy_empty` item trigger 의미를 유지한다.
+- `game/core/bootstrap/register_legacy_surface.js`의 대형 전역 노출 목록을 feature별 expose builder로 분해했다.
+  - `game/core/bootstrap/legacy_surface_engine_globals.js`
+  - `game/core/bootstrap/legacy_surface_system_globals.js`
+  - `game/core/bootstrap/legacy_surface_ui_globals.js`
+  - `game/core/bootstrap/legacy_surface_binding_globals.js`
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/game_api_player_commands.test.js`
+  - `tests/register_legacy_surface.test.js`
+  - `tests/game_api_compat.test.js`
+  - `tests/event_bindings_registry.test.js`
+  - `tests/init_sequence.test.js`
+  - `tests/trigger_extension.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `node scripts/check-state-mutations.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `245 files / 633 tests` PASS
+  - `state mutation target`: `234 current / 234 target`
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`
+
+## Latest Event Binding Orchestration Refinement
+
+- `game/core/event_bindings.js`에서 한 파일에 섞여 있던 세 책임을 helper로 분리했다.
+  - binding 조립:
+    - `game/core/composition/register_game_bindings.js`
+  - 레거시 window / GAME.API surface 연결:
+    - `game/core/bootstrap/register_binding_legacy_surface.js`
+  - deps factory 초기화:
+    - `game/core/bootstrap/init_binding_deps.js`
+- `setupBindings()`는 이제 orchestration만 담당하고, 실제 조립/노출/초기화는 각 helper가 맡는다.
+
+## Latest Validation Refresh
+
+- 통과:
+  - `tests/event_bindings_registry.test.js`
+  - `tests/event_bindings_status_effects_registration.test.js`
+  - `tests/bootstrap_game.test.js`
+  - `tests/init_sequence.test.js`
+  - `node scripts/check-architecture.mjs`
+  - `node scripts/check-import-coupling.mjs`
+  - `node scripts/check-window-usage.mjs`
+  - `vite build`
+  - `npm test`
+- 현재 전체 기준:
+  - `243 files / 630 tests` PASS
+  - `window usage`: `65 current / 319 target`
+  - `import coupling`: `199 current / 201 baseline`

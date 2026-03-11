@@ -93,7 +93,7 @@ export function registerSubscribers(uiRefs = {}) {
   });
 
   EventBus.on(Actions.PLAYER_SILENCE, () => {
-    _ui.HudUpdateUI?.updateUI?.(GAME.getDeps?.() || {});
+    _ui.HudUpdateUI?.updateUI?.(GAME.getHudDeps?.() || {});
     const updateNoiseWidget = _ui.CombatHudUI?.updateNoiseWidget || _resolveAction('updateNoiseWidget');
     if (typeof updateNoiseWidget === 'function') updateNoiseWidget();
   });

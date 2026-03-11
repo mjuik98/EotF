@@ -42,6 +42,10 @@ export const CharacterSelectUI = {
     this._runtime?.showPendingSummaries?.();
   },
 
+  getSelectionSnapshot() {
+    return this._runtime?.getSelectionSnapshot?.() || null;
+  },
+
   mount(deps = {}) {
     const owner = this;
     const doc = getDoc(deps);
@@ -163,6 +167,17 @@ export const CharacterSelectUI = {
       },
       showPendingSummaries() {
         summaryReplay.consumePendingSummaries();
+      },
+      getSelectionSnapshot() {
+        const selectedChar = chars[state.idx] || null;
+        return {
+          index: state.idx,
+          phase: state.phase,
+          classId: selectedChar?.class || null,
+          title: selectedChar?.title || null,
+          name: selectedChar?.name || null,
+          accent: selectedChar?.accent || null,
+        };
       },
     };
 

@@ -38,6 +38,7 @@ function createModules() {
       API: {},
       Modules: registered,
       getDeps: vi.fn(() => ({ token: 'game-deps' })),
+      getCombatDeps: vi.fn(() => ({ token: 'combat-deps' })),
       register: vi.fn((name, value) => {
         registered[name] = value;
       }),
@@ -112,10 +113,10 @@ describe('event binding registry wiring', () => {
     expect(modules.HudUpdateUI.updateUI).toHaveBeenCalledWith({ token: 'hud-deps' });
 
     globalThis.window.showEnemyStatusTooltip('evt', 'poisoned');
-    expect(modules.CombatUI.showEnemyStatusTooltip).toHaveBeenCalledWith('evt', 'poisoned', { token: 'game-deps' });
+    expect(modules.CombatUI.showEnemyStatusTooltip).toHaveBeenCalledWith('evt', 'poisoned', { token: 'combat-deps' });
 
     globalThis.window.hideEnemyStatusTooltip();
-    expect(modules.CombatUI.hideEnemyStatusTooltip).toHaveBeenCalledWith({ token: 'game-deps' });
+    expect(modules.CombatUI.hideEnemyStatusTooltip).toHaveBeenCalledWith({ token: 'combat-deps' });
 
     globalThis.window._syncVolumeUI();
     expect(modules.GameInit.syncVolumeUI).toHaveBeenCalledWith(modules.AudioEngine);

@@ -41,7 +41,15 @@ function seedRefs(overrides = {}) {
   const saveMeta = vi.fn();
   const enterRun = vi.fn();
   const refs = {
-    GAME: { getDeps: () => ({ token: 'game-deps' }) },
+    GAME: {
+      getDeps: () => ({ token: 'legacy-deps' }),
+      getRunDeps: () => ({ token: 'run-deps' }),
+      getCombatDeps: () => ({ token: 'combat-deps' }),
+      getEventDeps: () => ({ token: 'event-deps' }),
+      getHudDeps: () => ({ token: 'hud-deps' }),
+      getUiDeps: () => ({ token: 'ui-deps' }),
+      getCanvasDeps: () => ({ token: 'canvas-deps' }),
+    },
     _gameStarted: () => true,
     RunRules: { id: 'run-rules' },
     SaveSystem: { saveMeta },
@@ -73,7 +81,7 @@ describe('deps factory', () => {
       const deps = createDeps(name, { __override: true });
       expect(typeof deps).toBe('object');
       expect(deps.__override).toBe(true);
-      expect(deps.token).toBe('game-deps');
+      expect(typeof deps.token).toBe('string');
     }
   });
 
@@ -102,6 +110,17 @@ describe('deps factory', () => {
     const gameBoot = createDeps('gameBoot');
     expect(gameBoot.saveSystem).toBeDefined();
     expect(gameBoot.saveSystemDeps.runRules).toEqual({ id: 'run-rules' });
+  });
+
+  it('builds feature contracts from feature-specific GAME dep getters', () => {
+    seedRefs();
+
+    expect(createDeps('combatTurnBase').token).toBe('combat-deps');
+    expect(createDeps('hudUpdate').token).toBe('hud-deps');
+    expect(createDeps('event').token).toBe('event-deps');
+    expect(createDeps('worldCanvas').token).toBe('canvas-deps');
+    expect(createDeps('runStart').token).toBe('run-deps');
+    expect(createDeps('codex').token).toBe('ui-deps');
   });
 
   it('uses patched refs without rebuilding the public contract list', () => {

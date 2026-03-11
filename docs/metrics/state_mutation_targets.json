@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-03-11T06:16:43.691Z",
-  "totalMax": 249,
+  "generatedAt": "2026-03-11T06:22:05.858Z",
+  "totalMax": 234,
   "defaultPerFileMax": null,
   "byFileMax": {
     "game/combat/combat_initializer.js": 13,
@@ -11,9 +11,9 @@
     "game/combat/player_methods.js": 1,
     "game/combat/turn_manager.js": 12,
     "game/core/event_subscribers.js": 1,
-    "game/domain/combat/turn/end_player_turn_policy.js": 12,
-    "game/domain/combat/turn/enemy_effect_resolver.js": 14,
-    "game/domain/combat/turn/start_player_turn_policy.js": 8,
+    "game/domain/combat/turn/end_player_turn_policy.js": 3,
+    "game/domain/combat/turn/enemy_effect_resolver.js": 1,
+    "game/domain/combat/turn/turn_state_mutators.js": 15,
     "game/systems/codex_records_system.js": 5,
     "game/systems/event_manager.js": 4,
     "game/systems/item_system.js": 1,

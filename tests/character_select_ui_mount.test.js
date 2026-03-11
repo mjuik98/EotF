@@ -322,6 +322,15 @@ describe('character select ui mount wiring', () => {
     CharacterSelectUI.showPendingSummaries();
     expect(hoisted.summaryReplay.consumePendingSummaries).toHaveBeenCalledTimes(1);
 
+    expect(CharacterSelectUI.getSelectionSnapshot()).toEqual({
+      index: 0,
+      phase: 'select',
+      classId: 'paladin',
+      title: 'Paladin',
+      name: 'Guardian',
+      accent: '#7CC8FF',
+    });
+
     mounted.destroy();
     expect(hoisted.cleanupBindings).toHaveBeenCalledTimes(1);
     expect(hoisted.cleanupCardFx).toHaveBeenCalledTimes(1);
@@ -329,5 +338,6 @@ describe('character select ui mount wiring', () => {
     expect(hoisted.levelUpDestroy).toHaveBeenCalledTimes(1);
     expect(hoisted.runEndDestroy).toHaveBeenCalledTimes(1);
     expect(CharacterSelectUI._runtime).toBe(null);
+    expect(CharacterSelectUI.getSelectionSnapshot()).toBe(null);
   });
 });

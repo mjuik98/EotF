@@ -19,7 +19,7 @@
       ambientGainNode = ctx.createGain();
       ambientGainNode.gain.value = _volumes.ambient;
       ambientGainNode.connect(masterGain);
-      // リバーブ
+      // 
       const convolver = ctx.createConvolver();
       const len = ctx.sampleRate * 1.5;
       const buf = ctx.createBuffer(2, len, ctx.sampleRate);

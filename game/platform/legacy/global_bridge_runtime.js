@@ -4,6 +4,107 @@ function getLegacyRoot() {
   return null;
 }
 
+const FEATURE_MODULE_NAMES = Object.freeze({
+  combat: [
+    'CombatUI',
+    'HudUpdateUI',
+    'StatusEffectsUI',
+    'TooltipUI',
+    'FeedbackUI',
+    'ClassMechanics',
+    'CardCostUtils',
+  ],
+  event: [
+    'EventUI',
+    'TooltipUI',
+    'FeedbackUI',
+    'ScreenUI',
+    'RunRules',
+    'StoryUI',
+  ],
+  run: [
+    'RunRules',
+    'MazeSystem',
+    'ScreenUI',
+    'RunModeUI',
+    'RunSetupUI',
+    'RunStartUI',
+    'HelpPauseUI',
+    'FeedbackUI',
+    'ClassMechanics',
+    'CardCostUtils',
+    'StoryUI',
+  ],
+  canvas: [
+    'RunRules',
+    'MazeSystem',
+    'ClassMechanics',
+    'FeedbackUI',
+  ],
+  hud: [
+    'HudUpdateUI',
+    'StatusEffectsUI',
+    'TooltipUI',
+    'FeedbackUI',
+    'ClassMechanics',
+  ],
+  ui: [
+    'HudUpdateUI',
+    'StatusEffectsUI',
+    'TooltipUI',
+    'DeckModalUI',
+    'CodexUI',
+    'ScreenUI',
+    'FeedbackUI',
+  ],
+});
+
+function buildLegacyCommonDeps(game, root = getLegacyRoot()) {
+  const doc = typeof document !== 'undefined' ? document : root?.document || null;
+  const win = typeof window !== 'undefined' ? window : root?.window || root || null;
+  return {
+    gs: game.State,
+    State: game.State,
+    state: game.State,
+    data: game.Data,
+    Data: game.Data,
+    audio: game.Audio,
+    audioEngine: game.Audio,
+    particles: game.Particle,
+    particleSystem: game.Particle,
+    doc,
+    win,
+    api: game.API,
+  };
+}
+
+function buildModuleSubset(game, names = []) {
+  return names.reduce((acc, name) => {
+    if (Object.prototype.hasOwnProperty.call(game.Modules, name)) {
+      acc[name] = game.Modules[name];
+    }
+    return acc;
+  }, {});
+}
+
+function buildLegacyBaseDeps(game, root = getLegacyRoot()) {
+  return {
+    ...buildLegacyCommonDeps(game, root),
+    ...game.Modules,
+  };
+}
+
+function buildLegacyFeatureDeps(game, featureName, extra = {}) {
+  const root = getLegacyRoot();
+  const names = FEATURE_MODULE_NAMES[featureName] || [];
+  return {
+    ...buildLegacyCommonDeps(game, root),
+    ...buildModuleSubset(game, names),
+    runRules: root?.RunRules || game.Modules.RunRules,
+    ...extra,
+  };
+}
+
 export const GAME = {
   State: null,
   Data: null,
@@ -41,24 +142,7 @@ export const GAME = {
 
   getDeps() {
     if (!this._depsBase) {
-      const root = getLegacyRoot();
-      const doc = typeof document !== 'undefined' ? document : root?.document || null;
-      const win = typeof window !== 'undefined' ? window : root?.window || root || null;
-      this._depsBase = {
-        gs: this.State,
-        State: this.State,
-        state: this.State,
-        data: this.Data,
-        Data: this.Data,
-        audio: this.Audio,
-        audioEngine: this.Audio,
-        particles: this.Particle,
-        particleSystem: this.Particle,
-        doc,
-        win,
-        api: this.API,
-        ...this.Modules,
-      };
+      this._depsBase = buildLegacyBaseDeps(this);
     }
 
     const root = getLegacyRoot();
@@ -66,6 +150,30 @@ export const GAME = {
       ...this._depsBase,
       runRules: root?.RunRules || this.Modules.RunRules,
     };
+  },
+
+  getCombatDeps(extra = {}) {
+    return buildLegacyFeatureDeps(this, 'combat', extra);
+  },
+
+  getEventDeps(extra = {}) {
+    return buildLegacyFeatureDeps(this, 'event', extra);
+  },
+
+  getRunDeps(extra = {}) {
+    return buildLegacyFeatureDeps(this, 'run', extra);
+  },
+
+  getCanvasDeps(extra = {}) {
+    return buildLegacyFeatureDeps(this, 'canvas', extra);
+  },
+
+  getHudDeps(extra = {}) {
+    return buildLegacyFeatureDeps(this, 'hud', extra);
+  },
+
+  getUiDeps(extra = {}) {
+    return buildLegacyFeatureDeps(this, 'ui', extra);
   },
 
   call(methodName, ...args) {

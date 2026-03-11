@@ -1,11 +1,20 @@
 export function buildUiContractBuilders(ctx) {
-  const { getRefs, buildBaseDeps, getGameDeps, getRaf, getSyncVolumeUIFallback } = ctx;
+  const {
+    getRefs,
+    buildBaseDeps,
+    getCombatDeps,
+    getHudDeps,
+    getUiDeps,
+    getCanvasDeps,
+    getRaf,
+    getSyncVolumeUIFallback,
+  } = ctx;
 
   return {
     hudUpdate: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('hud'),
         setBonusSystem: refs.SetBonusSystem,
         classMechanics: refs.ClassMechanics,
         StatusEffectsUI: refs.StatusEffectsUI,
@@ -20,7 +29,7 @@ export function buildUiContractBuilders(ctx) {
         setBar: (id, pct) => refs.setBar?.(id, pct),
         setText: (id, val) => refs.setText?.(id, val),
         updateNoiseWidget: () => refs.updateNoiseWidget?.(),
-        updateEchoSkillBtn: (overrideDeps) => refs.CombatHudUI?.updateEchoSkillBtn?.(overrideDeps || getGameDeps()),
+        updateEchoSkillBtn: (overrideDeps) => refs.CombatHudUI?.updateEchoSkillBtn?.(overrideDeps || getHudDeps()),
         updateStatusDisplay: () => refs.updateStatusDisplay?.(),
         renderCombatEnemies: () => refs.renderCombatEnemies?.(),
         renderCombatCards: () => refs.renderCombatCards?.(),
@@ -35,7 +44,7 @@ export function buildUiContractBuilders(ctx) {
     combatHud: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('hud'),
         updateChainUI: refs.updateChainUI,
         updateNoiseWidget: refs.updateNoiseWidget,
         updateClassSpecialUI: refs.updateClassSpecialUI,
@@ -47,7 +56,7 @@ export function buildUiContractBuilders(ctx) {
     cardTarget: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('combat'),
         renderCombatEnemies: refs.renderCombatEnemies,
       };
     },
@@ -55,7 +64,7 @@ export function buildUiContractBuilders(ctx) {
     baseCard: () => {
       const refs = getRefs();
       return {
-        ...getGameDeps(),
+        ...getCombatDeps(),
         playCardHandler: refs.GS?.playCard?.bind(refs.GS),
         renderCombatCardsHandler: refs.renderCombatCards,
         dragStartHandler: refs.handleCardDragStart,
@@ -68,7 +77,7 @@ export function buildUiContractBuilders(ctx) {
     feedback: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('ui'),
         audioEngine: refs.AudioEngine,
         screenShake: refs.ScreenShake,
         requestAnimationFrame: getRaf(),
@@ -76,17 +85,17 @@ export function buildUiContractBuilders(ctx) {
     },
 
     codex: () => ({
-      ...buildBaseDeps(),
+      ...buildBaseDeps('ui'),
     }),
 
     deckModal: () => ({
-      ...buildBaseDeps(),
+      ...buildBaseDeps('ui'),
     }),
 
     tooltip: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('ui'),
         setBonusSystem: refs.SetBonusSystem,
       };
     },
@@ -94,7 +103,7 @@ export function buildUiContractBuilders(ctx) {
     screen: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('ui'),
         onEnterTitle: () => refs.animateTitle?.(),
       };
     },
@@ -102,7 +111,7 @@ export function buildUiContractBuilders(ctx) {
     combatInfo: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('combat'),
         statusKr: refs.StatusEffectsUI?.getStatusMap?.() || {},
       };
     },
@@ -110,7 +119,7 @@ export function buildUiContractBuilders(ctx) {
     classSelect: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('ui'),
         playClassSelect: (cls) => {
           try {
             refs.AudioEngine?.init?.();
@@ -126,7 +135,7 @@ export function buildUiContractBuilders(ctx) {
     helpPause: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         audioEngine: refs.AudioEngine,
         showDeckView: refs.showDeckView,
         closeDeckView: refs.closeDeckView,
@@ -163,7 +172,7 @@ export function buildUiContractBuilders(ctx) {
     worldCanvas: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('canvas'),
         getRegionData: refs.getRegionData,
       };
     },
@@ -171,7 +180,7 @@ export function buildUiContractBuilders(ctx) {
     settings: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('ui'),
         audioEngine: refs.AudioEngine,
         ScreenShake: refs.ScreenShake,
         HitStop: refs.HitStop,

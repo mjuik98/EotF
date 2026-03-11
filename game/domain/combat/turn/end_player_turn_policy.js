@@ -1,6 +1,15 @@
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
 import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from '../../../combat/turn_manager_helpers.js';
 import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
+import {
+  decrementStackedBuff,
+  moveHandToGraveyard,
+  reducePlayerSilenceGauge,
+  resetPlayerTimeRiftGauge,
+  resetTurnCardCostState,
+  setCombatPlayerTurn,
+  setPlayerEchoChain,
+} from './turn_state_mutators.js';
 
 export function endPlayerTurnPolicy(gs, data, { canPlayFn } = {}) {
   if (!gs?.combat?.active || !gs.combat.playerTurn) return null;
@@ -28,19 +37,17 @@ export function endPlayerTurnPolicy(gs, data, { canPlayFn } = {}) {
     if (buff.nextEnergy) return;
     if (buff.echoRegen) gs.addEcho(buff.echoRegen);
     if (isInfiniteStackBuff(buffId, buff)) return;
-    if (!Number.isFinite(buff.stacks)) return;
-    buff.stacks--;
-    if (buff.stacks <= 0) delete gs.player.buffs[buffId];
+    decrementStackedBuff(gs.player.buffs, buffId);
   });
 
   const activeRegionId = resolveActiveRegionId(gs);
   const shouldReduceSilence = activeRegionId === 1 || gs.player.class === 'hunter';
   if (shouldReduceSilence && gs.player.silenceGauge > 0) {
-    gs.player.silenceGauge = Math.max(0, gs.player.silenceGauge - 1);
+    reducePlayerSilenceGauge(gs, 1);
   }
 
   if (activeRegionId === 5) {
-    gs.player.timeRiftGauge = 0;
+    resetPlayerTimeRiftGauge(gs);
   }
 
   gs.triggerItems?.('turn_end');
@@ -48,14 +55,10 @@ export function endPlayerTurnPolicy(gs, data, { canPlayFn } = {}) {
     gs.triggerItems?.('chain_break', { chain: gs.player.echoChain });
   }
 
-  gs.player.graveyard.push(...gs.player.hand);
-  gs.player.hand = [];
-  gs.player.echoChain = 0;
-  gs.player.costDiscount = 0;
-  gs.player._nextCardDiscount = 0;
-  gs.player.zeroCost = false;
-  gs.player._freeCardUses = 0;
-  gs.combat.playerTurn = false;
+  moveHandToGraveyard(gs);
+  setPlayerEchoChain(gs, 0);
+  resetTurnCardCostState(gs);
+  setCombatPlayerTurn(gs, false);
 
   return { skippableCards };
 }

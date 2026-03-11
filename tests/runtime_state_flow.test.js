@@ -10,7 +10,9 @@ const ORIGINAL_GAME = {
   Modules: GAME.Modules,
   Audio: GAME.Audio,
   API: GAME.API,
+  getCombatDeps: GAME.getCombatDeps,
   getDeps: GAME.getDeps,
+  getRunDeps: GAME.getRunDeps,
 };
 
 function createPlayableState(cardId, overrides = {}) {
@@ -72,7 +74,9 @@ afterEach(() => {
   GAME.Modules = ORIGINAL_GAME.Modules;
   GAME.Audio = ORIGINAL_GAME.Audio;
   GAME.API = ORIGINAL_GAME.API;
+  GAME.getCombatDeps = ORIGINAL_GAME.getCombatDeps;
   GAME.getDeps = ORIGINAL_GAME.getDeps;
+  GAME.getRunDeps = ORIGINAL_GAME.getRunDeps;
   vi.restoreAllMocks();
 });
 
@@ -104,7 +108,7 @@ describe('runtime state flow guards', () => {
       ClassMechanics: {},
       HudUpdateUI: { processDirtyFlags: vi.fn() },
     };
-    GAME.getDeps = () => ({
+    GAME.getCombatDeps = () => ({
       getBaseRegionIndex: () => 1,
       renderCombatCards: vi.fn(),
     });
@@ -145,7 +149,7 @@ describe('runtime state flow guards', () => {
       ClassMechanics: {},
       HudUpdateUI: { processDirtyFlags: vi.fn() },
     };
-    GAME.getDeps = () => ({
+    GAME.getCombatDeps = () => ({
       getBaseRegionIndex: () => 0,
       renderCombatCards: vi.fn(),
     });
@@ -180,7 +184,7 @@ describe('runtime state flow guards', () => {
       ClassMechanics: {},
       HudUpdateUI: { processDirtyFlags: vi.fn() },
     };
-    GAME.getDeps = () => ({
+    GAME.getCombatDeps = () => ({
       getBaseRegionIndex: () => 0,
       renderCombatCards: vi.fn(),
     });
@@ -219,7 +223,7 @@ describe('runtime state flow guards', () => {
       ClassMechanics: {},
       HudUpdateUI: { processDirtyFlags: vi.fn() },
     };
-    GAME.getDeps = () => ({
+    GAME.getCombatDeps = () => ({
       getBaseRegionIndex: () => 0,
       renderCombatCards: vi.fn(),
     });
@@ -258,7 +262,7 @@ describe('runtime state flow guards', () => {
       ClassMechanics: {},
       HudUpdateUI: { processDirtyFlags: vi.fn() },
     };
-    GAME.getDeps = () => ({
+    GAME.getCombatDeps = () => ({
       getBaseRegionIndex: () => 0,
       renderCombatCards: vi.fn(),
     });

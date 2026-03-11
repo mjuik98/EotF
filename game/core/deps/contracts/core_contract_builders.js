@@ -2,19 +2,23 @@ export function buildCoreContractBuilders(ctx) {
   const {
     getRefs,
     buildBaseDeps,
-    getGameDeps,
+    getCombatDeps,
+    getEventDeps,
+    getRunDeps,
+    getUiDeps,
+    getHudDeps,
     getRaf,
   } = ctx;
 
   return {
     base: () => ({
-      ...buildBaseDeps(),
+      ...buildBaseDeps('run'),
     }),
 
     story: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         audioEngine: refs.AudioEngine,
         particleSystem: refs.ParticleSystem,
         showWorldMemoryNotice: refs.showWorldMemoryNotice,
@@ -26,7 +30,7 @@ export function buildCoreContractBuilders(ctx) {
     combatTurnBase: () => {
       const refs = getRefs();
       return {
-        ...getGameDeps(),
+        ...getCombatDeps(),
         enemyTurn: refs.enemyTurn,
         updateChainUI: refs.updateChainUI,
         showTurnBanner: refs.showTurnBanner,
@@ -34,7 +38,7 @@ export function buildCoreContractBuilders(ctx) {
         renderCombatCards: refs.renderCombatCards,
         updateStatusDisplay: refs.updateStatusDisplay,
         updateClassSpecialUI: refs.updateClassSpecialUI,
-        updateCombatEnergy: (gs) => refs.HudUpdateUI?.updateCombatEnergy?.(gs, getGameDeps()),
+        updateCombatEnergy: (gs) => refs.HudUpdateUI?.updateCombatEnergy?.(gs, getHudDeps()),
         hudUpdateUI: refs.HudUpdateUI,
         updateUI: refs.updateUI,
         cardCostUtils: refs.CardCostUtils,
@@ -48,7 +52,7 @@ export function buildCoreContractBuilders(ctx) {
     event: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('event'),
         runRules: refs.RunRules,
         updateUI: refs.updateUI,
         returnToGame: refs.returnToGame,
@@ -67,7 +71,7 @@ export function buildCoreContractBuilders(ctx) {
     reward: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         switchScreen: refs.switchScreen,
         returnToGame: refs.returnToGame,
         showItemToast: refs.showItemToast,
@@ -82,7 +86,7 @@ export function buildCoreContractBuilders(ctx) {
     runReturn: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         storySystem: refs.StorySystem,
         finalizeRunOutcome: refs.finalizeRunOutcome,
         advanceToNextRegion: refs.advanceToNextRegion,
@@ -96,7 +100,7 @@ export function buildCoreContractBuilders(ctx) {
     saveSystem: () => {
       const refs = getRefs();
       return {
-        ...buildBaseDeps(),
+        ...buildBaseDeps('run'),
         runRules: refs.RunRules,
         isGameStarted: () => refs._gameStarted?.(),
       };
