@@ -12,6 +12,7 @@ import {
   winOf,
 } from './ending_screen_helpers.js';
 import { burstEndingWisps, initEndingFx } from './ending_screen_fx.js';
+import { playEventResonanceBurst } from '../../domain/audio/audio_event_helpers.js';
 
 export function prepareEndingScreenSession(outcome = 'victory', deps = {}, hooks = {}) {
   const doc = docOf(deps);
@@ -72,7 +73,7 @@ export function bindEndingRestartButton(doc, deps, session, wisps, hooks = {}) {
       }
     }
 
-    audio?.playResonanceBurst?.();
+    playEventResonanceBurst(audio);
     session.timers.push(winOf(deps).setTimeout(() => {
       hooks.cleanup?.({ doc, win: deps?.win });
       if (typeof restart === 'function') restart();

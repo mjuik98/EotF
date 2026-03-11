@@ -219,7 +219,7 @@ describe('event_ui_flow', () => {
   it('unlocks and plays hit audio when resolution throws', () => {
     const doc = createDoc();
     const gs = { _eventLock: false };
-    const audioEngine = { playHit: vi.fn() };
+    const audioEngine = { playEvent: vi.fn(), playHit: vi.fn() };
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const result = resolveEventChoiceFlow(0, {
@@ -233,7 +233,8 @@ describe('event_ui_flow', () => {
     });
 
     expect(result).toBeNull();
-    expect(audioEngine.playHit).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('attack', 'slash');
+    expect(audioEngine.playHit).not.toHaveBeenCalled();
     expect(gs._eventLock).toBe(false);
 
     consoleErrorSpy.mockRestore();

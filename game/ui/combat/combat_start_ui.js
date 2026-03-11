@@ -5,6 +5,7 @@
  */
 import { Trigger } from '../../data/triggers.js';
 import { CombatInitializer } from '../../combat/combat_initializer.js';
+import { playEventBossPhase } from '../../domain/audio/audio_event_helpers.js';
 import {
   applyCombatEntryOverlay,
   finalizeCombatStartUi,
@@ -64,12 +65,12 @@ export const CombatStartUI = {
 
     // UI: boss entry effects
     if (isBoss) {
-      audioEngine?.playBossPhase?.();
+      playEventBossPhase(audioEngine);
       if (spawnResult.isHiddenBoss && typeof deps.showWorldMemoryNotice === 'function') {
         setTimeout(() => deps.showWorldMemoryNotice('⚠️ 봉인된 심연이 깨어난다! 근원의 잔향이 모습을 드러낸다!'), 600);
       }
     } else if (isMiniBoss) {
-      audioEngine?.playBossPhase?.();
+      playEventBossPhase(audioEngine);
     }
 
     // ?? 濡쒖쭅: 吏???붾쾭????

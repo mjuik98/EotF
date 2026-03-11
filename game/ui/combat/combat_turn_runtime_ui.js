@@ -3,6 +3,7 @@ import {
   setCombatTurnIndicator,
   triggerBossPhaseShiftSprite,
 } from './combat_turn_render_ui.js';
+import { playEventBossPhase } from '../../domain/audio/audio_event_helpers.js';
 
 function getDoc(deps) {
   return deps?.doc || document;
@@ -62,7 +63,7 @@ export function showBossPhaseShiftUi(gs, idx, deps = {}) {
   const win = getWin(deps);
   triggerBossPhaseShiftSprite(doc, idx);
   deps.screenShake?.shake?.(15, 1.0);
-  deps.audioEngine?.playBossPhase?.();
+  playEventBossPhase(deps.audioEngine);
   deps.particleSystem?.burstEffect?.(
     win.innerWidth / 2 + (idx - (gs.combat.enemies.length / 2 - 0.5)) * 200,
     220,

@@ -11,6 +11,10 @@
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
+import {
+    playEventResonanceBurst,
+    playUiItemGet,
+} from '../domain/audio/audio_event_helpers.js';
 
 import { LogUtils } from '../utils/log_utils.js';
 
@@ -77,7 +81,7 @@ export const CombatLifecycle = {
             if (typeof updateUI === 'function') updateUI();
 
             const AudioEngine = deps.audioEngine || win.AudioEngine;
-            AudioEngine?.playItemGet?.();
+            playUiItemGet(AudioEngine);
             const showCombatSummary = deps.showCombatSummary || win.showCombatSummary;
             if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, combatKills);
 
@@ -148,7 +152,7 @@ export const CombatLifecycle = {
         const ScreenShake = deps.screenShake || win.ScreenShake;
         const ParticleSystem = deps.particleSystem || win.ParticleSystem;
 
-        AudioEngine?.playResonanceBurst?.();
+        playEventResonanceBurst(AudioEngine);
 
         // 패시브 발동 시에는 화면 흔들림을 약하게
         if (isPassive) {

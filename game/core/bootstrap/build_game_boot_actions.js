@@ -1,9 +1,10 @@
-import { buildRunBootActions } from '../../features/run/app/build_run_boot_actions.js';
-import { buildTitleBootActions } from '../../features/title/app/build_title_boot_actions.js';
+import { buildGameBootActionGroups } from './build_game_boot_action_groups.js';
 
 export function buildGameBootActions(fns) {
+  const groups = buildGameBootActionGroups(fns);
+
   return {
-    ...buildTitleBootActions(fns),
-    ...buildRunBootActions(fns),
+    ...groups.title,
+    ...groups.run,
   };
 }

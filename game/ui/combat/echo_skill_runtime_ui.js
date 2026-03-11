@@ -1,5 +1,6 @@
 import { CONSTANTS } from '../../data/constants.js';
 import { Trigger } from '../../data/triggers.js';
+import { playEventResonanceBurst } from '../../domain/audio/audio_event_helpers.js';
 
 export function resolveEchoSkillTier(echoVal, constants = CONSTANTS) {
   if (echoVal >= constants.ECHO.SKILL_COST_HIGH) {
@@ -62,7 +63,7 @@ export function useEchoSkillRuntime(deps = {}) {
   applyEchoSkillEffect(gs, skillDef);
 
   deps.showEchoBurstOverlay?.();
-  deps.audioEngine?.playResonanceBurst?.();
+  playEventResonanceBurst(deps.audioEngine);
   deps.renderCombatEnemies?.();
   deps.renderCombatCards?.();
   flashEchoSkillButton(deps);

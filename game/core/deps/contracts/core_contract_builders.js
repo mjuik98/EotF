@@ -1,3 +1,5 @@
+import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
+
 export function buildCoreContractBuilders(ctx) {
   const {
     getRefs,
@@ -64,7 +66,7 @@ export function buildCoreContractBuilders(ctx) {
         screenShake: refs.ScreenShake,
         descriptionUtils: refs.DescriptionUtils,
         requestAnimationFrame: getRaf(),
-        playItemGet: () => refs.AudioEngine?.playItemGet?.(),
+        playItemGet: () => playUiItemGet(refs.AudioEngine),
       };
     },
 
@@ -79,7 +81,7 @@ export function buildCoreContractBuilders(ctx) {
         TooltipUI: refs.TooltipUI,
         descriptionUtils: refs.DescriptionUtils,
         DescriptionUtils: refs.DescriptionUtils,
-        playItemGet: () => refs.AudioEngine?.playItemGet?.(),
+        playItemGet: () => playUiItemGet(refs.AudioEngine),
       };
     },
 

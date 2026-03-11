@@ -1,3 +1,4 @@
+import { playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
 import { registerCardDiscovered, registerItemFound } from '../../systems/codex_records_system.js';
 
 export function ensureMiniBossBonus(gs, data, deps = {}) {
@@ -18,7 +19,7 @@ export function ensureMiniBossBonus(gs, data, deps = {}) {
   const guaranteed = rareItems[Math.floor(Math.random() * rareItems.length)];
   gs.player.items.push(guaranteed.id);
   registerItemFound(gs, guaranteed.id);
-  deps.playItemGet?.();
+  playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
   deps.showItemToast?.(guaranteed, { forceQueue: true });
   gs.addLog?.(`Mini-boss relic: ${guaranteed.icon || '@'} ${guaranteed.name}`, 'system');
 }

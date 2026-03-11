@@ -108,6 +108,7 @@ describe('showEventItemShopOverlay', () => {
 
     const doc = createDoc();
     const playItemGet = vi.fn();
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
     const showItemToast = vi.fn();
     const updateUI = vi.fn();
     const refreshEventGoldBar = vi.fn();
@@ -117,6 +118,7 @@ describe('showEventItemShopOverlay', () => {
     showEventItemShopOverlay(gs, data, { token: 'rules' }, {
       doc,
       playItemGet,
+      audioEngine,
       showItemToast,
       updateUI,
       refreshEventGoldBar,
@@ -127,10 +129,45 @@ describe('showEventItemShopOverlay', () => {
 
     expect(purchaseItemSpy).toHaveBeenCalledWith(gs, expect.objectContaining({ id: 'new' }), 15);
     expect(playItemGet).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).not.toHaveBeenCalled();
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
     expect(showItemToast).toHaveBeenCalledWith(expect.objectContaining({ id: 'new' }), { forceQueue: true });
     expect(updateUI).toHaveBeenCalledTimes(1);
     expect(refreshEventGoldBar).toHaveBeenCalledTimes(1);
     expect(doc.elements.itemShopGold.textContent).toBe(5);
+  });
+
+  it('falls back to the audio engine item-get event when no injected hook exists', () => {
+    generateItemShopStockSpy.mockReturnValueOnce([
+      { item: { id: 'new', name: 'New Relic', desc: 'new', icon: 'N' }, cost: 15, rarity: 'rare' },
+    ]);
+    purchaseItemSpy.mockImplementationOnce((gs) => {
+      gs.player.gold = 5;
+      return { success: true };
+    });
+
+    const doc = createDoc();
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
+    const showItemToast = vi.fn();
+    const updateUI = vi.fn();
+    const refreshEventGoldBar = vi.fn();
+    const gs = { player: { gold: 20, items: [] } };
+
+    showEventItemShopOverlay(gs, { items: {} }, { token: 'rules' }, {
+      doc,
+      audioEngine,
+      showItemToast,
+      updateUI,
+      refreshEventGoldBar,
+    });
+
+    doc.elements.itemShopList.children[0].onclick();
+
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'itemGet');
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
+    expect(showItemToast).toHaveBeenCalledWith(expect.objectContaining({ id: 'new' }), { forceQueue: true });
+    expect(updateUI).toHaveBeenCalledTimes(1);
+    expect(refreshEventGoldBar).toHaveBeenCalledTimes(1);
   });
 
   it('closes the overlay through dismissTransientOverlay', () => {

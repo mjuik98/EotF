@@ -1,9 +1,10 @@
-import { buildCombatRuntimeSubscriberActions } from '../../features/combat/app/build_runtime_subscriber_actions.js';
-import { buildUiRuntimeSubscriberActions } from '../../features/ui/app/build_runtime_subscriber_actions.js';
+import { buildRuntimeSubscriberActionGroups } from './build_runtime_subscriber_action_groups.js';
 
 export function buildRuntimeSubscriberActions(fns) {
+  const groups = buildRuntimeSubscriberActionGroups(fns);
+
   return {
-    ...buildCombatRuntimeSubscriberActions(fns),
-    ...buildUiRuntimeSubscriberActions(fns),
+    ...groups.gameplay,
+    ...groups.shell,
   };
 }

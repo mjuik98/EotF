@@ -22,7 +22,7 @@
  *   playEvent(category, key)           ← 신규: 레지스트리 키로 재생
  *   playHit(), playHeavyHit(), playPlayerHit(), playCritical()
  *   playCard(), playClick()            ← playClick: UI 버튼 클릭음 (신규 추가)
- *   playSkill(), playEcho(), playHeal(), playDeath()
+ *   playSkill(), playEcho(), playHeal(), playDeath(), playEnemyDeath()
  *   playItemGet(), playBossPhase(), playChain(n), playResonanceBurst()
  *   playFootstep(), playClassSelect(cls), playLegendary()
  *   startAmbient(regionKeyOrIndex), stopAmbient()
@@ -508,7 +508,8 @@ export const AudioEngine = (() => {
 
   // ── 힐 / 사망
   const playHeal       = () => play(STATUS_PRESETS.heal);
-  const playDeath      = () => play(REACTION_PRESETS.enemyDeath);
+  const playDeath      = () => play(REACTION_PRESETS.playerDeath);
+  const playEnemyDeath = () => play(REACTION_PRESETS.enemyDeath);
 
   // ── 아이템
   const playItemGet    = () => play(UI_PRESETS.itemGet);
@@ -599,6 +600,7 @@ export const AudioEngine = (() => {
     playEcho,
     playHeal,
     playDeath,
+    playEnemyDeath,
     playItemGet,
     playBossPhase,
     playChain,

@@ -81,7 +81,7 @@ describe('showEventCardDiscardOverlay', () => {
       player: { deck: [], hand: [], graveyard: [] },
       addLog: vi.fn(),
     };
-    const audioEngine = { playHit: vi.fn() };
+    const audioEngine = { playEvent: vi.fn(), playHit: vi.fn() };
     const screenShake = { shake: vi.fn() };
 
     showEventCardDiscardOverlay(gs, { cards: {} }, false, {
@@ -90,7 +90,8 @@ describe('showEventCardDiscardOverlay', () => {
       screenShake,
     });
 
-    expect(audioEngine.playHit).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('attack', 'slash');
+    expect(audioEngine.playHit).not.toHaveBeenCalled();
     expect(screenShake.shake).toHaveBeenCalledWith(10, 0.4);
     expect(gs.addLog).toHaveBeenCalledWith('No cards are available for this action.', 'damage');
   });
@@ -127,6 +128,7 @@ describe('showEventCardDiscardOverlay', () => {
     const doc = createDoc();
     const playItemGet = vi.fn();
     const updateUI = vi.fn();
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
     const gs = {
       player: { deck: ['strike'], hand: [], graveyard: [] },
       addLog: vi.fn(),
@@ -137,14 +139,41 @@ describe('showEventCardDiscardOverlay', () => {
       },
     };
 
-    showEventCardDiscardOverlay(gs, data, true, { doc, playItemGet, updateUI });
+    showEventCardDiscardOverlay(gs, data, true, { doc, playItemGet, updateUI, audioEngine });
 
     const cardBtn = doc.elements.discardCardList.children[0];
     cardBtn.onclick();
 
     expect(discardCardSpy).toHaveBeenCalledWith(gs, 'strike', data, true);
     expect(playItemGet).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).not.toHaveBeenCalled();
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
     expect(updateUI).toHaveBeenCalledTimes(1);
     expect(doc.elements.cardDiscardOverlay).toBeUndefined();
+  });
+
+  it('uses the audio engine itemGet event when no injected playItemGet hook exists', () => {
+    discardCardSpy.mockReturnValueOnce({ success: true });
+    const doc = createDoc();
+    const updateUI = vi.fn();
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
+    const gs = {
+      player: { deck: ['strike'], hand: [], graveyard: [] },
+      addLog: vi.fn(),
+    };
+    const data = {
+      cards: {
+        strike: { rarity: 'common', icon: 'S', name: 'Strike', desc: 'Deal damage' },
+      },
+    };
+
+    showEventCardDiscardOverlay(gs, data, true, { doc, updateUI, audioEngine });
+
+    const cardBtn = doc.elements.discardCardList.children[0];
+    cardBtn.onclick();
+
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'itemGet');
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
+    expect(updateUI).toHaveBeenCalledTimes(1);
   });
 });

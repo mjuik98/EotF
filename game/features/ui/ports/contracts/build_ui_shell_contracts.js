@@ -1,3 +1,5 @@
+import { playClassSelect } from '../../../../domain/audio/audio_event_helpers.js';
+
 export function buildUiShellContractBuilders(ctx) {
   const {
     getRefs,
@@ -47,9 +49,7 @@ export function buildUiShellContractBuilders(ctx) {
         ...buildBaseDeps('ui'),
         playClassSelect: (cls) => {
           try {
-            refs.AudioEngine?.init?.();
-            refs.AudioEngine?.resume?.();
-            refs.AudioEngine?.playClassSelect?.(cls);
+            playClassSelect(refs.AudioEngine, cls);
           } catch (e) {
             console.warn('Audio error:', e);
           }

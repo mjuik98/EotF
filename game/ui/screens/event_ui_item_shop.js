@@ -4,6 +4,7 @@ import {
   ITEM_SHOP_RARITY_BORDER_COLORS,
   ITEM_SHOP_RARITY_TEXT_COLORS,
 } from '../../../data/ui_rarity_styles.js';
+import { playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
 import { dismissTransientOverlay, getShopItemIcon } from './event_ui_helpers.js';
 
 const ITEM_SHOP_RARITY_CONFIG = Object.freeze({
@@ -139,7 +140,7 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
           const result = EventManager.purchaseItem(gs, item, cost);
           if (!result.success) return;
 
-          deps.playItemGet?.();
+          playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
           deps.showItemToast?.(item, { forceQueue: true });
           deps.updateUI?.();
           deps.refreshEventGoldBar?.();

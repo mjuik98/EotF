@@ -15,6 +15,12 @@ import { getRegionData } from '../systems/run_rules.js';
 import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
+import {
+    playAttackSlash,
+    playReactionEnemyDeath,
+    playReactionPlayerDeath,
+    playStatusHeal,
+} from '../domain/audio/audio_event_helpers.js';
 
 const _getDoc = (deps) => deps?.doc || document;
 const _getWin = (deps) => deps?.win || window;
@@ -59,7 +65,7 @@ export const DeathHandler = {
         const goldGained = enemy.gold || 10;
         this.addGold(goldGained, deps);
         const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
-        AudioEngine?.playHit?.();
+        playReactionEnemyDeath(AudioEngine);
         this.addLog(`💀 ${enemy.name} 처치! +${goldGained}골드`, 'system');
         this.triggerItems('enemy_kill', { enemy, idx, gold: goldGained });
 
@@ -141,7 +147,7 @@ export const DeathHandler = {
         const AudioEngine = deps.audioEngine || _getWin(deps).AudioEngine;
         const preDeathResult = this.triggerItems?.('pre_death');
         if (preDeathResult === true) {
-            AudioEngine?.playHeal?.();
+            playStatusHeal(AudioEngine);
             const updateUI = deps.updateUI || _getWin(deps).updateUI;
             if (typeof updateUI === 'function') updateUI();
             return;
@@ -152,7 +158,7 @@ export const DeathHandler = {
         const ScreenShake = deps.screenShake || win.ScreenShake;
         const ParticleSystem = deps.particleSystem || win.ParticleSystem;
 
-        AudioEngine?.playDeath?.();
+        playReactionPlayerDeath(AudioEngine);
         ScreenShake?.shake?.(20, 1.2);
         ParticleSystem?.deathEffect?.(win.innerWidth / 2, win.innerHeight / 2);
 

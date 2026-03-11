@@ -1,4 +1,5 @@
 import { getData, getDoc, getGS, getInscriptionLevel, setInscriptionLevel } from './story_ui_helpers.js';
+import { playEventResonanceBurst } from '../../domain/audio/audio_event_helpers.js';
 
 export function renderHiddenEndingOverlay(deps = {}) {
   const gs = getGS(deps);
@@ -59,6 +60,6 @@ export function renderHiddenEndingOverlay(deps = {}) {
         );
       }, i * 300);
     }
-    deps.audioEngine?.playResonanceBurst?.();
+    playEventResonanceBurst(deps.audioEngine);
   }, 2000);
 }

@@ -1,3 +1,4 @@
+import { playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
 import { EventManager } from '../../systems/event_manager.js';
 
 export function decorateEventShopChoiceEffects(shop, deps = {}) {
@@ -14,7 +15,7 @@ export function decorateEventShopChoiceEffects(shop, deps = {}) {
         : false;
 
       if (result && !isSkip && result !== '__item_shop_open__') {
-        deps.playItemGet?.();
+        playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
         deps.updateUI?.();
       }
       return result;

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { clearIdempotencyPrefix } from '../game/utils/idempotency_utils.js';
 import {
   skipRewardRuntime,
+  takeRewardCardRuntime,
   takeRewardRemoveRuntime,
   takeRewardUpgradeRuntime,
 } from '../game/ui/screens/reward_ui_runtime.js';
@@ -31,7 +32,7 @@ function createDoc() {
 describe('reward_ui_runtime', () => {
   it('plays hit feedback when no upgrade target exists', () => {
     clearIdempotencyPrefix('reward:');
-    const audioEngine = { playHit: vi.fn() };
+    const audioEngine = { playEvent: vi.fn(), playHit: vi.fn() };
     const deps = {
       gs: {
         _rewardLock: false,
@@ -52,10 +53,49 @@ describe('reward_ui_runtime', () => {
       clearIdempotencyPrefix('reward:');
     }
 
-    expect(audioEngine.playHit).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('attack', 'slash');
+    expect(audioEngine.playHit).not.toHaveBeenCalled();
     expect(deps.gs._rewardLock).toBe(false);
     expect(deps.playItemGet).not.toHaveBeenCalled();
     expect(deps.showItemToast).not.toHaveBeenCalled();
+  });
+
+  it('uses injected playItemGet without double-triggering the audio engine fallback', () => {
+    vi.useFakeTimers();
+    clearIdempotencyPrefix('reward:');
+    const doc = createDoc();
+    const returnToGame = vi.fn();
+    const playItemGet = vi.fn();
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
+    const deps = {
+      gs: {
+        _rewardLock: false,
+        player: { deck: [] },
+      },
+      data: {
+        cards: {
+          strike: { name: 'Strike', icon: 'S', desc: 'Deal damage' },
+        },
+      },
+      doc,
+      audioEngine,
+      playItemGet,
+      showItemToast: vi.fn(),
+      returnToGame,
+    };
+
+    try {
+      takeRewardCardRuntime('strike', deps);
+      vi.runAllTimers();
+    } finally {
+      vi.useRealTimers();
+      clearIdempotencyPrefix('reward:');
+    }
+
+    expect(playItemGet).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).not.toHaveBeenCalled();
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
+    expect(returnToGame).toHaveBeenCalledWith(true);
   });
 
   it('returns directly to the game when remove flow has no EventUI discard hook', () => {

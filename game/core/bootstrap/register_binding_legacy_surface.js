@@ -1,10 +1,8 @@
-import { buildBindingLegacyMetrics } from './build_binding_legacy_metrics.js';
-import { buildBindingLegacySurfaceSteps } from './build_binding_legacy_surface_steps.js';
-import { executeBindingLegacySurfaceSteps } from './execute_binding_legacy_surface_steps.js';
+import { buildBindingLegacySurfacePayload } from './build_binding_legacy_surface_payload.js';
+import { executeBindingLegacySurfacePayload } from './execute_binding_legacy_surface_payload.js';
 
 export function registerBindingLegacySurface({ modules, fns, deps }) {
-  executeBindingLegacySurfaceSteps(
-    { modules, fns, deps, metrics: buildBindingLegacyMetrics() },
-    buildBindingLegacySurfaceSteps(),
+  executeBindingLegacySurfacePayload(
+    buildBindingLegacySurfacePayload({ modules, fns, deps }),
   );
 }

@@ -121,7 +121,7 @@ describe('event_ui_rest_site', () => {
     hpVal.id = 'restHpValue';
     const echoVal = doc.createElement('div');
     echoVal.id = 'restEchoValue';
-    const audioEngine = { playHeal: vi.fn() };
+    const audioEngine = { playEvent: vi.fn(), playHeal: vi.fn() };
     const state = { playedSound: false };
     const snapshot = {
       oldHp: 20,
@@ -139,7 +139,8 @@ describe('event_ui_rest_site', () => {
     expect(echoBar.style.width).toMatch(/%$/);
     expect(hpVal.textContent).toContain('/');
     expect(echoVal.textContent).toContain('/100');
-    expect(audioEngine.playHeal).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('status', 'heal');
+    expect(audioEngine.playHeal).not.toHaveBeenCalled();
     expect(computeRestFillBoost(0)).toBeCloseTo(0.1);
     expect(computeRestFillBoost(1600)).toBeGreaterThan(0.16);
   });

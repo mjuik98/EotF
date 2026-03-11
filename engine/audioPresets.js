@@ -285,6 +285,17 @@ export const REACTION_PRESETS = {
     ],
   },
 
+  /** 플레이어 사망 */
+  playerDeath: {
+    variation: 0.05,
+    layers: [
+      { kind: 'tone',  freq: 196, dur: 0.18, type: 'square', gain: 0.18, attack: 0.004, release: 0.08 },
+      { kind: 'noise', dur: 0.12, gain: 0.10, filterFreq: 1200, filterQ: 1.1, timeOffset: 0.02 },
+      { kind: 'glide', freqFrom: 196, freqTo: 65, dur: 0.95, type: 'sawtooth', gain: 0.14, attack: 0.015, sustain: 0.28, release: 0.42, timeOffset: 0.04, reverb: true, reverbGain: 0.32 },
+      { kind: 'tone',  freq: 49,  dur: 1.35, type: 'sine', gain: 0.11, attack: 0.03, sustain: 0.25, release: 0.7, timeOffset: 0.08, reverb: true, reverbGain: 0.4 },
+    ],
+  },
+
   /** 적 사망 */
   enemyDeath: {
     variation: 0.07,

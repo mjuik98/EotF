@@ -1,6 +1,7 @@
 import { EventManager } from '../../systems/event_manager.js';
 import { EVENT_DISCARD_CARD_RARITY_COLORS } from '../../../data/ui_rarity_styles.js';
 import { dismissTransientOverlay, getAudioEngine } from './event_ui_helpers.js';
+import { playAttackSlash, playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
 
 export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {}) {
   if (!gs?.player || !data?.cards) return;
@@ -12,7 +13,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
   ];
 
   if (allCards.length === 0) {
-    getAudioEngine(deps)?.playHit?.();
+    playAttackSlash(getAudioEngine(deps));
     deps.screenShake?.shake?.(10, 0.4);
     gs.addLog('No cards are available for this action.', 'damage');
     return;
@@ -109,7 +110,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
     btn.onclick = () => {
       const result = EventManager.discardCard(gs, cardId, data, isBurn);
       if (result.success) {
-        if (typeof deps.playItemGet === 'function') deps.playItemGet();
+        playUiItemGetFeedback(deps.playItemGet, getAudioEngine(deps));
         if (typeof deps.updateUI === 'function') deps.updateUI();
       }
       dismissTransientOverlay(overlay);

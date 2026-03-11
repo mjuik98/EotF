@@ -1,4 +1,6 @@
-﻿function _getDoc(deps) {
+﻿import { playEventBossPhase } from '../../domain/audio/audio_event_helpers.js';
+
+function _getDoc(deps) {
   return deps?.doc || document;
 }
 
@@ -125,6 +127,6 @@ export const RegionTransitionUI = {
 
     deps.particleSystem?.burstEffect?.((win?.innerWidth || 0) / 2, (win?.innerHeight || 0) / 2);
     deps.screenShake?.shake?.(8, 0.5);
-    deps.audioEngine?.playBossPhase?.();
+      playEventBossPhase(deps.audioEngine);
   },
 };

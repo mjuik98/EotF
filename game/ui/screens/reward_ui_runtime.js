@@ -1,4 +1,5 @@
 import { clearIdempotencyKey, runIdempotent } from '../../utils/idempotency_utils.js';
+import { playAttackSlash, playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
 import {
   applyRewardBlessing,
   applyRewardCard,
@@ -22,6 +23,10 @@ export function finishReward(deps = {}) {
   setTimeout(() => deps.returnToGame?.(true), 350);
 }
 
+function playRewardItemGet(deps = {}) {
+  return playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
+}
+
 export function takeRewardBlessingRuntime(blessing, deps = {}) {
   const gs = getGS(deps);
   if (!gs) return;
@@ -29,7 +34,7 @@ export function takeRewardBlessingRuntime(blessing, deps = {}) {
   return runIdempotent(REWARD_CLAIM_KEY, () => {
     if (gs._rewardLock) return;
     if (blessing.type === 'energy' && (gs.player.maxEnergy || 0) >= getMaxEnergyCap(gs)) {
-      deps.audioEngine?.playHit?.();
+      playAttackSlash(deps.audioEngine);
       return;
     }
 
@@ -37,7 +42,7 @@ export function takeRewardBlessingRuntime(blessing, deps = {}) {
     setRewardPickedState(getDoc(deps), true);
     applyRewardBlessing(gs, blessing);
 
-    deps.playItemGet?.();
+    playRewardItemGet(deps);
     deps.showItemToast?.({ name: blessing.name, icon: blessing.icon, desc: blessing.desc });
     finishReward(deps);
   }, { ttlMs: 3000 });
@@ -54,7 +59,7 @@ export function takeRewardCardRuntime(cardId, deps = {}) {
     setRewardPickedState(getDoc(deps), true);
 
     const card = applyRewardCard(gs, data, cardId);
-    deps.playItemGet?.();
+    playRewardItemGet(deps);
     deps.showItemToast?.({ name: card?.name || cardId, icon: card?.icon || '*', desc: card?.desc || '' });
     finishReward(deps);
   }, { ttlMs: 3000 });
@@ -71,7 +76,7 @@ export function takeRewardItemRuntime(itemKey, deps = {}) {
     setRewardPickedState(getDoc(deps), true);
 
     const item = applyRewardItem(gs, data, itemKey);
-    deps.playItemGet?.();
+    playRewardItemGet(deps);
     deps.showItemToast?.(item, { forceQueue: true });
     finishReward(deps);
   }, { ttlMs: 3000 });
@@ -86,12 +91,12 @@ export function takeRewardUpgradeRuntime(deps = {}) {
     if (gs._rewardLock) return;
     const upgradedId = applyRewardUpgrade(gs, data);
     if (!upgradedId) {
-      deps.audioEngine?.playHit?.();
+      playAttackSlash(deps.audioEngine);
       return;
     }
 
     gs._rewardLock = true;
-    deps.playItemGet?.();
+    playRewardItemGet(deps);
     deps.showItemToast?.({
       name: `Upgrade complete: ${data.cards?.[upgradedId]?.name || upgradedId}`,
       icon: 'UP',

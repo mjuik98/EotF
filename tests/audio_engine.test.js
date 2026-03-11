@@ -174,7 +174,7 @@ describe('AudioEngine', () => {
     expect(warnSpy).toHaveBeenCalled();
   });
 
-  it('supports playClick and playEvent for registered presets', async () => {
+  it('supports click and reaction events through both direct wrappers and playEvent', async () => {
     const { FakeAudioContext, sink } = createAudioContextStub();
     globalThis.AudioContext = FakeAudioContext;
     const { AudioEngine } = await loadAudioEngine();
@@ -182,6 +182,9 @@ describe('AudioEngine', () => {
     expect(AudioEngine.init()).toBe(true);
     AudioEngine.playClick();
     AudioEngine.playEvent('ui', 'click');
+    AudioEngine.playDeath();
+    AudioEngine.playEnemyDeath?.();
+    AudioEngine.playEvent('reaction', 'playerDeath');
 
     expect(sink.oscillators.length + sink.bufferSources.length).toBeGreaterThan(0);
 

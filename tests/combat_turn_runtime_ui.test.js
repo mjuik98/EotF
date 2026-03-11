@@ -131,6 +131,7 @@ describe('combat_turn_runtime_ui', () => {
       getElementById: vi.fn((id) => (id === 'enemy_sprite_1' ? sprite : null)),
     };
     const shake = vi.fn();
+    const playEvent = vi.fn();
     const playBossPhase = vi.fn();
     const burstEffect = vi.fn();
     const renderCombatEnemies = vi.fn();
@@ -142,7 +143,7 @@ describe('combat_turn_runtime_ui', () => {
       doc,
       win: { innerWidth: 1200 },
       screenShake: { shake },
-      audioEngine: { playBossPhase },
+      audioEngine: { playEvent, playBossPhase },
       particleSystem: { burstEffect },
       renderCombatEnemies,
       updateStatusDisplay,
@@ -151,7 +152,8 @@ describe('combat_turn_runtime_ui', () => {
 
     expect(sprite.style.animation).toBe('none');
     expect(shake).toHaveBeenCalledWith(15, 1.0);
-    expect(playBossPhase).toHaveBeenCalledTimes(1);
+    expect(playEvent).toHaveBeenCalledWith('event', 'bossPhase');
+    expect(playBossPhase).not.toHaveBeenCalled();
     expect(burstEffect).toHaveBeenCalledWith(600, 220);
     expect(showEchoBurstOverlay).toHaveBeenCalledTimes(1);
 

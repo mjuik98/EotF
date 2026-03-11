@@ -1,4 +1,5 @@
 import { startEchoRippleDissolve } from '../effects/echo_ripple_transition.js';
+import { playStatusHeal } from '../../domain/audio/audio_event_helpers.js';
 import { getDoc } from './story_ui_helpers.js';
 export { renderHiddenEndingOverlay } from './story_ui_hidden_ending_render.js';
 
@@ -66,6 +67,6 @@ export function renderStoryFragmentOverlay(frag, deps = {}) {
 
   el.append(head, body, bar, btn);
   doc.body.appendChild(el);
-  deps.audioEngine?.playHeal?.();
+  playStatusHeal(deps.audioEngine);
   return true;
 }

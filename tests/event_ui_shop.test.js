@@ -16,16 +16,19 @@ describe('event_ui_shop', () => {
   it('decorates successful shop effects with item-get and UI refresh side effects', () => {
     const playItemGet = vi.fn();
     const updateUI = vi.fn();
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
     const originalEffect = vi.fn(() => 'Bought potion');
     const shop = decorateEventShopChoiceEffects({
       choices: [{ effect: originalEffect }],
-    }, { playItemGet, updateUI });
+    }, { playItemGet, updateUI, audioEngine });
 
     const result = shop.choices[0].effect({ player: {} });
 
     expect(result).toBe('Bought potion');
     expect(originalEffect).toHaveBeenCalledTimes(1);
     expect(playItemGet).toHaveBeenCalledTimes(1);
+    expect(audioEngine.playEvent).not.toHaveBeenCalled();
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
     expect(updateUI).toHaveBeenCalledTimes(1);
   });
 
@@ -77,5 +80,19 @@ describe('event_ui_shop', () => {
     expect(state.opened).toBe(true);
     expect(deps.playItemGet).toHaveBeenCalledTimes(1);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back to the audio engine item-get event when no injected hook exists', () => {
+    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
+    const updateUI = vi.fn();
+    const originalEffect = vi.fn(() => ({ resultText: 'Relic bought' }));
+    const shop = decorateEventShopChoiceEffects({
+      choices: [{ effect: originalEffect }],
+    }, { audioEngine, updateUI });
+
+    expect(shop.choices[0].effect({ player: {} })).toEqual({ resultText: 'Relic bought' });
+    expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'itemGet');
+    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
+    expect(updateUI).toHaveBeenCalledTimes(1);
   });
 });

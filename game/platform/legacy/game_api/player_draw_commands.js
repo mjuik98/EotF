@@ -1,4 +1,5 @@
 import { executePlayerDrawService } from '../../../app/combat/card_draw_service.js';
+import { playAttackSlash } from '../../../domain/audio/audio_event_helpers.js';
 import { drawStateCards } from '../../../features/combat/app/game_state_card_actions.js';
 import { getAudioEngine, getDefaultState, getRunRuntimeDeps } from './runtime_context.js';
 
@@ -16,7 +17,7 @@ export function executePlayerDraw(gs = getDefaultState(), api) {
     gs,
     modifyEnergy: (amount, state) => api.modifyEnergy(amount, state),
     drawCards: (count, state, options) => api.drawCards(count, state, options),
-    playHit: () => getAudioEngine()?.playHit?.(),
+    playHit: () => playAttackSlash(getAudioEngine()),
     updateUI: () => getRunRuntimeDeps().updateUI?.(),
   });
 }
