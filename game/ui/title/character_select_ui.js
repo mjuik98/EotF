@@ -1,4 +1,7 @@
-import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
+import {
+  createCharacterSelectProgressionFacade,
+  ensureCharacterSelectMeta,
+} from '../../app/run/use_cases/load_character_select_use_case.js';
 import { createCharacterSelectSfx } from './character_select_audio.js';
 import { setupCharacterSelectBindings } from './character_select_bindings.js';
 import { CHARACTER_SELECT_CHARS } from './character_select_catalog.js';
@@ -57,6 +60,7 @@ export const CharacterSelectUI = {
     const state = { idx: 0, phase: 'select', activeSkill: null, typingTimer: null };
     const chars = CHARS;
     const classIds = chars.map((ch) => ch.class);
+    const progressionFacade = createCharacterSelectProgressionFacade(deps?.gs?.meta, classIds);
     const levelUpPopup = new LevelUpPopupUI({
       cancelRaf: cancelAnimationFrameImpl,
       doc,
@@ -77,7 +81,7 @@ export const CharacterSelectUI = {
       cancelAnimationFrameImpl,
     });
 
-    ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
+    ensureCharacterSelectMeta(deps?.gs?.meta, classIds);
 
     function getById(id) {
       return doc.getElementById(id);
@@ -86,7 +90,7 @@ export const CharacterSelectUI = {
     let mountRuntime = null;
 
     const summaryReplay = createCharacterSummaryReplay({
-      progressionSystem: ClassProgressionSystem,
+      progressionSystem: progressionFacade,
       meta: deps?.gs?.meta,
       classIds,
       resolveClass: (classId) => mountRuntime.resolveClass(classId),

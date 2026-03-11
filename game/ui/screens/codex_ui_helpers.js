@@ -1,9 +1,9 @@
 import { DescriptionUtils } from '../../utils/description_utils.js';
 import {
-  getCardUpgradeId,
-  isCardUpgradeVariant,
-  resolveCodexCardId,
-} from '../../systems/codex_records_system.js';
+  getCodexCardUpgradeId,
+  isCodexCardUpgradeVariant,
+  resolveCodexCardReferenceId,
+} from '../../app/codex/use_cases/codex_card_reference_use_case.js';
 
 const DEFAULT_SETS = {};
 
@@ -29,7 +29,7 @@ export function ensureCodexState(gs) {
 }
 
 export function getCodexRecord(gs, category, id) {
-  const key = category === 'cards' ? resolveCodexCardId(id) : id;
+  const key = category === 'cards' ? resolveCodexCardReferenceId(id) : id;
   return gs?.meta?.codexRecords?.[category]?.[key] || null;
 }
 
@@ -40,15 +40,15 @@ export function highlightCodexDescription(desc) {
 }
 
 export function getBaseCodexCards(data) {
-  return Object.values(data?.cards || {}).filter((card) => !isCardUpgradeVariant(card?.id));
+  return Object.values(data?.cards || {}).filter((card) => !isCodexCardUpgradeVariant(card?.id));
 }
 
 export function isSeenCodexCard(codex, cardId) {
-  return codex.cards.has(resolveCodexCardId(cardId));
+  return codex.cards.has(resolveCodexCardReferenceId(cardId));
 }
 
 export function getCodexCardUpgradeEntry(data, cardId) {
-  const upgradedId = getCardUpgradeId(cardId);
+  const upgradedId = getCodexCardUpgradeId(cardId);
   if (!upgradedId) return null;
   return data?.cards?.[upgradedId] || null;
 }

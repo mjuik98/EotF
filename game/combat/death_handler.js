@@ -16,6 +16,13 @@ import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 import {
+    recordEnemyWorldKill,
+    replaceCombatEnemies,
+    scheduleCombatEnd,
+    setCombatActive,
+    syncSelectedTarget,
+} from '../state/commands/combat_runtime_commands.js';
+import {
     playAttackSlash,
     playReactionEnemyDeath,
     playReactionPlayerDeath,
@@ -76,7 +83,7 @@ export const DeathHandler = {
 
         const win = _getWin(deps);
         // _selectedTarget 즉시 조정 제거 (setTimeout 내부에서 일괄 처리)
-        this.worldMemory[`killed_${enemy.id}`] = (this.worldMemory[`killed_${enemy.id}`] || 0) + 1;
+        recordEnemyWorldKill(this, enemy.id);
 
         const doc = _getDoc(deps);
         const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
@@ -89,15 +96,8 @@ export const DeathHandler = {
             cardEl.classList.add('dying');
             setTimeout(() => {
                 // 죽은 적을 배열에서 실제로 제거
-                this.combat.enemies = this.combat.enemies.filter(e => e.hp > 0);
-
-                // 배열 재구성 이후 selectedTarget 재계산
-                const aliveCount = this.combat.enemies.length;
-                if (aliveCount === 0) {
-                    this._selectedTarget = null;
-                } else if (this._selectedTarget === null || this._selectedTarget >= aliveCount) {
-                    this._selectedTarget = 0;
-                }
+                replaceCombatEnemies(this, this.combat.enemies.filter(e => e.hp > 0));
+                syncSelectedTarget(this);
                 // 그 외엔 기존 인덱스 유지 (배열이 앞에서 줄었을 경우 대비)
 
                 const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
@@ -107,8 +107,7 @@ export const DeathHandler = {
 
         const alive = this.combat.enemies.filter(e => e.hp > 0);
         if (alive.length === 0 && !this._endCombatScheduled) {
-            this._endCombatScheduled = true;
-            this.combat.playerTurn = false; // 전투 종료 예정: 추가 행동 차단
+            scheduleCombatEnd(this); // 전투 종료 예정: 추가 행동 차단
 
             // UI를 즉시 잠금 처리하여 여분의 입력을 방어
             const docD = _getDoc(deps);
@@ -163,7 +162,7 @@ export const DeathHandler = {
         ParticleSystem?.deathEffect?.(win.innerWidth / 2, win.innerHeight / 2);
 
         // 전투 상태 해제 및 유물 트리거 (death)
-        this.combat.active = false;
+        setCombatActive(this, false);
         this.triggerItems('death');
         doc.getElementById('combatOverlay')?.classList.remove('active');
 
@@ -193,7 +192,7 @@ export const DeathHandler = {
         const endingScreenUI = deps.endingScreenUI
             || deps.EndingScreenUI;
         const selectFragment = deps.selectFragment || win.selectFragment;
-        if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 });
+        if (typeof finalizeRunOutcome === 'function') finalizeRunOutcome('defeat', { echoFragments: 3 }, { gs: this });
         endingScreenUI?.showOutcome?.('defeat', {
             ...deps,
             gs: this,

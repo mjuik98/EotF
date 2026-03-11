@@ -1,6 +1,12 @@
 {
   "scanDirs": ["game", "engine", "data"],
   "layerMatchers": [
+    { "layer": "app", "prefix": "game/app/" },
+    { "layer": "domain", "prefix": "game/domain/" },
+    { "layer": "state", "prefix": "game/state/" },
+    { "layer": "presentation", "prefix": "game/presentation/" },
+    { "layer": "legacy", "prefix": "game/platform/legacy/" },
+    { "layer": "platform", "prefix": "game/platform/" },
     { "layer": "ui", "prefix": "game/ui/" },
     { "layer": "combat", "prefix": "game/combat/" },
     { "layer": "systems", "prefix": "game/systems/" },
@@ -43,6 +49,39 @@
       "from": ["engine", "data"],
       "to": ["ui"],
       "message": "engine/data must not import ui"
+    },
+    {
+      "id": "app-no-ui",
+      "from": ["app"],
+      "to": ["ui"],
+      "message": "app must not import ui"
+    },
+    {
+      "id": "app-no-legacy",
+      "from": ["app"],
+      "to": ["legacy"],
+      "message": "app must not import legacy directly"
+    },
+    {
+      "id": "ui-no-direct-domain-state-systems",
+      "from": ["ui"],
+      "denyTargets": [
+        "game/systems/event_manager.js",
+        "game/systems/codex_records_system.js",
+        "game/systems/class_progression_system.js",
+        "game/core/game_state_defaults.js"
+      ],
+      "message": "ui must use app/state entry points instead of direct domain/system imports"
+    },
+    {
+      "id": "platform-no-direct-ui-feature-facades",
+      "from": ["platform"],
+      "denyTargets": [
+        "game/ui/screens/event_ui.js",
+        "game/ui/screens/reward_ui.js",
+        "game/ui/combat/combat_turn_ui.js"
+      ],
+      "message": "platform composition should import feature facades through presentation boundaries"
     }
   ]
 }

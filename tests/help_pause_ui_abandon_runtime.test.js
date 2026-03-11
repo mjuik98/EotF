@@ -48,7 +48,7 @@ describe('help_pause_ui_abandon_runtime', () => {
     expect(onClosePauseMenu).toHaveBeenCalledWith(doc);
     expect(deps.gs.combat.active).toBe(false);
     expect(combatOverlay.classList.remove).toHaveBeenCalledWith('active');
-    expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true });
+    expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true }, { gs: deps.gs });
     expect(deps.clearActiveRunSave).toHaveBeenCalledTimes(1);
     expect(showOutcomeSpy).toHaveBeenCalledWith('abandon', deps);
   });

@@ -1,5 +1,6 @@
 import { EndingScreenUI } from './ending_screen_ui.js';
 import { removeFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
+import { deactivateCombat } from '../../app/shared/use_cases/runtime_state_use_case.js';
 import {
   clearActiveRunSave,
   getDoc,
@@ -15,7 +16,7 @@ export function confirmAbandonRun(deps = {}, onClosePauseMenu = () => {}) {
   onClosePauseMenu(doc);
 
   if (gs.combat.active) {
-    gs.combat.active = false;
+    deactivateCombat(gs);
     const hudUpdateUI = deps.hudUpdateUI || null;
     if (typeof hudUpdateUI?.resetCombatUI === 'function') {
       hudUpdateUI.resetCombatUI({ ...deps, doc, gs });
@@ -27,7 +28,7 @@ export function confirmAbandonRun(deps = {}, onClosePauseMenu = () => {}) {
   removeFloatingPlayerHpPanel({ doc });
 
   if (typeof deps.finalizeRunOutcome === 'function') {
-    deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true });
+    deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true }, { gs });
   }
 
   clearActiveRunSave(deps);

@@ -1,4 +1,5 @@
 import { MAP_NODE_TYPE_VISUAL_FALLBACK } from '../../../data/map_node_data.js';
+import { canShowNextNodeOverlay } from '../../app/shared/selectors/runtime_state_selectors.js';
 import {
   applyHpDangerClass,
   buildBottomDock,
@@ -116,15 +117,7 @@ export function updateNextNodesOverlay(deps = {}) {
   if (!overlay) return;
 
   const { row, title } = ensureOverlayStructure(doc, overlay);
-  if (
-    gs.currentScreen !== 'game'
-    || gs.combat.active
-    || gs._nodeMoveLock
-    || gs._rewardLock
-    || gs._endCombatScheduled
-    || gs._endCombatRunning
-    || nodes.length === 0
-  ) {
+  if (!canShowNextNodeOverlay(gs, nodes)) {
     overlay.style.display = 'none';
     overlay.style.pointerEvents = 'none';
     overlay.classList.remove('nc-danger-critical', 'nc-danger-low');

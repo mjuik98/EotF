@@ -1,4 +1,8 @@
 import { resolveBranchTargetRegion } from './run_return_ui_branch_ui.js';
+import {
+  consumeBossRewardFlags,
+  resetRuntimeInteractionState,
+} from '../../app/shared/use_cases/runtime_state_use_case.js';
 
 export const OVERLAY_DISMISS_MS = 320;
 
@@ -55,16 +59,11 @@ export function returnToGameRuntime(fromReward, deps = {}) {
     return;
   }
 
-  const wasBoss = gs._bossRewardPending;
-  const wasLastRegion = gs._bossLastRegion;
+  const bossRewardState = consumeBossRewardFlags(gs);
+  const wasBoss = bossRewardState.pending;
+  const wasLastRegion = bossRewardState.lastRegion;
   const endlessRun = runRules.isEndless(gs);
-  gs._bossRewardPending = false;
-  gs._bossLastRegion = false;
-  gs._rewardLock = false;
-  gs._nodeMoveLock = false;
-  gs._eventLock = false;
-  gs._endCombatScheduled = false;
-  gs._endCombatRunning = false;
+  resetRuntimeInteractionState(gs);
 
   const doc = getRunReturnDoc(deps);
   doc.getElementById('combatOverlay')?.classList.remove('active');
@@ -116,7 +115,7 @@ export function returnToGameRuntime(fromReward, deps = {}) {
         deps.finalizeRunOutcome?.('victory', {
           echoFragments: 5,
           bossCleared: true,
-        });
+        }, { gs });
         if (deps.storySystem?.checkHiddenEnding?.()) deps.storySystem.showHiddenEnding();
         else deps.storySystem?.showNormalEnding?.();
       }, rewardExitDelay);

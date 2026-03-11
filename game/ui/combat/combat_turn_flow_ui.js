@@ -1,11 +1,17 @@
+import { canContinueCombatTurn, isCombatResolutionPending } from '../../app/shared/selectors/runtime_state_selectors.js';
+
 export async function waitWhileCombatActive(gs, ms, options = {}) {
   const { sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay)), stepMs = 50 } = options;
   const steps = Math.ceil(ms / stepMs);
   for (let i = 0; i < steps; i += 1) {
-    if (!gs?.combat?.active || gs?._endCombatScheduled || gs?._endCombatRunning) return false;
+    if (!canContinueCombatTurn(gs)) return false;
     await sleep(stepMs);
   }
-  return gs.combat.active && !gs._endCombatScheduled && !gs._endCombatRunning;
+  return canContinueCombatTurn(gs);
+}
+
+export function shouldAbortCombatTurn(gs) {
+  return !canContinueCombatTurn(gs) || isCombatResolutionPending(gs);
 }
 
 export function dispatchCombatTurnUiAction(result, deps) {

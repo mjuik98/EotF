@@ -1,5 +1,5 @@
 import { playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
-import { EventManager } from '../../systems/event_manager.js';
+import { createEventShopUseCase } from '../../app/event/use_cases/create_event_shop_use_case.js';
 
 export function decorateEventShopChoiceEffects(shop, deps = {}) {
   if (!shop?.choices?.length) return shop || null;
@@ -26,10 +26,11 @@ export function decorateEventShopChoiceEffects(shop, deps = {}) {
 }
 
 export function createEventShop(gs, data, runRules, deps = {}, callbacks = {}) {
-  if (!gs || !data || !runRules) return null;
-
-  const shop = EventManager.createShopEvent(gs, data, runRules, {
-    showItemShopFn: (state) => callbacks.showItemShop?.(state),
+  const shop = createEventShopUseCase({
+    gs,
+    data,
+    runRules,
+    showItemShop: (state) => callbacks.showItemShop?.(state),
   });
   if (!shop) return null;
 

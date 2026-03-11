@@ -4,7 +4,6 @@ import {
   showEventService,
   triggerRandomEventService,
 } from '../../app/event/event_service.js';
-import { EventManager } from '../../systems/event_manager.js';
 import { clearIdempotencyPrefix, runIdempotent } from '../../utils/idempotency_utils.js';
 import {
   getAudioEngine,
@@ -29,7 +28,6 @@ export const EventUI = {
     triggerRandomEventService({
       gs: getGS(deps),
       data: getData(deps),
-      pickRandomEvent: EventManager.pickRandomEvent,
       showEvent: (event) => this.showEvent(event, deps),
     });
   },

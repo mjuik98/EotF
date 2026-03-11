@@ -12,6 +12,13 @@ import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rul
 import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 import {
+    beginCombatResolution,
+    completeCombatResolution,
+    resetPlayerEchoChain,
+    setBossRewardState,
+    setCombatActive,
+} from '../state/commands/combat_runtime_commands.js';
+import {
     playEventResonanceBurst,
     playUiItemGet,
 } from '../domain/audio/audio_event_helpers.js';
@@ -24,8 +31,7 @@ const _getWin = (deps) => deps?.win || window;
 export const CombatLifecycle = {
     async endCombat(deps = {}) {
         if (!this.combat.active) return;
-        if (this._endCombatRunning) return;
-        this._endCombatRunning = true;
+        if (!beginCombatResolution(this)) return;
         const win = _getWin(deps);
         const doc = _getDoc(deps);
 
@@ -86,8 +92,7 @@ export const CombatLifecycle = {
             if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, combatKills);
 
             if (isBoss) {
-                this._bossRewardPending = true;
-                this._bossLastRegion = isLastRegion;
+                setBossRewardState(this, { pending: true, lastRegion: isLastRegion });
             }
             if (isBoss && isLastRegion && RunRules.isEndless(this)) {
                 setTimeout(() => {
@@ -107,7 +112,7 @@ export const CombatLifecycle = {
             await new Promise(r => setTimeout(r, 1000));
 
             // Ensure combat is deactivated before showing reward screen
-            this.combat.active = false;
+            setCombatActive(this, false);
             const showRewardScreen = deps.showRewardScreen || win.showRewardScreen;
             if (typeof showRewardScreen === 'function') {
                 const rewardMode = isBoss ? 'boss' : (isMiniBoss ? 'mini_boss' : false);
@@ -116,8 +121,7 @@ export const CombatLifecycle = {
         } catch (e) {
             console.error('[endCombat] Error:', e);
         } finally {
-            this._endCombatRunning = false;
-            this._endCombatScheduled = false;
+            completeCombatResolution(this);
         }
     },
 
@@ -144,7 +148,7 @@ export const CombatLifecycle = {
         const win = _getWin(deps);
 
         if (!isPassive) {
-            this.player.echoChain = 0;
+            resetPlayerEchoChain(this);
             this.drainEcho(50);
         }
 

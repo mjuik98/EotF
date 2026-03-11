@@ -1,9 +1,7 @@
 import { runIdempotent } from '../../utils/idempotency_utils.js';
+import { createStartRunUseCase } from '../../app/run/use_cases/start_run_use_case.js';
 import {
   applyStartBonuses,
-  applyRunStartLoadout,
-  resetRunConfig,
-  resetRuntimeState,
   resolveRunSetupContext,
 } from './run_setup_helpers.js';
 
@@ -16,31 +14,27 @@ export function startGameRuntime(deps = {}) {
     classMeta,
     data,
     gs,
-    maxHp,
     runRules,
     selectedClass,
   } = context;
+  const startRun = createStartRunUseCase();
 
   return runIdempotent('run:start-game', () => {
-    audioEngine.init?.();
-    audioEngine.resume?.();
-    runRules.ensureMeta?.(gs.meta);
-
-    resetRunConfig(gs);
-    applyRunStartLoadout(gs, selectedClass, {
-      ...classMeta,
-      stats: { ...classMeta.stats, HP: maxHp },
-    }, data);
-    applyStartBonuses(gs, data);
-    runRules.applyRunStart?.(gs);
-
-    if (typeof deps.shuffleArray === 'function') deps.shuffleArray(gs.player.deck);
-
-    resetRuntimeState(gs, gs.meta.worldMemory);
-
-    if (typeof deps.resetDeckModalFilter === 'function') deps.resetDeckModalFilter();
-    if (typeof deps.enterRun === 'function') deps.enterRun();
-    if (typeof deps.updateUI === 'function') deps.updateUI();
-    gs.markDirty('hud');
+    return startRun({
+      audioEngine,
+      applyStartBonuses,
+      classMeta: {
+        ...classMeta,
+        stats: { ...classMeta.stats, HP: context.maxHp },
+      },
+      data,
+      enterRun: deps.enterRun,
+      gs,
+      resetDeckModalFilter: deps.resetDeckModalFilter,
+      runRules,
+      selectedClass,
+      shuffleArray: deps.shuffleArray,
+      updateUI: deps.updateUI,
+    });
   }, { ttlMs: 2500 });
 }

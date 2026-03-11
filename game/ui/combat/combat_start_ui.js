@@ -6,6 +6,7 @@
 import { Trigger } from '../../data/triggers.js';
 import { CombatInitializer } from '../../combat/combat_initializer.js';
 import { playEventBossPhase } from '../../domain/audio/audio_event_helpers.js';
+import { activateCombat } from '../../app/shared/use_cases/runtime_state_use_case.js';
 import {
   applyCombatEntryOverlay,
   finalizeCombatStartUi,
@@ -49,7 +50,7 @@ export const CombatStartUI = {
 
     // ?? 濡쒖쭅: ?곹깭 由ъ뀑 ??
     CombatInitializer.resetCombatState(gs);
-    gs.combat.active = true;
+    activateCombat(gs);
 
     // UI: 전투 시작 로그
     gs.addLog?.('⚔️ 전투 시작!', 'system');

@@ -67,7 +67,7 @@ describe('run_return_ui_runtime', () => {
     expect(finalizeRunOutcome).toHaveBeenCalledWith('victory', {
       echoFragments: 5,
       bossCleared: true,
-    });
+    }, { gs: deps.gs });
     expect(storySystem.showNormalEnding).toHaveBeenCalledTimes(1);
   });
 

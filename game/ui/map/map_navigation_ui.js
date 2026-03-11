@@ -1,6 +1,7 @@
 import { Trigger } from '../../data/triggers.js';
 import { MAP_COMBAT_NODE_TYPES } from '../../../data/map_node_data.js';
 import { playUiFootstep } from '../../domain/audio/audio_event_helpers.js';
+import { setNodeMovementLocked } from '../../app/shared/use_cases/runtime_state_use_case.js';
 
 
 export const MapNavigationUI = {
@@ -15,7 +16,7 @@ export const MapNavigationUI = {
 
     if (!node || !node.accessible || node.visited) return;
     if (gs._nodeMoveLock) return;
-    gs._nodeMoveLock = true;
+    setNodeMovementLocked(gs, true);
 
     try {
       const doc = deps.doc || document;
@@ -63,12 +64,12 @@ export const MapNavigationUI = {
           };
           NODE_HANDLERS[node.type]?.(deps);
         } finally {
-          gs._nodeMoveLock = false;
+          setNodeMovementLocked(gs, false);
         }
       }, 300);
     } catch (e) {
       console.error('[MapNavigationUI] 이동 중 오류:', e);
-      gs._nodeMoveLock = false;
+      setNodeMovementLocked(gs, false);
       deps.updateUI?.();
     }
   },

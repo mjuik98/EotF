@@ -210,7 +210,7 @@ describe('HelpPauseUI abandon flow', () => {
 
     HelpPauseUI.confirmAbandon(deps);
 
-    expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true });
+    expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true }, { gs: deps.gs });
     expect(deps.clearActiveRunSave).toHaveBeenCalledTimes(1);
     expect(showOutcomeSpy).toHaveBeenCalledWith('abandon', deps);
     expect(deps.switchScreen).not.toHaveBeenCalled();

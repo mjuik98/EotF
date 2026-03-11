@@ -1,5 +1,8 @@
 import { CARDS } from '../../../data/cards.js';
-import { ClassProgressionSystem } from '../../systems/class_progression_system.js';
+import {
+  ensureCharacterSelectMeta,
+  getCharacterSelectPresentation,
+} from '../../app/run/use_cases/load_character_select_use_case.js';
 import { TooltipUI } from '../cards/tooltip_ui.js';
 import {
   renderCharacterInfoPanel,
@@ -18,16 +21,7 @@ export function buildCharacterSelectSectionLabel(text, accent) {
 }
 
 export function getCharacterClassProgress(meta, classId, classIds) {
-  const fallback = {
-    classId,
-    level: 1,
-    totalXp: 0,
-    currentLevelXp: 0,
-    nextLevelXp: 100,
-    progress: 0,
-  };
-  if (!meta || !classId) return fallback;
-  return ClassProgressionSystem.getClassState(meta, classId, classIds) || fallback;
+  return getCharacterSelectPresentation(meta, classId, classIds).classProgress;
 }
 
 export function createCharacterSelectMountRuntime(options = {}) {
@@ -59,12 +53,13 @@ export function createCharacterSelectMountRuntime(options = {}) {
     const ch = chars[state.idx];
     const card = getById('charCard');
     if (!card) return;
-    const progress = getCharacterClassProgress(deps?.gs?.meta, ch.class, classIds);
+    const presentation = getCharacterSelectPresentation(deps?.gs?.meta, ch.class, classIds);
+    const progress = presentation.classProgress;
     renderCharacterCard({
       card,
       selectedChar: ch,
       classProgress: progress,
-      maxLevel: ClassProgressionSystem.MAX_LEVEL,
+      maxLevel: presentation.maxLevel,
       resolveById: getById,
       doc,
       traitBadgeText: `??${ch.traitName}`,
@@ -76,11 +71,12 @@ export function createCharacterSelectMountRuntime(options = {}) {
 
   function renderInfoPanel() {
     const ch = chars[state.idx];
+    const presentation = getCharacterSelectPresentation(deps?.gs?.meta, ch.class, classIds);
     renderCharacterInfoPanel({
       panel: getById('infoPanel'),
       selectedChar: ch,
-      classProgress: getCharacterClassProgress(deps?.gs?.meta, ch.class, classIds),
-      roadmap: ClassProgressionSystem.getRoadmap(ch.class),
+      classProgress: presentation.classProgress,
+      roadmap: presentation.roadmap,
       buildSectionLabel: buildCharacterSelectSectionLabel,
       buildRadar: buildCharacterRadar,
       cards: CARDS,
@@ -120,7 +116,7 @@ export function createCharacterSelectMountRuntime(options = {}) {
   }
 
   function updateAll() {
-    ClassProgressionSystem.ensureMeta(deps?.gs?.meta, classIds);
+    ensureCharacterSelectMeta(deps?.gs?.meta, classIds);
     renderCard();
     renderInfoPanel();
     renderDots();

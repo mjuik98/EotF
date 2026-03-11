@@ -25,7 +25,7 @@ describe('DeathHandler', () => {
       win: {},
     });
 
-    expect(finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 3 });
+    expect(finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 3 }, { gs });
     expect(showOutcomeSpy).toHaveBeenCalledWith('defeat', expect.objectContaining({
       gs,
       selectFragment,

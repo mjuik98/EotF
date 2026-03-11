@@ -10,7 +10,7 @@ const REGIONS = ['rgba(74,243,204,', 'rgba(155,127,232,', 'rgba(74,120,243,', 'r
 export const ROOT_ID = 'endingScreen';
 export const STYLE_ID = 'ending-screen-styles';
 export const FRAGMENT_CHOICES = [
-  { icon: '⚡', name: 'Echo 강화', desc: '다음 런 시작 시 Echo +30', effect: 'echo_boost' },
+  { icon: '⚡', name: '잔향 강화', desc: '다음 런 시작 시 잔향 +30', effect: 'echo_boost' },
   { icon: '🛡️', name: '회복력', desc: '최대 체력 +10', effect: 'resilience' },
   { icon: '🍀', name: '행운', desc: '시작 골드 +25', effect: 'fortune' },
 ];

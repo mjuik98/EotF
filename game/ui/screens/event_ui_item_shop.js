@@ -1,4 +1,7 @@
-import { EventManager } from '../../systems/event_manager.js';
+import {
+  buildItemShopStockUseCase,
+  purchaseItemFromShopUseCase,
+} from '../../app/event/use_cases/item_shop_use_case.js';
 import { RARITY_LABELS } from '../../../data/rarity_meta.js';
 import {
   ITEM_SHOP_RARITY_BORDER_COLORS,
@@ -33,7 +36,7 @@ const ITEM_SHOP_RARITY_CONFIG = Object.freeze({
 export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
   if (!gs?.player || !data?.items || !runRules) return;
 
-  const shopStock = EventManager.generateItemShopStock(gs, data, runRules);
+  const shopStock = buildItemShopStockUseCase({ gs, data, runRules });
   const doc = deps.doc || document;
   const overlay = doc.createElement('div');
   overlay.id = 'itemShopOverlay';
@@ -137,7 +140,7 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
           card.style.boxShadow = '';
         };
         card.onclick = () => {
-          const result = EventManager.purchaseItem(gs, item, cost);
+          const result = purchaseItemFromShopUseCase({ gs, item, cost });
           if (!result.success) return;
 
           playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);

@@ -1,4 +1,8 @@
 import { clearIdempotencyPrefix } from '../../utils/idempotency_utils.js';
+import {
+  deactivateCombat,
+  unlockRewardFlow,
+} from '../../app/shared/use_cases/runtime_state_use_case.js';
 import { ensureMiniBossBonus } from './reward_ui_claims.js';
 import {
   drawRewardCards,
@@ -20,9 +24,9 @@ export function showRewardScreenRuntime(ui, mode = false, deps = {}) {
   const isElite = gs.currentNode?.type === 'elite';
   const { count, rarities } = resolveRewardCardConfig(rewardMode, isElite);
 
-  if (gs.combat?.active) gs.combat.active = false;
+  if (gs.combat?.active) deactivateCombat(gs);
 
-  gs._rewardLock = false;
+  unlockRewardFlow(gs);
   clearIdempotencyPrefix('reward:');
   ui.hideSkipConfirm(deps);
 

@@ -1,0 +1,48 @@
+import { describe, expect, it, vi } from 'vitest';
+import {
+  ensureCharacterSelectMeta,
+  getCharacterSelectPresentation,
+} from '../game/app/run/use_cases/load_character_select_use_case.js';
+
+describe('load_character_select_use_case', () => {
+  it('no-ops ensureMeta when meta is absent', () => {
+    const progressionSystem = { ensureMeta: vi.fn() };
+
+    expect(ensureCharacterSelectMeta(null, ['paladin'], progressionSystem)).toBeNull();
+    expect(progressionSystem.ensureMeta).not.toHaveBeenCalled();
+  });
+
+  it('builds fallback and populated presentation payloads', () => {
+    const progressionSystem = {
+      MAX_LEVEL: 10,
+      ensureMeta: vi.fn(),
+      getClassState: vi.fn(() => ({
+        classId: 'paladin',
+        level: 2,
+        totalXp: 20,
+        currentLevelXp: 20,
+        nextLevelXp: 100,
+        progress: 0.2,
+      })),
+      getRoadmap: vi.fn(() => ['skill-a']),
+    };
+
+    expect(getCharacterSelectPresentation(null, 'paladin', ['paladin'], progressionSystem)).toEqual({
+      classProgress: expect.objectContaining({
+        classId: 'paladin',
+        level: 1,
+      }),
+      maxLevel: 10,
+      roadmap: ['skill-a'],
+    });
+
+    expect(getCharacterSelectPresentation({}, 'paladin', ['paladin'], progressionSystem)).toEqual({
+      classProgress: expect.objectContaining({
+        classId: 'paladin',
+        level: 2,
+      }),
+      maxLevel: 10,
+      roadmap: ['skill-a'],
+    });
+  });
+});

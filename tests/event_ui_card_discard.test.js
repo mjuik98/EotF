@@ -1,13 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-const { discardCardSpy } = vi.hoisted(() => ({
-  discardCardSpy: vi.fn(),
+const { discardEventCardSpy } = vi.hoisted(() => ({
+  discardEventCardSpy: vi.fn(),
 }));
 
-vi.mock('../game/systems/event_manager.js', () => ({
-  EventManager: {
-    discardCard: discardCardSpy,
-  },
+vi.mock('../game/app/event/use_cases/discard_event_card_use_case.js', () => ({
+  discardEventCard: discardEventCardSpy,
 }));
 
 vi.mock('../game/ui/screens/event_ui_helpers.js', () => ({
@@ -124,7 +122,7 @@ describe('showEventCardDiscardOverlay', () => {
   });
 
   it('discards the chosen card and triggers item/update hooks on success', () => {
-    discardCardSpy.mockReturnValueOnce({ success: true });
+    discardEventCardSpy.mockReturnValueOnce({ success: true });
     const doc = createDoc();
     const playItemGet = vi.fn();
     const updateUI = vi.fn();
@@ -144,7 +142,7 @@ describe('showEventCardDiscardOverlay', () => {
     const cardBtn = doc.elements.discardCardList.children[0];
     cardBtn.onclick();
 
-    expect(discardCardSpy).toHaveBeenCalledWith(gs, 'strike', data, true);
+    expect(discardEventCardSpy).toHaveBeenCalledWith({ gs, cardId: 'strike', data, isBurn: true });
     expect(playItemGet).toHaveBeenCalledTimes(1);
     expect(audioEngine.playEvent).not.toHaveBeenCalled();
     expect(audioEngine.playItemGet).not.toHaveBeenCalled();
@@ -153,7 +151,7 @@ describe('showEventCardDiscardOverlay', () => {
   });
 
   it('uses the audio engine itemGet event when no injected playItemGet hook exists', () => {
-    discardCardSpy.mockReturnValueOnce({ success: true });
+    discardEventCardSpy.mockReturnValueOnce({ success: true });
     const doc = createDoc();
     const updateUI = vi.fn();
     const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };

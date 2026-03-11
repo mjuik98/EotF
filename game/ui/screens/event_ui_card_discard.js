@@ -1,4 +1,4 @@
-import { EventManager } from '../../systems/event_manager.js';
+import { discardEventCard } from '../../app/event/use_cases/discard_event_card_use_case.js';
 import { EVENT_DISCARD_CARD_RARITY_COLORS } from '../../../data/ui_rarity_styles.js';
 import { dismissTransientOverlay, getAudioEngine } from './event_ui_helpers.js';
 import { playAttackSlash, playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
@@ -108,7 +108,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
       btn.style.boxShadow = '';
     };
     btn.onclick = () => {
-      const result = EventManager.discardCard(gs, cardId, data, isBurn);
+      const result = discardEventCard({ gs, cardId, data, isBurn });
       if (result.success) {
         playUiItemGetFeedback(deps.playItemGet, getAudioEngine(deps));
         if (typeof deps.updateUI === 'function') deps.updateUI();

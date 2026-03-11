@@ -1,4 +1,4 @@
-import { EventManager } from '../../systems/event_manager.js';
+import { createRestEventUseCase } from '../../app/event/use_cases/create_rest_event_use_case.js';
 import { startRestFillParticles } from './event_ui_particles.js';
 import { playStatusHeal } from '../../domain/audio/audio_event_helpers.js';
 
@@ -148,8 +148,11 @@ export function showEventRestSiteOverlay(gs, data, runRules, deps = {}) {
       restParticleFx.stop();
       overlay.remove();
 
-      const rest = EventManager.createRestEvent(gs, data, runRules, {
-        showCardDiscardFn: (restState, isBurn) => deps.showCardDiscard?.(restState, isBurn),
+      const rest = createRestEventUseCase({
+        gs,
+        data,
+        runRules,
+        showCardDiscard: (restState, isBurn) => deps.showCardDiscard?.(restState, isBurn),
       });
       if (!rest) return;
 

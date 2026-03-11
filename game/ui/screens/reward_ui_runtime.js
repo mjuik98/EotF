@@ -1,16 +1,18 @@
 import { clearIdempotencyKey, runIdempotent } from '../../utils/idempotency_utils.js';
-import { playAttackSlash, playUiItemGetFeedback } from '../../domain/audio/audio_event_helpers.js';
+import { playAttackSlash } from '../../domain/audio/audio_event_helpers.js';
 import {
-  applyRewardBlessing,
-  applyRewardCard,
-  applyRewardItem,
-  applyRewardUpgrade,
-} from './reward_ui_claims.js';
+  lockRewardFlow,
+  unlockRewardFlow,
+} from '../../app/shared/use_cases/runtime_state_use_case.js';
+import { isRewardFlowLocked } from '../../app/shared/selectors/runtime_state_selectors.js';
+import {
+  claimReward,
+  playRewardClaimFeedback,
+} from '../../app/reward/use_cases/claim_reward_use_case.js';
 import {
   getData,
   getDoc,
   getGS,
-  getMaxEnergyCap,
 } from './reward_ui_helpers.js';
 import {
   setRewardPickedState,
@@ -24,7 +26,7 @@ export function finishReward(deps = {}) {
 }
 
 function playRewardItemGet(deps = {}) {
-  return playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
+  return playRewardClaimFeedback(deps);
 }
 
 export function takeRewardBlessingRuntime(blessing, deps = {}) {
@@ -32,18 +34,22 @@ export function takeRewardBlessingRuntime(blessing, deps = {}) {
   if (!gs) return;
 
   return runIdempotent(REWARD_CLAIM_KEY, () => {
-    if (gs._rewardLock) return;
-    if (blessing.type === 'energy' && (gs.player.maxEnergy || 0) >= getMaxEnergyCap(gs)) {
+    if (isRewardFlowLocked(gs)) return;
+    const result = claimReward({
+      gs,
+      rewardType: 'blessing',
+      rewardId: blessing,
+    });
+    if (!result?.success) {
       playAttackSlash(deps.audioEngine);
       return;
     }
 
-    gs._rewardLock = true;
+    lockRewardFlow(gs);
     setRewardPickedState(getDoc(deps), true);
-    applyRewardBlessing(gs, blessing);
 
     playRewardItemGet(deps);
-    deps.showItemToast?.({ name: blessing.name, icon: blessing.icon, desc: blessing.desc });
+    deps.showItemToast?.(result.notification?.payload, result.notification?.options);
     finishReward(deps);
   }, { ttlMs: 3000 });
 }
@@ -54,13 +60,20 @@ export function takeRewardCardRuntime(cardId, deps = {}) {
   if (!gs || !data) return;
 
   return runIdempotent(REWARD_CLAIM_KEY, () => {
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
+    if (isRewardFlowLocked(gs)) return;
+    const result = claimReward({
+      data,
+      gs,
+      rewardId: cardId,
+      rewardType: 'card',
+    });
+    if (!result?.success) return;
+
+    lockRewardFlow(gs);
     setRewardPickedState(getDoc(deps), true);
 
-    const card = applyRewardCard(gs, data, cardId);
     playRewardItemGet(deps);
-    deps.showItemToast?.({ name: card?.name || cardId, icon: card?.icon || '*', desc: card?.desc || '' });
+    deps.showItemToast?.(result.notification?.payload, result.notification?.options);
     finishReward(deps);
   }, { ttlMs: 3000 });
 }
@@ -71,13 +84,20 @@ export function takeRewardItemRuntime(itemKey, deps = {}) {
   if (!gs || !data) return;
 
   return runIdempotent(REWARD_CLAIM_KEY, () => {
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
+    if (isRewardFlowLocked(gs)) return;
+    const result = claimReward({
+      data,
+      gs,
+      rewardId: itemKey,
+      rewardType: 'item',
+    });
+    if (!result?.success) return;
+
+    lockRewardFlow(gs);
     setRewardPickedState(getDoc(deps), true);
 
-    const item = applyRewardItem(gs, data, itemKey);
     playRewardItemGet(deps);
-    deps.showItemToast?.(item, { forceQueue: true });
+    deps.showItemToast?.(result.notification?.payload, result.notification?.options);
     finishReward(deps);
   }, { ttlMs: 3000 });
 }
@@ -88,20 +108,20 @@ export function takeRewardUpgradeRuntime(deps = {}) {
   if (!gs || !data) return;
 
   return runIdempotent(REWARD_CLAIM_KEY, () => {
-    if (gs._rewardLock) return;
-    const upgradedId = applyRewardUpgrade(gs, data);
-    if (!upgradedId) {
+    if (isRewardFlowLocked(gs)) return;
+    const result = claimReward({
+      data,
+      gs,
+      rewardType: 'upgrade',
+    });
+    if (!result?.success) {
       playAttackSlash(deps.audioEngine);
       return;
     }
 
-    gs._rewardLock = true;
+    lockRewardFlow(gs);
     playRewardItemGet(deps);
-    deps.showItemToast?.({
-      name: `Upgrade complete: ${data.cards?.[upgradedId]?.name || upgradedId}`,
-      icon: 'UP',
-      desc: 'A random card has been upgraded.',
-    });
+    deps.showItemToast?.(result.notification?.payload, result.notification?.options);
     finishReward(deps);
   }, { ttlMs: 3000 });
 }
@@ -111,8 +131,8 @@ export function takeRewardRemoveRuntime(deps = {}) {
   if (!gs) return;
 
   return runIdempotent(REWARD_CLAIM_KEY, () => {
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
+    if (isRewardFlowLocked(gs)) return;
+    lockRewardFlow(gs);
 
     const doc = getDoc(deps);
     setRewardPickedState(doc, true);
@@ -122,7 +142,7 @@ export function takeRewardRemoveRuntime(deps = {}) {
       eventUI.showCardDiscard(gs, true, {
         ...deps,
         onCancel: () => {
-          gs._rewardLock = false;
+          unlockRewardFlow(gs);
           clearIdempotencyKey(REWARD_CLAIM_KEY);
           setRewardPickedState(doc, false);
         },
@@ -140,8 +160,8 @@ export function skipRewardRuntime(deps = {}) {
   if (!gs) return;
 
   return runIdempotent(REWARD_SKIP_KEY, () => {
-    if (gs._rewardLock) return;
-    gs._rewardLock = true;
+    if (isRewardFlowLocked(gs)) return;
+    lockRewardFlow(gs);
     deps.returnToGame?.(true);
   }, { ttlMs: 3000 });
 }

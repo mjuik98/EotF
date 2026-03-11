@@ -1,3 +1,5 @@
+import { confirmCharacterSelection } from '../../app/run/use_cases/confirm_character_selection_use_case.js';
+
 export function setCharacterSelectVisibility(resolveById, isVisible, dir) {
   const card = resolveById?.('charCard');
   const panel = resolveById?.('infoPanel');
@@ -55,18 +57,15 @@ export function createCharacterSelectFlow({
   }
 
   function handleConfirm() {
-    if (state?.phase !== 'select') return;
-    const selectedChar = chars[state.idx];
-    log?.('[CharacterSelectUI] Character selected:', selectedChar);
-    sfx?.select?.();
-    state.phase = 'burst';
-    renderPhase?.();
-    setTimeoutImpl?.(() => {
-      state.phase = 'done';
-      renderPhase?.();
-      log?.('[CharacterSelectUI] Firing onConfirm callback');
-      onConfirm?.(selectedChar);
-    }, 650);
+    confirmCharacterSelection({
+      chars,
+      log,
+      onConfirm,
+      renderPhase,
+      setTimeoutImpl,
+      sfx,
+      state,
+    });
   }
 
   return {

@@ -1,3 +1,5 @@
+import { EventManager } from '../../systems/event_manager.js';
+
 let currentEvent = null;
 
 export function getCurrentEvent() {
@@ -16,7 +18,7 @@ export function clearCurrentEvent() {
 export function triggerRandomEventService({
   gs,
   data,
-  pickRandomEvent,
+  pickRandomEvent = EventManager.pickRandomEvent,
   showEvent,
 }) {
   const picked = pickRandomEvent(gs, data);

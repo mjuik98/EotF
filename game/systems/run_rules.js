@@ -20,6 +20,16 @@ import {
   getShopCost,
 } from './run_rules_difficulty.js';
 import { ensureRunMeta } from './run_rules_meta.js';
+import {
+  applyPlayerMaxHpPenalty,
+  applyRunOutcomeRewards,
+  applySilenceCurseTurnStart,
+  beginRunOutcomeCommit,
+  captureRunOutcomeTiming,
+  recordDefeatProgress,
+  recordVictoryProgress,
+  syncRunOutcomeMeta,
+} from '../state/commands/run_outcome_commands.js';
 
 export {
   getRegionCount,
@@ -80,15 +90,11 @@ export const RunRules = {
     const cfg = gs.runConfig || {};
 
     const ascHpLoss = Math.min(20, asc * 2);
-    if (ascHpLoss > 0) {
-      gs.player.maxHp = Math.max(1, gs.player.maxHp - ascHpLoss);
-      gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-    }
+    applyPlayerMaxHpPenalty(gs, ascHpLoss);
 
     const curse = cfg.curse || 'none';
     if (curse === 'frail') {
-      gs.player.maxHp = Math.max(1, gs.player.maxHp - 10);
-      gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
+      applyPlayerMaxHpPenalty(gs, 10);
     }
 
     ClassProgressionSystem.applyRunStartBonuses(gs, {
@@ -116,12 +122,7 @@ export const RunRules = {
     if (!gs?.player || !gs?.combat) return;
 
     if ((gs.runConfig?.curse || 'none') === 'silence') {
-      if (gs.combat.turn <= 3) {
-        gs.player.energy = Math.min(gs.player.energy, 1);
-        gs.player.maxEnergy = Math.min(gs.player.maxEnergy, 1);
-      } else if (gs.combat.turn === 4) {
-        gs.player.maxEnergy = Math.max(gs.player.maxEnergy, 3);
-      }
+      applySilenceCurseTurnStart(gs);
     }
   },
 
@@ -129,31 +130,20 @@ export const RunRules = {
     if (!gs?.player) return;
 
     if ((gs.runConfig?.curse || 'none') === 'decay') {
-      gs.player.maxHp = Math.max(1, gs.player.maxHp - 2);
-      gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
+      applyPlayerMaxHpPenalty(gs, 2);
     }
   },
 
   onVictory(gs) {
     if (!gs?.meta) return 5;
     this.ensureMeta(gs.meta);
-
-    gs.meta.unlocks.ascension = true;
-    gs.meta.progress.victories = (gs.meta.progress.victories || 0) + 1;
-    gs.meta.progress.echoShards = (gs.meta.progress.echoShards || 0) + 2;
-    gs.meta.maxAscension = Math.max(gs.meta.maxAscension || 0, Math.min(20, gs.meta.progress.victories));
-
-    if (gs.meta.progress.victories >= 3) {
-      gs.meta.unlocks.endless = true;
-    }
-    return 5;
+    return recordVictoryProgress(gs);
   },
 
   onDefeat(gs) {
     if (!gs?.meta) return 3;
     this.ensureMeta(gs.meta);
-    gs.meta.progress.failures = (gs.meta.progress.failures || 0) + 1;
-    return 3;
+    return recordDefeatProgress(gs);
   },
 
   nextCurseId(current = 'none') {
@@ -170,31 +160,14 @@ function persistRunOutcomeMeta(deps = {}) {
 }
 
 export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
-  const gs = GAME.State;
+  const gs = deps.gs || GAME.State;
   if (!gs) return 0;
-  if (gs._runOutcomeCommitted) return 0;
-  gs._runOutcomeCommitted = true;
+  if (!beginRunOutcomeCommit(gs)) return 0;
 
-  if (gs.stats && typeof gs.stats === 'object') {
-    const now = Date.now();
-    const runStartTs = Number(gs.stats._runStartTs);
-    if (Number.isFinite(runStartTs) && runStartTs > 0) {
-      gs.stats.clearTimeMs = Math.max(0, now - runStartTs);
-    }
-
-    if (!gs.stats.regionClearTimes || typeof gs.stats.regionClearTimes !== 'object' || Array.isArray(gs.stats.regionClearTimes)) {
-      gs.stats.regionClearTimes = {};
-    }
-    const regionIndex = Math.max(0, Math.floor(Number(gs.currentRegion) || 0));
-    const regionStartTs = Number(gs.stats._regionStartTs);
-    if (Number.isFinite(regionStartTs) && regionStartTs > 0) {
-      gs.stats.regionClearTimes[regionIndex] = Math.max(0, now - regionStartTs);
-    }
-  }
+  captureRunOutcomeTiming(gs);
 
   RunRules.ensureMeta(gs.meta);
-  Object.assign(gs.meta.worldMemory, gs.worldMemory || {});
-  gs.meta.bestChain = Math.max(gs.meta.bestChain || 0, gs.stats?.maxChain || 0);
+  syncRunOutcomeMeta(gs);
   const isVictory = kind === 'victory';
   let shardGain = 0;
   if (Number.isFinite(options.echoFragments)) {
@@ -215,8 +188,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
     console.warn('[RunRules] Class progression update failed:', e?.message || e);
   }
 
-  gs.meta.runCount = Math.max(1, (gs.meta.runCount || 1) + 1);
-  gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
+  applyRunOutcomeRewards(gs, shardGain);
   persistRunOutcomeMeta(deps);
 
   return shardGain;

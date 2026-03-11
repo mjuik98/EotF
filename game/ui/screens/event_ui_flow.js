@@ -1,13 +1,13 @@
-import { EventManager } from '../../systems/event_manager.js';
 import { playAttackSlash } from '../../domain/audio/audio_event_helpers.js';
-import { RARITY_LABELS } from '../../../data/rarity_meta.js';
+import { createResolveEventChoiceUseCase } from '../../app/event/use_cases/resolve_event_choice_use_case.js';
+import { unlockEventFlow } from '../../app/shared/use_cases/runtime_state_use_case.js';
 import { dismissEventModal } from './event_ui_helpers.js';
 import { renderChoices } from './event_ui_dom.js';
 
 export function finishEventFlow(doc, gs, deps = {}, clearCurrentEvent = () => {}) {
   dismissEventModal(doc.getElementById('eventModal'), () => {
     clearCurrentEvent();
-    gs._eventLock = false;
+    unlockEventFlow(gs);
     if (typeof deps.switchScreen === 'function') deps.switchScreen('game');
     if (typeof deps.updateUI === 'function') deps.updateUI();
     if (typeof deps.renderMinimap === 'function') deps.renderMinimap();
@@ -15,37 +15,13 @@ export function finishEventFlow(doc, gs, deps = {}, clearCurrentEvent = () => {}
   });
 }
 
-function showAcquiredCardToast(acquiredCard, sharedData, showItemToast) {
-  if (!acquiredCard || typeof showItemToast !== 'function') return;
-  const cardData = sharedData.cards?.[acquiredCard];
-  if (!cardData) return;
-  showItemToast(cardData, {
-    typeLabel: `${RARITY_LABELS[cardData.rarity] || cardData.rarity} card acquired`,
-  });
-}
-
-function showAcquiredItemToast(acquiredItem, sharedData, showItemToast) {
-  if (!acquiredItem || typeof showItemToast !== 'function') return;
-  const itemData = sharedData.items?.[acquiredItem];
-  if (itemData) showItemToast(itemData);
-}
-
-function isUpgradeChoice(choice) {
-  const choiceText = String(choice?.text || '');
-  const choiceClass = String(choice?.cssClass || '');
-  return choiceClass.includes('shop-choice-upgrade')
-    || /\uCE74\uB4DC\s*\uAC15\uD654|\uAC15\uD654/.test(choiceText);
-}
-
-function showUpgradeToast(resultText, showItemToast) {
-  if (typeof showItemToast !== 'function') return;
-  const upgradedName = String(resultText || '').match(/(?:\u2728\s*)?(.+?)\s+\uAC15\uD654\s*\uC644\uB8CC/i)?.[1]?.trim()
-    || 'Upgraded Card';
-  showItemToast({
-    name: `Upgrade: ${upgradedName}`,
-    icon: '\u2728',
-    desc: resultText,
-  });
+function showToast(toast, showItemToast) {
+  if (!toast || typeof showItemToast !== 'function') return;
+  if (toast.options === undefined) {
+    showItemToast(toast.payload);
+    return;
+  }
+  showItemToast(toast.payload, toast.options);
 }
 
 export function renderEventContinueChoice(doc, onContinue) {
@@ -69,63 +45,61 @@ export function resolveEventChoiceFlow(choiceIdx, {
   audioEngine,
   deps = {},
   sharedData = deps?.data || {},
-  resolveChoice = EventManager.resolveEventChoice,
+  resolveChoice,
   onResolveChoice,
   onFinish,
   onRefreshGoldBar,
 } = {}) {
   if (!gs || !event || !doc) return null;
 
-  gs._eventLock = true;
-
-  let resolution = null;
   try {
-    resolution = resolveChoice(gs, event, choiceIdx);
+    const resolveEventChoice = createResolveEventChoiceUseCase({
+      resolveChoice,
+    });
+    const execution = resolveEventChoice({
+      choiceIdx,
+      event,
+      gs,
+      sharedData,
+    });
+    const { resolution, viewModel } = execution || {};
+
+    if (typeof deps.updateUI === 'function') deps.updateUI();
+    onRefreshGoldBar?.();
+
+    showToast(viewModel?.acquiredCardToast, deps.showItemToast);
+    showToast(viewModel?.acquiredItemToast, deps.showItemToast);
+
+    if (viewModel?.isItemShop) {
+      return resolution;
+    }
+
+    if (viewModel?.finishImmediately) {
+      onFinish?.();
+      return resolution;
+    }
+
+    const descEl = doc.getElementById('eventDesc');
+    if (descEl) descEl.textContent = viewModel?.resultText || '';
+
+    showToast(viewModel?.upgradeToast, deps.showItemToast);
+
+    if (viewModel?.rerenderChoices) {
+      renderChoices(event, doc, gs, onResolveChoice);
+      onRefreshGoldBar?.();
+      return resolution;
+    }
+
+    if (viewModel?.continueChoice) {
+      renderEventContinueChoice(doc, () => onFinish?.());
+      return resolution;
+    }
+
+    return resolution;
   } catch (err) {
     console.error('[resolveEvent] choice effect error:', err);
-    gs._eventLock = false;
+    unlockEventFlow(gs);
     playAttackSlash(audioEngine);
     return null;
   }
-
-  const selectedChoice = event?.choices?.[choiceIdx];
-  const { resultText, isFail, shouldClose, isItemShop, acquiredCard, acquiredItem } = resolution || {};
-
-  if (typeof deps.updateUI === 'function') deps.updateUI();
-  onRefreshGoldBar?.();
-
-  showAcquiredCardToast(acquiredCard, sharedData, deps.showItemToast);
-  showAcquiredItemToast(acquiredItem, sharedData, deps.showItemToast);
-
-  if (isItemShop) {
-    gs._eventLock = false;
-    return resolution;
-  }
-
-  if (!resultText) {
-    onFinish?.();
-    return resolution;
-  }
-
-  const descEl = doc.getElementById('eventDesc');
-  if (descEl) descEl.textContent = resultText;
-
-  if (!isFail && isUpgradeChoice(selectedChoice)) {
-    showUpgradeToast(resultText, deps.showItemToast);
-  }
-
-  if (event.persistent || isFail) {
-    renderChoices(event, doc, gs, onResolveChoice);
-    onRefreshGoldBar?.();
-    gs._eventLock = false;
-    return resolution;
-  }
-
-  if (!shouldClose) {
-    gs._eventLock = false;
-    return resolution;
-  }
-
-  renderEventContinueChoice(doc, () => onFinish?.());
-  return resolution;
 }
