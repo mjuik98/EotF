@@ -39,5 +39,5 @@ export default defineConfig({
       },
     },
   },
-  assetsInclude: ['**/*.png', '**/*.webp', '**/*.mp3', '**/*.ogg'],
+  assetsInclude: ['**/*.mp3', '**/*.ogg'],
 });

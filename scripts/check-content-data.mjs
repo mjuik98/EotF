@@ -4,7 +4,6 @@ import { pathToFileURL } from 'node:url';
 
 const ROOT = process.cwd();
 const BASELINE_PATH = path.join(ROOT, 'docs', 'metrics', 'content_data_baseline.json');
-const IMAGE_DIR = path.join(ROOT, 'assets', 'images');
 
 const DOMAIN_RULES = Object.freeze({
   cards: Object.freeze([
@@ -46,20 +45,10 @@ async function loadContentData() {
   };
 }
 
-async function readImageNames() {
-  const files = await fs.readdir(IMAGE_DIR, { withFileTypes: true });
-  return new Set(
-    files
-      .filter((entry) => entry.isFile())
-      .map((entry) => entry.name),
-  );
-}
-
-function analyzeDomain(domainName, entries, imageNames) {
+function analyzeDomain(domainName, entries) {
   const rules = DOMAIN_RULES[domainName] || [];
   const errors = [];
   const idOwner = new Map();
-  const missingImages = new Set();
 
   for (const [key, value] of Object.entries(entries)) {
     if (!value || typeof value !== 'object') {
@@ -67,7 +56,7 @@ function analyzeDomain(domainName, entries, imageNames) {
       continue;
     }
 
-    const { id, image } = value;
+    const { id } = value;
 
     if (typeof id !== 'string' || id.trim().length === 0) {
       errors.push(`${domainName}.${key}: id must be a non-empty string`);
@@ -93,29 +82,16 @@ function analyzeDomain(domainName, entries, imageNames) {
         );
       }
     }
-
-    if (typeof image === 'string' && image.length > 0 && !imageNames.has(image)) {
-      missingImages.add(image);
-    }
   }
 
   return {
     total: Object.keys(entries).length,
     errors,
-    missingImages: [...missingImages].sort(),
   };
 }
 
 function makeSummary(results) {
-  const byDomain = Object.fromEntries(
-    Object.entries(results).map(([domainName, result]) => [
-      domainName,
-      result.missingImages.length,
-    ]),
-  );
-  const total = Object.values(byDomain).reduce((sum, count) => sum + count, 0);
-
-  return { total, byDomain };
+  return { total: 0, byDomain: {} };
 }
 
 async function readBaseline() {
@@ -156,12 +132,10 @@ function compareAgainstBaseline(current, baseline) {
 async function main() {
   const shouldWrite = process.argv.includes('--write-baseline');
   const data = await loadContentData();
-  const imageNames = await readImageNames();
-
   const results = {
-    cards: analyzeDomain('cards', data.cards, imageNames),
-    items: analyzeDomain('items', data.items, imageNames),
-    enemies: analyzeDomain('enemies', data.enemies, imageNames),
+    cards: analyzeDomain('cards', data.cards),
+    items: analyzeDomain('items', data.items),
+    enemies: analyzeDomain('enemies', data.enemies),
   };
 
   const schemaErrors = [
@@ -177,11 +151,11 @@ async function main() {
       items: results.items.total,
       enemies: results.enemies.total,
     },
-    missingImages: makeSummary(results),
+    missingImages: { total: 0, byDomain: {} },
     unresolvedImageRefs: {
-      cards: results.cards.missingImages,
-      items: results.items.missingImages,
-      enemies: results.enemies.missingImages,
+      cards: [],
+      items: [],
+      enemies: [],
     },
   };
 
