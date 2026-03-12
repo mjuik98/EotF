@@ -3,7 +3,7 @@ import {
   resolveEventService,
   showEventService,
   triggerRandomEventService,
-} from '../../../app/event/event_service.js';
+} from './event_service.js';
 import { clearIdempotencyPrefix, runIdempotent } from '../../../utils/idempotency_utils.js';
 import {
   getAudioEngine,

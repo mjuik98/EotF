@@ -3,7 +3,7 @@ import { createFinishEventFlowUseCase } from '../application/finish_event_flow_u
 import { createResolveEventChoiceUseCase } from '../application/resolve_event_choice_use_case.js';
 import { createEventEffectServices } from '../platform/browser/event_effect_services.js';
 import { unlockEventFlow } from '../../../shared/state/runtime_flow_controls.js';
-import { presentEventChoiceResolution } from '../../../presentation/screens/event_choice_resolution_presenter.js';
+import { presentEventChoiceResolution } from '../presentation/browser/event_choice_resolution_presenter.js';
 import { renderEventContinueChoice } from '../presentation/event_continue_choice_presenter.js';
 import {
   dismissEventModalRuntime,

@@ -5,6 +5,11 @@ import {
   buildLegacyWindowUiQueryGroups,
   createLegacyHudRuntimeQueryBindings,
 } from './app/legacy_query_groups.js';
+import {
+  setScreenService,
+  showGameplayScreenService,
+  showScreenService,
+} from './application/screen_navigation_use_case.js';
 import { buildUiShellContractBuilders } from './ports/contracts/build_ui_shell_contracts.js';
 import { createUiPorts } from './ports/create_ui_ports.js';
 
@@ -66,4 +71,7 @@ export {
   createUiActions,
   createLegacyHudRuntimeQueryBindings,
   createUiPorts,
+  setScreenService,
+  showGameplayScreenService,
+  showScreenService,
 };

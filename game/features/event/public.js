@@ -14,6 +14,7 @@ import { createShowEventSessionUseCase } from './application/show_event_session_
 import { buildEventContractBuilders } from './ports/contracts/build_event_contracts.js';
 import { buildEventFlowContractBuilders } from './ports/contracts/build_event_flow_contracts.js';
 import { createEventRewardPorts } from './ports/create_event_reward_ports.js';
+import { EventUI } from './presentation/browser/event_ui.js';
 import { buildEventViewModel } from './presentation/event_choice_view_model.js';
 
 export function createEventApplicationCapabilities() {
@@ -46,8 +47,15 @@ export function createEventRuntimeCapabilities() {
   };
 }
 
+export function createEventModuleCapabilities() {
+  return {
+    primary: { EventUI },
+  };
+}
+
 export function createEventFeatureFacade() {
   return {
+    moduleCapabilities: createEventModuleCapabilities(),
     application: createEventApplicationCapabilities(),
     contracts: createEventContractCapabilities(),
     runtime: createEventRuntimeCapabilities(),
@@ -77,6 +85,7 @@ export {
   createEventRewardPorts,
   createEventUiCallbacks,
   createEventUiRuntime,
+  EventUI,
   createFinishEventFlowUseCase,
   createResolveEventChoiceUseCase,
   createResolveEventSessionUseCase,

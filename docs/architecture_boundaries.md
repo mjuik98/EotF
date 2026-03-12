@@ -39,6 +39,10 @@ The boundary policy is stored in `docs/architecture_policy.json`.
 - `game/ui/*` must not import composition-root entry files:
   - `game/core/main.js`
   - `game/core/event_bindings.js`
+- Screen navigation ownership lives in `game/features/ui/application/screen_navigation_use_case.js`.
+  Compat paths in `game/core/system/` and `game/app/system/` should remain thin re-exports only.
+- Event session/runtime service ownership lives in `game/features/event/application/event_service.js` and `game/features/event/state/event_session_store.js`.
+  Compat paths in `game/app/event/` should remain thin re-exports only.
 - New legacy global exposure must go through `game/platform/legacy/*` builders instead of direct `window.*` or `GAME.*` expansion from unrelated layers.
 - `engine/*` and `data/*` must not import `game/ui/*`.
 

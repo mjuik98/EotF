@@ -12,7 +12,7 @@ vi.mock('../game/features/event/presentation/browser/event_rest_site_presenter.j
   showEventRestSiteOverlay: vi.fn(),
 }));
 
-vi.mock('../game/presentation/screens/event_shop_presenter.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_shop_presenter.js', () => ({
   createEventShop: vi.fn(() => ({ title: 'shop' })),
 }));
 
@@ -52,7 +52,7 @@ describe('event_ui_runtime_helpers', () => {
 
   it('delegates shop, rest-site, and item-shop entrypoints to extracted helpers', async () => {
     const helpers = await import('../game/ui/screens/event_ui_runtime_helpers.js');
-    const shop = await import('../game/presentation/screens/event_shop_presenter.js');
+    const shop = await import('../game/features/event/presentation/browser/event_shop_presenter.js');
     const rest = await import('../game/features/event/presentation/browser/event_rest_site_presenter.js');
     const itemShop = await import('../game/features/event/presentation/browser/event_ui_item_shop.js');
     const deps = { marker: true };

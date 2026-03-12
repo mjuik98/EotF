@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => ({
   clearIdempotencyPrefix: vi.fn(),
 }));
 
-vi.mock('../game/app/event/event_service.js', () => ({
+vi.mock('../game/features/event/application/event_service.js', () => ({
   getCurrentEvent: mocks.getCurrentEvent,
   resolveEventService: mocks.resolveEventService,
   showEventService: mocks.showEventService,

@@ -1,14 +1,5 @@
-let currentEvent = null;
-
-export function getCurrentEvent() {
-  return currentEvent;
-}
-
-export function setCurrentEvent(event) {
-  currentEvent = event || null;
-  return currentEvent;
-}
-
-export function clearCurrentEvent() {
-  currentEvent = null;
-}
+export {
+  clearCurrentEvent,
+  getCurrentEvent,
+  setCurrentEvent,
+} from '../../features/event/state/event_session_store.js';

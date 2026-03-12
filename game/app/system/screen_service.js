@@ -2,4 +2,4 @@ export {
   setScreenService,
   showGameplayScreenService,
   showScreenService,
-} from '../../core/system/screen_service.js';
+} from '../../features/ui/application/screen_navigation_use_case.js';

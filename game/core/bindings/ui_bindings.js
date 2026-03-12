@@ -1,5 +1,4 @@
-import { setScreenService } from '../system/screen_service.js';
-import { createUiBindingContext } from '../../features/ui/public.js';
+import { createUiBindingContext, setScreenService } from '../../features/ui/public.js';
 
 export function createUIBindings(modules, fns) {
     const { actions, ports } = createUiBindingContext(modules, fns);

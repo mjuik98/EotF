@@ -4,7 +4,7 @@ const { createEventShopUseCaseSpy } = vi.hoisted(() => ({
   createEventShopUseCaseSpy: vi.fn(),
 }));
 
-vi.mock('../game/app/event/use_cases/create_event_shop_use_case.js', () => ({
+vi.mock('../game/features/event/application/create_event_shop_use_case.js', () => ({
   createEventShopUseCase: createEventShopUseCaseSpy,
 }));
 

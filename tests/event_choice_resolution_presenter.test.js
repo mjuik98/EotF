@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { presentEventChoiceResolution } from '../game/presentation/screens/event_choice_resolution_presenter.js';
+import { presentEventChoiceResolution } from '../game/features/event/presentation/browser/event_choice_resolution_presenter.js';
 
 function createDoc() {
   const eventDesc = { textContent: '' };

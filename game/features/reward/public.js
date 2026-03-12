@@ -12,6 +12,7 @@ import {
 import { createRewardRuntime } from './application/create_reward_runtime.js';
 import { showRewardScreenRuntime } from './application/show_reward_screen_runtime.js';
 import { buildRewardFlowContractBuilders } from './ports/contracts/build_reward_flow_contracts.js';
+import { RewardUI } from './presentation/browser/reward_ui.js';
 export {
   finishRewardFlow,
   REWARD_CLAIM_KEY,
@@ -52,8 +53,15 @@ export function createRewardRuntimeCapabilities() {
   };
 }
 
+export function createRewardModuleCapabilities() {
+  return {
+    primary: { RewardUI },
+  };
+}
+
 export function createRewardFeatureFacade() {
   return {
+    moduleCapabilities: createRewardModuleCapabilities(),
     application: createRewardApplicationCapabilities(),
     contracts: createRewardContractCapabilities(),
     runtime: createRewardRuntimeCapabilities(),
@@ -74,6 +82,7 @@ export {
   ensureMiniBossBonus,
   getRewardMaxEnergyCap,
   playRewardClaimFeedback,
+  RewardUI,
   scheduleRewardReturnUseCase,
   showRewardScreenRuntime,
   startRewardRemoveUseCase,

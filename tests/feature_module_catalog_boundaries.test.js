@@ -18,6 +18,12 @@ const FEATURE_BROWSER_RUNTIME_FILES = [
   'game/features/reward/platform/browser/reward_runtime_context.js',
   'game/features/reward/presentation/browser/show_reward_screen_runtime.js',
 ];
+const FEATURE_EVENT_SCREEN_FILES = [
+  'game/features/event/app/event_choice_flow_actions.js',
+  'game/features/event/presentation/browser/event_ui_runtime_helpers.js',
+  'game/features/event/presentation/browser/event_shop_presenter.js',
+  'game/features/event/presentation/browser/event_choice_resolution_presenter.js',
+];
 const PUBLIC_FILES = [
   'game/features/codex/public.js',
   'game/features/title/public.js',
@@ -45,6 +51,14 @@ describe('feature module catalog boundaries', () => {
     for (const file of FEATURE_BROWSER_RUNTIME_FILES) {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).not.toMatch(/ui\/screens\/(event_|reward_)/);
+    }
+  });
+
+  it('keeps event feature flows free of direct presentation screen imports', () => {
+    for (const file of FEATURE_EVENT_SCREEN_FILES) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toMatch(/presentation\/screens\/event_/);
+      expect(source).not.toMatch(/ui\/screens\/event_/);
     }
   });
 

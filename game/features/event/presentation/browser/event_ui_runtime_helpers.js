@@ -1,7 +1,7 @@
 import { showEventItemShopOverlay } from './event_ui_item_shop.js';
 import { renderEventShellRuntime } from './event_runtime_shell_presenter.js';
 import { showEventRestSiteOverlay } from './event_rest_site_presenter.js';
-import { createEventShop } from '../../../../presentation/screens/event_shop_presenter.js';
+import { createEventShop } from './event_shop_presenter.js';
 
 export { renderEventShellRuntime };
 
