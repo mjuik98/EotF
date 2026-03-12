@@ -4,7 +4,7 @@ import {
   handleMazeExit,
   prepareMazeOpenState,
   resolveMazeMove,
-} from '../../../ui/map/maze_system_runtime_ui.js';
+} from '../presentation/browser/maze_system_runtime_ui.js';
 
 function getRequestAnimationFrame(dom, deps = {}) {
   return deps.requestAnimationFrame || dom.getWin()?.requestAnimationFrame?.bind?.(dom.getWin()) || null;

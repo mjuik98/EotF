@@ -2,7 +2,7 @@ import {
   drawMazeFrame,
   resizeMazeCanvas,
   updateMazeHud,
-} from '../../../ui/map/maze_system_render_ui.js';
+} from './browser/maze_system_render_ui.js';
 
 export function createMazePresenter({ dom, state, deps = {} }) {
   function getRequestAnimationFrame() {

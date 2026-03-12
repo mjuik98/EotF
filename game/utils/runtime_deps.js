@@ -1,3 +1,11 @@
+function getHostObject() {
+  try {
+    return Function('return this')();
+  } catch {
+    return globalThis;
+  }
+}
+
 export function getDoc(deps = {}) {
   if (deps?.doc) return deps.doc;
   if (typeof document === 'undefined') return null;
@@ -25,4 +33,13 @@ export function getRaf(deps = {}) {
   }
 
   return null;
+}
+
+export function getHudUpdateDeps(deps = {}) {
+  if (typeof deps?.getHudUpdateDeps === 'function') {
+    return deps.getHudUpdateDeps();
+  }
+
+  const host = getHostObject();
+  return host?.__ECHO_DEPS_FACTORY__?.getHudUpdateDeps?.() || {};
 }

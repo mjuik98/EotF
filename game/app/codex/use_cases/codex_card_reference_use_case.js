@@ -1,13 +1,19 @@
+export {
+  getCardUpgradeId as getCodexCardUpgradeId,
+  isCardUpgradeVariant as isCodexCardUpgradeVariant,
+  resolveCodexCardId as resolveCodexCardReferenceId,
+} from '../../../systems/codex_records_system.js';
+
 import {
-  getCardUpgradeId,
-  isCardUpgradeVariant,
-  resolveCodexCardId,
+  getCardUpgradeId as getCodexCardUpgradeId,
+  isCardUpgradeVariant as isCodexCardUpgradeVariant,
+  resolveCodexCardId as resolveCodexCardReferenceId,
 } from '../../../systems/codex_records_system.js';
 
 export function createCodexCardReferenceUseCase({
-  resolveCardId = resolveCodexCardId,
-  getUpgradeId = getCardUpgradeId,
-  isUpgradeVariant = isCardUpgradeVariant,
+  resolveCardId = resolveCodexCardReferenceId,
+  getUpgradeId = getCodexCardUpgradeId,
+  isUpgradeVariant = isCodexCardUpgradeVariant,
 } = {}) {
   return {
     getCardUpgradeId(cardId) {
@@ -21,9 +27,3 @@ export function createCodexCardReferenceUseCase({
     },
   };
 }
-
-const defaultCodexCardReferenceUseCase = createCodexCardReferenceUseCase();
-
-export const getCodexCardUpgradeId = defaultCodexCardReferenceUseCase.getCardUpgradeId;
-export const isCodexCardUpgradeVariant = defaultCodexCardReferenceUseCase.isCardUpgradeVariant;
-export const resolveCodexCardReferenceId = defaultCodexCardReferenceUseCase.resolveCodexCardId;

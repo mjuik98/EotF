@@ -93,8 +93,20 @@ vi.mock('../game/features/event/public.js', () => ({
   createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
 }));
 
+vi.mock('../game/features/event/ports/contracts/build_event_contracts.js', () => ({
+  buildEventContractBuilders: hoisted.buildEventContractPublicBuilders,
+}));
+
+vi.mock('../game/features/event/ports/contracts/build_event_flow_contracts.js', () => ({
+  buildEventFlowContractBuilders: hoisted.buildEventFlowContractPublicBuilders,
+}));
+
 vi.mock('../game/features/reward/public.js', () => ({
   buildRewardFlowContractPublicBuilders: hoisted.buildRewardFlowContractPublicBuilders,
+}));
+
+vi.mock('../game/features/reward/ports/contracts/build_reward_flow_contracts.js', () => ({
+  buildRewardFlowContractBuilders: hoisted.buildRewardFlowContractPublicBuilders,
 }));
 
 vi.mock('../game/features/run/contracts/public_run_contract_builders.js', () => ({
@@ -307,7 +319,7 @@ describe('feature public action surfaces', () => {
     expect(hoisted.buildRunFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
   });
 
-  it('routes core combat, event, reward, and runReturn contract builders through feature public facades', () => {
+  it('routes core combat and runReturn contract builders through feature public facades, and event/reward through contract modules', () => {
     const ctx = {
       getRefs: () => ({}),
       buildBaseDeps: vi.fn(() => ({})),

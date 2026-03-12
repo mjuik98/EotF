@@ -6,6 +6,22 @@ import { buildDepContractBuilders } from './deps_contract_registry.js';
 const runtime = createDepsFactoryRuntime();
 let contractBuilders = null;
 
+function getHostObject() {
+  try {
+    return Function('return this')();
+  } catch {
+    return globalThis;
+  }
+}
+
+function syncGlobalDepsFactoryHooks() {
+  const host = getHostObject();
+  if (!host) return;
+  host.__ECHO_DEPS_FACTORY__ = {
+    getHudUpdateDeps,
+  };
+}
+
 function getContractBuilders() {
   if (!contractBuilders) {
     contractBuilders = buildDepContractBuilders({
@@ -28,10 +44,12 @@ function getContractBuilders() {
 
 export function initDepsFactory(refs) {
   runtime.initRefs(refs);
+  syncGlobalDepsFactoryHooks();
 }
 
 export function patchRefs(partial) {
   runtime.patchRefs(partial);
+  syncGlobalDepsFactoryHooks();
 }
 
 export const DepContracts = Object.freeze(Object.keys(getContractBuilders()));
@@ -87,3 +105,5 @@ export function getHelpPauseDeps() { return createDeps('helpPause'); }
 export function getWorldCanvasDeps() { return createDeps('worldCanvas'); }
 export function getSettingsDeps() { return createDeps('settings'); }
 export function getGameBootDeps() { return createDeps('gameBoot'); }
+
+syncGlobalDepsFactoryHooks();

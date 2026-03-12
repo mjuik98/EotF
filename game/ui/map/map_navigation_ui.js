@@ -1,3 +1,1 @@
-import { createMapNavigationRuntime } from '../../features/run/application/create_map_navigation_runtime.js';
-
-export const MapNavigationUI = createMapNavigationRuntime();
+export { MapNavigationUI } from '../../features/run/presentation/browser/map_navigation_ui.js';

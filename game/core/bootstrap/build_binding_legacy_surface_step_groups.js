@@ -1,8 +1,8 @@
-import { attachLegacyWindowBindings } from '../../platform/legacy/window_bindings.js';
+import { attachLegacyWindowBindings } from '../../platform/legacy/public.js';
 import {
   registerLegacyGameAPIBindings,
   registerLegacyGameModules,
-} from '../../platform/legacy/game_api_registry.js';
+} from '../../platform/legacy/public.js';
 
 export function buildBindingLegacySurfaceStepGroups() {
   return {

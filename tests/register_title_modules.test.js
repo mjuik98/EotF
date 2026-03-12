@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  createTitleFeatureFacade: vi.fn(() => ({
-    moduleCapabilities: {
-      canvas: { TitleCanvasUI: { id: 'title-canvas' } },
-      flow: { ClassSelectUI: { id: 'class-select' }, GameBootUI: { id: 'boot' } },
-    },
-  })),
+  buildTitleCanvasModules: vi.fn(() => ({ TitleCanvasUI: { id: 'title-canvas' } })),
+  buildTitleFlowModules: vi.fn(() => ({ ClassSelectUI: { id: 'class-select' }, GameBootUI: { id: 'boot' } })),
 }));
 
-vi.mock('../game/features/title/public.js', () => ({
-  createTitleFeatureFacade: hoisted.createTitleFeatureFacade,
+vi.mock('../game/platform/browser/composition/build_title_canvas_modules.js', () => ({
+  buildTitleCanvasModules: hoisted.buildTitleCanvasModules,
+}));
+
+vi.mock('../game/platform/browser/composition/build_title_flow_modules.js', () => ({
+  buildTitleFlowModules: hoisted.buildTitleFlowModules,
 }));
 
 import { registerTitleModules } from '../game/platform/browser/composition/register_title_modules.js';
@@ -22,6 +22,7 @@ describe('registerTitleModules', () => {
       ClassSelectUI: { id: 'class-select' },
       GameBootUI: { id: 'boot' },
     });
-    expect(hoisted.createTitleFeatureFacade).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildTitleCanvasModules).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildTitleFlowModules).toHaveBeenCalledTimes(1);
   });
 });

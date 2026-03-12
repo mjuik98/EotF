@@ -1,14 +1,4 @@
-import {
-  buildItemShopStockAction,
-  purchaseItemFromShopAction,
-} from '../../../features/event/app/event_manager_actions.js';
-
-export function buildItemShopStockUseCase({ gs, data, runRules } = {}) {
-  if (!gs?.player || !data?.items || !runRules) return [];
-  return buildItemShopStockAction(gs, data, runRules);
-}
-
-export function purchaseItemFromShopUseCase({ gs, item, cost } = {}) {
-  if (!gs || !item) return { success: false };
-  return purchaseItemFromShopAction(gs, item, cost);
-}
+export {
+  buildItemShopStockUseCase,
+  purchaseItemFromShopUseCase,
+} from '../../../features/event/application/item_shop_use_case.js';

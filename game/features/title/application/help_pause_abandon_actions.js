@@ -1,4 +1,3 @@
-import { removeFloatingPlayerHpPanel } from '../../../ui/shared/player_hp_panel_ui.js';
 import { cleanupCombatAfterAbandon } from '../../combat/application/help_pause_abandon_combat_actions.js';
 import { showAbandonOutcome } from '../presentation/browser/abandon_outcome_presenter.js';
 
@@ -29,7 +28,7 @@ export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {
   onClosePauseMenu(doc);
 
   cleanupCombatAfterAbandon({ ...deps, doc, gs });
-  removeFloatingPlayerHpPanel({ doc });
+  deps.removeFloatingPlayerHpPanel?.({ doc });
 
   if (typeof deps.finalizeRunOutcome === 'function') {
     deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true }, { gs });
@@ -37,5 +36,7 @@ export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {
 
   clearActiveRunSave(deps);
   const presentAbandonOutcome = deps.showAbandonOutcome || showAbandonOutcome;
-  return presentAbandonOutcome(deps);
+  const presentDeps = { ...deps };
+  delete presentDeps.removeFloatingPlayerHpPanel;
+  return presentAbandonOutcome(presentDeps);
 }

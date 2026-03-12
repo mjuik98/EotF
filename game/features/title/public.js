@@ -9,6 +9,7 @@ import {
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
 import { buildTitleStoryContractBuilders } from './ports/contracts/build_title_story_contracts.js';
 import { createTitleBindingPorts } from './platform/browser/create_title_binding_ports.js';
+export { ClassProgressionSystem } from './domain/class_progression_system.js';
 
 export function createTitleModuleCapabilities() {
   return {

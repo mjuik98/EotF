@@ -10,9 +10,9 @@ import { CardUI } from '../../../../ui/cards/card_ui.js';
 import { CardTargetUI } from '../../../../ui/cards/card_target_ui.js';
 import { TooltipUI } from '../../../../ui/cards/tooltip_ui.js';
 import { DeckModalUI } from '../../../../ui/cards/deck_modal_ui.js';
-import { HudUpdateUI } from '../../../../ui/hud/hud_update_ui.js';
-import { FeedbackUI } from '../../../../ui/hud/feedback_ui.js';
-import { DomValueUI } from '../../../../ui/hud/dom_value_ui.js';
+import { HudUpdateUI } from '../../presentation/browser/hud_update_ui.js';
+import { FeedbackUI } from '../../presentation/browser/feedback_ui.js';
+import { DomValueUI } from '../../presentation/browser/dom_value_ui.js';
 
 export function buildCombatCoreBrowserModules() {
   return {

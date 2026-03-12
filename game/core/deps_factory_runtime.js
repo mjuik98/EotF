@@ -1,7 +1,7 @@
 import {
   getLegacyFeatureDeps,
   getLegacyGameDeps,
-} from '../platform/legacy/adapters/legacy_runtime_resolvers.js';
+} from '../platform/legacy/public.js';
 
 export function createDepsFactoryRuntime() {
   let refs = {};

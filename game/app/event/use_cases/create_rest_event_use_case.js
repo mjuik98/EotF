@@ -1,13 +1,1 @@
-import { createRestEventAction } from '../../../features/event/app/event_manager_actions.js';
-
-export function createRestEventUseCase({
-  gs,
-  data,
-  runRules,
-  showCardDiscard,
-} = {}) {
-  if (!gs || !data || !runRules) return null;
-  return createRestEventAction(gs, data, runRules, {
-    showCardDiscardFn: (state, isBurn) => showCardDiscard?.(state, isBurn),
-  });
-}
+export { createRestEventUseCase } from '../../../features/event/application/create_rest_event_use_case.js';

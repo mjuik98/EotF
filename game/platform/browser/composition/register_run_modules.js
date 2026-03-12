@@ -1,9 +1,9 @@
-import { createRunFeatureFacade } from '../../../features/run/public.js';
+import { buildRunFlowModules } from './build_run_flow_modules.js';
+import { buildRunMapModules } from './build_run_map_modules.js';
 
 export function registerRunModules() {
-  const capabilities = createRunFeatureFacade().moduleCapabilities;
   return {
-    ...capabilities.map,
-    ...capabilities.flow,
+    ...buildRunMapModules(),
+    ...buildRunFlowModules(),
   };
 }

@@ -1,5 +1,5 @@
 import { GAME } from './global_bridge.js';
-import { resolveLegacyAction } from '../platform/legacy/adapters/legacy_runtime_resolvers.js';
+import { resolveLegacyAction } from '../platform/legacy/public.js';
 
 export function createEventSubscriberContext(uiRefs = {}) {
   const ui = uiRefs || {};

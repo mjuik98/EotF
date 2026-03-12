@@ -1,6 +1,6 @@
 import { playAttackSlash } from '../../../domain/audio/audio_event_helpers.js';
-import { createFinishEventFlowUseCase } from '../../../app/event/use_cases/finish_event_flow_use_case.js';
-import { createResolveEventChoiceUseCase } from '../../../app/event/use_cases/resolve_event_choice_use_case.js';
+import { createFinishEventFlowUseCase } from '../application/finish_event_flow_use_case.js';
+import { createResolveEventChoiceUseCase } from '../application/resolve_event_choice_use_case.js';
 import { createEventEffectServices } from '../platform/browser/event_effect_services.js';
 import { unlockEventFlow } from '../../../shared/state/runtime_flow_controls.js';
 import { presentEventChoiceResolution } from '../../../presentation/screens/event_choice_resolution_presenter.js';

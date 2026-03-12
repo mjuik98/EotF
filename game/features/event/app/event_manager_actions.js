@@ -9,11 +9,18 @@ import {
   purchaseItem,
 } from './event_item_shop_actions.js';
 
+function hasExplicitOptions(options) {
+  return !!options && Object.keys(options).length > 0;
+}
+
 export function pickRandomEventAction(gs, data) {
   return pickRandomEvent(gs, data);
 }
 
-export function resolveEventChoiceAction(gs, event, choiceIdx, options = {}) {
+export function resolveEventChoiceAction(gs, event, choiceIdx, options) {
+  if (!hasExplicitOptions(options)) {
+    return resolveEventChoice(gs, event, choiceIdx);
+  }
   return resolveEventChoice(gs, event, choiceIdx, options);
 }
 

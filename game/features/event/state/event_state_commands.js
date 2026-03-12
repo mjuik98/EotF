@@ -1,4 +1,7 @@
-import { registerCardDiscovered, registerItemFound } from '../../../systems/codex_records_system.js';
+import {
+  registerCardDiscovered,
+  registerItemFound,
+} from '../../../app/codex/use_cases/codex_record_state_use_case.js';
 
 function removeFirstOccurrence(list, value) {
   if (!Array.isArray(list)) return false;

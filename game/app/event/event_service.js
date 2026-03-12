@@ -1,6 +1,6 @@
 import { clearCurrentEvent, getCurrentEvent, setCurrentEvent } from './event_session_store.js';
-import { createResolveEventSessionUseCase } from './use_cases/resolve_event_session_use_case.js';
-import { createShowEventSessionUseCase } from './use_cases/show_event_session_use_case.js';
+import { createResolveEventSessionUseCase } from '../../features/event/application/resolve_event_session_use_case.js';
+import { createShowEventSessionUseCase } from '../../features/event/application/show_event_session_use_case.js';
 import { pickRandomEventAction } from '../../features/event/app/event_manager_actions.js';
 
 const showEventSessionUseCase = createShowEventSessionUseCase({ setCurrentEvent });

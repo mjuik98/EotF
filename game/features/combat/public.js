@@ -3,6 +3,7 @@ import {
   buildCombatCoreBrowserModules,
   buildCombatHudBrowserModules,
 } from './platform/browser/combat_browser_modules.js';
+export { SetBonusSystem } from './domain/set_bonus_system.js';
 import { createCombatBindingsActions } from './bindings/public_combat_bindings.js';
 import { createCombatStartRuntime } from './application/create_combat_start_runtime.js';
 import { buildCombatFlowContractBuilders } from './ports/contracts/build_combat_flow_contracts.js';

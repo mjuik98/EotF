@@ -7,15 +7,28 @@ function getManualChunk(id) {
 
   if (normalized.endsWith('/data/cards.js')) return 'data-cards';
   if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
-  if (normalized.includes('/game/ui/title/')) return 'ui-title';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
-  if (normalized.includes('/game/ui/combat/')) return 'ui-combat';
-  if (normalized.includes('/game/ui/screens/event_') || normalized.endsWith('/game/ui/screens/reward_ui.js')) {
-    return 'ui-event';
+  if (
+    normalized.includes('/game/ui/title/')
+    || normalized.includes('/game/features/title/')
+    || normalized.includes('/game/presentation/title/')
+    || normalized.includes('/game/ui/combat/')
+    || normalized.includes('/game/features/combat/')
+    || normalized.includes('/game/presentation/combat/')
+    || normalized.includes('/game/features/event/')
+    || normalized.includes('/game/features/reward/')
+    || normalized.includes('/game/presentation/screens/event_')
+    || normalized.includes('/game/presentation/screens/reward_')
+    || normalized.includes('/game/presentation/screens/ending_')
+    || normalized.includes('/game/presentation/screens/story_')
+    || normalized.includes('/game/ui/screens/event_')
+    || normalized.includes('/game/ui/screens/reward_')
+    || normalized.includes('/game/ui/screens/ending_')
+    || normalized.includes('/game/ui/screens/story_')
+  ) {
+    return 'ui-gameplay';
   }
   if (normalized.endsWith('/game/ui/screens/codex_ui.js')) return 'ui-codex';
-  if (normalized.endsWith('/game/ui/screens/ending_screen_ui.js')) return 'ui-ending';
-  if (normalized.endsWith('/game/ui/screens/story_ui.js')) return 'ui-story';
   if (normalized.endsWith('/game/ui/screens/settings_ui.js')) return 'ui-settings';
   if (normalized.endsWith('/game/ui/run/run_mode_ui.js')) return 'ui-run-mode';
 

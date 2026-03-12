@@ -3,7 +3,7 @@ import {
   drawStateCards,
   playStateCard,
 } from '../features/combat/app/game_state_card_actions.js';
-import { createLegacyGameStateCardPorts } from '../platform/legacy/adapters/create_legacy_game_state_card_ports.js';
+import { createLegacyGameStateCardPorts } from './legacy_game_state_card_ports.js';
 
 export const CardMethods = {
     drawCards(count = 1, options = {}) {

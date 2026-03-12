@@ -1,4 +1,4 @@
-import { registerLegacyBridge } from '../platform/legacy/register_legacy_bridge.js';
+import { registerLegacyBridge } from '../platform/legacy/public.js';
 import { bootRuntimeFeatures } from './bootstrap/boot_runtime_features.js';
 
 export function bootGame(modules, fns, Deps) {

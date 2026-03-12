@@ -1,11 +1,11 @@
 import { clearIdempotencyKey, runIdempotent } from '../../../utils/idempotency_utils.js';
-import { playAttackSlash } from '../../../domain/audio/audio_event_helpers.js';
+import { playAttackSlash } from '../platform/reward_audio_ports.js';
 import {
+  isRewardFlowLocked,
   lockRewardFlow,
   unlockRewardFlow,
-} from '../../../shared/state/runtime_flow_controls.js';
-import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
-import { isRewardFlowLocked } from '../../../app/shared/selectors/runtime_state_selectors.js';
+} from '../state/reward_runtime_flow_ports.js';
+import { createRewardReturnActions } from '../platform/reward_return_ports.js';
 import {
   buildRewardDiscardDeps,
   claimReward,
@@ -13,7 +13,7 @@ import {
   scheduleRewardReturnUseCase,
   startRewardRemoveUseCase,
   takeRewardClaimUseCase,
-} from '../../../app/reward/use_cases/claim_reward_use_case.js';
+} from './claim_reward_use_case.js';
 
 export const REWARD_CLAIM_KEY = 'reward:claim';
 export const REWARD_SKIP_KEY = 'reward:skip';
