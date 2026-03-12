@@ -66,6 +66,10 @@ vi.mock('../game/features/combat/public.js', () => ({
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
 }));
 
+vi.mock('../game/features/combat/ports/contracts/build_combat_flow_contracts.js', () => ({
+  buildCombatFlowContractBuilders: hoisted.buildCombatFlowContractPublicBuilders,
+}));
+
 vi.mock('../game/features/combat/contracts/public_combat_contract_builders.js', () => ({
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
 }));

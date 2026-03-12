@@ -13,8 +13,8 @@ export function pickRandomEventAction(gs, data) {
   return pickRandomEvent(gs, data);
 }
 
-export function resolveEventChoiceAction(gs, event, choiceIdx) {
-  return resolveEventChoice(gs, event, choiceIdx);
+export function resolveEventChoiceAction(gs, event, choiceIdx, options = {}) {
+  return resolveEventChoice(gs, event, choiceIdx, options);
 }
 
 export function createShopEventAction(gs, data, runRules, options = {}) {

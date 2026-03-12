@@ -8,7 +8,6 @@ import { echoResonanceEvent } from './events/echo_resonance_event.js';
 import { forgeEvent } from './events/forge_event.js';
 import { merchantLostEvent } from './events/merchant_lost_event.js';
 import { shrineEvent } from './events/shrine_event.js';
-import { AudioEngine } from '../engine/audio.js';
 import { registerItemFound } from '../game/systems/codex_records_system.js';
 
 const MAP_NODE_TYPE_LABELS = {
@@ -101,6 +100,11 @@ function pickObtainableItem(gs, {
     return pickRandom(pool) || null;
 }
 
+function notifyItemAcquired(item, services = {}) {
+    services.playItemGet?.();
+    services.showItemToast?.(item);
+}
+
 export const EVENTS = [
     {
         id: 'wanderer', layer: 1, title: '방랑자의 흔적', eyebrow: 'LAYER 1 · 우발적 이벤트',
@@ -177,12 +181,12 @@ export const EVENTS = [
             },
             {
                 text: '📜 지식의 등가교환 (골드 15 → 랜덤 카드 추가)',
-                effect(gs) {
+                effect(gs, services = {}) {
                     if (gs.player.gold >= 15) {
                         gs.player.gold -= 15;
                         const c = gs.getRandomCard();
                         gs.player.deck.push(c);
-                        AudioEngine.playItemGet();
+                        services.playItemGet?.();
                         return {
                             resultText: `금화 한 자루가 사라지고, 대신 빛바랜 ${CARDS[c]?.name} 카드가 나타났다. 공정한 거래였다.`,
                             acquiredCard: c
@@ -263,7 +267,7 @@ export const EVENTS = [
         choices: [
             {
                 text: '🌀 균열이 삼키는 대로 둔다 (체력 -20, 아이템 1개)',
-                effect(gs) {
+                effect(gs, services = {}) {
                     const picked = pickObtainableItem(gs, { source: 'event' }) || pickRandom(Object.values(ITEMS));
                     if (!picked) {
                         return { resultText: '균열 너머에 닿을 수 있는 것이 없었다. 공허만 남아 있다.', isFail: true };
@@ -274,8 +278,7 @@ export const EVENTS = [
                     if (typeof picked.onAcquire === 'function') {
                         picked.onAcquire(gs);
                     }
-                    AudioEngine.playItemGet();
-                    if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(picked);
+                    notifyItemAcquired(picked, services);
                     return `${picked.name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
                 }
             },
@@ -293,7 +296,7 @@ export const EVENTS = [
         choices: [
             {
                 text: '🗝️ 봉인을 연다 (체력 -12, 특수 유물 1개 획득)',
-                effect(gs) {
+                effect(gs, services = {}) {
                     const relic = pickObtainableItem(gs, {
                         source: 'special_event',
                         specialOfferOnly: true,
@@ -309,8 +312,7 @@ export const EVENTS = [
                     if (typeof relic.onAcquire === 'function') {
                         relic.onAcquire(gs);
                     }
-                    AudioEngine.playItemGet();
-                    if (typeof window !== 'undefined' && window.showItemToast) window.showItemToast(relic);
+                    notifyItemAcquired(relic, services);
 
                     return `${relic.name}을(를) 손에 넣었다. 힘은 선명하고, 대가도 분명하다.`;
                 }

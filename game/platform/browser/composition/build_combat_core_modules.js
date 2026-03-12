@@ -1,5 +1,5 @@
-import { buildCombatPublicModules } from '../../../features/combat/modules/public_combat_modules.js';
+import { createCombatFeatureFacade } from '../../../features/combat/public.js';
 
 export function buildCombatCoreModules() {
-  return buildCombatPublicModules();
+  return createCombatFeatureFacade().moduleCapabilities.core;
 }

@@ -1,191 +1,27 @@
-import { GS } from '../../core/game_state.js';
-import {
-  drawMazeFrame,
-  resizeMazeCanvas,
-  updateMazeHud,
-} from './maze_system_render_ui.js';
-import {
-  handleMazeExit,
-  prepareMazeOpenState,
-  resolveMazeMove,
-} from './maze_system_runtime_ui.js';
-
+import { createMazeRuntime } from '../../features/run/application/create_maze_runtime.js';
 
 let _deps = {};
-
-let canvas;
-let ctx;
-let minimap;
-let mmCtx;
-let W;
-let H;
-let map;
-let px;
-let py;
-let stepCount = 0;
-let pendingCombat = false;
-let fovActive = false;
-let shakeX = 0;
-let shakeY = 0;
-let shakeFrm = 0;
-
-const TILE = 40;
-
-function _doc() {
-  return _deps.doc || document;
-}
-
-function _win() {
-  return _deps.win || _doc()?.defaultView || null;
-}
-
-function _fov() {
-  return _deps.fovEngine || null;
-}
-
-function _requestAnimationFrame() {
-  return _deps.requestAnimationFrame || _win()?.requestAnimationFrame?.bind?.(_win()) || null;
-}
-
-function _gs() {
-  return _deps.gs;
-}
-
-function _init() {
-  const doc = _doc();
-  canvas = doc.getElementById('mazeCanvas');
-  minimap = doc.getElementById('mazeMinimap');
-  if (!canvas || !minimap) return false;
-  ctx = canvas.getContext('2d');
-  mmCtx = minimap.getContext('2d');
-  return true;
-}
-
-function _resizeCanvas() {
-  resizeMazeCanvas(canvas, _draw);
-}
-
-function _updateHUD() {
-  updateMazeHud(_doc(), _gs(), stepCount);
-}
-
-function _draw() {
-  drawMazeFrame({
-    canvas,
-    ctx,
-    minimap,
-    mmCtx,
-    map,
-    W,
-    H,
-    px,
-    py,
-    shakeX,
-    shakeY,
-    tileSize: TILE,
-    fovActive,
-    fovEngine: _fov(),
-    now: Date.now(),
-    requestAnimationFrame: _requestAnimationFrame(),
-    redraw: _draw,
-  });
-}
-
-function _shakeAnim() {
-  shakeFrm = 6;
-  const loop = () => {
-    if (shakeFrm-- <= 0) {
-      shakeX = 0;
-      shakeY = 0;
-      _draw();
-      return;
-    }
-    shakeX = (Math.random() - 0.5) * 8;
-    shakeY = (Math.random() - 0.5) * 8;
-    _draw();
-    _requestAnimationFrame()?.(loop);
-  };
-  _requestAnimationFrame()?.(loop);
-}
-
-function _onExit() {
-  MazeSystem.close();
-  handleMazeExit({
-    pendingCombat,
-    showWorldMemoryNotice: _deps.showWorldMemoryNotice,
-    startCombat: _deps.startCombat,
-    setTimeoutFn: _deps.setTimeoutFn || _win()?.setTimeout?.bind?.(_win()) || setTimeout,
-  });
-}
+let _runtime = createMazeRuntime(_deps);
 
 export const MazeSystem = {
   configure(nextDeps = {}) {
     _deps = { ..._deps, ...nextDeps };
+    _runtime = createMazeRuntime(_deps);
   },
 
   init() {
-    _init();
+    _runtime.init();
   },
 
   open(isBoss) {
-    if (!_init()) return;
-
-    const fovEngine = _fov();
-    const nextState = prepareMazeOpenState(fovEngine, isBoss);
-    if (!nextState) return;
-    pendingCombat = nextState.pendingCombat;
-    stepCount = nextState.stepCount;
-    W = nextState.W;
-    H = nextState.H;
-    map = nextState.map;
-    px = nextState.px;
-    py = nextState.py;
-    fovActive = nextState.fovActive;
-
-    _resizeCanvas();
-    _win().addEventListener('resize', _resizeCanvas);
-
-    const overlay = _doc().getElementById('mazeOverlay');
-    if (overlay) overlay.style.display = 'flex';
-    _updateHUD();
-    _draw();
+    return _runtime.open(isBoss);
   },
 
   close() {
-    fovActive = false;
-    _win().removeEventListener('resize', _resizeCanvas);
-    const doc = _doc();
-    const overlay = doc.getElementById('mazeOverlay');
-    if (overlay) overlay.style.display = 'none';
-    doc.getElementById('mazeGuide')?.remove();
+    return _runtime.close();
   },
 
   move(dx, dy) {
-    const result = resolveMazeMove({
-      dx,
-      dy,
-      px,
-      py,
-      map,
-      stepCount,
-      W,
-      H,
-    });
-    if (!result.moved) {
-      _shakeAnim();
-      return false;
-    }
-
-    px = result.px;
-    py = result.py;
-    stepCount = result.stepCount;
-    _updateHUD();
-    _draw();
-
-    if (result.shouldExit) {
-      _onExit();
-      return true;
-    }
-    return true;
+    return _runtime.move(dx, dy);
   },
 };

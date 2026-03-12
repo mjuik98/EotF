@@ -7,6 +7,7 @@ export function resolveEventChoiceService({
   choice,
   handlers = EVENT_CHOICE_HANDLERS,
   data = DATA,
+  services = {},
 }) {
   if (!choice?.effectId) return null;
 
@@ -15,5 +16,5 @@ export function resolveEventChoiceService({
     throw new Error(`[resolve_event_choice_service] Unknown effectId: ${choice.effectId} (${event?.id || 'unknown event'})`);
   }
 
-  return handler({ gs, event, choice, data });
+  return handler({ gs, event, choice, data, services });
 }

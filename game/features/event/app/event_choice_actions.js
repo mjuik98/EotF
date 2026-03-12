@@ -9,7 +9,10 @@ import {
 export { createEventChoiceResult } from '../domain/event_choice_domain.js';
 export { createFailedEventChoiceResult } from '../domain/event_choice_domain.js';
 
-export function resolveEventChoice(gs, event, choiceIdx, { resolveChoiceById = resolveEventChoiceService } = {}) {
+export function resolveEventChoice(gs, event, choiceIdx, {
+  resolveChoiceById = resolveEventChoiceService,
+  services = {},
+} = {}) {
   if (!event || !gs) return createEventChoiceResult(null, { shouldClose: true });
   const choice = event.choices?.[choiceIdx];
   if (!choice || (!choice.effectId && typeof choice.effect !== 'function')) {
@@ -25,8 +28,8 @@ export function resolveEventChoice(gs, event, choiceIdx, { resolveChoiceById = r
   }
 
   const result = choice.effectId
-    ? resolveChoiceById({ gs, event, choice })
-    : choice.effect(gs);
+    ? resolveChoiceById({ gs, event, choice, services })
+    : choice.effect(gs, services);
 
   return normalizeEventChoiceResult(event, result);
 }

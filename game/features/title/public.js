@@ -12,8 +12,8 @@ import { createTitleBindingPorts } from './platform/browser/create_title_binding
 
 export function createTitleModuleCapabilities() {
   return {
-    canvas: buildTitleCanvasPublicModules(),
-    flow: buildTitlePublicModules(),
+    canvas: buildTitleCanvasModuleCatalog(),
+    flow: buildTitleFlowModuleCatalog(),
   };
 }
 
@@ -40,19 +40,11 @@ export function createTitleRuntimeCapabilities() {
 
 export function createTitleFeatureFacade() {
   return {
-    modules: createTitleModuleCapabilities(),
+    moduleCapabilities: createTitleModuleCapabilities(),
     bindings: createTitleBindingCapabilities(),
     contracts: createTitleContractCapabilities(),
     runtime: createTitleRuntimeCapabilities(),
   };
-}
-
-export function buildTitleCanvasPublicModules() {
-  return buildTitleCanvasModuleCatalog();
-}
-
-export function buildTitlePublicModules() {
-  return buildTitleFlowModuleCatalog();
 }
 
 export function createTitleBindings(modules, fns, options = {}) {
@@ -78,13 +70,3 @@ export function buildTitleHelpPausePublicActions(deps = {}) {
 export function buildTitlePauseMenuPublicActions(options = {}) {
   return createTitlePauseMenuActions(options);
 }
-
-export {
-  buildTitleBootActions,
-  buildTitleHelpPauseActions,
-  createTitlePauseMenuActions,
-  buildTitleRunContractBuilders,
-  buildTitleStoryContractBuilders,
-  createTitleActions,
-  createTitleBindingPorts,
-};

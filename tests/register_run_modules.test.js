@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  buildRunMapPublicModules: vi.fn(() => ({ MapUI: { id: 'map' }, MazeSystem: { id: 'maze' } })),
-  buildRunFlowPublicModules: vi.fn(() => ({ RunModeUI: { id: 'mode' }, RunStartUI: { id: 'start' } })),
+  createRunFeatureFacade: vi.fn(() => ({
+    moduleCapabilities: {
+      map: { MapUI: { id: 'map' }, MazeSystem: { id: 'maze' } },
+      flow: { RunModeUI: { id: 'mode' }, RunStartUI: { id: 'start' } },
+    },
+  })),
 }));
 
 vi.mock('../game/features/run/public.js', () => ({
-  buildRunMapPublicModules: hoisted.buildRunMapPublicModules,
-  buildRunFlowPublicModules: hoisted.buildRunFlowPublicModules,
+  createRunFeatureFacade: hoisted.createRunFeatureFacade,
 }));
 
 import { registerRunModules } from '../game/platform/browser/composition/register_run_modules.js';
@@ -20,7 +23,6 @@ describe('registerRunModules', () => {
       RunModeUI: { id: 'mode' },
       RunStartUI: { id: 'start' },
     });
-    expect(hoisted.buildRunMapPublicModules).toHaveBeenCalledTimes(1);
-    expect(hoisted.buildRunFlowPublicModules).toHaveBeenCalledTimes(1);
+    expect(hoisted.createRunFeatureFacade).toHaveBeenCalledTimes(1);
   });
 });

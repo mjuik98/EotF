@@ -1,6 +1,7 @@
 import { playAttackSlash } from '../../../domain/audio/audio_event_helpers.js';
 import { createFinishEventFlowUseCase } from '../../../app/event/use_cases/finish_event_flow_use_case.js';
 import { createResolveEventChoiceUseCase } from '../../../app/event/use_cases/resolve_event_choice_use_case.js';
+import { createEventEffectServices } from '../platform/browser/event_effect_services.js';
 import { unlockEventFlow } from '../../../shared/state/runtime_flow_controls.js';
 import { presentEventChoiceResolution } from '../../../presentation/screens/event_choice_resolution_presenter.js';
 import { renderEventContinueChoice } from '../presentation/event_continue_choice_presenter.js';
@@ -40,9 +41,21 @@ export function resolveEventChoiceFlow(choiceIdx, {
   if (!gs || !event || !doc) return null;
 
   try {
-    const resolveEventChoice = createResolveEventChoiceUseCase({
-      resolveChoice,
+    const effectServices = deps.eventEffectServices || createEventEffectServices({
+      audioEngine,
+      showItemToast: deps.showItemToast,
     });
+    const resolveEventChoice = createResolveEventChoiceUseCase(
+      typeof resolveChoice === 'function'
+        ? {
+          resolveChoice: (runtimeGs, runtimeEvent, runtimeChoiceIdx) => (
+            resolveChoice(runtimeGs, runtimeEvent, runtimeChoiceIdx, { services: effectServices })
+          ),
+        }
+        : {
+          resolveChoiceOptions: { services: effectServices },
+        },
+    );
     const execution = resolveEventChoice({
       choiceIdx,
       event,

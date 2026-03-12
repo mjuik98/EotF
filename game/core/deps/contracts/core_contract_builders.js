@@ -1,4 +1,4 @@
-import { buildCombatFlowContractPublicBuilders } from '../../../features/combat/public.js';
+import { buildCombatFlowContractBuilders } from '../../../features/combat/ports/contracts/build_combat_flow_contracts.js';
 import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
 import { buildEventContractPublicBuilders } from '../../../features/event/public.js';
 import { buildEventFlowContractPublicBuilders } from '../../../features/event/public.js';
@@ -20,7 +20,7 @@ export function buildCoreContractBuilders(ctx) {
   } = ctx;
   const eventContractBuilders = buildEventContractPublicBuilders(ctx);
   const eventFlowContractBuilders = buildEventFlowContractPublicBuilders(ctx);
-  const combatFlowContractBuilders = buildCombatFlowContractPublicBuilders(ctx);
+  const combatFlowContractBuilders = buildCombatFlowContractBuilders(ctx);
   const rewardFlowContractBuilders = buildRewardFlowContractPublicBuilders(ctx);
   const runReturnContractBuilders = buildRunReturnContractPublicBuilders(ctx);
   const titleContractBuilders = buildTitleStoryContractBuilders(ctx);

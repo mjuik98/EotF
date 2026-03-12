@@ -96,9 +96,10 @@ export const EVENT_CHOICE_HANDLERS = {
     return '잔향이 흉곽을 가득 채운다. 다른 루프의 기억들이 잠깐 스쳐 지나갔다. 보이지 않아서 다행이다.';
   },
 
-  echo_resonance_gain_rare_card({ gs, data = DATA }) {
+  echo_resonance_gain_rare_card({ gs, data = DATA, services = {} }) {
     const cardId = gs.getRandomCard?.('rare');
     appendDeckCard(gs, cardId);
+    services.playItemGet?.();
     return {
       resultText: `에너지가 응결한다. 기억이 기술이 된다 — ${data.cards?.[cardId]?.name}. 배운 기억이 흐릿한데 손이 먼저 안다.`,
       acquiredCard: cardId,

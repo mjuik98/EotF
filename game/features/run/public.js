@@ -1,7 +1,7 @@
 import {
-  buildRunFlowPublicModules,
-  buildRunMapPublicModules,
-} from './modules/public_run_modules.js';
+  buildRunFlowModuleCatalog,
+  buildRunMapModuleCatalog,
+} from './modules/run_module_catalog.js';
 import { createRunCanvasBindings } from './bindings/public_run_bindings.js';
 import {
   buildRunFlowContractPublicBuilders,
@@ -15,8 +15,8 @@ import {
 
 export function createRunModuleCapabilities() {
   return {
-    map: buildRunMapPublicModules(),
-    flow: buildRunFlowPublicModules(),
+    map: buildRunMapModuleCatalog(),
+    flow: buildRunFlowModuleCatalog(),
   };
 }
 
@@ -41,13 +41,11 @@ export function createRunRuntimeCapabilities() {
   };
 }
 
-export {
-  buildRunMapPublicModules,
-  buildRunFlowPublicModules,
-  createRunCanvasBindings,
-  buildRunBootPublicActions,
-  buildRunUiContractPublicBuilders,
-  buildRunFlowContractPublicBuilders,
-  buildRunReturnContractPublicBuilders,
-  buildRunReturnRuntimePublicActions,
-};
+export function createRunFeatureFacade() {
+  return {
+    moduleCapabilities: createRunModuleCapabilities(),
+    bindings: createRunBindingCapabilities(),
+    contracts: createRunContractCapabilities(),
+    runtime: createRunRuntimeCapabilities(),
+  };
+}

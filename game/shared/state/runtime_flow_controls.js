@@ -6,7 +6,8 @@ import {
   setEventLock,
   setNodeMoveLock,
   setRewardLock,
-} from '../../state/commands/combat_runtime_commands.js';
+} from './runtime_session_commands.js';
+import { isEventFlowLocked as selectEventFlowLocked } from './runtime_session_selectors.js';
 
 /**
  * Shared runtime flow controls for combat, reward, event, and map traversal.
@@ -37,7 +38,7 @@ export function lockEventFlow(gs) {
 }
 
 export function isEventFlowLocked(gs) {
-  return !!gs?._eventLock;
+  return selectEventFlowLocked(gs);
 }
 
 export function setNodeMovementLocked(gs, isLocked) {

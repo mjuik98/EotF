@@ -4,6 +4,7 @@ import { resolveEventChoiceAction } from '../../../features/event/app/event_mana
 
 export function createResolveEventChoiceUseCase(options = {}) {
   const resolveChoice = options.resolveChoice || resolveEventChoiceAction;
+  const resolveChoiceOptions = options.resolveChoiceOptions;
   const buildViewModel = options.buildViewModel || buildEventViewModel;
   const acquireEventLock = options.lockEventFlow || lockEventFlow;
   const releaseEventLock = options.unlockEventFlow || unlockEventFlow;
@@ -20,7 +21,7 @@ export function createResolveEventChoiceUseCase(options = {}) {
 
     acquireEventLock(gs);
 
-    const resolution = resolveChoice(gs, event, choiceIdx);
+    const resolution = resolveChoice(gs, event, choiceIdx, resolveChoiceOptions);
     const selectedChoice = event?.choices?.[choiceIdx];
     const viewModel = buildViewModel({
       event,

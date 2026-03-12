@@ -1,8 +1,8 @@
 import {
-  buildCombatCardPublicModules,
-  buildCombatHudPublicModules,
-  buildCombatPublicModules,
-} from './modules/public_combat_modules.js';
+  buildCombatCardBrowserModules,
+  buildCombatCoreBrowserModules,
+  buildCombatHudBrowserModules,
+} from './platform/browser/combat_browser_modules.js';
 import { createCombatBindingsActions } from './bindings/public_combat_bindings.js';
 import { createCombatStartRuntime } from './application/create_combat_start_runtime.js';
 import { buildCombatFlowContractBuilders } from './ports/contracts/build_combat_flow_contracts.js';
@@ -11,9 +11,9 @@ import { buildCombatRuntimeSubscriberPublicActions } from './runtime/public_comb
 
 export function createCombatModuleCapabilities() {
   return {
-    core: buildCombatPublicModules(),
-    cards: buildCombatCardPublicModules(),
-    hud: buildCombatHudPublicModules(),
+    core: buildCombatCoreBrowserModules(),
+    cards: buildCombatCardBrowserModules(),
+    hud: buildCombatHudBrowserModules(),
   };
 }
 
@@ -36,10 +36,16 @@ export function createCombatRuntimeCapabilities() {
   };
 }
 
+export function createCombatFeatureFacade() {
+  return {
+    moduleCapabilities: createCombatModuleCapabilities(),
+    bindings: createCombatBindingCapabilities(),
+    contracts: createCombatContractCapabilities(),
+    runtime: createCombatRuntimeCapabilities(),
+  };
+}
+
 export {
-  buildCombatPublicModules,
-  buildCombatCardPublicModules,
-  buildCombatHudPublicModules,
   createCombatStartRuntime,
   createCombatBindingsActions,
   buildCombatRuntimeSubscriberPublicActions,

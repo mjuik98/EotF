@@ -1,4 +1,3 @@
-import { createDeps } from '../../core/deps_factory.js';
 import { getRaf } from '../../utils/runtime_deps.js';
 
 let _uiPending = false;
@@ -6,18 +5,12 @@ let _uiPending = false;
 export function resolvePartialHudDeps(gs, deps = {}, getDoc) {
   const resolvedDoc = getDoc(deps);
   const resolvedWin = deps?.win || resolvedDoc?.defaultView || null;
-  const factoryDeps = createDeps('hudUpdate', {
-    gs,
-    doc: resolvedDoc,
-    win: resolvedWin,
-  });
 
   return {
-    ...factoryDeps,
     ...deps,
     gs,
-    doc: deps?.doc || factoryDeps.doc || resolvedDoc,
-    win: deps?.win || factoryDeps.win || resolvedWin,
+    doc: deps?.doc || resolvedDoc,
+    win: deps?.win || resolvedWin,
   };
 }
 

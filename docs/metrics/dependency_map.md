@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-12T08:22:59.285Z
-- Nodes: 667
-- Edges: 1031
+- Generated: 2026-03-12T13:18:43.785Z
+- Nodes: 712
+- Edges: 1074
 
 ## Layer Edges
 
@@ -20,25 +20,24 @@
 | combat->combat | 7 |
 | combat->core | 1 |
 | combat->data | 4 |
-| combat->domain | 3 |
-| combat->feature | 7 |
+| combat->domain | 2 |
+| combat->feature | 8 |
 | combat->legacy | 1 |
 | combat->other | 1 |
-| combat->shared | 4 |
+| combat->shared | 5 |
 | combat->state | 1 |
 | combat->systems | 4 |
 | combat->utils | 6 |
 | core->combat | 3 |
-| core->core | 133 |
+| core->core | 128 |
 | core->domain | 4 |
-| core->feature | 19 |
-| core->legacy | 4 |
+| core->feature | 23 |
+| core->legacy | 6 |
 | core->other | 1 |
 | core->shared | 1 |
 | core->systems | 1 |
 | core->utils | 2 |
 | data->data | 17 |
-| data->engine | 1 |
 | data->other | 2 |
 | data->systems | 2 |
 | data->utils | 4 |
@@ -51,23 +50,23 @@
 | domain->utils | 2 |
 | engine->data | 1 |
 | engine->engine | 2 |
-| feature->app | 12 |
-| feature->combat | 5 |
+| feature->app | 19 |
+| feature->combat | 6 |
 | feature->core | 6 |
-| feature->data | 2 |
-| feature->domain | 14 |
-| feature->feature | 91 |
-| feature->other | 1 |
+| feature->data | 9 |
+| feature->domain | 17 |
+| feature->feature | 123 |
+| feature->other | 2 |
 | feature->presentation | 3 |
-| feature->shared | 9 |
+| feature->shared | 10 |
 | feature->state | 1 |
 | feature->systems | 4 |
-| feature->ui | 39 |
-| feature->utils | 6 |
-| legacy->core | 1 |
+| feature->ui | 66 |
+| feature->utils | 9 |
+| legacy->core | 4 |
 | legacy->domain | 1 |
 | legacy->feature | 7 |
-| legacy->legacy | 52 |
+| legacy->legacy | 57 |
 | legacy->shared | 14 |
 | legacy->utils | 3 |
 | platform->combat | 1 |
@@ -87,10 +86,9 @@
 | presentation->domain | 3 |
 | presentation->feature | 3 |
 | presentation->presentation | 4 |
-| presentation->ui | 10 |
+| presentation->ui | 9 |
 | presentation->utils | 1 |
-| shared->state | 1 |
-| state->domain | 1 |
+| shared->shared | 2 |
 | systems->core | 2 |
 | systems->data | 5 |
 | systems->feature | 3 |
@@ -98,18 +96,17 @@
 | systems->state | 1 |
 | systems->systems | 11 |
 | systems->utils | 1 |
-| ui->app | 15 |
-| ui->combat | 1 |
-| ui->core | 7 |
-| ui->data | 37 |
-| ui->domain | 16 |
+| ui->app | 6 |
+| ui->core | 5 |
+| ui->data | 27 |
+| ui->domain | 14 |
 | ui->engine | 1 |
-| ui->feature | 10 |
-| ui->other | 5 |
+| ui->feature | 24 |
+| ui->other | 4 |
 | ui->presentation | 3 |
-| ui->shared | 2 |
-| ui->ui | 228 |
-| ui->utils | 22 |
+| ui->shared | 1 |
+| ui->ui | 197 |
+| ui->utils | 19 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 2 |
@@ -118,21 +115,21 @@
 
 | File | Out Degree |
 |---|---:|
-| game/features/combat/modules/public_combat_modules.js | 15 |
-| game/ui/title/character_select_ui.js | 13 |
-| game/features/title/public.js | 12 |
+| game/features/combat/platform/browser/combat_browser_modules.js | 15 |
+| game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/combat/application/death_flow_actions.js | 11 |
-| game/features/run/modules/public_run_modules.js | 11 |
-| data/events_data.js | 9 |
+| game/features/run/platform/browser/run_browser_modules.js | 11 |
 | game/systems/run_rules.js | 9 |
+| data/events_data.js | 8 |
+| game/features/event/app/event_choice_flow_actions.js | 8 |
+| game/features/title/public.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
-| game/features/event/app/event_choice_flow_actions.js | 7 |
+| game/core/deps/contracts/core_contract_builders.js | 7 |
+| game/features/title/platform/browser/create_character_select_mount_runtime.js | 7 |
 | game/ui/combat/combat_ui.js | 7 |
 | game/ui/combat/status_tooltip_builder.js | 7 |
 | game/ui/hud/hud_update_ui.js | 7 |
-| game/ui/title/character_select_mount_runtime.js | 7 |
-| game/app/combat/use_cases/run_enemy_turn_use_case.js | 6 |
 
 ## Top Incoming Dependencies
 
