@@ -4,11 +4,11 @@ const { discardEventCardSpy } = vi.hoisted(() => ({
   discardEventCardSpy: vi.fn(),
 }));
 
-vi.mock('../game/app/event/use_cases/discard_event_card_use_case.js', () => ({
+vi.mock('../game/features/event/application/discard_event_card_use_case.js', () => ({
   discardEventCard: discardEventCardSpy,
 }));
 
-vi.mock('../game/ui/screens/event_ui_helpers.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_ui_helpers.js', () => ({
   dismissTransientOverlay: vi.fn((overlay) => overlay?.remove?.()),
   getAudioEngine: vi.fn((deps) => deps.audioEngine),
 }));

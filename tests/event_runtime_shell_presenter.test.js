@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/event_ui_dom.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_ui_dom.js', () => ({
   renderChoices: vi.fn(),
 }));
 
 describe('event_runtime_shell_presenter', () => {
   it('renders the event shell and opens the modal', async () => {
     const { renderEventShellRuntime } = await import('../game/presentation/screens/event_runtime_shell_presenter.js');
-    const dom = await import('../game/ui/screens/event_ui_dom.js');
+    const dom = await import('../game/features/event/presentation/browser/event_ui_dom.js');
     const eventModal = { classList: { add: vi.fn() } };
     const elements = {
       eventEyebrow: { textContent: '' },

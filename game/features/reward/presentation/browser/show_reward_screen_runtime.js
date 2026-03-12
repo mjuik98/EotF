@@ -1,6 +1,6 @@
 import { getDoc } from './reward_screen_runtime_helpers.js';
-import { renderRewardOptions } from '../../../../ui/screens/reward_ui_options.js';
-import { renderRewardHeader } from '../../../../ui/screens/reward_ui_render.js';
+import { renderRewardOptions } from './reward_ui_options.js';
+import { renderRewardHeader } from './reward_ui_render.js';
 
 export function showRewardScreenView(ui, payload, deps = {}) {
   const {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-12T00:03:57.087Z",
+  "generatedAt": "2026-03-13T00:34:30.000Z",
   "totalMax": 171,
   "defaultPerFileMax": null,
   "byFileMax": {
@@ -48,7 +48,7 @@
     "game/features/run/presentation/browser/world_render_loop_ui.js": 1,
     "game/ui/screens/codex_ui_helpers.js": 2,
     "game/ui/screens/ending_screen_helpers.js": 1,
-    "game/ui/screens/event_ui_item_shop.js": 1,
+    "game/features/event/presentation/browser/event_ui_item_shop.js": 1,
     "game/ui/screens/help_pause_hotkeys_runtime_ui.js": 1,
     "game/ui/screens/reward_ui_screen_runtime.js": 1,
     "game/ui/screens/story_ui_helpers.js": 3,

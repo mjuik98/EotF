@@ -8,11 +8,11 @@ const { createRestEventUseCaseSpy, startRestFillParticlesSpy } = vi.hoisted(() =
   })),
 }));
 
-vi.mock('../game/app/event/use_cases/create_rest_event_use_case.js', () => ({
+vi.mock('../game/features/event/application/create_rest_event_use_case.js', () => ({
   createRestEventUseCase: createRestEventUseCaseSpy,
 }));
 
-vi.mock('../game/ui/screens/event_ui_particles.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_ui_particles.js', () => ({
   startRestFillParticles: startRestFillParticlesSpy,
 }));
 

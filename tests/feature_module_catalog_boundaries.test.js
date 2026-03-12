@@ -13,6 +13,11 @@ const BROWSER_MODULE_FILES = [
   'game/features/run/platform/browser/run_browser_modules.js',
   'game/features/combat/platform/browser/combat_browser_modules.js',
 ];
+const FEATURE_BROWSER_RUNTIME_FILES = [
+  'game/features/event/platform/browser/create_event_runtime_dom_actions.js',
+  'game/features/reward/platform/browser/reward_runtime_context.js',
+  'game/features/reward/presentation/browser/show_reward_screen_runtime.js',
+];
 const PUBLIC_FILES = [
   'game/features/codex/public.js',
   'game/features/title/public.js',
@@ -33,6 +38,13 @@ describe('feature module catalog boundaries', () => {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).not.toMatch(/ui\/map/);
       expect(source).not.toMatch(/ui\/hud/);
+    }
+  });
+
+  it('keeps event and reward browser runtime files free of direct ui screen imports', () => {
+    for (const file of FEATURE_BROWSER_RUNTIME_FILES) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toMatch(/ui\/screens\/(event_|reward_)/);
     }
   });
 

@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/event_ui_dom.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_ui_dom.js', () => ({
   renderChoices: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/event_ui_item_shop.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_ui_item_shop.js', () => ({
   showEventItemShopOverlay: vi.fn(),
 }));
 
-vi.mock('../game/presentation/screens/event_rest_site_presenter.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_rest_site_presenter.js', () => ({
   showEventRestSiteOverlay: vi.fn(),
 }));
 
@@ -19,7 +19,7 @@ vi.mock('../game/presentation/screens/event_shop_presenter.js', () => ({
 describe('event_ui_runtime_helpers', () => {
   it('renders the event shell and opens the modal', async () => {
     const { renderEventShellRuntime } = await import('../game/ui/screens/event_ui_runtime_helpers.js');
-    const dom = await import('../game/ui/screens/event_ui_dom.js');
+    const dom = await import('../game/features/event/presentation/browser/event_ui_dom.js');
     const eventModal = { classList: { add: vi.fn() } };
     const elements = {
       eventEyebrow: { textContent: '' },
@@ -53,8 +53,8 @@ describe('event_ui_runtime_helpers', () => {
   it('delegates shop, rest-site, and item-shop entrypoints to extracted helpers', async () => {
     const helpers = await import('../game/ui/screens/event_ui_runtime_helpers.js');
     const shop = await import('../game/presentation/screens/event_shop_presenter.js');
-    const rest = await import('../game/presentation/screens/event_rest_site_presenter.js');
-    const itemShop = await import('../game/ui/screens/event_ui_item_shop.js');
+    const rest = await import('../game/features/event/presentation/browser/event_rest_site_presenter.js');
+    const itemShop = await import('../game/features/event/presentation/browser/event_ui_item_shop.js');
     const deps = { marker: true };
     const showItemShop = vi.fn();
 

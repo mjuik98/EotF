@@ -6,12 +6,12 @@ const { buildItemShopStockUseCaseSpy, purchaseItemFromShopUseCaseSpy, dismissTra
   dismissTransientOverlaySpy: vi.fn((overlay) => overlay?.remove?.()),
 }));
 
-vi.mock('../game/app/event/use_cases/item_shop_use_case.js', () => ({
+vi.mock('../game/features/event/application/item_shop_use_case.js', () => ({
   buildItemShopStockUseCase: buildItemShopStockUseCaseSpy,
   purchaseItemFromShopUseCase: purchaseItemFromShopUseCaseSpy,
 }));
 
-vi.mock('../game/ui/screens/event_ui_helpers.js', () => ({
+vi.mock('../game/features/event/presentation/browser/event_ui_helpers.js', () => ({
   dismissTransientOverlay: dismissTransientOverlaySpy,
   getShopItemIcon: vi.fn((item) => item.icon || '*'),
 }));

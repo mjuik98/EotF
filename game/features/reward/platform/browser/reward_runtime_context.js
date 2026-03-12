@@ -2,11 +2,11 @@ import {
   getData,
   getDoc,
   getGS,
-} from '../../../../ui/screens/reward_ui_helpers.js';
+} from '../../presentation/browser/reward_ui_helpers.js';
 import {
   setRewardPickedState,
   setSkipConfirmVisible,
-} from '../../../../ui/screens/reward_ui_render.js';
+} from '../../presentation/browser/reward_ui_render.js';
 
 export function createRewardRuntimeContext() {
   return {
