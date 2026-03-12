@@ -2,51 +2,53 @@ import { createRewardNavigationActions } from './reward_navigation_actions.js';
 
 export function createRewardActions(modules, ports) {
   const navigation = createRewardNavigationActions(modules, ports);
-  const rewardFlow = ports.getRewardFlowDeps?.();
+  const getRewardFlow = () => ports.getRewardFlowDeps?.();
+  const getRewardDeps = () => ports.getRewardDeps();
+
+  function openReward(mode = false) {
+    if (typeof modules.RewardUI?.showRewardScreen === 'function') {
+      modules.RewardUI.showRewardScreen(mode, getRewardDeps());
+      return;
+    }
+
+    getRewardFlow()?.openReward?.(mode);
+  }
 
   return {
     showRewardScreen(isBoss) {
-      if (typeof rewardFlow?.openReward === 'function') {
-        rewardFlow.openReward(isBoss);
-        return;
-      }
-      modules.RewardUI?.showRewardScreen?.(isBoss, ports.getRewardDeps());
+      openReward(isBoss);
     },
 
     openReward(mode = false) {
-      if (typeof rewardFlow?.openReward === 'function') {
-        rewardFlow.openReward(mode);
-        return;
-      }
-      modules.RewardUI?.showRewardScreen?.(mode, ports.getRewardDeps());
+      openReward(mode);
     },
 
     takeRewardCard(cardId) {
-      modules.RewardUI?.takeRewardCard?.(cardId, ports.getRewardDeps());
+      modules.RewardUI?.takeRewardCard?.(cardId, getRewardDeps());
     },
 
     takeRewardItem(itemKey) {
-      modules.RewardUI?.takeRewardItem?.(itemKey, ports.getRewardDeps());
+      modules.RewardUI?.takeRewardItem?.(itemKey, getRewardDeps());
     },
 
     takeRewardUpgrade() {
-      modules.RewardUI?.takeRewardUpgrade?.(ports.getRewardDeps());
+      modules.RewardUI?.takeRewardUpgrade?.(getRewardDeps());
     },
 
     takeRewardRemove() {
-      modules.RewardUI?.takeRewardRemove?.(ports.getRewardDeps());
+      modules.RewardUI?.takeRewardRemove?.(getRewardDeps());
     },
 
     showSkipConfirm() {
-      modules.RewardUI?.showSkipConfirm?.(ports.getRewardDeps());
+      modules.RewardUI?.showSkipConfirm?.(getRewardDeps());
     },
 
     hideSkipConfirm() {
-      modules.RewardUI?.hideSkipConfirm?.(ports.getRewardDeps());
+      modules.RewardUI?.hideSkipConfirm?.(getRewardDeps());
     },
 
     skipReward() {
-      modules.RewardUI?.skipReward?.(ports.getRewardDeps());
+      modules.RewardUI?.skipReward?.(getRewardDeps());
     },
 
     returnFromReward: navigation.returnFromReward,

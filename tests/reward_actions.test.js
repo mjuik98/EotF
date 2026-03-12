@@ -51,11 +51,11 @@ describe('reward_actions', () => {
     expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
     expect(ports.getRewardDeps).toHaveBeenCalledTimes(9);
-    expect(ports.getRewardFlowDeps).toHaveBeenCalledTimes(2);
-    expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(1);
+    expect(ports.getRewardFlowDeps).not.toHaveBeenCalled();
+    expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(2);
   });
 
-  it('prefers reward flow contracts for reward screen transitions', () => {
+  it('prefers RewardUI runtime for reward screen transitions when available', () => {
     const modules = {
       RewardUI: {
         showRewardScreen: vi.fn(),
@@ -74,9 +74,28 @@ describe('reward_actions', () => {
     actions.showRewardScreen(true);
     actions.openReward('boss');
 
+    expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith(true, { token: 'reward-deps' });
+    expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith('boss', { token: 'reward-deps' });
+    expect(rewardFlow.openReward).not.toHaveBeenCalled();
+    expect(ports.getRewardDeps).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back to reward flow contracts when RewardUI runtime is unavailable', () => {
+    const rewardFlow = {
+      openReward: vi.fn(),
+    };
+    const ports = {
+      getRewardDeps: vi.fn(() => ({ token: 'reward-deps' })),
+      getRewardFlowDeps: vi.fn(() => rewardFlow),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    const actions = createRewardActions({}, ports);
+    actions.showRewardScreen(true);
+    actions.openReward('boss');
+
     expect(rewardFlow.openReward).toHaveBeenCalledWith(true);
     expect(rewardFlow.openReward).toHaveBeenCalledWith('boss');
-    expect(modules.RewardUI.showRewardScreen).not.toHaveBeenCalled();
     expect(ports.getRewardDeps).not.toHaveBeenCalled();
   });
 });

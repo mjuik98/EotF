@@ -15,6 +15,7 @@ export function endPlayerTurnUseCase({
   data,
   canPlay,
   classMechanics,
+  endTurnPolicyOptions,
   resetChainUi,
   cleanupTurnUi,
   showEnemyTurnUi,
@@ -26,6 +27,7 @@ export function endPlayerTurnUseCase({
     data,
     canPlay,
     classMechanics,
+    endTurnPolicyOptions,
   });
   if (!outcome) return null;
 

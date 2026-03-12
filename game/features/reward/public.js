@@ -1,4 +1,5 @@
 export { createRewardRuntime } from './application/create_reward_runtime.js';
+export { showRewardScreenRuntime } from './application/show_reward_screen_runtime.js';
 import { buildRewardFlowContractBuilders } from './ports/contracts/build_reward_flow_contracts.js';
 export {
   finishRewardFlow,

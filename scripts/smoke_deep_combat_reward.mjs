@@ -1,0 +1,169 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { chromium } from 'playwright';
+
+function parseArgs(argv) {
+  const args = {
+    url: null,
+    outDir: path.join(process.cwd(), 'output', 'web-game', 'deep-combat-reward'),
+    headless: true,
+  };
+
+  for (let i = 2; i < argv.length; i += 1) {
+    const arg = argv[i];
+    const next = argv[i + 1];
+    if (arg === '--url' && next) {
+      args.url = next;
+      i += 1;
+    } else if (arg === '--out-dir' && next) {
+      args.outDir = next;
+      i += 1;
+    } else if (arg === '--headless' && next) {
+      args.headless = next !== '0' && next !== 'false';
+      i += 1;
+    }
+  }
+
+  if (!args.url) {
+    throw new Error('--url is required');
+  }
+  return args;
+}
+
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+async function writeSnapshot(page, outDir, index) {
+  const text = await page.evaluate(() => {
+    if (typeof window.render_game_to_text === 'function') {
+      return window.render_game_to_text();
+    }
+    return null;
+  });
+
+  await page.screenshot({
+    path: path.join(outDir, `shot-${index}.png`),
+    fullPage: true,
+  });
+
+  if (text) {
+    fs.writeFileSync(path.join(outDir, `state-${index}.json`), text);
+  }
+}
+
+async function writeNamedState(page, outDir, filename) {
+  const text = await page.evaluate(() => {
+    if (typeof window.render_game_to_text === 'function') {
+      return window.render_game_to_text();
+    }
+    return null;
+  });
+  if (text) {
+    fs.writeFileSync(path.join(outDir, filename), text);
+  }
+}
+
+async function clickIfVisible(page, selector, timeout = 4000) {
+  const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
+  if (!handle) return false;
+  await handle.click();
+  return true;
+}
+
+async function advanceTime(page, ms) {
+  await page.evaluate(async (duration) => {
+    if (typeof window.advanceTime === 'function') {
+      await window.advanceTime(duration);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, duration));
+  }, ms);
+}
+
+async function main() {
+  const args = parseArgs(process.argv);
+  ensureDir(args.outDir);
+
+  const browser = await chromium.launch({ headless: args.headless });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  const consoleErrors = [];
+
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      consoleErrors.push(`[console:${msg.type()}] ${msg.text()}`);
+    }
+  });
+  page.on('pageerror', (err) => {
+    consoleErrors.push(`[pageerror] ${err.message}`);
+  });
+
+  try {
+    await page.goto(args.url, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(600);
+
+    await page.click('#mainStartBtn');
+    await page.waitForSelector('#btnCfm', { state: 'visible', timeout: 10000 });
+    await page.click('#btnCfm');
+    await page.waitForSelector('#btnRealStart', { state: 'visible', timeout: 10000 });
+    await page.click('#btnRealStart');
+
+    await clickIfVisible(page, '#introCinematicOverlay', 10000);
+    await page.waitForSelector('#storyContinueBtn', { state: 'visible', timeout: 10000 });
+    await page.click('#storyContinueBtn');
+
+    await page.waitForSelector('.node-card', { state: 'visible', timeout: 15000 });
+    await page.click('.node-card');
+    await page.waitForSelector('#combatOverlay.active', { state: 'attached', timeout: 15000 });
+    await advanceTime(page, 1200);
+    await writeSnapshot(page, args.outDir, 0);
+
+    await page.evaluate(async () => {
+      if (typeof window.GS?.endCombat === 'function') {
+        await window.GS.endCombat();
+      }
+    });
+
+    try {
+      await page.waitForFunction(() => {
+        const rewardScreen = document.getElementById('rewardScreen');
+        const text = typeof window.render_game_to_text === 'function'
+          ? window.render_game_to_text()
+          : '';
+        return rewardScreen?.classList?.contains('active') || text.includes('"reward"');
+      }, { timeout: 10000 });
+    } catch (error) {
+      await writeNamedState(page, args.outDir, 'state-endcombat-timeout.json');
+      throw error;
+    }
+    await advanceTime(page, 1200);
+    await writeSnapshot(page, args.outDir, 1);
+
+    await page.click('#rewardSkipInitBtn');
+    await page.click('#rewardSkipConfirmBtn');
+    try {
+      await page.waitForFunction(() => {
+        const rewardScreen = document.getElementById('rewardScreen');
+        return !rewardScreen?.classList?.contains('active');
+      }, { timeout: 8000 });
+    } catch (error) {
+      await writeNamedState(page, args.outDir, 'state-reward-return-timeout.json');
+      throw error;
+    }
+    await page.waitForSelector('.node-card', { state: 'visible', timeout: 10000 });
+    await advanceTime(page, 800);
+    await writeSnapshot(page, args.outDir, 2);
+  } finally {
+    fs.writeFileSync(
+      path.join(args.outDir, 'console-errors.json'),
+      JSON.stringify(consoleErrors, null, 2),
+      'utf8',
+    );
+    await browser.close();
+  }
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

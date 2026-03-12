@@ -4,37 +4,54 @@ import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
 import { ENEMY_TURN_BUFFS } from '../../../combat/turn_manager_helpers.js';
 import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
 import {
-  advanceCombatTurn,
-  clampPlayerMaxEcho,
   decrementStackedBuff,
   drawFromRandomPlayerPool,
-  pushCardToExhausted,
-  reducePlayerEnergy,
-  setCombatPlayerTurn,
-  setPlayerEnergy,
-  setPlayerShield,
 } from './turn_state_mutators.js';
 
-export function startPlayerTurnPolicy(gs) {
+export function startPlayerTurnPolicy(gs, commands = {}) {
+  const consumePlayerBuffState = commands.consumePlayerBuffState
+    || ((state, buffId) => decrementStackedBuff(state?.player?.buffs, buffId));
+  const beginPlayerTurnState = commands.beginPlayerTurnState
+    || ((state, { isStunned = false } = {}) => {
+      state.combat.turn += 1;
+      state.combat.playerTurn = true;
+      state.player.energy = isStunned ? 0 : state.player.maxEnergy;
+      state.player.shield = 0;
+      return state.player.energy;
+    });
+  const exhaustRandomPlayerCardState = commands.exhaustRandomPlayerCardState
+    || ((state, pools, pickIndex) => {
+      const { cardId, poolKey } = drawFromRandomPlayerPool(state, pools, pickIndex);
+      if (!cardId) return { cardId: null, poolKey: null };
+      state.player.exhausted.push(cardId);
+      if (poolKey === 'hand') state.markDirty?.('hand');
+      return { cardId, poolKey };
+    });
+  const reducePlayerTurnEnergyState = commands.reducePlayerTurnEnergyState
+    || ((state, amount) => {
+      state.player.energy = Math.max(0, state.player.energy - amount);
+      return state.player.energy;
+    });
+  const reducePlayerTurnMaxEchoState = commands.reducePlayerTurnMaxEchoState
+    || ((state, amount) => {
+      state.player.maxEcho = Math.max(50, (state.player.maxEcho || 100) - Math.max(0, amount));
+      state.player.echo = Math.min(state.player.maxEcho, state.player.echo || 0);
+      return state.player.maxEcho;
+    });
+
   ENEMY_TURN_BUFFS.forEach((buffId) => {
     const buff = gs.player.buffs?.[buffId];
     normalizeInfiniteStack(buffId, buff);
     if (isInfiniteStackBuff(buffId, buff)) return;
-    decrementStackedBuff(gs.player.buffs, buffId);
+    consumePlayerBuffState(gs, buffId);
   });
 
-  advanceCombatTurn(gs);
-  setCombatPlayerTurn(gs, true);
-
   const isStunned = (gs.player.buffs?.stunned?.stacks || 0) > 0;
+  beginPlayerTurnState(gs, { isStunned });
   if (isStunned) {
-    setPlayerEnergy(gs, 0);
     gs.addLog?.(LogUtils.formatSystem('기절 상태: 에너지 충전 실패'), 'damage');
-  } else {
-    setPlayerEnergy(gs, gs.player.maxEnergy);
   }
 
-  setPlayerShield(gs, 0);
   let drawCount = 5;
 
   const activeRegionId = resolveActiveRegionId(gs);
@@ -61,10 +78,8 @@ export function startPlayerTurnPolicy(gs) {
       }
 
       if (pickedPool) {
-        const { cardId: targetCardId, poolKey } = drawFromRandomPlayerPool(gs, pools, pick);
+        const { cardId: targetCardId } = exhaustRandomPlayerCardState(gs, pools, pick);
         if (targetCardId) {
-          pushCardToExhausted(gs, targetCardId);
-          if (poolKey === 'hand') gs.markDirty?.('hand');
           const cardName = DATA?.cards?.[targetCardId]?.name || targetCardId;
           gs.addLog?.(LogUtils.formatSystem(`지역 효과: ${cardName} 카드가 소멸되었습니다.`), 'damage');
         }
@@ -72,11 +87,11 @@ export function startPlayerTurnPolicy(gs) {
     }
   } else if (activeRegionId === 3) {
     if (!isStunned) {
-      reducePlayerEnergy(gs, 1);
+      reducePlayerTurnEnergyState(gs, 1);
       gs.addLog?.(LogUtils.formatStatChange('플레이어', '에너지', -1, false), 'damage');
     }
   } else if (activeRegionId === 4) {
-    clampPlayerMaxEcho(gs, (gs.player.maxEcho || 100) - 5);
+    reducePlayerTurnMaxEchoState(gs, 5);
     gs.addLog?.(LogUtils.formatStatChange('플레이어', '최대 에코', -5, false), 'damage');
   }
 

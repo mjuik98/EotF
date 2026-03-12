@@ -1,26 +1,25 @@
+import { createRewardReturnActions } from '../shared/runtime/reward_return_actions.js';
+
+function buildDeathRewardFlowActions(deps = {}, win = {}) {
+  return createRewardReturnActions({
+    rewardActions: deps.rewardActions,
+    returnFromReward: deps.returnFromReward || win.returnFromReward,
+    returnToGame: deps.returnToGame || win.returnToGame,
+  });
+}
+
 export function buildCombatEndFlowPayload(deps = {}, win = {}) {
-  const returnToGame = deps.returnToGame || win.returnToGame;
-  const returnFromReward = deps.rewardActions?.returnFromReward
-    || deps.returnFromReward
-    || win.returnFromReward
-    || (() => returnToGame?.(true));
+  const rewardReturnActions = buildDeathRewardFlowActions(deps, win);
   return {
     ...deps,
     showRewardScreen: deps.showRewardScreen || win.showRewardScreen,
     showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
     switchScreen: deps.switchScreen || win.switchScreen,
-    returnToGame,
-    returnFromReward,
+    returnToGame: rewardReturnActions.returnToGame,
+    returnFromReward: rewardReturnActions.returnFromReward,
     rewardActions: {
-      returnFromReward: () => returnFromReward(),
-      returnToGame: (fromReward = false) => {
-        if (fromReward) {
-          returnFromReward();
-          return;
-        }
-        returnToGame?.(false);
-      },
       ...deps.rewardActions,
+      ...rewardReturnActions.rewardActions,
     },
     updateUI: deps.updateUI || win.updateUI,
     renderHand: deps.renderHand || win.renderHand,
@@ -53,6 +52,8 @@ export function buildDeathEndingActions(deps = {}, win = {}) {
     openCodex: typeof openCodex === 'function' ? (...args) => openCodex(...args) : undefined,
   };
 }
+
+export { buildDeathRewardFlowActions };
 
 export function cleanupEnemyDeathTooltips(cleanupTooltips, doc, win) {
   if (typeof cleanupTooltips === 'function') {

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRewardNavigationActions } from '../game/features/event/app/reward_navigation_actions.js';
 
 describe('reward_navigation_actions', () => {
-  it('prefers reward flow contracts when reward return actions are available', () => {
+  it('prefers RunReturnUI when reward return actions are available', () => {
     const modules = {
       RunReturnUI: {
         returnFromReward: vi.fn(),
@@ -22,11 +22,9 @@ describe('reward_navigation_actions', () => {
     actions.returnFromReward();
     actions.returnToGame(false);
 
-    expect(ports.getRewardFlowDeps).toHaveBeenCalledTimes(1);
-    expect(ports.getRewardFlowDeps.mock.results[0].value.returnFromReward).toHaveBeenCalledTimes(1);
-    expect(ports.getRewardFlowDeps.mock.results[0].value.returnToGame).toHaveBeenCalledWith(false);
-    expect(modules.RunReturnUI.returnFromReward).not.toHaveBeenCalled();
-    expect(modules.RunReturnUI.returnToGame).not.toHaveBeenCalled();
+    expect(ports.getRewardFlowDeps).not.toHaveBeenCalled();
+    expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
+    expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
   });
 
   it('delegates reward return through RunReturnUI.returnFromReward when available', () => {
@@ -45,9 +43,9 @@ describe('reward_navigation_actions', () => {
     actions.returnFromReward();
     actions.returnToGame(true);
 
-    expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledTimes(2);
+    expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledTimes(1);
     expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
-    expect(modules.RunReturnUI.returnToGame).not.toHaveBeenCalled();
+    expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(true, { token: 'run-return-deps' });
   });
 
   it('falls back to RunReturnUI.returnToGame for non-reward returns', () => {
@@ -67,5 +65,24 @@ describe('reward_navigation_actions', () => {
 
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledTimes(2);
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
+  });
+
+  it('falls back to reward flow contracts when RunReturnUI is unavailable', () => {
+    const rewardFlow = {
+      returnFromReward: vi.fn(),
+      returnToGame: vi.fn(),
+    };
+    const ports = {
+      getRewardFlowDeps: vi.fn(() => rewardFlow),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    const actions = createRewardNavigationActions({}, ports);
+    actions.returnFromReward();
+    actions.returnToGame(false);
+    actions.returnToGame(true);
+
+    expect(rewardFlow.returnFromReward).toHaveBeenCalledTimes(2);
+    expect(rewardFlow.returnToGame).toHaveBeenCalledWith(false);
   });
 });

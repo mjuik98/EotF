@@ -54,6 +54,6 @@ describe('createEventRewardBindings', () => {
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
     expect(Deps.getEventDeps).toHaveBeenCalledTimes(4);
     expect(Deps.getRewardDeps).toHaveBeenCalledTimes(2);
-    expect(Deps.getRunReturnDeps).toHaveBeenCalledTimes(1);
+    expect(Deps.getRunReturnDeps).toHaveBeenCalledTimes(2);
   });
 });

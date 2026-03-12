@@ -3,15 +3,35 @@ import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from '../../../combat/turn_manag
 import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
 import {
   decrementStackedBuff,
-  moveHandToGraveyard,
-  reducePlayerSilenceGauge,
-  resetPlayerTimeRiftGauge,
-  resetTurnCardCostState,
-  setCombatPlayerTurn,
-  setPlayerEchoChain,
 } from './turn_state_mutators.js';
 
-export function endPlayerTurnPolicy(gs, data, { canPlayFn } = {}) {
+export function endPlayerTurnPolicy(gs, data, options = {}) {
+  const { canPlayFn } = options;
+  const consumePlayerBuffState = options.consumePlayerBuffState
+    || ((state, buffId) => decrementStackedBuff(state?.player?.buffs, buffId));
+  const reducePlayerTurnSilenceGaugeState = options.reducePlayerTurnSilenceGaugeState
+    || ((state, amount) => {
+      state.player.silenceGauge = Math.max(0, (state.player.silenceGauge || 0) - amount);
+      return state.player.silenceGauge;
+    });
+  const resetPlayerTurnTimeRiftState = options.resetPlayerTurnTimeRiftState
+    || ((state) => {
+      state.player.timeRiftGauge = 0;
+      return state.player.timeRiftGauge;
+    });
+  const finalizePlayerTurnEndState = options.finalizePlayerTurnEndState
+    || ((state) => {
+      state.player.graveyard.push(...state.player.hand);
+      state.player.hand = [];
+      state.player.echoChain = 0;
+      state.player.costDiscount = 0;
+      state.player._nextCardDiscount = 0;
+      state.player.zeroCost = false;
+      state.player._freeCardUses = 0;
+      state.combat.playerTurn = false;
+      return state.combat.playerTurn;
+    });
+
   if (!gs?.combat?.active || !gs.combat.playerTurn) return null;
 
   let skippableCards = 0;
@@ -37,17 +57,17 @@ export function endPlayerTurnPolicy(gs, data, { canPlayFn } = {}) {
     if (buff.nextEnergy) return;
     if (buff.echoRegen) gs.addEcho(buff.echoRegen);
     if (isInfiniteStackBuff(buffId, buff)) return;
-    decrementStackedBuff(gs.player.buffs, buffId);
+    consumePlayerBuffState(gs, buffId);
   });
 
   const activeRegionId = resolveActiveRegionId(gs);
   const shouldReduceSilence = activeRegionId === 1 || gs.player.class === 'hunter';
   if (shouldReduceSilence && gs.player.silenceGauge > 0) {
-    reducePlayerSilenceGauge(gs, 1);
+    reducePlayerTurnSilenceGaugeState(gs, 1);
   }
 
   if (activeRegionId === 5) {
-    resetPlayerTimeRiftGauge(gs);
+    resetPlayerTurnTimeRiftState(gs);
   }
 
   gs.triggerItems?.('turn_end');
@@ -55,10 +75,7 @@ export function endPlayerTurnPolicy(gs, data, { canPlayFn } = {}) {
     gs.triggerItems?.('chain_break', { chain: gs.player.echoChain });
   }
 
-  moveHandToGraveyard(gs);
-  setPlayerEchoChain(gs, 0);
-  resetTurnCardCostState(gs);
-  setCombatPlayerTurn(gs, false);
+  finalizePlayerTurnEndState(gs);
 
   return { skippableCards };
 }

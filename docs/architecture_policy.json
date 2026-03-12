@@ -110,6 +110,17 @@
       "message": "reward application must use platform/runtime ports instead of ui or presentation modules"
     },
     {
+      "id": "reward-presentation-feature-runtime-only",
+      "from": ["presentation"],
+      "sourceFiles": [
+        "game/presentation/screens/reward_ui.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/"
+      ],
+      "message": "reward presentation must use the reward feature runtime instead of ui screen runtimes directly"
+    },
+    {
       "id": "event-application-platform-boundary",
       "from": ["feature"],
       "sourcePrefixes": [
@@ -144,6 +155,20 @@
         "game/presentation/"
       ],
       "message": "combat turn runtime must use platform/runtime ports instead of ui or presentation modules"
+    },
+    {
+      "id": "combat-player-turn-policy-ports-only",
+      "from": ["app", "combat"],
+      "sourceFiles": [
+        "game/app/combat/end_turn_service.js",
+        "game/app/combat/use_cases/run_enemy_turn_use_case.js",
+        "game/combat/turn_manager.js"
+      ],
+      "denyTargets": [
+        "game/features/combat/state/player_turn_state_commands.js",
+        "game/features/combat/ports/player_turn_policy_ports.js"
+      ],
+      "message": "player turn policy callers must use feature application/runtime handoff instead of importing feature state or port modules directly"
     },
     {
       "id": "platform-no-direct-ui-feature-facades",

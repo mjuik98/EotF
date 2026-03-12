@@ -1,7 +1,7 @@
 import {
   createRewardRuntime,
+  showRewardScreenRuntime,
 } from '../../features/reward/public.js';
-import { showRewardScreenRuntime } from '../../ui/screens/reward_ui_screen_runtime.js';
 
 export const RewardUI = {
   showRewardScreen(mode = false, deps = {}) {

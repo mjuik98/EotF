@@ -40,6 +40,7 @@ describe('create_combat_turn_runtime', () => {
       data: deps.data,
       canPlay: deps.cardCostUtils.canPlay,
       classMechanics: deps.classMechanics,
+      endTurnPolicyOptions: expect.any(Object),
       resetChainUi: expect.any(Function),
       cleanupTurnUi: expect.any(Function),
       showEnemyTurnUi: expect.any(Function),
@@ -89,6 +90,7 @@ describe('create_combat_turn_runtime', () => {
       syncCombatEnergy: expect.any(Function),
       onTurnStart: expect.any(Function),
       onPlayerTurnStarted: expect.any(Function),
+      startPlayerTurn: expect.any(Function),
     }));
   });
 });

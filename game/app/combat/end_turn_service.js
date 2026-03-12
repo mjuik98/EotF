@@ -5,9 +5,11 @@ export function endPlayerTurnService({
   data,
   canPlay,
   classMechanics,
+  endTurnPolicyOptions,
 }) {
   const result = endPlayerTurnPolicy(gs, data, {
     canPlayFn: canPlay,
+    ...endTurnPolicyOptions,
   });
   if (!result) return null;
 

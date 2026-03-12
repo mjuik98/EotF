@@ -1,6 +1,10 @@
 import { endPlayerTurnUseCase } from '../../../app/combat/use_cases/end_player_turn_use_case.js';
 import { runEnemyTurnUseCase } from '../../../app/combat/use_cases/run_enemy_turn_use_case.js';
 import { createCombatTurnRuntimePorts } from '../platform/combat_turn_runtime_ports.js';
+import {
+  createEndPlayerTurnPolicyOptions,
+  createStartPlayerTurnAction,
+} from './player_turn_policy_actions.js';
 
 function buildCombatTurnRuntimePorts(runtime = {}) {
   const defaultPorts = createCombatTurnRuntimePorts();
@@ -20,11 +24,13 @@ function buildCombatTurnRuntimePorts(runtime = {}) {
 
 export function endPlayerTurnRuntime(deps = {}, runtime = {}) {
   const ports = buildCombatTurnRuntimePorts(runtime);
+  const endTurnPolicyOptions = runtime.endTurnPolicyOptions || createEndPlayerTurnPolicyOptions();
   return endPlayerTurnUseCase({
     gs: deps.gs,
     data: deps.data,
     canPlay: deps.cardCostUtils?.canPlay,
     classMechanics: deps.classMechanics,
+    endTurnPolicyOptions,
     resetChainUi: (value) => deps.updateChainUI?.(value),
     cleanupTurnUi: () => ports.cleanupTurnUi(deps),
     showEnemyTurnUi: () => ports.showEnemyTurnUi(deps),
@@ -36,6 +42,7 @@ export function endPlayerTurnRuntime(deps = {}, runtime = {}) {
 export async function enemyTurnRuntime(deps = {}, runtime = {}) {
   const ports = buildCombatTurnRuntimePorts(runtime);
   const gs = deps.gs;
+  const startPlayerTurn = runtime.startPlayerTurn || createStartPlayerTurnAction();
 
   return runEnemyTurnUseCase({
     gs,
@@ -56,7 +63,7 @@ export async function enemyTurnRuntime(deps = {}, runtime = {}) {
     syncCombatEnergy: () => ports.syncCombatEnergy(gs, deps),
     onTurnStart: () => deps.runRules?.onTurnStart?.(gs),
     onPlayerTurnStarted: () => ports.showPlayerTurnUi(gs, deps),
-    startPlayerTurn: runtime.startPlayerTurn,
+    startPlayerTurn,
   });
 }
 
