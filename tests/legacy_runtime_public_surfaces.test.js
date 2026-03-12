@@ -9,8 +9,19 @@ const hoisted = vi.hoisted(() => ({
   buildLegacyGameApiActionGroups: vi.fn(() => ({
     runActions: { startGame: vi.fn() },
   })),
+  composeLegacyGameApiPayload: vi.fn(({ actionGroups, queryBindings }) => ({
+    ...actionGroups,
+    queryBindings,
+  })),
+  buildLegacyMetricsQueryBindings: vi.fn(() => ({ getRuntimeMetrics: vi.fn(), resetRuntimeMetrics: vi.fn() })),
+  buildLegacySaveQueryBindings: vi.fn(() => ({ getSaveOutboxMetrics: vi.fn(), flushSaveOutbox: vi.fn() })),
+  composeLegacyGameApiQueryGroups: vi.fn((groups) => groups),
+  composeLegacyGameApiRuntimeQueryGroups: vi.fn((groups) => groups),
+  flattenLegacyGameApiQueryGroups: vi.fn((groups) => ({ ...groups.module, ...groups.runtime })),
+  flattenLegacyGameApiRuntimeQueryGroups: vi.fn((groups) => ({ ...groups.save, ...groups.metrics, ...groups.hud })),
   buildLegacySharedModuleQueries: vi.fn(() => ({ AudioEngine: { id: 'audio' } })),
   buildLegacyUtilityQueries: vi.fn(() => ({ DescriptionUtils: { id: 'desc' } })),
+  composeLegacyWindowQueryGroups: vi.fn((groups) => groups),
   mergeLegacyWindowQueryGroups: vi.fn((groups) => ({ ...groups.ui, ...groups.utility })),
   createLegacyGameApi: vi.fn((payload) => payload),
 }));
@@ -26,8 +37,16 @@ vi.mock('../game/platform/legacy/create_legacy_game_api.js', () => ({
 vi.mock('../game/shared/runtime/public.js', () => ({
   assignLegacyCompatSurface: hoisted.assignLegacyCompatSurface,
   buildLegacyGameApiActionGroups: hoisted.buildLegacyGameApiActionGroups,
+  composeLegacyGameApiPayload: hoisted.composeLegacyGameApiPayload,
+  buildLegacyMetricsQueryBindings: hoisted.buildLegacyMetricsQueryBindings,
+  buildLegacySaveQueryBindings: hoisted.buildLegacySaveQueryBindings,
+  composeLegacyGameApiQueryGroups: hoisted.composeLegacyGameApiQueryGroups,
+  composeLegacyGameApiRuntimeQueryGroups: hoisted.composeLegacyGameApiRuntimeQueryGroups,
   buildLegacySharedModuleQueries: hoisted.buildLegacySharedModuleQueries,
   buildLegacyUtilityQueries: hoisted.buildLegacyUtilityQueries,
+  composeLegacyWindowQueryGroups: hoisted.composeLegacyWindowQueryGroups,
+  flattenLegacyGameApiQueryGroups: hoisted.flattenLegacyGameApiQueryGroups,
+  flattenLegacyGameApiRuntimeQueryGroups: hoisted.flattenLegacyGameApiRuntimeQueryGroups,
   mergeLegacyWindowQueryGroups: hoisted.mergeLegacyWindowQueryGroups,
 }));
 
@@ -50,6 +69,17 @@ describe('legacy runtime public surfaces', () => {
     hoisted.buildLegacyGameApiActionGroups.mockReturnValue({
       runActions: { startGame: vi.fn() },
     });
+    hoisted.composeLegacyGameApiPayload.mockImplementation(({ actionGroups, queryBindings }) => ({
+      ...actionGroups,
+      queryBindings,
+    }));
+    hoisted.buildLegacyMetricsQueryBindings.mockReturnValue({ getRuntimeMetrics: vi.fn(), resetRuntimeMetrics: vi.fn() });
+    hoisted.buildLegacySaveQueryBindings.mockReturnValue({ getSaveOutboxMetrics: vi.fn(), flushSaveOutbox: vi.fn() });
+    hoisted.composeLegacyGameApiQueryGroups.mockImplementation((groups) => groups);
+    hoisted.composeLegacyGameApiRuntimeQueryGroups.mockImplementation((groups) => groups);
+    hoisted.composeLegacyWindowQueryGroups.mockImplementation((groups) => groups);
+    hoisted.flattenLegacyGameApiQueryGroups.mockImplementation((groups) => ({ ...groups.module, ...groups.runtime }));
+    hoisted.flattenLegacyGameApiRuntimeQueryGroups.mockImplementation((groups) => ({ ...groups.save, ...groups.metrics, ...groups.hud }));
     hoisted.mergeLegacyWindowQueryGroups.mockImplementation((groups) => ({ ...groups.ui, ...groups.utility }));
     hoisted.createLegacyGameApi.mockImplementation((payload) => payload);
   });
@@ -90,6 +120,10 @@ describe('legacy runtime public surfaces', () => {
       queryBindings,
     });
     expect(hoisted.buildLegacyGameApiActionGroups).toHaveBeenCalledWith(commandBindings);
+    expect(hoisted.composeLegacyGameApiPayload).toHaveBeenCalledWith({
+      actionGroups: expect.any(Object),
+      queryBindings,
+    });
   });
 
   it('routes legacy window query binding merge through shared runtime public bindings', () => {
@@ -100,9 +134,46 @@ describe('legacy runtime public surfaces', () => {
 
     attachLegacyWindowQueries(root, modules, fns, deps);
 
+    expect(hoisted.composeLegacyWindowQueryGroups).toHaveBeenCalledWith({
+      ui: expect.any(Object),
+      utility: expect.any(Object),
+    });
     expect(hoisted.mergeLegacyWindowQueryGroups).toHaveBeenCalledWith({
       ui: expect.any(Object),
       utility: expect.any(Object),
+    });
+  });
+
+  it('routes legacy game api query group composition and flattening through shared runtime bindings', async () => {
+    const { buildLegacyGameAPIQueryGroups } = await import('../game/platform/legacy/build_legacy_game_api_query_groups.js');
+    const { buildLegacyGameAPIRuntimeQueries } = await import('../game/platform/legacy/game_api_runtime_queries.js');
+    const { buildLegacyGameAPIQueryBindings } = await import('../game/platform/legacy/game_api_query_bindings.js');
+
+    const modules = {};
+    const deps = {};
+    const runtimeMetrics = {};
+
+    buildLegacyGameAPIQueryGroups(modules, deps, runtimeMetrics);
+    buildLegacyGameAPIRuntimeQueries(modules, deps, runtimeMetrics);
+    buildLegacyGameAPIQueryBindings(modules, deps, runtimeMetrics);
+
+    expect(hoisted.composeLegacyGameApiQueryGroups).toHaveBeenCalledWith({
+      module: expect.any(Object),
+      runtime: expect.any(Object),
+    });
+    expect(hoisted.composeLegacyGameApiRuntimeQueryGroups).toHaveBeenCalledWith({
+      save: expect.any(Object),
+      metrics: expect.any(Object),
+      hud: expect.any(Object),
+    });
+    expect(hoisted.flattenLegacyGameApiRuntimeQueryGroups).toHaveBeenCalledWith({
+      save: expect.any(Object),
+      metrics: expect.any(Object),
+      hud: expect.any(Object),
+    });
+    expect(hoisted.flattenLegacyGameApiQueryGroups).toHaveBeenCalledWith({
+      module: expect.any(Object),
+      runtime: expect.any(Object),
     });
   });
 

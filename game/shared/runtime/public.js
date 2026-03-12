@@ -1,3 +1,14 @@
+export {
+  composeLegacyGameApiQueryGroups,
+  composeLegacyGameApiPayload,
+  buildLegacyMetricsQueryBindings,
+  buildLegacySaveQueryBindings,
+  composeLegacyGameApiRuntimeQueryGroups,
+  composeLegacyWindowQueryGroups,
+  flattenLegacyGameApiQueryGroups,
+  flattenLegacyGameApiRuntimeQueryGroups,
+} from './legacy_query_groups.js';
+
 export function buildLegacySharedModuleQueries(modules) {
   return {
     AudioEngine: modules.AudioEngine,

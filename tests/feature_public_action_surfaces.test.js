@@ -6,9 +6,17 @@ const hoisted = vi.hoisted(() => ({
     showEnemyStatusTooltip: vi.fn(),
     updateEchoSkillBtn: vi.fn(),
   })),
+  buildCombatLegacyWindowQueryGroups: vi.fn(() => ({
+    combat: {
+      hideEnemyStatusTooltip: vi.fn(),
+      showEnemyStatusTooltip: vi.fn(),
+    },
+  })),
+  buildEventContractPublicBuilders: vi.fn(() => ({ event: vi.fn() })),
   buildCombatUiContractPublicBuilders: vi.fn(() => ({ hudUpdate: vi.fn() })),
   buildCombatRuntimeSubscriberPublicActions: vi.fn(() => ({ renderCombatCards: vi.fn() })),
   buildRunFlowContractPublicBuilders: vi.fn(() => ({ runStart: vi.fn() })),
+  buildRunReturnContractPublicBuilders: vi.fn(() => ({ runReturn: vi.fn() })),
   buildRunBootPublicActions: vi.fn(() => ({ drawCard: vi.fn() })),
   buildRunUiContractPublicBuilders: vi.fn(() => ({ worldCanvas: vi.fn() })),
   buildTitleBootPublicActions: vi.fn(() => ({ startGame: vi.fn() })),
@@ -18,6 +26,19 @@ const hoisted = vi.hoisted(() => ({
     processDirtyFlags: vi.fn(),
     _syncVolumeUI: vi.fn(),
     _resetCombatInfoPanel: vi.fn(),
+  })),
+  buildLegacyWindowUiQueryGroups: vi.fn(() => ({
+    hud: {
+      updateUI: vi.fn(),
+      _syncVolumeUI: vi.fn(),
+      _resetCombatInfoPanel: vi.fn(),
+    },
+  })),
+  buildLegacyGameApiRuntimeHudQueryGroups: vi.fn(() => ({
+    hud: {
+      updateUI: vi.fn(),
+      processDirtyFlags: vi.fn(),
+    },
   })),
   createLegacyUiCommandFacade: vi.fn(() => ({
     toggleHudPin: vi.fn(),
@@ -40,17 +61,20 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('../game/features/combat/public.js', () => ({
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
   buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+  buildCombatLegacyWindowQueryGroups: hoisted.buildCombatLegacyWindowQueryGroups,
   createCombatLegacyUiCompat: hoisted.createCombatLegacyUiCompat,
   createCombatPorts: hoisted.createCombatPorts,
   createCombatBindingsActions: hoisted.createCombatBindingsActions,
 }));
 
 vi.mock('../game/features/event/public.js', () => ({
+  buildEventContractPublicBuilders: hoisted.buildEventContractPublicBuilders,
   createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
 }));
 
 vi.mock('../game/features/run/public.js', () => ({
   buildRunFlowContractPublicBuilders: hoisted.buildRunFlowContractPublicBuilders,
+  buildRunReturnContractPublicBuilders: hoisted.buildRunReturnContractPublicBuilders,
   buildRunBootPublicActions: hoisted.buildRunBootPublicActions,
   buildRunUiContractPublicBuilders: hoisted.buildRunUiContractPublicBuilders,
   createRunCanvasBindings: hoisted.createRunCanvasBindings,
@@ -65,6 +89,8 @@ vi.mock('../game/features/title/public.js', () => ({
 vi.mock('../game/features/ui/public.js', () => ({
   buildUiShellContractPublicBuilders: hoisted.buildUiShellContractPublicBuilders,
   buildUiRuntimeSubscriberPublicActions: hoisted.buildUiRuntimeSubscriberPublicActions,
+  buildLegacyGameApiRuntimeHudQueryGroups: hoisted.buildLegacyGameApiRuntimeHudQueryGroups,
+  buildLegacyWindowUiQueryGroups: hoisted.buildLegacyWindowUiQueryGroups,
   createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
   createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
   createUiBindingContext: hoisted.createUiBindingContext,
@@ -77,6 +103,7 @@ import { createCanvasBindings } from '../game/core/bindings/canvas_bindings.js';
 import { applyEventRewardBindings } from '../game/core/bindings/event_reward_bindings_runtime.js';
 import { buildRuntimeSubscriberActionGroups } from '../game/core/bootstrap/build_runtime_subscriber_action_groups.js';
 import { buildGameBootActionGroups } from '../game/core/bootstrap/build_game_boot_action_groups.js';
+import { buildCoreContractBuilders } from '../game/core/deps/contracts/core_contract_builders.js';
 import { buildUiContractBuilders } from '../game/core/deps/contracts/ui_contract_builders.js';
 import { buildRunContractBuilders } from '../game/core/deps/contracts/run_contract_builders.js';
 import { createLegacyCombatCompat } from '../game/platform/legacy/adapters/create_legacy_combat_compat.js';
@@ -102,6 +129,12 @@ describe('feature public action surfaces', () => {
       showEnemyStatusTooltip: vi.fn(),
       updateEchoSkillBtn: vi.fn(),
     });
+    hoisted.buildCombatLegacyWindowQueryGroups.mockReturnValue({
+      combat: {
+        hideEnemyStatusTooltip: vi.fn(),
+        showEnemyStatusTooltip: vi.fn(),
+      },
+    });
     hoisted.createCombatPorts.mockReturnValue({
       getCombatDeps: vi.fn(() => ({ token: 'combat-deps' })),
       getHudDeps: vi.fn(() => ({ token: 'hud-deps' })),
@@ -110,12 +143,27 @@ describe('feature public action surfaces', () => {
     hoisted.createEventRewardBindingActions.mockReturnValue({ skipReward: vi.fn() });
     hoisted.buildCombatUiContractPublicBuilders.mockReturnValue({ hudUpdate: vi.fn() });
     hoisted.buildCombatRuntimeSubscriberPublicActions.mockReturnValue({ renderCombatCards: vi.fn() });
+    hoisted.buildEventContractPublicBuilders.mockReturnValue({ event: vi.fn() });
     hoisted.buildRunFlowContractPublicBuilders.mockReturnValue({ runStart: vi.fn() });
+    hoisted.buildRunReturnContractPublicBuilders.mockReturnValue({ runReturn: vi.fn() });
     hoisted.createLegacyHudRuntimeQueryBindings.mockReturnValue({
       updateUI: vi.fn(),
       processDirtyFlags: vi.fn(),
       _syncVolumeUI: vi.fn(),
       _resetCombatInfoPanel: vi.fn(),
+    });
+    hoisted.buildLegacyWindowUiQueryGroups.mockReturnValue({
+      hud: {
+        updateUI: vi.fn(),
+        _syncVolumeUI: vi.fn(),
+        _resetCombatInfoPanel: vi.fn(),
+      },
+    });
+    hoisted.buildLegacyGameApiRuntimeHudQueryGroups.mockReturnValue({
+      hud: {
+        updateUI: vi.fn(),
+        processDirtyFlags: vi.fn(),
+      },
     });
     hoisted.createLegacyUiCommandFacade.mockReturnValue({
       toggleHudPin: vi.fn(),
@@ -221,6 +269,26 @@ describe('feature public action surfaces', () => {
     expect(hoisted.buildRunFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
   });
 
+  it('routes core event and runReturn contract builders through feature public facades', () => {
+    const ctx = {
+      getRefs: () => ({}),
+      buildBaseDeps: vi.fn(() => ({})),
+      getCombatDeps: vi.fn(() => ({})),
+      getEventDeps: vi.fn(() => ({})),
+      getRunDeps: vi.fn(() => ({})),
+      getUiDeps: vi.fn(() => ({})),
+      getHudDeps: vi.fn(() => ({})),
+      getRaf: vi.fn(() => vi.fn()),
+    };
+
+    const builders = buildCoreContractBuilders(ctx);
+
+    expect(builders.event).toBe(hoisted.buildEventContractPublicBuilders.mock.results[0].value.event);
+    expect(builders.runReturn).toBe(hoisted.buildRunReturnContractPublicBuilders.mock.results[0].value.runReturn);
+    expect(hoisted.buildEventContractPublicBuilders).toHaveBeenCalledWith(ctx);
+    expect(hoisted.buildRunReturnContractPublicBuilders).toHaveBeenCalledWith(ctx);
+  });
+
   it('routes legacy combat compat through the combat feature public facade', () => {
     const combatUiCompat = {
       hideEnemyStatusTooltip: vi.fn(),
@@ -250,11 +318,11 @@ describe('feature public action surfaces', () => {
 
     const groups = buildLegacyWindowUIQueryGroups(modules, fns, deps);
 
-    expect(hoisted.createLegacyHudRuntimeQueryBindings).toHaveBeenCalledWith({ modules, deps, fns });
-    expect(hoisted.createCombatLegacyUiCompat).toHaveBeenCalledWith(modules);
-    expect(groups.hud.updateUI).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value.updateUI);
-    expect(groups.hud._syncVolumeUI).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value._syncVolumeUI);
-    expect(groups.hud._resetCombatInfoPanel).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value._resetCombatInfoPanel);
+    expect(hoisted.buildLegacyWindowUiQueryGroups).toHaveBeenCalledWith({ modules, deps, fns });
+    expect(hoisted.buildCombatLegacyWindowQueryGroups).toHaveBeenCalledWith(modules);
+    expect(groups.hud.updateUI).toBe(hoisted.buildLegacyWindowUiQueryGroups.mock.results[0].value.hud.updateUI);
+    expect(groups.hud._syncVolumeUI).toBe(hoisted.buildLegacyWindowUiQueryGroups.mock.results[0].value.hud._syncVolumeUI);
+    expect(groups.hud._resetCombatInfoPanel).toBe(hoisted.buildLegacyWindowUiQueryGroups.mock.results[0].value.hud._resetCombatInfoPanel);
   });
 
   it('routes legacy runtime query groups through the ui feature public facade', () => {
@@ -269,9 +337,9 @@ describe('feature public action surfaces', () => {
 
     const groups = buildLegacyGameAPIRuntimeQueryGroups(modules, deps, runtimeMetrics);
 
-    expect(hoisted.createLegacyHudRuntimeQueryBindings).toHaveBeenCalledWith({ modules, deps });
-    expect(groups.hud.updateUI).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value.updateUI);
-    expect(groups.hud.processDirtyFlags).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value.processDirtyFlags);
+    expect(hoisted.buildLegacyGameApiRuntimeHudQueryGroups).toHaveBeenCalledWith({ modules, deps });
+    expect(groups.hud.updateUI).toBe(hoisted.buildLegacyGameApiRuntimeHudQueryGroups.mock.results[0].value.hud.updateUI);
+    expect(groups.hud.processDirtyFlags).toBe(hoisted.buildLegacyGameApiRuntimeHudQueryGroups.mock.results[0].value.hud.processDirtyFlags);
   });
 
   it('routes legacy ui commands through the ui feature public facade', () => {

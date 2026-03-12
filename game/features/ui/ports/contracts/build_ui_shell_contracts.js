@@ -1,4 +1,5 @@
 import { playClassSelect } from '../../../../domain/audio/audio_event_helpers.js';
+import { buildTitleHelpPauseActions } from '../../../title/application/help_pause_title_actions.js';
 
 export function buildUiShellContractBuilders(ctx) {
   const {
@@ -73,9 +74,15 @@ export function buildUiShellContractBuilders(ctx) {
 
     helpPause: () => {
       const refs = getRefs();
-      const restartEndingFlow = refs.restartEndingFlow || refs.restartFromEnding;
-      const selectEndingFragment = refs.selectEndingFragment || refs.selectFragment;
-      const openEndingCodex = refs.openEndingCodex || refs.openCodex;
+      const titleActions = buildTitleHelpPauseActions({
+        returnToTitleFromPause: () => refs.returnToTitleFromPause?.(),
+        restartEndingFlow: refs.restartEndingFlow || refs.restartFromEnding,
+        restartFromEnding: refs.restartFromEnding,
+        selectEndingFragment: refs.selectEndingFragment || refs.selectFragment,
+        selectFragment: refs.selectFragment,
+        openEndingCodex: refs.openEndingCodex || refs.openCodex,
+        openCodex: refs.openCodex,
+      });
       return {
         ...buildBaseDeps('run'),
         audioEngine: refs.AudioEngine,
@@ -102,16 +109,8 @@ export function buildUiShellContractBuilders(ctx) {
           gs: override.gs || refs.GS,
           isGameStarted: () => refs._gameStarted?.(),
         }),
-        returnToTitleFromPause: () => refs.returnToTitleFromPause?.(),
         clearActiveRunSave: () => refs.SaveSystem?.clearSave?.(),
-        restartEndingFlow: () => restartEndingFlow?.(),
-        selectEndingFragment: (effect) => selectEndingFragment?.(effect),
-        openEndingCodex: () => openEndingCodex?.(),
-        endingActions: {
-          restart: () => restartEndingFlow?.(),
-          selectFragment: (effect) => selectEndingFragment?.(effect),
-          openCodex: () => openEndingCodex?.(),
-        },
+        ...titleActions,
         restartFromEnding: refs.restartFromEnding,
         selectFragment: refs.selectFragment,
         switchScreen: refs.switchScreen,

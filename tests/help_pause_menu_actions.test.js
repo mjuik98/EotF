@@ -1,43 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  closePauseMenuRuntime,
-  createPauseMenuRuntimeCallbacks,
-  saveRunBeforeReturnRuntime,
-  swallowEscapeEvent,
-} from '../game/ui/screens/help_pause_menu_runtime_ui.js';
 
-describe('help_pause_menu_runtime_ui', () => {
-  it('uses injected saveRun when returning to title', () => {
-    const depsSaveRun = vi.fn();
-    expect(saveRunBeforeReturnRuntime({ gs: { currentScreen: 'game' }, saveRun: depsSaveRun })).toBe(true);
-    expect(depsSaveRun).toHaveBeenCalledWith({
-      gs: { currentScreen: 'game' },
-    });
-  });
+import { createTitlePauseMenuActions } from '../game/features/title/application/help_pause_menu_actions.js';
 
-  it('closes the pause menu and swallows escape events', () => {
-    const remove = vi.fn();
-    const onClose = vi.fn();
-    const doc = {
-      getElementById: vi.fn((id) => (id === 'pauseMenu' ? { remove } : null)),
-    };
-    const event = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      stopImmediatePropagation: vi.fn(),
-    };
-
-    closePauseMenuRuntime(doc, onClose);
-    swallowEscapeEvent(event);
-
-    expect(remove).toHaveBeenCalledTimes(1);
-    expect(onClose).toHaveBeenCalledTimes(1);
-    expect(event.preventDefault).toHaveBeenCalledTimes(1);
-    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-    expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
-  });
-
-  it('creates pause menu callbacks that route through the UI and deps surface', () => {
+describe('help_pause_menu_actions', () => {
+  it('builds pause menu callbacks around title help/pause actions', () => {
     const deps = {
       showDeckView: vi.fn(),
       openCodex: vi.fn(),
@@ -46,6 +12,7 @@ describe('help_pause_menu_runtime_ui', () => {
       setMasterVolume: vi.fn(),
       setSfxVolume: vi.fn(),
       setAmbientVolume: vi.fn(),
+      returnToTitleFromPause: vi.fn(() => true),
     };
     const ui = {
       togglePause: vi.fn(),
@@ -54,7 +21,7 @@ describe('help_pause_menu_runtime_ui', () => {
       confirmReturnToTitle: vi.fn(),
     };
 
-    const callbacks = createPauseMenuRuntimeCallbacks({ deps, ui });
+    const callbacks = createTitlePauseMenuActions({ deps, ui });
     callbacks.onResume();
     callbacks.onOpenDeck();
     callbacks.onOpenCodex();

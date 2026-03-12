@@ -5,7 +5,10 @@ import { TitleCanvasUI } from '../../ui/title/title_canvas_ui.js';
 import { GameCanvasSetupUI } from '../../ui/title/game_canvas_setup_ui.js';
 import { buildTitleBootActions } from './app/build_title_boot_actions.js';
 import { createTitleActions } from './app/create_title_actions.js';
+import { createTitlePauseMenuActions } from './application/help_pause_menu_actions.js';
+import { buildTitleHelpPauseActions } from './application/help_pause_title_actions.js';
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
+import { buildTitleStoryContractBuilders } from './ports/contracts/build_title_story_contracts.js';
 import { createTitlePorts } from './ports/create_title_ports.js';
 
 export function createTitleFeatureFacade() {
@@ -19,9 +22,12 @@ export function createTitleFeatureFacade() {
     },
     contracts: {
       buildRun: buildTitleRunContractPublicBuilders,
+      buildStory: buildTitleStoryContractPublicBuilders,
     },
     runtime: {
       buildBootActions: buildTitleBootPublicActions,
+      buildHelpPauseActions: buildTitleHelpPausePublicActions,
+      buildPauseMenuActions: buildTitlePauseMenuPublicActions,
     },
   };
 }
@@ -53,6 +59,18 @@ export function buildTitleRunContractPublicBuilders(ctx) {
   return buildTitleRunContractBuilders(ctx);
 }
 
+export function buildTitleStoryContractPublicBuilders(ctx) {
+  return buildTitleStoryContractBuilders(ctx);
+}
+
+export function buildTitleHelpPausePublicActions(deps = {}) {
+  return buildTitleHelpPauseActions(deps);
+}
+
+export function buildTitlePauseMenuPublicActions(options = {}) {
+  return createTitlePauseMenuActions(options);
+}
+
 export {
   ClassSelectUI,
   CharacterSelectUI,
@@ -60,7 +78,10 @@ export {
   GameBootUI,
   TitleCanvasUI,
   buildTitleBootActions,
+  buildTitleHelpPauseActions,
+  createTitlePauseMenuActions,
   buildTitleRunContractBuilders,
+  buildTitleStoryContractBuilders,
   createTitleActions,
   createTitlePorts,
 };

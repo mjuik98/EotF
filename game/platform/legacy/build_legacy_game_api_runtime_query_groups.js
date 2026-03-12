@@ -1,20 +1,16 @@
-import { createLegacyHudRuntimeQueryBindings } from '../../features/ui/public.js';
+import { buildLegacyGameApiRuntimeHudQueryGroups } from '../../features/ui/public.js';
+import {
+  buildLegacyMetricsQueryBindings,
+  buildLegacySaveQueryBindings,
+  composeLegacyGameApiRuntimeQueryGroups,
+} from '../../shared/runtime/public.js';
 
 export function buildLegacyGameAPIRuntimeQueryGroups(modules, deps, runtimeMetrics) {
-  const hudQueries = createLegacyHudRuntimeQueryBindings({ modules, deps });
+  const hudGroups = buildLegacyGameApiRuntimeHudQueryGroups({ modules, deps });
 
-  return {
-    save: {
-      getSaveOutboxMetrics: () => modules.SaveSystem?.getOutboxMetrics?.() || null,
-      flushSaveOutbox: () => modules.SaveSystem?.flushOutbox?.() || 0,
-    },
-    metrics: {
-      getRuntimeMetrics: (options) => runtimeMetrics.getRuntimeMetrics(options),
-      resetRuntimeMetrics: () => runtimeMetrics.resetRuntimeMetrics(),
-    },
-    hud: {
-      updateUI: hudQueries.updateUI,
-      processDirtyFlags: hudQueries.processDirtyFlags,
-    },
-  };
+  return composeLegacyGameApiRuntimeQueryGroups({
+    save: buildLegacySaveQueryBindings(modules),
+    metrics: buildLegacyMetricsQueryBindings(runtimeMetrics),
+    hud: hudGroups.hud,
+  });
 }

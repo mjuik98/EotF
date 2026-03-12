@@ -1,5 +1,10 @@
 import { createUiActions } from './app/ui_actions.js';
 import { buildUiRuntimeSubscriberActions } from './app/build_runtime_subscriber_actions.js';
+import {
+  buildLegacyGameApiRuntimeHudQueryGroups,
+  buildLegacyWindowUiQueryGroups,
+  createLegacyHudRuntimeQueryBindings,
+} from './app/legacy_query_groups.js';
 import { buildUiShellContractBuilders } from './ports/contracts/build_ui_shell_contracts.js';
 import { createUiPorts } from './ports/create_ui_ports.js';
 
@@ -53,18 +58,12 @@ export function createLegacyUiCommandFacade({
   };
 }
 
-export function createLegacyHudRuntimeQueryBindings({ modules, deps, fns = {} }) {
-  return {
-    updateUI: () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
-    processDirtyFlags: () => modules.HudUpdateUI?.processDirtyFlags?.(deps.getHudUpdateDeps()),
-    _syncVolumeUI: () => modules.GameInit?.syncVolumeUI?.(modules.AudioEngine),
-    _resetCombatInfoPanel: fns._resetCombatInfoPanel,
-  };
-}
-
 export {
+  buildLegacyGameApiRuntimeHudQueryGroups,
+  buildLegacyWindowUiQueryGroups,
   buildUiRuntimeSubscriberActions,
   buildUiShellContractBuilders,
   createUiActions,
+  createLegacyHudRuntimeQueryBindings,
   createUiPorts,
 };

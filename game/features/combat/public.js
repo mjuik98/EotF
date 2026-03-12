@@ -12,6 +12,10 @@ import {
 } from './app/game_state_card_actions.js';
 import { buildCombatUiContractBuilders } from './ports/contracts/build_combat_ui_contracts.js';
 import { createCombatPorts } from './ports/create_combat_ports.js';
+import {
+  buildCombatLegacyWindowQueryGroups,
+  createCombatLegacyUiCompat,
+} from './platform/legacy_window_query_groups.js';
 import { CombatStartUI } from '../../ui/combat/combat_start_ui.js';
 import { CombatUI } from '../../ui/combat/combat_ui.js';
 import { CombatHudUI } from '../../ui/combat/combat_hud_ui.js';
@@ -41,6 +45,9 @@ export function createCombatFeatureFacade() {
     },
     contracts: {
       buildUi: buildCombatUiContractPublicBuilders,
+    },
+    legacy: {
+      buildWindowQueryGroups: buildCombatLegacyWindowQueryGroups,
     },
     runtime: {
       buildSubscriberActions: buildCombatRuntimeSubscriberPublicActions,
@@ -90,24 +97,6 @@ export function buildCombatUiContractPublicBuilders(ctx) {
   return buildCombatUiContractBuilders(ctx);
 }
 
-export function createCombatLegacyUiCompat(modules) {
-  const ports = createCombatPorts(modules);
-
-  return {
-    hideEnemyStatusTooltip() {
-      modules.CombatUI?.hideEnemyStatusTooltip?.(ports.getCombatDeps());
-    },
-
-    showEnemyStatusTooltip(event, statusKey) {
-      modules.CombatUI?.showEnemyStatusTooltip?.(event, statusKey, ports.getCombatDeps());
-    },
-
-    updateEchoSkillBtn(overrideDeps) {
-      modules.CombatHudUI?.updateEchoSkillBtn?.(overrideDeps || ports.getHudDeps());
-    },
-  };
-}
-
 export {
   CardTargetUI,
   CardUI,
@@ -126,7 +115,9 @@ export {
   TooltipUI,
   buildCombatUiContractBuilders,
   buildCombatRuntimeSubscriberActions,
+  buildCombatLegacyWindowQueryGroups,
   createCombatActions,
+  createCombatLegacyUiCompat,
   createCombatPorts,
   discardStateCard,
   drawStateCards,

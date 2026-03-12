@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-12T06:36:56.200Z
-- Nodes: 635
-- Edges: 994
+- Generated: 2026-03-12T07:28:45.410Z
+- Nodes: 649
+- Edges: 1024
 
 ## Layer Edges
 
@@ -31,7 +31,7 @@
 | core->combat | 3 |
 | core->core | 133 |
 | core->domain | 4 |
-| core->feature | 16 |
+| core->feature | 19 |
 | core->legacy | 4 |
 | core->other | 1 |
 | core->shared | 1 |
@@ -55,20 +55,20 @@
 | feature->combat | 5 |
 | feature->core | 6 |
 | feature->data | 2 |
-| feature->domain | 13 |
-| feature->feature | 57 |
+| feature->domain | 14 |
+| feature->feature | 76 |
 | feature->other | 1 |
 | feature->presentation | 3 |
-| feature->shared | 7 |
+| feature->shared | 9 |
 | feature->state | 1 |
 | feature->systems | 4 |
-| feature->ui | 35 |
+| feature->ui | 37 |
 | feature->utils | 5 |
 | legacy->core | 1 |
 | legacy->domain | 1 |
 | legacy->feature | 7 |
 | legacy->legacy | 52 |
-| legacy->shared | 9 |
+| legacy->shared | 14 |
 | legacy->utils | 3 |
 | platform->combat | 1 |
 | platform->core | 4 |
@@ -104,11 +104,11 @@
 | ui->data | 37 |
 | ui->domain | 16 |
 | ui->engine | 1 |
-| ui->feature | 5 |
+| ui->feature | 9 |
 | ui->other | 5 |
 | ui->presentation | 3 |
-| ui->shared | 4 |
-| ui->ui | 234 |
+| ui->shared | 2 |
+| ui->ui | 230 |
 | ui->utils | 22 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -118,12 +118,12 @@
 
 | File | Out Degree |
 |---|---:|
-| game/features/combat/public.js | 25 |
-| game/features/run/public.js | 20 |
+| game/features/combat/public.js | 26 |
+| game/features/run/public.js | 23 |
+| game/features/title/public.js | 12 |
 | game/ui/title/character_select_ui.js | 12 |
 | game/features/combat/application/death_flow_actions.js | 11 |
 | data/events_data.js | 9 |
-| game/features/title/public.js | 9 |
 | game/systems/run_rules.js | 9 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
@@ -138,16 +138,16 @@
 
 | File | In Degree |
 |---|---:|
-| game/domain/audio/audio_event_helpers.js | 34 |
+| game/domain/audio/audio_event_helpers.js | 35 |
 | data/game_data.js | 14 |
 | game/shared/state/public.js | 13 |
 | game/utils/log_utils.js | 12 |
 | game/features/combat/public.js | 11 |
+| game/shared/runtime/public.js | 11 |
 | game/systems/codex_records_system.js | 11 |
 | game/utils/logger.js | 10 |
 | data/rarity_meta.js | 9 |
 | game/shared/state/runtime_flow_controls.js | 9 |
-| game/ui/screens/help_pause_ui_helpers.js | 9 |
 | data/status_effects_data.js | 8 |
 | data/status_key_data.js | 8 |
 | game/core/deps_factory.js | 8 |

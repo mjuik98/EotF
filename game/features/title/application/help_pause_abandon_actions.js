@@ -1,0 +1,41 @@
+import { removeFloatingPlayerHpPanel } from '../../../ui/shared/player_hp_panel_ui.js';
+import { cleanupCombatAfterAbandon } from '../../combat/application/help_pause_abandon_combat_actions.js';
+import { showAbandonOutcome } from '../presentation/browser/abandon_outcome_presenter.js';
+
+function resolveDoc(deps = {}) {
+  return deps.doc || deps.win?.document || null;
+}
+
+function resolveGs(deps = {}) {
+  return deps.gs || deps.state || deps.State || null;
+}
+
+function clearActiveRunSave(deps = {}) {
+  if (typeof deps.clearActiveRunSave === 'function') {
+    deps.clearActiveRunSave();
+    return;
+  }
+
+  const saveSystem = deps.saveSystem || deps.SaveSystem || null;
+  saveSystem?.clearSave?.();
+}
+
+export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {}) {
+  const gs = resolveGs(deps);
+  if (!gs) return false;
+
+  const doc = resolveDoc(deps);
+  doc?.getElementById?.('abandonConfirm')?.remove();
+  onClosePauseMenu(doc);
+
+  cleanupCombatAfterAbandon({ ...deps, doc, gs });
+  removeFloatingPlayerHpPanel({ doc });
+
+  if (typeof deps.finalizeRunOutcome === 'function') {
+    deps.finalizeRunOutcome('defeat', { echoFragments: 2, abandoned: true }, { gs });
+  }
+
+  clearActiveRunSave(deps);
+  const presentAbandonOutcome = deps.showAbandonOutcome || showAbandonOutcome;
+  return presentAbandonOutcome(deps);
+}

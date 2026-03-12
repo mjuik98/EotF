@@ -1,8 +1,11 @@
-import { buildLegacyGameApiActionGroups } from '../../shared/runtime/public.js';
+import {
+  buildLegacyGameApiActionGroups,
+  composeLegacyGameApiPayload,
+} from '../../shared/runtime/public.js';
 
 export function buildLegacyGameApiPayload({ commandBindings, queryBindings }) {
-  return {
-    ...buildLegacyGameApiActionGroups(commandBindings),
+  return composeLegacyGameApiPayload({
+    actionGroups: buildLegacyGameApiActionGroups(commandBindings),
     queryBindings,
-  };
+  });
 }

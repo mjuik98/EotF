@@ -1,4 +1,7 @@
 import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
+import { buildEventContractPublicBuilders } from '../../../features/event/public.js';
+import { buildRunReturnContractPublicBuilders } from '../../../features/run/public.js';
+import { buildTitleStoryContractBuilders } from '../../../features/title/ports/contracts/build_title_story_contracts.js';
 import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
 
 export function buildCoreContractBuilders(ctx) {
@@ -12,34 +15,16 @@ export function buildCoreContractBuilders(ctx) {
     getHudDeps,
     getRaf,
   } = ctx;
+  const eventContractBuilders = buildEventContractPublicBuilders(ctx);
+  const runReturnContractBuilders = buildRunReturnContractPublicBuilders(ctx);
+  const titleContractBuilders = buildTitleStoryContractBuilders(ctx);
 
   return {
     base: () => ({
       ...buildBaseDeps('run'),
     }),
 
-    story: () => {
-      const refs = getRefs();
-      const restartEndingFlow = refs.restartEndingFlow || refs.restartFromEnding;
-      const selectEndingFragment = refs.selectEndingFragment || refs.selectFragment;
-      const openEndingCodex = refs.openEndingCodex || refs.openCodex;
-      return {
-        ...buildBaseDeps('run'),
-        audioEngine: refs.AudioEngine,
-        particleSystem: refs.ParticleSystem,
-        showWorldMemoryNotice: refs.showWorldMemoryNotice,
-        restartEndingFlow: () => restartEndingFlow?.(),
-        selectEndingFragment: (effect) => selectEndingFragment?.(effect),
-        openEndingCodex: () => openEndingCodex?.(),
-        endingActions: {
-          restart: () => restartEndingFlow?.(),
-          selectFragment: (effect) => selectEndingFragment?.(effect),
-          openCodex: () => openEndingCodex?.(),
-        },
-        restartFromEnding: refs.restartFromEnding,
-        openCodex: refs.openCodex,
-      };
-    },
+    story: titleContractBuilders.story,
 
     combatTurnBase: () => {
       const refs = getRefs();
@@ -63,25 +48,7 @@ export function buildCoreContractBuilders(ctx) {
       };
     },
 
-    event: () => {
-      const refs = getRefs();
-      return {
-        ...buildBaseDeps('event'),
-        runRules: refs.RunRules,
-        updateUI: refs.updateUI,
-        showGameplayScreen: () => refs.switchScreen?.('game'),
-        returnToGame: refs.returnToGame,
-        switchScreen: refs.switchScreen,
-        renderMinimap: refs.renderMinimap,
-        updateNextNodes: refs.updateNextNodes,
-        showItemToast: refs.showItemToast,
-        audioEngine: refs.AudioEngine,
-        screenShake: refs.ScreenShake,
-        descriptionUtils: refs.DescriptionUtils,
-        requestAnimationFrame: getRaf(),
-        playItemGet: () => playUiItemGet(refs.AudioEngine),
-      };
-    },
+    event: eventContractBuilders.event,
 
     reward: () => {
       const refs = getRefs();
@@ -103,19 +70,7 @@ export function buildCoreContractBuilders(ctx) {
       };
     },
 
-    runReturn: () => {
-      const refs = getRefs();
-      return {
-        ...buildBaseDeps('run'),
-        storySystem: refs.StorySystem,
-        finalizeRunOutcome: refs.finalizeRunOutcome,
-        advanceToNextRegion: refs.advanceToNextRegion,
-        getBaseRegionIndex: refs.getBaseRegionIndex,
-        getRegionCount: refs.getRegionCount,
-        updateNextNodes: refs.updateNextNodes,
-        renderMinimap: refs.renderMinimap,
-      };
-    },
+    runReturn: runReturnContractBuilders.runReturn,
 
     saveSystem: () => {
       const refs = getRefs();

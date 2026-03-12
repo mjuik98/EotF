@@ -1,5 +1,5 @@
 {
-  "total": 433,
+  "total": 448,
   "byPair": {
     "app->core": 1,
     "app->data": 2,
@@ -19,7 +19,7 @@
     "combat->utils": 6,
     "core->combat": 3,
     "core->domain": 4,
-    "core->feature": 16,
+    "core->feature": 19,
     "core->legacy": 4,
     "core->shared": 1,
     "core->systems": 1,
@@ -38,17 +38,17 @@
     "feature->combat": 5,
     "feature->core": 6,
     "feature->data": 2,
-    "feature->domain": 13,
+    "feature->domain": 14,
     "feature->presentation": 3,
-    "feature->shared": 7,
+    "feature->shared": 9,
     "feature->state": 1,
     "feature->systems": 4,
-    "feature->ui": 35,
+    "feature->ui": 37,
     "feature->utils": 5,
     "legacy->core": 1,
     "legacy->domain": 1,
     "legacy->feature": 7,
-    "legacy->shared": 9,
+    "legacy->shared": 14,
     "legacy->utils": 3,
     "platform->combat": 1,
     "platform->core": 4,
@@ -80,12 +80,12 @@
     "ui->data": 37,
     "ui->domain": 16,
     "ui->engine": 1,
-    "ui->feature": 5,
+    "ui->feature": 9,
     "ui->presentation": 3,
-    "ui->shared": 4,
+    "ui->shared": 2,
     "ui->utils": 22,
     "utils->core": 1,
     "utils->data": 2
   },
-  "generatedAt": "2026-03-12T06:36:57.383Z"
+  "generatedAt": "2026-03-12T07:28:36.028Z"
 }
