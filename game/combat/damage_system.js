@@ -1,4 +1,4 @@
-import { Actions } from '../core/state_actions.js';
+import { Actions } from '../shared/state/public.js';
 import { Logger } from '../utils/logger.js';
 import { LogUtils } from '../utils/log_utils.js';
 import {

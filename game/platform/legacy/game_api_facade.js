@@ -1,13 +1,6 @@
-import { buildLegacyGameAPICombatFacade } from './game_api_combat_facade.js';
-import { buildLegacyGameAPIPlayerFacade } from './game_api_player_facade.js';
-import { buildLegacyGameAPIScreenFacade } from './game_api_screen_facade.js';
-import { buildLegacyGameAPIUIFacade } from './game_api_ui_facade.js';
+import { buildLegacyGameApiCompatPayload } from './build_legacy_game_api_compat_payload.js';
+import { createLegacyGameApi } from './create_legacy_game_api.js';
 
 export function buildLegacyGameAPIFacade(apiRef) {
-  return {
-    ...buildLegacyGameAPIPlayerFacade(apiRef),
-    ...buildLegacyGameAPICombatFacade(apiRef),
-    ...buildLegacyGameAPIScreenFacade(),
-    ...buildLegacyGameAPIUIFacade(),
-  };
+  return createLegacyGameApi(buildLegacyGameApiCompatPayload(apiRef));
 }

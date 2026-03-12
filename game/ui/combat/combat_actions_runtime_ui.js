@@ -1,4 +1,4 @@
-import { Actions } from '../../core/state_actions.js';
+import { Actions } from '../../shared/state/public.js';
 import { resolveDrawAvailability } from './draw_availability.js';
 
 export function performCombatDrawCard(gs) {

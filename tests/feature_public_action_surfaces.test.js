@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
+  createCombatLegacyUiCompat: vi.fn(() => ({
+    hideEnemyStatusTooltip: vi.fn(),
+    showEnemyStatusTooltip: vi.fn(),
+    updateEchoSkillBtn: vi.fn(),
+  })),
   buildCombatUiContractPublicBuilders: vi.fn(() => ({ hudUpdate: vi.fn() })),
   buildCombatRuntimeSubscriberPublicActions: vi.fn(() => ({ renderCombatCards: vi.fn() })),
   buildRunFlowContractPublicBuilders: vi.fn(() => ({ runStart: vi.fn() })),
@@ -8,6 +13,17 @@ const hoisted = vi.hoisted(() => ({
   buildRunUiContractPublicBuilders: vi.fn(() => ({ worldCanvas: vi.fn() })),
   buildTitleBootPublicActions: vi.fn(() => ({ startGame: vi.fn() })),
   buildTitleRunContractPublicBuilders: vi.fn(() => ({ runMode: vi.fn() })),
+  createLegacyHudRuntimeQueryBindings: vi.fn(() => ({
+    updateUI: vi.fn(),
+    processDirtyFlags: vi.fn(),
+    _syncVolumeUI: vi.fn(),
+    _resetCombatInfoPanel: vi.fn(),
+  })),
+  createLegacyUiCommandFacade: vi.fn(() => ({
+    toggleHudPin: vi.fn(),
+    closeDeckView: vi.fn(),
+    closeCodex: vi.fn(),
+  })),
   buildUiShellContractPublicBuilders: vi.fn(() => ({ settings: vi.fn() })),
   buildUiRuntimeSubscriberPublicActions: vi.fn(() => ({ updateUI: vi.fn() })),
   createCombatPorts: vi.fn(() => ({
@@ -24,6 +40,7 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('../game/features/combat/public.js', () => ({
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
   buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+  createCombatLegacyUiCompat: hoisted.createCombatLegacyUiCompat,
   createCombatPorts: hoisted.createCombatPorts,
   createCombatBindingsActions: hoisted.createCombatBindingsActions,
 }));
@@ -48,6 +65,8 @@ vi.mock('../game/features/title/public.js', () => ({
 vi.mock('../game/features/ui/public.js', () => ({
   buildUiShellContractPublicBuilders: hoisted.buildUiShellContractPublicBuilders,
   buildUiRuntimeSubscriberPublicActions: hoisted.buildUiRuntimeSubscriberPublicActions,
+  createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
+  createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
   createUiBindingContext: hoisted.createUiBindingContext,
 }));
 
@@ -61,6 +80,13 @@ import { buildGameBootActionGroups } from '../game/core/bootstrap/build_game_boo
 import { buildUiContractBuilders } from '../game/core/deps/contracts/ui_contract_builders.js';
 import { buildRunContractBuilders } from '../game/core/deps/contracts/run_contract_builders.js';
 import { createLegacyCombatCompat } from '../game/platform/legacy/adapters/create_legacy_combat_compat.js';
+import { buildLegacyWindowUIQueryGroups } from '../game/platform/legacy/build_legacy_window_ui_query_groups.js';
+import { buildLegacyGameAPIRuntimeQueryGroups } from '../game/platform/legacy/build_legacy_game_api_runtime_query_groups.js';
+import {
+  closeCodex,
+  closeDeckView,
+  toggleHudPin,
+} from '../game/platform/legacy/game_api/ui_commands.js';
 
 describe('feature public action surfaces', () => {
   beforeEach(() => {
@@ -71,6 +97,11 @@ describe('feature public action surfaces', () => {
     });
     hoisted.createTitleBindings.mockReturnValue({ openSettings: vi.fn() });
     hoisted.createCombatBindingsActions.mockReturnValue({ startCombat: vi.fn() });
+    hoisted.createCombatLegacyUiCompat.mockReturnValue({
+      hideEnemyStatusTooltip: vi.fn(),
+      showEnemyStatusTooltip: vi.fn(),
+      updateEchoSkillBtn: vi.fn(),
+    });
     hoisted.createCombatPorts.mockReturnValue({
       getCombatDeps: vi.fn(() => ({ token: 'combat-deps' })),
       getHudDeps: vi.fn(() => ({ token: 'hud-deps' })),
@@ -80,6 +111,17 @@ describe('feature public action surfaces', () => {
     hoisted.buildCombatUiContractPublicBuilders.mockReturnValue({ hudUpdate: vi.fn() });
     hoisted.buildCombatRuntimeSubscriberPublicActions.mockReturnValue({ renderCombatCards: vi.fn() });
     hoisted.buildRunFlowContractPublicBuilders.mockReturnValue({ runStart: vi.fn() });
+    hoisted.createLegacyHudRuntimeQueryBindings.mockReturnValue({
+      updateUI: vi.fn(),
+      processDirtyFlags: vi.fn(),
+      _syncVolumeUI: vi.fn(),
+      _resetCombatInfoPanel: vi.fn(),
+    });
+    hoisted.createLegacyUiCommandFacade.mockReturnValue({
+      toggleHudPin: vi.fn(),
+      closeDeckView: vi.fn(),
+      closeCodex: vi.fn(),
+    });
     hoisted.buildUiRuntimeSubscriberPublicActions.mockReturnValue({ updateUI: vi.fn() });
     hoisted.buildRunUiContractPublicBuilders.mockReturnValue({ worldCanvas: vi.fn() });
     hoisted.buildTitleBootPublicActions.mockReturnValue({ startGame: vi.fn() });
@@ -180,19 +222,13 @@ describe('feature public action surfaces', () => {
   });
 
   it('routes legacy combat compat through the combat feature public facade', () => {
-    const combatDeps = { token: 'combat-deps' };
-    const hudDeps = { token: 'hud-deps' };
-    const getCombatDeps = vi.fn(() => combatDeps);
-    const getHudDeps = vi.fn(() => hudDeps);
-    hoisted.createCombatPorts.mockReturnValue({ getCombatDeps, getHudDeps });
+    const combatUiCompat = {
+      hideEnemyStatusTooltip: vi.fn(),
+      showEnemyStatusTooltip: vi.fn(),
+      updateEchoSkillBtn: vi.fn(),
+    };
+    hoisted.createCombatLegacyUiCompat.mockReturnValue(combatUiCompat);
     const modules = {
-      CombatUI: {
-        hideEnemyStatusTooltip: vi.fn(),
-        showEnemyStatusTooltip: vi.fn(),
-      },
-      CombatHudUI: {
-        updateEchoSkillBtn: vi.fn(),
-      },
       GS: {},
     };
 
@@ -201,9 +237,51 @@ describe('feature public action surfaces', () => {
     compat.showEnemyStatusTooltip('event', 'burn');
     compat.updateEchoSkillBtn();
 
-    expect(hoisted.createCombatPorts).toHaveBeenCalledWith(modules);
-    expect(modules.CombatUI.hideEnemyStatusTooltip).toHaveBeenCalledWith(combatDeps);
-    expect(modules.CombatUI.showEnemyStatusTooltip).toHaveBeenCalledWith('event', 'burn', combatDeps);
-    expect(modules.CombatHudUI.updateEchoSkillBtn).toHaveBeenCalledWith(hudDeps);
+    expect(hoisted.createCombatLegacyUiCompat).toHaveBeenCalledWith(modules);
+    expect(combatUiCompat.hideEnemyStatusTooltip).toHaveBeenCalledTimes(1);
+    expect(combatUiCompat.showEnemyStatusTooltip).toHaveBeenCalledWith('event', 'burn');
+    expect(combatUiCompat.updateEchoSkillBtn).toHaveBeenCalledTimes(1);
+  });
+
+  it('routes legacy window ui query groups through feature public facades', () => {
+    const modules = {};
+    const fns = { _resetCombatInfoPanel: vi.fn() };
+    const deps = { getHudUpdateDeps: vi.fn() };
+
+    const groups = buildLegacyWindowUIQueryGroups(modules, fns, deps);
+
+    expect(hoisted.createLegacyHudRuntimeQueryBindings).toHaveBeenCalledWith({ modules, deps, fns });
+    expect(hoisted.createCombatLegacyUiCompat).toHaveBeenCalledWith(modules);
+    expect(groups.hud.updateUI).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value.updateUI);
+    expect(groups.hud._syncVolumeUI).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value._syncVolumeUI);
+    expect(groups.hud._resetCombatInfoPanel).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value._resetCombatInfoPanel);
+  });
+
+  it('routes legacy runtime query groups through the ui feature public facade', () => {
+    const modules = {
+      SaveSystem: { getOutboxMetrics: vi.fn(), flushOutbox: vi.fn() },
+    };
+    const deps = { getHudUpdateDeps: vi.fn() };
+    const runtimeMetrics = {
+      getRuntimeMetrics: vi.fn(),
+      resetRuntimeMetrics: vi.fn(),
+    };
+
+    const groups = buildLegacyGameAPIRuntimeQueryGroups(modules, deps, runtimeMetrics);
+
+    expect(hoisted.createLegacyHudRuntimeQueryBindings).toHaveBeenCalledWith({ modules, deps });
+    expect(groups.hud.updateUI).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value.updateUI);
+    expect(groups.hud.processDirtyFlags).toBe(hoisted.createLegacyHudRuntimeQueryBindings.mock.results[0].value.processDirtyFlags);
+  });
+
+  it('routes legacy ui commands through the ui feature public facade', () => {
+    toggleHudPin();
+    closeDeckView();
+    closeCodex();
+
+    expect(hoisted.createLegacyUiCommandFacade).toHaveBeenCalledTimes(3);
+    expect(hoisted.createLegacyUiCommandFacade.mock.results[0].value.toggleHudPin).toHaveBeenCalledTimes(1);
+    expect(hoisted.createLegacyUiCommandFacade.mock.results[1].value.closeDeckView).toHaveBeenCalledTimes(1);
+    expect(hoisted.createLegacyUiCommandFacade.mock.results[2].value.closeCodex).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,4 +1,4 @@
-import { Actions } from '../../core/state_actions.js';
+import { Actions } from '../../shared/state/public.js';
 import { resolveActiveRegionId } from '../../domain/run/region_service.js';
 
 export function drawCardsService({

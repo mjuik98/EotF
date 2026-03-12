@@ -90,6 +90,14 @@
       "message": "ui must use app/state entry points instead of direct domain/system imports"
     },
     {
+      "id": "non-core-state-actions-shared-only",
+      "from": ["app", "combat", "domain", "feature", "legacy", "ui"],
+      "denyTargets": [
+        "game/core/state_actions.js"
+      ],
+      "message": "non-core layers must import state actions through game/shared/state/public.js"
+    },
+    {
       "id": "platform-no-direct-ui-feature-facades",
       "from": ["platform"],
       "denyTargets": [
@@ -309,6 +317,104 @@
         "game/features/combat/ports/"
       ],
       "message": "legacy combat compat adapter must import the combat feature public facade instead of combat ports internals"
+    },
+    {
+      "id": "legacy-window-ui-query-public-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/build_legacy_window_ui_query_groups.js"
+      ],
+      "denyTargets": [
+        "game/platform/legacy/adapters/create_legacy_combat_compat.js"
+      ],
+      "message": "legacy window ui query groups must import feature public facades instead of legacy adapter internals"
+    },
+    {
+      "id": "legacy-runtime-query-ui-public-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/build_legacy_game_api_runtime_query_groups.js",
+        "game/platform/legacy/game_api/ui_commands.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/"
+      ],
+      "message": "legacy runtime query and ui command surfaces must import feature public facades instead of ui internals"
+    },
+    {
+      "id": "legacy-module-query-shared-runtime-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/game_api_module_queries.js",
+        "game/platform/legacy/window_binding_utility_queries.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/",
+        "game/ui/"
+      ],
+      "message": "legacy module and utility query surfaces must import shared runtime public bindings instead of feature or ui internals"
+    },
+    {
+      "id": "legacy-game-api-facade-payload-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/game_api_facade.js"
+      ],
+      "denyTargets": [
+        "game/platform/legacy/game_api_player_facade.js",
+        "game/platform/legacy/game_api_combat_facade.js",
+        "game/platform/legacy/game_api_screen_facade.js",
+        "game/platform/legacy/game_api_ui_facade.js"
+      ],
+      "message": "legacy game api facade must assemble through the compat payload builder instead of direct facade composition"
+    },
+    {
+      "id": "legacy-game-api-registry-builder-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/game_api_registry.js"
+      ],
+      "denyTargets": [
+        "game/platform/legacy/game_api_compat.js",
+        "game/platform/legacy/game_api_facade.js"
+      ],
+      "message": "legacy game api registry must assemble from bindings and payload builders instead of compat facades"
+    },
+    {
+      "id": "legacy-game-api-payload-shared-runtime-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/build_legacy_game_api_payload.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/",
+        "game/ui/",
+        "game/platform/legacy/game_api/"
+      ],
+      "message": "legacy game api payload builder must rely on shared runtime grouping instead of direct feature or action implementation imports"
+    },
+    {
+      "id": "legacy-window-query-merge-shared-runtime-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/window_binding_queries.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/",
+        "game/ui/"
+      ],
+      "message": "legacy window query attachment must merge shared/public query groups instead of direct feature or ui internals"
+    },
+    {
+      "id": "legacy-screen-commands-core-service-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/game_api/screen_commands.js"
+      ],
+      "denyTargets": [
+        "game/app/system/screen_service.js"
+      ],
+      "message": "legacy screen commands must import the core screen service directly instead of the app compat alias"
     }
   ]
 }

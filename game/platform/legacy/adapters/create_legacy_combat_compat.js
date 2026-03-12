@@ -1,4 +1,6 @@
-import { createCombatPorts } from '../../../features/combat/public.js';
+import {
+  createCombatLegacyUiCompat,
+} from '../../../features/combat/public.js';
 import {
   applyPlayerDamage,
   drawCards as drawPlayerCards,
@@ -7,16 +9,12 @@ import {
 } from '../game_api/player_commands.js';
 
 export function createLegacyCombatCompat(modules) {
-  const ports = createCombatPorts(modules);
+  const uiCompat = createCombatLegacyUiCompat(modules);
 
   return {
-    hideEnemyStatusTooltip() {
-      modules.CombatUI?.hideEnemyStatusTooltip?.(ports.getCombatDeps());
-    },
+    hideEnemyStatusTooltip: () => uiCompat.hideEnemyStatusTooltip(),
 
-    showEnemyStatusTooltip(event, statusKey) {
-      modules.CombatUI?.showEnemyStatusTooltip?.(event, statusKey, ports.getCombatDeps());
-    },
+    showEnemyStatusTooltip: (event, statusKey) => uiCompat.showEnemyStatusTooltip(event, statusKey),
 
     takeDamage(amount, gs = modules.GS) {
       return applyPlayerDamage(amount, gs);
@@ -33,8 +31,6 @@ export function createLegacyCombatCompat(modules) {
       });
     },
 
-    updateEchoSkillBtn(overrideDeps) {
-      modules.CombatHudUI?.updateEchoSkillBtn?.(overrideDeps || ports.getHudDeps());
-    },
+    updateEchoSkillBtn: (overrideDeps) => uiCompat.updateEchoSkillBtn(overrideDeps),
   };
 }

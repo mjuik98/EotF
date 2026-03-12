@@ -1,5 +1,5 @@
 import { Logger } from '../../../utils/logger.js';
-import { Actions } from '../../../core/state_actions.js';
+import { Actions } from '../../../shared/state/public.js';
 import {
   discardStateCard,
   playStateCard,

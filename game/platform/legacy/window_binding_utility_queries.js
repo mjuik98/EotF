@@ -1,6 +1,5 @@
+import { buildLegacyUtilityQueries } from '../../shared/runtime/public.js';
+
 export function buildLegacyWindowUtilityQueries(modules) {
-  return {
-    DescriptionUtils: modules.DescriptionUtils,
-    CardCostUtils: modules.CardCostUtils,
-  };
+  return buildLegacyUtilityQueries(modules);
 }

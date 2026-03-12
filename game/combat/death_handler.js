@@ -23,7 +23,7 @@ import {
 import { getRegionData } from '../systems/run_rules.js';
 import { registerEnemyKill } from '../systems/codex_records_system.js';
 import { EventBus } from '../core/event_bus.js';
-import { Actions } from '../core/state_actions.js';
+import { Actions } from '../shared/state/public.js';
 import {
     recordEnemyWorldKill,
     replaceCombatEnemies,

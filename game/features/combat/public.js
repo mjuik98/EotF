@@ -70,6 +70,24 @@ export function buildCombatUiContractPublicBuilders(ctx) {
   return buildCombatUiContractBuilders(ctx);
 }
 
+export function createCombatLegacyUiCompat(modules) {
+  const ports = createCombatPorts(modules);
+
+  return {
+    hideEnemyStatusTooltip() {
+      modules.CombatUI?.hideEnemyStatusTooltip?.(ports.getCombatDeps());
+    },
+
+    showEnemyStatusTooltip(event, statusKey) {
+      modules.CombatUI?.showEnemyStatusTooltip?.(event, statusKey, ports.getCombatDeps());
+    },
+
+    updateEchoSkillBtn(overrideDeps) {
+      modules.CombatHudUI?.updateEchoSkillBtn?.(overrideDeps || ports.getHudDeps());
+    },
+  };
+}
+
 export {
   CardTargetUI,
   CardUI,

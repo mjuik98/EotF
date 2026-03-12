@@ -23,6 +23,45 @@ export function buildUiShellContractPublicBuilders(ctx) {
   return buildUiShellContractBuilders(ctx);
 }
 
+export function createLegacyUiCommandFacade({
+  getModule,
+  getUiRuntimeDeps,
+  getCombatRuntimeDeps,
+  warn = console.warn,
+}) {
+  function callUiCommand(moduleName, methodName, warningLabel, depsFactory = getUiRuntimeDeps) {
+    const module = getModule(moduleName);
+    if (module?.[methodName]) {
+      module[methodName](depsFactory());
+      return;
+    }
+    warn(`[API] ${warningLabel} not available`);
+  }
+
+  return {
+    toggleHudPin() {
+      callUiCommand('CombatHudUI', 'toggleHudPin', 'CombatHudUI.toggleHudPin', getCombatRuntimeDeps);
+    },
+
+    closeDeckView() {
+      callUiCommand('DeckModalUI', 'closeDeckView', 'DeckModalUI.closeDeckView');
+    },
+
+    closeCodex() {
+      callUiCommand('CodexUI', 'closeCodex', 'CodexUI.closeCodex');
+    },
+  };
+}
+
+export function createLegacyHudRuntimeQueryBindings({ modules, deps, fns = {} }) {
+  return {
+    updateUI: () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
+    processDirtyFlags: () => modules.HudUpdateUI?.processDirtyFlags?.(deps.getHudUpdateDeps()),
+    _syncVolumeUI: () => modules.GameInit?.syncVolumeUI?.(modules.AudioEngine),
+    _resetCombatInfoPanel: fns._resetCombatInfoPanel,
+  };
+}
+
 export {
   buildUiRuntimeSubscriberActions,
   buildUiShellContractBuilders,

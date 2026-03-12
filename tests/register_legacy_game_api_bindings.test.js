@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
+  assignLegacyCompatSurface: vi.fn(),
   buildLegacyGameAPICommandBindings: vi.fn(),
   buildLegacyGameAPIQueryBindings: vi.fn(),
   buildLegacyGameApiPayload: vi.fn(),
@@ -21,6 +22,10 @@ vi.mock('../game/platform/legacy/build_legacy_game_api_payload.js', () => ({
 
 vi.mock('../game/platform/legacy/create_legacy_game_api.js', () => ({
   createLegacyGameApi: hoisted.createLegacyGameApi,
+}));
+
+vi.mock('../game/shared/runtime/public.js', () => ({
+  assignLegacyCompatSurface: hoisted.assignLegacyCompatSurface,
 }));
 
 import { registerLegacyGameAPIBindings } from '../game/platform/legacy/game_api_registry.js';
@@ -44,6 +49,10 @@ describe('registerLegacyGameAPIBindings', () => {
     hoisted.buildLegacyGameAPIQueryBindings.mockReturnValue(queryBindings);
     hoisted.buildLegacyGameApiPayload.mockReturnValue(apiPayload);
     hoisted.createLegacyGameApi.mockReturnValue(api);
+    hoisted.assignLegacyCompatSurface.mockImplementation((target, nextApi) => {
+      Object.assign(target, nextApi);
+      return target;
+    });
 
     registerLegacyGameAPIBindings(modules, fns, deps, runtimeMetrics);
 
@@ -58,6 +67,7 @@ describe('registerLegacyGameAPIBindings', () => {
       queryBindings,
     });
     expect(hoisted.createLegacyGameApi).toHaveBeenCalledWith(apiPayload);
+    expect(hoisted.assignLegacyCompatSurface).toHaveBeenCalledWith(modules.GAME.API, api);
     expect(modules.GAME.API).toMatchObject(api);
   });
 });

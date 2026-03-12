@@ -1,6 +1,6 @@
 import { registerCardUsed } from '../../systems/codex_records_system.js';
 import { resolveActiveRegionId } from '../../domain/run/region_service.js';
-import { Actions } from '../../core/state_actions.js';
+import { Actions } from '../../shared/state/public.js';
 
 export function playCardService({
   cardId,

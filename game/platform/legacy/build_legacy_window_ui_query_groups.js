@@ -1,13 +1,17 @@
-import { createLegacyCombatCompat } from './adapters/create_legacy_combat_compat.js';
+import {
+  createCombatLegacyUiCompat,
+} from '../../features/combat/public.js';
+import { createLegacyHudRuntimeQueryBindings } from '../../features/ui/public.js';
 
 export function buildLegacyWindowUIQueryGroups(modules, fns, deps) {
-  const combatCompat = createLegacyCombatCompat(modules);
+  const combatCompat = createCombatLegacyUiCompat(modules);
+  const hudQueries = createLegacyHudRuntimeQueryBindings({ modules, deps, fns });
 
   return {
     hud: {
-      updateUI: () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
-      _syncVolumeUI: () => modules.GameInit?.syncVolumeUI?.(modules.AudioEngine),
-      _resetCombatInfoPanel: fns._resetCombatInfoPanel,
+      updateUI: hudQueries.updateUI,
+      _syncVolumeUI: hudQueries._syncVolumeUI,
+      _resetCombatInfoPanel: hudQueries._resetCombatInfoPanel,
     },
     combat: {
       showEnemyStatusTooltip: (event, statusKey) =>

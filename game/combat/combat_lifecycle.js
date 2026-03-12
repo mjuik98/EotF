@@ -9,7 +9,7 @@
 
 // 엔진 기능은 deps를 통해 주입받도록 수정하여 하드코딩 연결 제거
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
-import { Actions } from '../core/state_actions.js';
+import { Actions } from '../shared/state/public.js';
 import {
     runEndCombatFlow,
     applyPassiveResonanceBurstState,

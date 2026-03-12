@@ -1,22 +1,22 @@
+import { createLegacyUiCommandFacade } from '../../../features/ui/public.js';
 import { getCombatRuntimeDeps, getModule, getUiRuntimeDeps } from './runtime_context.js';
 
-function callUiCommand(moduleName, methodName, warningLabel, depsFactory = getUiRuntimeDeps) {
-  const module = getModule(moduleName);
-  if (module?.[methodName]) {
-    module[methodName](depsFactory());
-    return;
-  }
-  console.warn(`[API] ${warningLabel} not available`);
+function getLegacyUiCommands() {
+  return createLegacyUiCommandFacade({
+    getModule,
+    getUiRuntimeDeps,
+    getCombatRuntimeDeps,
+  });
 }
 
 export function toggleHudPin() {
-  callUiCommand('CombatHudUI', 'toggleHudPin', 'CombatHudUI.toggleHudPin', getCombatRuntimeDeps);
+  return getLegacyUiCommands().toggleHudPin();
 }
 
 export function closeDeckView() {
-  callUiCommand('DeckModalUI', 'closeDeckView', 'DeckModalUI.closeDeckView');
+  return getLegacyUiCommands().closeDeckView();
 }
 
 export function closeCodex() {
-  callUiCommand('CodexUI', 'closeCodex', 'CodexUI.closeCodex');
+  return getLegacyUiCommands().closeCodex();
 }

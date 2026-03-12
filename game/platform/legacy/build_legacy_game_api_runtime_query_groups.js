@@ -1,4 +1,8 @@
+import { createLegacyHudRuntimeQueryBindings } from '../../features/ui/public.js';
+
 export function buildLegacyGameAPIRuntimeQueryGroups(modules, deps, runtimeMetrics) {
+  const hudQueries = createLegacyHudRuntimeQueryBindings({ modules, deps });
+
   return {
     save: {
       getSaveOutboxMetrics: () => modules.SaveSystem?.getOutboxMetrics?.() || null,
@@ -9,9 +13,8 @@ export function buildLegacyGameAPIRuntimeQueryGroups(modules, deps, runtimeMetri
       resetRuntimeMetrics: () => runtimeMetrics.resetRuntimeMetrics(),
     },
     hud: {
-      updateUI: () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
-      processDirtyFlags: () =>
-        modules.HudUpdateUI?.processDirtyFlags?.(deps.getHudUpdateDeps()),
+      updateUI: hudQueries.updateUI,
+      processDirtyFlags: hudQueries.processDirtyFlags,
     },
   };
 }
