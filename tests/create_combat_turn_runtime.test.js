@@ -5,11 +5,11 @@ const hoisted = vi.hoisted(() => ({
   runEnemyTurnUseCase: vi.fn(),
 }));
 
-vi.mock('../game/app/combat/use_cases/end_player_turn_use_case.js', () => ({
+vi.mock('../game/features/combat/application/end_player_turn_use_case.js', () => ({
   endPlayerTurnUseCase: hoisted.endPlayerTurnUseCase,
 }));
 
-vi.mock('../game/app/combat/use_cases/run_enemy_turn_use_case.js', () => ({
+vi.mock('../game/features/combat/application/run_enemy_turn_use_case.js', () => ({
   runEnemyTurnUseCase: hoisted.runEnemyTurnUseCase,
 }));
 

@@ -1,4 +1,4 @@
-import { resolveEventChoiceService } from '../../../app/event/resolve_event_choice_service.js';
+import { resolveEventChoiceService } from '../application/resolve_event_choice_service.js';
 import {
   createEventChoiceResult,
   isEventChoiceDisabled,

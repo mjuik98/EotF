@@ -1,4 +1,4 @@
-import { moveToNodeUseCase } from '../../../app/run/use_cases/move_to_node_use_case.js';
+import { moveToNodeUseCase } from './move_to_node_use_case.js';
 import { presentNodeTransition } from '../presentation/present_node_transition.js';
 import { playUiFootstep } from '../../../domain/audio/audio_event_helpers.js';
 import { Trigger } from '../../../data/triggers.js';

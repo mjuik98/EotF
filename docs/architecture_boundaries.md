@@ -43,6 +43,12 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   Compat paths in `game/core/system/` and `game/app/system/` should remain thin re-exports only.
 - Event session/runtime service ownership lives in `game/features/event/application/event_service.js` and `game/features/event/state/event_session_store.js`.
   Compat paths in `game/app/event/` should remain thin re-exports only.
+- Run/combat/title use-case ownership lives in `game/features/{run,combat,title}/application/*`.
+  Compat paths in `game/app/{run,combat}/use_cases/` should remain thin re-exports only.
+- Shared state/codex/progression helpers now belong under `game/shared/{state,codex,progression}/*`.
+  Feature slices should import those shared paths directly; `game/app/shared/*` and `game/app/codex/*` remain compat-only.
+- Combat card/end-turn services and event shop/choice services now belong under `game/features/{combat,event}/application/*`.
+  `game/app/{combat,event}/*_service.js` should remain thin re-exports only.
 - New legacy global exposure must go through `game/platform/legacy/*` builders instead of direct `window.*` or `GAME.*` expansion from unrelated layers.
 - `engine/*` and `data/*` must not import `game/ui/*`.
 

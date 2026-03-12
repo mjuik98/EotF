@@ -1,5 +1,5 @@
-import { createRestEventService } from '../../../app/event/rest_service.js';
-import { createShopEventService } from '../../../app/event/shop_service.js';
+import { createRestEventService } from '../application/rest_service.js';
+import { createShopEventService } from '../application/shop_service.js';
 import {
   applyRestCardUpgradeState,
   applyShopCardPurchaseState,

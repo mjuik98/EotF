@@ -1,7 +1,7 @@
 import {
   createCharacterSelectProgressionFacade,
   ensureCharacterSelectMeta,
-} from '../../../../app/run/use_cases/load_character_select_use_case.js';
+} from '../../application/load_character_select_use_case.js';
 import { createCharacterSelectSfx } from '../../../../ui/title/character_select_audio.js';
 import { setupCharacterSelectBindings } from '../../../../ui/title/character_select_bindings.js';
 import { CHARACTER_SELECT_CHARS } from '../../../../ui/title/character_select_catalog.js';

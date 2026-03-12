@@ -2,4 +2,4 @@ export {
   registerCardDiscovered,
   registerEnemyKill,
   registerItemFound,
-} from '../../../shared/codex/codex_record_state_use_case.js';
+} from '../../systems/codex_records_system.js';

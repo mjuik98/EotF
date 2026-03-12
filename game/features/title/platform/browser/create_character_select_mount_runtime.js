@@ -2,7 +2,7 @@ import { CARDS } from '../../../../../data/cards.js';
 import {
   ensureCharacterSelectMeta,
   getCharacterSelectPresentation,
-} from '../../../../app/run/use_cases/load_character_select_use_case.js';
+} from '../../application/load_character_select_use_case.js';
 import { TooltipUI } from '../../../../ui/cards/tooltip_ui.js';
 import {
   renderCharacterInfoPanel,

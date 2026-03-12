@@ -1,4 +1,4 @@
-export { executePlayerDrawService } from '../../../app/combat/card_draw_service.js';
+export { executePlayerDrawService } from './card_draw_service.js';
 export {
   discardStateCard,
   drawStateCards,

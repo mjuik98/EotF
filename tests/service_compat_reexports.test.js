@@ -51,6 +51,97 @@ const EXACT_REEXPORTS = new Map([
       '',
     ].join('\n'),
   ],
+  [
+    'game/app/combat/card_draw_service.js',
+    [
+      'export {',
+      '  drawCardsService,',
+      '  executePlayerDrawService,',
+      "} from '../../features/combat/application/card_draw_service.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/combat/play_card_service.js',
+    [
+      "export { playCardService } from '../../features/combat/application/play_card_service.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/combat/end_turn_service.js',
+    [
+      "export { endPlayerTurnService } from '../../features/combat/application/end_turn_service.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/event/resolve_event_choice_service.js',
+    [
+      "export { resolveEventChoiceService } from '../../features/event/application/resolve_event_choice_service.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/event/rest_service.js',
+    [
+      "export { createRestEventService } from '../../features/event/application/rest_service.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/event/shop_service.js',
+    [
+      "export { createShopEventService } from '../../features/event/application/shop_service.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/codex/use_cases/codex_record_state_use_case.js',
+    [
+      'export {',
+      '  registerCardDiscovered,',
+      '  registerEnemyKill,',
+      '  registerItemFound,',
+      "} from '../../../shared/codex/codex_record_state_use_case.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/shared/state_commands/run_state_commands.js',
+    [
+      'export {',
+      '  applyRunStartLoadout,',
+      '  createRunStartPlayer,',
+      '  createRunStateCommands,',
+      '  resetRunConfig,',
+      '  resetRuntimeState,',
+      "} from '../../../shared/state/run_state_commands.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/shared/state_commands/map_state_commands.js',
+    [
+      'export {',
+      '  applyNodeTraversalState,',
+      '  resolveNodeByRef,',
+      '  updateNextFloorAccessibility,',
+      "} from '../../../shared/state/map_state_commands.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
+    'game/app/shared/use_cases/class_progression_data_use_case.js',
+    [
+      'export {',
+      '  CLASS_MASTERY_LEVEL_XP,',
+      '  getClassMasteryRoadmap,',
+      '  MAX_CLASS_MASTERY_LEVEL,',
+      "} from '../../../shared/progression/class_progression_data_use_case.js';",
+      '',
+    ].join('\n'),
+  ],
 ]);
 
 describe('service compat reexports', () => {

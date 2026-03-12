@@ -1,4 +1,4 @@
-import { startCombatFlowUseCase } from '../../../app/combat/use_cases/start_combat_flow_use_case.js';
+import { startCombatFlowUseCase } from './start_combat_flow_use_case.js';
 import {
   enterCombatState,
   setActiveCombatRegionState,

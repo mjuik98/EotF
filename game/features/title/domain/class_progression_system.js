@@ -2,8 +2,8 @@ import {
   CLASS_MASTERY_LEVEL_XP,
   getClassMasteryRoadmap,
   MAX_CLASS_MASTERY_LEVEL,
-} from '../../../app/shared/use_cases/class_progression_data_use_case.js';
-import { registerCardDiscovered } from '../../../app/codex/use_cases/codex_record_state_use_case.js';
+} from '../../../shared/progression/class_progression_data_use_case.js';
+import { registerCardDiscovered } from '../../../shared/codex/codex_record_state_use_case.js';
 
 const DEFAULT_MAX_ENERGY_CAP = 5;
 

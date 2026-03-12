@@ -22,12 +22,12 @@ vi.mock('../game/platform/legacy/game_api/runtime_context.js', () => ({
   getUiRuntimeDeps: vi.fn(() => ({ updateUI: vi.fn() })),
 }));
 
-vi.mock('../game/app/combat/card_draw_service.js', () => ({
+vi.mock('../game/features/combat/application/card_draw_service.js', () => ({
   drawCardsService: vi.fn(),
   executePlayerDrawService: vi.fn(() => true),
 }));
 
-vi.mock('../game/app/combat/play_card_service.js', () => ({
+vi.mock('../game/features/combat/application/play_card_service.js', () => ({
   playCardService: vi.fn(() => true),
 }));
 
@@ -50,7 +50,7 @@ describe('GameAPI compat facade', () => {
 
   it('routes playCard discard through the facade reference so spies remain valid', async () => {
     const discardSpy = vi.spyOn(GameAPI, 'discardCard').mockImplementation(() => {});
-    const { playCardService } = await import('../game/app/combat/play_card_service.js');
+    const { playCardService } = await import('../game/features/combat/application/play_card_service.js');
 
     GameAPI.playCard('strike', 0, {
       dispatch: vi.fn(),

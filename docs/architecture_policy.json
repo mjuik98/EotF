@@ -98,6 +98,14 @@
       "message": "non-core layers must import state actions through game/shared/state/public.js"
     },
     {
+      "id": "feature-no-app-compat-imports",
+      "from": ["feature"],
+      "denyTargetPrefixes": [
+        "game/app/"
+      ],
+      "message": "feature implementation must not import game/app compat paths"
+    },
+    {
       "id": "reward-application-platform-boundary",
       "from": ["feature"],
       "sourcePrefixes": [
@@ -155,6 +163,62 @@
         "game/presentation/"
       ],
       "message": "combat turn runtime must use platform/runtime ports instead of ui or presentation modules"
+    },
+    {
+      "id": "combat-start-runtime-no-app-use-case-alias",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/combat/application/create_combat_start_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/combat/use_cases/"
+      ],
+      "message": "combat start runtime must use feature-local combat use cases instead of app/combat compat files"
+    },
+    {
+      "id": "combat-turn-runtime-no-app-use-case-alias",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/combat/application/create_combat_turn_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/combat/use_cases/"
+      ],
+      "message": "combat turn runtime must use feature-local combat use cases instead of app/combat compat files"
+    },
+    {
+      "id": "run-setup-runtime-no-app-use-case-alias",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/application/create_run_setup_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/run/use_cases/"
+      ],
+      "message": "run setup runtime must use feature-local run use cases instead of app/run compat files"
+    },
+    {
+      "id": "run-map-runtime-no-app-use-case-alias",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/application/create_map_navigation_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/run/use_cases/"
+      ],
+      "message": "map navigation runtime must use feature-local run use cases instead of app/run compat files"
+    },
+    {
+      "id": "title-character-select-runtime-no-app-run-use-cases",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/platform/browser/create_character_select_runtime_bindings.js",
+        "game/features/title/platform/browser/create_character_select_mount_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/run/use_cases/"
+      ],
+      "message": "title character select runtimes must use title feature-local selection use cases instead of app/run compat files"
     },
     {
       "id": "combat-player-turn-policy-ports-only",

@@ -1,7 +1,7 @@
 import {
   registerCardDiscovered,
   registerItemFound,
-} from '../../../app/codex/use_cases/codex_record_state_use_case.js';
+} from '../../../shared/codex/codex_record_state_use_case.js';
 
 export function applyMiniBossBonusState(state, data) {
   if (!state?.player) return null;

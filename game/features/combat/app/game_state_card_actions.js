@@ -1,7 +1,7 @@
 import { Logger } from '../../../utils/logger.js';
 import { Actions } from '../../../shared/state/public.js';
-import { drawCardsService } from '../../../app/combat/card_draw_service.js';
-import { playCardService } from '../../../app/combat/play_card_service.js';
+import { drawCardsService } from '../application/card_draw_service.js';
+import { playCardService } from '../application/play_card_service.js';
 
 export function discardStateCard(cardId, isExhaust = false, gs, skipHandRemove = false, logger = Logger) {
   gs.dispatch(Actions.CARD_DISCARD, { cardId, exhaust: isExhaust, skipHandRemove });

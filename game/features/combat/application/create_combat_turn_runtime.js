@@ -1,5 +1,5 @@
-import { endPlayerTurnUseCase } from '../../../app/combat/use_cases/end_player_turn_use_case.js';
-import { runEnemyTurnUseCase } from '../../../app/combat/use_cases/run_enemy_turn_use_case.js';
+import { endPlayerTurnUseCase } from './end_player_turn_use_case.js';
+import { runEnemyTurnUseCase } from './run_enemy_turn_use_case.js';
 import { createCombatTurnRuntimePorts } from '../platform/combat_turn_runtime_ports.js';
 import {
   createEndPlayerTurnPolicyOptions,

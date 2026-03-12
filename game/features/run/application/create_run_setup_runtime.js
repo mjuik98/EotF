@@ -1,5 +1,5 @@
 import { runIdempotent } from '../../../utils/idempotency_utils.js';
-import { createStartRunUseCase } from '../../../app/run/use_cases/start_run_use_case.js';
+import { createStartRunUseCase } from './start_run_use_case.js';
 import {
   applyStartBonuses,
   resolveRunSetupContext,
