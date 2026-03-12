@@ -1,5 +1,6 @@
 import { getData, getDoc, getGS, getInscriptionLevel, setInscriptionLevel } from './story_ui_helpers.js';
 import { playEventResonanceBurst } from '../../domain/audio/audio_event_helpers.js';
+import { restartHiddenEndingOverlay } from './ending_screen_action_helpers.js';
 
 export function renderHiddenEndingOverlay(deps = {}) {
   const gs = getGS(deps);
@@ -31,7 +32,7 @@ export function renderHiddenEndingOverlay(deps = {}) {
   const btn = doc.createElement('button');
   btn.style.cssText = "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.2em;color:var(--void);background:linear-gradient(135deg,var(--cyan),var(--echo));border:none;border-radius:8px;padding:14px 32px;cursor:pointer;";
   btn.textContent = '메아리로 돌아가기';
-  btn.onclick = () => { if (typeof deps.restartFromEnding === 'function') deps.restartFromEnding(); };
+  btn.onclick = () => restartHiddenEndingOverlay(deps);
   btnCont.appendChild(btn);
 
   const foot = doc.createElement('div');

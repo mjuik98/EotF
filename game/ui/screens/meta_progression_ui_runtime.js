@@ -1,7 +1,13 @@
 import { EndingScreenUI } from './ending_screen_ui.js';
 
 function returnToTitle(deps = {}) {
-  if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
+  if (typeof deps.completeTitleReturn === 'function') {
+    deps.completeTitleReturn();
+    return;
+  }
+
+  if (typeof deps.showTitleScreen === 'function') deps.showTitleScreen();
+  else if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
   if (typeof deps.clearSelectedClass === 'function') deps.clearSelectedClass();
   if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();
   if (typeof deps.refreshTitleSaveState === 'function') deps.refreshTitleSaveState();

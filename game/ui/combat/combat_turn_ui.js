@@ -5,8 +5,12 @@
  */
 import { endPlayerTurnUseCase } from '../../app/combat/use_cases/end_player_turn_use_case.js';
 import { runEnemyTurnUseCase } from '../../app/combat/use_cases/run_enemy_turn_use_case.js';
-import { TurnManager } from '../../combat/turn_manager.js';
-import { resolveActiveRegionId } from '../../domain/run/region_service.js';
+import {
+  handleBossPhaseShiftAction,
+  handleEnemyEffectAction,
+  processEnemyStatusTicksAction,
+  processPlayerStatusTicksAction,
+} from '../../features/combat/app/combat_turn_compat_actions.js';
 import {
   cleanupCombatTurnTooltips,
   setEnemyTurnUiState,
@@ -29,10 +33,6 @@ function _getDoc(deps) {
 
 function _getWin(deps) {
   return deps?.win || window;
-}
-
-function _getCombatRegionId(gs) {
-  return resolveActiveRegionId(gs);
 }
 
 export const CombatTurnUI = {
@@ -83,34 +83,38 @@ export const CombatTurnUI = {
 
   // ── 하위 호환: 기존 API 유지 ──
   processEnemyStatusTicks(deps = {}) {
-    const gs = deps.gs;
-    TurnManager.processEnemyStatusTicks(gs);
-    deps.renderCombatEnemies?.();
+    return processEnemyStatusTicksAction({
+      gs: deps.gs,
+      renderCombatEnemies: deps.renderCombatEnemies,
+    });
   },
 
   processPlayerStatusTicks(deps = {}) {
-    const gs = deps.gs;
-    const result = TurnManager.processPlayerStatusTicks(gs, {
-      shuffleArrayFn: deps.shuffleArray,
+    return processPlayerStatusTicksAction({
+      gs: deps.gs,
+      shuffleArray: deps.shuffleArray,
+      syncCombatEnergy: () => syncCombatTurnEnergy(deps.gs, deps),
+      updateStatusDisplay: deps.updateStatusDisplay,
+      updateUI: deps.updateUI,
     });
-    syncCombatTurnEnergy(gs, deps);
-    deps.updateStatusDisplay?.();
-    deps.updateUI?.();
-    return result.alive;
   },
 
   handleBossPhaseShift(enemy, idx, deps = {}) {
-    const gs = deps.gs;
-
-    TurnManager.handleBossPhaseShiftLogic(gs, enemy);
-    showBossPhaseShiftUi(gs, idx, deps);
+    return handleBossPhaseShiftAction({
+      gs: deps.gs,
+      enemy,
+      index: idx,
+      presentBossPhaseShift: () => showBossPhaseShiftUi(deps.gs, idx, deps),
+    });
   },
 
   handleEnemyEffect(effect, enemy, idx, deps = {}) {
-    const gs = deps.gs;
-    const data = deps.data;
-    const regionId = _getCombatRegionId(gs);
-    const result = TurnManager.handleEnemyEffect(effect, gs, enemy, { regionId, data });
-    if (result?.uiAction) dispatchCombatTurnUiAction(result, deps);
+    return handleEnemyEffectAction({
+      gs: deps.gs,
+      data: deps.data,
+      effect,
+      enemy,
+      dispatchUiAction: (result) => dispatchCombatTurnUiAction(result, deps),
+    });
   },
 };

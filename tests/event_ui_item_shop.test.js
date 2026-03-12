@@ -1,16 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
-const { generateItemShopStockSpy, purchaseItemSpy, dismissTransientOverlaySpy } = vi.hoisted(() => ({
-  generateItemShopStockSpy: vi.fn(),
-  purchaseItemSpy: vi.fn(),
+const { buildItemShopStockUseCaseSpy, purchaseItemFromShopUseCaseSpy, dismissTransientOverlaySpy } = vi.hoisted(() => ({
+  buildItemShopStockUseCaseSpy: vi.fn(),
+  purchaseItemFromShopUseCaseSpy: vi.fn(),
   dismissTransientOverlaySpy: vi.fn((overlay) => overlay?.remove?.()),
 }));
 
-vi.mock('../game/systems/event_manager.js', () => ({
-  EventManager: {
-    generateItemShopStock: generateItemShopStockSpy,
-    purchaseItem: purchaseItemSpy,
-  },
+vi.mock('../game/app/event/use_cases/item_shop_use_case.js', () => ({
+  buildItemShopStockUseCase: buildItemShopStockUseCaseSpy,
+  purchaseItemFromShopUseCase: purchaseItemFromShopUseCaseSpy,
 }));
 
 vi.mock('../game/ui/screens/event_ui_helpers.js', () => ({
@@ -78,7 +76,7 @@ function createDoc() {
 
 describe('showEventItemShopOverlay', () => {
   it('renders owned and purchasable item cards with current gold', () => {
-    generateItemShopStockSpy.mockReturnValueOnce([
+    buildItemShopStockUseCaseSpy.mockReturnValueOnce([
       { item: { id: 'owned', name: 'Owned Relic', desc: 'owned', icon: 'O' }, cost: 10, rarity: 'common' },
       { item: { id: 'new', name: 'New Relic', desc: 'new', icon: 'N' }, cost: 15, rarity: 'rare' },
     ]);
@@ -98,10 +96,10 @@ describe('showEventItemShopOverlay', () => {
   });
 
   it('purchases an item, rerenders gold, and triggers success hooks', () => {
-    generateItemShopStockSpy.mockReturnValueOnce([
+    buildItemShopStockUseCaseSpy.mockReturnValueOnce([
       { item: { id: 'new', name: 'New Relic', desc: 'new', icon: 'N' }, cost: 15, rarity: 'rare' },
     ]);
-    purchaseItemSpy.mockImplementationOnce((gs) => {
+    purchaseItemFromShopUseCaseSpy.mockImplementationOnce(({ gs }) => {
       gs.player.gold = 5;
       return { success: true };
     });
@@ -127,7 +125,7 @@ describe('showEventItemShopOverlay', () => {
     const card = doc.elements.itemShopList.children[0];
     card.onclick();
 
-    expect(purchaseItemSpy).toHaveBeenCalledWith(gs, expect.objectContaining({ id: 'new' }), 15);
+    expect(purchaseItemFromShopUseCaseSpy).toHaveBeenCalledWith({ gs, item: expect.objectContaining({ id: 'new' }), cost: 15 });
     expect(playItemGet).toHaveBeenCalledTimes(1);
     expect(audioEngine.playEvent).not.toHaveBeenCalled();
     expect(audioEngine.playItemGet).not.toHaveBeenCalled();
@@ -138,10 +136,10 @@ describe('showEventItemShopOverlay', () => {
   });
 
   it('falls back to the audio engine item-get event when no injected hook exists', () => {
-    generateItemShopStockSpy.mockReturnValueOnce([
+    buildItemShopStockUseCaseSpy.mockReturnValueOnce([
       { item: { id: 'new', name: 'New Relic', desc: 'new', icon: 'N' }, cost: 15, rarity: 'rare' },
     ]);
-    purchaseItemSpy.mockImplementationOnce((gs) => {
+    purchaseItemFromShopUseCaseSpy.mockImplementationOnce(({ gs }) => {
       gs.player.gold = 5;
       return { success: true };
     });
@@ -171,7 +169,7 @@ describe('showEventItemShopOverlay', () => {
   });
 
   it('closes the overlay through dismissTransientOverlay', () => {
-    generateItemShopStockSpy.mockReturnValueOnce([]);
+    buildItemShopStockUseCaseSpy.mockReturnValueOnce([]);
     const doc = createDoc();
 
     showEventItemShopOverlay({ player: { gold: 9, items: [] } }, { items: {} }, { token: 'rules' }, { doc });

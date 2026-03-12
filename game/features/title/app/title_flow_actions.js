@@ -42,6 +42,11 @@ export function createTitleFlowActions(context) {
       modules.CodexUI?.openCodex?.({ gs: modules.GS, data: modules.DATA });
     },
 
+    openEndingCodex() {
+      playClick();
+      modules.CodexUI?.openCodex?.({ gs: modules.GS, data: modules.DATA });
+    },
+
     selectClass(target) {
       playClick();
       const classSelectDeps = ports.getClassSelectDeps();

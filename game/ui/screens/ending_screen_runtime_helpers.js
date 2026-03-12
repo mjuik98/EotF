@@ -13,6 +13,7 @@ import {
 } from './ending_screen_helpers.js';
 import { burstEndingWisps, initEndingFx } from './ending_screen_fx.js';
 import { playEventResonanceBurst } from '../../domain/audio/audio_event_helpers.js';
+import { scheduleEndingRestartAction } from './ending_screen_action_helpers.js';
 
 export function prepareEndingScreenSession(outcome = 'victory', deps = {}, hooks = {}) {
   const doc = docOf(deps);
@@ -56,7 +57,6 @@ export function bindEndingRestartButton(doc, deps, session, wisps, hooks = {}) {
   const onRestart = () => {
     const rect = restartButton?.getBoundingClientRect?.();
     const audio = deps.audioEngine || null;
-    const restart = deps.restartFromEnding;
 
     if (rect) {
       for (let i = 0; i < 5; i += 1) {
@@ -74,10 +74,10 @@ export function bindEndingRestartButton(doc, deps, session, wisps, hooks = {}) {
     }
 
     playEventResonanceBurst(audio);
-    session.timers.push(winOf(deps).setTimeout(() => {
-      hooks.cleanup?.({ doc, win: deps?.win });
-      if (typeof restart === 'function') restart();
-    }, 420));
+    scheduleEndingRestartAction(deps, {
+      cleanup: hooks.cleanup,
+      session,
+    });
   };
 
   restartButton?.addEventListener('click', onRestart);

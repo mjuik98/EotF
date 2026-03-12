@@ -1,5 +1,15 @@
-import { TurnManager } from '../../../combat/turn_manager.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
+import { startPlayerTurnPolicy } from '../../../domain/combat/turn/start_player_turn_policy.js';
+import {
+  decayEnemyWeaken,
+  getEnemyAction,
+  handleBossPhaseShift,
+  handleEnemyEffect,
+  processEnemyAttack,
+  processEnemyStatusTicks,
+  processEnemyStun,
+} from '../../../features/combat/domain/enemy_turn_domain.js';
+import { processPlayerStatusTicks } from '../../../features/combat/domain/player_status_tick_domain.js';
 import { syncGuardianPreservedShield } from '../../../state/commands/combat_runtime_commands.js';
 import { beginPlayerTurnUseCase } from './begin_player_turn_use_case.js';
 
@@ -25,11 +35,30 @@ export async function runEnemyTurnUseCase({
   syncCombatEnergy,
   onTurnStart,
   onPlayerTurnStarted,
+  processEnemyStatusTicksFn,
+  processEnemyStunFn,
+  getEnemyActionFn,
+  handleBossPhaseShiftFn,
+  processEnemyAttackFn,
+  handleEnemyEffectFn,
+  decayEnemyWeakenFn,
+  processPlayerStatusTicksFn,
+  startPlayerTurn,
 } = {}) {
+  const resolveEnemyStatusTicks = processEnemyStatusTicksFn || processEnemyStatusTicks;
+  const resolveEnemyStun = processEnemyStunFn || processEnemyStun;
+  const resolveEnemyAction = getEnemyActionFn || getEnemyAction;
+  const resolveBossPhaseShift = handleBossPhaseShiftFn || handleBossPhaseShift;
+  const resolveEnemyAttack = processEnemyAttackFn || processEnemyAttack;
+  const resolveEnemyEffect = handleEnemyEffectFn || handleEnemyEffect;
+  const resolveEnemyWeakenDecay = decayEnemyWeakenFn || decayEnemyWeaken;
+  const resolvePlayerStatusTicks = processPlayerStatusTicksFn || processPlayerStatusTicks;
+  const startPlayerTurnAction = startPlayerTurn || (() => startPlayerTurnPolicy(gs));
+
   cleanupTooltips?.();
   if (shouldAbortTurn(gs)) return;
 
-  const tickEvents = TurnManager.processEnemyStatusTicks(gs);
+  const tickEvents = resolveEnemyStatusTicks(gs);
   playStatusTickEffects?.(tickEvents);
   renderCombatEnemies?.();
 
@@ -40,38 +69,38 @@ export async function runEnemyTurnUseCase({
 
     if (!(await waitForCombat(gs, 800))) return;
 
-    if (TurnManager.processEnemyStun(enemy)) {
+    if (resolveEnemyStun(enemy)) {
       onEnemyStunned?.(enemy, index);
       renderCombatEnemies?.();
       continue;
     }
 
-    const action = TurnManager.getEnemyAction(enemy, gs.combat.turn);
+    const action = resolveEnemyAction(enemy, gs.combat.turn);
 
     if (action.type === 'phase_shift' || action.effect === 'phase_shift') {
-      TurnManager.handleBossPhaseShiftLogic(gs, enemy);
+      resolveBossPhaseShift(gs, enemy);
       showBossPhaseShift?.(enemy, index);
     } else if (action.dmg > 0) {
-      const hitResults = TurnManager.processEnemyAttack(gs, enemy, index, action);
+      const hitResults = resolveEnemyAttack(gs, enemy, index, action);
       for (const hit of hitResults) {
         if (await playEnemyAttackHit?.(index, hit, action)) break;
       }
     }
 
-    const effectResult = TurnManager.handleEnemyEffect(action.effect, gs, enemy, {
+    const effectResult = resolveEnemyEffect(action.effect, gs, enemy, {
       regionId: getCombatRegionId(gs),
       data,
     });
     if (effectResult?.uiAction) dispatchUiAction?.(effectResult);
 
-    TurnManager.decayEnemyWeaken(enemy);
+    resolveEnemyWeakenDecay(enemy);
     renderCombatEnemies?.();
   }
 
   if (!(await waitForCombat(gs, 600))) return;
   if (shouldAbortTurn(gs)) return;
 
-  const statusResult = TurnManager.processPlayerStatusTicks(gs, {
+  const statusResult = resolvePlayerStatusTicks(gs, {
     shuffleArrayFn: shuffleArray,
   });
   if (!statusResult.alive) return;
@@ -83,7 +112,7 @@ export async function runEnemyTurnUseCase({
     classMechanics,
     preserveGuardianShield: syncGuardianPreservedShield,
     beforeStartPlayerTurn,
-    startPlayerTurn: () => TurnManager.startPlayerTurnLogic(gs),
+    startPlayerTurn: startPlayerTurnAction,
     syncCombatEnergy,
     onTurnStart,
     presentPlayerTurnReady: onPlayerTurnStarted,

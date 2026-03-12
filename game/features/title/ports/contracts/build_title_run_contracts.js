@@ -17,6 +17,8 @@ export function buildTitleRunContractBuilders(ctx) {
       return {
         ...buildBaseDeps('run'),
         switchScreen: refs.switchScreen,
+        showTitleScreen: () => refs.switchScreen?.('title'),
+        completeTitleReturn: () => refs.completeTitleReturn?.(),
         clearSelectedClass: refs.clearSelectedClass,
         refreshRunModePanel: refs.refreshRunModePanel,
         refreshTitleSaveState: () => refs.GameBootUI?.refreshTitleSaveState?.(createDeps('gameBoot')),

@@ -8,7 +8,7 @@ describe('finish_event_flow_use_case', () => {
     const finishEventFlow = createFinishEventFlowUseCase({ unlockEventFlow });
     const gs = { _eventLock: true };
     const clearCurrentEvent = vi.fn();
-    const switchScreen = vi.fn();
+    const showGameplayScreen = vi.fn();
     const updateUI = vi.fn();
     const renderMinimap = vi.fn();
     const updateNextNodes = vi.fn();
@@ -16,7 +16,7 @@ describe('finish_event_flow_use_case', () => {
     finishEventFlow({
       gs,
       clearCurrentEvent,
-      switchScreen,
+      showGameplayScreen,
       updateUI,
       renderMinimap,
       updateNextNodes,
@@ -24,7 +24,7 @@ describe('finish_event_flow_use_case', () => {
 
     expect(clearCurrentEvent).toHaveBeenCalledTimes(1);
     expect(unlockEventFlow).toHaveBeenCalledWith(gs);
-    expect(switchScreen).toHaveBeenCalledWith('game');
+    expect(showGameplayScreen).toHaveBeenCalledTimes(1);
     expect(updateUI).toHaveBeenCalledTimes(1);
     expect(renderMinimap).toHaveBeenCalledTimes(1);
     expect(updateNextNodes).toHaveBeenCalledTimes(1);

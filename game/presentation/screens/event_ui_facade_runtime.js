@@ -13,7 +13,7 @@ import {
   getGS,
   getRunRules,
 } from '../../features/event/platform/event_runtime_context.js';
-import { finishEventFlow, resolveEventChoiceFlow } from '../../features/event/presentation/event_choice_flow.js';
+import { finishEventFlow, resolveEventChoiceFlow } from '../../features/event/app/event_choice_flow_actions.js';
 import {
   openEventItemShopRuntime,
   openEventRestSiteRuntime,

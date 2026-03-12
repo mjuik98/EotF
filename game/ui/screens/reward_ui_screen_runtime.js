@@ -56,5 +56,6 @@ export function showRewardScreenRuntime(ui, mode = false, deps = {}) {
     onTakeItem: (itemId) => ui.takeRewardItem(itemId, deps),
   });
 
-  deps.switchScreen?.('reward');
+  if (typeof deps.showRewardScreen === 'function') deps.showRewardScreen();
+  else deps.switchScreen?.('reward');
 }

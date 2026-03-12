@@ -21,8 +21,16 @@ import {
 export const REWARD_CLAIM_KEY = 'reward:claim';
 export const REWARD_SKIP_KEY = 'reward:skip';
 
+function returnFromReward(deps = {}) {
+  if (typeof deps.returnFromReward === 'function') {
+    deps.returnFromReward();
+    return;
+  }
+  deps.returnToGame?.(true);
+}
+
 export function finishReward(deps = {}) {
-  setTimeout(() => deps.returnToGame?.(true), 350);
+  setTimeout(() => returnFromReward(deps), 350);
 }
 
 function playRewardItemGet(deps = {}) {
@@ -146,12 +154,13 @@ export function takeRewardRemoveRuntime(deps = {}) {
           clearIdempotencyKey(REWARD_CLAIM_KEY);
           setRewardPickedState(doc, false);
         },
+        returnFromReward: () => returnFromReward(deps),
         returnToGame: (force) => deps.returnToGame?.(force),
       });
       return;
     }
 
-    deps.returnToGame?.(true);
+    returnFromReward(deps);
   }, { ttlMs: 3000 });
 }
 
@@ -162,6 +171,6 @@ export function skipRewardRuntime(deps = {}) {
   return runIdempotent(REWARD_SKIP_KEY, () => {
     if (isRewardFlowLocked(gs)) return;
     lockRewardFlow(gs);
-    deps.returnToGame?.(true);
+    returnFromReward(deps);
   }, { ttlMs: 3000 });
 }

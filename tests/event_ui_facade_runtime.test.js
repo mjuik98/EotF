@@ -43,7 +43,7 @@ vi.mock('../game/features/event/platform/event_runtime_dom.js', () => ({
   showEventCardDiscardOverlay: mocks.showEventCardDiscardOverlay,
 }));
 
-vi.mock('../game/features/event/presentation/event_choice_flow.js', () => ({
+vi.mock('../game/features/event/app/event_choice_flow_actions.js', () => ({
   finishEventFlow: vi.fn(),
   resolveEventChoiceFlow: vi.fn(),
 }));

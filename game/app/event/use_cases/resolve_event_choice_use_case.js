@@ -1,8 +1,8 @@
-import { EventManager } from '../../../systems/event_manager.js';
 import { buildEventViewModel } from './build_event_view_model.js';
+import { resolveEventChoiceAction } from '../../../features/event/app/event_manager_actions.js';
 
 export function createResolveEventChoiceUseCase(options = {}) {
-  const resolveChoice = options.resolveChoice || EventManager.resolveEventChoice;
+  const resolveChoice = options.resolveChoice || resolveEventChoiceAction;
   const buildViewModel = options.buildViewModel || buildEventViewModel;
 
   return function resolveEventChoice(input = {}) {

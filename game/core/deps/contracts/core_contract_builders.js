@@ -19,11 +19,22 @@ export function buildCoreContractBuilders(ctx) {
 
     story: () => {
       const refs = getRefs();
+      const restartEndingFlow = refs.restartEndingFlow || refs.restartFromEnding;
+      const selectEndingFragment = refs.selectEndingFragment || refs.selectFragment;
+      const openEndingCodex = refs.openEndingCodex || refs.openCodex;
       return {
         ...buildBaseDeps('run'),
         audioEngine: refs.AudioEngine,
         particleSystem: refs.ParticleSystem,
         showWorldMemoryNotice: refs.showWorldMemoryNotice,
+        restartEndingFlow: () => restartEndingFlow?.(),
+        selectEndingFragment: (effect) => selectEndingFragment?.(effect),
+        openEndingCodex: () => openEndingCodex?.(),
+        endingActions: {
+          restart: () => restartEndingFlow?.(),
+          selectFragment: (effect) => selectEndingFragment?.(effect),
+          openCodex: () => openEndingCodex?.(),
+        },
         restartFromEnding: refs.restartFromEnding,
         openCodex: refs.openCodex,
       };
@@ -57,6 +68,7 @@ export function buildCoreContractBuilders(ctx) {
         ...buildBaseDeps('event'),
         runRules: refs.RunRules,
         updateUI: refs.updateUI,
+        showGameplayScreen: () => refs.switchScreen?.('game'),
         returnToGame: refs.returnToGame,
         switchScreen: refs.switchScreen,
         renderMinimap: refs.renderMinimap,
@@ -74,7 +86,10 @@ export function buildCoreContractBuilders(ctx) {
       const refs = getRefs();
       return {
         ...buildBaseDeps('run'),
+        showGameplayScreen: () => refs.switchScreen?.('game'),
         switchScreen: refs.switchScreen,
+        showRewardScreen: () => refs.switchScreen?.('reward'),
+        returnFromReward: () => refs.returnToGame?.(true),
         returnToGame: refs.returnToGame,
         showItemToast: refs.showItemToast,
         tooltipUI: refs.TooltipUI,

@@ -42,7 +42,7 @@ describe('reward_ui_screen_runtime', () => {
       doc: {
         getElementById: vi.fn((id) => (id === 'rewardCards' ? container : null)),
       },
-      switchScreen: vi.fn(),
+      showRewardScreen: vi.fn(),
     };
     const ui = {
       hideSkipConfirm: vi.fn(),
@@ -65,6 +65,6 @@ describe('reward_ui_screen_runtime', () => {
       isElite: true,
       rewardCards: ['card_a', 'card_b'],
     }));
-    expect(deps.switchScreen).toHaveBeenCalledWith('reward');
+    expect(deps.showRewardScreen).toHaveBeenCalledTimes(1);
   });
 });

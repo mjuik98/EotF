@@ -1,13 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-const { createShopEventSpy } = vi.hoisted(() => ({
-  createShopEventSpy: vi.fn(),
+const { createEventShopUseCaseSpy } = vi.hoisted(() => ({
+  createEventShopUseCaseSpy: vi.fn(),
 }));
 
-vi.mock('../game/systems/event_manager.js', () => ({
-  EventManager: {
-    createShopEvent: createShopEventSpy,
-  },
+vi.mock('../game/app/event/use_cases/create_event_shop_use_case.js', () => ({
+  createEventShopUseCase: createEventShopUseCaseSpy,
 }));
 
 import { createEventShop, decorateEventShopChoiceEffects } from '../game/ui/screens/event_ui_shop.js';
@@ -60,8 +58,8 @@ describe('event_ui_shop', () => {
       state.opened = true;
       return { resultText: 'Potion bought' };
     });
-    createShopEventSpy.mockImplementationOnce((_gs, _data, _runRules, options) => {
-      options.showItemShopFn?.({ fromEventManager: true });
+    createEventShopUseCaseSpy.mockImplementationOnce(({ showItemShop }) => {
+      showItemShop?.({ fromEventManager: true });
       return {
         id: 'shop',
         choices: [{ effect: choiceEffect }],
@@ -72,7 +70,7 @@ describe('event_ui_shop', () => {
       showItemShop,
     });
 
-    expect(createShopEventSpy).toHaveBeenCalledTimes(1);
+    expect(createEventShopUseCaseSpy).toHaveBeenCalledTimes(1);
     expect(showItemShop).toHaveBeenCalledWith({ fromEventManager: true });
 
     const state = {};

@@ -6,7 +6,7 @@ import {
   openEventRestSiteRuntime,
   openEventShopRuntime,
   renderEventShellRuntime,
-} from '../../../ui/screens/event_ui_runtime_helpers.js';
+} from '../../../presentation/screens/event_ui_runtime_helpers.js';
 
 export function dismissEventModalRuntime(modal, onDone, deps = {}) {
   return dismissEventModal(modal, onDone, deps);

@@ -11,5 +11,6 @@ export function showDeathOutcomeScreen(gs, deps = {}, win = null) {
     finalizeRunOutcome,
     gs,
     selectFragment,
+    win,
   });
 }

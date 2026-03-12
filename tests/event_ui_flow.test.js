@@ -117,7 +117,7 @@ describe('event_ui_flow', () => {
     const gs = { _eventLock: true };
     const clearCurrentEvent = vi.fn();
     const deps = {
-      switchScreen: vi.fn(),
+      showGameplayScreen: vi.fn(),
       updateUI: vi.fn(),
       renderMinimap: vi.fn(),
       updateNextNodes: vi.fn(),
@@ -128,7 +128,7 @@ describe('event_ui_flow', () => {
     expect(dismissEventModalSpy).toHaveBeenCalledWith(doc.refs.eventModal, expect.any(Function), deps);
     expect(clearCurrentEvent).toHaveBeenCalledTimes(1);
     expect(gs._eventLock).toBe(false);
-    expect(deps.switchScreen).toHaveBeenCalledWith('game');
+    expect(deps.showGameplayScreen).toHaveBeenCalledTimes(1);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
     expect(deps.renderMinimap).toHaveBeenCalledTimes(1);
     expect(deps.updateNextNodes).toHaveBeenCalledTimes(1);

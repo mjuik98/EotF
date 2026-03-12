@@ -27,6 +27,7 @@ describe('createEventRewardBindings', () => {
         skipReward: vi.fn(),
       },
       RunReturnUI: {
+        returnFromReward: vi.fn(),
         returnToGame: vi.fn(),
       },
     };
@@ -40,6 +41,7 @@ describe('createEventRewardBindings', () => {
     fns.showShop();
     fns.showRewardScreen(true);
     fns.skipReward();
+    fns.returnFromReward();
     fns.returnToGame(false);
 
     expect(modules.EventUI.triggerRandomEvent).toHaveBeenCalledWith({ token: 'event-deps' });
@@ -48,9 +50,10 @@ describe('createEventRewardBindings', () => {
     expect(modules.EventUI.showShop).toHaveBeenCalledWith({ token: 'event-deps' });
     expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith(true, { token: 'reward-deps' });
     expect(modules.RewardUI.skipReward).toHaveBeenCalledWith({ token: 'reward-deps' });
+    expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
     expect(Deps.getEventDeps).toHaveBeenCalledTimes(4);
     expect(Deps.getRewardDeps).toHaveBeenCalledTimes(2);
-    expect(Deps.getRunReturnDeps).toHaveBeenCalledTimes(1);
+    expect(Deps.getRunReturnDeps).toHaveBeenCalledTimes(2);
   });
 });

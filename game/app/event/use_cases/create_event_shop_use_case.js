@@ -1,4 +1,4 @@
-import { EventManager } from '../../../systems/event_manager.js';
+import { createShopEventAction } from '../../../features/event/app/event_manager_actions.js';
 
 export function createEventShopUseCase({
   gs,
@@ -7,7 +7,7 @@ export function createEventShopUseCase({
   showItemShop,
 } = {}) {
   if (!gs || !data || !runRules) return null;
-  return EventManager.createShopEvent(gs, data, runRules, {
+  return createShopEventAction(gs, data, runRules, {
     showItemShopFn: (state) => showItemShop?.(state),
   });
 }

@@ -1,5 +1,18 @@
+import {
+  completeTitleReturn,
+  returnToTitleFromPause,
+} from './title_return_actions.js';
+
 export function createTitleSystemActions(context) {
   const { modules, playClick, ports, win } = context;
+
+  function restartEndingFlow() {
+    if (typeof modules.MetaProgressionUI?.restartEndingFlow === 'function') {
+      modules.MetaProgressionUI.restartEndingFlow(ports.getMetaProgressionDeps());
+      return;
+    }
+    modules.MetaProgressionUI?.restartFromEnding?.(ports.getMetaProgressionDeps());
+  }
 
   return {
     toggleHelp() {
@@ -23,8 +36,21 @@ export function createTitleSystemActions(context) {
       return modules.RandomUtils?.shuffleArray?.(arr) || arr;
     },
 
+    restartEndingFlow,
+
+    completeTitleReturn() {
+      completeTitleReturn(ports.getMetaProgressionDeps());
+    },
+
+    returnToTitleFromPause() {
+      returnToTitleFromPause({
+        ...ports.getHelpPauseDeps(),
+        win,
+      });
+    },
+
     restartFromEnding() {
-      modules.MetaProgressionUI?.restartFromEnding?.(ports.getMetaProgressionDeps());
+      restartEndingFlow();
     },
 
     quitGame() {

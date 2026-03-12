@@ -64,7 +64,7 @@ describe('reward_ui_runtime', () => {
     vi.useFakeTimers();
     clearIdempotencyPrefix('reward:');
     const doc = createDoc();
-    const returnToGame = vi.fn();
+    const returnFromReward = vi.fn();
     const playItemGet = vi.fn();
     const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
     const deps = {
@@ -81,7 +81,7 @@ describe('reward_ui_runtime', () => {
       audioEngine,
       playItemGet,
       showItemToast: vi.fn(),
-      returnToGame,
+      returnFromReward,
     };
 
     try {
@@ -95,19 +95,19 @@ describe('reward_ui_runtime', () => {
     expect(playItemGet).toHaveBeenCalledTimes(1);
     expect(audioEngine.playEvent).not.toHaveBeenCalled();
     expect(audioEngine.playItemGet).not.toHaveBeenCalled();
-    expect(returnToGame).toHaveBeenCalledWith(true);
+    expect(returnFromReward).toHaveBeenCalledTimes(1);
   });
 
   it('returns directly to the game when remove flow has no EventUI discard hook', () => {
     clearIdempotencyPrefix('reward:');
     const doc = createDoc();
-    const returnToGame = vi.fn();
+    const returnFromReward = vi.fn();
     const deps = {
       gs: {
         _rewardLock: false,
       },
       doc,
-      returnToGame,
+      returnFromReward,
     };
 
     try {
@@ -118,17 +118,17 @@ describe('reward_ui_runtime', () => {
 
     expect(doc.rewardCards.classList.contains('picked')).toBe(true);
     expect(deps.gs._rewardLock).toBe(true);
-    expect(returnToGame).toHaveBeenCalledWith(true);
+    expect(returnFromReward).toHaveBeenCalledTimes(1);
   });
 
   it('locks the reward and returns to game when skipping', () => {
     clearIdempotencyPrefix('reward:');
-    const returnToGame = vi.fn();
+    const returnFromReward = vi.fn();
     const deps = {
       gs: {
         _rewardLock: false,
       },
-      returnToGame,
+      returnFromReward,
     };
 
     try {
@@ -138,6 +138,6 @@ describe('reward_ui_runtime', () => {
     }
 
     expect(deps.gs._rewardLock).toBe(true);
-    expect(returnToGame).toHaveBeenCalledWith(true);
+    expect(returnFromReward).toHaveBeenCalledTimes(1);
   });
 });

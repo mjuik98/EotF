@@ -32,6 +32,14 @@ export function createRewardActions(modules, ports) {
       modules.RewardUI?.skipReward?.(ports.getRewardDeps());
     },
 
+    returnFromReward() {
+      if (typeof modules.RunReturnUI?.returnFromReward === 'function') {
+        modules.RunReturnUI.returnFromReward(ports.getRunReturnDeps());
+        return;
+      }
+      modules.RunReturnUI?.returnToGame?.(true, ports.getRunReturnDeps());
+    },
+
     returnToGame(fromReward) {
       modules.RunReturnUI?.returnToGame?.(fromReward, ports.getRunReturnDeps());
     },

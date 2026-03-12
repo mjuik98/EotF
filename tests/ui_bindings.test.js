@@ -114,4 +114,25 @@ describe('createUIBindings', () => {
 
     globalThis.document = originalDocument;
   });
+
+  it('routes switchScreen through screen_service when gs dispatch is available', () => {
+    const modules = {
+      GS: {
+        currentScreen: 'title',
+        dispatch: vi.fn(),
+      },
+      AudioEngine: { playClick: vi.fn() },
+      ScreenUI: { switchScreen: vi.fn() },
+    };
+    const fns = {};
+
+    createUIBindings(modules, fns);
+    fns.switchScreen('game');
+
+    expect(modules.GS.dispatch).toHaveBeenCalledTimes(1);
+    expect(modules.ScreenUI.switchScreen).toHaveBeenCalledWith('game', {
+      token: 'screen-deps',
+      gs: modules.GS,
+    });
+  });
 });

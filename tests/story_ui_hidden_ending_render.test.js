@@ -48,6 +48,8 @@ function createDoc() {
 describe('story_ui_hidden_ending_render', () => {
   it('renders hidden ending overlay, unlocks inscription, and wires restart button', () => {
     const doc = createDoc();
+    const restart = vi.fn();
+    const restartEndingFlow = vi.fn();
     const restartFromEnding = vi.fn();
     const burstEffect = vi.fn();
     const playResonanceBurst = vi.fn();
@@ -62,6 +64,8 @@ describe('story_ui_hidden_ending_render', () => {
       doc,
       win: { innerWidth: 1000, innerHeight: 800 },
       setTimeoutFn,
+      endingActions: { restart },
+      restartEndingFlow,
       restartFromEnding,
       particleSystem: { burstEffect },
       audioEngine: { playResonanceBurst },
@@ -83,7 +87,9 @@ describe('story_ui_hidden_ending_render', () => {
     expect(overlay.children).toHaveLength(5);
     const button = overlay.children[3].children[0];
     button.onclick();
-    expect(restartFromEnding).toHaveBeenCalled();
+    expect(restart).toHaveBeenCalledTimes(1);
+    expect(restartEndingFlow).not.toHaveBeenCalled();
+    expect(restartFromEnding).not.toHaveBeenCalled();
 
     expect(scheduled).toEqual(expect.arrayContaining([2000, 0, 300, 600, 900, 1200]));
     expect(burstEffect).toHaveBeenCalledTimes(5);

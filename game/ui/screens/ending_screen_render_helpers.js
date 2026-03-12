@@ -1,5 +1,10 @@
-import { playUiClick } from '../../domain/audio/audio_event_helpers.js';
 import { FRAGMENT_CHOICES, ROOT_ID, STYLE_ID, winOf } from './ending_screen_helpers.js';
+import { resolveEndingActions } from './ending_screen_action_helpers.js';
+import {
+  buildEndingFragmentChoiceViewModel,
+  presentEndingFragmentChoices,
+} from './ending_fragment_choice_presenter.js';
+import { createEndingFragmentChoiceActions } from './ending_fragment_choice_actions.js';
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');
@@ -119,50 +124,41 @@ export function populateEndingMeta(doc, payload, session, deps = {}) {
 }
 
 export function appendEndingFragmentChoices(doc, deps, outcome, session, cleanup) {
-  const gs = deps?.gs;
-  if (!gs?.meta || outcome === 'victory') return;
+  const { selectFragment: pick } = resolveEndingActions(deps);
+  if (typeof pick !== 'function') return;
 
-  const shardCount = Math.max(0, Math.floor(num(gs.meta.echoFragments, 0)));
-  const pick = deps.selectFragment;
-  if (!shardCount || typeof pick !== 'function') return;
+  const viewModel = buildEndingFragmentChoiceViewModel({
+    choices: FRAGMENT_CHOICES,
+    gs: deps?.gs,
+    outcome,
+  });
+  if (!viewModel) return;
 
   const anchor = doc.getElementById('s7');
-  if (!anchor?.parentNode) return;
-
-  const wrap = doc.createElement('div');
-  wrap.id = 's6b';
-  wrap.className = 'frag-wrap sc';
-
-  const title = doc.createElement('div');
-  title.className = 'frag-title';
-  title.textContent = `메아리 조각 ${shardCount}개 - 각인을 선택하라`;
-
-  const grid = doc.createElement('div');
-  grid.className = 'frag-grid';
-
-  FRAGMENT_CHOICES.forEach((entry) => {
-    const button = doc.createElement('button');
-    button.type = 'button';
-    button.className = 'frag-card';
-    button.innerHTML = `<div class="frag-icon">${entry.icon}</div><div class="frag-name">${entry.name}</div><div class="frag-desc">${entry.desc}</div>`;
-
-    const onPick = () => {
-      if (button.disabled) return;
-      grid.querySelectorAll('.frag-card').forEach((element) => {
-        element.disabled = true;
+  let ui = null;
+  const actions = createEndingFragmentChoiceActions({
+    audioEngine: deps.audioEngine,
+    disableChoices: () => {
+      ui?.buttons?.forEach((button) => {
+        button.disabled = true;
       });
-      playUiClick(deps.audioEngine);
-      pick(entry.effect);
+    },
+    pick,
+    scheduleCleanup: () => {
       session.timers.push(winOf(deps).setTimeout(() => cleanup({ doc }), 420));
-    };
-
-    button.addEventListener('click', onPick);
-    session.cleanups.push(() => button.removeEventListener('click', onPick));
-    grid.appendChild(button);
+    },
   });
 
-  wrap.append(title, grid);
-  anchor.parentNode.insertBefore(wrap, anchor);
+  ui = presentEndingFragmentChoices({
+    anchor,
+    doc,
+    onChoose: (effect, { button } = {}) => {
+      if (button?.disabled) return;
+      actions.choose(effect);
+    },
+    session,
+    viewModel,
+  });
 }
 
 export function ensureEndingScreenStyle(doc) {

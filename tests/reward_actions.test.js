@@ -16,6 +16,7 @@ describe('reward_actions', () => {
         skipReward: vi.fn(),
       },
       RunReturnUI: {
+        returnFromReward: vi.fn(),
         returnToGame: vi.fn(),
       },
     };
@@ -33,6 +34,7 @@ describe('reward_actions', () => {
     actions.showSkipConfirm();
     actions.hideSkipConfirm();
     actions.skipReward();
+    actions.returnFromReward();
     actions.returnToGame(false);
 
     expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith(true, { token: 'reward-deps' });
@@ -43,8 +45,9 @@ describe('reward_actions', () => {
     expect(modules.RewardUI.showSkipConfirm).toHaveBeenCalledWith({ token: 'reward-deps' });
     expect(modules.RewardUI.hideSkipConfirm).toHaveBeenCalledWith({ token: 'reward-deps' });
     expect(modules.RewardUI.skipReward).toHaveBeenCalledWith({ token: 'reward-deps' });
+    expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
     expect(ports.getRewardDeps).toHaveBeenCalledTimes(8);
-    expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(1);
+    expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(2);
   });
 });

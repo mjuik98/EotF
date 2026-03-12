@@ -1,4 +1,4 @@
-import { EventManager } from '../../../systems/event_manager.js';
+import { createRestEventAction } from '../../../features/event/app/event_manager_actions.js';
 
 export function createRestEventUseCase({
   gs,
@@ -7,7 +7,7 @@ export function createRestEventUseCase({
   showCardDiscard,
 } = {}) {
   if (!gs || !data || !runRules) return null;
-  return EventManager.createRestEvent(gs, data, runRules, {
+  return createRestEventAction(gs, data, runRules, {
     showCardDiscardFn: (state, isBurn) => showCardDiscard?.(state, isBurn),
   });
 }

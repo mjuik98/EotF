@@ -140,6 +140,7 @@ describe('ending_screen_render_helpers', () => {
     byId.set('s7', anchor);
 
     const cleanup = vi.fn();
+    const endingActions = { selectFragment: vi.fn() };
     const selectFragment = vi.fn();
     const playEvent = vi.fn();
     const playClick = vi.fn();
@@ -152,6 +153,7 @@ describe('ending_screen_render_helpers', () => {
     appendEndingFragmentChoices(doc, {
       gs: { meta: { echoFragments: 2 } },
       win: { setTimeout },
+      endingActions,
       selectFragment,
       audioEngine: { playEvent, playClick },
     }, 'defeat', session, cleanup);
@@ -164,7 +166,8 @@ describe('ending_screen_render_helpers', () => {
 
     expect(playEvent).toHaveBeenCalledWith('ui', 'click');
     expect(playClick).not.toHaveBeenCalled();
-    expect(selectFragment).toHaveBeenCalledWith('echo_boost');
+    expect(endingActions.selectFragment).toHaveBeenCalledWith('echo_boost');
+    expect(selectFragment).not.toHaveBeenCalled();
     expect(cleanup).toHaveBeenCalledWith({ doc });
     expect(grid.children.every((child) => child.disabled)).toBe(true);
     expect(session.timers).toContain(99);

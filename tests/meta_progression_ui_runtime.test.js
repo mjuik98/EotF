@@ -17,7 +17,7 @@ describe('meta_progression_ui_runtime', () => {
 
   it('applies a fragment effect and schedules title-return side effects', () => {
     const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
-    const switchScreen = vi.fn();
+    const showTitleScreen = vi.fn();
     const clearSelectedClass = vi.fn();
     const refreshRunModePanel = vi.fn();
     const refreshTitleSaveState = vi.fn();
@@ -30,7 +30,7 @@ describe('meta_progression_ui_runtime', () => {
           inscriptions: {},
         },
       },
-      switchScreen,
+      showTitleScreen,
       clearSelectedClass,
       refreshRunModePanel,
       refreshTitleSaveState,
@@ -46,7 +46,7 @@ describe('meta_progression_ui_runtime', () => {
 
     vi.advanceTimersByTime(500);
 
-    expect(switchScreen).toHaveBeenCalledWith('title');
+    expect(showTitleScreen).toHaveBeenCalledTimes(1);
     expect(clearSelectedClass).toHaveBeenCalledTimes(1);
     expect(refreshRunModePanel).toHaveBeenCalledTimes(1);
     expect(refreshTitleSaveState).toHaveBeenCalledTimes(1);
@@ -57,7 +57,7 @@ describe('meta_progression_ui_runtime', () => {
     const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
     const deps = {
       doc: { id: 'doc' },
-      switchScreen: vi.fn(),
+      showTitleScreen: vi.fn(),
       clearSelectedClass: vi.fn(),
       refreshRunModePanel: vi.fn(),
       refreshTitleSaveState: vi.fn(),
@@ -67,10 +67,26 @@ describe('meta_progression_ui_runtime', () => {
     restartFromEndingRuntime(deps);
 
     expect(cleanupSpy).toHaveBeenCalledWith({ doc: deps.doc });
-    expect(deps.switchScreen).toHaveBeenCalledWith('title');
+    expect(deps.showTitleScreen).toHaveBeenCalledTimes(1);
     expect(deps.clearSelectedClass).toHaveBeenCalledTimes(1);
     expect(deps.refreshRunModePanel).toHaveBeenCalledTimes(1);
     expect(deps.refreshTitleSaveState).toHaveBeenCalledTimes(1);
     expect(deps.showPendingClassProgressSummary).toHaveBeenCalledTimes(1);
+  });
+
+  it('prefers the injected completeTitleReturn helper over direct callbacks', () => {
+    const cleanupSpy = vi.spyOn(EndingScreenUI, 'cleanup').mockImplementation(() => {});
+    const completeTitleReturn = vi.fn();
+    const deps = {
+      doc: { id: 'doc' },
+      completeTitleReturn,
+      showTitleScreen: vi.fn(),
+    };
+
+    restartFromEndingRuntime(deps);
+
+    expect(cleanupSpy).toHaveBeenCalledWith({ doc: deps.doc });
+    expect(completeTitleReturn).toHaveBeenCalledTimes(1);
+    expect(deps.showTitleScreen).not.toHaveBeenCalled();
   });
 });

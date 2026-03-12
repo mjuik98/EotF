@@ -1,15 +1,41 @@
 function buildEndCombatDeps(deps = {}, win = {}) {
+  const returnToGame = deps.returnToGame || win.returnToGame;
   return {
     ...deps,
     showRewardScreen: deps.showRewardScreen || win.showRewardScreen,
     showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
     switchScreen: deps.switchScreen || win.switchScreen,
-    returnToGame: deps.returnToGame || win.returnToGame,
+    returnToGame,
+    returnFromReward: deps.returnFromReward || win.returnFromReward || (() => returnToGame?.(true)),
     updateUI: deps.updateUI || win.updateUI,
     renderHand: deps.renderHand || win.renderHand,
     updateChainUI: deps.updateChainUI || win.updateChainUI,
     tooltipUI: deps.tooltipUI || win.TooltipUI,
     hudUpdateUI: deps.hudUpdateUI || win.HudUpdateUI,
+  };
+}
+
+function buildEndingActions(deps = {}, win = {}) {
+  const restart = deps.endingActions?.restart
+    || deps.restartEndingFlow
+    || deps.restartFromEnding
+    || win.restartEndingFlow
+    || win.restartFromEnding;
+  const selectFragment = deps.endingActions?.selectFragment
+    || deps.selectEndingFragment
+    || deps.selectFragment
+    || win.selectEndingFragment
+    || win.selectFragment;
+  const openCodex = deps.endingActions?.openCodex
+    || deps.openEndingCodex
+    || deps.openCodex
+    || win.openEndingCodex
+    || win.openCodex;
+
+  return {
+    restart: typeof restart === 'function' ? (...args) => restart(...args) : undefined,
+    selectFragment: typeof selectFragment === 'function' ? (effect) => selectFragment(effect) : undefined,
+    openCodex: typeof openCodex === 'function' ? (...args) => openCodex(...args) : undefined,
   };
 }
 
@@ -92,6 +118,7 @@ export function showDefeatOutcome({
   finalizeRunOutcome,
   gs,
   selectFragment,
+  win,
 } = {}) {
   if (typeof finalizeRunOutcome === 'function') {
     finalizeRunOutcome('defeat', { echoFragments: 3 }, { gs });
@@ -99,6 +126,7 @@ export function showDefeatOutcome({
   endingScreenUI?.showOutcome?.('defeat', {
     ...deps,
     gs,
+    endingActions: buildEndingActions({ ...deps, selectFragment }, win),
     selectFragment,
   });
 }

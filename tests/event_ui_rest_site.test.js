@@ -1,17 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { createRestEventSpy, startRestFillParticlesSpy } = vi.hoisted(() => ({
-  createRestEventSpy: vi.fn(),
+const { createRestEventUseCaseSpy, startRestFillParticlesSpy } = vi.hoisted(() => ({
+  createRestEventUseCaseSpy: vi.fn(),
   startRestFillParticlesSpy: vi.fn(() => ({
     setBoost: vi.fn(),
     stop: vi.fn(),
   })),
 }));
 
-vi.mock('../game/systems/event_manager.js', () => ({
-  EventManager: {
-    createRestEvent: createRestEventSpy,
-  },
+vi.mock('../game/app/event/use_cases/create_rest_event_use_case.js', () => ({
+  createRestEventUseCase: createRestEventUseCaseSpy,
 }));
 
 vi.mock('../game/ui/screens/event_ui_particles.js', () => ({
@@ -154,7 +152,7 @@ describe('event_ui_rest_site', () => {
       heal: vi.fn((amount) => { gs.player.hp += amount; }),
       addEcho: vi.fn((amount) => { gs.player.echo += amount; }),
     };
-    createRestEventSpy.mockReturnValueOnce({ title: 'Rest', choices: [] });
+    createRestEventUseCaseSpy.mockReturnValueOnce({ title: 'Rest', choices: [] });
 
     showEventRestSiteOverlay(gs, { cards: {} }, {
       getHealAmount: vi.fn(() => 12),
@@ -169,7 +167,7 @@ describe('event_ui_rest_site', () => {
     expect(startRestFillParticlesSpy).toHaveBeenCalledTimes(1);
     vi.runAllTimers();
 
-    expect(createRestEventSpy).toHaveBeenCalledTimes(1);
+    expect(createRestEventUseCaseSpy).toHaveBeenCalledTimes(1);
     expect(showEvent).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Rest',
       desc: 'Recovered 12 HP and gained 30 Echo. Choose your next action.',

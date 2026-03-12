@@ -39,6 +39,14 @@ export function createTitleSettingsActions(context) {
       modules.MetaProgressionUI?.selectFragment?.(effect, ports.getMetaProgressionDeps());
     },
 
+    selectEndingFragment(effect) {
+      if (typeof modules.MetaProgressionUI?.selectEndingFragment === 'function') {
+        modules.MetaProgressionUI.selectEndingFragment(effect, ports.getMetaProgressionDeps());
+        return;
+      }
+      modules.MetaProgressionUI?.selectFragment?.(effect, ports.getMetaProgressionDeps());
+    },
+
     advanceToNextRegion(overrideDeps = {}) {
       const baseDeps = ports.getRegionTransitionDeps();
       modules.RegionTransitionUI?.advanceToNextRegion?.({ ...baseDeps, ...overrideDeps });

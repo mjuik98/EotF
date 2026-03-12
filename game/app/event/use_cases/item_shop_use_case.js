@@ -1,11 +1,14 @@
-import { EventManager } from '../../../systems/event_manager.js';
+import {
+  buildItemShopStockAction,
+  purchaseItemFromShopAction,
+} from '../../../features/event/app/event_manager_actions.js';
 
 export function buildItemShopStockUseCase({ gs, data, runRules } = {}) {
   if (!gs?.player || !data?.items || !runRules) return [];
-  return EventManager.generateItemShopStock(gs, data, runRules);
+  return buildItemShopStockAction(gs, data, runRules);
 }
 
 export function purchaseItemFromShopUseCase({ gs, item, cost } = {}) {
   if (!gs || !item) return { success: false };
-  return EventManager.purchaseItem(gs, item, cost);
+  return purchaseItemFromShopAction(gs, item, cost);
 }

@@ -14,9 +14,9 @@ import {
   closePauseMenu,
   createPauseMenuCallbacks,
   handleGlobalHotkey,
-  saveRunBeforeReturn,
 } from './help_pause_ui_runtime.js';
 import { confirmAbandonRun } from './help_pause_ui_abandon_runtime.js';
+import { confirmReturnToTitleRuntime } from './help_pause_ui_return_runtime.js';
 
 let _helpOpen = false;
 let _pauseOpen = false;
@@ -78,8 +78,10 @@ export const HelpPauseUI = {
       () => confirmEl.remove(),
       () => {
         confirmEl.remove();
-        saveRunBeforeReturn(deps);
-        deps.reload?.() || win?.location?.reload?.();
+        confirmReturnToTitleRuntime({
+          ...deps,
+          win,
+        });
       },
     );
     doc.body.appendChild(confirmEl);

@@ -11,13 +11,13 @@ import {
   ENEMY_STATUS_KR,
 } from '../../../data/status_effects_data.js';
 import { createEnemyCardView, updateEnemyCardView, updateEnemyHpView } from './combat_enemy_card_ui.js';
-import { buildEnemyViewModel } from './combat_enemy_view_model_ui.js';
 import { buildEnemyHpUpdateViewModel, syncCombatEnemyFloatingTooltips } from './combat_enemy_runtime_ui.js';
 import {
   buildCombatEnemyHandlers,
   cleanupCombatTooltips,
   renderCombatEnemyList,
-} from './combat_ui_runtime_helpers.js';
+} from '../../presentation/combat/combat_enemy_list_presenter.js';
+import { buildEnemyViewModel } from '../../presentation/combat/combat_enemy_view_model_presenter.js';
 
 export { ENEMY_STATUS_DESC, ENEMY_STATUS_KR };
 

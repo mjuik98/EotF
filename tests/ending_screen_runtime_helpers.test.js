@@ -90,6 +90,7 @@ describe('ending_screen_runtime_helpers', () => {
       }),
     };
     const session = { cleanups: [], timers: [] };
+    const restartEndingFlow = vi.fn();
     const restartFromEnding = vi.fn();
     const playResonanceBurst = vi.fn();
 
@@ -102,6 +103,7 @@ describe('ending_screen_runtime_helpers', () => {
     helpers.bindEndingRestartButton(doc, {
       win,
       audioEngine: { playResonanceBurst },
+      restartEndingFlow,
       restartFromEnding,
     }, session, [], { cleanup: vi.fn() });
     restartHandler();
@@ -109,5 +111,89 @@ describe('ending_screen_runtime_helpers', () => {
     expect(playResonanceBurst).toHaveBeenCalled();
     expect(timers).toEqual(expect.arrayContaining([0, 70, 140, 210, 280, 420]));
     expect(session.cleanups).toHaveLength(2);
+    expect(restartEndingFlow).not.toHaveBeenCalled();
+    expect(restartFromEnding).not.toHaveBeenCalled();
+  });
+
+  it('prefers restartEndingFlow over the legacy restartFromEnding callback', async () => {
+    const helpers = await import('../game/ui/screens/ending_screen_runtime_helpers.js');
+
+    let restartHandler = null;
+    const restartButton = {
+      addEventListener: vi.fn((type, fn) => {
+        if (type === 'click') restartHandler = fn;
+      }),
+      removeEventListener: vi.fn(),
+      getBoundingClientRect: vi.fn(() => null),
+    };
+    const doc = {
+      getElementById(id) {
+        if (id === 'btnR') return restartButton;
+        return null;
+      },
+    };
+    const restartEndingFlow = vi.fn();
+    const restartFromEnding = vi.fn();
+    const session = { cleanups: [], timers: [] };
+    const scheduled = [];
+    const win = {
+      setTimeout: vi.fn((fn, delay) => {
+        scheduled.push(delay);
+        if (delay === 420) fn();
+        return delay;
+      }),
+    };
+
+    helpers.bindEndingRestartButton(doc, {
+      win,
+      restartEndingFlow,
+      restartFromEnding,
+    }, session, [], { cleanup: vi.fn() });
+    restartHandler();
+
+    expect(scheduled).toContain(420);
+    expect(restartEndingFlow).toHaveBeenCalledTimes(1);
+    expect(restartFromEnding).not.toHaveBeenCalled();
+  });
+
+  it('prefers endingActions.restart over direct restart callbacks', async () => {
+    const helpers = await import('../game/ui/screens/ending_screen_runtime_helpers.js');
+
+    let restartHandler = null;
+    const restartButton = {
+      addEventListener: vi.fn((type, fn) => {
+        if (type === 'click') restartHandler = fn;
+      }),
+      removeEventListener: vi.fn(),
+      getBoundingClientRect: vi.fn(() => null),
+    };
+    const doc = {
+      getElementById(id) {
+        if (id === 'btnR') return restartButton;
+        return null;
+      },
+    };
+    const restart = vi.fn();
+    const restartEndingFlow = vi.fn();
+    const restartFromEnding = vi.fn();
+    const session = { cleanups: [], timers: [] };
+    const win = {
+      setTimeout: vi.fn((fn, delay) => {
+        if (delay === 420) fn();
+        return delay;
+      }),
+    };
+
+    helpers.bindEndingRestartButton(doc, {
+      win,
+      endingActions: { restart },
+      restartEndingFlow,
+      restartFromEnding,
+    }, session, [], { cleanup: vi.fn() });
+    restartHandler();
+
+    expect(restart).toHaveBeenCalledTimes(1);
+    expect(restartEndingFlow).not.toHaveBeenCalled();
+    expect(restartFromEnding).not.toHaveBeenCalled();
   });
 });

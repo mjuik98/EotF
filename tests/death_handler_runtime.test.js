@@ -32,6 +32,7 @@ describe('death_handler_runtime', () => {
     const win = {
       HudUpdateUI: { name: 'hud' },
       TooltipUI: { name: 'tooltip' },
+      returnFromReward: vi.fn(),
       returnToGame: vi.fn(),
       showCombatSummary: vi.fn(),
       showRewardScreen: vi.fn(),
@@ -53,9 +54,13 @@ describe('death_handler_runtime', () => {
     expect(renderCombatCards).toHaveBeenCalledTimes(1);
     expect(endCombat).toHaveBeenCalledWith(expect.objectContaining({
       hudUpdateUI: win.HudUpdateUI,
+      returnFromReward: expect.any(Function),
       showRewardScreen: win.showRewardScreen,
       tooltipUI: win.TooltipUI,
     }));
+
+    endCombat.mock.calls[0][0].returnFromReward();
+    expect(win.returnFromReward).toHaveBeenCalledTimes(1);
   });
 
   it('runs the death quote sequence and calls the completion callback', () => {

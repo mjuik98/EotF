@@ -100,10 +100,13 @@ export const CombatLifecycle = {
             }
             if (isBoss && isLastRegion && RunRules.isEndless(this)) {
                 setTimeout(() => {
-                    const returnToGame = deps.returnToGame || win.returnToGame;
-                    if (typeof returnToGame === 'function') {
-                        returnToGame(true);
+                    const returnFromReward = deps.returnFromReward || win.returnFromReward;
+                    if (typeof returnFromReward === 'function') {
+                        returnFromReward();
+                        return;
                     }
+                    const returnToGame = deps.returnToGame || win.returnToGame;
+                    if (typeof returnToGame === 'function') returnToGame(true);
                 }, 300);
                 return;
             }

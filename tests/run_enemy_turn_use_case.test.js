@@ -1,7 +1,6 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
 
 import { runEnemyTurnUseCase } from '../game/app/combat/use_cases/run_enemy_turn_use_case.js';
-import { TurnManager } from '../game/combat/turn_manager.js';
 
 describe('run_enemy_turn_use_case', () => {
   afterEach(() => {
@@ -32,18 +31,17 @@ describe('run_enemy_turn_use_case', () => {
         onTurnStart: vi.fn(),
       },
     };
-
-    vi.spyOn(TurnManager, 'processEnemyStatusTicks').mockReturnValue(tickEvents);
-    vi.spyOn(TurnManager, 'processEnemyStun').mockReturnValue(false);
-    vi.spyOn(TurnManager, 'getEnemyAction').mockReturnValue({ type: 'strike', dmg: 6, multi: 1 });
-    vi.spyOn(TurnManager, 'processEnemyAttack').mockReturnValue([{ hitIndex: 0, enemyDied: false }]);
-    vi.spyOn(TurnManager, 'handleEnemyEffect').mockReturnValue({ uiAction: 'updateUI' });
-    vi.spyOn(TurnManager, 'decayEnemyWeaken').mockImplementation(() => {});
-    vi.spyOn(TurnManager, 'processPlayerStatusTicks').mockReturnValue({
+    const processEnemyStatusTicksFn = vi.fn().mockReturnValue(tickEvents);
+    const processEnemyStunFn = vi.fn().mockReturnValue(false);
+    const getEnemyActionFn = vi.fn().mockReturnValue({ type: 'strike', dmg: 6, multi: 1 });
+    const processEnemyAttackFn = vi.fn().mockReturnValue([{ hitIndex: 0, enemyDied: false }]);
+    const handleEnemyEffectFn = vi.fn().mockReturnValue({ uiAction: 'updateUI' });
+    const decayEnemyWeakenFn = vi.fn();
+    const processPlayerStatusTicksFn = vi.fn().mockReturnValue({
       alive: true,
       actions: ['updateStatusDisplay', 'renderCombatCards'],
     });
-    vi.spyOn(TurnManager, 'startPlayerTurnLogic').mockImplementation(() => {});
+    const startPlayerTurn = vi.fn();
 
     const cleanupTooltips = vi.fn();
     const playStatusTickEffects = vi.fn();
@@ -70,6 +68,14 @@ describe('run_enemy_turn_use_case', () => {
       syncCombatEnergy,
       onTurnStart,
       onPlayerTurnStarted,
+      processEnemyStatusTicksFn,
+      processEnemyStunFn,
+      getEnemyActionFn,
+      processEnemyAttackFn,
+      handleEnemyEffectFn,
+      decayEnemyWeakenFn,
+      processPlayerStatusTicksFn,
+      startPlayerTurn,
     });
 
     expect(cleanupTooltips).toHaveBeenCalledTimes(1);
@@ -84,6 +90,7 @@ describe('run_enemy_turn_use_case', () => {
     expect(onTurnStart).toHaveBeenCalledWith(gs);
     expect(classMechanics.guardian.onTurnStart).toHaveBeenCalledWith(gs);
     expect(onPlayerTurnStarted).toHaveBeenCalledTimes(1);
+    expect(startPlayerTurn).toHaveBeenCalledTimes(1);
     expect(gs.player._preservedShield).toBe(2);
     expect(renderCombatEnemies).toHaveBeenCalled();
   });

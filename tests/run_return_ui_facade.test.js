@@ -14,4 +14,14 @@ describe('RunReturnUI facade', () => {
 
     expect(runtime.returnToGameRuntime).toHaveBeenCalledWith(true, deps);
   });
+
+  it('delegates returnFromReward to the runtime helper with reward context', async () => {
+    const { RunReturnUI } = await import('../game/ui/run/run_return_ui.js');
+    const runtime = await import('../game/ui/run/run_return_ui_runtime.js');
+    const deps = { marker: 'reward' };
+
+    RunReturnUI.returnFromReward(deps);
+
+    expect(runtime.returnToGameRuntime).toHaveBeenCalledWith(true, deps);
+  });
 });

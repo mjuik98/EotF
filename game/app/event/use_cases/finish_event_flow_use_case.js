@@ -7,6 +7,7 @@ export function createFinishEventFlowUseCase(options = {}) {
     const {
       gs,
       clearCurrentEvent,
+      showGameplayScreen,
       switchScreen,
       updateUI,
       renderMinimap,
@@ -15,7 +16,8 @@ export function createFinishEventFlowUseCase(options = {}) {
 
     clearCurrentEvent?.();
     unlockFlow(gs);
-    switchScreen?.('game');
+    if (typeof showGameplayScreen === 'function') showGameplayScreen();
+    else switchScreen?.('game');
     updateUI?.();
     renderMinimap?.();
     updateNextNodes?.();

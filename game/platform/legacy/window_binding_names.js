@@ -11,7 +11,7 @@ export const LEGACY_WINDOW_COMMAND_NAMES = [
   'takeRewardRemove', 'setMasterVolume', 'setSfxVolume', 'setAmbientVolume',
   'endPlayerTurn', 'takeRewardCard', 'moveToNode', 'toggleHelp', 'togglePause',
   'abandonRun', 'confirmAbandon', 'showDeckView', 'useEchoSkill', 'drawCard',
-  'resolveEvent', 'returnToGame', 'openCodex', 'toggleCombatInfo', 'updateStatusDisplay',
+  'resolveEvent', 'returnToGame', 'returnFromReward', 'openCodex', 'toggleCombatInfo', 'updateStatusDisplay',
   'showCardPlayEffect',
   'openSettings', 'closeSettings', 'setSettingsTab', 'resetSettings',
   'applySettingVolume', 'applySettingVisual', 'applySettingAccessibility',

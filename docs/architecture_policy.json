@@ -65,6 +65,20 @@
       "message": "app must not import legacy directly"
     },
     {
+      "id": "app-no-combat",
+      "from": ["app"],
+      "to": ["combat"],
+      "message": "app must use feature/domain entry points instead of legacy combat modules"
+    },
+    {
+      "id": "app-no-direct-event-manager",
+      "from": ["app"],
+      "denyTargets": [
+        "game/systems/event_manager.js"
+      ],
+      "message": "app event flows must import feature event actions instead of the legacy event manager"
+    },
+    {
       "id": "ui-no-direct-domain-state-systems",
       "from": ["ui"],
       "denyTargets": [
