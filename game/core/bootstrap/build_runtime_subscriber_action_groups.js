@@ -1,6 +1,6 @@
 import {
   buildCombatRuntimeSubscriberPublicActions,
-} from '../../features/combat/public.js';
+} from '../../features/combat/runtime/public_combat_runtime_actions.js';
 import {
   buildUiRuntimeSubscriberPublicActions,
 } from '../../features/ui/public.js';

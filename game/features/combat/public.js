@@ -1,130 +1,43 @@
-import { startCombatFlowUseCase } from '../../app/combat/use_cases/start_combat_flow_use_case.js';
-import { endPlayerTurnUseCase } from '../../app/combat/use_cases/end_player_turn_use_case.js';
-import { runEnemyTurnUseCase } from '../../app/combat/use_cases/run_enemy_turn_use_case.js';
-import { executePlayerDrawService } from '../../app/combat/card_draw_service.js';
-import { endCombatUseCase } from './app/use_cases/end_combat_use_case.js';
-import { buildCombatRuntimeSubscriberActions } from './app/build_runtime_subscriber_actions.js';
-import { createCombatActions } from './app/combat_actions.js';
 import {
-  discardStateCard,
-  drawStateCards,
-  playStateCard,
-} from './app/game_state_card_actions.js';
-import { buildCombatUiContractBuilders } from './ports/contracts/build_combat_ui_contracts.js';
-import { createCombatPorts } from './ports/create_combat_ports.js';
-import {
-  buildCombatLegacyWindowQueryGroups,
-  createCombatLegacyUiCompat,
-} from './platform/legacy_window_query_groups.js';
-import { CombatStartUI } from '../../ui/combat/combat_start_ui.js';
-import { CombatUI } from '../../ui/combat/combat_ui.js';
-import { CombatHudUI } from '../../ui/combat/combat_hud_ui.js';
-import { EchoSkillUI } from '../../ui/combat/echo_skill_ui.js';
-import { CombatTurnUI } from '../../presentation/combat/combat_turn_ui.js';
-import { StatusEffectsUI } from '../../ui/combat/status_effects_ui.js';
-import { CombatInfoUI } from '../../ui/combat/combat_info_ui.js';
-import { CombatActionsUI } from '../../ui/combat/combat_actions_ui.js';
-import { CardUI } from '../../ui/cards/card_ui.js';
-import { CardTargetUI } from '../../ui/cards/card_target_ui.js';
-import { TooltipUI } from '../../ui/cards/tooltip_ui.js';
-import { DeckModalUI } from '../../ui/cards/deck_modal_ui.js';
-import { HudUpdateUI } from '../../ui/hud/hud_update_ui.js';
-import { FeedbackUI } from '../../ui/hud/feedback_ui.js';
-import { DomValueUI } from '../../ui/hud/dom_value_ui.js';
+  buildCombatCardPublicModules,
+  buildCombatHudPublicModules,
+  buildCombatPublicModules,
+} from './modules/public_combat_modules.js';
+import { createCombatBindingsActions } from './bindings/public_combat_bindings.js';
+import { buildCombatUiContractPublicBuilders } from './contracts/public_combat_contract_builders.js';
+import { buildCombatRuntimeSubscriberPublicActions } from './runtime/public_combat_runtime_actions.js';
 
-export function createCombatFeatureFacade() {
+export function createCombatModuleCapabilities() {
   return {
-    modules: {
-      core: buildCombatPublicModules(),
-      cards: buildCombatCardPublicModules(),
-      hud: buildCombatHudPublicModules(),
-    },
-    bindings: {
-      createCombatBindings: createCombatBindingsActions,
-      createLegacyUiCompat: createCombatLegacyUiCompat,
-    },
-    contracts: {
-      buildUi: buildCombatUiContractPublicBuilders,
-    },
-    legacy: {
-      buildWindowQueryGroups: buildCombatLegacyWindowQueryGroups,
-    },
-    runtime: {
-      buildSubscriberActions: buildCombatRuntimeSubscriberPublicActions,
-    },
+    core: buildCombatPublicModules(),
+    cards: buildCombatCardPublicModules(),
+    hud: buildCombatHudPublicModules(),
   };
 }
 
-export function buildCombatPublicModules() {
+export function createCombatBindingCapabilities() {
   return {
-    CombatStartUI,
-    CombatUI,
-    CombatHudUI,
-    EchoSkillUI,
-    CombatTurnUI,
-    StatusEffectsUI,
-    CombatInfoUI,
-    CombatActionsUI,
+    createCombatBindings: createCombatBindingsActions,
   };
 }
 
-export function buildCombatCardPublicModules() {
+export function createCombatContractCapabilities() {
   return {
-    CardUI,
-    CardTargetUI,
-    TooltipUI,
-    DeckModalUI,
+    buildUi: buildCombatUiContractPublicBuilders,
   };
 }
 
-export function buildCombatHudPublicModules() {
+export function createCombatRuntimeCapabilities() {
   return {
-    HudUpdateUI,
-    FeedbackUI,
-    DomValueUI,
+    buildSubscriberActions: buildCombatRuntimeSubscriberPublicActions,
   };
-}
-
-export function createCombatBindingsActions(modules, fns) {
-  return createCombatActions(modules, fns, createCombatPorts(modules));
-}
-
-export function buildCombatRuntimeSubscriberPublicActions(fns) {
-  return buildCombatRuntimeSubscriberActions(fns);
-}
-
-export function buildCombatUiContractPublicBuilders(ctx) {
-  return buildCombatUiContractBuilders(ctx);
 }
 
 export {
-  CardTargetUI,
-  CardUI,
-  CombatActionsUI,
-  CombatHudUI,
-  CombatInfoUI,
-  CombatStartUI,
-  CombatTurnUI,
-  CombatUI,
-  DeckModalUI,
-  DomValueUI,
-  EchoSkillUI,
-  FeedbackUI,
-  HudUpdateUI,
-  StatusEffectsUI,
-  TooltipUI,
-  buildCombatUiContractBuilders,
-  buildCombatRuntimeSubscriberActions,
-  buildCombatLegacyWindowQueryGroups,
-  createCombatActions,
-  createCombatLegacyUiCompat,
-  createCombatPorts,
-  discardStateCard,
-  drawStateCards,
-  endCombatUseCase,
-  endPlayerTurnUseCase,
-  executePlayerDrawService,
-  playStateCard,
-  runEnemyTurnUseCase,
-  startCombatFlowUseCase,
+  buildCombatPublicModules,
+  buildCombatCardPublicModules,
+  buildCombatHudPublicModules,
+  createCombatBindingsActions,
+  buildCombatRuntimeSubscriberPublicActions,
+  buildCombatUiContractPublicBuilders,
 };

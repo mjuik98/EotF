@@ -3,6 +3,8 @@ export {
   activateCombat,
   consumeBossRewardFlags,
   deactivateCombat,
+  isEventFlowLocked,
+  lockEventFlow,
   lockRewardFlow,
   resetRuntimeInteractionState,
   setNodeMovementLocked,

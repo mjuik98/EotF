@@ -32,6 +32,14 @@ export function unlockEventFlow(gs) {
   return setEventLock(gs, false);
 }
 
+export function lockEventFlow(gs) {
+  return setEventLock(gs, true);
+}
+
+export function isEventFlowLocked(gs) {
+  return !!gs?._eventLock;
+}
+
 export function setNodeMovementLocked(gs, isLocked) {
   return setNodeMoveLock(gs, isLocked);
 }

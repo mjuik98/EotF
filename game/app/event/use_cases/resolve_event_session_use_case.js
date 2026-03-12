@@ -1,7 +1,9 @@
+import { isEventFlowLocked } from '../../shared/use_cases/runtime_state_use_case.js';
 import { clearCurrentEvent } from '../event_session_store.js';
 
 export function createResolveEventSessionUseCase(options = {}) {
   const clearEventSession = options.clearCurrentEvent || clearCurrentEvent;
+  const isLocked = options.isEventFlowLocked || isEventFlowLocked;
 
   return function resolveEventSession(input = {}) {
     const {
@@ -20,7 +22,7 @@ export function createResolveEventSessionUseCase(options = {}) {
     } = input;
 
     if (!gs || !event) return undefined;
-    if (!event.persistent && gs._eventLock) return undefined;
+    if (!event.persistent && isLocked(gs)) return undefined;
 
     const guardKey = `event:resolve:${getEventId(event)}:${choiceIdx}`;
     return runIdempotent(

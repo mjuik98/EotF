@@ -1,6 +1,6 @@
 import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
 import { buildEventContractPublicBuilders } from '../../../features/event/public.js';
-import { buildRunReturnContractPublicBuilders } from '../../../features/run/public.js';
+import { buildRunReturnContractPublicBuilders } from '../../../features/run/contracts/public_run_contract_builders.js';
 import { buildTitleStoryContractBuilders } from '../../../features/title/ports/contracts/build_title_story_contracts.js';
 import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
 

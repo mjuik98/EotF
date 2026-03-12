@@ -1,14 +1,14 @@
 # Dependency Map
 
-- Generated: 2026-03-12T07:28:45.410Z
-- Nodes: 649
-- Edges: 1024
+- Generated: 2026-03-12T08:22:59.285Z
+- Nodes: 667
+- Edges: 1031
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| app->app | 12 |
+| app->app | 15 |
 | app->core | 1 |
 | app->data | 2 |
 | app->domain | 8 |
@@ -51,19 +51,19 @@
 | domain->utils | 2 |
 | engine->data | 1 |
 | engine->engine | 2 |
-| feature->app | 19 |
+| feature->app | 12 |
 | feature->combat | 5 |
 | feature->core | 6 |
 | feature->data | 2 |
 | feature->domain | 14 |
-| feature->feature | 76 |
+| feature->feature | 91 |
 | feature->other | 1 |
 | feature->presentation | 3 |
 | feature->shared | 9 |
 | feature->state | 1 |
 | feature->systems | 4 |
-| feature->ui | 37 |
-| feature->utils | 5 |
+| feature->ui | 39 |
+| feature->utils | 6 |
 | legacy->core | 1 |
 | legacy->domain | 1 |
 | legacy->feature | 7 |
@@ -83,12 +83,12 @@
 | platform->systems | 3 |
 | platform->ui | 8 |
 | platform->utils | 4 |
-| presentation->app | 3 |
+| presentation->app | 2 |
 | presentation->domain | 3 |
-| presentation->feature | 4 |
+| presentation->feature | 3 |
 | presentation->presentation | 4 |
-| presentation->ui | 13 |
-| presentation->utils | 2 |
+| presentation->ui | 10 |
+| presentation->utils | 1 |
 | shared->state | 1 |
 | state->domain | 1 |
 | systems->core | 2 |
@@ -104,11 +104,11 @@
 | ui->data | 37 |
 | ui->domain | 16 |
 | ui->engine | 1 |
-| ui->feature | 9 |
+| ui->feature | 10 |
 | ui->other | 5 |
 | ui->presentation | 3 |
 | ui->shared | 2 |
-| ui->ui | 230 |
+| ui->ui | 228 |
 | ui->utils | 22 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -118,11 +118,11 @@
 
 | File | Out Degree |
 |---|---:|
-| game/features/combat/public.js | 26 |
-| game/features/run/public.js | 23 |
+| game/features/combat/modules/public_combat_modules.js | 15 |
+| game/ui/title/character_select_ui.js | 13 |
 | game/features/title/public.js | 12 |
-| game/ui/title/character_select_ui.js | 12 |
 | game/features/combat/application/death_flow_actions.js | 11 |
+| game/features/run/modules/public_run_modules.js | 11 |
 | data/events_data.js | 9 |
 | game/systems/run_rules.js | 9 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
@@ -142,7 +142,6 @@
 | data/game_data.js | 14 |
 | game/shared/state/public.js | 13 |
 | game/utils/log_utils.js | 12 |
-| game/features/combat/public.js | 11 |
 | game/shared/runtime/public.js | 11 |
 | game/systems/codex_records_system.js | 11 |
 | game/utils/logger.js | 10 |
@@ -153,6 +152,7 @@
 | game/core/deps_factory.js | 8 |
 | game/core/event_bus.js | 8 |
 | game/data/constants.js | 8 |
+| game/ui/screens/help_pause_ui_helpers.js | 8 |
 
 > Full graph is available in `docs/metrics/dependency_map.json`.
 

@@ -1,10 +1,8 @@
-import { createTitleFeatureFacade } from '../../../features/title/public.js';
+import { buildTitleCanvasPublicModules, buildTitlePublicModules } from '../../../features/title/public.js';
 
 export function registerTitleModules() {
-  const groups = createTitleFeatureFacade().modules;
-
   return {
-    ...groups.canvas,
-    ...groups.flow,
+    ...buildTitleCanvasPublicModules(),
+    ...buildTitlePublicModules(),
   };
 }

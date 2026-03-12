@@ -60,10 +60,22 @@ const hoisted = vi.hoisted(() => ({
 
 vi.mock('../game/features/combat/public.js', () => ({
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
+}));
+
+vi.mock('../game/features/combat/contracts/public_combat_contract_builders.js', () => ({
+  buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
+}));
+
+vi.mock('../game/features/combat/runtime/public_combat_runtime_actions.js', () => ({
   buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+}));
+
+vi.mock('../game/features/combat/platform/public_combat_legacy_surface.js', () => ({
   buildCombatLegacyWindowQueryGroups: hoisted.buildCombatLegacyWindowQueryGroups,
   createCombatLegacyUiCompat: hoisted.createCombatLegacyUiCompat,
-  createCombatPorts: hoisted.createCombatPorts,
+}));
+
+vi.mock('../game/features/combat/bindings/public_combat_bindings.js', () => ({
   createCombatBindingsActions: hoisted.createCombatBindingsActions,
 }));
 
@@ -72,11 +84,17 @@ vi.mock('../game/features/event/public.js', () => ({
   createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
 }));
 
-vi.mock('../game/features/run/public.js', () => ({
+vi.mock('../game/features/run/contracts/public_run_contract_builders.js', () => ({
   buildRunFlowContractPublicBuilders: hoisted.buildRunFlowContractPublicBuilders,
   buildRunReturnContractPublicBuilders: hoisted.buildRunReturnContractPublicBuilders,
-  buildRunBootPublicActions: hoisted.buildRunBootPublicActions,
   buildRunUiContractPublicBuilders: hoisted.buildRunUiContractPublicBuilders,
+}));
+
+vi.mock('../game/features/run/runtime/public_run_runtime_actions.js', () => ({
+  buildRunBootPublicActions: hoisted.buildRunBootPublicActions,
+}));
+
+vi.mock('../game/features/run/bindings/public_run_bindings.js', () => ({
   createRunCanvasBindings: hoisted.createRunCanvasBindings,
 }));
 
@@ -193,7 +211,10 @@ describe('feature public action surfaces', () => {
 
     createTitleSettingsBindings(modules, fns);
 
-    expect(hoisted.createTitleBindings).toHaveBeenCalledWith(modules, fns);
+    expect(hoisted.createTitleBindings).toHaveBeenCalledWith(modules, fns, {
+      doc: null,
+      win: null,
+    });
   });
 
   it('routes combat bindings through the combat feature public facade', () => {

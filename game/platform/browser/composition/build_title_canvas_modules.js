@@ -1,5 +1,5 @@
-import { createTitleFeatureFacade } from '../../../features/title/public.js';
+import { buildTitleCanvasPublicModules } from '../../../features/title/public.js';
 
 export function buildTitleCanvasModules() {
-  return createTitleFeatureFacade().modules.canvas;
+  return buildTitleCanvasPublicModules();
 }

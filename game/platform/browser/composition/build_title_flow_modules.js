@@ -1,5 +1,5 @@
-import { createTitleFeatureFacade } from '../../../features/title/public.js';
+import { buildTitlePublicModules } from '../../../features/title/public.js';
 
 export function buildTitleFlowModules() {
-  return createTitleFeatureFacade().modules.flow;
+  return buildTitlePublicModules();
 }

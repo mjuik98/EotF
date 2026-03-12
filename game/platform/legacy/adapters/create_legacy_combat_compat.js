@@ -1,6 +1,6 @@
 import {
   createCombatLegacyUiCompat,
-} from '../../../features/combat/public.js';
+} from '../../../features/combat/platform/public_combat_legacy_surface.js';
 import {
   applyPlayerDamage,
   drawCards as drawPlayerCards,

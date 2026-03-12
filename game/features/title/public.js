@@ -9,26 +9,42 @@ import { createTitlePauseMenuActions } from './application/help_pause_menu_actio
 import { buildTitleHelpPauseActions } from './application/help_pause_title_actions.js';
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
 import { buildTitleStoryContractBuilders } from './ports/contracts/build_title_story_contracts.js';
-import { createTitlePorts } from './ports/create_title_ports.js';
+import { createTitleBindingPorts } from './platform/browser/create_title_binding_ports.js';
+
+export function createTitleModuleCapabilities() {
+  return {
+    canvas: buildTitleCanvasPublicModules(),
+    flow: buildTitlePublicModules(),
+  };
+}
+
+export function createTitleBindingCapabilities() {
+  return {
+    createTitle: createTitleBindings,
+  };
+}
+
+export function createTitleContractCapabilities() {
+  return {
+    buildRun: buildTitleRunContractPublicBuilders,
+    buildStory: buildTitleStoryContractPublicBuilders,
+  };
+}
+
+export function createTitleRuntimeCapabilities() {
+  return {
+    buildBootActions: buildTitleBootPublicActions,
+    buildHelpPauseActions: buildTitleHelpPausePublicActions,
+    buildPauseMenuActions: buildTitlePauseMenuPublicActions,
+  };
+}
 
 export function createTitleFeatureFacade() {
   return {
-    modules: {
-      canvas: buildTitleCanvasPublicModules(),
-      flow: buildTitlePublicModules(),
-    },
-    bindings: {
-      createTitle: createTitleBindings,
-    },
-    contracts: {
-      buildRun: buildTitleRunContractPublicBuilders,
-      buildStory: buildTitleStoryContractPublicBuilders,
-    },
-    runtime: {
-      buildBootActions: buildTitleBootPublicActions,
-      buildHelpPauseActions: buildTitleHelpPausePublicActions,
-      buildPauseMenuActions: buildTitlePauseMenuPublicActions,
-    },
+    modules: createTitleModuleCapabilities(),
+    bindings: createTitleBindingCapabilities(),
+    contracts: createTitleContractCapabilities(),
+    runtime: createTitleRuntimeCapabilities(),
   };
 }
 
@@ -47,8 +63,8 @@ export function buildTitlePublicModules() {
   };
 }
 
-export function createTitleBindings(modules, fns) {
-  return createTitleActions(createTitlePorts(modules, fns));
+export function createTitleBindings(modules, fns, options = {}) {
+  return createTitleActions(createTitleBindingPorts(modules, fns, options));
 }
 
 export function buildTitleBootPublicActions(fns) {
@@ -83,5 +99,5 @@ export {
   buildTitleRunContractBuilders,
   buildTitleStoryContractBuilders,
   createTitleActions,
-  createTitlePorts,
+  createTitleBindingPorts,
 };

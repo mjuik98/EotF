@@ -9,6 +9,8 @@ describe('runtime_flow_controls', () => {
   it('keeps the app compatibility surface wired to the shared runtime flow module', () => {
     expect(compat.activateCombat).toBe(shared.activateCombat);
     expect(compat.deactivateCombat).toBe(shared.deactivateCombat);
+    expect(shared.lockEventFlow).toBe(sharedPublic.lockEventFlow);
+    expect(shared.isEventFlowLocked).toBe(sharedPublic.isEventFlowLocked);
     expect(compat.lockRewardFlow).toBe(shared.lockRewardFlow);
     expect(compat.unlockRewardFlow).toBe(shared.unlockRewardFlow);
     expect(compat.unlockEventFlow).toBe(shared.unlockEventFlow);
@@ -21,6 +23,7 @@ describe('runtime_flow_controls', () => {
     expect(sharedPublic.Actions).toBe(Actions);
     expect(sharedPublic.Reducers).toBe(Reducers);
     expect(sharedPublic.activateCombat).toBe(shared.activateCombat);
+    expect(sharedPublic.lockEventFlow).toBe(shared.lockEventFlow);
     expect(sharedPublic.resetRuntimeInteractionState).toBe(shared.resetRuntimeInteractionState);
   });
 
@@ -37,6 +40,8 @@ describe('runtime_flow_controls', () => {
     };
 
     expect(shared.activateCombat(gs)).toBe(true);
+    expect(shared.lockEventFlow(gs)).toBe(true);
+    expect(shared.isEventFlowLocked(gs)).toBe(true);
     expect(shared.lockRewardFlow(gs)).toBe(true);
     expect(shared.unlockEventFlow(gs)).toBe(false);
     expect(shared.setNodeMovementLocked(gs, true)).toBe(true);

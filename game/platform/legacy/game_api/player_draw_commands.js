@@ -2,7 +2,7 @@ import { playAttackSlash } from '../../../domain/audio/audio_event_helpers.js';
 import {
   drawStateCards,
   executePlayerDrawService,
-} from '../../../features/combat/public.js';
+} from '../../../features/combat/application/public_combat_command_actions.js';
 import { getAudioEngine, getDefaultState, getRunRuntimeDeps } from './runtime_context.js';
 
 export function drawCards(count = 1, gs = getDefaultState(), options = {}) {

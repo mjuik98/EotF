@@ -1,18 +1,7 @@
 import {
-  getDoc,
-} from '../../ui/screens/reward_ui_helpers.js';
-import {
-  setSkipConfirmVisible,
-} from '../../ui/screens/reward_ui_render.js';
+  createRewardRuntime,
+} from '../../features/reward/public.js';
 import { showRewardScreenRuntime } from '../../ui/screens/reward_ui_screen_runtime.js';
-import {
-  skipRewardRuntime,
-  takeRewardBlessingRuntime,
-  takeRewardCardRuntime,
-  takeRewardItemRuntime,
-  takeRewardRemoveRuntime,
-  takeRewardUpgradeRuntime,
-} from '../../ui/screens/reward_ui_runtime.js';
 
 export const RewardUI = {
   showRewardScreen(mode = false, deps = {}) {
@@ -20,34 +9,34 @@ export const RewardUI = {
   },
 
   takeRewardBlessing(blessing, deps = {}) {
-    return takeRewardBlessingRuntime(blessing, deps);
+    return createRewardRuntime(deps).takeRewardBlessing(blessing);
   },
 
   takeRewardCard(cardId, deps = {}) {
-    return takeRewardCardRuntime(cardId, deps);
+    return createRewardRuntime(deps).takeRewardCard(cardId);
   },
 
   takeRewardItem(itemKey, deps = {}) {
-    return takeRewardItemRuntime(itemKey, deps);
+    return createRewardRuntime(deps).takeRewardItem(itemKey);
   },
 
   takeRewardUpgrade(deps = {}) {
-    return takeRewardUpgradeRuntime(deps);
+    return createRewardRuntime(deps).takeRewardUpgrade();
   },
 
   takeRewardRemove(deps = {}) {
-    return takeRewardRemoveRuntime(deps);
+    return createRewardRuntime(deps).takeRewardRemove();
   },
 
   showSkipConfirm(deps = {}) {
-    setSkipConfirmVisible(getDoc(deps), true);
+    createRewardRuntime(deps).showSkipConfirm();
   },
 
   hideSkipConfirm(deps = {}) {
-    setSkipConfirmVisible(getDoc(deps), false);
+    createRewardRuntime(deps).hideSkipConfirm();
   },
 
   skipReward(deps = {}) {
-    return skipRewardRuntime(deps);
+    return createRewardRuntime(deps).skipReward();
   },
 };

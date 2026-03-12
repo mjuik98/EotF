@@ -1,5 +1,5 @@
 {
-  "total": 448,
+  "total": 439,
   "byPair": {
     "app->core": 1,
     "app->data": 2,
@@ -34,7 +34,7 @@
     "domain->ui": 1,
     "domain->utils": 2,
     "engine->data": 1,
-    "feature->app": 19,
+    "feature->app": 12,
     "feature->combat": 5,
     "feature->core": 6,
     "feature->data": 2,
@@ -43,8 +43,8 @@
     "feature->shared": 9,
     "feature->state": 1,
     "feature->systems": 4,
-    "feature->ui": 37,
-    "feature->utils": 5,
+    "feature->ui": 39,
+    "feature->utils": 6,
     "legacy->core": 1,
     "legacy->domain": 1,
     "legacy->feature": 7,
@@ -61,11 +61,11 @@
     "platform->systems": 3,
     "platform->ui": 8,
     "platform->utils": 4,
-    "presentation->app": 3,
+    "presentation->app": 2,
     "presentation->domain": 3,
-    "presentation->feature": 4,
-    "presentation->ui": 13,
-    "presentation->utils": 2,
+    "presentation->feature": 3,
+    "presentation->ui": 10,
+    "presentation->utils": 1,
     "shared->state": 1,
     "state->domain": 1,
     "systems->core": 2,
@@ -80,12 +80,12 @@
     "ui->data": 37,
     "ui->domain": 16,
     "ui->engine": 1,
-    "ui->feature": 9,
+    "ui->feature": 10,
     "ui->presentation": 3,
     "ui->shared": 2,
     "ui->utils": 22,
     "utils->core": 1,
     "utils->data": 2
   },
-  "generatedAt": "2026-03-12T07:28:36.028Z"
+  "generatedAt": "2026-03-12T08:22:58.905Z"
 }
