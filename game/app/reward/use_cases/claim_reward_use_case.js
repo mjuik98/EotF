@@ -7,44 +7,11 @@ import {
   upgradeRandomRewardCardState,
 } from '../../../features/reward/state/reward_state_commands.js';
 import { getRewardMaxEnergyCap } from './build_reward_options_use_case.js';
+import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
+export { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
 
 export function playRewardClaimFeedback(deps = {}) {
   return playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
-}
-
-export function createRewardReturnActions(deps = {}) {
-  const returnFromReward = () => {
-    if (typeof deps.rewardActions?.returnFromReward === 'function') {
-      deps.rewardActions.returnFromReward();
-      return;
-    }
-    if (typeof deps.returnFromReward === 'function') {
-      deps.returnFromReward();
-      return;
-    }
-    deps.returnToGame?.(true);
-  };
-
-  const returnToGame = (fromReward = false) => {
-    if (fromReward) {
-      returnFromReward();
-      return;
-    }
-    if (typeof deps.rewardActions?.returnToGame === 'function') {
-      deps.rewardActions.returnToGame(false);
-      return;
-    }
-    deps.returnToGame?.(false);
-  };
-
-  return {
-    returnFromReward,
-    returnToGame,
-    rewardActions: {
-      returnFromReward,
-      returnToGame,
-    },
-  };
 }
 
 export function buildRewardDiscardDeps({ deps = {}, onCancel, returnActions = createRewardReturnActions(deps) } = {}) {

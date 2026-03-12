@@ -23,6 +23,25 @@ import { buildRunFlowContractBuilders } from './ports/contracts/build_run_flow_c
 import { buildRunUiContractBuilders } from './ports/contracts/build_run_ui_contracts.js';
 import { createRunCanvasPorts } from './ports/create_run_canvas_ports.js';
 
+export function createRunFeatureFacade() {
+  return {
+    modules: {
+      map: buildRunMapPublicModules(),
+      flow: buildRunFlowPublicModules(),
+    },
+    bindings: {
+      createCanvas: createRunCanvasBindings,
+    },
+    contracts: {
+      buildFlow: buildRunFlowContractPublicBuilders,
+      buildUi: buildRunUiContractPublicBuilders,
+    },
+    runtime: {
+      buildBootActions: buildRunBootPublicActions,
+    },
+  };
+}
+
 export function buildRunMapPublicModules() {
   return {
     WorldCanvasUI,

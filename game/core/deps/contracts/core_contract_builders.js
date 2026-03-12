@@ -1,4 +1,5 @@
 import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
+import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
 
 export function buildCoreContractBuilders(ctx) {
   const {
@@ -84,25 +85,15 @@ export function buildCoreContractBuilders(ctx) {
 
     reward: () => {
       const refs = getRefs();
-      const returnFromReward = () => refs.returnToGame?.(true);
-      const returnToGame = (fromReward = false) => {
-        if (fromReward) {
-          returnFromReward();
-          return;
-        }
-        refs.returnToGame?.(false);
-      };
+      const returnActions = createRewardReturnActions({
+        returnToGame: (fromReward = false) => refs.returnToGame?.(fromReward),
+      });
       return {
         ...buildBaseDeps('run'),
         showGameplayScreen: () => refs.switchScreen?.('game'),
         switchScreen: refs.switchScreen,
         showRewardScreen: () => refs.switchScreen?.('reward'),
-        returnFromReward,
-        returnToGame,
-        rewardActions: {
-          returnFromReward,
-          returnToGame,
-        },
+        ...returnActions,
         showItemToast: refs.showItemToast,
         tooltipUI: refs.TooltipUI,
         TooltipUI: refs.TooltipUI,

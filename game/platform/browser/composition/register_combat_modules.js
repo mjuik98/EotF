@@ -1,13 +1,7 @@
-import { buildCombatCardModules } from './build_combat_card_modules.js';
-import { buildCombatCoreModules } from './build_combat_core_modules.js';
-import { buildCombatHudModules } from './build_combat_hud_modules.js';
+import { createCombatFeatureFacade } from '../../../features/combat/public.js';
 
 export function registerCombatModules() {
-  const groups = {
-    core: buildCombatCoreModules(),
-    cards: buildCombatCardModules(),
-    hud: buildCombatHudModules(),
-  };
+  const groups = createCombatFeatureFacade().modules;
 
   return {
     ...groups.core,

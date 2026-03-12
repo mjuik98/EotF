@@ -1,5 +1,8 @@
-function createRunReturnActions(modules, deps) {
-  return {
+import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
+
+export function createRewardNavigationActions(modules, ports) {
+  const deps = ports.getRunReturnDeps();
+  const actions = createRewardReturnActions({
     returnFromReward() {
       if (typeof modules.RunReturnUI?.returnFromReward === 'function') {
         modules.RunReturnUI.returnFromReward(deps);
@@ -7,26 +10,16 @@ function createRunReturnActions(modules, deps) {
       }
       modules.RunReturnUI?.returnToGame?.(true, deps);
     },
-
     returnToGame(fromReward = false) {
       if (fromReward) {
-        this.returnFromReward();
+        modules.RunReturnUI?.returnToGame?.(true, deps);
         return;
       }
       modules.RunReturnUI?.returnToGame?.(false, deps);
     },
-  };
-}
-
-export function createRewardNavigationActions(modules, ports) {
-  const deps = ports.getRunReturnDeps();
-  const actions = createRunReturnActions(modules, deps);
+  });
 
   return {
     ...actions,
-    rewardActions: {
-      returnFromReward: () => actions.returnFromReward(),
-      returnToGame: (fromReward = false) => actions.returnToGame(fromReward),
-    },
   };
 }

@@ -1,9 +1,10 @@
-import { buildTitleCanvasModules } from './build_title_canvas_modules.js';
-import { buildTitleFlowModules } from './build_title_flow_modules.js';
+import { createTitleFeatureFacade } from '../../../features/title/public.js';
 
 export function registerTitleModules() {
+  const groups = createTitleFeatureFacade().modules;
+
   return {
-    ...buildTitleCanvasModules(),
-    ...buildTitleFlowModules(),
+    ...groups.canvas,
+    ...groups.flow,
   };
 }

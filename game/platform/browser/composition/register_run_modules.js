@@ -1,9 +1,10 @@
-import { buildRunMapModules } from './build_run_map_modules.js';
-import { buildRunFlowModules } from './build_run_flow_modules.js';
+import { createRunFeatureFacade } from '../../../features/run/public.js';
 
 export function registerRunModules() {
+  const groups = createRunFeatureFacade().modules;
+
   return {
-    ...buildRunMapModules(),
-    ...buildRunFlowModules(),
+    ...groups.map,
+    ...groups.flow,
   };
 }

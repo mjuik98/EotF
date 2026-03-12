@@ -1,49 +1,22 @@
 import { EndingScreenUI } from './ending_screen_ui.js';
+import {
+  restartFromEndingAction,
+  selectMetaFragmentAction,
+} from '../../features/title/application/meta_progression_actions.js';
 
-function returnToTitle(deps = {}) {
-  if (typeof deps.completeTitleReturn === 'function') {
-    deps.completeTitleReturn();
-    return;
-  }
-
-  if (typeof deps.showTitleScreen === 'function') deps.showTitleScreen();
-  else if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
-  if (typeof deps.clearSelectedClass === 'function') deps.clearSelectedClass();
-  if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();
-  if (typeof deps.refreshTitleSaveState === 'function') deps.refreshTitleSaveState();
-  if (typeof deps.showPendingClassProgressSummary === 'function') deps.showPendingClassProgressSummary();
+function cleanupEnding(deps = {}) {
+  const doc = deps?.doc || document;
+  EndingScreenUI.cleanup({ doc });
 }
 
 export function selectMetaFragmentRuntime(effect, deps = {}) {
-  const gs = deps?.gs;
-  const doc = deps?.doc || document;
-  if (!gs?.meta) return false;
-  EndingScreenUI.cleanup({ doc });
-
-  const meta = gs.meta;
-  switch (effect) {
-    case 'echo_boost':
-      meta.inscriptions.echo_boost = true;
-      break;
-    case 'resilience':
-      meta.inscriptions.resilience = true;
-      break;
-    case 'fortune':
-      meta.inscriptions.fortune = true;
-      break;
-    default:
-      return false;
-  }
-
-  meta.echoFragments--;
-  setTimeout(() => {
-    returnToTitle(deps);
-  }, 500);
-  return true;
+  return selectMetaFragmentAction(effect, deps, {
+    cleanup: () => cleanupEnding(deps),
+  });
 }
 
 export function restartFromEndingRuntime(deps = {}) {
-  const doc = deps?.doc || document;
-  EndingScreenUI.cleanup({ doc });
-  returnToTitle(deps);
+  return restartFromEndingAction(deps, {
+    cleanup: () => cleanupEnding(deps),
+  });
 }

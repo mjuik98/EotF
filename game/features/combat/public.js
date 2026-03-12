@@ -28,6 +28,26 @@ import { HudUpdateUI } from '../../ui/hud/hud_update_ui.js';
 import { FeedbackUI } from '../../ui/hud/feedback_ui.js';
 import { DomValueUI } from '../../ui/hud/dom_value_ui.js';
 
+export function createCombatFeatureFacade() {
+  return {
+    modules: {
+      core: buildCombatPublicModules(),
+      cards: buildCombatCardPublicModules(),
+      hud: buildCombatHudPublicModules(),
+    },
+    bindings: {
+      createCombatBindings: createCombatBindingsActions,
+      createLegacyUiCompat: createCombatLegacyUiCompat,
+    },
+    contracts: {
+      buildUi: buildCombatUiContractPublicBuilders,
+    },
+    runtime: {
+      buildSubscriberActions: buildCombatRuntimeSubscriberPublicActions,
+    },
+  };
+}
+
 export function buildCombatPublicModules() {
   return {
     CombatStartUI,

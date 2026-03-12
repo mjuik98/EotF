@@ -8,6 +8,24 @@ import { createTitleActions } from './app/create_title_actions.js';
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
 import { createTitlePorts } from './ports/create_title_ports.js';
 
+export function createTitleFeatureFacade() {
+  return {
+    modules: {
+      canvas: buildTitleCanvasPublicModules(),
+      flow: buildTitlePublicModules(),
+    },
+    bindings: {
+      createTitle: createTitleBindings,
+    },
+    contracts: {
+      buildRun: buildTitleRunContractPublicBuilders,
+    },
+    runtime: {
+      buildBootActions: buildTitleBootPublicActions,
+    },
+  };
+}
+
 export function buildTitleCanvasPublicModules() {
   return {
     TitleCanvasUI,
