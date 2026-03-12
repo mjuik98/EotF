@@ -12,6 +12,8 @@ import {
 } from './application/screen_navigation_use_case.js';
 import { buildUiShellContractBuilders } from './ports/contracts/build_ui_shell_contracts.js';
 import { createUiPorts } from './ports/create_ui_ports.js';
+import { buildScreenOverlayBrowserModules } from './platform/browser/screen_overlay_browser_modules.js';
+import { buildScreenPrimaryBrowserModules } from './platform/browser/screen_primary_browser_modules.js';
 
 export function createUiBindingContext(modules, fns, options = {}) {
   const ports = createUiPorts(options);
@@ -31,6 +33,19 @@ export function buildUiRuntimeSubscriberPublicActions(fns) {
 
 export function buildUiShellContractPublicBuilders(ctx) {
   return buildUiShellContractBuilders(ctx);
+}
+
+export function createUiModuleCapabilities() {
+  return {
+    primary: buildScreenPrimaryBrowserModules(),
+    overlays: buildScreenOverlayBrowserModules(),
+  };
+}
+
+export function createUiFeatureFacade() {
+  return {
+    moduleCapabilities: createUiModuleCapabilities(),
+  };
 }
 
 export function createLegacyUiCommandFacade({
@@ -68,6 +83,8 @@ export {
   buildLegacyWindowUiQueryGroups,
   buildUiRuntimeSubscriberActions,
   buildUiShellContractBuilders,
+  buildScreenOverlayBrowserModules,
+  buildScreenPrimaryBrowserModules,
   createUiActions,
   createLegacyHudRuntimeQueryBindings,
   createUiPorts,

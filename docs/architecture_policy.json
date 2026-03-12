@@ -221,6 +221,60 @@
       "message": "title character select runtimes must use title feature-local selection use cases instead of app/run compat files"
     },
     {
+      "id": "title-runtime-effects-feature-surface-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/platform/browser/title_runtime_effects.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "title runtime effects must use feature-local or platform browser surfaces instead of ui compat paths"
+    },
+    {
+      "id": "title-class-select-browser-surface-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/platform/browser/create_class_select_facade.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/title/"
+      ],
+      "message": "class select facade must use feature-local browser helpers instead of ui/title compat paths"
+    },
+    {
+      "id": "title-character-select-bindings-browser-surface-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/platform/browser/create_character_select_runtime_bindings.js"
+      ],
+      "denyTargets": [
+        "game/ui/title/character_select_audio.js",
+        "game/ui/title/character_select_bindings.js",
+        "game/ui/title/character_select_fx.js",
+        "game/ui/title/character_select_flow.js",
+        "game/ui/title/character_select_modal.js",
+        "game/ui/title/character_select_summary_replay.js",
+        "game/ui/title/level_up_popup_ui.js",
+        "game/ui/title/run_end_screen_ui.js",
+        "game/ui/title/character_select_mount_runtime.js",
+        "game/ui/title/character_select_catalog.js"
+      ],
+      "message": "character select runtime bindings must use feature-local browser helpers instead of ui/title compat paths"
+    },
+    {
+      "id": "title-character-select-mount-tooltip-feature-surface-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/platform/browser/create_character_select_mount_runtime.js"
+      ],
+      "denyTargets": [
+        "game/ui/cards/tooltip_ui.js"
+      ],
+      "message": "character select mount runtime must use feature-local combat tooltip surfaces instead of ui/cards compat paths"
+    },
+    {
       "id": "combat-player-turn-policy-ports-only",
       "from": ["app", "combat"],
       "sourceFiles": [
@@ -267,6 +321,28 @@
       "message": "title canvas composition must import the title feature public facade instead of title ui internals"
     },
     {
+      "id": "platform-screen-primary-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_screen_primary_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/"
+      ],
+      "message": "screen primary composition must import feature public facades instead of screen ui internals"
+    },
+    {
+      "id": "platform-screen-overlay-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_screen_overlay_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/"
+      ],
+      "message": "screen overlay composition must import the ui feature public facade instead of screen ui internals"
+    },
+    {
       "id": "platform-run-map-public-only",
       "from": ["platform"],
       "sourceFiles": [
@@ -311,6 +387,18 @@
       "message": "title public surface must use a feature-local module catalog instead of direct ui imports"
     },
     {
+      "id": "title-browser-modules-feature-presentation-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/platform/browser/title_browser_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "title browser modules must import feature-local presentation facades instead of compat ui paths"
+    },
+    {
       "id": "run-public-module-catalog-only",
       "from": ["feature"],
       "sourceFiles": [
@@ -321,6 +409,18 @@
         "game/ui/run/"
       ],
       "message": "run public surface must use a feature-local module catalog instead of direct ui imports"
+    },
+    {
+      "id": "run-browser-modules-feature-presentation-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/platform/browser/run_browser_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "run browser modules must import feature-local presentation facades instead of compat ui paths"
     },
     {
       "id": "ui-map-navigation-feature-boundary",
@@ -420,6 +520,17 @@
       "message": "run start ui must delegate transition orchestration through feature run application/runtime boundaries"
     },
     {
+      "id": "run-start-runtime-platform-effects-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/application/create_run_start_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/effects/"
+      ],
+      "message": "run start runtime must use platform/browser effect surfaces instead of ui/effects compat paths"
+    },
+    {
       "id": "ui-run-setup-feature-boundary",
       "from": ["ui"],
       "sourceFiles": [
@@ -506,6 +617,18 @@
         "game/presentation/combat/"
       ],
       "message": "combat core composition must import the combat feature public facade instead of combat internals"
+    },
+    {
+      "id": "combat-browser-modules-feature-presentation-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/combat/platform/browser/combat_browser_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "combat browser modules must import feature-local presentation facades instead of compat ui paths"
     },
     {
       "id": "platform-combat-card-public-only",

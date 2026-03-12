@@ -97,19 +97,19 @@ vi.mock('../game/systems/class_progression_system.js', () => ({
   },
 }));
 
-vi.mock('../game/ui/cards/tooltip_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/tooltip_ui.js', () => ({
   TooltipUI: {},
 }));
 
-vi.mock('../game/ui/title/character_select_audio.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_audio.js', () => ({
   createCharacterSelectSfx: hoisted.createCharacterSelectSfx,
 }));
 
-vi.mock('../game/ui/title/character_select_bindings.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_bindings.js', () => ({
   setupCharacterSelectBindings: hoisted.setupCharacterSelectBindings,
 }));
 
-vi.mock('../game/ui/title/character_select_catalog.js', () => ({
+vi.mock('../game/features/title/domain/character_select_catalog_content.js', () => ({
   CHARACTER_SELECT_CHARS: [
     {
       class: 'paladin',
@@ -159,15 +159,15 @@ vi.mock('../game/ui/title/character_select_card_ui.js', () => ({
   renderCharacterCard: hoisted.renderCharacterCard,
 }));
 
-vi.mock('../game/ui/title/character_select_fx.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_fx.js', () => ({
   setupCharacterCardFx: hoisted.setupCharacterCardFx,
 }));
 
-vi.mock('../game/ui/title/character_select_flow.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_flow.js', () => ({
   createCharacterSelectFlow: hoisted.createCharacterSelectFlow,
 }));
 
-vi.mock('../game/ui/title/character_select_modal.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_modal.js', () => ({
   openCharacterSkillModal: hoisted.openCharacterSkillModal,
   closeCharacterSkillModal: hoisted.closeCharacterSkillModal,
 }));
@@ -176,15 +176,15 @@ vi.mock('../game/ui/title/character_select_particles.js', () => ({
   createCharacterParticleRuntime: hoisted.createCharacterParticleRuntime,
 }));
 
-vi.mock('../game/ui/title/character_select_summary_replay.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_summary_replay.js', () => ({
   createCharacterSummaryReplay: hoisted.createCharacterSummaryReplay,
 }));
 
-vi.mock('../game/ui/title/level_up_popup_ui.js', () => ({
+vi.mock('../game/features/title/presentation/browser/level_up_popup_ui.js', () => ({
   LevelUpPopupUI: hoisted.LevelUpPopupUI,
 }));
 
-vi.mock('../game/ui/title/run_end_screen_ui.js', () => ({
+vi.mock('../game/features/title/presentation/browser/run_end_screen_ui.js', () => ({
   RunEndScreenUI: hoisted.RunEndScreenUI,
 }));
 

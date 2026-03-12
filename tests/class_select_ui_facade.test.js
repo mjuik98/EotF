@@ -16,7 +16,7 @@ const {
   hideClassSelectTooltipSpy: vi.fn(),
 }));
 
-vi.mock('../game/ui/title/class_select_selection_ui.js', () => ({
+vi.mock('../game/features/title/platform/browser/class_select_selection_ui.js', () => ({
   normalizeClassId: vi.fn((value) => value),
   applyClassSelectionState: vi.fn(),
   selectClassButton: selectClassButtonSpy,
@@ -24,11 +24,11 @@ vi.mock('../game/ui/title/class_select_selection_ui.js', () => ({
   clearClassSelection: clearClassSelectionSpy,
 }));
 
-vi.mock('../game/ui/title/class_select_buttons_ui.js', () => ({
+vi.mock('../game/features/title/platform/browser/class_select_buttons_ui.js', () => ({
   renderClassSelectButtons: renderClassSelectButtonsSpy,
 }));
 
-vi.mock('../game/ui/title/class_select_tooltip_ui.js', () => ({
+vi.mock('../game/features/title/platform/browser/class_select_tooltip_ui.js', () => ({
   showClassSelectTooltip: showClassSelectTooltipSpy,
   hideClassSelectTooltip: hideClassSelectTooltipSpy,
 }));

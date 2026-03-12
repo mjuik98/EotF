@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-12T16:40:27.696Z",
+  "generatedAt": "2026-03-12T17:11:45.353Z",
   "totalMax": 148,
   "defaultPerFileMax": null,
   "byFileMax": {
@@ -18,6 +18,9 @@
     "game/features/combat/domain/enemy_turn_domain.js": 3,
     "game/features/combat/domain/player_status_tick_domain.js": 2,
     "game/features/combat/domain/set_bonus_system.js": 19,
+    "game/features/combat/presentation/browser/card_target_ui.js": 4,
+    "game/features/combat/presentation/browser/card_ui.js": 3,
+    "game/features/combat/presentation/browser/status_effects_ui.js": 1,
     "game/features/event/presentation/browser/event_ui_item_shop.js": 1,
     "game/features/reward/application/build_reward_options_use_case.js": 1,
     "game/features/reward/application/claim_reward_use_case.js": 2,
@@ -31,11 +34,8 @@
     "game/systems/codex_records_system.js": 5,
     "game/systems/item_system.js": 1,
     "game/systems/save_system.js": 11,
-    "game/ui/cards/card_target_ui.js": 4,
-    "game/ui/cards/card_ui.js": 3,
     "game/ui/combat/combat_intent_ui.js": 1,
     "game/ui/combat/combat_render_helpers.js": 1,
-    "game/ui/combat/status_effects_ui.js": 1,
     "game/ui/hud/feedback_ui_effects.js": 1,
     "game/ui/hud/hud_panel_runtime_helpers.js": 1,
     "game/ui/hud/hud_panel_sections.js": 1,

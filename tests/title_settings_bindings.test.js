@@ -45,13 +45,13 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getRunSetupDeps: vi.fn(() => ({ token: 'run-setup-deps', startGame: vi.fn() })),
 }));
 
-vi.mock('../game/ui/title/intro_cinematic_ui.js', () => ({
+vi.mock('../game/features/title/presentation/browser/intro_cinematic_ui.js', () => ({
   IntroCinematicUI: {
     play: vi.fn((_deps, onComplete) => onComplete?.()),
   },
 }));
 
-vi.mock('../game/ui/effects/echo_ripple_transition.js', () => ({
+vi.mock('../game/platform/browser/effects/echo_ripple_transition.js', () => ({
   startEchoRippleDissolve: vi.fn((overlayEl, deps = {}) => {
     overlayEl?.remove?.();
     deps.onComplete?.();
@@ -60,8 +60,8 @@ vi.mock('../game/ui/effects/echo_ripple_transition.js', () => ({
 
 import { createTitleSettingsBindings } from '../game/core/bindings/title_settings_bindings.js';
 import * as Deps from '../game/core/deps_factory.js';
-import { IntroCinematicUI } from '../game/ui/title/intro_cinematic_ui.js';
-import { startEchoRippleDissolve } from '../game/ui/effects/echo_ripple_transition.js';
+import { IntroCinematicUI } from '../game/features/title/presentation/browser/intro_cinematic_ui.js';
+import { startEchoRippleDissolve } from '../game/platform/browser/effects/echo_ripple_transition.js';
 
 function createMockDocument() {
   const elements = {

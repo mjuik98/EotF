@@ -1,11 +1,5 @@
-import { MetaProgressionUI } from '../../../ui/screens/meta_progression_ui.js';
-import { HelpPauseUI } from '../../../ui/screens/help_pause_ui.js';
-import { SettingsUI } from '../../../ui/screens/settings_ui.js';
+import { createUiFeatureFacade } from '../../../features/ui/public.js';
 
 export function buildScreenOverlayModules() {
-  return {
-    MetaProgressionUI,
-    HelpPauseUI,
-    SettingsUI,
-  };
+  return createUiFeatureFacade().moduleCapabilities.overlays;
 }

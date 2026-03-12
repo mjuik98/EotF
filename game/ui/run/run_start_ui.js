@@ -1,7 +1,1 @@
-import { enterRunRuntime } from '../../features/run/application/create_run_start_runtime.js';
-
-export const RunStartUI = {
-  enterRun(deps = {}) {
-    return enterRunRuntime(deps);
-  },
-};
+export { RunStartUI } from '../../features/run/presentation/browser/run_start_ui.js';

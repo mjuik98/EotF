@@ -3,7 +3,7 @@ import {
   ensureCharacterSelectMeta,
   getCharacterSelectPresentation,
 } from '../../application/load_character_select_use_case.js';
-import { TooltipUI } from '../../../../ui/cards/tooltip_ui.js';
+import { TooltipUI } from '../../../combat/presentation/browser/tooltip_ui.js';
 import {
   renderCharacterInfoPanel,
   renderCharacterPhase,

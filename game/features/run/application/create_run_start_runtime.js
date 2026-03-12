@@ -1,5 +1,5 @@
 import { runIdempotent } from '../../../utils/idempotency_utils.js';
-import { startEchoRippleDissolve } from '../../../ui/effects/echo_ripple_transition.js';
+import { startEchoRippleDissolve } from '../../../platform/browser/effects/echo_ripple_transition.js';
 
 export const RUN_START_HANDOFF_BLACKOUT_ID = 'runStartHandoffBlackoutOverlay';
 

@@ -49,6 +49,14 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   Feature slices should import those shared paths directly; `game/app/shared/*` and `game/app/codex/*` remain compat-only.
 - Combat card/end-turn services and event shop/choice services now belong under `game/features/{combat,event}/application/*`.
   `game/app/{combat,event}/*_service.js` should remain thin re-exports only.
+- Screen-shell and codex top-level facades now belong under `game/features/ui/presentation/browser/*` and `game/features/codex/presentation/browser/*`.
+  `game/ui/screens/{screen_ui,ending_screen_ui,story_ui,meta_progression_ui,help_pause_ui,settings_ui,codex_ui}.js` should remain thin re-exports only, and `game/platform/browser/composition/build_screen_{primary,overlay}_modules.js` should compose through feature public facades.
+- Title/run/combat top-level browser facades now belong under `game/features/{title,run,combat}/presentation/browser/*`.
+  Compat entry files in `game/ui/title/*`, `game/ui/run/*`, `game/ui/combat/*`, `game/ui/cards/*`, and `game/presentation/combat/combat_turn_ui.js` should remain thin re-exports only, while `game/features/*/platform/browser/*_browser_modules.js` should compose through feature-local presentation facades.
+- Title browser helper ownership is also moving inward:
+  `game/features/title/platform/browser/*` now owns class-select and character-select helper modules, while compat files such as `game/ui/title/{class_select_buttons_ui,class_select_selection_ui,class_select_tooltip_ui,character_select_audio,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay}.js` should stay thin re-exports only.
+- Shared browser-only transition effects belong under `game/platform/browser/*`.
+  `game/ui/effects/echo_ripple_transition.js` should remain a thin compat re-export to `game/platform/browser/effects/echo_ripple_transition.js`.
 - New legacy global exposure must go through `game/platform/legacy/*` builders instead of direct `window.*` or `GAME.*` expansion from unrelated layers.
 - `engine/*` and `data/*` must not import `game/ui/*`.
 

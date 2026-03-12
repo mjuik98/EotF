@@ -1,1 +1,1 @@
-export { CombatTurnUI } from '../../ui/combat/combat_turn_ui.js';
+export { CombatTurnUI } from '../../features/combat/presentation/browser/combat_turn_ui.js';

@@ -4,12 +4,12 @@ import {
   clearClassSelection,
   selectClassButton,
   selectClassById,
-} from '../../../../ui/title/class_select_selection_ui.js';
+} from './class_select_selection_ui.js';
 import {
   hideClassSelectTooltip,
   showClassSelectTooltip,
-} from '../../../../ui/title/class_select_tooltip_ui.js';
-import { renderClassSelectButtons } from '../../../../ui/title/class_select_buttons_ui.js';
+} from './class_select_tooltip_ui.js';
+import { renderClassSelectButtons } from './class_select_buttons_ui.js';
 
 export function createClassSelectFacade(options = {}) {
   const {

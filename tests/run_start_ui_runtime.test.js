@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { clearIdempotencyPrefix } from '../game/utils/idempotency_utils.js';
 import { enterRunRuntime } from '../game/ui/run/run_start_ui_runtime.js';
 
-vi.mock('../game/ui/effects/echo_ripple_transition.js', () => ({
+vi.mock('../game/platform/browser/effects/echo_ripple_transition.js', () => ({
   startEchoRippleDissolve: vi.fn((overlayEl, deps = {}) => {
     overlayEl?.remove?.();
     deps.onComplete?.();

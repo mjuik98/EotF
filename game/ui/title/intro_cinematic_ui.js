@@ -1,7 +1,1 @@
-import { playIntroCinematicRuntime } from './intro_cinematic_runtime.js';
-
-export const IntroCinematicUI = {
-  play(deps = {}, onComplete) {
-    playIntroCinematicRuntime(deps, onComplete);
-  },
-};
+export { IntroCinematicUI } from '../../features/title/presentation/browser/intro_cinematic_ui.js';

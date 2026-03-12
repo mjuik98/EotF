@@ -1,3 +1,1 @@
-import { createClassSelectFacade } from '../../features/title/platform/browser/create_class_select_facade.js';
-
-export const ClassSelectUI = createClassSelectFacade();
+export { ClassSelectUI } from '../../features/title/presentation/browser/class_select_ui.js';

@@ -1,5 +1,5 @@
-import { IntroCinematicUI } from '../../../../ui/title/intro_cinematic_ui.js';
-import { startEchoRippleDissolve } from '../../../../ui/effects/echo_ripple_transition.js';
+import { startEchoRippleDissolve } from '../../../../platform/browser/effects/echo_ripple_transition.js';
+import { IntroCinematicUI } from '../../presentation/browser/intro_cinematic_ui.js';
 
 export function createTitleRuntimeEffects(overrides = {}) {
   return {

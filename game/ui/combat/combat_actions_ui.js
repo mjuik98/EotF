@@ -1,7 +1,1 @@
-import { performCombatDrawCard } from './combat_actions_runtime_ui.js';
-
-export const CombatActionsUI = {
-  drawCard(deps = {}) {
-    performCombatDrawCard(deps.gs);
-  }
-};
+export { CombatActionsUI } from '../../features/combat/presentation/browser/combat_actions_ui.js';

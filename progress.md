@@ -1887,3 +1887,159 @@ Original prompt: 우리 프로젝트 코드를 분석하고, 단순 코드 정�
     - screenshot과 state 모두 guardian / berserker character select 화면을 가리킴
 - 완료 상태:
   - 이전 배치 TODO였던 `feature public module builder export 축소`와 `event effectId handler services 확장`, `legacy bridge contract test` 보강을 마무리
+
+## Current Batch (2026-03-13, screen/codex/title-run-combat facade ownership consolidation)
+
+- `screen-shell` / `codex` 상단 facade ownership 이동:
+  - 신규 feature facade:
+    - `game/features/ui/presentation/browser/{screen_ui,ending_screen_ui,story_ui,meta_progression_ui,help_pause_ui,settings_ui}.js`
+    - `game/features/codex/presentation/browser/codex_ui.js`
+    - `game/features/ui/platform/browser/{screen_primary_browser_modules,screen_overlay_browser_modules}.js`
+  - `game/features/ui/public.js`
+    - `createUiModuleCapabilities()` / `createUiFeatureFacade()` 추가
+    - screen primary/overlay module capability를 feature-owned browser modules로 수렴
+  - `game/platform/browser/composition/build_screen_{primary,overlay}_modules.js`
+    - 직접 `game/ui/screens/*`를 읽지 않고 `createUiFeatureFacade().moduleCapabilities` 경유
+  - `game/features/codex/platform/browser/codex_browser_modules.js`
+    - `game/ui/screens/codex_ui.js` 대신 feature-local `presentation/browser/codex_ui.js` 사용
+  - compat facade:
+    - `game/ui/screens/{screen_ui,ending_screen_ui,story_ui,meta_progression_ui,help_pause_ui,settings_ui,codex_ui}.js`
+    - thin re-export only 로 축소
+- `title/run/combat` top-level browser facade ownership 이동:
+  - 신규 feature facade:
+    - `game/features/title/presentation/browser/{class_select_ui,character_select_ui,game_boot_ui,title_canvas_ui,game_canvas_setup_ui}.js`
+    - `game/features/run/presentation/browser/{run_mode_ui,run_start_ui,run_setup_ui,run_return_ui}.js`
+    - `game/features/combat/presentation/browser/{combat_start_ui,combat_ui,combat_hud_ui,echo_skill_ui,combat_turn_ui,status_effects_ui,combat_info_ui,combat_actions_ui,card_ui,card_target_ui,tooltip_ui,deck_modal_ui}.js`
+  - `game/features/{title,run,combat}/platform/browser/*_browser_modules.js`
+    - 더 이상 `game/ui/*` / `game/presentation/*` top-level facade를 직접 import하지 않고 feature-local `presentation/browser/*`만 조립
+  - compat facade:
+    - `game/ui/title/*`
+    - `game/ui/run/*`
+    - `game/ui/combat/*`
+    - `game/ui/cards/{card_ui,card_target_ui,tooltip_ui,deck_modal_ui}.js`
+    - `game/presentation/combat/combat_turn_ui.js`
+    - 모두 thin re-export only 로 축소
+- guardrail 보강:
+  - `docs/architecture_policy.json`
+    - `platform-screen-primary-public-only`
+    - `platform-screen-overlay-public-only`
+    - `title-browser-modules-feature-presentation-only`
+    - `run-browser-modules-feature-presentation-only`
+    - `combat-browser-modules-feature-presentation-only`
+  - `docs/architecture_boundaries.md`
+    - screen/codex/title/run/combat facade ownership 위치와 compat-only 정책 명시
+  - 신규 테스트:
+    - `tests/build_screen_overlay_modules.test.js`
+    - `tests/feature_browser_module_ownership.test.js`
+  - 수정 테스트:
+    - `tests/build_screen_primary_modules.test.js`
+    - `tests/ui_feature_entry_compat_reexports.test.js`
+- 메트릭/target 갱신:
+  - `docs/metrics/import_coupling_baseline.json` -> `419`
+  - `docs/metrics/state_mutation_targets.json` -> `148`
+- 검증:
+  - targeted vitest PASS:
+    - `tests/build_screen_primary_modules.test.js`
+    - `tests/build_screen_overlay_modules.test.js`
+    - `tests/register_screen_modules.test.js`
+    - `tests/ui_feature_entry_compat_reexports.test.js`
+    - `tests/codex_feature_public.test.js`
+    - `tests/screen_ui.test.js`
+    - `tests/help_pause_ui.test.js`
+    - `tests/settings_ui.test.js`
+    - `tests/story_ui.test.js`
+    - `tests/ending_screen_ui.test.js`
+    - `tests/meta_progression_ui.test.js`
+    - `tests/register_{title,run,combat}_modules.test.js`
+    - `tests/feature_public_module_builders.test.js`
+    - `tests/feature_browser_module_ownership.test.js`
+    - `tests/{class_select_ui_facade,character_select_ui_facade,game_boot_ui_facade,title_canvas_ui_facade,game_canvas_setup_ui_facade}.test.js`
+    - `tests/{run_mode_ui_facade,run_start_ui_facade,run_setup_ui_facade,run_return_ui_facade}.test.js`
+    - `tests/{combat_start_ui,combat_ui_render,combat_info_ui,card_ui,card_target_ui,deck_modal_ui}.test.js`
+  - `npm run lint` PASS
+    - `Import coupling check passed (419 current, baseline 419)`
+    - `State mutation target check passed (148 current, target 148)`
+  - `npm test` PASS
+    - `412 files / 962 tests`
+  - `npm run build` PASS
+    - residual warning: `Circular chunk: data-cards -> ui-gameplay -> data-cards`
+  - Playwright smoke PASS:
+    - title smoke:
+      - `output/web-game/shot-0.png`
+      - `output/web-game/shot-1.png`
+      - `output/web-game/state-0.json`
+      - `output/web-game/state-1.json`
+      - summary: `#mainStartBtn` 이후 character select 렌더 유지, `screen:"title"` + `panels:["characterSelect"]`
+    - deep smoke:
+      - `output/web-game/deep-combat-reward/shot-{0,1,2}.png`
+      - `output/web-game/deep-combat-reward/state-{0,1,2}.json`
+      - `output/web-game/deep-combat-reward/console-errors.json`
+      - summary: combat 종료 -> reward -> map 복귀 확인, console errors `[]`
+- 남은 TODO:
+  - facade ownership은 정리됐지만 세부 helper/runtime 모듈 다수는 아직 `game/ui/*`에 남아 있음
+  - 다음 배치는 `feature -> game/ui/*` direct helper import가 많은 `title`, `combat`, `run` 내부 runtime/helper를 ports/shared helper 기준으로 더 쪼개는 작업이 적절
+
+## Current Batch (2026-03-13, title helper/runtime ownership + shared browser effects)
+
+- `title` helper/runtime ownership 이동:
+  - 신규 feature-local browser helper:
+    - `game/features/title/platform/browser/{class_select_buttons_ui,class_select_selection_ui,class_select_tooltip_ui}.js`
+    - `game/features/title/platform/browser/{character_select_audio,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay,character_select_fx}.js`
+  - 신규 feature-local facade:
+    - `game/features/title/presentation/browser/{intro_cinematic_ui,level_up_popup_ui,run_end_screen_ui}.js`
+  - `game/features/title/platform/browser/create_class_select_facade.js`
+    - 더 이상 `game/ui/title/class_select_*` compat helper를 읽지 않고 feature-local helper만 사용
+  - `game/features/title/platform/browser/create_character_select_runtime_bindings.js`
+    - `character_select_*` helper / `LevelUpPopupUI` / `RunEndScreenUI` / class catalog를 feature-local 경로로 정리
+  - `game/features/title/platform/browser/create_character_select_mount_runtime.js`
+    - `TooltipUI`를 `game/features/combat/presentation/browser/tooltip_ui.js`로 직접 참조
+  - 잔여 compat import:
+    - `create_character_select_runtime_bindings.js`는 아직 `game/ui/title/character_select_particles.js`를 사용
+- shared browser effect ownership 이동:
+  - 신규 shared browser effect:
+    - `game/platform/browser/effects/echo_ripple_transition.js`
+  - `game/features/title/platform/browser/title_runtime_effects.js`
+  - `game/features/run/application/create_run_start_runtime.js`
+    - 더 이상 `game/ui/effects/echo_ripple_transition.js` compat 경로를 읽지 않고 platform-owned effect를 직접 사용
+  - compat facade:
+    - `game/ui/effects/echo_ripple_transition.js`
+    - `game/ui/title/{class_select_buttons_ui,class_select_selection_ui,class_select_tooltip_ui,character_select_audio,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay,character_select_fx,intro_cinematic_ui,level_up_popup_ui,run_end_screen_ui}.js`
+    - thin re-export only 로 축소
+- guardrail / 테스트 보강:
+  - `docs/architecture_policy.json`
+    - `title-runtime-effects-feature-surface-only`
+    - `title-class-select-browser-surface-only`
+    - `title-character-select-bindings-browser-surface-only`
+    - `title-character-select-mount-tooltip-feature-surface-only`
+    - `run-start-runtime-platform-effects-only`
+  - `docs/architecture_boundaries.md`
+    - title helper/runtime ownership 위치와 compat-only 경계를 추가 명시
+  - 수정 테스트:
+    - `tests/{character_select_ui_mount,class_select_ui_facade,title_settings_bindings,run_start_ui,run_start_ui_runtime,ui_feature_entry_compat_reexports}.test.js`
+- 메트릭/target 갱신:
+  - `docs/metrics/import_coupling_baseline.json` -> `406`
+  - `docs/metrics/state_mutation_targets.json` 유지 `148`
+- 검증:
+  - targeted vitest PASS:
+    - `tests/{ui_feature_entry_compat_reexports,character_select_ui_mount,title_settings_bindings,run_start_ui,run_start_ui_runtime,class_select_buttons_ui,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay,intro_cinematic_ui_facade,level_up_popup_ui_facade,run_end_screen_ui_facade}.test.js`
+  - `npm run lint` PASS
+    - `Import coupling check passed (406 current, baseline 406)`
+    - `State mutation target check passed (148 current, target 148)`
+  - `npm test` PASS
+    - `412 files / 962 tests`
+  - `npm run build` PASS
+    - residual warning: `Circular chunk: data-cards -> ui-gameplay -> data-cards`
+  - Playwright smoke PASS:
+    - title smoke:
+      - `output/web-game/shot-{0,1}.png`
+      - `output/web-game/state-{0,1}.json`
+      - summary: `#mainStartBtn` 이후 `screen:"title"` + `panels:["characterSelect"]`
+    - deep smoke:
+      - `output/web-game/deep-combat-reward/shot-{0,1,2}.png`
+      - `output/web-game/deep-combat-reward/state-{0,1,2}.json`
+      - `output/web-game/deep-combat-reward/console-errors.json`
+      - summary: combat -> reward -> map 복귀, console errors `[]`
+- 남은 TODO:
+  - `game/ui/title/character_select_particles.js` ownership 이동
+  - `title`, `run`, `combat` 내부 세부 helper/runtime의 `game/ui/*` direct import 추가 축소
+  - residual build warning: `Circular chunk: data-cards -> ui-gameplay -> data-cards`

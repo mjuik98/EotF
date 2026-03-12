@@ -1,7 +1,1 @@
-import { useEchoSkillRuntime } from './echo_skill_runtime_ui.js';
-
-export const EchoSkillUI = {
-  useEchoSkill(deps = {}) {
-    useEchoSkillRuntime(deps);
-  },
-};
+export { EchoSkillUI } from '../../features/combat/presentation/browser/echo_skill_ui.js';
