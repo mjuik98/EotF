@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { DeathHandler } from '../game/combat/death_handler.js';
+import { handleEnemyDeathFlow } from '../game/combat/death_handler_enemy_death_flow.js';
+import { buildDeathOutcomePayload } from '../game/combat/death_handler_outcome.js';
 import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
 
 describe('DeathHandler', () => {
@@ -33,6 +35,24 @@ describe('DeathHandler', () => {
       }),
       selectFragment,
     }));
+  });
+
+  it('builds a defeat outcome payload with resolved ending actions before showing the screen', () => {
+    const gs = { player: { kills: 2 }, stats: {}, meta: {} };
+    const selectFragment = vi.fn();
+    const payload = buildDeathOutcomePayload(gs, {
+      endingScreenUI: EndingScreenUI,
+      finalizeRunOutcome: vi.fn(),
+      selectFragment,
+    }, {});
+
+    expect(payload.gs).toBe(gs);
+    expect(payload.endingScreenUI).toBe(EndingScreenUI);
+    expect(payload.endingActions).toEqual(expect.objectContaining({
+      selectFragment: expect.any(Function),
+    }));
+    payload.endingActions.selectFragment('fortune');
+    expect(selectFragment).toHaveBeenCalledWith('fortune');
   });
 
   it('plays the player death reaction event instead of the generic legacy death sound', () => {
@@ -109,5 +129,50 @@ describe('DeathHandler', () => {
     expect(gs.combat.enemies).toHaveLength(1);
     expect(renderCombatEnemies).toHaveBeenCalledTimes(1);
     expect(enableActionButtons).toHaveBeenCalledTimes(1);
+  });
+
+  it('routes enemy death side effects through the extracted use case', () => {
+    const cleanupTooltips = vi.fn();
+    const lockCombatEndInputs = vi.fn();
+    const queueCombatEnd = vi.fn();
+    const removeDeadEnemies = vi.fn();
+    const syncSelectedTarget = vi.fn();
+    const renderCombatEnemies = vi.fn();
+    const scheduleEnemyRemoval = vi.fn((idx, onRemove) => {
+      expect(idx).toBe(2);
+      onRemove();
+    });
+    const updateUi = vi.fn();
+    const applyEnemyDeath = vi.fn().mockReturnValue({
+      shouldEndCombat: true,
+    });
+    const gs = { combat: { enemies: [{ hp: 0 }] } };
+
+    const result = handleEnemyDeathFlow({
+      enemy: { name: 'Wisp', hp: 0 },
+      gs,
+      idx: 2,
+      applyEnemyDeath,
+      runtimePort: {
+        cleanupTooltips,
+        lockCombatEndInputs,
+        queueCombatEnd,
+        removeDeadEnemies,
+        renderCombatEnemies,
+        scheduleEnemyRemoval,
+        syncSelectedTarget,
+        updateUi,
+      },
+    });
+
+    expect(result).toEqual({ shouldEndCombat: true });
+    expect(cleanupTooltips).toHaveBeenCalledTimes(1);
+    expect(scheduleEnemyRemoval).toHaveBeenCalledTimes(1);
+    expect(removeDeadEnemies).toHaveBeenCalledTimes(1);
+    expect(syncSelectedTarget).toHaveBeenCalledTimes(1);
+    expect(renderCombatEnemies).toHaveBeenCalledTimes(1);
+    expect(lockCombatEndInputs).toHaveBeenCalledTimes(1);
+    expect(queueCombatEnd).toHaveBeenCalledTimes(1);
+    expect(updateUi).toHaveBeenCalledTimes(1);
   });
 });

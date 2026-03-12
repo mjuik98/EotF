@@ -9,6 +9,8 @@ import {
   applyEnemyDamageState,
   applyEnemyHealState,
   applyEnemyStatusUpdatesState,
+  consumeEnemyStunState,
+  decayEnemyWeakenState,
   replacePlayerBuffsState,
   setCurrentCombatAttackerState,
 } from '../state/enemy_turn_state_commands.js';
@@ -175,17 +177,7 @@ export function handleEnemyEffect(effect, gs, enemy, { regionId, data } = {}) {
 }
 
 export function processEnemyStun(enemy) {
-  if (enemy.statusEffects?.stunned > 0) {
-    enemy.statusEffects.stunned--;
-    if (enemy.statusEffects.stunned <= 0) delete enemy.statusEffects.stunned;
-
-    if (enemy.statusEffects?.weakened > 0) {
-      enemy.statusEffects.weakened--;
-      if (enemy.statusEffects.weakened <= 0) delete enemy.statusEffects.weakened;
-    }
-    return true;
-  }
-  return false;
+  return consumeEnemyStunState(enemy).stunnedConsumed;
 }
 
 export function getEnemyAction(enemy, turn) {
@@ -197,8 +189,5 @@ export function getEnemyAction(enemy, turn) {
 }
 
 export function decayEnemyWeaken(enemy) {
-  if (enemy.statusEffects?.weakened > 0) {
-    enemy.statusEffects.weakened--;
-    if (enemy.statusEffects.weakened <= 0) delete enemy.statusEffects.weakened;
-  }
+  decayEnemyWeakenState(enemy);
 }

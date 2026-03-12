@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildEndingChips,
+  buildEndingDeckPreview,
+  buildEndingInscriptions,
   buildEndingPayload,
+  buildEndingRegions,
   decorateEndingPayloadForOutcome,
+  getEndingOutcomeDecoration,
 } from '../game/ui/screens/ending_screen_helpers.js';
 
 describe('ending_screen_helpers', () => {
@@ -43,6 +48,48 @@ describe('ending_screen_helpers', () => {
     expect(payload.chips).toContain('4회차');
   });
 
+  it('builds regions, deck preview, inscriptions, and chips from dedicated helpers', () => {
+    const gs = {
+      currentRegion: 1,
+      regionRoute: { 1: 7 },
+      meta: {
+        storyPieces: [1, 2, 3],
+        inscriptions: { flow: 2, frost: false },
+        runCount: 2,
+      },
+      player: {
+        deck: ['spark', 'guard'],
+      },
+      stats: {
+        deathCount: 0,
+        regionClearTimes: [15000, 30000],
+      },
+    };
+    const data = {
+      regions: [null, { id: 7, name: '빙결 회랑', icon: '❄', accentBase: 'rgba(1,2,3,' }],
+      cards: {
+        spark: { name: 'Spark', rarity: 'rare', icon: '⚡' },
+        guard: { name: 'Guard', rarity: 'legendary', icon: '🛡' },
+      },
+      inscriptions: {
+        flow: { name: 'Flow', icon: '🜁' },
+      },
+    };
+
+    expect(buildEndingRegions(gs, data)).toEqual([
+      expect.objectContaining({ name: '지역 1', icon: '🌲', time: '00:15', boss: false }),
+      expect.objectContaining({ name: '빙결 회랑', icon: '❄', accent: 'rgba(1,2,3,', time: '00:30', boss: true }),
+    ]);
+    expect(buildEndingDeckPreview(gs, data)).toEqual([
+      expect.objectContaining({ id: 'spark', title: 'Spark', cls: 'r' }),
+      expect.objectContaining({ id: 'guard', title: 'Guard', cls: 'l' }),
+    ]);
+    expect(buildEndingInscriptions(gs, data)).toEqual([
+      expect.objectContaining({ id: 'flow', level: 2, icon: '🜁', name: 'Flow' }),
+    ]);
+    expect(buildEndingChips(gs, 3, 3)).toEqual(['노 데스', '풀 스토리', '2회차']);
+  });
+
   it('decorates abandon outcome and removes codex button from markup', () => {
     const payload = decorateEndingPayloadForOutcome({
       chips: ['노 데스'],
@@ -55,5 +102,13 @@ describe('ending_screen_helpers', () => {
 
     expect(payload.title).toBe('멈춘 메아리');
     expect(payload.chips).toContain('런 포기');
+  });
+
+  it('returns null for victory decoration and defeat metadata for defeat outcome', () => {
+    expect(getEndingOutcomeDecoration('victory')).toBeNull();
+    expect(getEndingOutcomeDecoration('defeat')).toMatchObject({
+      title: '무너진 메아리',
+      chip: '패배',
+    });
   });
 });

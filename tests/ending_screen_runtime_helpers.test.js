@@ -54,6 +54,44 @@ describe('ending_screen_runtime_helpers', () => {
     expect(result.session.payload).toMatchObject({ score: 45 });
   });
 
+  it('exposes payload, mount, and session bootstrap helpers for the ending runtime', async () => {
+    const helpers = await import('../game/ui/screens/ending_screen_runtime_helpers.js');
+    const endingHelpers = await import('../game/ui/screens/ending_screen_helpers.js');
+    const endingFx = await import('../game/ui/screens/ending_screen_fx.js');
+    const doc = {
+      body: {
+        appendChild: vi.fn(),
+      },
+    };
+
+    const payload = helpers.buildEndingSessionPayload('victory', {
+      gs: { run: true },
+      data: { defs: true },
+    });
+    const root = helpers.mountEndingScreenRoot(doc, payload);
+    const session = helpers.createEndingSessionState(payload);
+    const fx = helpers.populateEndingScreenSession({
+      doc,
+      deps: {},
+      hooks: { cleanup: vi.fn() },
+      outcome: 'victory',
+      payload,
+      session,
+    });
+
+    expect(endingHelpers.buildEndingPayload).toHaveBeenCalledWith({ run: true }, { defs: true });
+    expect(endingHelpers.decorateEndingPayloadForOutcome).toHaveBeenCalledWith(expect.objectContaining({ score: 45 }), 'victory');
+    expect(endingHelpers.ensureEndingScreenStyle).toHaveBeenCalledWith(doc);
+    expect(endingHelpers.buildEndingScreenDOM).toHaveBeenCalledWith(doc, payload);
+    expect(doc.body.appendChild).toHaveBeenCalledWith(root);
+    expect(session).toMatchObject({ cleanups: [], timers: [], payload });
+    expect(endingHelpers.populateEndingMeta).toHaveBeenCalledWith(doc, payload, session, {});
+    expect(endingHelpers.appendEndingFragmentChoices).toHaveBeenCalledWith(doc, {}, 'victory', session, expect.any(Function));
+    expect(endingHelpers.applyEndingRank).toHaveBeenCalledWith(doc, payload.rank, payload.score);
+    expect(endingFx.initEndingFx).toHaveBeenCalledWith(doc, {}, session);
+    expect(fx).toMatchObject({ wisps: [] });
+  });
+
   it('binds sigil cycling and restart flow through runtime callbacks', async () => {
     const helpers = await import('../game/ui/screens/ending_screen_runtime_helpers.js');
     const endingHelpers = await import('../game/ui/screens/ending_screen_helpers.js');

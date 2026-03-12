@@ -44,3 +44,40 @@ export function applyEnemyStatusUpdatesState(enemy, statusUpdates = []) {
 
   return enemy.statusEffects;
 }
+
+export function decrementEnemyStatusCounterState(enemy, statusKey) {
+  if (!enemy || !statusKey || !enemy.statusEffects?.[statusKey]) return undefined;
+
+  const nextValue = Number(enemy.statusEffects[statusKey]) - 1;
+  if (nextValue > 0) {
+    enemy.statusEffects[statusKey] = nextValue;
+    return nextValue;
+  }
+
+  delete enemy.statusEffects[statusKey];
+  return undefined;
+}
+
+export function consumeEnemyStunState(enemy) {
+  if (!enemy?.statusEffects?.stunned || enemy.statusEffects.stunned <= 0) {
+    return { stunnedConsumed: false, weakenedDecayed: false };
+  }
+
+  decrementEnemyStatusCounterState(enemy, 'stunned');
+
+  const weakenedDecayed = Boolean(enemy.statusEffects?.weakened > 0);
+  if (weakenedDecayed) {
+    decrementEnemyStatusCounterState(enemy, 'weakened');
+  }
+
+  return { stunnedConsumed: true, weakenedDecayed };
+}
+
+export function decayEnemyWeakenState(enemy) {
+  if (!enemy?.statusEffects?.weakened || enemy.statusEffects.weakened <= 0) {
+    return false;
+  }
+
+  decrementEnemyStatusCounterState(enemy, 'weakened');
+  return true;
+}

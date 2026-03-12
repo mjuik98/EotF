@@ -11,6 +11,7 @@
 import { DATA } from '../../data/game_data.js';
 import { applyEnemyDeathState } from './death_handler_enemy_state.js';
 import { showDeathOutcomeScreen } from './death_handler_outcome.js';
+import { handleEnemyDeathFlow } from './death_handler_enemy_death_flow.js';
 import {
     cleanupEnemyDeathTooltips,
     lockCombatEndInputs,
@@ -58,42 +59,40 @@ export const DeathHandler = {
         const doc = _getDoc(deps);
         const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
         const AudioEngine = deps.audioEngine || win.AudioEngine;
-        const deathResult = applyEnemyDeathState(this, enemy, idx, {
-            addGold: (amount) => this.addGold(amount, deps),
-            addLog: (message, type) => this.addLog(message, type),
-            emitEnemyDeath: (payload) => EventBus.emit(Actions.ENEMY_DEATH, payload),
-            isCombatEndScheduled: () => !!this._endCombatScheduled,
-            playEnemyDeath: () => playReactionEnemyDeath(AudioEngine),
-            recordEnemyWorldKill: (enemyId) => recordEnemyWorldKill(this, enemyId),
-            registerEnemyKill: (enemyId) => registerEnemyKill(this, enemyId),
-            scheduleCombatEnd: () => scheduleCombatEnd(this),
-            triggerItems: (trigger, payload) => this.triggerItems(trigger, payload),
+        handleEnemyDeathFlow({
+            enemy,
+            gs: this,
+            idx,
+            applyEnemyDeath: (state, defeatedEnemy, enemyIdx) => applyEnemyDeathState(state, defeatedEnemy, enemyIdx, {
+                addGold: (amount) => this.addGold(amount, deps),
+                addLog: (message, type) => this.addLog(message, type),
+                emitEnemyDeath: (payload) => EventBus.emit(Actions.ENEMY_DEATH, payload),
+                isCombatEndScheduled: () => !!this._endCombatScheduled,
+                playEnemyDeath: () => playReactionEnemyDeath(AudioEngine),
+                recordEnemyWorldKill: (enemyId) => recordEnemyWorldKill(this, enemyId),
+                registerEnemyKill: (enemyId) => registerEnemyKill(this, enemyId),
+                scheduleCombatEnd: () => scheduleCombatEnd(this),
+                triggerItems: (trigger, payload) => this.triggerItems(trigger, payload),
+            }),
+            runtimePort: {
+                cleanupTooltips: () => cleanupEnemyDeathTooltips(cleanupTooltips, doc, win),
+                lockCombatEndInputs: () => lockCombatEndInputs(doc),
+                queueCombatEnd: () => scheduleCombatEndFlow({
+                    deps,
+                    endCombat: (endCombatDeps) => this.endCombat(endCombatDeps),
+                    schedule: setTimeout,
+                    win,
+                }),
+                removeDeadEnemies: () => replaceCombatEnemies(this, this.combat.enemies.filter(e => e.hp > 0)),
+                renderCombatEnemies: deps.renderCombatEnemies || win.renderCombatEnemies,
+                scheduleEnemyRemoval: (enemyIdx, onRemove) => {
+                    const cardEl = doc.getElementById(`enemy_${enemyIdx}`);
+                    scheduleEnemyRemoval(cardEl, setTimeout, onRemove);
+                },
+                syncSelectedTarget: () => syncSelectedTarget(this),
+                updateUi: deps.updateUI || win.updateUI,
+            },
         });
-
-        cleanupEnemyDeathTooltips(cleanupTooltips, doc, win);
-
-        const cardEl = doc.getElementById(`enemy_${idx}`);
-        scheduleEnemyRemoval(cardEl, setTimeout, () => {
-                // 죽은 적을 배열에서 실제로 제거
-                replaceCombatEnemies(this, this.combat.enemies.filter(e => e.hp > 0));
-                syncSelectedTarget(this);
-                // 그 외엔 기존 인덱스 유지 (배열이 앞에서 줄었을 경우 대비)
-
-                const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
-                if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
-        });
-
-        if (deathResult.shouldEndCombat) {
-            lockCombatEndInputs(doc);
-            scheduleCombatEndFlow({
-                deps,
-                endCombat: (endCombatDeps) => this.endCombat(endCombatDeps),
-                schedule: setTimeout,
-                win,
-            });
-        }
-        const updateUI = deps.updateUI || win.updateUI;
-        if (typeof updateUI === 'function') updateUI();
     },
 
     onPlayerDeath(deps = {}) {

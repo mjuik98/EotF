@@ -4,6 +4,9 @@ import {
   applyEnemyHealState,
   applyEnemyDamageState,
   applyEnemyStatusUpdatesState,
+  consumeEnemyStunState,
+  decayEnemyWeakenState,
+  decrementEnemyStatusCounterState,
   replacePlayerBuffsState,
   setCurrentCombatAttackerState,
 } from '../game/features/combat/state/enemy_turn_state_commands.js';
@@ -77,5 +80,47 @@ describe('enemy_turn_state_commands', () => {
       poisonDuration: 2,
       immune: 1,
     });
+  });
+
+  it('decrements enemy status counters and deletes them at zero', () => {
+    const enemy = {
+      statusEffects: {
+        stunned: 2,
+      },
+    };
+
+    expect(decrementEnemyStatusCounterState(enemy, 'stunned')).toBe(1);
+    expect(enemy.statusEffects.stunned).toBe(1);
+    expect(decrementEnemyStatusCounterState(enemy, 'stunned')).toBeUndefined();
+    expect(enemy.statusEffects.stunned).toBeUndefined();
+  });
+
+  it('consumes stunned and weakened counters through a dedicated state command', () => {
+    const enemy = {
+      statusEffects: {
+        stunned: 1,
+        weakened: 2,
+      },
+    };
+
+    expect(consumeEnemyStunState(enemy)).toEqual({
+      stunnedConsumed: true,
+      weakenedDecayed: true,
+    });
+    expect(enemy.statusEffects).toEqual({
+      weakened: 1,
+    });
+  });
+
+  it('decays weakened stacks through a dedicated state command', () => {
+    const enemy = {
+      statusEffects: {
+        weakened: 1,
+      },
+    };
+
+    expect(decayEnemyWeakenState(enemy)).toBe(true);
+    expect(enemy.statusEffects.weakened).toBeUndefined();
+    expect(decayEnemyWeakenState(enemy)).toBe(false);
   });
 });

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  buildCombatEndFlowPayload,
+  buildDeathEndingActions,
   lockCombatEndInputs,
   runPlayerDeathSequence,
   scheduleCombatEndFlow,
@@ -61,6 +63,28 @@ describe('death_handler_runtime', () => {
 
     endCombat.mock.calls[0][0].returnFromReward();
     expect(win.returnFromReward).toHaveBeenCalledTimes(1);
+  });
+
+  it('exposes reward return and ending action payload builders as pure helpers', () => {
+    const win = {
+      openCodex: vi.fn(),
+      restartFromEnding: vi.fn(),
+      returnFromReward: vi.fn(),
+      returnToGame: vi.fn(),
+      selectFragment: vi.fn(),
+    };
+    const payload = buildCombatEndFlowPayload({}, win);
+    const endingActions = buildDeathEndingActions({}, win);
+
+    payload.rewardActions.returnToGame(true);
+    endingActions.restart();
+    endingActions.selectFragment('echo_boost');
+    endingActions.openCodex();
+
+    expect(win.returnFromReward).toHaveBeenCalledTimes(1);
+    expect(win.restartFromEnding).toHaveBeenCalledTimes(1);
+    expect(win.selectFragment).toHaveBeenCalledWith('echo_boost');
+    expect(win.openCodex).toHaveBeenCalledTimes(1);
   });
 
   it('runs the death quote sequence and calls the completion callback', () => {

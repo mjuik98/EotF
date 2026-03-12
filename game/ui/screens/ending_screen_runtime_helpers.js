@@ -15,22 +15,50 @@ import { burstEndingWisps, initEndingFx } from './ending_screen_fx.js';
 import { playEventResonanceBurst } from '../../domain/audio/audio_event_helpers.js';
 import { scheduleEndingRestartAction } from './ending_screen_action_helpers.js';
 
-export function prepareEndingScreenSession(outcome = 'victory', deps = {}, hooks = {}) {
-  const doc = docOf(deps);
-  const payload = decorateEndingPayloadForOutcome(buildEndingPayload(deps?.gs, deps?.data), outcome);
+export function buildEndingSessionPayload(outcome = 'victory', deps = {}) {
+  return decorateEndingPayloadForOutcome(buildEndingPayload(deps?.gs, deps?.data), outcome);
+}
 
-  hooks.cleanup?.({ doc, win: deps?.win });
+export function mountEndingScreenRoot(doc, payload) {
   ensureEndingScreenStyle(doc);
-
   const root = buildEndingScreenDOM(doc, payload);
   doc.body.appendChild(root);
+  return root;
+}
 
-  const session = { cleanups: [], timers: [], payload };
+export function createEndingSessionState(payload) {
+  return { cleanups: [], timers: [], payload };
+}
+
+export function populateEndingScreenSession({
+  doc,
+  deps = {},
+  hooks = {},
+  outcome = 'victory',
+  payload,
+  session,
+} = {}) {
   populateEndingMeta(doc, payload, session, deps);
   appendEndingFragmentChoices(doc, deps, outcome, session, hooks.cleanup);
   applyEndingRank(doc, payload.rank, payload.score);
+  return initEndingFx(doc, deps, session);
+}
 
-  const { wisps } = initEndingFx(doc, deps, session);
+export function prepareEndingScreenSession(outcome = 'victory', deps = {}, hooks = {}) {
+  const doc = docOf(deps);
+  const payload = buildEndingSessionPayload(outcome, deps);
+  hooks.cleanup?.({ doc, win: deps?.win });
+  const root = mountEndingScreenRoot(doc, payload);
+  const session = createEndingSessionState(payload);
+
+  const { wisps } = populateEndingScreenSession({
+    doc,
+    deps,
+    hooks,
+    outcome,
+    payload,
+    session,
+  });
   return { payload, root, session, wisps };
 }
 

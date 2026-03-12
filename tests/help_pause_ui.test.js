@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
 import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
 import { HelpPauseUI } from '../game/ui/screens/help_pause_ui.js';
+import {
+  showMobileWarningRuntime,
+  toggleHelpOverlayRuntime,
+} from '../game/ui/screens/help_pause_ui_overlay_runtime.js';
+import { togglePauseMenuRuntime } from '../game/ui/screens/help_pause_ui_pause_runtime.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));
@@ -58,6 +63,14 @@ function createDoc() {
   return {
     createElement,
     body,
+    defaultView: {
+      getComputedStyle: (el) => ({
+        display: el?.style?.display || 'flex',
+        visibility: 'visible',
+        opacity: '1',
+        pointerEvents: 'auto',
+      }),
+    },
     getElementById: (id) => elements[id] || null,
     elements,
   };
@@ -164,6 +177,71 @@ describe('HelpPauseUI help overlay', () => {
     });
 
     expect(doc.getElementById('mobileWarn')).toBeTruthy();
+  });
+
+  it('delegates mobile warning and help overlay DOM orchestration to runtime helpers', () => {
+    const doc = createDoc();
+    const onClose = vi.fn();
+
+    expect(showMobileWarningRuntime({ doc, win: { innerWidth: 1200 } })).toBe(false);
+    expect(showMobileWarningRuntime({ doc, win: { innerWidth: 640 } })).toBe(true);
+    expect(doc.getElementById('mobileWarn')).toBeTruthy();
+
+    expect(toggleHelpOverlayRuntime({ doc }, onClose)).toBe(true);
+    const menu = doc.getElementById('helpMenu');
+    expect(menu).toBeTruthy();
+
+    const closeButton = menu.children[3];
+    closeButton.onclick();
+    expect(doc.getElementById('helpMenu')).toBeNull();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates pause menu DOM orchestration to a runtime helper', () => {
+    const doc = createDoc();
+    const onPauseStateChange = vi.fn();
+    const deps = {
+      doc,
+      gs: {
+        meta: { runCount: 2, storyPieces: ['a'] },
+        currentRegion: 0,
+        currentFloor: 3,
+      },
+      _syncVolumeUI: vi.fn(),
+    };
+
+    const firstState = togglePauseMenuRuntime({
+      deps,
+      ui: {
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        abandonRun: vi.fn(),
+        confirmReturnToTitle: vi.fn(),
+      },
+      currentPauseOpen: false,
+      onPauseStateChange,
+    });
+
+    expect(firstState).toBe(true);
+    expect(doc.getElementById('pauseMenu')).toBeTruthy();
+    expect(deps._syncVolumeUI).toHaveBeenCalledTimes(1);
+    expect(onPauseStateChange).toHaveBeenCalledWith(true);
+
+    const secondState = togglePauseMenuRuntime({
+      deps,
+      ui: {
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        abandonRun: vi.fn(),
+        confirmReturnToTitle: vi.fn(),
+      },
+      currentPauseOpen: firstState,
+      onPauseStateChange,
+    });
+
+    expect(secondState).toBe(false);
+    expect(doc.getElementById('pauseMenu')).toBeNull();
+    expect(onPauseStateChange).toHaveBeenLastCalledWith(false);
   });
 });
 

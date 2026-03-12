@@ -1,4 +1,4 @@
-function buildEndCombatDeps(deps = {}, win = {}) {
+export function buildCombatEndFlowPayload(deps = {}, win = {}) {
   const returnToGame = deps.returnToGame || win.returnToGame;
   const returnFromReward = deps.rewardActions?.returnFromReward
     || deps.returnFromReward
@@ -30,7 +30,7 @@ function buildEndCombatDeps(deps = {}, win = {}) {
   };
 }
 
-function buildEndingActions(deps = {}, win = {}) {
+export function buildDeathEndingActions(deps = {}, win = {}) {
   const restart = deps.endingActions?.restart
     || deps.restartEndingFlow
     || deps.restartFromEnding
@@ -84,7 +84,7 @@ export function scheduleCombatEndFlow({
   win,
 } = {}) {
   schedule(function runEndCombat() {
-    const endCombatDeps = buildEndCombatDeps(deps, win);
+    const endCombatDeps = buildCombatEndFlowPayload(deps, win);
     if (typeof deps.cleanupAllTooltips === 'function') deps.cleanupAllTooltips();
     if (typeof deps.renderCombatCards === 'function') deps.renderCombatCards();
     endCombat?.(endCombatDeps);
@@ -141,7 +141,7 @@ export function showDefeatOutcome({
   endingScreenUI?.showOutcome?.('defeat', {
     ...deps,
     gs,
-    endingActions: buildEndingActions({ ...deps, selectFragment }, win),
+    endingActions: buildDeathEndingActions({ ...deps, selectFragment }, win),
     selectFragment,
   });
 }

@@ -32,13 +32,7 @@ const insLv = (gs, id) => {
 };
 const rankOf = (score) => RANKS.find((rank) => score >= rank.min) || RANKS[RANKS.length - 1];
 
-export function buildEndingPayload(gs, data) {
-  const storyCount = Array.isArray(gs?.meta?.storyPieces) ? gs.meta.storyPieces.length : 0;
-  const storyTotal = Array.isArray(data?.storyFragments) ? data.storyFragments.length : 10;
-  const blocked = [gs?.stats?.damageBlocked, gs?.stats?.shieldGained, gs?.stats?.blockGained, gs?.stats?.totalBlocked, gs?.stats?.damageTaken]
-    .find((value) => Number.isFinite(Number(value)));
-  const score = (num(gs?.player?.kills) * 3) + (num(gs?.stats?.maxChain) * 5) + Math.floor(num(gs?.stats?.damageDealt) / 100);
-  const rank = rankOf(score);
+export function buildEndingRegions(gs, data) {
   const regions = [];
   const defs = Array.isArray(data?.regions) ? data.regions : [];
 
@@ -55,8 +49,12 @@ export function buildEndingPayload(gs, data) {
     });
   }
 
+  return regions;
+}
+
+export function buildEndingDeckPreview(gs, data) {
   const cards = data?.cards || {};
-  const deck = (Array.isArray(gs?.player?.deck) ? gs.player.deck : []).slice(0, 14).map((id, index) => {
+  return (Array.isArray(gs?.player?.deck) ? gs.player.deck : []).slice(0, 14).map((id, index) => {
     const card = cards[id] || {};
     const rarity = String(card.rarity || 'common');
     return {
@@ -66,12 +64,68 @@ export function buildEndingPayload(gs, data) {
       cls: rarity === 'legendary' ? 'l' : ((rarity === 'epic' || rarity === 'rare' || rarity === 'uncommon') ? 'r' : ''),
     };
   });
-  const inscriptions = Object.keys(gs?.meta?.inscriptions || {}).map((id) => ({
+}
+
+export function buildEndingInscriptions(gs, data) {
+  return Object.keys(gs?.meta?.inscriptions || {}).map((id) => ({
     id,
     level: insLv(gs, id),
     icon: String(data?.inscriptions?.[id]?.icon || '✦'),
     name: String(data?.inscriptions?.[id]?.name || id),
   })).filter((entry) => entry.level > 0);
+}
+
+export function buildEndingStatItems(gs, storyCount, storyTotal) {
+  const blocked = [gs?.stats?.damageBlocked, gs?.stats?.shieldGained, gs?.stats?.blockGained, gs?.stats?.totalBlocked, gs?.stats?.damageTaken]
+    .find((value) => Number.isFinite(Number(value)));
+
+  return [
+    { id: 'sv0', icon: '⚔', label: '처치 수', value: num(gs?.player?.kills), tip: `처치 x 3 = ${fmt(num(gs?.player?.kills) * 3)}pt` },
+    { id: 'sv1', icon: '⚡', label: '최고 체인', value: num(gs?.stats?.maxChain), tip: `체인 x 5 = ${fmt(num(gs?.stats?.maxChain) * 5)}pt` },
+    { id: 'sv2', icon: '✹', label: '총 피해', value: num(gs?.stats?.damageDealt), tip: `피해 / 100 = ${fmt(Math.floor(num(gs?.stats?.damageDealt) / 100))}pt` },
+    { id: 'sv3', icon: '🛡', label: '총 방어', value: num(blocked), tip: '최종 방어 누적량' },
+    { id: 'sv4', icon: '🃏', label: '사용 카드', value: num(gs?.stats?.cardsPlayed), tip: '이번 런 카드 사용 수' },
+    { id: 'sv5', icon: '🜂', label: '스토리', value: `${storyCount}/${storyTotal}`, tip: '스토리 조각 수집 현황', static: true },
+  ];
+}
+
+export function buildEndingChips(gs, storyCount, storyTotal) {
+  return [
+    !num(gs?.stats?.deathCount) ? '노 데스' : '',
+    storyCount >= storyTotal ? '풀 스토리' : '',
+    `${Math.max(1, Math.floor(num(gs?.meta?.runCount, 1)))}회차`,
+  ].filter(Boolean);
+}
+
+export function getEndingOutcomeDecoration(outcome = 'victory') {
+  if (outcome === 'abandon') {
+    return {
+      title: '멈춘 메아리',
+      subtitle: '스스로 닫힌 귀환',
+      eyebrow: '포기한 런의 기록',
+      quote: '"끝까지 닿지 못했더라도\n이 선택 또한 하나의 흔적이다.\n멈춘 자리의 메아리가 다음 길을 비춘다."',
+      chip: '런 포기',
+    };
+  }
+
+  if (outcome === 'defeat') {
+    return {
+      title: '무너진 메아리',
+      subtitle: '부서진 귀환',
+      eyebrow: '패배한 런의 기록',
+      quote: '"메아리는 꺾였지만\n기억은 여기서 끝나지 않는다.\n남은 잔향이 다시 길을 만든다."',
+      chip: '패배',
+    };
+  }
+
+  return null;
+}
+
+export function buildEndingPayload(gs, data) {
+  const storyCount = Array.isArray(gs?.meta?.storyPieces) ? gs.meta.storyPieces.length : 0;
+  const storyTotal = Array.isArray(data?.storyFragments) ? data.storyFragments.length : 10;
+  const score = (num(gs?.player?.kills) * 3) + (num(gs?.stats?.maxChain) * 5) + Math.floor(num(gs?.stats?.damageDealt) / 100);
+  const rank = rankOf(score);
 
   return {
     score,
@@ -82,42 +136,23 @@ export function buildEndingPayload(gs, data) {
     quote: '"잔향자는 에코의 핵심을 돌파했다.\n하지만 루프는 아직 끝나지 않았다.\n진실을 알기에는 아직 이르다."',
     storyText: `${storyCount}/${storyTotal}`,
     clear: tfmt(gs?.stats?.clearTimeMs),
-    stats: [
-      { id: 'sv0', icon: '⚔', label: '처치 수', value: num(gs?.player?.kills), tip: `처치 x 3 = ${fmt(num(gs?.player?.kills) * 3)}pt` },
-      { id: 'sv1', icon: '⚡', label: '최고 체인', value: num(gs?.stats?.maxChain), tip: `체인 x 5 = ${fmt(num(gs?.stats?.maxChain) * 5)}pt` },
-      { id: 'sv2', icon: '✹', label: '총 피해', value: num(gs?.stats?.damageDealt), tip: `피해 / 100 = ${fmt(Math.floor(num(gs?.stats?.damageDealt) / 100))}pt` },
-      { id: 'sv3', icon: '🛡', label: '총 방어', value: num(blocked), tip: '최종 방어 누적량' },
-      { id: 'sv4', icon: '🃏', label: '사용 카드', value: num(gs?.stats?.cardsPlayed), tip: '이번 런 카드 사용 수' },
-      { id: 'sv5', icon: '🜂', label: '스토리', value: `${storyCount}/${storyTotal}`, tip: '스토리 조각 수집 현황', static: true },
-    ],
-    chips: [
-      !num(gs?.stats?.deathCount) ? '노 데스' : '',
-      storyCount >= storyTotal ? '풀 스토리' : '',
-      `${Math.max(1, Math.floor(num(gs?.meta?.runCount, 1)))}회차`,
-    ].filter(Boolean),
-    regions,
-    deck,
-    inscriptions,
+    stats: buildEndingStatItems(gs, storyCount, storyTotal),
+    chips: buildEndingChips(gs, storyCount, storyTotal),
+    regions: buildEndingRegions(gs, data),
+    deck: buildEndingDeckPreview(gs, data),
+    inscriptions: buildEndingInscriptions(gs, data),
   };
 }
 
 export function decorateEndingPayloadForOutcome(payload, outcome = 'victory') {
-  if (!payload || outcome === 'victory') return payload;
+  const decoration = getEndingOutcomeDecoration(outcome);
+  if (!payload || !decoration) return payload;
 
-  if (outcome === 'abandon') {
-    payload.title = '멈춘 메아리';
-    payload.subtitle = '스스로 닫힌 귀환';
-    payload.eyebrow = '포기한 런의 기록';
-    payload.quote = '"끝까지 닿지 못했더라도\n이 선택 또한 하나의 흔적이다.\n멈춘 자리의 메아리가 다음 길을 비춘다."';
-    payload.chips = Array.from(new Set(['런 포기', ...payload.chips]));
-    return payload;
-  }
-
-  payload.title = '무너진 메아리';
-  payload.subtitle = '부서진 귀환';
-  payload.eyebrow = '패배한 런의 기록';
-  payload.quote = '"메아리는 꺾였지만\n기억은 여기서 끝나지 않는다.\n남은 잔향이 다시 길을 만든다."';
-  payload.chips = Array.from(new Set(['패배', ...payload.chips]));
+  payload.title = decoration.title;
+  payload.subtitle = decoration.subtitle;
+  payload.eyebrow = decoration.eyebrow;
+  payload.quote = decoration.quote;
+  payload.chips = Array.from(new Set([decoration.chip, ...(payload.chips || [])]));
   return payload;
 }
 

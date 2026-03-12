@@ -23,12 +23,12 @@
 - 최근 방향:
   - `feature-local app/use_case/state/presentation/platform` 경계를 늘리고, 기존 `ui/*`와 `platform/legacy/*`는 compat facade로 점진 축소
   - 현재 리팩토링 중심축은 `combat + state`, `title/ending/help_pause`, `reward/navigation`
-  - 최근 배치에서 `reward/navigation` alias surface를 feature-local action으로 수렴해 `returnFromReward` / `returnToGame` 흐름을 공통화
+  - 최근 배치에서 `reward/navigation` alias surface를 공통화했고, `help_pause`/`ending`도 overlay/payload/session bootstrap을 runtime helper 단위로 분리해 UI shell을 더 얇게 만들고 있음
 - 최신 검증 기준:
   - `npm run lint`
-  - `npm test`
+  - `npm test` (`371 files / 869 tests` PASS 기준)
   - `npm run build`
-  - Playwright 기반 브라우저 smoke + `render_game_to_text` 확인
+  - Playwright 기반 브라우저 smoke + `render_game_to_text` 확인 (`output/web-game/arch-refactor-smoke-34`)
 
 자세한 현재 상태와 최근 작업 요약은 [progress.md](progress.md)에서 확인할 수 있습니다.
 

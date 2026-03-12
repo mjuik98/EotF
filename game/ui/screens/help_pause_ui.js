@@ -1,16 +1,8 @@
 import {
   getDoc,
-  isVisibleModal,
-  resolveGs,
 } from './help_pause_ui_helpers.js';
 import {
-  createHelpMenu,
-  createMobileWarning,
-  createPauseMenu,
-} from './help_pause_ui_overlays.js';
-import {
   closePauseMenu,
-  createPauseMenuCallbacks,
   handleGlobalHotkey,
 } from './help_pause_ui_runtime.js';
 import { confirmAbandonRun } from './help_pause_ui_abandon_runtime.js';
@@ -18,14 +10,15 @@ import {
   toggleAbandonConfirmRuntime,
   toggleReturnTitleConfirmRuntime,
 } from './help_pause_ui_dialog_runtime.js';
+import {
+  showMobileWarningRuntime,
+  toggleHelpOverlayRuntime,
+} from './help_pause_ui_overlay_runtime.js';
+import { togglePauseMenuRuntime } from './help_pause_ui_pause_runtime.js';
 
 let _helpOpen = false;
 let _pauseOpen = false;
 let _hotkeysBound = false;
-
-function getWin(deps = {}, doc = null) {
-  return deps?.win || doc?.defaultView || null;
-}
 
 export const HelpPauseUI = {
   isHelpOpen() {
@@ -33,26 +26,13 @@ export const HelpPauseUI = {
   },
 
   showMobileWarning(deps = {}) {
-    const doc = getDoc(deps);
-    const win = getWin(deps, doc);
-    const isMobile = Boolean(win && (win.innerWidth < 900 || 'ontouchstart' in win));
-    if (!isMobile || doc.getElementById('mobileWarn')) return;
-
-    const warn = createMobileWarning(doc, () => warn.remove());
-    doc.body.appendChild(warn);
+    showMobileWarningRuntime(deps);
   },
 
   toggleHelp(deps = {}) {
-    const doc = getDoc(deps);
-    _helpOpen = !_helpOpen;
-
-    if (_helpOpen) {
-      const menu = createHelpMenu(doc, deps, () => this.toggleHelp(deps));
-      doc.body.appendChild(menu);
-      return;
-    }
-
-    doc.getElementById('helpMenu')?.remove();
+    _helpOpen = toggleHelpOverlayRuntime(deps, () => {
+      _helpOpen = false;
+    });
   },
 
   abandonRun(deps = {}) {
@@ -62,7 +42,7 @@ export const HelpPauseUI = {
   confirmReturnToTitle(deps = {}) {
     toggleReturnTitleConfirmRuntime({
       ...deps,
-      win: getWin(deps, getDoc(deps)),
+      win: deps?.win || getDoc(deps)?.defaultView || null,
     });
   },
 
@@ -75,32 +55,14 @@ export const HelpPauseUI = {
   },
 
   togglePause(deps = {}) {
-    const gs = resolveGs(deps);
-    if (!gs) return;
-
-    const doc = getDoc(deps);
-    const existingMenu = doc.getElementById('pauseMenu');
-    _pauseOpen = isVisibleModal(existingMenu, doc);
-    if (_pauseOpen) {
-      closePauseMenu(doc, () => {
-        _pauseOpen = false;
-      });
-      return;
-    }
-
-    _pauseOpen = true;
-    const menu = createPauseMenu(
-      doc,
-      gs,
+    _pauseOpen = togglePauseMenuRuntime({
       deps,
-      createPauseMenuCallbacks({
-        deps,
-        ui: this,
-      }),
-    );
-
-    doc.body.appendChild(menu);
-    if (typeof deps._syncVolumeUI === 'function') deps._syncVolumeUI();
+      ui: this,
+      currentPauseOpen: _pauseOpen,
+      onPauseStateChange: (nextValue) => {
+        _pauseOpen = nextValue;
+      },
+    });
   },
 
   bindGlobalHotkeys(deps = {}) {
