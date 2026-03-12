@@ -84,13 +84,25 @@ export function buildCoreContractBuilders(ctx) {
 
     reward: () => {
       const refs = getRefs();
+      const returnFromReward = () => refs.returnToGame?.(true);
+      const returnToGame = (fromReward = false) => {
+        if (fromReward) {
+          returnFromReward();
+          return;
+        }
+        refs.returnToGame?.(false);
+      };
       return {
         ...buildBaseDeps('run'),
         showGameplayScreen: () => refs.switchScreen?.('game'),
         switchScreen: refs.switchScreen,
         showRewardScreen: () => refs.switchScreen?.('reward'),
-        returnFromReward: () => refs.returnToGame?.(true),
-        returnToGame: refs.returnToGame,
+        returnFromReward,
+        returnToGame,
+        rewardActions: {
+          returnFromReward,
+          returnToGame,
+        },
         showItemToast: refs.showItemToast,
         tooltipUI: refs.TooltipUI,
         TooltipUI: refs.TooltipUI,

@@ -21,6 +21,8 @@ export function buildLegacyGameApiPayload({ commandBindings, queryBindings }) {
     queryBindings,
     rewardActions: {
       hideSkipConfirm: commandBindings.hideSkipConfirm,
+      returnFromReward: commandBindings.returnFromReward,
+      returnToGame: commandBindings.returnToGame,
       showSkipConfirm: commandBindings.showSkipConfirm,
       skipReward: commandBindings.skipReward,
     },

@@ -9,12 +9,12 @@
 
 // 엔진 기능은 deps를 통해 주입받도록 수정하여 하드코딩 연결 제거
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../systems/run_rules.js';
-import { EventBus } from '../core/event_bus.js';
 import { Actions } from '../core/state_actions.js';
 import {
+    runEndCombatFlow,
     applyPassiveResonanceBurstState,
     syncCombatMaxChainState,
-} from '../features/combat/state/combat_chain_state_commands.js';
+} from '../features/combat/app/combat_lifecycle_feature_bridge.js';
 import {
     beginCombatResolution,
     completeCombatResolution,
@@ -34,102 +34,34 @@ const _getWin = (deps) => deps?.win || window;
 
 export const CombatLifecycle = {
     async endCombat(deps = {}) {
-        if (!this.combat.active) return;
-        if (!beginCombatResolution(this)) return;
         const win = _getWin(deps);
         const doc = _getDoc(deps);
+        const outcome = await runEndCombatFlow({
+            combatStateCommands: {
+                beginResolution: beginCombatResolution,
+                completeResolution: completeCombatResolution,
+                setBossRewardState,
+                setCombatActive,
+            },
+            deps: {
+                ...deps,
+                playItemGet: () => playUiItemGet(deps.audioEngine || win.AudioEngine),
+            },
+            dispatchCombatEnd: (state) => state.dispatch?.(Actions.COMBAT_END, { victory: true }),
+            doc,
+            getBaseRegionIndex,
+            getRegionCount,
+            gs: this,
+            isEndlessRun: (state) => RunRules.isEndless(state),
+            reportError: (error) => console.error('[endCombat] Error:', error),
+            win,
+        });
 
-        // COMBAT_END 디스패치가 전투 상태를 초기화하므로, 보스 정보는 미리 캡처한다.
-        const combatState = this.combat;
-        const preEndEnemies = Array.isArray(combatState?.enemies) ? [...combatState.enemies] : [];
-        const isBoss = !!combatState?.bossDefeated || preEndEnemies.some(e => e?.isBoss);
-        const isMiniBoss = !!combatState?.miniBossDefeated
-            || preEndEnemies.some(e => e?.isMiniBoss)
-            || this.currentNode?.type === 'mini_boss';
-        const regionIdx = this.currentRegion;
-        const isLastRegion = getBaseRegionIndex(regionIdx) === Math.max(0, getRegionCount() - 1);
+        if (outcome?.skipped || outcome?.error) return outcome;
 
-        // Capture combat summary stats BEFORE dispatch resets them
-        const combatDmgDealt = this.stats.damageDealt - (this._combatStartDmg || 0);
-        const combatDmgTaken = this.stats.damageTaken - (this._combatStartTaken || 0);
-        const combatKills = this.player.kills - (this._combatStartKills || 0);
-
-        try {
-            deps.runRules?.onCombatEnd?.(this);
-
-            this.dispatch(Actions.COMBAT_END, { victory: true });
-            const tooltipUI = deps.tooltipUI || win.TooltipUI;
-            tooltipUI?.hideTooltip?.({ doc });
-
-            // 전투 종료 시 툴팁 정리
-            const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
-            if (typeof cleanupTooltips === 'function') cleanupTooltips({ doc, win });
-
-            doc.getElementById('cardTooltip')?.classList.remove('visible');
-            const combatHandCards = doc.getElementById('combatHandCards');
-            if (combatHandCards) combatHandCards.textContent = '';
-            const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
-            if (hudUpdateUI && typeof hudUpdateUI.resetCombatUI === 'function') {
-                hudUpdateUI.resetCombatUI();
-            } else {
-                doc.getElementById('combatOverlay')?.classList.remove('active');
-                doc.getElementById('noiseGaugeOverlay')?.remove();
-                const endZone = doc.getElementById('enemyZone');
-                if (endZone) endZone.textContent = '';
-            }
-
-            this.triggerItems('combat_end', { isBoss });
-            this.triggerItems('void_shard');
-
-            const updateChainUI = deps.updateChainUI || win.updateChainUI;
-            if (typeof updateChainUI === 'function') updateChainUI(0);
-            const renderHand = deps.renderHand || win.renderHand;
-            if (typeof renderHand === 'function') renderHand();
-            const renderCombatCards = deps.renderCombatCards || win.renderCombatCards;
-            if (typeof renderCombatCards === 'function') renderCombatCards();
-            const updateUI = deps.updateUI || win.updateUI;
-            if (typeof updateUI === 'function') updateUI();
-
-            const AudioEngine = deps.audioEngine || win.AudioEngine;
-            playUiItemGet(AudioEngine);
-            const showCombatSummary = deps.showCombatSummary || win.showCombatSummary;
-            if (typeof showCombatSummary === 'function') showCombatSummary(combatDmgDealt, combatDmgTaken, combatKills);
-
-            if (isBoss) {
-                setBossRewardState(this, { pending: true, lastRegion: isLastRegion });
-            }
-            if (isBoss && isLastRegion && RunRules.isEndless(this)) {
-                setTimeout(() => {
-                    const returnFromReward = deps.returnFromReward || win.returnFromReward;
-                    if (typeof returnFromReward === 'function') {
-                        returnFromReward();
-                        return;
-                    }
-                    const returnToGame = deps.returnToGame || win.returnToGame;
-                    if (typeof returnToGame === 'function') returnToGame(true);
-                }, 300);
-                return;
-            }
-            if (hudUpdateUI && typeof hudUpdateUI.hideNodeOverlay === 'function') {
-                hudUpdateUI.hideNodeOverlay();
-            } else {
-                const nodeOverlay = doc.getElementById('nodeCardOverlay');
-                if (nodeOverlay) nodeOverlay.style.display = 'none';
-            }
-            await new Promise(r => setTimeout(r, 1000));
-
-            // Ensure combat is deactivated before showing reward screen
-            setCombatActive(this, false);
-            const showRewardScreen = deps.showRewardScreen || win.showRewardScreen;
-            if (typeof showRewardScreen === 'function') {
-                const rewardMode = isBoss ? 'boss' : (isMiniBoss ? 'mini_boss' : false);
-                showRewardScreen(rewardMode);
-            }
-        } catch (e) {
-            console.error('[endCombat] Error:', e);
-        } finally {
-            completeCombatResolution(this);
-        }
+        this.triggerItems('combat_end', { isBoss: outcome.isBoss });
+        this.triggerItems('void_shard');
+        return outcome;
     },
 
     updateChainDisplay(deps = {}) {

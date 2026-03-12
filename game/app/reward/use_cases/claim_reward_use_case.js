@@ -12,6 +12,57 @@ export function playRewardClaimFeedback(deps = {}) {
   return playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);
 }
 
+export function createRewardReturnActions(deps = {}) {
+  const returnFromReward = () => {
+    if (typeof deps.rewardActions?.returnFromReward === 'function') {
+      deps.rewardActions.returnFromReward();
+      return;
+    }
+    if (typeof deps.returnFromReward === 'function') {
+      deps.returnFromReward();
+      return;
+    }
+    deps.returnToGame?.(true);
+  };
+
+  const returnToGame = (fromReward = false) => {
+    if (fromReward) {
+      returnFromReward();
+      return;
+    }
+    if (typeof deps.rewardActions?.returnToGame === 'function') {
+      deps.rewardActions.returnToGame(false);
+      return;
+    }
+    deps.returnToGame?.(false);
+  };
+
+  return {
+    returnFromReward,
+    returnToGame,
+    rewardActions: {
+      returnFromReward,
+      returnToGame,
+    },
+  };
+}
+
+export function buildRewardDiscardDeps({ deps = {}, onCancel, returnActions = createRewardReturnActions(deps) } = {}) {
+  return {
+    ...deps,
+    ...returnActions,
+    onCancel,
+  };
+}
+
+export function scheduleRewardReturnUseCase({
+  delayMs = 350,
+  returnFromReward,
+  setTimeoutFn = setTimeout,
+} = {}) {
+  setTimeoutFn(() => returnFromReward?.(), delayMs);
+}
+
 export function ensureMiniBossBonus(gs, data, deps = {}) {
   const result = applyMiniBossBonusState(gs, data);
   if (!result) return null;
@@ -94,4 +145,100 @@ export function claimReward({
   }
 
   return { success: false, reason: 'unsupported-reward', context };
+}
+
+export function takeRewardClaimUseCase({
+  gs,
+  data,
+  doc,
+  rewardType,
+  rewardId,
+  requireData = false,
+  markPicked = true,
+  onFailure,
+  claimRewardFn,
+  isRewardFlowLockedFn,
+  lockRewardFlowFn,
+  setRewardPickedStateFn,
+  playRewardClaimFeedbackFn,
+  showItemToast,
+  scheduleRewardReturnFn = scheduleRewardReturnUseCase,
+  returnFromReward,
+  feedbackDeps,
+} = {}) {
+  if (!gs || (requireData && !data)) return { success: false, reason: 'missing-context' };
+  if (isRewardFlowLockedFn(gs)) return { success: false, reason: 'locked' };
+
+  const result = claimRewardFn({
+    data,
+    gs,
+    rewardId,
+    rewardType,
+  });
+
+  if (!result?.success) {
+    onFailure?.(result);
+    return result || { success: false };
+  }
+
+  lockRewardFlowFn(gs);
+  if (markPicked) {
+    setRewardPickedStateFn(doc, true);
+  }
+  playRewardClaimFeedbackFn(feedbackDeps);
+  showItemToast?.(result.notification?.payload, result.notification?.options);
+  scheduleRewardReturnFn({ returnFromReward });
+  return result;
+}
+
+export function createRewardRemoveCancelAction({
+  gs,
+  doc,
+  rewardClaimKey,
+  clearIdempotencyKeyFn,
+  unlockRewardFlowFn,
+  setRewardPickedStateFn,
+} = {}) {
+  return () => {
+    unlockRewardFlowFn(gs);
+    clearIdempotencyKeyFn(rewardClaimKey);
+    setRewardPickedStateFn(doc, false);
+  };
+}
+
+export function startRewardRemoveUseCase({
+  gs,
+  doc,
+  eventUI,
+  rewardClaimKey,
+  isRewardFlowLockedFn,
+  lockRewardFlowFn,
+  unlockRewardFlowFn,
+  setRewardPickedStateFn,
+  clearIdempotencyKeyFn,
+  returnActions,
+  buildRewardDiscardDepsFn,
+  createCancelActionFn = createRewardRemoveCancelAction,
+} = {}) {
+  if (!gs) return { started: false, reason: 'missing-state' };
+  if (isRewardFlowLockedFn(gs)) return { started: false, reason: 'locked' };
+
+  lockRewardFlowFn(gs);
+  setRewardPickedStateFn(doc, true);
+
+  if (typeof eventUI?.showCardDiscard === 'function') {
+    const onCancel = createCancelActionFn({
+      clearIdempotencyKeyFn,
+      doc,
+      gs,
+      rewardClaimKey,
+      setRewardPickedStateFn,
+      unlockRewardFlowFn,
+    });
+    eventUI.showCardDiscard(gs, true, buildRewardDiscardDepsFn({ onCancel, returnActions }));
+    return { started: true, mode: 'discard' };
+  }
+
+  returnActions.returnFromReward();
+  return { started: true, mode: 'return' };
 }

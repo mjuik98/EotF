@@ -1,4 +1,8 @@
+import { createRewardNavigationActions } from './reward_navigation_actions.js';
+
 export function createRewardActions(modules, ports) {
+  const navigation = createRewardNavigationActions(modules, ports);
+
   return {
     showRewardScreen(isBoss) {
       modules.RewardUI?.showRewardScreen?.(isBoss, ports.getRewardDeps());
@@ -32,16 +36,8 @@ export function createRewardActions(modules, ports) {
       modules.RewardUI?.skipReward?.(ports.getRewardDeps());
     },
 
-    returnFromReward() {
-      if (typeof modules.RunReturnUI?.returnFromReward === 'function') {
-        modules.RunReturnUI.returnFromReward(ports.getRunReturnDeps());
-        return;
-      }
-      modules.RunReturnUI?.returnToGame?.(true, ports.getRunReturnDeps());
-    },
+    returnFromReward: navigation.returnFromReward,
 
-    returnToGame(fromReward) {
-      modules.RunReturnUI?.returnToGame?.(fromReward, ports.getRunReturnDeps());
-    },
+    returnToGame: navigation.returnToGame,
   };
 }

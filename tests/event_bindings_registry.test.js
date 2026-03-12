@@ -4,6 +4,7 @@ vi.mock('../game/core/deps_factory.js', () => ({
   initDepsFactory: vi.fn(),
   getHudUpdateDeps: vi.fn(() => ({ token: 'hud-deps' })),
   getClassSelectDeps: vi.fn(() => ({ token: 'class-select-deps' })),
+  getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
 }));
 
 import { setupBindings } from '../game/core/event_bindings.js';

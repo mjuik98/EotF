@@ -4,11 +4,9 @@ import {
   resolveGs,
 } from './help_pause_ui_helpers.js';
 import {
-  createAbandonConfirm,
   createHelpMenu,
   createMobileWarning,
   createPauseMenu,
-  createReturnTitleConfirm,
 } from './help_pause_ui_overlays.js';
 import {
   closePauseMenu,
@@ -16,7 +14,10 @@ import {
   handleGlobalHotkey,
 } from './help_pause_ui_runtime.js';
 import { confirmAbandonRun } from './help_pause_ui_abandon_runtime.js';
-import { confirmReturnToTitleRuntime } from './help_pause_ui_return_runtime.js';
+import {
+  toggleAbandonConfirmRuntime,
+  toggleReturnTitleConfirmRuntime,
+} from './help_pause_ui_dialog_runtime.js';
 
 let _helpOpen = false;
 let _pauseOpen = false;
@@ -55,36 +56,14 @@ export const HelpPauseUI = {
   },
 
   abandonRun(deps = {}) {
-    const doc = getDoc(deps);
-    const confirmEl = createAbandonConfirm(
-      doc,
-      () => confirmEl.remove(),
-      () => this.confirmAbandon(deps),
-    );
-    doc.body.appendChild(confirmEl);
+    toggleAbandonConfirmRuntime(deps, () => this.confirmAbandon(deps));
   },
 
   confirmReturnToTitle(deps = {}) {
-    const doc = getDoc(deps);
-    const win = getWin(deps, doc);
-    const old = doc.getElementById('returnTitleConfirm');
-    if (old) {
-      old.remove();
-      return;
-    }
-
-    const confirmEl = createReturnTitleConfirm(
-      doc,
-      () => confirmEl.remove(),
-      () => {
-        confirmEl.remove();
-        confirmReturnToTitleRuntime({
-          ...deps,
-          win,
-        });
-      },
-    );
-    doc.body.appendChild(confirmEl);
+    toggleReturnTitleConfirmRuntime({
+      ...deps,
+      win: getWin(deps, getDoc(deps)),
+    });
   },
 
   confirmAbandon(deps = {}) {

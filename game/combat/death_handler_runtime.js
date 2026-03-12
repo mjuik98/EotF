@@ -1,12 +1,27 @@
 function buildEndCombatDeps(deps = {}, win = {}) {
   const returnToGame = deps.returnToGame || win.returnToGame;
+  const returnFromReward = deps.rewardActions?.returnFromReward
+    || deps.returnFromReward
+    || win.returnFromReward
+    || (() => returnToGame?.(true));
   return {
     ...deps,
     showRewardScreen: deps.showRewardScreen || win.showRewardScreen,
     showCombatSummary: deps.showCombatSummary || win.showCombatSummary,
     switchScreen: deps.switchScreen || win.switchScreen,
     returnToGame,
-    returnFromReward: deps.returnFromReward || win.returnFromReward || (() => returnToGame?.(true)),
+    returnFromReward,
+    rewardActions: {
+      returnFromReward: () => returnFromReward(),
+      returnToGame: (fromReward = false) => {
+        if (fromReward) {
+          returnFromReward();
+          return;
+        }
+        returnToGame?.(false);
+      },
+      ...deps.rewardActions,
+    },
     updateUI: deps.updateUI || win.updateUI,
     renderHand: deps.renderHand || win.renderHand,
     updateChainUI: deps.updateChainUI || win.updateChainUI,

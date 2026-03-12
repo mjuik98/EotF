@@ -20,8 +20,15 @@
 
 - 개발 단계: playable prototype
 - 현재 초점: 신규 기능보다 리팩터링, 구조 정리, 회귀 방지
-- 최근 방향: 대형 UI/런타임 파일을 더 작은 facade/service/helper 단위로 분리
-- 검증 루프: `Vitest`, `Vite build`, Playwright 기반 브라우저 확인
+- 최근 방향:
+  - `feature-local app/use_case/state/presentation/platform` 경계를 늘리고, 기존 `ui/*`와 `platform/legacy/*`는 compat facade로 점진 축소
+  - 현재 리팩토링 중심축은 `combat + state`, `title/ending/help_pause`, `reward/navigation`
+  - 최근 배치에서 `reward/navigation` alias surface를 feature-local action으로 수렴해 `returnFromReward` / `returnToGame` 흐름을 공통화
+- 최신 검증 기준:
+  - `npm run lint`
+  - `npm test`
+  - `npm run build`
+  - Playwright 기반 브라우저 smoke + `render_game_to_text` 확인
 
 자세한 현재 상태와 최근 작업 요약은 [progress.md](progress.md)에서 확인할 수 있습니다.
 
@@ -53,17 +60,19 @@ npm run preview
 ```text
 .
 ├── game/
-│   ├── core/        # bootstrap, registry, runtime contracts
-│   ├── features/    # title/run/combat/event 등 기능 단위 slice
-│   ├── platform/    # browser/legacy/storage adapters
-│   ├── presentation/# presenter/facade/view-model
-│   ├── state/       # cross-feature state commands
-│   └── ui/          # 기존 UI 구현 및 compat re-export 경계
+│   ├── core/         # bootstrap, registry, event/runtime kernel, contracts
+│   ├── features/     # feature-local app/state/presentation/platform 경계
+│   ├── platform/     # browser/legacy/storage adapters
+│   ├── presentation/ # transition-layer presenter/facade/view-model
+│   ├── state/        # cross-feature state commands
+│   └── ui/           # 기존 UI 구현 및 compat entry 경계
 ├── data/            # 카드, 적, 이벤트, 유물, 지역 데이터
 ├── tests/           # 회귀 테스트
 ├── docs/            # 아키텍처/운영 문서
 └── vibe_templates/  # AI 작업용 기록 템플릿 세트
 ```
+
+현재 신규 구조 작업은 가능하면 `game/features/<feature>/...` 아래에 추가하고, 기존 `game/ui/*`는 touched flow만 얇게 만드는 방향을 따른다.
 
 ## Development Commands
 
@@ -88,13 +97,18 @@ npm run quality
 
 이 프로젝트는 전면 재작성보다 점진적 구조 개선을 우선합니다.
 
-- `game/core/`: bootstrap, registry, runtime contracts만 유지
-- `game/features/`: 기능 단위의 `app/state/presentation/platform` 경계로 신규 코드 추가
+- 목표 흐름: `Input -> feature app -> state/domain -> presentation -> platform adapter -> ui shell`
+- `game/core/`: bootstrap, registry, routing, event/runtime kernel만 유지
+- `game/features/`: 신규 로직의 기본 진입점. feature-local `app/use_case/state/presentation/platform` 경계 우선
 - `game/platform/legacy/`: `GAME`, `window.*`, 기존 API 이름을 유지하는 호환 shim
 - `game/ui/`: 기존 UI 구현과 compat entry를 단계적으로 축소
-- `data/`: 정적 게임 데이터, 브라우저 전역 side effect는 platform/legacy 쪽으로 이동 중
+- `data/`: 정적 게임 데이터. 브라우저 전역 side effect는 `platform/browser` 또는 `platform/legacy`로 이동
 
-최근 리팩터링의 기준은 feature slice 중심 모듈화, 레거시 의존성 고립, 상태 변경 경로 축소입니다.
+최근 리팩터링 기준은 다음 세 가지입니다.
+
+- feature slice 중심 모듈화
+- 레거시/global 의존성 고립
+- direct state mutation과 화면 정책 중복 축소
 
 ## Developer Docs
 

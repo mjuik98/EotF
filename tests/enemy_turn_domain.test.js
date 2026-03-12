@@ -4,6 +4,7 @@ import {
   decayEnemyWeaken,
   getEnemyAction,
   handleBossPhaseShift,
+  processEnemyStatusTicks,
   processEnemyStun,
 } from '../game/features/combat/domain/enemy_turn_domain.js';
 
@@ -73,5 +74,90 @@ describe('enemy_turn_domain', () => {
 
     decayEnemyWeaken(enemy);
     expect(enemy.statusEffects.weakened).toBeUndefined();
+  });
+
+  it('applies planned status ticks through state commands and updates countdown statuses', () => {
+    const enemy = {
+      name: 'Shade',
+      hp: 40,
+      maxHp: 40,
+      statusEffects: {
+        poisoned: 2,
+        poisonDuration: 2,
+        burning: 1,
+        abyss_regen: 3,
+        marked: 2,
+        immune: 1,
+        doom: 2,
+      },
+    };
+    const gs = {
+      combat: {
+        enemies: [enemy],
+      },
+      stats: {
+        damageDealt: 0,
+      },
+      addLog: vi.fn(),
+      triggerItems: vi.fn().mockReturnValue({ amount: 12 }),
+      takeDamage: vi.fn(),
+      onEnemyDeath: vi.fn(),
+    };
+
+    const events = processEnemyStatusTicks(gs);
+
+    expect(events).toEqual([
+      { index: 0, type: 'poison', dmg: 12, enemyDied: false, color: '#44ff88' },
+      { index: 0, type: 'burning', dmg: 5, enemyDied: false, color: '#ff8844' },
+    ]);
+    expect(enemy.hp).toBe(26);
+    expect(enemy.statusEffects).toEqual({
+      poisoned: 2,
+      poisonDuration: 1,
+      abyss_regen: 3,
+      marked: 1,
+      doom: 1,
+    });
+    expect(gs.stats.damageDealt).toBe(17);
+    expect(gs.takeDamage).not.toHaveBeenCalled();
+    expect(gs.onEnemyDeath).not.toHaveBeenCalled();
+    expect(gs.addLog).toHaveBeenCalledWith('☠️ Shade: 파멸 카운트다운 1', 'system');
+  });
+
+  it('stops after lethal poison without mutating later status counters', () => {
+    const enemy = {
+      name: 'Dummy',
+      hp: 10,
+      maxHp: 20,
+      statusEffects: {
+        poisoned: 2,
+        poisonDuration: 3,
+        burning: 1,
+      },
+    };
+    const gs = {
+      combat: {
+        enemies: [enemy],
+      },
+      stats: {
+        damageDealt: 0,
+      },
+      addLog: vi.fn(),
+      onEnemyDeath: vi.fn(),
+    };
+
+    const events = processEnemyStatusTicks(gs);
+
+    expect(events).toEqual([
+      { index: 0, type: 'poison', dmg: 10, enemyDied: true, color: '#44ff88' },
+    ]);
+    expect(enemy.hp).toBe(0);
+    expect(enemy.statusEffects).toEqual({
+      poisoned: 2,
+      poisonDuration: 3,
+      burning: 1,
+    });
+    expect(gs.stats.damageDealt).toBe(10);
+    expect(gs.onEnemyDeath).toHaveBeenCalledWith(enemy, 0);
   });
 });

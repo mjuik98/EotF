@@ -4,15 +4,17 @@ import {
   isInfiniteStackBuff,
   normalizeInfiniteStack,
 } from '../../../domain/combat/turn/infinite_stack_buffs.js';
+import { buildEnemyStatusTickPlan } from './enemy_status_tick_plan_domain.js';
+import {
+  applyEnemyDamageState,
+  applyEnemyHealState,
+  applyEnemyStatusUpdatesState,
+  replacePlayerBuffsState,
+  setCurrentCombatAttackerState,
+} from '../state/enemy_turn_state_commands.js';
 
 function trackEnemyDamage(gs, enemy, nextHp) {
-  const hpBefore = Number(enemy?.hp || 0);
-  enemy.hp = Math.max(0, nextHp);
-  const dealt = Math.max(0, hpBefore - enemy.hp);
-  if (dealt > 0 && gs?.stats) {
-    gs.stats.damageDealt = (gs.stats.damageDealt || 0) + dealt;
-  }
-  return dealt;
+  return applyEnemyDamageState(gs, enemy, nextHp);
 }
 
 function handleEnemyDeath(gs, enemy, index) {
@@ -24,7 +26,7 @@ function handleEnemyDeath(gs, enemy, index) {
 }
 
 export function processEnemyAttack(gs, enemy, index, action) {
-  gs.combat._currentAttackerIdx = index;
+  setCurrentCombatAttackerState(gs, index);
   const hitCount = action.multi || 1;
   gs.addLog?.(LogUtils.formatSystem(`${enemy.name}의 행동: ${action.intent}`), 'damage');
 
@@ -80,81 +82,56 @@ export function processEnemyStatusTicks(gs) {
 
   gs.combat.enemies.forEach((enemy, index) => {
     if (!enemy.statusEffects || enemy.hp <= 0) return;
-    const se = enemy.statusEffects;
+    const steps = buildEnemyStatusTickPlan(enemy, index, {
+      poisonDamageScaleFn: typeof gs.triggerItems === 'function'
+        ? (payload) => gs.triggerItems('poison_damage', payload)
+        : undefined,
+    });
 
-    if (se.poisoned > 0) {
-      let dmg = se.poisoned * 5;
-      if (typeof gs.triggerItems === 'function') {
-        const scaled = gs.triggerItems('poison_damage', { amount: dmg, targetIdx: index });
-        if (typeof scaled === 'number' && Number.isFinite(scaled)) {
-          dmg = Math.max(0, Math.floor(scaled));
-        } else if (scaled && typeof scaled.amount === 'number') {
-          dmg = Math.max(0, Math.floor(scaled.amount));
-        }
-      }
+    for (const step of steps) {
+      applyEnemyStatusUpdatesState(enemy, step.statusUpdates);
 
-      trackEnemyDamage(gs, enemy, enemy.hp - dmg);
-      gs.addLog?.(LogUtils.formatAttack('독', enemy.name, dmg), 'damage');
-
-      const enemyDied = handleEnemyDeath(gs, enemy, index);
-      if (!enemyDied) {
-        se.poisonDuration = (se.poisonDuration || 1) - 1;
-        if (se.poisonDuration <= 0) {
-          delete se.poisoned;
-          delete se.poisonDuration;
-        }
-      }
-
-      events.push({ index, type: 'poison', dmg, enemyDied, color: '#44ff88' });
-      if (enemyDied) return;
-    }
-
-    if (se.burning > 0) {
-      const dmg = 5;
-      trackEnemyDamage(gs, enemy, enemy.hp - dmg);
-      gs.addLog?.(LogUtils.formatAttack('화염', enemy.name, dmg), 'damage');
-      se.burning--;
-      if (se.burning <= 0) delete se.burning;
-      const enemyDied = handleEnemyDeath(gs, enemy, index);
-      events.push({ index, type: 'burning', dmg, enemyDied, color: '#ff8844' });
-      if (enemyDied) return;
-    }
-
-    if (se.abyss_regen > 0) {
-      const heal = Math.max(0, Math.floor(Number(se.abyss_regen) || 0));
-      if (heal > 0) {
-        enemy.hp = Math.min(enemy.maxHp || enemy.hp, (enemy.hp || 0) + heal);
-        gs.addLog?.(LogUtils.formatHeal(enemy.name, heal), 'heal');
-      }
-    }
-
-    if (se.marked !== undefined) {
-      se.marked--;
-      if (se.marked <= 0) {
-        const dmg = 30;
-        trackEnemyDamage(gs, enemy, enemy.hp - dmg);
-        gs.addLog?.(LogUtils.formatAttack('표식', enemy.name, dmg), 'echo');
-        delete se.marked;
+      if (step.type === 'poison') {
+        trackEnemyDamage(gs, enemy, enemy.hp - step.dmg);
+        gs.addLog?.(LogUtils.formatAttack('독', enemy.name, step.dmg), 'damage');
         const enemyDied = handleEnemyDeath(gs, enemy, index);
-        events.push({ index, type: 'marked_explode', dmg, enemyDied, color: '#ff2255' });
-        if (enemyDied) return;
+        events.push({ index, type: 'poison', dmg: step.dmg, enemyDied, color: step.color });
+        if (enemyDied) break;
+        continue;
       }
-    }
 
-    if (se.immune > 0) {
-      se.immune--;
-      if (se.immune <= 0) delete se.immune;
-    }
+      if (step.type === 'burning') {
+        trackEnemyDamage(gs, enemy, enemy.hp - step.dmg);
+        gs.addLog?.(LogUtils.formatAttack('화염', enemy.name, step.dmg), 'damage');
+        const enemyDied = handleEnemyDeath(gs, enemy, index);
+        events.push({ index, type: 'burning', dmg: step.dmg, enemyDied, color: step.color });
+        if (enemyDied) break;
+        continue;
+      }
 
-    if (se.doom !== undefined) {
-      se.doom--;
-      if (se.doom <= 0) {
-        const dmg = 40;
-        gs.takeDamage?.(dmg, { name: '파멸', type: 'enemy' });
-        delete se.doom;
-        events.push({ index, type: 'doom_explode', dmg, enemyDied: false, color: '#ff00ff' });
-      } else {
-        gs.addLog?.(`☠️ ${enemy.name}: 파멸 카운트다운 ${se.doom}`, 'system');
+      if (step.type === 'abyss_regen') {
+        applyEnemyHealState(enemy, step.heal);
+        gs.addLog?.(LogUtils.formatHeal(enemy.name, step.heal), 'heal');
+        continue;
+      }
+
+      if (step.type === 'marked_explode') {
+        trackEnemyDamage(gs, enemy, enemy.hp - step.dmg);
+        gs.addLog?.(LogUtils.formatAttack('표식', enemy.name, step.dmg), 'echo');
+        const enemyDied = handleEnemyDeath(gs, enemy, index);
+        events.push({ index, type: 'marked_explode', dmg: step.dmg, enemyDied, color: step.color });
+        if (enemyDied) break;
+        continue;
+      }
+
+      if (step.type === 'doom_explode') {
+        gs.takeDamage?.(step.dmg, { name: '파멸', type: 'enemy' });
+        events.push({ index, type: 'doom_explode', dmg: step.dmg, enemyDied: false, color: step.color });
+        continue;
+      }
+
+      if (step.type === 'doom_countdown') {
+        gs.addLog?.(`☠️ ${enemy.name}: 파멸 카운트다운 ${step.remaining}`, 'system');
       }
     }
   });
@@ -182,7 +159,7 @@ export function handleBossPhaseShift(gs, enemy) {
         permanentBuffs[buffId] = buff;
       }
     });
-    gs.player.buffs = permanentBuffs;
+    replacePlayerBuffsState(gs, permanentBuffs);
     gs.addLog?.(LogUtils.formatSystem('플레이어 모든 버프 해제!'), 'damage');
     buffsPurged = true;
   } else if (enemy.phase === 3) {

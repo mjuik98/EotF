@@ -48,6 +48,6 @@ describe('reward_actions', () => {
     expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
     expect(ports.getRewardDeps).toHaveBeenCalledTimes(8);
-    expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(2);
+    expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(1);
   });
 });
