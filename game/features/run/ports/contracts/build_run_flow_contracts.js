@@ -1,10 +1,15 @@
+import { continueLoadedRunUseCase } from '../../application/continue_loaded_run_use_case.js';
+import { createNodeHandoffRuntime } from '../../application/create_node_handoff_runtime.js';
+import { startGameRuntime } from '../../application/create_run_setup_runtime.js';
+import { enterRunRuntime } from '../../application/create_run_start_runtime.js';
+
 export function buildRunFlowContractBuilders(ctx) {
   const { getRefs, buildBaseDeps, getRunDeps, getRaf, createDeps } = ctx;
 
   return {
     runStart: () => {
       const refs = getRefs();
-      return {
+      const deps = {
         ...buildBaseDeps('run'),
         switchScreen: refs.switchScreen,
         markGameStarted: refs.markGameStarted,
@@ -18,18 +23,67 @@ export function buildRunFlowContractBuilders(ctx) {
         showRunFragment: (overrides) => refs.StorySystem?.showRunFragment?.(overrides),
         showWorldMemoryNotice: refs.showWorldMemoryNotice,
       };
+
+      return {
+        ...deps,
+        continueLoadedRun: (options = {}) => continueLoadedRunUseCase({
+          ...deps,
+          ...options,
+        }),
+      };
     },
 
     runSetup: () => {
       const refs = getRefs();
-      return {
+      const deps = {
         ...buildBaseDeps('run'),
         runRules: refs.RunRules,
         audioEngine: refs.AudioEngine,
         getSelectedClass: refs.getSelectedClass,
         shuffleArray: refs.shuffleArray,
         resetDeckModalFilter: refs.resetDeckModalFilter,
-        enterRun: () => refs.RunStartUI?.enterRun?.(createDeps('runStart')),
+        enterGameplay: (options = {}) => enterRunRuntime({
+          ...createDeps('runStart'),
+          ...options,
+        }),
+      };
+
+      return {
+        ...deps,
+        enterRun: deps.enterGameplay,
+        startGame: (options = {}) => startGameRuntime({
+          ...deps,
+          ...options,
+        }),
+      };
+    },
+
+    runNodeHandoff: () => {
+      const baseDeps = buildBaseDeps('run');
+      const deps = {
+        combatFlow: createDeps('combatFlow'),
+        eventFlow: createDeps('eventFlow'),
+        rewardFlow: createDeps('rewardFlow'),
+      };
+
+      return {
+        ...baseDeps,
+        ...deps,
+        startCombat: (mode = 'normal') => deps.combatFlow.startCombat?.(mode),
+        openEvent: () => deps.eventFlow.openEvent?.(),
+        openShop: () => deps.eventFlow.openShop?.(),
+        openRestSite: () => deps.eventFlow.openRestSite?.(),
+        openReward: (mode = false) => deps.rewardFlow.openReward?.(mode),
+        createRuntime: (overrides = {}) => createNodeHandoffRuntime({
+          nodeHandoff: {
+            startCombat: (mode) => deps.combatFlow.startCombat?.(mode),
+            openEvent: () => deps.eventFlow.openEvent?.(),
+            openShop: () => deps.eventFlow.openShop?.(),
+            openRestSite: () => deps.eventFlow.openRestSite?.(),
+            openReward: (mode) => deps.rewardFlow.openReward?.(mode),
+          },
+          ...overrides,
+        }),
       };
     },
 

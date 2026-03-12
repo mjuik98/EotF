@@ -152,6 +152,173 @@
       "message": "run flow composition must import the run feature public facade instead of run ui internals"
     },
     {
+      "id": "core-init-sequence-legacy-platform-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/init_sequence.js"
+      ],
+      "denyTargets": [
+        "game/core/bootstrap/register_legacy_surface.js"
+      ],
+      "message": "core init sequence must register the legacy bridge through platform/legacy"
+    },
+    {
+      "id": "title-public-module-catalog-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/public.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/title/"
+      ],
+      "message": "title public surface must use a feature-local module catalog instead of direct ui imports"
+    },
+    {
+      "id": "run-public-module-catalog-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/modules/public_run_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/map/",
+        "game/ui/run/"
+      ],
+      "message": "run public surface must use a feature-local module catalog instead of direct ui imports"
+    },
+    {
+      "id": "ui-map-navigation-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/map/map_navigation_ui.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/core/",
+        "game/domain/",
+        "game/data/",
+        "data/"
+      ],
+      "message": "map navigation ui must delegate navigation policy through feature/application boundaries"
+    },
+    {
+      "id": "ui-title-mount-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/title/character_select_mount_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/core/",
+        "game/data/",
+        "data/"
+      ],
+      "message": "character select mount ui must delegate catalog/progression work through feature boundaries"
+    },
+    {
+      "id": "ui-title-class-select-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/title/class_select_ui.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/core/",
+        "game/data/",
+        "data/"
+      ],
+      "message": "class select ui must delegate selection state and metadata through feature boundaries"
+    },
+    {
+      "id": "ui-run-start-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/run/run_start_ui.js",
+        "game/ui/run/run_start_ui_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/core/",
+        "game/ui/effects/"
+      ],
+      "message": "run start ui must delegate transition orchestration through feature run application/runtime boundaries"
+    },
+    {
+      "id": "ui-run-setup-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/run/run_setup_ui.js",
+        "game/ui/run/run_setup_ui_runtime.js",
+        "game/ui/run/run_setup_helpers.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/core/"
+      ],
+      "message": "run setup ui must delegate setup orchestration through feature run application boundaries"
+    },
+    {
+      "id": "ui-character-select-flow-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/title/character_select_flow.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/"
+      ],
+      "message": "character select flow must delegate confirm sequencing through title feature application boundaries"
+    },
+    {
+      "id": "feature-title-flow-no-app-title-use-cases",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/title/app/title_flow_actions.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/title/use_cases/"
+      ],
+      "message": "title flow actions must use title feature application entry points instead of app/title use cases"
+    },
+    {
+      "id": "core-mount-character-select-feature-actions-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bootstrap/mount_character_select.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/features/title/application/",
+        "game/ui/title/"
+      ],
+      "message": "mount_character_select must wire through title feature actions instead of screen-local semantics"
+    },
+    {
+      "id": "feature-run-flow-contracts-runtime-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/ports/contracts/build_run_flow_contracts.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/run/"
+      ],
+      "message": "run flow contracts must assemble gameplay handoff through run feature runtimes instead of run ui facades"
+    },
+    {
+      "id": "feature-run-map-actions-handoff-contract-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/app/run_map_actions.js",
+        "game/features/run/presentation/present_node_transition.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/combat/",
+        "game/features/event/",
+        "game/features/reward/",
+        "game/ui/combat/",
+        "game/ui/screens/"
+      ],
+      "message": "run map actions and presenters must hand off to combat/event/reward through contracts instead of direct feature or ui imports"
+    },
+    {
       "id": "platform-combat-core-public-only",
       "from": ["platform"],
       "sourceFiles": [
@@ -381,6 +548,19 @@
       "message": "legacy game api registry must assemble from bindings and payload builders instead of compat facades"
     },
     {
+      "id": "legacy-game-api-registry-registration-payload-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/game_api_registry.js"
+      ],
+      "denyTargets": [
+        "game/platform/legacy/game_api_command_bindings.js",
+        "game/platform/legacy/game_api_query_bindings.js",
+        "game/platform/legacy/build_legacy_game_api_payload.js"
+      ],
+      "message": "legacy game api registry must compose registration data through the legacy payload builder"
+    },
+    {
       "id": "legacy-game-api-payload-shared-runtime-only",
       "from": ["legacy"],
       "sourceFiles": [
@@ -404,6 +584,18 @@
         "game/ui/"
       ],
       "message": "legacy window query attachment must merge shared/public query groups instead of direct feature or ui internals"
+    },
+    {
+      "id": "legacy-window-bindings-payload-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/window_bindings.js"
+      ],
+      "denyTargets": [
+        "game/platform/legacy/resolve_legacy_window_binding_root.js",
+        "game/platform/legacy/build_legacy_window_binding_steps.js"
+      ],
+      "message": "legacy window bindings must build root and step payloads through the legacy payload builder"
     },
     {
       "id": "legacy-screen-commands-core-service-only",

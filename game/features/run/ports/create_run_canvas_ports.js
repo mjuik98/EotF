@@ -22,6 +22,7 @@ export function createRunCanvasPorts(modules, options = {}) {
     win,
     requestAnimationFrame,
     getCanvasDeps: (extra = {}) => buildCanvasDeps(modules.GAME, { doc, win }, extra),
+    getRunNodeHandoffDeps: () => Deps.getRunNodeHandoffDeps(),
     getWorldCanvasDeps: () => Deps.getWorldCanvasDeps(),
   };
 }

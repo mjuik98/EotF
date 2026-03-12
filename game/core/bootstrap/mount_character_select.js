@@ -1,19 +1,8 @@
+import { buildCharacterSelectMountPayload } from '../../features/title/platform/browser/build_character_select_mount_payload.js';
+
 export function mountCharacterSelect({ modules, deps, fns, doc }) {
   if (!modules.CharacterSelectUI) return;
-
-  modules.CharacterSelectUI.mount({
-    doc,
-    gs: modules.GS,
-    audioEngine: modules.AudioEngine,
-    onProgressConsumed: () => modules.SaveSystem?.saveMeta?.(deps.getSaveSystemDeps()),
-    onConfirm: (char) => {
-      if (fns.selectClass) fns.selectClass(char.id);
-    },
-    onBack: () => {
-      if (fns.backToTitle) fns.backToTitle();
-    },
-    onStart: (char) => {
-      if (fns.startGame) fns.startGame(char.id);
-    },
-  });
+  modules.CharacterSelectUI.mount(
+    buildCharacterSelectMountPayload({ modules, deps, fns, doc }),
+  );
 }

@@ -1,27 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  buildLegacySurfaceRegistrationPayload: vi.fn(),
-  executeLegacySurfaceRegistration: vi.fn(),
+  registerLegacyBridgeRuntime: vi.fn(),
 }));
 
-vi.mock('../game/core/bootstrap/build_legacy_surface_registration_payload.js', () => ({
-  buildLegacySurfaceRegistrationPayload: hoisted.buildLegacySurfaceRegistrationPayload,
-}));
-
-vi.mock('../game/core/bootstrap/execute_legacy_surface_registration.js', () => ({
-  executeLegacySurfaceRegistration: hoisted.executeLegacySurfaceRegistration,
+vi.mock('../game/platform/legacy/register_legacy_bridge_runtime.js', () => ({
+  registerLegacyBridgeRuntime: hoisted.registerLegacyBridgeRuntime,
 }));
 
 import { registerLegacySurface } from '../game/core/bootstrap/register_legacy_surface.js';
 
 describe('registerLegacySurface', () => {
   beforeEach(() => {
-    hoisted.buildLegacySurfaceRegistrationPayload.mockReset();
-    hoisted.executeLegacySurfaceRegistration.mockReset();
+    hoisted.registerLegacyBridgeRuntime.mockReset();
   });
 
-  it('builds legacy surface registration payload and executes the expose flow', () => {
+  it('delegates legacy surface registration through the platform legacy bridge runtime', () => {
     const exposeGlobals = vi.fn();
     const modules = {
       GAME: { init: vi.fn() },
@@ -62,16 +56,9 @@ describe('registerLegacySurface', () => {
       exposeGlobals,
     };
     const fns = { startGame: vi.fn(), drawCard: vi.fn() };
-    const payload = {
-      initArgs: [modules.GS, modules.DATA, modules.AudioEngine, modules.ParticleSystem],
-      globals: { startGame: fns.startGame, drawCard: fns.drawCard },
-    };
-
-    hoisted.buildLegacySurfaceRegistrationPayload.mockReturnValue(payload);
 
     registerLegacySurface({ modules, fns });
 
-    expect(hoisted.buildLegacySurfaceRegistrationPayload).toHaveBeenCalledWith({ modules, fns });
-    expect(hoisted.executeLegacySurfaceRegistration).toHaveBeenCalledWith({ modules, payload });
+    expect(hoisted.registerLegacyBridgeRuntime).toHaveBeenCalledWith({ modules, fns });
   });
 });

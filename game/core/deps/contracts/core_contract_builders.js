@@ -1,5 +1,8 @@
+import { buildCombatFlowContractPublicBuilders } from '../../../features/combat/public.js';
 import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
 import { buildEventContractPublicBuilders } from '../../../features/event/public.js';
+import { buildEventFlowContractPublicBuilders } from '../../../features/event/public.js';
+import { buildRewardFlowContractPublicBuilders } from '../../../features/reward/public.js';
 import { buildRunReturnContractPublicBuilders } from '../../../features/run/contracts/public_run_contract_builders.js';
 import { buildTitleStoryContractBuilders } from '../../../features/title/ports/contracts/build_title_story_contracts.js';
 import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
@@ -16,6 +19,9 @@ export function buildCoreContractBuilders(ctx) {
     getRaf,
   } = ctx;
   const eventContractBuilders = buildEventContractPublicBuilders(ctx);
+  const eventFlowContractBuilders = buildEventFlowContractPublicBuilders(ctx);
+  const combatFlowContractBuilders = buildCombatFlowContractPublicBuilders(ctx);
+  const rewardFlowContractBuilders = buildRewardFlowContractPublicBuilders(ctx);
   const runReturnContractBuilders = buildRunReturnContractPublicBuilders(ctx);
   const titleContractBuilders = buildTitleStoryContractBuilders(ctx);
 
@@ -50,6 +56,10 @@ export function buildCoreContractBuilders(ctx) {
 
     event: eventContractBuilders.event,
 
+    combatFlow: combatFlowContractBuilders.combatFlow,
+
+    eventFlow: eventFlowContractBuilders.eventFlow,
+
     reward: () => {
       const refs = getRefs();
       const returnActions = createRewardReturnActions({
@@ -69,6 +79,8 @@ export function buildCoreContractBuilders(ctx) {
         playItemGet: () => playUiItemGet(refs.AudioEngine),
       };
     },
+
+    rewardFlow: rewardFlowContractBuilders.rewardFlow,
 
     runReturn: runReturnContractBuilders.runReturn,
 

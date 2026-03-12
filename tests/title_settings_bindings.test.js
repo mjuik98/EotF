@@ -8,6 +8,31 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getHelpPauseDeps: vi.fn(() => ({})),
   getSaveSystemDeps: vi.fn(() => ({ gs: { currentRegion: 2 } })),
   getRunStartDeps: vi.fn(() => ({
+    continueLoadedRun: vi.fn(({ currentRegion, loadRun, onBeforeResume, onAfterCanvasReady, setTimeoutFn }) => {
+      loadRun?.();
+      const runStartDeps = {
+        markGameStarted: vi.fn(),
+        switchScreen: vi.fn(),
+        audioEngine: { startAmbient: vi.fn() },
+        updateUI: vi.fn(),
+        updateClassSpecialUI: vi.fn(),
+        initGameCanvas: vi.fn(),
+        gameLoop: vi.fn(),
+        requestAnimationFrame: vi.fn(),
+      };
+      onBeforeResume?.(runStartDeps);
+      runStartDeps.markGameStarted();
+      runStartDeps.switchScreen('game');
+      runStartDeps.audioEngine.startAmbient(currentRegion);
+      runStartDeps.updateUI();
+      runStartDeps.updateClassSpecialUI();
+      setTimeoutFn?.(() => {
+        runStartDeps.initGameCanvas();
+        runStartDeps.requestAnimationFrame(runStartDeps.gameLoop);
+        onAfterCanvasReady?.(runStartDeps);
+      });
+      return true;
+    }),
     switchScreen: vi.fn(),
     markGameStarted: vi.fn(),
     audioEngine: { startAmbient: vi.fn() },
@@ -17,7 +42,7 @@ vi.mock('../game/core/deps_factory.js', () => ({
     gameLoop: vi.fn(),
     requestAnimationFrame: vi.fn(),
   })),
-  getRunSetupDeps: vi.fn(() => ({ token: 'run-setup-deps' })),
+  getRunSetupDeps: vi.fn(() => ({ token: 'run-setup-deps', startGame: vi.fn() })),
 }));
 
 vi.mock('../game/ui/title/intro_cinematic_ui.js', () => ({
@@ -100,8 +125,9 @@ describe('title start flow transition', () => {
 
     expect(startEchoRippleDissolve).toHaveBeenCalledTimes(1);
     expect(IntroCinematicUI.play).toHaveBeenCalledTimes(1);
-    expect(modules.RunSetupUI.startGame).toHaveBeenCalledTimes(1);
-    expect(modules.RunSetupUI.startGame).toHaveBeenCalledWith({ token: 'run-setup-deps' });
+    const runSetupDeps = Deps.getRunSetupDeps.mock.results.at(-1)?.value;
+    expect(runSetupDeps.startGame).toHaveBeenCalledTimes(1);
+    expect(modules.RunSetupUI.startGame).not.toHaveBeenCalled();
     expect(modules.GS._preRunRipplePlayed).toBe(true);
     expect(doc.elements.mainTitleSubScreen.style.display).toBe('none');
     expect(doc.elements.charSelectSubScreen.style.display).toBe('none');
@@ -122,7 +148,9 @@ describe('title start flow transition', () => {
     fns.startGame();
 
     expect(IntroCinematicUI.play).toHaveBeenCalledTimes(1);
-    expect(modules.RunSetupUI.startGame).toHaveBeenCalledTimes(1);
+    const runSetupDeps = Deps.getRunSetupDeps.mock.results.at(-1)?.value;
+    expect(runSetupDeps.startGame).toHaveBeenCalledTimes(1);
+    expect(modules.RunSetupUI.startGame).not.toHaveBeenCalled();
     expect(modules.GS._preRunRipplePlayed).toBe(true);
   });
 
@@ -141,10 +169,7 @@ describe('title start flow transition', () => {
 
     const runStartDeps = Deps.getRunStartDeps.mock.results.at(-1)?.value;
     expect(modules.SaveSystem.loadRun).toHaveBeenCalledTimes(1);
-    expect(runStartDeps.markGameStarted).toHaveBeenCalledTimes(1);
-    expect(runStartDeps.switchScreen).toHaveBeenCalledWith('game');
-    expect(runStartDeps.audioEngine.startAmbient).toHaveBeenCalledWith(0);
-    expect(runStartDeps.initGameCanvas).toHaveBeenCalledTimes(1);
+    expect(runStartDeps.continueLoadedRun).toHaveBeenCalledTimes(1);
     expect(fns.renderMinimap).toHaveBeenCalledTimes(1);
     expect(fns.updateNextNodes).toHaveBeenCalledTimes(1);
 

@@ -3,8 +3,7 @@ import {
   showCharacterSelectScreen,
   showMainTitleScreen,
 } from '../ui/title_screen_dom.js';
-import { continueRunUseCase } from '../../../app/title/use_cases/continue_run_use_case.js';
-import { startTitleRunUseCase } from '../../../app/title/use_cases/start_title_run_use_case.js';
+import { continueRunUseCase, startTitleRunUseCase } from '../application/title_run_entry_actions.js';
 import { playPreRunRipple } from './title_action_helpers.js';
 
 export function createTitleFlowActions(context) {
@@ -24,10 +23,12 @@ export function createTitleFlowActions(context) {
 
     continueRun() {
       playClick();
+      const runStartDeps = ports.getRunStartDeps?.() || {};
       return continueRunUseCase({
         currentRegion: modules.GS?.currentRegion || 0,
-        getRunStartDeps: () => ports.getRunStartDeps(),
+        getRunStartDeps: () => runStartDeps,
         loadRun: () => modules.SaveSystem?.loadRun?.(ports.getSaveSystemDeps()),
+        resumeRun: runStartDeps.continueLoadedRun,
         onBeforeResume: () => showMainTitleScreen(doc),
         onAfterCanvasReady: () => {
           fns.renderMinimap?.();
@@ -59,6 +60,7 @@ export function createTitleFlowActions(context) {
 
     startGame() {
       playClick();
+      const runSetupDeps = ports.getRunSetupDeps?.() || {};
       startTitleRunUseCase({
         getSelectedClass: () => modules.ClassSelectUI?.getSelectedClass?.(),
         hideTitleSubscreens: () => hideTitleSubscreens(doc),
@@ -73,7 +75,12 @@ export function createTitleFlowActions(context) {
           onComplete,
         ),
         playPrelude: (onComplete) => playPreRunRipple({ doc, startPreRunRipple: ports.startPreRunRipple, win }, onComplete),
-        startRunSetup: () => modules.RunSetupUI?.startGame?.(ports.getRunSetupDeps()),
+        startRunSetup: () => {
+          if (typeof runSetupDeps.startGame === 'function') {
+            return runSetupDeps.startGame();
+          }
+          return modules.RunSetupUI?.startGame?.(runSetupDeps);
+        },
       });
     },
   };

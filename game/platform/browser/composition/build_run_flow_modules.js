@@ -1,4 +1,4 @@
-import { buildRunFlowPublicModules } from '../../../features/run/modules/public_run_modules.js';
+import { buildRunFlowPublicModules } from '../../../features/run/public.js';
 
 export function buildRunFlowModules() {
   return buildRunFlowPublicModules();

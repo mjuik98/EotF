@@ -12,10 +12,13 @@ const hoisted = vi.hoisted(() => ({
       showEnemyStatusTooltip: vi.fn(),
     },
   })),
+  buildCombatFlowContractPublicBuilders: vi.fn(() => ({ combatFlow: vi.fn() })),
   buildEventContractPublicBuilders: vi.fn(() => ({ event: vi.fn() })),
+  buildEventFlowContractPublicBuilders: vi.fn(() => ({ eventFlow: vi.fn() })),
   buildCombatUiContractPublicBuilders: vi.fn(() => ({ hudUpdate: vi.fn() })),
   buildCombatRuntimeSubscriberPublicActions: vi.fn(() => ({ renderCombatCards: vi.fn() })),
-  buildRunFlowContractPublicBuilders: vi.fn(() => ({ runStart: vi.fn() })),
+  buildRewardFlowContractPublicBuilders: vi.fn(() => ({ rewardFlow: vi.fn() })),
+  buildRunFlowContractPublicBuilders: vi.fn(() => ({ runStart: vi.fn(), runNodeHandoff: vi.fn() })),
   buildRunReturnContractPublicBuilders: vi.fn(() => ({ runReturn: vi.fn() })),
   buildRunBootPublicActions: vi.fn(() => ({ drawCard: vi.fn() })),
   buildRunUiContractPublicBuilders: vi.fn(() => ({ worldCanvas: vi.fn() })),
@@ -59,6 +62,7 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock('../game/features/combat/public.js', () => ({
+  buildCombatFlowContractPublicBuilders: hoisted.buildCombatFlowContractPublicBuilders,
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
 }));
 
@@ -81,7 +85,12 @@ vi.mock('../game/features/combat/bindings/public_combat_bindings.js', () => ({
 
 vi.mock('../game/features/event/public.js', () => ({
   buildEventContractPublicBuilders: hoisted.buildEventContractPublicBuilders,
+  buildEventFlowContractPublicBuilders: hoisted.buildEventFlowContractPublicBuilders,
   createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
+}));
+
+vi.mock('../game/features/reward/public.js', () => ({
+  buildRewardFlowContractPublicBuilders: hoisted.buildRewardFlowContractPublicBuilders,
 }));
 
 vi.mock('../game/features/run/contracts/public_run_contract_builders.js', () => ({
@@ -159,10 +168,13 @@ describe('feature public action surfaces', () => {
     });
     hoisted.createRunCanvasBindings.mockReturnValue({ renderWorld: vi.fn() });
     hoisted.createEventRewardBindingActions.mockReturnValue({ skipReward: vi.fn() });
+    hoisted.buildCombatFlowContractPublicBuilders.mockReturnValue({ combatFlow: vi.fn() });
     hoisted.buildCombatUiContractPublicBuilders.mockReturnValue({ hudUpdate: vi.fn() });
     hoisted.buildCombatRuntimeSubscriberPublicActions.mockReturnValue({ renderCombatCards: vi.fn() });
     hoisted.buildEventContractPublicBuilders.mockReturnValue({ event: vi.fn() });
-    hoisted.buildRunFlowContractPublicBuilders.mockReturnValue({ runStart: vi.fn() });
+    hoisted.buildEventFlowContractPublicBuilders.mockReturnValue({ eventFlow: vi.fn() });
+    hoisted.buildRewardFlowContractPublicBuilders.mockReturnValue({ rewardFlow: vi.fn() });
+    hoisted.buildRunFlowContractPublicBuilders.mockReturnValue({ runStart: vi.fn(), runNodeHandoff: vi.fn() });
     hoisted.buildRunReturnContractPublicBuilders.mockReturnValue({ runReturn: vi.fn() });
     hoisted.createLegacyHudRuntimeQueryBindings.mockReturnValue({
       updateUI: vi.fn(),
@@ -285,12 +297,13 @@ describe('feature public action surfaces', () => {
     expect(buildRunContractBuilders(ctx)).toEqual({
       runMode: expect.any(Function),
       runStart: expect.any(Function),
+      runNodeHandoff: expect.any(Function),
     });
     expect(hoisted.buildTitleRunContractPublicBuilders).toHaveBeenCalledWith(ctx);
     expect(hoisted.buildRunFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
   });
 
-  it('routes core event and runReturn contract builders through feature public facades', () => {
+  it('routes core combat, event, reward, and runReturn contract builders through feature public facades', () => {
     const ctx = {
       getRefs: () => ({}),
       buildBaseDeps: vi.fn(() => ({})),
@@ -304,9 +317,15 @@ describe('feature public action surfaces', () => {
 
     const builders = buildCoreContractBuilders(ctx);
 
+    expect(builders.combatFlow).toBe(hoisted.buildCombatFlowContractPublicBuilders.mock.results[0].value.combatFlow);
     expect(builders.event).toBe(hoisted.buildEventContractPublicBuilders.mock.results[0].value.event);
+    expect(builders.eventFlow).toBe(hoisted.buildEventFlowContractPublicBuilders.mock.results[0].value.eventFlow);
+    expect(builders.rewardFlow).toBe(hoisted.buildRewardFlowContractPublicBuilders.mock.results[0].value.rewardFlow);
     expect(builders.runReturn).toBe(hoisted.buildRunReturnContractPublicBuilders.mock.results[0].value.runReturn);
+    expect(hoisted.buildCombatFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
     expect(hoisted.buildEventContractPublicBuilders).toHaveBeenCalledWith(ctx);
+    expect(hoisted.buildEventFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
+    expect(hoisted.buildRewardFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
     expect(hoisted.buildRunReturnContractPublicBuilders).toHaveBeenCalledWith(ctx);
   });
 

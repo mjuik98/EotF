@@ -5,7 +5,7 @@ const hoisted = vi.hoisted(() => ({
   buildRunFlowPublicModules: vi.fn(() => ({ RunModeUI: { id: 'mode' }, RunStartUI: { id: 'start' } })),
 }));
 
-vi.mock('../game/features/run/modules/public_run_modules.js', () => ({
+vi.mock('../game/features/run/public.js', () => ({
   buildRunMapPublicModules: hoisted.buildRunMapPublicModules,
   buildRunFlowPublicModules: hoisted.buildRunFlowPublicModules,
 }));

@@ -5,15 +5,18 @@ import { presentNodeTransition } from '../game/ui/map/map_navigation_presenter.j
 describe('node_transition_presenter', () => {
   it('updates non-combat navigation UI and dispatches the next node action', () => {
     const overlay = { style: {} };
+    const nodeHandoff = {
+      openEvent: vi.fn(),
+    };
     const deps = {
       audioEngine: { id: 'audio' },
       doc: {
         getElementById: vi.fn((id) => (id === 'nodeCardOverlay' ? overlay : null)),
       },
+      nodeHandoff,
       renderMinimap: vi.fn(),
       updateUI: vi.fn(),
       updateNextNodes: vi.fn(),
-      triggerRandomEvent: vi.fn(),
     };
     const schedule = vi.fn((callback) => callback());
     const playFootstep = vi.fn();
@@ -36,14 +39,17 @@ describe('node_transition_presenter', () => {
     expect(deps.renderMinimap).toHaveBeenCalledTimes(1);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
     expect(deps.updateNextNodes).toHaveBeenCalledTimes(1);
-    expect(deps.triggerRandomEvent).toHaveBeenCalledTimes(1);
+    expect(nodeHandoff.openEvent).toHaveBeenCalledTimes(1);
     expect(unlockNodeMovement).toHaveBeenCalledTimes(1);
     expect(schedule).toHaveBeenCalledWith(expect.any(Function), 300);
   });
 
   it('skips next-node overlay refresh for combat transitions and unlocks after action', () => {
-    const deps = {
+    const nodeHandoff = {
       startCombat: vi.fn(),
+    };
+    const deps = {
+      nodeHandoff,
       updateNextNodes: vi.fn(),
     };
     const schedule = vi.fn((callback) => callback());
@@ -61,7 +67,7 @@ describe('node_transition_presenter', () => {
     });
 
     expect(deps.updateNextNodes).not.toHaveBeenCalled();
-    expect(deps.startCombat).toHaveBeenCalledWith('boss');
+    expect(nodeHandoff.startCombat).toHaveBeenCalledWith('boss');
     expect(unlockNodeMovement).toHaveBeenCalledTimes(1);
   });
 });

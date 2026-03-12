@@ -19,7 +19,7 @@ describe('start_run_use_case', () => {
     const runRules = { ensureMeta: vi.fn(), applyRunStart: vi.fn() };
     const shuffleArray = vi.fn();
     const applyStartBonuses = vi.fn();
-    const enterRun = vi.fn();
+    const enterGameplay = vi.fn();
     const updateUI = vi.fn();
 
     const result = startRun({
@@ -31,7 +31,7 @@ describe('start_run_use_case', () => {
       audioEngine,
       shuffleArray,
       applyStartBonuses,
-      enterRun,
+      enterGameplay,
       updateUI,
     });
 
@@ -49,7 +49,7 @@ describe('start_run_use_case', () => {
     expect(runRules.applyRunStart).toHaveBeenCalledWith(gs);
     expect(shuffleArray).toHaveBeenCalledWith(gs.player.deck);
     expect(runStateCommands.resetRuntimeState).toHaveBeenCalledWith(gs, { savedMerchant: 1 });
-    expect(enterRun).toHaveBeenCalledTimes(1);
+    expect(enterGameplay).toHaveBeenCalledTimes(1);
     expect(updateUI).toHaveBeenCalledTimes(1);
     expect(gs.markDirty).toHaveBeenCalledWith('hud');
     expect(result).toEqual(expect.objectContaining({

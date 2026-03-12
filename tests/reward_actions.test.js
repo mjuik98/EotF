@@ -27,6 +27,7 @@ describe('reward_actions', () => {
     const actions = createRewardActions(modules, ports);
 
     actions.showRewardScreen(true);
+    actions.openReward('boss');
     actions.takeRewardCard('strike');
     actions.takeRewardItem('relic');
     actions.takeRewardUpgrade();
@@ -38,6 +39,7 @@ describe('reward_actions', () => {
     actions.returnToGame(false);
 
     expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith(true, { token: 'reward-deps' });
+    expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith('boss', { token: 'reward-deps' });
     expect(modules.RewardUI.takeRewardCard).toHaveBeenCalledWith('strike', { token: 'reward-deps' });
     expect(modules.RewardUI.takeRewardItem).toHaveBeenCalledWith('relic', { token: 'reward-deps' });
     expect(modules.RewardUI.takeRewardUpgrade).toHaveBeenCalledWith({ token: 'reward-deps' });
@@ -47,7 +49,7 @@ describe('reward_actions', () => {
     expect(modules.RewardUI.skipReward).toHaveBeenCalledWith({ token: 'reward-deps' });
     expect(modules.RunReturnUI.returnFromReward).toHaveBeenCalledWith({ token: 'run-return-deps' });
     expect(modules.RunReturnUI.returnToGame).toHaveBeenCalledWith(false, { token: 'run-return-deps' });
-    expect(ports.getRewardDeps).toHaveBeenCalledTimes(8);
+    expect(ports.getRewardDeps).toHaveBeenCalledTimes(9);
     expect(ports.getRunReturnDeps).toHaveBeenCalledTimes(1);
   });
 });

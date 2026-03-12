@@ -56,12 +56,9 @@ export function createRunMapActions(context) {
 
     moveToNode(node) {
       const deps = ports.getCanvasDeps({
+        nodeHandoff: ports.getRunNodeHandoffDeps(),
         renderMinimap: fns.renderMinimap,
         setNodeMovementLocked,
-        showRestSite: fns.showRestSite,
-        showShop: fns.showShop,
-        startCombat: fns.startCombat,
-        triggerRandomEvent: fns.triggerRandomEvent,
         updateNextNodes: fns.updateNextNodes,
         updateUI: fns.updateUI,
       });

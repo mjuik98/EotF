@@ -8,6 +8,10 @@ export function createRewardActions(modules, ports) {
       modules.RewardUI?.showRewardScreen?.(isBoss, ports.getRewardDeps());
     },
 
+    openReward(mode = false) {
+      modules.RewardUI?.showRewardScreen?.(mode, ports.getRewardDeps());
+    },
+
     takeRewardCard(cardId) {
       modules.RewardUI?.takeRewardCard?.(cardId, ports.getRewardDeps());
     },

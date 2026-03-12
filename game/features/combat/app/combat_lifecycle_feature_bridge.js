@@ -43,6 +43,7 @@ export function runEndCombatFlow({
     win,
   });
   const rewardFlowPort = createCombatEndRewardFlowPort({
+    openReward: deps.rewardFlow?.openReward || deps.rewardActions?.openReward,
     returnFromReward: deps.rewardActions?.returnFromReward || deps.returnFromReward || win?.returnFromReward,
     returnToGame: deps.rewardActions?.returnToGame || deps.returnToGame || win?.returnToGame,
     showRewardScreen: deps.showRewardScreen || win?.showRewardScreen,

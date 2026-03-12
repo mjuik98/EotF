@@ -58,12 +58,17 @@ export function createCombatEndUiPort({
 }
 
 export function createCombatEndRewardFlowPort({
+  openReward,
   returnFromReward,
   returnToGame,
   showRewardScreen,
 } = {}) {
   return {
     openReward(mode = false) {
+      if (typeof openReward === 'function') {
+        openReward(mode);
+        return;
+      }
       showRewardScreen?.(mode);
     },
 

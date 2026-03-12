@@ -14,6 +14,7 @@ export function createStartRunUseCase(options = {}) {
       shuffleArray,
       applyStartBonuses,
       resetDeckModalFilter,
+      enterGameplay,
       enterRun,
       updateUI,
     } = input;
@@ -38,7 +39,8 @@ export function createStartRunUseCase(options = {}) {
     runStateCommands.resetRuntimeState(gs, gs.meta.worldMemory);
 
     resetDeckModalFilter?.();
-    enterRun?.();
+    enterGameplay?.();
+    if (typeof enterGameplay !== 'function') enterRun?.();
     updateUI?.();
     gs.markDirty?.('hud');
 

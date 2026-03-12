@@ -1,4 +1,4 @@
-import { startGameRuntime } from './run_setup_ui_runtime.js';
+import { startGameRuntime } from '../../features/run/application/create_run_setup_runtime.js';
 
 export const RunSetupUI = {
   startGame(deps = {}) {

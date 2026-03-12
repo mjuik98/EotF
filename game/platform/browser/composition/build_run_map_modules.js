@@ -1,4 +1,4 @@
-import { buildRunMapPublicModules } from '../../../features/run/modules/public_run_modules.js';
+import { buildRunMapPublicModules } from '../../../features/run/public.js';
 
 export function buildRunMapModules() {
   return buildRunMapPublicModules();

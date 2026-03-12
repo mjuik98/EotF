@@ -62,6 +62,9 @@ export function getCombatTurnBaseDeps() { return createDeps('combatTurnBase'); }
 export function getEventDeps() { return createDeps('event'); }
 export function getRewardDeps() { return createDeps('reward'); }
 export function getRunReturnDeps() { return createDeps('runReturn'); }
+export function getCombatFlowDeps() { return createDeps('combatFlow'); }
+export function getEventFlowDeps() { return createDeps('eventFlow'); }
+export function getRewardFlowDeps() { return createDeps('rewardFlow'); }
 export function getHudUpdateDeps() { return createDeps('hudUpdate'); }
 export function getCombatHudDeps() { return createDeps('combatHud'); }
 export function getCardTargetDeps() { return createDeps('cardTarget'); }
@@ -77,6 +80,7 @@ export function getSaveSystemDeps() { return createDeps('saveSystem'); }
 export function getRunModeDeps() { return createDeps('runMode'); }
 export function getRunStartDeps() { return createDeps('runStart'); }
 export function getRunSetupDeps() { return createDeps('runSetup'); }
+export function getRunNodeHandoffDeps() { return createDeps('runNodeHandoff'); }
 export function getMetaProgressionDeps() { return createDeps('metaProgression'); }
 export function getRegionTransitionDeps() { return createDeps('regionTransition'); }
 export function getHelpPauseDeps() { return createDeps('helpPause'); }

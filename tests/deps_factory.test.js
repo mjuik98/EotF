@@ -14,6 +14,9 @@ const EXPECTED_CONTRACTS = [
   'event',
   'reward',
   'runReturn',
+  'combatFlow',
+  'eventFlow',
+  'rewardFlow',
   'saveSystem',
   'hudUpdate',
   'combatHud',
@@ -32,6 +35,7 @@ const EXPECTED_CONTRACTS = [
   'runMode',
   'runStart',
   'runSetup',
+  'runNodeHandoff',
   'metaProgression',
   'regionTransition',
   'gameBoot',
@@ -39,7 +43,6 @@ const EXPECTED_CONTRACTS = [
 
 function seedRefs(overrides = {}) {
   const saveMeta = vi.fn();
-  const enterRun = vi.fn();
   const refs = {
     GAME: {
       getDeps: () => ({ token: 'legacy-deps' }),
@@ -53,12 +56,11 @@ function seedRefs(overrides = {}) {
     _gameStarted: () => true,
     RunRules: { id: 'run-rules' },
     SaveSystem: { saveMeta },
-    RunStartUI: { enterRun },
     GS: { playCard: vi.fn() },
     ...overrides,
   };
   initDepsFactory(refs);
-  return { refs, saveMeta, enterRun };
+  return { refs, saveMeta };
 }
 
 describe('deps factory', () => {
@@ -95,17 +97,30 @@ describe('deps factory', () => {
   });
 
   it('keeps nested run contracts wired via createDeps', () => {
-    const { saveMeta, enterRun } = seedRefs();
+    const { saveMeta } = seedRefs();
 
     const runMode = createDeps('runMode');
     runMode.saveMeta();
     expect(saveMeta).toHaveBeenCalledTimes(1);
     expect(saveMeta.mock.calls[0][0].runRules).toEqual({ id: 'run-rules' });
 
+    const combatFlow = createDeps('combatFlow');
+    const eventFlow = createDeps('eventFlow');
+    const rewardFlow = createDeps('rewardFlow');
     const runSetup = createDeps('runSetup');
-    runSetup.enterRun();
-    expect(enterRun).toHaveBeenCalledTimes(1);
-    expect(typeof enterRun.mock.calls[0][0].requestAnimationFrame).toBe('function');
+    expect(typeof runSetup.enterGameplay).toBe('function');
+    expect(typeof runSetup.enterRun).toBe('function');
+    expect(typeof runSetup.startGame).toBe('function');
+
+    const runStart = createDeps('runStart');
+    const runNodeHandoff = createDeps('runNodeHandoff');
+    expect(typeof combatFlow.startCombat).toBe('function');
+    expect(typeof eventFlow.openEvent).toBe('function');
+    expect(typeof rewardFlow.openReward).toBe('function');
+    expect(typeof runStart.continueLoadedRun).toBe('function');
+    expect(typeof runStart.requestAnimationFrame).toBe('function');
+    expect(typeof runNodeHandoff.startCombat).toBe('function');
+    expect(typeof runNodeHandoff.openEvent).toBe('function');
 
     const gameBoot = createDeps('gameBoot');
     expect(gameBoot.saveSystem).toBeDefined();

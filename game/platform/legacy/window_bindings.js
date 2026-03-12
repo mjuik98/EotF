@@ -1,13 +1,9 @@
-import { buildLegacyWindowBindingSteps } from './build_legacy_window_binding_steps.js';
+import { buildLegacyWindowBindingPayload } from './build_legacy_window_binding_payload.js';
 import { executeLegacyWindowBindingSteps } from './execute_legacy_window_binding_steps.js';
-import { resolveLegacyWindowBindingRoot } from './resolve_legacy_window_binding_root.js';
 
 export function attachLegacyWindowBindings(modules, fns, deps) {
-  const root = resolveLegacyWindowBindingRoot(modules);
-  if (!root) return;
+  const payload = buildLegacyWindowBindingPayload({ modules, fns, deps });
+  if (!payload) return;
 
-  executeLegacyWindowBindingSteps(
-    { root, modules, fns, deps },
-    buildLegacyWindowBindingSteps(),
-  );
+  executeLegacyWindowBindingSteps(payload.context, payload.steps);
 }

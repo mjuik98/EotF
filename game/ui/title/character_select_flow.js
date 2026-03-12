@@ -1,4 +1,4 @@
-import { confirmCharacterSelection } from '../../app/run/use_cases/confirm_character_selection_use_case.js';
+import { confirmCharacterSelection } from '../../features/title/application/character_select_actions.js';
 
 export function setCharacterSelectVisibility(resolveById, isVisible, dir) {
   const card = resolveById?.('charCard');

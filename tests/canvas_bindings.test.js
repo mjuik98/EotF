@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../game/core/deps_factory.js', () => ({
+  getRunNodeHandoffDeps: vi.fn(() => ({
+    startCombat: vi.fn(),
+    openEvent: vi.fn(),
+    openShop: vi.fn(),
+    openRestSite: vi.fn(),
+    openReward: vi.fn(),
+  })),
   getWorldCanvasDeps: vi.fn(() => ({ token: 'world-canvas-deps' })),
 }));
 
@@ -126,9 +133,13 @@ describe('createCanvasBindings', () => {
     }));
     expect(modules.MapNavigationUI.moveToNode).toHaveBeenCalledWith('1-0', expect.objectContaining({
       token: 'canvas-deps',
+      nodeHandoff: expect.objectContaining({
+        startCombat: expect.any(Function),
+        openEvent: expect.any(Function),
+      }),
       renderMinimap: fns.renderMinimap,
-      startCombat: fns.startCombat,
     }));
+    expect(Deps.getRunNodeHandoffDeps).toHaveBeenCalledTimes(1);
     expect(Deps.getWorldCanvasDeps).toHaveBeenCalledTimes(1);
 
     globalThis.window = originalWindow;

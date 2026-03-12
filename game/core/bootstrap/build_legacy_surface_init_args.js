@@ -1,8 +1,1 @@
-export function buildLegacySurfaceInitArgs({ modules }) {
-  return [
-    modules.GS,
-    modules.DATA,
-    modules.AudioEngine,
-    modules.ParticleSystem,
-  ];
-}
+export { buildLegacyBridgeInitArgs as buildLegacySurfaceInitArgs } from '../../platform/legacy/build_legacy_bridge_init_args.js';

@@ -15,7 +15,7 @@ vi.mock('../game/features/title/public.js', () => ({
   buildTitlePublicModules: hoisted.buildTitlePublicModules,
 }));
 
-vi.mock('../game/features/run/modules/public_run_modules.js', () => ({
+vi.mock('../game/features/run/public.js', () => ({
   buildRunMapPublicModules: hoisted.buildRunMapPublicModules,
   buildRunFlowPublicModules: hoisted.buildRunFlowPublicModules,
 }));
