@@ -1,6 +1,6 @@
 import { EndingScreenUI } from './ending_screen_ui.js';
 import { removeFloatingPlayerHpPanel } from '../shared/player_hp_panel_ui.js';
-import { deactivateCombat } from '../../app/shared/use_cases/runtime_state_use_case.js';
+import { deactivateCombat } from '../../shared/state/runtime_flow_controls.js';
 import {
   clearActiveRunSave,
   getDoc,

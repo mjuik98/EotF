@@ -98,6 +98,217 @@
         "game/ui/combat/combat_turn_ui.js"
       ],
       "message": "platform composition should import feature facades through presentation boundaries"
+    },
+    {
+      "id": "platform-title-flow-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_title_flow_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/title/"
+      ],
+      "message": "title flow composition must import the title feature public facade instead of title ui internals"
+    },
+    {
+      "id": "platform-title-canvas-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_title_canvas_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/title/"
+      ],
+      "message": "title canvas composition must import the title feature public facade instead of title ui internals"
+    },
+    {
+      "id": "platform-run-map-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_run_map_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/map/"
+      ],
+      "message": "run map composition must import the run feature public facade instead of map ui internals"
+    },
+    {
+      "id": "platform-run-flow-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_run_flow_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/run/"
+      ],
+      "message": "run flow composition must import the run feature public facade instead of run ui internals"
+    },
+    {
+      "id": "platform-combat-core-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_combat_core_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/combat/",
+        "game/presentation/combat/"
+      ],
+      "message": "combat core composition must import the combat feature public facade instead of combat internals"
+    },
+    {
+      "id": "platform-combat-card-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_combat_card_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/cards/"
+      ],
+      "message": "combat card composition must import the combat feature public facade instead of card ui internals"
+    },
+    {
+      "id": "platform-combat-hud-public-only",
+      "from": ["platform"],
+      "sourceFiles": [
+        "game/platform/browser/composition/build_combat_hud_modules.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/hud/"
+      ],
+      "message": "combat hud composition must import the combat feature public facade instead of hud ui internals"
+    },
+    {
+      "id": "core-ui-bindings-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bindings/ui_bindings.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/ui/app/",
+        "game/features/ui/ports/"
+      ],
+      "message": "core ui bindings must import the ui feature public facade instead of ui internals"
+    },
+    {
+      "id": "core-title-bindings-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bindings/title_settings_bindings.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/title/app/",
+        "game/features/title/ports/"
+      ],
+      "message": "core title bindings must import the title feature public facade instead of title internals"
+    },
+    {
+      "id": "core-combat-bindings-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bindings/combat_bindings.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/combat/app/",
+        "game/features/combat/ports/"
+      ],
+      "message": "core combat bindings must import the combat feature public facade instead of combat internals"
+    },
+    {
+      "id": "core-run-canvas-bindings-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bindings/canvas_bindings.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/run/app/",
+        "game/features/run/ports/"
+      ],
+      "message": "core run canvas bindings must import the run feature public facade instead of run internals"
+    },
+    {
+      "id": "core-event-reward-bindings-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bindings/event_reward_bindings_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/event/app/",
+        "game/features/event/ports/"
+      ],
+      "message": "core event/reward bindings must import the event feature public facade instead of event internals"
+    },
+    {
+      "id": "core-runtime-subscriber-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bootstrap/build_runtime_subscriber_action_groups.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/combat/app/",
+        "game/features/ui/app/"
+      ],
+      "message": "core runtime subscriber groups must import feature public facades instead of subscriber internals"
+    },
+    {
+      "id": "core-game-boot-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/bootstrap/build_game_boot_action_groups.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/run/app/",
+        "game/features/title/app/"
+      ],
+      "message": "core game boot groups must import feature public facades instead of boot internals"
+    },
+    {
+      "id": "core-ui-contract-builders-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/deps/contracts/ui_contract_builders.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/combat/ports/contracts/",
+        "game/features/run/ports/contracts/",
+        "game/features/ui/ports/contracts/"
+      ],
+      "message": "core ui contract builders must import feature public facades instead of contract internals"
+    },
+    {
+      "id": "core-run-contract-builders-public-only",
+      "from": ["core"],
+      "sourceFiles": [
+        "game/core/deps/contracts/run_contract_builders.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/run/ports/contracts/",
+        "game/features/title/ports/contracts/"
+      ],
+      "message": "core run contract builders must import feature public facades instead of contract internals"
+    },
+    {
+      "id": "legacy-combat-card-public-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/game_api/combat_commands.js",
+        "game/platform/legacy/game_api/player_draw_commands.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/combat/app/",
+        "game/app/combat/"
+      ],
+      "message": "legacy combat game api must import the combat feature public facade instead of combat internals"
+    },
+    {
+      "id": "legacy-combat-compat-public-only",
+      "from": ["legacy"],
+      "sourceFiles": [
+        "game/platform/legacy/adapters/create_legacy_combat_compat.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/features/combat/ports/"
+      ],
+      "message": "legacy combat compat adapter must import the combat feature public facade instead of combat ports internals"
     }
   ]
 }

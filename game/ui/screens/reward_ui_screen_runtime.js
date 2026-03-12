@@ -2,7 +2,7 @@ import { clearIdempotencyPrefix } from '../../utils/idempotency_utils.js';
 import {
   deactivateCombat,
   unlockRewardFlow,
-} from '../../app/shared/use_cases/runtime_state_use_case.js';
+} from '../../shared/state/runtime_flow_controls.js';
 import { ensureMiniBossBonus } from './reward_ui_claims.js';
 import {
   drawRewardCards,

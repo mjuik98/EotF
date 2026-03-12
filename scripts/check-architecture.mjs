@@ -50,11 +50,27 @@ function isSourceAllowed(fileRel, rule) {
   return false;
 }
 
+function matchesSourceScope(fileRel, rule) {
+  if (Array.isArray(rule.sourceFiles) && !rule.sourceFiles.includes(fileRel)) return false;
+  if (Array.isArray(rule.sourcePrefixes)) {
+    return rule.sourcePrefixes.some((prefix) => fileRel.startsWith(prefix));
+  }
+  return true;
+}
+
 function evaluateRule(rule, fileRel, targetRel, sourceLayer, targetLayer) {
   const fromMatches = Array.isArray(rule.from) ? rule.from.includes(sourceLayer) : true;
   if (!fromMatches) return null;
+  if (!matchesSourceScope(fileRel, rule)) return null;
 
   if (isSourceAllowed(fileRel, rule)) return null;
+
+  if (Array.isArray(rule.denyTargetPrefixes)) {
+    const deniedPrefix = rule.denyTargetPrefixes.find((prefix) => targetRel.startsWith(prefix));
+    if (deniedPrefix) {
+      return `${fileRel} -> ${targetRel} (${rule.message || rule.id})`;
+    }
+  }
 
   if (Array.isArray(rule.denyTargets) && rule.denyTargets.includes(targetRel)) {
     return `${fileRel} -> ${targetRel} (${rule.message || rule.id})`;

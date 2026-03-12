@@ -1,6 +1,5 @@
-import { createTitleActions } from '../../features/title/app/create_title_actions.js';
-import { createTitlePorts } from '../../features/title/ports/create_title_ports.js';
+import { createTitleBindings } from '../../features/title/public.js';
 
 export function createTitleSettingsBindings(modules, fns) {
-    Object.assign(fns, createTitleActions(createTitlePorts(modules, fns)));
+    Object.assign(fns, createTitleBindings(modules, fns));
 }

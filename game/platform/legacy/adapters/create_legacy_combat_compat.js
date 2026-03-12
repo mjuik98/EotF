@@ -1,4 +1,4 @@
-import { createCombatPorts } from '../../../features/combat/ports/create_combat_ports.js';
+import { createCombatPorts } from '../../../features/combat/public.js';
 import {
   applyPlayerDamage,
   drawCards as drawPlayerCards,

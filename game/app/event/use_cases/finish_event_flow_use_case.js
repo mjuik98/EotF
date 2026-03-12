@@ -1,4 +1,4 @@
-import { unlockEventFlow } from '../../shared/use_cases/runtime_state_use_case.js';
+import { unlockEventFlow } from '../../../shared/state/runtime_flow_controls.js';
 
 export function createFinishEventFlowUseCase(options = {}) {
   const unlockFlow = options.unlockEventFlow || unlockEventFlow;

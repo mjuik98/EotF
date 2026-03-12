@@ -1,10 +1,8 @@
 import { setScreenService } from '../system/screen_service.js';
-import { createUiActions } from '../../features/ui/app/ui_actions.js';
-import { createUiPorts } from '../../features/ui/ports/create_ui_ports.js';
+import { createUiBindingContext } from '../../features/ui/public.js';
 
 export function createUIBindings(modules, fns) {
-    const ports = createUiPorts();
-    const actions = createUiActions(modules, fns, ports);
+    const { actions, ports } = createUiBindingContext(modules, fns);
     const legacySwitchScreen = actions.switchScreen;
 
     actions.switchScreen = (screen) => {

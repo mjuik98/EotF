@@ -1,11 +1,11 @@
-import { buildCombatUiContractBuilders } from '../../../features/combat/ports/contracts/build_combat_ui_contracts.js';
-import { buildRunUiContractBuilders } from '../../../features/run/ports/contracts/build_run_ui_contracts.js';
-import { buildUiShellContractBuilders } from '../../../features/ui/ports/contracts/build_ui_shell_contracts.js';
+import { buildCombatUiContractPublicBuilders } from '../../../features/combat/public.js';
+import { buildRunUiContractPublicBuilders } from '../../../features/run/public.js';
+import { buildUiShellContractPublicBuilders } from '../../../features/ui/public.js';
 
 export function buildUiContractBuilders(ctx) {
   return {
-    ...buildCombatUiContractBuilders(ctx),
-    ...buildUiShellContractBuilders(ctx),
-    ...buildRunUiContractBuilders(ctx),
+    ...buildCombatUiContractPublicBuilders(ctx),
+    ...buildUiShellContractPublicBuilders(ctx),
+    ...buildRunUiContractPublicBuilders(ctx),
   };
 }

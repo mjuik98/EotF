@@ -1,4 +1,4 @@
-import { setNodeMovementLocked } from '../../../app/shared/use_cases/runtime_state_use_case.js';
+import { setNodeMovementLocked } from '../../../shared/state/runtime_flow_controls.js';
 
 export function createRunMapActions(context) {
   const { fns, modules, ports } = context;

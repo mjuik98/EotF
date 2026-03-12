@@ -3,7 +3,7 @@ import { playAttackSlash } from '../../domain/audio/audio_event_helpers.js';
 import {
   lockRewardFlow,
   unlockRewardFlow,
-} from '../../app/shared/use_cases/runtime_state_use_case.js';
+} from '../../shared/state/runtime_flow_controls.js';
 import { isRewardFlowLocked } from '../../app/shared/selectors/runtime_state_selectors.js';
 import {
   buildRewardDiscardDeps,

@@ -2,7 +2,7 @@ import {
   applyNodeTraversalState,
   resolveNodeByRef,
 } from '../../shared/state_commands/map_state_commands.js';
-import { setNodeMovementLocked } from '../../shared/use_cases/runtime_state_use_case.js';
+import { setNodeMovementLocked } from '../../../shared/state/runtime_flow_controls.js';
 
 export function moveToNodeUseCase({
   combatNodeTypes = [],

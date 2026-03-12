@@ -1,9 +1,9 @@
-import { buildRunBootActions } from '../../features/run/app/build_run_boot_actions.js';
-import { buildTitleBootActions } from '../../features/title/app/build_title_boot_actions.js';
+import { buildRunBootPublicActions } from '../../features/run/public.js';
+import { buildTitleBootPublicActions } from '../../features/title/public.js';
 
 export function buildGameBootActionGroups(fns) {
   return {
-    title: buildTitleBootActions(fns),
-    run: buildRunBootActions(fns),
+    title: buildTitleBootPublicActions(fns),
+    run: buildRunBootPublicActions(fns),
   };
 }

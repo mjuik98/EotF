@@ -1,9 +1,13 @@
-import { buildCombatRuntimeSubscriberActions } from '../../features/combat/app/build_runtime_subscriber_actions.js';
-import { buildUiRuntimeSubscriberActions } from '../../features/ui/app/build_runtime_subscriber_actions.js';
+import {
+  buildCombatRuntimeSubscriberPublicActions,
+} from '../../features/combat/public.js';
+import {
+  buildUiRuntimeSubscriberPublicActions,
+} from '../../features/ui/public.js';
 
 export function buildRuntimeSubscriberActionGroups(fns) {
   return {
-    gameplay: buildCombatRuntimeSubscriberActions(fns),
-    shell: buildUiRuntimeSubscriberActions(fns),
+    gameplay: buildCombatRuntimeSubscriberPublicActions(fns),
+    shell: buildUiRuntimeSubscriberPublicActions(fns),
   };
 }

@@ -2,7 +2,7 @@ import { resolveBranchTargetRegion } from './run_return_ui_branch_ui.js';
 import {
   consumeBossRewardFlags,
   resetRuntimeInteractionState,
-} from '../../app/shared/use_cases/runtime_state_use_case.js';
+} from '../../shared/state/runtime_flow_controls.js';
 
 export const OVERLAY_DISMISS_MS = 320;
 
