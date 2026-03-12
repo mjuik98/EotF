@@ -22,7 +22,27 @@ import {
   showEventCardDiscardOverlay,
 } from '../platform/event_runtime_dom.js';
 
-export function createEventUiRuntime(api, deps = {}, domActions = {
+export function createEventUiCallbacks(api, deps = {}) {
+  return {
+    refreshGoldBar() {
+      return api.updateEventGoldBar?.(deps);
+    },
+    resolveEvent(choiceIdx) {
+      return api.resolveEvent?.(choiceIdx, deps);
+    },
+    showCardDiscard(gs, isBurn = false) {
+      return api.showCardDiscard?.(gs, isBurn, deps);
+    },
+    showEvent(event) {
+      return api.showEvent?.(event, deps);
+    },
+    showItemShop(gs) {
+      return api.showItemShop?.(gs, deps);
+    },
+  };
+}
+
+export function createEventUiRuntime(deps = {}, callbacks = {}, domActions = {
   openEventItemShop: openEventItemShopRuntime,
   openEventRestSite: openEventRestSiteRuntime,
   openEventShop: openEventShopRuntime,
@@ -34,14 +54,14 @@ export function createEventUiRuntime(api, deps = {}, domActions = {
   const doc = getDoc(deps);
   const runRules = getRunRules(deps);
   const audioEngine = getAudioEngine(deps);
-  const refreshGoldBar = () => api.updateEventGoldBar(deps);
+  const refreshGoldBar = () => callbacks.refreshGoldBar?.();
 
   return {
     triggerRandomEvent() {
       return triggerRandomEventService({
         gs,
         data,
-        showEvent: (event) => api.showEvent(event, deps),
+        showEvent: callbacks.showEvent,
       });
     },
 
@@ -53,7 +73,7 @@ export function createEventUiRuntime(api, deps = {}, domActions = {
         clearResolveGuards: clearIdempotencyPrefix,
         renderEventShell: domActions.renderEventShell,
         refreshGoldBar,
-        resolveEvent: (choiceIdx) => api.resolveEvent(choiceIdx, deps),
+        resolveEvent: callbacks.resolveEvent,
       });
     },
 
@@ -70,7 +90,7 @@ export function createEventUiRuntime(api, deps = {}, domActions = {
         resolveEventChoiceFlow,
         finishEventFlow,
         refreshGoldBar,
-        resolveEvent: (nextChoiceIdx) => api.resolveEvent(nextChoiceIdx, deps),
+        resolveEvent: callbacks.resolveEvent,
       });
     },
 
@@ -79,7 +99,7 @@ export function createEventUiRuntime(api, deps = {}, domActions = {
         gs,
         data,
         runRules,
-        showItemShop: (state) => api.showItemShop(state, deps),
+        showItemShop: callbacks.showItemShop,
       });
     },
 
@@ -90,8 +110,8 @@ export function createEventUiRuntime(api, deps = {}, domActions = {
         runRules,
         doc,
         audioEngine,
-        showCardDiscard: (state, isBurn) => api.showCardDiscard(state, isBurn, deps),
-        showEvent: (event) => api.showEvent(event, deps),
+        showCardDiscard: callbacks.showCardDiscard,
+        showEvent: callbacks.showEvent,
       });
     },
 

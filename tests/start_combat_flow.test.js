@@ -54,6 +54,14 @@ describe('startCombatFlowUseCase', () => {
 
   it('orchestrates combat start state, spawn, class hooks, and deck setup', () => {
     const deps = createDeps();
+    deps.enterCombatState = vi.fn((state) => {
+      state.combat.active = true;
+      state.currentScreen = 'game';
+    });
+    deps.setActiveCombatRegionState = vi.fn((state, region) => {
+      state._activeRegionId = Number(region.id);
+      return state._activeRegionId;
+    });
 
     const result = startCombatFlowUseCase('boss', {
       ...deps,
@@ -75,6 +83,9 @@ describe('startCombatFlowUseCase', () => {
     });
     expect(deps.gs._activeRegionId).toBe(6);
     expect(deps.gs.combat.active).toBe(true);
+    expect(deps.gs.currentScreen).toBe('game');
+    expect(deps.setActiveCombatRegionState).toHaveBeenCalledWith(deps.gs, { id: '6', boss: ['ancient_echo'] });
+    expect(deps.enterCombatState).toHaveBeenCalledWith(deps.gs);
     expect(CombatInitializer.resetCombatState).toHaveBeenCalledWith(deps.gs);
     expect(CombatInitializer.spawnEnemies).toHaveBeenCalledWith(
       deps.gs,

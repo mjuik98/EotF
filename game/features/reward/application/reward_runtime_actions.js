@@ -29,7 +29,6 @@ function runRewardClaimRuntime(config, deps = {}, runtime = {}) {
   return takeRewardClaimUseCase({
     claimRewardFn: claimReward,
     data: config.requireData ? runtime.getData?.(deps) : undefined,
-    doc: runtime.getDoc?.(deps),
     feedbackDeps: deps,
     gs: runtime.getGS?.(deps),
     isRewardFlowLockedFn: isRewardFlowLocked,
@@ -41,7 +40,7 @@ function runRewardClaimRuntime(config, deps = {}, runtime = {}) {
     rewardId: config.rewardId,
     rewardType: config.rewardType,
     returnFromReward: returnActions.returnFromReward,
-    setRewardPickedStateFn: runtime.setRewardPickedStateFn,
+    setRewardPickedState: (picked) => runtime.setRewardPickedState?.(deps, picked),
     showItemToast: deps.showItemToast,
   });
 }
@@ -88,14 +87,19 @@ export function takeRewardRemoveAction(deps = {}, runtime = {}) {
         returnActions,
       }),
       clearIdempotencyKeyFn: clearIdempotencyKey,
-      doc: runtime.getDoc?.(deps),
-      eventUI: deps.EventUI,
       gs: runtime.getGS?.(deps),
       isRewardFlowLockedFn: isRewardFlowLocked,
       lockRewardFlowFn: lockRewardFlow,
+      openRewardRemoveDiscard: ({ gs, isBurn, deps: discardDeps }) => {
+        return runtime.openRewardRemoveDiscard?.(deps, {
+          gs,
+          isBurn,
+          payload: discardDeps,
+        });
+      },
       rewardClaimKey: REWARD_CLAIM_KEY,
       returnActions: createRewardReturnActions(deps),
-      setRewardPickedStateFn: runtime.setRewardPickedStateFn,
+      setRewardPickedState: (picked) => runtime.setRewardPickedState?.(deps, picked),
       unlockRewardFlowFn: unlockRewardFlow,
     });
   }, { ttlMs: 3000 });

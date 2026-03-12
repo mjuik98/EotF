@@ -16,6 +16,19 @@ export function applyCombatStartReducerState(state) {
   };
 }
 
+export function enterCombatState(state) {
+  const combat = state?.combat;
+  if (!combat) return null;
+
+  combat.active = true;
+  state.currentScreen = 'game';
+
+  return {
+    active: combat.active,
+    currentScreen: state.currentScreen,
+  };
+}
+
 export function setActiveCombatRegionState(state, region) {
   const regionId = Number(region?.id);
   state._activeRegionId = Number.isFinite(regionId) ? regionId : null;

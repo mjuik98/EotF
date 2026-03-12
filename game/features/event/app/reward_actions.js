@@ -2,13 +2,22 @@ import { createRewardNavigationActions } from './reward_navigation_actions.js';
 
 export function createRewardActions(modules, ports) {
   const navigation = createRewardNavigationActions(modules, ports);
+  const rewardFlow = ports.getRewardFlowDeps?.();
 
   return {
     showRewardScreen(isBoss) {
+      if (typeof rewardFlow?.openReward === 'function') {
+        rewardFlow.openReward(isBoss);
+        return;
+      }
       modules.RewardUI?.showRewardScreen?.(isBoss, ports.getRewardDeps());
     },
 
     openReward(mode = false) {
+      if (typeof rewardFlow?.openReward === 'function') {
+        rewardFlow.openReward(mode);
+        return;
+      }
       modules.RewardUI?.showRewardScreen?.(mode, ports.getRewardDeps());
     },
 

@@ -1,4 +1,4 @@
-import { MAP_NODE_TYPE_VISUAL_FALLBACK } from '../../../data/map_node_data.js';
+import { getMapNodeVisualFallback } from '../../features/run/domain/map_node_content.js';
 
 export const MINIMAP_HOVER_THRESHOLD = 12;
 
@@ -193,7 +193,7 @@ export function drawMinimapScene(ctx, canvas, gs, nodeMeta, scene) {
     ctx.font = `bold ${r * 1.5}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(nodeMetaInfo.icon || MAP_NODE_TYPE_VISUAL_FALLBACK[node.type]?.icon || '?', nx, ny);
+    ctx.fillText(nodeMetaInfo.icon || getMapNodeVisualFallback(node.type)?.icon || '?', nx, ny);
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
     ctx.globalAlpha = 1;

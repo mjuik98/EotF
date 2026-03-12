@@ -19,14 +19,17 @@ describe('event reward ports', () => {
   it('creates reward ports from injected deps factory', () => {
     const depsFactory = {
       getRewardDeps: vi.fn(() => ({ token: 'reward-deps' })),
+      getRewardFlowDeps: vi.fn(() => ({ token: 'reward-flow-deps' })),
       getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
     };
 
     const ports = createRewardPorts(depsFactory);
 
     expect(ports.getRewardDeps()).toEqual({ token: 'reward-deps' });
+    expect(ports.getRewardFlowDeps()).toEqual({ token: 'reward-flow-deps' });
     expect(ports.getRunReturnDeps()).toEqual({ token: 'run-return-deps' });
     expect(depsFactory.getRewardDeps).toHaveBeenCalledTimes(1);
+    expect(depsFactory.getRewardFlowDeps).toHaveBeenCalledTimes(1);
     expect(depsFactory.getRunReturnDeps).toHaveBeenCalledTimes(1);
   });
 
@@ -35,6 +38,7 @@ describe('event reward ports', () => {
 
     expect(ports).toHaveProperty('getEventDeps');
     expect(ports).toHaveProperty('getRewardDeps');
+    expect(ports).toHaveProperty('getRewardFlowDeps');
     expect(ports).toHaveProperty('getRunReturnDeps');
   });
 });

@@ -98,6 +98,54 @@
       "message": "non-core layers must import state actions through game/shared/state/public.js"
     },
     {
+      "id": "reward-application-platform-boundary",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/reward/application/"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "reward application must use platform/runtime ports instead of ui or presentation modules"
+    },
+    {
+      "id": "event-application-platform-boundary",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/event/application/"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "event application must use platform/runtime ports instead of ui or presentation modules"
+    },
+    {
+      "id": "combat-start-application-platform-boundary",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/combat/application/create_combat_start_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "combat start runtime must use platform/runtime ports instead of ui or presentation modules"
+    },
+    {
+      "id": "combat-turn-application-platform-boundary",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/combat/application/create_combat_turn_runtime.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/",
+        "game/presentation/"
+      ],
+      "message": "combat turn runtime must use platform/runtime ports instead of ui or presentation modules"
+    },
+    {
       "id": "platform-no-direct-ui-feature-facades",
       "from": ["platform"],
       "denyTargets": [
@@ -227,6 +275,46 @@
         "data/"
       ],
       "message": "class select ui must delegate selection state and metadata through feature boundaries"
+    },
+    {
+      "id": "ui-title-character-catalog-feature-content-only",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/title/character_select_catalog.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/data/",
+        "data/"
+      ],
+      "message": "character select catalog ui must read class and relic metadata through title feature content accessors"
+    },
+    {
+      "id": "ui-combat-start-feature-boundary",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/combat/combat_start_ui.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/app/",
+        "game/combat/",
+        "game/domain/audio/"
+      ],
+      "message": "combat start ui must delegate start orchestration through combat feature runtimes"
+    },
+    {
+      "id": "ui-map-node-content-feature-accessors-only",
+      "from": ["ui"],
+      "sourceFiles": [
+        "game/ui/map/map_ui_next_nodes.js",
+        "game/ui/map/map_ui_next_nodes_render.js",
+        "game/ui/map/map_ui_full_map_render.js",
+        "game/ui/map/map_ui_minimap_render.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/data/",
+        "data/"
+      ],
+      "message": "map ui must read node content metadata through run feature accessors instead of data imports"
     },
     {
       "id": "ui-run-start-feature-boundary",

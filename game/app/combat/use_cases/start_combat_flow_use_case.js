@@ -17,6 +17,21 @@ function setActiveCombatRegion(gs, region) {
   return gs._activeRegionId;
 }
 
+function applyCombatStartState(gs, region, deps = {}) {
+  if (typeof deps.setActiveCombatRegionState === 'function') {
+    deps.setActiveCombatRegionState(gs, region);
+  } else {
+    setActiveCombatRegion(gs, region);
+  }
+
+  if (typeof deps.enterCombatState === 'function') {
+    deps.enterCombatState(gs);
+    return;
+  }
+
+  activateCombat(gs);
+}
+
 function runBossEntryEffects({ isBoss, isMiniBoss, spawnResult, playBossPhase, audioEngine, showWorldMemoryNotice, setTimeoutFn }) {
   if (isBoss) {
     playBossPhase?.(audioEngine);
@@ -73,9 +88,8 @@ export function startCombatFlowUseCase(mode = 'normal', deps = {}) {
   const isMiniBoss = combatMode === 'mini_boss';
   const region = getRegionData(gs.currentRegion, gs);
 
-  setActiveCombatRegion(gs, region);
   resetCombatState(gs);
-  activateCombat(gs);
+  applyCombatStartState(gs, region, deps);
   runCombatStartLogs(gs);
 
   const spawnResult = spawnEnemies(gs, data, combatMode, {

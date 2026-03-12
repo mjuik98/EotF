@@ -117,7 +117,6 @@ export function claimReward({
 export function takeRewardClaimUseCase({
   gs,
   data,
-  doc,
   rewardType,
   rewardId,
   requireData = false,
@@ -126,7 +125,7 @@ export function takeRewardClaimUseCase({
   claimRewardFn,
   isRewardFlowLockedFn,
   lockRewardFlowFn,
-  setRewardPickedStateFn,
+  setRewardPickedState,
   playRewardClaimFeedbackFn,
   showItemToast,
   scheduleRewardReturnFn = scheduleRewardReturnUseCase,
@@ -150,7 +149,7 @@ export function takeRewardClaimUseCase({
 
   lockRewardFlowFn(gs);
   if (markPicked) {
-    setRewardPickedStateFn(doc, true);
+    setRewardPickedState?.(true);
   }
   playRewardClaimFeedbackFn(feedbackDeps);
   showItemToast?.(result.notification?.payload, result.notification?.options);
@@ -160,49 +159,50 @@ export function takeRewardClaimUseCase({
 
 export function createRewardRemoveCancelAction({
   gs,
-  doc,
   rewardClaimKey,
   clearIdempotencyKeyFn,
   unlockRewardFlowFn,
-  setRewardPickedStateFn,
+  setRewardPickedState,
 } = {}) {
   return () => {
     unlockRewardFlowFn(gs);
     clearIdempotencyKeyFn(rewardClaimKey);
-    setRewardPickedStateFn(doc, false);
+    setRewardPickedState?.(false);
   };
 }
 
 export function startRewardRemoveUseCase({
   gs,
-  doc,
-  eventUI,
   rewardClaimKey,
   isRewardFlowLockedFn,
   lockRewardFlowFn,
   unlockRewardFlowFn,
-  setRewardPickedStateFn,
+  setRewardPickedState,
   clearIdempotencyKeyFn,
   returnActions,
   buildRewardDiscardDepsFn,
+  openRewardRemoveDiscard,
   createCancelActionFn = createRewardRemoveCancelAction,
 } = {}) {
   if (!gs) return { started: false, reason: 'missing-state' };
   if (isRewardFlowLockedFn(gs)) return { started: false, reason: 'locked' };
 
   lockRewardFlowFn(gs);
-  setRewardPickedStateFn(doc, true);
+  setRewardPickedState?.(true);
 
-  if (typeof eventUI?.showCardDiscard === 'function') {
-    const onCancel = createCancelActionFn({
-      clearIdempotencyKeyFn,
-      doc,
-      gs,
-      rewardClaimKey,
-      setRewardPickedStateFn,
-      unlockRewardFlowFn,
-    });
-    eventUI.showCardDiscard(gs, true, buildRewardDiscardDepsFn({ onCancel, returnActions }));
+  const onCancel = createCancelActionFn({
+    clearIdempotencyKeyFn,
+    gs,
+    rewardClaimKey,
+    setRewardPickedState,
+    unlockRewardFlowFn,
+  });
+
+  if (openRewardRemoveDiscard?.({
+    deps: buildRewardDiscardDepsFn({ onCancel, returnActions }),
+    gs,
+    isBurn: true,
+  })) {
     return { started: true, mode: 'discard' };
   }
 

@@ -4,6 +4,7 @@ const hoisted = vi.hoisted(() => ({
   applyPlayerDamage: vi.fn(),
   drawCards: vi.fn(),
   executePlayerDraw: vi.fn(),
+  getRunSetupDeps: vi.fn(() => null),
   modifyEnergy: vi.fn(),
 }));
 
@@ -12,6 +13,10 @@ vi.mock('../game/platform/legacy/game_api/player_commands.js', () => ({
   drawCards: hoisted.drawCards,
   executePlayerDraw: hoisted.executePlayerDraw,
   modifyEnergy: hoisted.modifyEnergy,
+}));
+
+vi.mock('../game/core/deps_factory.js', () => ({
+  getRunSetupDeps: hoisted.getRunSetupDeps,
 }));
 
 import { buildLegacyGameAPICommandBindings } from '../game/platform/legacy/game_api_command_bindings.js';

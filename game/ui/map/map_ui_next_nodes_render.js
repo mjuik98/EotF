@@ -1,4 +1,4 @@
-import { MAP_NODE_TYPE_VISUAL_FALLBACK } from '../../../data/map_node_data.js';
+import { getMapNodeVisualFallback } from '../../features/run/domain/map_node_content.js';
 import { getPlayerHpPanelLevel } from '../shared/player_hp_panel_ui.js';
 
 export const NODE_EXTENSIONS = {
@@ -102,7 +102,7 @@ export function buildFloorBar(doc, gs, regionData, nodeMeta) {
   for (let floor = 1; floor <= displayCount; floor += 1) {
     const visitedNode = (gs?.mapNodes || []).find((node) => node.floor === floor && node.visited);
     const nodeType = visitedNode?.type || (floor === totalFloors ? 'boss' : 'combat');
-    const icon = nodeMeta?.[nodeType]?.icon || MAP_NODE_TYPE_VISUAL_FALLBACK[nodeType]?.icon || '•';
+    const icon = nodeMeta?.[nodeType]?.icon || getMapNodeVisualFallback(nodeType)?.icon || '•';
     const isCurrent = floor === currentFloor + 1;
     const isVisited = floor <= currentFloor;
     const isBoss = floor === totalFloors;

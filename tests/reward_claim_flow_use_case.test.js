@@ -8,7 +8,6 @@ import {
 describe('reward_claim_flow_use_case', () => {
   it('applies common reward-claim side effects through injected collaborators', () => {
     const gs = { _rewardLock: false };
-    const doc = { id: 'doc' };
     const deps = {
       id: 'deps',
     };
@@ -20,7 +19,7 @@ describe('reward_claim_flow_use_case', () => {
       },
     });
     const lockRewardFlowFn = vi.fn();
-    const setRewardPickedStateFn = vi.fn();
+    const setRewardPickedState = vi.fn();
     const playRewardClaimFeedbackFn = vi.fn();
     const scheduleRewardReturn = vi.fn();
     const showItemToast = vi.fn();
@@ -28,7 +27,6 @@ describe('reward_claim_flow_use_case', () => {
 
     const result = takeRewardClaimUseCase({
       deps,
-      doc,
       gs,
       rewardType: 'item',
       rewardId: 'relic',
@@ -37,7 +35,7 @@ describe('reward_claim_flow_use_case', () => {
       isRewardFlowLockedFn: vi.fn().mockReturnValue(false),
       lockRewardFlowFn,
       returnFromReward,
-      setRewardPickedStateFn,
+      setRewardPickedState,
       playRewardClaimFeedbackFn,
       scheduleRewardReturnFn: scheduleRewardReturn,
       showItemToast,
@@ -51,7 +49,7 @@ describe('reward_claim_flow_use_case', () => {
       rewardType: 'item',
     });
     expect(lockRewardFlowFn).toHaveBeenCalledWith(gs);
-    expect(setRewardPickedStateFn).toHaveBeenCalledWith(doc, true);
+    expect(setRewardPickedState).toHaveBeenCalledWith(true);
     expect(playRewardClaimFeedbackFn).toHaveBeenCalledWith(deps);
     expect(showItemToast).toHaveBeenCalledWith({ id: 'item' }, { forceQueue: true });
     expect(scheduleRewardReturn).toHaveBeenCalledWith({ returnFromReward });
@@ -59,11 +57,10 @@ describe('reward_claim_flow_use_case', () => {
 
   it('supports upgrade-style claims that should not mark the reward list as picked', () => {
     const deps = { gs: {} };
-    const setRewardPickedStateFn = vi.fn();
+    const setRewardPickedState = vi.fn();
 
     takeRewardClaimUseCase({
       deps,
-      doc: undefined,
       gs: {},
       rewardType: 'upgrade',
       markPicked: false,
@@ -72,12 +69,12 @@ describe('reward_claim_flow_use_case', () => {
       isRewardFlowLockedFn: vi.fn().mockReturnValue(false),
       lockRewardFlowFn: vi.fn(),
       returnFromReward: vi.fn(),
-      setRewardPickedStateFn,
+      setRewardPickedState,
       playRewardClaimFeedbackFn: vi.fn(),
       scheduleRewardReturnFn: vi.fn(),
     });
 
-    expect(setRewardPickedStateFn).not.toHaveBeenCalled();
+    expect(setRewardPickedState).not.toHaveBeenCalled();
   });
 
   it('calls failure callback without applying success side effects', () => {
@@ -90,7 +87,7 @@ describe('reward_claim_flow_use_case', () => {
       claimRewardFn: vi.fn().mockReturnValue({ success: false, reason: 'max-energy' }),
       isRewardFlowLockedFn: vi.fn().mockReturnValue(false),
       lockRewardFlowFn,
-      setRewardPickedStateFn: vi.fn(),
+      setRewardPickedState: vi.fn(),
       playRewardClaimFeedbackFn: vi.fn(),
       scheduleRewardReturnFn: vi.fn(),
       returnFromReward: vi.fn(),

@@ -36,11 +36,11 @@ export function createRewardRuntime(deps = {}, runtime = createRewardRuntimeCont
     },
 
     showSkipConfirm() {
-      runtime.setSkipConfirmVisibleFn?.(runtime.getDoc?.(deps), true);
+      runtime.setSkipConfirmVisible?.(deps, true);
     },
 
     hideSkipConfirm() {
-      runtime.setSkipConfirmVisibleFn?.(runtime.getDoc?.(deps), false);
+      runtime.setSkipConfirmVisible?.(deps, false);
     },
 
     skipReward() {

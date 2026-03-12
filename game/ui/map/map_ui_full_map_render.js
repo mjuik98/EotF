@@ -1,4 +1,4 @@
-import { MAP_NODE_TYPE_ORDER } from '../../../data/map_node_data.js';
+import { getMapNodeTypeOrder } from '../../features/run/domain/map_node_content.js';
 
 export const FULL_MAP_HOVER_THRESHOLD = 18;
 
@@ -109,7 +109,7 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
 
   const legend = doc.createElement('div');
   legend.style.cssText = 'display:flex;gap:18px;margin-top:20px;flex-wrap:wrap;justify-content:center;';
-  MAP_NODE_TYPE_ORDER.forEach((type) => {
+  getMapNodeTypeOrder().forEach((type) => {
     const meta = nodeMeta[type];
     if (!meta) return;
     const item = doc.createElement('span');

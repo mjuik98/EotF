@@ -8,8 +8,14 @@ import {
 describe('start_reward_remove_use_case', () => {
   it('opens discard flow with unified reward navigation payload', () => {
     const gs = { _rewardLock: false };
-    const doc = { id: 'doc' };
-    const showCardDiscard = vi.fn();
+    const openRewardRemoveDiscard = vi.fn().mockImplementation(({ gs: forwardedGs, isBurn, deps }) => {
+      expect(forwardedGs).toBe(gs);
+      expect(isBurn).toBe(true);
+      expect(deps).toEqual(expect.objectContaining({
+        onCancel: expect.any(Function),
+      }));
+      return true;
+    });
     const returnActions = {
       returnFromReward: vi.fn(),
       returnToGame: vi.fn(),
@@ -19,7 +25,7 @@ describe('start_reward_remove_use_case', () => {
       },
     };
     const lockRewardFlowFn = vi.fn();
-    const setRewardPickedStateFn = vi.fn();
+    const setRewardPickedState = vi.fn();
 
     const result = startRewardRemoveUseCase({
       buildRewardDiscardDepsFn: ({ onCancel, returnActions: forwarded }) => ({
@@ -27,24 +33,23 @@ describe('start_reward_remove_use_case', () => {
         ...forwarded,
       }),
       clearIdempotencyKeyFn: vi.fn(),
-      doc,
-      eventUI: { showCardDiscard },
       gs,
       isRewardFlowLockedFn: vi.fn().mockReturnValue(false),
       lockRewardFlowFn,
+      openRewardRemoveDiscard,
       rewardClaimKey: 'reward:claim',
       returnActions,
-      setRewardPickedStateFn,
+      setRewardPickedState,
       unlockRewardFlowFn: vi.fn(),
     });
 
     expect(result).toEqual({ started: true, mode: 'discard' });
     expect(lockRewardFlowFn).toHaveBeenCalledWith(gs);
-    expect(setRewardPickedStateFn).toHaveBeenCalledWith(doc, true);
-    expect(showCardDiscard).toHaveBeenCalledWith(
+    expect(setRewardPickedState).toHaveBeenCalledWith(true);
+    expect(openRewardRemoveDiscard).toHaveBeenCalledWith(expect.objectContaining({
       gs,
-      true,
-      expect.objectContaining({
+      isBurn: true,
+      deps: expect.objectContaining({
         onCancel: expect.any(Function),
         returnFromReward: returnActions.returnFromReward,
         returnToGame: returnActions.returnToGame,
@@ -53,7 +58,7 @@ describe('start_reward_remove_use_case', () => {
           returnToGame: expect.any(Function),
         }),
       }),
-    );
+    }));
   });
 
   it('returns immediately when no discard hook is available', () => {
@@ -62,14 +67,13 @@ describe('start_reward_remove_use_case', () => {
     const result = startRewardRemoveUseCase({
       buildRewardDiscardDepsFn: vi.fn(),
       clearIdempotencyKeyFn: vi.fn(),
-      doc: {},
-      eventUI: undefined,
       gs: { _rewardLock: false },
       isRewardFlowLockedFn: vi.fn().mockReturnValue(false),
       lockRewardFlowFn: vi.fn(),
+      openRewardRemoveDiscard: vi.fn().mockReturnValue(false),
       rewardClaimKey: 'reward:claim',
       returnActions: { returnFromReward },
-      setRewardPickedStateFn: vi.fn(),
+      setRewardPickedState: vi.fn(),
       unlockRewardFlowFn: vi.fn(),
     });
 
@@ -79,17 +83,15 @@ describe('start_reward_remove_use_case', () => {
 
   it('cancels remove flow by unlocking, clearing idempotency, and unmarking picked state', () => {
     const gs = {};
-    const doc = {};
     const unlockRewardFlowFn = vi.fn();
     const clearIdempotencyKeyFn = vi.fn();
-    const setRewardPickedStateFn = vi.fn();
+    const setRewardPickedState = vi.fn();
 
     const onCancel = createRewardRemoveCancelAction({
       clearIdempotencyKeyFn,
-      doc,
       gs,
       rewardClaimKey: 'reward:claim',
-      setRewardPickedStateFn,
+      setRewardPickedState,
       unlockRewardFlowFn,
     });
 
@@ -97,6 +99,6 @@ describe('start_reward_remove_use_case', () => {
 
     expect(unlockRewardFlowFn).toHaveBeenCalledWith(gs);
     expect(clearIdempotencyKeyFn).toHaveBeenCalledWith('reward:claim');
-    expect(setRewardPickedStateFn).toHaveBeenCalledWith(doc, false);
+    expect(setRewardPickedState).toHaveBeenCalledWith(false);
   });
 });

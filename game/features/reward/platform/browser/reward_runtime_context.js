@@ -13,7 +13,17 @@ export function createRewardRuntimeContext() {
     getData,
     getDoc,
     getGS,
-    setRewardPickedStateFn: setRewardPickedState,
-    setSkipConfirmVisibleFn: setSkipConfirmVisible,
+    setRewardPickedState(deps, picked) {
+      setRewardPickedState(getDoc(deps), picked);
+    },
+    setSkipConfirmVisible(deps, visible) {
+      setSkipConfirmVisible(getDoc(deps), visible);
+    },
+    openRewardRemoveDiscard(deps, { gs, isBurn = true, payload } = {}) {
+      const showCardDiscard = deps?.showRewardRemoveDiscard || deps?.EventUI?.showCardDiscard;
+      if (typeof showCardDiscard !== 'function') return false;
+      showCardDiscard(gs, isBurn, payload);
+      return true;
+    },
   };
 }

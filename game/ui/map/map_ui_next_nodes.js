@@ -1,4 +1,4 @@
-import { MAP_NODE_TYPE_VISUAL_FALLBACK } from '../../../data/map_node_data.js';
+import { getMapNodeVisualFallback } from '../../features/run/domain/map_node_content.js';
 import { canShowNextNodeOverlay } from '../../app/shared/selectors/runtime_state_selectors.js';
 import {
   applyHpDangerClass,
@@ -216,8 +216,8 @@ export function updateNextNodesOverlay(deps = {}) {
     }
 
     const meta = nodeMeta[node.type] || nodeMeta.combat || {
-      color: MAP_NODE_TYPE_VISUAL_FALLBACK[node.type]?.color || '#7b2fff',
-      icon: MAP_NODE_TYPE_VISUAL_FALLBACK[node.type]?.icon || '?',
+      color: getMapNodeVisualFallback(node.type)?.color || '#7b2fff',
+      icon: getMapNodeVisualFallback(node.type)?.icon || '?',
       label: node.type,
       desc: '다음 경로를 준비합니다.',
     };

@@ -4,6 +4,7 @@ import {
   buildCombatPublicModules,
 } from './modules/public_combat_modules.js';
 import { createCombatBindingsActions } from './bindings/public_combat_bindings.js';
+import { createCombatStartRuntime } from './application/create_combat_start_runtime.js';
 import { buildCombatFlowContractBuilders } from './ports/contracts/build_combat_flow_contracts.js';
 import { buildCombatUiContractPublicBuilders } from './contracts/public_combat_contract_builders.js';
 import { buildCombatRuntimeSubscriberPublicActions } from './runtime/public_combat_runtime_actions.js';
@@ -39,6 +40,7 @@ export {
   buildCombatPublicModules,
   buildCombatCardPublicModules,
   buildCombatHudPublicModules,
+  createCombatStartRuntime,
   createCombatBindingsActions,
   buildCombatRuntimeSubscriberPublicActions,
   buildCombatUiContractPublicBuilders,
