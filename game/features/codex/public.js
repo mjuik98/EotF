@@ -11,3 +11,8 @@ export function createCodexFeatureFacade() {
     moduleCapabilities: createCodexModuleCapabilities(),
   };
 }
+
+export const CodexPublicSurface = Object.freeze({
+  createCodexFeatureFacade,
+  createCodexModuleCapabilities,
+});

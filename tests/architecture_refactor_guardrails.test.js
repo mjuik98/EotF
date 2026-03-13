@@ -190,4 +190,45 @@ describe('architecture refactor guardrails', () => {
     const html = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
     expect(html).not.toContain('onclick="closeRunSettings()"');
   });
+
+  it('keeps direct legacy global access inside platform/legacy only', () => {
+    const root = path.join(process.cwd(), 'game');
+    const matches = [];
+    const blockedPatterns = [
+      /\bwindow\.(?:GS|GAME|GameState)\b/g,
+      /\bglobalThis\.(?:GS|GAME|GameState)\b/g,
+    ];
+
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(fullPath);
+          continue;
+        }
+        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
+
+        const relPath = path.relative(process.cwd(), fullPath);
+        if (relPath.startsWith('game/platform/legacy/')) continue;
+
+        const source = fs.readFileSync(fullPath, 'utf8');
+        if (blockedPatterns.some((pattern) => pattern.test(source))) {
+          matches.push(relPath);
+        }
+      }
+    };
+
+    walk(root);
+    expect(matches).toEqual([]);
+  });
+
+  it('keeps combat hud shared view ports routed through platform browser effects', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/features/combat/ports/hud_shared_view_ports.js'),
+      'utf8',
+    );
+
+    expect(source).toContain("from '../../../platform/browser/effects/button_feedback.js'");
+    expect(source).not.toContain("from '../../../ui/feedback/button_feedback.js'");
+  });
 });

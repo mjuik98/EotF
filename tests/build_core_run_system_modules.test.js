@@ -16,11 +16,13 @@ vi.mock('../game/shared/save/public.js', () => ({
 }));
 
 vi.mock('../game/features/run/public.js', () => ({
-  RunRules: hoisted.RunRules,
-  createFinalizeRunOutcomeAction: hoisted.createFinalizeRunOutcomeAction,
-  getBaseRegionIndex: hoisted.getBaseRegionIndex,
-  getRegionCount: hoisted.getRegionCount,
-  getRegionData: hoisted.getRegionData,
+  RunPublicSurface: {
+    RunRules: hoisted.RunRules,
+    createFinalizeRunOutcomeAction: hoisted.createFinalizeRunOutcomeAction,
+    getBaseRegionIndex: hoisted.getBaseRegionIndex,
+    getRegionCount: hoisted.getRegionCount,
+    getRegionData: hoisted.getRegionData,
+  },
 }));
 
 import { buildCoreRunSystemModules } from '../game/platform/browser/composition/build_core_run_system_modules.js';

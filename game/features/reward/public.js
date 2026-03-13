@@ -63,6 +63,28 @@ export function createRewardFeatureFacade() {
   };
 }
 
+export const RewardPublicSurface = Object.freeze({
+  createRewardApplicationCapabilities,
+  createRewardContractCapabilities,
+  createRewardFeatureFacade,
+  createRewardModuleCapabilities,
+  createRewardRuntime,
+  createRewardRuntimeCapabilities,
+  createRewardReturnActions,
+  RewardUI,
+  buildRewardDiscardDeps,
+  buildRewardFlowContractPublicBuilders,
+  buildRewardOptionsUseCase,
+  claimReward,
+  ensureMiniBossBonus,
+  getRewardMaxEnergyCap,
+  playRewardClaimFeedback,
+  scheduleRewardReturnUseCase,
+  showRewardScreenRuntime,
+  startRewardRemoveUseCase,
+  takeRewardClaimUseCase,
+});
+
 export function buildRewardFlowContractPublicBuilders(ctx) {
   return buildRewardFlowContractBuilders(ctx);
 }

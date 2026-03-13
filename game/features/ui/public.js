@@ -37,6 +37,28 @@ export function createUiFeatureFacade() {
   };
 }
 
+export const UiPublicSurface = Object.freeze({
+  createUiContractCapabilities,
+  createUiFeatureFacade,
+  createUiModuleCapabilities,
+  createUiPorts,
+  createUiRuntimeCapabilities,
+  buildLegacyGameApiRuntimeHudQueryGroups,
+  buildLegacyWindowUiQueryGroups,
+  buildScreenOverlayBrowserModules,
+  buildScreenPrimaryBrowserModules,
+  buildUiRuntimeSubscriberPublicActions,
+  buildUiShellContractPublicBuilders,
+  createLegacyHudRuntimeQueryBindings,
+  createLegacyUiCommandFacade,
+  createUiActions,
+  createUiBindingContext,
+  createUiBindingsActions,
+  setScreenService,
+  showGameplayScreenService,
+  showScreenService,
+});
+
 export {
   buildLegacyGameApiRuntimeHudQueryGroups,
   buildLegacyWindowUiQueryGroups,

@@ -1,27 +1,17 @@
 import { bindSaveStorage, SaveSystem } from '../../../shared/save/public.js';
+import { GS } from '../../../core/game_state.js';
 import { SaveAdapter } from '../../storage/save_adapter.js';
-import {
-  createFinalizeRunOutcomeAction,
-  RunRules,
-  getRegionData,
-  getBaseRegionIndex,
-  getRegionCount,
-} from '../../../features/run/public.js';
-
-function getCurrentGameState() {
-  if (typeof globalThis === 'undefined') return null;
-  return globalThis.GS || globalThis.GameState || null;
-}
+import { RunPublicSurface } from '../../../features/run/public.js';
 
 export function buildCoreRunSystemModules() {
   bindSaveStorage(SaveAdapter);
 
   return {
     SaveSystem,
-    RunRules,
-    getRegionData,
-    getBaseRegionIndex,
-    getRegionCount,
-    finalizeRunOutcome: createFinalizeRunOutcomeAction(SaveSystem, getCurrentGameState),
+    RunRules: RunPublicSurface.RunRules,
+    getRegionData: RunPublicSurface.getRegionData,
+    getBaseRegionIndex: RunPublicSurface.getBaseRegionIndex,
+    getRegionCount: RunPublicSurface.getRegionCount,
+    finalizeRunOutcome: RunPublicSurface.createFinalizeRunOutcomeAction(SaveSystem, () => GS),
   };
 }

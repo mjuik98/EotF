@@ -23,8 +23,8 @@ import {
   buildCombatEnemyHandlers,
   cleanupCombatTooltips,
   renderCombatEnemyList,
-} from '../../../../presentation/combat/combat_enemy_list_presenter.js';
-import { buildEnemyViewModel } from '../../../../presentation/combat/combat_enemy_view_model_presenter.js';
+} from './combat_enemy_list_presenter.js';
+import { buildEnemyViewModel } from './combat_enemy_view_model_presenter.js';
 
 export { ENEMY_STATUS_DESC, ENEMY_STATUS_KR };
 

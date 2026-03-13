@@ -47,6 +47,27 @@ export function createRunFeatureFacade() {
   };
 }
 
+export const RunPublicSurface = Object.freeze({
+  createRunFeatureFacade,
+  createRunModuleCapabilities,
+  createRunBindingCapabilities,
+  createRunContractCapabilities,
+  createRunRuntimeCapabilities,
+  buildRunBootPublicActions,
+  buildRunFlowContractPublicBuilders,
+  buildRunReturnContractPublicBuilders,
+  buildRunReturnRuntimePublicActions,
+  buildRunUiContractPublicBuilders,
+  createFinalizeRunOutcomeAction,
+  createRunCanvasBindings,
+  getBaseRegionIndex,
+  getRegionCount,
+  getRegionData,
+  getRegionIdForStage,
+  registerRunEntryBindings,
+  RunRules,
+});
+
 export {
   buildRunBootPublicActions,
   buildRunReturnRuntimePublicActions,

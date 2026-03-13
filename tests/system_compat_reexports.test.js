@@ -37,6 +37,10 @@ describe('system compat re-exports', () => {
       path.join(process.cwd(), 'game/systems/run_rules_meta.js'),
       'utf8',
     ).trim();
+    const eventManagerSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/event_manager.js'),
+      'utf8',
+    ).trim();
     const codexRecordsSource = fs.readFileSync(
       path.join(process.cwd(), 'game/systems/codex_records_system.js'),
       'utf8',
@@ -47,6 +51,22 @@ describe('system compat re-exports', () => {
     ).trim();
     const inscriptionSystemSource = fs.readFileSync(
       path.join(process.cwd(), 'game/systems/inscription_system.js'),
+      'utf8',
+    ).trim();
+    const saveOutboxMetricsSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/save/save_outbox_metrics.js'),
+      'utf8',
+    ).trim();
+    const saveOutboxQueueSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/save/save_outbox_queue.js'),
+      'utf8',
+    ).trim();
+    const saveRepositorySource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/save/save_repository.js'),
+      'utf8',
+    ).trim();
+    const saveMigrationsSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/save_migrations.js'),
       'utf8',
     ).trim();
 
@@ -88,6 +108,9 @@ describe('system compat re-exports', () => {
     expect(runRulesMetaSource).toBe(
       "export { ensureRunMeta } from '../features/run/domain/run_rules_meta.js';",
     );
+    expect(eventManagerSource).toBe(
+      "export { EventManager } from '../features/event/application/event_manager_compat.js';",
+    );
     expect(codexRecordsSource).toBe(
       "export { ensureCodexRecords, ensureCodexState, getCardUpgradeId, isCardUpgradeVariant, registerCardDiscovered, registerCardUsed, registerEnemyEncounter, registerEnemyKill, registerItemFound, resolveCodexCardId } from '../shared/codex/codex_records.js';",
     );
@@ -97,5 +120,44 @@ describe('system compat re-exports', () => {
     expect(inscriptionSystemSource).toBe(
       "export { InscriptionSystem } from '../shared/progression/inscription_system.js';",
     );
+    expect(saveOutboxMetricsSource).toBe([
+      'export {',
+      '  createOutboxMetrics,',
+      '  summarizeOutboxMetrics,',
+      "} from '../../shared/save/save_outbox_metrics.js';",
+    ].join('\n'));
+    expect(saveOutboxQueueSource).toBe([
+      'export {',
+      '  OUTBOX_RETRY_BASE_MS,',
+      '  OUTBOX_RETRY_MAX_MS,',
+      '  clearOutboxTimer,',
+      '  cloneSnapshot,',
+      '  dropOutboxKey,',
+      '  flushOutboxQueue,',
+      '  persistWithOutbox,',
+      '  scheduleOutboxFlush,',
+      '  upsertOutboxEntry,',
+      "} from '../../shared/save/save_outbox_queue.js';",
+    ].join('\n'));
+    expect(saveRepositorySource).toBe([
+      'export {',
+      '  buildMetaSave,',
+      '  buildRunSave,',
+      '  ensureMetaRunConfig,',
+      '  getDoc,',
+      '  getGS,',
+      '  hydrateMetaState,',
+      '  hydrateRunState,',
+      '  validateRunSaveData,',
+      "} from '../../shared/save/save_repository.js';",
+    ].join('\n'));
+    expect(saveMigrationsSource).toBe([
+      'export {',
+      '  META_SAVE_VERSION,',
+      '  RUN_SAVE_VERSION,',
+      '  migrateMetaSave,',
+      '  migrateRunSave,',
+      "} from '../shared/save/save_migrations.js';",
+    ].join('\n'));
   });
 });

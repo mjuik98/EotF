@@ -3,7 +3,7 @@ import {
   dispatchCombatTurnUiAction,
   playEnemyAttackHitUi,
   playEnemyStatusTickEffects,
-} from '../../../../presentation/combat/combat_turn_action_presenter.js';
+} from './combat_turn_action_presenter.js';
 
 export async function waitWhileCombatActive(gs, ms, options = {}) {
   const { sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay)), stepMs = 50 } = options;

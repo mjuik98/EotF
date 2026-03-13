@@ -37,6 +37,21 @@ export function createTitleFeatureFacade() {
   };
 }
 
+export const TitlePublicSurface = Object.freeze({
+  createTitleBindingCapabilities,
+  createTitleBindings,
+  createTitleContractCapabilities,
+  createTitleFeatureFacade,
+  createTitleModuleCapabilities,
+  createTitleRuntimeCapabilities,
+  registerTitleBindings,
+  buildTitleBootPublicActions,
+  buildTitleHelpPausePublicActions,
+  buildTitlePauseMenuPublicActions,
+  buildTitleRunContractPublicBuilders,
+  buildTitleStoryContractPublicBuilders,
+});
+
 export function buildTitleRunContractPublicBuilders(ctx) {
   return buildTitleRunContractBuilders(ctx);
 }

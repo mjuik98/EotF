@@ -17,6 +17,7 @@ import {
 } from './ports/runtime/public_event_runtime_surface.js';
 import { EventUI } from './presentation/browser/event_ui.js';
 import { buildEventViewModel } from './presentation/event_choice_view_model.js';
+import { EventManager } from './application/event_manager_compat.js';
 
 export function createEventApplicationCapabilities() {
   return {
@@ -47,6 +48,32 @@ export function createEventFeatureFacade() {
     runtime: createEventRuntimeCapabilities(),
   };
 }
+
+export const EventPublicSurface = Object.freeze({
+  EventManager,
+  createEventApplicationCapabilities,
+  createEventContractCapabilities,
+  createEventFeatureFacade,
+  createEventModuleCapabilities,
+  createEventRewardBindingActions,
+  createEventRuntimeCapabilities,
+  createEventShopUseCase,
+  createEventUiCallbacks,
+  createEventUiRuntime,
+  createDiscardEventCardUseCase,
+  createFinishEventFlowUseCase,
+  createResolveEventChoiceUseCase,
+  createResolveEventSessionUseCase,
+  createRestEventUseCase,
+  createShowEventSessionUseCase,
+  EventUI,
+  buildEventContractPublicBuilders,
+  buildEventFlowContractPublicBuilders,
+  buildEventViewModel,
+  buildItemShopStockUseCase,
+  discardEventCard,
+  purchaseItemFromShopUseCase,
+});
 
 export function buildEventContractPublicBuilders(ctx) {
   return buildEventContractBuilders(ctx);

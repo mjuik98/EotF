@@ -1,22 +1,18 @@
 # Dependency Map
 
-- Generated: 2026-03-13T07:02:44.773Z
-- Nodes: 1076
-- Edges: 1181
+- Generated: 2026-03-13T08:48:56.209Z
+- Nodes: 1102
+- Edges: 1184
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| combat->combat | 8 |
-| combat->core | 1 |
-| combat->data | 4 |
-| combat->domain | 2 |
-| combat->feature | 11 |
-| combat->other | 1 |
-| combat->shared | 6 |
-| combat->state | 1 |
-| combat->utils | 6 |
+| combat->combat | 5 |
+| combat->data | 1 |
+| combat->feature | 1 |
+| combat->shared | 2 |
+| combat->utils | 3 |
 | core->core | 131 |
 | core->domain | 4 |
 | core->feature | 22 |
@@ -28,55 +24,44 @@
 | data->other | 2 |
 | data->systems | 2 |
 | data->utils | 4 |
-| domain->combat | 3 |
-| domain->data | 4 |
-| domain->domain | 13 |
+| domain->data | 6 |
+| domain->domain | 16 |
 | domain->feature | 1 |
 | domain->shared | 1 |
-| domain->utils | 2 |
+| domain->utils | 3 |
 | engine->data | 1 |
 | engine->engine | 2 |
-| feature->combat | 6 |
 | feature->core | 11 |
-| feature->data | 36 |
-| feature->domain | 36 |
-| feature->feature | 573 |
-| feature->other | 5 |
+| feature->data | 37 |
+| feature->domain | 39 |
+| feature->feature | 601 |
+| feature->other | 6 |
 | feature->platform | 3 |
-| feature->presentation | 3 |
-| feature->shared | 36 |
+| feature->shared | 40 |
 | feature->state | 2 |
-| feature->utils | 25 |
+| feature->utils | 27 |
 | legacy->core | 4 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
 | legacy->legacy | 59 |
 | legacy->shared | 14 |
 | legacy->utils | 3 |
-| platform->combat | 1 |
-| platform->core | 4 |
+| platform->core | 5 |
 | platform->data | 1 |
 | platform->domain | 1 |
 | platform->engine | 5 |
-| platform->feature | 15 |
+| platform->feature | 16 |
 | platform->legacy | 2 |
 | platform->other | 1 |
-| platform->platform | 18 |
-| platform->shared | 1 |
-| platform->systems | 1 |
-| platform->ui | 1 |
+| platform->platform | 19 |
+| platform->shared | 2 |
 | platform->utils | 4 |
-| presentation->domain | 1 |
-| presentation->ui | 6 |
-| presentation->utils | 1 |
-| shared->combat | 3 |
-| shared->core | 2 |
+| shared->combat | 2 |
+| shared->core | 3 |
 | shared->data | 2 |
 | shared->feature | 1 |
-| shared->shared | 13 |
-| shared->utils | 1 |
-| systems->feature | 3 |
-| ui->feature | 2 |
+| shared->shared | 22 |
+| shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 2 |
@@ -86,10 +71,11 @@
 | File | Out Degree |
 |---|---:|
 | game/features/combat/platform/browser/combat_browser_modules.js | 15 |
-| game/features/event/public.js | 14 |
+| game/features/event/public.js | 15 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/combat/application/death_flow_actions.js | 11 |
 | game/features/run/platform/browser/run_browser_modules.js | 11 |
+| game/features/combat/public.js | 10 |
 | data/events_data.js | 8 |
 | game/features/event/app/event_choice_flow_actions.js | 8 |
 | game/features/run/application/run_rules.js | 8 |
@@ -98,7 +84,6 @@
 | game/features/combat/presentation/browser/combat_ui.js | 7 |
 | game/features/combat/presentation/browser/hud_update_ui.js | 7 |
 | game/features/combat/presentation/browser/status_tooltip_builder.js | 7 |
-| game/features/combat/public.js | 7 |
 | game/features/reward/public.js | 7 |
 
 ## Top Incoming Dependencies
@@ -119,7 +104,7 @@
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
 | game/shared/codex/codex_record_state_use_case.js | 8 |
 | game/domain/run/region_service.js | 7 |
-| game/features/title/domain/class_progression/xp_policy.js | 7 |
+| game/features/event/app/event_manager_actions.js | 7 |
 
 > Full graph is available in `docs/metrics/dependency_map.json`.
 

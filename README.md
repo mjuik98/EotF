@@ -68,8 +68,7 @@ npm run preview
 │   └── ui/           # 기존 UI 구현 및 compat entry 경계
 ├── data/            # 카드, 적, 이벤트, 유물, 지역 데이터
 ├── tests/           # 회귀 테스트
-├── docs/            # 아키텍처/운영 문서
-└── vibe_templates/  # AI 작업용 기록 템플릿 세트
+└── docs/            # 아키텍처/운영 문서
 ```
 
 현재 신규 구조 작업은 가능하면 `game/features/<feature>/...` 아래에 추가하고, 기존 `game/ui/*`는 touched flow만 얇게 만드는 방향을 따른다.
@@ -79,6 +78,9 @@ npm run preview
 ```bash
 # 개발 서버
 npm run dev
+
+# 생성 산출물 정리
+npm run clean
 
 # 테스트
 npm run test
@@ -116,8 +118,6 @@ npm run quality
 - [docs/architecture_boundaries.md](docs/architecture_boundaries.md): 레이어 경계와 품질 가드
 - [docs/scaling_playbook.md](docs/scaling_playbook.md): 구조 개선 방향
 - [docs/metrics/dependency_map.md](docs/metrics/dependency_map.md): 의존성 메트릭
-- [vibe_templates/README.md](vibe_templates/README.md): AI 작업용 기록 템플릿 안내
-- [vibe_templates/ARCHITECTURE.md](vibe_templates/ARCHITECTURE.md): AI 시작용 아키텍처 요약
 
 ## License
 

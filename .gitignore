@@ -16,3 +16,4 @@ eslint_report.txt
 tmp/
 build_error*.log
 vite-dev*.log
+outputweb-*/

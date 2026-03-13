@@ -5,8 +5,8 @@ const ROOT = process.cwd();
 const CONFIG_PATH = path.join(ROOT, 'docs', 'metrics', 'compat_surface_allowlist.json');
 
 const THIN_REEXPORT_PATTERNS = [
-  /^export\s+\{.*\}\s+from\s+['"].*['"];?$/,
-  /^export\s+\*\s+from\s+['"].*['"];?$/,
+  /export\s+\{[\s\S]*?\}\s+from\s+['"][^'"]+['"]\s*;?/y,
+  /export\s+\*\s+from\s+['"][^'"]+['"]\s*;?/y,
 ];
 
 function toPosix(value) {
@@ -33,15 +33,34 @@ async function collectJsFiles(dir) {
 }
 
 function isThinCompatSource(source) {
-  const lines = source
+  const normalized = source
     .replace(/^\uFEFF/, '')
-    .split(/\r?\n/u)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter((line) => !line.startsWith('//') && !line.startsWith('/*') && !line.startsWith('*') && !line.startsWith('*/'));
+    .replace(/\/\*[\s\S]*?\*\//gu, '')
+    .replace(/^\s*\/\/.*$/gmu, '')
+    .trim();
 
-  if (lines.length === 0) return false;
-  return lines.every((line) => THIN_REEXPORT_PATTERNS.some((pattern) => pattern.test(line)));
+  if (normalized.length === 0) return false;
+
+  let cursor = 0;
+  while (cursor < normalized.length) {
+    while (cursor < normalized.length && /\s/u.test(normalized[cursor])) cursor += 1;
+    if (cursor >= normalized.length) break;
+
+    let matched = false;
+    for (const pattern of THIN_REEXPORT_PATTERNS) {
+      pattern.lastIndex = cursor;
+      const result = pattern.exec(normalized);
+      if (result && result.index === cursor) {
+        cursor = pattern.lastIndex;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) return false;
+  }
+
+  return true;
 }
 
 async function main() {
