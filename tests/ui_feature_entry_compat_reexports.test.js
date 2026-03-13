@@ -5,6 +5,10 @@ import { describe, expect, it } from 'vitest';
 
 const EXACT_REEXPORTS = new Map([
   [
+    'game/ui/map/map_generation_ui.js',
+    "export { MapGenerationUI } from '../../features/run/presentation/browser/map_generation_ui.js';\n",
+  ],
+  [
     'game/ui/map/map_navigation_ui.js',
     "export { MapNavigationUI } from '../../features/run/presentation/browser/map_navigation_ui.js';\n",
   ],
@@ -13,8 +17,36 @@ const EXACT_REEXPORTS = new Map([
     "export { MapUI } from '../../features/run/presentation/browser/map_ui.js';\n",
   ],
   [
+    'game/ui/map/map_ui_full_map.js',
+    "export * from '../../features/run/presentation/browser/map_ui_full_map.js';\n",
+  ],
+  [
+    'game/ui/map/map_ui_full_map_render.js',
+    "export * from '../../features/run/presentation/browser/map_ui_full_map_render.js';\n",
+  ],
+  [
+    'game/ui/map/map_ui_minimap.js',
+    "export * from '../../features/run/presentation/browser/map_ui_minimap.js';\n",
+  ],
+  [
+    'game/ui/map/map_ui_minimap_render.js',
+    "export * from '../../features/run/presentation/browser/map_ui_minimap_render.js';\n",
+  ],
+  [
+    'game/ui/map/map_ui_next_nodes.js',
+    "export * from '../../features/run/presentation/browser/map_ui_next_nodes.js';\n",
+  ],
+  [
+    'game/ui/map/map_ui_next_nodes_render.js',
+    "export * from '../../features/run/presentation/browser/map_ui_next_nodes_render.js';\n",
+  ],
+  [
     'game/ui/map/maze_system_ui.js',
     "export { MazeSystem } from '../../features/run/presentation/browser/maze_system_ui.js';\n",
+  ],
+  [
+    'game/ui/map/region_transition_ui.js',
+    "export { RegionTransitionUI } from '../../features/run/presentation/browser/region_transition_ui.js';\n",
   ],
   [
     'game/ui/map/world_canvas_ui.js',

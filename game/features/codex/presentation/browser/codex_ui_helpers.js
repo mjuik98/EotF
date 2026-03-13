@@ -3,7 +3,7 @@ import {
   getCardUpgradeId as getCodexCardUpgradeId,
   isCardUpgradeVariant as isCodexCardUpgradeVariant,
   resolveCodexCardId as resolveCodexCardReferenceId,
-} from '../../../../systems/codex_records_system.js';
+} from '../../../../shared/codex/codex_record_state_use_case.js';
 
 const DEFAULT_SETS = {};
 

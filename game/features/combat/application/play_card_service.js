@@ -1,4 +1,4 @@
-import { registerCardUsed } from '../../../systems/codex_records_system.js';
+import { registerCardUsed } from '../../../shared/codex/codex_record_state_use_case.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
 import { Actions } from '../../../shared/state/public.js';
 

@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-13T01:15:39.784Z
-- Nodes: 983
-- Edges: 1103
+- Generated: 2026-03-13T02:25:23.084Z
+- Nodes: 997
+- Edges: 1111
 
 ## Layer Edges
 
@@ -20,7 +20,7 @@
 | combat->systems | 4 |
 | combat->utils | 6 |
 | core->combat | 3 |
-| core->core | 126 |
+| core->core | 129 |
 | core->domain | 4 |
 | core->feature | 23 |
 | core->legacy | 6 |
@@ -43,15 +43,15 @@
 | engine->engine | 2 |
 | feature->combat | 6 |
 | feature->core | 11 |
-| feature->data | 33 |
-| feature->domain | 35 |
-| feature->feature | 494 |
+| feature->data | 34 |
+| feature->domain | 36 |
+| feature->feature | 508 |
 | feature->other | 5 |
 | feature->platform | 3 |
 | feature->presentation | 3 |
-| feature->shared | 25 |
+| feature->shared | 30 |
 | feature->state | 2 |
-| feature->systems | 5 |
+| feature->systems | 1 |
 | feature->utils | 25 |
 | legacy->core | 4 |
 | legacy->domain | 1 |
@@ -83,11 +83,9 @@
 | systems->state | 1 |
 | systems->systems | 13 |
 | systems->utils | 1 |
-| ui->app | 1 |
-| ui->data | 1 |
-| ui->domain | 1 |
-| ui->feature | 8 |
-| ui->ui | 7 |
+| ui->feature | 2 |
+| ui->shared | 1 |
+| ui->ui | 3 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 2 |
@@ -128,8 +126,8 @@
 | game/core/event_bus.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
 | game/features/ui/public.js | 8 |
-| game/systems/codex_records_system.js | 8 |
 | game/domain/run/region_service.js | 7 |
+| game/shared/codex/codex_record_state_use_case.js | 7 |
 | game/utils/description_utils.js | 7 |
 
 > Full graph is available in `docs/metrics/dependency_map.json`.

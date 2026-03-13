@@ -1,2 +1,2 @@
 export { CONSTANTS } from '../../../data/constants.js';
-export { ClassProgressionSystem } from '../../../systems/class_progression_system.js';
+export { ClassProgressionSystem } from '../../title/ports/class_progression_ports.js';

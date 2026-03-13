@@ -1,3 +1,5 @@
+import { ensureRunConfigMeta } from '../../state/run_config_state_commands.js';
+
 export function getDoc(deps) {
   return deps?.doc || deps?.win?.document || null;
 }
@@ -6,17 +8,7 @@ export function getMeta(gs) {
   return gs?.meta || null;
 }
 
-export function ensureRunConfig(meta) {
-  if (!meta) return null;
-  if (!meta.runConfig) {
-    meta.runConfig = { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] };
-  }
-  if (!Array.isArray(meta.runConfig.disabledInscriptions)) {
-    meta.runConfig.disabledInscriptions = [];
-  }
-  if ('blessing' in meta.runConfig) delete meta.runConfig.blessing;
-  return meta.runConfig;
-}
+export const ensureRunConfig = ensureRunConfigMeta;
 
 export function getInscriptionLevel(meta, runConfig, id) {
   if (!meta?.inscriptions) return 0;

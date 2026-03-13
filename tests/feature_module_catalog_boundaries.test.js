@@ -90,6 +90,14 @@ const CODEX_FEATURE_BROWSER_FILES = [
   'game/features/codex/presentation/browser/codex_ui_structure.js',
 ];
 const RUN_FEATURE_BROWSER_FILES = [
+  'game/features/run/presentation/browser/map_generation_ui.js',
+  'game/features/run/presentation/browser/map_ui_full_map.js',
+  'game/features/run/presentation/browser/map_ui_full_map_render.js',
+  'game/features/run/presentation/browser/map_ui_minimap.js',
+  'game/features/run/presentation/browser/map_ui_minimap_render.js',
+  'game/features/run/presentation/browser/map_ui_next_nodes.js',
+  'game/features/run/presentation/browser/map_ui_next_nodes_render.js',
+  'game/features/run/presentation/browser/region_transition_ui.js',
   'game/features/run/presentation/browser/run_mode_ui.js',
   'game/features/run/presentation/browser/run_mode_ui_helpers.js',
   'game/features/run/presentation/browser/run_mode_ui_runtime.js',
@@ -258,6 +266,7 @@ describe('feature module catalog boundaries', () => {
   it('keeps extracted run browser files free of direct run compat imports', () => {
     for (const file of RUN_FEATURE_BROWSER_FILES) {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toMatch(/ui\/map\//);
       expect(source).not.toMatch(/ui\/run\/run_(mode|return)_/);
     }
   });
@@ -281,5 +290,56 @@ describe('feature module catalog boundaries', () => {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).not.toMatch(/build.*PublicModules/);
     }
+  });
+
+  it('forces cross-feature imports to go through public.js or ports', () => {
+    const featureRoot = path.join(process.cwd(), 'game/features');
+    const featureFiles = [];
+
+    function collectFiles(dir) {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const target = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          collectFiles(target);
+          continue;
+        }
+        if (target.endsWith('.js')) {
+          featureFiles.push(target);
+        }
+      }
+    }
+
+    collectFiles(featureRoot);
+
+    const violations = [];
+    for (const file of featureFiles) {
+      const source = fs.readFileSync(file, 'utf8');
+      const importRegex = /from ['"]([^'"]+)['"]/g;
+      let match;
+      while ((match = importRegex.exec(source))) {
+        const specifier = match[1];
+        if (!specifier.startsWith('.')) continue;
+        const resolved = path.normalize(path.join(path.dirname(file), specifier));
+        const normalized = resolved.replaceAll('\\', '/');
+        if (!normalized.includes('/game/features/')) continue;
+
+        const fromParts = file.replaceAll('\\', '/').split('/');
+        const toParts = normalized.split('/');
+        const fromIndex = fromParts.indexOf('features');
+        const toIndex = toParts.indexOf('features');
+        const fromFeature = fromIndex >= 0 ? fromParts[fromIndex + 1] : null;
+        const toFeature = toIndex >= 0 ? toParts[toIndex + 1] : null;
+
+        if (!fromFeature || !toFeature || fromFeature === toFeature) continue;
+        if (normalized.endsWith('/public.js') || normalized.includes('/ports/')) continue;
+
+        violations.push([
+          path.relative(process.cwd(), file).replaceAll('\\', '/'),
+          path.relative(process.cwd(), resolved).replaceAll('\\', '/'),
+        ].join(' -> '));
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 });

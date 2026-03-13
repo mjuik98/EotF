@@ -10,15 +10,15 @@ const {
   showFullMapOverlaySpy: vi.fn(),
 }));
 
-vi.mock('../game/ui/map/map_ui_minimap.js', () => ({
+vi.mock('../game/features/run/presentation/browser/map_ui_minimap.js', () => ({
   renderMinimapUI: renderMinimapUISpy,
 }));
 
-vi.mock('../game/ui/map/map_ui_next_nodes.js', () => ({
+vi.mock('../game/features/run/presentation/browser/map_ui_next_nodes.js', () => ({
   updateNextNodesOverlay: updateNextNodesOverlaySpy,
 }));
 
-vi.mock('../game/ui/map/map_ui_full_map.js', () => ({
+vi.mock('../game/features/run/presentation/browser/map_ui_full_map.js', () => ({
   showFullMapOverlay: showFullMapOverlaySpy,
 }));
 

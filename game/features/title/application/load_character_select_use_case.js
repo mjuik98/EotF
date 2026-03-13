@@ -1,4 +1,4 @@
-import { ClassProgressionSystem } from '../../../systems/class_progression_system.js';
+import { ClassProgressionSystem } from '../ports/class_progression_ports.js';
 
 function buildFallbackProgress(classId) {
   return {

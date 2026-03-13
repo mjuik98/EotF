@@ -1,5 +1,5 @@
 import { resolveGs } from './help_pause_ui_helpers.js';
-import { createTitlePauseMenuActions } from '../../../title/application/help_pause_menu_actions.js';
+import { createTitlePauseMenuActions } from '../../../title/ports/help_pause_ui_ports.js';
 
 export function saveRunBeforeReturnRuntime(deps = {}) {
   const gs = resolveGs(deps);

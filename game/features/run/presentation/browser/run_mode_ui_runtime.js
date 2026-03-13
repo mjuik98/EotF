@@ -1,9 +1,13 @@
 import {
-  cloneRunConfig,
   ensureRunConfig,
   getDoc,
   getMeta,
 } from './run_mode_ui_helpers.js';
+import {
+  deleteRunConfigPreset,
+  loadRunConfigPreset,
+  saveRunConfigPreset,
+} from '../../state/run_config_state_commands.js';
 import {
   refreshInscriptionPanel,
   renderHiddenEnding,
@@ -82,18 +86,10 @@ export function confirmPresetSaveRuntime(ui, deps = {}) {
   if (!meta) return false;
 
   runRules.ensureMeta(meta);
-  const cfg = ensureRunConfig(meta);
   const doc = getDoc(deps);
   const idx = Math.max(0, Math.min(3, Math.floor(Number(ui._presetDialog.slot) || 0)));
-  const existing = meta.runConfigPresets[idx];
   const rawName = doc.getElementById('rmPresetNameInput')?.value ?? ui._presetDialog.name;
-  const fallbackName = existing?.name || `프리셋 ${idx + 1}`;
-
-  meta.runConfigPresets[idx] = {
-    id: existing?.id || `preset-${idx + 1}`,
-    name: String(rawName || fallbackName).trim().slice(0, 32) || fallbackName,
-    config: cloneRunConfig(cfg),
-  };
+  saveRunConfigPreset(meta, { slot: idx, name: rawName });
 
   ui._presetDialog = null;
   ui.refresh(deps);
@@ -110,16 +106,9 @@ export function loadPresetRuntime(ui, slot, deps = {}) {
   if (!meta) return false;
 
   runRules.ensureMeta(meta);
-  const cfg = ensureRunConfig(meta);
   const idx = Math.max(0, Math.min(3, Math.floor(Number(slot) || 0)));
   ui._selectedPresetSlot = idx;
-  const preset = meta.runConfigPresets[idx];
-  if (!preset?.config) return false;
-
-  Object.assign(cfg, cloneRunConfig(preset.config));
-  cfg.ascension = Math.max(0, Math.min(meta.maxAscension || 0, cfg.ascension));
-  if (!meta.unlocks?.endless) cfg.endless = false;
-  if (!runRules.curses[cfg.curse]) cfg.curse = 'none';
+  if (!loadRunConfigPreset(meta, idx, runRules)) return false;
 
   ui.refresh(deps);
   deps.saveMeta?.();
@@ -137,10 +126,7 @@ export function deletePresetRuntime(ui, slot, deps = {}) {
   runRules.ensureMeta(meta);
   const idx = Math.max(0, Math.min(3, Math.floor(Number(slot) || 0)));
   ui._selectedPresetSlot = idx;
-  if (!meta.runConfigPresets[idx]) return false;
-
-  meta.runConfigPresets[idx] = null;
-  meta.runConfigPresets = meta.runConfigPresets.slice(0, 4);
+  if (!deleteRunConfigPreset(meta, idx)) return false;
 
   ui.refresh(deps);
   deps.saveMeta?.();

@@ -1,0 +1,78 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+const ROOT = process.cwd();
+const CONFIG_PATH = path.join(ROOT, 'docs', 'metrics', 'compat_surface_allowlist.json');
+
+const THIN_REEXPORT_PATTERNS = [
+  /^export\s+\{.*\}\s+from\s+['"].*['"];?$/,
+  /^export\s+\*\s+from\s+['"].*['"];?$/,
+];
+
+function toPosix(value) {
+  return value.split(path.sep).join('/');
+}
+
+async function readConfig() {
+  const raw = await fs.readFile(CONFIG_PATH, 'utf8');
+  return JSON.parse(raw);
+}
+
+async function collectJsFiles(dir) {
+  const out = [];
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...(await collectJsFiles(full)));
+      continue;
+    }
+    if (entry.isFile() && full.endsWith('.js')) out.push(full);
+  }
+  return out;
+}
+
+function isThinCompatSource(source) {
+  const lines = source
+    .replace(/^\uFEFF/, '')
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !line.startsWith('//') && !line.startsWith('/*') && !line.startsWith('*') && !line.startsWith('*/'));
+
+  if (lines.length === 0) return false;
+  return lines.every((line) => THIN_REEXPORT_PATTERNS.some((pattern) => pattern.test(line)));
+}
+
+async function main() {
+  const config = await readConfig();
+  const allowlist = new Set(config.allowlist || []);
+  const scanDirs = config.scanDirs || [];
+  const nonThinCompatFiles = [];
+
+  for (const relDir of scanDirs) {
+    const absDir = path.join(ROOT, relDir);
+    const files = await collectJsFiles(absDir);
+    for (const fileAbs of files) {
+      const source = await fs.readFile(fileAbs, 'utf8');
+      if (isThinCompatSource(source)) continue;
+      nonThinCompatFiles.push(toPosix(path.relative(ROOT, fileAbs)));
+    }
+  }
+
+  const unexpected = nonThinCompatFiles.filter((file) => !allowlist.has(file));
+  if (unexpected.length > 0) {
+    console.error('Compat surface check failed: unexpected non-thin compat files found.');
+    for (const file of unexpected) {
+      console.error(`- ${file}`);
+    }
+    process.exit(1);
+  }
+
+  console.log(`Compat surface check passed (${nonThinCompatFiles.length} allowlisted non-thin compat files).`);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

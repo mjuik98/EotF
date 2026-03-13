@@ -1,9 +1,14 @@
 import {
   calcDiffScore,
-  ensureRunConfig,
   getDoc,
   getMeta,
 } from './run_mode_ui_helpers.js';
+import {
+  selectRunCurse,
+  shiftRunAscension,
+  toggleRunEndless,
+  toggleRunInscription,
+} from '../../state/run_config_state_commands.js';
 import {
   curseFlash,
   flash,
@@ -41,13 +46,12 @@ export const RunModeUI = {
     if (!meta) return;
 
     runRules.ensureMeta(meta);
-    const cfg = ensureRunConfig(meta);
-    cfg.curse = runRules.curses[id] ? id : 'none';
+    const selectedCurse = selectRunCurse(meta, runRules, id);
 
     const doc = getDoc(deps);
-    const card = doc.querySelector(`#rmCurseGrid .rm-opt[data-id="${cfg.curse}"]`);
+    const card = doc.querySelector(`#rmCurseGrid .rm-opt[data-id="${selectedCurse}"]`);
     const modal = doc.querySelector('#runSettingsModal .run-settings-panel');
-    if (cfg.curse !== 'none') curseFlash(card, modal);
+    if (selectedCurse !== 'none') curseFlash(card, modal);
     else flash(card);
 
     this.refresh(deps);
@@ -62,8 +66,7 @@ export const RunModeUI = {
     if (!meta) return;
 
     runRules.ensureMeta(meta);
-    const cfg = ensureRunConfig(meta);
-    cfg.curse = runRules.nextCurseId(cfg.curse || 'none');
+    selectRunCurse(meta, runRules, runRules.nextCurseId(meta.runConfig?.curse || 'none'));
 
     this.refresh(deps);
     deps.saveMeta?.();
@@ -77,16 +80,12 @@ export const RunModeUI = {
     if (!meta) return;
 
     runRules.ensureMeta(meta);
-    const cfg = ensureRunConfig(meta);
-
     if (!meta.unlocks?.ascension) {
       this.refresh(deps);
       return;
     }
 
-    const cur = Number.isFinite(cfg.ascension) ? cfg.ascension : 0;
-    const maxAsc = Math.max(0, meta.maxAscension || 0);
-    cfg.ascension = Math.max(0, Math.min(maxAsc, cur + (delta < 0 ? -1 : 1)));
+    shiftRunAscension(meta, delta);
 
     this.refresh(deps);
     deps.saveMeta?.();
@@ -100,15 +99,13 @@ export const RunModeUI = {
     if (!meta) return;
 
     runRules.ensureMeta(meta);
-    const cfg = ensureRunConfig(meta);
-
     if (!meta.unlocks?.endless) {
       deps.notice?.('무한 모드는 아직 잠겨 있습니다.');
       this.refresh(deps);
       return;
     }
 
-    cfg.endless = !cfg.endless;
+    toggleRunEndless(meta);
     this.refresh(deps);
     deps.saveMeta?.();
   },
@@ -142,13 +139,7 @@ export const RunModeUI = {
     const meta = getMeta(gs);
     if (!meta) return;
 
-    const runConfig = ensureRunConfig(meta);
-    if (!runConfig) return;
-
-    const arr = runConfig.disabledInscriptions;
-    const idx = arr.indexOf(key);
-    if (idx >= 0) arr.splice(idx, 1);
-    else arr.push(key);
+    toggleRunInscription(meta, key);
 
     this.refresh(deps);
     deps.saveMeta?.();

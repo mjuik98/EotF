@@ -88,7 +88,7 @@ vi.mock('../data/cards.js', () => ({
   CARDS: {},
 }));
 
-vi.mock('../game/systems/class_progression_system.js', () => ({
+vi.mock('../game/features/title/ports/class_progression_ports.js', () => ({
   ClassProgressionSystem: {
     MAX_LEVEL: 10,
     ensureMeta: hoisted.ensureMeta,
@@ -97,7 +97,7 @@ vi.mock('../game/systems/class_progression_system.js', () => ({
   },
 }));
 
-vi.mock('../game/features/combat/presentation/browser/tooltip_ui.js', () => ({
+vi.mock('../game/features/combat/ports/tooltip_ui_ports.js', () => ({
   TooltipUI: {},
 }));
 

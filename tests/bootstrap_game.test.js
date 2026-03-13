@@ -1,31 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  createModuleRegistry: vi.fn(),
-  createBootstrapContext: vi.fn(),
-  initBootstrapCursor: vi.fn(),
-  setupBindings: vi.fn(),
-  bootGame: vi.fn(),
+  createBootstrapEntry: vi.fn(),
+  registerBootstrapBindings: vi.fn(),
+  initBootstrapRuntime: vi.fn(),
 }));
 
-vi.mock('../game/core/bindings/module_registry.js', () => ({
-  createModuleRegistry: hoisted.createModuleRegistry,
+vi.mock('../game/core/bootstrap/create_bootstrap_entry.js', () => ({
+  createBootstrapEntry: hoisted.createBootstrapEntry,
 }));
 
-vi.mock('../game/core/bootstrap/create_bootstrap_context.js', () => ({
-  createBootstrapContext: hoisted.createBootstrapContext,
+vi.mock('../game/core/bootstrap/register_bootstrap_bindings.js', () => ({
+  registerBootstrapBindings: hoisted.registerBootstrapBindings,
 }));
 
-vi.mock('../game/core/bootstrap/init_bootstrap_cursor.js', () => ({
-  initBootstrapCursor: hoisted.initBootstrapCursor,
-}));
-
-vi.mock('../game/core/event_bindings.js', () => ({
-  setupBindings: hoisted.setupBindings,
-}));
-
-vi.mock('../game/core/init_sequence.js', () => ({
-  bootGame: hoisted.bootGame,
+vi.mock('../game/core/bootstrap/init_bootstrap_runtime.js', () => ({
+  initBootstrapRuntime: hoisted.initBootstrapRuntime,
 }));
 
 import * as Deps from '../game/core/deps_factory.js';
@@ -33,32 +23,28 @@ import { bootstrapGameApp } from '../game/core/bootstrap_game.js';
 
 describe('bootstrapGameApp', () => {
   beforeEach(() => {
-    hoisted.createModuleRegistry.mockReset();
-    hoisted.createBootstrapContext.mockReset();
-    hoisted.initBootstrapCursor.mockReset();
-    hoisted.setupBindings.mockReset();
-    hoisted.bootGame.mockReset();
+    hoisted.createBootstrapEntry.mockReset();
+    hoisted.registerBootstrapBindings.mockReset();
+    hoisted.initBootstrapRuntime.mockReset();
   });
 
-  it('creates modules, initializes cursor, wires bindings, and boots the game', () => {
+  it('creates bootstrap entry, registers bindings, and initializes runtime', () => {
     const modules = { GAME: {}, CustomCursor: {} };
     const fns = { updateNextNodes: vi.fn() };
     const doc = { body: {} };
     const win = { location: {} };
-    const context = { doc, win, deps: Deps, modules };
+    const context = { doc, win, deps: Deps, modules, fns };
 
-    hoisted.createBootstrapContext.mockReturnValue(context);
-    hoisted.setupBindings.mockReturnValue(fns);
+    hoisted.createBootstrapEntry.mockReturnValue(context);
 
     const result = bootstrapGameApp({ doc, win });
 
-    expect(hoisted.createBootstrapContext).toHaveBeenCalledWith(
+    expect(hoisted.createBootstrapEntry).toHaveBeenCalledWith(
       { doc, win },
-      { depsFactory: Deps, createModuleRegistry: hoisted.createModuleRegistry },
+      { depsFactory: Deps },
     );
-    expect(hoisted.initBootstrapCursor).toHaveBeenCalledWith({ modules, doc, win });
-    expect(hoisted.setupBindings).toHaveBeenCalledWith(modules);
-    expect(hoisted.bootGame).toHaveBeenCalledWith(modules, fns, Deps);
+    expect(hoisted.registerBootstrapBindings).toHaveBeenCalledWith(context);
+    expect(hoisted.initBootstrapRuntime).toHaveBeenCalledWith(context);
     expect(result).toEqual({ modules, fns });
   });
 
@@ -69,13 +55,11 @@ describe('bootstrapGameApp', () => {
     const win = { location: {} };
     const deps = { token: 'deps' };
 
-    hoisted.createBootstrapContext.mockReturnValue({ doc, win, deps, modules });
-    hoisted.setupBindings.mockReturnValue(fns);
+    hoisted.createBootstrapEntry.mockReturnValue({ doc, win, deps, modules, fns });
 
     bootstrapGameApp({ doc, win });
 
-    expect(hoisted.initBootstrapCursor).toHaveBeenCalledWith({ modules, doc, win });
-    expect(hoisted.setupBindings).toHaveBeenCalledWith(modules);
-    expect(hoisted.bootGame).toHaveBeenCalledWith(modules, fns, deps);
+    expect(hoisted.registerBootstrapBindings).toHaveBeenCalledWith({ doc, win, deps, modules, fns });
+    expect(hoisted.initBootstrapRuntime).toHaveBeenCalledWith({ doc, win, deps, modules, fns });
   });
 });

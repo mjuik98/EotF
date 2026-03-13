@@ -106,6 +106,22 @@
       "message": "feature implementation must not import game/app compat paths"
     },
     {
+      "id": "feature-no-class-progression-system-compat",
+      "from": ["feature"],
+      "denyTargets": [
+        "game/systems/class_progression_system.js"
+      ],
+      "message": "feature implementation must use title feature or shared progression ownership instead of the class progression compat surface"
+    },
+    {
+      "id": "feature-no-codex-record-system-compat",
+      "from": ["feature"],
+      "denyTargets": [
+        "game/systems/codex_records_system.js"
+      ],
+      "message": "feature implementation must use shared codex ownership instead of the codex records compat surface"
+    },
+    {
       "id": "reward-application-platform-boundary",
       "from": ["feature"],
       "sourcePrefixes": [
@@ -557,6 +573,24 @@
         "game/presentation/"
       ],
       "message": "run browser modules must import feature-local presentation facades instead of compat ui paths"
+    },
+    {
+      "id": "run-map-browser-surface-only",
+      "from": ["feature"],
+      "sourceFiles": [
+        "game/features/run/presentation/browser/map_generation_ui.js",
+        "game/features/run/presentation/browser/map_ui_full_map.js",
+        "game/features/run/presentation/browser/map_ui_full_map_render.js",
+        "game/features/run/presentation/browser/map_ui_minimap.js",
+        "game/features/run/presentation/browser/map_ui_minimap_render.js",
+        "game/features/run/presentation/browser/map_ui_next_nodes.js",
+        "game/features/run/presentation/browser/map_ui_next_nodes_render.js",
+        "game/features/run/presentation/browser/region_transition_ui.js"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/map/"
+      ],
+      "message": "run map browser files must use feature-local or shared helpers instead of ui/map compat paths"
     },
     {
       "id": "ui-map-navigation-feature-boundary",

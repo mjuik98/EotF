@@ -1,6 +1,6 @@
 import { DATA } from '../../../../data/game_data.js';
 import { EventBus } from '../../../core/event_bus.js';
-import { registerEnemyKill } from '../../../systems/codex_records_system.js';
+import { registerEnemyKill } from '../../../shared/codex/codex_record_state_use_case.js';
 import { getRegionData } from '../../../systems/run_rules.js';
 import { Actions } from '../../../shared/state/public.js';
 import {

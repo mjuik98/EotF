@@ -1,20 +1,17 @@
-import { setupBindings } from './event_bindings.js';
 import * as Deps from './deps_factory.js';
-import { createBootstrapContext } from './bootstrap/create_bootstrap_context.js';
-import { initBootstrapCursor } from './bootstrap/init_bootstrap_cursor.js';
-import { bootGame } from './init_sequence.js';
-import { createModuleRegistry } from './bindings/module_registry.js';
+import { createBootstrapEntry } from './bootstrap/create_bootstrap_entry.js';
+import { initBootstrapRuntime } from './bootstrap/init_bootstrap_runtime.js';
+import { registerBootstrapBindings } from './bootstrap/register_bootstrap_bindings.js';
 
 export function bootstrapGameApp(options = {}) {
-  const { doc, win, deps, modules } = createBootstrapContext(options, {
+  const context = createBootstrapEntry(options, {
     depsFactory: Deps,
-    createModuleRegistry,
   });
+  registerBootstrapBindings(context);
+  initBootstrapRuntime(context);
 
-  initBootstrapCursor({ modules, doc, win });
-
-  const fns = setupBindings(modules);
-  bootGame(modules, fns, deps);
-
-  return { modules, fns };
+  return {
+    modules: context.modules,
+    fns: context.fns,
+  };
 }
