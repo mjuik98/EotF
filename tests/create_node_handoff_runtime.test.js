@@ -37,6 +37,7 @@ describe('create_node_handoff_runtime', () => {
 
   it('falls back to legacy handlers when no feature handoff exists', () => {
     const deps = {
+      openReward: vi.fn(),
       startCombat: vi.fn(),
       triggerRandomEvent: vi.fn(),
       showShop: vi.fn(),
@@ -55,6 +56,7 @@ describe('create_node_handoff_runtime', () => {
     expect(deps.triggerRandomEvent).toHaveBeenCalledTimes(1);
     expect(deps.showShop).toHaveBeenCalledTimes(1);
     expect(deps.showRestSite).toHaveBeenCalledTimes(1);
-    expect(deps.showRewardScreen).toHaveBeenCalledWith(true);
+    expect(deps.openReward).toHaveBeenCalledWith(true);
+    expect(deps.showRewardScreen).not.toHaveBeenCalled();
   });
 });

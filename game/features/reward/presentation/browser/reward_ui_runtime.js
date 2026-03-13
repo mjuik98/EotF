@@ -1,8 +1,8 @@
+import { createRewardRuntime } from '../../application/create_reward_runtime.js';
 import {
-  createRewardRuntime,
   REWARD_CLAIM_KEY,
   REWARD_SKIP_KEY,
-} from '../../public.js';
+} from '../../application/reward_runtime_actions.js';
 
 export { REWARD_CLAIM_KEY, REWARD_SKIP_KEY };
 

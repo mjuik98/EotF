@@ -4,10 +4,25 @@ export function createRewardActions(modules, ports) {
   const navigation = createRewardNavigationActions(modules, ports);
   const getRewardFlow = () => ports.getRewardFlowDeps?.();
   const getRewardDeps = () => ports.getRewardDeps();
+  const callRewardAction = (actionName, ...args) => {
+    const rewardDeps = getRewardDeps();
+    const rewardAction = rewardDeps?.[actionName];
+    if (typeof rewardAction === 'function') {
+      rewardAction(...args);
+      return true;
+    }
+
+    const compatAction = modules.RewardUI?.[actionName];
+    if (typeof compatAction === 'function') {
+      compatAction(...args, rewardDeps);
+      return true;
+    }
+
+    return false;
+  };
 
   function openReward(mode = false) {
-    if (typeof modules.RewardUI?.showRewardScreen === 'function') {
-      modules.RewardUI.showRewardScreen(mode, getRewardDeps());
+    if (callRewardAction('showRewardScreen', mode)) {
       return;
     }
 
@@ -24,31 +39,31 @@ export function createRewardActions(modules, ports) {
     },
 
     takeRewardCard(cardId) {
-      modules.RewardUI?.takeRewardCard?.(cardId, getRewardDeps());
+      callRewardAction('takeRewardCard', cardId);
     },
 
     takeRewardItem(itemKey) {
-      modules.RewardUI?.takeRewardItem?.(itemKey, getRewardDeps());
+      callRewardAction('takeRewardItem', itemKey);
     },
 
     takeRewardUpgrade() {
-      modules.RewardUI?.takeRewardUpgrade?.(getRewardDeps());
+      callRewardAction('takeRewardUpgrade');
     },
 
     takeRewardRemove() {
-      modules.RewardUI?.takeRewardRemove?.(getRewardDeps());
+      callRewardAction('takeRewardRemove');
     },
 
     showSkipConfirm() {
-      modules.RewardUI?.showSkipConfirm?.(getRewardDeps());
+      callRewardAction('showSkipConfirm');
     },
 
     hideSkipConfirm() {
-      modules.RewardUI?.hideSkipConfirm?.(getRewardDeps());
+      callRewardAction('hideSkipConfirm');
     },
 
     skipReward() {
-      modules.RewardUI?.skipReward?.(getRewardDeps());
+      callRewardAction('skipReward');
     },
 
     returnFromReward: navigation.returnFromReward,

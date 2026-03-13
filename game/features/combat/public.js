@@ -1,12 +1,16 @@
 export { SetBonusSystem } from './domain/set_bonus_system.js';
 import { CombatLifecycle } from './application/combat_lifecycle_compat.js';
 import {
+  applyEnemyAreaDamageRuntime,
+  applyEnemyDamageRuntime,
   applyEnemyDamageState,
   createCombatApplicationCapabilities,
   createCombatStartRuntime,
   discardStateCard,
   drawStateCards,
+  endCombatRuntime,
   executePlayerDrawService,
+  playRuntimeCard,
   playStateCard,
 } from './ports/public_application_capabilities.js';
 import { createCombatBindingCapabilities } from './ports/public_binding_capabilities.js';
@@ -86,10 +90,14 @@ export {
   createCombatRuntimeCapabilities,
   buildCombatUiContractPublicBuilders,
   DamageSystem,
+  applyEnemyAreaDamageRuntime,
+  applyEnemyDamageRuntime,
   applyEnemyDamageState,
   discardStateCard,
   drawStateCards,
+  endCombatRuntime,
   executePlayerDrawService,
+  playRuntimeCard,
   playStateCard,
 };
 

@@ -74,6 +74,7 @@ export function buildUiShellContractBuilders(ctx) {
 
     helpPause: () => {
       const refs = getRefs();
+      const combatRefs = refs.featureRefs?.combat || {};
       const titleActions = buildTitleHelpPauseActions({
         returnToTitleFromPause: () => refs.returnToTitleFromPause?.(),
         restartEndingFlow: refs.restartEndingFlow || refs.restartFromEnding,
@@ -99,12 +100,13 @@ export function buildUiShellContractBuilders(ctx) {
         setAmbientVolume: refs.setAmbientVolume,
         closeBattleChronicle: refs.closeBattleChronicle,
         _syncVolumeUI: refs._syncVolumeUI || getSyncVolumeUIFallback(),
-        useEchoSkill: refs.useEchoSkill,
-        drawCard: refs.drawCard,
-        endPlayerTurn: refs.endPlayerTurn,
-        renderCombatEnemies: refs.renderCombatEnemies,
+        useEchoSkill: combatRefs.useEchoSkill || refs.useEchoSkill,
+        drawCard: combatRefs.drawCard || refs.drawCard,
+        endPlayerTurn: combatRefs.endPlayerTurn || refs.endPlayerTurn,
+        playCard: combatRefs.playCard || refs.playCard,
+        renderCombatEnemies: combatRefs.renderCombatEnemies || refs.renderCombatEnemies,
         finalizeRunOutcome: refs.finalizeRunOutcome,
-        hudUpdateUI: refs.HudUpdateUI,
+        hudUpdateUI: combatRefs.HudUpdateUI || refs.HudUpdateUI,
         saveRun: (override = {}) => refs.SaveSystem?.saveRun?.({
           gs: override.gs || refs.GS,
           isGameStarted: () => refs._gameStarted?.(),

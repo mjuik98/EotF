@@ -1,0 +1,113 @@
+function pickDefinedRefs(refs, keys = []) {
+  return keys.reduce((acc, key) => {
+    if (refs[key] !== undefined) acc[key] = refs[key];
+    return acc;
+  }, {});
+}
+
+const FEATURE_REF_KEYS = Object.freeze({
+  core: [
+    'GAME',
+    'GS',
+    'AudioEngine',
+    'ParticleSystem',
+    'SaveSystem',
+    'ScreenShake',
+    'HitStop',
+    'ButtonFeedback',
+  ],
+  title: [
+    'ClassSelectUI',
+    'CharacterSelectUI',
+    'HelpPauseUI',
+    'GameBootUI',
+    'SettingsUI',
+    'startGame',
+    'getSelectedClass',
+    'clearSelectedClass',
+    'showPendingClassProgressSummary',
+  ],
+  combat: [
+    'CombatUI',
+    'CombatHudUI',
+    'CombatActionsUI',
+    'CardUI',
+    'CardTargetUI',
+    'DeckModalUI',
+    'FeedbackUI',
+    'TooltipUI',
+    'HudUpdateUI',
+    'StatusEffectsUI',
+    'ClassMechanics',
+    'CardCostUtils',
+    'playCard',
+    'drawCard',
+    'useEchoSkill',
+    'endPlayerTurn',
+    'endCombat',
+    'handleCardDragStart',
+    'handleCardDragEnd',
+    'handleCardDropOnEnemy',
+    'selectTarget',
+    'renderCombatEnemies',
+    'renderCombatCards',
+    'renderHand',
+    'updateCombatLog',
+    'updateUI',
+    'updateChainUI',
+    'showDmgPopup',
+    'showEchoBurstOverlay',
+    'showCombatSummary',
+  ],
+  run: [
+    'RunRules',
+    'MazeSystem',
+    'RunModeUI',
+    'RunSetupUI',
+    'RunStartUI',
+    'startGame',
+    'continueRun',
+    'continueLoadedRun',
+    'returnToGame',
+    'getRegionData',
+    'getBaseRegionIndex',
+    'getRegionCount',
+  ],
+  reward: [
+    'RewardUI',
+    'showRewardScreen',
+    'takeRewardCard',
+    'takeRewardItem',
+    'takeRewardUpgrade',
+    'takeRewardRemove',
+    'showSkipConfirm',
+    'hideSkipConfirm',
+    'skipReward',
+    'returnFromReward',
+    'returnToGame',
+    'showItemToast',
+  ],
+  screen: [
+    'ScreenUI',
+    'switchScreen',
+    'showDeckView',
+    'closeDeckView',
+    'openCodex',
+    'closeCodex',
+    'openSettings',
+    'closeSettings',
+    'closeRunSettings',
+    'quitGame',
+    'returnToGame',
+    'finalizeRunOutcome',
+  ],
+});
+
+export function buildBindingFeatureRefs(refs = {}) {
+  return Object.fromEntries(
+    Object.entries(FEATURE_REF_KEYS).map(([scopeName, keys]) => [
+      scopeName,
+      pickDefinedRefs(refs, keys),
+    ]),
+  );
+}

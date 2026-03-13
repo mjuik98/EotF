@@ -73,8 +73,8 @@ describe('DeathHandler', () => {
     const gs = {
       combat: { active: true },
       triggerItems: vi.fn(() => false),
-      showDeathScreen: vi.fn(),
     };
+    const showDeathScreen = vi.fn();
     const audioEngine = {
       playEvent: vi.fn(),
       playDeath: vi.fn(),
@@ -86,6 +86,7 @@ describe('DeathHandler', () => {
       DeathHandler.onPlayerDeath.call(gs, {
         audioEngine,
         doc,
+        showDeathScreen,
         win: { innerWidth: 1280, innerHeight: 720 },
         screenShake,
         particleSystem,
@@ -98,7 +99,7 @@ describe('DeathHandler', () => {
       expect(gs.combat.active).toBe(false);
 
       vi.runAllTimers();
-      expect(gs.showDeathScreen).toHaveBeenCalled();
+      expect(showDeathScreen).toHaveBeenCalled();
     } finally {
       vi.useRealTimers();
     }

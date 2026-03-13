@@ -96,6 +96,59 @@ describe('reward_actions', () => {
 
     expect(rewardFlow.openReward).toHaveBeenCalledWith(true);
     expect(rewardFlow.openReward).toHaveBeenCalledWith('boss');
-    expect(ports.getRewardDeps).not.toHaveBeenCalled();
+    expect(ports.getRewardDeps).toHaveBeenCalledTimes(2);
+  });
+
+  it('prefers reward deps action surface over RewardUI compat methods when available', () => {
+    const rewardDeps = {
+      hideSkipConfirm: vi.fn(),
+      showRewardScreen: vi.fn(),
+      skipReward: vi.fn(),
+      takeRewardCard: vi.fn(),
+      takeRewardItem: vi.fn(),
+      takeRewardRemove: vi.fn(),
+      takeRewardUpgrade: vi.fn(),
+      showSkipConfirm: vi.fn(),
+    };
+    const modules = {
+      RewardUI: {
+        showRewardScreen: vi.fn(),
+        takeRewardCard: vi.fn(),
+        takeRewardItem: vi.fn(),
+        takeRewardUpgrade: vi.fn(),
+        takeRewardRemove: vi.fn(),
+        showSkipConfirm: vi.fn(),
+        hideSkipConfirm: vi.fn(),
+        skipReward: vi.fn(),
+      },
+    };
+    const ports = {
+      getRewardDeps: vi.fn(() => rewardDeps),
+      getRewardFlowDeps: vi.fn(() => ({ openReward: vi.fn() })),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    const actions = createRewardActions(modules, ports);
+
+    actions.showRewardScreen('boss');
+    actions.takeRewardCard('strike');
+    actions.takeRewardItem('relic');
+    actions.takeRewardUpgrade();
+    actions.takeRewardRemove();
+    actions.showSkipConfirm();
+    actions.hideSkipConfirm();
+    actions.skipReward();
+
+    expect(rewardDeps.showRewardScreen).toHaveBeenCalledWith('boss');
+    expect(rewardDeps.takeRewardCard).toHaveBeenCalledWith('strike');
+    expect(rewardDeps.takeRewardItem).toHaveBeenCalledWith('relic');
+    expect(rewardDeps.takeRewardUpgrade).toHaveBeenCalledTimes(1);
+    expect(rewardDeps.takeRewardRemove).toHaveBeenCalledTimes(1);
+    expect(rewardDeps.showSkipConfirm).toHaveBeenCalledTimes(1);
+    expect(rewardDeps.hideSkipConfirm).toHaveBeenCalledTimes(1);
+    expect(rewardDeps.skipReward).toHaveBeenCalledTimes(1);
+    expect(modules.RewardUI.showRewardScreen).not.toHaveBeenCalled();
+    expect(modules.RewardUI.takeRewardCard).not.toHaveBeenCalled();
+    expect(modules.RewardUI.skipReward).not.toHaveBeenCalled();
   });
 });

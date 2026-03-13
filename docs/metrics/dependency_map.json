@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-03-13T16:19:01.407Z",
-  "nodeCount": 1136,
-  "edgeCount": 1230,
+  "generatedAt": "2026-03-13T17:21:16.001Z",
+  "nodeCount": 1137,
+  "edgeCount": 1236,
   "layerEdges": {
-    "core->core": 134,
+    "core->core": 135,
     "core->domain": 4,
     "core->feature": 22,
     "core->legacy": 6,
@@ -24,7 +24,7 @@
     "feature->core": 11,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 647,
+    "feature->feature": 652,
     "feature->legacy": 1,
     "feature->other": 6,
     "feature->platform": 3,
@@ -76,15 +76,15 @@
       "inDegree": 1
     },
     {
-      "file": "game/features/title/platform/browser/create_character_select_runtime_bindings.js",
+      "file": "game/features/combat/application/death_flow_actions.js",
       "layer": "feature",
       "outDegree": 12,
       "inDegree": 1
     },
     {
-      "file": "game/features/combat/application/death_flow_actions.js",
+      "file": "game/features/title/platform/browser/create_character_select_runtime_bindings.js",
       "layer": "feature",
-      "outDegree": 11,
+      "outDegree": 12,
       "inDegree": 1
     },
     {
@@ -409,9 +409,11 @@
     ],
     "game/core/bootstrap/build_binding_deps_payload.js": [
       "game/core/bootstrap/build_binding_deps_helpers.js",
-      "game/core/bootstrap/build_binding_deps_refs.js"
+      "game/core/bootstrap/build_binding_deps_refs.js",
+      "game/core/bootstrap/build_binding_feature_refs.js"
     ],
     "game/core/bootstrap/build_binding_deps_refs.js": [],
+    "game/core/bootstrap/build_binding_feature_refs.js": [],
     "game/core/bootstrap/build_binding_legacy_metrics.js": [
       "game/core/runtime_metrics.js"
     ],
@@ -882,7 +884,9 @@
       "game/features/codex/ports/public_module_capabilities.js"
     ],
     "game/features/combat/app/build_runtime_subscriber_actions.js": [],
-    "game/features/combat/app/combat_actions.js": [],
+    "game/features/combat/app/combat_actions.js": [
+      "game/features/combat/ports/public_application_capabilities.js"
+    ],
     "game/features/combat/app/combat_lifecycle_feature_bridge.js": [
       "game/features/combat/app/use_cases/end_combat_use_case.js",
       "game/features/combat/platform/combat_end_ports.js",
@@ -955,6 +959,7 @@
       "game/features/combat/application/enemy_death_flow.js",
       "game/features/combat/application/enemy_death_state.js",
       "game/features/combat/platform/death_runtime_ports.js",
+      "game/features/combat/ports/public_application_capabilities.js",
       "game/features/combat/presentation/browser/death_fragment_choice_presenter.js",
       "game/features/run/ports/public_rule_capabilities.js",
       "game/shared/codex/codex_record_state_use_case.js",
@@ -987,6 +992,8 @@
     ],
     "game/features/combat/application/public_combat_command_actions.js": [
       "game/features/combat/application/card_draw_service.js",
+      "game/features/combat/application/combat_lifecycle_compat.js",
+      "game/features/combat/application/damage_system_compat.js",
       "game/features/combat/application/play_card_service.js",
       "game/features/combat/state/card_state_commands.js",
       "game/utils/logger.js"
@@ -1686,7 +1693,8 @@
     ],
     "game/features/reward/presentation/browser/reward_ui_render.js": [],
     "game/features/reward/presentation/browser/reward_ui_runtime.js": [
-      "game/features/reward/public.js"
+      "game/features/reward/application/create_reward_runtime.js",
+      "game/features/reward/application/reward_runtime_actions.js"
     ],
     "game/features/reward/presentation/browser/reward_ui.js": [
       "game/features/reward/application/create_reward_runtime.js",

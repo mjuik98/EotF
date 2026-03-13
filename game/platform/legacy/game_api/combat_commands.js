@@ -13,11 +13,14 @@ function getCombatApplication() {
 }
 
 export function applyEnemyDamage(amount, targetIdx, gs = getDefaultState()) {
-  if (typeof gs.dealDamage === 'function') {
-    return gs.dealDamage(amount, targetIdx);
-  }
-  const result = getCombatApplication().applyEnemyDamageState(gs, { amount, targetIdx });
-  return result?.actualDamage || 0;
+  const combatApplication = getCombatApplication();
+  const result = combatApplication.applyEnemyDamageState(gs, { amount, targetIdx });
+  if (typeof result?.actualDamage === 'number') return result.actualDamage;
+  return combatApplication.applyEnemyDamageRuntime(gs, {
+    amount,
+    targetIdx,
+    deps: getCombatRuntimeDeps(),
+  }) || 0;
 }
 
 export function discardCard(cardId, isExhaust = false, gs = getDefaultState(), skipHandRemove = false) {
@@ -27,17 +30,18 @@ export function discardCard(cardId, isExhaust = false, gs = getDefaultState(), s
 export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
   const combatApplication = getCombatApplication();
 
-  return combatApplication.playStateCard({
+  return combatApplication.playRuntimeCard({
     cardId,
     handIdx,
     gs,
-    card: getCurrentCard(cardId),
-    cardCostUtils: getModule('CardCostUtils'),
-    classMechanics: getModule('ClassMechanics'),
-    logger: Logger,
-    audioEngine: getAudioEngine(),
-    combatRuntimeDeps: getCombatRuntimeDeps(),
-    hudUpdateUI: getModule('HudUpdateUI'),
+    deps: {
+      card: getCurrentCard(cardId),
+      cardCostUtils: getModule('CardCostUtils'),
+      classMechanics: getModule('ClassMechanics'),
+      audioEngine: getAudioEngine(),
+      combatRuntimeDeps: getCombatRuntimeDeps(),
+      hudUpdateUI: getModule('HudUpdateUI'),
+    },
     discardCard: (nextCardId, isExhaust, state, skipHandRemove) =>
       api?.discardCard?.(nextCardId, isExhaust, state, skipHandRemove)
       || combatApplication.discardStateCard(nextCardId, isExhaust, state, skipHandRemove, Logger),
@@ -45,6 +49,5 @@ export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
 }
 
 export async function endCombat(gs = getDefaultState()) {
-  if (!gs.combat?.active || gs._endCombatRunning) return;
-  return gs.endCombat();
+  return getCombatApplication().endCombatRuntime(gs, getCombatRuntimeDeps());
 }

@@ -98,8 +98,8 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
     const numKey = event.key === '0' ? 10 : Number.parseInt(event.key, 10);
     if (!Number.isNaN(numKey) && numKey >= 1 && numKey <= 10) {
       const idx = numKey - 1;
-      if (gs?.player?.hand?.[idx] && typeof gs?.playCard === 'function') {
-        gs.playCard(gs.player.hand[idx], idx);
+      if (gs?.player?.hand?.[idx] && typeof deps.playCard === 'function') {
+        deps.playCard(gs.player.hand[idx], idx);
       }
     }
   }

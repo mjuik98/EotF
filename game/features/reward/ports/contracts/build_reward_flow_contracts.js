@@ -6,14 +6,23 @@ export function buildRewardFlowContractBuilders(ctx) {
   return {
     rewardFlow: () => {
       const refs = getRefs();
+      const rewardRefs = refs.featureRefs?.reward || {};
+      const screenRefs = refs.featureRefs?.screen || {};
+      const showRewardScreenAction = rewardRefs.showRewardScreen || refs.showRewardScreen;
+      const switchScreenAction = screenRefs.switchScreen || refs.switchScreen;
       const returnActions = createRewardReturnActions({
         returnFromReward: refs.returnFromReward,
         returnToGame: (fromReward = false) => refs.returnToGame?.(fromReward),
       });
       return {
         ...buildBaseDeps('run'),
-        openReward: (mode = false) => refs.showRewardScreen?.(mode),
-        showGameplayScreen: () => refs.switchScreen?.('game'),
+        openReward: (mode = false) => {
+          if (typeof showRewardScreenAction === 'function') {
+            return showRewardScreenAction(mode);
+          }
+          return switchScreenAction?.('reward');
+        },
+        showGameplayScreen: () => switchScreenAction?.('game'),
         ...returnActions,
       };
     },

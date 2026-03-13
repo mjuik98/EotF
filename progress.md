@@ -69,6 +69,25 @@ The current worktree contains validated changes around compat guardrails, combat
 
 ## Latest Notes
 
+- Split `game/shared/state/game_state_runtime_methods.js` into explicit attach paths:
+  - `attachCoreGameStateRuntimeMethods(target)` now attaches only common/player methods.
+  - `attachCombatGameStateRuntimeMethods(target)` now attaches combat/card helpers separately.
+  - `attachGameStateRuntimeMethods(target, { includeCombat })` remains as the transitional combined helper.
+- `game/core/game_state.js` now attaches core and combat runtime methods in two explicit steps, which makes the boundary visible at the canonical `GS` construction site instead of hiding it behind one mixed helper.
+- `game/core/game_state_core_methods.js` now re-exports only `CoreGameStateRuntimeMethods` as `GameStateCoreMethods`; compat callers using the "core" alias no longer silently receive combat/card helpers.
+- Added regression coverage for the new boundary:
+  - `tests/game_state_core_methods.test.js` now asserts `GameStateCoreMethods` exposes `addLog` but not `playCard`, `drawCards`, or `dealDamage`.
+  - `tests/core_store_public.test.js` now asserts the core-only attach path omits combat methods until the combat attach helper is called.
+- Validation after the runtime-method attach split batch:
+  - `npm run lint` PASS
+  - `npm test` PASS (`427 files / 1030 tests`)
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1137 nodes, 1236 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4180`: `#mainStartBtn` opened character select, screenshots under `output/web-game/shot-{0,1,2}.png`, and `state-{0,1,2}.json` showed `panels: ["characterSelect"]` with no captured error file.
+- Next structural target after this batch:
+  - move remaining `drawCards` and any residual combat/card behavior callers off direct `GS` method assumptions
+  - then stop attaching combat/card runtime helpers to `GS` by default outside explicit compat paths
+
 - Routed cross-feature browser loader access through feature `public.js` surfaces for codex, run, and ui settings loaders instead of direct `platform/browser/*` imports from sibling features.
 - Restored `CodexUI` to `game/platform/browser/composition/build_screen_primary_modules.js` through `game/features/codex/public.js`.
 - Simplified `game/features/codex/platform/browser/ensure_codex_browser_modules.js` to reuse the primary codex browser module catalog directly now that `CodexUI` is registered on the primary screen surface.

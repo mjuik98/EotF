@@ -47,12 +47,15 @@ export function createEnemyDeathRuntimePort(gs, deps = {}) {
     runtimePort: {
       cleanupTooltips: () => cleanupEnemyDeathTooltips(cleanupTooltips, doc, win),
       lockCombatEndInputs: () => lockCombatEndInputs(doc),
-      queueCombatEnd: () => scheduleCombatEndFlow({
-        deps,
-        endCombat: (endCombatDeps) => gs.endCombat(endCombatDeps),
-        schedule: setTimeout,
-        win,
-      }),
+      queueCombatEnd: () => {
+        if (typeof deps.endCombat !== 'function') return;
+        scheduleCombatEndFlow({
+          deps,
+          endCombat: deps.endCombat,
+          schedule: setTimeout,
+          win,
+        });
+      },
       removeDeadEnemies: () => deps.replaceCombatEnemies?.(gs, getAliveCombatEnemies(gs)),
       renderCombatEnemies: deps.renderCombatEnemies || win.renderCombatEnemies,
       scheduleEnemyRemoval: (enemyIdx, onRemove) => {
@@ -79,7 +82,7 @@ export function runCombatPlayerDeathSequence(gs, deps = {}) {
     particleSystem,
     schedule: setTimeout,
     screenShake,
-    showDeathScreen: () => gs.showDeathScreen(deps),
+    showDeathScreen: deps.showDeathScreen,
     win,
   });
 }

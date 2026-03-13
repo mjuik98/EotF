@@ -64,11 +64,13 @@ export const CardTargetUI = {
     if (!gs || !data?.cards) return;
     const card = data.cards[_dragCardId];
     if (!card) return;
+    const playCard = deps.playCard;
+    if (typeof playCard !== 'function') return;
 
     gs._dragTarget = enemyIdx;
     gs._selectedTarget = enemyIdx;
     try {
-      gs.playCard(_dragCardId, _dragIdx);
+      playCard(_dragCardId, _dragIdx);
     } finally {
       gs._dragTarget = null;
     }

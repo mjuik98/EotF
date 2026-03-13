@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GameStateCommonMethods } from '../game/core/game_state_common_methods.js';
+import { GameStateCoreMethods } from '../game/core/game_state_core_methods.js';
 import { EventBus } from '../game/core/event_bus.js';
 import { CoreEvents } from '../game/core/event_contracts.js';
 import { ItemSystem } from '../game/systems/item_system.js';
@@ -54,5 +55,12 @@ describe('GameStateCommonMethods', () => {
       type: 'echo',
       gs,
     });
+  });
+
+  it('core compat methods do not expose combat/card runtime helpers', () => {
+    expect(GameStateCoreMethods.addLog).toBeTypeOf('function');
+    expect(GameStateCoreMethods.playCard).toBeUndefined();
+    expect(GameStateCoreMethods.drawCards).toBeUndefined();
+    expect(GameStateCoreMethods.dealDamage).toBeUndefined();
   });
 });

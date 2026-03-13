@@ -1,3 +1,5 @@
+import { createCombatApplicationCapabilities } from '../ports/public_application_capabilities.js';
+
 function createShuffleArray(modules) {
   if (typeof modules.RandomUtils?.shuffleArray === 'function') {
     return modules.RandomUtils.shuffleArray.bind(modules.RandomUtils);
@@ -19,6 +21,8 @@ function resolveRunRuleHelper(modules, namedExportKey) {
 }
 
 export function createCombatActions(modules, fns, ports) {
+  const combatApplication = createCombatApplicationCapabilities();
+
   return {
     startCombat(isBoss = false) {
       const deps = ports.getCombatDeps({
@@ -158,6 +162,18 @@ export function createCombatActions(modules, fns, ports) {
 
     useEchoSkill() {
       const deps = ports.getCombatDeps({
+        applyEnemyAreaDamage: (amount, extraDeps = {}) => combatApplication.applyEnemyAreaDamageRuntime(
+          modules.GS,
+          { amount, deps: { ...ports.getCombatDeps({ gs: modules.GS }), ...extraDeps } },
+        ),
+        applyEnemyDamage: (amount, targetIdx = null, noChain = true, source = null, extraDeps = {}) =>
+          combatApplication.applyEnemyDamageRuntime(modules.GS, {
+            amount,
+            targetIdx,
+            noChain,
+            source,
+            deps: { ...ports.getCombatDeps({ gs: modules.GS }), ...extraDeps },
+          }),
         renderCombatCards: fns.renderCombatCards,
         renderCombatEnemies: fns.renderCombatEnemies,
         showEchoBurstOverlay: fns.showEchoBurstOverlay,
@@ -167,6 +183,22 @@ export function createCombatActions(modules, fns, ports) {
 
     drawCard() {
       modules.CombatActionsUI?.drawCard?.(ports.getCombatDeps({ gs: modules.GS }));
+    },
+
+    playCard(cardId, handIdx) {
+      return combatApplication.playRuntimeCard({
+        cardId,
+        handIdx,
+        gs: modules.GS,
+        deps: ports.getCombatDeps({ gs: modules.GS }),
+      });
+    },
+
+    endCombat() {
+      return combatApplication.endCombatRuntime(
+        modules.GS,
+        ports.getCombatDeps({ gs: modules.GS }),
+      );
     },
 
     handleCardDragStart(event, cardId, idx) {

@@ -17,6 +17,7 @@ import {
 } from '../../../domain/audio/audio_event_helpers.js';
 import { applyEnemyDeathState } from './enemy_death_state.js';
 import { handleEnemyDeathFlow } from './enemy_death_flow.js';
+import { endCombatRuntime } from '../ports/public_application_capabilities.js';
 import {
   createEnemyDeathRuntimePort,
   resolveDeathRuntimeContext,
@@ -41,6 +42,7 @@ export function handleCombatEnemyDeath(gs, enemy, idx, deps = {}) {
   const audioEngine = deps.audioEngine || win.AudioEngine;
   const { runtimePort } = createEnemyDeathRuntimePort(gs, {
     ...deps,
+    endCombat: (endCombatDeps) => endCombatRuntime(gs, endCombatDeps),
     replaceCombatEnemies,
     syncSelectedTarget,
   });
@@ -83,6 +85,7 @@ export function handleCombatPlayerDeath(gs, deps = {}) {
   runCombatPlayerDeathSequence(gs, {
     ...deps,
     deathQuotes: DATA.deathQuotes,
+    showDeathScreen: deps.showDeathScreen || (() => showCombatDeathScreen(gs, deps)),
   });
 }
 

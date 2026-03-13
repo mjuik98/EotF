@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   buildCombatEndFlowPayload,
+  createEnemyDeathRuntimePort,
   buildDeathEndingActions,
   lockCombatEndInputs,
+  runCombatPlayerDeathSequence,
   runPlayerDeathSequence,
   scheduleCombatEndFlow,
 } from '../game/combat/death_handler_runtime.js';
@@ -122,5 +124,72 @@ describe('death_handler_runtime', () => {
     expect(monoInner.textContent).toBe('Remain as echo.');
     expect(mono.remove).toHaveBeenCalledTimes(1);
     expect(showDeathScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('queues combat end through injected endCombat actions only', () => {
+    const endCombat = vi.fn();
+    const gs = {
+      endCombat: vi.fn(),
+      combat: { enemies: [] },
+    };
+
+    vi.useFakeTimers();
+    try {
+      const { runtimePort } = createEnemyDeathRuntimePort(gs, {
+        doc: {
+          getElementById: vi.fn(() => null),
+        },
+        endCombat,
+        replaceCombatEnemies: vi.fn(),
+        syncSelectedTarget: vi.fn(),
+        win: {},
+      });
+
+      runtimePort.queueCombatEnd();
+      vi.runAllTimers();
+
+      expect(endCombat).toHaveBeenCalledTimes(1);
+      expect(gs.endCombat).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('runs combat player death through injected showDeathScreen actions only', () => {
+    const showDeathScreen = vi.fn();
+    const gs = {
+      showDeathScreen: vi.fn(),
+    };
+
+    vi.useFakeTimers();
+    try {
+      runCombatPlayerDeathSequence(gs, {
+        deathQuotes: ['Remain as echo.'],
+        doc: {
+          body: {
+            appendChild: vi.fn(),
+            style: {},
+          },
+          createElement: vi.fn(() => ({
+            style: {},
+            appendChild: vi.fn(),
+            remove: vi.fn(),
+            textContent: '',
+          })),
+          getElementById: vi.fn(() => ({ classList: { remove: vi.fn() } })),
+        },
+        particleSystem: { deathEffect: vi.fn() },
+        screenShake: { shake: vi.fn() },
+        showDeathScreen,
+        win: { innerHeight: 720, innerWidth: 1280 },
+      });
+
+      vi.runAllTimers();
+
+      expect(showDeathScreen).toHaveBeenCalledTimes(1);
+      expect(gs.showDeathScreen).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -4,16 +4,17 @@ export function buildCombatUiContractBuilders(ctx) {
   return {
     hudUpdate: () => {
       const refs = getRefs();
+      const combatRefs = refs.featureRefs?.combat || {};
       return {
         ...buildBaseDeps('hud'),
         setBonusSystem: refs.SetBonusSystem,
-        classMechanics: refs.ClassMechanics,
-        StatusEffectsUI: refs.StatusEffectsUI,
-        statusEffectsUI: refs.StatusEffectsUI,
-        TooltipUI: refs.TooltipUI,
-        tooltipUI: refs.TooltipUI,
-        cardCostUtils: refs.CardCostUtils,
-        CardCostUtils: refs.CardCostUtils,
+        classMechanics: combatRefs.ClassMechanics || refs.ClassMechanics,
+        StatusEffectsUI: combatRefs.StatusEffectsUI || refs.StatusEffectsUI,
+        statusEffectsUI: combatRefs.StatusEffectsUI || refs.StatusEffectsUI,
+        TooltipUI: combatRefs.TooltipUI || refs.TooltipUI,
+        tooltipUI: combatRefs.TooltipUI || refs.TooltipUI,
+        cardCostUtils: combatRefs.CardCostUtils || refs.CardCostUtils,
+        CardCostUtils: combatRefs.CardCostUtils || refs.CardCostUtils,
         runRules: refs.RunRules,
         isGameStarted: () => refs._gameStarted?.(),
         requestAnimationFrame: getRaf(),
@@ -46,20 +47,23 @@ export function buildCombatUiContractBuilders(ctx) {
 
     cardTarget: () => {
       const refs = getRefs();
+      const combatRefs = refs.featureRefs?.combat || {};
       return {
         ...buildBaseDeps('combat'),
-        renderCombatEnemies: refs.renderCombatEnemies,
+        playCard: combatRefs.playCard || refs.playCard,
+        renderCombatEnemies: combatRefs.renderCombatEnemies || refs.renderCombatEnemies,
       };
     },
 
     baseCard: () => {
       const refs = getRefs();
+      const combatRefs = refs.featureRefs?.combat || {};
       return {
         ...getCombatDeps(),
-        playCardHandler: refs.GS?.playCard?.bind(refs.GS),
+        playCardHandler: combatRefs.playCard || refs.playCard,
         renderCombatCardsHandler: refs.renderCombatCards,
-        dragStartHandler: refs.handleCardDragStart,
-        dragEndHandler: refs.handleCardDragEnd,
+        dragStartHandler: combatRefs.handleCardDragStart || refs.handleCardDragStart,
+        dragEndHandler: combatRefs.handleCardDragEnd || refs.handleCardDragEnd,
         showTooltipHandler: refs.showTooltip,
         hideTooltipHandler: refs.hideTooltip,
       };

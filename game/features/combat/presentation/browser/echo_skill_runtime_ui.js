@@ -15,10 +15,18 @@ export function resolveEchoSkillTier(echoVal, constants = CONSTANTS) {
   return null;
 }
 
-export function applyEchoSkillEffect(gs, skillDef) {
+export function applyEchoSkillEffect(gs, skillDef, deps = {}) {
   if (!gs || !skillDef) return;
-  if (skillDef.dmg) gs.dealDamage(skillDef.dmg, null, true);
-  if (skillDef.aoedmg) gs.dealDamageAll(skillDef.aoedmg, true);
+  if (skillDef.dmg) {
+    if (typeof deps.applyEnemyDamage === 'function') {
+      deps.applyEnemyDamage(skillDef.dmg, null, true, null, deps);
+    }
+  }
+  if (skillDef.aoedmg) {
+    if (typeof deps.applyEnemyAreaDamage === 'function') {
+      deps.applyEnemyAreaDamage(skillDef.aoedmg, deps);
+    }
+  }
   if (skillDef.shield) gs.addShield(skillDef.shield);
   if (skillDef.weaken) gs.applyEnemyStatus('weakened', skillDef.weaken);
   if (skillDef.draw) gs.drawCards(skillDef.draw);
@@ -60,7 +68,7 @@ export function useEchoSkillRuntime(deps = {}) {
 
   const constants = deps.constants || CONSTANTS;
   const skillDef = constants.ECHO_SKILLS[gs.player.class]?.[tierInfo.tier];
-  applyEchoSkillEffect(gs, skillDef);
+  applyEchoSkillEffect(gs, skillDef, deps);
 
   deps.showEchoBurstOverlay?.();
   playEventResonanceBurst(deps.audioEngine);

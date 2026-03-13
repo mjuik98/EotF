@@ -35,6 +35,8 @@ describe('echo_skill_runtime_ui', () => {
       increaseMaxHp: vi.fn(),
       addLog: vi.fn(),
     };
+    const applyEnemyDamage = vi.fn();
+    const applyEnemyAreaDamage = vi.fn();
 
     applyEchoSkillEffect(gs, {
       dmg: 12,
@@ -49,10 +51,15 @@ describe('echo_skill_runtime_ui', () => {
       maxHpGrowth: 3,
       immune: 1,
       log: 'echo!',
+    }, {
+      applyEnemyAreaDamage,
+      applyEnemyDamage,
     });
 
-    expect(gs.dealDamage).toHaveBeenCalledWith(12, null, true);
-    expect(gs.dealDamageAll).toHaveBeenCalledWith(20, true);
+    expect(applyEnemyDamage).toHaveBeenCalledWith(12, null, true, null, expect.any(Object));
+    expect(applyEnemyAreaDamage).toHaveBeenCalledWith(20, expect.any(Object));
+    expect(gs.dealDamage).not.toHaveBeenCalled();
+    expect(gs.dealDamageAll).not.toHaveBeenCalled();
     expect(gs.addShield).toHaveBeenCalledWith(7);
     expect(gs.applyEnemyStatus).toHaveBeenCalledWith('weakened', 2);
     expect(gs.drawCards).toHaveBeenCalledWith(1);
@@ -62,6 +69,24 @@ describe('echo_skill_runtime_ui', () => {
     expect(gs.heal).toHaveBeenCalledWith(4);
     expect(gs.increaseMaxHp).toHaveBeenCalledWith(3);
     expect(gs.addBuff).toHaveBeenCalledWith('immune', 1, {});
+    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
+  });
+
+  it('does not fall back to gs damage methods when combat damage actions are missing', () => {
+    const gs = {
+      dealDamage: vi.fn(),
+      dealDamageAll: vi.fn(),
+      addLog: vi.fn(),
+    };
+
+    applyEchoSkillEffect(gs, {
+      dmg: 12,
+      aoedmg: 20,
+      log: 'echo!',
+    });
+
+    expect(gs.dealDamage).not.toHaveBeenCalled();
+    expect(gs.dealDamageAll).not.toHaveBeenCalled();
     expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
   });
 
@@ -84,6 +109,8 @@ describe('echo_skill_runtime_ui', () => {
       addLog: vi.fn(),
     };
     const deps = {
+      applyEnemyAreaDamage: vi.fn(),
+      applyEnemyDamage: vi.fn(),
       gs,
       doc: { getElementById: vi.fn(() => echoBtn) },
       showEchoBurstOverlay: vi.fn(),
@@ -95,7 +122,8 @@ describe('echo_skill_runtime_ui', () => {
     expect(useEchoSkillRuntime(deps)).toBe(true);
     expect(gs.drainEcho).toHaveBeenCalledWith(60);
     expect(gs.triggerItems).toHaveBeenCalledWith(expect.any(String), { cost: 60 });
-    expect(gs.dealDamageAll).toHaveBeenCalledWith(25, true);
+    expect(deps.applyEnemyAreaDamage).toHaveBeenCalledWith(25, expect.any(Object));
+    expect(gs.dealDamageAll).not.toHaveBeenCalled();
     expect(gs.drawCards).toHaveBeenCalledWith(2);
     expect(gs.addEcho).toHaveBeenCalledWith(10);
     expect(deps.showEchoBurstOverlay).toHaveBeenCalledTimes(1);

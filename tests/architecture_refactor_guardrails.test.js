@@ -186,6 +186,15 @@ describe('architecture refactor guardrails', () => {
     }
   });
 
+  it('keeps combat ui contracts free of GS playCard fallbacks', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/features/combat/ports/contracts/build_combat_ui_contracts.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('refs.GS?.playCard');
+  });
+
   it('removes inline close handlers from the run settings modal shell', () => {
     const html = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
     expect(html).not.toContain('onclick="closeRunSettings()"');

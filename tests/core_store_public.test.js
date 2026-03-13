@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { GS } from '../game/core/store/game_state.js';
 import { Actions, Reducers } from '../game/core/store/state_actions.js';
 import {
+  attachCombatGameStateRuntimeMethods,
+  attachCoreGameStateRuntimeMethods,
+} from '../game/shared/state/game_state_runtime_methods.js';
+import {
   selectCombatState,
   selectCurrentScreen,
   selectMetaState,
@@ -31,5 +35,15 @@ describe('core store public surface', () => {
     expect(selectCombatState(gs)).toBe(gs.combat);
     expect(selectMetaState(gs)).toBe(gs.meta);
     expect(selectStatsState(gs)).toBe(gs.stats);
+  });
+
+  it('supports explicit core-only and combat attach paths', () => {
+    const coreTarget = {};
+    attachCoreGameStateRuntimeMethods(coreTarget);
+    expect(coreTarget.addLog).toBeTypeOf('function');
+    expect(coreTarget.playCard).toBeUndefined();
+
+    attachCombatGameStateRuntimeMethods(coreTarget);
+    expect(coreTarget.playCard).toBeTypeOf('function');
   });
 });

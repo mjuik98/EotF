@@ -152,4 +152,66 @@ describe('deps factory', () => {
     expect(deps.runRules).toEqual({ id: 'patched-rules' });
     expect(new Set(listDepContracts())).toEqual(new Set(EXPECTED_CONTRACTS));
   });
+
+  it('wires combat card-play contracts through scoped action refs when present', () => {
+    const playCard = vi.fn();
+    const renderCombatEnemies = vi.fn();
+
+    seedRefs({
+      GS: { playCard: vi.fn() },
+      playCard,
+      renderCombatEnemies,
+      featureRefs: {
+        combat: {
+          playCard,
+          renderCombatEnemies,
+        },
+      },
+    });
+
+    expect(createDeps('cardTarget').playCard).toBe(playCard);
+    expect(createDeps('helpPause').playCard).toBe(playCard);
+    expect(createDeps('baseCard').playCardHandler).toBe(playCard);
+  });
+
+  it('does not fall back to GS card-play methods for combat contracts', () => {
+    const gsPlayCard = vi.fn();
+
+    seedRefs({
+      GS: { playCard: gsPlayCard },
+    });
+
+    expect(createDeps('baseCard').playCardHandler).toBeUndefined();
+  });
+
+  it('wires reward contracts through scoped reward and screen refs when present', () => {
+    const showRewardScreen = vi.fn();
+    const switchScreen = vi.fn();
+
+    seedRefs({
+      showRewardScreen,
+      switchScreen,
+      featureRefs: {
+        reward: {
+          showRewardScreen,
+        },
+        screen: {
+          switchScreen,
+        },
+      },
+    });
+
+    const rewardDeps = createDeps('reward');
+    const rewardFlow = createDeps('rewardFlow');
+
+    rewardDeps.showRewardScreen('boss');
+    rewardDeps.showGameplayScreen();
+    rewardFlow.openReward('elite');
+    rewardFlow.showGameplayScreen();
+
+    expect(showRewardScreen).toHaveBeenCalledWith('boss');
+    expect(showRewardScreen).toHaveBeenCalledWith('elite');
+    expect(switchScreen).toHaveBeenCalledWith('game');
+    expect(switchScreen).toHaveBeenCalledTimes(2);
+  });
 });

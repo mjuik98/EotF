@@ -1,14 +1,14 @@
 # Dependency Map
 
-- Generated: 2026-03-13T16:19:01.407Z
-- Nodes: 1136
-- Edges: 1230
+- Generated: 2026-03-13T17:21:16.001Z
+- Nodes: 1137
+- Edges: 1236
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| core->core | 134 |
+| core->core | 135 |
 | core->domain | 4 |
 | core->feature | 22 |
 | core->legacy | 6 |
@@ -29,7 +29,7 @@
 | feature->core | 11 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 647 |
+| feature->feature | 652 |
 | feature->legacy | 1 |
 | feature->other | 6 |
 | feature->platform | 3 |
@@ -68,8 +68,8 @@
 | game/features/combat/platform/browser/combat_browser_modules.js | 15 |
 | game/features/event/public.js | 15 |
 | game/features/combat/public.js | 13 |
+| game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
-| game/features/combat/application/death_flow_actions.js | 11 |
 | game/features/run/platform/browser/run_browser_modules.js | 10 |
 | data/events_data.js | 8 |
 | game/features/event/app/event_choice_flow_actions.js | 8 |

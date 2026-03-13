@@ -29,7 +29,7 @@ export function createNodeHandoffRuntime(deps = {}) {
     },
 
     openReward(mode = false) {
-      return callWithFallback(nodeHandoff.openReward, deps.showRewardScreen, mode);
+      return callWithFallback(nodeHandoff.openReward, deps.openReward || deps.showRewardScreen, mode);
     },
   };
 }

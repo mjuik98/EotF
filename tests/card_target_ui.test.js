@@ -45,4 +45,83 @@ describe('card_target_ui', () => {
     expect(globalThis.window.CombatUI.renderCombatEnemies).not.toHaveBeenCalled();
     globalThis.window = prevWindow;
   });
+
+  it('prefers injected playCard actions when dropping a card on an enemy', () => {
+    const playCard = vi.fn();
+    const gs = {
+      _dragTarget: null,
+      _selectedTarget: null,
+      playCard: vi.fn(),
+    };
+    const enemyCard = {
+      id: 'enemy_0',
+      style: {},
+      setAttribute: vi.fn(),
+      removeAttribute: vi.fn(),
+    };
+    const doc = {
+      querySelectorAll: vi.fn(() => [enemyCard]),
+    };
+    const dragEvent = {
+      dataTransfer: { effectAllowed: '' },
+      currentTarget: { style: {} },
+    };
+
+    CardTargetUI.handleDragStart(dragEvent, 'strike', 0, { doc });
+    CardTargetUI.handleDropOnEnemy(
+      { preventDefault: vi.fn() },
+      0,
+      {
+        data: { cards: { strike: { id: 'strike' } } },
+        doc,
+        gs,
+        playCard,
+      },
+    );
+
+    expect(playCard).toHaveBeenCalledWith('strike', 0);
+    expect(gs.playCard).not.toHaveBeenCalled();
+    expect(gs._selectedTarget).toBe(0);
+    expect(gs._dragTarget).toBe(null);
+  });
+
+  it('does not fall back to gs.playCard when dropping a card on an enemy', () => {
+    const gs = {
+      _dragTarget: null,
+      _selectedTarget: null,
+      playCard: vi.fn(),
+    };
+    const enemyCard = {
+      id: 'enemy_0',
+      style: {},
+      setAttribute: vi.fn(),
+      removeAttribute: vi.fn(),
+    };
+    const doc = {
+      querySelectorAll: vi.fn(() => [enemyCard]),
+    };
+
+    CardTargetUI.handleDragStart(
+      {
+        dataTransfer: { effectAllowed: '' },
+        currentTarget: { style: {} },
+      },
+      'strike',
+      0,
+      { doc },
+    );
+    CardTargetUI.handleDropOnEnemy(
+      { preventDefault: vi.fn() },
+      0,
+      {
+        data: { cards: { strike: { id: 'strike' } } },
+        doc,
+        gs,
+      },
+    );
+
+    expect(gs.playCard).not.toHaveBeenCalled();
+    expect(gs._selectedTarget).toBe(null);
+    expect(gs._dragTarget).toBe(null);
+  });
 });

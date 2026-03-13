@@ -30,22 +30,24 @@ export function buildCoreContractBuilders(ctx) {
 
     combatTurnBase: () => {
       const refs = getRefs();
+      const combatRefs = refs.featureRefs?.combat || {};
       return {
         ...getCombatDeps(),
-        enemyTurn: refs.enemyTurn,
-        updateChainUI: refs.updateChainUI,
-        showTurnBanner: refs.showTurnBanner,
-        renderCombatEnemies: refs.renderCombatEnemies,
-        renderCombatCards: refs.renderCombatCards,
+        enemyTurn: combatRefs.enemyTurn || refs.enemyTurn,
+        updateChainUI: combatRefs.updateChainUI || refs.updateChainUI,
+        showTurnBanner: combatRefs.showTurnBanner || refs.showTurnBanner,
+        renderCombatEnemies: combatRefs.renderCombatEnemies || refs.renderCombatEnemies,
+        renderCombatCards: combatRefs.renderCombatCards || refs.renderCombatCards,
         updateStatusDisplay: refs.updateStatusDisplay,
         updateClassSpecialUI: refs.updateClassSpecialUI,
-        updateCombatEnergy: (gs) => refs.HudUpdateUI?.updateCombatEnergy?.(gs, getHudDeps()),
-        hudUpdateUI: refs.HudUpdateUI,
-        updateUI: refs.updateUI,
-        cardCostUtils: refs.CardCostUtils,
-        classMechanics: refs.ClassMechanics,
-        showEchoBurstOverlay: refs.showEchoBurstOverlay,
-        showDmgPopup: refs.showDmgPopup,
+        updateCombatEnergy: (gs) => (combatRefs.HudUpdateUI || refs.HudUpdateUI)
+          ?.updateCombatEnergy?.(gs, getHudDeps()),
+        hudUpdateUI: combatRefs.HudUpdateUI || refs.HudUpdateUI,
+        updateUI: combatRefs.updateUI || refs.updateUI,
+        cardCostUtils: combatRefs.CardCostUtils || refs.CardCostUtils,
+        classMechanics: combatRefs.ClassMechanics || refs.ClassMechanics,
+        showEchoBurstOverlay: combatRefs.showEchoBurstOverlay || refs.showEchoBurstOverlay,
+        showDmgPopup: combatRefs.showDmgPopup || refs.showDmgPopup,
         shuffleArray: (arr) => refs.RandomUtils?.shuffleArray?.(arr) || arr,
       };
     },
@@ -58,16 +60,32 @@ export function buildCoreContractBuilders(ctx) {
 
     reward: () => {
       const refs = getRefs();
+      const rewardRefs = refs.featureRefs?.reward || {};
+      const screenRefs = refs.featureRefs?.screen || {};
+      const showRewardScreenAction = rewardRefs.showRewardScreen || refs.showRewardScreen;
+      const switchScreenAction = screenRefs.switchScreen || refs.switchScreen;
       const returnActions = createRewardReturnActions({
-        returnToGame: (fromReward = false) => refs.returnToGame?.(fromReward),
+        returnToGame: (fromReward = false) => (rewardRefs.returnToGame || refs.returnToGame)?.(fromReward),
       });
       return {
         ...buildBaseDeps('run'),
-        showGameplayScreen: () => refs.switchScreen?.('game'),
-        switchScreen: refs.switchScreen,
-        showRewardScreen: () => refs.switchScreen?.('reward'),
+        showGameplayScreen: () => switchScreenAction?.('game'),
+        switchScreen: switchScreenAction,
+        showRewardScreen: (mode = false) => {
+          if (typeof showRewardScreenAction === 'function') {
+            return showRewardScreenAction(mode);
+          }
+          return switchScreenAction?.('reward');
+        },
+        takeRewardCard: (cardId) => (rewardRefs.takeRewardCard || refs.takeRewardCard)?.(cardId),
+        takeRewardItem: (itemKey) => (rewardRefs.takeRewardItem || refs.takeRewardItem)?.(itemKey),
+        takeRewardUpgrade: () => (rewardRefs.takeRewardUpgrade || refs.takeRewardUpgrade)?.(),
+        takeRewardRemove: () => (rewardRefs.takeRewardRemove || refs.takeRewardRemove)?.(),
+        showSkipConfirm: () => (rewardRefs.showSkipConfirm || refs.showSkipConfirm)?.(),
+        hideSkipConfirm: () => (rewardRefs.hideSkipConfirm || refs.hideSkipConfirm)?.(),
+        skipReward: () => (rewardRefs.skipReward || refs.skipReward)?.(),
         ...returnActions,
-        showItemToast: refs.showItemToast,
+        showItemToast: rewardRefs.showItemToast || refs.showItemToast,
         tooltipUI: refs.TooltipUI,
         TooltipUI: refs.TooltipUI,
         descriptionUtils: refs.DescriptionUtils,

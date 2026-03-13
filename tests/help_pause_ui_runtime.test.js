@@ -133,4 +133,61 @@ describe('help_pause_ui_runtime', () => {
       gs: { currentScreen: 'game' },
     });
   });
+
+  it('prefers injected playCard actions for numeric combat hotkeys', () => {
+    const gs = {
+      currentScreen: 'combat',
+      player: { hand: ['strike'] },
+      playCard: vi.fn(),
+      combat: {
+        active: true,
+        playerTurn: true,
+        enemies: [{ name: 'A', hp: 12 }],
+      },
+    };
+    const playCard = vi.fn();
+    const event = createKeyEvent({ key: '1', code: 'Digit1' });
+
+    handleGlobalHotkey(event, {
+      doc: createDoc(),
+      ui: {
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        isHelpOpen: () => false,
+      },
+      deps: {
+        gs,
+        playCard,
+      },
+    });
+
+    expect(playCard).toHaveBeenCalledWith('strike', 0);
+    expect(gs.playCard).not.toHaveBeenCalled();
+  });
+
+  it('does not fall back to gs.playCard for numeric combat hotkeys', () => {
+    const gs = {
+      currentScreen: 'combat',
+      player: { hand: ['strike'] },
+      playCard: vi.fn(),
+      combat: {
+        active: true,
+        playerTurn: true,
+        enemies: [{ name: 'A', hp: 12 }],
+      },
+    };
+    const event = createKeyEvent({ key: '1', code: 'Digit1' });
+
+    handleGlobalHotkey(event, {
+      doc: createDoc(),
+      ui: {
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        isHelpOpen: () => false,
+      },
+      deps: { gs },
+    });
+
+    expect(gs.playCard).not.toHaveBeenCalled();
+  });
 });

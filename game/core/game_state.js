@@ -1,4 +1,7 @@
-import { attachGameStateRuntimeMethods } from '../shared/state/game_state_runtime_methods.js';
+import {
+    attachCombatGameStateRuntimeMethods,
+    attachCoreGameStateRuntimeMethods,
+} from '../shared/state/game_state_runtime_methods.js';
 import { EventBus } from './event_bus.js';
 import { Reducers } from './state_actions.js';
 import { ErrorCodes, ErrorSeverity } from './error_codes.js';
@@ -78,4 +81,5 @@ export const GS = {
     },
 };
 
-attachGameStateRuntimeMethods(GS);
+attachCoreGameStateRuntimeMethods(GS);
+attachCombatGameStateRuntimeMethods(GS);

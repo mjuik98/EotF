@@ -40,5 +40,9 @@ describe('buildBindingDepsPayload', () => {
 
     payload.resetDeckModalFilter();
     expect(resetFilter).toHaveBeenCalledTimes(1);
+    expect(payload.featureRefs.title.getSelectedClass).toBe(payload.getSelectedClass);
+    expect(payload.featureRefs.combat.CombatUI).toBe(modules.CombatUI);
+    expect(payload.featureRefs.title.showPendingClassProgressSummary).toBe(payload.showPendingClassProgressSummary);
+    expect(payload.featureRefs.reward).toEqual({});
   });
 });
