@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/codex_ui_runtime.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_runtime.js', () => ({
   bindCodexGlobalKeys: vi.fn(),
   openCodexRuntime: vi.fn(),
   closeCodexRuntime: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('../game/ui/screens/codex_ui_runtime.js', () => ({
 describe('CodexUI facade', () => {
   it('delegates modal and render actions to the runtime helper', async () => {
     const { CodexUI } = await import('../game/ui/screens/codex_ui.js');
-    const runtime = await import('../game/ui/screens/codex_ui_runtime.js');
+    const runtime = await import('../game/features/codex/presentation/browser/codex_ui_runtime.js');
     const deps = { marker: true };
 
     CodexUI.openCodex(deps);

@@ -5,8 +5,8 @@ import { HelpPauseUI } from '../game/ui/screens/help_pause_ui.js';
 import {
   showMobileWarningRuntime,
   toggleHelpOverlayRuntime,
-} from '../game/ui/screens/help_pause_ui_overlay_runtime.js';
-import { togglePauseMenuRuntime } from '../game/ui/screens/help_pause_ui_pause_runtime.js';
+} from '../game/features/ui/presentation/browser/help_pause_ui_overlay_runtime.js';
+import { togglePauseMenuRuntime } from '../game/features/ui/presentation/browser/help_pause_ui_pause_runtime.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));
@@ -155,7 +155,7 @@ describe('HelpPauseUI help overlay', () => {
 
   it('binds global hotkeys only once per module instance', async () => {
     vi.resetModules();
-    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/ui/screens/help_pause_ui.js');
+    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/features/ui/presentation/browser/help_pause_ui.js');
     const doc = {
       addEventListener: vi.fn(),
       querySelector: () => null,
@@ -166,6 +166,10 @@ describe('HelpPauseUI help overlay', () => {
     FreshHelpPauseUI.bindGlobalHotkeys({ doc });
 
     expect(doc.addEventListener).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the compat ending surface wired to the feature-local facade', () => {
+    expect(typeof EndingScreenUI.showOutcome).toBe('function');
   });
 
   it('uses injected window to decide whether to show the mobile warning', () => {

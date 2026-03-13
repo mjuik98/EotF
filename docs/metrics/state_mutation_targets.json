@@ -43,10 +43,10 @@
     "game/ui/map/map_ui_full_map_render.js": 6,
     "game/ui/map/map_ui_minimap_render.js": 6,
     "game/ui/map/map_ui_next_nodes.js": 1,
-    "game/ui/screens/codex_ui_helpers.js": 2,
-    "game/ui/screens/ending_screen_helpers.js": 1,
-    "game/ui/screens/help_pause_hotkeys_runtime_ui.js": 1,
-    "game/ui/screens/story_ui_helpers.js": 3,
-    "game/ui/screens/story_ui_runtime.js": 2
+    "game/features/codex/presentation/browser/codex_ui_helpers.js": 2,
+    "game/features/ui/presentation/browser/ending_screen_helpers.js": 1,
+    "game/features/ui/presentation/browser/help_pause_hotkeys_runtime_ui.js": 1,
+    "game/features/ui/presentation/browser/story_ui_helpers.js": 3,
+    "game/features/ui/presentation/browser/story_ui_runtime.js": 2
   }
 }

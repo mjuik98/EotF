@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/story_ui_runtime.js', () => ({
+vi.mock('../game/features/ui/presentation/browser/story_ui_runtime.js', () => ({
   unlockNextFragmentRuntime: vi.fn(),
   showRunFragmentRuntime: vi.fn(),
   checkHiddenEndingRuntime: vi.fn(),
@@ -10,7 +10,7 @@ vi.mock('../game/ui/screens/story_ui_runtime.js', () => ({
 describe('StoryUI facade', () => {
   it('delegates fragment and ending methods to the extracted runtime helper', async () => {
     const { StoryUI } = await import('../game/ui/screens/story_ui.js');
-    const runtime = await import('../game/ui/screens/story_ui_runtime.js');
+    const runtime = await import('../game/features/ui/presentation/browser/story_ui_runtime.js');
     const deps = { marker: true };
 
     StoryUI.unlockNextFragment(deps);

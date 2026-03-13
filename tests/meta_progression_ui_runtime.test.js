@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
+import { EndingScreenUI } from '../game/features/ui/presentation/browser/ending_screen_ui.js';
 import {
   restartFromEndingRuntime,
   selectMetaFragmentRuntime,
-} from '../game/ui/screens/meta_progression_ui_runtime.js';
+} from '../game/features/ui/presentation/browser/meta_progression_ui_runtime.js';
 
 describe('meta_progression_ui_runtime', () => {
   beforeEach(() => {

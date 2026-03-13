@@ -57,8 +57,8 @@ describe('intro_cinematic_runtime', () => {
   });
 
   it('mounts the intro overlay and completes on skip input', async () => {
-    const helpers = await import('../game/ui/title/intro_cinematic_helpers.js');
-    const { playIntroCinematicRuntime } = await import('../game/ui/title/intro_cinematic_runtime.js');
+    const helpers = await import('../game/features/title/presentation/browser/intro_cinematic_helpers.js');
+    const { playIntroCinematicRuntime } = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
     const doc = createDoc();
     const overlay = createOverlayShell();
     const textBox = { appendChild: vi.fn() };
@@ -120,8 +120,8 @@ describe('intro_cinematic_runtime', () => {
   });
 
   it('falls back to global document/window when deps omit browser handles', async () => {
-    const helpers = await import('../game/ui/title/intro_cinematic_helpers.js');
-    const { playIntroCinematicRuntime } = await import('../game/ui/title/intro_cinematic_runtime.js');
+    const helpers = await import('../game/features/title/presentation/browser/intro_cinematic_helpers.js');
+    const { playIntroCinematicRuntime } = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
     const doc = createDoc();
     const overlay = createOverlayShell();
     const textBox = { appendChild: vi.fn() };

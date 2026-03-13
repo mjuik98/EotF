@@ -3,7 +3,7 @@ import {
   destroyRunEndScreenRuntime,
   initRunEndScreenRuntime,
   showRunEndScreenRuntime,
-} from '../../../../ui/title/run_end_screen_runtime.js';
+} from './run_end_screen_runtime.js';
 
 export class RunEndScreenUI {
   constructor(deps = {}) {

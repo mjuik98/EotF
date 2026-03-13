@@ -11,11 +11,22 @@ vi.mock('../game/ui/run/run_mode_ui_runtime.js', () => ({
   openRunSettingsModal: vi.fn(),
   closeRunSettingsModal: vi.fn(),
 }));
+vi.mock('../game/features/run/presentation/browser/run_mode_ui_runtime.js', () => ({
+  refreshRunModeUI: vi.fn(),
+  selectPresetSlotRuntime: vi.fn(),
+  savePresetRuntime: vi.fn(),
+  closePresetDialogRuntime: vi.fn(),
+  confirmPresetSaveRuntime: vi.fn(),
+  loadPresetRuntime: vi.fn(),
+  deletePresetRuntime: vi.fn(),
+  openRunSettingsModal: vi.fn(),
+  closeRunSettingsModal: vi.fn(),
+}));
 
 describe('RunModeUI facade', () => {
   it('delegates preset and modal actions to runtime helpers', async () => {
     const { RunModeUI } = await import('../game/ui/run/run_mode_ui.js');
-    const runtime = await import('../game/ui/run/run_mode_ui_runtime.js');
+    const runtime = await import('../game/features/run/presentation/browser/run_mode_ui_runtime.js');
     const deps = { marker: true };
 
     RunModeUI.refresh(deps);

@@ -1,10 +1,10 @@
-import { renderStoryFragmentOverlay } from '../../../../ui/screens/story_ui_render.js';
+import { renderStoryFragmentOverlay } from './story_ui_render.js';
 import {
   checkHiddenEndingRuntime,
   showEndingRuntime,
   showRunFragmentRuntime,
   unlockNextFragmentRuntime,
-} from '../../../../ui/screens/story_ui_runtime.js';
+} from './story_ui_runtime.js';
 
 export const StoryUI = {
   unlockNextFragment(deps = {}) {

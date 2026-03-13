@@ -45,26 +45,26 @@ vi.mock('../game/systems/class_progression_system.js', () => ({
   },
 }));
 
-vi.mock('../game/ui/cards/tooltip_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/tooltip_ui.js', () => ({
   TooltipUI: {},
 }));
 
-vi.mock('../game/ui/title/character_select_panels.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_panels.js', () => ({
   renderCharacterInfoPanel: hoisted.renderCharacterInfoPanel,
   renderCharacterPhase: hoisted.renderCharacterPhase,
 }));
 
-vi.mock('../game/ui/title/character_select_render.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_render.js', () => ({
   renderCharacterButtons: hoisted.renderCharacterButtons,
   renderCharacterDots: hoisted.renderCharacterDots,
   updateCharacterArrows: hoisted.updateCharacterArrows,
 }));
 
-vi.mock('../game/ui/title/character_select_radar.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_radar.js', () => ({
   buildCharacterRadar: hoisted.buildCharacterRadar,
 }));
 
-vi.mock('../game/ui/title/character_select_card_ui.js', () => ({
+vi.mock('../game/features/title/platform/browser/character_select_card_ui.js', () => ({
   renderCharacterCard: hoisted.renderCharacterCard,
 }));
 

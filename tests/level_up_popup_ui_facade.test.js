@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/title/level_up_popup_runtime.js', () => ({
+vi.mock('../game/features/title/presentation/browser/level_up_popup_runtime.js', () => ({
   initLevelUpPopupRuntime: vi.fn(),
   showLevelUpPopupRuntime: vi.fn(),
   closeLevelUpPopupRuntime: vi.fn(),
@@ -9,7 +9,7 @@ vi.mock('../game/ui/title/level_up_popup_runtime.js', () => ({
 
 describe('LevelUpPopupUI facade', () => {
   it('delegates constructor setup and instance methods to the extracted runtime helper', async () => {
-    const runtime = await import('../game/ui/title/level_up_popup_runtime.js');
+    const runtime = await import('../game/features/title/presentation/browser/level_up_popup_runtime.js');
     const { LevelUpPopupUI } = await import('../game/ui/title/level_up_popup_ui.js');
     const payload = { newLevel: 2 };
     const raf = vi.fn();

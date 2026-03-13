@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/codex_ui_helpers.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_helpers.js', () => ({
   getCodexDoc: vi.fn((deps) => deps.doc),
   highlightCodexDescription: vi.fn((value) => `<hl>${value}</hl>`),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_popup.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_popup.js', () => ({
   buildCardPopupPayload: vi.fn(() => ({ theme: { bg1: '#1', bg2: '#2', border: '#3', glow: '#4' }, html: '<card />' })),
   buildCodexNavBlock: vi.fn(() => '<nav />'),
   buildCodexQuoteBlock: vi.fn(() => '<quote />'),
@@ -17,7 +17,7 @@ vi.mock('../game/ui/screens/codex_ui_popup.js', () => ({
   setCodexPopupTheme: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_controller.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', () => ({
   clearCodexPopupNavigation: vi.fn(),
   navigateCodexPopup: vi.fn(),
   setCodexPopupNavigation: vi.fn(),
@@ -41,9 +41,9 @@ describe('codex_ui_popup_runtime', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    popup = await import('../game/ui/screens/codex_ui_popup.js');
-    controller = await import('../game/ui/screens/codex_ui_controller.js');
-    runtime = await import('../game/ui/screens/codex_ui_popup_runtime.js');
+    popup = await import('../game/features/codex/presentation/browser/codex_ui_popup.js');
+    controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
+    runtime = await import('../game/features/codex/presentation/browser/codex_ui_popup_runtime.js');
   });
 
   it('opens the enemy popup, mounts markup, and wires close/nav handlers', () => {

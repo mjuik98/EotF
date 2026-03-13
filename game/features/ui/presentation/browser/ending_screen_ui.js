@@ -1,7 +1,7 @@
 import {
   cleanupEndingSession,
   showOutcomeScreenRuntime,
-} from '../../../../ui/screens/ending_screen_ui_runtime.js';
+} from './ending_screen_ui_runtime.js';
 
 let _session = null;
 

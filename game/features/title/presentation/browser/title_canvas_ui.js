@@ -1,4 +1,4 @@
-import { createTitleCanvasRuntime } from '../../../../ui/title/title_canvas_runtime.js';
+import { createTitleCanvasRuntime } from './title_canvas_runtime.js';
 
 let _runtime = null;
 

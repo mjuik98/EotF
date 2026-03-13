@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { OVERLAY_DISMISS_MS, returnToGameRuntime } from '../game/ui/run/run_return_ui_runtime.js';
+import { OVERLAY_DISMISS_MS, returnToGameRuntime } from '../game/features/run/presentation/browser/run_return_ui_runtime.js';
 
 function createClassList(initial = []) {
   const set = new Set(initial);

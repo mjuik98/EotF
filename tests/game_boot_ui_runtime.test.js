@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/title/game_boot_ui_fx.js', () => ({
+vi.mock('../game/features/title/presentation/browser/game_boot_ui_fx.js', () => ({
   countUp: vi.fn(),
   setupKeyboardNav: vi.fn(),
   startAudioWave: vi.fn(),
   startLoreTicker: vi.fn(),
 }));
 
-vi.mock('../game/ui/title/game_boot_ui_helpers.js', () => ({
+vi.mock('../game/features/title/presentation/browser/game_boot_ui_helpers.js', () => ({
   getDoc: vi.fn(),
   getWin: vi.fn(),
 }));
@@ -23,9 +23,9 @@ describe('game_boot_ui_runtime', () => {
   });
 
   it('runs the boot orchestration and schedules title stats refresh', async () => {
-    const helpers = await import('../game/ui/title/game_boot_ui_helpers.js');
-    const fx = await import('../game/ui/title/game_boot_ui_fx.js');
-    const { bootGameRuntime } = await import('../game/ui/title/game_boot_ui_runtime.js');
+    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const fx = await import('../game/features/title/presentation/browser/game_boot_ui_fx.js');
+    const { bootGameRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const statsBlock = { style: {} };
     const totalRuns = { id: 'titleTotalRuns' };
     const totalKills = { id: 'titleTotalKills' };
@@ -106,8 +106,8 @@ describe('game_boot_ui_runtime', () => {
   });
 
   it('waits for DOMContentLoaded before booting when the document is still loading', async () => {
-    const helpers = await import('../game/ui/title/game_boot_ui_helpers.js');
-    const { bootWhenReadyRuntime } = await import('../game/ui/title/game_boot_ui_runtime.js');
+    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const { bootWhenReadyRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const doc = {
       readyState: 'loading',
       addEventListener: vi.fn(),

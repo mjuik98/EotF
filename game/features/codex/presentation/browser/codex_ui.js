@@ -1,10 +1,10 @@
-import { createCodexUiState } from '../../../../ui/screens/codex_ui_controller.js';
+import { createCodexUiState } from './codex_ui_controller.js';
 import {
   closeCodexRuntime,
   openCodexRuntime,
   renderCodexContentRuntime,
   setCodexTabRuntime,
-} from '../../../../ui/screens/codex_ui_runtime.js';
+} from './codex_ui_runtime.js';
 
 const _state = createCodexUiState();
 

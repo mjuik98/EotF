@@ -1,11 +1,11 @@
-import { bindSettingsDomEvents } from '../../../../ui/screens/settings_ui_bindings.js';
+import { bindSettingsDomEvents } from './settings_ui_bindings.js';
 import {
   applySettingsAccessibility,
   applySettingsVisual,
   applySettingsVolume,
   resetSettingsToDefaults,
   toggleSettingsMute,
-} from '../../../../ui/screens/settings_ui_apply_helpers.js';
+} from './settings_ui_apply_helpers.js';
 import {
   applyBootSettings,
   applyTabDisplay,
@@ -18,7 +18,7 @@ import {
   syncKeybindingDisplay,
   syncVolumeDisplay,
   updateConflictBanner,
-} from '../../../../ui/screens/settings_ui_helpers.js';
+} from './settings_ui_helpers.js';
 import {
   cancelSettingsRebind,
   cleanupSettingsRebind,
@@ -26,7 +26,7 @@ import {
   getLiveSettingsDeps,
   openSettingsModal,
   startSettingsRebind,
-} from '../../../../ui/screens/settings_ui_runtime.js';
+} from './settings_ui_runtime.js';
 
 export const SettingsUI = {
   _activeTab: 'sound',

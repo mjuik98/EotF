@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/meta_progression_ui_runtime.js', () => ({
+vi.mock('../game/features/ui/presentation/browser/meta_progression_ui_runtime.js', () => ({
   selectMetaFragmentRuntime: vi.fn(),
   restartFromEndingRuntime: vi.fn(),
 }));
@@ -8,7 +8,7 @@ vi.mock('../game/ui/screens/meta_progression_ui_runtime.js', () => ({
 describe('MetaProgressionUI facade', () => {
   it('delegates fragment selection and ending restart to the extracted runtime helper', async () => {
     const { MetaProgressionUI } = await import('../game/ui/screens/meta_progression_ui.js');
-    const runtime = await import('../game/ui/screens/meta_progression_ui_runtime.js');
+    const runtime = await import('../game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
     const deps = { marker: true };
 
     MetaProgressionUI.selectEndingFragment('echo_boost', deps);

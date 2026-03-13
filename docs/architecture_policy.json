@@ -221,6 +221,129 @@
       "message": "title character select runtimes must use title feature-local selection use cases instead of app/run compat files"
     },
     {
+      "id": "ui-screen-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/ui/presentation/browser/screen_ui"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/screen_ui"
+      ],
+      "message": "screen shell files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "ui-settings-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/ui/presentation/browser/settings_ui"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/settings_ui"
+      ],
+      "message": "settings ui files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "ui-story-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/ui/presentation/browser/story_ui"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/story_ui"
+      ],
+      "message": "story ui files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "ui-help-pause-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/ui/presentation/browser/help_pause_"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/help_pause_"
+      ],
+      "message": "help/pause ui files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "ui-ending-screen-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/ui/presentation/browser/ending_"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/ending_"
+      ],
+      "message": "ending screen files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "run-mode-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/run/presentation/browser/run_mode_"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/run/run_mode_"
+      ],
+      "message": "run mode ui files must use feature-local browser helpers instead of ui/run compat paths"
+    },
+    {
+      "id": "run-return-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/run/presentation/browser/run_return_"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/run/run_return_"
+      ],
+      "message": "run return ui files must use feature-local browser helpers instead of ui/run compat paths"
+    },
+    {
+      "id": "ui-meta-progression-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/ui/presentation/browser/meta_progression_ui"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/meta_progression_ui"
+      ],
+      "message": "meta progression ui files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "codex-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/codex/presentation/browser/codex_ui"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/screens/codex_ui"
+      ],
+      "message": "codex ui files must use feature-local browser helpers instead of ui/screens compat paths"
+    },
+    {
+      "id": "title-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/title/presentation/browser/title_canvas_",
+        "game/features/title/presentation/browser/run_end_screen_",
+        "game/features/title/presentation/browser/level_up_popup_",
+        "game/features/title/presentation/browser/intro_cinematic_",
+        "game/features/title/presentation/browser/game_canvas_setup_ui",
+        "game/features/title/presentation/browser/game_boot_ui",
+        "game/features/title/platform/browser/character_select_",
+        "game/features/title/platform/browser/create_character_select_"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/title/title_canvas_",
+        "game/ui/title/run_end_screen_",
+        "game/ui/title/level_up_popup_",
+        "game/ui/title/intro_cinematic_",
+        "game/ui/title/game_canvas_setup_ui",
+        "game/ui/title/game_boot_ui",
+        "game/ui/title/character_select_"
+      ],
+      "message": "title browser files must use feature-local browser helpers instead of ui/title compat paths"
+    },
+    {
       "id": "title-runtime-effects-feature-surface-only",
       "from": ["feature"],
       "sourceFiles": [

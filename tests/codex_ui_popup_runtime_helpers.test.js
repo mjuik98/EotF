@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/codex_ui_popup.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_popup.js', () => ({
   closeCodexPopup: vi.fn(),
   ensureCodexPopupOverlay: vi.fn(),
   openCodexPopup: vi.fn(),
   setCodexPopupTheme: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_controller.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', () => ({
   clearCodexPopupNavigation: vi.fn(),
   navigateCodexPopup: vi.fn(),
   setCodexPopupNavigation: vi.fn(),
@@ -31,9 +31,9 @@ describe('codex_ui_popup_runtime_helpers', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    popup = await import('../game/ui/screens/codex_ui_popup.js');
-    controller = await import('../game/ui/screens/codex_ui_controller.js');
-    helpers = await import('../game/ui/screens/codex_ui_popup_runtime_helpers.js');
+    popup = await import('../game/features/codex/presentation/browser/codex_ui_popup.js');
+    controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
+    helpers = await import('../game/features/codex/presentation/browser/codex_ui_popup_runtime_helpers.js');
   });
 
   it('closes popup state and clears navigation', () => {

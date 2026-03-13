@@ -3,12 +3,12 @@ import {
   ensureRunConfig,
   getDoc,
   getMeta,
-} from '../../../../ui/run/run_mode_ui_helpers.js';
+} from './run_mode_ui_helpers.js';
 import {
   curseFlash,
   flash,
   refreshInscriptionPanel,
-} from '../../../../ui/run/run_mode_ui_render.js';
+} from './run_mode_ui_render.js';
 import {
   closePresetDialogRuntime,
   closeRunSettingsModal,
@@ -19,7 +19,7 @@ import {
   refreshRunModeUI,
   savePresetRuntime,
   selectPresetSlotRuntime,
-} from '../../../../ui/run/run_mode_ui_runtime.js';
+} from './run_mode_ui_runtime.js';
 
 export const RunModeUI = {
   _selectedPresetSlot: 0,

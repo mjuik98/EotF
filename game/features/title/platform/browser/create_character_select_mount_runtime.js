@@ -7,14 +7,14 @@ import { TooltipUI } from '../../../combat/presentation/browser/tooltip_ui.js';
 import {
   renderCharacterInfoPanel,
   renderCharacterPhase,
-} from '../../../../ui/title/character_select_panels.js';
+} from './character_select_panels.js';
 import {
   renderCharacterButtons,
   renderCharacterDots,
   updateCharacterArrows,
-} from '../../../../ui/title/character_select_render.js';
-import { buildCharacterRadar } from '../../../../ui/title/character_select_radar.js';
-import { renderCharacterCard } from '../../../../ui/title/character_select_card_ui.js';
+} from './character_select_render.js';
+import { buildCharacterRadar } from './character_select_radar.js';
+import { renderCharacterCard } from './character_select_card_ui.js';
 
 export function buildCharacterSelectSectionLabel(text, accent) {
   return `<span class="s-label" style="border-left:2px solid ${accent}44">${text}</span>`;

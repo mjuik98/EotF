@@ -13,7 +13,7 @@ import {
   closeCharacterSkillModal,
   openCharacterSkillModal,
 } from './character_select_modal.js';
-import { createCharacterParticleRuntime } from '../../../../ui/title/character_select_particles.js';
+import { createCharacterParticleRuntime } from './character_select_particles.js';
 import { createCharacterSummaryReplay } from './character_select_summary_replay.js';
 import { createCharacterSelectMountRuntime } from './create_character_select_mount_runtime.js';
 

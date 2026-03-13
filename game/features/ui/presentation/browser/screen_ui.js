@@ -1,5 +1,5 @@
-import { getDoc } from '../../../../ui/screens/screen_ui_helpers.js';
-import { switchScreenRuntime } from '../../../../ui/screens/screen_ui_runtime.js';
+import { getDoc } from './screen_ui_helpers.js';
+import { switchScreenRuntime } from './screen_ui_runtime.js';
 
 export const ScreenUI = {
   switchScreen(screen, deps = {}) {

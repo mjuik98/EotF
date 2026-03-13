@@ -2,7 +2,7 @@ import {
   getGameCanvasRefs,
   initGameCanvasRuntime,
   resizeGameCanvasRuntime,
-} from '../../../../ui/title/game_canvas_setup_ui_runtime.js';
+} from './game_canvas_setup_ui_runtime.js';
 
 const _state = {
   gameCanvas: null,

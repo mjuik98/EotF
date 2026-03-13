@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/codex_ui_helpers.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_helpers.js', () => ({
   applyCodexFilter: vi.fn((entries) => entries.filter((entry) => entry.keep !== false)),
   buildCodexProgress: vi.fn(() => ({ enemies: 2 })),
   ensureCodexState: vi.fn(() => ({
@@ -14,7 +14,7 @@ vi.mock('../game/ui/screens/codex_ui_helpers.js', () => ({
   isSeenCodexCard: vi.fn((codex, id) => codex.cards.has(id)),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_render.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_render.js', () => ({
   createCodexCardEntry: vi.fn((doc, entry, index, options) => ({ doc, entry, index, options })),
   createCodexEnemyCard: vi.fn((doc, enemy, index, options) => ({ doc, enemy, index, options })),
   createCodexItemCard: vi.fn((doc, item, index, options) => ({ doc, item, index, options })),
@@ -25,7 +25,7 @@ vi.mock('../game/ui/screens/codex_ui_render.js', () => ({
   renderCodexSetView: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_popup_runtime.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_popup_runtime.js', () => ({
   openCardCodexPopup: vi.fn(),
   openEnemyCodexPopup: vi.fn(),
   openItemCodexPopup: vi.fn(),
@@ -38,9 +38,9 @@ describe('codex_ui_runtime_helpers', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    helpers = await import('../game/ui/screens/codex_ui_runtime_helpers.js');
-    render = await import('../game/ui/screens/codex_ui_render.js');
-    popupRuntime = await import('../game/ui/screens/codex_ui_popup_runtime.js');
+    helpers = await import('../game/features/codex/presentation/browser/codex_ui_runtime_helpers.js');
+    render = await import('../game/features/codex/presentation/browser/codex_ui_render.js');
+    popupRuntime = await import('../game/features/codex/presentation/browser/codex_ui_popup_runtime.js');
   });
 
   it('renders progress and filter callbacks through shared helpers', () => {

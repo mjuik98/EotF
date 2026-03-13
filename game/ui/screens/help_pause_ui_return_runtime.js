@@ -1,5 +1,1 @@
-import { confirmPauseReturnToTitle } from '../../features/title/application/help_pause_title_actions.js';
-
-export function confirmReturnToTitleRuntime(deps = {}) {
-  return confirmPauseReturnToTitle(deps);
-}
+export * from '../../features/ui/presentation/browser/help_pause_ui_return_runtime.js';

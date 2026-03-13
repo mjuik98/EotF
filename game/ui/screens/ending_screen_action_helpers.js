@@ -1,5 +1,1 @@
-export {
-  resolveEndingActions,
-  restartHiddenEndingOverlay,
-  scheduleEndingRestartAction,
-} from '../../features/title/application/ending_action_ports.js';
+export * from '../../features/ui/presentation/browser/ending_screen_action_helpers.js';

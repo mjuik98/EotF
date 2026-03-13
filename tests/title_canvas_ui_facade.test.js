@@ -19,7 +19,7 @@ const {
   })),
 }));
 
-vi.mock('../game/ui/title/title_canvas_runtime.js', () => ({
+vi.mock('../game/features/title/presentation/browser/title_canvas_runtime.js', () => ({
   createTitleCanvasRuntime: createTitleCanvasRuntimeSpy,
 }));
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { cleanupEndingSession, showOutcomeScreenRuntime } from '../game/ui/screens/ending_screen_ui_runtime.js';
+import { cleanupEndingSession, showOutcomeScreenRuntime } from '../game/features/ui/presentation/browser/ending_screen_ui_runtime.js';
 
 function createMockElement(tagName = 'div') {
   return {

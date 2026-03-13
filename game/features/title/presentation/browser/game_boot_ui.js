@@ -1,15 +1,15 @@
 import {
   fireWarpBurst,
   teardownTitleFx,
-} from '../../../../ui/title/game_boot_ui_fx.js';
+} from './game_boot_ui_fx.js';
 import {
   getDoc,
   refreshTitleSaveState,
-} from '../../../../ui/title/game_boot_ui_helpers.js';
+} from './game_boot_ui_helpers.js';
 import {
   bootGameRuntime,
   bootWhenReadyRuntime,
-} from '../../../../ui/title/game_boot_ui_runtime.js';
+} from './game_boot_ui_runtime.js';
 
 export const GameBootUI = {
   refreshTitleSaveState(deps = {}) {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/screens/codex_ui_helpers.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_helpers.js', () => ({
   applyCodexFilter: vi.fn((entries) => entries),
   buildCodexProgress: vi.fn(() => ({ enemies: 1 })),
   ensureCodexState: vi.fn(() => ({
@@ -17,7 +17,7 @@ vi.mock('../game/ui/screens/codex_ui_helpers.js', () => ({
   isSeenCodexCard: vi.fn(() => true),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_render.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_render.js', () => ({
   createCodexCardEntry: vi.fn(),
   createCodexEnemyCard: vi.fn(),
   createCodexItemCard: vi.fn(),
@@ -28,11 +28,11 @@ vi.mock('../game/ui/screens/codex_ui_render.js', () => ({
   renderCodexSetView: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_inscriptions.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_inscriptions.js', () => ({
   renderCodexInscriptions: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_popup.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_popup.js', () => ({
   buildCardPopupPayload: vi.fn(),
   buildCodexNavBlock: vi.fn(() => '<nav/>'),
   buildCodexQuoteBlock: vi.fn(() => '<quote/>'),
@@ -44,12 +44,12 @@ vi.mock('../game/ui/screens/codex_ui_popup.js', () => ({
   setCodexPopupTheme: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_structure.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_structure.js', () => ({
   injectCodexModalStructure: vi.fn(),
   setCodexTabState: vi.fn(),
 }));
 
-vi.mock('../game/ui/screens/codex_ui_controller.js', () => ({
+vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', () => ({
   clearCodexPopupNavigation: vi.fn(),
   closeCodexModal: vi.fn(),
   navigateCodexPopup: vi.fn(),
@@ -68,11 +68,11 @@ describe('codex_ui_runtime', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    runtime = await import('../game/ui/screens/codex_ui_runtime.js');
-    render = await import('../game/ui/screens/codex_ui_render.js');
-    structure = await import('../game/ui/screens/codex_ui_structure.js');
-    controller = await import('../game/ui/screens/codex_ui_controller.js');
-    inscriptions = await import('../game/ui/screens/codex_ui_inscriptions.js');
+    runtime = await import('../game/features/codex/presentation/browser/codex_ui_runtime.js');
+    render = await import('../game/features/codex/presentation/browser/codex_ui_render.js');
+    structure = await import('../game/features/codex/presentation/browser/codex_ui_structure.js');
+    controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
+    inscriptions = await import('../game/features/codex/presentation/browser/codex_ui_inscriptions.js');
   });
 
   it('opens the codex modal and wires initial render callbacks', () => {

@@ -3,7 +3,7 @@ import {
   getGameCanvasRefs,
   initGameCanvasRuntime,
   resizeGameCanvasRuntime,
-} from '../game/ui/title/game_canvas_setup_ui_runtime.js';
+} from '../game/features/title/presentation/browser/game_canvas_setup_ui_runtime.js';
 
 function createCanvas({ width = 720, height = 480, offsetWidth = 220 } = {}) {
   return {

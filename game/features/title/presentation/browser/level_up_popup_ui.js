@@ -3,7 +3,7 @@ import {
   destroyLevelUpPopupRuntime,
   initLevelUpPopupRuntime,
   showLevelUpPopupRuntime,
-} from '../../../../ui/title/level_up_popup_runtime.js';
+} from './level_up_popup_runtime.js';
 
 export class LevelUpPopupUI {
   constructor(deps = {}) {

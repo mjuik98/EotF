@@ -51,8 +51,18 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   `game/app/{combat,event}/*_service.js` should remain thin re-exports only.
 - Screen-shell and codex top-level facades now belong under `game/features/ui/presentation/browser/*` and `game/features/codex/presentation/browser/*`.
   `game/ui/screens/{screen_ui,ending_screen_ui,story_ui,meta_progression_ui,help_pause_ui,settings_ui,codex_ui}.js` should remain thin re-exports only, and `game/platform/browser/composition/build_screen_{primary,overlay}_modules.js` should compose through feature public facades.
+- Screen-shell helper/runtime ownership is also moving inward.
+  `game/features/ui/presentation/browser/{screen_ui*,settings_ui*,story_ui*}.js` now owns those extracted browser helpers, while compat files in `game/ui/screens/` with the same prefixes should remain thin re-exports only.
+- Pause/help and ending-screen browser ownership now follows the same rule.
+  `game/features/ui/presentation/browser/{help_pause_*,ending_*}.js` owns those helpers and runtimes, while matching files in `game/ui/screens/` should remain thin compat re-exports only.
+- Meta progression and codex browser ownership now follows the same rule.
+  `game/features/ui/presentation/browser/meta_progression_ui*.js` and `game/features/codex/presentation/browser/codex_ui*.js` own those helpers and runtimes, while matching files in `game/ui/screens/` should remain thin compat re-exports only.
 - Title/run/combat top-level browser facades now belong under `game/features/{title,run,combat}/presentation/browser/*`.
   Compat entry files in `game/ui/title/*`, `game/ui/run/*`, `game/ui/combat/*`, `game/ui/cards/*`, and `game/presentation/combat/combat_turn_ui.js` should remain thin re-exports only, while `game/features/*/platform/browser/*_browser_modules.js` should compose through feature-local presentation facades.
+- Run browser helper ownership is also moving inward.
+  `game/features/run/presentation/browser/{run_mode_*,run_return_*}.js` now owns the run-mode and run-return browser helpers, while compat files in `game/ui/run/` with the same prefixes should remain thin re-exports only.
+- Title browser helper ownership is also moving inward.
+  `game/features/title/presentation/browser/{title_canvas_*,run_end_screen_*,level_up_popup_*,intro_cinematic_*,game_canvas_setup_ui_*,game_boot_ui*}.js` and `game/features/title/platform/browser/character_select_*.js` now own those browser helpers, while matching files in `game/ui/title/` should remain thin compat re-exports only.
 - Title browser helper ownership is also moving inward:
   `game/features/title/platform/browser/*` now owns class-select and character-select helper modules, while compat files such as `game/ui/title/{class_select_buttons_ui,class_select_selection_ui,class_select_tooltip_ui,character_select_audio,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay}.js` should stay thin re-exports only.
 - Shared browser-only transition effects belong under `game/platform/browser/*`.

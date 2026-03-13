@@ -3,7 +3,7 @@ import {
   closeRunSettingsModal,
   confirmPresetSaveRuntime,
   selectPresetSlotRuntime,
-} from '../game/ui/run/run_mode_ui_runtime.js';
+} from '../game/features/run/presentation/browser/run_mode_ui_runtime.js';
 
 function createClassList(initial = []) {
   const set = new Set(initial);

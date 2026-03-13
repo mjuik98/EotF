@@ -1,18 +1,18 @@
-import { getDoc } from '../../../../ui/screens/help_pause_ui_helpers.js';
+import { getDoc } from './help_pause_ui_helpers.js';
 import {
   closePauseMenu,
   handleGlobalHotkey,
-} from '../../../../ui/screens/help_pause_ui_runtime.js';
-import { confirmAbandonRun } from '../../../../ui/screens/help_pause_ui_abandon_runtime.js';
+} from './help_pause_ui_runtime.js';
+import { confirmAbandonRun } from './help_pause_ui_abandon_runtime.js';
 import {
   toggleAbandonConfirmRuntime,
   toggleReturnTitleConfirmRuntime,
-} from '../../../../ui/screens/help_pause_ui_dialog_runtime.js';
+} from './help_pause_ui_dialog_runtime.js';
 import {
   showMobileWarningRuntime,
   toggleHelpOverlayRuntime,
-} from '../../../../ui/screens/help_pause_ui_overlay_runtime.js';
-import { togglePauseMenuRuntime } from '../../../../ui/screens/help_pause_ui_pause_runtime.js';
+} from './help_pause_ui_overlay_runtime.js';
+import { togglePauseMenuRuntime } from './help_pause_ui_pause_runtime.js';
 
 let _helpOpen = false;
 let _pauseOpen = false;

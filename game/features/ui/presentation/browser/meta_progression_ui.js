@@ -1,7 +1,7 @@
 import {
   restartFromEndingRuntime,
   selectMetaFragmentRuntime,
-} from '../../../../ui/screens/meta_progression_ui_runtime.js';
+} from './meta_progression_ui_runtime.js';
 
 export const MetaProgressionUI = {
   selectEndingFragment(effect, deps = {}) {
