@@ -3,14 +3,14 @@ import {
   buildDeckModalEntries,
   renderDeckModalCards,
   renderDeckStatusBar,
-} from '../../../../ui/cards/deck_modal_render_ui.js';
+} from './deck_modal_render_ui.js';
 import {
   closeDeckModal,
   getDeckModalFilter,
   openDeckModal,
   resetDeckModalFilter,
   setDeckModalFilter,
-} from '../../../../ui/cards/deck_modal_runtime_ui.js';
+} from './deck_modal_runtime_ui.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;

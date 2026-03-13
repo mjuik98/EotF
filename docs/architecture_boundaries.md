@@ -63,6 +63,8 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   `game/features/run/presentation/browser/{run_mode_*,run_return_*}.js` now owns the run-mode and run-return browser helpers, while compat files in `game/ui/run/` with the same prefixes should remain thin re-exports only.
 - Title browser helper ownership is also moving inward.
   `game/features/title/presentation/browser/{title_canvas_*,run_end_screen_*,level_up_popup_*,intro_cinematic_*,game_canvas_setup_ui_*,game_boot_ui*}.js` and `game/features/title/platform/browser/character_select_*.js` now own those browser helpers, while matching files in `game/ui/title/` should remain thin compat re-exports only.
+- Combat browser helper ownership now follows the same rule.
+  `game/features/combat/presentation/browser/*` now owns combat/cards/hud browser helpers and runtimes, while matching files in `game/ui/combat/`, `game/ui/cards/`, and `game/ui/hud/` should remain thin compat re-exports only.
 - Title browser helper ownership is also moving inward:
   `game/features/title/platform/browser/*` now owns class-select and character-select helper modules, while compat files such as `game/ui/title/{class_select_buttons_ui,class_select_selection_ui,class_select_tooltip_ui,character_select_audio,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay}.js` should stay thin re-exports only.
 - Shared browser-only transition effects belong under `game/platform/browser/*`.

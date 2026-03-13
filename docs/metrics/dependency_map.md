@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-13T00:41:13.099Z
-- Nodes: 924
-- Edges: 1091
+- Generated: 2026-03-13T01:15:39.784Z
+- Nodes: 983
+- Edges: 1103
 
 ## Layer Edges
 
@@ -43,17 +43,16 @@
 | engine->engine | 2 |
 | feature->combat | 6 |
 | feature->core | 11 |
-| feature->data | 14 |
-| feature->domain | 32 |
-| feature->feature | 427 |
-| feature->other | 2 |
+| feature->data | 33 |
+| feature->domain | 35 |
+| feature->feature | 494 |
+| feature->other | 5 |
 | feature->platform | 3 |
-| feature->presentation | 2 |
-| feature->shared | 21 |
+| feature->presentation | 3 |
+| feature->shared | 25 |
 | feature->state | 2 |
 | feature->systems | 5 |
-| feature->ui | 27 |
-| feature->utils | 11 |
+| feature->utils | 25 |
 | legacy->core | 4 |
 | legacy->domain | 1 |
 | legacy->feature | 7 |
@@ -82,17 +81,13 @@
 | systems->feature | 3 |
 | systems->platform | 1 |
 | systems->state | 1 |
-| systems->systems | 10 |
+| systems->systems | 13 |
 | systems->utils | 1 |
-| ui->app | 2 |
-| ui->data | 20 |
-| ui->domain | 4 |
-| ui->feature | 10 |
-| ui->other | 3 |
-| ui->presentation | 1 |
-| ui->shared | 1 |
-| ui->ui | 38 |
-| ui->utils | 14 |
+| ui->app | 1 |
+| ui->data | 1 |
+| ui->domain | 1 |
+| ui->feature | 8 |
+| ui->ui | 7 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 2 |

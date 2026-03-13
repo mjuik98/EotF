@@ -5,7 +5,7 @@ const { showSpy, hideSpy } = vi.hoisted(() => ({
   hideSpy: vi.fn(),
 }));
 
-vi.mock('../game/ui/combat/status_tooltip_builder.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/status_tooltip_builder.js', () => ({
   StatusTooltipUI: {
     show: showSpy,
     hide: hideSpy,

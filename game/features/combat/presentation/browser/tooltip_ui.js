@@ -1,17 +1,17 @@
 import {
   hideGeneralTooltipUi,
   showGeneralTooltipUi,
-} from '../../../../ui/cards/tooltip_general_ui.js';
+} from './tooltip_general_ui.js';
 import {
   hideItemTooltipUi,
   showItemTooltipUi,
-} from '../../../../ui/cards/tooltip_item_ui.js';
+} from './tooltip_item_ui.js';
 import {
   extractTooltipCardId,
   positionCardTooltip,
   renderCardTooltipContent,
   syncCardKeywordTooltip,
-} from '../../../../ui/cards/tooltip_card_render_ui.js';
+} from './tooltip_card_render_ui.js';
 
 let _tooltipTimer = null;
 

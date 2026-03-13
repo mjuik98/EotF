@@ -1,11 +1,11 @@
 import {
   hideEnemyStatusTooltipOverlay,
   showEnemyStatusTooltipOverlay,
-} from '../../../../ui/combat/combat_enemy_status_tooltip_ui.js';
+} from './combat_enemy_status_tooltip_ui.js';
 import {
   hideEnemyIntentTooltip,
   showEnemyIntentTooltip,
-} from '../../../../ui/combat/combat_intent_ui.js';
+} from './combat_intent_ui.js';
 import {
   ENEMY_STATUS_DESC,
   ENEMY_STATUS_KR,
@@ -14,11 +14,11 @@ import {
   createEnemyCardView,
   updateEnemyCardView,
   updateEnemyHpView,
-} from '../../../../ui/combat/combat_enemy_card_ui.js';
+} from './combat_enemy_card_ui.js';
 import {
   buildEnemyHpUpdateViewModel,
   syncCombatEnemyFloatingTooltips,
-} from '../../../../ui/combat/combat_enemy_runtime_ui.js';
+} from './combat_enemy_runtime_ui.js';
 import {
   buildCombatEnemyHandlers,
   cleanupCombatTooltips,

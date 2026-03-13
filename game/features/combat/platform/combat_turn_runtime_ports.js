@@ -4,14 +4,14 @@ import {
   setPlayerTurnUiState,
   showBossPhaseShiftUi,
   syncCombatTurnEnergy,
-} from '../../../ui/combat/combat_turn_runtime_ui.js';
+} from '../presentation/browser/combat_turn_runtime_ui.js';
 import {
   dispatchCombatTurnUiAction,
   playEnemyAttackHitUi,
   playEnemyStatusTickEffects,
   shouldAbortCombatTurn,
   waitWhileCombatActive,
-} from '../../../ui/combat/combat_turn_flow_ui.js';
+} from '../presentation/browser/combat_turn_flow_ui.js';
 
 function getDoc(deps = {}) {
   return deps?.doc || document;

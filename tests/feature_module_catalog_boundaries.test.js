@@ -133,6 +133,76 @@ const TITLE_FEATURE_BROWSER_FILES = [
   'game/features/title/platform/browser/character_select_radar.js',
   'game/features/title/platform/browser/character_select_card_ui.js',
 ];
+const COMBAT_FEATURE_BROWSER_FILES = [
+  'game/features/combat/presentation/browser/card_ui.js',
+  'game/features/combat/presentation/browser/card_clone_render_ui.js',
+  'game/features/combat/presentation/browser/card_clone_runtime_ui.js',
+  'game/features/combat/presentation/browser/card_clone_ui.js',
+  'game/features/combat/presentation/browser/card_popup_ui.js',
+  'game/features/combat/presentation/browser/card_render_helpers_ui.js',
+  'game/features/combat/presentation/browser/combat_actions_runtime_ui.js',
+  'game/features/combat/presentation/browser/combat_actions_ui.js',
+  'game/features/combat/presentation/browser/combat_card_render_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_card_renderers_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_card_sections_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_card_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_runtime_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_status_badges_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_status_tooltip_ui.js',
+  'game/features/combat/presentation/browser/combat_enemy_view_model_ui.js',
+  'game/features/combat/presentation/browser/combat_hud_chronicle.js',
+  'game/features/combat/presentation/browser/combat_hud_chronicle_render_ui.js',
+  'game/features/combat/presentation/browser/combat_hud_chronicle_runtime_ui.js',
+  'game/features/combat/presentation/browser/combat_hud_feedback.js',
+  'game/features/combat/presentation/browser/combat_hud_log_ui.js',
+  'game/features/combat/presentation/browser/combat_hud_special_ui.js',
+  'game/features/combat/presentation/browser/combat_hud_ui.js',
+  'game/features/combat/presentation/browser/combat_hud_widgets_ui.js',
+  'game/features/combat/presentation/browser/combat_info_items_ui.js',
+  'game/features/combat/presentation/browser/combat_info_runtime_ui.js',
+  'game/features/combat/presentation/browser/combat_info_status_ui.js',
+  'game/features/combat/presentation/browser/combat_info_ui.js',
+  'game/features/combat/presentation/browser/combat_intent_ui.js',
+  'game/features/combat/presentation/browser/combat_render_helpers.js',
+  'game/features/combat/presentation/browser/combat_start_render_ui.js',
+  'game/features/combat/presentation/browser/combat_start_runtime_ui.js',
+  'game/features/combat/presentation/browser/combat_start_ui.js',
+  'game/features/combat/presentation/browser/combat_turn_flow_ui.js',
+  'game/features/combat/presentation/browser/combat_turn_render_ui.js',
+  'game/features/combat/presentation/browser/combat_turn_runtime_ui.js',
+  'game/features/combat/presentation/browser/combat_turn_ui.js',
+  'game/features/combat/presentation/browser/combat_ui.js',
+  'game/features/combat/presentation/browser/combat_ui_runtime_helpers.js',
+  'game/features/combat/presentation/browser/deck_modal_render_ui.js',
+  'game/features/combat/presentation/browser/deck_modal_runtime_ui.js',
+  'game/features/combat/presentation/browser/deck_modal_ui.js',
+  'game/features/combat/presentation/browser/dom_value_ui.js',
+  'game/features/combat/presentation/browser/draw_availability.js',
+  'game/features/combat/presentation/browser/echo_skill_runtime_ui.js',
+  'game/features/combat/presentation/browser/echo_skill_ui.js',
+  'game/features/combat/presentation/browser/feedback_ui.js',
+  'game/features/combat/presentation/browser/feedback_ui_effects.js',
+  'game/features/combat/presentation/browser/feedback_ui_notices.js',
+  'game/features/combat/presentation/browser/feedback_ui_toasts.js',
+  'game/features/combat/presentation/browser/hud_effects_ui.js',
+  'game/features/combat/presentation/browser/hud_panel_runtime_helpers.js',
+  'game/features/combat/presentation/browser/hud_panel_sections.js',
+  'game/features/combat/presentation/browser/hud_render_helpers.js',
+  'game/features/combat/presentation/browser/hud_stats_ui.js',
+  'game/features/combat/presentation/browser/hud_update_runtime_helpers.js',
+  'game/features/combat/presentation/browser/hud_update_ui.js',
+  'game/features/combat/presentation/browser/status_effects_ui.js',
+  'game/features/combat/presentation/browser/status_tooltip_builder.js',
+  'game/features/combat/presentation/browser/status_tooltip_copy.js',
+  'game/features/combat/presentation/browser/status_tooltip_layout.js',
+  'game/features/combat/presentation/browser/status_tooltip_runtime_ui.js',
+  'game/features/combat/presentation/browser/status_tooltip_sections.js',
+  'game/features/combat/presentation/browser/tooltip_card_render_ui.js',
+  'game/features/combat/presentation/browser/tooltip_general_ui.js',
+  'game/features/combat/presentation/browser/tooltip_item_render_ui.js',
+  'game/features/combat/presentation/browser/tooltip_item_ui.js',
+  'game/features/combat/presentation/browser/tooltip_ui.js',
+];
 const PUBLIC_FILES = [
   'game/features/codex/public.js',
   'game/features/title/public.js',
@@ -196,6 +266,13 @@ describe('feature module catalog boundaries', () => {
     for (const file of TITLE_FEATURE_BROWSER_FILES) {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).not.toMatch(/ui\/title\/(title_canvas_|run_end_screen_|level_up_popup_|intro_cinematic_|game_canvas_setup_ui_|game_boot_ui_|character_select_)/);
+    }
+  });
+
+  it('keeps extracted combat browser files free of direct combat compat imports', () => {
+    for (const file of COMBAT_FEATURE_BROWSER_FILES) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toMatch(/ui\/(combat|cards|hud)\//);
     }
   });
 

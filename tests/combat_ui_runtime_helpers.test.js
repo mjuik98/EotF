@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../game/ui/combat/status_tooltip_builder.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/status_tooltip_builder.js', () => ({
   StatusTooltipUI: {
     hide: vi.fn(),
   },
 }));
 
-vi.mock('../game/ui/combat/combat_intent_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/combat_intent_ui.js', () => ({
   cleanupEnemyIntentTooltip: vi.fn(),
 }));
 

@@ -221,6 +221,19 @@
       "message": "title character select runtimes must use title feature-local selection use cases instead of app/run compat files"
     },
     {
+      "id": "combat-browser-surface-only",
+      "from": ["feature"],
+      "sourcePrefixes": [
+        "game/features/combat/presentation/browser/"
+      ],
+      "denyTargetPrefixes": [
+        "game/ui/combat/",
+        "game/ui/cards/",
+        "game/ui/hud/"
+      ],
+      "message": "combat browser files must use feature-local helpers instead of ui/combat|cards|hud compat paths"
+    },
+    {
       "id": "ui-screen-browser-surface-only",
       "from": ["feature"],
       "sourcePrefixes": [

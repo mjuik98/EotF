@@ -1,4 +1,4 @@
-import { StatusTooltipUI } from '../../../../ui/combat/status_tooltip_builder.js';
+import { StatusTooltipUI } from './status_tooltip_builder.js';
 import { PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../../../data/status_key_data.js';
 import { STATUS_KR } from '../../../../../data/status_effects_data.js';
 import {

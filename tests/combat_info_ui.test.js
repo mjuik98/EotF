@@ -12,16 +12,16 @@ const {
   renderCombatInfoItemsSpy: vi.fn(),
 }));
 
-vi.mock('../game/ui/combat/combat_info_runtime_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/combat_info_runtime_ui.js', () => ({
   resetCombatInfoState: resetCombatInfoStateSpy,
   toggleCombatInfoState: toggleCombatInfoStateSpy,
 }));
 
-vi.mock('../game/ui/combat/combat_info_status_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/combat_info_status_ui.js', () => ({
   renderCombatInfoStatuses: renderCombatInfoStatusesSpy,
 }));
 
-vi.mock('../game/ui/combat/combat_info_items_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/combat_info_items_ui.js', () => ({
   renderCombatInfoItems: renderCombatInfoItemsSpy,
 }));
 

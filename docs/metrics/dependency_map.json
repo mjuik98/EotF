@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-13T00:41:13.099Z",
-  "nodeCount": 924,
-  "edgeCount": 1091,
+  "generatedAt": "2026-03-13T01:15:39.784Z",
+  "nodeCount": 983,
+  "edgeCount": 1103,
   "layerEdges": {
     "app->systems": 1,
     "combat->combat": 8,
@@ -38,17 +38,16 @@
     "engine->engine": 2,
     "feature->combat": 6,
     "feature->core": 11,
-    "feature->data": 14,
-    "feature->domain": 32,
-    "feature->feature": 427,
-    "feature->other": 2,
+    "feature->data": 33,
+    "feature->domain": 35,
+    "feature->feature": 494,
+    "feature->other": 5,
     "feature->platform": 3,
-    "feature->presentation": 2,
-    "feature->shared": 21,
+    "feature->presentation": 3,
+    "feature->shared": 25,
     "feature->state": 2,
     "feature->systems": 5,
-    "feature->ui": 27,
-    "feature->utils": 11,
+    "feature->utils": 25,
     "legacy->core": 4,
     "legacy->domain": 1,
     "legacy->feature": 7,
@@ -77,17 +76,13 @@
     "systems->feature": 3,
     "systems->platform": 1,
     "systems->state": 1,
-    "systems->systems": 10,
+    "systems->systems": 13,
     "systems->utils": 1,
-    "ui->app": 2,
-    "ui->data": 20,
-    "ui->domain": 4,
-    "ui->feature": 10,
-    "ui->other": 3,
-    "ui->presentation": 1,
-    "ui->shared": 1,
-    "ui->ui": 38,
-    "ui->utils": 14,
+    "ui->app": 1,
+    "ui->data": 1,
+    "ui->domain": 1,
+    "ui->feature": 8,
+    "ui->ui": 7,
     "utils->core": 1,
     "utils->data": 2,
     "utils->utils": 2
@@ -1047,11 +1042,11 @@
     "game/features/combat/platform/combat_start_runtime_ports.js": [
       "game/combat/combat_initializer.js",
       "game/domain/audio/audio_event_helpers.js",
-      "game/ui/combat/combat_start_runtime_ui.js"
+      "game/features/combat/presentation/browser/combat_start_runtime_ui.js"
     ],
     "game/features/combat/platform/combat_turn_runtime_ports.js": [
-      "game/ui/combat/combat_turn_flow_ui.js",
-      "game/ui/combat/combat_turn_runtime_ui.js"
+      "game/features/combat/presentation/browser/combat_turn_flow_ui.js",
+      "game/features/combat/presentation/browser/combat_turn_runtime_ui.js"
     ],
     "game/features/combat/platform/death_runtime_ports.js": [
       "game/combat/death_handler_outcome.js",
@@ -1073,65 +1068,191 @@
     "game/features/combat/ports/player_turn_policy_ports.js": [
       "game/features/combat/state/player_turn_state_commands.js"
     ],
+    "game/features/combat/presentation/browser/card_clone_render_ui.js": [
+      "game/features/combat/presentation/browser/card_render_helpers_ui.js"
+    ],
+    "game/features/combat/presentation/browser/card_clone_runtime_ui.js": [],
+    "game/features/combat/presentation/browser/card_clone_ui.js": [
+      "game/features/combat/presentation/browser/card_clone_render_ui.js",
+      "game/features/combat/presentation/browser/card_clone_runtime_ui.js"
+    ],
+    "game/features/combat/presentation/browser/card_popup_ui.js": [
+      "game/utils/runtime_deps.js"
+    ],
+    "game/features/combat/presentation/browser/card_render_helpers_ui.js": [],
     "game/features/combat/presentation/browser/card_target_ui.js": [],
     "game/features/combat/presentation/browser/card_ui.js": [
-      "game/ui/cards/card_clone_ui.js",
-      "game/ui/cards/card_render_helpers_ui.js",
-      "game/ui/cards/combat_card_render_ui.js"
+      "game/features/combat/presentation/browser/card_clone_ui.js",
+      "game/features/combat/presentation/browser/card_render_helpers_ui.js",
+      "game/features/combat/presentation/browser/combat_card_render_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_actions_runtime_ui.js": [
+      "game/features/combat/presentation/browser/draw_availability.js",
+      "game/shared/state/public.js"
     ],
     "game/features/combat/presentation/browser/combat_actions_ui.js": [
-      "game/ui/combat/combat_actions_runtime_ui.js"
+      "game/features/combat/presentation/browser/combat_actions_runtime_ui.js"
     ],
+    "game/features/combat/presentation/browser/combat_card_render_ui.js": [
+      "data/ui_rarity_styles.js",
+      "game/features/combat/presentation/browser/card_render_helpers_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_enemy_card_renderers_ui.js": [],
+    "game/features/combat/presentation/browser/combat_enemy_card_sections_ui.js": [
+      "game/features/combat/presentation/browser/combat_enemy_card_renderers_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_enemy_card_ui.js": [
+      "game/features/combat/presentation/browser/combat_enemy_card_renderers_ui.js",
+      "game/features/combat/presentation/browser/combat_enemy_card_sections_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_enemy_runtime_ui.js": [
+      "game/features/combat/presentation/browser/combat_enemy_view_model_ui.js",
+      "game/features/combat/presentation/browser/combat_intent_ui.js",
+      "game/features/combat/presentation/browser/combat_render_helpers.js"
+    ],
+    "game/features/combat/presentation/browser/combat_enemy_status_badges_ui.js": [
+      "data/status_effects_data.js",
+      "data/status_key_data.js"
+    ],
+    "game/features/combat/presentation/browser/combat_enemy_status_tooltip_ui.js": [
+      "data/status_effects_data.js",
+      "data/status_key_data.js",
+      "game/features/combat/presentation/browser/status_tooltip_builder.js"
+    ],
+    "game/features/combat/presentation/browser/combat_enemy_view_model_ui.js": [],
+    "game/features/combat/presentation/browser/combat_hud_chronicle_render_ui.js": [
+      "game/features/combat/presentation/browser/card_popup_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_hud_chronicle_runtime_ui.js": [
+      "game/features/combat/presentation/browser/combat_hud_chronicle_render_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_hud_chronicle.js": [],
+    "game/features/combat/presentation/browser/combat_hud_feedback.js": [
+      "game/data/constants.js"
+    ],
+    "game/features/combat/presentation/browser/combat_hud_log_ui.js": [],
+    "game/features/combat/presentation/browser/combat_hud_special_ui.js": [],
     "game/features/combat/presentation/browser/combat_hud_ui.js": [
-      "game/ui/combat/combat_hud_chronicle.js",
-      "game/ui/combat/combat_hud_feedback.js",
-      "game/ui/combat/combat_hud_log_ui.js",
-      "game/ui/combat/combat_hud_special_ui.js",
-      "game/ui/combat/combat_hud_widgets_ui.js",
-      "game/ui/hud/hud_render_helpers.js"
+      "game/features/combat/presentation/browser/combat_hud_chronicle.js",
+      "game/features/combat/presentation/browser/combat_hud_feedback.js",
+      "game/features/combat/presentation/browser/combat_hud_log_ui.js",
+      "game/features/combat/presentation/browser/combat_hud_special_ui.js",
+      "game/features/combat/presentation/browser/combat_hud_widgets_ui.js",
+      "game/features/combat/presentation/browser/hud_render_helpers.js"
+    ],
+    "game/features/combat/presentation/browser/combat_hud_widgets_ui.js": [],
+    "game/features/combat/presentation/browser/combat_info_items_ui.js": [
+      "data/rarity_meta.js",
+      "data/ui_rarity_styles.js"
+    ],
+    "game/features/combat/presentation/browser/combat_info_runtime_ui.js": [],
+    "game/features/combat/presentation/browser/combat_info_status_ui.js": [
+      "data/status_key_data.js",
+      "game/utils/status_value_utils.js"
     ],
     "game/features/combat/presentation/browser/combat_info_ui.js": [
-      "game/ui/combat/combat_info_items_ui.js",
-      "game/ui/combat/combat_info_runtime_ui.js",
-      "game/ui/combat/combat_info_status_ui.js"
+      "game/features/combat/presentation/browser/combat_info_items_ui.js",
+      "game/features/combat/presentation/browser/combat_info_runtime_ui.js",
+      "game/features/combat/presentation/browser/combat_info_status_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_intent_ui.js": [
+      "data/combat_meta_data.js",
+      "game/utils/description_utils.js"
+    ],
+    "game/features/combat/presentation/browser/combat_render_helpers.js": [],
+    "game/features/combat/presentation/browser/combat_start_render_ui.js": [
+      "game/features/combat/presentation/browser/hud_render_helpers.js"
+    ],
+    "game/features/combat/presentation/browser/combat_start_runtime_ui.js": [
+      "game/features/combat/presentation/browser/combat_start_render_ui.js",
+      "game/features/combat/presentation/browser/draw_availability.js"
     ],
     "game/features/combat/presentation/browser/combat_start_ui.js": [
       "game/features/combat/application/create_combat_start_runtime.js"
     ],
-    "game/features/combat/presentation/browser/combat_turn_ui.js": [],
+    "game/features/combat/presentation/browser/combat_turn_flow_ui.js": [
+      "game/presentation/combat/combat_turn_action_presenter.js",
+      "game/shared/state/runtime_session_selectors.js"
+    ],
+    "game/features/combat/presentation/browser/combat_turn_render_ui.js": [],
+    "game/features/combat/presentation/browser/combat_turn_runtime_ui.js": [],
+    "game/features/combat/presentation/browser/combat_turn_ui.js": [
+      "game/features/combat/app/combat_turn_compat_actions.js",
+      "game/features/combat/application/create_combat_turn_runtime.js",
+      "game/features/combat/presentation/browser/combat_turn_flow_ui.js",
+      "game/features/combat/presentation/browser/combat_turn_runtime_ui.js"
+    ],
+    "game/features/combat/presentation/browser/combat_ui_runtime_helpers.js": [],
     "game/features/combat/presentation/browser/combat_ui.js": [
       "data/status_effects_data.js",
+      "game/features/combat/presentation/browser/combat_enemy_card_ui.js",
+      "game/features/combat/presentation/browser/combat_enemy_runtime_ui.js",
+      "game/features/combat/presentation/browser/combat_enemy_status_tooltip_ui.js",
+      "game/features/combat/presentation/browser/combat_intent_ui.js",
       "game/presentation/combat/combat_enemy_list_presenter.js",
-      "game/presentation/combat/combat_enemy_view_model_presenter.js",
-      "game/ui/combat/combat_enemy_card_ui.js",
-      "game/ui/combat/combat_enemy_runtime_ui.js",
-      "game/ui/combat/combat_enemy_status_tooltip_ui.js",
-      "game/ui/combat/combat_intent_ui.js"
+      "game/presentation/combat/combat_enemy_view_model_presenter.js"
     ],
     "game/features/combat/presentation/browser/death_fragment_choice_presenter.js": [],
+    "game/features/combat/presentation/browser/deck_modal_render_ui.js": [
+      "data/rarity_meta.js",
+      "data/ui_rarity_styles.js"
+    ],
+    "game/features/combat/presentation/browser/deck_modal_runtime_ui.js": [],
     "game/features/combat/presentation/browser/deck_modal_ui.js": [
-      "game/ui/cards/deck_modal_render_ui.js",
-      "game/ui/cards/deck_modal_runtime_ui.js"
+      "game/features/combat/presentation/browser/deck_modal_render_ui.js",
+      "game/features/combat/presentation/browser/deck_modal_runtime_ui.js"
     ],
     "game/features/combat/presentation/browser/dom_value_ui.js": [
       "game/shared/runtime/hud_runtime_deps.js"
     ],
-    "game/features/combat/presentation/browser/echo_skill_ui.js": [
-      "game/ui/combat/echo_skill_runtime_ui.js"
+    "game/features/combat/presentation/browser/draw_availability.js": [],
+    "game/features/combat/presentation/browser/echo_skill_runtime_ui.js": [
+      "game/data/constants.js",
+      "game/data/triggers.js",
+      "game/domain/audio/audio_event_helpers.js"
     ],
-    "game/features/combat/presentation/browser/feedback_ui_effects.js": [],
-    "game/features/combat/presentation/browser/feedback_ui_notices.js": [],
-    "game/features/combat/presentation/browser/feedback_ui_toasts.js": [],
+    "game/features/combat/presentation/browser/echo_skill_ui.js": [
+      "game/features/combat/presentation/browser/echo_skill_runtime_ui.js"
+    ],
+    "game/features/combat/presentation/browser/feedback_ui_effects.js": [
+      "game/domain/audio/audio_event_helpers.js"
+    ],
+    "game/features/combat/presentation/browser/feedback_ui_notices.js": [
+      "game/domain/audio/audio_event_helpers.js",
+      "game/utils/description_utils.js"
+    ],
+    "game/features/combat/presentation/browser/feedback_ui_toasts.js": [
+      "data/rarity_meta.js",
+      "game/utils/description_utils.js"
+    ],
     "game/features/combat/presentation/browser/feedback_ui.js": [
       "game/features/combat/ports/hud_shared_view_ports.js",
       "game/features/combat/presentation/browser/feedback_ui_effects.js",
       "game/features/combat/presentation/browser/feedback_ui_notices.js",
       "game/features/combat/presentation/browser/feedback_ui_toasts.js"
     ],
-    "game/features/combat/presentation/browser/hud_effects_ui.js": [],
-    "game/features/combat/presentation/browser/hud_panel_sections.js": [],
-    "game/features/combat/presentation/browser/hud_stats_ui.js": [],
-    "game/features/combat/presentation/browser/hud_update_runtime_helpers.js": [],
+    "game/features/combat/presentation/browser/hud_effects_ui.js": [
+      "game/utils/runtime_deps.js"
+    ],
+    "game/features/combat/presentation/browser/hud_panel_runtime_helpers.js": [
+      "data/rarity_meta.js",
+      "game/features/combat/presentation/browser/draw_availability.js",
+      "game/features/combat/presentation/browser/hud_render_helpers.js"
+    ],
+    "game/features/combat/presentation/browser/hud_panel_sections.js": [
+      "game/features/combat/presentation/browser/hud_panel_runtime_helpers.js",
+      "game/utils/security.js"
+    ],
+    "game/features/combat/presentation/browser/hud_render_helpers.js": [],
+    "game/features/combat/presentation/browser/hud_stats_ui.js": [
+      "game/features/combat/presentation/browser/dom_value_ui.js",
+      "game/features/combat/presentation/browser/draw_availability.js",
+      "game/features/combat/presentation/browser/hud_render_helpers.js",
+      "game/utils/runtime_deps.js"
+    ],
+    "game/features/combat/presentation/browser/hud_update_runtime_helpers.js": [
+      "game/utils/runtime_deps.js"
+    ],
     "game/features/combat/presentation/browser/hud_update_ui.js": [
       "game/features/combat/ports/hud_shared_view_ports.js",
       "game/features/combat/presentation/browser/dom_value_ui.js",
@@ -1144,13 +1265,45 @@
     "game/features/combat/presentation/browser/status_effects_ui.js": [
       "data/status_effects_data.js",
       "data/status_key_data.js",
-      "game/ui/combat/status_tooltip_builder.js",
+      "game/features/combat/presentation/browser/status_tooltip_builder.js",
       "game/utils/status_value_utils.js"
     ],
+    "game/features/combat/presentation/browser/status_tooltip_builder.js": [
+      "data/status_effects_data.js",
+      "data/status_tooltip_meta_data.js",
+      "game/features/combat/presentation/browser/status_tooltip_copy.js",
+      "game/features/combat/presentation/browser/status_tooltip_layout.js",
+      "game/features/combat/presentation/browser/status_tooltip_runtime_ui.js",
+      "game/features/combat/presentation/browser/status_tooltip_sections.js",
+      "game/utils/status_value_utils.js"
+    ],
+    "game/features/combat/presentation/browser/status_tooltip_copy.js": [],
+    "game/features/combat/presentation/browser/status_tooltip_layout.js": [],
+    "game/features/combat/presentation/browser/status_tooltip_runtime_ui.js": [
+      "data/status_effects_data.js",
+      "data/status_tooltip_meta_data.js",
+      "game/utils/status_value_utils.js"
+    ],
+    "game/features/combat/presentation/browser/status_tooltip_sections.js": [
+      "game/features/combat/presentation/browser/status_tooltip_copy.js"
+    ],
+    "game/features/combat/presentation/browser/tooltip_card_render_ui.js": [
+      "data/status_key_data.js",
+      "game/utils/description_utils.js",
+      "game/utils/dom_safe.js"
+    ],
+    "game/features/combat/presentation/browser/tooltip_general_ui.js": [],
+    "game/features/combat/presentation/browser/tooltip_item_render_ui.js": [
+      "data/rarity_meta.js",
+      "game/utils/dom_safe.js"
+    ],
+    "game/features/combat/presentation/browser/tooltip_item_ui.js": [
+      "game/features/combat/presentation/browser/tooltip_item_render_ui.js"
+    ],
     "game/features/combat/presentation/browser/tooltip_ui.js": [
-      "game/ui/cards/tooltip_card_render_ui.js",
-      "game/ui/cards/tooltip_general_ui.js",
-      "game/ui/cards/tooltip_item_ui.js"
+      "game/features/combat/presentation/browser/tooltip_card_render_ui.js",
+      "game/features/combat/presentation/browser/tooltip_general_ui.js",
+      "game/features/combat/presentation/browser/tooltip_item_ui.js"
     ],
     "game/features/combat/presentation/build_combat_end_outcome.js": [],
     "game/features/combat/public.js": [
@@ -1660,7 +1813,24 @@
       "data/items.js"
     ],
     "game/features/title/domain/class_progression_system.js": [
+      "game/features/title/domain/class_progression/meta_persistence.js",
+      "game/features/title/domain/class_progression/reward_calculator.js",
+      "game/features/title/domain/class_progression/runtime_apply.js",
+      "game/features/title/domain/class_progression/xp_policy.js",
       "game/shared/codex/codex_record_state_use_case.js",
+      "game/shared/progression/class_progression_data_use_case.js"
+    ],
+    "game/features/title/domain/class_progression/meta_persistence.js": [
+      "game/features/title/domain/class_progression/xp_policy.js",
+      "game/shared/progression/class_progression_data_use_case.js"
+    ],
+    "game/features/title/domain/class_progression/reward_calculator.js": [
+      "game/features/title/domain/class_progression/xp_policy.js"
+    ],
+    "game/features/title/domain/class_progression/runtime_apply.js": [
+      "game/features/title/domain/class_progression/xp_policy.js"
+    ],
+    "game/features/title/domain/class_progression/xp_policy.js": [
       "game/shared/progression/class_progression_data_use_case.js"
     ],
     "game/features/title/modules/title_module_catalog.js": [
@@ -1678,9 +1848,11 @@
       "game/features/title/application/character_select_actions.js"
     ],
     "game/features/title/platform/browser/character_select_fx.js": [],
+    "game/features/title/platform/browser/character_select_info_panel.js": [],
     "game/features/title/platform/browser/character_select_modal.js": [],
     "game/features/title/platform/browser/character_select_panels.js": [],
     "game/features/title/platform/browser/character_select_particles.js": [],
+    "game/features/title/platform/browser/character_select_phase_panel.js": [],
     "game/features/title/platform/browser/character_select_radar.js": [],
     "game/features/title/platform/browser/character_select_render.js": [],
     "game/features/title/platform/browser/character_select_summary_replay.js": [],
@@ -1781,18 +1953,21 @@
     "game/features/title/presentation/browser/game_canvas_setup_ui.js": [
       "game/features/title/presentation/browser/game_canvas_setup_ui_runtime.js"
     ],
+    "game/features/title/presentation/browser/intro_cinematic_helpers.js": [],
     "game/features/title/presentation/browser/intro_cinematic_runtime.js": [
       "game/features/title/presentation/browser/intro_cinematic_helpers.js"
     ],
     "game/features/title/presentation/browser/intro_cinematic_ui.js": [
       "game/features/title/presentation/browser/intro_cinematic_runtime.js"
     ],
+    "game/features/title/presentation/browser/level_up_popup_helpers.js": [],
     "game/features/title/presentation/browser/level_up_popup_runtime.js": [
       "game/features/title/presentation/browser/level_up_popup_helpers.js"
     ],
     "game/features/title/presentation/browser/level_up_popup_ui.js": [
       "game/features/title/presentation/browser/level_up_popup_runtime.js"
     ],
+    "game/features/title/presentation/browser/run_end_screen_helpers.js": [],
     "game/features/title/presentation/browser/run_end_screen_runtime.js": [
       "game/features/title/presentation/browser/run_end_screen_helpers.js"
     ],
@@ -2367,192 +2542,87 @@
     "game/systems/save_migrations.js": [],
     "game/systems/save_system.js": [
       "game/platform/storage/save_adapter.js",
+      "game/systems/save/save_outbox_metrics.js",
+      "game/systems/save/save_outbox_queue.js",
+      "game/systems/save/save_repository.js",
       "game/systems/save_migrations.js",
       "game/utils/logger.js"
     ],
+    "game/systems/save/save_outbox_metrics.js": [],
+    "game/systems/save/save_outbox_queue.js": [],
+    "game/systems/save/save_repository.js": [],
     "game/systems/set_bonus_system.js": [],
-    "game/ui/cards/card_clone_render_ui.js": [
-      "game/ui/cards/card_render_helpers_ui.js"
-    ],
+    "game/ui/cards/card_clone_render_ui.js": [],
     "game/ui/cards/card_clone_runtime_ui.js": [],
-    "game/ui/cards/card_clone_ui.js": [
-      "game/ui/cards/card_clone_render_ui.js",
-      "game/ui/cards/card_clone_runtime_ui.js"
-    ],
+    "game/ui/cards/card_clone_ui.js": [],
     "game/ui/cards/card_render_helpers_ui.js": [],
     "game/ui/cards/card_target_ui.js": [],
     "game/ui/cards/card_ui.js": [],
-    "game/ui/cards/combat_card_render_ui.js": [
-      "data/ui_rarity_styles.js",
-      "game/ui/cards/card_render_helpers_ui.js"
-    ],
-    "game/ui/cards/deck_modal_render_ui.js": [
-      "data/rarity_meta.js",
-      "data/ui_rarity_styles.js"
-    ],
+    "game/ui/cards/combat_card_render_ui.js": [],
+    "game/ui/cards/deck_modal_render_ui.js": [],
     "game/ui/cards/deck_modal_runtime_ui.js": [],
     "game/ui/cards/deck_modal_ui.js": [],
-    "game/ui/cards/tooltip_card_render_ui.js": [
-      "data/status_key_data.js",
-      "game/utils/description_utils.js",
-      "game/utils/dom_safe.js"
-    ],
+    "game/ui/cards/tooltip_card_render_ui.js": [],
     "game/ui/cards/tooltip_general_ui.js": [],
-    "game/ui/cards/tooltip_item_render_ui.js": [
-      "data/rarity_meta.js",
-      "game/utils/dom_safe.js"
-    ],
-    "game/ui/cards/tooltip_item_ui.js": [
-      "game/ui/cards/tooltip_item_render_ui.js"
-    ],
+    "game/ui/cards/tooltip_item_render_ui.js": [],
+    "game/ui/cards/tooltip_item_ui.js": [],
     "game/ui/cards/tooltip_ui.js": [],
-    "game/ui/combat/card_popup_ui.js": [
-      "game/utils/runtime_deps.js"
-    ],
-    "game/ui/combat/combat_actions_runtime_ui.js": [
-      "game/shared/state/public.js",
-      "game/ui/combat/draw_availability.js"
-    ],
+    "game/ui/combat/card_popup_ui.js": [],
+    "game/ui/combat/combat_actions_runtime_ui.js": [],
     "game/ui/combat/combat_actions_ui.js": [],
     "game/ui/combat/combat_enemy_card_renderers_ui.js": [],
-    "game/ui/combat/combat_enemy_card_sections_ui.js": [
-      "game/ui/combat/combat_enemy_card_renderers_ui.js"
-    ],
-    "game/ui/combat/combat_enemy_card_ui.js": [
-      "game/ui/combat/combat_enemy_card_renderers_ui.js",
-      "game/ui/combat/combat_enemy_card_sections_ui.js"
-    ],
-    "game/ui/combat/combat_enemy_runtime_ui.js": [
-      "game/ui/combat/combat_enemy_view_model_ui.js",
-      "game/ui/combat/combat_intent_ui.js",
-      "game/ui/combat/combat_render_helpers.js"
-    ],
-    "game/ui/combat/combat_enemy_status_badges_ui.js": [
-      "data/status_effects_data.js",
-      "data/status_key_data.js"
-    ],
-    "game/ui/combat/combat_enemy_status_tooltip_ui.js": [
-      "data/status_effects_data.js",
-      "data/status_key_data.js",
-      "game/ui/combat/status_tooltip_builder.js"
-    ],
+    "game/ui/combat/combat_enemy_card_sections_ui.js": [],
+    "game/ui/combat/combat_enemy_card_ui.js": [],
+    "game/ui/combat/combat_enemy_runtime_ui.js": [],
+    "game/ui/combat/combat_enemy_status_badges_ui.js": [],
+    "game/ui/combat/combat_enemy_status_tooltip_ui.js": [],
     "game/ui/combat/combat_enemy_view_model_ui.js": [],
-    "game/ui/combat/combat_hud_chronicle_render_ui.js": [
-      "game/ui/combat/card_popup_ui.js"
-    ],
-    "game/ui/combat/combat_hud_chronicle_runtime_ui.js": [
-      "game/ui/combat/combat_hud_chronicle_render_ui.js"
-    ],
+    "game/ui/combat/combat_hud_chronicle_render_ui.js": [],
+    "game/ui/combat/combat_hud_chronicle_runtime_ui.js": [],
     "game/ui/combat/combat_hud_chronicle.js": [],
-    "game/ui/combat/combat_hud_feedback.js": [
-      "game/data/constants.js"
-    ],
+    "game/ui/combat/combat_hud_feedback.js": [],
     "game/ui/combat/combat_hud_log_ui.js": [],
     "game/ui/combat/combat_hud_special_ui.js": [],
     "game/ui/combat/combat_hud_ui.js": [],
     "game/ui/combat/combat_hud_widgets_ui.js": [],
-    "game/ui/combat/combat_info_items_ui.js": [
-      "data/rarity_meta.js",
-      "data/ui_rarity_styles.js"
-    ],
+    "game/ui/combat/combat_info_items_ui.js": [],
     "game/ui/combat/combat_info_runtime_ui.js": [],
-    "game/ui/combat/combat_info_status_ui.js": [
-      "data/status_key_data.js",
-      "game/utils/status_value_utils.js"
-    ],
+    "game/ui/combat/combat_info_status_ui.js": [],
     "game/ui/combat/combat_info_ui.js": [],
-    "game/ui/combat/combat_intent_ui.js": [
-      "data/combat_meta_data.js",
-      "game/utils/description_utils.js"
-    ],
+    "game/ui/combat/combat_intent_ui.js": [],
     "game/ui/combat/combat_render_helpers.js": [],
-    "game/ui/combat/combat_start_render_ui.js": [
-      "game/ui/hud/hud_render_helpers.js"
-    ],
-    "game/ui/combat/combat_start_runtime_ui.js": [
-      "game/ui/combat/combat_start_render_ui.js",
-      "game/ui/combat/draw_availability.js"
-    ],
+    "game/ui/combat/combat_start_render_ui.js": [],
+    "game/ui/combat/combat_start_runtime_ui.js": [],
     "game/ui/combat/combat_start_ui.js": [],
-    "game/ui/combat/combat_turn_flow_ui.js": [
-      "game/app/shared/selectors/runtime_state_selectors.js",
-      "game/presentation/combat/combat_turn_action_presenter.js"
-    ],
+    "game/ui/combat/combat_turn_flow_ui.js": [],
     "game/ui/combat/combat_turn_render_ui.js": [],
     "game/ui/combat/combat_turn_runtime_ui.js": [],
-    "game/ui/combat/combat_turn_ui.js": [
-      "game/features/combat/app/combat_turn_compat_actions.js",
-      "game/features/combat/application/create_combat_turn_runtime.js",
-      "game/ui/combat/combat_turn_flow_ui.js",
-      "game/ui/combat/combat_turn_runtime_ui.js"
-    ],
+    "game/ui/combat/combat_turn_ui.js": [],
     "game/ui/combat/combat_ui_runtime_helpers.js": [],
     "game/ui/combat/combat_ui.js": [],
     "game/ui/combat/draw_availability.js": [],
-    "game/ui/combat/echo_skill_runtime_ui.js": [
-      "game/data/constants.js",
-      "game/data/triggers.js",
-      "game/domain/audio/audio_event_helpers.js"
-    ],
+    "game/ui/combat/echo_skill_runtime_ui.js": [],
     "game/ui/combat/echo_skill_ui.js": [],
     "game/ui/combat/status_effects_ui.js": [],
-    "game/ui/combat/status_tooltip_builder.js": [
-      "data/status_effects_data.js",
-      "data/status_tooltip_meta_data.js",
-      "game/ui/combat/status_tooltip_copy.js",
-      "game/ui/combat/status_tooltip_layout.js",
-      "game/ui/combat/status_tooltip_runtime_ui.js",
-      "game/ui/combat/status_tooltip_sections.js",
-      "game/utils/status_value_utils.js"
-    ],
+    "game/ui/combat/status_tooltip_builder.js": [],
     "game/ui/combat/status_tooltip_copy.js": [],
     "game/ui/combat/status_tooltip_layout.js": [],
-    "game/ui/combat/status_tooltip_runtime_ui.js": [
-      "data/status_effects_data.js",
-      "data/status_tooltip_meta_data.js",
-      "game/utils/status_value_utils.js"
-    ],
-    "game/ui/combat/status_tooltip_sections.js": [
-      "game/ui/combat/status_tooltip_copy.js"
-    ],
+    "game/ui/combat/status_tooltip_runtime_ui.js": [],
+    "game/ui/combat/status_tooltip_sections.js": [],
     "game/ui/common/custom_cursor.js": [],
     "game/ui/effects/echo_ripple_transition.js": [],
     "game/ui/feedback/button_feedback.js": [],
     "game/ui/hud/dom_value_ui.js": [],
-    "game/ui/hud/feedback_ui_effects.js": [
-      "game/domain/audio/audio_event_helpers.js"
-    ],
-    "game/ui/hud/feedback_ui_notices.js": [
-      "game/domain/audio/audio_event_helpers.js",
-      "game/utils/description_utils.js"
-    ],
-    "game/ui/hud/feedback_ui_toasts.js": [
-      "data/rarity_meta.js",
-      "game/utils/description_utils.js"
-    ],
+    "game/ui/hud/feedback_ui_effects.js": [],
+    "game/ui/hud/feedback_ui_notices.js": [],
+    "game/ui/hud/feedback_ui_toasts.js": [],
     "game/ui/hud/feedback_ui.js": [],
-    "game/ui/hud/hud_effects_ui.js": [
-      "game/utils/runtime_deps.js"
-    ],
-    "game/ui/hud/hud_panel_runtime_helpers.js": [
-      "data/rarity_meta.js",
-      "game/ui/combat/draw_availability.js",
-      "game/ui/hud/hud_render_helpers.js"
-    ],
-    "game/ui/hud/hud_panel_sections.js": [
-      "game/ui/hud/hud_panel_runtime_helpers.js",
-      "game/utils/security.js"
-    ],
+    "game/ui/hud/hud_effects_ui.js": [],
+    "game/ui/hud/hud_panel_runtime_helpers.js": [],
+    "game/ui/hud/hud_panel_sections.js": [],
     "game/ui/hud/hud_render_helpers.js": [],
-    "game/ui/hud/hud_stats_ui.js": [
-      "game/ui/combat/draw_availability.js",
-      "game/ui/hud/dom_value_ui.js",
-      "game/ui/hud/hud_render_helpers.js",
-      "game/utils/runtime_deps.js"
-    ],
-    "game/ui/hud/hud_update_runtime_helpers.js": [
-      "game/utils/runtime_deps.js"
-    ],
+    "game/ui/hud/hud_stats_ui.js": [],
+    "game/ui/hud/hud_update_runtime_helpers.js": [],
     "game/ui/hud/hud_update_ui.js": [],
     "game/ui/map/map_generation_ui.js": [
       "data/map_node_data.js",

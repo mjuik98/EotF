@@ -12,7 +12,7 @@ const {
   initSpy: vi.fn(),
 }));
 
-vi.mock('../game/ui/cards/card_clone_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/card_clone_ui.js', () => ({
   HandCardCloneUI: {
     init: initSpy,
     destroyAll: destroyAllSpy,
@@ -20,7 +20,7 @@ vi.mock('../game/ui/cards/card_clone_ui.js', () => ({
   },
 }));
 
-vi.mock('../game/ui/cards/combat_card_render_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/combat_card_render_ui.js', () => ({
   applyHandFanStyles: vi.fn(),
   createCombatCardElement: createCombatCardElementSpy,
 }));

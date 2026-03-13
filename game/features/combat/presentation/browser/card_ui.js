@@ -1,13 +1,13 @@
-import { HandCardCloneUI } from '../../../../ui/cards/card_clone_ui.js';
+import { HandCardCloneUI } from './card_clone_ui.js';
 import {
   applyHandFanStyles,
   createCombatCardElement,
-} from '../../../../ui/cards/combat_card_render_ui.js';
+} from './combat_card_render_ui.js';
 import {
   createUnifiedParticles,
   getCardTypeClass,
   getCardTypeLabelClass,
-} from '../../../../ui/cards/card_render_helpers_ui.js';
+} from './card_render_helpers_ui.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;

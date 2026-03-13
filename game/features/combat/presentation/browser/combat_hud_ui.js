@@ -1,20 +1,20 @@
-import { applyEchoSkillButtonState } from '../../../../ui/hud/hud_render_helpers.js';
+import { applyEchoSkillButtonState } from './hud_render_helpers.js';
 import {
   closeBattleChronicleOverlay,
   isChronicleOverlayOpen,
   openBattleChronicleOverlay,
-} from '../../../../ui/combat/combat_hud_chronicle.js';
+} from './combat_hud_chronicle.js';
 import {
   hideEchoSkillTooltip as hideEchoSkillTooltipOverlay,
   showEchoSkillTooltip as showEchoSkillTooltipOverlay,
   showTurnBanner as showCombatTurnBanner,
-} from '../../../../ui/combat/combat_hud_feedback.js';
-import { updateCombatLog as updateCombatLogEntries } from '../../../../ui/combat/combat_hud_log_ui.js';
-import { renderCombatHudClassSpecial } from '../../../../ui/combat/combat_hud_special_ui.js';
+} from './combat_hud_feedback.js';
+import { updateCombatLog as updateCombatLogEntries } from './combat_hud_log_ui.js';
+import { renderCombatHudClassSpecial } from './combat_hud_special_ui.js';
 import {
   updateCombatChainWidgets,
   updateNoiseWidgetUI,
-} from '../../../../ui/combat/combat_hud_widgets_ui.js';
+} from './combat_hud_widgets_ui.js';
 
 let _hudPinned = false;
 

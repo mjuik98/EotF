@@ -1,9 +1,9 @@
-import { renderCombatInfoItems } from '../../../../ui/combat/combat_info_items_ui.js';
-import { renderCombatInfoStatuses } from '../../../../ui/combat/combat_info_status_ui.js';
+import { renderCombatInfoItems } from './combat_info_items_ui.js';
+import { renderCombatInfoStatuses } from './combat_info_status_ui.js';
 import {
   resetCombatInfoState,
   toggleCombatInfoState,
-} from '../../../../ui/combat/combat_info_runtime_ui.js';
+} from './combat_info_runtime_ui.js';
 
 function _getDoc(deps) {
   return deps?.doc || document;

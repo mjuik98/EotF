@@ -8,7 +8,7 @@ import {
   scheduleCombatStartBanner,
   showCombatBossBanner,
   syncCombatStartButtons,
-} from '../../../ui/combat/combat_start_runtime_ui.js';
+} from '../presentation/browser/combat_start_runtime_ui.js';
 
 export function createCombatStartRuntimePorts() {
   return {

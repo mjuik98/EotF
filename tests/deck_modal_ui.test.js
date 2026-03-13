@@ -22,14 +22,14 @@ const {
   setDeckModalFilterSpy: vi.fn(),
 }));
 
-vi.mock('../game/ui/cards/deck_modal_render_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/deck_modal_render_ui.js', () => ({
   buildDeckModalEntries: buildDeckModalEntriesSpy,
   renderDeckStatusBar: renderDeckStatusBarSpy,
   renderDeckModalCards: renderDeckModalCardsSpy,
   applyDeckFilterButtonStyles: applyDeckFilterButtonStylesSpy,
 }));
 
-vi.mock('../game/ui/cards/deck_modal_runtime_ui.js', () => ({
+vi.mock('../game/features/combat/presentation/browser/deck_modal_runtime_ui.js', () => ({
   closeDeckModal: closeDeckModalSpy,
   getDeckModalFilter: getDeckModalFilterSpy,
   openDeckModal: openDeckModalSpy,
