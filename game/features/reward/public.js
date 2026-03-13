@@ -11,6 +11,7 @@ import {
 } from './application/claim_reward_use_case.js';
 import { createRewardRuntime } from './application/create_reward_runtime.js';
 import { showRewardScreenRuntime } from './application/show_reward_screen_runtime.js';
+import { createRewardContractCapabilities } from './ports/contracts/public_reward_contract_capabilities.js';
 import { buildRewardFlowContractBuilders } from './ports/contracts/build_reward_flow_contracts.js';
 import { RewardUI } from './presentation/browser/reward_ui.js';
 export {
@@ -37,12 +38,6 @@ export function createRewardApplicationCapabilities() {
     scheduleReturn: scheduleRewardReturnUseCase,
     startRemove: startRewardRemoveUseCase,
     takeClaim: takeRewardClaimUseCase,
-  };
-}
-
-export function createRewardContractCapabilities() {
-  return {
-    buildFlow: buildRewardFlowContractPublicBuilders,
   };
 }
 
@@ -74,6 +69,7 @@ export function buildRewardFlowContractPublicBuilders(ctx) {
 
 export {
   buildRewardDiscardDeps,
+  createRewardContractCapabilities,
   buildRewardFlowContractBuilders,
   buildRewardOptionsUseCase,
   claimReward,

@@ -10,6 +10,7 @@ import {
   showGameplayScreenService,
   showScreenService,
 } from './application/screen_navigation_use_case.js';
+import { createUiContractCapabilities } from './ports/contracts/public_ui_contract_capabilities.js';
 import { buildUiShellContractBuilders } from './ports/contracts/build_ui_shell_contracts.js';
 import { createUiPorts } from './ports/create_ui_ports.js';
 import { buildScreenOverlayBrowserModules } from './platform/browser/screen_overlay_browser_modules.js';
@@ -39,12 +40,6 @@ export function createUiModuleCapabilities() {
   return {
     primary: buildScreenPrimaryBrowserModules(),
     overlays: buildScreenOverlayBrowserModules(),
-  };
-}
-
-export function createUiContractCapabilities() {
-  return {
-    buildShell: buildUiShellContractPublicBuilders,
   };
 }
 
@@ -93,6 +88,7 @@ export {
   buildScreenOverlayBrowserModules,
   buildScreenPrimaryBrowserModules,
   createUiActions,
+  createUiContractCapabilities,
   createLegacyHudRuntimeQueryBindings,
   createUiPorts,
   setScreenService,

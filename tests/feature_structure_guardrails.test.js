@@ -46,17 +46,17 @@ describe('feature structure guardrails', () => {
     }
   });
 
-  it('keeps feature contract capability imports on public facades only', () => {
+  it('keeps feature contract capability imports constrained to feature-owned capability creator modules', () => {
     const source = readSource('game/core/deps/contracts/create_feature_contract_capabilities.js');
     const importSpecs = [...source.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]);
 
     expect(importSpecs).toEqual([
-      '../../../features/combat/public.js',
-      '../../../features/event/public.js',
-      '../../../features/reward/public.js',
-      '../../../features/run/public.js',
-      '../../../features/title/public.js',
-      '../../../features/ui/public.js',
+      '../../../features/combat/ports/contracts/public_combat_contract_capabilities.js',
+      '../../../features/event/ports/contracts/public_event_contract_capabilities.js',
+      '../../../features/reward/ports/contracts/public_reward_contract_capabilities.js',
+      '../../../features/run/ports/contracts/public_run_contract_capabilities.js',
+      '../../../features/title/ports/contracts/public_title_contract_capabilities.js',
+      '../../../features/ui/ports/contracts/public_ui_contract_capabilities.js',
     ]);
   });
 
@@ -77,8 +77,7 @@ describe('feature structure guardrails', () => {
   it('exposes ui shell contract capabilities through the ui feature facade', () => {
     const source = readSource('game/features/ui/public.js');
 
-    expect(source).toMatch(/export function createUiContractCapabilities/);
-    expect(source).toMatch(/buildShell: buildUiShellContractPublicBuilders/);
+    expect(source).toMatch(/import \{ createUiContractCapabilities \} from '\.\/ports\/contracts\/public_ui_contract_capabilities\.js'/);
     expect(source).toMatch(/contracts: createUiContractCapabilities\(\)/);
   });
 });

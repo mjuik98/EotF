@@ -106,6 +106,14 @@
       "message": "feature implementation must not import game/app compat paths"
     },
     {
+      "id": "feature-no-core-global-bridge",
+      "from": ["feature"],
+      "denyTargets": [
+        "game/core/global_bridge.js"
+      ],
+      "message": "feature implementation must use platform or legacy ports instead of importing the core global bridge directly"
+    },
+    {
       "id": "feature-no-class-progression-system-compat",
       "from": ["feature"],
       "denyTargets": [
@@ -120,6 +128,17 @@
         "game/systems/codex_records_system.js"
       ],
       "message": "feature implementation must use shared codex ownership instead of the codex records compat surface"
+    },
+    {
+      "id": "feature-no-run-rules-systems-compat",
+      "from": ["feature"],
+      "denyTargets": [
+        "game/systems/run_rules_curses.js",
+        "game/systems/run_rules_regions.js",
+        "game/systems/run_rules_difficulty.js",
+        "game/systems/run_rules_meta.js"
+      ],
+      "message": "feature implementation must use run feature domain ownership instead of the run-rules systems compat surface"
     },
     {
       "id": "reward-application-platform-boundary",

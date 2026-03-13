@@ -1,12 +1,16 @@
 import { SaveSystem } from '../../../shared/save/public.js';
 import {
+  createFinalizeRunOutcomeAction,
   RunRules,
   getRegionData,
   getBaseRegionIndex,
   getRegionCount,
-  finalizeRunOutcome,
 } from '../../../features/run/public.js';
-import { bindFinalizeRunOutcome } from '../../../features/run/application/bind_run_outcome_action.js';
+
+function getCurrentGameState() {
+  if (typeof globalThis === 'undefined') return null;
+  return globalThis.GS || globalThis.GameState || null;
+}
 
 export function buildCoreRunSystemModules() {
   return {
@@ -15,6 +19,6 @@ export function buildCoreRunSystemModules() {
     getRegionData,
     getBaseRegionIndex,
     getRegionCount,
-    finalizeRunOutcome: bindFinalizeRunOutcome(finalizeRunOutcome, SaveSystem),
+    finalizeRunOutcome: createFinalizeRunOutcomeAction(SaveSystem, getCurrentGameState),
   };
 }

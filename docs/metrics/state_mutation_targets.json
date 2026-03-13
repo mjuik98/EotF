@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-03-13T01:15:39.163Z",
-  "totalMax": 147,
+  "generatedAt": "2026-03-13T04:12:36.943Z",
+  "totalMax": 133,
   "defaultPerFileMax": null,
   "byFileMax": {
     "game/combat/combat_initializer.js": 1,
@@ -33,22 +33,17 @@
     "game/features/reward/application/claim_reward_use_case.js": 2,
     "game/features/run/presentation/browser/world_canvas_ui.js": 1,
     "game/features/run/presentation/browser/world_render_loop_ui.js": 1,
+    "game/features/run/state/run_outcome_state_commands.js": 14,
     "game/features/ui/presentation/browser/ending_screen_helpers.js": 1,
     "game/features/ui/presentation/browser/help_pause_hotkeys_runtime_ui.js": 1,
     "game/features/ui/presentation/browser/story_ui_helpers.js": 3,
     "game/features/ui/presentation/browser/story_ui_runtime.js": 2,
     "game/presentation/combat/combat_enemy_list_presenter.js": 3,
     "game/presentation/combat/combat_enemy_view_model_presenter.js": 2,
+    "game/shared/save/save_repository.js": 10,
     "game/shared/state/map_state_commands.js": 2,
     "game/shared/state/run_state_commands.js": 5,
-    "game/features/run/state/run_outcome_state_commands.js": 14,
-    "game/state/commands/run_outcome_commands.js": 14,
     "game/systems/codex_records_system.js": 5,
-    "game/systems/item_system.js": 1,
-    "game/systems/save/save_repository.js": 10,
-    "game/ui/map/map_ui_full_map.js": 1,
-    "game/ui/map/map_ui_full_map_render.js": 6,
-    "game/ui/map/map_ui_minimap_render.js": 6,
-    "game/ui/map/map_ui_next_nodes.js": 1
+    "game/systems/item_system.js": 1
   }
 }

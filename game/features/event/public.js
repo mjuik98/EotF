@@ -11,6 +11,7 @@ import { buildItemShopStockUseCase, purchaseItemFromShopUseCase } from './applic
 import { createResolveEventChoiceUseCase } from './application/resolve_event_choice_use_case.js';
 import { createResolveEventSessionUseCase } from './application/resolve_event_session_use_case.js';
 import { createShowEventSessionUseCase } from './application/show_event_session_use_case.js';
+import { createEventContractCapabilities } from './ports/contracts/public_event_contract_capabilities.js';
 import { buildEventContractBuilders } from './ports/contracts/build_event_contracts.js';
 import { buildEventFlowContractBuilders } from './ports/contracts/build_event_flow_contracts.js';
 import { createEventRewardPorts } from './ports/create_event_reward_ports.js';
@@ -29,13 +30,6 @@ export function createEventApplicationCapabilities() {
     createResolveEventSession: createResolveEventSessionUseCase,
     createShowEventSession: createShowEventSessionUseCase,
     buildViewModel: buildEventViewModel,
-  };
-}
-
-export function createEventContractCapabilities() {
-  return {
-    buildEvent: buildEventContractPublicBuilders,
-    buildFlow: buildEventFlowContractPublicBuilders,
   };
 }
 
@@ -79,6 +73,7 @@ export {
   buildItemShopStockUseCase,
   buildEventContractBuilders,
   buildEventFlowContractBuilders,
+  createEventContractCapabilities,
   createDiscardEventCardUseCase,
   createEventShopUseCase,
   createEventRewardActions,

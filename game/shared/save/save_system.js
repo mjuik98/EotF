@@ -1,6 +1,6 @@
 import { SaveAdapter } from '../../platform/storage/save_adapter.js';
 import { Logger } from '../../utils/logger.js';
-import { META_SAVE_VERSION, RUN_SAVE_VERSION, migrateMetaSave, migrateRunSave } from '../../systems/save_migrations.js';
+import { META_SAVE_VERSION, RUN_SAVE_VERSION, migrateMetaSave, migrateRunSave } from './save_migrations.js';
 import {
   buildMetaSave,
   buildRunSave,
@@ -10,8 +10,8 @@ import {
   hydrateMetaState,
   hydrateRunState,
   validateRunSaveData,
-} from '../../systems/save/save_repository.js';
-import { createOutboxMetrics, summarizeOutboxMetrics } from '../../systems/save/save_outbox_metrics.js';
+} from './save_repository.js';
+import { createOutboxMetrics, summarizeOutboxMetrics } from './save_outbox_metrics.js';
 import {
   clearOutboxTimer,
   dropOutboxKey,
@@ -21,7 +21,7 @@ import {
   persistWithOutbox,
   scheduleOutboxFlush,
   upsertOutboxEntry,
-} from '../../systems/save/save_outbox_queue.js';
+} from './save_outbox_queue.js';
 
 const SAVE_KEY = 'echo_fallen_save';
 const META_KEY = 'echo_fallen_meta';

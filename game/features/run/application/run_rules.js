@@ -1,17 +1,16 @@
 import { DATA } from '../../../../data/game_data.js';
-import { GAME } from '../../../core/global_bridge.js';
 import {
   ensureCodexRecords,
   ensureCodexState,
 } from '../../../shared/codex/codex_record_state_use_case.js';
 import { ClassProgressionSystem } from '../../title/ports/class_progression_ports.js';
-import { CURSES } from '../../../systems/run_rules_curses.js';
+import { CURSES } from '../domain/run_rules_curses.js';
 import {
   getRegionCount,
   getBaseRegionIndex,
   getRegionIdForStage,
   getRegionData,
-} from '../../../systems/run_rules_regions.js';
+} from '../domain/run_rules_regions.js';
 import {
   getAscension,
   isEndless,
@@ -21,8 +20,8 @@ import {
   getEnemyScaleMultiplier,
   getHealAmount,
   getShopCost,
-} from '../../../systems/run_rules_difficulty.js';
-import { ensureRunMeta } from '../../../systems/run_rules_meta.js';
+} from '../domain/run_rules_difficulty.js';
+import { ensureRunMeta } from '../domain/run_rules_meta.js';
 import {
   applyPlayerMaxHpPenalty,
   applyRunOutcomeRewards,
@@ -39,7 +38,7 @@ export {
   getBaseRegionIndex,
   getRegionIdForStage,
   getRegionData,
-} from '../../../systems/run_rules_regions.js';
+} from '../domain/run_rules_regions.js';
 
 export const RunRules = {
   curses: CURSES,
@@ -156,6 +155,12 @@ export const RunRules = {
   },
 };
 
+function resolveRunRulesState(deps = {}) {
+  if (deps.gs) return deps.gs;
+  if (typeof deps.getGameState === 'function') return deps.getGameState();
+  return null;
+}
+
 function persistRunOutcomeMeta(deps = {}) {
   const saveSystem = deps.saveSystem;
   saveSystem?.saveMeta?.();
@@ -163,7 +168,7 @@ function persistRunOutcomeMeta(deps = {}) {
 }
 
 export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
-  const gs = deps.gs || GAME.State;
+  const gs = resolveRunRulesState(deps);
   if (!gs) return 0;
   if (!beginRunOutcomeCommit(gs)) return 0;
 

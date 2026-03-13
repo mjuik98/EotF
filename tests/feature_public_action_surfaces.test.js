@@ -66,6 +66,10 @@ vi.mock('../game/features/combat/public.js', () => ({
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
   buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
   createCombatBindingsActions: hoisted.createCombatBindingsActions,
+  createCombatContractCapabilities: () => ({
+    buildFlow: hoisted.buildCombatFlowContractPublicBuilders,
+    buildUi: hoisted.buildCombatUiContractPublicBuilders,
+  }),
   createCombatFeatureFacade: () => ({
     contracts: {
       buildFlow: hoisted.buildCombatFlowContractPublicBuilders,
@@ -99,6 +103,10 @@ vi.mock('../game/features/event/public.js', () => ({
   buildEventContractPublicBuilders: hoisted.buildEventContractPublicBuilders,
   buildEventFlowContractPublicBuilders: hoisted.buildEventFlowContractPublicBuilders,
   createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
+  createEventContractCapabilities: () => ({
+    buildEvent: hoisted.buildEventContractPublicBuilders,
+    buildFlow: hoisted.buildEventFlowContractPublicBuilders,
+  }),
   createEventFeatureFacade: () => ({
     contracts: {
       buildEvent: hoisted.buildEventContractPublicBuilders,
@@ -117,6 +125,9 @@ vi.mock('../game/features/event/ports/contracts/build_event_flow_contracts.js', 
 
 vi.mock('../game/features/reward/public.js', () => ({
   buildRewardFlowContractPublicBuilders: hoisted.buildRewardFlowContractPublicBuilders,
+  createRewardContractCapabilities: () => ({
+    buildFlow: hoisted.buildRewardFlowContractPublicBuilders,
+  }),
   createRewardFeatureFacade: () => ({
     contracts: {
       buildFlow: hoisted.buildRewardFlowContractPublicBuilders,
@@ -134,6 +145,11 @@ vi.mock('../game/features/run/public.js', () => ({
   buildRunReturnContractPublicBuilders: hoisted.buildRunReturnContractPublicBuilders,
   buildRunUiContractPublicBuilders: hoisted.buildRunUiContractPublicBuilders,
   createRunCanvasBindings: hoisted.createRunCanvasBindings,
+  createRunContractCapabilities: () => ({
+    buildFlow: hoisted.buildRunFlowContractPublicBuilders,
+    buildReturn: hoisted.buildRunReturnContractPublicBuilders,
+    buildUi: hoisted.buildRunUiContractPublicBuilders,
+  }),
   registerRunEntryBindings: vi.fn(),
   createRunFeatureFacade: () => ({
     contracts: {
@@ -162,6 +178,10 @@ vi.mock('../game/features/title/public.js', () => ({
   buildTitleBootPublicActions: hoisted.buildTitleBootPublicActions,
   buildTitleRunContractPublicBuilders: hoisted.buildTitleRunContractPublicBuilders,
   createTitleBindings: hoisted.createTitleBindings,
+  createTitleContractCapabilities: () => ({
+    buildRun: hoisted.buildTitleRunContractPublicBuilders,
+    buildStory: vi.fn(() => ({ story: vi.fn() })),
+  }),
   registerTitleBindings: vi.fn(),
   createTitleFeatureFacade: () => ({
     contracts: {
@@ -179,6 +199,9 @@ vi.mock('../game/features/ui/public.js', () => ({
   createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
   createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
   createUiBindingContext: hoisted.createUiBindingContext,
+  createUiContractCapabilities: () => ({
+    buildShell: hoisted.buildUiShellContractPublicBuilders,
+  }),
   createUiFeatureFacade: () => ({
     contracts: {
       buildShell: hoisted.buildUiShellContractPublicBuilders,
@@ -341,28 +364,26 @@ describe('feature public action surfaces', () => {
     expect(hoisted.buildRunBootPublicActions).toHaveBeenCalledWith(fns);
   });
 
-  it('routes core ui contract builders through feature public facades', () => {
+  it('routes core ui contract builders through feature-owned contract builders', () => {
     const ctx = {};
 
-    expect(buildUiContractBuilders(ctx)).toEqual({
+    expect(buildUiContractBuilders(ctx)).toMatchObject({
       hudUpdate: expect.any(Function),
       settings: expect.any(Function),
       worldCanvas: expect.any(Function),
     });
     expect(hoisted.buildCombatUiContractPublicBuilders).toHaveBeenCalledWith(ctx);
-    expect(hoisted.buildUiShellContractPublicBuilders).toHaveBeenCalledWith(ctx);
     expect(hoisted.buildRunUiContractPublicBuilders).toHaveBeenCalledWith(ctx);
   });
 
-  it('routes core run contract builders through feature public facades', () => {
+  it('routes core run contract builders through feature-owned contract builders', () => {
     const ctx = {};
 
-    expect(buildRunContractBuilders(ctx)).toEqual({
+    expect(buildRunContractBuilders(ctx)).toMatchObject({
       runMode: expect.any(Function),
       runStart: expect.any(Function),
       runNodeHandoff: expect.any(Function),
     });
-    expect(hoisted.buildTitleRunContractPublicBuilders).toHaveBeenCalledWith(ctx);
     expect(hoisted.buildRunFlowContractPublicBuilders).toHaveBeenCalledWith(ctx);
   });
 

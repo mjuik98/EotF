@@ -5,6 +5,7 @@ import {
   buildTitleCanvasModuleCapabilities,
   buildTitleFlowModuleCapabilities,
 } from './platform/browser/title_module_capabilities.js';
+import { createTitleContractCapabilities } from './ports/contracts/public_title_contract_capabilities.js';
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
 import { buildTitleStoryContractBuilders } from './ports/contracts/build_title_story_contracts.js';
 import { createTitleBindings } from './platform/browser/create_title_bindings.js';
@@ -21,13 +22,6 @@ export function createTitleModuleCapabilities() {
 export function createTitleBindingCapabilities() {
   return {
     createTitle: createTitleBindings,
-  };
-}
-
-export function createTitleContractCapabilities() {
-  return {
-    buildRun: buildTitleRunContractPublicBuilders,
-    buildStory: buildTitleStoryContractPublicBuilders,
   };
 }
 
@@ -72,4 +66,4 @@ export function registerTitleBindings(options = {}) {
   return registerTitleBrowserBindings(options);
 }
 
-export { createTitleBindings };
+export { createTitleBindings, createTitleContractCapabilities };

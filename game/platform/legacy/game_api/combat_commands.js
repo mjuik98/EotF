@@ -3,7 +3,7 @@ import { Actions } from '../../../shared/state/public.js';
 import {
   discardStateCard,
   playStateCard,
-} from '../../../features/combat/application/public_combat_command_actions.js';
+} from '../../../features/combat/public.js';
 import {
   getAudioEngine,
   getCombatRuntimeDeps,
