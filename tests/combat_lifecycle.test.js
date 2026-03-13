@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CombatLifecycle } from '../game/combat/combat_lifecycle.js';
-import * as RunRuleSystem from '../game/systems/run_rules.js';
+import * as RunRuleSystem from '../game/features/run/public.js';
 
 describe('CombatLifecycle', () => {
   afterEach(() => {

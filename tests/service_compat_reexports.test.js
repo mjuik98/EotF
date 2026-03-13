@@ -97,13 +97,16 @@ const EXACT_REEXPORTS = new Map([
     ].join('\n'),
   ],
   [
+    'game/app/codex/use_cases/codex_card_reference_use_case.js',
+    [
+      "export { createCodexCardReferenceUseCase, getCodexCardUpgradeId, isCodexCardUpgradeVariant, resolveCodexCardReferenceId } from '../../../shared/codex/codex_card_reference_use_case.js';",
+      '',
+    ].join('\n'),
+  ],
+  [
     'game/app/codex/use_cases/codex_record_state_use_case.js',
     [
-      'export {',
-      '  registerCardDiscovered,',
-      '  registerEnemyKill,',
-      '  registerItemFound,',
-      "} from '../../../shared/codex/codex_record_state_use_case.js';",
+      "export { registerCardDiscovered, registerEnemyKill, registerItemFound } from '../../../shared/codex/codex_record_state_use_case.js';",
       '',
     ].join('\n'),
   ],

@@ -1,5 +1,5 @@
 import { CONSTANTS } from '../data/constants.js';
-import { RunRules, getBaseRegionIndex } from '../systems/run_rules.js';
+import { RunRules, getBaseRegionIndex } from '../features/run/public.js';
 
 // DifficultyScaler — 순수 함수화 (GS 없이 밸런스 시뮬레이션 가능)
 export const DifficultyScaler = {

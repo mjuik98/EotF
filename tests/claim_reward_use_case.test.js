@@ -5,7 +5,7 @@ const hoisted = vi.hoisted(() => ({
   registerItemFound: vi.fn(),
 }));
 
-vi.mock('../game/systems/codex_records_system.js', () => ({
+vi.mock('../game/shared/codex/codex_record_state_use_case.js', () => ({
   registerCardDiscovered: hoisted.registerCardDiscovered,
   registerItemFound: hoisted.registerItemFound,
 }));

@@ -4,12 +4,15 @@ import {
   buildCombatHudBrowserModules,
 } from './platform/browser/combat_browser_modules.js';
 export { SetBonusSystem } from './domain/set_bonus_system.js';
-import { createCombatBindingsActions } from './platform/browser/create_combat_bindings.js';
 import { createCombatStartRuntime } from './application/create_combat_start_runtime.js';
 import { createCombatContractCapabilities } from './ports/contracts/public_combat_contract_capabilities.js';
 import { buildCombatFlowContractBuilders } from './ports/contracts/build_combat_flow_contracts.js';
 import { buildCombatUiContractPublicBuilders } from './ports/contracts/public_combat_contract_builders.js';
-import { buildCombatRuntimeSubscriberActions } from './application/build_combat_runtime_subscriber_actions.js';
+import {
+  buildCombatRuntimeSubscriberPublicActions,
+  createCombatBindingsActions,
+  createCombatRuntimeCapabilities,
+} from './ports/runtime/public_combat_runtime_surface.js';
 import {
   discardStateCard,
   drawStateCards,
@@ -31,12 +34,6 @@ export function createCombatBindingCapabilities() {
   };
 }
 
-export function createCombatRuntimeCapabilities() {
-  return {
-    buildSubscriberActions: buildCombatRuntimeSubscriberPublicActions,
-  };
-}
-
 export function createCombatFeatureFacade() {
   return {
     moduleCapabilities: createCombatModuleCapabilities(),
@@ -47,9 +44,11 @@ export function createCombatFeatureFacade() {
 }
 
 export {
+  buildCombatRuntimeSubscriberPublicActions,
   createCombatStartRuntime,
   createCombatBindingsActions,
   createCombatContractCapabilities,
+  createCombatRuntimeCapabilities,
   buildCombatUiContractPublicBuilders,
   discardStateCard,
   drawStateCards,
@@ -59,8 +58,4 @@ export {
 
 export function buildCombatFlowContractPublicBuilders(ctx) {
   return buildCombatFlowContractBuilders(ctx);
-}
-
-export function buildCombatRuntimeSubscriberPublicActions(fns) {
-  return buildCombatRuntimeSubscriberActions(fns);
 }

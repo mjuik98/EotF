@@ -8,4 +8,4 @@ export {
   registerEnemyKill,
   registerItemFound,
   resolveCodexCardId,
-} from '../../systems/codex_records_system.js';
+} from './codex_records.js';

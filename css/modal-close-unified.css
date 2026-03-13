@@ -56,22 +56,6 @@
   transform: scale(0.93);
 }
 
-/* 런 규칙 버튼: 기존 텍스트 숨기고 ✕ 삽입 */
-#closeRunSettingsBtn {
-  font-size: 0;
-}
-
-#closeRunSettingsBtn::after {
-  content: '✕';
-  font-size: 15px;
-  font-family: monospace;
-  color: var(--close-color);
-  transition: color 0.18s;
-}
-
-#closeRunSettingsBtn:hover::after {
-  color: var(--close-danger-color);
-}
 
 /* ══════════════════════════════════════════
    3. 푸터형 텍스트 버튼 (설정, 덱보기, 전투기록)

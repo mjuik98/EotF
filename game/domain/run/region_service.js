@@ -1,4 +1,4 @@
-import { getRegionIdForStage } from '../../systems/run_rules.js';
+import { getRegionIdForStage } from '../../features/run/public.js';
 
 export function resolveActiveRegionId(gs, deps = {}) {
   const activeRegionId = Number(gs?._activeRegionId);

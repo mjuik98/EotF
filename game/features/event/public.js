@@ -1,8 +1,3 @@
-import { createEventRewardActions } from './app/event_reward_actions.js';
-import {
-  createEventUiCallbacks,
-  createEventUiRuntime,
-} from './application/create_event_ui_runtime.js';
 import { createEventShopUseCase } from './application/create_event_shop_use_case.js';
 import { createRestEventUseCase } from './application/create_rest_event_use_case.js';
 import { createDiscardEventCardUseCase, discardEventCard } from './application/discard_event_card_use_case.js';
@@ -14,7 +9,12 @@ import { createShowEventSessionUseCase } from './application/show_event_session_
 import { createEventContractCapabilities } from './ports/contracts/public_event_contract_capabilities.js';
 import { buildEventContractBuilders } from './ports/contracts/build_event_contracts.js';
 import { buildEventFlowContractBuilders } from './ports/contracts/build_event_flow_contracts.js';
-import { createEventRewardPorts } from './ports/create_event_reward_ports.js';
+import {
+  createEventRewardBindingActions,
+  createEventRuntimeCapabilities,
+  createEventUiCallbacks,
+  createEventUiRuntime,
+} from './ports/runtime/public_event_runtime_surface.js';
 import { EventUI } from './presentation/browser/event_ui.js';
 import { buildEventViewModel } from './presentation/event_choice_view_model.js';
 
@@ -33,14 +33,6 @@ export function createEventApplicationCapabilities() {
   };
 }
 
-export function createEventRuntimeCapabilities() {
-  return {
-    createUiCallbacks: createEventUiCallbacks,
-    createUiRuntime: createEventUiRuntime,
-    createRewardBindings: createEventRewardBindingActions,
-  };
-}
-
 export function createEventModuleCapabilities() {
   return {
     primary: { EventUI },
@@ -54,10 +46,6 @@ export function createEventFeatureFacade() {
     contracts: createEventContractCapabilities(),
     runtime: createEventRuntimeCapabilities(),
   };
-}
-
-export function createEventRewardBindingActions(modules, fns, ports = createEventRewardPorts()) {
-  return createEventRewardActions(modules, fns, ports);
 }
 
 export function buildEventContractPublicBuilders(ctx) {
@@ -74,10 +62,10 @@ export {
   buildEventContractBuilders,
   buildEventFlowContractBuilders,
   createEventContractCapabilities,
+  createEventRewardBindingActions,
+  createEventRuntimeCapabilities,
   createDiscardEventCardUseCase,
   createEventShopUseCase,
-  createEventRewardActions,
-  createEventRewardPorts,
   createEventUiCallbacks,
   createEventUiRuntime,
   EventUI,

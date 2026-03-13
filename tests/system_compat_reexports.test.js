@@ -37,13 +37,25 @@ describe('system compat re-exports', () => {
       path.join(process.cwd(), 'game/systems/run_rules_meta.js'),
       'utf8',
     ).trim();
+    const codexRecordsSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/codex_records_system.js'),
+      'utf8',
+    ).trim();
+    const itemSystemSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/item_system.js'),
+      'utf8',
+    ).trim();
+    const inscriptionSystemSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/systems/inscription_system.js'),
+      'utf8',
+    ).trim();
 
     expect(classProgressionSource).toBe(
       "export { ClassProgressionSystem } from '../features/title/domain/class_progression_system.js';",
     );
-    expect(runRulesSource).toContain("from '../features/run/application/run_rules.js';");
-    expect(runRulesSource).toContain('export function finalizeRunOutcome(');
-    expect(runRulesSource).toContain('getCompatGameState');
+    expect(runRulesSource).toBe(
+      "export { finalizeRunOutcome, getBaseRegionIndex, getRegionCount, getRegionData, getRegionIdForStage, RunRules } from '../platform/legacy/run_rules_compat.js';",
+    );
     expect(saveSystemSource).toBe(
       "export { SaveSystem } from '../shared/save/save_system.js';",
     );
@@ -75,6 +87,15 @@ describe('system compat re-exports', () => {
     ].join('\n'));
     expect(runRulesMetaSource).toBe(
       "export { ensureRunMeta } from '../features/run/domain/run_rules_meta.js';",
+    );
+    expect(codexRecordsSource).toBe(
+      "export { ensureCodexRecords, ensureCodexState, getCardUpgradeId, isCardUpgradeVariant, registerCardDiscovered, registerCardUsed, registerEnemyEncounter, registerEnemyKill, registerItemFound, resolveCodexCardId } from '../shared/codex/codex_records.js';",
+    );
+    expect(itemSystemSource).toBe(
+      "export { ItemSystem } from '../shared/progression/item_system.js';",
+    );
+    expect(inscriptionSystemSource).toBe(
+      "export { InscriptionSystem } from '../shared/progression/inscription_system.js';",
     );
   });
 });

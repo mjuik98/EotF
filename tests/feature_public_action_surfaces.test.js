@@ -59,6 +59,7 @@ const hoisted = vi.hoisted(() => ({
   createEventRewardBindingActions: vi.fn(() => ({ skipReward: vi.fn() })),
   createRunCanvasBindings: vi.fn(() => ({ renderWorld: vi.fn() })),
   createTitleBindings: vi.fn(() => ({ openSettings: vi.fn() })),
+  setScreenService: vi.fn(),
 }));
 
 vi.mock('../game/features/combat/public.js', () => ({
@@ -76,6 +77,11 @@ vi.mock('../game/features/combat/public.js', () => ({
       buildUi: hoisted.buildCombatUiContractPublicBuilders,
     },
   }),
+}));
+
+vi.mock('../game/features/combat/ports/runtime/public_combat_runtime_surface.js', () => ({
+  buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+  createCombatBindingsActions: hoisted.createCombatBindingsActions,
 }));
 
 vi.mock('../game/features/combat/ports/contracts/build_combat_flow_contracts.js', () => ({
@@ -113,6 +119,10 @@ vi.mock('../game/features/event/public.js', () => ({
       buildFlow: hoisted.buildEventFlowContractPublicBuilders,
     },
   }),
+}));
+
+vi.mock('../game/features/event/ports/runtime/public_event_runtime_surface.js', () => ({
+  createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
 }));
 
 vi.mock('../game/features/event/ports/contracts/build_event_contracts.js', () => ({
@@ -160,6 +170,12 @@ vi.mock('../game/features/run/public.js', () => ({
   }),
 }));
 
+vi.mock('../game/features/run/ports/runtime/public_run_runtime_surface.js', () => ({
+  buildRunBootPublicActions: hoisted.buildRunBootPublicActions,
+  createRunCanvasBindings: hoisted.createRunCanvasBindings,
+  registerRunEntryBindings: vi.fn(),
+}));
+
 vi.mock('../game/features/run/ports/contracts/public_run_contract_builders.js', () => ({
   buildRunFlowContractPublicBuilders: hoisted.buildRunFlowContractPublicBuilders,
   buildRunReturnContractPublicBuilders: hoisted.buildRunReturnContractPublicBuilders,
@@ -191,6 +207,12 @@ vi.mock('../game/features/title/public.js', () => ({
   }),
 }));
 
+vi.mock('../game/features/title/ports/runtime/public_title_runtime_surface.js', () => ({
+  buildTitleBootPublicActions: hoisted.buildTitleBootPublicActions,
+  createTitleBindings: hoisted.createTitleBindings,
+  registerTitleBindings: vi.fn(),
+}));
+
 vi.mock('../game/features/ui/public.js', () => ({
   buildUiShellContractPublicBuilders: hoisted.buildUiShellContractPublicBuilders,
   buildUiRuntimeSubscriberPublicActions: hoisted.buildUiRuntimeSubscriberPublicActions,
@@ -207,6 +229,16 @@ vi.mock('../game/features/ui/public.js', () => ({
       buildShell: hoisted.buildUiShellContractPublicBuilders,
     },
   }),
+}));
+
+vi.mock('../game/features/ui/ports/runtime/public_ui_runtime_surface.js', () => ({
+  buildLegacyGameApiRuntimeHudQueryGroups: hoisted.buildLegacyGameApiRuntimeHudQueryGroups,
+  buildLegacyWindowUiQueryGroups: hoisted.buildLegacyWindowUiQueryGroups,
+  buildUiRuntimeSubscriberPublicActions: hoisted.buildUiRuntimeSubscriberPublicActions,
+  createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
+  createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
+  createUiBindingContext: hoisted.createUiBindingContext,
+  setScreenService: hoisted.setScreenService,
 }));
 
 import { createUIBindings } from '../game/core/bindings/ui_bindings.js';
@@ -294,7 +326,7 @@ describe('feature public action surfaces', () => {
     hoisted.buildUiShellContractPublicBuilders.mockReturnValue({ settings: vi.fn() });
   });
 
-  it('routes core ui bindings through the ui feature public facade', () => {
+  it('routes core ui bindings through the ui runtime surface', () => {
     const modules = { GAME: { getScreenDeps: vi.fn(() => ({ token: 'screen-deps' })) }, GS: { dispatch: vi.fn() }, ScreenUI: {} };
     const fns = {};
 
@@ -303,7 +335,7 @@ describe('feature public action surfaces', () => {
     expect(hoisted.createUiBindingContext).toHaveBeenCalledWith(modules, fns);
   });
 
-  it('routes title settings bindings through the title feature public facade', () => {
+  it('routes title settings bindings through the title runtime surface', () => {
     const modules = {};
     const fns = {};
 
@@ -315,7 +347,7 @@ describe('feature public action surfaces', () => {
     });
   });
 
-  it('routes combat bindings through the combat feature public facade', () => {
+  it('routes combat bindings through the combat runtime surface', () => {
     const modules = {};
     const fns = {};
 
@@ -324,7 +356,7 @@ describe('feature public action surfaces', () => {
     expect(hoisted.createCombatBindingsActions).toHaveBeenCalledWith(modules, fns);
   });
 
-  it('routes canvas bindings through the run feature public facade', () => {
+  it('routes canvas bindings through the run runtime surface', () => {
     const modules = {};
     const fns = {};
 
@@ -333,7 +365,7 @@ describe('feature public action surfaces', () => {
     expect(hoisted.createRunCanvasBindings).toHaveBeenCalledWith(modules, fns);
   });
 
-  it('routes event reward bindings through the event feature public facade', () => {
+  it('routes event reward bindings through the event runtime surface', () => {
     const modules = {};
     const fns = {};
 
@@ -342,7 +374,7 @@ describe('feature public action surfaces', () => {
     expect(hoisted.createEventRewardBindingActions).toHaveBeenCalledWith(modules, fns);
   });
 
-  it('routes runtime subscriber groups through feature public facades', () => {
+  it('routes runtime subscriber groups through feature runtime surfaces', () => {
     const fns = {};
 
     expect(buildRuntimeSubscriberActionGroups(fns)).toEqual({
@@ -353,7 +385,7 @@ describe('feature public action surfaces', () => {
     expect(hoisted.buildUiRuntimeSubscriberPublicActions).toHaveBeenCalledWith(fns);
   });
 
-  it('routes game boot groups through feature public facades', () => {
+  it('routes game boot groups through feature runtime surfaces', () => {
     const fns = {};
 
     expect(buildGameBootActionGroups(fns)).toEqual({
@@ -435,7 +467,7 @@ describe('feature public action surfaces', () => {
     expect(combatUiCompat.updateEchoSkillBtn).toHaveBeenCalledTimes(1);
   });
 
-  it('routes legacy window ui query groups through feature public facades', () => {
+  it('routes legacy window ui query groups through feature runtime surfaces', () => {
     const modules = {};
     const fns = { _resetCombatInfoPanel: vi.fn() };
     const deps = { getHudUpdateDeps: vi.fn() };
@@ -449,7 +481,7 @@ describe('feature public action surfaces', () => {
     expect(groups.hud._resetCombatInfoPanel).toBe(hoisted.buildLegacyWindowUiQueryGroups.mock.results[0].value.hud._resetCombatInfoPanel);
   });
 
-  it('routes legacy runtime query groups through the ui feature public facade', () => {
+  it('routes legacy runtime query groups through the ui runtime surface', () => {
     const modules = {
       SaveSystem: { getOutboxMetrics: vi.fn(), flushOutbox: vi.fn() },
     };
@@ -466,7 +498,7 @@ describe('feature public action surfaces', () => {
     expect(groups.hud.processDirtyFlags).toBe(hoisted.buildLegacyGameApiRuntimeHudQueryGroups.mock.results[0].value.hud.processDirtyFlags);
   });
 
-  it('routes legacy ui commands through the ui feature public facade', () => {
+  it('routes legacy ui commands through the ui runtime surface', () => {
     toggleHudPin();
     closeDeckView();
     closeCodex();

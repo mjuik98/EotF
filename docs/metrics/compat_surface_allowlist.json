@@ -2,13 +2,12 @@
   "scanDirs": [
     "game/app",
     "game/combat",
+    "game/systems",
     "game/state",
     "game/ui",
     "game/presentation"
   ],
   "allowlist": [
-    "game/app/codex/use_cases/codex_card_reference_use_case.js",
-    "game/app/codex/use_cases/codex_record_state_use_case.js",
     "game/app/combat/card_draw_service.js",
     "game/app/event/event_service.js",
     "game/app/event/event_session_store.js",
@@ -39,6 +38,13 @@
     "game/combat/player_methods.js",
     "game/combat/turn_manager.js",
     "game/combat/turn_manager_helpers.js",
+    "game/systems/event_manager.js",
+    "game/systems/run_rules_difficulty.js",
+    "game/systems/run_rules_regions.js",
+    "game/systems/save/save_outbox_metrics.js",
+    "game/systems/save/save_outbox_queue.js",
+    "game/systems/save/save_repository.js",
+    "game/systems/save_migrations.js",
     "game/presentation/combat/combat_enemy_list_presenter.js",
     "game/presentation/combat/combat_enemy_view_model_presenter.js",
     "game/presentation/combat/combat_turn_action_presenter.js",

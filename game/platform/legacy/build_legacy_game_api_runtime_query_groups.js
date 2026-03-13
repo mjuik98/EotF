@@ -1,4 +1,4 @@
-import { buildLegacyGameApiRuntimeHudQueryGroups } from '../../features/ui/public.js';
+import { buildLegacyGameApiRuntimeHudQueryGroups } from '../../features/ui/ports/runtime/public_ui_runtime_surface.js';
 import {
   buildLegacyMetricsQueryBindings,
   buildLegacySaveQueryBindings,

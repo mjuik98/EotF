@@ -40,10 +40,10 @@
     "game/features/ui/presentation/browser/story_ui_runtime.js": 2,
     "game/presentation/combat/combat_enemy_list_presenter.js": 3,
     "game/presentation/combat/combat_enemy_view_model_presenter.js": 2,
+    "game/shared/codex/codex_records.js": 5,
+    "game/shared/progression/item_system.js": 1,
     "game/shared/save/save_repository.js": 10,
     "game/shared/state/map_state_commands.js": 2,
-    "game/shared/state/run_state_commands.js": 5,
-    "game/systems/codex_records_system.js": 5,
-    "game/systems/item_system.js": 1
+    "game/shared/state/run_state_commands.js": 5
   }
 }

@@ -1,4 +1,4 @@
-import { RunRules, getRegionIdForStage } from '../systems/run_rules.js';
+import { RunRules, getRegionIdForStage } from '../features/run/public.js';
 import { Actions } from '../shared/state/public.js';
 import { GAME } from '../core/global_bridge.js';
 

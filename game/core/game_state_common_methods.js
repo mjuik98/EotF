@@ -1,4 +1,4 @@
-import { ItemSystem } from '../systems/item_system.js';
+import { ItemSystem } from '../shared/progression/item_system.js';
 import { EventBus } from './event_bus.js';
 import { CoreEvents } from './event_contracts.js';
 
