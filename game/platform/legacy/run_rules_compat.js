@@ -1,13 +1,6 @@
 import { GAME } from './public.js';
 import { getLegacyRoot } from './global_bridge_helpers.js';
-import {
-  finalizeRunOutcome as finalizeFeatureRunOutcome,
-  getBaseRegionIndex,
-  getRegionCount,
-  getRegionData,
-  getRegionIdForStage,
-  RunRules,
-} from '../../features/run/public.js';
+import { createRunRuleCapabilities } from '../../features/run/ports/public_rule_capabilities.js';
 
 function getCompatGameState() {
   if (GAME.State) return GAME.State;
@@ -15,17 +8,31 @@ function getCompatGameState() {
   return root?.GS || root?.GameState || null;
 }
 
+function getRunRules() {
+  return createRunRuleCapabilities();
+}
+
 export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
-  return finalizeFeatureRunOutcome(kind, options, {
+  return getRunRules().finalizeRunOutcome(kind, options, {
     getGameState: getCompatGameState,
     ...deps,
   });
 }
 
-export {
-  getBaseRegionIndex,
-  getRegionCount,
-  getRegionData,
-  getRegionIdForStage,
-  RunRules,
-};
+export function getBaseRegionIndex(...args) {
+  return getRunRules().getBaseRegionIndex(...args);
+}
+
+export function getRegionCount(...args) {
+  return getRunRules().getRegionCount(...args);
+}
+
+export function getRegionData(...args) {
+  return getRunRules().getRegionData(...args);
+}
+
+export function getRegionIdForStage(...args) {
+  return getRunRules().getRegionIdForStage(...args);
+}
+
+export const RunRules = createRunRuleCapabilities().RunRules;

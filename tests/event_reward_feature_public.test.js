@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  EventPublicSurface,
   createEventApplicationCapabilities,
   createEventContractCapabilities,
   createEventFeatureFacade,
   createEventRuntimeCapabilities,
 } from '../game/features/event/public.js';
 import {
+  RewardPublicSurface,
   createRewardApplicationCapabilities,
   createRewardContractCapabilities,
   createRewardFeatureFacade,
@@ -28,6 +30,10 @@ describe('event/reward feature public facades', () => {
       'createRestEvent',
       'buildViewModel',
     ]));
+    expect(EventPublicSurface.application).toEqual(createEventApplicationCapabilities());
+    expect(EventPublicSurface.contracts).toEqual(createEventContractCapabilities());
+    expect(EventPublicSurface.runtime).toEqual(createEventRuntimeCapabilities());
+    expect(EventPublicSurface.moduleCapabilities.primary).toBeDefined();
   });
 
   it('exposes reward capabilities through a single feature facade', () => {
@@ -43,5 +49,9 @@ describe('event/reward feature public facades', () => {
       'startRemove',
       'takeClaim',
     ]));
+    expect(RewardPublicSurface.application).toEqual(createRewardApplicationCapabilities());
+    expect(RewardPublicSurface.contracts).toEqual(createRewardContractCapabilities());
+    expect(RewardPublicSurface.runtime).toEqual(createRewardRuntimeCapabilities());
+    expect(RewardPublicSurface.moduleCapabilities.primary).toBeDefined();
   });
 });

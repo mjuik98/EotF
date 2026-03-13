@@ -1,17 +1,20 @@
 import { setVolume } from './title_action_helpers.js';
-import { ensureRunFlowBrowserModules } from '../../run/platform/browser/ensure_run_flow_browser_modules.js';
-import { ensureSettingsBrowserModules } from '../../ui/platform/browser/ensure_settings_browser_modules.js';
+import { createRunBrowserModuleCapabilities } from '../../run/ports/public_browser_modules.js';
+import { createUiBrowserModuleCapabilities } from '../../ui/ports/public_browser_modules.js';
+
+const runBrowserModules = createRunBrowserModuleCapabilities();
+const uiBrowserModules = createUiBrowserModuleCapabilities();
 
 export function createTitleSettingsActions(context) {
   const { doc, modules, ports, saveVolumes } = context;
 
   async function ensureRunModeUI() {
-    const { RunModeUI } = await ensureRunFlowBrowserModules(modules);
+    const { RunModeUI } = await runBrowserModules.ensureFlow(modules);
     return RunModeUI;
   }
 
   async function ensureSettingsUI() {
-    const { SettingsUI } = await ensureSettingsBrowserModules(modules);
+    const { SettingsUI } = await uiBrowserModules.ensureSettings(modules);
     return SettingsUI;
   }
 

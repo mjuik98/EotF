@@ -1,4 +1,4 @@
-let codexModulesPromise = null;
+import { buildCodexPrimaryBrowserModules } from './codex_browser_modules.js';
 
 function assignCodexModules(modules, codexModules) {
   if (!modules || !codexModules) return codexModules;
@@ -19,15 +19,6 @@ export async function ensureCodexBrowserModules(modules) {
     return { CodexUI: modules.CodexUI };
   }
 
-  if (!codexModulesPromise) {
-    codexModulesPromise = import('./codex_browser_modules.js')
-      .then((mod) => mod.buildCodexPrimaryBrowserModules())
-      .catch((error) => {
-        codexModulesPromise = null;
-        throw error;
-      });
-  }
-
-  const codexModules = await codexModulesPromise;
+  const codexModules = buildCodexPrimaryBrowserModules();
   return assignCodexModules(modules, codexModules);
 }

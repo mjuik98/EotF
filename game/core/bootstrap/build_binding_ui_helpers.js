@@ -1,10 +1,20 @@
+import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
+
 export function buildBindingUiHelpers({ modules, deps }) {
+  const titleModules = getModuleRegistryScope(modules, 'title');
+  const combatModules = getModuleRegistryScope(modules, 'combat');
+
   return {
-    getSelectedClass: () => modules.ClassSelectUI?.getSelectedClass?.() || null,
+    getSelectedClass: () => titleModules.ClassSelectUI?.getSelectedClass?.()
+      || modules.ClassSelectUI?.getSelectedClass?.()
+      || null,
     clearSelectedClass: () =>
-      modules.ClassSelectUI?.clearSelection?.(deps.getClassSelectDeps()),
+      (titleModules.ClassSelectUI || modules.ClassSelectUI)
+        ?.clearSelection?.(deps.getClassSelectDeps()),
     showPendingClassProgressSummary: () =>
-      modules.CharacterSelectUI?.showPendingSummaries?.(),
-    resetDeckModalFilter: () => modules.DeckModalUI?.resetFilter?.(),
+      (titleModules.CharacterSelectUI || modules.CharacterSelectUI)
+        ?.showPendingSummaries?.(),
+    resetDeckModalFilter: () =>
+      (combatModules.DeckModalUI || modules.DeckModalUI)?.resetFilter?.(),
   };
 }

@@ -1,5 +1,5 @@
-import { createCombatFeatureFacade } from '../../../features/combat/public.js';
+import { createCombatModuleCapabilities } from '../../../features/combat/ports/public_module_capabilities.js';
 
 export function buildCombatHudModules() {
-  return createCombatFeatureFacade().moduleCapabilities.hud;
+  return createCombatModuleCapabilities().hud;
 }

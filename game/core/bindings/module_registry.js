@@ -13,6 +13,13 @@ export function createModuleRegistry() {
     ...groups.combat,
     ...groups.run,
     ...groups.screen,
+    featureScopes: Object.freeze({
+      core: groups.core,
+      title: groups.title,
+      combat: groups.combat,
+      run: groups.run,
+      screen: groups.screen,
+    }),
     _gameStarted: false,
     _canvasRefs: null,
   };

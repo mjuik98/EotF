@@ -5,12 +5,17 @@ export const Actions = {
   PLAYER_SHIELD: 'player:shield',
   PLAYER_GOLD: 'player:gold',
   PLAYER_ENERGY: 'player:energy',
+  PLAYER_ENERGY_ADJUST: 'player:energy-adjust',
+  PLAYER_ENERGY_SET: 'player:energy-set',
   PLAYER_ECHO: 'player:echo',
   PLAYER_SILENCE: 'player:silence',
   PLAYER_TIME_RIFT: 'player:time-rift',
   PLAYER_BUFF: 'player:buff',
+  PLAYER_HP_SET: 'player:hp-set',
   PLAYER_MAX_HP_GROWTH: 'player:max-hp-growth',
   PLAYER_MAX_ENERGY_GROWTH: 'player:max-energy-growth',
+  PLAYER_MAX_ENERGY_SET: 'player:max-energy-set',
+  PLAYER_STATUS_CLEAR: 'player:status-clear',
   PLAYER_DEATH: 'player:death',
 
   // Card

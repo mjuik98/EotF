@@ -6,16 +6,17 @@ import { buildItemShopStockUseCase, purchaseItemFromShopUseCase } from './applic
 import { createResolveEventChoiceUseCase } from './application/resolve_event_choice_use_case.js';
 import { createResolveEventSessionUseCase } from './application/resolve_event_session_use_case.js';
 import { createShowEventSessionUseCase } from './application/show_event_session_use_case.js';
-import { createEventContractCapabilities } from './ports/contracts/public_event_contract_capabilities.js';
+import { createEventContractCapabilities } from './ports/public_contract_capabilities.js';
+import { createEventModuleCapabilities } from './ports/public_module_capabilities.js';
 import { buildEventContractBuilders } from './ports/contracts/build_event_contracts.js';
 import { buildEventFlowContractBuilders } from './ports/contracts/build_event_flow_contracts.js';
 import {
+  createEventBindingCapabilities as buildEventBindingCapabilities,
   createEventRewardBindingActions,
   createEventRuntimeCapabilities,
   createEventUiCallbacks,
   createEventUiRuntime,
 } from './ports/runtime/public_event_runtime_surface.js';
-import { EventUI } from './presentation/browser/event_ui.js';
 import { buildEventViewModel } from './presentation/event_choice_view_model.js';
 import { EventManager } from './application/event_manager_compat.js';
 
@@ -34,9 +35,13 @@ export function createEventApplicationCapabilities() {
   };
 }
 
-export function createEventModuleCapabilities() {
+export function createEventBindingCapabilities() {
+  return buildEventBindingCapabilities();
+}
+
+export function createEventCompatCapabilities() {
   return {
-    primary: { EventUI },
+    EventManager,
   };
 }
 
@@ -44,35 +49,29 @@ export function createEventFeatureFacade() {
   return {
     moduleCapabilities: createEventModuleCapabilities(),
     application: createEventApplicationCapabilities(),
+    bindings: createEventBindingCapabilities(),
     contracts: createEventContractCapabilities(),
+    compat: createEventCompatCapabilities(),
     runtime: createEventRuntimeCapabilities(),
   };
 }
 
 export const EventPublicSurface = Object.freeze({
-  EventManager,
+  application: createEventApplicationCapabilities(),
+  bindings: createEventBindingCapabilities(),
+  compat: createEventCompatCapabilities(),
+  contracts: createEventContractCapabilities(),
   createEventApplicationCapabilities,
+  createEventBindingCapabilities,
+  createEventCompatCapabilities,
   createEventContractCapabilities,
   createEventFeatureFacade,
   createEventModuleCapabilities,
-  createEventRewardBindingActions,
   createEventRuntimeCapabilities,
-  createEventShopUseCase,
-  createEventUiCallbacks,
-  createEventUiRuntime,
-  createDiscardEventCardUseCase,
-  createFinishEventFlowUseCase,
-  createResolveEventChoiceUseCase,
-  createResolveEventSessionUseCase,
-  createRestEventUseCase,
-  createShowEventSessionUseCase,
-  EventUI,
   buildEventContractPublicBuilders,
   buildEventFlowContractPublicBuilders,
-  buildEventViewModel,
-  buildItemShopStockUseCase,
-  discardEventCard,
-  purchaseItemFromShopUseCase,
+  moduleCapabilities: createEventModuleCapabilities(),
+  runtime: createEventRuntimeCapabilities(),
 });
 
 export function buildEventContractPublicBuilders(ctx) {
@@ -95,7 +94,6 @@ export {
   createEventShopUseCase,
   createEventUiCallbacks,
   createEventUiRuntime,
-  EventUI,
   createFinishEventFlowUseCase,
   createResolveEventChoiceUseCase,
   createResolveEventSessionUseCase,

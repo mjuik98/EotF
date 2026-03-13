@@ -1,4 +1,4 @@
-import { RunRules, getBaseRegionIndex, getRegionCount } from '../../run/public.js';
+import { RunRules, getBaseRegionIndex, getRegionCount } from '../../run/ports/public_rule_capabilities.js';
 import { Actions } from '../../../shared/state/public.js';
 import {
   beginCombatResolution,

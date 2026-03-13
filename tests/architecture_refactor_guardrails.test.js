@@ -31,13 +31,13 @@ describe('architecture refactor guardrails', () => {
     expect(matches).toEqual([]);
   });
 
-  it('keeps core run composition routed through the run public facade', () => {
+  it('keeps core run composition routed through public run capability ports', () => {
     const source = fs.readFileSync(
       path.join(process.cwd(), 'game/platform/browser/composition/build_core_run_system_modules.js'),
       'utf8',
     );
 
-    expect(source).toContain("from '../../../features/run/public.js'");
+    expect(source).toContain("from '../../../features/run/ports/public_system_capabilities.js'");
     expect(source).not.toContain("from '../../../features/run/application/");
   });
 

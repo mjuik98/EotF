@@ -2,6 +2,11 @@ import { Actions } from '../../../shared/state/public.js';
 import { Logger } from '../../../utils/logger.js';
 import { LogUtils } from '../../../utils/log_utils.js';
 import {
+  applyEnemyStatusState,
+  applyPlayerDamageState,
+  applyPlayerShieldState,
+} from '../state/card_state_commands.js';
+import {
   adjustEnemyStatusDuration,
   advancePlayerChain,
   applyLifesteal,
@@ -103,7 +108,7 @@ export const DamageSystem = {
       this.addLog('꿈의 피로로 방어막 획득 감소 (-10)', 'system');
     }
 
-    this.dispatch(Actions.PLAYER_SHIELD, { amount: actual });
+    applyPlayerShieldState(this, actual);
     if (typeof this.addLog === 'function') {
       if (source && source.name) {
         const icon = source.type === 'item' ? '🛡' : '✨';
@@ -134,7 +139,7 @@ export const DamageSystem = {
     }
 
     const shieldBefore = Number(this.player?.shield || 0);
-    const result = this.dispatch(Actions.PLAYER_DAMAGE, { amount: incoming.damage, source: 'combat' });
+    const result = applyPlayerDamageState(this, { amount: incoming.damage, source: 'combat' });
 
     if (result?.shieldAbsorbed > 0) {
       this.addLog?.(LogUtils.formatShield('플레이어', result.shieldAbsorbed), 'shield');
@@ -181,7 +186,7 @@ export const DamageSystem = {
     }
 
     const adjustedDuration = adjustEnemyStatusDuration(this, status, duration, resolvedTargetIdx);
-    const result = this.dispatch(Actions.ENEMY_STATUS, {
+    const result = applyEnemyStatusState(this, {
       status,
       duration: adjustedDuration,
       targetIdx: resolvedTargetIdx,

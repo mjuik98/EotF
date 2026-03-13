@@ -1,5 +1,5 @@
-import { createTitleFeatureFacade } from '../../../features/title/public.js';
+import { createTitleModuleCapabilities } from '../../../features/title/ports/public_module_capabilities.js';
 
 export function buildTitleCanvasModules() {
-  return createTitleFeatureFacade().moduleCapabilities.canvas;
+  return createTitleModuleCapabilities().canvas;
 }

@@ -12,9 +12,11 @@ vi.mock('../game/shared/codex/codex_record_state_use_case.js', () => ({
 
 import {
   addRewardItemToInventory,
+  applyBlessingRewardState,
   applyMiniBossBonusState,
   upgradeRandomRewardCardState,
 } from '../game/features/reward/state/reward_state_commands.js';
+import { Actions } from '../game/shared/state/public.js';
 
 describe('reward_state_commands', () => {
   it('applies mini-boss hp, gold, and guaranteed rare item state in one command', () => {
@@ -69,5 +71,32 @@ describe('reward_state_commands', () => {
     expect(state.player.items).toContain('charm');
     expect(state.player.deck).toContain('strike_plus');
     expect(onAcquire).toHaveBeenCalledWith(state);
+  });
+
+  it('prefers reducer-driven player growth actions when dispatch is available', () => {
+    const dispatch = vi.fn((action, payload) => {
+      if (action === Actions.PLAYER_MAX_HP_GROWTH) {
+        return { maxHpAfter: 35, hpAfter: 25 };
+      }
+      if (action === Actions.PLAYER_MAX_ENERGY_GROWTH) {
+        return { maxEnergyAfter: 4, energyAfter: 4 };
+      }
+      return null;
+    });
+    const state = {
+      dispatch,
+      player: {
+        hp: 20,
+        maxHp: 30,
+        energy: 3,
+        maxEnergy: 3,
+      },
+    };
+
+    expect(applyBlessingRewardState(state, { type: 'hp', amount: 5 })).toBe(true);
+    expect(applyBlessingRewardState(state, { type: 'energy', amount: 1 })).toBe(true);
+
+    expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_MAX_HP_GROWTH, { amount: 5 });
+    expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_MAX_ENERGY_GROWTH, { amount: 1 });
   });
 });

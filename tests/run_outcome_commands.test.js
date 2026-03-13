@@ -12,7 +12,7 @@ import {
 } from '../game/features/run/state/run_outcome_state_commands.js';
 
 describe('run_outcome_commands', () => {
-  it('applies hp penalties and silence turn rules through shared commands', () => {
+  it('applies hp penalties and silence turn rules through the run state command surface', () => {
     const gs = {
       player: { hp: 40, maxHp: 40, energy: 3, maxEnergy: 3 },
       combat: { turn: 2 },

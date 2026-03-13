@@ -4,12 +4,12 @@ const hoisted = vi.hoisted(() => ({
   showRewardScreenRuntime: vi.fn(),
 }));
 
-vi.mock('../game/features/reward/public.js', () => ({
+vi.mock('../game/features/reward/application/show_reward_screen_runtime.js', () => ({
   showRewardScreenRuntime: hoisted.showRewardScreenRuntime,
 }));
 
 describe('reward_ui_screen_runtime', () => {
-  it('delegates reward screen runtime to the reward feature public surface', async () => {
+  it('delegates reward screen runtime to the feature-owned reward runtime', async () => {
     const { showRewardScreenRuntime } = await import('../game/ui/screens/reward_ui_screen_runtime.js');
     const ui = { id: 'ui' };
     const deps = { id: 'deps' };

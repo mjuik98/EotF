@@ -2,7 +2,7 @@ import { DATA } from '../../../../data/game_data.js';
 import {
   drawStateCards,
   playStateCard,
-} from '../app/game_state_card_actions.js';
+} from './public_combat_command_actions.js';
 import { createLegacyGameStateCardPorts } from '../../../platform/legacy/adapters/create_legacy_game_state_card_ports.js';
 
 export const CardMethods = {

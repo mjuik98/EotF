@@ -1,5 +1,5 @@
-import { createRunFeatureFacade } from '../../../features/run/public.js';
+import { createRunModuleCapabilities } from '../../../features/run/ports/public_module_capabilities.js';
 
 export function buildRunFlowModules() {
-  return createRunFeatureFacade().moduleCapabilities.flow;
+  return createRunModuleCapabilities().flow;
 }

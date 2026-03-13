@@ -1,9 +1,11 @@
-import { createEventRewardActions } from '../../app/event_reward_actions.js';
 import {
   createEventUiCallbacks,
   createEventUiRuntime,
 } from '../../application/create_event_ui_runtime.js';
-import { createEventRewardPorts } from '../create_event_reward_ports.js';
+import {
+  createEventBindingCapabilities,
+  createEventRewardBindingActions,
+} from '../public_event_binding_surface.js';
 
 export function createEventRuntimeCapabilities() {
   return {
@@ -13,11 +15,9 @@ export function createEventRuntimeCapabilities() {
   };
 }
 
-export function createEventRewardBindingActions(modules, fns, ports = createEventRewardPorts()) {
-  return createEventRewardActions(modules, fns, ports);
-}
-
 export {
+  createEventBindingCapabilities,
+  createEventRewardBindingActions,
   createEventUiCallbacks,
   createEventUiRuntime,
 };

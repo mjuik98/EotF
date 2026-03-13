@@ -1,5 +1,6 @@
 import { Actions } from '../../../shared/state/public.js';
 import { Logger } from '../../../utils/logger.js';
+import { applyEnemyDamageState } from '../state/card_state_commands.js';
 
 export function getDocFromDeps(deps) {
   return deps?.doc || deps?.win?.document || null;
@@ -222,7 +223,7 @@ export function resolveEnemyDamageResult(gs, enemy, targetIdx, damage, isCrit) {
   let result = null;
   if (typeof gs.dispatch === 'function') {
     try {
-      result = gs.dispatch(Actions.ENEMY_DAMAGE, { amount: damage, targetIdx, isCrit });
+      result = applyEnemyDamageState(gs, { amount: damage, targetIdx, isCrit });
     } catch (dispatchErr) {
       Logger.warn('[dealDamage] ENEMY_DAMAGE dispatch failed; applying fallback mutation.', dispatchErr);
     }

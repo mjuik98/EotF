@@ -1,4 +1,4 @@
-import { Actions } from '../../../../shared/state/public.js';
+import { changePlayerEnergyState } from '../../state/card_state_commands.js';
 import { resolveDrawAvailability } from './draw_availability.js';
 
 export function performCombatDrawCard(gs) {
@@ -7,7 +7,7 @@ export function performCombatDrawCard(gs) {
   const drawState = resolveDrawAvailability(gs);
   if (!drawState.canDraw) return false;
 
-  gs.dispatch(Actions.PLAYER_ENERGY, { amount: -1 });
+  changePlayerEnergyState(gs, -1);
   gs.drawCards?.(1);
   return true;
 }

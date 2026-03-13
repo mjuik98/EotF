@@ -72,6 +72,23 @@ export const PlayerReducers = {
     return { energyAfter: player.energy };
   },
 
+  [Actions.PLAYER_ENERGY_ADJUST](gs, { amount }) {
+    const player = gs.player;
+    const maxEnergy = Math.max(0, Number(player.maxEnergy || 0) || 0);
+    const currentEnergy = Math.max(0, Number(player.energy || 0) || 0);
+    player.energy = Math.max(0, Math.min(maxEnergy, currentEnergy + (Number(amount) || 0)));
+    gs.markDirty('hud');
+    return { energyAfter: player.energy };
+  },
+
+  [Actions.PLAYER_ENERGY_SET](gs, { amount }) {
+    const player = gs.player;
+    const maxEnergy = Math.max(0, Number(player.maxEnergy || 0) || 0);
+    player.energy = Math.max(0, Math.min(maxEnergy, Number(amount) || 0));
+    gs.markDirty('hud');
+    return { energyAfter: player.energy };
+  },
+
   [Actions.PLAYER_ECHO](gs, { amount }) {
     const player = gs.player;
     player.echo = Math.max(0, Math.min(player.maxEcho, player.echo + amount));
@@ -123,6 +140,14 @@ export const PlayerReducers = {
     return { maxHpAfter: player.maxHp, hpAfter: player.hp };
   },
 
+  [Actions.PLAYER_HP_SET](gs, { amount }) {
+    const player = gs.player;
+    const maxHp = Math.max(1, Number(player.maxHp || 1) || 1);
+    player.hp = Math.max(0, Math.min(maxHp, Number(amount) || 0));
+    gs.markDirty('hud');
+    return { hpAfter: player.hp };
+  },
+
   [Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount }) {
     const player = gs.player;
     const cap = Math.max(1, Number(player.maxEnergyCap || MAX_ENERGY_CAP));
@@ -140,5 +165,24 @@ export const PlayerReducers = {
 
     gs.markDirty('hud');
     return { maxEnergyAfter: player.maxEnergy, energyAfter: player.energy };
+  },
+
+  [Actions.PLAYER_MAX_ENERGY_SET](gs, { amount, maxEnergyCap }) {
+    const player = gs.player;
+    const currentCap = Math.max(1, Number(player.maxEnergyCap || MAX_ENERGY_CAP));
+    const requestedCap = Math.max(1, Number(maxEnergyCap || currentCap) || currentCap);
+    const requestedMaxEnergy = Math.max(1, Number(amount) || 1);
+    player.maxEnergy = Math.min(requestedCap, requestedMaxEnergy);
+    player.energy = Math.min(player.maxEnergy, Math.max(0, Number(player.energy || 0) || 0));
+    gs.markDirty('hud');
+    return { maxEnergyAfter: player.maxEnergy, energyAfter: player.energy };
+  },
+
+  [Actions.PLAYER_STATUS_CLEAR](gs, { statusId }) {
+    const statusEffects = gs.player?.statusEffects;
+    if (!statusEffects || !statusId) return false;
+    statusEffects[statusId] = 0;
+    gs.markDirty('hud');
+    return true;
   },
 };

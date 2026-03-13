@@ -1,4 +1,4 @@
-import { Actions } from './state_actions.js';
+import { Actions } from './store/state_actions.js';
 
 export const CoreEvents = Object.freeze({
   LOG_ADD: 'log:add',

@@ -1,4 +1,8 @@
-import { getRegionIdForStage } from '../../features/run/public.js';
+import { createRunRuleCapabilities } from '../../features/run/ports/public_rule_capabilities.js';
+
+function getRunRules() {
+  return createRunRuleCapabilities();
+}
 
 export function resolveActiveRegionId(gs, deps = {}) {
   const activeRegionId = Number(gs?._activeRegionId);
@@ -13,7 +17,7 @@ export function resolveActiveRegionId(gs, deps = {}) {
     }
   }
 
-  const resolveRegionId = deps.getRegionIdForStage || getRegionIdForStage;
+  const resolveRegionId = deps.getRegionIdForStage || getRunRules().getRegionIdForStage;
   const regionIdx = Math.max(0, Math.floor(Number(gs?.currentRegion) || 0));
   const resolved = Number(resolveRegionId(regionIdx, gs));
   if (Number.isFinite(resolved)) {

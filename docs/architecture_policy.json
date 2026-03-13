@@ -906,9 +906,16 @@
       "sourceFiles": [
         "game/core/bindings/event_reward_bindings_runtime.js"
       ],
+      "denyTargets": [
+        "game/features/event/ports/create_event_reward_ports.js",
+        "game/features/event/ports/event_ports.js",
+        "game/features/event/ports/public_contract_capabilities.js",
+        "game/features/event/ports/reward_ports.js"
+      ],
       "denyTargetPrefixes": [
         "game/features/event/app/",
-        "game/features/event/ports/"
+        "game/features/event/ports/contracts/",
+        "game/features/event/ports/runtime/"
       ],
       "message": "core event/reward bindings must import the event feature public facade instead of event internals"
     },

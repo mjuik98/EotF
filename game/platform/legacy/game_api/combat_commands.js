@@ -1,9 +1,5 @@
 import { Logger } from '../../../utils/logger.js';
-import { Actions } from '../../../shared/state/public.js';
-import {
-  discardStateCard,
-  playStateCard,
-} from '../../../features/combat/public.js';
+import { createCombatApplicationCapabilities } from '../../../features/combat/ports/public_application_capabilities.js';
 import {
   getAudioEngine,
   getCombatRuntimeDeps,
@@ -12,21 +8,26 @@ import {
   getModule,
 } from './runtime_context.js';
 
+function getCombatApplication() {
+  return createCombatApplicationCapabilities();
+}
+
 export function applyEnemyDamage(amount, targetIdx, gs = getDefaultState()) {
   if (typeof gs.dealDamage === 'function') {
     return gs.dealDamage(amount, targetIdx);
   }
-  const result = gs.dispatch(Actions.ENEMY_DAMAGE, { amount, targetIdx });
-  getModule('HudUpdateUI')?.updateEnemyHpUI?.(targetIdx, gs.combat?.enemies?.[targetIdx]);
+  const result = getCombatApplication().applyEnemyDamageState(gs, { amount, targetIdx });
   return result?.actualDamage || 0;
 }
 
 export function discardCard(cardId, isExhaust = false, gs = getDefaultState(), skipHandRemove = false) {
-  discardStateCard(cardId, isExhaust, gs, skipHandRemove, Logger);
+  getCombatApplication().discardStateCard(cardId, isExhaust, gs, skipHandRemove, Logger);
 }
 
 export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
-  return playStateCard({
+  const combatApplication = getCombatApplication();
+
+  return combatApplication.playStateCard({
     cardId,
     handIdx,
     gs,
@@ -39,7 +40,7 @@ export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
     hudUpdateUI: getModule('HudUpdateUI'),
     discardCard: (nextCardId, isExhaust, state, skipHandRemove) =>
       api?.discardCard?.(nextCardId, isExhaust, state, skipHandRemove)
-      || discardStateCard(nextCardId, isExhaust, state, skipHandRemove, Logger),
+      || combatApplication.discardStateCard(nextCardId, isExhaust, state, skipHandRemove, Logger),
   });
 }
 

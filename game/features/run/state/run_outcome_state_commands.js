@@ -1,34 +1,58 @@
+function selectCombatState(gs) {
+  return gs?.combat || null;
+}
+
+function selectMetaState(gs) {
+  return gs?.meta || null;
+}
+
+function selectPlayerState(gs) {
+  return gs?.player || null;
+}
+
+function selectStatsState(gs) {
+  return gs?.stats || null;
+}
+
 export function applyPlayerMaxHpPenalty(gs, amount) {
   const penalty = Math.max(0, Math.floor(Number(amount) || 0));
-  if (!penalty || !gs?.player) return gs?.player?.maxHp || 0;
-  gs.player.maxHp = Math.max(1, gs.player.maxHp - penalty);
-  gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-  return gs.player.maxHp;
+  const player = selectPlayerState(gs);
+  if (!penalty || !player) return player?.maxHp || 0;
+  player.maxHp = Math.max(1, player.maxHp - penalty);
+  player.hp = Math.min(player.hp, player.maxHp);
+  return player.maxHp;
 }
 
 export function applySilenceCurseTurnStart(gs, { limit = 1, recoveryTurn = 4, recoveryMaxEnergy = 3 } = {}) {
-  if (!gs?.player || !gs?.combat) return null;
-  if (gs.combat.turn <= 3) {
-    gs.player.energy = Math.min(gs.player.energy, limit);
-    gs.player.maxEnergy = Math.min(gs.player.maxEnergy, limit);
-  } else if (gs.combat.turn === recoveryTurn) {
-    gs.player.maxEnergy = Math.max(gs.player.maxEnergy, recoveryMaxEnergy);
+  const player = selectPlayerState(gs);
+  const combat = selectCombatState(gs);
+  if (!player || !combat) return null;
+
+  if (combat.turn <= 3) {
+    player.maxEnergy = Math.min(player.maxEnergy, limit);
+    player.energy = Math.min(player.energy, limit);
+  } else if (combat.turn === recoveryTurn) {
+    player.maxEnergy = Math.max(player.maxEnergy, recoveryMaxEnergy);
   }
-  return { energy: gs.player.energy, maxEnergy: gs.player.maxEnergy };
+  return { energy: player.energy, maxEnergy: player.maxEnergy };
 }
 
 export function recordVictoryProgress(gs) {
-  const progress = gs.meta.progress;
-  gs.meta.unlocks.ascension = true;
+  const meta = selectMetaState(gs);
+  const progress = meta?.progress;
+  if (!meta || !progress) return 0;
+  meta.unlocks.ascension = true;
   progress.victories = (progress.victories || 0) + 1;
   progress.echoShards = (progress.echoShards || 0) + 2;
-  gs.meta.maxAscension = Math.max(gs.meta.maxAscension || 0, Math.min(20, progress.victories));
-  if (progress.victories >= 3) gs.meta.unlocks.endless = true;
+  meta.maxAscension = Math.max(meta.maxAscension || 0, Math.min(20, progress.victories));
+  if (progress.victories >= 3) meta.unlocks.endless = true;
   return 5;
 }
 
 export function recordDefeatProgress(gs) {
-  gs.meta.progress.failures = (gs.meta.progress.failures || 0) + 1;
+  const progress = selectMetaState(gs)?.progress;
+  if (!progress) return 0;
+  progress.failures = (progress.failures || 0) + 1;
   return 3;
 }
 
@@ -39,7 +63,7 @@ export function beginRunOutcomeCommit(gs) {
 }
 
 export function captureRunOutcomeTiming(gs, now = Date.now()) {
-  const stats = gs?.stats;
+  const stats = selectStatsState(gs);
   if (!stats || typeof stats !== 'object') return null;
 
   const runStartTs = Number(stats._runStartTs);
@@ -60,13 +84,17 @@ export function captureRunOutcomeTiming(gs, now = Date.now()) {
 }
 
 export function syncRunOutcomeMeta(gs) {
-  Object.assign(gs.meta.worldMemory, gs.worldMemory || {});
-  gs.meta.bestChain = Math.max(gs.meta.bestChain || 0, gs.stats?.maxChain || 0);
-  return { bestChain: gs.meta.bestChain };
+  const meta = selectMetaState(gs);
+  if (!meta) return null;
+  Object.assign(meta.worldMemory, gs.worldMemory || {});
+  meta.bestChain = Math.max(meta.bestChain || 0, selectStatsState(gs)?.maxChain || 0);
+  return { bestChain: meta.bestChain };
 }
 
 export function applyRunOutcomeRewards(gs, shardGain) {
-  gs.meta.runCount = Math.max(1, (gs.meta.runCount || 1) + 1);
-  gs.meta.echoFragments = Math.max(0, (gs.meta.echoFragments || 0) + shardGain);
-  return gs.meta.echoFragments;
+  const meta = selectMetaState(gs);
+  if (!meta) return 0;
+  meta.runCount = Math.max(1, (meta.runCount || 1) + 1);
+  meta.echoFragments = Math.max(0, (meta.echoFragments || 0) + shardGain);
+  return meta.echoFragments;
 }

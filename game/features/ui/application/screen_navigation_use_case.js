@@ -1,4 +1,4 @@
-import { Actions } from '../../../shared/state/public.js';
+import { changeScreenState } from '../state/screen_state_commands.js';
 
 export function setScreenService({
   screenName,
@@ -9,7 +9,7 @@ export function setScreenService({
   switchScreen,
 }) {
   logger?.info?.(`[API] Screen change: ${gs.currentScreen} -> ${screenName}`);
-  gs.dispatch(Actions.SCREEN_CHANGE, { screen: screenName });
+  changeScreenState(gs, screenName);
 
   if (screenUI?.switchScreen) {
     screenUI.switchScreen(screenName, { ...screenDeps, gs });

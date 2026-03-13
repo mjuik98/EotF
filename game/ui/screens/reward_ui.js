@@ -1,1 +1,1 @@
-export { RewardUI } from '../../presentation/screens/reward_ui.js';
+export { RewardUI } from '../../features/reward/presentation/browser/reward_ui.js';

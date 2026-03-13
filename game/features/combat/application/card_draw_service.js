@@ -1,5 +1,5 @@
-import { Actions } from '../../../shared/state/public.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
+import { drawCardsState } from '../state/card_state_commands.js';
 
 export function drawCardsService({
   count = 1,
@@ -7,7 +7,7 @@ export function drawCardsService({
   options = {},
   deps = {},
 }) {
-  const result = gs.dispatch(Actions.CARD_DRAW, { count });
+  const result = drawCardsState(gs, count);
   const combat = gs.combat;
 
   if (options.skipRift) return result;

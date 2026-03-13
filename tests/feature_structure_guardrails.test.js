@@ -51,12 +51,12 @@ describe('feature structure guardrails', () => {
     const importSpecs = [...source.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]);
 
     expect(importSpecs).toEqual([
-      '../../../features/combat/ports/contracts/public_combat_contract_capabilities.js',
-      '../../../features/event/ports/contracts/public_event_contract_capabilities.js',
-      '../../../features/reward/ports/contracts/public_reward_contract_capabilities.js',
-      '../../../features/run/ports/contracts/public_run_contract_capabilities.js',
-      '../../../features/title/ports/contracts/public_title_contract_capabilities.js',
-      '../../../features/ui/ports/contracts/public_ui_contract_capabilities.js',
+      '../../../features/combat/ports/public_contract_capabilities.js',
+      '../../../features/event/ports/public_contract_capabilities.js',
+      '../../../features/reward/ports/public_contract_capabilities.js',
+      '../../../features/run/ports/public_contract_capabilities.js',
+      '../../../features/title/ports/public_contract_capabilities.js',
+      '../../../features/ui/ports/public_contract_capabilities.js',
     ]);
   });
 
@@ -77,7 +77,7 @@ describe('feature structure guardrails', () => {
   it('exposes ui shell contract capabilities through the ui feature facade', () => {
     const source = readSource('game/features/ui/public.js');
 
-    expect(source).toMatch(/import \{ createUiContractCapabilities \} from '\.\/ports\/contracts\/public_ui_contract_capabilities\.js'/);
+    expect(source).toMatch(/import \{ createUiContractCapabilities \} from '\.\/ports\/public_contract_capabilities\.js'/);
     expect(source).toMatch(/contracts: createUiContractCapabilities\(\)/);
   });
 });

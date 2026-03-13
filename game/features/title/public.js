@@ -1,8 +1,6 @@
-import {
-  buildTitleCanvasModuleCapabilities,
-  buildTitleFlowModuleCapabilities,
-} from './platform/browser/title_module_capabilities.js';
-import { createTitleContractCapabilities } from './ports/contracts/public_title_contract_capabilities.js';
+import { createTitleContractCapabilities } from './ports/public_contract_capabilities.js';
+import { createTitleBindingCapabilities } from './ports/public_binding_capabilities.js';
+import { createTitleModuleCapabilities } from './ports/public_module_capabilities.js';
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
 import { buildTitleStoryContractBuilders } from './ports/contracts/build_title_story_contracts.js';
 import {
@@ -14,19 +12,6 @@ import {
   registerTitleBindings,
 } from './ports/runtime/public_title_runtime_surface.js';
 export { ClassProgressionSystem } from './domain/class_progression_system.js';
-
-export function createTitleModuleCapabilities() {
-  return {
-    canvas: buildTitleCanvasModuleCapabilities(),
-    flow: buildTitleFlowModuleCapabilities(),
-  };
-}
-
-export function createTitleBindingCapabilities() {
-  return {
-    createTitle: createTitleBindings,
-  };
-}
 
 export function createTitleFeatureFacade() {
   return {

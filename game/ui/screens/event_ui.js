@@ -1,1 +1,1 @@
-export { EventUI } from '../../presentation/screens/event_ui.js';
+export { EventUI } from '../../features/event/presentation/browser/event_ui.js';

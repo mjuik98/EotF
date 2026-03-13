@@ -4,6 +4,12 @@ import {
   normalizeTrigger,
   resolveTargetIdx,
 } from './set_bonus_helpers.js';
+import {
+  applyPlayerMaxHpGrowthState,
+  changePlayerEnergyState,
+  clearPlayerStatusState,
+  setPlayerHpState,
+} from '../state/player_state_commands.js';
 
 export function triggerSetBonusEffects(gs, counts, trigger, data) {
   const normalizedTrigger = normalizeTrigger(trigger);
@@ -21,9 +27,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
 
   if (normalizedTrigger === 'combat_end') {
     if (gs._sanctuarySet2Applied && gs._sanctuarySet2Bonus > 0) {
-      gs.player.maxHp = Math.max(1, (gs.player.maxHp || 1) - gs._sanctuarySet2Bonus);
-      gs.player.hp = Math.min(gs.player.hp || 0, gs.player.maxHp || 1);
-      gs.markDirty?.('hud');
+      applyPlayerMaxHpGrowthState(gs, -gs._sanctuarySet2Bonus);
     }
     gs._sanctuarySet2Applied = false;
     gs._sanctuarySet2Bonus = 0;
@@ -61,8 +65,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
   if (counts.machine_set >= 2) {
     if (normalizedTrigger === 'card_exhaust' && (gs._machineSet2EnergyUsed || 0) < 4) {
       gs._machineSet2EnergyUsed = (gs._machineSet2EnergyUsed || 0) + 1;
-      gs.player.energy = Math.min(gs.player.maxEnergy || 0, (gs.player.energy || 0) + 1);
-      gs.markDirty?.('hud');
+      changePlayerEnergyState(gs, 1);
       gs.addLog?.('⚙️ 기계의 심장 세트(2): 에너지 +1', 'item');
     }
     if (normalizedTrigger === 'turn_start') {
@@ -81,8 +84,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
   }
   if (counts.moon_set >= 5 && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data >= (gs.player.hp || 0) && !gs._moonSetReviveUsed) {
     gs._moonSetReviveUsed = true;
-    gs.player.hp = 20;
-    gs.markDirty?.('hud');
+    setPlayerHpState(gs, 20);
     gs.addLog?.('🌙 달의 신비: 치명적 피해 방지 및 체력 회복!', 'echo');
     return true;
   }
@@ -148,8 +150,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
   }
   if (hasSetTier(gs, counts, 'titans_endurance', 3) && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data >= (gs.player.hp || 0) && !gs._titanUsed) {
     gs._titanUsed = true;
-    gs.player.hp = 1;
-    gs.markDirty?.('hud');
+    setPlayerHpState(gs, 1);
     gs.addLog?.('🛡️ 거인의 불사: 치명적 피해 방지!', 'echo');
     return true;
   }
@@ -173,8 +174,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
       || (hasLegacySetTier(gs, 'iron_fortress', 2) && (gs.player.shield || 0) > 0 && Math.random() < 0.25)
     )
   ) {
-    gs.player.energy = Math.min(gs.player.maxEnergy || 0, (gs.player.energy || 0) + 1);
-    gs.markDirty?.('hud');
+    changePlayerEnergyState(gs, 1);
     gs.addLog?.(
       counts.iron_fortress >= 5
         ? '🛡️ 철옹성 세트(5): 에너지 +1'
@@ -189,8 +189,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
   if (counts.judgement >= 3 && normalizedTrigger === 'card_play') {
     gs._judgementSetCardCount = (gs._judgementSetCardCount || 0) + 1;
     if (gs._judgementSetCardCount % 3 === 0) {
-      gs.player.energy = Math.min(gs.player.maxEnergy || 0, (gs.player.energy || 0) + 1);
-      gs.markDirty?.('hud');
+      changePlayerEnergyState(gs, 1);
       gs.addLog?.('🔥 심판의 불꽃 세트(3): 에너지 회복', 'item');
     }
   }
@@ -214,9 +213,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
   if (counts.sanctuary >= 2 && normalizedTrigger === 'combat_start' && !gs._sanctuarySet2Applied) {
     gs._sanctuarySet2Applied = true;
     gs._sanctuarySet2Bonus = 10;
-    gs.player.maxHp += 10;
-    gs.player.hp += 10;
-    gs.markDirty?.('hud');
+    applyPlayerMaxHpGrowthState(gs, 10);
   }
   if (counts.sanctuary >= 3 && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
     const currentHp = gs.player.hp || 0;
@@ -232,7 +229,7 @@ export function triggerSetBonusEffects(gs, counts, trigger, data) {
       const debuffs = Object.keys(gs.player.statusEffects).filter((key) => gs.player.statusEffects[key] > 0);
       if (debuffs.length > 0) {
         const target = debuffs[Math.floor(Math.random() * debuffs.length)];
-        gs.player.statusEffects[target] = 0;
+        clearPlayerStatusState(gs, target);
         gs.addLog?.(`✨ 성역의 은총 세트(5): ${target} 제거!`, 'item');
       }
     }

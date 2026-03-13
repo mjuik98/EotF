@@ -9,6 +9,7 @@ export function createRunRuntimeCapabilities() {
   return {
     buildBootActions: buildRunBootPublicActions,
     buildReturnActions: buildRunReturnRuntimePublicActions,
+    createFinalizeOutcomeAction: createFinalizeRunOutcomeAction,
   };
 }
 

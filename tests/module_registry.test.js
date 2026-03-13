@@ -53,6 +53,13 @@ describe('createModuleRegistry', () => {
       runOnly: true,
       screenOnly: true,
       collision: 'screen',
+      featureScopes: {
+        core: { source: 'core', collision: 'core' },
+        title: { titleOnly: true, collision: 'title' },
+        combat: { combatOnly: true, collision: 'combat' },
+        run: { runOnly: true, collision: 'run' },
+        screen: { screenOnly: true, collision: 'screen' },
+      },
       _gameStarted: false,
       _canvasRefs: null,
     });

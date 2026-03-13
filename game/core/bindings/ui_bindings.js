@@ -1,24 +1,25 @@
-import { createUiBindingContext, setScreenService } from '../../features/ui/public.js';
+import { createUiFeatureFacade } from '../../features/ui/public.js';
 
 export function createUIBindings(modules, fns) {
-    const { actions, ports } = createUiBindingContext(modules, fns);
-    const legacySwitchScreen = actions.switchScreen;
+  const { bindings } = createUiFeatureFacade();
+  const { actions, ports } = bindings.createUiBindingContext(modules, fns);
+  const legacySwitchScreen = actions.switchScreen;
 
-    actions.switchScreen = (screen) => {
-        if (!modules.GS?.dispatch) {
-            legacySwitchScreen?.(screen);
-            return;
-        }
+  actions.switchScreen = (screen) => {
+    if (!modules.GS?.dispatch) {
+      legacySwitchScreen?.(screen);
+      return;
+    }
 
-        setScreenService({
-            screenName: screen,
-            gs: modules.GS,
-            logger: null,
-            screenUI: modules.ScreenUI,
-            screenDeps: ports.getScreenDeps(),
-            switchScreen: () => legacySwitchScreen?.(screen),
-        });
-    };
+    bindings.setScreenService({
+      screenName: screen,
+      gs: modules.GS,
+      logger: null,
+      screenUI: modules.ScreenUI,
+      screenDeps: ports.getScreenDeps(),
+      switchScreen: () => legacySwitchScreen?.(screen),
+    });
+  };
 
-    Object.assign(fns, actions);
+  Object.assign(fns, actions);
 }

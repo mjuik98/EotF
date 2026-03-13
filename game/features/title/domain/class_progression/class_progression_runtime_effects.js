@@ -1,5 +1,11 @@
 import { registerCardDiscovered } from '../../../../shared/codex/codex_record_state_use_case.js';
 import {
+  applyPlayerGoldState,
+  applyPlayerHealState,
+  applyPlayerMaxEnergyGrowthState,
+  applyPlayerMaxHpGrowthState,
+} from '../../../../shared/state/player_state_commands.js';
+import {
   applyRuntimeMasterySnapshot,
   applyStarterDeckUpgrades,
   ensureTraitDiscountMap,
@@ -32,23 +38,19 @@ export function applyRunStartBonuses(gs, options = {}) {
 
   const hpBonus = toNonNegativeInt(bonuses.runStart.maxHp, 0);
   if (hpBonus > 0) {
-    player.maxHp = Math.max(1, toNonNegativeInt(player.maxHp, 1) + hpBonus);
-    player.hp = Math.min(player.maxHp, toNonNegativeInt(player.hp, player.maxHp) + hpBonus);
+    applyPlayerMaxHpGrowthState(gs, hpBonus);
   }
 
   const goldBonus = toNonNegativeInt(bonuses.runStart.gold, 0);
   if (goldBonus > 0) {
-    player.gold = toNonNegativeInt(player.gold, 0) + goldBonus;
+    applyPlayerGoldState(gs, goldBonus);
   }
 
   const maxEnergyBonus = toNonNegativeInt(bonuses.runStart.maxEnergy, 0);
   if (maxEnergyBonus > 0) {
-    const cap = getEffectiveMaxEnergyCap(player, options.maxEnergyCap);
-    const beforeMax = Math.max(1, toNonNegativeInt(player.maxEnergy, 1));
-    const nextMax = Math.min(cap, beforeMax + maxEnergyBonus);
-    const actualIncrease = Math.max(0, nextMax - beforeMax);
-    player.maxEnergy = nextMax;
-    player.energy = Math.min(nextMax, toNonNegativeInt(player.energy, 0) + actualIncrease);
+    applyPlayerMaxEnergyGrowthState(gs, maxEnergyBonus, {
+      maxEnergyCap: getEffectiveMaxEnergyCap(player, options.maxEnergyCap),
+    });
   }
 
   const upgradedIds = applyStarterDeckUpgrades(gs, bonuses, options.data);
@@ -96,7 +98,7 @@ export function applyCombatStartBonuses(gs, options = {}) {
   const startHeal = toNonNegativeInt(combat.paladinStartHeal, 0);
   if (startHeal > 0) {
     if (typeof gs.heal === 'function') gs.heal(startHeal, { name: 'Class Mastery', type: 'trait' });
-    else player.hp = Math.min(toNonNegativeInt(player.maxHp, 1), toNonNegativeInt(player.hp, 0) + startHeal);
+    else applyPlayerHealState(gs, startHeal);
   }
 
   return bonuses;

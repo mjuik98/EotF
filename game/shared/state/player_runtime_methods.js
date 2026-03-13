@@ -1,7 +1,12 @@
-import { RunRules, getRegionIdForStage } from '../../features/run/public.js';
+import { createRunRuleCapabilities } from '../../features/run/ports/public_rule_capabilities.js';
 import { Actions } from './public.js';
+import { setPlayerEnergyState } from './player_state_commands.js';
 import { GAME } from '../../core/global_bridge.js';
 import { LogUtils } from '../../utils/log_utils.js';
+
+function getRunRules() {
+  return createRunRuleCapabilities();
+}
 
 const getDoc = (deps) => deps?.doc || document;
 const getWin = (deps) => deps?.win || window;
@@ -36,12 +41,12 @@ export const PlayerMethods = {
     const activeRegionId = Number(this._activeRegionId);
     const regionId = Number.isFinite(activeRegionId)
       ? Math.max(0, Math.floor(activeRegionId))
-      : getRegionIdForStage(this.currentRegion, this);
+      : getRunRules().getRegionIdForStage(this.currentRegion, this);
     if (regionId === 4) {
       this.addLog(LogUtils.formatSystem('메아리의 근원: 회복 불가!'), 'damage');
       return;
     }
-    let adjusted = RunRules.getHealAmount(this, amount);
+    let adjusted = getRunRules().RunRules.getHealAmount(this, amount);
     if ((this.getBuff('cursed')?.stacks || 0) > 0) {
       adjusted = Math.max(0, Math.floor(adjusted * 0.7));
     }
@@ -137,8 +142,7 @@ export const PlayerMethods = {
 
     if (timeRiftGauge >= max) {
       this.commit(Actions.PLAYER_TIME_RIFT, { amount: -timeRiftGauge });
-
-      this.player.energy = 0;
+      setPlayerEnergyState(this, 0);
       this.addLog(LogUtils.formatSystem('시간의 왜곡이 임계점에 달했습니다. 에너지를 모두 잃고 턴이 강제로 종료됩니다!'), 'damage');
 
       const screenShake = deps.screenShake || win.ScreenShake;

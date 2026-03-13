@@ -11,9 +11,9 @@ import {
 } from './application/claim_reward_use_case.js';
 import { createRewardRuntime } from './application/create_reward_runtime.js';
 import { showRewardScreenRuntime } from './application/show_reward_screen_runtime.js';
-import { createRewardContractCapabilities } from './ports/contracts/public_reward_contract_capabilities.js';
+import { createRewardContractCapabilities } from './ports/public_contract_capabilities.js';
+import { createRewardModuleCapabilities } from './ports/public_module_capabilities.js';
 import { buildRewardFlowContractBuilders } from './ports/contracts/build_reward_flow_contracts.js';
-import { RewardUI } from './presentation/browser/reward_ui.js';
 export {
   finishRewardFlow,
   REWARD_CLAIM_KEY,
@@ -48,12 +48,6 @@ export function createRewardRuntimeCapabilities() {
   };
 }
 
-export function createRewardModuleCapabilities() {
-  return {
-    primary: { RewardUI },
-  };
-}
-
 export function createRewardFeatureFacade() {
   return {
     moduleCapabilities: createRewardModuleCapabilities(),
@@ -64,25 +58,16 @@ export function createRewardFeatureFacade() {
 }
 
 export const RewardPublicSurface = Object.freeze({
+  application: createRewardApplicationCapabilities(),
+  contracts: createRewardContractCapabilities(),
   createRewardApplicationCapabilities,
   createRewardContractCapabilities,
   createRewardFeatureFacade,
   createRewardModuleCapabilities,
-  createRewardRuntime,
   createRewardRuntimeCapabilities,
-  createRewardReturnActions,
-  RewardUI,
-  buildRewardDiscardDeps,
   buildRewardFlowContractPublicBuilders,
-  buildRewardOptionsUseCase,
-  claimReward,
-  ensureMiniBossBonus,
-  getRewardMaxEnergyCap,
-  playRewardClaimFeedback,
-  scheduleRewardReturnUseCase,
-  showRewardScreenRuntime,
-  startRewardRemoveUseCase,
-  takeRewardClaimUseCase,
+  moduleCapabilities: createRewardModuleCapabilities(),
+  runtime: createRewardRuntimeCapabilities(),
 });
 
 export function buildRewardFlowContractPublicBuilders(ctx) {
@@ -100,7 +85,6 @@ export {
   ensureMiniBossBonus,
   getRewardMaxEnergyCap,
   playRewardClaimFeedback,
-  RewardUI,
   scheduleRewardReturnUseCase,
   showRewardScreenRuntime,
   startRewardRemoveUseCase,

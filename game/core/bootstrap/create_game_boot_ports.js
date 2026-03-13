@@ -1,10 +1,15 @@
+import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
+
 export function createGameBootPorts(modules) {
+  const coreModules = getModuleRegistryScope(modules, 'core');
+  const titleModules = getModuleRegistryScope(modules, 'title');
+
   return {
-    getRunDeps: () => modules.GAME?.getRunDeps?.() || {},
-    getAudioEngine: () => modules.AudioEngine,
-    getParticleSystem: () => modules.ParticleSystem,
-    getHelpPauseUI: () => modules.HelpPauseUI,
-    getGameBootUI: () => modules.GameBootUI,
-    getSettingsUI: () => modules.SettingsUI,
+    getRunDeps: () => (coreModules.GAME || modules.GAME)?.getRunDeps?.() || {},
+    getAudioEngine: () => coreModules.AudioEngine || modules.AudioEngine,
+    getParticleSystem: () => coreModules.ParticleSystem || modules.ParticleSystem,
+    getHelpPauseUI: () => titleModules.HelpPauseUI || modules.HelpPauseUI,
+    getGameBootUI: () => titleModules.GameBootUI || modules.GameBootUI,
+    getSettingsUI: () => titleModules.SettingsUI || modules.SettingsUI,
   };
 }

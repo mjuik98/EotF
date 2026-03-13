@@ -3,4 +3,4 @@ export {
   openEventRestSiteRuntime,
   openEventShopRuntime,
   renderEventShellRuntime,
-} from '../../presentation/screens/event_ui_runtime_helpers.js';
+} from '../../features/event/presentation/browser/event_ui_runtime_helpers.js';

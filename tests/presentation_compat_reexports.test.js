@@ -68,7 +68,7 @@ describe('presentation compat re-exports', () => {
       "} from '../../features/reward/presentation/browser/reward_ui_runtime.js';",
     ].join('\n'));
     expect(rewardScreenRuntimeSource).toBe(
-      "export { showRewardScreenRuntime } from '../../features/reward/public.js';",
+      "export { showRewardScreenRuntime } from '../../features/reward/application/show_reward_screen_runtime.js';",
     );
   });
 });

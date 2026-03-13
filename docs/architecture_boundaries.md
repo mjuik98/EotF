@@ -59,8 +59,8 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   Feature slices should import those shared paths directly; `game/app/shared/*` and `game/app/codex/*` remain compat-only.
 - Cross-feature feature imports should use `game/features/<feature>/public.js` or `game/features/<feature>/ports/*` only.
   Feature implementation should not reach into another feature's `application/`, `presentation/`, or `platform/` internals directly.
-- `game/core/deps/contracts/*` should consume feature contract builders through feature `public.js` facades only.
-  Core contract builders must not reach into feature-internal contract modules directly.
+- `game/core/deps/contracts/*` should consume feature contract builders through feature `public.js` or `game/features/<feature>/ports/public_contract_capabilities.js` facades only.
+  Core contract builders must not reach into feature-internal `ports/contracts/*` modules directly.
 - Combat card/end-turn services and event shop/choice services now belong under `game/features/{combat,event}/application/*`.
   `game/app/{combat,event}/*_service.js` should remain thin re-exports only.
 - Screen-shell and codex top-level facades now belong under `game/features/ui/presentation/browser/*` and `game/features/codex/presentation/browser/*`.

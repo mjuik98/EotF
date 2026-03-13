@@ -2,16 +2,56 @@ import {
   registerCardDiscovered,
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
+import { Actions } from '../../../shared/state/public.js';
+
+function dispatchRewardStateChange(state, action, payload, fallback, readResult) {
+  if (typeof state?.dispatch === 'function') {
+    const result = state.dispatch(action, payload) || null;
+    if (typeof readResult === 'function') {
+      const value = readResult(result);
+      if (value !== undefined) return value;
+    }
+  }
+
+  return typeof fallback === 'function' ? fallback() : fallback;
+}
+
+function applyPlayerHealState(state, amount) {
+  if (!state?.player) return 0;
+  return dispatchRewardStateChange(
+    state,
+    Actions.PLAYER_HEAL,
+    { amount },
+    () => {
+      const hpBefore = state.player.hp || 0;
+      state.player.hp = Math.min(state.player.maxHp || 1, hpBefore + amount);
+      return Math.max(0, state.player.hp - hpBefore);
+    },
+    (result) => result?.healed,
+  );
+}
+
+function applyPlayerGoldState(state, amount) {
+  if (!state?.player) return 0;
+  return dispatchRewardStateChange(
+    state,
+    Actions.PLAYER_GOLD,
+    { amount },
+    () => {
+      state.player.gold = (state.player.gold || 0) + amount;
+      return amount;
+    },
+    (result) => result?.delta,
+  );
+}
 
 export function applyMiniBossBonusState(state, data) {
   if (!state?.player) return null;
 
   const heal = Math.max(1, Math.floor((state.player.maxHp || 1) * 0.15));
-  const hpBefore = state.player.hp || 0;
-  state.player.hp = Math.min(state.player.maxHp || 1, hpBefore + heal);
-
   const goldGain = Math.max(12, Math.floor(((state.currentRegion || 0) + 1) * 6));
-  state.player.gold = (state.player.gold || 0) + goldGain;
+  const healed = applyPlayerHealState(state, heal);
+  applyPlayerGoldState(state, goldGain);
 
   const rareItems = Object.values(data?.items || {}).filter((item) => {
     const isRareEnough = item?.rarity === 'rare' || item?.rarity === 'legendary';
@@ -28,7 +68,7 @@ export function applyMiniBossBonusState(state, data) {
 
   return {
     goldGain,
-    healed: Math.max(0, state.player.hp - hpBefore),
+    healed,
     guaranteed,
   };
 }
@@ -37,13 +77,26 @@ export function applyBlessingRewardState(state, blessing) {
   if (!state?.player || !blessing) return false;
 
   if (blessing.type === 'hp') {
-    if (typeof state.dispatch === 'function') state.dispatch('player:max-hp-growth', { amount: blessing.amount });
-    else state.player.maxHp = (state.player.maxHp || 0) + blessing.amount;
+    dispatchRewardStateChange(
+      state,
+      Actions.PLAYER_MAX_HP_GROWTH,
+      { amount: blessing.amount },
+      () => {
+        state.player.maxHp = (state.player.maxHp || 0) + blessing.amount;
+        state.player.hp = Math.min(state.player.maxHp, (state.player.hp || 0) + blessing.amount);
+      },
+    );
   }
 
   if (blessing.type === 'energy') {
-    if (typeof state.dispatch === 'function') state.dispatch('player:max-energy-growth', { amount: blessing.amount });
-    else state.player.maxEnergy = (state.player.maxEnergy || 0) + blessing.amount;
+    dispatchRewardStateChange(
+      state,
+      Actions.PLAYER_MAX_ENERGY_GROWTH,
+      { amount: blessing.amount },
+      () => {
+        state.player.maxEnergy = (state.player.maxEnergy || 0) + blessing.amount;
+      },
+    );
   }
 
   return true;

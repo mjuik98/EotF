@@ -66,12 +66,14 @@ vi.mock('../game/features/combat/public.js', () => ({
   buildCombatFlowContractPublicBuilders: hoisted.buildCombatFlowContractPublicBuilders,
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
   buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
-  createCombatBindingsActions: hoisted.createCombatBindingsActions,
   createCombatContractCapabilities: () => ({
     buildFlow: hoisted.buildCombatFlowContractPublicBuilders,
     buildUi: hoisted.buildCombatUiContractPublicBuilders,
   }),
   createCombatFeatureFacade: () => ({
+    bindings: {
+      createCombatBindings: hoisted.createCombatBindingsActions,
+    },
     contracts: {
       buildFlow: hoisted.buildCombatFlowContractPublicBuilders,
       buildUi: hoisted.buildCombatUiContractPublicBuilders,
@@ -108,12 +110,14 @@ vi.mock('../game/features/combat/application/build_combat_runtime_subscriber_act
 vi.mock('../game/features/event/public.js', () => ({
   buildEventContractPublicBuilders: hoisted.buildEventContractPublicBuilders,
   buildEventFlowContractPublicBuilders: hoisted.buildEventFlowContractPublicBuilders,
-  createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
   createEventContractCapabilities: () => ({
     buildEvent: hoisted.buildEventContractPublicBuilders,
     buildFlow: hoisted.buildEventFlowContractPublicBuilders,
   }),
   createEventFeatureFacade: () => ({
+    bindings: {
+      createEventRewardBindings: hoisted.createEventRewardBindingActions,
+    },
     contracts: {
       buildEvent: hoisted.buildEventContractPublicBuilders,
       buildFlow: hoisted.buildEventFlowContractPublicBuilders,
@@ -122,6 +126,13 @@ vi.mock('../game/features/event/public.js', () => ({
 }));
 
 vi.mock('../game/features/event/ports/runtime/public_event_runtime_surface.js', () => ({
+  createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
+}));
+
+vi.mock('../game/features/event/ports/public_event_binding_surface.js', () => ({
+  createEventBindingCapabilities: () => ({
+    createEventRewardBindings: hoisted.createEventRewardBindingActions,
+  }),
   createEventRewardBindingActions: hoisted.createEventRewardBindingActions,
 }));
 
@@ -154,7 +165,6 @@ vi.mock('../game/features/run/public.js', () => ({
   buildRunFlowContractPublicBuilders: hoisted.buildRunFlowContractPublicBuilders,
   buildRunReturnContractPublicBuilders: hoisted.buildRunReturnContractPublicBuilders,
   buildRunUiContractPublicBuilders: hoisted.buildRunUiContractPublicBuilders,
-  createRunCanvasBindings: hoisted.createRunCanvasBindings,
   createRunContractCapabilities: () => ({
     buildFlow: hoisted.buildRunFlowContractPublicBuilders,
     buildReturn: hoisted.buildRunReturnContractPublicBuilders,
@@ -162,6 +172,9 @@ vi.mock('../game/features/run/public.js', () => ({
   }),
   registerRunEntryBindings: vi.fn(),
   createRunFeatureFacade: () => ({
+    bindings: {
+      createCanvas: hoisted.createRunCanvasBindings,
+    },
     contracts: {
       buildFlow: hoisted.buildRunFlowContractPublicBuilders,
       buildReturn: hoisted.buildRunReturnContractPublicBuilders,
@@ -193,13 +206,15 @@ vi.mock('../game/features/run/platform/browser/create_run_canvas_bindings.js', (
 vi.mock('../game/features/title/public.js', () => ({
   buildTitleBootPublicActions: hoisted.buildTitleBootPublicActions,
   buildTitleRunContractPublicBuilders: hoisted.buildTitleRunContractPublicBuilders,
-  createTitleBindings: hoisted.createTitleBindings,
   createTitleContractCapabilities: () => ({
     buildRun: hoisted.buildTitleRunContractPublicBuilders,
     buildStory: vi.fn(() => ({ story: vi.fn() })),
   }),
   registerTitleBindings: vi.fn(),
   createTitleFeatureFacade: () => ({
+    bindings: {
+      createTitle: hoisted.createTitleBindings,
+    },
     contracts: {
       buildRun: hoisted.buildTitleRunContractPublicBuilders,
       buildStory: vi.fn(() => ({ story: vi.fn() })),
@@ -220,11 +235,14 @@ vi.mock('../game/features/ui/public.js', () => ({
   buildLegacyWindowUiQueryGroups: hoisted.buildLegacyWindowUiQueryGroups,
   createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
   createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
-  createUiBindingContext: hoisted.createUiBindingContext,
   createUiContractCapabilities: () => ({
     buildShell: hoisted.buildUiShellContractPublicBuilders,
   }),
   createUiFeatureFacade: () => ({
+    bindings: {
+      createUiBindingContext: hoisted.createUiBindingContext,
+      setScreenService: hoisted.setScreenService,
+    },
     contracts: {
       buildShell: hoisted.buildUiShellContractPublicBuilders,
     },
@@ -238,6 +256,7 @@ vi.mock('../game/features/ui/ports/runtime/public_ui_runtime_surface.js', () => 
   createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
   createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
   createUiBindingContext: hoisted.createUiBindingContext,
+  createUiBindingsActions: vi.fn((modules, fns, options) => hoisted.createUiBindingContext(modules, fns, options).actions),
   setScreenService: hoisted.setScreenService,
 }));
 

@@ -1,6 +1,7 @@
 import { registerCardUsed } from '../../../shared/codex/codex_record_state_use_case.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
 import { Actions } from '../../../shared/state/public.js';
+import { changePlayerEnergyState } from '../state/card_state_commands.js';
 
 export function playCardService({
   cardId,
@@ -58,13 +59,13 @@ export function playCardService({
 
     const energyBefore = player.energy;
     const handBefore = [...player.hand];
-    gs.dispatch(Actions.PLAYER_ENERGY, { amount: -cost });
+    changePlayerEnergyState(gs, -cost);
     player.hand.splice(handIdx, 1);
 
     const rollbackPlayCost = () => {
       const restoreEnergy = energyBefore - player.energy;
       if (restoreEnergy !== 0) {
-        gs.dispatch(Actions.PLAYER_ENERGY, { amount: restoreEnergy });
+        changePlayerEnergyState(gs, restoreEnergy);
       }
       player.hand = handBefore;
     };

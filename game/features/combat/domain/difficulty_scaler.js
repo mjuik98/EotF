@@ -1,5 +1,5 @@
 import { CONSTANTS } from '../../../data/constants.js';
-import { RunRules, getBaseRegionIndex } from '../../run/public.js';
+import { RunRules, getBaseRegionIndex } from '../../run/ports/public_rule_capabilities.js';
 
 export const DifficultyScaler = {
   getMultiplier(paramsOrGs, runCount, region, floor) {

@@ -1,9 +1,9 @@
-import { createEventRewardBindingActions } from '../../features/event/public.js';
+import { createEventBindingCapabilities } from '../../features/event/ports/public_event_binding_surface.js';
 
 export function applyEventRewardBindings({
   modules,
   fns,
-  createActions = createEventRewardBindingActions,
+  createActions = createEventBindingCapabilities().createEventRewardBindings,
   createPorts,
 }) {
   const ports = typeof createPorts === 'function' ? createPorts() : null;

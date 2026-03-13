@@ -1,5 +1,7 @@
 import { playUiClick } from '../../../domain/audio/audio_event_helpers.js';
-import { ensureCodexBrowserModules } from '../../codex/platform/browser/ensure_codex_browser_modules.js';
+import { createCodexBrowserModuleCapabilities } from '../../codex/ports/public_browser_modules.js';
+
+const codexBrowserModules = createCodexBrowserModuleCapabilities();
 
 export function createUiActions(modules, fns, ports) {
   function getDeckModalDeps() {
@@ -99,22 +101,22 @@ export function createUiActions(modules, fns, ports) {
 
     async openCodex() {
       playUiClick(modules.AudioEngine);
-      await ensureCodexBrowserModules(modules);
+      await codexBrowserModules.ensurePrimary(modules);
       modules.CodexUI?.openCodex?.(ports.getCodexDeps());
     },
 
     async setCodexTab(tab) {
-      await ensureCodexBrowserModules(modules);
+      await codexBrowserModules.ensurePrimary(modules);
       modules.CodexUI?.setCodexTab?.(tab, ports.getCodexDeps());
     },
 
     async renderCodexContent() {
-      await ensureCodexBrowserModules(modules);
+      await codexBrowserModules.ensurePrimary(modules);
       modules.CodexUI?.renderCodexContent?.(ports.getCodexDeps());
     },
 
     async closeCodex() {
-      await ensureCodexBrowserModules(modules);
+      await codexBrowserModules.ensurePrimary(modules);
       modules.CodexUI?.closeCodex?.(ports.getCodexDeps());
     },
 
