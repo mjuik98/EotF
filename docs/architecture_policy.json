@@ -736,7 +736,6 @@
       "from": ["ui"],
       "sourceFiles": [
         "game/ui/run/run_setup_ui.js",
-        "game/ui/run/run_setup_ui_runtime.js",
         "game/ui/run/run_setup_helpers.js"
       ],
       "denyTargetPrefixes": [

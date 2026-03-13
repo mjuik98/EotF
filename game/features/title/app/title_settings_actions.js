@@ -1,12 +1,25 @@
 import { setVolume } from './title_action_helpers.js';
+import { ensureRunFlowBrowserModules } from '../../run/platform/browser/ensure_run_flow_browser_modules.js';
+import { ensureSettingsBrowserModules } from '../../ui/platform/browser/ensure_settings_browser_modules.js';
 
 export function createTitleSettingsActions(context) {
   const { doc, modules, ports, saveVolumes } = context;
 
+  async function ensureRunModeUI() {
+    const { RunModeUI } = await ensureRunFlowBrowserModules(modules);
+    return RunModeUI;
+  }
+
+  async function ensureSettingsUI() {
+    const { SettingsUI } = await ensureSettingsBrowserModules(modules);
+    return SettingsUI;
+  }
+
   return {
-    openRunSettings() {
+    async openRunSettings() {
       context.playClick();
-      modules.RunModeUI?.openSettings?.(ports.getRunModeDeps());
+      const runModeUI = await ensureRunModeUI();
+      runModeUI?.openSettings?.(ports.getRunModeDeps());
     },
 
     closeRunSettings() {
@@ -14,25 +27,30 @@ export function createTitleSettingsActions(context) {
     },
 
     refreshRunModePanel() {
+      if (!modules.RunModeUI) return;
       modules.RunModeUI?.refresh?.(ports.getRunModeDeps());
       modules.RunModeUI?.refreshInscriptions?.(ports.getRunModeDeps());
     },
 
-    shiftAscension(delta) {
-      modules.RunModeUI?.shiftAscension?.(delta, ports.getRunModeDeps());
-      modules.RunModeUI?.refreshInscriptions?.(ports.getRunModeDeps());
+    async shiftAscension(delta) {
+      const runModeUI = await ensureRunModeUI();
+      runModeUI?.shiftAscension?.(delta, ports.getRunModeDeps());
+      runModeUI?.refreshInscriptions?.(ports.getRunModeDeps());
     },
 
-    toggleEndlessMode() {
-      modules.RunModeUI?.toggleEndlessMode?.(ports.getRunModeDeps());
+    async toggleEndlessMode() {
+      const runModeUI = await ensureRunModeUI();
+      runModeUI?.toggleEndlessMode?.(ports.getRunModeDeps());
     },
 
-    cycleRunCurse() {
-      modules.RunModeUI?.cycleCurse?.(ports.getRunModeDeps());
+    async cycleRunCurse() {
+      const runModeUI = await ensureRunModeUI();
+      runModeUI?.cycleCurse?.(ports.getRunModeDeps());
     },
 
-    selectRunCurse(id) {
-      modules.RunModeUI?.selectCurse?.(id, ports.getRunModeDeps());
+    async selectRunCurse(id) {
+      const runModeUI = await ensureRunModeUI();
+      runModeUI?.selectCurse?.(id, ports.getRunModeDeps());
     },
 
     selectFragment(effect) {
@@ -91,40 +109,48 @@ export function createTitleSettingsActions(context) {
       });
     },
 
-    openSettings() {
-      modules.SettingsUI?.openSettings?.(ports.getSettingsDeps());
+    async openSettings() {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.openSettings?.(ports.getSettingsDeps());
     },
 
     closeSettings() {
       modules.SettingsUI?.closeSettings?.(ports.getSettingsDeps());
     },
 
-    setSettingsTab(tab) {
-      modules.SettingsUI?.setTab?.(tab, ports.getSettingsDeps());
+    async setSettingsTab(tab) {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.setTab?.(tab, ports.getSettingsDeps());
     },
 
-    resetSettings() {
-      modules.SettingsUI?.resetToDefaults?.(ports.getSettingsDeps());
+    async resetSettings() {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.resetToDefaults?.(ports.getSettingsDeps());
     },
 
-    applySettingVolume(type, value) {
-      modules.SettingsUI?.applyVolume?.(type, value, ports.getSettingsDeps());
+    async applySettingVolume(type, value) {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.applyVolume?.(type, value, ports.getSettingsDeps());
     },
 
-    applySettingVisual(key, value) {
-      modules.SettingsUI?.applyVisual?.(key, value, ports.getSettingsDeps());
+    async applySettingVisual(key, value) {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.applyVisual?.(key, value, ports.getSettingsDeps());
     },
 
-    applySettingAccessibility(key, value) {
-      modules.SettingsUI?.applyAccessibility?.(key, value, ports.getSettingsDeps());
+    async applySettingAccessibility(key, value) {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.applyAccessibility?.(key, value, ports.getSettingsDeps());
     },
 
-    startSettingsRebind(action) {
-      modules.SettingsUI?.startRebind?.(action, ports.getSettingsDeps());
+    async startSettingsRebind(action) {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.startRebind?.(action, ports.getSettingsDeps());
     },
 
-    toggleSettingMute(type) {
-      modules.SettingsUI?.muteToggle?.(type, ports.getSettingsDeps());
+    async toggleSettingMute(type) {
+      const settingsUI = await ensureSettingsUI();
+      settingsUI?.muteToggle?.(type, ports.getSettingsDeps());
     },
   };
 }

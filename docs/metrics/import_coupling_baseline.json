@@ -1,10 +1,6 @@
 {
   "total": 301,
   "byPair": {
-    "combat->data": 1,
-    "combat->feature": 1,
-    "combat->shared": 2,
-    "combat->utils": 3,
     "core->domain": 4,
     "core->feature": 22,
     "core->legacy": 6,
@@ -18,12 +14,13 @@
     "domain->utils": 3,
     "engine->data": 1,
     "feature->core": 11,
-    "feature->data": 37,
+    "feature->data": 38,
     "feature->domain": 39,
+    "feature->legacy": 1,
     "feature->platform": 3,
-    "feature->shared": 40,
+    "feature->shared": 42,
     "feature->state": 2,
-    "feature->utils": 27,
+    "feature->utils": 30,
     "legacy->core": 4,
     "legacy->domain": 1,
     "legacy->feature": 8,
@@ -37,13 +34,12 @@
     "platform->legacy": 2,
     "platform->shared": 2,
     "platform->utils": 4,
-    "shared->combat": 2,
     "shared->core": 3,
     "shared->data": 2,
-    "shared->feature": 1,
+    "shared->feature": 3,
     "shared->utils": 2,
     "utils->core": 1,
     "utils->data": 2
   },
-  "generatedAt": "2026-03-13T08:48:56.168Z"
+  "generatedAt": "2026-03-13T09:02:48.513Z"
 }

@@ -15,12 +15,15 @@ import {
   createCombatBindingsActions,
   createCombatRuntimeCapabilities,
 } from './ports/runtime/public_combat_runtime_surface.js';
+import { CardMethods } from './application/card_methods_compat.js';
+import { CombatMethods } from './application/combat_methods_compat.js';
 import {
   discardStateCard,
   drawStateCards,
   executePlayerDrawService,
   playStateCard,
 } from './application/public_combat_command_actions.js';
+import { DamageSystem } from './application/damage_system_compat.js';
 import { TurnManager } from './application/turn_manager_compat.js';
 
 export function createCombatModuleCapabilities() {
@@ -47,7 +50,9 @@ export function createCombatFeatureFacade() {
 }
 
 export const CombatPublicSurface = Object.freeze({
+  CardMethods,
   CombatLifecycle,
+  CombatMethods,
   createCombatFeatureFacade,
   createCombatModuleCapabilities,
   createCombatBindingCapabilities,
@@ -58,6 +63,7 @@ export const CombatPublicSurface = Object.freeze({
   buildCombatUiContractPublicBuilders,
   createCombatBindingsActions,
   createCombatStartRuntime,
+  DamageSystem,
   DeathHandler,
   discardStateCard,
   drawStateCards,
@@ -68,11 +74,14 @@ export const CombatPublicSurface = Object.freeze({
 
 export {
   buildCombatRuntimeSubscriberPublicActions,
+  CardMethods,
+  CombatMethods,
   createCombatStartRuntime,
   createCombatBindingsActions,
   createCombatContractCapabilities,
   createCombatRuntimeCapabilities,
   buildCombatUiContractPublicBuilders,
+  DamageSystem,
   discardStateCard,
   drawStateCards,
   executePlayerDrawService,

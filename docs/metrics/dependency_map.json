@@ -1,13 +1,8 @@
 {
-  "generatedAt": "2026-03-13T08:48:56.209Z",
-  "nodeCount": 1102,
-  "edgeCount": 1184,
+  "generatedAt": "2026-03-13T09:02:48.527Z",
+  "nodeCount": 1100,
+  "edgeCount": 1187,
   "layerEdges": {
-    "combat->combat": 5,
-    "combat->data": 1,
-    "combat->feature": 1,
-    "combat->shared": 2,
-    "combat->utils": 3,
     "core->core": 131,
     "core->domain": 4,
     "core->feature": 22,
@@ -27,14 +22,15 @@
     "engine->data": 1,
     "engine->engine": 2,
     "feature->core": 11,
-    "feature->data": 37,
+    "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 601,
+    "feature->feature": 609,
+    "feature->legacy": 1,
     "feature->other": 6,
     "feature->platform": 3,
-    "feature->shared": 40,
+    "feature->shared": 42,
     "feature->state": 2,
-    "feature->utils": 27,
+    "feature->utils": 30,
     "legacy->core": 4,
     "legacy->domain": 1,
     "legacy->feature": 8,
@@ -51,10 +47,9 @@
     "platform->platform": 19,
     "platform->shared": 2,
     "platform->utils": 4,
-    "shared->combat": 2,
     "shared->core": 3,
     "shared->data": 2,
-    "shared->feature": 1,
+    "shared->feature": 3,
     "shared->shared": 22,
     "shared->utils": 2,
     "utils->core": 1,
@@ -75,6 +70,12 @@
       "inDegree": 2
     },
     {
+      "file": "game/features/combat/public.js",
+      "layer": "feature",
+      "outDegree": 13,
+      "inDegree": 6
+    },
+    {
       "file": "game/features/title/platform/browser/create_character_select_runtime_bindings.js",
       "layer": "feature",
       "outDegree": 12,
@@ -91,12 +92,6 @@
       "layer": "feature",
       "outDegree": 11,
       "inDegree": 1
-    },
-    {
-      "file": "game/features/combat/public.js",
-      "layer": "feature",
-      "outDegree": 10,
-      "inDegree": 6
     },
     {
       "file": "data/events_data.js",
@@ -321,7 +316,6 @@
     "game/app/combat/use_cases/end_player_turn_use_case.js": [],
     "game/app/combat/use_cases/run_enemy_turn_use_case.js": [],
     "game/app/combat/use_cases/start_combat_flow_use_case.js": [],
-    "game/app/event/event_choice_handlers.js": [],
     "game/app/event/event_service.js": [],
     "game/app/event/event_session_store.js": [],
     "game/app/event/resolve_event_choice_service.js": [],
@@ -338,7 +332,6 @@
     "game/app/event/use_cases/show_event_session_use_case.js": [],
     "game/app/reward/use_cases/build_reward_options_use_case.js": [],
     "game/app/reward/use_cases/claim_reward_use_case.js": [],
-    "game/app/run/use_cases/confirm_character_selection_use_case.js": [],
     "game/app/run/use_cases/load_character_select_use_case.js": [],
     "game/app/run/use_cases/move_to_node_use_case.js": [],
     "game/app/run/use_cases/start_run_use_case.js": [],
@@ -350,38 +343,20 @@
     "game/app/system/screen_service.js": [],
     "game/app/title/use_cases/continue_run_use_case.js": [],
     "game/app/title/use_cases/start_title_run_use_case.js": [],
-    "game/combat/card_methods.js": [
-      "data/game_data.js",
-      "game/combat/legacy_game_state_card_ports.js",
-      "game/features/combat/app/game_state_card_actions.js"
-    ],
+    "game/combat/card_methods.js": [],
     "game/combat/class_mechanics.js": [],
     "game/combat/combat_initializer.js": [],
     "game/combat/combat_lifecycle.js": [],
-    "game/combat/combat_methods.js": [
-      "game/combat/combat_lifecycle.js",
-      "game/combat/damage_system.js",
-      "game/combat/death_handler.js"
-    ],
-    "game/combat/damage_system_helpers.js": [
-      "game/shared/state/public.js",
-      "game/utils/logger.js"
-    ],
-    "game/combat/damage_system.js": [
-      "game/combat/damage_system_helpers.js",
-      "game/shared/state/public.js",
-      "game/utils/log_utils.js",
-      "game/utils/logger.js"
-    ],
+    "game/combat/combat_methods.js": [],
+    "game/combat/damage_system_helpers.js": [],
+    "game/combat/damage_system.js": [],
     "game/combat/death_handler_enemy_death_flow.js": [],
     "game/combat/death_handler_enemy_state.js": [],
     "game/combat/death_handler_outcome.js": [],
     "game/combat/death_handler_runtime.js": [],
-    "game/combat/death_handler_spawn.js": [],
     "game/combat/death_handler.js": [],
     "game/combat/difficulty_scaler.js": [],
     "game/combat/legacy_game_state_card_ports.js": [],
-    "game/combat/player_methods.js": [],
     "game/combat/turn_manager_helpers.js": [],
     "game/combat/turn_manager.js": [],
     "game/core/app_config.js": [],
@@ -912,6 +887,11 @@
       "game/domain/run/region_service.js",
       "game/shared/state/public.js"
     ],
+    "game/features/combat/application/card_methods_compat.js": [
+      "data/game_data.js",
+      "game/features/combat/app/game_state_card_actions.js",
+      "game/platform/legacy/adapters/create_legacy_game_state_card_ports.js"
+    ],
     "game/features/combat/application/combat_initializer.js": [
       "game/features/combat/app/enemy_spawn_planner.js",
       "game/features/combat/state/combat_setup_state_commands.js",
@@ -925,6 +905,11 @@
       "game/shared/state/runtime_session_commands.js",
       "game/utils/log_utils.js"
     ],
+    "game/features/combat/application/combat_methods_compat.js": [
+      "game/features/combat/application/combat_lifecycle_compat.js",
+      "game/features/combat/application/damage_system_compat.js",
+      "game/features/combat/application/death_handler_compat.js"
+    ],
     "game/features/combat/application/create_combat_start_runtime.js": [
       "game/features/combat/application/start_combat_flow_use_case.js",
       "game/features/combat/platform/combat_start_runtime_ports.js",
@@ -935,6 +920,16 @@
       "game/features/combat/application/player_turn_policy_actions.js",
       "game/features/combat/application/run_enemy_turn_use_case.js",
       "game/features/combat/platform/combat_turn_runtime_ports.js"
+    ],
+    "game/features/combat/application/damage_system_compat.js": [
+      "game/features/combat/application/damage_system_runtime_helpers.js",
+      "game/shared/state/public.js",
+      "game/utils/log_utils.js",
+      "game/utils/logger.js"
+    ],
+    "game/features/combat/application/damage_system_runtime_helpers.js": [
+      "game/shared/state/public.js",
+      "game/utils/logger.js"
     ],
     "game/features/combat/application/death_flow_actions.js": [
       "data/game_data.js",
@@ -1354,8 +1349,11 @@
     ],
     "game/features/combat/presentation/build_combat_end_outcome.js": [],
     "game/features/combat/public.js": [
+      "game/features/combat/application/card_methods_compat.js",
       "game/features/combat/application/combat_lifecycle_compat.js",
+      "game/features/combat/application/combat_methods_compat.js",
       "game/features/combat/application/create_combat_start_runtime.js",
+      "game/features/combat/application/damage_system_compat.js",
       "game/features/combat/application/death_handler_compat.js",
       "game/features/combat/application/public_combat_command_actions.js",
       "game/features/combat/application/turn_manager_compat.js",
@@ -2748,9 +2746,9 @@
       "game/utils/logger.js"
     ],
     "game/shared/state/game_state_runtime_methods.js": [
-      "game/combat/card_methods.js",
-      "game/combat/combat_methods.js",
       "game/core/game_state_common_methods.js",
+      "game/features/combat/application/card_methods_compat.js",
+      "game/features/combat/application/combat_methods_compat.js",
       "game/shared/state/player_runtime_methods.js"
     ],
     "game/shared/state/map_state_commands.js": [],
@@ -2897,7 +2895,6 @@
     "game/ui/run/run_return_ui_runtime.js": [],
     "game/ui/run/run_return_ui.js": [],
     "game/ui/run/run_setup_helpers.js": [],
-    "game/ui/run/run_setup_ui_runtime.js": [],
     "game/ui/run/run_setup_ui.js": [],
     "game/ui/run/run_start_ui_runtime.js": [],
     "game/ui/run/run_start_ui.js": [],
@@ -2957,7 +2954,6 @@
     "game/ui/screens/help_pause_ui.js": [],
     "game/ui/screens/meta_progression_ui_runtime.js": [],
     "game/ui/screens/meta_progression_ui.js": [],
-    "game/ui/screens/reward_ui_claims.js": [],
     "game/ui/screens/reward_ui_helpers.js": [],
     "game/ui/screens/reward_ui_option_renderers.js": [],
     "game/ui/screens/reward_ui_options.js": [],

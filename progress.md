@@ -19,7 +19,8 @@ This file keeps only the current truth. Historical batch logs were intentionally
 - Latest structural move in progress:
   - `game/systems/event_manager.js` now routes to `game/features/event/application/event_manager_compat.js`
   - `game/combat/combat_lifecycle.js`, `game/combat/death_handler.js`, and `game/combat/turn_manager.js` now route to feature-owned compat facades under `game/features/combat/application/*`
-  - compat allowlist is reduced to the four remaining real implementation owners in `game/combat/*`: `card_methods.js`, `combat_methods.js`, `damage_system.js`, `damage_system_helpers.js`
+  - `game/combat/card_methods.js`, `game/combat/combat_methods.js`, `game/combat/damage_system.js`, and `game/combat/damage_system_helpers.js` now also route to feature-owned canonical files under `game/features/combat/application/*`
+  - compat allowlist is now empty; scanned compat surfaces are thin re-export shims only
 
 ## Current Validation Standard
 
@@ -56,12 +57,12 @@ Optional deeper smoke:
 
 ## Current Workspace Note
 
-The current worktree contains validated changes around compat guardrails, combat/reward presentation ownership, feature public surfaces, browser effect compatibility, and combat/event compat-facade ownership inversion.
+The current worktree contains validated changes around compat guardrails, combat/reward presentation ownership, feature public surfaces, browser effect compatibility, and combat/event compat-facade ownership inversion. Browser smoke, lint, tests, and build are green after the latest combat compat collapse.
 
 ## Next Actions
 
 1. Finish and validate the current in-progress ownership and compat-surface changes.
 2. Continue collapsing touched compat files into thin re-exports instead of adding new implementation there.
-3. Target the remaining non-thin combat compat owners first: `card_methods.js`, `combat_methods.js`, `damage_system.js`, `damage_system_helpers.js`.
-4. Keep `TurnManager` and similar compat facades lazy-initialized when they sit on feature public-surface import paths to avoid circular module init regressions.
+3. Keep `TurnManager` and similar compat facades lazy-initialized when they sit on feature public-surface import paths to avoid circular module init regressions.
+4. Continue shrinking runtime-only fallback paths inside feature-owned combat helpers, especially legacy/browser lookups that still bypass explicit ports.
 5. Regenerate metrics only when architectural change is intentional, not to silence checks.

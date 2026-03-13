@@ -32,6 +32,9 @@ describe('feature public surface exports', () => {
     );
 
     expect(combatSource).toContain('CombatLifecycle,');
+    expect(combatSource).toContain('CombatMethods,');
+    expect(combatSource).toContain('CardMethods,');
+    expect(combatSource).toContain('DamageSystem,');
     expect(combatSource).toContain('DeathHandler,');
     expect(combatSource).toContain('TurnManager,');
     expect(eventSource).toContain('EventManager,');

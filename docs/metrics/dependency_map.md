@@ -1,18 +1,13 @@
 # Dependency Map
 
-- Generated: 2026-03-13T08:48:56.209Z
-- Nodes: 1102
-- Edges: 1184
+- Generated: 2026-03-13T09:02:48.527Z
+- Nodes: 1100
+- Edges: 1187
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| combat->combat | 5 |
-| combat->data | 1 |
-| combat->feature | 1 |
-| combat->shared | 2 |
-| combat->utils | 3 |
 | core->core | 131 |
 | core->domain | 4 |
 | core->feature | 22 |
@@ -32,14 +27,15 @@
 | engine->data | 1 |
 | engine->engine | 2 |
 | feature->core | 11 |
-| feature->data | 37 |
+| feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 601 |
+| feature->feature | 609 |
+| feature->legacy | 1 |
 | feature->other | 6 |
 | feature->platform | 3 |
-| feature->shared | 40 |
+| feature->shared | 42 |
 | feature->state | 2 |
-| feature->utils | 27 |
+| feature->utils | 30 |
 | legacy->core | 4 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
@@ -56,10 +52,9 @@
 | platform->platform | 19 |
 | platform->shared | 2 |
 | platform->utils | 4 |
-| shared->combat | 2 |
 | shared->core | 3 |
 | shared->data | 2 |
-| shared->feature | 1 |
+| shared->feature | 3 |
 | shared->shared | 22 |
 | shared->utils | 2 |
 | utils->core | 1 |
@@ -72,10 +67,10 @@
 |---|---:|
 | game/features/combat/platform/browser/combat_browser_modules.js | 15 |
 | game/features/event/public.js | 15 |
+| game/features/combat/public.js | 13 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/combat/application/death_flow_actions.js | 11 |
 | game/features/run/platform/browser/run_browser_modules.js | 11 |
-| game/features/combat/public.js | 10 |
 | data/events_data.js | 8 |
 | game/features/event/app/event_choice_flow_actions.js | 8 |
 | game/features/run/application/run_rules.js | 8 |

@@ -6,7 +6,6 @@
     "game/combat/combat_lifecycle.js": 12,
     "game/combat/damage_system.js": 8,
     "game/combat/death_handler.js": 13,
-    "game/combat/player_methods.js": 1,
     "game/combat/turn_manager.js": 49,
     "game/core/event_subscribers_player_events.js": 1,
     "game/core/game_api.js": 12,

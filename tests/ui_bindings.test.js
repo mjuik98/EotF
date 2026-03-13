@@ -18,7 +18,7 @@ describe('createUIBindings', () => {
     vi.clearAllMocks();
   });
 
-  it('routes hud, codex, tooltip, and screen actions through feature ports', () => {
+  it('routes hud, codex, tooltip, and screen actions through feature ports', async () => {
     const doc = {
       getElementById: vi.fn((id) => (id === 'statusEffects' ? { id } : null)),
     };
@@ -81,7 +81,7 @@ describe('createUIBindings', () => {
     fns.updateChainUI(3);
     fns.setBar('hp', 40);
     fns.showDeckView();
-    fns.openCodex();
+    await fns.openCodex();
     fns.showTooltip({ type: 'mouseenter' }, 'strike');
     fns.switchScreen('game');
 

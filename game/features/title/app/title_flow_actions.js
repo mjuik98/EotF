@@ -5,6 +5,7 @@ import {
 } from '../ui/title_screen_dom.js';
 import { continueRunUseCase, startTitleRunUseCase } from '../application/title_run_entry_actions.js';
 import { playPreRunRipple } from './title_action_helpers.js';
+import { ensureCodexBrowserModules } from '../../codex/platform/browser/ensure_codex_browser_modules.js';
 
 export function createTitleFlowActions(context) {
   const { doc, fns, modules, playClick, ports, win } = context;
@@ -38,13 +39,15 @@ export function createTitleFlowActions(context) {
       });
     },
 
-    openCodexFromTitle() {
+    async openCodexFromTitle() {
       playClick();
+      await ensureCodexBrowserModules(modules);
       modules.CodexUI?.openCodex?.({ gs: modules.GS, data: modules.DATA });
     },
 
-    openEndingCodex() {
+    async openEndingCodex() {
       playClick();
+      await ensureCodexBrowserModules(modules);
       modules.CodexUI?.openCodex?.({ gs: modules.GS, data: modules.DATA });
     },
 

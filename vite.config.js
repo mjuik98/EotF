@@ -28,7 +28,6 @@ function getManualChunk(id) {
   ) {
     return 'ui-gameplay';
   }
-  if (normalized.endsWith('/game/ui/screens/codex_ui.js')) return 'ui-codex';
   if (normalized.endsWith('/game/ui/screens/settings_ui.js')) return 'ui-settings';
   if (normalized.endsWith('/game/ui/run/run_mode_ui.js')) return 'ui-run-mode';
 

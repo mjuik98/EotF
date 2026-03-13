@@ -7,10 +7,5 @@
     "game/ui",
     "game/presentation"
   ],
-  "allowlist": [
-    "game/combat/card_methods.js",
-    "game/combat/combat_methods.js",
-    "game/combat/damage_system.js",
-    "game/combat/damage_system_helpers.js"
-  ]
+  "allowlist": []
 }

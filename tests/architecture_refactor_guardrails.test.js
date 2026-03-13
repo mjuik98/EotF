@@ -231,4 +231,16 @@ describe('architecture refactor guardrails', () => {
     expect(source).toContain("from '../../../platform/browser/effects/button_feedback.js'");
     expect(source).not.toContain("from '../../../ui/feedback/button_feedback.js'");
   });
+
+  it('keeps game state runtime methods routed through feature-owned combat canonical files', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/shared/state/game_state_runtime_methods.js'),
+      'utf8',
+    );
+
+    expect(source).toContain("from '../../features/combat/application/card_methods_compat.js'");
+    expect(source).toContain("from '../../features/combat/application/combat_methods_compat.js'");
+    expect(source).not.toContain("from '../../combat/card_methods.js'");
+    expect(source).not.toContain("from '../../combat/combat_methods.js'");
+  });
 });
