@@ -15,8 +15,8 @@ import {
   playReactionPlayerDeath,
   playStatusHeal,
 } from '../../../domain/audio/audio_event_helpers.js';
-import { applyEnemyDeathState } from '../../../combat/death_handler_enemy_state.js';
-import { handleEnemyDeathFlow } from '../../../combat/death_handler_enemy_death_flow.js';
+import { applyEnemyDeathState } from './enemy_death_state.js';
+import { handleEnemyDeathFlow } from './enemy_death_flow.js';
 import {
   createEnemyDeathRuntimePort,
   resolveDeathRuntimeContext,

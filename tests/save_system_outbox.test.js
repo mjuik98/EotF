@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SaveAdapter } from '../game/core/save_adapter.js';
+import { bindSaveStorage } from '../game/shared/save/public.js';
 import { SaveSystem } from '../game/systems/save_system.js';
 
 function createRunState() {
@@ -28,12 +29,14 @@ describe('SaveSystem outbox', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    bindSaveStorage(SaveAdapter);
     SaveSystem.clearOutbox();
     SaveSystem.resetOutboxMetrics();
     SaveSystem._lastSaveError = null;
   });
 
   afterEach(() => {
+    bindSaveStorage(SaveAdapter);
     SaveSystem.clearOutbox();
     SaveSystem.resetOutboxMetrics();
     SaveSystem._lastSaveError = null;

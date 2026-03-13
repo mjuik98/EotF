@@ -1,4 +1,4 @@
-import { CombatInitializer } from '../../../combat/combat_initializer.js';
+import { CombatInitializer } from '../application/combat_initializer.js';
 import { playEventBossPhase } from '../../../domain/audio/audio_event_helpers.js';
 import {
   applyCombatEntryOverlay,

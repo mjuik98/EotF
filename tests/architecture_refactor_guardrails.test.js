@@ -41,6 +41,18 @@ describe('architecture refactor guardrails', () => {
     expect(source).not.toContain("from '../../../features/run/application/");
   });
 
+  it('keeps core progression composition routed through canonical feature/shared owners', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/platform/browser/composition/build_core_progression_modules.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain("from '../../../combat/difficulty_scaler.js'");
+    expect(source).not.toContain("from '../../../systems/set_bonus_system.js'");
+    expect(source).toContain("from '../../../features/combat/domain/difficulty_scaler.js'");
+    expect(source).toContain("from '../../../shared/progression/set_bonus_system.js'");
+  });
+
   it('routes core runtime bindings through feature ports/runtime surfaces', () => {
     const files = [
       'game/core/bootstrap/build_game_boot_action_groups.js',
@@ -146,6 +158,32 @@ describe('architecture refactor guardrails', () => {
 
     walk(featureRoot);
     expect(matches).toEqual([]);
+  });
+
+  it('keeps domain ownership free of combat compat helper imports', () => {
+    const files = [
+      'game/domain/class/class_mechanics.js',
+      'game/domain/combat/turn/start_player_turn_policy.js',
+      'game/domain/combat/turn/end_player_turn_policy.js',
+    ];
+
+    for (const file of files) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toContain('/combat/class_mechanics.js');
+      expect(source).not.toContain('/combat/turn_manager_helpers.js');
+    }
+  });
+
+  it('keeps combat feature death flow routed through feature-owned helpers', () => {
+    const files = [
+      'game/features/combat/application/death_flow_actions.js',
+      'game/features/combat/platform/death_runtime_ports.js',
+    ];
+
+    for (const file of files) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toContain('/combat/death_handler_');
+    }
   });
 
   it('removes inline close handlers from the run settings modal shell', () => {

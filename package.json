@@ -15,6 +15,7 @@
     "deps:map": "node scripts/generate-dependency-map.mjs",
     "deps:threshold": "node scripts/check-dependency-delta-threshold.mjs",
     "check:data": "node scripts/check-content-data.mjs",
+    "smoke:reward": "node scripts/run_reward_smoke.mjs",
     "quality": "npm run lint && npm run test:coverage && npm run build"
   },
   "keywords": [

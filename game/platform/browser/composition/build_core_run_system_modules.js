@@ -1,4 +1,5 @@
-import { SaveSystem } from '../../../shared/save/public.js';
+import { bindSaveStorage, SaveSystem } from '../../../shared/save/public.js';
+import { SaveAdapter } from '../../storage/save_adapter.js';
 import {
   createFinalizeRunOutcomeAction,
   RunRules,
@@ -13,6 +14,8 @@ function getCurrentGameState() {
 }
 
 export function buildCoreRunSystemModules() {
+  bindSaveStorage(SaveAdapter);
+
   return {
     SaveSystem,
     RunRules,

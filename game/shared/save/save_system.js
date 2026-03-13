@@ -1,6 +1,6 @@
-import { SaveAdapter } from '../../platform/storage/save_adapter.js';
 import { Logger } from '../../utils/logger.js';
 import { META_SAVE_VERSION, RUN_SAVE_VERSION, migrateMetaSave, migrateRunSave } from './save_migrations.js';
+import { getSaveStorage } from './save_storage.js';
 import {
   buildMetaSave,
   buildRunSave,
@@ -27,6 +27,10 @@ const SAVE_KEY = 'echo_fallen_save';
 const META_KEY = 'echo_fallen_meta';
 const SAVE_ERROR_QUEUED = 'persist queued in outbox';
 
+function getSaveAdapter() {
+  return getSaveStorage();
+}
+
 export const SaveSystem = {
   SAVE_KEY,
   META_KEY,
@@ -51,8 +55,9 @@ export const SaveSystem = {
   },
 
   _persistWithOutbox(key, payload) {
+    const saveAdapter = getSaveAdapter();
     return persistWithOutbox(this, key, payload, {
-      save: (saveKey, snapshot) => SaveAdapter.save(saveKey, snapshot),
+      save: (saveKey, snapshot) => saveAdapter?.save?.(saveKey, snapshot) || false,
       logWarn: (message) => Logger.warn(message),
     });
   },
@@ -62,8 +67,9 @@ export const SaveSystem = {
   },
 
   flushOutbox() {
+    const saveAdapter = getSaveAdapter();
     return flushOutboxQueue(this, {
-      save: (key, payload) => SaveAdapter.save(key, payload),
+      save: (key, payload) => saveAdapter?.save?.(key, payload) || false,
     });
   },
 
@@ -103,9 +109,10 @@ export const SaveSystem = {
   loadMeta(deps = {}) {
     const gs = getGS(deps);
     if (!gs?.meta) return;
+    const saveAdapter = getSaveAdapter();
 
     try {
-      const raw = SaveAdapter.load(this.META_KEY);
+      const raw = saveAdapter?.load?.(this.META_KEY) || null;
       const data = migrateMetaSave(raw);
       if (data) {
         hydrateMetaState(gs, data);
@@ -151,9 +158,10 @@ export const SaveSystem = {
   loadRun(deps = {}) {
     const gs = getGS(deps);
     if (!gs) return false;
+    const saveAdapter = getSaveAdapter();
 
     try {
-      const raw = SaveAdapter.load(this.SAVE_KEY);
+      const raw = saveAdapter?.load?.(this.SAVE_KEY) || null;
       const data = migrateRunSave(raw);
       if (!data) return false;
 
@@ -171,11 +179,11 @@ export const SaveSystem = {
   },
 
   hasSave() {
-    return SaveAdapter.has(this.SAVE_KEY);
+    return getSaveAdapter()?.has?.(this.SAVE_KEY) || false;
   },
 
   clearSave() {
-    SaveAdapter.remove(this.SAVE_KEY);
+    getSaveAdapter()?.remove?.(this.SAVE_KEY);
     this._dropOutboxKey(this.SAVE_KEY);
   },
 

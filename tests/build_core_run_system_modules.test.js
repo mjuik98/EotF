@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
   SaveSystem: { id: 'save-system' },
+  bindSaveStorage: vi.fn(),
   RunRules: { id: 'run-rules' },
   createFinalizeRunOutcomeAction: vi.fn((saveSystem) => ({ saveSystem, kind: 'bound' })),
   getBaseRegionIndex: vi.fn(() => 1),
@@ -10,6 +11,7 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock('../game/shared/save/public.js', () => ({
+  bindSaveStorage: hoisted.bindSaveStorage,
   SaveSystem: hoisted.SaveSystem,
 }));
 
@@ -27,6 +29,7 @@ describe('buildCoreRunSystemModules', () => {
   it('builds the run module group through public feature capabilities only', () => {
     const modules = buildCoreRunSystemModules();
 
+    expect(hoisted.bindSaveStorage).toHaveBeenCalledTimes(1);
     expect(hoisted.createFinalizeRunOutcomeAction).toHaveBeenCalledWith(
       hoisted.SaveSystem,
       expect.any(Function),

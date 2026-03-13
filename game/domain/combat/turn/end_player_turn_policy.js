@@ -1,5 +1,5 @@
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
-import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from '../../../combat/turn_manager_helpers.js';
+import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
 import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
 import {
   decrementStackedBuff,

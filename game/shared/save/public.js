@@ -1,4 +1,5 @@
 export { SaveSystem } from './save_system.js';
+export { bindSaveStorage } from './save_storage.js';
 export {
   META_SAVE_VERSION,
   RUN_SAVE_VERSION,

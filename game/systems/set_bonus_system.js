@@ -1,1 +1,1 @@
-export { SetBonusSystem } from '../features/combat/domain/set_bonus_system.js';
+export { SetBonusSystem } from '../shared/progression/set_bonus_system.js';

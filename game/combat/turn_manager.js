@@ -1,7 +1,7 @@
 /**
  * turn_manager.js — legacy combat facade kept for compatibility.
  */
-import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
+import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from '../domain/combat/turn/turn_manager_helpers.js';
 import { endPlayerTurnPolicy } from '../domain/combat/turn/end_player_turn_policy.js';
 import {
     decayEnemyWeaken,

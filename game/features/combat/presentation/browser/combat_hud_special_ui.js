@@ -1,3 +1,5 @@
+import { renderClassTraitPanel } from './class_trait_panel_ui.js';
+
 export function renderCombatHudClassSpecial(doc, gs, classMechanics, deps = {}, elementCtor = doc?.defaultView?.HTMLElement || null) {
   if (!gs || !gs.player || !classMechanics) return;
 
@@ -8,7 +10,7 @@ export function renderCombatHudClassSpecial(doc, gs, classMechanics, deps = {}, 
   hoverSpecialEl.textContent = '';
 
   if (mechanic) {
-    const specialUI = mechanic.getSpecialUI(gs, { ...deps, doc });
+    const specialUI = mechanic.getSpecialUI(gs, { ...deps, doc, renderClassTraitPanel });
     if (elementCtor && specialUI instanceof elementCtor) {
       hoverSpecialEl.appendChild(specialUI);
       return;

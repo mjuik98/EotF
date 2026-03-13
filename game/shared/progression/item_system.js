@@ -1,6 +1,6 @@
 import { DATA } from '../../../data/game_data.js';
-import { SetBonusSystem } from '../../features/combat/domain/set_bonus_system.js';
 import { InscriptionSystem } from './inscription_system.js';
+import { SetBonusSystem } from './set_bonus_system.js';
 
 const TRIGGER_ALIASES = Object.freeze({
   COMBAT_START: 'combat_start',

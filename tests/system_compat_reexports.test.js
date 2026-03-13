@@ -60,7 +60,7 @@ describe('system compat re-exports', () => {
       "export { SaveSystem } from '../shared/save/save_system.js';",
     );
     expect(setBonusSource).toBe(
-      "export { SetBonusSystem } from '../features/combat/domain/set_bonus_system.js';",
+      "export { SetBonusSystem } from '../shared/progression/set_bonus_system.js';",
     );
     expect(runRulesCursesSource).toBe(
       "export { CURSES } from '../features/run/domain/run_rules_curses.js';",

@@ -25,6 +25,18 @@
       "message": "systems/combat/utils must not import ui"
     },
     {
+      "id": "domain-layer-no-ui",
+      "from": ["domain"],
+      "to": ["ui"],
+      "message": "domain must not import ui"
+    },
+    {
+      "id": "shared-layer-no-platform",
+      "from": ["shared"],
+      "to": ["platform"],
+      "message": "shared must not import platform"
+    },
+    {
       "id": "core-ui-composition-root-only",
       "from": ["core"],
       "to": ["ui"],

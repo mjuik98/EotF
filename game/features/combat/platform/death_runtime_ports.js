@@ -5,9 +5,9 @@ import {
   runPlayerDeathSequence,
   scheduleCombatEndFlow,
   scheduleEnemyRemoval,
-} from '../../../combat/death_handler_runtime.js';
-import { showDeathOutcomeScreen } from '../../../combat/death_handler_outcome.js';
-import { spawnScaledEnemyForRegion } from '../../../combat/death_handler_spawn.js';
+} from './death_runtime_helpers.js';
+import { showDeathOutcomeScreen } from './death_outcome_helpers.js';
+import { spawnScaledEnemyForRegion } from './death_spawn_runtime.js';
 
 function resolveDoc(deps = {}) {
   return deps.doc || deps.win?.document || document;
