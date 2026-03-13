@@ -8379,22 +8379,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   color: var(--text-dim);
 }
 
-/* Align text positioning of close(ESC) buttons consistently */
-#runSettingsCloseBtn,
-#deckViewCloseBtn,
-#codexCloseBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-#runSettingsCloseBtn .kbd-hint,
-#deckViewCloseBtn .kbd-hint,
-#codexCloseBtn .kbd-hint {
-  margin-left: 0;
-  top: 0;
-}
+/* close button alignment → moved to css/modal-close-unified.css */
 
 @media (max-width: 900px) {
   #runSettingsBody {
@@ -9417,26 +9402,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
-.settings-close-btn {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  padding: 10px 26px;
-  border-radius: 6px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #999;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  transition: all 0.18s;
-}
-
-.settings-close-btn:hover {
-  color: var(--white);
-  border-color: rgba(255, 255, 255, 0.28);
-}
+/* .settings-close-btn → moved to css/modal-close-unified.css */
 
 .settings-tab-panel::-webkit-scrollbar {
   width: 4px;

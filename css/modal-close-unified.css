@@ -1,0 +1,156 @@
+/* ══════════════════════════════════════════
+   Modal Close Button — Unified Styles
+   모든 모달 닫기 버튼의 통일된 디자인 토큰과 스타일
+══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════
+   1. 공통 토큰
+══════════════════════════════════════════ */
+:root {
+  --close-color:         rgba(255, 255, 255, 0.52);
+  --close-color-hover:   rgba(255, 255, 255, 0.90);
+  --close-border:        rgba(255, 255, 255, 0.09);
+  --close-border-hover:  rgba(255, 255, 255, 0.26);
+  --close-bg:            rgba(255, 255, 255, 0.03);
+  --close-bg-hover:      rgba(255, 255, 255, 0.08);
+  --close-danger-bg:     rgba(255, 51, 102, 0.10);
+  --close-danger-border: rgba(255, 51, 102, 0.30);
+  --close-danger-color:  #ff3366;
+}
+
+/* ══════════════════════════════════════════
+   2. 헤더형 ✕ 버튼 (도감, 런 규칙)
+══════════════════════════════════════════ */
+.cx-close-btn,
+#closeRunSettingsBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--close-bg);
+  border: 1px solid var(--close-border);
+  color: var(--close-color);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.14s;
+  font-family: monospace;
+  padding: 0;
+  min-width: unset;
+  box-shadow: none;
+  margin-left: auto;
+}
+
+.cx-close-btn:hover,
+#closeRunSettingsBtn:hover {
+  background: var(--close-danger-bg);
+  border-color: var(--close-danger-border);
+  color: var(--close-danger-color);
+  transform: scale(1.08);
+}
+
+.cx-close-btn:active,
+#closeRunSettingsBtn:active {
+  transform: scale(0.93);
+}
+
+/* 런 규칙 버튼: 기존 텍스트 숨기고 ✕ 삽입 */
+#closeRunSettingsBtn {
+  font-size: 0;
+}
+
+#closeRunSettingsBtn::after {
+  content: '✕';
+  font-size: 15px;
+  font-family: monospace;
+  color: var(--close-color);
+  transition: color 0.18s;
+}
+
+#closeRunSettingsBtn:hover::after {
+  color: var(--close-danger-color);
+}
+
+/* ══════════════════════════════════════════
+   3. 푸터형 텍스트 버튼 (설정, 덱보기, 전투기록)
+══════════════════════════════════════════ */
+.settings-close-btn,
+#deckViewCloseBtn,
+#closeBattleChronicleBtn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  padding: 10px 26px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--close-bg);
+  border: 1px solid var(--close-border);
+  color: var(--close-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: none;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.14s;
+}
+
+.settings-close-btn:hover,
+#deckViewCloseBtn:hover,
+#closeBattleChronicleBtn:hover {
+  background: var(--close-bg-hover);
+  border-color: var(--close-border-hover);
+  color: var(--close-color-hover);
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+.settings-close-btn:active,
+#deckViewCloseBtn:active,
+#closeBattleChronicleBtn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ESC 힌트 뱃지 통일 */
+.settings-close-btn .kbd-hint,
+#deckViewCloseBtn .kbd-hint,
+#closeBattleChronicleBtn .kbd-hint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  opacity: 0.42;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: inherit;
+}
+
+/* ══════════════════════════════════════════
+   4. 도움말/일시정지 (JS 동적 생성)
+══════════════════════════════════════════ */
+#pauseMenu .action-btn-secondary:last-child,
+#helpMenu .action-btn-secondary:last-child {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  padding: 10px 26px;
+  border-radius: 8px;
+  background: var(--close-bg);
+  border: 1px solid var(--close-border);
+  color: var(--close-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: none;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.14s;
+}
+
+#pauseMenu .action-btn-secondary:last-child:hover,
+#helpMenu .action-btn-secondary:last-child:hover {
+  background: var(--close-bg-hover);
+  border-color: var(--close-border-hover);
+  color: var(--close-color-hover);
+  transform: translateY(-1px);
+  box-shadow: none;
+}

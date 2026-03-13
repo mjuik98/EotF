@@ -249,27 +249,7 @@
   background: #111;
 }
 
-.cx-close-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .04);
-  border: 1px solid rgba(255, 255, 255, .08);
-  color: var(--cx-dim);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .2s;
-  font-family: monospace;
-}
-
-.cx-close-btn:hover {
-  background: rgba(255, 51, 102, .12);
-  border-color: rgba(255, 51, 102, .35);
-  color: var(--cx-danger, #ff3366);
-}
+/* .cx-close-btn → moved to css/modal-close-unified.css */
 
 /* ════════════════════════════════════════
    PROGRESS
