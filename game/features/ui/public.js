@@ -42,9 +42,16 @@ export function createUiModuleCapabilities() {
   };
 }
 
+export function createUiContractCapabilities() {
+  return {
+    buildShell: buildUiShellContractPublicBuilders,
+  };
+}
+
 export function createUiFeatureFacade() {
   return {
     moduleCapabilities: createUiModuleCapabilities(),
+    contracts: createUiContractCapabilities(),
   };
 }
 

@@ -242,7 +242,7 @@ describe('player_hp_panel_ui', () => {
     globalThis.window = { innerWidth: 1280, innerHeight: 720 };
 
     try {
-      renderFloatingPlayerHpPanel({ doc, gs, StatusEffectsUI: statusEffectsUI });
+      renderFloatingPlayerHpPanel({ doc, gs, StatusEffectsUI: statusEffectsUI, StatusTooltipUI });
 
       const tooltip = doc.createElement('div');
       tooltip.id = 'statusTooltip';
@@ -253,7 +253,7 @@ describe('player_hp_panel_ui', () => {
 
       showForAnchor.mockClear();
       gs.player.hp = 43;
-      renderFloatingPlayerHpPanel({ doc, gs, StatusEffectsUI: statusEffectsUI });
+      renderFloatingPlayerHpPanel({ doc, gs, StatusEffectsUI: statusEffectsUI, StatusTooltipUI });
       expect(showForAnchor).toHaveBeenCalledTimes(1);
       expect(showForAnchor.mock.calls[0][1]).toBe('unbreakable_wall');
       expect(showForAnchor.mock.calls[0][4]).toMatchObject({

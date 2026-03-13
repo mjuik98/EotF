@@ -1,11 +1,6 @@
-import { buildCombatFlowContractBuilders } from '../../../features/combat/ports/contracts/build_combat_flow_contracts.js';
 import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
-import { buildEventContractBuilders } from '../../../features/event/ports/contracts/build_event_contracts.js';
-import { buildEventFlowContractBuilders } from '../../../features/event/ports/contracts/build_event_flow_contracts.js';
-import { buildRewardFlowContractBuilders } from '../../../features/reward/ports/contracts/build_reward_flow_contracts.js';
-import { buildRunReturnContractPublicBuilders } from '../../../features/run/contracts/public_run_contract_builders.js';
-import { buildTitleStoryContractBuilders } from '../../../features/title/ports/contracts/build_title_story_contracts.js';
 import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
+import { createFeatureContractCapabilities } from './create_feature_contract_capabilities.js';
 
 export function buildCoreContractBuilders(ctx) {
   const {
@@ -18,12 +13,13 @@ export function buildCoreContractBuilders(ctx) {
     getHudDeps,
     getRaf,
   } = ctx;
-  const eventContractBuilders = buildEventContractBuilders(ctx);
-  const eventFlowContractBuilders = buildEventFlowContractBuilders(ctx);
-  const combatFlowContractBuilders = buildCombatFlowContractBuilders(ctx);
-  const rewardFlowContractBuilders = buildRewardFlowContractBuilders(ctx);
-  const runReturnContractBuilders = buildRunReturnContractPublicBuilders(ctx);
-  const titleContractBuilders = buildTitleStoryContractBuilders(ctx);
+  const featureContracts = createFeatureContractCapabilities();
+  const eventContractBuilders = featureContracts.event.buildEvent(ctx);
+  const eventFlowContractBuilders = featureContracts.event.buildFlow(ctx);
+  const combatFlowContractBuilders = featureContracts.combat.buildFlow(ctx);
+  const rewardFlowContractBuilders = featureContracts.reward.buildFlow(ctx);
+  const runReturnContractBuilders = featureContracts.run.buildReturn(ctx);
+  const titleContractBuilders = featureContracts.title.buildStory(ctx);
 
   return {
     base: () => ({

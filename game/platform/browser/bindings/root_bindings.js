@@ -1,6 +1,6 @@
 import { SettingsManager } from '../../../core/settings_manager.js';
-import { registerTitleBindings } from '../../../features/title/ui/title_bindings.js';
-import { registerRunEntryBindings } from '../../../features/run/ui/run_entry_bindings.js';
+import { registerTitleBindings } from '../../../features/title/public.js';
+import { registerRunEntryBindings } from '../../../features/run/public.js';
 import { isEscapeKey, isVisibleModal } from './root_binding_helpers.js';
 
 export const RootBindings = {

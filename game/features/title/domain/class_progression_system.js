@@ -6,6 +6,12 @@ import { registerCardDiscovered } from '../../../shared/codex/codex_record_state
 import { ensureClassProgress } from './class_progression/meta_persistence.js';
 import { buildRunRewards } from './class_progression/reward_calculator.js';
 import {
+  consumePendingSummary,
+  createPendingRunSummary,
+  getDefaultClassState,
+  peekPendingSummary,
+} from './class_progression/pending_summary_store.js';
+import {
   applyRuntimeMasterySnapshot,
   applyStarterDeckUpgrades,
   ensureTraitDiscountMap,
@@ -206,14 +212,7 @@ export const ClassProgressionSystem = {
     if (!cp) return null;
 
     const classId = String(gs.player.class);
-    const before = this.getClassState(gs.meta, classId, classIds) || {
-      classId,
-      level: 1,
-      totalXp: 0,
-      currentLevelXp: 0,
-      nextLevelXp: xpForLevel(2),
-      progress: 0,
-    };
+    const before = this.getClassState(gs.meta, classId, classIds) || getDefaultClassState(classId);
 
     const rewards = buildRunRewards(gs, outcome, options);
     const totalGain = rewards.reduce((sum, row) => sum + toNonNegativeInt(row?.xp, 0), 0);
@@ -223,35 +222,24 @@ export const ClassProgressionSystem = {
     const after = this.getClassState(gs.meta, classId, classIds);
     if (!after) return null;
 
-    const levelUps = [];
-    for (let lv = before.level + 1; lv <= after.level; lv += 1) {
-      levelUps.push(lv);
-    }
-
-    const summary = {
-      outcome: outcome === 'victory' ? 'victory' : 'defeat',
-      classId,
-      rewards,
-      totalGain,
+    const summary = createPendingRunSummary({
       before,
       after,
-      levelUps,
-      ts: Date.now(),
-    };
+      classId,
+      outcome,
+      rewards,
+      totalGain,
+    });
 
     cp.pendingSummaries.push(summary);
     return summary;
   },
 
   peekPendingSummary(meta, classIds = []) {
-    const cp = ensureClassProgress(meta, classIds);
-    if (!cp || cp.pendingSummaries.length === 0) return null;
-    return cp.pendingSummaries[0] || null;
+    return peekPendingSummary(meta, classIds);
   },
 
   consumePendingSummary(meta, classIds = []) {
-    const cp = ensureClassProgress(meta, classIds);
-    if (!cp || cp.pendingSummaries.length === 0) return null;
-    return cp.pendingSummaries.shift() || null;
+    return consumePendingSummary(meta, classIds);
   },
 };

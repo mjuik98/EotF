@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-13T02:25:23.084Z
-- Nodes: 997
-- Edges: 1111
+- Generated: 2026-03-13T03:52:01.669Z
+- Nodes: 1032
+- Edges: 1136
 
 ## Layer Edges
 
@@ -20,12 +20,12 @@
 | combat->systems | 4 |
 | combat->utils | 6 |
 | core->combat | 3 |
-| core->core | 129 |
+| core->core | 133 |
 | core->domain | 4 |
-| core->feature | 23 |
+| core->feature | 22 |
 | core->legacy | 6 |
 | core->other | 1 |
-| core->shared | 1 |
+| core->shared | 2 |
 | core->systems | 1 |
 | core->utils | 2 |
 | data->data | 17 |
@@ -42,16 +42,16 @@
 | engine->data | 1 |
 | engine->engine | 2 |
 | feature->combat | 6 |
-| feature->core | 11 |
-| feature->data | 34 |
+| feature->core | 12 |
+| feature->data | 35 |
 | feature->domain | 36 |
-| feature->feature | 508 |
+| feature->feature | 527 |
 | feature->other | 5 |
 | feature->platform | 3 |
 | feature->presentation | 3 |
-| feature->shared | 30 |
+| feature->shared | 36 |
 | feature->state | 2 |
-| feature->systems | 1 |
+| feature->systems | 5 |
 | feature->utils | 25 |
 | legacy->core | 4 |
 | legacy->domain | 1 |
@@ -64,28 +64,27 @@
 | platform->data | 1 |
 | platform->domain | 1 |
 | platform->engine | 5 |
-| platform->feature | 15 |
+| platform->feature | 16 |
 | platform->legacy | 2 |
 | platform->other | 1 |
 | platform->platform | 17 |
-| platform->systems | 3 |
+| platform->shared | 1 |
+| platform->systems | 1 |
 | platform->ui | 1 |
 | platform->utils | 4 |
 | presentation->domain | 1 |
 | presentation->ui | 6 |
 | presentation->utils | 1 |
 | shared->core | 1 |
-| shared->shared | 3 |
-| systems->core | 2 |
-| systems->data | 4 |
+| shared->platform | 1 |
+| shared->shared | 6 |
+| shared->systems | 4 |
+| shared->utils | 1 |
+| systems->core | 1 |
+| systems->data | 3 |
 | systems->feature | 3 |
-| systems->platform | 1 |
-| systems->state | 1 |
-| systems->systems | 13 |
-| systems->utils | 1 |
+| systems->systems | 3 |
 | ui->feature | 2 |
-| ui->shared | 1 |
-| ui->ui | 3 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 2 |
@@ -99,9 +98,8 @@
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/combat/application/death_flow_actions.js | 11 |
 | game/features/run/platform/browser/run_browser_modules.js | 11 |
-| game/systems/run_rules.js | 9 |
+| game/features/run/application/run_rules.js | 9 |
 | data/events_data.js | 8 |
-| game/core/deps/contracts/core_contract_builders.js | 8 |
 | game/features/event/app/event_choice_flow_actions.js | 8 |
 | game/features/title/public.js | 8 |
 | game/features/ui/public.js | 8 |
@@ -109,6 +107,7 @@
 | data/game_data.js | 7 |
 | game/features/combat/presentation/browser/combat_ui.js | 7 |
 | game/features/combat/presentation/browser/hud_update_ui.js | 7 |
+| game/features/combat/presentation/browser/status_tooltip_builder.js | 7 |
 
 ## Top Incoming Dependencies
 
@@ -126,9 +125,9 @@
 | game/core/event_bus.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
 | game/features/ui/public.js | 8 |
+| game/shared/codex/codex_record_state_use_case.js | 8 |
 | game/domain/run/region_service.js | 7 |
-| game/shared/codex/codex_record_state_use_case.js | 7 |
-| game/utils/description_utils.js | 7 |
+| game/features/run/public.js | 7 |
 
 > Full graph is available in `docs/metrics/dependency_map.json`.
 

@@ -292,6 +292,13 @@ describe('feature module catalog boundaries', () => {
     }
   });
 
+  it('keeps active feature public surfaces off transitional bindings/contracts/runtime/ui imports', () => {
+    for (const file of PUBLIC_FILES) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).not.toMatch(/\.\/(bindings|contracts|runtime|ui)\//);
+    }
+  });
+
   it('forces cross-feature imports to go through public.js or ports', () => {
     const featureRoot = path.join(process.cwd(), 'game/features');
     const featureFiles = [];

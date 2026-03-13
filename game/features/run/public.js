@@ -1,22 +1,29 @@
 import {
-  buildRunFlowModuleCatalog,
-  buildRunMapModuleCatalog,
-} from './modules/run_module_catalog.js';
-import { createRunCanvasBindings } from './bindings/public_run_bindings.js';
+  buildRunFlowModuleCapabilities,
+  buildRunMapModuleCapabilities,
+} from './platform/browser/run_module_capabilities.js';
+import { createRunCanvasBindings } from './platform/browser/create_run_canvas_bindings.js';
+import { registerRunEntryBindings as registerRunEntryBrowserBindings } from './platform/browser/register_run_entry_bindings.js';
 import {
   buildRunFlowContractPublicBuilders,
   buildRunReturnContractPublicBuilders,
   buildRunUiContractPublicBuilders,
-} from './contracts/public_run_contract_builders.js';
+} from './ports/contracts/public_run_contract_builders.js';
+import { buildRunBootActions } from './application/build_run_boot_actions.js';
+import { buildRunReturnRuntimeActions } from './application/build_run_return_runtime_actions.js';
 import {
-  buildRunBootPublicActions,
-  buildRunReturnRuntimePublicActions,
-} from './runtime/public_run_runtime_actions.js';
+  finalizeRunOutcome,
+  getBaseRegionIndex,
+  getRegionCount,
+  getRegionData,
+  getRegionIdForStage,
+  RunRules,
+} from './application/run_rules.js';
 
 export function createRunModuleCapabilities() {
   return {
-    map: buildRunMapModuleCatalog(),
-    flow: buildRunFlowModuleCatalog(),
+    map: buildRunMapModuleCapabilities(),
+    flow: buildRunFlowModuleCapabilities(),
   };
 }
 
@@ -49,3 +56,25 @@ export function createRunFeatureFacade() {
     runtime: createRunRuntimeCapabilities(),
   };
 }
+
+export function registerRunEntryBindings(options = {}) {
+  return registerRunEntryBrowserBindings(options);
+}
+
+export function buildRunBootPublicActions(fns) {
+  return buildRunBootActions(fns);
+}
+
+export function buildRunReturnRuntimePublicActions() {
+  return buildRunReturnRuntimeActions();
+}
+
+export {
+  createRunCanvasBindings,
+  finalizeRunOutcome,
+  getBaseRegionIndex,
+  getRegionCount,
+  getRegionData,
+  getRegionIdForStage,
+  RunRules,
+};

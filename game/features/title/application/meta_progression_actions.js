@@ -1,4 +1,4 @@
-import { completeTitleReturn } from '../app/title_return_actions.js';
+import { completeTitleReturn } from './title_return_actions.js';
 
 function resolveCompleteTitleReturn(deps = {}) {
   if (typeof deps.completeTitleReturn === 'function') {

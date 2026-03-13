@@ -1,3 +1,1 @@
-export function bindFinalizeRunOutcome(finalizeRunOutcome, saveSystem) {
-  return (kind = 'defeat', options = {}, extraDeps = {}) => finalizeRunOutcome(kind, options, { saveSystem, ...extraDeps });
-}
+export { bindFinalizeRunOutcome } from '../application/bind_run_outcome_action.js';

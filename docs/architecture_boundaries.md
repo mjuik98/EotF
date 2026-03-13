@@ -16,6 +16,9 @@ Practical note:
 
 - The repository is still in transition, so legacy locations such as `game/app/`, `game/combat/`, `game/systems/`, and `game/state/` remain active.
 - New feature work should prefer `game/features/<feature>/{app,state,presentation,platform}` over adding more logic to cross-cutting legacy folders.
+- Feature roots are now guarded by `docs/metrics/feature_structure_targets.json`.
+  `public.js` is the only allowed root file and canonical top-level dirs are `application`, `domain`, `state`, `presentation`, `platform`, `ports`.
+  Existing `app`, `bindings`, `contracts`, `modules`, `runtime`, and feature-local `ui` dirs remain transitional and feature-specific allowlisted only.
 
 The boundary policy is stored in `docs/architecture_policy.json`.
 
@@ -27,7 +30,10 @@ The boundary policy is stored in `docs/architecture_policy.json`.
 - `game/features/*/platform` and `game/platform/browser/*` own `window`, `document`, canvas, timers, storage, and audio bindings.
 - `game/platform/legacy/*` is the only place where new `GAME.*` / `window.*` compatibility exposure should be added.
 - `game/app/*`, `game/ui/*`, and `game/presentation/*` are compat surfaces during the transition.
+- `game/combat/*` and `game/state/*` are also treated as frozen compat surfaces for new implementation.
   New implementation should land under feature/shared/platform ownership; compat paths should remain thin re-exports unless explicitly allowlisted.
+- Feature-internal transitional dirs (`app`, `bindings`, `contracts`, `runtime`, `modules`, `ui`) should only survive as compat wrappers.
+  Public facades, binding roots, and composition wiring should prefer canonical ownership under `application`, `state`, `presentation`, `platform`, and `ports`.
 - `game/ui/*` may depend on core/systems/combat/utils/engine/data during the transition, but new UI-facing composition should prefer feature/presentation boundaries.
 - `game/systems/*`, `game/combat/*`, and `game/utils/*` must not import `game/ui/*`.
 - `game/core/*` must not import `game/ui/*` except composition root files:
@@ -47,10 +53,14 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   Compat paths in `game/app/event/` should remain thin re-exports only.
 - Run/combat/title use-case ownership lives in `game/features/{run,combat,title}/application/*`.
   Compat paths in `game/app/{run,combat}/use_cases/` should remain thin re-exports only.
+- Run outcome state mutation ownership now lives in `game/features/run/state/run_outcome_state_commands.js`.
+  `game/state/commands/run_outcome_commands.js` should remain a thin compat re-export only.
 - Shared state/codex/progression helpers now belong under `game/shared/{state,codex,progression}/*`.
   Feature slices should import those shared paths directly; `game/app/shared/*` and `game/app/codex/*` remain compat-only.
 - Cross-feature feature imports should use `game/features/<feature>/public.js` or `game/features/<feature>/ports/*` only.
   Feature implementation should not reach into another feature's `application/`, `presentation/`, or `platform/` internals directly.
+- `game/core/deps/contracts/*` should consume feature contract builders through feature `public.js` facades only.
+  Core contract builders must not reach into feature-internal contract modules directly.
 - Combat card/end-turn services and event shop/choice services now belong under `game/features/{combat,event}/application/*`.
   `game/app/{combat,event}/*_service.js` should remain thin re-exports only.
 - Screen-shell and codex top-level facades now belong under `game/features/ui/presentation/browser/*` and `game/features/codex/presentation/browser/*`.
@@ -73,6 +83,8 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   `game/features/combat/presentation/browser/*` now owns combat/cards/hud browser helpers and runtimes, while matching files in `game/ui/combat/`, `game/ui/cards/`, and `game/ui/hud/` should remain thin compat re-exports only.
 - Title browser helper ownership is also moving inward:
   `game/features/title/platform/browser/*` now owns class-select and character-select helper modules, while compat files such as `game/ui/title/{class_select_buttons_ui,class_select_selection_ui,class_select_tooltip_ui,character_select_audio,character_select_bindings,character_select_flow,character_select_modal,character_select_summary_replay}.js` should stay thin re-exports only.
+- Root-level title and run browser event bindings now follow the same rule.
+  `game/features/{title,run}/platform/browser/{register_title_bindings,register_run_entry_bindings}.js` own the active DOM binding logic, while `game/features/{title,run}/ui/*` should remain thin compat wrappers only.
 - Shared browser-only transition effects belong under `game/platform/browser/*`.
   `game/ui/effects/echo_ripple_transition.js` should remain a thin compat re-export to `game/platform/browser/effects/echo_ripple_transition.js`.
 - New legacy global exposure must go through `game/platform/legacy/*` builders instead of direct `window.*` or `GAME.*` expansion from unrelated layers.
@@ -102,6 +114,7 @@ The boundary policy is stored in `docs/architecture_policy.json`.
 
 - `npm run lint`
   - `scripts/check-architecture.mjs`
+  - `scripts/check-feature-structure.mjs`
   - `scripts/check-compat-surface.mjs`
   - `scripts/check-window-usage.mjs`
   - `scripts/check-state-mutations.mjs`

@@ -1,12 +1,4 @@
-import {
-  buildRunFlowBrowserModules,
-  buildRunMapBrowserModules,
-} from '../platform/browser/run_browser_modules.js';
-
-export function buildRunMapModuleCatalog() {
-  return buildRunMapBrowserModules();
-}
-
-export function buildRunFlowModuleCatalog() {
-  return buildRunFlowBrowserModules();
-}
+export {
+  buildRunFlowModuleCapabilities as buildRunFlowModuleCatalog,
+  buildRunMapModuleCapabilities as buildRunMapModuleCatalog,
+} from '../platform/browser/run_module_capabilities.js';

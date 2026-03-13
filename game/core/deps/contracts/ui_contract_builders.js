@@ -1,11 +1,10 @@
-import { buildCombatUiContractPublicBuilders } from '../../../features/combat/contracts/public_combat_contract_builders.js';
-import { buildRunUiContractPublicBuilders } from '../../../features/run/contracts/public_run_contract_builders.js';
-import { buildUiShellContractPublicBuilders } from '../../../features/ui/public.js';
+import { createFeatureContractCapabilities } from './create_feature_contract_capabilities.js';
 
 export function buildUiContractBuilders(ctx) {
+  const featureContracts = createFeatureContractCapabilities();
   return {
-    ...buildCombatUiContractPublicBuilders(ctx),
-    ...buildUiShellContractPublicBuilders(ctx),
-    ...buildRunUiContractPublicBuilders(ctx),
+    ...featureContracts.combat.buildUi(ctx),
+    ...featureContracts.ui.buildShell(ctx),
+    ...featureContracts.run.buildUi(ctx),
   };
 }

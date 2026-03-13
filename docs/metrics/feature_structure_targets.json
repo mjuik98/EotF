@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-03-13T00:00:00.000Z",
+  "requiredRootFiles": [
+    "public.js"
+  ],
+  "canonicalTopLevelDirs": [
+    "application",
+    "domain",
+    "state",
+    "presentation",
+    "platform",
+    "ports"
+  ],
+  "allowedExtraDirsByFeature": {
+    "codex": [
+      "modules"
+    ],
+    "combat": [
+      "app",
+      "bindings",
+      "contracts",
+      "modules",
+      "runtime"
+    ],
+    "event": [
+      "app"
+    ],
+    "reward": [
+      "app"
+    ],
+    "run": [
+      "app",
+      "bindings",
+      "contracts",
+      "modules",
+      "runtime",
+      "ui"
+    ],
+    "title": [
+      "app",
+      "modules",
+      "ui"
+    ],
+    "ui": [
+      "app"
+    ]
+  },
+  "allowedExtraRootFilesByFeature": {}
+}

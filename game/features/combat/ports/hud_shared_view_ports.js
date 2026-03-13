@@ -1,2 +1,10 @@
 export { ButtonFeedback } from '../../../ui/feedback/button_feedback.js';
-export { renderFloatingPlayerHpPanel } from '../../../ui/shared/player_hp_panel_ui.js';
+import { StatusTooltipUI } from '../presentation/browser/status_tooltip_builder.js';
+import { renderFloatingPlayerHpPanel as renderSharedFloatingPlayerHpPanel } from '../../../shared/ui/player_hp_panel/public.js';
+
+export function renderFloatingPlayerHpPanel(deps = {}) {
+  return renderSharedFloatingPlayerHpPanel({
+    ...deps,
+    StatusTooltipUI: deps.StatusTooltipUI || StatusTooltipUI,
+  });
+}

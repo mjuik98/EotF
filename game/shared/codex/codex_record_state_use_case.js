@@ -1,4 +1,6 @@
 export {
+  ensureCodexRecords,
+  ensureCodexState,
   getCardUpgradeId,
   isCardUpgradeVariant,
   registerCardDiscovered,

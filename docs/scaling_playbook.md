@@ -7,8 +7,11 @@ This document defines the implementation path for scaling architecture work.
 Implemented:
 - Dependency contracts in `game/core/deps_factory.js`
 - Dependency contract builders split by domain (`game/core/deps/contracts/*`)
+- Core dependency contract builders now compose feature contract capabilities through feature `public.js` facades instead of direct feature-internal contract imports
+- Combat/run/title public facades now prefer canonical `application`, `platform/browser`, and `ports/contracts` ownership over transitional `bindings/contracts/runtime/ui` entrypoints
 - Layer policy in `docs/architecture_policy.json`
 - Architecture gate in `scripts/check-architecture.mjs`
+- Feature structure gate in `scripts/check-feature-structure.mjs`
 - Dependency visibility report in `docs/metrics/dependency_map.md`
 - Composition registry split from entrypoint (`game/core/bindings/module_registry.js`)
 - Browser composition imports moved under `game/platform/browser/composition/*`, leaving `game/core/composition/*` as thin orchestration/shim layers
@@ -17,7 +20,7 @@ Implemented:
   - `game/ui/hud/hud_stats_ui.js`
 
 Next:
-- Continue splitting large UI screens (`map_ui`, `combat_ui`) into render/interaction/state modules
+- Continue collapsing allowlisted feature-local legacy dirs (`app`, `bindings`, `contracts`, `modules`, `runtime`, `ui`) into canonical feature roots
 
 ## 2) Separation (Layering)
 
@@ -40,6 +43,7 @@ Implemented:
 - Retry-safe persistence outbox with exponential backoff in `game/systems/save_system.js`
 - Outbox telemetry (`queueDepth`, retry/success/failure counters) via `SaveSystem.getOutboxMetrics()`
 - Event subscriber action-port injection to reduce direct `window` coupling (`game/core/event_subscribers.js`)
+- Run outcome mutation ownership has moved to `game/features/run/state/run_outcome_state_commands.js`, with `game/state/commands/run_outcome_commands.js` retained as compat-only
 
 Next:
 - Route remaining subscriber/bridge side effects through injected actions instead of globals

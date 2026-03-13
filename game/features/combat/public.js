@@ -4,11 +4,11 @@ import {
   buildCombatHudBrowserModules,
 } from './platform/browser/combat_browser_modules.js';
 export { SetBonusSystem } from './domain/set_bonus_system.js';
-import { createCombatBindingsActions } from './bindings/public_combat_bindings.js';
+import { createCombatBindingsActions } from './platform/browser/create_combat_bindings.js';
 import { createCombatStartRuntime } from './application/create_combat_start_runtime.js';
 import { buildCombatFlowContractBuilders } from './ports/contracts/build_combat_flow_contracts.js';
-import { buildCombatUiContractPublicBuilders } from './contracts/public_combat_contract_builders.js';
-import { buildCombatRuntimeSubscriberPublicActions } from './runtime/public_combat_runtime_actions.js';
+import { buildCombatUiContractPublicBuilders } from './ports/contracts/public_combat_contract_builders.js';
+import { buildCombatRuntimeSubscriberActions } from './application/build_combat_runtime_subscriber_actions.js';
 
 export function createCombatModuleCapabilities() {
   return {
@@ -49,10 +49,13 @@ export function createCombatFeatureFacade() {
 export {
   createCombatStartRuntime,
   createCombatBindingsActions,
-  buildCombatRuntimeSubscriberPublicActions,
   buildCombatUiContractPublicBuilders,
 };
 
 export function buildCombatFlowContractPublicBuilders(ctx) {
   return buildCombatFlowContractBuilders(ctx);
+}
+
+export function buildCombatRuntimeSubscriberPublicActions(fns) {
+  return buildCombatRuntimeSubscriberActions(fns);
 }

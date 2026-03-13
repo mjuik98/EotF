@@ -1,20 +1,20 @@
-import { buildTitleBootActions } from './app/build_title_boot_actions.js';
-import { createTitleActions } from './app/create_title_actions.js';
+import { buildTitleBootActions } from './application/build_title_boot_actions.js';
 import { createTitlePauseMenuActions } from './application/help_pause_menu_actions.js';
 import { buildTitleHelpPauseActions } from './application/help_pause_title_actions.js';
 import {
-  buildTitleCanvasModuleCatalog,
-  buildTitleFlowModuleCatalog,
-} from './modules/title_module_catalog.js';
+  buildTitleCanvasModuleCapabilities,
+  buildTitleFlowModuleCapabilities,
+} from './platform/browser/title_module_capabilities.js';
 import { buildTitleRunContractBuilders } from './ports/contracts/build_title_run_contracts.js';
 import { buildTitleStoryContractBuilders } from './ports/contracts/build_title_story_contracts.js';
-import { createTitleBindingPorts } from './platform/browser/create_title_binding_ports.js';
+import { createTitleBindings } from './platform/browser/create_title_bindings.js';
+import { registerTitleBindings as registerTitleBrowserBindings } from './platform/browser/register_title_bindings.js';
 export { ClassProgressionSystem } from './domain/class_progression_system.js';
 
 export function createTitleModuleCapabilities() {
   return {
-    canvas: buildTitleCanvasModuleCatalog(),
-    flow: buildTitleFlowModuleCatalog(),
+    canvas: buildTitleCanvasModuleCapabilities(),
+    flow: buildTitleFlowModuleCapabilities(),
   };
 }
 
@@ -48,10 +48,6 @@ export function createTitleFeatureFacade() {
   };
 }
 
-export function createTitleBindings(modules, fns, options = {}) {
-  return createTitleActions(createTitleBindingPorts(modules, fns, options));
-}
-
 export function buildTitleBootPublicActions(fns) {
   return buildTitleBootActions(fns);
 }
@@ -71,3 +67,9 @@ export function buildTitleHelpPausePublicActions(deps = {}) {
 export function buildTitlePauseMenuPublicActions(options = {}) {
   return createTitlePauseMenuActions(options);
 }
+
+export function registerTitleBindings(options = {}) {
+  return registerTitleBrowserBindings(options);
+}
+
+export { createTitleBindings };

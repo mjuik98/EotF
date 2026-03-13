@@ -77,6 +77,7 @@ describe('player_hp_panel_runtime_ui', () => {
       restoreFloatingTooltipState(doc, {
         player: { buffs: { unbreakable_wall: { stacks: 2 } } },
       }, {
+        StatusTooltipUI,
         StatusEffectsUI: {
           getStatusMap: () => ({
             unbreakable_wall: { name: '불굴의 벽' },

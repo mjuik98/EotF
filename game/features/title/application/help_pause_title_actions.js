@@ -1,4 +1,4 @@
-import { returnToTitleFromPause } from '../app/title_return_actions.js';
+import { returnToTitleFromPause } from './title_return_actions.js';
 import { resolveEndingActions } from './ending_action_ports.js';
 
 function resolvePauseReturnAction(deps = {}) {

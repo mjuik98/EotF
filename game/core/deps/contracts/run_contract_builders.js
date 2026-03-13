@@ -1,9 +1,9 @@
-import { buildRunFlowContractPublicBuilders } from '../../../features/run/contracts/public_run_contract_builders.js';
-import { buildTitleRunContractPublicBuilders } from '../../../features/title/public.js';
+import { createFeatureContractCapabilities } from './create_feature_contract_capabilities.js';
 
 export function buildRunContractBuilders(ctx) {
+  const featureContracts = createFeatureContractCapabilities();
   return {
-    ...buildTitleRunContractPublicBuilders(ctx),
-    ...buildRunFlowContractPublicBuilders(ctx),
+    ...featureContracts.title.buildRun(ctx),
+    ...featureContracts.run.buildFlow(ctx),
   };
 }

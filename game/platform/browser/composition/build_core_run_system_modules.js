@@ -1,12 +1,12 @@
-import { SaveSystem } from '../../../systems/save_system.js';
+import { SaveSystem } from '../../../shared/save/public.js';
 import {
   RunRules,
   getRegionData,
   getBaseRegionIndex,
   getRegionCount,
   finalizeRunOutcome,
-} from '../../../systems/run_rules.js';
-import { bindFinalizeRunOutcome } from '../../../features/run/app/bind_run_outcome_action.js';
+} from '../../../features/run/public.js';
+import { bindFinalizeRunOutcome } from '../../../features/run/application/bind_run_outcome_action.js';
 
 export function buildCoreRunSystemModules() {
   return {

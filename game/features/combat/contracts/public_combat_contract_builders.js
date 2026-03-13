@@ -1,5 +1,1 @@
-import { buildCombatUiContractBuilders } from '../ports/contracts/build_combat_ui_contracts.js';
-
-export function buildCombatUiContractPublicBuilders(ctx) {
-  return buildCombatUiContractBuilders(ctx);
-}
+export { buildCombatUiContractPublicBuilders } from '../ports/contracts/public_combat_contract_builders.js';

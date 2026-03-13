@@ -9,7 +9,7 @@ import {
   recordDefeatProgress,
   recordVictoryProgress,
   syncRunOutcomeMeta,
-} from '../game/state/commands/run_outcome_commands.js';
+} from '../game/features/run/state/run_outcome_state_commands.js';
 
 describe('run_outcome_commands', () => {
   it('applies hp penalties and silence turn rules through shared commands', () => {
