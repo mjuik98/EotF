@@ -1,7 +1,9 @@
-import { createCombatBindingsActions } from './runtime/public_combat_runtime_surface.js';
+import { createCombatBindingsActions } from './public_runtime_capabilities.js';
 
 export function createCombatBindingCapabilities() {
   return {
     createCombatBindings: createCombatBindingsActions,
   };
 }
+
+export { createCombatBindingsActions };

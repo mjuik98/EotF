@@ -46,13 +46,17 @@ describe('createModuleRegistry', () => {
     hoisted.registerRunModules.mockReturnValue({ runOnly: true, collision: 'run' });
     hoisted.registerScreenModules.mockReturnValue({ screenOnly: true, collision: 'screen' });
 
-    expect(createModuleRegistry()).toEqual({
-      source: 'core',
-      titleOnly: true,
-      combatOnly: true,
-      runOnly: true,
-      screenOnly: true,
-      collision: 'screen',
+    const registry = createModuleRegistry();
+
+    expect(registry).toEqual({
+      legacyModules: {
+        source: 'core',
+        titleOnly: true,
+        combatOnly: true,
+        runOnly: true,
+        screenOnly: true,
+        collision: 'screen',
+      },
       featureScopes: {
         core: { source: 'core', collision: 'core' },
         title: { titleOnly: true, collision: 'title' },
@@ -63,5 +67,14 @@ describe('createModuleRegistry', () => {
       _gameStarted: false,
       _canvasRefs: null,
     });
+    expect(registry.source).toBe('core');
+    expect(registry.titleOnly).toBe(true);
+    expect(registry.combatOnly).toBe(true);
+    expect(registry.runOnly).toBe(true);
+    expect(registry.screenOnly).toBe(true);
+    expect(registry.collision).toBe('screen');
+    expect(Object.keys(registry)).not.toContain('source');
+    expect(Object.keys(registry)).not.toContain('titleOnly');
+    expect(Object.keys(registry)).not.toContain('combatOnly');
   });
 });

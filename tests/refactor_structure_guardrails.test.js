@@ -23,6 +23,23 @@ describe('refactor structure guardrails', () => {
     const source = read('game/core/bindings/module_registry.js');
 
     expect(source).toContain("./create_module_registry_flat_compat.js");
+    expect(source).toContain('const legacyModules = createModuleRegistryFlatCompat(groups);');
+    expect(source).not.toContain('...legacyModules');
+    expect(source).toContain('legacyModules,');
+  });
+
+  it('routes legacy bootstrap assembly through explicit module-registry compat payloads', () => {
+    const globalsSource = read('game/core/bootstrap/build_legacy_surface_global_groups.js');
+    const initArgsSource = read('game/platform/legacy/build_legacy_bridge_init_args.js');
+    const apiRegistrySource = read('game/platform/legacy/game_api_registry.js');
+    const moduleRegistrySource = read('game/platform/legacy/game_module_registry.js');
+    const executorSource = read('game/core/bootstrap/execute_legacy_surface_registration.js');
+
+    expect(globalsSource).toContain('../bindings/resolve_module_registry_legacy_compat.js');
+    expect(initArgsSource).toContain('modules?.legacyModules || modules || {}');
+    expect(apiRegistrySource).toContain("./resolve_legacy_module_bag.js");
+    expect(moduleRegistrySource).toContain("./resolve_legacy_module_bag.js");
+    expect(executorSource).toContain('../bindings/resolve_module_registry_legacy_compat.js');
   });
 
   it('delegates combat damage runtime helpers into focused helper modules', () => {
@@ -32,6 +49,16 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("../domain/damage_value_domain.js");
     expect(source).toContain("./enemy_damage_resolution.js");
     expect(source).toContain("./combat_damage_side_effects.js");
+  });
+
+  it('keeps core combat event subscribers as orchestration over feature-owned runtime handlers', () => {
+    const source = read('game/core/event_subscribers_combat_events.js');
+    const runtimePortsSource = read('game/core/bootstrap/create_runtime_subscriber_ports.js');
+
+    expect(runtimePortsSource).toContain("../../features/combat/ports/public_runtime_capabilities.js");
+    expect(source).not.toContain('ctx.ui.CombatUI');
+    expect(source).not.toContain("getElementById?.('hudOverlay')");
+    expect(source).not.toContain('createElement?.(');
   });
 
   it('delegates set bonus trigger orchestration into grouped rule modules', () => {

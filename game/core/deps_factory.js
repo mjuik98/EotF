@@ -74,6 +74,16 @@ export function createDeps(contractName, overrides = {}) {
   };
 }
 
+export function createDepsAccessors(contractMap, depsCreator = createDeps) {
+  const accessors = {};
+
+  for (const [accessorName, contractName] of Object.entries(contractMap || {})) {
+    accessors[accessorName] = (overrides = {}) => depsCreator(contractName, overrides);
+  }
+
+  return Object.freeze(accessors);
+}
+
 export function baseDeps() { return createDeps('base'); }
 export function getStoryDeps() { return createDeps('story'); }
 export function getCombatTurnBaseDeps() { return createDeps('combatTurnBase'); }

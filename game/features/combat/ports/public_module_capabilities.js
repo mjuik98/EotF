@@ -4,10 +4,22 @@ import {
   buildCombatHudBrowserModules,
 } from '../platform/browser/combat_browser_modules.js';
 
+export function buildCombatPublicModules() {
+  return buildCombatCoreBrowserModules();
+}
+
+export function buildCombatCardPublicModules() {
+  return buildCombatCardBrowserModules();
+}
+
+export function buildCombatHudPublicModules() {
+  return buildCombatHudBrowserModules();
+}
+
 export function createCombatModuleCapabilities() {
   return {
-    core: buildCombatCoreBrowserModules(),
-    cards: buildCombatCardBrowserModules(),
-    hud: buildCombatHudBrowserModules(),
+    core: buildCombatPublicModules(),
+    cards: buildCombatCardPublicModules(),
+    hud: buildCombatHudPublicModules(),
   };
 }

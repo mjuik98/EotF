@@ -1,4 +1,6 @@
 import {
+  playAttackCritical,
+  playAttackHeavy,
   playAttackSlash,
   playStatusEcho,
   playStatusSkill,
@@ -92,6 +94,19 @@ function playCardFeedbackAudio(audioEngine, style) {
   else if (style.isHeal) playStatusSkill(audioEngine);
   else if (style.isEcho) playStatusEcho(audioEngine);
   else playUiCard(audioEngine);
+}
+
+export function playCombatDamageFeedbackAudio(audioEngine, { damage = 0, isCrit = false } = {}) {
+  if (!audioEngine) return;
+  if (isCrit || damage > 25) {
+    playAttackCritical(audioEngine);
+    return;
+  }
+  if (damage > 12) {
+    playAttackHeavy(audioEngine);
+    return;
+  }
+  playAttackSlash(audioEngine);
 }
 
 export function showCardPlayEffectOverlay(card, deps = {}) {

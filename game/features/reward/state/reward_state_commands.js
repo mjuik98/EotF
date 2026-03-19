@@ -2,7 +2,7 @@ import {
   registerCardDiscovered,
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
-import { Actions } from '../../../shared/state/public.js';
+import { Actions } from '../../../core/store/state_actions.js';
 
 function dispatchRewardStateChange(state, action, payload, fallback, readResult) {
   if (typeof state?.dispatch === 'function') {

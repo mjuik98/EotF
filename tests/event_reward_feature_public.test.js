@@ -65,15 +65,15 @@ describe('event/reward feature public facades', () => {
 
   it('routes event and reward application capabilities through feature capability port files', () => {
     const eventSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/event/public.js'),
+      path.join(process.cwd(), 'game/features/event/ports/public_surface.js'),
       'utf8',
     );
     const rewardSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/reward/public.js'),
+      path.join(process.cwd(), 'game/features/reward/ports/public_surface.js'),
       'utf8',
     );
 
-    expect(eventSource).toContain("./ports/public_application_capabilities.js");
-    expect(rewardSource).toContain("./ports/public_application_capabilities.js");
+    expect(eventSource).toContain("./public_application_capabilities.js");
+    expect(rewardSource).toContain("./public_application_capabilities.js");
   });
 });

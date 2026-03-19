@@ -1,4 +1,4 @@
-import { Actions } from '../../../shared/state/public.js';
+import { Actions } from '../../../core/store/state_actions.js';
 
 export function changeScreenState(gs, screenName) {
   if (!gs?.dispatch) return null;

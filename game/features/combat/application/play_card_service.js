@@ -1,6 +1,6 @@
 import { registerCardUsed } from '../../../shared/codex/codex_record_state_use_case.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
-import { Actions } from '../../../shared/state/public.js';
+import { Actions } from '../../../core/store/state_actions.js';
 import { changePlayerEnergyState } from '../state/card_state_commands.js';
 
 export function playCardService({

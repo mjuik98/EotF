@@ -54,4 +54,40 @@ describe('buildBindingDepsPayload', () => {
     expect(payload.featureRefs.title.showPendingClassProgressSummary).toBe(payload.showPendingClassProgressSummary);
     expect(payload.featureRefs.reward).toEqual({});
   });
+
+  it('reads binding refs from the explicit legacy module bag when top-level compat aliases are non-enumerable', () => {
+    const combatUi = { id: 'combat-ui' };
+    const game = { id: 'game-root' };
+    const modules = {
+      legacyModules: {
+        GAME: game,
+        CombatUI: combatUi,
+      },
+      featureScopes: {
+        core: { GAME: game },
+        combat: { CombatUI: combatUi },
+      },
+    };
+    Object.defineProperty(modules, 'GAME', {
+      configurable: true,
+      enumerable: false,
+      get() {
+        return modules.legacyModules.GAME;
+      },
+    });
+    Object.defineProperty(modules, 'CombatUI', {
+      configurable: true,
+      enumerable: false,
+      get() {
+        return modules.legacyModules.CombatUI;
+      },
+    });
+
+    const payload = buildBindingDepsPayload({ modules, fns: {}, deps: {} });
+
+    expect(payload.GAME).toBe(game);
+    expect(payload.CombatUI).toBe(combatUi);
+    expect(payload.featureRefs.core.GAME).toBe(game);
+    expect(payload.featureRefs.combat.CombatUI).toBe(combatUi);
+  });
 });

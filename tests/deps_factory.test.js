@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ErrorCodes } from '../game/core/error_codes.js';
 import {
   createDeps,
+  createDepsAccessors,
   initDepsFactory,
   listDepContracts,
   patchRefs,
@@ -87,6 +88,27 @@ describe('deps factory', () => {
     }
   });
 
+  it('builds feature-facing dep accessors from contract maps', () => {
+    const createDepsSpy = vi.fn((contractName, overrides = {}) => ({
+      token: contractName,
+      ...overrides,
+    }));
+
+    const accessors = createDepsAccessors({
+      getScreenDeps: 'screen',
+      getTooltipDeps: 'tooltip',
+    }, createDepsSpy);
+
+    expect(Object.isFrozen(accessors)).toBe(true);
+    expect(accessors.getScreenDeps({ gs: { hp: 10 } })).toEqual({
+      token: 'screen',
+      gs: { hp: 10 },
+    });
+    expect(accessors.getTooltipDeps()).toEqual({ token: 'tooltip' });
+    expect(createDepsSpy).toHaveBeenNthCalledWith(1, 'screen', { gs: { hp: 10 } });
+    expect(createDepsSpy).toHaveBeenNthCalledWith(2, 'tooltip', {});
+  });
+
   it('throws AppError with deps missing code for unknown contracts', () => {
     try {
       createDeps('missing-contract');
@@ -136,6 +158,35 @@ describe('deps factory', () => {
     expect(createDeps('worldCanvas').token).toBe('canvas-deps');
     expect(createDeps('runStart').token).toBe('run-deps');
     expect(createDeps('codex').token).toBe('ui-deps');
+  });
+
+  it('prefers explicit runtime ports over the raw legacy GAME root when provided', () => {
+    seedRefs({
+      GAME: {
+        getDeps: () => ({ token: 'legacy-game-deps' }),
+        getRunDeps: () => ({ token: 'legacy-run-deps' }),
+        getCombatDeps: () => ({ token: 'legacy-combat-deps' }),
+        getEventDeps: () => ({ token: 'legacy-event-deps' }),
+        getHudDeps: () => ({ token: 'legacy-hud-deps' }),
+        getUiDeps: () => ({ token: 'legacy-ui-deps' }),
+        getCanvasDeps: () => ({ token: 'legacy-canvas-deps' }),
+      },
+      runtimePorts: {
+        getGameDeps: () => ({ token: 'runtime-game-deps' }),
+        getRuntimeDeps: () => ({ token: 'runtime-run-deps' }),
+        getRunRuntimeDeps: () => ({ token: 'runtime-run-deps' }),
+        getCombatRuntimeDeps: () => ({ token: 'runtime-combat-deps' }),
+        getUiRuntimeDeps: () => ({ token: 'runtime-ui-deps' }),
+        getFeatureDeps: (feature) => ({ token: `runtime-${feature}-deps` }),
+      },
+    });
+
+    expect(createDeps('combatTurnBase').token).toBe('runtime-combat-deps');
+    expect(createDeps('event').token).toBe('runtime-event-deps');
+    expect(createDeps('hudUpdate').token).toBe('runtime-hud-deps');
+    expect(createDeps('worldCanvas').token).toBe('runtime-canvas-deps');
+    expect(createDeps('runStart').token).toBe('runtime-run-deps');
+    expect(createDeps('codex').token).toBe('runtime-ui-deps');
   });
 
   it('uses patched refs without rebuilding the public contract list', () => {

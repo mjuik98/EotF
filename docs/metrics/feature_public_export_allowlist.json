@@ -1,10 +1,10 @@
 {
-  "game/features/codex/public.js": [
+  "game/features/codex/ports/public_surface.js": [
     "CodexPublicSurface",
     "createCodexFeatureFacade",
     "ensureCodexBrowserModules"
   ],
-  "game/features/combat/public.js": [
+  "game/features/combat/ports/public_surface.js": [
     "CardMethods",
     "CombatMethods",
     "CombatPublicSurface",
@@ -32,7 +32,7 @@
     "playRuntimeCard",
     "playStateCard"
   ],
-  "game/features/event/public.js": [
+  "game/features/event/ports/public_surface.js": [
     "EventPublicSurface",
     "createEventApplicationCapabilities",
     "createEventBindingCapabilities",
@@ -41,7 +41,7 @@
     "createEventFeatureFacade",
     "createEventRuntimeCapabilities"
   ],
-  "game/features/reward/public.js": [
+  "game/features/reward/ports/public_surface.js": [
     "REWARD_CLAIM_KEY",
     "REWARD_SKIP_KEY",
     "RewardPublicSurface",
@@ -59,7 +59,7 @@
     "takeRewardRemoveAction",
     "takeRewardUpgradeAction"
   ],
-  "game/features/run/public.js": [
+  "game/features/run/ports/public_surface.js": [
     "RunPublicSurface",
     "RunRules",
     "buildRunBootPublicActions",
@@ -81,7 +81,7 @@
     "getRegionIdForStage",
     "registerRunEntryBindings"
   ],
-  "game/features/title/public.js": [
+  "game/features/title/ports/public_surface.js": [
     "ClassProgressionSystem",
     "TitlePublicSurface",
     "buildTitleBootPublicActions",
@@ -97,7 +97,7 @@
     "createTitleRuntimeCapabilities",
     "registerTitleBindings"
   ],
-  "game/features/ui/public.js": [
+  "game/features/ui/ports/public_surface.js": [
     "UiPublicSurface",
     "buildLegacyGameApiRuntimeHudQueryGroups",
     "buildLegacyWindowUiQueryGroups",

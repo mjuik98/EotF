@@ -1,10 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
+  createDeps: vi.fn(),
+  createDepsAccessors: vi.fn((contractMap, createDeps) => ({
+    getRunSetupDeps: (overrides = {}) => ({
+      ...createDeps(contractMap.getRunSetupDeps),
+      ...overrides,
+    }),
+  })),
   getRunSetupDeps: vi.fn(),
 }));
 
 vi.mock('../game/core/deps_factory.js', () => ({
+  createDeps: hoisted.createDeps,
+  createDepsAccessors: hoisted.createDepsAccessors,
   getRunSetupDeps: hoisted.getRunSetupDeps,
 }));
 
@@ -13,7 +22,7 @@ import { buildLegacyGameAPIRunBindings } from '../game/platform/legacy/game_api_
 describe('buildLegacyGameAPIRunBindings', () => {
   it('prefers the run setup contract for startGame when available', () => {
     const startGame = vi.fn();
-    hoisted.getRunSetupDeps.mockReturnValue({ startGame });
+    hoisted.createDeps.mockReturnValue({ startGame });
     const fns = {
       refreshRunModePanel: vi.fn(),
       startGame: vi.fn(),
@@ -27,10 +36,11 @@ describe('buildLegacyGameAPIRunBindings', () => {
 
     expect(startGame).toHaveBeenCalledWith({ fromTitle: true });
     expect(fns.startGame).not.toHaveBeenCalled();
+    expect(hoisted.createDeps).toHaveBeenCalledWith('runSetup');
   });
 
   it('falls back to the legacy startGame binding when the contract is unavailable', () => {
-    hoisted.getRunSetupDeps.mockImplementation(() => {
+    hoisted.createDeps.mockImplementation(() => {
       throw new Error('deps unavailable');
     });
     const fns = {

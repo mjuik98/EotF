@@ -1,46 +1,46 @@
 # Dependency Map
 
-- Generated: 2026-03-19T06:58:04.633Z
-- Nodes: 1189
-- Edges: 1272
+- Generated: 2026-03-19T12:08:45.497Z
+- Nodes: 1227
+- Edges: 1283
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| core->core | 139 |
-| core->domain | 4 |
-| core->feature | 22 |
+| core->core | 151 |
+| core->domain | 3 |
+| core->feature | 27 |
 | core->legacy | 7 |
 | core->other | 1 |
-| core->shared | 4 |
+| core->shared | 5 |
 | core->utils | 2 |
 | data->data | 17 |
 | data->other | 2 |
 | data->systems | 2 |
 | data->utils | 4 |
+| domain->core | 1 |
 | domain->data | 6 |
 | domain->domain | 16 |
 | domain->feature | 1 |
-| domain->shared | 1 |
 | domain->utils | 3 |
 | engine->data | 1 |
 | engine->engine | 2 |
-| feature->core | 11 |
+| feature->core | 18 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 660 |
+| feature->feature | 647 |
 | feature->legacy | 4 |
 | feature->other | 6 |
 | feature->platform | 3 |
-| feature->shared | 41 |
+| feature->shared | 39 |
 | feature->state | 2 |
 | feature->utils | 30 |
-| legacy->core | 4 |
+| legacy->core | 6 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
-| legacy->legacy | 67 |
-| legacy->shared | 14 |
+| legacy->legacy | 70 |
+| legacy->shared | 12 |
 | legacy->utils | 3 |
 | platform->core | 5 |
 | platform->data | 1 |
@@ -52,10 +52,10 @@
 | platform->platform | 22 |
 | platform->shared | 2 |
 | platform->utils | 4 |
-| shared->core | 3 |
+| shared->core | 4 |
 | shared->data | 2 |
 | shared->feature | 3 |
-| shared->shared | 33 |
+| shared->shared | 31 |
 | shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -65,35 +65,35 @@
 
 | File | Out Degree |
 |---|---:|
-| game/features/combat/platform/browser/combat_browser_modules.js | 15 |
-| game/features/combat/public.js | 13 |
+| game/features/combat/platform/browser/combat_browser_modules.js | 13 |
+| game/features/combat/ports/public_surface.js | 13 |
 | game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
-| game/features/run/platform/browser/run_browser_modules.js | 10 |
 | game/features/event/ports/public_application_capabilities.js | 9 |
 | game/platform/browser/composition/build_core_engine_modules.js | 9 |
 | data/events_data.js | 8 |
 | game/features/event/application/workflows/event_choice_flow.js | 8 |
 | game/features/run/application/run_rules.js | 8 |
-| game/features/run/public.js | 8 |
+| game/features/run/ports/public_surface.js | 8 |
 | data/game_data.js | 7 |
-| game/features/combat/application/combat_lifecycle_compat.js | 7 |
+| game/features/combat/compat/combat_lifecycle.js | 7 |
 | game/features/combat/presentation/browser/combat_ui.js | 7 |
 | game/features/combat/presentation/browser/hud_update_ui.js | 7 |
+| game/features/combat/presentation/browser/status_tooltip_builder.js | 7 |
 
 ## Top Incoming Dependencies
 
 | File | In Degree |
 |---|---:|
-| game/domain/audio/audio_event_helpers.js | 30 |
+| game/domain/audio/audio_event_helpers.js | 29 |
 | data/game_data.js | 14 |
-| game/shared/state/public.js | 12 |
+| game/core/store/state_actions.js | 12 |
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
 | game/utils/logger.js | 10 |
+| game/core/deps_factory.js | 9 |
 | data/status_effects_data.js | 8 |
 | data/status_key_data.js | 8 |
-| game/core/deps_factory.js | 8 |
 | game/core/event_bus.js | 8 |
 | game/features/run/ports/public_rule_capabilities.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |

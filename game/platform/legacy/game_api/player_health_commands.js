@@ -1,4 +1,4 @@
-import { Actions } from '../../../shared/state/public.js';
+import { Actions } from '../../../core/store/state_actions.js';
 import { getDefaultState } from './runtime_context.js';
 import { dispatchPlayerAction } from './player_state_dispatch.js';
 

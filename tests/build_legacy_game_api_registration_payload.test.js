@@ -26,7 +26,8 @@ describe('buildLegacyGameApiRegistrationPayload', () => {
   });
 
   it('assembles command/query bindings into a legacy API registration payload', () => {
-    const modules = { GAME: { API: {} } };
+    const legacyModules = { GAME: { API: {} } };
+    const modules = { GAME: { API: { stale: true } }, legacyModules };
     const fns = { startGame: vi.fn() };
     const deps = { token: 'deps' };
     const runtimeMetrics = { getRuntimeMetrics: vi.fn() };
@@ -48,5 +49,11 @@ describe('buildLegacyGameApiRegistrationPayload', () => {
       queryBindings,
       apiPayload,
     });
+    expect(hoisted.buildLegacyGameAPICommandBindings).toHaveBeenCalledWith(legacyModules, fns);
+    expect(hoisted.buildLegacyGameAPIQueryBindings).toHaveBeenCalledWith(
+      legacyModules,
+      deps,
+      runtimeMetrics,
+    );
   });
 });

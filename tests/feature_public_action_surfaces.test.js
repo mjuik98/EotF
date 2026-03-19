@@ -89,6 +89,14 @@ vi.mock('../game/features/combat/ports/runtime/public_combat_runtime_surface.js'
   createCombatBindingsActions: hoisted.createCombatBindingsActions,
 }));
 
+vi.mock('../game/features/combat/ports/public_runtime_capabilities.js', () => ({
+  buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+  createCombatBindingsActions: hoisted.createCombatBindingsActions,
+  createCombatRuntimeCapabilities: () => ({
+    buildSubscriberActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+  }),
+}));
+
 vi.mock('../game/features/combat/ports/contracts/build_combat_flow_contracts.js', () => ({
   buildCombatFlowContractBuilders: hoisted.buildCombatFlowContractPublicBuilders,
 }));
@@ -192,6 +200,17 @@ vi.mock('../game/features/run/public.js', () => ({
 vi.mock('../game/features/run/ports/runtime/public_run_runtime_surface.js', () => ({
   buildRunBootPublicActions: hoisted.buildRunBootPublicActions,
   createRunCanvasBindings: hoisted.createRunCanvasBindings,
+  registerRunEntryBindings: vi.fn(),
+}));
+
+vi.mock('../game/features/run/ports/public_runtime_capabilities.js', () => ({
+  buildRunBootPublicActions: hoisted.buildRunBootPublicActions,
+  buildRunReturnRuntimePublicActions: vi.fn(() => ({ returnToGame: vi.fn() })),
+  createFinalizeRunOutcomeAction: vi.fn(),
+  createRunCanvasBindings: hoisted.createRunCanvasBindings,
+  createRunRuntimeCapabilities: () => ({
+    buildBootActions: hoisted.buildRunBootPublicActions,
+  }),
   registerRunEntryBindings: vi.fn(),
 }));
 

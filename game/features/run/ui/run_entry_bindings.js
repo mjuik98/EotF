@@ -1,1 +1,1 @@
-export { registerRunEntryBindings } from '../platform/browser/register_run_entry_bindings.js';
+export { registerRunEntryBindings } from '../ports/public_runtime_capabilities.js';

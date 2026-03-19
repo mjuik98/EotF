@@ -1,3 +1,8 @@
+import {
+  resolveLegacyGameRoot,
+  resolveLegacyModuleBag,
+} from './resolve_legacy_module_bag.js';
+
 export const LEGACY_GAME_MODULE_REGISTRY_NAMES = [
   'EventUI',
   'CombatUI',
@@ -22,14 +27,37 @@ export const LEGACY_GAME_MODULE_REGISTRY_NAMES = [
   'GameAPI',
 ];
 
+function defineLegacyModuleAlias(target, legacyModules, key) {
+  if (!target || !legacyModules || target === legacyModules || !key) return;
+  if (Object.prototype.hasOwnProperty.call(target, key)) return;
+
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: false,
+    get() {
+      return legacyModules[key];
+    },
+    set(value) {
+      legacyModules[key] = value;
+    },
+  });
+}
+
 export function publishLegacyModuleBag(modules, moduleBag) {
   if (!modules || !moduleBag) return moduleBag;
+  const legacyModules = resolveLegacyModuleBag(modules);
+  const gameRoot = resolveLegacyGameRoot(modules);
 
-  Object.assign(modules, moduleBag);
+  Object.assign(legacyModules, moduleBag);
+  if (legacyModules !== modules) {
+    for (const key of Object.keys(moduleBag)) {
+      defineLegacyModuleAlias(modules, legacyModules, key);
+    }
+  }
 
-  if (typeof modules.GAME?.register === 'function') {
+  if (typeof gameRoot?.register === 'function') {
     for (const [name, moduleObj] of Object.entries(moduleBag)) {
-      modules.GAME.register(name, moduleObj);
+      gameRoot.register(name, moduleObj);
     }
   }
 
@@ -38,15 +66,23 @@ export function publishLegacyModuleBag(modules, moduleBag) {
 
 export function registerLegacyModule(modules, registryName, moduleObj, options = {}) {
   if (!modules || !registryName) return moduleObj;
+  const legacyModules = resolveLegacyModuleBag(modules);
+  const gameRoot = resolveLegacyGameRoot(modules);
 
   const { assignKey = registryName } = options;
-  if (assignKey) modules[assignKey] = moduleObj;
-  modules.GAME?.register?.(registryName, moduleObj);
+  if (assignKey) {
+    legacyModules[assignKey] = moduleObj;
+    if (legacyModules !== modules) defineLegacyModuleAlias(modules, legacyModules, assignKey);
+  }
+  gameRoot?.register?.(registryName, moduleObj);
   return moduleObj;
 }
 
 export function registerLegacyGameModules(modules) {
+  const legacyModules = resolveLegacyModuleBag(modules);
+  const gameRoot = resolveLegacyGameRoot(modules);
+
   LEGACY_GAME_MODULE_REGISTRY_NAMES.forEach((name) => {
-    modules.GAME?.register?.(name, modules[name]);
+    gameRoot?.register?.(name, legacyModules[name]);
   });
 }

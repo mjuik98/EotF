@@ -1,17 +1,21 @@
 import { registerLegacyModule } from '../../platform/legacy/game_module_registry.js';
 import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
+import { createBootstrapDepProviders } from './create_bootstrap_dep_providers.js';
 
 function createStorySystem(storyUI, deps) {
+  const depProviders = createBootstrapDepProviders(deps);
+  const storyPorts = depProviders.story;
+
   return {
-    unlockNextFragment: () => storyUI?.unlockNextFragment?.(deps.getStoryDeps()),
+    unlockNextFragment: () => storyUI?.unlockNextFragment?.(storyPorts.getStoryDeps()),
     showRunFragment: (overrides = {}) => storyUI?.showRunFragment?.({
-      ...deps.getStoryDeps(),
+      ...storyPorts.getStoryDeps(),
       ...overrides,
     }),
-    displayFragment: (frag) => storyUI?.displayFragment?.(frag, deps.getStoryDeps()),
-    checkHiddenEnding: () => !!storyUI?.checkHiddenEnding?.(deps.getStoryDeps()),
-    showNormalEnding: () => storyUI?.showNormalEnding?.(deps.getStoryDeps()),
-    showHiddenEnding: () => storyUI?.showHiddenEnding?.(deps.getStoryDeps()),
+    displayFragment: (frag) => storyUI?.displayFragment?.(frag, storyPorts.getStoryDeps()),
+    checkHiddenEnding: () => !!storyUI?.checkHiddenEnding?.(storyPorts.getStoryDeps()),
+    showNormalEnding: () => storyUI?.showNormalEnding?.(storyPorts.getStoryDeps()),
+    showHiddenEnding: () => storyUI?.showHiddenEnding?.(storyPorts.getStoryDeps()),
   };
 }
 

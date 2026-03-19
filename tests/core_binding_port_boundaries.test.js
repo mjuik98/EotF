@@ -24,4 +24,18 @@ describe('core binding port boundaries', () => {
       expect(source).not.toContain('createTitleFeatureFacade');
     }
   });
+
+  it('builds scoped feature refs through feature-owned port files instead of a core-owned symbol table', () => {
+    const source = fs.readFileSync(
+      path.join(ROOT, 'game/core/bootstrap/build_binding_feature_refs.js'),
+      'utf8',
+    );
+
+    expect(source).toContain('../../features/combat/ports/public_binding_ref_capabilities.js');
+    expect(source).toContain('../../features/reward/ports/public_binding_ref_capabilities.js');
+    expect(source).toContain('../../features/run/ports/public_binding_ref_capabilities.js');
+    expect(source).toContain('../../features/title/ports/public_binding_ref_capabilities.js');
+    expect(source).toContain('../../features/ui/ports/public_binding_ref_capabilities.js');
+    expect(source).not.toContain('const FEATURE_REF_KEYS');
+  });
 });

@@ -27,6 +27,15 @@ describe('feature internal transitional surfaces', () => {
       'game/features/run/app/canvas_lifecycle_actions.js': /export\s+\{\s*createCanvasLifecycleActions\s*\}\s+from\s+'\.\.\/platform\/browser\/run_canvas_lifecycle_actions\.js';/,
       'game/features/run/app/run_map_actions.js': /export\s+\{\s*createRunMapActions\s*\}\s+from\s+'\.\.\/application\/run_map_actions\.js';/,
       'game/features/run/app/world_render_actions.js': /export\s+\{\s*createWorldRenderActions\s*\}\s+from\s+'\.\.\/application\/world_render_actions\.js';/,
+      'game/features/combat/bindings/public_combat_bindings.js': /export\s+\{\s*createCombatBindingsActions\s+as\s+createCombatBindingsActions\s*\}\s+from\s+'\.\.\/ports\/public_binding_capabilities\.js';/,
+      'game/features/combat/modules/public_combat_modules.js': /export\s+\{[\s\S]*buildCombatCardPublicModules[\s\S]*buildCombatHudPublicModules[\s\S]*buildCombatPublicModules[\s\S]*\}\s+from\s+'\.\.\/ports\/public_module_capabilities\.js';/,
+      'game/features/combat/runtime/public_combat_runtime_actions.js': /export\s+\{[\s\S]*buildCombatRuntimeSubscriberPublicActions[\s\S]*createCombatRuntimeCapabilities[\s\S]*\}\s+from\s+'\.\.\/ports\/public_runtime_capabilities\.js';/,
+      'game/features/run/presentation/browser/map/public_run_map_browser_modules.js': /export\s+\{\s*MapGenerationUI,\s*MapNavigationUI,\s*MapUI,\s*MazeSystem,\s*WorldCanvasUI,\s*WorldRenderLoopUI,?\s*\}\s+from\s+'\.\.\/public_run_map_modules\.js';/,
+      'game/features/run/presentation/browser/transition/public_run_transition_browser_modules.js': /export\s+\{\s*RegionTransitionUI,\s*RunReturnUI,\s*RunSetupUI,\s*RunStartUI,?\s*\}\s+from\s+'\.\.\/public_run_transition_modules\.js';/,
+      'game/features/run/bindings/public_run_bindings.js': /export\s+\{\s*createRunCanvasBindings\s+as\s+createRunCanvasBindings\s*\}\s+from\s+'\.\.\/ports\/public_binding_capabilities\.js';/,
+      'game/features/run/modules/public_run_modules.js': /export\s+\{[\s\S]*buildRunFlowPublicModules[\s\S]*buildRunMapPublicModules[\s\S]*\}\s+from\s+'\.\.\/ports\/public_module_capabilities\.js';/,
+      'game/features/run/runtime/public_run_runtime_actions.js': /export\s+\{[\s\S]*buildRunBootPublicActions[\s\S]*buildRunReturnRuntimePublicActions[\s\S]*createRunRuntimeCapabilities[\s\S]*\}\s+from\s+'\.\.\/ports\/public_runtime_capabilities\.js';/,
+      'game/features/run/ui/run_entry_bindings.js': /export\s+\{\s*registerRunEntryBindings\s*\}\s+from\s+'\.\.\/ports\/public_runtime_capabilities\.js';/,
       'game/features/title/app/build_title_boot_actions.js': /export\s+\{\s*buildTitleBootActions\s*\}\s+from\s+'\.\.\/application\/build_title_boot_actions\.js';/,
       'game/features/title/app/create_title_actions.js': /export\s+\{\s*createTitleActions\s*\}\s+from\s+'\.\.\/platform\/browser\/create_title_actions\.js';/,
       'game/features/title/app/title_action_helpers.js': /export\s+\*\s+from\s+'\.\.\/platform\/browser\/title_action_helpers\.js';/,
@@ -38,6 +47,8 @@ describe('feature internal transitional surfaces', () => {
       'game/features/title/ui/title_screen_dom.js': /export\s+\*\s+from\s+'\.\.\/presentation\/browser\/title_screen_dom\.js';/,
       'game/features/ui/app/ui_actions.js': /export\s+\{\s*createUiActions\s*\}\s+from\s+'\.\.\/platform\/browser\/ui_actions\.js';/,
       'game/features/ui/app/legacy_query_groups.js': /export\s+\{\s*buildLegacyGameApiRuntimeHudQueryGroups,\s*buildLegacyWindowUiQueryGroups,\s*createLegacyHudRuntimeQueryBindings,?\s*\}\s+from\s+'\.\.\/platform\/browser\/ui_legacy_query_groups\.js';/,
+      'game/features/combat/presentation/browser/hud/public_combat_hud_modules.js': /export\s+\{\s*CombatHudUI,\s*HudUpdateUI,?\s*\}\s+from\s+'\.\.\/public_combat_hud_modules\.js';/,
+      'game/features/combat/presentation/browser/feedback/public_feedback_modules.js': /export\s+\{\s*DomValueUI,\s*FeedbackUI,?\s*\}\s+from\s+'\.\.\/public_feedback_modules\.js';/,
     };
 
     for (const [file, expectedPattern] of Object.entries(expectations)) {

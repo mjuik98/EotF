@@ -1,5 +1,1 @@
-export function createEventPorts(depsFactory) {
-  return {
-    getEventDeps: () => depsFactory.getEventDeps(),
-  };
-}
+export { createEventPorts } from './create_event_reward_ports.js';

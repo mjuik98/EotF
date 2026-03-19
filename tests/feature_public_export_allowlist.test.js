@@ -28,7 +28,7 @@ function extractNamedExports(source) {
 }
 
 describe('feature public export allowlist', () => {
-  it('prevents root feature public.js files from growing new named exports without an explicit baseline update', () => {
+  it('prevents canonical feature public surfaces from growing new named exports without an explicit baseline update', () => {
     for (const [file, expectedNames] of Object.entries(ALLOWLIST)) {
       const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
       expect(extractNamedExports(source)).toEqual(expectedNames);

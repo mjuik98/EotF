@@ -6,13 +6,13 @@ import { describe, expect, it } from 'vitest';
 describe('feature public surface exports', () => {
   it('exposes stable public surface objects for each feature facade', () => {
     const expectations = {
-      'game/features/codex/public.js': 'export const CodexPublicSurface = Object.freeze({',
-      'game/features/combat/public.js': 'export const CombatPublicSurface = Object.freeze({',
-      'game/features/event/public.js': 'export const EventPublicSurface = Object.freeze({',
-      'game/features/reward/public.js': 'export const RewardPublicSurface = Object.freeze({',
-      'game/features/run/public.js': 'export const RunPublicSurface = Object.freeze({',
-      'game/features/title/public.js': 'export const TitlePublicSurface = Object.freeze({',
-      'game/features/ui/public.js': 'export const UiPublicSurface = Object.freeze({',
+      'game/features/codex/ports/public_surface.js': 'export const CodexPublicSurface = Object.freeze({',
+      'game/features/combat/ports/public_surface.js': 'export const CombatPublicSurface = Object.freeze({',
+      'game/features/event/ports/public_surface.js': 'export const EventPublicSurface = Object.freeze({',
+      'game/features/reward/ports/public_surface.js': 'export const RewardPublicSurface = Object.freeze({',
+      'game/features/run/ports/public_surface.js': 'export const RunPublicSurface = Object.freeze({',
+      'game/features/title/ports/public_surface.js': 'export const TitlePublicSurface = Object.freeze({',
+      'game/features/ui/ports/public_surface.js': 'export const UiPublicSurface = Object.freeze({',
     };
 
     for (const [file, marker] of Object.entries(expectations)) {
@@ -21,13 +21,31 @@ describe('feature public surface exports', () => {
     }
   });
 
+  it('keeps feature root public files as thin facades over ports/public_surface', () => {
+    const files = [
+      'game/features/codex/public.js',
+      'game/features/combat/public.js',
+      'game/features/event/public.js',
+      'game/features/reward/public.js',
+      'game/features/run/public.js',
+      'game/features/title/public.js',
+      'game/features/ui/public.js',
+    ];
+
+    for (const file of files) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).toContain("./ports/public_surface.js");
+      expect(source).not.toContain('import ');
+    }
+  });
+
   it('keeps moved compat facades discoverable through feature public surfaces', () => {
     const combatSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/combat/public.js'),
+      path.join(process.cwd(), 'game/features/combat/ports/public_surface.js'),
       'utf8',
     );
     const eventSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/event/public.js'),
+      path.join(process.cwd(), 'game/features/event/ports/public_surface.js'),
       'utf8',
     );
 

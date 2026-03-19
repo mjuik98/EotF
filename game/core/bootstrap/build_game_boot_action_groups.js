@@ -1,4 +1,4 @@
-import { buildRunBootPublicActions } from '../../features/run/ports/runtime/public_run_runtime_surface.js';
+import { buildRunBootPublicActions } from '../../features/run/ports/public_runtime_capabilities.js';
 import { buildTitleBootPublicActions } from '../../features/title/ports/runtime/public_title_runtime_surface.js';
 
 export function buildGameBootActionGroups(fns) {

@@ -1,113 +1,28 @@
-function pickDefinedRefs(refs, keys = []) {
-  return keys.reduce((acc, key) => {
-    if (refs[key] !== undefined) acc[key] = refs[key];
-    return acc;
-  }, {});
-}
+import { pickCombatBindingRefs } from '../../features/combat/ports/public_binding_ref_capabilities.js';
+import { pickRewardBindingRefs } from '../../features/reward/ports/public_binding_ref_capabilities.js';
+import { pickRunBindingRefs } from '../../features/run/ports/public_binding_ref_capabilities.js';
+import { pickTitleBindingRefs } from '../../features/title/ports/public_binding_ref_capabilities.js';
+import { pickUiBindingRefs } from '../../features/ui/ports/public_binding_ref_capabilities.js';
+import { pickDefinedRefs } from '../../shared/runtime/pick_defined_refs.js';
 
-const FEATURE_REF_KEYS = Object.freeze({
-  core: [
-    'GAME',
-    'GS',
-    'AudioEngine',
-    'ParticleSystem',
-    'SaveSystem',
-    'ScreenShake',
-    'HitStop',
-    'ButtonFeedback',
-  ],
-  title: [
-    'ClassSelectUI',
-    'CharacterSelectUI',
-    'HelpPauseUI',
-    'GameBootUI',
-    'SettingsUI',
-    'startGame',
-    'getSelectedClass',
-    'clearSelectedClass',
-    'showPendingClassProgressSummary',
-  ],
-  combat: [
-    'CombatUI',
-    'CombatHudUI',
-    'CombatActionsUI',
-    'CardUI',
-    'CardTargetUI',
-    'DeckModalUI',
-    'FeedbackUI',
-    'TooltipUI',
-    'HudUpdateUI',
-    'StatusEffectsUI',
-    'ClassMechanics',
-    'CardCostUtils',
-    'playCard',
-    'drawCard',
-    'useEchoSkill',
-    'endPlayerTurn',
-    'endCombat',
-    'handleCardDragStart',
-    'handleCardDragEnd',
-    'handleCardDropOnEnemy',
-    'selectTarget',
-    'renderCombatEnemies',
-    'renderCombatCards',
-    'renderHand',
-    'updateCombatLog',
-    'updateUI',
-    'updateChainUI',
-    'showDmgPopup',
-    'showEchoBurstOverlay',
-    'showCombatSummary',
-  ],
-  run: [
-    'RunRules',
-    'MazeSystem',
-    'RunModeUI',
-    'RunSetupUI',
-    'RunStartUI',
-    'startGame',
-    'continueRun',
-    'continueLoadedRun',
-    'returnToGame',
-    'getRegionData',
-    'getBaseRegionIndex',
-    'getRegionCount',
-  ],
-  reward: [
-    'RewardUI',
-    'showRewardScreen',
-    'takeRewardCard',
-    'takeRewardItem',
-    'takeRewardUpgrade',
-    'takeRewardRemove',
-    'showSkipConfirm',
-    'hideSkipConfirm',
-    'skipReward',
-    'returnFromReward',
-    'returnToGame',
-    'showItemToast',
-  ],
-  screen: [
-    'ScreenUI',
-    'switchScreen',
-    'showDeckView',
-    'closeDeckView',
-    'openCodex',
-    'closeCodex',
-    'openSettings',
-    'closeSettings',
-    'closeRunSettings',
-    'quitGame',
-    'returnToGame',
-    'finalizeRunOutcome',
-  ],
-});
+const CORE_BINDING_REF_KEYS = Object.freeze([
+  'GAME',
+  'GS',
+  'AudioEngine',
+  'ParticleSystem',
+  'SaveSystem',
+  'ScreenShake',
+  'HitStop',
+  'ButtonFeedback',
+]);
 
 export function buildBindingFeatureRefs(refs = {}) {
-  return Object.fromEntries(
-    Object.entries(FEATURE_REF_KEYS).map(([scopeName, keys]) => [
-      scopeName,
-      pickDefinedRefs(refs, keys),
-    ]),
-  );
+  return {
+    core: pickDefinedRefs(refs, CORE_BINDING_REF_KEYS),
+    title: pickTitleBindingRefs(refs),
+    combat: pickCombatBindingRefs(refs),
+    run: pickRunBindingRefs(refs),
+    reward: pickRewardBindingRefs(refs),
+    screen: pickUiBindingRefs(refs),
+  };
 }

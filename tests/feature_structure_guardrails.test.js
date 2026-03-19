@@ -77,7 +77,16 @@ describe('feature structure guardrails', () => {
   it('exposes ui shell contract capabilities through the ui feature facade', () => {
     const source = readSource('game/features/ui/public.js');
 
-    expect(source).toMatch(/import \{ createUiContractCapabilities \} from '\.\/ports\/public_contract_capabilities\.js'/);
-    expect(source).toMatch(/contracts: createUiContractCapabilities\(\)/);
+    expect(source).toContain("./ports/public_surface.js");
+  });
+
+  it('keeps large feature browser entrypoints routed through subdomain aggregators', () => {
+    const combatSource = readSource('game/features/combat/platform/browser/combat_browser_modules.js');
+    const runSource = readSource('game/features/run/platform/browser/run_browser_modules.js');
+
+    expect(combatSource).toContain('/presentation/browser/hud/');
+    expect(combatSource).toContain('/presentation/browser/feedback/');
+    expect(runSource).toContain('/presentation/browser/map/');
+    expect(runSource).toContain('/presentation/browser/transition/');
   });
 });

@@ -1,4 +1,6 @@
-import { Actions } from './public.js';
+import { Actions } from '../../core/store/state_actions.js';
+
+export const PlayerStateActions = Actions;
 
 const LEGACY_PLAYER_STATE_FALLBACK_FLAG = '__legacyPlayerStateCommandFallback';
 

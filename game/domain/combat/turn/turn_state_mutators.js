@@ -1,4 +1,4 @@
-import { Actions } from '../../../shared/state/public.js';
+import { Actions } from '../../../core/store/state_actions.js';
 
 function dispatchStateChange(gs, action, payload, fallback, readResult) {
   if (typeof gs?.dispatch === 'function') {

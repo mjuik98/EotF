@@ -1,6 +1,5 @@
 import { createRunRuleCapabilities } from '../../features/run/ports/public_rule_capabilities.js';
-import { Actions } from './public.js';
-import { setPlayerEnergyState } from './player_state_commands.js';
+import { PlayerStateActions as Actions, setPlayerEnergyState } from './player_state_commands.js';
 import { GAME } from '../../core/global_bridge.js';
 import { LogUtils } from '../../utils/log_utils.js';
 

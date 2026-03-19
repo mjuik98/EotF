@@ -26,7 +26,13 @@ describe('registerLegacyGameAPIBindings', () => {
   });
 
   it('builds a grouped registration payload and assigns the compat surface', () => {
-    const modules = { GAME: { API: {} } };
+    const apiRoot = {};
+    const modules = {
+      GAME: { API: { stale: true } },
+      legacyModules: {
+        GAME: { API: apiRoot },
+      },
+    };
     const fns = { startGame: vi.fn() };
     const deps = { token: 'deps' };
     const runtimeMetrics = { getRuntimeMetrics: vi.fn() };
@@ -49,7 +55,7 @@ describe('registerLegacyGameAPIBindings', () => {
       runtimeMetrics,
     });
     expect(hoisted.createLegacyGameApi).toHaveBeenCalledWith(apiPayload);
-    expect(hoisted.assignLegacyCompatSurface).toHaveBeenCalledWith(modules.GAME.API, api);
-    expect(modules.GAME.API).toMatchObject(api);
+    expect(hoisted.assignLegacyCompatSurface).toHaveBeenCalledWith(apiRoot, api);
+    expect(apiRoot).toMatchObject(api);
   });
 });

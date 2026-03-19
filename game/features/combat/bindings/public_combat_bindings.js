@@ -1,1 +1,1 @@
-export { createCombatBindingsActions } from '../platform/browser/create_combat_bindings.js';
+export { createCombatBindingsActions as createCombatBindingsActions } from '../ports/public_binding_capabilities.js';

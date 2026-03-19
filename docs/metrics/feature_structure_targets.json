@@ -18,12 +18,14 @@
     "combat": [
       "app",
       "bindings",
+      "compat",
       "contracts",
       "modules",
       "runtime"
     ],
     "event": [
-      "app"
+      "app",
+      "compat"
     ],
     "reward": [
       "app"

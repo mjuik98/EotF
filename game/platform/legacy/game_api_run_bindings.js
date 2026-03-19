@@ -1,8 +1,25 @@
 import * as Deps from '../../core/deps_factory.js';
 
+const RUN_API_DEP_CONTRACTS = Object.freeze({
+  getRunSetupDeps: 'runSetup',
+});
+
+function buildRunApiDepAccessors(depsFactory = Deps) {
+  const createDepsAccessors = depsFactory.createDepsAccessors;
+  const createDeps = depsFactory.createDeps;
+
+  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
+    return createDepsAccessors(RUN_API_DEP_CONTRACTS, createDeps);
+  }
+
+  return Object.freeze({
+    getRunSetupDeps: () => depsFactory.getRunSetupDeps?.() || {},
+  });
+}
+
 function resolveRunSetup() {
   try {
-    return Deps.getRunSetupDeps?.() || null;
+    return buildRunApiDepAccessors().getRunSetupDeps?.() || null;
   } catch {
     return null;
   }

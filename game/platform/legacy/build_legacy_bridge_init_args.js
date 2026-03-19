@@ -1,8 +1,10 @@
 export function buildLegacyBridgeInitArgs({ modules }) {
+  const legacyModules = modules?.legacyModules || modules || {};
+
   return [
-    modules.GS,
-    modules.DATA,
-    modules.AudioEngine,
-    modules.ParticleSystem,
+    legacyModules.GS,
+    legacyModules.DATA,
+    legacyModules.AudioEngine,
+    legacyModules.ParticleSystem,
   ];
 }

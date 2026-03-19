@@ -1,5 +1,4 @@
-import { buildCombatRuntimeSubscriberActions } from '../application/build_combat_runtime_subscriber_actions.js';
-
-export function buildCombatRuntimeSubscriberPublicActions(fns) {
-  return buildCombatRuntimeSubscriberActions(fns);
-}
+export {
+  buildCombatRuntimeSubscriberPublicActions,
+  createCombatRuntimeCapabilities,
+} from '../ports/public_runtime_capabilities.js';

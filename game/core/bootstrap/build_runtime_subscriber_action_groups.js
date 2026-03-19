@@ -1,11 +1,13 @@
-import { buildCombatRuntimeSubscriberPublicActions } from '../../features/combat/ports/runtime/public_combat_runtime_surface.js';
+import { createRuntimeSubscriberPorts } from './create_runtime_subscriber_ports.js';
 import {
   buildUiRuntimeSubscriberPublicActions,
 } from '../../features/ui/ports/runtime/public_ui_runtime_surface.js';
 
 export function buildRuntimeSubscriberActionGroups(fns) {
+  const runtimePorts = createRuntimeSubscriberPorts();
+
   return {
-    gameplay: buildCombatRuntimeSubscriberPublicActions(fns),
+    gameplay: runtimePorts.combat.buildSubscriberActions(fns),
     shell: buildUiRuntimeSubscriberPublicActions(fns),
   };
 }

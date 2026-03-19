@@ -6,6 +6,8 @@ import {
 
 export function createLegacyRuntimePorts(root = GAME) {
   return {
+    getGameDeps: () => root?.getDeps?.() || {},
+    getFeatureDeps: (feature = 'run') => getLegacyFeatureDeps(root, feature),
     getRuntimeDeps: () => getLegacyFeatureDeps(root, 'run'),
     getRunRuntimeDeps: () => getLegacyFeatureDeps(root, 'run'),
     getCombatRuntimeDeps: () => getLegacyFeatureDeps(root, 'combat'),

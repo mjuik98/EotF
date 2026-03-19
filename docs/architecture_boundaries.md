@@ -32,7 +32,7 @@ The boundary policy is stored in `docs/architecture_policy.json`.
 - `game/app/*`, `game/ui/*`, and `game/presentation/*` are compat surfaces during the transition.
 - `game/combat/*` and `game/state/*` are also treated as frozen compat surfaces for new implementation.
   New implementation should land under feature/shared/platform ownership; compat paths should remain thin re-exports unless explicitly allowlisted.
-- Feature-internal transitional dirs (`app`, `bindings`, `contracts`, `runtime`, `modules`, `ui`) should only survive as compat wrappers.
+- Feature-internal transitional dirs (`app`, `bindings`, `compat`, `contracts`, `runtime`, `modules`, `ui`) should only survive as compat wrappers.
   Public facades, binding roots, and composition wiring should prefer canonical ownership under `application`, `state`, `presentation`, `platform`, and `ports`.
 - `game/ui/*` may depend on core/systems/combat/utils/engine/data during the transition, but new UI-facing composition should prefer feature/presentation boundaries.
 - `game/systems/*`, `game/combat/*`, and `game/utils/*` must not import `game/ui/*`.

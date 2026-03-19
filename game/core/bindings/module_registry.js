@@ -1,4 +1,5 @@
 import { buildModuleRegistryGroups } from './build_module_registry_groups.js';
+import { attachModuleRegistryFlatCompat } from './attach_module_registry_flat_compat.js';
 import { createModuleRegistryFlatCompat } from './create_module_registry_flat_compat.js';
 
 /**
@@ -7,9 +8,9 @@ import { createModuleRegistryFlatCompat } from './create_module_registry_flat_co
  */
 export function createModuleRegistry() {
   const groups = buildModuleRegistryGroups();
-
-  return {
-    ...createModuleRegistryFlatCompat(groups),
+  const legacyModules = createModuleRegistryFlatCompat(groups);
+  const registry = {
+    legacyModules,
     featureScopes: Object.freeze({
       core: groups.core,
       title: groups.title,
@@ -20,4 +21,6 @@ export function createModuleRegistry() {
     _gameStarted: false,
     _canvasRefs: null,
   };
+
+  return attachModuleRegistryFlatCompat(registry, legacyModules);
 }

@@ -6,7 +6,24 @@ import {
 export function createDepsFactoryRuntime() {
   let refs = {};
 
+  function getRuntimePorts() {
+    return refs.runtimePorts || refs.runtimeDeps || null;
+  }
+
   function getFeatureDeps(feature = 'run') {
+    const runtimePorts = getRuntimePorts();
+    if (typeof runtimePorts?.getFeatureDeps === 'function') {
+      return runtimePorts.getFeatureDeps(feature) || {};
+    }
+    if (runtimePorts) {
+      if (feature === 'combat') return runtimePorts.getCombatRuntimeDeps?.() || {};
+      if (feature === 'event') return runtimePorts.getEventRuntimeDeps?.() || {};
+      if (feature === 'hud') return runtimePorts.getHudRuntimeDeps?.() || {};
+      if (feature === 'ui') return runtimePorts.getUiRuntimeDeps?.() || {};
+      if (feature === 'canvas') return runtimePorts.getCanvasRuntimeDeps?.() || {};
+      if (runtimePorts.getRunRuntimeDeps) return runtimePorts.getRunRuntimeDeps() || {};
+      if (runtimePorts.getRuntimeDeps) return runtimePorts.getRuntimeDeps() || {};
+    }
     return getLegacyFeatureDeps(refs.GAME, feature);
   }
 
@@ -43,6 +60,10 @@ export function createDepsFactoryRuntime() {
   }
 
   function getGameDeps() {
+    const runtimePorts = getRuntimePorts();
+    if (typeof runtimePorts?.getGameDeps === 'function') {
+      return runtimePorts.getGameDeps() || {};
+    }
     return getLegacyGameDeps(refs.GAME);
   }
 

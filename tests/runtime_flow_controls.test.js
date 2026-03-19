@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import * as compat from '../game/app/shared/use_cases/runtime_state_use_case.js';
 import * as shared from '../game/shared/state/runtime_flow_controls.js';
 import * as sharedPublic from '../game/shared/state/public.js';
-import { Actions, Reducers } from '../game/core/state_actions.js';
+import { Actions, Reducers } from '../game/core/store/state_actions.js';
 
 describe('runtime_flow_controls', () => {
   it('keeps the app compatibility surface wired to the shared runtime flow module', () => {
@@ -19,9 +19,11 @@ describe('runtime_flow_controls', () => {
     expect(compat.consumeBossRewardFlags).toBe(shared.consumeBossRewardFlags);
   });
 
-  it('re-exports state actions and runtime controls through the shared public state surface', () => {
-    expect(sharedPublic.Actions).toBe(Actions);
-    expect(sharedPublic.Reducers).toBe(Reducers);
+  it('keeps canonical state actions on the core store surface and runtime controls on the shared public state surface', () => {
+    expect(Actions.PLAYER_HEAL).toBe('player:heal');
+    expect(Reducers[Actions.PLAYER_HEAL]).toBeTypeOf('function');
+    expect(sharedPublic.Actions).toBeUndefined();
+    expect(sharedPublic.Reducers).toBeUndefined();
     expect(sharedPublic.activateCombat).toBe(shared.activateCombat);
     expect(sharedPublic.lockEventFlow).toBe(shared.lockEventFlow);
     expect(sharedPublic.resetRuntimeInteractionState).toBe(shared.resetRuntimeInteractionState);

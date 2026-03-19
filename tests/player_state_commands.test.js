@@ -12,7 +12,7 @@ import {
   setPlayerHpState,
 } from '../game/shared/state/player_state_commands.js';
 import { enableLegacyPlayerStateCommandFallback } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
-import { Actions } from '../game/shared/state/public.js';
+import { Actions } from '../game/core/store/state_actions.js';
 
 describe('player_state_commands', () => {
   it('prefers reducer-backed growth actions when dispatch is available', () => {

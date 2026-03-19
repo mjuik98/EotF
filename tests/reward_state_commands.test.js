@@ -16,7 +16,7 @@ import {
   applyMiniBossBonusState,
   upgradeRandomRewardCardState,
 } from '../game/features/reward/state/reward_state_commands.js';
-import { Actions } from '../game/shared/state/public.js';
+import { Actions } from '../game/core/store/state_actions.js';
 
 describe('reward_state_commands', () => {
   it('applies mini-boss hp, gold, and guaranteed rare item state in one command', () => {
