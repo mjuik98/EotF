@@ -1,15 +1,12 @@
-import { Actions } from '../../../core/store/state_actions.js';
-
-function dispatchStateChange(gs, action, payload, fallback, readResult) {
-  if (typeof gs?.dispatch === 'function') {
-    const result = gs.dispatch(action, payload) || null;
-    if (typeof readResult === 'function') {
-      const value = readResult(result);
-      if (value !== undefined) return value;
-    }
-  }
-  return fallback();
-}
+import {
+  adjustPlayerSilenceGaugeState,
+  adjustPlayerTimeRiftGaugeState,
+  applyPlayerBuffState,
+  applyPlayerShieldState,
+  changePlayerEnergyState,
+  setPlayerEchoState,
+  setPlayerEnergyState,
+} from '../../../shared/state/player_state_commands.js';
 
 export function decrementStackedBuff(buffBag, buffId) {
   const buff = buffBag?.[buffId];
@@ -22,28 +19,23 @@ export function decrementStackedBuff(buffBag, buffId) {
 }
 
 export function setPlayerEnergy(gs, amount) {
+  const result = setPlayerEnergyState(gs, amount);
+  if (result && result.energyAfter !== undefined) return result.energyAfter;
   gs.player.energy = Math.max(0, amount);
   return gs.player.energy;
 }
 
 export function reducePlayerEnergy(gs, amount) {
+  const result = changePlayerEnergyState(gs, -Math.max(0, amount));
+  if (result && result.energyAfter !== undefined) return result.energyAfter;
   return setPlayerEnergy(gs, Math.max(0, gs.player.energy - amount));
 }
 
 export function setPlayerEcho(gs, amount) {
-  const nextEcho = Math.max(0, Math.min(gs.player.maxEcho, amount));
-  const delta = nextEcho - Number(gs.player.echo || 0);
-  if (delta === 0) return nextEcho;
-  return dispatchStateChange(
-    gs,
-    Actions.PLAYER_ECHO,
-    { amount: delta },
-    () => {
-      gs.player.echo = nextEcho;
-      return gs.player.echo;
-    },
-    (result) => result?.echoAfter,
-  );
+  const result = setPlayerEchoState(gs, amount);
+  if (result && result.echoAfter !== undefined) return result.echoAfter;
+  gs.player.echo = Math.max(0, Math.min(gs.player.maxEcho, amount));
+  return gs.player.echo;
 }
 
 export function setPlayerEchoChain(gs, amount) {
@@ -55,44 +47,26 @@ export function setPlayerShield(gs, amount) {
   const nextShield = Math.max(0, amount);
   const delta = nextShield - Number(gs.player.shield || 0);
   if (delta === 0) return nextShield;
-  return dispatchStateChange(
-    gs,
-    Actions.PLAYER_SHIELD,
-    { amount: delta },
-    () => {
-      gs.player.shield = nextShield;
-      return gs.player.shield;
-    },
-    (result) => result?.shieldAfter,
-  );
+  const result = applyPlayerShieldState(gs, delta);
+  if (result && result.shieldAfter !== undefined) return result.shieldAfter;
+  gs.player.shield = nextShield;
+  return gs.player.shield;
 }
 
 export function reducePlayerSilenceGauge(gs, amount) {
-  return dispatchStateChange(
-    gs,
-    Actions.PLAYER_SILENCE,
-    { amount: -Math.max(0, amount) },
-    () => {
-      gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) - amount);
-      return gs.player.silenceGauge;
-    },
-    (result) => result?.silenceGauge,
-  );
+  const result = adjustPlayerSilenceGaugeState(gs, -Math.max(0, amount));
+  if (result && result.silenceGauge !== undefined) return result.silenceGauge;
+  gs.player.silenceGauge = Math.max(0, (gs.player.silenceGauge || 0) - amount);
+  return gs.player.silenceGauge;
 }
 
 export function resetPlayerTimeRiftGauge(gs) {
   const currentGauge = Math.max(0, Number(gs.player.timeRiftGauge || 0));
   if (currentGauge === 0) return 0;
-  return dispatchStateChange(
-    gs,
-    Actions.PLAYER_TIME_RIFT,
-    { amount: -currentGauge },
-    () => {
-      gs.player.timeRiftGauge = 0;
-      return gs.player.timeRiftGauge;
-    },
-    (result) => result?.timeRiftGauge,
-  );
+  const result = adjustPlayerTimeRiftGaugeState(gs, -currentGauge);
+  if (result && result.timeRiftGauge !== undefined) return result.timeRiftGauge;
+  gs.player.timeRiftGauge = 0;
+  return gs.player.timeRiftGauge;
 }
 
 export function moveHandToGraveyard(gs) {
@@ -118,10 +92,8 @@ export function advanceCombatTurn(gs) {
 }
 
 export function addPlayerBuffStacks(gs, buffId, stacks, extra = {}) {
-  if (typeof gs?.dispatch === 'function') {
-    gs.dispatch(Actions.PLAYER_BUFF, { id: buffId, stacks, data: extra });
-    return gs.player.buffs[buffId];
-  }
+  const result = applyPlayerBuffState(gs, buffId, stacks, extra);
+  if (result) return result;
   const current = gs.player.buffs[buffId];
   if (current) {
     current.stacks = (current.stacks || 0) + stacks;

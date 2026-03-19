@@ -16,6 +16,7 @@ import {
 import { createCombatBindingCapabilities } from './public_binding_capabilities.js';
 import { createCombatContractCapabilities } from './public_contract_capabilities.js';
 import { createCombatModuleCapabilities } from './public_module_capabilities.js';
+import { createCombatStateCapabilities } from './public_state_capabilities.js';
 import { DeathHandler } from '../compat/death_handler.js';
 import { buildCombatFlowContractBuilders } from './contracts/build_combat_flow_contracts.js';
 import { buildCombatUiContractPublicBuilders } from './contracts/public_combat_contract_builders.js';
@@ -52,6 +53,9 @@ export const CombatPublicSurface = Object.freeze({
   },
   get contracts() {
     return createCombatContractCapabilities();
+  },
+  get state() {
+    return createCombatStateCapabilities();
   },
   createCombatBindingCapabilities,
   createCombatCompatCapabilities,

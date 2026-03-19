@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-19T15:40:03.614Z",
-  "nodeCount": 1234,
-  "edgeCount": 1291,
+  "generatedAt": "2026-03-19T17:24:58.571Z",
+  "nodeCount": 1237,
+  "edgeCount": 1299,
   "layerEdges": {
     "core->core": 152,
     "core->domain": 3,
@@ -14,21 +14,21 @@
     "data->other": 2,
     "data->systems": 2,
     "data->utils": 4,
-    "domain->core": 1,
     "domain->data": 6,
     "domain->domain": 16,
     "domain->feature": 1,
+    "domain->shared": 1,
     "domain->utils": 3,
     "engine->data": 1,
     "engine->engine": 2,
     "feature->core": 17,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 656,
+    "feature->feature": 662,
     "feature->legacy": 4,
     "feature->other": 6,
     "feature->platform": 3,
-    "feature->shared": 39,
+    "feature->shared": 41,
     "feature->state": 2,
     "feature->utils": 30,
     "legacy->core": 6,
@@ -58,16 +58,16 @@
   },
   "hottestByOut": [
     {
+      "file": "game/features/combat/ports/public_surface.js",
+      "layer": "feature",
+      "outDegree": 14,
+      "inDegree": 0
+    },
+    {
       "file": "game/features/combat/platform/browser/combat_browser_modules.js",
       "layer": "feature",
       "outDegree": 13,
       "inDegree": 1
-    },
-    {
-      "file": "game/features/combat/ports/public_surface.js",
-      "layer": "feature",
-      "outDegree": 13,
-      "inDegree": 0
     },
     {
       "file": "game/features/combat/application/death_flow_actions.js",
@@ -168,16 +168,16 @@
       "inDegree": 12
     },
     {
-      "file": "game/core/store/state_actions.js",
-      "layer": "core",
-      "outDegree": 0,
-      "inDegree": 11
-    },
-    {
       "file": "game/shared/runtime/public.js",
       "layer": "shared",
       "outDegree": 0,
       "inDegree": 11
+    },
+    {
+      "file": "game/core/store/state_actions.js",
+      "layer": "core",
+      "outDegree": 0,
+      "inDegree": 10
     },
     {
       "file": "game/utils/logger.js",
@@ -195,6 +195,12 @@
       "file": "game/core/deps_factory.js",
       "layer": "core",
       "outDegree": 4,
+      "inDegree": 9
+    },
+    {
+      "file": "game/shared/state/player_state_commands.js",
+      "layer": "shared",
+      "outDegree": 2,
       "inDegree": 9
     },
     {
@@ -232,12 +238,6 @@
       "layer": "shared",
       "outDegree": 0,
       "inDegree": 8
-    },
-    {
-      "file": "game/domain/run/region_service.js",
-      "layer": "domain",
-      "outDegree": 1,
-      "inDegree": 7
     }
   ],
   "graph": {
@@ -832,7 +832,7 @@
       "data/status_key_data.js"
     ],
     "game/domain/combat/turn/turn_state_mutators.js": [
-      "game/core/store/state_actions.js"
+      "game/shared/state/player_state_commands.js"
     ],
     "game/domain/event/rest/build_rest_options.js": [],
     "game/domain/event/shop/build_shop_config.js": [],
@@ -1186,6 +1186,11 @@
       "game/features/combat/platform/browser/create_combat_bindings.js",
       "game/features/combat/platform/browser/create_combat_event_subscriber_handlers.js"
     ],
+    "game/features/combat/ports/public_state_capabilities.js": [
+      "game/features/combat/state/combat_cleanup_state_commands.js",
+      "game/features/combat/state/combat_setup_state_commands.js",
+      "game/features/combat/state/player_turn_state_commands.js"
+    ],
     "game/features/combat/ports/public_surface.js": [
       "game/features/combat/compat/card_methods.js",
       "game/features/combat/compat/combat_lifecycle.js",
@@ -1199,7 +1204,8 @@
       "game/features/combat/ports/public_binding_capabilities.js",
       "game/features/combat/ports/public_contract_capabilities.js",
       "game/features/combat/ports/public_module_capabilities.js",
-      "game/features/combat/ports/public_runtime_capabilities.js"
+      "game/features/combat/ports/public_runtime_capabilities.js",
+      "game/features/combat/ports/public_state_capabilities.js"
     ],
     "game/features/combat/ports/runtime_debug_snapshot.js": [
       "game/shared/runtime/runtime_debug_snapshot_utils.js"
@@ -1489,9 +1495,13 @@
       "game/features/combat/state/combat_state_action_ids.js"
     ],
     "game/features/combat/state/combat_setup_state_commands.js": [
-      "game/features/combat/state/combat_state_action_ids.js"
+      "game/features/combat/state/combat_state_action_ids.js",
+      "game/features/combat/state/commands/combat_player_setup_state_commands.js",
+      "game/features/combat/state/commands/combat_session_setup_state_commands.js"
     ],
     "game/features/combat/state/combat_state_action_ids.js": [],
+    "game/features/combat/state/commands/combat_player_setup_state_commands.js": [],
+    "game/features/combat/state/commands/combat_session_setup_state_commands.js": [],
     "game/features/combat/state/enemy_turn_state_commands.js": [],
     "game/features/combat/state/player_turn_state_commands.js": [
       "game/domain/combat/turn/turn_state_mutators.js"
@@ -1714,7 +1724,8 @@
     "game/features/event/state/event_runtime_flow_ports.js": [],
     "game/features/event/state/event_session_store.js": [],
     "game/features/event/state/event_state_commands.js": [
-      "game/shared/codex/codex_record_state_use_case.js"
+      "game/shared/codex/codex_record_state_use_case.js",
+      "game/shared/state/player_state_commands.js"
     ],
     "game/features/reward/application/build_reward_options_use_case.js": [
       "game/features/reward/ports/reward_option_policy_ports.js"
@@ -1815,7 +1826,8 @@
     "game/features/reward/public.js": [],
     "game/features/reward/state/reward_runtime_flow_ports.js": [],
     "game/features/reward/state/reward_state_commands.js": [
-      "game/shared/codex/codex_record_state_use_case.js"
+      "game/shared/codex/codex_record_state_use_case.js",
+      "game/shared/state/player_state_commands.js"
     ],
     "game/features/run/app/bind_run_outcome_action.js": [],
     "game/features/run/app/build_run_boot_actions.js": [],
