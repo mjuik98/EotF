@@ -48,13 +48,56 @@ export function applyPlayerShieldState(gs, amount) {
   return { shieldAfter: player.shield };
 }
 
-export function applyPlayerBuffState(gs, id, stacks, data = {}) {
-  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_BUFF, { id, stacks, data });
+export function setPlayerEchoState(gs, amount) {
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+
+  const nextEcho = Math.max(0, Math.min(Number(player.maxEcho || 0), Number(amount) || 0));
+  const delta = nextEcho - clampNonNegative(player.echo);
+  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_ECHO, { amount: delta });
+  if (dispatched.handled) return dispatched.result;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
+
+  player.echo = nextEcho;
+  gs.markDirty?.('hud');
+  return { echoAfter: player.echo };
+}
+
+export function adjustPlayerSilenceGaugeState(gs, amount) {
+  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_SILENCE, { amount });
   if (dispatched.handled) return dispatched.result;
   if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.silenceGauge = Math.max(0, clampNonNegative(player.silenceGauge) + (Number(amount) || 0));
+  gs.markDirty?.('hud');
+  return { silenceGauge: player.silenceGauge };
+}
+
+export function adjustPlayerTimeRiftGaugeState(gs, amount) {
+  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_TIME_RIFT, { amount });
+  if (dispatched.handled) return dispatched.result;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.timeRiftGauge = Math.max(0, clampNonNegative(player.timeRiftGauge) + (Number(amount) || 0));
+  gs.markDirty?.('hud');
+  return { timeRiftGauge: player.timeRiftGauge };
+}
+
+export function applyPlayerBuffState(gs, id, stacks, data = {}) {
+  const player = selectPlayerState(gs);
   if (!player || !id) return null;
+
+  if (typeof gs?.dispatch === 'function') {
+    const result = gs.dispatch(Actions.PLAYER_BUFF, { id, stacks, data });
+    if (result !== undefined && result !== null) return result;
+    if (player.buffs?.[id]) return player.buffs[id];
+  }
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
+
   if (!player.buffs || typeof player.buffs !== 'object') player.buffs = {};
 
   if (player.buffs[id]) {

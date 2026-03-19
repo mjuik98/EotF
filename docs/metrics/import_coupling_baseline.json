@@ -1,24 +1,24 @@
 {
-  "total": 317,
+  "total": 315,
   "byPair": {
-    "core->domain": 4,
-    "core->feature": 27,
+    "core->domain": 3,
+    "core->feature": 26,
     "core->legacy": 7,
     "core->shared": 5,
     "core->utils": 2,
     "data->systems": 2,
     "data->utils": 4,
-    "domain->core": 1,
     "domain->data": 6,
     "domain->feature": 1,
+    "domain->shared": 1,
     "domain->utils": 3,
     "engine->data": 1,
-    "feature->core": 18,
+    "feature->core": 17,
     "feature->data": 38,
     "feature->domain": 39,
     "feature->legacy": 4,
     "feature->platform": 3,
-    "feature->shared": 39,
+    "feature->shared": 41,
     "feature->state": 2,
     "feature->utils": 30,
     "legacy->core": 6,
@@ -31,7 +31,7 @@
     "platform->domain": 1,
     "platform->engine": 5,
     "platform->feature": 16,
-    "platform->legacy": 3,
+    "platform->legacy": 2,
     "platform->shared": 2,
     "platform->utils": 4,
     "shared->core": 4,
@@ -41,5 +41,5 @@
     "utils->core": 1,
     "utils->data": 2
   },
-  "generatedAt": "2026-03-19T10:30:17.235Z"
+  "generatedAt": "2026-03-19T17:24:46.147Z"
 }

@@ -2,11 +2,10 @@ import {
   registerCardDiscovered,
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
-
-const EventPlayerActionIds = Object.freeze({
-  playerGold: 'player:gold',
-  playerMaxEnergyGrowth: 'player:max-energy-growth',
-});
+import {
+  applyPlayerGoldState,
+  applyPlayerMaxEnergyGrowthState,
+} from '../../../shared/state/player_state_commands.js';
 
 function removeFirstOccurrence(list, value) {
   if (!Array.isArray(list)) return false;
@@ -16,24 +15,44 @@ function removeFirstOccurrence(list, value) {
   return true;
 }
 
-function dispatchEventPlayerState(state, action, payload) {
-  if (typeof state?.dispatch !== 'function' || state.isDispatching?.()) return null;
-  const result = state.dispatch(action, payload);
-  return result !== undefined && result !== null ? result : null;
-}
-
 function applyEventPlayerGoldState(state, amount) {
   if (!state?.player) return 0;
-  const result = dispatchEventPlayerState(state, EventPlayerActionIds.playerGold, { amount });
-  if (result && typeof state.isDispatching === 'function') return result.delta ?? (Number(amount) || 0);
+  const goldBefore = Number(state.player.gold || 0);
+  const result = applyPlayerGoldState(state, amount);
+  const goldAfterSharedCommand = Number(state.player.gold || 0);
+  if (goldAfterSharedCommand !== goldBefore) {
+    return {
+      delta: goldAfterSharedCommand - goldBefore,
+      goldAfter: goldAfterSharedCommand,
+    };
+  }
+  if (result && typeof state.isDispatching === 'function') {
+    return {
+      delta: result.delta ?? (Number(amount) || 0),
+      goldAfter: result.goldAfter ?? state.player.gold,
+    };
+  }
 
   state.player.gold = Number(state.player.gold || 0) + (Number(amount) || 0);
-  return result?.delta ?? (Number(amount) || 0);
+  return {
+    delta: Number(amount) || 0,
+    goldAfter: state.player.gold,
+  };
 }
 
 function applyEventPlayerMaxEnergyGrowthState(state, amount, options = {}) {
   if (!state?.player) return null;
-  const result = dispatchEventPlayerState(state, EventPlayerActionIds.playerMaxEnergyGrowth, { amount });
+  const maxEnergyBefore = Number(state.player.maxEnergy || 0);
+  const energyBefore = Number(state.player.energy || 0);
+  const result = applyPlayerMaxEnergyGrowthState(state, amount, options);
+  const maxEnergyAfterSharedCommand = Number(state.player.maxEnergy || 0);
+  const energyAfterSharedCommand = Number(state.player.energy || 0);
+  if (maxEnergyAfterSharedCommand !== maxEnergyBefore || energyAfterSharedCommand !== energyBefore) {
+    return {
+      maxEnergyAfter: maxEnergyAfterSharedCommand,
+      energyAfter: energyAfterSharedCommand,
+    };
+  }
   if (result && typeof state.isDispatching === 'function') return result;
 
   const player = state.player;
@@ -106,22 +125,22 @@ export function applyShopCardUpgradeState(state, cardId, upgradedId, cost = 0) {
 
 export function applyShopPotionPurchaseState(state, cost, healAmount = 30) {
   if (!state?.player) return null;
-  applyEventPlayerGoldState(state, -cost);
+  const goldResult = applyEventPlayerGoldState(state, -cost);
   state.heal?.(healAmount);
   return {
-    gold: state.player.gold,
+    gold: goldResult?.goldAfter ?? state.player.gold,
     healAmount,
   };
 }
 
 export function applyShopEnergyPurchaseState(state, cost, maxEnergyCap) {
   if (!state?.player) return null;
-  applyEventPlayerGoldState(state, -cost);
-  applyEventPlayerMaxEnergyGrowthState(state, 1, { maxEnergyCap });
+  const goldResult = applyEventPlayerGoldState(state, -cost);
+  const energyResult = applyEventPlayerMaxEnergyGrowthState(state, 1, { maxEnergyCap });
   return {
-    gold: state.player.gold,
-    maxEnergy: state.player.maxEnergy,
-    energy: state.player.energy,
+    gold: goldResult?.goldAfter ?? state.player.gold,
+    maxEnergy: energyResult?.maxEnergyAfter ?? state.player.maxEnergy,
+    energy: energyResult?.energyAfter ?? state.player.energy,
   };
 }
 

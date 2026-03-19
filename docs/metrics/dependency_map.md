@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-19T15:40:03.614Z
-- Nodes: 1234
-- Edges: 1291
+- Generated: 2026-03-19T17:24:58.571Z
+- Nodes: 1237
+- Edges: 1299
 
 ## Layer Edges
 
@@ -19,21 +19,21 @@
 | data->other | 2 |
 | data->systems | 2 |
 | data->utils | 4 |
-| domain->core | 1 |
 | domain->data | 6 |
 | domain->domain | 16 |
 | domain->feature | 1 |
+| domain->shared | 1 |
 | domain->utils | 3 |
 | engine->data | 1 |
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 656 |
+| feature->feature | 662 |
 | feature->legacy | 4 |
 | feature->other | 6 |
 | feature->platform | 3 |
-| feature->shared | 39 |
+| feature->shared | 41 |
 | feature->state | 2 |
 | feature->utils | 30 |
 | legacy->core | 6 |
@@ -65,8 +65,8 @@
 
 | File | Out Degree |
 |---|---:|
+| game/features/combat/ports/public_surface.js | 14 |
 | game/features/combat/platform/browser/combat_browser_modules.js | 13 |
-| game/features/combat/ports/public_surface.js | 13 |
 | game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/event/ports/public_application_capabilities.js | 9 |
@@ -88,18 +88,18 @@
 | game/domain/audio/audio_event_helpers.js | 29 |
 | data/game_data.js | 14 |
 | game/utils/log_utils.js | 12 |
-| game/core/store/state_actions.js | 11 |
 | game/shared/runtime/public.js | 11 |
+| game/core/store/state_actions.js | 10 |
 | game/utils/logger.js | 10 |
 | game/core/bindings/module_registry_scopes.js | 9 |
 | game/core/deps_factory.js | 9 |
+| game/shared/state/player_state_commands.js | 9 |
 | data/status_effects_data.js | 8 |
 | data/status_key_data.js | 8 |
 | game/core/event_bus.js | 8 |
 | game/features/run/ports/public_rule_capabilities.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
 | game/shared/codex/codex_record_state_use_case.js | 8 |
-| game/domain/run/region_service.js | 7 |
 
 > Full graph is available in `docs/metrics/dependency_map.json`.
 

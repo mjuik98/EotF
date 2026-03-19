@@ -2,23 +2,16 @@ import {
   registerCardDiscovered,
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
-
-const RewardPlayerActionIds = Object.freeze({
-  playerHeal: 'player:heal',
-  playerGold: 'player:gold',
-  playerMaxHpGrowth: 'player:max-hp-growth',
-  playerMaxEnergyGrowth: 'player:max-energy-growth',
-});
-
-function dispatchRewardPlayerState(state, action, payload) {
-  if (typeof state?.dispatch !== 'function') return null;
-  const result = state.dispatch(action, payload);
-  return result !== undefined && result !== null ? result : null;
-}
+import {
+  applyPlayerGoldState,
+  applyPlayerHealState,
+  applyPlayerMaxEnergyGrowthState,
+  applyPlayerMaxHpGrowthState,
+} from '../../../shared/state/player_state_commands.js';
 
 function applyRewardPlayerHealState(state, amount) {
   if (!state?.player) return 0;
-  const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerHeal, { amount });
+  const result = applyPlayerHealState(state, amount);
   if (result) return result.healed ?? 0;
 
   const hpBefore = state.player.hp || 0;
@@ -28,7 +21,7 @@ function applyRewardPlayerHealState(state, amount) {
 
 function applyRewardPlayerGoldState(state, amount) {
   if (!state?.player) return 0;
-  const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerGold, { amount });
+  const result = applyPlayerGoldState(state, amount);
   if (result) return result.delta ?? 0;
 
   state.player.gold = (state.player.gold || 0) + amount;
@@ -67,7 +60,7 @@ export function applyBlessingRewardState(state, blessing) {
   if (!state?.player || !blessing) return false;
 
   if (blessing.type === 'hp') {
-    const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerMaxHpGrowth, { amount: blessing.amount });
+    const result = applyPlayerMaxHpGrowthState(state, blessing.amount);
     if (!result) {
       state.player.maxHp = (state.player.maxHp || 0) + blessing.amount;
       state.player.hp = Math.min(state.player.maxHp, (state.player.hp || 0) + blessing.amount);
@@ -75,7 +68,7 @@ export function applyBlessingRewardState(state, blessing) {
   }
 
   if (blessing.type === 'energy') {
-    const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerMaxEnergyGrowth, { amount: blessing.amount });
+    const result = applyPlayerMaxEnergyGrowthState(state, blessing.amount);
     if (!result) {
       state.player.maxEnergy = (state.player.maxEnergy || 0) + blessing.amount;
     }
