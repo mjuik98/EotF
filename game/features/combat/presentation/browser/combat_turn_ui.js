@@ -7,7 +7,7 @@ import {
   handleEnemyEffectAction,
   processEnemyStatusTicksAction,
   processPlayerStatusTicksAction,
-} from '../../app/combat_turn_compat_actions.js';
+} from '../../application/combat_turn_runtime_actions.js';
 import {
   showBossPhaseShiftUi,
   syncCombatTurnEnergy,

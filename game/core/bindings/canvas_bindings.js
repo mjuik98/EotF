@@ -1,4 +1,4 @@
-import { createRunBindingCapabilities } from '../../features/run/public.js';
+import { createRunBindingCapabilities } from '../../features/run/ports/public_binding_capabilities.js';
 
 export function createCanvasBindings(modules, fns) {
   const bindings = createRunBindingCapabilities();

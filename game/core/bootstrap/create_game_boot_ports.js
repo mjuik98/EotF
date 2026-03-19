@@ -5,11 +5,11 @@ export function createGameBootPorts(modules) {
   const titleModules = getModuleRegistryScope(modules, 'title');
 
   return {
-    getRunDeps: () => (coreModules.GAME || modules.GAME)?.getRunDeps?.() || {},
-    getAudioEngine: () => coreModules.AudioEngine || modules.AudioEngine,
-    getParticleSystem: () => coreModules.ParticleSystem || modules.ParticleSystem,
-    getHelpPauseUI: () => titleModules.HelpPauseUI || modules.HelpPauseUI,
-    getGameBootUI: () => titleModules.GameBootUI || modules.GameBootUI,
-    getSettingsUI: () => titleModules.SettingsUI || modules.SettingsUI,
+    getRunDeps: () => coreModules.GAME?.getRunDeps?.() || {},
+    getAudioEngine: () => coreModules.AudioEngine,
+    getParticleSystem: () => coreModules.ParticleSystem,
+    getHelpPauseUI: () => titleModules.HelpPauseUI,
+    getGameBootUI: () => titleModules.GameBootUI,
+    getSettingsUI: () => titleModules.SettingsUI,
   };
 }

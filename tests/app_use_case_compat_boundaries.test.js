@@ -22,6 +22,8 @@ const APP_COMPAT_FILES = [
   'game/app/run/use_cases/start_run_use_case.js',
   'game/app/reward/use_cases/build_reward_options_use_case.js',
   'game/app/reward/use_cases/claim_reward_use_case.js',
+  'game/features/run/application/run_return_actions.js',
+  'game/features/reward/application/show_reward_screen_runtime.js',
 ];
 
 describe('app use-case compat boundaries', () => {

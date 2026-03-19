@@ -4,7 +4,7 @@ const hoisted = vi.hoisted(() => ({
   showRewardScreenRuntime: vi.fn(),
 }));
 
-vi.mock('../game/features/reward/application/show_reward_screen_runtime.js', () => ({
+vi.mock('../game/features/reward/application/workflows/show_reward_screen_workflow.js', () => ({
   showRewardScreenRuntime: hoisted.showRewardScreenRuntime,
 }));
 

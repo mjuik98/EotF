@@ -5,11 +5,9 @@ import { buildCharacterSelectMountPayload } from '../game/features/title/platfor
 describe('buildCharacterSelectMountPayload', () => {
   it('builds a title feature-owned mount payload for the character select screen', () => {
     const saveDeps = { token: 'save-deps' };
-    const modules = {
-      GS: { id: 'gs' },
-      AudioEngine: { id: 'audio' },
-      SaveSystem: { saveMeta: vi.fn() },
-    };
+    const gs = { id: 'gs' };
+    const audioEngine = { id: 'audio' };
+    const saveSystem = { saveMeta: vi.fn() };
     const deps = {
       getSaveSystemDeps: vi.fn(() => saveDeps),
     };
@@ -19,12 +17,12 @@ describe('buildCharacterSelectMountPayload', () => {
     };
     const doc = { id: 'doc' };
 
-    const payload = buildCharacterSelectMountPayload({ modules, deps, fns, doc });
+    const payload = buildCharacterSelectMountPayload({ gs, audioEngine, saveSystem, deps, fns, doc });
 
     expect(payload).toEqual(expect.objectContaining({
       doc,
-      gs: modules.GS,
-      audioEngine: modules.AudioEngine,
+      gs,
+      audioEngine,
       onConfirm: expect.any(Function),
       onBack: expect.any(Function),
       onStart: expect.any(Function),
@@ -32,6 +30,6 @@ describe('buildCharacterSelectMountPayload', () => {
 
     payload.onProgressConsumed();
     expect(deps.getSaveSystemDeps).toHaveBeenCalledTimes(1);
-    expect(modules.SaveSystem.saveMeta).toHaveBeenCalledWith(saveDeps);
+    expect(saveSystem.saveMeta).toHaveBeenCalledWith(saveDeps);
   });
 });

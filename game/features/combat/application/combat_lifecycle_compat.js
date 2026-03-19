@@ -13,10 +13,12 @@ import {
 } from '../../../domain/audio/audio_event_helpers.js';
 import { LogUtils } from '../../../utils/log_utils.js';
 import {
-  applyPassiveResonanceBurstState,
   runEndCombatFlow,
+} from './run_end_combat_flow_use_case.js';
+import {
+  applyPassiveResonanceBurstState,
   syncCombatMaxChainState,
-} from '../app/combat_lifecycle_feature_bridge.js';
+} from '../state/combat_chain_state_commands.js';
 
 const getDoc = (deps = {}) => deps.doc || document;
 const getWin = (deps = {}) => deps.win || window;

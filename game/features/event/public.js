@@ -1,39 +1,11 @@
-import { createEventShopUseCase } from './application/create_event_shop_use_case.js';
-import { createRestEventUseCase } from './application/create_rest_event_use_case.js';
-import { createDiscardEventCardUseCase, discardEventCard } from './application/discard_event_card_use_case.js';
-import { createFinishEventFlowUseCase } from './application/finish_event_flow_use_case.js';
-import { buildItemShopStockUseCase, purchaseItemFromShopUseCase } from './application/item_shop_use_case.js';
-import { createResolveEventChoiceUseCase } from './application/resolve_event_choice_use_case.js';
-import { createResolveEventSessionUseCase } from './application/resolve_event_session_use_case.js';
-import { createShowEventSessionUseCase } from './application/show_event_session_use_case.js';
+import { createEventApplicationCapabilities } from './ports/public_application_capabilities.js';
 import { createEventContractCapabilities } from './ports/public_contract_capabilities.js';
 import { createEventModuleCapabilities } from './ports/public_module_capabilities.js';
-import { buildEventContractBuilders } from './ports/contracts/build_event_contracts.js';
-import { buildEventFlowContractBuilders } from './ports/contracts/build_event_flow_contracts.js';
 import {
   createEventBindingCapabilities as buildEventBindingCapabilities,
-  createEventRewardBindingActions,
   createEventRuntimeCapabilities,
-  createEventUiCallbacks,
-  createEventUiRuntime,
 } from './ports/runtime/public_event_runtime_surface.js';
-import { buildEventViewModel } from './presentation/event_choice_view_model.js';
 import { EventManager } from './application/event_manager_compat.js';
-
-export function createEventApplicationCapabilities() {
-  return {
-    createEventShop: createEventShopUseCase,
-    createRestEvent: createRestEventUseCase,
-    createDiscardEventCard: createDiscardEventCardUseCase,
-    createFinishEventFlow: createFinishEventFlowUseCase,
-    buildItemShopStock: buildItemShopStockUseCase,
-    purchaseItemFromShop: purchaseItemFromShopUseCase,
-    createResolveEventChoice: createResolveEventChoiceUseCase,
-    createResolveEventSession: createResolveEventSessionUseCase,
-    createShowEventSession: createShowEventSessionUseCase,
-    buildViewModel: buildEventViewModel,
-  };
-}
 
 export function createEventBindingCapabilities() {
   return buildEventBindingCapabilities();
@@ -68,37 +40,12 @@ export const EventPublicSurface = Object.freeze({
   createEventFeatureFacade,
   createEventModuleCapabilities,
   createEventRuntimeCapabilities,
-  buildEventContractPublicBuilders,
-  buildEventFlowContractPublicBuilders,
   moduleCapabilities: createEventModuleCapabilities(),
   runtime: createEventRuntimeCapabilities(),
 });
 
-export function buildEventContractPublicBuilders(ctx) {
-  return buildEventContractBuilders(ctx);
-}
-
-export function buildEventFlowContractPublicBuilders(ctx) {
-  return buildEventFlowContractBuilders(ctx);
-}
-
 export {
-  buildEventViewModel,
-  buildItemShopStockUseCase,
-  buildEventContractBuilders,
-  buildEventFlowContractBuilders,
+  createEventApplicationCapabilities,
   createEventContractCapabilities,
-  createEventRewardBindingActions,
   createEventRuntimeCapabilities,
-  createDiscardEventCardUseCase,
-  createEventShopUseCase,
-  createEventUiCallbacks,
-  createEventUiRuntime,
-  createFinishEventFlowUseCase,
-  createResolveEventChoiceUseCase,
-  createResolveEventSessionUseCase,
-  createRestEventUseCase,
-  createShowEventSessionUseCase,
-  discardEventCard,
-  purchaseItemFromShopUseCase,
 };

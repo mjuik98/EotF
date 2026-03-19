@@ -1,4 +1,5 @@
 import { buildModuleRegistryGroups } from './build_module_registry_groups.js';
+import { createModuleRegistryFlatCompat } from './create_module_registry_flat_compat.js';
 
 /**
  * Builds a single module registry for composition root wiring.
@@ -8,11 +9,7 @@ export function createModuleRegistry() {
   const groups = buildModuleRegistryGroups();
 
   return {
-    ...groups.core,
-    ...groups.title,
-    ...groups.combat,
-    ...groups.run,
-    ...groups.screen,
+    ...createModuleRegistryFlatCompat(groups),
     featureScopes: Object.freeze({
       core: groups.core,
       title: groups.title,

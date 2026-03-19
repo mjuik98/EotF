@@ -1,4 +1,4 @@
-import { createRestEventAction } from '../app/event_manager_actions.js';
+import { createRestEventAction } from './event_manager_actions.js';
 
 export function createRestEventUseCase({
   gs,

@@ -4,7 +4,7 @@ import {
   resetCombatSetupState,
   syncCombatSelectedTargetState,
 } from '../state/combat_setup_state_commands.js';
-import { createEnemySpawnPlan } from '../app/enemy_spawn_planner.js';
+import { createEnemySpawnPlan } from '../domain/enemy_spawn_plan_domain.js';
 import { registerEnemyEncounter } from '../../../shared/codex/codex_records.js';
 
 function spawnScaledEnemy(gs, enemyData, difficultyScaler, extra = {}) {

@@ -1,5 +1,5 @@
 import { Logger } from '../../../utils/logger.js';
-import { createCombatApplicationCapabilities } from '../../../features/combat/public.js';
+import { createCombatApplicationCapabilities } from '../../../features/combat/ports/public_application_capabilities.js';
 import {
   getAudioEngine,
   getCombatRuntimeDeps,

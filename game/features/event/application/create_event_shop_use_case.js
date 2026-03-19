@@ -1,4 +1,4 @@
-import { createShopEventAction } from '../app/event_manager_actions.js';
+import { createShopEventAction } from './event_manager_actions.js';
 
 export function createEventShopUseCase({
   gs,

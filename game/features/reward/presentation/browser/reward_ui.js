@@ -1,5 +1,5 @@
 import { createRewardRuntime } from '../../application/create_reward_runtime.js';
-import { showRewardScreenRuntime } from '../../application/show_reward_screen_runtime.js';
+import { showRewardScreenRuntime } from '../../application/workflows/show_reward_screen_workflow.js';
 
 export const RewardUI = {
   showRewardScreen(mode = false, deps = {}) {

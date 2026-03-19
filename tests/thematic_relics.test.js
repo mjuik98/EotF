@@ -3,7 +3,7 @@ import { TurnManager } from '../game/combat/turn_manager.js';
 import { ITEMS } from '../data/items.js';
 import { Trigger } from '../game/data/triggers.js';
 import { SetBonusSystem } from '../game/systems/set_bonus_system.js';
-import { enableLegacyPlayerStateCommandFallback } from '../game/shared/state/player_state_commands.js';
+import { enableLegacyPlayerStateCommandFallback } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
 
 function createGS() {
     const gs = enableLegacyPlayerStateCommandFallback({

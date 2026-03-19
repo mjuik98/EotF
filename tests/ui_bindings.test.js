@@ -71,6 +71,15 @@ describe('createUIBindings', () => {
       },
       ScreenUI: { switchScreen: vi.fn() },
     };
+    modules.featureScopes = {
+      core: {
+        GS: modules.GS,
+        AudioEngine: modules.AudioEngine,
+      },
+      screen: {
+        ScreenUI: modules.ScreenUI,
+      },
+    };
     const fns = {};
 
     createUIBindings(modules, fns);
@@ -123,6 +132,15 @@ describe('createUIBindings', () => {
       },
       AudioEngine: { playClick: vi.fn() },
       ScreenUI: { switchScreen: vi.fn() },
+    };
+    modules.featureScopes = {
+      core: {
+        GS: modules.GS,
+        AudioEngine: modules.AudioEngine,
+      },
+      screen: {
+        ScreenUI: modules.ScreenUI,
+      },
     };
     const fns = {};
 

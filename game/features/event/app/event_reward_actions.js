@@ -1,9 +1,1 @@
-import { createEventActions } from './event_actions.js';
-import { createRewardActions } from './reward_actions.js';
-
-export function createEventRewardActions(modules, _fns, ports) {
-  return {
-    ...createEventActions(modules, ports),
-    ...createRewardActions(modules, ports),
-  };
-}
+export { createEventRewardActions } from '../platform/browser/create_event_reward_actions.js';

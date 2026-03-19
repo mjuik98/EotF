@@ -1,17 +1,9 @@
+import { publishLegacyModuleBag } from '../../../../platform/legacy/game_module_registry.js';
+
 let settingsModulesPromise = null;
 
 function assignSettingsModules(modules, settingsModules) {
-  if (!modules || !settingsModules) return settingsModules;
-
-  Object.assign(modules, settingsModules);
-
-  if (typeof modules.GAME?.register === 'function') {
-    for (const [name, moduleObj] of Object.entries(settingsModules)) {
-      modules.GAME.register(name, moduleObj);
-    }
-  }
-
-  return settingsModules;
+  return publishLegacyModuleBag(modules, settingsModules);
 }
 
 export async function ensureSettingsBrowserModules(modules) {

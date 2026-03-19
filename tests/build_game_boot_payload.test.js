@@ -12,6 +12,18 @@ describe('buildGameBootPayload', () => {
       GameBootUI: { id: 'game-boot' },
       SettingsUI: { id: 'settings' },
     };
+    modules.featureScopes = {
+      core: {
+        GAME: modules.GAME,
+        AudioEngine: modules.AudioEngine,
+        ParticleSystem: modules.ParticleSystem,
+      },
+      title: {
+        HelpPauseUI: modules.HelpPauseUI,
+        GameBootUI: modules.GameBootUI,
+        SettingsUI: modules.SettingsUI,
+      },
+    };
     const deps = {
       getGameBootDeps: vi.fn(() => ({ token: 'game-boot-deps' })),
       getHelpPauseDeps: vi.fn(() => ({ token: 'help-pause-deps' })),

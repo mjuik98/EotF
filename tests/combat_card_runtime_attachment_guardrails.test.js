@@ -32,8 +32,8 @@ function createTurnState() {
 }
 
 describe('combat card runtime attachment guardrails', () => {
-  it('does not expose card runtime helpers on the canonical GS by default', () => {
-    expect(GS.dealDamage).toBeTypeOf('function');
+  it('does not expose combat or card runtime helpers on the canonical GS by default', () => {
+    expect(GS.dealDamage).toBeUndefined();
     expect(GS.drawCards).toBeUndefined();
     expect(GS.playCard).toBeUndefined();
   });

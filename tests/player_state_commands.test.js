@@ -7,11 +7,11 @@ import {
   applyPlayerMaxHpGrowthState,
   changePlayerEnergyState,
   clearPlayerStatusState,
-  enableLegacyPlayerStateCommandFallback,
   setPlayerEnergyState,
   setPlayerMaxEnergyState,
   setPlayerHpState,
 } from '../game/shared/state/player_state_commands.js';
+import { enableLegacyPlayerStateCommandFallback } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
 import { Actions } from '../game/shared/state/public.js';
 
 describe('player_state_commands', () => {

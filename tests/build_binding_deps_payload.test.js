@@ -18,6 +18,15 @@ describe('buildBindingDepsPayload', () => {
       DeckModalUI: { resetFilter },
       CombatUI: { id: 'combat' },
     };
+    modules.featureScopes = {
+      title: {
+        ClassSelectUI: modules.ClassSelectUI,
+        CharacterSelectUI: modules.CharacterSelectUI,
+      },
+      combat: {
+        DeckModalUI: modules.DeckModalUI,
+      },
+    };
     const fns = {
       startGame: vi.fn(),
     };

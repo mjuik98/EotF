@@ -1,13 +1,13 @@
-import { createUiModuleCapabilities } from '../../../features/ui/ports/public_module_capabilities.js';
-import { createCodexModuleCapabilities } from '../../../features/codex/ports/public_module_capabilities.js';
-import { createEventModuleCapabilities } from '../../../features/event/ports/public_module_capabilities.js';
-import { createRewardModuleCapabilities } from '../../../features/reward/ports/public_module_capabilities.js';
+import { createUiFeatureFacade } from '../../../features/ui/public.js';
+import { createCodexFeatureFacade } from '../../../features/codex/public.js';
+import { createEventFeatureFacade } from '../../../features/event/public.js';
+import { createRewardFeatureFacade } from '../../../features/reward/public.js';
 
 export function buildScreenPrimaryModules() {
-  const uiCapabilities = createUiModuleCapabilities();
-  const codexCapabilities = createCodexModuleCapabilities();
-  const eventCapabilities = createEventModuleCapabilities();
-  const rewardCapabilities = createRewardModuleCapabilities();
+  const uiCapabilities = createUiFeatureFacade().moduleCapabilities;
+  const codexCapabilities = createCodexFeatureFacade().moduleCapabilities;
+  const eventCapabilities = createEventFeatureFacade().moduleCapabilities;
+  const rewardCapabilities = createRewardFeatureFacade().moduleCapabilities;
   return {
     ...uiCapabilities.primary,
     ...codexCapabilities.primary,

@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildBindingUiHelpers } from '../game/core/bootstrap/build_binding_ui_helpers.js';
@@ -12,9 +15,15 @@ describe('buildBindingUiHelpers', () => {
       getClassSelectDeps: vi.fn(() => ({ token: 'class-select-deps' })),
     };
     const modules = {
-      ClassSelectUI: { getSelectedClass, clearSelection },
-      CharacterSelectUI: { showPendingSummaries },
-      DeckModalUI: { resetFilter },
+      featureScopes: {
+        title: {
+          ClassSelectUI: { getSelectedClass, clearSelection },
+          CharacterSelectUI: { showPendingSummaries },
+        },
+        combat: {
+          DeckModalUI: { resetFilter },
+        },
+      },
     };
 
     const helpers = buildBindingUiHelpers({ modules, deps });
@@ -62,5 +71,16 @@ describe('buildBindingUiHelpers', () => {
     expect(clearSelection).toHaveBeenCalledWith({ token: 'class-select-deps' });
     expect(showPendingSummaries).toHaveBeenCalledTimes(1);
     expect(resetFilter).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps scoped lookups encapsulated in the registry helper instead of flat module fallbacks', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/core/bootstrap/build_binding_ui_helpers.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('modules.ClassSelectUI');
+    expect(source).not.toContain('modules.CharacterSelectUI');
+    expect(source).not.toContain('modules.DeckModalUI');
   });
 });

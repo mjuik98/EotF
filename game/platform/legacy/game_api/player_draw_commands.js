@@ -1,5 +1,5 @@
 import { playAttackSlash } from '../../../domain/audio/audio_event_helpers.js';
-import { createCombatApplicationCapabilities } from '../../../features/combat/public.js';
+import { createCombatApplicationCapabilities } from '../../../features/combat/ports/public_application_capabilities.js';
 import { getAudioEngine, getDefaultState, getRunRuntimeDeps } from './runtime_context.js';
 
 function getCombatApplication() {

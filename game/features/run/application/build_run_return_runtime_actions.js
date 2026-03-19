@@ -1,4 +1,4 @@
-import { returnToGameplayFromRun } from './run_return_actions.js';
+import { returnToGameplayFromRun } from './workflows/run_return_flow.js';
 import { OVERLAY_DISMISS_MS } from '../presentation/browser/run_return_overlay_presenter.js';
 
 export function buildRunReturnRuntimeActions() {

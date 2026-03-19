@@ -77,7 +77,18 @@ describe('architecture refactor guardrails', () => {
 
     expect(gameStateSource).toContain("from '../shared/state/game_state_runtime_methods.js'");
     expect(gameStateSource).not.toContain("from './game_state_core_methods.js'");
+    expect(gameStateSource).not.toContain('attachCombatGameStateRuntimeMethods(GS)');
     expect(compatSource).toContain("../shared/state/game_state_runtime_methods.js");
+  });
+
+  it('routes browser runtime GS compat attachment through the legacy runtime facade', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/platform/browser/composition/build_core_engine_modules.js'),
+      'utf8',
+    );
+
+    expect(source).toContain("from '../../../platform/legacy/state/legacy_game_state_runtime_facade.js'");
+    expect(source).toContain('createLegacyGameStateRuntimeFacade(GS)');
   });
 
   it('scans systems as a frozen compat surface', () => {
@@ -89,7 +100,7 @@ describe('architecture refactor guardrails', () => {
     expect(config.scanDirs).toContain('game/systems');
   });
 
-  it('keeps legacy game api adapters routed through feature public facades', () => {
+  it('keeps legacy game api adapters routed through feature ports and runtime surfaces', () => {
     const legacyGameApiRoot = path.join(process.cwd(), 'game/platform/legacy/game_api');
     const matches = [];
 
@@ -106,10 +117,39 @@ describe('architecture refactor guardrails', () => {
         if (source.includes('/features/') && source.includes('/application/')) {
           matches.push(path.relative(process.cwd(), fullPath));
         }
+        expect(source.includes('/features/') && source.includes('/public.js')).toBe(false);
       }
     };
 
     walk(legacyGameApiRoot);
+    expect(matches).toEqual([]);
+  });
+
+  it('keeps legacy player-state fallback enablement inside platform/legacy only', () => {
+    const root = path.join(process.cwd(), 'game');
+    const matches = [];
+
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(fullPath);
+          continue;
+        }
+        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
+
+        const relPath = path.relative(process.cwd(), fullPath).replaceAll('\\', '/');
+        if (relPath.startsWith('game/platform/legacy/')) continue;
+        if (relPath === 'game/shared/state/player_state_commands.js') continue;
+
+        const source = fs.readFileSync(fullPath, 'utf8');
+        if (source.includes('enableLegacyPlayerStateCommandFallback')) {
+          matches.push(relPath);
+        }
+      }
+    };
+
+    walk(root);
     expect(matches).toEqual([]);
   });
 
@@ -251,5 +291,42 @@ describe('architecture refactor guardrails', () => {
     expect(source).toContain("from '../../features/combat/application/combat_methods_compat.js'");
     expect(source).not.toContain("from '../../combat/card_methods.js'");
     expect(source).not.toContain("from '../../combat/combat_methods.js'");
+  });
+
+  it('routes event, run, and reward flow callers through canonical workflow owners', () => {
+    const expectations = [
+      [
+        'game/features/event/application/create_event_ui_runtime.js',
+        "from './workflows/event_choice_flow.js'",
+        '../app/event_choice_flow_actions.js',
+      ],
+      [
+        'game/features/run/presentation/browser/run_return_ui_runtime.js',
+        "from '../../application/workflows/run_return_flow.js'",
+        '../../application/run_return_actions.js',
+      ],
+      [
+        'game/features/reward/presentation/browser/reward_ui.js',
+        "from '../../application/workflows/show_reward_screen_workflow.js'",
+        '../../application/show_reward_screen_runtime.js',
+      ],
+    ];
+
+    for (const [file, allowedImport, blockedImport] of expectations) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      expect(source).toContain(allowedImport);
+      expect(source).not.toContain(blockedImport);
+    }
+  });
+
+  it('keeps core card event subscribers as a thin combat feature compat surface', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/core/event_subscribers_card_events.js'),
+      'utf8',
+    ).trim();
+
+    expect(source).toBe(
+      "export { registerCardEventSubscribers } from '../features/combat/platform/runtime/register_card_event_subscribers.js';",
+    );
   });
 });

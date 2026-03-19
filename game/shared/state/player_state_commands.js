@@ -1,5 +1,7 @@
 import { Actions } from './public.js';
 
+const LEGACY_PLAYER_STATE_FALLBACK_FLAG = '__legacyPlayerStateCommandFallback';
+
 function clampNonNegative(value) {
   return Math.max(0, Number(value) || 0);
 }
@@ -8,15 +10,8 @@ function selectPlayerState(gs) {
   return gs?.player || null;
 }
 
-export function enableLegacyPlayerStateCommandFallback(gs) {
-  if (gs && typeof gs === 'object') {
-    gs.allowLegacyStateCommandFallback = true;
-  }
-  return gs;
-}
-
 function canUseLegacyStateCommandFallback(gs) {
-  return gs?.allowLegacyStateCommandFallback === true;
+  return gs?.[LEGACY_PLAYER_STATE_FALLBACK_FLAG] === true;
 }
 
 function dispatchStateCommand(gs, action, payload) {

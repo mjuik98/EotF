@@ -1,4 +1,4 @@
-import { discardEventCardAction } from '../app/event_manager_actions.js';
+import { discardEventCardAction } from './event_manager_actions.js';
 
 export function createDiscardEventCardUseCase({ discardCard = discardEventCardAction } = {}) {
   return function discardEventCard({ gs, cardId, data, isBurn = false }) {

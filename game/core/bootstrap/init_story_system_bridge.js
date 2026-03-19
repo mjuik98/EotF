@@ -1,3 +1,6 @@
+import { registerLegacyModule } from '../../platform/legacy/game_module_registry.js';
+import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
+
 function createStorySystem(storyUI, deps) {
   return {
     unlockNextFragment: () => storyUI?.unlockNextFragment?.(deps.getStoryDeps()),
@@ -13,9 +16,9 @@ function createStorySystem(storyUI, deps) {
 }
 
 export function setupStorySystemBridge({ modules, deps }) {
-  const storySystem = createStorySystem(modules.StoryUI, deps);
-  modules.GAME.register('storySystem', storySystem);
-  modules.StorySystem = storySystem;
+  const screenModules = getModuleRegistryScope(modules, 'screen');
+  const storySystem = createStorySystem(screenModules.StoryUI, deps);
+  registerLegacyModule(modules, 'storySystem', storySystem, { assignKey: 'StorySystem' });
   deps.patchRefs({ StorySystem: storySystem });
   return storySystem;
 }

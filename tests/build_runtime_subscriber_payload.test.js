@@ -15,6 +15,21 @@ describe('buildRuntimeSubscriberPayload', () => {
       ScreenShake: { id: 'shake' },
       HitStop: { id: 'hit-stop' },
     };
+    modules.featureScopes = {
+      core: {
+        AudioEngine: modules.AudioEngine,
+        ParticleSystem: modules.ParticleSystem,
+        ScreenShake: modules.ScreenShake,
+        HitStop: modules.HitStop,
+      },
+      combat: {
+        HudUpdateUI: modules.HudUpdateUI,
+        CombatHudUI: modules.CombatHudUI,
+        FeedbackUI: modules.FeedbackUI,
+        CombatUI: modules.CombatUI,
+        StatusEffectsUI: modules.StatusEffectsUI,
+      },
+    };
     const fns = {
       renderHand: vi.fn(),
       renderCombatCards: vi.fn(),

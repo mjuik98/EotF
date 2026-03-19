@@ -1,7 +1,7 @@
 import {
   buildItemShopStockAction,
   purchaseItemFromShopAction,
-} from '../app/event_manager_actions.js';
+} from './event_manager_actions.js';
 
 export function buildItemShopStockUseCase({ gs, data, runRules } = {}) {
   if (!gs?.player || !data?.items || !runRules) return [];

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ClassProgressionSystem } from '../game/systems/class_progression_system.js';
-import { enableLegacyPlayerStateCommandFallback } from '../game/shared/state/player_state_commands.js';
+import { enableLegacyPlayerStateCommandFallback } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
 
 function createMeta(levelByClass = {}) {
   const xpByLevel = {

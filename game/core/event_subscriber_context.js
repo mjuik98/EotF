@@ -1,4 +1,7 @@
 import { GAME } from './global_bridge.js';
+import { EventBus } from './event_bus.js';
+import { Actions } from './state_actions.js';
+import { playUiCard } from '../domain/audio/audio_event_helpers.js';
 import { resolveLegacyAction } from '../platform/legacy/public.js';
 
 export function createEventSubscriberContext(uiRefs = {}) {
@@ -22,6 +25,16 @@ export function createEventSubscriberContext(uiRefs = {}) {
     return fn(...args);
   };
 
+  const subscribeAction = (actionName, callback) => {
+    const action = Actions[actionName];
+    if (!action || typeof callback !== 'function') return () => {};
+    return EventBus.on(action, callback);
+  };
+
+  const playUiCardAudio = () => {
+    return playUiCard(ui.AudioEngine || legacyRoot.Audio);
+  };
+
   const createFloatingGold = (delta) => {
     if (!doc?.body) return;
     const el = doc.createElement('div');
@@ -37,7 +50,9 @@ export function createEventSubscriberContext(uiRefs = {}) {
     createFloatingGold,
     doc,
     legacyRoot,
+    playUiCardAudio,
     resolveAction,
+    subscribeAction,
     ui,
     win,
   };

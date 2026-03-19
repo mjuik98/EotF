@@ -5,24 +5,27 @@ import {
   registerInitSequenceBindings,
   setupStorySystemBridge,
 } from '../init_sequence_steps.js';
+import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
 
 export function buildRuntimeBootBindings({ modules, fns, deps, doc, win, schedule = setTimeout }) {
+  const coreModules = getModuleRegistryScope(modules, 'core');
+  const runModules = getModuleRegistryScope(modules, 'run');
   const StorySystem = setupStorySystemBridge({ modules, deps });
 
   return {
     StorySystem,
     bootGameInit() {
       try {
-        modules.GameInit.boot(buildGameBootPayload({ modules, deps, fns }));
+        coreModules.GameInit.boot(buildGameBootPayload({ modules, deps, fns }));
       } catch (e) {
         console.error('Critical Boot Error:', e);
       }
     },
     configureMaze() {
       configureMazeSystem({
-        mazeSystem: modules.MazeSystem,
-        gs: modules.GS,
-        fovEngine: modules.FovEngine,
+        mazeSystem: runModules.MazeSystem,
+        gs: coreModules.GS,
+        fovEngine: coreModules.FovEngine,
         fns,
         doc,
         win,
@@ -30,11 +33,15 @@ export function buildRuntimeBootBindings({ modules, fns, deps, doc, win, schedul
     },
     exposeRuntimeGlobals() {
       modules.exposeGlobals({
-        _syncVolumeUI: () => modules.GameInit.syncVolumeUI(modules.AudioEngine),
+        _syncVolumeUI: () => coreModules.GameInit.syncVolumeUI(coreModules.AudioEngine),
       });
     },
     registerBindings() {
-      registerInitSequenceBindings({ game: modules.GAME, modules, fns });
+      registerInitSequenceBindings({
+        game: coreModules.GAME,
+        finalizeRunOutcome: runModules.finalizeRunOutcome,
+        fns,
+      });
     },
     scheduleCharacterSelectMount() {
       schedule(() => {

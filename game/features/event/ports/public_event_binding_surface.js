@@ -1,4 +1,4 @@
-import { createEventRewardActions } from '../app/event_reward_actions.js';
+import { createEventRewardActions } from '../platform/browser/create_event_reward_actions.js';
 import { createEventRewardPorts } from './create_event_reward_ports.js';
 
 export function createEventRewardBindingActions(modules, fns, ports = createEventRewardPorts()) {

@@ -17,6 +17,15 @@ describe('buildBindingDepsHelpers', () => {
       CharacterSelectUI: { showPendingSummaries },
       DeckModalUI: { resetFilter },
     };
+    modules.featureScopes = {
+      title: {
+        ClassSelectUI: modules.ClassSelectUI,
+        CharacterSelectUI: modules.CharacterSelectUI,
+      },
+      combat: {
+        DeckModalUI: modules.DeckModalUI,
+      },
+    };
 
     const helpers = buildBindingDepsHelpers({ modules, deps });
 

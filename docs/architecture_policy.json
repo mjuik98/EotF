@@ -860,9 +860,13 @@
       ],
       "denyTargetPrefixes": [
         "game/features/ui/app/",
-        "game/features/ui/ports/"
+        "game/features/ui/ports/contracts/",
+        "game/features/ui/ports/runtime/",
+        "game/features/ui/ports/public_contract_capabilities.js",
+        "game/features/ui/ports/public_browser_modules.js",
+        "game/features/ui/ports/public_module_capabilities.js"
       ],
-      "message": "core ui bindings must import the ui feature public facade instead of ui internals"
+      "message": "core ui bindings must import the ui binding capability port instead of ui internals"
     },
     {
       "id": "core-title-bindings-public-only",
@@ -872,9 +876,12 @@
       ],
       "denyTargetPrefixes": [
         "game/features/title/app/",
-        "game/features/title/ports/"
+        "game/features/title/ports/contracts/",
+        "game/features/title/ports/runtime/",
+        "game/features/title/ports/public_contract_capabilities.js",
+        "game/features/title/ports/public_module_capabilities.js"
       ],
-      "message": "core title bindings must import the title feature public facade instead of title internals"
+      "message": "core title bindings must import the title binding capability port instead of title internals"
     },
     {
       "id": "core-combat-bindings-public-only",
@@ -884,9 +891,12 @@
       ],
       "denyTargetPrefixes": [
         "game/features/combat/app/",
-        "game/features/combat/ports/"
+        "game/features/combat/ports/contracts/",
+        "game/features/combat/ports/runtime/",
+        "game/features/combat/ports/public_application_capabilities.js",
+        "game/features/combat/ports/public_contract_capabilities.js"
       ],
-      "message": "core combat bindings must import the combat feature public facade instead of combat internals"
+      "message": "core combat bindings must import the combat binding capability port instead of combat internals"
     },
     {
       "id": "core-run-canvas-bindings-public-only",
@@ -896,9 +906,15 @@
       ],
       "denyTargetPrefixes": [
         "game/features/run/app/",
-        "game/features/run/ports/"
+        "game/features/run/ports/contracts/",
+        "game/features/run/ports/runtime/",
+        "game/features/run/ports/public_contract_capabilities.js",
+        "game/features/run/ports/public_browser_modules.js",
+        "game/features/run/ports/public_module_capabilities.js",
+        "game/features/run/ports/public_rule_capabilities.js",
+        "game/features/run/ports/public_state_capabilities.js"
       ],
-      "message": "core run canvas bindings must import the run feature public facade instead of run internals"
+      "message": "core run canvas bindings must import the run binding capability port instead of run internals"
     },
     {
       "id": "core-event-reward-bindings-public-only",

@@ -1,7 +1,7 @@
 import {
   pickRandomEventAction,
   resolveEventChoiceAction,
-} from '../app/event_manager_actions.js';
+} from './event_manager_actions.js';
 import {
   createRestEvent,
   createShopEvent,
@@ -16,12 +16,12 @@ import {
   shopBuyEnergy,
   shopBuyPotion,
   shopUpgradeCard,
-} from '../app/event_shop_actions.js';
+} from './event_shop_actions.js';
 import {
   discardEventCard,
   generateItemShopStock,
   purchaseItem,
-} from '../app/event_item_shop_actions.js';
+} from './item_shop_actions.js';
 
 export const EventManager = {
   pickRandomEvent(gs, data) {

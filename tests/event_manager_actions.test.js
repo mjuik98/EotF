@@ -18,17 +18,17 @@ const {
   discardEventCardSpy: vi.fn(() => ({ success: false, message: 'missing' })),
 }));
 
-vi.mock('../game/features/event/app/event_choice_actions.js', () => ({
+vi.mock('../game/features/event/application/resolve_event_choice_actions.js', () => ({
   pickRandomEvent: pickRandomEventSpy,
   resolveEventChoice: resolveEventChoiceSpy,
 }));
 
-vi.mock('../game/features/event/app/event_shop_actions.js', () => ({
+vi.mock('../game/features/event/application/event_shop_actions.js', () => ({
   createShopEvent: createShopEventSpy,
   createRestEvent: createRestEventSpy,
 }));
 
-vi.mock('../game/features/event/app/event_item_shop_actions.js', () => ({
+vi.mock('../game/features/event/application/item_shop_actions.js', () => ({
   generateItemShopStock: generateItemShopStockSpy,
   purchaseItem: purchaseItemSpy,
   discardEventCard: discardEventCardSpy,

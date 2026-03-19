@@ -1,4 +1,4 @@
-import { createCombatBindingCapabilities } from '../../features/combat/public.js';
+import { createCombatBindingCapabilities } from '../../features/combat/ports/public_binding_capabilities.js';
 
 export function createCombatBindings(modules, fns) {
   const bindings = createCombatBindingCapabilities();

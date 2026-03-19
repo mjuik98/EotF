@@ -3,7 +3,7 @@ import {
   getCurrentEvent,
   setCurrentEvent,
 } from '../state/event_session_store.js';
-import { pickRandomEventAction } from '../app/event_manager_actions.js';
+import { pickRandomEventAction } from './event_manager_actions.js';
 import { createResolveEventSessionUseCase } from './resolve_event_session_use_case.js';
 import { createShowEventSessionUseCase } from './show_event_session_use_case.js';
 

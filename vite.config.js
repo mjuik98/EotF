@@ -10,6 +10,8 @@ function getManualChunk(id) {
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
   if (
     normalized.includes('/game/features/event/ports/public_event_binding_surface.js')
+    || normalized.includes('/game/features/event/platform/browser/create_event_reward_actions.js')
+    || normalized.includes('/game/features/event/platform/browser/create_event_runtime_actions.js')
     || normalized.includes('/game/features/event/app/event_reward_actions.js')
     || normalized.includes('/game/features/event/app/event_actions.js')
     || normalized.includes('/game/features/event/app/reward_actions.js')

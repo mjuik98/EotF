@@ -5,16 +5,12 @@ export function buildBindingUiHelpers({ modules, deps }) {
   const combatModules = getModuleRegistryScope(modules, 'combat');
 
   return {
-    getSelectedClass: () => titleModules.ClassSelectUI?.getSelectedClass?.()
-      || modules.ClassSelectUI?.getSelectedClass?.()
-      || null,
+    getSelectedClass: () => titleModules.ClassSelectUI?.getSelectedClass?.() || null,
     clearSelectedClass: () =>
-      (titleModules.ClassSelectUI || modules.ClassSelectUI)
-        ?.clearSelection?.(deps.getClassSelectDeps()),
+      titleModules.ClassSelectUI?.clearSelection?.(deps.getClassSelectDeps()),
     showPendingClassProgressSummary: () =>
-      (titleModules.CharacterSelectUI || modules.CharacterSelectUI)
-        ?.showPendingSummaries?.(),
+      titleModules.CharacterSelectUI?.showPendingSummaries?.(),
     resetDeckModalFilter: () =>
-      (combatModules.DeckModalUI || modules.DeckModalUI)?.resetFilter?.(),
+      combatModules.DeckModalUI?.resetFilter?.(),
   };
 }

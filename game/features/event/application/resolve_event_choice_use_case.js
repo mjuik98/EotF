@@ -2,7 +2,7 @@ import {
   lockEventFlow,
   unlockEventFlow,
 } from '../state/event_runtime_flow_ports.js';
-import { resolveEventChoiceAction } from '../app/event_manager_actions.js';
+import { resolveEventChoiceAction } from './event_manager_actions.js';
 import { buildEventViewModel } from '../presentation/event_choice_view_model.js';
 
 export function createResolveEventChoiceUseCase(options = {}) {

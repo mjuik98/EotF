@@ -1,5 +1,5 @@
 import { GAME } from '../global_bridge.js';
-import { enableLegacyPlayerStateCommandFallback } from '../../../shared/state/player_state_commands.js';
+import { enableLegacyPlayerStateCommandFallback } from '../state/legacy_player_state_command_fallback.js';
 import {
   getLegacyFeatureDeps,
 } from './legacy_runtime_resolvers.js';

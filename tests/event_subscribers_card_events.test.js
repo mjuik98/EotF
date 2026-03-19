@@ -23,7 +23,11 @@ describe('event subscribers card events', () => {
 
     registerCardEventSubscribers({
       callAction,
+      playUiCardAudio: () => {
+        audio.playEvent('ui', 'card');
+      },
       resolveAction: vi.fn(),
+      subscribeAction: (actionName, callback) => EventBus.on(Actions[actionName], callback),
       ui: {
         HudUpdateUI: {
           triggerDrawCardAnimation,

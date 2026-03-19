@@ -1,5 +1,4 @@
 import {
-    attachCombatGameStateRuntimeMethods,
     attachCoreGameStateRuntimeMethods,
 } from '../shared/state/game_state_runtime_methods.js';
 import { EventBus } from './event_bus.js';
@@ -82,4 +81,3 @@ export const GS = {
 };
 
 attachCoreGameStateRuntimeMethods(GS);
-attachCombatGameStateRuntimeMethods(GS);

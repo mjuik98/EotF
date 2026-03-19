@@ -1,17 +1,8 @@
 import { buildCodexPrimaryBrowserModules } from './codex_browser_modules.js';
+import { publishLegacyModuleBag } from '../../../../platform/legacy/game_module_registry.js';
 
 function assignCodexModules(modules, codexModules) {
-  if (!modules || !codexModules) return codexModules;
-
-  Object.assign(modules, codexModules);
-
-  if (typeof modules.GAME?.register === 'function') {
-    for (const [name, moduleObj] of Object.entries(codexModules)) {
-      modules.GAME.register(name, moduleObj);
-    }
-  }
-
-  return codexModules;
+  return publishLegacyModuleBag(modules, codexModules);
 }
 
 export async function ensureCodexBrowserModules(modules) {

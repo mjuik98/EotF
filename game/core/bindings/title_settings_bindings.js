@@ -1,4 +1,4 @@
-import { createTitleBindingCapabilities } from '../../features/title/public.js';
+import { createTitleBindingCapabilities } from '../../features/title/ports/public_binding_capabilities.js';
 
 export function createTitleSettingsBindings(modules, fns) {
   const bindings = createTitleBindingCapabilities();

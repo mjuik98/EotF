@@ -12,7 +12,7 @@ import { bootGame } from '../game/core/init_sequence.js';
 
 function createModules() {
   const registered = {};
-  return {
+  const modules = {
     GAME: {
       init: vi.fn(),
       getDeps: vi.fn(() => ({ token: 'game-deps' })),
@@ -73,6 +73,53 @@ function createModules() {
     finalizeRunOutcome: vi.fn(),
     exposeGlobals: vi.fn(),
   };
+
+  modules.featureScopes = {
+    core: {
+      GAME: modules.GAME,
+      GS: modules.GS,
+      DATA: modules.DATA,
+      AudioEngine: modules.AudioEngine,
+      ParticleSystem: modules.ParticleSystem,
+      FovEngine: modules.FovEngine,
+      ScreenShake: modules.ScreenShake,
+      HitStop: modules.HitStop,
+      GameInit: modules.GameInit,
+    },
+    title: {
+      CharacterSelectUI: modules.CharacterSelectUI,
+      HelpPauseUI: modules.HelpPauseUI,
+      GameBootUI: modules.GameBootUI,
+      SettingsUI: modules.SettingsUI,
+    },
+    combat: {
+      CombatUI: modules.CombatUI,
+      CombatHudUI: modules.CombatHudUI,
+      HudUpdateUI: modules.HudUpdateUI,
+      StatusEffectsUI: modules.StatusEffectsUI,
+      DeckModalUI: modules.DeckModalUI,
+      FeedbackUI: modules.FeedbackUI,
+      TooltipUI: modules.TooltipUI,
+    },
+    run: {
+      SaveSystem: modules.SaveSystem,
+      MazeSystem: modules.MazeSystem,
+      RunRules: modules.RunRules,
+      getRegionData: modules.getRegionData,
+      getBaseRegionIndex: modules.getBaseRegionIndex,
+      getRegionCount: modules.getRegionCount,
+      finalizeRunOutcome: modules.finalizeRunOutcome,
+    },
+    screen: {
+      ScreenUI: modules.ScreenUI,
+      StoryUI: modules.StoryUI,
+      CodexUI: modules.CodexUI,
+      EventUI: modules.EventUI,
+      RewardUI: modules.RewardUI,
+    },
+  };
+
+  return modules;
 }
 
 function createFns() {

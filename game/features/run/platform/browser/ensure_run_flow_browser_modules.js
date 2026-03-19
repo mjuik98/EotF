@@ -1,17 +1,9 @@
+import { publishLegacyModuleBag } from '../../../../platform/legacy/game_module_registry.js';
+
 let runFlowModulesPromise = null;
 
 function assignRunFlowModules(modules, runFlowModules) {
-  if (!modules || !runFlowModules) return runFlowModules;
-
-  Object.assign(modules, runFlowModules);
-
-  if (typeof modules.GAME?.register === 'function') {
-    for (const [name, moduleObj] of Object.entries(runFlowModules)) {
-      modules.GAME.register(name, moduleObj);
-    }
-  }
-
-  return runFlowModules;
+  return publishLegacyModuleBag(modules, runFlowModules);
 }
 
 export async function ensureRunFlowBrowserModules(modules) {

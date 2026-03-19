@@ -1,6 +1,6 @@
-export function registerInitSequenceBindings({ game, modules, fns }) {
+export function registerInitSequenceBindings({ game, finalizeRunOutcome, fns }) {
   game.register('advanceToNextRegion', fns.advanceToNextRegion);
-  game.register('finalizeRunOutcome', modules.finalizeRunOutcome);
+  game.register('finalizeRunOutcome', finalizeRunOutcome);
   game.register('switchScreen', fns.switchScreen);
   game.register('updateUI', fns.updateUI);
   game.register('updateNextNodes', fns.updateNextNodes);

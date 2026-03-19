@@ -1,1 +1,1 @@
-export { showRewardScreenRuntime } from '../../features/reward/application/show_reward_screen_runtime.js';
+export { showRewardScreenRuntime } from '../../features/reward/application/workflows/show_reward_screen_workflow.js';

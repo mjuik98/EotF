@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import { createGameBootPorts } from '../game/core/bootstrap/create_game_boot_ports.js';
@@ -5,22 +8,28 @@ import { createGameBootPorts } from '../game/core/bootstrap/create_game_boot_por
 describe('createGameBootPorts', () => {
   it('exposes narrow getters for boot payload composition', () => {
     const modules = {
-      GAME: { getRunDeps: vi.fn(() => ({ token: 'run' })) },
-      AudioEngine: { id: 'audio' },
-      ParticleSystem: { id: 'particles' },
-      HelpPauseUI: { id: 'help' },
-      GameBootUI: { id: 'boot' },
-      SettingsUI: { id: 'settings' },
+      featureScopes: {
+        core: {
+          GAME: { getRunDeps: vi.fn(() => ({ token: 'run' })) },
+          AudioEngine: { id: 'audio' },
+          ParticleSystem: { id: 'particles' },
+        },
+        title: {
+          HelpPauseUI: { id: 'help' },
+          GameBootUI: { id: 'boot' },
+          SettingsUI: { id: 'settings' },
+        },
+      },
     };
 
     const ports = createGameBootPorts(modules);
 
     expect(ports.getRunDeps()).toEqual({ token: 'run' });
-    expect(ports.getAudioEngine()).toBe(modules.AudioEngine);
-    expect(ports.getParticleSystem()).toBe(modules.ParticleSystem);
-    expect(ports.getHelpPauseUI()).toBe(modules.HelpPauseUI);
-    expect(ports.getGameBootUI()).toBe(modules.GameBootUI);
-    expect(ports.getSettingsUI()).toBe(modules.SettingsUI);
+    expect(ports.getAudioEngine()).toBe(modules.featureScopes.core.AudioEngine);
+    expect(ports.getParticleSystem()).toBe(modules.featureScopes.core.ParticleSystem);
+    expect(ports.getHelpPauseUI()).toBe(modules.featureScopes.title.HelpPauseUI);
+    expect(ports.getGameBootUI()).toBe(modules.featureScopes.title.GameBootUI);
+    expect(ports.getSettingsUI()).toBe(modules.featureScopes.title.SettingsUI);
   });
 
   it('prefers feature-scoped registry modules for new bootstrap consumers', () => {
@@ -53,5 +62,19 @@ describe('createGameBootPorts', () => {
     expect(ports.getHelpPauseUI()).toEqual({ id: 'scoped-help' });
     expect(ports.getGameBootUI()).toEqual({ id: 'scoped-boot' });
     expect(ports.getSettingsUI()).toEqual({ id: 'scoped-settings' });
+  });
+
+  it('keeps bootstrap ports routed through scoped registry accessors instead of flat module fallbacks', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/core/bootstrap/create_game_boot_ports.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('modules.GAME');
+    expect(source).not.toContain('modules.AudioEngine');
+    expect(source).not.toContain('modules.ParticleSystem');
+    expect(source).not.toContain('modules.HelpPauseUI');
+    expect(source).not.toContain('modules.GameBootUI');
+    expect(source).not.toContain('modules.SettingsUI');
   });
 });
