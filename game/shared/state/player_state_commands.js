@@ -36,6 +36,44 @@ export function applyPlayerHealState(gs, amount) {
   return { healed: actual, hpAfter: player.hp };
 }
 
+export function applyPlayerShieldState(gs, amount) {
+  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_SHIELD, { amount });
+  if (dispatched.handled) return dispatched.result;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.shield = Math.max(0, clampNonNegative(player.shield) + (Number(amount) || 0));
+  gs.markDirty?.('hud');
+  return { shieldAfter: player.shield };
+}
+
+export function applyPlayerBuffState(gs, id, stacks, data = {}) {
+  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_BUFF, { id, stacks, data });
+  if (dispatched.handled) return dispatched.result;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
+
+  const player = selectPlayerState(gs);
+  if (!player || !id) return null;
+  if (!player.buffs || typeof player.buffs !== 'object') player.buffs = {};
+
+  if (player.buffs[id]) {
+    player.buffs[id].stacks = clampNonNegative(player.buffs[id].stacks) + (Number(stacks) || 0);
+    Object.entries(data || {}).forEach(([key, value]) => {
+      if (typeof value === 'number') {
+        player.buffs[id][key] = Number(player.buffs[id][key] || 0) + value;
+      } else {
+        player.buffs[id][key] = value;
+      }
+    });
+  } else {
+    player.buffs[id] = { stacks: Number(stacks) || 0, ...data };
+  }
+
+  gs.markDirty?.('hud');
+  return player.buffs[id];
+}
+
 export function applyPlayerGoldState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_GOLD, { amount });
   if (dispatched.handled) return dispatched.result;
@@ -149,6 +187,19 @@ export function setPlayerHpState(gs, amount) {
   ));
   gs.markDirty?.('hud');
   return { hpAfter: player.hp };
+}
+
+export function setPlayerMaxHpState(gs, amount) {
+  const dispatched = dispatchStateCommand(gs, Actions.PLAYER_MAX_HP_SET, { amount });
+  if (dispatched.handled) return dispatched.result;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.maxHp = Math.max(1, Number(amount) || 1);
+  player.hp = Math.min(player.maxHp, clampNonNegative(player.hp));
+  gs.markDirty?.('hud');
+  return { maxHpAfter: player.maxHp, hpAfter: player.hp };
 }
 
 export function clearPlayerStatusState(gs, statusId) {

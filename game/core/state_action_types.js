@@ -12,6 +12,7 @@ export const Actions = {
   PLAYER_TIME_RIFT: 'player:time-rift',
   PLAYER_BUFF: 'player:buff',
   PLAYER_HP_SET: 'player:hp-set',
+  PLAYER_MAX_HP_SET: 'player:max-hp-set',
   PLAYER_MAX_HP_GROWTH: 'player:max-hp-growth',
   PLAYER_MAX_ENERGY_GROWTH: 'player:max-energy-growth',
   PLAYER_MAX_ENERGY_SET: 'player:max-energy-set',
@@ -32,6 +33,11 @@ export const Actions = {
   // Combat
   COMBAT_START: 'combat:start',
   COMBAT_END: 'combat:end',
+  COMBAT_REGION_SET: 'combat:region-set',
+  COMBAT_SETUP_RESET: 'combat:setup-reset',
+  COMBAT_ENEMY_ADD: 'combat:enemy-add',
+  COMBAT_DECK_PREPARE: 'combat:deck-prepare',
+  COMBAT_SELECTED_TARGET_SYNC: 'combat:selected-target-sync',
   TURN_START: 'turn:start',
   TURN_END: 'turn:end',
 

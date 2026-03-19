@@ -10,7 +10,7 @@ const hoisted = vi.hoisted(() => ({
   })),
 }));
 
-vi.mock('../game/features/ui/public.js', () => ({
+vi.mock('../game/features/ui/ports/public_module_capabilities.js', () => ({
   createUiModuleCapabilities: hoisted.createUiModuleCapabilities,
 }));
 

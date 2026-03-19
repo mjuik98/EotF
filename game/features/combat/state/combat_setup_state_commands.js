@@ -1,3 +1,5 @@
+import { CombatStateActionIds } from './combat_state_action_ids.js';
+
 function collectPermanentBuffs(player, permanentBuffIds = ['echo_berserk']) {
   const permanentBuffs = {};
   if (!player?.buffs) return permanentBuffs;
@@ -10,7 +12,13 @@ function collectPermanentBuffs(player, permanentBuffIds = ['echo_berserk']) {
   return permanentBuffs;
 }
 
-export function resetCombatSetupState(state) {
+function dispatchCombatSetupState(state, action, payload = {}) {
+  if (typeof state?.dispatch !== 'function') return null;
+  const result = state.dispatch(action, payload);
+  return result !== undefined && result !== null ? result : null;
+}
+
+export function applyCombatSetupResetReducerState(state) {
   const combat = state?.combat;
   const player = state?.player;
   if (!combat || !player) return null;
@@ -48,13 +56,23 @@ export function resetCombatSetupState(state) {
   };
 }
 
-export function addCombatEnemyState(state, enemy) {
+export function resetCombatSetupState(state) {
+  return dispatchCombatSetupState(state, CombatStateActionIds.combatSetupReset, {})
+    ?? applyCombatSetupResetReducerState(state);
+}
+
+export function applyCombatEnemyAddReducerState(state, enemy) {
   if (!state?.combat || !enemy) return null;
   state.combat.enemies.push(enemy);
   return enemy;
 }
 
-export function prepareCombatDeckState(state) {
+export function addCombatEnemyState(state, enemy) {
+  return dispatchCombatSetupState(state, CombatStateActionIds.combatEnemyAdd, { enemy })
+    ?? applyCombatEnemyAddReducerState(state, enemy);
+}
+
+export function applyCombatDeckPrepareReducerState(state) {
   const player = state?.player;
   if (!player) return null;
 
@@ -68,8 +86,18 @@ export function prepareCombatDeckState(state) {
   };
 }
 
-export function syncCombatSelectedTargetState(state) {
+export function prepareCombatDeckState(state) {
+  return dispatchCombatSetupState(state, CombatStateActionIds.combatDeckPrepare, {})
+    ?? applyCombatDeckPrepareReducerState(state);
+}
+
+export function applyCombatSelectedTargetSyncReducerState(state) {
   const firstAlive = state?.combat?.enemies?.findIndex((enemy) => enemy.hp > 0) ?? -1;
   state._selectedTarget = firstAlive >= 0 ? firstAlive : null;
   return state._selectedTarget;
+}
+
+export function syncCombatSelectedTargetState(state) {
+  return dispatchCombatSetupState(state, CombatStateActionIds.combatSelectedTargetSync, {})
+    ?? applyCombatSelectedTargetSyncReducerState(state);
 }

@@ -148,6 +148,14 @@ export const PlayerReducers = {
     return { hpAfter: player.hp };
   },
 
+  [Actions.PLAYER_MAX_HP_SET](gs, { amount }) {
+    const player = gs.player;
+    player.maxHp = Math.max(1, Number(amount) || 1);
+    player.hp = Math.min(player.maxHp, Math.max(0, Number(player.hp || 0) || 0));
+    gs.markDirty('hud');
+    return { maxHpAfter: player.maxHp, hpAfter: player.hp };
+  },
+
   [Actions.PLAYER_MAX_ENERGY_GROWTH](gs, { amount }) {
     const player = gs.player;
     const cap = Math.max(1, Number(player.maxEnergyCap || MAX_ENERGY_CAP));

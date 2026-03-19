@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Actions } from '../game/core/store/state_actions.js';
 
 import {
   applyPlayerMaxHpPenalty,
@@ -51,5 +52,38 @@ describe('run_outcome_commands', () => {
     expect(gs.stats.regionClearTimes[2]).toBe(3100);
     expect(gs.meta.worldMemory).toEqual({ savedMerchant: 1 });
     expect(gs.meta.unlocks.ascension).toBe(true);
+  });
+
+  it('prefers shared player state commands for run outcome player mutations when dispatch is available', () => {
+    const gs = {
+      player: { hp: 40, maxHp: 40, energy: 3, maxEnergy: 3 },
+      combat: { turn: 2 },
+      dispatch: vi.fn((action, payload) => {
+        if (action === Actions.PLAYER_MAX_HP_SET) {
+          gs.player.maxHp = payload.amount;
+          return { maxHpAfter: payload.amount };
+        }
+        if (action === Actions.PLAYER_HP_SET) {
+          gs.player.hp = payload.amount;
+          return { hpAfter: payload.amount };
+        }
+        if (action === Actions.PLAYER_MAX_ENERGY_SET) {
+          gs.player.maxEnergy = payload.amount;
+          return { maxEnergyAfter: payload.amount, energyAfter: Math.min(gs.player.energy, payload.amount) };
+        }
+        if (action === Actions.PLAYER_ENERGY_SET) {
+          gs.player.energy = payload.amount;
+          return { energyAfter: payload.amount };
+        }
+        return null;
+      }),
+    };
+
+    expect(applyPlayerMaxHpPenalty(gs, 5)).toBe(35);
+    expect(applySilenceCurseTurnStart(gs)).toEqual({ energy: 1, maxEnergy: 1 });
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.PLAYER_MAX_HP_SET, { amount: 35 });
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.PLAYER_HP_SET, { amount: 35 });
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.PLAYER_MAX_ENERGY_SET, { amount: 1, maxEnergyCap: undefined });
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.PLAYER_ENERGY_SET, { amount: 1 });
   });
 });

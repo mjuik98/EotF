@@ -1,3 +1,5 @@
+import { CombatStateActionIds } from './combat_state_action_ids.js';
+
 export function applyCombatStartReducerState(state) {
   const combat = state?.combat;
   if (!combat) return null;
@@ -16,7 +18,19 @@ export function applyCombatStartReducerState(state) {
   };
 }
 
+export function applyCombatRegionSetReducerState(state, regionId) {
+  state._activeRegionId = Number.isFinite(regionId) ? regionId : null;
+  return state._activeRegionId;
+}
+
 export function enterCombatState(state) {
+  if (typeof state?.dispatch === 'function') {
+    const result = state.dispatch(CombatStateActionIds.combatStart, {
+      enemies: state?.combat?.enemies || [],
+    });
+    if (result !== undefined && result !== null) return result;
+  }
+
   const combat = state?.combat;
   if (!combat) return null;
 
@@ -31,6 +45,9 @@ export function enterCombatState(state) {
 
 export function setActiveCombatRegionState(state, region) {
   const regionId = Number(region?.id);
-  state._activeRegionId = Number.isFinite(regionId) ? regionId : null;
-  return state._activeRegionId;
+  if (typeof state?.dispatch === 'function') {
+    const result = state.dispatch(CombatStateActionIds.combatRegionSet, { regionId });
+    if (result !== undefined && result !== null) return result;
+  }
+  return applyCombatRegionSetReducerState(state, regionId);
 }

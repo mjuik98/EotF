@@ -1,7 +1,7 @@
-import { createUiModuleCapabilities } from '../../../features/ui/public.js';
-import { createCodexModuleCapabilities } from '../../../features/codex/public.js';
-import { createEventModuleCapabilities } from '../../../features/event/public.js';
-import { createRewardModuleCapabilities } from '../../../features/reward/public.js';
+import { createUiModuleCapabilities } from '../../../features/ui/ports/public_module_capabilities.js';
+import { createCodexModuleCapabilities } from '../../../features/codex/ports/public_module_capabilities.js';
+import { createEventModuleCapabilities } from '../../../features/event/ports/public_module_capabilities.js';
+import { createRewardModuleCapabilities } from '../../../features/reward/ports/public_module_capabilities.js';
 
 export function buildScreenPrimaryModules() {
   const uiCapabilities = createUiModuleCapabilities();

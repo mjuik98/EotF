@@ -18,8 +18,6 @@ export const CoreGameStateRuntimeMethods = {
 
 export const GameStateRuntimeMethods = {
   ...CoreGameStateRuntimeMethods,
-  ...CombatGameStateRuntimeMethods,
-  ...CardGameStateRuntimeMethods,
 };
 
 export function attachCoreGameStateRuntimeMethods(target) {
@@ -36,7 +34,7 @@ export function attachCardGameStateRuntimeMethods(target) {
 
 export function attachGameStateRuntimeMethods(target, options = {}) {
   const {
-    includeCombat = true,
+    includeCombat = false,
     includeCards = false,
   } = options;
 

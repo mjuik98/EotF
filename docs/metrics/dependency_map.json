@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-03-19T13:48:58.922Z",
-  "nodeCount": 1232,
-  "edgeCount": 1289,
+  "generatedAt": "2026-03-19T15:30:37.009Z",
+  "nodeCount": 1234,
+  "edgeCount": 1291,
   "layerEdges": {
     "core->core": 152,
     "core->domain": 3,
-    "core->feature": 27,
+    "core->feature": 26,
     "core->legacy": 7,
     "core->other": 1,
     "core->shared": 5,
@@ -21,10 +21,10 @@
     "domain->utils": 3,
     "engine->data": 1,
     "engine->engine": 2,
-    "feature->core": 18,
+    "feature->core": 17,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 652,
+    "feature->feature": 656,
     "feature->legacy": 4,
     "feature->other": 6,
     "feature->platform": 3,
@@ -162,16 +162,16 @@
       "inDegree": 14
     },
     {
-      "file": "game/core/store/state_actions.js",
-      "layer": "core",
-      "outDegree": 0,
-      "inDegree": 12
-    },
-    {
       "file": "game/utils/log_utils.js",
       "layer": "utils",
       "outDegree": 1,
       "inDegree": 12
+    },
+    {
+      "file": "game/core/store/state_actions.js",
+      "layer": "core",
+      "outDegree": 0,
+      "inDegree": 11
     },
     {
       "file": "game/shared/runtime/public.js",
@@ -758,8 +758,7 @@
     ],
     "game/core/state_reducers/combat_reducers.js": [
       "game/core/state_action_types.js",
-      "game/features/combat/state/combat_cleanup_state_commands.js",
-      "game/features/combat/state/combat_entry_state_commands.js"
+      "game/features/combat/state/public_combat_reducer_helpers.js"
     ],
     "game/core/state_reducers/enemy_reducers.js": [
       "game/core/state_action_types.js"
@@ -1483,14 +1482,21 @@
     ],
     "game/features/combat/state/combat_chain_state_commands.js": [],
     "game/features/combat/state/combat_cleanup_state_commands.js": [
-      "game/features/combat/state/combat_setup_state_commands.js"
+      "game/features/combat/state/combat_setup_state_commands.js",
+      "game/features/combat/state/combat_state_action_ids.js"
     ],
-    "game/features/combat/state/combat_entry_state_commands.js": [],
-    "game/features/combat/state/combat_setup_state_commands.js": [],
+    "game/features/combat/state/combat_entry_state_commands.js": [
+      "game/features/combat/state/combat_state_action_ids.js"
+    ],
+    "game/features/combat/state/combat_setup_state_commands.js": [
+      "game/features/combat/state/combat_state_action_ids.js"
+    ],
+    "game/features/combat/state/combat_state_action_ids.js": [],
     "game/features/combat/state/enemy_turn_state_commands.js": [],
     "game/features/combat/state/player_turn_state_commands.js": [
       "game/domain/combat/turn/turn_state_mutators.js"
     ],
+    "game/features/combat/state/public_combat_reducer_helpers.js": [],
     "game/features/event/app/event_actions.js": [],
     "game/features/event/app/event_choice_actions.js": [],
     "game/features/event/app/event_choice_flow_actions.js": [],
@@ -1809,7 +1815,6 @@
     "game/features/reward/public.js": [],
     "game/features/reward/state/reward_runtime_flow_ports.js": [],
     "game/features/reward/state/reward_state_commands.js": [
-      "game/core/store/state_actions.js",
       "game/shared/codex/codex_record_state_use_case.js"
     ],
     "game/features/run/app/bind_run_outcome_action.js": [],
@@ -2569,7 +2574,8 @@
     ],
     "game/features/ui/presentation/browser/screen_ui_helpers.js": [],
     "game/features/ui/presentation/browser/screen_ui_runtime.js": [
-      "game/features/ui/presentation/browser/screen_ui_helpers.js"
+      "game/features/ui/presentation/browser/screen_ui_helpers.js",
+      "game/features/ui/state/screen_state_commands.js"
     ],
     "game/features/ui/presentation/browser/screen_ui.js": [
       "game/features/ui/presentation/browser/screen_ui_helpers.js",
@@ -2683,13 +2689,13 @@
       "game/features/run/ports/public_module_capabilities.js"
     ],
     "game/platform/browser/composition/build_screen_overlay_modules.js": [
-      "game/features/ui/public.js"
+      "game/features/ui/ports/public_module_capabilities.js"
     ],
     "game/platform/browser/composition/build_screen_primary_modules.js": [
-      "game/features/codex/public.js",
-      "game/features/event/public.js",
-      "game/features/reward/public.js",
-      "game/features/ui/public.js"
+      "game/features/codex/ports/public_module_capabilities.js",
+      "game/features/event/ports/public_module_capabilities.js",
+      "game/features/reward/ports/public_module_capabilities.js",
+      "game/features/ui/ports/public_module_capabilities.js"
     ],
     "game/platform/browser/composition/build_title_canvas_modules.js": [
       "game/features/title/ports/public_module_capabilities.js"

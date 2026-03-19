@@ -99,4 +99,42 @@ describe('reward_state_commands', () => {
     expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_MAX_HP_GROWTH, { amount: 5 });
     expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_MAX_ENERGY_GROWTH, { amount: 1 });
   });
+
+  it('routes mini-boss heal and gold through shared player state commands when dispatch is available', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const dispatch = vi.fn((action, payload) => {
+      if (action === Actions.PLAYER_HEAL) {
+        return { healed: payload.amount, hpAfter: 28 };
+      }
+      if (action === Actions.PLAYER_GOLD) {
+        return { delta: payload.amount, goldAfter: 23 };
+      }
+      return null;
+    });
+    const state = {
+      currentRegion: 2,
+      dispatch,
+      player: {
+        hp: 20,
+        maxHp: 40,
+        gold: 5,
+        items: [],
+      },
+    };
+    const data = {
+      items: {
+        rare: { id: 'rare', rarity: 'rare' },
+      },
+    };
+
+    const result = applyMiniBossBonusState(state, data);
+
+    expect(result).toEqual(expect.objectContaining({
+      goldGain: 18,
+      healed: 6,
+    }));
+    expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_HEAL, { amount: 6 });
+    expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_GOLD, { amount: 18 });
+    vi.restoreAllMocks();
+  });
 });

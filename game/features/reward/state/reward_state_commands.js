@@ -2,47 +2,37 @@ import {
   registerCardDiscovered,
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
-import { Actions } from '../../../core/store/state_actions.js';
 
-function dispatchRewardStateChange(state, action, payload, fallback, readResult) {
-  if (typeof state?.dispatch === 'function') {
-    const result = state.dispatch(action, payload) || null;
-    if (typeof readResult === 'function') {
-      const value = readResult(result);
-      if (value !== undefined) return value;
-    }
-  }
+const RewardPlayerActionIds = Object.freeze({
+  playerHeal: 'player:heal',
+  playerGold: 'player:gold',
+  playerMaxHpGrowth: 'player:max-hp-growth',
+  playerMaxEnergyGrowth: 'player:max-energy-growth',
+});
 
-  return typeof fallback === 'function' ? fallback() : fallback;
+function dispatchRewardPlayerState(state, action, payload) {
+  if (typeof state?.dispatch !== 'function') return null;
+  const result = state.dispatch(action, payload);
+  return result !== undefined && result !== null ? result : null;
 }
 
-function applyPlayerHealState(state, amount) {
+function applyRewardPlayerHealState(state, amount) {
   if (!state?.player) return 0;
-  return dispatchRewardStateChange(
-    state,
-    Actions.PLAYER_HEAL,
-    { amount },
-    () => {
-      const hpBefore = state.player.hp || 0;
-      state.player.hp = Math.min(state.player.maxHp || 1, hpBefore + amount);
-      return Math.max(0, state.player.hp - hpBefore);
-    },
-    (result) => result?.healed,
-  );
+  const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerHeal, { amount });
+  if (result) return result.healed ?? 0;
+
+  const hpBefore = state.player.hp || 0;
+  state.player.hp = Math.min(state.player.maxHp || 1, hpBefore + amount);
+  return Math.max(0, state.player.hp - hpBefore);
 }
 
-function applyPlayerGoldState(state, amount) {
+function applyRewardPlayerGoldState(state, amount) {
   if (!state?.player) return 0;
-  return dispatchRewardStateChange(
-    state,
-    Actions.PLAYER_GOLD,
-    { amount },
-    () => {
-      state.player.gold = (state.player.gold || 0) + amount;
-      return amount;
-    },
-    (result) => result?.delta,
-  );
+  const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerGold, { amount });
+  if (result) return result.delta ?? 0;
+
+  state.player.gold = (state.player.gold || 0) + amount;
+  return amount;
 }
 
 export function applyMiniBossBonusState(state, data) {
@@ -50,8 +40,8 @@ export function applyMiniBossBonusState(state, data) {
 
   const heal = Math.max(1, Math.floor((state.player.maxHp || 1) * 0.15));
   const goldGain = Math.max(12, Math.floor(((state.currentRegion || 0) + 1) * 6));
-  const healed = applyPlayerHealState(state, heal);
-  applyPlayerGoldState(state, goldGain);
+  const healed = applyRewardPlayerHealState(state, heal);
+  applyRewardPlayerGoldState(state, goldGain);
 
   const rareItems = Object.values(data?.items || {}).filter((item) => {
     const isRareEnough = item?.rarity === 'rare' || item?.rarity === 'legendary';
@@ -77,26 +67,18 @@ export function applyBlessingRewardState(state, blessing) {
   if (!state?.player || !blessing) return false;
 
   if (blessing.type === 'hp') {
-    dispatchRewardStateChange(
-      state,
-      Actions.PLAYER_MAX_HP_GROWTH,
-      { amount: blessing.amount },
-      () => {
-        state.player.maxHp = (state.player.maxHp || 0) + blessing.amount;
-        state.player.hp = Math.min(state.player.maxHp, (state.player.hp || 0) + blessing.amount);
-      },
-    );
+    const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerMaxHpGrowth, { amount: blessing.amount });
+    if (!result) {
+      state.player.maxHp = (state.player.maxHp || 0) + blessing.amount;
+      state.player.hp = Math.min(state.player.maxHp, (state.player.hp || 0) + blessing.amount);
+    }
   }
 
   if (blessing.type === 'energy') {
-    dispatchRewardStateChange(
-      state,
-      Actions.PLAYER_MAX_ENERGY_GROWTH,
-      { amount: blessing.amount },
-      () => {
-        state.player.maxEnergy = (state.player.maxEnergy || 0) + blessing.amount;
-      },
-    );
+    const result = dispatchRewardPlayerState(state, RewardPlayerActionIds.playerMaxEnergyGrowth, { amount: blessing.amount });
+    if (!result) {
+      state.player.maxEnergy = (state.player.maxEnergy || 0) + blessing.amount;
+    }
   }
 
   return true;

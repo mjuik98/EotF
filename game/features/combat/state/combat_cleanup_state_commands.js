@@ -1,6 +1,7 @@
-import { resetCombatSetupState } from './combat_setup_state_commands.js';
+import { CombatStateActionIds } from './combat_state_action_ids.js';
+import { applyCombatSetupResetReducerState } from './combat_setup_state_commands.js';
 
-export function applyCombatEndCleanupState(state) {
+export function applyCombatEndCleanupReducerState(state) {
   const combat = state?.combat;
   const player = state?.player;
   if (!combat || !player) return null;
@@ -9,7 +10,7 @@ export function applyCombatEndCleanupState(state) {
   combat.playerTurn = true;
 
   player.hand = [];
-  resetCombatSetupState(state);
+  applyCombatSetupResetReducerState(state);
 
   player.graveyard = [];
   player.exhausted = [];
@@ -35,4 +36,12 @@ export function applyCombatEndCleanupState(state) {
     combatActive: combat.active,
     playerTurn: combat.playerTurn,
   };
+}
+
+export function applyCombatEndCleanupState(state) {
+  if (typeof state?.dispatch === 'function' && !state.isDispatching?.()) {
+    const result = state.dispatch(CombatStateActionIds.combatEnd, { victory: true });
+    if (result !== undefined && result !== null) return result;
+  }
+  return applyCombatEndCleanupReducerState(state);
 }

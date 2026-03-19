@@ -1,3 +1,10 @@
+const RunOutcomePlayerActionIds = Object.freeze({
+  playerEnergySet: 'player:energy-set',
+  playerHpSet: 'player:hp-set',
+  playerMaxEnergySet: 'player:max-energy-set',
+  playerMaxHpSet: 'player:max-hp-set',
+});
+
 function selectCombatState(gs) {
   return gs?.combat || null;
 }
@@ -14,13 +21,65 @@ function selectStatsState(gs) {
   return gs?.stats || null;
 }
 
+function dispatchRunOutcomePlayerState(gs, action, payload) {
+  if (typeof gs?.dispatch !== 'function') return null;
+  const result = gs.dispatch(action, payload);
+  return result !== undefined && result !== null ? result : null;
+}
+
+function applyRunPlayerMaxHpState(gs, amount) {
+  const result = dispatchRunOutcomePlayerState(gs, RunOutcomePlayerActionIds.playerMaxHpSet, { amount });
+  if (result) return result;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.maxHp = Math.max(1, Number(amount) || 1);
+  player.hp = Math.min(player.maxHp, player.hp);
+  return { maxHpAfter: player.maxHp, hpAfter: player.hp };
+}
+
+function applyRunPlayerHpState(gs, amount) {
+  const result = dispatchRunOutcomePlayerState(gs, RunOutcomePlayerActionIds.playerHpSet, { amount });
+  if (result) return result;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.hp = Math.max(0, Math.min(Math.max(1, Number(player.maxHp || 1) || 1), Number(amount) || 0));
+  return { hpAfter: player.hp };
+}
+
+function applyRunPlayerMaxEnergyState(gs, amount) {
+  const result = dispatchRunOutcomePlayerState(gs, RunOutcomePlayerActionIds.playerMaxEnergySet, {
+    amount,
+    maxEnergyCap: undefined,
+  });
+  if (result) return result;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.maxEnergy = Math.max(1, Number(amount) || 1);
+  player.energy = Math.min(player.maxEnergy, Math.max(0, Number(player.energy || 0) || 0));
+  return { maxEnergyAfter: player.maxEnergy, energyAfter: player.energy };
+}
+
+function applyRunPlayerEnergyState(gs, amount) {
+  const result = dispatchRunOutcomePlayerState(gs, RunOutcomePlayerActionIds.playerEnergySet, { amount });
+  if (result) return result;
+
+  const player = selectPlayerState(gs);
+  if (!player) return null;
+  player.energy = Math.max(0, Math.min(Math.max(0, Number(player.maxEnergy || 0) || 0), Number(amount) || 0));
+  return { energyAfter: player.energy };
+}
+
 export function applyPlayerMaxHpPenalty(gs, amount) {
   const penalty = Math.max(0, Math.floor(Number(amount) || 0));
   const player = selectPlayerState(gs);
   if (!penalty || !player) return player?.maxHp || 0;
-  player.maxHp = Math.max(1, player.maxHp - penalty);
-  player.hp = Math.min(player.hp, player.maxHp);
-  return player.maxHp;
+  const nextMaxHp = Math.max(1, player.maxHp - penalty);
+  applyRunPlayerMaxHpState(gs, nextMaxHp);
+  applyRunPlayerHpState(gs, Math.min(player.hp, nextMaxHp));
+  return nextMaxHp;
 }
 
 export function applySilenceCurseTurnStart(gs, { limit = 1, recoveryTurn = 4, recoveryMaxEnergy = 3 } = {}) {
@@ -29,10 +88,10 @@ export function applySilenceCurseTurnStart(gs, { limit = 1, recoveryTurn = 4, re
   if (!player || !combat) return null;
 
   if (combat.turn <= 3) {
-    player.maxEnergy = Math.min(player.maxEnergy, limit);
-    player.energy = Math.min(player.energy, limit);
+    applyRunPlayerMaxEnergyState(gs, Math.min(player.maxEnergy, limit));
+    applyRunPlayerEnergyState(gs, Math.min(player.energy, limit));
   } else if (combat.turn === recoveryTurn) {
-    player.maxEnergy = Math.max(player.maxEnergy, recoveryMaxEnergy);
+    applyRunPlayerMaxEnergyState(gs, Math.max(player.maxEnergy, recoveryMaxEnergy));
   }
   return { energy: player.energy, maxEnergy: player.maxEnergy };
 }

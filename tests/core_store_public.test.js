@@ -6,6 +6,7 @@ import {
   attachCardGameStateRuntimeMethods,
   attachCombatGameStateRuntimeMethods,
   attachCoreGameStateRuntimeMethods,
+  attachGameStateRuntimeMethods,
 } from '../game/shared/state/game_state_runtime_methods.js';
 import {
   selectCombatState,
@@ -49,6 +50,19 @@ describe('core store public surface', () => {
     expect(coreTarget.playCard).toBeUndefined();
 
     attachCardGameStateRuntimeMethods(coreTarget);
+    expect(coreTarget.playCard).toBeTypeOf('function');
+  });
+
+  it('keeps the transitional combined attach helper core-only by default', () => {
+    const coreTarget = {};
+
+    attachGameStateRuntimeMethods(coreTarget);
+    expect(coreTarget.addLog).toBeTypeOf('function');
+    expect(coreTarget.dealDamage).toBeUndefined();
+    expect(coreTarget.playCard).toBeUndefined();
+
+    attachGameStateRuntimeMethods(coreTarget, { includeCombat: true, includeCards: true });
+    expect(coreTarget.dealDamage).toBeTypeOf('function');
     expect(coreTarget.playCard).toBeTypeOf('function');
   });
 });

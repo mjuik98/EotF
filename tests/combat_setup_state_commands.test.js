@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { Actions } from '../game/core/store/state_actions.js';
 
 import {
   addCombatEnemyState,
@@ -64,5 +65,57 @@ describe('combat_setup_state_commands', () => {
     expect(state.player.discardPile).toEqual([]);
     expect(state.player.hand).toEqual([]);
     expect(selectedTarget).toBe(1);
+  });
+
+  it('prefers reducer-driven combat setup actions when dispatch is available', () => {
+    const state = {
+      combat: {
+        enemies: [],
+        turn: 9,
+        playerTurn: false,
+        log: ['x'],
+      },
+      player: {
+        deck: ['a', 'b'],
+        maxEnergy: 4,
+      },
+      dispatch: vi.fn((action, payload) => {
+        if (action === Actions.COMBAT_SETUP_RESET) {
+          state.combat.turn = 1;
+          state.player.energy = state.player.maxEnergy;
+          return { turn: 1, selectedTarget: null };
+        }
+        if (action === Actions.COMBAT_DECK_PREPARE) {
+          state.player.drawPile = [...state.player.deck];
+          state.player.discardPile = [];
+          state.player.hand = [];
+          return {
+            drawPile: state.player.drawPile,
+            discardPile: state.player.discardPile,
+            hand: state.player.hand,
+          };
+        }
+        if (action === Actions.COMBAT_ENEMY_ADD) {
+          state.combat.enemies.push(payload.enemy);
+          return payload.enemy;
+        }
+        if (action === Actions.COMBAT_SELECTED_TARGET_SYNC) {
+          state._selectedTarget = 0;
+          return 0;
+        }
+        return null;
+      }),
+    };
+
+    resetCombatSetupState(state);
+    prepareCombatDeckState(state);
+    addCombatEnemyState(state, { hp: 5, id: 'alive' });
+    const selectedTarget = syncCombatSelectedTargetState(state);
+
+    expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_SETUP_RESET, {});
+    expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_DECK_PREPARE, {});
+    expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_ENEMY_ADD, { enemy: { hp: 5, id: 'alive' } });
+    expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_SELECTED_TARGET_SYNC, {});
+    expect(selectedTarget).toBe(0);
   });
 });

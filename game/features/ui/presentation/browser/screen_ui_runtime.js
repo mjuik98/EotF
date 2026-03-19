@@ -1,3 +1,4 @@
+import { changeScreenState } from '../../state/screen_state_commands.js';
 import {
   applyActiveScreenState,
   shouldRemoveFloatingHpPanel,
@@ -12,7 +13,12 @@ export function switchScreenRuntime(screen, deps = {}) {
 
   applyActiveScreenState(screen, doc);
 
-  if (deps?.gs) deps.gs.currentScreen = screen;
+  if (deps?.gs) {
+    const result = changeScreenState(deps.gs, screen);
+    if (result === null) {
+      deps.gs.currentScreen = screen;
+    }
+  }
   if (shouldRemoveFloatingHpPanel(screen)) {
     removeFloatingPlayerHpPanel({ doc });
   }

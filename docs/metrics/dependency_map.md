@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-19T13:48:58.922Z
-- Nodes: 1232
-- Edges: 1289
+- Generated: 2026-03-19T15:30:37.009Z
+- Nodes: 1234
+- Edges: 1291
 
 ## Layer Edges
 
@@ -10,7 +10,7 @@
 |---|---:|
 | core->core | 152 |
 | core->domain | 3 |
-| core->feature | 27 |
+| core->feature | 26 |
 | core->legacy | 7 |
 | core->other | 1 |
 | core->shared | 5 |
@@ -26,10 +26,10 @@
 | domain->utils | 3 |
 | engine->data | 1 |
 | engine->engine | 2 |
-| feature->core | 18 |
+| feature->core | 17 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 652 |
+| feature->feature | 656 |
 | feature->legacy | 4 |
 | feature->other | 6 |
 | feature->platform | 3 |
@@ -87,8 +87,8 @@
 |---|---:|
 | game/domain/audio/audio_event_helpers.js | 29 |
 | data/game_data.js | 14 |
-| game/core/store/state_actions.js | 12 |
 | game/utils/log_utils.js | 12 |
+| game/core/store/state_actions.js | 11 |
 | game/shared/runtime/public.js | 11 |
 | game/utils/logger.js | 10 |
 | game/core/bindings/module_registry_scopes.js | 9 |

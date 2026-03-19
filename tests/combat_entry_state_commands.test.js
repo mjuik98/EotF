@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { Actions } from '../game/core/store/state_actions.js';
 
 import {
   applyCombatStartReducerState,
+  enterCombatState,
   setActiveCombatRegionState,
 } from '../game/features/combat/state/combat_entry_state_commands.js';
 
@@ -34,5 +36,33 @@ describe('combat_entry_state_commands', () => {
     expect(setActiveCombatRegionState(state, { id: '5' })).toBe(5);
     expect(state._activeRegionId).toBe(5);
     expect(setActiveCombatRegionState(state, null)).toBeNull();
+  });
+
+  it('prefers reducer-driven combat entry actions when dispatch is available', () => {
+    const state = {
+      currentScreen: 'title',
+      _activeRegionId: null,
+      combat: {
+        active: false,
+        enemies: [],
+      },
+      dispatch: vi.fn((action, payload) => {
+        if (action === Actions.COMBAT_START) {
+          state.combat.active = true;
+          state.currentScreen = 'game';
+          return { enemyCount: payload.enemies.length };
+        }
+        if (action === Actions.COMBAT_REGION_SET) {
+          state._activeRegionId = payload.regionId;
+          return payload.regionId;
+        }
+        return null;
+      }),
+    };
+
+    expect(setActiveCombatRegionState(state, { id: '7' })).toBe(7);
+    expect(enterCombatState(state)).toEqual({ enemyCount: 0 });
+    expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_REGION_SET, { regionId: 7 });
+    expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_START, { enemies: [] });
   });
 });

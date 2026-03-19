@@ -1,9 +1,11 @@
 import { registerCardDiscovered } from '../../../../shared/codex/codex_record_state_use_case.js';
 import {
+  applyPlayerBuffState,
   applyPlayerGoldState,
   applyPlayerHealState,
   applyPlayerMaxEnergyGrowthState,
   applyPlayerMaxHpGrowthState,
+  applyPlayerShieldState,
 } from '../../../../shared/state/player_state_commands.js';
 import {
   applyRuntimeMasterySnapshot,
@@ -78,20 +80,28 @@ export function applyCombatStartBonuses(gs, options = {}) {
   const startBlock = toNonNegativeInt(combat.block, 0) + toNonNegativeInt(combat.guardianStartBlock, 0);
   if (startBlock > 0) {
     if (typeof gs.addShield === 'function') gs.addShield(startBlock, { name: 'Class Mastery', type: 'trait' });
-    else player.shield = Math.max(0, toNonNegativeInt(player.shield, 0) + startBlock);
+    else if (!applyPlayerShieldState(gs, startBlock)) {
+      player.shield = Math.max(0, toNonNegativeInt(player.shield, 0) + startBlock);
+    }
   }
 
   const startResonance = toNonNegativeInt(combat.swordsmanStartResonance, 0);
   if (startResonance > 0) {
-    if (typeof gs.getBuff === 'function' && gs.getBuff('resonance')) {
-      const current = gs.getBuff('resonance');
-      current.dmgBonus = toNonNegativeInt(current.dmgBonus, 0) + startResonance;
-      current.stacks = Math.max(99, toNonNegativeInt(current.stacks, 99));
-    } else if (typeof gs.addBuff === 'function') {
-      gs.addBuff('resonance', 99, { dmgBonus: startResonance });
-    } else {
+    const currentResonance = typeof gs.getBuff === 'function'
+      ? gs.getBuff('resonance')
+      : player.buffs?.resonance;
+    const stacksToAdd = Math.max(0, 99 - toNonNegativeInt(currentResonance?.stacks, 0));
+    const stacksToApply = currentResonance ? stacksToAdd : 99;
+    if (typeof gs.addBuff === 'function') {
+      gs.addBuff('resonance', stacksToApply, { dmgBonus: startResonance });
+    } else if (!applyPlayerBuffState(gs, 'resonance', stacksToApply, { dmgBonus: startResonance })) {
       if (!player.buffs || typeof player.buffs !== 'object') player.buffs = {};
-      player.buffs.resonance = { stacks: 99, dmgBonus: startResonance };
+      const existing = player.buffs.resonance || { stacks: 0, dmgBonus: 0 };
+      player.buffs.resonance = {
+        ...existing,
+        stacks: toNonNegativeInt(existing.stacks, 0) + stacksToApply,
+        dmgBonus: toNonNegativeInt(existing.dmgBonus, 0) + startResonance,
+      };
     }
   }
 

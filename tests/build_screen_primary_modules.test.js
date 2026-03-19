@@ -19,19 +19,19 @@ const hoisted = vi.hoisted(() => ({
   })),
 }));
 
-vi.mock('../game/features/ui/public.js', () => ({
+vi.mock('../game/features/ui/ports/public_module_capabilities.js', () => ({
   createUiModuleCapabilities: hoisted.createUiModuleCapabilities,
 }));
 
-vi.mock('../game/features/codex/public.js', () => ({
+vi.mock('../game/features/codex/ports/public_module_capabilities.js', () => ({
   createCodexModuleCapabilities: hoisted.createCodexModuleCapabilities,
 }));
 
-vi.mock('../game/features/event/public.js', () => ({
+vi.mock('../game/features/event/ports/public_module_capabilities.js', () => ({
   createEventModuleCapabilities: hoisted.createEventModuleCapabilities,
 }));
 
-vi.mock('../game/features/reward/public.js', () => ({
+vi.mock('../game/features/reward/ports/public_module_capabilities.js', () => ({
   createRewardModuleCapabilities: hoisted.createRewardModuleCapabilities,
 }));
 

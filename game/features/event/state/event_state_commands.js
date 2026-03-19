@@ -3,12 +3,57 @@ import {
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
 
+const EventPlayerActionIds = Object.freeze({
+  playerGold: 'player:gold',
+  playerMaxEnergyGrowth: 'player:max-energy-growth',
+});
+
 function removeFirstOccurrence(list, value) {
   if (!Array.isArray(list)) return false;
   const idx = list.indexOf(value);
   if (idx < 0) return false;
   list.splice(idx, 1);
   return true;
+}
+
+function dispatchEventPlayerState(state, action, payload) {
+  if (typeof state?.dispatch !== 'function' || state.isDispatching?.()) return null;
+  const result = state.dispatch(action, payload);
+  return result !== undefined && result !== null ? result : null;
+}
+
+function applyEventPlayerGoldState(state, amount) {
+  if (!state?.player) return 0;
+  const result = dispatchEventPlayerState(state, EventPlayerActionIds.playerGold, { amount });
+  if (result && typeof state.isDispatching === 'function') return result.delta ?? (Number(amount) || 0);
+
+  state.player.gold = Number(state.player.gold || 0) + (Number(amount) || 0);
+  return result?.delta ?? (Number(amount) || 0);
+}
+
+function applyEventPlayerMaxEnergyGrowthState(state, amount, options = {}) {
+  if (!state?.player) return null;
+  const result = dispatchEventPlayerState(state, EventPlayerActionIds.playerMaxEnergyGrowth, { amount });
+  if (result && typeof state.isDispatching === 'function') return result;
+
+  const player = state.player;
+  const cap = Math.max(1, Number(options.maxEnergyCap ?? player.maxEnergyCap ?? 5) || 5);
+  const previousMax = Math.max(1, Number(player.maxEnergy || 1) || 1);
+  const previousEnergy = Math.max(0, Number(player.energy || 0) || 0);
+  const requestedMax = Math.max(1, previousMax + (Number(amount) || 0));
+  player.maxEnergy = Math.min(cap, requestedMax);
+
+  if ((Number(amount) || 0) > 0) {
+    const actualIncrease = Math.max(0, player.maxEnergy - previousMax);
+    player.energy = Math.min(player.maxEnergy, previousEnergy + actualIncrease);
+  } else {
+    player.energy = Math.min(player.maxEnergy, previousEnergy);
+  }
+
+  return {
+    maxEnergyAfter: player.maxEnergy,
+    energyAfter: player.energy,
+  };
 }
 
 export function readItemShopStockCache(state, cacheKey) {
@@ -27,7 +72,7 @@ export function writeItemShopStockCache(state, cacheKey, stock) {
 
 export function purchaseEventShopItemState(state, item, cost) {
   if (!state?.player || !item) return false;
-  state.player.gold -= cost;
+  applyEventPlayerGoldState(state, -cost);
   state.player.items.push(item.id);
   registerItemFound(state, item.id);
   if (typeof item.onAcquire === 'function') item.onAcquire(state);
@@ -43,7 +88,7 @@ export function discardEventCardState(state, cardId) {
 
 export function applyShopCardPurchaseState(state, cardId, cost) {
   if (!state?.player || !cardId) return null;
-  state.player.gold -= cost;
+  applyEventPlayerGoldState(state, -cost);
   state.player.deck.push(cardId);
   registerCardDiscovered(state, cardId);
   return cardId;
@@ -54,14 +99,14 @@ export function applyShopCardUpgradeState(state, cardId, upgradedId, cost = 0) {
   const idx = state.player.deck.indexOf(cardId);
   if (idx < 0) return null;
   state.player.deck[idx] = upgradedId;
-  if (cost > 0) state.player.gold -= cost;
+  if (cost > 0) applyEventPlayerGoldState(state, -cost);
   registerCardDiscovered(state, upgradedId);
   return upgradedId;
 }
 
 export function applyShopPotionPurchaseState(state, cost, healAmount = 30) {
   if (!state?.player) return null;
-  state.player.gold -= cost;
+  applyEventPlayerGoldState(state, -cost);
   state.heal?.(healAmount);
   return {
     gold: state.player.gold,
@@ -71,9 +116,8 @@ export function applyShopPotionPurchaseState(state, cost, healAmount = 30) {
 
 export function applyShopEnergyPurchaseState(state, cost, maxEnergyCap) {
   if (!state?.player) return null;
-  state.player.gold -= cost;
-  state.player.maxEnergy = Math.min(maxEnergyCap, (state.player.maxEnergy || 0) + 1);
-  state.player.energy = Math.min(state.player.maxEnergy, (state.player.energy || 0) + 1);
+  applyEventPlayerGoldState(state, -cost);
+  applyEventPlayerMaxEnergyGrowthState(state, 1, { maxEnergyCap });
   return {
     gold: state.player.gold,
     maxEnergy: state.player.maxEnergy,

@@ -168,4 +168,47 @@ describe('ClassProgressionSystem mastery bonuses', () => {
     expect(gs.player._traitCardDiscounts.strike).toBe(1);
     expect(gs.player._classMasteryMageOpeningDiscountPending).toBe(0);
   });
+
+  it('prefers dispatch-backed shield and buff entrypoints for combat-start bonuses', () => {
+    const dispatch = vi.fn((action, payload) => {
+      if (action === 'player:shield') {
+        gs.player.shield += payload.amount;
+        return { shieldAfter: gs.player.shield };
+      }
+      if (action === 'player:buff') {
+        const current = gs.player.buffs[payload.id] || { stacks: 0, dmgBonus: 0 };
+        gs.player.buffs[payload.id] = {
+          ...current,
+          stacks: current.stacks + payload.stacks,
+          dmgBonus: (current.dmgBonus || 0) + Number(payload.data?.dmgBonus || 0),
+        };
+        return { buffId: payload.id };
+      }
+      return null;
+    });
+    const gs = {
+      meta: createMeta({ swordsman: 10 }),
+      player: {
+        class: 'swordsman',
+        hp: 70,
+        maxHp: 80,
+        shield: 0,
+        buffs: {
+          resonance: { stacks: 12, dmgBonus: 2 },
+        },
+      },
+      dispatch,
+    };
+
+    ClassProgressionSystem.applyCombatStartBonuses(gs, { classIds: ['swordsman'] });
+
+    expect(dispatch).toHaveBeenCalledWith('player:shield', { amount: 10 });
+    expect(dispatch).toHaveBeenCalledWith('player:buff', {
+      id: 'resonance',
+      stacks: 87,
+      data: { dmgBonus: 3 },
+    });
+    expect(gs.player.shield).toBe(10);
+    expect(gs.player.buffs.resonance).toEqual({ stacks: 99, dmgBonus: 5 });
+  });
 });

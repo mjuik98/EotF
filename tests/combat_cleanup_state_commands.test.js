@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { applyCombatEndCleanupState } from '../game/features/combat/state/combat_cleanup_state_commands.js';
 
@@ -54,5 +54,33 @@ describe('combat_cleanup_state_commands', () => {
     expect(state.player.silenceGauge).toBe(0);
     expect(state._activeRegionId).toBeNull();
     expect(state._eternityActive).toBe(false);
+  });
+
+  it('prefers the combat end reducer when dispatch is available', () => {
+    const state = {
+      combat: {
+        active: true,
+        playerTurn: false,
+      },
+      player: {
+        deck: [],
+        hand: ['strike'],
+      },
+      dispatch: vi.fn((action, payload) => {
+        if (action === 'combat:end') {
+          state.combat.active = false;
+          state.combat.playerTurn = true;
+          state.player.hand = [];
+          return { victory: payload.victory };
+        }
+        return null;
+      }),
+    };
+
+    const result = applyCombatEndCleanupState(state);
+
+    expect(state.dispatch).toHaveBeenCalledWith('combat:end', { victory: true });
+    expect(result).toEqual({ victory: true });
+    expect(state.player.hand).toEqual([]);
   });
 });
