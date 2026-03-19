@@ -66,6 +66,9 @@ vi.mock('../game/features/combat/public.js', () => ({
   buildCombatFlowContractPublicBuilders: hoisted.buildCombatFlowContractPublicBuilders,
   buildCombatUiContractPublicBuilders: hoisted.buildCombatUiContractPublicBuilders,
   buildCombatRuntimeSubscriberPublicActions: hoisted.buildCombatRuntimeSubscriberPublicActions,
+  createCombatBindingCapabilities: () => ({
+    createCombatBindings: hoisted.createCombatBindingsActions,
+  }),
   createCombatContractCapabilities: () => ({
     buildFlow: hoisted.buildCombatFlowContractPublicBuilders,
     buildUi: hoisted.buildCombatUiContractPublicBuilders,
@@ -165,6 +168,9 @@ vi.mock('../game/features/run/public.js', () => ({
   buildRunFlowContractPublicBuilders: hoisted.buildRunFlowContractPublicBuilders,
   buildRunReturnContractPublicBuilders: hoisted.buildRunReturnContractPublicBuilders,
   buildRunUiContractPublicBuilders: hoisted.buildRunUiContractPublicBuilders,
+  createRunBindingCapabilities: () => ({
+    createCanvas: hoisted.createRunCanvasBindings,
+  }),
   createRunContractCapabilities: () => ({
     buildFlow: hoisted.buildRunFlowContractPublicBuilders,
     buildReturn: hoisted.buildRunReturnContractPublicBuilders,
@@ -206,6 +212,9 @@ vi.mock('../game/features/run/platform/browser/create_run_canvas_bindings.js', (
 vi.mock('../game/features/title/public.js', () => ({
   buildTitleBootPublicActions: hoisted.buildTitleBootPublicActions,
   buildTitleRunContractPublicBuilders: hoisted.buildTitleRunContractPublicBuilders,
+  createTitleBindingCapabilities: () => ({
+    createTitle: hoisted.createTitleBindings,
+  }),
   createTitleContractCapabilities: () => ({
     buildRun: hoisted.buildTitleRunContractPublicBuilders,
     buildStory: vi.fn(() => ({ story: vi.fn() })),
@@ -235,6 +244,9 @@ vi.mock('../game/features/ui/public.js', () => ({
   buildLegacyWindowUiQueryGroups: hoisted.buildLegacyWindowUiQueryGroups,
   createLegacyHudRuntimeQueryBindings: hoisted.createLegacyHudRuntimeQueryBindings,
   createLegacyUiCommandFacade: hoisted.createLegacyUiCommandFacade,
+  createUiBindingCapabilities: () => ({
+    createUiBindingContext: hoisted.createUiBindingContext,
+  }),
   createUiContractCapabilities: () => ({
     buildShell: hoisted.buildUiShellContractPublicBuilders,
   }),

@@ -1,7 +1,7 @@
-import { createUiFeatureFacade } from '../../features/ui/public.js';
+import { createUiBindingCapabilities } from '../../features/ui/public.js';
 
 export function createUIBindings(modules, fns) {
-  const { bindings } = createUiFeatureFacade();
+  const bindings = createUiBindingCapabilities();
   const { actions, ports } = bindings.createUiBindingContext(modules, fns);
   const legacySwitchScreen = actions.switchScreen;
 

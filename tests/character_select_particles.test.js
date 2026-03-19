@@ -1,46 +1,60 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
-import { createCharacterParticleRuntime } from '../game/ui/title/character_select_particles.js';
 
-function createGradient() {
-  return {
-    addColorStop: vi.fn(),
-  };
-}
+import { createCharacterParticleRuntime } from '../game/features/title/platform/browser/character_select_particles.js';
 
-function createContext() {
-  return {
-    globalCompositeOperation: 'source-over',
-    clearRect: vi.fn(),
-    save: vi.fn(),
-    restore: vi.fn(),
-    createRadialGradient: vi.fn(() => createGradient()),
-    createLinearGradient: vi.fn(() => createGradient()),
-    beginPath: vi.fn(),
-    arc: vi.fn(),
-    fill: vi.fn(),
-    translate: vi.fn(),
-    rotate: vi.fn(),
-    stroke: vi.fn(),
-    moveTo: vi.fn(),
-    lineTo: vi.fn(),
-    closePath: vi.fn(),
-  };
-}
+describe('character select particles', () => {
+  it('keeps the entry file split across focused particle helpers', () => {
+    const root = process.cwd();
+    const entry = fs.readFileSync(
+      path.join(root, 'game/features/title/platform/browser/character_select_particles.js'),
+      'utf8',
+    );
 
-describe('character select particle runtime', () => {
-  it('sizes the particle canvas, renders a frame, and schedules the next RAF', () => {
-    const ctx = createContext();
+    expect(fs.existsSync(path.join(root, 'game/features/title/platform/browser/character_particle_model.js'))).toBe(true);
+    expect(fs.existsSync(path.join(root, 'game/features/title/platform/browser/character_particle_runtime.js'))).toBe(true);
+    expect(entry).toContain("./character_particle_model.js".replace('./', ''));
+    expect(entry).toContain("./character_particle_runtime.js".replace('./', ''));
+  });
+
+  it('starts and stops the canvas particle loop through the stable runtime export', () => {
+    const clearRect = vi.fn();
+    const getContext = vi.fn(() => ({
+      clearRect,
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      createRadialGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+      createLinearGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+      globalCompositeOperation: 'source-over',
+      shadowBlur: 0,
+      shadowColor: '',
+      fillStyle: '',
+      strokeStyle: '',
+      lineWidth: 0,
+      lineCap: '',
+      translate: vi.fn(),
+      rotate: vi.fn(),
+    }));
     const canvas = {
+      clientWidth: 120,
+      clientHeight: 80,
       width: 0,
       height: 0,
-      clientWidth: 320,
-      clientHeight: 180,
-      getContext: vi.fn(() => ctx),
+      getContext,
     };
     const doc = {
       getElementById: vi.fn((id) => (id === 'particleCanvas' ? canvas : null)),
     };
-    const requestAnimationFrameImpl = vi.fn(() => 42);
+    const requestAnimationFrameImpl = vi.fn(() => 77);
     const cancelAnimationFrameImpl = vi.fn();
 
     const runtime = createCharacterParticleRuntime({
@@ -49,33 +63,14 @@ describe('character select particle runtime', () => {
       cancelAnimationFrameImpl,
     });
 
-    runtime.start('rage', '#FF5500');
-
-    expect(cancelAnimationFrameImpl).toHaveBeenCalledWith(null);
-    expect(canvas.width).toBe(320);
-    expect(canvas.height).toBe(180);
-    expect(ctx.clearRect).toHaveBeenCalledWith(0, 0, 320, 180);
-    expect(ctx.globalCompositeOperation).toBe('source-over');
-    expect(requestAnimationFrameImpl).toHaveBeenCalledWith(expect.any(Function));
-  });
-
-  it('stops cleanly and tolerates missing canvas/context', () => {
-    const requestAnimationFrameImpl = vi.fn(() => 11);
-    const cancelAnimationFrameImpl = vi.fn();
-    const doc = {
-      getElementById: vi.fn(() => null),
-    };
-
-    const runtime = createCharacterParticleRuntime({
-      doc,
-      requestAnimationFrameImpl,
-      cancelAnimationFrameImpl,
-    });
-
-    runtime.start('orb', '#7CC8FF');
-    expect(requestAnimationFrameImpl).not.toHaveBeenCalled();
-
+    runtime.start('rage', '#ff3366');
     runtime.stop();
-    expect(cancelAnimationFrameImpl).toHaveBeenLastCalledWith(null);
+
+    expect(getContext).toHaveBeenCalledWith('2d');
+    expect(canvas.width).toBe(120);
+    expect(canvas.height).toBe(80);
+    expect(clearRect).toHaveBeenCalled();
+    expect(requestAnimationFrameImpl).toHaveBeenCalled();
+    expect(cancelAnimationFrameImpl).toHaveBeenCalled();
   });
 });

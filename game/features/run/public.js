@@ -70,9 +70,12 @@ export const RunPublicSurface = Object.freeze({
 export {
   buildRunBootPublicActions,
   buildRunReturnRuntimePublicActions,
+  createRunBindingCapabilities,
+  createRunBrowserModuleCapabilities,
   createRunContractCapabilities,
   createFinalizeRunOutcomeAction,
   createRunCanvasBindings,
+  createRunModuleCapabilities,
   createRunRuntimeCapabilities,
   createRunStateCapabilities,
   ensureRunFlowBrowserModules,

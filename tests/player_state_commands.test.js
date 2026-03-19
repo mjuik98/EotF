@@ -7,6 +7,7 @@ import {
   applyPlayerMaxHpGrowthState,
   changePlayerEnergyState,
   clearPlayerStatusState,
+  enableLegacyPlayerStateCommandFallback,
   setPlayerEnergyState,
   setPlayerMaxEnergyState,
   setPlayerHpState,
@@ -72,7 +73,7 @@ describe('player_state_commands', () => {
   });
 
   it('falls back to local mutation helpers for energy, hp, heal, and status updates', () => {
-    const gs = {
+    const gs = enableLegacyPlayerStateCommandFallback({
       markDirty: vi.fn(),
       player: {
         hp: 10,
@@ -82,7 +83,7 @@ describe('player_state_commands', () => {
         gold: 7,
         statusEffects: { weakened: 2 },
       },
-    };
+    });
 
     expect(changePlayerEnergyState(gs, 5)).toEqual({ energyAfter: 3 });
     expect(setPlayerEnergyState(gs, 0)).toEqual({ energyAfter: 0 });
@@ -98,5 +99,27 @@ describe('player_state_commands', () => {
     expect(gs.player.gold).toBe(5);
     expect(gs.player.statusEffects.weakened).toBe(0);
     expect(gs.markDirty).toHaveBeenCalled();
+  });
+
+  it('does not mutate state without dispatch unless compat fallback is explicitly enabled', () => {
+    const gs = {
+      markDirty: vi.fn(),
+      player: {
+        hp: 10,
+        maxHp: 20,
+        energy: 2,
+        maxEnergy: 3,
+        gold: 7,
+        statusEffects: { weakened: 2 },
+      },
+    };
+
+    expect(changePlayerEnergyState(gs, 1)).toBeNull();
+    expect(applyPlayerHealState(gs, 3)).toBeNull();
+    expect(clearPlayerStatusState(gs, 'weakened')).toBe(false);
+    expect(gs.player.energy).toBe(2);
+    expect(gs.player.hp).toBe(10);
+    expect(gs.player.statusEffects.weakened).toBe(2);
+    expect(gs.markDirty).not.toHaveBeenCalled();
   });
 });

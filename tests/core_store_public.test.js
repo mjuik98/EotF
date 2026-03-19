@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { GS } from '../game/core/store/game_state.js';
 import { Actions, Reducers } from '../game/core/store/state_actions.js';
 import {
+  attachCardGameStateRuntimeMethods,
   attachCombatGameStateRuntimeMethods,
   attachCoreGameStateRuntimeMethods,
 } from '../game/shared/state/game_state_runtime_methods.js';
@@ -37,13 +38,17 @@ describe('core store public surface', () => {
     expect(selectStatsState(gs)).toBe(gs.stats);
   });
 
-  it('supports explicit core-only and combat attach paths', () => {
+  it('supports explicit core-only, combat-only, and card-only attach paths', () => {
     const coreTarget = {};
     attachCoreGameStateRuntimeMethods(coreTarget);
     expect(coreTarget.addLog).toBeTypeOf('function');
     expect(coreTarget.playCard).toBeUndefined();
 
     attachCombatGameStateRuntimeMethods(coreTarget);
+    expect(coreTarget.dealDamage).toBeTypeOf('function');
+    expect(coreTarget.playCard).toBeUndefined();
+
+    attachCardGameStateRuntimeMethods(coreTarget);
     expect(coreTarget.playCard).toBeTypeOf('function');
   });
 });

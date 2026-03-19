@@ -35,7 +35,11 @@ export const TurnManager = {
   handleEnemyEffect,
 
   startPlayerTurnLogic(gs) {
-    const startPlayerTurnAction = createStartPlayerTurnAction();
+    const startPlayerTurnAction = createStartPlayerTurnAction({
+      drawCardsState: typeof gs?.drawCards === 'function'
+        ? ((state, count, options) => state.drawCards(count, options))
+        : undefined,
+    });
     return startPlayerTurnAction(gs);
   },
 

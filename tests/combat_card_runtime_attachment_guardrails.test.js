@@ -1,0 +1,75 @@
+import { describe, expect, it, vi } from 'vitest';
+
+import { GS } from '../game/core/game_state.js';
+import {
+  attachCardGameStateRuntimeMethods,
+  attachCombatGameStateRuntimeMethods,
+} from '../game/shared/state/game_state_runtime_methods.js';
+import { startPlayerTurnPolicy } from '../game/domain/combat/turn/start_player_turn_policy.js';
+import { applyEchoSkillEffect } from '../game/features/combat/presentation/browser/echo_skill_runtime_ui.js';
+
+function createTurnState() {
+  return {
+    _activeRegionId: 0,
+    player: {
+      buffs: {},
+      deck: [],
+      hand: [],
+      graveyard: [],
+      exhausted: [],
+      maxEnergy: 3,
+      energy: 0,
+    },
+    combat: {
+      active: true,
+      turn: 0,
+      playerTurn: false,
+    },
+    triggerItems: vi.fn(),
+    addLog: vi.fn(),
+    markDirty: vi.fn(),
+  };
+}
+
+describe('combat card runtime attachment guardrails', () => {
+  it('does not expose card runtime helpers on the canonical GS by default', () => {
+    expect(GS.dealDamage).toBeTypeOf('function');
+    expect(GS.drawCards).toBeUndefined();
+    expect(GS.playCard).toBeUndefined();
+  });
+
+  it('supports explicit card helper attachment for compat-only callers', () => {
+    const target = {};
+
+    attachCombatGameStateRuntimeMethods(target);
+    expect(target.dealDamage).toBeTypeOf('function');
+    expect(target.drawCards).toBeUndefined();
+
+    attachCardGameStateRuntimeMethods(target);
+    expect(target.drawCards).toBeTypeOf('function');
+    expect(target.playCard).toBeTypeOf('function');
+  });
+
+  it('routes start-of-turn draw through an explicit command seam', () => {
+    const gs = createTurnState();
+    const drawCardsState = vi.fn();
+
+    startPlayerTurnPolicy(gs, {
+      drawCardsState,
+    });
+
+    expect(drawCardsState).toHaveBeenCalledWith(gs, 5, { skipRift: true });
+  });
+
+  it('routes echo-skill draw effects through explicit deps instead of GS card helpers', () => {
+    const gs = {
+      addLog: vi.fn(),
+    };
+    const drawCardsState = vi.fn();
+
+    applyEchoSkillEffect(gs, { draw: 2, log: 'echo pulse' }, { drawCardsState });
+
+    expect(drawCardsState).toHaveBeenCalledWith(gs, 2);
+    expect(gs.addLog).toHaveBeenCalledWith('echo pulse', 'echo');
+  });
+});

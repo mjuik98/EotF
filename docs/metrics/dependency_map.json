@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-13T17:21:16.001Z",
-  "nodeCount": 1137,
-  "edgeCount": 1236,
+  "generatedAt": "2026-03-19T03:45:06.508Z",
+  "nodeCount": 1142,
+  "edgeCount": 1240,
   "layerEdges": {
     "core->core": 135,
     "core->domain": 4,
@@ -24,7 +24,7 @@
     "feature->core": 11,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 652,
+    "feature->feature": 655,
     "feature->legacy": 1,
     "feature->other": 6,
     "feature->platform": 3,
@@ -35,7 +35,7 @@
     "legacy->domain": 1,
     "legacy->feature": 8,
     "legacy->legacy": 59,
-    "legacy->shared": 13,
+    "legacy->shared": 14,
     "legacy->utils": 3,
     "platform->core": 5,
     "platform->data": 1,
@@ -73,7 +73,7 @@
       "file": "game/features/combat/public.js",
       "layer": "feature",
       "outDegree": 13,
-      "inDegree": 1
+      "inDegree": 3
     },
     {
       "file": "game/features/combat/application/death_flow_actions.js",
@@ -884,9 +884,7 @@
       "game/features/codex/ports/public_module_capabilities.js"
     ],
     "game/features/combat/app/build_runtime_subscriber_actions.js": [],
-    "game/features/combat/app/combat_actions.js": [
-      "game/features/combat/ports/public_application_capabilities.js"
-    ],
+    "game/features/combat/app/combat_actions.js": [],
     "game/features/combat/app/combat_lifecycle_feature_bridge.js": [
       "game/features/combat/app/use_cases/end_combat_use_case.js",
       "game/features/combat/platform/combat_end_ports.js",
@@ -1058,8 +1056,11 @@
       "game/features/combat/presentation/browser/status_effects_ui.js",
       "game/features/combat/presentation/browser/tooltip_ui.js"
     ],
+    "game/features/combat/platform/browser/create_combat_actions.js": [
+      "game/features/combat/ports/public_application_capabilities.js"
+    ],
     "game/features/combat/platform/browser/create_combat_bindings.js": [
-      "game/features/combat/app/combat_actions.js",
+      "game/features/combat/platform/browser/create_combat_actions.js",
       "game/features/combat/ports/create_combat_ports.js"
     ],
     "game/features/combat/platform/combat_end_ports.js": [],
@@ -1111,6 +1112,7 @@
       "game/shared/ui/player_hp_panel/public.js"
     ],
     "game/features/combat/ports/player_turn_policy_ports.js": [
+      "game/features/combat/application/public_combat_command_actions.js",
       "game/features/combat/state/player_turn_state_commands.js"
     ],
     "game/features/combat/ports/public_application_capabilities.js": [
@@ -2104,6 +2106,8 @@
     "game/features/title/platform/browser/build_character_select_mount_payload.js": [
       "game/features/title/application/character_select_actions.js"
     ],
+    "game/features/title/platform/browser/character_particle_model.js": [],
+    "game/features/title/platform/browser/character_particle_runtime.js": [],
     "game/features/title/platform/browser/character_select_audio.js": [
       "game/domain/audio/audio_event_helpers.js"
     ],
@@ -2116,7 +2120,10 @@
     "game/features/title/platform/browser/character_select_info_panel.js": [],
     "game/features/title/platform/browser/character_select_modal.js": [],
     "game/features/title/platform/browser/character_select_panels.js": [],
-    "game/features/title/platform/browser/character_select_particles.js": [],
+    "game/features/title/platform/browser/character_select_particles.js": [
+      "game/features/title/platform/browser/character_particle_model.js",
+      "game/features/title/platform/browser/character_particle_runtime.js"
+    ],
     "game/features/title/platform/browser/character_select_phase_panel.js": [],
     "game/features/title/platform/browser/character_select_radar.js": [],
     "game/features/title/platform/browser/character_select_render.js": [],
@@ -2289,10 +2296,7 @@
     "game/features/title/ui/title_screen_dom.js": [],
     "game/features/ui/app/build_runtime_subscriber_actions.js": [],
     "game/features/ui/app/legacy_query_groups.js": [],
-    "game/features/ui/app/ui_actions.js": [
-      "game/domain/audio/audio_event_helpers.js",
-      "game/features/codex/ports/public_browser_modules.js"
-    ],
+    "game/features/ui/app/ui_actions.js": [],
     "game/features/ui/application/screen_navigation_use_case.js": [
       "game/features/ui/state/screen_state_commands.js"
     ],
@@ -2306,6 +2310,11 @@
       "game/features/ui/presentation/browser/screen_ui.js",
       "game/features/ui/presentation/browser/story_ui.js"
     ],
+    "game/features/ui/platform/browser/ui_actions.js": [
+      "game/domain/audio/audio_event_helpers.js",
+      "game/features/codex/ports/public_browser_modules.js"
+    ],
+    "game/features/ui/platform/browser/ui_legacy_query_groups.js": [],
     "game/features/ui/ports/contracts/build_ui_shell_contracts.js": [
       "game/domain/audio/audio_event_helpers.js",
       "game/features/title/ports/help_pause_ui_ports.js"
@@ -2333,9 +2342,9 @@
     ],
     "game/features/ui/ports/runtime/public_ui_runtime_surface.js": [
       "game/features/ui/app/build_runtime_subscriber_actions.js",
-      "game/features/ui/app/legacy_query_groups.js",
-      "game/features/ui/app/ui_actions.js",
       "game/features/ui/application/screen_navigation_use_case.js",
+      "game/features/ui/platform/browser/ui_actions.js",
+      "game/features/ui/platform/browser/ui_legacy_query_groups.js",
       "game/features/ui/ports/create_ui_ports.js"
     ],
     "game/features/ui/presentation/browser/ending_fragment_choice_actions.js": [
@@ -2604,7 +2613,8 @@
     ],
     "game/platform/legacy/adapters/create_legacy_runtime_ports.js": [
       "game/platform/legacy/adapters/legacy_runtime_resolvers.js",
-      "game/platform/legacy/global_bridge.js"
+      "game/platform/legacy/global_bridge.js",
+      "game/shared/state/player_state_commands.js"
     ],
     "game/platform/legacy/adapters/legacy_runtime_resolvers.js": [],
     "game/platform/legacy/build_legacy_bridge_init_args.js": [],
@@ -2714,14 +2724,14 @@
       "game/platform/legacy/game_api/ui_commands.js"
     ],
     "game/platform/legacy/game_api/combat_commands.js": [
-      "game/features/combat/ports/public_application_capabilities.js",
+      "game/features/combat/public.js",
       "game/platform/legacy/game_api/runtime_context.js",
       "game/utils/logger.js"
     ],
     "game/platform/legacy/game_api/player_commands.js": [],
     "game/platform/legacy/game_api/player_draw_commands.js": [
       "game/domain/audio/audio_event_helpers.js",
-      "game/features/combat/ports/public_application_capabilities.js",
+      "game/features/combat/public.js",
       "game/platform/legacy/game_api/runtime_context.js"
     ],
     "game/platform/legacy/game_api/player_health_commands.js": [
@@ -2745,7 +2755,7 @@
       "game/utils/logger.js"
     ],
     "game/platform/legacy/game_api/ui_commands.js": [
-      "game/features/ui/ports/runtime/public_ui_runtime_surface.js",
+      "game/features/ui/public.js",
       "game/platform/legacy/game_api/runtime_context.js"
     ],
     "game/platform/legacy/game_module_registry.js": [],

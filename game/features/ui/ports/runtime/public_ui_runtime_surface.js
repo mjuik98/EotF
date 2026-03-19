@@ -1,10 +1,10 @@
-import { createUiActions } from '../../app/ui_actions.js';
+import { createUiActions } from '../../platform/browser/ui_actions.js';
 import { buildUiRuntimeSubscriberActions } from '../../app/build_runtime_subscriber_actions.js';
 import {
   buildLegacyGameApiRuntimeHudQueryGroups,
   buildLegacyWindowUiQueryGroups,
   createLegacyHudRuntimeQueryBindings,
-} from '../../app/legacy_query_groups.js';
+} from '../../platform/browser/ui_legacy_query_groups.js';
 import {
   setScreenService,
   showGameplayScreenService,

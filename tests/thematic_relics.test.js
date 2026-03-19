@@ -3,9 +3,10 @@ import { TurnManager } from '../game/combat/turn_manager.js';
 import { ITEMS } from '../data/items.js';
 import { Trigger } from '../game/data/triggers.js';
 import { SetBonusSystem } from '../game/systems/set_bonus_system.js';
+import { enableLegacyPlayerStateCommandFallback } from '../game/shared/state/player_state_commands.js';
 
 function createGS() {
-    const gs = {
+    const gs = enableLegacyPlayerStateCommandFallback({
         player: {
             hp: 50,
             maxHp: 100,
@@ -87,7 +88,7 @@ function createGS() {
 
             return result;
         }
-    };
+    });
     return gs;
 }
 

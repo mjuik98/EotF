@@ -45,7 +45,12 @@ export function buildTitleStoryContractPublicBuilders(ctx) {
   return buildTitleStoryContractBuilders(ctx);
 }
 
-export { createTitleBindings, createTitleContractCapabilities };
+export {
+  createTitleBindingCapabilities,
+  createTitleBindings,
+  createTitleContractCapabilities,
+  createTitleModuleCapabilities,
+};
 export {
   buildTitleBootPublicActions,
   buildTitleHelpPausePublicActions,

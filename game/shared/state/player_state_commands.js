@@ -8,6 +8,17 @@ function selectPlayerState(gs) {
   return gs?.player || null;
 }
 
+export function enableLegacyPlayerStateCommandFallback(gs) {
+  if (gs && typeof gs === 'object') {
+    gs.allowLegacyStateCommandFallback = true;
+  }
+  return gs;
+}
+
+function canUseLegacyStateCommandFallback(gs) {
+  return gs?.allowLegacyStateCommandFallback === true;
+}
+
 function dispatchStateCommand(gs, action, payload) {
   if (typeof gs?.dispatch !== 'function') {
     return { handled: false, result: null };
@@ -23,6 +34,7 @@ function dispatchStateCommand(gs, action, payload) {
 export function applyPlayerHealState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_HEAL, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -35,6 +47,7 @@ export function applyPlayerHealState(gs, amount) {
 export function applyPlayerGoldState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_GOLD, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -46,6 +59,7 @@ export function applyPlayerGoldState(gs, amount) {
 export function applyPlayerMaxHpGrowthState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_MAX_HP_GROWTH, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -62,6 +76,7 @@ export function applyPlayerMaxHpGrowthState(gs, amount) {
 export function applyPlayerMaxEnergyGrowthState(gs, amount, options = {}) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_MAX_ENERGY_GROWTH, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -88,6 +103,7 @@ export function setPlayerMaxEnergyState(gs, amount, options = {}) {
     maxEnergyCap: options.maxEnergyCap,
   });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -101,6 +117,7 @@ export function setPlayerMaxEnergyState(gs, amount, options = {}) {
 export function changePlayerEnergyState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_ENERGY_ADJUST, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -115,6 +132,7 @@ export function changePlayerEnergyState(gs, amount) {
 export function setPlayerEnergyState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_ENERGY_SET, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -129,6 +147,7 @@ export function setPlayerEnergyState(gs, amount) {
 export function setPlayerHpState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_HP_SET, { amount });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -143,6 +162,7 @@ export function setPlayerHpState(gs, amount) {
 export function clearPlayerStatusState(gs, statusId) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_STATUS_CLEAR, { statusId });
   if (dispatched.handled) return dispatched.result;
+  if (!canUseLegacyStateCommandFallback(gs)) return false;
 
   const statusEffects = selectPlayerState(gs)?.statusEffects;
   if (!statusEffects || !statusId) return false;

@@ -11,6 +11,8 @@ import {
 export function startPlayerTurnPolicy(gs, commands = {}) {
   const consumePlayerBuffState = commands.consumePlayerBuffState
     || ((state, buffId) => decrementStackedBuff(state?.player?.buffs, buffId));
+  const drawCardsState = commands.drawCardsState
+    || ((state, count, options) => state?.drawCards?.(count, options));
   const beginPlayerTurnState = commands.beginPlayerTurnState
     || ((state, { isStunned = false } = {}) => {
       state.combat.turn += 1;
@@ -96,7 +98,7 @@ export function startPlayerTurnPolicy(gs, commands = {}) {
   }
 
   gs.triggerItems?.('turn_start');
-  gs.drawCards(drawCount, { skipRift: true });
+  drawCardsState(gs, drawCount, { skipRift: true });
 
   return { isStunned };
 }

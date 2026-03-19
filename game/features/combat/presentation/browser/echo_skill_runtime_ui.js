@@ -29,7 +29,10 @@ export function applyEchoSkillEffect(gs, skillDef, deps = {}) {
   }
   if (skillDef.shield) gs.addShield(skillDef.shield);
   if (skillDef.weaken) gs.applyEnemyStatus('weakened', skillDef.weaken);
-  if (skillDef.draw) gs.drawCards(skillDef.draw);
+  if (skillDef.draw) {
+    if (typeof deps.drawCardsState === 'function') deps.drawCardsState(gs, skillDef.draw);
+    else gs.drawCards?.(skillDef.draw);
+  }
   if (skillDef.echo) gs.addEcho(skillDef.echo);
   if (skillDef.vanish) gs.addBuff('vanish', skillDef.vanish, {});
   if (skillDef.heal) gs.heal(skillDef.heal);

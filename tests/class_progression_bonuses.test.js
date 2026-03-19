@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ClassProgressionSystem } from '../game/systems/class_progression_system.js';
+import { enableLegacyPlayerStateCommandFallback } from '../game/shared/state/player_state_commands.js';
 
 function createMeta(levelByClass = {}) {
   const xpByLevel = {
@@ -27,7 +28,7 @@ function createMeta(levelByClass = {}) {
 
 describe('ClassProgressionSystem mastery bonuses', () => {
   it('applies run-start permanent bonuses and starter upgrades once', () => {
-    const gs = {
+    const gs = enableLegacyPlayerStateCommandFallback({
       meta: createMeta({ swordsman: 10 }),
       player: {
         class: 'swordsman',
@@ -39,7 +40,7 @@ describe('ClassProgressionSystem mastery bonuses', () => {
         deck: ['strike', 'defend', 'foot_step'],
         buffs: {},
       },
-    };
+    });
     const data = {
       startDecks: {
         swordsman: ['strike', 'defend', 'foot_step'],

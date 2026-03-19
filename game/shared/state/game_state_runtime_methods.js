@@ -5,6 +5,9 @@ import { PlayerMethods } from './player_runtime_methods.js';
 
 export const CombatGameStateRuntimeMethods = {
   ...CombatMethods,
+};
+
+export const CardGameStateRuntimeMethods = {
   ...CardMethods,
 };
 
@@ -16,6 +19,7 @@ export const CoreGameStateRuntimeMethods = {
 export const GameStateRuntimeMethods = {
   ...CoreGameStateRuntimeMethods,
   ...CombatGameStateRuntimeMethods,
+  ...CardGameStateRuntimeMethods,
 };
 
 export function attachCoreGameStateRuntimeMethods(target) {
@@ -26,12 +30,18 @@ export function attachCombatGameStateRuntimeMethods(target) {
   return Object.assign(target, CombatGameStateRuntimeMethods);
 }
 
+export function attachCardGameStateRuntimeMethods(target) {
+  return Object.assign(target, CardGameStateRuntimeMethods);
+}
+
 export function attachGameStateRuntimeMethods(target, options = {}) {
   const {
     includeCombat = true,
+    includeCards = false,
   } = options;
 
   attachCoreGameStateRuntimeMethods(target);
   if (includeCombat) attachCombatGameStateRuntimeMethods(target);
+  if (includeCards) attachCardGameStateRuntimeMethods(target);
   return target;
 }
