@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createLegacyRuntimePorts } from '../game/platform/legacy/adapters/create_legacy_runtime_ports.js';
+import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from '../game/shared/state/player_state_command_fallback_flag.js';
 
 describe('createLegacyRuntimePorts', () => {
   it('reads legacy runtime values from a provided root object', () => {
@@ -28,6 +29,7 @@ describe('createLegacyRuntimePorts', () => {
     expect(ports.getCurrentCard('strike')).toBe(card);
     expect(ports.getAudioEngine()).toBe(audio);
     expect(ports.getDefaultState()).toBe(state);
+    expect(state[LEGACY_PLAYER_STATE_FALLBACK_FLAG]).toBeUndefined();
   });
 
   it('falls back to empty feature dep bags when a legacy getter is missing', () => {

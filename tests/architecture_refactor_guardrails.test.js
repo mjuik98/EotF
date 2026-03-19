@@ -81,14 +81,20 @@ describe('architecture refactor guardrails', () => {
     expect(compatSource).toContain("../shared/state/game_state_runtime_methods.js");
   });
 
-  it('routes browser runtime GS compat attachment through the legacy runtime facade', () => {
-    const source = fs.readFileSync(
+  it('keeps browser runtime GS exports canonical and pushes legacy GS facade wrapping into compat helpers', () => {
+    const engineSource = fs.readFileSync(
       path.join(process.cwd(), 'game/platform/browser/composition/build_core_engine_modules.js'),
       'utf8',
     );
+    const compatSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/core/bindings/create_module_registry_flat_compat.js'),
+      'utf8',
+    );
 
-    expect(source).toContain("from '../../../platform/legacy/state/legacy_game_state_runtime_facade.js'");
-    expect(source).toContain('createLegacyGameStateRuntimeFacade(GS)');
+    expect(engineSource).not.toContain("from '../../../platform/legacy/state/legacy_game_state_runtime_facade.js'");
+    expect(engineSource).not.toContain('createLegacyGameStateRuntimeFacade(GS)');
+    expect(compatSource).toContain("../game_state_core_methods.js");
+    expect(compatSource).toContain('createLegacyGameStateRuntimeFacade');
   });
 
   it('scans systems as a frozen compat surface', () => {
@@ -151,6 +157,16 @@ describe('architecture refactor guardrails', () => {
 
     walk(root);
     expect(matches).toEqual([]);
+  });
+
+  it('keeps shared player-state commands free of legacy fallback flag literals', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/shared/state/player_state_commands.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('__legacyPlayerStateCommandFallback');
+    expect(source).toContain("./player_state_command_fallback_flag.js");
   });
 
   it('keeps run region rules free of the core global bridge fallback', () => {

@@ -21,21 +21,11 @@ export {
   takeRewardUpgradeAction,
 } from '../application/reward_runtime_actions.js';
 
-export function createRewardFeatureFacade() {
-  return {
-    moduleCapabilities: createRewardModuleCapabilities(),
-    application: createRewardApplicationCapabilities(),
-    contracts: createRewardContractCapabilities(),
-    runtime: createRewardRuntimeCapabilities(),
-  };
-}
-
 export const RewardPublicSurface = Object.freeze({
   application: createRewardApplicationCapabilities(),
   contracts: createRewardContractCapabilities(),
   createRewardApplicationCapabilities,
   createRewardContractCapabilities,
-  createRewardFeatureFacade,
   createRewardModuleCapabilities,
   createRewardRuntimeCapabilities,
   moduleCapabilities: createRewardModuleCapabilities(),
@@ -45,6 +35,7 @@ export const RewardPublicSurface = Object.freeze({
 export {
   createRewardApplicationCapabilities,
   createRewardContractCapabilities,
+  createRewardModuleCapabilities,
   createRewardRuntime,
   createRewardRuntimeCapabilities,
   showRewardScreenRuntime,

@@ -29,22 +29,9 @@ import {
   registerRunEntryBindings,
 } from './public_runtime_capabilities.js';
 
-export function createRunFeatureFacade() {
-  return {
-    moduleCapabilities: createRunModuleCapabilities(),
-    bindings: createRunBindingCapabilities(),
-    browserModules: createRunBrowserModuleCapabilities(),
-    contracts: createRunContractCapabilities(),
-    rules: createRunRuleCapabilities(),
-    state: createRunStateCapabilities(),
-    runtime: createRunRuntimeCapabilities(),
-  };
-}
-
 export const RunPublicSurface = Object.freeze({
   bindings: createRunBindingCapabilities(),
   browserModules: createRunBrowserModuleCapabilities(),
-  createRunFeatureFacade,
   createRunModuleCapabilities,
   createRunBindingCapabilities,
   createRunBrowserModuleCapabilities,

@@ -1,5 +1,5 @@
-import { createUiFeatureFacade } from '../../../features/ui/public.js';
+import { createUiModuleCapabilities } from '../../../features/ui/public.js';
 
 export function buildScreenOverlayModules() {
-  return createUiFeatureFacade().moduleCapabilities.overlays;
+  return createUiModuleCapabilities().overlays;
 }

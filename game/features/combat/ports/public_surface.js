@@ -40,17 +40,6 @@ export function createCombatCompatCapabilities() {
   };
 }
 
-export function createCombatFeatureFacade() {
-  return {
-    application: createCombatApplicationCapabilities(),
-    moduleCapabilities: createCombatModuleCapabilities(),
-    bindings: createCombatBindingCapabilities(),
-    contracts: createCombatContractCapabilities(),
-    compat: createCombatCompatCapabilities(),
-    runtime: createCombatRuntimeCapabilities(),
-  };
-}
-
 export const CombatPublicSurface = Object.freeze({
   get application() {
     return createCombatApplicationCapabilities();
@@ -68,7 +57,6 @@ export const CombatPublicSurface = Object.freeze({
   createCombatCompatCapabilities,
   createCombatApplicationCapabilities,
   createCombatContractCapabilities,
-  createCombatFeatureFacade,
   createCombatModuleCapabilities,
   createCombatRuntimeCapabilities,
   buildCombatFlowContractPublicBuilders,

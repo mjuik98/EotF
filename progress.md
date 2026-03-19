@@ -88,6 +88,18 @@ The current worktree contains validated changes around compat guardrails, combat
   - move remaining `drawCards` and any residual combat/card behavior callers off direct `GS` method assumptions
   - then stop attaching combat/card runtime helpers to `GS` by default outside explicit compat paths
 
+- Latest strong-boundary cleanup batch finished the remaining public-surface and bundle-boundary cleanup:
+  - Removed grouped `create*FeatureFacade` exports from `game/features/{codex,event,reward,title,ui}/ports/public_surface.js`; feature public surfaces now expose only narrower capability builders and compat-safe named exports.
+  - `tests/feature_public_export_allowlist.test.js` now guards every feature public surface against new broad `create*FeatureFacade` exports.
+  - `vite.config.js` keeps focused manual chunks for `ui-combat`, `ui-event`, and `ui-reward`; `ui-title` chunking was intentionally removed because title character-select runtime still depends on combat tooltip ports, and the attempted split produced a Rollup circular chunk warning (`ui-title -> ui-combat -> ui-title`).
+  - This keeps the build warning-free without rewriting title/combat runtime ownership just to satisfy chunking.
+- Validation after the final boundary + chunk cleanup batch:
+  - `npm run lint` PASS
+  - `npm test` PASS (`442 files / 1080 tests`)
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1232 nodes, 1289 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4182`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-boundary-batch-smoke-final/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels: ["characterSelect"]` with no captured `errors-*.json` file.
+
 - Routed cross-feature browser loader access through feature `public.js` surfaces for codex, run, and ui settings loaders instead of direct `platform/browser/*` imports from sibling features.
 - Restored `CodexUI` to `game/platform/browser/composition/build_screen_primary_modules.js` through `game/features/codex/public.js`.
 - Simplified `game/features/codex/platform/browser/ensure_codex_browser_modules.js` to reuse the primary codex browser module catalog directly now that `CodexUI` is registered on the primary screen surface.

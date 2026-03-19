@@ -1,8 +1,7 @@
 import { Actions } from '../../core/store/state_actions.js';
+import { isLegacyPlayerStateCommandFallbackEnabled } from './player_state_command_fallback_flag.js';
 
 export const PlayerStateActions = Actions;
-
-const LEGACY_PLAYER_STATE_FALLBACK_FLAG = '__legacyPlayerStateCommandFallback';
 
 function clampNonNegative(value) {
   return Math.max(0, Number(value) || 0);
@@ -10,10 +9,6 @@ function clampNonNegative(value) {
 
 function selectPlayerState(gs) {
   return gs?.player || null;
-}
-
-function canUseLegacyStateCommandFallback(gs) {
-  return gs?.[LEGACY_PLAYER_STATE_FALLBACK_FLAG] === true;
 }
 
 function dispatchStateCommand(gs, action, payload) {
@@ -31,7 +26,7 @@ function dispatchStateCommand(gs, action, payload) {
 export function applyPlayerHealState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_HEAL, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -44,7 +39,7 @@ export function applyPlayerHealState(gs, amount) {
 export function applyPlayerGoldState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_GOLD, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -56,7 +51,7 @@ export function applyPlayerGoldState(gs, amount) {
 export function applyPlayerMaxHpGrowthState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_MAX_HP_GROWTH, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -73,7 +68,7 @@ export function applyPlayerMaxHpGrowthState(gs, amount) {
 export function applyPlayerMaxEnergyGrowthState(gs, amount, options = {}) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_MAX_ENERGY_GROWTH, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -100,7 +95,7 @@ export function setPlayerMaxEnergyState(gs, amount, options = {}) {
     maxEnergyCap: options.maxEnergyCap,
   });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -114,7 +109,7 @@ export function setPlayerMaxEnergyState(gs, amount, options = {}) {
 export function changePlayerEnergyState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_ENERGY_ADJUST, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -129,7 +124,7 @@ export function changePlayerEnergyState(gs, amount) {
 export function setPlayerEnergyState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_ENERGY_SET, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -144,7 +139,7 @@ export function setPlayerEnergyState(gs, amount) {
 export function setPlayerHpState(gs, amount) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_HP_SET, { amount });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return null;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return null;
 
   const player = selectPlayerState(gs);
   if (!player) return null;
@@ -159,7 +154,7 @@ export function setPlayerHpState(gs, amount) {
 export function clearPlayerStatusState(gs, statusId) {
   const dispatched = dispatchStateCommand(gs, Actions.PLAYER_STATUS_CLEAR, { statusId });
   if (dispatched.handled) return dispatched.result;
-  if (!canUseLegacyStateCommandFallback(gs)) return false;
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return false;
 
   const statusEffects = selectPlayerState(gs)?.statusEffects;
   if (!statusEffects || !statusId) return false;

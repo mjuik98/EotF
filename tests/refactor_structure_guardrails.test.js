@@ -28,6 +28,16 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain('legacyModules,');
   });
 
+  it('keeps binding deps/runtime assembly on scoped module registry readers instead of legacy compat flattening', () => {
+    const depsRefsSource = read('game/core/bootstrap/build_binding_deps_refs.js');
+    const runtimePortsSource = read('game/core/bootstrap/build_binding_runtime_ports.js');
+
+    expect(depsRefsSource).toContain("../bindings/module_registry_scopes.js");
+    expect(runtimePortsSource).toContain("../bindings/module_registry_scopes.js");
+    expect(depsRefsSource).not.toContain('resolveModuleRegistryLegacyCompat');
+    expect(runtimePortsSource).not.toContain('resolveModuleRegistryLegacyCompat');
+  });
+
   it('routes legacy bootstrap assembly through explicit module-registry compat payloads', () => {
     const globalsSource = read('game/core/bootstrap/build_legacy_surface_global_groups.js');
     const initArgsSource = read('game/platform/legacy/build_legacy_bridge_init_args.js');
@@ -76,5 +86,18 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("./echo_ripple_runtime_context.js");
     expect(source).toContain("./echo_ripple_particles.js");
     expect(source).toContain("./echo_ripple_renderer.js");
+  });
+
+  it('delegates run-mode inscription rendering into focused browser helpers', () => {
+    const source = read('game/features/run/presentation/browser/run_mode_ui_render.js');
+
+    expect(source).toContain("./run_mode_ui_inscriptions_render.js");
+  });
+
+  it('delegates combat item tooltip state and DOM construction into focused helpers', () => {
+    const source = read('game/features/combat/presentation/browser/tooltip_item_render_ui.js');
+
+    expect(source).toContain("./tooltip_item_state.js");
+    expect(source).toContain("./tooltip_item_element.js");
   });
 });
