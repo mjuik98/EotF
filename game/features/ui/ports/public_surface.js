@@ -26,21 +26,10 @@ export function buildUiShellContractPublicBuilders(ctx) {
   return buildUiShellContractBuilders(ctx);
 }
 
-export function createUiFeatureFacade() {
-  return {
-    browserModules: createUiBrowserModuleCapabilities(),
-    bindings: createUiBindingCapabilities(),
-    moduleCapabilities: createUiModuleCapabilities(),
-    contracts: createUiContractCapabilities(),
-    runtime: createUiRuntimeCapabilities(),
-  };
-}
-
 export const UiPublicSurface = Object.freeze({
   createUiBindingCapabilities,
   createUiBrowserModuleCapabilities,
   createUiContractCapabilities,
-  createUiFeatureFacade,
   createUiModuleCapabilities,
   createUiPorts,
   createUiRuntimeCapabilities,

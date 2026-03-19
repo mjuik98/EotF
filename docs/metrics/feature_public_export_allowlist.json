@@ -1,7 +1,8 @@
 {
   "game/features/codex/ports/public_surface.js": [
     "CodexPublicSurface",
-    "createCodexFeatureFacade",
+    "createCodexBrowserModuleCapabilities",
+    "createCodexModuleCapabilities",
     "ensureCodexBrowserModules"
   ],
   "game/features/combat/ports/public_surface.js": [
@@ -21,7 +22,6 @@
     "createCombatBindingsActions",
     "createCombatCompatCapabilities",
     "createCombatContractCapabilities",
-    "createCombatFeatureFacade",
     "createCombatModuleCapabilities",
     "createCombatRuntimeCapabilities",
     "createCombatStartRuntime",
@@ -38,7 +38,7 @@
     "createEventBindingCapabilities",
     "createEventCompatCapabilities",
     "createEventContractCapabilities",
-    "createEventFeatureFacade",
+    "createEventModuleCapabilities",
     "createEventRuntimeCapabilities"
   ],
   "game/features/reward/ports/public_surface.js": [
@@ -47,7 +47,7 @@
     "RewardPublicSurface",
     "createRewardApplicationCapabilities",
     "createRewardContractCapabilities",
-    "createRewardFeatureFacade",
+    "createRewardModuleCapabilities",
     "createRewardRuntime",
     "createRewardRuntimeCapabilities",
     "finishRewardFlow",
@@ -69,7 +69,6 @@
     "createRunBrowserModuleCapabilities",
     "createRunCanvasBindings",
     "createRunContractCapabilities",
-    "createRunFeatureFacade",
     "createRunModuleCapabilities",
     "createRunRuntimeCapabilities",
     "createRunStateCapabilities",
@@ -92,7 +91,6 @@
     "createTitleBindingCapabilities",
     "createTitleBindings",
     "createTitleContractCapabilities",
-    "createTitleFeatureFacade",
     "createTitleModuleCapabilities",
     "createTitleRuntimeCapabilities",
     "registerTitleBindings"
@@ -112,7 +110,6 @@
     "createUiBindingsActions",
     "createUiBrowserModuleCapabilities",
     "createUiContractCapabilities",
-    "createUiFeatureFacade",
     "createUiModuleCapabilities",
     "createUiPorts",
     "createUiRuntimeCapabilities",

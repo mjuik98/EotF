@@ -6,7 +6,6 @@ import { FovEngine } from '../../../../engine/fov.js';
 import { DATA } from '../../../../data/game_data.js';
 import { NODE_META } from '../../../data/node_meta.js';
 import { GS } from '../../../core/game_state.js';
-import { createLegacyGameStateRuntimeFacade } from '../../../platform/legacy/state/legacy_game_state_runtime_facade.js';
 
 export function buildCoreEngineModules() {
   return {
@@ -17,6 +16,6 @@ export function buildCoreEngineModules() {
     FovEngine,
     DATA,
     NODE_META,
-    GS: createLegacyGameStateRuntimeFacade(GS),
+    GS,
   };
 }

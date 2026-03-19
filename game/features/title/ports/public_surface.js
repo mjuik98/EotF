@@ -13,20 +13,10 @@ import {
   registerTitleBindings,
 } from './runtime/public_title_runtime_surface.js';
 
-export function createTitleFeatureFacade() {
-  return {
-    moduleCapabilities: createTitleModuleCapabilities(),
-    bindings: createTitleBindingCapabilities(),
-    contracts: createTitleContractCapabilities(),
-    runtime: createTitleRuntimeCapabilities(),
-  };
-}
-
 export const TitlePublicSurface = Object.freeze({
   createTitleBindingCapabilities,
   createTitleBindings,
   createTitleContractCapabilities,
-  createTitleFeatureFacade,
   createTitleModuleCapabilities,
   createTitleRuntimeCapabilities,
   registerTitleBindings,

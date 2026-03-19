@@ -17,17 +17,6 @@ export function createEventCompatCapabilities() {
   };
 }
 
-export function createEventFeatureFacade() {
-  return {
-    moduleCapabilities: createEventModuleCapabilities(),
-    application: createEventApplicationCapabilities(),
-    bindings: createEventBindingCapabilities(),
-    contracts: createEventContractCapabilities(),
-    compat: createEventCompatCapabilities(),
-    runtime: createEventRuntimeCapabilities(),
-  };
-}
-
 export const EventPublicSurface = Object.freeze({
   application: createEventApplicationCapabilities(),
   bindings: createEventBindingCapabilities(),
@@ -37,7 +26,6 @@ export const EventPublicSurface = Object.freeze({
   createEventBindingCapabilities,
   createEventCompatCapabilities,
   createEventContractCapabilities,
-  createEventFeatureFacade,
   createEventModuleCapabilities,
   createEventRuntimeCapabilities,
   moduleCapabilities: createEventModuleCapabilities(),
@@ -47,5 +35,6 @@ export const EventPublicSurface = Object.freeze({
 export {
   createEventApplicationCapabilities,
   createEventContractCapabilities,
+  createEventModuleCapabilities,
   createEventRuntimeCapabilities,
 };

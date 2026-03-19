@@ -1,30 +1,28 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  createUiFeatureFacade: vi.fn(() => ({
-    moduleCapabilities: {
-      overlays: {
-        MetaProgressionUI: { id: 'meta-public' },
-        HelpPauseUI: { id: 'help-public' },
-        SettingsUI: { id: 'settings-public' },
-      },
+  createUiModuleCapabilities: vi.fn(() => ({
+    overlays: {
+      MetaProgressionUI: { id: 'meta-public' },
+      HelpPauseUI: { id: 'help-public' },
+      SettingsUI: { id: 'settings-public' },
     },
   })),
 }));
 
 vi.mock('../game/features/ui/public.js', () => ({
-  createUiFeatureFacade: hoisted.createUiFeatureFacade,
+  createUiModuleCapabilities: hoisted.createUiModuleCapabilities,
 }));
 
 import { buildScreenOverlayModules } from '../game/platform/browser/composition/build_screen_overlay_modules.js';
 
 describe('buildScreenOverlayModules', () => {
-  it('routes overlay modules through the ui feature public facade', () => {
+  it('routes overlay modules through narrow ui module capability exports', () => {
     expect(buildScreenOverlayModules()).toEqual({
       MetaProgressionUI: { id: 'meta-public' },
       HelpPauseUI: { id: 'help-public' },
       SettingsUI: { id: 'settings-public' },
     });
-    expect(hoisted.createUiFeatureFacade).toHaveBeenCalledTimes(1);
+    expect(hoisted.createUiModuleCapabilities).toHaveBeenCalledTimes(1);
   });
 });

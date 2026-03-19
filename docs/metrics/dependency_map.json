@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-03-19T12:08:45.497Z",
-  "nodeCount": 1227,
-  "edgeCount": 1283,
+  "generatedAt": "2026-03-19T13:48:58.922Z",
+  "nodeCount": 1232,
+  "edgeCount": 1289,
   "layerEdges": {
-    "core->core": 151,
+    "core->core": 152,
     "core->domain": 3,
     "core->feature": 27,
     "core->legacy": 7,
@@ -24,7 +24,7 @@
     "feature->core": 18,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 647,
+    "feature->feature": 652,
     "feature->legacy": 4,
     "feature->other": 6,
     "feature->platform": 3,
@@ -34,7 +34,7 @@
     "legacy->core": 6,
     "legacy->domain": 1,
     "legacy->feature": 8,
-    "legacy->legacy": 70,
+    "legacy->legacy": 69,
     "legacy->shared": 12,
     "legacy->utils": 3,
     "platform->core": 5,
@@ -42,7 +42,7 @@
     "platform->domain": 1,
     "platform->engine": 5,
     "platform->feature": 16,
-    "platform->legacy": 3,
+    "platform->legacy": 2,
     "platform->other": 1,
     "platform->platform": 22,
     "platform->shared": 2,
@@ -50,7 +50,7 @@
     "shared->core": 4,
     "shared->data": 2,
     "shared->feature": 3,
-    "shared->shared": 31,
+    "shared->shared": 33,
     "shared->utils": 2,
     "utils->core": 1,
     "utils->data": 2,
@@ -88,12 +88,6 @@
       "inDegree": 1
     },
     {
-      "file": "game/platform/browser/composition/build_core_engine_modules.js",
-      "layer": "platform",
-      "outDegree": 9,
-      "inDegree": 1
-    },
-    {
       "file": "data/events_data.js",
       "layer": "data",
       "outDegree": 8,
@@ -116,6 +110,12 @@
       "layer": "feature",
       "outDegree": 8,
       "inDegree": 0
+    },
+    {
+      "file": "game/platform/browser/composition/build_core_engine_modules.js",
+      "layer": "platform",
+      "outDegree": 8,
+      "inDegree": 1
     },
     {
       "file": "data/game_data.js",
@@ -186,6 +186,12 @@
       "inDegree": 10
     },
     {
+      "file": "game/core/bindings/module_registry_scopes.js",
+      "layer": "core",
+      "outDegree": 0,
+      "inDegree": 9
+    },
+    {
       "file": "game/core/deps_factory.js",
       "layer": "core",
       "outDegree": 4,
@@ -226,12 +232,6 @@
       "layer": "shared",
       "outDegree": 0,
       "inDegree": 8
-    },
-    {
-      "file": "game/core/bindings/module_registry_scopes.js",
-      "layer": "core",
-      "outDegree": 0,
-      "inDegree": 7
     },
     {
       "file": "game/domain/run/region_service.js",
@@ -377,7 +377,9 @@
     "game/core/bindings/combat_bindings.js": [
       "game/features/combat/ports/public_binding_capabilities.js"
     ],
-    "game/core/bindings/create_module_registry_flat_compat.js": [],
+    "game/core/bindings/create_module_registry_flat_compat.js": [
+      "game/core/game_state_core_methods.js"
+    ],
     "game/core/bindings/event_reward_bindings_runtime.js": [
       "game/features/event/ports/public_event_binding_surface.js"
     ],
@@ -420,7 +422,7 @@
       "game/core/bootstrap/build_binding_runtime_ports.js"
     ],
     "game/core/bootstrap/build_binding_deps_refs.js": [
-      "game/core/bindings/resolve_module_registry_legacy_compat.js"
+      "game/core/bindings/module_registry_scopes.js"
     ],
     "game/core/bootstrap/build_binding_feature_refs.js": [
       "game/features/combat/ports/public_binding_ref_capabilities.js",
@@ -444,7 +446,7 @@
       "game/core/bootstrap/build_binding_legacy_surface_step_groups.js"
     ],
     "game/core/bootstrap/build_binding_runtime_ports.js": [
-      "game/core/bindings/resolve_module_registry_legacy_compat.js"
+      "game/core/bindings/module_registry_scopes.js"
     ],
     "game/core/bootstrap/build_binding_setup_step_groups.js": [
       "game/core/bootstrap/register_bootstrap_bindings.js"
@@ -1456,10 +1458,15 @@
       "game/utils/dom_safe.js"
     ],
     "game/features/combat/presentation/browser/tooltip_general_ui.js": [],
-    "game/features/combat/presentation/browser/tooltip_item_render_ui.js": [
+    "game/features/combat/presentation/browser/tooltip_item_element.js": [
       "data/rarity_meta.js",
       "game/utils/dom_safe.js"
     ],
+    "game/features/combat/presentation/browser/tooltip_item_render_ui.js": [
+      "game/features/combat/presentation/browser/tooltip_item_element.js",
+      "game/features/combat/presentation/browser/tooltip_item_state.js"
+    ],
+    "game/features/combat/presentation/browser/tooltip_item_state.js": [],
     "game/features/combat/presentation/browser/tooltip_item_ui.js": [
       "game/features/combat/presentation/browser/tooltip_item_render_ui.js"
     ],
@@ -2044,11 +2051,16 @@
     "game/features/run/presentation/browser/run_mode_ui_helpers.js": [
       "game/features/run/state/run_config_state_commands.js"
     ],
+    "game/features/run/presentation/browser/run_mode_ui_inscriptions_render.js": [
+      "game/features/run/presentation/browser/run_mode_ui_helpers.js",
+      "game/features/run/presentation/browser/run_mode_ui_summary_render.js"
+    ],
     "game/features/run/presentation/browser/run_mode_ui_presets_render.js": [
       "game/features/run/presentation/browser/run_mode_ui_helpers.js"
     ],
     "game/features/run/presentation/browser/run_mode_ui_render.js": [
       "game/features/run/presentation/browser/run_mode_ui_helpers.js",
+      "game/features/run/presentation/browser/run_mode_ui_inscriptions_render.js",
       "game/features/run/presentation/browser/run_mode_ui_presets_render.js",
       "game/features/run/presentation/browser/run_mode_ui_summary_render.js"
     ],
@@ -2635,8 +2647,7 @@
       "engine/particles.js",
       "engine/screenshake.js",
       "game/core/game_state.js",
-      "game/data/node_meta.js",
-      "game/platform/legacy/state/legacy_game_state_runtime_facade.js"
+      "game/data/node_meta.js"
     ],
     "game/platform/browser/composition/build_core_progression_modules.js": [
       "game/domain/class/class_mechanics.js",
@@ -2728,8 +2739,7 @@
     ],
     "game/platform/legacy/adapters/create_legacy_runtime_ports.js": [
       "game/platform/legacy/adapters/legacy_runtime_resolvers.js",
-      "game/platform/legacy/global_bridge.js",
-      "game/platform/legacy/state/legacy_player_state_command_fallback.js"
+      "game/platform/legacy/global_bridge.js"
     ],
     "game/platform/legacy/adapters/legacy_runtime_resolvers.js": [],
     "game/platform/legacy/build_legacy_bridge_init_args.js": [],
@@ -2912,10 +2922,10 @@
       "game/platform/legacy/global_bridge_helpers.js",
       "game/platform/legacy/public.js"
     ],
-    "game/platform/legacy/state/legacy_game_state_runtime_facade.js": [
-      "game/shared/state/game_state_runtime_methods.js"
+    "game/platform/legacy/state/legacy_game_state_runtime_facade.js": [],
+    "game/platform/legacy/state/legacy_player_state_command_fallback.js": [
+      "game/shared/state/player_state_command_fallback_flag.js"
     ],
-    "game/platform/legacy/state/legacy_player_state_command_fallback.js": [],
     "game/platform/legacy/window_binding_commands.js": [
       "game/platform/legacy/window_binding_names.js"
     ],
@@ -3018,6 +3028,9 @@
       "game/shared/save/save_storage.js",
       "game/utils/logger.js"
     ],
+    "game/shared/state/game_state_runtime_compat.js": [
+      "game/shared/state/game_state_runtime_methods.js"
+    ],
     "game/shared/state/game_state_runtime_methods.js": [
       "game/core/game_state_common_methods.js",
       "game/features/combat/application/card_methods_compat.js",
@@ -3031,8 +3044,10 @@
       "game/shared/state/player_state_commands.js",
       "game/utils/log_utils.js"
     ],
+    "game/shared/state/player_state_command_fallback_flag.js": [],
     "game/shared/state/player_state_commands.js": [
-      "game/core/store/state_actions.js"
+      "game/core/store/state_actions.js",
+      "game/shared/state/player_state_command_fallback_flag.js"
     ],
     "game/shared/state/public.js": [],
     "game/shared/state/run_state_commands.js": [

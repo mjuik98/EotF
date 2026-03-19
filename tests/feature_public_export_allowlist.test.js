@@ -34,4 +34,22 @@ describe('feature public export allowlist', () => {
       expect(extractNamedExports(source)).toEqual(expectedNames);
     }
   });
+
+  it('keeps feature public surfaces free of broad createXFeatureFacade exports', () => {
+    const files = [
+      'game/features/codex/ports/public_surface.js',
+      'game/features/combat/ports/public_surface.js',
+      'game/features/event/ports/public_surface.js',
+      'game/features/reward/ports/public_surface.js',
+      'game/features/run/ports/public_surface.js',
+      'game/features/title/ports/public_surface.js',
+      'game/features/ui/ports/public_surface.js',
+    ];
+
+    for (const file of files) {
+      const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
+      const exports = extractNamedExports(source);
+      expect(exports.filter((name) => /^create[A-Z].*FeatureFacade$/.test(name))).toEqual([]);
+    }
+  });
 });
