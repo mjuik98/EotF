@@ -1,9 +1,17 @@
-import { buildTitleCanvasModules } from './build_title_canvas_modules.js';
-import { buildTitleFlowModules } from './build_title_flow_modules.js';
+import { createTitleModuleCapabilities } from '../../../features/title/ports/public_module_capabilities.js';
+
+export function buildTitleCanvasModuleRegistry() {
+  return createTitleModuleCapabilities().canvas;
+}
+
+export function buildTitleFlowModuleRegistry() {
+  return createTitleModuleCapabilities().flow;
+}
 
 export function registerTitleModules() {
+  const modules = createTitleModuleCapabilities();
   return {
-    ...buildTitleCanvasModules(),
-    ...buildTitleFlowModules(),
+    ...modules.canvas,
+    ...modules.flow,
   };
 }

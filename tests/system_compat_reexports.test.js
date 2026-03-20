@@ -109,7 +109,7 @@ describe('system compat re-exports', () => {
       "export { ensureRunMeta } from '../features/run/domain/run_rules_meta.js';",
     );
     expect(eventManagerSource).toBe(
-      "export { EventManager } from '../features/event/application/event_manager_compat.js';",
+      "export { EventManager } from '../features/event/application/event_manager_facade.js';",
     );
     expect(codexRecordsSource).toBe(
       "export { ensureCodexRecords, ensureCodexState, getCardUpgradeId, isCardUpgradeVariant, registerCardDiscovered, registerCardUsed, registerEnemyEncounter, registerEnemyKill, registerItemFound, resolveCodexCardId } from '../shared/codex/codex_records.js';",

@@ -1,14 +1,14 @@
 # Dependency Map
 
-- Generated: 2026-03-20T11:38:38.495Z
-- Nodes: 1310
-- Edges: 1369
+- Generated: 2026-03-20T15:52:05.301Z
+- Nodes: 1325
+- Edges: 1362
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| core->core | 164 |
+| core->core | 167 |
 | core->domain | 3 |
 | core->feature | 26 |
 | core->legacy | 7 |
@@ -29,8 +29,8 @@
 | feature->core | 17 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 703 |
-| feature->legacy | 6 |
+| feature->feature | 700 |
+| feature->legacy | 4 |
 | feature->other | 6 |
 | feature->platform | 3 |
 | feature->shared | 42 |
@@ -39,24 +39,24 @@
 | legacy->core | 6 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
-| legacy->legacy | 76 |
+| legacy->legacy | 77 |
 | legacy->shared | 12 |
 | legacy->utils | 3 |
 | platform->core | 5 |
 | platform->data | 1 |
 | platform->domain | 1 |
 | platform->engine | 5 |
-| platform->feature | 16 |
+| platform->feature | 12 |
 | platform->legacy | 2 |
 | platform->other | 1 |
-| platform->platform | 26 |
+| platform->platform | 19 |
 | platform->shared | 2 |
 | platform->utils | 4 |
 | shared->core | 4 |
 | shared->data | 2 |
 | shared->feature | 3 |
 | shared->legacy | 1 |
-| shared->shared | 36 |
+| shared->shared | 41 |
 | shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -70,14 +70,14 @@
 | game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/combat/ports/public_application_capabilities.js | 10 |
-| game/features/combat/ports/public_surface.js | 9 |
 | game/features/event/ports/public_application_capabilities.js | 9 |
 | data/events_data.js | 8 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
+| game/features/combat/ports/public_surface.js | 8 |
 | game/features/run/application/run_rules.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
-| game/features/combat/compat/combat_lifecycle.js | 7 |
+| game/features/combat/application/combat_lifecycle_facade.js | 7 |
 | game/features/combat/presentation/browser/combat_ui.js | 7 |
 | game/features/combat/presentation/browser/hud_update_ui.js | 7 |
 | game/features/combat/presentation/browser/status_tooltip_builder.js | 7 |
@@ -90,9 +90,9 @@
 | data/game_data.js | 14 |
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
-| game/shared/state/player_state_commands.js | 11 |
 | game/core/bindings/module_registry_scopes.js | 10 |
 | game/core/store/state_actions.js | 10 |
+| game/shared/state/player_state_commands.js | 10 |
 | game/utils/logger.js | 10 |
 | game/core/deps_factory.js | 9 |
 | data/status_effects_data.js | 8 |

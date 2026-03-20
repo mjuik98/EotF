@@ -1,5 +1,1 @@
-import { createRunModuleCapabilities } from '../../../features/run/ports/public_module_capabilities.js';
-
-export function buildRunMapModules() {
-  return createRunModuleCapabilities().map;
-}
+export { buildRunMapModuleRegistry as buildRunMapModules } from './register_run_modules.js';

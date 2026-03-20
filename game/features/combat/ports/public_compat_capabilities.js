@@ -1,9 +1,9 @@
-import { CombatLifecycle } from '../compat/combat_lifecycle.js';
-import { DeathHandler } from '../compat/death_handler.js';
-import { CardMethods } from '../compat/card_methods.js';
-import { CombatMethods } from '../compat/combat_methods.js';
-import { DamageSystem } from '../compat/damage_system.js';
-import { TurnManager } from '../compat/turn_manager.js';
+import { CombatLifecycle } from '../application/combat_lifecycle_facade.js';
+import { DeathHandler } from '../application/death_handler_facade.js';
+import { CardMethods } from '../application/card_methods_facade.js';
+import { CombatMethods } from '../application/combat_methods_facade.js';
+import { DamageSystem } from '../application/damage_system_facade.js';
+import { TurnManager } from '../application/turn_manager_facade.js';
 
 export function createCombatCompatCapabilities() {
   return {

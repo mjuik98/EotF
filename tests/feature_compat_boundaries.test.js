@@ -8,13 +8,13 @@ const ROOT = process.cwd();
 describe('feature compat boundaries', () => {
   it('keeps combat and event compat implementations in feature compat directories while old application paths stay as thin shims', () => {
     const shimExpectations = {
-      'game/features/combat/application/card_methods_compat.js': '../compat/card_methods.js',
-      'game/features/combat/application/combat_lifecycle_compat.js': '../compat/combat_lifecycle.js',
-      'game/features/combat/application/combat_methods_compat.js': '../compat/combat_methods.js',
-      'game/features/combat/application/damage_system_compat.js': '../compat/damage_system.js',
-      'game/features/combat/application/death_handler_compat.js': '../compat/death_handler.js',
-      'game/features/combat/application/turn_manager_compat.js': '../compat/turn_manager.js',
-      'game/features/event/application/event_manager_compat.js': '../compat/event_manager.js',
+      'game/features/combat/application/card_methods_compat.js': '../application/card_methods_facade.js',
+      'game/features/combat/application/combat_lifecycle_compat.js': '../application/combat_lifecycle_facade.js',
+      'game/features/combat/application/combat_methods_compat.js': '../application/combat_methods_facade.js',
+      'game/features/combat/application/damage_system_compat.js': '../application/damage_system_facade.js',
+      'game/features/combat/application/death_handler_compat.js': '../application/death_handler_facade.js',
+      'game/features/combat/application/turn_manager_compat.js': '../application/turn_manager_facade.js',
+      'game/features/event/application/event_manager_compat.js': '../application/event_manager_facade.js',
     };
 
     for (const [file, target] of Object.entries(shimExpectations)) {

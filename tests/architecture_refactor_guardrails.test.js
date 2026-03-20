@@ -182,6 +182,7 @@ describe('architecture refactor guardrails', () => {
         const relPath = path.relative(process.cwd(), fullPath).replaceAll('\\', '/');
         if (relPath.startsWith('game/platform/legacy/')) continue;
         if (relPath === 'game/shared/state/player_state_commands.js') continue;
+        if (relPath === 'game/shared/state/player_state_command_compat.js') continue;
 
         const source = fs.readFileSync(fullPath, 'utf8');
         if (source.includes('enableLegacyPlayerStateCommandFallback')) {

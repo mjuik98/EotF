@@ -1,5 +1,12 @@
 import { Actions } from '../../core/store/state_actions.js';
-import { runPlayerStateLegacyFallback } from '../../platform/legacy/state/player_state_command_legacy_adapter.js';
+import {
+  applyPlayerGoldCompatFallback,
+  applyPlayerHealCompatFallback,
+  applyPlayerMaxEnergyGrowthCompatFallback,
+  applyPlayerMaxHpGrowthCompatFallback,
+  enablePlayerStateLegacyCompat,
+  runPlayerStateLegacyFallback,
+} from '../../platform/legacy/state/player_state_command_legacy_adapter.js';
 
 export const PlayerStateActions = Actions;
 
@@ -27,6 +34,11 @@ function runStateCommand(gs, action, payload, fallbackName, fallbackArgs = [], e
   const dispatched = dispatchStateCommand(gs, action, payload);
   if (dispatched.handled) return dispatched.result;
   return runPlayerStateLegacyFallback(gs, fallbackName, fallbackArgs, emptyResult);
+}
+
+function shouldTrustCompatResult(gs, beforeValues, afterValues) {
+  if (typeof gs?.isDispatching === 'function') return true;
+  return afterValues.some((value, index) => value !== beforeValues[index]);
 }
 
 export function applyPlayerHealState(gs, amount) {
@@ -122,4 +134,56 @@ export function clearPlayerStatusState(gs, statusId) {
     [statusId],
     false,
   );
+}
+
+export function applyPlayerGoldCompatState(gs, amount) {
+  const state = enablePlayerStateLegacyCompat(gs);
+  const goldBefore = Number(state?.player?.gold || 0);
+  const result = applyPlayerGoldState(state, amount);
+  const goldAfter = Number(state?.player?.gold || 0);
+
+  if (shouldTrustCompatResult(state, [goldBefore], [goldAfter])) {
+    return result ?? { delta: goldAfter - goldBefore, goldAfter };
+  }
+  return applyPlayerGoldCompatFallback(state, amount);
+}
+
+export function applyPlayerHealCompatState(gs, amount) {
+  const state = enablePlayerStateLegacyCompat(gs);
+  const hpBefore = Number(state?.player?.hp || 0);
+  const result = applyPlayerHealState(state, amount);
+  const hpAfter = Number(state?.player?.hp || 0);
+
+  if (shouldTrustCompatResult(state, [hpBefore], [hpAfter])) {
+    return result ?? { healed: Math.max(0, hpAfter - hpBefore), hpAfter };
+  }
+  return applyPlayerHealCompatFallback(state, amount);
+}
+
+export function applyPlayerMaxEnergyGrowthCompatState(gs, amount, options = {}) {
+  const state = enablePlayerStateLegacyCompat(gs);
+  const maxEnergyBefore = Number(state?.player?.maxEnergy || 0);
+  const energyBefore = Number(state?.player?.energy || 0);
+  const result = applyPlayerMaxEnergyGrowthState(state, amount, options);
+  const maxEnergyAfter = Number(state?.player?.maxEnergy || 0);
+  const energyAfter = Number(state?.player?.energy || 0);
+
+  if (shouldTrustCompatResult(state, [maxEnergyBefore, energyBefore], [maxEnergyAfter, energyAfter])) {
+    return result ?? { maxEnergyAfter, energyAfter };
+  }
+  return applyPlayerMaxEnergyGrowthCompatFallback(state, amount, options);
+}
+
+export function applyPlayerMaxHpGrowthCompatState(gs, amount) {
+  const state = enablePlayerStateLegacyCompat(gs);
+  const maxHpBefore = Number(state?.player?.maxHp || 0);
+  const hpBefore = Number(state?.player?.hp || 0);
+  const result = applyPlayerMaxHpGrowthState(state, amount);
+  const maxHpAfter = Number(state?.player?.maxHp || 0);
+  const hpAfter = Number(state?.player?.hp || 0);
+
+  if (shouldTrustCompatResult(state, [maxHpBefore, hpBefore], [maxHpAfter, hpAfter])) {
+    return result ?? { maxHpAfter, hpAfter };
+  }
+  return applyPlayerMaxHpGrowthCompatFallback(state, amount);
 }

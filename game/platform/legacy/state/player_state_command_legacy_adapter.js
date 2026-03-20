@@ -1,5 +1,12 @@
 import { isLegacyPlayerStateCommandFallbackEnabled } from './player_state_command_fallback_flag.js';
 import {
+  applyLegacyPlayerGoldState,
+  applyLegacyPlayerHealState,
+  applyLegacyPlayerMaxEnergyGrowthState,
+  applyLegacyPlayerMaxHpGrowthState,
+  enableLegacyPlayerStateCommandFallback,
+} from './legacy_player_state_command_fallback.js';
+import {
   applyLegacyPlayerBuffMutation,
   applyLegacyPlayerEchoMutation,
   applyLegacyPlayerEnergyAdjustMutation,
@@ -94,6 +101,31 @@ export const LegacyPlayerStateCommandFallbacks = Object.freeze({
   applyPlayerStatusClearState: applyPlayerStatusClearLegacyFallback,
   applyPlayerTimeRiftGaugeState: applyPlayerTimeRiftGaugeLegacyFallback,
 });
+
+export function enablePlayerStateLegacyCompat(gs) {
+  return enableLegacyPlayerStateCommandFallback(gs);
+}
+
+export function applyPlayerGoldCompatFallback(gs, amount) {
+  return applyLegacyPlayerGoldState(enablePlayerStateLegacyCompat(gs), amount, { forceLegacy: true });
+}
+
+export function applyPlayerHealCompatFallback(gs, amount) {
+  return applyLegacyPlayerHealState(enablePlayerStateLegacyCompat(gs), amount, { forceLegacy: true });
+}
+
+export function applyPlayerMaxEnergyGrowthCompatFallback(gs, amount, options = {}) {
+  return applyLegacyPlayerMaxEnergyGrowthState(
+    enablePlayerStateLegacyCompat(gs),
+    amount,
+    options,
+    { forceLegacy: true },
+  );
+}
+
+export function applyPlayerMaxHpGrowthCompatFallback(gs, amount) {
+  return applyLegacyPlayerMaxHpGrowthState(enablePlayerStateLegacyCompat(gs), amount, { forceLegacy: true });
+}
 
 export function runPlayerStateLegacyFallback(gs, fallbackName, fallbackArgs = [], emptyResult = null) {
   if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return emptyResult;

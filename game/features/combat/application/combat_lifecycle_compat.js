@@ -1,1 +1,1 @@
-export { CombatLifecycle } from '../compat/combat_lifecycle.js';
+export { CombatLifecycle } from '../application/combat_lifecycle_facade.js';

@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 import { CombatPublicSurface } from '../game/features/combat/ports/public_surface.js';
+import { RewardPublicSurface } from '../game/features/reward/ports/public_surface.js';
 import { RunPublicSurface } from '../game/features/run/ports/public_surface.js';
 import { TitlePublicSurface } from '../game/features/title/ports/public_surface.js';
 import { UiPublicSurface } from '../game/features/ui/ports/public_surface.js';
@@ -43,22 +44,20 @@ describe('feature public surface exports', () => {
     }
   });
 
-  it('keeps moved compat facades discoverable through feature public surfaces', () => {
-    const combatSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/combat/ports/public_surface.js'),
-      'utf8',
-    );
+  it('keeps moved compat facades discoverable through grouped combat capabilities', () => {
     const eventSource = fs.readFileSync(
       path.join(process.cwd(), 'game/features/event/ports/public_surface.js'),
       'utf8',
     );
 
-    expect(combatSource).toContain('CombatLifecycle,');
-    expect(combatSource).toContain('CombatMethods,');
-    expect(combatSource).toContain('CardMethods,');
-    expect(combatSource).toContain('DamageSystem,');
-    expect(combatSource).toContain('DeathHandler,');
-    expect(combatSource).toContain('TurnManager,');
+    expect(Object.keys(CombatPublicSurface.compat).sort()).toEqual([
+      'CardMethods',
+      'CombatLifecycle',
+      'CombatMethods',
+      'DamageSystem',
+      'DeathHandler',
+      'TurnManager',
+    ]);
     expect(eventSource).toContain('EventManager,');
   });
 
@@ -86,7 +85,13 @@ describe('feature public surface exports', () => {
     ]);
   });
 
-  it('keeps title and ui public surfaces narrowed to grouped capability members', () => {
+  it('keeps reward, title and ui public surfaces narrowed to grouped capability members', () => {
+    expect(Object.keys(RewardPublicSurface).sort()).toEqual([
+      'application',
+      'contracts',
+      'moduleCapabilities',
+      'runtime',
+    ]);
     expect(Object.keys(TitlePublicSurface).sort()).toEqual([
       'bindings',
       'contracts',

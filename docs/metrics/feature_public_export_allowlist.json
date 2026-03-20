@@ -6,31 +6,15 @@
     "ensureCodexBrowserModules"
   ],
   "game/features/combat/ports/public_surface.js": [
-    "CardMethods",
-    "CombatMethods",
     "CombatPublicSurface",
-    "DamageSystem",
     "SetBonusSystem",
-    "applyEnemyAreaDamageRuntime",
-    "applyEnemyDamageRuntime",
-    "applyEnemyDamageState",
     "buildCombatFlowContractPublicBuilders",
-    "buildCombatRuntimeSubscriberPublicActions",
-    "buildCombatUiContractPublicBuilders",
     "createCombatApplicationCapabilities",
     "createCombatBindingCapabilities",
-    "createCombatBindingsActions",
     "createCombatCompatCapabilities",
     "createCombatContractCapabilities",
     "createCombatModuleCapabilities",
-    "createCombatRuntimeCapabilities",
-    "createCombatStartRuntime",
-    "discardStateCard",
-    "drawStateCards",
-    "endCombatRuntime",
-    "executePlayerDrawService",
-    "playRuntimeCard",
-    "playStateCard"
+    "createCombatRuntimeCapabilities"
   ],
   "game/features/event/ports/public_surface.js": [
     "EventPublicSurface",
@@ -42,22 +26,11 @@
     "createEventRuntimeCapabilities"
   ],
   "game/features/reward/ports/public_surface.js": [
-    "REWARD_CLAIM_KEY",
-    "REWARD_SKIP_KEY",
     "RewardPublicSurface",
     "createRewardApplicationCapabilities",
     "createRewardContractCapabilities",
     "createRewardModuleCapabilities",
-    "createRewardRuntime",
-    "createRewardRuntimeCapabilities",
-    "finishRewardFlow",
-    "showRewardScreenRuntime",
-    "skipRewardAction",
-    "takeRewardBlessingAction",
-    "takeRewardCardAction",
-    "takeRewardItemAction",
-    "takeRewardRemoveAction",
-    "takeRewardUpgradeAction"
+    "createRewardRuntimeCapabilities"
   ],
   "game/features/run/ports/public_surface.js": [
     "RunPublicSurface",
@@ -70,19 +43,11 @@
     "createRunStateCapabilities"
   ],
   "game/features/title/ports/public_surface.js": [
-    "ClassProgressionSystem",
     "TitlePublicSurface",
-    "buildTitleBootPublicActions",
-    "buildTitleHelpPausePublicActions",
-    "buildTitlePauseMenuPublicActions",
-    "buildTitleRunContractPublicBuilders",
-    "buildTitleStoryContractPublicBuilders",
     "createTitleBindingCapabilities",
-    "createTitleBindings",
     "createTitleContractCapabilities",
     "createTitleModuleCapabilities",
-    "createTitleRuntimeCapabilities",
-    "registerTitleBindings"
+    "createTitleRuntimeCapabilities"
   ],
   "game/features/ui/ports/public_surface.js": [
     "UiPublicSurface",

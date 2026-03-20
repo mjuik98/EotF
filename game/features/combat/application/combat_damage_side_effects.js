@@ -115,3 +115,17 @@ export function adjustEnemyStatusDuration(gs, status, duration, targetIdx) {
   }
   return adjustedDuration;
 }
+
+export function getAliveEnemyIndexes(host) {
+  const enemies = host?.combat?.enemies || [];
+  return enemies.map((_, i) => i).filter((i) => enemies[i]?.hp > 0);
+}
+
+export function isFatigueCurseActive(host) {
+  return host?.runConfig?.curse === 'fatigue' || host?.meta?.runConfig?.curse === 'fatigue';
+}
+
+export function getSelectedTargetIndex(host, targetIdx = null) {
+  if (targetIdx !== null) return targetIdx;
+  return host?._selectedTarget !== null ? host?._selectedTarget : 0;
+}

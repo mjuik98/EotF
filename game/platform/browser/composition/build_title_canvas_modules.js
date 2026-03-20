@@ -1,5 +1,1 @@
-import { createTitleModuleCapabilities } from '../../../features/title/ports/public_module_capabilities.js';
-
-export function buildTitleCanvasModules() {
-  return createTitleModuleCapabilities().canvas;
-}
+export { buildTitleCanvasModuleRegistry as buildTitleCanvasModules } from './register_title_modules.js';

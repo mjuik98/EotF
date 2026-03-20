@@ -1,1 +1,1 @@
-export { CombatMethods } from '../compat/combat_methods.js';
+export { CombatMethods } from '../application/combat_methods_facade.js';

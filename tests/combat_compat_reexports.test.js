@@ -7,21 +7,21 @@ describe('combat compat re-exports', () => {
   it('keeps legacy combat facade files as thin feature re-exports once ownership moves', () => {
     const expectations = {
       'game/combat/card_methods.js':
-        "export { CardMethods } from '../features/combat/compat/card_methods.js';",
+        "export { CardMethods } from '../features/combat/application/card_methods_facade.js';",
       'game/combat/combat_lifecycle.js':
-        "export { CombatLifecycle } from '../features/combat/compat/combat_lifecycle.js';",
+        "export { CombatLifecycle } from '../features/combat/application/combat_lifecycle_facade.js';",
       'game/combat/combat_initializer.js':
         "export { CombatInitializer } from '../features/combat/ports/public_application_capabilities.js';",
       'game/combat/combat_methods.js':
-        "export { CombatMethods } from '../features/combat/compat/combat_methods.js';",
+        "export { CombatMethods } from '../features/combat/application/combat_methods_facade.js';",
       'game/combat/damage_system.js':
-        "export { DamageSystem } from '../features/combat/compat/damage_system.js';",
+        "export { DamageSystem } from '../features/combat/application/damage_system_facade.js';",
       'game/combat/death_handler.js':
-        "export { DeathHandler } from '../features/combat/compat/death_handler.js';",
+        "export { DeathHandler } from '../features/combat/application/death_handler_facade.js';",
       'game/combat/difficulty_scaler.js':
         "export { DifficultyScaler } from '../features/combat/ports/public_system_capabilities.js';",
       'game/combat/turn_manager.js':
-        "export { TurnManager } from '../features/combat/compat/turn_manager.js';",
+        "export { TurnManager } from '../features/combat/application/turn_manager_facade.js';",
     };
 
     for (const [file, expected] of Object.entries(expectations)) {

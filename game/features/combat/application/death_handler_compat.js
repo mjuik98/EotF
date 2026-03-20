@@ -1,1 +1,1 @@
-export { DeathHandler } from '../compat/death_handler.js';
+export { DeathHandler } from '../application/death_handler_facade.js';

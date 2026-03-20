@@ -1,1 +1,1 @@
-export { TurnManager } from '../features/combat/compat/turn_manager.js';
+export { TurnManager } from '../features/combat/application/turn_manager_facade.js';

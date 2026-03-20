@@ -1,5 +1,1 @@
-import { createTitleModuleCapabilities } from '../../../features/title/ports/public_module_capabilities.js';
-
-export function buildTitleFlowModules() {
-  return createTitleModuleCapabilities().flow;
-}
+export { buildTitleFlowModuleRegistry as buildTitleFlowModules } from './register_title_modules.js';

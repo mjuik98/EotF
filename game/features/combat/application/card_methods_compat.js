@@ -1,1 +1,1 @@
-export { CardMethods } from '../compat/card_methods.js';
+export { CardMethods } from '../application/card_methods_facade.js';

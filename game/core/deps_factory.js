@@ -1,65 +1,46 @@
 import { AppError } from './error_reporter.js';
 import { ErrorCodes } from './error_codes.js';
+import {
+  buildContractDepAccessors as buildContractDepAccessorsBase,
+  buildFeatureContractAccessors as buildFeatureContractAccessorsBase,
+  createDepsAccessors as createDepsAccessorsBase,
+} from './deps/deps_factory_accessors.js';
+import { createDepContractCatalog } from './deps/deps_factory_contract_catalog.js';
+import { syncGlobalDepsFactoryHooks } from './deps/deps_factory_global_bridge.js';
 import { createDepsFactoryRuntime } from './deps_factory_runtime.js';
-import { buildDepContractBuilders } from './deps_contract_registry.js';
 
 const runtime = createDepsFactoryRuntime();
-let contractBuilders = null;
+let contractCatalog = null;
 
-function getHostObject() {
-  try {
-    return Function('return this')();
-  } catch {
-    return globalThis;
+function getContractCatalog() {
+  if (!contractCatalog) {
+    contractCatalog = createDepContractCatalog(runtime, createDeps);
   }
-}
-
-function syncGlobalDepsFactoryHooks() {
-  const host = getHostObject();
-  if (!host) return;
-  host.__ECHO_DEPS_FACTORY__ = {
-    getHudUpdateDeps,
-  };
-}
-
-function getContractBuilders() {
-  if (!contractBuilders) {
-    contractBuilders = buildDepContractBuilders({
-      getRefs: runtime.getRefs,
-      buildBaseDeps: runtime.buildBaseDeps,
-      getGameDeps: runtime.getGameDeps,
-      getRunDeps: runtime.getRunDeps,
-      getCombatDeps: runtime.getCombatDeps,
-      getEventDeps: runtime.getEventDeps,
-      getHudDeps: runtime.getHudDeps,
-      getUiDeps: runtime.getUiDeps,
-      getCanvasDeps: runtime.getCanvasDeps,
-      getRaf: runtime.getRaf,
-      getSyncVolumeUIFallback: runtime.getSyncVolumeUIFallback,
-      createDeps,
-    });
-  }
-  return contractBuilders;
+  return contractCatalog;
 }
 
 export function initDepsFactory(refs) {
   runtime.initRefs(refs);
-  syncGlobalDepsFactoryHooks();
+  syncGlobalDepsFactoryHooks({
+    getHudUpdateDeps,
+  });
 }
 
 export function patchRefs(partial) {
   runtime.patchRefs(partial);
-  syncGlobalDepsFactoryHooks();
+  syncGlobalDepsFactoryHooks({
+    getHudUpdateDeps,
+  });
 }
 
-export const DepContracts = Object.freeze(Object.keys(getContractBuilders()));
+export const DepContracts = getContractCatalog().listDepContracts();
 
 export function listDepContracts() {
   return [...DepContracts];
 }
 
 export function createDeps(contractName, overrides = {}) {
-  const builder = getContractBuilders()[contractName];
+  const builder = getContractCatalog().getContractBuilders()[contractName];
   if (!builder) {
     throw new AppError(
       ErrorCodes.DEPS_CONTRACT_MISSING,
@@ -75,78 +56,22 @@ export function createDeps(contractName, overrides = {}) {
 }
 
 export function createDepsAccessors(contractMap, depsCreator = createDeps) {
-  const accessors = {};
-
-  for (const [accessorName, contractName] of Object.entries(contractMap || {})) {
-    accessors[accessorName] = (overrides = {}) => depsCreator(contractName, overrides);
-  }
-
-  return Object.freeze(accessors);
+  return createDepsAccessorsBase(contractMap, depsCreator);
 }
 
 export function buildContractDepAccessors(contractMap, depsFactory = null) {
-  const injectedAccessorFactory =
-    typeof depsFactory?.createDepsAccessors === 'function'
-      ? depsFactory.createDepsAccessors
-      : null;
-  const injectedDepsCreator =
-    typeof depsFactory === 'function'
-      ? depsFactory
-      : typeof depsFactory?.createDeps === 'function'
-        ? depsFactory.createDeps
-        : null;
-
-  if (!depsFactory || injectedAccessorFactory || injectedDepsCreator) {
-    const depsAccessorFactory = injectedAccessorFactory || createDepsAccessors;
-    const depsCreator = injectedDepsCreator || createDeps;
-    if (typeof depsAccessorFactory === 'function' && typeof depsCreator === 'function') {
-      return depsAccessorFactory(contractMap, depsCreator);
-    }
-  }
-
-  const accessors = {};
-  for (const accessorName of Object.keys(contractMap || {})) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(depsFactory?.[accessorName]?.() || {}),
-      ...overrides,
-    });
-  }
-
-  return Object.freeze(accessors);
+  return buildContractDepAccessorsBase(contractMap, depsFactory, {
+    createDeps,
+    createDepsAccessors,
+  });
 }
 
 export function buildFeatureContractAccessors(contractMap, depsFactory = null) {
-  const resolvedFactory = depsFactory || {};
-  const buildAccessors =
-    typeof resolvedFactory.buildContractDepAccessors === 'function'
-      ? resolvedFactory.buildContractDepAccessors
-      : buildContractDepAccessors;
-  if (typeof buildAccessors === 'function') {
-    return buildAccessors(contractMap, resolvedFactory);
-  }
-
-  const createDepsFn =
-    typeof resolvedFactory === 'function'
-      ? resolvedFactory
-      : typeof resolvedFactory.createDeps === 'function'
-        ? resolvedFactory.createDeps
-        : createDeps;
-  const createAccessors =
-    typeof resolvedFactory.createDepsAccessors === 'function'
-      ? resolvedFactory.createDepsAccessors
-      : createDepsAccessors;
-  if (typeof createAccessors === 'function' && typeof createDepsFn === 'function') {
-    return createAccessors(contractMap, createDepsFn);
-  }
-
-  const accessors = {};
-  for (const accessorName of Object.keys(contractMap || {})) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(resolvedFactory?.[accessorName]?.() || {}),
-      ...overrides,
-    });
-  }
-  return Object.freeze(accessors);
+  return buildFeatureContractAccessorsBase(contractMap, depsFactory, {
+    buildContractDepAccessors,
+    createDeps,
+    createDepsAccessors,
+  });
 }
 
 export function baseDeps() { return createDeps('base'); }
@@ -181,4 +106,6 @@ export function getWorldCanvasDeps() { return createDeps('worldCanvas'); }
 export function getSettingsDeps() { return createDeps('settings'); }
 export function getGameBootDeps() { return createDeps('gameBoot'); }
 
-syncGlobalDepsFactoryHooks();
+syncGlobalDepsFactoryHooks({
+  getHudUpdateDeps,
+});

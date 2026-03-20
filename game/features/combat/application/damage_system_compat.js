@@ -1,1 +1,1 @@
-export { DamageSystem } from '../compat/damage_system.js';
+export { DamageSystem } from '../application/damage_system_facade.js';

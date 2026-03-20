@@ -1,9 +1,17 @@
-import { buildRunFlowModules } from './build_run_flow_modules.js';
-import { buildRunMapModules } from './build_run_map_modules.js';
+import { createRunModuleCapabilities } from '../../../features/run/ports/public_module_capabilities.js';
+
+export function buildRunMapModuleRegistry() {
+  return createRunModuleCapabilities().map;
+}
+
+export function buildRunFlowModuleRegistry() {
+  return createRunModuleCapabilities().flow;
+}
 
 export function registerRunModules() {
+  const modules = createRunModuleCapabilities();
   return {
-    ...buildRunMapModules(),
-    ...buildRunFlowModules(),
+    ...modules.map,
+    ...modules.flow,
   };
 }

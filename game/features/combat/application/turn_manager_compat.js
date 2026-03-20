@@ -1,1 +1,1 @@
-export { TurnManager } from '../compat/turn_manager.js';
+export { TurnManager } from '../application/turn_manager_facade.js';

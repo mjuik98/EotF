@@ -3,36 +3,28 @@ import {
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
 import {
-  applyLegacyPlayerGoldState,
-  applyLegacyPlayerHealState,
-  applyLegacyPlayerMaxEnergyGrowthState,
-  applyLegacyPlayerMaxHpGrowthState,
-} from '../../../platform/legacy/state/legacy_player_state_command_fallback.js';
-import {
-  applyPlayerGoldState,
-  applyPlayerHealState,
-  applyPlayerMaxEnergyGrowthState,
-  applyPlayerMaxHpGrowthState,
-} from '../../../shared/state/player_state_commands.js';
+  applyPlayerGoldCompatState,
+  applyPlayerHealCompatState,
+  applyPlayerMaxEnergyGrowthCompatState,
+  applyPlayerMaxHpGrowthCompatState,
+} from '../../../shared/state/player_state_command_compat.js';
 
 function applyRewardPlayerHealState(state, amount) {
   if (!state?.player) return 0;
   const hpBefore = Number(state.player.hp || 0);
-  const result = applyPlayerHealState(state, amount);
+  const result = applyPlayerHealCompatState(state, amount);
   const hpAfterSharedCommand = Number(state.player.hp || 0);
   if (hpAfterSharedCommand !== hpBefore) return Math.max(0, hpAfterSharedCommand - hpBefore);
-  if (result) return result.healed ?? 0;
-  return applyLegacyPlayerHealState(state, amount, { forceLegacy: true })?.healed ?? 0;
+  return result?.healed ?? 0;
 }
 
 function applyRewardPlayerGoldState(state, amount) {
   if (!state?.player) return 0;
   const goldBefore = Number(state.player.gold || 0);
-  const result = applyPlayerGoldState(state, amount);
+  const result = applyPlayerGoldCompatState(state, amount);
   const goldAfterSharedCommand = Number(state.player.gold || 0);
   if (goldAfterSharedCommand !== goldBefore) return goldAfterSharedCommand - goldBefore;
-  if (result) return result.delta ?? 0;
-  return applyLegacyPlayerGoldState(state, amount, { forceLegacy: true })?.delta ?? 0;
+  return result?.delta ?? 0;
 }
 
 export function applyMiniBossBonusState(state, data) {
@@ -67,13 +59,11 @@ export function applyBlessingRewardState(state, blessing) {
   if (!state?.player || !blessing) return false;
 
   if (blessing.type === 'hp') {
-    const result = applyPlayerMaxHpGrowthState(state, blessing.amount);
-    if (!result) applyLegacyPlayerMaxHpGrowthState(state, blessing.amount, { forceLegacy: true });
+    applyPlayerMaxHpGrowthCompatState(state, blessing.amount);
   }
 
   if (blessing.type === 'energy') {
-    const result = applyPlayerMaxEnergyGrowthState(state, blessing.amount);
-    if (!result) applyLegacyPlayerMaxEnergyGrowthState(state, blessing.amount, {}, { forceLegacy: true });
+    applyPlayerMaxEnergyGrowthCompatState(state, blessing.amount);
   }
 
   return true;

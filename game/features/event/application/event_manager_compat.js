@@ -1,1 +1,1 @@
-export { EventManager } from '../compat/event_manager.js';
+export { EventManager } from '../application/event_manager_facade.js';

@@ -3,13 +3,9 @@ import {
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
 import {
-  applyLegacyPlayerGoldState,
-  applyLegacyPlayerMaxEnergyGrowthState,
-} from '../../../platform/legacy/state/legacy_player_state_command_fallback.js';
-import {
-  applyPlayerGoldState,
-  applyPlayerMaxEnergyGrowthState,
-} from '../../../shared/state/player_state_commands.js';
+  applyPlayerGoldCompatState,
+  applyPlayerMaxEnergyGrowthCompatState,
+} from '../../../shared/state/player_state_command_compat.js';
 
 function removeFirstOccurrence(list, value) {
   if (!Array.isArray(list)) return false;
@@ -22,7 +18,7 @@ function removeFirstOccurrence(list, value) {
 function applyEventPlayerGoldState(state, amount) {
   if (!state?.player) return null;
   const goldBefore = Number(state.player.gold || 0);
-  const result = applyPlayerGoldState(state, amount);
+  const result = applyPlayerGoldCompatState(state, amount);
   const goldAfterSharedCommand = Number(state.player.gold || 0);
   if (goldAfterSharedCommand !== goldBefore) {
     return {
@@ -30,20 +26,20 @@ function applyEventPlayerGoldState(state, amount) {
       goldAfter: goldAfterSharedCommand,
     };
   }
-  if (result && typeof state.isDispatching === 'function') {
+  if (result) {
     return {
       delta: result.delta ?? (Number(amount) || 0),
       goldAfter: result.goldAfter ?? state.player.gold,
     };
   }
-  return applyLegacyPlayerGoldState(state, amount, { forceLegacy: true });
+  return null;
 }
 
 function applyEventPlayerMaxEnergyGrowthState(state, amount, options = {}) {
   if (!state?.player) return null;
   const maxEnergyBefore = Number(state.player.maxEnergy || 0);
   const energyBefore = Number(state.player.energy || 0);
-  const result = applyPlayerMaxEnergyGrowthState(state, amount, options);
+  const result = applyPlayerMaxEnergyGrowthCompatState(state, amount, options);
   const maxEnergyAfterSharedCommand = Number(state.player.maxEnergy || 0);
   const energyAfterSharedCommand = Number(state.player.energy || 0);
   if (maxEnergyAfterSharedCommand !== maxEnergyBefore || energyAfterSharedCommand !== energyBefore) {
@@ -52,8 +48,7 @@ function applyEventPlayerMaxEnergyGrowthState(state, amount, options = {}) {
       energyAfter: energyAfterSharedCommand,
     };
   }
-  if (result && typeof state.isDispatching === 'function') return result;
-  return applyLegacyPlayerMaxEnergyGrowthState(state, amount, options, { forceLegacy: true });
+  return result ?? null;
 }
 
 export function readItemShopStockCache(state, cacheKey) {

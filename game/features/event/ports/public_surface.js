@@ -1,4 +1,4 @@
-import { EventManager } from '../compat/event_manager.js';
+import { EventManager } from '../application/event_manager_facade.js';
 import { createEventApplicationCapabilities } from './public_application_capabilities.js';
 import { createEventContractCapabilities } from './public_contract_capabilities.js';
 import { createEventModuleCapabilities } from './public_module_capabilities.js';
