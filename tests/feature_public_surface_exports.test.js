@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import { RunPublicSurface } from '../game/features/run/ports/public_surface.js';
 
 describe('feature public surface exports', () => {
   it('exposes stable public surface objects for each feature facade', () => {
@@ -56,5 +57,17 @@ describe('feature public surface exports', () => {
     expect(combatSource).toContain('DeathHandler,');
     expect(combatSource).toContain('TurnManager,');
     expect(eventSource).toContain('EventManager,');
+  });
+
+  it('keeps RunPublicSurface narrowed to grouped capability members', () => {
+    expect(Object.keys(RunPublicSurface).sort()).toEqual([
+      'bindings',
+      'browserModules',
+      'contracts',
+      'moduleCapabilities',
+      'rules',
+      'runtime',
+      'state',
+    ]);
   });
 });

@@ -1,6 +1,8 @@
 import { buildModuleRegistryGroups } from './build_module_registry_groups.js';
 import { attachModuleRegistryFlatCompat } from './attach_module_registry_flat_compat.js';
+import { createModuleRegistryFeatureScopes } from './create_module_registry_feature_scopes.js';
 import { createModuleRegistryFlatCompat } from './create_module_registry_flat_compat.js';
+import { createModuleRegistryRuntimeState } from './create_module_registry_runtime_state.js';
 
 /**
  * Builds a single module registry for composition root wiring.
@@ -11,15 +13,8 @@ export function createModuleRegistry() {
   const legacyModules = createModuleRegistryFlatCompat(groups);
   const registry = {
     legacyModules,
-    featureScopes: Object.freeze({
-      core: groups.core,
-      title: groups.title,
-      combat: groups.combat,
-      run: groups.run,
-      screen: groups.screen,
-    }),
-    _gameStarted: false,
-    _canvasRefs: null,
+    featureScopes: createModuleRegistryFeatureScopes(groups),
+    ...createModuleRegistryRuntimeState(),
   };
 
   return attachModuleRegistryFlatCompat(registry, legacyModules);

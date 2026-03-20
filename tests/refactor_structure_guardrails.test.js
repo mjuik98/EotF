@@ -23,9 +23,14 @@ describe('refactor structure guardrails', () => {
     const source = read('game/core/bindings/module_registry.js');
 
     expect(source).toContain("./create_module_registry_flat_compat.js");
+    expect(source).toContain("./create_module_registry_feature_scopes.js");
+    expect(source).toContain("./create_module_registry_runtime_state.js");
     expect(source).toContain('const legacyModules = createModuleRegistryFlatCompat(groups);');
     expect(source).not.toContain('...legacyModules');
     expect(source).toContain('legacyModules,');
+    expect(source).not.toContain('featureScopes: Object.freeze({');
+    expect(source).not.toContain('_gameStarted: false');
+    expect(source).not.toContain('_canvasRefs: null');
   });
 
   it('keeps binding deps/runtime assembly on scoped module registry readers instead of legacy compat flattening', () => {

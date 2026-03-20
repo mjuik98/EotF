@@ -1,4 +1,18 @@
 import { DATA } from '../../../data/game_data.js';
+import {
+  consumeHunterPendingMarkState,
+  increaseBuffFieldState,
+  incrementHunterHitCountState,
+  incrementMageCastCounterState,
+  incrementMageTraitDiscountState,
+  refreshResonanceState,
+  resetHunterHitCountState,
+  resetHunterHitCountsState,
+  resetMageCastCounterState,
+  resetMageCombatState,
+  setGuardianPreservedShieldState,
+  setMageDiscountTargetState,
+} from '../../shared/state/class_mechanic_state_commands.js';
 import { LogUtils } from '../../utils/log_utils.js';
 
 function getGS(gs) {
@@ -59,12 +73,9 @@ export const ClassMechanics = {
         const prev = Number(res.dmgBonus || 0);
         const next = Math.min(30, prev + 1);
         const delta = Math.max(0, next - prev);
-        if (delta > 0) {
-          state.addBuff('resonance', 0, { dmgBonus: delta });
-        }
-        state.player.buffs.resonance.stacks = 99;
+        refreshResonanceState(state, delta);
       } else {
-        state.addBuff('resonance', 99, { dmgBonus: 1 });
+        refreshResonanceState(state, 1);
       }
       state.markDirty?.('hud');
       void cardId;
@@ -75,10 +86,11 @@ export const ClassMechanics = {
       if (!state?.player?.buffs) return;
       const res = state.player.buffs.resonance;
       if (res) {
-        res.dmgBonus = Math.min(30, (res.dmgBonus || 0) + 3);
-        res.stacks = 99;
+        const nextBonus = Math.min(30, Number(res.dmgBonus || 0) + 3);
+        const delta = Math.max(0, nextBonus - Number(res.dmgBonus || 0));
+        refreshResonanceState(state, delta);
       } else {
-        state.addBuff('resonance', 99, { dmgBonus: 3 });
+        refreshResonanceState(state, 3);
       }
     },
   },
@@ -86,39 +98,33 @@ export const ClassMechanics = {
     onCombatStart(gs) {
       const state = getGS(gs);
       if (!state?.player) return;
-      state.player._mageCastCounter = 0;
-      state.player._traitCardDiscounts = {};
-      state.player._mageLastDiscountTarget = null;
+      resetMageCombatState(state);
     },
     onPlayCard(gs) {
       const state = getGS(gs);
       const player = state?.player;
       if (!state || !player) return;
 
-      player._mageCastCounter = (player._mageCastCounter || 0) + 1;
-      if (player._mageCastCounter < 3) {
+      if (incrementMageCastCounterState(state) < 3) {
         state.markDirty?.('hud');
         return;
       }
 
-      player._mageCastCounter = 0;
+      resetMageCastCounterState(state);
       const hand = Array.isArray(player.hand) ? player.hand : [];
       const dataCards = DATA?.cards || {};
       const candidates = hand.filter((id) => (dataCards[id]?.cost || 0) > 0);
 
       if (candidates.length === 0) {
-        player._mageLastDiscountTarget = null;
+        setMageDiscountTargetState(state, null);
         state.addLog(LogUtils.formatEcho('🔮 메아리: 할인 가능한 카드가 없습니다.'), 'echo');
         state.markDirty?.('hud');
         return;
       }
 
       const pickedId = candidates[Math.floor(Math.random() * candidates.length)];
-      if (!player._traitCardDiscounts || typeof player._traitCardDiscounts !== 'object') {
-        player._traitCardDiscounts = {};
-      }
-      player._traitCardDiscounts[pickedId] = (player._traitCardDiscounts[pickedId] || 0) + 1;
-      player._mageLastDiscountTarget = pickedId;
+      incrementMageTraitDiscountState(state, pickedId);
+      setMageDiscountTargetState(state, pickedId);
 
       const cardName = dataCards[pickedId]?.name || pickedId;
       state.addLog(LogUtils.formatEcho(`🔮 메아리: ${cardName} 비용 -1`), 'echo');
@@ -129,9 +135,7 @@ export const ClassMechanics = {
   hunter: {
     onCombatStart(gs) {
       const state = getGS(gs);
-      if (state.player) {
-        state.player._hunterHitCounts = {};
-      }
+      if (state.player) resetHunterHitCountsState(state);
     },
     onDealDamage(gs, damage, targetIdx) {
       const state = getGS(gs);
@@ -141,15 +145,14 @@ export const ClassMechanics = {
       const pendingMark = Number(player._classMasteryHunterMarkPending || 0);
       if (pendingMark > 0 && Number(damage || 0) > 0 && targetIdx >= 0) {
         state.applyEnemyStatus?.('marked', pendingMark, targetIdx);
-        player._classMasteryHunterMarkPending = 0;
+        consumeHunterPendingMarkState(state);
         state.addLog?.(LogUtils.formatEcho(`Hunter awakening: Mark ${pendingMark} applied.`), 'echo');
       }
 
-      if (!player._hunterHitCounts) player._hunterHitCounts = {};
-      player._hunterHitCounts[targetIdx] = (player._hunterHitCounts[targetIdx] || 0) + 1;
+      const hits = incrementHunterHitCountState(state, targetIdx);
 
-      if (player._hunterHitCounts[targetIdx] >= 5) {
-        player._hunterHitCounts[targetIdx] = 0;
+      if (hits >= 5) {
+        resetHunterHitCountState(state, targetIdx);
         state.addLog(LogUtils.formatEcho('🎯 정적 발동: 독 3턴 부여 + 카드 1장 드로우'), 'echo');
         state.applyEnemyStatus('poisoned', 3, targetIdx);
         state.drawCards?.(1);
@@ -202,8 +205,7 @@ export const ClassMechanics = {
       const growthPerHit = activeBuff === buffPlus ? 3 : 2;
 
       if (activeBuff) {
-        activeBuff.atkGrowth = (activeBuff.atkGrowth || 0) + growthPerHit;
-        const currentBonus = activeBuff.atkGrowth;
+        const currentBonus = increaseBuffFieldState(state, activeBuff, 'atkGrowth', growthPerHit);
         state.addLog(LogUtils.formatEcho(`불협화음: 피해 +${growthPerHit} (현재 +${currentBonus})`), 'echo');
       }
       return damage;
@@ -213,7 +215,7 @@ export const ClassMechanics = {
     onTurnEnd(gs) {
       const state = getGS(gs);
       if (state.player.shield > 0) {
-        state.player._preservedShield = Math.floor(state.player.shield / 2);
+        setGuardianPreservedShieldState(state, Math.floor(state.player.shield / 2));
         state.addLog?.(LogUtils.formatShield('플레이어', state.player._preservedShield), 'shield');
       }
     },
@@ -222,7 +224,7 @@ export const ClassMechanics = {
       const preserved = Number(state.player._preservedShield || 0);
       if (preserved > 0) {
         state.addShield(preserved);
-        state.player._preservedShield = 0;
+        setGuardianPreservedShieldState(state, 0);
       }
 
       const buffEntries = Object.entries(state.player?.buffs || {});

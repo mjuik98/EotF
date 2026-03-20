@@ -52,14 +52,14 @@ describe('turn_state_mutators ownership', () => {
 
   it('routes player-owned writes through shared player state commands', async () => {
     const {
-      addPlayerBuffStacks,
-      reducePlayerEnergy,
-      reducePlayerSilenceGauge,
-      resetPlayerTimeRiftGauge,
-      setPlayerEcho,
-      setPlayerEnergy,
-      setPlayerShield,
-    } = await import('../game/domain/combat/turn/turn_state_mutators.js');
+      addPlayerBuffStacksState,
+      reducePlayerEnergyStateCommand,
+      reducePlayerSilenceGaugeStateCommand,
+      resetPlayerTimeRiftGaugeStateCommand,
+      setPlayerEchoStateCommand,
+      setPlayerEnergyStateCommand,
+      setPlayerShieldStateCommand,
+    } = await import('../game/features/combat/state/commands/combat_turn_state_commands.js');
 
     const gs = {
       player: {
@@ -73,13 +73,13 @@ describe('turn_state_mutators ownership', () => {
       },
     };
 
-    expect(setPlayerEnergy(gs, 5)).toBe(5);
-    expect(reducePlayerEnergy(gs, 2)).toBe(3);
-    expect(setPlayerShield(gs, 9)).toBe(9);
-    expect(setPlayerEcho(gs, 25)).toBe(25);
-    expect(reducePlayerSilenceGauge(gs, 10)).toBe(0);
-    expect(resetPlayerTimeRiftGauge(gs)).toBe(0);
-    expect(addPlayerBuffStacks(gs, 'weakened', 2, { duration: 1 })).toEqual({ stacks: 2, duration: 1 });
+    expect(setPlayerEnergyStateCommand(gs, 5)).toBe(5);
+    expect(reducePlayerEnergyStateCommand(gs, 2)).toBe(3);
+    expect(setPlayerShieldStateCommand(gs, 9)).toBe(9);
+    expect(setPlayerEchoStateCommand(gs, 25)).toBe(25);
+    expect(reducePlayerSilenceGaugeStateCommand(gs, 10)).toBe(0);
+    expect(resetPlayerTimeRiftGaugeStateCommand(gs)).toBe(0);
+    expect(addPlayerBuffStacksState(gs, 'weakened', 2, { duration: 1 })).toEqual({ stacks: 2, duration: 1 });
 
     expect(hoisted.setPlayerEnergyState).toHaveBeenCalledWith(gs, 5);
     expect(hoisted.changePlayerEnergyState).toHaveBeenCalledWith(gs, -2);

@@ -1,19 +1,21 @@
 import {
-  advanceCombatTurn,
-  clampPlayerMaxEcho,
   decrementStackedBuff,
   drawFromRandomPlayerPool,
-  moveHandToGraveyard,
-  pushCardToExhausted,
-  reducePlayerEnergy,
-  reducePlayerSilenceGauge,
-  resetPlayerTimeRiftGauge,
-  resetTurnCardCostState,
-  setCombatPlayerTurn,
-  setPlayerEchoChain,
-  setPlayerEnergy,
-  setPlayerShield,
 } from '../../../domain/combat/turn/turn_state_mutators.js';
+import {
+  advanceCombatTurnState,
+  clampPlayerMaxEchoState,
+  moveHandToGraveyardState,
+  pushCardToExhaustedState,
+  reducePlayerEnergyStateCommand,
+  reducePlayerSilenceGaugeStateCommand,
+  resetPlayerTimeRiftGaugeStateCommand,
+  resetTurnCardCostState,
+  setCombatPlayerTurnState,
+  setPlayerEchoChainState,
+  setPlayerEnergyStateCommand,
+  setPlayerShieldStateCommand,
+} from './commands/combat_turn_state_commands.js';
 
 export function consumePlayerBuffStackState(state, buffId) {
   if (!state?.player?.buffs || !buffId) return false;
@@ -22,16 +24,16 @@ export function consumePlayerBuffStackState(state, buffId) {
 
 export function reducePlayerTurnEnergyState(state, amount) {
   if (!state?.player) return 0;
-  return reducePlayerEnergy(state, amount);
+  return reducePlayerEnergyStateCommand(state, amount);
 }
 
 export function beginPlayerTurnState(state, { isStunned = false } = {}) {
   if (!state?.combat || !state?.player) return null;
 
-  advanceCombatTurn(state);
-  setCombatPlayerTurn(state, true);
-  setPlayerEnergy(state, isStunned ? 0 : state.player.maxEnergy);
-  setPlayerShield(state, 0);
+  advanceCombatTurnState(state);
+  setCombatPlayerTurnState(state, true);
+  setPlayerEnergyStateCommand(state, isStunned ? 0 : state.player.maxEnergy);
+  setPlayerShieldStateCommand(state, 0);
 
   return {
     energy: state.player.energy,
@@ -44,23 +46,23 @@ export function exhaustRandomPlayerCardState(state, pools, pickIndex) {
   const { cardId, poolKey } = drawFromRandomPlayerPool(state, pools, pickIndex);
   if (!cardId) return { cardId: null, poolKey: null };
 
-  pushCardToExhausted(state, cardId);
+  pushCardToExhaustedState(state, cardId);
   if (poolKey === 'hand') state.markDirty?.('hand');
 
   return { cardId, poolKey };
 }
 
 export function reducePlayerTurnSilenceGaugeState(state, amount) {
-  return reducePlayerSilenceGauge(state, amount);
+  return reducePlayerSilenceGaugeStateCommand(state, amount);
 }
 
 export function resetPlayerTurnTimeRiftState(state) {
-  return resetPlayerTimeRiftGauge(state);
+  return resetPlayerTimeRiftGaugeStateCommand(state);
 }
 
 export function reducePlayerTurnMaxEchoState(state, amount) {
   const nextMax = (state?.player?.maxEcho || 100) - Math.max(0, amount);
-  return clampPlayerMaxEcho(state, nextMax);
+  return clampPlayerMaxEchoState(state, nextMax);
 }
 
 export function advancePlayerPoisonDurationState(state) {
@@ -79,10 +81,10 @@ export function advancePlayerPoisonDurationState(state) {
 export function finalizePlayerTurnEndState(state) {
   if (!state?.combat || !state?.player) return null;
 
-  moveHandToGraveyard(state);
-  setPlayerEchoChain(state, 0);
+  moveHandToGraveyardState(state);
+  setPlayerEchoChainState(state, 0);
   resetTurnCardCostState(state);
-  setCombatPlayerTurn(state, false);
+  setCombatPlayerTurnState(state, false);
 
   return {
     echoChain: state.player.echoChain,

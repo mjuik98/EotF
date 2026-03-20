@@ -14,32 +14,13 @@ export function startPlayerTurnPolicy(gs, commands = {}) {
   const drawCardsState = commands.drawCardsState
     || ((state, count, options) => state?.drawCards?.(count, options));
   const beginPlayerTurnState = commands.beginPlayerTurnState
-    || ((state, { isStunned = false } = {}) => {
-      state.combat.turn += 1;
-      state.combat.playerTurn = true;
-      state.player.energy = isStunned ? 0 : state.player.maxEnergy;
-      state.player.shield = 0;
-      return state.player.energy;
-    });
+    || (() => null);
   const exhaustRandomPlayerCardState = commands.exhaustRandomPlayerCardState
-    || ((state, pools, pickIndex) => {
-      const { cardId, poolKey } = drawFromRandomPlayerPool(state, pools, pickIndex);
-      if (!cardId) return { cardId: null, poolKey: null };
-      state.player.exhausted.push(cardId);
-      if (poolKey === 'hand') state.markDirty?.('hand');
-      return { cardId, poolKey };
-    });
+    || ((state, pools, pickIndex) => drawFromRandomPlayerPool(state, pools, pickIndex));
   const reducePlayerTurnEnergyState = commands.reducePlayerTurnEnergyState
-    || ((state, amount) => {
-      state.player.energy = Math.max(0, state.player.energy - amount);
-      return state.player.energy;
-    });
+    || (() => 0);
   const reducePlayerTurnMaxEchoState = commands.reducePlayerTurnMaxEchoState
-    || ((state, amount) => {
-      state.player.maxEcho = Math.max(50, (state.player.maxEcho || 100) - Math.max(0, amount));
-      state.player.echo = Math.min(state.player.maxEcho, state.player.echo || 0);
-      return state.player.maxEcho;
-    });
+    || (() => 0);
 
   ENEMY_TURN_BUFFS.forEach((buffId) => {
     const buff = gs.player.buffs?.[buffId];

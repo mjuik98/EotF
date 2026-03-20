@@ -10,27 +10,11 @@ export function endPlayerTurnPolicy(gs, data, options = {}) {
   const consumePlayerBuffState = options.consumePlayerBuffState
     || ((state, buffId) => decrementStackedBuff(state?.player?.buffs, buffId));
   const reducePlayerTurnSilenceGaugeState = options.reducePlayerTurnSilenceGaugeState
-    || ((state, amount) => {
-      state.player.silenceGauge = Math.max(0, (state.player.silenceGauge || 0) - amount);
-      return state.player.silenceGauge;
-    });
+    || (() => 0);
   const resetPlayerTurnTimeRiftState = options.resetPlayerTurnTimeRiftState
-    || ((state) => {
-      state.player.timeRiftGauge = 0;
-      return state.player.timeRiftGauge;
-    });
+    || (() => 0);
   const finalizePlayerTurnEndState = options.finalizePlayerTurnEndState
-    || ((state) => {
-      state.player.graveyard.push(...state.player.hand);
-      state.player.hand = [];
-      state.player.echoChain = 0;
-      state.player.costDiscount = 0;
-      state.player._nextCardDiscount = 0;
-      state.player.zeroCost = false;
-      state.player._freeCardUses = 0;
-      state.combat.playerTurn = false;
-      return state.combat.playerTurn;
-    });
+    || (() => null);
 
   if (!gs?.combat?.active || !gs.combat.playerTurn) return null;
 

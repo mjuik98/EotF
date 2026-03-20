@@ -2,6 +2,13 @@ import { registerCardUsed } from '../../../shared/codex/codex_record_state_use_c
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
 import { Actions } from '../../../core/store/state_actions.js';
 import { changePlayerEnergyState } from '../state/card_state_commands.js';
+import {
+  consumeNextCardDiscountState,
+  incrementCardsPlayedState,
+  removeCardFromHandState,
+  restorePlayerHandState,
+  setCombatCardPlayLockState,
+} from '../state/commands/combat_card_play_state_commands.js';
 
 export function playCardService({
   cardId,
@@ -18,7 +25,6 @@ export function playCardService({
 }) {
   const combat = gs.combat;
   const player = gs.player;
-  const stats = gs.stats;
 
   if (combat._isPlayingCard) {
     logger.warn('Already playing a card. Ignoring input.');
@@ -28,7 +34,7 @@ export function playCardService({
   if (!card) return false;
 
   logger.group(`API: Play Card (${card.name})`);
-  combat._isPlayingCard = true;
+  setCombatCardPlayLockState(gs, true);
 
   try {
     if (!combat?.active || !combat?.playerTurn) {
@@ -60,14 +66,14 @@ export function playCardService({
     const energyBefore = player.energy;
     const handBefore = [...player.hand];
     changePlayerEnergyState(gs, -cost);
-    player.hand.splice(handIdx, 1);
+    removeCardFromHandState(gs, handIdx);
 
     const rollbackPlayCost = () => {
       const restoreEnergy = energyBefore - player.energy;
       if (restoreEnergy !== 0) {
         changePlayerEnergyState(gs, restoreEnergy);
       }
-      player.hand = handBefore;
+      restorePlayerHandState(gs, handBefore);
     };
 
     try {
@@ -88,7 +94,7 @@ export function playCardService({
     }
 
     if (nextCardDiscountBeforePlay > 0) {
-      player._nextCardDiscount = Math.max(0, player._nextCardDiscount - 1);
+      consumeNextCardDiscountState(gs);
     }
 
     cardCostUtils?.consumeTraitDiscount?.(cardId, player);
@@ -116,7 +122,7 @@ export function playCardService({
       discardCard(cardId, card.exhaust, gs, true);
     }
 
-    stats.cardsPlayed++;
+    incrementCardsPlayedState(gs);
     registerCardUsed(gs, cardId);
     gs.bus?.emit(Actions.CARD_PLAY, { cardId, card, cost });
 
@@ -129,7 +135,7 @@ export function playCardService({
     logger.error('Error playing card:', e);
     return false;
   } finally {
-    combat._isPlayingCard = false;
+    setCombatCardPlayLockState(gs, false);
     logger.groupEnd();
   }
 }

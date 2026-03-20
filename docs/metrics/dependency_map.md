@@ -1,14 +1,14 @@
 # Dependency Map
 
-- Generated: 2026-03-19T17:24:58.571Z
-- Nodes: 1237
-- Edges: 1299
+- Generated: 2026-03-20T00:58:19.013Z
+- Nodes: 1246
+- Edges: 1314
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| core->core | 152 |
+| core->core | 154 |
 | core->domain | 3 |
 | core->feature | 26 |
 | core->legacy | 7 |
@@ -20,7 +20,7 @@
 | data->systems | 2 |
 | data->utils | 4 |
 | domain->data | 6 |
-| domain->domain | 16 |
+| domain->domain | 15 |
 | domain->feature | 1 |
 | domain->shared | 1 |
 | domain->utils | 3 |
@@ -29,18 +29,18 @@
 | feature->core | 17 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 662 |
-| feature->legacy | 4 |
+| feature->feature | 669 |
+| feature->legacy | 6 |
 | feature->other | 6 |
 | feature->platform | 3 |
-| feature->shared | 41 |
+| feature->shared | 42 |
 | feature->state | 2 |
 | feature->utils | 30 |
 | legacy->core | 6 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
-| legacy->legacy | 69 |
-| legacy->shared | 12 |
+| legacy->legacy | 70 |
+| legacy->shared | 13 |
 | legacy->utils | 3 |
 | platform->core | 5 |
 | platform->data | 1 |
@@ -55,7 +55,8 @@
 | shared->core | 4 |
 | shared->data | 2 |
 | shared->feature | 3 |
-| shared->shared | 33 |
+| shared->legacy | 1 |
+| shared->shared | 34 |
 | shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -89,11 +90,11 @@
 | data/game_data.js | 14 |
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
+| game/shared/state/player_state_commands.js | 11 |
 | game/core/store/state_actions.js | 10 |
 | game/utils/logger.js | 10 |
 | game/core/bindings/module_registry_scopes.js | 9 |
 | game/core/deps_factory.js | 9 |
-| game/shared/state/player_state_commands.js | 9 |
 | data/status_effects_data.js | 8 |
 | data/status_key_data.js | 8 |
 | game/core/event_bus.js | 8 |

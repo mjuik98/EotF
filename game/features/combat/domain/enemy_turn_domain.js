@@ -14,6 +14,19 @@ import {
   replacePlayerBuffsState,
   setCurrentCombatAttackerState,
 } from '../state/enemy_turn_state_commands.js';
+import {
+  addEnemyAttackState,
+  addEnemyShieldState,
+  addEnemyStatusStacksState,
+  addPlayerBuffStacksState,
+  healEnemyState,
+  pushCardToExhaustedState,
+  reducePlayerEnergyStateCommand,
+  setEnemyStatusState,
+  setPlayerEchoChainState,
+  setPlayerEchoStateCommand,
+  setPlayerEnergyStateCommand,
+} from '../state/commands/combat_turn_state_commands.js';
 
 function trackEnemyDamage(gs, enemy, nextHp) {
   return applyEnemyDamageState(gs, enemy, nextHp);
@@ -173,7 +186,23 @@ export function handleBossPhaseShift(gs, enemy) {
 }
 
 export function handleEnemyEffect(effect, gs, enemy, { regionId, data } = {}) {
-  return handleEnemyEffectLogic(effect, gs, enemy, { regionId, data });
+  return handleEnemyEffectLogic(effect, gs, enemy, {
+    regionId,
+    data,
+    commands: {
+      addEnemyAttackState,
+      addEnemyShieldState,
+      addEnemyStatusStacksState,
+      addPlayerBuffStacksState,
+      healEnemyState,
+      pushCardToExhaustedState,
+      reducePlayerEnergyStateCommand,
+      setEnemyStatusState,
+      setPlayerEchoChainState,
+      setPlayerEchoStateCommand,
+      setPlayerEnergyStateCommand,
+    },
+  });
 }
 
 export function processEnemyStun(enemy) {

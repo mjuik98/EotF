@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { applyCombatEndCleanupState } from '../game/features/combat/state/combat_cleanup_state_commands.js';
+import { applyCombatPlayerCleanupReducerState } from '../game/features/combat/state/commands/combat_player_cleanup_state_commands.js';
+import { applyCombatSessionCleanupReducerState } from '../game/features/combat/state/commands/combat_session_cleanup_state_commands.js';
 
 describe('combat_cleanup_state_commands', () => {
   it('centralizes combat end cleanup without touching the player deck', () => {
@@ -82,5 +84,43 @@ describe('combat_cleanup_state_commands', () => {
     expect(state.dispatch).toHaveBeenCalledWith('combat:end', { victory: true });
     expect(result).toEqual({ victory: true });
     expect(state.player.hand).toEqual([]);
+  });
+
+  it('splits combat cleanup into player and session command helpers', () => {
+    const state = {
+      combat: { active: true, playerTurn: false },
+      player: {
+        hand: ['a'],
+        graveyard: ['b'],
+        exhausted: ['c'],
+        drawPile: ['d'],
+        discardPile: ['e'],
+        silenceGauge: 2,
+        timeRiftGauge: 3,
+      },
+      _maskCount: 1,
+      _batteryUsedTurn: true,
+      _temporalTurn: 2,
+      _activeRegionId: 4,
+      _ignoreShield: true,
+      _scrollTempCard: 'tmp',
+      _fragmentActive: true,
+      _fragmentBaseMax: 2,
+      _glitch0: 'g0',
+      _glitchPlus: 'g1',
+      _eternityActive: true,
+    };
+
+    expect(applyCombatPlayerCleanupReducerState(state)).toEqual({
+      handSize: 0,
+      graveyardSize: 0,
+      exhaustedSize: 0,
+    });
+    expect(applyCombatSessionCleanupReducerState(state)).toEqual({
+      combatActive: false,
+      playerTurn: true,
+    });
+    expect(state._activeRegionId).toBeNull();
+    expect(state._eternityActive).toBe(false);
   });
 });

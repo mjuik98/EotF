@@ -1,10 +1,12 @@
+import { setPlayerEchoChainState } from '../state/commands/combat_turn_state_commands.js';
+
 export function advancePlayerChain(gs, enemy, noChain, deps, win) {
   if (!noChain) {
     const prevChain = gs.player.echoChain || 0;
-    gs.player.echoChain = prevChain + 1;
-    gs.triggerItems?.('chain_gain', { chain: gs.player.echoChain });
-    if (prevChain < 5 && gs.player.echoChain >= 5) {
-      gs.triggerItems?.('chain_reach_5', { chain: gs.player.echoChain });
+    const nextChain = setPlayerEchoChainState(gs, prevChain + 1);
+    gs.triggerItems?.('chain_gain', { chain: nextChain });
+    if (prevChain < 5 && nextChain >= 5) {
+      gs.triggerItems?.('chain_reach_5', { chain: nextChain });
     }
     gs.addEcho(10);
 
@@ -17,7 +19,7 @@ export function advancePlayerChain(gs, enemy, noChain, deps, win) {
       updateChainDisplay.call(win?.CombatLifecycle || gs, deps);
     } else {
       const updateChainUI = deps.updateChainUI || win?.updateChainUI;
-      if (typeof updateChainUI === 'function') updateChainUI(gs.player.echoChain);
+      if (typeof updateChainUI === 'function') updateChainUI(nextChain);
     }
   } else if (enemy.hp <= 0 && gs._echoAddedThisAction === false) {
     gs.addEcho(10);

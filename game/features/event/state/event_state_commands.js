@@ -3,6 +3,10 @@ import {
   registerItemFound,
 } from '../../../shared/codex/codex_record_state_use_case.js';
 import {
+  applyLegacyPlayerGoldState,
+  applyLegacyPlayerMaxEnergyGrowthState,
+} from '../../../platform/legacy/state/legacy_player_state_command_fallback.js';
+import {
   applyPlayerGoldState,
   applyPlayerMaxEnergyGrowthState,
 } from '../../../shared/state/player_state_commands.js';
@@ -16,7 +20,7 @@ function removeFirstOccurrence(list, value) {
 }
 
 function applyEventPlayerGoldState(state, amount) {
-  if (!state?.player) return 0;
+  if (!state?.player) return null;
   const goldBefore = Number(state.player.gold || 0);
   const result = applyPlayerGoldState(state, amount);
   const goldAfterSharedCommand = Number(state.player.gold || 0);
@@ -32,12 +36,7 @@ function applyEventPlayerGoldState(state, amount) {
       goldAfter: result.goldAfter ?? state.player.gold,
     };
   }
-
-  state.player.gold = Number(state.player.gold || 0) + (Number(amount) || 0);
-  return {
-    delta: Number(amount) || 0,
-    goldAfter: state.player.gold,
-  };
+  return applyLegacyPlayerGoldState(state, amount, { forceLegacy: true });
 }
 
 function applyEventPlayerMaxEnergyGrowthState(state, amount, options = {}) {
@@ -54,25 +53,7 @@ function applyEventPlayerMaxEnergyGrowthState(state, amount, options = {}) {
     };
   }
   if (result && typeof state.isDispatching === 'function') return result;
-
-  const player = state.player;
-  const cap = Math.max(1, Number(options.maxEnergyCap ?? player.maxEnergyCap ?? 5) || 5);
-  const previousMax = Math.max(1, Number(player.maxEnergy || 1) || 1);
-  const previousEnergy = Math.max(0, Number(player.energy || 0) || 0);
-  const requestedMax = Math.max(1, previousMax + (Number(amount) || 0));
-  player.maxEnergy = Math.min(cap, requestedMax);
-
-  if ((Number(amount) || 0) > 0) {
-    const actualIncrease = Math.max(0, player.maxEnergy - previousMax);
-    player.energy = Math.min(player.maxEnergy, previousEnergy + actualIncrease);
-  } else {
-    player.energy = Math.min(player.maxEnergy, previousEnergy);
-  }
-
-  return {
-    maxEnergyAfter: player.maxEnergy,
-    energyAfter: player.energy,
-  };
+  return applyLegacyPlayerMaxEnergyGrowthState(state, amount, options, { forceLegacy: true });
 }
 
 export function readItemShopStockCache(state, cacheKey) {

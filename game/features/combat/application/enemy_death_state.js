@@ -1,18 +1,17 @@
+import {
+  incrementCombatKillState,
+  markCombatEnemyDefeatedState,
+} from '../state/commands/combat_enemy_death_state_commands.js';
+
 export function applyEnemyDeathState(gs, enemy, idx, deps = {}) {
-  gs.player.kills += 1;
-  gs.meta.totalKills += 1;
+  incrementCombatKillState(gs);
 
   deps.emitEnemyDeath?.({
     enemy: { name: enemy.name, id: enemy.id },
     idx,
   });
 
-  if (enemy.isBoss) {
-    gs.combat.bossDefeated = true;
-  }
-  if (enemy.isMiniBoss) {
-    gs.combat.miniBossDefeated = true;
-  }
+  markCombatEnemyDefeatedState(gs, enemy);
 
   const goldGained = enemy.gold || 10;
   deps.addGold?.(goldGained);
