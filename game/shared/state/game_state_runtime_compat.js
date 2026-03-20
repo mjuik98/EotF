@@ -1,9 +1,9 @@
-import { CombatGameStateRuntimeMethods } from './game_state_runtime_methods.js';
+import { CombatGameStateRuntimeCompatMethods } from './compat/game_state_combat_runtime_compat_methods.js';
 
 const facadeCache = new WeakMap();
 
 function bindMethod(target, receiver, prop) {
-  const combatMethod = CombatGameStateRuntimeMethods[prop];
+  const combatMethod = CombatGameStateRuntimeCompatMethods[prop];
   if (typeof combatMethod === 'function') {
     return combatMethod.bind(receiver);
   }
@@ -18,7 +18,7 @@ export function createLegacyGameStateRuntimeFacade(gs) {
 
   const facade = new Proxy(gs, {
     get(target, prop, receiver) {
-      if (Reflect.has(CombatGameStateRuntimeMethods, prop)) {
+      if (Reflect.has(CombatGameStateRuntimeCompatMethods, prop)) {
         return bindMethod(target, receiver, prop);
       }
       return bindMethod(target, receiver, prop);
@@ -27,19 +27,19 @@ export function createLegacyGameStateRuntimeFacade(gs) {
       return Reflect.set(target, prop, value, receiver);
     },
     has(target, prop) {
-      return Reflect.has(CombatGameStateRuntimeMethods, prop) || Reflect.has(target, prop);
+      return Reflect.has(CombatGameStateRuntimeCompatMethods, prop) || Reflect.has(target, prop);
     },
     ownKeys(target) {
-      return [...new Set([...Reflect.ownKeys(target), ...Reflect.ownKeys(CombatGameStateRuntimeMethods)])];
+      return [...new Set([...Reflect.ownKeys(target), ...Reflect.ownKeys(CombatGameStateRuntimeCompatMethods)])];
     },
     getOwnPropertyDescriptor(target, prop) {
       if (Reflect.has(target, prop)) return Object.getOwnPropertyDescriptor(target, prop);
-      if (!Reflect.has(CombatGameStateRuntimeMethods, prop)) return undefined;
+      if (!Reflect.has(CombatGameStateRuntimeCompatMethods, prop)) return undefined;
       return {
         configurable: true,
         enumerable: true,
         writable: false,
-        value: CombatGameStateRuntimeMethods[prop],
+        value: CombatGameStateRuntimeCompatMethods[prop],
       };
     },
   });

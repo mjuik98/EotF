@@ -3,6 +3,8 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 import { RunPublicSurface } from '../game/features/run/ports/public_surface.js';
+import { TitlePublicSurface } from '../game/features/title/ports/public_surface.js';
+import { UiPublicSurface } from '../game/features/ui/ports/public_surface.js';
 
 describe('feature public surface exports', () => {
   it('exposes stable public surface objects for each feature facade', () => {
@@ -68,6 +70,22 @@ describe('feature public surface exports', () => {
       'rules',
       'runtime',
       'state',
+    ]);
+  });
+
+  it('keeps title and ui public surfaces narrowed to grouped capability members', () => {
+    expect(Object.keys(TitlePublicSurface).sort()).toEqual([
+      'bindings',
+      'contracts',
+      'moduleCapabilities',
+      'runtime',
+    ]);
+    expect(Object.keys(UiPublicSurface).sort()).toEqual([
+      'bindings',
+      'browserModules',
+      'contracts',
+      'moduleCapabilities',
+      'runtime',
     ]);
   });
 });

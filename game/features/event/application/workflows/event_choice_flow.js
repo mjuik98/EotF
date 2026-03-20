@@ -1,8 +1,6 @@
-import { playAttackSlash } from '../../../../domain/audio/audio_event_helpers.js';
-import { unlockEventFlow } from '../../../../shared/state/runtime_flow_controls.js';
 import { createFinishEventFlowUseCase } from '../finish_event_flow_use_case.js';
-import { createResolveEventChoiceUseCase } from '../resolve_event_choice_use_case.js';
-import { createEventEffectServices } from '../../platform/browser/event_effect_services.js';
+import { handleResolveEventChoiceFlowError } from './event_choice_flow_error_handler.js';
+import { resolveEventChoiceExecution } from './event_choice_flow_services.js';
 import { presentEventChoiceResolution } from '../../presentation/browser/event_choice_resolution_presenter.js';
 import { renderEventContinueChoice } from '../../presentation/event_continue_choice_presenter.js';
 import {
@@ -41,26 +39,14 @@ export function resolveEventChoiceFlow(choiceIdx, {
   if (!gs || !event || !doc) return null;
 
   try {
-    const effectServices = deps.eventEffectServices || createEventEffectServices({
+    const execution = resolveEventChoiceExecution({
       audioEngine,
-      showItemToast: deps.showItemToast,
-    });
-    const resolveEventChoice = createResolveEventChoiceUseCase(
-      typeof resolveChoice === 'function'
-        ? {
-          resolveChoice: (runtimeGs, runtimeEvent, runtimeChoiceIdx) => (
-            resolveChoice(runtimeGs, runtimeEvent, runtimeChoiceIdx, { services: effectServices })
-          ),
-        }
-        : {
-          resolveChoiceOptions: { services: effectServices },
-        },
-    );
-    const execution = resolveEventChoice({
       choiceIdx,
+      deps,
       event,
       gs,
       sharedData,
+      resolveChoice,
     });
     const { resolution, viewModel } = execution || {};
 
@@ -80,9 +66,6 @@ export function resolveEventChoiceFlow(choiceIdx, {
 
     return resolution;
   } catch (err) {
-    console.error('[resolveEvent] choice effect error:', err);
-    unlockEventFlow(gs);
-    playAttackSlash(audioEngine);
-    return null;
+    return handleResolveEventChoiceFlowError(gs, audioEngine, err);
   }
 }

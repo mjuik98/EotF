@@ -14,17 +14,10 @@ import {
 } from './runtime/public_title_runtime_surface.js';
 
 export const TitlePublicSurface = Object.freeze({
-  createTitleBindingCapabilities,
-  createTitleBindings,
-  createTitleContractCapabilities,
-  createTitleModuleCapabilities,
-  createTitleRuntimeCapabilities,
-  registerTitleBindings,
-  buildTitleBootPublicActions,
-  buildTitleHelpPausePublicActions,
-  buildTitlePauseMenuPublicActions,
-  buildTitleRunContractPublicBuilders,
-  buildTitleStoryContractPublicBuilders,
+  bindings: createTitleBindingCapabilities(),
+  contracts: createTitleContractCapabilities(),
+  moduleCapabilities: createTitleModuleCapabilities(),
+  runtime: createTitleRuntimeCapabilities(),
 });
 
 export function buildTitleRunContractPublicBuilders(ctx) {

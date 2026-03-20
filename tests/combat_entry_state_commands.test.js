@@ -65,4 +65,24 @@ describe('combat_entry_state_commands', () => {
     expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_REGION_SET, { regionId: 7 });
     expect(state.dispatch).toHaveBeenCalledWith(Actions.COMBAT_START, { enemies: [] });
   });
+
+  it('falls back to the reducer-owned combat start state when dispatch is unavailable', () => {
+    const state = {
+      currentScreen: 'title',
+      combat: {
+        active: false,
+        turn: 9,
+        playerTurn: false,
+        log: ['old'],
+      },
+    };
+
+    expect(enterCombatState(state)).toEqual({
+      active: true,
+      turn: 0,
+      playerTurn: true,
+      currentScreen: 'game',
+    });
+    expect(state.combat.log).toEqual([]);
+  });
 });

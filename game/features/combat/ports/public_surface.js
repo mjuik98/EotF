@@ -1,5 +1,4 @@
 export { SetBonusSystem } from '../domain/set_bonus_system.js';
-import { CombatLifecycle } from '../compat/combat_lifecycle.js';
 import {
   applyEnemyAreaDamageRuntime,
   applyEnemyDamageRuntime,
@@ -14,10 +13,18 @@ import {
   playStateCard,
 } from './public_application_capabilities.js';
 import { createCombatBindingCapabilities } from './public_binding_capabilities.js';
+import {
+  CardMethods,
+  CombatMethods,
+  DamageSystem,
+  TurnManager,
+  DeathHandler,
+  createCombatCompatCapabilities,
+  CombatLifecycle,
+} from './public_compat_capabilities.js';
 import { createCombatContractCapabilities } from './public_contract_capabilities.js';
 import { createCombatModuleCapabilities } from './public_module_capabilities.js';
 import { createCombatStateCapabilities } from './public_state_capabilities.js';
-import { DeathHandler } from '../compat/death_handler.js';
 import { buildCombatFlowContractBuilders } from './contracts/build_combat_flow_contracts.js';
 import { buildCombatUiContractPublicBuilders } from './contracts/public_combat_contract_builders.js';
 import {
@@ -25,21 +32,6 @@ import {
   createCombatBindingsActions,
   createCombatRuntimeCapabilities,
 } from './public_runtime_capabilities.js';
-import { CardMethods } from '../compat/card_methods.js';
-import { CombatMethods } from '../compat/combat_methods.js';
-import { DamageSystem } from '../compat/damage_system.js';
-import { TurnManager } from '../compat/turn_manager.js';
-
-export function createCombatCompatCapabilities() {
-  return {
-    CardMethods,
-    CombatLifecycle,
-    CombatMethods,
-    DamageSystem,
-    DeathHandler,
-    TurnManager,
-  };
-}
 
 export const CombatPublicSurface = Object.freeze({
   get application() {
@@ -80,6 +72,7 @@ export {
   createCombatStartRuntime,
   createCombatBindingsActions,
   createCombatBindingCapabilities,
+  createCombatCompatCapabilities,
   createCombatContractCapabilities,
   createCombatModuleCapabilities,
   createCombatRuntimeCapabilities,

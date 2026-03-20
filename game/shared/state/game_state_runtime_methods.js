@@ -1,14 +1,14 @@
 import { GameStateCommonMethods } from '../../core/game_state_common_methods.js';
-import { CardMethods } from '../../features/combat/application/card_methods_compat.js';
-import { CombatMethods } from '../../features/combat/application/combat_methods_compat.js';
+import { CardGameStateRuntimeCompatMethods } from './compat/game_state_card_runtime_compat_methods.js';
+import { CombatGameStateRuntimeCompatMethods } from './compat/game_state_combat_runtime_compat_methods.js';
 import { PlayerMethods } from './player_runtime_methods.js';
 
 export const CombatGameStateRuntimeMethods = {
-  ...CombatMethods,
+  ...CombatGameStateRuntimeCompatMethods,
 };
 
 export const CardGameStateRuntimeMethods = {
-  ...CardMethods,
+  ...CardGameStateRuntimeCompatMethods,
 };
 
 export const CoreGameStateRuntimeMethods = {

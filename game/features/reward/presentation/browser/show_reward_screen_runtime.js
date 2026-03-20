@@ -31,6 +31,10 @@ export function showRewardScreenView(ui, payload, deps = {}) {
     onTakeItem: (itemId) => ui.takeRewardItem(itemId, deps),
   });
 
-  if (typeof deps.showRewardScreen === 'function') deps.showRewardScreen();
-  else deps.switchScreen?.('reward');
+  if (typeof deps.switchScreen === 'function') {
+    deps.switchScreen('reward');
+    return;
+  }
+
+  doc.getElementById('rewardScreen')?.classList?.add?.('active');
 }

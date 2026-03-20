@@ -27,24 +27,11 @@ export function buildUiShellContractPublicBuilders(ctx) {
 }
 
 export const UiPublicSurface = Object.freeze({
-  createUiBindingCapabilities,
-  createUiBrowserModuleCapabilities,
-  createUiContractCapabilities,
-  createUiModuleCapabilities,
-  createUiPorts,
-  createUiRuntimeCapabilities,
-  buildLegacyGameApiRuntimeHudQueryGroups,
-  buildLegacyWindowUiQueryGroups,
-  buildUiRuntimeSubscriberPublicActions,
-  buildUiShellContractPublicBuilders,
-  createLegacyHudRuntimeQueryBindings,
-  createLegacyUiCommandFacade,
-  createUiActions,
-  createUiBindingContext,
-  createUiBindingsActions,
-  setScreenService,
-  showGameplayScreenService,
-  showScreenService,
+  bindings: createUiBindingCapabilities(),
+  browserModules: createUiBrowserModuleCapabilities(),
+  contracts: createUiContractCapabilities(),
+  moduleCapabilities: createUiModuleCapabilities(),
+  runtime: createUiRuntimeCapabilities(),
 });
 
 export {

@@ -14,10 +14,7 @@ export function switchScreenRuntime(screen, deps = {}) {
   applyActiveScreenState(screen, doc);
 
   if (deps?.gs) {
-    const result = changeScreenState(deps.gs, screen);
-    if (result === null) {
-      deps.gs.currentScreen = screen;
-    }
+    changeScreenState(deps.gs, screen);
   }
   if (shouldRemoveFloatingHpPanel(screen)) {
     removeFloatingPlayerHpPanel({ doc });

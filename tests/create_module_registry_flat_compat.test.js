@@ -20,6 +20,9 @@ describe('createModuleRegistryFlatCompat', () => {
         AudioEngine: { id: 'audio' },
       },
       title: { TitleUI: { id: 'title' } },
+      codex: { CodexUI: { id: 'codex' } },
+      event: { EventUI: { id: 'event' } },
+      reward: { RewardUI: { id: 'reward' } },
       combat: { CombatUI: { id: 'combat' } },
       run: { RunModeUI: { id: 'run' } },
       screen: { ScreenUI: { id: 'screen' } },
@@ -28,6 +31,9 @@ describe('createModuleRegistryFlatCompat', () => {
     const legacyModules = createModuleRegistryFlatCompat(groups);
 
     expect(legacyModules.AudioEngine).toBe(groups.core.AudioEngine);
+    expect(legacyModules.CodexUI).toBe(groups.codex.CodexUI);
+    expect(legacyModules.EventUI).toBe(groups.event.EventUI);
+    expect(legacyModules.RewardUI).toBe(groups.reward.RewardUI);
     expect(legacyModules.GS).not.toBe(groups.core.GS);
     expect(legacyModules.GS.dispatch).toBeTypeOf('function');
     expect(legacyModules.GS.dealDamage).toBeTypeOf('function');

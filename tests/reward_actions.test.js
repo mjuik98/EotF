@@ -151,4 +151,51 @@ describe('reward_actions', () => {
     expect(modules.RewardUI.takeRewardCard).not.toHaveBeenCalled();
     expect(modules.RewardUI.skipReward).not.toHaveBeenCalled();
   });
+
+  it('falls back to RewardUI compat methods when reward deps loop back into the same action surface', () => {
+    let actions;
+    const rewardDeps = {
+      showRewardScreen: vi.fn((mode) => actions.showRewardScreen(mode)),
+    };
+    const modules = {
+      RewardUI: {
+        showRewardScreen: vi.fn(),
+      },
+    };
+    const ports = {
+      getRewardDeps: vi.fn(() => rewardDeps),
+      getRewardFlowDeps: vi.fn(() => ({ openReward: vi.fn() })),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    actions = createRewardActions(modules, ports);
+
+    expect(() => actions.showRewardScreen('boss')).not.toThrow();
+    expect(rewardDeps.showRewardScreen).toHaveBeenCalledTimes(1);
+    expect(modules.RewardUI.showRewardScreen).toHaveBeenCalledWith('boss', rewardDeps);
+  });
+
+  it('preserves RewardUI method context when compat showRewardScreen fallback is used', () => {
+    let observedUi;
+    const modules = {
+      RewardUI: {
+        hideSkipConfirm: vi.fn(),
+        showRewardScreen(mode, deps) {
+          observedUi = this;
+          this.hideSkipConfirm(deps);
+        },
+      },
+    };
+    const ports = {
+      getRewardDeps: vi.fn(() => ({ token: 'reward-deps' })),
+      getRewardFlowDeps: vi.fn(() => ({ openReward: vi.fn() })),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    const actions = createRewardActions(modules, ports);
+
+    expect(() => actions.showRewardScreen('boss')).not.toThrow();
+    expect(observedUi).toBe(modules.RewardUI);
+    expect(modules.RewardUI.hideSkipConfirm).toHaveBeenCalledWith({ token: 'reward-deps' });
+  });
 });

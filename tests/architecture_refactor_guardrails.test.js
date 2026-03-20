@@ -131,6 +131,34 @@ describe('architecture refactor guardrails', () => {
     expect(matches).toEqual([]);
   });
 
+  it('keeps core and platform code off feature public-surface aggregators', () => {
+    const roots = [
+      path.join(process.cwd(), 'game/core'),
+      path.join(process.cwd(), 'game/platform'),
+    ];
+    const matches = [];
+
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(fullPath);
+          continue;
+        }
+        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
+
+        const relPath = path.relative(process.cwd(), fullPath).replaceAll('\\', '/');
+        const source = fs.readFileSync(fullPath, 'utf8');
+        if (/\/features\/.+(\/public\.js|\/ports\/public_surface\.js)/.test(source)) {
+          matches.push(relPath);
+        }
+      }
+    };
+
+    roots.forEach(walk);
+    expect(matches).toEqual([]);
+  });
+
   it('keeps legacy player-state fallback enablement inside platform/legacy only', () => {
     const root = path.join(process.cwd(), 'game');
     const matches = [];
@@ -167,6 +195,18 @@ describe('architecture refactor guardrails', () => {
 
     expect(source).not.toContain('__legacyPlayerStateCommandFallback');
     expect(source).toContain("./player_state_command_fallback_flag.js");
+  });
+
+  it('keeps shared runtime methods routed through explicit legacy compat adapters for combat/card helpers', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/shared/state/game_state_runtime_methods.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain("../../features/combat/application/card_methods_compat.js");
+    expect(source).not.toContain("../../features/combat/application/combat_methods_compat.js");
+    expect(source).toContain("./compat/game_state_card_runtime_compat_methods.js");
+    expect(source).toContain("./compat/game_state_combat_runtime_compat_methods.js");
   });
 
   it('keeps run region rules free of the core global bridge fallback', () => {
@@ -297,14 +337,14 @@ describe('architecture refactor guardrails', () => {
     expect(source).not.toContain("from '../../../ui/feedback/button_feedback.js'");
   });
 
-  it('keeps game state runtime methods routed through feature-owned combat canonical files', () => {
+  it('keeps game state runtime methods routed through explicit shared compat adapters for combat/card helpers', () => {
     const source = fs.readFileSync(
       path.join(process.cwd(), 'game/shared/state/game_state_runtime_methods.js'),
       'utf8',
     );
 
-    expect(source).toContain("from '../../features/combat/application/card_methods_compat.js'");
-    expect(source).toContain("from '../../features/combat/application/combat_methods_compat.js'");
+    expect(source).toContain("from './compat/game_state_card_runtime_compat_methods.js'");
+    expect(source).toContain("from './compat/game_state_combat_runtime_compat_methods.js'");
     expect(source).not.toContain("from '../../combat/card_methods.js'");
     expect(source).not.toContain("from '../../combat/combat_methods.js'");
   });

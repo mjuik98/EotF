@@ -1,9 +1,12 @@
 import { getMapNodeVisualFallback } from '../../domain/map_node_content.js';
 import { canShowNextNodeOverlay } from '../../../../shared/state/runtime_session_selectors.js';
 import {
+  bindNextNodeCardInteractions,
+  createNextNodeOverlayKeyHandler,
+} from './map_ui_next_nodes_interactions.js';
+import {
   cleanupNextNodeOverlay,
   getDoc,
-  playSelectAnim,
   resolveNodeMeta,
   resolveTooltipUI,
 } from './map_ui_next_nodes_overlay_helpers.js';
@@ -139,30 +142,21 @@ export function updateNextNodesOverlay(deps = {}) {
       label: node.type,
       desc: '다음 경로를 준비합니다.',
     };
-    const { card, rgb } = buildNextNodeCard(doc, {
+    const { card } = buildNextNodeCard(doc, {
       node,
       index,
       meta,
       shortRegionName,
     });
-
-    const triggerMove = () => {
-      if (typeof deps.moveToNode === 'function') {
-        deps.moveToNode(node.id);
-        return;
-      }
-      const handler = win[moveToNodeHandlerName];
-      if (typeof handler === 'function') handler(node.id);
-    };
-
-    card.addEventListener('mouseenter', () => {
-      hoverTint.style.background = `radial-gradient(ellipse at 50% 58%,rgba(${rgb},.065) 0%,transparent 62%)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      hoverTint.style.background = 'transparent';
-    });
-    card.addEventListener('click', () => {
-      playSelectAnim(doc, card, rgb, triggerMove, deps);
+    bindNextNodeCardInteractions({
+      card,
+      deps,
+      doc,
+      hoverTint,
+      meta,
+      moveToNodeHandlerName,
+      node,
+      win,
     });
 
     row.appendChild(card);
@@ -193,41 +187,17 @@ export function updateNextNodesOverlay(deps = {}) {
       : null,
   }));
 
-  const keyHandler = (event) => {
-    if (overlay.style.display === 'none') return;
-    if (event.key === 'm' || event.key === 'M') {
-      if (typeof deps.showFullMap === 'function') {
-        deps.showFullMap();
-        event.preventDefault();
-      }
-      return;
-    }
-    if (event.key === 'Tab') {
-      if (typeof deps.showDeckView === 'function' || typeof deps.closeDeckView === 'function') {
-        event.preventDefault();
-        toggleDeckView();
-      }
-      return;
-    }
-    const index = parseInt(event.key, 10) - 1;
-    if (!Number.isFinite(index) || index < 0 || index >= nodes.length) return;
-    const cards = typeof row.querySelectorAll === 'function'
-      ? Array.from(row.querySelectorAll('.node-card'))
-      : Array.from(row.children || []).filter((child) => String(child.className || '').includes('node-card'));
-    const targetCard = cards[index];
-    if (!targetCard) return;
-
-    const meta = nodeMeta[nodes[index].type] || nodeMeta.combat || { color: '#7b2fff' };
-    const rgb = hexToRgb(meta.color);
-    playSelectAnim(doc, targetCard, rgb, () => {
-      if (typeof deps.moveToNode === 'function') {
-        deps.moveToNode(nodes[index].id);
-        return;
-      }
-      const handler = win[moveToNodeHandlerName];
-      if (typeof handler === 'function') handler(nodes[index].id);
-    }, deps);
-  };
+  const keyHandler = createNextNodeOverlayKeyHandler({
+    deps,
+    doc,
+    moveToNodeHandlerName,
+    nodeMeta,
+    nodes,
+    overlay,
+    row,
+    toggleDeckView,
+    win,
+  });
   doc.addEventListener('keydown', keyHandler);
   overlay._ncKey = keyHandler;
 
