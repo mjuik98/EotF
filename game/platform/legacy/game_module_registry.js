@@ -1,4 +1,5 @@
 import {
+  resolveLegacyCompatModules,
   resolveLegacyGameRoot,
   resolveLegacyModuleBag,
 } from './resolve_legacy_module_bag.js';
@@ -79,7 +80,7 @@ export function registerLegacyModule(modules, registryName, moduleObj, options =
 }
 
 export function registerLegacyGameModules(modules) {
-  const legacyModules = resolveLegacyModuleBag(modules);
+  const legacyModules = resolveLegacyCompatModules(modules);
   const gameRoot = resolveLegacyGameRoot(modules);
 
   LEGACY_GAME_MODULE_REGISTRY_NAMES.forEach((name) => {

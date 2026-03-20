@@ -1,1 +1,1 @@
-export { registerCardEventSubscribers } from '../features/combat/platform/runtime/register_card_event_subscribers.js';
+export { registerCardEventSubscribers } from '../features/combat/ports/runtime/public_combat_runtime_surface.js';

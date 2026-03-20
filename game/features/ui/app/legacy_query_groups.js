@@ -2,4 +2,4 @@ export {
   buildLegacyGameApiRuntimeHudQueryGroups,
   buildLegacyWindowUiQueryGroups,
   createLegacyHudRuntimeQueryBindings,
-} from '../platform/browser/ui_legacy_query_groups.js';
+} from '../ports/runtime/public_ui_runtime_surface.js';

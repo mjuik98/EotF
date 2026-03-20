@@ -5,30 +5,25 @@ const RUN_CANVAS_DEP_CONTRACTS = Object.freeze({
   getWorldCanvasDeps: 'worldCanvas',
 });
 
-function getOptionalFactoryExport(exportName) {
-  return Object.prototype.hasOwnProperty.call(Deps, exportName)
-    ? Deps[exportName]
-    : null;
+function buildRunCanvasDepAccessors() {
+  return Deps.buildFeatureContractAccessors(RUN_CANVAS_DEP_CONTRACTS, Deps);
 }
 
-function buildRunCanvasDepAccessors() {
-  const createDepsAccessors = getOptionalFactoryExport('createDepsAccessors');
-  const createDeps = getOptionalFactoryExport('createDeps');
-
-  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
-    return createDepsAccessors(RUN_CANVAS_DEP_CONTRACTS, createDeps);
+function resolveCoreRuntimeModule(modules = {}, key) {
+  const coreRefs = modules?.featureScopes?.core || {};
+  if (coreRefs[key] !== undefined) {
+    return coreRefs[key];
   }
 
-  const accessors = {};
-
-  for (const accessorName of Object.keys(RUN_CANVAS_DEP_CONTRACTS)) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(Deps[accessorName]?.() || {}),
-      ...overrides,
-    });
+  if (modules?.legacyModules?.[key] !== undefined) {
+    return modules.legacyModules[key];
   }
 
-  return Object.freeze(accessors);
+  if (modules?.[key] !== undefined) {
+    return modules[key];
+  }
+
+  return undefined;
 }
 
 function buildCanvasDeps(game, options = {}, extra = {}) {
@@ -48,12 +43,13 @@ export function createRunCanvasPorts(modules, options = {}) {
     || win?.requestAnimationFrame?.bind?.(win)
     || ((cb) => setTimeout(cb, 16));
   const depAccessors = buildRunCanvasDepAccessors();
+  const game = resolveCoreRuntimeModule(modules, 'GAME');
 
   return {
     doc,
     win,
     requestAnimationFrame,
-    getCanvasDeps: (extra = {}) => buildCanvasDeps(modules.GAME, { doc, win }, extra),
+    getCanvasDeps: (extra = {}) => buildCanvasDeps(game, { doc, win }, extra),
     ...depAccessors,
   };
 }

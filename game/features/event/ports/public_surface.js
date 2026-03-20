@@ -18,18 +18,24 @@ export function createEventCompatCapabilities() {
 }
 
 export const EventPublicSurface = Object.freeze({
-  application: createEventApplicationCapabilities(),
-  bindings: createEventBindingCapabilities(),
-  compat: createEventCompatCapabilities(),
-  contracts: createEventContractCapabilities(),
-  createEventApplicationCapabilities,
-  createEventBindingCapabilities,
-  createEventCompatCapabilities,
-  createEventContractCapabilities,
-  createEventModuleCapabilities,
-  createEventRuntimeCapabilities,
-  moduleCapabilities: createEventModuleCapabilities(),
-  runtime: createEventRuntimeCapabilities(),
+  get application() {
+    return createEventApplicationCapabilities();
+  },
+  get bindings() {
+    return createEventBindingCapabilities();
+  },
+  get compat() {
+    return createEventCompatCapabilities();
+  },
+  get contracts() {
+    return createEventContractCapabilities();
+  },
+  get moduleCapabilities() {
+    return createEventModuleCapabilities();
+  },
+  get runtime() {
+    return createEventRuntimeCapabilities();
+  },
 });
 
 export {

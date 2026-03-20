@@ -15,6 +15,10 @@ vi.mock('../game/core/deps_factory.js', () => ({
   createDeps: hoisted.createDeps,
   createDepsAccessors: hoisted.createDepsAccessors,
   getRunSetupDeps: hoisted.getRunSetupDeps,
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => hoisted.createDepsAccessors(
+    contractMap,
+    depsFactory.createDeps,
+  )),
 }));
 
 import { buildLegacyGameAPIRunBindings } from '../game/platform/legacy/game_api_run_bindings.js';

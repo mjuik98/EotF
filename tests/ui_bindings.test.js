@@ -8,6 +8,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getHudUpdateDeps: vi.fn(() => ({ token: 'hud-update-deps' })),
   getScreenDeps: vi.fn(() => ({ token: 'screen-deps' })),
   getTooltipDeps: vi.fn(() => ({ token: 'tooltip-deps' })),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import * as Deps from '../game/core/deps_factory.js';
@@ -113,7 +124,7 @@ describe('createUIBindings', () => {
     expect(modules.CodexUI.openCodex).toHaveBeenCalledWith({ token: 'codex-deps' });
     expect(modules.TooltipUI.showTooltip).toHaveBeenCalledWith({ type: 'mouseenter' }, 'strike', { token: 'tooltip-deps' });
     expect(modules.ScreenUI.switchScreen).toHaveBeenCalledWith('game', { token: 'screen-deps' });
-    expect(Deps.getHudUpdateDeps).toHaveBeenCalledTimes(1);
+    expect(Deps.getHudUpdateDeps).toHaveBeenCalledTimes(2);
     expect(Deps.getCombatInfoDeps).toHaveBeenCalledTimes(1);
     expect(Deps.getCombatHudDeps).toHaveBeenCalledTimes(1);
     expect(Deps.getDeckModalDeps).toHaveBeenCalledTimes(1);
@@ -152,5 +163,136 @@ describe('createUIBindings', () => {
       token: 'screen-deps',
       gs: modules.GS,
     });
+  });
+
+  it('prefers gs from hud deps over stale module aliases when updating status display', () => {
+    const staleGs = { token: 'stale-gs' };
+    const scopedGs = { token: 'scoped-gs' };
+    Deps.getHudUpdateDeps.mockReturnValueOnce({
+      token: 'hud-update-deps',
+      gs: scopedGs,
+    });
+
+    const doc = {
+      defaultView: {},
+      getElementById: vi.fn((id) => (id === 'statusEffects' ? { id } : null)),
+    };
+    const originalDocument = globalThis.document;
+    globalThis.document = doc;
+
+    const modules = {
+      GS: staleGs,
+      AudioEngine: { playClick: vi.fn() },
+      TooltipUI: {},
+      StatusEffectsUI: { updateStatusDisplay: vi.fn() },
+    };
+    const fns = {};
+
+    createUIBindings(modules, fns);
+    fns.updateStatusDisplay();
+
+    expect(modules.StatusEffectsUI.updateStatusDisplay).toHaveBeenCalledWith(expect.objectContaining({
+      gs: scopedGs,
+      statusContainerId: 'statusEffects',
+    }));
+
+    globalThis.document = originalDocument;
+  });
+
+  it('falls back to legacy compat gs before stale top-level aliases when hud deps omit gs', () => {
+    const staleGs = { token: 'stale-gs' };
+    const compatGs = { token: 'compat-gs' };
+    Deps.getHudUpdateDeps.mockReturnValueOnce({
+      token: 'hud-update-deps',
+    });
+
+    const doc = {
+      defaultView: {},
+      getElementById: vi.fn((id) => (id === 'statusEffects' ? { id } : null)),
+    };
+    const originalDocument = globalThis.document;
+    globalThis.document = doc;
+
+    const modules = {
+      GS: staleGs,
+      legacyModules: {
+        GS: compatGs,
+      },
+      AudioEngine: { playClick: vi.fn() },
+      TooltipUI: {},
+      StatusEffectsUI: { updateStatusDisplay: vi.fn() },
+    };
+    const fns = {};
+
+    createUIBindings(modules, fns);
+    fns.updateStatusDisplay();
+
+    expect(modules.StatusEffectsUI.updateStatusDisplay).toHaveBeenCalledWith(expect.objectContaining({
+      gs: compatGs,
+      statusContainerId: 'statusEffects',
+    }));
+
+    globalThis.document = originalDocument;
+  });
+
+  it('prefers scoped ui modules over stale top-level aliases for tooltip, codex, and audio actions', async () => {
+    const staleAudioEngine = { playClick: vi.fn() };
+    const scopedAudioEngine = { playClick: vi.fn() };
+    const staleTooltipUI = {
+      showTooltip: vi.fn(),
+      hideTooltip: vi.fn(),
+    };
+    const scopedTooltipUI = {
+      showTooltip: vi.fn(),
+      hideTooltip: vi.fn(),
+    };
+    const staleCodexUI = { openCodex: vi.fn() };
+    const scopedCodexUI = { openCodex: vi.fn() };
+    const staleScreenUI = { switchScreen: vi.fn() };
+    const scopedScreenUI = { switchScreen: vi.fn() };
+
+    const modules = {
+      GS: { currentScreen: 'title', dispatch: vi.fn() },
+      AudioEngine: staleAudioEngine,
+      TooltipUI: staleTooltipUI,
+      CodexUI: staleCodexUI,
+      ScreenUI: staleScreenUI,
+      featureScopes: {
+        core: {
+          GS: { currentScreen: 'title', dispatch: vi.fn() },
+          AudioEngine: scopedAudioEngine,
+        },
+        codex: {
+          CodexUI: scopedCodexUI,
+        },
+        screen: {
+          TooltipUI: scopedTooltipUI,
+          ScreenUI: scopedScreenUI,
+        },
+      },
+    };
+    const fns = {};
+
+    createUIBindings(modules, fns);
+
+    fns.showTooltip({ type: 'mouseenter' }, 'strike');
+    await fns.openCodex();
+    fns.switchScreen('game');
+
+    expect(scopedTooltipUI.showTooltip).toHaveBeenCalledWith(
+      { type: 'mouseenter' },
+      'strike',
+      { token: 'tooltip-deps' },
+    );
+    expect(staleTooltipUI.showTooltip).not.toHaveBeenCalled();
+    expect(scopedAudioEngine.playClick).toHaveBeenCalledTimes(1);
+    expect(staleAudioEngine.playClick).not.toHaveBeenCalled();
+    expect(scopedCodexUI.openCodex).toHaveBeenCalledWith({ token: 'codex-deps' });
+    expect(staleCodexUI.openCodex).not.toHaveBeenCalled();
+    expect(scopedScreenUI.switchScreen).toHaveBeenCalledWith('game', {
+      token: 'screen-deps',
+      gs: modules.featureScopes.core.GS,
+    });
+    expect(staleScreenUI.switchScreen).not.toHaveBeenCalled();
   });
 });

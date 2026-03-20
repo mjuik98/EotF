@@ -1,4 +1,5 @@
 import { publishLegacyModuleBag } from '../../../../platform/legacy/game_module_registry.js';
+import { resolveUiRuntimeModule } from './resolve_ui_action_modules.js';
 
 let settingsModulesPromise = null;
 
@@ -7,8 +8,9 @@ function assignSettingsModules(modules, settingsModules) {
 }
 
 export async function ensureSettingsBrowserModules(modules) {
-  if (modules?.SettingsUI) {
-    return { SettingsUI: modules.SettingsUI };
+  const settingsUI = resolveUiRuntimeModule(modules, 'SettingsUI', ['screen']);
+  if (settingsUI) {
+    return { SettingsUI: settingsUI };
   }
 
   if (!settingsModulesPromise) {

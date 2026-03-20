@@ -1,2 +1,2 @@
-export { CombatInitializer } from '../features/combat/application/combat_initializer.js';
+export { CombatInitializer } from '../features/combat/ports/public_application_capabilities.js';
 

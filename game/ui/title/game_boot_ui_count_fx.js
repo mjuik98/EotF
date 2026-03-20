@@ -1,1 +1,1 @@
-export * from '../../features/title/presentation/browser/game_boot_ui_count_fx.js';
+export * from '../../features/title/ports/public_game_boot_presentation_capabilities.js';

@@ -17,6 +17,17 @@ vi.mock('../game/platform/legacy/game_api/player_commands.js', () => ({
 
 vi.mock('../game/core/deps_factory.js', () => ({
   getRunSetupDeps: hoisted.getRunSetupDeps,
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import { buildLegacyGameAPICommandBindings } from '../game/platform/legacy/game_api_command_bindings.js';

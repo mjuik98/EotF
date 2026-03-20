@@ -1,1 +1,1 @@
-export { TitleCanvasUI } from '../../features/title/presentation/browser/title_canvas_ui.js';
+export { TitleCanvasUI } from '../../features/title/ports/public_presentation_capabilities.js';

@@ -1,1 +1,1 @@
-export { createRunCanvasActions } from './create_run_canvas_actions.js';
+export { createRunCanvasActions } from '../application/create_run_canvas_actions.js';

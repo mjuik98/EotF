@@ -12,20 +12,20 @@ describe('presentation compat re-exports', () => {
         '  cleanupCombatTooltips,',
         '  needsCombatEnemyFullRender,',
         '  renderCombatEnemyList,',
-        "} from '../../features/combat/presentation/browser/combat_enemy_list_presenter.js';",
+        "} from '../../features/combat/ports/public_presentation_capabilities.js';",
       ].join('\n'),
       'game/presentation/combat/combat_enemy_view_model_presenter.js': [
         'export {',
         '  buildEnemyHpText,',
         '  buildEnemyViewModel,',
-        "} from '../../features/combat/presentation/browser/combat_enemy_view_model_presenter.js';",
+        "} from '../../features/combat/ports/public_presentation_capabilities.js';",
       ].join('\n'),
       'game/presentation/combat/combat_turn_action_presenter.js': [
         'export {',
         '  dispatchCombatTurnUiAction,',
         '  playEnemyAttackHitUi,',
         '  playEnemyStatusTickEffects,',
-        "} from '../../features/combat/presentation/browser/combat_turn_action_presenter.js';",
+        "} from '../../features/combat/ports/public_presentation_capabilities.js';",
       ].join('\n'),
       'game/presentation/combat/combat_turn_state_presenter.js': [
         'export {',
@@ -34,7 +34,7 @@ describe('presentation compat re-exports', () => {
         '  setPlayerTurnUiState,',
         '  showBossPhaseShiftUi,',
         '  syncCombatTurnEnergy,',
-        "} from '../../features/combat/presentation/browser/combat_turn_state_presenter.js';",
+        "} from '../../features/combat/ports/public_presentation_capabilities.js';",
       ].join('\n'),
     };
 
@@ -65,10 +65,10 @@ describe('presentation compat re-exports', () => {
       '  takeRewardItemRuntime,',
       '  takeRewardRemoveRuntime,',
       '  takeRewardUpgradeRuntime,',
-      "} from '../../features/reward/presentation/browser/reward_ui_runtime.js';",
+      "} from '../../features/reward/ports/public_presentation_capabilities.js';",
     ].join('\n'));
     expect(rewardScreenRuntimeSource).toBe(
-      "export { showRewardScreenRuntime } from '../../features/reward/application/workflows/show_reward_screen_workflow.js';",
+      "export { showRewardScreenRuntime } from '../../features/reward/ports/runtime/public_reward_runtime_surface.js';",
     );
   });
 });

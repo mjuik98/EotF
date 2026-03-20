@@ -17,7 +17,7 @@ function collectEnemyState(enemies = []) {
 }
 
 export function collectCombatRuntimeDebugSnapshot({ modules, doc, win }) {
-  const gs = modules?.GS || {};
+  const gs = modules?.featureScopes?.core?.GS || modules?.GS || {};
   const view = win || doc?.defaultView || null;
   const viewport = getViewportSummary(doc, view, gs);
   const enemies = Array.isArray(gs?.combat?.enemies) ? gs.combat.enemies : [];

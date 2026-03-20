@@ -5,7 +5,7 @@ import {
   applyLegacyPlayerHealState,
   applyLegacyPlayerMaxEnergyGrowthState,
 } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
-import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from '../game/shared/state/player_state_command_fallback_flag.js';
+import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from '../game/platform/legacy/state/player_state_command_fallback_flag.js';
 
 describe('legacy_player_state_commands', () => {
   it('enables compat fallback ownership before delegating to shared player state commands', () => {

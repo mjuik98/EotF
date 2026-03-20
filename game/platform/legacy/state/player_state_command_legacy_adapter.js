@@ -1,3 +1,4 @@
+import { isLegacyPlayerStateCommandFallbackEnabled } from './player_state_command_fallback_flag.js';
 import {
   applyLegacyPlayerBuffMutation,
   applyLegacyPlayerEchoMutation,
@@ -74,4 +75,30 @@ export function applyPlayerStatusClearLegacyFallback(gs, statusId) {
 
 export function applyPlayerTimeRiftGaugeLegacyFallback(gs, amount) {
   return applyLegacyPlayerTimeRiftGaugeMutation(gs, amount);
+}
+
+export const LegacyPlayerStateCommandFallbacks = Object.freeze({
+  applyPlayerBuffState: applyPlayerBuffLegacyFallback,
+  applyPlayerEchoState: applyPlayerEchoLegacyFallback,
+  applyPlayerEnergyAdjustState: applyPlayerEnergyAdjustLegacyFallback,
+  applyPlayerEnergySetState: applyPlayerEnergySetLegacyFallback,
+  applyPlayerGoldState: applyPlayerGoldLegacyFallback,
+  applyPlayerHealState: applyPlayerHealLegacyFallback,
+  applyPlayerHpSetState: applyPlayerHpSetLegacyFallback,
+  applyPlayerMaxEnergyGrowthState: applyPlayerMaxEnergyGrowthLegacyFallback,
+  applyPlayerMaxEnergySetState: applyPlayerMaxEnergySetLegacyFallback,
+  applyPlayerMaxHpGrowthState: applyPlayerMaxHpGrowthLegacyFallback,
+  applyPlayerMaxHpSetState: applyPlayerMaxHpSetLegacyFallback,
+  applyPlayerShieldState: applyPlayerShieldLegacyFallback,
+  applyPlayerSilenceGaugeState: applyPlayerSilenceGaugeLegacyFallback,
+  applyPlayerStatusClearState: applyPlayerStatusClearLegacyFallback,
+  applyPlayerTimeRiftGaugeState: applyPlayerTimeRiftGaugeLegacyFallback,
+});
+
+export function runPlayerStateLegacyFallback(gs, fallbackName, fallbackArgs = [], emptyResult = null) {
+  if (!isLegacyPlayerStateCommandFallbackEnabled(gs)) return emptyResult;
+
+  const fallback = LegacyPlayerStateCommandFallbacks[fallbackName];
+  if (typeof fallback !== 'function') return emptyResult;
+  return fallback(gs, ...fallbackArgs);
 }

@@ -3,6 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../game/core/deps_factory.js', () => ({
   initDepsFactory: vi.fn(),
   getHudUpdateDeps: vi.fn(() => ({})),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 vi.mock('../game/core/bindings/canvas_bindings.js', () => ({

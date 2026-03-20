@@ -13,33 +13,8 @@ const TITLE_DEP_CONTRACTS = Object.freeze({
   getSettingsDeps: 'settings',
 });
 
-function getOptionalDepsFactoryExport(exportName, depsFactory) {
-  return depsFactory && Object.prototype.hasOwnProperty.call(depsFactory, exportName)
-    ? depsFactory[exportName]
-    : null;
-}
-
 function buildTitleDepAccessors(depsFactory) {
-  const createDepsAccessors = getOptionalDepsFactoryExport('createDepsAccessors', Deps);
-  const createDeps =
-    typeof depsFactory === 'function'
-      ? depsFactory
-      : getOptionalDepsFactoryExport('createDeps', depsFactory);
-
-  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
-    return createDepsAccessors(TITLE_DEP_CONTRACTS, createDeps);
-  }
-
-  const accessors = {};
-
-  for (const accessorName of Object.keys(TITLE_DEP_CONTRACTS)) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(depsFactory?.[accessorName]?.() || {}),
-      ...overrides,
-    });
-  }
-
-  return Object.freeze(accessors);
+  return Deps.buildFeatureContractAccessors(TITLE_DEP_CONTRACTS, depsFactory);
 }
 
 export function createTitleDepProviders(depsFactory = Deps) {

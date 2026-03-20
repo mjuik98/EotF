@@ -24,4 +24,32 @@ describe('executeLegacySurfaceRegistration', () => {
     expect(modules.GAME.init).not.toHaveBeenCalled();
     expect(exposeGlobals).toHaveBeenCalledWith(payload.globals);
   });
+
+  it('prefers the scoped core GAME root over stale legacy aliases when present', () => {
+    const scopedInit = vi.fn();
+    const exposeGlobals = vi.fn();
+    const modules = {
+      GAME: { init: vi.fn() },
+      legacyModules: {
+        GAME: { init: vi.fn() },
+      },
+      featureScopes: {
+        core: {
+          GAME: { init: scopedInit },
+        },
+      },
+      exposeGlobals,
+    };
+    const payload = {
+      initArgs: [{ id: 'gs' }, { id: 'data' }],
+      globals: { GAME: { id: 'compat' } },
+    };
+
+    executeLegacySurfaceRegistration({ modules, payload });
+
+    expect(scopedInit).toHaveBeenCalledWith(...payload.initArgs);
+    expect(modules.legacyModules.GAME.init).not.toHaveBeenCalled();
+    expect(modules.GAME.init).not.toHaveBeenCalled();
+    expect(exposeGlobals).toHaveBeenCalledWith(payload.globals);
+  });
 });

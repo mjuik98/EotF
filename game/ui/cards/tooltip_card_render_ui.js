@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/tooltip_card_render_ui.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

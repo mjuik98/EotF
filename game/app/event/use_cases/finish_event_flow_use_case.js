@@ -1,1 +1,1 @@
-export { createFinishEventFlowUseCase } from '../../../features/event/application/finish_event_flow_use_case.js';
+export { createFinishEventFlowUseCase } from '../../../features/event/ports/public_application_capabilities.js';

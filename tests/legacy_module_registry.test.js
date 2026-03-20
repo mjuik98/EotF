@@ -53,4 +53,24 @@ describe('legacy module registry compat bag', () => {
     expect(register).toHaveBeenCalledWith('CombatUI', modules.legacyModules.CombatUI);
     expect(modules.GAME.register).not.toHaveBeenCalled();
   });
+
+  it('prefers scoped canonical modules when bulk-registering legacy game names', () => {
+    const register = vi.fn();
+    const scopedEventUI = { id: 'scoped-event-ui' };
+    const modules = {
+      legacyModules: {
+        GAME: { register },
+        EventUI: { id: 'stale-event-ui' },
+      },
+      featureScopes: {
+        core: { GAME: { register } },
+        event: { EventUI: scopedEventUI },
+      },
+    };
+
+    registerLegacyGameModules(modules);
+
+    expect(register).toHaveBeenCalledWith('EventUI', scopedEventUI);
+    expect(register).not.toHaveBeenCalledWith('EventUI', modules.legacyModules.EventUI);
+  });
 });

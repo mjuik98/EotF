@@ -1,1 +1,1 @@
-export { applyEnemyDeathState } from '../features/combat/application/enemy_death_state.js';
+export { applyEnemyDeathState } from '../features/combat/ports/public_death_application_capabilities.js';

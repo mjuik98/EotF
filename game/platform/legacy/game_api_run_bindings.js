@@ -5,23 +5,25 @@ const RUN_API_DEP_CONTRACTS = Object.freeze({
 });
 
 function buildRunApiDepAccessors(depsFactory = Deps) {
-  const createDepsAccessors = depsFactory.createDepsAccessors;
-  const createDeps = depsFactory.createDeps;
-
-  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
-    return createDepsAccessors(RUN_API_DEP_CONTRACTS, createDeps);
-  }
-
-  return Object.freeze({
-    getRunSetupDeps: () => depsFactory.getRunSetupDeps?.() || {},
-  });
+  return Deps.buildFeatureContractAccessors(RUN_API_DEP_CONTRACTS, depsFactory);
 }
 
 function resolveRunSetup() {
   try {
-    return buildRunApiDepAccessors().getRunSetupDeps?.() || null;
-  } catch {
+    const accessorDeps = buildRunApiDepAccessors().getRunSetupDeps?.();
+    if (accessorDeps) return accessorDeps;
+    if (typeof Deps.createDeps === 'function') {
+      return Deps.createDeps(RUN_API_DEP_CONTRACTS.getRunSetupDeps);
+    }
     return null;
+  } catch {
+    try {
+      return typeof Deps.createDeps === 'function'
+        ? Deps.createDeps(RUN_API_DEP_CONTRACTS.getRunSetupDeps)
+        : null;
+    } catch {
+      return null;
+    }
   }
 }
 

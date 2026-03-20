@@ -1,1 +1,1 @@
-export * from '../presentation/browser/title_screen_dom.js';
+export * from '../ports/public_presentation_capabilities.js';

@@ -7,4 +7,4 @@ export {
   playStageEntryFadeTransition,
   removeRunStartHandoffBlackout,
   RUN_START_HANDOFF_BLACKOUT_ID,
-} from '../../features/run/application/create_run_start_runtime.js';
+} from '../../features/run/ports/public_application_capabilities.js';

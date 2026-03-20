@@ -1,1 +1,1 @@
-export { GameCanvasSetupUI } from '../../features/title/presentation/browser/game_canvas_setup_ui.js';
+export { GameCanvasSetupUI } from '../../features/title/ports/public_presentation_capabilities.js';

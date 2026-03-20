@@ -49,7 +49,8 @@ describe('architecture refactor guardrails', () => {
 
     expect(source).not.toContain("from '../../../combat/difficulty_scaler.js'");
     expect(source).not.toContain("from '../../../systems/set_bonus_system.js'");
-    expect(source).toContain("from '../../../features/combat/domain/difficulty_scaler.js'");
+    expect(source).not.toContain("from '../../../features/combat/domain/difficulty_scaler.js'");
+    expect(source).toContain("from '../../../features/combat/ports/public_system_capabilities.js'");
     expect(source).toContain("from '../../../shared/progression/set_bonus_system.js'");
   });
 
@@ -70,14 +71,20 @@ describe('architecture refactor guardrails', () => {
       path.join(process.cwd(), 'game/core/game_state.js'),
       'utf8',
     );
+    const storeStateSource = fs.readFileSync(
+      path.join(process.cwd(), 'game/core/store/game_state.js'),
+      'utf8',
+    );
     const compatSource = fs.readFileSync(
       path.join(process.cwd(), 'game/core/game_state_core_methods.js'),
       'utf8',
     );
 
-    expect(gameStateSource).toContain("from '../shared/state/game_state_runtime_methods.js'");
-    expect(gameStateSource).not.toContain("from './game_state_core_methods.js'");
-    expect(gameStateSource).not.toContain('attachCombatGameStateRuntimeMethods(GS)');
+    expect(gameStateSource).toContain("from './store/game_state.js'");
+    expect(gameStateSource).not.toContain('export const GS = {');
+    expect(storeStateSource).toContain("from '../../shared/state/game_state_runtime_methods.js'");
+    expect(storeStateSource).not.toContain("from '../game_state_core_methods.js'");
+    expect(storeStateSource).not.toContain('attachCombatGameStateRuntimeMethods(GS)');
     expect(compatSource).toContain("../shared/state/game_state_runtime_methods.js");
   });
 
@@ -194,7 +201,8 @@ describe('architecture refactor guardrails', () => {
     );
 
     expect(source).not.toContain('__legacyPlayerStateCommandFallback');
-    expect(source).toContain("./player_state_command_fallback_flag.js");
+    expect(source).not.toContain("./player_state_command_fallback_flag.js");
+    expect(source).toContain("../../platform/legacy/state/player_state_command_legacy_adapter.js");
   });
 
   it('keeps shared runtime methods routed through explicit legacy compat adapters for combat/card helpers', () => {
@@ -382,7 +390,21 @@ describe('architecture refactor guardrails', () => {
     ).trim();
 
     expect(source).toBe(
-      "export { registerCardEventSubscribers } from '../features/combat/platform/runtime/register_card_event_subscribers.js';",
+      "export { registerCardEventSubscribers } from '../features/combat/ports/runtime/public_combat_runtime_surface.js';",
+    );
+  });
+
+  it('keeps character-select mounting routed through the title runtime public surface', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/core/bootstrap/mount_character_select.js'),
+      'utf8',
+    );
+
+    expect(source).toContain(
+      "from '../../features/title/ports/runtime/public_title_runtime_surface.js'",
+    );
+    expect(source).not.toContain(
+      "from '../../features/title/platform/browser/build_character_select_mount_payload.js'",
     );
   });
 });

@@ -16,4 +16,4 @@ export {
   resolveShieldGainAmount,
   resolveEnemyTargetIndex,
   runDealDamageClassHook,
-} from '../features/combat/application/damage_system_runtime_helpers.js';
+} from '../features/combat/ports/public_damage_runtime_capabilities.js';

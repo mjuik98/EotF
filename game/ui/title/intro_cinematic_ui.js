@@ -1,1 +1,1 @@
-export { IntroCinematicUI } from '../../features/title/presentation/browser/intro_cinematic_ui.js';
+export { IntroCinematicUI } from '../../features/title/ports/public_presentation_capabilities.js';

@@ -10,10 +10,11 @@ import { createModuleRegistryRuntimeState } from './create_module_registry_runti
  */
 export function createModuleRegistry() {
   const groups = buildModuleRegistryGroups();
-  const legacyModules = createModuleRegistryFlatCompat(groups);
+  const featureScopes = createModuleRegistryFeatureScopes(groups);
+  const legacyModules = createModuleRegistryFlatCompat(featureScopes);
   const registry = {
     legacyModules,
-    featureScopes: createModuleRegistryFeatureScopes(groups),
+    featureScopes,
     ...createModuleRegistryRuntimeState(),
   };
 

@@ -1,1 +1,1 @@
-export { CardUI } from '../../features/combat/presentation/browser/card_ui.js';
+export { CardUI } from '../../features/combat/ports/public_presentation_capabilities.js';

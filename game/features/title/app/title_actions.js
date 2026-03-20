@@ -1,1 +1,1 @@
-export { createTitleActions } from './create_title_actions.js';
+export { createTitleActions } from '../ports/runtime/public_title_runtime_surface.js';

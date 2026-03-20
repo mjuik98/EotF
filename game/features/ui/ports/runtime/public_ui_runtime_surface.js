@@ -1,5 +1,6 @@
 import { createUiActions } from '../../platform/browser/ui_actions.js';
-import { buildUiRuntimeSubscriberActions } from '../../app/build_runtime_subscriber_actions.js';
+import { resolveUiActionModules } from '../../platform/browser/resolve_ui_action_modules.js';
+import { buildUiRuntimeSubscriberActions } from '../../application/build_runtime_subscriber_actions.js';
 import {
   buildLegacyGameApiRuntimeHudQueryGroups,
   buildLegacyWindowUiQueryGroups,
@@ -25,8 +26,9 @@ export function createUiRuntimeCapabilities() {
 
 export function createUiBindingContext(modules, fns, options = {}) {
   const ports = createUiPorts(options);
+  const resolvedModules = resolveUiActionModules(modules);
   return {
-    actions: createUiActions(modules, fns, ports),
+    actions: createUiActions(resolvedModules, fns, ports),
     ports,
   };
 }

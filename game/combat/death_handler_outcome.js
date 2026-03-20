@@ -1,1 +1,1 @@
-export * from '../features/combat/platform/death_outcome_helpers.js';
+export * from '../features/combat/ports/public_death_runtime_capabilities.js';

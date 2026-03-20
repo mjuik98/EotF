@@ -61,24 +61,13 @@
   ],
   "game/features/run/ports/public_surface.js": [
     "RunPublicSurface",
-    "RunRules",
-    "buildRunBootPublicActions",
-    "buildRunReturnRuntimePublicActions",
-    "createFinalizeRunOutcomeAction",
     "createRunBindingCapabilities",
     "createRunBrowserModuleCapabilities",
-    "createRunCanvasBindings",
     "createRunContractCapabilities",
     "createRunModuleCapabilities",
+    "createRunRuleCapabilities",
     "createRunRuntimeCapabilities",
-    "createRunStateCapabilities",
-    "ensureRunFlowBrowserModules",
-    "finalizeRunOutcome",
-    "getBaseRegionIndex",
-    "getRegionCount",
-    "getRegionData",
-    "getRegionIdForStage",
-    "registerRunEntryBindings"
+    "createRunStateCapabilities"
   ],
   "game/features/title/ports/public_surface.js": [
     "ClassProgressionSystem",
@@ -97,25 +86,10 @@
   ],
   "game/features/ui/ports/public_surface.js": [
     "UiPublicSurface",
-    "buildLegacyGameApiRuntimeHudQueryGroups",
-    "buildLegacyWindowUiQueryGroups",
-    "buildUiRuntimeSubscriberPublicActions",
-    "buildUiShellContractBuilders",
-    "buildUiShellContractPublicBuilders",
-    "createLegacyHudRuntimeQueryBindings",
-    "createLegacyUiCommandFacade",
-    "createUiActions",
     "createUiBindingCapabilities",
-    "createUiBindingContext",
-    "createUiBindingsActions",
     "createUiBrowserModuleCapabilities",
     "createUiContractCapabilities",
     "createUiModuleCapabilities",
-    "createUiPorts",
-    "createUiRuntimeCapabilities",
-    "ensureSettingsBrowserModules",
-    "setScreenService",
-    "showGameplayScreenService",
-    "showScreenService"
+    "createUiRuntimeCapabilities"
   ]
 }

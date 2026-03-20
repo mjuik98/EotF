@@ -1,1 +1,1 @@
-export { GameBootUI } from '../../features/title/presentation/browser/game_boot_ui.js';
+export { GameBootUI } from '../../features/title/ports/public_game_boot_presentation_capabilities.js';

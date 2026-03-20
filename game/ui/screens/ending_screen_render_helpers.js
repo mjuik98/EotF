@@ -1,1 +1,1 @@
-export * from '../../features/ui/presentation/browser/ending_screen_render_helpers.js';
+export * from '../../features/ui/ports/public_ending_presentation_capabilities.js';

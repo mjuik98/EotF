@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/hud_panel_sections.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

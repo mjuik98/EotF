@@ -1,1 +1,1 @@
-export * from '../../features/ui/presentation/browser/settings_ui_runtime_helpers.js';
+export * from '../../features/ui/ports/public_settings_presentation_capabilities.js';

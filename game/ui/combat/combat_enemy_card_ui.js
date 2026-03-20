@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/combat_enemy_card_ui.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

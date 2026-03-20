@@ -1,1 +1,1 @@
-export { SettingsUI } from '../../features/ui/presentation/browser/settings_ui.js';
+export { SettingsUI } from '../../features/ui/ports/public_settings_presentation_capabilities.js';

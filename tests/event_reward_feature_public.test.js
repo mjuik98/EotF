@@ -27,6 +27,14 @@ describe('event/reward feature public surfaces', () => {
       'createRestEvent',
       'buildViewModel',
     ]));
+    expect(Object.keys(EventPublicSurface).sort()).toEqual([
+      'application',
+      'bindings',
+      'compat',
+      'contracts',
+      'moduleCapabilities',
+      'runtime',
+    ]);
     expect(EventPublicSurface.application).toEqual(createEventApplicationCapabilities());
     expect(EventPublicSurface.bindings).toEqual(createEventBindingCapabilities());
     expect(EventPublicSurface.compat).toEqual(createEventCompatCapabilities());

@@ -1,4 +1,4 @@
 export {
   drawCardsService,
   executePlayerDrawService,
-} from '../../features/combat/application/card_draw_service.js';
+} from '../../features/combat/ports/public_application_capabilities.js';

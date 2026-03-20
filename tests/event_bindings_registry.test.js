@@ -5,6 +5,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getHudUpdateDeps: vi.fn(() => ({ token: 'hud-deps' })),
   getClassSelectDeps: vi.fn(() => ({ token: 'class-select-deps' })),
   getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import { setupBindings } from '../game/core/event_bindings.js';

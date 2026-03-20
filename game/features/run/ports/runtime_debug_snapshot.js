@@ -51,7 +51,7 @@ function collectMapSummary(gs) {
 }
 
 export function collectRunRuntimeDebugSnapshot({ modules, doc }) {
-  const gs = modules?.GS || {};
+  const gs = modules?.featureScopes?.core?.GS || modules?.GS || {};
   return {
     map: collectMapSummary(gs),
     overlays: {

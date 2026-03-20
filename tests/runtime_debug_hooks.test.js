@@ -70,57 +70,81 @@ function attachStoryOverlay(doc, title, text) {
 }
 
 function createModules() {
-  return {
-    GS: {
-      currentScreen: 'combat',
-      currentRegion: 2,
-      currentFloor: 4,
-      currentNode: { id: '4-1' },
-      _selectedTarget: 1,
-      player: {
-        class: 'guardian',
-        hp: 52,
-        maxHp: 80,
-        shield: 11,
-        energy: 2,
-        maxEnergy: 3,
-        echo: 45,
-        maxEcho: 100,
-        gold: 28,
-        hand: ['strike', 'defend'],
-        deck: ['strike', 'defend', 'echo'],
-        graveyard: ['flash'],
-        items: ['relic-a'],
-        buffs: { fortify: 2 },
-      },
-      combat: {
-        active: true,
-        playerTurn: false,
-        turn: 7,
-        log: [{ msg: 'x' }, { msg: 'y' }],
-        enemies: [
-          { id: 'wolf', hp: 12, maxHp: 20, nextAction: 'attack', status: { burn: 1 } },
-          { id: 'shade', hp: 0, maxHp: 18, intent: 'weaken', statuses: { weak: 1 } },
-        ],
-      },
-      mapNodes: [
-        { id: '4-1', floor: 4, accessible: true, visited: true, type: 'combat' },
-        { id: '5-1', floor: 5, accessible: true, visited: false, type: 'event' },
-        { id: '5-2', floor: 5, accessible: false, visited: false, type: 'elite' },
+  const coreGS = {
+    currentScreen: 'combat',
+    currentRegion: 2,
+    currentFloor: 4,
+    currentNode: { id: '4-1' },
+    _selectedTarget: 1,
+    player: {
+      class: 'guardian',
+      hp: 52,
+      maxHp: 80,
+      shield: 11,
+      energy: 2,
+      maxEnergy: 3,
+      echo: 45,
+      maxEcho: 100,
+      gold: 28,
+      hand: ['strike', 'defend'],
+      deck: ['strike', 'defend', 'echo'],
+      graveyard: ['flash'],
+      items: ['relic-a'],
+      buffs: { fortify: 2 },
+    },
+    combat: {
+      active: true,
+      playerTurn: false,
+      turn: 7,
+      log: [{ msg: 'x' }, { msg: 'y' }],
+      enemies: [
+        { id: 'wolf', hp: 12, maxHp: 20, nextAction: 'attack', status: { burn: 1 } },
+        { id: 'shade', hp: 0, maxHp: 18, intent: 'weaken', statuses: { weak: 1 } },
       ],
     },
+    mapNodes: [
+      { id: '4-1', floor: 4, accessible: true, visited: true, type: 'combat' },
+      { id: '5-1', floor: 5, accessible: true, visited: false, type: 'event' },
+      { id: '5-2', floor: 5, accessible: false, visited: false, type: 'elite' },
+    ],
+  };
+  const classSelectUI = {
+    getSelectedClass: vi.fn(() => 'guardian'),
+  };
+  const characterSelectUI = {
+    getSelectionSnapshot: vi.fn(() => ({
+      index: 0,
+      phase: 'select',
+      classId: 'guardian',
+      title: 'Guardian',
+      name: 'Guardian',
+      accent: '#7CC8FF',
+    })),
+  };
+
+  return {
+    GS: {
+      currentScreen: 'title',
+      combat: { active: false },
+    },
     ClassSelectUI: {
-      getSelectedClass: vi.fn(() => 'guardian'),
+      getSelectedClass: vi.fn(() => 'stale-class'),
     },
     CharacterSelectUI: {
       getSelectionSnapshot: vi.fn(() => ({
-        index: 0,
-        phase: 'select',
-        classId: 'guardian',
-        title: 'Guardian',
-        name: 'Guardian',
-        accent: '#7CC8FF',
+        index: 9,
+        phase: 'stale',
+        classId: 'stale',
       })),
+    },
+    featureScopes: {
+      core: {
+        GS: coreGS,
+      },
+      title: {
+        ClassSelectUI: classSelectUI,
+        CharacterSelectUI: characterSelectUI,
+      },
     },
     exposeGlobals: vi.fn(),
     _gameStarted: true,

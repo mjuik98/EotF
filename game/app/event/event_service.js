@@ -5,4 +5,4 @@ export {
   setCurrentEvent,
   showEventService,
   triggerRandomEventService,
-} from '../../features/event/application/event_service.js';
+} from '../../features/event/ports/public_service_capabilities.js';

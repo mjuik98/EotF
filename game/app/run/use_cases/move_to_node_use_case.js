@@ -1,1 +1,1 @@
-export { moveToNodeUseCase } from '../../../features/run/application/move_to_node_use_case.js';
+export { moveToNodeUseCase } from '../../../features/run/ports/public_application_capabilities.js';

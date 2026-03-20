@@ -1,1 +1,1 @@
-export { MapGenerationUI } from '../../features/run/presentation/browser/map_generation_ui.js';
+export { MapGenerationUI } from '../../features/run/ports/public_presentation_capabilities.js';

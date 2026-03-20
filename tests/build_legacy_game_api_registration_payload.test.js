@@ -56,4 +56,31 @@ describe('buildLegacyGameApiRegistrationPayload', () => {
       runtimeMetrics,
     );
   });
+
+  it('prefers scoped canonical modules over stale legacy aliases when building bindings', () => {
+    const scopedRunModeUI = { id: 'run-mode-ui' };
+    const scopedGame = { API: { modern: true } };
+    const legacyModules = {
+      GAME: { API: { stale: true } },
+      RunModeUI: { id: 'stale-run-mode-ui' },
+    };
+    const modules = {
+      legacyModules,
+      featureScopes: {
+        core: { GAME: scopedGame },
+        run: { RunModeUI: scopedRunModeUI },
+      },
+    };
+
+    hoisted.buildLegacyGameAPICommandBindings.mockReturnValue({});
+    hoisted.buildLegacyGameAPIQueryBindings.mockReturnValue({});
+    hoisted.buildLegacyGameApiPayload.mockReturnValue({});
+
+    buildLegacyGameApiRegistrationPayload({ modules, fns: {}, deps: {}, runtimeMetrics: {} });
+
+    const compatModules = hoisted.buildLegacyGameAPICommandBindings.mock.calls[0][0];
+    expect(compatModules.GAME).toBe(scopedGame);
+    expect(compatModules.RunModeUI).toBe(scopedRunModeUI);
+    expect(legacyModules.RunModeUI).toEqual({ id: 'stale-run-mode-ui' });
+  });
 });

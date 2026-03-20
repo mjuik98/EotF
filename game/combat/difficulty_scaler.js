@@ -1,1 +1,1 @@
-export { DifficultyScaler } from '../features/combat/domain/difficulty_scaler.js';
+export { DifficultyScaler } from '../features/combat/ports/public_system_capabilities.js';

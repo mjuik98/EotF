@@ -2,4 +2,4 @@ export {
   finishEventFlow,
   renderEventContinueChoice,
   resolveEventChoiceFlow,
-} from '../../features/event/presentation/event_choice_flow.js';
+} from '../../features/event/ports/public_presentation_capabilities.js';

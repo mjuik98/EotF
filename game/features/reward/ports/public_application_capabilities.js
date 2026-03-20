@@ -2,6 +2,7 @@ import { buildRewardOptionsUseCase, getRewardMaxEnergyCap } from '../application
 import {
   buildRewardDiscardDeps,
   claimReward,
+  createRewardRemoveCancelAction,
   createRewardReturnActions,
   ensureMiniBossBonus,
   playRewardClaimFeedback,
@@ -15,6 +16,7 @@ export function createRewardApplicationCapabilities() {
     buildOptions: buildRewardOptionsUseCase,
     buildDiscardDeps: buildRewardDiscardDeps,
     claimReward,
+    createRemoveCancelAction: createRewardRemoveCancelAction,
     createReturnActions: createRewardReturnActions,
     ensureMiniBossBonus,
     getMaxEnergyCap: getRewardMaxEnergyCap,
@@ -29,6 +31,7 @@ export {
   buildRewardDiscardDeps,
   buildRewardOptionsUseCase,
   claimReward,
+  createRewardRemoveCancelAction,
   createRewardReturnActions,
   ensureMiniBossBonus,
   getRewardMaxEnergyCap,

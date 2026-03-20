@@ -12,43 +12,34 @@ function buildFeatureDeps(game, getterName, extra = {}) {
   return { ...deps, ...extra };
 }
 
-function getOptionalFactoryExport(exportName, depsFactory = Deps) {
-  return Object.prototype.hasOwnProperty.call(depsFactory, exportName)
-    ? depsFactory[exportName]
-    : null;
+function resolveCoreRuntimeModule(modules = {}, key) {
+  const coreRefs = modules?.featureScopes?.core || {};
+  if (coreRefs[key] !== undefined) {
+    return coreRefs[key];
+  }
+
+  if (modules?.legacyModules?.[key] !== undefined) {
+    return modules.legacyModules[key];
+  }
+
+  if (modules?.[key] !== undefined) {
+    return modules[key];
+  }
+
+  return undefined;
 }
 
 function buildCombatDepAccessors(depsFactory = Deps) {
-  const createDepsAccessors = getOptionalFactoryExport('createDepsAccessors');
-  const createDeps = getOptionalFactoryExport('createDeps', depsFactory);
-
-  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
-    return createDepsAccessors(COMBAT_DEP_CONTRACTS, createDeps);
-  }
-
-  const accessors = {};
-
-  for (const accessorName of Object.keys(COMBAT_DEP_CONTRACTS)) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(depsFactory?.[accessorName]?.() || {}),
-      ...overrides,
-    });
-  }
-
-  return Object.freeze(accessors);
-}
-
-function resolveCombatModuleBag(modules) {
-  return modules?.legacyModules || modules || {};
+  return Deps.buildFeatureContractAccessors(COMBAT_DEP_CONTRACTS, depsFactory);
 }
 
 export function createCombatPorts(modules, depsFactory = Deps) {
-  const moduleBag = resolveCombatModuleBag(modules);
+  const game = resolveCoreRuntimeModule(modules, 'GAME');
   const depAccessors = buildCombatDepAccessors(depsFactory);
 
   return {
     ...depAccessors,
-    getCombatDeps: (extra = {}) => buildFeatureDeps(moduleBag.GAME, 'getCombatDeps', extra),
-    getHudDeps: (extra = {}) => buildFeatureDeps(moduleBag.GAME, 'getHudDeps', extra),
+    getCombatDeps: (extra = {}) => buildFeatureDeps(game, 'getCombatDeps', extra),
+    getHudDeps: (extra = {}) => buildFeatureDeps(game, 'getHudDeps', extra),
   };
 }

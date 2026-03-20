@@ -1,1 +1,1 @@
-export { presentNodeTransition } from '../../features/run/presentation/present_node_transition.js';
+export { presentNodeTransition } from '../../features/run/ports/public_presentation_capabilities.js';

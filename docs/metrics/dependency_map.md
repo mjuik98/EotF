@@ -1,14 +1,14 @@
 # Dependency Map
 
-- Generated: 2026-03-20T02:23:16.393Z
-- Nodes: 1267
-- Edges: 1333
+- Generated: 2026-03-20T11:38:38.495Z
+- Nodes: 1310
+- Edges: 1369
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| core->core | 157 |
+| core->core | 164 |
 | core->domain | 3 |
 | core->feature | 26 |
 | core->legacy | 7 |
@@ -29,7 +29,7 @@
 | feature->core | 17 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 678 |
+| feature->feature | 703 |
 | feature->legacy | 6 |
 | feature->other | 6 |
 | feature->platform | 3 |
@@ -39,8 +39,8 @@
 | legacy->core | 6 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
-| legacy->legacy | 71 |
-| legacy->shared | 13 |
+| legacy->legacy | 76 |
+| legacy->shared | 12 |
 | legacy->utils | 3 |
 | platform->core | 5 |
 | platform->data | 1 |
@@ -69,12 +69,12 @@
 | game/features/combat/platform/browser/combat_browser_modules.js | 13 |
 | game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
+| game/features/combat/ports/public_application_capabilities.js | 10 |
 | game/features/combat/ports/public_surface.js | 9 |
 | game/features/event/ports/public_application_capabilities.js | 9 |
 | data/events_data.js | 8 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
 | game/features/run/application/run_rules.js | 8 |
-| game/features/run/ports/public_surface.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
 | game/features/combat/compat/combat_lifecycle.js | 7 |
@@ -91,9 +91,9 @@
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
 | game/shared/state/player_state_commands.js | 11 |
+| game/core/bindings/module_registry_scopes.js | 10 |
 | game/core/store/state_actions.js | 10 |
 | game/utils/logger.js | 10 |
-| game/core/bindings/module_registry_scopes.js | 9 |
 | game/core/deps_factory.js | 9 |
 | data/status_effects_data.js | 8 |
 | data/status_key_data.js | 8 |

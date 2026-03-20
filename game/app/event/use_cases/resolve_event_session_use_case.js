@@ -1,1 +1,1 @@
-export { createResolveEventSessionUseCase } from '../../../features/event/application/resolve_event_session_use_case.js';
+export { createResolveEventSessionUseCase } from '../../../features/event/ports/public_application_capabilities.js';

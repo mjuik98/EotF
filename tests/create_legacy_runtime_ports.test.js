@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createLegacyRuntimePorts } from '../game/platform/legacy/adapters/create_legacy_runtime_ports.js';
-import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from '../game/shared/state/player_state_command_fallback_flag.js';
+import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from '../game/platform/legacy/state/player_state_command_fallback_flag.js';
 
 describe('createLegacyRuntimePorts', () => {
   it('reads legacy runtime values from a provided root object', () => {

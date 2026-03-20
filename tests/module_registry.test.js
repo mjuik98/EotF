@@ -69,31 +69,19 @@ describe('createModuleRegistry', () => {
 
     const registry = createModuleRegistry();
 
-    expect(registry).toEqual({
-      legacyModules: {
-        source: 'core',
-        titleOnly: true,
-        codexOnly: true,
-        eventOnly: true,
-        rewardOnly: true,
-        combatOnly: true,
-        runOnly: true,
-        screenOnly: true,
-        collision: 'screen',
-      },
-      featureScopes: {
-        core: { source: 'core', collision: 'core' },
-        title: { titleOnly: true, collision: 'title' },
-        codex: { codexOnly: true, collision: 'codex' },
-        event: { eventOnly: true, collision: 'event' },
-        reward: { rewardOnly: true, collision: 'reward' },
-        combat: { combatOnly: true, collision: 'combat' },
-        run: { runOnly: true, collision: 'run' },
-        screen: { screenOnly: true, collision: 'screen' },
-      },
-      _gameStarted: false,
-      _canvasRefs: null,
+    expect(registry.featureScopes).toEqual({
+      core: { source: 'core', collision: 'core' },
+      title: { titleOnly: true, collision: 'title' },
+      codex: { codexOnly: true, collision: 'codex' },
+      event: { eventOnly: true, collision: 'event' },
+      reward: { rewardOnly: true, collision: 'reward' },
+      combat: { combatOnly: true, collision: 'combat' },
+      run: { runOnly: true, collision: 'run' },
+      screen: { screenOnly: true, collision: 'screen' },
     });
+    expect(registry.legacyModules).toEqual({});
+    expect(registry._gameStarted).toBe(false);
+    expect(registry._canvasRefs).toBeNull();
     expect(registry.source).toBe('core');
     expect(registry.titleOnly).toBe(true);
     expect(registry.codexOnly).toBe(true);
@@ -107,5 +95,43 @@ describe('createModuleRegistry', () => {
     expect(Object.keys(registry)).not.toContain('titleOnly');
     expect(Object.keys(registry)).not.toContain('codexOnly');
     expect(Object.keys(registry)).not.toContain('combatOnly');
+  });
+
+  it('prefers scoped canonical modules over stale legacy aliases through top-level registry getters', () => {
+    hoisted.registerCoreModules.mockReturnValue({ GAME: { id: 'game' } });
+    hoisted.registerTitleModules.mockReturnValue({});
+    hoisted.registerCodexModules.mockReturnValue({});
+    hoisted.registerEventModules.mockReturnValue({ EventUI: { id: 'initial-event' } });
+    hoisted.registerRewardModules.mockReturnValue({});
+    hoisted.registerCombatModules.mockReturnValue({});
+    hoisted.registerRunModules.mockReturnValue({});
+    hoisted.registerScreenModules.mockReturnValue({});
+
+    const registry = createModuleRegistry();
+    const scopedEventUi = { id: 'scoped-event-ui' };
+
+    registry.legacyModules.EventUI = { id: 'stale-event-ui' };
+    registry.featureScopes.event.EventUI = scopedEventUi;
+
+    expect(registry.EventUI).toBe(scopedEventUi);
+  });
+
+  it('keeps top-level compat assignments synchronized with feature scopes', () => {
+    hoisted.registerCoreModules.mockReturnValue({ GAME: { id: 'game' } });
+    hoisted.registerTitleModules.mockReturnValue({});
+    hoisted.registerCodexModules.mockReturnValue({});
+    hoisted.registerEventModules.mockReturnValue({ EventUI: { id: 'initial-event' } });
+    hoisted.registerRewardModules.mockReturnValue({});
+    hoisted.registerCombatModules.mockReturnValue({});
+    hoisted.registerRunModules.mockReturnValue({});
+    hoisted.registerScreenModules.mockReturnValue({});
+
+    const registry = createModuleRegistry();
+    const replacementEventUi = { id: 'replacement-event-ui' };
+
+    registry.EventUI = replacementEventUi;
+
+    expect(registry.legacyModules.EventUI).toBe(replacementEventUi);
+    expect(registry.featureScopes.event.EventUI).toBe(replacementEventUi);
   });
 });

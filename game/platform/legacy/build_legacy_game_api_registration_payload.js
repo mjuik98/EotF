@@ -1,7 +1,7 @@
 import { buildLegacyGameAPICommandBindings } from './game_api_command_bindings.js';
 import { buildLegacyGameAPIQueryBindings } from './game_api_query_bindings.js';
 import { buildLegacyGameApiPayload } from './build_legacy_game_api_payload.js';
-import { resolveLegacyModuleBag } from './resolve_legacy_module_bag.js';
+import { resolveLegacyCompatModules } from './resolve_legacy_module_bag.js';
 
 export function buildLegacyGameApiRegistrationPayload({
   modules,
@@ -9,9 +9,9 @@ export function buildLegacyGameApiRegistrationPayload({
   deps,
   runtimeMetrics,
 } = {}) {
-  const legacyModules = resolveLegacyModuleBag(modules);
-  const commandBindings = buildLegacyGameAPICommandBindings(legacyModules, fns);
-  const queryBindings = buildLegacyGameAPIQueryBindings(legacyModules, deps, runtimeMetrics);
+  const compatModules = resolveLegacyCompatModules(modules);
+  const commandBindings = buildLegacyGameAPICommandBindings(compatModules, fns);
+  const queryBindings = buildLegacyGameAPIQueryBindings(compatModules, deps, runtimeMetrics);
 
   return {
     commandBindings,

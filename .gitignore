@@ -5,6 +5,7 @@ node_modules/
 dist/
 coverage/
 output/
+.worktrees/
 
 # OS/editor noise
 .DS_Store

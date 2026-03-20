@@ -74,7 +74,9 @@ export function buildUiShellContractBuilders(ctx) {
 
     helpPause: () => {
       const refs = getRefs();
+      const runDeps = buildBaseDeps('run');
       const combatRefs = refs.featureRefs?.combat || {};
+      const coreRefs = refs.featureRefs?.core || {};
       const titleActions = buildTitleHelpPauseActions({
         returnToTitleFromPause: () => refs.returnToTitleFromPause?.(),
         restartEndingFlow: refs.restartEndingFlow || refs.restartFromEnding,
@@ -85,7 +87,7 @@ export function buildUiShellContractBuilders(ctx) {
         openCodex: refs.openCodex,
       });
       return {
-        ...buildBaseDeps('run'),
+        ...runDeps,
         audioEngine: refs.AudioEngine,
         showDeckView: refs.showDeckView,
         closeDeckView: refs.closeDeckView,
@@ -108,7 +110,7 @@ export function buildUiShellContractBuilders(ctx) {
         finalizeRunOutcome: refs.finalizeRunOutcome,
         hudUpdateUI: combatRefs.HudUpdateUI || refs.HudUpdateUI,
         saveRun: (override = {}) => refs.SaveSystem?.saveRun?.({
-          gs: override.gs || refs.GS,
+          gs: override.gs || runDeps.gs || coreRefs.GS || refs.GS,
           isGameStarted: () => refs._gameStarted?.(),
         }),
         clearActiveRunSave: () => refs.SaveSystem?.clearSave?.(),

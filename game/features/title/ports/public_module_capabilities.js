@@ -9,3 +9,8 @@ export function createTitleModuleCapabilities() {
     flow: buildTitleFlowModuleCapabilities(),
   };
 }
+
+export {
+  buildTitleCanvasModuleCapabilities as buildTitleCanvasModuleCatalog,
+  buildTitleFlowModuleCapabilities as buildTitleFlowModuleCatalog,
+};

@@ -1,1 +1,1 @@
-export { FeedbackUI } from '../../features/combat/presentation/browser/feedback_ui.js';
+export { FeedbackUI } from '../../features/combat/ports/public_presentation_capabilities.js';

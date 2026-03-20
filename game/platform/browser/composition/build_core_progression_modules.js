@@ -1,10 +1,12 @@
 import { ClassMechanics } from '../../../domain/class/class_mechanics.js';
-import { DifficultyScaler } from '../../../features/combat/domain/difficulty_scaler.js';
+import { createCombatSystemCapabilities } from '../../../features/combat/ports/public_system_capabilities.js';
 import { SetBonusSystem } from '../../../shared/progression/set_bonus_system.js';
 
 export function buildCoreProgressionModules() {
+  const { difficulty } = createCombatSystemCapabilities();
+
   return {
-    DifficultyScaler,
+    DifficultyScaler: difficulty.DifficultyScaler,
     ClassMechanics,
     SetBonusSystem,
   };

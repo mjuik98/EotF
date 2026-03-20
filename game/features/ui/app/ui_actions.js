@@ -1,1 +1,1 @@
-export { createUiActions } from '../platform/browser/ui_actions.js';
+export { createUiActions } from '../ports/runtime/public_ui_runtime_surface.js';

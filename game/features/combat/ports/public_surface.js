@@ -49,13 +49,6 @@ export const CombatPublicSurface = Object.freeze({
   get state() {
     return createCombatStateCapabilities();
   },
-  createCombatBindingCapabilities,
-  createCombatCompatCapabilities,
-  createCombatApplicationCapabilities,
-  createCombatContractCapabilities,
-  createCombatModuleCapabilities,
-  createCombatRuntimeCapabilities,
-  buildCombatFlowContractPublicBuilders,
   get moduleCapabilities() {
     return createCombatModuleCapabilities();
   },

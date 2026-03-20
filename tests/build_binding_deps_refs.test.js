@@ -39,4 +39,23 @@ describe('buildBindingDepsRefs', () => {
       ...fns,
     });
   });
+
+  it('prefers legacy compat refs over stale top-level aliases for unscoped modules', () => {
+    const modules = {
+      SettingsUI: { id: 'stale-settings' },
+      featureScopes: {
+        core: { GAME: { id: 'game' } },
+      },
+      legacyModules: {
+        SettingsUI: { id: 'compat-settings' },
+      },
+    };
+    const fns = { openSettings: vi.fn() };
+
+    expect(buildBindingDepsRefs({ modules, fns })).toEqual({
+      GAME: { id: 'game' },
+      SettingsUI: { id: 'compat-settings' },
+      ...fns,
+    });
+  });
 });

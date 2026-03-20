@@ -10,6 +10,15 @@ export function createDepsFactoryRuntime() {
     return refs.runtimePorts || refs.runtimeDeps || null;
   }
 
+  function getCoreScopedRefs() {
+    return refs.featureRefs?.core || refs.featureScopes?.core || {};
+  }
+
+  function getLegacyGameRoot() {
+    const coreScopedRefs = getCoreScopedRefs();
+    return coreScopedRefs.GAME || refs.GAME;
+  }
+
   function getFeatureDeps(feature = 'run') {
     const runtimePorts = getRuntimePorts();
     if (typeof runtimePorts?.getFeatureDeps === 'function') {
@@ -24,7 +33,7 @@ export function createDepsFactoryRuntime() {
       if (runtimePorts.getRunRuntimeDeps) return runtimePorts.getRunRuntimeDeps() || {};
       if (runtimePorts.getRuntimeDeps) return runtimePorts.getRuntimeDeps() || {};
     }
-    return getLegacyFeatureDeps(refs.GAME, feature);
+    return getLegacyFeatureDeps(getLegacyGameRoot(), feature);
   }
 
   function getHostObject() {
@@ -64,7 +73,7 @@ export function createDepsFactoryRuntime() {
     if (typeof runtimePorts?.getGameDeps === 'function') {
       return runtimePorts.getGameDeps() || {};
     }
-    return getLegacyGameDeps(refs.GAME);
+    return getLegacyGameDeps(getLegacyGameRoot());
   }
 
   function getRunDeps() {

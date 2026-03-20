@@ -1,12 +1,4 @@
-import {
-  buildTitleCanvasBrowserModules,
-  buildTitleFlowBrowserModules,
-} from '../platform/browser/title_browser_modules.js';
-
-export function buildTitleCanvasModuleCatalog() {
-  return buildTitleCanvasBrowserModules();
-}
-
-export function buildTitleFlowModuleCatalog() {
-  return buildTitleFlowBrowserModules();
-}
+export {
+  buildTitleCanvasModuleCatalog,
+  buildTitleFlowModuleCatalog,
+} from '../ports/public_module_capabilities.js';

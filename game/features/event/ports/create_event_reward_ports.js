@@ -7,30 +7,8 @@ const EVENT_REWARD_DEP_CONTRACTS = Object.freeze({
   getRunReturnDeps: 'runReturn',
 });
 
-function getOptionalFactoryExport(exportName, depsFactory = Deps) {
-  return Object.prototype.hasOwnProperty.call(depsFactory, exportName)
-    ? depsFactory[exportName]
-    : null;
-}
-
 export function createEventRewardDepAccessors(depsFactory = Deps) {
-  const createDepsAccessors = getOptionalFactoryExport('createDepsAccessors');
-  const createDeps = getOptionalFactoryExport('createDeps', depsFactory);
-
-  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
-    return createDepsAccessors(EVENT_REWARD_DEP_CONTRACTS, createDeps);
-  }
-
-  const accessors = {};
-
-  for (const accessorName of Object.keys(EVENT_REWARD_DEP_CONTRACTS)) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(depsFactory?.[accessorName]?.() || {}),
-      ...overrides,
-    });
-  }
-
-  return Object.freeze(accessors);
+  return Deps.buildFeatureContractAccessors(EVENT_REWARD_DEP_CONTRACTS, depsFactory);
 }
 
 export function createEventPorts(depsFactory = Deps) {

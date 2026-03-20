@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/feedback_ui_notices.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

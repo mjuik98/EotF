@@ -1,1 +1,1 @@
-export * from '../../features/title/presentation/browser/intro_cinematic_runtime.js';
+export * from '../../features/title/ports/public_presentation_capabilities.js';

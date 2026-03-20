@@ -1,8 +1,12 @@
+import { resolveUiActionModules } from './resolve_ui_action_modules.js';
+
 export function createLegacyHudRuntimeQueryBindings({ modules, deps, fns = {} }) {
+  const resolvedModules = resolveUiActionModules(modules);
+
   return {
-    updateUI: () => modules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
-    processDirtyFlags: () => modules.HudUpdateUI?.processDirtyFlags?.(deps.getHudUpdateDeps()),
-    _syncVolumeUI: () => modules.GameInit?.syncVolumeUI?.(modules.AudioEngine),
+    updateUI: () => resolvedModules.HudUpdateUI?.updateUI?.(deps.getHudUpdateDeps()),
+    processDirtyFlags: () => resolvedModules.HudUpdateUI?.processDirtyFlags?.(deps.getHudUpdateDeps()),
+    _syncVolumeUI: () => resolvedModules.GameInit?.syncVolumeUI?.(resolvedModules.AudioEngine),
     _resetCombatInfoPanel: fns._resetCombatInfoPanel,
   };
 }

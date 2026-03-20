@@ -7,24 +7,26 @@ import {
   executePlayerDraw as executePlayerDrawCommand,
   modifyEnergy,
 } from '../game_api/player_commands.js';
+import { resolveLegacyCompatValue } from '../resolve_legacy_module_bag.js';
 
 export function createLegacyCombatCompat(modules) {
   const uiCompat = createCombatLegacyUiCompat(modules);
+  const defaultGs = resolveLegacyCompatValue(modules, 'GS');
 
   return {
     hideEnemyStatusTooltip: () => uiCompat.hideEnemyStatusTooltip(),
 
     showEnemyStatusTooltip: (event, statusKey) => uiCompat.showEnemyStatusTooltip(event, statusKey),
 
-    takeDamage(amount, gs = modules.GS) {
+    takeDamage(amount, gs = defaultGs) {
       return applyPlayerDamage(amount, gs);
     },
 
-    drawCards(count, gs = modules.GS, options = {}) {
+    drawCards(count, gs = defaultGs, options = {}) {
       return drawPlayerCards(count, gs, options);
     },
 
-    executePlayerDraw(gs = modules.GS) {
+    executePlayerDraw(gs = defaultGs) {
       return executePlayerDrawCommand(gs, {
         modifyEnergy,
         drawCards: drawPlayerCards,

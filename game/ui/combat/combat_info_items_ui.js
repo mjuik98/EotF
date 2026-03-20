@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/combat_info_items_ui.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

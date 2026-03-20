@@ -1,4 +1,4 @@
-import { buildCharacterSelectMountPayload } from '../../features/title/platform/browser/build_character_select_mount_payload.js';
+import { buildCharacterSelectMountPayload } from '../../features/title/ports/runtime/public_title_runtime_surface.js';
 import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
 
 export function mountCharacterSelect({ modules, deps, fns, doc }) {

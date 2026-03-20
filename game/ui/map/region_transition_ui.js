@@ -1,1 +1,1 @@
-export { RegionTransitionUI } from '../../features/run/presentation/browser/region_transition_ui.js';
+export { RegionTransitionUI } from '../../features/run/ports/public_presentation_capabilities.js';

@@ -25,7 +25,8 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("./create_module_registry_flat_compat.js");
     expect(source).toContain("./create_module_registry_feature_scopes.js");
     expect(source).toContain("./create_module_registry_runtime_state.js");
-    expect(source).toContain('const legacyModules = createModuleRegistryFlatCompat(groups);');
+    expect(source).toContain('const featureScopes = createModuleRegistryFeatureScopes(groups);');
+    expect(source).toContain('const legacyModules = createModuleRegistryFlatCompat(featureScopes);');
     expect(source).not.toContain('...legacyModules');
     expect(source).toContain('legacyModules,');
     expect(source).not.toContain('featureScopes: Object.freeze({');
@@ -45,12 +46,20 @@ describe('refactor structure guardrails', () => {
 
   it('routes legacy bootstrap assembly through explicit module-registry compat payloads', () => {
     const globalsSource = read('game/core/bootstrap/build_legacy_surface_global_groups.js');
+    const engineGlobalsSource = read('game/core/bootstrap/legacy_surface_engine_globals.js');
+    const systemGlobalsSource = read('game/core/bootstrap/legacy_surface_system_globals.js');
+    const uiGlobalsSource = read('game/core/bootstrap/legacy_surface_ui_globals.js');
     const initArgsSource = read('game/platform/legacy/build_legacy_bridge_init_args.js');
     const apiRegistrySource = read('game/platform/legacy/game_api_registry.js');
     const moduleRegistrySource = read('game/platform/legacy/game_module_registry.js');
     const executorSource = read('game/core/bootstrap/execute_legacy_surface_registration.js');
 
-    expect(globalsSource).toContain('../bindings/resolve_module_registry_legacy_compat.js');
+    expect(globalsSource).toContain("./legacy_surface_engine_globals.js");
+    expect(globalsSource).toContain("./legacy_surface_system_globals.js");
+    expect(globalsSource).toContain("./legacy_surface_ui_globals.js");
+    expect(engineGlobalsSource).toContain("./resolve_legacy_surface_module_refs.js");
+    expect(systemGlobalsSource).toContain("./resolve_legacy_surface_module_refs.js");
+    expect(uiGlobalsSource).toContain("./resolve_legacy_surface_module_refs.js");
     expect(initArgsSource).toContain('modules?.legacyModules || modules || {}');
     expect(apiRegistrySource).toContain("./resolve_legacy_module_bag.js");
     expect(moduleRegistrySource).toContain("./resolve_legacy_module_bag.js");

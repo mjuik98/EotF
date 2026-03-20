@@ -1,1 +1,1 @@
-export { CardMethods } from '../features/combat/application/card_methods_compat.js';
+export { CardMethods } from '../features/combat/compat/card_methods.js';

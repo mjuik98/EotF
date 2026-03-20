@@ -4,6 +4,9 @@ import { createCodexBrowserModuleCapabilities } from '../../../codex/ports/publi
 const codexBrowserModules = createCodexBrowserModuleCapabilities();
 
 export function createUiActions(modules, fns, ports) {
+  const coreModules = modules?.featureScopes?.core || {};
+  const legacyModules = modules?.legacyModules || {};
+
   function getDeckModalDeps() {
     return {
       ...ports.getDeckModalDeps(),
@@ -30,6 +33,7 @@ export function createUiActions(modules, fns, ports) {
     updateStatusDisplay() {
       const doc = ports.doc;
       if (!doc?.getElementById) return;
+      const hudUpdateDeps = ports.getHudUpdateDeps();
 
       const containerIds = ['statusEffects', 'ncFloatingHpStatusBadges']
         .filter((id, idx, arr) => arr.indexOf(id) === idx)
@@ -42,7 +46,7 @@ export function createUiActions(modules, fns, ports) {
       containerIds.forEach((statusContainerId) => {
         modules.StatusEffectsUI?.updateStatusDisplay?.({
           doc,
-          gs: modules.GS,
+          gs: hudUpdateDeps.gs || coreModules.GS || legacyModules.GS || modules.GS,
           refreshCombatInfoPanel: () => fns._refreshCombatInfoPanel?.(),
           statusContainerId,
           tooltipUI: modules.TooltipUI,

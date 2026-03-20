@@ -1,1 +1,1 @@
-export { createRestEventService } from '../../features/event/application/rest_service.js';
+export { createRestEventService } from '../../features/event/ports/public_service_capabilities.js';

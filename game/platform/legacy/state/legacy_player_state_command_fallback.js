@@ -1,4 +1,4 @@
-import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from '../../../shared/state/player_state_command_fallback_flag.js';
+import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from './player_state_command_fallback_flag.js';
 import {
   applyLegacyPlayerGoldMutation,
   applyLegacyPlayerHealMutation,

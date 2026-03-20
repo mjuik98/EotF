@@ -2,4 +2,4 @@ export {
   clearCurrentEvent,
   getCurrentEvent,
   setCurrentEvent,
-} from '../../features/event/state/event_session_store.js';
+} from '../../features/event/ports/public_state_capabilities.js';

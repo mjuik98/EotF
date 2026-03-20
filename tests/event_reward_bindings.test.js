@@ -4,6 +4,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getEventDeps: vi.fn(() => ({ token: 'event-deps' })),
   getRewardDeps: vi.fn(() => ({ token: 'reward-deps' })),
   getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import * as Deps from '../game/core/deps_factory.js';

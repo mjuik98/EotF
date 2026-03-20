@@ -1,1 +1,1 @@
-export * from '../../features/title/presentation/browser/level_up_popup_helpers.js';
+export * from '../../features/title/ports/public_presentation_capabilities.js';

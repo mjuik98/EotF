@@ -1,1 +1,1 @@
-export * from '../../features/run/presentation/browser/maze_system_render_ui.js';
+export * from '../../features/run/ports/public_presentation_capabilities.js';

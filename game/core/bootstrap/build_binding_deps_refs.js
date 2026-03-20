@@ -11,6 +11,13 @@ function collectTopLevelModuleRefs(modules) {
   }, {});
 }
 
+function collectLegacyCompatModuleRefs(modules) {
+  return Object.entries(modules?.legacyModules || {}).reduce((refs, [key, value]) => {
+    refs[key] = value;
+    return refs;
+  }, {});
+}
+
 function collectScopedModuleRefs(modules) {
   const scopeNames = Object.keys(modules?.featureScopes || {});
   const orderedScopeNames = [
@@ -27,6 +34,7 @@ export function buildBindingDepsRefs({ modules, fns }) {
   const moduleRefs = modules?.featureScopes
     ? {
       ...collectTopLevelModuleRefs(modules),
+      ...collectLegacyCompatModuleRefs(modules),
       ...collectScopedModuleRefs(modules),
     }
     : collectTopLevelModuleRefs(modules);

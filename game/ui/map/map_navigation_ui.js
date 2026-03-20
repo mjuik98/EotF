@@ -1,1 +1,1 @@
-export { MapNavigationUI } from '../../features/run/presentation/browser/map_navigation_ui.js';
+export { MapNavigationUI } from '../../features/run/ports/public_presentation_capabilities.js';

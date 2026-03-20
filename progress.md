@@ -69,6 +69,37 @@ The current worktree contains validated changes around compat guardrails, combat
 
 ## Latest Notes
 
+- Latest public-surface + transitional-compat cleanup batch finished:
+  - `game/features/run/ports/public_surface.js` now exposes only grouped capability builders (`bindings/browserModules/contracts/moduleCapabilities/rules/runtime/state`) instead of also re-exporting runtime actions and rule helpers directly.
+  - `game/features/ui/ports/public_surface.js` now exposes only grouped capability builders (`bindings/browserModules/contracts/moduleCapabilities/runtime`) instead of also re-exporting app/runtime helper commands directly.
+  - Backward-compatible named exports for those features now live in `game/features/{run,ui}/public.js`, which re-export the narrower `ports/*` entry files instead of forcing `ports/public_surface.js` to stay broad.
+  - `game/features/run/ports/public_binding_capabilities.js` now owns both canvas binding creation and run-entry registration.
+  - `game/features/title/ports/public_binding_capabilities.js` now owns both title binding creation and title binding registration.
+  - Transitional files now route through public ports instead of reaching into feature internals directly:
+    - `game/features/run/ui/run_entry_bindings.js` -> `../ports/public_binding_capabilities.js`
+    - `game/features/title/ui/title_bindings.js` -> `../ports/public_binding_capabilities.js`
+    - `game/features/title/ui/title_screen_dom.js` -> `../ports/public_presentation_capabilities.js`
+    - `game/features/ui/app/ui_actions.js` -> `../ports/runtime/public_ui_runtime_surface.js`
+    - `game/features/ui/app/legacy_query_groups.js` -> `../ports/runtime/public_ui_runtime_surface.js`
+  - Added regression coverage in `tests/feature_binding_capabilities.test.js` and updated transitional-surface/export allowlist tests to guard the narrower surface.
+- Validation after the latest public-surface narrowing batch:
+  - `npm test` PASS (`478 files / 1164 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1289 nodes, 1363 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4190`: clicking `#mainStartBtn` rendered character select (`CHOOSE YOUR ECHO` visible in `output/web-game/shot-0.png`), `output/web-game/state-{0,1,2}.json` all showed `panels: ["characterSelect"]`, and no top-level `errors-*.json` / `console-errors.json` file was emitted for that run.
+- Follow-up transitional-hop cleanup batch finished:
+  - `game/features/run/app/run_canvas_actions.js` no longer re-exports through sibling `./create_run_canvas_actions.js`; it now points directly at `../application/create_run_canvas_actions.js`.
+  - `game/features/title/ports/runtime/public_title_runtime_surface.js` now re-exports `createTitleActions`.
+  - `game/features/title/app/{create_title_actions,title_actions}.js` now point directly at `../ports/runtime/public_title_runtime_surface.js` instead of reaching into `platform/browser/create_title_actions.js`.
+  - This removes the remaining trivial compat hop inside touched `run/title` transitional files without changing behavior.
+- Validation after the follow-up transitional-hop batch:
+  - `npm test` PASS (`478 files / 1164 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1289 nodes, 1364 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4190`: clicking `#mainStartBtn` rendered character select again, screenshots live under `output/web-game/arch-refactor-smoke-20260320-e/shot-{0,1,2}.png`, `state-{0,1,2}.json` all showed `panels: ["characterSelect"]`, and no `errors-*.json` / `console-errors.json` file was emitted in that directory.
+
 - Split `game/shared/state/game_state_runtime_methods.js` into explicit attach paths:
   - `attachCoreGameStateRuntimeMethods(target)` now attaches only common/player methods.
   - `attachCombatGameStateRuntimeMethods(target)` now attaches combat/card helpers separately.
@@ -230,3 +261,108 @@ The current worktree contains validated changes around compat guardrails, combat
   - Latest mutation status: `State mutation target check passed (109 current, target 134)`.
   - Latest coupling status: `Import coupling check passed (300 current, baseline 301)`.
   - Latest build chunk status: `ui-event 39.21 kB`, `ui-gameplay 558.96 kB`.
+- 2026-03-20 architecture cleanup continued on legacy surface + compat ownership:
+  - `game/core/bootstrap/{legacy_surface_engine_globals,legacy_surface_system_globals,legacy_surface_ui_globals}.js` now resolve scoped canonical modules through `resolve_legacy_surface_module_refs.js` instead of relying on pre-overlaid flat compat payloads.
+  - `game/core/bootstrap/build_legacy_surface_global_groups.js` now delegates each group to those explicit builders, which keeps legacy bootstrap assembly on a narrower scope-first seam.
+  - Added regression coverage in `tests/legacy_surface_globals.test.js` and updated `tests/refactor_structure_guardrails.test.js` / `tests/build_legacy_surface_global_groups.test.js` to reflect the new explicit legacy-surface builders.
+- 2026-03-20 compat surface cleanup continued on event/reward app shims:
+  - Added `game/features/event/ports/public_{service,state}_capabilities.js` so `game/app/event/*` compat files no longer re-export feature `application/*` or `state/*` internals directly.
+  - `game/app/event/{event_service,event_session_store,resolve_event_choice_service,rest_service,shop_service}.js` and all touched `game/app/event/use_cases/*.js` now re-export through `ports/public_*` seams.
+  - `game/features/reward/ports/public_application_capabilities.js` now owns `createRewardRemoveCancelAction`, and `game/app/reward/use_cases/{build_reward_options_use_case,claim_reward_use_case}.js` now re-export through that canonical reward port.
+- Validation after the 2026-03-20 legacy-surface + event/reward compat batch:
+  - `npm test` PASS (`479 files / 1167 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1289 nodes, 1365 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4191`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-refactor-smoke-20260320-f/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels:["characterSelect"]` with no captured error files.
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-20 compat surface cleanup continued on `game/ui/screens/*`:
+  - Added grouped UI presentation ports under `game/features/ui/ports/public_{screen,settings,story,help_pause,ending,meta_progression}_presentation_capabilities.js`.
+  - `game/ui/screens/{screen_ui,settings_ui,story_ui,help_pause_ui,ending_screen_ui,meta_progression_ui}.js` and their helper/runtime compat files now re-export through those `ports/*` seams instead of reaching directly into `features/ui/presentation/browser/*`.
+  - Added grouped codex and reward presentation ports under `game/features/{codex,reward}/ports/public_presentation_capabilities.js`, and moved `game/ui/screens/codex_*.js` plus `game/ui/screens/reward_ui*.js` onto those public seams.
+  - Added `game/features/event/ports/public_presentation_capabilities.js`, and moved `game/ui/screens/event_ui*.js` compat files to the event feature's public presentation seam.
+- Validation after the 2026-03-20 UI/codex/reward/event compat-screen batch:
+  - `npm test` PASS (`479 files / 1167 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1300 nodes, 1365 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4192`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-refactor-smoke-20260320-g/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels:["characterSelect"]` with no captured error files.
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-20 compat surface cleanup continued on `game/ui/title`, `game/ui/run`, `game/ui/map`, `game/ui/combat`, `game/ui/hud`, and `game/ui/cards`:
+  - Added grouped presentation ports under `game/features/run/ports/public_presentation_capabilities.js` and `game/features/combat/ports/public_presentation_capabilities.js`, then moved `game/ui/run/*`, `game/ui/map/*`, `game/ui/combat/*`, `game/ui/hud/*`, `game/ui/cards/*`, and `game/presentation/combat/combat_turn_ui.js` onto those public seams instead of direct feature-internal presentation imports.
+  - Split the over-broad title presentation facade into smaller seams: `game/features/title/ports/public_{character_select,character_select_mount,game_boot,run_end}_presentation_capabilities.js`, and moved the touched `game/ui/title/*` compat files onto those narrower ports.
+  - This fixed a real export collision between the title game-boot and run-end `countUp(...)` helpers and removed the `character_select_mount_runtime` side effect where importing a grouped title facade pulled in unrelated codex/runtime modules.
+  - Updated compat/reexport guardrails in `tests/{ui_feature_entry_compat_reexports,ui_screen_runtime_compat_reexports,combat_ui_compat_reexports,maze_feature_entry_compat_reexports}.test.js` plus the related title helper/runtime tests to reflect the new per-surface public ports.
+- Validation after the 2026-03-20 title/run/combat compat-surface split batch:
+  - `npm test` PASS (`479 files / 1167 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1306 nodes, 1365 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4193`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-refactor-smoke-20260320-h/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels:["characterSelect"]` with no captured error files.
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-20 compat/presentation cleanup continued on remaining `game/presentation/*` and registry scope-first seams:
+  - Expanded `game/features/{run,combat,event}/ports/public_presentation_capabilities.js` so legacy/transitional presentation files under `game/presentation/*`, `game/ui/shared/*`, and `game/ui/map/*` no longer need direct feature-internal presentation imports for node transition, combat turn presenters, class trait UI, and event runtime presenters.
+  - Added `game/core/bindings/module_registry_scopes.js` to centralize scope-first registry resolution for core/bootstrap callers, while keeping feature callers on feature-local scope-first helpers to avoid new `feature -> core/shared` coupling growth.
+  - `game/features/{run,combat}/ports/create_*_ports.js` and `game/features/title/platform/browser/resolve_title_action_modules.js` now resolve `featureScopes -> legacyModules -> top-level` locally, preserving canonical ownership without reopening the import-coupling regression.
+  - This batch keeps the newer scope-first behavior but avoids the temporary lint failure where importing `game/shared/runtime/resolve_scoped_runtime_module.js` directly from `game/features/*` pushed `feature -> shared` coupling above baseline.
+- Validation after the 2026-03-20 presentation/registry seam batch:
+  - `npm test` PASS (`480 files / 1171 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1306 nodes, 1365 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4193`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-refactor-smoke-20260320-i/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels:["characterSelect"]` with no captured error files.
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-20 module registry compat cleanup continued on the flat legacy bag itself:
+  - `game/core/bindings/create_module_registry_flat_compat.js` now builds `legacyModules` from explicit legacy compat keys only instead of flattening every scoped module into the legacy bag.
+  - `game/core/bindings/attach_module_registry_flat_compat.js` now defines top-level registry getters from the union of scoped keys plus legacy compat keys, so `registry.<module>` remains discoverable for transitional callers even when the module no longer lives in `legacyModules`.
+  - `game/core/bindings/resolve_module_registry_legacy_compat.js` now distinguishes between explicit legacy-scope keys and generic scoped keys, including scope-last fallback for arbitrary scoped modules and accessor-safe top-level fallback.
+  - Added/updated regression coverage in `tests/{create_module_registry_flat_compat,module_registry,module_registry_scopes,legacy_compat_module_resolution}.test.js` to lock down the smaller legacy bag and prevent recursive top-level accessor reads.
+  - Browser smoke initially caught a real runtime regression (`RangeError: Maximum call stack size exceeded`) after the legacy-bag shrink; the root cause was compat resolvers re-reading top-level accessor aliases as data properties. Fixed by making both registry and legacy compat resolvers ignore accessor-backed top-level properties when falling back.
+- Validation after the 2026-03-20 flat-compat shrink batch:
+  - `npm test` PASS (`480 files / 1174 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1306 nodes, 1366 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4194`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-refactor-smoke-20260320-k/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels:["characterSelect"]` with no captured error files.
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-20 UI scope-first cleanup continued on the binding/runtime path:
+  - Added `game/features/ui/platform/browser/resolve_ui_action_modules.js` so UI binding/runtime code can resolve `core/screen/codex/combat` modules through `featureScopes -> legacyModules -> top-level data property` in one place.
+  - `game/features/ui/ports/runtime/public_ui_runtime_surface.js` now resolves the module registry before passing it into `createUiActions(...)`, which removes raw-registry dependency from the highest-traffic UI action path.
+  - `game/features/ui/platform/browser/ui_legacy_query_groups.js` now uses the same resolved UI module view, so legacy HUD/runtime query groups stop depending on stale top-level aliases for `HudUpdateUI`, `GameInit`, and `AudioEngine`.
+  - `game/features/ui/platform/browser/ensure_settings_browser_modules.js` now prefers `screen`-scoped `SettingsUI` before stale top-level aliases.
+  - Added regression coverage in `tests/ui_bindings.test.js` and `tests/ui_browser_module_resolution.test.js` to lock down scoped `TooltipUI`, `CodexUI`, `AudioEngine`, `ScreenUI`, and `SettingsUI` preference.
+- Validation after the 2026-03-20 UI scope-first binding batch:
+  - `npm test` PASS (`481 files / 1176 tests`)
+  - `npm run lint` PASS
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1307 nodes, 1369 edges`)
+  - Browser smoke PASS via Playwright client against `http://127.0.0.1:4195`: `#mainStartBtn` opened character select, screenshots under `output/web-game/arch-refactor-smoke-20260320-l/shot-{0,1,2}.png`, and `state-{0,1,2}.json` all showed `panels:["characterSelect"]` with no captured error files.
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-20 run/codex loader cleanup continued without regrowing coupling:
+  - Added regression coverage in `tests/run_browser_module_resolution.test.js` and `tests/codex_browser_module_resolution.test.js`, plus extended `tests/title_settings_bindings.test.js`, so `RunModeUI` and `CodexUI` browser loaders are now explicitly locked to prefer `featureScopes` over stale top-level aliases.
+  - `game/features/{run,codex}/platform/browser/ensure_*_browser_modules.js` now resolve `featureScopes -> legacyModules -> top-level` locally before deciding whether to lazy-load browser modules.
+  - The first implementation imported `game/shared/runtime/resolve_scoped_runtime_module.js`, which pushed `feature->shared` coupling above baseline. That regression was removed by inlining feature-local scope-first resolvers in the touched loader files, matching the existing `ui/title` pattern.
+- 2026-03-20 combat compat cleanup removed the remaining direct `application/platform` imports from `game/combat/*` transitional files:
+  - Added `game/features/combat/ports/public_damage_runtime_capabilities.js`.
+  - Added `game/features/combat/ports/public_death_application_capabilities.js`.
+  - Added `game/features/combat/ports/public_death_runtime_capabilities.js`.
+  - `game/combat/{damage_system_helpers,death_handler_runtime,death_handler_outcome,death_handler_enemy_state,death_handler_enemy_death_flow}.js` now re-export only through those new public port seams instead of reaching directly into `game/features/combat/{application,platform}/*`.
+  - Updated `tests/combat_compat_reexports.test.js` to guard the new seam, while existing `tests/death_handler*.test.js` keep behavior coverage on the public compat surface.
+- Validation after the 2026-03-20 loader + combat-compat seam batch:
+  - `npm run lint` PASS
+  - `npm test` PASS (`483 files / 1180 tests`)
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1310 nodes, 1369 edges`)
+  - Browser smoke PASS against `http://127.0.0.1:4196` served from `dist` via `python3 -m http.server`:
+    - clicked `#mainStartBtn`
+    - `output/web-game/arch-refactor-smoke-20260320-m/state-{0,1,2}.json` all showed `panels:["characterSelect"]`
+    - no `errors-*.json` file was emitted in that directory
+    - visual check passed in `output/web-game/arch-refactor-smoke-20260320-m/shot-0.png` (`CHOOSE YOUR ECHO` character select visible)
+  - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
+  - Latest mutation status: `State mutation target check passed (83 current, target 134)`.

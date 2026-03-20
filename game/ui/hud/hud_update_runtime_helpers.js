@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/hud_update_runtime_helpers.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

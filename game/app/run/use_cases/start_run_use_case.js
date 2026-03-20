@@ -1,1 +1,1 @@
-export { createStartRunUseCase } from '../../../features/run/application/start_run_use_case.js';
+export { createStartRunUseCase } from '../../../features/run/ports/public_application_capabilities.js';

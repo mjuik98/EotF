@@ -9,6 +9,7 @@ const TARGET_DIRS = ['game'];
 const ALLOW_MUTATION_FILES = new Set([
   'game/core/state_actions.js',
   'game/core/game_state.js',
+  'game/core/store/game_state.js',
   'game/shared/state/runtime_session_commands.js',
 ]);
 

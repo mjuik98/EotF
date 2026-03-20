@@ -1,1 +1,1 @@
-export { createShowEventSessionUseCase } from '../../../features/event/application/show_event_session_use_case.js';
+export { createShowEventSessionUseCase } from '../../../features/event/ports/public_application_capabilities.js';

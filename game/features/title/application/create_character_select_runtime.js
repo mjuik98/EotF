@@ -1,16 +1,9 @@
-function getDoc(deps) {
-  return deps?.doc || deps?.win?.document || null;
-}
-
-function bindBrowserFn(fn, context) {
-  if (typeof fn !== 'function') return null;
-  if (typeof fn.bind !== 'function') return fn;
-  return fn.bind(context);
-}
-
-function getWin(deps, doc) {
-  return deps?.win || doc?.defaultView || null;
-}
+import { resolveCharacterSelectRuntimeEnv } from './character_select_runtime_env.js';
+import {
+  createCharacterSelectModalController,
+  createCharacterSelectRuntimeState,
+  stopCharacterSelectTyping,
+} from './character_select_runtime_state.js';
 
 export function createCharacterSelectRuntime(deps = {}, runtime = {}) {
   const {
@@ -29,13 +22,15 @@ export function createCharacterSelectRuntime(deps = {}, runtime = {}) {
     RunEndScreen,
     createMountRuntime,
   } = runtime;
-  const doc = getDoc(deps);
-  const win = getWin(deps, doc);
-  const requestAnimationFrameImpl = deps?.requestAnimationFrame || bindBrowserFn(win?.requestAnimationFrame, win);
-  const cancelAnimationFrameImpl = deps?.cancelAnimationFrame || bindBrowserFn(win?.cancelAnimationFrame, win);
-  const setTimeoutImpl = deps?.setTimeout || bindBrowserFn(win?.setTimeout, win) || setTimeout;
-  const clearIntervalImpl = deps?.clearInterval || bindBrowserFn(win?.clearInterval, win) || clearInterval;
-  const state = { idx: 0, phase: 'select', activeSkill: null, typingTimer: null };
+  const {
+    doc,
+    win,
+    requestAnimationFrameImpl,
+    cancelAnimationFrameImpl,
+    setTimeoutImpl,
+    clearIntervalImpl,
+  } = resolveCharacterSelectRuntimeEnv(deps);
+  const state = createCharacterSelectRuntimeState();
   const classIds = chars.map((ch) => ch.class);
   const progressionFacade = createProgressionFacade(deps?.gs?.meta, classIds);
   const levelUpPopup = new LevelUpPopup({
@@ -94,29 +89,13 @@ export function createCharacterSelectRuntime(deps = {}, runtime = {}) {
     onConfirm: (selectedChar) => deps.onConfirm?.(selectedChar),
     setTimeoutImpl,
   });
-
-  function closeModal() {
-    closeSkillModal({
-      state,
-      resolveById: getById,
-    });
-  }
-
-  function openModal(skill, accent) {
-    openSkillModal({
-      skill,
-      accent,
-      state,
-      resolveById: getById,
-      onClose: closeModal,
-    });
-  }
-
-  function stopTyping() {
-    if (!state.typingTimer) return;
-    clearIntervalImpl(state.typingTimer);
-    state.typingTimer = null;
-  }
+  const { closeModal, openModal } = createCharacterSelectModalController({
+    state,
+    resolveById: getById,
+    openSkillModal,
+    closeSkillModal,
+  });
+  const stopTyping = () => stopCharacterSelectTyping(state, clearIntervalImpl);
 
   mountRuntime = createMountRuntime({
     chars,

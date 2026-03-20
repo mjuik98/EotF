@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/draw_availability.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

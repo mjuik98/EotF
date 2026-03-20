@@ -1,1 +1,1 @@
-export { CombatHudUI } from '../../features/combat/presentation/browser/combat_hud_ui.js';
+export { CombatHudUI } from '../../features/combat/ports/public_presentation_capabilities.js';

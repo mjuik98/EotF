@@ -1,4 +1,4 @@
 export {
   createEventShop,
   decorateEventShopChoiceEffects,
-} from '../../features/event/presentation/browser/event_shop_presenter.js';
+} from '../../features/event/ports/public_presentation_capabilities.js';

@@ -6,15 +6,15 @@ const runBrowserModules = createRunBrowserModuleCapabilities();
 const uiBrowserModules = createUiBrowserModuleCapabilities();
 
 export function createTitleSettingsActions(context) {
-  const { doc, modules, ports, saveVolumes } = context;
+  const { doc, modules, moduleRegistry, ports, saveVolumes } = context;
 
   async function ensureRunModeUI() {
-    const { RunModeUI } = await runBrowserModules.ensureFlow(modules);
+    const { RunModeUI } = await runBrowserModules.ensureFlow(moduleRegistry);
     return RunModeUI;
   }
 
   async function ensureSettingsUI() {
-    const { SettingsUI } = await uiBrowserModules.ensureSettings(modules);
+    const { SettingsUI } = await uiBrowserModules.ensureSettings(moduleRegistry);
     return SettingsUI;
   }
 

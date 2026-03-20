@@ -8,6 +8,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getCodexDeps: vi.fn(() => ({})),
   getTooltipDeps: vi.fn(() => ({})),
   getScreenDeps: vi.fn(() => ({})),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import { createUIBindings } from '../game/core/bindings/ui_bindings.js';

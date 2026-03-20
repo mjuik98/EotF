@@ -5,6 +5,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
   getCardTargetDeps: vi.fn(() => ({ token: 'card-target-deps' })),
   getCombatTurnBaseDeps: vi.fn(() => ({ token: 'combat-turn-base-deps' })),
   getFeedbackDeps: vi.fn(() => ({ token: 'feedback-deps' })),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import * as Deps from '../game/core/deps_factory.js';

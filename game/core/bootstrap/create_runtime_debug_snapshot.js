@@ -7,8 +7,16 @@ import {
   toFiniteNumber,
 } from '../../shared/runtime/runtime_debug_snapshot_utils.js';
 
+function resolveCoreScope(modules) {
+  return modules?.featureScopes?.core || {};
+}
+
+function resolveCoreGameState(modules) {
+  return resolveCoreScope(modules).GS || modules?.GS || {};
+}
+
 export function createRuntimeDebugSnapshot({ modules, doc, win }) {
-  const gs = modules?.GS || {};
+  const gs = resolveCoreGameState(modules);
   const uiSnapshot = collectUiRuntimeDebugSnapshot({ modules, doc, win });
   const titleSnapshot = collectTitleRuntimeDebugSnapshot({ modules, doc, win });
   const runSnapshot = collectRunRuntimeDebugSnapshot({ modules, doc, win });

@@ -18,4 +18,25 @@ describe('buildLegacySurfaceInitArgs', () => {
       modules.ParticleSystem,
     ]);
   });
+
+  it('falls back to canonical core scope modules when flat aliases are absent', () => {
+    const core = {
+      GS: { id: 'gs' },
+      DATA: { id: 'data' },
+      AudioEngine: { id: 'audio' },
+      ParticleSystem: { id: 'particles' },
+    };
+    const modules = {
+      featureScopes: {
+        core,
+      },
+    };
+
+    expect(buildLegacySurfaceInitArgs({ modules })).toEqual([
+      core.GS,
+      core.DATA,
+      core.AudioEngine,
+      core.ParticleSystem,
+    ]);
+  });
 });

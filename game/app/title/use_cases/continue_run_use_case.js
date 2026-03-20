@@ -1,1 +1,1 @@
-export { continueRunUseCase } from '../../../features/title/application/title_run_entry_actions.js';
+export { continueRunUseCase } from '../../../features/title/ports/public_application_capabilities.js';

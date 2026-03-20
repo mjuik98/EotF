@@ -1,3 +1,5 @@
+import { resolveScopedRuntimeModule } from './resolve_scoped_runtime_module.js';
+
 export {
   composeLegacyGameApiQueryGroups,
   composeLegacyGameApiPayload,
@@ -11,29 +13,29 @@ export {
 
 export function buildLegacySharedModuleQueries(modules) {
   return {
-    AudioEngine: modules.AudioEngine,
-    ParticleSystem: modules.ParticleSystem,
-    ScreenShake: modules.ScreenShake,
-    HitStop: modules.HitStop,
-    FovEngine: modules.FovEngine,
-    DifficultyScaler: modules.DifficultyScaler,
-    RandomUtils: modules.RandomUtils,
-    RunRules: modules.RunRules,
-    getRegionData: modules.getRegionData,
-    getBaseRegionIndex: modules.getBaseRegionIndex,
-    getRegionCount: modules.getRegionCount,
-    ClassMechanics: modules.ClassMechanics,
-    SetBonusSystem: modules.SetBonusSystem,
-    SaveSystem: modules.SaveSystem,
-    CardCostUtils: modules.CardCostUtils,
-    SettingsUI: modules.SettingsUI,
+    AudioEngine: resolveScopedRuntimeModule(modules, 'AudioEngine', ['core']),
+    ParticleSystem: resolveScopedRuntimeModule(modules, 'ParticleSystem', ['core']),
+    ScreenShake: resolveScopedRuntimeModule(modules, 'ScreenShake', ['core']),
+    HitStop: resolveScopedRuntimeModule(modules, 'HitStop', ['core']),
+    FovEngine: resolveScopedRuntimeModule(modules, 'FovEngine', ['core']),
+    DifficultyScaler: resolveScopedRuntimeModule(modules, 'DifficultyScaler', ['core']),
+    RandomUtils: resolveScopedRuntimeModule(modules, 'RandomUtils', ['core']),
+    RunRules: resolveScopedRuntimeModule(modules, 'RunRules', ['core']),
+    getRegionData: resolveScopedRuntimeModule(modules, 'getRegionData', ['core']),
+    getBaseRegionIndex: resolveScopedRuntimeModule(modules, 'getBaseRegionIndex', ['core']),
+    getRegionCount: resolveScopedRuntimeModule(modules, 'getRegionCount', ['core']),
+    ClassMechanics: resolveScopedRuntimeModule(modules, 'ClassMechanics', ['combat']),
+    SetBonusSystem: resolveScopedRuntimeModule(modules, 'SetBonusSystem', ['combat']),
+    SaveSystem: resolveScopedRuntimeModule(modules, 'SaveSystem', ['core']),
+    CardCostUtils: resolveScopedRuntimeModule(modules, 'CardCostUtils', ['core']),
+    SettingsUI: resolveScopedRuntimeModule(modules, 'SettingsUI', ['screen']),
   };
 }
 
 export function buildLegacyUtilityQueries(modules) {
   return {
-    DescriptionUtils: modules.DescriptionUtils,
-    CardCostUtils: modules.CardCostUtils,
+    DescriptionUtils: resolveScopedRuntimeModule(modules, 'DescriptionUtils', ['core']),
+    CardCostUtils: resolveScopedRuntimeModule(modules, 'CardCostUtils', ['core']),
   };
 }
 

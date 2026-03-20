@@ -34,6 +34,10 @@ function waitForFrames(win, count, callback) {
   step(frames);
 }
 
+function resolveCoreGameState(modules) {
+  return modules?.featureScopes?.core?.GS || modules?.GS || {};
+}
+
 export function createAdvanceTimeHook({ modules, fns, win }) {
   return (ms = 16) => {
     const duration = Math.max(0, toFiniteNumber(ms, 16));
@@ -44,14 +48,15 @@ export function createAdvanceTimeHook({ modules, fns, win }) {
       timeout(() => {
         waitForFrames(win, frameCount, () => {
           try {
+            const gs = resolveCoreGameState(modules);
             fns?.updateUI?.();
-            if (modules?.GS?.combat?.active) {
+            if (gs?.combat?.active) {
               fns?.renderCombatEnemies?.();
               fns?.renderCombatCards?.();
               fns?.updateCombatLog?.();
               fns?.updateEchoSkillBtn?.();
             }
-            if (modules?.GS?.currentScreen === 'game') {
+            if (gs?.currentScreen === 'game') {
               fns?.renderMinimap?.();
             }
           } catch (error) {

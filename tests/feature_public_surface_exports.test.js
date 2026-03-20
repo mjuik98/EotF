@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import { CombatPublicSurface } from '../game/features/combat/ports/public_surface.js';
 import { RunPublicSurface } from '../game/features/run/ports/public_surface.js';
 import { TitlePublicSurface } from '../game/features/title/ports/public_surface.js';
 import { UiPublicSurface } from '../game/features/ui/ports/public_surface.js';
@@ -59,6 +60,18 @@ describe('feature public surface exports', () => {
     expect(combatSource).toContain('DeathHandler,');
     expect(combatSource).toContain('TurnManager,');
     expect(eventSource).toContain('EventManager,');
+  });
+
+  it('keeps CombatPublicSurface narrowed to grouped capability members', () => {
+    expect(Object.keys(CombatPublicSurface).sort()).toEqual([
+      'application',
+      'bindings',
+      'compat',
+      'contracts',
+      'moduleCapabilities',
+      'runtime',
+      'state',
+    ]);
   });
 
   it('keeps RunPublicSurface narrowed to grouped capability members', () => {

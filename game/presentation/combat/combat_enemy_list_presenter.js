@@ -3,4 +3,4 @@ export {
   cleanupCombatTooltips,
   needsCombatEnemyFullRender,
   renderCombatEnemyList,
-} from '../../features/combat/presentation/browser/combat_enemy_list_presenter.js';
+} from '../../features/combat/ports/public_presentation_capabilities.js';

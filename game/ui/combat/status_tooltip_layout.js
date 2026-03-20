@@ -1,1 +1,1 @@
-export * from '../../features/combat/presentation/browser/status_tooltip_layout.js';
+export * from '../../features/combat/ports/public_presentation_capabilities.js';

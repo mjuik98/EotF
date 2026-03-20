@@ -1,4 +1,4 @@
-import { CardMethods } from '../../../features/combat/application/card_methods_compat.js';
+import { CardMethods } from '../../../features/combat/compat/card_methods.js';
 
 export const CardGameStateRuntimeCompatMethods = {
   ...CardMethods,

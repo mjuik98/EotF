@@ -1,1 +1,1 @@
-export { registerTitleBindings } from '../platform/browser/register_title_bindings.js';
+export { registerTitleBindings } from '../ports/public_binding_capabilities.js';

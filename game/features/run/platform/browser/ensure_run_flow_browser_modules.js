@@ -2,13 +2,33 @@ import { publishLegacyModuleBag } from '../../../../platform/legacy/game_module_
 
 let runFlowModulesPromise = null;
 
+function resolveRunRuntimeModule(modules = {}, key, scopeNames = []) {
+  for (const scopeName of scopeNames) {
+    const scopedRefs = modules?.featureScopes?.[scopeName] || {};
+    if (scopedRefs[key] !== undefined) {
+      return scopedRefs[key];
+    }
+  }
+
+  if (modules?.legacyModules?.[key] !== undefined) {
+    return modules.legacyModules[key];
+  }
+
+  if (modules?.[key] !== undefined) {
+    return modules[key];
+  }
+
+  return undefined;
+}
+
 function assignRunFlowModules(modules, runFlowModules) {
   return publishLegacyModuleBag(modules, runFlowModules);
 }
 
 export async function ensureRunFlowBrowserModules(modules) {
-  if (modules?.RunModeUI) {
-    return { RunModeUI: modules.RunModeUI };
+  const runModeUI = resolveRunRuntimeModule(modules, 'RunModeUI', ['run']);
+  if (runModeUI) {
+    return { RunModeUI: runModeUI };
   }
 
   if (!runFlowModulesPromise) {

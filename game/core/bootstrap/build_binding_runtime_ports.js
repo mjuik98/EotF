@@ -1,8 +1,9 @@
 import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
+import { resolveModuleRegistryLegacyGameRoot } from '../bindings/resolve_module_registry_legacy_compat.js';
 
 export function buildBindingRuntimePorts({ modules }) {
   const coreModules = getModuleRegistryScope(modules, 'core');
-  const game = coreModules.GAME || modules?.GAME || modules?.legacyModules?.GAME;
+  const game = coreModules.GAME || resolveModuleRegistryLegacyGameRoot(modules);
 
   return {
     getGameDeps: () => game?.getDeps?.() || {},

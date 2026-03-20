@@ -1,1 +1,1 @@
-export { renderClassTraitPanel } from '../../features/combat/presentation/browser/class_trait_panel_ui.js';
+export { renderClassTraitPanel } from '../../features/combat/ports/public_presentation_capabilities.js';

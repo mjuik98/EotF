@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
   SaveSystem: { id: 'save-system' },
+  StoreGS: { token: 'store-gs' },
   bindSaveStorage: vi.fn(),
   RunRules: { id: 'run-rules' },
   createFinalizeRunOutcomeAction: vi.fn((saveSystem) => ({ saveSystem, kind: 'bound' })),
@@ -13,6 +14,10 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('../game/shared/save/public.js', () => ({
   bindSaveStorage: hoisted.bindSaveStorage,
   SaveSystem: hoisted.SaveSystem,
+}));
+
+vi.mock('../game/core/store/public.js', () => ({
+  GS: hoisted.StoreGS,
 }));
 
 vi.mock('../game/features/run/ports/public_system_capabilities.js', () => ({
@@ -48,5 +53,12 @@ describe('buildCoreRunSystemModules', () => {
       getRegionCount: hoisted.getRegionCount,
       finalizeRunOutcome: { saveSystem: hoisted.SaveSystem, kind: 'bound' },
     });
+  });
+
+  it('sources GS from the core store public surface for finalize-outcome wiring', () => {
+    buildCoreRunSystemModules();
+
+    const getGs = hoisted.createFinalizeRunOutcomeAction.mock.calls.at(-1)?.[1];
+    expect(getGs?.()).toBe(hoisted.StoreGS);
   });
 });

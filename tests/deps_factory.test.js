@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ErrorCodes } from '../game/core/error_codes.js';
 import {
+  buildContractDepAccessors,
   createDeps,
   createDepsAccessors,
   initDepsFactory,
@@ -109,6 +110,36 @@ describe('deps factory', () => {
     expect(createDepsSpy).toHaveBeenNthCalledWith(2, 'tooltip', {});
   });
 
+  it('builds contract dep accessors from a createDeps function or accessor-style fallback object', () => {
+    const createDepsSpy = vi.fn((contractName, overrides = {}) => ({
+      token: contractName,
+      ...overrides,
+    }));
+    const accessorFallback = {
+      getScreenDeps: vi.fn(() => ({ token: 'fallback-screen' })),
+      getTooltipDeps: vi.fn(() => ({ token: 'fallback-tooltip' })),
+    };
+
+    const contractAccessors = buildContractDepAccessors({
+      getScreenDeps: 'screen',
+      getTooltipDeps: 'tooltip',
+    }, createDepsSpy);
+    const fallbackAccessors = buildContractDepAccessors({
+      getScreenDeps: 'screen',
+      getTooltipDeps: 'tooltip',
+    }, accessorFallback);
+
+    expect(contractAccessors.getScreenDeps({ gs: { hp: 1 } })).toEqual({
+      token: 'screen',
+      gs: { hp: 1 },
+    });
+    expect(fallbackAccessors.getScreenDeps()).toEqual({ token: 'fallback-screen' });
+    expect(fallbackAccessors.getTooltipDeps()).toEqual({ token: 'fallback-tooltip' });
+    expect(createDepsSpy).toHaveBeenNthCalledWith(1, 'screen', { gs: { hp: 1 } });
+    expect(accessorFallback.getScreenDeps).toHaveBeenCalledTimes(1);
+    expect(accessorFallback.getTooltipDeps).toHaveBeenCalledTimes(1);
+  });
+
   it('throws AppError with deps missing code for unknown contracts', () => {
     try {
       createDeps('missing-contract');
@@ -187,6 +218,40 @@ describe('deps factory', () => {
     expect(createDeps('worldCanvas').token).toBe('runtime-canvas-deps');
     expect(createDeps('runStart').token).toBe('runtime-run-deps');
     expect(createDeps('codex').token).toBe('runtime-ui-deps');
+  });
+
+  it('prefers scoped core GAME refs over stale flat GAME aliases when runtime ports are absent', () => {
+    seedRefs({
+      GAME: {
+        getDeps: () => ({ token: 'legacy-game-deps' }),
+        getRunDeps: () => ({ token: 'legacy-run-deps' }),
+        getCombatDeps: () => ({ token: 'legacy-combat-deps' }),
+        getEventDeps: () => ({ token: 'legacy-event-deps' }),
+        getHudDeps: () => ({ token: 'legacy-hud-deps' }),
+        getUiDeps: () => ({ token: 'legacy-ui-deps' }),
+        getCanvasDeps: () => ({ token: 'legacy-canvas-deps' }),
+      },
+      featureRefs: {
+        core: {
+          GAME: {
+            getDeps: () => ({ token: 'scoped-game-deps' }),
+            getRunDeps: () => ({ token: 'scoped-run-deps' }),
+            getCombatDeps: () => ({ token: 'scoped-combat-deps' }),
+            getEventDeps: () => ({ token: 'scoped-event-deps' }),
+            getHudDeps: () => ({ token: 'scoped-hud-deps' }),
+            getUiDeps: () => ({ token: 'scoped-ui-deps' }),
+            getCanvasDeps: () => ({ token: 'scoped-canvas-deps' }),
+          },
+        },
+      },
+    });
+
+    expect(createDeps('combatTurnBase').token).toBe('scoped-combat-deps');
+    expect(createDeps('event').token).toBe('scoped-event-deps');
+    expect(createDeps('hudUpdate').token).toBe('scoped-hud-deps');
+    expect(createDeps('worldCanvas').token).toBe('scoped-canvas-deps');
+    expect(createDeps('runStart').token).toBe('scoped-run-deps');
+    expect(createDeps('codex').token).toBe('scoped-ui-deps');
   });
 
   it('uses patched refs without rebuilding the public contract list', () => {

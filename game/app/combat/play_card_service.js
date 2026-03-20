@@ -1,1 +1,1 @@
-export { playCardService } from '../../features/combat/application/play_card_service.js';
+export { playCardService } from '../../features/combat/ports/public_application_capabilities.js';

@@ -10,30 +10,8 @@ const UI_DEP_CONTRACTS = Object.freeze({
   getTooltipDeps: 'tooltip',
 });
 
-function getOptionalFactoryExport(exportName) {
-  return Object.prototype.hasOwnProperty.call(Deps, exportName)
-    ? Deps[exportName]
-    : null;
-}
-
 function buildUiDepAccessors() {
-  const createDepsAccessors = getOptionalFactoryExport('createDepsAccessors');
-  const createDeps = getOptionalFactoryExport('createDeps');
-
-  if (typeof createDepsAccessors === 'function' && typeof createDeps === 'function') {
-    return createDepsAccessors(UI_DEP_CONTRACTS, createDeps);
-  }
-
-  const accessors = {};
-
-  for (const accessorName of Object.keys(UI_DEP_CONTRACTS)) {
-    accessors[accessorName] = (overrides = {}) => ({
-      ...(Deps[accessorName]?.() || {}),
-      ...overrides,
-    });
-  }
-
-  return Object.freeze(accessors);
+  return Deps.buildFeatureContractAccessors(UI_DEP_CONTRACTS, Deps);
 }
 
 export function createUiPorts(options = {}) {

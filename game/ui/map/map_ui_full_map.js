@@ -1,1 +1,1 @@
-export * from '../../features/run/presentation/browser/map_ui_full_map.js';
+export * from '../../features/run/ports/public_presentation_capabilities.js';

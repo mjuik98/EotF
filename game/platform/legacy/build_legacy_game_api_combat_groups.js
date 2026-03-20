@@ -15,7 +15,7 @@ export function buildLegacyGameAPICombatGroups(modules, fns) {
       hideEchoSkillTooltip: fns.hideEchoSkillTooltip,
     },
     player: {
-      takeDamage: (amt) => combatCompat.takeDamage(amt, modules.GS),
+      takeDamage: (amt) => combatCompat.takeDamage(amt),
       drawCards: (count, gs, options) => combatCompat.drawCards(count, gs, options),
       executePlayerDraw: (gs) => combatCompat.executePlayerDraw(gs),
       drawCard: fns.drawCard,

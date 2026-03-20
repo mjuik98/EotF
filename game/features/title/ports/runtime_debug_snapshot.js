@@ -31,10 +31,11 @@ function collectStoryFragmentSummary(doc) {
 }
 
 export function collectTitleRuntimeDebugSnapshot({ modules, doc }) {
+  const titleModules = modules?.featureScopes?.title || modules || {};
   return {
     title: {
-      selectedClass: modules?.ClassSelectUI?.getSelectedClass?.() || null,
-      characterSelect: modules?.CharacterSelectUI?.getSelectionSnapshot?.() || null,
+      selectedClass: titleModules?.ClassSelectUI?.getSelectedClass?.() || null,
+      characterSelect: titleModules?.CharacterSelectUI?.getSelectionSnapshot?.() || null,
       introCinematic: collectIntroSummary(doc),
     },
     overlays: {

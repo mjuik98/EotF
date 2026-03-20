@@ -1,1 +1,1 @@
-export * from '../../features/codex/presentation/browser/codex_ui_content_runtime.js';
+export * from '../../features/codex/ports/public_presentation_capabilities.js';

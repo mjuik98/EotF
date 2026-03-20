@@ -8,6 +8,7 @@ export function createTitlePorts(modules, fns, options = {}) {
     playIntroCinematic: options.playIntroCinematic,
     startPreRunRipple: options.startPreRunRipple,
     getClassSelectDeps: options.getClassSelectDeps,
+    getGameBootDeps: options.getGameBootDeps,
     getRunModeDeps: options.getRunModeDeps,
     getMetaProgressionDeps: options.getMetaProgressionDeps,
     getRegionTransitionDeps: options.getRegionTransitionDeps,

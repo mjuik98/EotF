@@ -1,4 +1,4 @@
-import { CombatMethods } from '../../../features/combat/application/combat_methods_compat.js';
+import { CombatMethods } from '../../../features/combat/compat/combat_methods.js';
 
 export const CombatGameStateRuntimeCompatMethods = {
   ...CombatMethods,

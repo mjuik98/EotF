@@ -9,6 +9,17 @@ vi.mock('../game/core/deps_factory.js', () => ({
     openReward: vi.fn(),
   })),
   getWorldCanvasDeps: vi.fn(() => ({ token: 'world-canvas-deps' })),
+  buildFeatureContractAccessors: vi.fn((contractMap, depsFactory) => Object.freeze(
+    Object.fromEntries(
+      Object.keys(contractMap).map((name) => [
+        name,
+        (overrides = {}) => ({
+          ...(depsFactory?.[name]?.() || {}),
+          ...overrides,
+        }),
+      ]),
+    ),
+  )),
 }));
 
 import * as Deps from '../game/core/deps_factory.js';

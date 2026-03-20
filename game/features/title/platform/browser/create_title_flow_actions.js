@@ -10,7 +10,21 @@ import { createCodexBrowserModuleCapabilities } from '../../../codex/ports/publi
 const codexBrowserModules = createCodexBrowserModuleCapabilities();
 
 export function createTitleFlowActions(context) {
-  const { doc, fns, modules, playClick, ports, win } = context;
+  const { doc, fns, modules, moduleRegistry, playClick, ports, win } = context;
+
+  function getTitleGameBootDeps() {
+    return ports.getGameBootDeps?.() || {};
+  }
+
+  function resolveTitleState(overrides = {}) {
+    const gameBootDeps = overrides.gameBootDeps || getTitleGameBootDeps();
+    const saveSystemDeps = overrides.saveSystemDeps || {};
+    const runSetupDeps = overrides.runSetupDeps || {};
+    return {
+      data: runSetupDeps.data || saveSystemDeps.data || gameBootDeps.data || modules.DATA,
+      gs: runSetupDeps.gs || saveSystemDeps.gs || gameBootDeps.gs || modules.GS,
+    };
+  }
 
   return {
     showCharacterSelect() {
@@ -27,10 +41,12 @@ export function createTitleFlowActions(context) {
     continueRun() {
       playClick();
       const runStartDeps = ports.getRunStartDeps?.() || {};
+      const saveSystemDeps = ports.getSaveSystemDeps?.() || {};
+      const { gs } = resolveTitleState({ saveSystemDeps });
       return continueRunUseCase({
-        currentRegion: modules.GS?.currentRegion || 0,
+        currentRegion: gs?.currentRegion || 0,
         getRunStartDeps: () => runStartDeps,
-        loadRun: () => modules.SaveSystem?.loadRun?.(ports.getSaveSystemDeps()),
+        loadRun: () => modules.SaveSystem?.loadRun?.(saveSystemDeps),
         resumeRun: runStartDeps.continueLoadedRun,
         onBeforeResume: () => showMainTitleScreen(doc),
         onAfterCanvasReady: () => {
@@ -43,14 +59,14 @@ export function createTitleFlowActions(context) {
 
     async openCodexFromTitle() {
       playClick();
-      await codexBrowserModules.ensurePrimary(modules);
-      modules.CodexUI?.openCodex?.({ gs: modules.GS, data: modules.DATA });
+      await codexBrowserModules.ensurePrimary(moduleRegistry);
+      modules.CodexUI?.openCodex?.(resolveTitleState());
     },
 
     async openEndingCodex() {
       playClick();
-      await codexBrowserModules.ensurePrimary(modules);
-      modules.CodexUI?.openCodex?.({ gs: modules.GS, data: modules.DATA });
+      await codexBrowserModules.ensurePrimary(moduleRegistry);
+      modules.CodexUI?.openCodex?.(resolveTitleState());
     },
 
     selectClass(target) {
@@ -66,16 +82,17 @@ export function createTitleFlowActions(context) {
     startGame() {
       playClick();
       const runSetupDeps = ports.getRunSetupDeps?.() || {};
+      const { gs } = resolveTitleState({ runSetupDeps });
       startTitleRunUseCase({
         getSelectedClass: () => modules.ClassSelectUI?.getSelectedClass?.(),
         hideTitleSubscreens: () => hideTitleSubscreens(doc),
         markPreRunRipplePlayed: () => {
-          if (modules.GS) modules.GS._preRunRipplePlayed = true;
+          if (gs) gs._preRunRipplePlayed = true;
         },
         playIntroCinematic: (deps, onComplete) => ports.playIntroCinematic(
           {
             ...deps,
-            gs: modules.GS,
+            gs,
           },
           onComplete,
         ),

@@ -1,1 +1,1 @@
-export { RunReturnUI } from '../../features/run/presentation/browser/run_return_ui.js';
+export { RunReturnUI } from '../../features/run/ports/public_presentation_capabilities.js';

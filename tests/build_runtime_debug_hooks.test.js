@@ -7,8 +7,16 @@ describe('buildRuntimeDebugHooks', () => {
     const createSnapshot = vi.fn(() => ({ screen: 'title' }));
     const modules = {
       GS: {
-        currentScreen: 'game',
-        combat: { active: true },
+        currentScreen: 'title',
+        combat: { active: false },
+      },
+      featureScopes: {
+        core: {
+          GS: {
+            currentScreen: 'game',
+            combat: { active: true },
+          },
+        },
       },
     };
     const fns = {

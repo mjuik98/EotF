@@ -1,1 +1,1 @@
-export { LevelUpPopupUI } from '../../features/title/presentation/browser/level_up_popup_ui.js';
+export { LevelUpPopupUI } from '../../features/title/ports/public_presentation_capabilities.js';

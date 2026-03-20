@@ -1,1 +1,1 @@
-export { DeckModalUI } from '../../features/combat/presentation/browser/deck_modal_ui.js';
+export { DeckModalUI } from '../../features/combat/ports/public_presentation_capabilities.js';
