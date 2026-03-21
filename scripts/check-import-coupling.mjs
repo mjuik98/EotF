@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const POLICY_PATH = path.join(ROOT, 'docs', 'architecture_policy.json');
-const BASELINE_PATH = path.join(ROOT, 'docs', 'metrics', 'import_coupling_baseline.json');
+const POLICY_PATH = path.join(ROOT, 'config', 'architecture_policy.json');
+const BASELINE_PATH = path.join(ROOT, 'config', 'quality', 'import_coupling_baseline.json');
 
 function toPosix(p) {
   return p.split(path.sep).join('/');

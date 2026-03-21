@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const ROOT = process.cwd();
 const ALLOWLIST = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'docs/metrics/feature_public_export_allowlist.json'), 'utf8'),
+  fs.readFileSync(path.join(ROOT, 'config', 'quality', 'feature_public_export_allowlist.json'), 'utf8'),
 );
 
 function extractNamedExports(source) {

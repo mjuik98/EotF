@@ -2,8 +2,8 @@
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const BASELINE_PATH = path.join(ROOT, 'docs', 'metrics', 'window_usage_baseline.json');
-const TARGETS_PATH = path.join(ROOT, 'docs', 'metrics', 'window_usage_targets.json');
+const BASELINE_PATH = path.join(ROOT, 'config', 'quality', 'window_usage_baseline.json');
+const TARGETS_PATH = path.join(ROOT, 'config', 'quality', 'window_usage_targets.json');
 const TARGET_DIRS = ['game', 'engine', 'data'];
 
 const ALLOWLIST = new Set([

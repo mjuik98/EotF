@@ -5,8 +5,8 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
-const DEFAULT_HEAD_FILE = path.join(ROOT, 'docs', 'metrics', 'dependency_map.json');
-const DEFAULT_THRESHOLDS_FILE = path.join(ROOT, 'docs', 'metrics', 'dependency_delta_thresholds.json');
+const DEFAULT_HEAD_FILE = path.join(ROOT, 'artifacts', 'dependency_map.json');
+const DEFAULT_THRESHOLDS_FILE = path.join(ROOT, 'config', 'quality', 'dependency_delta_thresholds.json');
 
 function parseArgs(argv) {
   const out = {
@@ -110,7 +110,7 @@ async function readBaseMap(baseSha) {
   }
 
   try {
-    const { stdout } = await execFileAsync('git', ['show', `${baseSha}:docs/metrics/dependency_map.json`]);
+    const { stdout } = await execFileAsync('git', ['show', `${baseSha}:artifacts/dependency_map.json`]);
     return JSON.parse(stdout);
   } catch {
     return null;

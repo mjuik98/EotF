@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const COMPAT_ROOTS = ['game/ui', 'game/app', 'game/combat'];
-const DOC_ROOTS = ['docs', 'README.md', 'progress.md'];
+const DOC_ROOTS = ['README.md', 'AGENTS.md'];
 const SCRIPT_REF_PATTERN = /scripts\/[A-Za-z0-9_./-]+\.(?:mjs|js)/g;
 const THIN_REEXPORT_PATTERN = /^(?:export\s+(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];\s*)+$/;
 

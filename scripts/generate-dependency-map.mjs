@@ -2,9 +2,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const POLICY_PATH = path.join(ROOT, 'docs', 'architecture_policy.json');
-const OUT_JSON = path.join(ROOT, 'docs', 'metrics', 'dependency_map.json');
-const OUT_MD = path.join(ROOT, 'docs', 'metrics', 'dependency_map.md');
+const POLICY_PATH = path.join(ROOT, 'config', 'architecture_policy.json');
+const OUT_JSON = path.join(ROOT, 'artifacts', 'dependency_map.json');
+const OUT_MD = path.join(ROOT, 'artifacts', 'dependency_map.md');
 
 function toPosix(p) {
   return p.split(path.sep).join('/');
@@ -139,7 +139,7 @@ function toMarkdown(report) {
     lines.push(`| ${node.file} | ${node.inDegree} |`);
   }
   lines.push('');
-  lines.push('> Full graph is available in `docs/metrics/dependency_map.json`.');
+  lines.push('> Full graph is available in `artifacts/dependency_map.json`.');
   lines.push('');
   return lines.join('\n');
 }

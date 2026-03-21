@@ -103,11 +103,13 @@ describe('build-first optimization guardrails', () => {
     expect(codexShell).toContain('codex-modal-inner');
   });
 
-  it('keeps architecture docs aligned with implemented guard scripts', () => {
-    const docs = fs.readFileSync(path.join(ROOT, 'docs/architecture_boundaries.md'), 'utf8');
-    const scalingPlaybook = fs.readFileSync(path.join(ROOT, 'docs/scaling_playbook.md'), 'utf8');
+  it('keeps the repository contract free of removed doc paths', () => {
+    const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
+    const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
 
-    expect(docs).not.toContain('scripts/check-asset-manifest.mjs');
-    expect(scalingPlaybook).not.toContain('asset-manifest integrity');
+    expect(agents).not.toContain('docs/architecture_boundaries.md');
+    expect(agents).not.toContain('docs/scaling_playbook.md');
+    expect(readme).not.toContain('progress.md');
+    expect(readme).not.toContain('docs/architecture_refactoring_plan.md');
   });
 });

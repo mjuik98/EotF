@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 const ROOT = process.cwd();
 const FEATURES_ROOT = path.join(ROOT, 'game', 'features');
 const CONFIG = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'docs', 'metrics', 'feature_structure_targets.json'), 'utf8'),
+  fs.readFileSync(path.join(ROOT, 'config', 'quality', 'feature_structure_targets.json'), 'utf8'),
 );
 
 function readSource(relPath) {

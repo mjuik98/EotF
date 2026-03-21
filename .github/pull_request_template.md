@@ -12,6 +12,7 @@
   - `state_mutation_baseline.json`
   - `import_coupling_baseline.json`
   - `content_data_baseline.json`
+  - under `config/quality/`
 - [ ] New/changed events are covered by `event_contracts` rules.
 - [ ] Content data changes keep `id` consistency and do not grow unresolved asset refs unintentionally.
 

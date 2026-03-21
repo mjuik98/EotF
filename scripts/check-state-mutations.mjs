@@ -2,8 +2,8 @@
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const BASELINE_PATH = path.join(ROOT, 'docs', 'metrics', 'state_mutation_baseline.json');
-const TARGETS_PATH = path.join(ROOT, 'docs', 'metrics', 'state_mutation_targets.json');
+const BASELINE_PATH = path.join(ROOT, 'config', 'quality', 'state_mutation_baseline.json');
+const TARGETS_PATH = path.join(ROOT, 'config', 'quality', 'state_mutation_targets.json');
 const TARGET_DIRS = ['game'];
 
 const ALLOW_MUTATION_FILES = new Set([

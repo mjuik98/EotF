@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const CONFIG_PATH = path.join(ROOT, 'docs', 'metrics', 'compat_surface_allowlist.json');
+const CONFIG_PATH = path.join(ROOT, 'config', 'quality', 'compat_surface_allowlist.json');
 
 const THIN_REEXPORT_PATTERNS = [
   /export\s+\{[\s\S]*?\}\s+from\s+['"][^'"]+['"]\s*;?/y,

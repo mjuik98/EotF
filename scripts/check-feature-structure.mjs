@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const FEATURES_ROOT = path.join(ROOT, 'game', 'features');
-const CONFIG_PATH = path.join(ROOT, 'docs', 'metrics', 'feature_structure_targets.json');
+const CONFIG_PATH = path.join(ROOT, 'config', 'quality', 'feature_structure_targets.json');
 
 function toPosix(value) {
   return value.split(path.sep).join('/');

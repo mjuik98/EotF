@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
-const DEFAULT_HEAD_FILE = path.join(ROOT, 'docs', 'metrics', 'dependency_map.json');
+const DEFAULT_HEAD_FILE = path.join(ROOT, 'artifacts', 'dependency_map.json');
 
 function parseArgs(argv) {
   const out = {
@@ -166,7 +166,7 @@ function buildSummary(baseMap, headMap, baseSha) {
   lines.push(...listLines(clipList(edgeDiff.removed)));
   lines.push('');
 
-  lines.push('> Source: `docs/metrics/dependency_map.json`');
+  lines.push('> Source: `artifacts/dependency_map.json`');
   lines.push('');
   return lines.join('\n');
 }
@@ -180,7 +180,7 @@ async function readBaseMap(baseSha) {
   try {
     const { stdout } = await execFileAsync('git', [
       'show',
-      `${baseSha}:docs/metrics/dependency_map.json`,
+      `${baseSha}:artifacts/dependency_map.json`,
     ]);
     return JSON.parse(stdout);
   } catch {
@@ -203,4 +203,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

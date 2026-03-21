@@ -106,7 +106,7 @@ describe('architecture refactor guardrails', () => {
 
   it('scans systems as a frozen compat surface', () => {
     const config = JSON.parse(fs.readFileSync(
-      path.join(process.cwd(), 'docs/metrics/compat_surface_allowlist.json'),
+      path.join(process.cwd(), 'config/quality/compat_surface_allowlist.json'),
       'utf8',
     ));
 

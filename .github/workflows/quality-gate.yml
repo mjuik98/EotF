@@ -36,8 +36,8 @@ jobs:
         with:
           name: dependency-map-${{ github.run_id }}
           path: |
-            docs/metrics/dependency_map.json
-            docs/metrics/dependency_map.md
+            artifacts/dependency_map.json
+            artifacts/dependency_map.md
       - name: Build dependency map PR summary
         if: github.event_name == 'pull_request'
         run: node scripts/ci/dependency-map-pr-summary.mjs --base-sha "${{ github.event.pull_request.base.sha }}" --output .github/depmap-summary.md

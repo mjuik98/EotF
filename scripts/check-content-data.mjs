@@ -3,7 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const ROOT = process.cwd();
-const BASELINE_PATH = path.join(ROOT, 'docs', 'metrics', 'content_data_baseline.json');
+const BASELINE_PATH = path.join(ROOT, 'config', 'quality', 'content_data_baseline.json');
 
 const DOMAIN_RULES = Object.freeze({
   cards: Object.freeze([

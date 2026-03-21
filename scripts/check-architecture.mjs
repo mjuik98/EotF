@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const POLICY_PATH = path.join(ROOT, 'docs', 'architecture_policy.json');
+const POLICY_PATH = path.join(ROOT, 'config', 'architecture_policy.json');
 
 function toPosix(p) {
   return p.split(path.sep).join('/');

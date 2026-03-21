@@ -1,6 +1,6 @@
 # Dependency Map
 
-- Generated: 2026-03-21T02:03:34.102Z
+- Generated: 2026-03-21T02:59:02.038Z
 - Nodes: 1345
 - Edges: 1376
 
@@ -102,5 +102,5 @@
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
 | game/shared/codex/codex_record_state_use_case.js | 8 |
 
-> Full graph is available in `docs/metrics/dependency_map.json`.
+> Full graph is available in `artifacts/dependency_map.json`.
 
