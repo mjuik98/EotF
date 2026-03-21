@@ -1,7 +1,9 @@
 import { registerCardUsed } from '../../../shared/codex/codex_record_state_use_case.js';
 import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
+import { createLegacyGameStateRuntimeFacade } from '../../../shared/state/game_state_runtime_compat.js';
 import { Actions } from '../../../core/store/state_actions.js';
 import { changePlayerEnergyState } from '../state/card_state_commands.js';
+import { drawCardsService } from './card_draw_service.js';
 import {
   consumeNextCardDiscountState,
   incrementCardsPlayedState,
@@ -9,6 +11,50 @@ import {
   restorePlayerHandState,
   setCombatCardPlayLockState,
 } from '../state/commands/combat_card_play_state_commands.js';
+
+function createCardEffectRuntimeFacade(gs, runtimeDeps = {}) {
+  const combatRuntimeFacade = createLegacyGameStateRuntimeFacade(gs);
+
+  return new Proxy(combatRuntimeFacade, {
+    get(target, prop, receiver) {
+      if (
+        prop === 'dealDamage'
+        || prop === 'dealDamageAll'
+        || prop === 'takeDamage'
+        || prop === 'addShield'
+        || prop === 'applyEnemyStatus'
+      ) {
+        const runtimeMethod = Reflect.get(target, prop, receiver);
+        if (typeof runtimeMethod !== 'function') return runtimeMethod;
+
+        return (...args) => {
+          const depsArgIndex = prop === 'dealDamage'
+            ? 4
+            : (prop === 'dealDamageAll' ? 2 : 2);
+          const currentDeps = args[depsArgIndex];
+          const mergedDeps = { ...runtimeDeps, ...(currentDeps || {}) };
+          const nextArgs = [...args];
+          nextArgs[depsArgIndex] = mergedDeps;
+          return runtimeMethod(...nextArgs);
+        };
+      }
+
+      if (prop === 'drawCards') {
+        return (count = 1, options = {}) => drawCardsService({
+          count,
+          gs,
+          options,
+          deps: {
+            getRegionData: runtimeDeps?.getRegionData,
+            runtimeDeps,
+          },
+        });
+      }
+
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+}
 
 export function playCardService({
   cardId,
@@ -78,7 +124,7 @@ export function playCardService({
 
     try {
       gs._currentCard = card;
-      card.effect?.(gs);
+      card.effect?.(createCardEffectRuntimeFacade(gs, runtimeDeps));
     } catch (effectErr) {
       rollbackPlayCost();
       throw effectErr;

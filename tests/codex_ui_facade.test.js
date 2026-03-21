@@ -33,6 +33,23 @@ describe('CodexUI facade', () => {
     };
   }
 
+  it('falls back to the global document when injecting the codex stylesheet', async () => {
+    const originalDocument = globalThis.document;
+    const doc = createDoc();
+    globalThis.document = doc;
+
+    const { CodexUI } = await import('../game/ui/screens/codex_ui.js');
+
+    CodexUI.openCodex({ marker: true });
+
+    expect(doc.head.children).toHaveLength(1);
+    expect(doc.head.children[0].rel).toBe('stylesheet');
+    expect(doc.head.children[0].href).toContain('codex_v3.css');
+    expect(doc.head.children[0].href).not.toBe('/css/codex_v3.css');
+
+    globalThis.document = originalDocument;
+  });
+
   it('delegates modal and render actions to the runtime helper', async () => {
     const { CodexUI } = await import('../game/ui/screens/codex_ui.js');
     const runtime = await import('../game/features/codex/presentation/browser/codex_ui_runtime.js');
@@ -46,7 +63,8 @@ describe('CodexUI facade', () => {
 
     expect(doc.head.children).toHaveLength(1);
     expect(doc.head.children[0].rel).toBe('stylesheet');
-    expect(doc.head.children[0].href).toBe('/css/codex_v3.css');
+    expect(doc.head.children[0].href).toContain('codex_v3.css');
+    expect(doc.head.children[0].href).not.toBe('/css/codex_v3.css');
     expect(runtime.openCodexRuntime).toHaveBeenCalled();
     expect(runtime.closeCodexRuntime).toHaveBeenCalled();
     expect(runtime.setCodexTabRuntime).toHaveBeenCalledWith(expect.any(Object), CodexUI, 'items', deps);

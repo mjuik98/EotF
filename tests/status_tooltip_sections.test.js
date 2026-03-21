@@ -16,14 +16,14 @@ describe('status tooltip sections', () => {
     }, {}, 1);
     const sourceHtml = buildStatusTooltipSourceHTML({
       type: 'enemy',
-      label: 'Enemy',
+      label: '적',
       name: 'Slime',
       color: '#f00',
     });
 
     expect(nextTurnHtml).toContain('test-next-turn');
     expect(nextTurnHtml).toContain('-5');
-    expect(sourceHtml).toContain('Enemy');
+    expect(sourceHtml).toContain('적');
     expect(sourceHtml).toContain('Slime');
   });
 

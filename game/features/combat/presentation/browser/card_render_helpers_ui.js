@@ -1,3 +1,5 @@
+import { getCombatCardTypeLabel } from './combat_copy.js';
+
 export function getCardTypeClass(type) {
   if (!type) return '';
   const normalized = String(type).toLowerCase();
@@ -14,6 +16,10 @@ export function getCardTypeLabelClass(type) {
   if (normalized === 'skill') return 'card-type-skill';
   if (normalized === 'power') return 'card-type-power';
   return '';
+}
+
+export function getCardTypeDisplayLabel(type) {
+  return getCombatCardTypeLabel(type);
 }
 
 export function detectCardTags(card = {}) {

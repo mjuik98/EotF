@@ -1,6 +1,7 @@
 import { StatusTooltipUI } from './status_tooltip_builder.js';
 import { DEBUFF_STATUS_KEYS } from '../../../../../data/status_key_data.js';
 import { getEnemyStatusMeta, getEnemyStatusName } from '../../../../../data/status_effects_data.js';
+import { COMBAT_TEXT } from './combat_copy.js';
 
 export function normalizeEnemyStatusTooltipArgs(statusValueOrDeps = null, deps = {}) {
   const statusValue = typeof statusValueOrDeps === 'number' ? statusValueOrDeps : null;
@@ -24,8 +25,8 @@ export function resolveEnemyStatusTooltipPayload(statusKey) {
     },
     source: {
       type: 'enemy',
-      label: 'Enemy',
-      name: 'Enemy status',
+      label: COMBAT_TEXT.enemyStatusSource.label,
+      name: COMBAT_TEXT.enemyStatusSource.name,
       color: buff ? '#88ccff' : '#ff6688',
     },
   };

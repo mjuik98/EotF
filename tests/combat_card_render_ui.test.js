@@ -72,6 +72,7 @@ describe('combat_card_render_ui', () => {
     expect(el.children.some((child) => child.className === 'card-rarity-strip card-rarity-strip-rare')).toBe(true);
     expect(el.children.some((child) => child.className === 'card-tags')).toBe(true);
     expect(el.children.some((child) => child.className === 'card-particles')).toBe(true);
+    expect(el.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('공격');
 
     rng.mockRestore();
   });
@@ -97,6 +98,8 @@ describe('combat_card_render_ui', () => {
 
     expect(first.children.some((child) => child.className === 'card-no-energy')).toBe(true);
     expect(second.children.some((child) => child.className === 'card-legendary-border')).toBe(true);
+    expect(first.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('스킬');
+    expect(second.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('파워');
     expect(first.style['--fan-rot']).toBeDefined();
     expect(second.style['--fan-lift']).toBeDefined();
   });

@@ -3,7 +3,6 @@ export function registerCardEventSubscribers(ctx) {
 
   subscribeAction('CARD_DRAW', () => {
     ctx.playUiCardAudio?.();
-    ctx.callAction('renderHand');
     ctx.callAction('renderCombatCards');
     ctx.ui.HudUpdateUI?.triggerDrawCardAnimation?.();
   });

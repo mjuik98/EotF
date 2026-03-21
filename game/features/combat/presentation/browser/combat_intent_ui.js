@@ -1,5 +1,6 @@
 import { DescriptionUtils } from '../../../../utils/description_utils.js';
 import { INTENT_DESCRIPTIONS } from '../../../../../data/combat_meta_data.js';
+import { COMBAT_INTENT_LABEL_TRANSLATIONS } from './combat_copy.js';
 
 let _intentTipTimer = null;
 
@@ -9,6 +10,12 @@ function _getDoc(deps) {
 
 function _getWin(deps) {
   return deps?.win || window;
+}
+
+function localizeEnemyIntentLabel(text) {
+  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return '?';
+  return COMBAT_INTENT_LABEL_TRANSLATIONS[normalized.toLowerCase()] || normalized;
 }
 
 export function getEnemyIntentIcon(intent) {
@@ -31,12 +38,12 @@ export function getEnemyIntentIcon(intent) {
 
 export function formatEnemyIntentLabel(intent) {
   if (typeof intent?.intent === 'function') {
-    return 'Intent pending';
+    return '행동 준비 중';
   }
 
   let text = String(intent?.intent || '?');
   if ((intent?.dmg || 0) > 0) {
-    if (/^\d+$/.test(text.trim())) return 'Attack';
+    if (/^\d+$/.test(text.trim())) return '공격';
     const dmgPattern = new RegExp(`\\s+${intent.dmg}$`);
     if (dmgPattern.test(text)) {
       text = text.replace(dmgPattern, '').trim();
@@ -44,7 +51,7 @@ export function formatEnemyIntentLabel(intent) {
   }
 
   text = text.replace(/damage/gi, '').trim();
-  return DescriptionUtils.highlight(text);
+  return DescriptionUtils.highlight(localizeEnemyIntentLabel(text));
 }
 
 export function resolveEnemyIntentDescription(intent) {
@@ -54,15 +61,18 @@ export function resolveEnemyIntentDescription(intent) {
   }
   if ((intent?.dmg || 0) > 0) return INTENT_DESCRIPTIONS.attack;
 
-  const rawLabel = String(intent?.intent || intent?.type || 'Intent')
+  const rawLabel = String(intent?.intent || intent?.type || '행동')
     .replace(/<[^>]*>/g, '')
     .trim();
-  return { type: rawLabel || 'Intent', desc: 'The enemy is preparing its next action.' };
+  return {
+    type: localizeEnemyIntentLabel(rawLabel || '행동'),
+    desc: '적이 다음 행동을 준비하고 있습니다.',
+  };
 }
 
 export function resolveEnemyIntent(enemy, turn) {
   if (enemy?.statusEffects?.stunned > 0) {
-    return { type: 'stunned', intent: 'Stunned', dmg: 0, effect: 'stunned' };
+    return { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
   }
 
   try {
@@ -118,7 +128,7 @@ export function showEnemyIntentTooltip(event, enemyIdx, deps = {}) {
   if ((intent.dmg || 0) > 0) {
     const dmg = doc.createElement('div');
     dmg.className = 'itt-dmg';
-    dmg.textContent = `Expected damage: ${String(intent.dmg)}`;
+    dmg.textContent = `예상 피해: ${String(intent.dmg)}`;
     el.appendChild(dmg);
   }
 

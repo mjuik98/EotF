@@ -79,6 +79,7 @@ describe('card_clone_render_ui', () => {
     expect(clone.children.some((child) => child.className === 'card-clone-tags')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-particles')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-clone-arrow')).toBe(true);
+    expect(clone.children.find((child) => String(child.className).includes('card-clone-type'))?.textContent).toBe('공격');
 
     rng.mockRestore();
   });

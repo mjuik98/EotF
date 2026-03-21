@@ -145,7 +145,7 @@ describe('hud_panel_runtime_helpers', () => {
       data: { items: {} },
     });
 
-    expect(itemSlots.children[0].textContent).toBe('Empty');
+    expect(itemSlots.children[0].textContent).toBe('비어 있음');
     expect(setBonusPanel.style.display).toBe('block');
     expect(setBonusPanel.children[0].children[0].textContent).toBe('Echo Set [2/3]');
   });
@@ -172,9 +172,9 @@ describe('hud_panel_runtime_helpers', () => {
     });
 
     expect(modEl.children).toHaveLength(2);
-    expect(modEl.children[0].children[0].textContent).toBe('Ascension 3');
-    expect(modEl.children[0].children[1].textContent).toBe('Endless Mode');
-    expect(modEl.children[1].children[0].textContent).toContain('Inscriptions 1: Alpha');
+    expect(modEl.children[0].children[0].textContent).toBe('승천 3');
+    expect(modEl.children[0].children[1].textContent).toBe('무한 모드');
+    expect(modEl.children[1].children[0].textContent).toContain('각인 1: Alpha');
     expect(modEl.children[1].children[1].textContent).toBe('Doom');
   });
 
@@ -206,7 +206,8 @@ describe('hud_panel_runtime_helpers', () => {
 
     expect(endBtn.classList.contains('energy-warn')).toBe(true);
     expect(echoBtn.disabled).toBe(false);
-    expect(echoBtn.textContent).toContain('Echo Skill (45/60)');
+    expect(echoBtn.textContent).toContain('잔향 스킬');
+    expect(echoBtn.textContent).toContain('45/60');
     expect(drawBtn.disabled).toBe(false);
   });
 });

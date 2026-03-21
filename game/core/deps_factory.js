@@ -33,10 +33,16 @@ export function patchRefs(partial) {
   });
 }
 
-export const DepContracts = getContractCatalog().listDepContracts();
+export const DepContracts = new Proxy([], {
+  get(_target, prop) {
+    const contracts = getContractCatalog().listDepContracts();
+    const value = Reflect.get(contracts, prop);
+    return typeof value === 'function' ? value.bind(contracts) : value;
+  },
+});
 
 export function listDepContracts() {
-  return [...DepContracts];
+  return [...getContractCatalog().listDepContracts()];
 }
 
 export function createDeps(contractName, overrides = {}) {

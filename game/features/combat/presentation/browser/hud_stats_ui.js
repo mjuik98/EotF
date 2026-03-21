@@ -1,4 +1,10 @@
-import { getEchoTierWindow, getHpBarGradient, setActionButtonLabel } from './hud_render_helpers.js';
+import {
+  applyCombatDrawButtonCopy,
+  formatEchoSkillButtonText,
+  getEchoTierWindow,
+  getHpBarGradient,
+  setActionButtonLabel,
+} from './hud_render_helpers.js';
 import { DomValueUI } from './dom_value_ui.js';
 import { getDoc } from '../../../../utils/runtime_deps.js';
 import { resolveDrawAvailability } from './draw_availability.js';
@@ -46,15 +52,7 @@ export function updateCombatEnergyUI(gs, deps = {}) {
   const drawBtn = doc.getElementById('combatDrawCardBtn');
   if (drawBtn && gs.combat?.active) {
     const drawState = resolveDrawAvailability(gs);
-    if (!drawState.playerTurn) {
-      setActionButtonLabel(drawBtn, '적 턴', 'Q');
-    } else if (drawState.handFull) {
-      setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-    } else if (!drawState.hasEnergy) {
-      setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
-    } else {
-      setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
-    }
+    applyCombatDrawButtonCopy(drawBtn, drawState, 'Q');
     drawBtn.disabled = !drawState.canDraw;
     drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
   }
@@ -141,16 +139,15 @@ export function updatePlayerStatsUI(gs, deps = {}) {
     if (echoBtn) {
       const echo = Math.floor(p.echo);
       const tier = echo >= 100 ? 3 : echo >= 60 ? 2 : echo >= 30 ? 1 : 0;
-      const nextTarget = echo < 30 ? 30 : (echo < 60 ? 60 : 100);
 
       if (tier === 0) {
         echoBtn.disabled = true;
         echoBtn.style.opacity = '0.45';
-        setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/${nextTarget})`, 'E');
+        setActionButtonLabel(echoBtn, formatEchoSkillButtonText(echo), 'E');
       } else {
         echoBtn.disabled = false;
         echoBtn.style.opacity = '1';
-        setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 ✦(${echo}/${nextTarget})`, 'E');
+        setActionButtonLabel(echoBtn, formatEchoSkillButtonText(echo), 'E');
       }
     }
   }

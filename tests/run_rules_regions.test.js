@@ -23,5 +23,6 @@ describe('RunRules region helpers', () => {
     expect(region).not.toBeNull();
     expect(region._endlessCycle).toBe(1);
     expect(region._baseRegion).toBeGreaterThanOrEqual(0);
+    expect(region.name).toContain('· 순환 2');
   });
 });

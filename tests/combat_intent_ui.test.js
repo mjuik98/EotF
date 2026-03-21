@@ -149,8 +149,8 @@ describe('combat_intent_ui', () => {
     expect(tooltip.classList.contains('visible')).toBe(true);
     expect(tooltip.style.left).toBe('696px');
     expect(tooltip.style.top).toBe('446px');
-    expect(tooltip.querySelector('.itt-title')?.innerHTML).toBe('!! Attack');
-    expect(tooltip.querySelector('.itt-dmg')?.textContent).toBe('Expected damage: 12');
+    expect(tooltip.querySelector('.itt-title')?.innerHTML).toBe('!! 공격');
+    expect(tooltip.querySelector('.itt-dmg')?.textContent).toBe('예상 피해: 12');
   });
 
   it('schedules intent tooltip hide and clears stale tooltips when hover anchor is gone', () => {
@@ -175,8 +175,8 @@ describe('combat_intent_ui', () => {
     expect(resolveEnemyIntent({
       ai: () => ({ type: 'heal', intent: 'Heal', dmg: 0 }),
       statusEffects: { stunned: 1 },
-    }, 3)).toEqual({ type: 'stunned', intent: 'Stunned', dmg: 0, effect: 'stunned' });
+    }, 3)).toEqual({ type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' });
 
-    expect(formatEnemyIntentLabel({ intent: 'Attack 18', dmg: 18 })).toBe('Attack');
+    expect(formatEnemyIntentLabel({ intent: 'Attack 18', dmg: 18 })).toBe('공격');
   });
 });

@@ -104,6 +104,7 @@ describe('deck_modal_render_ui', () => {
     });
     expect(cardsEl.children).toHaveLength(1);
     expect(cardsEl.children[0].children.some((child) => child.className === 'card-location-tag')).toBe(true);
+    expect(cardsEl.children[0].children.at(-1)?.textContent).toBe('공격');
 
     applyDeckFilterButtonStyles(doc, 'ATTACK');
     expect(attackBtn.style.background).toBe('rgba(255,80,100,0.2)');

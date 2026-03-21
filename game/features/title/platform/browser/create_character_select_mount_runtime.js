@@ -130,9 +130,9 @@ export function createCharacterSelectMountRuntime(options = {}) {
       maxLevel: presentation.maxLevel,
       resolveById: getById,
       doc,
-      traitBadgeText: `??${ch.traitName}`,
+      traitBadgeText: ch.traitName,
       xpText: progress.nextLevelXp === null
-        ? `MAX LEVEL 쨌 ${progress.totalXp} XP`
+        ? `MAX LEVEL · ${progress.totalXp} XP`
         : `${progress.totalXp} / ${progress.nextLevelXp} XP`,
       loadoutSummaryText: customization.hasInvalidPreset ? '' : customization.cardSummaryLine,
       loadoutWarningText: customization.hasInvalidPreset ? '프리셋 확인 필요' : '',

@@ -114,38 +114,7 @@ export const CardUI = {
   },
 
   renderHand(deps = {}) {
-    const gs = deps.gs;
-    const data = deps.data;
-    if (!gs?.player?.hand || !data?.cards) return;
-
-    const doc = _getDoc(deps);
-    const zone = doc.getElementById('handCards');
-    if (!zone) return;
-
-    const playCardHandler = deps.playCardHandler;
-    const renderCombatCardsHandler = deps.renderCombatCardsHandler;
-
-    zone.textContent = '';
-    gs.player.hand.forEach((cardId, i) => {
-      const card = data.cards[cardId];
-      if (!card) return;
-
-      const el = doc.createElement('div');
-      el.className = `card rarity-${card.rarity || 'common'}`;
-      el.title = card.desc;
-
-      el.addEventListener('click', () => {
-        if (playCardHandler) playCardHandler(cardId, i);
-        if (renderCombatCardsHandler) renderCombatCardsHandler();
-      });
-
-      const cost = doc.createElement('div'); cost.className = 'card-cost'; cost.textContent = card.cost;
-      const icon = doc.createElement('div'); icon.className = 'card-icon'; icon.textContent = card.icon;
-      const name = doc.createElement('div'); name.className = 'card-name'; name.textContent = card.name;
-      const type = doc.createElement('div'); type.className = 'card-type'; type.textContent = card.type;
-      el.append(cost, icon, name, type);
-      zone.appendChild(el);
-    });
+    this.renderCombatCards(deps);
   },
 
   updateHandFanEffect(deps = {}) {

@@ -1,6 +1,11 @@
 import { DescriptionUtils } from '../../../../utils/description_utils.js';
 import { DomSafe } from '../../../../utils/dom_safe.js';
 import { UNBREAKABLE_WALL_STACK_UNIT } from '../../../../../data/status_key_data.js';
+import {
+  COMBAT_KEYWORD_MAP,
+  getCombatCardTypeLabel,
+  getCombatKeywordTooltip,
+} from './combat_copy.js';
 
 function isUnbreakableWallCard(cardId) {
   return cardId === 'unbreakable_wall' || cardId === 'unbreakable_wall_plus';
@@ -32,33 +37,12 @@ export function buildUnbreakableWallCardTooltip(cardId, gs) {
   return `<br><br>\uD604\uC7AC \uC911\uCCA9: ${currentHits}\uD68C \uBC1C\uB3D9<br>\uC0AC\uC6A9 \uD6C4 \uC608\uC0C1: ${nextHits}\uD68C \uBC1C\uB3D9<br>\uD604\uC7AC \uBC29\uC5B4\uB9C9(${safeShield}) \uAE30\uC900: 1\uD68C ${perHit}, \uCD1D ${total} \uD53C\uD574`;
 }
 
-const KEYWORD_MAP = {
-  '[소진]': { title: '소진 (Exhaust)', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },
-  '[지속]': { title: '지속 (Persistent)', text: '전투가 끝날 때까지 계속 효과가 발동되는 능력 카드입니다.' },
-  '[즉시]': { title: '즉시 (Instant)', text: '사용 즉시 발동되는 강력한 일회성 효과입니다.' },
-  '잔향': { title: '잔향 (Echo)', text: '특수 능력을 발동하는 에너지 자원. 0~100 사이를 유지하며, 게이지에 따라 효과가 달라집니다.' },
-  '연쇄': { title: '연쇄 (Chain)', text: '연속 공격 횟수를 나타냅니다. 5회 이상 쌓이면 다음 공격에 추가 피해가 적용됩니다.' },
-  '침묵': { title: '침묵 (Silence)', text: '침묵사냥꾼 전용 게이지. 최대치(10) 도달 시 다음 공격이 대폭 강화됩니다.' },
-  '약화': { title: '약화 (Weakened)', text: '대상의 공격력이 50% 감소합니다. 지속 시간이 만료되면 해제됩니다.' },
-  '기절 면역': { title: '기절 면역 (Stun Immunity)', text: '적의 기절 효과를 지정된 횟수만큼 완전히 무효화합니다.' },
-  '기절': { title: '기절 (Stunned)', text: '다음 턴에 행동하지 못합니다. 기절 턴에는 공격과 방어 모두 불가합니다.' },
-  '독': { title: '독 (Poison)', text: '중독된 대상의 턴 시작 시 독 스택 × 5 피해를 입힙니다. 매 턴 독 스택이 1씩 감소합니다.' },
-  '화염': { title: '화염 (Burning)', text: '매 턴 시작 시 피해 5를 입습니다. 지속 시간이 끝나면 소멸합니다.' },
-  '처형 표식': { title: '처형 표식 (Death Mark)', text: '3턴 후 표식이 폭발하여 피해 30을 입힙니다. 시간이 얼마 남지 않았을 때 더욱 위험합니다.' },
-  '면역': { title: '면역 (Immune)', text: '모든 피해와 상태이상을 완전히 무효화합니다. 지속 시간 동안 무적 상태입니다.' },
-  '회피': { title: '회피 (Dodge)', text: '다음 적의 공격 1회를 완전히 무효화합니다. 회피 후 즉시 소모됩니다.' },
-  '은신': { title: '은신 (Stealth)', text: '다음에 사용하는 공격 카드가 치명타로 적중합니다. 공격 즉시 은신이 해제됩니다.' },
-  '반사': { title: '반사 (Reflect)', text: '피해를 받을 때 해당 피해를 공격자에게 되돌립니다.' },
-  '시간 왜곡': { title: '시간 왜곡 (Time Warp)', text: '매 턴 시작 시 에너지를 1 추가로 획득합니다. 전투가 끝날 때까지 지속됩니다.' },
-  '드로우': { title: '드로우 (Draw)', text: '덱에서 카드를 손패로 가져옵니다. 덱이 비면 소모 더미를 섞어 새 덱을 만듭니다.' },
-};
-
 export function renderCardTooltipContent(doc, card, gs, options = {}) {
   const { cardId = '' } = options;
   doc.getElementById('ttIcon').textContent = card.icon;
   doc.getElementById('ttCost').textContent = card.cost;
   doc.getElementById('ttName').textContent = card.name;
-  doc.getElementById('ttType').textContent = card.type;
+  doc.getElementById('ttType').textContent = getCombatCardTypeLabel(card.type);
 
   const desc = `${card.desc || ''}${buildUnbreakableWallCardTooltip(cardId, gs)}`;
   DomSafe.setHighlightedText(doc.getElementById('ttDesc'), desc);
@@ -123,14 +107,18 @@ export function syncCardKeywordTooltip(doc, card, position, win) {
   const subTooltip = doc.getElementById('subTooltip');
   if (!subTooltip) return null;
 
-  const sortedKeys = Object.keys(KEYWORD_MAP).sort((a, b) => b.length - a.length);
+  const sortedKeys = Object.keys(COMBAT_KEYWORD_MAP).sort((a, b) => b.length - a.length);
   const foundKeyword = sortedKeys.find((keyword) => card.desc?.includes(keyword) || (card.exhaust && keyword === '[소진]'));
   if (!foundKeyword) {
     subTooltip.style.display = 'none';
     return null;
   }
 
-  const keywordData = KEYWORD_MAP[foundKeyword];
+  const keywordData = getCombatKeywordTooltip(foundKeyword);
+  if (!keywordData) {
+    subTooltip.style.display = 'none';
+    return null;
+  }
   doc.getElementById('stTitle').textContent = keywordData.title;
   doc.getElementById('stContent').textContent = keywordData.text;
 

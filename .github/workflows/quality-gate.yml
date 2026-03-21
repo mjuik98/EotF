@@ -27,6 +27,26 @@ jobs:
       - run: npm run lint
       - run: npm run test:coverage
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Run combat UI smoke
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/combat-ui-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          cleanup() {
+            if kill -0 "$PREVIEW_PID" 2>/dev/null; then
+              kill "$PREVIEW_PID"
+              wait "$PREVIEW_PID" || true
+            fi
+          }
+          trap cleanup EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173 >/dev/null
+          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:combat-ui
       - run: npm run deps:map
       - name: Check dependency map delta thresholds
         if: github.event_name == 'pull_request'

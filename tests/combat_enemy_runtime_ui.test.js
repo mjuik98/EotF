@@ -72,7 +72,7 @@ describe('combat_enemy_runtime_ui', () => {
       index: 2,
       enemy: { hp: 12, maxHp: 40, shield: 3 },
       hpPct: 30,
-      hpText: '12 / 40 (Shield 3)',
+      hpText: '12 / 40 (방어막 3)',
       hpBarBackground: expect.any(String),
     });
   });

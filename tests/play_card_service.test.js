@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { playCardService } from '../game/app/combat/play_card_service.js';
+import { Actions } from '../game/core/store/state_actions.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
 
 function createLogger() {
@@ -19,6 +20,7 @@ function createState(cardId) {
       class: 'guardian',
       energy: 3,
       hand: [cardId],
+      deck: ['drawn_card'],
       graveyard: [],
       exhausted: [],
       _nextCardDiscount: 0,
@@ -26,6 +28,7 @@ function createState(cardId) {
       _traitCardDiscounts: {},
       costDiscount: 0,
       zeroCost: false,
+      echo: 0,
       echoChain: 0,
       silenceGauge: 0,
     },
@@ -33,20 +36,55 @@ function createState(cardId) {
       active: true,
       playerTurn: true,
       _isPlayingCard: false,
+      enemies: [{
+        name: 'Training Dummy',
+        hp: 20,
+        shield: 0,
+        statusEffects: {},
+        ai: () => ({ dmg: 0 }),
+      }],
     },
     stats: {
       cardsPlayed: 0,
+      damageDealt: 0,
     },
     dispatch(action, payload) {
-      if (action === 'player:energy') {
+      if (action === Actions.PLAYER_ENERGY) {
         this.player.energy = Math.max(0, this.player.energy + Number(payload.amount || 0));
         return { energyAfter: this.player.energy };
+      }
+      if (action === Actions.CARD_DRAW) {
+        const attempts = Math.max(0, Number(payload.count || 0));
+        for (let i = 0; i < attempts; i += 1) {
+          const nextCard = this.player.deck.shift();
+          if (!nextCard) break;
+          this.player.hand.push(nextCard);
+        }
+        return { attempts };
+      }
+      if (action === Actions.ENEMY_DAMAGE) {
+        const enemy = this.combat.enemies[payload.targetIdx];
+        const amount = Number(payload.amount || 0);
+        enemy.hp = Math.max(0, enemy.hp - amount);
+        this.stats.damageDealt += amount;
+        return {
+          actualDamage: amount,
+          totalDamage: amount,
+          shieldAbsorbed: 0,
+          hpAfter: enemy.hp,
+          isDead: enemy.hp <= 0,
+          targetIdx: payload.targetIdx,
+        };
       }
       return {};
     },
     addSilence(amount) {
       this.player.silenceGauge += amount;
     },
+    addEcho(amount) {
+      this.player.echo += Number(amount || 0);
+    },
+    addLog: vi.fn(),
     markDirty: vi.fn(),
     triggerItems: vi.fn(),
     bus: {
@@ -115,5 +153,57 @@ describe('play_card_service', () => {
     expect(gs.stats.cardsPlayed).toBe(0);
     expect(gs.combat._isPlayingCard).toBe(false);
     expect(logger.error).toHaveBeenCalled();
+  });
+
+  it('executes card effects through a compat runtime facade without mutating canonical GS helpers', () => {
+    const cardId = 'runtime_facade_card';
+    const gs = createState(cardId);
+    const logger = createLogger();
+    const observed = {};
+
+    const result = playCardService({
+      cardId,
+      handIdx: 0,
+      gs,
+      card: {
+        id: cardId,
+        name: 'Runtime Facade Card',
+        cost: 1,
+        effect: (runtimeGs) => {
+          observed.sameReference = runtimeGs === gs;
+          observed.dealDamageType = typeof runtimeGs.dealDamage;
+          observed.drawCardsType = typeof runtimeGs.drawCards;
+
+          if (typeof runtimeGs.dealDamage === 'function') {
+            runtimeGs.dealDamage(4, 0);
+          }
+          if (typeof runtimeGs.drawCards === 'function') {
+            runtimeGs.drawCards(1);
+          }
+        },
+      },
+      cardCostUtils: CardCostUtils,
+      classMechanics: {},
+      discardCard: vi.fn(),
+      logger,
+      audioEngine: {},
+      runtimeDeps: {
+        getRegionData: () => ({ id: 1 }),
+        renderCombatCards: vi.fn(),
+        updateChainDisplay: vi.fn(),
+      },
+      hudUpdateUI: { processDirtyFlags: vi.fn() },
+    });
+
+    expect(result).toBe(true);
+    expect(observed.sameReference).toBe(false);
+    expect(observed.dealDamageType).toBe('function');
+    expect(observed.drawCardsType).toBe('function');
+    expect(logger.error).not.toHaveBeenCalled();
+    expect(gs.dealDamage).toBeUndefined();
+    expect(gs.drawCards).toBeUndefined();
+    expect(gs.combat.enemies[0].hp).toBe(16);
+    expect(gs.player.hand).toEqual(['drawn_card']);
+    expect(gs.stats.damageDealt).toBe(4);
   });
 });

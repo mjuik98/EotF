@@ -1,5 +1,6 @@
 import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
 import { DECK_MODAL_RARITY_BORDER_COLORS } from '../../../../../data/ui_rarity_styles.js';
+import { getCardTypeDisplayLabel } from './card_render_helpers_ui.js';
 
 function getTypeColor(type, upgraded) {
   if (upgraded) return 'var(--cyan)';
@@ -141,7 +142,8 @@ export function renderDeckModalCards(doc, cardsEl, entries, options = {}) {
 
     const type = doc.createElement('div');
     type.style.cssText = `font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;color:${typeColor};margin-top:8px;font-weight:bold;`;
-    type.textContent = card.upgraded ? `${card.type} ✦` : card.type;
+    const typeLabel = getCardTypeDisplayLabel(card.type);
+    type.textContent = card.upgraded ? `${typeLabel} ✦` : typeLabel;
     el.appendChild(type);
 
     cardsEl.appendChild(el);

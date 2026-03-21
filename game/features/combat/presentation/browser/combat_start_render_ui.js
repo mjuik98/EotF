@@ -1,4 +1,8 @@
-import { setActionButtonLabel } from './hud_render_helpers.js';
+import {
+  applyCombatDrawButtonCopy,
+  formatEchoSkillButtonText,
+  setActionButtonLabel,
+} from './hud_render_helpers.js';
 
 export function resetCombatStartDom(doc) {
   const logContainer = doc?.getElementById?.('combatLog');
@@ -93,23 +97,7 @@ export function syncCombatDrawButton(drawBtn, drawState) {
 
   drawBtn.disabled = !drawState.canDraw;
   drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
-
-  if (!drawState.inCombat) {
-    setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
-    drawBtn.title = '전투 중에만 사용할 수 있습니다.';
-  } else if (!drawState.playerTurn) {
-    setActionButtonLabel(drawBtn, '적 턴', 'Q');
-    drawBtn.title = '적 턴에는 카드를 뽑을 수 없습니다.';
-  } else if (drawState.handFull) {
-    setActionButtonLabel(drawBtn, '손패 가득 참', 'Q');
-    drawBtn.title = `손패가 가득 찼습니다 (최대 ${drawState.maxHand}장)`;
-  } else if (!drawState.hasEnergy) {
-    setActionButtonLabel(drawBtn, '에너지 부족', 'Q');
-    drawBtn.title = '카드를 드로우하려면 에너지 1이 필요합니다.';
-  } else {
-    setActionButtonLabel(drawBtn, '🃏 카드 드로우 (1 에너지)', 'Q');
-    drawBtn.title = '카드 1장을 드로우합니다 (에너지 1).';
-  }
+  applyCombatDrawButtonCopy(drawBtn, drawState, 'Q');
 
   return drawBtn;
 }
@@ -126,7 +114,7 @@ export function syncCombatEchoButton(echoBtn, echoVal, deps = {}, gs = null) {
       deps.updateEchoSkillBtn({ ...deps, gs });
     }
   } else {
-    setActionButtonLabel(echoBtn, `⚡ 잔향 스킬 (${echoVal}/30)`, 'E');
+    setActionButtonLabel(echoBtn, formatEchoSkillButtonText(echoVal), 'E');
   }
 
   return echoBtn;

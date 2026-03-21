@@ -155,6 +155,7 @@ describe('combat_enemy_card_renderers_ui', () => {
 
     appendEnemySelectionLabel(card, doc, '>>');
     expect(card.querySelector('.target-label-anim')).not.toBeNull();
+    expect(card.querySelector('.target-label-anim')?.children[1].textContent).toBe('대상');
 
     syncEnemySelectionState({
       card,
@@ -163,6 +164,7 @@ describe('combat_enemy_card_renderers_ui', () => {
       selectedMarkerText: '>>',
     });
     expect(card.classList.contains('selected-target')).toBe(true);
+    expect(card.querySelector('.target-label-anim')?.children[1].textContent).toBe('대상');
 
     syncEnemyPreviewState({ card, doc, previewText: '6 dmg' });
     expect(card.querySelector('.enemy-dmg-preview')?.textContent).toBe('6 dmg');

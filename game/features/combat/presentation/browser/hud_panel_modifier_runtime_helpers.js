@@ -1,3 +1,5 @@
+import { COMBAT_TEXT } from './combat_copy.js';
+
 export function updateRunModifierPanel({ gs, deps, doc }) {
   const modEl = doc.getElementById('hudRunModifiers');
   if (!modEl) return;
@@ -12,13 +14,13 @@ export function updateRunModifierPanel({ gs, deps, doc }) {
   if (asc > 0) {
     const ascDiv = doc.createElement('div');
     ascDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--danger); letter-spacing:0.1em; background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
-    ascDiv.textContent = `Ascension ${asc}`;
+    ascDiv.textContent = `${COMBAT_TEXT.runModifiers.ascension} ${asc}`;
     topCont.appendChild(ascDiv);
   }
   if (endless) {
     const endDiv = doc.createElement('div');
     endDiv.style.cssText = "font-family:'Cinzel',serif; font-size:10px; color:var(--cyan); letter-spacing:0.1em; background:rgba(0,255,204,0.1); border:1px solid rgba(0,255,204,0.2); border-radius:4px; padding:4px 8px; display:inline-block;";
-    endDiv.textContent = 'Endless Mode';
+    endDiv.textContent = COMBAT_TEXT.runModifiers.endless;
     topCont.appendChild(endDiv);
   }
   modEl.appendChild(topCont);
@@ -43,8 +45,8 @@ export function updateRunModifierPanel({ gs, deps, doc }) {
     inscDiv.style.cssText = 'font-size:11px; color:var(--echo-bright); background:rgba(123,47,255,0.08); border-radius:4px; padding:3px 8px; border:1px solid rgba(123,47,255,0.15); cursor:help;';
     inscDiv.title = previewNames.join(', ');
     inscDiv.textContent = remaining > 0
-      ? `Inscriptions ${activeInscriptions.length}: ${previewNames.join(', ')} +${remaining}`
-      : `Inscriptions ${activeInscriptions.length}${previewNames.length ? `: ${previewNames.join(', ')}` : ''}`;
+      ? `${COMBAT_TEXT.runModifiers.inscriptions} ${activeInscriptions.length}: ${previewNames.join(', ')} +${remaining}`
+      : `${COMBAT_TEXT.runModifiers.inscriptions} ${activeInscriptions.length}${previewNames.length ? `: ${previewNames.join(', ')}` : ''}`;
     midCont.appendChild(inscDiv);
   }
 

@@ -151,8 +151,8 @@ describe('updateHudPanels draw button state', () => {
     });
 
     expect(drawBtn.disabled).toBe(true);
-    expect(drawBtn.textContent).toContain('Turn Locked');
-    expect(drawBtn.title).toBe('Cannot draw cards during the enemy turn.');
+    expect(drawBtn.textContent).toContain('적 턴');
+    expect(drawBtn.title).toBe('적 턴에는 카드를 뽑을 수 없습니다.');
   });
 
   it('shows Hand Full state when the hand reaches the max size', () => {
@@ -162,8 +162,8 @@ describe('updateHudPanels draw button state', () => {
 
     expect(drawBtn.disabled).toBe(true);
     expect(drawBtn.classList.contains('hand-full')).toBe(true);
-    expect(drawBtn.textContent).toContain('Hand Full');
-    expect(drawBtn.title).toBe('Your hand is full (max 8).');
+    expect(drawBtn.textContent).toContain('손패 가득 참');
+    expect(drawBtn.title).toBe('손패가 가득 찼습니다 (최대 8장)');
   });
 
   it('shows No Energy state when the player turn is active but energy is missing', () => {
@@ -173,8 +173,8 @@ describe('updateHudPanels draw button state', () => {
 
     expect(drawBtn.disabled).toBe(true);
     expect(drawBtn.classList.contains('hand-full')).toBe(false);
-    expect(drawBtn.textContent).toContain('No Energy');
-    expect(drawBtn.title).toBe('Drawing a card costs 1 energy.');
+    expect(drawBtn.textContent).toContain('에너지 부족');
+    expect(drawBtn.title).toBe('카드를 드로우하려면 에너지 1이 필요합니다.');
   });
 
   it('shows the normal draw CTA when drawing is available', () => {
@@ -183,7 +183,7 @@ describe('updateHudPanels draw button state', () => {
     });
 
     expect(drawBtn.disabled).toBe(false);
-    expect(drawBtn.textContent).toContain('Draw Card (1 Energy)');
-    expect(drawBtn.title).toBe('Draw 1 card for 1 energy.');
+    expect(drawBtn.textContent).toContain('카드 드로우 (1 에너지)');
+    expect(drawBtn.title).toBe('카드 1장을 드로우합니다 (에너지 1).');
   });
 });

@@ -8753,7 +8753,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   }
 }
 
-/* ?�멸 */
+/* 제거 애니메이션 */
 .hud-status-badge.badge-removing {
   animation: badgeExit 0.26s ease forwards;
   pointer-events: none;
@@ -8766,10 +8766,10 @@ body:has(#combatOverlay.active) .panel-bottom {
   }
 }
 
-/* ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═
-   [개선 7] ?�각 ?�근????border-style 분기
-   ?�버??= ?�선(solid), 버프 = ?�선(dashed), ?�수 = ?�중??double)
-   ?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═?�═ */
+/* ═══════════════════════════════════════════════════════════════
+   [개선 7] 상태 효과 배지 border-style 분기
+   디버프 = 실선(solid), 버프 = 점선(dashed), 영구 = 이중선(double)
+   ═══════════════════════════════════════════════════════════════ */
 
 .hud-status-badge.status-debuff {
   border-style: solid;
@@ -8795,7 +8795,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   color: #c4b5fd;
 }
 
-/* ?�???�디케?�터 �?(배�? 좌측) */
+/* 상태 인디케이터 바 (배지 좌측) */
 .hud-status-badge {
   position: relative;
 }
@@ -8835,7 +8835,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   }
 }
 
-/* ?�버 */
+/* 호버 */
 .hud-status-badge:hover {
   filter: brightness(1.28);
   transform: translateY(-1px);

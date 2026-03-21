@@ -1,4 +1,6 @@
-export function appendEnemySelectionLabel(card, doc, markerText = '', targetText = 'TARGET') {
+import { COMBAT_TEXT } from './combat_copy.js';
+
+export function appendEnemySelectionLabel(card, doc, markerText = '', targetText = COMBAT_TEXT.targetLabel) {
   const targetLabel = doc.createElement('div');
   targetLabel.className = 'target-label-anim';
   const marker = doc.createElement('span');
@@ -122,7 +124,7 @@ export function syncEnemySelectionState({
       const marker = doc.createElement('span');
       marker.textContent = selectedMarkerText;
       const text = doc.createElement('span');
-      text.textContent = 'TARGET';
+      text.textContent = COMBAT_TEXT.targetLabel;
 
       labelEl.append(marker, text);
       card.prepend(labelEl);

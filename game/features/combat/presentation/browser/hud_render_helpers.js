@@ -1,3 +1,8 @@
+import {
+    COMBAT_TEXT,
+    getCombatDrawCopy,
+} from './combat_copy.js';
+
 export function clampPct(value) {
     return Math.max(0, Math.min(100, Number(value) || 0));
 }
@@ -24,7 +29,18 @@ export function getEchoTierWindow(echoValue) {
 
 export function formatEchoSkillButtonText(echoValue) {
     const stageInfo = getEchoSkillStage(echoValue);
-    return `\u26A1 \uC794\uD5A5 \uC2A4\uD0AC \u2726(${stageInfo.echo}/${stageInfo.goal})`;
+    return `${COMBAT_TEXT.echoSkillLabel}(${stageInfo.echo}/${stageInfo.goal})`;
+}
+
+export function getCombatDrawButtonCopy(drawState = {}) {
+    return getCombatDrawCopy(drawState);
+}
+
+export function applyCombatDrawButtonCopy(button, drawState, hint = 'Q') {
+    if (!button) return;
+    const { label, title } = getCombatDrawButtonCopy(drawState);
+    setActionButtonLabel(button, label, hint);
+    button.title = title;
 }
 
 export function setActionButtonLabel(button, label, hint) {

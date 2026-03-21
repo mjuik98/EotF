@@ -157,23 +157,30 @@ describe('card_ui', () => {
     globalThis.CardCostUtils = prevCardCostUtils;
   });
 
-  it('does not fall back to global renderCombatCards in hand view', () => {
-    const prevRenderCombatCards = globalThis.renderCombatCards;
-    globalThis.renderCombatCards = vi.fn();
-
+  it('reuses combat hand rendering for the compatibility renderHand entrypoint', () => {
     const doc = createDoc();
     const playCardHandler = vi.fn();
-    const gs = { player: { hand: ['strike'] } };
-    const data = { cards: { strike: { cost: 1, desc: 'desc', icon: 'S', name: 'Strike', type: 'ATTACK' } } };
+    const cardCostUtils = {
+      getCostDisplay: vi.fn(() => ({ displayCost: 1 })),
+      calcEffectiveCost: vi.fn(() => 1),
+      hasTraitDiscount: vi.fn(() => false),
+      isCascadeFree: vi.fn(() => false),
+      isChargeFree: vi.fn(() => false),
+    };
+    const gs = { player: { hand: ['strike'], energy: 2, _nextCardDiscount: 0, costDiscount: 0 } };
+    const data = { cards: { strike: { cost: 1, desc: 'desc', icon: 'S', name: 'Strike', rarity: 'common', type: 'ATTACK' } } };
 
-    CardUI.renderHand({ data, doc, gs, playCardHandler });
+    CardUI.renderHand({ cardCostUtils, data, doc, gs, playCardHandler });
 
-    const cardEl = doc.getElementById('handCards').children[0];
-    cardEl.listeners.get('click')();
+    expect(createCombatCardElementSpy).toHaveBeenCalledWith(doc, expect.objectContaining({
+      cardId: 'strike',
+      displayCost: 1,
+    }));
+
+    const cardEl = doc.getElementById('combatHandCards').children[0];
+    cardEl.listeners.get('click')({ stopPropagation: vi.fn() });
 
     expect(playCardHandler).toHaveBeenCalledWith('strike', 0);
-    expect(globalThis.renderCombatCards).not.toHaveBeenCalled();
-
-    globalThis.renderCombatCards = prevRenderCombatCards;
+    expect(doc.getElementById('handCards').children).toHaveLength(0);
   });
 });

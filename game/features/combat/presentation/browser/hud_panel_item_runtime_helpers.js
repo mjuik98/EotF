@@ -1,4 +1,5 @@
 import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
+import { COMBAT_TEXT } from './combat_copy.js';
 
 function resolveSetBonusSystem(deps) {
   return deps.setBonusSystem
@@ -23,7 +24,7 @@ export function updateItemPanels({ gs, deps, doc, data }) {
   if (!gs.player.items.length) {
     const none = doc.createElement('span');
     none.style.cssText = 'font-size:11px;color:var(--text-dim);font-style:italic;';
-    none.textContent = 'Empty';
+    none.textContent = COMBAT_TEXT.emptyItemSlot;
     itemEl.appendChild(none);
   } else {
     const sortedItems = [...gs.player.items]

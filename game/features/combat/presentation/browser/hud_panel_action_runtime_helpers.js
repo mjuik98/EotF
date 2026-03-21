@@ -1,5 +1,9 @@
 import { resolveDrawAvailability } from './draw_availability.js';
-import { setActionButtonLabel } from './hud_render_helpers.js';
+import {
+  applyCombatDrawButtonCopy,
+  formatEchoSkillButtonText,
+  setActionButtonLabel,
+} from './hud_render_helpers.js';
 
 function resolveCardCostUtils(deps) {
   return deps.cardCostUtils
@@ -30,10 +34,9 @@ export function updateActionButtons({ gs, deps, doc, data }) {
     } else {
       const echoValue = Math.floor(player.echo);
       const tier = echoValue >= 100 ? 3 : echoValue >= 60 ? 2 : echoValue >= 30 ? 1 : 0;
-      const nextTarget = echoValue < 30 ? 30 : (echoValue < 60 ? 60 : 100);
       echoBtn.disabled = tier === 0;
       echoBtn.style.opacity = tier === 0 ? '0.45' : '1';
-      setActionButtonLabel(echoBtn, `Echo Skill (${echoValue}/${nextTarget})`, 'E');
+      setActionButtonLabel(echoBtn, formatEchoSkillButtonText(echoValue), 'E');
     }
   }
 
@@ -44,22 +47,5 @@ export function updateActionButtons({ gs, deps, doc, data }) {
   drawBtn.disabled = !drawState.canDraw;
   drawBtn.classList.toggle('hand-full', drawState.handFull);
   drawBtn.style.opacity = drawState.canDraw ? '1' : '0.4';
-  if (drawState.inCombat) {
-    if (!drawState.playerTurn) {
-      setActionButtonLabel(drawBtn, 'Turn Locked', 'Q');
-      drawBtn.title = 'Cannot draw cards during the enemy turn.';
-    } else if (drawState.handFull) {
-      setActionButtonLabel(drawBtn, 'Hand Full', 'Q');
-      drawBtn.title = `Your hand is full (max ${drawState.maxHand}).`;
-    } else if (!drawState.hasEnergy) {
-      setActionButtonLabel(drawBtn, 'No Energy', 'Q');
-      drawBtn.title = 'Drawing a card costs 1 energy.';
-    } else {
-      setActionButtonLabel(drawBtn, 'Draw Card (1 Energy)', 'Q');
-      drawBtn.title = 'Draw 1 card for 1 energy.';
-    }
-  } else {
-    setActionButtonLabel(drawBtn, 'Draw Card (1 Energy)', 'Q');
-    drawBtn.title = 'This action is available during combat.';
-  }
+  applyCombatDrawButtonCopy(drawBtn, drawState, 'Q');
 }

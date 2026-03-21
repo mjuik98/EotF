@@ -126,8 +126,9 @@ describe('combat_enemy_view_model_ui', () => {
       },
     });
 
-    expect(viewModel.hpText).toBe('30 / 30 (Shield 2)');
+    expect(viewModel.hpText).toBe('30 / 30 (방어막 2)');
     expect(viewModel.intentIcon).toBe('!');
+    expect(viewModel.intentLabelHtml).toBe('공격');
     expect(viewModel.intentDmgVal).toBe(6);
     expect(viewModel.previewText).not.toBe('');
     expect(viewModel.isSelected).toBe(true);
@@ -172,7 +173,7 @@ describe('combat_enemy_view_model_ui', () => {
     });
 
     expect(viewModel.intentIcon).toBe('?');
-    expect(viewModel.intentLabelHtml).toBe('No intent');
+    expect(viewModel.intentLabelHtml).toBe('행동 없음');
     expect(viewModel.intentDmgVal).toBe(0);
     expect(viewModel.onSelectTarget).toBeNull();
     expect(viewModel.previewText).toBe('');
@@ -180,7 +181,7 @@ describe('combat_enemy_view_model_ui', () => {
   });
 
   it('formats enemy hp text with and without shield values', () => {
-    expect(buildEnemyHpText({ hp: 12, maxHp: 30, shield: 4 })).toBe('12 / 30 (Shield 4)');
+    expect(buildEnemyHpText({ hp: 12, maxHp: 30, shield: 4 })).toBe('12 / 30 (방어막 4)');
     expect(buildEnemyHpText({ hp: 12, maxHp: 30, shield: 0 })).toBe('12 / 30');
   });
 });

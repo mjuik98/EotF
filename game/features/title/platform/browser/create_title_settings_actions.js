@@ -7,6 +7,7 @@ const uiBrowserModules = createUiBrowserModuleCapabilities();
 
 export function createTitleSettingsActions(context) {
   const { doc, modules, moduleRegistry, ports, saveVolumes } = context;
+  let resolvedSettingsUI = modules.SettingsUI;
 
   async function ensureRunModeUI() {
     const { RunModeUI } = await runBrowserModules.ensureFlow(moduleRegistry);
@@ -14,8 +15,10 @@ export function createTitleSettingsActions(context) {
   }
 
   async function ensureSettingsUI() {
+    if (resolvedSettingsUI) return resolvedSettingsUI;
     const { SettingsUI } = await uiBrowserModules.ensureSettings(moduleRegistry);
-    return SettingsUI;
+    resolvedSettingsUI = SettingsUI || resolvedSettingsUI;
+    return resolvedSettingsUI;
   }
 
   return {
@@ -118,7 +121,7 @@ export function createTitleSettingsActions(context) {
     },
 
     closeSettings() {
-      modules.SettingsUI?.closeSettings?.(ports.getSettingsDeps());
+      resolvedSettingsUI?.closeSettings?.(ports.getSettingsDeps());
     },
 
     async setSettingsTab(tab) {

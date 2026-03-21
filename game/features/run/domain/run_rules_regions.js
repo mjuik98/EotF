@@ -108,6 +108,6 @@ export function getRegionData(regionIdx = 0, gsRef = null) {
   return {
     ...regionWithFloors,
     _endlessCycle: cycle,
-    name: `${baseRegion.name} 쨌 ?쒗솚 ${cycle + 1}`,
+    name: `${baseRegion.name} · 순환 ${cycle + 1}`,
   };
 }

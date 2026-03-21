@@ -1,4 +1,5 @@
 import { SecurityUtils } from '../../../../utils/security.js';
+import { COMBAT_TEXT } from './combat_copy.js';
 import { renderClassTraitPanel } from './class_trait_panel_ui.js';
 import {
   updateActionButtons,
@@ -82,7 +83,7 @@ function updateClassPanels({ gs, deps, doc, data, setText }) {
     hoverSpecialEl.textContent = '';
     const none = doc.createElement('span');
     none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
-    none.textContent = 'None';
+    none.textContent = COMBAT_TEXT.noSpecial;
     hoverSpecialEl.appendChild(none);
   }
 }
@@ -109,7 +110,7 @@ function updateRegionPanels({ gs, deps, doc, setText }) {
   const getRegionData = resolveRegionAccessor(deps);
   const win = deps.win || { innerWidth: 1280, innerHeight: 720 };
   const tooltipUI = resolveTooltipUI(deps);
-  const fallbackRegion = { name: 'Unknown Region', rule: '-', floors: 5 };
+  const fallbackRegion = COMBAT_TEXT.regionFallback;
   const region = typeof getRegionData === 'function'
     ? (getRegionData(gs.currentRegion, gs) || fallbackRegion)
     : fallbackRegion;
@@ -122,7 +123,7 @@ function updateRegionPanels({ gs, deps, doc, setText }) {
   if (regionNameEl && regionRuleEl) {
     const showTooltip = (event) => {
       const title = `${region.name} - ${region.rule}`;
-      const desc = region.ruleDesc || 'Regional rule is active.';
+      const desc = region.ruleDesc || COMBAT_TEXT.regionFallback.ruleDesc;
       if (typeof tooltipUI?.showGeneralTooltip === 'function') {
         tooltipUI.showGeneralTooltip(event, title, desc, { doc, win });
       } else if (typeof deps.showGeneralTooltip === 'function') {

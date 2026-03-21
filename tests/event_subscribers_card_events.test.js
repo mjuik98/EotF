@@ -39,8 +39,8 @@ describe('event subscribers card events', () => {
 
     expect(audio.playEvent).toHaveBeenCalledWith('ui', 'card');
     expect(audio.playCard).not.toHaveBeenCalled();
-    expect(callAction).toHaveBeenNthCalledWith(1, 'renderHand');
-    expect(callAction).toHaveBeenNthCalledWith(2, 'renderCombatCards');
+    expect(callAction).toHaveBeenCalledTimes(1);
+    expect(callAction).toHaveBeenCalledWith('renderCombatCards');
     expect(triggerDrawCardAnimation).toHaveBeenCalledTimes(1);
   });
 });

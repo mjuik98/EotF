@@ -42,8 +42,8 @@ describe('combat_enemy_status_tooltip_ui', () => {
       }),
       source: {
         type: 'enemy',
-        label: 'Enemy',
-        name: 'Enemy status',
+        label: '적',
+        name: '적 상태',
         color: '#ff6688',
       },
     });

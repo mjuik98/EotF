@@ -71,6 +71,7 @@ describe('tooltip_card_render_ui', () => {
     renderCardTooltipContent(doc, card, gs, { cardId: 'unbreakable_wall' });
 
     expect(doc.elements.ttName.textContent).toBe('불굴의 벽');
+    expect(doc.elements.ttType.textContent).toBe('파워');
     expect(doc.elements.ttRarity.className).toBe('card-tooltip-rarity rarity-rare');
     expect(doc.elements.ttPredicted.style.display).toBe('block');
     expect(doc.elements.ttPredicted.children[1].textContent).toBe(17);
@@ -104,6 +105,18 @@ describe('tooltip_card_render_ui', () => {
     expect(keywordState.keyword).toBe('기절 면역');
     expect(doc.elements.stTitle.textContent).toContain('기절 면역');
     expect(doc.elements.subTooltip.style.display).toBe('block');
+  });
+
+  it('renders keyword tooltip titles without leftover English copy', () => {
+    const doc = createDocMap();
+    const card = {
+      desc: '잔향을 10 얻는다',
+      exhaust: false,
+    };
+
+    syncCardKeywordTooltip(doc, card, { x: 24, y: 18 }, { innerWidth: 480, innerHeight: 320 });
+
+    expect(doc.elements.stTitle.textContent).toBe('잔향');
   });
 
   it('extracts playCard ids and ignores unrelated onclick handlers', () => {

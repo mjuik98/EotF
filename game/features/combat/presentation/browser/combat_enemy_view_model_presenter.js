@@ -1,4 +1,5 @@
 import { CardCostUtils } from '../../../../utils/card_cost_utils.js';
+import { COMBAT_TEXT } from './combat_copy.js';
 import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
 import { buildEnemyStatusBadges } from './combat_enemy_status_badges_ui.js';
 import {
@@ -16,7 +17,7 @@ function calcEnemySelectedPreview(gs, data, enemy) {
 }
 
 export function buildEnemyHpText(enemy) {
-  return `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (Shield ${enemy.shield})` : ''}`;
+  return `${enemy.hp} / ${enemy.maxHp}${enemy.shield ? ` (${COMBAT_TEXT.shieldLabel} ${enemy.shield})` : ''}`;
 }
 
 export function buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers }) {
@@ -28,7 +29,7 @@ export function buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handler
 
   if (gs.combat.turn <= 0) {
     intentIcon = '?';
-    intentLabel = 'No intent';
+    intentLabel = '행동 없음';
     intentDmgVal = 0;
   }
 

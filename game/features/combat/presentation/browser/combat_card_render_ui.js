@@ -3,6 +3,7 @@ import {
   createUnifiedParticles,
   detectCardTags,
   getCardTypeClass,
+  getCardTypeDisplayLabel,
   getCardTypeLabelClass,
 } from './card_render_helpers_ui.js';
 
@@ -81,7 +82,7 @@ export function createCombatCardElement(doc, model = {}) {
     if (anyFree) {
       const freeBadge = doc.createElement('span');
       freeBadge.className = 'card-cost-sub';
-      freeBadge.textContent = 'FREE';
+      freeBadge.textContent = '무료';
       costEl.appendChild(freeBadge);
     } else if (totalDisc > 0) {
       const discountBadge = doc.createElement('span');
@@ -137,7 +138,7 @@ export function createCombatCardElement(doc, model = {}) {
 
   const type = doc.createElement('div');
   type.className = `card-type ${typeLabelClass}`.trim();
-  type.textContent = card.type || '';
+  type.textContent = getCardTypeDisplayLabel(card.type);
   el.appendChild(type);
 
   if (!canPlay) {
