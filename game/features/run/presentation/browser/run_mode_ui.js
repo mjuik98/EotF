@@ -1,9 +1,9 @@
-import '../../../../../css/run-rules-redesign.css';
 import {
   calcDiffScore,
   getDoc,
   getMeta,
 } from './run_mode_ui_helpers.js';
+import { ensureRunModeUiStyle } from './run_mode_ui_style.js';
 import {
   selectRunCurse,
   shiftRunAscension,
@@ -32,6 +32,7 @@ export const RunModeUI = {
   _presetDialog: null,
 
   refresh(deps = {}) {
+    ensureRunModeUiStyle(getDoc(deps));
     refreshRunModeUI(this, deps);
   },
 
@@ -147,6 +148,7 @@ export const RunModeUI = {
   },
 
   openSettings(deps = {}) {
+    ensureRunModeUiStyle(getDoc(deps));
     openRunSettingsModal(this, deps);
   },
 

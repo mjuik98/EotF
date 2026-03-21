@@ -24,10 +24,38 @@ vi.mock('../game/features/run/presentation/browser/run_mode_ui_runtime.js', () =
 }));
 
 describe('RunModeUI facade', () => {
+  function createDoc() {
+    const nodes = new Map();
+    return {
+      head: {
+        children: [],
+        appendChild(node) {
+          this.children.push(node);
+          if (node?.id) nodes.set(node.id, node);
+        },
+      },
+      createElement(tag) {
+        return {
+          tagName: tag,
+          rel: '',
+          href: '',
+          id: '',
+        };
+      },
+      getElementById(id) {
+        return nodes.get(id) || null;
+      },
+      querySelector() {
+        return null;
+      },
+    };
+  }
+
   it('delegates preset and modal actions to runtime helpers', async () => {
     const { RunModeUI } = await import('../game/ui/run/run_mode_ui.js');
     const runtime = await import('../game/features/run/presentation/browser/run_mode_ui_runtime.js');
-    const deps = { marker: true };
+    const doc = createDoc();
+    const deps = { marker: true, doc };
 
     RunModeUI.refresh(deps);
     RunModeUI.selectPresetSlot(2, deps);
@@ -39,6 +67,9 @@ describe('RunModeUI facade', () => {
     RunModeUI.openSettings(deps);
     RunModeUI.closeSettings(deps);
 
+    expect(doc.head.children).toHaveLength(1);
+    expect(doc.head.children[0].rel).toBe('stylesheet');
+    expect(doc.head.children[0].href).toBe('/css/run-rules-redesign.css');
     expect(runtime.refreshRunModeUI).toHaveBeenCalledWith(RunModeUI, deps);
     expect(runtime.selectPresetSlotRuntime).toHaveBeenCalledWith(RunModeUI, 2, deps);
     expect(runtime.savePresetRuntime).toHaveBeenCalledWith(RunModeUI, 1, deps);

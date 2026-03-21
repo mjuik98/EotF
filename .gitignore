@@ -18,3 +18,5 @@ tmp/
 build_error*.log
 vite-dev*.log
 outputweb-*/
+
+.playwright-cli/

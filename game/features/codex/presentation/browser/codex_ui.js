@@ -1,5 +1,5 @@
-import '../../../../../css/codex_v3.css';
 import { createCodexUiState } from './codex_ui_controller.js';
+import { ensureCodexUiStyle } from './codex_ui_style.js';
 import {
   closeCodexRuntime,
   openCodexRuntime,
@@ -11,6 +11,7 @@ const _state = createCodexUiState();
 
 export const CodexUI = {
   openCodex(deps = {}) {
+    ensureCodexUiStyle(deps.doc);
     openCodexRuntime(_state, this, deps);
   },
 
@@ -23,6 +24,7 @@ export const CodexUI = {
   },
 
   renderCodexContent(deps = {}) {
+    ensureCodexUiStyle(deps.doc);
     renderCodexContentRuntime(_state, this, deps);
   },
 };

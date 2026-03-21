@@ -20,7 +20,7 @@ describe('build-first optimization guardrails', () => {
     }
   });
 
-  it('defers codex and run-rules CSS out of the eager html shell', () => {
+  it('keeps codex and run-rules CSS out of eager html and plain-browser ESM imports', () => {
     const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     const codexUi = fs.readFileSync(
       path.join(ROOT, 'game/features/codex/presentation/browser/codex_ui.js'),
@@ -33,8 +33,8 @@ describe('build-first optimization guardrails', () => {
 
     expect(html).not.toContain('css/codex_v3.css');
     expect(html).not.toContain('css/run-rules-redesign.css');
-    expect(codexUi).toContain("import '../../../../../css/codex_v3.css';");
-    expect(runModeUi).toContain("import '../../../../../css/run-rules-redesign.css';");
+    expect(codexUi).not.toContain("import '../../../../../css/codex_v3.css';");
+    expect(runModeUi).not.toContain("import '../../../../../css/run-rules-redesign.css';");
   });
 
   it('keeps title, event, and reward shells as feature-owned lazy mounts instead of eager html payloads', () => {
