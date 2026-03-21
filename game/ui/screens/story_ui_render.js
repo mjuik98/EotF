@@ -1,1 +1,1 @@
-export * from '../../features/ui/presentation/browser/story_ui_render.js';
+export * from '../../features/ui/public.js';

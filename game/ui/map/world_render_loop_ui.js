@@ -1,1 +1,1 @@
-export { WorldRenderLoopUI } from '../../features/run/ports/public_presentation_capabilities.js';
+export { WorldRenderLoopUI } from '../../features/run/public.js';

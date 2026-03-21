@@ -44,7 +44,7 @@ const EXACT_REEXPORTS = new Map([
     'ending_fragment_choice_presenter',
     'ending_fragment_choice_actions',
     'meta_progression_ui_runtime',
-  ].map((name) => star(`game/ui/screens/${name}.js`, `../../features/ui/presentation/browser/${name}.js`)),
+  ].map((name) => star(`game/ui/screens/${name}.js`, `../../features/ui/public.js`)),
   ...[
     'run_mode_ui_helpers',
     'run_mode_ui_runtime',
@@ -53,7 +53,7 @@ const EXACT_REEXPORTS = new Map([
     'run_mode_ui_presets_render',
     'run_mode_ui_summary_render',
     'run_return_ui_runtime',
-  ].map((name) => star(`game/ui/run/${name}.js`, `../../features/run/presentation/browser/${name}.js`)),
+  ].map((name) => star(`game/ui/run/${name}.js`, `../../features/run/public.js`)),
   ...[
     'codex_ui_controller',
     'codex_ui_controller_helpers',
@@ -74,7 +74,7 @@ const EXACT_REEXPORTS = new Map([
     'codex_ui_runtime_helpers',
     'codex_ui_section_render',
     'codex_ui_structure',
-  ].map((name) => star(`game/ui/screens/${name}.js`, `../../features/codex/presentation/browser/${name}.js`)),
+  ].map((name) => star(`game/ui/screens/${name}.js`, `../../features/codex/public.js`)),
   star(
     'game/ui/title/title_canvas_runtime.js',
     '../../features/title/ports/public_presentation_capabilities.js',
@@ -147,7 +147,7 @@ const EXACT_REEXPORTS = new Map([
     'character_select_render',
     'character_select_radar',
     'character_select_card_ui',
-  ].map((name) => star(`game/ui/title/${name}.js`, `../../features/title/platform/browser/${name}.js`)),
+  ].map((name) => star(`game/ui/title/${name}.js`, `../../features/title/ports/public_character_select_presentation_capabilities.js`)),
 ]);
 
 describe('ui screen runtime compat reexports', () => {

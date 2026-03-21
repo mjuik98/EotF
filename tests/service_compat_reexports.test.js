@@ -36,7 +36,7 @@ const EXACT_REEXPORTS = new Map([
       '  setCurrentEvent,',
       '  showEventService,',
       '  triggerRandomEventService,',
-      "} from '../../features/event/ports/public_service_capabilities.js';",
+      "} from '../../features/event/public.js';",
       '',
     ].join('\n'),
   ],
@@ -47,7 +47,7 @@ const EXACT_REEXPORTS = new Map([
       '  clearCurrentEvent,',
       '  getCurrentEvent,',
       '  setCurrentEvent,',
-      "} from '../../features/event/ports/public_state_capabilities.js';",
+      "} from '../../features/event/public.js';",
       '',
     ].join('\n'),
   ],
@@ -57,42 +57,42 @@ const EXACT_REEXPORTS = new Map([
       'export {',
       '  drawCardsService,',
       '  executePlayerDrawService,',
-      "} from '../../features/combat/ports/public_application_capabilities.js';",
+      "} from '../../features/combat/public.js';",
       '',
     ].join('\n'),
   ],
   [
     'game/app/combat/play_card_service.js',
     [
-      "export { playCardService } from '../../features/combat/ports/public_application_capabilities.js';",
+      "export { playCardService } from '../../features/combat/public.js';",
       '',
     ].join('\n'),
   ],
   [
     'game/app/combat/end_turn_service.js',
     [
-      "export { endPlayerTurnService } from '../../features/combat/ports/public_application_capabilities.js';",
+      "export { endPlayerTurnService } from '../../features/combat/public.js';",
       '',
     ].join('\n'),
   ],
   [
     'game/app/event/resolve_event_choice_service.js',
     [
-      "export { resolveEventChoiceService } from '../../features/event/ports/public_service_capabilities.js';",
+      "export { resolveEventChoiceService } from '../../features/event/public.js';",
       '',
     ].join('\n'),
   ],
   [
     'game/app/event/rest_service.js',
     [
-      "export { createRestEventService } from '../../features/event/ports/public_service_capabilities.js';",
+      "export { createRestEventService } from '../../features/event/public.js';",
       '',
     ].join('\n'),
   ],
   [
     'game/app/event/shop_service.js',
     [
-      "export { createShopEventService } from '../../features/event/ports/public_service_capabilities.js';",
+      "export { createShopEventService } from '../../features/event/public.js';",
       '',
     ].join('\n'),
   ],

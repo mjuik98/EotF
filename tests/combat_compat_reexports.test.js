@@ -7,21 +7,21 @@ describe('combat compat re-exports', () => {
   it('keeps legacy combat facade files as thin feature re-exports once ownership moves', () => {
     const expectations = {
       'game/combat/card_methods.js':
-        "export { CardMethods } from '../features/combat/application/card_methods_facade.js';",
+        "export { CardMethods } from '../features/combat/public.js';",
       'game/combat/combat_lifecycle.js':
-        "export { CombatLifecycle } from '../features/combat/application/combat_lifecycle_facade.js';",
+        "export { CombatLifecycle } from '../features/combat/public.js';",
       'game/combat/combat_initializer.js':
-        "export { CombatInitializer } from '../features/combat/ports/public_application_capabilities.js';",
+        "export { CombatInitializer } from '../features/combat/public.js';",
       'game/combat/combat_methods.js':
-        "export { CombatMethods } from '../features/combat/application/combat_methods_facade.js';",
+        "export { CombatMethods } from '../features/combat/public.js';",
       'game/combat/damage_system.js':
-        "export { DamageSystem } from '../features/combat/application/damage_system_facade.js';",
+        "export { DamageSystem } from '../features/combat/public.js';",
       'game/combat/death_handler.js':
-        "export { DeathHandler } from '../features/combat/application/death_handler_facade.js';",
+        "export { DeathHandler } from '../features/combat/public.js';",
       'game/combat/difficulty_scaler.js':
-        "export { DifficultyScaler } from '../features/combat/ports/public_system_capabilities.js';",
+        "export { DifficultyScaler } from '../features/combat/public.js';",
       'game/combat/turn_manager.js':
-        "export { TurnManager } from '../features/combat/application/turn_manager_facade.js';",
+        "export { TurnManager } from '../features/combat/public.js';",
     };
 
     for (const [file, expected] of Object.entries(expectations)) {
@@ -55,20 +55,20 @@ describe('combat compat re-exports', () => {
       '  resolveShieldGainAmount,',
       '  resolveEnemyTargetIndex,',
       '  runDealDamageClassHook,',
-      "} from '../features/combat/ports/public_damage_runtime_capabilities.js';",
+      "} from '../features/combat/public.js';",
     ].join('\n'));
   });
 
   it('keeps legacy death helper facades as thin feature re-exports', () => {
     const expectations = {
       'game/combat/death_handler_runtime.js':
-        "export * from '../features/combat/ports/public_death_runtime_capabilities.js';",
+        "export * from '../features/combat/public.js';",
       'game/combat/death_handler_enemy_state.js':
-        "export { applyEnemyDeathState } from '../features/combat/ports/public_death_application_capabilities.js';",
+        "export { applyEnemyDeathState } from '../features/combat/public.js';",
       'game/combat/death_handler_enemy_death_flow.js':
-        "export { handleEnemyDeathFlow } from '../features/combat/ports/public_death_application_capabilities.js';",
+        "export { handleEnemyDeathFlow } from '../features/combat/public.js';",
       'game/combat/death_handler_outcome.js':
-        "export * from '../features/combat/ports/public_death_runtime_capabilities.js';",
+        "export * from '../features/combat/public.js';",
     };
 
     for (const [file, expected] of Object.entries(expectations)) {

@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-21T11:27:03.809Z
-- Nodes: 1349
-- Edges: 1385
+- Generated: 2026-03-21T17:31:50.875Z
+- Nodes: 1358
+- Edges: 1401
 
 ## Layer Edges
 
@@ -29,12 +29,11 @@
 | feature->core | 23 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 713 |
+| feature->feature | 728 |
 | feature->legacy | 4 |
-| feature->other | 9 |
+| feature->other | 7 |
 | feature->platform | 3 |
-| feature->shared | 40 |
-| feature->state | 2 |
+| feature->shared | 44 |
 | feature->utils | 30 |
 | legacy->core | 6 |
 | legacy->domain | 1 |
@@ -56,7 +55,7 @@
 | shared->data | 2 |
 | shared->feature | 3 |
 | shared->legacy | 1 |
-| shared->shared | 43 |
+| shared->shared | 44 |
 | shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -75,12 +74,12 @@
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
 | game/features/combat/ports/public_surface.js | 8 |
 | game/features/run/application/run_rules.js | 8 |
+| game/features/title/platform/browser/create_character_select_mount_runtime.js | 8 |
 | game/features/title/ports/runtime/public_title_runtime_surface.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
 | game/features/codex/presentation/browser/codex_ui_runtime.js | 7 |
 | game/features/combat/application/combat_lifecycle_facade.js | 7 |
-| game/features/combat/presentation/browser/combat_ui.js | 7 |
 
 ## Top Incoming Dependencies
 
@@ -92,6 +91,7 @@
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
 | game/core/store/state_actions.js | 10 |
+| game/features/combat/presentation/browser/combat_copy.js | 10 |
 | game/shared/state/player_state_commands.js | 10 |
 | game/utils/logger.js | 10 |
 | game/core/deps_factory.js | 9 |
@@ -100,7 +100,6 @@
 | game/core/event_bus.js | 8 |
 | game/features/run/ports/public_rule_capabilities.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
-| game/data/constants.js | 7 |
 
 > Full graph is available in `artifacts/dependency_map.json`.
 

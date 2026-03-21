@@ -7,4 +7,4 @@ export {
   createRewardBlessings,
   getRelicRewardChance,
   getRewardMaxEnergyCap,
-} from '../../../features/reward/ports/public_application_capabilities.js';
+} from '../../../features/reward/public.js';

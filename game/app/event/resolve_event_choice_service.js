@@ -1,1 +1,1 @@
-export { resolveEventChoiceService } from '../../features/event/ports/public_service_capabilities.js';
+export { resolveEventChoiceService } from '../../features/event/public.js';

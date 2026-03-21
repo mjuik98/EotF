@@ -5,6 +5,7 @@ import {
   applyPlayerMaxEnergyGrowthCompatFallback,
   applyPlayerMaxHpGrowthCompatFallback,
   enablePlayerStateLegacyCompat,
+  recordPlayerStateLegacyCompatBridge,
   runPlayerStateLegacyFallback,
 } from '../../platform/legacy/state/player_state_command_legacy_adapter.js';
 
@@ -137,6 +138,7 @@ export function clearPlayerStatusState(gs, statusId) {
 }
 
 export function applyPlayerGoldCompatState(gs, amount) {
+  recordPlayerStateLegacyCompatBridge('applyPlayerGoldState');
   const state = enablePlayerStateLegacyCompat(gs);
   const goldBefore = Number(state?.player?.gold || 0);
   const result = applyPlayerGoldState(state, amount);
@@ -149,6 +151,7 @@ export function applyPlayerGoldCompatState(gs, amount) {
 }
 
 export function applyPlayerHealCompatState(gs, amount) {
+  recordPlayerStateLegacyCompatBridge('applyPlayerHealState');
   const state = enablePlayerStateLegacyCompat(gs);
   const hpBefore = Number(state?.player?.hp || 0);
   const result = applyPlayerHealState(state, amount);
@@ -161,6 +164,7 @@ export function applyPlayerHealCompatState(gs, amount) {
 }
 
 export function applyPlayerMaxEnergyGrowthCompatState(gs, amount, options = {}) {
+  recordPlayerStateLegacyCompatBridge('applyPlayerMaxEnergyGrowthState');
   const state = enablePlayerStateLegacyCompat(gs);
   const maxEnergyBefore = Number(state?.player?.maxEnergy || 0);
   const energyBefore = Number(state?.player?.energy || 0);
@@ -175,6 +179,7 @@ export function applyPlayerMaxEnergyGrowthCompatState(gs, amount, options = {}) 
 }
 
 export function applyPlayerMaxHpGrowthCompatState(gs, amount) {
+  recordPlayerStateLegacyCompatBridge('applyPlayerMaxHpGrowthState');
   const state = enablePlayerStateLegacyCompat(gs);
   const maxHpBefore = Number(state?.player?.maxHp || 0);
   const hpBefore = Number(state?.player?.hp || 0);

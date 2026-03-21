@@ -1,1 +1,1 @@
-export { createRestEventUseCase } from '../../../features/event/ports/public_application_capabilities.js';
+export { createRestEventUseCase } from '../../../features/event/public.js';

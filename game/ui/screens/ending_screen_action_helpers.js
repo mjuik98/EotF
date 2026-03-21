@@ -1,1 +1,1 @@
-export * from '../../features/ui/presentation/browser/ending_screen_action_helpers.js';
+export * from '../../features/ui/public.js';

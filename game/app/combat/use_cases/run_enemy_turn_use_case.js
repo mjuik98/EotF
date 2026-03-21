@@ -1,1 +1,1 @@
-export { runEnemyTurnUseCase } from '../../../features/combat/ports/public_application_capabilities.js';
+export { runEnemyTurnUseCase } from '../../../features/combat/public.js';

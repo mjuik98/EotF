@@ -8,4 +8,4 @@ export {
   scheduleRewardReturnUseCase,
   startRewardRemoveUseCase,
   takeRewardClaimUseCase,
-} from '../../../features/reward/ports/public_application_capabilities.js';
+} from '../../../features/reward/public.js';

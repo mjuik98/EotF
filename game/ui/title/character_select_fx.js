@@ -1,1 +1,1 @@
-export { setupCharacterCardFx } from '../../features/title/platform/browser/character_select_fx.js';
+export { setupCharacterCardFx } from '../../features/title/ports/public_character_select_presentation_capabilities.js';

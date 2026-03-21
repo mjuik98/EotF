@@ -1,1 +1,1 @@
-export * from '../../features/codex/presentation/browser/codex_ui_structure.js';
+export * from '../../features/codex/public.js';

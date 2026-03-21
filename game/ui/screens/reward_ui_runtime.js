@@ -8,4 +8,4 @@ export {
   takeRewardItemRuntime,
   takeRewardRemoveRuntime,
   takeRewardUpgradeRuntime,
-} from '../../features/reward/ports/public_presentation_capabilities.js';
+} from '../../features/reward/public.js';

@@ -1,1 +1,1 @@
-export { CombatInfoUI } from '../../features/combat/ports/public_presentation_capabilities.js';
+export { CombatInfoUI } from '../../features/combat/public.js';

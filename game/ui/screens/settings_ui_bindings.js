@@ -1,1 +1,1 @@
-export * from '../../features/ui/presentation/browser/settings_ui_bindings.js';
+export * from '../../features/ui/public.js';

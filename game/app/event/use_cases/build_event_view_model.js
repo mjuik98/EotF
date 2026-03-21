@@ -1,1 +1,1 @@
-export { buildEventViewModel } from '../../../features/event/ports/public_application_capabilities.js';
+export { buildEventViewModel } from '../../../features/event/public.js';

@@ -1,1 +1,1 @@
-export * from '../../features/ui/presentation/browser/ending_fragment_choice_actions.js';
+export * from '../../features/ui/public.js';

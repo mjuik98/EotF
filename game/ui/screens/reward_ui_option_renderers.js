@@ -1,1 +1,1 @@
-export * from '../../features/reward/presentation/browser/reward_ui_option_renderers.js';
+export * from '../../features/reward/public.js';
