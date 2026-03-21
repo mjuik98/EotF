@@ -1,25 +1,7 @@
-function resolveTopLevelDataPropertyValue(modules, key) {
-  if (!modules || !key) return undefined;
-
-  const descriptor = Object.getOwnPropertyDescriptor(modules, key);
-  if (!descriptor) return undefined;
-  if (typeof descriptor.get === 'function') return undefined;
-  return descriptor.value;
-}
+import { resolveModuleRegistryValue } from '../../../../core/bindings/module_registry_scopes.js';
 
 export function resolveUiRuntimeModule(modules = {}, key, scopeNames = []) {
-  for (const scopeName of scopeNames) {
-    const scopedRefs = modules?.featureScopes?.[scopeName] || {};
-    if (scopedRefs[key] !== undefined) {
-      return scopedRefs[key];
-    }
-  }
-
-  if (modules?.legacyModules?.[key] !== undefined) {
-    return modules.legacyModules[key];
-  }
-
-  return resolveTopLevelDataPropertyValue(modules, key);
+  return resolveModuleRegistryValue(modules, key, scopeNames, { topLevelDataOnly: true });
 }
 
 export function resolveUiActionModules(modules = {}) {

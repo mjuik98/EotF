@@ -1,4 +1,3 @@
-import { registerCardDiscovered } from '../../../../shared/codex/codex_record_state_use_case.js';
 import {
   applyPlayerBuffState,
   applyPlayerGoldState,
@@ -7,6 +6,7 @@ import {
   applyPlayerMaxHpGrowthState,
   applyPlayerShieldState,
 } from '../../../../shared/state/player_state_commands.js';
+import { registerPlayerDeckCardsState } from '../../../../shared/state/player_state_effects.js';
 import {
   applyRuntimeMasterySnapshot,
   applyStarterDeckUpgrades,
@@ -57,7 +57,7 @@ export function applyRunStartBonuses(gs, options = {}) {
 
   const upgradedIds = applyStarterDeckUpgrades(gs, bonuses, options.data);
   if (upgradedIds.length > 0) {
-    upgradedIds.forEach((cardId) => registerCardDiscovered(gs, cardId));
+    registerPlayerDeckCardsState(gs, upgradedIds);
   }
 
   gs._classMasteryRunStartApplied = true;

@@ -12,6 +12,64 @@ function createNullCardTooltipApi() {
   };
 }
 
+function buildLevel11PresetSummary(preset, cards) {
+  if (!preset) return '없음';
+  if (preset.type === 'upgrade') {
+    const cardName = cards?.[preset.cardId]?.name || preset.cardId;
+    return `강화: ${cardName}`;
+  }
+  if (preset.type === 'swap') {
+    const fromName = cards?.[preset.removeCardId]?.name || preset.removeCardId;
+    const toName = cards?.[preset.addCardId]?.name || preset.addCardId;
+    return `교체: ${fromName} -> ${toName}`;
+  }
+  return '없음';
+}
+
+function buildDeckCardMarkup(deck, cards, accent) {
+  return `<div class="char-start-deck">${(deck || []).map((cardId) => {
+    const card = cards?.[cardId] || { name: cardId };
+    return `<span class="deck-card" data-cid="${cardId}" style="border:1px solid ${accent}1a;padding:4px 10px;font-size:11px;background:${accent}05;cursor:help">${card.name}</span>`;
+  }).join('')}</div>`;
+}
+
+function buildRelicMarkup(relics, accent) {
+  return `
+    <div class="relic-wrap">
+      ${(relics || []).map((relic, index) => `
+        <div
+          class="relic-inner"
+          data-relic-index="${index}"
+          data-relic-title="${relic.icon} ${relic.name}"
+          data-relic-desc="${relic.desc || ''}"
+          style="border:1px solid ${accent}33;background:${accent}08;padding:10px 16px"
+        >
+          <span style="font-size:24px">${relic.icon}</span>
+          <div>
+            <div style="font-size:13px;color:${accent};font-family:'Share Tech Mono',monospace;letter-spacing:.5px">${relic.name}</div>
+            <div style="font-size:11px;color:${accent}66;font-family:'Share Tech Mono',monospace">${index === 0 ? '기본 유물' : '추가 유물'}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function normalizeRelicIds(relics, fallbackId = '') {
+  return (relics || []).map((relic, index) => String(
+    relic?.id
+      || relic?.itemId
+      || relic?.name
+      || (index === 0 ? fallbackId : `${fallbackId}_${index}`)
+      || '',
+  ));
+}
+
+function arraysEqual(left, right) {
+  if (left.length !== right.length) return false;
+  return left.every((value, index) => value === right[index]);
+}
+
 export function renderCharacterInfoPanel({
   panel,
   selectedChar,
@@ -27,6 +85,9 @@ export function renderCharacterInfoPanel({
   hover,
   echo,
   openModal,
+  loadoutCustomization,
+  onSaveLoadoutPreset,
+  onClearLoadoutPreset,
 } = {}) {
   if (!panel || !selectedChar || !classProgress) return;
 
@@ -34,7 +95,17 @@ export function renderCharacterInfoPanel({
   const cardTooltip = cardTooltipUI || createNullCardTooltipApi();
   generalTooltip.hideGeneralTooltip({ doc, win });
 
-  const rel = selectedChar.startRelic;
+  const baseDeck = Array.isArray(selectedChar.startDeck) ? selectedChar.startDeck : [];
+  const previewDeck = loadoutCustomization?.previewDeck || selectedChar.startDeck;
+  const baseRelics = [selectedChar.startRelic];
+  const previewRelics = Array.isArray(loadoutCustomization?.previewRelics) && loadoutCustomization.previewRelics.length > 0
+    ? loadoutCustomization.previewRelics
+    : baseRelics;
+  const baseRelicId = String(selectedChar.startRelicId || selectedChar.startRelic?.id || selectedChar.startRelic?.name || '');
+  const hasCustomizedLoadout = !!loadoutCustomization && (
+    !arraysEqual(baseDeck, previewDeck)
+    || !arraysEqual(normalizeRelicIds(baseRelics, baseRelicId), normalizeRelicIds(previewRelics, baseRelicId))
+  );
   const roadmapRows = (roadmap || []).map((row) => {
     const earned = row.lv <= classProgress.level;
     const current = row.lv === classProgress.level + 1;
@@ -111,25 +182,71 @@ export function renderCharacterInfoPanel({
 
             <div class="char-info-block">
               ${buildSectionLabel('시작 유물', selectedChar.accent)}
-              <div class="relic-wrap">
-                <div class="relic-inner" style="border:1px solid ${selectedChar.accent}33;background:${selectedChar.accent}08;padding:10px 16px">
-                  <span style="font-size:24px">${rel.icon}</span>
-                  <div>
-                    <div style="font-size:13px;color:${selectedChar.accent};font-family:'Share Tech Mono',monospace;letter-spacing:.5px">${rel.name}</div>
-                    <div style="font-size:11px;color:${selectedChar.accent}66;font-family:'Share Tech Mono',monospace">유물</div>
-                  </div>
-                </div>
-              </div>
+              ${hasCustomizedLoadout ? `
+                <div class="char-info-text">기본 시작 유물</div>
+                ${buildRelicMarkup(baseRelics, selectedChar.accent)}
+                <div class="char-info-text" style="margin-top:10px">적용 후 시작 유물</div>
+                ${buildRelicMarkup(previewRelics, selectedChar.accent)}
+              ` : buildRelicMarkup(previewRelics, selectedChar.accent)}
             </div>
           </div>
 
           <div class="char-info-block">
             ${buildSectionLabel('시작 덱', selectedChar.accent)}
-            <div class="char-start-deck">${selectedChar.startDeck.map((cardId) => {
-              const card = cards?.[cardId] || { name: cardId };
-              return `<span class="deck-card" data-cid="${cardId}" style="border:1px solid ${selectedChar.accent}1a;padding:4px 10px;font-size:11px;background:${selectedChar.accent}05;cursor:help">${card.name}</span>`;
-            }).join('')}</div>
+            ${hasCustomizedLoadout ? `
+              <div class="char-info-text">기본 시작 덱</div>
+              ${buildDeckCardMarkup(baseDeck, cards, selectedChar.accent)}
+              <div class="char-info-text" style="margin-top:10px">적용 후 시작 덱</div>
+              ${buildDeckCardMarkup(previewDeck, cards, selectedChar.accent)}
+            ` : buildDeckCardMarkup(previewDeck, cards, selectedChar.accent)}
           </div>
+
+          ${loadoutCustomization ? `
+            <div class="char-info-block">
+              ${buildSectionLabel('마스터리 커스터마이즈', selectedChar.accent)}
+              ${(loadoutCustomization.invalidWarnings || []).map((warning) => (
+                `<div class="char-info-text" style="color:#ffb347">${warning}</div>`
+              )).join('')}
+              <div class="char-info-text">Lv.11 현재 설정: ${buildLevel11PresetSummary(loadoutCustomization.level11Preset, cards)}</div>
+              <div class="char-info-text">Lv.12 현재 설정: ${loadoutCustomization.level12Preset?.bonusRelicId
+                ? (loadoutCustomization.eligibleBonusRelics?.find((entry) => entry.id === loadoutCustomization.level12Preset.bonusRelicId)?.name
+                  || loadoutCustomization.previewRelics?.find((entry) => entry.id === loadoutCustomization.level12Preset.bonusRelicId)?.name
+                  || loadoutCustomization.level12Preset.bonusRelicId)
+                : '없음'}</div>
+              ${loadoutCustomization.level11Unlocked ? `
+                <div class="char-info-text">Lv.11 강화 저장</div>
+                <div class="char-start-deck" style="margin-bottom:8px">
+                  <select id="level11UpgradeTarget">${(loadoutCustomization.eligibleUpgradeTargets || []).map((entry) => {
+                    const cardName = cards?.[entry.cardId]?.name || entry.cardId;
+                    return `<option value="${entry.index}">${cardName}</option>`;
+                  }).join('')}</select>
+                  <button id="saveLevel11Upgrade" type="button">강화로 저장</button>
+                </div>
+                <div class="char-info-text">Lv.11 교체 저장</div>
+                <div class="char-start-deck" style="margin-bottom:8px">
+                  <select id="level11SwapRemove">${(loadoutCustomization.eligibleSwapRemoveTargets || []).map((entry) => {
+                    const cardName = cards?.[entry.cardId]?.name || entry.cardId;
+                    return `<option value="${entry.index}">${cardName}</option>`;
+                  }).join('')}</select>
+                  <select id="level11SwapAdd">${(loadoutCustomization.eligibleSwapAddCards || []).map((entry) => (
+                    `<option value="${entry.cardId}">${entry.name || entry.cardId}</option>`
+                  )).join('')}</select>
+                  <button id="saveLevel11Swap" type="button">교체로 저장</button>
+                  <button id="clearLevel11Preset" type="button">해제</button>
+                </div>
+              ` : '<div class="char-info-text">Lv.11 달성 시 시작 덱 프리셋이 해금됩니다.</div>'}
+              ${loadoutCustomization.level12Unlocked ? `
+                <div class="char-info-text">Lv.12 추가 시작 유물</div>
+                <div class="char-start-deck">
+                  <select id="level12BonusRelic">${(loadoutCustomization.eligibleBonusRelics || []).map((entry) => (
+                    `<option value="${entry.id}">${entry.name || entry.id}</option>`
+                  )).join('')}</select>
+                  <button id="saveLevel12Preset" type="button">유물 저장</button>
+                  <button id="clearLevel12Preset" type="button">해제</button>
+                </div>
+              ` : '<div class="char-info-text">Lv.12 달성 시 추가 시작 유물 프리셋이 해금됩니다.</div>'}
+            </div>
+          ` : ''}
         </section>
       </div>
     </div>`;
@@ -170,15 +287,23 @@ export function renderCharacterInfoPanel({
     });
   }
 
-  const relicBadge = panel.querySelector('.relic-inner');
-  if (relicBadge) {
-    const relicTitle = `${rel.icon} ${rel.name}`;
+  const relicBadges = typeof panel.querySelectorAll === 'function'
+    ? Array.from(panel.querySelectorAll('.relic-inner') || [])
+    : [];
+  const fallbackRelicBadge = relicBadges.length === 0 ? panel.querySelector('.relic-inner') : null;
+  (fallbackRelicBadge ? [fallbackRelicBadge] : relicBadges).forEach((relicBadge) => {
+    if (!relicBadge) return;
     relicBadge.addEventListener('mouseenter', (event) => {
       hover?.();
-      generalTooltip.showGeneralTooltip(event, relicTitle, rel.desc, { doc, win });
+      generalTooltip.showGeneralTooltip(
+        event,
+        relicBadge.dataset.relicTitle || '',
+        relicBadge.dataset.relicDesc || '',
+        { doc, win },
+      );
     });
     relicBadge.addEventListener('mouseleave', () => generalTooltip.hideGeneralTooltip({ doc, win }));
-  }
+  });
 
   const mockGs = { getBuff: () => null, player: { echoChain: 0 } };
   panel.querySelectorAll('.deck-card').forEach((element) => {
@@ -188,4 +313,57 @@ export function renderCharacterInfoPanel({
     });
     element.addEventListener('mouseleave', () => cardTooltip.hideTooltip());
   });
+
+  const saveLevel11Upgrade = panel.querySelector('#saveLevel11Upgrade');
+  if (saveLevel11Upgrade) {
+    saveLevel11Upgrade.addEventListener('click', () => {
+      const targetIndex = Number(panel.querySelector('#level11UpgradeTarget')?.value);
+      if (Number.isInteger(targetIndex)) {
+        onSaveLoadoutPreset?.({
+          slot: 'level11',
+          type: 'upgrade',
+          targetIndex,
+        });
+      }
+    });
+  }
+
+  const saveLevel11Swap = panel.querySelector('#saveLevel11Swap');
+  if (saveLevel11Swap) {
+    saveLevel11Swap.addEventListener('click', () => {
+      const removeIndex = Number(panel.querySelector('#level11SwapRemove')?.value);
+      const addCardId = String(panel.querySelector('#level11SwapAdd')?.value || '');
+      if (Number.isInteger(removeIndex) && addCardId) {
+        onSaveLoadoutPreset?.({
+          slot: 'level11',
+          type: 'swap',
+          removeIndex,
+          addCardId,
+        });
+      }
+    });
+  }
+
+  const clearLevel11Preset = panel.querySelector('#clearLevel11Preset');
+  if (clearLevel11Preset) {
+    clearLevel11Preset.addEventListener('click', () => onClearLoadoutPreset?.('level11'));
+  }
+
+  const saveLevel12Preset = panel.querySelector('#saveLevel12Preset');
+  if (saveLevel12Preset) {
+    saveLevel12Preset.addEventListener('click', () => {
+      const bonusRelicId = String(panel.querySelector('#level12BonusRelic')?.value || '');
+      if (bonusRelicId) {
+        onSaveLoadoutPreset?.({
+          slot: 'level12',
+          bonusRelicId,
+        });
+      }
+    });
+  }
+
+  const clearLevel12Preset = panel.querySelector('#clearLevel12Preset');
+  if (clearLevel12Preset) {
+    clearLevel12Preset.addEventListener('click', () => onClearLoadoutPreset?.('level12'));
+  }
 }

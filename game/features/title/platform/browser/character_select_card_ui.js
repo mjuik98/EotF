@@ -29,6 +29,22 @@ export function ensureCharacterCardProgressNodes(card, doc = document) {
   };
 }
 
+export function ensureCharacterCardLoadoutStatusNode(card, doc = document) {
+  if (!card || !doc?.createElement) return null;
+
+  let status = card.querySelector?.('#cardLoadoutStatus');
+  if (!status) {
+    status = doc.createElement('div');
+    status.id = 'cardLoadoutStatus';
+    status.innerHTML = `
+      <div class="csm-card-loadout-summary"></div>
+      <div class="csm-card-loadout-warning"></div>
+    `;
+    card.appendChild?.(status);
+  }
+  return status;
+}
+
 export function renderCharacterCard({
   card,
   selectedChar,
@@ -38,6 +54,8 @@ export function renderCharacterCard({
   doc,
   traitBadgeText,
   xpText,
+  loadoutSummaryText,
+  loadoutWarningText,
 } = {}) {
   if (!card || !selectedChar || !resolveById) return;
 
@@ -111,6 +129,29 @@ export function renderCharacterCard({
   }
   if (progressNodes.xpText) {
     progressNodes.xpText.textContent = xpText;
+  }
+
+  const loadoutStatus = ensureCharacterCardLoadoutStatusNode(card, doc);
+  const summaryNode = loadoutStatus?.querySelector?.('.csm-card-loadout-summary') || null;
+  const warningNode = loadoutStatus?.querySelector?.('.csm-card-loadout-warning') || null;
+  if (loadoutStatus) {
+    loadoutStatus.style.marginTop = '10px';
+    loadoutStatus.style.display = (loadoutSummaryText || loadoutWarningText) ? 'grid' : 'none';
+    loadoutStatus.style.gap = '6px';
+  }
+  if (summaryNode) {
+    summaryNode.textContent = loadoutSummaryText || '';
+    summaryNode.style.display = loadoutSummaryText ? 'block' : 'none';
+    summaryNode.style.fontSize = '11px';
+    summaryNode.style.color = `${selectedChar.accent}cc`;
+    summaryNode.style.fontFamily = "'Share Tech Mono',monospace";
+  }
+  if (warningNode) {
+    warningNode.textContent = loadoutWarningText || '';
+    warningNode.style.display = loadoutWarningText ? 'block' : 'none';
+    warningNode.style.fontSize = '11px';
+    warningNode.style.color = '#ffb347';
+    warningNode.style.fontFamily = "'Share Tech Mono',monospace";
   }
 
   card.querySelectorAll?.('.card-corner')?.forEach((corner) => corner.remove?.());

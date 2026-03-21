@@ -9,6 +9,7 @@ describe('buildCharacterSelectMountPayload', () => {
     const audioEngine = { id: 'audio' };
     const saveSystem = { saveMeta: vi.fn() };
     const deps = {
+      getGameBootDeps: vi.fn(() => ({ data: { cards: 'cards-data' } })),
       getSaveSystemDeps: vi.fn(() => saveDeps),
     };
     const fns = {
@@ -23,12 +24,14 @@ describe('buildCharacterSelectMountPayload', () => {
       doc,
       gs,
       audioEngine,
+      data: { cards: 'cards-data' },
       onConfirm: expect.any(Function),
       onBack: expect.any(Function),
       onStart: expect.any(Function),
     }));
 
     payload.onProgressConsumed();
+    expect(deps.getGameBootDeps).toHaveBeenCalledTimes(1);
     expect(deps.getSaveSystemDeps).toHaveBeenCalledTimes(1);
     expect(saveSystem.saveMeta).toHaveBeenCalledWith(saveDeps);
   });

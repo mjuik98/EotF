@@ -1,0 +1,64 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - text: THE FALLEN THE FALLEN
+    - generic [ref=e123]:
+      - generic [ref=e124]:
+        - generic [ref=e126]: CHOOSE YOUR ECHO
+        - generic [ref=e127]:
+          - button "이전 캐릭터" [ref=e128]: ‹
+          - region "선택된 캐릭터" [ref=e129]:
+            - generic [ref=e130]: SWORDSMAN
+            - generic [ref=e131]: 🗡️
+            - generic [ref=e132]: 잔향검사
+            - generic [ref=e133]: ★★★☆☆
+            - generic [ref=e134]: "??공명"
+            - generic [ref=e135]:
+              - generic [ref=e136]: 상태이상
+              - generic [ref=e137]: 강화
+              - generic [ref=e138]: 균형잡힌
+            - generic [ref=e140]: Lv.1
+            - generic [ref=e143]: 0 / 100 XP
+          - generic [ref=e149]:
+            - tablist "캐릭터 상세" [ref=e150]:
+              - tab "마스터리 + 특성" [selected] [ref=e151] [cursor=pointer]
+              - tab "스탯 + 시작 장비" [ref=e152] [cursor=pointer]
+            - tabpanel [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - generic [ref=e158]: CLASS MASTERY
+                    - generic [ref=e159]: Lv.1
+                  - generic [ref=e160]: 0 / 100 XP
+                - group [ref=e162]:
+                  - generic "마스터리 로드맵" [ref=e163] [cursor=pointer]
+              - generic [ref=e164]:
+                - generic [ref=e165]: 고유 특성
+                - paragraph [ref=e166]: 공명 (Resonance)
+                - paragraph [ref=e167]: 검의 진동이 겹겹이 쌓이며 공명이 깊어집니다. 카드를 사용할 때마다 피해가 +1씩 중첩됩니다.
+              - generic [ref=e168]:
+                - generic [ref=e169]: 에코 스킬
+                - button "⚡ 공명 폭풍 잔향을 해방하여 전장을 공명파로 뒤덮는다. 잔향 게이지" [ref=e170]:
+                  - generic [ref=e171]: ⚡
+                  - generic [ref=e172]:
+                    - generic [ref=e173]: 공명 폭풍
+                    - generic [ref=e174]: 잔향을 해방하여 전장을 공명파로 뒤덮는다.
+                  - generic [ref=e175]: 잔향 게이지
+          - button "다음 캐릭터" [ref=e176]: ›
+        - generic [ref=e177]:
+          - button [ref=e178]
+          - button [ref=e179] [cursor=pointer]
+          - button [ref=e180] [cursor=pointer]
+          - button [ref=e181] [cursor=pointer]
+          - button [ref=e182] [cursor=pointer]
+          - button [ref=e183] [cursor=pointer]
+        - button "선택 확정 · 잔향검사" [ref=e186]
+      - generic "타이틀로 돌아가기" [ref=e187] [cursor=pointer]: ↩
+  - generic:
+    - generic: ⚔️
+    - generic:
+      - generic: "1"
+    - generic: 카드
+    - generic: ATTACK
+    - generic: 설명
+  - generic:
+    - generic: ⚡ 잔향 스킬

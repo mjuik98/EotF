@@ -1,4 +1,5 @@
 import * as Deps from '../../../core/deps_factory.js';
+import { resolveModuleRegistryGameRoot } from '../../../core/bindings/module_registry_scopes.js';
 
 const COMBAT_DEP_CONTRACTS = Object.freeze({
   getBaseCardDeps: 'baseCard',
@@ -12,29 +13,12 @@ function buildFeatureDeps(game, getterName, extra = {}) {
   return { ...deps, ...extra };
 }
 
-function resolveCoreRuntimeModule(modules = {}, key) {
-  const coreRefs = modules?.featureScopes?.core || {};
-  if (coreRefs[key] !== undefined) {
-    return coreRefs[key];
-  }
-
-  if (modules?.legacyModules?.[key] !== undefined) {
-    return modules.legacyModules[key];
-  }
-
-  if (modules?.[key] !== undefined) {
-    return modules[key];
-  }
-
-  return undefined;
-}
-
 function buildCombatDepAccessors(depsFactory = Deps) {
   return Deps.buildFeatureContractAccessors(COMBAT_DEP_CONTRACTS, depsFactory);
 }
 
 export function createCombatPorts(modules, depsFactory = Deps) {
-  const game = resolveCoreRuntimeModule(modules, 'GAME');
+  const game = resolveModuleRegistryGameRoot(modules);
   const depAccessors = buildCombatDepAccessors(depsFactory);
 
   return {

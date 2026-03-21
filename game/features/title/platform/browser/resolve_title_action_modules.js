@@ -1,39 +1,22 @@
-function resolveScopedRuntimeModule(modules = {}, key, scopeNames = []) {
-  for (const scopeName of scopeNames) {
-    const scopedRefs = modules?.featureScopes?.[scopeName] || {};
-    if (scopedRefs[key] !== undefined) {
-      return scopedRefs[key];
-    }
-  }
-
-  if (modules?.legacyModules?.[key] !== undefined) {
-    return modules.legacyModules[key];
-  }
-
-  if (modules?.[key] !== undefined) {
-    return modules[key];
-  }
-
-  return undefined;
-}
+import { resolveModuleRegistryValue } from '../../../../core/bindings/module_registry_scopes.js';
 
 export function resolveTitleActionModules(modules = {}) {
   return {
     ...modules,
-    GS: resolveScopedRuntimeModule(modules, 'GS', ['core']),
-    DATA: resolveScopedRuntimeModule(modules, 'DATA', ['core']),
-    AudioEngine: resolveScopedRuntimeModule(modules, 'AudioEngine', ['core']),
-    SaveSystem: resolveScopedRuntimeModule(modules, 'SaveSystem', ['core']),
-    GameInit: resolveScopedRuntimeModule(modules, 'GameInit', ['core']),
-    RandomUtils: resolveScopedRuntimeModule(modules, 'RandomUtils', ['core']),
-    CharacterSelectUI: resolveScopedRuntimeModule(modules, 'CharacterSelectUI', ['title']),
-    ClassSelectUI: resolveScopedRuntimeModule(modules, 'ClassSelectUI', ['title']),
-    MetaProgressionUI: resolveScopedRuntimeModule(modules, 'MetaProgressionUI', ['screen', 'title']),
-    HelpPauseUI: resolveScopedRuntimeModule(modules, 'HelpPauseUI', ['title', 'screen']),
-    RunSetupUI: resolveScopedRuntimeModule(modules, 'RunSetupUI', ['run']),
-    RunModeUI: resolveScopedRuntimeModule(modules, 'RunModeUI', ['run']),
-    RegionTransitionUI: resolveScopedRuntimeModule(modules, 'RegionTransitionUI', ['run']),
-    SettingsUI: resolveScopedRuntimeModule(modules, 'SettingsUI', ['screen']),
-    CodexUI: resolveScopedRuntimeModule(modules, 'CodexUI', ['codex', 'screen']),
+    GS: resolveModuleRegistryValue(modules, 'GS', ['core']),
+    DATA: resolveModuleRegistryValue(modules, 'DATA', ['core']),
+    AudioEngine: resolveModuleRegistryValue(modules, 'AudioEngine', ['core']),
+    SaveSystem: resolveModuleRegistryValue(modules, 'SaveSystem', ['core']),
+    GameInit: resolveModuleRegistryValue(modules, 'GameInit', ['core']),
+    RandomUtils: resolveModuleRegistryValue(modules, 'RandomUtils', ['core']),
+    CharacterSelectUI: resolveModuleRegistryValue(modules, 'CharacterSelectUI', ['title']),
+    ClassSelectUI: resolveModuleRegistryValue(modules, 'ClassSelectUI', ['title']),
+    MetaProgressionUI: resolveModuleRegistryValue(modules, 'MetaProgressionUI', ['screen', 'title']),
+    HelpPauseUI: resolveModuleRegistryValue(modules, 'HelpPauseUI', ['title', 'screen']),
+    RunSetupUI: resolveModuleRegistryValue(modules, 'RunSetupUI', ['run']),
+    RunModeUI: resolveModuleRegistryValue(modules, 'RunModeUI', ['run']),
+    RegionTransitionUI: resolveModuleRegistryValue(modules, 'RegionTransitionUI', ['run']),
+    SettingsUI: resolveModuleRegistryValue(modules, 'SettingsUI', ['screen']),
+    CodexUI: resolveModuleRegistryValue(modules, 'CodexUI', ['codex', 'screen']),
   };
 }

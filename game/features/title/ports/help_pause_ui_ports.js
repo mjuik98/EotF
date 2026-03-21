@@ -1,6 +1,6 @@
 export {
   buildTitleHelpPauseActions,
   confirmPauseReturnToTitle,
-} from '../application/help_pause_title_actions.js';
-export { confirmHelpPauseAbandonRun } from '../application/help_pause_abandon_actions.js';
-export { createTitlePauseMenuActions } from '../application/help_pause_menu_actions.js';
+  confirmHelpPauseAbandonRun,
+  createTitlePauseMenuActions,
+} from './public_help_pause_application_capabilities.js';

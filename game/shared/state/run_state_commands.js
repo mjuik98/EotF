@@ -1,19 +1,24 @@
-import { registerCardDiscovered, registerItemFound } from '../codex/codex_record_state_use_case.js';
 import {
   createDefaultCombatState,
   createDefaultPlayerState,
   createDefaultRunConfig,
   createDefaultRuntimeState,
 } from '../../core/game_state_defaults.js';
+import {
+  addPlayerItemAndRegisterState,
+  registerPlayerDeckCardsState,
+} from './player_state_effects.js';
+import { resolveClassStartingLoadout } from '../progression/class_loadout_preset_use_case.js';
 
-export function createRunStartPlayer(selectedClass, maxHp, data) {
+export function createRunStartPlayer(selectedClass, maxHp, data, deckOverride = null) {
+  const baseDeck = Array.isArray(deckOverride) ? deckOverride : data.startDecks[selectedClass];
   return createDefaultPlayerState({
     class: selectedClass,
     hp: maxHp,
     maxHp,
     echo: 0,
     gold: 10,
-    deck: [...data.startDecks[selectedClass]],
+    deck: [...baseDeck],
   });
 }
 
@@ -31,21 +36,23 @@ export function resetRunConfig(gs) {
 }
 
 export function applyRunStartLoadout(gs, selectedClass, classMeta, data) {
-  gs.player = createRunStartPlayer(selectedClass, Number(classMeta?.stats?.HP), data);
+  const loadout = resolveClassStartingLoadout(gs?.meta, selectedClass, {
+    classLevel: gs?.meta?.classProgress?.levels?.[selectedClass],
+    classMeta,
+    data,
+  });
+
+  gs.player = createRunStartPlayer(selectedClass, Number(classMeta?.stats?.HP), data, loadout.deck);
 
   if (!gs.meta.codex) {
     gs.meta.codex = { enemies: new Set(), cards: new Set(), items: new Set() };
   }
-  gs.player.deck.forEach((id) => registerCardDiscovered(gs, id));
+  registerPlayerDeckCardsState(gs, gs.player.deck);
 
-  const startItem = classMeta.startRelic;
-  if (!startItem) return;
-  gs.player.items.push(startItem);
-  registerItemFound(gs, startItem);
-  const itemDef = data.items?.[startItem];
-  if (itemDef && typeof itemDef.onAcquire === 'function') {
-    itemDef.onAcquire(gs);
-  }
+  loadout.relicIds.forEach((itemId) => {
+    const itemDef = data.items?.[itemId];
+    addPlayerItemAndRegisterState(gs, itemId, itemDef);
+  });
 }
 
 export function resetRuntimeState(gs, worldMemory) {

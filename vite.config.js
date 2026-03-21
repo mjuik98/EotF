@@ -22,13 +22,15 @@ export function filterLazyChunkModulePreloads(deps, context = {}) {
   });
 }
 
-function getManualChunk(id) {
+export function getManualChunk(id) {
   const normalized = id.replace(/\\/g, '/');
 
   if (normalized.includes('/node_modules/')) return 'vendor';
 
   if (normalized.endsWith('/data/cards.js')) return 'data-cards';
   if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
+  if (normalized.endsWith('/data/status_key_data.js')) return 'ui-combat';
+  if (normalized.endsWith('/game/utils/status_value_utils.js')) return 'ui-combat';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
   if (normalized.includes('/game/features/event/presentation/browser/')) return 'ui-event';
   if (

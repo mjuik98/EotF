@@ -36,7 +36,7 @@ vi.mock('../data/cards.js', () => ({
   CARDS: {},
 }));
 
-vi.mock('../game/features/title/ports/class_progression_ports.js', () => ({
+vi.mock('../game/features/title/domain/class_progression_system.js', () => ({
   ClassProgressionSystem: {
     MAX_LEVEL: 10,
     ensureMeta: hoisted.ensureMeta,
@@ -45,7 +45,7 @@ vi.mock('../game/features/title/ports/class_progression_ports.js', () => ({
   },
 }));
 
-vi.mock('../game/features/combat/ports/tooltip_ui_ports.js', () => ({
+vi.mock('../game/features/combat/ports/public_presentation_capabilities.js', () => ({
   TooltipUI: {},
 }));
 
@@ -160,5 +160,105 @@ describe('character_select_mount_runtime', () => {
     expect(hoisted.renderCharacterPhase).toHaveBeenCalledTimes(1);
     expect(deps.onProgressConsumed).toHaveBeenCalledTimes(1);
     expect(runtime.resolveClass('berserker')).toBe(chars[1]);
+  });
+
+  it('passes loadout summary and warning state through to the character card renderer', () => {
+    hoisted.getClassState.mockReturnValue({
+      level: 12,
+      totalXp: 2200,
+      currentLevelXp: 2200,
+      nextLevelXp: null,
+      progress: 1,
+    });
+
+    const elements = {
+      charCard: createElement(),
+      infoPanel: createElement(),
+      dotsRow: createElement(),
+      buttonsRow: createElement(),
+      bgGradient: createElement(),
+      headerTitle: createElement(),
+    };
+    const chars = [
+      {
+        class: 'swordsman',
+        traitName: 'Resonance',
+        accent: '#7CC8FF',
+        glow: '#7CC8FF',
+        particle: 'aegis',
+        startDeck: ['strike', 'heavy_blow'],
+        startRelicId: 'dull_blade',
+        startRelic: { icon: '*', name: 'Dull Blade', desc: 'Starter relic.' },
+      },
+    ];
+    const deps = {
+      gs: {
+        meta: {
+          codex: {
+            cards: new Set(),
+            items: new Set(),
+          },
+          classProgress: {
+            levels: { swordsman: 12 },
+            xp: { swordsman: 2200 },
+            pendingSummaries: [],
+            loadoutPresets: {
+              swordsman: {
+                level11: { type: 'swap', removeIndex: 1, removeCardId: 'heavy_blow', addCardId: 'blade_dance' },
+                level12: { bonusRelicId: 'guardian_seal' },
+              },
+            },
+          },
+        },
+      },
+      data: {
+        cards: {
+          strike: { id: 'strike', name: 'Strike' },
+          heavy_blow: { id: 'heavy_blow', name: 'Heavy Blow' },
+          blade_dance: { id: 'blade_dance', name: 'Blade Dance' },
+        },
+        items: {
+          dull_blade: { id: 'dull_blade', name: 'Dull Blade' },
+          guardian_seal: { id: 'guardian_seal', name: 'Guardian Seal' },
+        },
+        startDecks: {
+          swordsman: ['strike', 'heavy_blow'],
+        },
+        upgradeMap: {
+          strike: 'strike_plus',
+          heavy_blow: 'heavy_blow_plus',
+        },
+      },
+    };
+
+    const runtime = createCharacterSelectMountRuntime({
+      chars,
+      deps,
+      doc: {},
+      flow: { jumpTo: vi.fn(), handleConfirm: vi.fn() },
+      getById: (id) => elements[id] || null,
+      openModal: vi.fn(),
+      particleRuntime: { start: vi.fn() },
+      sfx: { hover: vi.fn(), echo: vi.fn() },
+      state: { idx: 0, phase: 'select', typingTimer: null },
+      stopTyping: vi.fn(),
+      win: {},
+    });
+
+    runtime.updateAll();
+
+    expect(hoisted.renderCharacterCard).toHaveBeenCalledWith(expect.objectContaining({
+      loadoutSummaryText: '',
+      loadoutWarningText: '프리셋 확인 필요',
+    }));
+    expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({
+      loadoutCustomization: expect.objectContaining({
+        hasInvalidPreset: true,
+        invalidWarnings: [
+          'Lv.11 시작 덱 프리셋을 적용할 수 없습니다. 저장된 설정을 확인하세요.',
+          'Lv.12 시작 유물 프리셋을 적용할 수 없습니다. 저장된 설정을 확인하세요.',
+        ],
+      }),
+    }));
   });
 });

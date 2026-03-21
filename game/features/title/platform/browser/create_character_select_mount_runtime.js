@@ -3,7 +3,12 @@ import {
   ensureCharacterSelectMeta,
   getCharacterSelectPresentation,
 } from '../../application/load_character_select_use_case.js';
-import { TooltipUI } from '../../../combat/ports/tooltip_ui_ports.js';
+import {
+  buildClassLoadoutCustomizationPresentation,
+  saveLevel11LoadoutPreset,
+  saveLevel12LoadoutPreset,
+} from '../../../../shared/progression/class_loadout_preset_use_case.js';
+import { TooltipUI } from '../../../combat/ports/public_presentation_capabilities.js';
 import {
   renderCharacterInfoPanel,
   renderCharacterPhase,
@@ -49,12 +54,75 @@ export function createCharacterSelectMountRuntime(options = {}) {
     if (typeof deps.onProgressConsumed === 'function') deps.onProgressConsumed();
   }
 
+  function buildLoadoutCustomization(ch, presentation) {
+    const itemCatalog = deps?.data?.items || {};
+    const dataCards = deps?.data?.cards || CARDS;
+    const dataUpgradeMap = deps?.data?.upgradeMap || {};
+    const dataStartDecks = deps?.data?.startDecks || {
+      [ch.class]: ch.startDeck,
+    };
+    const customization = buildClassLoadoutCustomizationPresentation(deps?.gs?.meta, ch.class, {
+      classLevel: presentation.classProgress.level,
+      classMeta: {
+        class: ch.class,
+        startDeck: ch.startDeck,
+        startRelic: ch.startRelicId,
+      },
+      data: {
+        cards: dataCards,
+        items: itemCatalog,
+        startDecks: dataStartDecks,
+        upgradeMap: dataUpgradeMap,
+      },
+    });
+    const previewRelics = customization.previewRelicIds
+      .map((relicId) => {
+        const relic = itemCatalog[relicId];
+        if (!relic && relicId === ch.startRelicId) {
+          return {
+            id: relicId,
+            icon: ch.startRelic?.icon || '?',
+            name: ch.startRelic?.name || relicId,
+            desc: ch.startRelic?.desc || 'Data unavailable',
+          };
+        }
+        if (!relic) return { id: relicId, icon: '?', name: relicId, desc: 'Data unavailable' };
+        return {
+          id: relicId,
+          icon: relic.icon || '?',
+          name: relic.name || relicId,
+          desc: relic.desc || 'Data unavailable',
+        };
+      })
+      .filter(Boolean);
+
+    return {
+      customization: {
+        ...customization,
+        previewRelics,
+        eligibleSwapAddCards: customization.eligibleSwapAddCardIds.map((cardId) => ({
+          cardId,
+          name: dataCards[cardId]?.name || cardId,
+        })),
+        eligibleBonusRelics: customization.eligibleBonusRelicIds.map((relicId) => ({
+          id: relicId,
+          name: itemCatalog[relicId]?.name || relicId,
+        })),
+      },
+      dataCards,
+      dataStartDecks,
+      dataUpgradeMap,
+      itemCatalog,
+    };
+  }
+
   function renderCard() {
     const ch = chars[state.idx];
     const card = getById('charCard');
     if (!card) return;
     const presentation = getCharacterSelectPresentation(deps?.gs?.meta, ch.class, classIds);
     const progress = presentation.classProgress;
+    const { customization } = buildLoadoutCustomization(ch, presentation);
     renderCharacterCard({
       card,
       selectedChar: ch,
@@ -66,12 +134,22 @@ export function createCharacterSelectMountRuntime(options = {}) {
       xpText: progress.nextLevelXp === null
         ? `MAX LEVEL 쨌 ${progress.totalXp} XP`
         : `${progress.totalXp} / ${progress.nextLevelXp} XP`,
+      loadoutSummaryText: customization.hasInvalidPreset ? '' : customization.cardSummaryLine,
+      loadoutWarningText: customization.hasInvalidPreset ? '프리셋 확인 필요' : '',
     });
   }
 
   function renderInfoPanel() {
     const ch = chars[state.idx];
     const presentation = getCharacterSelectPresentation(deps?.gs?.meta, ch.class, classIds);
+    const {
+      customization,
+      dataCards,
+      dataStartDecks,
+      dataUpgradeMap,
+      itemCatalog,
+    } = buildLoadoutCustomization(ch, presentation);
+
     renderCharacterInfoPanel({
       panel: getById('infoPanel'),
       selectedChar: ch,
@@ -79,7 +157,7 @@ export function createCharacterSelectMountRuntime(options = {}) {
       roadmap: presentation.roadmap,
       buildSectionLabel: buildCharacterSelectSectionLabel,
       buildRadar: buildCharacterRadar,
-      cards: CARDS,
+      cards: dataCards,
       generalTooltipUI: TooltipUI,
       cardTooltipUI: TooltipUI,
       doc,
@@ -87,6 +165,50 @@ export function createCharacterSelectMountRuntime(options = {}) {
       hover: () => sfx.hover(),
       echo: () => sfx.echo(),
       openModal,
+      loadoutCustomization: customization,
+      onSaveLoadoutPreset: (payload) => {
+        if (!payload?.slot) return;
+        if (payload.slot === 'level11') {
+          saveLevel11LoadoutPreset(deps?.gs?.meta, ch.class, payload, {
+            classLevel: presentation.classProgress.level,
+            classMeta: {
+              class: ch.class,
+              startDeck: ch.startDeck,
+              startRelic: ch.startRelicId,
+            },
+            data: {
+              cards: dataCards,
+              items: itemCatalog,
+              startDecks: dataStartDecks,
+              upgradeMap: dataUpgradeMap,
+            },
+          });
+        } else if (payload.slot === 'level12') {
+          saveLevel12LoadoutPreset(deps?.gs?.meta, ch.class, payload.bonusRelicId, {
+            classLevel: presentation.classProgress.level,
+            classMeta: {
+              class: ch.class,
+              startDeck: ch.startDeck,
+              startRelic: ch.startRelicId,
+            },
+            data: {
+              cards: dataCards,
+              items: itemCatalog,
+              startDecks: dataStartDecks,
+              upgradeMap: dataUpgradeMap,
+            },
+          });
+        }
+        saveProgressMeta();
+        updateAll();
+      },
+      onClearLoadoutPreset: (slot) => {
+        const presets = deps?.gs?.meta?.classProgress?.loadoutPresets?.[ch.class];
+        if (!presets || (slot !== 'level11' && slot !== 'level12')) return;
+        presets[slot] = null;
+        saveProgressMeta();
+        updateAll();
+      },
     });
   }
 

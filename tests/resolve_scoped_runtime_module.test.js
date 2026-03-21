@@ -36,4 +36,47 @@ describe('resolve_scoped_runtime_module', () => {
 
     expect(resolveScopedRuntimeModule(modules, 'SettingsUI', ['screen'])).toEqual({ token: 'legacy' });
   });
+
+  it('can ignore lazy runtime module placeholders when requested', () => {
+    const modules = {
+      CodexUI: { token: 'top-level' },
+      legacyModules: {
+        CodexUI: { __lazyModule: true, token: 'lazy-legacy' },
+      },
+      featureScopes: {
+        codex: {
+          CodexUI: { __lazyModule: true, token: 'lazy-scoped' },
+        },
+      },
+    };
+
+    expect(
+      resolveScopedRuntimeModule(modules, 'CodexUI', ['codex', 'screen'], { allowLazyModules: false }),
+    ).toEqual({ token: 'top-level' });
+  });
+
+  it('can ignore getter-backed top-level aliases when requested', () => {
+    const legacySettingsUI = { token: 'legacy' };
+    const modules = {
+      legacyModules: {
+        SettingsUI: legacySettingsUI,
+      },
+      featureScopes: {},
+    };
+
+    Object.defineProperty(modules, 'SettingsUI', {
+      configurable: true,
+      enumerable: false,
+      get() {
+        return legacySettingsUI;
+      },
+    });
+
+    expect(
+      resolveScopedRuntimeModule(modules, 'SettingsUI', ['screen'], { topLevelDataOnly: true }),
+    ).toBe(legacySettingsUI);
+    expect(
+      resolveScopedRuntimeModule({ featureScopes: {} }, 'SettingsUI', ['screen'], { topLevelDataOnly: true }),
+    ).toBeUndefined();
+  });
 });

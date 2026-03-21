@@ -97,4 +97,60 @@ describe('run_state_commands', () => {
     expect(gs.worldMemory).toEqual({ savedMerchant: 1 });
     expect(gs.combat.active).toBe(false);
   });
+
+  it('applies class loadout presets to starting deck and relics', () => {
+    const gs = createGS();
+    gs.meta.codex = {
+      cards: new Set(['twin_strike']),
+      items: new Set(['bonus_relic']),
+    };
+    gs.meta.classProgress = {
+      levels: { swordsman: 12 },
+      xp: { swordsman: 2200 },
+      pendingSummaries: [],
+      loadoutPresets: {
+        swordsman: {
+          level11: {
+            type: 'swap',
+            removeIndex: 2,
+            removeCardId: 'heavy_blow',
+            addCardId: 'twin_strike',
+          },
+          level12: {
+            bonusRelicId: 'bonus_relic',
+          },
+        },
+      },
+    };
+
+    applyRunStartLoadout(gs, 'swordsman', {
+      class: 'swordsman',
+      stats: { HP: 80 },
+      startDeck: ['strike', 'defend', 'heavy_blow'],
+      startRelic: 'starter_relic',
+    }, {
+      startDecks: {
+        swordsman: ['strike', 'defend', 'heavy_blow'],
+      },
+      cards: {
+        strike: { id: 'strike' },
+        defend: { id: 'defend' },
+        heavy_blow: { id: 'heavy_blow' },
+        twin_strike: { id: 'twin_strike' },
+      },
+      items: {
+        starter_relic: {
+          onAcquire: vi.fn(),
+        },
+        bonus_relic: {
+          onAcquire: vi.fn(),
+        },
+      },
+    });
+
+    expect(gs.player.deck).toEqual(['strike', 'defend', 'twin_strike']);
+    expect(gs.player.items).toEqual(['starter_relic', 'bonus_relic']);
+    expect(hoisted.registerCardDiscovered).toHaveBeenCalledWith(gs, 'twin_strike');
+    expect(hoisted.registerItemFound).toHaveBeenCalledWith(gs, 'bonus_relic');
+  });
 });

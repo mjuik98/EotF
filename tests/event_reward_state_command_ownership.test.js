@@ -101,7 +101,7 @@ describe('event/reward state command ownership', () => {
     expect(hoisted.applyPlayerHealCompatState).toHaveBeenCalledWith(state, 6);
     expect(hoisted.applyPlayerGoldCompatState).toHaveBeenCalledWith(state, 18);
     expect(hoisted.applyPlayerMaxHpGrowthCompatState).toHaveBeenCalledWith(state, 5);
-    expect(hoisted.applyPlayerMaxEnergyGrowthCompatState).toHaveBeenCalledWith(state, 1);
+    expect(hoisted.applyPlayerMaxEnergyGrowthCompatState).toHaveBeenCalledWith(state, 1, {});
     vi.restoreAllMocks();
   });
 });

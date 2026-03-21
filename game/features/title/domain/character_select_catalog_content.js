@@ -32,5 +32,6 @@ export const CHARACTER_SELECT_CHARS = Object.values(CLASS_METADATA)
   .map((classMeta) => ({
     ...classMeta,
     particle: resolveParticle(classMeta),
+    startRelicId: classMeta.startRelic,
     startRelic: resolveStartRelic(classMeta),
   }));

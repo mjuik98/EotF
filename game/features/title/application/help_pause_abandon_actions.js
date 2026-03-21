@@ -1,4 +1,4 @@
-import { cleanupCombatAfterAbandon } from '../../combat/ports/help_pause_combat_ports.js';
+import { cleanupCombatAfterAbandon } from '../../combat/ports/public_application_capabilities.js';
 import { showAbandonOutcome } from '../presentation/browser/abandon_outcome_presenter.js';
 
 function resolveDoc(deps = {}) {

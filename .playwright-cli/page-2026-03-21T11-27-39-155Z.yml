@@ -1,0 +1,106 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - region "ECHO OF THE FALLEN THE FALLEN THE FALLEN" [ref=e5]:
+      - generic [ref=e6]: A ROGUELIKE DECKBUILDER
+      - generic [ref=e8]:
+        - generic [ref=e9]: ECHO OF
+        - generic [ref=e10]: THE FALLEN THE FALLEN THE FALLEN
+      - generic [ref=e11]: 잔향의 연대기
+      - paragraph [ref=e12]: 기억은 사라지지 않는다. 잔향이 될 뿐.
+      - generic [ref=e16]: Echo Resonance
+    - region "메인 메뉴" [ref=e18]:
+      - generic [ref=e20]: Main Menu
+      - generic [ref=e21]:
+        - button "이어하기 최근 저장된 런" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: ↺
+          - generic [ref=e24]:
+            - generic [ref=e25]: 이어하기
+            - generic [ref=e26]: 최근 저장된 런
+          - generic [ref=e27]: →
+        - note:
+          - generic:
+            - generic: 저장 프리뷰
+          - generic:
+            - generic: 클래스
+            - strong: "-"
+          - generic:
+            - generic: 진행도
+            - strong: "-"
+          - generic:
+            - generic: 승천
+            - strong: A0
+          - generic:
+            - generic: HP
+            - strong: "-"
+          - generic:
+            - generic: 골드
+            - strong: "0"
+          - generic:
+            - generic: 덱 구성
+      - generic [ref=e29]:
+        - button "잔향 속으로 새 런 시작 ENTER" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]: ✦
+          - generic [ref=e32]: 잔향 속으로
+          - generic [ref=e33]: 새 런 시작
+          - generic [ref=e34]: ENTER
+          - generic [ref=e35]: →
+        - button "런 규칙 모드와 각인 확인 R" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: ⌘
+          - generic [ref=e38]: 런 규칙
+          - generic [ref=e39]: 모드와 각인 확인
+          - generic [ref=e40]: R
+          - generic [ref=e41]: →
+        - button "도감 해금한 적과 카드 D" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: ◫
+          - generic [ref=e44]: 도감
+          - generic [ref=e45]: 해금한 적과 카드
+          - generic [ref=e46]: D
+          - generic [ref=e47]: →
+        - button "설정 오디오와 연출 조정 S" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: ⋯
+          - generic [ref=e50]: 설정
+          - generic [ref=e51]: 오디오와 연출 조정
+          - generic [ref=e52]: S
+          - generic [ref=e53]: →
+        - button "종료 게임 닫기 ESC" [ref=e54] [cursor=pointer]:
+          - generic [ref=e55]: ×
+          - generic [ref=e56]: 종료
+          - generic [ref=e57]: 게임 닫기
+          - generic [ref=e58]: ESC
+          - generic [ref=e59]: →
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]: 모
+          - generic [ref=e65]: 든
+          - generic [ref=e67]: 기
+          - generic [ref=e68]: 억
+          - generic [ref=e69]: 은
+          - generic [ref=e71]: 사
+          - generic [ref=e72]: 라
+          - generic [ref=e73]: 지
+          - generic [ref=e74]: 지
+          - generic [ref=e76]: 않
+          - generic [ref=e77]: 는
+          - generic [ref=e78]: 다
+          - generic [ref=e79]: .
+        - generic [ref=e80]:
+          - generic [ref=e81]: 형
+          - generic [ref=e82]: 태
+          - generic [ref=e83]: 만
+          - generic [ref=e85]: 잔
+          - generic [ref=e86]: 향
+          - generic [ref=e87]: 으
+          - generic [ref=e88]: 로
+          - generic [ref=e90]: 남
+          - generic [ref=e91]: 는
+          - generic [ref=e92]: 다
+          - generic [ref=e93]: .
+  - generic:
+    - generic: ⚔️
+    - generic:
+      - generic: "1"
+    - generic: 카드
+    - generic: ATTACK
+    - generic: 설명
+  - generic:
+    - generic: ⚡ 잔향 스킬

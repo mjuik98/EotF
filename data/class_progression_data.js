@@ -1,6 +1,6 @@
-export const MAX_CLASS_MASTERY_LEVEL = 10;
+export const MAX_CLASS_MASTERY_LEVEL = 12;
 
-// Cumulative XP required to reach each level index (1..10).
+// Cumulative XP required to reach each level index (1..12).
 // Level 1 starts at 0 XP.
 export const CLASS_MASTERY_LEVEL_XP = Object.freeze([
   0,    // unused (level 0)
@@ -14,6 +14,8 @@ export const CLASS_MASTERY_LEVEL_XP = Object.freeze([
   1120, // level 8
   1360, // level 9
   1620, // level 10
+  1900, // level 11
+  2200, // level 12
 ]);
 
 export const CLASS_MASTERY_ROADMAP = Object.freeze([
@@ -26,6 +28,8 @@ export const CLASS_MASTERY_ROADMAP = Object.freeze([
   { lv: 8, icon: 'REL', desc: '보상에서 유물 선택지 +1' },
   { lv: 9, icon: 'SPD', desc: '전투 시작 시 카드 1장 추가 드로우' },
   { lv: 10, icon: 'AWK', desc: '클래스 각성 보너스 해제' },
+  { lv: 11, icon: 'MOD', desc: '시작 덱 커스터마이즈 해제' },
+  { lv: 12, icon: 'REL+', desc: '추가 시작 유물 장착 해제' },
 ]);
 
 export const CLASS_MASTERY_ULTIMATE_TEXT = Object.freeze({
@@ -39,7 +43,7 @@ export const CLASS_MASTERY_ULTIMATE_TEXT = Object.freeze({
 
 export function getClassMasteryRoadmap(classId) {
   return CLASS_MASTERY_ROADMAP.map((entry) => {
-    if (entry.lv !== MAX_CLASS_MASTERY_LEVEL) return { ...entry };
+    if (entry.lv !== 10) return { ...entry };
     return {
       ...entry,
       desc: CLASS_MASTERY_ULTIMATE_TEXT[classId] || entry.desc,

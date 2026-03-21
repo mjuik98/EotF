@@ -1,0 +1,115 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - text: THE FALLEN THE FALLEN
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e93]: CHOOSE YOUR ECHO
+        - generic [ref=e94]:
+          - button "이전 캐릭터" [ref=e95]: ‹
+          - region "선택된 캐릭터" [ref=e96]:
+            - generic [ref=e97]: SWORDSMAN
+            - generic [ref=e98]: 🗡️
+            - generic [ref=e99]: 잔향검사
+            - generic [ref=e100]: ★★★☆☆
+            - generic [ref=e101]: "??공명"
+            - generic [ref=e102]:
+              - generic [ref=e249]: 상태이상
+              - generic [ref=e250]: 강화
+              - generic [ref=e251]: 균형잡힌
+            - generic [ref=e107]: MAX
+            - generic [ref=e110]: MAX LEVEL 쨌 2200 XP
+          - generic [ref=e257]:
+            - tablist "캐릭터 상세" [ref=e258]:
+              - tab "마스터리 + 특성" [ref=e259] [cursor=pointer]
+              - tab "스탯 + 시작 장비" [active] [selected] [ref=e260] [cursor=pointer]
+            - tabpanel [ref=e293]:
+              - generic [ref=e294]:
+                - generic [ref=e295]:
+                  - generic [ref=e296]: 스탯
+                  - img [ref=e298]:
+                    - generic [ref=e314]: HP
+                    - generic [ref=e315]: ATK
+                    - generic [ref=e316]: DEF
+                    - generic [ref=e317]: ECH
+                    - generic [ref=e318]: RHY
+                    - generic [ref=e319]: RES
+                - generic [ref=e320]:
+                  - generic [ref=e321]: 시작 유물
+                  - generic [ref=e322]:
+                    - generic [ref=e323]:
+                      - generic [ref=e324]: 🗡️
+                      - generic [ref=e325]:
+                        - generic [ref=e326]: 무딘 검
+                        - generic [ref=e327]: 기본 유물
+                    - generic [ref=e328]:
+                      - generic [ref=e329]: 🐻
+                      - generic [ref=e330]:
+                        - generic [ref=e331]: 고대인의 자루
+                        - generic [ref=e332]: 추가 유물
+              - generic [ref=e333]:
+                - generic [ref=e334]: 시작 덱
+                - generic [ref=e335]:
+                  - generic [ref=e336]: 타격
+                  - generic [ref=e337]: 타격
+                  - generic [ref=e338]: 수비
+                  - generic [ref=e339]: 수비
+                  - generic [ref=e340]: 발도
+                  - generic [ref=e341]: 쌍검격
+                  - generic [ref=e342]: 잔향 타격
+                  - generic [ref=e343]: 잔영
+              - generic [ref=e344]:
+                - generic [ref=e345]: 마스터리 커스터마이즈
+                - generic [ref=e346]: "Lv.11 현재 설정: 교체: 중격 -> 잔영"
+                - generic [ref=e347]: "Lv.12 현재 설정: 고대인의 자루"
+                - generic [ref=e348]: Lv.11 강화 저장
+                - generic [ref=e349]:
+                  - combobox [ref=e350]:
+                    - option "타격" [selected]
+                    - option "타격"
+                    - option "수비"
+                    - option "수비"
+                    - option "발도"
+                    - option "쌍검격"
+                    - option "잔향 타격"
+                    - option "중격"
+                  - button "강화로 저장" [ref=e351]
+                - generic [ref=e352]: Lv.11 교체 저장
+                - generic [ref=e353]:
+                  - combobox [ref=e354]:
+                    - option "타격" [selected]
+                    - option "타격"
+                    - option "수비"
+                    - option "수비"
+                    - option "발도"
+                    - option "쌍검격"
+                    - option "잔향 타격"
+                    - option "중격"
+                  - combobox [ref=e355]:
+                    - option "잔영" [selected]
+                  - button "교체로 저장" [ref=e356]
+                  - button "해제" [ref=e357]
+                - generic [ref=e358]: Lv.12 추가 시작 유물
+                - generic [ref=e359]:
+                  - combobox [ref=e360]:
+                    - option "고대인의 자루" [selected]
+                  - button "유물 저장" [ref=e361]
+                  - button "해제" [ref=e362]
+          - button "다음 캐릭터" [ref=e143]: ›
+        - generic [ref=e144]:
+          - button [ref=e285]
+          - button [ref=e286] [cursor=pointer]
+          - button [ref=e287] [cursor=pointer]
+          - button [ref=e288] [cursor=pointer]
+          - button [ref=e289] [cursor=pointer]
+          - button [ref=e290] [cursor=pointer]
+        - button "선택 확정 · 잔향검사" [ref=e292]
+      - generic "타이틀로 돌아가기" [ref=e154] [cursor=pointer]: ↩
+  - generic:
+    - generic: ⚔️
+    - generic:
+      - generic: "1"
+    - generic: 카드
+    - generic: ATTACK
+    - generic: 설명
+  - generic:
+    - generic: ⚡ 잔향 스킬

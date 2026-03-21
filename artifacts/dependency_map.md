@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-21T02:59:02.038Z
-- Nodes: 1345
-- Edges: 1376
+- Generated: 2026-03-21T11:27:03.809Z
+- Nodes: 1349
+- Edges: 1385
 
 ## Layer Edges
 
@@ -26,14 +26,14 @@
 | domain->utils | 3 |
 | engine->data | 1 |
 | engine->engine | 2 |
-| feature->core | 17 |
+| feature->core | 23 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 712 |
+| feature->feature | 713 |
 | feature->legacy | 4 |
-| feature->other | 8 |
+| feature->other | 9 |
 | feature->platform | 3 |
-| feature->shared | 42 |
+| feature->shared | 40 |
 | feature->state | 2 |
 | feature->utils | 30 |
 | legacy->core | 6 |
@@ -52,11 +52,11 @@
 | platform->platform | 16 |
 | platform->shared | 2 |
 | platform->utils | 4 |
-| shared->core | 4 |
+| shared->core | 5 |
 | shared->data | 2 |
 | shared->feature | 3 |
 | shared->legacy | 1 |
-| shared->shared | 41 |
+| shared->shared | 43 |
 | shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -69,7 +69,7 @@
 | game/features/combat/platform/browser/combat_browser_modules.js | 13 |
 | game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
-| game/features/combat/ports/public_application_capabilities.js | 10 |
+| game/features/combat/ports/public_application_capabilities.js | 11 |
 | game/features/event/ports/public_application_capabilities.js | 9 |
 | data/events_data.js | 8 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
@@ -87,10 +87,10 @@
 | File | In Degree |
 |---|---:|
 | game/domain/audio/audio_event_helpers.js | 29 |
+| game/core/bindings/module_registry_scopes.js | 17 |
 | data/game_data.js | 14 |
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
-| game/core/bindings/module_registry_scopes.js | 10 |
 | game/core/store/state_actions.js | 10 |
 | game/shared/state/player_state_commands.js | 10 |
 | game/utils/logger.js | 10 |
@@ -100,7 +100,7 @@
 | game/core/event_bus.js | 8 |
 | game/features/run/ports/public_rule_capabilities.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
-| game/shared/codex/codex_record_state_use_case.js | 8 |
+| game/data/constants.js | 7 |
 
 > Full graph is available in `artifacts/dependency_map.json`.
 

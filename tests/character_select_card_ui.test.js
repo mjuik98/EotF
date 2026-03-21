@@ -58,6 +58,14 @@ function createGeneratedNode() {
       generated.text ??= createNode();
       return generated.text;
     }
+    if (selector === '.csm-card-loadout-summary') {
+      generated.summary ??= createNode();
+      return generated.summary;
+    }
+    if (selector === '.csm-card-loadout-warning') {
+      generated.warning ??= createNode();
+      return generated.warning;
+    }
     return null;
   };
   return node;
@@ -72,6 +80,9 @@ function createCard() {
     }
     if (selector === '#cardXpBarWrap') {
       return card.children.find((child) => child.id === 'cardXpBarWrap') || null;
+    }
+    if (selector === '#cardLoadoutStatus') {
+      return card.children.find((child) => child.id === 'cardLoadoutStatus') || null;
     }
     return null;
   };
@@ -180,5 +191,43 @@ describe('character select card helper', () => {
     expect(oldCorner.removed).toBe(true);
     expect(levelBadgeHost.querySelector('.csm-card-level').textContent).toBe('MAX');
     expect(levelBadgeHost.querySelector('.csm-card-level').style.background).toBe('#FFAA5526');
+  });
+
+  it('renders loadout summary and invalid preset warning badges', () => {
+    const card = createCard();
+    const doc = {
+      createElement: () => createGeneratedNode(),
+    };
+
+    renderCharacterCard({
+      card,
+      selectedChar: {
+        accent: '#7CC8FF',
+        color: '#123456',
+        glow: '#7CC8FF',
+        title: 'Paladin',
+        emoji: 'P',
+        name: 'Defender',
+        difficulty: 'Normal',
+        traitName: 'Grace',
+        tags: ['holy', 'tank'],
+      },
+      classProgress: {
+        level: 12,
+        progress: 1,
+      },
+      maxLevel: 12,
+      resolveById: () => null,
+      doc,
+      traitBadgeText: 'Trait Grace',
+      xpText: 'MAX LEVEL 2200 XP',
+      loadoutSummaryText: '프리셋: 중격→잔영 | +고대인의 자루',
+      loadoutWarningText: '프리셋 확인 필요',
+    });
+
+    const statusHost = card.children.find((child) => child.id === 'cardLoadoutStatus');
+    expect(statusHost).toBeTruthy();
+    expect(statusHost.querySelector('.csm-card-loadout-summary').textContent).toBe('프리셋: 중격→잔영 | +고대인의 자루');
+    expect(statusHost.querySelector('.csm-card-loadout-warning').textContent).toBe('프리셋 확인 필요');
   });
 });

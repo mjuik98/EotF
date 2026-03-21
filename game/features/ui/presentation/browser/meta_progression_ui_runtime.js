@@ -2,7 +2,7 @@ import { EndingScreenUI } from './ending_screen_ui.js';
 import {
   restartFromEndingAction,
   selectMetaFragmentAction,
-} from '../../../title/ports/ending_ui_ports.js';
+} from '../../../title/ports/public_ending_application_capabilities.js';
 
 function cleanupEnding(deps = {}) {
   const doc = deps?.doc || document;

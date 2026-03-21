@@ -1,4 +1,4 @@
-import { confirmHelpPauseAbandonRun } from '../../../title/ports/help_pause_ui_ports.js';
+import { confirmHelpPauseAbandonRun } from '../../../title/ports/public_help_pause_application_capabilities.js';
 
 function removeFloatingPlayerHpPanel(deps = {}) {
   const doc = deps.doc || deps.win?.document || null;

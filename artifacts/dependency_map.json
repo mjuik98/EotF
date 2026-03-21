@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-21T02:59:02.038Z",
-  "nodeCount": 1345,
-  "edgeCount": 1376,
+  "generatedAt": "2026-03-21T11:27:03.809Z",
+  "nodeCount": 1349,
+  "edgeCount": 1385,
   "layerEdges": {
     "core->core": 167,
     "core->domain": 3,
@@ -21,14 +21,14 @@
     "domain->utils": 3,
     "engine->data": 1,
     "engine->engine": 2,
-    "feature->core": 17,
+    "feature->core": 23,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 712,
+    "feature->feature": 713,
     "feature->legacy": 4,
-    "feature->other": 8,
+    "feature->other": 9,
     "feature->platform": 3,
-    "feature->shared": 42,
+    "feature->shared": 40,
     "feature->state": 2,
     "feature->utils": 30,
     "legacy->core": 6,
@@ -47,11 +47,11 @@
     "platform->platform": 16,
     "platform->shared": 2,
     "platform->utils": 4,
-    "shared->core": 4,
+    "shared->core": 5,
     "shared->data": 2,
     "shared->feature": 3,
     "shared->legacy": 1,
-    "shared->shared": 41,
+    "shared->shared": 43,
     "shared->utils": 2,
     "utils->core": 1,
     "utils->data": 2,
@@ -79,8 +79,8 @@
     {
       "file": "game/features/combat/ports/public_application_capabilities.js",
       "layer": "feature",
-      "outDegree": 10,
-      "inDegree": 5
+      "outDegree": 11,
+      "inDegree": 6
     },
     {
       "file": "game/features/event/ports/public_application_capabilities.js",
@@ -157,6 +157,12 @@
       "inDegree": 29
     },
     {
+      "file": "game/core/bindings/module_registry_scopes.js",
+      "layer": "core",
+      "outDegree": 0,
+      "inDegree": 17
+    },
+    {
       "file": "data/game_data.js",
       "layer": "data",
       "outDegree": 7,
@@ -173,12 +179,6 @@
       "layer": "shared",
       "outDegree": 1,
       "inDegree": 11
-    },
-    {
-      "file": "game/core/bindings/module_registry_scopes.js",
-      "layer": "core",
-      "outDegree": 0,
-      "inDegree": 10
     },
     {
       "file": "game/core/store/state_actions.js",
@@ -235,10 +235,10 @@
       "inDegree": 8
     },
     {
-      "file": "game/shared/codex/codex_record_state_use_case.js",
-      "layer": "shared",
+      "file": "game/data/constants.js",
+      "layer": "other",
       "outDegree": 0,
-      "inDegree": 8
+      "inDegree": 7
     }
   ],
   "graph": {
@@ -876,6 +876,7 @@
     ],
     "game/features/codex/platform/browser/create_lazy_codex_module.js": [],
     "game/features/codex/platform/browser/ensure_codex_browser_modules.js": [
+      "game/core/bindings/module_registry_scopes.js",
       "game/platform/legacy/game_module_registry.js"
     ],
     "game/features/codex/platform/browser/ensure_codex_modal_shell.js": [],
@@ -1228,6 +1229,7 @@
       "game/features/combat/ports/contracts/public_combat_contract_builders.js"
     ],
     "game/features/combat/ports/create_combat_ports.js": [
+      "game/core/bindings/module_registry_scopes.js",
       "game/core/deps_factory.js"
     ],
     "game/features/combat/ports/help_pause_combat_ports.js": [],
@@ -1246,6 +1248,7 @@
       "game/features/combat/application/create_combat_start_runtime.js",
       "game/features/combat/application/end_player_turn_use_case.js",
       "game/features/combat/application/end_turn_service.js",
+      "game/features/combat/application/help_pause_abandon_combat_actions.js",
       "game/features/combat/application/play_card_service.js",
       "game/features/combat/application/public_combat_command_actions.js",
       "game/features/combat/application/run_enemy_turn_use_case.js",
@@ -1847,11 +1850,11 @@
     "game/features/event/state/event_runtime_flow_ports.js": [],
     "game/features/event/state/event_session_store.js": [],
     "game/features/event/state/event_state_commands.js": [
-      "game/shared/codex/codex_record_state_use_case.js",
-      "game/shared/state/player_state_command_compat.js"
+      "game/shared/state/player_state_effects.js"
     ],
     "game/features/reward/application/build_reward_options_use_case.js": [
-      "game/features/reward/ports/reward_option_policy_ports.js"
+      "game/data/constants.js",
+      "game/features/title/ports/public_progression_capabilities.js"
     ],
     "game/features/reward/application/claim_reward_handlers.js": [
       "game/features/reward/application/build_reward_options_use_case.js",
@@ -1957,8 +1960,7 @@
     "game/features/reward/public.js": [],
     "game/features/reward/state/reward_runtime_flow_ports.js": [],
     "game/features/reward/state/reward_state_commands.js": [
-      "game/shared/codex/codex_record_state_use_case.js",
-      "game/shared/state/player_state_command_compat.js"
+      "game/shared/state/player_state_effects.js"
     ],
     "game/features/run/app/bind_run_outcome_action.js": [],
     "game/features/run/app/build_run_boot_actions.js": [],
@@ -2016,7 +2018,7 @@
       "game/features/run/domain/run_rules_meta.js",
       "game/features/run/domain/run_rules_regions.js",
       "game/features/run/state/run_outcome_state_commands.js",
-      "game/features/title/ports/class_progression_ports.js",
+      "game/features/title/ports/public_progression_capabilities.js",
       "game/shared/codex/codex_record_state_use_case.js"
     ],
     "game/features/run/application/run_setup_helpers.js": [
@@ -2051,6 +2053,7 @@
       "game/features/run/ports/create_run_canvas_ports.js"
     ],
     "game/features/run/platform/browser/ensure_run_flow_browser_modules.js": [
+      "game/core/bindings/module_registry_scopes.js",
       "game/platform/legacy/game_module_registry.js"
     ],
     "game/features/run/platform/browser/ensure_run_settings_shell.js": [],
@@ -2083,6 +2086,7 @@
       "game/features/run/ports/contracts/public_run_contract_builders.js"
     ],
     "game/features/run/ports/create_run_canvas_ports.js": [
+      "game/core/bindings/module_registry_scopes.js",
       "game/core/deps_factory.js"
     ],
     "game/features/run/ports/public_application_capabilities.js": [],
@@ -2284,7 +2288,7 @@
     ],
     "game/features/title/application/ending_action_ports.js": [],
     "game/features/title/application/help_pause_abandon_actions.js": [
-      "game/features/combat/ports/help_pause_combat_ports.js",
+      "game/features/combat/ports/public_application_capabilities.js",
       "game/features/title/presentation/browser/abandon_outcome_presenter.js"
     ],
     "game/features/title/application/help_pause_menu_actions.js": [
@@ -2295,7 +2299,7 @@
       "game/features/title/application/title_return_actions.js"
     ],
     "game/features/title/application/load_character_select_use_case.js": [
-      "game/features/title/ports/class_progression_ports.js"
+      "game/features/title/domain/class_progression_system.js"
     ],
     "game/features/title/application/meta_progression_actions.js": [
       "game/features/title/application/title_return_actions.js"
@@ -2329,8 +2333,8 @@
       "game/features/title/domain/class_progression/class_progression_queries.js",
       "game/features/title/domain/class_progression/runtime_apply.js",
       "game/features/title/domain/class_progression/xp_policy.js",
-      "game/shared/codex/codex_record_state_use_case.js",
-      "game/shared/state/player_state_commands.js"
+      "game/shared/state/player_state_commands.js",
+      "game/shared/state/player_state_effects.js"
     ],
     "game/features/title/domain/class_progression/meta_persistence.js": [
       "game/features/title/domain/class_progression/xp_policy.js",
@@ -2380,7 +2384,7 @@
     "game/features/title/platform/browser/class_select_tooltip_ui.js": [],
     "game/features/title/platform/browser/create_character_select_mount_runtime.js": [
       "data/cards.js",
-      "game/features/combat/ports/tooltip_ui_ports.js",
+      "game/features/combat/ports/public_presentation_capabilities.js",
       "game/features/title/application/load_character_select_use_case.js",
       "game/features/title/platform/browser/character_select_card_ui.js",
       "game/features/title/platform/browser/character_select_panels.js",
@@ -2434,7 +2438,7 @@
     "game/features/title/platform/browser/create_title_settings_actions.js": [
       "game/features/run/ports/public_browser_modules.js",
       "game/features/title/platform/browser/title_action_helpers.js",
-      "game/features/ui/ports/public_browser_modules.js"
+      "game/features/ui/public.js"
     ],
     "game/features/title/platform/browser/create_title_system_actions.js": [
       "game/features/title/application/title_return_actions.js"
@@ -2443,7 +2447,9 @@
     "game/features/title/platform/browser/register_title_bindings.js": [
       "game/domain/audio/audio_event_helpers.js"
     ],
-    "game/features/title/platform/browser/resolve_title_action_modules.js": [],
+    "game/features/title/platform/browser/resolve_title_action_modules.js": [
+      "game/core/bindings/module_registry_scopes.js"
+    ],
     "game/features/title/platform/browser/title_action_helpers.js": [],
     "game/features/title/platform/browser/title_browser_modules.js": [
       "game/features/title/presentation/browser/character_select_ui.js",
@@ -2485,11 +2491,14 @@
     "game/features/title/ports/public_character_select_mount_capabilities.js": [],
     "game/features/title/ports/public_character_select_presentation_capabilities.js": [],
     "game/features/title/ports/public_contract_capabilities.js": [],
+    "game/features/title/ports/public_ending_application_capabilities.js": [],
     "game/features/title/ports/public_game_boot_presentation_capabilities.js": [],
+    "game/features/title/ports/public_help_pause_application_capabilities.js": [],
     "game/features/title/ports/public_module_capabilities.js": [
       "game/features/title/platform/browser/title_module_capabilities.js"
     ],
     "game/features/title/ports/public_presentation_capabilities.js": [],
+    "game/features/title/ports/public_progression_capabilities.js": [],
     "game/features/title/ports/public_run_end_presentation_capabilities.js": [],
     "game/features/title/ports/public_surface.js": [
       "game/features/title/ports/public_binding_capabilities.js",
@@ -2511,7 +2520,7 @@
       "game/features/title/platform/browser/register_title_bindings.js"
     ],
     "game/features/title/presentation/browser/abandon_outcome_presenter.js": [
-      "game/features/ui/ports/ending_screen_runtime_ports.js"
+      "game/features/ui/ports/public_ending_presentation_capabilities.js"
     ],
     "game/features/title/presentation/browser/character_select_ui.js": [
       "game/features/title/application/create_character_select_runtime.js",
@@ -2599,7 +2608,9 @@
     "game/features/ui/platform/browser/ensure_settings_modal_shell.js": [],
     "game/features/ui/platform/browser/import_help_pause_module.js": [],
     "game/features/ui/platform/browser/import_meta_progression_module.js": [],
-    "game/features/ui/platform/browser/resolve_ui_action_modules.js": [],
+    "game/features/ui/platform/browser/resolve_ui_action_modules.js": [
+      "game/core/bindings/module_registry_scopes.js"
+    ],
     "game/features/ui/platform/browser/screen_overlay_browser_modules.js": [
       "game/features/ui/platform/browser/create_lazy_help_pause_module.js",
       "game/features/ui/platform/browser/create_lazy_meta_progression_module.js"
@@ -2618,7 +2629,7 @@
     ],
     "game/features/ui/ports/contracts/build_ui_shell_contracts.js": [
       "game/domain/audio/audio_event_helpers.js",
-      "game/features/title/ports/help_pause_ui_ports.js"
+      "game/features/title/ports/public_help_pause_application_capabilities.js"
     ],
     "game/features/ui/ports/contracts/public_ui_contract_capabilities.js": [
       "game/features/ui/ports/contracts/build_ui_shell_contracts.js"
@@ -2671,7 +2682,7 @@
     ],
     "game/features/ui/presentation/browser/ending_fragment_choice_presenter.js": [],
     "game/features/ui/presentation/browser/ending_screen_action_helpers.js": [
-      "game/features/title/ports/ending_ui_ports.js"
+      "game/features/title/ports/public_ending_application_capabilities.js"
     ],
     "game/features/ui/presentation/browser/ending_screen_fx_model.js": [],
     "game/features/ui/presentation/browser/ending_screen_fx_runtime.js": [
@@ -2711,11 +2722,11 @@
       "game/features/ui/presentation/browser/help_pause_ui_helpers.js"
     ],
     "game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js": [
-      "game/features/title/ports/help_pause_ui_ports.js",
+      "game/features/title/ports/public_help_pause_application_capabilities.js",
       "game/features/ui/presentation/browser/help_pause_ui_helpers.js"
     ],
     "game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js": [
-      "game/features/title/ports/help_pause_ui_ports.js"
+      "game/features/title/ports/public_help_pause_application_capabilities.js"
     ],
     "game/features/ui/presentation/browser/help_pause_ui_dialog_overlays.js": [
       "game/features/ui/presentation/browser/help_pause_ui_helpers.js",
@@ -2744,7 +2755,7 @@
       "game/features/ui/presentation/browser/help_pause_ui_runtime.js"
     ],
     "game/features/ui/presentation/browser/help_pause_ui_return_runtime.js": [
-      "game/features/title/ports/help_pause_ui_ports.js"
+      "game/features/title/ports/public_help_pause_application_capabilities.js"
     ],
     "game/features/ui/presentation/browser/help_pause_ui_runtime.js": [
       "game/features/ui/presentation/browser/help_pause_hotkeys_runtime_ui.js",
@@ -2760,7 +2771,7 @@
       "game/features/ui/presentation/browser/help_pause_ui_runtime.js"
     ],
     "game/features/ui/presentation/browser/meta_progression_ui_runtime.js": [
-      "game/features/title/ports/ending_ui_ports.js",
+      "game/features/title/ports/public_ending_application_capabilities.js",
       "game/features/ui/presentation/browser/ending_screen_ui.js"
     ],
     "game/features/ui/presentation/browser/meta_progression_ui.js": [
@@ -2803,7 +2814,7 @@
     "game/features/ui/presentation/browser/story_ui_helpers.js": [],
     "game/features/ui/presentation/browser/story_ui_hidden_ending_render.js": [
       "game/domain/audio/audio_event_helpers.js",
-      "game/features/title/ports/ending_ui_ports.js",
+      "game/features/title/ports/public_ending_application_capabilities.js",
       "game/features/ui/presentation/browser/story_ui_helpers.js"
     ],
     "game/features/ui/presentation/browser/story_ui_render.js": [
@@ -3236,7 +3247,9 @@
     "game/shared/runtime/public.js": [
       "game/shared/runtime/resolve_scoped_runtime_module.js"
     ],
-    "game/shared/runtime/resolve_scoped_runtime_module.js": [],
+    "game/shared/runtime/resolve_scoped_runtime_module.js": [
+      "game/core/bindings/module_registry_scopes.js"
+    ],
     "game/shared/runtime/reward_return_actions.js": [],
     "game/shared/runtime/runtime_debug_snapshot_utils.js": [],
     "game/shared/save/public.js": [],
@@ -3283,11 +3296,15 @@
       "game/core/store/state_actions.js",
       "game/platform/legacy/state/player_state_command_legacy_adapter.js"
     ],
+    "game/shared/state/player_state_effects.js": [
+      "game/shared/codex/codex_record_state_use_case.js",
+      "game/shared/state/player_state_command_compat.js"
+    ],
     "game/shared/state/player_state_legacy_mutations.js": [],
     "game/shared/state/public.js": [],
     "game/shared/state/run_state_commands.js": [
       "game/core/game_state_defaults.js",
-      "game/shared/codex/codex_record_state_use_case.js"
+      "game/shared/state/player_state_effects.js"
     ],
     "game/shared/state/runtime_flow_controls.js": [
       "game/shared/state/runtime_session_commands.js",

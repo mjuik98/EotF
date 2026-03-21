@@ -28,25 +28,39 @@ describe('state flow boundary contracts', () => {
   it('keeps event and reward player fallback ownership on shared compat state-command bridges', () => {
     const eventCommands = read('game/features/event/state/event_state_commands.js');
     const rewardCommands = read('game/features/reward/state/reward_state_commands.js');
+    const classProgressionEffects = read('game/features/title/domain/class_progression/class_progression_runtime_effects.js');
+    const playerStateEffects = read('game/shared/state/player_state_effects.js');
 
-    expect(eventCommands).toContain('../../../shared/state/player_state_command_compat.js');
+    expect(eventCommands).toContain('../../../shared/state/player_state_effects.js');
     expect(eventCommands).not.toContain('../../../platform/legacy/state/legacy_player_state_command_fallback.js');
-    expect(eventCommands).toContain('applyPlayerGoldCompatState');
-    expect(eventCommands).toContain('applyPlayerMaxEnergyGrowthCompatState');
+    expect(eventCommands).toContain('applyPlayerGoldDeltaState');
+    expect(eventCommands).toContain('applyPlayerMaxEnergyGrowthState');
     expect(eventCommands).not.toContain('state.player.gold = Number(state.player.gold || 0) + (Number(amount) || 0);');
     expect(eventCommands).not.toContain('player.maxEnergy = Math.min(cap, requestedMax);');
     expect(eventCommands).not.toContain('player.energy = Math.min(player.maxEnergy, previousEnergy + actualIncrease);');
 
-    expect(rewardCommands).toContain('../../../shared/state/player_state_command_compat.js');
+    expect(rewardCommands).toContain('../../../shared/state/player_state_effects.js');
     expect(rewardCommands).not.toContain('../../../platform/legacy/state/legacy_player_state_command_fallback.js');
-    expect(rewardCommands).toContain('applyPlayerGoldCompatState');
-    expect(rewardCommands).toContain('applyPlayerHealCompatState');
-    expect(rewardCommands).toContain('applyPlayerMaxEnergyGrowthCompatState');
-    expect(rewardCommands).toContain('applyPlayerMaxHpGrowthCompatState');
+    expect(rewardCommands).toContain('applyPlayerGoldDeltaState');
+    expect(rewardCommands).toContain('applyPlayerHealDeltaState');
+    expect(rewardCommands).toContain('applyPlayerMaxEnergyGrowthState');
+    expect(rewardCommands).toContain('applyPlayerMaxHpGrowthState');
     expect(rewardCommands).not.toContain('state.player.hp = Math.min(state.player.maxHp || 1, hpBefore + amount);');
     expect(rewardCommands).not.toContain('state.player.gold = (state.player.gold || 0) + amount;');
     expect(rewardCommands).not.toContain('state.player.maxHp = (state.player.maxHp || 0) + blessing.amount;');
     expect(rewardCommands).not.toContain('state.player.maxEnergy = (state.player.maxEnergy || 0) + blessing.amount;');
+
+    expect(classProgressionEffects).toContain('../../../../shared/state/player_state_effects.js');
+    expect(classProgressionEffects).toContain('registerPlayerDeckCardsState');
+    expect(classProgressionEffects).not.toContain('../../../../shared/codex/codex_record_state_use_case.js');
+    expect(classProgressionEffects).not.toContain('registerCardDiscovered(');
+
+    expect(playerStateEffects).toContain('./player_state_command_compat.js');
+    expect(playerStateEffects).toContain('../codex/codex_record_state_use_case.js');
+    expect(playerStateEffects).toContain('applyPlayerGoldCompatState');
+    expect(playerStateEffects).toContain('applyPlayerHealCompatState');
+    expect(playerStateEffects).toContain('applyPlayerMaxEnergyGrowthCompatState');
+    expect(playerStateEffects).toContain('applyPlayerMaxHpGrowthCompatState');
   });
 
   it('keeps combat domain policies free of inline state mutation fallbacks', () => {

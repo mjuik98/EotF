@@ -1,4 +1,5 @@
-import { CONSTANTS, ClassProgressionSystem } from '../ports/reward_option_policy_ports.js';
+import { CONSTANTS } from '../../../data/constants.js';
+import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 
 export const RELIC_REWARD_CHANCE_NORMAL = 0;
 export const RELIC_REWARD_CHANCE_ELITE = 0.1;

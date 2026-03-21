@@ -33,6 +33,10 @@ describe('ClassProgressionSystem', () => {
     expect(meta.classProgress.levels.mage).toBe(1);
     expect(meta.classProgress.xp.swordsman).toBe(0);
     expect(Array.isArray(meta.classProgress.pendingSummaries)).toBe(true);
+    expect(meta.classProgress.loadoutPresets.swordsman).toEqual({
+      level11: null,
+      level12: null,
+    });
   });
 
   it('awards run xp and stores pending summary', () => {

@@ -1,22 +1,15 @@
-export function resolveScopedRuntimeModule(modules = {}, key, scopeNames = []) {
-  for (const scopeName of scopeNames) {
-    const scopedRefs = modules?.featureScopes?.[scopeName] || {};
-    if (scopedRefs[key] !== undefined) {
-      return scopedRefs[key];
-    }
-  }
+import {
+  resolveModuleRegistryGameRoot,
+  resolveModuleRegistryValue,
+} from '../../core/bindings/module_registry_scopes.js';
 
-  if (modules?.legacyModules?.[key] !== undefined) {
-    return modules.legacyModules[key];
-  }
-
-  if (modules?.[key] !== undefined) {
-    return modules[key];
-  }
-
-  return undefined;
+export function resolveScopedRuntimeModule(modules = {}, key, scopeNames = [], options = {}) {
+  return resolveModuleRegistryValue(modules, key, scopeNames, options);
 }
 
-export function resolveCoreRuntimeModule(modules = {}, key) {
-  return resolveScopedRuntimeModule(modules, key, ['core']);
+export function resolveCoreRuntimeModule(modules = {}, key, options = {}) {
+  if (key === 'GAME') {
+    return resolveModuleRegistryGameRoot(modules, options);
+  }
+  return resolveScopedRuntimeModule(modules, key, ['core'], options);
 }

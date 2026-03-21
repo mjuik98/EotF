@@ -1,0 +1,64 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - text: THE FALLEN THE FALLEN
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e93]: CHOOSE YOUR ECHO
+        - generic [ref=e94]:
+          - button "이전 캐릭터" [ref=e95]: ‹
+          - region "선택된 캐릭터" [ref=e96]:
+            - generic [ref=e97]: MAGE
+            - generic [ref=e98]: 🪄
+            - generic [ref=e99]: 메아리술사
+            - generic [ref=e100]: ★★★★☆
+            - generic [ref=e101]: "??메아리"
+            - generic [ref=e102]:
+              - generic [ref=e207]: 드로우
+              - generic [ref=e208]: 비용 감소
+              - generic [ref=e209]: 고화력
+            - generic [ref=e107]: Lv.1
+            - generic [ref=e110]: 0 / 100 XP
+          - generic [ref=e214]:
+            - tablist "캐릭터 상세" [ref=e215]:
+              - tab "마스터리 + 특성" [selected] [ref=e216] [cursor=pointer]
+              - tab "스탯 + 시작 장비" [ref=e217] [cursor=pointer]
+            - tabpanel [ref=e219]:
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - generic [ref=e222]:
+                    - generic [ref=e223]: CLASS MASTERY
+                    - generic [ref=e224]: Lv.1
+                  - generic [ref=e225]: 0 / 100 XP
+                - group [ref=e227]:
+                  - generic "마스터리 로드맵" [ref=e228] [cursor=pointer]
+              - generic [ref=e229]:
+                - generic [ref=e230]: 고유 특성
+                - paragraph [ref=e231]: 메아리 (Echo)
+                - paragraph [ref=e232]: 주문이 남긴 메아리가 패에 스며듭니다. 카드를 3번 사용할 때마다 손패의 무작위 카드 1장의 비용이 1 감소합니다.
+              - generic [ref=e233]:
+                - generic [ref=e234]: 에코 스킬
+                - button "⚡ 메아리 연쇄 메아리가 시간을 거슬러 카드를 불러온다. 잔향 게이지" [ref=e235]:
+                  - generic [ref=e236]: ⚡
+                  - generic [ref=e237]:
+                    - generic [ref=e238]: 메아리 연쇄
+                    - generic [ref=e239]: 메아리가 시간을 거슬러 카드를 불러온다.
+                  - generic [ref=e240]: 잔향 게이지
+          - button "다음 캐릭터" [active] [ref=e143]: ›
+        - generic [ref=e144]:
+          - button [ref=e241] [cursor=pointer]
+          - button [ref=e242]
+          - button [ref=e243] [cursor=pointer]
+          - button [ref=e244] [cursor=pointer]
+          - button [ref=e245] [cursor=pointer]
+          - button [ref=e246] [cursor=pointer]
+        - button "선택 확정 · 메아리술사" [ref=e248]
+      - generic "타이틀로 돌아가기" [ref=e154] [cursor=pointer]: ↩
+  - generic:
+    - generic: ⚔️
+    - generic:
+      - generic: "1"
+    - generic: 카드
+    - generic: ATTACK
+    - generic: 설명
+  - generic:
+    - generic: ⚡ 잔향 스킬

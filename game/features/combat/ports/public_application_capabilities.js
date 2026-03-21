@@ -4,6 +4,7 @@ import { drawCardsService, executePlayerDrawService } from '../application/card_
 import { CombatInitializer } from '../application/combat_initializer.js';
 import { endPlayerTurnService } from '../application/end_turn_service.js';
 import { endPlayerTurnUseCase } from '../application/end_player_turn_use_case.js';
+import { cleanupCombatAfterAbandon } from '../application/help_pause_abandon_combat_actions.js';
 import { playCardService } from '../application/play_card_service.js';
 import {
   applyEnemyAreaDamageRuntime,
@@ -25,6 +26,7 @@ export function createCombatApplicationCapabilities() {
     applyEnemyDamageState,
     beginPlayerTurnUseCase,
     CombatInitializer,
+    cleanupCombatAfterAbandon,
     createCombatStartRuntime,
     discardStateCard,
     drawCardsService,
@@ -47,6 +49,7 @@ export {
   applyEnemyDamageState,
   beginPlayerTurnUseCase,
   CombatInitializer,
+  cleanupCombatAfterAbandon,
   createCombatStartRuntime,
   discardStateCard,
   drawCardsService,

@@ -108,6 +108,56 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("./run_mode_ui_inscriptions_render.js");
   });
 
+  it('keeps title cross-feature abandon and ending hooks on public feature ports', () => {
+    const abandonActionsSource = read('game/features/title/application/help_pause_abandon_actions.js');
+    const abandonPresenterSource = read('game/features/title/presentation/browser/abandon_outcome_presenter.js');
+
+    expect(abandonActionsSource).toContain('../../combat/ports/public_application_capabilities.js');
+    expect(abandonActionsSource).not.toContain('../../combat/ports/help_pause_combat_ports.js');
+    expect(abandonPresenterSource).toContain('../../../ui/ports/public_ending_presentation_capabilities.js');
+    expect(abandonPresenterSource).not.toContain('../../../ui/ports/ending_screen_runtime_ports.js');
+  });
+
+  it('keeps title browser helpers on canonical cross-feature public surfaces', () => {
+    const settingsActionsSource = read('game/features/title/platform/browser/create_title_settings_actions.js');
+    const mountRuntimeSource = read('game/features/title/platform/browser/create_character_select_mount_runtime.js');
+    const loadCharacterSelectSource = read('game/features/title/application/load_character_select_use_case.js');
+    const rewardOptionsSource = read('game/features/reward/application/build_reward_options_use_case.js');
+    const runRulesSource = read('game/features/run/application/run_rules.js');
+    const hiddenEndingSource = read('game/features/ui/presentation/browser/story_ui_hidden_ending_render.js');
+    const metaProgressionSource = read('game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
+    const endingActionsSource = read('game/features/ui/presentation/browser/ending_screen_action_helpers.js');
+    const helpPauseReturnSource = read('game/features/ui/presentation/browser/help_pause_ui_return_runtime.js');
+    const helpPauseAbandonSource = read('game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js');
+    const helpPauseMenuSource = read('game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js');
+    const uiShellContractsSource = read('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
+
+    expect(settingsActionsSource).toContain("from '../../../ui/public.js'");
+    expect(settingsActionsSource).not.toContain("from '../../../ui/ports/public_browser_modules.js'");
+    expect(mountRuntimeSource).toContain("from '../../../combat/ports/public_presentation_capabilities.js'");
+    expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/tooltip_ui_ports.js'");
+    expect(loadCharacterSelectSource).toContain("from '../domain/class_progression_system.js'");
+    expect(loadCharacterSelectSource).not.toContain("from '../ports/class_progression_ports.js'");
+    expect(rewardOptionsSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(rewardOptionsSource).not.toContain("from '../ports/reward_option_policy_ports.js'");
+    expect(runRulesSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRulesSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(hiddenEndingSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
+    expect(hiddenEndingSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
+    expect(metaProgressionSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
+    expect(metaProgressionSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
+    expect(endingActionsSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
+    expect(endingActionsSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
+    expect(helpPauseReturnSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(helpPauseReturnSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+    expect(helpPauseAbandonSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(helpPauseAbandonSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+    expect(helpPauseMenuSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(helpPauseMenuSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+    expect(uiShellContractsSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+  });
+
   it('delegates combat item tooltip state and DOM construction into focused helpers', () => {
     const source = read('game/features/combat/presentation/browser/tooltip_item_render_ui.js');
 

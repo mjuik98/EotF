@@ -65,6 +65,39 @@ export function publishLegacyModuleBag(modules, moduleBag) {
   return moduleBag;
 }
 
+export function createLegacyModuleBagEnsurer(options = {}) {
+  const {
+    resolveFromModules = null,
+    loadModuleBag,
+    publishModuleBag = publishLegacyModuleBag,
+    prepareLoadedModuleBag = null,
+  } = options;
+
+  let moduleBagPromise = null;
+
+  return async function ensureLegacyModuleBag(modules) {
+    const resolvedModuleBag = typeof resolveFromModules === 'function'
+      ? resolveFromModules(modules)
+      : null;
+    if (resolvedModuleBag) return resolvedModuleBag;
+
+    if (!moduleBagPromise) {
+      moduleBagPromise = Promise.resolve()
+        .then(() => loadModuleBag?.())
+        .catch((error) => {
+          moduleBagPromise = null;
+          throw error;
+        });
+    }
+
+    const moduleBag = await moduleBagPromise;
+    if (typeof prepareLoadedModuleBag === 'function') {
+      prepareLoadedModuleBag(modules, moduleBag);
+    }
+    return publishModuleBag(modules, moduleBag);
+  };
+}
+
 export function registerLegacyModule(modules, registryName, moduleObj, options = {}) {
   if (!modules || !registryName) return moduleObj;
   const legacyModules = resolveLegacyModuleBag(modules);

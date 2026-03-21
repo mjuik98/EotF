@@ -3,7 +3,7 @@ import {
   ensureCodexRecords,
   ensureCodexState,
 } from '../../../shared/codex/codex_record_state_use_case.js';
-import { ClassProgressionSystem } from '../../title/ports/class_progression_ports.js';
+import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import { CURSES } from '../domain/run_rules_curses.js';
 import {
   getRegionCount,
