@@ -45,6 +45,29 @@ export function ensureCharacterCardLoadoutStatusNode(card, doc = document) {
   return status;
 }
 
+export function ensureCharacterCardVisualNodes(card, doc = document) {
+  if (!card || !doc?.createElement) {
+    return { orbit: null, sigil: null, pedestal: null };
+  }
+
+  function ensureNode(id, className) {
+    let node = card.querySelector?.(`#${id}`);
+    if (!node) {
+      node = doc.createElement('div');
+      node.id = id;
+      node.className = className;
+      card.appendChild?.(node);
+    }
+    return node;
+  }
+
+  return {
+    orbit: ensureNode('cardVisualOrbit', 'csm-card-visual csm-card-visual--orbit'),
+    sigil: ensureNode('cardVisualSigil', 'csm-card-visual csm-card-visual--sigil'),
+    pedestal: ensureNode('cardVisualPedestal', 'csm-card-visual csm-card-visual--pedestal'),
+  };
+}
+
 export function renderCharacterCard({
   card,
   selectedChar,
@@ -53,6 +76,7 @@ export function renderCharacterCard({
   resolveById,
   doc,
   traitBadgeText,
+  summaryText,
   xpText,
   loadoutSummaryText,
   loadoutWarningText,
@@ -61,6 +85,9 @@ export function renderCharacterCard({
 
   const isMax = classProgress.level >= maxLevel;
   card.classList?.toggle?.('csm-max', isMax);
+  card.style.setProperty?.('--char-accent', selectedChar.accent);
+  card.style.setProperty?.('--char-color', selectedChar.color);
+  card.style.setProperty?.('--char-glow', selectedChar.glow);
   card.style.border = isMax
     ? `1.6px solid ${selectedChar.accent}aa`
     : `1px solid ${selectedChar.accent}44`;
@@ -71,37 +98,94 @@ export function renderCharacterCard({
     ? `0 0 80px ${selectedChar.glow}44,inset 0 1px 0 ${selectedChar.accent}33`
     : `0 0 65px ${selectedChar.glow}22,inset 0 1px 0 ${selectedChar.accent}18`;
 
+  const visualNodes = ensureCharacterCardVisualNodes(card, doc);
+  if (visualNodes.orbit) {
+    visualNodes.orbit.style.borderColor = `${selectedChar.accent}30`;
+    visualNodes.orbit.style.boxShadow = `0 0 28px ${selectedChar.glow}22,inset 0 0 16px ${selectedChar.accent}10`;
+  }
+  if (visualNodes.sigil) {
+    visualNodes.sigil.style.background = `
+      radial-gradient(circle at 50% 45%, ${selectedChar.accent}30 0%, ${selectedChar.accent}12 28%, transparent 66%),
+      linear-gradient(180deg, ${selectedChar.accent}10 0%, transparent 70%)
+    `;
+    visualNodes.sigil.style.borderColor = `${selectedChar.accent}2f`;
+    visualNodes.sigil.style.boxShadow = `0 0 60px ${selectedChar.glow}18`;
+  }
+  if (visualNodes.pedestal) {
+    visualNodes.pedestal.style.background = `
+      radial-gradient(circle at 50% 50%, ${selectedChar.accent}26 0%, ${selectedChar.accent}0d 42%, transparent 78%)
+    `;
+  }
+
   const cardTitle = resolveById('cardTitle');
   if (cardTitle) {
     cardTitle.style.color = selectedChar.accent;
+    cardTitle.style.position = 'relative';
+    cardTitle.style.zIndex = '2';
+    cardTitle.style.fontSize = '11px';
+    cardTitle.style.letterSpacing = '0.42em';
+    cardTitle.style.textTransform = 'uppercase';
+    cardTitle.style.marginBottom = '14px';
+    cardTitle.style.opacity = '0.92';
     cardTitle.textContent = selectedChar.title;
   }
 
   const cardEmoji = resolveById('cardEmoji');
   if (cardEmoji) {
     cardEmoji.textContent = selectedChar.emoji;
-    cardEmoji.style.filter = `drop-shadow(0 0 28px ${selectedChar.glow})`;
+    cardEmoji.style.position = 'relative';
+    cardEmoji.style.zIndex = '2';
+    cardEmoji.style.fontSize = 'clamp(86px, 12vw, 132px)';
+    cardEmoji.style.lineHeight = '1';
+    cardEmoji.style.marginBottom = '18px';
+    cardEmoji.style.filter = `drop-shadow(0 0 34px ${selectedChar.glow})`;
+    cardEmoji.style.textShadow = `0 0 24px ${selectedChar.glow}`;
   }
 
   const cardName = resolveById('cardName');
   if (cardName) {
     cardName.textContent = selectedChar.name;
+    cardName.style.position = 'relative';
+    cardName.style.zIndex = '2';
+    cardName.style.fontSize = 'clamp(28px, 3.6vw, 40px)';
+    cardName.style.lineHeight = '1.06';
+    cardName.style.letterSpacing = '0.08em';
+    cardName.style.marginBottom = '10px';
     cardName.style.textShadow = `0 0 20px ${selectedChar.glow}`;
   }
 
+  const cardSummary = resolveById('cardSummary');
+  if (cardSummary) {
+    cardSummary.textContent = summaryText || '';
+    cardSummary.style.color = '#d8e4f5';
+  }
+
   const cardDiff = resolveById('cardDiff');
-  if (cardDiff) cardDiff.textContent = selectedChar.difficulty;
+  if (cardDiff) {
+    cardDiff.style.position = 'relative';
+    cardDiff.style.zIndex = '2';
+    cardDiff.style.fontSize = '12px';
+    cardDiff.style.letterSpacing = '0.16em';
+    cardDiff.style.color = '#d7e3f8';
+    cardDiff.style.marginBottom = '12px';
+    cardDiff.textContent = `난이도 ${selectedChar.difficulty}`;
+  }
 
   const cardTraitBadge = resolveById('cardTraitBadge');
   if (cardTraitBadge) {
     cardTraitBadge.textContent = traitBadgeText;
-    cardTraitBadge.style.cssText += `;border:1px solid ${selectedChar.accent}33;color:${selectedChar.accent};background:${selectedChar.accent}0a;`;
+    cardTraitBadge.style.position = 'relative';
+    cardTraitBadge.style.zIndex = '2';
+    cardTraitBadge.style.cssText += `;border:1px solid ${selectedChar.accent}44;color:${selectedChar.accent};background:${selectedChar.accent}10;margin-bottom:12px;`;
   }
 
   const cardTags = resolveById('cardTags');
   if (cardTags) {
+    cardTags.style.position = 'relative';
+    cardTags.style.zIndex = '2';
+    cardTags.style.gap = '8px';
     cardTags.innerHTML = selectedChar.tags.map((tag) => (
-      `<span style="padding:4px 10px;border:1px solid ${selectedChar.accent}22;border-radius:12px;font-size:11px;color:${selectedChar.accent}aa;font-family:'Share Tech Mono',monospace;background:${selectedChar.accent}07">${tag}</span>`
+      `<span style="padding:5px 12px;border:1px solid ${selectedChar.accent}26;border-radius:999px;font-size:11px;color:${selectedChar.accent};font-family:'Share Tech Mono',monospace;background:${selectedChar.accent}0d;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02)">${tag}</span>`
     )).join('');
   }
 

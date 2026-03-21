@@ -55,6 +55,38 @@ function buildRelicMarkup(relics, accent) {
   `;
 }
 
+function buildDeckSummaryText(deck, cards) {
+  const resolvedDeck = Array.isArray(deck) ? deck : [];
+  if (resolvedDeck.length === 0) return '구성 정보 없음';
+
+  const previewNames = resolvedDeck
+    .slice(0, 3)
+    .map((cardId) => cards?.[cardId]?.name || cardId);
+  const remainder = resolvedDeck.length - previewNames.length;
+  return `${resolvedDeck.length}장 구성 · ${previewNames.join(', ')}${remainder > 0 ? ` 외 ${remainder}장` : ''}`;
+}
+
+function buildCombatSummaryMarkup(stats = {}, accent) {
+  const statEntries = [
+    ['공격', Number(stats.ATK || 0)],
+    ['방어', Number(stats.DEF || 0)],
+    ['잔향', Number(stats.ECH || 0)],
+    ['리듬', Number(stats.RHY || 0)],
+    ['저항', Number(stats.RES || 0)],
+    ['체력', Number(stats.HP || 0)],
+  ].sort((left, right) => right[1] - left[1]).slice(0, 3);
+
+  return `
+    <div class="char-start-deck">
+      ${statEntries.map(([label, value]) => `
+        <span class="deck-card" style="border:1px solid ${accent}1a;padding:4px 10px;font-size:11px;background:${accent}05;">
+          ${label} ${value}
+        </span>
+      `).join('')}
+    </div>
+  `;
+}
+
 function normalizeRelicIds(relics, fallbackId = '') {
   return (relics || []).map((relic, index) => String(
     relic?.id
@@ -120,21 +152,58 @@ export function renderCharacterInfoPanel({
   }).join('');
   const progressPct = Math.round(classProgress.progress * 100);
   const echoSkill = selectedChar.echoSkill;
+  const summaryDeck = loadoutCustomization?.previewDeck || selectedChar.startDeck;
+  const summaryRelics = Array.isArray(loadoutCustomization?.previewRelics) && loadoutCustomization.previewRelics.length > 0
+    ? loadoutCustomization.previewRelics
+    : baseRelics;
 
   panel.style.setProperty('--char-accent', selectedChar.accent);
   panel.style.setProperty('--char-color', selectedChar.color);
   panel.innerHTML = `
     <div class="char-info-shell">
       <div class="char-info-tabs" role="tablist" aria-label="캐릭터 상세">
-        <button class="char-info-tab is-active" type="button" role="tab" aria-selected="true" data-tab="mastery">
-          마스터리 + 특성
+        <button class="char-info-tab is-active" type="button" role="tab" aria-selected="true" data-tab="summary">
+          요약
         </button>
-        <button class="char-info-tab" type="button" role="tab" aria-selected="false" data-tab="loadout">
-          스탯 + 시작 장비
+        <button class="char-info-tab" type="button" role="tab" aria-selected="false" data-tab="details">
+          자세히
         </button>
       </div>
       <div class="char-info-body">
-        <section class="char-info-pane is-active" data-pane="mastery" role="tabpanel">
+        <section class="char-info-pane is-active" data-pane="summary" role="tabpanel">
+          <div class="char-info-block" style="border-color:${selectedChar.accent}22;background:${selectedChar.accent}06;">
+            ${buildSectionLabel('고유 특성', selectedChar.accent)}
+            <p class="char-info-heading" style="color:${selectedChar.accent}">${selectedChar.traitTitle}</p>
+            <p class="char-info-text">${selectedChar.traitDesc}</p>
+          </div>
+
+          <div class="char-info-block">
+            ${buildSectionLabel('에코 스킬', selectedChar.accent)}
+            <button id="echoBadge" class="echo-badge char-echo-badge" style="background:linear-gradient(135deg,${selectedChar.accent}0e,${selectedChar.color}08);border:1px solid ${selectedChar.accent}44;">
+              <div class="char-echo-icon" style="border-color:${selectedChar.accent}55;background:${selectedChar.accent}14;">${echoSkill.icon}</div>
+              <div class="char-echo-copy">
+                <div class="char-echo-name" style="color:${selectedChar.accent}">${echoSkill.name}</div>
+                <div class="char-echo-desc">${echoSkill.desc}</div>
+              </div>
+              <div class="char-echo-cost" style="border-color:${selectedChar.accent}33;color:${selectedChar.accent}99;background:${selectedChar.accent}0a;">${echoSkill.echoCost}</div>
+            </button>
+          </div>
+
+          <div class="char-info-block">
+            ${buildSectionLabel('전투 성향', selectedChar.accent)}
+            ${buildCombatSummaryMarkup(selectedChar.stats, selectedChar.accent)}
+          </div>
+
+          <div class="char-info-block">
+            ${buildSectionLabel('시작 장비', selectedChar.accent)}
+            <div class="char-info-text">시작 유물</div>
+            ${buildRelicMarkup(summaryRelics, selectedChar.accent)}
+            <div class="char-info-text" style="margin-top:10px">시작 덱 요약</div>
+            <div class="char-info-text">${buildDeckSummaryText(summaryDeck, cards)}</div>
+          </div>
+        </section>
+
+        <section class="char-info-pane" data-pane="details" role="tabpanel">
           <div class="csm-mastery-panel" style="border-color:${selectedChar.accent}2f;background:${selectedChar.accent}0a;">
             <div class="csm-mastery-head">
               <div>
@@ -154,26 +223,6 @@ export function renderCharacterInfoPanel({
             </details>
           </div>
 
-          <div class="char-info-block" style="border-color:${selectedChar.accent}22;background:${selectedChar.accent}06;">
-            ${buildSectionLabel('고유 특성', selectedChar.accent)}
-            <p class="char-info-heading" style="color:${selectedChar.accent}">${selectedChar.traitTitle}</p>
-            <p class="char-info-text">${selectedChar.traitDesc}</p>
-          </div>
-
-          <div class="char-info-block">
-            ${buildSectionLabel('에코 스킬', selectedChar.accent)}
-            <button id="echoBadge" class="echo-badge char-echo-badge" style="background:linear-gradient(135deg,${selectedChar.accent}0e,${selectedChar.color}08);border:1px solid ${selectedChar.accent}44;">
-              <div class="char-echo-icon" style="border-color:${selectedChar.accent}55;background:${selectedChar.accent}14;">${echoSkill.icon}</div>
-              <div class="char-echo-copy">
-                <div class="char-echo-name" style="color:${selectedChar.accent}">${echoSkill.name}</div>
-                <div class="char-echo-desc">${echoSkill.desc}</div>
-              </div>
-              <div class="char-echo-cost" style="border-color:${selectedChar.accent}33;color:${selectedChar.accent}99;background:${selectedChar.accent}0a;">${echoSkill.echoCost}</div>
-            </button>
-          </div>
-        </section>
-
-        <section class="char-info-pane" data-pane="loadout" role="tabpanel">
           <div class="char-loadout-grid">
             <div class="char-info-block">
               ${buildSectionLabel('스탯', selectedChar.accent)}

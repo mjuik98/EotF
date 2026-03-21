@@ -159,6 +159,7 @@ describe('character_select_mount_runtime', () => {
     expect(elements.headerTitle.style.textShadow).toContain(chars[0].glow);
     expect(hoisted.renderCharacterCard).toHaveBeenCalledWith(expect.objectContaining({
       traitBadgeText: 'Grace',
+      summaryText: expect.any(String),
     }));
     expect(hoisted.renderCharacterPhase).toHaveBeenCalledTimes(1);
     expect(deps.onProgressConsumed).toHaveBeenCalledTimes(1);
@@ -254,6 +255,7 @@ describe('character_select_mount_runtime', () => {
       loadoutSummaryText: '',
       loadoutWarningText: '프리셋 확인 필요',
       xpText: 'MAX LEVEL · 2200 XP',
+      summaryText: expect.any(String),
     }));
     expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({
       loadoutCustomization: expect.objectContaining({

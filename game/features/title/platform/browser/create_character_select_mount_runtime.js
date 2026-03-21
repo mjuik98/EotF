@@ -131,6 +131,7 @@ export function createCharacterSelectMountRuntime(options = {}) {
       resolveById: getById,
       doc,
       traitBadgeText: ch.traitName,
+      summaryText: ch.selectionSummary || ch.desc || ch.traitDesc || '',
       xpText: progress.nextLevelXp === null
         ? `MAX LEVEL · ${progress.totalXp} XP`
         : `${progress.totalXp} / ${progress.nextLevelXp} XP`,
