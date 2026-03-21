@@ -157,6 +157,9 @@ describe('character_select_mount_runtime', () => {
     expect(particleRuntime.start).toHaveBeenCalledWith('aegis', '#7CC8FF');
     expect(elements.bgGradient.style.background).toContain(chars[0].glow);
     expect(elements.headerTitle.style.textShadow).toContain(chars[0].glow);
+    expect(hoisted.renderCharacterCard).toHaveBeenCalledWith(expect.objectContaining({
+      summaryText: expect.any(String),
+    }));
     expect(hoisted.renderCharacterPhase).toHaveBeenCalledTimes(1);
     expect(deps.onProgressConsumed).toHaveBeenCalledTimes(1);
     expect(runtime.resolveClass('berserker')).toBe(chars[1]);
@@ -250,6 +253,7 @@ describe('character_select_mount_runtime', () => {
     expect(hoisted.renderCharacterCard).toHaveBeenCalledWith(expect.objectContaining({
       loadoutSummaryText: '',
       loadoutWarningText: '프리셋 확인 필요',
+      summaryText: expect.any(String),
     }));
     expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({
       loadoutCustomization: expect.objectContaining({

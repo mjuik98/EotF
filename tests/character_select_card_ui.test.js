@@ -103,6 +103,7 @@ describe('character select card helper', () => {
       cardTitle: createNode(),
       cardEmoji: createNode(),
       cardName: createNode(),
+      cardSummary: createNode(),
       cardDiff: createNode(),
       cardTraitBadge: createNode(),
       cardTags: createNode(),
@@ -134,15 +135,21 @@ describe('character select card helper', () => {
       resolveById: (id) => nodes[id] || null,
       doc,
       traitBadgeText: 'Trait Grace',
+      summaryText: '근접 압박과 잔향 연계에 강한 전위형',
       xpText: '42 / 100 XP',
     });
 
     expect(card.style.border).toBe('1px solid #7CC8FF44');
     expect(nodes.cardTitle.textContent).toBe('Paladin');
-    expect(nodes.cardEmoji.style.filter).toBe('drop-shadow(0 0 28px #7CC8FF)');
+    expect(nodes.cardEmoji.style.filter).toBe('drop-shadow(0 0 34px #7CC8FF)');
     expect(nodes.cardName.style.textShadow).toBe('0 0 20px #7CC8FF');
+    expect(nodes.cardSummary.textContent).toBe('근접 압박과 잔향 연계에 강한 전위형');
+    expect(nodes.cardDiff.textContent).toBe('난이도 Normal');
     expect(nodes.cardTraitBadge.textContent).toBe('Trait Grace');
     expect(nodes.cardTags.innerHTML).toContain('holy');
+    expect(card.children.find((child) => child.id === 'cardVisualOrbit')).toBeTruthy();
+    expect(card.children.find((child) => child.id === 'cardVisualSigil')).toBeTruthy();
+    expect(card.children.find((child) => child.id === 'cardVisualPedestal')).toBeTruthy();
 
     const levelBadgeHost = card.children.find((child) => child.id === 'cardLevelBadge');
     const xpWrapHost = card.children.find((child) => child.id === 'cardXpBarWrap');

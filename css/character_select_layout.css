@@ -1,7 +1,7 @@
 /* Character select layout overrides:
-   - sticky confirm bar
-   - two-tab info panel
-   - compact mode for short viewports */
+   - stage + inspector composition
+   - non-sticky confirm flow
+   - summary-first info panel */
 
 #charSelectSubScreen #app {
   min-height: 100vh;
@@ -9,54 +9,95 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 28px 0 118px;
-  overflow: hidden;
+  padding: clamp(16px, 2.2vh, 28px) 0 clamp(16px, 2.8vh, 30px);
+  overflow: visible;
 }
 
 #mainRow {
-  --char-card-width: clamp(280px, 28vw, 420px);
-  --char-card-height: clamp(450px, 45vw, 620px);
-  --char-panel-width: clamp(420px, 44vw, 760px);
+  --char-card-width: clamp(320px, 31vw, 460px);
+  --char-card-height: clamp(520px, 48vw, 680px);
+  --char-panel-width: clamp(360px, 32vw, 520px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+  gap: clamp(24px, 3vw, 40px);
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
   min-height: var(--char-card-height);
   margin: 0 auto;
+  width: min(1400px, 100%);
+  padding: 0 40px;
+}
+
+#charStage {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+#charCardWrap {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 #charCard {
-  flex: 0 0 var(--char-card-width);
-  width: var(--char-card-width);
+  flex: 0 0 auto;
+  width: min(100%, var(--char-card-width));
   height: var(--char-card-height);
 }
 
+#charStageMeta {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: min(100%, var(--char-card-width));
+}
+
+#charInspector {
+  width: min(100%, var(--char-panel-width));
+  align-self: stretch;
+}
+
 #infoPanel {
-  flex: 0 0 var(--char-panel-width);
-  width: var(--char-panel-width);
-  min-width: var(--char-panel-width);
-  max-width: var(--char-panel-width);
-  height: var(--char-card-height);
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: auto;
   min-height: 0;
   --char-accent: var(--echo);
   --char-color: var(--surface);
 }
 
+#cardSummary {
+  max-width: 30ch;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(224, 234, 255, 0.84);
+  text-wrap: balance;
+}
+
 #dotsRow {
-  margin-top: 12px;
-  margin-bottom: 88px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 #header {
-  margin-bottom: 18px;
+  margin-bottom: clamp(10px, 1.8vh, 20px);
 }
 
 #buttonsRow {
-  position: fixed;
-  left: 50%;
-  bottom: max(14px, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
-  width: min(640px, calc(100vw - 28px));
-  z-index: 30;
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  width: min(100%, 460px);
+  z-index: 2;
   pointer-events: auto;
   --char-accent: var(--echo);
   --char-color: var(--surface);
@@ -138,9 +179,9 @@
 .char-info-body {
   min-height: 0;
   flex: 1 1 auto;
-  overflow: auto;
-  padding-right: 3px;
-  scrollbar-width: thin;
+  overflow: visible;
+  padding-right: 0;
+  scrollbar-width: auto;
 }
 
 .char-info-pane {
@@ -270,9 +311,11 @@
 
 @media (max-width: 1220px) {
   #mainRow {
-    --char-panel-width: clamp(360px, 56vw, 680px);
-    gap: 14px;
-    padding: 0 20px;
+    --char-card-width: clamp(300px, 34vw, 420px);
+    --char-card-height: clamp(500px, 56vw, 620px);
+    --char-panel-width: clamp(340px, 40vw, 460px);
+    gap: 22px;
+    padding: 0 24px;
   }
 
   .arrow-btn {
@@ -280,15 +323,11 @@
     height: 52px;
     font-size: 28px;
   }
-
-  .char-loadout-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-height: 940px) {
   #charSelectSubScreen #app {
-    padding: 20px 0 104px;
+    padding: 20px 0 28px;
   }
 
   #header {
@@ -296,9 +335,9 @@
   }
 
   #mainRow {
-    --char-card-width: clamp(248px, 24vw, 344px);
-    --char-card-height: clamp(360px, 39vw, 500px);
-    gap: clamp(8px, 2vw, 18px);
+    --char-card-width: clamp(280px, 27vw, 360px);
+    --char-card-height: clamp(420px, 42vw, 540px);
+    gap: clamp(12px, 2vw, 20px);
     padding: 0 22px;
     min-height: var(--char-card-height);
   }
@@ -322,9 +361,35 @@
   .char-radar-wrap svg {
     width: min(100%, 180px);
   }
+}
 
-  #dotsRow {
-    margin-bottom: 74px;
+@media (max-height: 760px) {
+  #charSelectSubScreen #app {
+    padding: 12px 0 18px;
+  }
+
+  #header {
+    margin-bottom: 8px;
+  }
+
+  #mainRow {
+    --char-card-width: clamp(300px, 28vw, 360px);
+    --char-card-height: clamp(440px, 62vh, 500px);
+    gap: 16px;
+  }
+
+  #charCardWrap,
+  #charStageMeta {
+    gap: 8px;
+  }
+
+  .char-info-shell {
+    padding: 10px;
+  }
+
+  .char-info-block {
+    padding: 10px 12px;
+    margin-bottom: 8px;
   }
 }
 
@@ -333,29 +398,33 @@
     height: auto;
     min-height: 100vh;
     overflow: visible;
-    padding-bottom: 108px;
+    padding-bottom: 28px;
   }
 
   #mainRow {
     --char-card-height: auto;
-    --char-panel-width: min(92vw, 760px);
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    --char-panel-width: min(92vw, 720px);
+    grid-template-columns: 1fr;
+    gap: 20px;
     flex: 0 0 auto;
     min-height: auto;
   }
 
-  #infoPanel {
-    width: var(--char-panel-width);
-    max-width: var(--char-panel-width);
-    min-width: 0;
-    height: auto;
-    max-height: min(52vh, 520px);
+  #charStage {
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
+    width: min(100%, 760px);
   }
-}
 
-.arrow-btn {
-  align-self: center;
-  margin-top: calc(var(--char-card-height, 500px) * 0.08);
+  #charCardWrap,
+  #charInspector {
+    width: 100%;
+  }
+
+  #infoPanel {
+    width: min(100%, var(--char-panel-width));
+  }
+
+  .char-loadout-grid {
+    grid-template-columns: 1fr;
+  }
 }

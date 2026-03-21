@@ -40,16 +40,16 @@ function createNode() {
 
 describe('character select panels', () => {
   it('renders info panel content and wires tabs/tooltips', () => {
-    const masteryTab = createNode();
-    masteryTab.dataset.tab = 'mastery';
-    masteryTab.classList.add('is-active');
-    const loadoutTab = createNode();
-    loadoutTab.dataset.tab = 'loadout';
-    const masteryPane = createNode();
-    masteryPane.dataset.pane = 'mastery';
-    masteryPane.classList.add('is-active');
-    const loadoutPane = createNode();
-    loadoutPane.dataset.pane = 'loadout';
+    const summaryTab = createNode();
+    summaryTab.dataset.tab = 'summary';
+    summaryTab.classList.add('is-active');
+    const detailsTab = createNode();
+    detailsTab.dataset.tab = 'details';
+    const summaryPane = createNode();
+    summaryPane.dataset.pane = 'summary';
+    summaryPane.classList.add('is-active');
+    const detailsPane = createNode();
+    detailsPane.dataset.pane = 'details';
     const echoBadge = createNode();
     const relicBadge = createNode();
     const deckCard = createNode();
@@ -59,8 +59,8 @@ describe('character select panels', () => {
       style: { setProperty: vi.fn() },
       innerHTML: '',
       querySelectorAll: vi.fn((selector) => {
-        if (selector === '.char-info-tab') return [masteryTab, loadoutTab];
-        if (selector === '.char-info-pane') return [masteryPane, loadoutPane];
+        if (selector === '.char-info-tab') return [summaryTab, detailsTab];
+        if (selector === '.char-info-pane') return [summaryPane, detailsPane];
         if (selector === '.deck-card') return [deckCard];
         return [];
       }),
@@ -114,13 +114,16 @@ describe('character select panels', () => {
 
     expect(panel.style.setProperty).toHaveBeenCalledWith('--char-accent', '#ffd700');
     expect(panel.innerHTML).toContain('Echo');
-    expect(panel.innerHTML).toContain('Strike');
+    expect(panel.innerHTML).toContain('고유 특성');
+    expect(panel.innerHTML).toContain('에코 스킬');
+    expect(panel.innerHTML).toContain('전투 성향');
+    expect(panel.innerHTML).toContain('시작 장비');
 
-    loadoutTab.listeners.click();
+    detailsTab.listeners.click();
     expect(hover).toHaveBeenCalledTimes(1);
-    expect(loadoutTab.classList.contains('is-active')).toBe(true);
-    expect(loadoutPane.classList.contains('is-active')).toBe(true);
-    expect(masteryPane.classList.contains('is-active')).toBe(false);
+    expect(detailsTab.classList.contains('is-active')).toBe(true);
+    expect(detailsPane.classList.contains('is-active')).toBe(true);
+    expect(summaryPane.classList.contains('is-active')).toBe(false);
 
     echoBadge.listeners.click();
     expect(echo).toHaveBeenCalledTimes(1);
