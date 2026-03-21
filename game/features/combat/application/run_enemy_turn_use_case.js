@@ -10,7 +10,7 @@ import {
   processEnemyStun,
 } from '../domain/enemy_turn_domain.js';
 import { processPlayerStatusTicks } from '../domain/player_status_tick_domain.js';
-import { syncGuardianPreservedShield } from '../../../state/commands/combat_runtime_commands.js';
+import { syncGuardianPreservedShield } from '../../../shared/state/runtime_session_commands.js';
 import { beginPlayerTurnUseCase } from './begin_player_turn_use_case.js';
 
 function getCombatRegionId(gs) {

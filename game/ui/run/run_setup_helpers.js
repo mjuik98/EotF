@@ -8,4 +8,4 @@ export {
   resetRunConfig,
   resetRuntimeState,
   resolveRunSetupContext,
-} from '../../features/run/ports/public_application_capabilities.js';
+} from '../../features/run/public.js';

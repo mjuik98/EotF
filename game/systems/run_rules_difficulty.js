@@ -7,4 +7,4 @@ export {
   getRewardMultiplier,
   getShopCost,
   isEndless,
-} from '../features/run/domain/run_rules_difficulty.js';
+} from '../features/run/public.js';

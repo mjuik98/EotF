@@ -1,1 +1,1 @@
-export { handleEnemyDeathFlow } from '../features/combat/ports/public_death_application_capabilities.js';
+export { handleEnemyDeathFlow } from '../features/combat/public.js';

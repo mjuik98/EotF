@@ -1,1 +1,1 @@
-export { TooltipUI } from '../../features/combat/ports/public_presentation_capabilities.js';
+export { TooltipUI } from '../../features/combat/public.js';

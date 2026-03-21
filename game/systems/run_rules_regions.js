@@ -3,4 +3,4 @@ export {
   getRegionCount,
   getRegionData,
   getRegionIdForStage,
-} from '../features/run/domain/run_rules_regions.js';
+} from '../features/run/public.js';

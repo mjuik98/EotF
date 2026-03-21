@@ -1,1 +1,1 @@
-export { createEventShopUseCase } from '../../../features/event/ports/public_application_capabilities.js';
+export { createEventShopUseCase } from '../../../features/event/public.js';

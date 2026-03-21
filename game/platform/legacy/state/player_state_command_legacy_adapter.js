@@ -24,6 +24,37 @@ import {
   applyLegacyPlayerTimeRiftGaugeMutation,
 } from './legacy_player_state_command_mutations.js';
 
+const playerStateLegacyFallbackMetrics = {
+  compat: Object.create(null),
+  direct: Object.create(null),
+};
+
+function recordPlayerStateLegacyFallback(kind, fallbackName) {
+  if (!fallbackName) return;
+  const bucket = playerStateLegacyFallbackMetrics[kind];
+  bucket[fallbackName] = Number(bucket[fallbackName] || 0) + 1;
+}
+
+export function recordPlayerStateLegacyCompatBridge(fallbackName) {
+  recordPlayerStateLegacyFallback('compat', fallbackName);
+}
+
+export function getPlayerStateLegacyFallbackMetrics() {
+  return {
+    compat: Object.freeze({ ...playerStateLegacyFallbackMetrics.compat }),
+    direct: Object.freeze({ ...playerStateLegacyFallbackMetrics.direct }),
+  };
+}
+
+export function resetPlayerStateLegacyFallbackMetrics() {
+  for (const key of Object.keys(playerStateLegacyFallbackMetrics.compat)) {
+    delete playerStateLegacyFallbackMetrics.compat[key];
+  }
+  for (const key of Object.keys(playerStateLegacyFallbackMetrics.direct)) {
+    delete playerStateLegacyFallbackMetrics.direct[key];
+  }
+}
+
 export function applyPlayerBuffLegacyFallback(gs, id, stacks, data = {}) {
   return applyLegacyPlayerBuffMutation(gs, id, stacks, data);
 }
@@ -132,5 +163,6 @@ export function runPlayerStateLegacyFallback(gs, fallbackName, fallbackArgs = []
 
   const fallback = LegacyPlayerStateCommandFallbacks[fallbackName];
   if (typeof fallback !== 'function') return emptyResult;
+  recordPlayerStateLegacyFallback('direct', fallbackName);
   return fallback(gs, ...fallbackArgs);
 }

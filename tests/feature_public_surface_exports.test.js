@@ -26,7 +26,7 @@ describe('feature public surface exports', () => {
     }
   });
 
-  it('keeps feature root public files as thin facades over ports/public_surface', () => {
+  it('keeps feature root public files anchored on ports/public_surface without local imports', () => {
     const files = [
       'game/features/codex/public.js',
       'game/features/combat/public.js',

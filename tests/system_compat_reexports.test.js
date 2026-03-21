@@ -71,7 +71,7 @@ describe('system compat re-exports', () => {
     ).trim();
 
     expect(classProgressionSource).toBe(
-      "export { ClassProgressionSystem } from '../features/title/domain/class_progression_system.js';",
+      "export { ClassProgressionSystem } from '../features/title/ports/public_compat_capabilities.js';",
     );
     expect(runRulesSource).toBe(
       "export { finalizeRunOutcome, getBaseRegionIndex, getRegionCount, getRegionData, getRegionIdForStage, RunRules } from '../platform/legacy/run_rules_compat.js';",
@@ -83,7 +83,7 @@ describe('system compat re-exports', () => {
       "export { SetBonusSystem } from '../shared/progression/set_bonus_system.js';",
     );
     expect(runRulesCursesSource).toBe(
-      "export { CURSES } from '../features/run/domain/run_rules_curses.js';",
+      "export { CURSES } from '../features/run/public.js';",
     );
     expect(runRulesRegionsSource).toBe([
       'export {',
@@ -91,7 +91,7 @@ describe('system compat re-exports', () => {
       '  getRegionCount,',
       '  getRegionData,',
       '  getRegionIdForStage,',
-      "} from '../features/run/domain/run_rules_regions.js';",
+      "} from '../features/run/public.js';",
     ].join('\n'));
     expect(runRulesDifficultySource).toBe([
       'export {',
@@ -103,13 +103,13 @@ describe('system compat re-exports', () => {
       '  getRewardMultiplier,',
       '  getShopCost,',
       '  isEndless,',
-      "} from '../features/run/domain/run_rules_difficulty.js';",
+      "} from '../features/run/public.js';",
     ].join('\n'));
     expect(runRulesMetaSource).toBe(
-      "export { ensureRunMeta } from '../features/run/domain/run_rules_meta.js';",
+      "export { ensureRunMeta } from '../features/run/public.js';",
     );
     expect(eventManagerSource).toBe(
-      "export { EventManager } from '../features/event/application/event_manager_facade.js';",
+      "export { EventManager } from '../features/event/public.js';",
     );
     expect(codexRecordsSource).toBe(
       "export { ensureCodexRecords, ensureCodexState, getCardUpgradeId, isCardUpgradeVariant, registerCardDiscovered, registerCardUsed, registerEnemyEncounter, registerEnemyKill, registerItemFound, resolveCodexCardId } from '../shared/codex/codex_records.js';",

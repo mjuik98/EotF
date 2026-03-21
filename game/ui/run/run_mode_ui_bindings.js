@@ -1,1 +1,1 @@
-export * from '../../features/run/presentation/browser/run_mode_ui_bindings.js';
+export * from '../../features/run/public.js';

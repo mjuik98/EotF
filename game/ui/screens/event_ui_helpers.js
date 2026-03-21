@@ -1,1 +1,1 @@
-export * from '../../features/event/presentation/browser/event_ui_helpers.js';
+export * from '../../features/event/public.js';

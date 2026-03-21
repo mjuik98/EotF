@@ -9,7 +9,7 @@ import {
   scheduleCombatEnd,
   setCombatActive,
   syncSelectedTarget,
-} from '../../../state/commands/combat_runtime_commands.js';
+} from '../../../shared/state/runtime_session_commands.js';
 import {
   playReactionEnemyDeath,
   playReactionPlayerDeath,

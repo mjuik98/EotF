@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-21T02:59:02.038Z",
-  "nodeCount": 1345,
-  "edgeCount": 1376,
+  "generatedAt": "2026-03-21T17:29:06.610Z",
+  "nodeCount": 1350,
+  "edgeCount": 1377,
   "layerEdges": {
     "core->core": 167,
     "core->domain": 3,
@@ -24,12 +24,11 @@
     "feature->core": 17,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 712,
+    "feature->feature": 713,
     "feature->legacy": 4,
     "feature->other": 8,
     "feature->platform": 3,
-    "feature->shared": 42,
-    "feature->state": 2,
+    "feature->shared": 44,
     "feature->utils": 30,
     "legacy->core": 6,
     "legacy->domain": 1,
@@ -1039,7 +1038,7 @@
       "game/features/combat/presentation/browser/death_fragment_choice_presenter.js",
       "game/features/run/ports/public_rule_capabilities.js",
       "game/shared/codex/codex_record_state_use_case.js",
-      "game/state/commands/combat_runtime_commands.js"
+      "game/shared/state/runtime_session_commands.js"
     ],
     "game/features/combat/application/death_handler_compat.js": [],
     "game/features/combat/application/death_handler_facade.js": [
@@ -1093,7 +1092,7 @@
       "game/features/combat/application/begin_player_turn_use_case.js",
       "game/features/combat/domain/enemy_turn_domain.js",
       "game/features/combat/domain/player_status_tick_domain.js",
-      "game/state/commands/combat_runtime_commands.js"
+      "game/shared/state/runtime_session_commands.js"
     ],
     "game/features/combat/application/start_combat_flow_use_case.js": [
       "game/shared/state/runtime_flow_controls.js"
@@ -1239,6 +1238,10 @@
       "game/features/combat/application/public_combat_command_actions.js",
       "game/features/combat/state/player_turn_state_commands.js"
     ],
+    "game/features/combat/ports/presentation/public_combat_card_presentation_capabilities.js": [],
+    "game/features/combat/ports/presentation/public_combat_feedback_presentation_capabilities.js": [],
+    "game/features/combat/ports/presentation/public_combat_screen_presentation_capabilities.js": [],
+    "game/features/combat/ports/presentation/public_combat_status_presentation_capabilities.js": [],
     "game/features/combat/ports/public_application_capabilities.js": [
       "game/features/combat/application/begin_player_turn_use_case.js",
       "game/features/combat/application/card_draw_service.js",
@@ -2484,6 +2487,9 @@
     ],
     "game/features/title/ports/public_character_select_mount_capabilities.js": [],
     "game/features/title/ports/public_character_select_presentation_capabilities.js": [],
+    "game/features/title/ports/public_compat_capabilities.js": [
+      "game/features/title/domain/class_progression_system.js"
+    ],
     "game/features/title/ports/public_contract_capabilities.js": [],
     "game/features/title/ports/public_game_boot_presentation_capabilities.js": [],
     "game/features/title/ports/public_module_capabilities.js": [

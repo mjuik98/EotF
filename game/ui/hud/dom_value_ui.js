@@ -1,1 +1,1 @@
-export { DomValueUI } from '../../features/combat/ports/public_presentation_capabilities.js';
+export { DomValueUI } from '../../features/combat/public.js';

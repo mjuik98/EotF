@@ -1,1 +1,1 @@
-export { MapUI } from '../../features/run/ports/public_presentation_capabilities.js';
+export { MapUI } from '../../features/run/public.js';

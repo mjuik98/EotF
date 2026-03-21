@@ -1,1 +1,1 @@
-export { ClassProgressionSystem } from '../features/title/domain/class_progression_system.js';
+export { ClassProgressionSystem } from '../features/title/ports/public_compat_capabilities.js';

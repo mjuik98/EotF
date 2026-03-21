@@ -1,1 +1,1 @@
-export { ClassSelectUI } from '../../features/title/presentation/browser/class_select_ui.js';
+export { ClassSelectUI } from '../../features/title/ports/public_character_select_presentation_capabilities.js';

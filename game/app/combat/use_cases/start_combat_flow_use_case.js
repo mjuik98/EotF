@@ -1,1 +1,1 @@
-export { startCombatFlowUseCase } from '../../../features/combat/ports/public_application_capabilities.js';
+export { startCombatFlowUseCase } from '../../../features/combat/public.js';

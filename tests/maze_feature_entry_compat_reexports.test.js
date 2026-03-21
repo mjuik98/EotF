@@ -8,7 +8,7 @@ describe('maze feature helper compat reexports', () => {
     const renderSource = fs.readFileSync(path.join(process.cwd(), 'game/ui/map/maze_system_render_ui.js'), 'utf8');
     const runtimeSource = fs.readFileSync(path.join(process.cwd(), 'game/ui/map/maze_system_runtime_ui.js'), 'utf8');
 
-    expect(renderSource).toBe("export * from '../../features/run/ports/public_presentation_capabilities.js';\n");
-    expect(runtimeSource).toBe("export * from '../../features/run/ports/public_presentation_capabilities.js';\n");
+    expect(renderSource).toBe("export * from '../../features/run/public.js';\n");
+    expect(runtimeSource).toBe("export * from '../../features/run/public.js';\n");
   });
 });

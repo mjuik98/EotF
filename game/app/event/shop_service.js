@@ -1,1 +1,1 @@
-export { createShopEventService } from '../../features/event/ports/public_service_capabilities.js';
+export { createShopEventService } from '../../features/event/public.js';

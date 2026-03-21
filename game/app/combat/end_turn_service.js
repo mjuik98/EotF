@@ -1,1 +1,1 @@
-export { endPlayerTurnService } from '../../features/combat/ports/public_application_capabilities.js';
+export { endPlayerTurnService } from '../../features/combat/public.js';

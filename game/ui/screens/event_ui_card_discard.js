@@ -1,1 +1,1 @@
-export * from '../../features/event/presentation/browser/event_ui_card_discard.js';
+export * from '../../features/event/public.js';

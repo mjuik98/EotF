@@ -1,1 +1,1 @@
-export * from '../../features/event/presentation/event_choice_flow.js';
+export * from '../../features/event/public.js';
