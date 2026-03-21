@@ -1,1 +1,1 @@
-export * from '../../features/run/ports/public_presentation_capabilities.js';
+export * from '../../features/run/presentation/browser/run_mode_ui_bindings.js';

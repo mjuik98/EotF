@@ -4,10 +4,15 @@ vi.mock('../game/features/event/presentation/browser/event_ui_dom.js', () => ({
   renderChoices: vi.fn(),
 }));
 
+vi.mock('../game/features/event/platform/browser/ensure_event_modal_shell.js', () => ({
+  ensureEventModalShell: vi.fn(),
+}));
+
 describe('event_runtime_shell_presenter', () => {
   it('renders the event shell and opens the modal', async () => {
     const { renderEventShellRuntime } = await import('../game/presentation/screens/event_runtime_shell_presenter.js');
     const dom = await import('../game/features/event/presentation/browser/event_ui_dom.js');
+    const { ensureEventModalShell } = await import('../game/features/event/platform/browser/ensure_event_modal_shell.js');
     const eventModal = { classList: { add: vi.fn() } };
     const elements = {
       eventEyebrow: { textContent: '' },
@@ -27,6 +32,7 @@ describe('event_runtime_shell_presenter', () => {
       resolveChoice: vi.fn(),
     });
 
+    expect(ensureEventModalShell).toHaveBeenCalledWith(doc);
     expect(elements.eventEyebrow.textContent).toBe('LAYER 1 EVENT');
     expect(elements.eventTitle.textContent).toBe('An Event');
     expect(elements.eventDesc.textContent).toBe('Desc');

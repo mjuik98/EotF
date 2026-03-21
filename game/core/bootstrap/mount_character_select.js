@@ -1,4 +1,7 @@
-import { buildCharacterSelectMountPayload } from '../../features/title/ports/runtime/public_title_runtime_surface.js';
+import {
+  buildCharacterSelectMountPayload,
+  ensureCharacterSelectShell,
+} from '../../features/title/ports/runtime/public_title_runtime_surface.js';
 import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
 
 export function mountCharacterSelect({ modules, deps, fns, doc }) {
@@ -8,6 +11,7 @@ export function mountCharacterSelect({ modules, deps, fns, doc }) {
   const characterSelectUI = titleModules.CharacterSelectUI;
 
   if (!characterSelectUI) return;
+  ensureCharacterSelectShell(doc);
   characterSelectUI.mount(
     buildCharacterSelectMountPayload({
       gs: coreModules.GS,

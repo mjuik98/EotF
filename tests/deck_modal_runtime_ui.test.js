@@ -1,4 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+const hoisted = vi.hoisted(() => ({
+  ensureDeckModalShell: vi.fn(),
+}));
+
+vi.mock('../game/features/combat/platform/browser/ensure_deck_modal_shell.js', () => ({
+  ensureDeckModalShell: hoisted.ensureDeckModalShell,
+}));
 
 import {
   closeDeckModal,
@@ -39,6 +47,7 @@ describe('deck_modal_runtime_ui', () => {
     expect(getDeckModalFilter()).toBe('POWER');
 
     openDeckModal({ doc });
+    expect(hoisted.ensureDeckModalShell).toHaveBeenCalledWith(doc);
     expect(modal.classList.contains('active')).toBe(true);
 
     closeDeckModal({ doc });

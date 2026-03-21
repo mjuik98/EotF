@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-20T15:52:05.301Z
-- Nodes: 1325
-- Edges: 1362
+- Generated: 2026-03-21T02:03:34.102Z
+- Nodes: 1345
+- Edges: 1376
 
 ## Layer Edges
 
@@ -29,9 +29,9 @@
 | feature->core | 17 |
 | feature->data | 38 |
 | feature->domain | 39 |
-| feature->feature | 700 |
+| feature->feature | 712 |
 | feature->legacy | 4 |
-| feature->other | 6 |
+| feature->other | 8 |
 | feature->platform | 3 |
 | feature->shared | 42 |
 | feature->state | 2 |
@@ -46,10 +46,10 @@
 | platform->data | 1 |
 | platform->domain | 1 |
 | platform->engine | 5 |
-| platform->feature | 12 |
+| platform->feature | 15 |
 | platform->legacy | 2 |
 | platform->other | 1 |
-| platform->platform | 19 |
+| platform->platform | 16 |
 | platform->shared | 2 |
 | platform->utils | 4 |
 | shared->core | 4 |
@@ -75,12 +75,12 @@
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
 | game/features/combat/ports/public_surface.js | 8 |
 | game/features/run/application/run_rules.js | 8 |
+| game/features/title/ports/runtime/public_title_runtime_surface.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
 | data/game_data.js | 7 |
+| game/features/codex/presentation/browser/codex_ui_runtime.js | 7 |
 | game/features/combat/application/combat_lifecycle_facade.js | 7 |
 | game/features/combat/presentation/browser/combat_ui.js | 7 |
-| game/features/combat/presentation/browser/hud_update_ui.js | 7 |
-| game/features/combat/presentation/browser/status_tooltip_builder.js | 7 |
 
 ## Top Incoming Dependencies
 

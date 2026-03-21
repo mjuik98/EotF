@@ -1,6 +1,7 @@
-import { buildScreenFeaturePrimaryModules } from './build_screen_feature_primary_modules.js';
+import { createLazyCodexModule } from '../../../features/codex/platform/browser/create_lazy_codex_module.js';
 
 export function registerCodexModules() {
-  const { CodexUI } = buildScreenFeaturePrimaryModules();
-  return CodexUI ? { CodexUI } : {};
+  return {
+    CodexUI: createLazyCodexModule(),
+  };
 }

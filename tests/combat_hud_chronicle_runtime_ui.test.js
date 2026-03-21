@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
+const hoisted = vi.hoisted(() => ({
+  ensureBattleChronicleShell: vi.fn(),
+}));
+
+vi.mock('../game/features/combat/platform/browser/ensure_battle_chronicle_shell.js', () => ({
+  ensureBattleChronicleShell: hoisted.ensureBattleChronicleShell,
+}));
+
 import {
   applyChronicleFilter,
   closeBattleChronicleOverlay,
@@ -151,6 +159,7 @@ describe('combat_hud_chronicle_runtime_ui', () => {
       { turn: 2, msg: '방어막 +3', type: 'shield' },
     ], { requestAnimationFrame: frame });
 
+    expect(hoisted.ensureBattleChronicleShell).toHaveBeenCalledWith(doc);
     expect(overlay.style.display).toBe('flex');
     expect(overlay.classList.contains('active')).toBe(true);
     expect(list.children).toHaveLength(2);

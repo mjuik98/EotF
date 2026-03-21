@@ -1,1 +1,1 @@
-export { EndingScreenUI } from '../../features/ui/ports/public_ending_presentation_capabilities.js';
+export { EndingScreenUI } from '../../features/ui/presentation/browser/ending_screen_ui.js';

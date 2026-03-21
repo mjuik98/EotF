@@ -5,6 +5,7 @@ import {
 } from '../../presentation/browser/title_screen_dom.js';
 import { continueRunUseCase, startTitleRunUseCase } from '../../application/title_run_entry_actions.js';
 import { playPreRunRipple } from './title_action_helpers.js';
+import { ensureCharacterSelectShell } from './ensure_character_select_shell.js';
 import { createCodexBrowserModuleCapabilities } from '../../../codex/ports/public_browser_modules.js';
 
 const codexBrowserModules = createCodexBrowserModuleCapabilities();
@@ -29,6 +30,7 @@ export function createTitleFlowActions(context) {
   return {
     showCharacterSelect() {
       playClick();
+      ensureCharacterSelectShell(doc);
       showCharacterSelectScreen(doc);
       modules.CharacterSelectUI?.onEnter?.();
     },

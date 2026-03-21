@@ -1,7 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
+
+const hoisted = vi.hoisted(() => ({
+  ensureRunSettingsShell: vi.fn(),
+}));
+
+vi.mock('../game/features/run/platform/browser/ensure_run_settings_shell.js', () => ({
+  ensureRunSettingsShell: hoisted.ensureRunSettingsShell,
+}));
+
 import {
   closeRunSettingsModal,
   confirmPresetSaveRuntime,
+  openRunSettingsModal,
   selectPresetSlotRuntime,
 } from '../game/features/run/presentation/browser/run_mode_ui_runtime.js';
 
@@ -15,6 +25,46 @@ function createClassList(initial = []) {
 }
 
 describe('run_mode_ui_runtime', () => {
+  it('ensures the run settings shell before opening the modal', () => {
+    const modal = {
+      style: { display: 'none' },
+      classList: createClassList(['fade-out']),
+    };
+    const layout = {
+      dataset: { open: 'true' },
+      style: { display: 'block' },
+    };
+    const panel = { classList: createClassList(['run-settings-with-inscription-layout']) };
+    const doc = {
+      getElementById: vi.fn((id) => {
+        if (id === 'runSettingsModal') return modal;
+        if (id === 'inscriptionLayout') return layout;
+        return null;
+      }),
+      querySelector: vi.fn((selector) => {
+        if (selector === '#runSettingsModal .run-settings-panel') return panel;
+        return null;
+      }),
+    };
+    const ui = {
+      refresh: vi.fn(),
+      refreshInscriptions: vi.fn(),
+    };
+    const deps = { doc };
+
+    const result = openRunSettingsModal(ui, deps);
+
+    expect(result).toBe(true);
+    expect(hoisted.ensureRunSettingsShell).toHaveBeenCalledWith(doc);
+    expect(modal.style.display).toBe('flex');
+    expect(modal.classList.contains('fade-out')).toBe(false);
+    expect(modal.classList.contains('fade-in')).toBe(true);
+    expect(layout.dataset.open).toBe('false');
+    expect(layout.style.display).toBe('none');
+    expect(ui.refresh).toHaveBeenCalledWith(deps);
+    expect(ui.refreshInscriptions).toHaveBeenCalledWith(deps);
+  });
+
   it('selects an empty preset slot and refreshes instead of loading', () => {
     const ui = {
       _selectedPresetSlot: 0,

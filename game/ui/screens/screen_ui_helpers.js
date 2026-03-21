@@ -1,1 +1,1 @@
-export * from '../../features/ui/ports/public_screen_presentation_capabilities.js';
+export * from '../../features/ui/presentation/browser/screen_ui_helpers.js';

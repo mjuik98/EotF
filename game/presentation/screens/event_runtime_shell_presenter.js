@@ -1,1 +1,1 @@
-export * from '../../features/event/ports/public_presentation_capabilities.js';
+export * from '../../features/event/presentation/browser/event_runtime_shell_presenter.js';

@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
+  ensureRewardScreenShell: vi.fn(),
   renderRewardHeader: vi.fn(),
   renderRewardOptions: vi.fn(),
+}));
+
+vi.mock('../game/features/reward/platform/browser/ensure_reward_screen_shell.js', () => ({
+  ensureRewardScreenShell: hoisted.ensureRewardScreenShell,
 }));
 
 vi.mock('../game/features/reward/presentation/browser/reward_ui_render.js', () => ({
@@ -58,6 +63,7 @@ describe('showRewardScreenView', () => {
       rewardMode: 'normal',
     }, deps)).not.toThrow();
 
+    expect(hoisted.ensureRewardScreenShell).toHaveBeenCalledWith(doc);
     expect(deps.showRewardScreen).not.toHaveBeenCalled();
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
     expect(rewardCards.textContent).toBe('');

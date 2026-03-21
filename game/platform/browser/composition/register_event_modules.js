@@ -1,6 +1,7 @@
-import { buildScreenFeaturePrimaryModules } from './build_screen_feature_primary_modules.js';
+import { createLazyEventModule } from '../../../features/event/platform/browser/create_lazy_event_module.js';
 
 export function registerEventModules() {
-  const { EventUI } = buildScreenFeaturePrimaryModules();
-  return EventUI ? { EventUI } : {};
+  return {
+    EventUI: createLazyEventModule(),
+  };
 }

@@ -121,7 +121,6 @@ The boundary policy is stored in `docs/architecture_policy.json`.
   - `scripts/check-event-contracts.mjs`
   - `scripts/check-import-coupling.mjs`
   - `scripts/check-content-data.mjs`
-  - `scripts/check-asset-manifest.mjs`
 - `npm run deps:map`
   - writes `docs/metrics/dependency_map.json`
   - writes `docs/metrics/dependency_map.md`

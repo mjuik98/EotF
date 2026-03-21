@@ -1,3 +1,5 @@
+import { ensureDeckModalShell } from '../../platform/browser/ensure_deck_modal_shell.js';
+
 let _deckFilterType = 'all';
 
 function getDoc(deps) {
@@ -17,7 +19,9 @@ export function setDeckModalFilter(type = 'all') {
 }
 
 export function openDeckModal(deps = {}) {
-  const modal = getDoc(deps).getElementById('deckViewModal');
+  const doc = getDoc(deps);
+  ensureDeckModalShell(doc);
+  const modal = doc.getElementById('deckViewModal');
   if (modal) modal.classList.add('active');
 }
 

@@ -69,6 +69,27 @@ The current worktree contains validated changes around compat guardrails, combat
 
 ## Latest Notes
 
+- Build-first optimization follow-up batch finished:
+  - `index.html` now keeps only lazy mount anchors for character select, event modal, and reward screen; the heavy DOM moved into feature-owned shell builders under `game/features/{title,event,reward}/platform/browser/ensure_*_shell.js`.
+  - Character select shell creation is now guaranteed through the title runtime surface before mount/show, and late-bound title/reward buttons use delegated document clicks so removing eager DOM does not break bindings.
+  - Title compat re-export chains under `game/ui/title/*character_select*` and `*class_select*` now point directly at canonical feature-owned files instead of bouncing through `public_character_select_presentation_capabilities.js`.
+  - Added `scripts/assert-bundle-budgets.mjs` and wired it into `npm run build`; added `scripts/report-structural-audit.mjs` plus `npm run audit:structure`.
+  - Structural audit after the cleanup reports `277` thin re-export files total (`game/ui`: `226`, `game/app`: `35`, `game/combat`: `16`), `0` remaining multi-hop compat chains in the audited roots, and `0` stale script references in docs/readme/progress sources.
+- Validation after the build-first follow-up batch:
+  - `npm run lint` PASS
+  - `npm run deps:map` PASS (`1331 nodes, 1367 edges`)
+  - `npm test` PASS (`498 files / 1208 tests`)
+  - `npm run build` PASS with bundle budgets enforced
+  - Build metrics:
+    - main entry js: `399.64 kB / 410.00 kB budget`
+    - main entry css: `186.44 kB / 192.00 kB budget`
+    - `ui-event`: `40.75 kB / 45.00 kB budget`
+    - `ui-reward`: `18.15 kB / 20.00 kB budget`
+    - `ui-combat`: `305.71 kB / 320.00 kB budget`
+    - `codex_ui`: `35.01 kB / 40.00 kB budget`
+    - `run_mode_ui`: `25.04 kB / 30.00 kB budget`
+  - Browser smoke PASS via Playwright CLI against `http://127.0.0.1:4201`: clicking `#mainStartBtn` rendered `CHOOSE YOUR ECHO`, screenshot `./.playwright-cli/page-2026-03-20T16-57-07-024Z.png` showed the character-select screen, and `.playwright-cli/console-2026-03-20T16-57-06-701Z.log` reported `0` errors / `0` warnings.
+
 - Latest public-surface + transitional-compat cleanup batch finished:
   - `game/features/run/ports/public_surface.js` now exposes only grouped capability builders (`bindings/browserModules/contracts/moduleCapabilities/rules/runtime/state`) instead of also re-exporting runtime actions and rule helpers directly.
   - `game/features/ui/ports/public_surface.js` now exposes only grouped capability builders (`bindings/browserModules/contracts/moduleCapabilities/runtime`) instead of also re-exporting app/runtime helper commands directly.
@@ -366,3 +387,85 @@ The current worktree contains validated changes around compat guardrails, combat
     - visual check passed in `output/web-game/arch-refactor-smoke-20260320-m/shot-0.png` (`CHOOSE YOUR ECHO` character select visible)
   - Latest coupling status: `Import coupling check passed (319 current, baseline 320)`.
   - Latest mutation status: `State mutation target check passed (83 current, target 134)`.
+- 2026-03-21 build-first optimization continued on the remaining eager screen shells, compat chains, and bundle guardrails:
+  - Moved `runSettingsModal`, `deckViewModal`, `settingsModal`, `battleChronicleOverlay`, and `codexModal` out of `index.html` into feature-owned shell builders under `game/features/{run,combat,ui,codex}/platform/browser/ensure_*_shell.js`, while preserving the existing DOM ids and late-bound runtime selectors.
+  - Updated `RunModeUI`, `SettingsUI`, `DeckModalUI`, `CombatHudUI`, and codex runtime open paths to call those shell builders before touching DOM, and changed `register_run_entry_bindings.js` so deck/chronicle close controls use delegated document clicks instead of boot-time direct binding.
+  - Collapsed safe `game/ui/run/*` and `game/ui/screens/*` compat re-export chains to direct canonical browser files, extending the earlier title-only cleanup without touching legacy bridge surfaces.
+  - Updated `vite.config.js` chunk targeting to use canonical feature paths for `settings_ui.js` and `run_mode_ui.js`, and extended `scripts/assert-bundle-budgets.mjs` with `ui-settings` coverage plus the new `ui-run-mode-*` chunk pattern.
+  - `game/platform/browser/composition/build_screen_feature_primary_modules.js` now returns lazy codex/event/reward facades instead of eagerly importing feature module-capability builders, keeping that transitional aggregator from pulling browser presentation code when referenced.
+- Validation after the 2026-03-21 shell/compat/chunking batch:
+  - `npm run lint` PASS
+  - `npm test` PASS (`498 files / 1210 tests`)
+  - `npm run build` PASS
+  - `npm run deps:map` PASS (`1336 nodes, 1372 edges`)
+  - `npm run audit:structure -- --json` PASS:
+    - `thinReexportCount: 277`
+    - `multiHopCompatChainCount: 0`
+    - `staleScriptReferences: 0`
+  - Browser smoke PASS against `http://127.0.0.1:4202` via Playwright:
+    - clicked `#mainStartBtn`
+    - `CHOOSE YOUR ECHO` became visible
+    - console/page errors: `0`, warnings: `0`
+  - Latest bundle status from `scripts/assert-bundle-budgets.mjs`:
+    - main entry js: `398.03 kB / 410.00 kB`
+    - main entry css: `186.44 kB / 192.00 kB`
+    - `ui-combat`: `308.44 kB / 320.00 kB`
+    - `ui-settings`: `20.34 kB / 24.00 kB`
+    - `ui-run-mode`: `26.17 kB / 30.00 kB`
+- 2026-03-21 build-first optimization continued on lazy preload trimming, combat chunk splitting, and remaining event/reward compat surfaces:
+  - `vite.config.js` now exports `filterLazyChunkModulePreloads(...)`, strips lazy feature chunks out of HTML `modulepreload` dependencies, and assigns dedicated manual chunks for `ui-combat-deck` and `ui-combat-chronicle`.
+  - Added lazy combat browser loaders in `game/features/combat/platform/browser/{create_lazy_deck_modal_module,import_deck_modal_module,ensure_combat_chronicle_browser_modules}.js`, so the deck modal and chronicle helpers no longer inflate the base combat chunk.
+  - `game/features/combat/presentation/browser/combat_hud_ui.js` now lazy-loads chronicle helpers on first open/toggle/close instead of statically importing the chronicle runtime.
+  - Cleaned the remaining safe event/reward compat files under `game/ui/screens/*` and `game/presentation/screens/*`; public-contract files that are still expected to route through feature ports were preserved on port/runtime surfaces instead of forcing direct browser imports.
+- Validation after the 2026-03-21 preload/combat-split batch:
+  - `npm run lint` PASS
+  - `npm run deps:map` PASS (`1339 nodes, 1373 edges`)
+  - `npm test` PASS (`501 files / 1214 tests`)
+  - `npm run build` PASS
+  - `npm run audit:structure -- --json` PASS:
+    - `thinReexportCount: 277`
+    - `multiHopCompatChainCount: 0`
+    - `staleScriptReferences: 0`
+  - Browser smoke PASS against `http://127.0.0.1:4203` served from `dist` via `python3 -m http.server`:
+    - clicked `#mainStartBtn`
+    - `CHOOSE YOUR ECHO` became visible
+    - console/page errors: `0`, warnings: `0`
+  - Latest bundle status from `scripts/assert-bundle-budgets.mjs`:
+    - main entry js: `397.63 kB / 410.00 kB`
+    - main entry css: `186.44 kB / 192.00 kB`
+    - `ui-combat`: `298.32 kB / 320.00 kB`
+    - `ui-combat-deck`: `6.70 kB`
+    - `ui-combat-chronicle`: `5.94 kB`
+    - `ui-event`: `40.75 kB / 45.00 kB`
+    - `ui-reward`: `18.15 kB / 20.00 kB`
+    - `ui-settings`: `20.34 kB / 24.00 kB`
+    - `ui-run-mode`: `26.17 kB / 30.00 kB`
+  - `dist/index.html` no longer contains `modulepreload` entries for `ui-combat`, `ui-combat-deck`, `ui-combat-chronicle`, `ui-event`, `ui-reward`, `ui-settings`, `ui-run-mode`, `data-cards`, or `data-enemies`.
+- 2026-03-21 build-first optimization continued on lazy combat/shell helper extraction and budget guardrail accuracy:
+  - `game/features/ui/platform/browser/screen_overlay_browser_modules.js` now serves `HelpPauseUI` and `MetaProgressionUI` through lazy wrapper facades created in `game/features/ui/platform/browser/create_lazy_{help_pause,meta_progression}_module.js`, so the static screen overlay registry no longer eagerly imports those browser implementations.
+  - Added `game/features/combat/platform/browser/combat_tooltip_browser_modules.js` plus `ensure_combat_tooltip_browser_modules.js`, and moved card/general/item tooltip helpers behind that loader while keeping enemy intent/status tooltip rendering on the eager combat path to avoid chunk cycles in the core enemy render pipeline.
+  - Tightened `vite.config.js` tooltip chunk targeting to helper files only, which removed the `ui-combat-tooltips -> ui-combat -> ui-combat-tooltips` circular chunk warning while preserving the new lazy chunk split.
+  - Fixed `scripts/assert-bundle-budgets.mjs` so `ui-combat` excludes `ui-combat-{deck,chronicle,tooltips}` siblings, and added explicit budgets for `ui-combat-tooltips` and `ui-shell-overlays`; `tests/assert_bundle_budgets.test.js` now guards that selection logic with oversized sibling fixture files.
+- Validation after the 2026-03-21 overlay/tooltip/budget batch:
+  - `npm run lint` PASS
+  - `npm run deps:map` PASS (`1345 nodes, 1376 edges`)
+  - `npm test` PASS (`504 files / 1217 tests`)
+  - `npm run build` PASS
+  - `npm run audit:structure -- --json` PASS:
+    - `thinReexportCount: 277`
+    - `multiHopCompatChainCount: 0`
+    - `staleScriptReferences: 0`
+  - Browser smoke PASS against `http://127.0.0.1:4203` served from `dist` via `python3 -m http.server`:
+    - clicked `#mainStartBtn`
+    - `CHOOSE YOUR ECHO` became visible
+    - console/page errors: `0`, warnings: `0`
+  - Latest bundle status from `scripts/assert-bundle-budgets.mjs`:
+    - main entry js: `345.14 kB / 410.00 kB`
+    - main entry css: `186.44 kB / 192.00 kB`
+    - `ui-combat`: `281.59 kB / 320.00 kB`
+    - `ui-combat-tooltips`: `16.23 kB / 20.00 kB`
+    - `ui-shell-overlays`: `21.11 kB / 24.00 kB`
+    - `ui-event`: `40.79 kB / 45.00 kB`
+    - `ui-reward`: `18.19 kB / 20.00 kB`
+    - `ui-settings`: `20.34 kB / 24.00 kB`
+    - `ui-run-mode`: `26.17 kB / 30.00 kB`

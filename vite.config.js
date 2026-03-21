@@ -1,5 +1,27 @@
 import { defineConfig } from 'vite';
 
+const LAZY_HTML_PRELOAD_PATTERNS = [
+  /\/?assets\/ui-combat-[^/]+\.js$/,
+  /\/?assets\/ui-combat-deck-[^/]+\.js$/,
+  /\/?assets\/ui-combat-chronicle-[^/]+\.js$/,
+  /\/?assets\/ui-combat-tooltips-[^/]+\.js$/,
+  /\/?assets\/ui-event-[^/]+\.js$/,
+  /\/?assets\/ui-reward-[^/]+\.js$/,
+  /\/?assets\/ui-shell-overlays-[^/]+\.js$/,
+  /\/?assets\/ui-settings-[^/]+\.js$/,
+  /\/?assets\/ui-run-mode-[^/]+\.js$/,
+  /\/?assets\/data-cards-[^/]+\.js$/,
+  /\/?assets\/data-enemies-[^/]+\.js$/,
+];
+
+export function filterLazyChunkModulePreloads(deps, context = {}) {
+  if (context.hostType !== 'html') return deps;
+
+  return deps.filter((dep) => {
+    return !LAZY_HTML_PRELOAD_PATTERNS.some((pattern) => pattern.test(dep));
+  });
+}
+
 function getManualChunk(id) {
   const normalized = id.replace(/\\/g, '/');
 
@@ -8,11 +30,20 @@ function getManualChunk(id) {
   if (normalized.endsWith('/data/cards.js')) return 'data-cards';
   if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
+  if (normalized.includes('/game/features/event/presentation/browser/')) return 'ui-event';
   if (
-    normalized.includes('/game/features/event/presentation/browser/')
-    || normalized.includes('/game/presentation/screens/event_')
-    || normalized.includes('/game/ui/screens/event_')
-  ) return 'ui-event';
+    normalized.includes('/game/features/combat/presentation/browser/deck_modal_')
+    || normalized.endsWith('/game/features/combat/presentation/browser/deck_modal_ui.js')
+  ) return 'ui-combat-deck';
+  if (normalized.includes('/game/features/combat/presentation/browser/combat_hud_chronicle')) {
+    return 'ui-combat-chronicle';
+  }
+  if (
+    normalized.includes('/game/features/combat/platform/browser/combat_tooltip_browser_modules.js')
+    || normalized.includes('/game/features/combat/presentation/browser/tooltip_general_')
+    || normalized.includes('/game/features/combat/presentation/browser/tooltip_item_')
+    || normalized.includes('/game/features/combat/presentation/browser/tooltip_card_')
+  ) return 'ui-combat-tooltips';
   if (
     normalized.includes('/game/ui/combat/')
     || normalized.includes('/game/ui/cards/')
@@ -20,19 +51,27 @@ function getManualChunk(id) {
     || normalized.includes('/game/features/combat/presentation/browser/')
     || normalized.includes('/game/presentation/combat/')
   ) return 'ui-combat';
+  if (normalized.includes('/game/features/reward/presentation/browser/')) return 'ui-reward';
   if (
-    normalized.includes('/game/features/reward/presentation/browser/')
-    || normalized.includes('/game/presentation/screens/reward_')
-    || normalized.includes('/game/ui/screens/reward_')
-  ) return 'ui-reward';
+    normalized.includes('/game/features/ui/presentation/browser/ending_')
+    || normalized.includes('/game/features/ui/presentation/browser/story_')
+    || normalized.includes('/game/features/ui/presentation/browser/meta_progression_')
+  ) return 'ui-overlays';
+  if (
+    normalized.includes('/game/features/ui/platform/browser/create_lazy_help_pause_module.js')
+    || normalized.includes('/game/features/ui/platform/browser/import_help_pause_module.js')
+    || normalized.includes('/game/features/ui/platform/browser/create_lazy_meta_progression_module.js')
+    || normalized.includes('/game/features/ui/platform/browser/import_meta_progression_module.js')
+    || normalized.includes('/game/features/ui/presentation/browser/help_pause_')
+  ) return 'ui-shell-overlays';
   if (
     normalized.includes('/game/presentation/screens/ending_')
     || normalized.includes('/game/presentation/screens/story_')
     || normalized.includes('/game/ui/screens/ending_')
     || normalized.includes('/game/ui/screens/story_')
   ) return 'ui-overlays';
-  if (normalized.endsWith('/game/ui/screens/settings_ui.js')) return 'ui-settings';
-  if (normalized.endsWith('/game/ui/run/run_mode_ui.js')) return 'ui-run-mode';
+  if (normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')) return 'ui-settings';
+  if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui.js')) return 'ui-run-mode';
 
   return null;
 }
@@ -45,6 +84,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     chunkSizeWarningLimit: 650,
+    modulePreload: {
+      resolveDependencies(_filename, deps, context) {
+        return filterLazyChunkModulePreloads(deps, context);
+      },
+    },
     rollupOptions: {
       input: 'index.html',
       output: {

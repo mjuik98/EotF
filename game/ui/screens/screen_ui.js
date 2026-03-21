@@ -1,1 +1,1 @@
-export { ScreenUI } from '../../features/ui/ports/public_screen_presentation_capabilities.js';
+export { ScreenUI } from '../../features/ui/presentation/browser/screen_ui.js';

@@ -16,6 +16,11 @@ function getBoundHandler(element, eventName = 'click') {
   return entry?.[1];
 }
 
+function getDocumentHandler(doc, eventName) {
+  const entry = doc.addEventListener.mock.calls.find(([name]) => name === eventName);
+  return entry?.[1];
+}
+
 describe('registerRunEntryBindings', () => {
   it('routes run/combat controls through injected actions and adapters', () => {
     const elements = {
@@ -28,24 +33,15 @@ describe('registerRunEntryBindings', () => {
       combatDrawCardBtn: createElement(),
       endPlayerTurnBtn: createElement(),
       showBattleChronicleBtn: createElement(),
-      closeBattleChronicleBtn: createElement(),
-      rewardSkipInitBtn: createElement(),
-      rewardSkipConfirmBtn: createElement(),
-      rewardSkipCancelBtn: createElement(),
-      deckViewCloseBtn: createElement(),
-      codexCloseBtn: createElement(),
       combatOverlay: { classList: { contains: vi.fn(() => true) } },
     };
     const deckFilterButton = createElement();
     deckFilterButton.dataset.filter = 'attack';
-    const codexTabButton = createElement();
-    codexTabButton.dataset.tab = 'cards';
     const doc = {
       addEventListener: vi.fn(),
       getElementById: vi.fn((id) => elements[id] || null),
       querySelectorAll: vi.fn((selector) => {
         if (selector === '.deck-filter-btn') return [deckFilterButton];
-        if (selector === '.codex-tab-btn') return [codexTabButton];
         return [];
       }),
     };
@@ -89,16 +85,15 @@ describe('registerRunEntryBindings', () => {
     getBoundHandler(elements.combatDrawCardBtn)?.();
     getBoundHandler(elements.endPlayerTurnBtn)?.();
     getBoundHandler(elements.showBattleChronicleBtn)?.();
-    getBoundHandler(elements.closeBattleChronicleBtn)?.();
-    getBoundHandler(elements.rewardSkipInitBtn)?.();
-    getBoundHandler(elements.rewardSkipConfirmBtn)?.();
-    getBoundHandler(elements.rewardSkipCancelBtn)?.();
-    getBoundHandler(deckFilterButton)?.();
-    getBoundHandler(elements.deckViewCloseBtn)?.();
-    getBoundHandler(codexTabButton)?.();
-    getBoundHandler(elements.codexCloseBtn)?.();
 
-    const [, onKeyDown] = doc.addEventListener.mock.calls.find(([name]) => name === 'keydown');
+    const onClick = getDocumentHandler(doc, 'click');
+    const onKeyDown = getDocumentHandler(doc, 'keydown');
+    onClick({ target: { closest: vi.fn((selector) => (selector === '#rewardSkipInitBtn' ? {} : null)) } });
+    onClick({ target: { closest: vi.fn((selector) => (selector === '#rewardSkipConfirmBtn' ? {} : null)) } });
+    onClick({ target: { closest: vi.fn((selector) => (selector === '#rewardSkipCancelBtn' ? {} : null)) } });
+    onClick({ target: { closest: vi.fn((selector) => (selector === '.deck-filter-btn' ? deckFilterButton : null)) } });
+    onClick({ target: { closest: vi.fn((selector) => (selector === '#deckViewCloseBtn' ? {} : null)) } });
+    onClick({ target: { closest: vi.fn((selector) => (selector === '#closeBattleChronicleBtn' ? {} : null)) } });
     onKeyDown({ key: 'L' });
 
     expect(actions.showFullMap).toHaveBeenCalledTimes(1);
@@ -119,7 +114,5 @@ describe('registerRunEntryBindings', () => {
     expect(actions.hideSkipConfirm).toHaveBeenCalledTimes(1);
     expect(actions.setDeckFilter).toHaveBeenCalledWith('attack');
     expect(actions.closeDeckView).toHaveBeenCalledTimes(1);
-    expect(actions.setCodexTab).toHaveBeenCalledWith('cards');
-    expect(actions.closeCodex).toHaveBeenCalledTimes(1);
   });
 });

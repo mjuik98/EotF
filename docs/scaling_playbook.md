@@ -63,7 +63,7 @@ Next:
 ## 5) CI and Contract Gates
 
 Implemented:
-- `npm run lint` now checks architecture, window/document/globalThis targets, state mutation targets, event contracts, import coupling growth, content-data integrity, and asset-manifest integrity.
+- `npm run lint` now checks architecture, window/document/globalThis targets, state mutation targets, event contracts, import coupling growth, and content-data integrity.
 - `quality-gate` runs `lint`, `test:coverage`, and `build`.
 - `quality-gate` uploads dependency-map artifacts (`dependency_map.json`, `dependency_map.md`) for each run.
 - `quality-gate` posts/updates PR dependency-map diff summary comments.

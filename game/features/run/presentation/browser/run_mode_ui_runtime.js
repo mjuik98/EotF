@@ -8,6 +8,7 @@ import {
   loadRunConfigPreset,
   saveRunConfigPreset,
 } from '../../state/run_config_state_commands.js';
+import { ensureRunSettingsShell } from '../../platform/browser/ensure_run_settings_shell.js';
 import {
   refreshInscriptionPanel,
   renderHiddenEnding,
@@ -136,6 +137,7 @@ export function deletePresetRuntime(ui, slot, deps = {}) {
 
 export function openRunSettingsModal(ui, deps = {}) {
   const doc = getDoc(deps);
+  ensureRunSettingsShell(doc);
   const modal = doc.getElementById('runSettingsModal');
   if (!modal) return false;
 

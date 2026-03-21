@@ -1,10 +1,5 @@
 import { applyEchoSkillButtonState } from './hud_render_helpers.js';
 import {
-  closeBattleChronicleOverlay,
-  isChronicleOverlayOpen,
-  openBattleChronicleOverlay,
-} from './combat_hud_chronicle.js';
-import {
   hideEchoSkillTooltip as hideEchoSkillTooltipOverlay,
   showEchoSkillTooltip as showEchoSkillTooltipOverlay,
   showTurnBanner as showCombatTurnBanner,
@@ -15,6 +10,7 @@ import {
   updateCombatChainWidgets,
   updateNoiseWidgetUI,
 } from './combat_hud_widgets_ui.js';
+import { ensureCombatChronicleBrowserModules } from '../../platform/browser/ensure_combat_chronicle_browser_modules.js';
 
 let _hudPinned = false;
 
@@ -23,7 +19,7 @@ function _getDoc(deps) {
 }
 
 function _getWin(deps) {
-  return deps?.win || window;
+  return deps?.win || deps?.doc?.defaultView || _getDoc(deps)?.defaultView || null;
 }
 
 export const CombatHudUI = {
@@ -84,25 +80,28 @@ export const CombatHudUI = {
     renderCombatHudClassSpecial(_getDoc(deps), deps.gs, deps.classMechanics, deps);
   },
 
-  openBattleChronicle(deps = {}) {
+  async openBattleChronicle(deps = {}) {
     const doc = _getDoc(deps);
     const win = _getWin(deps);
-    openBattleChronicleOverlay(doc, deps.gs?.combat?.log || [], {
-      requestAnimationFrame: win.requestAnimationFrame?.bind(win),
+    const chronicleModules = await ensureCombatChronicleBrowserModules(doc);
+    chronicleModules?.openBattleChronicleOverlay?.(doc, deps.gs?.combat?.log || [], {
+      requestAnimationFrame: win?.requestAnimationFrame,
     });
   },
 
-  closeBattleChronicle(deps = {}) {
-    closeBattleChronicleOverlay(_getDoc(deps));
+  async closeBattleChronicle(deps = {}) {
+    const chronicleModules = await ensureCombatChronicleBrowserModules(_getDoc(deps));
+    chronicleModules?.closeBattleChronicleOverlay?.(_getDoc(deps));
   },
 
-  toggleBattleChronicle(deps = {}) {
+  async toggleBattleChronicle(deps = {}) {
     const doc = _getDoc(deps);
     const overlay = doc.getElementById('battleChronicleOverlay');
-    if (isChronicleOverlayOpen(overlay, doc)) {
-      this.closeBattleChronicle(deps);
+    const chronicleModules = await ensureCombatChronicleBrowserModules(doc);
+    if (chronicleModules?.isChronicleOverlayOpen?.(overlay, doc)) {
+      await this.closeBattleChronicle(deps);
     } else {
-      this.openBattleChronicle(deps);
+      await this.openBattleChronicle(deps);
     }
   },
 };

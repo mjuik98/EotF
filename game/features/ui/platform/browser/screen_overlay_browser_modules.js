@@ -1,9 +1,9 @@
-import { HelpPauseUI } from '../../presentation/browser/help_pause_ui.js';
-import { MetaProgressionUI } from '../../presentation/browser/meta_progression_ui.js';
+import { createLazyHelpPauseModule } from './create_lazy_help_pause_module.js';
+import { createLazyMetaProgressionModule } from './create_lazy_meta_progression_module.js';
 
 export function buildScreenOverlayBrowserModules() {
   return {
-    MetaProgressionUI,
-    HelpPauseUI,
+    MetaProgressionUI: createLazyMetaProgressionModule(),
+    HelpPauseUI: createLazyHelpPauseModule(),
   };
 }

@@ -1,6 +1,8 @@
+import { ensureEventModalShell } from '../../platform/browser/ensure_event_modal_shell.js';
 import { renderChoices } from './event_ui_dom.js';
 
 export function renderEventShellRuntime(event, { doc, gs, refreshGoldBar, resolveChoice }) {
+  ensureEventModalShell(doc);
   const eyebrowEl = doc.getElementById('eventEyebrow');
   const titleEl = doc.getElementById('eventTitle');
   const descEl = doc.getElementById('eventDesc');

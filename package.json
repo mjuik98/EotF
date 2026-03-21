@@ -8,7 +8,7 @@
     "clean": "node scripts/clean-generated.mjs",
     "clean:smoke": "node scripts/clean-generated.mjs --smoke",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/assert-bundle-budgets.mjs",
     "preview": "vite preview",
     "lint": "node scripts/check-architecture.mjs && node scripts/check-feature-structure.mjs && node scripts/check-compat-surface.mjs && node scripts/check-legacy-global-access.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs && node scripts/check-content-data.mjs",
     "test": "vitest run",
@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "deps:map": "node scripts/generate-dependency-map.mjs",
     "deps:threshold": "node scripts/check-dependency-delta-threshold.mjs",
+    "audit:structure": "node scripts/report-structural-audit.mjs",
     "check:data": "node scripts/check-content-data.mjs",
     "smoke:reward": "node scripts/run_reward_smoke.mjs",
     "quality": "npm run lint && npm run test:coverage && npm run build"

@@ -1,1 +1,1 @@
-export { RunSetupUI } from '../../features/run/ports/public_presentation_capabilities.js';
+export { RunSetupUI } from '../../features/run/presentation/browser/run_setup_ui.js';

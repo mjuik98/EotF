@@ -9,6 +9,7 @@ import {
   cleanupSettingsRebindUi,
   setSettingsModalActive,
 } from './settings_ui_runtime_helpers.js';
+import { ensureSettingsModalShell } from '../../platform/browser/ensure_settings_modal_shell.js';
 
 export function getLiveSettingsDeps(ui, doc) {
   return {
@@ -20,6 +21,7 @@ export function getLiveSettingsDeps(ui, doc) {
 
 export function openSettingsModal(ui, deps = {}) {
   const doc = getDoc(deps);
+  ensureSettingsModalShell(doc);
   const modal = doc.getElementById('settingsModal');
   if (!modal) {
     console.warn('[SettingsUI] #settingsModal not found');

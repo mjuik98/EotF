@@ -1,11 +1,11 @@
-import { createCodexModuleCapabilities } from '../../../features/codex/ports/public_module_capabilities.js';
-import { createEventModuleCapabilities } from '../../../features/event/ports/public_module_capabilities.js';
-import { createRewardModuleCapabilities } from '../../../features/reward/ports/public_module_capabilities.js';
+import { createLazyCodexModule } from '../../../features/codex/platform/browser/create_lazy_codex_module.js';
+import { createLazyEventModule } from '../../../features/event/platform/browser/create_lazy_event_module.js';
+import { createLazyRewardModule } from '../../../features/reward/platform/browser/create_lazy_reward_module.js';
 
 export function buildScreenFeaturePrimaryModules() {
   return {
-    ...createCodexModuleCapabilities().primary,
-    ...createEventModuleCapabilities().primary,
-    ...createRewardModuleCapabilities().primary,
+    CodexUI: createLazyCodexModule(),
+    EventUI: createLazyEventModule(),
+    RewardUI: createLazyRewardModule(),
   };
 }

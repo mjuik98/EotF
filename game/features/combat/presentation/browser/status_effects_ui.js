@@ -1,4 +1,3 @@
-import { StatusTooltipUI } from './status_tooltip_builder.js';
 import { PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../../../data/status_key_data.js';
 import { STATUS_KR } from '../../../../../data/status_effects_data.js';
 import {
@@ -7,6 +6,7 @@ import {
   isInfiniteStatusDuration,
   resolveStatusEffectValue,
 } from '../../../../utils/status_value_utils.js';
+import { StatusTooltipUI } from './status_tooltip_builder.js';
 
 function _getDoc(deps) { return deps?.doc || document; }
 function _getGS(deps) { return deps?.gs; }

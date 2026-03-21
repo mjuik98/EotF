@@ -1,5 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
+
+const hoisted = vi.hoisted(() => ({
+  ensureSettingsModalShell: vi.fn(),
+}));
+
+vi.mock('../game/features/ui/platform/browser/ensure_settings_modal_shell.js', () => ({
+  ensureSettingsModalShell: hoisted.ensureSettingsModalShell,
+}));
+
 import {
   closeSettingsModal,
   getLiveSettingsDeps,
@@ -83,6 +92,7 @@ describe('settings_ui_runtime', () => {
     const didOpen = openSettingsModal(ui, { doc, audioEngine });
 
     expect(didOpen).toBe(true);
+    expect(hoisted.ensureSettingsModalShell).toHaveBeenCalledWith(doc);
     expect(ui._runtimeDeps).toEqual({ doc, audioEngine });
     expect(ui._bindDomEvents).toHaveBeenCalledWith(doc);
     expect(ui._syncAllTabs).toHaveBeenCalledWith(doc);

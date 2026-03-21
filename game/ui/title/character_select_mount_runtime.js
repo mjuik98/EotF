@@ -2,4 +2,4 @@ export {
   buildCharacterSelectSectionLabel,
   createCharacterSelectMountRuntime,
   getCharacterClassProgress,
-} from '../../features/title/ports/public_character_select_mount_capabilities.js';
+} from '../../features/title/platform/browser/create_character_select_mount_runtime.js';

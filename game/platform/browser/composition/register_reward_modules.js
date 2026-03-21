@@ -1,6 +1,7 @@
-import { buildScreenFeaturePrimaryModules } from './build_screen_feature_primary_modules.js';
+import { createLazyRewardModule } from '../../../features/reward/platform/browser/create_lazy_reward_module.js';
 
 export function registerRewardModules() {
-  const { RewardUI } = buildScreenFeaturePrimaryModules();
-  return RewardUI ? { RewardUI } : {};
+  return {
+    RewardUI: createLazyRewardModule(),
+  };
 }

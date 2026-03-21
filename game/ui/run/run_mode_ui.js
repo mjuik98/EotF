@@ -1,1 +1,1 @@
-export { RunModeUI } from '../../features/run/ports/public_presentation_capabilities.js';
+export { RunModeUI } from '../../features/run/presentation/browser/run_mode_ui.js';

@@ -1,6 +1,7 @@
 import {
   renderBattleChronicleEntries,
 } from './combat_hud_chronicle_render_ui.js';
+import { ensureBattleChronicleShell } from '../../platform/browser/ensure_battle_chronicle_shell.js';
 
 function resolveEventElement(event) {
   const target = event?.target;
@@ -100,6 +101,7 @@ export function isChronicleOverlayOpen(overlay, doc) {
 }
 
 export function openBattleChronicleOverlay(doc, logs = [], options = {}) {
+  ensureBattleChronicleShell(doc);
   const overlay = doc.getElementById('battleChronicleOverlay');
   const panel = overlay?.querySelector?.('.battle-chronicle-panel');
   const list = doc.getElementById('battleChronicleList');

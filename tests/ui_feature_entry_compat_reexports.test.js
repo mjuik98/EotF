@@ -3,235 +3,246 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+function named(file, exportClause, target) {
+  return [file, `export ${exportClause} from '${target}';\n`];
+}
+
+function star(file, target) {
+  return [file, `export * from '${target}';\n`];
+}
+
 const EXACT_REEXPORTS = new Map([
-  [
+  named(
     'game/ui/map/map_generation_ui.js',
-    "export { MapGenerationUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ MapGenerationUI }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/map/map_navigation_ui.js',
-    "export { MapNavigationUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ MapNavigationUI }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/map/map_ui.js',
-    "export { MapUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/map/map_ui_full_map.js',
-    "export * from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/map/map_ui_full_map_render.js',
-    "export * from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/map/map_ui_minimap.js',
-    "export * from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/map/map_ui_minimap_render.js',
-    "export * from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/map/map_ui_next_nodes.js',
-    "export * from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/map/map_ui_next_nodes_render.js',
-    "export * from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ MapUI }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  star('game/ui/map/map_ui_full_map.js', '../../features/run/ports/public_presentation_capabilities.js'),
+  star('game/ui/map/map_ui_full_map_render.js', '../../features/run/ports/public_presentation_capabilities.js'),
+  star('game/ui/map/map_ui_minimap.js', '../../features/run/ports/public_presentation_capabilities.js'),
+  star('game/ui/map/map_ui_minimap_render.js', '../../features/run/ports/public_presentation_capabilities.js'),
+  star('game/ui/map/map_ui_next_nodes.js', '../../features/run/ports/public_presentation_capabilities.js'),
+  star('game/ui/map/map_ui_next_nodes_render.js', '../../features/run/ports/public_presentation_capabilities.js'),
+  named(
     'game/ui/map/maze_system_ui.js',
-    "export { MazeSystem } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ MazeSystem }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/map/region_transition_ui.js',
-    "export { RegionTransitionUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ RegionTransitionUI }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/map/world_canvas_ui.js',
-    "export { WorldCanvasUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ WorldCanvasUI }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/map/world_render_loop_ui.js',
-    "export { WorldRenderLoopUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ WorldRenderLoopUI }',
+    '../../features/run/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/hud/dom_value_ui.js',
-    "export { DomValueUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ DomValueUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/hud/feedback_ui.js',
-    "export { FeedbackUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ FeedbackUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/hud/hud_update_ui.js',
-    "export { HudUpdateUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ HudUpdateUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/effects/echo_ripple_transition.js',
-    "export { startEchoRippleDissolve } from '../../platform/browser/effects/echo_ripple_transition.js';\n",
-  ],
-  [
+    '{ startEchoRippleDissolve }',
+    '../../platform/browser/effects/echo_ripple_transition.js',
+  ),
+  named(
     'game/ui/title/class_select_ui.js',
-    "export { ClassSelectUI } from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ ClassSelectUI }',
+    '../../features/title/presentation/browser/class_select_ui.js',
+  ),
+  named(
     'game/ui/title/character_select_ui.js',
-    "export { CharacterSelectUI } from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ CharacterSelectUI }',
+    '../../features/title/presentation/browser/character_select_ui.js',
+  ),
+  named(
     'game/ui/title/game_boot_ui.js',
-    "export { GameBootUI } from '../../features/title/ports/public_game_boot_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ GameBootUI }',
+    '../../features/title/ports/public_game_boot_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/title/title_canvas_ui.js',
-    "export { TitleCanvasUI } from '../../features/title/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ TitleCanvasUI }',
+    '../../features/title/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/title/game_canvas_setup_ui.js',
-    "export { GameCanvasSetupUI } from '../../features/title/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ GameCanvasSetupUI }',
+    '../../features/title/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/title/intro_cinematic_ui.js',
-    "export { IntroCinematicUI } from '../../features/title/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ IntroCinematicUI }',
+    '../../features/title/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/title/level_up_popup_ui.js',
-    "export { LevelUpPopupUI } from '../../features/title/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ LevelUpPopupUI }',
+    '../../features/title/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/title/run_end_screen_ui.js',
-    "export { RunEndScreenUI } from '../../features/title/ports/public_run_end_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ RunEndScreenUI }',
+    '../../features/title/ports/public_run_end_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/title/class_select_buttons_ui.js',
-    "export { renderClassSelectButtons } from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/title/class_select_selection_ui.js',
-    "export * from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/title/class_select_tooltip_ui.js',
-    "export * from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ renderClassSelectButtons }',
+    '../../features/title/platform/browser/class_select_buttons_ui.js',
+  ),
+  star('game/ui/title/class_select_selection_ui.js', '../../features/title/platform/browser/class_select_selection_ui.js'),
+  star('game/ui/title/class_select_tooltip_ui.js', '../../features/title/platform/browser/class_select_tooltip_ui.js'),
+  named(
     'game/ui/title/character_select_audio.js',
-    "export { createCharacterSelectSfx } from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ createCharacterSelectSfx }',
+    '../../features/title/platform/browser/character_select_audio.js',
+  ),
+  named(
     'game/ui/title/character_select_fx.js',
-    "export { setupCharacterCardFx } from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/title/character_select_bindings.js',
-    "export * from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/title/character_select_flow.js',
-    "export * from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/title/character_select_modal.js',
-    "export * from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ setupCharacterCardFx }',
+    '../../features/title/platform/browser/character_select_fx.js',
+  ),
+  star('game/ui/title/character_select_bindings.js', '../../features/title/platform/browser/character_select_bindings.js'),
+  star('game/ui/title/character_select_flow.js', '../../features/title/platform/browser/character_select_flow.js'),
+  star('game/ui/title/character_select_modal.js', '../../features/title/platform/browser/character_select_modal.js'),
+  named(
     'game/ui/title/character_select_summary_replay.js',
-    "export { createCharacterSummaryReplay } from '../../features/title/ports/public_character_select_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ createCharacterSummaryReplay }',
+    '../../features/title/platform/browser/character_select_summary_replay.js',
+  ),
+  named(
     'game/ui/run/run_mode_ui.js',
-    "export { RunModeUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ RunModeUI }',
+    '../../features/run/presentation/browser/run_mode_ui.js',
+  ),
+  named(
     'game/ui/run/run_start_ui.js',
-    "export { RunStartUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ RunStartUI }',
+    '../../features/run/presentation/browser/run_start_ui.js',
+  ),
+  named(
     'game/ui/run/run_setup_ui.js',
-    "export { RunSetupUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ RunSetupUI }',
+    '../../features/run/presentation/browser/run_setup_ui.js',
+  ),
+  named(
     'game/ui/run/run_return_ui.js',
-    "export { RunReturnUI } from '../../features/run/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ RunReturnUI }',
+    '../../features/run/presentation/browser/run_return_ui.js',
+  ),
+  named(
     'game/ui/combat/combat_start_ui.js',
-    "export { CombatStartUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
+    '{ CombatStartUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
   [
     'game/ui/combat/combat_ui.js',
     "export {\n  CombatUI,\n  ENEMY_STATUS_DESC,\n  ENEMY_STATUS_KR,\n  resolveEnemyStatusTooltipMetrics,\n} from '../../features/combat/ports/public_presentation_capabilities.js';\n",
   ],
-  [
+  named(
     'game/ui/combat/combat_hud_ui.js',
-    "export { CombatHudUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ CombatHudUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/combat/echo_skill_ui.js',
-    "export { EchoSkillUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
+    '{ EchoSkillUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
   [
     'game/ui/combat/status_effects_ui.js',
     "export {\n  resolvePlayerStatusTooltipMetrics,\n  StatusEffectsUI,\n} from '../../features/combat/ports/public_presentation_capabilities.js';\n",
   ],
-  [
+  named(
     'game/ui/combat/combat_info_ui.js',
-    "export { CombatInfoUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ CombatInfoUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/combat/combat_actions_ui.js',
-    "export { CombatActionsUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/cards/card_ui.js',
-    "export { CardUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ CombatActionsUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named('game/ui/cards/card_ui.js', '{ CardUI }', '../../features/combat/ports/public_presentation_capabilities.js'),
+  named(
     'game/ui/cards/card_target_ui.js',
-    "export { CardTargetUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
-    'game/ui/cards/tooltip_ui.js',
-    "export { TooltipUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ CardTargetUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named('game/ui/cards/tooltip_ui.js', '{ TooltipUI }', '../../features/combat/ports/public_presentation_capabilities.js'),
+  named(
     'game/ui/cards/deck_modal_ui.js',
-    "export { DeckModalUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ DeckModalUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/presentation/combat/combat_turn_ui.js',
-    "export { CombatTurnUI } from '../../features/combat/ports/public_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ CombatTurnUI }',
+    '../../features/combat/ports/public_presentation_capabilities.js',
+  ),
+  named(
     'game/ui/screens/screen_ui.js',
-    "export { ScreenUI } from '../../features/ui/ports/public_screen_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ ScreenUI }',
+    '../../features/ui/presentation/browser/screen_ui.js',
+  ),
+  named(
     'game/ui/screens/ending_screen_ui.js',
-    "export { EndingScreenUI } from '../../features/ui/ports/public_ending_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ EndingScreenUI }',
+    '../../features/ui/presentation/browser/ending_screen_ui.js',
+  ),
+  named(
     'game/ui/screens/story_ui.js',
-    "export { StoryUI } from '../../features/ui/ports/public_story_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ StoryUI }',
+    '../../features/ui/presentation/browser/story_ui.js',
+  ),
+  named(
     'game/ui/screens/meta_progression_ui.js',
-    "export { MetaProgressionUI } from '../../features/ui/ports/public_meta_progression_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ MetaProgressionUI }',
+    '../../features/ui/presentation/browser/meta_progression_ui.js',
+  ),
+  named(
     'game/ui/screens/help_pause_ui.js',
-    "export { HelpPauseUI } from '../../features/ui/ports/public_help_pause_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ HelpPauseUI }',
+    '../../features/ui/presentation/browser/help_pause_ui.js',
+  ),
+  named(
     'game/ui/screens/settings_ui.js',
-    "export { SettingsUI } from '../../features/ui/ports/public_settings_presentation_capabilities.js';\n",
-  ],
-  [
+    '{ SettingsUI }',
+    '../../features/ui/presentation/browser/settings_ui.js',
+  ),
+  named(
     'game/ui/screens/codex_ui.js',
-    "export { CodexUI } from '../../features/codex/ports/public_presentation_capabilities.js';\n",
-  ],
+    '{ CodexUI }',
+    '../../features/codex/presentation/browser/codex_ui.js',
+  ),
 ]);
 
 describe('ui feature entry compat reexports', () => {

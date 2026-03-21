@@ -1,1 +1,1 @@
-export { createCharacterSummaryReplay } from '../../features/title/ports/public_character_select_presentation_capabilities.js';
+export { createCharacterSummaryReplay } from '../../features/title/platform/browser/character_select_summary_replay.js';

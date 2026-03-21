@@ -1,1 +1,1 @@
-export { StoryUI } from '../../features/ui/ports/public_story_presentation_capabilities.js';
+export { StoryUI } from '../../features/ui/presentation/browser/story_ui.js';

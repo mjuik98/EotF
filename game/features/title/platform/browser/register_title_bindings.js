@@ -43,6 +43,16 @@ export function registerTitleBindings({
     }
   });
 
+  resolvedDoc.addEventListener('click', (event) => {
+    if (event.target?.closest?.('#backToTitleBtn')) {
+      actions.backToTitle?.();
+      return;
+    }
+
+    const classButton = event.target?.closest?.('.class-btn');
+    if (classButton) actions.selectClass?.(classButton);
+  });
+
   bindClick(resolvedDoc, 'mainContinueBtn', () => {
     playUiClick(audio);
     actions.continueRun?.();
@@ -68,7 +78,6 @@ export function registerTitleBindings({
     actions.quitGame?.();
   });
   bindClick(resolvedDoc, 'startBtn', () => actions.startGame?.());
-  bindClick(resolvedDoc, 'backToTitleBtn', () => actions.backToTitle?.());
   bindClick(resolvedDoc, 'runSettingsCloseBtn', () => {
     playUiClick(audio);
     actions.closeRunSettings?.();
@@ -97,11 +106,5 @@ export function registerTitleBindings({
       playUiClick(audio);
       actions.shiftAscension?.(index === 0 ? -1 : 1);
     });
-  });
-
-  const classContainer = resolvedDoc.getElementById('classSelectContainer');
-  classContainer?.addEventListener?.('click', (event) => {
-    const button = event.target?.closest?.('.class-btn');
-    if (button) actions.selectClass?.(button);
   });
 }

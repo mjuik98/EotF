@@ -14,6 +14,7 @@ import {
   injectCodexModalStructure,
   setCodexTabState,
 } from './codex_ui_structure.js';
+import { ensureCodexModalShell } from '../../platform/browser/ensure_codex_modal_shell.js';
 import {
   closeCodexModal,
   navigateCodexPopup,
@@ -32,6 +33,7 @@ export function openCodexRuntime(state, ui, deps = {}) {
   resetCodexUiState(state, deps);
 
   const doc = getCodexDoc(deps);
+  ensureCodexModalShell(doc);
   bindCodexGlobalKeys(state, deps);
   showCodexModal(doc);
 

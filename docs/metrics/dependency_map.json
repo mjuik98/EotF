@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-20T15:52:05.301Z",
-  "nodeCount": 1325,
-  "edgeCount": 1362,
+  "generatedAt": "2026-03-21T02:03:34.102Z",
+  "nodeCount": 1345,
+  "edgeCount": 1376,
   "layerEdges": {
     "core->core": 167,
     "core->domain": 3,
@@ -24,9 +24,9 @@
     "feature->core": 17,
     "feature->data": 38,
     "feature->domain": 39,
-    "feature->feature": 700,
+    "feature->feature": 712,
     "feature->legacy": 4,
-    "feature->other": 6,
+    "feature->other": 8,
     "feature->platform": 3,
     "feature->shared": 42,
     "feature->state": 2,
@@ -41,10 +41,10 @@
     "platform->data": 1,
     "platform->domain": 1,
     "platform->engine": 5,
-    "platform->feature": 12,
+    "platform->feature": 15,
     "platform->legacy": 2,
     "platform->other": 1,
-    "platform->platform": 19,
+    "platform->platform": 16,
     "platform->shared": 2,
     "platform->utils": 4,
     "shared->core": 4,
@@ -113,6 +113,12 @@
       "inDegree": 2
     },
     {
+      "file": "game/features/title/ports/runtime/public_title_runtime_surface.js",
+      "layer": "feature",
+      "outDegree": 8,
+      "inDegree": 5
+    },
+    {
       "file": "game/platform/browser/composition/build_core_engine_modules.js",
       "layer": "platform",
       "outDegree": 8,
@@ -125,6 +131,12 @@
       "inDegree": 14
     },
     {
+      "file": "game/features/codex/presentation/browser/codex_ui_runtime.js",
+      "layer": "feature",
+      "outDegree": 7,
+      "inDegree": 1
+    },
+    {
       "file": "game/features/combat/application/combat_lifecycle_facade.js",
       "layer": "feature",
       "outDegree": 7,
@@ -135,18 +147,6 @@
       "layer": "feature",
       "outDegree": 7,
       "inDegree": 1
-    },
-    {
-      "file": "game/features/combat/presentation/browser/hud_update_ui.js",
-      "layer": "feature",
-      "outDegree": 7,
-      "inDegree": 0
-    },
-    {
-      "file": "game/features/combat/presentation/browser/status_tooltip_builder.js",
-      "layer": "feature",
-      "outDegree": 7,
-      "inDegree": 4
     }
   ],
   "hottestByIn": [
@@ -874,10 +874,11 @@
     "game/features/codex/platform/browser/codex_browser_modules.js": [
       "game/features/codex/presentation/browser/codex_ui.js"
     ],
+    "game/features/codex/platform/browser/create_lazy_codex_module.js": [],
     "game/features/codex/platform/browser/ensure_codex_browser_modules.js": [
-      "game/features/codex/platform/browser/codex_browser_modules.js",
       "game/platform/legacy/game_module_registry.js"
     ],
+    "game/features/codex/platform/browser/ensure_codex_modal_shell.js": [],
     "game/features/codex/ports/public_browser_modules.js": [
       "game/features/codex/platform/browser/ensure_codex_browser_modules.js"
     ],
@@ -938,6 +939,7 @@
       "game/features/codex/presentation/browser/codex_ui_render.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_runtime.js": [
+      "game/features/codex/platform/browser/ensure_codex_modal_shell.js",
       "game/features/codex/presentation/browser/codex_ui_controller.js",
       "game/features/codex/presentation/browser/codex_ui_helpers.js",
       "game/features/codex/presentation/browser/codex_ui_popup_runtime.js",
@@ -951,6 +953,7 @@
     ],
     "game/features/codex/presentation/browser/codex_ui_structure.js": [],
     "game/features/codex/presentation/browser/codex_ui.js": [
+      "css/codex_v3.css",
       "game/features/codex/presentation/browser/codex_ui_controller.js",
       "game/features/codex/presentation/browser/codex_ui_runtime.js"
     ],
@@ -1141,6 +1144,7 @@
     "game/features/combat/platform/browser/build_combat_turn_action_group.js": [],
     "game/features/combat/platform/browser/build_combat_ui_action_group.js": [],
     "game/features/combat/platform/browser/combat_browser_modules.js": [
+      "game/features/combat/platform/browser/create_lazy_deck_modal_module.js",
       "game/features/combat/presentation/browser/card_target_ui.js",
       "game/features/combat/presentation/browser/card_ui.js",
       "game/features/combat/presentation/browser/combat_actions_ui.js",
@@ -1148,12 +1152,16 @@
       "game/features/combat/presentation/browser/combat_start_ui.js",
       "game/features/combat/presentation/browser/combat_turn_ui.js",
       "game/features/combat/presentation/browser/combat_ui.js",
-      "game/features/combat/presentation/browser/deck_modal_ui.js",
       "game/features/combat/presentation/browser/echo_skill_ui.js",
       "game/features/combat/presentation/browser/feedback/public_feedback_modules.js",
       "game/features/combat/presentation/browser/hud/public_combat_hud_modules.js",
       "game/features/combat/presentation/browser/status_effects_ui.js",
       "game/features/combat/presentation/browser/tooltip_ui.js"
+    ],
+    "game/features/combat/platform/browser/combat_tooltip_browser_modules.js": [
+      "game/features/combat/presentation/browser/tooltip_card_render_ui.js",
+      "game/features/combat/presentation/browser/tooltip_general_ui.js",
+      "game/features/combat/presentation/browser/tooltip_item_ui.js"
     ],
     "game/features/combat/platform/browser/create_combat_actions.js": [
       "game/features/combat/platform/browser/build_combat_action_context.js",
@@ -1170,6 +1178,14 @@
     "game/features/combat/platform/browser/create_combat_event_subscriber_handlers.js": [
       "game/features/combat/presentation/browser/feedback_ui_effects.js"
     ],
+    "game/features/combat/platform/browser/create_lazy_deck_modal_module.js": [
+      "game/features/combat/platform/browser/import_deck_modal_module.js"
+    ],
+    "game/features/combat/platform/browser/ensure_battle_chronicle_shell.js": [],
+    "game/features/combat/platform/browser/ensure_combat_chronicle_browser_modules.js": [],
+    "game/features/combat/platform/browser/ensure_combat_tooltip_browser_modules.js": [],
+    "game/features/combat/platform/browser/ensure_deck_modal_shell.js": [],
+    "game/features/combat/platform/browser/import_deck_modal_module.js": [],
     "game/features/combat/platform/combat_end_ports.js": [],
     "game/features/combat/platform/combat_start_runtime_ports.js": [
       "game/domain/audio/audio_event_helpers.js",
@@ -1356,6 +1372,7 @@
       "game/features/combat/presentation/browser/card_popup_ui.js"
     ],
     "game/features/combat/presentation/browser/combat_hud_chronicle_runtime_ui.js": [
+      "game/features/combat/platform/browser/ensure_battle_chronicle_shell.js",
       "game/features/combat/presentation/browser/combat_hud_chronicle_render_ui.js"
     ],
     "game/features/combat/presentation/browser/combat_hud_chronicle.js": [],
@@ -1367,7 +1384,7 @@
       "game/features/combat/presentation/browser/class_trait_panel_ui.js"
     ],
     "game/features/combat/presentation/browser/combat_hud_ui.js": [
-      "game/features/combat/presentation/browser/combat_hud_chronicle.js",
+      "game/features/combat/platform/browser/ensure_combat_chronicle_browser_modules.js",
       "game/features/combat/presentation/browser/combat_hud_feedback.js",
       "game/features/combat/presentation/browser/combat_hud_log_ui.js",
       "game/features/combat/presentation/browser/combat_hud_special_ui.js",
@@ -1436,7 +1453,9 @@
       "data/rarity_meta.js",
       "data/ui_rarity_styles.js"
     ],
-    "game/features/combat/presentation/browser/deck_modal_runtime_ui.js": [],
+    "game/features/combat/presentation/browser/deck_modal_runtime_ui.js": [
+      "game/features/combat/platform/browser/ensure_deck_modal_shell.js"
+    ],
     "game/features/combat/presentation/browser/deck_modal_ui.js": [
       "game/features/combat/presentation/browser/deck_modal_render_ui.js",
       "game/features/combat/presentation/browser/deck_modal_runtime_ui.js"
@@ -1554,9 +1573,7 @@
       "game/features/combat/presentation/browser/tooltip_item_render_ui.js"
     ],
     "game/features/combat/presentation/browser/tooltip_ui.js": [
-      "game/features/combat/presentation/browser/tooltip_card_render_ui.js",
-      "game/features/combat/presentation/browser/tooltip_general_ui.js",
-      "game/features/combat/presentation/browser/tooltip_item_ui.js"
+      "game/features/combat/platform/browser/ensure_combat_tooltip_browser_modules.js"
     ],
     "game/features/combat/presentation/build_combat_end_outcome.js": [],
     "game/features/combat/public.js": [],
@@ -1712,6 +1729,8 @@
       "game/features/event/presentation/browser/event_ui_helpers.js",
       "game/features/event/presentation/browser/event_ui_runtime_helpers.js"
     ],
+    "game/features/event/platform/browser/create_lazy_event_module.js": [],
+    "game/features/event/platform/browser/ensure_event_modal_shell.js": [],
     "game/features/event/platform/browser/event_effect_services.js": [],
     "game/features/event/platform/event_runtime_context.js": [
       "game/utils/runtime_deps.js"
@@ -1775,6 +1794,7 @@
       "game/features/event/presentation/browser/event_ui_particles.js"
     ],
     "game/features/event/presentation/browser/event_runtime_shell_presenter.js": [
+      "game/features/event/platform/browser/ensure_event_modal_shell.js",
       "game/features/event/presentation/browser/event_ui_dom.js"
     ],
     "game/features/event/presentation/browser/event_shop_presenter.js": [
@@ -1866,6 +1886,8 @@
       "game/features/reward/state/reward_runtime_flow_ports.js",
       "game/utils/idempotency_utils.js"
     ],
+    "game/features/reward/platform/browser/create_lazy_reward_module.js": [],
+    "game/features/reward/platform/browser/ensure_reward_screen_shell.js": [],
     "game/features/reward/platform/browser/reward_runtime_context.js": [
       "game/features/reward/presentation/browser/reward_ui_helpers.js",
       "game/features/reward/presentation/browser/reward_ui_render.js"
@@ -1927,6 +1949,7 @@
       "game/features/reward/application/workflows/show_reward_screen_workflow.js"
     ],
     "game/features/reward/presentation/browser/show_reward_screen_runtime.js": [
+      "game/features/reward/platform/browser/ensure_reward_screen_shell.js",
       "game/features/reward/presentation/browser/reward_screen_runtime_helpers.js",
       "game/features/reward/presentation/browser/reward_ui_options.js",
       "game/features/reward/presentation/browser/reward_ui_render.js"
@@ -2030,6 +2053,7 @@
     "game/features/run/platform/browser/ensure_run_flow_browser_modules.js": [
       "game/platform/legacy/game_module_registry.js"
     ],
+    "game/features/run/platform/browser/ensure_run_settings_shell.js": [],
     "game/features/run/platform/browser/maze_dom_adapter.js": [],
     "game/features/run/platform/browser/register_run_entry_bindings.js": [
       "game/domain/audio/audio_event_helpers.js"
@@ -2197,6 +2221,7 @@
       "game/features/run/presentation/browser/run_mode_ui_summary_render.js"
     ],
     "game/features/run/presentation/browser/run_mode_ui_runtime.js": [
+      "game/features/run/platform/browser/ensure_run_settings_shell.js",
       "game/features/run/presentation/browser/run_mode_ui_bindings.js",
       "game/features/run/presentation/browser/run_mode_ui_helpers.js",
       "game/features/run/presentation/browser/run_mode_ui_render.js",
@@ -2206,6 +2231,7 @@
       "game/features/run/presentation/browser/run_mode_ui_helpers.js"
     ],
     "game/features/run/presentation/browser/run_mode_ui.js": [
+      "css/run-rules-redesign.css",
       "game/features/run/presentation/browser/run_mode_ui_helpers.js",
       "game/features/run/presentation/browser/run_mode_ui_render.js",
       "game/features/run/presentation/browser/run_mode_ui_runtime.js",
@@ -2401,6 +2427,7 @@
     "game/features/title/platform/browser/create_title_flow_actions.js": [
       "game/features/codex/ports/public_browser_modules.js",
       "game/features/title/application/title_run_entry_actions.js",
+      "game/features/title/platform/browser/ensure_character_select_shell.js",
       "game/features/title/platform/browser/title_action_helpers.js",
       "game/features/title/presentation/browser/title_screen_dom.js"
     ],
@@ -2412,6 +2439,7 @@
     "game/features/title/platform/browser/create_title_system_actions.js": [
       "game/features/title/application/title_return_actions.js"
     ],
+    "game/features/title/platform/browser/ensure_character_select_shell.js": [],
     "game/features/title/platform/browser/register_title_bindings.js": [
       "game/domain/audio/audio_event_helpers.js"
     ],
@@ -2479,6 +2507,7 @@
       "game/features/title/platform/browser/build_character_select_mount_payload.js",
       "game/features/title/platform/browser/create_title_actions.js",
       "game/features/title/platform/browser/create_title_bindings.js",
+      "game/features/title/platform/browser/ensure_character_select_shell.js",
       "game/features/title/platform/browser/register_title_bindings.js"
     ],
     "game/features/title/presentation/browser/abandon_outcome_presenter.js": [
@@ -2557,14 +2586,23 @@
     "game/features/ui/application/screen_navigation_use_case.js": [
       "game/features/ui/state/screen_state_commands.js"
     ],
+    "game/features/ui/platform/browser/create_lazy_help_pause_module.js": [
+      "game/features/ui/platform/browser/import_help_pause_module.js"
+    ],
+    "game/features/ui/platform/browser/create_lazy_meta_progression_module.js": [
+      "game/features/ui/platform/browser/import_meta_progression_module.js"
+    ],
     "game/features/ui/platform/browser/ensure_settings_browser_modules.js": [
       "game/features/ui/platform/browser/resolve_ui_action_modules.js",
       "game/platform/legacy/game_module_registry.js"
     ],
+    "game/features/ui/platform/browser/ensure_settings_modal_shell.js": [],
+    "game/features/ui/platform/browser/import_help_pause_module.js": [],
+    "game/features/ui/platform/browser/import_meta_progression_module.js": [],
     "game/features/ui/platform/browser/resolve_ui_action_modules.js": [],
     "game/features/ui/platform/browser/screen_overlay_browser_modules.js": [
-      "game/features/ui/presentation/browser/help_pause_ui.js",
-      "game/features/ui/presentation/browser/meta_progression_ui.js"
+      "game/features/ui/platform/browser/create_lazy_help_pause_module.js",
+      "game/features/ui/platform/browser/create_lazy_meta_progression_module.js"
     ],
     "game/features/ui/platform/browser/screen_primary_browser_modules.js": [
       "game/features/ui/presentation/browser/ending_screen_ui.js",
@@ -2752,6 +2790,7 @@
     "game/features/ui/presentation/browser/settings_ui_runtime.js": [
       "game/core/settings_manager.js",
       "game/domain/audio/audio_event_helpers.js",
+      "game/features/ui/platform/browser/ensure_settings_modal_shell.js",
       "game/features/ui/presentation/browser/settings_ui_helpers.js",
       "game/features/ui/presentation/browser/settings_ui_runtime_helpers.js"
     ],
@@ -2835,9 +2874,9 @@
     "game/platform/browser/composition/build_run_flow_modules.js": [],
     "game/platform/browser/composition/build_run_map_modules.js": [],
     "game/platform/browser/composition/build_screen_feature_primary_modules.js": [
-      "game/features/codex/ports/public_module_capabilities.js",
-      "game/features/event/ports/public_module_capabilities.js",
-      "game/features/reward/ports/public_module_capabilities.js"
+      "game/features/codex/platform/browser/create_lazy_codex_module.js",
+      "game/features/event/platform/browser/create_lazy_event_module.js",
+      "game/features/reward/platform/browser/create_lazy_reward_module.js"
     ],
     "game/platform/browser/composition/build_screen_overlay_modules.js": [
       "game/features/ui/ports/public_module_capabilities.js"
@@ -2851,7 +2890,7 @@
     "game/platform/browser/composition/build_title_canvas_modules.js": [],
     "game/platform/browser/composition/build_title_flow_modules.js": [],
     "game/platform/browser/composition/register_codex_modules.js": [
-      "game/platform/browser/composition/build_screen_feature_primary_modules.js"
+      "game/features/codex/platform/browser/create_lazy_codex_module.js"
     ],
     "game/platform/browser/composition/register_combat_modules.js": [
       "game/features/combat/ports/public_module_capabilities.js"
@@ -2862,10 +2901,10 @@
       "game/platform/browser/composition/build_core_system_modules.js"
     ],
     "game/platform/browser/composition/register_event_modules.js": [
-      "game/platform/browser/composition/build_screen_feature_primary_modules.js"
+      "game/features/event/platform/browser/create_lazy_event_module.js"
     ],
     "game/platform/browser/composition/register_reward_modules.js": [
-      "game/platform/browser/composition/build_screen_feature_primary_modules.js"
+      "game/features/reward/platform/browser/create_lazy_reward_module.js"
     ],
     "game/platform/browser/composition/register_run_modules.js": [
       "game/features/run/ports/public_module_capabilities.js"

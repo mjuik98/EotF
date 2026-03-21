@@ -67,38 +67,36 @@ export function registerRunEntryBindings({
     }
   });
 
-  bindClick(resolvedDoc, 'rewardSkipInitBtn', () => {
-    playUiClick(audio);
-    actions.showSkipConfirm?.();
-  });
-  bindClick(resolvedDoc, 'rewardSkipConfirmBtn', () => {
-    playUiClick(audio);
-    actions.skipReward?.();
-  });
-  bindClick(resolvedDoc, 'rewardSkipCancelBtn', () => {
-    playUiClick(audio);
-    actions.hideSkipConfirm?.();
-  });
-
-  resolvedDoc.querySelectorAll?.('.deck-filter-btn')?.forEach?.((button) => {
-    button.addEventListener('click', () => {
+  resolvedDoc.addEventListener('click', (event) => {
+    if (event.target?.closest?.('#rewardSkipInitBtn')) {
       playUiClick(audio);
-      actions.setDeckFilter?.(button.dataset.filter);
-    });
-  });
-  bindClick(resolvedDoc, 'deckViewCloseBtn', () => {
-    playUiClick(audio);
-    actions.closeDeckView?.();
-  });
-
-  resolvedDoc.querySelectorAll?.('.codex-tab-btn')?.forEach?.((button) => {
-    button.addEventListener('click', () => {
+      actions.showSkipConfirm?.();
+      return;
+    }
+    if (event.target?.closest?.('#rewardSkipConfirmBtn')) {
       playUiClick(audio);
-      actions.setCodexTab?.(button.dataset.tab);
-    });
-  });
-  bindClick(resolvedDoc, 'codexCloseBtn', () => {
-    playUiClick(audio);
-    actions.closeCodex?.();
+      actions.skipReward?.();
+      return;
+    }
+    if (event.target?.closest?.('#rewardSkipCancelBtn')) {
+      playUiClick(audio);
+      actions.hideSkipConfirm?.();
+      return;
+    }
+    const deckFilterButton = event.target?.closest?.('.deck-filter-btn');
+    if (deckFilterButton) {
+      playUiClick(audio);
+      actions.setDeckFilter?.(deckFilterButton.dataset.filter);
+      return;
+    }
+    if (event.target?.closest?.('#deckViewCloseBtn')) {
+      playUiClick(audio);
+      actions.closeDeckView?.();
+      return;
+    }
+    if (event.target?.closest?.('#closeBattleChronicleBtn')) {
+      playUiClick(audio);
+      actions.closeBattleChronicle?.();
+    }
   });
 }

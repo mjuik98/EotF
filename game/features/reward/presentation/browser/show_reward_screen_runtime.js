@@ -1,3 +1,4 @@
+import { ensureRewardScreenShell } from '../../platform/browser/ensure_reward_screen_shell.js';
 import { getDoc } from './reward_screen_runtime_helpers.js';
 import { renderRewardOptions } from './reward_ui_options.js';
 import { renderRewardHeader } from './reward_ui_render.js';
@@ -11,6 +12,7 @@ export function showRewardScreenView(ui, payload, deps = {}) {
     rewardMode,
   } = payload || {};
   const doc = getDoc(deps);
+  ensureRewardScreenShell(doc);
   const container = doc.getElementById('rewardCards');
   if (!container) return;
 

@@ -14,6 +14,11 @@ function getBoundHandler(element, eventName = 'click') {
   return entry?.[1];
 }
 
+function getDocumentHandler(doc, eventName) {
+  const entry = doc.addEventListener.mock.calls.find(([name]) => name === eventName);
+  return entry?.[1];
+}
+
 describe('registerTitleBindings', () => {
   it('routes title controls through injected actions', () => {
     const elements = {
@@ -31,7 +36,6 @@ describe('registerTitleBindings', () => {
       curseCycleBtn: createElement(),
       toggleInscriptionLayoutBtn: createElement(),
       toggleAllInscriptionsBtn: createElement(),
-      classSelectContainer: createElement(),
       codexModal: { classList: { contains: vi.fn(() => true) }, style: {} },
       runSettingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
       settingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
@@ -81,7 +85,6 @@ describe('registerTitleBindings', () => {
     getBoundHandler(elements.mainSettingsBtn)?.();
     getBoundHandler(elements.mainQuitBtn)?.();
     getBoundHandler(elements.startBtn)?.();
-    getBoundHandler(elements.backToTitleBtn)?.();
     getBoundHandler(elements.runSettingsCloseBtn)?.();
     getBoundHandler(elements.endlessToggleBtn)?.();
     getBoundHandler(stepperLeft)?.();
@@ -94,7 +97,6 @@ describe('registerTitleBindings', () => {
     expect(actions.openSettings).toHaveBeenCalledTimes(1);
     expect(actions.quitGame).toHaveBeenCalledTimes(1);
     expect(actions.startGame).toHaveBeenCalledTimes(1);
-    expect(actions.backToTitle).toHaveBeenCalledTimes(1);
     expect(actions.closeRunSettings).toHaveBeenCalledTimes(1);
     expect(actions.toggleEndlessMode).toHaveBeenCalledTimes(1);
     expect(actions.shiftAscension).toHaveBeenNthCalledWith(1, -1);
@@ -102,12 +104,15 @@ describe('registerTitleBindings', () => {
     expect(audio.playEvent).toHaveBeenCalled();
     expect(audio.playClick).not.toHaveBeenCalled();
 
-    const [, onKeyDown] = doc.addEventListener.mock.calls.find(([name]) => name === 'keydown');
+    const onKeyDown = getDocumentHandler(doc, 'keydown');
     onKeyDown({ key: 'Escape' });
     expect(actions.closeCodex).toHaveBeenCalledTimes(1);
 
-    const classClick = getBoundHandler(elements.classSelectContainer);
-    classClick({ target: { closest: vi.fn(() => ({ dataset: { class: 'mage' } })) } });
+    const onDocClick = getDocumentHandler(doc, 'click');
+    onDocClick({ target: { closest: vi.fn((selector) => (selector === '#backToTitleBtn' ? {} : null)) } });
+    onDocClick({ target: { closest: vi.fn((selector) => (selector === '.class-btn' ? { dataset: { class: 'mage' } } : null)) } });
+
+    expect(actions.backToTitle).toHaveBeenCalledTimes(1);
     expect(actions.selectClass).toHaveBeenCalledWith({ dataset: { class: 'mage' } });
   });
 });

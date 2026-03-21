@@ -1,3 +1,4 @@
+import '../../../../../css/codex_v3.css';
 import { createCodexUiState } from './codex_ui_controller.js';
 import {
   closeCodexRuntime,

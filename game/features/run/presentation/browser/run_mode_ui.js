@@ -1,3 +1,4 @@
+import '../../../../../css/run-rules-redesign.css';
 import {
   calcDiffScore,
   getDoc,

@@ -1,17 +1,4 @@
-import {
-  hideGeneralTooltipUi,
-  showGeneralTooltipUi,
-} from './tooltip_general_ui.js';
-import {
-  hideItemTooltipUi,
-  showItemTooltipUi,
-} from './tooltip_item_ui.js';
-import {
-  extractTooltipCardId,
-  positionCardTooltip,
-  renderCardTooltipContent,
-  syncCardKeywordTooltip,
-} from './tooltip_card_render_ui.js';
+import { ensureCombatTooltipBrowserModules } from '../../platform/browser/ensure_combat_tooltip_browser_modules.js';
 
 let _tooltipTimer = null;
 
@@ -24,7 +11,7 @@ function _getWin(deps) {
 }
 
 export const TooltipUI = {
-  showTooltip(event, cardId, deps = {}) {
+  async showTooltip(event, cardId, deps = {}) {
     const data = deps.data;
     const gs = deps.gs;
     if (!data?.cards || !gs) return;
@@ -47,13 +34,14 @@ export const TooltipUI = {
     const tt = doc.getElementById('cardTooltip');
     if (!tt) return;
 
-    renderCardTooltipContent(doc, card, gs, { cardId });
-    const position = positionCardTooltip(event, tt, win);
+    const tooltipModules = await ensureCombatTooltipBrowserModules();
+    tooltipModules?.renderCardTooltipContent?.(doc, card, gs, { cardId });
+    const position = tooltipModules?.positionCardTooltip?.(event, tt, win);
     tt.classList.add('visible');
-    syncCardKeywordTooltip(doc, card, position, win);
+    tooltipModules?.syncCardKeywordTooltip?.(doc, card, position, win);
   },
 
-  hideTooltip(deps = {}) {
+  async hideTooltip(deps = {}) {
     const doc = _getDoc(deps);
     _tooltipTimer = setTimeout(() => {
       doc.getElementById('cardTooltip')?.classList.remove('visible');
@@ -66,26 +54,35 @@ export const TooltipUI = {
     const doc = _getDoc(deps);
     doc.querySelectorAll('#combatHandCards .card, #deckModalCards > div').forEach((el) => {
       el.addEventListener('mouseenter', (e) => {
-        const cardId = extractTooltipCardId(el.getAttribute('onclick'));
-        if (cardId) this.showTooltip(e, cardId, deps);
+        void ensureCombatTooltipBrowserModules().then((tooltipModules) => {
+          const cardId = tooltipModules?.extractTooltipCardId?.(el.getAttribute('onclick'));
+          if (cardId) return this.showTooltip(e, cardId, deps);
+          return undefined;
+        });
       });
-      el.addEventListener('mouseleave', () => this.hideTooltip(deps));
+      el.addEventListener('mouseleave', () => {
+        void this.hideTooltip(deps);
+      });
     });
   },
 
-  showItemTooltip(event, itemId, deps = {}) {
-    showItemTooltipUi(event, itemId, deps);
+  async showItemTooltip(event, itemId, deps = {}) {
+    const tooltipModules = await ensureCombatTooltipBrowserModules();
+    tooltipModules?.showItemTooltipUi?.(event, itemId, deps);
   },
 
-  hideItemTooltip(deps = {}) {
-    hideItemTooltipUi(deps);
+  async hideItemTooltip(deps = {}) {
+    const tooltipModules = await ensureCombatTooltipBrowserModules();
+    tooltipModules?.hideItemTooltipUi?.(deps);
   },
 
-  showGeneralTooltip(event, title, content, deps = {}) {
-    showGeneralTooltipUi(event, title, content, deps);
+  async showGeneralTooltip(event, title, content, deps = {}) {
+    const tooltipModules = await ensureCombatTooltipBrowserModules();
+    tooltipModules?.showGeneralTooltipUi?.(event, title, content, deps);
   },
 
-  hideGeneralTooltip(deps = {}) {
-    hideGeneralTooltipUi(deps);
+  async hideGeneralTooltip(deps = {}) {
+    const tooltipModules = await ensureCombatTooltipBrowserModules();
+    tooltipModules?.hideGeneralTooltipUi?.(deps);
   },
 };

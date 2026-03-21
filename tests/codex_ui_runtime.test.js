@@ -49,6 +49,10 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_structure.js', () 
   setCodexTabState: vi.fn(),
 }));
 
+vi.mock('../game/features/codex/platform/browser/ensure_codex_modal_shell.js', () => ({
+  ensureCodexModalShell: vi.fn(),
+}));
+
 vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', () => ({
   clearCodexPopupNavigation: vi.fn(),
   closeCodexModal: vi.fn(),
@@ -65,6 +69,7 @@ describe('codex_ui_runtime', () => {
   let structure;
   let controller;
   let inscriptions;
+  let codexShell;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -73,6 +78,7 @@ describe('codex_ui_runtime', () => {
     structure = await import('../game/features/codex/presentation/browser/codex_ui_structure.js');
     controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
     inscriptions = await import('../game/features/codex/presentation/browser/codex_ui_inscriptions.js');
+    codexShell = await import('../game/features/codex/platform/browser/ensure_codex_modal_shell.js');
   });
 
   it('opens the codex modal and wires initial render callbacks', () => {
@@ -95,6 +101,7 @@ describe('codex_ui_runtime', () => {
     runtime.openCodexRuntime(state, ui, deps);
 
     expect(controller.resetCodexUiState).toHaveBeenCalledWith(state, deps);
+    expect(codexShell.ensureCodexModalShell).toHaveBeenCalledWith(doc);
     expect(controller.showCodexModal).toHaveBeenCalledWith(doc);
     expect(structure.injectCodexModalStructure).toHaveBeenCalledTimes(1);
     expect(render.renderCodexProgress).toHaveBeenCalledTimes(1);

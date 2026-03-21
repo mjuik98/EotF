@@ -5,12 +5,12 @@ import { CombatInfoUI } from '../../presentation/browser/combat_info_ui.js';
 import { CombatStartUI } from '../../presentation/browser/combat_start_ui.js';
 import { CombatTurnUI } from '../../presentation/browser/combat_turn_ui.js';
 import { CombatUI } from '../../presentation/browser/combat_ui.js';
-import { DeckModalUI } from '../../presentation/browser/deck_modal_ui.js';
 import { EchoSkillUI } from '../../presentation/browser/echo_skill_ui.js';
 import { StatusEffectsUI } from '../../presentation/browser/status_effects_ui.js';
 import { TooltipUI } from '../../presentation/browser/tooltip_ui.js';
 import { DomValueUI, FeedbackUI } from '../../presentation/browser/feedback/public_feedback_modules.js';
 import { CombatHudUI, HudUpdateUI } from '../../presentation/browser/hud/public_combat_hud_modules.js';
+import { createLazyDeckModalModule } from './create_lazy_deck_modal_module.js';
 
 export function buildCombatCoreBrowserModules() {
   return {
@@ -30,7 +30,7 @@ export function buildCombatCardBrowserModules() {
     CardUI,
     CardTargetUI,
     TooltipUI,
-    DeckModalUI,
+    DeckModalUI: createLazyDeckModalModule(),
   };
 }
 
