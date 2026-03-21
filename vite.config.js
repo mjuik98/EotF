@@ -44,6 +44,7 @@ function getManualChunk(id) {
     || normalized.includes('/game/features/combat/presentation/browser/tooltip_item_')
     || normalized.includes('/game/features/combat/presentation/browser/tooltip_card_')
   ) return 'ui-combat-tooltips';
+
   if (
     normalized.includes('/game/ui/combat/')
     || normalized.includes('/game/ui/cards/')
@@ -52,6 +53,7 @@ function getManualChunk(id) {
     || normalized.includes('/game/presentation/combat/')
   ) return 'ui-combat';
   if (normalized.includes('/game/features/reward/presentation/browser/')) return 'ui-reward';
+
   if (
     normalized.includes('/game/features/ui/presentation/browser/ending_')
     || normalized.includes('/game/features/ui/presentation/browser/story_')
@@ -64,12 +66,7 @@ function getManualChunk(id) {
     || normalized.includes('/game/features/ui/platform/browser/import_meta_progression_module.js')
     || normalized.includes('/game/features/ui/presentation/browser/help_pause_')
   ) return 'ui-shell-overlays';
-  if (
-    normalized.includes('/game/presentation/screens/ending_')
-    || normalized.includes('/game/presentation/screens/story_')
-    || normalized.includes('/game/ui/screens/ending_')
-    || normalized.includes('/game/ui/screens/story_')
-  ) return 'ui-overlays';
+
   if (normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')) return 'ui-settings';
   if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui.js')) return 'ui-run-mode';
 

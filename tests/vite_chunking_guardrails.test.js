@@ -54,4 +54,15 @@ describe('vite chunking guardrails', () => {
     ]);
     expect(filterLazyChunkModulePreloads(deps, { hostType: 'js', hostId: 'game/core/main.js' })).toEqual(deps);
   });
+
+  it('targets canonical feature-owned browser paths instead of transitional ui/presentation screen paths', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'vite.config.js'), 'utf8');
+
+    expect(source).toContain("/game/features/event/presentation/browser/");
+    expect(source).toContain("/game/features/reward/presentation/browser/");
+    expect(source).not.toContain("/game/presentation/screens/event_");
+    expect(source).not.toContain("/game/ui/screens/event_");
+    expect(source).not.toContain("/game/presentation/screens/reward_");
+    expect(source).not.toContain("/game/ui/screens/reward_");
+  });
 });
