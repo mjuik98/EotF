@@ -4181,7 +4181,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: min(460px, 82vw);
   max-height: 108px;
   overflow: hidden;
-  pointer-events: none;
 }
 
 .recent-combat-feed::before {
@@ -4198,9 +4197,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .recent-combat-feed .log-entry {
-  width: 100%;
   font-size: 13px;
-  line-height: 1.35;
   white-space: normal;
   padding: 6px 12px;
   border-radius: 10px;
@@ -4310,18 +4307,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   position: relative;
   z-index: 305;
   align-items: center;
-}
-
-@media (max-width: 900px) {
-  .recent-combat-feed {
-    width: min(420px, 90vw);
-    max-height: 72px;
-  }
-
-  .recent-combat-feed .log-entry {
-    font-size: 12px;
-    padding: 5px 10px;
-  }
 }
 
 @media (max-width: 700px) {

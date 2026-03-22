@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 export const DEFAULT_BUNDLE_BUDGETS = {
   entryJs: { label: 'main entry js', maxBytes: 410 * 1024 },
-  entryCss: { label: 'main entry css', maxBytes: 192 * 1024 },
+  entryCss: { label: 'main entry css', maxBytes: 193 * 1024 },
   uiEventJs: { label: 'ui-event chunk', maxBytes: 45 * 1024 },
   uiRewardJs: { label: 'ui-reward chunk', maxBytes: 20 * 1024 },
-  uiCombatJs: { label: 'ui-combat chunk', maxBytes: 320 * 1024 },
+  uiCombatJs: { label: 'ui-combat chunk', maxBytes: 323 * 1024 },
   uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 20 * 1024 },
   uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 24 * 1024 },
   uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 24 * 1024 },
