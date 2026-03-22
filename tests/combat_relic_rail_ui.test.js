@@ -265,4 +265,70 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicRailSlots.children).toHaveLength(1);
     expect(combatRelicRailSlots.children[0].textContent).toBe('◇');
   });
+
+  it('preserves existing combat relic panel shell when combatRelicPanelList is absent', () => {
+    const doc = createDoc();
+    const combatRelicRail = doc.createElement('div');
+    combatRelicRail.id = 'combatRelicRail';
+    const combatRelicRailCount = doc.createElement('span');
+    combatRelicRailCount.id = 'combatRelicRailCount';
+    const combatRelicRailSlots = doc.createElement('div');
+    combatRelicRailSlots.id = 'combatRelicRailSlots';
+    const combatRelicPanel = doc.createElement('div');
+    combatRelicPanel.id = 'combatRelicPanel';
+    const panelHeader = doc.createElement('div');
+    panelHeader.textContent = 'Relic Detail';
+    const panelFooter = doc.createElement('div');
+    panelFooter.textContent = 'Panel Footer';
+    combatRelicPanel.append(panelHeader, panelFooter);
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
+
+    const gs = {
+      player: {
+        items: ['common_turn_end', 'legendary_combat_start'],
+      },
+    };
+    const data = {
+      items: {
+        common_turn_end: {
+          id: 'common_turn_end',
+          name: '턴 종료의 반지',
+          icon: '◯',
+          rarity: 'common',
+          desc: '턴 종료 시: 손패 제한 +1',
+          trigger: 'turn_end',
+        },
+        legendary_combat_start: {
+          id: 'legendary_combat_start',
+          name: '전투 시작의 아뮬렛',
+          icon: '✧',
+          rarity: 'legendary',
+          desc: '전투 시작 시: 카드 1장 추가 드로우',
+          trigger: 'combat_start',
+        },
+      },
+    };
+
+    renderCombatRelicRail({
+      doc,
+      gs,
+      data,
+    });
+
+    expect(combatRelicRailCount.textContent).toBe('2');
+    expect(combatRelicRailSlots.children).toHaveLength(2);
+    expect(combatRelicPanel.children).toHaveLength(2);
+    expect(combatRelicPanel.children[0]).toBe(panelHeader);
+    expect(combatRelicPanel.children[1]).toBe(panelFooter);
+
+    renderCombatRelicRail({
+      doc,
+      gs,
+      data,
+    });
+
+    expect(combatRelicPanel.children).toHaveLength(2);
+    expect(combatRelicPanel.children[0]).toBe(panelHeader);
+    expect(combatRelicPanel.children[1]).toBe(panelFooter);
+  });
 });

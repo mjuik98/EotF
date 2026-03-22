@@ -35,9 +35,7 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
   const countEl = doc?.getElementById?.('combatRelicRailCount');
   const slotsEl = doc?.getElementById?.('combatRelicRailSlots');
   const detailPanel = doc?.getElementById?.('combatRelicPanel');
-  const detailPanelList = detailPanel
-    ? doc?.getElementById?.('combatRelicPanelList') || detailPanel
-    : null;
+  const detailPanelList = detailPanel ? doc?.getElementById?.('combatRelicPanelList') : null;
 
   const showItemTooltip = deps?.showItemTooltip || null;
   const hideItemTooltip = deps?.hideItemTooltip || null;
