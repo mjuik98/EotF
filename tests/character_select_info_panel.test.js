@@ -89,6 +89,9 @@ describe('character_select_info_panel', () => {
       stats: { HP: 80, ATK: 60, DEF: 70, ECH: 55, RHY: 45, RES: 65 },
       startRelic: { icon: '*', name: 'Halo', desc: 'Heal bonus.' },
       startDeck: ['strike'],
+      playStyle: ['회복 반격형', '지속 유지력'],
+      featuredCardIds: ['strike'],
+      featuredCardTags: { strike: '기본기' },
       echoSkill: { icon: '!', name: 'Echo', desc: 'Burst.', echoCost: 2 },
     };
 
@@ -113,8 +116,13 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('Echo');
     expect(panel.innerHTML).toContain('고유 특성');
     expect(panel.innerHTML).toContain('에코 스킬');
-    expect(panel.innerHTML).toContain('전투 성향');
+    expect(panel.innerHTML).toContain('플레이 감각');
+    expect(panel.innerHTML).toContain('회복 반격형');
+    expect(panel.innerHTML).toContain('시작 핵심 카드');
+    expect(panel.innerHTML).toContain('기본기');
     expect(panel.innerHTML).toContain('시작 장비');
+    expect(panel.innerHTML).not.toContain('전투 성향');
+    expect(panel.innerHTML).not.toContain('시작 덱 요약');
 
     detailsTab.listeners.click();
     expect(hover).toHaveBeenCalledTimes(1);
@@ -187,6 +195,9 @@ describe('character_select_info_panel', () => {
       stats: { HP: 80, ATK: 60, DEF: 70, ECH: 55, RHY: 45, RES: 65 },
       startRelic: { icon: '*', name: 'Dull Blade', desc: 'Starter relic.' },
       startDeck: ['strike', 'heavy_blow'],
+      playStyle: ['연속 압박형', '강화 연계'],
+      featuredCardIds: ['strike', 'heavy_blow'],
+      featuredCardTags: { strike: '기본기', heavy_blow: '마무리' },
       echoSkill: { icon: '!', name: 'Echo', desc: 'Burst.', echoCost: 2 },
     };
 
@@ -242,7 +253,9 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('마스터리 커스터마이즈');
     expect(panel.innerHTML).toContain('Guardian Seal');
     expect(panel.innerHTML).toContain('Blade Dance');
-    expect(panel.innerHTML).toContain('전투 성향');
+    expect(panel.innerHTML).toContain('플레이 감각');
+    expect(panel.innerHTML).toContain('연속 압박형');
+    expect(panel.innerHTML).toContain('마무리');
     expect(panel.innerHTML).toContain('기본 시작 유물');
     expect(panel.innerHTML).toContain('적용 후 시작 유물');
     expect(panel.innerHTML).toContain('기본 시작 덱');
@@ -293,6 +306,9 @@ describe('character_select_info_panel', () => {
       stats: { HP: 80, ATK: 60, DEF: 70, ECH: 55, RHY: 45, RES: 65 },
       startRelic: { id: 'halo', icon: '*', name: 'Halo', desc: 'Heal bonus.' },
       startDeck: ['strike'],
+      playStyle: ['회복 반격형'],
+      featuredCardIds: ['strike'],
+      featuredCardTags: { strike: '기본기' },
       echoSkill: { icon: '!', name: 'Echo', desc: 'Burst.', echoCost: 2 },
     };
 
@@ -332,8 +348,11 @@ describe('character_select_info_panel', () => {
     });
 
     expect(panel.innerHTML).toContain('시작 유물');
-    expect(panel.innerHTML).toContain('시작 덱 요약');
-    expect(panel.innerHTML).toContain('전투 성향');
+    expect(panel.innerHTML).toContain('시작 핵심 카드');
+    expect(panel.innerHTML).toContain('플레이 감각');
+    expect(panel.innerHTML).toContain('기본기');
+    expect(panel.innerHTML).not.toContain('시작 덱 요약');
+    expect(panel.innerHTML).not.toContain('전투 성향');
     expect(panel.innerHTML).not.toContain('기본 시작 유물');
     expect(panel.innerHTML).not.toContain('적용 후 시작 유물');
     expect(panel.innerHTML).not.toContain('기본 시작 덱');

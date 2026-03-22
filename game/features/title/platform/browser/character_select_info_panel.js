@@ -55,36 +55,81 @@ function buildRelicMarkup(relics, accent) {
   `;
 }
 
-function buildDeckSummaryText(deck, cards) {
-  const resolvedDeck = Array.isArray(deck) ? deck : [];
-  if (resolvedDeck.length === 0) return '구성 정보 없음';
+function buildPlayStyleMarkup(lines = []) {
+  const resolvedLines = Array.isArray(lines) ? lines.filter(Boolean) : [];
+  if (resolvedLines.length === 0) {
+    return '<div class="char-info-text">운영 감각 정보 없음</div>';
+  }
 
-  const previewNames = resolvedDeck
+  return `<div class="char-playstyle-list">${resolvedLines
     .slice(0, 3)
-    .map((cardId) => cards?.[cardId]?.name || cardId);
-  const remainder = resolvedDeck.length - previewNames.length;
-  return `${resolvedDeck.length}장 구성 · ${previewNames.join(', ')}${remainder > 0 ? ` 외 ${remainder}장` : ''}`;
+    .map((line) => `<div class="char-playstyle-item">${line}</div>`)
+    .join('')}</div>`;
 }
 
-function buildCombatSummaryMarkup(stats = {}, accent) {
-  const statEntries = [
-    ['공격', Number(stats.ATK || 0)],
-    ['방어', Number(stats.DEF || 0)],
-    ['잔향', Number(stats.ECH || 0)],
-    ['리듬', Number(stats.RHY || 0)],
-    ['저항', Number(stats.RES || 0)],
-    ['체력', Number(stats.HP || 0)],
-  ].sort((left, right) => right[1] - left[1]).slice(0, 3);
+function inferFeaturedCardTag(card = {}) {
+  const desc = String(card?.desc || '');
+  if (card?.type === 'POWER') return '지속';
+  if (desc.includes('드로우')) return '순환';
+  if (desc.includes('회복')) return '회복';
+  if (desc.includes('방어막')) return '방벽';
+  if (desc.includes('독')) return '누적';
+  if (desc.includes('기절')) return '마무리';
+  if (desc.includes('에너지')) return '엔진';
+  if (desc.includes('잔향')) return '연계';
+  if (card?.type === 'ATTACK') return '압박';
+  if (card?.type === 'SKILL') return '유틸';
+  return '핵심';
+}
 
-  return `
-    <div class="char-start-deck">
-      ${statEntries.map(([label, value]) => `
-        <span class="deck-card" style="border:1px solid ${accent}1a;padding:4px 10px;font-size:11px;background:${accent}05;">
-          ${label} ${value}
-        </span>
-      `).join('')}
-    </div>
-  `;
+function buildFeaturedCardMarkup(cardIds, cards, accent, tagMap = {}) {
+  const resolvedCards = Array.isArray(cardIds) ? cardIds.filter(Boolean) : [];
+  if (resolvedCards.length === 0) {
+    return '<div class="char-info-text">대표 카드 정보 없음</div>';
+  }
+
+  return `<div class="char-start-deck char-featured-cards">${resolvedCards.slice(0, 3).map((cardId) => {
+    const card = cards?.[cardId] || { name: cardId };
+    const tag = tagMap?.[cardId] || inferFeaturedCardTag(card);
+    return `
+      <span class="deck-card deck-card-featured" data-cid="${cardId}" style="border:1px solid ${accent}26;background:linear-gradient(180deg,${accent}10,${accent}04);cursor:help">
+        <span class="deck-card-name">${card.name}</span>
+        <span class="deck-card-role">${tag}</span>
+      </span>
+    `;
+  }).join('')}</div>`;
+}
+
+function resolvePlayStyle(selectedChar) {
+  const explicitLines = Array.isArray(selectedChar?.playStyle)
+    ? selectedChar.playStyle.filter(Boolean)
+    : [];
+  if (explicitLines.length > 0) return explicitLines;
+
+  return [
+    selectedChar?.summaryText,
+    selectedChar?.selectionSummary,
+    selectedChar?.desc,
+    selectedChar?.traitDesc,
+  ].filter(Boolean).slice(0, 2);
+}
+
+function resolveFeaturedCardIds(selectedChar) {
+  const explicitCards = Array.isArray(selectedChar?.featuredCardIds)
+    ? selectedChar.featuredCardIds.filter(Boolean)
+    : [];
+  if (explicitCards.length > 0) return explicitCards;
+
+  const starterDeck = Array.isArray(selectedChar?.startDeck) ? selectedChar.startDeck : [];
+  const uniqueStarterCards = [...new Set(starterDeck)];
+  const signatureCards = uniqueStarterCards.filter((cardId) => cardId !== 'strike' && cardId !== 'defend');
+  return (signatureCards.length > 0 ? signatureCards : uniqueStarterCards).slice(0, 3);
+}
+
+function resolveFeaturedCardTags(selectedChar) {
+  return selectedChar?.featuredCardTags && typeof selectedChar.featuredCardTags === 'object'
+    ? selectedChar.featuredCardTags
+    : {};
 }
 
 function normalizeRelicIds(relics, fallbackId = '') {
@@ -152,10 +197,12 @@ export function renderCharacterInfoPanel({
   }).join('');
   const progressPct = Math.round(classProgress.progress * 100);
   const echoSkill = selectedChar.echoSkill;
-  const summaryDeck = loadoutCustomization?.previewDeck || selectedChar.startDeck;
   const summaryRelics = Array.isArray(loadoutCustomization?.previewRelics) && loadoutCustomization.previewRelics.length > 0
     ? loadoutCustomization.previewRelics
     : baseRelics;
+  const playStyleLines = resolvePlayStyle(selectedChar);
+  const featuredCardIds = resolveFeaturedCardIds(selectedChar);
+  const featuredCardTags = resolveFeaturedCardTags(selectedChar);
 
   panel.style.setProperty('--char-accent', selectedChar.accent);
   panel.style.setProperty('--char-color', selectedChar.color);
@@ -190,16 +237,19 @@ export function renderCharacterInfoPanel({
           </div>
 
           <div class="char-info-block">
-            ${buildSectionLabel('전투 성향', selectedChar.accent)}
-            ${buildCombatSummaryMarkup(selectedChar.stats, selectedChar.accent)}
+            ${buildSectionLabel('플레이 감각', selectedChar.accent)}
+            ${buildPlayStyleMarkup(playStyleLines)}
           </div>
 
           <div class="char-info-block">
             ${buildSectionLabel('시작 장비', selectedChar.accent)}
             <div class="char-info-text">시작 유물</div>
             ${buildRelicMarkup(summaryRelics, selectedChar.accent)}
-            <div class="char-info-text" style="margin-top:10px">시작 덱 요약</div>
-            <div class="char-info-text">${buildDeckSummaryText(summaryDeck, cards)}</div>
+          </div>
+
+          <div class="char-info-block">
+            ${buildSectionLabel('시작 핵심 카드', selectedChar.accent)}
+            ${buildFeaturedCardMarkup(featuredCardIds, cards, selectedChar.accent, featuredCardTags)}
           </div>
         </section>
 

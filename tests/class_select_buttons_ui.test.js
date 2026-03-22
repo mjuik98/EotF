@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { renderClassSelectButtons } from '../game/ui/title/class_select_buttons_ui.js';
+import { CLASS_METADATA } from '../data/class_metadata.js';
+import { readFileSync } from 'node:fs';
 
 function createInteractiveNode() {
   const listeners = {};
@@ -87,5 +89,21 @@ describe('class select buttons helper', () => {
 
     button._relic.listeners.mouseenter({ stopPropagation: vi.fn() });
     expect(showTooltip).toHaveBeenCalledWith(expect.anything(), '⚔ 둔검 (일반)', 'item desc');
+  });
+
+  it('keeps the long-form class descriptions short enough for a single-line card layout', () => {
+    expect(CLASS_METADATA.mage.desc).toBe('카드 흐름을 왜곡하는 공명 마법사.');
+    expect(CLASS_METADATA.paladin.desc).toBe('치유의 선율로 전선을 지키는 성기사.');
+    expect(CLASS_METADATA.berserker.desc).toBe('상처를 힘으로 바꾸는 파열의 투사.');
+    expect(CLASS_METADATA.guardian.desc).toBe('무음의 장벽으로 전선을 지키는 수호자.');
+  });
+
+  it('styles class descriptions as a single-line caption with ellipsis fallback', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.class-btn-desc');
+    expect(css).toContain('white-space: nowrap;');
+    expect(css).toContain('overflow: hidden;');
+    expect(css).toContain('text-overflow: ellipsis;');
   });
 });

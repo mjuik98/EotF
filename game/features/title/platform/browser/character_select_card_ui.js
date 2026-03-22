@@ -1,6 +1,6 @@
 export function ensureCharacterCardProgressNodes(card, doc = document) {
   if (!card || !doc?.createElement) {
-    return { badge: null, xpFill: null, xpText: null };
+    return { badge: null };
   }
 
   let badge = card.querySelector?.('#cardLevelBadge');
@@ -8,24 +8,16 @@ export function ensureCharacterCardProgressNodes(card, doc = document) {
     badge = doc.createElement('div');
     badge.id = 'cardLevelBadge';
     badge.innerHTML = '<div class="csm-card-level"></div>';
-    card.appendChild?.(badge);
-  }
-
-  let xpWrap = card.querySelector?.('#cardXpBarWrap');
-  if (!xpWrap) {
-    xpWrap = doc.createElement('div');
-    xpWrap.id = 'cardXpBarWrap';
-    xpWrap.innerHTML = `
-      <div class="csm-card-xp-track"><div class="csm-card-xp-fill"></div></div>
-      <div class="csm-card-xp-text"></div>
-    `;
-    card.appendChild?.(xpWrap);
+    const cardName = card.querySelector?.('#cardName');
+    if (typeof card.insertBefore === 'function' && cardName) {
+      card.insertBefore(badge, cardName);
+    } else {
+      card.appendChild?.(badge);
+    }
   }
 
   return {
     badge: badge.querySelector?.('.csm-card-level') || null,
-    xpFill: xpWrap.querySelector?.('.csm-card-xp-fill') || null,
-    xpText: xpWrap.querySelector?.('.csm-card-xp-text') || null,
   };
 }
 
@@ -77,7 +69,6 @@ export function renderCharacterCard({
   doc,
   traitBadgeText,
   summaryText,
-  xpText,
   loadoutSummaryText,
   loadoutWarningText,
 } = {}) {
@@ -92,11 +83,11 @@ export function renderCharacterCard({
     ? `1.6px solid ${selectedChar.accent}aa`
     : `1px solid ${selectedChar.accent}44`;
   card.style.background = isMax
-    ? `linear-gradient(158deg,${selectedChar.color}2d 0%,#080610 48%,${selectedChar.color}18 100%)`
-    : `linear-gradient(158deg,${selectedChar.color}18 0%,#060610 50%,${selectedChar.color}08 100%)`;
+    ? `linear-gradient(158deg,${selectedChar.color}38 0%,#0a0716 44%,${selectedChar.color}1e 100%)`
+    : `linear-gradient(158deg,${selectedChar.color}26 0%,#090916 46%,${selectedChar.color}14 100%)`;
   card.style.boxShadow = isMax
-    ? `0 0 80px ${selectedChar.glow}44,inset 0 1px 0 ${selectedChar.accent}33`
-    : `0 0 65px ${selectedChar.glow}22,inset 0 1px 0 ${selectedChar.accent}18`;
+    ? `0 0 92px ${selectedChar.glow}32,inset 0 1px 0 ${selectedChar.accent}40`
+    : `0 0 78px ${selectedChar.glow}28,inset 0 1px 0 ${selectedChar.accent}22`;
 
   const visualNodes = ensureCharacterCardVisualNodes(card, doc);
   if (visualNodes.orbit) {
@@ -122,11 +113,11 @@ export function renderCharacterCard({
     cardTitle.style.color = selectedChar.accent;
     cardTitle.style.position = 'relative';
     cardTitle.style.zIndex = '2';
-    cardTitle.style.fontSize = '11px';
+    cardTitle.style.fontSize = '12px';
     cardTitle.style.letterSpacing = '0.42em';
     cardTitle.style.textTransform = 'uppercase';
     cardTitle.style.marginBottom = '14px';
-    cardTitle.style.opacity = '0.92';
+    cardTitle.style.opacity = '0.98';
     cardTitle.textContent = selectedChar.title;
   }
 
@@ -147,6 +138,7 @@ export function renderCharacterCard({
     cardName.textContent = selectedChar.name;
     cardName.style.position = 'relative';
     cardName.style.zIndex = '2';
+    cardName.style.color = '#f4f7ff';
     cardName.style.fontSize = 'clamp(28px, 3.6vw, 40px)';
     cardName.style.lineHeight = '1.06';
     cardName.style.letterSpacing = '0.08em';
@@ -157,16 +149,16 @@ export function renderCharacterCard({
   const cardSummary = resolveById('cardSummary');
   if (cardSummary) {
     cardSummary.textContent = summaryText || '';
-    cardSummary.style.color = '#d8e4f5';
+    cardSummary.style.color = '#edf4ff';
   }
 
   const cardDiff = resolveById('cardDiff');
   if (cardDiff) {
     cardDiff.style.position = 'relative';
     cardDiff.style.zIndex = '2';
-    cardDiff.style.fontSize = '12px';
+    cardDiff.style.fontSize = '13px';
     cardDiff.style.letterSpacing = '0.16em';
-    cardDiff.style.color = '#d7e3f8';
+    cardDiff.style.color = '#edf4ff';
     cardDiff.style.marginBottom = '12px';
     cardDiff.textContent = `난이도 ${selectedChar.difficulty}`;
   }
@@ -205,14 +197,7 @@ export function renderCharacterCard({
     progressNodes.badge.style.color = selectedChar.accent;
     progressNodes.badge.style.borderColor = `${selectedChar.accent}${isMax ? 'bb' : '66'}`;
     progressNodes.badge.style.background = isMax ? `${selectedChar.accent}26` : `${selectedChar.accent}14`;
-  }
-  if (progressNodes.xpFill) {
-    progressNodes.xpFill.style.width = `${Math.round(classProgress.progress * 100)}%`;
-    progressNodes.xpFill.style.background = selectedChar.accent;
-    progressNodes.xpFill.style.boxShadow = `0 0 8px ${selectedChar.accent}88`;
-  }
-  if (progressNodes.xpText) {
-    progressNodes.xpText.textContent = xpText;
+    progressNodes.badge.style.boxShadow = `0 0 18px ${selectedChar.glow}22`;
   }
 
   const loadoutStatus = ensureCharacterCardLoadoutStatusNode(card, doc);

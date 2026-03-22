@@ -92,6 +92,9 @@ describe('character select panels', () => {
       stats: { HP: 80, ATK: 60, DEF: 70, ECH: 55, RHY: 45, RES: 65 },
       startRelic: { icon: '*', name: 'Halo', desc: 'Heal bonus.' },
       startDeck: ['strike'],
+      playStyle: ['회복 반격형'],
+      featuredCardIds: ['strike'],
+      featuredCardTags: { strike: '기본기' },
       echoSkill: { icon: '!', name: 'Echo', desc: 'Burst.', echoCost: 2 },
     };
 
@@ -116,8 +119,13 @@ describe('character select panels', () => {
     expect(panel.innerHTML).toContain('Echo');
     expect(panel.innerHTML).toContain('고유 특성');
     expect(panel.innerHTML).toContain('에코 스킬');
-    expect(panel.innerHTML).toContain('전투 성향');
+    expect(panel.innerHTML).toContain('플레이 감각');
+    expect(panel.innerHTML).toContain('회복 반격형');
+    expect(panel.innerHTML).toContain('시작 핵심 카드');
+    expect(panel.innerHTML).toContain('기본기');
     expect(panel.innerHTML).toContain('시작 장비');
+    expect(panel.innerHTML).not.toContain('전투 성향');
+    expect(panel.innerHTML).not.toContain('시작 덱 요약');
 
     detailsTab.listeners.click();
     expect(hover).toHaveBeenCalledTimes(1);

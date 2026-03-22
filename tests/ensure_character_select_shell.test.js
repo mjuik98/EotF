@@ -11,9 +11,12 @@ describe('ensureCharacterSelectShell', () => {
     expect(markup).toContain('id="charStage"');
     expect(markup).toContain('id="charInspector"');
     expect(markup).toContain('id="charStageMeta"');
+    expect(markup).toContain('id="cardLevelBadge"');
     expect(markup).toContain('id="cardSummary"');
     expect(markup).toContain('id="dotsRow"');
     expect(markup).toContain('id="buttonsRow"');
+    expect(markup.indexOf('id="cardEmoji"')).toBeLessThan(markup.indexOf('id="cardLevelBadge"'));
+    expect(markup.indexOf('id="cardLevelBadge"')).toBeLessThan(markup.indexOf('id="cardName"'));
   });
 
   it('mounts shell markup into the character select container', () => {

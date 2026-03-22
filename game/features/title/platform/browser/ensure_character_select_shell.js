@@ -19,6 +19,7 @@ const CHARACTER_SELECT_SHELL_MARKUP = `
             style="font-size:10px;letter-spacing:2px;color:#aaa;font-family:'Share Tech Mono',monospace;margin-bottom:6px;">
           </div>
           <div id="cardEmoji" style="font-size:clamp(44px,8vw,72px);line-height:1;margin-bottom:8px;"></div>
+          <div id="cardLevelBadge"><div class="csm-card-level"></div></div>
           <div id="cardName"
             style="font-size:clamp(14px,2vw,20px);letter-spacing:2px;font-family:'Cinzel',serif;margin-bottom:6px;text-align:center;">
           </div>

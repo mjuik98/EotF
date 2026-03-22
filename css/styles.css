@@ -1295,6 +1295,9 @@ body {
   color: var(--text-dim);
   margin-bottom: 16px;
   min-height: 45px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .class-btn-trait,
@@ -11580,19 +11583,32 @@ body:has(#combatOverlay.active) .panel-bottom {
   animation: cardParticleFloat linear infinite;
 }
 
+.card-particles-clone {
+  opacity: 0.9;
+}
+
+.card-clone .card-particle {
+  mix-blend-mode: screen;
+}
+
 @keyframes cardParticleFloat {
   0% {
     opacity: 0;
     transform: translate3d(0, 6px, 0) scale(0.55);
   }
 
-  12% {
-    opacity: 0.75;
+  18% {
+    opacity: var(--peak-opacity, 0.75);
+  }
+
+  56% {
+    opacity: calc(var(--peak-opacity, 0.75) * 0.72);
+    transform: translate3d(var(--curve-x, 0px), calc(var(--curve-y, 14px) * -1), 0) scale(var(--peak-scale, 1.12));
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--drift-x, 0px), calc(var(--rise-y, 32px) * -1), 0) scale(1.2);
+    transform: translate3d(var(--drift-x, 0px), calc(var(--rise-y, 32px) * -1), 0) scale(calc(var(--peak-scale, 1.12) * 0.94));
   }
 }
 
