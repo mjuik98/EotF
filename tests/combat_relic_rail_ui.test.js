@@ -86,7 +86,7 @@ function createDoc() {
 }
 
 describe('combat_relic_rail_ui', () => {
-  it('renders relics sorted by rarity, preserves panel open state, and binds tooltip callbacks', () => {
+  it('renders relic panel entries by combat priority, keeps panel state, and binds tooltip callbacks', () => {
     const doc = createDoc();
     const combatRelicRail = doc.createElement('div');
     combatRelicRail.id = 'combatRelicRail';
@@ -96,32 +96,52 @@ describe('combat_relic_rail_ui', () => {
     combatRelicRailSlots.id = 'combatRelicRailSlots';
     const combatRelicPanel = doc.createElement('div');
     combatRelicPanel.id = 'combatRelicPanel';
+    const combatRelicPanelList = doc.createElement('div');
+    combatRelicPanelList.id = 'combatRelicPanelList';
     combatRelicPanel.dataset.open = 'true';
+    combatRelicPanel.appendChild(combatRelicPanelList);
     combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
 
     const showItemTooltip = vi.fn();
     const hideItemTooltip = vi.fn();
     const gs = {
       player: {
-        items: ['common_ring', 'legendary_amulet', 'uncommon_pendant'],
+        items: ['common_turn_end', 'legendary_combat_start', 'uncommon_turn_end', 'common_card_play'],
       },
     };
     const data = {
       items: {
-        common_ring: {
-          id: 'common_ring',
+        common_turn_end: {
+          id: 'common_turn_end',
+          name: '턴 종료의 반지',
           icon: '◯',
           rarity: 'common',
+          desc: '턴 종료 시: 손패 제한 +1',
+          trigger: 'turn_end',
         },
-        uncommon_pendant: {
-          id: 'uncommon_pendant',
-          icon: '◇',
-          rarity: 'uncommon',
-        },
-        legendary_amulet: {
-          id: 'legendary_amulet',
+        legendary_combat_start: {
+          id: 'legendary_combat_start',
+          name: '전투 시작의 아뮬렛',
           icon: '✧',
           rarity: 'legendary',
+          desc: '전투 시작 시: 카드 1장 추가 드로우',
+          trigger: 'combat_start',
+        },
+        uncommon_turn_end: {
+          id: 'uncommon_turn_end',
+          name: '전투 준비의 부적',
+          icon: '◇',
+          rarity: 'uncommon',
+          desc: '턴 종료 시: 방어막 2 획득',
+          trigger: ['turn_end', 'combat_end'],
+        },
+        common_card_play: {
+          id: 'common_card_play',
+          name: '평범한 반지',
+          icon: '◯',
+          rarity: 'common',
+          desc: '카드 사용 시: 랜덤 강화',
+          trigger: 'card_play',
         },
       },
     };
@@ -136,20 +156,33 @@ describe('combat_relic_rail_ui', () => {
       },
     });
 
-    expect(combatRelicRailCount.textContent).toBe('3');
-    expect(combatRelicRailSlots.children).toHaveLength(3);
+    expect(combatRelicRailCount.textContent).toBe('4');
+    expect(combatRelicRailSlots.children).toHaveLength(4);
     expect(combatRelicPanel.dataset.open).toBe('true');
     expect(combatRelicRailSlots.children[0].textContent).toBe('✧');
     expect(combatRelicRailSlots.children[1].textContent).toBe('◇');
     expect(combatRelicRailSlots.children[2].textContent).toBe('◯');
+    expect(combatRelicRailSlots.children[3].textContent).toBe('◯');
     expect(combatRelicRailCount.parentNode).toBe(combatRelicRail);
     expect(combatRelicRailSlots.parentNode).toBe(combatRelicRail);
     expect(combatRelicPanel.parentNode).toBe(combatRelicRail);
 
+    expect(combatRelicPanelList.children).toHaveLength(4);
+    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
+    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작 시: 카드 1장 추가 드로우');
+    expect(combatRelicPanelList.children[1].textContent).toContain('전투 준비의 부적');
+    expect(combatRelicPanelList.children[2].textContent).toContain('턴 종료의 반지');
+    expect(combatRelicPanelList.children[3].textContent).toContain('평범한 반지');
+
     const topSlot = combatRelicRailSlots.children[0];
+    topSlot.listeners.click();
+    expect(combatRelicPanel.dataset.open).toBe('false');
+    topSlot.listeners.click();
+    expect(combatRelicPanel.dataset.open).toBe('true');
+
     const hoverEvent = { type: 'mouseenter', currentTarget: topSlot };
     topSlot.listeners.mouseenter(hoverEvent);
-    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_amulet');
+    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_combat_start');
 
     topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
     expect(hideItemTooltip).toHaveBeenCalledWith();
