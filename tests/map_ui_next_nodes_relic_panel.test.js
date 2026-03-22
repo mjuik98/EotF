@@ -66,6 +66,10 @@ class MockElement {
     this.listeners[name] = handler;
   }
 
+  focus() {
+    this.ownerDocument.activeElement = this;
+  }
+
   setAttribute(name, value) {
     this[name] = String(value);
   }
@@ -158,5 +162,64 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(detailList.children[1].textContent).toContain('카드 사용 시 10% 확률');
     expect(tooltipUI.showItemTooltip).not.toHaveBeenCalled();
     expect(tooltipUI.hideItemTooltip).not.toHaveBeenCalled();
+  });
+
+  it('supports keyboard navigation across stage relic rows', () => {
+    const doc = createDoc();
+
+    const panel = buildRelicPanel(doc, {
+      player: {
+        items: ['dull_blade', 'echo_charm', 'glass_pin'],
+      },
+    }, {
+      items: {
+        dull_blade: {
+          id: 'dull_blade',
+          name: '무딘 검',
+          icon: '🗡️',
+          rarity: 'common',
+          desc: '카드 사용 시 10% 확률: 잔향 10 충전',
+          trigger: 'card_play',
+        },
+        echo_charm: {
+          id: 'echo_charm',
+          name: '메아리 부적',
+          icon: '🔹',
+          rarity: 'uncommon',
+          desc: '전투 시작 시 잔향 +5',
+          trigger: 'combat_start',
+        },
+        glass_pin: {
+          id: 'glass_pin',
+          name: '유리 핀',
+          icon: '📍',
+          rarity: 'rare',
+          desc: '치명타 확률 +5%',
+          trigger: 'passive',
+        },
+      },
+    }, { showItemTooltip: vi.fn(), hideItemTooltip: vi.fn() }, {
+      requestAnimationFrame: (cb) => cb(),
+    });
+
+    const scrollWrap = panel.children[1];
+    const list = scrollWrap.children[0];
+    const firstSlot = list.children[0];
+    const secondSlot = list.children[1];
+    const lastSlot = list.children[2];
+    const detailList = panel.children[2].children[0];
+
+    const nextEvent = { key: 'ArrowDown', preventDefault: vi.fn() };
+    firstSlot.listeners.keydown(nextEvent);
+    expect(nextEvent.preventDefault).toHaveBeenCalledWith();
+    expect(doc.activeElement).toBe(secondSlot);
+    expect(secondSlot.dataset.active).toBe('true');
+    expect(detailList.children[0].children[0].textContent).toContain('메아리 부적');
+
+    const endEvent = { key: 'End', preventDefault: vi.fn() };
+    secondSlot.listeners.keydown(endEvent);
+    expect(doc.activeElement).toBe(lastSlot);
+    expect(lastSlot.dataset.active).toBe('true');
+    expect(detailList.children[0].children[0].textContent).toContain('무딘 검');
   });
 });

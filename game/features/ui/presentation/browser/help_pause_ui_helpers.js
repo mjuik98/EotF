@@ -60,6 +60,14 @@ export function isVisibleModal(el, doc) {
   return true;
 }
 
+export function isFullMapOverlayVisible(doc) {
+  return isVisibleModal(doc?.getElementById?.('fullMapOverlay') || null, doc);
+}
+
+export function canToggleDeckView(doc) {
+  return !isFullMapOverlayVisible(doc);
+}
+
 export function eventMatchesCode(e, code) {
   if (!e || !code) return false;
   if (e.code === code) return true;

@@ -4,9 +4,19 @@ import {
   setCharacterSelectVisibility,
 } from '../game/ui/title/character_select_flow.js';
 
+function createClassList(initial = []) {
+  const set = new Set(initial);
+  return {
+    add: (...tokens) => tokens.forEach((token) => set.add(token)),
+    remove: (...tokens) => tokens.forEach((token) => set.delete(token)),
+    contains: (token) => set.has(token),
+  };
+}
+
 function createNode() {
   return {
     style: {},
+    classList: createClassList(),
   };
 }
 
@@ -31,6 +41,7 @@ describe('character select flow helper', () => {
     const chars = [{ name: 'A' }, { name: 'B' }, { name: 'C' }];
     const card = createNode();
     const panel = createNode();
+    const root = createNode();
     const timers = [];
     const sfx = {
       nav: vi.fn(),
@@ -44,7 +55,7 @@ describe('character select flow helper', () => {
     const flow = createCharacterSelectFlow({
       state,
       chars,
-      resolveById: (id) => ({ charCard: card, infoPanel: panel }[id] || null),
+      resolveById: (id) => ({ charCard: card, infoPanel: panel, charSelectSubScreen: root }[id] || null),
       sfx,
       updateAll,
       renderPhase,
@@ -73,6 +84,7 @@ describe('character select flow helper', () => {
     expect(log).toHaveBeenCalledWith('[CharacterSelectUI] Character selected:', chars[2]);
     expect(sfx.select).toHaveBeenCalledTimes(1);
     expect(state.phase).toBe('burst');
+    expect(root.classList.contains('is-focus-locked')).toBe(true);
     expect(renderPhase).toHaveBeenCalledTimes(1);
     expect(timers[0].delay).toBe(650);
     timers.shift().handler();

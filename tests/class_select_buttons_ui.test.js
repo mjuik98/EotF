@@ -7,10 +7,41 @@ function createInteractiveNode() {
   const listeners = {};
   return {
     style: {},
+    dataset: {},
     listeners,
     addEventListener: vi.fn((name, handler) => {
       listeners[name] = handler;
     }),
+    setAttribute: vi.fn(function setAttribute(name, value) {
+      this[name] = String(value);
+    }),
+  };
+}
+
+function createGenericNode() {
+  return {
+    className: '',
+    style: {},
+    dataset: {},
+    children: [],
+    _textContent: '',
+    appendChild(node) {
+      this.children.push(node);
+      return node;
+    },
+    append(...nodes) {
+      nodes.forEach((node) => this.appendChild(node));
+    },
+    setAttribute(name, value) {
+      this[name] = String(value);
+    },
+    get textContent() {
+      return this._textContent;
+    },
+    set textContent(value) {
+      this._textContent = value == null ? '' : String(value);
+      this.children = [];
+    },
   };
 }
 
@@ -22,6 +53,11 @@ function createButtonNode() {
     className: '',
     dataset: {},
     innerHTML: '',
+    children: [],
+    appendChild(node) {
+      this.children.push(node);
+      return node;
+    },
     querySelector: vi.fn((selector) => {
       if (selector === '.class-btn-trait') return trait;
       if (selector === '.class-btn-relic') return relic;
@@ -33,7 +69,7 @@ function createButtonNode() {
 }
 
 describe('class select buttons helper', () => {
-  it('renders class buttons and wires trait/relic tooltips', () => {
+  it('renders trait tooltip wiring and a shared relic detail panel instead of relic tooltips', () => {
     const appended = [];
     const container = {
       innerHTML: 'stale',
@@ -42,7 +78,7 @@ describe('class select buttons helper', () => {
     const showTooltip = vi.fn();
     const hideTooltip = vi.fn();
     const doc = {
-      createElement: vi.fn(() => createButtonNode()),
+      createElement: vi.fn((tagName) => (tagName === 'button' ? createButtonNode() : createGenericNode())),
     };
 
     renderClassSelectButtons(container, {
@@ -76,11 +112,13 @@ describe('class select buttons helper', () => {
     });
 
     expect(container.innerHTML).toBe('');
-    expect(appended).toHaveLength(1);
+    expect(appended).toHaveLength(2);
     const button = appended[0];
+    const relicPanel = appended[1];
     expect(button.id).toBe('class_0');
     expect(button.dataset.class).toBe(0);
     expect(button.innerHTML).toContain('잔향검사');
+    expect(relicPanel.className).toContain('class-select-relic-panel');
 
     button._trait.listeners.mouseenter({ stopPropagation: vi.fn() });
     expect(showTooltip).toHaveBeenCalledWith(expect.anything(), '공명', 'trait desc');
@@ -88,7 +126,10 @@ describe('class select buttons helper', () => {
     expect(hideTooltip).toHaveBeenCalledTimes(1);
 
     button._relic.listeners.mouseenter({ stopPropagation: vi.fn() });
-    expect(showTooltip).toHaveBeenCalledWith(expect.anything(), '⚔ 둔검 (일반)', 'item desc');
+    expect(showTooltip).toHaveBeenCalledTimes(1);
+    expect(relicPanel.children[0].children[0].children[0].textContent).toContain('둔검');
+    expect(relicPanel.children[0].children[1].textContent).toContain('item desc');
+    expect(button._relic['aria-controls']).toBe('classSelectRelicDetail');
   });
 
   it('keeps the long-form class descriptions short enough for a single-line card layout', () => {
@@ -105,5 +146,13 @@ describe('class select buttons helper', () => {
     expect(css).toContain('white-space: nowrap;');
     expect(css).toContain('overflow: hidden;');
     expect(css).toContain('text-overflow: ellipsis;');
+  });
+
+  it('styles the shared class relic detail panel as an inline layout block', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.class-select-relic-panel');
+    expect(css).toContain('.class-select-relic-panel[data-open=\'true\']');
+    expect(css).toContain('.class-select-relic-panel .crp-title');
   });
 });

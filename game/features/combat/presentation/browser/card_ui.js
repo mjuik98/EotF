@@ -79,6 +79,7 @@ export const CardUI = {
         displayCost: cost,
         anyFree,
         totalDisc,
+        energy: gs.player.energy,
         cardW,
         cardH,
         cardFontScale,

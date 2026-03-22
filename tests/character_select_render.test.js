@@ -96,7 +96,7 @@ describe('character select render helpers', () => {
     renderCharacterButtons(buttonsRow, { accent: '#ffd700', color: '#333', name: 'Paladin' }, onHover, onConfirm);
 
     expect(buttonsRow.style.setProperty).toHaveBeenCalledWith('--char-accent', '#ffd700');
-    expect(buttonsRow.innerHTML).toContain('이 잔향 선택');
+    expect(buttonsRow.innerHTML).toContain('잔향 선택');
     expect(buttonsRow.innerHTML).toContain('Paladin');
     expect(buttonsRow.innerHTML).not.toContain('선택 확정');
     buttonsRow.confirmButton.listeners.mouseenter();

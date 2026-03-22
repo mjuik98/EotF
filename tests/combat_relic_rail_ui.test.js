@@ -77,6 +77,10 @@ class MockElement {
     this.listeners[name] = handler;
   }
 
+  focus() {
+    this.ownerDocument.activeElement = this;
+  }
+
   setAttribute(name, value) {
     this[name] = String(value);
   }
@@ -345,6 +349,92 @@ describe('combat_relic_rail_ui', () => {
 
     topSlot.listeners.click(tapEvent);
     expect(combatRelicPanel.dataset.open).toBe('false');
+  });
+
+  it('supports arrow-key navigation and keyboard pinning across relic slots', () => {
+    const doc = createDoc();
+    const combatRelicRail = doc.createElement('div');
+    combatRelicRail.id = 'combatRelicRail';
+    const combatRelicRailCount = doc.createElement('span');
+    combatRelicRailCount.id = 'combatRelicRailCount';
+    const combatRelicRailSlots = doc.createElement('div');
+    combatRelicRailSlots.id = 'combatRelicRailSlots';
+    const combatRelicPanel = doc.createElement('div');
+    combatRelicPanel.id = 'combatRelicPanel';
+    const combatRelicPanelList = doc.createElement('div');
+    combatRelicPanelList.id = 'combatRelicPanelList';
+    combatRelicPanel.appendChild(combatRelicPanelList);
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
+
+    doc.defaultView = {
+      innerWidth: 1280,
+      listeners: {},
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+      removeEventListener(name, handler) {
+        if (this.listeners[name] === handler) delete this.listeners[name];
+      },
+    };
+
+    renderCombatRelicRail({
+      doc,
+      gs: {
+        player: {
+          items: ['legendary_combat_start', 'uncommon_turn_end', 'common_card_play'],
+        },
+      },
+      data: {
+        items: {
+          legendary_combat_start: {
+            id: 'legendary_combat_start',
+            name: '전투 시작의 아뮬렛',
+            icon: '✧',
+            rarity: 'legendary',
+            desc: '전투 시작 시: 카드 1장 추가 드로우',
+            trigger: 'combat_start',
+          },
+          uncommon_turn_end: {
+            id: 'uncommon_turn_end',
+            name: '전투 준비의 부적',
+            icon: '◇',
+            rarity: 'uncommon',
+            desc: '턴 종료 시: 방어막 2 획득',
+            trigger: 'turn_end',
+          },
+          common_card_play: {
+            id: 'common_card_play',
+            name: '평범한 반지',
+            icon: '◯',
+            rarity: 'common',
+            desc: '카드 사용 시: 랜덤 강화',
+            trigger: 'card_play',
+          },
+        },
+      },
+    });
+
+    const firstSlot = combatRelicRailSlots.children[0];
+    const secondSlot = combatRelicRailSlots.children[1];
+    const lastSlot = combatRelicRailSlots.children[2];
+
+    const moveNext = { key: 'ArrowRight', preventDefault: vi.fn() };
+    firstSlot.listeners.keydown(moveNext);
+    expect(moveNext.preventDefault).toHaveBeenCalledWith();
+    expect(doc.activeElement).toBe(secondSlot);
+    expect(secondSlot.dataset.active).toBe('true');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('전투 준비의 부적');
+
+    const pinSelection = { key: 'Enter', preventDefault: vi.fn() };
+    secondSlot.listeners.keydown(pinSelection);
+    expect(pinSelection.preventDefault).toHaveBeenCalledWith();
+    expect(combatRelicPanel.dataset.pinned).toBe('true');
+
+    const moveEnd = { key: 'End', preventDefault: vi.fn() };
+    secondSlot.listeners.keydown(moveEnd);
+    expect(doc.activeElement).toBe(lastSlot);
+    expect(lastSlot.dataset.active).toBe('true');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('평범한 반지');
   });
 
   it('clears stale relic slot nodes before rerender', () => {

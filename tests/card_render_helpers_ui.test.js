@@ -58,7 +58,10 @@ describe('card_render_helpers_ui', () => {
 
     expect(normal.className).toBe('card-particles');
     expect(normal.children).toHaveLength(6);
-    expect(clone.children).toHaveLength(8);
+    expect(clone.className).toBe('card-particles card-particles-aura');
+    expect(clone.children).toHaveLength(3);
+    expect(clone.children[0].className).toBe('card-aura card-aura-haze');
+    expect(clone.children[0].style.cssText).toContain('--aura-color: #fff;');
 
     rng.mockRestore();
   });

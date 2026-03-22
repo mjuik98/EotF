@@ -97,6 +97,7 @@ describe('combat_card_render_ui', () => {
       cardId: 'guard',
       handIndex: 0,
       canPlay: false,
+      energy: 0,
       displayCost: 2,
       card: { name: 'Guard', icon: '🛡', type: 'Skill', cost: 2, rarity: 'common' },
     });
@@ -110,7 +111,13 @@ describe('combat_card_render_ui', () => {
 
     applyHandFanStyles([first, second]);
 
+    const firstCost = first.children.find((child) => String(child.className).includes('card-cost'));
+    const firstOverlay = first.children.find((child) => child.className === 'card-no-energy');
+
     expect(first.children.some((child) => child.className === 'card-no-energy')).toBe(true);
+    expect(firstCost.className).toContain('card-cost-disabled');
+    expect(firstCost.className).toContain('card-cost-insufficient-energy');
+    expect(firstOverlay.children[0].textContent).toBe('에너지 2 부족');
     expect(second.children.some((child) => child.className === 'card-legendary-border')).toBe(true);
     expect(first.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('스킬');
     expect(second.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('파워');

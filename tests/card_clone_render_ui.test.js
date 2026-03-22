@@ -82,7 +82,7 @@ describe('card_clone_render_ui', () => {
     expect(clone.children.some((child) => child.className === 'card-name card-name-hover')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-desc card-desc-hover')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-tags card-tags-hover')).toBe(true);
-    expect(clone.children.some((child) => child.className === 'card-particles')).toBe(true);
+    expect(clone.children.some((child) => child.className === 'card-particles card-particles-aura')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-clone-arrow')).toBe(true);
     expect(clone.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('공격');
 

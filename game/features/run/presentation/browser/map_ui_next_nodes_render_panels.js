@@ -6,12 +6,14 @@ import {
   runOnNextFrame,
   stripHtml,
 } from './map_ui_next_nodes_render_helpers.js';
-import { resolveItemDetailState } from '../../../../shared/ui/item_detail/item_detail_state.js';
-import { buildItemDetailViewModel } from '../../../../shared/ui/item_detail/item_detail_view_model.js';
 import {
+  resolveItemDetailState,
+  buildItemDetailViewModel,
   applyItemDetailPanelStyles,
   renderItemDetailPanelContent,
-} from '../../../../shared/ui/item_detail/item_detail_panel_ui.js';
+  getItemDetailNavIndex,
+  isItemDetailCommitKey,
+} from './relic_detail_shared_ui.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';
@@ -124,6 +126,8 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   list.className = 'nc-relic-list';
   const detailPanel = doc.createElement('div');
   detailPanel.className = 'nc-relic-detail';
+  detailPanel.id = 'mapRelicDetailPanel';
+  detailPanel.dataset.open = 'false';
   const detailList = doc.createElement('div');
   detailList.className = 'nc-relic-detail-list';
   detailPanel.appendChild(detailList);
@@ -146,6 +150,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
     const detail = buildItemDetailViewModel(itemId, item, data, state);
     renderItemDetailPanelContent(doc, detailList, detail, { variant: 'compact' });
+    detailPanel.dataset.open = 'true';
     markActiveSlot(activeSlot);
   };
 
@@ -157,7 +162,8 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   } else {
     const sortedItems = [...items].sort((leftId, rightId) => (rarityOrder[data?.items?.[leftId]?.rarity || 'common'] ?? 3) - (rarityOrder[data?.items?.[rightId]?.rarity || 'common'] ?? 3));
     let firstRenderable = null;
-    sortedItems.forEach((itemId) => {
+    const slotNodes = [];
+    sortedItems.forEach((itemId, index) => {
       const item = data?.items?.[itemId];
       if (!item) return;
       if (!firstRenderable) firstRenderable = { itemId, item };
@@ -174,6 +180,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       slot.tabIndex = 0;
       slot.setAttribute('role', 'button');
       slot.setAttribute('aria-pressed', 'false');
+      slot.setAttribute('aria-controls', 'mapRelicDetailPanel');
       slot.setAttribute('aria-label', `${item.name || itemId}: ${rawDesc || ''}`);
 
       const iconWrap = doc.createElement('div');
@@ -196,9 +203,27 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       slot.addEventListener('mouseenter', selectSlot);
       slot.addEventListener('focus', selectSlot);
       slot.addEventListener('click', selectSlot);
+      slot.addEventListener('keydown', (event) => {
+        const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || sortedItems.length);
+        if (nextIndex >= 0) {
+          event?.preventDefault?.();
+          const nextSlot = slotNodes[nextIndex];
+          const nextItemId = sortedItems[nextIndex];
+          const nextItem = data?.items?.[nextItemId];
+          if (!nextSlot || !nextItem) return;
+          nextSlot.focus?.();
+          renderDetail(nextItemId, nextItem, nextSlot);
+          return;
+        }
+        if (isItemDetailCommitKey(event?.key)) {
+          event?.preventDefault?.();
+          selectSlot();
+        }
+      });
 
       slot.append(iconWrap, info, pip);
       list.appendChild(slot);
+      slotNodes.push(slot);
     });
     if (firstRenderable) {
       const firstSlot = list.children[0] || null;

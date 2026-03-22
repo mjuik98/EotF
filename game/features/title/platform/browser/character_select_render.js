@@ -32,7 +32,7 @@ export function renderCharacterButtons(buttonsRow, selectedChar, onHover, onConf
   buttonsRow.style.setProperty('--char-color', selectedChar.color);
   buttonsRow.innerHTML = `
     <div class="char-confirm-wrap">
-      <button id="btnCfm" class="char-confirm-btn" type="button">이 잔향 선택 · ${selectedChar.name}</button>
+      <button id="btnCfm" class="char-confirm-btn" type="button">잔향 선택 · ${selectedChar.name}</button>
     </div>`;
 
   const confirmButton = buttonsRow.querySelector('#btnCfm') || buttonsRow.children?.[0]?.querySelector?.('#btnCfm');

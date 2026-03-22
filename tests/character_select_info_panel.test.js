@@ -25,6 +25,7 @@ function createNode() {
   return {
     dataset: {},
     style: {},
+    disabled: false,
     classList: createClassList(),
     innerHTML: '',
     addEventListener: vi.fn((name, handler) => {
@@ -99,7 +100,7 @@ describe('character_select_info_panel', () => {
       panel,
       selectedChar,
       classProgress: { level: 1, totalXp: 0, nextLevelXp: 100, progress: 0.3 },
-      roadmap: [{ lv: 1, icon: '+', desc: 'Unlock starter bonus.' }],
+      roadmap: [{ lv: 2, icon: '+', desc: 'Unlock starter bonus.' }],
       buildSectionLabel: (label) => `<span>${label}</span>`,
       buildRadar: () => '<svg>radar</svg>',
       cards: { strike: { name: 'Strike' } },
@@ -121,6 +122,9 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('시작 핵심 카드');
     expect(panel.innerHTML).toContain('기본기');
     expect(panel.innerHTML).toContain('시작 장비');
+    expect(panel.innerHTML).toContain('다음 마스터리 해금');
+    expect(panel.innerHTML).toContain('다음 해금: Lv.2 Unlock starter bonus.');
+    expect(panel.innerHTML).toContain('펼쳐서 전체 해금 보상 보기');
     expect(panel.innerHTML).not.toContain('전투 성향');
     expect(panel.innerHTML).not.toContain('시작 덱 요약');
 
@@ -146,17 +150,23 @@ describe('character_select_info_panel', () => {
   });
 
   it('renders mastery loadout controls and wires preset save actions', () => {
+    const level11ModeUpgrade = createNode();
+    const level11ModeSwap = createNode();
+    const level11DeckCard0 = createNode();
+    level11DeckCard0.dataset.level11Index = '0';
+    level11DeckCard0.dataset.cid = 'strike';
+    level11DeckCard0.dataset.level11Selectable = 'true';
+    const level11DeckCard1 = createNode();
+    level11DeckCard1.dataset.level11Index = '1';
+    level11DeckCard1.dataset.cid = 'heavy_blow';
+    level11DeckCard1.dataset.level11Selectable = 'true';
     const saveLevel11Upgrade = createNode();
     const saveLevel11Swap = createNode();
     const clearLevel11Preset = createNode();
     const saveLevel12Preset = createNode();
     const clearLevel12Preset = createNode();
-    const level11UpgradeTarget = createNode();
-    level11UpgradeTarget.value = '0';
-    const level11SwapRemove = createNode();
-    level11SwapRemove.value = '1';
-    const level11SwapAdd = createNode();
-    level11SwapAdd.value = 'blade_dance';
+    const level11AddCard = createNode();
+    level11AddCard.dataset.level11AddCardId = 'blade_dance';
     const level12BonusRelic = createNode();
     level12BonusRelic.value = 'guardian_seal';
 
@@ -164,20 +174,34 @@ describe('character_select_info_panel', () => {
       style: { setProperty: vi.fn() },
       innerHTML: '',
       querySelectorAll: vi.fn((selector) => {
-        if (selector === '.char-info-tab' || selector === '.char-info-pane' || selector === '.deck-card') {
+        if (selector === '.char-info-tab' || selector === '.char-info-pane') {
+          return [];
+        }
+        if (selector === '.level11-edit-card') {
+          return [level11DeckCard0, level11DeckCard1];
+        }
+        if (selector === '.deck-card') {
+          return [level11DeckCard0, level11DeckCard1];
+        }
+        if (selector === '.level11-mode-btn') {
+          return [level11ModeUpgrade, level11ModeSwap];
+        }
+        if (selector === '.level11-add-card-btn') {
+          return [level11AddCard];
+        }
+        if (selector === '.level11-selection-note') {
           return [];
         }
         return [];
       }),
       querySelector: vi.fn((selector) => {
+        if (selector === '#level11ModeUpgrade') return level11ModeUpgrade;
+        if (selector === '#level11ModeSwap') return level11ModeSwap;
         if (selector === '#saveLevel11Upgrade') return saveLevel11Upgrade;
         if (selector === '#saveLevel11Swap') return saveLevel11Swap;
         if (selector === '#clearLevel11Preset') return clearLevel11Preset;
         if (selector === '#saveLevel12Preset') return saveLevel12Preset;
         if (selector === '#clearLevel12Preset') return clearLevel12Preset;
-        if (selector === '#level11UpgradeTarget') return level11UpgradeTarget;
-        if (selector === '#level11SwapRemove') return level11SwapRemove;
-        if (selector === '#level11SwapAdd') return level11SwapAdd;
         if (selector === '#level12BonusRelic') return level12BonusRelic;
         return null;
       }),
@@ -257,13 +281,43 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('연속 압박형');
     expect(panel.innerHTML).toContain('마무리');
     expect(panel.innerHTML).toContain('기본 시작 유물');
-    expect(panel.innerHTML).toContain('적용 후 시작 유물');
-    expect(panel.innerHTML).toContain('기본 시작 덱');
-    expect(panel.innerHTML).toContain('적용 후 시작 덱');
+    expect(panel.innerHTML).toContain('추가 유물');
+    expect(panel.innerHTML).toContain('카드를 클릭해 대상을 지정하세요.');
+    expect(panel.innerHTML).toContain('추가 카드 선택');
+    expect(panel.innerHTML).not.toContain('level11SwapAdd');
+    expect(panel.innerHTML).not.toContain('기본 시작 덱');
+    expect(panel.innerHTML).not.toContain('적용 후 시작 덱');
     expect(panel.innerHTML).toContain('Heavy Blow');
     expect(panel.innerHTML).toContain('저장된 프리셋 일부를 현재 상태에서 적용할 수 없습니다.');
+    expect(panel.innerHTML).toContain('모든 마스터리 보상 해금 완료');
+    expect(panel.innerHTML).not.toContain('다음 해금: 모든 마스터리 보상 해금 완료');
+    expect(panel.innerHTML).toContain('획득한 보상 다시 보기');
+    expect(panel.innerHTML).toContain('추가 유물 선택');
+    expect(panel.innerHTML).not.toContain('활성');
+    expect(panel.innerHTML).not.toContain('Lv.11 해금');
+    expect(panel.innerHTML).not.toContain('Lv.12 해금');
+    expect(panel.innerHTML).not.toContain('교체 대상');
+    expect(panel.innerHTML).not.toContain('강화 예정');
+    expect(panel.innerHTML.indexOf('시작 덱')).toBeLessThan(panel.innerHTML.indexOf('강화로 저장'));
+    expect(panel.innerHTML.indexOf('강화로 저장')).toBeLessThan(panel.innerHTML.indexOf('마스터리 커스터마이즈'));
+    expect(saveLevel11Upgrade.disabled).toBe(true);
+    expect(saveLevel11Swap.disabled).toBe(true);
 
     saveLevel11Upgrade.listeners.click();
+    saveLevel11Swap.listeners.click();
+    expect(onSaveLoadoutPreset).not.toHaveBeenCalled();
+
+    level11ModeUpgrade.listeners.click();
+    expect(saveLevel11Upgrade.disabled).toBe(true);
+    level11DeckCard0.listeners.click();
+    expect(saveLevel11Upgrade.disabled).toBe(false);
+    saveLevel11Upgrade.listeners.click();
+    level11ModeSwap.listeners.click();
+    expect(saveLevel11Swap.disabled).toBe(true);
+    level11DeckCard1.listeners.click();
+    expect(saveLevel11Swap.disabled).toBe(true);
+    level11AddCard.listeners.click();
+    expect(saveLevel11Swap.disabled).toBe(false);
     saveLevel11Swap.listeners.click();
     clearLevel11Preset.listeners.click();
     saveLevel12Preset.listeners.click();
@@ -316,7 +370,7 @@ describe('character_select_info_panel', () => {
       panel,
       selectedChar,
       classProgress: { level: 1, totalXp: 0, nextLevelXp: 100, progress: 0.3 },
-      roadmap: [],
+      roadmap: [{ lv: 2, icon: '+', desc: 'Unlock starter bonus.' }],
       buildSectionLabel: (label) => `<span>${label}</span>`,
       buildRadar: () => '<svg>radar</svg>',
       cards: { strike: { name: 'Strike' } },
@@ -351,9 +405,18 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('시작 핵심 카드');
     expect(panel.innerHTML).toContain('플레이 감각');
     expect(panel.innerHTML).toContain('기본기');
+    expect(panel.innerHTML).toContain('다음 마스터리 해금');
+    expect(panel.innerHTML).toContain('다음 해금: Lv.2 Unlock starter bonus.');
+    expect(panel.innerHTML).toContain('마스터리 커스터마이즈');
+    expect(panel.innerHTML).toContain('Lv.11 해금');
+    expect(panel.innerHTML).toContain('Lv.12 해금');
+    expect(panel.innerHTML).toContain('추가 유물');
+    expect(panel.innerHTML).toContain('미선택');
+    expect(panel.innerHTML).toContain('Lv.12 달성 시 추가 유물이 해금됩니다.');
+    expect(panel.innerHTML).toContain('Lv.11 달성 시 시작 덱 커스터마이즈가 해금됩니다.');
     expect(panel.innerHTML).not.toContain('시작 덱 요약');
     expect(panel.innerHTML).not.toContain('전투 성향');
-    expect(panel.innerHTML).not.toContain('기본 시작 유물');
+    expect(panel.innerHTML).toContain('기본 시작 유물');
     expect(panel.innerHTML).not.toContain('적용 후 시작 유물');
     expect(panel.innerHTML).not.toContain('기본 시작 덱');
     expect(panel.innerHTML).not.toContain('적용 후 시작 덱');

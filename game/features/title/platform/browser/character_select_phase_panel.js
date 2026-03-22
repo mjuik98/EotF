@@ -1,3 +1,10 @@
+import { setCharacterSelectFocusLock } from './character_select_focus_lock.js';
+
+const RESELECT_BUTTON_BASE_COLOR = '#99a';
+const RESELECT_BUTTON_BASE_BORDER = 'rgba(255,255,255,0.2)';
+const RESELECT_BUTTON_HOVER_COLOR = '#ccc';
+const RESELECT_BUTTON_HOVER_BORDER = '#555';
+
 export function renderCharacterPhase({
   state,
   selectedChar,
@@ -14,6 +21,7 @@ export function renderCharacterPhase({
 
   overlay.className = '';
   if (state?.phase === 'select') {
+    setCharacterSelectFocusLock(resolveById, false);
     overlay.style.display = 'none';
     return;
   }
@@ -70,15 +78,16 @@ export function renderCharacterPhase({
   const reselectButton = resolveById?.('btnResel');
   if (reselectButton) {
     reselectButton.addEventListener('mouseenter', () => {
-      reselectButton.style.color = '#ccc';
-      reselectButton.style.borderColor = '#555';
+      reselectButton.style.color = RESELECT_BUTTON_HOVER_COLOR;
+      reselectButton.style.borderColor = RESELECT_BUTTON_HOVER_BORDER;
     });
     reselectButton.addEventListener('mouseleave', () => {
-      reselectButton.style.color = '#333';
-      reselectButton.style.borderColor = '#1a1a28';
+      reselectButton.style.color = RESELECT_BUTTON_BASE_COLOR;
+      reselectButton.style.borderColor = RESELECT_BUTTON_BASE_BORDER;
     });
     reselectButton.addEventListener('click', () => {
       state.phase = 'select';
+      setCharacterSelectFocusLock(resolveById, false);
       stopTyping?.();
       rerender?.();
     });

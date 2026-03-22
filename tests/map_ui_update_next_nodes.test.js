@@ -231,6 +231,42 @@ describe('MapUI.updateNextNodes', () => {
     expect(overlay.children.some(child => child.id === 'ncMainArea')).toBe(true);
   });
 
+  it('uses a stable region fallback accent when region data does not define one', () => {
+    const doc = createMockDocument();
+    const { overlay } = createOverlay(doc);
+    const gs = {
+      currentScreen: 'game',
+      currentRegion: 0,
+      currentFloor: 0,
+      currentNode: null,
+      combat: { active: false },
+      player: { hp: 10, maxHp: 10, items: [], deck: [], graveyard: [], exhausted: [] },
+      mapNodes: [
+        { id: '1-0', floor: 1, pos: 0, total: 2, type: 'combat', accessible: true, visited: false },
+        { id: '1-1', floor: 1, pos: 1, total: 2, type: 'event', accessible: true, visited: false },
+      ],
+    };
+
+    MapUI.updateNextNodes({
+      gs,
+      doc,
+      data: { items: {} },
+      nodeMeta: {
+        combat: { icon: 'C', label: 'Combat', color: '#cc2244', desc: 'Fight enemies.' },
+        event: { icon: '?', label: 'Event', color: '#0099cc', desc: 'Resolve an event.' },
+      },
+      getRegionData: () => ({
+        name: 'Region Zero',
+        rule: '기본 규칙',
+        floors: 7,
+      }),
+      getFloorStatusText: () => '1F',
+    });
+
+    expect(overlay.style['--nc-accent']).toBe('#7b2fff');
+    expect(overlay.style['--nc-accent']).not.toBe('#cc2244');
+  });
+
   it('applies hp danger styling to the overlay', () => {
     const doc = createMockDocument();
     const { overlay } = createOverlay(doc);

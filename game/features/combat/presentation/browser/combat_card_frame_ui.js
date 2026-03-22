@@ -15,17 +15,20 @@ function addTagChip(doc, parent, className, text) {
 }
 
 function addCostBadge(doc, root, card, state, variant) {
-  const { anyFree, canPlay, displayCost, totalDisc } = state;
-  const classNames = ['card-cost'];
-  if (variant === 'hover') classNames.push('card-cost-hover');
+  const { anyFree, canPlay, displayCost, totalDisc, energy = 0 } = state;
+  const normalizedType = String(card.type || '').toLowerCase();
+  const shortfall = Math.max(0, Number(displayCost || 0) - Math.max(0, Number(energy) || 0));
+  const classNames = ['card-cost', variant === 'hover' ? 'card-cost-hover' : 'card-cost-hand'];
+  if (normalizedType) classNames.push(`card-cost-type-${normalizedType}`);
   if (anyFree && card.cost > 0) classNames.push('card-cost-free');
   else if (totalDisc > 0 && card.cost > 0) classNames.push('card-cost-discounted');
+  if (!canPlay) {
+    classNames.push('card-cost-disabled');
+    classNames.push(shortfall > 0 ? 'card-cost-insufficient-energy' : 'card-cost-unavailable');
+  }
 
   const costEl = doc.createElement('div');
   costEl.className = classNames.join(' ');
-  if (!canPlay) {
-    costEl.style.cssText = 'background:rgba(60,60,60,0.4);border-color:rgba(120,120,120,0.3);color:rgba(180,180,180,0.5);';
-  }
   costEl.textContent = displayCost;
 
   if (card.cost > 0) {
@@ -66,6 +69,7 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
     displayCost = 0,
     anyFree = false,
     totalDisc = 0,
+    energy = 0,
     descriptionUtils = null,
     cardW = 100,
     cardFontScale = '',
@@ -122,6 +126,7 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
     canPlay,
     displayCost,
     totalDisc,
+    energy,
   }, variant);
 
   if (card.upgraded) {
@@ -170,11 +175,12 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
   root.appendChild(type);
 
   if (!canPlay && variant === 'hand') {
+    const shortfall = Math.max(0, Number(displayCost || 0) - Math.max(0, Number(energy) || 0));
     const overlay = doc.createElement('div');
     overlay.className = 'card-no-energy';
     const label = doc.createElement('span');
     label.className = 'card-no-energy-label';
-    label.textContent = '에너지 부족';
+    label.textContent = shortfall > 0 ? `에너지 ${shortfall} 부족` : '사용 불가';
     overlay.appendChild(label);
     root.appendChild(overlay);
   }

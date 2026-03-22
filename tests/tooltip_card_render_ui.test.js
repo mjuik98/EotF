@@ -73,7 +73,7 @@ describe('tooltip_card_render_ui', () => {
     expect(doc.elements.ttName.textContent).toBe('불굴의 벽');
     expect(doc.elements.ttType.textContent).toBe('파워');
     expect(doc.elements.ttType.className).toBe('card-tooltip-type card-tooltip-type-power');
-    expect(doc.elements.ttCost.className).toBe('card-tooltip-cost card-tooltip-cost-power');
+    expect(doc.elements.ttCost.className).toBe('card-cost card-cost-tooltip card-cost-type-power');
     expect(doc.elements.ttRarity.className).toBe('card-tooltip-rarity rarity-rare');
     expect(doc.elements.ttPredicted.style.display).toBe('block');
     expect(doc.elements.ttPredicted.children[1].textContent).toBe(17);

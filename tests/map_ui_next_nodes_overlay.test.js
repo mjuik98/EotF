@@ -141,4 +141,53 @@ describe('map_ui_next_nodes overlay', () => {
     vi.advanceTimersByTime(800);
     expect(moveToNode).toHaveBeenCalledWith('n1');
   });
+
+  it('does not toggle deck view while the full-map overlay is visible', () => {
+    const doc = createDoc();
+    const fullMapOverlay = createElement(doc);
+    fullMapOverlay.id = 'fullMapOverlay';
+    fullMapOverlay.classList.add('active');
+
+    const showDeckView = vi.fn();
+    const closeDeckView = vi.fn();
+
+    updateNextNodesOverlay({
+      doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      moveToNode: vi.fn(),
+      showDeckView,
+      closeDeckView,
+      showFullMap: vi.fn(),
+      gs: {
+        currentScreen: 'game',
+        currentRegion: 0,
+        currentFloor: 1,
+        combat: { active: false },
+        _nodeMoveLock: false,
+        _rewardLock: false,
+        _endCombatScheduled: false,
+        _endCombatRunning: false,
+        player: { hp: 10, maxHp: 10, items: [], deck: [], graveyard: [], exhausted: [] },
+        mapNodes: [
+          { id: 'n1', floor: 2, accessible: true, visited: false, type: 'combat' },
+        ],
+      },
+      nodeMeta: {
+        combat: { color: '#ff4455', icon: 'C', label: 'Combat', desc: 'fight' },
+      },
+      getRegionData: () => ({ name: 'Region', rule: 'Rule' }),
+      getFloorStatusText: () => '1F',
+      data: { items: {} },
+    });
+
+    const overlay = doc.getElementById('nodeCardOverlay');
+    const keyHandler = overlay._ncKey;
+    const event = { key: 'Tab', preventDefault: vi.fn() };
+
+    keyHandler(event);
+
+    expect(showDeckView).not.toHaveBeenCalled();
+    expect(closeDeckView).not.toHaveBeenCalled();
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  });
 });

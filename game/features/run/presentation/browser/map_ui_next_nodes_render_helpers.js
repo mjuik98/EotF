@@ -87,13 +87,12 @@ export function buildFloorBar(doc, gs, regionData, nodeMeta) {
   const totalFloors = Math.max(1, Number(regionData?.floors) || Math.max(1, ...((gs?.mapNodes || []).map((node) => node.floor))));
   const currentFloor = Math.max(0, Number(gs?.currentFloor) || 0);
   const displayCount = Math.min(totalFloors, 9);
-  const shortName = getRegionShortName(regionData?.name) || '지역';
   const wrap = doc.createElement('div');
   wrap.className = 'nc-floor-bar';
 
   const label = doc.createElement('div');
   label.className = 'nc-floor-bar-label';
-  label.textContent = `${shortName} 진행 경로`;
+  label.textContent = '지역 진행';
   wrap.appendChild(label);
 
   const track = doc.createElement('div');

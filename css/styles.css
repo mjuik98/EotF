@@ -31,107 +31,6 @@
 }
 
 /* ── KEYWORD HIGHLIGHTING ── */
-.kw-num {
-  color: #fff;
-  font-weight: 700;
-  font-family: 'Share Tech Mono', monospace;
-}
-
-.kw-dmg {
-  color: var(--danger);
-  font-weight: 600;
-}
-
-.kw-shield {
-  color: #66bbff;
-  font-weight: 600;
-}
-
-.kw-echo {
-  color: var(--echo);
-  font-weight: 600;
-}
-
-.kw-chain {
-  color: var(--cyan);
-  font-weight: 600;
-}
-
-.kw-energy {
-  color: var(--gold);
-  font-weight: 600;
-}
-
-.kw-silence {
-  color: #a0a0ff;
-  font-weight: 600;
-}
-
-.kw-momentum {
-  color: #ffbb66;
-  font-weight: 600;
-}
-
-.kw-hp {
-  color: var(--hp-color);
-  font-weight: 600;
-}
-
-.kw-gold {
-  color: var(--gold);
-  font-weight: 600;
-}
-
-.kw-draw {
-  color: var(--draw-color);
-  font-weight: 600;
-}
-
-.kw-exhaust {
-  color: var(--exhaust-color);
-  font-weight: 600;
-}
-
-.kw-upgrade {
-  color: var(--cyan);
-  font-weight: 600;
-}
-
-.kw-crit {
-  color: #ffcc00;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(255, 204, 0, 0.4);
-}
-
-.kw-heal {
-  color: #44ff88;
-  font-weight: 600;
-}
-
-
-
-.kw-debuff {
-  color: #cc88ff;
-  font-weight: 600;
-}
-
-.kw-buff {
-  color: #88ffcc;
-  font-weight: 600;
-}
-
-.kw-burst {
-  color: #ff44ff;
-  font-weight: 700;
-  text-shadow: 0 0 10px rgba(255, 68, 255, 0.5);
-}
-
-.kw-special {
-  color: var(--white);
-  font-weight: 700;
-  border-bottom: 1px solid var(--echo);
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -1310,6 +1209,23 @@ body {
   border-left: 2px solid var(--echo);
 }
 
+.class-select-relic-panel {
+  width: min(100%, 320px);
+  margin: 10px auto 0;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.2s ease;
+}
+
+.class-select-relic-panel[data-open='true'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.class-select-relic-panel .crp-title {
+  letter-spacing: 0.04em;
+}
+
 #eventModal {
   position: fixed;
   inset: 0;
@@ -1680,10 +1596,6 @@ body {
   transition: filter 0.15s;
 }
 
-.hud-status-badge:hover {
-  filter: brightness(1.3);
-}
-
 .hud-status-badge .hud-badge-tip {
   position: absolute;
   bottom: calc(100% + 6px);
@@ -2031,28 +1943,6 @@ body {
   padding: 10px;
 }
 
-.region-name-display {
-  font-family: 'Cinzel', serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 2px;
-}
-
-.region-rule-display {
-  font-size: 13px;
-  color: var(--echo);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.1em;
-}
-
-.region-floor-display {
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-top: 2px;
-  font-family: 'Share Tech Mono', monospace;
-}
-
 .next-node-btn {
   background: rgba(123, 47, 255, 0.06);
   border: 1px solid var(--border);
@@ -2294,23 +2184,36 @@ body {
 }
 
 .card-cost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  color: var(--white);
+  background: linear-gradient(180deg, rgba(56, 44, 82, 0.98), rgba(20, 16, 30, 0.98));
+  border: 1px solid rgba(154, 140, 215, 0.62);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.22),
+    inset 0 0 10px rgba(255, 255, 255, 0.04);
+}
+
+.card-cost-hand {
   position: absolute;
   top: 7px;
   right: 7px;
   left: auto;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: rgba(123, 47, 255, 0.3);
-  border: 1px solid var(--echo);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Cinzel', serif;
   font-size: 15px;
-  font-weight: 700;
-  color: var(--white);
   z-index: 2;
+}
+
+.card-cost-tooltip {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  margin: 0 auto 8px;
 }
 
 .card-hotkey {
@@ -2440,19 +2343,19 @@ body {
   border-top: 2px solid rgba(240, 180, 41, 0.5);
 }
 
-.card.type-attack .card-cost {
-  background: rgba(200, 40, 60, 0.35);
-  border-color: rgba(255, 80, 100, 0.6);
+.card-cost.card-cost-type-attack {
+  background: linear-gradient(180deg, rgba(132, 30, 54, 0.98), rgba(44, 10, 18, 0.98));
+  border-color: rgba(255, 108, 136, 0.72);
 }
 
-.card.type-skill .card-cost {
-  background: rgba(40, 100, 200, 0.35);
-  border-color: rgba(80, 180, 255, 0.6);
+.card-cost.card-cost-type-skill {
+  background: linear-gradient(180deg, rgba(26, 96, 144, 0.98), rgba(8, 30, 56, 0.98));
+  border-color: rgba(108, 196, 255, 0.72);
 }
 
-.card.type-power .card-cost {
-  background: rgba(180, 120, 0, 0.35);
-  border-color: rgba(240, 180, 41, 0.6);
+.card-cost.card-cost-type-power {
+  background: linear-gradient(180deg, rgba(142, 102, 18, 0.98), rgba(54, 34, 6, 0.98));
+  border-color: rgba(244, 190, 72, 0.75);
 }
 
 @keyframes cardDraw {
@@ -2863,31 +2766,6 @@ body {
   font-family: 'Cinzel', serif;
 }
 
-.region-name-display {
-  font-family: 'Cinzel', serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: 0.25em;
-  margin-bottom: 5px;
-  text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
-  cursor: help;
-}
-
-.region-rule-display {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  color: var(--danger);
-  letter-spacing: 0.15em;
-  margin-bottom: 5px;
-  padding: 3px 8px;
-  background: rgba(255, 51, 102, 0.1);
-  border: 1px solid rgba(255, 51, 102, 0.2);
-  border-radius: 4px;
-  display: inline-block;
-  cursor: help;
-}
-
 .card-tooltip-name {
   font-family: 'Cinzel', serif;
   font-size: 13px;
@@ -2904,22 +2782,6 @@ body {
   color: var(--echo);
   text-align: center;
   margin-bottom: 8px;
-}
-
-.card-tooltip-cost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(123, 47, 255, 0.35);
-  border: 1px solid var(--echo);
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--white);
-  margin: 0 auto 8px;
 }
 
 .card-tooltip-desc {
@@ -4028,10 +3890,15 @@ body:has(#combatOverlay.active) .panel-bottom {
 #combatRelicPanel {
   display: none;
   pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.2s ease;
 }
 
 #combatRelicPanel[data-open='true'] {
   display: block;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── COMBAT ARENA — 옵션3 투명 오버레이 부채꼴 레이아웃 ── */
@@ -6975,15 +6842,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.25);
 }
 
-.codex-empty {
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  color: var(--text-dim);
-  font-size: 11px;
-}
-
 .codex-footer {
   text-align: center;
   margin-top: 32px;
@@ -7076,37 +6934,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: 100%;
   height: 100%;
   display: block;
-}
-
-.node-card-overlay-special {
-  position: absolute;
-  inset: 0;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  pointer-events: none;
-  z-index: 15;
-  background: rgba(5, 5, 18, 0.85);
-  backdrop-filter: blur(6px);
-}
-
-.node-card-title-special {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  letter-spacing: 0.3em;
-  color: rgba(238, 240, 255, 0.6);
-  text-align: center;
-}
-
-.node-card-row-special {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  pointer-events: auto;
 }
 
 .hud-chain-row-special {
@@ -7693,25 +7520,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   box-shadow: 0 0 10px var(--danger);
 }
 
-/*  ACTION BUTTON FEEDBACK  */
-.action-btn.clicked {
-  animation: btnClickBounce 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes btnClickBounce {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(0.92);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
 .action-btn {
   position: relative;
   overflow: hidden;
@@ -8031,7 +7839,25 @@ body:has(#combatOverlay.active) .panel-bottom {
   }
 }
 
-#characterSelectSubScreen #app {
+#charSelectSubScreen::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(2, 3, 10, 0.52) 0%, rgba(2, 3, 10, 0.8) 100%),
+    radial-gradient(circle at 50% 40%, rgba(4, 6, 18, 0.06) 0%, rgba(3, 4, 12, 0.76) 70%, rgba(1, 2, 8, 0.9) 100%);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.28s ease;
+}
+
+#charSelectSubScreen.is-focus-locked::after {
+  opacity: 1;
+}
+
+#charSelectSubScreen #app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -8126,6 +7952,11 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+#charSelectSubScreen.is-focus-locked #particleCanvas {
+  opacity: 0.28;
 }
 
 #cardFoil {
@@ -10989,7 +10820,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   border: 1px solid rgba(255, 255, 255, 0.055);
   background: rgba(255, 255, 255, 0.022);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -11003,6 +10834,17 @@ body:has(#combatOverlay.active) .panel-bottom {
   outline: none;
   border-color: rgba(var(--rl-rgb, 255, 255, 255), 0.48);
   box-shadow: 0 0 0 1px rgba(var(--rl-rgb, 255, 255, 255), 0.28);
+}
+
+.nc-relic-detail {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.2s ease;
+}
+
+.nc-relic-detail[data-open='true'] {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .nc-relic-slot.rarity-legendary {
@@ -11555,12 +11397,47 @@ body:has(#combatOverlay.active) .panel-bottom {
   animation: cardParticleFloat linear infinite;
 }
 
-.card-particles-clone {
-  opacity: 0.9;
+.card-particles-aura {
+  inset: -10%;
+  opacity: 0.95;
 }
 
-.card-clone .card-particle {
+.card-aura {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
   mix-blend-mode: screen;
+}
+
+.card-aura-haze {
+  background:
+    radial-gradient(circle at 24% 22%, color-mix(in srgb, var(--aura-color) 32%, transparent) 0%, transparent 44%),
+    radial-gradient(circle at 76% 74%, color-mix(in srgb, var(--aura-accent) 24%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 50% 54%, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
+  filter: blur(18px);
+  opacity: 0.34;
+  animation: cardAuraDrift var(--aura-speed, 7s) ease-in-out infinite;
+}
+
+.card-aura-flow {
+  inset: 8%;
+  background:
+    linear-gradient(135deg, transparent 8%, color-mix(in srgb, var(--aura-color) 18%, transparent) 34%, transparent 58%, color-mix(in srgb, var(--aura-accent) 16%, transparent) 82%, transparent 100%),
+    linear-gradient(315deg, transparent 0%, transparent 30%, color-mix(in srgb, var(--aura-accent) 12%, transparent) 50%, transparent 74%);
+  filter: blur(12px);
+  opacity: 0.28;
+  animation: cardAuraSweep var(--aura-speed, 5.4s) ease-in-out infinite;
+}
+
+.card-aura-edge {
+  inset: 4%;
+  border: 1px solid color-mix(in srgb, var(--aura-color) 16%, transparent);
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--aura-color) 10%, transparent),
+    0 0 22px color-mix(in srgb, var(--aura-accent) 8%, transparent);
+  opacity: 0.42;
+  animation: cardAuraPulse var(--aura-speed, 6.4s) ease-in-out infinite;
 }
 
 @keyframes cardParticleFloat {
@@ -11569,19 +11446,35 @@ body:has(#combatOverlay.active) .panel-bottom {
     transform: translate3d(0, 6px, 0) scale(0.55);
   }
 
-  18% {
-    opacity: var(--peak-opacity, 0.75);
+  10% {
+    opacity: var(--po, 0.75);
+    transform: translate3d(calc(var(--cx, 0px) * var(--ed, 0)), calc(var(--ry, 32px) * var(--er, 0) * -1), 0) scale(calc(0.55 + ((var(--ps, 1.12) - 0.55) * var(--es, 0))));
   }
 
   56% {
-    opacity: calc(var(--peak-opacity, 0.75) * 0.72);
-    transform: translate3d(var(--curve-x, 0px), calc(var(--curve-y, 14px) * -1), 0) scale(var(--peak-scale, 1.12));
+    opacity: calc(var(--po, 0.75) * 0.72);
+    transform: translate3d(var(--cx, 0px), calc(var(--cy, 14px) * -1), 0) scale(var(--ps, 1.12));
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--drift-x, 0px), calc(var(--rise-y, 32px) * -1), 0) scale(calc(var(--peak-scale, 1.12) * 0.94));
+    transform: translate3d(var(--dx, 0px), calc(var(--ry, 32px) * -1), 0) scale(calc(var(--ps, 1.12) * 0.94));
   }
+}
+
+@keyframes cardAuraDrift {
+  0%, 100% { transform: translate3d(-2%, 2%, 0) scale(1.02); }
+  50% { transform: translate3d(2%, -3%, 0) scale(1.07); }
+}
+
+@keyframes cardAuraSweep {
+  0%, 100% { transform: translate3d(-4%, 0, 0) rotate(-4deg) scale(1); }
+  50% { transform: translate3d(4%, -2%, 0) rotate(3deg) scale(1.05); }
+}
+
+@keyframes cardAuraPulse {
+  0%, 100% { opacity: 0.24; transform: scale(0.985); }
+  50% { opacity: 0.46; transform: scale(1.01); }
 }
 
 /* ── Uncommon 쉬머 애니메이션 ───────────────────────────────── */
@@ -11842,31 +11735,13 @@ body:has(#combatOverlay.active) .panel-bottom {
   top: 12px;
   right: 12px;
   left: auto;
-  width: 32px;
-  height: 32px;
-  background: rgba(40, 30, 60, 0.9);
-  border: 1.5px solid rgba(100, 80, 160, 0.5);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 36px;
+  height: 36px;
   font-size: 17px;
-  font-weight: 700;
-  color: var(--cyan);
   z-index: 2;
-}
-
-.card-cost-hover.card-cost-free {
-  background: rgba(0, 200, 140, 0.28) !important;
-  border-color: var(--cyan) !important;
-  box-shadow: 0 0 12px rgba(0, 255, 204, 0.5) !important;
-}
-
-.card-cost-hover.card-cost-discounted {
-  background: rgba(0, 200, 100, 0.22) !important;
-  border-color: rgba(0, 255, 136, 0.7) !important;
-  box-shadow: 0 0 10px rgba(0, 255, 100, 0.4) !important;
-  color: #00ff88 !important;
+  box-shadow:
+    0 0 14px rgba(123, 47, 255, 0.18),
+    0 14px 24px rgba(0, 0, 0, 0.28);
 }
 
 /* FREE / 할인 서브배지 (코스트 젬 위) */
@@ -11883,6 +11758,18 @@ body:has(#combatOverlay.active) .panel-bottom {
   pointer-events: none;
   z-index: 3;
   color: inherit;
+}
+
+.card-cost-disabled {
+  background: rgba(44, 44, 52, 0.9) !important;
+  border-color: rgba(118, 118, 138, 0.34) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14) !important;
+  color: rgba(184, 184, 198, 0.58) !important;
+}
+
+.card-cost-insufficient-energy {
+  border-color: rgba(255, 96, 96, 0.45) !important;
+  color: rgba(255, 200, 200, 0.78) !important;
 }
 
 /* ── 강화 배지 ✦ ──────────────────────────────────────────── */

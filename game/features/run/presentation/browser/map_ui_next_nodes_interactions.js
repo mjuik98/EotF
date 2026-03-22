@@ -1,5 +1,6 @@
 import { playSelectAnim } from './map_ui_next_nodes_overlay_helpers.js';
 import { hexToRgb } from './map_ui_next_nodes_render.js';
+import { canToggleDeckView } from '../../../ui/ports/public_help_pause_presentation_capabilities.js';
 
 export function createNextNodeTrigger({
   deps = {},
@@ -67,7 +68,7 @@ export function createNextNodeOverlayKeyHandler({
       return;
     }
     if (event.key === 'Tab') {
-      if (typeof deps.showDeckView === 'function' || typeof deps.closeDeckView === 'function') {
+      if (canToggleDeckView(doc) && (typeof deps.showDeckView === 'function' || typeof deps.closeDeckView === 'function')) {
         event.preventDefault();
         toggleDeckView();
       }

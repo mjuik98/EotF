@@ -55,7 +55,7 @@ export function updateNextNodesOverlay(deps = {}) {
     ? getRegionData(gs.currentRegion, gs)
     : null) || { name: '지역' };
   const shortRegionName = getRegionShortName(regionData.name) || regionData.name || '지역';
-  const accent = regionData.accent || nodeMeta[nodes[0]?.type]?.color || '#44aa66';
+  const accent = regionData.accent || '#7b2fff';
   const accentRgb = hexToRgb(accent);
   const tooltipUI = resolveTooltipUI(deps);
   const win = deps.win || { innerWidth: 1280, innerHeight: 720 };
@@ -92,27 +92,11 @@ export function updateNextNodesOverlay(deps = {}) {
 
   const tag = doc.createElement('div');
   tag.className = 'nc-region-tag';
-  tag.tabIndex = 0;
-  tag.setAttribute('role', 'note');
   const dot = doc.createElement('div');
   dot.className = 'nc-region-dot';
   const tagText = doc.createElement('span');
-  tagText.textContent = `${shortRegionName} · ${regionData.rule || '이동 경로'}`;
+  tagText.textContent = shortRegionName;
   tag.append(dot, tagText);
-  const tagTooltipTitle = `${regionData.name || shortRegionName} - ${regionData.rule || '기본 규칙'}`;
-  const tagTooltipBody = regionData.ruleDesc || regionData.desc || '이 지역의 규칙 설명이 아직 준비되지 않았습니다.';
-  const showRegionTooltip = (event) => {
-    if (typeof tooltipUI?.showGeneralTooltip !== 'function') return;
-    tooltipUI.showGeneralTooltip(event, tagTooltipTitle, tagTooltipBody, { doc, win });
-  };
-  const hideRegionTooltip = () => {
-    if (typeof tooltipUI?.hideGeneralTooltip !== 'function') return;
-    tooltipUI.hideGeneralTooltip({ doc, win });
-  };
-  tag.addEventListener('mouseenter', showRegionTooltip);
-  tag.addEventListener('mouseleave', hideRegionTooltip);
-  tag.addEventListener('focus', showRegionTooltip);
-  tag.addEventListener('blur', hideRegionTooltip);
 
   const subtitle = doc.createElement('div');
   subtitle.className = 'nc-subtitle';
@@ -146,7 +130,6 @@ export function updateNextNodesOverlay(deps = {}) {
       node,
       index,
       meta,
-      shortRegionName,
     });
     bindNextNodeCardInteractions({
       card,

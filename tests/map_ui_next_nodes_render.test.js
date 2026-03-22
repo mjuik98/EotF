@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildBottomDock,
+  buildFloorBar,
   buildNextNodeCard,
   getRegionShortName,
   stripHtml,
@@ -87,22 +88,43 @@ describe('map_ui_next_nodes_render', () => {
 
     expect(dock.id).toBe('ncBottomDock');
     expect(dock.children).toHaveLength(2);
+    expect(dock.children[0].children[0].children[1].textContent).toBe('No Rule');
     expect(dock.children[1].children[0].className).toContain('is-actionable');
   });
 
-  it('builds a next-node card with reward and danger markup', () => {
+  it('builds a compact floor bar label', () => {
+    const doc = createDoc();
+    const bar = buildFloorBar(doc, {
+      currentFloor: 1,
+      mapNodes: [
+        { floor: 1, visited: true, type: 'combat' },
+        { floor: 2, visited: false, type: 'elite' },
+      ],
+    }, {
+      name: '🌲 잔향의 숲',
+      floors: 7,
+    }, {
+      combat: { icon: 'C' },
+      elite: { icon: 'E' },
+    });
+
+    expect(bar.children[0].textContent).toBe('지역 진행');
+  });
+
+  it('builds a next-node card with reward markup and simplified route subtitle', () => {
     const doc = createDoc();
     const { card, rgb } = buildNextNodeCard(doc, {
       node: { id: '1-0', floor: 1, pos: 0, type: 'elite' },
       index: 1,
       meta: { icon: 'E', label: 'Elite', color: '#cc2244', desc: 'Fight harder enemies.' },
-      shortRegionName: 'Region',
     });
 
     expect(card.dataset.nodeId).toBe('1-0');
     expect(card.dataset.cardIdx).toBe('1');
     expect(card.style['--node-rgb']).toBe('204, 34, 68');
     expect(rgb).toBe('204, 34, 68');
+    expect(card.innerHTML).toContain('A 경로');
+    expect(card.innerHTML).not.toContain('Region 1층');
     expect(card.innerHTML).toContain('위험도');
     expect(card.innerHTML).toContain('유물');
   });

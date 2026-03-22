@@ -1,4 +1,5 @@
 import { confirmCharacterSelection } from '../../application/character_select_actions.js';
+import { setCharacterSelectFocusLock } from './character_select_focus_lock.js';
 
 export function setCharacterSelectVisibility(resolveById, isVisible, dir) {
   const card = resolveById?.('charCard');
@@ -57,6 +58,9 @@ export function createCharacterSelectFlow({
   }
 
   function handleConfirm() {
+    if (state?.phase === 'select') {
+      setCharacterSelectFocusLock(resolveById, true);
+    }
     confirmCharacterSelection({
       chars,
       log,

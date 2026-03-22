@@ -1,4 +1,10 @@
-import { RARITY_LABELS } from '../../../../data/rarity_meta.js';
+const ITEM_DETAIL_RARITY_LABELS = {
+  common: '일반',
+  uncommon: '비범',
+  rare: '희귀',
+  legendary: '전설',
+  boss: '보스',
+};
 
 function buildItemDetailFallbackParts(item, itemId = '') {
   const title = String(item?.name || itemId || '').trim();
@@ -48,7 +54,7 @@ export function buildItemDetailViewModel(itemId, item, data, state) {
     title: fallback.title || itemId,
     desc: fallback.desc,
     rarity: state?.rarity || 'common',
-    rarityLabel: RARITY_LABELS[state?.rarity] || state?.rarity || '일반',
+    rarityLabel: ITEM_DETAIL_RARITY_LABELS[state?.rarity] || state?.rarity || '일반',
     rarityMeta: state?.rarityMeta || null,
     triggerText: state?.triggerText || '패시브',
     charge: state?.liveCharge

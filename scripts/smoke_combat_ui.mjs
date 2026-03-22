@@ -93,7 +93,7 @@ async function main() {
 
       gs.player.hand = ['strike', 'defend', 'echo_wave'];
       gs.player.items = ['serpent_fang_dagger'];
-      gs.player.energy = 2;
+      gs.player.energy = 1;
       gs.player.echo = 45;
       gs.combat.turn = 1;
       gs.combat.playerTurn = true;
@@ -114,9 +114,13 @@ async function main() {
       const combatRelicPanel = document.getElementById('combatRelicPanel');
       const handCards = Array.from(document.querySelectorAll('#combatHandCards .card'));
       const firstHandCard = handCards[0] || null;
+      const disabledHandCard = handCards[2] || null;
       const enemyIntent = document.querySelector('.enemy-intent');
       const cardTypeText = firstHandCard?.querySelector('.card-type')?.textContent?.trim() || null;
       const rarityTagText = firstHandCard?.querySelector('.card-rarity-tag')?.textContent?.trim() || null;
+      const firstCostClass = firstHandCard?.querySelector('.card-cost')?.className || null;
+      const disabledCostClass = disabledHandCard?.querySelector('.card-cost')?.className || null;
+      const disabledOverlayText = disabledHandCard?.querySelector('.card-no-energy-label')?.textContent?.trim() || null;
       const cardStyle = firstHandCard ? getComputedStyle(firstHandCard) : null;
       const combatRelicRailRect = combatRelicRail?.getBoundingClientRect?.() || null;
       const combatRelicRailVisible = !!combatRelicRail
@@ -131,6 +135,9 @@ async function main() {
         handCount: handCards.length,
         firstCardTypeText: cardTypeText,
         firstCardRarityText: rarityTagText,
+        firstCostClass,
+        disabledCostClass,
+        disabledOverlayText,
         firstCardClass: firstHandCard?.className || null,
         firstCardBorderRadius: cardStyle?.borderRadius || null,
         drawText: drawBtn?.textContent?.trim() || null,
@@ -154,6 +161,9 @@ async function main() {
     assertCondition(result.handCount >= 3, `expected at least 3 hand cards, got ${result.handCount}`);
     assertCondition(result.firstCardTypeText === '공격', `expected localized hand card type label, got ${result.firstCardTypeText}`);
     assertCondition(result.firstCardRarityText === '일반', `expected localized hand card rarity tag, got ${result.firstCardRarityText}`);
+    assertCondition(result.firstCostClass?.includes('card-cost-hand'), `first hand card cost was not rendered with hand cost variant: ${result.firstCostClass}`);
+    assertCondition(result.disabledCostClass?.includes('card-cost-insufficient-energy'), `disabled hand card cost did not surface insufficient energy state: ${result.disabledCostClass}`);
+    assertCondition(result.disabledOverlayText === '에너지 1 부족', `disabled overlay text mismatch: ${result.disabledOverlayText}`);
     assertCondition(result.firstCardClass?.includes('card'), `hand card class missing card styling hook: ${result.firstCardClass}`);
     assertCondition(result.firstCardBorderRadius === '10px', `hand card styling not applied as expected: ${result.firstCardBorderRadius}`);
     assertCondition(result.drawText && result.drawText.includes('카드 드로우'), `draw button was not localized: ${result.drawText}`);
@@ -184,6 +194,22 @@ async function main() {
     assertCondition(!relicTooltipResult.slotAriaLabel?.includes('[세트:'), `combat relic slot aria-label should omit raw set tags: ${relicTooltipResult.slotAriaLabel}`);
     assertCondition(relicTooltipResult.panelOpen, 'combat relic hover did not open the detail panel');
     assertCondition(relicTooltipResult.panelText?.includes('독사의 단검'), `combat relic panel missing item name: ${relicTooltipResult.panelText}`);
+
+    await page.hover('#combatHandCards .card');
+    await page.waitForTimeout(180);
+    await writeSnapshot(page, args.outDir, 'combat-ui-hover-card');
+
+    const hoverResult = await page.evaluate(() => {
+      const clone = document.querySelector('#handCardCloneLayer .card-clone-visible');
+      const cloneCost = clone?.querySelector('.card-cost');
+      return {
+        hoverCloneVisible: !!clone,
+        hoverCloneCostClass: cloneCost?.className || null,
+      };
+    });
+
+    assertCondition(hoverResult.hoverCloneVisible, 'hovering the first hand card did not show the card clone');
+    assertCondition(hoverResult.hoverCloneCostClass?.includes('card-cost-hover'), `hover clone cost missing hover variant class: ${hoverResult.hoverCloneCostClass}`);
 
     await page.setViewportSize({ width: 430, height: 932 });
     await page.waitForFunction(() => {
@@ -228,7 +254,7 @@ async function main() {
 
     fs.writeFileSync(
       path.join(args.outDir, 'combat-ui-result.json'),
-      JSON.stringify({ ...result, ...relicTooltipResult, ...mobileResult, consoleErrors }, null, 2),
+      JSON.stringify({ ...result, ...relicTooltipResult, ...hoverResult, ...mobileResult, consoleErrors }, null, 2),
       'utf8',
     );
   } finally {

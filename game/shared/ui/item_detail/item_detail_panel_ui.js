@@ -1,16 +1,53 @@
-function isCompactVariant(options = {}) {
-  return options?.variant === 'compact';
+const PANEL_VARIANTS = {
+  combat: {
+    panelStyle: 'width:min(320px,calc(100vw - 36px));margin-top:10px;padding:12px;border:1px solid rgba(123,47,255,0.24);border-radius:14px;background:linear-gradient(180deg,rgba(8,8,24,0.96),rgba(6,6,18,0.92));box-shadow:0 18px 40px rgba(0,0,0,0.28);backdrop-filter:blur(18px);',
+    gap: '8px',
+    titleSize: '14px',
+    boxPadding: '8px 10px',
+    rowRadius: '10px',
+    textSize: '11px',
+    sectionSize: '10px',
+    enterTransform: 'translateY(4px)',
+  },
+  compact: {
+    panelStyle: 'width:100%;margin-top:10px;padding:10px;border:1px solid rgba(123,47,255,0.16);border-radius:12px;background:linear-gradient(180deg,rgba(9,9,24,0.92),rgba(6,6,18,0.86));box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 12px 28px rgba(0,0,0,0.18);',
+    gap: '6px',
+    titleSize: '12px',
+    boxPadding: '7px 9px',
+    rowRadius: '9px',
+    textSize: '10px',
+    sectionSize: '9px',
+    enterTransform: 'translateY(3px)',
+  },
+  inline: {
+    panelStyle: 'width:100%;margin-top:12px;padding:9px 10px;border:1px solid rgba(123,47,255,0.16);border-radius:12px;background:linear-gradient(180deg,rgba(10,10,24,0.9),rgba(7,7,18,0.84));box-shadow:0 10px 24px rgba(0,0,0,0.18);',
+    gap: '6px',
+    titleSize: '12px',
+    boxPadding: '7px 9px',
+    rowRadius: '9px',
+    textSize: '10px',
+    sectionSize: '9px',
+    enterTransform: 'translateY(3px)',
+  },
+};
+
+function resolveVariant(options = {}) {
+  const variantName = options?.variant && PANEL_VARIANTS[options.variant] ? options.variant : 'combat';
+  return {
+    name: variantName,
+    ...PANEL_VARIANTS[variantName],
+  };
 }
 
 export function applyItemDetailPanelStyles(detailPanel, panelList, options = {}) {
-  const compact = isCompactVariant(options);
+  const variant = resolveVariant(options);
   if (detailPanel) {
-    detailPanel.style.cssText = compact
-      ? 'width:100%;margin-top:10px;padding:10px;border:1px solid rgba(123,47,255,0.16);border-radius:12px;background:linear-gradient(180deg,rgba(9,9,24,0.92),rgba(6,6,18,0.86));box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 12px 28px rgba(0,0,0,0.18);'
-      : 'width:min(320px,calc(100vw - 36px));margin-top:10px;padding:12px;border:1px solid rgba(123,47,255,0.24);border-radius:14px;background:linear-gradient(180deg,rgba(8,8,24,0.96),rgba(6,6,18,0.92));box-shadow:0 18px 40px rgba(0,0,0,0.28);backdrop-filter:blur(18px);';
+    detailPanel.style.cssText = variant.panelStyle;
+    if (detailPanel.dataset) detailPanel.dataset.detailVariant = variant.name;
   }
   if (panelList) {
-    panelList.style.cssText = `display:flex;flex-direction:column;gap:${compact ? '6px' : '8px'};`;
+    panelList.style.cssText = `display:flex;flex-direction:column;gap:${variant.gap};opacity:1;transform:translateY(0);transition:opacity 140ms ease,transform 180ms ease;will-change:opacity,transform;`;
+    if (panelList.dataset) panelList.dataset.detailVariant = variant.name;
   }
 }
 
@@ -31,13 +68,15 @@ function createBadge(doc, text, tone) {
 
 export function renderItemDetailPanelContent(doc, panelList, detail, options = {}) {
   if (!doc || !panelList || !detail) return;
-  const compact = isCompactVariant(options);
-  const titleSize = compact ? '12px' : '14px';
-  const boxPadding = compact ? '7px 9px' : '8px 10px';
-  const rowRadius = compact ? '9px' : '10px';
-  const textSize = compact ? '10px' : '11px';
-  const sectionSize = compact ? '9px' : '10px';
+  const variant = resolveVariant(options);
+  const titleSize = variant.titleSize;
+  const boxPadding = variant.boxPadding;
+  const rowRadius = variant.rowRadius;
+  const textSize = variant.textSize;
+  const sectionSize = variant.sectionSize;
 
+  panelList.style.opacity = '0';
+  panelList.style.transform = variant.enterTransform;
   panelList.textContent = '';
 
   const head = createElement(doc, 'crp-head', '', 'display:flex;flex-direction:column;gap:4px;');
@@ -90,5 +129,13 @@ export function renderItemDetailPanelContent(doc, panelList, detail, options = {
       createElement(doc, 'crp-text', bonus.label || '', 'min-width:0;'),
     );
     panelList.appendChild(row);
+  });
+
+  const schedule = doc?.defaultView?.requestAnimationFrame
+    ? doc.defaultView.requestAnimationFrame.bind(doc.defaultView)
+    : (callback) => callback();
+  schedule(() => {
+    panelList.style.opacity = '1';
+    panelList.style.transform = 'translateY(0)';
   });
 }

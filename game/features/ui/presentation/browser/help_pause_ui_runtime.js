@@ -1,5 +1,6 @@
 import {
   eventMatchesCode,
+  canToggleDeckView,
   getKeybindingCode,
   isCombatOverlayActive,
   isInGame,
@@ -46,8 +47,6 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
   const isEscapeKey = event.key === 'Escape' || event.key === 'Esc';
   const isPauseKey = eventMatchesCode(event, keyPause);
   const isSettingsRebinding = Boolean(doc.querySelector?.('.settings-keybind-btn.listening'));
-  const isFullMapOpen = isVisibleModal(doc.getElementById('fullMapOverlay'), doc);
-
   if (isSettingsRebinding) return;
 
   if (isEscapeKey || isPauseKey) {
@@ -62,7 +61,7 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
     ui.toggleHelp(deps);
   }
 
-  if (eventMatchesCode(event, keyDeckView) && inGame && !ui.isHelpOpen() && !isFullMapOpen) {
+  if (eventMatchesCode(event, keyDeckView) && inGame && !ui.isHelpOpen() && canToggleDeckView(doc)) {
     const modal = doc.getElementById('deckViewModal');
     if (modal?.classList?.contains('active')) {
       if (typeof deps.closeDeckView === 'function') deps.closeDeckView();

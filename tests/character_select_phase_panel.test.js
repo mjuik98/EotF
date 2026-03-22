@@ -39,10 +39,13 @@ describe('character_select_phase_panel', () => {
     const overlay = createNode();
     const circle = createNode();
     const content = createNode();
+    const root = createNode();
+    root.classList.add('is-focus-locked');
     const typedArea = createNode();
     const reselectButton = createNode();
     const startButton = createNode();
     const nodes = {
+      charSelectSubScreen: root,
       phaseOverlay: overlay,
       phaseCircle: circle,
       phaseContent: content,
@@ -91,8 +94,17 @@ describe('character_select_phase_panel', () => {
     expect(state.typingTimer).toBe(42);
     expect(typedArea.innerHTML).toContain('A');
 
+    reselectButton.listeners.mouseenter();
+    expect(reselectButton.style.color).toBe('#ccc');
+    expect(reselectButton.style.borderColor).toBe('#555');
+
+    reselectButton.listeners.mouseleave();
+    expect(reselectButton.style.color).toBe('#99a');
+    expect(reselectButton.style.borderColor).toBe('rgba(255,255,255,0.2)');
+
     reselectButton.listeners.click();
     expect(state.phase).toBe('select');
+    expect(root.classList.contains('is-focus-locked')).toBe(false);
     expect(rerender).toHaveBeenCalledTimes(1);
 
     startButton.listeners.click();

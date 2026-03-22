@@ -42,35 +42,62 @@ export function detectCardTags(card = {}) {
   };
 }
 
+function appendCloneAura(doc, wrap, color) {
+  wrap.className = 'card-particles card-particles-aura';
+
+  const accent = color === '#c084fc' ? '#67e8f9' : '#f8e7a1';
+  const layers = [
+    { className: 'card-aura card-aura-haze', style: `--aura-color: ${color}; --aura-accent: ${accent}; --aura-speed: 7.2s;` },
+    { className: 'card-aura card-aura-flow', style: `--aura-color: ${color}; --aura-accent: ${accent}; --aura-speed: 5.4s;` },
+    { className: 'card-aura card-aura-edge', style: `--aura-color: ${color}; --aura-accent: ${accent}; --aura-speed: 6.4s;` },
+  ];
+
+  layers.forEach(({ className, style }) => {
+    const layer = doc.createElement('div');
+    layer.className = className;
+    layer.style.cssText = style;
+    wrap.appendChild(layer);
+  });
+}
+
 export function createUnifiedParticles(doc, color, options = {}) {
   const { isClone = false } = options;
   const wrap = doc.createElement('div');
+  if (isClone) {
+    appendCloneAura(doc, wrap, color);
+    return wrap;
+  }
+
   wrap.className = 'card-particles';
 
-  const count = isClone ? 8 : 6;
-  const scaleMult = isClone ? 1.8 : 1.0;
-  const baseRise = isClone ? 80 : 45;
+  const count = 6;
+  const scaleMult = 1.0;
+  const baseRise = 45;
+  const delayRange = 1.5;
+  const durationBase = 2;
+  const durationRange = 1.5;
 
   for (let i = 0; i < count; i += 1) {
     const particle = doc.createElement('div');
     particle.className = 'card-particle';
 
     const size = (2 + Math.random() * 2) * scaleMult;
-    const left = isClone ? (10 + Math.random() * 80) : (10 + i * 14);
+    const left = 10 + i * 14;
     const driftX = (Math.random() * 20 - 10) * scaleMult;
     const riseY = baseRise + Math.random() * 15;
 
     particle.style.cssText = `
       left: ${left}%;
-      bottom: ${isClone ? (15 + Math.random() * 20) : 28}px;
+      bottom: 28px;
       width: ${size}px;
       height: ${size}px;
       background: ${color};
       box-shadow: 0 0 ${4 * scaleMult}px ${color};
-      animation-duration: ${2 + Math.random() * 1.5}s;
-      animation-delay: ${Math.random() * 1.5}s;
-      --drift-x: ${driftX}px;
-      --rise-y: ${riseY}px;
+      mix-blend-mode: normal;
+      animation-duration: ${durationBase + Math.random() * durationRange}s;
+      animation-delay: ${Math.random() * delayRange}s;
+      --dx: ${driftX}px;
+      --ry: ${riseY}px;
     `;
     wrap.appendChild(particle);
   }

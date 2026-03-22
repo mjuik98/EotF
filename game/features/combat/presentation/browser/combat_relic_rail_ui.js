@@ -1,10 +1,11 @@
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
-import { resolveItemDetailState } from '../../../../shared/ui/item_detail/item_detail_state.js';
-import { buildItemDetailViewModel } from '../../../../shared/ui/item_detail/item_detail_view_model.js';
+import { getItemDetailNavIndex, isItemDetailCommitKey } from './item_detail_navigation.js';
+import { resolveItemDetailState } from './item_detail_state.js';
+import { buildItemDetailViewModel } from './item_detail_view_model.js';
 import {
   applyItemDetailPanelStyles,
   renderItemDetailPanelContent,
-} from '../../../../shared/ui/item_detail/item_detail_panel_ui.js';
+} from './item_detail_panel_ui.js';
 
 const RARITY_SORT_ORDER = {
   legendary: 0,
@@ -36,8 +37,10 @@ function markActiveSlot(slotsEl, activeSlot) {
     if (!slot) continue;
     if (slot === activeSlot) {
       if (slot.dataset) slot.dataset.active = 'true';
+      slot.setAttribute?.('aria-pressed', 'true');
     } else {
       if (slot.dataset) delete slot.dataset.active;
+      slot.setAttribute?.('aria-pressed', 'false');
     }
   }
 }
@@ -133,8 +136,9 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     const right = RARITY_SORT_ORDER[normalizeRarity(data?.items?.[rightId]?.rarity)] ?? 3;
     return left - right;
   });
+  const slotNodes = [];
 
-  slotSortedItems.forEach((itemId) => {
+  slotSortedItems.forEach((itemId, index) => {
     const item = data?.items?.[itemId];
     if (!item) return;
 
@@ -142,6 +146,8 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     slot.type = 'button';
     slot.textContent = item.icon || '';
     slot.setAttribute('aria-label', buildItemTooltipFallbackText(item, itemId));
+    slot.setAttribute('aria-controls', 'combatRelicPanel');
+    slot.setAttribute('aria-pressed', 'false');
 
     slot.addEventListener('mouseenter', () => {
       renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem });
@@ -166,7 +172,41 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
       }
       renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem, pinned: true });
     });
+    slot.addEventListener('keydown', (event) => {
+      const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || slotSortedItems.length);
+      if (nextIndex >= 0) {
+        event?.preventDefault?.();
+        const nextSlot = slotNodes[nextIndex];
+        const nextItemId = slotSortedItems[nextIndex];
+        const nextItem = data?.items?.[nextItemId];
+        if (!nextSlot || !nextItem) return;
+        nextSlot.focus?.();
+        renderDetailPanel({
+          doc,
+          detailPanel,
+          detailPanelList,
+          slotsEl,
+          activeSlot: nextSlot,
+          itemId: nextItemId,
+          item: nextItem,
+          data,
+          gs,
+          setBonusSystem,
+          pinned: detailPanel?.dataset?.pinned === 'true',
+        });
+        return;
+      }
+      if (isItemDetailCommitKey(event?.key)) {
+        event?.preventDefault?.();
+        if (isPinned(detailPanel, itemId)) {
+          closeDetailPanel(detailPanel, detailPanelList, slotsEl);
+          return;
+        }
+        renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem, pinned: true });
+      }
+    });
 
     slotsEl.appendChild(slot);
+    slotNodes.push(slot);
   });
 }

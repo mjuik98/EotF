@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { renderItemDetailPanelContent } from '../game/features/combat/presentation/browser/item_detail_panel_ui.js';
+import {
+  applyItemDetailPanelStyles,
+  renderItemDetailPanelContent,
+} from '../game/features/combat/presentation/browser/item_detail_panel_ui.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {
@@ -49,6 +52,19 @@ function createDoc() {
 }
 
 describe('item_detail_panel_ui', () => {
+  it('applies explicit style variants with shared transition treatment', () => {
+    const doc = createDoc();
+    const detailPanel = doc.createElement('div');
+    const panelList = doc.createElement('div');
+
+    applyItemDetailPanelStyles(detailPanel, panelList, { variant: 'inline' });
+
+    expect(detailPanel.style.cssText).toContain('padding:9px 10px');
+    expect(detailPanel.style.cssText).toContain('border-radius:12px');
+    expect(panelList.style.cssText).toContain('gap:6px');
+    expect(panelList.style.cssText).toContain('transition:opacity 140ms ease,transform 180ms ease');
+  });
+
   it('renders a structured layout with badges, charge, and set bonuses', () => {
     const doc = createDoc();
     const panelList = doc.createElement('div');
