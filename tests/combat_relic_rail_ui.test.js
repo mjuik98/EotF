@@ -7,11 +7,24 @@ class MockElement {
     this.tagName = String(tagName).toUpperCase();
     this.children = [];
     this.parentNode = null;
-    this.textContent = '';
+    this._textContent = '';
     this.className = '';
     this.dataset = {};
     this.style = {};
     this.listeners = {};
+
+    Object.defineProperty(this, 'textContent', {
+      get: () => this._textContent,
+      set: (value) => {
+        this._textContent = value == null ? '' : String(value);
+        if (this.children.length) {
+          this.children.forEach((child) => {
+            child.parentNode = null;
+          });
+          this.children = [];
+        }
+      },
+    });
 
     this.classList = {
       _tokens: new Set(),
@@ -148,5 +161,75 @@ describe('combat_relic_rail_ui', () => {
     delete combatRelicPanel.dataset.open;
     renderCombatRelicRail({ doc, gs, data, deps: { showItemTooltip, hideItemTooltip } });
     expect(combatRelicPanel.dataset.open).toBe('false');
+  });
+
+  it('clears stale relic slot nodes before rerender', () => {
+    const doc = createDoc();
+    const combatRelicRail = doc.createElement('div');
+    combatRelicRail.id = 'combatRelicRail';
+    const combatRelicRailCount = doc.createElement('span');
+    combatRelicRailCount.id = 'combatRelicRailCount';
+    const combatRelicRailSlots = doc.createElement('div');
+    combatRelicRailSlots.id = 'combatRelicRailSlots';
+    const combatRelicPanel = doc.createElement('div');
+    combatRelicPanel.id = 'combatRelicPanel';
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
+
+    const showItemTooltip = vi.fn();
+    const hideItemTooltip = vi.fn();
+    const gs = {
+      player: {
+        items: ['common_ring', 'legendary_amulet', 'uncommon_pendant'],
+      },
+    };
+    const data = {
+      items: {
+        common_ring: {
+          id: 'common_ring',
+          icon: '◯',
+          rarity: 'common',
+        },
+        uncommon_pendant: {
+          id: 'uncommon_pendant',
+          icon: '◇',
+          rarity: 'uncommon',
+        },
+        legendary_amulet: {
+          id: 'legendary_amulet',
+          icon: '✧',
+          rarity: 'legendary',
+        },
+      },
+    };
+
+    renderCombatRelicRail({
+      doc,
+      gs,
+      data,
+      deps: {
+        showItemTooltip,
+        hideItemTooltip,
+      },
+    });
+
+    expect(combatRelicRailSlots.children).toHaveLength(3);
+
+    const updatedGs = {
+      player: {
+        items: ['uncommon_pendant'],
+      },
+    };
+    renderCombatRelicRail({
+      doc,
+      gs: updatedGs,
+      data,
+      deps: {
+        showItemTooltip,
+        hideItemTooltip,
+      },
+    });
+
+    expect(combatRelicRailSlots.children).toHaveLength(1);
+    expect(combatRelicRailSlots.children[0].textContent).toBe('◇');
   });
 });
