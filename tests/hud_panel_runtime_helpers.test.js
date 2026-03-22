@@ -150,7 +150,7 @@ describe('hud_panel_runtime_helpers', () => {
     expect(setBonusPanel.children[0].children[0].textContent).toBe('Echo Set [2/3]');
   });
 
-  it('renders the combat relic rail from updateItemPanels and reuses tooltip wiring', () => {
+  it('keeps hud item tooltip wiring while the combat relic rail uses the fixed detail panel', () => {
     const doc = createDoc();
     const itemSlots = doc.createElement('div');
     itemSlots.id = 'itemSlots';
@@ -224,15 +224,22 @@ describe('hud_panel_runtime_helpers', () => {
     expect(combatRelicPanelList.children).toHaveLength(0);
     expect(combatRelicPanel.dataset.open).toBe('false');
 
-    const hoverEvent = { type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] };
-    combatRelicRailSlots.children[0].listeners.mouseenter(hoverEvent);
-    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_relic');
+    const hudHoverEvent = { type: 'mouseenter', currentTarget: itemSlots.children[0] };
+    itemSlots.children[0].listeners.mouseenter(hudHoverEvent);
+    expect(showItemTooltip).toHaveBeenCalledWith(hudHoverEvent, 'legendary_relic');
 
-    combatRelicRailSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: combatRelicRailSlots.children[0] });
+    itemSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: itemSlots.children[0] });
     expect(hideItemTooltip).toHaveBeenCalledWith();
+
+    const railHoverEvent = { type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] };
+    combatRelicRailSlots.children[0].listeners.mouseenter(railHoverEvent);
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanelList.children.length).toBeGreaterThan(0);
+    expect(combatRelicPanelList.children[0].textContent).toContain('전설 유물');
+    expect(showItemTooltip).toHaveBeenCalledTimes(1);
   });
 
-  it('prefers TooltipUI item handlers over proxy callbacks when both are available', () => {
+  it('prefers TooltipUI item handlers over proxy callbacks for hud slots while the rail uses the fixed panel', () => {
     const doc = createDoc();
     const itemSlots = doc.createElement('div');
     itemSlots.id = 'itemSlots';
@@ -246,6 +253,9 @@ describe('hud_panel_runtime_helpers', () => {
     combatRelicRailSlots.id = 'combatRelicRailSlots';
     const combatRelicPanel = doc.createElement('div');
     combatRelicPanel.id = 'combatRelicPanel';
+    const combatRelicPanelList = doc.createElement('div');
+    combatRelicPanelList.id = 'combatRelicPanelList';
+    combatRelicPanel.appendChild(combatRelicPanelList);
     combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
 
     const showItemTooltip = vi.fn();
@@ -284,14 +294,18 @@ describe('hud_panel_runtime_helpers', () => {
       },
     });
 
-    const hoverEvent = { type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] };
-    combatRelicRailSlots.children[0].listeners.mouseenter(hoverEvent);
+    const hoverEvent = { type: 'mouseenter', currentTarget: itemSlots.children[0] };
+    itemSlots.children[0].listeners.mouseenter(hoverEvent);
     expect(tooltipUI.showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_relic', expect.any(Object));
     expect(showItemTooltip).not.toHaveBeenCalled();
 
-    combatRelicRailSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: combatRelicRailSlots.children[0] });
+    itemSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: itemSlots.children[0] });
     expect(tooltipUI.hideItemTooltip).toHaveBeenCalledWith(expect.any(Object));
     expect(hideItemTooltip).not.toHaveBeenCalled();
+
+    combatRelicRailSlots.children[0].listeners.mouseenter({ type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] });
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanelList.children[0].textContent).toContain('전설 유물');
   });
 
   it('renders run modifiers with inscriptions and curse info', () => {

@@ -53,6 +53,11 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('combatRelicRailCountText');
     expect(source).toContain('combatRelicPanel');
     expect(source).toContain('combatRelicPanelOpen === false');
+    expect(source).toContain("page.hover('#combatRelicRailSlots button')");
+    expect(source).toContain('relicTooltipResult');
+    expect(source).toContain('slotTitle');
+    expect(source).toContain('panelOpen');
+    expect(source).toContain('panelText');
     expect(source).toContain('typeof window.updateUI === \'function\'');
     expect(source).toContain('mobileRelicRailVisible');
     expect(source).toContain('mobileRelicRailWithinViewport');

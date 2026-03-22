@@ -107,11 +107,11 @@ describe('combat_relic_rail_ui', () => {
     expect(source).toContain('box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);');
     expect(source).toMatch(/\.nc-floating-hp-shell \.nc-hp-wrap \{[^}]*pointer-events:\s*none;/s);
     expect(source).toContain('#combatRelicPanel {');
-    expect(source).not.toContain("#combatRelicPanel[data-open='true']");
+    expect(source).toContain("#combatRelicPanel[data-open='true']");
     expect(source).toContain('@media (max-width: 900px)');
   });
 
-  it('keeps the detail shell closed, binds hover/focus tooltips, and drops click-toggle behavior', () => {
+  it('opens a fixed detail panel on hover and focus without using floating tooltip callbacks', () => {
     const doc = createDoc();
     const combatRelicRail = doc.createElement('div');
     combatRelicRail.id = 'combatRelicRail';
@@ -201,17 +201,25 @@ describe('combat_relic_rail_ui', () => {
 
     const hoverEvent = { type: 'mouseenter', currentTarget: topSlot };
     topSlot.listeners.mouseenter(hoverEvent);
-    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_combat_start');
+    expect(showItemTooltip).not.toHaveBeenCalled();
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanelList.children.length).toBeGreaterThan(0);
+    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
+    expect(combatRelicPanelList.children[1].textContent).toContain('전설');
+    expect(combatRelicPanelList.children[1].textContent).toContain('전투 시작 시');
+    expect(combatRelicPanelList.children[2].textContent).toContain('카드 1장 추가 드로우');
 
     topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
-    expect(hideItemTooltip).toHaveBeenCalledWith();
+    expect(hideItemTooltip).not.toHaveBeenCalled();
+    expect(combatRelicPanel.dataset.open).toBe('false');
 
     const focusEvent = { type: 'focus', currentTarget: topSlot };
     topSlot.listeners.focus(focusEvent);
-    expect(showItemTooltip).toHaveBeenCalledWith(focusEvent, 'legendary_combat_start');
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
 
     topSlot.listeners.blur({ type: 'blur', currentTarget: topSlot });
-    expect(hideItemTooltip).toHaveBeenCalledTimes(2);
+    expect(combatRelicPanel.dataset.open).toBe('false');
 
     combatRelicPanel.dataset.open = 'false';
     renderCombatRelicRail({ doc, gs, data, deps: { showItemTooltip, hideItemTooltip } });
@@ -233,6 +241,9 @@ describe('combat_relic_rail_ui', () => {
     combatRelicRailSlots.id = 'combatRelicRailSlots';
     const combatRelicPanel = doc.createElement('div');
     combatRelicPanel.id = 'combatRelicPanel';
+    const combatRelicPanelList = doc.createElement('div');
+    combatRelicPanelList.id = 'combatRelicPanelList';
+    combatRelicPanel.appendChild(combatRelicPanelList);
     combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
 
     const showItemTooltip = vi.fn();
@@ -268,8 +279,10 @@ describe('combat_relic_rail_ui', () => {
     topSlot.listeners.click(tapEvent);
 
     expect(tapEvent.preventDefault).toHaveBeenCalledWith();
-    expect(showItemTooltip).toHaveBeenCalledWith(tapEvent, 'legendary_combat_start');
+    expect(showItemTooltip).not.toHaveBeenCalled();
     expect(hideItemTooltip).not.toHaveBeenCalled();
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
   });
 
   it('clears stale relic slot nodes before rerender', () => {

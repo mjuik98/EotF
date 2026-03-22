@@ -105,8 +105,8 @@ export function updateItemPanels({ gs, deps, doc, data }) {
     gs,
     data,
     deps: {
-      showItemTooltip,
-      hideItemTooltip,
+      setBonusSystem,
+      win,
     },
   });
 }

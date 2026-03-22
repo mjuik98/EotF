@@ -169,18 +169,19 @@ async function main() {
 
     const relicTooltipResult = await page.evaluate(() => {
       const slot = document.querySelector('#combatRelicRailSlots button');
-      const itemTip = document.getElementById('_itemTip');
+      const combatRelicPanel = document.getElementById('combatRelicPanel');
+      const panelText = document.getElementById('combatRelicPanelList')?.innerText?.trim() || null;
       return {
         slotTitle: slot?.title || null,
-        itemTipVisible: !!itemTip,
-        itemTipText: itemTip?.innerText?.trim() || null,
+        panelOpen: combatRelicPanel?.dataset?.open === 'true',
+        panelText,
       };
     });
 
     assertCondition(relicTooltipResult.slotTitle?.includes('독사의 단검'), `combat relic slot title missing item name: ${relicTooltipResult.slotTitle}`);
     assertCondition(!relicTooltipResult.slotTitle?.includes('[세트:'), `combat relic slot title should omit raw set tags: ${relicTooltipResult.slotTitle}`);
-    assertCondition(relicTooltipResult.itemTipVisible, 'combat relic hover did not create the item tooltip');
-    assertCondition(relicTooltipResult.itemTipText?.includes('독사의 단검'), `combat relic tooltip missing item name: ${relicTooltipResult.itemTipText}`);
+    assertCondition(relicTooltipResult.panelOpen, 'combat relic hover did not open the detail panel');
+    assertCondition(relicTooltipResult.panelText?.includes('독사의 단검'), `combat relic panel missing item name: ${relicTooltipResult.panelText}`);
 
     await page.setViewportSize({ width: 430, height: 932 });
     await page.waitForFunction(() => {

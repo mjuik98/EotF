@@ -3967,7 +3967,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0;
   z-index: 320;
   pointer-events: auto;
 }
@@ -4014,7 +4013,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   background: rgba(255, 255, 255, 0.03);
   color: var(--white);
   font-size: 15px;
-  line-height: 1;
   cursor: help;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
@@ -4031,6 +4029,10 @@ body:has(#combatOverlay.active) .panel-bottom {
 #combatRelicPanel {
   display: none;
   pointer-events: none;
+}
+
+#combatRelicPanel[data-open='true'] {
+  display: block;
 }
 
 /* ── COMBAT ARENA — 옵션3 투명 오버레이 부채꼴 레이아웃 ── */
