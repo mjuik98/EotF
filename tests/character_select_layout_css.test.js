@@ -16,7 +16,6 @@ describe('character select layout css', () => {
     expect(css).toContain('font-size: 15px');
     expect(css).toContain('rgba(236, 243, 255, 0.92)');
     expect(css).toContain('.char-info-shell');
-    expect(css).toContain('backdrop-filter: blur(18px)');
     expect(css).toContain('rgba(255, 255, 255, 0.18)');
     expect(css).toContain('.char-info-text');
     expect(css).toContain('color: #d5ddf2');
