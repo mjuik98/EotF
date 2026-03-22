@@ -92,6 +92,7 @@ async function main() {
       }
 
       gs.player.hand = ['strike', 'defend', 'echo_wave'];
+      gs.player.items = ['serpent_fang_dagger'];
       gs.player.energy = 2;
       gs.player.echo = 45;
       gs.combat.turn = 1;
@@ -104,11 +105,20 @@ async function main() {
 
       const drawBtn = document.getElementById('combatDrawCardBtn');
       const echoBtn = document.getElementById('useEchoSkillBtn');
+      const combatRelicRail = document.getElementById('combatRelicRail');
+      const combatRelicRailCount = document.getElementById('combatRelicRailCount');
+      const combatRelicPanel = document.getElementById('combatRelicPanel');
       const handCards = Array.from(document.querySelectorAll('#combatHandCards .card'));
       const firstHandCard = handCards[0] || null;
       const enemyIntent = document.querySelector('.enemy-intent');
       const cardTypeText = firstHandCard?.querySelector('.card-type')?.textContent?.trim() || null;
       const cardStyle = firstHandCard ? getComputedStyle(firstHandCard) : null;
+      const combatRelicRailRect = combatRelicRail?.getBoundingClientRect?.() || null;
+      const combatRelicRailVisible = !!combatRelicRail
+        && getComputedStyle(combatRelicRail).display !== 'none'
+        && getComputedStyle(combatRelicRail).visibility !== 'hidden'
+        && (combatRelicRailRect?.width || 0) > 0
+        && (combatRelicRailRect?.height || 0) > 0;
 
       return {
         overlayActive: !!document.querySelector('#combatOverlay.active'),
@@ -120,6 +130,13 @@ async function main() {
         drawText: drawBtn?.textContent?.trim() || null,
         drawTitle: drawBtn?.title || null,
         echoText: echoBtn?.textContent?.trim() || null,
+        combatRelicRailVisible,
+        combatRelicRailCountText: combatRelicRailCount?.textContent?.trim() || null,
+        combatRelicPanelOpen: combatRelicPanel?.dataset?.open === 'true',
+        combatRelicPanelVisible: !!combatRelicPanel
+          && getComputedStyle(combatRelicPanel).display !== 'none'
+          && getComputedStyle(combatRelicPanel).visibility !== 'hidden'
+          && (combatRelicPanel.getBoundingClientRect?.().width || 0) > 0,
       };
     });
 
@@ -135,11 +152,46 @@ async function main() {
     assertCondition(result.drawText && result.drawText.includes('카드 드로우'), `draw button was not localized: ${result.drawText}`);
     assertCondition(result.drawTitle === '카드 1장을 드로우합니다 (에너지 1).', `draw button tooltip mismatch: ${result.drawTitle}`);
     assertCondition(result.echoText && result.echoText.includes('잔향 스킬'), `echo button was not localized: ${result.echoText}`);
+    assertCondition(result.combatRelicRailVisible, 'combat relic rail was not visible after combat start');
+    assertCondition(result.combatRelicRailCountText === '1', `combat relic rail count mismatch: ${result.combatRelicRailCountText}`);
+    assertCondition(result.combatRelicPanelOpen === false, `combat relic panel should be closed by default: ${result.combatRelicPanelOpen}`);
+    assertCondition(result.combatRelicPanelVisible === false, `combat relic panel should remain hidden when closed: ${result.combatRelicPanelVisible}`);
+
+    await page.setViewportSize({ width: 430, height: 932 });
+    await page.waitForTimeout(100);
+
+    const mobileResult = await page.evaluate(() => {
+      const combatRelicRail = document.getElementById('combatRelicRail');
+      if (!combatRelicRail) {
+        return {
+          mobileRelicRailVisible: false,
+          mobileRelicRailWithinViewport: false,
+        };
+      }
+
+      const rect = combatRelicRail.getBoundingClientRect();
+      const mobileRelicRailVisible = getComputedStyle(combatRelicRail).display !== 'none'
+        && getComputedStyle(combatRelicRail).visibility !== 'hidden'
+        && rect.width > 0
+        && rect.height > 0;
+      const mobileRelicRailWithinViewport = rect.left >= 0
+        && rect.top >= 0
+        && rect.right <= window.innerWidth
+        && rect.bottom <= window.innerHeight;
+
+      return {
+        mobileRelicRailVisible,
+        mobileRelicRailWithinViewport,
+      };
+    });
+
+    assertCondition(mobileResult.mobileRelicRailVisible, 'combat relic rail was not visible in mobile viewport');
+    assertCondition(mobileResult.mobileRelicRailWithinViewport, 'combat relic rail overflowed the mobile viewport');
     assertCondition(consoleErrors.length === 0, `console errors detected: ${consoleErrors.join('\n')}`);
 
     fs.writeFileSync(
       path.join(args.outDir, 'combat-ui-result.json'),
-      JSON.stringify({ ...result, consoleErrors }, null, 2),
+      JSON.stringify({ ...result, ...mobileResult, consoleErrors }, null, 2),
       'utf8',
     );
   } finally {

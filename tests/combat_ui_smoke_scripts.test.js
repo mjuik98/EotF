@@ -31,4 +31,16 @@ describe('combat ui smoke scripts', () => {
     expect(workflow).toContain('npx playwright install --with-deps chromium');
     expect(workflow).toContain('npm run smoke:combat-ui');
   });
+
+  it('covers combat relic rail behavior in the browser smoke runner', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("gs.player.items = ['serpent_fang_dagger']");
+    expect(source).toContain('combatRelicRail');
+    expect(source).toContain('combatRelicPanel');
+    expect(source).toContain('mobileRelicRailVisible');
+  });
 });
