@@ -2334,6 +2334,53 @@ body {
   border-color: rgba(120, 120, 140, 0.3);
 }
 
+.card-rarity-tag {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  max-width: 54px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 170, 210, 0.28);
+  background: rgba(9, 11, 20, 0.76);
+  color: rgba(210, 220, 240, 0.84);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 6.5px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.card.rarity-common .card-rarity-tag {
+  color: rgba(210, 220, 240, 0.78);
+  border-color: rgba(150, 160, 190, 0.24);
+}
+
+.card.rarity-uncommon .card-rarity-tag {
+  color: rgba(182, 146, 255, 0.92);
+  border-color: rgba(123, 47, 255, 0.32);
+  box-shadow: 0 0 8px rgba(123, 47, 255, 0.16);
+}
+
+.card.rarity-rare .card-rarity-tag {
+  color: rgba(255, 222, 140, 0.96);
+  border-color: rgba(240, 180, 41, 0.36);
+  box-shadow: 0 0 8px rgba(240, 180, 41, 0.18);
+}
+
+.card.rarity-legendary .card-rarity-tag {
+  color: rgba(222, 184, 255, 0.98);
+  border-color: rgba(192, 132, 252, 0.42);
+  box-shadow: 0 0 9px rgba(192, 132, 252, 0.22);
+}
+
 .card-icon {
   font-size: 26px;
   margin: 18px 0 6px;
@@ -11618,7 +11665,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* ── Legendary 레인보우 테두리 ─────────────────────────────── */
-.card-clone-legendary-border {
+.card-clone-legendary-border,
+.card-legendary-border-hover {
   position: absolute;
   inset: -2px;
   border-radius: 18px;
@@ -11631,7 +11679,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* ── 상단 컬러 스트립 ──────────────────────────────────────── */
-.card-clone-rarity-strip {
+.card-clone-rarity-strip,
+.card-clone .card-rarity-strip-hover {
   position: absolute;
   top: 0;
   left: 0;
@@ -11641,18 +11690,21 @@ body:has(#combatOverlay.active) .panel-bottom {
   z-index: 2;
 }
 
-.card-clone-rarity-strip-uncommon {
+.card-clone-rarity-strip-uncommon,
+.card-clone .card-rarity-strip-uncommon.card-rarity-strip-hover {
   height: 3px;
   /* 원본 2px × ≈1.5 */
   background: linear-gradient(90deg, transparent, rgba(123, 47, 255, 0.8), transparent);
 }
 
-.card-clone-rarity-strip-rare {
+.card-clone-rarity-strip-rare,
+.card-clone .card-rarity-strip-rare.card-rarity-strip-hover {
   height: 3px;
   background: linear-gradient(90deg, transparent, rgba(240, 180, 41, 0.9), transparent);
 }
 
-.card-clone-rarity-strip-legendary {
+.card-clone-rarity-strip-legendary,
+.card-clone .card-rarity-strip-legendary.card-rarity-strip-hover {
   height: 4px;
   background: linear-gradient(90deg, #c084fc, #818cf8, #38bdf8, #c084fc);
   background-size: 200% 100%;
@@ -11660,7 +11712,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* ── 크리스탈 패싯 (우상단 코너 장식) ─────────────────────── */
-.card-clone-crystal-facet {
+.card-clone-crystal-facet,
+.card-clone .card-crystal-facet-hover {
   position: absolute;
   top: 0;
   right: 0;
@@ -11673,23 +11726,28 @@ body:has(#combatOverlay.active) .panel-bottom {
   z-index: 1;
 }
 
-.card-clone-crystal-facet-type-attack {
+.card-clone-crystal-facet-type-attack,
+.card-clone .card-crystal-facet-type-attack.card-crystal-facet-hover {
   background: linear-gradient(225deg, rgba(255, 85, 119, 0.35), transparent 65%);
 }
 
-.card-clone-crystal-facet-type-skill {
+.card-clone-crystal-facet-type-skill,
+.card-clone .card-crystal-facet-type-skill.card-crystal-facet-hover {
   background: linear-gradient(225deg, rgba(80, 200, 255, 0.3), transparent 65%);
 }
 
-.card-clone-crystal-facet-type-power {
+.card-clone-crystal-facet-type-power,
+.card-clone .card-crystal-facet-type-power.card-crystal-facet-hover {
   background: linear-gradient(225deg, rgba(240, 180, 41, 0.3), transparent 65%);
 }
 
 /* ── 코스트 젬 ─────────────────────────────────────────────── */
-.card-clone-cost {
+.card-clone-cost,
+.card-clone .card-cost-hover {
   position: absolute;
   top: 12px;
-  left: 12px;
+  right: 12px;
+  left: auto;
   width: 32px;
   height: 32px;
   background: rgba(40, 30, 60, 0.9);
@@ -11704,13 +11762,15 @@ body:has(#combatOverlay.active) .panel-bottom {
   z-index: 2;
 }
 
-.card-clone-cost.card-clone-cost-free {
+.card-clone-cost.card-clone-cost-free,
+.card-clone .card-cost-hover.card-cost-free {
   background: rgba(0, 200, 140, 0.28) !important;
   border-color: var(--cyan) !important;
   box-shadow: 0 0 12px rgba(0, 255, 204, 0.5) !important;
 }
 
-.card-clone-cost.card-clone-cost-discounted {
+.card-clone-cost.card-clone-cost-discounted,
+.card-clone .card-cost-hover.card-cost-discounted {
   background: rgba(0, 200, 100, 0.22) !important;
   border-color: rgba(0, 255, 136, 0.7) !important;
   box-shadow: 0 0 10px rgba(0, 255, 100, 0.4) !important;
@@ -11718,7 +11778,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* FREE / 할인 서브배지 (코스트 젬 위) */
-.card-clone-cost-sub {
+.card-clone-cost-sub,
+.card-clone .card-cost-hover .card-cost-sub {
   position: absolute;
   top: -6px;
   left: -4px;
@@ -11734,7 +11795,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* ── 강화 배지 ✦ ──────────────────────────────────────────── */
-.card-clone-upgraded-badge {
+.card-clone-upgraded-badge,
+.card-upgraded-badge-hover {
   position: absolute;
   bottom: 44px;
   right: 8px;
@@ -11753,15 +11815,17 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* ── 아이콘 ────────────────────────────────────────────────── */
-.card-clone-icon {
+.card-clone-icon,
+.card-icon-hover {
   font-size: 62px;
-  margin: 6px 0 4px;
+  margin: 10px 0 6px;
   z-index: 1;
   line-height: 1;
 }
 
 /* ── 이름 ──────────────────────────────────────────────────── */
-.card-clone-name {
+.card-clone-name,
+.card-name-hover {
   font-family: 'Cinzel', serif;
   font-size: 14px;
   font-weight: 700;
@@ -11773,17 +11837,9 @@ body:has(#combatOverlay.active) .panel-bottom {
   z-index: 1;
 }
 
-/* ── 구분선 ────────────────────────────────────────────────── */
-.card-clone-divider {
-  width: 75%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(120, 90, 200, 0.45), transparent);
-  margin: 0 0 9px;
-  flex-shrink: 0;
-}
-
 /* ── 설명 텍스트 ────────────────────────────────────────────── */
-.card-clone-desc {
+.card-clone-desc,
+.card-desc-hover {
   font-size: 11.5px;
   line-height: 1.58;
   color: rgba(200, 190, 230, 0.88);
@@ -11794,37 +11850,44 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* 클론 내 kw-* 키워드 컬러 — card_redesign.css 와 동일 패턴 적용 */
-.card-clone-desc .kw-dmg {
+.card-clone-desc .kw-dmg,
+.card-desc-hover .kw-dmg {
   color: #ff6677;
   font-weight: 600;
 }
 
-.card-clone-desc .kw-shield {
+.card-clone-desc .kw-shield,
+.card-desc-hover .kw-shield {
   color: #60c8ff;
   font-weight: 600;
 }
 
-.card-clone-desc .kw-heal {
+.card-clone-desc .kw-heal,
+.card-desc-hover .kw-heal {
   color: #44ee88;
   font-weight: 600;
 }
 
-.card-clone-desc .kw-echo {
+.card-clone-desc .kw-echo,
+.card-desc-hover .kw-echo {
   color: #b080ff;
   font-weight: 600;
 }
 
-.card-clone-desc .kw-energy {
+.card-clone-desc .kw-energy,
+.card-desc-hover .kw-energy {
   color: var(--gold);
   font-weight: 600;
 }
 
-.card-clone-desc .kw-draw {
+.card-clone-desc .kw-draw,
+.card-desc-hover .kw-draw {
   color: #66dd66;
   font-weight: 600;
 }
 
-.card-clone-desc .kw-exhaust.kw-block {
+.card-clone-desc .kw-exhaust.kw-block,
+.card-desc-hover .kw-exhaust.kw-block {
   color: #ff8844;
   background: rgba(255, 136, 68, 0.12);
   border-radius: 3px;
@@ -11832,7 +11895,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   font-size: 0.9em;
 }
 
-.card-clone-desc .kw-buff.kw-block {
+.card-clone-desc .kw-buff.kw-block,
+.card-desc-hover .kw-buff.kw-block {
   color: var(--cyan);
   background: rgba(0, 255, 204, 0.1);
   border-radius: 3px;
@@ -11840,7 +11904,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   font-size: 0.9em;
 }
 
-.card-clone-desc .kw-burst.kw-block {
+.card-clone-desc .kw-burst.kw-block,
+.card-desc-hover .kw-burst.kw-block {
   color: var(--gold);
   background: rgba(240, 180, 41, 0.1);
   border-radius: 3px;
@@ -11849,7 +11914,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* ── 태그 (card_redesign.css 의 tag 클래스 재활용) ─────────── */
-.card-clone-tags {
+.card-clone-tags,
+.card-tags-hover {
   display: flex;
   gap: 5px;
   justify-content: center;
@@ -11859,13 +11925,15 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 /* 클론 태그는 기존 .card-tag, .card-tag-exhaust 등을 그대로 재사용 */
-.card-clone-tags .card-tag {
+.card-clone-tags .card-tag,
+.card-tags-hover .card-tag {
   font-size: 9px;
   padding: 2px 6px;
 }
 
 /* ── 카드 타입 ──────────────────────────────────────────────── */
-.card-clone-type {
+.card-clone-type,
+.card-type-hover {
   position: absolute;
   bottom: 10px;
   left: 0;
@@ -11877,16 +11945,29 @@ body:has(#combatOverlay.active) .panel-bottom {
   z-index: 1;
 }
 
-.card-clone-type.card-type-attack {
+.card-clone-type.card-type-attack,
+.card-type-hover.card-type-attack {
   color: rgba(255, 100, 110, 0.8);
 }
 
-.card-clone-type.card-type-skill {
+.card-clone-type.card-type-skill,
+.card-type-hover.card-type-skill {
   color: rgba(80, 190, 255, 0.8);
 }
 
-.card-clone-type.card-type-power {
+.card-clone-type.card-type-power,
+.card-type-hover.card-type-power {
   color: rgba(240, 180, 41, 0.8);
+}
+
+.card-rarity-tag-hover {
+  top: 12px;
+  min-width: 40px;
+  max-width: 72px;
+  padding: 3px 9px;
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  background: rgba(10, 10, 18, 0.84);
 }
 
 /* 기존 클론 전용 파티클 클래스와 애니메이션(.card-clone-particles 등)은 통합 파티클 렌더러로 교체되며 삭제됨 */

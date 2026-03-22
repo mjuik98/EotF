@@ -1,5 +1,12 @@
 import { getCombatCardTypeLabel } from './combat_copy.js';
 
+const CARD_RARITY_LABELS = Object.freeze({
+  common: '일반',
+  uncommon: '비범',
+  rare: '희귀',
+  legendary: '전설',
+});
+
 export function getCardTypeClass(type) {
   if (!type) return '';
   const normalized = String(type).toLowerCase();
@@ -20,6 +27,10 @@ export function getCardTypeLabelClass(type) {
 
 export function getCardTypeDisplayLabel(type) {
   return getCombatCardTypeLabel(type);
+}
+
+export function getCardRarityDisplayLabel(rarity) {
+  return CARD_RARITY_LABELS[String(rarity || 'common').toLowerCase()] || CARD_RARITY_LABELS.common;
 }
 
 export function detectCardTags(card = {}) {

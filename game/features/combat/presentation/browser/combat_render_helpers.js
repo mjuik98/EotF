@@ -6,10 +6,13 @@ export function enemyHpColor(pct) {
 
 export function calcSelectedPreview(gs, data, enemy, cardCostUtils) {
     if (!gs?.combat?.playerTurn) return null;
-    const atkCards = gs.player.hand.filter((id) => {
+    const triggerItems = typeof gs?.triggerItems === 'function'
+        ? gs.triggerItems.bind(gs)
+        : gs?.triggerItems;
+    const atkCards = gs.player.hand.filter((id, handIndex) => {
         const c = data.cards[id];
         if (!c || c.type !== 'ATTACK' || !c.dmg) return false;
-        return cardCostUtils.canPlay(id, c, gs.player);
+        return cardCostUtils.canPlay(id, c, gs.player, handIndex, { triggerItems });
     });
     if (!atkCards.length) return null;
 
@@ -30,4 +33,3 @@ export function selectedPreviewText(preview) {
         ? `예상 피해 ${preview.netDmg} (방어막 ${preview.enemyShield})`
         : `예상 총 피해 ${preview.netDmg}`;
 }
-

@@ -18,6 +18,7 @@ class MockElement {
     };
     this.draggable = false;
     this._textContent = '';
+    this._innerHTML = '';
   }
 
   appendChild(node) {
@@ -31,6 +32,14 @@ class MockElement {
 
   get textContent() {
     return this._textContent;
+  }
+
+  set innerHTML(value) {
+    this._innerHTML = String(value ?? '');
+  }
+
+  get innerHTML() {
+    return this._innerHTML;
   }
 }
 
@@ -69,7 +78,12 @@ describe('combat_card_render_ui', () => {
     expect(el.className).toContain('playable');
     expect(el.className).toContain('rarity-rare');
     expect(el.dataset.cardId).toBe('strike');
+    expect(el.children.some((child) => child.className === 'card-rarity-tag')).toBe(true);
+    expect(el.children.find((child) => child.className === 'card-rarity-tag')?.textContent).toBe('희귀');
     expect(el.children.some((child) => child.className === 'card-rarity-strip card-rarity-strip-rare')).toBe(true);
+    expect(el.children.some((child) => child.className === 'card-icon')).toBe(true);
+    expect(el.children.some((child) => child.className === 'card-name')).toBe(true);
+    expect(el.children.some((child) => child.className === 'card-desc')).toBe(true);
     expect(el.children.some((child) => child.className === 'card-tags')).toBe(true);
     expect(el.children.some((child) => child.className === 'card-particles')).toBe(true);
     expect(el.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('공격');

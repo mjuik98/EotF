@@ -108,6 +108,7 @@ async function main() {
       const firstHandCard = handCards[0] || null;
       const enemyIntent = document.querySelector('.enemy-intent');
       const cardTypeText = firstHandCard?.querySelector('.card-type')?.textContent?.trim() || null;
+      const rarityTagText = firstHandCard?.querySelector('.card-rarity-tag')?.textContent?.trim() || null;
       const cardStyle = firstHandCard ? getComputedStyle(firstHandCard) : null;
 
       return {
@@ -115,6 +116,7 @@ async function main() {
         enemyIntentText: enemyIntent?.textContent?.trim() || null,
         handCount: handCards.length,
         firstCardTypeText: cardTypeText,
+        firstCardRarityText: rarityTagText,
         firstCardClass: firstHandCard?.className || null,
         firstCardBorderRadius: cardStyle?.borderRadius || null,
         drawText: drawBtn?.textContent?.trim() || null,
@@ -130,6 +132,7 @@ async function main() {
     assertCondition(result.enemyIntentText?.includes('공격'), `enemy intent text missing localized attack label: ${result.enemyIntentText}`);
     assertCondition(result.handCount >= 3, `expected at least 3 hand cards, got ${result.handCount}`);
     assertCondition(result.firstCardTypeText === '공격', `expected localized hand card type label, got ${result.firstCardTypeText}`);
+    assertCondition(result.firstCardRarityText === '일반', `expected localized hand card rarity tag, got ${result.firstCardRarityText}`);
     assertCondition(result.firstCardClass?.includes('card'), `hand card class missing card styling hook: ${result.firstCardClass}`);
     assertCondition(result.firstCardBorderRadius === '10px', `hand card styling not applied as expected: ${result.firstCardBorderRadius}`);
     assertCondition(result.drawText && result.drawText.includes('카드 드로우'), `draw button was not localized: ${result.drawText}`);

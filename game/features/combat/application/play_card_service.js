@@ -71,6 +71,9 @@ export function playCardService({
 }) {
   const combat = gs.combat;
   const player = gs.player;
+  const boundTriggerItems = typeof gs?.triggerItems === 'function'
+    ? gs.triggerItems.bind(gs)
+    : gs?.triggerItems;
 
   if (combat._isPlayingCard) {
     logger.warn('Already playing a card. Ignoring input.');
@@ -97,13 +100,9 @@ export function playCardService({
     }
 
     const nextCardDiscountBeforePlay = Number(player._nextCardDiscount || 0);
-    let cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, player, handIdx) ?? card.cost;
-    if (typeof gs.triggerItems === 'function') {
-      const delta = gs.triggerItems('before_card_cost', { cardId, cost, baseCost: card.cost });
-      if (typeof delta === 'number' && Number.isFinite(delta)) {
-        cost = Math.max(0, Math.floor(cost + delta));
-      }
-    }
+    const cost = cardCostUtils?.calcEffectiveCost?.(cardId, card, player, handIdx, {
+      triggerItems: boundTriggerItems,
+    }) ?? card.cost;
     if (player.energy < cost) {
       logger.warn('Not enough energy.');
       return false;
