@@ -73,7 +73,7 @@ function createDoc() {
 }
 
 describe('combat_relic_rail_ui', () => {
-  it('renders relics sorted by rarity, binds tooltips, and keeps panel closed by default', () => {
+  it('renders relics sorted by rarity, preserves panel open state, and binds tooltip callbacks', () => {
     const doc = createDoc();
     const combatRelicRail = doc.createElement('div');
     combatRelicRail.id = 'combatRelicRail';
@@ -83,6 +83,8 @@ describe('combat_relic_rail_ui', () => {
     combatRelicRailSlots.id = 'combatRelicRailSlots';
     const combatRelicPanel = doc.createElement('div');
     combatRelicPanel.id = 'combatRelicPanel';
+    combatRelicPanel.dataset.open = 'true';
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
 
     const showItemTooltip = vi.fn();
     const hideItemTooltip = vi.fn();
@@ -123,24 +125,28 @@ describe('combat_relic_rail_ui', () => {
 
     expect(combatRelicRailCount.textContent).toBe('3');
     expect(combatRelicRailSlots.children).toHaveLength(3);
-    expect(combatRelicPanel.dataset.open).toBe('false');
+    expect(combatRelicPanel.dataset.open).toBe('true');
     expect(combatRelicRailSlots.children[0].textContent).toBe('✧');
     expect(combatRelicRailSlots.children[1].textContent).toBe('◇');
     expect(combatRelicRailSlots.children[2].textContent).toBe('◯');
+    expect(combatRelicRailCount.parentNode).toBe(combatRelicRail);
+    expect(combatRelicRailSlots.parentNode).toBe(combatRelicRail);
+    expect(combatRelicPanel.parentNode).toBe(combatRelicRail);
 
     const topSlot = combatRelicRailSlots.children[0];
     const hoverEvent = { type: 'mouseenter', currentTarget: topSlot };
     topSlot.listeners.mouseenter(hoverEvent);
-    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_amulet', expect.objectContaining({
-      gs,
-      data,
-      doc,
-    }));
+    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_amulet');
 
     topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
-    expect(hideItemTooltip).toHaveBeenCalledWith(expect.objectContaining({
-      doc,
-      win: null,
-    }));
+    expect(hideItemTooltip).toHaveBeenCalledWith();
+
+    combatRelicPanel.dataset.open = 'false';
+    renderCombatRelicRail({ doc, gs, data, deps: { showItemTooltip, hideItemTooltip } });
+    expect(combatRelicPanel.dataset.open).toBe('false');
+
+    delete combatRelicPanel.dataset.open;
+    renderCombatRelicRail({ doc, gs, data, deps: { showItemTooltip, hideItemTooltip } });
+    expect(combatRelicPanel.dataset.open).toBe('false');
   });
 });
