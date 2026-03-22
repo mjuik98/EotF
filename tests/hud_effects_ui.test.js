@@ -9,6 +9,7 @@ function createDoc() {
     combatHandCards: { textContent: 'cards' },
     enemyZone: { textContent: 'enemies' },
     combatLog: { innerHTML: 'logs' },
+    recentCombatFeed: { innerHTML: 'recent feed' },
     combatRelicPanel: { dataset: { open: 'true' } },
     combatRelicRailSlots: { innerHTML: '<span>slot</span>' },
     combatRelicPanelList: { innerHTML: '<div>relic</div>' },
@@ -34,6 +35,7 @@ describe('hud_effects_ui', () => {
     expect(doc.getElementById('combatHandCards').textContent).toBe('');
     expect(doc.getElementById('enemyZone').textContent).toBe('');
     expect(doc.getElementById('combatLog').innerHTML).toBe('');
+    expect(doc.getElementById('recentCombatFeed').innerHTML).toBe('');
 
     globalThis._resetCombatInfoPanel = prevReset;
   });

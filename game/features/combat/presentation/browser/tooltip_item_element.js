@@ -1,8 +1,16 @@
 import { DomSafe } from '../../../../utils/dom_safe.js';
-import { RARITY_LABELS } from '../../../../../data/rarity_meta.js';
 
 export function createItemTooltipElement(doc, item, data, state) {
-  const { liveCharge, rarity, rarityMeta, setCount, setDef, setOwnedFlags, triggerText } = state;
+  const {
+    liveCharge,
+    rarity,
+    rarityLabel,
+    rarityMeta,
+    setCount,
+    setDef,
+    setOwnedFlags,
+    triggerText,
+  } = state;
   const el = doc.createElement('div');
   el.id = '_itemTip';
   el.style.cssText = [
@@ -42,7 +50,7 @@ export function createItemTooltipElement(doc, item, data, state) {
   badges.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;';
   const rarityBadge = doc.createElement('span');
   rarityBadge.style.cssText = `font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.15em;background:rgba(${rarityMeta.rgb},0.1);border:1px solid rgba(${rarityMeta.rgb},0.35);border-radius:4px;padding:2px 7px;color:${rarityMeta.color};`;
-  rarityBadge.textContent = RARITY_LABELS[rarity] || rarity;
+  rarityBadge.textContent = rarityLabel || rarity;
   const triggerBadge = doc.createElement('span');
   triggerBadge.style.cssText = 'font-size:8px;letter-spacing:0.04em;background:rgba(0,255,204,0.06);border:1px solid rgba(0,255,204,0.2);border-radius:4px;padding:2px 7px;color:var(--echo,#00ffcc);';
   triggerBadge.textContent = `⚡ ${triggerText}`;

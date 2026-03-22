@@ -109,4 +109,46 @@ describe('CombatLifecycle', () => {
     expect(returnFromReward).toHaveBeenCalledTimes(1);
     expect(returnToGame).not.toHaveBeenCalled();
   });
+
+  it('attaches recent-feed metadata for passive resonance burst damage', () => {
+    const host = {
+      combat: {
+        enemies: [{ hp: 30 }],
+      },
+      player: {
+        echoChain: 5,
+      },
+      stats: {
+        damageDealt: 0,
+      },
+      triggerItems: vi.fn((trigger, amount) => {
+        if (trigger === 'resonance_burst') return amount;
+        return null;
+      }),
+      addLog: vi.fn(),
+      onEnemyDeath: vi.fn(),
+    };
+
+    CombatLifecycle.triggerResonanceBurst.call(host, {
+      win: {
+        innerWidth: 1440,
+        AudioEngine: { playResonanceBurst: vi.fn() },
+        ScreenShake: { shake: vi.fn() },
+        ParticleSystem: { hitEffect: vi.fn() },
+        showDmgPopup: vi.fn(),
+        renderCombatEnemies: vi.fn(),
+      },
+    }, { isPassive: true });
+
+    expect(host.addLog).toHaveBeenCalledWith(
+      '✨ ✨ 공명 폭발: 5 피해!',
+      'echo',
+      expect.objectContaining({
+        recentFeed: {
+          eligible: true,
+          text: '공명 폭발: 5 피해',
+        },
+      }),
+    );
+  });
 });

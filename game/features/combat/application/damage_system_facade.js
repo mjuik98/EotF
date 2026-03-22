@@ -1,6 +1,12 @@
 import { Actions } from '../../../core/store/state_actions.js';
 import { Logger } from '../../../utils/logger.js';
-import { LogUtils } from '../../../utils/log_utils.js';
+import {
+  createRecentFeedMeta,
+  formatRecentFeedStatusOutcome,
+  formatRecentFeedText,
+  getCurrentCardLogSource,
+  LogUtils,
+} from '../../../utils/log_utils.js';
 import {
   applyEnemyStatusState,
   applyPlayerDamageState,
@@ -69,13 +75,31 @@ export const DamageSystem = {
     if (typeof this.addLog === 'function') {
       if (source && source.name) {
         const icon = source.type === 'trait' ? '[특성]' : (source.type === 'item' ? '[아이템]' : '[효과]');
-        this.addLog(`${icon} [${source.name}] -> ${enemy.name}: ${totalDamage} dmg`, 'damage');
+        this.addLog(`${icon} [${source.name}] -> ${enemy.name}: ${totalDamage} dmg`, 'damage', createRecentFeedMeta({
+          source,
+          text: formatRecentFeedText({
+            sourceName: source.name,
+            sourceType: source.type,
+            targetName: enemy.name,
+            outcome: `${totalDamage} 피해`,
+          }),
+        }));
       } else if (this._currentCard) {
+        const currentCardSource = getCurrentCardLogSource(this);
+        const recentFeedMeta = createRecentFeedMeta({
+          source: currentCardSource,
+          text: formatRecentFeedText({
+            sourceName: this._currentCard.name,
+            sourceType: 'card',
+            targetName: enemy.name,
+            outcome: `${totalDamage} 피해`,
+          }),
+        });
         const cardWasCrit = base.hasCritBuff || result?.isCrit;
         if (cardWasCrit) {
-          this.addLog(LogUtils.formatCardCritical(this._currentCard.name, enemy.name, totalDamage), 'card-log');
+          this.addLog(LogUtils.formatCardCritical(this._currentCard.name, enemy.name, totalDamage), 'card-log', recentFeedMeta);
         } else {
-          this.addLog(LogUtils.formatCardAttack(this._currentCard.name, enemy.name, totalDamage), 'card-log');
+          this.addLog(LogUtils.formatCardAttack(this._currentCard.name, enemy.name, totalDamage), 'card-log', recentFeedMeta);
         }
       } else {
         this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDamage), 'damage');
@@ -113,9 +137,23 @@ export const DamageSystem = {
     if (typeof this.addLog === 'function') {
       if (source && source.name) {
         const icon = source.type === 'item' ? '🛡' : '✨';
-        this.addLog(`${icon} ${source.name}: 방어막 +${actual}`, 'shield');
+        this.addLog(`${icon} ${source.name}: 방어막 +${actual}`, 'shield', createRecentFeedMeta({
+          source,
+          text: formatRecentFeedText({
+            sourceName: source.name,
+            sourceType: source.type,
+            outcome: `방어막 +${actual}`,
+          }),
+        }));
       } else if (this._currentCard) {
-        this.addLog(LogUtils.formatCardShield(this._currentCard.name, actual), 'buff');
+        this.addLog(LogUtils.formatCardShield(this._currentCard.name, actual), 'buff', createRecentFeedMeta({
+          source: getCurrentCardLogSource(this),
+          text: formatRecentFeedText({
+            sourceName: this._currentCard.name,
+            sourceType: 'card',
+            outcome: `방어막 +${actual}`,
+          }),
+        }));
       } else {
         this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
       }
@@ -193,7 +231,21 @@ export const DamageSystem = {
       targetIdx: resolvedTargetIdx,
     });
 
-    this.addLog?.(LogUtils.formatStatus(enemy.name, status, result?.duration || adjustedDuration), 'echo');
+    this.addLog?.(
+      LogUtils.formatStatus(enemy.name, status, result?.duration || adjustedDuration),
+      'echo',
+      this._currentCard
+        ? createRecentFeedMeta({
+          source: getCurrentCardLogSource(this),
+          text: formatRecentFeedText({
+            sourceName: this._currentCard.name,
+            sourceType: 'card',
+            targetName: enemy.name,
+            outcome: formatRecentFeedStatusOutcome(status, result?.duration || adjustedDuration),
+          }),
+        })
+        : null,
+    );
     Logger.debug('[applyEnemyStatus] Applied', status, 'for', adjustedDuration, 'turns to', enemy.name);
   },
 

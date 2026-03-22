@@ -2,6 +2,53 @@ import { CONSTANTS } from '../../../../data/constants.js';
 import { Trigger } from '../../../../data/triggers.js';
 import { playEventResonanceBurst } from '../../../../domain/audio/audio_event_helpers.js';
 
+function formatRecentFeedText({ sourceName, outcome = '' } = {}) {
+  const normalizedOutcome = typeof outcome === 'string' ? outcome.trim() : '';
+  if (!sourceName) return normalizedOutcome;
+  return `${sourceName}: ${normalizedOutcome}`;
+}
+
+function createRecentFeedMeta(text) {
+  return {
+    source: { type: 'skill', id: null, name: '잔향 스킬' },
+    recentFeed: {
+      eligible: true,
+      text,
+    },
+  };
+}
+
+function formatRecentFeedStatusOutcome(status, duration) {
+  const durationText = `${Math.max(0, Math.floor(Number(duration) || 0))}턴`;
+  const statusLabelById = {
+    immune: '무적',
+    poisoned: '중독',
+    vanish: '은신',
+    weakened: '약화',
+  };
+  return `${statusLabelById[status] || status} ${durationText}`;
+}
+
+function buildEchoSkillRecentFeedOutcome(skillDef) {
+  if (!skillDef || typeof skillDef !== 'object') return '';
+
+  const summaryParts = [];
+  if (skillDef.dmg) summaryParts.push(`피해 ${skillDef.dmg}`);
+  if (skillDef.aoedmg) summaryParts.push(`전체 피해 ${skillDef.aoedmg}`);
+  if (skillDef.shield) summaryParts.push(`방어막 +${skillDef.shield}`);
+  if (skillDef.weaken) summaryParts.push(formatRecentFeedStatusOutcome('weakened', skillDef.weaken));
+  if (skillDef.poison) summaryParts.push(formatRecentFeedStatusOutcome('poisoned', skillDef.poison));
+  if (skillDef.draw) summaryParts.push(`카드 ${skillDef.draw}장 드로우`);
+  if (skillDef.echo) summaryParts.push(`잔향 +${skillDef.echo}`);
+  if (skillDef.heal) summaryParts.push(`${skillDef.heal} 회복`);
+  if (skillDef.immune) summaryParts.push(formatRecentFeedStatusOutcome('immune', skillDef.immune));
+  if (skillDef.vanish) summaryParts.push(formatRecentFeedStatusOutcome('vanish', skillDef.vanish));
+  if (skillDef.atkGrowth) summaryParts.push(`공격력 +${skillDef.atkGrowth}`);
+  if (skillDef.maxHpGrowth) summaryParts.push(`최대 체력 +${skillDef.maxHpGrowth}`);
+
+  return summaryParts.join(' / ');
+}
+
 export function resolveEchoSkillTier(echoVal, constants = CONSTANTS) {
   if (echoVal >= constants.ECHO.SKILL_COST_HIGH) {
     return { tier: 3, cost: constants.ECHO.SKILL_COST_HIGH };
@@ -42,7 +89,11 @@ export function applyEchoSkillEffect(gs, skillDef, deps = {}) {
   if (skillDef.atkGrowth) gs.addBuff('echo_berserk', 99, { atkGrowth: skillDef.atkGrowth });
   if (skillDef.maxHpGrowth) gs.increaseMaxHp(skillDef.maxHpGrowth);
   if (skillDef.immune) gs.addBuff('immune', skillDef.immune, {});
-  gs.addLog?.(skillDef.log, 'echo');
+  const recentFeedOutcome = buildEchoSkillRecentFeedOutcome(skillDef);
+  gs.addLog?.(skillDef.log, 'echo', createRecentFeedMeta(formatRecentFeedText({
+    sourceName: '잔향 스킬',
+    outcome: recentFeedOutcome || skillDef.log,
+  })));
 }
 
 export function flashEchoSkillButton(deps = {}) {

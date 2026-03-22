@@ -7,6 +7,8 @@ import {
 export function resetCombatStartDom(doc) {
   const logContainer = doc?.getElementById?.('combatLog');
   if (logContainer) logContainer.textContent = '';
+  const recentFeedContainer = doc?.getElementById?.('recentCombatFeed');
+  if (recentFeedContainer) recentFeedContainer.textContent = '';
 
   const zone = doc?.getElementById?.('enemyZone');
   if (zone) zone.innerHTML = '';

@@ -1,3 +1,5 @@
+import { selectRecentCombatFeedEntries } from './combat_recent_feed_selector.js';
+
 const MAX_COMBAT_LOGS = 30;
 
 function getRecentLogs(logEntries) {
@@ -70,26 +72,39 @@ function trimOverflow(logContainer) {
   }
 }
 
-export function updateCombatLog(doc, logEntries) {
-  if (!doc) return false;
-
-  const logContainer = doc.getElementById('combatLog');
+function syncLogSurface(doc, logContainer, entries, { scrollOnAdd = false, limitOverflow = false } = {}) {
   if (!logContainer) return false;
 
-  const recentLogs = getRecentLogs(logEntries);
-  if (recentLogs.length === 0) {
+  if (!Array.isArray(entries) || entries.length === 0) {
     if (logContainer.children.length > 0) logContainer.textContent = '';
     return true;
   }
 
   const { existingById, existingMsgs } = collectExistingEntries(logContainer);
-  pruneMissingEntries(existingById, recentLogs);
-  const logsAdded = appendMissingEntries(doc, logContainer, recentLogs, existingById, existingMsgs);
-  trimOverflow(logContainer);
+  pruneMissingEntries(existingById, entries);
+  const logsAdded = appendMissingEntries(doc, logContainer, entries, existingById, existingMsgs);
 
-  if (logsAdded) {
+  if (limitOverflow) trimOverflow(logContainer);
+  if (scrollOnAdd && logsAdded) {
     logContainer.scrollTop = logContainer.scrollHeight;
   }
 
   return true;
+}
+
+export function updateCombatLog(doc, logEntries) {
+  if (!doc) return false;
+
+  const logContainer = doc.getElementById('combatLog');
+  const recentLogs = getRecentLogs(logEntries);
+  const recentCombatFeed = doc.getElementById('recentCombatFeed');
+  const recentFeedEntries = selectRecentCombatFeedEntries(logEntries);
+
+  const fullLogUpdated = syncLogSurface(doc, logContainer, recentLogs, {
+    scrollOnAdd: true,
+    limitOverflow: true,
+  });
+  const recentFeedUpdated = syncLogSurface(doc, recentCombatFeed, recentFeedEntries);
+
+  return fullLogUpdated || recentFeedUpdated;
 }

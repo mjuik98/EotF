@@ -6,6 +6,14 @@ const RARITY_TIP_META = {
   boss: { color: '#ff3366', glow: 'rgba(255,51,102,0.4)', border: 'rgba(255,51,102,0.4)', rgb: '255,51,102' },
 };
 
+const RARITY_LABELS = {
+  common: '일반',
+  uncommon: '비범',
+  rare: '희귀',
+  legendary: '전설',
+  boss: '보스',
+};
+
 const ITEM_CHARGE_META = {
   echo_bell: { gsKey: '_bellCount', max: 10, label: '이번 전투 카드 사용', type: 'num' },
   clockwork_butterfly: { gsKey: '_butterflyCount', max: 3, label: '이번 턴 발동 횟수', type: 'dot' },
@@ -45,6 +53,7 @@ const TRIGGER_LABEL_MAP = {
 
 export function resolveItemDetailState(itemId, item, data, gs, setBonusSystem) {
   const rarity = item.rarity || 'common';
+  const rarityLabel = RARITY_LABELS[rarity] || rarity;
   const rarityMeta = RARITY_TIP_META[rarity] || RARITY_TIP_META.common;
   const triggerText = item.trigger ? (TRIGGER_LABEL_MAP[item.trigger] || item.trigger) : '패시브';
 
@@ -91,6 +100,7 @@ export function resolveItemDetailState(itemId, item, data, gs, setBonusSystem) {
   return {
     liveCharge,
     rarity,
+    rarityLabel,
     rarityMeta,
     setCount,
     setDef,

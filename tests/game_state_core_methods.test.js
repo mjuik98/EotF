@@ -57,6 +57,41 @@ describe('GameStateCommonMethods', () => {
     });
   });
 
+  it('addLog preserves recent-feed metadata and infers the current card source', () => {
+    const gs = {
+      _currentCard: { id: 'strike', name: '강타' },
+      combat: {
+        turn: 4,
+        log: [],
+      },
+    };
+
+    GameStateCommonMethods.addLog.call(gs, '🃏 [강타] → 슬라임: 12 피해', 'card-log', {
+      recentFeed: {
+        eligible: true,
+        text: '[강타] -> 슬라임: 12 피해',
+      },
+    });
+
+    expect(gs.combat.log).toHaveLength(1);
+    expect(gs.combat.log[0]).toMatchObject({
+      msg: '🃏 [강타] → 슬라임: 12 피해',
+      type: 'card-log',
+      turn: 4,
+      meta: {
+        source: {
+          type: 'card',
+          id: 'strike',
+          name: '강타',
+        },
+        recentFeed: {
+          eligible: true,
+          text: '[강타] -> 슬라임: 12 피해',
+        },
+      },
+    });
+  });
+
   it('core compat methods do not expose combat/card runtime helpers', () => {
     expect(GameStateCoreMethods.addLog).toBeTypeOf('function');
     expect(GameStateCoreMethods.playCard).toBeUndefined();

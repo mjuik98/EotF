@@ -1,6 +1,12 @@
 import { createRunRuleCapabilities } from '../../features/run/ports/public_rule_capabilities.js';
 import { PlayerStateActions as Actions } from '../state/player_state_commands.js';
-import { LogUtils } from '../../utils/log_utils.js';
+import {
+  createRecentFeedMeta,
+  formatRecentFeedStatusOutcome,
+  formatRecentFeedText,
+  getCurrentCardLogSource,
+  LogUtils,
+} from '../../utils/log_utils.js';
 
 function getRunRules() {
   return createRunRuleCapabilities();
@@ -22,7 +28,14 @@ export const PlayerResourceUseCaseMethods = {
     const result = this.commit(Actions.PLAYER_ECHO, { amount: adjusted });
     if (source && source.name) {
       const icon = source.type === 'item' ? '💍' : '✨';
-      this.addLog(`${icon} ${source.name}: 잔향 +${adjusted}`, 'echo');
+      this.addLog(`${icon} ${source.name}: 잔향 +${adjusted}`, 'echo', createRecentFeedMeta({
+        source,
+        text: formatRecentFeedText({
+          sourceName: source.name,
+          sourceType: source.type,
+          outcome: `잔향 +${adjusted}`,
+        }),
+      }));
     }
     return result;
   },
@@ -56,9 +69,25 @@ export const PlayerResourceUseCaseMethods = {
     if (result && result.healed > 0) {
       if (source && source.name) {
         const icon = source.type === 'item' ? '💍' : '✨';
-        this.addLog(`${icon} ${source.name}: ${result.healed} 회복`, 'heal');
+        this.addLog(`${icon} ${source.name}: ${result.healed} 회복`, 'heal', createRecentFeedMeta({
+          source,
+          text: formatRecentFeedText({
+            sourceName: source.name,
+            sourceType: source.type,
+            outcome: `${result.healed} 회복`,
+          }),
+        }));
       } else {
-        this.addLog(LogUtils.formatHeal('플레이어', result.healed), 'heal');
+        this.addLog(LogUtils.formatHeal('플레이어', result.healed), 'heal', this._currentCard
+          ? createRecentFeedMeta({
+            source: getCurrentCardLogSource(this),
+            text: formatRecentFeedText({
+              sourceName: this._currentCard.name,
+              sourceType: 'card',
+              outcome: `${result.healed} 회복`,
+            }),
+          })
+          : null);
       }
     }
     return result;
@@ -73,9 +102,25 @@ export const PlayerResourceUseCaseMethods = {
     this.addBuff(status, stacks, {});
     if (source && source.name) {
       const icon = source.type === 'item' ? '💍' : '✨';
-      this.addLog(`${icon} ${source.name}: ${status} ${stacks}턴`, 'damage');
+      this.addLog(`${icon} ${source.name}: ${status} ${stacks}턴`, 'damage', createRecentFeedMeta({
+        source,
+        text: formatRecentFeedText({
+          sourceName: source.name,
+          sourceType: source.type,
+          outcome: formatRecentFeedStatusOutcome(status, stacks),
+        }),
+      }));
     } else {
-      this.addLog(LogUtils.formatStatus('플레이어', status, stacks), 'damage');
+      this.addLog(LogUtils.formatStatus('플레이어', status, stacks), 'damage', this._currentCard
+        ? createRecentFeedMeta({
+          source: getCurrentCardLogSource(this),
+          text: formatRecentFeedText({
+            sourceName: this._currentCard.name,
+            sourceType: 'card',
+            outcome: formatRecentFeedStatusOutcome(status, stacks),
+          }),
+        })
+        : null);
     }
   },
 

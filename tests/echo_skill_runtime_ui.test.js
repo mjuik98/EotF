@@ -69,7 +69,12 @@ describe('echo_skill_runtime_ui', () => {
     expect(gs.heal).toHaveBeenCalledWith(4);
     expect(gs.increaseMaxHp).toHaveBeenCalledWith(3);
     expect(gs.addBuff).toHaveBeenCalledWith('immune', 1, {});
-    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
+    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo', expect.objectContaining({
+      recentFeed: expect.objectContaining({
+        eligible: true,
+        text: expect.stringContaining('잔향 스킬: 피해 12 / 전체 피해 20 / 방어막 +7'),
+      }),
+    }));
   });
 
   it('does not fall back to gs damage methods when combat damage actions are missing', () => {
@@ -87,7 +92,12 @@ describe('echo_skill_runtime_ui', () => {
 
     expect(gs.dealDamage).not.toHaveBeenCalled();
     expect(gs.dealDamageAll).not.toHaveBeenCalled();
-    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
+    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo', expect.objectContaining({
+      recentFeed: {
+        eligible: true,
+        text: '잔향 스킬: 피해 12 / 전체 피해 20',
+      },
+    }));
   });
 
   it('falls back to state-backed shield gain when gs.addShield is unavailable', () => {
@@ -124,7 +134,12 @@ describe('echo_skill_runtime_ui', () => {
 
     expect(gs.player.shield).toBe(50);
     expect(gs.addBuff).toHaveBeenCalledWith('immune', 1, {});
-    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
+    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo', expect.objectContaining({
+      recentFeed: {
+        eligible: true,
+        text: '잔향 스킬: 방어막 +50 / 무적 1턴',
+      },
+    }));
   });
 
   it('runs echo skill runtime, triggers burst side effects, and flashes the button', () => {

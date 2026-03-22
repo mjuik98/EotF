@@ -55,6 +55,7 @@ describe('combat_start_render_ui', () => {
 
   it('resets the combat start DOM surface and applies overlay/banner helpers', () => {
     const log = createElement();
+    const recentFeed = createElement();
     const enemyZone = createElement();
     const nodeCardOverlay = createElement();
     const eventModal = createElement();
@@ -71,6 +72,7 @@ describe('combat_start_render_ui', () => {
       createElement: vi.fn(() => queue.shift()),
       getElementById: vi.fn((id) => ({
         combatLog: log,
+        recentCombatFeed: recentFeed,
         enemyZone,
         nodeCardOverlay,
         eventModal,
@@ -80,12 +82,14 @@ describe('combat_start_render_ui', () => {
     };
 
     log.textContent = 'old';
+    recentFeed.textContent = 'recent';
     enemyZone.innerHTML = 'old';
     handZone.dataset.locked = 'true';
     handZone.style.pointerEvents = 'none';
 
     resetCombatStartDom(doc);
     expect(log.textContent).toBe('');
+    expect(recentFeed.textContent).toBe('');
     expect(enemyZone.innerHTML).toBe('');
     expect(nodeCardOverlay.style.display).toBe('none');
     expect(eventModal.classList.remove).toHaveBeenCalledWith('active');

@@ -70,6 +70,11 @@ describe('combat card runtime attachment guardrails', () => {
     applyEchoSkillEffect(gs, { draw: 2, log: 'echo pulse' }, { drawCardsState });
 
     expect(drawCardsState).toHaveBeenCalledWith(gs, 2);
-    expect(gs.addLog).toHaveBeenCalledWith('echo pulse', 'echo');
+    expect(gs.addLog).toHaveBeenCalledWith('echo pulse', 'echo', expect.objectContaining({
+      recentFeed: {
+        eligible: true,
+        text: '잔향 스킬: 카드 2장 드로우',
+      },
+    }));
   });
 });
