@@ -11,6 +11,10 @@ function _getWin(deps) {
 }
 
 export const TooltipUI = {
+  async preloadTooltipModules() {
+    return ensureCombatTooltipBrowserModules();
+  },
+
   async showTooltip(event, cardId, deps = {}) {
     const data = deps.data;
     const gs = deps.gs;

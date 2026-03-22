@@ -1,5 +1,6 @@
 import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
 import { COMBAT_TEXT } from './combat_copy.js';
+import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
 import { renderCombatRelicRail } from './combat_relic_rail_ui.js';
 
 function resolveSetBonusSystem(deps) {
@@ -19,6 +20,9 @@ export function updateItemPanels({ gs, deps, doc, data }) {
   const tooltipUI = resolveTooltipUI(deps);
   const win = deps.win || doc?.defaultView || null;
   const itemEl = doc.getElementById('itemSlots');
+  if (gs?.player?.items?.length && typeof tooltipUI?.preloadTooltipModules === 'function') {
+    void tooltipUI.preloadTooltipModules();
+  }
   const showItemTooltip = (event, itemId) => {
     if (typeof tooltipUI?.showItemTooltip === 'function') {
       tooltipUI.showItemTooltip(event, itemId, { doc, win, data, gs, setBonusSystem });
@@ -64,6 +68,7 @@ export function updateItemPanels({ gs, deps, doc, data }) {
           : false;
         if (inSet) slot.style.outline = '1px dashed rgba(0,255,204,0.4)';
         slot.textContent = item.icon;
+        slot.title = buildItemTooltipFallbackText(item, id);
         slot.addEventListener('mouseenter', (event) => showItemTooltip(event, id));
         slot.addEventListener('mouseleave', () => hideItemTooltip());
         itemEl.appendChild(slot);

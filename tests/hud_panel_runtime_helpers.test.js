@@ -171,6 +171,7 @@ describe('hud_panel_runtime_helpers', () => {
 
     const showItemTooltip = vi.fn();
     const hideItemTooltip = vi.fn();
+    const preloadTooltipModules = vi.fn();
 
     updateItemPanels({
       gs: createState({
@@ -185,6 +186,9 @@ describe('hud_panel_runtime_helpers', () => {
         },
         showItemTooltip,
         hideItemTooltip,
+        tooltipUI: {
+          preloadTooltipModules,
+        },
       },
       doc,
       data: {
@@ -201,17 +205,22 @@ describe('hud_panel_runtime_helpers', () => {
             icon: '✧',
             rarity: 'legendary',
             name: '전설 유물',
-            desc: '강한 설명',
+            desc: '강한 설명\n[세트: 전설 연계]',
           },
         },
       },
     });
 
     expect(itemSlots.children).toHaveLength(2);
+    expect(itemSlots.children[0].title).toBe('전설 유물\n강한 설명');
+    expect(itemSlots.children[1].title).toBe('보통 유물\n기본 설명');
     expect(combatRelicRailCount.textContent).toBe('2');
     expect(combatRelicRailSlots.children).toHaveLength(2);
     expect(combatRelicRailSlots.children[0].textContent).toBe('✧');
     expect(combatRelicRailSlots.children[1].textContent).toBe('◯');
+    expect(combatRelicRailSlots.children[0].title).toBe('전설 유물\n강한 설명');
+    expect(combatRelicRailSlots.children[1].title).toBe('보통 유물\n기본 설명');
+    expect(preloadTooltipModules).toHaveBeenCalledTimes(1);
     expect(combatRelicPanelList.children).toHaveLength(0);
     expect(combatRelicPanel.dataset.open).toBe('false');
 

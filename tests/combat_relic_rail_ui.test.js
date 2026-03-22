@@ -149,7 +149,7 @@ describe('combat_relic_rail_ui', () => {
           name: '전투 시작의 아뮬렛',
           icon: '✧',
           rarity: 'legendary',
-          desc: '전투 시작 시: 카드 1장 추가 드로우',
+          desc: '전투 시작 시: 카드 1장 추가 드로우\n[세트: 시작의 각인]',
           trigger: 'combat_start',
         },
         uncommon_turn_end: {
@@ -188,6 +188,8 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicRailSlots.children[1].textContent).toBe('◇');
     expect(combatRelicRailSlots.children[2].textContent).toBe('◯');
     expect(combatRelicRailSlots.children[3].textContent).toBe('◯');
+    expect(combatRelicRailSlots.children[0].title).toBe('전투 시작의 아뮬렛\n전투 시작 시: 카드 1장 추가 드로우');
+    expect(combatRelicRailSlots.children[1].title).toBe('전투 준비의 부적\n턴 종료 시: 방어막 2 획득');
     expect(combatRelicRailCount.parentNode).toBe(combatRelicRail);
     expect(combatRelicRailSlots.parentNode).toBe(combatRelicRail);
     expect(combatRelicPanel.parentNode).toBe(combatRelicRail);

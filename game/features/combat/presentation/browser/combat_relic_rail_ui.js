@@ -1,3 +1,5 @@
+import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
+
 const RARITY_SORT_ORDER = {
   legendary: 0,
   epic: 1,
@@ -55,6 +57,7 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     const slot = doc.createElement('button');
     slot.type = 'button';
     slot.textContent = item.icon || '';
+    slot.title = buildItemTooltipFallbackText(item, itemId);
 
     if (typeof showItemTooltip === 'function') {
       slot.addEventListener('mouseenter', (event) => {

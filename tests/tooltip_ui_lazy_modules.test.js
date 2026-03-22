@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
   combatTooltipModules: {
@@ -26,6 +26,19 @@ vi.mock('../game/features/combat/platform/browser/ensure_combat_tooltip_browser_
 import { TooltipUI } from '../game/features/combat/presentation/browser/tooltip_ui.js';
 
 describe('TooltipUI lazy modules', () => {
+  beforeEach(() => {
+    hoisted.ensureCombatTooltipBrowserModules.mockClear();
+    Object.values(hoisted.combatTooltipModules).forEach((value) => {
+      if (typeof value?.mockClear === 'function') value.mockClear();
+    });
+  });
+
+  it('can preload combat tooltip helpers before the first hover', async () => {
+    await TooltipUI.preloadTooltipModules();
+
+    expect(hoisted.ensureCombatTooltipBrowserModules).toHaveBeenCalledTimes(1);
+  });
+
   it('loads combat tooltip helpers on first use and reuses them', async () => {
     const tt = { classList: { add: vi.fn() } };
     const doc = {
