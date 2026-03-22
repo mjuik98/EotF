@@ -59,6 +59,7 @@ describe('combat_start_render_ui', () => {
     const nodeCardOverlay = createElement();
     const eventModal = createElement();
     const handZone = createElement();
+    const mobileWarn = createElement();
     const overlay = createElement();
     const banner = createElement();
     const sub = createElement();
@@ -74,6 +75,7 @@ describe('combat_start_render_ui', () => {
         nodeCardOverlay,
         eventModal,
         combatHandCards: handZone,
+        mobileWarn,
       }[id] || null)),
     };
 
@@ -89,6 +91,7 @@ describe('combat_start_render_ui', () => {
     expect(eventModal.classList.remove).toHaveBeenCalledWith('active');
     expect(handZone.dataset.locked).toBe('false');
     expect(handZone.style.pointerEvents).toBe('');
+    expect(mobileWarn.remove).toHaveBeenCalledTimes(1);
 
     applyCombatEntryOverlayElement(overlay, '#4488ff');
     expect(overlay.style.setProperty).toHaveBeenCalledWith('--entry-flash-color', '#4488ff');

@@ -90,6 +90,43 @@ describe('echo_skill_runtime_ui', () => {
     expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
   });
 
+  it('falls back to state-backed shield gain when gs.addShield is unavailable', () => {
+    const gs = {
+      player: {
+        shield: 0,
+        buffs: {},
+      },
+      dispatch(action, payload = {}) {
+        if (action === 'player:shield') {
+          this.player.shield += Number(payload.amount || 0);
+          return { shieldAfter: this.player.shield };
+        }
+        if (action === 'player:buff') {
+          this.player.buffs[payload.id] = {
+            stacks: Number(payload.stacks || 0),
+            ...(payload.data || {}),
+          };
+          return this.player.buffs[payload.id];
+        }
+        return null;
+      },
+      addBuff: vi.fn(function addBuff(id, stacks, data = {}) {
+        return this.dispatch('player:buff', { id, stacks, data });
+      }),
+      addLog: vi.fn(),
+    };
+
+    applyEchoSkillEffect(gs, {
+      shield: 50,
+      immune: 1,
+      log: 'echo!',
+    });
+
+    expect(gs.player.shield).toBe(50);
+    expect(gs.addBuff).toHaveBeenCalledWith('immune', 1, {});
+    expect(gs.addLog).toHaveBeenCalledWith('echo!', 'echo');
+  });
+
   it('runs echo skill runtime, triggers burst side effects, and flashes the button', () => {
     const echoBtn = { style: {} };
     const gs = {

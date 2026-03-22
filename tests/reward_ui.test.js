@@ -189,7 +189,7 @@ describe('RewardUI', () => {
 
     RewardUI.showRewardScreen('boss', deps);
 
-    const energyBlessing = findBlessingWrapper(deps.rewardCards, 'Energy Blessing');
+    const energyBlessing = findBlessingWrapper(deps.rewardCards, '에너지의 축복');
     expect(energyBlessing).toBeTruthy();
     expect(energyBlessing.disabled).toBe(true);
     expect(energyBlessing.classList.contains('reward-permanent-energy-disabled')).toBe(true);
@@ -201,7 +201,7 @@ describe('RewardUI', () => {
     const reason = findChildByClass(blessingCard, 'reward-disabled-reason');
 
     expect(overlay).toBeTruthy();
-    expect(badge?.textContent).toBe('Cap Reached');
+    expect(badge?.textContent).toBe('최대치 도달');
     expect(reason?.textContent).toContain(`${cap}`);
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
   });
@@ -212,7 +212,7 @@ describe('RewardUI', () => {
 
     RewardUI.showRewardScreen('boss', deps);
 
-    const energyBlessing = findBlessingWrapper(deps.rewardCards, 'Energy Blessing');
+    const energyBlessing = findBlessingWrapper(deps.rewardCards, '에너지의 축복');
     expect(energyBlessing).toBeTruthy();
     expect(energyBlessing.disabled).toBe(false);
     expect(energyBlessing.classList.contains('reward-permanent-energy-disabled')).toBe(false);

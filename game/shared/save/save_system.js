@@ -158,28 +158,36 @@ export const SaveSystem = {
   loadRun(deps = {}) {
     const gs = getGS(deps);
     if (!gs) return false;
+
+    const data = this._readRunSaveData();
+    if (!data) return false;
+
+    hydrateRunState(gs, data);
+    return true;
+  },
+
+  hasSave() {
+    return !!this._readRunSaveData({ logErrors: false });
+  },
+
+  _readRunSaveData({ logErrors = true } = {}) {
     const saveAdapter = getSaveAdapter();
 
     try {
       const raw = saveAdapter?.load?.(this.SAVE_KEY) || null;
       const data = migrateRunSave(raw);
-      if (!data) return false;
+      if (!data) return null;
 
       if (!this.validateSaveData(data)) {
-        Logger.error('[SaveSystem] Save data validation failed');
-        return false;
+        if (logErrors) Logger.error('[SaveSystem] Save data validation failed');
+        return null;
       }
 
-      hydrateRunState(gs, data);
-      return true;
+      return data;
     } catch (e) {
-      Logger.error('[SaveSystem] Run load failed:', e);
-      return false;
+      if (logErrors) Logger.error('[SaveSystem] Run load failed:', e);
+      return null;
     }
-  },
-
-  hasSave() {
-    return getSaveAdapter()?.has?.(this.SAVE_KEY) || false;
   },
 
   clearSave() {

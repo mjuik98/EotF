@@ -29,8 +29,6 @@ export function getEnemyIntentIcon(intent) {
   if (type.includes('curse') || type.includes('poison') || type.includes('debuff')) return '-';
   if (type.includes('drain') || type.includes('steal')) return '%';
   if ((intent.dmg || 0) > 0) {
-    if (intent.dmg >= 20) return '!!!';
-    if (intent.dmg >= 12) return '!!';
     return '!';
   }
   return '?';

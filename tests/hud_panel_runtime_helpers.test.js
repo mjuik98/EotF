@@ -212,7 +212,8 @@ describe('hud_panel_runtime_helpers', () => {
     expect(combatRelicRailSlots.children).toHaveLength(2);
     expect(combatRelicRailSlots.children[0].textContent).toBe('✧');
     expect(combatRelicRailSlots.children[1].textContent).toBe('◯');
-    expect(combatRelicPanelList.children).toHaveLength(2);
+    expect(combatRelicPanelList.children).toHaveLength(0);
+    expect(combatRelicPanel.dataset.open).toBe('false');
 
     const hoverEvent = { type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] };
     combatRelicRailSlots.children[0].listeners.mouseenter(hoverEvent);
@@ -220,6 +221,68 @@ describe('hud_panel_runtime_helpers', () => {
 
     combatRelicRailSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: combatRelicRailSlots.children[0] });
     expect(hideItemTooltip).toHaveBeenCalledWith();
+  });
+
+  it('prefers TooltipUI item handlers over proxy callbacks when both are available', () => {
+    const doc = createDoc();
+    const itemSlots = doc.createElement('div');
+    itemSlots.id = 'itemSlots';
+    const setBonusPanel = doc.createElement('div');
+    setBonusPanel.id = 'setBonusPanel';
+    const combatRelicRail = doc.createElement('div');
+    combatRelicRail.id = 'combatRelicRail';
+    const combatRelicRailCount = doc.createElement('span');
+    combatRelicRailCount.id = 'combatRelicRailCount';
+    const combatRelicRailSlots = doc.createElement('div');
+    combatRelicRailSlots.id = 'combatRelicRailSlots';
+    const combatRelicPanel = doc.createElement('div');
+    combatRelicPanel.id = 'combatRelicPanel';
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
+
+    const showItemTooltip = vi.fn();
+    const hideItemTooltip = vi.fn();
+    const tooltipUI = {
+      showItemTooltip: vi.fn(),
+      hideItemTooltip: vi.fn(),
+    };
+
+    updateItemPanels({
+      gs: createState({
+        player: {
+          items: ['legendary_relic'],
+        },
+      }),
+      deps: {
+        setBonusSystem: {
+          getActiveSets: () => [],
+          applyPassiveBonuses: vi.fn(),
+        },
+        showItemTooltip,
+        hideItemTooltip,
+        tooltipUI,
+      },
+      doc,
+      data: {
+        items: {
+          legendary_relic: {
+            id: 'legendary_relic',
+            icon: '✧',
+            rarity: 'legendary',
+            name: '전설 유물',
+            desc: '강한 설명',
+          },
+        },
+      },
+    });
+
+    const hoverEvent = { type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] };
+    combatRelicRailSlots.children[0].listeners.mouseenter(hoverEvent);
+    expect(tooltipUI.showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_relic', expect.any(Object));
+    expect(showItemTooltip).not.toHaveBeenCalled();
+
+    combatRelicRailSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: combatRelicRailSlots.children[0] });
+    expect(tooltipUI.hideItemTooltip).toHaveBeenCalledWith(expect.any(Object));
+    expect(hideItemTooltip).not.toHaveBeenCalled();
   });
 
   it('renders run modifiers with inscriptions and curse info', () => {

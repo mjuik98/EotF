@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
   renderBlessingOption,
@@ -79,6 +81,13 @@ function createDoc() {
 }
 
 describe('reward_ui_option_renderers', () => {
+  it('keeps non-playable dimming scoped to combat hand cards so reward cards stay fully lit', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.combat-hand-cards .card:not(.playable) {');
+    expect(source).not.toContain('/* 사용 불가 카드 — 전체 투명도/채도 낮춤 */\n.card:not(.playable) {');
+  });
+
   it('renders a card reward with tooltip wiring and selection callback', () => {
     const container = createMockElement('div');
     const doc = createDoc();
@@ -151,12 +160,12 @@ describe('reward_ui_option_renderers', () => {
     renderBlessingOption(
       container,
       {
-        name: 'Energy Blessing',
+        name: '에너지의 축복',
         icon: 'EN',
-        desc: 'Increase max Energy.',
+        desc: '최대 에너지가 영구히 1 증가합니다.',
         type: 'energy',
         disabled: true,
-        disabledReason: 'Already at maximum energy (5).',
+        disabledReason: '이미 최대 에너지 (5)입니다.',
       },
       { doc },
       vi.fn(),

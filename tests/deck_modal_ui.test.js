@@ -62,6 +62,36 @@ describe('deck_modal_ui', () => {
     expect(closeDeckModalSpy).toHaveBeenCalled();
   });
 
+  it('renders deck cards on the first open after the shell is created', () => {
+    const doc = createDoc();
+    doc.register('deckViewModal', {});
+    openDeckModalSpy.mockImplementationOnce(({ doc: runtimeDoc }) => {
+      runtimeDoc.register('deckStatusBar', {});
+      runtimeDoc.register('deckModalCount', {});
+      runtimeDoc.register('deckModalCards', {});
+    });
+
+    DeckModalUI.showDeckView({
+      doc,
+      gs: {
+        player: {
+          deck: ['a', 'b'],
+          hand: ['a'],
+          graveyard: [],
+        },
+      },
+      data: {
+        cards: {
+          a: { type: 'ATTACK' },
+          b: { type: 'SKILL' },
+        },
+      },
+    });
+
+    expect(openDeckModalSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
+    expect(renderDeckModalCardsSpy).toHaveBeenCalled();
+  });
+
   it('renders modal content and reapplies filter state through helpers', () => {
     const doc = createDoc();
     doc.register('deckViewModal', {});

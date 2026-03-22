@@ -119,6 +119,24 @@ describe('ClassMechanics.guardian echo armor (잔영 갑주)', () => {
     expect(gs.player._preservedShield).toBe(0);
   });
 
+  it('onTurnStart restores preserved shield through state fallback when addShield is unavailable', () => {
+    const gs = createGuardianState(0, 6);
+    delete gs.addShield;
+    gs.dispatch = vi.fn((action, payload = {}) => {
+      if (action === 'player:shield') {
+        gs.player.shield += Number(payload.amount || 0);
+        return { shieldAfter: gs.player.shield };
+      }
+      return null;
+    });
+
+    ClassMechanics.guardian.onTurnStart(gs);
+
+    expect(gs.dispatch).toHaveBeenCalledWith('player:shield', { amount: 6 });
+    expect(gs.player.shield).toBe(6);
+    expect(gs.player._preservedShield).toBe(0);
+  });
+
   it('does not preserve shield when shield is 0 at turn end', () => {
     const gs = createGuardianState(0);
 

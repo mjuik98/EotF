@@ -10,31 +10,9 @@ function normalizeRarity(rarity) {
   return String(rarity || 'common').toLowerCase();
 }
 
-const COMBAT_RELIC_TRIGGERS = new Set(['combat_start', 'turn_start', 'turn_end', 'on_enter']);
-
-function normalizeTrigger(trigger) {
-  return String(trigger || '').toLowerCase().trim();
-}
-
-function hasCombatTrigger(item) {
-  const triggerValue = item?.trigger;
-  if (triggerValue == null) return false;
-  const values = Array.isArray(triggerValue) ? triggerValue : [triggerValue];
-  return values.some((trigger) => COMBAT_RELIC_TRIGGERS.has(normalizeTrigger(trigger)));
-}
-
-function renderRelicPanel(doc, detailPanel, detailPanelList, sortedItems, data) {
-  if (!detailPanel || !detailPanelList) return;
-
-  detailPanelList.textContent = '';
-  sortedItems.forEach((itemId) => {
-    const item = data?.items?.[itemId];
-    if (!item) return;
-
-    const entry = doc.createElement('div');
-    entry.textContent = `${item?.name || itemId} - ${item?.desc || '효과 정보 없음'}`;
-    detailPanelList.appendChild(entry);
-  });
+function isTouchLikeViewport(win) {
+  if (!win) return false;
+  return 'ontouchstart' in win || Number(win?.innerWidth || 0) < 900;
 }
 
 export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
@@ -42,17 +20,20 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
   const slotsEl = doc?.getElementById?.('combatRelicRailSlots');
   const detailPanel = doc?.getElementById?.('combatRelicPanel');
   const detailPanelList = detailPanel ? doc?.getElementById?.('combatRelicPanelList') : null;
+  const win = deps?.win || doc?.defaultView || null;
 
   const showItemTooltip = deps?.showItemTooltip || null;
   const hideItemTooltip = deps?.hideItemTooltip || null;
+  const touchLikeViewport = isTouchLikeViewport(win);
 
   const items = Array.isArray(gs?.player?.items) ? gs.player.items : [];
 
   if (countEl) countEl.textContent = String(items.length);
 
-  if (detailPanel && detailPanel.dataset.open !== 'true') {
+  if (detailPanel?.dataset) {
     detailPanel.dataset.open = 'false';
   }
+  if (detailPanelList) detailPanelList.textContent = '';
 
   if (!slotsEl) return;
   slotsEl.textContent = '';
@@ -67,50 +48,39 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     return left - right;
   });
 
-  const panelSortedItems = [...sortedItems].sort((leftId, rightId) => {
-    const leftItem = data?.items?.[leftId];
-    const rightItem = data?.items?.[rightId];
-    const leftCombat = hasCombatTrigger(leftItem) ? 1 : 0;
-    const rightCombat = hasCombatTrigger(rightItem) ? 1 : 0;
-    if (leftCombat !== rightCombat) return rightCombat - leftCombat;
-
-    const leftRarity = RARITY_SORT_ORDER[normalizeRarity(leftItem?.rarity)] ?? 3;
-    const rightRarity = RARITY_SORT_ORDER[normalizeRarity(rightItem?.rarity)] ?? 3;
-    if (leftRarity !== rightRarity) return leftRarity - rightRarity;
-
-    return String(leftId).localeCompare(String(rightId));
-  });
-
   slotSortedItems.forEach((itemId) => {
-      const item = data?.items?.[itemId];
-      if (!item) return;
+    const item = data?.items?.[itemId];
+    if (!item) return;
 
-      const slot = doc.createElement('button');
-      slot.type = 'button';
-      slot.textContent = item.icon || '';
+    const slot = doc.createElement('button');
+    slot.type = 'button';
+    slot.textContent = item.icon || '';
 
-      if (typeof showItemTooltip === 'function') {
-        slot.addEventListener('mouseenter', (event) => {
-          showItemTooltip(event, itemId);
-        });
-      }
+    if (typeof showItemTooltip === 'function') {
+      slot.addEventListener('mouseenter', (event) => {
+        showItemTooltip(event, itemId);
+      });
+      slot.addEventListener('focus', (event) => {
+        showItemTooltip(event, itemId);
+      });
+    }
 
-      if (typeof hideItemTooltip === 'function') {
-        slot.addEventListener('mouseleave', () => {
-          hideItemTooltip();
-        });
-      }
+    if (typeof hideItemTooltip === 'function') {
+      slot.addEventListener('mouseleave', () => {
+        hideItemTooltip();
+      });
+      slot.addEventListener('blur', () => {
+        hideItemTooltip();
+      });
+    }
 
-      if (detailPanel) {
-        slot.addEventListener('click', () => {
-          detailPanel.dataset.open = detailPanel.dataset.open === 'true' ? 'false' : 'true';
-        });
-      }
+    if (touchLikeViewport && typeof showItemTooltip === 'function') {
+      slot.addEventListener('click', (event) => {
+        event?.preventDefault?.();
+        showItemTooltip(event, itemId);
+      });
+    }
 
-      slotsEl.appendChild(slot);
-    });
-
-  if (detailPanel && detailPanelList) {
-    renderRelicPanel(doc, detailPanel, detailPanelList, panelSortedItems, data);
-  }
+    slotsEl.appendChild(slot);
+  });
 }

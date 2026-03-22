@@ -172,6 +172,36 @@ describe('game_boot_ui', () => {
     expect(doc.elements.sttRelics.innerHTML).toBe('');
   });
 
+  it('hides continue entry when stored save cannot be loaded', () => {
+    const doc = createMockDocument();
+    const gs = {
+      meta: { runCount: 1, totalKills: 0, bestChain: 0, runConfig: { ascension: 0 } },
+      player: {},
+      currentFloor: 1,
+      currentRegion: 0,
+    };
+
+    const saveSystem = {
+      hasSave: vi.fn(() => true),
+      loadRun: vi.fn(() => false),
+    };
+
+    const hasSave = GameBootUI.refreshTitleSaveState({
+      doc,
+      gs,
+      saveSystem,
+    });
+
+    expect(hasSave).toBe(false);
+    expect(doc.elements.titleContinueWrap.style.display).toBe('none');
+    expect(doc.elements.titleMenuDivider.style.display).toBe('none');
+    expect(doc.elements.mainContinueBtn.disabled).toBe(true);
+    expect(doc.elements.sttClass.textContent).toBe('-');
+    expect(doc.elements.titleContinueMeta.textContent).toBe('');
+    expect(doc.elements.sttDeckPills.innerHTML).toBe('');
+    expect(doc.elements.sttRelics.innerHTML).toBe('');
+  });
+
   it('boots keyboard navigation only once across repeated bootGame calls', () => {
     const doc = createMockDocument();
     const gs = {

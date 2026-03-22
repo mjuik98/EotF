@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   formatEnemyIntentLabel,
+  getEnemyIntentIcon,
   hideEnemyIntentTooltip,
   resolveEnemyIntent,
   showEnemyIntentTooltip,
@@ -149,7 +150,7 @@ describe('combat_intent_ui', () => {
     expect(tooltip.classList.contains('visible')).toBe(true);
     expect(tooltip.style.left).toBe('696px');
     expect(tooltip.style.top).toBe('446px');
-    expect(tooltip.querySelector('.itt-title')?.innerHTML).toBe('!! 공격');
+    expect(tooltip.querySelector('.itt-title')?.innerHTML).toBe('! 공격');
     expect(tooltip.querySelector('.itt-dmg')?.textContent).toBe('예상 피해: 12');
   });
 
@@ -178,5 +179,6 @@ describe('combat_intent_ui', () => {
     }, 3)).toEqual({ type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' });
 
     expect(formatEnemyIntentLabel({ intent: 'Attack 18', dmg: 18 })).toBe('공격');
+    expect(getEnemyIntentIcon({ type: 'attack', intent: 'Attack 18', dmg: 18 })).toBe('!');
   });
 });

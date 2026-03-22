@@ -100,6 +100,7 @@ describe('reward_ui_options', () => {
 
     expect(blessings[1]).toEqual(expect.objectContaining({
       id: 'blessing_energy',
+      name: '에너지의 축복',
       disabled: true,
     }));
     expect(blessings[1].disabledReason).toContain('5');
@@ -157,8 +158,8 @@ describe('reward_ui_options', () => {
     expect(container.children).toHaveLength(5);
     expect(container.children.map((child) => child.getAttribute('aria-label'))).toEqual([
       'Card A card reward',
-      'Vital Blessing blessing reward',
-      'Energy Blessing blessing reward',
+      '체력의 축복 blessing reward',
+      '에너지의 축복 blessing reward',
       'Boss Relic A item reward',
       'Boss Relic B item reward',
     ]);

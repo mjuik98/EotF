@@ -7,11 +7,19 @@ const REST_FILL_HEAL_START_DELAY = 600;
 const REST_FILL_HEAL_DURATION = 1400;
 const REST_FILL_ECHO_GAIN = 30;
 
+function getNow(deps = {}) {
+  if (typeof deps.now === 'function') return deps.now();
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    return performance.now();
+  }
+  return Date.now();
+}
+
 function requestFrame(cb, deps = {}) {
   if (typeof deps.requestAnimationFrame === 'function') {
     return deps.requestAnimationFrame(cb);
   }
-  return setTimeout(() => cb(Date.now()), 16);
+  return setTimeout(() => cb(getNow(deps)), 16);
 }
 
 export function buildRestRecoverySnapshot(gs, runRules) {
@@ -34,7 +42,7 @@ export function buildRestRecoverySnapshot(gs, runRules) {
 }
 
 export function buildRestRecoveryResultText(snapshot) {
-  return `Recovered ${snapshot.newHp - snapshot.oldHp} HP and gained ${snapshot.newEcho - snapshot.oldEcho} Echo. Choose your next action.`;
+  return `체력을 ${snapshot.newHp - snapshot.oldHp} 회복하고 잔향을 ${snapshot.newEcho - snapshot.oldEcho} 얻었습니다. 다음 행동을 선택하세요.`;
 }
 
 export function createRestFillOverlay(doc, snapshot) {
@@ -45,18 +53,18 @@ export function createRestFillOverlay(doc, snapshot) {
       <canvas id="restFillParticleCanvas" class="rest-fill-particle-canvas"></canvas>
       <div class="rest-fill-content">
         <div class="rest-fill-icon">*</div>
-        <div class="rest-fill-title">Restoration</div>
-        <div class="rest-fill-subtitle">Energy settles and the wound closes.</div>
+        <div class="rest-fill-title">휴식</div>
+        <div class="rest-fill-subtitle">잔향이 가라앉고 상처가 아문다.</div>
         <div class="rest-fill-bars">
           <div class="rest-fill-stat">
-            <span class="rest-fill-label">HP</span>
+            <span class="rest-fill-label">체력</span>
             <div class="rest-fill-bar-track">
               <div class="rest-fill-bar hp-fill" id="restHpFill" style="width: ${(snapshot.oldHp / snapshot.maxHp) * 100}%"></div>
             </div>
             <span class="rest-fill-value" id="restHpValue">${snapshot.oldHp}/${snapshot.maxHp}</span>
           </div>
           <div class="rest-fill-stat">
-            <span class="rest-fill-label">Echo</span>
+            <span class="rest-fill-label">잔향</span>
             <div class="rest-fill-bar-track">
               <div class="rest-fill-bar echo-fill" id="restEchoFill" style="width: ${Math.min(snapshot.oldEcho, snapshot.echoMax)}%"></div>
             </div>
@@ -123,15 +131,15 @@ export function showEventRestSiteOverlay(gs, data, runRules, deps = {}) {
   const overlay = createRestFillOverlay(doc, snapshot);
   const restParticleFx = startRestFillParticles(overlay, doc);
   const state = { playedSound: false };
-  const now = deps.now || Date.now;
-  const startTime = now();
+  const startTime = getNow(deps);
 
   requestFrame(() => {
     overlay.classList.add('active');
   }, deps);
 
   const updateSequence = (frameNow) => {
-    const elapsed = frameNow - startTime;
+    const currentTime = Number.isFinite(frameNow) ? frameNow : getNow(deps);
+    const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / REST_FILL_TOTAL_DURATION, 1);
     restParticleFx.setBoost(computeRestFillBoost(elapsed));
     applyRestFillSequenceFrame(doc, snapshot, elapsed, audioEngine, state);

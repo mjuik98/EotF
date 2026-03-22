@@ -27,21 +27,21 @@ export function createRewardBlessings(gs) {
   return [
     {
       id: 'blessing_hp',
-      name: 'Vital Blessing',
+      name: '체력의 축복',
       icon: 'HP',
-      desc: 'Increase max HP by 20 permanently.',
+      desc: '최대 체력이 영구히 20 증가합니다.',
       type: 'hp',
       amount: 20,
     },
     {
       id: 'blessing_energy',
-      name: 'Energy Blessing',
+      name: '에너지의 축복',
       icon: 'EN',
-      desc: 'Increase max Energy by 1 permanently.',
+      desc: '최대 에너지가 영구히 1 증가합니다.',
       type: 'energy',
       amount: 1,
       disabled: isEnergyCapReached,
-      disabledReason: `Already at maximum energy (${maxEnergyCap}).`,
+      disabledReason: `이미 최대 에너지 (${maxEnergyCap})입니다.`,
     },
   ];
 }

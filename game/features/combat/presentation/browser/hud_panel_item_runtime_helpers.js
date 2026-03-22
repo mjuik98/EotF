@@ -20,22 +20,22 @@ export function updateItemPanels({ gs, deps, doc, data }) {
   const win = deps.win || doc?.defaultView || null;
   const itemEl = doc.getElementById('itemSlots');
   const showItemTooltip = (event, itemId) => {
-    if (typeof deps.showItemTooltip === 'function') {
-      deps.showItemTooltip(event, itemId);
-      return;
-    }
     if (typeof tooltipUI?.showItemTooltip === 'function') {
       tooltipUI.showItemTooltip(event, itemId, { doc, win, data, gs, setBonusSystem });
+      return;
+    }
+    if (typeof deps.showItemTooltip === 'function') {
+      deps.showItemTooltip(event, itemId);
     }
   };
 
   const hideItemTooltip = () => {
-    if (typeof deps.hideItemTooltip === 'function') {
-      deps.hideItemTooltip();
-      return;
-    }
     if (typeof tooltipUI?.hideItemTooltip === 'function') {
       tooltipUI.hideItemTooltip({ doc, win });
+      return;
+    }
+    if (typeof deps.hideItemTooltip === 'function') {
+      deps.hideItemTooltip();
     }
   };
 

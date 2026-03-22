@@ -25,6 +25,8 @@ export function resetCombatStartDom(doc) {
     handZone.dataset.locked = 'false';
     handZone.style.pointerEvents = '';
   }
+
+  doc?.getElementById?.('mobileWarn')?.remove?.();
 }
 
 export function applyCombatEntryOverlayElement(overlay, flashColor) {

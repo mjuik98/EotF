@@ -147,7 +147,7 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
 
   const type = doc.createElement('div');
   type.className = 'card-type reward-card-type rarity-rare';
-  type.textContent = 'Blessing';
+  type.textContent = '축복';
 
   cardEl.append(icon, name, desc, type);
 
@@ -158,11 +158,11 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
 
     const badge = doc.createElement('div');
     badge.className = 'reward-disabled-state-badge';
-    badge.textContent = 'Cap Reached';
+    badge.textContent = '최대치 도달';
 
     const reason = doc.createElement('div');
     reason.className = 'reward-disabled-reason';
-    reason.textContent = blessing.disabledReason || 'This reward is unavailable.';
+    reason.textContent = blessing.disabledReason || '현재는 선택할 수 없습니다.';
 
     cardEl.append(overlay, badge, reason);
   }

@@ -121,6 +121,31 @@ describe('help_pause_ui_runtime', () => {
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
   });
 
+  it('does not open deck view while the full-map overlay is visible', () => {
+    SettingsManager.set('keybindings.deckView', 'Tab');
+
+    const showDeckView = vi.fn();
+    const event = createKeyEvent({ key: 'Tab', code: 'Tab' });
+
+    handleGlobalHotkey(event, {
+      doc: createDoc({
+        fullMapOverlay: createModalElement(),
+      }),
+      ui: {
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        isHelpOpen: () => false,
+      },
+      deps: {
+        gs: { currentScreen: 'game', combat: { active: false } },
+        showDeckView,
+      },
+    });
+
+    expect(showDeckView).not.toHaveBeenCalled();
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  });
+
   it('uses injected saveRun when returning to title', () => {
     const saveRun = vi.fn();
 

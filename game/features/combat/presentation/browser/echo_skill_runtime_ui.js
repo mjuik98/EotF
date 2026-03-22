@@ -27,7 +27,10 @@ export function applyEchoSkillEffect(gs, skillDef, deps = {}) {
       deps.applyEnemyAreaDamage(skillDef.aoedmg, deps);
     }
   }
-  if (skillDef.shield) gs.addShield(skillDef.shield);
+  if (skillDef.shield) {
+    if (typeof gs.addShield === 'function') gs.addShield(skillDef.shield);
+    else if (typeof gs.dispatch === 'function') gs.dispatch('player:shield', { amount: skillDef.shield });
+  }
   if (skillDef.weaken) gs.applyEnemyStatus('weakened', skillDef.weaken);
   if (skillDef.draw) {
     if (typeof deps.drawCardsState === 'function') deps.drawCardsState(gs, skillDef.draw);

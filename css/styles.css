@@ -3962,38 +3962,47 @@ body:has(#combatOverlay.active) .panel-bottom {
   position: fixed;
   top: 56px;
   right: 18px;
-  width: min(252px, calc(100vw - 36px));
+  width: fit-content;
+  max-width: calc(100vw - 36px);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  z-index: 215;
+  align-items: flex-end;
+  gap: 0;
+  z-index: 320;
   pointer-events: auto;
 }
 
 #combatRelicRailCount {
-  align-self: flex-end;
-  min-width: 1.5em;
-  padding: 0 4px;
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  min-width: 18px;
+  padding: 0 3px;
   border-radius: 999px;
   color: var(--cyan);
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-align: right;
-  text-shadow: 0 0 8px rgba(0, 255, 204, 0.35);
+  font-size: 9px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  background: rgba(6, 12, 22, 0.92);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.16);
+  text-shadow: 0 0 6px rgba(0, 255, 204, 0.28);
+  pointer-events: none;
 }
 
 #combatRelicRailSlots {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 6px;
-  padding: 8px;
+  padding: 6px 34px 6px 6px;
   border: 1px solid rgba(123, 47, 255, 0.2);
-  border-radius: 16px;
+  border-radius: 12px;
   background: linear-gradient(180deg, rgba(8, 8, 24, 0.9), rgba(6, 6, 18, 0.84));
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(12px);
 }
 
@@ -4021,34 +4030,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 #combatRelicPanel {
   display: none;
-  padding: 12px 12px 10px;
-  border: 1px solid rgba(123, 47, 255, 0.18);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(7, 7, 26, 0.94), rgba(5, 5, 18, 0.9));
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(14px);
-  max-height: min(42vh, 360px);
-  overflow: auto;
-}
-
-#combatRelicPanel[data-open='true'] {
-  display: block;
-}
-
-#combatRelicPanelList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: rgba(228, 232, 242, 0.84);
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-#combatRelicPanelList > div {
-  padding: 8px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
 }
 
 /* ── COMBAT ARENA — 옵션3 투명 오버레이 부채꼴 레이아웃 ── */
@@ -9779,7 +9761,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: 100%;
   max-width: none;
   transform: none;
-  pointer-events: auto;
+  pointer-events: none;
   backdrop-filter: blur(18px);
 }
 
@@ -11239,10 +11221,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   #combatRelicRailSlots {
     justify-content: center;
   }
-
-  #combatRelicPanel {
-    max-height: 32vh;
-  }
 }
 
 @media (max-width: 760px) {
@@ -11558,12 +11536,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   padding: 2px 6px;
   border-radius: 3px;
   border: 1px solid rgba(255, 80, 80, 0.2);
-}
-
-/* 사용 불가 카드 — 전체 투명도/채도 낮춤 */
-.card:not(.playable) {
-  opacity: 0.55;
-  filter: saturate(0.5);
 }
 
 /* ── 파티클 (Rare / Legendary) ──────────────────────────────── */

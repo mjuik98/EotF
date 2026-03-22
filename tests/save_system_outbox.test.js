@@ -163,4 +163,15 @@ describe('SaveSystem outbox', () => {
     expect(metrics.lastFailureAt).toBeGreaterThan(0);
     expect(metrics.lastSuccessAt).toBeGreaterThan(0);
   });
+
+  it('treats invalid stored run payloads as absent saves', () => {
+    vi.spyOn(SaveAdapter, 'load').mockReturnValue({
+      version: 2,
+      player: {
+        hp: 10,
+      },
+    });
+
+    expect(SaveSystem.hasSave()).toBe(false);
+  });
 });

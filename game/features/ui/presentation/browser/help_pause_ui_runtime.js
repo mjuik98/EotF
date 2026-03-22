@@ -46,6 +46,7 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
   const isEscapeKey = event.key === 'Escape' || event.key === 'Esc';
   const isPauseKey = eventMatchesCode(event, keyPause);
   const isSettingsRebinding = Boolean(doc.querySelector?.('.settings-keybind-btn.listening'));
+  const isFullMapOpen = isVisibleModal(doc.getElementById('fullMapOverlay'), doc);
 
   if (isSettingsRebinding) return;
 
@@ -61,7 +62,7 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
     ui.toggleHelp(deps);
   }
 
-  if (eventMatchesCode(event, keyDeckView) && inGame && !ui.isHelpOpen()) {
+  if (eventMatchesCode(event, keyDeckView) && inGame && !ui.isHelpOpen() && !isFullMapOpen) {
     const modal = doc.getElementById('deckViewModal');
     if (modal?.classList?.contains('active')) {
       if (typeof deps.closeDeckView === 'function') deps.closeDeckView();

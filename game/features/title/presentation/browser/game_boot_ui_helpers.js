@@ -39,7 +39,7 @@ export function clearSavePreview(doc) {
 export function populateSaveTooltip(doc, saveSystem, gs) {
   try {
     const saveLoaded = saveSystem?.loadRun?.({ gs });
-    if (!saveLoaded || !gs?.player) return;
+    if (!saveLoaded || !gs?.player) return false;
 
     const player = gs.player;
     const classNames = {
@@ -75,24 +75,29 @@ export function populateSaveTooltip(doc, saveSystem, gs) {
         return `<span class="title-stt-relic" title="${title}">${icon}</span>`;
       }).join('');
     }
+
+    return true;
   } catch (error) {
     console.warn('[GameBootUI] Save tooltip populate failed:', error);
+    return false;
   }
 }
 
 export function refreshTitleSaveState(doc, saveSystem, gs) {
-  const hasSave = saveSystem?.hasSave?.() ?? false;
+  let hasSave = saveSystem?.hasSave?.() ?? false;
   const continueWrap = doc.getElementById('titleContinueWrap');
   const menuDivider = doc.getElementById('titleMenuDivider');
   const continueBtn = doc.getElementById('mainContinueBtn');
+
+  if (hasSave) {
+    hasSave = populateSaveTooltip(doc, saveSystem, gs);
+  }
 
   if (continueWrap) continueWrap.style.display = hasSave ? 'block' : 'none';
   if (menuDivider) menuDivider.style.display = hasSave ? 'block' : 'none';
   if (continueBtn) continueBtn.disabled = !hasSave;
 
-  if (hasSave) {
-    populateSaveTooltip(doc, saveSystem, gs);
-  } else {
+  if (!hasSave) {
     clearSavePreview(doc);
   }
 

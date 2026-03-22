@@ -33,6 +33,23 @@ function getAliveEnemyIndexes(state) {
     .filter((idx) => idx !== -1) || [];
 }
 
+function grantPlayerShield(state, amount) {
+  if (!state || amount <= 0) return null;
+  if (typeof state.addShield === 'function') {
+    return state.addShield(amount);
+  }
+  if (typeof state.dispatch === 'function') {
+    const result = state.dispatch('player:shield', { amount });
+    if (result !== undefined && result !== null) return result;
+  }
+  if (state.player) {
+    state.player.shield = Math.max(0, Number(state.player.shield || 0) + Number(amount || 0));
+    state.markDirty?.('hud');
+    return { shieldAfter: state.player.shield };
+  }
+  return null;
+}
+
 function triggerUnbreakableWall(state, buffKey, buff, ratio) {
   if (!state || !buff || ratio <= 0) return;
 
@@ -223,7 +240,7 @@ export const ClassMechanics = {
       const state = getGS(gs);
       const preserved = Number(state.player._preservedShield || 0);
       if (preserved > 0) {
-        state.addShield(preserved);
+        grantPlayerShield(state, preserved);
         setGuardianPreservedShieldState(state, 0);
       }
 

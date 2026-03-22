@@ -106,7 +106,7 @@ describe('event_ui_rest_site', () => {
       maxHp: 40,
       echoMax: 100,
     });
-    expect(buildRestRecoveryResultText(snapshot)).toBe('Recovered 12 HP and gained 30 Echo. Choose your next action.');
+    expect(buildRestRecoveryResultText(snapshot)).toBe('체력을 12 회복하고 잔향을 30 얻었습니다. 다음 행동을 선택하세요.');
   });
 
   it('updates rest fill bars during the heal window and only plays heal audio once', () => {
@@ -152,7 +152,7 @@ describe('event_ui_rest_site', () => {
       heal: vi.fn((amount) => { gs.player.hp += amount; }),
       addEcho: vi.fn((amount) => { gs.player.echo += amount; }),
     };
-    createRestEventUseCaseSpy.mockReturnValueOnce({ title: 'Rest', choices: [] });
+    createRestEventUseCaseSpy.mockReturnValueOnce({ title: '휴식', choices: [] });
 
     showEventRestSiteOverlay(gs, { cards: {} }, {
       getHealAmount: vi.fn(() => 12),
@@ -169,9 +169,50 @@ describe('event_ui_rest_site', () => {
 
     expect(createRestEventUseCaseSpy).toHaveBeenCalledTimes(1);
     expect(showEvent).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Rest',
-      desc: 'Recovered 12 HP and gained 30 Echo. Choose your next action.',
+      title: '휴식',
+      desc: '체력을 12 회복하고 잔향을 30 얻었습니다. 다음 행동을 선택하세요.',
     }));
     expect(updateUI).toHaveBeenCalledTimes(1);
+  });
+
+  it('finishes the rest overlay when animation frames use browser relative timestamps', () => {
+    const doc = createDoc();
+    const showEvent = vi.fn();
+    const gs = {
+      player: { hp: 20, maxHp: 40, echo: 10 },
+      heal: vi.fn((amount) => { gs.player.hp += amount; }),
+      addEcho: vi.fn((amount) => { gs.player.echo += amount; }),
+    };
+    const frameCallbacks = [];
+
+    createRestEventUseCaseSpy.mockReturnValueOnce({ title: '휴식', choices: [] });
+
+    showEventRestSiteOverlay(gs, { cards: {} }, {
+      getHealAmount: vi.fn(() => 12),
+    }, {
+      doc,
+      now: () => 1000,
+      requestAnimationFrame: vi.fn((callback) => {
+        frameCallbacks.push(callback);
+        return frameCallbacks.length;
+      }),
+      audioEngine: { playHeal: vi.fn() },
+      showCardDiscard: vi.fn(),
+      showEvent,
+      updateUI: vi.fn(),
+    });
+
+    expect(showEvent).not.toHaveBeenCalled();
+
+    for (let i = 0; i < 6 && frameCallbacks.length > 0; i += 1) {
+      const callback = frameCallbacks.shift();
+      callback(5000);
+    }
+    vi.runAllTimers();
+
+    expect(showEvent).toHaveBeenCalledWith(expect.objectContaining({
+      title: '휴식',
+      desc: '체력을 12 회복하고 잔향을 30 얻었습니다. 다음 행동을 선택하세요.',
+    }));
   });
 });

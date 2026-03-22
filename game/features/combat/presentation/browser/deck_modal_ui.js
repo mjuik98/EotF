@@ -22,8 +22,8 @@ export const DeckModalUI = {
   },
 
   showDeckView(deps = {}) {
-    this.renderDeckModal(deps);
     openDeckModal(deps);
+    this.renderDeckModal(deps);
   },
 
   renderDeckModal(deps = {}) {
