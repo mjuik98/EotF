@@ -92,7 +92,7 @@ function createMockDoc() {
   };
 }
 
-function createDeps({ maxEnergy }) {
+function createDeps({ maxEnergy, withGetRandomCard = true }) {
   const doc = createMockDoc();
   const rewardEyebrow = createMockElement('div');
   const rewardTitle = createMockElement('div');
@@ -134,12 +134,15 @@ function createDeps({ maxEnergy }) {
         items: { add: vi.fn() },
       },
     },
-    getRandomCard: vi.fn(() => {
+  };
+
+  if (withGetRandomCard) {
+    gs.getRandomCard = vi.fn(() => {
       const id = cardIds[cardPickIndex % cardIds.length];
       cardPickIndex += 1;
       return id;
-    }),
-  };
+    });
+  }
 
   return {
     gs,
@@ -164,6 +167,22 @@ function findChildByClass(node, className) {
 }
 
 describe('RewardUI', () => {
+  it('renders card rewards even when the game state lacks getRandomCard', () => {
+    const originalRandom = Math.random;
+    Math.random = vi.fn(() => 0);
+    const deps = createDeps({ maxEnergy: 3, withGetRandomCard: false });
+
+    try {
+      RewardUI.showRewardScreen('normal', deps);
+    } finally {
+      Math.random = originalRandom;
+    }
+
+    expect(deps.rewardCards.children.length).toBeGreaterThan(0);
+    expect(deps.rewardCards.children[0]?.getAttribute?.('aria-label')).toContain('card reward');
+    expect(deps.switchScreen).toHaveBeenCalledWith('reward');
+  });
+
   it('marks permanent energy blessing with emphasized disabled visuals at cap', () => {
     const cap = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP) || 5;
     const deps = createDeps({ maxEnergy: cap });

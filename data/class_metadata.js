@@ -22,7 +22,7 @@ export const CLASS_METADATA = {
         desc: '검격이 거듭될수록 파동이 짙어지는 검사.',
         playStyle: ['연속 압박형', '강화·상태이상 연계'],
         featuredCardIds: ['twin_strike', 'echo_strike', 'heavy_blow'],
-        featuredCardTags: { twin_strike: '연속타', echo_strike: '연계', heavy_blow: '마무리' },
+        featuredCardTags: { twin_strike: '연속타', echo_strike: '연계', heavy_blow: '상태이상' },
         traitName: '공명',
         traitTitle: '공명 (Resonance)',
         traitDesc: '검의 진동이 겹겹이 쌓이며 공명이 깊어집니다. 카드를 사용할 때마다 피해가 +1씩 중첩됩니다.',

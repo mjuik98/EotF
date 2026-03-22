@@ -63,6 +63,7 @@ describe('create_combat_turn_runtime', () => {
       waitForCombat: vi.fn(async () => true),
     });
     const deps = {
+      api: { applyPlayerDamage: vi.fn() },
       gs: { addLog: vi.fn() },
       data: { id: 'data' },
       shuffleArray: vi.fn(),
@@ -75,6 +76,7 @@ describe('create_combat_turn_runtime', () => {
 
     expect(result).toEqual({ done: true });
     expect(hoisted.runEnemyTurnUseCase).toHaveBeenCalledWith(expect.objectContaining({
+      api: deps.api,
       gs: deps.gs,
       data: deps.data,
       shuffleArray: deps.shuffleArray,

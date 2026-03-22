@@ -103,8 +103,12 @@ describe('deck_modal_render_ui', () => {
       highlightDescription: (text) => `<b>${text}</b>`,
     });
     expect(cardsEl.children).toHaveLength(1);
-    expect(cardsEl.children[0].children.some((child) => child.className === 'card-location-tag')).toBe(true);
-    expect(cardsEl.children[0].children.at(-1)?.textContent).toBe('공격');
+    const card = cardsEl.children[0];
+    expect(card.className).toContain('card-frame-variant-deck');
+    expect(card.children.some((child) => child.className === 'card-location-tag')).toBe(true);
+    expect(card.children.some((child) => child.className === 'card-rarity-strip card-rarity-strip-rare')).toBe(true);
+    expect(card.children.some((child) => child.className === 'card-crystal-facet card-crystal-facet-type-attack')).toBe(true);
+    expect(card.children.at(-1)?.textContent).toBe('공격');
 
     applyDeckFilterButtonStyles(doc, 'ATTACK');
     expect(attackBtn.style.background).toBe('rgba(255,80,100,0.2)');

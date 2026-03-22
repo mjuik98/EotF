@@ -76,6 +76,14 @@ function createState(cardId) {
           targetIdx: payload.targetIdx,
         };
       }
+      if (action === Actions.ENEMY_STATUS) {
+        const enemy = this.combat.enemies[payload.targetIdx];
+        enemy.statusEffects[payload.status] = Number(payload.duration || 0);
+        return {
+          duration: enemy.statusEffects[payload.status],
+          targetIdx: payload.targetIdx,
+        };
+      }
       return {};
     },
     addSilence(amount) {
@@ -205,5 +213,38 @@ describe('play_card_service', () => {
     expect(gs.combat.enemies[0].hp).toBe(16);
     expect(gs.player.hand).toEqual(['drawn_card']);
     expect(gs.stats.damageDealt).toBe(4);
+  });
+
+  it('applies enemy statuses through the runtime facade using the default target slot', () => {
+    const cardId = 'runtime_status_card';
+    const gs = createState(cardId);
+    const logger = createLogger();
+
+    const result = playCardService({
+      cardId,
+      handIdx: 0,
+      gs,
+      card: {
+        id: cardId,
+        name: 'Heavy Blow Probe',
+        cost: 1,
+        effect: (runtimeGs) => {
+          runtimeGs.applyEnemyStatus('stunned', 1);
+        },
+      },
+      cardCostUtils: CardCostUtils,
+      classMechanics: {},
+      discardCard: vi.fn(),
+      logger,
+      audioEngine: {},
+      runtimeDeps: {
+        renderCombatCards: vi.fn(),
+      },
+      hudUpdateUI: { processDirtyFlags: vi.fn() },
+    });
+
+    expect(result).toBe(true);
+    expect(gs.combat.enemies[0].statusEffects.stunned).toBe(1);
+    expect(logger.error).not.toHaveBeenCalled();
   });
 });

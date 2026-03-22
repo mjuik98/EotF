@@ -121,6 +121,10 @@ describe('reward_ui_option_renderers', () => {
     expect(wrapper.getAttribute('aria-label')).toContain('Card A');
     expect(wrapper.style.animationDelay).toBe('0.08s');
     expect(wrapper.addEventListener).toHaveBeenCalledTimes(3);
+    const card = wrapper.children[0];
+    expect(card.className).toContain('card-frame-variant-reward');
+    expect(card.children.some((child) => child.className === 'card-rarity-strip card-rarity-strip-rare')).toBe(true);
+    expect(card.children.some((child) => child.className === 'card-crystal-facet card-crystal-facet-type-attack')).toBe(true);
 
     const mouseenter = wrapper.addEventListener.mock.calls.find(([name]) => name === 'mouseenter')[1];
     const mouseleave = wrapper.addEventListener.mock.calls.find(([name]) => name === 'mouseleave')[1];

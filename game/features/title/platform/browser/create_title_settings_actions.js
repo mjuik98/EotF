@@ -8,10 +8,12 @@ const uiBrowserModules = createUiBrowserModuleCapabilities();
 export function createTitleSettingsActions(context) {
   const { doc, modules, moduleRegistry, ports, saveVolumes } = context;
   let resolvedSettingsUI = modules.SettingsUI;
+  let resolvedRunModeUI = modules.RunModeUI;
 
   async function ensureRunModeUI() {
     const { RunModeUI } = await runBrowserModules.ensureFlow(moduleRegistry);
-    return RunModeUI;
+    resolvedRunModeUI = RunModeUI || resolvedRunModeUI;
+    return resolvedRunModeUI;
   }
 
   async function ensureSettingsUI() {
@@ -29,13 +31,13 @@ export function createTitleSettingsActions(context) {
     },
 
     closeRunSettings() {
-      modules.RunModeUI?.closeSettings?.(ports.getRunModeDeps());
+      resolvedRunModeUI?.closeSettings?.(ports.getRunModeDeps());
     },
 
     refreshRunModePanel() {
-      if (!modules.RunModeUI) return;
-      modules.RunModeUI?.refresh?.(ports.getRunModeDeps());
-      modules.RunModeUI?.refreshInscriptions?.(ports.getRunModeDeps());
+      if (!resolvedRunModeUI) return;
+      resolvedRunModeUI?.refresh?.(ports.getRunModeDeps());
+      resolvedRunModeUI?.refreshInscriptions?.(ports.getRunModeDeps());
     },
 
     async shiftAscension(delta) {

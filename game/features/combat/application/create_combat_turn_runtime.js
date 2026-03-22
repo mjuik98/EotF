@@ -45,6 +45,7 @@ export async function enemyTurnRuntime(deps = {}, runtime = {}) {
   const startPlayerTurn = runtime.startPlayerTurn || createStartPlayerTurnAction();
 
   return runEnemyTurnUseCase({
+    api: deps.api,
     gs,
     data: deps.data,
     shuffleArray: deps.shuffleArray,

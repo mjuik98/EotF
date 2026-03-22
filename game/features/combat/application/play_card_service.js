@@ -30,7 +30,7 @@ function createCardEffectRuntimeFacade(gs, runtimeDeps = {}) {
         return (...args) => {
           const depsArgIndex = prop === 'dealDamage'
             ? 4
-            : (prop === 'dealDamageAll' ? 2 : 2);
+            : (prop === 'applyEnemyStatus' ? 3 : 2);
           const currentDeps = args[depsArgIndex];
           const mergedDeps = { ...runtimeDeps, ...(currentDeps || {}) };
           const nextArgs = [...args];

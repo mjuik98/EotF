@@ -49,7 +49,7 @@ export const CardReducers = {
         }
         player.graveyard = [];
         if (typeof gs.addLog === 'function') {
-          gs.addLog('버린 더미를 드로우 더미로 다시 섞었습니다.', 'system');
+          gs.addLog('무덤의 카드를 덱으로 옮기고 섞었습니다.', 'system');
         }
       }
 

@@ -36,7 +36,7 @@ function createBaseState() {
         isDirty(key) {
             return dirty.has(key);
         },
-        addLog() {},
+        addLog() { },
     };
 }
 
@@ -66,7 +66,7 @@ describe('Reducers', () => {
         expect(result.drawn).toBe(1);
         expect(gs.player.hand.length).toBe(8);
         expect(gs.player.graveyard.length).toBe(0);
-        expect(gs.addLog).toHaveBeenCalledWith('버린 더미를 드로우 더미로 다시 섞었습니다.', 'system');
+        expect(gs.addLog).toHaveBeenCalledWith('무덤의 카드를 덱으로 옮기고 섞었습니다.', 'system');
         expect(gs.isDirty('hand')).toBe(true);
     });
 

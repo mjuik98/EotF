@@ -40,7 +40,7 @@ function handleEnemyDeath(gs, enemy, index) {
   return false;
 }
 
-export function processEnemyAttack(gs, enemy, index, action) {
+export function processEnemyAttack(gs, enemy, index, action, deps = {}) {
   setCurrentCombatAttackerState(gs, index);
   const hitCount = action.multi || 1;
   gs.addLog?.(LogUtils.formatSystem(`${enemy.name}의 행동: ${action.intent}`), 'damage');
@@ -80,7 +80,11 @@ export function processEnemyAttack(gs, enemy, index, action) {
       reflected = true;
       enemyDied = handleEnemyDeath(gs, enemy, index);
     } else {
-      gs.takeDamage?.(dmg, { name: enemy.name, type: 'enemy' });
+      if (typeof gs.takeDamage === 'function') {
+        gs.takeDamage(dmg, { name: enemy.name, type: 'enemy' });
+      } else {
+        deps.takeDamage?.(dmg, { name: enemy.name, type: 'enemy' });
+      }
     }
 
     results.push({ dmg, reflected, enemyDied, weakened, hitIndex });

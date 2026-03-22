@@ -1,6 +1,7 @@
 import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
 import { DECK_MODAL_RARITY_BORDER_COLORS } from '../../../../../data/ui_rarity_styles.js';
 import { getCardTypeDisplayLabel } from './card_render_helpers_ui.js';
+import { populateCombatCardFrame } from './combat_card_frame_ui.js';
 
 function getTypeColor(type, upgraded) {
   if (upgraded) return 'var(--cyan)';
@@ -89,6 +90,7 @@ export function renderDeckModalCards(doc, cardsEl, entries, options = {}) {
     const typeColor = getTypeColor(card.type, card.upgraded);
 
     const el = doc.createElement('div');
+    el.className = `card card-frame-variant-deck rarity-${card.rarity || 'common'} ${String(card.type || '').toLowerCase() ? `type-${String(card.type).toLowerCase()}` : ''}`.trim();
     el.style.cssText = `position:relative;background:var(--glass);border:1px solid ${borderColor};border-radius:16px;padding:16px 14px;width:160px;min-height:240px;display:flex;flex-direction:column;align-items:center;backdrop-filter:blur(16px);transition:all 0.15s;`;
     el.onmouseenter = (event) => {
       showTooltip?.(event, id);
@@ -101,11 +103,6 @@ export function renderDeckModalCards(doc, cardsEl, entries, options = {}) {
       el.style.boxShadow = '';
     };
 
-    const cost = doc.createElement('div');
-    cost.style.cssText = "position:absolute;top:8px;left:8px;width:32px;height:32px;border-radius:50%;background:rgba(123,47,255,0.4);border:1px solid var(--echo);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--white);";
-    cost.textContent = card.cost;
-    el.appendChild(cost);
-
     if (count > 1) {
       const countBadge = doc.createElement('div');
       countBadge.style.cssText = "position:absolute;bottom:40px;right:10px;font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--cyan);font-weight:bold;";
@@ -116,35 +113,32 @@ export function renderDeckModalCards(doc, cardsEl, entries, options = {}) {
     if (inHand || inGraveyard) {
       const tag = doc.createElement('div');
       tag.className = 'card-location-tag';
-      tag.style.cssText = `position:absolute;top:4px;right:4px;font-size:7px;border-radius:3px;padding:1px 4px;color:${inHand ? 'var(--cyan)' : 'var(--echo)'};background:${inHand ? 'rgba(0,255,204,0.15)' : 'rgba(123,47,255,0.15)'};`;
+      tag.style.cssText = `position:absolute;top:8px;left:8px;font-size:7px;border-radius:999px;padding:2px 6px;color:${inHand ? 'var(--cyan)' : 'var(--echo)'};background:${inHand ? 'rgba(0,255,204,0.15)' : 'rgba(123,47,255,0.15)'};border:1px solid ${inHand ? 'rgba(0,255,204,0.25)' : 'rgba(123,47,255,0.22)'};z-index:2;`;
       tag.textContent = inHand ? '손패' : '무덤';
       el.appendChild(tag);
     }
+    populateCombatCardFrame(el, doc, {
+      cardId: id,
+      card,
+      canPlay: true,
+      displayCost: card.cost ?? 0,
+      anyFree: false,
+      totalDisc: 0,
+      cardW: 160,
+      descriptionUtils: typeof highlightDescription === 'function'
+        ? { highlight: highlightDescription }
+        : null,
+    }, {
+      variant: 'deck',
+      showHotkey: false,
+    });
 
-    const icon = doc.createElement('div');
-    icon.style.cssText = 'font-size:48px;margin:32px 0 12px;';
-    icon.textContent = card.icon;
-    el.appendChild(icon);
-
-    const name = doc.createElement('div');
-    name.style.cssText = "font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--white);text-align:center;margin-bottom:8px;line-height:1.2;";
-    name.textContent = card.name;
-    el.appendChild(name);
-
-    const desc = doc.createElement('div');
-    desc.style.cssText = 'font-size:13px;color:var(--text);text-align:center;line-height:1.5;flex:1;';
-    if (typeof highlightDescription === 'function') {
-      desc.innerHTML = highlightDescription(card.desc);
-    } else {
-      desc.textContent = card.desc;
+    const type = el.children[el.children.length - 1];
+    if (type) {
+      const typeLabel = getCardTypeDisplayLabel(card.type);
+      type.textContent = card.upgraded ? `${typeLabel} ✦` : typeLabel;
+      type.style.color = typeColor;
     }
-    el.appendChild(desc);
-
-    const type = doc.createElement('div');
-    type.style.cssText = `font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;color:${typeColor};margin-top:8px;font-weight:bold;`;
-    const typeLabel = getCardTypeDisplayLabel(card.type);
-    type.textContent = card.upgraded ? `${typeLabel} ✦` : typeLabel;
-    el.appendChild(type);
 
     cardsEl.appendChild(el);
   });

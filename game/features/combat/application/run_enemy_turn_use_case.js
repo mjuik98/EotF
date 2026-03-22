@@ -20,6 +20,7 @@ function getCombatRegionId(gs) {
 export async function runEnemyTurnUseCase({
   gs,
   data,
+  api,
   shuffleArray,
   classMechanics,
   cleanupTooltips,
@@ -81,7 +82,17 @@ export async function runEnemyTurnUseCase({
       resolveBossPhaseShift(gs, enemy);
       showBossPhaseShift?.(enemy, index);
     } else if (action.dmg > 0) {
-      const hitResults = resolveEnemyAttack(gs, enemy, index, action);
+      const hitResults = resolveEnemyAttack(gs, enemy, index, action, {
+        takeDamage: (amount, source) => {
+          if (typeof api?.takeDamage === 'function') {
+            return api.takeDamage(amount, gs, source);
+          }
+          if (typeof api?.applyPlayerDamage === 'function') {
+            return api.applyPlayerDamage(amount, gs);
+          }
+          return gs.takeDamage?.(amount, source);
+        },
+      });
       for (const hit of hitResults) {
         if (await playEnemyAttackHit?.(index, hit, action)) break;
       }

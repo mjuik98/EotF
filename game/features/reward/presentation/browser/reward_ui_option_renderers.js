@@ -1,3 +1,4 @@
+import { populateCombatCardFrame } from '../../../combat/ports/public_card_frame_capabilities.js';
 import {
   getDescriptionUtils,
   getDoc,
@@ -24,33 +25,22 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
   const cardEl = doc.createElement('div');
   const rarityClass = `rarity-${card.rarity || 'common'}`;
   const typeClass = toTypeClass(card.type);
-  cardEl.className = `card ${rarityClass} ${typeClass}`.trim();
+  cardEl.className = `card card-frame-variant-reward ${rarityClass} ${typeClass}`.trim();
   cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;';
-
-  const cost = doc.createElement('div');
-  cost.className = 'card-cost';
-  cost.textContent = String(card.cost ?? 1);
-
-  const icon = doc.createElement('div');
-  icon.className = 'card-icon';
-  icon.style.fontSize = '36px';
-  icon.textContent = card.icon || '*';
-
-  const name = doc.createElement('div');
-  name.className = 'card-name reward-card-name';
-  name.textContent = card.name || cardId;
-
-  const desc = doc.createElement('div');
-  desc.className = 'card-desc reward-card-desc';
   const descriptionUtils = getDescriptionUtils(deps);
-  if (descriptionUtils) desc.innerHTML = descriptionUtils.highlight(card.desc || '');
-  else desc.textContent = card.desc || '';
-
-  const rarity = doc.createElement('div');
-  rarity.className = `card-type reward-card-type ${rarityClass}`.trim();
-  rarity.textContent = toRarityLabel(card.rarity);
-
-  cardEl.append(cost, icon, name, desc, rarity);
+  populateCombatCardFrame(cardEl, doc, {
+    cardId,
+    card,
+    canPlay: true,
+    displayCost: card.cost ?? 0,
+    anyFree: false,
+    totalDisc: 0,
+    cardW: 170,
+    descriptionUtils,
+  }, {
+    variant: 'reward',
+    showHotkey: false,
+  });
   wrapper.appendChild(cardEl);
 
   wrapper.addEventListener('mouseenter', (ev) => {

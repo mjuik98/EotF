@@ -40,9 +40,13 @@ export function buildUnbreakableWallCardTooltip(cardId, gs) {
 export function renderCardTooltipContent(doc, card, gs, options = {}) {
   const { cardId = '' } = options;
   doc.getElementById('ttIcon').textContent = card.icon;
-  doc.getElementById('ttCost').textContent = card.cost;
+  const costEl = doc.getElementById('ttCost');
+  costEl.textContent = card.cost;
+  costEl.className = ['card-tooltip-cost', `card-tooltip-cost-${String(card.type || '').toLowerCase()}`].filter(Boolean).join(' ');
   doc.getElementById('ttName').textContent = card.name;
-  doc.getElementById('ttType').textContent = getCombatCardTypeLabel(card.type);
+  const typeEl = doc.getElementById('ttType');
+  typeEl.textContent = getCombatCardTypeLabel(card.type);
+  typeEl.className = ['card-tooltip-type', `card-tooltip-type-${String(card.type || '').toLowerCase()}`].filter(Boolean).join(' ');
 
   const desc = `${card.desc || ''}${buildUnbreakableWallCardTooltip(cardId, gs)}`;
   DomSafe.setHighlightedText(doc.getElementById('ttDesc'), desc);

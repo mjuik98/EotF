@@ -64,6 +64,31 @@ describe('createGameBootPorts', () => {
     expect(ports.getSettingsUI()).toEqual({ id: 'scoped-settings' });
   });
 
+  it('falls back to screen-scoped overlays when title scope does not own them', () => {
+    const modules = {
+      featureScopes: {
+        core: {
+          GAME: { getRunDeps: vi.fn(() => ({ token: 'run' })) },
+          AudioEngine: { id: 'audio' },
+          ParticleSystem: { id: 'particles' },
+        },
+        title: {
+          GameBootUI: { id: 'boot' },
+        },
+        screen: {
+          HelpPauseUI: { id: 'screen-help' },
+          SettingsUI: { id: 'screen-settings' },
+        },
+      },
+    };
+
+    const ports = createGameBootPorts(modules);
+
+    expect(ports.getHelpPauseUI()).toEqual({ id: 'screen-help' });
+    expect(ports.getGameBootUI()).toEqual({ id: 'boot' });
+    expect(ports.getSettingsUI()).toEqual({ id: 'screen-settings' });
+  });
+
   it('keeps bootstrap ports routed through scoped registry accessors instead of flat module fallbacks', () => {
     const source = fs.readFileSync(
       path.join(process.cwd(), 'game/core/bootstrap/create_game_boot_ports.js'),

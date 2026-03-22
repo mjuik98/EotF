@@ -2,6 +2,6 @@ import { performCombatDrawCard } from './combat_actions_runtime_ui.js';
 
 export const CombatActionsUI = {
   drawCard(deps = {}) {
-    performCombatDrawCard(deps.gs);
+    return performCombatDrawCard(deps.gs, deps);
   },
 };

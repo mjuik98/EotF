@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Actions } from '../game/core/state_actions.js';
 
 import {
   decayEnemyWeaken,
   getEnemyAction,
   handleBossPhaseShift,
+  processEnemyAttack,
   processEnemyStatusTicks,
   processEnemyStun,
 } from '../game/features/combat/domain/enemy_turn_domain.js';
@@ -74,6 +76,45 @@ describe('enemy_turn_domain', () => {
 
     decayEnemyWeaken(enemy);
     expect(enemy.statusEffects.weakened).toBeUndefined();
+  });
+
+  it('damages the player on enemy attack even when canonical gs has no takeDamage helper', () => {
+    const gs = {
+      player: {
+        hp: 30,
+        shield: 0,
+        buffs: {},
+      },
+      combat: {
+        active: true,
+      },
+      addLog: vi.fn(),
+      dispatch: vi.fn((action, payload) => {
+        if (action === Actions.PLAYER_DAMAGE) {
+          gs.player.hp = Math.max(0, gs.player.hp - Number(payload.amount || 0));
+          return {
+            actualDamage: Number(payload.amount || 0),
+            shieldAbsorbed: 0,
+            isDead: gs.player.hp <= 0,
+          };
+        }
+        return {};
+      }),
+    };
+    const enemy = {
+      name: 'Test Enemy',
+      hp: 20,
+      atk: 10,
+      statusEffects: {},
+    };
+
+    const hitResults = processEnemyAttack(gs, enemy, 0, { dmg: 12, intent: '공격' }, {
+      takeDamage: (amount) => gs.dispatch(Actions.PLAYER_DAMAGE, { amount, source: 'combat' }),
+    });
+
+    expect(hitResults).toHaveLength(1);
+    expect(gs.player.hp).toBe(18);
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.PLAYER_DAMAGE, expect.objectContaining({ amount: 12 }));
   });
 
   it('applies planned status ticks through state commands and updates countdown statuses', () => {

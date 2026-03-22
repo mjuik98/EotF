@@ -33,7 +33,7 @@ export function showRewardScreenRuntime(ui, mode = false, deps = {}) {
     ensureMiniBossBonus(gs, data, deps);
   }
 
-  const rewardCards = drawRewardCards(gs, count, rarities);
+  const rewardCards = drawRewardCards(gs, count, rarities, data);
   return showRewardScreenView(ui, {
     data,
     gs,
