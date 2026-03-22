@@ -71,6 +71,8 @@ export function resetCombatUIUI(deps = {}) {
 
   const logContainer = doc.getElementById('combatLog');
   if (logContainer) logContainer.innerHTML = '';
+  const recentCombatFeed = doc.getElementById('recentCombatFeed');
+  if (recentCombatFeed) recentCombatFeed.innerHTML = '';
 
   const combatRelicPanel = doc.getElementById('combatRelicPanel');
   if (combatRelicPanel?.dataset) {

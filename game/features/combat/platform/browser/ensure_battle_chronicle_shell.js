@@ -1,7 +1,7 @@
 const BATTLE_CHRONICLE_SHELL_MARKUP = `
 <div class="battle-chronicle-panel">
   <div id="battleChronicleTitle">전투 기록</div>
-  <div class="subtitle-text" style="color:var(--text-dim); font-size:14px; margin-bottom:20px;">전투 기록</div>
+  <div class="subtitle-text" style="color:var(--text-dim); font-size:14px; margin-bottom:20px;">전체 전투 흐름과 자동 효과를 포함한 기록</div>
   <div class="chronicle-filter-bar" id="chronicleFilterBar">
     <button class="chronicle-filter-btn active" data-filter="all">전체</button>
     <button class="chronicle-filter-btn" data-filter="action">공격</button>

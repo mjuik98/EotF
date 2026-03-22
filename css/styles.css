@@ -4011,60 +4011,17 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .combat-log {
-  position: fixed;
-  top: 50%;
-  left: 20px;
-  transform: translateY(-50%);
-  text-align: left;
-  width: 320px;
-  max-width: 500px;
-  height: 180px;
-  max-height: 180px;
-  overflow-y: hidden;
-  background: linear-gradient(180deg, rgba(7, 7, 26, 0.4) 0%, rgba(7, 7, 26, 0) 100%);
-  border-radius: 0;
-  border: 1px solid transparent;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  pointer-events: auto;
-  /* hover 이벤트를 받기 위해 auto로 변경 */
-  z-index: 100;
-  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
-  mask-image: linear-gradient(to top, black 60%, transparent 100%);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.combat-log:hover {
-  max-height: 400px;
-  /* hover 시 확장될 높이 */
-  overflow-y: auto;
-  background: rgba(7, 7, 26, 0.85);
-  border-radius: 4px;
-  border-color: var(--border);
-  -webkit-mask-image: none;
-  /* hover 시 마스크 해제하여 모든 텍스트 명확하게 */
-  mask-image: none;
-  padding: 10px;
-}
-
-/* 전투 로그 전용 커스텀 스크롤바 */
-.combat-log::-webkit-scrollbar {
-  width: 6px;
-}
-
-.combat-log::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
-}
-
-.combat-log::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-.combat-log::-webkit-scrollbar-thumb:hover {
-  background: var(--text-dim);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .log-entry {
@@ -4206,6 +4163,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 /* 액션 버튼 바 — 하단 중앙 고정 */
 .combat-bottom-bar {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -4214,6 +4172,46 @@ body:has(#combatOverlay.active) .panel-bottom {
   pointer-events: auto !important;
   position: relative;
   z-index: 300;
+}
+
+.recent-combat-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(460px, 82vw);
+  max-height: 108px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.recent-combat-feed::before {
+  content: attr(data-feed-title);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(245, 233, 199, 0.72);
+  padding: 0 4px 2px;
+}
+
+.recent-combat-feed:empty {
+  display: none;
+}
+
+.recent-combat-feed .log-entry {
+  width: 100%;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: normal;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background-color: rgba(7, 10, 20, 0.76);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.recent-combat-feed .log-entry.turn-divider,
+.recent-combat-feed .log-entry.system {
+  display: none;
 }
 
 .combat-chain-inline {
@@ -4312,6 +4310,53 @@ body:has(#combatOverlay.active) .panel-bottom {
   position: relative;
   z-index: 305;
   align-items: center;
+}
+
+@media (max-width: 900px) {
+  .recent-combat-feed {
+    width: min(420px, 90vw);
+    max-height: 72px;
+  }
+
+  .recent-combat-feed .log-entry {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  .combat-bottom-bar {
+    width: min(94vw, 520px);
+    gap: 8px;
+  }
+
+  .recent-combat-feed {
+    width: 100%;
+    max-height: 60px;
+  }
+
+  .recent-combat-feed::before {
+    font-size: 9px;
+    padding: 0 2px 1px;
+  }
+
+  .recent-combat-feed .log-entry {
+    font-size: 11px;
+    padding: 4px 9px;
+    line-height: 1.3;
+  }
+
+  .combat-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 9px 14px;
+  }
 }
 
 .action-btn {

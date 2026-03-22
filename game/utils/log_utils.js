@@ -7,6 +7,15 @@ function _toStatusName(statusName) {
     return getStatusDisplayName(statusName);
 }
 
+function _normalizeRecentFeedSource(source) {
+    if (!source || typeof source !== 'object') return null;
+    const type = typeof source.type === 'string' && source.type ? source.type : 'effect';
+    const id = typeof source.id === 'string' && source.id ? source.id : null;
+    const name = typeof source.name === 'string' && source.name ? source.name : (id || null);
+    if (!name) return null;
+    return { type, id, name };
+}
+
 export const LogUtils = {
     // 기본 공격
     formatAttack(attacker, target, damage) {
@@ -60,3 +69,37 @@ export const LogUtils = {
     formatSystem(msg) { return `⚙️ ${msg}`; },
     formatEcho(msg) { return `✨ ${msg}`; }
 };
+
+export function getCurrentCardLogSource(gs) {
+    const currentCard = gs?._currentCard;
+    if (!currentCard || typeof currentCard !== 'object') return null;
+    const id = typeof currentCard.id === 'string' && currentCard.id ? currentCard.id : null;
+    const name = typeof currentCard.name === 'string' && currentCard.name ? currentCard.name : (id || null);
+    if (!name) return null;
+    return { type: 'card', id, name };
+}
+
+export function createRecentFeedMeta({ source = null, text = '', eligible = true } = {}) {
+    const nextMeta = {};
+    const normalizedSource = _normalizeRecentFeedSource(source);
+    if (normalizedSource) nextMeta.source = normalizedSource;
+    nextMeta.recentFeed = {
+        eligible: !!eligible,
+        text: typeof text === 'string' ? text : '',
+    };
+    return nextMeta;
+}
+
+export function formatRecentFeedText({ sourceName, sourceType = 'effect', targetName = '', outcome = '' } = {}) {
+    const normalizedSourceName = typeof sourceName === 'string' ? sourceName.trim() : '';
+    const normalizedOutcome = typeof outcome === 'string' ? outcome.trim() : '';
+    if (!normalizedSourceName) return normalizedOutcome;
+    const sourceLabel = sourceType === 'card' ? `[${normalizedSourceName}]` : normalizedSourceName;
+    if (targetName) return `${sourceLabel} -> ${targetName}: ${normalizedOutcome}`;
+    return `${sourceLabel}: ${normalizedOutcome}`;
+}
+
+export function formatRecentFeedStatusOutcome(status, duration) {
+    const normalizedDuration = Number.isFinite(duration) ? Math.max(0, Math.floor(duration)) : 0;
+    return `${_toStatusName(status)} ${normalizedDuration}턴`;
+}

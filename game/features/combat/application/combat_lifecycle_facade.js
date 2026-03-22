@@ -11,7 +11,11 @@ import {
   playEventResonanceBurst,
   playUiItemGet,
 } from '../../../domain/audio/audio_event_helpers.js';
-import { LogUtils } from '../../../utils/log_utils.js';
+import {
+  createRecentFeedMeta,
+  formatRecentFeedText,
+  LogUtils,
+} from '../../../utils/log_utils.js';
 import {
   runEndCombatFlow,
 } from './run_end_combat_flow_use_case.js';
@@ -117,7 +121,14 @@ export const CombatLifecycle = {
       }
     });
 
-    this.addLog(LogUtils.formatEcho(`✨ 공명 폭발: ${burstDmg} 피해!`), 'echo');
+    this.addLog(LogUtils.formatEcho(`✨ 공명 폭발: ${burstDmg} 피해!`), 'echo', createRecentFeedMeta({
+      source: { name: '공명 폭발', type: 'skill' },
+      text: formatRecentFeedText({
+        sourceName: '공명 폭발',
+        sourceType: 'skill',
+        outcome: `${burstDmg} 피해`,
+      }),
+    }));
 
     const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
     if (typeof renderCombatEnemies === 'function') renderCombatEnemies();

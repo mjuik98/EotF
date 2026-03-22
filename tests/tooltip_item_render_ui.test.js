@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createItemTooltipElement,
@@ -104,11 +106,22 @@ describe('tooltip_item_render_ui', () => {
     const state = resolveItemTooltipState('void_crystal', item, data, gs, setBonusSystem);
 
     expect(state.rarity).toBe('rare');
+    expect(state.rarityLabel).toBe('희귀');
     expect(state.triggerText).toBe('전투 시작 시');
     expect(state.liveCharge.remaining).toBe(1);
     expect(state.setDef.name).toBe('Void Set');
     expect(state.setCount).toBe(1);
     expect(state.setOwnedFlags).toEqual([true, false]);
+  });
+
+  it('keeps feature tooltip rendering decoupled from data rarity imports', () => {
+    const source = readFileSync(
+      path.join(process.cwd(), 'game/features/combat/presentation/browser/tooltip_item_element.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('data/rarity_meta.js');
+    expect(source).toContain('rarityLabel');
   });
 
   it('creates the item tooltip shell and positions it within the viewport', () => {

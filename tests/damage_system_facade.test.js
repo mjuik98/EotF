@@ -111,4 +111,61 @@ describe('DamageSystem facade', () => {
     expect(host.dispatch).not.toHaveBeenCalledWith(Actions.ENEMY_STATUS, expect.anything());
     expect(host._lastDodgedTarget).toBeNull();
   });
+
+  it('attaches recent-feed metadata for card damage and shield results', () => {
+    const host = createHost();
+    host._currentCard = { id: 'strike', name: '강타' };
+    host.combat.enemies = [{
+      name: 'Shade',
+      hp: 30,
+      shield: 0,
+      statusEffects: {},
+    }];
+
+    host.dealDamage(10, 0);
+    host.addShield(6);
+
+    expect(host.addLog).toHaveBeenNthCalledWith(1,
+      '🃏 [강타] → Shade: 10 피해',
+      'card-log',
+      expect.objectContaining({
+        recentFeed: {
+          eligible: true,
+          text: '[강타] -> Shade: 10 피해',
+        },
+      }));
+    expect(host.addLog).toHaveBeenNthCalledWith(2,
+      '🃏 [강타]: 방어막 +6',
+      'buff',
+      expect.objectContaining({
+        recentFeed: {
+          eligible: true,
+          text: '[강타]: 방어막 +6',
+        },
+      }));
+  });
+
+  it('attaches recent-feed metadata for card-applied enemy status', () => {
+    const host = createHost();
+    host._currentCard = { id: 'poison_sting', name: '독침' };
+    host.combat.enemies = [{
+      name: 'Shade',
+      hp: 30,
+      shield: 0,
+      statusEffects: {},
+    }];
+
+    host.applyEnemyStatus('poisoned', 2, 0);
+
+    expect(host.addLog).toHaveBeenCalledWith(
+      '💫 Shade: 중독 (2턴)',
+      'echo',
+      expect.objectContaining({
+        recentFeed: {
+          eligible: true,
+          text: '[독침] -> Shade: 중독 2턴',
+        },
+      }),
+    );
+  });
 });
