@@ -150,6 +150,78 @@ describe('hud_panel_runtime_helpers', () => {
     expect(setBonusPanel.children[0].children[0].textContent).toBe('Echo Set [2/3]');
   });
 
+  it('renders the combat relic rail from updateItemPanels and reuses tooltip wiring', () => {
+    const doc = createDoc();
+    const itemSlots = doc.createElement('div');
+    itemSlots.id = 'itemSlots';
+    const setBonusPanel = doc.createElement('div');
+    setBonusPanel.id = 'setBonusPanel';
+    const combatRelicRail = doc.createElement('div');
+    combatRelicRail.id = 'combatRelicRail';
+    const combatRelicRailCount = doc.createElement('span');
+    combatRelicRailCount.id = 'combatRelicRailCount';
+    const combatRelicRailSlots = doc.createElement('div');
+    combatRelicRailSlots.id = 'combatRelicRailSlots';
+    const combatRelicPanel = doc.createElement('div');
+    combatRelicPanel.id = 'combatRelicPanel';
+    const combatRelicPanelList = doc.createElement('div');
+    combatRelicPanelList.id = 'combatRelicPanelList';
+    combatRelicPanel.appendChild(combatRelicPanelList);
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
+
+    const showItemTooltip = vi.fn();
+    const hideItemTooltip = vi.fn();
+
+    updateItemPanels({
+      gs: createState({
+        player: {
+          items: ['common_relic', 'legendary_relic'],
+        },
+      }),
+      deps: {
+        setBonusSystem: {
+          getActiveSets: () => [],
+          applyPassiveBonuses: vi.fn(),
+        },
+        showItemTooltip,
+        hideItemTooltip,
+      },
+      doc,
+      data: {
+        items: {
+          common_relic: {
+            id: 'common_relic',
+            icon: '◯',
+            rarity: 'common',
+            name: '보통 유물',
+            desc: '기본 설명',
+          },
+          legendary_relic: {
+            id: 'legendary_relic',
+            icon: '✧',
+            rarity: 'legendary',
+            name: '전설 유물',
+            desc: '강한 설명',
+          },
+        },
+      },
+    });
+
+    expect(itemSlots.children).toHaveLength(2);
+    expect(combatRelicRailCount.textContent).toBe('2');
+    expect(combatRelicRailSlots.children).toHaveLength(2);
+    expect(combatRelicRailSlots.children[0].textContent).toBe('✧');
+    expect(combatRelicRailSlots.children[1].textContent).toBe('◯');
+    expect(combatRelicPanelList.children).toHaveLength(2);
+
+    const hoverEvent = { type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] };
+    combatRelicRailSlots.children[0].listeners.mouseenter(hoverEvent);
+    expect(showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_relic');
+
+    combatRelicRailSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: combatRelicRailSlots.children[0] });
+    expect(hideItemTooltip).toHaveBeenCalledWith();
+  });
+
   it('renders run modifiers with inscriptions and curse info', () => {
     const doc = createDoc();
     const modEl = doc.createElement('div');

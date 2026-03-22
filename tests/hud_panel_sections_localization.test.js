@@ -126,6 +126,11 @@ describe('hud_panel_sections localization', () => {
       'playerFloor',
       'itemSlots',
       'setBonusPanel',
+      'combatRelicRail',
+      'combatRelicRailCount',
+      'combatRelicRailSlots',
+      'combatRelicPanel',
+      'combatRelicPanelList',
       'hudRunModifiers',
       'useEchoSkillBtn',
       'combatDrawCardBtn',
@@ -171,6 +176,7 @@ describe('hud_panel_sections localization', () => {
 
     expect(doc.getElementById('hoverHudSpecial').children[0].textContent).toBe('없음');
     expect(doc.getElementById('regionName').textContent).toBe('미확인 지역');
+    expect(doc.getElementById('combatRelicRailCount').textContent).toBe('0');
 
     doc.getElementById('regionName').onmouseenter?.({ currentTarget: { getBoundingClientRect: () => ({ left: 0, right: 0, top: 0 }) } });
 
