@@ -22,6 +22,16 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-combat-ui')");
   });
 
+  it('checks the localized card rarity tag in the browser smoke runner', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("querySelector('.card-rarity-tag')");
+    expect(source).toContain("result.firstCardRarityText === '일반'");
+  });
+
   it('wires the combat UI smoke run into the quality gate workflow', () => {
     const workflow = fs.readFileSync(
       path.join(process.cwd(), '.github', 'workflows', 'quality-gate.yml'),

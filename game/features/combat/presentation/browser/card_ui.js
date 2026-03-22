@@ -43,6 +43,10 @@ export const CardUI = {
     const dragStartHandler = deps.dragStartHandler;
     const dragEndHandler = deps.dragEndHandler;
     const cardCostUtils = _getCardCostUtils(deps);
+    const descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || null;
+    const triggerItems = typeof gs?.triggerItems === 'function'
+      ? gs.triggerItems.bind(gs)
+      : gs?.triggerItems;
     if (!cardCostUtils) return;
 
     HandCardCloneUI.init({ doc });
@@ -60,19 +64,13 @@ export const CardUI = {
       const card = data.cards[cardId];
       if (!card) return;
 
-      const displayMax = cardCostUtils.getCostDisplay(cardId, card, gs.player, i);
-      const { displayCost: cost } = displayMax;
-      const effectiveCost = cardCostUtils.calcEffectiveCost(cardId, card, gs.player, i);
-      const canPlay = gs.player.energy >= effectiveCost;
-
-      const nextDisc = gs.player._nextCardDiscount || 0;
-      const baseDisc = gs.player.costDiscount || 0;
-      const traitDisc = cardCostUtils.hasTraitDiscount?.(cardId, gs.player) ? 1 : 0;
-      const totalDisc = nextDisc + baseDisc + traitDisc;
-
-      const isCascadeFree = cardCostUtils.isCascadeFree(cardId, gs.player, i);
-      const isChargeFree = cardCostUtils.isChargeFree(cardId, gs.player, i);
-      const anyFree = isCascadeFree || isChargeFree;
+      const costState = cardCostUtils.getCostDisplay(cardId, card, gs.player, i, {
+        triggerItems,
+      });
+      const cost = costState.displayCost;
+      const canPlay = !!costState.canPlay;
+      const totalDisc = Math.min(Number(costState.totalDiscount || 0), card.cost || 0);
+      const anyFree = !!costState.anyFree;
       const el = createCombatCardElement(doc, {
         cardId,
         handIndex: i,
@@ -84,6 +82,7 @@ export const CardUI = {
         cardW,
         cardH,
         cardFontScale,
+        descriptionUtils,
       });
 
       if (playCardHandler) {
@@ -104,8 +103,8 @@ export const CardUI = {
       if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
 
       HandCardCloneUI.attachToCard(el, cardId, card, {
-        displayCost: cost, canPlay, anyFree, totalDisc: Math.min(totalDisc, card.cost || 0),
-      }, { doc });
+        displayCost: cost, canPlay, anyFree, totalDisc,
+      }, { doc, descriptionUtils });
 
       zone.appendChild(el);
     });

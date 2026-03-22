@@ -101,7 +101,12 @@ describe('card_ui', () => {
     const dragStartHandler = vi.fn();
     const dragEndHandler = vi.fn();
     const cardCostUtils = {
-      getCostDisplay: vi.fn(() => ({ displayCost: 1 })),
+      getCostDisplay: vi.fn(() => ({
+        anyFree: false,
+        canPlay: true,
+        displayCost: 1,
+        totalDiscount: 0,
+      })),
       calcEffectiveCost: vi.fn(() => 1),
       hasTraitDiscount: vi.fn(() => false),
       isCascadeFree: vi.fn(() => false),
@@ -133,8 +138,14 @@ describe('card_ui', () => {
 
     expect(initSpy).toHaveBeenCalledWith({ doc });
     expect(destroyAllSpy).toHaveBeenCalledWith({ doc });
-    expect(cardCostUtils.getCostDisplay).toHaveBeenCalledWith('strike', data.cards.strike, gs.player, 0);
-    expect(cardCostUtils.calcEffectiveCost).toHaveBeenCalledWith('strike', data.cards.strike, gs.player, 0);
+    expect(cardCostUtils.getCostDisplay).toHaveBeenCalledWith(
+      'strike',
+      data.cards.strike,
+      gs.player,
+      0,
+      expect.objectContaining({ triggerItems: undefined }),
+    );
+    expect(cardCostUtils.calcEffectiveCost).not.toHaveBeenCalled();
     expect(createCombatCardElementSpy).toHaveBeenCalledWith(doc, expect.objectContaining({
       cardId: 'strike',
       displayCost: 1,
@@ -151,7 +162,7 @@ describe('card_ui', () => {
       'strike',
       data.cards.strike,
       expect.objectContaining({ displayCost: 1 }),
-      { doc },
+      expect.objectContaining({ doc }),
     );
 
     globalThis.CardCostUtils = prevCardCostUtils;
@@ -161,7 +172,12 @@ describe('card_ui', () => {
     const doc = createDoc();
     const playCardHandler = vi.fn();
     const cardCostUtils = {
-      getCostDisplay: vi.fn(() => ({ displayCost: 1 })),
+      getCostDisplay: vi.fn(() => ({
+        anyFree: false,
+        canPlay: true,
+        displayCost: 1,
+        totalDiscount: 0,
+      })),
       calcEffectiveCost: vi.fn(() => 1),
       hasTraitDiscount: vi.fn(() => false),
       isCascadeFree: vi.fn(() => false),
@@ -182,5 +198,64 @@ describe('card_ui', () => {
 
     expect(playCardHandler).toHaveBeenCalledWith('strike', 0);
     expect(doc.getElementById('handCards').children).toHaveLength(0);
+  });
+
+  it('treats cards as playable in the UI when before-card-cost hooks reduce their cost', () => {
+    const doc = createDoc();
+    const cardCostUtils = {
+      getCostDisplay: vi.fn(() => ({
+        canPlay: true,
+        displayCost: 1,
+        isDiscounted: true,
+        totalDiscount: 1,
+      })),
+      calcEffectiveCost: vi.fn(() => 1),
+      hasTraitDiscount: vi.fn(() => false),
+      isCascadeFree: vi.fn(() => false),
+      isChargeFree: vi.fn(() => false),
+    };
+    const gs = {
+      player: {
+        hand: ['defend'],
+        energy: 1,
+        _nextCardDiscount: 0,
+        costDiscount: 0,
+      },
+      triggerItems: vi.fn((trigger) => (trigger === 'before_card_cost' ? -1 : undefined)),
+    };
+    const data = {
+      cards: {
+        defend: { cost: 2, desc: '방어막 8 획득', icon: '🛡', name: '수비', rarity: 'common', type: 'SKILL' },
+      },
+    };
+
+    CardUI.renderCombatCards({
+      cardCostUtils,
+      data,
+      doc,
+      gs,
+      playCardHandler: vi.fn(),
+    });
+
+    expect(cardCostUtils.getCostDisplay).toHaveBeenCalledWith(
+      'defend',
+      data.cards.defend,
+      gs.player,
+      0,
+      expect.objectContaining({ triggerItems: expect.any(Function) }),
+    );
+    expect(createCombatCardElementSpy).toHaveBeenCalledWith(doc, expect.objectContaining({
+      canPlay: true,
+      cardId: 'defend',
+      displayCost: 1,
+      totalDisc: 1,
+    }));
+    expect(attachToCardSpy).toHaveBeenCalledWith(
+      doc.getElementById('combatHandCards').children[0],
+      'defend',
+      data.cards.defend,
+      expect.objectContaining({ canPlay: true, displayCost: 1, totalDisc: 1 }),
+      expect.objectContaining({ doc }),
+    );
   });
 });

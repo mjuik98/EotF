@@ -49,7 +49,7 @@ export const CardReducers = {
         }
         player.graveyard = [];
         if (typeof gs.addLog === 'function') {
-          gs.addLog('Discard pile reshuffled into draw pile.', 'system');
+          gs.addLog('버린 더미를 드로우 더미로 다시 섞었습니다.', 'system');
         }
       }
 

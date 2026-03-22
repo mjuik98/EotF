@@ -56,6 +56,7 @@ describe('Reducers', () => {
 
     it('CARD_DRAW reshuffles graveyard into deck and draws up to hand limit', () => {
         const gs = createBaseState();
+        gs.addLog = vi.fn();
         gs.player.deck = [];
         gs.player.graveyard = ['a', 'b', 'c'];
         gs.player.hand = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7'];
@@ -65,6 +66,7 @@ describe('Reducers', () => {
         expect(result.drawn).toBe(1);
         expect(gs.player.hand.length).toBe(8);
         expect(gs.player.graveyard.length).toBe(0);
+        expect(gs.addLog).toHaveBeenCalledWith('버린 더미를 드로우 더미로 다시 섞었습니다.', 'system');
         expect(gs.isDirty('hand')).toBe(true);
     });
 

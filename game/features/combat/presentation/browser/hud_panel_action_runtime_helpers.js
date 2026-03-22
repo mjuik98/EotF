@@ -14,15 +14,17 @@ function resolveCardCostUtils(deps) {
 export function updateActionButtons({ gs, deps, doc, data }) {
   const player = gs.player;
   const cardCostUtils = resolveCardCostUtils(deps);
+  const triggerItems = typeof gs?.triggerItems === 'function'
+    ? gs.triggerItems.bind(gs)
+    : gs?.triggerItems;
   const endBtn = doc.querySelector('.action-btn-end');
   if (endBtn && gs.combat.active && gs.combat.playerTurn) {
     const hasPlayable = player.hand.some((id, handIndex) => {
       const card = data?.cards?.[id];
       if (!card) return false;
-      const cost = typeof cardCostUtils?.calcEffectiveCost === 'function'
-        ? cardCostUtils.calcEffectiveCost(id, card, player, handIndex)
-        : card.cost;
-      return player.energy >= cost;
+      return typeof cardCostUtils?.canPlay === 'function'
+        ? cardCostUtils.canPlay(id, card, player, handIndex, { triggerItems })
+        : player.energy >= card.cost;
     });
     endBtn.classList.toggle('energy-warn', hasPlayable && player.energy > 0);
   }

@@ -34,5 +34,37 @@ describe('CardCostUtils', () => {
         expect(cascade.has(2)).toBe(false);
         expect(cascade.has(4)).toBe(true);
     });
-});
 
+    it('applies before-card-cost hooks consistently across cost display and can-play checks', () => {
+        const card = { cost: 2 };
+        const player = {
+            zeroCost: false,
+            _cascadeCards: new Map(),
+            _freeCardUses: 0,
+            costDiscount: 0,
+            _nextCardDiscount: 0,
+            _traitCardDiscounts: {},
+            energy: 1,
+        };
+        const triggerItems = (trigger, payload) => (
+            trigger === 'before_card_cost' && payload?.cardId === 'defend'
+                ? -1
+                : undefined
+        );
+
+        expect(
+            CardCostUtils.calcEffectiveCost('defend', card, player, 0, { triggerItems })
+        ).toBe(1);
+        expect(
+            CardCostUtils.canPlay('defend', card, player, 0, { triggerItems })
+        ).toBe(true);
+        expect(
+            CardCostUtils.getCostDisplay('defend', card, player, 0, { triggerItems })
+        ).toEqual(expect.objectContaining({
+            canPlay: true,
+            displayCost: 1,
+            isDiscounted: true,
+            totalDiscount: 1,
+        }));
+    });
+});
