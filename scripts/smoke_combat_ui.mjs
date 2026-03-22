@@ -101,7 +101,11 @@ async function main() {
 
       if (typeof window.renderCombatCards === 'function') window.renderCombatCards();
       if (typeof window.renderCombatEnemies === 'function') window.renderCombatEnemies();
-      if (typeof window.doUpdateUI === 'function') window.doUpdateUI();
+      if (typeof window.updateUI === 'function') {
+        window.updateUI();
+      } else if (typeof window.doUpdateUI === 'function') {
+        window.doUpdateUI();
+      }
 
       const drawBtn = document.getElementById('combatDrawCardBtn');
       const echoBtn = document.getElementById('useEchoSkillBtn');
@@ -158,7 +162,16 @@ async function main() {
     assertCondition(result.combatRelicPanelVisible === false, `combat relic panel should remain hidden when closed: ${result.combatRelicPanelVisible}`);
 
     await page.setViewportSize({ width: 430, height: 932 });
-    await page.waitForTimeout(100);
+    await page.waitForFunction(() => {
+      const combatRelicRail = document.getElementById('combatRelicRail');
+      if (!combatRelicRail) return false;
+
+      const rect = combatRelicRail.getBoundingClientRect();
+      return getComputedStyle(combatRelicRail).display !== 'none'
+        && getComputedStyle(combatRelicRail).visibility !== 'hidden'
+        && rect.width > 0
+        && rect.height > 0;
+    });
 
     const mobileResult = await page.evaluate(() => {
       const combatRelicRail = document.getElementById('combatRelicRail');

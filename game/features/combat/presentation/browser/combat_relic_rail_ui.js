@@ -1,4 +1,10 @@
-import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
+const RARITY_SORT_ORDER = {
+  legendary: 0,
+  epic: 1,
+  rare: 2,
+  uncommon: 3,
+  common: 4,
+};
 
 function normalizeRarity(rarity) {
   return String(rarity || 'common').toLowerCase();

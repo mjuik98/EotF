@@ -40,7 +40,12 @@ describe('combat ui smoke scripts', () => {
 
     expect(source).toContain("gs.player.items = ['serpent_fang_dagger']");
     expect(source).toContain('combatRelicRail');
+    expect(source).toContain('combatRelicRailCountText');
     expect(source).toContain('combatRelicPanel');
+    expect(source).toContain('combatRelicPanelOpen === false');
+    expect(source).toContain('typeof window.updateUI === \'function\'');
     expect(source).toContain('mobileRelicRailVisible');
+    expect(source).toContain('mobileRelicRailWithinViewport');
+    expect(source).toContain('page.waitForFunction');
   });
 });
