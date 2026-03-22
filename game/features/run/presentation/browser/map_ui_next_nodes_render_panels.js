@@ -99,6 +99,86 @@ export function buildBottomDock(doc, regionData, options = {}) {
   return dock;
 }
 
+const FLOATING_RELIC_DETAIL_BREAKPOINT = 1180;
+const FLOATING_RELIC_DETAIL_WIDTH = 240;
+const FLOATING_RELIC_DETAIL_GAP = 14;
+const FLOATING_RELIC_DETAIL_MIN_TOP = 56;
+const FLOATING_RELIC_DETAIL_EDGE_PADDING = 12;
+
+function getElementRect(element) {
+  return typeof element?.getBoundingClientRect === 'function'
+    ? element.getBoundingClientRect()
+    : null;
+}
+
+function resolveRelicDetailPlacement(panel, detailPanel, win) {
+  const viewportWidth = Number(win?.innerWidth) || 0;
+  if (viewportWidth <= FLOATING_RELIC_DETAIL_BREAKPOINT) return 'inline';
+
+  const panelRect = getElementRect(panel);
+  const detailRect = getElementRect(detailPanel);
+  const detailWidth = detailRect?.width || FLOATING_RELIC_DETAIL_WIDTH;
+  if (!panelRect?.left) return 'floating-left';
+  return panelRect.left >= detailWidth + 24 ? 'floating-left' : 'inline';
+}
+
+function resolveFloatingRelicDetailTop(panel, detailPanel, activeSlot) {
+  const panelRect = getElementRect(panel);
+  const detailRect = getElementRect(detailPanel);
+  const slotRect = getElementRect(activeSlot);
+  const detailHeight = detailRect?.height || detailPanel?.offsetHeight || 0;
+  const panelHeight = panelRect?.height || panel?.clientHeight || 0;
+
+  if (!panelRect || !slotRect || !detailHeight || !panelHeight) return FLOATING_RELIC_DETAIL_MIN_TOP;
+
+  const idealTop = slotRect.top - panelRect.top + ((slotRect.height || 0) - detailHeight) / 2;
+  const maxTop = Math.max(FLOATING_RELIC_DETAIL_MIN_TOP, panelHeight - detailHeight - FLOATING_RELIC_DETAIL_EDGE_PADDING);
+  return Math.max(FLOATING_RELIC_DETAIL_MIN_TOP, Math.min(Math.round(idealTop), Math.round(maxTop)));
+}
+
+function applyRelicDetailLayout(panel, detailPanel, win, activeSlot = null) {
+  if (!panel || !detailPanel) return;
+
+  panel.style.position = 'relative';
+  panel.style.overflow = 'visible';
+  const placement = resolveRelicDetailPlacement(panel, detailPanel, win);
+  detailPanel.dataset.placement = placement;
+  detailPanel.style.transition = placement === 'floating-left'
+    ? 'opacity .16s ease, transform .22s cubic-bezier(.22, 1, .36, 1)'
+    : 'opacity .18s ease, transform .2s ease';
+  detailPanel.style.transformOrigin = placement === 'floating-left' ? '100% 24px' : '50% 0';
+
+  if (placement === 'floating-left') {
+    detailPanel.style.position = 'absolute';
+    detailPanel.style.top = `${resolveFloatingRelicDetailTop(panel, detailPanel, activeSlot)}px`;
+    detailPanel.style.right = `calc(100% + ${FLOATING_RELIC_DETAIL_GAP}px)`;
+    detailPanel.style.left = 'auto';
+    detailPanel.style.bottom = 'auto';
+    detailPanel.style.width = 'min(240px, calc(100vw - 48px))';
+    detailPanel.style.marginTop = '0';
+    detailPanel.style.zIndex = '2';
+    return;
+  }
+
+  detailPanel.style.position = 'static';
+  detailPanel.style.top = 'auto';
+  detailPanel.style.right = 'auto';
+  detailPanel.style.left = 'auto';
+  detailPanel.style.bottom = 'auto';
+  detailPanel.style.width = '100%';
+  detailPanel.style.marginTop = '10px';
+  detailPanel.style.zIndex = 'auto';
+}
+
+function animateRelicDetailPanel(detailPanel, deps = {}) {
+  if (!detailPanel) return;
+  const floating = detailPanel.dataset?.placement === 'floating-left';
+  detailPanel.style.transform = floating ? 'translateX(10px) scale(.985)' : 'translateY(4px)';
+  runOnNextFrame(() => {
+    detailPanel.style.transform = floating ? 'translateX(0) scale(1)' : 'translateY(0)';
+  }, deps);
+}
+
 export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   const rarityMeta = {
     legendary: { pip: '#c084fc', rgb: '192, 132, 252' },
@@ -140,14 +220,18 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     variant: 'compact',
   });
 
-  const renderDetail = (itemId, item, activeSlot) => {
+  const renderDetail = (itemId, item, activeSlot, options = {}) => {
     const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
     const detail = buildItemDetailViewModel(itemId, item, data, state);
     detailSurface.show({
       activeEntry: activeSlot,
       detail,
       itemId,
+      pinned: options.pinned === true,
     });
+    applyRelicDetailLayout(panel, detailPanel, win, activeSlot);
+    animateRelicDetailPanel(detailPanel, deps);
+    runOnNextFrame(() => applyRelicDetailLayout(panel, detailPanel, win, activeSlot), deps);
   };
 
   if (items.length === 0) {
@@ -191,10 +275,18 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       const pip = doc.createElement('div');
       pip.className = 'nc-relic-pip';
       pip.style.cssText = `background:${meta.pip};box-shadow:0 0 5px ${meta.pip};`;
-      const selectSlot = () => renderDetail(itemId, item, slot);
-      slot.addEventListener('mouseenter', selectSlot);
-      slot.addEventListener('focus', selectSlot);
-      slot.addEventListener('click', selectSlot);
+      const previewSlot = () => {
+        if (detailPanel.dataset?.pinned === 'true') return;
+        renderDetail(itemId, item, slot, { pinned: false });
+      };
+      const togglePinnedSlot = () => {
+        const isPinned = detailPanel.dataset?.pinned === 'true';
+        const isSameItem = detailPanel.dataset?.itemId === itemId;
+        renderDetail(itemId, item, slot, { pinned: !isPinned || !isSameItem });
+      };
+      slot.addEventListener('mouseenter', previewSlot);
+      slot.addEventListener('focus', previewSlot);
+      slot.addEventListener('click', togglePinnedSlot);
       slot.addEventListener('keydown', (event) => {
         const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || sortedItems.length);
         if (nextIndex >= 0) {
@@ -204,12 +296,13 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
           const nextItem = data?.items?.[nextItemId];
           if (!nextSlot || !nextItem) return;
           nextSlot.focus?.();
-          renderDetail(nextItemId, nextItem, nextSlot);
+          if (detailPanel.dataset?.pinned === 'true') return;
+          renderDetail(nextItemId, nextItem, nextSlot, { pinned: false });
           return;
         }
         if (isItemDetailCommitKey(event?.key)) {
           event?.preventDefault?.();
-          selectSlot();
+          togglePinnedSlot();
         }
       });
 
@@ -226,6 +319,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   scrollWrap.appendChild(list);
   panel.appendChild(scrollWrap);
   if (items.length > 0) panel.appendChild(detailPanel);
+  applyRelicDetailLayout(panel, detailPanel, win, list.children[0] || null);
 
   const updateFades = () => {
     if (!scrollWrap.classList?.toggle) return;

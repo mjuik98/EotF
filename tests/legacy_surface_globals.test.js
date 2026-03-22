@@ -37,7 +37,7 @@ describe('legacy surface global builders', () => {
     });
   });
 
-  it('prefers scoped combat/core modules over top-level system aliases', () => {
+  it('prefers scoped core system modules over top-level system aliases', () => {
     const modules = {
       RunRules: { id: 'stale-rules' },
       featureScopes: {
@@ -49,8 +49,6 @@ describe('legacy surface global builders', () => {
           SaveSystem: { id: 'scoped-save' },
           CardCostUtils: { id: 'scoped-card-cost' },
           DescriptionUtils: { id: 'scoped-description' },
-        },
-        combat: {
           ClassMechanics: { id: 'scoped-class-mechanics' },
           SetBonusSystem: { id: 'scoped-set-bonus' },
         },
@@ -67,12 +65,12 @@ describe('legacy surface global builders', () => {
       getRegionData: modules.featureScopes.core.getRegionData,
       getBaseRegionIndex: modules.featureScopes.core.getBaseRegionIndex,
       getRegionCount: modules.featureScopes.core.getRegionCount,
-      ClassMechanics: modules.featureScopes.combat.ClassMechanics,
-      SetBonusSystem: modules.featureScopes.combat.SetBonusSystem,
+      ClassMechanics: modules.featureScopes.core.ClassMechanics,
+      SetBonusSystem: modules.featureScopes.core.SetBonusSystem,
       SaveSystem: modules.featureScopes.core.SaveSystem,
       CardCostUtils: modules.featureScopes.core.CardCostUtils,
       DescriptionUtils: modules.featureScopes.core.DescriptionUtils,
-      classMechanics: modules.featureScopes.combat.ClassMechanics,
+      classMechanics: modules.featureScopes.core.ClassMechanics,
     });
   });
 
@@ -92,6 +90,7 @@ describe('legacy surface global builders', () => {
           HudUpdateUI: { id: 'scoped-hud-update' },
           StatusEffectsUI: { id: 'scoped-status-effects' },
           CombatActionsUI: { id: 'scoped-combat-actions' },
+          TooltipUI: { id: 'combat-tooltip' },
         },
         run: {
           RunModeUI: { id: 'scoped-run-mode' },
@@ -99,7 +98,7 @@ describe('legacy surface global builders', () => {
         },
         screen: {
           ScreenUI: { id: 'scoped-screen' },
-          TooltipUI: { id: 'scoped-tooltip' },
+          TooltipUI: { id: 'stale-screen-tooltip' },
         },
         codex: {
           CodexUI: { id: 'scoped-codex' },
@@ -132,7 +131,7 @@ describe('legacy surface global builders', () => {
       StatusEffectsUI: modules.featureScopes.combat.StatusEffectsUI,
       RewardUI: modules.featureScopes.reward.RewardUI,
       CombatActionsUI: modules.featureScopes.combat.CombatActionsUI,
-      TooltipUI: modules.featureScopes.screen.TooltipUI,
+      TooltipUI: modules.featureScopes.combat.TooltipUI,
       HelpPauseUI: modules.featureScopes.title.HelpPauseUI,
       RunSetupUI: modules.featureScopes.run.RunSetupUI,
     });

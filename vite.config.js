@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 
 const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-combat-[^/]+\.js$/,
+  /\/?assets\/ui-combat-copy-[^/]+\.js$/,
   /\/?assets\/ui-combat-deck-[^/]+\.js$/,
   /\/?assets\/ui-combat-chronicle-[^/]+\.js$/,
   /\/?assets\/ui-combat-tooltips-[^/]+\.js$/,
@@ -31,6 +32,7 @@ export function getManualChunk(id) {
   if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
   if (normalized.endsWith('/data/status_key_data.js')) return 'ui-combat';
   if (normalized.endsWith('/game/utils/status_value_utils.js')) return 'ui-combat';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/combat_copy.js')) return 'ui-combat-copy';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
   if (normalized.includes('/game/features/event/presentation/browser/')) return 'ui-event';
   if (

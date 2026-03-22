@@ -84,4 +84,16 @@ describe('global bridge feature dep contexts', () => {
     expect(ui.CombatUI).toBeUndefined();
     expect(ui.RunModeUI).toBeUndefined();
   });
+
+  it('exposes classMechanics alias through combat deps for legacy runtime callers', () => {
+    const classMechanics = { swordsman: { onPlayCard() {} } };
+
+    GAME.init({ currentScreen: 'title' }, { cards: {} }, { playClick() {} }, { burst() {} });
+    GAME.register('ClassMechanics', classMechanics);
+
+    const combat = GAME.getCombatDeps();
+
+    expect(combat.ClassMechanics).toBe(classMechanics);
+    expect(combat.classMechanics).toBe(classMechanics);
+  });
 });

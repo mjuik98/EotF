@@ -293,14 +293,19 @@ async function main() {
     const hoverResult = await page.evaluate(() => {
       const clone = document.querySelector('#handCardCloneLayer .card-clone-visible');
       const cloneCost = clone?.querySelector('.card-cost');
+      const tooltip = document.getElementById('cardTooltip');
       return {
         hoverCloneVisible: !!clone,
         hoverCloneCostClass: cloneCost?.className || null,
+        tooltipText: tooltip?.innerText?.trim() || null,
+        tooltipVisible: !!tooltip?.classList?.contains?.('visible'),
       };
     });
 
     assertCondition(hoverResult.hoverCloneVisible, 'hovering the first hand card did not show the card clone');
     assertCondition(hoverResult.hoverCloneCostClass?.includes('card-cost-hover'), `hover clone cost missing hover variant class: ${hoverResult.hoverCloneCostClass}`);
+    assertCondition(hoverResult.tooltipVisible, 'hovering the first hand card did not show the card tooltip');
+    assertCondition(!!hoverResult.tooltipText, 'hover tooltip opened without card content');
 
     await page.setViewportSize({ width: 430, height: 932 });
     await page.waitForFunction(() => {

@@ -97,12 +97,18 @@ export function buildLegacyBaseDeps(game, root = getLegacyRoot()) {
 export function buildLegacyFeatureDeps(game, featureName, extra = {}) {
   const root = getLegacyRoot();
   const names = FEATURE_MODULE_NAMES[featureName] || [];
-  return {
+  const deps = {
     ...buildLegacyCommonDeps(game, root),
     ...buildModuleSubset(game, names),
     runRules: root?.RunRules || game.Modules.RunRules,
     ...extra,
   };
+
+  if (featureName === 'combat' && deps.classMechanics === undefined) {
+    deps.classMechanics = deps.ClassMechanics;
+  }
+
+  return deps;
 }
 
 export function exposeLegacyGlobals(mapping, root = getLegacyRoot()) {

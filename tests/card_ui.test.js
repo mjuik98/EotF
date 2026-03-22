@@ -56,6 +56,7 @@ function createDoc() {
   };
 
   return {
+    defaultView: {},
     createElement(tag) {
       return {
         tag,
@@ -257,5 +258,97 @@ describe('card_ui', () => {
       expect.objectContaining({ canPlay: true, displayCost: 1, totalDisc: 1 }),
       expect.objectContaining({ doc }),
     );
+  });
+
+  it('wires hand card hover events to the injected tooltip handlers', async () => {
+    const doc = createDoc();
+    const showTooltipHandler = vi.fn();
+    const hideTooltipHandler = vi.fn();
+    const cardCostUtils = {
+      getCostDisplay: vi.fn(() => ({
+        anyFree: false,
+        canPlay: true,
+        displayCost: 1,
+        totalDiscount: 0,
+      })),
+      calcEffectiveCost: vi.fn(() => 1),
+      hasTraitDiscount: vi.fn(() => false),
+      isCascadeFree: vi.fn(() => false),
+      isChargeFree: vi.fn(() => false),
+    };
+    const gs = {
+      player: {
+        hand: ['strike'],
+        energy: 2,
+        _nextCardDiscount: 0,
+        costDiscount: 0,
+      },
+    };
+    const data = {
+      cards: {
+        strike: { cost: 1, desc: 'desc', icon: 'S', name: 'Strike', rarity: 'common', type: 'ATTACK' },
+      },
+    };
+
+    CardUI.renderCombatCards({
+      cardCostUtils,
+      data,
+      doc,
+      gs,
+      hideTooltipHandler,
+      playCardHandler: vi.fn(),
+      showTooltipHandler,
+    });
+
+    const cardEl = doc.getElementById('combatHandCards').children[0];
+    await cardEl.listeners.get('mouseenter')({ type: 'mouseenter', currentTarget: cardEl });
+    await cardEl.listeners.get('mouseleave')();
+
+    expect(showTooltipHandler).toHaveBeenCalledWith(
+      { type: 'mouseenter', currentTarget: cardEl },
+      'strike',
+    );
+    expect(hideTooltipHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not bind hover tooltip listeners when explicit deps are absent', () => {
+    const doc = createDoc();
+    const cardCostUtils = {
+      getCostDisplay: vi.fn(() => ({
+        anyFree: false,
+        canPlay: true,
+        displayCost: 1,
+        totalDiscount: 0,
+      })),
+      calcEffectiveCost: vi.fn(() => 1),
+      hasTraitDiscount: vi.fn(() => false),
+      isCascadeFree: vi.fn(() => false),
+      isChargeFree: vi.fn(() => false),
+    };
+    const gs = {
+      player: {
+        hand: ['strike'],
+        energy: 2,
+        _nextCardDiscount: 0,
+        costDiscount: 0,
+      },
+    };
+    const data = {
+      cards: {
+        strike: { cost: 1, desc: 'desc', icon: 'S', name: 'Strike', rarity: 'common', type: 'ATTACK' },
+      },
+    };
+
+    CardUI.renderCombatCards({
+      cardCostUtils,
+      data,
+      doc,
+      gs,
+      playCardHandler: vi.fn(),
+    });
+
+    const cardEl = doc.getElementById('combatHandCards').children[0];
+    expect(cardEl.listeners.has('mouseenter')).toBe(false);
+    expect(cardEl.listeners.has('mouseleave')).toBe(false);
   });
 });

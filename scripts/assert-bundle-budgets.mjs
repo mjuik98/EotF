@@ -24,6 +24,7 @@ function findAssetByPattern(distDir, pattern) {
   if (!fs.existsSync(assetsDir)) return null;
 
   return fs.readdirSync(assetsDir)
+    .sort()
     .find((file) => pattern.test(file)) || null;
 }
 
@@ -41,7 +42,7 @@ export function collectBundleStats(distDir = path.join(process.cwd(), 'dist')) {
   const entryCssFile = entry?.css?.[0] || findAssetByPattern(distDir, /^index-.*\.css$/);
   const uiEventFile = findAssetByPattern(distDir, /^ui-event-.*\.js$/);
   const uiRewardFile = findAssetByPattern(distDir, /^ui-reward-.*\.js$/);
-  const uiCombatFile = findAssetByPattern(distDir, /^ui-combat-(?!deck-|chronicle-|tooltips-).*\.js$/);
+  const uiCombatFile = findAssetByPattern(distDir, /^ui-combat-(?!copy-|deck-|chronicle-|tooltips-).*\.js$/);
   const uiCombatTooltipsFile = findAssetByPattern(distDir, /^ui-combat-tooltips-.*\.js$/);
   const uiSettingsFile = findAssetByPattern(distDir, /^ui-settings-.*\.js$/);
   const uiShellOverlaysFile = findAssetByPattern(distDir, /^ui-shell-overlays-.*\.js$/);

@@ -20,6 +20,6 @@ export function resolveUiActionModules(modules = {}) {
     ScreenUI: resolveUiRuntimeModule(modules, 'ScreenUI', ['screen']),
     SettingsUI: resolveUiRuntimeModule(modules, 'SettingsUI', ['screen']),
     StatusEffectsUI: resolveUiRuntimeModule(modules, 'StatusEffectsUI', ['combat']),
-    TooltipUI: resolveUiRuntimeModule(modules, 'TooltipUI', ['screen']),
+    TooltipUI: resolveUiRuntimeModule(modules, 'TooltipUI', ['combat', 'screen']),
   };
 }

@@ -76,4 +76,32 @@ describe('module_registry_scopes', () => {
 
     expect(resolveModuleRegistryCompatValue(modules, 'SettingsUI')).toBeUndefined();
   });
+
+  it('surfaces combat-scoped TooltipUI through compat resolution', () => {
+    const combatTooltipUI = { id: 'combat-tooltip-ui' };
+    const modules = {
+      featureScopes: {
+        combat: {
+          TooltipUI: combatTooltipUI,
+        },
+      },
+      legacyModules: {},
+    };
+
+    expect(resolveModuleRegistryCompatValue(modules, 'TooltipUI')).toBe(combatTooltipUI);
+  });
+
+  it('surfaces core-scoped ClassMechanics through compat resolution', () => {
+    const classMechanics = { id: 'core-class-mechanics' };
+    const modules = {
+      featureScopes: {
+        core: {
+          ClassMechanics: classMechanics,
+        },
+      },
+      legacyModules: {},
+    };
+
+    expect(resolveModuleRegistryCompatValue(modules, 'ClassMechanics')).toBe(classMechanics);
+  });
 });

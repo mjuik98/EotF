@@ -20,6 +20,8 @@ describe('buildLegacySurfaceGlobalGroups', () => {
           SaveSystem: { id: 'save' },
           CardCostUtils: { id: 'card-cost' },
           DescriptionUtils: { id: 'description' },
+          ClassMechanics: { id: 'class-mechanics' },
+          SetBonusSystem: { id: 'set-bonus' },
         },
         combat: {
           CombatUI: { id: 'combat-ui' },
@@ -28,8 +30,6 @@ describe('buildLegacySurfaceGlobalGroups', () => {
           HudUpdateUI: { id: 'hud-update' },
           StatusEffectsUI: { id: 'status-effects' },
           CombatActionsUI: { id: 'combat-actions' },
-          ClassMechanics: { id: 'class-mechanics' },
-          SetBonusSystem: { id: 'set-bonus' },
         },
         run: {
           RunModeUI: { id: 'run-mode' },
@@ -74,8 +74,8 @@ describe('buildLegacySurfaceGlobalGroups', () => {
     expect(groups.system).toMatchObject({
       RunRules: modules.featureScopes.core.RunRules,
       SaveSystem: modules.featureScopes.core.SaveSystem,
-      ClassMechanics: modules.featureScopes.combat.ClassMechanics,
-      SetBonusSystem: modules.featureScopes.combat.SetBonusSystem,
+      ClassMechanics: modules.featureScopes.core.ClassMechanics,
+      SetBonusSystem: modules.featureScopes.core.SetBonusSystem,
     });
     expect(groups.ui).toMatchObject({
       CodexUI: modules.featureScopes.codex.CodexUI,

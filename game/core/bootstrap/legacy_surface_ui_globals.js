@@ -15,7 +15,7 @@ export function buildLegacySurfaceUIGlobals(modules = {}) {
     StatusEffectsUI: resolveLegacySurfaceModuleRef(modules, 'combat', 'StatusEffectsUI'),
     RewardUI: resolveLegacySurfaceModuleRef(modules, 'reward', 'RewardUI'),
     CombatActionsUI: resolveLegacySurfaceModuleRef(modules, 'combat', 'CombatActionsUI'),
-    TooltipUI: resolveLegacySurfaceModuleRef(modules, 'screen', 'TooltipUI'),
+    TooltipUI: resolveLegacySurfaceModuleRef(modules, 'combat', 'TooltipUI'),
     HelpPauseUI: resolveLegacySurfaceModuleRef(modules, 'title', 'HelpPauseUI'),
     RunSetupUI: resolveLegacySurfaceModuleRef(modules, 'run', 'RunSetupUI'),
   };

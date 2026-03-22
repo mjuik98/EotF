@@ -231,7 +231,7 @@ const EXACT_REEXPORTS = new Map([
   named(
     'game/ui/screens/help_pause_ui.js',
     '{ HelpPauseUI }',
-    '../../features/ui/public.js',
+    '../../features/ui/ports/public_help_pause_ui.js',
   ),
   named(
     'game/ui/screens/settings_ui.js',
@@ -251,5 +251,14 @@ describe('ui feature entry compat reexports', () => {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).toBe(expected);
     }
+  });
+
+  it('keeps HelpPauseUI out of the static UI feature public barrel so lazy loading can split it', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/features/ui/ports/public_help_pause_presentation_capabilities.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('HelpPauseUI');
   });
 });

@@ -6,11 +6,11 @@ export function buildLegacySurfaceSystemGlobals(modules = {}) {
     getRegionData: resolveLegacySurfaceModuleRef(modules, 'core', 'getRegionData'),
     getBaseRegionIndex: resolveLegacySurfaceModuleRef(modules, 'core', 'getBaseRegionIndex'),
     getRegionCount: resolveLegacySurfaceModuleRef(modules, 'core', 'getRegionCount'),
-    ClassMechanics: resolveLegacySurfaceModuleRef(modules, 'combat', 'ClassMechanics'),
-    SetBonusSystem: resolveLegacySurfaceModuleRef(modules, 'combat', 'SetBonusSystem'),
+    ClassMechanics: resolveLegacySurfaceModuleRef(modules, 'core', 'ClassMechanics'),
+    SetBonusSystem: resolveLegacySurfaceModuleRef(modules, 'core', 'SetBonusSystem'),
     SaveSystem: resolveLegacySurfaceModuleRef(modules, 'core', 'SaveSystem'),
     CardCostUtils: resolveLegacySurfaceModuleRef(modules, 'core', 'CardCostUtils'),
     DescriptionUtils: resolveLegacySurfaceModuleRef(modules, 'core', 'DescriptionUtils'),
-    classMechanics: resolveLegacySurfaceModuleRef(modules, 'combat', 'ClassMechanics'),
+    classMechanics: resolveLegacySurfaceModuleRef(modules, 'core', 'ClassMechanics'),
   };
 }

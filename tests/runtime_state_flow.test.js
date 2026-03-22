@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GameAPI } from '../game/core/game_api.js';
 import { GAME } from '../game/core/global_bridge.js';
+import { ClassMechanics } from '../game/combat/class_mechanics.js';
 import { Actions } from '../game/core/state_actions.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
 import { DamageSystem } from '../game/combat/damage_system.js';
@@ -60,6 +61,9 @@ function createPlayableState(cardId, overrides = {}) {
     },
     addSilence(amount) {
       this.player.silenceGauge = Math.max(0, this.player.silenceGauge + Number(amount || 0));
+    },
+    addEcho(amount) {
+      this.player.echo = Math.max(0, Number(this.player.echo || 0) + Number(amount || 0));
     },
     markDirty() {},
     bus: {
@@ -323,5 +327,93 @@ describe('runtime state flow guards', () => {
       targetIdx: 2,
     }));
     expect(updateStatusDisplay).toHaveBeenCalledTimes(2);
+  });
+
+  it('applies swordsman resonance damage growth across successive real card plays', () => {
+    const cardId = 'runtime_swordsman_strike';
+    const gs = createPlayableState(cardId, {
+      player: {
+        hand: [cardId, cardId],
+        buffs: {},
+      },
+      combat: {
+        enemies: [{
+          name: 'Training Dummy',
+          hp: 30,
+          shield: 0,
+          statusEffects: {},
+          ai: () => ({ dmg: 0 }),
+        }],
+      },
+      dispatch(action, payload = {}) {
+        if (action === Actions.PLAYER_ENERGY) {
+          this.player.energy = Math.max(0, this.player.energy + Number(payload.amount || 0));
+          return { energyAfter: this.player.energy };
+        }
+        if (action === Actions.PLAYER_BUFF) {
+          if (!this.player.buffs) this.player.buffs = {};
+          const current = this.player.buffs[payload.id] || { stacks: 0 };
+          const nextBonus = payload.data?.dmgBonus !== undefined && Number(payload.stacks || 0) === 0
+            ? Number(current.dmgBonus || 0) + Number(payload.data.dmgBonus || 0)
+            : payload.data?.dmgBonus;
+          this.player.buffs[payload.id] = {
+            ...current,
+            ...payload.data,
+            ...(nextBonus === undefined ? {} : { dmgBonus: nextBonus }),
+            stacks: Math.max(Number(current.stacks || 0), Number(payload.stacks || 0)),
+          };
+          return this.player.buffs[payload.id];
+        }
+        if (action === Actions.ENEMY_DAMAGE) {
+          const enemy = this.combat.enemies[payload.targetIdx];
+          enemy.hp = Math.max(0, enemy.hp - Number(payload.amount || 0));
+          return {
+            actualDamage: Number(payload.amount || 0),
+            totalDamage: Number(payload.amount || 0),
+            shieldAbsorbed: 0,
+            hpAfter: enemy.hp,
+            isDead: enemy.hp <= 0,
+            targetIdx: payload.targetIdx,
+          };
+        }
+        return {};
+      },
+    });
+
+    GAME.Data = {
+      cards: {
+        [cardId]: {
+          id: cardId,
+          name: 'Resonance Slash',
+          cost: 1,
+          effect: (state) => {
+            state.dealDamage(9, 0, true);
+          },
+        },
+      },
+    };
+    GAME.Modules = {
+      CardCostUtils,
+      ClassMechanics,
+      HudUpdateUI: { processDirtyFlags: vi.fn() },
+    };
+    GAME.getCombatDeps = () => ({
+      ClassMechanics,
+      getBaseRegionIndex: () => 0,
+      renderCombatCards: vi.fn(),
+    });
+
+    const discardSpy = vi.spyOn(GameAPI, 'discardCard').mockImplementation(() => {});
+    const playedFirst = GameAPI.playCard(cardId, 0, gs);
+    const hpAfterFirst = gs.combat.enemies[0].hp;
+    const playedSecond = GameAPI.playCard(cardId, 0, gs);
+    const hpAfterSecond = gs.combat.enemies[0].hp;
+
+    expect(playedFirst).toBe(true);
+    expect(playedSecond).toBe(true);
+    expect(discardSpy).toHaveBeenCalledTimes(2);
+    expect(30 - hpAfterFirst).toBe(9);
+    expect(hpAfterFirst - hpAfterSecond).toBe(10);
+    expect(gs.player.buffs.resonance?.dmgBonus).toBe(2);
   });
 });

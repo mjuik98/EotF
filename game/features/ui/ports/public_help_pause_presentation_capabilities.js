@@ -1,4 +1,3 @@
-export { HelpPauseUI } from '../presentation/browser/help_pause_ui.js';
 export * from '../presentation/browser/help_pause_hotkeys_runtime_ui.js';
 export * from '../presentation/browser/help_pause_menu_runtime_ui.js';
 export * from '../presentation/browser/help_pause_ui_abandon_runtime.js';

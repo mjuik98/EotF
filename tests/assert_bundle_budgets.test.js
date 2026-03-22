@@ -4,7 +4,7 @@ import path from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { assertBundleBudgets } from '../scripts/assert-bundle-budgets.mjs';
+import { assertBundleBudgets, collectBundleStats } from '../scripts/assert-bundle-budgets.mjs';
 
 const tempDirs = [];
 
@@ -25,6 +25,7 @@ function createFixtureDist() {
   writeSizedFile(path.join(assetsDir, 'ui-event-test.js'), 9 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-reward-test.js'), 7 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-combat-test.js'), 11 * 1024);
+  writeSizedFile(path.join(assetsDir, 'ui-combat-copy-test.js'), 50 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-combat-deck-test.js'), 99 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-combat-chronicle-test.js'), 98 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-combat-tooltips-test.js'), 10 * 1024);
@@ -54,6 +55,29 @@ afterEach(() => {
 });
 
 describe('assert_bundle_budgets', () => {
+  it('ignores shared ui-combat-copy chunks when measuring the main combat chunk budget', () => {
+    const distDir = createFixtureDist();
+    const stats = collectBundleStats(distDir);
+
+    expect(stats.uiCombatJs.file).toBe('assets/ui-combat-test.js');
+
+    expect(() => assertBundleBudgets({
+      distDir,
+      budgets: {
+        entryJs: { label: 'main entry js', maxBytes: 10 * 1024 },
+        entryCss: { label: 'main entry css', maxBytes: 8 * 1024 },
+        uiEventJs: { label: 'ui-event chunk', maxBytes: 9 * 1024 },
+        uiRewardJs: { label: 'ui-reward chunk', maxBytes: 7 * 1024 },
+        uiCombatJs: { label: 'ui-combat chunk', maxBytes: 11 * 1024 },
+        uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 10 * 1024 },
+        uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 6 * 1024 },
+        uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 8 * 1024 },
+        codexUiJs: { label: 'codex ui chunk', maxBytes: 6 * 1024 },
+        runModeUiJs: { label: 'run mode ui chunk', maxBytes: 5 * 1024 },
+      },
+    })).not.toThrow();
+  });
+
   it('passes when bundle artifacts stay within budget', () => {
     const distDir = createFixtureDist();
 

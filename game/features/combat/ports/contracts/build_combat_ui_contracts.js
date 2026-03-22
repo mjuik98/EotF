@@ -58,14 +58,20 @@ export function buildCombatUiContractBuilders(ctx) {
     baseCard: () => {
       const refs = getRefs();
       const combatRefs = refs.featureRefs?.combat || {};
+      const tooltipUI = combatRefs.TooltipUI || refs.TooltipUI;
       return {
         ...getCombatDeps(),
         playCardHandler: combatRefs.playCard || refs.playCard,
-        renderCombatCardsHandler: refs.renderCombatCards,
         dragStartHandler: combatRefs.handleCardDragStart || refs.handleCardDragStart,
         dragEndHandler: combatRefs.handleCardDragEnd || refs.handleCardDragEnd,
-        showTooltipHandler: refs.showTooltip,
-        hideTooltipHandler: refs.hideTooltip,
+        showTooltipHandler: refs.showTooltip
+          || (tooltipUI
+            ? (event, cardId) => tooltipUI.showTooltip?.(event, cardId, getCombatDeps())
+            : undefined),
+        hideTooltipHandler: refs.hideTooltip
+          || (tooltipUI
+            ? () => tooltipUI.hideTooltip?.(getCombatDeps())
+            : undefined),
       };
     },
 

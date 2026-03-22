@@ -62,7 +62,7 @@ describe('item_detail_panel_ui', () => {
     expect(detailPanel.style.cssText).toContain('padding:9px 10px');
     expect(detailPanel.style.cssText).toContain('border-radius:12px');
     expect(panelList.style.cssText).toContain('gap:6px');
-    expect(panelList.style.cssText).toContain('transition:opacity 140ms ease,transform 180ms ease');
+    expect(panelList.style.cssText).toContain('transition:opacity .14s ease,transform .18s ease');
   });
 
   it('renders a structured layout with badges, charge, and set bonuses', () => {
@@ -105,5 +105,23 @@ describe('item_detail_panel_ui', () => {
     expect(panelList.children[5].className).not.toContain('is-owned');
     expect(panelList.children[6].children[0].textContent).toBe('2세트');
     expect(panelList.children[6].children[1].textContent).toBe('대기');
+  });
+
+  it('restores visibility for detail panels without set bonus sections', () => {
+    const doc = createDoc();
+    const panelList = doc.createElement('div');
+
+    renderItemDetailPanelContent(doc, panelList, {
+      icon: '🗡️',
+      title: '무딘 검',
+      rarityLabel: '일반',
+      triggerText: '패시브',
+      desc: '카드 사용 시 10% 확률: 잔향 10 충전',
+    }, { variant: 'compact' });
+
+    expect(panelList.children[0].className).toBe('crp-head');
+    expect(panelList.children[1].className).toContain('crp-box');
+    expect(panelList.style.opacity).toBe('1');
+    expect(panelList.style.transform).toBe('translateY(0)');
   });
 });

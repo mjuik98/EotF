@@ -9,6 +9,7 @@ describe('vite chunking guardrails', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'vite.config.js'), 'utf8');
 
     expect(source).toContain("return 'ui-combat';");
+    expect(source).toContain("return 'ui-combat-copy';");
     expect(source).toContain("return 'ui-combat-deck';");
     expect(source).toContain("return 'ui-combat-chronicle';");
     expect(source).toContain("return 'ui-combat-tooltips';");
@@ -37,6 +38,7 @@ describe('vite chunking guardrails', () => {
   it('filters lazy feature chunks out of html modulepreload dependencies', () => {
     const deps = [
       'assets/ui-combat-abc.js',
+      'assets/ui-combat-copy-abc.js',
       'assets/ui-combat-deck-abc.js',
       'assets/ui-combat-chronicle-abc.js',
       'assets/ui-combat-tooltips-abc.js',
@@ -58,6 +60,12 @@ describe('vite chunking guardrails', () => {
   it('keeps status data and status utils with the combat presentation chunk to avoid overlay chunk cycles', () => {
     expect(getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/status_key_data.js')).toBe('ui-combat');
     expect(getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/utils/status_value_utils.js')).toBe('ui-combat');
+  });
+
+  it('routes shared combat copy data into its own shared chunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_copy.js'),
+    ).toBe('ui-combat-copy');
   });
 
   it('uses narrow title capability surfaces instead of the broad public application barrel in overlay-related runtimes', () => {

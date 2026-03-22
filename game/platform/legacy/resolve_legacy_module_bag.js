@@ -16,6 +16,8 @@ const LEGACY_SCOPE_KEY_GROUPS = Object.freeze({
     'DescriptionUtils',
     'FovEngine',
     'DifficultyScaler',
+    'ClassMechanics',
+    'SetBonusSystem',
   ],
   title: [
     'CharacterSelectUI',
@@ -39,8 +41,6 @@ const LEGACY_SCOPE_KEY_GROUPS = Object.freeze({
     'StatusEffectsUI',
     'CombatActionsUI',
     'DeckModalUI',
-    'ClassMechanics',
-    'SetBonusSystem',
   ],
   event: ['EventUI'],
   reward: ['RewardUI'],
