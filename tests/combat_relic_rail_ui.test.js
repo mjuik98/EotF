@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { renderCombatRelicRail } from '../game/features/combat/presentation/browser/combat_relic_rail_ui.js';
 
@@ -86,6 +88,14 @@ function createDoc() {
 }
 
 describe('combat_relic_rail_ui', () => {
+  it('defines desktop rail styles, open-state detail panel styles, and a 900px fallback', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('#combatOverlay.active #combatRelicRail');
+    expect(source).toContain("#combatRelicPanel[data-open='true']");
+    expect(source).toContain('@media (max-width: 900px)');
+  });
+
   it('renders relic panel entries by combat priority, keeps panel state, and binds tooltip callbacks', () => {
     const doc = createDoc();
     const combatRelicRail = doc.createElement('div');
