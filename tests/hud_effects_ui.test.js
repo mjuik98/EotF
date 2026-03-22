@@ -9,6 +9,9 @@ function createDoc() {
     combatHandCards: { textContent: 'cards' },
     enemyZone: { textContent: 'enemies' },
     combatLog: { innerHTML: 'logs' },
+    combatRelicPanel: { dataset: { open: 'true' } },
+    combatRelicRailSlots: { innerHTML: '<span>slot</span>' },
+    combatRelicPanelList: { innerHTML: '<div>relic</div>' },
   };
 
   return {
@@ -33,5 +36,15 @@ describe('hud_effects_ui', () => {
     expect(doc.getElementById('combatLog').innerHTML).toBe('');
 
     globalThis._resetCombatInfoPanel = prevReset;
+  });
+
+  it('resets relic panel state and clears relic rail content', () => {
+    const doc = createDoc();
+
+    resetCombatUIUI({ doc });
+
+    expect(doc.getElementById('combatRelicPanel').dataset.open).toBe('false');
+    expect(doc.getElementById('combatRelicRailSlots').innerHTML).toBe('');
+    expect(doc.getElementById('combatRelicPanelList').innerHTML).toBe('');
   });
 });

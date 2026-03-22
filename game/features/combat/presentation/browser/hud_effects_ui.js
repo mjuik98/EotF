@@ -71,6 +71,17 @@ export function resetCombatUIUI(deps = {}) {
 
   const logContainer = doc.getElementById('combatLog');
   if (logContainer) logContainer.innerHTML = '';
+
+  const combatRelicPanel = doc.getElementById('combatRelicPanel');
+  if (combatRelicPanel?.dataset) {
+    combatRelicPanel.dataset.open = 'false';
+  }
+
+  const combatRelicRailSlots = doc.getElementById('combatRelicRailSlots');
+  if (combatRelicRailSlots) combatRelicRailSlots.innerHTML = '';
+
+  const combatRelicPanelList = doc.getElementById('combatRelicPanelList');
+  if (combatRelicPanelList) combatRelicPanelList.innerHTML = '';
 }
 
 export function hideNodeOverlayUI(deps = {}) {
