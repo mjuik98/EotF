@@ -6,6 +6,12 @@ import {
   runOnNextFrame,
   stripHtml,
 } from './map_ui_next_nodes_render_helpers.js';
+import { resolveItemDetailState } from '../../../../shared/ui/item_detail/item_detail_state.js';
+import { buildItemDetailViewModel } from '../../../../shared/ui/item_detail/item_detail_view_model.js';
+import {
+  applyItemDetailPanelStyles,
+  renderItemDetailPanelContent,
+} from '../../../../shared/ui/item_detail/item_detail_panel_ui.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';
@@ -103,6 +109,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   const activeTriggers = new Set(['combat_start', 'floor_start', 'on_enter']);
   const items = Array.isArray(gs?.player?.items) ? gs.player.items : [];
   const win = deps?.win || doc?.defaultView || null;
+  const setBonusSystem = deps?.setBonusSystem || null;
   const panel = doc.createElement('div');
   panel.className = 'nc-relic-panel';
 
@@ -115,6 +122,32 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   scrollWrap.className = 'nc-relic-scroll-wrap';
   const list = doc.createElement('div');
   list.className = 'nc-relic-list';
+  const detailPanel = doc.createElement('div');
+  detailPanel.className = 'nc-relic-detail';
+  const detailList = doc.createElement('div');
+  detailList.className = 'nc-relic-detail-list';
+  detailPanel.appendChild(detailList);
+  applyItemDetailPanelStyles(detailPanel, detailList, { variant: 'compact' });
+
+  const markActiveSlot = (activeSlot) => {
+    for (const slot of list.children || []) {
+      if (!slot?.dataset) continue;
+      if (slot === activeSlot) {
+        slot.dataset.active = 'true';
+        slot.setAttribute('aria-pressed', 'true');
+      } else {
+        delete slot.dataset.active;
+        slot.setAttribute('aria-pressed', 'false');
+      }
+    }
+  };
+
+  const renderDetail = (itemId, item, activeSlot) => {
+    const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
+    const detail = buildItemDetailViewModel(itemId, item, data, state);
+    renderItemDetailPanelContent(doc, detailList, detail, { variant: 'compact' });
+    markActiveSlot(activeSlot);
+  };
 
   if (items.length === 0) {
     const empty = doc.createElement('div');
@@ -123,9 +156,11 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     list.appendChild(empty);
   } else {
     const sortedItems = [...items].sort((leftId, rightId) => (rarityOrder[data?.items?.[leftId]?.rarity || 'common'] ?? 3) - (rarityOrder[data?.items?.[rightId]?.rarity || 'common'] ?? 3));
+    let firstRenderable = null;
     sortedItems.forEach((itemId) => {
       const item = data?.items?.[itemId];
       if (!item) return;
+      if (!firstRenderable) firstRenderable = { itemId, item };
       const rarity = String(item.rarity || 'common').toLowerCase();
       const meta = rarityMeta[rarity] || rarityMeta.common;
       const triggers = Array.isArray(item.trigger) ? item.trigger : [item.trigger];
@@ -137,7 +172,8 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       slot.className = `nc-relic-slot rarity-${rarity}${isActive ? ' is-active' : ''}`;
       slot.style.setProperty('--rl-rgb', meta.rgb);
       slot.tabIndex = 0;
-      slot.setAttribute('role', 'note');
+      slot.setAttribute('role', 'button');
+      slot.setAttribute('aria-pressed', 'false');
       slot.setAttribute('aria-label', `${item.name || itemId}: ${rawDesc || ''}`);
 
       const iconWrap = doc.createElement('div');
@@ -156,20 +192,23 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       const pip = doc.createElement('div');
       pip.className = 'nc-relic-pip';
       pip.style.cssText = `background:${meta.pip};box-shadow:0 0 5px ${meta.pip};`;
-      const showTooltip = (event) => tooltipUI?.showItemTooltip?.(event, itemId, { doc, win, gs, data });
-      const hideTooltip = () => tooltipUI?.hideItemTooltip?.({ doc, win });
-      slot.addEventListener('mouseenter', showTooltip);
-      slot.addEventListener('mouseleave', hideTooltip);
-      slot.addEventListener('focus', showTooltip);
-      slot.addEventListener('blur', hideTooltip);
+      const selectSlot = () => renderDetail(itemId, item, slot);
+      slot.addEventListener('mouseenter', selectSlot);
+      slot.addEventListener('focus', selectSlot);
+      slot.addEventListener('click', selectSlot);
 
       slot.append(iconWrap, info, pip);
       list.appendChild(slot);
     });
+    if (firstRenderable) {
+      const firstSlot = list.children[0] || null;
+      renderDetail(firstRenderable.itemId, firstRenderable.item, firstSlot);
+    }
   }
 
   scrollWrap.appendChild(list);
   panel.appendChild(scrollWrap);
+  if (items.length > 0) panel.appendChild(detailPanel);
 
   const updateFades = () => {
     if (!scrollWrap.classList?.toggle) return;
@@ -182,7 +221,6 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     if (!canScroll) return;
     event.preventDefault?.();
     scrollWrap.scrollTop = (scrollWrap.scrollTop || 0) + (event.deltaY || 0);
-    tooltipUI?.hideGeneralTooltip?.({ doc, win });
     updateFades();
   };
   scrollWrap.addEventListener?.('scroll', updateFades, { passive: true });
@@ -193,7 +231,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
 }
 
 export function buildNextNodeCard(doc, options = {}) {
-  const { node, index = 0, meta = {}, shortRegionName = '지역' } = options;
+  const { node, index = 0, meta = {} } = options;
   const ext = NODE_EXTENSIONS[node?.type] || NODE_EXTENSIONS.combat;
   const rgb = hexToRgb(meta.color);
   const pos = ['A', 'B', 'C', 'D', 'E'][node?.pos] || String((node?.pos || 0) + 1);
@@ -221,7 +259,7 @@ export function buildNextNodeCard(doc, options = {}) {
     <div class="nc-body">
       <div>
         <div class="node-card-label">${meta.label || '노드'}</div>
-        <div class="node-card-sub">${shortRegionName} ${node.floor}층 · ${pos} 구역</div>
+        <div class="node-card-sub">${pos} 경로</div>
       </div>
       <div class="node-card-desc">${meta.desc || '다음 위치로 이동합니다.'}</div>
       ${ext.preview ? `<div class="nc-preview-hint">예상: ${ext.preview}</div>` : ''}

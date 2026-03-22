@@ -1,5 +1,5 @@
 import { DomSafe } from '../../../../utils/dom_safe.js';
-import { buildItemDetailViewModel } from './item_detail_view_model.js';
+import { buildItemDetailViewModel } from '../../../../shared/ui/item_detail/item_detail_view_model.js';
 
 export function createItemTooltipElement(doc, item, data, state) {
   const { rarityMeta } = state;

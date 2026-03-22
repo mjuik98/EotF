@@ -76,6 +76,10 @@ class MockElement {
   addEventListener(name, handler) {
     this.listeners[name] = handler;
   }
+
+  setAttribute(name, value) {
+    this[name] = String(value);
+  }
 }
 
 function createDoc() {
@@ -210,8 +214,10 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicRailSlots.children[1].textContent).toBe('◇');
     expect(combatRelicRailSlots.children[2].textContent).toBe('◯');
     expect(combatRelicRailSlots.children[3].textContent).toBe('◯');
-    expect(combatRelicRailSlots.children[0].title).toBe('전투 시작의 아뮬렛\n전투 시작 시: 카드 1장 추가 드로우');
-    expect(combatRelicRailSlots.children[1].title).toBe('전투 준비의 부적\n턴 종료 시: 방어막 2 획득');
+    expect(combatRelicRailSlots.children[0].title || '').toBe('');
+    expect(combatRelicRailSlots.children[1].title || '').toBe('');
+    expect(combatRelicRailSlots.children[0]['aria-label']).toBe('전투 시작의 아뮬렛\n전투 시작 시: 카드 1장 추가 드로우');
+    expect(combatRelicRailSlots.children[1]['aria-label']).toBe('전투 준비의 부적\n턴 종료 시: 방어막 2 획득');
     expect(combatRelicRailCount.parentNode).toBe(combatRelicRail);
     expect(combatRelicRailSlots.parentNode).toBe(combatRelicRail);
     expect(combatRelicPanel.parentNode).toBe(combatRelicRail);

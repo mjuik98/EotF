@@ -4013,7 +4013,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   background: rgba(255, 255, 255, 0.03);
   color: var(--white);
   font-size: 15px;
-  cursor: help;
+  cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -10988,12 +10988,12 @@ body:has(#combatOverlay.active) .panel-bottom {
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.055);
   background: rgba(255, 255, 255, 0.022);
-  cursor: help;
+  cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.nc-relic-slot:hover {
+.nc-relic-slot:is(:hover, :focus-visible, [data-active='true']) {
   border-color: rgba(var(--rl-rgb, 255, 255, 255), 0.38);
   background: rgba(var(--rl-rgb, 255, 255, 255), 0.05);
   transform: translateX(2px);
@@ -11055,7 +11055,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   transition: transform 0.2s ease;
 }
 
-.nc-relic-slot:hover .nc-relic-icon-wrap {
+.nc-relic-slot:is(:hover, :focus-visible, [data-active='true']) .nc-relic-icon-wrap {
   transform: scale(1.1);
 }
 

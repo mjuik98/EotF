@@ -56,6 +56,7 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain("page.hover('#combatRelicRailSlots button')");
     expect(source).toContain('relicTooltipResult');
     expect(source).toContain('slotTitle');
+    expect(source).toContain('slotAriaLabel');
     expect(source).toContain('panelOpen');
     expect(source).toContain('panelText');
     expect(source).toContain('typeof window.updateUI === \'function\'');

@@ -64,6 +64,10 @@ class MockElement {
     this.listeners[name] = handler;
   }
 
+  setAttribute(name, value) {
+    this[name] = String(value);
+  }
+
   querySelector(selector) {
     if (selector === '.action-btn-end') {
       return this.ownerDocument._actionBtnEnd || null;
@@ -218,8 +222,10 @@ describe('hud_panel_runtime_helpers', () => {
     expect(combatRelicRailSlots.children).toHaveLength(2);
     expect(combatRelicRailSlots.children[0].textContent).toBe('✧');
     expect(combatRelicRailSlots.children[1].textContent).toBe('◯');
-    expect(combatRelicRailSlots.children[0].title).toBe('전설 유물\n강한 설명');
-    expect(combatRelicRailSlots.children[1].title).toBe('보통 유물\n기본 설명');
+    expect(combatRelicRailSlots.children[0].title || '').toBe('');
+    expect(combatRelicRailSlots.children[1].title || '').toBe('');
+    expect(combatRelicRailSlots.children[0]['aria-label']).toBe('전설 유물\n강한 설명');
+    expect(combatRelicRailSlots.children[1]['aria-label']).toBe('보통 유물\n기본 설명');
     expect(preloadTooltipModules).toHaveBeenCalledTimes(1);
     expect(combatRelicPanelList.children).toHaveLength(0);
     expect(combatRelicPanel.dataset.open).toBe('false');

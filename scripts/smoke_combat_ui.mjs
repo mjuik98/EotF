@@ -173,13 +173,15 @@ async function main() {
       const panelText = document.getElementById('combatRelicPanelList')?.innerText?.trim() || null;
       return {
         slotTitle: slot?.title || null,
+        slotAriaLabel: slot?.getAttribute?.('aria-label') || null,
         panelOpen: combatRelicPanel?.dataset?.open === 'true',
         panelText,
       };
     });
 
-    assertCondition(relicTooltipResult.slotTitle?.includes('독사의 단검'), `combat relic slot title missing item name: ${relicTooltipResult.slotTitle}`);
-    assertCondition(!relicTooltipResult.slotTitle?.includes('[세트:'), `combat relic slot title should omit raw set tags: ${relicTooltipResult.slotTitle}`);
+    assertCondition(!relicTooltipResult.slotTitle, `combat relic slot title should be removed when layout detail is present: ${relicTooltipResult.slotTitle}`);
+    assertCondition(relicTooltipResult.slotAriaLabel?.includes('독사의 단검'), `combat relic slot aria-label missing item name: ${relicTooltipResult.slotAriaLabel}`);
+    assertCondition(!relicTooltipResult.slotAriaLabel?.includes('[세트:'), `combat relic slot aria-label should omit raw set tags: ${relicTooltipResult.slotAriaLabel}`);
     assertCondition(relicTooltipResult.panelOpen, 'combat relic hover did not open the detail panel');
     assertCondition(relicTooltipResult.panelText?.includes('독사의 단검'), `combat relic panel missing item name: ${relicTooltipResult.panelText}`);
 

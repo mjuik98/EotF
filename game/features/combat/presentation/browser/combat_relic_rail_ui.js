@@ -1,7 +1,10 @@
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
-import { resolveItemDetailState } from './item_detail_state.js';
-import { buildItemDetailViewModel } from './item_detail_view_model.js';
-import { applyItemDetailPanelStyles, renderItemDetailPanelContent } from './item_detail_panel_ui.js';
+import { resolveItemDetailState } from '../../../../shared/ui/item_detail/item_detail_state.js';
+import { buildItemDetailViewModel } from '../../../../shared/ui/item_detail/item_detail_view_model.js';
+import {
+  applyItemDetailPanelStyles,
+  renderItemDetailPanelContent,
+} from '../../../../shared/ui/item_detail/item_detail_panel_ui.js';
 
 const RARITY_SORT_ORDER = {
   legendary: 0,
@@ -138,7 +141,7 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     const slot = doc.createElement('button');
     slot.type = 'button';
     slot.textContent = item.icon || '';
-    slot.title = buildItemTooltipFallbackText(item, itemId);
+    slot.setAttribute('aria-label', buildItemTooltipFallbackText(item, itemId));
 
     slot.addEventListener('mouseenter', () => {
       renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem });
