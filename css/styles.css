@@ -4017,8 +4017,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
-#combatRelicRailSlots button:hover,
-#combatRelicRailSlots button:focus-visible {
+#combatRelicRailSlots button:is(:hover, :focus-visible, [data-active='true']) {
   outline: none;
   transform: translateY(-1px);
   border-color: rgba(0, 255, 204, 0.36);

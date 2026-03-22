@@ -235,7 +235,7 @@ describe('hud_panel_runtime_helpers', () => {
     combatRelicRailSlots.children[0].listeners.mouseenter(railHoverEvent);
     expect(combatRelicPanel.dataset.open).toBe('true');
     expect(combatRelicPanelList.children.length).toBeGreaterThan(0);
-    expect(combatRelicPanelList.children[0].textContent).toContain('전설 유물');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('전설 유물');
     expect(showItemTooltip).toHaveBeenCalledTimes(1);
   });
 
@@ -305,7 +305,7 @@ describe('hud_panel_runtime_helpers', () => {
 
     combatRelicRailSlots.children[0].listeners.mouseenter({ type: 'mouseenter', currentTarget: combatRelicRailSlots.children[0] });
     expect(combatRelicPanel.dataset.open).toBe('true');
-    expect(combatRelicPanelList.children[0].textContent).toContain('전설 유물');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('전설 유물');
   });
 
   it('renders run modifiers with inscriptions and curse info', () => {

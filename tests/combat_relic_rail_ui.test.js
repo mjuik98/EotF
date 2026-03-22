@@ -14,6 +14,10 @@ class MockElement {
     this.dataset = {};
     this.style = {};
     this.listeners = {};
+    this.contains = (node) => {
+      if (node === this) return true;
+      return this.children.some((child) => typeof child?.contains === 'function' && child.contains(node));
+    };
 
     Object.defineProperty(this, 'textContent', {
       get: () => this._textContent,
@@ -77,18 +81,25 @@ class MockElement {
 function createDoc() {
   const doc = {
     _elements: new Map(),
+    listeners: {},
     createElement(tagName) {
       return new MockElement(doc, tagName);
     },
     getElementById(id) {
       return this._elements.get(id) || null;
     },
+    addEventListener(name, handler) {
+      this.listeners[name] = handler;
+    },
+    removeEventListener(name, handler) {
+      if (this.listeners[name] === handler) delete this.listeners[name];
+    },
   };
   return doc;
 }
 
 describe('combat_relic_rail_ui', () => {
-  it('defines desktop rail styles, keeps the detail shell hidden, and includes a 900px fallback', () => {
+  it('defines desktop rail styles, fixed panel classes, and a 900px fallback', () => {
     const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
 
     expect(source).toContain('#combatOverlay.active #combatRelicRail');
@@ -108,6 +119,7 @@ describe('combat_relic_rail_ui', () => {
     expect(source).toMatch(/\.nc-floating-hp-shell \.nc-hp-wrap \{[^}]*pointer-events:\s*none;/s);
     expect(source).toContain('#combatRelicPanel {');
     expect(source).toContain("#combatRelicPanel[data-open='true']");
+    expect(source).toContain('#combatRelicRailSlots button:is(:hover, :focus-visible, [data-active=\'true\'])');
     expect(source).toContain('@media (max-width: 900px)');
   });
 
@@ -127,6 +139,16 @@ describe('combat_relic_rail_ui', () => {
     combatRelicPanel.appendChild(combatRelicPanelList);
     combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
 
+    doc.defaultView = {
+      innerWidth: 1280,
+      listeners: {},
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+      removeEventListener(name, handler) {
+        if (this.listeners[name] === handler) delete this.listeners[name];
+      },
+    };
     const showItemTooltip = vi.fn();
     const hideItemTooltip = vi.fn();
     const gs = {
@@ -197,17 +219,20 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicPanelList.children).toHaveLength(0);
 
     const topSlot = combatRelicRailSlots.children[0];
-    expect(topSlot.listeners.click).toBeUndefined();
+    expect(topSlot.listeners.click).toBeTypeOf('function');
 
     const hoverEvent = { type: 'mouseenter', currentTarget: topSlot };
     topSlot.listeners.mouseenter(hoverEvent);
     expect(showItemTooltip).not.toHaveBeenCalled();
     expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanel.dataset.pinned).toBe('false');
     expect(combatRelicPanelList.children.length).toBeGreaterThan(0);
-    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
-    expect(combatRelicPanelList.children[1].textContent).toContain('전설');
-    expect(combatRelicPanelList.children[1].textContent).toContain('전투 시작 시');
-    expect(combatRelicPanelList.children[2].textContent).toContain('카드 1장 추가 드로우');
+    expect(combatRelicPanelList.children[0].className).toBe('crp-head');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('전투 시작의 아뮬렛');
+    expect(combatRelicPanelList.children[0].children[1].children[0].textContent).toContain('전설');
+    expect(combatRelicPanelList.children[0].children[1].children[1].textContent).toContain('전투 시작 시');
+    expect(combatRelicPanelList.children[1].textContent).toContain('카드 1장 추가 드로우');
+    expect(topSlot.dataset.active).toBe('true');
 
     topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
     expect(hideItemTooltip).not.toHaveBeenCalled();
@@ -216,9 +241,26 @@ describe('combat_relic_rail_ui', () => {
     const focusEvent = { type: 'focus', currentTarget: topSlot };
     topSlot.listeners.focus(focusEvent);
     expect(combatRelicPanel.dataset.open).toBe('true');
-    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('전투 시작의 아뮬렛');
 
     topSlot.listeners.blur({ type: 'blur', currentTarget: topSlot });
+    expect(combatRelicPanel.dataset.open).toBe('false');
+
+    const pinEvent = { type: 'click', currentTarget: topSlot, preventDefault: vi.fn() };
+    topSlot.listeners.click(pinEvent);
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    expect(combatRelicPanel.dataset.pinned).toBe('true');
+    expect(pinEvent.preventDefault).not.toHaveBeenCalled();
+
+    topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
+    expect(combatRelicPanel.dataset.open).toBe('true');
+
+    doc.listeners.pointerdown({ target: doc.createElement('div') });
+    expect(combatRelicPanel.dataset.open).toBe('false');
+
+    topSlot.listeners.click({ type: 'click', currentTarget: topSlot, preventDefault: vi.fn() });
+    expect(combatRelicPanel.dataset.open).toBe('true');
+    doc.defaultView.listeners.keydown({ key: 'Escape' });
     expect(combatRelicPanel.dataset.open).toBe('false');
 
     combatRelicPanel.dataset.open = 'false';
@@ -230,9 +272,19 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicPanel.dataset.open).toBe('false');
   });
 
-  it('shows a tooltip on tap for touch-capable viewports', () => {
+  it('toggles the fixed panel on tap for touch-capable viewports', () => {
     const doc = createDoc();
-    doc.defaultView = { ontouchstart: vi.fn(), innerWidth: 640 };
+    doc.defaultView = {
+      ontouchstart: vi.fn(),
+      innerWidth: 640,
+      listeners: {},
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+      removeEventListener(name, handler) {
+        if (this.listeners[name] === handler) delete this.listeners[name];
+      },
+    };
     const combatRelicRail = doc.createElement('div');
     combatRelicRail.id = 'combatRelicRail';
     const combatRelicRailCount = doc.createElement('span');
@@ -282,7 +334,11 @@ describe('combat_relic_rail_ui', () => {
     expect(showItemTooltip).not.toHaveBeenCalled();
     expect(hideItemTooltip).not.toHaveBeenCalled();
     expect(combatRelicPanel.dataset.open).toBe('true');
-    expect(combatRelicPanelList.children[0].textContent).toContain('전투 시작의 아뮬렛');
+    expect(combatRelicPanel.dataset.pinned).toBe('true');
+    expect(combatRelicPanelList.children[0].children[0].textContent).toContain('전투 시작의 아뮬렛');
+
+    topSlot.listeners.click(tapEvent);
+    expect(combatRelicPanel.dataset.open).toBe('false');
   });
 
   it('clears stale relic slot nodes before rerender', () => {
