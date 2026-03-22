@@ -2,7 +2,7 @@ import { Logger } from '../../../utils/logger.js';
 import { CombatLifecycle } from './combat_lifecycle_facade.js';
 import { DamageSystem } from './damage_system_facade.js';
 import { drawCardsService, executePlayerDrawService } from './card_draw_service.js';
-import { playCardService } from './play_card_service.js';
+import { createCombatRuntimeFacade, playCardService } from './play_card_service.js';
 import {
   applyEnemyDamageState,
   discardCardState,
@@ -92,22 +92,30 @@ export function endCombatRuntime(gs, deps = {}) {
   return CombatLifecycle.endCombat.call(gs, deps);
 }
 
-export function applyEnemyDamageRuntime(gs, {
-  amount = 0,
-  targetIdx = null,
-  noChain = false,
-  source = null,
-  deps = {},
-} = {}) {
-  if (!gs) return 0;
-  return DamageSystem.dealDamage.call(gs, amount, targetIdx, noChain, source, deps);
+function resolveCombatRuntimeFacade(gs) {
+  return gs ? createCombatRuntimeFacade(gs) : null;
 }
 
-export function applyEnemyAreaDamageRuntime(gs, {
-  amount = 0,
-  noChain = false,
-  deps = {},
-} = {}) {
-  if (!gs) return undefined;
-  return DamageSystem.dealDamageAll.call(gs, amount, noChain, deps);
+export function applyEnemyDamageRuntime(gs, options = {}) {
+  const combatState = resolveCombatRuntimeFacade(gs);
+  if (!combatState) return 0;
+  return DamageSystem.dealDamage.call(
+    combatState,
+    options.amount || 0,
+    options.targetIdx ?? null,
+    !!options.noChain,
+    options.source || null,
+    options.deps || {},
+  );
+}
+
+export function applyEnemyAreaDamageRuntime(gs, options = {}) {
+  const combatState = resolveCombatRuntimeFacade(gs);
+  if (!combatState) return undefined;
+  return DamageSystem.dealDamageAll.call(
+    combatState,
+    options.amount || 0,
+    !!options.noChain,
+    options.deps || {},
+  );
 }

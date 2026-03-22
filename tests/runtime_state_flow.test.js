@@ -279,16 +279,49 @@ describe('runtime state flow guards', () => {
   it('passes deps through dealDamageAll to each damage call', () => {
     const deps = { marker: 'runtime-deps' };
     const host = {
-      combat: {
-        enemies: [{ hp: 10 }, { hp: 0 }, { hp: 12 }],
+      player: {
+        class: 'swordsman',
+        echoChain: 0,
+        buffs: {},
       },
-      dealDamage: vi.fn(),
+      combat: {
+        enemies: [
+          { name: 'A', hp: 10, shield: 0, statusEffects: {} },
+          { name: 'Down', hp: 0, shield: 0, statusEffects: {} },
+          { name: 'B', hp: 12, shield: 0, statusEffects: {} },
+        ],
+      },
+      addEcho: vi.fn(),
+      addLog: vi.fn(),
+      markDirty: vi.fn(),
+      triggerItems: vi.fn(),
+      dispatch: vi.fn((action, payload) => {
+        if (action !== Actions.ENEMY_DAMAGE) return {};
+        const enemy = host.combat.enemies[payload.targetIdx];
+        enemy.hp = Math.max(0, enemy.hp - payload.amount);
+        return {
+          actualDamage: payload.amount,
+          totalDamage: payload.amount,
+          shieldAbsorbed: 0,
+          hpAfter: enemy.hp,
+          isDead: enemy.hp <= 0,
+          targetIdx: payload.targetIdx,
+        };
+      }),
     };
+    const updateStatusDisplay = vi.fn();
 
-    DamageSystem.dealDamageAll.call(host, 7, false, deps);
+    DamageSystem.dealDamageAll.call(host, 7, false, { ...deps, updateStatusDisplay });
 
-    expect(host.dealDamage).toHaveBeenCalledTimes(2);
-    expect(host.dealDamage).toHaveBeenNthCalledWith(1, 7, 0, true, null, deps);
-    expect(host.dealDamage).toHaveBeenNthCalledWith(2, 7, 2, false, null, deps);
+    expect(host.dispatch).toHaveBeenCalledTimes(2);
+    expect(host.dispatch).toHaveBeenNthCalledWith(1, Actions.ENEMY_DAMAGE, expect.objectContaining({
+      amount: 7,
+      targetIdx: 0,
+    }));
+    expect(host.dispatch).toHaveBeenNthCalledWith(2, Actions.ENEMY_DAMAGE, expect.objectContaining({
+      amount: 7,
+      targetIdx: 2,
+    }));
+    expect(updateStatusDisplay).toHaveBeenCalledTimes(2);
   });
 });

@@ -12,8 +12,12 @@ import {
   setCombatCardPlayLockState,
 } from '../state/commands/combat_card_play_state_commands.js';
 
+export function createCombatRuntimeFacade(gs) {
+  return createLegacyGameStateRuntimeFacade(gs);
+}
+
 function createCardEffectRuntimeFacade(gs, runtimeDeps = {}) {
-  const combatRuntimeFacade = createLegacyGameStateRuntimeFacade(gs);
+  const combatRuntimeFacade = createCombatRuntimeFacade(gs);
 
   return new Proxy(combatRuntimeFacade, {
     get(target, prop, receiver) {

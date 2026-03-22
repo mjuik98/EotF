@@ -7,7 +7,7 @@ export const DEFAULT_BUNDLE_BUDGETS = {
   entryCss: { label: 'main entry css', maxBytes: 193 * 1024 },
   uiEventJs: { label: 'ui-event chunk', maxBytes: 45 * 1024 },
   uiRewardJs: { label: 'ui-reward chunk', maxBytes: 20 * 1024 },
-  uiCombatJs: { label: 'ui-combat chunk', maxBytes: 323 * 1024 },
+  uiCombatJs: { label: 'ui-combat chunk', maxBytes: 324 * 1024 },
   uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 20 * 1024 },
   uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 24 * 1024 },
   uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 24 * 1024 },

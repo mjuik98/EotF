@@ -1,7 +1,7 @@
 import {
   buildItemDetailViewModel,
   applyItemDetailPanelStyles,
-  renderItemDetailPanelContent,
+  createManagedItemDetailSurface,
 } from './relic_detail_shared_ui.js';
 
 function getDoc(deps) {
@@ -40,6 +40,14 @@ export function renderClassSelectButtons(container, deps = {}) {
   const relicDetailList = doc.createElement('div');
   relicDetailPanel.appendChild(relicDetailList);
   applyItemDetailPanelStyles(relicDetailPanel, relicDetailList, { variant: 'inline' });
+  const relicEntries = [];
+  const detailSurface = createManagedItemDetailSurface({
+    doc,
+    detailPanel: relicDetailPanel,
+    detailPanelList: relicDetailList,
+    entries: () => relicEntries,
+    variant: 'inline',
+  });
   let firstRelicDetail = null;
 
   Object.values(data.classes).forEach((cls) => {
@@ -77,18 +85,23 @@ export function renderClassSelectButtons(container, deps = {}) {
     if (relicEl && startItem) {
       const renderRelicDetail = (event) => {
         event?.stopPropagation?.();
-        renderItemDetailPanelContent(doc, relicDetailList, buildStartRelicDetail(startItemKey, startItem), { variant: 'inline' });
-        relicDetailPanel.dataset.open = 'true';
+        detailSurface.show({
+          activeEntry: relicEl,
+          detail: buildStartRelicDetail(startItemKey, startItem),
+          itemId: startItemKey,
+        });
       };
       relicEl.style.cursor = 'pointer';
       relicEl.setAttribute('tabindex', '0');
       relicEl.setAttribute('role', 'button');
       relicEl.setAttribute('aria-controls', 'classSelectRelicDetail');
+      relicEl.setAttribute('aria-pressed', 'false');
       relicEl.addEventListener('mouseenter', renderRelicDetail);
       relicEl.addEventListener('focus', renderRelicDetail);
       relicEl.addEventListener('click', renderRelicDetail);
+      relicEntries.push(relicEl);
       if (!firstRelicDetail) {
-        firstRelicDetail = { itemId: startItemKey, item: startItem };
+        firstRelicDetail = { itemId: startItemKey, item: startItem, activeEntry: relicEl };
       }
     }
 
@@ -96,8 +109,11 @@ export function renderClassSelectButtons(container, deps = {}) {
   });
 
   if (firstRelicDetail) {
-    renderItemDetailPanelContent(doc, relicDetailList, buildStartRelicDetail(firstRelicDetail.itemId, firstRelicDetail.item), { variant: 'inline' });
-    relicDetailPanel.dataset.open = 'true';
+    detailSurface.show({
+      activeEntry: firstRelicDetail.activeEntry,
+      detail: buildStartRelicDetail(firstRelicDetail.itemId, firstRelicDetail.item),
+      itemId: firstRelicDetail.itemId,
+    });
     container.appendChild(relicDetailPanel);
   }
 }

@@ -66,6 +66,176 @@ function createBadge(doc, text, tone) {
   return createElement(doc, `crp-badge ${tone}`, text, `padding:2px 8px;border-radius:999px;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.08);${toneStyle}`);
 }
 
+function getEntries(entriesRoot, entries) {
+  if (Array.isArray(entries)) return entries.filter(Boolean);
+  return Array.from(entriesRoot?.children || []).filter(Boolean);
+}
+
+function resolveSurfaceEntries(entriesRoot, entries) {
+  return typeof entries === 'function'
+    ? getEntries(entriesRoot, entries())
+    : getEntries(entriesRoot, entries);
+}
+
+export function setItemDetailPanelState(detailPanel, {
+  open = false,
+  itemId = '',
+  pinned = false,
+} = {}) {
+  if (!detailPanel?.dataset) return;
+  detailPanel.dataset.open = open ? 'true' : 'false';
+  detailPanel.dataset.pinned = open && pinned ? 'true' : 'false';
+  if (open && itemId) detailPanel.dataset.itemId = itemId;
+  else delete detailPanel.dataset.itemId;
+}
+
+export function markItemDetailActiveEntry({
+  entriesRoot,
+  entries,
+  activeEntry = null,
+} = {}) {
+  getEntries(entriesRoot, entries).forEach((entry) => {
+    if (entry === activeEntry) {
+      if (entry.dataset) entry.dataset.active = 'true';
+      entry.setAttribute?.('aria-pressed', 'true');
+      return;
+    }
+    if (entry?.dataset) delete entry.dataset.active;
+    entry?.setAttribute?.('aria-pressed', 'false');
+  });
+}
+
+export function clearItemDetailSurface({
+  detailPanel,
+  detailPanelList,
+  entriesRoot,
+  entries,
+} = {}) {
+  if (detailPanelList) detailPanelList.textContent = '';
+  setItemDetailPanelState(detailPanel, { open: false });
+  markItemDetailActiveEntry({ entriesRoot, entries, activeEntry: null });
+}
+
+export function createItemDetailSurfaceController({
+  doc,
+  detailPanel,
+  detailPanelList,
+  entriesRoot,
+  entries,
+  variant = 'combat',
+  strategy = {},
+} = {}) {
+  const buildBaseContext = (context = {}) => ({
+    doc,
+    detailPanel,
+    detailPanelList,
+    entriesRoot,
+    entries: resolveSurfaceEntries(entriesRoot, entries),
+    variant,
+    ...context,
+  });
+
+  return {
+    clear(context = {}) {
+      const nextContext = buildBaseContext(context);
+      strategy.beforeClear?.(nextContext);
+      clearItemDetailSurface(nextContext);
+      strategy.afterClear?.(nextContext);
+      return nextContext;
+    },
+
+    show(context = {}) {
+      const nextContext = buildBaseContext(context);
+      if (!nextContext.detailPanelList || !nextContext.detail) {
+        return this.clear(nextContext);
+      }
+
+      const showContext = strategy.resolveShowState
+        ? { ...nextContext, ...strategy.resolveShowState(nextContext) }
+        : nextContext;
+
+      renderItemDetailSurface(showContext);
+      strategy.afterShow?.(showContext);
+      return showContext;
+    },
+  };
+}
+
+export function bindItemDetailDismissStrategy({
+  doc,
+  win,
+  detailPanel,
+  shouldDismiss,
+  onDismiss,
+} = {}) {
+  if (!detailPanel || typeof onDismiss !== 'function') return () => {};
+
+  const pointerdown = (event) => {
+    if (!shouldDismiss?.({ event, reason: 'pointerdown', detailPanel })) return;
+    onDismiss({ event, reason: 'pointerdown', detailPanel });
+  };
+  const keydown = (event) => {
+    if (!shouldDismiss?.({ event, reason: 'keydown', detailPanel })) return;
+    onDismiss({ event, reason: 'keydown', detailPanel });
+  };
+
+  doc?.addEventListener?.('pointerdown', pointerdown, true);
+  win?.addEventListener?.('keydown', keydown);
+
+  return () => {
+    doc?.removeEventListener?.('pointerdown', pointerdown, true);
+    win?.removeEventListener?.('keydown', keydown);
+  };
+}
+
+export function createManagedItemDetailSurface({
+  doc,
+  win,
+  detailPanel,
+  detailPanelList,
+  entriesRoot,
+  entries,
+  variant = 'combat',
+  strategy = {},
+  } = {}) {
+  const controller = createItemDetailSurfaceController({
+    doc,
+    detailPanel,
+    detailPanelList,
+    entriesRoot,
+    entries,
+    variant,
+    strategy,
+  });
+  controller.bindDismiss = (context = {}) => {
+    if (!strategy.shouldDismiss && !strategy.onDismiss) return () => {};
+
+    const buildDismissContext = (payload = {}) => ({
+      doc,
+      win,
+      detailPanel,
+      entriesRoot,
+      entries: resolveSurfaceEntries(entriesRoot, entries),
+      clear: () => controller.clear(context),
+      ...context,
+      ...payload,
+    });
+
+    return bindItemDetailDismissStrategy({
+      doc,
+      win,
+      detailPanel,
+      shouldDismiss: strategy.shouldDismiss
+        ? (payload) => strategy.shouldDismiss(buildDismissContext(payload))
+        : undefined,
+      onDismiss: strategy.onDismiss
+        ? (payload) => strategy.onDismiss(buildDismissContext(payload))
+        : () => controller.clear(context),
+    });
+  };
+  return controller;
+}
+
 export function renderItemDetailPanelContent(doc, panelList, detail, options = {}) {
   if (!doc || !panelList || !detail) return;
   const variant = resolveVariant(options);
@@ -138,4 +308,30 @@ export function renderItemDetailPanelContent(doc, panelList, detail, options = {
     panelList.style.opacity = '1';
     panelList.style.transform = 'translateY(0)';
   });
+}
+
+export function renderItemDetailSurface({
+  doc,
+  detailPanel,
+  detailPanelList,
+  entriesRoot,
+  entries,
+  activeEntry = null,
+  detail,
+  variant = 'combat',
+  itemId = '',
+  pinned = false,
+} = {}) {
+  if (!detailPanelList || !detail) {
+    clearItemDetailSurface({ detailPanel, detailPanelList, entriesRoot, entries });
+    return;
+  }
+
+  renderItemDetailPanelContent(doc, detailPanelList, detail, { variant });
+  setItemDetailPanelState(detailPanel, {
+    open: true,
+    itemId,
+    pinned,
+  });
+  markItemDetailActiveEntry({ entriesRoot, entries, activeEntry });
 }

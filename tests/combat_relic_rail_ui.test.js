@@ -128,6 +128,10 @@ describe('combat_relic_rail_ui', () => {
     expect(source).toContain('#combatRelicPanel {');
     expect(source).toContain("#combatRelicPanel[data-open='true']");
     expect(source).toContain('#combatRelicRailSlots button:is(:hover, :focus-visible, [data-active=\'true\'])');
+    expect(source).toContain('.card-clone.clone-rarity-uncommon .card-rarity-tag');
+    expect(source).toContain('.card-clone.clone-rarity-rare .card-rarity-tag');
+    expect(source).toContain('.card-clone.clone-rarity-legendary .card-rarity-tag');
+    expect(source).toMatch(/\.recent-combat-feed\s*\{[^}]*position:\s*fixed;[^}]*right:\s*24px;[^}]*top:\s*clamp\(/s);
     expect(source).toContain('@media (max-width: 900px)');
   });
 

@@ -4175,12 +4175,43 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .recent-combat-feed {
+  position: fixed;
+  right: 24px;
+  top: clamp(320px, 38vh, 520px);
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 6px;
-  width: min(460px, 82vw);
-  max-height: 108px;
+  width: min(420px, 28vw);
+  max-width: calc(100vw - 48px);
+  max-height: 220px;
   overflow: hidden;
+  z-index: 315;
+  pointer-events: none;
+}
+
+.recent-combat-feed[data-layout="tight"] {
+  right: 16px;
+  top: clamp(344px, 40vh, 548px);
+  width: min(320px, 22vw);
+  max-width: calc(100vw - 32px);
+  max-height: 176px;
+}
+
+.recent-combat-feed[data-layout="tight"] .log-entry {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 9px;
+}
+
+.recent-combat-feed[data-layout="stacked"] {
+  position: static;
+  right: auto;
+  top: auto;
+  width: min(460px, 82vw);
+  max-width: none;
+  max-height: 108px;
+  z-index: auto;
 }
 
 .recent-combat-feed::before {
@@ -4209,6 +4240,28 @@ body:has(#combatOverlay.active) .panel-bottom {
 .recent-combat-feed .log-entry.turn-divider,
 .recent-combat-feed .log-entry.system {
   display: none;
+}
+
+@media (max-width: 1400px) {
+  .recent-combat-feed {
+    right: 16px;
+    top: clamp(286px, 35vh, 470px);
+    width: min(340px, 24vw);
+    max-width: calc(100vw - 32px);
+    max-height: 196px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .recent-combat-feed:not([data-layout="rail"]) {
+    position: static;
+    right: auto;
+    top: auto;
+    width: min(460px, 82vw);
+    max-width: none;
+    max-height: 108px;
+    z-index: auto;
+  }
 }
 
 .combat-chain-inline {
@@ -10946,55 +10999,11 @@ body:has(#combatOverlay.active) .panel-bottom {
   text-overflow: ellipsis;
 }
 
-.nc-relic-effect {
-  font-size: 8px;
-  color: rgba(176, 180, 216, 0.48);
-  letter-spacing: 0.03em;
-  margin-top: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .nc-relic-pip {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   flex-shrink: 0;
-}
-
-.nc-relic-tip {
-  display: none;
-}
-
-.nc-relic-tip-name {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  color: var(--white);
-  margin-bottom: 2px;
-}
-
-.nc-relic-tip-rarity {
-  font-size: 8px;
-  letter-spacing: 0.15em;
-  margin-bottom: 7px;
-  opacity: 0.85;
-}
-
-.nc-relic-tip-desc {
-  font-size: 10px;
-  color: rgba(176, 180, 216, 0.75);
-  line-height: 1.6;
-}
-
-.nc-relic-tip-effect {
-  font-size: 9px;
-  color: rgba(var(--rl-rgb, 0, 255, 204), 0.9);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin-top: 7px;
-  padding-top: 6px;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
 }
 
 .nc-relic-empty {
@@ -11067,14 +11076,6 @@ body:has(#combatOverlay.active) .panel-bottom {
     max-height: 220px;
   }
 
-  .nc-relic-tip {
-    right: auto;
-    left: 50%;
-    top: auto;
-    bottom: calc(100% + 8px);
-    transform: translateX(-50%);
-    width: min(220px, calc(100vw - 48px));
-  }
 }
 
 @media (max-width: 900px) {
@@ -11957,6 +11958,33 @@ body:has(#combatOverlay.active) .panel-bottom {
   font-size: 7px;
   letter-spacing: 0.16em;
   background: rgba(10, 10, 18, 0.84);
+}
+
+.card-clone.clone-rarity-common .card-rarity-tag,
+.card-clone.clone-rarity-common .card-rarity-tag-hover {
+  color: rgba(210, 220, 240, 0.78);
+  border-color: rgba(150, 160, 190, 0.24);
+}
+
+.card-clone.clone-rarity-uncommon .card-rarity-tag,
+.card-clone.clone-rarity-uncommon .card-rarity-tag-hover {
+  color: rgba(182, 146, 255, 0.92);
+  border-color: rgba(123, 47, 255, 0.32);
+  box-shadow: 0 0 8px rgba(123, 47, 255, 0.16);
+}
+
+.card-clone.clone-rarity-rare .card-rarity-tag,
+.card-clone.clone-rarity-rare .card-rarity-tag-hover {
+  color: rgba(255, 222, 140, 0.96);
+  border-color: rgba(240, 180, 41, 0.36);
+  box-shadow: 0 0 8px rgba(240, 180, 41, 0.18);
+}
+
+.card-clone.clone-rarity-legendary .card-rarity-tag,
+.card-clone.clone-rarity-legendary .card-rarity-tag-hover {
+  color: rgba(222, 184, 255, 0.98);
+  border-color: rgba(192, 132, 252, 0.42);
+  box-shadow: 0 0 9px rgba(192, 132, 252, 0.22);
 }
 
 /* 기존 클론 전용 파티클 클래스와 애니메이션(.card-clone-particles 등)은 통합 파티클 렌더러로 교체되며 삭제됨 */

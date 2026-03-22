@@ -99,12 +99,20 @@ export function updateCombatLog(doc, logEntries) {
   const recentLogs = getRecentLogs(logEntries);
   const recentCombatFeed = doc.getElementById('recentCombatFeed');
   const recentFeedEntries = selectRecentCombatFeedEntries(logEntries);
+  const viewportWidth = Number(doc?.defaultView?.innerWidth || 0);
+  const recentFeedLayout = viewportWidth > 0 && viewportWidth <= 1180
+    ? 'stacked'
+    : (viewportWidth > 0 && viewportWidth <= 1400 ? 'tight' : 'rail');
+  if (recentCombatFeed?.dataset) {
+    recentCombatFeed.dataset.layout = recentFeedLayout;
+  }
+  const visibleRecentFeedEntries = recentFeedEntries.slice(-(recentFeedLayout === 'rail' ? 3 : 2));
 
   const fullLogUpdated = syncLogSurface(doc, logContainer, recentLogs, {
     scrollOnAdd: true,
     limitOverflow: true,
   });
-  const recentFeedUpdated = syncLogSurface(doc, recentCombatFeed, recentFeedEntries);
+  const recentFeedUpdated = syncLogSurface(doc, recentCombatFeed, visibleRecentFeedEntries);
 
   return fullLogUpdated || recentFeedUpdated;
 }

@@ -149,6 +149,8 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(firstSlot.listeners.mouseenter).toBeTypeOf('function');
     expect(firstSlot.listeners.click).toBeTypeOf('function');
     expect(tooltipUI.showItemTooltip).not.toHaveBeenCalled();
+    expect(firstSlot.children[1].children).toHaveLength(1);
+    expect(firstSlot.children[1].children[0].className).toBe('nc-relic-name');
 
     expect(detailList.children[0].children[0].textContent).toContain('메아리 부적');
     expect(detailList.children[1].textContent).toContain('전투 시작 시 잔향 +5');

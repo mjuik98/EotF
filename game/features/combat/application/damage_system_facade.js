@@ -123,7 +123,7 @@ export const DamageSystem = {
   dealDamageAll(amount, noChain = false, deps = {}) {
     const alive = getAliveEnemyIndexes(this);
     alive.forEach((i, idx) => {
-      this.dealDamage(amount, i, noChain || (idx < alive.length - 1), null, deps);
+      DamageSystem.dealDamage.call(this, amount, i, noChain || (idx < alive.length - 1), null, deps);
     });
   },
 

@@ -10,7 +10,7 @@ import {
   resolveItemDetailState,
   buildItemDetailViewModel,
   applyItemDetailPanelStyles,
-  renderItemDetailPanelContent,
+  createManagedItemDetailSurface,
   getItemDetailNavIndex,
   isItemDetailCommitKey,
 } from './relic_detail_shared_ui.js';
@@ -132,26 +132,22 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   detailList.className = 'nc-relic-detail-list';
   detailPanel.appendChild(detailList);
   applyItemDetailPanelStyles(detailPanel, detailList, { variant: 'compact' });
-
-  const markActiveSlot = (activeSlot) => {
-    for (const slot of list.children || []) {
-      if (!slot?.dataset) continue;
-      if (slot === activeSlot) {
-        slot.dataset.active = 'true';
-        slot.setAttribute('aria-pressed', 'true');
-      } else {
-        delete slot.dataset.active;
-        slot.setAttribute('aria-pressed', 'false');
-      }
-    }
-  };
+  const detailSurface = createManagedItemDetailSurface({
+    doc,
+    detailPanel,
+    detailPanelList: detailList,
+    entriesRoot: list,
+    variant: 'compact',
+  });
 
   const renderDetail = (itemId, item, activeSlot) => {
     const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
     const detail = buildItemDetailViewModel(itemId, item, data, state);
-    renderItemDetailPanelContent(doc, detailList, detail, { variant: 'compact' });
-    detailPanel.dataset.open = 'true';
-    markActiveSlot(activeSlot);
+    detailSurface.show({
+      activeEntry: activeSlot,
+      detail,
+      itemId,
+    });
   };
 
   if (items.length === 0) {
@@ -172,7 +168,6 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       const triggers = Array.isArray(item.trigger) ? item.trigger : [item.trigger];
       const isActive = triggers.some((trigger) => activeTriggers.has(String(trigger || '').toLowerCase()));
       const rawDesc = stripHtml(item.desc, 220);
-      const summary = rawDesc.length > 28 ? `${rawDesc.slice(0, 28).trim()}…` : rawDesc;
 
       const slot = doc.createElement('div');
       slot.className = `nc-relic-slot rarity-${rarity}${isActive ? ' is-active' : ''}`;
@@ -191,10 +186,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       const name = doc.createElement('div');
       name.className = 'nc-relic-name';
       name.textContent = item.name || itemId;
-      const effect = doc.createElement('div');
-      effect.className = 'nc-relic-effect';
-      effect.textContent = summary || '효과 정보 없음';
-      info.append(name, effect);
+      info.append(name);
 
       const pip = doc.createElement('div');
       pip.className = 'nc-relic-pip';

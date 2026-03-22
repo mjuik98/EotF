@@ -4,7 +4,7 @@ import { resolveItemDetailState } from './item_detail_state.js';
 import { buildItemDetailViewModel } from './item_detail_view_model.js';
 import {
   applyItemDetailPanelStyles,
-  renderItemDetailPanelContent,
+  createManagedItemDetailSurface,
 } from './item_detail_panel_ui.js';
 
 const RARITY_SORT_ORDER = {
@@ -15,95 +15,10 @@ const RARITY_SORT_ORDER = {
   common: 4,
 };
 
-function normalizeRarity(rarity) {
-  return String(rarity || 'common').toLowerCase();
-}
-
-function isTouchLikeViewport(win) {
-  if (!win) return false;
-  return 'ontouchstart' in win || Number(win?.innerWidth || 0) < 900;
-}
-
-function setPanelOpen(detailPanel, isOpen, itemId = '', pinned = false) {
-  if (!detailPanel?.dataset) return;
-  detailPanel.dataset.open = isOpen ? 'true' : 'false';
-  detailPanel.dataset.pinned = isOpen && pinned ? 'true' : 'false';
-  if (isOpen && itemId) detailPanel.dataset.itemId = itemId;
-  else delete detailPanel.dataset.itemId;
-}
-
-function markActiveSlot(slotsEl, activeSlot) {
-  for (const slot of slotsEl?.children || []) {
-    if (!slot) continue;
-    if (slot === activeSlot) {
-      if (slot.dataset) slot.dataset.active = 'true';
-      slot.setAttribute?.('aria-pressed', 'true');
-    } else {
-      if (slot.dataset) delete slot.dataset.active;
-      slot.setAttribute?.('aria-pressed', 'false');
-    }
-  }
-}
-
 function isPinned(detailPanel, itemId = '') {
   return detailPanel?.dataset?.open === 'true'
     && detailPanel?.dataset?.pinned === 'true'
     && detailPanel?.dataset?.itemId === itemId;
-}
-
-function renderDetailPanel({
-  doc,
-  detailPanel,
-  detailPanelList,
-  slotsEl,
-  activeSlot,
-  itemId,
-  item,
-  data,
-  gs,
-  setBonusSystem,
-  pinned = false,
-}) {
-  if (!detailPanelList) {
-    setPanelOpen(detailPanel, false);
-    return;
-  }
-
-  const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
-  const detail = buildItemDetailViewModel(itemId, item, data, state);
-  renderItemDetailPanelContent(doc, detailPanelList, detail);
-  setPanelOpen(detailPanel, true, itemId, pinned);
-  markActiveSlot(slotsEl, activeSlot);
-}
-
-function closeDetailPanel(detailPanel, detailPanelList, slotsEl) {
-  if (detailPanelList) detailPanelList.textContent = '';
-  setPanelOpen(detailPanel, false);
-  markActiveSlot(slotsEl, null);
-}
-
-function bindDismissHandlers({ doc, win, detailPanel, detailPanelList, slotsEl }) {
-  if (!detailPanel) return;
-  const prev = detailPanel.__combatRelicDismissHandlers;
-  if (prev) {
-    doc?.removeEventListener?.('pointerdown', prev.pointerdown, true);
-    win?.removeEventListener?.('keydown', prev.keydown);
-  }
-
-  const pointerdown = (event) => {
-    if (detailPanel?.dataset?.open !== 'true' || detailPanel?.dataset?.pinned !== 'true') return;
-    const target = event?.target;
-    if (slotsEl?.contains?.(target) || detailPanel?.contains?.(target)) return;
-    closeDetailPanel(detailPanel, detailPanelList, slotsEl);
-  };
-  const keydown = (event) => {
-    if (event?.key !== 'Escape' || detailPanel?.dataset?.open !== 'true') return;
-    closeDetailPanel(detailPanel, detailPanelList, slotsEl);
-  };
-
-  doc?.addEventListener?.('pointerdown', pointerdown, true);
-  win?.addEventListener?.('keydown', keydown);
-  detailPanel.__combatRelicDismissHandlers = { pointerdown, keydown };
 }
 
 export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
@@ -113,27 +28,56 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
   const detailPanelList = detailPanel ? doc?.getElementById?.('combatRelicPanelList') : null;
   const win = deps?.win || doc?.defaultView || null;
 
-  const touchLikeViewport = isTouchLikeViewport(win);
   const setBonusSystem = deps?.setBonusSystem || null;
+  const detailSurface = createManagedItemDetailSurface({
+    doc,
+    win,
+    detailPanel,
+    detailPanelList,
+    entriesRoot: slotsEl,
+    variant: 'combat',
+    strategy: {
+      shouldDismiss({ event, reason, detailPanel: activePanel }) {
+        if (activePanel?.dataset?.open !== 'true') return false;
+        if (reason === 'keydown') return event?.key === 'Escape';
+        if (activePanel?.dataset?.pinned !== 'true') return false;
+        const target = event?.target;
+        return !slotsEl?.contains?.(target) && !activePanel?.contains?.(target);
+      },
+      onDismiss({ clear }) {
+        clear();
+      },
+    },
+  });
+  const showDetail = (itemId, item, activeSlot, pinned = false) => {
+    const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
+    detailSurface.show({
+      activeEntry: activeSlot,
+      detail: buildItemDetailViewModel(itemId, item, data, state),
+      itemId,
+      pinned,
+    });
+  };
 
   const items = Array.isArray(gs?.player?.items) ? gs.player.items : [];
 
   if (countEl) countEl.textContent = String(items.length);
 
   applyItemDetailPanelStyles(detailPanel, detailPanelList);
-  closeDetailPanel(detailPanel, detailPanelList, slotsEl);
-  bindDismissHandlers({ doc, win, detailPanel, detailPanelList, slotsEl });
+  detailSurface.clear();
+  if (detailPanel) {
+    detailPanel.__combatRelicDismissHandlers?.();
+    detailPanel.__combatRelicDismissHandlers = detailSurface.bindDismiss();
+  }
 
   if (!slotsEl) return;
   slotsEl.textContent = '';
 
-  const sortedItems = [...items].filter((itemId) => {
-    return !!data?.items?.[itemId];
-  });
+  const sortedItems = [...items].filter((itemId) => !!data?.items?.[itemId]);
 
   const slotSortedItems = [...sortedItems].sort((leftId, rightId) => {
-    const left = RARITY_SORT_ORDER[normalizeRarity(data?.items?.[leftId]?.rarity)] ?? 3;
-    const right = RARITY_SORT_ORDER[normalizeRarity(data?.items?.[rightId]?.rarity)] ?? 3;
+    const left = RARITY_SORT_ORDER[String(data?.items?.[leftId]?.rarity || 'common').toLowerCase()] ?? 3;
+    const right = RARITY_SORT_ORDER[String(data?.items?.[rightId]?.rarity || 'common').toLowerCase()] ?? 3;
     return left - right;
   });
   const slotNodes = [];
@@ -148,29 +92,30 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     slot.setAttribute('aria-label', buildItemTooltipFallbackText(item, itemId));
     slot.setAttribute('aria-controls', 'combatRelicPanel');
     slot.setAttribute('aria-pressed', 'false');
+    const showSlotDetail = (activeSlot, pinned = false) => showDetail(itemId, item, activeSlot, pinned);
 
     slot.addEventListener('mouseenter', () => {
-      renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem });
+      showSlotDetail(slot);
     });
     slot.addEventListener('focus', () => {
-      renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem });
+      showSlotDetail(slot);
     });
     slot.addEventListener('mouseleave', () => {
       if (isPinned(detailPanel, itemId)) return;
-      closeDetailPanel(detailPanel, detailPanelList, slotsEl);
+      detailSurface.clear();
     });
     slot.addEventListener('blur', () => {
       if (isPinned(detailPanel, itemId)) return;
-      closeDetailPanel(detailPanel, detailPanelList, slotsEl);
+      detailSurface.clear();
     });
 
     slot.addEventListener('click', (event) => {
-      if (touchLikeViewport) event?.preventDefault?.();
+      if (win && ('ontouchstart' in win || Number(win?.innerWidth || 0) < 900)) event?.preventDefault?.();
       if (isPinned(detailPanel, itemId)) {
-        closeDetailPanel(detailPanel, detailPanelList, slotsEl);
+        detailSurface.clear();
         return;
       }
-      renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem, pinned: true });
+      showSlotDetail(slot, true);
     });
     slot.addEventListener('keydown', (event) => {
       const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || slotSortedItems.length);
@@ -181,28 +126,16 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
         const nextItem = data?.items?.[nextItemId];
         if (!nextSlot || !nextItem) return;
         nextSlot.focus?.();
-        renderDetailPanel({
-          doc,
-          detailPanel,
-          detailPanelList,
-          slotsEl,
-          activeSlot: nextSlot,
-          itemId: nextItemId,
-          item: nextItem,
-          data,
-          gs,
-          setBonusSystem,
-          pinned: detailPanel?.dataset?.pinned === 'true',
-        });
+        showDetail(nextItemId, nextItem, nextSlot, detailPanel?.dataset?.pinned === 'true');
         return;
       }
       if (isItemDetailCommitKey(event?.key)) {
         event?.preventDefault?.();
         if (isPinned(detailPanel, itemId)) {
-          closeDetailPanel(detailPanel, detailPanelList, slotsEl);
+          detailSurface.clear();
           return;
         }
-        renderDetailPanel({ doc, detailPanel, detailPanelList, slotsEl, activeSlot: slot, itemId, item, data, gs, setBonusSystem, pinned: true });
+        showSlotDetail(slot, true);
       }
     });
 

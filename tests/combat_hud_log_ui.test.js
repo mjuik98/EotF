@@ -13,8 +13,10 @@ class MockElement {
     this.dataset = {};
     this.scrollTop = 0;
     this.scrollHeight = 240;
+    this.offsetWidth = 0;
     this._innerHTML = '';
     this._textContent = '';
+    this._rect = { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
 
     Object.defineProperty(this, 'id', {
       get: () => this._id || '',
@@ -61,11 +63,30 @@ class MockElement {
   get firstChild() {
     return this.children[0] || null;
   }
+
+  getBoundingClientRect() {
+    return this._rect;
+  }
+
+  setBoundingClientRect(rect = {}) {
+    this._rect = {
+      left: rect.left || 0,
+      top: rect.top || 0,
+      right: rect.right || 0,
+      bottom: rect.bottom || 0,
+      width: rect.width || 0,
+      height: rect.height || 0,
+    };
+    this.offsetWidth = this._rect.width;
+  }
 }
 
 function createDoc() {
   const doc = {
     _elements: new Map(),
+    defaultView: {
+      innerWidth: 1440,
+    },
     createElement(tagName) {
       return new MockElement(doc, tagName);
     },
@@ -82,6 +103,7 @@ function createLogSurfaces(doc) {
 
   const recentCombatFeed = doc.createElement('div');
   recentCombatFeed.id = 'recentCombatFeed';
+  recentCombatFeed.setBoundingClientRect({ left: 1040, right: 1400, top: 360, bottom: 520, width: 360, height: 160 });
 
   return { combatLog, recentCombatFeed };
 }
@@ -103,6 +125,7 @@ describe('combat_hud_log_ui', () => {
     expect(combatLog.scrollTop).toBe(combatLog.scrollHeight);
     expect(recentCombatFeed.children).toHaveLength(1);
     expect(recentCombatFeed.children[0].textContent).toBe('Enemy is stunned');
+    expect(recentCombatFeed.dataset.layout).toBe('rail');
   });
 
   it('updates existing id-based entries, prunes stale nodes, and keeps recent limit', () => {
@@ -154,6 +177,7 @@ describe('combat_hud_log_ui', () => {
 
   it('renders only the latest 3 eligible entries into the recent combat feed', () => {
     const doc = createDoc();
+    doc.defaultView.innerWidth = 1360;
     const { recentCombatFeed } = createLogSurfaces(doc);
 
     updateCombatLog(doc, [
@@ -165,9 +189,26 @@ describe('combat_hud_log_ui', () => {
       { id: 'card-2', msg: '🃏 [응급 처치]: 5 회복', type: 'card-log' },
     ]);
 
-    expect(recentCombatFeed.children).toHaveLength(3);
-    expect(recentCombatFeed.children[0].dataset.logId).toBe('buff');
-    expect(recentCombatFeed.children[1].dataset.logId).toBe('echo');
-    expect(recentCombatFeed.children[2].dataset.logId).toBe('card-2');
+    expect(recentCombatFeed.children).toHaveLength(2);
+    expect(recentCombatFeed.dataset.layout).toBe('tight');
+    expect(recentCombatFeed.children[0].dataset.logId).toBe('echo');
+    expect(recentCombatFeed.children[1].dataset.logId).toBe('card-2');
+  });
+
+  it('falls back to a stacked layout when the viewport is too narrow for the right rail', () => {
+    const doc = createDoc();
+    doc.defaultView.innerWidth = 1080;
+    const { recentCombatFeed } = createLogSurfaces(doc);
+
+    updateCombatLog(doc, [
+      { id: 'buff', msg: '🃏 [방호]: 방어막 +6', type: 'buff' },
+      { id: 'echo', msg: '✨ 공명 폭발: 10 피해!', type: 'echo' },
+      { id: 'heal', msg: '🃏 [응급 처치]: 5 회복', type: 'card-log' },
+    ]);
+
+    expect(recentCombatFeed.dataset.layout).toBe('stacked');
+    expect(recentCombatFeed.children).toHaveLength(2);
+    expect(recentCombatFeed.children[0].dataset.logId).toBe('echo');
+    expect(recentCombatFeed.children[1].dataset.logId).toBe('heal');
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DamageSystem } from '../game/combat/damage_system.js';
 import { Actions } from '../game/core/state_actions.js';
+import { applyEnemyAreaDamageRuntime } from '../game/features/combat/application/public_combat_command_actions.js';
 
 function createHost() {
   const host = {
@@ -66,6 +67,68 @@ function createHost() {
 }
 
 describe('DamageSystem facade', () => {
+  it('applies area damage through the runtime entrypoint without requiring gs.dealDamage to exist', () => {
+    const deps = {
+      doc: {
+        getElementById: () => null,
+        querySelectorAll: () => [],
+      },
+      win: {},
+    };
+    const gs = {
+      player: {
+        hp: 40,
+        maxHp: 50,
+        shield: 0,
+        buffs: {},
+        echoChain: 0,
+      },
+      combat: {
+        enemies: [
+          { id: 'slime_a', name: 'Slime A', hp: 5, shield: 0, statusEffects: {} },
+          { id: 'slime_b', name: 'Slime B', hp: 8, shield: 0, statusEffects: {} },
+        ],
+        turn: 1,
+      },
+      stats: {
+        damageDealt: 0,
+      },
+      worldMemory: {},
+      meta: {
+        codex: null,
+      },
+      addEcho: vi.fn(),
+      addGold: vi.fn(),
+      addLog: vi.fn(),
+      markDirty: vi.fn(),
+      dispatch: vi.fn((action, payload) => {
+        if (action !== Actions.ENEMY_DAMAGE) return {};
+        const enemy = gs.combat.enemies[payload.targetIdx];
+        enemy.hp = Math.max(0, enemy.hp - payload.amount);
+        gs.stats.damageDealt += payload.amount;
+        return {
+          actualDamage: payload.amount,
+          totalDamage: payload.amount,
+          shieldAbsorbed: 0,
+          hpAfter: enemy.hp,
+          isDead: enemy.hp <= 0,
+          targetIdx: payload.targetIdx,
+        };
+      }),
+      getBuff() {
+        return null;
+      },
+      triggerItems: vi.fn(),
+    };
+
+    expect(() => applyEnemyAreaDamageRuntime(gs, { amount: 6, deps })).not.toThrow();
+    expect(gs.combat.enemies[0].hp).toBe(0);
+    expect(gs.combat.enemies[1].hp).toBe(2);
+    expect(gs.addGold).toHaveBeenCalledTimes(1);
+    expect(gs.addGold).toHaveBeenCalledWith(10, deps);
+    expect(gs.addLog).toHaveBeenCalledWith('💀 Slime A 처치! +10골드', 'system');
+  });
+
   it('calculatePotentialDamage does not consume single-use crit buffs', () => {
     const host = createHost();
     host.player.buffs.focus = { stacks: 1 };

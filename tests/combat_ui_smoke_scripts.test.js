@@ -64,4 +64,52 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('mobileRelicRailWithinViewport');
     expect(source).toContain('page.waitForFunction');
   });
+
+  it('covers echo kill combat-end handoff in the browser smoke runner', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain('echoKillResult');
+    expect(source).toContain("document.getElementById('rewardScreen')");
+    expect(source).toContain("document.querySelector('#combatOverlay.active')");
+    expect(source).toContain("page.click('#useEchoSkillBtn')");
+    expect(source).toContain('rewardScreenActive');
+    expect(source).toContain('enemyCountAfterEcho');
+    expect(source).toContain('combatOverlayClosed');
+  });
+
+  it('drives the combat smoke through the real run entry and return flow', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("page.click('#mainStartBtn')");
+    expect(source).toContain("page.waitForSelector('#btnCfm'");
+    expect(source).toContain("page.waitForSelector('#btnRealStart'");
+    expect(source).toContain("page.waitForSelector('#storyContinueBtn'");
+    expect(source).toContain("page.waitForSelector('.node-card'");
+    expect(source).toContain("page.click('#rewardSkipInitBtn')");
+    expect(source).toContain("page.click('#rewardSkipConfirmBtn')");
+    expect(source).toContain('returnFlowResult');
+    expect(source).toContain('rewardScreenClosed');
+    expect(source).toContain('nodeCardsVisible');
+  });
+
+  it('captures named visual snapshots for combat layout regression states', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("'combat-ui-real-entry'");
+    expect(source).toContain("'combat-ui-hover-card'");
+    expect(source).toContain("'combat-ui-log-right-rail'");
+    expect(source).toContain("'combat-ui-echo-finish'");
+    expect(source).toContain("'combat-ui-return-map'");
+    expect(source).toContain('visualSnapshots');
+    expect(source).toContain('actionFeedResult');
+  });
 });
