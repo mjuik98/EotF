@@ -354,7 +354,9 @@ export const HandCardCloneUI = {
     if (!doc) return;
     const handZoneEl  = doc.getElementById('combatHandCards');
     doc.descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || doc.descriptionUtils || null;
-    const cloneEl     = createHandCardCloneElement(doc, cardId, card, costDisplay);
+    const cloneEl     = createHandCardCloneElement(doc, cardId, card, costDisplay, {
+      keywordPanelWidth: _KEYWORD_PANEL_W,
+    });
     cloneEl.style.pointerEvents = 'auto';
     // Clone hover owns the hand-card preview contract. Keep all hover/panel state on the clone tree.
     cloneEl.__onClonePositionChange = (position) => _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, position);

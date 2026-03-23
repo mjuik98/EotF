@@ -172,9 +172,10 @@ function setMechanicTriggerActive(trigger, active) {
   trigger.style.color = active ? 'rgba(244, 239, 255, 0.98)' : 'rgba(220, 214, 238, 0.82)';
 }
 
-export function createCombatCloneKeywordPanel(doc, card) {
+export function createCombatCloneKeywordPanel(doc, card, options = {}) {
   const keywordItems = resolveCombatKeywordTooltips(card);
   if (keywordItems.length === 0) return { link: null, mechanics: null, panel: null };
+  const panelWidth = Number(options.keywordPanelWidth) > 0 ? Number(options.keywordPanelWidth) : 176;
 
   const mechanics = doc.createElement('div');
   mechanics.className = 'card-hover-mechanics';
@@ -202,7 +203,7 @@ export function createCombatCloneKeywordPanel(doc, card) {
   panel.className = 'card-clone-keyword-panel';
   panel.dataset.open = 'false';
   panel.style.position = 'absolute';
-  panel.style.width = '176px';
+  panel.style.width = `${panelWidth}px`;
   panel.style.padding = '12px 14px';
   panel.style.borderRadius = '14px';
   panel.style.border = '1px solid rgba(123, 47, 255, 0.42)';

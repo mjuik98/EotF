@@ -1,7 +1,7 @@
 import { populateCombatCardFrame } from './combat_card_frame_ui.js';
 import { createCombatCloneKeywordPanel } from './combat_copy.js';
 
-export function createHandCardCloneElement(doc, cardId, card, costDisplay) {
+export function createHandCardCloneElement(doc, cardId, card, costDisplay, options = {}) {
   const rarity = card.rarity || 'common';
 
   const clone = doc.createElement('div');
@@ -27,7 +27,7 @@ export function createHandCardCloneElement(doc, cardId, card, costDisplay) {
   arrow.className = 'card-clone-arrow';
   clone.appendChild(arrow);
 
-  const { link, mechanics, panel } = createCombatCloneKeywordPanel(doc, card);
+  const { link, mechanics, panel } = createCombatCloneKeywordPanel(doc, card, options);
   if (mechanics) clone.appendChild(mechanics);
   if (link) clone.appendChild(link);
   if (panel) clone.appendChild(panel);
