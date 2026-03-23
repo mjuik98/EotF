@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createHandCardCloneElement } from '../game/ui/cards/card_clone_render_ui.js';
+import { createHandCardCloneElement } from '../game/features/combat/presentation/browser/card_clone_render_ui.js';
 
 class MockClassList {
   constructor(owner) {

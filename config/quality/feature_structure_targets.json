@@ -47,5 +47,21 @@
       "app"
     ]
   },
-  "allowedExtraRootFilesByFeature": {}
+  "allowedExtraRootFilesByFeature": {},
+  "thinWrapperDirsByFeature": {
+    "combat": [
+      "bindings",
+      "modules",
+      "runtime"
+    ],
+    "run": [
+      "bindings",
+      "modules",
+      "runtime",
+      "ui"
+    ],
+    "title": [
+      "ui"
+    ]
+  }
 }

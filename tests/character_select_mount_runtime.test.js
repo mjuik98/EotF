@@ -72,7 +72,7 @@ import {
   buildCharacterSelectSectionLabel,
   createCharacterSelectMountRuntime,
   getCharacterClassProgress,
-} from '../game/ui/title/character_select_mount_runtime.js';
+} from '../game/features/title/platform/browser/create_character_select_mount_runtime.js';
 
 function createElement() {
   return {

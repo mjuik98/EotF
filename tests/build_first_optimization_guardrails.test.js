@@ -1,9 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
-
-const ROOT = process.cwd();
+import { readText } from './helpers/guardrail_fs.js';
 
 describe('build-first optimization guardrails', () => {
   it('keeps codex, event, and reward registrars off the shared static screen feature builder', () => {
@@ -14,43 +10,30 @@ describe('build-first optimization guardrails', () => {
     ];
 
     for (const file of files) {
-      const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
+      const source = readText(file);
       expect(source).not.toContain('buildScreenFeaturePrimaryModules');
       expect(source).toMatch(/createLazy[A-Za-z]+Module/);
     }
   });
 
-  it('keeps codex and run-rules CSS out of eager html and plain-browser ESM imports', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-    const codexUi = fs.readFileSync(
-      path.join(ROOT, 'game/features/codex/presentation/browser/codex_ui.js'),
-      'utf8',
-    );
-    const runModeUi = fs.readFileSync(
-      path.join(ROOT, 'game/features/run/presentation/browser/run_mode_ui.js'),
-      'utf8',
-    );
+  it('keeps codex, run-rules, and character-select CSS out of eager html and plain-browser ESM imports', () => {
+    const html = readText('index.html');
+    const codexUi = readText('game/features/codex/presentation/browser/codex_ui.js');
+    const runModeUi = readText('game/features/run/presentation/browser/run_mode_ui.js');
 
     expect(html).not.toContain('css/codex_v3.css');
     expect(html).not.toContain('css/run-rules-redesign.css');
+    expect(html).not.toContain('css/class_progression.css');
+    expect(html).not.toContain('css/character_select_layout.css');
     expect(codexUi).not.toContain("import '../../../../../css/codex_v3.css';");
     expect(runModeUi).not.toContain("import '../../../../../css/run-rules-redesign.css';");
   });
 
   it('keeps title, event, and reward shells as feature-owned lazy mounts instead of eager html payloads', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-    const characterSelectShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/title/platform/browser/ensure_character_select_shell.js'),
-      'utf8',
-    );
-    const eventModalShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/event/platform/browser/ensure_event_modal_shell.js'),
-      'utf8',
-    );
-    const rewardScreenShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/reward/platform/browser/ensure_reward_screen_shell.js'),
-      'utf8',
-    );
+    const html = readText('index.html');
+    const characterSelectShell = readText('game/features/title/platform/browser/ensure_character_select_shell.js');
+    const eventModalShell = readText('game/features/event/platform/browser/ensure_event_modal_shell.js');
+    const rewardScreenShell = readText('game/features/reward/platform/browser/ensure_reward_screen_shell.js');
 
     expect(html).toContain('id="charSelectSubScreen"');
     expect(html).toContain('id="eventModal"');
@@ -64,27 +47,12 @@ describe('build-first optimization guardrails', () => {
   });
 
   it('keeps run/settings/deck/chronicle/codex shells out of the eager html payload', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-    const runSettingsShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/run/platform/browser/ensure_run_settings_shell.js'),
-      'utf8',
-    );
-    const deckModalShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/combat/platform/browser/ensure_deck_modal_shell.js'),
-      'utf8',
-    );
-    const settingsModalShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/ui/platform/browser/ensure_settings_modal_shell.js'),
-      'utf8',
-    );
-    const chronicleShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/combat/platform/browser/ensure_battle_chronicle_shell.js'),
-      'utf8',
-    );
-    const codexShell = fs.readFileSync(
-      path.join(ROOT, 'game/features/codex/platform/browser/ensure_codex_modal_shell.js'),
-      'utf8',
-    );
+    const html = readText('index.html');
+    const runSettingsShell = readText('game/features/run/platform/browser/ensure_run_settings_shell.js');
+    const deckModalShell = readText('game/features/combat/platform/browser/ensure_deck_modal_shell.js');
+    const settingsModalShell = readText('game/features/ui/platform/browser/ensure_settings_modal_shell.js');
+    const chronicleShell = readText('game/features/combat/platform/browser/ensure_battle_chronicle_shell.js');
+    const codexShell = readText('game/features/codex/platform/browser/ensure_codex_modal_shell.js');
 
     expect(html).toContain('id="runSettingsModal"');
     expect(html).toContain('id="deckViewModal"');
@@ -104,8 +72,8 @@ describe('build-first optimization guardrails', () => {
   });
 
   it('keeps the repository contract free of removed doc paths', () => {
-    const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf8');
-    const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+    const agents = readText('AGENTS.md');
+    const readme = readText('README.md');
 
     expect(agents).not.toContain('docs/architecture_boundaries.md');
     expect(agents).not.toContain('docs/scaling_playbook.md');

@@ -202,6 +202,7 @@ function createElement() {
 }
 
 function createDocument() {
+  const headChildren = [];
   const elements = {
     charCard: createElement(),
     infoPanel: createElement(),
@@ -215,6 +216,19 @@ function createDocument() {
   const introB = { classList: { add: vi.fn() } };
 
   return {
+    head: {
+      children: headChildren,
+      appendChild(node) {
+        headChildren.push(node);
+        if (node?.id) elements[node.id] = node;
+      },
+    },
+    createElement: vi.fn((tag) => ({
+      tagName: tag,
+      rel: '',
+      href: '',
+      id: '',
+    })),
     getElementById: vi.fn((id) => elements[id] || null),
     querySelectorAll: vi.fn((selector) => (selector === '.intro' ? [introA, introB] : [])),
     elements,
@@ -268,6 +282,12 @@ describe('character select ui mount wiring', () => {
       requestAnimationFrame,
       cancelAnimationFrame,
     });
+
+    expect(doc.head.children).toHaveLength(2);
+    expect(doc.head.children.map((node) => node.href)).toEqual(expect.arrayContaining([
+      expect.stringContaining('class_progression.css'),
+      expect.stringContaining('character_select_layout.css'),
+    ]));
 
     expect(hoisted.ensureMeta).toHaveBeenCalledWith({}, ['paladin', 'berserker']);
     expect(hoisted.createCharacterParticleRuntime).toHaveBeenCalledWith({

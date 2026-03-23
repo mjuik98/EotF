@@ -1,12 +1,10 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
 import { filterLazyChunkModulePreloads, getManualChunk } from '../vite.config.js';
+import { readText } from './helpers/guardrail_fs.js';
 
 describe('vite chunking guardrails', () => {
   it('splits gameplay-heavy browser code into focused feature chunks instead of one ui-gameplay bucket', () => {
-    const source = fs.readFileSync(path.join(process.cwd(), 'vite.config.js'), 'utf8');
+    const source = readText('vite.config.js');
 
     expect(source).toContain("return 'ui-combat';");
     expect(source).toContain("return 'ui-combat-copy';");
@@ -18,10 +16,13 @@ describe('vite chunking guardrails', () => {
     expect(source).toContain("return 'ui-reward';");
     expect(source).toContain("return 'ui-event';");
     expect(source).toContain("return 'ui-shell-overlays';");
+    expect(source).toContain("return 'ui-shell-hotkeys';");
+    expect(source).toContain("return 'ui-settings-core';");
+    expect(source).toContain("return 'ui-settings-hotkeys';");
   });
 
   it('targets canonical feature-owned browser paths instead of transitional ui/presentation screen paths', () => {
-    const source = fs.readFileSync(path.join(process.cwd(), 'vite.config.js'), 'utf8');
+    const source = readText('vite.config.js');
 
     expect(source).toContain("/game/features/event/presentation/browser/");
     expect(source).toContain("/game/features/reward/presentation/browser/");
@@ -47,7 +48,10 @@ describe('vite chunking guardrails', () => {
       'assets/ui-event-abc.js',
       'assets/ui-reward-abc.js',
       'assets/ui-shell-overlays-abc.js',
+      'assets/ui-shell-hotkeys-abc.js',
       'assets/ui-settings-abc.js',
+      'assets/ui-settings-core-abc.js',
+      'assets/ui-settings-hotkeys-abc.js',
       'assets/ui-run-mode-abc.js',
       'assets/data-cards-abc.js',
       'assets/vendor-abc.js',
@@ -88,49 +92,43 @@ describe('vite chunking guardrails', () => {
     ).toBe('ui-shared-surfaces');
   });
 
-  it('keeps SettingsManager in the settings chunk so shell overlays do not own settings persistence code', () => {
+  it('keeps SettingsManager in a dedicated settings-support chunk so shell overlays do not own settings persistence code', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/core/settings_manager.js'),
-    ).toBe('ui-settings');
+    ).toBe('ui-settings-core');
+  });
+
+  it('splits settings keybinding and rebind helpers away from the main settings chunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/settings_ui_keybinding_helpers.js'),
+    ).toBe('ui-settings-hotkeys');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/settings_ui_runtime_helpers.js'),
+    ).toBe('ui-settings-hotkeys');
+  });
+
+  it('splits help/pause hotkey helpers away from the main shell overlay chunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/help_pause_keybinding_helpers.js'),
+    ).toBe('ui-shell-hotkeys');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/help_pause_run_hotkey_state.js'),
+    ).toBe('ui-shell-hotkeys');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/help_pause_visibility.js'),
+    ).toBe('ui-shell-hotkeys');
   });
 
   it('uses narrow title capability surfaces instead of the broad public application barrel in overlay-related runtimes', () => {
-    const endingActionHelpers = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/presentation/browser/ending_screen_action_helpers.js'),
-      'utf8',
-    );
-    const metaProgressionRuntime = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/presentation/browser/meta_progression_ui_runtime.js'),
-      'utf8',
-    );
-    const hiddenEndingRender = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/presentation/browser/story_ui_hidden_ending_render.js'),
-      'utf8',
-    );
-    const helpPauseAbandonRuntime = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js'),
-      'utf8',
-    );
-    const helpPauseReturnRuntime = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/presentation/browser/help_pause_ui_return_runtime.js'),
-      'utf8',
-    );
-    const helpPauseMenuRuntime = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js'),
-      'utf8',
-    );
-    const shellContracts = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/ports/contracts/build_ui_shell_contracts.js'),
-      'utf8',
-    );
-    const runRules = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/run/application/run_rules.js'),
-      'utf8',
-    );
-    const rewardOptions = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/reward/application/build_reward_options_use_case.js'),
-      'utf8',
-    );
+    const endingActionHelpers = readText('game/features/ui/presentation/browser/ending_screen_action_helpers.js');
+    const metaProgressionRuntime = readText('game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
+    const hiddenEndingRender = readText('game/features/ui/presentation/browser/story_ui_hidden_ending_render.js');
+    const helpPauseAbandonRuntime = readText('game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js');
+    const helpPauseReturnRuntime = readText('game/features/ui/presentation/browser/help_pause_ui_return_runtime.js');
+    const helpPauseMenuRuntime = readText('game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js');
+    const shellContracts = readText('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
+    const runRules = readText('game/features/run/application/run_rules.js');
+    const rewardOptions = readText('game/features/reward/application/build_reward_options_use_case.js');
 
     expect(endingActionHelpers).toContain("../../../title/ports/public_ending_application_capabilities.js");
     expect(metaProgressionRuntime).toContain("../../../title/ports/public_ending_application_capabilities.js");
@@ -156,7 +154,7 @@ describe('vite chunking guardrails', () => {
   });
 
   it('targets canonical feature-owned browser paths instead of transitional ui/presentation screen paths', () => {
-    const source = fs.readFileSync(path.join(process.cwd(), 'vite.config.js'), 'utf8');
+    const source = readText('vite.config.js');
 
     expect(source).toContain("/game/features/event/presentation/browser/");
     expect(source).toContain("/game/features/reward/presentation/browser/");

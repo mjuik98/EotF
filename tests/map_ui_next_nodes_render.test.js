@@ -6,7 +6,7 @@ import {
   buildNextNodeCard,
   getRegionShortName,
   stripHtml,
-} from '../game/ui/map/map_ui_next_nodes_render.js';
+} from '../game/features/run/presentation/browser/map_ui_next_nodes_render.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

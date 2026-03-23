@@ -1,11 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+import { pathExists, readText } from './helpers/guardrail_fs.js';
 
-const ROOT = process.cwd();
-
-describe('feature compat boundaries', () => {
+describe('feature compat structure', () => {
   it('keeps combat and event compat implementations in feature compat directories while old application paths stay as thin shims', () => {
     const shimExpectations = {
       'game/features/combat/application/card_methods_compat.js': '../application/card_methods_facade.js',
@@ -18,8 +14,8 @@ describe('feature compat boundaries', () => {
     };
 
     for (const [file, target] of Object.entries(shimExpectations)) {
-      const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
-      expect(source).toContain(`export {`);
+      const source = readText(file);
+      expect(source).toContain('export {');
       expect(source).toContain(target);
     }
 
@@ -34,7 +30,27 @@ describe('feature compat boundaries', () => {
     ];
 
     for (const file of existingCompatFiles) {
-      expect(fs.existsSync(path.join(ROOT, file))).toBe(true);
+      expect(pathExists(file)).toBe(true);
     }
+  });
+
+  it('keeps combat compat capabilities bound to canonical application facades', () => {
+    const source = readText('game/features/combat/ports/public_compat_capabilities.js');
+
+    expect(source).toContain('../application/card_methods_facade.js');
+    expect(source).toContain('../application/combat_lifecycle_facade.js');
+    expect(source).toContain('../application/combat_methods_facade.js');
+    expect(source).toContain('../application/damage_system_facade.js');
+    expect(source).toContain('../application/death_handler_facade.js');
+    expect(source).toContain('../application/turn_manager_facade.js');
+    expect(source).not.toContain('../compat/card_methods.js');
+    expect(source).not.toContain('../compat/combat_lifecycle.js');
+  });
+
+  it('keeps event compat capabilities bound to the canonical application facade', () => {
+    const source = readText('game/features/event/ports/public_surface.js');
+
+    expect(source).toContain('../application/event_manager_facade.js');
+    expect(source).not.toContain('../compat/event_manager.js');
   });
 });

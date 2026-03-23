@@ -1,51 +1,38 @@
-import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import { ROOT, readText, toPosix, walkJsFiles } from './helpers/guardrail_fs.js';
+
+function readFullPath(fullPath) {
+  return readText(toPosix(path.relative(ROOT, fullPath)));
+}
 
 describe('architecture refactor guardrails', () => {
   it('keeps feature code free of direct core global bridge imports', () => {
-    const featureRoot = path.join(process.cwd(), 'game/features');
     const matches = [];
 
-    const walk = (dir) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-          continue;
-        }
-        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
-
-        const source = fs.readFileSync(fullPath, 'utf8');
-        if (source.includes("from '../../../core/global_bridge.js'")
-          || source.includes("from '../../core/global_bridge.js'")
-          || source.includes("from '../core/global_bridge.js'")
-          || source.includes("from './core/global_bridge.js'")) {
-          matches.push(path.relative(process.cwd(), fullPath));
-        }
+    for (const fullPath of walkJsFiles(path.join(ROOT, 'game/features'))) {
+      const source = readFullPath(fullPath);
+      if (source.includes("from '../../../core/global_bridge.js'")
+        || source.includes("from '../../core/global_bridge.js'")
+        || source.includes("from '../core/global_bridge.js'")
+        || source.includes("from './core/global_bridge.js'")) {
+        matches.push(path.relative(ROOT, fullPath));
       }
-    };
+    }
 
-    walk(featureRoot);
     expect(matches).toEqual([]);
   });
 
   it('keeps core run composition routed through public run capability ports', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/platform/browser/composition/build_core_run_system_modules.js'),
-      'utf8',
-    );
+    const source = readText('game/platform/browser/composition/build_core_run_system_modules.js');
 
     expect(source).toContain("from '../../../features/run/ports/public_system_capabilities.js'");
     expect(source).not.toContain("from '../../../features/run/application/");
   });
 
   it('keeps core progression composition routed through canonical feature/shared owners', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/platform/browser/composition/build_core_progression_modules.js'),
-      'utf8',
-    );
+    const source = readText('game/platform/browser/composition/build_core_progression_modules.js');
 
     expect(source).not.toContain("from '../../../combat/difficulty_scaler.js'");
     expect(source).not.toContain("from '../../../systems/set_bonus_system.js'");
@@ -61,24 +48,15 @@ describe('architecture refactor guardrails', () => {
     ];
 
     for (const file of files) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).toContain('/ports/runtime/');
     }
   });
 
   it('keeps game state runtime method ownership in shared/state', () => {
-    const gameStateSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/core/game_state.js'),
-      'utf8',
-    );
-    const storeStateSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/core/store/game_state.js'),
-      'utf8',
-    );
-    const compatSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/core/game_state_core_methods.js'),
-      'utf8',
-    );
+    const gameStateSource = readText('game/core/game_state.js');
+    const storeStateSource = readText('game/core/store/game_state.js');
+    const compatSource = readText('game/core/game_state_core_methods.js');
 
     expect(gameStateSource).toContain("from './store/game_state.js'");
     expect(gameStateSource).not.toContain('export const GS = {');
@@ -89,14 +67,8 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('keeps browser runtime GS exports canonical and pushes legacy GS facade wrapping into compat helpers', () => {
-    const engineSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/platform/browser/composition/build_core_engine_modules.js'),
-      'utf8',
-    );
-    const compatSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/core/bindings/create_module_registry_flat_compat.js'),
-      'utf8',
-    );
+    const engineSource = readText('game/platform/browser/composition/build_core_engine_modules.js');
+    const compatSource = readText('game/core/bindings/create_module_registry_flat_compat.js');
 
     expect(engineSource).not.toContain("from '../../../platform/legacy/state/legacy_game_state_runtime_facade.js'");
     expect(engineSource).not.toContain('createLegacyGameStateRuntimeFacade(GS)');
@@ -105,101 +77,62 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('scans systems as a frozen compat surface', () => {
-    const config = JSON.parse(fs.readFileSync(
-      path.join(process.cwd(), 'config/quality/compat_surface_allowlist.json'),
-      'utf8',
-    ));
+    const config = JSON.parse(readText('config/quality/compat_surface_allowlist.json'));
 
     expect(config.scanDirs).toContain('game/systems');
   });
 
   it('keeps legacy game api adapters routed through feature ports and runtime surfaces', () => {
-    const legacyGameApiRoot = path.join(process.cwd(), 'game/platform/legacy/game_api');
     const matches = [];
 
-    const walk = (dir) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-          continue;
-        }
-        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
-
-        const source = fs.readFileSync(fullPath, 'utf8');
-        if (source.includes('/features/') && source.includes('/application/')) {
-          matches.push(path.relative(process.cwd(), fullPath));
-        }
-        expect(source.includes('/features/') && source.includes('/public.js')).toBe(false);
+    for (const fullPath of walkJsFiles(path.join(ROOT, 'game/platform/legacy/game_api'))) {
+      const source = readFullPath(fullPath);
+      if (source.includes('/features/') && source.includes('/application/')) {
+        matches.push(path.relative(ROOT, fullPath));
       }
-    };
+      expect(source.includes('/features/') && source.includes('/public.js')).toBe(false);
+    }
 
-    walk(legacyGameApiRoot);
     expect(matches).toEqual([]);
   });
 
   it('keeps core and platform code off feature public-surface aggregators', () => {
-    const roots = [
-      path.join(process.cwd(), 'game/core'),
-      path.join(process.cwd(), 'game/platform'),
-    ];
+    const roots = ['game/core', 'game/platform'];
     const matches = [];
 
-    const walk = (dir) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-          continue;
-        }
-        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
-
-        const relPath = path.relative(process.cwd(), fullPath).replaceAll('\\', '/');
-        const source = fs.readFileSync(fullPath, 'utf8');
+    roots
+      .flatMap((dir) => walkJsFiles(dir))
+      .forEach((fullPath) => {
+        const relPath = toPosix(path.relative(ROOT, fullPath));
+        const source = readFullPath(fullPath);
         if (/\/features\/.+(\/public\.js|\/ports\/public_surface\.js)/.test(source)) {
           matches.push(relPath);
         }
-      }
-    };
+      });
 
-    roots.forEach(walk);
     expect(matches).toEqual([]);
   });
 
   it('keeps legacy player-state fallback enablement inside platform/legacy only', () => {
-    const root = path.join(process.cwd(), 'game');
     const matches = [];
 
-    const walk = (dir) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-          continue;
-        }
-        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
+    for (const fullPath of walkJsFiles(path.join(ROOT, 'game'))) {
+      const relPath = toPosix(path.relative(ROOT, fullPath));
+      if (relPath.startsWith('game/platform/legacy/')) continue;
+      if (relPath === 'game/shared/state/player_state_commands.js') continue;
+      if (relPath === 'game/shared/state/player_state_command_compat.js') continue;
 
-        const relPath = path.relative(process.cwd(), fullPath).replaceAll('\\', '/');
-        if (relPath.startsWith('game/platform/legacy/')) continue;
-        if (relPath === 'game/shared/state/player_state_commands.js') continue;
-        if (relPath === 'game/shared/state/player_state_command_compat.js') continue;
-
-        const source = fs.readFileSync(fullPath, 'utf8');
-        if (source.includes('enableLegacyPlayerStateCommandFallback')) {
-          matches.push(relPath);
-        }
+      const source = readFullPath(fullPath);
+      if (source.includes('enableLegacyPlayerStateCommandFallback')) {
+        matches.push(relPath);
       }
-    };
+    }
 
-    walk(root);
     expect(matches).toEqual([]);
   });
 
   it('keeps shared player-state commands free of legacy fallback flag literals', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/shared/state/player_state_commands.js'),
-      'utf8',
-    );
+    const source = readText('game/shared/state/player_state_commands.js');
 
     expect(source).not.toContain('__legacyPlayerStateCommandFallback');
     expect(source).not.toContain("./player_state_command_fallback_flag.js");
@@ -207,10 +140,7 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('keeps shared runtime methods routed through explicit legacy compat adapters for combat/card helpers', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/shared/state/game_state_runtime_methods.js'),
-      'utf8',
-    );
+    const source = readText('game/shared/state/game_state_runtime_methods.js');
 
     expect(source).not.toContain("../../features/combat/application/card_methods_compat.js");
     expect(source).not.toContain("../../features/combat/application/combat_methods_compat.js");
@@ -219,20 +149,14 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('keeps run region rules free of the core global bridge fallback', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/systems/run_rules_regions.js'),
-      'utf8',
-    );
+    const source = readText('game/systems/run_rules_regions.js');
 
     expect(source).not.toContain("from '../core/global_bridge.js'");
     expect(source).not.toContain('GAME.State');
   });
 
   it('keeps run rules feature ownership free of legacy systems run-rule imports', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/run/application/run_rules.js'),
-      'utf8',
-    );
+    const source = readText('game/features/run/application/run_rules.js');
 
     expect(source).not.toContain("from '../../../systems/run_rules_");
     expect(source).toContain("from '../domain/run_rules_curses.js'");
@@ -242,26 +166,15 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('keeps feature code free of direct systems imports', () => {
-    const featureRoot = path.join(process.cwd(), 'game/features');
     const matches = [];
 
-    const walk = (dir) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-          continue;
-        }
-        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
-
-        const source = fs.readFileSync(fullPath, 'utf8');
-        if (source.includes('/systems/')) {
-          matches.push(path.relative(process.cwd(), fullPath));
-        }
+    for (const fullPath of walkJsFiles('game/features')) {
+      const source = readFullPath(fullPath);
+      if (source.includes('/systems/')) {
+        matches.push(toPosix(path.relative(ROOT, fullPath)));
       }
-    };
+    }
 
-    walk(featureRoot);
     expect(matches).toEqual([]);
   });
 
@@ -273,7 +186,7 @@ describe('architecture refactor guardrails', () => {
     ];
 
     for (const file of files) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toContain('/combat/class_mechanics.js');
       expect(source).not.toContain('/combat/turn_manager_helpers.js');
     }
@@ -286,71 +199,51 @@ describe('architecture refactor guardrails', () => {
     ];
 
     for (const file of files) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toContain('/combat/death_handler_');
     }
   });
 
   it('keeps combat ui contracts free of GS playCard fallbacks', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/combat/ports/contracts/build_combat_ui_contracts.js'),
-      'utf8',
-    );
+    const source = readText('game/features/combat/ports/contracts/build_combat_ui_contracts.js');
 
     expect(source).not.toContain('refs.GS?.playCard');
   });
 
   it('removes inline close handlers from the run settings modal shell', () => {
-    const html = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
+    const html = readText('index.html');
     expect(html).not.toContain('onclick="closeRunSettings()"');
   });
 
   it('keeps direct legacy global access inside platform/legacy only', () => {
-    const root = path.join(process.cwd(), 'game');
     const matches = [];
     const blockedPatterns = [
-      /\bwindow\.(?:GS|GAME|GameState)\b/g,
-      /\bglobalThis\.(?:GS|GAME|GameState)\b/g,
+      /\bwindow\.(?:GS|GAME|GameState)\b/,
+      /\bglobalThis\.(?:GS|GAME|GameState)\b/,
     ];
 
-    const walk = (dir) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-          continue;
-        }
-        if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
+    for (const fullPath of walkJsFiles('game')) {
+      const relPath = toPosix(path.relative(ROOT, fullPath));
+      if (relPath.startsWith('game/platform/legacy/')) continue;
 
-        const relPath = path.relative(process.cwd(), fullPath);
-        if (relPath.startsWith('game/platform/legacy/')) continue;
-
-        const source = fs.readFileSync(fullPath, 'utf8');
-        if (blockedPatterns.some((pattern) => pattern.test(source))) {
-          matches.push(relPath);
-        }
+      const source = readFullPath(fullPath);
+      if (blockedPatterns.some((pattern) => pattern.test(source))) {
+        matches.push(relPath);
       }
-    };
+    }
 
-    walk(root);
     expect(matches).toEqual([]);
   });
 
   it('keeps combat hud shared view ports routed through platform browser effects', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/combat/ports/hud_shared_view_ports.js'),
-      'utf8',
-    );
+    const source = readText('game/features/combat/ports/hud_shared_view_ports.js');
 
     expect(source).toContain("from '../../../platform/browser/effects/button_feedback.js'");
     expect(source).not.toContain("from '../../../ui/feedback/button_feedback.js'");
   });
 
   it('keeps game state runtime methods routed through explicit shared compat adapters for combat/card helpers', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/shared/state/game_state_runtime_methods.js'),
-      'utf8',
-    );
+    const source = readText('game/shared/state/game_state_runtime_methods.js');
 
     expect(source).toContain("from './compat/game_state_card_runtime_compat_methods.js'");
     expect(source).toContain("from './compat/game_state_combat_runtime_compat_methods.js'");
@@ -378,17 +271,14 @@ describe('architecture refactor guardrails', () => {
     ];
 
     for (const [file, allowedImport, blockedImport] of expectations) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).toContain(allowedImport);
       expect(source).not.toContain(blockedImport);
     }
   });
 
   it('keeps core card event subscribers as a thin combat feature compat surface', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/core/event_subscribers_card_events.js'),
-      'utf8',
-    ).trim();
+    const source = readText('game/core/event_subscribers_card_events.js').trim();
 
     expect(source).toBe(
       "export { registerCardEventSubscribers } from '../features/combat/ports/runtime/public_combat_runtime_surface.js';",
@@ -396,10 +286,7 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('keeps character-select mounting routed through the title runtime public surface', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/core/bootstrap/mount_character_select.js'),
-      'utf8',
-    );
+    const source = readText('game/core/bootstrap/mount_character_select.js');
 
     expect(source).toContain(
       "from '../../features/title/ports/runtime/public_title_runtime_surface.js'",

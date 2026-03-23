@@ -1,9 +1,26 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+import { readText } from './helpers/guardrail_fs.js';
 
-describe('combat compat re-exports', () => {
+describe('combat compat guardrails', () => {
+  it('keeps feature-local combat compat files as thin re-exports to canonical application modules', () => {
+    const expectations = {
+      'game/features/combat/compat/card_methods.js':
+        "export { CardMethods } from '../application/card_methods_facade.js';",
+      'game/features/combat/compat/combat_lifecycle.js':
+        "export { CombatLifecycle } from '../application/combat_lifecycle_facade.js';",
+      'game/features/combat/compat/combat_methods.js':
+        "export { CombatMethods } from '../application/combat_methods_facade.js';",
+      'game/features/combat/compat/death_handler.js':
+        "export { DeathHandler } from '../application/death_handler_facade.js';",
+      'game/features/combat/compat/turn_manager.js':
+        "export { TurnManager } from '../application/turn_manager_facade.js';",
+    };
+
+    for (const [file, expected] of Object.entries(expectations)) {
+      expect(readText(file).trim()).toBe(expected);
+    }
+  });
+
   it('keeps legacy combat facade files as thin feature re-exports once ownership moves', () => {
     const expectations = {
       'game/combat/card_methods.js':
@@ -25,18 +42,12 @@ describe('combat compat re-exports', () => {
     };
 
     for (const [file, expected] of Object.entries(expectations)) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8').trim();
-      expect(source).toBe(expected);
+      expect(readText(file).trim()).toBe(expected);
     }
   });
 
   it('keeps legacy damage helpers as a thin feature re-export', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/combat/damage_system_helpers.js'),
-      'utf8',
-    ).trim();
-
-    expect(source).toBe([
+    expect(readText('game/combat/damage_system_helpers.js').trim()).toBe([
       'export {',
       '  adjustEnemyStatusDuration,',
       '  advancePlayerChain,',
@@ -72,8 +83,7 @@ describe('combat compat re-exports', () => {
     };
 
     for (const [file, expected] of Object.entries(expectations)) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8').trim();
-      expect(source).toBe(expected);
+      expect(readText(file).trim()).toBe(expected);
     }
   });
 });

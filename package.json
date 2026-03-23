@@ -11,7 +11,9 @@
     "build": "vite build && node scripts/assert-bundle-budgets.mjs",
     "preview": "vite preview",
     "lint": "node scripts/check-architecture.mjs && node scripts/check-feature-structure.mjs && node scripts/check-compat-surface.mjs && node scripts/check-canonical-feature-imports.mjs && node scripts/check-compat-public-entrypoints.mjs && node scripts/check-legacy-global-access.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs && node scripts/check-content-data.mjs",
-    "test": "vitest run",
+    "test": "node scripts/run-vitest-suite.mjs fast",
+    "test:guardrails": "node scripts/run-vitest-suite.mjs guardrails",
+    "test:full": "node scripts/run-vitest-suite.mjs full",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "deps:map": "node scripts/generate-dependency-map.mjs",
@@ -22,7 +24,7 @@
     "smoke:reward": "node scripts/run_reward_smoke.mjs",
     "smoke:combat-ui": "node scripts/run_combat_ui_smoke.mjs",
     "quality:fast": "npm run lint && npm test",
-    "quality:full": "npm run lint && npm run test:coverage && npm run build && npm run smoke:character-select && npm run smoke:reward && npm run smoke:combat-ui",
+    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run build && npm run smoke:character-select && npm run smoke:reward && npm run smoke:combat-ui",
     "quality": "npm run quality:full"
   },
   "keywords": [

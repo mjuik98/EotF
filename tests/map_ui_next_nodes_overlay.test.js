@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { updateNextNodesOverlay } from '../game/ui/map/map_ui_next_nodes.js';
+import { updateNextNodesOverlay } from '../game/features/run/presentation/browser/map_ui_next_nodes.js';
 
 function createElement(doc, tag = 'div') {
   const el = {

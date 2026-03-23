@@ -2,15 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import { ROOT, readText } from './helpers/guardrail_fs.js';
 
-const ROOT = process.cwd();
 const FEATURES_ROOT = path.join(ROOT, 'game', 'features');
 const CONFIG = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'config', 'quality', 'feature_structure_targets.json'), 'utf8'),
+  readText('config/quality/feature_structure_targets.json'),
 );
 
 function readSource(relPath) {
-  return fs.readFileSync(path.join(ROOT, relPath), 'utf8');
+  return readText(relPath);
 }
 
 describe('feature structure guardrails', () => {
@@ -43,6 +43,35 @@ describe('feature structure guardrails', () => {
       expect(actualFiles).toContain('public.js');
       expect(actualDirs.filter((dirName) => !allowedDirs.has(dirName))).toEqual([]);
       expect(actualFiles.filter((fileName) => !allowedFiles.has(fileName))).toEqual([]);
+    }
+  });
+
+  it('keeps configured transitional wrapper dirs as thin re-export surfaces', () => {
+    const thinWrapperDirsByFeature = CONFIG.thinWrapperDirsByFeature || {};
+    const thinWrapperPattern = /^\s*(?:export\s+(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];?\s*)+$/;
+
+    expect(thinWrapperDirsByFeature).toEqual({
+      combat: ['bindings', 'modules', 'runtime'],
+      run: ['bindings', 'modules', 'runtime', 'ui'],
+      title: ['ui'],
+    });
+
+    for (const [featureName, dirNames] of Object.entries(thinWrapperDirsByFeature)) {
+      for (const dirName of dirNames) {
+        const dirPath = path.join(FEATURES_ROOT, featureName, dirName);
+        const files = fs.existsSync(dirPath)
+          ? fs.readdirSync(dirPath)
+            .filter((entry) => entry.endsWith('.js'))
+            .sort()
+          : [];
+
+        expect(files.length).toBeGreaterThan(0);
+
+        for (const fileName of files) {
+          const source = readText(path.relative(ROOT, path.join(dirPath, fileName)));
+          expect(source).toMatch(thinWrapperPattern);
+        }
+      }
     }
   });
 
@@ -88,5 +117,14 @@ describe('feature structure guardrails', () => {
     expect(combatSource).toContain('/presentation/browser/feedback/');
     expect(runSource).toContain('/presentation/browser/map/');
     expect(runSource).toContain('/presentation/browser/transition/');
+  });
+
+  it('keeps the character info panel shell delegated to section builders', () => {
+    const panelSource = readSource('game/features/title/platform/browser/character_select_info_panel.js');
+    const sectionSource = readSource('game/features/title/platform/browser/character_select_info_panel_sections.js');
+
+    expect(panelSource).toContain("./character_select_info_panel_sections.js");
+    expect(sectionSource).toContain('buildCharacterInfoSummarySection');
+    expect(sectionSource).toContain('buildCharacterInfoDetailsSection');
   });
 });

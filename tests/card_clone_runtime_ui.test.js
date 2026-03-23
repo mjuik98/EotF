@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createCardCloneRuntime } from '../game/ui/cards/card_clone_runtime_ui.js';
+import { createCardCloneRuntime } from '../game/features/combat/presentation/browser/card_clone_runtime_ui.js';
 
 function createClassList() {
   const values = new Set();

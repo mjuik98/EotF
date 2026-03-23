@@ -1,11 +1,14 @@
 ﻿{
-  "maxNodeDelta": 30,
-  "maxEdgeDelta": 100,
-  "maxAddedImports": 120,
-  "defaultMaxLayerDelta": 20,
+  "maxNodeDelta": 25,
+  "maxEdgeDelta": 80,
+  "maxAddedImports": 90,
+  "defaultMaxLayerDelta": 15,
   "maxLayerDeltaByEdge": {
     "core->ui": 12,
     "ui->core": 12,
-    "combat->core": 12
+    "combat->core": 12,
+    "feature->core": 12,
+    "feature->feature": 20,
+    "feature->legacy": 0
   }
 }

@@ -1,10 +1,11 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameAPI } from '../game/core/game_api.js';
 import { GAME } from '../game/core/global_bridge.js';
 import { ClassMechanics } from '../game/combat/class_mechanics.js';
 import { Actions } from '../game/core/state_actions.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
 import { DamageSystem } from '../game/combat/damage_system.js';
+import { silenceConsole } from './helpers/silence_console.js';
 
 const ORIGINAL_GAME = {
   Data: GAME.Data,
@@ -15,6 +16,10 @@ const ORIGINAL_GAME = {
   getDeps: GAME.getDeps,
   getRunDeps: GAME.getRunDeps,
 };
+
+beforeEach(() => {
+  silenceConsole(['error', 'group', 'groupCollapsed', 'groupEnd']);
+});
 
 function createPlayableState(cardId, overrides = {}) {
   const {

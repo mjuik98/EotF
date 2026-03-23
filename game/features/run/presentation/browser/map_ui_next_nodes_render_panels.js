@@ -4,28 +4,15 @@ import {
   REWARD_CLASS_MAP,
   hexToRgb,
   runOnNextFrame,
-  stripHtml,
 } from './map_ui_next_nodes_render_helpers.js';
 import { buildBottomDock } from './map_bottom_dock.js';
 import {
-  resolveItemDetailState,
-  buildItemDetailViewModel,
-  applyItemDetailPanelStyles,
-  createManagedItemDetailSurface,
-  getItemDetailNavIndex,
-  isItemDetailCommitKey,
-  setItemDetailPanelState,
-} from './relic_detail_shared_ui.js';
-import {
-  createUiSurfaceStateController,
-} from '../../../../shared/ui/state/ui_surface_state_controller.js';
-import {
   applyRelicDetailLayout,
 } from './map_relic_detail_layout.js';
+import { createRelicDetailSurfaceRuntime } from './map_ui_next_nodes_relic_detail_surface.js';
+import { renderRelicSlots } from './map_ui_next_nodes_relic_slots.js';
 
 export { buildBottomDock };
-
-const RELIC_DETAIL_HOVER_SAFE_DELAY = 90;
 
 function animateRelicDetailPanel(detailPanel, deps = {}) {
   if (!detailPanel) return;
@@ -37,23 +24,8 @@ function animateRelicDetailPanel(detailPanel, deps = {}) {
 }
 
 export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
-  const rarityMeta = {
-    legendary: { pip: '#c084fc', rgb: '192, 132, 252' },
-    boss: { pip: '#ff3366', rgb: '255, 51, 102' },
-    rare: { pip: '#f0b429', rgb: '240, 180, 41' },
-    uncommon: { pip: '#00ffcc', rgb: '0, 255, 204' },
-    common: { pip: '#8c9fc8', rgb: '140, 159, 200' },
-  };
-  const rarityOrder = { legendary: 0, boss: 0, rare: 1, uncommon: 2, common: 3 };
-  const activeTriggers = new Set(['combat_start', 'floor_start', 'on_enter']);
   const items = Array.isArray(gs?.player?.items) ? gs.player.items : [];
   const win = deps?.win || doc?.defaultView || null;
-  const setTimer = deps?.setTimeout
-    || win?.setTimeout?.bind?.(win)
-    || null;
-  const clearTimer = deps?.clearTimeout
-    || win?.clearTimeout?.bind?.(win)
-    || null;
   const setBonusSystem = deps?.setBonusSystem || null;
   const panel = doc.createElement('div');
   panel.className = 'nc-relic-panel';
@@ -75,89 +47,10 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   scrollWrap.className = 'nc-relic-scroll-wrap';
   const list = doc.createElement('div');
   list.className = 'nc-relic-list';
-  const detailPanel = doc.createElement('div');
-  detailPanel.className = 'nc-relic-detail';
-  detailPanel.id = 'mapRelicDetailPanel';
-  setItemDetailPanelState(detailPanel, { open: false });
-  const detailSurfaceState = createUiSurfaceStateController({ element: detailPanel });
-  const detailList = doc.createElement('div');
-  detailList.className = 'nc-relic-detail-list';
-  detailPanel.appendChild(detailList);
-  applyItemDetailPanelStyles(detailPanel, detailList, { variant: 'compact' });
-  const detailSurface = createManagedItemDetailSurface({
-    doc,
-    win,
-    detailPanel,
-    detailPanelList: detailList,
-    entriesRoot: list,
-    variant: 'compact',
-    strategy: {
-      shouldDismiss({ event, reason, detailPanel: activePanel }) {
-        if (!createUiSurfaceStateController({ element: activePanel }).isOpen()) return false;
-        if (reason === 'keydown') return event?.key === 'Escape';
-        const target = event?.target;
-        return !list?.contains?.(target) && !activePanel?.contains?.(target);
-      },
-      onDismiss({ clear }) {
-        cancelPendingClear();
-        clear();
-        setTitleHintVisible(true);
-      },
-    },
-  });
-  let pendingClearTimer = null;
-  const cancelPendingClear = () => {
-    if (pendingClearTimer == null) return;
-    if (typeof clearTimer === 'function') clearTimer(pendingClearTimer);
-    pendingClearTimer = null;
-  };
+  let detailPanel = null;
   const setTitleHintVisible = (visible) => {
     titleHint.style.opacity = visible ? '1' : '0';
   };
-  const clearDetail = () => {
-    cancelPendingClear();
-    detailSurface.clear();
-    setTitleHintVisible(true);
-  };
-  const scheduleDetailClear = (event = null) => {
-    if (detailSurfaceState.isPinned()) return;
-    const relatedTarget = event?.relatedTarget;
-    if (relatedTarget && (detailPanel?.contains?.(relatedTarget) || list?.contains?.(relatedTarget))) return;
-    cancelPendingClear();
-    if (typeof setTimer !== 'function') {
-      clearDetail();
-      return;
-    }
-    pendingClearTimer = setTimer(() => {
-      pendingClearTimer = null;
-      if (detailSurfaceState.isPinned()) return;
-      clearDetail();
-    }, RELIC_DETAIL_HOVER_SAFE_DELAY);
-  };
-
-  const renderDetail = (itemId, item, activeSlot, options = {}) => {
-    cancelPendingClear();
-    const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
-    const detail = buildItemDetailViewModel(itemId, item, data, state);
-    detailSurface.show({
-      activeEntry: activeSlot,
-      detail,
-      itemId,
-      pinned: options.pinned === true,
-    });
-    setTitleHintVisible(false);
-    applyRelicDetailLayout(panel, detailPanel, win, activeSlot);
-    animateRelicDetailPanel(detailPanel, deps);
-    runOnNextFrame(() => applyRelicDetailLayout(panel, detailPanel, win, activeSlot), deps);
-  };
-  detailPanel.__mapRelicDismissHandlers?.();
-  detailPanel.__mapRelicDismissHandlers = detailSurface.bindDismiss();
-  detailPanel.addEventListener('mouseenter', () => {
-    cancelPendingClear();
-  });
-  detailPanel.addEventListener('mouseleave', (event) => {
-    scheduleDetailClear(event);
-  });
 
   if (items.length === 0) {
     const empty = doc.createElement('div');
@@ -165,94 +58,33 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     empty.textContent = '보유 유물 없음';
     list.appendChild(empty);
   } else {
-    const sortedItems = [...items].sort((leftId, rightId) => (rarityOrder[data?.items?.[leftId]?.rarity || 'common'] ?? 3) - (rarityOrder[data?.items?.[rightId]?.rarity || 'common'] ?? 3));
-    const slotNodes = [];
-    sortedItems.forEach((itemId, index) => {
-      const item = data?.items?.[itemId];
-      if (!item) return;
-      const rarity = String(item.rarity || 'common').toLowerCase();
-      const meta = rarityMeta[rarity] || rarityMeta.common;
-      const triggers = Array.isArray(item.trigger) ? item.trigger : [item.trigger];
-      const isActive = triggers.some((trigger) => activeTriggers.has(String(trigger || '').toLowerCase()));
-      const rawDesc = stripHtml(item.desc, 220);
-
-      const slot = doc.createElement('div');
-      slot.className = `nc-relic-slot rarity-${rarity}${isActive ? ' is-active' : ''}`;
-      slot.style.setProperty('--rl-rgb', meta.rgb);
-      slot.tabIndex = 0;
-      slot.setAttribute('role', 'button');
-      slot.setAttribute('aria-pressed', 'false');
-      slot.setAttribute('aria-controls', 'mapRelicDetailPanel');
-      slot.setAttribute('aria-label', `${item.name || itemId}: ${rawDesc || ''}`);
-
-      const iconWrap = doc.createElement('div');
-      iconWrap.className = 'nc-relic-icon-wrap';
-      iconWrap.textContent = item.icon || '✦';
-      const info = doc.createElement('div');
-      info.className = 'nc-relic-info';
-      const name = doc.createElement('div');
-      name.className = 'nc-relic-name';
-      name.textContent = item.name || itemId;
-      info.append(name);
-
-      const pip = doc.createElement('div');
-      pip.className = 'nc-relic-pip';
-      pip.style.cssText = `background:${meta.pip};box-shadow:0 0 5px ${meta.pip};`;
-      const previewSlot = () => {
-        if (detailSurfaceState.isPinned()) return;
-        renderDetail(itemId, item, slot, { pinned: false });
-      };
-      const clearPreviewSlot = (event) => {
-        scheduleDetailClear(event);
-      };
-      const togglePinnedSlot = () => {
-        const isPinned = detailSurfaceState.isPinned();
-        const isSameItem = detailSurfaceState.getValue('itemId', '') === itemId;
-        if (isPinned && isSameItem) {
-          clearDetail();
-          return;
-        }
-        renderDetail(itemId, item, slot, { pinned: true });
-      };
-      slot.addEventListener('mouseenter', previewSlot);
-      slot.addEventListener('mouseleave', clearPreviewSlot);
-      slot.addEventListener('focus', previewSlot);
-      slot.addEventListener('blur', clearPreviewSlot);
-      slot.addEventListener('click', togglePinnedSlot);
-      slot.addEventListener('keydown', (event) => {
-        const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || sortedItems.length);
-        if (nextIndex >= 0) {
-          event?.preventDefault?.();
-          const nextSlot = slotNodes[nextIndex];
-          const nextItemId = sortedItems[nextIndex];
-          const nextItem = data?.items?.[nextItemId];
-          if (!nextSlot || !nextItem) return;
-          nextSlot.focus?.();
-          if (detailSurfaceState.isPinned()) return;
-          renderDetail(nextItemId, nextItem, nextSlot, { pinned: false });
-          return;
-        }
-        if (isItemDetailCommitKey(event?.key)) {
-          event?.preventDefault?.();
-          togglePinnedSlot();
-          return;
-        }
-        if (event?.key === 'Escape') {
-          event?.preventDefault?.();
-          clearDetail();
-        }
-      });
-
-      slot.append(iconWrap, info, pip);
-      list.appendChild(slot);
-      slotNodes.push(slot);
+    const detailRuntime = createRelicDetailSurfaceRuntime({
+      doc,
+      win,
+      panel,
+      list,
+      data,
+      gs,
+      setBonusSystem,
+      deps,
+      onAnimate: (detailPanel) => animateRelicDetailPanel(detailPanel, deps),
+      onTitleHintVisible: setTitleHintVisible,
     });
+
+    renderRelicSlots(doc, list, items, data, {
+      detailSurfaceState: detailRuntime.detailSurfaceState,
+      renderDetail: detailRuntime.renderDetail,
+      scheduleDetailClear: detailRuntime.scheduleDetailClear,
+      clearDetail: detailRuntime.clearDetail,
+    });
+
+    detailPanel = detailRuntime.detailPanel;
+    applyRelicDetailLayout(panel, detailPanel, win, list.children[0] || null);
   }
 
   scrollWrap.appendChild(list);
   panel.appendChild(scrollWrap);
-  if (items.length > 0) panel.appendChild(detailPanel);
-  applyRelicDetailLayout(panel, detailPanel, win, list.children[0] || null);
+  if (detailPanel) panel.appendChild(detailPanel);
   setTitleHintVisible(items.length > 0);
 
   const updateFades = () => {

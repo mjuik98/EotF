@@ -1,7 +1,7 @@
-import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import { ROOT, readText, toPosix, walkJsFiles } from './helpers/guardrail_fs.js';
 
 const FILES = [
   'game/features/codex/modules/codex_module_catalog.js',
@@ -96,6 +96,8 @@ const RUN_FEATURE_BROWSER_FILES = [
   'game/features/run/presentation/browser/map_ui_minimap.js',
   'game/features/run/presentation/browser/map_ui_minimap_render.js',
   'game/features/run/presentation/browser/map_ui_next_nodes.js',
+  'game/features/run/presentation/browser/map_ui_next_nodes_relic_detail_surface.js',
+  'game/features/run/presentation/browser/map_ui_next_nodes_relic_slots.js',
   'game/features/run/presentation/browser/map_ui_next_nodes_render.js',
   'game/features/run/presentation/browser/region_transition_ui.js',
   'game/features/run/presentation/browser/run_mode_ui.js',
@@ -221,14 +223,14 @@ const PUBLIC_FILES = [
 describe('feature module catalog boundaries', () => {
   it('keeps feature module catalogs free of direct ui imports', () => {
     for (const file of FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\//);
     }
   });
 
   it('keeps browser module entrypoints free of direct map and hud ui imports', () => {
     for (const file of BROWSER_MODULE_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/map/);
       expect(source).not.toMatch(/ui\/hud/);
     }
@@ -236,14 +238,14 @@ describe('feature module catalog boundaries', () => {
 
   it('keeps event and reward browser runtime files free of direct ui screen imports', () => {
     for (const file of FEATURE_BROWSER_RUNTIME_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/screens\/(event_|reward_)/);
     }
   });
 
   it('keeps event feature flows free of direct presentation screen imports', () => {
     for (const file of FEATURE_EVENT_SCREEN_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/presentation\/screens\/event_/);
       expect(source).not.toMatch(/ui\/screens\/event_/);
     }
@@ -251,21 +253,21 @@ describe('feature module catalog boundaries', () => {
 
   it('keeps extracted ui feature browser files free of direct screen compat imports', () => {
     for (const file of UI_FEATURE_SCREEN_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/screens\/(screen_|settings_|story_|help_pause_|ending_|meta_progression_)/);
     }
   });
 
   it('keeps extracted codex browser files free of direct codex compat imports', () => {
     for (const file of CODEX_FEATURE_BROWSER_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/screens\/codex_/);
     }
   });
 
   it('keeps extracted run browser files free of direct run compat imports', () => {
     for (const file of RUN_FEATURE_BROWSER_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/map\//);
       expect(source).not.toMatch(/ui\/run\/run_(mode|return)_/);
     }
@@ -273,64 +275,48 @@ describe('feature module catalog boundaries', () => {
 
   it('keeps extracted title browser files free of direct title compat imports', () => {
     for (const file of TITLE_FEATURE_BROWSER_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/title\/(title_canvas_|run_end_screen_|level_up_popup_|intro_cinematic_|game_canvas_setup_ui_|game_boot_ui_|character_select_)/);
     }
   });
 
   it('keeps extracted combat browser files free of direct combat compat imports', () => {
     for (const file of COMBAT_FEATURE_BROWSER_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/ui\/(combat|cards|hud)\//);
     }
   });
 
   it('keeps feature public surfaces free of raw public module builder exports', () => {
     for (const file of PUBLIC_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/build.*PublicModules/);
     }
   });
 
   it('keeps active feature public surfaces off transitional bindings/contracts/runtime/ui imports', () => {
     for (const file of PUBLIC_FILES) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).not.toMatch(/\.\/(bindings|contracts|runtime|ui)\//);
     }
   });
 
   it('forces cross-feature imports to go through public.js or ports', () => {
-    const featureRoot = path.join(process.cwd(), 'game/features');
-    const featureFiles = [];
-
-    function collectFiles(dir) {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const target = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          collectFiles(target);
-          continue;
-        }
-        if (target.endsWith('.js')) {
-          featureFiles.push(target);
-        }
-      }
-    }
-
-    collectFiles(featureRoot);
-
+    const featureFiles = walkJsFiles('game/features');
     const violations = [];
     for (const file of featureFiles) {
-      const source = fs.readFileSync(file, 'utf8');
+      const relFile = toPosix(path.relative(ROOT, file));
+      const source = readText(relFile);
       const importRegex = /from ['"]([^'"]+)['"]/g;
       let match;
       while ((match = importRegex.exec(source))) {
         const specifier = match[1];
         if (!specifier.startsWith('.')) continue;
         const resolved = path.normalize(path.join(path.dirname(file), specifier));
-        const normalized = resolved.replaceAll('\\', '/');
+        const normalized = toPosix(resolved);
         if (!normalized.includes('/game/features/')) continue;
 
-        const fromParts = file.replaceAll('\\', '/').split('/');
+        const fromParts = toPosix(file).split('/');
         const toParts = normalized.split('/');
         const fromIndex = fromParts.indexOf('features');
         const toIndex = toParts.indexOf('features');
@@ -341,8 +327,8 @@ describe('feature module catalog boundaries', () => {
         if (normalized.endsWith('/public.js') || normalized.includes('/ports/')) continue;
 
         violations.push([
-          path.relative(process.cwd(), file).replaceAll('\\', '/'),
-          path.relative(process.cwd(), resolved).replaceAll('\\', '/'),
+          relFile,
+          toPosix(path.relative(ROOT, resolved)),
         ].join(' -> '));
       }
     }

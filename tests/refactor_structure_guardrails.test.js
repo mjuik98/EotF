@@ -1,12 +1,8 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
-
-const ROOT = process.cwd();
+import { pathExists, readText } from './helpers/guardrail_fs.js';
 
 function read(file) {
-  return fs.readFileSync(path.join(ROOT, file), 'utf8');
+  return readText(file);
 }
 
 describe('refactor structure guardrails', () => {
@@ -163,5 +159,106 @@ describe('refactor structure guardrails', () => {
 
     expect(source).toContain("./tooltip_item_state.js");
     expect(source).toContain("./tooltip_item_element.js");
+  });
+
+  it('delegates card clone placement and keyword hover binding into focused helpers', () => {
+    const source = read('game/features/combat/presentation/browser/card_clone_ui.js');
+
+    expect(source).toContain("./card_clone_positioning.js");
+    expect(source).toContain("./card_clone_keyword_interactions.js");
+  });
+
+  it('delegates run-map relic detail surfaces and slot binding into focused helpers', () => {
+    const source = read('game/features/run/presentation/browser/map_ui_next_nodes_render_panels.js');
+
+    expect(source).toContain("./map_ui_next_nodes_relic_detail_surface.js");
+    expect(source).toContain("./map_ui_next_nodes_relic_slots.js");
+  });
+
+  it('keeps scan-heavy guardrail tests on the shared cached fs helper', () => {
+    const files = [
+      'tests/architecture_refactor_guardrails.test.js',
+      'tests/build_first_optimization_guardrails.test.js',
+      'tests/feature_dep_accessor_boundaries.test.js',
+      'tests/ui_feature_entry_compat_reexports.test.js',
+      'tests/vite_chunking_guardrails.test.js',
+    ];
+
+    for (const file of files) {
+      const source = read(file);
+      expect(source).toContain("./helpers/guardrail_fs.js");
+      expect(source).not.toContain('process.cwd()');
+    }
+  });
+
+  it('consolidates narrow compat and lint guardrails into broader domain test files', () => {
+    const consolidatedFiles = [
+      'tests/compat_lint_guardrails.test.js',
+      'tests/feature_compat_structure.test.js',
+      'tests/combat_compat_guardrails.test.js',
+    ];
+    const removedFiles = [
+      'tests/compat_public_entrypoint_guardrails.test.js',
+      'tests/canonical_feature_import_guardrails.test.js',
+      'tests/feature_compat_boundaries.test.js',
+      'tests/feature_compat_capability_structure.test.js',
+      'tests/combat_compat_structure.test.js',
+      'tests/combat_compat_reexports.test.js',
+    ];
+
+    for (const file of consolidatedFiles) {
+      expect(pathExists(file)).toBe(true);
+    }
+
+    for (const file of removedFiles) {
+      expect(pathExists(file)).toBe(false);
+    }
+  });
+
+  it('consolidates composition and bootstrap assembly checks into broader test files', () => {
+    const consolidatedFiles = [
+      'tests/composition_module_registrars.test.js',
+      'tests/composition_module_assembly.test.js',
+      'tests/bootstrap_registrar_assembly.test.js',
+      'tests/bootstrap_payload_assembly.test.js',
+    ];
+    const removedFiles = [
+      'tests/register_codex_modules.test.js',
+      'tests/register_event_modules.test.js',
+      'tests/register_reward_modules.test.js',
+      'tests/register_run_modules.test.js',
+      'tests/register_screen_modules.test.js',
+      'tests/register_title_modules.test.js',
+      'tests/register_core_runtime_modules.test.js',
+      'tests/build_screen_primary_modules.test.js',
+      'tests/build_screen_overlay_modules.test.js',
+      'tests/build_game_binding_registrars.test.js',
+      'tests/build_event_subscriber_registrars.test.js',
+      'tests/build_runtime_subscriber_actions.test.js',
+      'tests/build_game_boot_payload.test.js',
+      'tests/build_character_select_mount_payload.test.js',
+      'tests/build_runtime_subscriber_payload.test.js',
+    ];
+
+    for (const file of consolidatedFiles) {
+      expect(pathExists(file)).toBe(true);
+    }
+
+    for (const file of removedFiles) {
+      expect(pathExists(file)).toBe(false);
+    }
+  });
+
+  it('routes noisy regression suites through the shared console-silencing helper', () => {
+    const files = [
+      'tests/runtime_state_flow.test.js',
+      'tests/title_settings_bindings.test.js',
+      'tests/save_system_outbox.test.js',
+    ];
+
+    for (const file of files) {
+      const source = read(file);
+      expect(source).toContain("./helpers/silence_console.js");
+    }
   });
 });

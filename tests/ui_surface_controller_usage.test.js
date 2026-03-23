@@ -9,8 +9,12 @@ describe('ui surface controller usage', () => {
       path.join(process.cwd(), 'game/features/combat/presentation/browser/card_clone_ui.js'),
       'utf8',
     );
-    const mapSource = readFileSync(
+    const mapPanelsSource = readFileSync(
       path.join(process.cwd(), 'game/features/run/presentation/browser/map_ui_next_nodes_render_panels.js'),
+      'utf8',
+    );
+    const mapSurfaceSource = readFileSync(
+      path.join(process.cwd(), 'game/features/run/presentation/browser/map_ui_next_nodes_relic_detail_surface.js'),
       'utf8',
     );
     const runModeSource = readFileSync(
@@ -19,7 +23,8 @@ describe('ui surface controller usage', () => {
     );
 
     expect(cloneSource).toContain('createUiSurfaceStateController');
-    expect(mapSource).toContain('createUiSurfaceStateController');
+    expect(mapPanelsSource).toContain('map_ui_next_nodes_relic_detail_surface.js');
+    expect(mapSurfaceSource).toContain('createUiSurfaceStateController');
     expect(runModeSource).toContain('createUiSurfaceStateController');
   });
 });

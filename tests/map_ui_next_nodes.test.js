@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getAccessibleNextNodes } from '../game/ui/map/map_ui_next_nodes.js';
+import { getAccessibleNextNodes } from '../game/features/run/presentation/browser/map_ui_next_nodes.js';
 
 describe('map_ui_next_nodes', () => {
   it('returns only unvisited accessible nodes on the next floor', () => {

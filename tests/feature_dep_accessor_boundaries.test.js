@@ -1,9 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
-
-const ROOT = process.cwd();
+import { readText } from './helpers/guardrail_fs.js';
 
 describe('feature dep accessor boundaries', () => {
   it('keeps feature-owned contract maps near feature dep providers', () => {
@@ -41,7 +37,7 @@ describe('feature dep accessor boundaries', () => {
     };
 
     for (const [file, patterns] of Object.entries(expectations)) {
-      const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
+      const source = readText(file);
       for (const pattern of patterns) {
         expect(source).toContain(pattern);
       }
@@ -97,7 +93,7 @@ describe('feature dep accessor boundaries', () => {
     };
 
     for (const [file, forbiddenPatterns] of Object.entries(expectations)) {
-      const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
+      const source = readText(file);
       for (const pattern of forbiddenPatterns) {
         expect(source).not.toContain(pattern);
       }
@@ -116,7 +112,7 @@ describe('feature dep accessor boundaries', () => {
     ];
 
     for (const file of files) {
-      const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
+      const source = readText(file);
       expect(source).toContain('buildFeatureContractAccessors');
       expect(source).not.toContain('function buildDepAccessors(');
       expect(source).not.toContain('Object.prototype.hasOwnProperty.call(Deps, \'buildContractDepAccessors\')');

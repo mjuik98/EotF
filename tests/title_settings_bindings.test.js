@@ -75,6 +75,7 @@ import { createTitleSettingsBindings } from '../game/core/bindings/title_setting
 import * as Deps from '../game/core/deps_factory.js';
 import { IntroCinematicUI } from '../game/features/title/presentation/browser/intro_cinematic_ui.js';
 import { startEchoRippleDissolve } from '../game/platform/browser/effects/echo_ripple_transition.js';
+import { silenceConsole } from './helpers/silence_console.js';
 
 function createMockDocument() {
   const elements = {
@@ -118,6 +119,7 @@ describe('title start flow transition', () => {
     originalDocument = globalThis.document;
     originalWindow = globalThis.window;
     vi.clearAllMocks();
+    silenceConsole(['error']);
   });
 
   afterEach(() => {

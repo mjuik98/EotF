@@ -10,7 +10,10 @@ const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-event-[^/]+\.js$/,
   /\/?assets\/ui-reward-[^/]+\.js$/,
   /\/?assets\/ui-shell-overlays-[^/]+\.js$/,
+  /\/?assets\/ui-shell-hotkeys-[^/]+\.js$/,
   /\/?assets\/ui-settings-[^/]+\.js$/,
+  /\/?assets\/ui-settings-core-[^/]+\.js$/,
+  /\/?assets\/ui-settings-hotkeys-[^/]+\.js$/,
   /\/?assets\/ui-run-mode-[^/]+\.js$/,
   /\/?assets\/data-cards-[^/]+\.js$/,
   /\/?assets\/data-enemies-[^/]+\.js$/,
@@ -70,6 +73,12 @@ export function getManualChunk(id) {
     || normalized.includes('/game/features/ui/presentation/browser/meta_progression_')
   ) return 'ui-overlays';
   if (
+    normalized.endsWith('/game/features/ui/presentation/browser/help_pause_keybinding_helpers.js')
+    || normalized.endsWith('/game/features/ui/presentation/browser/help_pause_run_hotkey_state.js')
+    || normalized.endsWith('/game/features/ui/presentation/browser/help_pause_visibility.js')
+  ) return 'ui-shell-hotkeys';
+
+  if (
     normalized.includes('/game/features/ui/platform/browser/create_lazy_help_pause_module.js')
     || normalized.includes('/game/features/ui/platform/browser/import_help_pause_module.js')
     || normalized.includes('/game/features/ui/platform/browser/create_lazy_meta_progression_module.js')
@@ -77,10 +86,12 @@ export function getManualChunk(id) {
     || normalized.includes('/game/features/ui/presentation/browser/help_pause_')
   ) return 'ui-shell-overlays';
 
+  if (normalized.endsWith('/game/core/settings_manager.js')) return 'ui-settings-core';
+  if (normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')) return 'ui-settings';
   if (
-    normalized.endsWith('/game/core/settings_manager.js')
-    || normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')
-  ) return 'ui-settings';
+    normalized.endsWith('/game/features/ui/presentation/browser/settings_ui_keybinding_helpers.js')
+    || normalized.endsWith('/game/features/ui/presentation/browser/settings_ui_runtime_helpers.js')
+  ) return 'ui-settings-hotkeys';
   if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui.js')) return 'ui-run-mode';
 
   return null;

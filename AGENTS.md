@@ -58,7 +58,9 @@ This file is the working contract for engineers and coding agents in this reposi
 
 ## Validation
 
-- Run `npm test` for logic and behavior changes.
+- Run `npm test` for fast logic and behavior changes.
+- Run `npm run test:guardrails` for architecture, boundary, compat, or composition changes.
+- Run `npm run test:full` when a change spans both runtime behavior and guardrail coverage.
 - Run `npm run lint` for architecture, boundary, state-flow, global API, or data/content changes.
 - Run `npm run build` for user-visible browser changes and before handoff on substantial work.
 - Run `npm run deps:map` when dependency flow or ownership changes.

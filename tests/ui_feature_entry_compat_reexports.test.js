@@ -1,7 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { describe, expect, it } from 'vitest';
+import { pathExists, readText } from './helpers/guardrail_fs.js';
 
 function named(file, exportClause, target) {
   return [file, `export ${exportClause} from '${target}';\n`];
@@ -31,8 +29,6 @@ const EXACT_REEXPORTS = new Map([
   star('game/ui/map/map_ui_full_map_render.js', '../../features/run/public.js'),
   star('game/ui/map/map_ui_minimap.js', '../../features/run/public.js'),
   star('game/ui/map/map_ui_minimap_render.js', '../../features/run/public.js'),
-  star('game/ui/map/map_ui_next_nodes.js', '../../features/run/public.js'),
-  star('game/ui/map/map_ui_next_nodes_render.js', '../../features/run/public.js'),
   named(
     'game/ui/map/maze_system_ui.js',
     '{ MazeSystem }',
@@ -205,7 +201,7 @@ const EXACT_REEXPORTS = new Map([
 describe('ui feature entry compat reexports', () => {
   it('keeps moved ui entrypoints as thin feature-local reexports', () => {
     for (const [file, expected] of EXACT_REEXPORTS) {
-      const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
+      const source = readText(file);
       expect(source).toBe(expected);
     }
   });
@@ -217,12 +213,14 @@ describe('ui feature entry compat reexports', () => {
     ];
 
     removedFiles.forEach((file) => {
-      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+      expect(pathExists(file)).toBe(false);
     });
   });
 
   it('removes screen-level ui entry wrappers once callers use feature-owned surfaces directly', () => {
     const removedFiles = [
+      'game/ui/map/map_ui_next_nodes.js',
+      'game/ui/map/map_ui_next_nodes_render.js',
       'game/ui/screens/screen_ui.js',
       'game/ui/screens/ending_screen_ui.js',
       'game/ui/screens/story_ui.js',
@@ -233,15 +231,12 @@ describe('ui feature entry compat reexports', () => {
     ];
 
     removedFiles.forEach((file) => {
-      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+      expect(pathExists(file)).toBe(false);
     });
   });
 
   it('keeps HelpPauseUI out of the static UI feature public barrel so lazy loading can split it', () => {
-    const source = fs.readFileSync(
-      path.join(process.cwd(), 'game/features/ui/ports/public_help_pause_presentation_capabilities.js'),
-      'utf8',
-    );
+    const source = readText('game/features/ui/ports/public_help_pause_presentation_capabilities.js');
 
     expect(source).not.toContain('HelpPauseUI');
   });

@@ -2,6 +2,7 @@ import {
   createCharacterSelectRuntime,
 } from '../../application/create_character_select_runtime.js';
 import { createCharacterSelectRuntimeBindings } from '../../platform/browser/create_character_select_runtime_bindings.js';
+import { ensureCharacterSelectUiStyle } from './character_select_ui_style.js';
 
 const runtimeBindings = createCharacterSelectRuntimeBindings();
 const CHARS = runtimeBindings.chars;
@@ -24,6 +25,7 @@ export const CharacterSelectUI = {
 
   mount(deps = {}) {
     const owner = this;
+    ensureCharacterSelectUiStyle(deps?.doc);
     owner._runtime = createCharacterSelectRuntime(deps, runtimeBindings);
 
     return {

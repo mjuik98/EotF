@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-23T08:47:26.866Z",
+  "generatedAt": "2026-03-23T10:19:22.134Z",
   "nodeCount": 1304,
-  "edgeCount": 1429,
+  "edgeCount": 1440,
   "layerEdges": {
     "core->core": 167,
     "core->domain": 3,
@@ -24,7 +24,7 @@
     "feature->core": 23,
     "feature->data": 37,
     "feature->domain": 39,
-    "feature->feature": 751,
+    "feature->feature": 762,
     "feature->legacy": 1,
     "feature->other": 7,
     "feature->platform": 3,
@@ -1288,6 +1288,8 @@
       "game/features/combat/platform/runtime/register_card_event_subscribers.js"
     ],
     "game/features/combat/ports/tooltip_ui_ports.js": [],
+    "game/features/combat/presentation/browser/card_clone_keyword_interactions.js": [],
+    "game/features/combat/presentation/browser/card_clone_positioning.js": [],
     "game/features/combat/presentation/browser/card_clone_render_ui.js": [
       "game/features/combat/presentation/browser/combat_card_frame_ui.js",
       "game/features/combat/presentation/browser/combat_copy.js"
@@ -1296,6 +1298,8 @@
       "game/shared/ui/state/ui_state_dataset.js"
     ],
     "game/features/combat/presentation/browser/card_clone_ui.js": [
+      "game/features/combat/presentation/browser/card_clone_keyword_interactions.js",
+      "game/features/combat/presentation/browser/card_clone_positioning.js",
       "game/features/combat/presentation/browser/card_clone_render_ui.js",
       "game/features/combat/presentation/browser/card_clone_runtime_ui.js",
       "game/shared/ui/state/ui_surface_state_controller.js"
@@ -2200,6 +2204,16 @@
     "game/features/run/presentation/browser/map_ui_next_nodes_overlay_helpers.js": [
       "game/features/run/presentation/browser/map_ui_next_nodes_render.js"
     ],
+    "game/features/run/presentation/browser/map_ui_next_nodes_relic_detail_surface.js": [
+      "game/features/run/presentation/browser/map_relic_detail_layout.js",
+      "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js",
+      "game/features/run/presentation/browser/relic_detail_shared_ui.js",
+      "game/shared/ui/state/ui_surface_state_controller.js"
+    ],
+    "game/features/run/presentation/browser/map_ui_next_nodes_relic_slots.js": [
+      "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js",
+      "game/features/run/presentation/browser/relic_detail_shared_ui.js"
+    ],
     "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js": [
       "game/features/run/domain/map_node_content.js",
       "game/shared/runtime/player_hp_panel_level.js"
@@ -2207,9 +2221,9 @@
     "game/features/run/presentation/browser/map_ui_next_nodes_render_panels.js": [
       "game/features/run/presentation/browser/map_bottom_dock.js",
       "game/features/run/presentation/browser/map_relic_detail_layout.js",
-      "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js",
-      "game/features/run/presentation/browser/relic_detail_shared_ui.js",
-      "game/shared/ui/state/ui_surface_state_controller.js"
+      "game/features/run/presentation/browser/map_ui_next_nodes_relic_detail_surface.js",
+      "game/features/run/presentation/browser/map_ui_next_nodes_relic_slots.js",
+      "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js"
     ],
     "game/features/run/presentation/browser/map_ui_next_nodes_render.js": [],
     "game/features/run/presentation/browser/map_ui_next_nodes.js": [
@@ -2407,9 +2421,13 @@
     "game/features/title/platform/browser/character_select_fx.js": [],
     "game/features/title/platform/browser/character_select_info_panel_interactions.js": [],
     "game/features/title/platform/browser/character_select_info_panel_markup.js": [],
+    "game/features/title/platform/browser/character_select_info_panel_sections.js": [
+      "game/features/title/platform/browser/character_select_info_panel_markup.js"
+    ],
     "game/features/title/platform/browser/character_select_info_panel.js": [
       "game/features/title/platform/browser/character_select_info_panel_interactions.js",
-      "game/features/title/platform/browser/character_select_info_panel_markup.js"
+      "game/features/title/platform/browser/character_select_info_panel_markup.js",
+      "game/features/title/platform/browser/character_select_info_panel_sections.js"
     ],
     "game/features/title/platform/browser/character_select_modal.js": [],
     "game/features/title/platform/browser/character_select_panels.js": [],
@@ -2573,9 +2591,11 @@
     "game/features/title/presentation/browser/abandon_outcome_presenter.js": [
       "game/features/ui/ports/public_ending_presentation_capabilities.js"
     ],
+    "game/features/title/presentation/browser/character_select_ui_style.js": [],
     "game/features/title/presentation/browser/character_select_ui.js": [
       "game/features/title/application/create_character_select_runtime.js",
-      "game/features/title/platform/browser/create_character_select_runtime_bindings.js"
+      "game/features/title/platform/browser/create_character_select_runtime_bindings.js",
+      "game/features/title/presentation/browser/character_select_ui_style.js"
     ],
     "game/features/title/presentation/browser/class_select_ui.js": [
       "game/features/title/platform/browser/create_class_select_facade.js"
@@ -3396,9 +3416,6 @@
     "game/systems/save/save_outbox_queue.js": [],
     "game/systems/save/save_repository.js": [],
     "game/systems/set_bonus_system.js": [],
-    "game/ui/cards/card_clone_render_ui.js": [],
-    "game/ui/cards/card_clone_runtime_ui.js": [],
-    "game/ui/cards/card_clone_ui.js": [],
     "game/ui/cards/card_render_helpers_ui.js": [],
     "game/ui/cards/card_target_ui.js": [],
     "game/ui/cards/card_ui.js": [],
@@ -3473,8 +3490,6 @@
     "game/ui/map/map_ui_full_map.js": [],
     "game/ui/map/map_ui_minimap_render.js": [],
     "game/ui/map/map_ui_minimap.js": [],
-    "game/ui/map/map_ui_next_nodes_render.js": [],
-    "game/ui/map/map_ui_next_nodes.js": [],
     "game/ui/map/map_ui.js": [],
     "game/ui/map/maze_system_render_ui.js": [],
     "game/ui/map/maze_system_runtime_ui.js": [],
@@ -3555,7 +3570,6 @@
     "game/ui/title/character_select_fx.js": [],
     "game/ui/title/character_select_info_panel.js": [],
     "game/ui/title/character_select_modal.js": [],
-    "game/ui/title/character_select_mount_runtime.js": [],
     "game/ui/title/character_select_panels.js": [],
     "game/ui/title/character_select_particles.js": [],
     "game/ui/title/character_select_phase_panel.js": [],

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
-import { buildRelicPanel } from '../game/ui/map/map_ui_next_nodes_render.js';
+import { buildRelicPanel } from '../game/features/run/presentation/browser/map_ui_next_nodes_render.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {
