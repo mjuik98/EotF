@@ -360,7 +360,7 @@ describe('card_ui', () => {
     expect(hideTooltipHandler).not.toHaveBeenCalled();
   });
 
-  it('keeps classic tooltip listeners for hand cards that cannot show clone previews', async () => {
+  it('does not keep classic tooltip listeners for unplayable hand cards on the clone hover path', () => {
     const doc = createDoc();
     const showTooltipHandler = vi.fn();
     const hideTooltipHandler = vi.fn();
@@ -401,14 +401,17 @@ describe('card_ui', () => {
     });
 
     const cardEl = doc.getElementById('combatHandCards').children[0];
-    await cardEl.listeners.get('mouseenter')({ type: 'mouseenter', currentTarget: cardEl });
-    await cardEl.listeners.get('mouseleave')();
-
-    expect(showTooltipHandler).toHaveBeenCalledWith(
-      { type: 'mouseenter', currentTarget: cardEl },
+    expect(attachToCardSpy).toHaveBeenCalledWith(
+      cardEl,
       'guard_break',
+      data.cards.guard_break,
+      expect.objectContaining({ canPlay: false, displayCost: 2 }),
+      expect.objectContaining({ doc }),
     );
-    expect(hideTooltipHandler).toHaveBeenCalledTimes(1);
+    expect(cardEl.listeners.has('mouseenter')).toBe(false);
+    expect(cardEl.listeners.has('mouseleave')).toBe(false);
+    expect(showTooltipHandler).not.toHaveBeenCalled();
+    expect(hideTooltipHandler).not.toHaveBeenCalled();
   });
 
   it('does not bind hover tooltip listeners when explicit deps are absent', () => {

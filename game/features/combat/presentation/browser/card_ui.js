@@ -42,8 +42,6 @@ export const CardUI = {
     const playCardHandler = deps.playCardHandler;
     const dragStartHandler = deps.dragStartHandler;
     const dragEndHandler = deps.dragEndHandler;
-    const showTooltipHandler = deps.showTooltipHandler;
-    const hideTooltipHandler = deps.hideTooltipHandler;
     const cardCostUtils = _getCardCostUtils(deps);
     const descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || null;
     const triggerItems = typeof gs?.triggerItems === 'function'
@@ -104,17 +102,6 @@ export const CardUI = {
       }
       if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
       if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
-      if (showTooltipHandler && !canPlay) {
-        el.addEventListener('mouseenter', (e) => {
-          void showTooltipHandler(e, cardId);
-        });
-      }
-      if (hideTooltipHandler && !canPlay) {
-        el.addEventListener('mouseleave', () => {
-          void hideTooltipHandler();
-        });
-      }
-
       HandCardCloneUI.attachToCard(el, cardId, card, {
         displayCost: cost, canPlay, anyFree, totalDisc,
       }, { doc, descriptionUtils });

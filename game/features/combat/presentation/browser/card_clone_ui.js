@@ -261,9 +261,6 @@ export const HandCardCloneUI = {
    * @param {Document}    [deps.doc]
    */
   attachToCard(cardEl, cardId, card, costDisplay, deps = {}) {
-    // 에너지 부족 카드는 클론 미표시 — 기존 not-allowed 커서 그대로
-    if (!costDisplay.canPlay) return;
-
     const doc         = _getDoc(deps);
     const win         = _getWin(deps);
     if (!doc) return;
