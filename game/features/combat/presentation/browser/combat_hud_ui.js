@@ -5,7 +5,6 @@ import {
   showTurnBanner as showCombatTurnBanner,
 } from './combat_hud_feedback.js';
 import { updateCombatLog as updateCombatLogEntries } from './combat_hud_log_ui.js';
-import { renderCombatHudClassSpecial } from './combat_hud_special_ui.js';
 import {
   updateCombatChainWidgets,
   updateNoiseWidgetUI,
@@ -77,7 +76,7 @@ export const CombatHudUI = {
   },
 
   updateClassSpecialUI(deps = {}) {
-    renderCombatHudClassSpecial(_getDoc(deps), deps.gs, deps.classMechanics, deps);
+    return null;
   },
 
   async openBattleChronicle(deps = {}) {

@@ -108,6 +108,82 @@ function createState() {
 }
 
 describe('hud_panel_sections localization', () => {
+  it('does not render deprecated class special panels even when placeholder nodes exist', () => {
+    const doc = createDoc();
+    const setText = (id, value) => {
+      const target = doc.getElementById(id);
+      if (target) target.textContent = String(value);
+    };
+
+    [
+      'playerAvatar',
+      'playerPortraitFallback',
+      'playerSpecialDisplay',
+      'hoverHudSpecial',
+      'regionName',
+      'regionRule',
+      'regionFloor',
+      'playerFloor',
+      'itemSlots',
+      'setBonusPanel',
+      'combatRelicRail',
+      'combatRelicRailCount',
+      'combatRelicRailSlots',
+      'combatRelicPanel',
+      'combatRelicPanelList',
+      'hudRunModifiers',
+      'useEchoSkillBtn',
+      'combatDrawCardBtn',
+      'hudGoldText',
+      'runCount',
+      'killCount',
+      'goldCount',
+      'deckCount',
+      'graveCount',
+      'deckSize',
+      'graveyardSize',
+      'exhaustSize',
+      'combatDeckCount',
+      'combatGraveCount',
+      'combatExhaustCount',
+      'playerNameDisplay',
+      'playerClassDisplay',
+    ].forEach((id) => register(doc, id, id.includes('Btn') ? 'button' : 'div'));
+
+    const state = createState();
+    state.player.class = 'swordsman';
+    const getSpecialUI = vi.fn(() => 'deprecated special');
+
+    updateHudPanels({
+      gs: state,
+      deps: {
+        classMechanics: {
+          swordsman: { getSpecialUI },
+        },
+        runRules: {
+          getAscension: () => 0,
+          isEndless: () => false,
+          curses: {},
+        },
+      },
+      doc,
+      data: {
+        classes: {
+          swordsman: { emoji: '⚔️', name: '잔향검사' },
+        },
+        items: {},
+        inscriptions: {},
+      },
+      setText,
+    });
+
+    expect(getSpecialUI).not.toHaveBeenCalled();
+    expect(doc.getElementById('playerSpecialDisplay').textContent).toBe('');
+    expect(doc.getElementById('hoverHudSpecial').textContent).toBe('');
+    expect(doc.getElementById('playerNameDisplay').textContent).toBe('잔향검사');
+    expect(doc.getElementById('playerClassDisplay').textContent).toBe('잔향검사');
+  });
+
   it('renders Korean fallbacks for empty class special and unknown region tooltip', () => {
     const doc = createDoc();
     const setText = (id, value) => {
@@ -174,7 +250,6 @@ describe('hud_panel_sections localization', () => {
       setText,
     });
 
-    expect(doc.getElementById('hoverHudSpecial').children[0].textContent).toBe('없음');
     expect(doc.getElementById('regionName').textContent).toBe('미확인 지역');
     expect(doc.getElementById('combatRelicRailCount').textContent).toBe('0');
 

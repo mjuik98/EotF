@@ -197,7 +197,15 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
 
   const title = doc.createElement('div');
   title.className = 'nc-relic-panel-title';
-  title.textContent = '현재 유물';
+  title.style.display = 'flex';
+  title.style.flexDirection = 'column';
+  title.style.gap = '5px';
+  const titleLabel = doc.createElement('span');
+  titleLabel.textContent = '현재 유물';
+  const titleHint = doc.createElement('span');
+  titleHint.textContent = '유물에 마우스를 올리거나 선택하면 상세가 표시됩니다.';
+  titleHint.style.cssText = 'font-family:"Share Tech Mono",monospace;font-size:8px;letter-spacing:.08em;line-height:1.5;color:rgba(176,180,216,.52);text-transform:none;transition:opacity .18s ease;';
+  title.append(titleLabel, titleHint);
   panel.appendChild(title);
 
   const scrollWrap = doc.createElement('div');
@@ -208,6 +216,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   detailPanel.className = 'nc-relic-detail';
   detailPanel.id = 'mapRelicDetailPanel';
   detailPanel.dataset.open = 'false';
+  detailPanel.dataset.pinned = 'false';
   const detailList = doc.createElement('div');
   detailList.className = 'nc-relic-detail-list';
   detailPanel.appendChild(detailList);
@@ -219,6 +228,13 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     entriesRoot: list,
     variant: 'compact',
   });
+  const setTitleHintVisible = (visible) => {
+    titleHint.style.opacity = visible ? '1' : '0';
+  };
+  const clearDetail = () => {
+    detailSurface.clear();
+    setTitleHintVisible(true);
+  };
 
   const renderDetail = (itemId, item, activeSlot, options = {}) => {
     const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
@@ -229,6 +245,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       itemId,
       pinned: options.pinned === true,
     });
+    setTitleHintVisible(false);
     applyRelicDetailLayout(panel, detailPanel, win, activeSlot);
     animateRelicDetailPanel(detailPanel, deps);
     runOnNextFrame(() => applyRelicDetailLayout(panel, detailPanel, win, activeSlot), deps);
@@ -241,12 +258,10 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     list.appendChild(empty);
   } else {
     const sortedItems = [...items].sort((leftId, rightId) => (rarityOrder[data?.items?.[leftId]?.rarity || 'common'] ?? 3) - (rarityOrder[data?.items?.[rightId]?.rarity || 'common'] ?? 3));
-    let firstRenderable = null;
     const slotNodes = [];
     sortedItems.forEach((itemId, index) => {
       const item = data?.items?.[itemId];
       if (!item) return;
-      if (!firstRenderable) firstRenderable = { itemId, item };
       const rarity = String(item.rarity || 'common').toLowerCase();
       const meta = rarityMeta[rarity] || rarityMeta.common;
       const triggers = Array.isArray(item.trigger) ? item.trigger : [item.trigger];
@@ -279,13 +294,23 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
         if (detailPanel.dataset?.pinned === 'true') return;
         renderDetail(itemId, item, slot, { pinned: false });
       };
+      const clearPreviewSlot = () => {
+        if (detailPanel.dataset?.pinned === 'true') return;
+        clearDetail();
+      };
       const togglePinnedSlot = () => {
         const isPinned = detailPanel.dataset?.pinned === 'true';
         const isSameItem = detailPanel.dataset?.itemId === itemId;
-        renderDetail(itemId, item, slot, { pinned: !isPinned || !isSameItem });
+        if (isPinned && isSameItem) {
+          clearDetail();
+          return;
+        }
+        renderDetail(itemId, item, slot, { pinned: true });
       };
       slot.addEventListener('mouseenter', previewSlot);
+      slot.addEventListener('mouseleave', clearPreviewSlot);
       slot.addEventListener('focus', previewSlot);
+      slot.addEventListener('blur', clearPreviewSlot);
       slot.addEventListener('click', togglePinnedSlot);
       slot.addEventListener('keydown', (event) => {
         const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || sortedItems.length);
@@ -303,6 +328,11 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
         if (isItemDetailCommitKey(event?.key)) {
           event?.preventDefault?.();
           togglePinnedSlot();
+          return;
+        }
+        if (event?.key === 'Escape') {
+          event?.preventDefault?.();
+          clearDetail();
         }
       });
 
@@ -310,16 +340,13 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       list.appendChild(slot);
       slotNodes.push(slot);
     });
-    if (firstRenderable) {
-      const firstSlot = list.children[0] || null;
-      renderDetail(firstRenderable.itemId, firstRenderable.item, firstSlot);
-    }
   }
 
   scrollWrap.appendChild(list);
   panel.appendChild(scrollWrap);
   if (items.length > 0) panel.appendChild(detailPanel);
   applyRelicDetailLayout(panel, detailPanel, win, list.children[0] || null);
+  setTitleHintVisible(items.length > 0);
 
   const updateFades = () => {
     if (!scrollWrap.classList?.toggle) return;

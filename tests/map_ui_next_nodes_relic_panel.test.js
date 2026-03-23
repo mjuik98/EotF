@@ -109,7 +109,7 @@ function createDoc() {
 }
 
 describe('map_ui_next_nodes_relic_panel', () => {
-  it('uses a compact layout detail panel instead of floating item tooltips', () => {
+  it('starts with hidden relic detail and opens a compact panel on hover', () => {
     const doc = createDoc();
     const tooltipUI = {
       showItemTooltip: vi.fn(),
@@ -167,13 +167,16 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(firstSlot.title || '').toBe('');
     expect(firstSlot['aria-label']).toContain('메아리 부적');
     expect(firstSlot.role).toBe('button');
-    expect(firstSlot['aria-pressed']).toBe('true');
-    expect(firstSlot.dataset.active).toBe('true');
+    expect(firstSlot['aria-pressed']).toBe('false');
+    expect(firstSlot.dataset.active).toBeUndefined();
     expect(firstSlot.listeners.mouseenter).toBeTypeOf('function');
+    expect(firstSlot.listeners.mouseleave).toBeTypeOf('function');
     expect(firstSlot.listeners.click).toBeTypeOf('function');
     expect(tooltipUI.showItemTooltip).not.toHaveBeenCalled();
     expect(firstSlot.children[1].children).toHaveLength(1);
     expect(firstSlot.children[1].children[0].className).toBe('nc-relic-name');
+    expect(detailPanel.dataset.open).toBe('false');
+    expect(detailPanel.dataset.pinned).toBe('false');
     expect(detailPanel.style.position).toBe('absolute');
     expect(detailPanel.style.right).toBe('calc(100% + 14px)');
     expect(detailPanel.style.top).toBe('56px');
@@ -183,9 +186,7 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(detailPanel.style.transformOrigin).toBe('100% 24px');
     expect(detailPanel.style.transition).toContain('cubic-bezier');
 
-    expect(detailList.children[0].children[0].textContent).toContain('메아리 부적');
-    expect(detailList.children[1].textContent).toContain('전투 시작 시 잔향 +5');
-    expect(detailList.children[2].children[0].textContent).toContain('메아리 공명');
+    expect(detailList.children).toHaveLength(0);
 
     panel._rect = { x: 1088, y: 0, top: 0, left: 1088, right: 1280, bottom: 720, width: 192, height: 720 };
     detailPanel._rect = { x: 834, y: 56, top: 56, left: 834, right: 1074, bottom: 172, width: 240, height: 116 };
@@ -193,12 +194,22 @@ describe('map_ui_next_nodes_relic_panel', () => {
     secondSlot._rect = { x: 1101, y: 228, top: 228, left: 1101, right: 1269, bottom: 270, width: 168, height: 42 };
 
     secondSlot.listeners.mouseenter({ currentTarget: secondSlot });
+    expect(detailPanel.dataset.open).toBe('true');
     expect(secondSlot.dataset.active).toBe('true');
     expect(secondSlot['aria-pressed']).toBe('true');
     expect(firstSlot['aria-pressed']).toBe('false');
     expect(detailList.children[0].children[0].textContent).toContain('무딘 검');
     expect(detailList.children[1].textContent).toContain('카드 사용 시 10% 확률');
+    expect(detailList.children[3].className).toContain('is-owned');
+    expect(detailList.children[3].children[0].textContent).toBe('🗡️ 무딘 검');
+    expect(detailList.children[3].children[1].textContent).toBe('보유');
+    expect(detailList.children[4].children[0].textContent).toBe('🔹 메아리 부적');
+    expect(detailList.children[4].children[1].textContent).toBe('보유');
     expect(detailPanel.style.top).toBe('191px');
+
+    secondSlot.listeners.mouseleave({ currentTarget: secondSlot });
+    expect(detailPanel.dataset.open).toBe('false');
+    expect(detailList.children).toHaveLength(0);
     expect(tooltipUI.showItemTooltip).not.toHaveBeenCalled();
     expect(tooltipUI.hideItemTooltip).not.toHaveBeenCalled();
   });
@@ -257,6 +268,7 @@ describe('map_ui_next_nodes_relic_panel', () => {
 
     secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
     expect(detailPanel.dataset.pinned).toBe('false');
+    expect(detailPanel.dataset.open).toBe('false');
 
     firstSlot.listeners.mouseenter({ currentTarget: firstSlot });
     expect(detailList.children[0].children[0].textContent).toContain('메아리 부적');

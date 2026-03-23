@@ -52,12 +52,12 @@ function createMockDocument() {
 }
 
 describe('combat_hud_special_ui', () => {
-  it('renders string-based class special ui into the hover hud area', () => {
+  it('returns without mutating the deprecated hover hud area', () => {
     const doc = createMockDocument();
     const hover = doc.createElement('div');
     hover.id = 'hoverHudSpecial';
 
-    renderCombatHudClassSpecial(doc, {
+    const result = renderCombatHudClassSpecial(doc, {
       player: { class: 'swordsman' },
     }, {
       swordsman: {
@@ -65,10 +65,11 @@ describe('combat_hud_special_ui', () => {
       },
     });
 
-    expect(hover.textContent).toBe('Special text');
+    expect(result).toBeNull();
+    expect(hover.textContent).toBe('');
   });
 
-  it('renders element-based class special ui when the mechanic returns a node', () => {
+  it('does not append nodes for the deprecated class special surface', () => {
     const doc = createMockDocument();
     const hover = doc.createElement('div');
     hover.id = 'hoverHudSpecial';
@@ -83,20 +84,19 @@ describe('combat_hud_special_ui', () => {
       },
     }, {}, MockElement);
 
-    expect(hover.children[0]).toBe(specialNode);
+    expect(hover.children).toHaveLength(0);
   });
 
-  it('renders the empty fallback when no class mechanic is available', () => {
+  it('is a no-op when no class mechanic is available', () => {
     const doc = createMockDocument();
     const hover = doc.createElement('div');
     hover.id = 'hoverHudSpecial';
 
-    renderCombatHudClassSpecial(doc, {
+    const result = renderCombatHudClassSpecial(doc, {
       player: { class: 'unknown' },
     }, {});
 
-    expect(hover.children).toHaveLength(1);
-    expect(hover.children[0].tagName).toBe('SPAN');
-    expect(hover.children[0].style.cssText).toContain('font-size:10px');
+    expect(result).toBeNull();
+    expect(hover.children).toHaveLength(0);
   });
 });

@@ -1,6 +1,5 @@
 import { SecurityUtils } from '../../../../utils/security.js';
 import { COMBAT_TEXT } from './combat_copy.js';
-import { renderClassTraitPanel } from './class_trait_panel_ui.js';
 import {
   updateActionButtons,
   updateItemPanels,
@@ -13,33 +12,15 @@ function resolveTooltipUI(deps) {
     || null;
 }
 
-function resolveClassMechanics(deps) {
-  return deps.classMechanics || null;
-}
-
 function resolveRegionAccessor(deps) {
   if (typeof deps.getRegionData === 'function') return deps.getRegionData;
   return null;
-}
-
-function setSpecialContent(target, content, doc) {
-  if (!target) return;
-  target.textContent = '';
-  const htmlElement = doc?.defaultView?.HTMLElement;
-  if (htmlElement && content instanceof htmlElement) {
-    target.appendChild(content);
-  } else if (typeof content === 'string') {
-    target.textContent = content;
-  }
 }
 
 function updateClassPanels({ gs, deps, doc, data, setText }) {
   const player = gs.player;
   const avatarEl = doc.getElementById('playerAvatar');
   const largeFallback = doc.getElementById('playerPortraitFallback');
-  const specialEl = doc.getElementById('playerSpecialDisplay');
-  const hoverSpecialEl = doc.getElementById('hoverHudSpecial');
-  const classMechanics = resolveClassMechanics(deps);
   const classMeta = data?.classes?.[player.class];
 
   if (player.class) {
@@ -60,31 +41,6 @@ function updateClassPanels({ gs, deps, doc, data, setText }) {
 
     setText('playerNameDisplay', SecurityUtils.escapeHtml(className));
     setText('playerClassDisplay', className);
-
-    if (specialEl && classMechanics?.[player.class]) {
-      setSpecialContent(
-        specialEl,
-        classMechanics[player.class].getSpecialUI(gs, { ...deps, doc, renderClassTraitPanel }),
-        doc,
-      );
-      specialEl.style.display = 'flex';
-    } else if (specialEl) {
-      specialEl.style.display = 'none';
-    }
-  }
-
-  if (hoverSpecialEl && classMechanics?.[player.class]) {
-    setSpecialContent(
-      hoverSpecialEl,
-      classMechanics[player.class].getSpecialUI(gs, { ...deps, doc, renderClassTraitPanel }),
-      doc,
-    );
-  } else if (hoverSpecialEl) {
-    hoverSpecialEl.textContent = '';
-    const none = doc.createElement('span');
-    none.style.cssText = 'font-size:10px;color:var(--text-dim);font-style:italic;';
-    none.textContent = COMBAT_TEXT.noSpecial;
-    hoverSpecialEl.appendChild(none);
   }
 }
 

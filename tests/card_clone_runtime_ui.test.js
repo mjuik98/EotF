@@ -95,4 +95,22 @@ describe('card_clone_runtime_ui', () => {
     expect(card.classList.contains('card-clone-dimmed')).toBe(false);
     expect(handZone.classList.contains('has-active-clone')).toBe(false);
   });
+
+  it('falls back below the source card when the upper area is blocked', () => {
+    const runtime = createCardCloneRuntime({
+      view: { innerWidth: 1280, innerHeight: 900 },
+      getAvoidRects: () => [
+        { left: 0, top: 0, right: 1280, bottom: 430, width: 1280, height: 430 },
+      ],
+      requestFrame: (callback) => callback(),
+    });
+    const card = createElement({
+      rect: { left: 540, top: 460, width: 100, height: 146, right: 640, bottom: 606 },
+    });
+
+    const pos = runtime.calcPosition(card);
+
+    expect(pos.cardPlacement).toBe('below');
+    expect(pos.top).toBeGreaterThan(520);
+  });
 });

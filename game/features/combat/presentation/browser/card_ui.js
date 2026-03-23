@@ -104,12 +104,12 @@ export const CardUI = {
       }
       if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
       if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
-      if (showTooltipHandler) {
+      if (showTooltipHandler && !canPlay) {
         el.addEventListener('mouseenter', (e) => {
           void showTooltipHandler(e, cardId);
         });
       }
-      if (hideTooltipHandler) {
+      if (hideTooltipHandler && !canPlay) {
         el.addEventListener('mouseleave', () => {
           void hideTooltipHandler();
         });

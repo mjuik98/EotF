@@ -183,6 +183,152 @@ describe('HudUpdateUI.updatePlayerStats', () => {
 });
 
 describe('HudUpdateUI.doUpdateUI', () => {
+  it('hydrates contract deps before scheduling a full HUD refresh', () => {
+    const doc = createMockDocument();
+    const originalDocument = globalThis.document;
+    const originalWindow = globalThis.window;
+    let scheduledRefresh = null;
+    const updateStatusDisplay = vi.fn(({ doc: renderDoc, statusContainerId }) => {
+      const container = renderDoc.getElementById(statusContainerId);
+      const badge = renderDoc.createElement('span');
+      badge.className = 'hud-status-badge';
+      badge.dataset.buffKey = 'resonance';
+      container?.appendChild(badge);
+    });
+    const gs = {
+      meta: { runCount: 1, inscriptions: {} },
+      runConfig: { curse: 'none', disabledInscriptions: [] },
+      currentScreen: 'combat',
+      currentRegion: 0,
+      currentFloor: 1,
+      combat: { active: true, playerTurn: true },
+      clearDirtyFlag: vi.fn(),
+      player: {
+        class: 'swordsman',
+        hp: 42,
+        maxHp: 100,
+        shield: 0,
+        echo: 0,
+        maxEcho: 100,
+        gold: 0,
+        kills: 0,
+        energy: 3,
+        maxEnergy: 3,
+        hand: [],
+        deck: [],
+        graveyard: [],
+        exhausted: [],
+        items: [],
+        buffs: { resonance: { stacks: 99, dmgBonus: 1 } },
+      },
+    };
+
+    globalThis.document = doc;
+    globalThis.window = {
+      innerWidth: 1280,
+      innerHeight: 720,
+      requestAnimationFrame: vi.fn((cb) => {
+        scheduledRefresh = cb;
+        return 1;
+      }),
+    };
+    initDepsFactory({
+      GAME: { getDeps: () => ({ doc, win: globalThis.window }) },
+      StatusEffectsUI: { updateStatusDisplay, getStatusMap: () => ({}) },
+      TooltipUI: {},
+      _gameStarted: () => true,
+    });
+
+    try {
+      HudUpdateUI.updateUI({
+        gs,
+        data: { classes: {}, items: {}, inscriptions: {} },
+        runRules: { getAscension: () => 0, isEndless: () => false },
+      });
+
+      expect(globalThis.window.requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(updateStatusDisplay).not.toHaveBeenCalled();
+      expect(scheduledRefresh).toEqual(expect.any(Function));
+
+      scheduledRefresh();
+    } finally {
+      globalThis.document = originalDocument;
+      globalThis.window = originalWindow;
+      initDepsFactory({});
+    }
+
+    const shell = doc.getElementById('ncFloatingHpShell');
+    expect(shell).not.toBeNull();
+    expect(updateStatusDisplay).toHaveBeenCalled();
+    expect(shell.querySelectorAll('.hud-status-badge')).toHaveLength(1);
+  });
+
+  it('hydrates floating hp panel status badges from contract deps during full HUD refresh', () => {
+    const doc = createMockDocument();
+    const originalDocument = globalThis.document;
+    const originalWindow = globalThis.window;
+    const updateStatusDisplay = vi.fn(({ doc: renderDoc, statusContainerId }) => {
+      const container = renderDoc.getElementById(statusContainerId);
+      const badge = renderDoc.createElement('span');
+      badge.className = 'hud-status-badge';
+      badge.dataset.buffKey = 'resonance';
+      container?.appendChild(badge);
+    });
+    const gs = {
+      meta: { runCount: 1, inscriptions: {} },
+      runConfig: { curse: 'none', disabledInscriptions: [] },
+      currentScreen: 'combat',
+      currentRegion: 0,
+      currentFloor: 1,
+      combat: { active: true, playerTurn: true },
+      clearDirtyFlag: vi.fn(),
+      player: {
+        class: 'swordsman',
+        hp: 42,
+        maxHp: 100,
+        shield: 0,
+        echo: 0,
+        maxEcho: 100,
+        gold: 0,
+        kills: 0,
+        energy: 3,
+        maxEnergy: 3,
+        hand: [],
+        deck: [],
+        graveyard: [],
+        exhausted: [],
+        items: [],
+        buffs: { resonance: { stacks: 99, dmgBonus: 1 } },
+      },
+    };
+
+    globalThis.document = doc;
+    globalThis.window = { innerWidth: 1280, innerHeight: 720 };
+    initDepsFactory({
+      GAME: { getDeps: () => ({ doc, win: globalThis.window }) },
+      StatusEffectsUI: { updateStatusDisplay, getStatusMap: () => ({}) },
+      TooltipUI: {},
+      _gameStarted: () => true,
+    });
+
+    try {
+      HudUpdateUI.doUpdateUI({
+        gs,
+        data: { classes: {}, items: {}, inscriptions: {} },
+        runRules: { getAscension: () => 0, isEndless: () => false },
+      });
+    } finally {
+      globalThis.document = originalDocument;
+      globalThis.window = originalWindow;
+      initDepsFactory({});
+    }
+
+    const shell = doc.getElementById('ncFloatingHpShell');
+    expect(shell).not.toBeNull();
+    expect(updateStatusDisplay).toHaveBeenCalled();
+    expect(shell.querySelectorAll('.hud-status-badge')).toHaveLength(1);
+  });
+
   it('still refreshes status badges when optional run modifier HUD is missing', () => {
     const doc = createMockDocument();
     const updateStatusDisplay = vi.fn();

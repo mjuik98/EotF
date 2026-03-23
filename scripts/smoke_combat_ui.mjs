@@ -51,6 +51,8 @@ async function writeSnapshot(page, outDir, name) {
   if (text) {
     fs.writeFileSync(path.join(outDir, `${name}.json`), text);
   }
+
+  return text;
 }
 
 function assertCondition(condition, message) {
@@ -108,7 +110,7 @@ async function seedCombatScenario(page) {
       throw new Error('combat state did not initialize');
     }
 
-    gs.player.hand = ['strike', 'defend', 'echo_wave'];
+    gs.player.hand = ['strike', 'resonance', 'heavy_blow', 'defend'];
     gs.player.items = ['serpent_fang_dagger'];
     gs.player.energy = 1;
     gs.player.echo = 45;
@@ -182,6 +184,38 @@ async function seedCombatScenario(page) {
   });
 }
 
+async function prepareResonanceScenario(page) {
+  await page.evaluate(() => {
+    const gs = window.GS || window.GameState;
+    const enemy = gs?.combat?.enemies?.[0];
+    if (!gs?.player || !enemy) {
+      throw new Error('resonance smoke setup missing combat state');
+    }
+
+    gs.player.class = 'swordsman';
+    gs.player.hand = ['strike', 'resonance', 'heavy_blow', 'defend'];
+    gs.player.energy = 2;
+    gs.player.echo = 45;
+    gs.player.buffs = {
+      ...(gs.player.buffs || {}),
+      resonance: { stacks: 99, dmgBonus: 2 },
+    };
+    gs.combat.playerTurn = true;
+    enemy.hp = Math.max(30, Number(enemy.maxHp || 0));
+    enemy.maxHp = Math.max(30, Number(enemy.maxHp || 0));
+    enemy.block = 0;
+    enemy.shield = 0;
+
+    if (typeof window.renderCombatCards === 'function') window.renderCombatCards();
+    if (typeof window.renderCombatEnemies === 'function') window.renderCombatEnemies();
+    if (typeof window.updateUI === 'function') {
+      window.updateUI();
+    } else if (typeof window.doUpdateUI === 'function') {
+      window.doUpdateUI();
+    }
+  });
+}
+
 async function prepareActualActions(page) {
   await page.evaluate(() => {
     const gs = window.GS || window.GameState;
@@ -207,6 +241,41 @@ async function prepareActualActions(page) {
   });
 }
 
+async function triggerStackedToastScenario(page) {
+  await page.evaluate(() => {
+    if (typeof window.showCombatSummary !== 'function') {
+      throw new Error('showCombatSummary binding is unavailable');
+    }
+    if (typeof window.showItemToast !== 'function') {
+      throw new Error('showItemToast binding is unavailable');
+    }
+
+    window.showCombatSummary(21, 8, 1);
+    const smokeItem = {
+      name: '연기 시험 유물',
+      icon: '✦',
+      desc: '중복 획득 토스트 병합 확인용',
+      rarity: 'rare',
+    };
+    window.showItemToast(smokeItem, { forceQueue: true, typeLabel: '희귀 아이템 획득' });
+    window.showItemToast(smokeItem, { forceQueue: true, typeLabel: '희귀 아이템 획득' });
+  });
+
+  await page.waitForTimeout(180);
+  return page.evaluate(() => {
+    const toasts = Array.from(document.querySelectorAll('.stack-toast'));
+    const summaryToast = document.querySelector('.stack-toast--summary');
+    const itemToast = document.querySelector('.stack-toast--item');
+    return {
+      toastCount: toasts.length,
+      summaryVisible: !!summaryToast,
+      itemVisible: !!itemToast,
+      itemCountBadge: itemToast?.querySelector('.stack-toast-count')?.textContent?.trim() || null,
+      itemTitle: itemToast?.querySelector('.toast-text')?.textContent?.trim() || null,
+    };
+  });
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   ensureDir(args.outDir);
@@ -216,7 +285,9 @@ async function main() {
   const consoleErrors = [];
   const visualSnapshots = [
     'combat-ui-real-entry',
+    'combat-ui-stacked-toasts',
     'combat-ui-hover-card',
+    'combat-ui-resonance-after-attack',
     'combat-ui-log-right-rail',
     'combat-ui-echo-finish',
     'combat-ui-return-map',
@@ -252,7 +323,7 @@ async function main() {
     assertCondition(result.firstCardRarityText === '일반', `expected localized hand card rarity tag, got ${result.firstCardRarityText}`);
     assertCondition(result.firstCostClass?.includes('card-cost-hand'), `first hand card cost was not rendered with hand cost variant: ${result.firstCostClass}`);
     assertCondition(result.disabledCostClass?.includes('card-cost-insufficient-energy'), `disabled hand card cost did not surface insufficient energy state: ${result.disabledCostClass}`);
-    assertCondition(result.disabledOverlayText === '에너지 1 부족', `disabled overlay text mismatch: ${result.disabledOverlayText}`);
+    assertCondition(/^에너지 \d+ 부족$/.test(result.disabledOverlayText || ''), `disabled overlay text mismatch: ${result.disabledOverlayText}`);
     assertCondition(result.firstCardClass?.includes('card'), `hand card class missing card styling hook: ${result.firstCardClass}`);
     assertCondition(result.firstCardBorderRadius === '10px', `hand card styling not applied as expected: ${result.firstCardBorderRadius}`);
     assertCondition(result.drawText && result.drawText.includes('카드 드로우'), `draw button was not localized: ${result.drawText}`);
@@ -264,6 +335,15 @@ async function main() {
     assertCondition(result.combatRelicPanelVisible === false, `combat relic panel should remain hidden when closed: ${result.combatRelicPanelVisible}`);
     assertCondition(['rail', 'tight', 'stacked'].includes(result.recentFeedLayout), `recent feed layout state missing: ${result.recentFeedLayout}`);
     assertCondition(result.recentFeedEntryCount >= 1, `recent feed should render seeded entries, got ${result.recentFeedEntryCount}`);
+
+    const stackedToastResult = await triggerStackedToastScenario(page);
+    await writeSnapshot(page, args.outDir, 'combat-ui-stacked-toasts');
+
+    assertCondition(stackedToastResult.toastCount >= 2, `expected at least 2 stacked toasts, got ${stackedToastResult.toastCount}`);
+    assertCondition(stackedToastResult.summaryVisible, 'combat summary stacked toast did not render');
+    assertCondition(stackedToastResult.itemVisible, 'item acquire stacked toast did not render');
+    assertCondition(stackedToastResult.itemCountBadge === 'x2', `duplicate item toast merge badge mismatch: ${stackedToastResult.itemCountBadge}`);
+    assertCondition(stackedToastResult.itemTitle === '연기 시험 유물', `stacked toast item title mismatch: ${stackedToastResult.itemTitle}`);
 
     await page.hover('#combatRelicRailSlots button');
     await page.waitForTimeout(100);
@@ -286,17 +366,20 @@ async function main() {
     assertCondition(relicTooltipResult.panelOpen, 'combat relic hover did not open the detail panel');
     assertCondition(relicTooltipResult.panelText?.includes('독사의 단검'), `combat relic panel missing item name: ${relicTooltipResult.panelText}`);
 
-    await page.hover('#combatHandCards .card');
+    await page.hover('#combatHandCards .card:nth-child(2)');
     await page.waitForTimeout(180);
     await writeSnapshot(page, args.outDir, 'combat-ui-hover-card');
 
     const hoverResult = await page.evaluate(() => {
       const clone = document.querySelector('#handCardCloneLayer .card-clone-visible');
       const cloneCost = clone?.querySelector('.card-cost');
+      const keywordPanel = clone?.querySelector('.card-clone-keyword-panel');
       const tooltip = document.getElementById('cardTooltip');
       return {
         hoverCloneVisible: !!clone,
         hoverCloneCostClass: cloneCost?.className || null,
+        hoverKeywordTitle: keywordPanel?.querySelector('.card-clone-keyword-body-title')?.textContent?.trim() || null,
+        hoverKeywordText: keywordPanel?.querySelector('.card-clone-keyword-body-content')?.textContent?.trim() || null,
         tooltipText: tooltip?.innerText?.trim() || null,
         tooltipVisible: !!tooltip?.classList?.contains?.('visible'),
       };
@@ -304,8 +387,37 @@ async function main() {
 
     assertCondition(hoverResult.hoverCloneVisible, 'hovering the first hand card did not show the card clone');
     assertCondition(hoverResult.hoverCloneCostClass?.includes('card-cost-hover'), `hover clone cost missing hover variant class: ${hoverResult.hoverCloneCostClass}`);
-    assertCondition(hoverResult.tooltipVisible, 'hovering the first hand card did not show the card tooltip');
-    assertCondition(!!hoverResult.tooltipText, 'hover tooltip opened without card content');
+    assertCondition(hoverResult.hoverKeywordTitle === '잔향', `hover keyword title mismatch: ${hoverResult.hoverKeywordTitle}`);
+    assertCondition(hoverResult.hoverKeywordText?.includes('특수 능력을 발동하는 에너지 자원'), `hover keyword panel did not render expected copy: ${hoverResult.hoverKeywordText}`);
+    assertCondition(!hoverResult.tooltipVisible, 'playable hand card hover should not open the standalone card tooltip');
+
+    await prepareResonanceScenario(page);
+    await page.waitForSelector('#ncFloatingHpStatusBadges .hud-status-badge[data-buff-key="resonance"]', { state: 'visible', timeout: 8000 });
+    await page.click('#combatHandCards .card[data-card-id="strike"]');
+    await page.waitForFunction(() => {
+      const gs = window.GS || window.GameState;
+      const resonanceBadge = document.querySelector('#ncFloatingHpStatusBadges .hud-status-badge[data-buff-key="resonance"]');
+      return Number(gs?.player?.buffs?.resonance?.dmgBonus || 0) >= 3
+        && !!resonanceBadge
+        && /공명/.test(resonanceBadge.textContent || '');
+    }, { timeout: 10000 });
+    await page.waitForTimeout(250);
+    const resonanceSnapshotText = await writeSnapshot(page, args.outDir, 'combat-ui-resonance-after-attack');
+
+    const resonanceAfterAttackResult = await page.evaluate(() => {
+      const gs = window.GS || window.GameState;
+      const resonanceBadge = document.querySelector('#ncFloatingHpStatusBadges .hud-status-badge[data-buff-key="resonance"]');
+      return {
+        resonanceBadgeVisible: !!resonanceBadge,
+        resonanceBadgeText: resonanceBadge?.textContent?.trim() || null,
+        resonanceDamageBonus: Number(gs?.player?.buffs?.resonance?.dmgBonus || 0),
+      };
+    });
+
+    assertCondition(resonanceAfterAttackResult.resonanceBadgeVisible, 'resonance badge disappeared after playing an attack card');
+    assertCondition(resonanceAfterAttackResult.resonanceBadgeText?.includes('공명'), `resonance badge text mismatch after attack card: ${resonanceAfterAttackResult.resonanceBadgeText}`);
+    assertCondition(resonanceAfterAttackResult.resonanceDamageBonus >= 3, `resonance damage bonus did not increase after attack card: ${resonanceAfterAttackResult.resonanceDamageBonus}`);
+    assertCondition(resonanceSnapshotText?.includes('"buffKeys":["resonance"]'), `resonance snapshot text lost player buff state: ${resonanceSnapshotText}`);
 
     await page.setViewportSize({ width: 430, height: 932 });
     await page.waitForFunction(() => {
@@ -439,8 +551,10 @@ async function main() {
       JSON.stringify({
         realFlowResult,
         ...result,
+        stackedToastResult,
         ...relicTooltipResult,
         ...hoverResult,
+        resonanceAfterAttackResult,
         mobileResult,
         actionFeedResult,
         echoKillResult,

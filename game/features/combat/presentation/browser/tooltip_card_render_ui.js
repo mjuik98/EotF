@@ -2,9 +2,8 @@ import { DescriptionUtils } from '../../../../utils/description_utils.js';
 import { DomSafe } from '../../../../utils/dom_safe.js';
 import { UNBREAKABLE_WALL_STACK_UNIT } from '../../../../../data/status_key_data.js';
 import {
-  COMBAT_KEYWORD_MAP,
   getCombatCardTypeLabel,
-  getCombatKeywordTooltip,
+  resolvePrimaryCombatKeywordTooltip,
 } from './combat_copy.js';
 
 function isUnbreakableWallCard(cardId) {
@@ -111,14 +110,7 @@ export function syncCardKeywordTooltip(doc, card, position, win) {
   const subTooltip = doc.getElementById('subTooltip');
   if (!subTooltip) return null;
 
-  const sortedKeys = Object.keys(COMBAT_KEYWORD_MAP).sort((a, b) => b.length - a.length);
-  const foundKeyword = sortedKeys.find((keyword) => card.desc?.includes(keyword) || (card.exhaust && keyword === '[소진]'));
-  if (!foundKeyword) {
-    subTooltip.style.display = 'none';
-    return null;
-  }
-
-  const keywordData = getCombatKeywordTooltip(foundKeyword);
+  const keywordData = resolvePrimaryCombatKeywordTooltip(card);
   if (!keywordData) {
     subTooltip.style.display = 'none';
     return null;
@@ -133,7 +125,7 @@ export function syncCardKeywordTooltip(doc, card, position, win) {
   subTooltip.style.left = `${x}px`;
   subTooltip.style.top = `${y}px`;
   subTooltip.style.display = 'block';
-  return { keyword: foundKeyword, x, y };
+  return { keyword: keywordData.keyword, x, y };
 }
 
 export function extractTooltipCardId(onclickValue) {

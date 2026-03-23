@@ -37,12 +37,162 @@ const _CLONE_W        = 200;   // px  (원본 100px × 2.0)
 const _CLONE_H        = 292;   // px  (원본 146px × 2.0)
 const _CLONE_GAP      = 16;    // 카드 상단 ~ 클론 하단 여백
 const _VIEWPORT_MARGIN = 14;   // 뷰포트 끝 최소 여백
+const _KEYWORD_PANEL_W = 176;  // 도킹 키워드 패널 너비
+const _KEYWORD_PANEL_H = 128;  // 다중 키워드 패널 기본 높이 추정치
+const _KEYWORD_PANEL_GAP = 12; // 카드와 키워드 패널 간격
 const _HOVER_ENTER_MS  = 100;  // 클론 표시 딜레이 (빠른 이동 시 깜빡임 방지)
 const _HOVER_LEAVE_MS  = 60;   // 클론 숨김 딜레이
+const _AVOID_SELECTOR = [
+  '#combatRelicRail',
+  '#recentCombatFeed',
+  '#combatDrawCardBtn',
+  '#useEchoSkillBtn',
+  '.enemy-card',
+  '.enemy-intent',
+].join(',');
 
 /* ── 내부 헬퍼 ─────────────────────────────────────────────── */
 function _getDoc(deps) { return deps?.doc || deps?.win?.document || null; }
 function _getWin(deps) { return deps?.win || deps?.doc?.defaultView || null; }
+
+function _getRectArea(rect = {}) {
+  return Math.max(0, (rect.right || 0) - (rect.left || 0)) * Math.max(0, (rect.bottom || 0) - (rect.top || 0));
+}
+
+function _getOverlapArea(leftRect, rightRect) {
+  const overlapW = Math.max(0, Math.min(leftRect.right, rightRect.right) - Math.max(leftRect.left, rightRect.left));
+  const overlapH = Math.max(0, Math.min(leftRect.bottom, rightRect.bottom) - Math.max(leftRect.top, rightRect.top));
+  return overlapW * overlapH;
+}
+
+function _collectAvoidRects(doc) {
+  return Array.from(doc?.querySelectorAll?.(_AVOID_SELECTOR) || [])
+    .filter((element) => typeof element?.getBoundingClientRect === 'function')
+    .map((element) => element.getBoundingClientRect())
+    .filter((rect) => _getRectArea(rect) > 0);
+}
+
+function _applyArrowPlacement(cloneEl, cardPlacement) {
+  const arrow = cloneEl?.querySelector?.('.card-clone-arrow');
+  if (!arrow) return;
+
+  if (cardPlacement === 'below') {
+    arrow.style.top = '-10px';
+    arrow.style.bottom = 'auto';
+    arrow.style.borderTop = '0';
+    arrow.style.borderBottom = '10px solid rgba(80, 70, 130, 0.45)';
+    return;
+  }
+
+  arrow.style.top = 'auto';
+  arrow.style.bottom = '-10px';
+  arrow.style.borderBottom = '0';
+  arrow.style.borderTop = '10px solid rgba(80, 70, 130, 0.45)';
+}
+
+function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = null) {
+  const keywordPanel = cloneEl?.querySelector?.('.card-clone-keyword-panel');
+  const link = cloneEl?.querySelector?.('.card-clone-keyword-link');
+  if (!keywordPanel) return;
+
+  const { left, top, cardPlacement } = clonePosition || _cloneRuntime.calcPosition(cardEl);
+  const viewportWidth = Number(win?.innerWidth) || 0;
+  const viewportHeight = Number(win?.innerHeight) || 0;
+  const avoidRects = _collectAvoidRects(doc);
+  const cloneBox = {
+    left,
+    top,
+    right: left + _CLONE_W,
+    bottom: top + _CLONE_H,
+  };
+  const candidates = [
+    {
+      placement: 'right',
+      rect: {
+        left: cloneBox.right + _KEYWORD_PANEL_GAP,
+        top: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2,
+        right: cloneBox.right + _KEYWORD_PANEL_GAP + _KEYWORD_PANEL_W,
+        bottom: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2 + _KEYWORD_PANEL_H,
+      },
+    },
+    {
+      placement: 'left',
+      rect: {
+        left: cloneBox.left - _KEYWORD_PANEL_GAP - _KEYWORD_PANEL_W,
+        top: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2,
+        right: cloneBox.left - _KEYWORD_PANEL_GAP,
+        bottom: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2 + _KEYWORD_PANEL_H,
+      },
+    },
+    {
+      placement: 'bottom',
+      rect: {
+        left: cloneBox.left + (_CLONE_W - _KEYWORD_PANEL_W) / 2,
+        top: cloneBox.bottom + _KEYWORD_PANEL_GAP + 2,
+        right: cloneBox.left + (_CLONE_W - _KEYWORD_PANEL_W) / 2 + _KEYWORD_PANEL_W,
+        bottom: cloneBox.bottom + _KEYWORD_PANEL_GAP + 2 + _KEYWORD_PANEL_H,
+      },
+    },
+  ].map((candidate) => {
+    const overflowPenalty = Math.max(0, _VIEWPORT_MARGIN - candidate.rect.left)
+      + Math.max(0, _VIEWPORT_MARGIN - candidate.rect.top)
+      + Math.max(0, candidate.rect.right + _VIEWPORT_MARGIN - viewportWidth)
+      + Math.max(0, candidate.rect.bottom + _VIEWPORT_MARGIN - viewportHeight);
+    const overlapPenalty = avoidRects.reduce((total, rect) => total + _getOverlapArea(candidate.rect, rect), 0);
+    const preferenceBias = candidate.placement === 'right' ? 0 : candidate.placement === 'left' ? 20 : 40;
+    return {
+      ...candidate,
+      score: overflowPenalty * 1000 + overlapPenalty + preferenceBias,
+    };
+  }).sort((leftCandidate, rightCandidate) => leftCandidate.score - rightCandidate.score);
+
+  const best = candidates[0];
+  cloneEl.dataset.cardPlacement = cardPlacement;
+  cloneEl.dataset.keywordPlacement = best.placement;
+  _applyArrowPlacement(cloneEl, cardPlacement);
+
+  if (best.placement === 'right') {
+    keywordPanel.style.left = `calc(100% + ${_KEYWORD_PANEL_GAP}px)`;
+    keywordPanel.style.top = '50%';
+    keywordPanel.style.transform = 'translateY(-50%)';
+    if (link) {
+      link.style.left = 'calc(100% + 2px)';
+      link.style.top = '50%';
+      link.style.width = '22px';
+      link.style.height = '2px';
+      link.style.transform = 'translateY(-50%)';
+      link.style.background = 'linear-gradient(90deg,rgba(123,47,255,.55),rgba(123,47,255,.08))';
+    }
+    return;
+  }
+
+  if (best.placement === 'left') {
+    keywordPanel.style.left = `calc(-${_KEYWORD_PANEL_W + _KEYWORD_PANEL_GAP}px)`;
+    keywordPanel.style.top = '50%';
+    keywordPanel.style.transform = 'translateY(-50%)';
+    if (link) {
+      link.style.left = `calc(-${_KEYWORD_PANEL_GAP + 10}px)`;
+      link.style.top = '50%';
+      link.style.width = '22px';
+      link.style.height = '2px';
+      link.style.transform = 'translateY(-50%) rotate(180deg)';
+      link.style.background = 'linear-gradient(90deg,rgba(123,47,255,.55),rgba(123,47,255,.08))';
+    }
+    return;
+  }
+
+  keywordPanel.style.left = '50%';
+  keywordPanel.style.top = `calc(100% + ${_KEYWORD_PANEL_GAP + 2}px)`;
+  keywordPanel.style.transform = 'translateX(-50%)';
+  if (link) {
+    link.style.left = '50%';
+    link.style.top = 'calc(100% + 1px)';
+    link.style.width = '2px';
+    link.style.height = '20px';
+    link.style.transform = 'translateX(-50%)';
+    link.style.background = 'linear-gradient(180deg,rgba(123,47,255,.55),rgba(123,47,255,.08))';
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════
    CloneManager — 클론 생명주기 관리 (싱글톤 IIFE)
@@ -78,6 +228,7 @@ export const HandCardCloneUI = {
         ? win.requestAnimationFrame.bind(win)
         : ((callback) => setTimeout(callback, 16)),
     );
+    _cloneRuntime.setAvoidRectsResolver(() => _collectAvoidRects(doc));
     if (win && _boundView !== win) {
       _boundView?.removeEventListener?.('resize', _cloneRuntime.reposition);
       _boundView?.removeEventListener?.('scroll', _cloneRuntime.reposition, true);
@@ -114,31 +265,39 @@ export const HandCardCloneUI = {
     if (!costDisplay.canPlay) return;
 
     const doc         = _getDoc(deps);
+    const win         = _getWin(deps);
     if (!doc) return;
     const handZoneEl  = doc.getElementById('combatHandCards');
     doc.descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || doc.descriptionUtils || null;
     const cloneEl     = createHandCardCloneElement(doc, cardId, card, costDisplay);
+    cloneEl.style.pointerEvents = 'auto';
+    cloneEl.__onClonePositionChange = (position) => _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, position);
 
     _cloneRuntime.register(cardEl, cloneEl);
 
     let enterTimer = null;
     let leaveTimer = null;
+    const cancelLeave = () => clearTimeout(leaveTimer);
+    const queueHide = () => {
+      clearTimeout(enterTimer);
+      leaveTimer = setTimeout(
+        () => _cloneRuntime.hide(handZoneEl),
+        _HOVER_LEAVE_MS
+      );
+    };
+
+    cloneEl.addEventListener('mouseenter', cancelLeave);
+    cloneEl.addEventListener('mouseleave', queueHide);
 
     cardEl.addEventListener('mouseenter', () => {
-      clearTimeout(leaveTimer);
+      cancelLeave();
       enterTimer = setTimeout(
         () => _cloneRuntime.show(cardEl, cloneEl, handZoneEl),
         _HOVER_ENTER_MS
       );
     });
 
-    cardEl.addEventListener('mouseleave', () => {
-      clearTimeout(enterTimer);
-      leaveTimer = setTimeout(
-        () => _cloneRuntime.hide(handZoneEl),
-        _HOVER_LEAVE_MS
-      );
-    });
+    cardEl.addEventListener('mouseleave', queueHide);
   },
 
   /**

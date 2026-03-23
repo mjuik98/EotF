@@ -102,7 +102,11 @@ describe('item_detail_panel_ui', () => {
     expect(panelList.children[2].className).toContain('is-accent');
     expect(panelList.children[3].children[0].textContent).toContain('전설 연계');
     expect(panelList.children[4].className).toContain('is-owned');
+    expect(panelList.children[4].children[0].textContent).toBe('✧ 전설 유물');
+    expect(panelList.children[4].children[1].textContent).toBe('보유');
     expect(panelList.children[5].className).not.toContain('is-owned');
+    expect(panelList.children[5].children[0].textContent).toBe('◇ 메아리 유물');
+    expect(panelList.children[5].children).toHaveLength(1);
     expect(panelList.children[6].children[0].textContent).toBe('2세트');
     expect(panelList.children[6].children[1].textContent).toBe('대기');
   });

@@ -8,6 +8,7 @@ export function createCardCloneRuntime(options = {}) {
 
   let requestFrame = options.requestFrame || ((callback) => setTimeout(callback, 16));
   let view = options.view || null;
+  let getAvoidRects = typeof options.getAvoidRects === 'function' ? options.getAvoidRects : (() => []);
 
   let layer = null;
   let active = null;
@@ -25,6 +26,10 @@ export function createCardCloneRuntime(options = {}) {
     requestFrame = nextRequestFrame || ((callback) => setTimeout(callback, 16));
   }
 
+  function setAvoidRectsResolver(resolver) {
+    getAvoidRects = typeof resolver === 'function' ? resolver : (() => []);
+  }
+
   function register(cardEl, cloneEl) {
     cloneMap.set(cardEl, cloneEl);
   }
@@ -32,6 +37,7 @@ export function createCardCloneRuntime(options = {}) {
   function calcPosition(cardEl) {
     const rect = cardEl.getBoundingClientRect();
     const viewportWidth = Number(view?.innerWidth) || 1280;
+    const viewportHeight = Number(view?.innerHeight) || 720;
     const centerX = rect.left + rect.width / 2;
 
     let left = centerX - cloneWidth / 2;
@@ -49,10 +55,38 @@ export function createCardCloneRuntime(options = {}) {
     }
 
     arrowLeft = Math.max(20, Math.min(cloneWidth - 20, arrowLeft));
+
+    const avoidRects = getAvoidRects().filter(Boolean);
+    const candidates = [
+      { cardPlacement: 'above', top: rect.top - cloneHeight - cloneGap },
+      { cardPlacement: 'below', top: rect.bottom + cloneGap },
+    ].map((candidate) => {
+      const topOverflow = Math.max(0, viewportMargin - candidate.top);
+      const bottomOverflow = Math.max(0, (candidate.top + cloneHeight + viewportMargin) - viewportHeight);
+      const box = {
+        left,
+        top: candidate.top,
+        right: left + cloneWidth,
+        bottom: candidate.top + cloneHeight,
+      };
+      const overlapPenalty = avoidRects.reduce((total, avoidRect) => {
+        const overlapW = Math.max(0, Math.min(box.right, avoidRect.right) - Math.max(box.left, avoidRect.left));
+        const overlapH = Math.max(0, Math.min(box.bottom, avoidRect.bottom) - Math.max(box.top, avoidRect.top));
+        return total + (overlapW * overlapH);
+      }, 0);
+      return {
+        ...candidate,
+        score: (topOverflow + bottomOverflow) * 1000 + overlapPenalty,
+      };
+    });
+    const bestCandidate = candidates.sort((leftCandidate, rightCandidate) => leftCandidate.score - rightCandidate.score)[0];
+    const safeTop = Math.max(viewportMargin, Math.min(bestCandidate.top, viewportHeight - cloneHeight - viewportMargin));
+
     return {
       left,
-      top: rect.top - cloneHeight - cloneGap,
+      top: safeTop,
       arrowLeft,
+      cardPlacement: bestCandidate.cardPlacement,
     };
   }
 
@@ -77,12 +111,14 @@ export function createCardCloneRuntime(options = {}) {
     if (active && active !== cardEl) hide();
 
     active = cardEl;
-    const { left, top, arrowLeft } = calcPosition(cardEl);
+    const position = calcPosition(cardEl);
+    const { left, top, arrowLeft } = position;
     cloneEl.style.left = `${left}px`;
     cloneEl.style.top = `${top}px`;
 
     const arrow = cloneEl.querySelector('.card-clone-arrow');
     if (arrow) arrow.style.left = `${arrowLeft}px`;
+    cloneEl.__onClonePositionChange?.(position);
 
     layer.appendChild(cloneEl);
     requestFrame(() => requestFrame(() => cloneEl.classList.add('card-clone-visible')));
@@ -105,22 +141,25 @@ export function createCardCloneRuntime(options = {}) {
     if (!active || !layer) return;
     const cloneEl = cloneMap.get(active);
     if (!cloneEl?.parentNode) return;
-    const { left, top, arrowLeft } = calcPosition(active);
+    const position = calcPosition(active);
+    const { left, top, arrowLeft } = position;
     cloneEl.style.left = `${left}px`;
     cloneEl.style.top = `${top}px`;
     const arrow = cloneEl.querySelector('.card-clone-arrow');
     if (arrow) arrow.style.left = `${arrowLeft}px`;
+    cloneEl.__onClonePositionChange?.(position);
   }
 
-  return {
-    calcPosition,
-    hide,
-    hideImmediate,
-    register,
-    reposition,
-    setRequestFrame,
-    setLayer,
-    setView,
+    return {
+      calcPosition,
+      hide,
+      hideImmediate,
+      register,
+      reposition,
+      setAvoidRectsResolver,
+      setRequestFrame,
+      setLayer,
+      setView,
     show,
   };
 }

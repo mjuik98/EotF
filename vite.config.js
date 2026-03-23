@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-combat-[^/]+\.js$/,
   /\/?assets\/ui-combat-copy-[^/]+\.js$/,
+  /\/?assets\/ui-combat-relics-[^/]+\.js$/,
   /\/?assets\/ui-combat-deck-[^/]+\.js$/,
   /\/?assets\/ui-combat-chronicle-[^/]+\.js$/,
   /\/?assets\/ui-combat-tooltips-[^/]+\.js$/,
@@ -33,6 +34,9 @@ export function getManualChunk(id) {
   if (normalized.endsWith('/data/status_key_data.js')) return 'ui-combat';
   if (normalized.endsWith('/game/utils/status_value_utils.js')) return 'ui-combat';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_copy.js')) return 'ui-combat-copy';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/combat_relic_rail_ui.js')) return 'ui-combat-relics';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/item_tooltip_fallback_text.js')) return 'ui-combat-relics';
+  if (normalized.includes('/game/features/combat/presentation/browser/item_detail_')) return 'ui-combat-relics';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
   if (normalized.includes('/game/features/event/presentation/browser/')) return 'ui-event';
   if (

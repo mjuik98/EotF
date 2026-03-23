@@ -59,28 +59,36 @@ export const HudUpdateUI = {
   },
 
   updateEndBtnWarn(deps = {}) {
-    updateEndButtonWarn(_getGS(deps), _getDoc(deps));
+    const gs = _getGS(deps);
+    const resolvedDeps = resolveHudUpdateDeps(gs, deps);
+    updateEndButtonWarn(gs, _getDoc(resolvedDeps));
   },
 
   updateUI(deps = {}) {
-    scheduleHudUpdate(deps, () => this.doUpdateUI(deps));
+    const gs = _getGS(deps);
+    const resolvedDeps = resolveHudUpdateDeps(gs, deps);
+    scheduleHudUpdate(resolvedDeps, () => this.doUpdateUI(resolvedDeps));
   },
 
   processDirtyFlags(deps = {}) {
-    processHudDirtyFlags(_getGS(deps), deps, () => this.updateUI(deps));
+    const gs = _getGS(deps);
+    const resolvedDeps = resolveHudUpdateDeps(gs, deps);
+    processHudDirtyFlags(gs, resolvedDeps, () => this.updateUI(resolvedDeps));
   },
 
   doUpdateUI(deps = {}) {
+    const gs = _getGS(deps);
+    const resolvedDeps = resolveHudUpdateDeps(gs, deps);
     performHudRefresh({
-      gs: _getGS(deps),
-      deps,
-      doc: _getDoc(deps),
+      gs,
+      deps: resolvedDeps,
+      doc: _getDoc(resolvedDeps),
       setText: (id, val, domDeps) => DomValueUI.setText(id, val, domDeps),
       renderFloatingPlayerHpPanel,
       updatePlayerStatsUI,
       updateCombatEnergyUI,
       updateHudPanels,
-      updateEndBtnWarn: () => this.updateEndBtnWarn(deps),
+      updateEndBtnWarn: () => this.updateEndBtnWarn(resolvedDeps),
     });
   },
 

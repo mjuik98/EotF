@@ -65,6 +65,41 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('page.waitForFunction');
   });
 
+  it('covers the unified hand hover preview with a docked keyword panel', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("gs.player.hand = ['strike', 'resonance', 'heavy_blow', 'defend']");
+    expect(source).toContain("page.hover('#combatHandCards .card:nth-child(2)')");
+    expect(source).toContain('card-clone-keyword-panel');
+    expect(source).toContain('card-clone-keyword-body-title');
+    expect(source).toContain('card-clone-keyword-body-content');
+    expect(source).toContain('hoverKeywordTitle');
+    expect(source).toContain('hoverKeywordText');
+    expect(source).toContain("hoverResult.hoverKeywordTitle === '잔향'");
+    expect(source).toContain('!hoverResult.tooltipVisible');
+  });
+
+  it('keeps the resonance badge visible after playing an attack card in the browser smoke runner', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain('prepareResonanceScenario');
+    expect(source).toContain("gs.player.class = 'swordsman'");
+    expect(source).toContain("resonance: { stacks: 99, dmgBonus: 2 }");
+    expect(source).toContain("page.click('#combatHandCards .card[data-card-id=\"strike\"]')");
+    expect(source).toContain('resonanceAfterAttackResult');
+    expect(source).toContain('resonanceBadgeVisible');
+    expect(source).toContain('resonanceBadgeText');
+    expect(source).toContain("resonanceBadgeText?.includes('공명')");
+    expect(source).toContain('resonanceSnapshotText');
+    expect(source).toContain("resonanceSnapshotText?.includes('\"buffKeys\":[\"resonance\"]')");
+  });
+
   it('covers echo kill combat-end handoff in the browser smoke runner', () => {
     const source = fs.readFileSync(
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
@@ -105,11 +140,29 @@ describe('combat ui smoke scripts', () => {
     );
 
     expect(source).toContain("'combat-ui-real-entry'");
+    expect(source).toContain("'combat-ui-stacked-toasts'");
     expect(source).toContain("'combat-ui-hover-card'");
+    expect(source).toContain("'combat-ui-resonance-after-attack'");
     expect(source).toContain("'combat-ui-log-right-rail'");
     expect(source).toContain("'combat-ui-echo-finish'");
     expect(source).toContain("'combat-ui-return-map'");
     expect(source).toContain('visualSnapshots');
     expect(source).toContain('actionFeedResult');
+  });
+
+  it('covers stacked toast rendering and duplicate merge behavior in the smoke runner', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("window.showCombatSummary");
+    expect(source).toContain("typeof window.showItemToast !== 'function'");
+    expect(source).toContain("window.showItemToast(smokeItem");
+    expect(source).toContain('stackedToastResult');
+    expect(source).toContain("document.querySelectorAll('.stack-toast')");
+    expect(source).toContain("itemToast?.querySelector('.stack-toast-count')");
+    expect(source).toContain("stackedToastResult.toastCount >= 2");
+    expect(source).toContain("stackedToastResult.itemCountBadge === 'x2'");
   });
 });

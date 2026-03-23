@@ -185,6 +185,7 @@ describe('combat_relic_rail_ui', () => {
           rarity: 'legendary',
           desc: '전투 시작 시: 카드 1장 추가 드로우\n[세트: 시작의 각인]',
           trigger: 'combat_start',
+          setId: 'opening_set',
         },
         uncommon_turn_end: {
           id: 'uncommon_turn_end',
@@ -193,6 +194,7 @@ describe('combat_relic_rail_ui', () => {
           rarity: 'uncommon',
           desc: '턴 종료 시: 방어막 2 획득',
           trigger: ['turn_end', 'combat_end'],
+          setId: 'opening_set',
         },
         common_card_play: {
           id: 'common_card_play',
@@ -212,6 +214,16 @@ describe('combat_relic_rail_ui', () => {
       deps: {
         showItemTooltip,
         hideItemTooltip,
+        setBonusSystem: {
+          sets: {
+            opening_set: {
+              name: '시작의 각인',
+              items: ['legendary_combat_start', 'uncommon_turn_end'],
+              bonuses: { 2: { label: '전투 시작 추가 드로우' } },
+            },
+          },
+          getOwnedSetCounts: () => ({ opening_set: 2 }),
+        },
       },
     });
 
@@ -224,6 +236,16 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicRailSlots.children[3].textContent).toBe('◯');
     expect(combatRelicRailSlots.children[0].title || '').toBe('');
     expect(combatRelicRailSlots.children[1].title || '').toBe('');
+    expect(combatRelicRailSlots.children[0].dataset.rarity).toBe('legendary');
+    expect(combatRelicRailSlots.children[1].dataset.rarity).toBe('uncommon');
+    expect(combatRelicRailSlots.children[2].dataset.rarity).toBe('common');
+    expect(combatRelicRailSlots.children[0].dataset.setState).toBe('active');
+    expect(combatRelicRailSlots.children[1].dataset.setState).toBe('active');
+    expect(combatRelicRailSlots.children[2].dataset.setState).toBeUndefined();
+    expect(combatRelicRailSlots.children[0].style.cssText).toContain('rgba(192,132,252,.42)');
+    expect(combatRelicRailSlots.children[1].style.cssText).toContain('rgba(74,243,204,.28)');
+    expect(combatRelicRailSlots.children[0].children).toHaveLength(1);
+    expect(combatRelicRailSlots.children[0].children[0].style.cssText).toContain('width:6px');
     expect(combatRelicRailSlots.children[0]['aria-label']).toBe('전투 시작의 아뮬렛\n전투 시작 시: 카드 1장 추가 드로우');
     expect(combatRelicRailSlots.children[1]['aria-label']).toBe('전투 준비의 부적\n턴 종료 시: 방어막 2 획득');
     expect(combatRelicRailCount.parentNode).toBe(combatRelicRail);
@@ -246,11 +268,15 @@ describe('combat_relic_rail_ui', () => {
     expect(combatRelicPanelList.children[0].children[1].children[0].textContent).toContain('전설');
     expect(combatRelicPanelList.children[0].children[1].children[1].textContent).toContain('전투 시작 시');
     expect(combatRelicPanelList.children[1].textContent).toContain('카드 1장 추가 드로우');
+    expect(combatRelicPanel.dataset.rarity).toBe('legendary');
+    expect(combatRelicPanel.dataset.setState).toBe('active');
+    expect(combatRelicPanel.style.borderColor).toBe('rgba(192,132,252,.34)');
     expect(topSlot.dataset.active).toBe('true');
 
     topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
     expect(hideItemTooltip).not.toHaveBeenCalled();
     expect(combatRelicPanel.dataset.open).toBe('false');
+    expect(combatRelicPanel.dataset.rarity).toBeUndefined();
 
     const focusEvent = { type: 'focus', currentTarget: topSlot };
     topSlot.listeners.focus(focusEvent);

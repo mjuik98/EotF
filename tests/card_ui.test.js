@@ -260,7 +260,7 @@ describe('card_ui', () => {
     );
   });
 
-  it('wires hand card hover events to the injected tooltip handlers', async () => {
+  it('does not bind classic hand-card tooltip listeners when clone previews are active', async () => {
     const doc = createDoc();
     const showTooltipHandler = vi.fn();
     const hideTooltipHandler = vi.fn();
@@ -301,12 +301,59 @@ describe('card_ui', () => {
     });
 
     const cardEl = doc.getElementById('combatHandCards').children[0];
+    expect(cardEl.listeners.has('mouseenter')).toBe(false);
+    expect(cardEl.listeners.has('mouseleave')).toBe(false);
+    expect(showTooltipHandler).not.toHaveBeenCalled();
+    expect(hideTooltipHandler).not.toHaveBeenCalled();
+  });
+
+  it('keeps classic tooltip listeners for hand cards that cannot show clone previews', async () => {
+    const doc = createDoc();
+    const showTooltipHandler = vi.fn();
+    const hideTooltipHandler = vi.fn();
+    const cardCostUtils = {
+      getCostDisplay: vi.fn(() => ({
+        anyFree: false,
+        canPlay: false,
+        displayCost: 2,
+        totalDiscount: 0,
+      })),
+      calcEffectiveCost: vi.fn(() => 2),
+      hasTraitDiscount: vi.fn(() => false),
+      isCascadeFree: vi.fn(() => false),
+      isChargeFree: vi.fn(() => false),
+    };
+    const gs = {
+      player: {
+        hand: ['guard_break'],
+        energy: 1,
+        _nextCardDiscount: 0,
+        costDiscount: 0,
+      },
+    };
+    const data = {
+      cards: {
+        guard_break: { cost: 2, desc: 'desc', icon: 'G', name: 'Guard Break', rarity: 'common', type: 'ATTACK' },
+      },
+    };
+
+    CardUI.renderCombatCards({
+      cardCostUtils,
+      data,
+      doc,
+      gs,
+      hideTooltipHandler,
+      playCardHandler: vi.fn(),
+      showTooltipHandler,
+    });
+
+    const cardEl = doc.getElementById('combatHandCards').children[0];
     await cardEl.listeners.get('mouseenter')({ type: 'mouseenter', currentTarget: cardEl });
     await cardEl.listeners.get('mouseleave')();
 
     expect(showTooltipHandler).toHaveBeenCalledWith(
       { type: 'mouseenter', currentTarget: cardEl },
-      'strike',
+      'guard_break',
     );
     expect(hideTooltipHandler).toHaveBeenCalledTimes(1);
   });

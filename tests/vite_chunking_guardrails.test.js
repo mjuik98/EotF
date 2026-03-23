@@ -10,6 +10,7 @@ describe('vite chunking guardrails', () => {
 
     expect(source).toContain("return 'ui-combat';");
     expect(source).toContain("return 'ui-combat-copy';");
+    expect(source).toContain("return 'ui-combat-relics';");
     expect(source).toContain("return 'ui-combat-deck';");
     expect(source).toContain("return 'ui-combat-chronicle';");
     expect(source).toContain("return 'ui-combat-tooltips';");
@@ -66,6 +67,15 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_copy.js'),
     ).toBe('ui-combat-copy');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_relic_rail_ui.js'),
+    ).toBe('ui-combat-relics');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/item_tooltip_fallback_text.js'),
+    ).toBe('ui-combat-relics');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/item_detail_panel_ui.js'),
+    ).toBe('ui-combat-relics');
   });
 
   it('uses narrow title capability surfaces instead of the broad public application barrel in overlay-related runtimes', () => {

@@ -1,5 +1,9 @@
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
 import { getItemDetailNavIndex, isItemDetailCommitKey } from './item_detail_navigation.js';
+import {
+  applyCombatRelicPanelVisuals,
+  applyCombatRelicSlotVisuals,
+} from './combat_copy.js';
 import { resolveItemDetailState } from './item_detail_state.js';
 import { buildItemDetailViewModel } from './item_detail_view_model.js';
 import {
@@ -37,6 +41,20 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     entriesRoot: slotsEl,
     variant: 'combat',
     strategy: {
+      beforeClear({ detailPanel: activePanel }) {
+        if (!activePanel?.dataset) return;
+        delete activePanel.dataset.rarity;
+        delete activePanel.dataset.setState;
+        applyCombatRelicPanelVisuals(activePanel);
+      },
+      afterShow({ detailPanel: activePanel, rarity = '', setState = '' }) {
+        if (!activePanel?.dataset) return;
+        if (rarity) activePanel.dataset.rarity = rarity;
+        else delete activePanel.dataset.rarity;
+        if (setState) activePanel.dataset.setState = setState;
+        else delete activePanel.dataset.setState;
+        applyCombatRelicPanelVisuals(activePanel, rarity);
+      },
       shouldDismiss({ event, reason, detailPanel: activePanel }) {
         if (activePanel?.dataset?.open !== 'true') return false;
         if (reason === 'keydown') return event?.key === 'Escape';
@@ -56,6 +74,8 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
       detail: buildItemDetailViewModel(itemId, item, data, state),
       itemId,
       pinned,
+      rarity: activeSlot?.dataset?.rarity || String(state?.rarity || item?.rarity || 'common').toLowerCase(),
+      setState: activeSlot?.dataset?.setState || '',
     });
   };
 
@@ -85,10 +105,19 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
   slotSortedItems.forEach((itemId, index) => {
     const item = data?.items?.[itemId];
     if (!item) return;
+    const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
+    const rarity = String(state?.rarity || item?.rarity || 'common').toLowerCase();
+    const setTotal = Array.isArray(state?.setDef?.items) ? state.setDef.items.length : 0;
+    const setState = setTotal > 0
+      ? (state.setCount >= setTotal ? 'active' : state.setCount > 0 ? 'partial' : '')
+      : '';
 
     const slot = doc.createElement('button');
     slot.type = 'button';
     slot.textContent = item.icon || '';
+    slot.dataset.rarity = rarity;
+    if (setState) slot.dataset.setState = setState;
+    applyCombatRelicSlotVisuals(slot, rarity, setState, doc);
     slot.setAttribute('aria-label', buildItemTooltipFallbackText(item, itemId));
     slot.setAttribute('aria-controls', 'combatRelicPanel');
     slot.setAttribute('aria-pressed', 'false');
