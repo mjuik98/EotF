@@ -21,7 +21,9 @@
     "smoke:character-select": "node scripts/run_character_select_smoke.mjs",
     "smoke:reward": "node scripts/run_reward_smoke.mjs",
     "smoke:combat-ui": "node scripts/run_combat_ui_smoke.mjs",
-    "quality": "npm run lint && npm run test:coverage && npm run build && npm run smoke:character-select"
+    "quality:fast": "npm run lint && npm test",
+    "quality:full": "npm run lint && npm run test:coverage && npm run build && npm run smoke:character-select && npm run smoke:reward && npm run smoke:combat-ui",
+    "quality": "npm run quality:full"
   },
   "keywords": [
     "game",

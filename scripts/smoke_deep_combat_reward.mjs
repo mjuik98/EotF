@@ -118,11 +118,30 @@ async function main() {
     await advanceTime(page, 1200);
     await writeSnapshot(page, args.outDir, 0);
 
-    await page.evaluate(async () => {
-      if (typeof window.GS?.endCombat === 'function') {
-        await window.GS.endCombat();
+    await page.evaluate(() => {
+      const gs = window.GS || window.GameState;
+      const enemy = gs?.combat?.enemies?.[0];
+      if (!gs?.player || !enemy) {
+        throw new Error('reward smoke setup missing combat state');
+      }
+
+      gs.player.energy = 2;
+      gs.player.echo = 80;
+      gs.combat.playerTurn = true;
+      enemy.hp = 8;
+      enemy.maxHp = Math.max(30, Number(enemy.maxHp || 0));
+      enemy.block = 0;
+      enemy.shield = 0;
+
+      if (typeof window.renderCombatEnemies === 'function') window.renderCombatEnemies();
+      if (typeof window.updateUI === 'function') {
+        window.updateUI();
+      } else if (typeof window.doUpdateUI === 'function') {
+        window.doUpdateUI();
       }
     });
+
+    await page.click('#useEchoSkillBtn');
 
     try {
       await page.waitForFunction(() => {
@@ -130,7 +149,11 @@ async function main() {
         const text = typeof window.render_game_to_text === 'function'
           ? window.render_game_to_text()
           : '';
-        return rewardScreen?.classList?.contains('active') || text.includes('"reward"');
+        const overlay = document.querySelector('#combatOverlay.active');
+        const gs = window.GS || window.GameState;
+        return (rewardScreen?.classList?.contains('active') || text.includes('"reward"'))
+          && !overlay
+          && !gs?.combat?.active;
       }, { timeout: 10000 });
     } catch (error) {
       await writeNamedState(page, args.outDir, 'state-endcombat-timeout.json');

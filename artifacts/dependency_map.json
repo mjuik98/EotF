@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-03-23T08:23:37.743Z",
-  "nodeCount": 1298,
-  "edgeCount": 1428,
+  "generatedAt": "2026-03-23T08:47:26.866Z",
+  "nodeCount": 1304,
+  "edgeCount": 1429,
   "layerEdges": {
     "core->core": 167,
     "core->domain": 3,
@@ -24,8 +24,8 @@
     "feature->core": 23,
     "feature->data": 37,
     "feature->domain": 39,
-    "feature->feature": 747,
-    "feature->legacy": 4,
+    "feature->feature": 751,
+    "feature->legacy": 1,
     "feature->other": 7,
     "feature->platform": 3,
     "feature->shared": 51,
@@ -236,7 +236,7 @@
     {
       "file": "game/features/ui/presentation/browser/help_pause_ui_helpers.js",
       "layer": "feature",
-      "outDegree": 1,
+      "outDegree": 0,
       "inDegree": 8
     }
   ],
@@ -849,8 +849,7 @@
     ],
     "game/features/codex/platform/browser/create_lazy_codex_module.js": [],
     "game/features/codex/platform/browser/ensure_codex_browser_modules.js": [
-      "game/core/bindings/module_registry_scopes.js",
-      "game/platform/legacy/game_module_registry.js"
+      "game/core/bindings/module_registry_scopes.js"
     ],
     "game/features/codex/platform/browser/ensure_codex_modal_shell.js": [],
     "game/features/codex/ports/public_browser_modules.js": [
@@ -2077,8 +2076,7 @@
       "game/features/run/ports/create_run_canvas_ports.js"
     ],
     "game/features/run/platform/browser/ensure_run_flow_browser_modules.js": [
-      "game/core/bindings/module_registry_scopes.js",
-      "game/platform/legacy/game_module_registry.js"
+      "game/core/bindings/module_registry_scopes.js"
     ],
     "game/features/run/platform/browser/ensure_run_settings_shell.js": [],
     "game/features/run/platform/browser/maze_dom_adapter.js": [],
@@ -2159,6 +2157,9 @@
       "game/shared/runtime/runtime_debug_snapshot_utils.js"
     ],
     "game/features/run/ports/runtime/public_run_runtime_surface.js": [],
+    "game/features/run/presentation/browser/map_bottom_dock.js": [
+      "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js"
+    ],
     "game/features/run/presentation/browser/map_generation_ui.js": [
       "data/map_node_data.js",
       "game/features/run/state/region_state_commands.js"
@@ -2166,6 +2167,7 @@
     "game/features/run/presentation/browser/map_navigation_ui.js": [
       "game/features/run/application/create_map_navigation_runtime.js"
     ],
+    "game/features/run/presentation/browser/map_relic_detail_layout.js": [],
     "game/features/run/presentation/browser/map_ui_full_map_render_frame.js": [
       "game/features/run/presentation/browser/map_ui_full_map_render_helpers.js"
     ],
@@ -2203,6 +2205,8 @@
       "game/shared/runtime/player_hp_panel_level.js"
     ],
     "game/features/run/presentation/browser/map_ui_next_nodes_render_panels.js": [
+      "game/features/run/presentation/browser/map_bottom_dock.js",
+      "game/features/run/presentation/browser/map_relic_detail_layout.js",
       "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js",
       "game/features/run/presentation/browser/relic_detail_shared_ui.js",
       "game/shared/ui/state/ui_surface_state_controller.js"
@@ -2649,8 +2653,7 @@
       "game/features/ui/platform/browser/import_meta_progression_module.js"
     ],
     "game/features/ui/platform/browser/ensure_settings_browser_modules.js": [
-      "game/features/ui/platform/browser/resolve_ui_action_modules.js",
-      "game/platform/legacy/game_module_registry.js"
+      "game/features/ui/platform/browser/resolve_ui_action_modules.js"
     ],
     "game/features/ui/platform/browser/ensure_settings_modal_shell.js": [],
     "game/features/ui/platform/browser/import_help_pause_module.js": [],
@@ -2769,9 +2772,15 @@
     "game/features/ui/presentation/browser/help_pause_hotkeys_runtime_ui.js": [
       "game/features/ui/presentation/browser/help_pause_ui_helpers.js"
     ],
+    "game/features/ui/presentation/browser/help_pause_keybinding_helpers.js": [
+      "game/core/settings_manager.js"
+    ],
     "game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js": [
       "game/features/title/ports/public_help_pause_application_capabilities.js",
       "game/features/ui/presentation/browser/help_pause_ui_helpers.js"
+    ],
+    "game/features/ui/presentation/browser/help_pause_run_hotkey_state.js": [
+      "game/features/ui/presentation/browser/help_pause_visibility.js"
     ],
     "game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js": [
       "game/features/title/ports/public_help_pause_application_capabilities.js"
@@ -2785,9 +2794,7 @@
       "game/features/ui/presentation/browser/help_pause_ui_overlays.js",
       "game/features/ui/presentation/browser/help_pause_ui_return_runtime.js"
     ],
-    "game/features/ui/presentation/browser/help_pause_ui_helpers.js": [
-      "game/core/settings_manager.js"
-    ],
+    "game/features/ui/presentation/browser/help_pause_ui_helpers.js": [],
     "game/features/ui/presentation/browser/help_pause_ui_overlay_dom.js": [],
     "game/features/ui/presentation/browser/help_pause_ui_overlay_runtime.js": [
       "game/features/ui/presentation/browser/help_pause_ui_helpers.js",
@@ -2818,6 +2825,7 @@
       "game/features/ui/presentation/browser/help_pause_ui_pause_runtime.js",
       "game/features/ui/presentation/browser/help_pause_ui_runtime.js"
     ],
+    "game/features/ui/presentation/browser/help_pause_visibility.js": [],
     "game/features/ui/presentation/browser/meta_progression_ui_runtime.js": [
       "game/features/title/ports/public_ending_application_capabilities.js",
       "game/features/ui/presentation/browser/ending_screen_ui.js"
@@ -2985,6 +2993,7 @@
       "game/platform/browser/effects/echo_ripple_renderer.js",
       "game/platform/browser/effects/echo_ripple_runtime_context.js"
     ],
+    "game/platform/browser/module_bag_ensurer.js": [],
     "game/platform/browser/root_ui_bindings.js": [],
     "game/platform/legacy/adapters/create_legacy_combat_compat.js": [
       "game/features/combat/platform/public_combat_legacy_surface.js",

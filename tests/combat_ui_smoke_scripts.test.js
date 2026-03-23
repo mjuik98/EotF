@@ -19,8 +19,40 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
+    expect(source).toContain("from 'node:http'");
+    expect(source).toContain('createServer(');
+    expect(source).toContain('server.listen(0,');
+    expect(source).toContain('server.close((error) => {');
     expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs')");
     expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-combat-ui')");
+  });
+
+  it('self-hosts the reward smoke wrapper before launching Playwright', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'run_reward_smoke.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("from 'node:http'");
+    expect(source).toContain('createServer(');
+    expect(source).toContain('server.listen(0,');
+    expect(source).toContain('server.close((error) => {');
+    expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_deep_combat_reward.mjs')");
+    expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-reward-flow')");
+  });
+
+  it('drives the reward smoke through the real combat-to-reward handoff', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_deep_combat_reward.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("page.click('#useEchoSkillBtn')");
+    expect(source).toContain("document.getElementById('rewardScreen')");
+    expect(source).toContain("document.querySelector('#combatOverlay.active')");
+    expect(source).toContain('state-endcombat-timeout.json');
+    expect(source).toContain("page.click('#rewardSkipInitBtn')");
+    expect(source).toContain("page.click('#rewardSkipConfirmBtn')");
   });
 
   it('points the character-select smoke wrapper at the character-select smoke runner', () => {
@@ -51,6 +83,8 @@ describe('combat ui smoke scripts', () => {
 
     expect(workflow).toContain('npx playwright install --with-deps chromium');
     expect(workflow).toContain('npm run smoke:combat-ui');
+    expect(workflow).toContain('npm run smoke:character-select');
+    expect(workflow).toContain('npm run smoke:reward');
   });
 
   it('wires the character-select smoke run into the local quality workflow', () => {
@@ -58,7 +92,10 @@ describe('combat ui smoke scripts', () => {
       fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'),
     );
 
-    expect(packageJson.scripts.quality).toContain('npm run smoke:character-select');
+    expect(packageJson.scripts.quality).toBe('npm run quality:full');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:character-select');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:reward');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:combat-ui');
   });
 
   it('covers combat relic rail behavior in the browser smoke runner', () => {

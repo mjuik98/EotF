@@ -38,6 +38,8 @@ npm test
 npm run lint
 npm run build
 npm run deps:map
+npm run quality:fast
+npm run quality:full
 ```
 
 UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 캐릭터 선택 화면이 렌더링되는지와 콘솔/페이지 오류가 없는지도 확인합니다.

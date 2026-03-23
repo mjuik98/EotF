@@ -6,6 +6,7 @@ import {
   runOnNextFrame,
   stripHtml,
 } from './map_ui_next_nodes_render_helpers.js';
+import { buildBottomDock } from './map_bottom_dock.js';
 import {
   resolveItemDetailState,
   buildItemDetailViewModel,
@@ -18,163 +19,13 @@ import {
 import {
   createUiSurfaceStateController,
 } from '../../../../shared/ui/state/ui_surface_state_controller.js';
+import {
+  applyRelicDetailLayout,
+} from './map_relic_detail_layout.js';
 
-function regionIcon(name, fallback = '🧭') {
-  const firstChar = Array.from(String(name || '').trim())[0] || '';
-  return /\p{Extended_Pictographic}/u.test(firstChar) ? firstChar : fallback;
-}
+export { buildBottomDock };
 
-function buildRuleBanner(doc, regionData) {
-  const banner = doc.createElement('div');
-  banner.className = 'nc-rule-banner';
-  const inner = doc.createElement('div');
-  inner.className = 'nc-rule-inner';
-
-  const icon = doc.createElement('span');
-  icon.className = 'nc-rule-icon';
-  icon.textContent = regionIcon(regionData?.name);
-
-  const label = doc.createElement('span');
-  label.className = 'nc-rule-label';
-  label.textContent = regionData?.rule || '기본 규칙';
-
-  const separator = doc.createElement('div');
-  separator.className = 'nc-rule-sep';
-
-  const desc = doc.createElement('span');
-  desc.className = 'nc-rule-desc';
-  desc.textContent = stripHtml(regionData?.ruleDesc || (regionData?.rule ? `${regionData.rule}이 적용됩니다.` : '')) || '별도 제약 없이 탐색과 전투가 이어집니다.';
-
-  inner.append(icon, label, separator, desc);
-  banner.appendChild(inner);
-  return banner;
-}
-
-export function buildBottomDock(doc, regionData, options = {}) {
-  const { nodeCount = 0, onShowFullMap = null, onToggleDeckView = null } = options;
-  const bar = doc.createElement('div');
-  bar.className = 'nc-bottom-bar';
-  const items = [
-    { keys: ['M'], label: '전체 지도', action: onShowFullMap },
-    { keys: ['TAB'], label: '덱 보기', action: onToggleDeckView },
-    { keys: Array.from({ length: Math.max(1, Math.min(3, nodeCount)) }, (_, index) => String(index + 1)), label: '경로 선택', action: null },
-    { keys: ['ESC'], label: '설정', action: null },
-  ];
-
-  items.forEach((item, index) => {
-    const entry = doc.createElement('div');
-    entry.className = 'nc-bottom-item';
-    if (typeof item.action === 'function') {
-      entry.classList.add('is-actionable');
-      entry.tabIndex = 0;
-      entry.setAttribute('role', 'button');
-      entry.addEventListener('click', () => item.action());
-      entry.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        item.action();
-      });
-    }
-
-    item.keys.forEach((key) => {
-      const keyEl = doc.createElement('span');
-      keyEl.className = 'nc-bottom-kbd';
-      keyEl.textContent = key;
-      entry.appendChild(keyEl);
-    });
-
-    const label = doc.createElement('span');
-    label.className = 'nc-bottom-label';
-    label.textContent = item.label;
-    entry.appendChild(label);
-    bar.appendChild(entry);
-
-    if (index < items.length - 1) {
-      const sep = doc.createElement('div');
-      sep.className = 'nc-bottom-sep';
-      bar.appendChild(sep);
-    }
-  });
-
-  const dock = doc.createElement('div');
-  dock.id = 'ncBottomDock';
-  dock.className = 'nc-bottom-dock';
-  dock.append(buildRuleBanner(doc, regionData), bar);
-  return dock;
-}
-
-const FLOATING_RELIC_DETAIL_BREAKPOINT = 1180;
-const FLOATING_RELIC_DETAIL_WIDTH = 240;
-const FLOATING_RELIC_DETAIL_GAP = 14;
-const FLOATING_RELIC_DETAIL_MIN_TOP = 56;
-const FLOATING_RELIC_DETAIL_EDGE_PADDING = 12;
 const RELIC_DETAIL_HOVER_SAFE_DELAY = 90;
-
-function getElementRect(element) {
-  return typeof element?.getBoundingClientRect === 'function'
-    ? element.getBoundingClientRect()
-    : null;
-}
-
-function resolveRelicDetailPlacement(panel, detailPanel, win) {
-  const viewportWidth = Number(win?.innerWidth) || 0;
-  if (viewportWidth <= FLOATING_RELIC_DETAIL_BREAKPOINT) return 'inline';
-
-  const panelRect = getElementRect(panel);
-  const detailRect = getElementRect(detailPanel);
-  const detailWidth = detailRect?.width || FLOATING_RELIC_DETAIL_WIDTH;
-  if (!panelRect?.left) return 'floating-left';
-  return panelRect.left >= detailWidth + 24 ? 'floating-left' : 'inline';
-}
-
-function resolveFloatingRelicDetailTop(panel, detailPanel, activeSlot) {
-  const panelRect = getElementRect(panel);
-  const detailRect = getElementRect(detailPanel);
-  const slotRect = getElementRect(activeSlot);
-  const detailHeight = detailRect?.height || detailPanel?.offsetHeight || 0;
-  const panelHeight = panelRect?.height || panel?.clientHeight || 0;
-
-  if (!panelRect || !slotRect || !detailHeight || !panelHeight) return FLOATING_RELIC_DETAIL_MIN_TOP;
-
-  const idealTop = slotRect.top - panelRect.top + ((slotRect.height || 0) - detailHeight) / 2;
-  const maxTop = Math.max(FLOATING_RELIC_DETAIL_MIN_TOP, panelHeight - detailHeight - FLOATING_RELIC_DETAIL_EDGE_PADDING);
-  return Math.max(FLOATING_RELIC_DETAIL_MIN_TOP, Math.min(Math.round(idealTop), Math.round(maxTop)));
-}
-
-function applyRelicDetailLayout(panel, detailPanel, win, activeSlot = null) {
-  if (!panel || !detailPanel) return;
-  const detailSurfaceState = createUiSurfaceStateController({ element: detailPanel });
-
-  panel.style.position = 'relative';
-  panel.style.overflow = 'visible';
-  const placement = resolveRelicDetailPlacement(panel, detailPanel, win);
-  detailSurfaceState.setValue('placement', placement);
-  detailPanel.style.transition = placement === 'floating-left'
-    ? 'opacity .16s ease, transform .22s cubic-bezier(.22, 1, .36, 1)'
-    : 'opacity .18s ease, transform .2s ease';
-  detailPanel.style.transformOrigin = placement === 'floating-left' ? '100% 24px' : '50% 0';
-
-  if (placement === 'floating-left') {
-    detailPanel.style.position = 'absolute';
-    detailPanel.style.top = `${resolveFloatingRelicDetailTop(panel, detailPanel, activeSlot)}px`;
-    detailPanel.style.right = `calc(100% + ${FLOATING_RELIC_DETAIL_GAP}px)`;
-    detailPanel.style.left = 'auto';
-    detailPanel.style.bottom = 'auto';
-    detailPanel.style.width = 'min(240px, calc(100vw - 48px))';
-    detailPanel.style.marginTop = '0';
-    detailPanel.style.zIndex = '12';
-    return;
-  }
-
-  detailPanel.style.position = 'static';
-  detailPanel.style.top = 'auto';
-  detailPanel.style.right = 'auto';
-  detailPanel.style.left = 'auto';
-  detailPanel.style.bottom = 'auto';
-  detailPanel.style.width = '100%';
-  detailPanel.style.marginTop = '10px';
-  detailPanel.style.zIndex = 'auto';
-}
 
 function animateRelicDetailPanel(detailPanel, deps = {}) {
   if (!detailPanel) return;
