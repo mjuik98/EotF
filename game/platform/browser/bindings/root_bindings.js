@@ -3,17 +3,22 @@ import { registerTitleBindings } from '../../../features/title/ports/runtime/pub
 import { registerRunEntryBindings } from '../../../features/run/ports/runtime/public_run_runtime_surface.js';
 import { isEscapeKey, isVisibleModal } from './root_binding_helpers.js';
 
+function getBindingDoc(deps = {}) {
+  if (deps.doc) return deps.doc;
+  return typeof document !== 'undefined' ? document : null;
+}
+
 export const RootBindings = {
   boot(deps) {
-    const fallbackDoc = typeof document !== 'undefined' ? document : null;
+    const doc = getBindingDoc(deps);
     this.loadVolumes(deps.audioEngine);
     deps.settingsUI?.applyOnBoot?.({
-      doc: fallbackDoc,
+      doc,
       ScreenShake: deps.ScreenShake,
       HitStop: deps.HitStop,
       ParticleSystem: deps.ParticleSystem,
     });
-    this.syncVolumeUI(deps.audioEngine);
+    this.syncVolumeUI(deps.audioEngine, { doc });
     this.initEventHandlers(deps);
     this.initHelpPauseUI(deps);
     deps.gameBootUI?.bootGame?.(deps.getGameBootDeps());
@@ -35,13 +40,13 @@ export const RootBindings = {
     SettingsManager.set('volumes.ambient', volumes.ambient);
   },
 
-  syncVolumeUI(audioEngine) {
+  syncVolumeUI(audioEngine, deps = {}) {
     if (!audioEngine) return;
     const volumes = audioEngine.getVolumes();
     const master = Math.round(volumes.master * 100);
     const sfx = Math.round(volumes.sfx * 100);
     const ambient = Math.round(volumes.ambient * 100);
-    const doc = typeof document !== 'undefined' ? document : null;
+    const doc = getBindingDoc(deps);
     if (!doc?.querySelectorAll) return;
 
     doc.querySelectorAll('#settings-vol-master-val, #volMasterSliderVal').forEach((el) => { el.textContent = `${master}%`; });
@@ -56,8 +61,7 @@ export const RootBindings = {
   },
 
   initEventHandlers(deps) {
-    const fallbackDoc = typeof document !== 'undefined' ? document : null;
-    const doc = deps.doc || fallbackDoc;
+    const doc = getBindingDoc(deps);
     const actions = deps.actions || {};
 
     registerTitleBindings({

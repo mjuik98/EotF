@@ -65,4 +65,61 @@ describe('PlayerResourceUseCaseMethods', () => {
       }),
     );
   });
+
+  it('blocks healing in the echo source region before committing state', () => {
+    const host = createHost();
+    host._activeRegionId = 4;
+
+    const result = host.heal(6);
+
+    expect(result).toBeUndefined();
+    expect(host.commit).not.toHaveBeenCalledWith('player:heal', expect.anything());
+    expect(host.addLog).toHaveBeenCalledWith('⚙️ 메아리의 근원: 회복 불가!', 'damage');
+  });
+
+  it('applies cursed and item-based scaling before healing', () => {
+    const host = createHost();
+    host.getBuff = vi.fn((id) => (id === 'cursed' ? { stacks: 1 } : null));
+    host.triggerItems.mockImplementation((event, amount) => (event === 'heal_amount' ? amount + 1 : amount));
+
+    host.heal(10, { name: '치유 물약', type: 'item' });
+
+    expect(host.commit).toHaveBeenCalledWith('player:heal', { amount: 8 });
+    expect(host.addLog).toHaveBeenCalledWith(
+      '💍 치유 물약: 8 회복',
+      'heal',
+      expect.objectContaining({
+        recentFeed: expect.objectContaining({
+          eligible: true,
+          text: '치유 물약: 8 회복',
+        }),
+      }),
+    );
+  });
+
+  it('logs source-aware status application and generic gold gains', () => {
+    const host = createHost();
+    host.addBuff = vi.fn();
+    host.commit.mockImplementation((action, payload) => {
+      if (action === 'player:gold') {
+        return { delta: payload.amount };
+      }
+      return {};
+    });
+
+    host.applyPlayerStatus('poison', 2, { name: '독 안개', type: 'item' });
+    host.addGold(3);
+
+    expect(host.addBuff).toHaveBeenCalledWith('poison', 2, {});
+    expect(host.addLog).toHaveBeenCalledWith(
+      '💍 독 안개: poison 2턴',
+      'damage',
+      expect.objectContaining({
+        recentFeed: expect.objectContaining({
+          eligible: true,
+        }),
+      }),
+    );
+    expect(host.addLog).toHaveBeenCalledWith('🔺 플레이어: 골드 +3', 'system');
+  });
 });

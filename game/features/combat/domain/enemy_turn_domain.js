@@ -1,4 +1,4 @@
-import { LogUtils } from '../../../utils/log_utils.js';
+import { LogUtils } from '../ports/combat_logging.js';
 import { handleEnemyEffectLogic } from '../../../domain/combat/turn/enemy_effect_resolver.js';
 import {
   isInfiniteStackBuff,

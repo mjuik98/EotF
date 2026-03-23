@@ -2,7 +2,7 @@ import {
   DescriptionUtils,
   RARITY_LABELS,
   RARITY_TEXT_COLORS,
-} from '../../ports/public_presentation_support_capabilities.js';
+} from '../../ports/presentation/public_combat_card_support_capabilities.js';
 
 const toastQueue = [];
 const activeToasts = [];

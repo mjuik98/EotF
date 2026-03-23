@@ -3,12 +3,12 @@ import {
   drawStateCards,
   playStateCard,
 } from './public_combat_command_actions.js';
-import { createLegacyGameStateCardPorts } from '../../../platform/legacy/adapters/create_legacy_game_state_card_ports.js';
+import { createCombatCardRuntimePorts } from '../platform/combat_card_runtime_ports.js';
 
 export const CardMethods = {
   drawCards(count = 1, options = {}) {
     const gs = this;
-    const ports = createLegacyGameStateCardPorts();
+    const ports = createCombatCardRuntimePorts();
     return drawStateCards({
       count,
       gs,
@@ -19,7 +19,7 @@ export const CardMethods = {
 
   playCard(cardId, handIdx) {
     const gs = this;
-    const ports = createLegacyGameStateCardPorts();
+    const ports = createCombatCardRuntimePorts();
     return playStateCard({
       cardId,
       handIdx,

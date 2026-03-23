@@ -120,6 +120,9 @@ describe('refactor structure guardrails', () => {
     const loadCharacterSelectSource = read('game/features/title/application/load_character_select_use_case.js');
     const rewardOptionsSource = read('game/features/reward/application/build_reward_options_use_case.js');
     const runRulesSource = read('game/features/run/application/run_rules.js');
+    const runRuleMetaSource = read('game/features/run/application/run_rule_meta.js');
+    const runRuleLifecycleSource = read('game/features/run/application/run_rule_lifecycle.js');
+    const runRuleOutcomeSource = read('game/features/run/application/run_rule_outcome.js');
     const hiddenEndingSource = read('game/features/ui/presentation/browser/story_ui_hidden_ending_render.js');
     const metaProgressionSource = read('game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
     const endingActionsSource = read('game/features/ui/presentation/browser/ending_screen_action_helpers.js');
@@ -136,8 +139,13 @@ describe('refactor structure guardrails', () => {
     expect(loadCharacterSelectSource).not.toContain("from '../ports/class_progression_ports.js'");
     expect(rewardOptionsSource).toContain("from '../ports/reward_option_policy_ports.js'");
     expect(rewardOptionsSource).not.toContain("from '../../title/ports/public_progression_capabilities.js'");
-    expect(runRulesSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
     expect(runRulesSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(runRuleMetaSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleLifecycleSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleOutcomeSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleMetaSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(runRuleLifecycleSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(runRuleOutcomeSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(hiddenEndingSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
     expect(hiddenEndingSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
     expect(metaProgressionSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
@@ -152,6 +160,42 @@ describe('refactor structure guardrails', () => {
     expect(helpPauseMenuSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
     expect(uiShellContractsSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
     expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+  });
+
+  it('splits title, run, and event runtime hubs into focused helper modules', () => {
+    const mountRuntimeSource = read('game/features/title/platform/browser/create_character_select_mount_runtime.js');
+    const runtimeBindingsSource = read('game/features/title/platform/browser/create_character_select_runtime_bindings.js');
+    const runStartRuntimeSource = read('game/features/run/application/create_run_start_runtime.js');
+    const runRulesSource = read('game/features/run/application/run_rules.js');
+    const deathFlowSource = read('game/features/combat/application/death_flow_actions.js');
+    const eventRuntimeContextSource = read('game/features/event/platform/event_runtime_context.js');
+    const eventApplicationSource = read('game/features/event/ports/public_application_capabilities.js');
+    const combatSupportSource = read('game/features/combat/ports/public_presentation_support_capabilities.js');
+    const cardMethodsSource = read('game/features/combat/application/card_methods_facade.js');
+
+    expect(mountRuntimeSource).toContain("./character_select_mount_loadout.js");
+    expect(mountRuntimeSource).not.toContain("from '../../../../../data/cards.js'");
+    expect(runtimeBindingsSource).toContain("./character_select_runtime_progression_bindings.js");
+    expect(runtimeBindingsSource).toContain("./character_select_runtime_flow_bindings.js");
+    expect(runtimeBindingsSource).toContain("./character_select_runtime_ui_bindings.js");
+    expect(runStartRuntimeSource).toContain("./run_start_transition_runtime.js");
+    expect(runStartRuntimeSource).toContain("./run_start_gameplay_runtime.js");
+    expect(runRulesSource).toContain("./run_rule_lifecycle.js");
+    expect(runRulesSource).toContain("./run_rule_meta.js");
+    expect(runRulesSource).toContain("./run_rule_outcome.js");
+    expect(runRulesSource).toContain("./run_rule_scaling.js");
+    expect(deathFlowSource).toContain("./death_flow_enemy_runtime.js");
+    expect(deathFlowSource).toContain("./death_flow_player_runtime.js");
+    expect(eventRuntimeContextSource).toContain("./event_runtime_deps.js");
+    expect(eventRuntimeContextSource).toContain("./event_runtime_hud.js");
+    expect(eventApplicationSource).toContain("./public_event_session_application_capabilities.js");
+    expect(eventApplicationSource).toContain("./public_event_shop_application_capabilities.js");
+    expect(combatSupportSource).toContain("./presentation/public_combat_browser_support_capabilities.js");
+    expect(combatSupportSource).toContain("./presentation/public_combat_card_support_capabilities.js");
+    expect(combatSupportSource).toContain("./presentation/public_combat_runtime_support_capabilities.js");
+    expect(combatSupportSource).toContain("./presentation/public_combat_status_support_capabilities.js");
+    expect(cardMethodsSource).toContain("../platform/combat_card_runtime_ports.js");
+    expect(cardMethodsSource).not.toContain("../../../platform/legacy/adapters/create_legacy_game_state_card_ports.js");
   });
 
   it('delegates combat item tooltip state and DOM construction into focused helpers', () => {

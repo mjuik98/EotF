@@ -1,4 +1,4 @@
-import { CONSTANTS } from '../../ports/public_presentation_support_capabilities.js';
+import { CONSTANTS } from '../../ports/presentation/public_combat_runtime_support_capabilities.js';
 
 export function buildEchoSkillTooltipTiers(gs) {
   const cls = gs?.player?.class;

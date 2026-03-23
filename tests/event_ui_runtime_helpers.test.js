@@ -16,9 +16,15 @@ vi.mock('../game/features/event/presentation/browser/event_shop_presenter.js', (
   createEventShop: vi.fn(() => ({ title: 'shop' })),
 }));
 
+import {
+  openEventItemShopRuntime,
+  openEventRestSiteRuntime,
+  openEventShopRuntime,
+  renderEventShellRuntime,
+} from '../game/features/event/presentation/browser/event_ui_runtime_helpers.js';
+
 describe('event_ui_runtime_helpers', () => {
   it('renders the event shell and opens the modal', async () => {
-    const { renderEventShellRuntime } = await import('../game/features/event/public.js');
     const dom = await import('../game/features/event/presentation/browser/event_ui_dom.js');
     const eventModal = { classList: { add: vi.fn() } };
     const elements = {
@@ -51,20 +57,19 @@ describe('event_ui_runtime_helpers', () => {
   });
 
   it('delegates shop, rest-site, and item-shop entrypoints to extracted helpers', async () => {
-    const helpers = await import('../game/features/event/public.js');
     const shop = await import('../game/features/event/presentation/browser/event_shop_presenter.js');
     const rest = await import('../game/features/event/presentation/browser/event_rest_site_presenter.js');
     const itemShop = await import('../game/features/event/presentation/browser/event_ui_item_shop.js');
     const deps = { marker: true };
     const showItemShop = vi.fn();
 
-    const created = helpers.openEventShopRuntime(deps, {
+    const created = openEventShopRuntime(deps, {
       gs: { player: {} },
       data: { items: {} },
       runRules: {},
       showItemShop,
     });
-    helpers.openEventRestSiteRuntime(deps, {
+    openEventRestSiteRuntime(deps, {
       gs: { player: {} },
       data: {},
       runRules: {},
@@ -73,7 +78,7 @@ describe('event_ui_runtime_helpers', () => {
       showCardDiscard: vi.fn(),
       showEvent: vi.fn(),
     });
-    helpers.openEventItemShopRuntime(null, deps, {
+    openEventItemShopRuntime(null, deps, {
       gs: { player: {} },
       data: {},
       runRules: {},

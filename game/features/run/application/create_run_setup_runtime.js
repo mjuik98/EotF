@@ -1,4 +1,4 @@
-import { runIdempotent } from '../../../utils/idempotency_utils.js';
+import { runIdempotent } from './run_idempotency.js';
 import { createStartRunUseCase } from './start_run_use_case.js';
 import {
   applyStartBonuses,

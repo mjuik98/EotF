@@ -1,4 +1,4 @@
-import { getDoc, getRaf } from '../../ports/public_presentation_support_capabilities.js';
+import { getDoc, getRaf } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 import { setDatasetBooleanState } from '../../ports/presentation_shared_runtime_capabilities.js';
 
 export function triggerDeckShufflePulseUI(deps = {}) {

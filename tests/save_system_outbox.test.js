@@ -176,4 +176,127 @@ describe('SaveSystem outbox', () => {
 
     expect(SaveSystem.hasSave()).toBe(false);
   });
+
+  it('hydrates migrated meta saves and ensures run config', () => {
+    vi.spyOn(SaveAdapter, 'load').mockReturnValue({
+      version: 1,
+      codex: {
+        enemies: ['wolf'],
+        cards: ['strike'],
+        items: ['potion'],
+      },
+    });
+    const ensureMeta = vi.fn();
+    const gs = {
+      meta: {
+        codex: {
+          enemies: new Set(),
+          cards: new Set(),
+          items: new Set(),
+        },
+      },
+    };
+
+    SaveSystem.loadMeta({
+      gs,
+      runRules: { ensureMeta },
+    });
+
+    expect(Array.from(gs.meta.codex.enemies)).toEqual(['wolf']);
+    expect(Array.from(gs.meta.codex.cards)).toEqual(['strike']);
+    expect(Array.from(gs.meta.codex.items)).toEqual(['potion']);
+    expect(gs.meta.version).toBe(2);
+    expect(gs.meta.runConfig).toEqual({});
+    expect(ensureMeta).toHaveBeenCalledWith(gs.meta);
+  });
+
+  it('hydrates valid run saves and clears queued run entries on explicit clear', () => {
+    vi.spyOn(SaveAdapter, 'load').mockReturnValue({
+      version: 1,
+      player: {
+        hp: 20,
+        maxHp: 30,
+        deck: ['strike'],
+        gold: 10,
+        buffs: { regen: 2 },
+        upgradedCards: ['strike+'],
+      },
+      currentRegion: 2,
+      currentFloor: 5,
+      regionFloors: { 2: 5 },
+      regionRoute: { 2: ['elite'] },
+      mapNodes: [{ id: '2-5' }],
+      visitedNodes: ['2-4', '2-5'],
+      currentNode: '2-5',
+      stats: { kills: 3 },
+      worldMemory: { shrineSeen: true },
+    });
+    const removeSpy = vi.spyOn(SaveAdapter, 'remove').mockImplementation(() => {});
+    const gs = {
+      player: {
+        hp: 1,
+        maxHp: 1,
+        deck: [],
+        gold: 0,
+        buffs: {},
+        upgradedCards: new Set(),
+      },
+      currentRegion: 0,
+      currentFloor: 1,
+      regionFloors: {},
+      regionRoute: {},
+      mapNodes: null,
+      visitedNodes: new Set(),
+      currentNode: null,
+      stats: {},
+      worldMemory: {},
+    };
+
+    SaveSystem._outbox = [
+      { key: SaveSystem.SAVE_KEY, data: { stale: true } },
+      { key: SaveSystem.META_KEY, data: { keep: true } },
+    ];
+
+    expect(SaveSystem.loadRun({ gs })).toBe(true);
+    expect(gs.player.hp).toBe(20);
+    expect(gs.player.maxHp).toBe(30);
+    expect(Array.from(gs.player.upgradedCards)).toEqual(['strike+']);
+    expect(gs.currentRegion).toBe(2);
+    expect(gs.currentFloor).toBe(5);
+    expect(Array.from(gs.visitedNodes)).toEqual(['2-4', '2-5']);
+    expect(gs.currentNode).toBe('2-5');
+    expect(gs.stats).toEqual({ kills: 3 });
+    expect(gs.worldMemory).toEqual({ shrineSeen: true });
+
+    SaveSystem.clearSave();
+
+    expect(removeSpy).toHaveBeenCalledWith(SaveSystem.SAVE_KEY);
+    expect(SaveSystem._outbox).toEqual([{ key: SaveSystem.META_KEY, data: { keep: true } }]);
+  });
+
+  it('renders and expires the save badge with injected document state', () => {
+    const appended = [];
+    const doc = {
+      body: {
+        appendChild: vi.fn((node) => {
+          appended.push(node);
+        }),
+      },
+      createElement: vi.fn(() => ({
+        style: { cssText: '' },
+        textContent: '',
+        remove: vi.fn(),
+      })),
+    };
+
+    SaveSystem.showSaveBadge({ doc });
+
+    expect(doc.createElement).toHaveBeenCalledWith('div');
+    expect(doc.body.appendChild).toHaveBeenCalledTimes(1);
+    expect(appended[0].textContent).toBe('Saved');
+
+    vi.advanceTimersByTime(1800);
+
+    expect(appended[0].remove).toHaveBeenCalledTimes(1);
+  });
 });

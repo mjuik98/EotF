@@ -1,8 +1,8 @@
 import {
   DescriptionUtils,
-  DomSafe,
-  UNBREAKABLE_WALL_STACK_UNIT,
-} from '../../ports/public_presentation_support_capabilities.js';
+} from '../../ports/presentation/public_combat_card_support_capabilities.js';
+import { DomSafe } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
+import { UNBREAKABLE_WALL_STACK_UNIT } from '../../ports/presentation/public_combat_status_support_capabilities.js';
 import {
   getCombatCardTypeLabel,
   resolvePrimaryCombatKeywordTooltip,

@@ -1,5 +1,5 @@
 import { playUiLegendary } from '../../ports/public_audio_presentation_capabilities.js';
-import { DescriptionUtils } from '../../ports/public_presentation_support_capabilities.js';
+import { DescriptionUtils } from '../../ports/presentation/public_combat_card_support_capabilities.js';
 
 const noticeQueue = [];
 let noticeActive = false;

@@ -53,6 +53,8 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('state-endcombat-timeout.json');
     expect(source).toContain("page.click('#rewardSkipInitBtn')");
     expect(source).toContain("page.click('#rewardSkipConfirmBtn')");
+    expect(source).toContain('consoleErrors.length === 0');
+    expect(source).toContain('Reward smoke captured console/page errors');
   });
 
   it('points the character-select smoke wrapper at the character-select smoke runner', () => {

@@ -17,7 +17,13 @@ describe('feature browser module ownership', () => {
       expect(source).not.toMatch(/from ['"].*game\/presentation\//);
       expect(source).not.toMatch(/from ['"]\.\.\/\.\.\/\.\.\/\.\.\/ui\//);
       expect(source).not.toMatch(/from ['"]\.\.\/\.\.\/\.\.\/\.\.\/presentation\//);
-      expect(source).toMatch(/presentation\/browser\//);
+      if (file.endsWith('combat_browser_modules.js')) {
+        expect(source).toContain('./public_combat_core_browser_modules.js');
+        expect(source).toContain('./public_combat_card_browser_modules.js');
+        expect(source).toContain('./public_combat_hud_browser_modules.js');
+      } else {
+        expect(source).toMatch(/presentation\/browser\//);
+      }
     }
   });
 });

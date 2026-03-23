@@ -25,13 +25,24 @@ function getDocument() {
   return getHostWindow()?.document || null;
 }
 
+function resolveSaveAdapterDeps(deps = {}) {
+  return {
+    storage: deps.storage || getStorage(),
+    doc: deps.doc || getDocument(),
+    setTimeoutFn: typeof deps.setTimeoutFn === 'function' ? deps.setTimeoutFn : setTimeout,
+    reportErrorFn: deps.reportErrorFn || reportError,
+    logger: deps.logger || Logger,
+  };
+}
+
 export const SaveAdapter = {
-  load(key) {
+  load(key, deps = {}) {
+    const { storage, reportErrorFn } = resolveSaveAdapterDeps(deps);
     try {
-      const raw = getStorage()?.getItem(key);
+      const raw = storage?.getItem(key);
       return raw !== null && raw !== undefined ? JSON.parse(raw) : null;
     } catch (error) {
-      reportError(error, {
+      reportErrorFn(error, {
         code: ErrorCodes.SAVE_LOAD_FAILED,
         severity: ErrorSeverity.WARN,
         context: 'SaveAdapter.load',
@@ -41,16 +52,17 @@ export const SaveAdapter = {
     }
   },
 
-  save(key, data) {
+  save(key, data, deps = {}) {
+    const { storage, logger } = resolveSaveAdapterDeps(deps);
     try {
-      getStorage()?.setItem(key, JSON.stringify(data));
+      storage?.setItem(key, JSON.stringify(data));
       return true;
     } catch (error) {
       if (error?.name === 'QuotaExceededError') {
-        Logger.warn('[SaveAdapter] Quota exceeded while saving.');
-        this._notifySaveFailed('Storage quota exceeded');
+        logger.warn('[SaveAdapter] Quota exceeded while saving.');
+        this._notifySaveFailed('Storage quota exceeded', deps);
       } else {
-        reportError(error, {
+        resolveSaveAdapterDeps(deps).reportErrorFn(error, {
           code: ErrorCodes.SAVE_WRITE_FAILED,
           severity: ErrorSeverity.ERROR,
           context: 'SaveAdapter.save',
@@ -61,28 +73,30 @@ export const SaveAdapter = {
     }
   },
 
-  _notifySaveFailed(reason) {
-    const doc = getDocument();
+  _notifySaveFailed(reason, deps = {}) {
+    const { doc, setTimeoutFn } = resolveSaveAdapterDeps(deps);
     if (!doc?.body) return;
     const el = doc.createElement('div');
     el.textContent = `Save failed: ${reason}`;
     el.style.cssText =
       'position:fixed;bottom:24px;right:24px;background:#ff3366;color:white;padding:12px 20px;border-radius:8px;z-index:9999;font-family:sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);';
     doc.body.appendChild(el);
-    setTimeout(() => el.remove(), 4000);
+    setTimeoutFn(() => el.remove(), 4000);
   },
 
-  remove(key) {
+  remove(key, deps = {}) {
+    const { storage } = resolveSaveAdapterDeps(deps);
     try {
-      getStorage()?.removeItem(key);
+      storage?.removeItem(key);
     } catch {
       // Best-effort cleanup.
     }
   },
 
-  has(key) {
+  has(key, deps = {}) {
+    const { storage } = resolveSaveAdapterDeps(deps);
     try {
-      return getStorage()?.getItem(key) !== null;
+      return storage?.getItem(key) !== null;
     } catch {
       return false;
     }

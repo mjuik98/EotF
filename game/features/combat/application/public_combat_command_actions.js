@@ -1,4 +1,4 @@
-import { Logger } from '../../../utils/logger.js';
+import { Logger } from '../ports/combat_logging.js';
 import { CombatLifecycle } from './combat_lifecycle_facade.js';
 import { DamageSystem } from './damage_system_facade.js';
 import { drawCardsService, executePlayerDrawService } from './card_draw_service.js';

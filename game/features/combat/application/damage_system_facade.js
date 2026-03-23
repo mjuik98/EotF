@@ -1,12 +1,12 @@
 import { Actions } from '../../../core/store/state_actions.js';
-import { Logger } from '../../../utils/logger.js';
 import {
   createRecentFeedMeta,
   formatRecentFeedStatusOutcome,
   formatRecentFeedText,
   getCurrentCardLogSource,
+  Logger,
   LogUtils,
-} from '../../../utils/log_utils.js';
+} from '../ports/combat_logging.js';
 import {
   applyEnemyStatusState,
   applyPlayerDamageState,

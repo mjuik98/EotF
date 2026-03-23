@@ -1,7 +1,7 @@
 import {
   DescriptionUtils,
   INTENT_DESCRIPTIONS,
-} from '../../ports/public_presentation_support_capabilities.js';
+} from '../../ports/presentation/public_combat_card_support_capabilities.js';
 import { COMBAT_INTENT_LABEL_TRANSLATIONS } from './combat_copy.js';
 
 let _intentTipTimer = null;

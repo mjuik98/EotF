@@ -1,4 +1,4 @@
-import { clearIdempotencyKey, runIdempotent } from '../../../utils/idempotency_utils.js';
+import { clearIdempotencyKey, runIdempotent } from './reward_idempotency.js';
 import { playAttackSlash } from '../platform/reward_audio_ports.js';
 import {
   isRewardFlowLocked,

@@ -8,6 +8,15 @@ export function getGS(deps) {
   return deps?.gs;
 }
 
+function cloneSerializable(value, fallback) {
+  if (value === undefined) return fallback;
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return fallback;
+  }
+}
+
 export function buildMetaSave(gs, version) {
   if (!gs?.meta) return null;
 
@@ -26,14 +35,15 @@ export function buildMetaSave(gs, version) {
 export function hydrateMetaState(gs, data) {
   if (!gs?.meta || !data) return;
 
+  const nextData = { ...data };
   if (data.codex) {
-    data.codex = {
+    nextData.codex = {
       enemies: new Set(data.codex.enemies || []),
       cards: new Set(data.codex.cards || []),
       items: new Set(data.codex.items || []),
     };
   }
-  Object.assign(gs.meta, data);
+  Object.assign(gs.meta, nextData);
 }
 
 export function ensureMetaRunConfig(meta) {
@@ -68,13 +78,13 @@ export function buildRunSave(gs, version) {
     },
     currentRegion: gs.currentRegion,
     currentFloor: gs.currentFloor,
-    regionFloors: gs.regionFloors || {},
-    regionRoute: gs.regionRoute || {},
-    mapNodes: gs.mapNodes || null,
+    regionFloors: cloneSerializable(gs.regionFloors, {}),
+    regionRoute: cloneSerializable(gs.regionRoute, {}),
+    mapNodes: cloneSerializable(gs.mapNodes, null),
     visitedNodes: gs.visitedNodes ? Array.from(gs.visitedNodes) : [],
     currentNode: gs.currentNode !== undefined ? gs.currentNode : null,
-    stats: gs.stats,
-    worldMemory: gs.worldMemory,
+    stats: cloneSerializable(gs.stats, {}),
+    worldMemory: cloneSerializable(gs.worldMemory, {}),
     ts: Date.now(),
   };
 }
@@ -93,15 +103,15 @@ export function hydrateRunState(gs, data) {
   gs.currentRegion = Number.isFinite(loadedRegion) ? loadedRegion : 0;
   gs.currentFloor = Number.isFinite(loadedFloor) ? loadedFloor : 1;
   gs.regionFloors = (data.regionFloors && typeof data.regionFloors === 'object' && !Array.isArray(data.regionFloors))
-    ? data.regionFloors
+    ? cloneSerializable(data.regionFloors, {})
     : {};
   gs.regionRoute = (data.regionRoute && typeof data.regionRoute === 'object' && !Array.isArray(data.regionRoute))
-    ? data.regionRoute
+    ? cloneSerializable(data.regionRoute, {})
     : {};
-  gs.stats = data.stats || gs.stats;
-  gs.worldMemory = data.worldMemory || gs.worldMemory;
+  gs.stats = data.stats ? cloneSerializable(data.stats, gs.stats) : gs.stats;
+  gs.worldMemory = data.worldMemory ? cloneSerializable(data.worldMemory, gs.worldMemory) : gs.worldMemory;
 
-  if (data.mapNodes !== undefined) gs.mapNodes = data.mapNodes;
+  if (data.mapNodes !== undefined) gs.mapNodes = cloneSerializable(data.mapNodes, null);
   if (data.visitedNodes) gs.visitedNodes = new Set(data.visitedNodes);
   if (data.currentNode !== undefined) gs.currentNode = data.currentNode;
 }

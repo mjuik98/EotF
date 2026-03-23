@@ -157,12 +157,14 @@ describe('architecture refactor guardrails', () => {
 
   it('keeps run rules feature ownership free of legacy systems run-rule imports', () => {
     const source = readText('game/features/run/application/run_rules.js');
+    const scalingSource = readText('game/features/run/application/run_rule_scaling.js');
+    const metaSource = readText('game/features/run/application/run_rule_meta.js');
 
     expect(source).not.toContain("from '../../../systems/run_rules_");
     expect(source).toContain("from '../domain/run_rules_curses.js'");
     expect(source).toContain("from '../domain/run_rules_regions.js'");
-    expect(source).toContain("from '../domain/run_rules_difficulty.js'");
-    expect(source).toContain("from '../domain/run_rules_meta.js'");
+    expect(scalingSource).toContain("from '../domain/run_rules_difficulty.js'");
+    expect(metaSource).toContain("from '../domain/run_rules_meta.js'");
   });
 
   it('keeps feature code free of direct systems imports', () => {
@@ -267,6 +269,62 @@ describe('architecture refactor guardrails', () => {
         'game/features/reward/presentation/browser/reward_ui.js',
         "from '../../application/workflows/show_reward_screen_workflow.js'",
         '../../application/show_reward_screen_runtime.js',
+      ],
+    ];
+
+    for (const [file, allowedImport, blockedImport] of expectations) {
+      const source = readText(file);
+      expect(source).toContain(allowedImport);
+      expect(source).not.toContain(blockedImport);
+    }
+  });
+
+  it('routes feature utility access through feature-owned support wrappers', () => {
+    const expectations = [
+      [
+        'game/features/event/application/create_event_ui_runtime.js',
+        "from './event_idempotency.js'",
+        "../../../utils/idempotency_utils.js",
+      ],
+      [
+        'game/features/reward/application/reward_runtime_actions.js',
+        "from './reward_idempotency.js'",
+        "../../../utils/idempotency_utils.js",
+      ],
+      [
+        'game/features/reward/application/workflows/show_reward_screen_workflow.js',
+        "from '../reward_idempotency.js'",
+        "../../../../utils/idempotency_utils.js",
+      ],
+      [
+        'game/features/combat/application/public_combat_command_actions.js',
+        "from '../ports/combat_logging.js'",
+        "../../../utils/logger.js",
+      ],
+      [
+        'game/features/combat/application/combat_lifecycle_facade.js',
+        "from '../ports/combat_logging.js'",
+        "../../../utils/log_utils.js",
+      ],
+      [
+        'game/features/combat/application/damage_system_facade.js',
+        "from '../ports/combat_logging.js'",
+        "../../../utils/logger.js",
+      ],
+      [
+        'game/features/combat/domain/enemy_turn_domain.js',
+        "from '../ports/combat_logging.js'",
+        "../../../utils/log_utils.js",
+      ],
+      [
+        'game/features/combat/application/enemy_damage_resolution.js',
+        "from '../ports/combat_logging.js'",
+        "../../../utils/logger.js",
+      ],
+      [
+        'game/features/combat/domain/player_status_tick_domain.js',
+        "from '../ports/combat_logging.js'",
+        "../../../utils/log_utils.js",
       ],
     ];
 

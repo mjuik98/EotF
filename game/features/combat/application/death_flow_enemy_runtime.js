@@ -1,0 +1,55 @@
+import { EventBus } from '../../../core/event_bus.js';
+import { Actions } from '../../../core/store/state_actions.js';
+import { getRegionData } from '../../run/ports/public_rule_capabilities.js';
+import {
+  playReactionEnemyDeath,
+  registerEnemyKill,
+  recordEnemyWorldKill,
+  replaceCombatEnemies,
+  scheduleCombatEnd,
+  syncSelectedTarget,
+} from './death_flow_runtime_support.js';
+import { applyEnemyDeathState } from './enemy_death_state.js';
+import { handleEnemyDeathFlow } from './enemy_death_flow.js';
+import { endCombatRuntime } from '../ports/public_application_capabilities.js';
+import {
+  createEnemyDeathRuntimePort,
+  resolveDeathRuntimeContext,
+  spawnCombatEnemy,
+} from '../platform/death_runtime_ports.js';
+
+export function spawnEnemyForCombat(gs, deps = {}) {
+  return spawnCombatEnemy(gs, {
+    ...deps,
+    getRegionData,
+  });
+}
+
+export function handleCombatEnemyDeath(gs, enemy, idx, deps = {}) {
+  const { win } = resolveDeathRuntimeContext(deps);
+  const audioEngine = deps.audioEngine || win.AudioEngine;
+  const { runtimePort } = createEnemyDeathRuntimePort(gs, {
+    ...deps,
+    endCombat: (endCombatDeps) => endCombatRuntime(gs, endCombatDeps),
+    replaceCombatEnemies,
+    syncSelectedTarget,
+  });
+
+  return handleEnemyDeathFlow({
+    enemy,
+    gs,
+    idx,
+    applyEnemyDeath: (state, defeatedEnemy, enemyIdx) => applyEnemyDeathState(state, defeatedEnemy, enemyIdx, {
+      addGold: (amount) => gs.addGold(amount, deps),
+      addLog: (message, type) => gs.addLog(message, type),
+      emitEnemyDeath: (payload) => EventBus.emit(Actions.ENEMY_DEATH, payload),
+      isCombatEndScheduled: () => !!gs._endCombatScheduled,
+      playEnemyDeath: () => playReactionEnemyDeath(audioEngine),
+      recordEnemyWorldKill: (enemyId) => recordEnemyWorldKill(gs, enemyId),
+      registerEnemyKill: (enemyId) => registerEnemyKill(gs, enemyId),
+      scheduleCombatEnd: () => scheduleCombatEnd(gs),
+      triggerItems: (trigger, payload) => gs.triggerItems(trigger, payload),
+    }),
+    runtimePort,
+  });
+}

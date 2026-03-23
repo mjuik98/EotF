@@ -1,66 +1,12 @@
-import { createCombatStartRuntime } from '../application/create_combat_start_runtime.js';
-import { beginPlayerTurnUseCase } from '../application/begin_player_turn_use_case.js';
-import { drawCardsService, executePlayerDrawService } from '../application/card_draw_service.js';
-import { CombatInitializer } from '../application/combat_initializer.js';
-import { endPlayerTurnService } from '../application/end_turn_service.js';
-import { endPlayerTurnUseCase } from '../application/end_player_turn_use_case.js';
-import { cleanupCombatAfterAbandon } from '../application/help_pause_abandon_combat_actions.js';
-import { playCardService } from '../application/play_card_service.js';
-import {
-  applyEnemyAreaDamageRuntime,
-  applyEnemyDamageRuntime,
-  applyEnemyDamageState,
-  discardStateCard,
-  drawStateCards,
-  endCombatRuntime,
-  playRuntimeCard,
-  playStateCard,
-} from '../application/public_combat_command_actions.js';
-import { runEnemyTurnUseCase } from '../application/run_enemy_turn_use_case.js';
-import { startCombatFlowUseCase } from '../application/start_combat_flow_use_case.js';
+import * as commandCapabilities from './public_combat_command_application_capabilities.js';
+import * as flowCapabilities from './public_combat_flow_application_capabilities.js';
 
 export function createCombatApplicationCapabilities() {
   return {
-    applyEnemyAreaDamageRuntime,
-    applyEnemyDamageRuntime,
-    applyEnemyDamageState,
-    beginPlayerTurnUseCase,
-    CombatInitializer,
-    cleanupCombatAfterAbandon,
-    createCombatStartRuntime,
-    discardStateCard,
-    drawCardsService,
-    endPlayerTurnService,
-    endPlayerTurnUseCase,
-    drawStateCards,
-    endCombatRuntime,
-    executePlayerDrawService,
-    playCardService,
-    playRuntimeCard,
-    playStateCard,
-    runEnemyTurnUseCase,
-    startCombatFlowUseCase,
+    ...commandCapabilities,
+    ...flowCapabilities,
   };
 }
 
-export {
-  applyEnemyAreaDamageRuntime,
-  applyEnemyDamageRuntime,
-  applyEnemyDamageState,
-  beginPlayerTurnUseCase,
-  CombatInitializer,
-  cleanupCombatAfterAbandon,
-  createCombatStartRuntime,
-  discardStateCard,
-  drawCardsService,
-  endPlayerTurnService,
-  endPlayerTurnUseCase,
-  drawStateCards,
-  endCombatRuntime,
-  executePlayerDrawService,
-  playCardService,
-  playRuntimeCard,
-  playStateCard,
-  runEnemyTurnUseCase,
-  startCombatFlowUseCase,
-};
+export * from './public_combat_command_application_capabilities.js';
+export * from './public_combat_flow_application_capabilities.js';

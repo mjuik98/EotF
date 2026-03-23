@@ -75,11 +75,11 @@ describe('quality workflow scripts', () => {
 
     expect(suiteManifest.fast.length).toBeGreaterThan(0);
     expect(suiteManifest.guardrails.length).toBeGreaterThan(0);
-    expect(couplingTargets.maxTotal).toBe(245);
-    expect(couplingTargets.maxByPair['feature->shared']).toBe(34);
-    expect(couplingTargets.maxByPair['feature->domain']).toBe(17);
+    expect(couplingTargets.maxTotal).toBe(231);
+    expect(couplingTargets.maxByPair['feature->shared']).toBe(33);
+    expect(couplingTargets.maxByPair['feature->domain']).toBe(16);
     expect(couplingTargets.maxByPair['feature->data']).toBe(10);
-    expect(couplingTargets.maxByPair['feature->utils']).toBe(15);
+    expect(couplingTargets.maxByPair['feature->utils']).toBe(2);
     expect(couplingTargets.maxByPair['feature->legacy']).toBe(1);
     expect(lintScript).toContain('node scripts/test_suite_manifest.mjs --check');
     expect(suiteScript).toContain('--write');

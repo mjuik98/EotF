@@ -1,19 +1,19 @@
 import {
-  buildCombatCardBrowserModules,
-  buildCombatCoreBrowserModules,
-  buildCombatHudBrowserModules,
-} from '../platform/browser/combat_browser_modules.js';
+  buildCombatCardModuleCapabilities,
+  buildCombatCoreModuleCapabilities,
+  buildCombatHudModuleCapabilities,
+} from '../platform/browser/combat_module_capabilities.js';
 
 export function buildCombatPublicModules() {
-  return buildCombatCoreBrowserModules();
+  return buildCombatCoreModuleCapabilities();
 }
 
 export function buildCombatCardPublicModules() {
-  return buildCombatCardBrowserModules();
+  return buildCombatCardModuleCapabilities();
 }
 
 export function buildCombatHudPublicModules() {
-  return buildCombatHudBrowserModules();
+  return buildCombatHudModuleCapabilities();
 }
 
 export function createCombatModuleCapabilities() {

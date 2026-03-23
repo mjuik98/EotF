@@ -8,7 +8,12 @@ function asArray(value) {
 export function migrateRunSave(raw) {
   if (!raw || typeof raw !== 'object') return null;
 
-  const save = { ...raw };
+  const save = {
+    ...raw,
+    player: raw.player && typeof raw.player === 'object'
+      ? { ...raw.player }
+      : raw.player,
+  };
   const version = Number(save.version || 1);
 
   if (version < 2) {
@@ -26,7 +31,12 @@ export function migrateRunSave(raw) {
 export function migrateMetaSave(raw) {
   if (!raw || typeof raw !== 'object') return null;
 
-  const meta = { ...raw };
+  const meta = {
+    ...raw,
+    codex: raw.codex && typeof raw.codex === 'object'
+      ? { ...raw.codex }
+      : raw.codex,
+  };
   const version = Number(meta.version || 1);
 
   if (version < 2) {

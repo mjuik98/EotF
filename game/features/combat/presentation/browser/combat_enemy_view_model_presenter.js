@@ -1,4 +1,4 @@
-import { CardCostUtils } from '../../ports/public_presentation_support_capabilities.js';
+import { CardCostUtils } from '../../ports/presentation/public_combat_card_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import { calcSelectedPreview, enemyHpColor, selectedPreviewText } from './combat_render_helpers.js';
 import { buildEnemyStatusBadges } from './combat_enemy_status_badges_ui.js';

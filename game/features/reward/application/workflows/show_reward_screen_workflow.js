@@ -1,4 +1,4 @@
-import { clearIdempotencyPrefix } from '../../../../utils/idempotency_utils.js';
+import { clearIdempotencyPrefix } from '../reward_idempotency.js';
 import {
   deactivateCombat,
   unlockRewardFlow,

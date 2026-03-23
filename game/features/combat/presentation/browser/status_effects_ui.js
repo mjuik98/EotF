@@ -5,7 +5,7 @@ import {
   PLAYER_STATUS_FALLBACK_BUFF_KEYS,
   resolveStatusEffectValue,
   STATUS_KR,
-} from '../../ports/public_presentation_support_capabilities.js';
+} from '../../ports/presentation/public_combat_status_support_capabilities.js';
 import { StatusTooltipUI } from './status_tooltip_builder.js';
 
 function _getDoc(deps) { return deps?.doc || document; }

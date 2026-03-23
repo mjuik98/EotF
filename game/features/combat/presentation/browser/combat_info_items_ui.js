@@ -2,7 +2,7 @@ import {
   COMBAT_INFO_ITEM_RARITY_BORDER_COLORS,
   RARITY_SORT_ORDER,
   RARITY_TEXT_COLORS,
-} from '../../ports/public_presentation_support_capabilities.js';
+} from '../../ports/presentation/public_combat_card_support_capabilities.js';
 
 export function renderCombatInfoItems({ doc, itemEl, items, data }) {
   itemEl.textContent = '';

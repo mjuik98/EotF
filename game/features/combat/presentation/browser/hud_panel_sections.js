@@ -1,4 +1,4 @@
-import { SecurityUtils } from '../../ports/public_presentation_support_capabilities.js';
+import { SecurityUtils } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import {
   updateActionButtons,

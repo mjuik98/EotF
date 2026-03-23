@@ -113,8 +113,9 @@ describe('feature structure guardrails', () => {
     const combatSource = readSource('game/features/combat/platform/browser/combat_browser_modules.js');
     const runSource = readSource('game/features/run/platform/browser/run_browser_modules.js');
 
-    expect(combatSource).toContain('/presentation/browser/hud/');
-    expect(combatSource).toContain('/presentation/browser/feedback/');
+    expect(combatSource).toContain('./public_combat_core_browser_modules.js');
+    expect(combatSource).toContain('./public_combat_card_browser_modules.js');
+    expect(combatSource).toContain('./public_combat_hud_browser_modules.js');
     expect(runSource).toContain('/presentation/browser/map/');
     expect(runSource).toContain('/presentation/browser/transition/');
   });

@@ -4,7 +4,7 @@ import {
   showEventService,
   triggerRandomEventService,
 } from './event_service.js';
-import { clearIdempotencyPrefix, runIdempotent } from '../../../utils/idempotency_utils.js';
+import { clearIdempotencyPrefix, runIdempotent } from './event_idempotency.js';
 import {
   getAudioEngine,
   getData,

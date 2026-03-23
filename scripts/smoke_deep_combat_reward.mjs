@@ -81,6 +81,15 @@ async function advanceTime(page, ms) {
   }, ms);
 }
 
+function assertCondition(condition, message, details = null) {
+  if (!condition) {
+    if (details !== null) {
+      throw new Error(`${message}\n${JSON.stringify(details, null, 2)}`);
+    }
+    throw new Error(message);
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   ensureDir(args.outDir);
@@ -176,6 +185,12 @@ async function main() {
     await page.waitForSelector('.node-card', { state: 'visible', timeout: 10000 });
     await advanceTime(page, 800);
     await writeSnapshot(page, args.outDir, 2);
+
+    assertCondition(
+      consoleErrors.length === 0,
+      'Reward smoke captured console/page errors',
+      consoleErrors,
+    );
   } finally {
     fs.writeFileSync(
       path.join(args.outDir, 'console-errors.json'),

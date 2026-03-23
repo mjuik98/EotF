@@ -1,9 +1,3 @@
-import { DATA } from '../ports/public_data_runtime_capabilities.js';
-import {
-  ensureCodexRecords,
-  ensureCodexState,
-} from '../ports/public_codex_state_capabilities.js';
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import { CURSES } from '../domain/run_rules_curses.js';
 import {
   getRegionCount,
@@ -13,25 +7,27 @@ import {
 } from '../domain/run_rules_regions.js';
 import {
   getAscension,
-  isEndless,
   getDifficultyScore,
   getInscriptionScoreAdjustment,
   getRewardMultiplier,
   getEnemyScaleMultiplier,
   getHealAmount,
   getShopCost,
-} from '../domain/run_rules_difficulty.js';
-import { ensureRunMeta } from '../domain/run_rules_meta.js';
+  isEndless,
+} from './run_rule_scaling.js';
 import {
-  applyPlayerMaxHpPenalty,
-  applyRunOutcomeRewards,
-  applySilenceCurseTurnStart,
-  beginRunOutcomeCommit,
-  captureRunOutcomeTiming,
-  recordDefeatProgress,
-  recordVictoryProgress,
-  syncRunOutcomeMeta,
-} from '../state/run_outcome_state_commands.js';
+  applyCombatDeckReadyEffects,
+  applyCombatEndEffects,
+  applyCombatStartEffects,
+  applyRunStartEffects,
+  applyTurnStartEffects,
+} from './run_rule_lifecycle.js';
+import { ensureRunRuleMeta } from './run_rule_meta.js';
+import {
+  finalizeRunOutcome,
+  recordRunDefeat,
+  recordRunVictory,
+} from './run_rule_outcome.js';
 
 export {
   getRegionCount,
@@ -44,12 +40,8 @@ export const RunRules = {
   curses: CURSES,
 
   ensureMeta(meta) {
-    ensureRunMeta(meta, {
+    ensureRunRuleMeta(meta, {
       curses: this.curses,
-      data: DATA,
-      ensureCodexState,
-      ensureCodexRecords,
-      ensureClassProgressionMeta: (metaRef, classIds) => ClassProgressionSystem.ensureMeta(metaRef, classIds),
     });
   },
 
@@ -86,66 +78,35 @@ export const RunRules = {
   },
 
   applyRunStart(gs) {
-    if (!gs?.meta || !gs?.player) return;
-    this.ensureMeta(gs.meta);
-    const asc = this.getAscension(gs);
-    const cfg = gs.runConfig || {};
-
-    const ascHpLoss = Math.min(20, asc * 2);
-    applyPlayerMaxHpPenalty(gs, ascHpLoss);
-
-    const curse = cfg.curse || 'none';
-    if (curse === 'frail') {
-      applyPlayerMaxHpPenalty(gs, 10);
-    }
-
-    ClassProgressionSystem.applyRunStartBonuses(gs, {
-      classIds: Object.keys(DATA?.classes || {}),
-      data: DATA,
+    applyRunStartEffects(gs, {
+      curses: this.curses,
+      ensureMeta: (meta) => this.ensureMeta(meta),
+      getAscension: (state) => this.getAscension(state),
     });
   },
 
   onCombatStart(gs) {
-    if (!gs?.player) return;
-    ClassProgressionSystem.applyCombatStartBonuses(gs, {
-      classIds: Object.keys(DATA?.classes || {}),
-    });
+    applyCombatStartEffects(gs);
   },
 
   onCombatDeckReady(gs) {
-    if (!gs?.player) return;
-    ClassProgressionSystem.applyDeckReadyBonuses(gs, {
-      classIds: Object.keys(DATA?.classes || {}),
-      data: DATA,
-    });
+    applyCombatDeckReadyEffects(gs);
   },
 
   onTurnStart(gs) {
-    if (!gs?.player || !gs?.combat) return;
-
-    if ((gs.runConfig?.curse || 'none') === 'silence') {
-      applySilenceCurseTurnStart(gs);
-    }
+    applyTurnStartEffects(gs);
   },
 
   onCombatEnd(gs) {
-    if (!gs?.player) return;
-
-    if ((gs.runConfig?.curse || 'none') === 'decay') {
-      applyPlayerMaxHpPenalty(gs, 2);
-    }
+    applyCombatEndEffects(gs);
   },
 
   onVictory(gs) {
-    if (!gs?.meta) return 5;
-    this.ensureMeta(gs.meta);
-    return recordVictoryProgress(gs);
+    return recordRunVictory(gs);
   },
 
   onDefeat(gs) {
-    if (!gs?.meta) return 3;
-    this.ensureMeta(gs.meta);
-    return recordDefeatProgress(gs);
+    return recordRunDefeat(gs);
   },
 
   nextCurseId(current = 'none') {
@@ -154,50 +115,4 @@ export const RunRules = {
     return ids[(idx + 1) % ids.length];
   },
 };
-
-function resolveRunRulesState(deps = {}) {
-  if (deps.gs) return deps.gs;
-  if (typeof deps.getGameState === 'function') return deps.getGameState();
-  return null;
-}
-
-function persistRunOutcomeMeta(deps = {}) {
-  const saveSystem = deps.saveSystem;
-  saveSystem?.saveMeta?.();
-  saveSystem?.clearSave?.();
-}
-
-export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
-  const gs = resolveRunRulesState(deps);
-  if (!gs) return 0;
-  if (!beginRunOutcomeCommit(gs)) return 0;
-
-  captureRunOutcomeTiming(gs);
-
-  RunRules.ensureMeta(gs.meta);
-  syncRunOutcomeMeta(gs);
-  const isVictory = kind === 'victory';
-  let shardGain = 0;
-  if (Number.isFinite(options.echoFragments)) {
-    shardGain = Math.max(0, Math.floor(options.echoFragments));
-    if (isVictory) RunRules.onVictory(gs);
-    else RunRules.onDefeat(gs);
-  } else {
-    shardGain = isVictory ? RunRules.onVictory(gs) : RunRules.onDefeat(gs);
-  }
-
-  try {
-    ClassProgressionSystem.awardRunXP(gs, kind, {
-      ...options,
-      classIds: Object.keys(DATA?.classes || {}),
-      regionCount: getRegionCount(),
-    });
-  } catch (e) {
-    console.warn('[RunRules] Class progression update failed:', e?.message || e);
-  }
-
-  applyRunOutcomeRewards(gs, shardGain);
-  persistRunOutcomeMeta(deps);
-
-  return shardGain;
-}
+export { finalizeRunOutcome };

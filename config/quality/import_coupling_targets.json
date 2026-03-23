@@ -1,5 +1,5 @@
 {
-  "maxTotal": 245,
+  "maxTotal": 231,
   "maxByPair": {
     "core->domain": 3,
     "core->feature": 26,
@@ -15,11 +15,11 @@
     "engine->data": 1,
     "feature->core": 23,
     "feature->data": 10,
-    "feature->domain": 17,
+    "feature->domain": 16,
     "feature->legacy": 1,
     "feature->platform": 3,
-    "feature->shared": 34,
-    "feature->utils": 15,
+    "feature->shared": 33,
+    "feature->utils": 2,
     "legacy->core": 6,
     "legacy->domain": 1,
     "legacy->feature": 8,

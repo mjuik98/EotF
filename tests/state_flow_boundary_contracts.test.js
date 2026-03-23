@@ -83,8 +83,12 @@ describe('state flow boundary contracts', () => {
   });
 
   it('keeps combat application and class domain files on state-command writes only', () => {
+    const cardMethodsFacade = read('game/features/combat/application/card_methods_facade.js');
     const damageSideEffects = read('game/features/combat/application/combat_damage_side_effects.js');
     const deathFlowActions = read('game/features/combat/application/death_flow_actions.js');
+    const deathFlowEnemyRuntime = read('game/features/combat/application/death_flow_enemy_runtime.js');
+    const deathFlowPlayerRuntime = read('game/features/combat/application/death_flow_player_runtime.js');
+    const deathFlowRuntimeSupport = read('game/features/combat/application/death_flow_runtime_support.js');
     const enemyDeathState = read('game/features/combat/application/enemy_death_state.js');
     const helpPauseAbandonCombat = read('game/features/combat/application/help_pause_abandon_combat_actions.js');
     const playCardService = read('game/features/combat/application/play_card_service.js');
@@ -92,9 +96,15 @@ describe('state flow boundary contracts', () => {
     const startCombatFlowUseCase = read('game/features/combat/application/start_combat_flow_use_case.js');
     const classMechanicRules = read('game/domain/class/class_mechanic_rules.js');
 
+    expect(cardMethodsFacade).toContain('../platform/combat_card_runtime_ports.js');
+    expect(cardMethodsFacade).not.toContain('../../../platform/legacy/adapters/create_legacy_game_state_card_ports.js');
     expect(damageSideEffects).not.toContain('gs.player.echoChain = prevChain + 1');
-    expect(deathFlowActions).toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
-    expect(deathFlowActions).toContain('../../../shared/combat/public_combat_runtime_effects.js');
+    expect(deathFlowActions).toContain("./death_flow_enemy_runtime.js");
+    expect(deathFlowActions).toContain("./death_flow_player_runtime.js");
+    expect(deathFlowEnemyRuntime).toContain("./death_flow_runtime_support.js");
+    expect(deathFlowPlayerRuntime).toContain("./death_flow_runtime_support.js");
+    expect(deathFlowRuntimeSupport).toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
+    expect(deathFlowRuntimeSupport).toContain('../../../shared/combat/public_combat_runtime_effects.js');
     expect(deathFlowActions).not.toContain('../../../../data/game_data.js');
     expect(deathFlowActions).not.toContain('../../../domain/audio/audio_event_helpers.js');
     expect(deathFlowActions).not.toContain('../../../shared/codex/codex_record_state_use_case.js');

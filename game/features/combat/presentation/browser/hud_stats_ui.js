@@ -6,7 +6,7 @@ import {
   setActionButtonLabel,
 } from './hud_render_helpers.js';
 import { DomValueUI } from './dom_value_ui.js';
-import { getDoc } from '../../ports/public_presentation_support_capabilities.js';
+import { getDoc } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 import { resolveDrawAvailability } from './draw_availability.js';
 
 export function updateCombatEnergyUI(gs, deps = {}) {

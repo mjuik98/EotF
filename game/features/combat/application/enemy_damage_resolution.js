@@ -1,4 +1,4 @@
-import { Logger } from '../../../utils/logger.js';
+import { Logger } from '../ports/combat_logging.js';
 import { applyEnemyDamageState } from '../state/card_state_commands.js';
 
 export function resolveEnemyTargetIndex(gs, enemies, targetIdx) {

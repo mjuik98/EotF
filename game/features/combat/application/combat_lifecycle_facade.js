@@ -15,7 +15,7 @@ import {
   createRecentFeedMeta,
   formatRecentFeedText,
   LogUtils,
-} from '../../../utils/log_utils.js';
+} from '../ports/combat_logging.js';
 import {
   runEndCombatFlow,
 } from './run_end_combat_flow_use_case.js';

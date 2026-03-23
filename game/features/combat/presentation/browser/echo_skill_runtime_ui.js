@@ -1,5 +1,5 @@
 import { playEventResonanceBurst } from '../../ports/public_audio_presentation_capabilities.js';
-import { CONSTANTS, Trigger } from '../../ports/public_presentation_support_capabilities.js';
+import { CONSTANTS, Trigger } from '../../ports/presentation/public_combat_runtime_support_capabilities.js';
 
 function formatRecentFeedText({ sourceName, outcome = '' } = {}) {
   const normalizedOutcome = typeof outcome === 'string' ? outcome.trim() : '';

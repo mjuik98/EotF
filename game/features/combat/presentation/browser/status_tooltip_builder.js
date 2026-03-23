@@ -5,7 +5,7 @@ import {
   getStatusTooltipMeta,
   isInfiniteStatusDuration,
   resolveStatusTooltipPalette,
-} from '../../ports/public_presentation_support_capabilities.js';
+} from '../../ports/presentation/public_combat_status_support_capabilities.js';
 import {
   getStatusTooltipTypeLabel,
 } from './status_tooltip_copy.js';

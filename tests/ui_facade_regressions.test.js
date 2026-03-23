@@ -146,6 +146,31 @@ import {
   CharacterSelectUI,
   ClassSelectUI,
 } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
+import { GameBootUI } from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
+import {
+  GameCanvasSetupUI,
+  IntroCinematicUI,
+  LevelUpPopupUI,
+  TitleCanvasUI,
+} from '../game/features/title/ports/public_presentation_capabilities.js';
+import { RunEndScreenUI } from '../game/features/title/ports/public_run_end_presentation_capabilities.js';
+import { RunModeUI, RunReturnUI, RunSetupUI, RunStartUI } from '../game/features/run/public.js';
+import { EndingScreenUI, MetaProgressionUI, ScreenUI, StoryUI } from '../game/features/ui/public.js';
+import { CodexUI } from '../game/features/codex/public.js';
+import * as gameBootRuntime from '../game/features/title/presentation/browser/game_boot_ui_runtime.js';
+import * as gameCanvasRuntime from '../game/features/title/presentation/browser/game_canvas_setup_ui_runtime.js';
+import * as introRuntime from '../game/features/title/presentation/browser/intro_cinematic_runtime.js';
+import * as levelUpRuntime from '../game/features/title/presentation/browser/level_up_popup_runtime.js';
+import * as runEndRuntime from '../game/features/title/presentation/browser/run_end_screen_runtime.js';
+import * as runModeRuntime from '../game/features/run/presentation/browser/run_mode_ui_runtime.js';
+import * as runSetupRuntime from '../game/features/run/application/create_run_setup_runtime.js';
+import * as runStartRuntime from '../game/features/run/application/create_run_start_runtime.js';
+import * as runReturnRuntime from '../game/features/run/presentation/browser/run_return_ui_runtime.js';
+import * as screenRuntime from '../game/features/ui/presentation/browser/screen_ui_runtime.js';
+import * as storyRuntime from '../game/features/ui/presentation/browser/story_ui_runtime.js';
+import * as endingRuntime from '../game/features/ui/presentation/browser/ending_screen_ui_runtime.js';
+import * as metaRuntime from '../game/features/ui/presentation/browser/meta_progression_ui_runtime.js';
+import * as codexRuntime from '../game/features/codex/presentation/browser/codex_ui_runtime.js';
 
 function createRunModeDoc() {
   const nodes = new Map();
@@ -213,19 +238,7 @@ describe('ui facade regressions', () => {
     CharacterSelectUI._runtime = previousRuntime;
   });
 
-  it('keeps title presentation facades delegated to feature-owned runtimes', async () => {
-    const { GameBootUI } = await import('../game/features/title/ports/public_game_boot_presentation_capabilities.js');
-    const gameBootRuntime = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
-    const { GameCanvasSetupUI } = await import('../game/features/title/ports/public_presentation_capabilities.js');
-    const gameCanvasRuntime = await import('../game/features/title/presentation/browser/game_canvas_setup_ui_runtime.js');
-    const { IntroCinematicUI } = await import('../game/features/title/ports/public_presentation_capabilities.js');
-    const introRuntime = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
-    const { LevelUpPopupUI } = await import('../game/features/title/ports/public_presentation_capabilities.js');
-    const levelUpRuntime = await import('../game/features/title/presentation/browser/level_up_popup_runtime.js');
-    const { RunEndScreenUI } = await import('../game/features/title/ports/public_run_end_presentation_capabilities.js');
-    const runEndRuntime = await import('../game/features/title/presentation/browser/run_end_screen_runtime.js');
-    const { TitleCanvasUI } = await import('../game/features/title/ports/public_presentation_capabilities.js');
-
+  it('keeps title presentation facades delegated to feature-owned runtimes', () => {
     const deps = { marker: true };
     GameBootUI.bootGame(deps);
     GameBootUI.bootWhenReady(deps);
@@ -284,15 +297,7 @@ describe('ui facade regressions', () => {
     expect(stopSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps run facades delegated to feature-owned runtimes', async () => {
-    const { RunModeUI } = await import('../game/features/run/public.js');
-    const runModeRuntime = await import('../game/features/run/presentation/browser/run_mode_ui_runtime.js');
-    const { RunSetupUI } = await import('../game/features/run/public.js');
-    const runSetupRuntime = await import('../game/features/run/application/create_run_setup_runtime.js');
-    const { RunStartUI } = await import('../game/features/run/public.js');
-    const runStartRuntime = await import('../game/features/run/application/create_run_start_runtime.js');
-    const { RunReturnUI } = await import('../game/features/run/public.js');
-    const runReturnRuntime = await import('../game/features/run/presentation/browser/run_return_ui_runtime.js');
+  it('keeps run facades delegated to feature-owned runtimes', () => {
     const doc = createRunModeDoc();
     const deps = { marker: true, doc };
 
@@ -329,13 +334,7 @@ describe('ui facade regressions', () => {
     expect(runReturnRuntime.returnToGameRuntime).toHaveBeenNthCalledWith(2, true, { marker: 'reward' });
   });
 
-  it('keeps screen/story/ending/meta facades delegated to feature-owned runtimes', async () => {
-    const { EndingScreenUI, MetaProgressionUI, ScreenUI, StoryUI } = await import('../game/features/ui/public.js');
-    const screenRuntime = await import('../game/features/ui/presentation/browser/screen_ui_runtime.js');
-    const storyRuntime = await import('../game/features/ui/presentation/browser/story_ui_runtime.js');
-    const endingRuntime = await import('../game/features/ui/presentation/browser/ending_screen_ui_runtime.js');
-    const metaRuntime = await import('../game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
-
+  it('keeps screen/story/ending/meta facades delegated to feature-owned runtimes', () => {
     ScreenUI.switchScreen('title', { marker: true });
     expect(screenRuntime.switchScreenRuntime).toHaveBeenCalledWith('title', {
       marker: true,
@@ -366,13 +365,11 @@ describe('ui facade regressions', () => {
     expect(metaRuntime.restartFromEndingRuntime).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps codex public surface delegated to feature-owned runtimes', async () => {
+  it('keeps codex public surface delegated to feature-owned runtimes', () => {
     const originalDocument = globalThis.document;
     const doc = createRunModeDoc();
     globalThis.document = doc;
 
-    const { CodexUI } = await import('../game/features/codex/public.js');
-    const runtime = await import('../game/features/codex/presentation/browser/codex_ui_runtime.js');
     const deps = { marker: true, doc };
 
     CodexUI.openCodex(deps);
@@ -384,10 +381,10 @@ describe('ui facade regressions', () => {
     expect(doc.head.children[0].rel).toBe('stylesheet');
     expect(doc.head.children[0].href).toContain('codex_v3.css');
     expect(doc.head.children[0].href).not.toBe('/css/codex_v3.css');
-    expect(runtime.openCodexRuntime).toHaveBeenCalled();
-    expect(runtime.closeCodexRuntime).toHaveBeenCalled();
-    expect(runtime.setCodexTabRuntime).toHaveBeenCalledWith(expect.any(Object), CodexUI, 'items', deps);
-    expect(runtime.renderCodexContentRuntime).toHaveBeenCalledWith(expect.any(Object), CodexUI, deps);
+    expect(codexRuntime.openCodexRuntime).toHaveBeenCalled();
+    expect(codexRuntime.closeCodexRuntime).toHaveBeenCalled();
+    expect(codexRuntime.setCodexTabRuntime).toHaveBeenCalledWith(expect.any(Object), CodexUI, 'items', deps);
+    expect(codexRuntime.renderCodexContentRuntime).toHaveBeenCalledWith(expect.any(Object), CodexUI, deps);
 
     globalThis.document = originalDocument;
   });

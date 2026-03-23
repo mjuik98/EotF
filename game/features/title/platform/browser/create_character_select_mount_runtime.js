@@ -1,13 +1,12 @@
-import { CARDS } from '../../../../../data/cards.js';
 import {
   ensureCharacterSelectMeta,
   getCharacterSelectPresentation,
 } from '../../application/load_character_select_use_case.js';
 import {
-  buildClassLoadoutCustomizationPresentation,
-  saveLevel11LoadoutPreset,
-  saveLevel12LoadoutPreset,
-} from '../../../../shared/progression/class_loadout_preset_use_case.js';
+  buildCharacterSelectLoadoutPayload,
+  clearCharacterSelectLoadoutPreset,
+  saveCharacterSelectLoadoutPreset,
+} from './character_select_mount_loadout.js';
 import { TooltipUI } from '../../../combat/ports/public_presentation_capabilities.js';
 import {
   renderCharacterInfoPanel,
@@ -54,75 +53,13 @@ export function createCharacterSelectMountRuntime(options = {}) {
     if (typeof deps.onProgressConsumed === 'function') deps.onProgressConsumed();
   }
 
-  function buildLoadoutCustomization(ch, presentation) {
-    const itemCatalog = deps?.data?.items || {};
-    const dataCards = deps?.data?.cards || CARDS;
-    const dataUpgradeMap = deps?.data?.upgradeMap || {};
-    const dataStartDecks = deps?.data?.startDecks || {
-      [ch.class]: ch.startDeck,
-    };
-    const customization = buildClassLoadoutCustomizationPresentation(deps?.gs?.meta, ch.class, {
-      classLevel: presentation.classProgress.level,
-      classMeta: {
-        class: ch.class,
-        startDeck: ch.startDeck,
-        startRelic: ch.startRelicId,
-      },
-      data: {
-        cards: dataCards,
-        items: itemCatalog,
-        startDecks: dataStartDecks,
-        upgradeMap: dataUpgradeMap,
-      },
-    });
-    const previewRelics = customization.previewRelicIds
-      .map((relicId) => {
-        const relic = itemCatalog[relicId];
-        if (!relic && relicId === ch.startRelicId) {
-          return {
-            id: relicId,
-            icon: ch.startRelic?.icon || '?',
-            name: ch.startRelic?.name || relicId,
-            desc: ch.startRelic?.desc || 'Data unavailable',
-          };
-        }
-        if (!relic) return { id: relicId, icon: '?', name: relicId, desc: 'Data unavailable' };
-        return {
-          id: relicId,
-          icon: relic.icon || '?',
-          name: relic.name || relicId,
-          desc: relic.desc || 'Data unavailable',
-        };
-      })
-      .filter(Boolean);
-
-    return {
-      customization: {
-        ...customization,
-        previewRelics,
-        eligibleSwapAddCards: customization.eligibleSwapAddCardIds.map((cardId) => ({
-          cardId,
-          name: dataCards[cardId]?.name || cardId,
-        })),
-        eligibleBonusRelics: customization.eligibleBonusRelicIds.map((relicId) => ({
-          id: relicId,
-          name: itemCatalog[relicId]?.name || relicId,
-        })),
-      },
-      dataCards,
-      dataStartDecks,
-      dataUpgradeMap,
-      itemCatalog,
-    };
-  }
-
   function renderCard() {
     const ch = chars[state.idx];
     const card = getById('charCard');
     if (!card) return;
     const presentation = getCharacterSelectPresentation(deps?.gs?.meta, ch.class, classIds);
     const progress = presentation.classProgress;
-    const { customization } = buildLoadoutCustomization(ch, presentation);
+    const { customization } = buildCharacterSelectLoadoutPayload(ch, presentation, deps);
     renderCharacterCard({
       card,
       selectedChar: ch,
@@ -149,7 +86,7 @@ export function createCharacterSelectMountRuntime(options = {}) {
       dataStartDecks,
       dataUpgradeMap,
       itemCatalog,
-    } = buildLoadoutCustomization(ch, presentation);
+    } = buildCharacterSelectLoadoutPayload(ch, presentation, deps);
 
     renderCharacterInfoPanel({
       panel: getById('infoPanel'),
@@ -168,45 +105,23 @@ export function createCharacterSelectMountRuntime(options = {}) {
       openModal,
       loadoutCustomization: customization,
       onSaveLoadoutPreset: (payload) => {
-        if (!payload?.slot) return;
-        if (payload.slot === 'level11') {
-          saveLevel11LoadoutPreset(deps?.gs?.meta, ch.class, payload, {
-            classLevel: presentation.classProgress.level,
-            classMeta: {
-              class: ch.class,
-              startDeck: ch.startDeck,
-              startRelic: ch.startRelicId,
-            },
-            data: {
-              cards: dataCards,
-              items: itemCatalog,
-              startDecks: dataStartDecks,
-              upgradeMap: dataUpgradeMap,
-            },
-          });
-        } else if (payload.slot === 'level12') {
-          saveLevel12LoadoutPreset(deps?.gs?.meta, ch.class, payload.bonusRelicId, {
-            classLevel: presentation.classProgress.level,
-            classMeta: {
-              class: ch.class,
-              startDeck: ch.startDeck,
-              startRelic: ch.startRelicId,
-            },
-            data: {
-              cards: dataCards,
-              items: itemCatalog,
-              startDecks: dataStartDecks,
-              upgradeMap: dataUpgradeMap,
-            },
-          });
-        }
+        const didSave = saveCharacterSelectLoadoutPreset({
+          ch,
+          deps,
+          payload,
+          presentation,
+          dataCards,
+          dataStartDecks,
+          dataUpgradeMap,
+          itemCatalog,
+        });
+        if (!didSave) return;
         saveProgressMeta();
         updateAll();
       },
       onClearLoadoutPreset: (slot) => {
-        const presets = deps?.gs?.meta?.classProgress?.loadoutPresets?.[ch.class];
-        if (!presets || (slot !== 'level11' && slot !== 'level12')) return;
-        presets[slot] = null;
+        const didClear = clearCharacterSelectLoadoutPreset(deps?.gs, ch.class, slot);
+        if (!didClear) return;
         saveProgressMeta();
         updateAll();
       },
