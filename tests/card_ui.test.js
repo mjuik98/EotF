@@ -169,6 +169,59 @@ describe('card_ui', () => {
     globalThis.CardCostUtils = prevCardCostUtils;
   });
 
+  it('still wires unplayable cards into HandCardCloneUI for the hover redesign target', () => {
+    const doc = createDoc();
+    const showTooltipHandler = vi.fn();
+    const hideTooltipHandler = vi.fn();
+    const cardCostUtils = {
+      getCostDisplay: vi.fn(() => ({
+        anyFree: false,
+        canPlay: false,
+        displayCost: 3,
+        totalDiscount: 0,
+      })),
+      calcEffectiveCost: vi.fn(() => 3),
+      hasTraitDiscount: vi.fn(() => false),
+      isCascadeFree: vi.fn(() => false),
+      isChargeFree: vi.fn(() => false),
+    };
+    const gs = {
+      player: {
+        hand: ['heavy_blow'],
+        energy: 0,
+        _nextCardDiscount: 0,
+        costDiscount: 0,
+      },
+    };
+    const data = {
+      cards: {
+        heavy_blow: { cost: 3, rarity: 'common', type: 'ATTACK' },
+      },
+    };
+
+    CardUI.renderCombatCards({
+      cardCostUtils,
+      data,
+      doc,
+      gs,
+      hideTooltipHandler,
+      playCardHandler: vi.fn(),
+      showTooltipHandler,
+    });
+
+    const cardEl = doc.getElementById('combatHandCards').children[0];
+
+    expect(attachToCardSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      'heavy_blow',
+      data.cards.heavy_blow,
+      expect.objectContaining({ canPlay: false, displayCost: 3 }),
+      expect.objectContaining({ doc }),
+    );
+    expect(cardEl.listeners.has('mouseenter')).toBe(false);
+    expect(cardEl.listeners.has('mouseleave')).toBe(false);
+  });
+
   it('reuses combat hand rendering for the compatibility renderHand entrypoint', () => {
     const doc = createDoc();
     const playCardHandler = vi.fn();

@@ -67,8 +67,8 @@ class MockElement {
     return null;
   }
 
-  emit(type) {
-    this.listeners.get(type)?.();
+  emit(type, event = {}) {
+    this.listeners.get(type)?.(event);
   }
 
   getBoundingClientRect() {
@@ -146,5 +146,45 @@ describe('card_clone_ui', () => {
     clone.emit('transitionend');
 
     expect(layer.children).not.toContain(clone);
+  });
+
+  it('opens the keyword side panel and keeps it open when moving from the trigger into the panel', () => {
+    const doc = createDoc();
+    const handZone = new MockElement(doc, 'div');
+    const card = new MockElement(doc, 'div', { left: 560, top: 640, width: 100, height: 146, right: 660, bottom: 786 });
+    doc._elements.set('combatHandCards', handZone);
+
+    HandCardCloneUI.init({ doc });
+    HandCardCloneUI.attachToCard(card, 'void_blade', {
+      name: '공허의 도검',
+      icon: '🌀',
+      type: 'Attack',
+      cost: 2,
+      rarity: 'rare',
+      desc: '피해 30 [소진]. 기절 1턴 부여',
+      exhaust: true,
+    }, {
+      displayCost: 2,
+      canPlay: true,
+      anyFree: false,
+      totalDisc: 0,
+    }, { doc });
+
+    card.listeners.get('mouseenter')();
+    vi.advanceTimersByTime(120);
+
+    const layer = doc.body.children[0];
+    const clone = layer.children[0];
+    const keywordPanel = clone.children.find((child) => child.className === 'card-clone-keyword-panel');
+    const trigger = keywordPanel?.children?.[0]?.children?.[0];
+
+    trigger?.listeners.get('mouseenter')?.();
+    trigger?.listeners.get('mouseleave')?.({ relatedTarget: keywordPanel });
+    keywordPanel?.listeners?.get('mouseenter')?.({ relatedTarget: trigger });
+    clone.listeners.get('mouseenter')?.();
+    vi.advanceTimersByTime(40);
+
+    expect(keywordPanel?.dataset?.open).toBe('true');
+    expect(layer.children).toContain(clone);
   });
 });

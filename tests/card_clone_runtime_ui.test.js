@@ -113,4 +113,24 @@ describe('card_clone_runtime_ui', () => {
     expect(pos.cardPlacement).toBe('below');
     expect(pos.top).toBeGreaterThan(520);
   });
+
+  it('docks the hover side panel to the left near the right edge instead of overflowing', () => {
+    const runtime = createCardCloneRuntime({
+      view: { innerWidth: 1280, innerHeight: 900 },
+      requestFrame: (callback) => callback(),
+    });
+    const layer = createElement();
+    const handZone = createElement();
+    const card = createElement({
+      rect: { left: 1170, top: 220, width: 80, height: 146, right: 1250, bottom: 366 },
+    });
+    const clone = createElement();
+    clone.dataset = {};
+
+    runtime.setLayer(layer);
+    runtime.register(card, clone);
+    runtime.show(card, clone, handZone);
+
+    expect(clone.dataset.keywordPlacement).toBe('left');
+  });
 });

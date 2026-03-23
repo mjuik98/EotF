@@ -126,4 +126,25 @@ describe('card_clone_render_ui', () => {
     expect(chipRow.children[1].textContent).toBe('기절');
     expect(activeBody.children[0].textContent).toBe('소진');
   });
+
+  it('keeps hover clones ready with a mechanics trigger row and a closed keyword panel by default', () => {
+    const doc = createDoc();
+
+    const clone = createHandCardCloneElement(doc, 'heavy_blow', {
+      name: 'Heavy Blow',
+      icon: '💥',
+      type: 'Attack',
+      cost: 3,
+      rarity: 'common',
+      desc: '[소진] 피해 18',
+      exhaust: true,
+    }, {
+      displayCost: 3,
+      anyFree: false,
+      totalDisc: 0,
+    });
+
+    expect(clone.children.some((child) => child.className === 'card-hover-mechanics')).toBe(true);
+    expect(clone.children.find((child) => child.className === 'card-clone-keyword-panel')?.dataset?.open).toBe('false');
+  });
 });

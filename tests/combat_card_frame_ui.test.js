@@ -83,4 +83,27 @@ describe('combat_card_frame_ui cost badges', () => {
     expect(costEl.className).toContain('card-cost-type-attack');
     expect(costEl.className).toContain('card-cost-free');
   });
+
+  it('renders hover descriptions with the readable hover text block classes', () => {
+    const doc = createDoc();
+    const root = doc.createElement('div');
+
+    populateCombatCardFrame(root, doc, {
+      cardId: 'slash',
+      card: {
+        name: '베기',
+        icon: '⚔',
+        type: 'ATTACK',
+        cost: 1,
+        desc: '피해 6',
+      },
+      canPlay: true,
+      displayCost: 1,
+    }, { variant: 'hover' });
+
+    const desc = findChild(root, (child) => String(child.className).includes('card-desc'));
+
+    expect(desc.className).toContain('card-desc-hover');
+    expect(desc.className).toContain('card-desc-hover-readable');
+  });
 });
