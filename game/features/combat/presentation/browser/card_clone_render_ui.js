@@ -27,7 +27,8 @@ export function createHandCardCloneElement(doc, cardId, card, costDisplay) {
   arrow.className = 'card-clone-arrow';
   clone.appendChild(arrow);
 
-  const { link, panel } = createCombatCloneKeywordPanel(doc, card);
+  const { link, mechanics, panel } = createCombatCloneKeywordPanel(doc, card);
+  if (mechanics) clone.appendChild(mechanics);
   if (link) clone.appendChild(link);
   if (panel) clone.appendChild(panel);
 

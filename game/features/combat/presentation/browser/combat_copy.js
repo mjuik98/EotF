@@ -161,18 +161,47 @@ function setKeywordTabActive(tab, active) {
   tab.style.color = active ? '#efe5ff' : 'rgba(216, 210, 238, 0.82)';
 }
 
+function setMechanicTriggerActive(trigger, active) {
+  trigger.className = active
+    ? 'card-hover-mechanic-trigger is-active'
+    : 'card-hover-mechanic-trigger';
+  trigger.style.borderColor = active ? 'rgba(123, 47, 255, 0.52)' : 'rgba(196, 186, 236, 0.18)';
+  trigger.style.background = active
+    ? 'linear-gradient(180deg, rgba(70, 34, 124, 0.44), rgba(28, 18, 54, 0.72))'
+    : 'rgba(12, 12, 24, 0.42)';
+  trigger.style.color = active ? 'rgba(244, 239, 255, 0.98)' : 'rgba(220, 214, 238, 0.82)';
+}
+
 export function createCombatCloneKeywordPanel(doc, card) {
   const keywordItems = resolveCombatKeywordTooltips(card);
-  if (keywordItems.length === 0) return { link: null, panel: null };
+  if (keywordItems.length === 0) return { link: null, mechanics: null, panel: null };
+
+  const mechanics = doc.createElement('div');
+  mechanics.className = 'card-hover-mechanics';
+  mechanics.style.display = 'flex';
+  mechanics.style.flexWrap = 'wrap';
+  mechanics.style.alignSelf = 'stretch';
+  mechanics.style.justifyContent = 'flex-start';
+  mechanics.style.gap = '6px';
+  mechanics.style.width = '100%';
+  mechanics.style.marginTop = '10px';
+  mechanics.style.padding = '0 2px 24px';
+  mechanics.style.zIndex = '2';
 
   const link = doc.createElement('div');
   link.className = 'card-clone-keyword-link';
+  link.style.position = 'absolute';
   link.style.borderRadius = '999px';
+  link.style.opacity = '0.35';
+  link.style.transition = 'opacity 0.12s ease';
   link.style.boxShadow = '0 0 10px rgba(123, 47, 255, 0.24)';
   link.style.pointerEvents = 'none';
+  link.style.zIndex = '2';
 
   const panel = doc.createElement('div');
   panel.className = 'card-clone-keyword-panel';
+  panel.dataset.open = 'false';
+  panel.style.position = 'absolute';
   panel.style.width = '176px';
   panel.style.padding = '12px 14px';
   panel.style.borderRadius = '14px';
@@ -180,7 +209,11 @@ export function createCombatCloneKeywordPanel(doc, card) {
   panel.style.background = 'linear-gradient(180deg, rgba(18, 12, 40, 0.96), rgba(10, 8, 24, 0.94))';
   panel.style.boxShadow = '0 18px 34px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(123, 47, 255, 0.08)';
   panel.style.color = 'rgba(232, 225, 255, 0.94)';
-  panel.style.pointerEvents = 'auto';
+  panel.style.opacity = '0';
+  panel.style.visibility = 'hidden';
+  panel.style.pointerEvents = 'none';
+  panel.style.transition = 'opacity 0.14s ease, visibility 0.14s ease';
+  panel.style.zIndex = '4';
   const chipRow = doc.createElement('div');
   chipRow.className = 'card-clone-keyword-tabs';
   chipRow.style.display = 'flex';
@@ -206,8 +239,10 @@ export function createCombatCloneKeywordPanel(doc, card) {
 
   const setActive = (index) => {
     keywordItems.forEach((item, itemIndex) => {
-      const chip = chipRow.children[itemIndex];
+      const chip = chipRow.children?.[itemIndex];
       if (chip) setKeywordTabActive(chip, itemIndex === index);
+      const trigger = mechanics.children?.[itemIndex];
+      if (trigger) setMechanicTriggerActive(trigger, itemIndex === index);
       if (itemIndex === index) {
         activeTitle.textContent = item.title;
         activeContent.textContent = item.text;
@@ -232,12 +267,32 @@ export function createCombatCloneKeywordPanel(doc, card) {
     chip.addEventListener('mouseenter', () => setActive(index));
     chip.addEventListener('click', () => setActive(index));
     chipRow.appendChild(chip);
+
+    const trigger = doc.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'card-hover-mechanic-trigger';
+    trigger.dataset.keywordIndex = String(index);
+    trigger.textContent = item.title;
+    trigger.style.padding = '4px 8px';
+    trigger.style.borderRadius = '999px';
+    trigger.style.border = '1px solid rgba(196, 186, 236, 0.18)';
+    trigger.style.background = 'rgba(12, 12, 24, 0.42)';
+    trigger.style.color = 'rgba(220, 214, 238, 0.82)';
+    trigger.style.fontFamily = "'Share Tech Mono', monospace";
+    trigger.style.fontSize = '9px';
+    trigger.style.letterSpacing = '0.04em';
+    trigger.style.cursor = 'help';
+    trigger.style.transition = 'border-color 0.14s ease, background 0.14s ease, color 0.14s ease, transform 0.14s ease';
+    setMechanicTriggerActive(trigger, index === 0);
+    mechanics.appendChild(trigger);
   });
 
   setActive(0);
+  panel.__setActiveKeyword = setActive;
+  panel.__keywordItems = keywordItems;
   panel.appendChild(chipRow);
   panel.appendChild(activeBody);
-  return { link, panel };
+  return { link, mechanics, panel };
 }
 
 export function applyCombatRelicSlotVisuals(slot, rarity, setState, doc) {

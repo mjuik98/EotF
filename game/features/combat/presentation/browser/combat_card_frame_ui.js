@@ -155,7 +155,9 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
   root.appendChild(name);
 
   const desc = doc.createElement('div');
-  desc.className = variant === 'hover' ? 'card-desc card-desc-hover' : 'card-desc';
+  desc.className = variant === 'hover'
+    ? 'card-desc card-desc-hover card-desc-hover-readable'
+    : 'card-desc';
   if (typeof descriptionUtils?.highlight === 'function') {
     desc.innerHTML = descriptionUtils.highlight(card.desc || '');
   } else {

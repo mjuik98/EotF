@@ -11790,6 +11790,14 @@ body:has(#combatOverlay.active) .panel-bottom {
   flex: 1;
 }
 
+.card-desc-hover-readable {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px 0;
+  line-height: 1.66;
+  color: rgba(224, 218, 242, 0.94);
+}
+
 /* 클론 내 kw-* 키워드 컬러 — card_redesign.css 와 동일 패턴 적용 */
 .card-desc-hover .kw-dmg {
   color: #ff6677;

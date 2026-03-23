@@ -55,6 +55,20 @@ const _AVOID_SELECTOR = [
 function _getDoc(deps) { return deps?.doc || deps?.win?.document || null; }
 function _getWin(deps) { return deps?.win || deps?.doc?.defaultView || null; }
 
+function _setDatasetBooleanState(element, key, active) {
+  if (!element?.dataset || !key) return;
+  element.dataset[key] = active ? 'true' : 'false';
+}
+
+function _setDatasetValue(element, key, value) {
+  if (!element?.dataset || !key) return;
+  if (value === undefined || value === null || value === '') {
+    delete element.dataset[key];
+    return;
+  }
+  element.dataset[key] = String(value);
+}
+
 function _getRectArea(rect = {}) {
   return Math.max(0, (rect.right || 0) - (rect.left || 0)) * Math.max(0, (rect.bottom || 0) - (rect.top || 0));
 }
@@ -63,6 +77,15 @@ function _getOverlapArea(leftRect, rightRect) {
   const overlapW = Math.max(0, Math.min(leftRect.right, rightRect.right) - Math.max(leftRect.left, rightRect.left));
   const overlapH = Math.max(0, Math.min(leftRect.bottom, rightRect.bottom) - Math.max(leftRect.top, rightRect.top));
   return overlapW * overlapH;
+}
+
+function _isWithinElement(target, root) {
+  let current = target || null;
+  while (current) {
+    if (current === root) return true;
+    current = current.parentNode || null;
+  }
+  return false;
 }
 
 function _collectAvoidRects(doc) {
@@ -95,7 +118,13 @@ function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = 
   const link = cloneEl?.querySelector?.('.card-clone-keyword-link');
   if (!keywordPanel) return;
 
-  const { left, top, cardPlacement } = clonePosition || _cloneRuntime.calcPosition(cardEl);
+  const position = clonePosition || _cloneRuntime.calcPosition(cardEl);
+  const {
+    left,
+    top,
+    cardPlacement,
+    keywordPlacement: preferredPlacement = 'right',
+  } = position;
   const viewportWidth = Number(win?.innerWidth) || 0;
   const viewportHeight = Number(win?.innerHeight) || 0;
   const avoidRects = _collectAvoidRects(doc);
@@ -139,7 +168,13 @@ function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = 
       + Math.max(0, candidate.rect.right + _VIEWPORT_MARGIN - viewportWidth)
       + Math.max(0, candidate.rect.bottom + _VIEWPORT_MARGIN - viewportHeight);
     const overlapPenalty = avoidRects.reduce((total, rect) => total + _getOverlapArea(candidate.rect, rect), 0);
-    const preferenceBias = candidate.placement === 'right' ? 0 : candidate.placement === 'left' ? 20 : 40;
+    const preferenceBias = candidate.placement === preferredPlacement
+      ? 0
+      : candidate.placement === 'right'
+        ? 10
+        : candidate.placement === 'left'
+          ? 20
+          : 40;
     return {
       ...candidate,
       score: overflowPenalty * 1000 + overlapPenalty + preferenceBias,
@@ -147,8 +182,8 @@ function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = 
   }).sort((leftCandidate, rightCandidate) => leftCandidate.score - rightCandidate.score);
 
   const best = candidates[0];
-  cloneEl.dataset.cardPlacement = cardPlacement;
-  cloneEl.dataset.keywordPlacement = best.placement;
+  _setDatasetValue(cloneEl, 'cardPlacement', cardPlacement);
+  _setDatasetValue(cloneEl, 'keywordPlacement', best.placement);
   _applyArrowPlacement(cloneEl, cardPlacement);
 
   if (best.placement === 'right') {
@@ -194,6 +229,57 @@ function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = 
   }
 }
 
+function _bindKeywordPanelInteractions(cloneEl) {
+  const mechanicsRow = cloneEl?.querySelector?.('.card-hover-mechanics');
+  const keywordPanel = cloneEl?.querySelector?.('.card-clone-keyword-panel');
+  const link = cloneEl?.querySelector?.('.card-clone-keyword-link');
+  if (!mechanicsRow || !keywordPanel) return;
+
+  const triggers = Array.from(mechanicsRow.children || []);
+  const setOpen = (open) => {
+    _setDatasetBooleanState(keywordPanel, 'open', open);
+    if (keywordPanel?.style) {
+      keywordPanel.style.opacity = open ? '1' : '0';
+      keywordPanel.style.visibility = open ? 'visible' : 'hidden';
+      keywordPanel.style.pointerEvents = open ? 'auto' : 'none';
+    }
+    if (link?.style) {
+      link.style.opacity = open ? '1' : '0.35';
+    }
+  };
+  const isTriggerTarget = (target) => triggers.includes(target);
+  const activateTrigger = (trigger) => {
+    const index = Number(trigger?.dataset?.keywordIndex || 0);
+    keywordPanel.__setActiveKeyword?.(index);
+    setOpen(true);
+  };
+
+  setOpen(false);
+
+  triggers.forEach((trigger) => {
+    const closeIfLeaving = (event = {}) => {
+      if (_isWithinElement(event.relatedTarget, keywordPanel) || isTriggerTarget(event.relatedTarget)) return;
+      setOpen(false);
+    };
+    trigger.addEventListener('mouseenter', () => activateTrigger(trigger));
+    trigger.addEventListener('focus', () => activateTrigger(trigger));
+    trigger.addEventListener('click', () => activateTrigger(trigger));
+    trigger.addEventListener('mouseleave', closeIfLeaving);
+    trigger.addEventListener('blur', closeIfLeaving);
+  });
+
+  keywordPanel.addEventListener('mouseenter', () => setOpen(true));
+  keywordPanel.addEventListener('focusin', () => setOpen(true));
+  keywordPanel.addEventListener('mouseleave', (event = {}) => {
+    if (isTriggerTarget(event.relatedTarget) || _isWithinElement(event.relatedTarget, keywordPanel)) return;
+    setOpen(false);
+  });
+  keywordPanel.addEventListener('focusout', (event = {}) => {
+    if (isTriggerTarget(event.relatedTarget) || _isWithinElement(event.relatedTarget, keywordPanel)) return;
+    setOpen(false);
+  });
+}
+
 /* ══════════════════════════════════════════════════════════════
    CloneManager — 클론 생명주기 관리 (싱글톤 IIFE)
    ═══════════════════════════════════════════════════════════════ */
@@ -201,6 +287,8 @@ const _cloneRuntime = createCardCloneRuntime({
   cloneWidth: _CLONE_W,
   cloneHeight: _CLONE_H,
   cloneGap: _CLONE_GAP,
+  keywordPanelGap: _KEYWORD_PANEL_GAP,
+  keywordPanelWidth: _KEYWORD_PANEL_W,
   viewportMargin: _VIEWPORT_MARGIN,
 });
 
@@ -268,7 +356,9 @@ export const HandCardCloneUI = {
     doc.descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || doc.descriptionUtils || null;
     const cloneEl     = createHandCardCloneElement(doc, cardId, card, costDisplay);
     cloneEl.style.pointerEvents = 'auto';
+    // Clone hover owns the hand-card preview contract. Keep all hover/panel state on the clone tree.
     cloneEl.__onClonePositionChange = (position) => _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, position);
+    _bindKeywordPanelInteractions(cloneEl);
 
     _cloneRuntime.register(cardEl, cloneEl);
 

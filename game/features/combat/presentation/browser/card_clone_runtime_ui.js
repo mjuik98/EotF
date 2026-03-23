@@ -1,8 +1,19 @@
+function setDatasetValue(element, key, value) {
+  if (!element?.dataset || !key) return;
+  if (value === undefined || value === null || value === '') {
+    delete element.dataset[key];
+    return;
+  }
+  element.dataset[key] = String(value);
+}
+
 export function createCardCloneRuntime(options = {}) {
   const {
     cloneWidth = 200,
     cloneHeight = 292,
     cloneGap = 16,
+    keywordPanelGap = 12,
+    keywordPanelWidth = 176,
     viewportMargin = 14,
   } = options;
 
@@ -81,12 +92,15 @@ export function createCardCloneRuntime(options = {}) {
     });
     const bestCandidate = candidates.sort((leftCandidate, rightCandidate) => leftCandidate.score - rightCandidate.score)[0];
     const safeTop = Math.max(viewportMargin, Math.min(bestCandidate.top, viewportHeight - cloneHeight - viewportMargin));
+    const canPlaceKeywordRight = left + cloneWidth + keywordPanelGap + keywordPanelWidth + viewportMargin <= viewportWidth;
+    const canPlaceKeywordLeft = left - keywordPanelGap - keywordPanelWidth >= viewportMargin;
 
     return {
       left,
       top: safeTop,
       arrowLeft,
       cardPlacement: bestCandidate.cardPlacement,
+      keywordPlacement: canPlaceKeywordRight ? 'right' : canPlaceKeywordLeft ? 'left' : 'bottom',
     };
   }
 
@@ -115,6 +129,10 @@ export function createCardCloneRuntime(options = {}) {
     const { left, top, arrowLeft } = position;
     cloneEl.style.left = `${left}px`;
     cloneEl.style.top = `${top}px`;
+    if (cloneEl.dataset) {
+      setDatasetValue(cloneEl, 'cardPlacement', position.cardPlacement);
+      setDatasetValue(cloneEl, 'keywordPlacement', position.keywordPlacement);
+    }
 
     const arrow = cloneEl.querySelector('.card-clone-arrow');
     if (arrow) arrow.style.left = `${arrowLeft}px`;
@@ -145,21 +163,25 @@ export function createCardCloneRuntime(options = {}) {
     const { left, top, arrowLeft } = position;
     cloneEl.style.left = `${left}px`;
     cloneEl.style.top = `${top}px`;
+    if (cloneEl.dataset) {
+      setDatasetValue(cloneEl, 'cardPlacement', position.cardPlacement);
+      setDatasetValue(cloneEl, 'keywordPlacement', position.keywordPlacement);
+    }
     const arrow = cloneEl.querySelector('.card-clone-arrow');
     if (arrow) arrow.style.left = `${arrowLeft}px`;
     cloneEl.__onClonePositionChange?.(position);
   }
 
-    return {
-      calcPosition,
-      hide,
-      hideImmediate,
-      register,
-      reposition,
-      setAvoidRectsResolver,
-      setRequestFrame,
-      setLayer,
-      setView,
+  return {
+    calcPosition,
+    hide,
+    hideImmediate,
+    register,
+    reposition,
+    setAvoidRectsResolver,
+    setRequestFrame,
+    setLayer,
+    setView,
     show,
   };
 }

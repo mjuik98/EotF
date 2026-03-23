@@ -86,7 +86,7 @@ describe('card_clone_render_ui', () => {
     expect(clone.children.some((child) => String(child.className).includes('card-cost') && String(child.className).includes('card-cost-hover') && String(child.className).includes('card-cost-discounted'))).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-icon card-icon-hover')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-name card-name-hover')).toBe(true);
-    expect(clone.children.some((child) => child.className === 'card-desc card-desc-hover')).toBe(true);
+    expect(clone.children.some((child) => child.className === 'card-desc card-desc-hover card-desc-hover-readable')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-tags card-tags-hover')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-particles card-particles-aura')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-clone-keyword-panel')).toBe(true);
@@ -144,7 +144,10 @@ describe('card_clone_render_ui', () => {
       totalDisc: 0,
     });
 
-    expect(clone.children.some((child) => child.className === 'card-hover-mechanics')).toBe(true);
+    const mechanicsRow = clone.children.find((child) => child.className === 'card-hover-mechanics');
+    expect(mechanicsRow).toBeTruthy();
+    expect(mechanicsRow.children).toHaveLength(1);
+    expect(mechanicsRow.children[0].textContent).toBe('소진');
     expect(clone.children.find((child) => child.className === 'card-clone-keyword-panel')?.dataset?.open).toBe('false');
   });
 });

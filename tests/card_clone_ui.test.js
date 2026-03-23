@@ -206,14 +206,56 @@ describe('card_clone_ui', () => {
 
     const layer = doc.body.children[0];
     const clone = layer.children[0];
+    const mechanicsRow = clone.children.find((child) => child.className === 'card-hover-mechanics');
     const keywordPanel = clone.children.find((child) => child.className === 'card-clone-keyword-panel');
-    const trigger = keywordPanel?.children?.[0]?.children?.[0];
+    const panelChild = keywordPanel?.children?.[1];
+    const trigger = mechanicsRow?.children?.[0];
 
     trigger?.listeners.get('mouseenter')?.();
-    trigger?.listeners.get('mouseleave')?.({ relatedTarget: keywordPanel });
+    trigger?.listeners.get('mouseleave')?.({ relatedTarget: panelChild });
     keywordPanel?.listeners?.get('mouseenter')?.({ relatedTarget: trigger });
     clone.listeners.get('mouseenter')?.();
     vi.advanceTimersByTime(40);
+
+    expect(keywordPanel?.dataset?.open).toBe('true');
+    expect(layer.children).toContain(clone);
+  });
+
+  it('opens the keyword side panel from keyboard focus and keeps it open while focus moves into the panel', () => {
+    const doc = createDoc();
+    const handZone = new MockElement(doc, 'div');
+    const card = new MockElement(doc, 'div', { left: 560, top: 640, width: 100, height: 146, right: 660, bottom: 786 });
+    doc._elements.set('combatHandCards', handZone);
+
+    HandCardCloneUI.init({ doc });
+    HandCardCloneUI.attachToCard(card, 'void_blade', {
+      name: '공허의 도검',
+      icon: '🌀',
+      type: 'Attack',
+      cost: 2,
+      rarity: 'rare',
+      desc: '피해 30 [소진]. 기절 1턴 부여',
+      exhaust: true,
+    }, {
+      displayCost: 2,
+      canPlay: true,
+      anyFree: false,
+      totalDisc: 0,
+    }, { doc });
+
+    card.listeners.get('mouseenter')();
+    vi.advanceTimersByTime(120);
+
+    const layer = doc.body.children[0];
+    const clone = layer.children[0];
+    const mechanicsRow = clone.children.find((child) => child.className === 'card-hover-mechanics');
+    const keywordPanel = clone.children.find((child) => child.className === 'card-clone-keyword-panel');
+    const panelChild = keywordPanel?.children?.[0]?.children?.[0];
+    const trigger = mechanicsRow?.children?.[0];
+
+    trigger?.listeners.get('focus')?.();
+    trigger?.listeners.get('blur')?.({ relatedTarget: panelChild });
+    keywordPanel?.listeners?.get('focusin')?.({ relatedTarget: trigger });
 
     expect(keywordPanel?.dataset?.open).toBe('true');
     expect(layer.children).toContain(clone);
