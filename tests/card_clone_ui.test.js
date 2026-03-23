@@ -20,6 +20,43 @@ class MockClassList {
   }
 }
 
+class MockChildCollection {
+  constructor() {
+    this.items = [];
+  }
+
+  get length() {
+    return this.items.length;
+  }
+
+  push(node) {
+    this.items.push(node);
+    this._syncIndexes();
+  }
+
+  remove(node) {
+    this.items = this.items.filter((child) => child !== node);
+    this._syncIndexes();
+  }
+
+  toArray() {
+    return [...this.items];
+  }
+
+  [Symbol.iterator]() {
+    return this.items[Symbol.iterator]();
+  }
+
+  _syncIndexes() {
+    Object.keys(this)
+      .filter((key) => /^\d+$/.test(key))
+      .forEach((key) => { delete this[key]; });
+    this.items.forEach((item, index) => {
+      this[index] = item;
+    });
+  }
+}
+
 class MockElement {
   constructor(doc, tagName = 'div', rect = null) {
     this.ownerDocument = doc;
@@ -76,6 +113,38 @@ class MockElement {
   }
 }
 
+class HtmlCollectionLikeElement extends MockElement {
+  constructor(doc, tagName = 'div', rect = null) {
+    super(doc, tagName, rect);
+    this.children = new MockChildCollection();
+  }
+
+  appendChild(node) {
+    node.parentNode = this;
+    this.children.push(node);
+    return node;
+  }
+
+  removeChild(node) {
+    this.children.remove(node);
+    node.parentNode = null;
+    return node;
+  }
+
+  getElementByClassName(className) {
+    return this.children.toArray().find((child) => child.className === className) || null;
+  }
+
+  querySelector(selector) {
+    if (selector.startsWith('.')) {
+      const className = selector.slice(1);
+      if (this.className === className) return this;
+      return this.children.toArray().find((child) => child.querySelector?.(selector) || child.className === className) || null;
+    }
+    return null;
+  }
+}
+
 function createDoc() {
   const doc = {
     defaultView: {
@@ -98,6 +167,31 @@ function createDoc() {
     },
   };
   doc.body = new MockElement(doc, 'body');
+  return doc;
+}
+
+function createHtmlCollectionDoc() {
+  const doc = {
+    defaultView: {
+      innerWidth: 1280,
+      innerHeight: 900,
+      requestAnimationFrame: (callback) => callback(),
+      addEventListener() {},
+      removeEventListener() {},
+    },
+    body: null,
+    _elements: new Map(),
+    createElement(tagName) {
+      return new HtmlCollectionLikeElement(doc, tagName);
+    },
+    getElementById(id) {
+      return this._elements.get(id) || null;
+    },
+    querySelectorAll() {
+      return [];
+    },
+  };
+  doc.body = new HtmlCollectionLikeElement(doc, 'body');
   return doc;
 }
 
@@ -177,6 +271,39 @@ describe('card_clone_ui', () => {
 
     expect(clone).toBeTruthy();
     expect(handZone.classList.contains('has-active-clone')).toBe(true);
+  });
+
+  it('does not assume Array methods on DOM children collections when showing a hover clone', () => {
+    const doc = createHtmlCollectionDoc();
+    const handZone = new HtmlCollectionLikeElement(doc, 'div');
+    const card = new HtmlCollectionLikeElement(doc, 'div', { left: 560, top: 640, width: 100, height: 146, right: 660, bottom: 786 });
+    doc._elements.set('combatHandCards', handZone);
+
+    HandCardCloneUI.init({ doc });
+    HandCardCloneUI.attachToCard(card, 'void_blade', {
+      name: '공허의 도검',
+      icon: '🌀',
+      type: 'Attack',
+      cost: 2,
+      rarity: 'rare',
+      desc: '피해 30 [소진]. 기절 1턴 부여',
+      exhaust: true,
+    }, {
+      displayCost: 2,
+      canPlay: true,
+      anyFree: false,
+      totalDisc: 0,
+    }, { doc });
+
+    expect(typeof card.children.find).toBe('undefined');
+
+    card.listeners.get('mouseenter')();
+    vi.advanceTimersByTime(120);
+
+    const layer = doc.body.children[0];
+    const clone = layer.children[0];
+    expect(clone).toBeTruthy();
+    expect(clone.className).toContain('card-clone');
   });
 
   it('opens the keyword side panel and keeps it open when moving from the trigger into the panel', () => {
