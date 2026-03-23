@@ -8,7 +8,10 @@ import {
 } from './hud_effects_ui.js';
 import { updateCombatEnergyUI, updatePlayerStatsUI } from './hud_stats_ui.js';
 import { DomValueUI } from './dom_value_ui.js';
-import { getDoc as _getDoc, getHudUpdateDeps } from '../../../../shared/runtime/hud_runtime_deps.js';
+import {
+  getDoc as _getDoc,
+  getHudUpdateDeps,
+} from '../../ports/presentation_shared_runtime_capabilities.js';
 import { renderFloatingPlayerHpPanel } from '../../ports/hud_shared_view_ports.js';
 import { updateHudPanels } from './hud_panel_sections.js';
 import {

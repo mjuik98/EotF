@@ -4,7 +4,7 @@ import {
   resolveEndingActions,
   restartHiddenEndingOverlay,
   scheduleEndingRestartAction,
-} from '../game/ui/screens/ending_screen_action_helpers.js';
+} from '../game/features/ui/public.js';
 
 describe('ending_screen_action_helpers', () => {
   it('prefers endingActions callbacks when resolving action handles', () => {

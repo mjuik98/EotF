@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CardMethods } from '../game/combat/card_methods.js';
+import { CardMethods } from '../game/features/combat/public.js';
 import { GAME } from '../game/core/global_bridge.js';
 
 const ORIGINAL_GAME = {

@@ -5,7 +5,7 @@ import {
   hideEchoSkillTooltip,
   showEchoSkillTooltip,
   showTurnBanner,
-} from '../game/ui/combat/combat_hud_feedback.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

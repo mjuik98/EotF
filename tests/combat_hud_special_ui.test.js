@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderCombatHudClassSpecial } from '../game/ui/combat/combat_hud_special_ui.js';
+import { renderCombatHudClassSpecial } from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

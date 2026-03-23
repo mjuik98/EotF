@@ -6,7 +6,7 @@ import {
   positionItemTooltipElement,
   removeItemTooltipElement,
   resolveItemTooltipState,
-} from '../game/ui/cards/tooltip_item_render_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement(tag = 'div') {
   const element = {

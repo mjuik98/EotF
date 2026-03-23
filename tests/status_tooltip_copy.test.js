@@ -5,7 +5,7 @@ import {
   getStatusTooltipSourceIcon,
   getStatusTooltipTypeLabel,
   STATUS_TOOLTIP_COPY,
-} from '../game/ui/combat/status_tooltip_copy.js';
+} from '../game/features/combat/public.js';
 
 describe('status tooltip copy helpers', () => {
   it('resolves fallback type labels for buff and debuff states', () => {

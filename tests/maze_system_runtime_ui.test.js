@@ -4,7 +4,7 @@ import {
   handleMazeExit,
   prepareMazeOpenState,
   resolveMazeMove,
-} from '../game/ui/map/maze_system_runtime_ui.js';
+} from '../game/features/run/public.js';
 
 describe('maze_system_runtime_ui', () => {
   it('prepares maze open state from the fov engine', () => {

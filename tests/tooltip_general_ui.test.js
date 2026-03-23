@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   hideGeneralTooltipUi,
   showGeneralTooltipUi,
-} from '../game/ui/cards/tooltip_general_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement(tag = 'div') {
   return {

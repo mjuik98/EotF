@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { MazeSystem } from '../game/ui/map/maze_system_ui.js';
+import { MazeSystem } from '../game/features/run/public.js';
 
 function createContext() {
   return {

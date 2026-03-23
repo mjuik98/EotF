@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   RUN_HOTKEY_MODE_POLICY,
   getRunHotkeyPolicy,
-} from '../game/ui/screens/help_pause_ui_helpers.js';
+} from '../game/features/ui/public.js';
 
 describe('help pause hotkey policy table', () => {
   it('defines an explicit allowed-action table for each run input mode', () => {

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   buildFloatingPlayerHpPanel,
   getPlayerHpPanelLevel,
-} from '../game/ui/shared/player_hp_panel_render_ui.js';
+} from '../game/shared/ui/player_hp_panel/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

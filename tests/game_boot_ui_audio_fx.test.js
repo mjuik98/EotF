@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   startAudioWave,
   stopAudioWave,
-} from '../game/ui/title/game_boot_ui_audio_fx.js';
+} from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
 
 function createContext() {
   return {

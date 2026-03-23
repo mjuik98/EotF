@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { confirmReturnToTitleRuntime } from '../game/ui/screens/help_pause_ui_return_runtime.js';
+import { confirmReturnToTitleRuntime } from '../game/features/ui/public.js';
 
 describe('help_pause_ui_return_runtime', () => {
   it('prefers the injected returnToTitleFromPause helper', () => {

@@ -1,4 +1,4 @@
-import { setDatasetBooleanState } from '../../../../shared/ui/state/ui_state_dataset.js';
+import { setDatasetBooleanState } from '../../ports/presentation_shared_runtime_capabilities.js';
 
 export const COMBAT_TEXT = Object.freeze({
   echoSkillLabel: '⚡ 잔향 스킬 ✦',

@@ -4,7 +4,7 @@ import {
   flashEchoSkillButton,
   resolveEchoSkillTier,
   useEchoSkillRuntime,
-} from '../game/ui/combat/echo_skill_runtime_ui.js';
+} from '../game/features/combat/public.js';
 
 describe('echo_skill_runtime_ui', () => {
   beforeEach(() => {

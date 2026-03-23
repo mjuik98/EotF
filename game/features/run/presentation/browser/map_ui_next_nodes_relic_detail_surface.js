@@ -8,7 +8,7 @@ import {
 } from './relic_detail_shared_ui.js';
 import {
   createUiSurfaceStateController,
-} from '../../../../shared/ui/state/ui_surface_state_controller.js';
+} from '../../ports/presentation_shared_state_capabilities.js';
 import {
   applyRelicDetailLayout,
 } from './map_relic_detail_layout.js';

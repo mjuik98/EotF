@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HudUpdateUI } from '../game/ui/hud/hud_update_ui.js';
+import { HudUpdateUI } from '../game/features/combat/public.js';
 import { initDepsFactory } from '../game/core/deps_factory.js';
 
 class MockElement {

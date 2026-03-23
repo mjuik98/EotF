@@ -1,4 +1,4 @@
-import { DATA } from '../../../../data/game_data.js';
+import { DATA } from '../ports/public_data_runtime_capabilities.js';
 
 const MIN_REGION_FLOORS = 6;
 const MAX_REGION_FLOORS = 9;

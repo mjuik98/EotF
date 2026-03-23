@@ -1,4 +1,4 @@
-import { playUiClick } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
 
 export function createEndingFragmentChoiceActions({
   audioEngine = null,

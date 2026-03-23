@@ -1,7 +1,9 @@
-import { registerCardUsed } from '../../../shared/codex/codex_record_state_use_case.js';
-import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
-import { createLegacyGameStateRuntimeFacade } from '../../../shared/state/game_state_runtime_compat.js';
 import { Actions } from '../../../core/store/state_actions.js';
+import { resolveActiveRegionId } from '../../../domain/combat/public_combat_runtime_capabilities.js';
+import {
+  createLegacyGameStateRuntimeFacade,
+  registerCardUsed,
+} from '../../../shared/combat/public_combat_runtime_effects.js';
 import { changePlayerEnergyState } from '../state/card_state_commands.js';
 import { drawCardsService } from './card_draw_service.js';
 import {

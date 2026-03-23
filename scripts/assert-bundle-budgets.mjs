@@ -2,18 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const DEFAULT_BUNDLE_BUDGETS = {
-  entryJs: { label: 'main entry js', maxBytes: 410 * 1024 },
-  entryCss: { label: 'main entry css', maxBytes: 193 * 1024 },
-  uiEventJs: { label: 'ui-event chunk', maxBytes: 45 * 1024 },
-  uiRewardJs: { label: 'ui-reward chunk', maxBytes: 20 * 1024 },
-  uiCombatJs: { label: 'ui-combat chunk', maxBytes: 324 * 1024 },
-  uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 20 * 1024 },
-  uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 24 * 1024 },
-  uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 24 * 1024 },
-  codexUiJs: { label: 'codex ui chunk', maxBytes: 40 * 1024 },
-  runModeUiJs: { label: 'run mode ui chunk', maxBytes: 30 * 1024 },
-};
+const DEFAULT_BUNDLE_BUDGETS_FILE_PATH = path.join(process.cwd(), 'config', 'quality', 'bundle_budgets.json');
+export const BUNDLE_BUDGETS_PATH = DEFAULT_BUNDLE_BUDGETS_FILE_PATH.replaceAll('\\', '/');
+
+export function readBundleBudgets(configPath = DEFAULT_BUNDLE_BUDGETS_FILE_PATH) {
+  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+}
+
+export const DEFAULT_BUNDLE_BUDGETS = readBundleBudgets();
 
 function statFile(filePath) {
   return fs.statSync(filePath).size;

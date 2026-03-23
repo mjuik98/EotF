@@ -4,7 +4,7 @@ import {
   bindCharacterSelectDrag,
   bindCharacterSelectKeyboard,
   setupCharacterSelectBindings,
-} from '../game/ui/title/character_select_bindings.js';
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createDoc() {
   const listeners = new Map();

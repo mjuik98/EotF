@@ -25,7 +25,7 @@ vi.mock('../game/features/combat/presentation/browser/combat_info_items_ui.js', 
   renderCombatInfoItems: renderCombatInfoItemsSpy,
 }));
 
-import { CombatInfoUI } from '../game/ui/combat/combat_info_ui.js';
+import { CombatInfoUI } from '../game/features/combat/public.js';
 
 function createDoc() {
   const elements = new Map();

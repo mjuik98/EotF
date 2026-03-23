@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { MapUI } from '../game/ui/map/map_ui.js';
+import { MapUI } from '../game/features/run/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

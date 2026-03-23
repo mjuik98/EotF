@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CardTargetUI } from '../game/ui/cards/card_target_ui.js';
+import { CardTargetUI } from '../game/features/combat/public.js';
 
 describe('card_target_ui', () => {
   it('rerenders enemies through injected deps when selecting a target', () => {

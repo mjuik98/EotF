@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { applyEnemyDeathState } from '../game/combat/death_handler_enemy_state.js';
+import { applyEnemyDeathState } from '../game/features/combat/public.js';
 
 describe('death_handler_enemy_state', () => {
   it('records rewards, kill stats, and combat-end scheduling on lethal last hit', () => {

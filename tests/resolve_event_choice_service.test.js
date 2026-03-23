@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { resolveEventChoiceService } from '../game/app/event/resolve_event_choice_service.js';
+import { resolveEventChoiceService } from '../game/features/event/public.js';
 
 describe('resolve_event_choice_service', () => {
   it('passes injected services through to effectId handlers', () => {

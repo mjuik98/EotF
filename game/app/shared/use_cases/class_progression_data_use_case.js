@@ -1,5 +1,0 @@
-export {
-  CLASS_MASTERY_LEVEL_XP,
-  getClassMasteryRoadmap,
-  MAX_CLASS_MASTERY_LEVEL,
-} from '../../../shared/progression/class_progression_data_use_case.js';

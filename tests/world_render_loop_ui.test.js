@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { WorldRenderLoopUI } from '../game/ui/map/world_render_loop_ui.js';
+import { WorldRenderLoopUI } from '../game/features/run/public.js';
 
 function createCtx() {
   return {

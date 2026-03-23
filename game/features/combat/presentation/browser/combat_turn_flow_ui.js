@@ -1,4 +1,7 @@
-import { canContinueCombatTurn, isCombatResolutionPending } from '../../../../shared/state/runtime_session_selectors.js';
+import {
+  canContinueCombatTurn,
+  isCombatResolutionPending,
+} from '../../ports/presentation_shared_runtime_capabilities.js';
 import {
   dispatchCombatTurnUiAction,
   playEnemyAttackHitUi,

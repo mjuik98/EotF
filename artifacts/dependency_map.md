@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-23T10:19:22.134Z
-- Nodes: 1304
-- Edges: 1440
+- Generated: 2026-03-23T14:48:27.409Z
+- Nodes: 1119
+- Edges: 1426
 
 ## Layer Edges
 
@@ -27,14 +27,14 @@
 | engine->data | 1 |
 | engine->engine | 2 |
 | feature->core | 23 |
-| feature->data | 37 |
-| feature->domain | 39 |
-| feature->feature | 762 |
+| feature->data | 10 |
+| feature->domain | 17 |
+| feature->feature | 835 |
 | feature->legacy | 1 |
-| feature->other | 7 |
+| feature->other | 1 |
 | feature->platform | 3 |
-| feature->shared | 51 |
-| feature->utils | 30 |
+| feature->shared | 34 |
+| feature->utils | 15 |
 | legacy->core | 6 |
 | legacy->domain | 1 |
 | legacy->feature | 8 |
@@ -66,9 +66,9 @@
 | File | Out Degree |
 |---|---:|
 | game/features/combat/platform/browser/combat_browser_modules.js | 13 |
-| game/features/combat/application/death_flow_actions.js | 12 |
 | game/features/title/platform/browser/create_character_select_runtime_bindings.js | 12 |
 | game/features/combat/ports/public_application_capabilities.js | 11 |
+| game/features/combat/application/death_flow_actions.js | 10 |
 | game/features/event/ports/public_application_capabilities.js | 9 |
 | data/events_data.js | 8 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
@@ -85,21 +85,21 @@
 
 | File | In Degree |
 |---|---:|
-| game/domain/audio/audio_event_helpers.js | 29 |
+| game/features/combat/ports/public_presentation_support_capabilities.js | 21 |
 | game/core/bindings/module_registry_scopes.js | 17 |
-| data/game_data.js | 14 |
 | game/features/combat/presentation/browser/combat_copy.js | 12 |
 | game/utils/log_utils.js | 12 |
+| data/game_data.js | 11 |
 | game/shared/runtime/public.js | 11 |
 | game/core/store/state_actions.js | 10 |
 | game/shared/state/player_state_commands.js | 10 |
 | game/utils/logger.js | 10 |
 | game/core/deps_factory.js | 9 |
-| data/status_effects_data.js | 8 |
-| data/status_key_data.js | 8 |
 | game/core/event_bus.js | 8 |
 | game/features/run/ports/public_rule_capabilities.js | 8 |
+| game/features/ui/ports/public_audio_presentation_capabilities.js | 8 |
 | game/features/ui/presentation/browser/help_pause_ui_helpers.js | 8 |
+| game/domain/audio/audio_event_helpers.js | 7 |
 
 > Full graph is available in `artifacts/dependency_map.json`.
 

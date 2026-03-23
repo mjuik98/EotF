@@ -11,7 +11,7 @@ import {
   scheduleHandDealAnimations,
   syncCombatDrawButton,
   syncCombatEchoButton,
-} from '../game/ui/combat/combat_start_render_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement() {
   return {

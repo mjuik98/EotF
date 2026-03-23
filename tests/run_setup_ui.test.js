@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { RunSetupUI } from '../game/ui/run/run_setup_ui.js';
+import { RunSetupUI } from '../game/features/run/public.js';
 import {
   createDefaultGameStateShape,
   createDefaultMetaState,

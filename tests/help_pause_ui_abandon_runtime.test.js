@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { confirmAbandonRun } from '../game/ui/screens/help_pause_ui_abandon_runtime.js';
+import { confirmAbandonRun } from '../game/features/ui/public.js';
 import { EndingScreenUI } from '../game/features/ui/public.js';
 
 function createElement() {

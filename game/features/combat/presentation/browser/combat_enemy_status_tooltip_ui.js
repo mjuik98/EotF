@@ -1,6 +1,9 @@
 import { StatusTooltipUI } from './status_tooltip_builder.js';
-import { DEBUFF_STATUS_KEYS } from '../../../../../data/status_key_data.js';
-import { getEnemyStatusMeta, getEnemyStatusName } from '../../../../../data/status_effects_data.js';
+import {
+  DEBUFF_STATUS_KEYS,
+  getEnemyStatusMeta,
+  getEnemyStatusName,
+} from '../../ports/public_presentation_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 
 export function normalizeEnemyStatusTooltipArgs(statusValueOrDeps = null, deps = {}) {

@@ -1,5 +1,8 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-import { RARITY_LABELS, RARITY_TEXT_COLORS } from '../../../../../data/rarity_meta.js';
+import {
+  DescriptionUtils,
+  RARITY_LABELS,
+  RARITY_TEXT_COLORS,
+} from '../../ports/public_presentation_support_capabilities.js';
 
 const toastQueue = [];
 const activeToasts = [];

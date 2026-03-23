@@ -1,9 +1,13 @@
+import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = process.cwd();
 const POLICY_PATH = path.join(ROOT, 'config', 'architecture_policy.json');
 const BASELINE_PATH = path.join(ROOT, 'config', 'quality', 'import_coupling_baseline.json');
+const DEFAULT_IMPORT_COUPLING_TARGETS_FILE_PATH = path.join(ROOT, 'config', 'quality', 'import_coupling_targets.json');
+export const IMPORT_COUPLING_TARGETS_PATH = DEFAULT_IMPORT_COUPLING_TARGETS_FILE_PATH.replaceAll('\\', '/');
 
 function toPosix(p) {
   return p.split(path.sep).join('/');
@@ -43,7 +47,7 @@ function resolveImport(fileAbs, spec) {
   return toPosix(path.relative(ROOT, withExt));
 }
 
-async function computeCoupling() {
+export async function computeCoupling() {
   const policy = await readPolicy();
   const scanDirs = policy.scanDirs || ['game'];
   const layerMatchers = policy.layerMatchers || [];
@@ -101,6 +105,10 @@ async function readBaseline() {
   }
 }
 
+export function readCouplingTargets(targetsPath = DEFAULT_IMPORT_COUPLING_TARGETS_FILE_PATH) {
+  return JSON.parse(fsSync.readFileSync(targetsPath, 'utf8'));
+}
+
 function compareAgainstBaseline(current, baseline) {
   const failures = [];
   const baselineByPair = baseline?.byPair || {};
@@ -111,8 +119,21 @@ function compareAgainstBaseline(current, baseline) {
   return failures;
 }
 
+export function compareAgainstTargets(current, targets) {
+  const failures = [];
+  if (typeof targets?.maxTotal === 'number' && current.total > targets.maxTotal) {
+    failures.push(`total: ${current.total} (target ${targets.maxTotal})`);
+  }
+  for (const [pair, target] of Object.entries(targets?.maxByPair || {})) {
+    const count = current.byPair?.[pair] || 0;
+    if (count > target) failures.push(`${pair}: ${count} (target ${target})`);
+  }
+  return failures;
+}
+
 async function main() {
   const shouldWrite = process.argv.includes('--write-baseline');
+  const asJson = process.argv.includes('--json');
   const current = await computeCoupling();
 
   if (shouldWrite) {
@@ -121,7 +142,13 @@ async function main() {
     return;
   }
 
+  if (asJson) {
+    console.log(JSON.stringify(current, null, 2));
+    return;
+  }
+
   const baseline = await readBaseline();
+  const targets = readCouplingTargets();
   if (!baseline) {
     console.error(`Missing baseline: ${toPosix(path.relative(ROOT, BASELINE_PATH))}`);
     console.error('Run: node scripts/check-import-coupling.mjs --write-baseline');
@@ -129,9 +156,17 @@ async function main() {
   }
 
   const failures = compareAgainstBaseline(current, baseline);
-  if (failures.length > 0) {
-    console.error('Import coupling check failed (new cross-layer growth detected):');
-    for (const line of failures) console.error(`- ${line}`);
+  const targetFailures = compareAgainstTargets(current, targets);
+  if (failures.length > 0 || targetFailures.length > 0) {
+    console.error('Import coupling check failed:');
+    if (failures.length > 0) {
+      console.error('New cross-layer growth detected:');
+      for (const line of failures) console.error(`- ${line}`);
+    }
+    if (targetFailures.length > 0) {
+      console.error('Configured coupling targets exceeded:');
+      for (const line of targetFailures) console.error(`- ${line}`);
+    }
     process.exit(1);
   }
 
@@ -140,7 +175,9 @@ async function main() {
   );
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

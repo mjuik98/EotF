@@ -3,7 +3,7 @@ import {
   setCombatActionButtonsDisabled,
   setCombatTurnIndicator,
   triggerBossPhaseShiftSprite,
-} from '../game/ui/combat/combat_turn_render_ui.js';
+} from '../game/features/combat/public.js';
 
 describe('combat_turn_render_ui', () => {
   beforeEach(() => {

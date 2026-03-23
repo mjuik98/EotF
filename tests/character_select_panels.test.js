@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   renderCharacterInfoPanel,
   renderCharacterPhase,
-} from '../game/ui/title/character_select_panels.js';
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createClassList(initial = []) {
   const set = new Set(initial);

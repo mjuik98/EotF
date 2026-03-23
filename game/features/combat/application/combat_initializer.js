@@ -5,7 +5,7 @@ import {
   syncCombatSelectedTargetState,
 } from '../state/combat_setup_state_commands.js';
 import { createEnemySpawnPlan } from '../domain/enemy_spawn_plan_domain.js';
-import { registerEnemyEncounter } from '../../../shared/codex/codex_records.js';
+import { registerEnemyEncounter } from '../ports/public_codex_runtime_capabilities.js';
 
 function spawnScaledEnemy(gs, enemyData, difficultyScaler, extra = {}) {
   if (!gs || !enemyData) return;

@@ -14,7 +14,7 @@ import {
   applyRunStartLoadout,
   resetRunConfig,
   resetRuntimeState,
-} from '../game/app/shared/state_commands/run_state_commands.js';
+} from '../game/shared/state/run_state_commands.js';
 import {
   createDefaultGameStateShape,
   createDefaultMetaState,

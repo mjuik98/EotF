@@ -1,0 +1,10 @@
+{
+  "maxThinReexports": 0,
+  "maxCompatRootCounts": {
+    "game/ui": 0,
+    "game/app": 0,
+    "game/combat": 0
+  },
+  "maxMultiHopCompatChains": 0,
+  "maxStaleScriptReferences": 0
+}

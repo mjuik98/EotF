@@ -6,7 +6,7 @@ import {
   showDmgPopupEffect,
   showNamedOverlay,
   showShieldBlockEffectOverlay,
-} from '../game/ui/hud/feedback_ui_effects.js';
+} from '../game/features/combat/public.js';
 
 function createMockElement(tag = 'div') {
   return {

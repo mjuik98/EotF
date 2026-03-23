@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { TurnManager } from '../game/combat/turn_manager.js';
+import { TurnManager } from '../game/features/combat/public.js';
 
 function createTurnState() {
   return {

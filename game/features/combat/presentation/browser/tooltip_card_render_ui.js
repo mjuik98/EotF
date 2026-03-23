@@ -1,6 +1,8 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-import { DomSafe } from '../../../../utils/dom_safe.js';
-import { UNBREAKABLE_WALL_STACK_UNIT } from '../../../../../data/status_key_data.js';
+import {
+  DescriptionUtils,
+  DomSafe,
+  UNBREAKABLE_WALL_STACK_UNIT,
+} from '../../ports/public_presentation_support_capabilities.js';
 import {
   getCombatCardTypeLabel,
   resolvePrimaryCombatKeywordTooltip,

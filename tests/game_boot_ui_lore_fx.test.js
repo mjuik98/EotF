@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { startLoreTicker, stopLoreTicker } from '../game/ui/title/game_boot_ui_lore_fx.js';
+import { startLoreTicker, stopLoreTicker } from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
 
 function createDoc() {
   const tokens = new Set();

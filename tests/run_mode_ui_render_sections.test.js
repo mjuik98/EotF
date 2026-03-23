@@ -3,12 +3,12 @@ import {
   renderDifficultyPanel,
   renderHiddenEnding,
   renderSummaryBar,
-} from '../game/ui/run/run_mode_ui_summary_render.js';
+} from '../game/features/run/public.js';
 import {
   renderPresetDialog,
   renderPresets,
   syncModalMood,
-} from '../game/ui/run/run_mode_ui_presets_render.js';
+} from '../game/features/run/public.js';
 
 function createClassList(initial = []) {
   const set = new Set(initial);

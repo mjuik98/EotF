@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { showGameplayScreenService, showScreenService } from '../game/app/system/screen_service.js';
+import { showGameplayScreenService, showScreenService } from '../game/features/ui/ports/public_application_capabilities.js';
 
 describe('screen_service helpers', () => {
   it('uses ScreenUI through screen_service when state dispatch is available', () => {

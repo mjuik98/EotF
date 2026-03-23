@@ -10,7 +10,7 @@ import {
 import {
   consumeBossRewardFlags,
   resetRuntimeInteractionState,
-} from '../../../../shared/state/runtime_flow_controls.js';
+} from '../../ports/public_state_capabilities.js';
 
 function finalizeBossVictoryOutcome(deps, gs) {
   deps.finalizeRunOutcome?.('victory', {

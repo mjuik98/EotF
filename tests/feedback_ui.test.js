@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { FeedbackUI } from '../game/ui/hud/feedback_ui.js';
+import { FeedbackUI } from '../game/features/combat/public.js';
 
 function createMockElement(tag = 'div') {
   return {

@@ -17,7 +17,7 @@ import {
   syncModalMood,
 } from './run_mode_ui_render.js';
 import { bindRunModePanelEvents } from './run_mode_ui_bindings.js';
-import { createUiSurfaceStateController } from '../../../../shared/ui/state/ui_surface_state_controller.js';
+import { createUiSurfaceStateController } from '../../ports/presentation_shared_state_capabilities.js';
 
 export function refreshRunModeUI(ui, deps = {}) {
   const { gs, runRules } = deps;

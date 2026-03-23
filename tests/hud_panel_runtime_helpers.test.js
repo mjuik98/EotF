@@ -4,7 +4,7 @@ import {
   updateActionButtons,
   updateItemPanels,
   updateRunModifierPanel,
-} from '../game/ui/hud/hud_panel_runtime_helpers.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

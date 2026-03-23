@@ -5,7 +5,7 @@ import {
   detectCardTags,
   getCardTypeClass,
   getCardTypeLabelClass,
-} from '../game/ui/cards/card_render_helpers_ui.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(tagName = 'div') {

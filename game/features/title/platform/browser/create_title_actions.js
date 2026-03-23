@@ -1,4 +1,4 @@
-import { playUiClick } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
 import { createTitleFlowActions } from './create_title_flow_actions.js';
 import { createTitleSettingsActions } from './create_title_settings_actions.js';
 import { createTitleSystemActions } from './create_title_system_actions.js';

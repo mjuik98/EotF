@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   closeCharacterSkillModal,
   openCharacterSkillModal,
-} from '../game/ui/title/character_select_modal.js';
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createClassList() {
   const set = new Set();

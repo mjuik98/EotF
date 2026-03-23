@@ -3,7 +3,7 @@ import {
   setCombatTurnIndicator,
   triggerBossPhaseShiftSprite,
 } from './combat_turn_render_ui.js';
-import { playEventBossPhase } from '../../../../domain/audio/audio_event_helpers.js';
+import { playEventBossPhase } from '../../ports/public_audio_presentation_capabilities.js';
 
 function getDoc(deps = {}) {
   return deps?.doc || document;

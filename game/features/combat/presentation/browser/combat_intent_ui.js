@@ -1,5 +1,7 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-import { INTENT_DESCRIPTIONS } from '../../../../../data/combat_meta_data.js';
+import {
+  DescriptionUtils,
+  INTENT_DESCRIPTIONS,
+} from '../../ports/public_presentation_support_capabilities.js';
 import { COMBAT_INTENT_LABEL_TRANSLATIONS } from './combat_copy.js';
 
 let _intentTipTimer = null;

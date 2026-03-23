@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderClassSelectButtons } from '../game/ui/title/class_select_buttons_ui.js';
+import { renderClassSelectButtons } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 import { CLASS_METADATA } from '../data/class_metadata.js';
 import { readFileSync } from 'node:fs';
 

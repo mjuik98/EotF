@@ -1,5 +1,7 @@
-import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
-import { DECK_MODAL_RARITY_BORDER_COLORS } from '../../../../../data/ui_rarity_styles.js';
+import {
+  DECK_MODAL_RARITY_BORDER_COLORS,
+  RARITY_SORT_ORDER,
+} from '../../ports/public_presentation_support_capabilities.js';
 import { getCardTypeDisplayLabel } from './card_render_helpers_ui.js';
 import { populateCombatCardFrame } from './combat_card_frame_ui.js';
 

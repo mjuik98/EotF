@@ -6,7 +6,7 @@ import {
   resolveKeybindRow,
   sortKeybindingRows,
   updateConflictBanner,
-} from '../game/ui/screens/settings_ui_keybinding_helpers.js';
+} from '../game/features/ui/public.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));

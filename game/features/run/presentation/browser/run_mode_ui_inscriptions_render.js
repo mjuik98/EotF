@@ -8,7 +8,7 @@ import {
 import { renderHiddenEnding } from './run_mode_ui_summary_render.js';
 import {
   createUiSurfaceStateController,
-} from '../../../../shared/ui/state/ui_surface_state_controller.js';
+} from '../../ports/presentation_shared_state_capabilities.js';
 
 export function renderInscriptionOverview(doc, meta, cfg, data) {
   const zone = doc.getElementById('rmInscriptionZone');

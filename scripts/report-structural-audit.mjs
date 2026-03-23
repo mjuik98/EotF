@@ -6,6 +6,8 @@ const COMPAT_ROOTS = ['game/ui', 'game/app', 'game/combat'];
 const DOC_ROOTS = ['README.md', 'AGENTS.md'];
 const SCRIPT_REF_PATTERN = /scripts\/[A-Za-z0-9_./-]+\.(?:mjs|js)/g;
 const THIN_REEXPORT_PATTERN = /^(?:export\s+(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];\s*)+$/;
+const DEFAULT_STRUCTURAL_AUDIT_THRESHOLDS_FILE_PATH = path.join(process.cwd(), 'config', 'quality', 'structural_audit_thresholds.json');
+export const STRUCTURAL_AUDIT_THRESHOLDS_PATH = DEFAULT_STRUCTURAL_AUDIT_THRESHOLDS_FILE_PATH.replaceAll('\\', '/');
 
 function walkFiles(rootPath) {
   if (!fs.existsSync(rootPath)) return [];
@@ -18,6 +20,10 @@ function walkFiles(rootPath) {
 
 export function isThinReexportSource(source) {
   return THIN_REEXPORT_PATTERN.test(source.trim());
+}
+
+export function readStructuralAuditThresholds(configPath = DEFAULT_STRUCTURAL_AUDIT_THRESHOLDS_FILE_PATH) {
+  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
 }
 
 function collectThinReexportFiles(rootDir, compatRoots = COMPAT_ROOTS) {
@@ -104,6 +110,7 @@ export function buildStructuralAuditReport(rootDir = process.cwd()) {
   const thinReexports = collectThinReexportFiles(rootDir);
   const multiHopCompatChains = collectMultiHopCompatChains(rootDir, thinReexports);
   const staleScriptReferences = collectStaleScriptReferences(rootDir);
+  const thresholds = readStructuralAuditThresholds(path.join(rootDir, 'config', 'quality', 'structural_audit_thresholds.json'));
 
   const compatRootCounts = Object.fromEntries(
     COMPAT_ROOTS.map((compatRoot) => [
@@ -112,12 +119,31 @@ export function buildStructuralAuditReport(rootDir = process.cwd()) {
     ]),
   );
 
+  const thresholdFailures = [];
+  if (thinReexports.length > thresholds.maxThinReexports) {
+    thresholdFailures.push(`thin re-exports: ${thinReexports.length} (max ${thresholds.maxThinReexports})`);
+  }
+  for (const [compatRoot, count] of Object.entries(compatRootCounts)) {
+    const maxCount = thresholds.maxCompatRootCounts?.[compatRoot];
+    if (typeof maxCount === 'number' && count > maxCount) {
+      thresholdFailures.push(`${compatRoot}: ${count} thin re-exports (max ${maxCount})`);
+    }
+  }
+  if (multiHopCompatChains.length > thresholds.maxMultiHopCompatChains) {
+    thresholdFailures.push(`multi-hop compat chains: ${multiHopCompatChains.length} (max ${thresholds.maxMultiHopCompatChains})`);
+  }
+  if (staleScriptReferences.length > thresholds.maxStaleScriptReferences) {
+    thresholdFailures.push(`stale script references: ${staleScriptReferences.length} (max ${thresholds.maxStaleScriptReferences})`);
+  }
+
   return {
     thinReexportCount: thinReexports.length,
     compatRootCounts,
     multiHopCompatChainCount: multiHopCompatChains.length,
     multiHopCompatChains,
     staleScriptReferences,
+    thresholds,
+    thresholdFailures,
   };
 }
 
@@ -136,6 +162,10 @@ function printHumanReport(report) {
   report.staleScriptReferences.forEach((entry) => {
     console.log(`- ${entry.source}: ${entry.reference}`);
   });
+  console.log(`Threshold failures: ${report.thresholdFailures.length}`);
+  report.thresholdFailures.forEach((failure) => {
+    console.log(`- ${failure}`);
+  });
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
@@ -149,7 +179,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     printHumanReport(report);
   }
 
-  if (strict && report.staleScriptReferences.length > 0) {
+  if (strict && report.thresholdFailures.length > 0) {
     process.exitCode = 1;
   }
 }

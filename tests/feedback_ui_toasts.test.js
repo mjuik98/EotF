@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   showCombatSummaryToast,
   showItemToastQueued,
-} from '../game/ui/hud/feedback_ui_toasts.js';
+} from '../game/features/combat/public.js';
 
 function findDescendantByClass(root, className) {
   if (!root) return null;

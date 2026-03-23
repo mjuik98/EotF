@@ -1,5 +1,8 @@
-import { resolveActiveRegionId } from '../../../domain/run/region_service.js';
-import { startPlayerTurnPolicy } from '../../../domain/combat/turn/start_player_turn_policy.js';
+import {
+  resolveActiveRegionId,
+  startPlayerTurnPolicy,
+} from '../../../domain/combat/public_combat_runtime_capabilities.js';
+import { syncGuardianPreservedShield } from '../ports/public_state_capabilities.js';
 import {
   decayEnemyWeaken,
   getEnemyAction,
@@ -10,7 +13,6 @@ import {
   processEnemyStun,
 } from '../domain/enemy_turn_domain.js';
 import { processPlayerStatusTicks } from '../domain/player_status_tick_domain.js';
-import { syncGuardianPreservedShield } from '../../../shared/state/runtime_session_commands.js';
 import { beginPlayerTurnUseCase } from './begin_player_turn_use_case.js';
 
 function getCombatRegionId(gs) {

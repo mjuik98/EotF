@@ -7,7 +7,7 @@ import {
   findClosestNodeEntry,
   toCanvasCoords,
   updateMinimapHint,
-} from '../game/ui/map/map_ui_minimap_render.js';
+} from '../game/features/run/public.js';
 
 class MockContext2D {
   constructor() {

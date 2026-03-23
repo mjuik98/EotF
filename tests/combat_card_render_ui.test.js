@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   applyHandFanStyles,
   createCombatCardElement,
-} from '../game/ui/cards/combat_card_render_ui.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(tagName = 'div') {

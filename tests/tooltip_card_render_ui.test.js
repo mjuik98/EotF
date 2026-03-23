@@ -5,7 +5,7 @@ import {
   positionCardTooltip,
   renderCardTooltipContent,
   syncCardKeywordTooltip,
-} from '../game/ui/cards/tooltip_card_render_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement() {
   return {

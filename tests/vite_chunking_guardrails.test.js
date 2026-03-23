@@ -140,7 +140,7 @@ describe('vite chunking guardrails', () => {
     expect(shellContracts).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
 
     expect(runRules).toContain("../../title/ports/public_progression_capabilities.js");
-    expect(rewardOptions).toContain("../../title/ports/public_progression_capabilities.js");
+    expect(rewardOptions).toContain("../ports/reward_option_policy_ports.js");
 
     expect(endingActionHelpers).not.toContain('public_application_capabilities.js');
     expect(metaProgressionRuntime).not.toContain('public_application_capabilities.js');
@@ -151,6 +151,7 @@ describe('vite chunking guardrails', () => {
     expect(shellContracts).not.toContain('public_application_capabilities.js');
     expect(runRules).not.toContain('public_application_capabilities.js');
     expect(rewardOptions).not.toContain('public_application_capabilities.js');
+    expect(rewardOptions).not.toContain('../../title/ports/public_progression_capabilities.js');
   });
 
   it('targets canonical feature-owned browser paths instead of transitional ui/presentation screen paths', () => {

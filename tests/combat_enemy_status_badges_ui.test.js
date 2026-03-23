@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildEnemyStatusBadges } from '../game/ui/combat/combat_enemy_status_badges_ui.js';
+import { buildEnemyStatusBadges } from '../game/features/combat/public.js';
 
 class MockTextNode {
   constructor(text) {

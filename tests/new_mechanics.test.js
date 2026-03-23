@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { DamageSystem } from '../game/combat/damage_system.js';
-import { TurnManager } from '../game/combat/turn_manager.js';
+import { DamageSystem, TurnManager } from '../game/features/combat/public.js';
 
 // Mock browser globals
 global.document = {

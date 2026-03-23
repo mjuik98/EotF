@@ -5,7 +5,7 @@ import {
   drawMazeMinimap,
   resizeMazeCanvas,
   updateMazeHud,
-} from '../game/ui/map/maze_system_render_ui.js';
+} from '../game/features/run/public.js';
 
 function createGradient() {
   return {

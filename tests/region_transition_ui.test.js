@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { RegionTransitionUI } from '../game/ui/map/region_transition_ui.js';
+import { RegionTransitionUI } from '../game/features/run/public.js';
 
 function createMockElement() {
   return {

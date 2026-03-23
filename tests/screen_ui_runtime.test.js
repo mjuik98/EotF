@@ -9,7 +9,7 @@ vi.mock('../game/features/ui/presentation/browser/screen_ui_helpers.js', () => (
 describe('screen_ui_runtime', () => {
   it('updates current screen, removes the floating hp panel, and fires the title hook', async () => {
     const helpers = await import('../game/features/ui/presentation/browser/screen_ui_helpers.js');
-    const { switchScreenRuntime } = await import('../game/ui/screens/screen_ui_runtime.js');
+    const { switchScreenRuntime } = await import('../game/features/ui/presentation/browser/screen_ui_runtime.js');
     const floatingHpShell = { remove: vi.fn() };
     const doc = {
       marker: true,
@@ -30,7 +30,7 @@ describe('screen_ui_runtime', () => {
 
   it('prefers the screen state command when dispatch is available', async () => {
     const helpers = await import('../game/features/ui/presentation/browser/screen_ui_helpers.js');
-    const { switchScreenRuntime } = await import('../game/ui/screens/screen_ui_runtime.js');
+    const { switchScreenRuntime } = await import('../game/features/ui/presentation/browser/screen_ui_runtime.js');
     const doc = {
       getElementById: vi.fn(() => null),
     };

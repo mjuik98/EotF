@@ -17,7 +17,7 @@ import {
   normalizeEnemyStatusTooltipArgs,
   resolveEnemyStatusTooltipPayload,
   showEnemyStatusTooltipOverlay,
-} from '../game/ui/combat/combat_enemy_status_tooltip_ui.js';
+} from '../game/features/combat/public.js';
 
 describe('combat_enemy_status_tooltip_ui', () => {
   it('normalizes value/deps inputs for window-compatible status tooltip calls', () => {

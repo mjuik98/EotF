@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CombatStartUI } from '../game/ui/combat/combat_start_ui.js';
-import { CombatInitializer } from '../game/combat/combat_initializer.js';
+import { CombatStartUI } from '../game/features/combat/public.js';
+import { CombatInitializer } from '../game/features/combat/public.js';
 
 function createMockElement() {
   return {

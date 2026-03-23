@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../ports/public_presentation_support_capabilities.js';
 import { buildItemDetailViewModel } from './item_detail_view_model.js';
 
 export function createItemTooltipElement(doc, item, data, state) {

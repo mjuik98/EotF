@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { clearIdempotencyPrefix } from '../game/utils/idempotency_utils.js';
-import { RunStartUI } from '../game/ui/run/run_start_ui.js';
+import { RunStartUI } from '../game/features/run/public.js';
 import { startEchoRippleDissolve } from '../game/platform/browser/effects/echo_ripple_transition.js';
 
 vi.mock('../game/platform/browser/effects/echo_ripple_transition.js', () => ({

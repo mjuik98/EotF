@@ -4,7 +4,7 @@ import {
   canOpenFullMap,
   canToggleDeckView,
   getRunHotkeyState,
-} from '../game/ui/screens/help_pause_ui_helpers.js';
+} from '../game/features/ui/public.js';
 
 function createModalElement({ active = true } = {}) {
   return {

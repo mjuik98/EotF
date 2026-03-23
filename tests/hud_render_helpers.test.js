@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   formatEchoSkillButtonText,
   getCombatDrawButtonCopy,
-} from '../game/ui/hud/hud_render_helpers.js';
+} from '../game/features/combat/public.js';
 
 describe('hud_render_helpers', () => {
   it('formats localized echo skill text by threshold', () => {

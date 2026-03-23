@@ -6,7 +6,7 @@ import {
   renderEnemyIntentNode,
   syncEnemyPreviewState,
   syncEnemySelectionState,
-} from '../game/ui/combat/combat_enemy_card_renderers_ui.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

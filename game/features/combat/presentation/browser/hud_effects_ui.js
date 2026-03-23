@@ -1,5 +1,5 @@
-import { getDoc, getRaf } from '../../../../utils/runtime_deps.js';
-import { setDatasetBooleanState } from '../../../../shared/ui/state/ui_state_dataset.js';
+import { getDoc, getRaf } from '../../ports/public_presentation_support_capabilities.js';
+import { setDatasetBooleanState } from '../../ports/presentation_shared_runtime_capabilities.js';
 
 export function triggerDeckShufflePulseUI(deps = {}) {
   const doc = getDoc(deps);

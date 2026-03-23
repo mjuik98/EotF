@@ -1,5 +1,7 @@
-import { PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../../../data/status_key_data.js';
-import { getStatusDisplayValue } from '../../../../utils/status_value_utils.js';
+import {
+  getStatusDisplayValue,
+  PLAYER_STATUS_FALLBACK_BUFF_KEYS,
+} from '../../ports/public_presentation_support_capabilities.js';
 
 function resolveStatusInfo(statusMap, statusKey) {
   const key = String(statusKey || '');

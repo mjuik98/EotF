@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   normalizeRouteOptions,
   resolveBranchTargetRegion,
-} from '../game/ui/run/run_return_ui_branch_ui.js';
+} from '../game/features/run/public.js';
 
 describe('run_return_ui_branch_ui', () => {
   it('normalizes route options and drops invalid entries', () => {

@@ -3,7 +3,7 @@ import {
   applyNoiseWidgetState,
   resolveNoiseWidgetState,
   updateCombatChainWidgets,
-} from '../game/ui/combat/combat_hud_widgets_ui.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

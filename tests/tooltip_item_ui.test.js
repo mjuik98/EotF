@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   hideItemTooltipUi,
   showItemTooltipUi,
-} from '../game/ui/cards/tooltip_item_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement(tag = 'div') {
   const element = {

@@ -3,7 +3,7 @@ import {
   beginSettingsRebindUi,
   cleanupSettingsRebindUi,
   setSettingsModalActive,
-} from '../game/ui/screens/settings_ui_runtime_helpers.js';
+} from '../game/features/ui/public.js';
 
 function createClassList(initial = []) {
   const set = new Set(initial);

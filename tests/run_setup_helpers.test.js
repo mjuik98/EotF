@@ -5,7 +5,7 @@ import {
   getActiveSynergies,
   resolveRunSetupContext,
   resetRunConfig,
-} from '../game/ui/run/run_setup_helpers.js';
+} from '../game/features/run/public.js';
 import { createDefaultGameStateShape, createDefaultMetaState } from '../game/core/game_state_defaults.js';
 
 function createGS() {

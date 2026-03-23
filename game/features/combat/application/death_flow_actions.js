@@ -1,20 +1,20 @@
-import { DATA } from '../../../../data/game_data.js';
 import { EventBus } from '../../../core/event_bus.js';
 import { Actions } from '../../../core/store/state_actions.js';
-import { getRegionData } from '../../run/ports/public_rule_capabilities.js';
-import { registerEnemyKill } from '../../../shared/codex/codex_record_state_use_case.js';
 import {
+  CombatGameData,
+  playReactionEnemyDeath,
+  playReactionPlayerDeath,
+  playStatusHeal,
+} from '../../../domain/combat/public_combat_runtime_capabilities.js';
+import { getRegionData } from '../../run/ports/public_rule_capabilities.js';
+import {
+  registerEnemyKill,
   recordEnemyWorldKill,
   replaceCombatEnemies,
   scheduleCombatEnd,
   setCombatActive,
   syncSelectedTarget,
-} from '../../../shared/state/runtime_session_commands.js';
-import {
-  playReactionEnemyDeath,
-  playReactionPlayerDeath,
-  playStatusHeal,
-} from '../../../domain/audio/audio_event_helpers.js';
+} from '../../../shared/combat/public_combat_runtime_effects.js';
 import { applyEnemyDeathState } from './enemy_death_state.js';
 import { handleEnemyDeathFlow } from './enemy_death_flow.js';
 import { endCombatRuntime } from '../ports/public_application_capabilities.js';
@@ -84,7 +84,7 @@ export function handleCombatPlayerDeath(gs, deps = {}) {
 
   runCombatPlayerDeathSequence(gs, {
     ...deps,
-    deathQuotes: DATA.deathQuotes,
+    deathQuotes: CombatGameData.deathQuotes,
     showDeathScreen: deps.showDeathScreen || (() => showCombatDeathScreen(gs, deps)),
   });
 }

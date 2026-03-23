@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { TurnManager } from '../game/combat/turn_manager.js';
+import { TurnManager } from '../game/features/combat/public.js';
 import { ITEMS } from '../data/items.js';
 import { Trigger } from '../game/data/triggers.js';
 import { SetBonusSystem } from '../game/systems/set_bonus_system.js';

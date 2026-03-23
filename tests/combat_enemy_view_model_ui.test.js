@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildEnemyHpText, buildEnemyViewModel } from '../game/ui/combat/combat_enemy_view_model_ui.js';
+import { buildEnemyHpText, buildEnemyViewModel } from '../game/features/combat/public.js';
 
 class MockTextNode {
   constructor(text) {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DamageSystem } from '../game/combat/damage_system.js';
+import { DamageSystem } from '../game/features/combat/public.js';
 import { Actions } from '../game/core/state_actions.js';
 import { applyEnemyAreaDamageRuntime } from '../game/features/combat/application/public_combat_command_actions.js';
 

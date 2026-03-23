@@ -22,7 +22,7 @@ vi.mock('../game/features/run/presentation/browser/map_ui_full_map.js', () => ({
   showFullMapOverlay: showFullMapOverlaySpy,
 }));
 
-import { MapUI } from '../game/ui/map/map_ui.js';
+import { MapUI } from '../game/features/run/public.js';
 
 describe('map_ui facade', () => {
   it('delegates each public surface to the extracted helper', () => {

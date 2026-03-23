@@ -2,11 +2,10 @@ import {
   getEnemyStatusMeta,
   getEnemyStatusName,
   getPlayerStatusMeta,
-} from '../../../../../data/status_effects_data.js';
-import {
   getStatusTooltipMeta,
+  isInfiniteStatusDuration,
   resolveStatusTooltipPalette,
-} from '../../../../../data/status_tooltip_meta_data.js';
+} from '../../ports/public_presentation_support_capabilities.js';
 import {
   getStatusTooltipTypeLabel,
 } from './status_tooltip_copy.js';
@@ -22,7 +21,6 @@ import {
   buildStatusTooltipHeaderHTML,
   composeStatusTooltipBodyHTML,
 } from './status_tooltip_layout.js';
-import { isInfiniteStatusDuration } from '../../../../utils/status_value_utils.js';
 import {
   ensureStatusTooltipRoot,
   positionStatusTooltipFromEvent,

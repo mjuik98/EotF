@@ -37,7 +37,7 @@ vi.mock('../game/features/combat/presentation/browser/deck_modal_runtime_ui.js',
   setDeckModalFilter: setDeckModalFilterSpy,
 }));
 
-import { DeckModalUI } from '../game/ui/cards/deck_modal_ui.js';
+import { DeckModalUI } from '../game/features/combat/public.js';
 
 function createDoc() {
   const elements = new Map();

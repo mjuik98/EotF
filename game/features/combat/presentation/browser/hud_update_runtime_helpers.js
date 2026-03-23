@@ -1,4 +1,4 @@
-import { getRaf } from '../../../../utils/runtime_deps.js';
+import { getRaf } from '../../ports/public_presentation_support_capabilities.js';
 
 let _uiPending = false;
 

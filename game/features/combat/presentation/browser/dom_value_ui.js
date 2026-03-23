@@ -1,4 +1,4 @@
-import { getDoc as _getDoc } from '../../../../shared/runtime/hud_runtime_deps.js';
+import { getDoc as _getDoc } from '../../ports/presentation_shared_runtime_capabilities.js';
 
 export const DomValueUI = {
   setBar(id, pct, deps = {}) {

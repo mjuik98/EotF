@@ -9,7 +9,7 @@ import {
   closeCodexPopup,
   ensureCodexPopupOverlay,
   openCodexPopup,
-} from '../game/ui/screens/codex_ui_popup.js';
+} from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

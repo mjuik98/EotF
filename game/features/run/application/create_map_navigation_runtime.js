@@ -1,8 +1,10 @@
 import { moveToNodeUseCase } from './move_to_node_use_case.js';
 import { presentNodeTransition } from '../presentation/present_node_transition.js';
-import { playUiFootstep } from '../../../domain/audio/audio_event_helpers.js';
-import { Trigger } from '../../../data/triggers.js';
-import { MAP_COMBAT_NODE_TYPES } from '../../../../data/map_node_data.js';
+import { playUiFootstep } from '../ports/public_audio_runtime_capabilities.js';
+import {
+  MAP_COMBAT_NODE_TYPES,
+  Trigger,
+} from '../ports/public_data_runtime_capabilities.js';
 
 export function createMapNavigationRuntime(overrides = {}) {
   const {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DATA } from '../data/game_data.js';
-import { CombatInitializer } from '../game/combat/combat_initializer.js';
+import { CombatInitializer } from '../game/features/combat/public.js';
 
 function createState(regionId) {
   return {

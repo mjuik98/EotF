@@ -11,8 +11,8 @@ import { createShopEventService } from '../game/features/event/application/shop_
 import {
   buildCardPopupPayload,
   buildEnemyPopupPayload,
-} from '../game/ui/screens/codex_ui_popup_payloads.js';
-import { renderCharacterInfoPanel } from '../game/ui/title/character_select_info_panel.js';
+} from '../game/features/codex/public.js';
+import { renderCharacterInfoPanel } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 import { buildCharacterSelectShellMarkup } from '../game/features/title/platform/browser/ensure_character_select_shell.js';
 
 function createPanel() {

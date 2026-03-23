@@ -1,6 +1,5 @@
-import { CONSTANTS } from '../../../../data/constants.js';
-import { Trigger } from '../../../../data/triggers.js';
-import { playEventResonanceBurst } from '../../../../domain/audio/audio_event_helpers.js';
+import { playEventResonanceBurst } from '../../ports/public_audio_presentation_capabilities.js';
+import { CONSTANTS, Trigger } from '../../ports/public_presentation_support_capabilities.js';
 
 function formatRecentFeedText({ sourceName, outcome = '' } = {}) {
   const normalizedOutcome = typeof outcome === 'string' ? outcome.trim() : '';

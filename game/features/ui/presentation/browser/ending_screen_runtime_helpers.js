@@ -12,7 +12,7 @@ import {
   winOf,
 } from './ending_screen_helpers.js';
 import { burstEndingWisps, initEndingFx } from './ending_screen_fx.js';
-import { playEventResonanceBurst } from '../../../../domain/audio/audio_event_helpers.js';
+import { playEventResonanceBurst } from '../../ports/public_audio_presentation_capabilities.js';
 import { scheduleEndingRestartAction } from './ending_screen_action_helpers.js';
 
 export function buildEndingSessionPayload(outcome = 'victory', deps = {}) {

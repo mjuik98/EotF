@@ -1,4 +1,4 @@
-import { setDatasetValue } from '../../../../shared/ui/state/ui_state_dataset.js';
+import { setDatasetValue } from '../../ports/presentation_shared_runtime_capabilities.js';
 
 export function createCardCloneRuntime(options = {}) {
   const {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderCodexProgress } from '../game/ui/screens/codex_ui_progress_render.js';
+import { renderCodexProgress } from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

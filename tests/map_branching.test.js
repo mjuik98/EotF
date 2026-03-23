@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { MapGenerationUI } from '../game/ui/map/map_generation_ui.js';
-import { MapNavigationUI } from '../game/ui/map/map_navigation_ui.js';
+import { MapGenerationUI, MapNavigationUI } from '../game/features/run/public.js';
 
 function buildFloorMap(nodes = []) {
   const byFloor = new Map();

@@ -4,7 +4,7 @@ import {
   CARD_CODEX_SECTIONS,
   ENEMY_CODEX_SECTIONS,
   renderCodexCategorizedSections,
-} from '../game/ui/screens/codex_ui_content_sections.js';
+} from '../game/features/codex/public.js';
 
 describe('codex_ui_content_sections', () => {
   it('keeps enemy and card section predicates stable', () => {

@@ -1,5 +1,5 @@
 import { getData, getDoc, getGS, getInscriptionLevel, setInscriptionLevel } from './story_ui_helpers.js';
-import { playEventResonanceBurst } from '../../../../domain/audio/audio_event_helpers.js';
+import { playEventResonanceBurst } from '../../ports/public_audio_presentation_capabilities.js';
 import { restartHiddenEndingOverlay } from '../../../title/ports/public_ending_application_capabilities.js';
 
 export function renderHiddenEndingOverlay(deps = {}) {

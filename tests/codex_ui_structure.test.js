@@ -4,7 +4,7 @@ import {
   buildCodexModalMarkup,
   injectCodexModalStructure,
   setCodexTabState,
-} from '../game/ui/screens/codex_ui_structure.js';
+} from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

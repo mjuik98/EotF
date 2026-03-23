@@ -7,7 +7,7 @@ import {
   normalizeSettingsVolumePercent,
   resetSettingsToDefaults,
   toggleSettingsMute,
-} from '../game/ui/screens/settings_ui_apply_helpers.js';
+} from '../game/features/ui/public.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));

@@ -97,13 +97,19 @@ async function computeGraph() {
   const hottestByIn = [...nodes].sort((a, b) => b.inDegree - a.inDegree).slice(0, 15);
 
   return {
-    generatedAt: new Date().toISOString(),
     nodeCount: nodes.length,
     edgeCount: Object.values(sortedGraph).reduce((sum, deps) => sum + deps.length, 0),
     layerEdges: sortObj(layerEdges),
     hottestByOut,
     hottestByIn,
     graph: sortedGraph,
+  };
+}
+
+function withGeneratedAt(report, generatedAt = new Date().toISOString()) {
+  return {
+    ...report,
+    generatedAt,
   };
 }
 
@@ -145,7 +151,40 @@ function toMarkdown(report) {
 }
 
 async function main() {
-  const report = await computeGraph();
+  const shouldCheck = process.argv.includes('--check');
+  const computed = await computeGraph();
+
+  if (shouldCheck) {
+    let currentJson;
+    let currentMd;
+    try {
+      currentJson = await fs.readFile(OUT_JSON, 'utf8');
+      currentMd = await fs.readFile(OUT_MD, 'utf8');
+    } catch {
+      console.error('Dependency map artifacts are missing. Run: npm run deps:map');
+      process.exit(1);
+    }
+
+    const currentReport = JSON.parse(currentJson);
+    const expected = withGeneratedAt(computed, currentReport.generatedAt);
+    const expectedJson = `${JSON.stringify(expected, null, 2)}\n`;
+    const expectedMd = `${toMarkdown(expected)}\n`;
+    const staleFiles = [];
+    if (currentJson !== expectedJson) staleFiles.push('artifacts/dependency_map.json');
+    if (currentMd !== expectedMd) staleFiles.push('artifacts/dependency_map.md');
+
+    if (staleFiles.length > 0) {
+      console.error('Dependency map artifacts are out of date:');
+      staleFiles.forEach((file) => console.error(`- ${file}`));
+      console.error('Run: npm run deps:map');
+      process.exit(1);
+    }
+
+    console.log(`Dependency map check passed (${expected.nodeCount} nodes, ${expected.edgeCount} edges).`);
+    return;
+  }
+
+  const report = withGeneratedAt(computed);
   await fs.mkdir(path.dirname(OUT_JSON), { recursive: true });
   await fs.writeFile(OUT_JSON, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   await fs.writeFile(OUT_MD, `${toMarkdown(report)}\n`, 'utf8');

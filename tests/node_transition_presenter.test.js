@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { presentNodeTransition } from '../game/ui/map/map_navigation_presenter.js';
+import { presentNodeTransition } from '../game/features/run/public.js';
 
 describe('node_transition_presenter', () => {
   it('updates non-combat navigation UI and dispatches the next node action', () => {

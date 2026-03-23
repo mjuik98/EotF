@@ -134,8 +134,8 @@ describe('refactor structure guardrails', () => {
     expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/tooltip_ui_ports.js'");
     expect(loadCharacterSelectSource).toContain("from '../domain/class_progression_system.js'");
     expect(loadCharacterSelectSource).not.toContain("from '../ports/class_progression_ports.js'");
-    expect(rewardOptionsSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
-    expect(rewardOptionsSource).not.toContain("from '../ports/reward_option_policy_ports.js'");
+    expect(rewardOptionsSource).toContain("from '../ports/reward_option_policy_ports.js'");
+    expect(rewardOptionsSource).not.toContain("from '../../title/ports/public_progression_capabilities.js'");
     expect(runRulesSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
     expect(runRulesSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(hiddenEndingSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");

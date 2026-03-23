@@ -6,7 +6,7 @@ import {
   resolvePartialHudDeps,
   scheduleHudUpdate,
   updateEndButtonWarn,
-} from '../game/ui/hud/hud_update_runtime_helpers.js';
+} from '../game/features/combat/public.js';
 
 describe('hud_update_runtime_helpers', () => {
   it('toggles the end-turn warning only when energy can still be spent', () => {

@@ -1,11 +1,11 @@
-import { PLAYER_STATUS_FALLBACK_BUFF_KEYS } from '../../../../../data/status_key_data.js';
-import { STATUS_KR } from '../../../../../data/status_effects_data.js';
 import {
   getRawStatusStacks,
   getStatusDisplayValue,
   isInfiniteStatusDuration,
+  PLAYER_STATUS_FALLBACK_BUFF_KEYS,
   resolveStatusEffectValue,
-} from '../../../../utils/status_value_utils.js';
+  STATUS_KR,
+} from '../../ports/public_presentation_support_capabilities.js';
 import { StatusTooltipUI } from './status_tooltip_builder.js';
 
 function _getDoc(deps) { return deps?.doc || document; }

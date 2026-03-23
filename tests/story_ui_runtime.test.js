@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { showEndingRuntime, showRunFragmentRuntime } from '../game/ui/screens/story_ui_runtime.js';
+import { showEndingRuntime, showRunFragmentRuntime } from '../game/features/ui/presentation/browser/story_ui_runtime.js';
 import { EndingScreenUI } from '../game/features/ui/public.js';
 
 describe('story_ui_runtime', () => {

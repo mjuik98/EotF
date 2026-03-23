@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameBootUI } from '../game/ui/title/game_boot_ui.js';
+import { GameBootUI } from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
 
 function makeElement() {
   return {

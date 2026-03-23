@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createCharacterSummaryReplay } from '../game/ui/title/character_select_summary_replay.js';
+import { createCharacterSummaryReplay } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 describe('character select summary replay helper', () => {
   it('consumes a pending summary and chains run-end into level-up popups', () => {

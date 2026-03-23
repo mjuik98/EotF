@@ -1,4 +1,4 @@
-import { CONSTANTS } from '../../../../data/constants.js';
+import { CONSTANTS } from '../../ports/public_presentation_support_capabilities.js';
 
 export function buildEchoSkillTooltipTiers(gs) {
   const cls = gs?.player?.class;

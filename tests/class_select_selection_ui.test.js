@@ -5,7 +5,7 @@ import {
   normalizeClassId,
   selectClassButton,
   selectClassById,
-} from '../game/ui/title/class_select_selection_ui.js';
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createClassList() {
   const set = new Set();

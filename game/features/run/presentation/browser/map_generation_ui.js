@@ -1,4 +1,4 @@
-import { MAP_RANDOM_NODE_TYPE_POOL } from '../../../../../data/map_node_data.js';
+import { MAP_RANDOM_NODE_TYPE_POOL } from '../../ports/public_data_runtime_capabilities.js';
 import { replaceGeneratedMapState } from '../../state/region_state_commands.js';
 
 function groupByFloor(nodes = []) {

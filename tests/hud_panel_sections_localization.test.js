@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { updateHudPanels } from '../game/ui/hud/hud_panel_sections.js';
+import { updateHudPanels } from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

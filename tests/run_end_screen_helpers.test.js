@@ -6,7 +6,7 @@ import {
   getRunEndRowAnimationDuration,
   globalProgress,
   normalizeRunEndSummary,
-} from '../game/ui/title/run_end_screen_helpers.js';
+} from '../game/features/title/ports/public_run_end_presentation_capabilities.js';
 
 describe('run end screen helpers', () => {
   it('normalizes summary values and derives progress labels', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createPauseMenu } from '../game/ui/screens/help_pause_ui_pause_menu_overlay.js';
+import { createPauseMenu } from '../game/features/ui/public.js';
 
 function createElementFactory(elements) {
   return function createElement(tagName) {

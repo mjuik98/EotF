@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { resetKeyboardNav, setupKeyboardNav } from '../game/ui/title/game_boot_ui_nav_fx.js';
+import { resetKeyboardNav, setupKeyboardNav } from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
 
 function makeItem(id) {
   return {

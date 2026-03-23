@@ -1,7 +1,7 @@
 import {
   MAP_NODE_TYPE_ORDER,
   MAP_NODE_TYPE_VISUAL_FALLBACK,
-} from '../../../../data/map_node_data.js';
+} from '../ports/public_data_runtime_capabilities.js';
 
 export { MAP_NODE_TYPE_ORDER, MAP_NODE_TYPE_VISUAL_FALLBACK };
 

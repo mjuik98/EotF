@@ -1,8 +1,8 @@
-import { DATA } from '../../../../data/game_data.js';
+import { DATA } from '../ports/public_data_runtime_capabilities.js';
 import {
   ensureCodexRecords,
   ensureCodexState,
-} from '../../../shared/codex/codex_record_state_use_case.js';
+} from '../ports/public_codex_state_capabilities.js';
 import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import { CURSES } from '../domain/run_rules_curses.js';
 import {

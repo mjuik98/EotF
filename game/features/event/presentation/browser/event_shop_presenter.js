@@ -1,4 +1,4 @@
-import { playUiItemGetFeedback } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiItemGetFeedback } from '../../ports/public_audio_runtime_capabilities.js';
 import { createEventShopUseCase } from '../../application/create_event_shop_use_case.js';
 
 export function decorateEventShopChoiceEffects(shop, deps = {}) {

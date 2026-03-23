@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { setupCharacterCardFx } from '../game/ui/title/character_select_fx.js';
+import { setupCharacterCardFx } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createCard() {
   const listeners = {};

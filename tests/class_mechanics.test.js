@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ClassMechanics } from '../game/combat/class_mechanics.js';
+import { ClassMechanics } from '../game/domain/class/class_mechanic_rules.js';
 
 function createState(overrides = {}) {
   const state = {

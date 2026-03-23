@@ -59,11 +59,14 @@ This file is the working contract for engineers and coding agents in this reposi
 ## Validation
 
 - Run `npm test` for fast logic and behavior changes.
+- Run `npm run test:manifest` when test files move between suites or new test files are added.
 - Run `npm run test:guardrails` for architecture, boundary, compat, or composition changes.
 - Run `npm run test:full` when a change spans both runtime behavior and guardrail coverage.
 - Run `npm run lint` for architecture, boundary, state-flow, global API, or data/content changes.
 - Run `npm run build` for user-visible browser changes and before handoff on substantial work.
+- Run `npm run quality:sync` when test ownership and dependency-map outputs both changed.
 - Run `npm run deps:map` when dependency flow or ownership changes.
+- Run `npm run deps:map:check` to verify generated dependency map outputs are current before handoff on dependency-flow changes.
 - For UI-affecting changes, do at least one browser smoke check:
   - click `#mainStartBtn`
   - confirm character select renders

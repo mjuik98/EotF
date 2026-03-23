@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   resolveDrawAvailability,
   resolvePlayerMaxHand,
-} from '../game/ui/combat/draw_availability.js';
+} from '../game/features/combat/public.js';
 
 describe('resolveDrawAvailability', () => {
   it('enables draw when in player turn, with energy, and below hand cap', () => {

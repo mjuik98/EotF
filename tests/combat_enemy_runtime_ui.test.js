@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildEnemyHpUpdateViewModel, syncCombatEnemyFloatingTooltips } from '../game/ui/combat/combat_enemy_runtime_ui.js';
+import { buildEnemyHpUpdateViewModel, syncCombatEnemyFloatingTooltips } from '../game/features/combat/public.js';
 
 class MockElement {
   constructor() {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { renderCombatInfoItems } from '../game/ui/combat/combat_info_items_ui.js';
+import { renderCombatInfoItems } from '../game/features/combat/public.js';
 
 class MockFragment {
   constructor() {

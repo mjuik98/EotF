@@ -3,7 +3,7 @@ import {
   renderCharacterButtons,
   renderCharacterDots,
   updateCharacterArrows,
-} from '../game/ui/title/character_select_render.js';
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createButton(label = '') {
   const listeners = {};

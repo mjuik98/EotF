@@ -1,4 +1,4 @@
-import { CONSTANTS } from '../../../data/constants.js';
+import { CONSTANTS } from '../ports/event_data_policy_ports.js';
 
 export function getEventShopMaxEnergyCap(state) {
   const overrideCap = Number(state?.player?.maxEnergyCap);

@@ -1,5 +1,5 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-import { playUiLegendary } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiLegendary } from '../../ports/public_audio_presentation_capabilities.js';
+import { DescriptionUtils } from '../../ports/public_presentation_support_capabilities.js';
 
 const noticeQueue = [];
 let noticeActive = false;

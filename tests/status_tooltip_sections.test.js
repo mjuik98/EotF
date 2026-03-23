@@ -6,7 +6,7 @@ import {
   buildStatusTooltipNextTurnHTML,
   buildStatusTooltipSourceHTML,
   buildStatusTooltipStatsHTML,
-} from '../game/ui/combat/status_tooltip_sections.js';
+} from '../game/features/combat/public.js';
 
 describe('status tooltip sections', () => {
   it('renders next-turn and source sections from extracted helpers', () => {

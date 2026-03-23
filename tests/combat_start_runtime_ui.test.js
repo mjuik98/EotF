@@ -7,7 +7,7 @@ import {
   scheduleCombatStartBanner,
   showCombatBossBanner,
   syncCombatStartButtons,
-} from '../game/ui/combat/combat_start_runtime_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement() {
   return {

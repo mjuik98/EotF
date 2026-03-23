@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { renderHiddenEndingOverlay } from '../game/ui/screens/story_ui_hidden_ending_render.js';
+import { renderHiddenEndingOverlay } from '../game/features/ui/public.js';
 
 function createDoc() {
   const elements = new Map();

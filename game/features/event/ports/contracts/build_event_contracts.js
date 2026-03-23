@@ -1,4 +1,4 @@
-import { playUiItemGet } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiItemGet } from '../public_audio_runtime_capabilities.js';
 
 export function buildEventContractBuilders(ctx) {
   const {

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { showFullMapOverlay } from '../game/ui/map/map_ui_full_map.js';
+import { showFullMapOverlay } from '../game/features/run/public.js';
 
 class MockContext2D {
   clearRect() {}

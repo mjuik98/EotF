@@ -4,7 +4,7 @@ import {
   enqueueWorldMemoryNotice,
   flushWorldMemoryNoticeQueue,
   showLegendaryAcquireOverlay,
-} from '../game/ui/hud/feedback_ui_notices.js';
+} from '../game/features/combat/public.js';
 
 function createMockElement(tag = 'div') {
   return {

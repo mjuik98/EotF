@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { performCombatDrawCard } from '../game/ui/combat/combat_actions_runtime_ui.js';
+import { performCombatDrawCard } from '../game/features/combat/public.js';
 
 describe('combat_actions_runtime_ui', () => {
   it('uses the injected executePlayerDraw command when runtime card helpers are unavailable', () => {

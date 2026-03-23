@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   toggleAbandonConfirmRuntime,
   toggleReturnTitleConfirmRuntime,
-} from '../game/ui/screens/help_pause_ui_dialog_runtime.js';
+} from '../game/features/ui/public.js';
 
 function createElementFactory(elements) {
   return function createElement(tagName) {

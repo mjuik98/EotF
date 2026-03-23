@@ -1,4 +1,4 @@
-import { HAND_CARD_RARITY_BORDER_COLORS } from '../../../../../data/ui_rarity_styles.js';
+import { HAND_CARD_RARITY_BORDER_COLORS } from '../../ports/public_presentation_support_capabilities.js';
 import { getCardTypeClass } from './card_render_helpers_ui.js';
 import { populateCombatCardFrame } from './combat_card_frame_ui.js';
 

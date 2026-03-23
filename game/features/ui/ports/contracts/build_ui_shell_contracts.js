@@ -1,4 +1,4 @@
-import { playClassSelect } from '../../../../domain/audio/audio_event_helpers.js';
+import { playClassSelect } from '../public_audio_presentation_capabilities.js';
 import { buildTitleHelpPauseActions } from '../../../title/ports/public_help_pause_application_capabilities.js';
 
 export function buildUiShellContractBuilders(ctx) {

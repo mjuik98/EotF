@@ -5,7 +5,7 @@ import {
   createFullMapScene,
   findClosestNodeEntry,
   updateFullMapTooltip,
-} from '../game/ui/map/map_ui_full_map_render.js';
+} from '../game/features/run/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

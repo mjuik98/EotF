@@ -1,5 +1,5 @@
 import { getMapNodeVisualFallback } from '../../domain/map_node_content.js';
-import { canShowNextNodeOverlay } from '../../../../shared/state/runtime_session_selectors.js';
+import { canShowNextNodeOverlay } from '../../ports/presentation_shared_state_capabilities.js';
 import {
   bindNextNodeCardInteractions,
   createNextNodeOverlayKeyHandler,

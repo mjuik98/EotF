@@ -14,7 +14,7 @@ import {
   getLiveSettingsDeps,
   openSettingsModal,
   startSettingsRebind,
-} from '../game/ui/screens/settings_ui_runtime.js';
+} from '../game/features/ui/public.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));

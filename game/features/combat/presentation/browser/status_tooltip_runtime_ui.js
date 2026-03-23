@@ -2,12 +2,10 @@ import {
   getEnemyStatusMeta,
   getEnemyStatusName,
   getPlayerStatusMeta,
-} from '../../../../../data/status_effects_data.js';
-import {
   getStatusTooltipMeta,
+  isInfiniteStatusDuration,
   resolveStatusTooltipPalette,
-} from '../../../../../data/status_tooltip_meta_data.js';
-import { isInfiniteStatusDuration } from '../../../../utils/status_value_utils.js';
+} from '../../ports/public_presentation_support_capabilities.js';
 
 function resolveTooltipInfo(statusKey, infoKR) {
   const playerMeta = getPlayerStatusMeta(statusKey);

@@ -3,7 +3,7 @@ import { SettingsManager } from '../game/core/settings_manager.js';
 import {
   handleGlobalHotkey,
   saveRunBeforeReturn,
-} from '../game/ui/screens/help_pause_ui_runtime.js';
+} from '../game/features/ui/public.js';
 
 function createModalElement({ active = true } = {}) {
   return {

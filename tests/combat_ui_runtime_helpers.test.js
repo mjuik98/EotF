@@ -10,14 +10,14 @@ vi.mock('../game/features/combat/presentation/browser/combat_intent_ui.js', () =
   cleanupEnemyIntentTooltip: vi.fn(),
 }));
 
-import { StatusTooltipUI } from '../game/ui/combat/status_tooltip_builder.js';
-import { cleanupEnemyIntentTooltip } from '../game/ui/combat/combat_intent_ui.js';
+import { StatusTooltipUI } from '../game/features/combat/public.js';
+import { cleanupEnemyIntentTooltip } from '../game/features/combat/public.js';
 import {
   buildCombatEnemyHandlers,
   cleanupCombatTooltips,
   needsCombatEnemyFullRender,
   renderCombatEnemyList,
-} from '../game/ui/combat/combat_ui_runtime_helpers.js';
+} from '../game/features/combat/public.js';
 
 function createZone(existingCount = 0) {
   return {

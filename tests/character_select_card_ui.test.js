@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { renderCharacterCard } from '../game/ui/title/character_select_card_ui.js';
+import { renderCharacterCard } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createClassList() {
   const set = new Set();

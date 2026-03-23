@@ -4,7 +4,7 @@ import {
   groupLogsByTurn,
   renderBattleChronicleEntries,
   summarizeTurnStats,
-} from '../game/ui/combat/combat_hud_chronicle_render_ui.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

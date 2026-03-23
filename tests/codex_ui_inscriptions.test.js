@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { renderCodexInscriptions } from '../game/ui/screens/codex_ui_inscriptions.js';
+import { renderCodexInscriptions } from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

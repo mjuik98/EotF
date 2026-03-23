@@ -1,5 +1,8 @@
-import { DEBUFF_STATUS_KEYS } from '../../../../../data/status_key_data.js';
-import { getEnemyStatusMeta, getEnemyStatusName } from '../../../../../data/status_effects_data.js';
+import {
+  DEBUFF_STATUS_KEYS,
+  getEnemyStatusMeta,
+  getEnemyStatusName,
+} from '../../ports/public_presentation_support_capabilities.js';
 
 export function buildEnemyStatusBadges(statusEffects, doc, handlers = {}) {
   const statusEntries = statusEffects ? Object.entries(statusEffects) : [];

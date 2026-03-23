@@ -4,7 +4,7 @@ import {
   createPauseMenuRuntimeCallbacks,
   saveRunBeforeReturnRuntime,
   swallowEscapeEvent,
-} from '../game/ui/screens/help_pause_menu_runtime_ui.js';
+} from '../game/features/ui/public.js';
 
 describe('help_pause_menu_runtime_ui', () => {
   it('uses injected saveRun when returning to title', () => {

@@ -2,7 +2,7 @@ import {
   getMapNodeVisualFallback,
   MAP_NODE_TYPE_VISUAL_FALLBACK,
 } from '../../domain/map_node_content.js';
-import { getPlayerHpPanelLevel } from '../../../../shared/runtime/player_hp_panel_level.js';
+import { getPlayerHpPanelLevel } from '../../ports/public_player_hp_panel_runtime_capabilities.js';
 
 export { MAP_NODE_TYPE_VISUAL_FALLBACK };
 

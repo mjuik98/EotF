@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { CombatTurnUI } from '../game/ui/combat/combat_turn_ui.js';
+import { CombatTurnUI } from '../game/features/combat/public.js';
 
 describe('combat_turn_ui', () => {
   it('routes player status tick energy refresh through injected deps', () => {

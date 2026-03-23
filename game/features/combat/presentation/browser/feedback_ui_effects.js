@@ -5,7 +5,7 @@ import {
   playStatusEcho,
   playStatusSkill,
   playUiCard,
-} from '../../../../domain/audio/audio_event_helpers.js';
+} from '../../ports/public_audio_presentation_capabilities.js';
 
 function getDoc(deps) {
   return deps?.doc || deps?.win?.document || null;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { renderMinimapUI } from '../game/ui/map/map_ui_minimap.js';
+import { renderMinimapUI } from '../game/features/run/public.js';
 
 class MockContext2D {
   constructor() {

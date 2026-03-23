@@ -1,4 +1,4 @@
-import { playUiClick } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
 import { createCodexBrowserModuleCapabilities } from '../../../codex/ports/public_browser_modules.js';
 
 const codexBrowserModules = createCodexBrowserModuleCapabilities();

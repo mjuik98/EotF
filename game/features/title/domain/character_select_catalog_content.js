@@ -1,5 +1,7 @@
-import { CLASS_METADATA } from '../../../../data/class_metadata.js';
-import { ITEMS } from '../../../../data/items.js';
+import {
+  CLASS_METADATA,
+  ITEMS,
+} from '../ports/public_character_select_data_capabilities.js';
 
 function resolveParticle(classMeta) {
   if (classMeta.class === 'berserker') return 'rage';

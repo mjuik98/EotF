@@ -25,7 +25,7 @@ vi.mock('../game/features/combat/presentation/browser/combat_card_render_ui.js',
   createCombatCardElement: createCombatCardElementSpy,
 }));
 
-import { CardUI } from '../game/ui/cards/card_ui.js';
+import { CardUI } from '../game/features/combat/public.js';
 
 function createCardElement() {
   const listeners = new Map();

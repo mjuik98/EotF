@@ -24,6 +24,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run test:manifest
+      - run: npm run deps:map:check
       - run: npm run lint
       - run: npm run test:coverage
       - run: npm run audit:structure

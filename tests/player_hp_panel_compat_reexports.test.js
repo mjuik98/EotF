@@ -4,51 +4,15 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('player hp panel compat re-exports', () => {
-  it('keeps ui/shared player hp panel modules as thin shared/ui facades', () => {
-    const renderSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/ui/shared/player_hp_panel_render_ui.js'),
-      'utf8',
-    );
-    const runtimeSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/ui/shared/player_hp_panel_runtime_ui.js'),
-      'utf8',
-    );
-    const uiSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/ui/shared/player_hp_panel_ui.js'),
-      'utf8',
-    );
+  it('removes ui/shared player hp panel wrappers once callers use the shared player hp panel public surface directly', () => {
+    const removedFiles = [
+      'game/ui/shared/player_hp_panel_render_ui.js',
+      'game/ui/shared/player_hp_panel_runtime_ui.js',
+      'game/ui/shared/player_hp_panel_ui.js',
+    ];
 
-    expect(renderSource).toBe(
-      [
-        'export {',
-        '  buildFloatingPlayerHpPanel,',
-        '  getPlayerHpPanelLevel,',
-        "} from '../../shared/ui/player_hp_panel/public.js';",
-        '',
-      ].join('\n'),
-    );
-    expect(runtimeSource).toBe(
-      [
-        'export {',
-        '  captureFloatingTooltipState,',
-        '  findBadgeByBuffKey,',
-        '  resolveStatusEffectsUI,',
-        '  resolveStatusTooltipUI,',
-        '  restoreFloatingTooltipState,',
-        '  shouldShowFloatingPlayerHpPanel,',
-        "} from '../../shared/ui/player_hp_panel/public.js';",
-        '',
-      ].join('\n'),
-    );
-    expect(uiSource).toBe(
-      [
-        'export {',
-        '  getPlayerHpPanelLevel,',
-        '  removeFloatingPlayerHpPanel,',
-        '  renderFloatingPlayerHpPanel,',
-        "} from '../../shared/ui/player_hp_panel/public.js';",
-        '',
-      ].join('\n'),
-    );
+    removedFiles.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
   });
 });

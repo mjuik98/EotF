@@ -3,7 +3,7 @@ import {
   createRunStartPlayer as createRunStartPlayerState,
   resetRunConfig as resetRunConfigState,
   resetRuntimeState as resetRuntimeStateState,
-} from '../../../shared/state/run_state_commands.js';
+} from '../ports/public_state_capabilities.js';
 
 export function getInscriptionLevel(gs, id) {
   if (!gs?.meta?.inscriptions) return 0;

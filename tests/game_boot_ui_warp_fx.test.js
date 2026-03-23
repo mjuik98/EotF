@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireWarpBurst } from '../game/ui/title/game_boot_ui_warp_fx.js';
+import { fireWarpBurst } from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
 
 function createContext() {
   return {

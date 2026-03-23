@@ -1,4 +1,4 @@
-import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
+import { createRewardReturnActions } from '../ports/public_reward_runtime_capabilities.js';
 
 function buildDeathRewardFlowActions(deps = {}, win = {}) {
   return createRewardReturnActions({

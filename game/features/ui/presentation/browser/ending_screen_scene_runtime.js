@@ -1,5 +1,5 @@
 import { cafOf, rafOf, winOf } from './ending_screen_helpers.js';
-import { playEventResonanceBurst } from '../../../../domain/audio/audio_event_helpers.js';
+import { playEventResonanceBurst } from '../../ports/public_audio_presentation_capabilities.js';
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');

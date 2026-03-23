@@ -6,7 +6,7 @@ import {
   ensureCodexState,
   getBaseCodexCards,
   getCodexFilterDefinitions,
-} from '../game/ui/screens/codex_ui_helpers.js';
+} from '../game/features/codex/public.js';
 
 describe('codex_ui_helpers', () => {
   it('normalizes codex state containers to sets', () => {

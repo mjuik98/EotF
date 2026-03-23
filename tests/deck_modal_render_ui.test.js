@@ -5,7 +5,7 @@ import {
   buildDeckModalEntries,
   renderDeckModalCards,
   renderDeckStatusBar,
-} from '../game/ui/cards/deck_modal_render_ui.js';
+} from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(tagName = 'div') {

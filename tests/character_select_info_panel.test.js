@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderCharacterInfoPanel } from '../game/ui/title/character_select_info_panel.js';
+import { renderCharacterInfoPanel } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createClassList(initial = []) {
   const set = new Set(initial);

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { countUp } from '../game/ui/title/game_boot_ui_count_fx.js';
+import { countUp } from '../game/features/title/ports/public_game_boot_presentation_capabilities.js';
 
 describe('game_boot_ui_count_fx', () => {
   afterEach(() => {

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   hideClassSelectTooltip,
   showClassSelectTooltip,
-} from '../game/ui/title/class_select_tooltip_ui.js';
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createDoc() {
   const elements = new Map();

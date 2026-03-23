@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   cycleNextTarget,
   handleEscapeHotkey,
-} from '../game/ui/screens/help_pause_hotkeys_runtime_ui.js';
+} from '../game/features/ui/public.js';
 
 function createModalElement({ active = true } = {}) {
   return {

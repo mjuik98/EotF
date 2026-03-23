@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { DeathHandler } from '../game/combat/death_handler.js';
-import { handleEnemyDeathFlow } from '../game/combat/death_handler_enemy_death_flow.js';
-import { buildDeathOutcomePayload } from '../game/combat/death_handler_outcome.js';
+import { DeathHandler, handleEnemyDeathFlow, buildDeathOutcomePayload } from '../game/features/combat/public.js';
 import { EndingScreenUI } from '../game/features/ui/public.js';
 
 describe('DeathHandler', () => {

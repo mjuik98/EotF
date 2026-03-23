@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderCodexFilterBar } from '../game/ui/screens/codex_ui_filter_render.js';
+import { renderCodexFilterBar } from '../game/features/codex/public.js';
 
 class MockElement {
   constructor() {

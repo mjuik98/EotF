@@ -4,7 +4,7 @@ import {
   applyCodexModalOpen,
   runCodexModalClose,
   runCodexTabTransition,
-} from '../game/ui/screens/codex_ui_controller_helpers.js';
+} from '../game/features/codex/public.js';
 
 function createModal() {
   const listeners = {};

@@ -1,4 +1,4 @@
-import { playUiClick, playUiFootstep } from '../../../../domain/audio/audio_event_helpers.js';
+import { playUiClick, playUiFootstep } from '../../ports/public_audio_runtime_capabilities.js';
 
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);

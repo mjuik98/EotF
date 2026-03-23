@@ -4,7 +4,7 @@ import {
   applyClosedCombatInfoState,
   resetCombatInfoState,
   toggleCombatInfoState,
-} from '../game/ui/combat/combat_info_runtime_ui.js';
+} from '../game/features/combat/public.js';
 
 function createDoc() {
   const elements = new Map();

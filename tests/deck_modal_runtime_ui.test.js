@@ -14,7 +14,7 @@ import {
   openDeckModal,
   resetDeckModalFilter,
   setDeckModalFilter,
-} from '../game/ui/cards/deck_modal_runtime_ui.js';
+} from '../game/features/combat/public.js';
 
 function createModal() {
   const classes = new Set();

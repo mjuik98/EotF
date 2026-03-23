@@ -35,17 +35,21 @@ npm run clean
 
 # verification
 npm test
+npm run test:manifest
+npm run test:manifest:write
 npm run test:guardrails
 npm run test:full
 npm run lint
 npm run audit:structure
 npm run build
 npm run deps:map
+npm run deps:map:check
+npm run quality:sync
 npm run quality:fast
 npm run quality:full
 ```
 
-`npm test`는 빠른 로직/런타임 회귀 루프이고, `npm run test:guardrails`는 구조/compat/조립 가드레일 묶음입니다. 둘 다 필요한 변경은 `npm run test:full`로 함께 확인합니다.
+`npm test`는 빠른 로직/런타임 회귀 루프이고, `npm run test:guardrails`는 구조/compat/조립 가드레일 묶음입니다. `npm run test:manifest`는 명시 test suite manifest가 저장소 상태와 동기화돼 있는지 확인하고, drift를 반영할 때는 `npm run test:manifest:write`를 사용합니다. dependency flow를 건드린 변경은 `npm run deps:map`으로 산출물을 갱신하고 `npm run deps:map:check`로 현재 저장소 상태와 맞는지 확인합니다. 둘을 함께 갱신할 때는 `npm run quality:sync`를 사용합니다. 테스트 소유권과 dependency map이 같이 바뀌는 작업은 handoff 전에 `npm run quality:sync`를 먼저 돌리는 편이 안전합니다. 둘 다 필요한 변경은 `npm run test:full`로 함께 확인합니다.
 
 UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 캐릭터 선택 화면이 렌더링되는지와 콘솔/페이지 오류가 없는지도 확인합니다.
 

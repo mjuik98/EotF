@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { updateCombatLog } from '../game/ui/combat/combat_hud_log_ui.js';
+import { updateCombatLog } from '../game/features/combat/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

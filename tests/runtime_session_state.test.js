@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import * as compatCommands from '../game/state/commands/combat_runtime_commands.js';
-import * as compatSelectors from '../game/app/shared/selectors/runtime_state_selectors.js';
+import * as compatSelectors from '../game/shared/state/runtime_session_selectors.js';
 import * as sharedState from '../game/shared/state/public.js';
 
 describe('runtime session state surfaces', () => {

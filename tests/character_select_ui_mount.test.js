@@ -188,7 +188,7 @@ vi.mock('../game/features/title/presentation/browser/run_end_screen_ui.js', () =
   RunEndScreenUI: hoisted.RunEndScreenUI,
 }));
 
-import { CharacterSelectUI } from '../game/ui/title/character_select_ui.js';
+import { CharacterSelectUI } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 function createElement() {
   return {

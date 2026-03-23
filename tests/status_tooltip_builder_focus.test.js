@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildStatusTooltipHTML } from '../game/ui/combat/status_tooltip_builder.js';
+import { buildStatusTooltipHTML } from '../game/features/combat/public.js';
 import { getEnemyStatusMeta, getEnemyStatusName } from '../data/status_effects_data.js';
 
 describe('status tooltip builder focus coverage', () => {

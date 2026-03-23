@@ -1,4 +1,4 @@
-import { createRunStateCommands } from '../../../shared/state/run_state_commands.js';
+import { createRunStateCommands } from '../ports/public_state_capabilities.js';
 
 export function createStartRunUseCase(options = {}) {
   const runStateCommands = options.runStateCommands || createRunStateCommands();

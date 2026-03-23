@@ -1,4 +1,4 @@
-import { activateCombat } from '../../../shared/state/runtime_flow_controls.js';
+import { activateCombat } from '../ports/public_state_capabilities.js';
 
 function resolveCombatMode(mode) {
   if (mode === true) return 'boss';

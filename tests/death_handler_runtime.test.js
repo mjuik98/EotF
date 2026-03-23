@@ -8,7 +8,7 @@ import {
   runCombatPlayerDeathSequence,
   runPlayerDeathSequence,
   scheduleCombatEndFlow,
-} from '../game/combat/death_handler_runtime.js';
+} from '../game/features/combat/public.js';
 
 describe('death_handler_runtime', () => {
   it('locks combat action inputs while combat end is queued', () => {

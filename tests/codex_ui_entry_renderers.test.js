@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createCodexItemCard,
   renderCodexEmpty,
-} from '../game/ui/screens/codex_ui_entry_renderers.js';
+} from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

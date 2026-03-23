@@ -9,7 +9,7 @@ import {
   setCodexPopupNavigation,
   showCodexModal,
   transitionCodexTab,
-} from '../game/ui/screens/codex_ui_controller.js';
+} from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

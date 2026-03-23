@@ -5,7 +5,7 @@ import {
   setPlayerTurnUiState,
   showBossPhaseShiftUi,
   syncCombatTurnEnergy,
-} from '../game/ui/combat/combat_turn_runtime_ui.js';
+} from '../game/features/combat/public.js';
 
 function createButton() {
   return {

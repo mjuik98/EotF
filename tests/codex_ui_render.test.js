@@ -5,7 +5,7 @@ import {
   renderCodexFilterBar,
   renderCodexProgress,
   renderCodexSection,
-} from '../game/ui/screens/codex_ui_render.js';
+} from '../game/features/codex/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

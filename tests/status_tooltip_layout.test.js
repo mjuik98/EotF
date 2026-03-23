@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildStatusTooltipHeaderHTML,
   composeStatusTooltipBodyHTML,
-} from '../game/ui/combat/status_tooltip_layout.js';
+} from '../game/features/combat/public.js';
 
 describe('status tooltip layout helpers', () => {
   it('renders header chrome from extracted layout helper', () => {

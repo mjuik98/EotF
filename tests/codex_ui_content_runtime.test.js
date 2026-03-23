@@ -3,7 +3,7 @@ import {
   renderCardsCodexTab,
   renderEnemyCodexTab,
   renderItemsCodexTab,
-} from '../game/ui/screens/codex_ui_content_runtime.js';
+} from '../game/features/codex/public.js';
 
 describe('codex_ui_content_runtime', () => {
   it('renders enemy sections and falls back to empty state when none match', () => {

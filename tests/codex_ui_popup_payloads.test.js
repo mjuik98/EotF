@@ -6,7 +6,7 @@ import {
   buildCodexSetPopupBlock,
   buildEnemyPopupPayload,
   buildItemPopupPayload,
-} from '../game/ui/screens/codex_ui_popup_payloads.js';
+} from '../game/features/codex/public.js';
 
 describe('codex_ui_popup_payloads', () => {
   it('builds nav and set blocks from codex ownership state', () => {

@@ -1,4 +1,4 @@
-import { deactivateCombat } from '../../../shared/state/runtime_flow_controls.js';
+import { deactivateCombat } from '../ports/public_state_capabilities.js';
 
 export function cleanupCombatAfterAbandon(deps = {}) {
   const { gs, doc } = deps;

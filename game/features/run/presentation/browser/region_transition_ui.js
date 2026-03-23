@@ -1,4 +1,4 @@
-import { playEventBossPhase } from '../../../../domain/audio/audio_event_helpers.js';
+import { playEventBossPhase } from '../../ports/public_audio_runtime_capabilities.js';
 import {
   advanceRegionState,
   markRegionIntroStartState,

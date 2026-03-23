@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { bindRunModePanelEvents } from '../game/ui/run/run_mode_ui_bindings.js';
+import { bindRunModePanelEvents } from '../game/features/run/public.js';
 
 function createElement() {
   return {

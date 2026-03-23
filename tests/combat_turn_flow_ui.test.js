@@ -4,7 +4,7 @@ import {
   playEnemyAttackHitUi,
   playEnemyStatusTickEffects,
   waitWhileCombatActive,
-} from '../game/ui/combat/combat_turn_flow_ui.js';
+} from '../game/features/combat/public.js';
 
 describe('combat_turn_flow_ui', () => {
   beforeEach(() => {

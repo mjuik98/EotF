@@ -4,22 +4,9 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('browser effects compat re-exports', () => {
-  it('keeps ui browser effect shims as thin platform re-exports', () => {
-    const customCursorSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/ui/common/custom_cursor.js'),
-      'utf8',
-    ).trim();
-    const buttonFeedbackSource = fs.readFileSync(
-      path.join(process.cwd(), 'game/ui/feedback/button_feedback.js'),
-      'utf8',
-    ).trim();
-
-    expect(customCursorSource).toBe(
-      "export { CustomCursor } from '../../platform/browser/effects/custom_cursor.js';",
-    );
-    expect(buttonFeedbackSource).toBe(
-      "export { ButtonFeedback } from '../../platform/browser/effects/button_feedback.js';",
-    );
+  it('removes ui browser effect shims once callers import platform-owned effects directly', () => {
+    expect(fs.existsSync(path.join(process.cwd(), 'game/ui/common/custom_cursor.js'))).toBe(false);
+    expect(fs.existsSync(path.join(process.cwd(), 'game/ui/feedback/button_feedback.js'))).toBe(false);
   });
 
   it('routes the core runtime bridge through platform-owned browser effects', () => {

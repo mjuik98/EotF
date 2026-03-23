@@ -4,7 +4,12 @@ import path from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { assertBundleBudgets, collectBundleStats } from '../scripts/assert-bundle-budgets.mjs';
+import {
+  BUNDLE_BUDGETS_PATH,
+  assertBundleBudgets,
+  collectBundleStats,
+  readBundleBudgets,
+} from '../scripts/assert-bundle-budgets.mjs';
 
 const tempDirs = [];
 
@@ -55,6 +60,15 @@ afterEach(() => {
 });
 
 describe('assert_bundle_budgets', () => {
+  it('loads the default bundle budget policy from quality config', () => {
+    const budgets = readBundleBudgets();
+
+    expect(BUNDLE_BUDGETS_PATH.endsWith('config/quality/bundle_budgets.json')).toBe(true);
+    expect(budgets.entryJs.maxBytes).toBe(410 * 1024);
+    expect(budgets.uiCombatJs.maxBytes).toBe(324 * 1024);
+    expect(budgets.runModeUiJs.label).toBe('run mode ui chunk');
+  });
+
   it('ignores shared ui-combat-copy chunks when measuring the main combat chunk budget', () => {
     const distDir = createFixtureDist();
     const stats = collectBundleStats(distDir);

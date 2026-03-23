@@ -6,7 +6,7 @@ import {
   isCombatResolutionPending,
   isNodeMovementLocked,
   isRewardFlowLocked,
-} from '../game/app/shared/selectors/runtime_state_selectors.js';
+} from '../game/shared/state/runtime_session_selectors.js';
 
 describe('runtime_state_selectors', () => {
   it('reports shared runtime lock flags and combat resolution state', () => {

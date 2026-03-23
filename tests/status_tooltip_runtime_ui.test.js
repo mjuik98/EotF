@@ -5,7 +5,7 @@ import {
   positionStatusTooltipToRect,
   renderStatusTooltipElement,
   scheduleStatusTooltipHide,
-} from '../game/ui/combat/status_tooltip_runtime_ui.js';
+} from '../game/features/combat/public.js';
 
 function createElement() {
   return {

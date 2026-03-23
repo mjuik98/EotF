@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { resetCombatUIUI } from '../game/ui/hud/hud_effects_ui.js';
+import { resetCombatUIUI } from '../game/features/combat/public.js';
 
 function createDoc() {
   const elements = {

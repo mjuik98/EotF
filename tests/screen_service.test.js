@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { setScreenService } from '../game/app/system/screen_service.js';
+import { setScreenService } from '../game/features/ui/ports/public_application_capabilities.js';
 
 describe('screen_service', () => {
   it('dispatches screen changes and prefers ScreenUI when available', () => {

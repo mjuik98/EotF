@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { StatusTooltipUI } from '../game/ui/combat/status_tooltip_builder.js';
+import { StatusTooltipUI } from '../game/features/combat/public.js';
 import {
   captureFloatingTooltipState,
   restoreFloatingTooltipState,
   shouldShowFloatingPlayerHpPanel,
-} from '../game/ui/shared/player_hp_panel_runtime_ui.js';
+} from '../game/shared/ui/player_hp_panel/public.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {

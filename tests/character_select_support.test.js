@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { CHARACTER_SELECT_CHARS } from '../game/ui/title/character_select_catalog.js';
-import { buildCharacterRadar } from '../game/ui/title/character_select_radar.js';
+import {
+  buildCharacterRadar,
+  CHARACTER_SELECT_CHARS,
+} from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
 describe('character select support modules', () => {
   it('builds a stable, id-sorted character catalog with resolved relic metadata', () => {
