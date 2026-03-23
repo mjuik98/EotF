@@ -1201,6 +1201,9 @@ body {
 
 .class-btn-trait,
 .class-btn-relic {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   font-size: 9px;
   color: var(--text-dim);
   margin-bottom: 4px;
@@ -8276,204 +8279,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: block;
 }
 
-/* ── Run Rules Layout (shared with run-rules-redesign.css) ── */
-#runSettingsBody {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--run-settings-side-gap, 14px);
-  width: 100%;
-  min-height: 0;
-}
-
-#runModePanel {
-  flex: 0 0 var(--run-settings-main-width, min(500px, 95vw));
-  width: var(--run-settings-main-width, min(500px, 95vw));
-  max-width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px !important;
-  min-width: 0;
-}
-
-.run-settings-panel {
-  --run-settings-main-width: min(500px, 95vw);
-  --run-settings-side-width: 330px;
-  --run-settings-side-gap: 12px;
-  transition: width 0.22s ease, max-width 0.22s ease;
-}
-
-.run-settings-panel.run-settings-with-inscription-layout {
-  width: calc(var(--run-settings-main-width) + var(--run-settings-side-width) + var(--run-settings-side-gap));
-  max-width: min(96vw, calc(var(--run-settings-main-width) + var(--run-settings-side-width) + var(--run-settings-side-gap)));
-}
-
-#runModePanel .run-mode-row {
-  display: grid;
-  grid-template-columns: 132px 172px minmax(0, 1fr);
-  align-items: center;
-  column-gap: 12px;
-}
-
-#runModePanel .inscription-row {
-  grid-template-columns: 132px minmax(0, 1fr);
-}
-
-#runModePanel .run-mode-label {
-  min-width: 0;
-  padding-left: 0;
-}
-
-.run-inscription-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-#runModePanel .inscription-row .run-inscription-controls {
-  width: 100%;
-  justify-content: flex-start;
-}
-
-.run-inscription-summary {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.run-inscription-layout {
-  margin: 0;
-  padding: 14px;
-  border: 1px solid rgba(0, 255, 204, 0.16);
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.28);
-  flex: 0 1 var(--run-settings-side-width, 330px);
-  width: var(--run-settings-side-width, 330px);
-  min-width: 280px;
-  max-height: 100%;
-  overflow: hidden;
-}
-
-.run-inscription-layout-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.run-inscription-layout-title {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  color: var(--text-dim);
-}
-
-#inscriptionLayout .inscription-toggles-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 8px;
-  max-height: 260px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-#inscriptionLayout .inscription-pill {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-}
-
-#inscriptionLayout .inscription-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#inscriptionLayout .inscription-level {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--text-dim);
-  opacity: 0.95;
-  flex-shrink: 0;
-}
-
-#inscriptionLayout .active-synergies-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-#inscriptionLayout .synergy-title {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  margin-right: 2px;
-}
-
-#inscriptionLayout .synergy-badge {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 255, 204, 0.22);
-  background: rgba(0, 255, 204, 0.1);
-  color: var(--cyan);
-}
-
-#inscriptionLayout .inscription-synergy-empty {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-/* close button alignment → moved to css/modal-close-unified.css */
-
-@media (max-width: 900px) {
-  #runSettingsBody {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .run-settings-panel.run-settings-with-inscription-layout {
-    width: var(--run-settings-main-width);
-    max-width: 95vw;
-  }
-
-  #runModePanel .run-mode-row {
-    grid-template-columns: 122px minmax(0, 1fr) auto;
-  }
-
-  #runModePanel .inscription-row {
-    grid-template-columns: 122px minmax(0, 1fr);
-  }
-
-  #runSettingsBody .run-inscription-layout {
-    width: auto;
-    margin-top: 10px;
-    flex: 1 1 auto;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .run-inscription-controls {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  #runModePanel .inscription-row .run-inscription-controls {
-    justify-content: space-between;
-  }
-
-  #inscriptionLayout .inscription-toggles-container {
-    grid-template-columns: 1fr;
-    max-height: 220px;
-  }
-}
-
 /* ─────────────────────────────────────────────────────────────────────────────
    STATUS TOOLTIP v2
    — status_tooltip_builder.js 와 함께 사용
@@ -10744,6 +10549,8 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .nc-relic-panel {
+  position: relative;
+  z-index: 6;
   width: 192px;
   flex-shrink: 0;
   display: flex;
@@ -10834,10 +10641,13 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   padding: 6px 8px;
+  box-sizing: border-box;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.055);
   background: rgba(255, 255, 255, 0.022);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   flex-shrink: 0;
@@ -10846,6 +10656,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 .nc-relic-slot:is(:hover, :focus-visible, [data-active='true']) {
   border-color: rgba(var(--rl-rgb, 255, 255, 255), 0.38);
   background: rgba(var(--rl-rgb, 255, 255, 255), 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 22px rgba(5, 7, 18, 0.22);
   transform: translateX(2px);
 }
 
@@ -10869,21 +10680,50 @@ body:has(#combatOverlay.active) .panel-bottom {
 .nc-relic-slot.rarity-legendary {
   border-color: rgba(192, 132, 252, 0.35);
   background: rgba(192, 132, 252, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 26px rgba(192, 132, 252, 0.08);
 }
 
 .nc-relic-slot.rarity-rare {
   border-color: rgba(240, 180, 41, 0.28);
   background: rgba(240, 180, 41, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 10px 22px rgba(240, 180, 41, 0.07);
 }
 
 .nc-relic-slot.rarity-uncommon {
   border-color: rgba(0, 255, 204, 0.2);
   background: rgba(0, 255, 204, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 20px rgba(0, 255, 204, 0.05);
+}
+
+.nc-relic-slot.rarity-common {
+  border-color: rgba(140, 159, 200, 0.14);
+  background: rgba(140, 159, 200, 0.028);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.024), 0 8px 18px rgba(30, 38, 58, 0.14);
 }
 
 .nc-relic-slot.rarity-boss {
   border-color: rgba(255, 51, 102, 0.32);
   background: rgba(255, 51, 102, 0.05);
+}
+
+.nc-relic-slot.rarity-legendary .nc-relic-icon-wrap {
+  border-color: rgba(192, 132, 252, 0.34);
+  background: linear-gradient(180deg, rgba(42, 20, 64, 0.88), rgba(16, 10, 28, 0.9));
+}
+
+.nc-relic-slot.rarity-rare .nc-relic-icon-wrap {
+  border-color: rgba(240, 180, 41, 0.26);
+  background: linear-gradient(180deg, rgba(44, 28, 10, 0.84), rgba(16, 12, 8, 0.88));
+}
+
+.nc-relic-slot.rarity-uncommon .nc-relic-icon-wrap {
+  border-color: rgba(0, 255, 204, 0.2);
+  background: linear-gradient(180deg, rgba(8, 32, 28, 0.84), rgba(7, 15, 20, 0.88));
+}
+
+.nc-relic-slot.rarity-common .nc-relic-icon-wrap {
+  border-color: rgba(140, 159, 200, 0.18);
+  background: linear-gradient(180deg, rgba(18, 22, 38, 0.84), rgba(9, 12, 22, 0.88));
 }
 
 .nc-relic-slot.is-active {
@@ -11570,6 +11410,12 @@ body:has(#combatOverlay.active) .panel-bottom {
    ═══════════════════════════════════════════════════════════════ */
 .card-clone {
   /* CloneManager 가 top/left 를 런타임에 주입 */
+  --hover-keyword-panel-width: 176px;
+  --hover-keyword-panel-gap: 12px;
+  --hover-keyword-panel-height: 128px;
+  --hover-keyword-connector-length: 22px;
+  --hover-keyword-connector-thickness: 2px;
+  --hover-keyword-bottom-offset: 2px;
   position: fixed;
   width: 200px;
   height: 292px;
@@ -11963,4 +11809,169 @@ body:has(#combatOverlay.active) .panel-bottom {
 
 .card-clone.clone-upgraded .card-clone-arrow {
   border-top-color: rgba(0, 255, 204, 0.60) !important;
+}
+
+.card-hover-mechanics {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: stretch;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 0 2px 24px;
+  z-index: 2;
+}
+
+.card-hover-mechanic-trigger,
+.card-clone-keyword-tab {
+  border-radius: 999px;
+  padding: 4px 8px;
+  border: 1px solid rgba(196, 186, 236, 0.18);
+  background: rgba(12, 12, 24, 0.42);
+  color: rgba(220, 214, 238, 0.82);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  transition:
+    border-color 0.14s ease,
+    background 0.14s ease,
+    color 0.14s ease,
+    transform 0.14s ease,
+    box-shadow 0.14s ease;
+}
+
+.card-hover-mechanic-trigger {
+  cursor: help;
+}
+
+.card-clone-keyword-tab {
+  cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(216, 210, 238, 0.82);
+}
+
+.card-hover-mechanic-trigger:hover,
+.card-hover-mechanic-trigger.is-active,
+.card-clone-keyword-tab:hover,
+.card-clone-keyword-tab.is-active {
+  border-color: rgba(123, 47, 255, 0.52);
+  background: linear-gradient(180deg, rgba(70, 34, 124, 0.44), rgba(28, 18, 54, 0.72));
+  color: rgba(244, 239, 255, 0.98);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(123, 47, 255, 0.08);
+}
+
+.card-hover-mechanic-trigger:focus-visible,
+.card-clone-keyword-tab:focus-visible {
+  outline: none;
+  border-color: rgba(176, 132, 255, 0.78);
+  box-shadow:
+    0 0 0 2px rgba(123, 47, 255, 0.22),
+    0 0 0 1px rgba(212, 190, 255, 0.36) inset;
+}
+
+.card-clone-keyword-link {
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.35;
+  transition: opacity 0.12s ease;
+  box-shadow: 0 0 10px rgba(123, 47, 255, 0.24);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card-clone-keyword-panel {
+  position: absolute;
+  width: var(--hover-keyword-panel-width);
+  min-height: var(--hover-keyword-panel-height);
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(123, 47, 255, 0.42);
+  background: linear-gradient(180deg, rgba(18, 12, 40, 0.96), rgba(10, 8, 24, 0.94));
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(123, 47, 255, 0.08);
+  color: rgba(232, 225, 255, 0.94);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.14s ease, visibility 0.14s ease;
+  z-index: 4;
+}
+
+.card-clone-keyword-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.card-clone-keyword-body-title {
+  margin-bottom: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #9f7bff;
+}
+
+.card-clone-keyword-body-content {
+  font-size: 11px;
+  line-height: 1.55;
+  color: rgba(216, 210, 238, 0.88);
+}
+
+.card-clone[data-keyword-panel-open='true'] .card-clone-keyword-panel,
+.card-clone-keyword-panel[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.card-clone[data-keyword-panel-open='true'] .card-clone-keyword-link {
+  opacity: 1;
+}
+
+.card-clone[data-keyword-placement='right'] .card-clone-keyword-panel {
+  left: calc(100% + var(--hover-keyword-panel-gap));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.card-clone[data-keyword-placement='right'] .card-clone-keyword-link {
+  left: 100%;
+  top: 50%;
+  width: var(--hover-keyword-connector-length);
+  height: var(--hover-keyword-connector-thickness);
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(123, 47, 255, 0.55), rgba(123, 47, 255, 0.08));
+}
+
+.card-clone[data-keyword-placement='left'] .card-clone-keyword-panel {
+  left: calc((var(--hover-keyword-panel-width) + var(--hover-keyword-panel-gap)) * -1);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.card-clone[data-keyword-placement='left'] .card-clone-keyword-link {
+  left: calc(var(--hover-keyword-connector-length) * -1);
+  top: 50%;
+  width: var(--hover-keyword-connector-length);
+  height: var(--hover-keyword-connector-thickness);
+  transform: translateY(-50%);
+  background: linear-gradient(270deg, rgba(123, 47, 255, 0.55), rgba(123, 47, 255, 0.08));
+}
+
+.card-clone[data-keyword-placement='bottom'] .card-clone-keyword-panel {
+  left: 50%;
+  top: calc(100% + var(--hover-keyword-panel-gap) + var(--hover-keyword-bottom-offset));
+  transform: translateX(-50%);
+}
+
+.card-clone[data-keyword-placement='bottom'] .card-clone-keyword-link {
+  left: 50%;
+  top: 100%;
+  width: var(--hover-keyword-connector-thickness);
+  height: calc(var(--hover-keyword-connector-length) - var(--hover-keyword-connector-thickness));
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(123, 47, 255, 0.55), rgba(123, 47, 255, 0.08));
 }

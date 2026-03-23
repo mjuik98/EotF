@@ -53,6 +53,10 @@ class MockElement {
   }
 }
 
+function findChild(root, predicate) {
+  return root.children.find(predicate) || null;
+}
+
 function createDoc() {
   return {
     createElement(tagName) {
@@ -149,5 +153,32 @@ describe('card_clone_render_ui', () => {
     expect(mechanicsRow.children).toHaveLength(1);
     expect(mechanicsRow.children[0].textContent).toBe('소진');
     expect(clone.children.find((child) => child.className === 'card-clone-keyword-panel')?.dataset?.open).toBe('false');
+  });
+
+  it('applies centralized hover keyword layout options to the clone shell', () => {
+    const doc = createDoc();
+
+    const clone = createHandCardCloneElement(doc, 'void_blade', {
+      name: '공허의 도검',
+      icon: '🌀',
+      type: 'Attack',
+      cost: 2,
+      rarity: 'rare',
+      desc: '피해 30 [소진]. 기절 1턴 부여',
+      exhaust: true,
+    }, {
+      displayCost: 2,
+      anyFree: false,
+      totalDisc: 0,
+    });
+
+    const keywordPanel = findChild(clone, (child) => child.className === 'card-clone-keyword-panel');
+    const chipRow = keywordPanel?.children?.[0];
+
+    expect(clone.style['--hover-keyword-panel-width']).toBe('176px');
+    expect(clone.style['--hover-keyword-panel-gap']).toBe('12px');
+    expect(clone.style['--hover-keyword-connector-length']).toBeTruthy();
+    expect(chipRow?.className).toBe('card-clone-keyword-tabs');
+    expect(chipRow?.children?.[0]?.className).toContain('card-clone-keyword-tab');
   });
 });

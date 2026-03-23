@@ -270,11 +270,11 @@ export const CARDS = {
     },
     echo_overload: {
         id: 'echo_overload', name: '잔향 과부하', icon: '⚡', cost: 1, type: 'SKILL', desc: '체력 20 소모. 잔향 100 충전. 에너지 2 획득 [소진]', rarity: 'rare', exhaust: true,
-        effect(gs) { gs.addEcho(100); gs.player.energy += 2; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하! HP-20', 'damage'); gs.markDirty('hud'); }
+        effect(gs) { gs.addEcho(100); gs.player.energy += 2; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하! 체력 -20', 'damage'); gs.markDirty('hud'); }
     },
     echo_overload_plus: {
         id: 'echo_overload_plus', name: '잔향 과부하+', icon: '⚡', cost: 1, type: 'SKILL', desc: '체력 20 소모. 잔향 150 충전. 에너지 3 획득 [소진]', rarity: 'rare', upgraded: true, exhaust: true,
-        effect(gs) { gs.addEcho(150); gs.player.energy += 3; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하+! HP-20', 'damage'); gs.markDirty('hud'); }
+        effect(gs) { gs.addEcho(150); gs.player.energy += 3; gs.player.hp = Math.max(1, gs.player.hp - 20); gs.addLog('⚡ 잔향 과부하+! 체력 -20', 'damage'); gs.markDirty('hud'); }
     },
     desperate_strike: {
         id: 'desperate_strike', name: '결사의 일격', icon: '☠️', cost: 1, type: 'ATTACK', desc: '피해 (잃은 체력 비례, 최대 40)', rarity: 'uncommon',
@@ -742,11 +742,11 @@ export const CARDS = {
     // ── [2.2] 유틸리티 및 에너지 (Utility & Energy) ──
     resonance_flow: {
         id: 'resonance_flow', name: '공명의 흐름', icon: '🎵', cost: 1, type: 'SKILL', desc: '잔향 충전 (손패 1장당 5)', rarity: 'uncommon',
-        effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 5); gs.addLog(`🎵 공명의 흐름: 손패 ${n} 장 → Echo + ${n * 5} !`, 'echo'); }
+        effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 5); gs.addLog(`🎵 공명의 흐름: 손패 ${n} 장 → 잔향 + ${n * 5} !`, 'echo'); }
     },
     resonance_flow_plus: {
         id: 'resonance_flow_plus', name: '공명의 흐름+', icon: '🎵', cost: 0, type: 'SKILL', desc: '잔향 충전 (손패 1장당 8)', rarity: 'uncommon', upgraded: true,
-        effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 8); gs.addLog(`🎵 공명의 흐름 +: 손패 ${n} 장 → Echo + ${n * 8} !`, 'echo'); }
+        effect(gs) { const n = gs.player.hand.length; gs.addEcho(n * 8); gs.addLog(`🎵 공명의 흐름 +: 손패 ${n} 장 → 잔향 + ${n * 8} !`, 'echo'); }
     },
     echo_cascade: {
         id: 'echo_cascade', name: '잔향의 폭포', icon: '💧', cost: 2, type: 'SKILL', desc: '카드 1장 드로우 (비용 0) [소진]', rarity: 'rare', exhaust: true,
@@ -946,7 +946,7 @@ export const CARDS = {
             const cost = Math.floor(gs.player.hp * 0.5);
             gs.player.hp = Math.max(1, gs.player.hp - cost);
             gs.addShield(cost * 2);
-            gs.addLog(`🍷 심연의 목마름: HP ${cost} 소모 -> 방어막 ${cost * 2} 획득!`, 'echo');
+            gs.addLog(`🍷 심연의 목마름: 체력 ${cost} 소모 -> 방어막 ${cost * 2} 획득!`, 'echo');
             gs.markDirty('hud');
         }
     },
@@ -956,7 +956,7 @@ export const CARDS = {
             const cost = Math.floor(gs.player.hp * 0.5);
             gs.player.hp = Math.max(1, gs.player.hp - cost);
             gs.addShield(cost * 3);
-            gs.addLog(`🍷 심연의 목마름 +: HP ${cost} 소모 -> 방어막 ${cost * 3} 획득!`, 'echo');
+            gs.addLog(`🍷 심연의 목마름 +: 체력 ${cost} 소모 -> 방어막 ${cost * 3} 획득!`, 'echo');
             gs.markDirty('hud');
         }
     },

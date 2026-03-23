@@ -1,10 +1,13 @@
 import {
+  hasBlockingGameplayModal,
   eventMatchesCode,
   canToggleDeckView,
+  getRunHotkeyPolicy,
+  getRunHotkeyState,
   getKeybindingCode,
   isCombatOverlayActive,
+  isDeckViewVisible,
   isInGame,
-  isVisibleModal,
   resolveGs,
 } from './help_pause_ui_helpers.js';
 import {
@@ -55,46 +58,61 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
   }
 
   const inGame = isInGame(gs) || isCombatOverlayActive(doc);
+  const runHotkeyState = getRunHotkeyState(doc, gs);
+  const hotkeyPolicy = getRunHotkeyPolicy(runHotkeyState.mode);
 
   if (eventMatchesCode(event, keyHelp) && inGame) {
+    if (runHotkeyState.activeSurface === 'help') {
+      event.preventDefault();
+      ui.toggleHelp(deps);
+      return;
+    }
+    if (!hotkeyPolicy.help || runHotkeyState.mode === 'modal') return;
     event.preventDefault();
     ui.toggleHelp(deps);
+    return;
   }
 
-  if (eventMatchesCode(event, keyDeckView) && inGame && !ui.isHelpOpen() && canToggleDeckView(doc)) {
-    const modal = doc.getElementById('deckViewModal');
-    if (modal?.classList?.contains('active')) {
+  if (eventMatchesCode(event, keyDeckView) && inGame && !ui.isHelpOpen() && hotkeyPolicy.deckView && canToggleDeckView(doc, gs)) {
+    if (isDeckViewVisible(doc)) {
       if (typeof deps.closeDeckView === 'function') deps.closeDeckView();
     } else if (typeof deps.showDeckView === 'function') {
       deps.showDeckView();
     }
+    return;
   }
 
-  if (eventMatchesCode(event, keyCodex) && inGame && !ui.isHelpOpen()) {
-    const modal = doc.getElementById('codexModal');
-    if (isVisibleModal(modal, doc)) {
+  if (eventMatchesCode(event, keyCodex) && inGame) {
+    if (runHotkeyState.activeSurface === 'codex') {
       if (typeof deps.closeCodex === 'function') deps.closeCodex();
+      return;
+    }
+    if (!hotkeyPolicy.codex || runHotkeyState.mode === 'modal' || ui.isHelpOpen()) {
+      return;
     } else if (typeof deps.openCodex === 'function') {
       deps.openCodex();
     }
+    return;
   }
 
-  if (eventMatchesCode(event, keyEchoSkill) && inGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+  if (runHotkeyState.mode === 'modal' || hasBlockingGameplayModal(doc, gs)) return;
+
+  if (eventMatchesCode(event, keyEchoSkill) && inGame && runHotkeyState.allowsCombatHotkeys) {
     if (typeof deps.useEchoSkill === 'function') deps.useEchoSkill();
   }
 
-  if (eventMatchesCode(event, keyDrawCard) && inGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+  if (eventMatchesCode(event, keyDrawCard) && inGame && runHotkeyState.allowsCombatHotkeys) {
     event.preventDefault();
     if (typeof deps.drawCard === 'function') deps.drawCard();
     deps.buttonFeedback?.triggerDrawButton?.();
   }
 
-  if (eventMatchesCode(event, keyEndTurn) && inGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+  if (eventMatchesCode(event, keyEndTurn) && inGame && runHotkeyState.allowsCombatHotkeys) {
     event.preventDefault();
     if (typeof deps.endPlayerTurn === 'function') deps.endPlayerTurn();
   }
 
-  if (inGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+  if (inGame && runHotkeyState.allowsCombatHotkeys) {
     const numKey = event.key === '0' ? 10 : Number.parseInt(event.key, 10);
     if (!Number.isNaN(numKey) && numKey >= 1 && numKey <= 10) {
       const idx = numKey - 1;
@@ -104,7 +122,7 @@ export function handleGlobalHotkey(event, { deps = {}, doc, ui }) {
     }
   }
 
-  if (eventMatchesCode(event, keyNextTarget) && inGame && gs?.combat?.active && gs?.combat?.playerTurn) {
+  if (eventMatchesCode(event, keyNextTarget) && inGame && runHotkeyState.allowsCombatHotkeys) {
     event.preventDefault();
     cycleNextTarget(gs, deps);
   }

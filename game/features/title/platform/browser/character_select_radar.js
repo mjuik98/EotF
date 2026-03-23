@@ -1,10 +1,10 @@
 const STAT_LABELS = {
-  HP: 'HP',
-  ATK: 'ATK',
-  DEF: 'DEF',
-  ECH: 'ECH',
-  RHY: 'RHY',
-  RES: 'RES',
+  HP: '체력',
+  ATK: '공격',
+  DEF: '방어',
+  ECH: '잔향',
+  RHY: '리듬',
+  RES: '공명',
 };
 
 export function buildCharacterRadar(stats, accent, cmp = null, size = 240) {

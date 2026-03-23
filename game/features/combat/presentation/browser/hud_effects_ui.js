@@ -1,4 +1,5 @@
 import { getDoc, getRaf } from '../../../../utils/runtime_deps.js';
+import { setDatasetBooleanState } from '../../../../shared/ui/state/ui_state_dataset.js';
 
 export function triggerDeckShufflePulseUI(deps = {}) {
   const doc = getDoc(deps);
@@ -75,9 +76,7 @@ export function resetCombatUIUI(deps = {}) {
   if (recentCombatFeed) recentCombatFeed.innerHTML = '';
 
   const combatRelicPanel = doc.getElementById('combatRelicPanel');
-  if (combatRelicPanel?.dataset) {
-    combatRelicPanel.dataset.open = 'false';
-  }
+  setDatasetBooleanState(combatRelicPanel, 'open', false);
 
   const combatRelicRailSlots = doc.getElementById('combatRelicRailSlots');
   if (combatRelicRailSlots) combatRelicRailSlots.innerHTML = '';

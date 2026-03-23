@@ -58,9 +58,10 @@ describe('character select modal helper', () => {
 
     expect(state.activeSkill).toBe(skill);
     expect(modalBox.style.border).toBe('1px solid #7CC8FF33');
-    expect(modalBox.innerHTML).toContain('ECHO SKILL TREE');
+    expect(modalBox.innerHTML).toContain('잔향 기술 계보');
     expect(modalBox.innerHTML).toContain('Echo Burst');
     expect(modalBox.innerHTML).toContain('Pulse');
+    expect(modalBox.innerHTML).toContain('ESC로 닫기');
     expect(modal.classList.contains('open')).toBe(true);
 
     closeButton.listeners.click();

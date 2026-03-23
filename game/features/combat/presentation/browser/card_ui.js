@@ -102,6 +102,7 @@ export const CardUI = {
       }
       if (dragStartHandler) el.addEventListener('dragstart', (e) => dragStartHandler(e, cardId, i));
       if (dragEndHandler) el.addEventListener('dragend', (e) => dragEndHandler(e));
+      // Hand-card hover is owned by the clone preview runtime; do not restore the old tooltip listeners here.
       HandCardCloneUI.attachToCard(el, cardId, card, {
         displayCost: cost, canPlay, anyFree, totalDisc,
       }, { doc, descriptionUtils });

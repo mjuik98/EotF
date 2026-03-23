@@ -11,21 +11,21 @@ import {
 describe('level up popup helpers', () => {
   it('normalizes popup payload with defaults', () => {
     expect(normalizeLevelUpPayload({
-      classTitle: 'Paladin',
+      classTitle: '성기사',
       newLevel: 4,
-      bonusText: 'Unlock halo.',
+      bonusText: '성역 해금.',
       accent: '#ffd700',
     })).toEqual({
       accent: '#ffd700',
-      bonusText: 'Unlock halo.',
-      eyebrow: 'Paladin - LEVEL UP',
+      bonusText: '성역 해금.',
+      eyebrow: '성기사 - 레벨 상승',
       levelText: 'Lv.4',
     });
 
     expect(normalizeLevelUpPayload({})).toEqual({
       accent: '#8b6dff',
-      bonusText: 'A class mastery bonus has been unlocked.',
-      eyebrow: 'CLASS - LEVEL UP',
+      bonusText: '클래스 숙련도 보상이 해금되었습니다.',
+      eyebrow: '클래스 - 레벨 상승',
       levelText: 'Lv.1',
     });
   });
@@ -34,7 +34,7 @@ describe('level up popup helpers', () => {
     const markup = buildLevelUpPopupMarkup();
 
     expect(markup).toContain('classLvupParticleCanvas');
-    expect(markup).toContain('Click or press ESC to close');
+    expect(markup).toContain('클릭하거나 ESC로 닫기');
     expect(parseAccentRgb('#7CC8FF')).toEqual([124, 200, 255]);
   });
 

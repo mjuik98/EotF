@@ -118,8 +118,8 @@ export function buildEnemyPopupPayload(enemy, options = {}) {
       </div>
       <div class="cx-popup-divider"></div>
       <div class="cx-popup-stats">
-        <div class="cx-pstat"><div class="cx-pstat-label">HP</div><div class="cx-pstat-val">${enemy.maxHp ?? enemy.hp ?? 0}</div></div>
-        <div class="cx-pstat"><div class="cx-pstat-label">ATK</div><div class="cx-pstat-val">${enemy.atk ?? 0}</div></div>
+        <div class="cx-pstat"><div class="cx-pstat-label">체력</div><div class="cx-pstat-val">${enemy.maxHp ?? enemy.hp ?? 0}</div></div>
+        <div class="cx-pstat"><div class="cx-pstat-label">공격력</div><div class="cx-pstat-val">${enemy.atk ?? 0}</div></div>
         <div class="cx-pstat"><div class="cx-pstat-label">골드</div><div class="cx-pstat-val">${enemy.gold ?? 0}</div></div>
       </div>
       ${recordHtml || buildCodexRecordBlock(gs, 'enemies', enemy.id)}
@@ -157,7 +157,7 @@ export function buildCardPopupPayload(card, options = {}) {
     <div class="cx-popup-desc" style="margin-top:0">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
         <span class="cx-badge ${getCardTypeClass(upgradeCard.type)}" style="position:static">${upgradeCard.name}</span>
-        <span class="cx-badge ${rarityBadge}" style="position:static">${upgradeCard.cost ?? 0} cost</span>
+        <span class="cx-badge ${rarityBadge}" style="position:static">비용 ${upgradeCard.cost ?? 0}</span>
       </div>
       ${record?.upgradedDiscovered ? safeHtml(upgradeCard.desc || '') : '<span style="opacity:.72">강화 버전은 아직 도감에 기록되지 않았습니다.</span>'}
       ${record?.upgradedDiscovered ? `<div style="margin-top:10px;color:#88ccff;font-size:12px">강화 사용 횟수 ${record.upgradeUsed ?? 0}회</div>` : ''}

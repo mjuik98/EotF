@@ -17,6 +17,7 @@ import {
   syncModalMood,
 } from './run_mode_ui_render.js';
 import { bindRunModePanelEvents } from './run_mode_ui_bindings.js';
+import { createUiSurfaceStateController } from '../../../../shared/ui/state/ui_surface_state_controller.js';
 
 export function refreshRunModeUI(ui, deps = {}) {
   const { gs, runRules } = deps;
@@ -147,7 +148,7 @@ export function openRunSettingsModal(ui, deps = {}) {
 
   const layout = doc.getElementById('inscriptionLayout');
   if (layout) {
-    layout.dataset.open = 'false';
+    createUiSurfaceStateController({ element: layout }).setOpen(false);
     layout.style.display = 'none';
   }
 
@@ -170,7 +171,7 @@ export function closeRunSettingsModal(ui, deps = {}) {
 
   const layout = doc.getElementById('inscriptionLayout');
   if (layout) {
-    layout.dataset.open = 'false';
+    createUiSurfaceStateController({ element: layout }).setOpen(false);
     layout.style.display = 'none';
   }
 

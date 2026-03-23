@@ -133,8 +133,8 @@ export function createCharacterSelectMountRuntime(options = {}) {
       traitBadgeText: ch.traitName,
       summaryText: ch.selectionSummary || ch.desc || ch.traitDesc || '',
       xpText: progress.nextLevelXp === null
-        ? `MAX LEVEL · ${progress.totalXp} XP`
-        : `${progress.totalXp} / ${progress.nextLevelXp} XP`,
+        ? `최고 레벨 · ${progress.totalXp} 경험치`
+        : `${progress.totalXp} / ${progress.nextLevelXp} 경험치`,
       loadoutSummaryText: customization.hasInvalidPreset ? '' : customization.cardSummaryLine,
       loadoutWarningText: customization.hasInvalidPreset ? '프리셋 확인 필요' : '',
     });

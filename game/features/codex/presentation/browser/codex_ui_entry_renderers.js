@@ -54,7 +54,7 @@ export function createCodexEnemyCard(doc, enemy, index, context = {}) {
     ${hintBadge}${killsBadge}
     <div class="cx-info">
       <div class="cx-name">${seen ? enemy.name : '???'}</div>
-      <div class="cx-sub">${seen ? `HP ${enemy.maxHp ?? enemy.hp ?? 0} · ATK ${enemy.atk ?? 0}` : '미발견'}</div>
+      <div class="cx-sub">${seen ? `체력 ${enemy.maxHp ?? enemy.hp ?? 0} · 공격력 ${enemy.atk ?? 0}` : '미발견'}</div>
     </div>
     ${seen && enemy.isNew ? '<div class="cx-new-dot"></div>' : ''}
   `;

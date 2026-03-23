@@ -1,6 +1,9 @@
 import { playSelectAnim } from './map_ui_next_nodes_overlay_helpers.js';
 import { hexToRgb } from './map_ui_next_nodes_render.js';
-import { canToggleDeckView } from '../../../ui/ports/public_help_pause_presentation_capabilities.js';
+import {
+  canOpenFullMap,
+  canToggleDeckView,
+} from '../../../ui/ports/public_help_pause_presentation_capabilities.js';
 
 export function createNextNodeTrigger({
   deps = {},
@@ -61,7 +64,7 @@ export function createNextNodeOverlayKeyHandler({
   return (event) => {
     if (overlay.style.display === 'none') return;
     if (event.key === 'm' || event.key === 'M') {
-      if (typeof deps.showFullMap === 'function') {
+      if (canOpenFullMap(doc) && typeof deps.showFullMap === 'function') {
         deps.showFullMap();
         event.preventDefault();
       }

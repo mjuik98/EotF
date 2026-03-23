@@ -1,3 +1,5 @@
+import { setDatasetBooleanState } from '../../../../shared/ui/state/ui_state_dataset.js';
+
 export const COMBAT_TEXT = Object.freeze({
   echoSkillLabel: '⚡ 잔향 스킬 ✦',
   drawButton: Object.freeze({
@@ -156,85 +158,35 @@ export function resolvePrimaryCombatKeywordTooltip(card) {
 
 function setKeywordTabActive(tab, active) {
   tab.className = active ? 'card-clone-keyword-tab is-active' : 'card-clone-keyword-tab';
-  tab.style.borderColor = active ? 'rgba(123, 47, 255, 0.46)' : 'rgba(255, 255, 255, 0.1)';
-  tab.style.background = active ? 'rgba(123, 47, 255, 0.18)' : 'rgba(255, 255, 255, 0.04)';
-  tab.style.color = active ? '#efe5ff' : 'rgba(216, 210, 238, 0.82)';
 }
 
 function setMechanicTriggerActive(trigger, active) {
   trigger.className = active
     ? 'card-hover-mechanic-trigger is-active'
     : 'card-hover-mechanic-trigger';
-  trigger.style.borderColor = active ? 'rgba(123, 47, 255, 0.52)' : 'rgba(196, 186, 236, 0.18)';
-  trigger.style.background = active
-    ? 'linear-gradient(180deg, rgba(70, 34, 124, 0.44), rgba(28, 18, 54, 0.72))'
-    : 'rgba(12, 12, 24, 0.42)';
-  trigger.style.color = active ? 'rgba(244, 239, 255, 0.98)' : 'rgba(220, 214, 238, 0.82)';
 }
 
-export function createCombatCloneKeywordPanel(doc, card, options = {}) {
+export function createCombatCloneKeywordPanel(doc, card) {
   const keywordItems = resolveCombatKeywordTooltips(card);
   if (keywordItems.length === 0) return { link: null, mechanics: null, panel: null };
-  const panelWidth = Number(options.keywordPanelWidth) > 0 ? Number(options.keywordPanelWidth) : 176;
 
   const mechanics = doc.createElement('div');
   mechanics.className = 'card-hover-mechanics';
-  mechanics.style.display = 'flex';
-  mechanics.style.flexWrap = 'wrap';
-  mechanics.style.alignSelf = 'stretch';
-  mechanics.style.justifyContent = 'flex-start';
-  mechanics.style.gap = '6px';
-  mechanics.style.width = '100%';
-  mechanics.style.marginTop = '10px';
-  mechanics.style.padding = '0 2px 24px';
-  mechanics.style.zIndex = '2';
 
   const link = doc.createElement('div');
   link.className = 'card-clone-keyword-link';
-  link.style.position = 'absolute';
-  link.style.borderRadius = '999px';
-  link.style.opacity = '0.35';
-  link.style.transition = 'opacity 0.12s ease';
-  link.style.boxShadow = '0 0 10px rgba(123, 47, 255, 0.24)';
-  link.style.pointerEvents = 'none';
-  link.style.zIndex = '2';
 
   const panel = doc.createElement('div');
   panel.className = 'card-clone-keyword-panel';
-  panel.dataset.open = 'false';
-  panel.style.position = 'absolute';
-  panel.style.width = `${panelWidth}px`;
-  panel.style.padding = '12px 14px';
-  panel.style.borderRadius = '14px';
-  panel.style.border = '1px solid rgba(123, 47, 255, 0.42)';
-  panel.style.background = 'linear-gradient(180deg, rgba(18, 12, 40, 0.96), rgba(10, 8, 24, 0.94))';
-  panel.style.boxShadow = '0 18px 34px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(123, 47, 255, 0.08)';
-  panel.style.color = 'rgba(232, 225, 255, 0.94)';
-  panel.style.opacity = '0';
-  panel.style.visibility = 'hidden';
-  panel.style.pointerEvents = 'none';
-  panel.style.transition = 'opacity 0.14s ease, visibility 0.14s ease';
-  panel.style.zIndex = '4';
+  setDatasetBooleanState(panel, 'open', false);
   const chipRow = doc.createElement('div');
   chipRow.className = 'card-clone-keyword-tabs';
-  chipRow.style.display = 'flex';
-  chipRow.style.flexWrap = 'wrap';
-  chipRow.style.gap = '6px';
-  chipRow.style.marginBottom = '10px';
   const activeBody = doc.createElement('div');
   activeBody.className = 'card-clone-keyword-body';
   const activeTitle = doc.createElement('div');
   activeTitle.className = 'card-clone-keyword-body-title';
-  activeTitle.style.marginBottom = '8px';
-  activeTitle.style.fontFamily = "'Cinzel', serif";
-  activeTitle.style.fontSize = '12px';
-  activeTitle.style.letterSpacing = '0.08em';
-  activeTitle.style.color = '#9f7bff';
   const activeContent = doc.createElement('div');
   activeContent.className = 'card-clone-keyword-body-content';
-  activeContent.style.fontSize = '11px';
-  activeContent.style.lineHeight = '1.55';
-  activeContent.style.color = 'rgba(216, 210, 238, 0.88)';
   activeBody.appendChild(activeTitle);
   activeBody.appendChild(activeContent);
 
@@ -254,16 +206,8 @@ export function createCombatCloneKeywordPanel(doc, card, options = {}) {
   keywordItems.forEach((item, index) => {
     const chip = doc.createElement('button');
     chip.type = 'button';
+    chip.className = 'card-clone-keyword-tab';
     chip.textContent = item.title;
-    chip.style.padding = '4px 8px';
-    chip.style.borderRadius = '999px';
-    chip.style.border = '1px solid rgba(255, 255, 255, 0.1)';
-    chip.style.background = 'rgba(255, 255, 255, 0.04)';
-    chip.style.color = 'rgba(216, 210, 238, 0.82)';
-    chip.style.fontFamily = "'Share Tech Mono', monospace";
-    chip.style.fontSize = '9px';
-    chip.style.letterSpacing = '0.04em';
-    chip.style.cursor = 'pointer';
     setKeywordTabActive(chip, index === 0);
     chip.addEventListener('mouseenter', () => setActive(index));
     chip.addEventListener('click', () => setActive(index));
@@ -274,16 +218,6 @@ export function createCombatCloneKeywordPanel(doc, card, options = {}) {
     trigger.className = 'card-hover-mechanic-trigger';
     trigger.dataset.keywordIndex = String(index);
     trigger.textContent = item.title;
-    trigger.style.padding = '4px 8px';
-    trigger.style.borderRadius = '999px';
-    trigger.style.border = '1px solid rgba(196, 186, 236, 0.18)';
-    trigger.style.background = 'rgba(12, 12, 24, 0.42)';
-    trigger.style.color = 'rgba(220, 214, 238, 0.82)';
-    trigger.style.fontFamily = "'Share Tech Mono', monospace";
-    trigger.style.fontSize = '9px';
-    trigger.style.letterSpacing = '0.04em';
-    trigger.style.cursor = 'help';
-    trigger.style.transition = 'border-color 0.14s ease, background 0.14s ease, color 0.14s ease, transform 0.14s ease';
     setMechanicTriggerActive(trigger, index === 0);
     mechanics.appendChild(trigger);
   });

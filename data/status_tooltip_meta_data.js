@@ -294,23 +294,23 @@ const STATUS_TOOLTIP_META_OVERRIDES = {
   blessing_of_light: _makeInfiniteBuffMeta({
     nextTurnText: (buff) => {
       const heal = buff?.healPerTurn ?? 0;
-      return heal > 0 ? `매 턴 종료 시 HP +${heal} 회복` : '매 턴 체력을 회복합니다.';
+      return heal > 0 ? `매 턴 종료 시 체력 +${heal} 회복` : '매 턴 체력을 회복합니다.';
     },
     nextTurnDmg: () => null,
     statLabel: '회복량',
     statValue: (buff) => String(buff?.healPerTurn ?? 0),
-    statUnit: 'HP',
+    statUnit: '체력',
     statColor: '#4ade80',
   }),
   blessing_of_light_plus: _makeInfiniteBuffMeta({
     nextTurnText: (buff) => {
       const heal = buff?.healPerTurn ?? 0;
-      return heal > 0 ? `매 턴 종료 시 HP +${heal} 회복 (강화)` : '매 턴 더 많은 체력을 회복합니다.';
+      return heal > 0 ? `매 턴 종료 시 체력 +${heal} 회복 (강화)` : '매 턴 더 많은 체력을 회복합니다.';
     },
     nextTurnDmg: () => null,
     statLabel: '회복량',
     statValue: (buff) => String(buff?.healPerTurn ?? 0),
-    statUnit: 'HP',
+    statUnit: '체력',
     statColor: '#4ade80',
   }),
   unbreakable_wall: _makeInfiniteBuffMeta({

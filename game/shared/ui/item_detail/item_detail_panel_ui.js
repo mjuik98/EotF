@@ -1,3 +1,7 @@
+import {
+  createUiSurfaceStateController,
+} from '../state/ui_surface_state_controller.js';
+
 const PANEL_VARIANTS = {
   combat: {
     panelStyle: 'width:min(320px,calc(100vw-36px));margin-top:10px;padding:12px;border:1px solid rgba(123,47,255,.24);border-radius:14px;background:linear-gradient(180deg,rgba(8,8,24,.96),rgba(6,6,18,.92));box-shadow:0 18px 40px rgba(0,0,0,.28);backdrop-filter:blur(18px)',
@@ -104,11 +108,15 @@ export function setItemDetailPanelState(detailPanel, {
   itemId = '',
   pinned = false,
 } = {}) {
-  if (!detailPanel?.dataset) return;
-  detailPanel.dataset.open = open ? 'true' : 'false';
-  detailPanel.dataset.pinned = open && pinned ? 'true' : 'false';
-  if (open && itemId) detailPanel.dataset.itemId = itemId;
-  else delete detailPanel.dataset.itemId;
+  const controller = createUiSurfaceStateController({ element: detailPanel });
+  if (open) {
+    controller.open({
+      pinned,
+      values: { itemId },
+    });
+    return;
+  }
+  controller.close({ clearKeys: ['itemId'] });
 }
 
 export function markItemDetailActiveEntry({

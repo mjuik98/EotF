@@ -73,12 +73,18 @@ describe('combat ui smoke scripts', () => {
 
     expect(source).toContain("gs.player.hand = ['strike', 'resonance', 'heavy_blow', 'defend']");
     expect(source).toContain("page.hover('#combatHandCards .card:nth-child(2)')");
+    expect(source).toContain("page.hover('#handCardCloneLayer .card-hover-mechanic-trigger')");
+    expect(source).toContain("page.focus('#handCardCloneLayer .card-hover-mechanic-trigger')");
     expect(source).toContain('card-clone-keyword-panel');
+    expect(source).toContain('card-hover-mechanic-trigger');
     expect(source).toContain('card-clone-keyword-body-title');
     expect(source).toContain('card-clone-keyword-body-content');
+    expect(source).toContain('hoverKeywordPanelOpen');
+    expect(source).toContain('hoverKeywordPlacement');
     expect(source).toContain('hoverKeywordTitle');
     expect(source).toContain('hoverKeywordText');
     expect(source).toContain("hoverResult.hoverKeywordTitle === '잔향'");
+    expect(source).toContain('hoverResult.hoverKeywordPanelOpen');
     expect(source).toContain('!hoverResult.tooltipVisible');
   });
 

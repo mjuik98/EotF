@@ -18,9 +18,9 @@ export const INSCRIPTIONS = {
         desc: '다음 런 시작 시 최대 체력을 추가로 제공합니다.',
         maxLevel: 3,
         levels: [
-            { desc: '시작 최대 HP +10', apply: gs => { gs.player.maxHp += 10; gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 10); } },
-            { desc: '시작 최대 HP +20', apply: gs => { gs.player.maxHp += 20; gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 20); } },
-            { desc: '시작 최대 HP +35', apply: gs => { gs.player.maxHp += 35; gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 35); } },
+            { desc: '시작 최대 체력 +10', apply: gs => { gs.player.maxHp += 10; gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 10); } },
+            { desc: '시작 최대 체력 +20', apply: gs => { gs.player.maxHp += 20; gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 20); } },
+            { desc: '시작 최대 체력 +35', apply: gs => { gs.player.maxHp += 35; gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 35); } },
         ]
     },
     fortune: {

@@ -30,14 +30,14 @@ export function openCharacterSkillModal({
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
       <span style="font-size:32px">${skill.icon}</span>
       <div>
-        <p style="font-size:10px;letter-spacing:5px;color:#444;font-family:'Share Tech Mono',monospace;margin:0">${isEcho ? 'ECHO SKILL TREE' : 'SKILL TREE'}</p>
+        <p style="font-size:10px;letter-spacing:5px;color:#444;font-family:'Share Tech Mono',monospace;margin:0">${isEcho ? '잔향 기술 계보' : '기술 계보'}</p>
         <h3 style="font-size:20px;color:#fff;margin:0;letter-spacing:1.5px">${skill.name}</h3>
         ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Share Tech Mono',monospace">${skill.echoCost}</span>` : ''}
       </div>
       <button id="modalClose" style="margin-left:auto;background:none;border:none;color:#555;font-size:24px;cursor:pointer">x</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">${tiers}</div>
-    <p style="font-size:11px;color:#222;text-align:center;font-family:'Share Tech Mono',monospace;margin:20px 0 0">ESC to close</p>
+    <p style="font-size:11px;color:#222;text-align:center;font-family:'Share Tech Mono',monospace;margin:20px 0 0">ESC로 닫기</p>
   `;
 
   const modal = resolveById('skillModal');

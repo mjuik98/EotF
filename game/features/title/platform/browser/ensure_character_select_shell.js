@@ -4,7 +4,7 @@ const CHARACTER_SELECT_SHELL_MARKUP = `
   <div class="bg-noise"></div>
 
   <div id="header" class="intro">
-    <div id="headerTitle" class="title-sub choose-echo-title">CHOOSE YOUR ECHO</div>
+    <div id="headerTitle" class="title-sub choose-echo-title">당신의 잔향을 선택하라</div>
   </div>
 
   <div id="mainRow" class="intro">

@@ -75,7 +75,10 @@ export function getManualChunk(id) {
     || normalized.includes('/game/features/ui/presentation/browser/help_pause_')
   ) return 'ui-shell-overlays';
 
-  if (normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')) return 'ui-settings';
+  if (
+    normalized.endsWith('/game/core/settings_manager.js')
+    || normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')
+  ) return 'ui-settings';
   if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui.js')) return 'ui-run-mode';
 
   return null;

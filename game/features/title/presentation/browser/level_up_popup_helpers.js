@@ -20,7 +20,7 @@ export function buildLevelUpPopupMarkup() {
       <div id="classLvupEyebrow" class="class-lvup-eyebrow"></div>
       <div id="classLvupNum" class="class-lvup-num"></div>
       <div id="classLvupBonus" class="class-lvup-bonus"></div>
-      <div class="class-lvup-dismiss">Click or press ESC to close</div>
+      <div class="class-lvup-dismiss">클릭하거나 ESC로 닫기</div>
     </div>
   `;
 }
@@ -30,8 +30,8 @@ export function normalizeLevelUpPayload(payload = {}) {
   const level = Math.max(1, Number(payload.newLevel) || 1);
   return {
     accent,
-    bonusText: payload.bonusText || 'A class mastery bonus has been unlocked.',
-    eyebrow: `${payload.classTitle || 'CLASS'} - LEVEL UP`,
+    bonusText: payload.bonusText || '클래스 숙련도 보상이 해금되었습니다.',
+    eyebrow: `${payload.classTitle || '클래스'} - 레벨 상승`,
     levelText: `Lv.${level}`,
   };
 }

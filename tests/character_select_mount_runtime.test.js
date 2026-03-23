@@ -254,7 +254,7 @@ describe('character_select_mount_runtime', () => {
     expect(hoisted.renderCharacterCard).toHaveBeenCalledWith(expect.objectContaining({
       loadoutSummaryText: '',
       loadoutWarningText: '프리셋 확인 필요',
-      xpText: 'MAX LEVEL · 2200 XP',
+      xpText: '최고 레벨 · 2200 경험치',
       summaryText: expect.any(String),
     }));
     expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({

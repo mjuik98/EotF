@@ -6,6 +6,9 @@ import {
   getMeta,
 } from './run_mode_ui_helpers.js';
 import { renderHiddenEnding } from './run_mode_ui_summary_render.js';
+import {
+  createUiSurfaceStateController,
+} from '../../../../shared/ui/state/ui_surface_state_controller.js';
 
 export function renderInscriptionOverview(doc, meta, cfg, data) {
   const zone = doc.getElementById('rmInscriptionZone');
@@ -89,6 +92,7 @@ export function refreshInscriptionPanel(ui, deps = {}) {
   const toggleAllBtn = doc.getElementById('toggleAllInscriptionsBtn');
 
   if (!summaryEl || !layout || !container || !synergiesWrap || !toggleAllBtn) return;
+  const layoutSurface = createUiSurfaceStateController({ element: layout });
 
   const runConfig = ensureRunConfig(meta);
   if (!runConfig) return;
@@ -100,7 +104,7 @@ export function refreshInscriptionPanel(ui, deps = {}) {
     const previewZone = doc.getElementById('rmInscriptionZone');
     if (previewZone) previewZone.innerHTML = '';
     layout.style.display = 'none';
-    layout.dataset.open = 'false';
+    layoutSurface.setOpen(false);
     settingsPanel?.classList.remove('run-settings-with-inscription-layout');
     return;
   }
@@ -109,15 +113,15 @@ export function refreshInscriptionPanel(ui, deps = {}) {
   const activeCount = earnedInsc.filter(([key]) => !disabledSet.has(key)).length;
   const allDisabled = activeCount === 0;
 
-  const isOpen = layout.dataset.open === 'true';
+  const isOpen = layoutSurface.isOpen();
   layout.style.display = isOpen ? 'block' : 'none';
   if (isOpen) settingsPanel?.classList.add('run-settings-with-inscription-layout');
   else settingsPanel?.classList.remove('run-settings-with-inscription-layout');
 
   summaryEl.textContent = `획득 ${earnedInsc.length}개 · 활성 ${activeCount}개`;
   summaryEl.onclick = () => {
-    const nowOpen = layout.dataset.open !== 'true';
-    layout.dataset.open = nowOpen ? 'true' : 'false';
+    const nowOpen = !layoutSurface.isOpen();
+    layoutSurface.setOpen(nowOpen);
     layout.style.display = nowOpen ? 'block' : 'none';
     if (nowOpen) settingsPanel?.classList.add('run-settings-with-inscription-layout');
     else settingsPanel?.classList.remove('run-settings-with-inscription-layout');

@@ -15,7 +15,7 @@ export function createShopEventService({ uiActions }) {
           : '부서진 시간대 사이를 떠도는 상인이 거래를 제안한다.',
         choices: [
           {
-            text: `🧪 포션 (HP +30) - ${costPotion} 골드`,
+            text: `🧪 포션 (체력 +30) - ${costPotion} 골드`,
             cssClass: 'shop-choice-potion',
             effect: (state) => uiActions.handleChoice('buy_potion', state, data, { costPotion }),
           },

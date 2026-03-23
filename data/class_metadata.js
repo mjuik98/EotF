@@ -10,7 +10,7 @@ export const CLASS_METADATA = {
         id: 0,
         class: 'swordsman',
         name: '잔향검사',
-        title: 'SWORDSMAN',
+        title: '검사',
         emoji: '🗡️',
         style: 'swordsman',
         difficulty: '★★★☆☆',
@@ -24,7 +24,7 @@ export const CLASS_METADATA = {
         featuredCardIds: ['twin_strike', 'echo_strike', 'heavy_blow'],
         featuredCardTags: { twin_strike: '연속타', echo_strike: '연계', heavy_blow: '상태이상' },
         traitName: '공명',
-        traitTitle: '공명 (Resonance)',
+        traitTitle: '공명',
         traitDesc: '검의 진동이 겹겹이 쌓이며 공명이 깊어집니다. 카드를 사용할 때마다 피해가 +1씩 중첩됩니다.',
         echoSkill: {
             name: "공명 폭풍", icon: "⚡", desc: "잔향을 해방하여 전장을 공명파로 뒤덮는다.", echoCost: ["잔향 게이지"], tree: [
@@ -42,7 +42,7 @@ export const CLASS_METADATA = {
         id: 1,
         class: 'mage',
         name: '메아리술사',
-        title: 'MAGE',
+        title: '술사',
         emoji: '🪄',
         style: 'mage',
         difficulty: '★★★★☆',
@@ -56,7 +56,7 @@ export const CLASS_METADATA = {
         featuredCardIds: ['foresight', 'void_mirror', 'time_warp'],
         featuredCardTags: { foresight: '엔진', void_mirror: '반사', time_warp: '지속' },
         traitName: '메아리',
-        traitTitle: '메아리 (Echo)',
+        traitTitle: '메아리',
         traitDesc: '주문이 남긴 메아리가 패에 스며듭니다. 카드를 3번 사용할 때마다 손패의 무작위 카드 1장의 비용이 1 감소합니다.',
         echoSkill: {
             name: "메아리 연쇄", icon: "⚡", desc: "메아리가 시간을 거슬러 카드를 불러온다.", echoCost: ["잔향 게이지"], tree: [
@@ -74,7 +74,7 @@ export const CLASS_METADATA = {
         id: 2,
         class: 'hunter',
         name: '침묵사냥꾼',
-        title: 'HUNTER',
+        title: '사냥꾼',
         emoji: '⚔️',
         style: 'hunter',
         difficulty: '★★★★★',
@@ -88,7 +88,7 @@ export const CLASS_METADATA = {
         featuredCardIds: ['silent_stab', 'poison_blade', 'phantom_step'],
         featuredCardTags: { silent_stab: '개시', poison_blade: '누적', phantom_step: '회피' },
         traitName: '정적',
-        traitTitle: '정적 (Dead Silence)',
+        traitTitle: '정적',
         traitDesc: '침묵 속에서 표적을 추적합니다. 적을 5번 공격할 때마다 독 3턴 부여하고, 카드를 1장 드로우합니다.',
         echoSkill: {
             name: "잔향 포획", icon: "⚡", desc: "침묵 속에서 잔향이 죽음의 낫이 된다.", echoCost: ["잔향 게이지"], tree: [
@@ -106,7 +106,7 @@ export const CLASS_METADATA = {
         id: 3,
         class: 'paladin',
         name: '찬송기사',
-        title: 'PALADIN',
+        title: '성기사',
         emoji: '✨',
         style: 'paladin',
         difficulty: '★★☆☆☆',
@@ -120,7 +120,7 @@ export const CLASS_METADATA = {
         featuredCardIds: ['holy_strike', 'divine_grace', 'blessing_of_light'],
         featuredCardTags: { holy_strike: '회복', divine_grace: '방벽', blessing_of_light: '지속' },
         traitName: '성가',
-        traitTitle: '성가 (Sacred Hymn)',
+        traitTitle: '성가',
         traitDesc: '치유의 선율이 심판의 빛으로 전환됩니다. 체력을 회복할 때마다 회복량만큼 무작위 적 1명에게 피해를 입힙니다.',
         echoSkill: {
             name: "성가 잔향", icon: "⚡", desc: "성가가 전장에 울려 퍼지며 신성한 잔향이 상처를 완전히 치유한다.", echoCost: ["잔향 게이지"], tree: [
@@ -138,7 +138,7 @@ export const CLASS_METADATA = {
         id: 4,
         class: 'berserker',
         name: '파음전사',
-        title: 'BERSERKER',
+        title: '전사',
         emoji: '🪓',
         style: 'berserker',
         difficulty: '★★★★☆',
@@ -152,7 +152,7 @@ export const CLASS_METADATA = {
         featuredCardIds: ['blood_fury', 'reckless_swing', 'berserk_mode'],
         featuredCardTags: { blood_fury: '역전', reckless_swing: '폭딜', berserk_mode: '가속' },
         traitName: '불협화음',
-        traitTitle: '불협화음 (Cacophony)',
+        traitTitle: '불협화음',
         traitDesc: '상처가 깊어질수록 파괴적인 힘이 깨어납니다. 잃은 체력에 비례해 공격 피해가 최대 50%까지 증가합니다.',
         echoSkill: {
             name: "파음 해방", icon: "⚡", desc: "한계를 넘어선 파음이 연쇄 폭발한다.", echoCost: ["잔향 게이지"], tree: [
@@ -170,7 +170,7 @@ export const CLASS_METADATA = {
         id: 5,
         class: 'guardian',
         name: '무음수호자',
-        title: 'GUARDIAN',
+        title: '수호자',
         emoji: '🛡️',
         style: 'guardian',
         difficulty: '★★☆☆☆',
@@ -184,7 +184,7 @@ export const CLASS_METADATA = {
         featuredCardIds: ['iron_defense', 'shield_slam', 'unbreakable_wall'],
         featuredCardTags: { iron_defense: '방벽', shield_slam: '반격', unbreakable_wall: '지속' },
         traitName: '잔영 갑주',
-        traitTitle: '잔영 갑주 (Echo Armor)',
+        traitTitle: '잔영 갑주',
         traitDesc: '방어의 잔향이 사라지지 않습니다. 턴 종료 시 방어막의 50%가 유지됩니다.',
         echoSkill: {
             name: "잔영 공명", icon: "⚡", desc: "잔영이 공명하며 완벽한 방어가 완성된다.", echoCost: ["잔향 게이지"], tree: [

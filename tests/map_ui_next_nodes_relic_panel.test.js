@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildRelicPanel } from '../game/ui/map/map_ui_next_nodes_render.js';
@@ -36,6 +38,10 @@ class MockElement {
         else this.classList._tokens.delete(token);
         return !!force;
       },
+    };
+    this.contains = (node) => {
+      if (node === this) return true;
+      return this.children.some((child) => typeof child?.contains === 'function' && child.contains(node));
     };
 
     Object.defineProperty(this, 'textContent', {
@@ -90,17 +96,49 @@ class MockElement {
 }
 
 function createDoc() {
+  const docListeners = {};
+  const viewListeners = {};
+  const timers = new Map();
+  let timerId = 0;
   const win = {
     innerWidth: 1280,
     innerHeight: 720,
     requestAnimationFrame: (cb) => cb(),
-    addEventListener() {},
-    removeEventListener() {},
+    setTimeout(callback) {
+      timerId += 1;
+      timers.set(timerId, callback);
+      return timerId;
+    },
+    clearTimeout(id) {
+      timers.delete(id);
+    },
+    addEventListener(name, handler) {
+      viewListeners[name] = handler;
+    },
+    removeEventListener(name, handler) {
+      if (viewListeners[name] === handler) delete viewListeners[name];
+    },
   };
   const doc = {
     defaultView: win,
-    addEventListener() {},
-    removeEventListener() {},
+    listeners: docListeners,
+    dispatch(name, payload) {
+      docListeners[name]?.(payload);
+    },
+    dispatchView(name, payload) {
+      viewListeners[name]?.(payload);
+    },
+    runTimers() {
+      const pending = Array.from(timers.entries());
+      timers.clear();
+      pending.forEach(([, callback]) => callback());
+    },
+    addEventListener(name, handler) {
+      docListeners[name] = handler;
+    },
+    removeEventListener(name, handler) {
+      if (docListeners[name] === handler) delete docListeners[name];
+    },
     createElement(tagName) {
       return new MockElement(doc, tagName);
     },
@@ -109,6 +147,21 @@ function createDoc() {
 }
 
 describe('map_ui_next_nodes_relic_panel', () => {
+  it('keeps stage relic slots full-width with explicit rarity hierarchy rules', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toMatch(/\.nc-relic-panel\s*\{[^}]*position:\s*relative;/s);
+    expect(source).toMatch(/\.nc-relic-panel\s*\{[^}]*z-index:\s*6;/s);
+    expect(source).toMatch(/\.nc-relic-slot\s*\{[^}]*width:\s*100%;/s);
+    expect(source).toMatch(/\.nc-relic-slot\s*\{[^}]*box-sizing:\s*border-box;/s);
+    expect(source).toContain('.nc-relic-slot.rarity-legendary {');
+    expect(source).toContain('.nc-relic-slot.rarity-rare {');
+    expect(source).toContain('.nc-relic-slot.rarity-uncommon {');
+    expect(source).toContain('.nc-relic-slot.rarity-common {');
+    expect(source).toContain('.nc-relic-slot.rarity-legendary .nc-relic-icon-wrap {');
+    expect(source).toContain('.nc-relic-slot.rarity-common .nc-relic-icon-wrap {');
+  });
+
   it('starts with hidden relic detail and opens a compact panel on hover', () => {
     const doc = createDoc();
     const tooltipUI = {
@@ -172,6 +225,8 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(firstSlot.listeners.mouseenter).toBeTypeOf('function');
     expect(firstSlot.listeners.mouseleave).toBeTypeOf('function');
     expect(firstSlot.listeners.click).toBeTypeOf('function');
+    expect(detailPanel.listeners.mouseenter).toBeTypeOf('function');
+    expect(detailPanel.listeners.mouseleave).toBeTypeOf('function');
     expect(tooltipUI.showItemTooltip).not.toHaveBeenCalled();
     expect(firstSlot.children[1].children).toHaveLength(1);
     expect(firstSlot.children[1].children[0].className).toBe('nc-relic-name');
@@ -182,6 +237,7 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(detailPanel.style.top).toBe('56px');
     expect(detailPanel.style.width).toBe('min(240px, calc(100vw - 48px))');
     expect(detailPanel.style.marginTop).toBe('0');
+    expect(detailPanel.style.zIndex).toBe('12');
     expect(detailPanel.dataset.placement).toBe('floating-left');
     expect(detailPanel.style.transformOrigin).toBe('100% 24px');
     expect(detailPanel.style.transition).toContain('cubic-bezier');
@@ -207,7 +263,14 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(detailList.children[4].children[1].textContent).toBe('보유');
     expect(detailPanel.style.top).toBe('191px');
 
-    secondSlot.listeners.mouseleave({ currentTarget: secondSlot });
+    secondSlot.listeners.mouseleave({ currentTarget: secondSlot, relatedTarget: null });
+    expect(detailPanel.dataset.open).toBe('true');
+    detailPanel.listeners.mouseenter({ currentTarget: detailPanel });
+    doc.runTimers();
+    expect(detailPanel.dataset.open).toBe('true');
+
+    detailPanel.listeners.mouseleave({ currentTarget: detailPanel, relatedTarget: doc.createElement('div') });
+    doc.runTimers();
     expect(detailPanel.dataset.open).toBe('false');
     expect(detailList.children).toHaveLength(0);
     expect(tooltipUI.showItemTooltip).not.toHaveBeenCalled();
@@ -268,6 +331,16 @@ describe('map_ui_next_nodes_relic_panel', () => {
 
     secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
     expect(detailPanel.dataset.pinned).toBe('false');
+    expect(detailPanel.dataset.open).toBe('false');
+
+    secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
+    expect(detailPanel.dataset.open).toBe('true');
+    doc.dispatch('pointerdown', { target: doc.createElement('div') });
+    expect(detailPanel.dataset.open).toBe('false');
+
+    secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
+    expect(detailPanel.dataset.open).toBe('true');
+    doc.dispatchView('keydown', { key: 'Escape' });
     expect(detailPanel.dataset.open).toBe('false');
 
     firstSlot.listeners.mouseenter({ currentTarget: firstSlot });

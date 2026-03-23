@@ -155,4 +155,12 @@ describe('class select buttons helper', () => {
     expect(css).toContain('.class-select-relic-panel[data-open=\'true\']');
     expect(css).toContain('.class-select-relic-panel .crp-title');
   });
+
+  it('keeps class relic and trait rows as full-width interactive lines', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toMatch(/\.class-btn-trait,\s*\.class-btn-relic\s*\{[^}]*display:\s*block;/s);
+    expect(css).toMatch(/\.class-btn-trait,\s*\.class-btn-relic\s*\{[^}]*width:\s*100%;/s);
+    expect(css).toMatch(/\.class-btn-trait,\s*\.class-btn-relic\s*\{[^}]*box-sizing:\s*border-box;/s);
+  });
 });

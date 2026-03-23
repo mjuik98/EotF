@@ -2,6 +2,7 @@ import {
   buildItemDetailViewModel,
   applyItemDetailPanelStyles,
   createManagedItemDetailSurface,
+  setItemDetailPanelState,
 } from './relic_detail_shared_ui.js';
 
 function getDoc(deps) {
@@ -36,7 +37,7 @@ export function renderClassSelectButtons(container, deps = {}) {
   const relicDetailPanel = doc.createElement('div');
   relicDetailPanel.id = 'classSelectRelicDetail';
   relicDetailPanel.className = 'class-select-relic-panel';
-  relicDetailPanel.dataset.open = 'false';
+  setItemDetailPanelState(relicDetailPanel, { open: false });
   const relicDetailList = doc.createElement('div');
   relicDetailPanel.appendChild(relicDetailList);
   applyItemDetailPanelStyles(relicDetailPanel, relicDetailList, { variant: 'inline' });

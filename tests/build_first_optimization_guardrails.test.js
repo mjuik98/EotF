@@ -58,7 +58,7 @@ describe('build-first optimization guardrails', () => {
     expect(html).not.toContain('CHOOSE YOUR ECHO');
     expect(html).not.toContain('건너뛰기 (보상 없이 계속)');
     expect(html).not.toContain('LAYER 1 · 우발적 이벤트');
-    expect(characterSelectShell).toContain('CHOOSE YOUR ECHO');
+    expect(characterSelectShell).toContain('당신의 잔향을 선택하라');
     expect(eventModalShell).toContain('LAYER 1 · 우발적 이벤트');
     expect(rewardScreenShell).toContain('건너뛰기 (보상 없이 계속)');
   });

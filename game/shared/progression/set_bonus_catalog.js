@@ -12,23 +12,23 @@ export const SETS = {
     name: '심연의 삼위일체',
     items: ['void_eye', 'void_fang', 'void_crown'],
     bonuses: {
-      2: { label: '심연의 각성 — Echo 게이지 최대 +20%' },
-      3: { label: '심연의 완성 — 모든 피해 +15% + 턴 시작 Echo +15' },
+      2: { label: '심연의 각성 — 잔향 게이지 최대치 +20%' },
+      3: { label: '심연의 완성 — 모든 피해 +15% + 턴 시작 시 잔향 +15' },
     },
   },
   echo_set: {
     name: '반향의 삼각',
     items: ['echo_pendant', 'echo_bracer', 'echo_sigil'],
     bonuses: {
-      2: { label: '반향의 공명 — Resonance Burst 게이지 -20 (80에서 발동)' },
-      3: { label: '반향의 완성 — 매 턴 자동 Echo +20 추가' },
+      2: { label: '반향의 공명 — 공명 폭발 게이지 -20 (80에서 발동)' },
+      3: { label: '반향의 완성 — 매 턴 자동 잔향 +20' },
     },
   },
   blood_set: {
     name: '혈맹의 인장',
     items: ['blood_seal', 'blood_oath', 'blood_crown'],
     bonuses: {
-      2: { label: '혈맹의 결의 — HP 최대치 +20' },
+      2: { label: '혈맹의 결의 — 최대 체력 +20' },
       3: { label: '혈맹의 완성 — 피해 받을 때 20% 확률 완전 무효' },
     },
   },

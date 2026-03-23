@@ -28,8 +28,14 @@
  * 3) card_ui.js 에서 손패 카드의 showTooltipHandler / hideTooltipHandler
  *    는 제거하거나 클론과 중복되지 않도록 조건부 처리 권장.
  */
-import { createHandCardCloneElement } from './card_clone_render_ui.js';
+import {
+  createHandCardCloneElement,
+  DEFAULT_HOVER_KEYWORD_LAYOUT,
+} from './card_clone_render_ui.js';
 import { createCardCloneRuntime } from './card_clone_runtime_ui.js';
+import {
+  createUiSurfaceStateController,
+} from '../../../../shared/ui/state/ui_surface_state_controller.js';
 
 /* ── 상수 ──────────────────────────────────────────────────── */
 const _LAYER_ID       = 'handCardCloneLayer';
@@ -37,9 +43,7 @@ const _CLONE_W        = 200;   // px  (원본 100px × 2.0)
 const _CLONE_H        = 292;   // px  (원본 146px × 2.0)
 const _CLONE_GAP      = 16;    // 카드 상단 ~ 클론 하단 여백
 const _VIEWPORT_MARGIN = 14;   // 뷰포트 끝 최소 여백
-const _KEYWORD_PANEL_W = 176;  // 도킹 키워드 패널 너비
-const _KEYWORD_PANEL_H = 128;  // 다중 키워드 패널 기본 높이 추정치
-const _KEYWORD_PANEL_GAP = 12; // 카드와 키워드 패널 간격
+const _HOVER_KEYWORD_LAYOUT = DEFAULT_HOVER_KEYWORD_LAYOUT;
 const _HOVER_ENTER_MS  = 100;  // 클론 표시 딜레이 (빠른 이동 시 깜빡임 방지)
 const _HOVER_LEAVE_MS  = 60;   // 클론 숨김 딜레이
 const _AVOID_SELECTOR = [
@@ -54,20 +58,6 @@ const _AVOID_SELECTOR = [
 /* ── 내부 헬퍼 ─────────────────────────────────────────────── */
 function _getDoc(deps) { return deps?.doc || deps?.win?.document || null; }
 function _getWin(deps) { return deps?.win || deps?.doc?.defaultView || null; }
-
-function _setDatasetBooleanState(element, key, active) {
-  if (!element?.dataset || !key) return;
-  element.dataset[key] = active ? 'true' : 'false';
-}
-
-function _setDatasetValue(element, key, value) {
-  if (!element?.dataset || !key) return;
-  if (value === undefined || value === null || value === '') {
-    delete element.dataset[key];
-    return;
-  }
-  element.dataset[key] = String(value);
-}
 
 function _getRectArea(rect = {}) {
   return Math.max(0, (rect.right || 0) - (rect.left || 0)) * Math.max(0, (rect.bottom || 0) - (rect.top || 0));
@@ -115,8 +105,8 @@ function _applyArrowPlacement(cloneEl, cardPlacement) {
 
 function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = null) {
   const keywordPanel = cloneEl?.querySelector?.('.card-clone-keyword-panel');
-  const link = cloneEl?.querySelector?.('.card-clone-keyword-link');
   if (!keywordPanel) return;
+  const cloneState = createUiSurfaceStateController({ element: cloneEl });
 
   const position = clonePosition || _cloneRuntime.calcPosition(cardEl);
   const {
@@ -138,28 +128,28 @@ function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = 
     {
       placement: 'right',
       rect: {
-        left: cloneBox.right + _KEYWORD_PANEL_GAP,
-        top: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2,
-        right: cloneBox.right + _KEYWORD_PANEL_GAP + _KEYWORD_PANEL_W,
-        bottom: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2 + _KEYWORD_PANEL_H,
+        left: cloneBox.right + _HOVER_KEYWORD_LAYOUT.panelGap,
+        top: cloneBox.top + (_CLONE_H - _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight) / 2,
+        right: cloneBox.right + _HOVER_KEYWORD_LAYOUT.panelGap + _HOVER_KEYWORD_LAYOUT.panelWidth,
+        bottom: cloneBox.top + (_CLONE_H - _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight) / 2 + _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight,
       },
     },
     {
       placement: 'left',
       rect: {
-        left: cloneBox.left - _KEYWORD_PANEL_GAP - _KEYWORD_PANEL_W,
-        top: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2,
-        right: cloneBox.left - _KEYWORD_PANEL_GAP,
-        bottom: cloneBox.top + (_CLONE_H - _KEYWORD_PANEL_H) / 2 + _KEYWORD_PANEL_H,
+        left: cloneBox.left - _HOVER_KEYWORD_LAYOUT.panelGap - _HOVER_KEYWORD_LAYOUT.panelWidth,
+        top: cloneBox.top + (_CLONE_H - _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight) / 2,
+        right: cloneBox.left - _HOVER_KEYWORD_LAYOUT.panelGap,
+        bottom: cloneBox.top + (_CLONE_H - _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight) / 2 + _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight,
       },
     },
     {
       placement: 'bottom',
       rect: {
-        left: cloneBox.left + (_CLONE_W - _KEYWORD_PANEL_W) / 2,
-        top: cloneBox.bottom + _KEYWORD_PANEL_GAP + 2,
-        right: cloneBox.left + (_CLONE_W - _KEYWORD_PANEL_W) / 2 + _KEYWORD_PANEL_W,
-        bottom: cloneBox.bottom + _KEYWORD_PANEL_GAP + 2 + _KEYWORD_PANEL_H,
+        left: cloneBox.left + (_CLONE_W - _HOVER_KEYWORD_LAYOUT.panelWidth) / 2,
+        top: cloneBox.bottom + _HOVER_KEYWORD_LAYOUT.panelGap + _HOVER_KEYWORD_LAYOUT.bottomOffset,
+        right: cloneBox.left + (_CLONE_W - _HOVER_KEYWORD_LAYOUT.panelWidth) / 2 + _HOVER_KEYWORD_LAYOUT.panelWidth,
+        bottom: cloneBox.bottom + _HOVER_KEYWORD_LAYOUT.panelGap + _HOVER_KEYWORD_LAYOUT.bottomOffset + _HOVER_KEYWORD_LAYOUT.panelEstimatedHeight,
       },
     },
   ].map((candidate) => {
@@ -182,70 +172,22 @@ function _applyKeywordPanelPlacement(cardEl, cloneEl, win, doc, clonePosition = 
   }).sort((leftCandidate, rightCandidate) => leftCandidate.score - rightCandidate.score);
 
   const best = candidates[0];
-  _setDatasetValue(cloneEl, 'cardPlacement', cardPlacement);
-  _setDatasetValue(cloneEl, 'keywordPlacement', best.placement);
+  cloneState.setValue('cardPlacement', cardPlacement);
+  cloneState.setValue('keywordPlacement', best.placement);
   _applyArrowPlacement(cloneEl, cardPlacement);
-
-  if (best.placement === 'right') {
-    keywordPanel.style.left = `calc(100% + ${_KEYWORD_PANEL_GAP}px)`;
-    keywordPanel.style.top = '50%';
-    keywordPanel.style.transform = 'translateY(-50%)';
-    if (link) {
-      link.style.left = 'calc(100% + 2px)';
-      link.style.top = '50%';
-      link.style.width = '22px';
-      link.style.height = '2px';
-      link.style.transform = 'translateY(-50%)';
-      link.style.background = 'linear-gradient(90deg,rgba(123,47,255,.55),rgba(123,47,255,.08))';
-    }
-    return;
-  }
-
-  if (best.placement === 'left') {
-    keywordPanel.style.left = `calc(-${_KEYWORD_PANEL_W + _KEYWORD_PANEL_GAP}px)`;
-    keywordPanel.style.top = '50%';
-    keywordPanel.style.transform = 'translateY(-50%)';
-    if (link) {
-      link.style.left = `calc(-${_KEYWORD_PANEL_GAP + 10}px)`;
-      link.style.top = '50%';
-      link.style.width = '22px';
-      link.style.height = '2px';
-      link.style.transform = 'translateY(-50%) rotate(180deg)';
-      link.style.background = 'linear-gradient(90deg,rgba(123,47,255,.55),rgba(123,47,255,.08))';
-    }
-    return;
-  }
-
-  keywordPanel.style.left = '50%';
-  keywordPanel.style.top = `calc(100% + ${_KEYWORD_PANEL_GAP + 2}px)`;
-  keywordPanel.style.transform = 'translateX(-50%)';
-  if (link) {
-    link.style.left = '50%';
-    link.style.top = 'calc(100% + 1px)';
-    link.style.width = '2px';
-    link.style.height = '20px';
-    link.style.transform = 'translateX(-50%)';
-    link.style.background = 'linear-gradient(180deg,rgba(123,47,255,.55),rgba(123,47,255,.08))';
-  }
 }
 
 function _bindKeywordPanelInteractions(cloneEl) {
   const mechanicsRow = cloneEl?.querySelector?.('.card-hover-mechanics');
   const keywordPanel = cloneEl?.querySelector?.('.card-clone-keyword-panel');
-  const link = cloneEl?.querySelector?.('.card-clone-keyword-link');
   if (!mechanicsRow || !keywordPanel) return;
+  const cloneState = createUiSurfaceStateController({ element: cloneEl });
+  const keywordPanelState = createUiSurfaceStateController({ element: keywordPanel });
 
   const triggers = Array.from(mechanicsRow.children || []);
   const setOpen = (open) => {
-    _setDatasetBooleanState(keywordPanel, 'open', open);
-    if (keywordPanel?.style) {
-      keywordPanel.style.opacity = open ? '1' : '0';
-      keywordPanel.style.visibility = open ? 'visible' : 'hidden';
-      keywordPanel.style.pointerEvents = open ? 'auto' : 'none';
-    }
-    if (link?.style) {
-      link.style.opacity = open ? '1' : '0.35';
-    }
+    cloneState.setBoolean('keywordPanelOpen', open);
+    keywordPanelState.setOpen(open);
   };
   const isTriggerTarget = (target) => triggers.includes(target);
   const activateTrigger = (trigger) => {
@@ -287,8 +229,8 @@ const _cloneRuntime = createCardCloneRuntime({
   cloneWidth: _CLONE_W,
   cloneHeight: _CLONE_H,
   cloneGap: _CLONE_GAP,
-  keywordPanelGap: _KEYWORD_PANEL_GAP,
-  keywordPanelWidth: _KEYWORD_PANEL_W,
+  keywordPanelGap: _HOVER_KEYWORD_LAYOUT.panelGap,
+  keywordPanelWidth: _HOVER_KEYWORD_LAYOUT.panelWidth,
   viewportMargin: _VIEWPORT_MARGIN,
 });
 
@@ -355,7 +297,7 @@ export const HandCardCloneUI = {
     const handZoneEl  = doc.getElementById('combatHandCards');
     doc.descriptionUtils = deps.descriptionUtils || deps.DescriptionUtils || doc.descriptionUtils || null;
     const cloneEl     = createHandCardCloneElement(doc, cardId, card, costDisplay, {
-      keywordPanelWidth: _KEYWORD_PANEL_W,
+      hoverKeywordLayout: _HOVER_KEYWORD_LAYOUT,
     });
     cloneEl.style.pointerEvents = 'auto';
     // Clone hover owns the hand-card preview contract. Keep all hover/panel state on the clone tree.

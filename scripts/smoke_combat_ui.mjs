@@ -368,16 +368,24 @@ async function main() {
 
     await page.hover('#combatHandCards .card:nth-child(2)');
     await page.waitForTimeout(180);
+    await page.hover('#handCardCloneLayer .card-hover-mechanic-trigger');
+    await page.waitForTimeout(120);
+    await page.focus('#handCardCloneLayer .card-hover-mechanic-trigger');
+    await page.waitForTimeout(80);
     await writeSnapshot(page, args.outDir, 'combat-ui-hover-card');
 
     const hoverResult = await page.evaluate(() => {
       const clone = document.querySelector('#handCardCloneLayer .card-clone-visible');
       const cloneCost = clone?.querySelector('.card-cost');
       const keywordPanel = clone?.querySelector('.card-clone-keyword-panel');
+      const mechanicTrigger = clone?.querySelector('.card-hover-mechanic-trigger');
       const tooltip = document.getElementById('cardTooltip');
       return {
         hoverCloneVisible: !!clone,
         hoverCloneCostClass: cloneCost?.className || null,
+        hoverMechanicText: mechanicTrigger?.textContent?.trim() || null,
+        hoverKeywordPanelOpen: clone?.dataset?.keywordPanelOpen === 'true',
+        hoverKeywordPlacement: clone?.dataset?.keywordPlacement || null,
         hoverKeywordTitle: keywordPanel?.querySelector('.card-clone-keyword-body-title')?.textContent?.trim() || null,
         hoverKeywordText: keywordPanel?.querySelector('.card-clone-keyword-body-content')?.textContent?.trim() || null,
         tooltipText: tooltip?.innerText?.trim() || null,
@@ -387,6 +395,9 @@ async function main() {
 
     assertCondition(hoverResult.hoverCloneVisible, 'hovering the first hand card did not show the card clone');
     assertCondition(hoverResult.hoverCloneCostClass?.includes('card-cost-hover'), `hover clone cost missing hover variant class: ${hoverResult.hoverCloneCostClass}`);
+    assertCondition(hoverResult.hoverMechanicText === '잔향', `hover mechanic trigger text mismatch: ${hoverResult.hoverMechanicText}`);
+    assertCondition(hoverResult.hoverKeywordPanelOpen, 'hover mechanic trigger did not open the docked keyword panel');
+    assertCondition(['right', 'left', 'bottom'].includes(hoverResult.hoverKeywordPlacement), `hover keyword panel placement missing: ${hoverResult.hoverKeywordPlacement}`);
     assertCondition(hoverResult.hoverKeywordTitle === '잔향', `hover keyword title mismatch: ${hoverResult.hoverKeywordTitle}`);
     assertCondition(hoverResult.hoverKeywordText?.includes('특수 능력을 발동하는 에너지 자원'), `hover keyword panel did not render expected copy: ${hoverResult.hoverKeywordText}`);
     assertCondition(!hoverResult.tooltipVisible, 'playable hand card hover should not open the standalone card tooltip');

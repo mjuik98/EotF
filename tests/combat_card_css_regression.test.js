@@ -27,4 +27,18 @@ describe('combat card css regression', () => {
     expect(source).toContain('@media (max-width: 1180px)');
     expect(source).toContain('@media (max-width: 700px)');
   });
+
+  it('styles hover mechanics triggers, keyword tabs, and dock placements through CSS selectors', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.card-hover-mechanics');
+    expect(source).toContain('.card-hover-mechanic-trigger');
+    expect(source).toContain('.card-hover-mechanic-trigger:focus-visible');
+    expect(source).toContain('.card-clone-keyword-tabs');
+    expect(source).toContain('.card-clone-keyword-tab');
+    expect(source).toContain('.card-clone-keyword-tab:focus-visible');
+    expect(source).toContain(".card-clone[data-keyword-placement='right'] .card-clone-keyword-panel");
+    expect(source).toContain(".card-clone[data-keyword-placement='left'] .card-clone-keyword-panel");
+    expect(source).toContain(".card-clone[data-keyword-placement='bottom'] .card-clone-keyword-link");
+  });
 });

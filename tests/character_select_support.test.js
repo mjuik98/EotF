@@ -33,8 +33,8 @@ describe('character select support modules', () => {
 
     expect(markup).toContain('<svg');
     expect(markup).toContain('filter="url(#glow7CC8FF)"');
-    expect(markup).toContain('ATK');
-    expect(markup).toContain('RHY');
+    expect(markup).toContain('공격');
+    expect(markup).toContain('리듬');
     expect(markup.match(/<path /g)?.length || 0).toBeGreaterThanOrEqual(2);
   });
 });

@@ -1,11 +1,4 @@
-function setDatasetValue(element, key, value) {
-  if (!element?.dataset || !key) return;
-  if (value === undefined || value === null || value === '') {
-    delete element.dataset[key];
-    return;
-  }
-  element.dataset[key] = String(value);
-}
+import { setDatasetValue } from '../../../../shared/ui/state/ui_state_dataset.js';
 
 export function createCardCloneRuntime(options = {}) {
   const {

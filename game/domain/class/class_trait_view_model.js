@@ -13,7 +13,7 @@ export function buildClassTraitViewModel(classKey, gs, options = {}) {
       const resonance = gs?.getBuff?.('resonance');
       const value = resonance ? resonance.dmgBonus || 0 : 0;
       return {
-        title: meta.traitTitle || '공명 (Resonance)',
+        title: meta.traitTitle || '공명',
         desc: meta.traitDesc || '카드를 사용할 때마다 공격력이 증가합니다.',
         label: meta.traitName || '공명',
         value: value > 0 ? `+${value} 데미지` : '공명 누적 없음',
@@ -30,7 +30,7 @@ export function buildClassTraitViewModel(classKey, gs, options = {}) {
         ? (data?.cards?.[lastTargetId]?.name || lastTargetId)
         : null;
       return {
-        title: meta.traitTitle || '메아리 (Echo)',
+        title: meta.traitTitle || '메아리',
         desc: meta.traitDesc || '카드를 3번 사용할 때마다 무작위 손패 카드 1장의 비용을 1 감소시킵니다.',
         label: meta.traitName || '메아리',
         value: `발동까지 ${remaining}회 (${progress}/3)`,
@@ -40,7 +40,7 @@ export function buildClassTraitViewModel(classKey, gs, options = {}) {
     }
     case 'hunter':
       return {
-        title: meta.traitTitle || '정적 (Dead Silence)',
+        title: meta.traitTitle || '정적',
         desc: meta.traitDesc || '같은 적을 5번 공격할 때마다 해당 적에게 독 3턴 부여하고, 카드를 1장 드로우합니다.',
         label: meta.traitName || '정적',
         value: '공격 진행 중...',
@@ -48,7 +48,7 @@ export function buildClassTraitViewModel(classKey, gs, options = {}) {
       };
     case 'paladin':
       return {
-        title: meta.traitTitle || '성가 (Sacred Hymn)',
+        title: meta.traitTitle || '성가',
         desc: meta.traitDesc || '체력을 회복할 때마다 회복량만큼 무작위 적에게 피해를 입힙니다.',
         label: meta.traitName || '성가',
         value: '회복 시 추가 피해',
@@ -64,7 +64,7 @@ export function buildClassTraitViewModel(classKey, gs, options = {}) {
       const growBonus = activeBuff ? activeBuff.atkGrowth || 0 : 0;
       const echoGrowBonus = echoBuff ? echoBuff.atkGrowth || 0 : 0;
       return {
-        title: meta.traitTitle || '불협화음 (Cacophony)',
+        title: meta.traitTitle || '불협화음',
         desc: meta.traitDesc || '체력이 낮을수록 피해 보너스가 증가합니다. 공격할 때마다 공격력이 영구적으로 추가 성장합니다.',
         label: meta.traitName || '불협화음',
         value: `보너스 +${hpBonus + growBonus + echoGrowBonus}`,
@@ -73,7 +73,7 @@ export function buildClassTraitViewModel(classKey, gs, options = {}) {
     }
     case 'guardian':
       return {
-        title: meta.traitTitle || '유령 갑주 (Echo Armor)',
+        title: meta.traitTitle || '잔영 갑주',
         desc: meta.traitDesc || '매 턴 종료 시 방어막의 절반을 유지합니다.',
         label: meta.traitName || '유령 갑주',
         value: '방어막 50% 턴 시작 유지',

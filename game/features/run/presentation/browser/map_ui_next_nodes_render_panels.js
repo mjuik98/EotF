@@ -13,7 +13,11 @@ import {
   createManagedItemDetailSurface,
   getItemDetailNavIndex,
   isItemDetailCommitKey,
+  setItemDetailPanelState,
 } from './relic_detail_shared_ui.js';
+import {
+  createUiSurfaceStateController,
+} from '../../../../shared/ui/state/ui_surface_state_controller.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';
@@ -104,6 +108,7 @@ const FLOATING_RELIC_DETAIL_WIDTH = 240;
 const FLOATING_RELIC_DETAIL_GAP = 14;
 const FLOATING_RELIC_DETAIL_MIN_TOP = 56;
 const FLOATING_RELIC_DETAIL_EDGE_PADDING = 12;
+const RELIC_DETAIL_HOVER_SAFE_DELAY = 90;
 
 function getElementRect(element) {
   return typeof element?.getBoundingClientRect === 'function'
@@ -138,11 +143,12 @@ function resolveFloatingRelicDetailTop(panel, detailPanel, activeSlot) {
 
 function applyRelicDetailLayout(panel, detailPanel, win, activeSlot = null) {
   if (!panel || !detailPanel) return;
+  const detailSurfaceState = createUiSurfaceStateController({ element: detailPanel });
 
   panel.style.position = 'relative';
   panel.style.overflow = 'visible';
   const placement = resolveRelicDetailPlacement(panel, detailPanel, win);
-  detailPanel.dataset.placement = placement;
+  detailSurfaceState.setValue('placement', placement);
   detailPanel.style.transition = placement === 'floating-left'
     ? 'opacity .16s ease, transform .22s cubic-bezier(.22, 1, .36, 1)'
     : 'opacity .18s ease, transform .2s ease';
@@ -156,7 +162,7 @@ function applyRelicDetailLayout(panel, detailPanel, win, activeSlot = null) {
     detailPanel.style.bottom = 'auto';
     detailPanel.style.width = 'min(240px, calc(100vw - 48px))';
     detailPanel.style.marginTop = '0';
-    detailPanel.style.zIndex = '2';
+    detailPanel.style.zIndex = '12';
     return;
   }
 
@@ -191,6 +197,14 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   const activeTriggers = new Set(['combat_start', 'floor_start', 'on_enter']);
   const items = Array.isArray(gs?.player?.items) ? gs.player.items : [];
   const win = deps?.win || doc?.defaultView || null;
+  const setTimer = deps?.setTimeout
+    || win?.setTimeout?.bind?.(win)
+    || globalThis.setTimeout?.bind?.(globalThis)
+    || null;
+  const clearTimer = deps?.clearTimeout
+    || win?.clearTimeout?.bind?.(win)
+    || globalThis.clearTimeout?.bind?.(globalThis)
+    || null;
   const setBonusSystem = deps?.setBonusSystem || null;
   const panel = doc.createElement('div');
   panel.className = 'nc-relic-panel';
@@ -215,28 +229,65 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   const detailPanel = doc.createElement('div');
   detailPanel.className = 'nc-relic-detail';
   detailPanel.id = 'mapRelicDetailPanel';
-  detailPanel.dataset.open = 'false';
-  detailPanel.dataset.pinned = 'false';
+  setItemDetailPanelState(detailPanel, { open: false });
+  const detailSurfaceState = createUiSurfaceStateController({ element: detailPanel });
   const detailList = doc.createElement('div');
   detailList.className = 'nc-relic-detail-list';
   detailPanel.appendChild(detailList);
   applyItemDetailPanelStyles(detailPanel, detailList, { variant: 'compact' });
   const detailSurface = createManagedItemDetailSurface({
     doc,
+    win,
     detailPanel,
     detailPanelList: detailList,
     entriesRoot: list,
     variant: 'compact',
+    strategy: {
+      shouldDismiss({ event, reason, detailPanel: activePanel }) {
+        if (!createUiSurfaceStateController({ element: activePanel }).isOpen()) return false;
+        if (reason === 'keydown') return event?.key === 'Escape';
+        const target = event?.target;
+        return !list?.contains?.(target) && !activePanel?.contains?.(target);
+      },
+      onDismiss({ clear }) {
+        cancelPendingClear();
+        clear();
+        setTitleHintVisible(true);
+      },
+    },
   });
+  let pendingClearTimer = null;
+  const cancelPendingClear = () => {
+    if (pendingClearTimer == null) return;
+    if (typeof clearTimer === 'function') clearTimer(pendingClearTimer);
+    pendingClearTimer = null;
+  };
   const setTitleHintVisible = (visible) => {
     titleHint.style.opacity = visible ? '1' : '0';
   };
   const clearDetail = () => {
+    cancelPendingClear();
     detailSurface.clear();
     setTitleHintVisible(true);
   };
+  const scheduleDetailClear = (event = null) => {
+    if (detailSurfaceState.isPinned()) return;
+    const relatedTarget = event?.relatedTarget;
+    if (relatedTarget && (detailPanel?.contains?.(relatedTarget) || list?.contains?.(relatedTarget))) return;
+    cancelPendingClear();
+    if (typeof setTimer !== 'function') {
+      clearDetail();
+      return;
+    }
+    pendingClearTimer = setTimer(() => {
+      pendingClearTimer = null;
+      if (detailSurfaceState.isPinned()) return;
+      clearDetail();
+    }, RELIC_DETAIL_HOVER_SAFE_DELAY);
+  };
 
   const renderDetail = (itemId, item, activeSlot, options = {}) => {
+    cancelPendingClear();
     const state = resolveItemDetailState(itemId, item, data, gs, setBonusSystem);
     const detail = buildItemDetailViewModel(itemId, item, data, state);
     detailSurface.show({
@@ -250,6 +301,14 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
     animateRelicDetailPanel(detailPanel, deps);
     runOnNextFrame(() => applyRelicDetailLayout(panel, detailPanel, win, activeSlot), deps);
   };
+  detailPanel.__mapRelicDismissHandlers?.();
+  detailPanel.__mapRelicDismissHandlers = detailSurface.bindDismiss();
+  detailPanel.addEventListener('mouseenter', () => {
+    cancelPendingClear();
+  });
+  detailPanel.addEventListener('mouseleave', (event) => {
+    scheduleDetailClear(event);
+  });
 
   if (items.length === 0) {
     const empty = doc.createElement('div');
@@ -291,16 +350,15 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       pip.className = 'nc-relic-pip';
       pip.style.cssText = `background:${meta.pip};box-shadow:0 0 5px ${meta.pip};`;
       const previewSlot = () => {
-        if (detailPanel.dataset?.pinned === 'true') return;
+        if (detailSurfaceState.isPinned()) return;
         renderDetail(itemId, item, slot, { pinned: false });
       };
-      const clearPreviewSlot = () => {
-        if (detailPanel.dataset?.pinned === 'true') return;
-        clearDetail();
+      const clearPreviewSlot = (event) => {
+        scheduleDetailClear(event);
       };
       const togglePinnedSlot = () => {
-        const isPinned = detailPanel.dataset?.pinned === 'true';
-        const isSameItem = detailPanel.dataset?.itemId === itemId;
+        const isPinned = detailSurfaceState.isPinned();
+        const isSameItem = detailSurfaceState.getValue('itemId', '') === itemId;
         if (isPinned && isSameItem) {
           clearDetail();
           return;
@@ -321,7 +379,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
           const nextItem = data?.items?.[nextItemId];
           if (!nextSlot || !nextItem) return;
           nextSlot.focus?.();
-          if (detailPanel.dataset?.pinned === 'true') return;
+          if (detailSurfaceState.isPinned()) return;
           renderDetail(nextItemId, nextItem, nextSlot, { pinned: false });
           return;
         }

@@ -388,11 +388,11 @@ export function renderCharacterInfoPanel({
           <div class="csm-mastery-panel" style="border-color:${selectedChar.accent}2f;background:${selectedChar.accent}0a;">
             <div class="csm-mastery-head">
               <div>
-                <div class="csm-mastery-title" style="color:${selectedChar.accent}">CLASS MASTERY</div>
+                <div class="csm-mastery-title" style="color:${selectedChar.accent}">클래스 숙련도</div>
                 <div class="csm-mastery-level">${classProgress.nextLevelXp === null ? 'MAX' : `Lv.${classProgress.level}`}</div>
               </div>
               <div class="csm-mastery-xp">
-                ${classProgress.nextLevelXp === null ? 'MAX LEVEL' : `${classProgress.totalXp} / ${classProgress.nextLevelXp} XP`}
+                ${classProgress.nextLevelXp === null ? '최고 레벨' : `${classProgress.totalXp} / ${classProgress.nextLevelXp} 경험치`}
               </div>
             </div>
             <div class="csm-mastery-bar">

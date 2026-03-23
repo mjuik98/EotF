@@ -1,6 +1,6 @@
 import {
-  isCombatOverlayActive,
-  isInGame,
+  getRunHotkeyPolicy,
+  getRunHotkeyState,
   isVisibleModal,
 } from './help_pause_ui_helpers.js';
 
@@ -38,12 +38,8 @@ export function cycleNextTarget(gs, deps) {
 }
 
 export function handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape }) {
-  const pauseMenu = doc.getElementById('pauseMenu');
-  if (isVisibleModal(pauseMenu, doc)) {
-    swallowEscape(event);
-    ui.togglePause(deps);
-    return true;
-  }
+  const runHotkeyState = getRunHotkeyState(doc, gs);
+  const hotkeyPolicy = getRunHotkeyPolicy(runHotkeyState.mode);
 
   if (closeVisibleModalById(event, doc, 'fullMapOverlay', (overlay) => {
     if (typeof overlay._closeFullMap === 'function') overlay._closeFullMap();
@@ -101,13 +97,18 @@ export function handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape }) 
     return true;
   }
 
-  const inGame = isInGame(gs) || isCombatOverlayActive(doc);
-  const isTitle = gs?.currentScreen === 'title';
-  if (inGame && !ui.isHelpOpen()) {
+  const pauseMenu = doc.getElementById('pauseMenu');
+  if (isVisibleModal(pauseMenu, doc)) {
     swallowEscape(event);
     ui.togglePause(deps);
     return true;
   }
 
-  return isTitle;
+  if (hotkeyPolicy.pause && !ui.isHelpOpen()) {
+    swallowEscape(event);
+    ui.togglePause(deps);
+    return true;
+  }
+
+  return runHotkeyState.mode === 'title';
 }

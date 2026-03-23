@@ -208,7 +208,7 @@ export const EVENTS = [
         desc: '잔향이 고여 웅덩이가 됐다. 수면이 거울처럼 당신을 비추는데 — 반사된 얼굴이 이쪽을 먼저 보고 있었다.',
         choices: [
             {
-                text: '🍵 들이킨다 (HP -10, 덱에 비범 카드 추가)',
+                text: '🍵 들이킨다 (체력 -10, 덱에 비범 카드 추가)',
                 effect(gs) {
                     gs.player.hp = Math.max(1, gs.player.hp - 10);
                     const c = gs.getRandomCard('uncommon');
@@ -220,7 +220,7 @@ export const EVENTS = [
                 }
             },
             {
-                text: '🌊 삼켜진다 (HP -20, 덱에 레어 카드 추가)',
+                text: '🌊 삼켜진다 (체력 -20, 덱에 레어 카드 추가)',
                 effect(gs) {
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
                     const c = gs.getRandomCard('rare');
@@ -232,7 +232,7 @@ export const EVENTS = [
                 }
             },
             {
-                text: '🔮 관찰만 한다 (Echo +30)',
+                text: '🔮 관찰만 한다 (잔향 +30)',
                 effect(gs) {
                     gs.addEcho(30);
                     return '마시지 않았다. 바라보기만 했다. 잔향이 눈을 통해 스며든다. 이쪽이 더 안전한지는 모르겠다.';
@@ -416,7 +416,7 @@ export const EVENTS = [
                 }
             },
             {
-                text: '💤 고요에 삼켜진다 (HP +20)',
+                text: '💤 고요에 삼켜진다 (체력 +20)',
                 effect(gs) {
                     gs.heal(20);
                     const refuge = rewriteUpcomingNodeType(gs, {

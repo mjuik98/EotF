@@ -76,7 +76,7 @@ describe('level_up_popup_runtime', () => {
     });
 
     expect(doc.body.appendChild).toHaveBeenCalledWith(wrap);
-    expect(els.classLvupEyebrow.textContent).toBe('Paladin - LEVEL UP');
+    expect(els.classLvupEyebrow.textContent).toBe('Paladin - 레벨 상승');
     expect(els.classLvupNum.textContent).toBe('Lv.4');
     expect(els.classLvupBonus.textContent).toBe('Unlock halo.');
     expect(els.classLvupBlur.style.display).toBe('block');

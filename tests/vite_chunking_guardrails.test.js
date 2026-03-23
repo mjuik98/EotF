@@ -78,6 +78,12 @@ describe('vite chunking guardrails', () => {
     ).toBe('ui-combat-relics');
   });
 
+  it('keeps SettingsManager in the settings chunk so shell overlays do not own settings persistence code', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/core/settings_manager.js'),
+    ).toBe('ui-settings');
+  });
+
   it('uses narrow title capability surfaces instead of the broad public application barrel in overlay-related runtimes', () => {
     const endingActionHelpers = fs.readFileSync(
       path.join(process.cwd(), 'game/features/ui/presentation/browser/ending_screen_action_helpers.js'),
