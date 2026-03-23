@@ -4,6 +4,11 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const APP_COMPAT_FILES = [
+  'game/features/run/application/run_return_actions.js',
+  'game/features/reward/application/show_reward_screen_runtime.js',
+];
+
+const REMOVED_APP_COMPAT_FILES = [
   'game/app/combat/use_cases/begin_player_turn_use_case.js',
   'game/app/combat/use_cases/end_player_turn_use_case.js',
   'game/app/combat/use_cases/run_enemy_turn_use_case.js',
@@ -22,8 +27,8 @@ const APP_COMPAT_FILES = [
   'game/app/run/use_cases/start_run_use_case.js',
   'game/app/reward/use_cases/build_reward_options_use_case.js',
   'game/app/reward/use_cases/claim_reward_use_case.js',
-  'game/features/run/application/run_return_actions.js',
-  'game/features/reward/application/show_reward_screen_runtime.js',
+  'game/app/title/use_cases/continue_run_use_case.js',
+  'game/app/title/use_cases/start_title_run_use_case.js',
 ];
 
 describe('app use-case compat boundaries', () => {
@@ -34,5 +39,11 @@ describe('app use-case compat boundaries', () => {
       expect(source).not.toMatch(/^\s*import\s/m);
       expect(source).not.toMatch(/\bfunction\b/);
     }
+  });
+
+  it('removes app-level compat use-case wrappers once tests import feature-owned application surfaces directly', () => {
+    REMOVED_APP_COMPAT_FILES.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
   });
 });

@@ -10,7 +10,7 @@ vi.mock('../game/shared/codex/codex_record_state_use_case.js', () => ({
   registerItemFound: hoisted.registerItemFound,
 }));
 
-import { claimReward } from '../game/app/reward/use_cases/claim_reward_use_case.js';
+import { claimReward } from '../game/features/reward/public.js';
 
 describe('claim_reward_use_case', () => {
   it('rejects energy blessings when already at cap', () => {

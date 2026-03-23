@@ -14,7 +14,7 @@ vi.mock('../game/features/event/platform/event_runtime_dom.js', async () => {
   };
 });
 
-import { finishEventFlow, resolveEventChoiceFlow } from '../game/ui/screens/event_ui_flow.js';
+import { finishEventFlow, resolveEventChoiceFlow } from '../game/features/event/public.js';
 
 function createClassList() {
   const classes = new Set();

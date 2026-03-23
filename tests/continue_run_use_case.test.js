@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { continueRunUseCase } from '../game/app/title/use_cases/continue_run_use_case.js';
+import { continueRunUseCase } from '../game/features/title/ports/public_application_capabilities.js';
 
 describe('continue_run_use_case', () => {
   it('prefers the run feature resume handoff when provided', () => {

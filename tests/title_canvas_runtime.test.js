@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createTitleCanvasRuntime } from '../game/ui/title/title_canvas_runtime.js';
+import { createTitleCanvasRuntime } from '../game/features/title/ports/public_presentation_capabilities.js';
 
 function createGradient() {
   return {

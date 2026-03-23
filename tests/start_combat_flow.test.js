@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CombatInitializer } from '../game/combat/combat_initializer.js';
-import { startCombatFlowUseCase } from '../game/app/combat/use_cases/start_combat_flow_use_case.js';
+import { startCombatFlowUseCase } from '../game/features/combat/public.js';
 
 function createDeps() {
   return {

@@ -18,7 +18,7 @@ vi.mock('../game/features/event/presentation/browser/event_shop_presenter.js', (
 
 describe('event_ui_runtime_helpers', () => {
   it('renders the event shell and opens the modal', async () => {
-    const { renderEventShellRuntime } = await import('../game/ui/screens/event_ui_runtime_helpers.js');
+    const { renderEventShellRuntime } = await import('../game/features/event/public.js');
     const dom = await import('../game/features/event/presentation/browser/event_ui_dom.js');
     const eventModal = { classList: { add: vi.fn() } };
     const elements = {
@@ -51,7 +51,7 @@ describe('event_ui_runtime_helpers', () => {
   });
 
   it('delegates shop, rest-site, and item-shop entrypoints to extracted helpers', async () => {
-    const helpers = await import('../game/ui/screens/event_ui_runtime_helpers.js');
+    const helpers = await import('../game/features/event/public.js');
     const shop = await import('../game/features/event/presentation/browser/event_shop_presenter.js');
     const rest = await import('../game/features/event/presentation/browser/event_rest_site_presenter.js');
     const itemShop = await import('../game/features/event/presentation/browser/event_ui_item_shop.js');

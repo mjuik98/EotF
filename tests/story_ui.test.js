@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { StoryUI } from '../game/ui/screens/story_ui.js';
-import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
+import { EndingScreenUI, StoryUI } from '../game/features/ui/public.js';
 
 function createDeps({ storyPieces = [], fragments = [], runCount = 1 } = {}) {
   return {

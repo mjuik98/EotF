@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { playCardService } from '../game/app/combat/play_card_service.js';
+import { playCardService } from '../game/features/combat/public.js';
 import { Actions } from '../game/core/store/state_actions.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
 

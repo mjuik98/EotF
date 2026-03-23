@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createResolveEventChoiceUseCase } from '../game/app/event/use_cases/resolve_event_choice_use_case.js';
+import { createResolveEventChoiceUseCase } from '../game/features/event/public.js';
 
 describe('resolve_event_choice_use_case', () => {
   it('builds toast-ready view model for persistent event results', () => {

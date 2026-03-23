@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
-import { SettingsUI } from '../game/ui/screens/settings_ui.js';
+import { SettingsUI } from '../game/features/ui/public.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));

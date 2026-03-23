@@ -6,7 +6,7 @@ import {
   normalizeLevelUpPayload,
   parseAccentRgb,
   resizeFullscreenCanvas,
-} from '../game/ui/title/level_up_popup_helpers.js';
+} from '../game/features/title/ports/public_presentation_capabilities.js';
 
 describe('level up popup helpers', () => {
   it('normalizes popup payload with defaults', () => {

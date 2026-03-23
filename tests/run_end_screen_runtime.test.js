@@ -4,7 +4,7 @@ import {
   destroyRunEndScreenRuntime,
   initRunEndScreenRuntime,
   showRunEndScreenRuntime,
-} from '../game/ui/title/run_end_screen_runtime.js';
+} from '../game/features/title/ports/public_run_end_presentation_capabilities.js';
 
 function createOverlayDoc() {
   const keyHandlers = [];

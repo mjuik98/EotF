@@ -6,7 +6,7 @@ import {
   getReturnLine,
   INTRO_RETURN_LINES,
   mountRunStartHandoffBlackout,
-} from '../game/ui/title/intro_cinematic_helpers.js';
+} from '../game/features/title/ports/public_presentation_capabilities.js';
 
 function createDoc() {
   const appended = [];

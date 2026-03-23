@@ -5,7 +5,7 @@ import {
   applyEndingRank,
   buildEndingScreenDOM,
   ensureEndingScreenStyle,
-} from '../game/ui/screens/ending_screen_render_helpers.js';
+} from '../game/features/ui/public.js';
 
 function createMockElement(tagName = 'div') {
   return {

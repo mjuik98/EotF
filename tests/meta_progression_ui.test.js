@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
-import { MetaProgressionUI } from '../game/ui/screens/meta_progression_ui.js';
+import { EndingScreenUI, MetaProgressionUI } from '../game/features/ui/public.js';
 
 describe('MetaProgressionUI', () => {
   it('replays pending class summary after returning to title from fragment selection', () => {

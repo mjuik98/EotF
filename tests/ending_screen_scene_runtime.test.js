@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { runEndingScene } from '../game/ui/screens/ending_screen_scene_runtime.js';
+import { runEndingScene } from '../game/features/ui/public.js';
 
 function createNode(id = '') {
   return {

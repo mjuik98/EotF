@@ -10,7 +10,7 @@ vi.mock('../game/features/reward/application/workflows/show_reward_screen_workfl
 
 describe('reward_ui_screen_runtime', () => {
   it('delegates reward screen runtime to the feature-owned reward runtime', async () => {
-    const { showRewardScreenRuntime } = await import('../game/ui/screens/reward_ui_screen_runtime.js');
+    const { showRewardScreenRuntime } = await import('../game/features/reward/public.js');
     const ui = { id: 'ui' };
     const deps = { id: 'deps' };
 

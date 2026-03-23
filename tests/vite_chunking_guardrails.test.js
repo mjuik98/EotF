@@ -14,6 +14,7 @@ describe('vite chunking guardrails', () => {
     expect(source).toContain("return 'ui-combat-deck';");
     expect(source).toContain("return 'ui-combat-chronicle';");
     expect(source).toContain("return 'ui-combat-tooltips';");
+    expect(source).toContain("return 'ui-shared-surfaces';");
     expect(source).toContain("return 'ui-reward';");
     expect(source).toContain("return 'ui-event';");
     expect(source).toContain("return 'ui-shell-overlays';");
@@ -76,6 +77,15 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/item_detail_panel_ui.js'),
     ).toBe('ui-combat-relics');
+  });
+
+  it('keeps shared item-detail surface helpers out of the combat presentation chunk to avoid circular chunk imports', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/item_detail/item_detail_panel_ui.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/state/ui_surface_state_controller.js'),
+    ).toBe('ui-shared-surfaces');
   });
 
   it('keeps SettingsManager in the settings chunk so shell overlays do not own settings persistence code', () => {

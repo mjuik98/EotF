@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePlayerStatusTooltipMetrics } from '../game/ui/combat/status_effects_ui.js';
-import { resolveEnemyStatusTooltipMetrics } from '../game/ui/combat/combat_ui.js';
+import { resolveEnemyStatusTooltipMetrics } from '../game/features/combat/presentation/browser/combat_ui.js';
+import { resolvePlayerStatusTooltipMetrics } from '../game/features/combat/presentation/browser/status_effects_ui.js';
 
 describe('status tooltip metrics', () => {
   it('separates duration and stacks for finite player status values', () => {

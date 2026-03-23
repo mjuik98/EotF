@@ -4,7 +4,7 @@ import {
   destroyLevelUpPopupRuntime,
   initLevelUpPopupRuntime,
   showLevelUpPopupRuntime,
-} from '../game/ui/title/level_up_popup_runtime.js';
+} from '../game/features/title/ports/public_presentation_capabilities.js';
 
 function createLevelUpDoc() {
   const wrap = {

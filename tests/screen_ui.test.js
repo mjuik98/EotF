@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { ScreenUI } from '../game/ui/screens/screen_ui.js';
+import { ScreenUI } from '../game/features/ui/public.js';
 
 function makeScreenElement() {
   return {

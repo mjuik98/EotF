@@ -5,7 +5,7 @@ import {
   takeRewardCardRuntime,
   takeRewardRemoveRuntime,
   takeRewardUpgradeRuntime,
-} from '../game/ui/screens/reward_ui_runtime.js';
+} from '../game/features/reward/public.js';
 
 function createMockElement() {
   const classes = new Set();

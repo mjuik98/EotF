@@ -5,7 +5,7 @@ import {
   resolveEventService,
   showEventService,
   triggerRandomEventService,
-} from '../game/app/event/event_service.js';
+} from '../game/features/event/application/event_service.js';
 
 describe('event_service', () => {
   beforeEach(() => {

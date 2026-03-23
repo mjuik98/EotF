@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CombatUI } from '../game/ui/combat/combat_ui.js';
+import { CombatUI } from '../game/features/combat/presentation/browser/combat_ui.js';
 
 class MockTextNode {
   constructor(text) {

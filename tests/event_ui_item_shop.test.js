@@ -16,7 +16,7 @@ vi.mock('../game/features/event/presentation/browser/event_ui_helpers.js', () =>
   getShopItemIcon: vi.fn((item) => item.icon || '*'),
 }));
 
-import { showEventItemShopOverlay } from '../game/ui/screens/event_ui_item_shop.js';
+import { showEventItemShopOverlay } from '../game/features/event/public.js';
 
 function createElementFactory(elements) {
   return function createElement(tagName) {

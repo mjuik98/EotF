@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { startTitleRunUseCase } from '../game/app/title/use_cases/start_title_run_use_case.js';
+import { startTitleRunUseCase } from '../game/features/title/ports/public_application_capabilities.js';
 
 describe('start_title_run_use_case', () => {
   it('hides title panels, runs the prelude, and starts run setup after the intro', () => {

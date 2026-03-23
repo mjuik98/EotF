@@ -163,10 +163,6 @@ const EXACT_REEXPORTS = new Map([
     '{ CombatStartUI }',
     '../../features/combat/public.js',
   ),
-  [
-    'game/ui/combat/combat_ui.js',
-    "export {\n  CombatUI,\n  ENEMY_STATUS_DESC,\n  ENEMY_STATUS_KR,\n  resolveEnemyStatusTooltipMetrics,\n} from '../../features/combat/public.js';\n",
-  ],
   named(
     'game/ui/combat/combat_hud_ui.js',
     '{ CombatHudUI }',
@@ -177,10 +173,6 @@ const EXACT_REEXPORTS = new Map([
     '{ EchoSkillUI }',
     '../../features/combat/public.js',
   ),
-  [
-    'game/ui/combat/status_effects_ui.js',
-    "export {\n  resolvePlayerStatusTooltipMetrics,\n  StatusEffectsUI,\n} from '../../features/combat/public.js';\n",
-  ],
   named(
     'game/ui/combat/combat_info_ui.js',
     '{ CombatInfoUI }',
@@ -208,41 +200,6 @@ const EXACT_REEXPORTS = new Map([
     '{ CombatTurnUI }',
     '../../features/combat/public.js',
   ),
-  named(
-    'game/ui/screens/screen_ui.js',
-    '{ ScreenUI }',
-    '../../features/ui/public.js',
-  ),
-  named(
-    'game/ui/screens/ending_screen_ui.js',
-    '{ EndingScreenUI }',
-    '../../features/ui/public.js',
-  ),
-  named(
-    'game/ui/screens/story_ui.js',
-    '{ StoryUI }',
-    '../../features/ui/public.js',
-  ),
-  named(
-    'game/ui/screens/meta_progression_ui.js',
-    '{ MetaProgressionUI }',
-    '../../features/ui/public.js',
-  ),
-  named(
-    'game/ui/screens/help_pause_ui.js',
-    '{ HelpPauseUI }',
-    '../../features/ui/ports/public_help_pause_ui.js',
-  ),
-  named(
-    'game/ui/screens/settings_ui.js',
-    '{ SettingsUI }',
-    '../../features/ui/public.js',
-  ),
-  named(
-    'game/ui/screens/codex_ui.js',
-    '{ CodexUI }',
-    '../../features/codex/public.js',
-  ),
 ]);
 
 describe('ui feature entry compat reexports', () => {
@@ -251,6 +208,33 @@ describe('ui feature entry compat reexports', () => {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).toBe(expected);
     }
+  });
+
+  it('removes combat metadata compat entrypoints once callers use feature-owned browser modules directly', () => {
+    const removedFiles = [
+      'game/ui/combat/combat_ui.js',
+      'game/ui/combat/status_effects_ui.js',
+    ];
+
+    removedFiles.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
+  });
+
+  it('removes screen-level ui entry wrappers once callers use feature-owned surfaces directly', () => {
+    const removedFiles = [
+      'game/ui/screens/screen_ui.js',
+      'game/ui/screens/ending_screen_ui.js',
+      'game/ui/screens/story_ui.js',
+      'game/ui/screens/meta_progression_ui.js',
+      'game/ui/screens/help_pause_ui.js',
+      'game/ui/screens/settings_ui.js',
+      'game/ui/screens/codex_ui.js',
+    ];
+
+    removedFiles.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
   });
 
   it('keeps HelpPauseUI out of the static UI feature public barrel so lazy loading can split it', () => {

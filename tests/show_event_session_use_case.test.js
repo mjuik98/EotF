@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createShowEventSessionUseCase } from '../game/app/event/use_cases/show_event_session_use_case.js';
+import { createShowEventSessionUseCase } from '../game/features/event/public.js';
 
 describe('show_event_session_use_case', () => {
   it('stores the event session, clears the lock, and renders the shell', () => {

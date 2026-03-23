@@ -1,5 +1,5 @@
 {
-  "total": 323,
+  "total": 329,
   "byPair": {
     "core->domain": 3,
     "core->feature": 26,
@@ -14,11 +14,11 @@
     "domain->utils": 3,
     "engine->data": 1,
     "feature->core": 23,
-    "feature->data": 38,
+    "feature->data": 37,
     "feature->domain": 39,
     "feature->legacy": 4,
     "feature->platform": 3,
-    "feature->shared": 44,
+    "feature->shared": 51,
     "feature->utils": 30,
     "legacy->core": 6,
     "legacy->domain": 1,
@@ -41,5 +41,5 @@
     "utils->core": 1,
     "utils->data": 2
   },
-  "generatedAt": "2026-03-21T17:31:56.595Z"
+  "generatedAt": "2026-03-23T07:09:09.424Z"
 }

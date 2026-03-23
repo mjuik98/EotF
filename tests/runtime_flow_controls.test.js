@@ -1,22 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
-import * as compat from '../game/app/shared/use_cases/runtime_state_use_case.js';
 import * as shared from '../game/shared/state/runtime_flow_controls.js';
 import * as sharedPublic from '../game/shared/state/public.js';
 import { Actions, Reducers } from '../game/core/store/state_actions.js';
 
 describe('runtime_flow_controls', () => {
-  it('keeps the app compatibility surface wired to the shared runtime flow module', () => {
-    expect(compat.activateCombat).toBe(shared.activateCombat);
-    expect(compat.deactivateCombat).toBe(shared.deactivateCombat);
+  it('keeps the shared runtime flow module wired to the shared public surface', () => {
     expect(shared.lockEventFlow).toBe(sharedPublic.lockEventFlow);
     expect(shared.isEventFlowLocked).toBe(sharedPublic.isEventFlowLocked);
-    expect(compat.lockRewardFlow).toBe(shared.lockRewardFlow);
-    expect(compat.unlockRewardFlow).toBe(shared.unlockRewardFlow);
-    expect(compat.unlockEventFlow).toBe(shared.unlockEventFlow);
-    expect(compat.setNodeMovementLocked).toBe(shared.setNodeMovementLocked);
-    expect(compat.resetRuntimeInteractionState).toBe(shared.resetRuntimeInteractionState);
-    expect(compat.consumeBossRewardFlags).toBe(shared.consumeBossRewardFlags);
+    expect(shared.activateCombat).toBe(sharedPublic.activateCombat);
+    expect(shared.lockRewardFlow).toBe(sharedPublic.lockRewardFlow);
+    expect(shared.unlockRewardFlow).toBe(sharedPublic.unlockRewardFlow);
+    expect(shared.unlockEventFlow).toBe(sharedPublic.unlockEventFlow);
+    expect(shared.setNodeMovementLocked).toBe(sharedPublic.setNodeMovementLocked);
+    expect(shared.resetRuntimeInteractionState).toBe(sharedPublic.resetRuntimeInteractionState);
+    expect(shared.consumeBossRewardFlags).toBe(sharedPublic.consumeBossRewardFlags);
   });
 
   it('keeps canonical state actions on the core store surface and runtime controls on the shared public state surface', () => {

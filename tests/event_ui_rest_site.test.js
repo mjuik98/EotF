@@ -22,7 +22,7 @@ import {
   buildRestRecoverySnapshot,
   computeRestFillBoost,
   showEventRestSiteOverlay,
-} from '../game/ui/screens/event_ui_rest_site.js';
+} from '../game/features/event/public.js';
 
 function createElementFactory(elements) {
   return function createElement(tagName) {

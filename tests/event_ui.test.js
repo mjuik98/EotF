@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { EventUI } from '../game/ui/screens/event_ui.js';
+import { EventUI } from '../game/features/event/public.js';
 
 function createClassList() {
   const set = new Set();

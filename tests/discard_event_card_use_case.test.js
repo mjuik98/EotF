@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createDiscardEventCardUseCase } from '../game/app/event/use_cases/discard_event_card_use_case.js';
+import { createDiscardEventCardUseCase } from '../game/features/event/public.js';
 
 describe('discard_event_card_use_case', () => {
   it('delegates discard handling to the event service boundary', () => {

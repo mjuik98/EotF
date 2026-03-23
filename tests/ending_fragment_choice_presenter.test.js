@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   buildEndingFragmentChoiceViewModel,
   presentEndingFragmentChoices,
-} from '../game/ui/screens/ending_fragment_choice_presenter.js';
+} from '../game/features/ui/public.js';
 
 function createMockElement(tagName = 'div') {
   return {

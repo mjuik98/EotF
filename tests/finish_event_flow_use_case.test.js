@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createFinishEventFlowUseCase } from '../game/app/event/use_cases/finish_event_flow_use_case.js';
+import { createFinishEventFlowUseCase } from '../game/features/event/public.js';
 
 describe('finish_event_flow_use_case', () => {
   it('clears current event, unlocks flow, and refreshes the run shell', () => {

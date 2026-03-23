@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   scheduleRewardReturnUseCase,
   takeRewardClaimUseCase,
-} from '../game/app/reward/use_cases/claim_reward_use_case.js';
+} from '../game/features/reward/public.js';
 
 describe('reward_claim_flow_use_case', () => {
   it('applies common reward-claim side effects through injected collaborators', () => {

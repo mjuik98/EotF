@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ENEMY_STATUS_DESC, ENEMY_STATUS_KR } from '../game/ui/combat/combat_ui.js';
+import { ENEMY_STATUS_DESC, ENEMY_STATUS_KR } from '../game/features/combat/presentation/browser/combat_ui.js';
 import { LogUtils } from '../game/utils/log_utils.js';
 
 const ENEMY_STATUS_KEYS_IN_USE = [

@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-21T17:31:50.875Z
-- Nodes: 1358
-- Edges: 1401
+- Generated: 2026-03-23T08:23:37.743Z
+- Nodes: 1298
+- Edges: 1428
 
 ## Layer Edges
 
@@ -27,13 +27,13 @@
 | engine->data | 1 |
 | engine->engine | 2 |
 | feature->core | 23 |
-| feature->data | 38 |
+| feature->data | 37 |
 | feature->domain | 39 |
-| feature->feature | 728 |
+| feature->feature | 747 |
 | feature->legacy | 4 |
 | feature->other | 7 |
 | feature->platform | 3 |
-| feature->shared | 44 |
+| feature->shared | 51 |
 | feature->utils | 30 |
 | legacy->core | 6 |
 | legacy->domain | 1 |
@@ -55,7 +55,7 @@
 | shared->data | 2 |
 | shared->feature | 3 |
 | shared->legacy | 1 |
-| shared->shared | 44 |
+| shared->shared | 46 |
 | shared->utils | 2 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -88,10 +88,10 @@
 | game/domain/audio/audio_event_helpers.js | 29 |
 | game/core/bindings/module_registry_scopes.js | 17 |
 | data/game_data.js | 14 |
+| game/features/combat/presentation/browser/combat_copy.js | 12 |
 | game/utils/log_utils.js | 12 |
 | game/shared/runtime/public.js | 11 |
 | game/core/store/state_actions.js | 10 |
-| game/features/combat/presentation/browser/combat_copy.js | 10 |
 | game/shared/state/player_state_commands.js | 10 |
 | game/utils/logger.js | 10 |
 | game/core/deps_factory.js | 9 |

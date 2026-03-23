@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   buildRewardDiscardDeps,
   createRewardReturnActions,
-} from '../game/app/reward/use_cases/claim_reward_use_case.js';
+} from '../game/features/reward/public.js';
 
 describe('reward_flow_presenter', () => {
   it('prefers rewardActions return handlers and falls back to returnToGame semantics', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { RewardUI } from '../game/ui/screens/reward_ui.js';
+import { RewardUI } from '../game/features/reward/public.js';
 import { CONSTANTS } from '../game/data/constants.js';
 import { clearIdempotencyPrefix } from '../game/utils/idempotency_utils.js';
 

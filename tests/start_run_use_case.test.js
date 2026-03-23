@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createStartRunUseCase } from '../game/app/run/use_cases/start_run_use_case.js';
+import { createStartRunUseCase } from '../game/features/run/public.js';
 
 describe('start_run_use_case', () => {
   it('orchestrates run initialization through injected state commands', () => {

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { beginPlayerTurnUseCase } from '../game/app/combat/use_cases/begin_player_turn_use_case.js';
+import { beginPlayerTurnUseCase } from '../game/features/combat/public.js';
 
 describe('begin_player_turn_use_case', () => {
   afterEach(() => {

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
 
-import { endPlayerTurnUseCase } from '../game/app/combat/use_cases/end_player_turn_use_case.js';
+import { endPlayerTurnUseCase } from '../game/features/combat/public.js';
 import * as endTurnService from '../game/features/combat/application/end_turn_service.js';
 
 describe('end_player_turn_use_case', () => {

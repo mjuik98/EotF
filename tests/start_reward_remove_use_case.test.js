@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createRewardRemoveCancelAction,
   startRewardRemoveUseCase,
-} from '../game/app/reward/use_cases/claim_reward_use_case.js';
+} from '../game/features/reward/public.js';
 
 describe('start_reward_remove_use_case', () => {
   it('opens discard flow with unified reward navigation payload', () => {

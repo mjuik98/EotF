@@ -34,15 +34,8 @@ const EXACT_REEXPORTS = new Map([
     'help_pause_ui_dialog_overlays',
     'help_pause_ui_pause_menu_overlay',
     'help_pause_ui_overlay_dom',
-    'ending_screen_helpers',
-    'ending_screen_runtime_helpers',
-    'ending_screen_fx',
-    'ending_screen_scene_runtime',
-    'ending_screen_render_helpers',
     'ending_screen_ui_runtime',
     'ending_screen_action_helpers',
-    'ending_fragment_choice_presenter',
-    'ending_fragment_choice_actions',
     'meta_progression_ui_runtime',
   ].map((name) => star(`game/ui/screens/${name}.js`, `../../features/ui/public.js`)),
   ...[
@@ -76,48 +69,8 @@ const EXACT_REEXPORTS = new Map([
     'codex_ui_structure',
   ].map((name) => star(`game/ui/screens/${name}.js`, `../../features/codex/public.js`)),
   star(
-    'game/ui/title/title_canvas_runtime.js',
-    '../../features/title/ports/public_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/run_end_screen_runtime.js',
-    '../../features/title/ports/public_run_end_presentation_capabilities.js',
-  ),
-  star(
     'game/ui/title/run_end_screen_helpers.js',
     '../../features/title/ports/public_run_end_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/level_up_popup_runtime.js',
-    '../../features/title/ports/public_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/level_up_popup_helpers.js',
-    '../../features/title/ports/public_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/intro_cinematic_runtime.js',
-    '../../features/title/ports/public_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/intro_cinematic_helpers.js',
-    '../../features/title/ports/public_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/game_canvas_setup_ui_runtime.js',
-    '../../features/title/ports/public_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/game_boot_ui_fx.js',
-    '../../features/title/ports/public_game_boot_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/game_boot_ui_helpers.js',
-    '../../features/title/ports/public_game_boot_presentation_capabilities.js',
-  ),
-  star(
-    'game/ui/title/game_boot_ui_runtime.js',
-    '../../features/title/ports/public_game_boot_presentation_capabilities.js',
   ),
   star(
     'game/ui/title/game_boot_ui_audio_fx.js',
@@ -156,5 +109,40 @@ describe('ui screen runtime compat reexports', () => {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).toBe(expected);
     }
+  });
+
+  it('removes ending helper shims once tests import the feature-owned ui surface directly', () => {
+    const removedFiles = [
+      'game/ui/screens/ending_fragment_choice_actions.js',
+      'game/ui/screens/ending_fragment_choice_presenter.js',
+      'game/ui/screens/ending_screen_fx.js',
+      'game/ui/screens/ending_screen_helpers.js',
+      'game/ui/screens/ending_screen_render_helpers.js',
+      'game/ui/screens/ending_screen_runtime_helpers.js',
+      'game/ui/screens/ending_screen_scene_runtime.js',
+    ];
+
+    removedFiles.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
+  });
+
+  it('removes title runtime/helper shims once tests import title feature surfaces directly', () => {
+    const removedFiles = [
+      'game/ui/title/game_boot_ui_fx.js',
+      'game/ui/title/game_boot_ui_helpers.js',
+      'game/ui/title/game_boot_ui_runtime.js',
+      'game/ui/title/game_canvas_setup_ui_runtime.js',
+      'game/ui/title/intro_cinematic_helpers.js',
+      'game/ui/title/intro_cinematic_runtime.js',
+      'game/ui/title/level_up_popup_helpers.js',
+      'game/ui/title/level_up_popup_runtime.js',
+      'game/ui/title/run_end_screen_runtime.js',
+      'game/ui/title/title_canvas_runtime.js',
+    ];
+
+    removedFiles.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
   });
 });

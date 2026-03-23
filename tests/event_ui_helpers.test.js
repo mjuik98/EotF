@@ -3,7 +3,7 @@ import {
   dismissEventModal,
   dismissTransientOverlay,
   getAudioEngine,
-} from '../game/ui/screens/event_ui_helpers.js';
+} from '../game/features/event/public.js';
 
 describe('event_ui_helpers', () => {
   beforeEach(() => {

@@ -199,11 +199,9 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
   const win = deps?.win || doc?.defaultView || null;
   const setTimer = deps?.setTimeout
     || win?.setTimeout?.bind?.(win)
-    || globalThis.setTimeout?.bind?.(globalThis)
     || null;
   const clearTimer = deps?.clearTimeout
     || win?.clearTimeout?.bind?.(win)
-    || globalThis.clearTimeout?.bind?.(globalThis)
     || null;
   const setBonusSystem = deps?.setBonusSystem || null;
   const panel = doc.createElement('div');

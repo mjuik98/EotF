@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { endPlayerTurnService } from '../game/app/combat/end_turn_service.js';
+import { endPlayerTurnService } from '../game/features/combat/public.js';
 
 describe('endPlayerTurnService', () => {
   it('delegates end-turn logic and invokes class onTurnEnd hook', () => {

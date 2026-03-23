@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createResolveEventSessionUseCase } from '../game/app/event/use_cases/resolve_event_session_use_case.js';
+import { createResolveEventSessionUseCase } from '../game/features/event/public.js';
 
 describe('resolve_event_session_use_case', () => {
   it('runs the event choice flow through the idempotent guard and clears the session on finish', () => {

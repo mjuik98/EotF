@@ -53,7 +53,7 @@ vi.mock('../game/utils/idempotency_utils.js', () => ({
   runIdempotent: mocks.runIdempotent,
 }));
 
-import { createEventUiFacadeRuntime } from '../game/presentation/screens/event_ui_facade_runtime.js';
+import { createEventUiFacadeRuntime } from '../game/features/event/presentation/browser/event_ui_facade_runtime.js';
 
 describe('event_ui_facade_runtime', () => {
   it('wires trigger/show/resolve flows through the injected api and deps', () => {

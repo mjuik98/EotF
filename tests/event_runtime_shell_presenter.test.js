@@ -10,7 +10,7 @@ vi.mock('../game/features/event/platform/browser/ensure_event_modal_shell.js', (
 
 describe('event_runtime_shell_presenter', () => {
   it('renders the event shell and opens the modal', async () => {
-    const { renderEventShellRuntime } = await import('../game/presentation/screens/event_runtime_shell_presenter.js');
+    const { renderEventShellRuntime } = await import('../game/features/event/public.js');
     const dom = await import('../game/features/event/presentation/browser/event_ui_dom.js');
     const { ensureEventModalShell } = await import('../game/features/event/platform/browser/ensure_event_modal_shell.js');
     const eventModal = { classList: { add: vi.fn() } };

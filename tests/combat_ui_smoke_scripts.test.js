@@ -10,6 +10,7 @@ describe('combat ui smoke scripts', () => {
     );
 
     expect(packageJson.scripts['smoke:combat-ui']).toBe('node scripts/run_combat_ui_smoke.mjs');
+    expect(packageJson.scripts['smoke:character-select']).toBe('node scripts/run_character_select_smoke.mjs');
   });
 
   it('points the combat UI smoke wrapper at the browser smoke runner', () => {
@@ -20,6 +21,16 @@ describe('combat ui smoke scripts', () => {
 
     expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs')");
     expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-combat-ui')");
+  });
+
+  it('points the character-select smoke wrapper at the character-select smoke runner', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'run_character_select_smoke.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("path.join(process.cwd(), 'scripts', 'character_select_smoke_check.mjs')");
+    expect(source).toContain("path.join('output', 'web-game', 'character-select-level-xp-smoke')");
   });
 
   it('checks the localized card rarity tag in the browser smoke runner', () => {
@@ -40,6 +51,14 @@ describe('combat ui smoke scripts', () => {
 
     expect(workflow).toContain('npx playwright install --with-deps chromium');
     expect(workflow).toContain('npm run smoke:combat-ui');
+  });
+
+  it('wires the character-select smoke run into the local quality workflow', () => {
+    const packageJson = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'),
+    );
+
+    expect(packageJson.scripts.quality).toContain('npm run smoke:character-select');
   });
 
   it('covers combat relic rail behavior in the browser smoke runner', () => {

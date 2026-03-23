@@ -21,5 +21,7 @@ describe('item detail surface contract usage', () => {
     expect(combatSource).toContain('createManagedItemDetailSurface');
     expect(stageSource).toContain('createManagedItemDetailSurface');
     expect(classSource).toContain('createManagedItemDetailSurface');
+    expect(stageSource).not.toContain('globalThis.setTimeout');
+    expect(stageSource).not.toContain('globalThis.clearTimeout');
   });
 });

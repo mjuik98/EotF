@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createRewardBlessings,
   renderRewardOptions,
-} from '../game/ui/screens/reward_ui_options.js';
+} from '../game/features/reward/public.js';
 
 function querySelectorAllByClass(root, selector) {
   if (typeof selector !== 'string' || !selector.startsWith('.')) return [];

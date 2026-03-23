@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createEndingFragmentChoiceActions } from '../game/ui/screens/ending_fragment_choice_actions.js';
+import { createEndingFragmentChoiceActions } from '../game/features/ui/public.js';
 
 describe('ending_fragment_choice_actions', () => {
   it('disables choices, plays click audio, selects the fragment, and schedules cleanup', () => {

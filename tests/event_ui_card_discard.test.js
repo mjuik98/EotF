@@ -13,7 +13,7 @@ vi.mock('../game/features/event/presentation/browser/event_ui_helpers.js', () =>
   getAudioEngine: vi.fn((deps) => deps.audioEngine),
 }));
 
-import { showEventCardDiscardOverlay } from '../game/ui/screens/event_ui_card_discard.js';
+import { showEventCardDiscardOverlay } from '../game/features/event/public.js';
 
 function createClassList() {
   const set = new Set();

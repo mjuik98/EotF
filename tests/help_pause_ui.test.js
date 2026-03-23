@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
-import { EndingScreenUI } from '../game/ui/screens/ending_screen_ui.js';
-import { HelpPauseUI } from '../game/ui/screens/help_pause_ui.js';
+import { EndingScreenUI } from '../game/features/ui/public.js';
+import { HelpPauseUI } from '../game/features/ui/ports/public_help_pause_ui.js';
 import {
   showMobileWarningRuntime,
   toggleHelpOverlayRuntime,

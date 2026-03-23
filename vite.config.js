@@ -33,6 +33,8 @@ export function getManualChunk(id) {
   if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
   if (normalized.endsWith('/data/status_key_data.js')) return 'ui-combat';
   if (normalized.endsWith('/game/utils/status_value_utils.js')) return 'ui-combat';
+  if (normalized.includes('/game/shared/ui/item_detail/')) return 'ui-shared-surfaces';
+  if (normalized.includes('/game/shared/ui/state/')) return 'ui-shared-surfaces';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_copy.js')) return 'ui-combat-copy';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_relic_rail_ui.js')) return 'ui-combat-relics';
   if (normalized.endsWith('/game/features/combat/presentation/browser/item_tooltip_fallback_text.js')) return 'ui-combat-relics';

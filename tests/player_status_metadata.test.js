@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { StatusEffectsUI } from '../game/ui/combat/status_effects_ui.js';
+import { StatusEffectsUI } from '../game/features/combat/presentation/browser/status_effects_ui.js';
 import { INFINITE_DURATION_STATUS_KEYS } from '../data/status_key_data.js';
 
 const PLAYER_STATUS_KEYS_IN_USE = [

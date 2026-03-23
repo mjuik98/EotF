@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { drawCardsService, executePlayerDrawService } from '../game/app/combat/card_draw_service.js';
+import { drawCardsService, executePlayerDrawService } from '../game/features/combat/public.js';
 import { Actions, Reducers } from '../game/core/state_actions.js';
 
 function createState() {

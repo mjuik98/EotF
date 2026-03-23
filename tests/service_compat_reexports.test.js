@@ -27,55 +27,6 @@ const EXACT_REEXPORTS = new Map([
     ].join('\n'),
   ],
   [
-    'game/app/event/event_service.js',
-    [
-      'export {',
-      '  clearCurrentEvent,',
-      '  getCurrentEvent,',
-      '  resolveEventService,',
-      '  setCurrentEvent,',
-      '  showEventService,',
-      '  triggerRandomEventService,',
-      "} from '../../features/event/public.js';",
-      '',
-    ].join('\n'),
-  ],
-  [
-    'game/app/event/event_session_store.js',
-    [
-      'export {',
-      '  clearCurrentEvent,',
-      '  getCurrentEvent,',
-      '  setCurrentEvent,',
-      "} from '../../features/event/public.js';",
-      '',
-    ].join('\n'),
-  ],
-  [
-    'game/app/combat/card_draw_service.js',
-    [
-      'export {',
-      '  drawCardsService,',
-      '  executePlayerDrawService,',
-      "} from '../../features/combat/public.js';",
-      '',
-    ].join('\n'),
-  ],
-  [
-    'game/app/combat/play_card_service.js',
-    [
-      "export { playCardService } from '../../features/combat/public.js';",
-      '',
-    ].join('\n'),
-  ],
-  [
-    'game/app/combat/end_turn_service.js',
-    [
-      "export { endPlayerTurnService } from '../../features/combat/public.js';",
-      '',
-    ].join('\n'),
-  ],
-  [
     'game/app/event/resolve_event_choice_service.js',
     [
       "export { resolveEventChoiceService } from '../../features/event/public.js';",
@@ -153,5 +104,20 @@ describe('service compat reexports', () => {
       const source = fs.readFileSync(path.join(process.cwd(), file), 'utf8');
       expect(source).toBe(expected);
     }
+  });
+
+  it('removes event and shared runtime compat wrappers once tests move to canonical services', () => {
+    const removedFiles = [
+      'game/app/combat/card_draw_service.js',
+      'game/app/combat/play_card_service.js',
+      'game/app/combat/end_turn_service.js',
+      'game/app/event/event_service.js',
+      'game/app/event/event_session_store.js',
+      'game/app/shared/use_cases/runtime_state_use_case.js',
+    ];
+
+    removedFiles.forEach((file) => {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    });
   });
 });

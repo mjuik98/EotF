@@ -8,7 +8,7 @@ import {
   buildEndingRegions,
   decorateEndingPayloadForOutcome,
   getEndingOutcomeDecoration,
-} from '../game/ui/screens/ending_screen_helpers.js';
+} from '../game/features/ui/public.js';
 
 describe('ending_screen_helpers', () => {
   it('builds payload with fallback region and deck metadata', () => {

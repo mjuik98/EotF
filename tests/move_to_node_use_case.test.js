@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { moveToNodeUseCase } from '../game/app/run/use_cases/move_to_node_use_case.js';
+import { moveToNodeUseCase } from '../game/features/run/public.js';
 
 describe('move_to_node_use_case', () => {
   it('applies node traversal state changes and linked child accessibility', () => {

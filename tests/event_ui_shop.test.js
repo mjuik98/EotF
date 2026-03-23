@@ -8,7 +8,7 @@ vi.mock('../game/features/event/application/create_event_shop_use_case.js', () =
   createEventShopUseCase: createEventShopUseCaseSpy,
 }));
 
-import { createEventShop, decorateEventShopChoiceEffects } from '../game/ui/screens/event_ui_shop.js';
+import { createEventShop, decorateEventShopChoiceEffects } from '../game/features/event/public.js';
 
 describe('event_ui_shop', () => {
   it('decorates successful shop effects with item-get and UI refresh side effects', () => {
