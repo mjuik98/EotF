@@ -148,6 +148,37 @@ describe('card_clone_ui', () => {
     expect(layer.children).not.toContain(clone);
   });
 
+  it('shows the enlarged clone preview even when the hand card is unplayable', () => {
+    const doc = createDoc();
+    const handZone = new MockElement(doc, 'div');
+    const card = new MockElement(doc, 'div', { left: 560, top: 640, width: 100, height: 146, right: 660, bottom: 786 });
+    doc._elements.set('combatHandCards', handZone);
+
+    HandCardCloneUI.init({ doc });
+    HandCardCloneUI.attachToCard(card, 'guard_break', {
+      name: '가드 브레이크',
+      icon: '🗡',
+      type: 'Attack',
+      cost: 2,
+      rarity: 'common',
+      desc: '방어막을 무시하고 피해 10',
+    }, {
+      displayCost: 2,
+      canPlay: false,
+      anyFree: false,
+      totalDisc: 0,
+    }, { doc });
+
+    card.listeners.get('mouseenter')();
+    vi.advanceTimersByTime(120);
+
+    const layer = doc.body.children[0];
+    const clone = layer.children[0];
+
+    expect(clone).toBeTruthy();
+    expect(handZone.classList.contains('has-active-clone')).toBe(true);
+  });
+
   it('opens the keyword side panel and keeps it open when moving from the trigger into the panel', () => {
     const doc = createDoc();
     const handZone = new MockElement(doc, 'div');
