@@ -4,6 +4,7 @@ import {
   ensureCodexState,
 } from '../ports/public_codex_state_capabilities.js';
 import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
+import { reconcileMetaProgression } from '../../meta_progression/application/reconcile_meta_progression.js';
 import { ensureRunMeta } from '../domain/run_rules_meta.js';
 
 export function resolveRunRuleClassIds(data = DATA) {
@@ -24,4 +25,5 @@ export function ensureRunRuleMeta(meta, options = {}) {
     ensureCodexRecords: ensureCodexRecordsRef,
     ensureClassProgressionMeta: (metaRef, classIds) => classProgressionSystem.ensureMeta(metaRef, classIds),
   });
+  reconcileMetaProgression(meta);
 }

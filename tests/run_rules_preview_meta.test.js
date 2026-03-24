@@ -36,6 +36,20 @@ describe('RunRules preview meta support', () => {
     expect(meta.runConfig).not.toHaveProperty('blessing');
   });
 
+  it('retroactively unlocks achievements from existing progress', () => {
+    const meta = {
+      runCount: 5,
+      unlocks: { ascension: true, endless: true },
+      runConfig: { ascension: 1, endless: false, curse: 'none', disabledInscriptions: [] },
+      progress: { victories: 3, failures: 1, echoShards: 0, totalDamage: 0, bossKills: {} },
+    };
+
+    RunRules.ensureMeta(meta);
+
+    expect(meta.achievements.states.first_victory.unlocked).toBe(true);
+    expect(meta.contentUnlocks.curses.blood_moon.unlocked).toBe(true);
+  });
+
   it('finalizes a run without creating recent-run history entries', () => {
     const saveMeta = vi.fn();
     const clearSave = vi.fn();

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-24T14:37:37.444Z",
+  "generatedAt": "2026-03-24T14:39:15.830Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -184,6 +184,7 @@
     "tests/energy_core.test.js",
     "tests/engine_visual_effects.test.js",
     "tests/ensure_character_select_shell.test.js",
+    "tests/evaluate_achievement_trigger.test.js",
     "tests/event_actions.test.js",
     "tests/event_bindings_registry.test.js",
     "tests/event_bus.test.js",
