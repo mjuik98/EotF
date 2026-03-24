@@ -162,7 +162,7 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(source).toContain('.nc-relic-slot.rarity-common .nc-relic-icon-wrap {');
   });
 
-  it('starts with hidden relic detail and opens a compact panel on hover', () => {
+  it('starts with hidden relic detail and opens a combat-style panel on hover', () => {
     const doc = createDoc();
     const tooltipUI = {
       showItemTooltip: vi.fn(),
@@ -235,7 +235,7 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(detailPanel.style.position).toBe('absolute');
     expect(detailPanel.style.right).toBe('calc(100% + 14px)');
     expect(detailPanel.style.top).toBe('56px');
-    expect(detailPanel.style.width).toBe('min(240px, calc(100vw - 48px))');
+    expect(detailPanel.style.width).toBe('min(320px, calc(100vw - 48px))');
     expect(detailPanel.style.marginTop).toBe('0');
     expect(detailPanel.style.zIndex).toBe('12');
     expect(detailPanel.dataset.placement).toBe('floating-left');
@@ -261,6 +261,8 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(detailList.children[3].children[1].textContent).toBe('보유');
     expect(detailList.children[4].children[0].textContent).toBe('🔹 메아리 부적');
     expect(detailList.children[4].children[1].textContent).toBe('보유');
+    expect(detailList.children[5].children[0].textContent).toBe('2세트');
+    expect(detailList.children[5].children[2].textContent).toContain('전투 시작 잔향 +10');
     expect(detailPanel.style.top).toBe('191px');
 
     secondSlot.listeners.mouseleave({ currentTarget: secondSlot, relatedTarget: null });

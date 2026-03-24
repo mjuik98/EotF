@@ -181,12 +181,14 @@ describe('deps factory', () => {
   });
 
   it('builds feature contracts from feature-specific GAME dep getters', () => {
-    seedRefs();
+    const setBonusSystem = { id: 'set-bonus-system' };
+    seedRefs({ SetBonusSystem: setBonusSystem });
 
     expect(createDeps('combatTurnBase').token).toBe('combat-deps');
     expect(createDeps('hudUpdate').token).toBe('hud-deps');
     expect(createDeps('event').token).toBe('event-deps');
     expect(createDeps('worldCanvas').token).toBe('canvas-deps');
+    expect(createDeps('worldCanvas').setBonusSystem).toBe(setBonusSystem);
     expect(createDeps('runStart').token).toBe('run-deps');
     expect(createDeps('codex').token).toBe('ui-deps');
   });

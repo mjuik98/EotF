@@ -1,5 +1,5 @@
 const FLOATING_RELIC_DETAIL_BREAKPOINT = 1180;
-const FLOATING_RELIC_DETAIL_WIDTH = 240;
+const FLOATING_RELIC_DETAIL_WIDTH = 320;
 const FLOATING_RELIC_DETAIL_GAP = 14;
 const FLOATING_RELIC_DETAIL_MIN_TOP = 56;
 const FLOATING_RELIC_DETAIL_EDGE_PADDING = 12;
@@ -53,7 +53,7 @@ export function applyRelicDetailLayout(panel, detailPanel, win, activeSlot = nul
     detailPanel.style.right = `calc(100% + ${FLOATING_RELIC_DETAIL_GAP}px)`;
     detailPanel.style.left = 'auto';
     detailPanel.style.bottom = 'auto';
-    detailPanel.style.width = 'min(240px, calc(100vw - 48px))';
+    detailPanel.style.width = 'min(320px, calc(100vw - 48px))';
     detailPanel.style.marginTop = '0';
     detailPanel.style.zIndex = '12';
     return;

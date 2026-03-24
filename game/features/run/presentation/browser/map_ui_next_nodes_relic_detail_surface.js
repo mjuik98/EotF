@@ -51,7 +51,7 @@ export function createRelicDetailSurfaceRuntime(options = {}) {
   const detailList = doc.createElement('div');
   detailList.className = 'nc-relic-detail-list';
   detailPanel.appendChild(detailList);
-  applyItemDetailPanelStyles(detailPanel, detailList, { variant: 'compact' });
+  applyItemDetailPanelStyles(detailPanel, detailList, { variant: 'combat' });
 
   let pendingClearTimer = null;
   const cancelPendingClear = () => {
@@ -66,7 +66,7 @@ export function createRelicDetailSurfaceRuntime(options = {}) {
     detailPanel,
     detailPanelList: detailList,
     entriesRoot: list,
-    variant: 'compact',
+    variant: 'combat',
     strategy: {
       shouldDismiss({ event, reason, detailPanel: activePanel }) {
         if (!detailSurfaceState.isOpen()) return false;

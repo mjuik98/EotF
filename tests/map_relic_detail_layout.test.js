@@ -45,6 +45,6 @@ describe('map relic detail layout', () => {
     expect(detailPanel.dataset.placement).toBe('floating-left');
     expect(detailPanel.style.position).toBe('absolute');
     expect(detailPanel.style.right).toContain('100%');
-    expect(detailPanel.style.width).toContain('240px');
+    expect(detailPanel.style.width).toContain('320px');
   });
 });
