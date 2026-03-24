@@ -7,6 +7,7 @@ export function buildRunUiContractBuilders(ctx) {
       return {
         ...buildBaseDeps('canvas'),
         getRegionData: refs.getRegionData,
+        setBonusSystem: refs.SetBonusSystem,
       };
     },
   };
