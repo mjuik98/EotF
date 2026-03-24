@@ -22,6 +22,16 @@ describe('RunRules preview meta support', () => {
 
     RunRules.ensureMeta(meta);
 
+    expect(meta.achievements).toEqual({
+      version: 1,
+      states: {},
+    });
+    expect(meta.contentUnlocks).toEqual({
+      version: 1,
+      curses: {},
+      relics: {},
+      cards: { shared: {} },
+    });
     expect(meta.runConfigPresets).toEqual([null, null, null, null]);
     expect(meta.runConfig).not.toHaveProperty('blessing');
   });

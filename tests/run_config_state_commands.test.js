@@ -103,4 +103,22 @@ describe('run_config_state_commands', () => {
     expect(deleteRunConfigPreset(meta, 2)).toBe(true);
     expect(meta.runConfigPresets[2]).toBe(null);
   });
+
+  it('falls back to none when loading an unavailable curse preset', () => {
+    const meta = createMeta();
+    meta.runConfigPresets[0] = {
+      id: 'preset-1',
+      name: '잠긴 저주',
+      config: {
+        ascension: 0,
+        endless: false,
+        curse: 'blood_moon',
+        disabledInscriptions: [],
+      },
+    };
+
+    const loaded = loadRunConfigPreset(meta, 0, { curses: { none: {} } });
+
+    expect(loaded.curse).toBe('none');
+  });
 });

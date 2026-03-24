@@ -41,6 +41,27 @@ export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCode
   if (!Number.isFinite(meta.progress.failures)) meta.progress.failures = 0;
   if (!meta.progress.bossKills || typeof meta.progress.bossKills !== 'object') meta.progress.bossKills = {};
 
+  if (!meta.achievements || typeof meta.achievements !== 'object') {
+    meta.achievements = { version: 1, states: {} };
+  }
+  if (!Number.isFinite(meta.achievements.version)) meta.achievements.version = 1;
+  if (!meta.achievements.states || typeof meta.achievements.states !== 'object') {
+    meta.achievements.states = {};
+  }
+
+  if (!meta.contentUnlocks || typeof meta.contentUnlocks !== 'object') {
+    meta.contentUnlocks = { version: 1, curses: {}, relics: {}, cards: { shared: {} } };
+  }
+  if (!Number.isFinite(meta.contentUnlocks.version)) meta.contentUnlocks.version = 1;
+  if (!meta.contentUnlocks.curses || typeof meta.contentUnlocks.curses !== 'object') meta.contentUnlocks.curses = {};
+  if (!meta.contentUnlocks.relics || typeof meta.contentUnlocks.relics !== 'object') meta.contentUnlocks.relics = {};
+  if (!meta.contentUnlocks.cards || typeof meta.contentUnlocks.cards !== 'object') {
+    meta.contentUnlocks.cards = { shared: {} };
+  }
+  if (!meta.contentUnlocks.cards.shared || typeof meta.contentUnlocks.cards.shared !== 'object') {
+    meta.contentUnlocks.cards.shared = {};
+  }
+
   meta.maxAscension = Math.max(0, Math.floor(meta.maxAscension));
   meta.runConfig.ascension = Math.max(0, Math.min(meta.maxAscension, Math.floor(meta.runConfig.ascension)));
   if (!meta.unlocks.endless) meta.runConfig.endless = false;
