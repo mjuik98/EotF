@@ -93,19 +93,41 @@ export function getEligibleUpgradeTargets(baseDeck, data) {
 
 export function getEligibleSwapAddCardIds(meta, classId, data) {
   const codex = getCodex(meta, data);
+  const unlockedCards = new Set(
+    (Array.isArray(data?.unlockedCardIds) ? data.unlockedCardIds : [])
+      .map((cardId) => resolveBaseCardId(cardId, data))
+      .filter(Boolean),
+  );
+  const restrictedCards = new Set(
+    (Array.isArray(data?.classScopedCardIds) ? data.classScopedCardIds : [])
+      .map((cardId) => resolveBaseCardId(cardId, data))
+      .filter(Boolean),
+  );
   const pool = new Set(CLASS_CARD_POOLS[String(classId)] || []);
-  return Array.from(codex.cards)
+  return Array.from(new Set([...codex.cards, ...unlockedCards]))
     .map((cardId) => resolveBaseCardId(cardId, data))
     .filter((cardId) => pool.has(cardId))
+    .filter((cardId) => !restrictedCards.has(cardId) || unlockedCards.has(cardId))
     .filter((cardId) => !!data?.cards?.[cardId] && !data.cards[cardId].upgraded)
     .sort();
 }
 
 export function getEligibleBonusRelicIds(meta, baseRelicId, data) {
   const codex = getCodex(meta, data);
-  return Array.from(codex.items)
+  const unlockedRelics = new Set(
+    (Array.isArray(data?.unlockedRelicIds) ? data.unlockedRelicIds : [])
+      .map((itemId) => String(itemId || ''))
+      .filter(Boolean),
+  );
+  const restrictedRelics = new Set(
+    (Array.isArray(data?.classScopedRelicIds) ? data.classScopedRelicIds : [])
+      .map((itemId) => String(itemId || ''))
+      .filter(Boolean),
+  );
+  return Array.from(new Set([...codex.items, ...unlockedRelics]))
     .map((itemId) => String(itemId || ''))
     .filter((itemId) => !!data?.items?.[itemId])
+    .filter((itemId) => !restrictedRelics.has(itemId) || unlockedRelics.has(itemId))
     .filter((itemId) => itemId !== baseRelicId)
     .sort();
 }

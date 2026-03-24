@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-24T14:43:27.215Z",
+  "generatedAt": "2026-03-24T16:42:16.710Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -364,6 +364,7 @@
     "tests/reward_ui_options.test.js",
     "tests/reward_ui_runtime.test.js",
     "tests/reward_ui_screen_runtime.test.js",
+    "tests/reward_unlock_gating.test.js",
     "tests/root_bindings.test.js",
     "tests/run_config_state_commands.test.js",
     "tests/run_end_screen_helpers.test.js",

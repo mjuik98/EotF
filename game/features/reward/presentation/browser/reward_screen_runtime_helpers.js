@@ -43,10 +43,19 @@ export function resolveRewardCardConfig(rewardMode, isElite) {
 export const UPGRADED_REWARD_CARD_CHANCE_NORMAL = 0.08;
 export const UPGRADED_REWARD_CARD_CHANCE_ELITE = 0.15;
 
-function drawRandomRewardCardId(data, rarity = 'common', used = new Set()) {
+function isRewardCardAvailable(gs, cardId) {
+  return isContentAvailable(gs?.meta, {
+    type: 'card',
+    id: cardId,
+    classId: gs?.player?.class,
+  });
+}
+
+function drawRandomRewardCardId(data, rarity = 'common', used = new Set(), gs = null) {
   const allCards = Object.values(data?.cards || {});
   const pickFromPool = (targetRarity) => allCards
     .filter((card) => card?.rarity === targetRarity && !card?.upgraded && !used.has(card.id))
+    .filter((card) => isRewardCardAvailable(gs, card.id))
     .map((card) => card.id);
 
   const pool = pickFromPool(rarity);
@@ -94,15 +103,14 @@ export function drawRewardCards(gs, count, rarities, data = null, options = {}) 
   const used = new Set();
   for (let i = 0; i < count; i += 1) {
     const rarity = rarities[Math.min(i, rarities.length - 1)] || 'common';
-    let cardId = gs.getRandomCard?.(rarity) || drawRandomRewardCardId(data, rarity, used);
-    let guard = 0;
-    while (cardId && used.has(cardId) && guard < 10) {
-      cardId = gs.getRandomCard?.(rarity) || drawRandomRewardCardId(data, rarity, used);
-      guard += 1;
-    }
+    const rolledCardId = gs.getRandomCard?.(rarity);
+    const cardId = rolledCardId && !used.has(rolledCardId) && isRewardCardAvailable(gs, rolledCardId)
+      ? rolledCardId
+      : drawRandomRewardCardId(data, rarity, used, gs);
     if (!cardId) continue;
     used.add(cardId);
     out.push(cardId);
   }
   return maybeUpgradeRewardCardChoice(out, data, options);
 }
+import { isContentAvailable } from '../../../meta_progression/public.js';

@@ -64,4 +64,34 @@ describe('class loadout preset helpers', () => {
     expect(getEligibleSwapAddCardIds(meta, 'swordsman', data)).toEqual(['blade_dance', 'charge']);
     expect(getEligibleBonusRelicIds(meta, 'dull_blade', data)).toEqual(['guardian_seal']);
   });
+
+  it('includes achievement-unlocked cards and relics even before codex discovery', () => {
+    const meta = createMeta();
+    meta.codex.cards = new Set();
+    meta.codex.items = new Set();
+    const data = {
+      ...createData(),
+      unlockedCardIds: ['blade_dance'],
+      unlockedRelicIds: ['guardian_seal'],
+    };
+
+    expect(getEligibleSwapAddCardIds(meta, 'swordsman', data)).toEqual(['blade_dance']);
+    expect(getEligibleBonusRelicIds(meta, 'dull_blade', data)).toEqual(['guardian_seal']);
+  });
+
+  it('keeps foreign class relics out of bonus relic choices even if codex already contains them', () => {
+    const meta = createMeta();
+    meta.codex.items = new Set(['guardian_seal', 'void_compass']);
+    const data = {
+      ...createData(),
+      items: {
+        ...createData().items,
+        void_compass: { id: 'void_compass', name: 'Void Compass' },
+      },
+      classScopedRelicIds: ['guardian_seal', 'void_compass'],
+      unlockedRelicIds: ['guardian_seal'],
+    };
+
+    expect(getEligibleBonusRelicIds(meta, 'dull_blade', data)).toEqual(['guardian_seal']);
+  });
 });

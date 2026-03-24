@@ -33,11 +33,12 @@ export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCode
   if (!curses[meta.runConfig.curse]) meta.runConfig.curse = 'none';
   if (!Array.isArray(meta.runConfigPresets)) meta.runConfigPresets = [];
   if (!meta.progress || typeof meta.progress !== 'object') {
-    meta.progress = { echoShards: 0, totalDamage: 0, victories: 0, failures: 0, bossKills: {} };
+    meta.progress = { echoShards: 0, totalDamage: 0, victories: 0, cursedVictories: 0, failures: 0, bossKills: {} };
   }
   if (!Number.isFinite(meta.progress.echoShards)) meta.progress.echoShards = 0;
   if (!Number.isFinite(meta.progress.totalDamage)) meta.progress.totalDamage = 0;
   if (!Number.isFinite(meta.progress.victories)) meta.progress.victories = 0;
+  if (!Number.isFinite(meta.progress.cursedVictories)) meta.progress.cursedVictories = 0;
   if (!Number.isFinite(meta.progress.failures)) meta.progress.failures = 0;
   if (!meta.progress.bossKills || typeof meta.progress.bossKills !== 'object') meta.progress.bossKills = {};
 
@@ -55,6 +56,9 @@ export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCode
   if (!Number.isFinite(meta.contentUnlocks.version)) meta.contentUnlocks.version = 1;
   if (!meta.contentUnlocks.curses || typeof meta.contentUnlocks.curses !== 'object') meta.contentUnlocks.curses = {};
   if (!meta.contentUnlocks.relics || typeof meta.contentUnlocks.relics !== 'object') meta.contentUnlocks.relics = {};
+  if (!meta.contentUnlocks.relicsByClass || typeof meta.contentUnlocks.relicsByClass !== 'object') {
+    meta.contentUnlocks.relicsByClass = {};
+  }
   if (!meta.contentUnlocks.cards || typeof meta.contentUnlocks.cards !== 'object') {
     meta.contentUnlocks.cards = { shared: {} };
   }

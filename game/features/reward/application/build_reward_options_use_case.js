@@ -2,6 +2,7 @@ import {
   ClassProgressionSystem,
   CONSTANTS,
 } from '../ports/reward_option_policy_ports.js';
+import { isContentAvailable } from '../../meta_progression/public.js';
 
 export const RELIC_REWARD_CHANCE_NORMAL = 0;
 export const RELIC_REWARD_CHANCE_ELITE = 0.1;
@@ -56,7 +57,13 @@ function isItemObtainableFrom(item, source = 'reward') {
 
 function getRewardItemPool(gs, data, source = 'reward') {
   return Object.values(data.items || {}).filter((item) => {
-    return !(gs.player.items || []).includes(item.id) && isItemObtainableFrom(item, source);
+    return !(gs.player.items || []).includes(item.id)
+      && isItemObtainableFrom(item, source)
+      && isContentAvailable(gs?.meta, {
+        type: 'relic',
+        id: item.id,
+        classId: gs?.player?.class,
+      });
   });
 }
 

@@ -14,6 +14,9 @@ describe('character select smoke script', () => {
     expect(source).toContain('createServer(');
     expect(source).toContain('server.listen(0,');
     expect(source).toContain('await new Promise((resolve, reject) => {');
+    expect(source).toContain('await fs.cp(distDir, snapshotDir, { recursive: true })');
+    expect(source).toContain("createDistServer(snapshotDir)");
+    expect(source).toContain("await fs.rm(snapshotDir, { recursive: true, force: true })");
     expect(source).toContain('server.close((error) => {');
   });
 

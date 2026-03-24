@@ -1,14 +1,17 @@
 import { evaluateAchievementTrigger } from './evaluate_achievement_trigger.js';
+import { ACHIEVEMENTS } from '../domain/achievement_definitions.js';
 
 export function reconcileMetaProgression(meta) {
   const unlocked = [];
+  const triggers = new Set(
+    Object.values(ACHIEVEMENTS)
+      .map((definition) => definition?.trigger)
+      .filter(Boolean),
+  );
 
-  if (Number(meta?.progress?.victories || 0) > 0) {
+  for (const trigger of triggers) {
     unlocked.push(
-      ...evaluateAchievementTrigger(meta, 'run_completed', {
-        kind: 'victory',
-        runConfig: { curse: 'none' },
-      }).newlyUnlockedAchievements,
+      ...evaluateAchievementTrigger(meta, trigger, {}).newlyUnlockedAchievements,
     );
   }
 

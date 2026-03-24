@@ -37,8 +37,9 @@ describe('run_outcome_commands', () => {
         runCount: 3,
         worldMemory: {},
         unlocks: { ascension: false, endless: false },
-        progress: { victories: 0, failures: 0, echoShards: 0 },
+        progress: { victories: 0, cursedVictories: 0, failures: 0, echoShards: 0 },
       },
+      runConfig: { curse: 'tax' },
     };
 
     expect(beginRunOutcomeCommit(gs)).toBe(true);
@@ -52,6 +53,7 @@ describe('run_outcome_commands', () => {
     expect(gs.stats.regionClearTimes[2]).toBe(3100);
     expect(gs.meta.worldMemory).toEqual({ savedMerchant: 1 });
     expect(gs.meta.unlocks.ascension).toBe(true);
+    expect(gs.meta.progress.cursedVictories).toBe(1);
   });
 
   it('prefers shared player state commands for run outcome player mutations when dispatch is available', () => {

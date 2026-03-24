@@ -33,7 +33,9 @@ const hoisted = vi.hoisted(() => {
 });
 
 vi.mock('../data/cards.js', () => ({
+  ASSETS: {},
   CARDS: {},
+  UPGRADE_MAP: {},
 }));
 
 vi.mock('../game/features/title/domain/class_progression_system.js', () => ({
@@ -264,6 +266,112 @@ describe('character_select_mount_runtime', () => {
           'Lv.11 시작 덱 프리셋을 적용할 수 없습니다. 저장된 설정을 확인하세요.',
           'Lv.12 시작 유물 프리셋을 적용할 수 없습니다. 저장된 설정을 확인하세요.',
         ],
+      }),
+    }));
+  });
+
+  it('passes achievement-unlocked loadout rewards to the info panel before codex discovery', () => {
+    hoisted.getClassState.mockReturnValue({
+      level: 12,
+      totalXp: 2200,
+      currentLevelXp: 2200,
+      nextLevelXp: null,
+      progress: 1,
+    });
+
+    const elements = {
+      charCard: createElement(),
+      infoPanel: createElement(),
+      dotsRow: createElement(),
+      buttonsRow: createElement(),
+      bgGradient: createElement(),
+      headerTitle: createElement(),
+    };
+    const chars = [
+      {
+        class: 'swordsman',
+        traitName: 'Resonance',
+        accent: '#7CC8FF',
+        glow: '#7CC8FF',
+        particle: 'aegis',
+        startDeck: ['strike', 'heavy_blow'],
+        startRelicId: 'dull_blade',
+        startRelic: { icon: '*', name: 'Dull Blade', desc: 'Starter relic.' },
+      },
+    ];
+    const deps = {
+      gs: {
+        meta: {
+          codex: {
+            cards: new Set(),
+            items: new Set(),
+          },
+          contentUnlocks: {
+            version: 1,
+            curses: {},
+            relics: {},
+            relicsByClass: {
+              swordsman: {
+                guardian_seal: { unlocked: true },
+              },
+            },
+            cards: {
+              shared: {},
+              swordsman: {
+                blade_dance: { unlocked: true },
+              },
+            },
+          },
+          classProgress: {
+            levels: { swordsman: 12 },
+            xp: { swordsman: 2200 },
+            pendingSummaries: [],
+            loadoutPresets: {},
+          },
+        },
+      },
+      data: {
+        cards: {
+          strike: { id: 'strike', name: 'Strike' },
+          heavy_blow: { id: 'heavy_blow', name: 'Heavy Blow' },
+          blade_dance: { id: 'blade_dance', name: 'Blade Dance' },
+        },
+        items: {
+          dull_blade: { id: 'dull_blade', name: 'Dull Blade' },
+          guardian_seal: { id: 'guardian_seal', name: 'Guardian Seal' },
+        },
+        startDecks: {
+          swordsman: ['strike', 'heavy_blow'],
+        },
+        upgradeMap: {
+          strike: 'strike_plus',
+          heavy_blow: 'heavy_blow_plus',
+          blade_dance: 'blade_dance_plus',
+        },
+      },
+    };
+
+    const runtime = createCharacterSelectMountRuntime({
+      chars,
+      deps,
+      doc: {},
+      flow: { jumpTo: vi.fn(), handleConfirm: vi.fn() },
+      getById: (id) => elements[id] || null,
+      openModal: vi.fn(),
+      particleRuntime: { start: vi.fn() },
+      sfx: { hover: vi.fn(), echo: vi.fn() },
+      state: { idx: 0, phase: 'select', typingTimer: null },
+      stopTyping: vi.fn(),
+      win: {},
+    });
+
+    runtime.updateAll();
+
+    expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({
+      loadoutCustomization: expect.objectContaining({
+        eligibleSwapAddCards: [{ cardId: 'blade_dance', name: 'Blade Dance' }],
+        eligibleBonusRelics: [{ id: 'guardian_seal', name: 'Guardian Seal' }],
+        hasInvalidPreset: false,
       }),
     }));
   });

@@ -30,6 +30,7 @@ describe('RunRules preview meta support', () => {
       version: 1,
       curses: {},
       relics: {},
+      relicsByClass: {},
       cards: { shared: {} },
     });
     expect(meta.runConfigPresets).toEqual([null, null, null, null]);
@@ -127,5 +128,35 @@ describe('RunRules preview meta support', () => {
     expect(RunRules.getDifficultyScore(taxWithFortune)).toBe(1);
     expect(RunRules.getDifficultyScore(silenceWithEcho)).toBe(1);
     expect(RunRules.getDifficultyScore(disabledFortune)).toBe(5);
+  });
+
+  it('exposes unlockable curses with concrete scaling hooks', () => {
+    const baseState = {
+      runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
+      meta: { inscriptions: {} },
+    };
+    const bloodMoonState = {
+      runConfig: { ascension: 0, endless: false, curse: 'blood_moon', disabledInscriptions: [] },
+      meta: { inscriptions: {} },
+    };
+    const voidOathState = {
+      runConfig: { ascension: 0, endless: false, curse: 'void_oath', disabledInscriptions: [] },
+      meta: { inscriptions: {} },
+    };
+
+    expect(RunRules.curses.blood_moon).toMatchObject({
+      id: 'blood_moon',
+      name: '핏빛 월식',
+    });
+    expect(RunRules.curses.void_oath).toMatchObject({
+      id: 'void_oath',
+      name: '공허의 맹세',
+    });
+    expect(RunRules.getDifficultyScore(bloodMoonState)).toBe(12);
+    expect(RunRules.getDifficultyScore(voidOathState)).toBe(14);
+    expect(RunRules.getEnemyScaleMultiplier(bloodMoonState, 0)).toBeCloseTo(1.12, 5);
+    expect(RunRules.getEnemyScaleMultiplier(voidOathState, 0)).toBeCloseTo(1.06, 5);
+    expect(RunRules.getHealAmount(baseState, 20)).toBe(20);
+    expect(RunRules.getHealAmount(voidOathState, 20)).toBe(12);
   });
 });

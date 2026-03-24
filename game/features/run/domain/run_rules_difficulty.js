@@ -1,4 +1,5 @@
 import { getRegionCount } from './run_rules_regions.js';
+import { getRunCurseDefinition } from './run_rules_curses.js';
 
 const INSCRIPTION_SCORE_WEIGHTS = {
   echo_boost: [-2, -4, -7],
@@ -42,10 +43,7 @@ export function getDifficultyScore(gs) {
   const cfg = gs?.runConfig || {};
   let score = getAscension(gs) * 15;
   if (isEndless(gs)) score += 10;
-
-  const curseWeight = { tax: 5, fatigue: 10, frail: 8, decay: 10, silence: 8 };
-
-  score += curseWeight[cfg.curse || 'none'] || 0;
+  score += getRunCurseDefinition(cfg.curse).difficultyWeight || 0;
   score += getInscriptionScoreAdjustment(gs);
   return Math.max(0, score);
 }
@@ -60,21 +58,22 @@ export function getEnemyScaleMultiplier(gs, regionAbs = 0) {
 
   const cycle = isEndless(gs) ? Math.floor(Math.max(0, regionAbs) / Math.max(1, getRegionCount())) : 0;
   const endlessMul = 1 + cycle * 0.12;
-  return ascMul * endlessMul;
+  const curseMul = getRunCurseDefinition(gs?.runConfig?.curse).enemyScaleMultiplier || 1;
+  return ascMul * endlessMul * curseMul;
 }
 
 export function getHealAmount(gs, baseAmount) {
   const base = Math.max(0, Math.floor(Number(baseAmount) || 0));
   if (!base) return 0;
   let mult = 1 - getAscension(gs) * 0.02;
-  if ((gs?.runConfig?.curse || 'none') === 'fatigue') mult *= 0.75;
+  mult *= getRunCurseDefinition(gs?.runConfig?.curse).healMultiplier || 1;
   return Math.max(0, Math.floor(base * Math.max(0.2, mult)));
 }
 
 export function getShopCost(gs, baseCost) {
   const base = Math.max(1, Math.floor(Number(baseCost) || 1));
   let mult = 1 + getAscension(gs) * 0.03;
-  if ((gs?.runConfig?.curse || 'none') === 'tax') mult *= 1.2;
+  mult *= getRunCurseDefinition(gs?.runConfig?.curse).shopCostMultiplier || 1;
 
   if (typeof gs?.triggerItems === 'function') {
     const itemMult = gs.triggerItems('shop_price_mod', 1.0);

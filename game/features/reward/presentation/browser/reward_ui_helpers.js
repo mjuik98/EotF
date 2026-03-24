@@ -1,5 +1,6 @@
 import { getRewardMaxEnergyCap } from '../../application/build_reward_options_use_case.js';
 import { RARITY_LABELS } from '../../ports/reward_ui_view_ports.js';
+import { isContentAvailable } from '../../../meta_progression/public.js';
 import {
   drawRewardCards,
   getData,
@@ -48,7 +49,13 @@ function isItemObtainableFrom(item, source = 'reward') {
 
 export function getRewardItemPool(gs, data, source = 'reward') {
   return Object.values(data.items || {}).filter((item) => {
-    return !(gs.player.items || []).includes(item.id) && isItemObtainableFrom(item, source);
+    return !(gs.player.items || []).includes(item.id)
+      && isItemObtainableFrom(item, source)
+      && isContentAvailable(gs?.meta, {
+        type: 'relic',
+        id: item.id,
+        classId: gs?.player?.class,
+      });
   });
 }
 

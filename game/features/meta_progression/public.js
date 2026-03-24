@@ -1,5 +1,7 @@
 export { ACHIEVEMENTS } from './domain/achievement_definitions.js';
 export {
+  isContentAvailable,
+  getContentLabel,
   getContentVisibility,
   getUnlockRequirementLabel,
   getUnlockedContent,

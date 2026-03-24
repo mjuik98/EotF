@@ -1,4 +1,5 @@
 import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../../../data/event_shop_data.js';
+import { isContentAvailable } from '../../meta_progression/public.js';
 import {
   discardEventCardState,
   purchaseEventShopItemState,
@@ -29,6 +30,7 @@ export function generateItemShopStock(gs, data, runRules) {
   const byRarity = {};
   Object.values(data.items).forEach((item) => {
     if (!isItemObtainableFrom(item, 'shop')) return;
+    if (!isContentAvailable(gs?.meta, { type: 'relic', id: item.id, classId: gs?.player?.class })) return;
     if (!byRarity[item.rarity]) byRarity[item.rarity] = [];
     byRarity[item.rarity].push(item);
   });

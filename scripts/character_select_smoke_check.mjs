@@ -6,6 +6,7 @@ import path from 'node:path';
 const workspaceRoot = process.cwd();
 const distDir = path.join(workspaceRoot, 'dist');
 const outDir = path.join(workspaceRoot, 'output', 'web-game', 'character-select-level-xp-smoke');
+const snapshotDir = path.join(outDir, `.dist-snapshot-${process.pid}`);
 
 const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8',
@@ -40,7 +41,11 @@ function createDistServer(rootDir) {
 }
 
 await fs.mkdir(outDir, { recursive: true });
-const server = process.env.SMOKE_URL ? null : createDistServer(distDir);
+if (!process.env.SMOKE_URL) {
+  await fs.rm(snapshotDir, { recursive: true, force: true });
+  await fs.cp(distDir, snapshotDir, { recursive: true });
+}
+const server = process.env.SMOKE_URL ? null : createDistServer(snapshotDir);
 let browser = null;
 
 try {
@@ -100,6 +105,9 @@ try {
   console.log(JSON.stringify(payload, null, 2));
 } finally {
   if (browser) await browser.close();
+  if (!process.env.SMOKE_URL) {
+    await fs.rm(snapshotDir, { recursive: true, force: true });
+  }
   if (server) {
     await new Promise((resolve, reject) => {
       server.close((error) => {

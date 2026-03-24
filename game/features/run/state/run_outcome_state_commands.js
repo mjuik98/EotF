@@ -102,6 +102,9 @@ export function recordVictoryProgress(gs) {
   if (!meta || !progress) return 0;
   meta.unlocks.ascension = true;
   progress.victories = (progress.victories || 0) + 1;
+  if (gs?.runConfig?.curse && gs.runConfig.curse !== 'none') {
+    progress.cursedVictories = (progress.cursedVictories || 0) + 1;
+  }
   progress.echoShards = (progress.echoShards || 0) + 2;
   meta.maxAscension = Math.max(meta.maxAscension || 0, Math.min(20, progress.victories));
   if (progress.victories >= 3) meta.unlocks.endless = true;

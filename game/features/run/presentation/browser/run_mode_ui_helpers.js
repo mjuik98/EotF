@@ -1,4 +1,5 @@
 import { ensureRunConfigMeta } from '../../state/run_config_state_commands.js';
+import { CURSES } from '../../domain/run_rules_curses.js';
 
 export function getDoc(deps) {
   return deps?.doc || deps?.win?.document || null;
@@ -44,8 +45,7 @@ export function calcDiffScore(runRules, gs) {
   const asc = runRules?.getAscension?.(gs) || 0;
   let score = asc * 15;
   if (cfg.endless || cfg.endlessMode) score += 10;
-  const curseWeight = { tax: 5, fatigue: 10, frail: 8, decay: 10, silence: 8 };
-  score += curseWeight[cfg.curse || 'none'] || 0;
+  score += (runRules?.curses?.[cfg.curse || 'none'] || CURSES[cfg.curse || 'none'] || CURSES.none).difficultyWeight || 0;
   score += runRules?.getInscriptionScoreAdjustment?.(gs) || 0;
   return Math.max(0, score);
 }

@@ -85,7 +85,9 @@ const hoisted = vi.hoisted(() => {
 });
 
 vi.mock('../data/cards.js', () => ({
+  ASSETS: {},
   CARDS: {},
+  UPGRADE_MAP: {},
 }));
 
 vi.mock('../game/features/title/domain/class_progression_system.js', () => ({

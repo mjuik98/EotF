@@ -44,4 +44,26 @@ describe('run outcome progression integration', () => {
     expect(gs.meta.achievements.states.cursed_conqueror_1.unlocked).toBe(true);
     expect(gs.meta.contentUnlocks.curses.void_oath.unlocked).toBe(true);
   });
+
+  it('captures newly unlocked content for follow-up feedback hooks', () => {
+    const gs = createGameState();
+    const onProgressionUnlocked = vi.fn();
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      onProgressionUnlocked,
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(gs.runOutcomeUnlocks).toEqual([
+      expect.objectContaining({
+        type: 'curse',
+        id: 'blood_moon',
+      }),
+    ]);
+    expect(onProgressionUnlocked).toHaveBeenCalledWith(gs.runOutcomeUnlocks, expect.objectContaining({
+      kind: 'victory',
+      gs,
+    }));
+  });
 });

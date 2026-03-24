@@ -1,4 +1,5 @@
 import { CARDS } from '../../../../../data/cards.js';
+import { getUnlockedContent, UNLOCKABLES } from '../../../meta_progression/public.js';
 import {
   buildClassLoadoutCustomizationPresentation,
   saveLevel11LoadoutPreset,
@@ -6,12 +7,21 @@ import {
 } from '../../../../shared/progression/class_loadout_preset_use_case.js';
 
 export function buildCharacterSelectLoadoutPayload(ch, presentation, deps = {}) {
+  const meta = deps?.gs?.meta;
   const itemCatalog = deps?.data?.items || {};
   const dataCards = deps?.data?.cards || CARDS;
   const dataUpgradeMap = deps?.data?.upgradeMap || {};
   const dataStartDecks = deps?.data?.startDecks || {
     [ch.class]: ch.startDeck,
   };
+  const unlockedCardIds = getUnlockedContent(meta, { type: 'card', classId: ch.class });
+  const unlockedRelicIds = getUnlockedContent(meta, { type: 'relic', classId: ch.class });
+  const classScopedCardIds = Object.values(UNLOCKABLES.cards || {})
+    .filter((entry) => entry?.scope === 'class' && entry.classId === ch.class)
+    .map((entry) => entry.id);
+  const classScopedRelicIds = Object.values(UNLOCKABLES.relics || {})
+    .filter((entry) => entry?.scope === 'class')
+    .map((entry) => entry.id);
   const customization = buildClassLoadoutCustomizationPresentation(deps?.gs?.meta, ch.class, {
     classLevel: presentation.classProgress.level,
     classMeta: {
@@ -24,6 +34,10 @@ export function buildCharacterSelectLoadoutPayload(ch, presentation, deps = {}) 
       items: itemCatalog,
       startDecks: dataStartDecks,
       upgradeMap: dataUpgradeMap,
+      unlockedCardIds,
+      unlockedRelicIds,
+      classScopedCardIds,
+      classScopedRelicIds,
     },
   });
   const previewRelics = customization.previewRelicIds

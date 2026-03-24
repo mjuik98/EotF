@@ -3,10 +3,18 @@ import { applyContentUnlockRewards } from './apply_content_unlock_rewards.js';
 
 function isAchievementSatisfied(meta, definition, context = {}) {
   switch (definition?.condition?.type) {
-    case 'victories':
-      return Number(meta?.progress?.victories || 0) >= definition.condition.count && context.kind === 'victory';
-    case 'cursed_victories':
-      return context.kind === 'victory' && context.runConfig?.curse && context.runConfig.curse !== 'none';
+    case 'victories': {
+      if (Number(meta?.progress?.victories || 0) < definition.condition.count) return false;
+      return context.kind ? context.kind === 'victory' : true;
+    }
+    case 'cursed_victories': {
+      if (Number(meta?.progress?.cursedVictories || 0) < definition.condition.count) return false;
+      if (context.kind && context.kind !== 'victory') return false;
+      if (!('runConfig' in context)) return true;
+      return !!context.runConfig?.curse && context.runConfig.curse !== 'none';
+    }
+    case 'class_level':
+      return Number(meta?.classProgress?.levels?.[definition?.condition?.classId] || 0) >= definition.condition.count;
     default:
       return false;
   }
@@ -24,11 +32,12 @@ export function evaluateAchievementTrigger(meta, trigger, context = {}) {
   for (const definition of Object.values(ACHIEVEMENTS)) {
     if (definition.trigger !== trigger) continue;
 
-    const state = states[definition.id] || { unlocked: false, progress: 0 };
-    states[definition.id] = state;
-    if (state.unlocked) continue;
+    const existingState = states[definition.id];
+    if (existingState?.unlocked) continue;
     if (!isAchievementSatisfied(meta, definition, context)) continue;
 
+    const state = existingState || { unlocked: false, progress: 0 };
+    states[definition.id] = state;
     state.unlocked = true;
     state.unlockedAt = Date.now();
     state.progress = definition.condition.count;

@@ -41,6 +41,7 @@ export function buildEndingScreenDOM(doc, payload) {
         <div class="info-col">
           <div><div class="blk-label">클리어 기록</div><div class="clr-v" id="clrT">00:00</div><div class="clr-l">클리어 시간</div><div class="chip-row" id="chipRow"></div></div>
           <div><div class="blk-label">각인</div><div class="pills" id="pillRow"></div></div>
+          ${payload.unlocks?.length ? '<div><div class="blk-label">새 해금</div><div class="pills" id="unlockRow"></div></div>' : ''}
         </div>
       </div>
       <div class="btn-row sc" id="s7"><button class="btn-p" id="btnR">다시 잔향 속으로</button><button class="btn-g" id="btnCodex">도감 보기</button></div>
@@ -86,6 +87,7 @@ export function populateEndingMeta(doc, payload, session, deps = {}) {
   const deckGrid = doc.getElementById('deckGrid');
   const chipRow = doc.getElementById('chipRow');
   const pillRow = doc.getElementById('pillRow');
+  const unlockRow = doc.getElementById('unlockRow');
 
   payload.regions.forEach((region, index) => {
     const node = doc.createElement('div');
@@ -120,6 +122,13 @@ export function populateEndingMeta(doc, payload, session, deps = {}) {
     element.className = 'pill';
     element.textContent = `${entry.icon} ${entry.name}${entry.level > 1 ? ` Lv.${entry.level}` : ''}`;
     pillRow?.appendChild(element);
+  });
+
+  payload.unlocks?.forEach((entry) => {
+    const element = doc.createElement('div');
+    element.className = 'pill';
+    element.textContent = entry.label;
+    unlockRow?.appendChild(element);
   });
 }
 

@@ -1,3 +1,5 @@
+import { getContentLabel } from '../../../meta_progression/public.js';
+
 const RANKS = [
   { min: 200, glyph: 'S', color: '#f0d472', glow: 'rgba(240,212,114,.55)', title: '전설의 정복자', label: 'LEGENDARY' },
   { min: 120, glyph: 'A', color: '#c084fc', glow: 'rgba(192,132,252,.5)', title: '숙련된 공명자', label: 'MASTER' },
@@ -22,6 +24,11 @@ export const cafOf = (deps) => deps?.cancelAnimationFrame?.bind(deps) || winOf(d
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');
+const CONTENT_TYPE_LABELS = Object.freeze({
+  curse: '저주',
+  relic: '유물',
+  card: '카드',
+});
 const tfmt = (ms) => {
   const totalSeconds = Math.max(0, Math.floor(num(ms, 0) / 1000));
   return `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}`;
@@ -31,6 +38,16 @@ const insLv = (gs, id) => {
   return typeof value === 'boolean' ? (value ? 1 : 0) : Math.max(0, Math.floor(num(value, 0)));
 };
 const rankOf = (score) => RANKS.find((rank) => score >= rank.min) || RANKS[RANKS.length - 1];
+
+function describeUnlockedContent(entry) {
+  if (!entry) return null;
+  const contentType = entry.contentType || entry.type || '';
+  const contentId = entry.contentId || entry.id || '';
+  return {
+    ...entry,
+    label: `${CONTENT_TYPE_LABELS[contentType] || contentType} 해금 · ${getContentLabel({ type: contentType, id: contentId })}`,
+  };
+}
 
 export function buildEndingRegions(gs, data) {
   const regions = [];
@@ -141,6 +158,9 @@ export function buildEndingPayload(gs, data) {
     regions: buildEndingRegions(gs, data),
     deck: buildEndingDeckPreview(gs, data),
     inscriptions: buildEndingInscriptions(gs, data),
+    unlocks: Array.isArray(gs?.runOutcomeUnlocks)
+      ? gs.runOutcomeUnlocks.map(describeUnlockedContent).filter(Boolean)
+      : [],
   };
 }
 

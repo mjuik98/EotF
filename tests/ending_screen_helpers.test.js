@@ -30,6 +30,9 @@ describe('ending_screen_helpers', () => {
         regionClearTimes: [15000],
       },
       currentRegion: 0,
+      runOutcomeUnlocks: [
+        { type: 'curse', id: 'blood_moon', source: 'first_victory' },
+      ],
     }, {
       storyFragments: [1, 2, 3],
       cards: {
@@ -46,6 +49,9 @@ describe('ending_screen_helpers', () => {
     expect(payload.deck[0]).toMatchObject({ id: 'spark', title: 'Spark', cls: 'r' });
     expect(payload.inscriptions[0]).toMatchObject({ id: 'flow', level: 2, icon: '🜁', name: 'Flow' });
     expect(payload.chips).toContain('4회차');
+    expect(payload.unlocks).toEqual([
+      expect.objectContaining({ type: 'curse', id: 'blood_moon', label: '저주 해금 · 핏빛 월식' }),
+    ]);
   });
 
   it('builds regions, deck preview, inscriptions, and chips from dedicated helpers', () => {

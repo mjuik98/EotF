@@ -29,6 +29,19 @@ function persistRunOutcomeMeta(deps = {}) {
   saveSystem?.clearSave?.();
 }
 
+function publishProgressionUnlocks(gs, progressionResult, kind, deps = {}) {
+  gs.runOutcomeUnlocks = Array.isArray(progressionResult?.newlyUnlockedContent)
+    ? progressionResult.newlyUnlockedContent.slice()
+    : [];
+
+  if (!gs.runOutcomeUnlocks.length || typeof deps.onProgressionUnlocked !== 'function') return;
+  deps.onProgressionUnlocked(gs.runOutcomeUnlocks, {
+    kind,
+    gs,
+    newlyUnlockedAchievements: progressionResult.newlyUnlockedAchievements || [],
+  });
+}
+
 export function recordRunVictory(gs) {
   if (!gs?.meta) return 5;
   ensureOutcomeMeta(gs.meta);
@@ -70,10 +83,11 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
     console.warn('[RunRules] Class progression update failed:', e?.message || e);
   }
 
-  evaluateAchievementTrigger(gs.meta, 'run_completed', {
+  const progressionResult = evaluateAchievementTrigger(gs.meta, 'run_completed', {
     kind,
     runConfig: gs.runConfig,
   });
+  publishProgressionUnlocks(gs, progressionResult, kind, deps);
 
   applyRunOutcomeRewards(gs, shardGain);
   persistRunOutcomeMeta(deps);

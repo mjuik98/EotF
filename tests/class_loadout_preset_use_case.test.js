@@ -174,4 +174,45 @@ describe('class_loadout_preset_use_case', () => {
     ]);
     expect(presentation.cardSummaryLine).toBe('프리셋 확인 필요');
   });
+
+  it('accepts unlocked mastery rewards as valid preset candidates before codex discovery', () => {
+    const meta = createMeta(12);
+    const data = {
+      ...createData(),
+      unlockedCardIds: ['blade_dance'],
+      unlockedRelicIds: ['guardian_seal'],
+    };
+    const classMeta = createClassMeta();
+
+    meta.codex.cards = new Set();
+    meta.codex.items = new Set();
+    meta.classProgress.loadoutPresets.swordsman = {
+      level11: {
+        type: 'swap',
+        removeIndex: 2,
+        removeCardId: 'heavy_blow',
+        addCardId: 'blade_dance',
+      },
+      level12: {
+        bonusRelicId: 'guardian_seal',
+      },
+    };
+
+    const presentation = buildClassLoadoutCustomizationPresentation(meta, 'swordsman', {
+      classLevel: 12,
+      classMeta,
+      data,
+    });
+
+    expect(presentation.level11Preset).toMatchObject({
+      type: 'swap',
+      removeIndex: 2,
+      addCardId: 'blade_dance',
+    });
+    expect(presentation.level12Preset).toEqual({ bonusRelicId: 'guardian_seal' });
+    expect(presentation.previewDeck).toEqual(['strike', 'defend', 'blade_dance']);
+    expect(presentation.previewRelicIds).toEqual(['dull_blade', 'guardian_seal']);
+    expect(presentation.hasInvalidPreset).toBe(false);
+    expect(presentation.invalidWarnings).toEqual([]);
+  });
 });

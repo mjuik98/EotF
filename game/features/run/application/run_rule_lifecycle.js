@@ -1,4 +1,5 @@
 import { DATA } from '../ports/public_data_runtime_capabilities.js';
+import { getRunCurseDefinition } from '../domain/run_rules_curses.js';
 import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import {
   applyPlayerMaxHpPenalty,
@@ -23,10 +24,8 @@ export function applyRunStartEffects(gs, options = {}) {
 
   applyPlayerMaxHpPenalty(gs, ascHpLoss);
 
-  const curse = cfg.curse || 'none';
-  if (curse === 'frail' && curses.frail) {
-    applyPlayerMaxHpPenalty(gs, 10);
-  }
+  const curseDef = getRunCurseDefinition(cfg.curse, curses);
+  if (curseDef.runStartMaxHpPenalty) applyPlayerMaxHpPenalty(gs, curseDef.runStartMaxHpPenalty);
 
   classProgressionSystem.applyRunStartBonuses(gs, {
     classIds,
@@ -57,7 +56,7 @@ export function applyCombatDeckReadyEffects(gs, options = {}) {
 export function applyTurnStartEffects(gs) {
   if (!gs?.player || !gs?.combat) return;
 
-  if ((gs.runConfig?.curse || 'none') === 'silence') {
+  if (getRunCurseDefinition(gs.runConfig?.curse).limitsEarlyTurnEnergy) {
     applySilenceCurseTurnStart(gs);
   }
 }
@@ -65,7 +64,6 @@ export function applyTurnStartEffects(gs) {
 export function applyCombatEndEffects(gs) {
   if (!gs?.player) return;
 
-  if ((gs.runConfig?.curse || 'none') === 'decay') {
-    applyPlayerMaxHpPenalty(gs, 2);
-  }
+  const curseDef = getRunCurseDefinition(gs.runConfig?.curse);
+  if (curseDef.combatEndMaxHpPenalty) applyPlayerMaxHpPenalty(gs, curseDef.combatEndMaxHpPenalty);
 }
