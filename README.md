@@ -41,6 +41,7 @@ npm run test:guardrails
 npm run test:full
 npm run lint
 npm run audit:structure
+npm run audit:transition-surfaces
 npm run build
 npm run deps:map
 npm run deps:map:check
@@ -49,7 +50,7 @@ npm run quality:fast
 npm run quality:full
 ```
 
-`npm test`는 빠른 로직/런타임 회귀 루프이고, `npm run test:guardrails`는 구조/compat/조립 가드레일 묶음입니다. `npm run test:manifest`는 명시 test suite manifest가 저장소 상태와 동기화돼 있는지 확인하고, drift를 반영할 때는 `npm run test:manifest:write`를 사용합니다. dependency flow를 건드린 변경은 `npm run deps:map`으로 산출물을 갱신하고 `npm run deps:map:check`로 현재 저장소 상태와 맞는지 확인합니다. 둘을 함께 갱신할 때는 `npm run quality:sync`를 사용합니다. 테스트 소유권과 dependency map이 같이 바뀌는 작업은 handoff 전에 `npm run quality:sync`를 먼저 돌리는 편이 안전합니다. 둘 다 필요한 변경은 `npm run test:full`로 함께 확인합니다.
+`npm test`는 빠른 로직/런타임 회귀 루프이고, `npm run test:guardrails`는 구조/compat/조립 가드레일 묶음입니다. `npm run test:manifest`는 명시 test suite manifest가 저장소 상태와 동기화돼 있는지 확인하고, drift를 반영할 때는 `npm run test:manifest:write`를 사용합니다. dependency flow를 건드린 변경은 `npm run deps:map`으로 산출물을 갱신하고 `npm run deps:map:check`로 현재 저장소 상태와 맞는지 확인합니다. `npm run audit:transition-surfaces`는 아직 남아 있는 transitional runtime surface의 파일 분포를 읽기 전용으로 집계합니다. 둘을 함께 갱신할 때는 `npm run quality:sync`를 사용합니다. 테스트 소유권과 dependency map이 같이 바뀌는 작업은 handoff 전에 `npm run quality:sync`를 먼저 돌리는 편이 안전합니다. 둘 다 필요한 변경은 `npm run test:full`로 함께 확인합니다.
 
 UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 캐릭터 선택 화면이 렌더링되는지와 콘솔/페이지 오류가 없는지도 확인합니다.
 
@@ -57,17 +58,18 @@ UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 
 
 ```text
 .
-├── game/         # runtime, features, platform, legacy compat
+├── game/         # runtime code: canonical feature/shared/platform ownership, core orchestration, and transitional compat surfaces
 ├── data/         # static game data
 ├── tests/        # regression and guardrail coverage
 ├── scripts/      # quality, reporting, smoke, build helper scripts
 ├── config/       # machine-owned policy, baselines, thresholds, allowlists
 ├── artifacts/    # generated dependency and reporting outputs
+├── docs/         # agent-generated plans/specs and other working artifacts
 ├── README.md     # onboarding
 └── AGENTS.md     # rules and architecture contract
 ```
 
-신규 구현은 가능하면 `game/features/<feature>/...` 아래에 두고, compat surface는 얇게 유지합니다.
+현재 `game/`는 `game/features/*`, `game/shared/*`, `game/platform/*` 중심 구조로 이행 중이며, `game/app`, `game/combat`, `game/domain`, `game/presentation`, `game/state`, `game/systems`, `game/ui` 같은 transitional surface가 함께 존재합니다. 신규 구현은 가능하면 `game/features/<feature>/...`, `game/shared/*`, `game/platform/*` 아래에 두고 compat surface는 얇게 유지합니다. `game/core/*`는 조립, 부트스트랩, 상태 오케스트레이션 위주로 유지하는 전제를 둡니다.
 
 ## Read First
 
@@ -76,6 +78,8 @@ UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 
 
 ## Working Model
 
+- 사람이 직접 유지하는 canonical docs는 `README.md`와 `AGENTS.md`입니다.
+- `docs/superpowers/*`에는 에이전트 실행 과정에서 생성된 plan/spec 문서가 있을 수 있지만, 현재 구조나 정책의 source of truth는 아닙니다.
 - 저장소 안의 현재 상태/배치 이력은 별도 markdown 문서로 유지하지 않습니다.
 - 현재 우선순위와 세부 이력은 Git commit, PR, issue 흐름에서 확인합니다.
 - 품질 기준 JSON은 `config/quality/*`, 생성 출력은 `artifacts/*` 아래에서 관리합니다.

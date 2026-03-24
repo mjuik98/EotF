@@ -12,7 +12,9 @@ This file is the working contract for engineers and coding agents in this reposi
 
 - `README.md` is the onboarding entrypoint.
 - `AGENTS.md` is the source of truth for repository rules, architecture boundaries, validation, and documentation workflow.
-- Current priorities, batch history, and execution notes live in Git history, PRs, and issues rather than repository markdown files.
+- Canonical human-maintained docs are `README.md` and `AGENTS.md`.
+- Agent-generated planning/spec artifacts may exist under `docs/superpowers/*`; treat them as execution artifacts, not source-of-truth architecture docs.
+- Current priorities, batch history, and execution notes live primarily in Git history, PRs, and issues rather than repository markdown files.
 - Machine-owned quality config lives under `config/quality/*`.
 - Architecture policy lives in `config/architecture_policy.json`.
 - Generated dependency outputs live in `artifacts/dependency_map.json` and `artifacts/dependency_map.md`.
@@ -29,8 +31,8 @@ This file is the working contract for engineers and coding agents in this reposi
 ## Architecture
 
 - New implementation belongs under `game/features/<feature>/`, `game/shared/*`, or `game/platform/*`.
-- Treat `game/ui/`, `game/app/`, `game/combat/`, `game/state/`, `game/presentation/`, and `game/systems/` as compat or transitional surfaces.
-- Keep `game/core/` orchestration-only.
+- The current tree still includes `game/ui/`, `game/app/`, `game/combat/`, `game/domain/`, `game/state/`, `game/presentation/`, and `game/systems/`; treat them as compat or transitional surfaces unless the task explicitly targets them.
+- Keep `game/core/` orchestration-only, with composition/bootstrap/store wiring concentrated there.
 - Cross-feature imports should use `game/features/<feature>/public.js` or `ports/*`, not feature internals.
 - Feature-internal transitional dirs such as `app`, `bindings`, `compat`, `contracts`, `runtime`, `modules`, and feature-local `ui` should stay thin wrappers around canonical ownership.
 - Browser runtime code must not use Node-only APIs.
@@ -43,6 +45,7 @@ This file is the working contract for engineers and coding agents in this reposi
   - `game/core/init_sequence.js`
   - `game/core/deps_factory.js`
   - `game/core/bindings/*`
+  - `game/core/composition/*`
 - `game/ui/*` must not import `game/core/main.js` or `game/core/event_bindings.js`.
 
 ## State, Events, and Standards
@@ -81,8 +84,10 @@ This file is the working contract for engineers and coding agents in this reposi
 
 ## Documentation Workflow
 
-- The repository keeps only two human-facing markdown docs: `README.md` and `AGENTS.md`.
-- Do not recreate status logs, roadmap markdown, or batch-history markdown inside the repo.
+- The repository's canonical human-maintained markdown docs are `README.md` and `AGENTS.md`.
+- Agent-generated plan/spec artifacts may exist under `docs/superpowers/*`, but they are not source-of-truth product or architecture docs.
+- Do not add new top-level status logs, roadmap markdown, or batch-history markdown inside the repo.
+- Treat any legacy scratch notes that remain in the repo as non-canonical and avoid extending them.
 - In a normal PR, update `AGENTS.md` only when rules or boundaries change.
 - Update `README.md` only when onboarding, commands, or repo layout changes.
 

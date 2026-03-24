@@ -22,6 +22,7 @@
     "deps:map:check": "node scripts/generate-dependency-map.mjs --check",
     "deps:threshold": "node scripts/check-dependency-delta-threshold.mjs",
     "audit:structure": "node scripts/report-structural-audit.mjs --strict",
+    "audit:transition-surfaces": "node scripts/report-transition-surface-audit.mjs",
     "check:data": "node scripts/check-content-data.mjs",
     "smoke:character-select": "node scripts/run_character_select_smoke.mjs",
     "smoke:reward": "node scripts/run_reward_smoke.mjs",

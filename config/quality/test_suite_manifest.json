@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-23T15:37:23.404Z",
+  "generatedAt": "2026-03-24T06:05:18.307Z",
   "fast": [
     "tests/app_config.test.js",
     "tests/assert_bundle_budgets.test.js",
@@ -332,6 +332,7 @@
     "tests/register_legacy_surface.test.js",
     "tests/relic_price_verification.test.js",
     "tests/report_structural_audit.test.js",
+    "tests/repository_documentation_guardrails.test.js",
     "tests/resolve_event_choice_service.test.js",
     "tests/resolve_event_choice_use_case.test.js",
     "tests/resolve_event_session_use_case.test.js",

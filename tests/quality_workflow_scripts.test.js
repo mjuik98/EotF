@@ -66,6 +66,34 @@ describe('quality workflow scripts', () => {
     expect(budgetScript).toContain('bundle_budgets.json');
   });
 
+  it('registers a transition-surface audit script and documents its current output contract', async () => {
+    const packageJson = JSON.parse(readText('package.json'));
+
+    expect(packageJson.scripts['audit:transition-surfaces']).toBe('node scripts/report-transition-surface-audit.mjs');
+
+    const { buildTransitionSurfaceAuditReport } = await import('../scripts/report-transition-surface-audit.mjs');
+    const report = buildTransitionSurfaceAuditReport(process.cwd());
+
+    expect(report.canonicalRoots).toEqual(['game/features', 'game/shared', 'game/platform']);
+    expect(report.transitionalRoots).toEqual([
+      'game/app',
+      'game/combat',
+      'game/domain',
+      'game/presentation',
+      'game/state',
+      'game/systems',
+      'game/ui',
+    ]);
+    expect(report.rootCounts).toHaveProperty('game/app');
+    expect(report.rootCounts).toHaveProperty('game/ui');
+    expect(report.rootCounts['game/features']).toBeGreaterThan(0);
+    expect(report.rootCounts['game/domain']).toBeGreaterThan(0);
+    expect(report.rootCounts['game/systems']).toBeGreaterThan(0);
+    expect(report.totals.canonical).toBeGreaterThan(0);
+    expect(report.totals.transitional).toBeGreaterThan(0);
+    expect(report.largestTransitionalRoots[0]).toEqual({ root: 'game/domain', count: report.rootCounts['game/domain'] });
+  });
+
   it('loads explicit suite ownership and coupling targets from quality config', () => {
     const suiteManifest = JSON.parse(readText('config/quality/test_suite_manifest.json'));
     const couplingTargets = JSON.parse(readText('config/quality/import_coupling_targets.json'));
@@ -111,6 +139,7 @@ describe('quality workflow scripts', () => {
     expect(readme).toContain('npm run quality:sync');
     expect(readme).toContain('npm run test:full');
     expect(readme).toContain('npm run deps:map:check');
+    expect(readme).toContain('npm run audit:transition-surfaces');
     expect(readme).toContain('npm run quality:fast');
     expect(readme).toContain('npm run quality:full');
     expect(readme).toContain('npm run audit:structure');
