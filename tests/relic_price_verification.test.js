@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EventManager } from '../game/systems/event_manager.js';
-import { RunRules } from '../game/systems/run_rules.js';
+import { RunRules } from '../game/features/run/ports/public_rule_capabilities.js';
 import { ITEM_SHOP_RARITY_BASE_COSTS } from '../data/event_shop_data.js';
 
 describe('Relic Price Verification', () => {

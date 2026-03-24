@@ -1,13 +1,15 @@
 import {
-  arraysEqual,
   buildLevel12PresetSummary,
   buildRoadmapPreviewMeta,
+} from './character_select_info_panel_markup.js';
+import { bindCharacterInfoPanelInteractions } from './character_select_info_panel_interactions.js';
+import {
+  arraysEqual,
   normalizeRelicIds,
   resolveFeaturedCardIds,
   resolveFeaturedCardTags,
   resolvePlayStyle,
-} from './character_select_info_panel_markup.js';
-import { bindCharacterInfoPanelInteractions } from './character_select_info_panel_interactions.js';
+} from './character_select_info_panel_featured_content.js';
 import {
   buildCharacterInfoDetailsSection,
   buildCharacterInfoSummarySection,

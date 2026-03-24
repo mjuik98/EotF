@@ -16,7 +16,7 @@ import {
   setRewardLock,
   syncGuardianPreservedShield,
   syncSelectedTarget,
-} from '../game/state/commands/combat_runtime_commands.js';
+} from '../game/shared/state/public.js';
 
 describe('combat_runtime_commands', () => {
   it('centralizes combat resolution flags and combat state', () => {

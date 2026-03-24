@@ -3,7 +3,7 @@ import { GameStateCommonMethods } from '../game/core/game_state_common_methods.j
 import { GameStateCoreMethods } from '../game/core/game_state_core_methods.js';
 import { EventBus } from '../game/core/event_bus.js';
 import { CoreEvents } from '../game/core/event_contracts.js';
-import { ItemSystem } from '../game/systems/item_system.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 describe('GameStateCommonMethods', () => {
   afterEach(() => {

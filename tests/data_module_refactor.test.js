@@ -5,7 +5,7 @@ import {
   TURN_START_DEBUFF_KEYS,
   UNBREAKABLE_WALL_STACK_UNIT,
 } from '../data/status_key_data.js';
-import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from '../game/domain/combat/turn/turn_manager_helpers.js';
+import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from '../game/features/combat/domain/turn/turn_manager_helpers.js';
 import {
   getStatusDisplayValue,
   isInfiniteStatusDuration,

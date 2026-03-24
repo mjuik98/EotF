@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { TurnManager } from '../game/features/combat/public.js';
 import { ITEMS } from '../data/items.js';
 import { Trigger } from '../game/data/triggers.js';
-import { SetBonusSystem } from '../game/systems/set_bonus_system.js';
+import { SetBonusSystem } from '../game/shared/progression/set_bonus_system.js';
 import { enableLegacyPlayerStateCommandFallback } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
 
 function createGS() {

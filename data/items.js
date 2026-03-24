@@ -336,7 +336,7 @@ import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS } from './cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { CONSTANTS } from '../game/data/constants.js';
-import { registerItemFound } from '../game/systems/codex_records_system.js';
+import { registerItemFound } from '../game/shared/codex/codex_records.js';
 
 function getCardCost(cardId) {
     return CARDS?.[cardId]?.cost ?? 0;

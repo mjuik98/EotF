@@ -1,12 +1,9 @@
 {
   "generatedAt": "2026-03-13T07:49:00.000Z",
-  "totalMax": 134,
+  "totalMax": 72,
   "defaultPerFileMax": null,
   "byFileMax": {
     "game/core/event_subscribers_player_events.js": 1,
-    "game/domain/combat/turn/end_player_turn_policy.js": 3,
-    "game/domain/combat/turn/enemy_effect_resolver.js": 1,
-    "game/domain/combat/turn/turn_state_mutators.js": 15,
     "game/features/codex/presentation/browser/codex_ui_helpers.js": 2,
     "game/features/combat/compat/damage_system.js": 3,
     "game/features/combat/application/combat_damage_side_effects.js": 4,

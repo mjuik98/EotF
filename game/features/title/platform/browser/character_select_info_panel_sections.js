@@ -1,14 +1,16 @@
 import {
   buildDeckCardMarkup,
   buildFeatureSectionMarkup,
-  buildFeaturedCardMarkup,
   buildInteractiveDeckCardMarkup,
   buildLevel11PresetSummary,
   buildLockedStateMarkup,
-  buildPlayStyleMarkup,
   buildRelicMarkup,
   buildRoadmapSummaryMarkup,
 } from './character_select_info_panel_markup.js';
+import {
+  buildFeaturedCardMarkup,
+  buildPlayStyleMarkup,
+} from './character_select_info_panel_featured_content.js';
 
 function buildRoadmapRows(roadmap = [], classProgress = {}) {
   return (roadmap || []).map((row) => {

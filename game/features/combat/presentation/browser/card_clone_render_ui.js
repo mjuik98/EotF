@@ -1,5 +1,5 @@
 import { populateCombatCardFrame } from './combat_card_frame_ui.js';
-import { createCombatCloneKeywordPanel } from './combat_copy.js';
+import { createCombatCloneKeywordPanel } from './combat_keyword_copy.js';
 
 export const DEFAULT_HOVER_KEYWORD_LAYOUT = Object.freeze({
   panelWidth: 176,

@@ -2,9 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   buildRoadmapPreviewMeta,
-  buildFeaturedCardMarkup,
-  resolveFeaturedCardIds,
 } from '../game/features/title/platform/browser/character_select_info_panel_markup.js';
+import {
+  arraysEqual,
+  buildFeaturedCardMarkup,
+  buildPlayStyleMarkup,
+  normalizeRelicIds,
+  resolveFeaturedCardIds,
+  resolvePlayStyle,
+} from '../game/features/title/platform/browser/character_select_info_panel_featured_content.js';
 import { bindCharacterInfoPanelInteractions } from '../game/features/title/platform/browser/character_select_info_panel_interactions.js';
 
 function createClassList(initial = []) {
@@ -57,6 +63,17 @@ describe('character_select_info_panel helpers', () => {
       '#7cc8ff',
       {},
     )).toContain('마무리');
+
+    expect(resolvePlayStyle({
+      summaryText: '요약',
+      selectionSummary: '선택 요약',
+      desc: '설명',
+    })).toEqual(['요약', '선택 요약']);
+
+    expect(buildPlayStyleMarkup(['빠른 누적', '기절 연계'])).toContain('기절 연계');
+    expect(normalizeRelicIds([{ id: 'starter' }, { name: 'Alpha' }], 'fallback')).toEqual(['starter', 'Alpha']);
+    expect(arraysEqual(['a', 'b'], ['a', 'b'])).toBe(true);
+    expect(arraysEqual(['a'], ['b'])).toBe(false);
   });
 
   it('binds tab and loadout interactions through the extracted interaction helper', () => {

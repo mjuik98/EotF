@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameAPI } from '../game/core/game_api.js';
 import { GAME } from '../game/core/global_bridge.js';
-import { ClassMechanics } from '../game/domain/class/class_mechanic_rules.js';
+import { ClassMechanics } from '../game/shared/class/class_mechanic_rules.js';
 import { Actions } from '../game/core/state_actions.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
 import { DamageSystem } from '../game/features/combat/public.js';

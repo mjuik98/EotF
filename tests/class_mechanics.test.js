@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ClassMechanics } from '../game/domain/class/class_mechanic_rules.js';
+import { ClassMechanics } from '../game/shared/class/class_mechanic_rules.js';
+import { ClassMechanics as ClassMechanicsFacade } from '../game/shared/class/class_mechanics.js';
 
 function createState(overrides = {}) {
   const state = {
@@ -188,5 +189,12 @@ describe('ClassMechanics.guardian echo armor (잔영 갑주)', () => {
     // onTurnStart에서 2만큼 복원
     ClassMechanics.guardian.onTurnStart(gs);
     expect(gs.addShield).toHaveBeenCalledWith(2);
+  });
+});
+
+describe('ClassMechanics facade', () => {
+  it('keeps view-model helpers but does not expose domain-level ui renderers', () => {
+    expect(ClassMechanicsFacade.swordsman.getSpecialViewModel).toBeTypeOf('function');
+    expect(ClassMechanicsFacade.swordsman.getSpecialUI).toBeUndefined();
   });
 });

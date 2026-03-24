@@ -1,9 +1,11 @@
 export {
-  buildCardPopupPayload,
   buildCodexNavBlock,
   buildCodexQuoteBlock,
   buildCodexRecordBlock,
   buildCodexSetPopupBlock,
+} from './codex_ui_popup_blocks.js';
+export {
+  buildCardPopupPayload,
   buildEnemyPopupPayload,
   buildItemPopupPayload,
 } from './codex_ui_popup_payloads.js';

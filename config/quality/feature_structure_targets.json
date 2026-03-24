@@ -50,18 +50,27 @@
   "allowedExtraRootFilesByFeature": {},
   "thinWrapperDirsByFeature": {
     "combat": [
+      "app",
       "bindings",
       "modules",
       "runtime"
     ],
+    "event": [
+      "app"
+    ],
     "run": [
+      "app",
       "bindings",
       "modules",
       "runtime",
       "ui"
     ],
     "title": [
+      "app",
       "ui"
+    ],
+    "ui": [
+      "app"
     ]
   }
 }

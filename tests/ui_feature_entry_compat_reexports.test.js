@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { pathExists, readText } from './helpers/guardrail_fs.js';
 
 describe('ui feature entry compat reexports', () => {
-  it('keeps the remaining non-ui compat entrypoint as a thin feature-local reexport', () => {
-    const source = readText('game/presentation/combat/combat_turn_ui.js');
-
-    expect(source).toBe("export { CombatTurnUI } from '../../features/combat/public.js';\n");
+  it('removes the last presentation-level combat compat entrypoint', () => {
+    expect(pathExists('game/presentation/combat/combat_turn_ui.js')).toBe(false);
   });
 
   it('removes combat compat entrypoints once callers use feature-owned browser modules directly', () => {

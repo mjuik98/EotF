@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getRegionData, getRegionIdForStage } from '../game/systems/run_rules.js';
+import { getRegionData, getRegionIdForStage } from '../game/features/run/ports/public_rule_capabilities.js';
 
 describe('RunRules region helpers', () => {
   it('prefers explicit routed region ids for a stage', () => {

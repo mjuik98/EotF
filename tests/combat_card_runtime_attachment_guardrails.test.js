@@ -5,7 +5,7 @@ import {
   attachCardGameStateRuntimeMethods,
   attachCombatGameStateRuntimeMethods,
 } from '../game/shared/state/game_state_runtime_methods.js';
-import { startPlayerTurnPolicy } from '../game/domain/combat/turn/start_player_turn_policy.js';
+import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start_player_turn_policy.js';
 import { applyEchoSkillEffect } from '../game/features/combat/presentation/browser/echo_skill_runtime_ui.js';
 
 function createTurnState() {

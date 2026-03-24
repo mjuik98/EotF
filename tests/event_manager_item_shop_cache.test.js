@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { EventManager } from '../game/systems/event_manager.js';
+import { EventManager } from '../game/features/event/ports/public_compat_capabilities.js';
 
 function createItemData() {
   return {

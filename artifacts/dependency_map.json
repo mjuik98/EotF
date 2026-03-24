@@ -1,56 +1,47 @@
 {
-  "nodeCount": 1151,
-  "edgeCount": 1443,
+  "nodeCount": 1149,
+  "edgeCount": 1464,
   "layerEdges": {
     "core->core": 167,
-    "core->domain": 3,
     "core->feature": 26,
     "core->legacy": 7,
     "core->other": 1,
-    "core->shared": 5,
+    "core->shared": 8,
     "core->utils": 2,
     "data->data": 17,
     "data->other": 2,
-    "data->systems": 2,
+    "data->shared": 2,
     "data->utils": 4,
-    "domain->data": 6,
-    "domain->domain": 15,
-    "domain->feature": 1,
-    "domain->shared": 1,
-    "domain->utils": 3,
     "engine->data": 1,
     "engine->engine": 2,
     "feature->core": 23,
-    "feature->data": 10,
-    "feature->domain": 16,
-    "feature->feature": 867,
+    "feature->data": 13,
+    "feature->feature": 904,
     "feature->legacy": 1,
     "feature->other": 1,
     "feature->platform": 3,
-    "feature->shared": 33,
-    "feature->utils": 2,
-    "legacy->core": 6,
-    "legacy->domain": 1,
+    "feature->shared": 36,
+    "feature->utils": 4,
+    "legacy->core": 7,
     "legacy->feature": 8,
     "legacy->legacy": 77,
-    "legacy->shared": 12,
+    "legacy->shared": 13,
     "legacy->utils": 3,
     "platform->core": 5,
     "platform->data": 1,
-    "platform->domain": 1,
     "platform->engine": 5,
     "platform->feature": 15,
     "platform->legacy": 2,
     "platform->other": 1,
     "platform->platform": 16,
-    "platform->shared": 2,
+    "platform->shared": 3,
     "platform->utils": 4,
-    "shared->core": 5,
-    "shared->data": 2,
+    "shared->core": 4,
+    "shared->data": 5,
     "shared->feature": 3,
-    "shared->legacy": 1,
-    "shared->shared": 46,
-    "shared->utils": 2,
+    "shared->legacy": 2,
+    "shared->shared": 59,
+    "shared->utils": 3,
     "utils->core": 1,
     "utils->data": 2,
     "utils->utils": 2
@@ -155,10 +146,10 @@
       "inDegree": 17
     },
     {
-      "file": "game/features/combat/presentation/browser/combat_copy.js",
+      "file": "game/features/run/ports/public_rule_capabilities.js",
       "layer": "feature",
-      "outDegree": 1,
-      "inDegree": 12
+      "outDegree": 2,
+      "inDegree": 13
     },
     {
       "file": "data/game_data.js",
@@ -175,6 +166,12 @@
     {
       "file": "game/core/store/state_actions.js",
       "layer": "core",
+      "outDegree": 0,
+      "inDegree": 10
+    },
+    {
+      "file": "game/features/combat/presentation/browser/combat_copy.js",
+      "layer": "feature",
       "outDegree": 0,
       "inDegree": 10
     },
@@ -203,12 +200,6 @@
       "inDegree": 8
     },
     {
-      "file": "game/features/run/ports/public_rule_capabilities.js",
-      "layer": "feature",
-      "outDegree": 1,
-      "inDegree": 8
-    },
-    {
       "file": "game/features/ui/ports/public_audio_presentation_capabilities.js",
       "layer": "feature",
       "outDegree": 0,
@@ -227,15 +218,15 @@
       "inDegree": 8
     },
     {
-      "file": "game/domain/audio/audio_event_helpers.js",
-      "layer": "domain",
+      "file": "game/features/combat/ports/presentation/public_combat_status_support_capabilities.js",
+      "layer": "feature",
       "outDegree": 0,
       "inDegree": 7
     },
     {
-      "file": "game/features/combat/ports/presentation/public_combat_status_support_capabilities.js",
+      "file": "game/features/event/application/event_manager_actions.js",
       "layer": "feature",
-      "outDegree": 0,
+      "outDegree": 3,
       "inDegree": 7
     }
   ],
@@ -255,7 +246,7 @@
       "data/events/merchant_lost_event.js",
       "data/events/shrine_event.js",
       "data/items.js",
-      "game/systems/codex_records_system.js",
+      "game/shared/codex/codex_records.js",
       "game/utils/log_utils.js"
     ],
     "data/events/echo_resonance_event.js": [],
@@ -280,7 +271,7 @@
       "data/cards.js",
       "game/data/constants.js",
       "game/data/triggers.js",
-      "game/systems/codex_records_system.js",
+      "game/shared/codex/codex_records.js",
       "game/utils/log_utils.js"
     ],
     "data/map_node_data.js": [],
@@ -616,7 +607,7 @@
     ],
     "game/core/deps/contracts/core_contract_builders.js": [
       "game/core/deps/contracts/create_feature_contract_capabilities.js",
-      "game/domain/audio/audio_event_helpers.js",
+      "game/shared/audio/audio_event_helpers.js",
       "game/shared/runtime/reward_return_actions.js"
     ],
     "game/core/deps/contracts/create_feature_contract_capabilities.js": [
@@ -665,8 +656,8 @@
       "game/core/event_bus.js",
       "game/core/global_bridge.js",
       "game/core/state_actions.js",
-      "game/domain/audio/audio_event_helpers.js",
-      "game/platform/legacy/public.js"
+      "game/platform/legacy/public.js",
+      "game/shared/audio/audio_event_helpers.js"
     ],
     "game/core/event_subscribers_card_events.js": [],
     "game/core/event_subscribers_combat_events.js": [
@@ -677,7 +668,7 @@
     "game/core/event_subscribers_player_events.js": [
       "game/core/event_bus.js",
       "game/core/state_actions.js",
-      "game/domain/audio/audio_event_helpers.js"
+      "game/shared/audio/audio_event_helpers.js"
     ],
     "game/core/event_subscribers_runtime_events.js": [
       "game/core/event_bus.js",
@@ -755,66 +746,6 @@
     "game/data/constants.js": [],
     "game/data/node_meta.js": [],
     "game/data/triggers.js": [],
-    "game/domain/audio/audio_event_helpers.js": [],
-    "game/domain/audio/helpers/attack_audio_helpers.js": [
-      "game/domain/audio/helpers/audio_event_core.js"
-    ],
-    "game/domain/audio/helpers/audio_event_core.js": [],
-    "game/domain/audio/helpers/event_audio_helpers.js": [
-      "game/domain/audio/helpers/audio_event_core.js"
-    ],
-    "game/domain/audio/helpers/reaction_audio_helpers.js": [
-      "game/domain/audio/helpers/audio_event_core.js"
-    ],
-    "game/domain/audio/helpers/status_audio_helpers.js": [
-      "game/domain/audio/helpers/audio_event_core.js"
-    ],
-    "game/domain/audio/helpers/ui_audio_helpers.js": [
-      "game/domain/audio/helpers/audio_event_core.js"
-    ],
-    "game/domain/class/class_mechanic_rules.js": [
-      "data/game_data.js",
-      "game/shared/state/class_mechanic_state_commands.js",
-      "game/utils/log_utils.js"
-    ],
-    "game/domain/class/class_mechanics.js": [
-      "data/game_data.js",
-      "game/domain/class/class_mechanic_rules.js",
-      "game/domain/class/class_trait_view_model.js"
-    ],
-    "game/domain/class/class_trait_view_model.js": [
-      "data/game_data.js"
-    ],
-    "game/domain/combat/public_combat_runtime_capabilities.js": [],
-    "game/domain/combat/turn/end_player_turn_policy.js": [
-      "game/domain/combat/turn/infinite_stack_buffs.js",
-      "game/domain/combat/turn/turn_manager_helpers.js",
-      "game/domain/combat/turn/turn_state_mutators.js",
-      "game/domain/run/region_service.js"
-    ],
-    "game/domain/combat/turn/enemy_effect_resolver.js": [
-      "game/utils/log_utils.js"
-    ],
-    "game/domain/combat/turn/infinite_stack_buffs.js": [
-      "data/status_key_data.js"
-    ],
-    "game/domain/combat/turn/start_player_turn_policy.js": [
-      "data/game_data.js",
-      "game/domain/combat/turn/infinite_stack_buffs.js",
-      "game/domain/combat/turn/turn_manager_helpers.js",
-      "game/domain/combat/turn/turn_state_mutators.js",
-      "game/domain/run/region_service.js",
-      "game/utils/log_utils.js"
-    ],
-    "game/domain/combat/turn/turn_manager_helpers.js": [
-      "data/status_key_data.js"
-    ],
-    "game/domain/combat/turn/turn_state_mutators.js": [],
-    "game/domain/event/rest/build_rest_options.js": [],
-    "game/domain/event/shop/build_shop_config.js": [],
-    "game/domain/run/region_service.js": [
-      "game/features/run/ports/public_rule_capabilities.js"
-    ],
     "game/features/codex/modules/codex_module_catalog.js": [
       "game/features/codex/platform/browser/codex_browser_modules.js"
     ],
@@ -837,6 +768,7 @@
       "game/features/codex/ports/public_browser_modules.js",
       "game/features/codex/ports/public_module_capabilities.js"
     ],
+    "game/features/codex/presentation/browser/codex_ui_card_shell.js": [],
     "game/features/codex/presentation/browser/codex_ui_content_runtime.js": [
       "game/features/codex/presentation/browser/codex_ui_content_sections.js"
     ],
@@ -846,7 +778,9 @@
       "game/features/codex/presentation/browser/codex_ui_controller_helpers.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_entry_renderers.js": [
-      "game/features/codex/presentation/browser/codex_ui_helpers.js"
+      "game/features/codex/presentation/browser/codex_ui_card_shell.js",
+      "game/features/codex/presentation/browser/codex_ui_helpers.js",
+      "game/features/codex/presentation/browser/codex_ui_set_view_helpers.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_filter_helpers.js": [
       "game/features/codex/presentation/browser/codex_ui_state_helpers.js",
@@ -857,8 +791,12 @@
     "game/features/codex/presentation/browser/codex_ui_inscriptions.js": [
       "game/features/codex/presentation/browser/codex_ui_render.js"
     ],
-    "game/features/codex/presentation/browser/codex_ui_popup_payloads.js": [
+    "game/features/codex/presentation/browser/codex_ui_popup_blocks.js": [
       "game/features/codex/presentation/browser/codex_ui_helpers.js"
+    ],
+    "game/features/codex/presentation/browser/codex_ui_popup_payloads.js": [
+      "game/features/codex/presentation/browser/codex_ui_helpers.js",
+      "game/features/codex/presentation/browser/codex_ui_popup_blocks.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_popup_runtime_helpers.js": [
       "game/features/codex/presentation/browser/codex_ui_controller.js",
@@ -868,17 +806,18 @@
       "game/features/codex/presentation/browser/codex_ui_controller.js",
       "game/features/codex/presentation/browser/codex_ui_helpers.js",
       "game/features/codex/presentation/browser/codex_ui_popup.js",
+      "game/features/codex/presentation/browser/codex_ui_popup_blocks.js",
       "game/features/codex/presentation/browser/codex_ui_popup_runtime_helpers.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_popup.js": [],
     "game/features/codex/presentation/browser/codex_ui_progress_render.js": [],
     "game/features/codex/presentation/browser/codex_ui_render.js": [],
     "game/features/codex/presentation/browser/codex_ui_runtime_dispatch.js": [
-      "game/domain/audio/audio_event_helpers.js",
       "game/features/codex/presentation/browser/codex_ui_content_runtime.js",
       "game/features/codex/presentation/browser/codex_ui_inscriptions.js",
       "game/features/codex/presentation/browser/codex_ui_runtime_helpers.js",
-      "game/features/codex/presentation/browser/codex_ui_structure.js"
+      "game/features/codex/presentation/browser/codex_ui_structure.js",
+      "game/shared/audio/audio_event_helpers.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_runtime_helpers.js": [
       "game/features/codex/presentation/browser/codex_ui_helpers.js",
@@ -895,6 +834,7 @@
       "game/features/codex/presentation/browser/codex_ui_structure.js"
     ],
     "game/features/codex/presentation/browser/codex_ui_section_render.js": [],
+    "game/features/codex/presentation/browser/codex_ui_set_view_helpers.js": [],
     "game/features/codex/presentation/browser/codex_ui_state_helpers.js": [
       "game/shared/codex/codex_record_state_use_case.js"
     ],
@@ -916,8 +856,8 @@
     "game/features/combat/application/begin_player_turn_use_case.js": [],
     "game/features/combat/application/build_combat_runtime_subscriber_actions.js": [],
     "game/features/combat/application/card_draw_service.js": [
-      "game/domain/run/region_service.js",
-      "game/features/combat/state/card_state_commands.js"
+      "game/features/combat/state/card_state_commands.js",
+      "game/features/run/ports/public_rule_capabilities.js"
     ],
     "game/features/combat/application/card_methods_compat.js": [],
     "game/features/combat/application/card_methods_facade.js": [
@@ -936,11 +876,11 @@
     "game/features/combat/application/combat_lifecycle_compat.js": [],
     "game/features/combat/application/combat_lifecycle_facade.js": [
       "game/core/store/state_actions.js",
-      "game/domain/audio/audio_event_helpers.js",
       "game/features/combat/application/run_end_combat_flow_use_case.js",
       "game/features/combat/ports/combat_logging.js",
       "game/features/combat/state/combat_chain_state_commands.js",
       "game/features/run/ports/public_rule_capabilities.js",
+      "game/shared/audio/audio_event_helpers.js",
       "game/shared/state/runtime_session_commands.js"
     ],
     "game/features/combat/application/combat_methods_compat.js": [],
@@ -950,9 +890,9 @@
       "game/features/combat/application/death_handler_facade.js"
     ],
     "game/features/combat/application/combat_turn_runtime_actions.js": [
-      "game/domain/run/region_service.js",
       "game/features/combat/domain/enemy_turn_domain.js",
-      "game/features/combat/domain/player_status_tick_domain.js"
+      "game/features/combat/domain/player_status_tick_domain.js",
+      "game/features/run/ports/public_rule_capabilities.js"
     ],
     "game/features/combat/application/create_combat_start_runtime.js": [
       "game/features/combat/application/start_combat_flow_use_case.js",
@@ -1000,7 +940,7 @@
       "game/features/combat/application/end_turn_service.js"
     ],
     "game/features/combat/application/end_turn_service.js": [
-      "game/domain/combat/turn/end_player_turn_policy.js"
+      "game/features/combat/domain/turn/end_player_turn_policy.js"
     ],
     "game/features/combat/application/enemy_damage_resolution.js": [
       "game/features/combat/ports/combat_logging.js",
@@ -1015,15 +955,16 @@
     ],
     "game/features/combat/application/play_card_service.js": [
       "game/core/store/state_actions.js",
-      "game/domain/combat/public_combat_runtime_capabilities.js",
       "game/features/combat/application/card_draw_service.js",
       "game/features/combat/state/card_state_commands.js",
       "game/features/combat/state/commands/combat_card_play_state_commands.js",
+      "game/features/run/ports/public_rule_capabilities.js",
       "game/shared/combat/public_combat_runtime_effects.js"
     ],
     "game/features/combat/application/player_turn_policy_actions.js": [
-      "game/domain/combat/turn/start_player_turn_policy.js",
-      "game/features/combat/ports/player_turn_policy_ports.js"
+      "game/features/combat/domain/turn/start_player_turn_policy.js",
+      "game/features/combat/ports/player_turn_policy_ports.js",
+      "game/features/run/ports/public_rule_capabilities.js"
     ],
     "game/features/combat/application/public_combat_command_actions.js": [
       "game/features/combat/application/card_draw_service.js",
@@ -1039,21 +980,22 @@
       "game/features/combat/presentation/build_combat_end_outcome.js"
     ],
     "game/features/combat/application/run_enemy_turn_use_case.js": [
-      "game/domain/combat/public_combat_runtime_capabilities.js",
       "game/features/combat/application/begin_player_turn_use_case.js",
       "game/features/combat/domain/enemy_turn_domain.js",
       "game/features/combat/domain/player_status_tick_domain.js",
-      "game/features/combat/ports/public_state_capabilities.js"
+      "game/features/combat/domain/turn/start_player_turn_policy.js",
+      "game/features/combat/ports/public_state_capabilities.js",
+      "game/features/run/ports/public_rule_capabilities.js"
     ],
     "game/features/combat/application/start_combat_flow_use_case.js": [
       "game/features/combat/ports/public_state_capabilities.js"
     ],
     "game/features/combat/application/turn_manager_compat.js": [],
     "game/features/combat/application/turn_manager_facade.js": [
-      "game/domain/combat/turn/end_player_turn_policy.js",
       "game/features/combat/application/player_turn_policy_actions.js",
       "game/features/combat/domain/enemy_turn_domain.js",
-      "game/features/combat/domain/player_status_tick_domain.js"
+      "game/features/combat/domain/player_status_tick_domain.js",
+      "game/features/combat/domain/turn/end_player_turn_policy.js"
     ],
     "game/features/combat/bindings/public_combat_bindings.js": [],
     "game/features/combat/compat/card_methods.js": [],
@@ -1071,9 +1013,9 @@
     "game/features/combat/domain/enemy_spawn_plan_domain.js": [],
     "game/features/combat/domain/enemy_status_tick_plan_domain.js": [],
     "game/features/combat/domain/enemy_turn_domain.js": [
-      "game/domain/combat/turn/enemy_effect_resolver.js",
-      "game/domain/combat/turn/infinite_stack_buffs.js",
       "game/features/combat/domain/enemy_status_tick_plan_domain.js",
+      "game/features/combat/domain/turn/enemy_effect_resolver.js",
+      "game/features/combat/domain/turn/infinite_stack_buffs.js",
       "game/features/combat/ports/combat_logging.js",
       "game/features/combat/state/commands/combat_turn_state_commands.js",
       "game/features/combat/state/enemy_turn_state_commands.js"
@@ -1087,6 +1029,28 @@
     "game/features/combat/domain/set_bonus_passive_effects.js": [],
     "game/features/combat/domain/set_bonus_system.js": [],
     "game/features/combat/domain/set_bonus_trigger_effects.js": [],
+    "game/features/combat/domain/turn/end_player_turn_policy.js": [
+      "game/features/combat/domain/turn/infinite_stack_buffs.js",
+      "game/features/combat/domain/turn/turn_manager_helpers.js",
+      "game/features/combat/domain/turn/turn_state_mutators.js"
+    ],
+    "game/features/combat/domain/turn/enemy_effect_resolver.js": [
+      "game/utils/log_utils.js"
+    ],
+    "game/features/combat/domain/turn/infinite_stack_buffs.js": [
+      "data/status_key_data.js"
+    ],
+    "game/features/combat/domain/turn/start_player_turn_policy.js": [
+      "data/game_data.js",
+      "game/features/combat/domain/turn/infinite_stack_buffs.js",
+      "game/features/combat/domain/turn/turn_manager_helpers.js",
+      "game/features/combat/domain/turn/turn_state_mutators.js",
+      "game/utils/log_utils.js"
+    ],
+    "game/features/combat/domain/turn/turn_manager_helpers.js": [
+      "data/status_key_data.js"
+    ],
+    "game/features/combat/domain/turn/turn_state_mutators.js": [],
     "game/features/combat/modules/public_combat_modules.js": [],
     "game/features/combat/platform/browser/build_combat_action_context.js": [],
     "game/features/combat/platform/browser/build_combat_feedback_action_group.js": [],
@@ -1150,9 +1114,9 @@
     ],
     "game/features/combat/platform/combat_end_ports.js": [],
     "game/features/combat/platform/combat_start_runtime_ports.js": [
-      "game/domain/audio/audio_event_helpers.js",
       "game/features/combat/application/combat_initializer.js",
-      "game/features/combat/presentation/browser/combat_start_runtime_ui.js"
+      "game/features/combat/presentation/browser/combat_start_runtime_ui.js",
+      "game/shared/audio/audio_event_helpers.js"
     ],
     "game/features/combat/platform/combat_turn_runtime_ports.js": [
       "game/features/combat/presentation/browser/combat_turn_flow_ui.js",
@@ -1176,7 +1140,13 @@
     "game/features/combat/platform/legacy_window_query_groups.js": [
       "game/features/combat/ports/create_combat_ports.js"
     ],
+    "game/features/combat/platform/public_combat_command_surface.js": [
+      "game/features/combat/ports/public_application_capabilities.js"
+    ],
     "game/features/combat/platform/public_combat_legacy_surface.js": [],
+    "game/features/combat/platform/public_combat_player_draw_surface.js": [
+      "game/features/combat/ports/public_application_capabilities.js"
+    ],
     "game/features/combat/platform/runtime/register_card_event_subscribers.js": [],
     "game/features/combat/ports/combat_logging.js": [],
     "game/features/combat/ports/contracts/build_combat_flow_contracts.js": [
@@ -1288,7 +1258,7 @@
     "game/features/combat/presentation/browser/card_clone_positioning.js": [],
     "game/features/combat/presentation/browser/card_clone_render_ui.js": [
       "game/features/combat/presentation/browser/combat_card_frame_ui.js",
-      "game/features/combat/presentation/browser/combat_copy.js"
+      "game/features/combat/presentation/browser/combat_keyword_copy.js"
     ],
     "game/features/combat/presentation/browser/card_clone_runtime_ui.js": [
       "game/features/combat/ports/presentation_shared_runtime_capabilities.js"
@@ -1328,9 +1298,7 @@
       "game/features/combat/presentation/browser/card_render_helpers_ui.js",
       "game/features/combat/presentation/browser/combat_card_frame_ui.js"
     ],
-    "game/features/combat/presentation/browser/combat_copy.js": [
-      "game/features/combat/ports/presentation_shared_runtime_capabilities.js"
-    ],
+    "game/features/combat/presentation/browser/combat_copy.js": [],
     "game/features/combat/presentation/browser/combat_enemy_card_renderers_ui.js": [
       "game/features/combat/presentation/browser/combat_copy.js"
     ],
@@ -1405,15 +1373,19 @@
       "game/features/combat/ports/presentation/public_combat_card_support_capabilities.js",
       "game/features/combat/presentation/browser/combat_copy.js"
     ],
+    "game/features/combat/presentation/browser/combat_keyword_copy.js": [
+      "game/features/combat/ports/presentation_shared_runtime_capabilities.js"
+    ],
     "game/features/combat/presentation/browser/combat_recent_feed_selector.js": [],
     "game/features/combat/presentation/browser/combat_relic_rail_ui.js": [
-      "game/features/combat/presentation/browser/combat_copy.js",
+      "game/features/combat/presentation/browser/combat_relic_visuals.js",
       "game/features/combat/presentation/browser/item_detail_navigation.js",
       "game/features/combat/presentation/browser/item_detail_panel_ui.js",
       "game/features/combat/presentation/browser/item_detail_state.js",
       "game/features/combat/presentation/browser/item_detail_view_model.js",
       "game/features/combat/presentation/browser/item_tooltip_fallback_text.js"
     ],
+    "game/features/combat/presentation/browser/combat_relic_visuals.js": [],
     "game/features/combat/presentation/browser/combat_render_helpers.js": [],
     "game/features/combat/presentation/browser/combat_start_render_ui.js": [
       "game/features/combat/presentation/browser/hud_render_helpers.js"
@@ -1483,8 +1455,12 @@
       "game/features/combat/ports/presentation/public_combat_card_support_capabilities.js",
       "game/features/combat/ports/public_audio_presentation_capabilities.js"
     ],
+    "game/features/combat/presentation/browser/feedback_ui_toast_stack.js": [],
+    "game/features/combat/presentation/browser/feedback_ui_toast_views.js": [],
     "game/features/combat/presentation/browser/feedback_ui_toasts.js": [
-      "game/features/combat/ports/presentation/public_combat_card_support_capabilities.js"
+      "game/features/combat/ports/presentation/public_combat_card_support_capabilities.js",
+      "game/features/combat/presentation/browser/feedback_ui_toast_stack.js",
+      "game/features/combat/presentation/browser/feedback_ui_toast_views.js"
     ],
     "game/features/combat/presentation/browser/feedback_ui.js": [
       "game/features/combat/ports/hud_shared_view_ports.js",
@@ -1619,7 +1595,7 @@
     ],
     "game/features/combat/state/enemy_turn_state_commands.js": [],
     "game/features/combat/state/player_turn_state_commands.js": [
-      "game/domain/combat/turn/turn_state_mutators.js",
+      "game/features/combat/domain/turn/turn_state_mutators.js",
       "game/features/combat/state/commands/combat_turn_state_commands.js"
     ],
     "game/features/combat/state/public_combat_reducer_helpers.js": [],
@@ -1667,12 +1643,12 @@
       "game/features/event/state/event_session_store.js"
     ],
     "game/features/event/application/event_shop_actions.js": [
-      "game/domain/run/region_service.js",
       "game/features/event/application/resolve_event_choice_actions.js",
       "game/features/event/application/rest_service.js",
       "game/features/event/application/shop_service.js",
       "game/features/event/domain/event_shop_domain.js",
-      "game/features/event/state/event_state_commands.js"
+      "game/features/event/state/event_state_commands.js",
+      "game/features/run/ports/public_rule_capabilities.js"
     ],
     "game/features/event/application/finish_event_flow_use_case.js": [
       "game/features/event/state/event_runtime_flow_ports.js"
@@ -1701,10 +1677,10 @@
       "game/features/event/state/event_runtime_flow_ports.js"
     ],
     "game/features/event/application/rest_service.js": [
-      "game/domain/event/rest/build_rest_options.js"
+      "game/features/event/domain/rest/build_rest_options.js"
     ],
     "game/features/event/application/shop_service.js": [
-      "game/domain/event/shop/build_shop_config.js"
+      "game/features/event/domain/shop/build_shop_config.js"
     ],
     "game/features/event/application/show_event_session_use_case.js": [
       "game/features/event/state/event_runtime_flow_ports.js"
@@ -1730,6 +1706,8 @@
     "game/features/event/domain/event_shop_domain.js": [
       "game/features/event/ports/event_data_policy_ports.js"
     ],
+    "game/features/event/domain/rest/build_rest_options.js": [],
+    "game/features/event/domain/shop/build_shop_config.js": [],
     "game/features/event/platform/browser/create_event_reward_actions.js": [
       "game/features/event/platform/browser/create_event_runtime_actions.js",
       "game/features/reward/ports/runtime/public_reward_runtime_surface.js"
@@ -1773,6 +1751,9 @@
       "game/features/event/ports/public_event_shop_application_capabilities.js"
     ],
     "game/features/event/ports/public_audio_runtime_capabilities.js": [],
+    "game/features/event/ports/public_compat_capabilities.js": [
+      "game/features/event/application/event_manager_facade.js"
+    ],
     "game/features/event/ports/public_contract_capabilities.js": [],
     "game/features/event/ports/public_event_binding_surface.js": [
       "game/features/event/platform/browser/create_event_reward_actions.js",
@@ -2083,6 +2064,9 @@
     "game/features/run/domain/map_node_content.js": [
       "game/features/run/ports/public_data_runtime_capabilities.js"
     ],
+    "game/features/run/domain/resolve_active_region_id.js": [
+      "game/features/run/domain/run_rules_regions.js"
+    ],
     "game/features/run/domain/run_rules_curses.js": [],
     "game/features/run/domain/run_rules_difficulty.js": [
       "game/features/run/domain/run_rules_regions.js"
@@ -2157,7 +2141,8 @@
     "game/features/run/ports/public_player_hp_panel_runtime_capabilities.js": [],
     "game/features/run/ports/public_presentation_capabilities.js": [],
     "game/features/run/ports/public_rule_capabilities.js": [
-      "game/features/run/application/run_rules.js"
+      "game/features/run/application/run_rules.js",
+      "game/features/run/domain/resolve_active_region_id.js"
     ],
     "game/features/run/ports/public_runtime_capabilities.js": [
       "game/features/run/application/bind_run_outcome_action.js",
@@ -2447,12 +2432,18 @@
     ],
     "game/features/title/platform/browser/character_select_focus_lock.js": [],
     "game/features/title/platform/browser/character_select_fx.js": [],
-    "game/features/title/platform/browser/character_select_info_panel_interactions.js": [],
+    "game/features/title/platform/browser/character_select_info_panel_featured_content.js": [],
+    "game/features/title/platform/browser/character_select_info_panel_interactions.js": [
+      "game/features/title/platform/browser/character_select_info_panel_loadout_controls.js"
+    ],
+    "game/features/title/platform/browser/character_select_info_panel_loadout_controls.js": [],
     "game/features/title/platform/browser/character_select_info_panel_markup.js": [],
     "game/features/title/platform/browser/character_select_info_panel_sections.js": [
+      "game/features/title/platform/browser/character_select_info_panel_featured_content.js",
       "game/features/title/platform/browser/character_select_info_panel_markup.js"
     ],
     "game/features/title/platform/browser/character_select_info_panel.js": [
+      "game/features/title/platform/browser/character_select_info_panel_featured_content.js",
       "game/features/title/platform/browser/character_select_info_panel_interactions.js",
       "game/features/title/platform/browser/character_select_info_panel_markup.js",
       "game/features/title/platform/browser/character_select_info_panel_sections.js"
@@ -2739,6 +2730,9 @@
     "game/features/ui/platform/browser/ui_legacy_query_groups.js": [
       "game/features/ui/platform/browser/resolve_ui_action_modules.js"
     ],
+    "game/features/ui/platform/public_ui_command_surface.js": [
+      "game/features/ui/ports/runtime/public_ui_runtime_surface.js"
+    ],
     "game/features/ui/ports/contracts/build_ui_shell_contracts.js": [
       "game/features/title/ports/public_help_pause_application_capabilities.js",
       "game/features/ui/ports/public_audio_presentation_capabilities.js"
@@ -2975,8 +2969,8 @@
       "game/data/node_meta.js"
     ],
     "game/platform/browser/composition/build_core_progression_modules.js": [
-      "game/domain/class/class_mechanics.js",
       "game/features/combat/ports/public_system_capabilities.js",
+      "game/shared/class/class_mechanics.js",
       "game/shared/progression/set_bonus_system.js"
     ],
     "game/platform/browser/composition/build_core_run_system_modules.js": [
@@ -3182,15 +3176,15 @@
       "game/platform/legacy/game_api/ui_commands.js"
     ],
     "game/platform/legacy/game_api/combat_commands.js": [
-      "game/features/combat/ports/public_application_capabilities.js",
+      "game/features/combat/platform/public_combat_command_surface.js",
       "game/platform/legacy/game_api/runtime_context.js",
       "game/utils/logger.js"
     ],
     "game/platform/legacy/game_api/player_commands.js": [],
     "game/platform/legacy/game_api/player_draw_commands.js": [
-      "game/domain/audio/audio_event_helpers.js",
-      "game/features/combat/ports/public_application_capabilities.js",
-      "game/platform/legacy/game_api/runtime_context.js"
+      "game/features/combat/platform/public_combat_player_draw_surface.js",
+      "game/platform/legacy/game_api/runtime_context.js",
+      "game/shared/audio/audio_event_helpers.js"
     ],
     "game/platform/legacy/game_api/player_health_commands.js": [
       "game/core/store/state_actions.js",
@@ -3213,7 +3207,7 @@
       "game/utils/logger.js"
     ],
     "game/platform/legacy/game_api/ui_commands.js": [
-      "game/features/ui/ports/runtime/public_ui_runtime_surface.js",
+      "game/features/ui/platform/public_ui_command_surface.js",
       "game/platform/legacy/game_api/runtime_context.js"
     ],
     "game/platform/legacy/game_module_registry.js": [
@@ -3237,6 +3231,9 @@
     "game/platform/legacy/legacy_module_registry.js": [],
     "game/platform/legacy/legacy_root_deps.js": [
       "game/platform/legacy/global_bridge_helpers.js"
+    ],
+    "game/platform/legacy/player/player_runtime_effect_compat.js": [
+      "game/core/global_bridge.js"
     ],
     "game/platform/legacy/public.js": [],
     "game/platform/legacy/register_legacy_bridge_runtime.js": [
@@ -3291,7 +3288,36 @@
       "game/core/error_reporter.js",
       "game/utils/logger.js"
     ],
-    "game/presentation/combat/combat_turn_ui.js": [],
+    "game/shared/audio/audio_event_helpers.js": [],
+    "game/shared/audio/helpers/attack_audio_helpers.js": [
+      "game/shared/audio/helpers/audio_event_core.js"
+    ],
+    "game/shared/audio/helpers/audio_event_core.js": [],
+    "game/shared/audio/helpers/event_audio_helpers.js": [
+      "game/shared/audio/helpers/audio_event_core.js"
+    ],
+    "game/shared/audio/helpers/reaction_audio_helpers.js": [
+      "game/shared/audio/helpers/audio_event_core.js"
+    ],
+    "game/shared/audio/helpers/status_audio_helpers.js": [
+      "game/shared/audio/helpers/audio_event_core.js"
+    ],
+    "game/shared/audio/helpers/ui_audio_helpers.js": [
+      "game/shared/audio/helpers/audio_event_core.js"
+    ],
+    "game/shared/class/class_mechanic_rules.js": [
+      "data/game_data.js",
+      "game/shared/state/class_mechanic_state_commands.js",
+      "game/utils/log_utils.js"
+    ],
+    "game/shared/class/class_mechanics.js": [
+      "data/game_data.js",
+      "game/shared/class/class_mechanic_rules.js",
+      "game/shared/class/class_trait_view_model.js"
+    ],
+    "game/shared/class/class_trait_view_model.js": [
+      "data/game_data.js"
+    ],
     "game/shared/codex/codex_card_reference_use_case.js": [
       "game/shared/codex/codex_records.js"
     ],
@@ -3306,12 +3332,19 @@
       "game/utils/log_utils.js"
     ],
     "game/shared/player/player_runtime_effects.js": [
-      "game/core/global_bridge.js",
+      "game/platform/legacy/player/player_runtime_effect_compat.js",
       "game/shared/player/player_resource_use_cases.js",
       "game/shared/state/player_state_commands.js"
     ],
     "game/shared/player/player_ui_effects.js": [],
-    "game/shared/progression/class_loadout_preset_use_case.js": [],
+    "game/shared/progression/class_loadout_preset_catalog.js": [],
+    "game/shared/progression/class_loadout_preset_helpers.js": [
+      "game/shared/progression/class_loadout_preset_catalog.js"
+    ],
+    "game/shared/progression/class_loadout_preset_use_case.js": [
+      "game/shared/progression/class_loadout_preset_catalog.js",
+      "game/shared/progression/class_loadout_preset_helpers.js"
+    ],
     "game/shared/progression/class_progression_data_use_case.js": [],
     "game/shared/progression/inscription_system.js": [],
     "game/shared/progression/item_system.js": [
@@ -3423,10 +3456,14 @@
     ],
     "game/shared/state/runtime_session_commands.js": [],
     "game/shared/state/runtime_session_selectors.js": [],
+    "game/shared/ui/item_detail/item_detail_markup.js": [],
     "game/shared/ui/item_detail/item_detail_navigation.js": [],
     "game/shared/ui/item_detail/item_detail_panel_ui.js": [
+      "game/shared/ui/item_detail/item_detail_markup.js",
+      "game/shared/ui/item_detail/item_detail_panel_variants.js",
       "game/shared/ui/state/ui_surface_state_controller.js"
     ],
+    "game/shared/ui/item_detail/item_detail_panel_variants.js": [],
     "game/shared/ui/item_detail/item_detail_state.js": [],
     "game/shared/ui/item_detail/item_detail_view_model.js": [],
     "game/shared/ui/player_hp_panel/player_hp_panel_render.js": [
@@ -3442,24 +3479,6 @@
     "game/shared/ui/state/ui_surface_state_controller.js": [
       "game/shared/ui/state/ui_state_dataset.js"
     ],
-    "game/state/commands/combat_runtime_commands.js": [],
-    "game/state/commands/run_outcome_commands.js": [],
-    "game/systems/class_progression_system.js": [],
-    "game/systems/codex_records_system.js": [],
-    "game/systems/event_manager.js": [],
-    "game/systems/inscription_system.js": [],
-    "game/systems/item_system.js": [],
-    "game/systems/run_rules_curses.js": [],
-    "game/systems/run_rules_difficulty.js": [],
-    "game/systems/run_rules_meta.js": [],
-    "game/systems/run_rules_regions.js": [],
-    "game/systems/run_rules.js": [],
-    "game/systems/save_migrations.js": [],
-    "game/systems/save_system.js": [],
-    "game/systems/save/save_outbox_metrics.js": [],
-    "game/systems/save/save_outbox_queue.js": [],
-    "game/systems/save/save_repository.js": [],
-    "game/systems/set_bonus_system.js": [],
     "game/utils/card_cost_utils.js": [],
     "game/utils/description_utils.js": [],
     "game/utils/dom_safe.js": [
@@ -3480,5 +3499,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-03-23T16:40:35.161Z"
+  "generatedAt": "2026-03-24T09:12:24.511Z"
 }

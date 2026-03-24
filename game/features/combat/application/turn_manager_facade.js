@@ -1,4 +1,4 @@
-import { endPlayerTurnPolicy } from '../../../domain/combat/turn/end_player_turn_policy.js';
+import { endPlayerTurnPolicy } from '../domain/turn/end_player_turn_policy.js';
 import {
   decayEnemyWeaken,
   getEnemyAction,

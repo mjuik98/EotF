@@ -1,6 +1,5 @@
 export { GAME, exposeGlobals } from './global_bridge_runtime.js';
 export { registerLegacyBridge } from './register_legacy_bridge.js';
-export { registerLegacyBridgeRuntime } from './register_legacy_bridge_runtime.js';
 export { attachLegacyWindowBindings } from './window_bindings.js';
 export {
   registerLegacyGameAPIBindings,

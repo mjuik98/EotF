@@ -1,7 +1,7 @@
 import {
   decrementStackedBuff,
   drawFromRandomPlayerPool,
-} from '../../../domain/combat/turn/turn_state_mutators.js';
+} from '../domain/turn/turn_state_mutators.js';
 import {
   advanceCombatTurnState,
   clampPlayerMaxEchoState,

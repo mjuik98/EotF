@@ -1,15 +1,13 @@
 {
   "generatedAt": "2026-03-13T04:14:30.858Z",
-  "totalMax": 8,
+  "totalMax": 4,
   "byKindMax": {
     "window": 0,
     "document": 2,
-    "globalThis": 6
+    "globalThis": 2
   },
   "defaultPerFileMax": null,
   "byFileMax": {
-    "game/platform/browser/composition/build_core_run_system_modules.js": 2,
-    "game/systems/run_rules.js": 2,
     "game/utils/security.js": 2,
     "engine/audio.js": 2
   }

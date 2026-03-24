@@ -8,7 +8,7 @@ import { echoResonanceEvent } from './events/echo_resonance_event.js';
 import { forgeEvent } from './events/forge_event.js';
 import { merchantLostEvent } from './events/merchant_lost_event.js';
 import { shrineEvent } from './events/shrine_event.js';
-import { registerItemFound } from '../game/systems/codex_records_system.js';
+import { registerItemFound } from '../game/shared/codex/codex_records.js';
 
 const MAP_NODE_TYPE_LABELS = {
     combat: '전투',

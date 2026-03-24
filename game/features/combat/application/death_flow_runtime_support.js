@@ -1,9 +1,9 @@
+export { DATA as CombatGameData } from '../../../../data/game_data.js';
 export {
-  CombatGameData,
   playReactionEnemyDeath,
   playReactionPlayerDeath,
   playStatusHeal,
-} from '../../../domain/combat/public_combat_runtime_capabilities.js';
+} from '../../../shared/audio/audio_event_helpers.js';
 export {
   registerEnemyKill,
   recordEnemyWorldKill,

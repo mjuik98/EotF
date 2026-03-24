@@ -1,4 +1,4 @@
-import { playUiItemGet } from '../../../domain/audio/audio_event_helpers.js';
+import { playUiItemGet } from '../../../shared/audio/audio_event_helpers.js';
 import { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';
 import { createFeatureContractCapabilities } from './create_feature_contract_capabilities.js';
 

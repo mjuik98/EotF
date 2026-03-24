@@ -1,4 +1,4 @@
-import { buildShopConfig } from '../../../domain/event/shop/build_shop_config.js';
+import { buildShopConfig } from '../domain/shop/build_shop_config.js';
 
 export function createShopEventService({ uiActions }) {
   return {

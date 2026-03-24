@@ -64,8 +64,8 @@ describe('state flow boundary contracts', () => {
   });
 
   it('keeps combat domain policies free of inline state mutation fallbacks', () => {
-    const startPolicy = read('game/domain/combat/turn/start_player_turn_policy.js');
-    const endPolicy = read('game/domain/combat/turn/end_player_turn_policy.js');
+    const startPolicy = read('game/features/combat/domain/turn/start_player_turn_policy.js');
+    const endPolicy = read('game/features/combat/domain/turn/end_player_turn_policy.js');
 
     expect(startPolicy).not.toContain('state.combat.turn += 1');
     expect(startPolicy).not.toContain('state.combat.playerTurn = true');
@@ -94,7 +94,9 @@ describe('state flow boundary contracts', () => {
     const playCardService = read('game/features/combat/application/play_card_service.js');
     const runEnemyTurnUseCase = read('game/features/combat/application/run_enemy_turn_use_case.js');
     const startCombatFlowUseCase = read('game/features/combat/application/start_combat_flow_use_case.js');
-    const classMechanicRules = read('game/domain/class/class_mechanic_rules.js');
+    const classMechanicRules = read('game/shared/class/class_mechanic_rules.js');
+    const eventRestService = read('game/features/event/application/rest_service.js');
+    const eventShopService = read('game/features/event/application/shop_service.js');
 
     expect(cardMethodsFacade).toContain('../platform/combat_card_runtime_ports.js');
     expect(cardMethodsFacade).not.toContain('../../../platform/legacy/adapters/create_legacy_game_state_card_ports.js');
@@ -103,10 +105,12 @@ describe('state flow boundary contracts', () => {
     expect(deathFlowActions).toContain("./death_flow_player_runtime.js");
     expect(deathFlowEnemyRuntime).toContain("./death_flow_runtime_support.js");
     expect(deathFlowPlayerRuntime).toContain("./death_flow_runtime_support.js");
-    expect(deathFlowRuntimeSupport).toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
+    expect(deathFlowRuntimeSupport).toContain("from '../../../../data/game_data.js'");
+    expect(deathFlowRuntimeSupport).toContain("from '../../../shared/audio/audio_event_helpers.js'");
     expect(deathFlowRuntimeSupport).toContain('../../../shared/combat/public_combat_runtime_effects.js');
+    expect(deathFlowRuntimeSupport).not.toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
     expect(deathFlowActions).not.toContain('../../../../data/game_data.js');
-    expect(deathFlowActions).not.toContain('../../../domain/audio/audio_event_helpers.js');
+    expect(deathFlowActions).not.toContain('../../../shared/audio/audio_event_helpers.js');
     expect(deathFlowActions).not.toContain('../../../shared/codex/codex_record_state_use_case.js');
     expect(deathFlowActions).not.toContain('../../../shared/state/runtime_session_commands.js');
     expect(enemyDeathState).not.toContain('gs.player.kills += 1');
@@ -115,8 +119,9 @@ describe('state flow boundary contracts', () => {
     expect(enemyDeathState).not.toContain('gs.combat.miniBossDefeated = true');
     expect(helpPauseAbandonCombat).toContain('../ports/public_state_capabilities.js');
     expect(helpPauseAbandonCombat).not.toContain('../../../shared/state/runtime_flow_controls.js');
-    expect(playCardService).toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
+    expect(playCardService).toContain('../../run/ports/public_rule_capabilities.js');
     expect(playCardService).toContain('../../../shared/combat/public_combat_runtime_effects.js');
+    expect(playCardService).not.toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
     expect(playCardService).not.toContain('../../../domain/run/region_service.js');
     expect(playCardService).not.toContain('../../../shared/codex/codex_record_state_use_case.js');
     expect(playCardService).not.toContain('../../../shared/state/game_state_runtime_compat.js');
@@ -125,13 +130,18 @@ describe('state flow boundary contracts', () => {
     expect(playCardService).not.toContain('player.hand = handBefore');
     expect(playCardService).not.toContain('player._nextCardDiscount = Math.max(0, player._nextCardDiscount - 1)');
     expect(playCardService).not.toContain('stats.cardsPlayed++');
-    expect(runEnemyTurnUseCase).toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
+    expect(runEnemyTurnUseCase).toContain('../../run/ports/public_rule_capabilities.js');
+    expect(runEnemyTurnUseCase).toContain('../domain/turn/start_player_turn_policy.js');
     expect(runEnemyTurnUseCase).toContain('../ports/public_state_capabilities.js');
+    expect(runEnemyTurnUseCase).not.toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
     expect(runEnemyTurnUseCase).not.toContain('../../../domain/run/region_service.js');
-    expect(runEnemyTurnUseCase).not.toContain('../../../domain/combat/turn/start_player_turn_policy.js');
     expect(runEnemyTurnUseCase).not.toContain('../../../shared/state/runtime_session_commands.js');
     expect(startCombatFlowUseCase).toContain('../ports/public_state_capabilities.js');
     expect(startCombatFlowUseCase).not.toContain('../../../shared/state/runtime_flow_controls.js');
+    expect(eventRestService).toContain("../domain/rest/build_rest_options.js");
+    expect(eventRestService).not.toContain("../../../domain/event/rest/build_rest_options.js");
+    expect(eventShopService).toContain("../domain/shop/build_shop_config.js");
+    expect(eventShopService).not.toContain("../../../domain/event/shop/build_shop_config.js");
     expect(classMechanicRules).not.toContain('state.player.buffs.resonance.stacks = 99');
     expect(classMechanicRules).not.toContain('res.stacks = 99');
     expect(classMechanicRules).not.toContain('state.player._mageCastCounter = 0');

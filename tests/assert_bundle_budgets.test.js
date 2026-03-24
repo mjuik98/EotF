@@ -64,8 +64,12 @@ describe('assert_bundle_budgets', () => {
     const budgets = readBundleBudgets();
 
     expect(BUNDLE_BUDGETS_PATH.endsWith('config/quality/bundle_budgets.json')).toBe(true);
-    expect(budgets.entryJs.maxBytes).toBe(410 * 1024);
-    expect(budgets.uiCombatJs.maxBytes).toBe(324 * 1024);
+    expect(budgets.entryJs.maxBytes).toBe(400 * 1024);
+    expect(budgets.entryCss.maxBytes).toBe(190 * 1024);
+    expect(budgets.uiEventJs.maxBytes).toBe(44 * 1024);
+    expect(budgets.uiCombatJs.maxBytes).toBe(320 * 1024);
+    expect(budgets.codexUiJs.maxBytes).toBe(39 * 1024);
+    expect(budgets.runModeUiJs.maxBytes).toBe(28 * 1024);
     expect(budgets.runModeUiJs.label).toBe('run mode ui chunk');
   });
 

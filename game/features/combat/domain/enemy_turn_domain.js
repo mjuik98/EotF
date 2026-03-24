@@ -1,9 +1,9 @@
 import { LogUtils } from '../ports/combat_logging.js';
-import { handleEnemyEffectLogic } from '../../../domain/combat/turn/enemy_effect_resolver.js';
+import { handleEnemyEffectLogic } from './turn/enemy_effect_resolver.js';
 import {
   isInfiniteStackBuff,
   normalizeInfiniteStack,
-} from '../../../domain/combat/turn/infinite_stack_buffs.js';
+} from './turn/infinite_stack_buffs.js';
 import { buildEnemyStatusTickPlan } from './enemy_status_tick_plan_domain.js';
 import {
   applyEnemyDamageState,

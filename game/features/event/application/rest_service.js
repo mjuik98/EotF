@@ -1,4 +1,4 @@
-import { buildRestOptions } from '../../../domain/event/rest/build_rest_options.js';
+import { buildRestOptions } from '../domain/rest/build_rest_options.js';
 
 export function createRestEventService({ regionResolver, uiActions }) {
   return {

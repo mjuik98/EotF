@@ -13,6 +13,25 @@ function readSource(relPath) {
   return readText(relPath);
 }
 
+function collectJsFilesRecursive(dirPath) {
+  const files = [];
+
+  if (!fs.existsSync(dirPath)) return files;
+
+  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectJsFilesRecursive(fullPath));
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith('.js')) {
+      files.push(fullPath);
+    }
+  }
+
+  return files.sort();
+}
+
 describe('feature structure guardrails', () => {
   it('keeps feature roots constrained to canonical and allowlisted transitional dirs', () => {
     const features = fs.readdirSync(FEATURES_ROOT, { withFileTypes: true })
@@ -51,24 +70,22 @@ describe('feature structure guardrails', () => {
     const thinWrapperPattern = /^\s*(?:export\s+(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];?\s*)+$/;
 
     expect(thinWrapperDirsByFeature).toEqual({
-      combat: ['bindings', 'modules', 'runtime'],
-      run: ['bindings', 'modules', 'runtime', 'ui'],
-      title: ['ui'],
+      combat: ['app', 'bindings', 'modules', 'runtime'],
+      event: ['app'],
+      run: ['app', 'bindings', 'modules', 'runtime', 'ui'],
+      title: ['app', 'ui'],
+      ui: ['app'],
     });
 
     for (const [featureName, dirNames] of Object.entries(thinWrapperDirsByFeature)) {
       for (const dirName of dirNames) {
         const dirPath = path.join(FEATURES_ROOT, featureName, dirName);
-        const files = fs.existsSync(dirPath)
-          ? fs.readdirSync(dirPath)
-            .filter((entry) => entry.endsWith('.js'))
-            .sort()
-          : [];
+        const files = collectJsFilesRecursive(dirPath);
 
         expect(files.length).toBeGreaterThan(0);
 
-        for (const fileName of files) {
-          const source = readText(path.relative(ROOT, path.join(dirPath, fileName)));
+        for (const filePath of files) {
+          const source = readText(path.relative(ROOT, filePath));
           expect(source).toMatch(thinWrapperPattern);
         }
       }

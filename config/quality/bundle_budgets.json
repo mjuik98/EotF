@@ -1,12 +1,12 @@
 {
-  "entryJs": { "label": "main entry js", "maxBytes": 419840 },
-  "entryCss": { "label": "main entry css", "maxBytes": 197632 },
-  "uiEventJs": { "label": "ui-event chunk", "maxBytes": 46080 },
-  "uiRewardJs": { "label": "ui-reward chunk", "maxBytes": 20480 },
-  "uiCombatJs": { "label": "ui-combat chunk", "maxBytes": 331776 },
-  "uiCombatTooltipsJs": { "label": "ui-combat-tooltips chunk", "maxBytes": 20480 },
-  "uiSettingsJs": { "label": "ui-settings chunk", "maxBytes": 24576 },
-  "uiShellOverlaysJs": { "label": "ui-shell-overlays chunk", "maxBytes": 24576 },
-  "codexUiJs": { "label": "codex ui chunk", "maxBytes": 40960 },
-  "runModeUiJs": { "label": "run mode ui chunk", "maxBytes": 30720 }
+  "entryJs": { "label": "main entry js", "maxBytes": 409600 },
+  "entryCss": { "label": "main entry css", "maxBytes": 194560 },
+  "uiEventJs": { "label": "ui-event chunk", "maxBytes": 45056 },
+  "uiRewardJs": { "label": "ui-reward chunk", "maxBytes": 19456 },
+  "uiCombatJs": { "label": "ui-combat chunk", "maxBytes": 327680 },
+  "uiCombatTooltipsJs": { "label": "ui-combat-tooltips chunk", "maxBytes": 16384 },
+  "uiSettingsJs": { "label": "ui-settings chunk", "maxBytes": 20480 },
+  "uiShellOverlaysJs": { "label": "ui-shell-overlays chunk", "maxBytes": 22528 },
+  "codexUiJs": { "label": "codex ui chunk", "maxBytes": 39936 },
+  "runModeUiJs": { "label": "run mode ui chunk", "maxBytes": 28672 }
 }

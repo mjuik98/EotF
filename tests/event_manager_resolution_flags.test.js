@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { EVENTS } from '../data/events_data.js';
-import { EventManager } from '../game/systems/event_manager.js';
+import { EventManager } from '../game/features/event/ports/public_compat_capabilities.js';
 
 describe('EventManager structured resolution flags', () => {
   it('treats explicit successful object results as success even if the text contains failure keywords', () => {

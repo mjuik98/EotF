@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ClassProgressionSystem } from '../game/systems/class_progression_system.js';
+import { ClassProgressionSystem } from '../game/features/title/ports/public_progression_capabilities.js';
 
 function createGs(overrides = {}) {
   return {

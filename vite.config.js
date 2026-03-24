@@ -39,8 +39,13 @@ export function getManualChunk(id) {
   if (normalized.includes('/game/shared/ui/item_detail/')) return 'ui-shared-surfaces';
   if (normalized.includes('/game/shared/ui/state/')) return 'ui-shared-surfaces';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_copy.js')) return 'ui-combat-copy';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/combat_keyword_copy.js')) return 'ui-combat-copy';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_relic_rail_ui.js')) return 'ui-combat-relics';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/combat_relic_visuals.js')) return 'ui-combat-relics';
   if (normalized.endsWith('/game/features/combat/presentation/browser/item_tooltip_fallback_text.js')) return 'ui-combat-relics';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/item_detail_navigation.js')) return 'ui-combat-relics';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/item_detail_state.js')) return 'ui-combat-relics';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/item_detail_view_model.js')) return 'ui-combat-relics';
   if (normalized.includes('/game/features/combat/presentation/browser/item_detail_')) return 'ui-combat-relics';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
   if (normalized.includes('/game/features/event/presentation/browser/')) return 'ui-event';

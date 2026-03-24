@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  registerLegacyBridgeRuntime: vi.fn(),
+  registerLegacyBridge: vi.fn(),
 }));
 
-vi.mock('../game/platform/legacy/register_legacy_bridge_runtime.js', () => ({
-  registerLegacyBridgeRuntime: hoisted.registerLegacyBridgeRuntime,
+vi.mock('../game/platform/legacy/register_legacy_bridge.js', () => ({
+  registerLegacyBridge: hoisted.registerLegacyBridge,
 }));
 
 import { registerLegacySurface } from '../game/core/bootstrap/register_legacy_surface.js';
 
 describe('registerLegacySurface', () => {
   beforeEach(() => {
-    hoisted.registerLegacyBridgeRuntime.mockReset();
+    hoisted.registerLegacyBridge.mockReset();
   });
 
-  it('delegates legacy surface registration through the platform legacy bridge runtime', () => {
+  it('delegates legacy surface registration through the platform legacy bridge facade', () => {
     const exposeGlobals = vi.fn();
     const modules = {
       GAME: { init: vi.fn() },
@@ -59,6 +59,6 @@ describe('registerLegacySurface', () => {
 
     registerLegacySurface({ modules, fns });
 
-    expect(hoisted.registerLegacyBridgeRuntime).toHaveBeenCalledWith({ modules, fns });
+    expect(hoisted.registerLegacyBridge).toHaveBeenCalledWith({ modules, fns });
   });
 });

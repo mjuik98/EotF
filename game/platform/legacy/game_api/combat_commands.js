@@ -1,5 +1,10 @@
 import { Logger } from '../../../utils/logger.js';
-import { createCombatApplicationCapabilities } from '../../../features/combat/ports/public_application_capabilities.js';
+import {
+  applyCombatEnemyDamage,
+  discardCombatCard,
+  endCombatRuntimeFlow,
+  playCombatRuntimeCard,
+} from '../../../features/combat/platform/public_combat_command_surface.js';
 import {
   getAudioEngine,
   getCombatRuntimeDeps,
@@ -8,29 +13,27 @@ import {
   getModule,
 } from './runtime_context.js';
 
-function getCombatApplication() {
-  return createCombatApplicationCapabilities();
-}
-
 export function applyEnemyDamage(amount, targetIdx, gs = getDefaultState()) {
-  const combatApplication = getCombatApplication();
-  const result = combatApplication.applyEnemyDamageState(gs, { amount, targetIdx });
-  if (typeof result?.actualDamage === 'number') return result.actualDamage;
-  return combatApplication.applyEnemyDamageRuntime(gs, {
+  return applyCombatEnemyDamage({
     amount,
     targetIdx,
-    deps: getCombatRuntimeDeps(),
-  }) || 0;
+    gs,
+    runtimeDeps: getCombatRuntimeDeps(),
+  });
 }
 
 export function discardCard(cardId, isExhaust = false, gs = getDefaultState(), skipHandRemove = false) {
-  getCombatApplication().discardStateCard(cardId, isExhaust, gs, skipHandRemove, Logger);
+  return discardCombatCard({
+    cardId,
+    isExhaust,
+    gs,
+    skipHandRemove,
+    logger: Logger,
+  });
 }
 
 export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
-  const combatApplication = getCombatApplication();
-
-  return combatApplication.playRuntimeCard({
+  return playCombatRuntimeCard({
     cardId,
     handIdx,
     gs,
@@ -44,10 +47,20 @@ export function playCard(cardId, handIdx, gs = getDefaultState(), api) {
     },
     discardCard: (nextCardId, isExhaust, state, skipHandRemove) =>
       api?.discardCard?.(nextCardId, isExhaust, state, skipHandRemove)
-      || combatApplication.discardStateCard(nextCardId, isExhaust, state, skipHandRemove, Logger),
+      || discardCombatCard({
+        cardId: nextCardId,
+        isExhaust,
+        gs: state,
+        skipHandRemove,
+        logger: Logger,
+      }),
+    logger: Logger,
   });
 }
 
 export async function endCombat(gs = getDefaultState()) {
-  return getCombatApplication().endCombatRuntime(gs, getCombatRuntimeDeps());
+  return endCombatRuntimeFlow({
+    gs,
+    runtimeDeps: getCombatRuntimeDeps(),
+  });
 }

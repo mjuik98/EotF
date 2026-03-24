@@ -7,14 +7,17 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_helpers.js', () =>
 
 vi.mock('../game/features/codex/presentation/browser/codex_ui_popup.js', () => ({
   buildCardPopupPayload: vi.fn(() => ({ theme: { bg1: '#1', bg2: '#2', border: '#3', glow: '#4' }, html: '<card />' })),
-  buildCodexNavBlock: vi.fn(() => '<nav />'),
-  buildCodexQuoteBlock: vi.fn(() => '<quote />'),
   buildEnemyPopupPayload: vi.fn(() => ({ theme: { bg1: '#a', bg2: '#b', border: '#c', glow: '#d' }, html: '<enemy />' })),
   buildItemPopupPayload: vi.fn(() => ({ theme: { bg1: '#x', bg2: '#y', border: '#z', glow: '#w' }, html: '<item />' })),
   closeCodexPopup: vi.fn(),
   ensureCodexPopupOverlay: vi.fn(),
   openCodexPopup: vi.fn(),
   setCodexPopupTheme: vi.fn(),
+}));
+
+vi.mock('../game/features/codex/presentation/browser/codex_ui_popup_blocks.js', () => ({
+  buildCodexNavBlock: vi.fn(() => '<nav />'),
+  buildCodexQuoteBlock: vi.fn(() => '<quote />'),
 }));
 
 vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', () => ({
@@ -36,12 +39,14 @@ function makeNode() {
 
 describe('codex_ui_popup_runtime', () => {
   let popup;
+  let popupBlocks;
   let controller;
   let runtime;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     popup = await import('../game/features/codex/presentation/browser/codex_ui_popup.js');
+    popupBlocks = await import('../game/features/codex/presentation/browser/codex_ui_popup_blocks.js');
     controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
     runtime = await import('../game/features/codex/presentation/browser/codex_ui_popup_runtime.js');
   });
@@ -69,6 +74,8 @@ describe('codex_ui_popup_runtime', () => {
     runtime.openEnemyCodexPopup(state, enemy, state.popupList);
 
     expect(controller.setCodexPopupNavigation).toHaveBeenCalledWith(state, enemy, state.popupList, expect.any(Function));
+    expect(popupBlocks.buildCodexQuoteBlock).toHaveBeenCalledWith('growl');
+    expect(popupBlocks.buildCodexNavBlock).toHaveBeenCalledWith(state.popupList, state.popupIndex);
     expect(popup.buildEnemyPopupPayload).toHaveBeenCalledWith(enemy, expect.objectContaining({
       gs: state.deps.gs,
       safeHtml: expect.any(Function),

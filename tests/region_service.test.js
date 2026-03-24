@@ -1,7 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it } from 'vitest';
-import { resolveActiveRegionId } from '../game/domain/run/region_service.js';
+import { resolveActiveRegionId } from '../game/features/run/ports/public_rule_capabilities.js';
 
 describe('resolveActiveRegionId', () => {
+  it('removes the legacy domain-owned region service wrapper', () => {
+    expect(
+      fs.existsSync(path.join(process.cwd(), 'game/domain/run/region_service.js')),
+    ).toBe(false);
+  });
+
   it('prefers explicit active region id when present', () => {
     expect(resolveActiveRegionId({ _activeRegionId: 5, currentRegion: 1 })).toBe(5);
   });

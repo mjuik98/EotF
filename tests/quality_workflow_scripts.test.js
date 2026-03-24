@@ -42,10 +42,10 @@ describe('quality workflow scripts', () => {
     const coverageThresholds = JSON.parse(readText('config/quality/coverage_thresholds.json'));
     const vitestConfig = readText('vitest.config.js');
 
-    expect(coverageThresholds.lines).toBeGreaterThanOrEqual(70);
-    expect(coverageThresholds.functions).toBeGreaterThanOrEqual(55);
-    expect(coverageThresholds.statements).toBeGreaterThanOrEqual(70);
-    expect(coverageThresholds.branches).toBeGreaterThanOrEqual(60);
+    expect(coverageThresholds.lines).toBeGreaterThanOrEqual(80);
+    expect(coverageThresholds.functions).toBeGreaterThanOrEqual(60);
+    expect(coverageThresholds.statements).toBeGreaterThanOrEqual(80);
+    expect(coverageThresholds.branches).toBeGreaterThanOrEqual(65);
     expect(vitestConfig).toContain("coverage_thresholds.json");
   });
 
@@ -56,7 +56,12 @@ describe('quality workflow scripts', () => {
     const auditScript = readText('scripts/report-structural-audit.mjs');
     const budgetScript = readText('scripts/assert-bundle-budgets.mjs');
 
-    expect(bundleBudgets.entryJs.maxBytes).toBe(410 * 1024);
+    expect(bundleBudgets.entryJs.maxBytes).toBe(400 * 1024);
+    expect(bundleBudgets.entryCss.maxBytes).toBe(190 * 1024);
+    expect(bundleBudgets.uiEventJs.maxBytes).toBe(44 * 1024);
+    expect(bundleBudgets.uiCombatJs.maxBytes).toBe(320 * 1024);
+    expect(bundleBudgets.codexUiJs.maxBytes).toBe(39 * 1024);
+    expect(bundleBudgets.runModeUiJs.maxBytes).toBe(28 * 1024);
     expect(structuralAuditThresholds.maxThinReexports).toBe(0);
     expect(structuralAuditThresholds.maxCompatRootCounts['game/ui']).toBe(0);
     expect(structuralAuditThresholds.maxCompatRootCounts['game/app']).toBe(0);
@@ -87,11 +92,15 @@ describe('quality workflow scripts', () => {
     expect(report.rootCounts).toHaveProperty('game/app');
     expect(report.rootCounts).toHaveProperty('game/ui');
     expect(report.rootCounts['game/features']).toBeGreaterThan(0);
-    expect(report.rootCounts['game/domain']).toBeGreaterThan(0);
-    expect(report.rootCounts['game/systems']).toBeGreaterThan(0);
+    expect(report.rootCounts['game/domain']).toBeGreaterThanOrEqual(0);
+    expect(report.rootCounts['game/systems']).toBeGreaterThanOrEqual(0);
     expect(report.totals.canonical).toBeGreaterThan(0);
-    expect(report.totals.transitional).toBeGreaterThan(0);
-    expect(report.largestTransitionalRoots[0]).toEqual({ root: 'game/domain', count: report.rootCounts['game/domain'] });
+    expect(report.totals.transitional).toBeGreaterThanOrEqual(0);
+    expect(report.largestTransitionalRoots[0].root).toBeTypeOf('string');
+    expect(report.transitionalRoots).toContain(report.largestTransitionalRoots[0].root);
+    expect(report.largestTransitionalRoots[0].count).toBe(
+      Math.max(...report.transitionalRoots.map((root) => report.rootCounts[root])),
+    );
   });
 
   it('loads explicit suite ownership and coupling targets from quality config', () => {
@@ -103,11 +112,10 @@ describe('quality workflow scripts', () => {
 
     expect(suiteManifest.fast.length).toBeGreaterThan(0);
     expect(suiteManifest.guardrails.length).toBeGreaterThan(0);
-    expect(couplingTargets.maxTotal).toBe(231);
-    expect(couplingTargets.maxByPair['feature->shared']).toBe(33);
-    expect(couplingTargets.maxByPair['feature->domain']).toBe(16);
-    expect(couplingTargets.maxByPair['feature->data']).toBe(10);
-    expect(couplingTargets.maxByPair['feature->utils']).toBe(2);
+    expect(couplingTargets.maxTotal).toBe(216);
+    expect(couplingTargets.maxByPair['feature->shared']).toBe(36);
+    expect(couplingTargets.maxByPair['feature->data']).toBe(13);
+    expect(couplingTargets.maxByPair['feature->utils']).toBe(4);
     expect(couplingTargets.maxByPair['feature->legacy']).toBe(1);
     expect(lintScript).toContain('node scripts/test_suite_manifest.mjs --check');
     expect(suiteScript).toContain('--write');
@@ -153,5 +161,31 @@ describe('quality workflow scripts', () => {
     expect(agents).toContain('Run `npm run test:full` when a change spans both runtime behavior and guardrail coverage.');
     expect(agents).toContain('Run `npm run quality:sync` when test ownership and dependency-map outputs both changed.');
     expect(agents).toContain('Run `npm run deps:map:check` to verify generated dependency map outputs are current before handoff on dependency-flow changes.');
+  });
+
+  it('keeps window-usage and state-mutation targets aligned with live files and current totals', () => {
+    const windowTargets = JSON.parse(readText('config/quality/window_usage_targets.json'));
+    const stateTargets = JSON.parse(readText('config/quality/state_mutation_targets.json'));
+
+    expect(windowTargets.totalMax).toBe(4);
+    expect(windowTargets.byKindMax.window).toBe(0);
+    expect(windowTargets.byKindMax.document).toBe(2);
+    expect(windowTargets.byKindMax.globalThis).toBe(2);
+    expect(Object.keys(windowTargets.byFileMax)).toEqual([
+      'game/utils/security.js',
+      'engine/audio.js',
+    ]);
+
+    expect(stateTargets.totalMax).toBe(72);
+    expect(Object.keys(stateTargets.byFileMax)).not.toContain('game/domain/combat/turn/end_player_turn_policy.js');
+    expect(Object.keys(stateTargets.byFileMax)).not.toContain('game/domain/combat/turn/enemy_effect_resolver.js');
+    expect(Object.keys(stateTargets.byFileMax)).not.toContain('game/domain/combat/turn/turn_state_mutators.js');
+
+    for (const relPath of [
+      ...Object.keys(windowTargets.byFileMax),
+      ...Object.keys(stateTargets.byFileMax),
+    ]) {
+      expect(fs.existsSync(path.join(process.cwd(), relPath))).toBe(true);
+    }
   });
 });

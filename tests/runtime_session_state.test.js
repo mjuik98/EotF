@@ -1,15 +1,19 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
-import * as compatCommands from '../game/state/commands/combat_runtime_commands.js';
 import * as compatSelectors from '../game/shared/state/runtime_session_selectors.js';
 import * as sharedState from '../game/shared/state/public.js';
 
 describe('runtime session state surfaces', () => {
-  it('keeps the legacy command surface wired to shared runtime session commands', () => {
-    expect(compatCommands.beginCombatResolution).toBe(sharedState.beginCombatResolution);
-    expect(compatCommands.setRewardLock).toBe(sharedState.setRewardLock);
-    expect(compatCommands.syncSelectedTarget).toBe(sharedState.syncSelectedTarget);
-    expect(compatCommands.consumeBossRewardState).toBe(sharedState.consumeBossRewardState);
+  it('removes the legacy state command compat files once canonical owners are in place', () => {
+    expect(
+      fs.existsSync(path.join(process.cwd(), 'game/state/commands/combat_runtime_commands.js')),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(process.cwd(), 'game/state/commands/run_outcome_commands.js')),
+    ).toBe(false);
   });
 
   it('keeps the legacy selector surface wired to shared runtime session selectors', () => {

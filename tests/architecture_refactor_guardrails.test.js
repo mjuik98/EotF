@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -149,10 +150,7 @@ describe('architecture refactor guardrails', () => {
   });
 
   it('keeps run region rules free of the core global bridge fallback', () => {
-    const source = readText('game/systems/run_rules_regions.js');
-
-    expect(source).not.toContain("from '../core/global_bridge.js'");
-    expect(source).not.toContain('GAME.State');
+    expect(fs.existsSync(path.join(ROOT, 'game/systems/run_rules_regions.js'))).toBe(false);
   });
 
   it('keeps run rules feature ownership free of legacy systems run-rule imports', () => {
@@ -180,18 +178,12 @@ describe('architecture refactor guardrails', () => {
     expect(matches).toEqual([]);
   });
 
-  it('keeps domain ownership free of combat compat helper imports', () => {
-    const files = [
-      'game/domain/class/class_mechanics.js',
-      'game/domain/combat/turn/start_player_turn_policy.js',
-      'game/domain/combat/turn/end_player_turn_policy.js',
-    ];
-
-    for (const file of files) {
-      const source = readText(file);
-      expect(source).not.toContain('/combat/class_mechanics.js');
-      expect(source).not.toContain('/combat/turn_manager_helpers.js');
+  it('keeps the transitional game/domain root empty once canonical owners exist', () => {
+    if (!fs.existsSync(path.join(ROOT, 'game/domain'))) {
+      expect(true).toBe(true);
+      return;
     }
+    expect(walkJsFiles('game/domain')).toEqual([]);
   });
 
   it('keeps combat feature death flow routed through feature-owned helpers', () => {

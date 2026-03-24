@@ -12,7 +12,7 @@ import {
   playUiItemGet,
   playUiItemGetFeedback,
   playUiClick,
-} from '../game/domain/audio/audio_event_helpers.js';
+} from '../game/shared/audio/audio_event_helpers.js';
 
 describe('audio_event_helpers', () => {
   it('prefers playEvent without invoking the legacy method', () => {

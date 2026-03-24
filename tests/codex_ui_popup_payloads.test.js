@@ -3,9 +3,16 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCardPopupPayload,
   buildCodexNavBlock,
+  buildCodexQuoteBlock,
+  buildCodexRecordBlock,
   buildCodexSetPopupBlock,
   buildEnemyPopupPayload,
   buildItemPopupPayload,
+} from '../game/features/codex/presentation/browser/codex_ui_popup_blocks.js';
+import {
+  buildCardPopupPayload as buildCardPayload,
+  buildEnemyPopupPayload as buildEnemyPayload,
+  buildItemPopupPayload as buildItemPayload,
 } from '../game/features/codex/public.js';
 
 describe('codex_ui_popup_payloads', () => {
@@ -28,18 +35,24 @@ describe('codex_ui_popup_payloads', () => {
     expect(nav).toContain('2 / 3');
     expect(setBlock).toContain('Void Set');
     expect(setBlock).toContain('1/2 보유');
+    expect(buildCodexQuoteBlock('기록된 문장')).toContain('기록된 문장');
+    expect(buildCodexRecordBlock(
+      { meta: { codexRecords: { cards: { strike: { used: 4, firstSeen: 'loop-1' } } } } },
+      'cards',
+      'strike',
+    )).toContain('사용 횟수');
   });
 
   it('builds enemy, card, and item popup payloads', () => {
-    const enemyPayload = buildEnemyPopupPayload(
+    const enemyPayload = buildEnemyPayload(
       { id: 'wolf', name: 'Wolf', isElite: true, icon: 'W', atk: 5, hp: 12 },
       { safeHtml: (value) => value, navHtml: '<nav />', quoteHtml: '<quote />' },
     );
-    const cardPayload = buildCardPopupPayload(
+    const cardPayload = buildCardPayload(
       { id: 'strike', name: 'Strike', type: 'ATTACK', rarity: 'common', cost: 1, desc: 'Deal 6', icon: 'S' },
       { gs: { meta: { codexRecords: { cards: { strike: { used: 4 } } } } }, data: { cards: {} }, safeHtml: (value) => value },
     );
-    const itemPayload = buildItemPopupPayload(
+    const itemPayload = buildItemPayload(
       { id: 'relic', name: 'Relic', rarity: 'rare', desc: 'Gain power', icon: 'R', set: 'void' },
       {
         gs: { meta: { codex: { enemies: new Set(), cards: new Set(), items: new Set(['relic']) }, codexRecords: { items: { relic: { found: 2 } } } } },

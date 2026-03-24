@@ -1,7 +1,7 @@
 import {
-  resolveActiveRegionId,
   startPlayerTurnPolicy,
-} from '../../../domain/combat/public_combat_runtime_capabilities.js';
+} from '../domain/turn/start_player_turn_policy.js';
+import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
 import { syncGuardianPreservedShield } from '../ports/public_state_capabilities.js';
 import {
   decayEnemyWeaken,
@@ -56,7 +56,8 @@ export async function runEnemyTurnUseCase({
   const resolveEnemyEffect = handleEnemyEffectFn || handleEnemyEffect;
   const resolveEnemyWeakenDecay = decayEnemyWeakenFn || decayEnemyWeaken;
   const resolvePlayerStatusTicks = processPlayerStatusTicksFn || processPlayerStatusTicks;
-  const startPlayerTurnAction = startPlayerTurn || (() => startPlayerTurnPolicy(gs));
+  const startPlayerTurnAction = startPlayerTurn
+    || (() => startPlayerTurnPolicy(gs, { resolveActiveRegionId }));
 
   cleanupTooltips?.();
   if (shouldAbortTurn(gs)) return;

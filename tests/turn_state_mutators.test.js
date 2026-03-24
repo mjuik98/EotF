@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   decrementStackedBuff,
   drawFromRandomPlayerPool,
-} from '../game/domain/combat/turn/turn_state_mutators.js';
+} from '../game/features/combat/domain/turn/turn_state_mutators.js';
 
 describe('turn_state_mutators pure helpers', () => {
   it('decrements stacked buffs and removes exhausted entries at zero', () => {

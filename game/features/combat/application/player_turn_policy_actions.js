@@ -1,13 +1,20 @@
-import { startPlayerTurnPolicy } from '../../../domain/combat/turn/start_player_turn_policy.js';
+import { startPlayerTurnPolicy } from '../domain/turn/start_player_turn_policy.js';
+import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
 import { createEndPlayerTurnPolicyCommands, createStartPlayerTurnPolicyCommands } from '../ports/player_turn_policy_ports.js';
 
 export function createStartPlayerTurnAction(overrides = {}) {
-  const commands = createStartPlayerTurnPolicyCommands(overrides);
+  const commands = createStartPlayerTurnPolicyCommands({
+    resolveActiveRegionId,
+    ...overrides,
+  });
   return (gs) => startPlayerTurnPolicy(gs, commands);
 }
 
 export function createEndPlayerTurnPolicyOptions(overrides = {}) {
   return {
-    ...createEndPlayerTurnPolicyCommands(overrides),
+    ...createEndPlayerTurnPolicyCommands({
+      resolveActiveRegionId,
+      ...overrides,
+    }),
   };
 }

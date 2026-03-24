@@ -43,6 +43,24 @@ function isThinWrapperSource(source) {
   return /^\s*(?:export\s+(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];?\s*)+$/.test(source);
 }
 
+async function collectThinWrapperJsFiles(dirPath) {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const jsFiles = [];
+
+  for (const entry of entries) {
+    const entryPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      jsFiles.push(...(await collectThinWrapperJsFiles(entryPath)));
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith('.js')) {
+      jsFiles.push(entryPath);
+    }
+  }
+
+  return jsFiles.sort();
+}
+
 async function main() {
   const config = await readConfig();
   const featureNames = await collectFeatureDirs();
@@ -86,32 +104,24 @@ async function main() {
 
     for (const dirName of thinWrapperDirsByFeature[featureName] || []) {
       const wrapperDir = path.join(FEATURES_ROOT, featureName, dirName);
-      let wrapperEntries = [];
+      let jsFiles = [];
       try {
-        wrapperEntries = await fs.readdir(wrapperDir, { withFileTypes: true });
+        jsFiles = await collectThinWrapperJsFiles(wrapperDir);
       } catch {
         violations.push(`game/features/${featureName}/${dirName}: missing configured thin-wrapper dir`);
         continue;
       }
 
-      const jsFiles = wrapperEntries
-        .filter((entry) => entry.isFile() && entry.name.endsWith('.js'))
-        .map((entry) => entry.name)
-        .sort();
-
       if (jsFiles.length === 0) {
         violations.push(`game/features/${featureName}/${dirName}: expected at least one thin-wrapper file`);
       }
 
-      for (const entry of wrapperEntries.filter((dirEntry) => dirEntry.isDirectory())) {
-        violations.push(`game/features/${featureName}/${dirName}: unexpected nested dir ${entry.name}`);
-      }
-
-      for (const fileName of jsFiles) {
-        const filePath = path.join(wrapperDir, fileName);
+      for (const filePath of jsFiles) {
         const source = await fs.readFile(filePath, 'utf8');
         if (!isThinWrapperSource(source)) {
-          violations.push(`game/features/${featureName}/${dirName}/${fileName}: expected thin re-export wrapper`);
+          violations.push(
+            `${toPosix(path.relative(ROOT, filePath))}: expected thin re-export wrapper`,
+          );
         }
       }
     }

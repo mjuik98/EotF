@@ -1,8 +1,8 @@
-import { createLegacyUiCommandFacade } from '../../../features/ui/ports/runtime/public_ui_runtime_surface.js';
+import { createPublicLegacyUiCommands } from '../../../features/ui/platform/public_ui_command_surface.js';
 import { getCombatRuntimeDeps, getModule, getUiRuntimeDeps } from './runtime_context.js';
 
 function getLegacyUiCommands() {
-  return createLegacyUiCommandFacade({
+  return createPublicLegacyUiCommands({
     getModule,
     getUiRuntimeDeps,
     getCombatRuntimeDeps,

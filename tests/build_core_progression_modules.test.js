@@ -6,7 +6,7 @@ const hoisted = vi.hoisted(() => ({
   DifficultyScaler: { id: 'difficulty' },
 }));
 
-vi.mock('../game/domain/class/class_mechanics.js', () => ({
+vi.mock('../game/shared/class/class_mechanics.js', () => ({
   ClassMechanics: hoisted.ClassMechanics,
 }));
 

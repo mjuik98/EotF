@@ -3,7 +3,7 @@ import { getItemDetailNavIndex, isItemDetailCommitKey } from './item_detail_navi
 import {
   applyCombatRelicPanelVisuals,
   applyCombatRelicSlotVisuals,
-} from './combat_copy.js';
+} from './combat_relic_visuals.js';
 import { resolveItemDetailState } from './item_detail_state.js';
 import { buildItemDetailViewModel } from './item_detail_view_model.js';
 import {

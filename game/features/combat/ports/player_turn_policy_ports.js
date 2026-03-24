@@ -26,6 +26,7 @@ export function createStartPlayerTurnPolicyCommands(overrides = {}) {
     exhaustRandomPlayerCardState: overrides.exhaustRandomPlayerCardState || exhaustRandomPlayerCardState,
     reducePlayerTurnEnergyState: overrides.reducePlayerTurnEnergyState || reducePlayerTurnEnergyState,
     reducePlayerTurnMaxEchoState: overrides.reducePlayerTurnMaxEchoState || reducePlayerTurnMaxEchoState,
+    resolveActiveRegionId: overrides.resolveActiveRegionId,
   };
 }
 
@@ -34,6 +35,7 @@ export function createEndPlayerTurnPolicyCommands(overrides = {}) {
     consumePlayerBuffState: overrides.consumePlayerBuffState || consumePlayerBuffStackState,
     finalizePlayerTurnEndState: overrides.finalizePlayerTurnEndState || finalizePlayerTurnEndState,
     reducePlayerTurnSilenceGaugeState: overrides.reducePlayerTurnSilenceGaugeState || reducePlayerTurnSilenceGaugeState,
+    resolveActiveRegionId: overrides.resolveActiveRegionId,
     resetPlayerTurnTimeRiftState: overrides.resetPlayerTurnTimeRiftState || resetPlayerTurnTimeRiftState,
   };
 }

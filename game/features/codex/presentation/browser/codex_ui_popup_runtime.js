@@ -4,11 +4,13 @@ import {
 } from './codex_ui_helpers.js';
 import {
   buildCardPopupPayload,
-  buildCodexNavBlock,
-  buildCodexQuoteBlock,
   buildEnemyPopupPayload,
   buildItemPopupPayload,
 } from './codex_ui_popup.js';
+import {
+  buildCodexNavBlock,
+  buildCodexQuoteBlock,
+} from './codex_ui_popup_blocks.js';
 import {
   setCodexPopupNavigation,
 } from './codex_ui_controller.js';

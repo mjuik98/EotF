@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GAME } from '../game/core/global_bridge.js';
-import { RunRules, finalizeRunOutcome } from '../game/systems/run_rules.js';
+import { RunRules, finalizeRunOutcome } from '../game/features/run/ports/public_rule_capabilities.js';
 
 describe('RunRules preview meta support', () => {
   const originalState = GAME.State;
@@ -48,6 +48,7 @@ describe('RunRules preview meta support', () => {
     vi.spyOn(Date, 'now').mockReturnValue(6100);
 
     const gain = finalizeRunOutcome('victory', {}, {
+      gs: GAME.State,
       saveSystem: { saveMeta, clearSave },
     });
 

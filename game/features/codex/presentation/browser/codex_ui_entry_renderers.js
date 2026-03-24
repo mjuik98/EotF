@@ -11,34 +11,23 @@ import {
   getRarityLabel,
   isSeenCodexCard,
 } from './codex_ui_helpers.js';
-
-function baseCard(doc, entry, typeClass, rarityClass, seen) {
-  const card = doc.createElement('article');
-  card.className = [
-    'cx-card',
-    typeClass,
-    rarityClass,
-    !seen ? 'is-unknown' : '',
-    entry.isNew && seen ? 'new-card' : '',
-  ].filter(Boolean).join(' ');
-
-  if (!seen) {
-    card.innerHTML = `
-      <div class="cx-unknown-qmarks">
-        <span class="cx-qmark" style="top:20%;left:10%;animation-delay:0s">?</span>
-        <span class="cx-qmark" style="top:40%;left:80%;animation-delay:1s">?</span>
-        <span class="cx-qmark" style="top:65%;left:40%;animation-delay:2s">?</span>
-      </div>`;
-  }
-  return card;
-}
+import {
+  createCodexEntryShell,
+  setCodexEntryAnimationDelay,
+} from './codex_ui_card_shell.js';
+import {
+  bindOwnedCodexSetItems,
+  buildCodexSetBlockMarkup,
+  buildCodexSetItemsMarkup,
+  renderCodexEmptyState,
+} from './codex_ui_set_view_helpers.js';
 
 export function createCodexEnemyCard(doc, enemy, index, context = {}) {
   const { gs, onOpen } = context;
   const codex = ensureCodexState(gs);
   const seen = codex.enemies.has(enemy.id);
-  const card = baseCard(doc, enemy, context.typeClass || 't-enemy', '', seen);
-  card.style.animationDelay = `${(index % 12) * 0.03}s`;
+  const card = createCodexEntryShell(doc, enemy, context.typeClass || 't-enemy', '', seen);
+  setCodexEntryAnimationDelay(card, index);
 
   const rec = getCodexRecord(gs, 'enemies', enemy.id);
   const killsBadge = seen && rec ? `<div class="cx-record-badge">💀 ${rec.kills ?? 0}</div>` : '';
@@ -67,8 +56,14 @@ export function createCodexCardEntry(doc, cardEntry, index, context = {}) {
   const { gs, onOpen } = context;
   const codex = ensureCodexState(gs);
   const seen = isSeenCodexCard(codex, cardEntry.id);
-  const card = baseCard(doc, cardEntry, `t-${String(cardEntry.type || 'skill').toLowerCase()}`, getRarityCardClass(cardEntry.rarity), seen);
-  card.style.animationDelay = `${(index % 12) * 0.03}s`;
+  const card = createCodexEntryShell(
+    doc,
+    cardEntry,
+    `t-${String(cardEntry.type || 'skill').toLowerCase()}`,
+    getRarityCardClass(cardEntry.rarity),
+    seen,
+  );
+  setCodexEntryAnimationDelay(card, index);
 
   const rec = getCodexRecord(gs, 'cards', cardEntry.id);
   const usedBadge = seen && rec ? `<div class="cx-record-badge">✦ ${rec.used ?? 0}</div>` : '';
@@ -101,14 +96,14 @@ export function createCodexItemCard(doc, item, index, context = {}) {
   const codex = ensureCodexState(gs);
   const seen = codex.items.has(item.id);
   const setDef = item.set ? getCodexSets(data)[item.set] : null;
-  const card = baseCard(
+  const card = createCodexEntryShell(
     doc,
     item,
     't-item',
     item.rarity === 'legendary' || item.rarity === 'boss' ? 'r-legendary' : getRarityCardClass(item.rarity),
     seen,
   );
-  card.style.animationDelay = `${(index % 12) * 0.03}s`;
+  setCodexEntryAnimationDelay(card, index);
   if (setDef && seen) card.style.setProperty('--cx-card-border', setDef.border || 'rgba(0,255,204,.2)');
 
   const hintBadge = !seen && item.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${item.hint}</div></div>` : '';
@@ -155,47 +150,19 @@ export function renderCodexSetView(doc, container, data, gs, handlers = {}) {
     block.style.setProperty('--sv-border', def.border || 'rgba(0,255,204,.4)');
     block.style.setProperty('--sv-glow', def.glow || 'rgba(0,255,204,.15)');
 
-    const itemsHtml = setItems.map((item) => {
-      const seen = codex.items.has(item.id);
-      const hint = !seen && item.hint ? `<span class="cx-svi-hint">${item.hint}</span>` : '';
-      return `<div class="cx-svi ${seen ? 'owned' : 'missing'}" data-item-id="${item.id}">
-        <span class="cx-svi-icon">${seen ? (item.icon || '?') : '❔'}</span>
-        <span class="cx-svi-name">${seen ? item.name : '???'}</span>
-        ${hint}
-      </div>`;
-    }).join('');
+    const itemsHtml = buildCodexSetItemsMarkup(setItems, codex);
 
-    block.innerHTML = `
-      <div class="cx-set-hdr">
-        <span class="cx-set-icon">${def.icon || '◈'}</span>
-        <span class="cx-set-name">${def.name}</span>
-        <div class="cx-set-ring">
-          <svg width="42" height="42" viewBox="0 0 42 42" style="transform:rotate(-90deg)">
-            <circle fill="none" stroke="rgba(255,255,255,.07)" stroke-width="4" cx="21" cy="21" r="${radius}"/>
-            <circle fill="none" stroke="${def.color || '#00ffcc'}" stroke-width="4" stroke-linecap="round"
-              cx="21" cy="21" r="${radius}"
-              stroke-dasharray="${circumference.toFixed(1)}"
-              stroke-dashoffset="${offset.toFixed(1)}"/>
-          </svg>
-          <div class="cx-set-ring-txt" style="color:${def.color || '#00ffcc'}">${owned}/${total}</div>
-        </div>
-      </div>
-      <div class="cx-set-items">${itemsHtml}</div>
-      <div class="cx-set-effect">
-        <span class="cx-set-effect-icon">✦</span>
-        <span class="cx-set-effect-text">
-          <span style="color:${def.color || '#00ffcc'};font-weight:600">${owned}/${total} 보유</span>
-          ${isComplete ? ` · <span style="color:${def.color || '#00ffcc'};font-weight:600">세트 효과 활성화</span>` : ' · 세트 미완성'}
-          <br>${def.effect || ''}
-        </span>
-      </div>
-    `;
-
-    block.querySelectorAll('.cx-svi.owned').forEach((element) => {
-      const itemId = element.dataset.itemId;
-      const item = items.find((entry) => entry.id === itemId);
-      if (item) element.addEventListener('click', () => handlers.onOpenItem?.(item));
+    block.innerHTML = buildCodexSetBlockMarkup(def, {
+      owned,
+      total,
+      radius,
+      circumference,
+      offset,
+      isComplete,
+      itemsHtml,
     });
+
+    bindOwnedCodexSetItems(block, items, handlers.onOpenItem);
 
     container.appendChild(block);
   });
@@ -208,5 +175,5 @@ export function renderCodexSetView(doc, container, data, gs, handlers = {}) {
 }
 
 export function renderCodexEmpty(container, message = '검색 결과가 없습니다') {
-  container.innerHTML = `<div class="cx-empty-state"><div class="cx-empty-icon">🔍</div><div class="cx-empty-text">${message}</div></div>`;
+  renderCodexEmptyState(container, message);
 }
