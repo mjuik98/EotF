@@ -1,5 +1,9 @@
 import { reducedMotion } from './run_mode_ui_helpers.js';
 import {
+  getContentVisibility,
+  getUnlockRequirementLabel,
+} from '../../../meta_progression/public.js';
+import {
   refreshInscriptionPanel,
   renderInscriptionOverview,
 } from './run_mode_ui_inscriptions_render.js';
@@ -62,26 +66,53 @@ export function renderOptionGrid(container, items, selected, type, doc) {
   for (const opt of items) {
     const isSelected = opt.id === selected;
     const isNone = opt.id === 'none';
+    const isLockedVisible = opt.visibility === 'locked-visible';
 
     const card = doc.createElement('button');
     card.type = 'button';
-    card.className = `rm-opt option-modifier${isCurse ? ' curse' : ''}${isSelected ? ' selected' : ''}${isNone ? ' none-opt' : ''}`;
+    card.disabled = isLockedVisible;
+    card.className = `rm-opt option-modifier${isCurse ? ' curse' : ''}${isSelected ? ' selected' : ''}${isNone ? ' none-opt' : ''}${isLockedVisible ? ' locked' : ''}`;
     card.dataset.id = opt.id;
     card.dataset.action = 'select-curse';
     card.setAttribute('role', 'radio');
+    card.setAttribute('aria-disabled', isLockedVisible ? 'true' : 'false');
     card.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-    card.setAttribute('tabindex', isSelected ? '0' : '-1');
-    card.setAttribute('aria-label', `${opt.name}: ${opt.desc || ''}`);
+    card.setAttribute('tabindex', isSelected && !isLockedVisible ? '0' : '-1');
+    card.setAttribute('aria-label', `${opt.name}: ${opt.desc || ''}${isLockedVisible ? `, ${opt.unlockHint || '해금 필요'}` : ''}`);
 
     card.innerHTML = `
       <div class="rm-opt-check">✓</div>
       <div class="rm-opt-icon">${opt.icon || '*'}</div>
       <div class="rm-opt-name">${opt.name}${opt.isNew ? '<span class="rm-new-badge">NEW</span>' : ''}</div>
       <div class="rm-opt-desc">${opt.desc || ''}</div>
+      ${isLockedVisible ? `<div class="rm-opt-lock">${opt.unlockHint || '해금 필요'}</div>` : ''}
     `;
 
     container.appendChild(card);
   }
+}
+
+export function buildCurseOptionEntries({ meta, runRules } = {}) {
+  return Object.values(runRules?.curses || {})
+    .map((curse) => {
+      if (curse.id === 'none') {
+        return {
+          ...curse,
+          visibility: 'visible',
+          unlockHint: '',
+        };
+      }
+
+      const visibility = getContentVisibility(meta, { type: 'curse', id: curse.id });
+      if (visibility === 'hidden') return null;
+
+      return {
+        ...curse,
+        visibility,
+        unlockHint: getUnlockRequirementLabel({ type: 'curse', id: curse.id }),
+      };
+    })
+    .filter(Boolean);
 }
 
 export function renderPanel(ui, doc, cfg, meta, runRules, gs, data) {
@@ -90,7 +121,7 @@ export function renderPanel(ui, doc, cfg, meta, runRules, gs, data) {
 
   renderDifficultyPanel(panel, cfg, meta, runRules, gs);
   renderPresets(ui, doc, cfg, meta, runRules);
-  renderOptionGrid(doc.getElementById('rmCurseGrid'), Object.values(runRules.curses || {}), cfg.curse, 'curse', doc);
+  renderOptionGrid(doc.getElementById('rmCurseGrid'), buildCurseOptionEntries({ meta, runRules }), cfg.curse, 'curse', doc);
   renderInscriptionOverview(doc, meta, cfg, data);
   renderHiddenEnding(meta, cfg, doc);
   renderSummaryBar(doc, cfg, meta, runRules, gs, data);

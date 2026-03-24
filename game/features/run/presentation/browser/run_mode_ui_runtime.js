@@ -3,6 +3,7 @@ import {
   getDoc,
   getMeta,
 } from './run_mode_ui_helpers.js';
+import { isContentUnlocked } from '../../../meta_progression/public.js';
 import {
   deleteRunConfigPreset,
   loadRunConfigPreset,
@@ -110,7 +111,9 @@ export function loadPresetRuntime(ui, slot, deps = {}) {
   runRules.ensureMeta(meta);
   const idx = Math.max(0, Math.min(3, Math.floor(Number(slot) || 0)));
   ui._selectedPresetSlot = idx;
-  if (!loadRunConfigPreset(meta, idx, runRules)) return false;
+  if (!loadRunConfigPreset(meta, idx, runRules, {
+    isUnlocked: (query) => isContentUnlocked(meta, query),
+  })) return false;
 
   ui.refresh(deps);
   deps.saveMeta?.();

@@ -3,6 +3,11 @@ import {
   getDoc,
   getMeta,
 } from './run_mode_ui_helpers.js';
+import {
+  getContentVisibility,
+  getUnlockRequirementLabel,
+  isContentUnlocked,
+} from '../../../meta_progression/public.js';
 import { ensureRunModeUiStyle } from './run_mode_ui_style.js';
 import {
   selectRunCurse,
@@ -48,13 +53,23 @@ export const RunModeUI = {
     if (!meta) return;
 
     runRules.ensureMeta(meta);
-    const selectedCurse = selectRunCurse(meta, runRules, id);
+    const currentCurse = meta.runConfig?.curse || 'none';
+    const selectedCurse = selectRunCurse(meta, runRules, id, {
+      isUnlocked: (query) => isContentUnlocked(meta, query),
+    });
+
+    if (id !== selectedCurse && getContentVisibility(meta, { type: 'curse', id }) === 'locked-visible') {
+      deps.notice?.(getUnlockRequirementLabel({ type: 'curse', id }));
+      return;
+    }
 
     const doc = getDoc(deps);
     const card = doc.querySelector(`#rmCurseGrid .rm-opt[data-id="${selectedCurse}"]`);
     const modal = doc.querySelector('#runSettingsModal .run-settings-panel');
-    if (selectedCurse !== 'none') curseFlash(card, modal);
-    else flash(card);
+    if (selectedCurse !== currentCurse || id === 'none') {
+      if (selectedCurse !== 'none') curseFlash(card, modal);
+      else flash(card);
+    }
 
     this.refresh(deps);
     deps.saveMeta?.();
@@ -68,7 +83,16 @@ export const RunModeUI = {
     if (!meta) return;
 
     runRules.ensureMeta(meta);
-    selectRunCurse(meta, runRules, runRules.nextCurseId(meta.runConfig?.curse || 'none'));
+    const current = meta.runConfig?.curse || 'none';
+    const maxSteps = Math.max(1, Object.keys(runRules.curses || {}).length);
+    let next = current;
+    for (let idx = 0; idx < maxSteps; idx += 1) {
+      next = runRules.nextCurseId(next);
+      const selected = selectRunCurse(meta, runRules, next, {
+        isUnlocked: (query) => isContentUnlocked(meta, query),
+      });
+      if (selected !== current || selected === 'none') break;
+    }
 
     this.refresh(deps);
     deps.saveMeta?.();

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-24T14:40:49.706Z",
+  "generatedAt": "2026-03-24T14:43:27.215Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -370,6 +370,7 @@
     "tests/run_end_screen_runtime.test.js",
     "tests/run_enemy_turn_use_case.test.js",
     "tests/run_entry_bindings.test.js",
+    "tests/run_mode_curse_unlock_gating.test.js",
     "tests/run_mode_style_split.test.js",
     "tests/run_mode_ui.test.js",
     "tests/run_mode_ui_render_sections.test.js",

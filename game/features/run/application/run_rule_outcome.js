@@ -1,7 +1,7 @@
 import { DATA } from '../ports/public_data_runtime_capabilities.js';
 import { CURSES } from '../domain/run_rules_curses.js';
 import { getRegionCount } from '../domain/run_rules_regions.js';
-import { evaluateAchievementTrigger } from '../../meta_progression/application/evaluate_achievement_trigger.js';
+import { evaluateAchievementTrigger } from '../../meta_progression/public.js';
 import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import { ensureRunRuleMeta, resolveRunRuleClassIds } from './run_rule_meta.js';
 import {

@@ -61,6 +61,23 @@ describe('run_config_state_commands', () => {
     });
   });
 
+  it('does not select a locked curse through feature state commands', () => {
+    const meta = createMeta();
+    const runRules = {
+      curses: {
+        none: {},
+        blood_moon: {},
+      },
+    };
+
+    const selected = selectRunCurse(meta, runRules, 'blood_moon', {
+      isUnlocked: ({ type, id }) => !(type === 'curse' && id === 'blood_moon'),
+    });
+
+    expect(selected).toBe('none');
+    expect(meta.runConfig.curse).toBe('none');
+  });
+
   it('saves, loads, and deletes run config presets through state commands', () => {
     const meta = createMeta();
     meta.runConfig = {

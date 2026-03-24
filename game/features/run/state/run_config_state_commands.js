@@ -25,10 +25,17 @@ export function ensureRunConfigMeta(meta) {
   return meta.runConfig;
 }
 
-export function selectRunCurse(meta, runRules, id) {
+export function selectRunCurse(meta, runRules, id, options = {}) {
   const cfg = ensureRunConfigMeta(meta);
   if (!cfg) return null;
-  cfg.curse = runRules?.curses?.[id] ? id : 'none';
+  if (!runRules?.curses?.[id]) {
+    cfg.curse = 'none';
+    return cfg.curse;
+  }
+  if (id !== 'none' && typeof options.isUnlocked === 'function' && !options.isUnlocked({ type: 'curse', id })) {
+    return cfg.curse;
+  }
+  cfg.curse = id;
   return cfg.curse;
 }
 
@@ -83,7 +90,7 @@ export function saveRunConfigPreset(meta, { slot, name } = {}) {
   return preset;
 }
 
-export function loadRunConfigPreset(meta, slot, runRules) {
+export function loadRunConfigPreset(meta, slot, runRules, options = {}) {
   const cfg = ensureRunConfigMeta(meta);
   if (!cfg || !Array.isArray(meta?.runConfigPresets)) return null;
 
@@ -95,6 +102,9 @@ export function loadRunConfigPreset(meta, slot, runRules) {
   cfg.ascension = Math.max(0, Math.min(meta.maxAscension || 0, cfg.ascension));
   if (!meta.unlocks?.endless) cfg.endless = false;
   if (!runRules?.curses?.[cfg.curse]) cfg.curse = 'none';
+  if (cfg.curse !== 'none' && typeof options.isUnlocked === 'function' && !options.isUnlocked({ type: 'curse', id: cfg.curse })) {
+    cfg.curse = 'none';
+  }
   return cfg;
 }
 
