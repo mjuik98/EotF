@@ -116,6 +116,33 @@ function createDeps({ maxEnergy, withGetRandomCard = true }) {
     type: 'attack',
     cost: 1,
   }]));
+  cards.card_a_plus = {
+    id: 'card_a_plus',
+    name: 'card_a+',
+    desc: 'card_a+ desc',
+    rarity: 'common',
+    type: 'attack',
+    cost: 1,
+    upgraded: true,
+  };
+  cards.card_b_plus = {
+    id: 'card_b_plus',
+    name: 'card_b+',
+    desc: 'card_b+ desc',
+    rarity: 'common',
+    type: 'attack',
+    cost: 1,
+    upgraded: true,
+  };
+  cards.card_c_plus = {
+    id: 'card_c_plus',
+    name: 'card_c+',
+    desc: 'card_c+ desc',
+    rarity: 'common',
+    type: 'attack',
+    cost: 1,
+    upgraded: true,
+  };
 
   const gs = {
     combat: { active: true },
@@ -146,7 +173,15 @@ function createDeps({ maxEnergy, withGetRandomCard = true }) {
 
   return {
     gs,
-    data: { cards, items: {} },
+    data: {
+      cards,
+      items: {},
+      upgradeMap: {
+        card_a: 'card_a_plus',
+        card_b: 'card_b_plus',
+        card_c: 'card_c_plus',
+      },
+    },
     doc,
     switchScreen: vi.fn(),
     showItemToast: vi.fn(),
@@ -181,6 +216,49 @@ describe('RewardUI', () => {
     expect(deps.rewardCards.children.length).toBeGreaterThan(0);
     expect(deps.rewardCards.children[0]?.getAttribute?.('aria-label')).toContain('card reward');
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
+  });
+
+  it('surfaces exactly one upgraded card in a normal three-card combat reward high-roll', () => {
+    const originalRandom = Math.random;
+    Math.random = vi.fn(() => 0);
+    const deps = createDeps({ maxEnergy: 3 });
+
+    try {
+      RewardUI.showRewardScreen('normal', deps);
+    } finally {
+      Math.random = originalRandom;
+    }
+
+    const labels = deps.rewardCards.children.map((child) => child.getAttribute('aria-label'));
+    const upgradedCount = labels.filter((label) => label?.includes?.('+')).length;
+
+    expect(deps.rewardCards.children).toHaveLength(3);
+    expect(upgradedCount).toBe(1);
+  });
+
+  it('caps elite three-card combat rewards at one upgraded card', () => {
+    const originalRandom = Math.random;
+    Math.random = vi.fn(() => 0);
+    const deps = createDeps({ maxEnergy: 3 });
+    deps.gs.currentNode.type = 'elite';
+    deps.data.cards.card_a.rarity = 'uncommon';
+    deps.data.cards.card_b.rarity = 'uncommon';
+    deps.data.cards.card_c.rarity = 'rare';
+    deps.data.cards.card_a_plus.rarity = 'uncommon';
+    deps.data.cards.card_b_plus.rarity = 'uncommon';
+    deps.data.cards.card_c_plus.rarity = 'rare';
+
+    try {
+      RewardUI.showRewardScreen('normal', deps);
+    } finally {
+      Math.random = originalRandom;
+    }
+
+    const labels = deps.rewardCards.children.map((child) => child.getAttribute('aria-label'));
+    const upgradedCount = labels.filter((label) => label?.includes?.('+')).length;
+
+    expect(deps.rewardCards.children).toHaveLength(3);
+    expect(upgradedCount).toBe(1);
   });
 
   it('marks permanent energy blessing with emphasized disabled visuals at cap', () => {

@@ -137,7 +137,7 @@ describe('tooltip_item_ui', () => {
     expect(text).toContain('Void Crystal');
     expect(text).toContain('전투 시작 시');
     expect(text).toContain('1회 남음');
-    expect(text).toContain('Void Set');
+    expect(text).toContain('심연의 삼위일체');
     expect(text).toContain('보유');
     expect(text).toContain('Bonus active');
   });

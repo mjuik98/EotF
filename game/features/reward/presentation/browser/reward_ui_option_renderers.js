@@ -15,12 +15,24 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
   const doc = getDoc(deps);
   const card = data.cards?.[cardId];
   if (!card) return;
+  const isUpgradedReward = !!card.upgraded;
 
   const wrapper = doc.createElement('button');
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
+  if (isUpgradedReward) {
+    wrapper.classList.add('reward-upgraded-card');
+    wrapper.title = '강화 카드 럭키 드랍';
+  }
   wrapper.style.animationDelay = `${idx * 0.08}s`;
   wrapper.setAttribute('aria-label', `${card.name || cardId} card reward`);
+
+  if (isUpgradedReward) {
+    const highrollBadge = doc.createElement('div');
+    highrollBadge.className = 'reward-upgraded-highroll-badge';
+    highrollBadge.textContent = 'HIGH ROLL';
+    wrapper.appendChild(highrollBadge);
+  }
 
   const cardEl = doc.createElement('div');
   const rarityClass = `rarity-${card.rarity || 'common'}`;

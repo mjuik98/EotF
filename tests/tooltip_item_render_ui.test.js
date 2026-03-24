@@ -109,9 +109,48 @@ describe('tooltip_item_render_ui', () => {
     expect(state.rarityLabel).toBe('희귀');
     expect(state.triggerText).toBe('전투 시작 시');
     expect(state.liveCharge.remaining).toBe(1);
-    expect(state.setDef.name).toBe('Void Set');
+    expect(state.setDef.name).toBe('심연의 삼위일체');
     expect(state.setCount).toBe(1);
     expect(state.setOwnedFlags).toEqual([true, false]);
+  });
+
+  it('prefers localized set names over raw runtime identifiers', () => {
+    const data = {
+      items: {
+        unyielding_fort: {
+          id: 'unyielding_fort',
+          name: '불굴의 성채',
+          desc: '세트 구성품\n[세트: 철옹성]',
+          rarity: 'rare',
+          setId: 'iron_fortress',
+        },
+        guardian_seal: {
+          id: 'guardian_seal',
+          name: '수호자의 인장',
+          desc: '세트 구성품\n[세트: 철옹성]',
+          rarity: 'rare',
+          setId: 'iron_fortress',
+        },
+      },
+    };
+    const item = data.items.unyielding_fort;
+    const gs = {
+      player: { items: ['unyielding_fort'] },
+    };
+    const setBonusSystem = {
+      sets: {
+        iron_fortress: {
+          name: 'IRON_FORTRESS',
+          items: ['unyielding_fort', 'guardian_seal'],
+          bonuses: { 2: { label: '방어막 관련 효과' } },
+        },
+      },
+      getOwnedSetCounts: vi.fn(() => ({ iron_fortress: 1 })),
+    };
+
+    const state = resolveItemTooltipState('unyielding_fort', item, data, gs, setBonusSystem);
+
+    expect(state.setDef.name).toBe('철옹성');
   });
 
   it('keeps feature tooltip rendering decoupled from data rarity imports', () => {

@@ -40,6 +40,9 @@ export function resolveRewardCardConfig(rewardMode, isElite) {
   };
 }
 
+export const UPGRADED_REWARD_CARD_CHANCE_NORMAL = 0.08;
+export const UPGRADED_REWARD_CARD_CHANCE_ELITE = 0.15;
+
 function drawRandomRewardCardId(data, rarity = 'common', used = new Set()) {
   const allCards = Object.values(data?.cards || {});
   const pickFromPool = (targetRarity) => allCards
@@ -55,7 +58,38 @@ function drawRandomRewardCardId(data, rarity = 'common', used = new Set()) {
   return commonPool[Math.floor(Math.random() * commonPool.length)] || null;
 }
 
-export function drawRewardCards(gs, count, rarities, data = null) {
+function getUpgradedRewardCardChance({ rewardMode = 'normal', isElite = false, count = 0 } = {}) {
+  if (rewardMode !== 'normal' || count !== 3) return 0;
+  return isElite ? UPGRADED_REWARD_CARD_CHANCE_ELITE : UPGRADED_REWARD_CARD_CHANCE_NORMAL;
+}
+
+function maybeUpgradeRewardCardChoice(cardIds, data, options = {}) {
+  const chance = getUpgradedRewardCardChance({
+    count: cardIds.length,
+    isElite: options.isElite,
+    rewardMode: options.rewardMode,
+  });
+  if (!chance || Math.random() >= chance) return cardIds;
+
+  const candidates = cardIds
+    .map((cardId, index) => ({
+      cardId,
+      index,
+      upgradedId: data?.upgradeMap?.[cardId] || null,
+    }))
+    .filter(({ upgradedId }) => upgradedId && data?.cards?.[upgradedId]);
+
+  if (!candidates.length) return cardIds;
+
+  const picked = candidates[Math.floor(Math.random() * candidates.length)] || null;
+  if (!picked) return cardIds;
+
+  const next = [...cardIds];
+  next[picked.index] = picked.upgradedId;
+  return next;
+}
+
+export function drawRewardCards(gs, count, rarities, data = null, options = {}) {
   const out = [];
   const used = new Set();
   for (let i = 0; i < count; i += 1) {
@@ -70,5 +104,5 @@ export function drawRewardCards(gs, count, rarities, data = null) {
     used.add(cardId);
     out.push(cardId);
   }
-  return out;
+  return maybeUpgradeRewardCardChoice(out, data, options);
 }

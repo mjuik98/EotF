@@ -96,4 +96,15 @@ describe('global bridge feature dep contexts', () => {
     expect(combat.ClassMechanics).toBe(classMechanics);
     expect(combat.classMechanics).toBe(classMechanics);
   });
+
+  it('exposes DescriptionUtils through combat deps for hand-card description highlighting', () => {
+    const descriptionUtils = { highlight: (text) => `hl:${text}` };
+
+    GAME.init({ currentScreen: 'title' }, { cards: {} }, { playClick() {} }, { burst() {} });
+    GAME.register('DescriptionUtils', descriptionUtils);
+
+    const combat = GAME.getCombatDeps();
+
+    expect(combat.DescriptionUtils).toBe(descriptionUtils);
+  });
 });

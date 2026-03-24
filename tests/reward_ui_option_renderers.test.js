@@ -153,6 +153,38 @@ describe('reward_ui_option_renderers', () => {
     expect(onPick).toHaveBeenCalledTimes(1);
   });
 
+  it('adds a high-roll badge to upgraded reward cards only', () => {
+    const container = createMockElement('div');
+    const doc = createDoc();
+
+    renderRewardCardOption(
+      container,
+      'card_plus',
+      {
+        cards: {
+          card_plus: {
+            name: 'Card A+',
+            desc: 'Deal 12.',
+            rarity: 'rare',
+            type: 'attack',
+            cost: 2,
+            icon: 'A',
+            upgraded: true,
+          },
+        },
+      },
+      { player: {} },
+      { doc },
+      vi.fn(),
+      0,
+    );
+
+    const upgradedWrapper = container.children[0];
+    expect(upgradedWrapper.classList.contains('reward-upgraded-card')).toBe(true);
+    expect(upgradedWrapper.title).toContain('강화 카드');
+    expect(upgradedWrapper.children.some((child) => child.className === 'reward-upgraded-highroll-badge')).toBe(true);
+  });
+
   it('renders disabled energy blessing badges without click wiring', () => {
     const container = createMockElement('div');
     const doc = createDoc();

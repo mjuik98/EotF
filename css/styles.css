@@ -5320,6 +5320,35 @@ body:has(#combatOverlay.active) .panel-bottom {
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
+.reward-card-wrapper.reward-upgraded-card {
+  position: relative;
+}
+
+.reward-card-wrapper.reward-upgraded-card .reward-upgraded-highroll-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 214, 102, 0.95);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(70, 32, 8, 0.98), rgba(148, 82, 18, 0.92));
+  color: #ffe59c;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32), 0 0 18px rgba(255, 179, 71, 0.34);
+  pointer-events: none;
+}
+
+.reward-card-wrapper.reward-upgraded-card .card {
+  border-color: rgba(255, 201, 84, 0.88);
+  box-shadow: 0 0 0 1px rgba(255, 201, 84, 0.34), 0 14px 32px rgba(255, 169, 64, 0.18);
+}
+
 .reward-card-wrapper .card-name,
 .reward-card-name {
   font-size: 15px;
@@ -5375,6 +5404,11 @@ body:has(#combatOverlay.active) .panel-bottom {
 .reward-card-wrapper:focus-visible .card {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 0 12px 40px rgba(123, 47, 255, 0.3);
+}
+
+.reward-card-wrapper.reward-upgraded-card:hover .card,
+.reward-card-wrapper.reward-upgraded-card:focus-visible .card {
+  box-shadow: 0 16px 44px rgba(255, 176, 57, 0.34);
 }
 
 .reward-card-wrapper:disabled .card,

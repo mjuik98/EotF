@@ -13,6 +13,7 @@ const FEATURE_MODULE_NAMES = Object.freeze({
     'FeedbackUI',
     'ClassMechanics',
     'CardCostUtils',
+    'DescriptionUtils',
   ],
   event: [
     'EventUI',

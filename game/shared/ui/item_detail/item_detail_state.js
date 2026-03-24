@@ -1,3 +1,5 @@
+import { SETS as CANONICAL_SETS } from '../../progression/set_bonus_catalog.js';
+
 const RARITY_TIP_META = {
   legendary: { color: '#c084fc', glow: 'rgba(192,132,252,0.5)', border: 'rgba(192,132,252,0.45)', rgb: '192,132,252' },
   rare: { color: '#f0d472', glow: 'rgba(240,180,41,0.4)', border: 'rgba(240,180,41,0.4)', rgb: '240,180,41' },
@@ -51,6 +53,27 @@ const TRIGGER_LABEL_MAP = {
   shield_gain: '방어막 획득 시',
 };
 
+function getSetMembers(data, setId) {
+  return Object.values(data?.items || {}).filter((candidate) => candidate?.setId === setId);
+}
+
+function extractTaggedSetName(desc) {
+  const match = String(desc || '').match(/\[세트:\s*([^\]\n]+)\s*\]/);
+  return match?.[1]?.trim() || '';
+}
+
+function resolveSetDisplayName(item, setDef, members) {
+  const canonicalName = CANONICAL_SETS[item?.setId]?.name;
+  if (canonicalName) return canonicalName;
+
+  const taggedName = [item, ...(members || [])]
+    .map((entry) => extractTaggedSetName(entry?.desc))
+    .find(Boolean);
+  if (taggedName) return taggedName;
+
+  return setDef?.name || item?.setId || '';
+}
+
 export function resolveItemDetailState(itemId, item, data, gs, setBonusSystem) {
   const rarity = item.rarity || 'common';
   const rarityLabel = RARITY_LABELS[rarity] || rarity;
@@ -75,21 +98,27 @@ export function resolveItemDetailState(itemId, item, data, gs, setBonusSystem) {
   let setDef = null;
   let setCount = 0;
   let setOwnedFlags = [];
+  const setMembers = item.setId ? getSetMembers(data, item.setId) : [];
   if (item.setId && setBonusSystem) {
     setDef = setBonusSystem.sets?.[item.setId] || null;
     if (!setDef) {
-      const members = Object.values(data.items).filter((candidate) => candidate.setId === item.setId);
-      if (members.length >= 2) setDef = { name: item.setId, items: members.map((member) => member.id), bonuses: {} };
+      if (setMembers.length >= 2) {
+        setDef = { items: setMembers.map((member) => member.id), bonuses: {} };
+      }
     }
+    if (setDef) setDef = { ...setDef, name: resolveSetDisplayName(item, setDef, setMembers) };
     if (setDef && gs) {
       const counts = setBonusSystem.getOwnedSetCounts?.(gs) || {};
       setCount = counts[item.setId] || 0;
       setOwnedFlags = setDef.items.map((id) => gs.player?.items?.includes(id) ?? false);
     }
   } else if (item.setId) {
-    const members = Object.values(data.items).filter((candidate) => candidate.setId === item.setId);
-    if (members.length >= 2) {
-      setDef = { name: item.setId, items: members.map((member) => member.id), bonuses: {} };
+    if (setMembers.length >= 2) {
+      setDef = {
+        name: resolveSetDisplayName(item, null, setMembers),
+        items: setMembers.map((member) => member.id),
+        bonuses: {},
+      };
       if (gs) {
         setCount = setDef.items.filter((id) => gs.player?.items?.includes(id)).length;
         setOwnedFlags = setDef.items.map((id) => gs.player?.items?.includes(id) ?? false);
