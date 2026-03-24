@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build phase-1 achievement and content unlock infrastructure, wire it into run outcomes, and gate run curses through the new unlock state.
+**Goal:** Build phase-1 achievement and content unlock infrastructure, wire it into run outcomes, retroactively unlock satisfied legacy progress, and gate run curses through the new unlock state.
 
-**Architecture:** Keep progression causes and runtime availability separate. Store achievement progress in `meta.achievements`, resolved content availability in `meta.contentUnlocks`, and expose shared query helpers so run setup can gate curses without embedding achievement logic. Start with run-completed and boss-defeated triggers, then keep relic and card support as definition-level and query-level infrastructure only.
+**Architecture:** Keep progression causes and runtime availability separate. Store achievement progress in `meta.achievements`, resolved content availability in `meta.contentUnlocks`, and expose shared query helpers so run setup can gate curses without embedding achievement logic. Phase 1 only implements `run_completed`-driven achievements plus retroactive reconciliation from legacy meta progress; boss-defeated, item-acquired, and card-acquired triggers stay deferred until the repository has one authoritative recording source for each. The new `meta_progression` feature owns domain and application logic only, while existing run and UI features continue to own rendering and user interaction.
 
 **Tech Stack:** JavaScript ES modules, Vitest, Vite browser runtime, existing run feature state and presentation modules
 
@@ -82,7 +82,29 @@ if (!meta.contentUnlocks.cards.shared || typeof meta.contentUnlocks.cards.shared
 
 Keep this normalization additive only. Do not fold it into `meta.unlocks`.
 
-- [ ] **Step 4: Add a focused run-config compatibility test**
+- [ ] **Step 4: Add a retroactive reconciliation expectation to the preview test**
+
+Extend the same test file with a legacy-save case:
+
+```js
+it('retroactively unlocks achievements from existing progress', () => {
+  const meta = {
+    runCount: 5,
+    unlocks: { ascension: true, endless: true },
+    runConfig: { ascension: 1, endless: false, curse: 'none', disabledInscriptions: [] },
+    progress: { victories: 3, failures: 1, echoShards: 0, totalDamage: 0, bossKills: {} },
+  };
+
+  RunRules.ensureMeta(meta);
+
+  expect(meta.achievements.states.first_victory.unlocked).toBe(true);
+  expect(meta.contentUnlocks.curses.blood_moon.unlocked).toBe(true);
+});
+```
+
+This test should fail initially. Do not implement the reconciliation logic in `run_rules_meta.js` yet if it depends on new definition modules; just add the test now and let it remain red until Task 3.
+
+- [ ] **Step 5: Add a focused run-config compatibility test**
 
 Extend `tests/run_config_state_commands.test.js` with a case that loads a preset containing a now-locked or unknown curse and expects fallback to `'none'`:
 
@@ -101,13 +123,13 @@ it('falls back to none when loading an unavailable curse preset', () => {
 });
 ```
 
-- [ ] **Step 5: Run both focused tests to verify they pass**
+- [ ] **Step 6: Run the focused tests that should already pass**
 
 Run: `npm test -- tests/run_rules_preview_meta.test.js tests/run_config_state_commands.test.js`
 
-Expected: PASS
+Expected: The new container test passes after normalization is added. The retroactive unlock case may still fail until Task 3 introduces reconciliation.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add tests/run_rules_preview_meta.test.js tests/run_config_state_commands.test.js game/features/run/domain/run_rules_meta.js
@@ -135,8 +157,12 @@ import { UNLOCKABLES } from '../game/features/meta_progression/domain/unlockable
 describe('achievement definitions', () => {
   it('declares the initial curse unlock achievements', () => {
     expect(ACHIEVEMENTS.first_victory.trigger).toBe('run_completed');
-    expect(ACHIEVEMENTS.boss_hunter_1.trigger).toBe('boss_defeated');
-    expect(UNLOCKABLES.curses.blood_moon.requires).toEqual(['first_victory']);
+    expect(ACHIEVEMENTS.cursed_conqueror_1.trigger).toBe('run_completed');
+    expect(UNLOCKABLES.curses.blood_moon).toMatchObject({
+      requires: ['first_victory'],
+      unlockHint: '첫 승리 필요',
+      visibleBeforeUnlock: true,
+    });
   });
 });
 ```
@@ -147,6 +173,8 @@ Create `tests/content_unlock_queries.test.js`:
 import { describe, expect, it } from 'vitest';
 import {
   getContentVisibility,
+  getUnlockRequirementLabel,
+  getUnlockedContent,
   isContentUnlocked,
 } from '../game/features/meta_progression/domain/content_unlock_queries.js';
 
@@ -158,6 +186,8 @@ describe('content unlock queries', () => {
 
     expect(isContentUnlocked(meta, { type: 'curse', id: 'blood_moon' })).toBe(false);
     expect(getContentVisibility(meta, { type: 'curse', id: 'blood_moon' })).toBe('locked-visible');
+    expect(getUnlockRequirementLabel({ type: 'curse', id: 'blood_moon' })).toBe('첫 승리 필요');
+    expect(getUnlockedContent(meta, { type: 'curse' })).toEqual([]);
   });
 });
 ```
@@ -182,14 +212,6 @@ export const ACHIEVEMENTS = Object.freeze({
     condition: { type: 'victories', count: 1 },
     rewards: [{ type: 'unlock', contentType: 'curse', contentId: 'blood_moon' }],
   },
-  boss_hunter_1: {
-    id: 'boss_hunter_1',
-    trigger: 'boss_defeated',
-    category: 'boss',
-    scope: 'account',
-    condition: { type: 'boss_kills', count: 3 },
-    rewards: [{ type: 'unlock', contentType: 'curse', contentId: 'grave_toll' }],
-  },
   cursed_conqueror_1: {
     id: 'cursed_conqueror_1',
     trigger: 'run_completed',
@@ -208,9 +230,20 @@ Create `game/features/meta_progression/domain/unlockable_definitions.js`:
 ```js
 export const UNLOCKABLES = Object.freeze({
   curses: {
-    blood_moon: { id: 'blood_moon', scope: 'account', requires: ['first_victory'], visibleBeforeUnlock: true },
-    grave_toll: { id: 'grave_toll', scope: 'account', requires: ['boss_hunter_1'], visibleBeforeUnlock: true },
-    void_oath: { id: 'void_oath', scope: 'account', requires: ['cursed_conqueror_1'], visibleBeforeUnlock: true },
+    blood_moon: {
+      id: 'blood_moon',
+      scope: 'account',
+      requires: ['first_victory'],
+      unlockHint: '첫 승리 필요',
+      visibleBeforeUnlock: true,
+    },
+    void_oath: {
+      id: 'void_oath',
+      scope: 'account',
+      requires: ['cursed_conqueror_1'],
+      unlockHint: '저주 활성화 상태로 승리 1회 필요',
+      visibleBeforeUnlock: true,
+    },
   },
   relics: {},
   cards: {},
@@ -244,9 +277,23 @@ export function getContentVisibility(meta, { type, id, classId } = {}) {
   if (isContentUnlocked(meta, { type, id, classId })) return 'visible';
   return definition.visibleBeforeUnlock ? 'locked-visible' : 'hidden';
 }
-```
 
-Add `getUnlockedContent(...)` in the same file if another task needs list filtering immediately; otherwise stub it now only if tests require it.
+export function getUnlockedContent(meta, { type, classId } = {}) {
+  if (!type) return [];
+  if (type === 'card' && classId) {
+    return Object.entries(meta?.contentUnlocks?.cards?.[classId] || {})
+      .filter(([, state]) => state?.unlocked)
+      .map(([id]) => id);
+  }
+  return Object.entries(getUnlockBucket(meta, type))
+    .filter(([, state]) => state?.unlocked)
+    .map(([id]) => id);
+}
+
+export function getUnlockRequirementLabel({ type, id } = {}) {
+  return UNLOCKABLES[`${type}s`]?.[id]?.unlockHint || '해금 필요';
+}
+```
 
 - [ ] **Step 5: Run the focused tests to verify they pass**
 
@@ -263,11 +310,12 @@ git commit -m "feat: add achievement and unlock definitions"
 
 ## Chunk 2: Evaluation, Integration, and Curse Gating
 
-### Task 3: Add trigger-based progression evaluation and unlock resolution
+### Task 3: Add trigger-based progression evaluation, retroactive reconciliation, and unlock resolution
 
 **Files:**
 - Create: `game/features/meta_progression/application/evaluate_achievement_trigger.js`
 - Create: `game/features/meta_progression/application/apply_content_unlock_rewards.js`
+- Create: `game/features/meta_progression/application/reconcile_meta_progression.js`
 - Create: `tests/evaluate_achievement_trigger.test.js`
 
 - [ ] **Step 1: Write the failing evaluator tests**
@@ -301,7 +349,44 @@ describe('evaluate achievement trigger', () => {
 });
 ```
 
-Add a second test for `boss_defeated` that increments toward `boss_hunter_1` without unlocking until the third kill.
+Add a second test for a cursed victory:
+
+```js
+it('unlocks cursed_conqueror_1 from a cursed victory', () => {
+  const meta = {
+    achievements: { version: 1, states: {} },
+    contentUnlocks: { version: 1, curses: {}, relics: {}, cards: { shared: {} } },
+    progress: { victories: 2, bossKills: {} },
+  };
+
+  const result = evaluateAchievementTrigger(meta, 'run_completed', {
+    kind: 'victory',
+    runConfig: { curse: 'tax' },
+  });
+
+  expect(result.newlyUnlockedAchievements).toEqual(['cursed_conqueror_1']);
+  expect(meta.contentUnlocks.curses.void_oath.unlocked).toBe(true);
+});
+```
+
+Create a reconciliation test in the same file:
+
+```js
+import { reconcileMetaProgression } from '../game/features/meta_progression/application/reconcile_meta_progression.js';
+
+it('retroactively unlocks already-satisfied achievements', () => {
+  const meta = {
+    achievements: { version: 1, states: {} },
+    contentUnlocks: { version: 1, curses: {}, relics: {}, cards: { shared: {} } },
+    progress: { victories: 4, bossKills: {} },
+  };
+
+  reconcileMetaProgression(meta);
+
+  expect(meta.achievements.states.first_victory.unlocked).toBe(true);
+  expect(meta.contentUnlocks.curses.blood_moon.unlocked).toBe(true);
+});
+```
 
 - [ ] **Step 2: Run the focused test to verify it fails**
 
@@ -341,8 +426,6 @@ function isAchievementSatisfied(meta, definition, context = {}) {
   switch (definition.condition.type) {
     case 'victories':
       return Number(meta?.progress?.victories || 0) >= definition.condition.count && context.kind === 'victory';
-    case 'boss_kills':
-      return Number(context.totalBossKills || 0) >= definition.condition.count;
     case 'cursed_victories':
       return context.kind === 'victory' && context.runConfig?.curse && context.runConfig.curse !== 'none';
     default:
@@ -374,7 +457,28 @@ export function evaluateAchievementTrigger(meta, trigger, context = {}) {
 }
 ```
 
-Keep condition handling narrow. Do not prematurely generalize beyond the initial three achievements.
+Keep condition handling narrow. Do not prematurely generalize beyond the initial phase-1 achievements.
+
+Create `game/features/meta_progression/application/reconcile_meta_progression.js`:
+
+```js
+import { evaluateAchievementTrigger } from './evaluate_achievement_trigger.js';
+
+export function reconcileMetaProgression(meta) {
+  const unlocked = [];
+
+  if (Number(meta?.progress?.victories || 0) > 0) {
+    unlocked.push(...evaluateAchievementTrigger(meta, 'run_completed', {
+      kind: 'victory',
+      runConfig: { curse: 'none' },
+    }).newlyUnlockedAchievements);
+  }
+
+  return unlocked;
+}
+```
+
+Keep reconciliation idempotent and intentionally conservative. Phase 1 only backfills achievements that can be safely inferred from existing `meta.progress` and current run-independent state.
 
 - [ ] **Step 4: Run the focused tests to verify they pass**
 
@@ -385,7 +489,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add tests/evaluate_achievement_trigger.test.js game/features/meta_progression/application/evaluate_achievement_trigger.js game/features/meta_progression/application/apply_content_unlock_rewards.js
+git add tests/evaluate_achievement_trigger.test.js game/features/meta_progression/application/evaluate_achievement_trigger.js game/features/meta_progression/application/apply_content_unlock_rewards.js game/features/meta_progression/application/reconcile_meta_progression.js
 git commit -m "feat: add achievement trigger evaluator"
 ```
 
@@ -447,11 +551,10 @@ import { evaluateAchievementTrigger } from '../../meta_progression/application/e
 evaluateAchievementTrigger(gs.meta, 'run_completed', {
   kind,
   runConfig: gs.runConfig,
-  totalBossKills: Object.values(gs.meta.progress?.bossKills || {}).reduce((sum, count) => sum + (Number(count) || 0), 0),
 });
 ```
 
-In `game/features/run/state/run_outcome_state_commands.js`, keep `recordVictoryProgress` and `recordDefeatProgress` responsible only for numeric progress bookkeeping. If boss kill totals are not tracked cleanly yet, add a small helper rather than overloading the evaluator.
+In `game/features/run/state/run_outcome_state_commands.js`, keep `recordVictoryProgress` and `recordDefeatProgress` responsible only for numeric progress bookkeeping. Do not add boss-kill inference in phase 1.
 
 - [ ] **Step 4: Add a second test for cursed victory**
 
@@ -477,6 +580,8 @@ Expected: PASS
 git add tests/run_rule_outcome_progression.test.js game/features/run/application/run_rule_outcome.js game/features/run/state/run_outcome_state_commands.js
 git commit -m "feat: evaluate unlock achievements on run outcome"
 ```
+
+Also wire `reconcileMetaProgression(gs.meta)` into the meta initialization path used for run setup or startup after the new containers are present and before the UI renders. If there is no single clean startup hook yet, prefer calling it from the same place that already normalizes meta for run rules.
 
 ### Task 5: Gate run curses through content visibility and unlock state
 
@@ -588,7 +693,7 @@ const curseItems = Object.values(runRules.curses || {})
   .map((curse) => ({
     ...curse,
     visibility: getContentVisibility(meta, { type: 'curse', id: curse.id }),
-    unlockHint: getUnlockRequirementLabel('curse', curse.id),
+    unlockHint: getUnlockRequirementLabel({ type: 'curse', id: curse.id }),
   }));
 ```
 
@@ -657,4 +762,5 @@ Summarize:
 - which achievements were implemented
 - which curses were gated
 - which future hooks exist for relics and cards
+- that boss-defeated progression was intentionally deferred pending an authoritative event source
 - which commands were run and their outcomes

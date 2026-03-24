@@ -19,14 +19,16 @@ Phase 1 includes:
 - achievement state storage
 - content unlock state storage
 - achievement and unlockable definition tables
-- trigger-based achievement evaluation
+- trigger-based achievement evaluation for `run_completed`
 - curse visibility and selection gating in run setup
 - save compatibility for existing meta state
+- retroactive unlock reconciliation for legacy saves
 
 Phase 1 does not need to include:
 
 - a dedicated achievements screen
 - runtime unlock toast UI
+- boss-defeated trigger support until there is one authoritative boss-kill recording point
 - full relic pool gating
 - full card reward pool gating
 
@@ -58,6 +60,7 @@ Unlockable definitions describe:
 
 - content type
 - content id
+- unlock hint text
 - visibility before unlock
 - scope
 - required achievements
@@ -68,12 +71,19 @@ This allows the same progression infrastructure to support curses first, then re
 
 Do not evaluate every achievement on every state change.
 
-Instead, route relevant gameplay events into a progression evaluator and only check achievements that listen to that trigger. Recommended phase-1 triggers are:
+Instead, route relevant gameplay events into a progression evaluator and only check achievements that listen to that trigger.
+
+Phase 1 should support only:
 
 - `run_completed`
+
+Future triggers can include:
+
 - `boss_defeated`
 - `item_acquired`
 - `card_acquired`
+
+`boss_defeated` should not ship in phase 1 unless the repository first establishes one authoritative boss-kill recording point. Until then, boss-based achievements should be deferred rather than inferred from loosely related outcome state.
 
 This keeps the system cheap and easier to reason about.
 
@@ -86,6 +96,7 @@ Add shared helpers such as:
 - `isContentUnlocked(meta, query)`
 - `getContentVisibility(meta, query)`
 - `getUnlockedContent(meta, query)`
+- `getUnlockRequirementLabel(query)`
 
 Run setup, reward generation, shops, and event rewards should all use these helpers instead of custom unlock checks.
 
@@ -107,9 +118,9 @@ meta: {
         unlockedAt: 1712345678901,
         progress: 1,
       },
-      boss_hunter_1: {
+      cursed_conqueror_1: {
         unlocked: false,
-        progress: 2,
+        progress: 0,
       },
     },
   },
@@ -119,13 +130,12 @@ meta: {
       blood_moon: {
         unlocked: true,
         unlockedAt: 1712345678901,
-        source: 'boss_hunter_1',
+        source: 'first_victory',
       },
     },
     relics: {},
     cards: {
       shared: {},
-      swordsman: {},
     },
   },
 }
@@ -136,8 +146,24 @@ Rules for this structure:
 - keep `version` fields for migration safety
 - never reuse achievement ids or unlockable ids
 - use account-wide unlocks for curses
-- allow account-wide and class-scoped unlocks for relics and cards
+- allow account-wide and class-scoped unlocks for relics and cards, but create class-scoped card buckets lazily when they are first needed
 - use numeric `progress` fields by default in phase 1
+
+## Ownership Boundary
+
+The new progression feature should own domain definitions and application logic only.
+
+- `game/features/meta_progression/*`
+  - achievement definitions
+  - unlockable definitions
+  - progression evaluators
+  - unlock query helpers
+- existing run, title, and ui features
+  - rendering
+  - interaction bindings
+  - presentation-specific messaging
+
+This keeps progression rules centralized without moving existing UI ownership into a new feature.
 
 ## Definitions
 
@@ -167,6 +193,7 @@ const UNLOCKABLES = {
       id: 'blood_moon',
       scope: 'account',
       requires: ['first_victory'],
+      unlockHint: '첫 승리 필요',
       visibleBeforeUnlock: true,
     },
   },
@@ -176,6 +203,14 @@ const UNLOCKABLES = {
 ```
 
 The unlockable layer gives content systems a stable source of truth for visibility and eligibility without coupling them to achievement logic.
+
+## Retroactive Unlock Policy
+
+Legacy saves should receive retroactive unlocks immediately when the new progression containers are initialized.
+
+If a save already satisfies an achievement condition through existing accumulated values such as total victories, the game should mark that achievement as unlocked and resolve its content unlocks during reconciliation. Players should not be forced to repeat an already satisfied milestone just because the progression system was introduced later.
+
+Reconciliation must be idempotent and should not double-award anything if it runs more than once.
 
 ## Runtime Flow
 
@@ -231,10 +266,11 @@ Add pure helpers to:
 - record trigger progress
 - evaluate achievement completion
 - resolve content unlocks from newly completed achievements
+- reconcile legacy progress into unlocked achievements and content on load
 
 ### 4. Run outcome integration
 
-Connect run completion and boss-clear data to the evaluator through the run outcome flow.
+Connect run completion data to the evaluator through the run outcome flow.
 
 ### 5. Curse gating integration
 
@@ -250,12 +286,11 @@ Use a narrow initial set that relies on state already available or easy to add:
 
 - `first_victory`
   - unlocks one additional curse
-- `boss_hunter_1`
-  - requires several boss kills
-  - unlocks one additional curse
 - `cursed_conqueror_1`
   - requires a victory while any curse is active
   - unlocks a higher-difficulty curse
+
+Defer boss-kill achievements until the codebase has one explicit boss-kill recording source.
 
 This creates a clear early progression arc without introducing a large UI or content burden.
 
@@ -265,6 +300,8 @@ This creates a clear early progression arc without introducing a large UI or con
 
 Existing saves will not have the new progression containers. Initialization must backfill them safely and avoid overwriting valid legacy data.
 
+Existing progress may already satisfy new achievements. Reconciliation must unlock those retroactively without requiring replay.
+
 ### 2. Invalid stored selections
 
 Old presets or saved run configs may reference content that is no longer valid or is now locked. Run config normalization must fall back to a valid value such as `none` for curses.
@@ -273,15 +310,21 @@ Old presets or saved run configs may reference content that is no longer valid o
 
 Run outcome flows can already have idempotency concerns. Achievement rewards and content unlock resolution must not double-apply when the same completion path is processed twice.
 
-### 4. Scope creep
+### 4. Boss event ambiguity
+
+If boss achievements are added before a single authoritative recording point exists, progression rules will drift across combat, run outcome, and meta state.
+
+### 5. Scope creep
 
 If relic and card gating are implemented immediately, phase 1 will expand too far. Keep phase 1 focused on shared infrastructure plus curse unlock UX.
 
 ## Validation
 
 - Add tests for meta initialization and legacy save normalization.
-- Add tests for achievement completion on run-completed and boss-defeated triggers.
+- Add tests for retroactive unlock reconciliation from existing progress values.
+- Add tests for achievement completion on the run-completed trigger.
 - Add tests for unlock resolution populating `contentUnlocks`.
+- Add tests for unlock requirement labels coming from unlockable definitions rather than run UI logic.
 - Add tests for locked curses remaining visible but unselectable in run setup.
 - Add tests for invalid or locked stored curse selections falling back safely.
 - Run `npm test`.
