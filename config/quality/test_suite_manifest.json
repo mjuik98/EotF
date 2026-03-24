@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-24T14:39:15.830Z",
+  "generatedAt": "2026-03-24T14:40:49.706Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -377,6 +377,7 @@
     "tests/run_outcome_commands.test.js",
     "tests/run_return_ui_branch_ui.test.js",
     "tests/run_return_ui_runtime.test.js",
+    "tests/run_rule_outcome_progression.test.js",
     "tests/run_rules_preview_meta.test.js",
     "tests/run_rules_regions.test.js",
     "tests/run_screen_actions.test.js",

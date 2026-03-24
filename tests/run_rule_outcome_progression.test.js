@@ -1,0 +1,47 @@
+import { describe, expect, it, vi } from 'vitest';
+
+import { finalizeRunOutcome } from '../game/features/run/application/run_rule_outcome.js';
+
+function createGameState(curse = 'none') {
+  return {
+    _runOutcomeCommitted: false,
+    currentRegion: 0,
+    runConfig: { ascension: 0, endless: false, curse, disabledInscriptions: [] },
+    worldMemory: {},
+    stats: { _runStartTs: 0, _regionStartTs: 0, regionClearTimes: {} },
+    meta: {
+      unlocks: { ascension: true, endless: false },
+      worldMemory: {},
+      runCount: 1,
+      achievements: { version: 1, states: {} },
+      contentUnlocks: { version: 1, curses: {}, relics: {}, cards: { shared: {} } },
+      progress: { victories: 0, failures: 0, echoShards: 0, totalDamage: 0, bossKills: {} },
+    },
+  };
+}
+
+describe('run outcome progression integration', () => {
+  it('evaluates run_completed achievements after a victory', () => {
+    const gs = createGameState();
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(gs.meta.achievements.states.first_victory.unlocked).toBe(true);
+    expect(gs.meta.contentUnlocks.curses.blood_moon.unlocked).toBe(true);
+  });
+
+  it('unlocks cursed_conqueror_1 after a cursed victory', () => {
+    const gs = createGameState('tax');
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(gs.meta.achievements.states.cursed_conqueror_1.unlocked).toBe(true);
+    expect(gs.meta.contentUnlocks.curses.void_oath.unlocked).toBe(true);
+  });
+});
