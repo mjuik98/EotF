@@ -1,6 +1,7 @@
 {
-  "generatedAt": "2026-03-24T09:12:23.723Z",
+  "generatedAt": "2026-03-24T14:37:37.444Z",
   "fast": [
+    "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
     "tests/assert_bundle_budgets.test.js",
     "tests/audio_engine.test.js",
@@ -136,6 +137,7 @@
     "tests/combat_ui_render.test.js",
     "tests/combat_ui_runtime_helpers.test.js",
     "tests/combat_ui_smoke_scripts.test.js",
+    "tests/content_unlock_queries.test.js",
     "tests/continue_loaded_run_use_case.test.js",
     "tests/continue_run_use_case.test.js",
     "tests/core_store_public.test.js",
