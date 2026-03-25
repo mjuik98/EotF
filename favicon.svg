@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <!-- Background Gradient (Dark Abyss) -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b1236"/>
+      <stop offset="100%" stop-color="#090614"/>
+    </linearGradient>
+    
+    <!-- Crystal/Fragment Gradient (Cyan Memory) -->
+    <linearGradient id="crystal" x1="20" y1="12" x2="44" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#4facfe"/>
+    </linearGradient>
+    
+    <!-- Echo Core Gradient (Purple to Red) -->
+    <linearGradient id="echo" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7b2fff"/>
+      <stop offset="100%" stop-color="#ff4466"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Dark Rounded Container -->
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  
+  <!-- Outer Rune Ring (Fragmented Echo) -->
+  <circle cx="32" cy="32" r="22" fill="none" stroke="url(#echo)" stroke-width="2" stroke-dasharray="4 4" opacity="0.6"/>
+  <!-- Inner Resonance Ring -->
+  <circle cx="32" cy="32" r="16" fill="none" stroke="#7b2fff" stroke-width="1.5" opacity="0.4"/>
+  
+  <!-- Memory Fragment Base (Diamond) -->
+  <path d="M32 14 L44 32 L32 50 L20 32 Z" fill="url(#crystal)"/>
+  
+  <!-- Glowing Center -->
+  <path d="M32 20 L38 32 L32 44 L26 32 Z" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Blade Split / Memory Crack -->
+  <path d="M24 38 L40 26" stroke="#090614" stroke-width="2" stroke-linecap="round"/>
+</svg>

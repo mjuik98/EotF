@@ -1,5 +1,5 @@
 const RUN_MODE_STYLE_ID = 'run-mode-ui-style';
-const RUN_MODE_STYLE_HREF = '/css/run-rules-redesign.css';
+const RUN_MODE_STYLE_HREF = new URL('../../../../../css/run-rules-redesign.css', import.meta.url).href;
 
 export function ensureRunModeUiStyle(doc) {
   if (!doc?.head || doc.getElementById?.(RUN_MODE_STYLE_ID)) return;

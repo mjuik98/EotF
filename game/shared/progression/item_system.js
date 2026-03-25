@@ -1,6 +1,8 @@
 import { DATA } from '../../../data/game_data.js';
 import { InscriptionSystem } from './inscription_system.js';
 import { SetBonusSystem } from './set_bonus_system.js';
+import { CardGameStateRuntimeCompatMethods } from '../state/compat/game_state_card_runtime_compat_methods.js';
+import { createLegacyGameStateRuntimeFacade } from '../state/game_state_runtime_compat.js';
 
 const TRIGGER_ALIASES = Object.freeze({
   COMBAT_START: 'combat_start',
@@ -42,9 +44,25 @@ function normalizeTrigger(trigger) {
   return TRIGGER_ALIASES[trigger] || trigger;
 }
 
+function createItemPassiveRuntimeFacade(gs) {
+  const runtimeGs = createLegacyGameStateRuntimeFacade(gs);
+  const drawCards = CardGameStateRuntimeCompatMethods.drawCards;
+
+  return new Proxy(runtimeGs, {
+    get(target, prop, receiver) {
+      if (prop === 'drawCards' && typeof drawCards === 'function') {
+        return drawCards.bind(receiver);
+      }
+
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+}
+
 export const ItemSystem = {
   triggerItems(gs, trigger, data) {
     const normalizedTrigger = normalizeTrigger(trigger);
+    const runtimeGs = createItemPassiveRuntimeFacade(gs);
     let numericResult = typeof data === 'number' ? data : null;
     let numericOverride = null;
     let boolResult = false;
@@ -62,7 +80,7 @@ export const ItemSystem = {
       const item = DATA.items[itemId];
       if (!item?.passive) return;
       const payload = numericResult !== null ? numericResult : data;
-      const result = item.passive(gs, normalizedTrigger, payload);
+      const result = item.passive(runtimeGs, normalizedTrigger, payload);
       if (typeof result === 'number' && Number.isFinite(result)) {
         if (numericResult !== null) numericResult = result;
         else numericOverride = result;

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { ITEMS } from '../data/items.js';
+import { Actions } from '../game/core/store/state_actions.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 import { Trigger } from '../game/data/triggers.js';
 
 describe('items data passives', () => {
@@ -107,5 +109,25 @@ describe('items data passives', () => {
     expect(
       ITEMS.dimension_key.passive({}, Trigger.REWARD_GENERATE, { type: 'item', count: 3 }),
     ).toBeUndefined();
+  });
+
+  it('routes combat-start draw passives through runtime compat without mutating canonical GS helpers', () => {
+    const gs = {
+      combat: { active: true },
+      dispatch: vi.fn(),
+      player: {
+        hp: 20,
+        items: ['bloody_contract'],
+      },
+      addLog: vi.fn(),
+    };
+
+    expect(gs.drawCards).toBeUndefined();
+
+    expect(() => ItemSystem.triggerItems(gs, Trigger.COMBAT_START)).not.toThrow();
+
+    expect(gs.player.hp).toBe(14);
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.CARD_DRAW, { count: 2 });
+    expect(gs.drawCards).toBeUndefined();
   });
 });

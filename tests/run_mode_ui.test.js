@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { bindRunModePanelEvents } from '../game/features/run/public.js';
+import { ensureRunModeUiStyle } from '../game/features/run/presentation/browser/run_mode_ui_style.js';
 
 function createElement() {
   return {
@@ -50,5 +51,30 @@ describe('RunModeUI bindings', () => {
     expect(body.dataset.runRulesEscBound).toBe('true');
     expect(panel.dataset.bound).toBe('true');
     expect(closeBtn.dataset.bound).toBe('true');
+  });
+
+  it('ensureRunModeUiStyle injects the feature stylesheet once without a root-absolute css href', () => {
+    const byId = new Map();
+    const doc = {
+      head: {
+        children: [],
+        appendChild(child) {
+          if (child?.id) byId.set(child.id, child);
+          this.children.push(child);
+          return child;
+        },
+      },
+      createElement: vi.fn(() => ({ id: '', rel: '', href: '' })),
+      getElementById: vi.fn((id) => byId.get(id) || null),
+    };
+
+    ensureRunModeUiStyle(doc);
+    ensureRunModeUiStyle(doc);
+
+    expect(doc.head.children).toHaveLength(1);
+    expect(doc.head.children[0].id).toBe('run-mode-ui-style');
+    expect(doc.head.children[0].rel).toBe('stylesheet');
+    expect(doc.head.children[0].href).toContain('run-rules-redesign.css');
+    expect(doc.head.children[0].href).not.toBe('/css/run-rules-redesign.css');
   });
 });
