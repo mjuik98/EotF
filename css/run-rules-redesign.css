@@ -1284,6 +1284,52 @@
   color: rgba(255,255,255,0.5);
 }
 
+.rm-opt-desc .kw-dmg,
+.rm-diff-desc .kw-dmg,
+.rm-hidden-desc .kw-dmg,
+.rm-chip-desc .kw-dmg,
+.rm-tt-level .kw-dmg{color:#ff6677;font-weight:600}
+.rm-opt-desc .kw-shield,
+.rm-diff-desc .kw-shield,
+.rm-hidden-desc .kw-shield,
+.rm-chip-desc .kw-shield,
+.rm-tt-level .kw-shield{color:#60c8ff;font-weight:600}
+.rm-opt-desc .kw-heal,
+.rm-diff-desc .kw-heal,
+.rm-hidden-desc .kw-heal,
+.rm-chip-desc .kw-heal,
+.rm-tt-level .kw-heal{color:#44ee88;font-weight:600}
+.rm-opt-desc .kw-echo,
+.rm-diff-desc .kw-echo,
+.rm-hidden-desc .kw-echo,
+.rm-chip-desc .kw-echo,
+.rm-tt-level .kw-echo{color:#b080ff;font-weight:600}
+.rm-opt-desc .kw-energy,
+.rm-diff-desc .kw-energy,
+.rm-hidden-desc .kw-energy,
+.rm-chip-desc .kw-energy,
+.rm-tt-level .kw-energy{color:var(--rm-gold);font-weight:600}
+.rm-opt-desc .kw-draw,
+.rm-diff-desc .kw-draw,
+.rm-hidden-desc .kw-draw,
+.rm-chip-desc .kw-draw,
+.rm-tt-level .kw-draw{color:#66dd66;font-weight:600}
+.rm-opt-desc .kw-exhaust.kw-block,
+.rm-diff-desc .kw-exhaust.kw-block,
+.rm-hidden-desc .kw-exhaust.kw-block,
+.rm-chip-desc .kw-exhaust.kw-block,
+.rm-tt-level .kw-exhaust.kw-block{color:#ff8844;background:rgba(255,136,68,.12);border-radius:3px;padding:0 3px;font-size:.9em}
+.rm-opt-desc .kw-buff.kw-block,
+.rm-diff-desc .kw-buff.kw-block,
+.rm-hidden-desc .kw-buff.kw-block,
+.rm-chip-desc .kw-buff.kw-block,
+.rm-tt-level .kw-buff.kw-block{color:var(--rm-echo);background:rgba(0,255,204,.1);border-radius:3px;padding:0 3px;font-size:.9em}
+.rm-opt-desc .kw-burst.kw-block,
+.rm-diff-desc .kw-burst.kw-block,
+.rm-hidden-desc .kw-burst.kw-block,
+.rm-chip-desc .kw-burst.kw-block,
+.rm-tt-level .kw-burst.kw-block{color:var(--rm-gold);background:rgba(240,180,41,.1);border-radius:3px;padding:0 3px;font-size:.9em}
+
 .rm-summary-bar {
   display: flex;
   align-items: center;

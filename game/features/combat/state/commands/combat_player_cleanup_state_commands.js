@@ -7,6 +7,7 @@ export function applyCombatPlayerCleanupReducerState(state) {
   player.exhausted = [];
   player.drawPile = [];
   player.discardPile = [];
+  player.drawCount = 0;
   player.silenceGauge = 0;
   player.timeRiftGauge = 0;
 

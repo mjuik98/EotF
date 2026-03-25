@@ -1708,6 +1708,16 @@
   margin-bottom: 14px;
 }
 
+.cx-popup-desc .kw-dmg{color:#ff6677;font-weight:600}
+.cx-popup-desc .kw-shield{color:#60c8ff;font-weight:600}
+.cx-popup-desc .kw-heal{color:#44ee88;font-weight:600}
+.cx-popup-desc .kw-echo{color:#b080ff;font-weight:600}
+.cx-popup-desc .kw-energy{color:var(--cx-gold);font-weight:600}
+.cx-popup-desc .kw-draw{color:#66dd66;font-weight:600}
+.cx-popup-desc .kw-exhaust.kw-block{color:#ff8844;background:rgba(255,136,68,.12);border-radius:3px;padding:0 3px;font-size:.9em}
+.cx-popup-desc .kw-buff.kw-block{color:#00ffcc;background:rgba(0,255,204,.1);border-radius:3px;padding:0 3px;font-size:.9em}
+.cx-popup-desc .kw-burst.kw-block{color:var(--cx-gold);background:rgba(240,180,41,.1);border-radius:3px;padding:0 3px;font-size:.9em}
+
 .cx-popup-quote {
   position: relative;
   padding: 14px 16px 14px 20px;

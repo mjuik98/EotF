@@ -62,6 +62,33 @@ function createCardEffectRuntimeFacade(gs, runtimeDeps = {}) {
   });
 }
 
+function createCardEffectTracker(runtimeDeps = {}) {
+  const damagedTargetIdxs = [];
+  const existingHandler = runtimeDeps?.onDealDamageResolved;
+
+  return {
+    damagedTargetIdxs,
+    runtimeDeps: {
+      ...runtimeDeps,
+      onDealDamageResolved(payload = {}) {
+        if (Number.isInteger(payload?.targetIdx)) {
+          damagedTargetIdxs.push(payload.targetIdx);
+        }
+        existingHandler?.(payload);
+      },
+    },
+  };
+}
+
+function runCardEffect(gs, card, runtimeDeps = {}) {
+  gs._currentCard = card;
+  try {
+    card.effect?.(createCardEffectRuntimeFacade(gs, runtimeDeps));
+  } finally {
+    gs._currentCard = null;
+  }
+}
+
 export function playCardService({
   cardId,
   handIdx,
@@ -126,15 +153,13 @@ export function playCardService({
       }
       restorePlayerHandState(gs, handBefore);
     };
+    const cardEffectTracker = createCardEffectTracker(runtimeDeps);
 
     try {
-      gs._currentCard = card;
-      card.effect?.(createCardEffectRuntimeFacade(gs, runtimeDeps));
+      runCardEffect(gs, card, cardEffectTracker.runtimeDeps);
     } catch (effectErr) {
       rollbackPlayCost();
       throw effectErr;
-    } finally {
-      gs._currentCard = null;
     }
 
     const combatRegionId = resolveActiveRegionId(gs, {
@@ -156,7 +181,16 @@ export function playCardService({
       classMech.onPlayCard(gs, { cardId });
     }
 
-    gs.triggerItems?.('card_play', { cardId, cost });
+    const cardPlayPayload = { cardId, cost };
+    const damagedTargetIdxs = [...new Set((cardEffectTracker?.damagedTargetIdxs || []).filter((idx) => Number.isInteger(idx)))];
+    if (damagedTargetIdxs.length > 0) {
+      cardPlayPayload.targetIdx = damagedTargetIdxs[0];
+      cardPlayPayload.targetIdxs = damagedTargetIdxs;
+    }
+    const cardPlayResult = gs.triggerItems?.('card_play', cardPlayPayload);
+    if (cardPlayResult?.doubleCast) {
+      runCardEffect(gs, card, runtimeDeps);
+    }
 
     if (player.echoChain >= 5 && typeof gs.triggerResonanceBurst === 'function') {
       gs.triggerResonanceBurst({

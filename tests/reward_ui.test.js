@@ -214,8 +214,20 @@ describe('RewardUI', () => {
     }
 
     expect(deps.rewardCards.children.length).toBeGreaterThan(0);
-    expect(deps.rewardCards.children[0]?.getAttribute?.('aria-label')).toContain('card reward');
+    expect(deps.rewardCards.children[0]?.getAttribute?.('aria-label')).toContain('카드 보상');
+    expect(deps.doc.getElementById('rewardEyebrow')?.textContent).toBe('전투 보상');
+    expect(deps.doc.getElementById('rewardTitle')?.style.display).toBe('none');
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
+  });
+
+  it('localizes boss reward header copy', () => {
+    const deps = createDeps({ maxEnergy: 3 });
+
+    RewardUI.showRewardScreen('boss', deps);
+
+    expect(deps.doc.getElementById('rewardEyebrow')?.textContent).toBe('보스 보상');
+    expect(deps.doc.getElementById('rewardTitle')?.textContent).toBe('보스 처치');
+    expect(deps.doc.getElementById('rewardTitle')?.style.display).toBe('block');
   });
 
   it('surfaces exactly one upgraded card in a normal three-card combat reward high-roll', () => {
@@ -269,7 +281,8 @@ describe('RewardUI', () => {
 
     const energyBlessing = findBlessingWrapper(deps.rewardCards, '에너지의 축복');
     expect(energyBlessing).toBeTruthy();
-    expect(energyBlessing.disabled).toBe(true);
+    expect(energyBlessing.disabled).toBe(false);
+    expect(energyBlessing.getAttribute('aria-disabled')).toBe('true');
     expect(energyBlessing.classList.contains('reward-permanent-energy-disabled')).toBe(true);
     expect(energyBlessing.title).toContain(`${cap}`);
 

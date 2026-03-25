@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../ports/presentation/public_combat_card_support_capabilities.js';
+
 import { CONSTANTS } from '../../ports/presentation/public_combat_runtime_support_capabilities.js';
 
 export function buildEchoSkillTooltipTiers(gs) {
@@ -53,7 +55,7 @@ export function showEchoSkillTooltip(doc, win, event, gs) {
 
     const desc = doc.createElement('div');
     desc.className = 'echo-skill-tt-desc';
-    desc.textContent = tier.desc;
+    desc.innerHTML = DescriptionUtils.highlight(tier.desc);
 
     inner.appendChild(stars);
     inner.appendChild(desc);

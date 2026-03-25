@@ -1,3 +1,5 @@
+import { DomSafe } from '../../../../utils/dom_safe.js';
+
 function showToast(toast, showItemToast) {
   if (!toast || typeof showItemToast !== 'function') return;
   if (toast.options === undefined) {
@@ -36,7 +38,7 @@ export function presentEventChoiceResolution({
   }
 
   const descEl = doc?.getElementById?.('eventDesc');
-  if (descEl) descEl.textContent = viewModel?.resultText || '';
+  if (descEl) DomSafe.setHighlightedText(descEl, viewModel?.resultText || '');
 
   showToast(viewModel?.upgradeToast, showItemToast);
 

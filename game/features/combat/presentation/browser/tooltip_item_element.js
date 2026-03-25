@@ -53,6 +53,7 @@ export function createItemTooltipElement(doc, item, data, state) {
   body.appendChild(header);
 
   const descBox = doc.createElement('div');
+  descBox.className = 'item-tooltip-desc';
   descBox.style.cssText = 'font-size:11.5px;color:var(--text,#c8c8e8);line-height:1.72;background:rgba(255,255,255,0.025);border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:8px;padding:8px 10px;';
   DomSafe.setHighlightedText(descBox, detail.desc || '');
   body.appendChild(descBox);

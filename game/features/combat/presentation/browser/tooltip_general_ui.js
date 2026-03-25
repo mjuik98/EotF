@@ -9,6 +9,7 @@ export function showGeneralTooltipUi(event, title, content, deps = {}) {
 
   const el = doc.createElement('div');
   el.id = '_generalTip';
+  el.className = 'general-tooltip';
   el.style.cssText = [
     'position:fixed;z-index:10000;',
     'background:rgba(10,10,35,0.98);border:1px solid var(--echo);border-left:3px solid var(--echo);border-radius:8px;',
@@ -19,10 +20,12 @@ export function showGeneralTooltipUi(event, title, content, deps = {}) {
   ].join('');
 
   const titleEl = doc.createElement('div');
+  titleEl.className = 'general-tooltip-title';
   titleEl.style.cssText = "font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:0.05em;";
   titleEl.textContent = title;
 
   const contentEl = doc.createElement('div');
+  contentEl.className = 'general-tooltip-desc';
   contentEl.style.cssText = 'font-size:11px;color:var(--text);line-height:1.6;';
   contentEl.innerHTML = content;
 

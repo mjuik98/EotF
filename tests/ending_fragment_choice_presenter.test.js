@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -94,6 +97,38 @@ describe('ending_fragment_choice_presenter', () => {
       grid: result.grid,
       wrap: result.wrap,
     }));
+    expect(result.buttons[0].innerHTML).toContain('frag-desc');
     expect(session.cleanups).toHaveLength(1);
+  });
+
+  it('highlights fragment choice descriptions with keyword markup', () => {
+    const doc = createDoc();
+    const parent = createMockElement('div');
+    const anchor = createMockElement('div');
+    parent.appendChild(anchor);
+
+    const result = presentEndingFragmentChoices({
+      anchor,
+      doc,
+      onChoose: () => {},
+      session: { cleanups: [] },
+      viewModel: {
+        title: '메아리 조각 1개 - 각인을 선택하라',
+        choices: [{ effect: 'echo_boost', icon: '⚡', name: '잔향 강화', desc: '피해 14. 잔향 20 충전 [소진]' }],
+      },
+    });
+
+    expect(result.buttons[0].innerHTML).toContain('kw-dmg');
+    expect(result.buttons[0].innerHTML).toContain('kw-echo');
+    expect(result.buttons[0].innerHTML).toContain('kw-exhaust kw-block');
+  });
+
+  it('keeps fragment choice keyword colors aligned with readable comparison surfaces', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'css/ending_screen.css'), 'utf8');
+
+    expect(source).toContain('.frag-desc .kw-dmg');
+    expect(source).toContain('.frag-desc .kw-shield');
+    expect(source).toContain('.frag-desc .kw-echo');
+    expect(source).toContain('.frag-desc .kw-buff.kw-block');
   });
 });

@@ -1,4 +1,5 @@
 import { bindCharacterInfoLoadoutControls } from './character_select_info_panel_loadout_controls.js';
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
 
 function createNullGeneralTooltipApi() {
   return {
@@ -68,7 +69,7 @@ function bindRelicTooltips(panel, generalTooltip, doc, win, hover) {
       generalTooltip.showGeneralTooltip(
         event,
         relicBadge.dataset.relicTitle || '',
-        relicBadge.dataset.relicDesc || '',
+        DescriptionUtils.highlight(relicBadge.dataset.relicDesc || ''),
         { doc, win },
       );
     });

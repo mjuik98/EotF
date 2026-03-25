@@ -4,6 +4,20 @@ export function normalizeTrigger(trigger) {
   return String(trigger || '').toLowerCase();
 }
 
+export function getAmountValue(data) {
+  if (typeof data === 'number' && Number.isFinite(data)) return data;
+  if (data && typeof data === 'object' && Number.isFinite(data.amount)) return data.amount;
+  return null;
+}
+
+export function withAmountValue(data, amount) {
+  if (!Number.isFinite(amount)) return data;
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    return { ...data, amount };
+  }
+  return amount;
+}
+
 export function getOwnedItemIds(gs) {
   return new Set(gs?.player?.items || []);
 }

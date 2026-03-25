@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   closeCharacterSkillModal,
   openCharacterSkillModal,
@@ -43,8 +44,8 @@ describe('character select modal helper', () => {
       name: 'Echo Burst',
       echoCost: 2,
       tree: [
-        { tier: 'I', name: 'Pulse', bonus: '+1', desc: 'Ping' },
-        { tier: 'II', name: 'Wave', bonus: '+2', desc: 'Blast' },
+        { tier: 'I', name: 'Pulse', bonus: '+1', desc: '피해 14. 잔향 20 충전 [소진]' },
+        { tier: 'II', name: 'Wave', bonus: '+2', desc: '에너지 1 획득. 카드 2장 드로우' },
       ],
     };
 
@@ -61,6 +62,10 @@ describe('character select modal helper', () => {
     expect(modalBox.innerHTML).toContain('잔향 기술 계보');
     expect(modalBox.innerHTML).toContain('Echo Burst');
     expect(modalBox.innerHTML).toContain('Pulse');
+    expect(modalBox.innerHTML).toContain('kw-dmg');
+    expect(modalBox.innerHTML).toContain('kw-echo');
+    expect(modalBox.innerHTML).toContain('kw-energy');
+    expect(modalBox.innerHTML).toContain('kw-draw');
     expect(modalBox.innerHTML).toContain('ESC로 닫기');
     expect(modal.classList.contains('open')).toBe(true);
 
@@ -82,5 +87,13 @@ describe('character select modal helper', () => {
 
     expect(state.activeSkill).toBe(null);
     expect(modal.classList.contains('open')).toBe(false);
+  });
+
+  it('styles character skill modal descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.character-skill-tier-desc .kw-dmg');
+    expect(css).toContain('.character-skill-tier-desc .kw-energy');
+    expect(css).toContain('.character-skill-tier-desc .kw-exhaust.kw-block');
   });
 });

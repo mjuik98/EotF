@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import {
   buildUnbreakableWallCardTooltip,
   extractTooltipCardId,
@@ -134,5 +136,14 @@ describe('tooltip_card_render_ui', () => {
 
     expect(buildUnbreakableWallCardTooltip('unbreakable_wall_plus', gs)).toContain('총 16 피해');
     expect(buildUnbreakableWallCardTooltip('strike', gs)).toBe('');
+  });
+
+  it('styles tooltip keyword highlights with the same readable comparison palette', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.card-tooltip-desc .kw-dmg');
+    expect(source).toContain('.card-tooltip-desc .kw-echo');
+    expect(source).toContain('.card-tooltip-desc .kw-energy');
+    expect(source).toContain('.card-tooltip-desc .kw-exhaust.kw-block');
   });
 });

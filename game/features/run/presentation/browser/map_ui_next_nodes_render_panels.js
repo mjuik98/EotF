@@ -5,6 +5,7 @@ import {
   hexToRgb,
   runOnNextFrame,
 } from './map_ui_next_nodes_render_helpers.js';
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
 import { buildBottomDock } from './map_bottom_dock.js';
 import {
   applyRelicDetailLayout,
@@ -116,6 +117,7 @@ export function buildNextNodeCard(doc, options = {}) {
   const rewardsHtml = ext.rewards.map((reward) => `<span class="nc-reward-tag ${REWARD_CLASS_MAP[reward] || 'gold'}">${reward}</span>`).join('');
   const traitsHtml = ext.traits.map((trait) => `<span class="nc-trait-tag${ext.diff === 0 ? ' neutral' : ''}">${trait}</span>`).join('');
   const skullsHtml = ext.diff > 0 ? `<div class="nc-danger-skulls">${[0, 1, 2].map((idx) => `<span class="nc-skull${idx < dangerLevel ? ' on' : ''}">☠</span>`).join('')}</div>` : '';
+  const descHtml = DescriptionUtils.highlight(meta.desc || '다음 위치로 이동합니다.');
 
   const card = doc.createElement('div');
   card.className = 'node-card';
@@ -138,7 +140,7 @@ export function buildNextNodeCard(doc, options = {}) {
         <div class="node-card-label">${meta.label || '노드'}</div>
         <div class="node-card-sub">${pos} 경로</div>
       </div>
-      <div class="node-card-desc">${meta.desc || '다음 위치로 이동합니다.'}</div>
+      <div class="node-card-desc">${descHtml}</div>
       ${ext.preview ? `<div class="nc-preview-hint">예상: ${ext.preview}</div>` : ''}
       ${ext.diff > 0 ? `<div class="nc-diff-row"><span class="nc-diff-label">위험도</span><div class="nc-diff-track"><div class="nc-diff-fill" style="width:${ext.diff}%"></div></div><span class="nc-diff-val">${ext.diff}</span></div>` : ''}
       <div class="nc-info-grid">

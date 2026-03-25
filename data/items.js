@@ -187,7 +187,7 @@
  * - weakened → 약화
  * - vulnerable → 취약
  * - stunned → 기절
- * - evasion → 회피
+ * - dodge → 회피
  * - shield → 방어막
  * - energy → 에너지
  *
@@ -333,13 +333,91 @@
  *   [세트: 철옹성]
  */
 import { LogUtils } from '../game/utils/log_utils.js';
-import { CARDS } from './cards.js';
+import { CARDS, UPGRADE_MAP } from './cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { CONSTANTS } from '../game/data/constants.js';
-import { registerItemFound } from '../game/shared/codex/codex_records.js';
+import { Actions } from '../game/core/store/state_actions.js';
+import { registerCardDiscovered, registerItemFound } from '../game/shared/codex/codex_records.js';
 
 function getCardCost(cardId) {
     return CARDS?.[cardId]?.cost ?? 0;
+}
+
+function getTriggeredAmount(data) {
+    if (typeof data === 'number' && Number.isFinite(data)) return data;
+    if (data && typeof data === 'object' && Number.isFinite(data.amount)) return data.amount;
+    return null;
+}
+
+function withTriggeredAmount(data, amount) {
+    if (!Number.isFinite(amount)) return data;
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+        return { ...data, amount };
+    }
+    return amount;
+}
+
+function resolveTriggeredTargetIdx(gs, data) {
+    if (Number.isInteger(data?.targetIdx) && data.targetIdx >= 0) return data.targetIdx;
+    if (Number.isInteger(gs?._selectedTarget) && gs._selectedTarget >= 0) return gs._selectedTarget;
+    return (gs?.combat?.enemies || []).findIndex((enemy) => (enemy?.hp || 0) > 0);
+}
+
+function upgradeDeckCard(gs, cardId, upgradedId) {
+    const deck = gs?.player?.deck;
+    if (!Array.isArray(deck) || !cardId || !upgradedId) return false;
+    const idx = deck.indexOf(cardId);
+    if (idx < 0) return false;
+    deck[idx] = upgradedId;
+    registerCardDiscovered(gs, upgradedId);
+    gs.markDirty?.('deck');
+    return true;
+}
+
+function getCombatDrawPile(gs) {
+    return Array.isArray(gs?.player?.drawPile) ? gs.player.drawPile : null;
+}
+
+function pushCardToCombatDrawPile(gs, cardId) {
+    const drawPile = getCombatDrawPile(gs);
+    if (drawPile) {
+        drawPile.push(cardId);
+        gs.markDirty?.('hand');
+        return true;
+    }
+    return false;
+}
+
+function addPlayerDrawCount(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount) || amount === 0) return 0;
+    const current = Math.max(0, Math.floor(Number(gs.player.drawCount || 0)));
+    const next = Math.max(0, current + Math.floor(amount));
+    gs.player.drawCount = next;
+    return next;
+}
+
+function exhaustHandCard(gs, handIdx) {
+    const hand = gs?.player?.hand;
+    if (!Array.isArray(hand) || handIdx < 0 || handIdx >= hand.length) return null;
+
+    const cardId = hand[handIdx];
+    if (typeof gs?.dispatch === 'function') {
+        hand.splice(handIdx, 1);
+        gs.dispatch(Actions.CARD_DISCARD, {
+            cardId,
+            exhaust: true,
+            skipHandRemove: true,
+        });
+        return cardId;
+    }
+
+    hand.splice(handIdx, 1);
+    if (Array.isArray(gs?.player?.exhausted)) {
+        gs.player.exhausted.push(cardId);
+    }
+    gs.triggerItems?.(Trigger.CARD_EXHAUST, { cardId });
+    gs.markDirty?.('hand');
+    return cardId;
 }
 
 function discardDrawnCard(gs, cardId, sourceName) {
@@ -558,9 +636,9 @@ const UNCOMMON_ITEMS = {
     acidic_vial: {
         id: 'acidic_vial', name: '산성 유리병', icon: '🧪', rarity: 'uncommon', setId: 'serpents_gaze',
         desc: '독이 있는 적에게 피해를 줄 때 20% 확률: 대상의 독 +1\n[세트: 독사의 시선]',
-        passive(gs, trigger) {
+        passive(gs, trigger, data) {
             if (trigger !== Trigger.DEAL_DAMAGE || Math.random() >= 0.2) return;
-            const targetIdx = Number.isInteger(gs?._selectedTarget) ? gs._selectedTarget : 0;
+            const targetIdx = resolveTriggeredTargetIdx(gs, data);
             const target = gs.combat?.enemies?.[targetIdx];
             if (!target?.statusEffects || (target.statusEffects.poisoned || 0) <= 0) return;
             target.statusEffects.poisoned += 1;
@@ -640,8 +718,21 @@ const UNCOMMON_ITEMS = {
         desc: '턴 시작: 모든 적 공격 의도 10% 감소',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                gs.enemies?.forEach(e => {
-                    if (e.intent?.type === 'attack') e.intent.value = Math.max(0, Math.floor(e.intent.value * 0.9));
+                (gs.combat?.enemies || []).forEach((enemy) => {
+                    if (!enemy?.ai || enemy._magnifyingGlassWrapped) return;
+                    const baseAi = enemy.ai.bind(enemy);
+                    enemy._magnifyingGlassWrapped = true;
+                    enemy.ai = (...args) => {
+                        const action = baseAi(...args);
+                        if (!action || typeof action !== 'object') return action;
+                        const baseDmg = Number(action.dmg || 0);
+                        if (baseDmg <= 0) return action;
+                        const scaledDmg = Math.max(0, Math.floor(baseDmg * 0.9));
+                        const nextIntent = typeof action.intent === 'string'
+                            ? action.intent.replace(new RegExp(`${baseDmg}(\\s*x\\d+)?$`), `${scaledDmg}$1`)
+                            : action.intent;
+                        return { ...action, dmg: scaledDmg, intent: nextIntent };
+                    };
                 });
             }
         }
@@ -651,7 +742,10 @@ const UNCOMMON_ITEMS = {
         desc: '연쇄 5 도달 시: 무작위 적에게 기절 1 부여',
         passive(gs, trigger) {
             if (trigger !== Trigger.CHAIN_REACH_5) return;
-            const targetIdx = (gs.combat?.enemies || []).findIndex((enemy) => (enemy?.hp || 0) > 0); // 무작위 적 기절로 변경
+            const aliveIndexes = (gs.combat?.enemies || [])
+                .map((enemy, idx) => ((enemy?.hp || 0) > 0 ? idx : -1))
+                .filter((idx) => idx >= 0);
+            const targetIdx = aliveIndexes[Math.floor(Math.random() * aliveIndexes.length)];
             if (targetIdx >= 0) {
                 gs.applyEnemyStatus?.('stunned', 1, targetIdx);
                 gs.addLog?.('🥊 잔향 건틀릿: 무작위 적 기절!', 'item');
@@ -662,7 +756,7 @@ const UNCOMMON_ITEMS = {
         id: 'golden_feather', name: '황금 깃털', icon: '🪶', rarity: 'uncommon',
         desc: '전투 시작: 회피 1 획득',
         passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START) gs.addBuff('evasion', 1, { name: '황금 깃털', type: 'item' });
+            if (trigger === Trigger.COMBAT_START) gs.addBuff('dodge', 1, { name: '황금 깃털', type: 'item' });
         }
     },
     heavy_anvil: {
@@ -670,11 +764,14 @@ const UNCOMMON_ITEMS = {
         desc: '휴식에서 카드 강화 시: 무작위 카드 1장 추가 강화',
         passive(gs, trigger, data) {
             if (trigger === Trigger.REST_UPGRADE) {
-                const upgradeable = gs.player.deck.filter(c => !CARDS[c]?.upgraded);
+                const upgradeMap = data?.upgradeMap || UPGRADE_MAP;
+                const upgradeable = (gs.player.deck || []).filter((cardId) => upgradeMap?.[cardId]);
                 if (upgradeable.length > 0) {
                     const target = upgradeable[Math.floor(Math.random() * upgradeable.length)];
-                    gs.upgradeCard(target);
-                    gs.addLog?.(`⚙️ 무거운 모루: ${CARDS[target]?.name || target} 추가 강화!`, 'item');
+                    const upgradedId = upgradeMap[target];
+                    if (upgradeDeckCard(gs, target, upgradedId)) {
+                        gs.addLog?.(`⚙️ 무거운 모루: ${CARDS[target]?.name || target} 추가 강화!`, 'item');
+                    }
                 }
             }
         }
@@ -688,7 +785,9 @@ const UNCOMMON_ITEMS = {
                 const idx = gs.player.exhausted.lastIndexOf(data.cardId);
                 if (idx >= 0) {
                     gs.player.exhausted.splice(idx, 1);
-                    gs.player.deck.push(data.cardId);
+                    if (!pushCardToCombatDrawPile(gs, data.cardId)) {
+                        gs.player.deck.push(data.cardId);
+                    }
                     gs.addLog?.(`🧪 액체 기억: ${CARDS[data.cardId]?.name}를 복구했습니다.`, 'item');
                 }
             }
@@ -702,12 +801,12 @@ const UNCOMMON_ITEMS = {
             if (trigger === Trigger.TURN_END && gs.player.energy === 0) gs._scaleActive = true;
             if (trigger === Trigger.TURN_START && gs._scaleActive) {
                 gs._scaleActive = false;
-                gs.player.drawCount += 1;
+                addPlayerDrawCount(gs, 1);
                 gs._scaleDrawReset = true;
                 gs.addLog?.('⚖️ 균형의 저울: 추가 드로우!', 'item');
             }
             if ((trigger === Trigger.TURN_END || trigger === 'death') && gs._scaleDrawReset) {
-                gs.player.drawCount = Math.max(1, gs.player.drawCount - 1);
+                addPlayerDrawCount(gs, -1);
                 gs._scaleDrawReset = false;
             }
         }
@@ -737,7 +836,7 @@ const UNCOMMON_ITEMS = {
                 });
             }
             if (trigger === Trigger.BEFORE_CARD_COST && gs._crystalDiscounted?.has(data?.cardId)) {
-                return Math.max(0, (data?.cost ?? 0) - 1);
+                return -1;
             }
             if (trigger === Trigger.COMBAT_END) {
                 gs._crystalDiscounted = null;
@@ -759,8 +858,9 @@ const UNCOMMON_ITEMS = {
         id: 'adrenaline_shot', name: '아드레날린 주사', icon: '💉', rarity: 'uncommon',
         desc: '체력이 25% 이하일 때: 주는 피해 25% 증가',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.DEAL_DAMAGE && gs.player.hp <= gs.player.maxHp * 0.25) {
-                return typeof data === 'number' ? Math.floor(data * 1.25) : data;
+            const amount = getTriggeredAmount(data);
+            if (trigger === Trigger.DEAL_DAMAGE && amount !== null && gs.player.hp <= gs.player.maxHp * 0.25) {
+                return withTriggeredAmount(data, Math.floor(amount * 1.25));
             }
         }
     },
@@ -770,7 +870,8 @@ const UNCOMMON_ITEMS = {
         id: 'ancient_blade', name: '고대인의 칼날', icon: '刃', rarity: 'uncommon',
         desc: '피해를 줄 때: 피해 +1',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.DEAL_DAMAGE && typeof data === 'number') return data + 1;
+            const amount = getTriggeredAmount(data);
+            if (trigger === Trigger.DEAL_DAMAGE && amount !== null) return withTriggeredAmount(data, amount + 1);
         }
     },
     ancient_scroll: {
@@ -806,9 +907,9 @@ const UNCOMMON_ITEMS = {
     dusk_mark: {
         id: 'dusk_mark', name: '황혼의 낙인', icon: '🌘', rarity: 'uncommon', setId: 'dusk_set',
         desc: '약화된 적에게 피해를 줄 때: 대상에게 약화 1 부여\n[세트: 황혼의 쌍인]',
-        passive(gs, trigger) {
+        passive(gs, trigger, data) {
             if (trigger !== Trigger.DEAL_DAMAGE) return;
-            const targetIdx = Number.isInteger(gs?._selectedTarget) ? gs._selectedTarget : 0;
+            const targetIdx = resolveTriggeredTargetIdx(gs, data);
             const target = gs.combat?.enemies?.[targetIdx];
             if ((target?.statusEffects?.weakened || 0) > 0) {
                 gs.applyEnemyStatus?.('weakened', 1, targetIdx, { name: '황혼의 낙인', type: 'item' });
@@ -827,7 +928,13 @@ const UNCOMMON_ITEMS = {
             if (trigger !== Trigger.CARD_PLAY || Math.random() >= 0.2) return;
             const cardType = String(CARDS?.[data?.cardId]?.type || '').toUpperCase();
             if (cardType !== 'ATTACK') return;
-            const targetIdx = Number.isInteger(gs?._selectedTarget) ? gs._selectedTarget : 0;
+            const targetIdxs = [...new Set((Array.isArray(data?.targetIdxs) ? data.targetIdxs : [])
+                .filter((idx) => Number.isInteger(idx) && idx >= 0))];
+            if (targetIdxs.length > 0) {
+                targetIdxs.forEach((targetIdx) => gs.applyEnemyStatus?.('weakened', 1, targetIdx));
+                return;
+            }
+            const targetIdx = resolveTriggeredTargetIdx(gs, data);
             gs.applyEnemyStatus?.('weakened', 1, targetIdx);
         }
     },
@@ -900,7 +1007,9 @@ const RARE_ITEMS = {
         onAcquire(gs) { gs.player.maxEnergy += 1; },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                gs.player.deck.push('curse_noise');
+                if (!pushCardToCombatDrawPile(gs, 'curse_noise')) {
+                    gs.player.deck.push('curse_noise');
+                }
                 gs.addLog?.('🎒 차원 주머니: 공간의 뒤틀림으로 노이즈가 유입됩니다.', 'echo');
             }
         }
@@ -1035,8 +1144,13 @@ const LEGENDARY_ITEMS = {
         id: 'god_slayer_blade', name: '신살의 검', icon: '🗡️', rarity: 'legendary',
         desc: '상시: 엘리트 및 보스에게 주는 피해 50% 증가',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.DAMAGE_CALC && (gs.combat?.enemies?.some(e => e.isElite || e.isBoss))) {
-                return data * 1.5;
+            const amount = getTriggeredAmount(data);
+            if (trigger === Trigger.DEAL_DAMAGE && amount !== null) {
+                const targetIdx = resolveTriggeredTargetIdx(gs, data);
+                const target = gs.combat?.enemies?.[targetIdx];
+                if (target?.isElite || target?.isBoss) {
+                    return withTriggeredAmount(data, Math.floor(amount * 1.5));
+                }
             }
         }
     },
@@ -1049,8 +1163,10 @@ const LEGENDARY_ITEMS = {
                 if (gs._loopCount % 3 === 0 && gs.player.hand?.length > 0) {
                     const h = gs.player.hand;
                     const r = Math.floor(Math.random() * h.length);
-                    const card = h.splice(r, 1)[0];
+                    const card = exhaustHandCard(gs, r);
+                    if (!card) return;
                     gs.player.hand.push(card, card);
+                    gs.markDirty?.('hand');
                     gs.addLog?.(`🌀 무한의 루프: ${CARDS[card]?.name} 자가 증식!`, 'item');
                 }
             }
@@ -1066,6 +1182,11 @@ const BOSS_ITEMS = {
     boss_soul_mirror: {
         id: 'boss_soul_mirror', name: '영혼 거울', icon: '🪞', rarity: 'boss',
         desc: '획득: 최대 체력 -15 / 전투당 1회: 사망 시 체력 25 회복 후 부활',
+        onAcquire(gs) {
+            gs.player.maxHp = Math.max(1, gs.player.maxHp - 15);
+            gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
+            gs._bossSoulMirrorPenaltyApplied = true;
+        },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 if (!gs._bossSoulMirrorPenaltyApplied) {
@@ -1112,7 +1233,7 @@ const BOSS_ITEMS = {
         desc: '획득: 최대 체력 +50 / 상시: 체력 회복 불가',
         onAcquire(gs) { gs.player.maxHp += 50; gs.player.hp += 50; },
         passive(gs, trigger) {
-            if (trigger === Trigger.HEAL) return 0;
+            if (trigger === Trigger.HEAL_AMOUNT) return 0;
         }
     },
     eye_of_storm: {
@@ -1121,7 +1242,9 @@ const BOSS_ITEMS = {
         onAcquire(gs) { gs.player.maxEnergy += 1; },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                gs.combat?.enemies?.forEach(e => gs.addBuff('vulnerable', 1, { target: e }));
+                gs.combat?.enemies?.forEach((enemy, idx) => {
+                    if ((enemy?.hp || 0) > 0) gs.applyEnemyStatus?.('vulnerable', 1, idx, { name: '폭풍의 눈', type: 'item' });
+                });
                 gs.addLog?.('🌀 폭풍의 눈: 폭풍이 몰아칩니다.', 'item');
             }
         }
@@ -1143,12 +1266,12 @@ const SPECIAL_ITEMS = {
                 gs._fragmentBaseMax = gs.player.maxEnergy;
                 gs.player.maxEnergy += 1;
                 gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
-                gs.player.drawCount += 1;
+                addPlayerDrawCount(gs, 1);
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._fragmentActive) {
                 gs.player.maxEnergy = gs._fragmentBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
                 gs.player.energy = Math.min(gs.player.energy || 0, gs.player.maxEnergy);
-                gs.player.drawCount = Math.max(1, gs.player.drawCount - 1);
+                addPlayerDrawCount(gs, -1);
                 gs._fragmentActive = false;
                 delete gs._fragmentBaseMax;
             }
@@ -1190,7 +1313,7 @@ const SPECIAL_ITEMS = {
         id: 'ancient_battery', name: '고대 배터리', icon: '🔋', rarity: 'special',
         desc: '턴마다 처음 사용하는 소모품: 에너지 소모 없음',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.TURN_START) gs._batteryUsed = false;
+            if (trigger === Trigger.TURN_START || trigger === Trigger.FLOOR_START) gs._batteryUsed = false;
             if (trigger === Trigger.ITEM_USE && !gs._batteryUsed) {
                 gs._batteryUsed = true;
                 return { costFree: true };

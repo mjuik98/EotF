@@ -1,20 +1,23 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ITEMS } from '../data/items.js';
 import { Trigger } from '../game/data/triggers.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 describe('item logic fixes', () => {
-    it('echo_gauntlet triggers on CHAIN_REACH_5 and does not reset chain', () => {
+    it('echo_gauntlet stuns a random alive enemy on CHAIN_REACH_5 and does not reset chain', () => {
+        const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.99);
         const gs = {
             player: { echoChain: 5 },
-            combat: { enemies: [{ hp: 12 }] },
+            combat: { enemies: [{ hp: 12 }, { hp: 18 }, { hp: 0 }] },
             applyEnemyStatus: vi.fn(),
             addLog: vi.fn(),
         };
 
         ITEMS.echo_gauntlet.passive(gs, Trigger.CHAIN_REACH_5, { chain: 5 });
 
-        expect(gs.applyEnemyStatus).toHaveBeenCalledWith('stunned', 1, 0);
+        expect(gs.applyEnemyStatus).toHaveBeenCalledWith('stunned', 1, 1);
         expect(gs.player.echoChain).toBe(5);
+        randomSpy.mockRestore();
     });
 
     it('void_crown grants echo only when played card cost is 0', () => {
@@ -30,19 +33,20 @@ describe('item logic fixes', () => {
         expect(gs.addEcho).toHaveBeenCalledWith(10, { name: '공허의 왕관', type: 'item' });
     });
 
-    it('void_eye applies weaken only for attack card plays', () => {
+    it('void_eye applies weaken only for attack card plays and uses explicit hit targets when provided', () => {
         const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
         const gs = {
-            combat: { enemies: [{ hp: 20 }] },
+            combat: { enemies: [{ hp: 20 }, { hp: 18 }, { hp: 15 }] },
             applyEnemyStatus: vi.fn(),
             addLog: vi.fn(),
         };
 
         ITEMS.void_eye.passive(gs, Trigger.CARD_PLAY, { cardId: 'defend', cost: 1 });
-        ITEMS.void_eye.passive(gs, Trigger.CARD_PLAY, { cardId: 'strike', cost: 1 });
+        ITEMS.void_eye.passive(gs, Trigger.CARD_PLAY, { cardId: 'strike', cost: 1, targetIdxs: [0, 2, 2] });
 
-        expect(gs.applyEnemyStatus).toHaveBeenCalledTimes(1);
-        expect(gs.applyEnemyStatus).toHaveBeenCalledWith('weakened', 1, 0);
+        expect(gs.applyEnemyStatus).toHaveBeenCalledTimes(2);
+        expect(gs.applyEnemyStatus).toHaveBeenNthCalledWith(1, 'weakened', 1, 0);
+        expect(gs.applyEnemyStatus).toHaveBeenNthCalledWith(2, 'weakened', 1, 2);
         randomSpy.mockRestore();
     });
 
@@ -95,5 +99,23 @@ describe('item logic fixes', () => {
         expect(gs.player.maxEnergy).toBe(3);
         expect(gs.player.energy).toBe(3);
         expect(gs._paradoxActive).toBe(false);
+    });
+
+    it('magnifying_glass lowers enemy attack intents through the live enemy ai path', () => {
+        const gs = {
+            player: { items: ['magnifying_glass'] },
+            combat: {
+                enemies: [{
+                    hp: 20,
+                    ai: () => ({ type: 'strike', intent: '공격 10', dmg: 10 }),
+                }],
+            },
+        };
+
+        ItemSystem.triggerItems(gs, Trigger.TURN_START);
+        const action = gs.combat.enemies[0].ai(1);
+
+        expect(action.dmg).toBe(9);
+        expect(action.intent).toContain('9');
     });
 });

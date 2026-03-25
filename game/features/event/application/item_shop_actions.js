@@ -40,7 +40,7 @@ export function generateItemShopStock(gs, data, runRules) {
     const pool = (byRarity[rarity] || []).filter((item) => !gs.player.items.includes(item.id));
     if (!pool.length) return;
     const item = pool[Math.floor(Math.random() * pool.length)];
-    const cost = runRules.getShopCost(gs, ITEM_SHOP_RARITY_BASE_COSTS[rarity]?.baseCost || 10);
+    const cost = runRules.getShopCost(gs, ITEM_SHOP_RARITY_BASE_COSTS[rarity]?.baseCost || 10, { type: 'relic' });
     shopItems.push({ item, cost, rarity });
   });
 

@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 function getDoc(deps) {
   return deps?.doc || document;
 }
@@ -9,10 +11,12 @@ function getWin(deps) {
 export function showClassSelectTooltip(event, title, desc, deps = {}) {
   const doc = getDoc(deps);
   const win = getWin(deps);
+  const highlightedDesc = DescriptionUtils.highlight(desc || '');
   let tip = doc.getElementById('classSelectTooltip');
   if (!tip) {
     tip = doc.createElement('div');
     tip.id = 'classSelectTooltip';
+    tip.className = 'class-select-tooltip';
     tip.style.cssText = `
       position:fixed; z-index:99999; pointer-events:none;
       background:rgba(10,10,25,0.95); border:1px solid rgba(0,255,204,0.3);
@@ -24,11 +28,12 @@ export function showClassSelectTooltip(event, title, desc, deps = {}) {
   }
 
   tip.innerHTML = `
-    <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--cyan,#00ffcc);letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
-    <div style="font-size:10px;color:rgba(200,200,220,0.85);line-height:1.5;">${desc}</div>
+    <div class="class-select-tooltip-title" style="font-family:'Cinzel',serif;font-size:11px;color:var(--cyan,#00ffcc);letter-spacing:0.05em;margin-bottom:4px;">${title}</div>
+    <div class="class-select-tooltip-desc" style="font-size:10px;color:rgba(200,200,220,0.85);line-height:1.5;">${highlightedDesc}</div>
   `;
 
-  const rect = event.target.getBoundingClientRect();
+  const anchor = event?.currentTarget || event?.target;
+  const rect = anchor?.getBoundingClientRect?.() || { left: 0, bottom: 0 };
   tip.style.left = `${Math.min(rect.left, (win.innerWidth || 1280) - 300)}px`;
   tip.style.top = `${rect.bottom + 6}px`;
   tip.style.opacity = '1';

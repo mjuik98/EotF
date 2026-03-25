@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 const { buildItemShopStockUseCaseSpy, purchaseItemFromShopUseCaseSpy, dismissTransientOverlaySpy } = vi.hoisted(() => ({
@@ -75,6 +77,15 @@ function createDoc() {
 }
 
 describe('showEventItemShopOverlay', () => {
+  it('styles item shop keyword highlights with the readable comparison palette', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.item-shop-desc .kw-dmg');
+    expect(source).toContain('.item-shop-desc .kw-energy');
+    expect(source).toContain('.item-shop-desc .kw-draw');
+    expect(source).toContain('.item-shop-desc .kw-buff.kw-block');
+  });
+
   it('renders owned and purchasable item cards with current gold', () => {
     buildItemShopStockUseCaseSpy.mockReturnValueOnce([
       { item: { id: 'owned', name: 'Owned Relic', desc: 'owned', icon: 'O' }, cost: 10, rarity: 'common' },

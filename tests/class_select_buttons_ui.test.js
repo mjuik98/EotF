@@ -93,7 +93,7 @@ describe('class select buttons helper', () => {
             emoji: '🗡️',
             name: '잔향검사',
             style: 'swordsman',
-            desc: 'desc',
+            desc: '피해 14. 잔향 20 충전 [소진]',
             traitName: '공명',
             traitTitle: '공명',
             traitDesc: 'trait desc',
@@ -118,6 +118,9 @@ describe('class select buttons helper', () => {
     expect(button.id).toBe('class_0');
     expect(button.dataset.class).toBe(0);
     expect(button.innerHTML).toContain('잔향검사');
+    expect(button.innerHTML).toContain('kw-dmg');
+    expect(button.innerHTML).toContain('kw-echo');
+    expect(button.innerHTML).toContain('kw-exhaust kw-block');
     expect(relicPanel.className).toContain('class-select-relic-panel');
 
     button._trait.listeners.mouseenter({ stopPropagation: vi.fn() });
@@ -143,6 +146,8 @@ describe('class select buttons helper', () => {
     const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
 
     expect(css).toContain('.class-btn-desc');
+    expect(css).toContain('.class-btn-desc .kw-dmg');
+    expect(css).toContain('.class-btn-desc .kw-echo');
     expect(css).toContain('white-space: nowrap;');
     expect(css).toContain('overflow: hidden;');
     expect(css).toContain('text-overflow: ellipsis;');

@@ -1,5 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#111827"/>
-  <path d="M33 8 46 21l-5 5-4-4-8 8 7 7-4 4-7-7-7 7-4-4 7-7-8-8-4 4-5-5L31 8l2 2Z" fill="#f3f4f6"/>
-  <circle cx="32" cy="32" r="6" fill="#ef4444"/>
+  <defs>
+    <!-- Crystal/Fragment Gradient (Cyan Memory) -->
+    <linearGradient id="crystal" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#4facfe"/>
+    </linearGradient>
+    
+    <!-- Inner Glowing Gradient -->
+    <linearGradient id="glow" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cceeff"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Scaled up Memory Fragment Base (Diamond) -->
+  <path d="M32 4 L60 32 L32 60 L4 32 Z" fill="url(#crystal)"/>
+  
+  <!-- Scaled up Glowing Center -->
+  <path d="M32 16 L48 32 L32 48 L16 32 Z" fill="url(#glow)" opacity="0.9"/>
+  
+  <!-- Subtle inner line (memory crack / facet) -->
+  <path d="M20 44 L44 20" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
 </svg>

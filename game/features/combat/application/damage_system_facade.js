@@ -57,7 +57,7 @@ export const DamageSystem = {
       return 0;
     }
 
-    const damage = finalizeResolvedDamageValue(this, base.damage, noChain, getBuff, triggerItem);
+    const damage = finalizeResolvedDamageValue(this, base.damage, noChain, getBuff, triggerItem, resolvedTargetIdx);
     const isCrit = (damage > Number(enemy.hp || 0) * 0.3) || (typeof this.getBuff === 'function' && this._lastCrit);
     const result = resolveEnemyDamageResult(this, enemy, resolvedTargetIdx, damage, isCrit);
 
@@ -70,6 +70,12 @@ export const DamageSystem = {
     advancePlayerChain(this, enemy, noChain, deps, win);
 
     const totalDamage = result?.totalDamage ?? damage;
+    deps.onDealDamageResolved?.({
+      damage: totalDamage,
+      prevented: false,
+      result,
+      targetIdx: resolvedTargetIdx,
+    });
     runDealDamageClassHook(this, totalDamage, resolvedTargetIdx, deps, win);
 
     if (typeof this.addLog === 'function') {

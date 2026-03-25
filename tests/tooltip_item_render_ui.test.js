@@ -163,6 +163,15 @@ describe('tooltip_item_render_ui', () => {
     expect(source).toContain('rarityLabel');
   });
 
+  it('styles item tooltip keyword highlights with the readable comparison palette', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.item-tooltip-desc .kw-dmg');
+    expect(source).toContain('.item-tooltip-desc .kw-shield');
+    expect(source).toContain('.item-tooltip-desc .kw-echo');
+    expect(source).toContain('.item-tooltip-desc .kw-exhaust.kw-block');
+  });
+
   it('creates the item tooltip shell and positions it within the viewport', () => {
     const doc = createDoc();
     const item = {
@@ -209,6 +218,8 @@ describe('tooltip_item_render_ui', () => {
     expect(text).toContain('1회 남음');
     expect(text).toContain('Void Set');
     expect(text).toContain('Bonus active');
+    const descBox = el.children[1]?.children?.[1];
+    expect(descBox?.className).toBe('item-tooltip-desc');
   });
 
   it('animates out and removes the stored tooltip element', () => {

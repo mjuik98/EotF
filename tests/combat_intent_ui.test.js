@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   formatEnemyIntentLabel,
@@ -180,5 +182,14 @@ describe('combat_intent_ui', () => {
 
     expect(formatEnemyIntentLabel({ intent: 'Attack 18', dmg: 18 })).toBe('공격');
     expect(getEnemyIntentIcon({ type: 'attack', intent: 'Attack 18', dmg: 18 })).toBe('!');
+  });
+
+  it('styles intent tooltip keyword highlights with the readable comparison palette', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.itt-desc .kw-dmg');
+    expect(source).toContain('.itt-desc .kw-shield');
+    expect(source).toContain('.itt-desc .kw-echo');
+    expect(source).toContain('.itt-desc .kw-burst.kw-block');
   });
 });

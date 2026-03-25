@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 
 vi.mock('../game/features/event/presentation/browser/event_ui_dom.js', () => ({
   renderChoices: vi.fn(),
@@ -18,7 +19,7 @@ describe('event_runtime_shell_presenter', () => {
     const elements = {
       eventEyebrow: { textContent: '' },
       eventTitle: { textContent: '' },
-      eventDesc: { textContent: '' },
+      eventDesc: { textContent: '', innerHTML: '' },
       eventImageContainer: { style: { display: 'block' } },
       eventModal,
     };
@@ -26,7 +27,7 @@ describe('event_runtime_shell_presenter', () => {
       getElementById: vi.fn((id) => elements[id] || null),
     };
 
-    renderEventShellRuntime({ title: 'An Event', desc: 'Desc', choices: [] }, {
+    renderEventShellRuntime({ title: 'An Event', desc: '피해 14. 잔향 20 충전 [소진]', choices: [] }, {
       doc,
       gs: { player: {} },
       refreshGoldBar: vi.fn(),
@@ -36,9 +37,19 @@ describe('event_runtime_shell_presenter', () => {
     expect(ensureEventModalShell).toHaveBeenCalledWith(doc);
     expect(elements.eventEyebrow.textContent).toBe('LAYER 1 EVENT');
     expect(elements.eventTitle.textContent).toBe('An Event');
-    expect(elements.eventDesc.textContent).toBe('Desc');
+    expect(elements.eventDesc.innerHTML).toContain('kw-dmg');
+    expect(elements.eventDesc.innerHTML).toContain('kw-echo');
+    expect(elements.eventDesc.innerHTML).toContain('kw-exhaust kw-block');
     expect(elements.eventImageContainer.style.display).toBe('none');
     expect(dom.renderChoices).toHaveBeenCalled();
     expect(eventModal.classList.add).toHaveBeenCalledWith('active');
+  });
+
+  it('styles event descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.event-desc .kw-dmg');
+    expect(css).toContain('.event-desc .kw-echo');
+    expect(css).toContain('.event-desc .kw-buff.kw-block');
   });
 });

@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -31,8 +34,12 @@ describe('death_fragment_choice_presenter', () => {
       createElement: vi.fn(() => ({
         className: '',
         textContent: '',
+        innerHTML: '',
         onclick: null,
-        append: vi.fn(),
+        children: [],
+        append(...nodes) {
+          this.children.push(...nodes);
+        },
       })),
     };
     const onSelect = vi.fn();
@@ -45,5 +52,42 @@ describe('death_fragment_choice_presenter', () => {
     expect(fragmentChoices.appendChild).toHaveBeenCalledTimes(3);
     created[0].onclick();
     expect(onSelect).toHaveBeenCalledWith(rendered[0].effect);
+  });
+
+  it('highlights fragment descriptions and keeps their keyword palette styled', () => {
+    const created = [];
+    const fragmentChoices = {
+      textContent: '',
+      appendChild: vi.fn((node) => created.push(node)),
+    };
+    const doc = {
+      getElementById: vi.fn(() => fragmentChoices),
+      createElement: vi.fn(() => ({
+        className: '',
+        textContent: '',
+        innerHTML: '',
+        onclick: null,
+        children: [],
+        append(...nodes) {
+          this.children.push(...nodes);
+        },
+      })),
+    };
+
+    renderDeathFragmentChoices({
+      choices: [{ icon: '⚡', name: '잔향 강화', desc: '피해 14. 잔향 20 충전 [소진]', effect: 'echo_boost' }],
+      doc,
+      onSelect: vi.fn(),
+    });
+
+    const desc = created[0].children[2];
+    expect(desc.innerHTML).toContain('kw-dmg');
+    expect(desc.innerHTML).toContain('kw-echo');
+    expect(desc.innerHTML).toContain('kw-exhaust kw-block');
+
+    const css = fs.readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+    expect(css).toContain('.fragment-desc .kw-dmg');
+    expect(css).toContain('.fragment-desc .kw-echo');
+    expect(css).toContain('.fragment-desc .kw-buff.kw-block');
   });
 });

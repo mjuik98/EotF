@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 export function renderClassTraitPanel(model, deps = {}) {
   if (!model) return '';
 
@@ -10,7 +12,7 @@ export function renderClassTraitPanel(model, deps = {}) {
 
   if (model.title && model.desc) {
     root.addEventListener('mouseenter', (event) => {
-      tooltipUI?.showGeneralTooltip?.(event, model.title, model.desc, { doc, win });
+      tooltipUI?.showGeneralTooltip?.(event, model.title, DescriptionUtils.highlight(model.desc), { doc, win });
     });
     root.addEventListener('mouseleave', () => {
       tooltipUI?.hideGeneralTooltip?.({ doc, win });

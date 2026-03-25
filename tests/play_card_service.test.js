@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { playCardService } from '../game/features/combat/public.js';
 import { Actions } from '../game/core/store/state_actions.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
 
 function createLogger() {
@@ -31,6 +32,7 @@ function createState(cardId) {
       echo: 0,
       echoChain: 0,
       silenceGauge: 0,
+      items: [],
     },
     combat: {
       active: true,
@@ -239,6 +241,7 @@ describe('play_card_service', () => {
       audioEngine: {},
       runtimeDeps: {
         renderCombatCards: vi.fn(),
+        updateChainDisplay: vi.fn(),
       },
       hudUpdateUI: { processDirtyFlags: vi.fn() },
     });
@@ -246,5 +249,98 @@ describe('play_card_service', () => {
     expect(result).toBe(true);
     expect(gs.combat.enemies[0].statusEffects.stunned).toBe(1);
     expect(logger.error).not.toHaveBeenCalled();
+  });
+
+  it('replays the first card effect each turn through abyssal_hand without charging extra energy', () => {
+    const cardId = 'runtime_abyss_card';
+    const gs = createState(cardId);
+    const logger = createLogger();
+    const effect = vi.fn((runtimeGs) => {
+      runtimeGs.addEcho(1);
+    });
+    gs.player.items = ['abyssal_hand'];
+    gs.triggerItems = (trigger, payload) => ItemSystem.triggerItems(gs, trigger, payload);
+
+    const result = playCardService({
+      cardId,
+      handIdx: 0,
+      gs,
+      card: {
+        id: cardId,
+        name: 'Abyssal Probe',
+        cost: 2,
+        effect,
+      },
+      cardCostUtils: CardCostUtils,
+      classMechanics: {},
+      discardCard: vi.fn(),
+      logger,
+      audioEngine: {},
+      runtimeDeps: {
+        renderCombatCards: vi.fn(),
+        updateChainDisplay: vi.fn(),
+      },
+      hudUpdateUI: { processDirtyFlags: vi.fn() },
+    });
+
+    expect(result).toBe(true);
+    expect(effect).toHaveBeenCalledTimes(2);
+    expect(gs.player.energy).toBe(1);
+    expect(gs.player.echo).toBe(2);
+  });
+
+  it('routes the actual damage target through card_play so void_eye weakens the hit enemy', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const cardId = 'strike';
+    const gs = createState(cardId);
+    const logger = createLogger();
+    gs._selectedTarget = 1;
+    gs.player.items = ['void_eye'];
+    gs.combat.enemies = [
+      {
+        name: 'Front Dummy',
+        hp: 20,
+        shield: 0,
+        statusEffects: {},
+        ai: () => ({ dmg: 0 }),
+      },
+      {
+        name: 'Back Dummy',
+        hp: 20,
+        shield: 0,
+        statusEffects: {},
+        ai: () => ({ dmg: 0 }),
+      },
+    ];
+    gs.triggerItems = (trigger, payload) => ItemSystem.triggerItems(gs, trigger, payload);
+
+    const result = playCardService({
+      cardId,
+      handIdx: 0,
+      gs,
+      card: {
+        id: cardId,
+        name: 'Tracked Strike',
+        cost: 1,
+        effect: (runtimeGs) => {
+          runtimeGs.dealDamage(4, 0);
+        },
+      },
+      cardCostUtils: CardCostUtils,
+      classMechanics: {},
+      discardCard: vi.fn(),
+      logger,
+      audioEngine: {},
+      runtimeDeps: {
+        renderCombatCards: vi.fn(),
+        updateChainDisplay: vi.fn(),
+      },
+      hudUpdateUI: { processDirtyFlags: vi.fn() },
+    });
+
+    expect(result).toBe(true);
+    expect(gs.combat.enemies[0].statusEffects.weakened).toBe(1);
+    expect(gs.combat.enemies[1].statusEffects.weakened).toBeUndefined();
+    randomSpy.mockRestore();
   });
 });

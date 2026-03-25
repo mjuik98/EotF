@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it, vi } from 'vitest';
 import { renderCharacterInfoPanel } from '../game/features/title/ports/public_character_select_presentation_capabilities.js';
 
@@ -50,6 +52,8 @@ describe('character_select_info_panel', () => {
     detailsPane.dataset.pane = 'details';
     const echoBadge = createNode();
     const relicBadge = createNode();
+    relicBadge.dataset.relicTitle = 'Relic';
+    relicBadge.dataset.relicDesc = '피해 14. 잔향 20 충전 [소진]';
     const deckCard = createNode();
     deckCard.dataset.cid = 'strike';
 
@@ -93,7 +97,7 @@ describe('character_select_info_panel', () => {
       playStyle: ['회복 반격형', '지속 유지력'],
       featuredCardIds: ['strike'],
       featuredCardTags: { strike: '기본기' },
-      echoSkill: { icon: '!', name: 'Echo', desc: 'Burst.', echoCost: 2 },
+      echoSkill: { icon: '!', name: 'Echo', desc: '피해 14. 잔향 20 충전 [소진]', echoCost: 2 },
     };
 
     renderCharacterInfoPanel({
@@ -117,6 +121,9 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('Echo');
     expect(panel.innerHTML).toContain('고유 특성');
     expect(panel.innerHTML).toContain('에코 스킬');
+    expect(panel.innerHTML).toContain('kw-dmg');
+    expect(panel.innerHTML).toContain('kw-echo');
+    expect(panel.innerHTML).toContain('kw-exhaust kw-block');
     expect(panel.innerHTML).toContain('플레이 감각');
     expect(panel.innerHTML).toContain('회복 반격형');
     expect(panel.innerHTML).toContain('시작 핵심 카드');
@@ -139,7 +146,12 @@ describe('character_select_info_panel', () => {
     expect(openModal).toHaveBeenCalledWith(selectedChar.echoSkill, selectedChar.accent);
 
     relicBadge.listeners.mouseenter({ type: 'mouseenter' });
-    expect(generalTooltipUI.showGeneralTooltip).toHaveBeenCalled();
+    expect(generalTooltipUI.showGeneralTooltip).toHaveBeenCalledWith(
+      expect.anything(),
+      'Relic',
+      expect.stringContaining('kw-dmg'),
+      expect.any(Object),
+    );
 
     deckCard.listeners.mouseenter({ type: 'mouseenter' });
     expect(cardTooltipUI.showTooltip).toHaveBeenCalledWith(
@@ -147,6 +159,14 @@ describe('character_select_info_panel', () => {
       'strike',
       expect.objectContaining({ data: { cards: { strike: { name: 'Strike' } } } }),
     );
+  });
+
+  it('styles character echo descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/character_select_layout.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.char-echo-desc .kw-dmg');
+    expect(css).toContain('.char-echo-desc .kw-echo');
+    expect(css).toContain('.char-echo-desc .kw-buff.kw-block');
   });
 
   it('renders mastery loadout controls and wires preset save actions', () => {

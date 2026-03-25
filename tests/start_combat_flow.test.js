@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CombatInitializer } from '../game/features/combat/public.js';
 import { startCombatFlowUseCase } from '../game/features/combat/public.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 function createDeps() {
   return {
@@ -120,5 +121,110 @@ describe('startCombatFlowUseCase', () => {
 
     expect(startCombatFlowUseCase('normal', { gs: null })).toBeNull();
     expect(consoleError).toHaveBeenCalledWith('[CombatStart] Missing dependencies');
+  });
+
+  it('keeps combat-start draw relics and temporary hand relics after the opening hand is prepared', () => {
+    vi.restoreAllMocks();
+    vi.spyOn(CombatInitializer, 'resetCombatState').mockImplementation(() => {});
+    vi.spyOn(CombatInitializer, 'spawnEnemies').mockImplementation(() => ({
+      spawnedKeys: ['ancient_echo'],
+      isHiddenBoss: false,
+    }));
+    vi.spyOn(CombatInitializer, 'applyRegionDebuffs').mockImplementation(() => {});
+
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
+    const gs = {
+      currentRegion: 2,
+      currentScreen: 'map',
+      combat: {
+        turn: 1,
+        active: false,
+        enemies: [],
+      },
+      player: {
+        class: 'guardian',
+        items: ['void_compass', 'ancient_scroll', 'bloody_contract'],
+        deck: ['strike', 'defend', 'bash', 'guard', 'charge', 'slash', 'spark'],
+        drawPile: [],
+        hand: [],
+        graveyard: [],
+        exhausted: [],
+        hp: 40,
+        maxHp: 40,
+        buffs: {},
+        energy: 3,
+        maxEnergy: 3,
+      },
+      dispatch(action, payload) {
+        if (action === 'combat:deck-prepare') {
+          this.player.drawPile = [...this.player.deck];
+          this.player.hand = [];
+          return {
+            drawPile: this.player.drawPile,
+            hand: this.player.hand,
+          };
+        }
+        if (action === 'card:draw') {
+          let attempts = 0;
+          const handCap = 8;
+          for (let i = 0; i < Number(payload?.count || 0); i += 1) {
+            if (!this.player.drawPile.length) break;
+            attempts += 1;
+            if (this.player.hand.length >= handCap) continue;
+            this.player.hand.push(this.player.drawPile.pop());
+          }
+          return { attempts, drewCards: attempts };
+        }
+        return {};
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+      addLog: vi.fn(),
+      markDirty: vi.fn(),
+    };
+
+    const deps = {
+      gs,
+      data: {
+        enemies: {
+          ancient_echo: { name: 'Ancient Echo', hp: 100 },
+        },
+      },
+      getRegionData: vi.fn(() => ({ id: '2', enemies: ['ancient_echo'] })),
+      getBaseRegionIndex: vi.fn(() => 0),
+      getRegionCount: vi.fn(() => 5),
+      difficultyScaler: {},
+      runRules: {
+        onCombatStart: vi.fn(),
+        onCombatDeckReady: vi.fn(),
+      },
+      classMechanics: {
+        guardian: { onCombatStart: vi.fn() },
+      },
+      showWorldMemoryNotice: vi.fn(),
+      setTimeoutFn: vi.fn((fn) => fn()),
+      shuffleArray: vi.fn(),
+      enterCombatState: vi.fn((state) => {
+        state.combat.active = true;
+        state.currentScreen = 'game';
+      }),
+      setActiveCombatRegionState: vi.fn((state, region) => {
+        state._activeRegionId = Number(region.id);
+      }),
+      playBossPhase: vi.fn(),
+      applyRegionDebuffs: CombatInitializer.applyRegionDebuffs,
+      initDeck: CombatInitializer.initDeck,
+      resetCombatState: CombatInitializer.resetCombatState,
+      spawnEnemies: CombatInitializer.spawnEnemies,
+    };
+
+    startCombatFlowUseCase('normal', deps);
+
+    expect(gs.player.hp).toBe(34);
+    expect(gs.player.hand.length).toBe(8);
+    expect(gs.player.hand).toContain(gs._scrollTempCard);
+
+    randomSpy.mockRestore();
   });
 });

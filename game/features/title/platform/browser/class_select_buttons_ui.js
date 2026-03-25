@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 import {
   buildItemDetailViewModel,
   applyItemDetailPanelStyles,
@@ -67,7 +69,7 @@ export function renderClassSelectButtons(container, deps = {}) {
       </div>
       <div class="class-btn-name">${cls.name}</div>
       <div class="class-btn-style">${cls.style}</div>
-      <div class="class-btn-desc">${cls.desc}</div>
+      <div class="class-btn-desc">${DescriptionUtils.highlight(cls.desc || '')}</div>
       <div class="class-btn-trait class-btn-starting-relic">✦ 고유 특성: ${cls.traitName}</div>
       <div class="class-btn-relic class-btn-starting-relic">${itemInfo}</div>
     `;

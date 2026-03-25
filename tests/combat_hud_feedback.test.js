@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -120,10 +122,19 @@ describe('combat_hud_feedback', () => {
     expect(shown).toBe(true);
     expect(tooltip.classList.contains('visible')).toBe(true);
     expect(content.children).toHaveLength(3);
+    expect(content.children[0].children[0].children[1].innerHTML).toContain('kw-dmg');
     expect(tooltip.style.left).toBe('500px');
 
     hideEchoSkillTooltip(doc);
     expect(tooltip.classList.contains('visible')).toBe(false);
+  });
+
+  it('styles echo skill tooltip descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.echo-skill-tt-desc .kw-dmg');
+    expect(css).toContain('.echo-skill-tt-desc .kw-echo');
+    expect(css).toContain('.echo-skill-tt-desc .kw-buff.kw-block');
   });
 
   it('shows a turn banner and schedules its hide timer', () => {

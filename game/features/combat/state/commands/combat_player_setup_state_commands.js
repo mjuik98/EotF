@@ -20,6 +20,7 @@ export function applyCombatPlayerSetupReducerState(state) {
   player.buffs = collectPermanentBuffs(player);
   player.zeroCost = false;
   player.costDiscount = 0;
+  player.drawCount = 0;
   player._nextCardDiscount = 0;
   player._freeCardUses = 0;
   player._cascadeCards = new Map();

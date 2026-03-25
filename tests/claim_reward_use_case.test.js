@@ -82,7 +82,48 @@ describe('claim_reward_use_case', () => {
     expect(data.items.charm.onAcquire).toHaveBeenCalledWith(gs);
     expect(upgradeResult.success).toBe(true);
     expect(gs.player.deck).toContain('strike_plus');
+    expect(upgradeResult.notification.payload.name).toBe('강화 완료: Strike+');
+    expect(upgradeResult.notification.payload.desc).toBe('무작위 카드 1장이 강화되었습니다.');
     expect(hoisted.registerCardDiscovered).toHaveBeenCalled();
     expect(hoisted.registerItemFound).toHaveBeenCalledWith(gs, 'charm');
+  });
+
+  it('localizes mini-boss reward logs', async () => {
+    const { ensureMiniBossBonus } = await import('../game/features/reward/public.js');
+    const addLog = vi.fn();
+    const showItemToast = vi.fn();
+    const playItemGet = vi.fn();
+    const data = {
+      items: {
+        relic_rare: {
+          id: 'relic_rare',
+          name: '희귀 유물',
+          icon: '@',
+          rarity: 'rare',
+        },
+      },
+    };
+    const gs = {
+      currentRegion: 0,
+      player: {
+        maxHp: 20,
+        hp: 10,
+        items: [],
+      },
+      addLog,
+    };
+
+    const originalRandom = Math.random;
+    Math.random = vi.fn(() => 0);
+
+    try {
+      const reward = ensureMiniBossBonus(gs, data, { showItemToast, playItemGet });
+
+      expect(reward?.id).toBe('relic_rare');
+      expect(addLog).toHaveBeenCalledWith('중간 보스 보상: 골드 +12, 체력 +3', 'system');
+      expect(addLog).toHaveBeenCalledWith('중간 보스 유물: @ 희귀 유물', 'system');
+    } finally {
+      Math.random = originalRandom;
+    }
   });
 });

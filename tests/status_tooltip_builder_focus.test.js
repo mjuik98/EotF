@@ -35,4 +35,5 @@ describe('status tooltip builder focus coverage', () => {
     expect(html).toContain(meta?.icon ?? '');
     expect(html).toContain(meta?.desc ?? '');
   });
+
 });

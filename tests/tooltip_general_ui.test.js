@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   hideGeneralTooltipUi,
   showGeneralTooltipUi,
@@ -66,6 +67,7 @@ describe('tooltip_general_ui', () => {
     expect(win._generalTipEl).toBe(doc.body.children[0]);
     expect(win._generalTipEl.children[0].textContent).toBe('Title');
     expect(win._generalTipEl.children[1].innerHTML).toBe('Body');
+    expect(win._generalTipEl.children[1].className).toBe('general-tooltip-desc');
     expect(win._generalTipEl.style.left).toBe('130px');
     expect(win._generalTipEl.style.top).toBe('40px');
   });
@@ -79,5 +81,13 @@ describe('tooltip_general_ui', () => {
 
     expect(tip.remove).toHaveBeenCalledTimes(1);
     expect(win._generalTipEl).toBeNull();
+  });
+
+  it('styles general tooltip descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.general-tooltip-desc .kw-dmg');
+    expect(css).toContain('.general-tooltip-desc .kw-echo');
+    expect(css).toContain('.general-tooltip-desc .kw-buff.kw-block');
   });
 });

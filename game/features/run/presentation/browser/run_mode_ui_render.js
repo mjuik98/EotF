@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 import { reducedMotion } from './run_mode_ui_helpers.js';
 import {
   getContentVisibility,
@@ -84,7 +86,7 @@ export function renderOptionGrid(container, items, selected, type, doc) {
       <div class="rm-opt-check">✓</div>
       <div class="rm-opt-icon">${opt.icon || '*'}</div>
       <div class="rm-opt-name">${opt.name}${opt.isNew ? '<span class="rm-new-badge">NEW</span>' : ''}</div>
-      <div class="rm-opt-desc">${opt.desc || ''}</div>
+      <div class="rm-opt-desc">${DescriptionUtils.highlight(opt.desc || '')}</div>
       ${isLockedVisible ? `<div class="rm-opt-lock">${opt.unlockHint || '해금 필요'}</div>` : ''}
     `;
 

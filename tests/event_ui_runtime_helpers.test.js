@@ -30,7 +30,7 @@ describe('event_ui_runtime_helpers', () => {
     const elements = {
       eventEyebrow: { textContent: '' },
       eventTitle: { textContent: '' },
-      eventDesc: { textContent: '' },
+      eventDesc: { textContent: '', innerHTML: '' },
       eventImageContainer: { style: { display: 'block' } },
       eventModal,
     };
@@ -40,7 +40,7 @@ describe('event_ui_runtime_helpers', () => {
     const refreshGoldBar = vi.fn();
     const resolveChoice = vi.fn();
 
-    renderEventShellRuntime({ title: 'An Event', desc: 'Desc', choices: [] }, {
+    renderEventShellRuntime({ title: 'An Event', desc: '피해 14. 잔향 20 충전 [소진]', choices: [] }, {
       doc,
       gs: { player: {} },
       refreshGoldBar,
@@ -49,7 +49,8 @@ describe('event_ui_runtime_helpers', () => {
 
     expect(elements.eventEyebrow.textContent).toBe('LAYER 1 EVENT');
     expect(elements.eventTitle.textContent).toBe('An Event');
-    expect(elements.eventDesc.textContent).toBe('Desc');
+    expect(elements.eventDesc.innerHTML).toContain('kw-dmg');
+    expect(elements.eventDesc.innerHTML).toContain('kw-echo');
     expect(elements.eventImageContainer.style.display).toBe('none');
     expect(refreshGoldBar).toHaveBeenCalled();
     expect(dom.renderChoices).toHaveBeenCalledWith(expect.any(Object), doc, expect.any(Object), resolveChoice);

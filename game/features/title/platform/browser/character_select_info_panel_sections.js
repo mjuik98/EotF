@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 import {
   buildDeckCardMarkup,
   buildFeatureSectionMarkup,
@@ -54,7 +56,7 @@ export function buildCharacterInfoSummarySection({
           <div class="char-echo-icon" style="border-color:${selectedChar.accent}55;background:${selectedChar.accent}14;">${echoSkill.icon}</div>
           <div class="char-echo-copy">
             <div class="char-echo-name" style="color:${selectedChar.accent}">${echoSkill.name}</div>
-            <div class="char-echo-desc">${echoSkill.desc}</div>
+            <div class="char-echo-desc">${DescriptionUtils.highlight(echoSkill.desc || '')}</div>
           </div>
           <div class="char-echo-cost" style="border-color:${selectedChar.accent}33;color:${selectedChar.accent}99;background:${selectedChar.accent}0a;">${echoSkill.echoCost}</div>
         </button>

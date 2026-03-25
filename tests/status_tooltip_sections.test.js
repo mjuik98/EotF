@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildStatusTooltipHTML,
   buildStatusTooltipCountdownHTML,
   buildStatusTooltipGaugeHTML,
   buildStatusTooltipNextTurnHTML,
@@ -42,5 +43,17 @@ describe('status tooltip sections', () => {
     expect(countdownHtml).toContain('3');
     expect(statsHtml).toContain('Power');
     expect(statsHtml).toContain('7');
+  });
+
+  it('highlights status tooltip descriptions through shared keyword markup', () => {
+    const html = buildStatusTooltipHTML(
+      'custom_status',
+      { name: '시험', icon: '✦', buff: true, desc: '피해 8 후 잔향 10 충전 [지속]' },
+      { stacks: 1 },
+    );
+
+    expect(html).toContain('kw-dmg');
+    expect(html).toContain('kw-echo');
+    expect(html).toContain('kw-buff kw-block');
   });
 });

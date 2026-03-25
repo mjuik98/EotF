@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../ports/presentation/public_combat_card_support_capabilities.js';
+
 const DEFAULT_FRAGMENT_CHOICES = [
   { icon: '⚡', name: '잔향 강화', desc: '다음 런 시작 시 잔향 +30', effect: 'echo_boost' },
   { icon: '🛡️', name: '회복력', desc: '최대 체력 +10', effect: 'resilience' },
@@ -36,7 +38,7 @@ export function renderDeathFragmentChoices({ choices, doc, onSelect }) {
 
     const desc = doc.createElement('div');
     desc.className = 'fragment-desc';
-    desc.textContent = choice.desc;
+    desc.innerHTML = DescriptionUtils.highlight(choice.desc);
 
     btn.append(icon, name, desc);
     fragList.appendChild(btn);

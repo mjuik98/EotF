@@ -1,9 +1,12 @@
 import { changePlayerEnergyState, setPlayerHpState } from '../state/player_state_commands.js';
+import { getAmountValue, withAmountValue } from './set_bonus_helpers.js';
 
 export function applySetBonusResourceRules(gs, counts, normalizedTrigger, data) {
+  const dealDamageAmount = normalizedTrigger === 'deal_damage' ? getAmountValue(data) : null;
+
   if (counts.void_set >= 3) {
-    if (normalizedTrigger === 'deal_damage' && typeof data === 'number') {
-      return Math.floor(data * 1.15);
+    if (normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+      return withAmountValue(data, Math.floor(dealDamageAmount * 1.15));
     }
     if (normalizedTrigger === 'turn_start') {
       gs.addEcho?.(15, { name: '심연의 삼위일체 세트(3)', type: 'set' });
@@ -22,8 +25,8 @@ export function applySetBonusResourceRules(gs, counts, normalizedTrigger, data) 
   if (counts.storm_set >= 2 && normalizedTrigger === 'card_play') {
     gs.addEcho?.(4, { name: '폭풍의 세 검 세트(2)', type: 'set' });
   }
-  if (counts.storm_set >= 3 && normalizedTrigger === 'deal_damage' && (gs.player.echoChain || 0) >= 3 && typeof data === 'number') {
-    return Math.floor(data * 1.1);
+  if (counts.storm_set >= 3 && normalizedTrigger === 'deal_damage' && (gs.player.echoChain || 0) >= 3 && dealDamageAmount !== null) {
+    return withAmountValue(data, Math.floor(dealDamageAmount * 1.1));
   }
 
   if (counts.machine_set >= 2) {
@@ -36,8 +39,8 @@ export function applySetBonusResourceRules(gs, counts, normalizedTrigger, data) 
       gs._machineSet3DamageBonus = counts.machine_set >= 3 ? (gs.player.exhausted?.length || 0) * 5 : 0;
     }
   }
-  if (counts.machine_set >= 3 && normalizedTrigger === 'deal_damage' && (gs._machineSet3DamageBonus || 0) > 0 && typeof data === 'number') {
-    return data + gs._machineSet3DamageBonus;
+  if (counts.machine_set >= 3 && normalizedTrigger === 'deal_damage' && (gs._machineSet3DamageBonus || 0) > 0 && dealDamageAmount !== null) {
+    return withAmountValue(data, dealDamageAmount + gs._machineSet3DamageBonus);
   }
 
   if (counts.moon_set >= 2 && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {

@@ -11,6 +11,38 @@ function resolveTooltipUI(deps) {
   return deps?.tooltipUI || deps?.TooltipUI || null;
 }
 
+function createRewardTooltipEvent(event, currentTarget) {
+  return {
+    ...event,
+    currentTarget,
+    target: event?.target || currentTarget,
+  };
+}
+
+function callTooltipMethod(deps, method, ...args) {
+  const tooltipUI = resolveTooltipUI(deps);
+  if (typeof tooltipUI?.[method] !== 'function') return;
+  tooltipUI[method](...args);
+}
+
+function hideRewardTooltips(deps) {
+  callTooltipMethod(deps, 'hideTooltip', deps);
+  callTooltipMethod(deps, 'hideItemTooltip', deps);
+  callTooltipMethod(deps, 'hideGeneralTooltip', deps);
+}
+
+function bindRewardTooltipHandlers(wrapper, deps, show, hideMethod) {
+  if (typeof show !== 'function') return;
+  wrapper.addEventListener('mouseenter', (event) => show(event));
+  wrapper.addEventListener('mouseleave', () => callTooltipMethod(deps, hideMethod, deps));
+  wrapper.addEventListener('focus', (event) => show(event));
+  wrapper.addEventListener('blur', () => callTooltipMethod(deps, hideMethod, deps));
+}
+
+function applyRewardCardShell(el, extraClasses = []) {
+  el.className = [el.className, 'reward-card-shell', ...extraClasses].filter(Boolean).join(' ').trim();
+}
+
 export function renderRewardCardOption(container, cardId, data, gs, deps, onPick, idx) {
   const doc = getDoc(deps);
   const card = data.cards?.[cardId];
@@ -22,15 +54,15 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
   wrapper.className = 'reward-card-wrapper';
   if (isUpgradedReward) {
     wrapper.classList.add('reward-upgraded-card');
-    wrapper.title = '강화 카드 럭키 드랍';
+    wrapper.title = '강화 카드 보상';
   }
   wrapper.style.animationDelay = `${idx * 0.08}s`;
-  wrapper.setAttribute('aria-label', `${card.name || cardId} card reward`);
+  wrapper.setAttribute('aria-label', `${card.name || cardId} 카드 보상`);
 
   if (isUpgradedReward) {
     const highrollBadge = doc.createElement('div');
     highrollBadge.className = 'reward-upgraded-highroll-badge';
-    highrollBadge.textContent = 'HIGH ROLL';
+    highrollBadge.textContent = '강화 카드';
     wrapper.appendChild(highrollBadge);
   }
 
@@ -38,7 +70,7 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
   const rarityClass = `rarity-${card.rarity || 'common'}`;
   const typeClass = toTypeClass(card.type);
   cardEl.className = `card card-frame-variant-reward ${rarityClass} ${typeClass}`.trim();
-  cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;';
+  applyRewardCardShell(cardEl);
   const descriptionUtils = getDescriptionUtils(deps);
   populateCombatCardFrame(cardEl, doc, {
     cardId,
@@ -54,20 +86,20 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
     showHotkey: false,
   });
   wrapper.appendChild(cardEl);
-
-  wrapper.addEventListener('mouseenter', (ev) => {
-    const tooltipUI = resolveTooltipUI(deps);
-    if (typeof tooltipUI?.showTooltip === 'function') {
-      tooltipUI.showTooltip(ev, cardId, { ...deps, data, gs });
-    }
-  });
-  wrapper.addEventListener('mouseleave', () => {
-    const tooltipUI = resolveTooltipUI(deps);
-    if (typeof tooltipUI?.hideTooltip === 'function') {
-      tooltipUI.hideTooltip();
-    }
-  });
+  bindRewardTooltipHandlers(
+    wrapper,
+    deps,
+    (event) => callTooltipMethod(
+      deps,
+      'showTooltip',
+      createRewardTooltipEvent(event, wrapper),
+      cardId,
+      { ...deps, data, gs },
+    ),
+    'hideTooltip',
+  );
   wrapper.addEventListener('click', () => {
+    hideRewardTooltips(deps);
     markRewardSelection(container, wrapper);
     onPick?.();
   });
@@ -83,12 +115,13 @@ export function renderItemOption(container, item, deps, onPick, idx) {
   wrapper.type = 'button';
   wrapper.className = 'reward-card-wrapper';
   wrapper.style.animationDelay = `${idx * 0.08}s`;
-  wrapper.setAttribute('aria-label', `${item.name || item.id} item reward`);
+  wrapper.setAttribute('aria-label', `${item.name || item.id} 유물 보상`);
+  const tooltipData = deps.data || { items: { [item.id]: item } };
 
   const cardEl = doc.createElement('div');
   const rarityClass = `rarity-${item.rarity || 'common'}`;
   cardEl.className = `card ${rarityClass}`;
-  cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;border-color:var(--gold);';
+  applyRewardCardShell(cardEl, ['reward-item-card']);
 
   const icon = doc.createElement('div');
   icon.className = 'card-icon';
@@ -107,11 +140,24 @@ export function renderItemOption(container, item, deps, onPick, idx) {
 
   const rarity = doc.createElement('div');
   rarity.className = `card-type reward-card-type ${rarityClass}`.trim();
-  rarity.textContent = `Item - ${toRarityLabel(item.rarity)}`;
+  rarity.textContent = `유물 · ${toRarityLabel(item.rarity)}`;
 
   cardEl.append(icon, name, desc, rarity);
   wrapper.appendChild(cardEl);
+  bindRewardTooltipHandlers(
+    wrapper,
+    deps,
+    (event) => callTooltipMethod(
+      deps,
+      'showItemTooltip',
+      createRewardTooltipEvent(event, wrapper),
+      item.id,
+      { ...deps, data: tooltipData, gs: deps.gs },
+    ),
+    'hideItemTooltip',
+  );
   wrapper.addEventListener('click', () => {
+    hideRewardTooltips(deps);
     markRewardSelection(container, wrapper);
     onPick?.();
   });
@@ -129,10 +175,9 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
   wrapper.classList.add('reward-blessing-option');
   if (blessing.type) wrapper.classList.add(`reward-blessing-${blessing.type}`);
   wrapper.style.animationDelay = `${idx * 0.08}s`;
-  wrapper.setAttribute('aria-label', `${blessing.name} blessing reward`);
+  wrapper.setAttribute('aria-label', `${blessing.name} 축복 보상`);
 
   if (isDisabled) {
-    wrapper.disabled = true;
     wrapper.setAttribute('aria-disabled', 'true');
     wrapper.classList.add('is-disabled');
     if (blessing.type === 'energy') wrapper.classList.add('reward-permanent-energy-disabled');
@@ -142,7 +187,10 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
   const cardEl = doc.createElement('div');
   cardEl.className = 'card rarity-rare';
   cardEl.classList.add('reward-blessing-card');
-  cardEl.style.cssText = 'width:170px;height:260px;padding:14px;display:flex;flex-direction:column;gap:8px;border-color:var(--glow);box-shadow:0 0 15px var(--glow);';
+  applyRewardCardShell(cardEl);
+  const tooltipContent = blessing.disabledReason
+    ? `${blessing.desc || ''}<br><br>${blessing.disabledReason}`
+    : blessing.desc || '';
 
   const icon = doc.createElement('div');
   icon.className = 'card-icon';
@@ -180,8 +228,22 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
   }
 
   wrapper.appendChild(cardEl);
+  bindRewardTooltipHandlers(
+    wrapper,
+    deps,
+    (event) => callTooltipMethod(
+      deps,
+      'showGeneralTooltip',
+      createRewardTooltipEvent(event, wrapper),
+      blessing.name || '축복',
+      tooltipContent,
+      deps,
+    ),
+    'hideGeneralTooltip',
+  );
   if (!isDisabled) {
     wrapper.addEventListener('click', () => {
+      hideRewardTooltips(deps);
       markRewardSelection(container, wrapper);
       onPick?.();
     });

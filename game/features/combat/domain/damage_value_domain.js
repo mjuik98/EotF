@@ -62,16 +62,18 @@ function applyChainBonus(gs, damage, noChain) {
   return { damage: dmg, chainBonus };
 }
 
-function applyPostPreventionDamageModifiers(gs, damage, noChain, getBuff, triggerItem) {
+function applyPostPreventionDamageModifiers(gs, damage, noChain, getBuff, triggerItem, targetIdx = null) {
   let dmg = damage;
 
   if ((getBuff('weakened')?.stacks || 0) > 0) {
     dmg = Math.max(0, Math.floor(dmg * 0.5));
   }
 
-  const itemScaled = triggerItem('deal_damage', dmg);
+  const itemScaled = triggerItem('deal_damage', { amount: dmg, targetIdx });
   if (typeof itemScaled === 'number' && Number.isFinite(itemScaled)) {
     dmg = Math.max(0, Math.floor(itemScaled));
+  } else if (itemScaled && typeof itemScaled === 'object' && Number.isFinite(itemScaled.amount)) {
+    dmg = Math.max(0, Math.floor(itemScaled.amount));
   }
 
   dmg = applyChainBonus(gs, dmg, noChain).damage;
@@ -103,14 +105,14 @@ export function calculateBaseResolvedDamageValue(gs, amount, getBuff) {
   };
 }
 
-export function finalizeResolvedDamageValue(gs, damage, noChain, getBuff, triggerItem) {
-  return applyPostPreventionDamageModifiers(gs, damage, noChain, getBuff, triggerItem);
+export function finalizeResolvedDamageValue(gs, damage, noChain, getBuff, triggerItem, targetIdx = null) {
+  return applyPostPreventionDamageModifiers(gs, damage, noChain, getBuff, triggerItem, targetIdx);
 }
 
-export function calculateResolvedDamageValue(gs, amount, noChain, getBuff, triggerItem) {
+export function calculateResolvedDamageValue(gs, amount, noChain, getBuff, triggerItem, targetIdx = null) {
   const base = calculateBaseResolvedDamageValue(gs, amount, getBuff);
   return {
-    damage: finalizeResolvedDamageValue(gs, base.damage, noChain, getBuff, triggerItem),
+    damage: finalizeResolvedDamageValue(gs, base.damage, noChain, getBuff, triggerItem, targetIdx),
     hasCritBuff: base.hasCritBuff,
   };
 }

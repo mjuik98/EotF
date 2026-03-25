@@ -64,6 +64,7 @@
     "tests/class_select_buttons_ui.test.js",
     "tests/class_select_selection_ui.test.js",
     "tests/class_select_tooltip_ui.test.js",
+    "tests/class_trait_panel_ui.test.js",
     "tests/codex_card_reference_use_case.test.js",
     "tests/codex_feature_public.test.js",
     "tests/codex_records_system.test.js",

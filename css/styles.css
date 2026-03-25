@@ -5313,11 +5313,32 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 .reward-card-wrapper:focus-visible {
-  outline: none;
+  outline: 2px solid rgba(0, 255, 204, 0.9);
+  outline-offset: 6px;
+  border-radius: 20px;
+  box-shadow: 0 0 0 4px rgba(0, 255, 204, 0.16);
 }
 
 .reward-card-wrapper .card {
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.reward-card-shell {
+  width: 170px;
+  height: 260px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reward-item-card {
+  border-color: var(--gold);
+}
+
+.reward-blessing-card {
+  border-color: var(--glow);
+  box-shadow: 0 0 15px var(--glow);
 }
 
 .reward-card-wrapper.reward-upgraded-card {
@@ -5356,12 +5377,26 @@ body:has(#combatOverlay.active) .panel-bottom {
   text-align: center;
 }
 
-.reward-card-wrapper .card-desc,
+.card-desc-reward,
 .reward-card-desc {
   display: block;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.66;
+  color: rgba(224, 218, 242, 0.94);
+  text-align: left;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.card-desc-deck,
+.deck-card-desc {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.66;
+  color: rgba(224, 218, 242, 0.94);
+  text-align: left;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .reward-card-wrapper .card-type,
@@ -11678,38 +11713,110 @@ body:has(#combatOverlay.active) .panel-bottom {
   color: rgba(224, 218, 242, 0.94);
 }
 
-/* 클론 내 kw-* 키워드 컬러 — card_redesign.css 와 동일 패턴 적용 */
-.card-desc-hover .kw-dmg {
+.general-tooltip-desc,
+.class-select-tooltip-desc,
+.combat-info-item-desc,
+.full-map-tooltip-desc,
+.character-skill-tier-desc {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 비교형 카드/툴팁 표면의 kw-* 키워드 컬러를 통일한다. */
+.card-desc-hover .kw-dmg,
+.card-desc-reward .kw-dmg,
+.reward-card-desc .kw-dmg,
+.card-desc-deck .kw-dmg,
+.deck-card-desc .kw-dmg,
+.item-tooltip-desc .kw-dmg,
+.item-shop-desc .kw-dmg,
+.itt-desc .kw-dmg,
+.stt-desc .kw-dmg,
+.card-tooltip-desc .kw-dmg {
   color: #ff6677;
   font-weight: 600;
 }
 
-.card-desc-hover .kw-shield {
+.card-desc-hover .kw-shield,
+.card-desc-reward .kw-shield,
+.reward-card-desc .kw-shield,
+.card-desc-deck .kw-shield,
+.deck-card-desc .kw-shield,
+.item-tooltip-desc .kw-shield,
+.item-shop-desc .kw-shield,
+.itt-desc .kw-shield,
+.stt-desc .kw-shield,
+.card-tooltip-desc .kw-shield {
   color: #60c8ff;
   font-weight: 600;
 }
 
-.card-desc-hover .kw-heal {
+.card-desc-hover .kw-heal,
+.card-desc-reward .kw-heal,
+.reward-card-desc .kw-heal,
+.card-desc-deck .kw-heal,
+.deck-card-desc .kw-heal,
+.item-tooltip-desc .kw-heal,
+.item-shop-desc .kw-heal,
+.itt-desc .kw-heal,
+.stt-desc .kw-heal,
+.card-tooltip-desc .kw-heal {
   color: #44ee88;
   font-weight: 600;
 }
 
-.card-desc-hover .kw-echo {
+.card-desc-hover .kw-echo,
+.card-desc-reward .kw-echo,
+.reward-card-desc .kw-echo,
+.card-desc-deck .kw-echo,
+.deck-card-desc .kw-echo,
+.item-tooltip-desc .kw-echo,
+.item-shop-desc .kw-echo,
+.itt-desc .kw-echo,
+.stt-desc .kw-echo,
+.card-tooltip-desc .kw-echo {
   color: #b080ff;
   font-weight: 600;
 }
 
-.card-desc-hover .kw-energy {
+.card-desc-hover .kw-energy,
+.card-desc-reward .kw-energy,
+.reward-card-desc .kw-energy,
+.card-desc-deck .kw-energy,
+.deck-card-desc .kw-energy,
+.item-tooltip-desc .kw-energy,
+.item-shop-desc .kw-energy,
+.itt-desc .kw-energy,
+.stt-desc .kw-energy,
+.card-tooltip-desc .kw-energy {
   color: var(--gold);
   font-weight: 600;
 }
 
-.card-desc-hover .kw-draw {
+.card-desc-hover .kw-draw,
+.card-desc-reward .kw-draw,
+.reward-card-desc .kw-draw,
+.card-desc-deck .kw-draw,
+.deck-card-desc .kw-draw,
+.item-tooltip-desc .kw-draw,
+.item-shop-desc .kw-draw,
+.itt-desc .kw-draw,
+.stt-desc .kw-draw,
+.card-tooltip-desc .kw-draw {
   color: #66dd66;
   font-weight: 600;
 }
 
-.card-desc-hover .kw-exhaust.kw-block {
+.card-desc-hover .kw-exhaust.kw-block,
+.card-desc-reward .kw-exhaust.kw-block,
+.reward-card-desc .kw-exhaust.kw-block,
+.card-desc-deck .kw-exhaust.kw-block,
+.deck-card-desc .kw-exhaust.kw-block,
+.item-tooltip-desc .kw-exhaust.kw-block,
+.item-shop-desc .kw-exhaust.kw-block,
+.itt-desc .kw-exhaust.kw-block,
+.stt-desc .kw-exhaust.kw-block,
+.card-tooltip-desc .kw-exhaust.kw-block {
   color: #ff8844;
   background: rgba(255, 136, 68, 0.12);
   border-radius: 3px;
@@ -11717,7 +11824,16 @@ body:has(#combatOverlay.active) .panel-bottom {
   font-size: 0.9em;
 }
 
-.card-desc-hover .kw-buff.kw-block {
+.card-desc-hover .kw-buff.kw-block,
+.card-desc-reward .kw-buff.kw-block,
+.reward-card-desc .kw-buff.kw-block,
+.card-desc-deck .kw-buff.kw-block,
+.deck-card-desc .kw-buff.kw-block,
+.item-tooltip-desc .kw-buff.kw-block,
+.item-shop-desc .kw-buff.kw-block,
+.itt-desc .kw-buff.kw-block,
+.stt-desc .kw-buff.kw-block,
+.card-tooltip-desc .kw-buff.kw-block {
   color: var(--cyan);
   background: rgba(0, 255, 204, 0.1);
   border-radius: 3px;
@@ -11725,7 +11841,207 @@ body:has(#combatOverlay.active) .panel-bottom {
   font-size: 0.9em;
 }
 
-.card-desc-hover .kw-burst.kw-block {
+.card-desc-hover .kw-burst.kw-block,
+.card-desc-reward .kw-burst.kw-block,
+.reward-card-desc .kw-burst.kw-block,
+.card-desc-deck .kw-burst.kw-block,
+.deck-card-desc .kw-burst.kw-block,
+.item-tooltip-desc .kw-burst.kw-block,
+.item-shop-desc .kw-burst.kw-block,
+.itt-desc .kw-burst.kw-block,
+.stt-desc .kw-burst.kw-block,
+.card-tooltip-desc .kw-burst.kw-block {
+  color: var(--gold);
+  background: rgba(240, 180, 41, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+/* 보조 surface도 비교형 카드와 같은 키워드 색 체계를 공유한다. */
+.toast-sub .kw-dmg,
+.node-card-desc .kw-dmg {
+  color: #ff6677;
+  font-weight: 600;
+}
+
+.toast-sub .kw-shield,
+.node-card-desc .kw-shield {
+  color: #60c8ff;
+  font-weight: 600;
+}
+
+.toast-sub .kw-heal,
+.node-card-desc .kw-heal {
+  color: #44ee88;
+  font-weight: 600;
+}
+
+.toast-sub .kw-echo,
+.node-card-desc .kw-echo {
+  color: #b080ff;
+  font-weight: 600;
+}
+
+.toast-sub .kw-energy,
+.node-card-desc .kw-energy {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.toast-sub .kw-draw,
+.node-card-desc .kw-draw {
+  color: #66dd66;
+  font-weight: 600;
+}
+
+.toast-sub .kw-exhaust.kw-block,
+.node-card-desc .kw-exhaust.kw-block {
+  color: #ff8844;
+  background: rgba(255, 136, 68, 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+.toast-sub .kw-buff.kw-block,
+.node-card-desc .kw-buff.kw-block {
+  color: var(--cyan);
+  background: rgba(0, 255, 204, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+.toast-sub .kw-burst.kw-block,
+.node-card-desc .kw-burst.kw-block {
+  color: var(--gold);
+  background: rgba(240, 180, 41, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+/* 설명형 선택 surface도 같은 키워드 팔레트를 공유한다. */
+.class-btn-desc .kw-dmg,
+.fragment-desc .kw-dmg,
+.echo-skill-tt-desc .kw-dmg,
+.event-desc .kw-dmg,
+.general-tooltip-desc .kw-dmg,
+.class-select-tooltip-desc .kw-dmg,
+.combat-info-item-desc .kw-dmg,
+.full-map-tooltip-desc .kw-dmg,
+.character-skill-tier-desc .kw-dmg {
+  color: #ff6677;
+  font-weight: 600;
+}
+
+.class-btn-desc .kw-shield,
+.fragment-desc .kw-shield,
+.echo-skill-tt-desc .kw-shield,
+.event-desc .kw-shield,
+.general-tooltip-desc .kw-shield,
+.class-select-tooltip-desc .kw-shield,
+.combat-info-item-desc .kw-shield,
+.full-map-tooltip-desc .kw-shield,
+.character-skill-tier-desc .kw-shield {
+  color: #60c8ff;
+  font-weight: 600;
+}
+
+.class-btn-desc .kw-heal,
+.fragment-desc .kw-heal,
+.echo-skill-tt-desc .kw-heal,
+.event-desc .kw-heal,
+.general-tooltip-desc .kw-heal,
+.class-select-tooltip-desc .kw-heal,
+.combat-info-item-desc .kw-heal,
+.full-map-tooltip-desc .kw-heal,
+.character-skill-tier-desc .kw-heal {
+  color: #44ee88;
+  font-weight: 600;
+}
+
+.class-btn-desc .kw-echo,
+.fragment-desc .kw-echo,
+.echo-skill-tt-desc .kw-echo,
+.event-desc .kw-echo,
+.general-tooltip-desc .kw-echo,
+.class-select-tooltip-desc .kw-echo,
+.combat-info-item-desc .kw-echo,
+.full-map-tooltip-desc .kw-echo,
+.character-skill-tier-desc .kw-echo {
+  color: #b080ff;
+  font-weight: 600;
+}
+
+.class-btn-desc .kw-energy,
+.fragment-desc .kw-energy,
+.echo-skill-tt-desc .kw-energy,
+.event-desc .kw-energy,
+.general-tooltip-desc .kw-energy,
+.class-select-tooltip-desc .kw-energy,
+.combat-info-item-desc .kw-energy,
+.full-map-tooltip-desc .kw-energy,
+.character-skill-tier-desc .kw-energy {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.class-btn-desc .kw-draw,
+.fragment-desc .kw-draw,
+.echo-skill-tt-desc .kw-draw,
+.event-desc .kw-draw,
+.general-tooltip-desc .kw-draw,
+.class-select-tooltip-desc .kw-draw,
+.combat-info-item-desc .kw-draw,
+.full-map-tooltip-desc .kw-draw,
+.character-skill-tier-desc .kw-draw {
+  color: #66dd66;
+  font-weight: 600;
+}
+
+.class-btn-desc .kw-exhaust.kw-block,
+.fragment-desc .kw-exhaust.kw-block,
+.echo-skill-tt-desc .kw-exhaust.kw-block,
+.event-desc .kw-exhaust.kw-block,
+.general-tooltip-desc .kw-exhaust.kw-block,
+.class-select-tooltip-desc .kw-exhaust.kw-block,
+.combat-info-item-desc .kw-exhaust.kw-block,
+.full-map-tooltip-desc .kw-exhaust.kw-block,
+.character-skill-tier-desc .kw-exhaust.kw-block {
+  color: #ff8844;
+  background: rgba(255, 136, 68, 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+.class-btn-desc .kw-buff.kw-block,
+.fragment-desc .kw-buff.kw-block,
+.echo-skill-tt-desc .kw-buff.kw-block,
+.event-desc .kw-buff.kw-block,
+.general-tooltip-desc .kw-buff.kw-block,
+.class-select-tooltip-desc .kw-buff.kw-block,
+.combat-info-item-desc .kw-buff.kw-block,
+.full-map-tooltip-desc .kw-buff.kw-block,
+.character-skill-tier-desc .kw-buff.kw-block {
+  color: var(--cyan);
+  background: rgba(0, 255, 204, 0.1);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-size: 0.9em;
+}
+
+.class-btn-desc .kw-burst.kw-block,
+.fragment-desc .kw-burst.kw-block,
+.echo-skill-tt-desc .kw-burst.kw-block,
+.event-desc .kw-burst.kw-block,
+.general-tooltip-desc .kw-burst.kw-block,
+.class-select-tooltip-desc .kw-burst.kw-block,
+.combat-info-item-desc .kw-burst.kw-block,
+.full-map-tooltip-desc .kw-burst.kw-block,
+.character-skill-tier-desc .kw-burst.kw-block {
   color: var(--gold);
   background: rgba(240, 180, 41, 0.1);
   border-radius: 3px;

@@ -105,6 +105,7 @@ describe('deck_modal_render_ui', () => {
     expect(cardsEl.children).toHaveLength(1);
     const card = cardsEl.children[0];
     expect(card.className).toContain('card-frame-variant-deck');
+    expect(card.children.some((child) => String(child.className).includes('card-desc-deck'))).toBe(true);
     expect(card.children.some((child) => child.className === 'card-location-tag')).toBe(true);
     expect(card.children.some((child) => child.className === 'card-rarity-strip card-rarity-strip-rare')).toBe(true);
     expect(card.children.some((child) => child.className === 'card-crystal-facet card-crystal-facet-type-attack')).toBe(true);
@@ -113,5 +114,24 @@ describe('deck_modal_render_ui', () => {
     applyDeckFilterButtonStyles(doc, 'ATTACK');
     expect(attackBtn.style.background).toBe('rgba(255,80,100,0.2)');
     expect(allBtn.style.background).toBe('transparent');
+  });
+
+  it('styles deck modal descriptions with a readable deck-specific text block', async () => {
+    const { readFileSync } = await import('node:fs');
+    const path = await import('node:path');
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toMatch(/\.card-desc-deck,\s*\.deck-card-desc \{\s*display: block;\s*font-size: 11\.5px;\s*line-height: 1\.66;\s*color: rgba\(224, 218, 242, 0\.94\);\s*text-align: left;\s*word-break: keep-all;\s*overflow-wrap: anywhere;\s*\}/);
+  });
+
+  it('styles deck modal keyword highlights with the same readable comparison palette', async () => {
+    const { readFileSync } = await import('node:fs');
+    const path = await import('node:path');
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.deck-card-desc .kw-dmg');
+    expect(source).toContain('.deck-card-desc .kw-shield');
+    expect(source).toContain('.deck-card-desc .kw-draw');
+    expect(source).toContain('.deck-card-desc .kw-buff.kw-block');
   });
 });

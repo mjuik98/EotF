@@ -55,7 +55,6 @@ export const CombatLifecycle = {
     if (outcome?.skipped || outcome?.error) return outcome;
 
     this.triggerItems('combat_end', { isBoss: outcome.isBoss });
-    this.triggerItems('void_shard');
     return outcome;
   },
 

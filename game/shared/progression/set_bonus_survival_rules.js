@@ -1,7 +1,9 @@
 import {
+  getAmountValue,
   hasLegacySetTier,
   hasSetTier,
   resolveTargetIdx,
+  withAmountValue,
 } from './set_bonus_helpers.js';
 import {
   changePlayerEnergyState,
@@ -9,12 +11,14 @@ import {
 } from '../state/player_state_commands.js';
 
 export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) {
-  if (counts.dusk_set >= 2 && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
-    const targetIdx = resolveTargetIdx(gs);
+  const dealDamageAmount = normalizedTrigger === 'deal_damage' ? getAmountValue(data) : null;
+
+  if (counts.dusk_set >= 2 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+    const targetIdx = resolveTargetIdx(gs, data?.targetIdx);
     if (targetIdx < 0) return undefined;
     const target = gs.combat?.enemies?.[targetIdx];
     if ((target?.statusEffects?.poisoned || 0) > 0) {
-      return data + 8;
+      return withAmountValue(data, dealDamageAmount + 8);
     }
   }
 
@@ -40,10 +44,10 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
       }
     }
   }
-  if (hasSetTier(gs, counts, 'serpents_gaze', 3) && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
-    const targetIdx = resolveTargetIdx(gs);
+  if (hasSetTier(gs, counts, 'serpents_gaze', 3) && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+    const targetIdx = resolveTargetIdx(gs, data?.targetIdx);
     if (targetIdx >= 0 && (gs.combat?.enemies?.[targetIdx]?.statusEffects?.poisoned || 0) >= 10) {
-      return Math.floor(data * 1.25);
+      return withAmountValue(data, Math.floor(dealDamageAmount * 1.25));
     }
   }
 
@@ -59,14 +63,14 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
   if (hasSetTier(gs, counts, 'holy_grail', 3) && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
     gs._grailNextBonus = (gs._grailNextBonus || 0) + 4;
   }
-  if (hasSetTier(gs, counts, 'holy_grail', 3) && normalizedTrigger === 'deal_damage' && typeof data === 'number' && (gs._grailNextBonus || 0) > 0) {
+  if (hasSetTier(gs, counts, 'holy_grail', 3) && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null && (gs._grailNextBonus || 0) > 0) {
     const bonus = gs._grailNextBonus;
     gs._grailNextBonus = 0;
-    return data + bonus;
+    return withAmountValue(data, dealDamageAmount + bonus);
   }
 
-  if (hasSetTier(gs, counts, 'titans_endurance', 2) && normalizedTrigger === 'deal_damage' && typeof data === 'number' && (gs.player.hp || 0) >= (gs.player.maxHp || 0) * 0.8) {
-    return data + 5;
+  if (hasSetTier(gs, counts, 'titans_endurance', 2) && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null && (gs.player.hp || 0) >= (gs.player.maxHp || 0) * 0.8) {
+    return withAmountValue(data, dealDamageAmount + 5);
   }
   if (hasSetTier(gs, counts, 'titans_endurance', 3) && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data >= (gs.player.hp || 0) && !gs._titanUsed) {
     gs._titanUsed = true;
@@ -75,17 +79,17 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
     return true;
   }
 
-  if (hasLegacySetTier(gs, 'iron_fortress', 3) && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
-    return data + Math.floor((gs.player.shield || 0) * 0.2);
+  if (hasLegacySetTier(gs, 'iron_fortress', 3) && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+    return withAmountValue(data, dealDamageAmount + Math.floor((gs.player.shield || 0) * 0.2));
   }
 
-  if (counts.iron_fortress >= 2 && normalizedTrigger === 'deal_damage' && typeof data === 'number') {
-    let result = data + Math.floor((gs.player.shield || 0) * 0.2);
+  if (counts.iron_fortress >= 2 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+    let result = dealDamageAmount + Math.floor((gs.player.shield || 0) * 0.2);
     const isReflect = gs._isReflectDamage || (typeof data === 'object' && data?.isReflect);
     if (counts.iron_fortress >= 3 && isReflect) {
       result += 5;
     }
-    return result;
+    return withAmountValue(data, result);
   }
   if (
     normalizedTrigger === 'turn_start'

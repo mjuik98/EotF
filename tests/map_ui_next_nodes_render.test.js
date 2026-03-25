@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -127,5 +130,26 @@ describe('map_ui_next_nodes_render', () => {
     expect(card.innerHTML).not.toContain('Region 1층');
     expect(card.innerHTML).toContain('위험도');
     expect(card.innerHTML).toContain('유물');
+  });
+
+  it('highlights node card descriptions with the shared keyword markup', () => {
+    const doc = createDoc();
+    const { card } = buildNextNodeCard(doc, {
+      node: { id: '1-0', floor: 1, pos: 0, type: 'elite' },
+      meta: { icon: 'E', label: 'Elite', color: '#cc2244', desc: '피해 14. 잔향 20 충전 [소진]' },
+    });
+
+    expect(card.innerHTML).toContain('kw-dmg');
+    expect(card.innerHTML).toContain('kw-echo');
+    expect(card.innerHTML).toContain('kw-exhaust kw-block');
+  });
+
+  it('keeps node card keyword colors aligned with readable comparison surfaces', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.node-card-desc .kw-dmg');
+    expect(source).toContain('.node-card-desc .kw-shield');
+    expect(source).toContain('.node-card-desc .kw-echo');
+    expect(source).toContain('.node-card-desc .kw-buff.kw-block');
   });
 });

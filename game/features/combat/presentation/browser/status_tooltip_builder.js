@@ -7,6 +7,9 @@ import {
   resolveStatusTooltipPalette,
 } from '../../ports/presentation/public_combat_status_support_capabilities.js';
 import {
+  DescriptionUtils,
+} from '../../ports/presentation/public_combat_card_support_capabilities.js';
+import {
   getStatusTooltipTypeLabel,
 } from './status_tooltip_copy.js';
 import {
@@ -88,7 +91,7 @@ export function buildStatusTooltipHTML(statusKey, infoKR, buff, options = {}) {
   }
 
   const nextTurnHtml = meta ? buildStatusTooltipNextTurnHTML(meta, buff, rawValue) : '';
-  const descHtml = `<div class="stt-desc">${resolvedInfo.desc ?? ''}</div>`;
+  const descHtml = `<div class="stt-desc">${DescriptionUtils.highlight(resolvedInfo.desc ?? '')}</div>`;
   return header + composeStatusTooltipBodyHTML([
     sourceHtml,
     countdownHtml,

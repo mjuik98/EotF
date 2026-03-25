@@ -27,12 +27,12 @@ const TRIGGER_ALIASES = Object.freeze({
   CHAIN_BREAK: 'chain_break',
   CHAIN_REACH_5: 'chain_reach_5',
   ENERGY_EMPTY: 'energy_empty',
+  REST_UPGRADE: 'rest_upgrade',
   ECHO_GAIN: 'echo_gain',
   HEAL_AMOUNT: 'heal_amount',
   SHIELD_GAIN: 'shield_gain',
   SHIELD_BREAK: 'shield_break',
   BEFORE_CARD_COST: 'before_card_cost',
-  DAMAGE_CALC: 'damage_calc',
   SHOP_PRICE_MOD: 'shop_price_mod',
   SHOP_BUY: 'shop_buy',
   ITEM_USE: 'item_use',
@@ -59,12 +59,26 @@ function createItemPassiveRuntimeFacade(gs) {
   });
 }
 
+function applyTriggerResult(currentResult, result) {
+  if (result === undefined || result === true) return currentResult;
+  if (
+    currentResult
+    && result
+    && typeof currentResult === 'object'
+    && typeof result === 'object'
+    && !Array.isArray(currentResult)
+    && !Array.isArray(result)
+  ) {
+    return { ...currentResult, ...result };
+  }
+  return result;
+}
+
 export const ItemSystem = {
   triggerItems(gs, trigger, data) {
     const normalizedTrigger = normalizeTrigger(trigger);
     const runtimeGs = createItemPassiveRuntimeFacade(gs);
-    let numericResult = typeof data === 'number' ? data : null;
-    let numericOverride = null;
+    let currentResult = data;
     let boolResult = false;
 
     const sortedItems = [...gs.player.items].sort((a, b) => {
@@ -79,29 +93,19 @@ export const ItemSystem = {
     sortedItems.forEach((itemId) => {
       const item = DATA.items[itemId];
       if (!item?.passive) return;
-      const payload = numericResult !== null ? numericResult : data;
-      const result = item.passive(runtimeGs, normalizedTrigger, payload);
-      if (typeof result === 'number' && Number.isFinite(result)) {
-        if (numericResult !== null) numericResult = result;
-        else numericOverride = result;
-      }
+      const result = item.passive(runtimeGs, normalizedTrigger, currentResult);
       if (result === true) boolResult = true;
+      else currentResult = applyTriggerResult(currentResult, result);
     });
 
-    const setPayload = numericResult !== null ? numericResult : data;
-    const setResult = SetBonusSystem.triggerSetBonuses(gs, normalizedTrigger, setPayload);
-    if (typeof setResult === 'number' && Number.isFinite(setResult)) {
-      if (numericResult !== null) numericResult = setResult;
-      else numericOverride = setResult;
-    }
+    const setResult = SetBonusSystem.triggerSetBonuses(gs, normalizedTrigger, currentResult);
     if (setResult === true) boolResult = true;
+    else currentResult = applyTriggerResult(currentResult, setResult);
 
-    InscriptionSystem.triggerSynergy(gs, normalizedTrigger, DATA, setPayload);
+    InscriptionSystem.triggerSynergy(gs, normalizedTrigger, DATA, currentResult);
 
     if (boolResult) return true;
-    if (numericResult !== null) return numericResult;
-    if (numericOverride !== null) return numericOverride;
-    return data;
+    return currentResult;
   },
 
   getActiveSets(gs) {

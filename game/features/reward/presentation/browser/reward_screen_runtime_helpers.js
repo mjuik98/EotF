@@ -98,10 +98,25 @@ function maybeUpgradeRewardCardChoice(cardIds, data, options = {}) {
   return next;
 }
 
+function resolveRewardCardChoiceCount(gs, count) {
+  let totalChoices = Math.max(0, Math.floor(Number(count) || 0));
+  if (typeof gs?.triggerItems !== 'function') return totalChoices;
+
+  const result = gs.triggerItems('reward_generate', { type: 'card', count: totalChoices });
+  if (typeof result === 'number' && Number.isFinite(result)) {
+    return Math.max(0, Math.floor(result));
+  }
+  if (result && typeof result === 'object' && Number.isFinite(result.count)) {
+    return Math.max(0, Math.floor(result.count));
+  }
+  return totalChoices;
+}
+
 export function drawRewardCards(gs, count, rarities, data = null, options = {}) {
+  const totalChoices = resolveRewardCardChoiceCount(gs, count);
   const out = [];
   const used = new Set();
-  for (let i = 0; i < count; i += 1) {
+  for (let i = 0; i < totalChoices; i += 1) {
     const rarity = rarities[Math.min(i, rarities.length - 1)] || 'common';
     const rolledCardId = gs.getRandomCard?.(rarity);
     const cardId = rolledCardId && !used.has(rolledCardId) && isRewardCardAvailable(gs, rolledCardId)

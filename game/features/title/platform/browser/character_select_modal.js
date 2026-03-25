@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 export function openCharacterSkillModal({
   skill,
   accent,
@@ -17,7 +19,7 @@ export function openCharacterSkillModal({
           <span style="font-size:15px;color:${index === 0 ? '#fff' : '#555'};letter-spacing:1px">${tier.name}</span>
           <span style="padding:2px 10px;border-radius:12px;font-size:11px;background:${accent}1a;color:${accent};font-family:'Share Tech Mono',monospace;border:1px solid ${accent}33">${tier.bonus}</span>
         </div>
-        <p style="font-size:13px;color:${index === 0 ? '#aaa' : '#3a3a50'};margin:0;line-height:1.6">${tier.desc}</p>
+        <p class="character-skill-tier-desc" style="font-size:13px;color:${index === 0 ? '#aaa' : '#3a3a50'};margin:0;line-height:1.6">${DescriptionUtils.highlight(tier.desc || '')}</p>
       </div>
     </div>
   `).join('');

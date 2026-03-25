@@ -70,15 +70,20 @@ export function getHealAmount(gs, baseAmount) {
   return Math.max(0, Math.floor(base * Math.max(0.2, mult)));
 }
 
-export function getShopCost(gs, baseCost) {
+export function getShopCost(gs, baseCost, options = {}) {
   const base = Math.max(1, Math.floor(Number(baseCost) || 1));
   let mult = 1 + getAscension(gs) * 0.03;
   mult *= getRunCurseDefinition(gs?.runConfig?.curse).shopCostMultiplier || 1;
 
   if (typeof gs?.triggerItems === 'function') {
-    const itemMult = gs.triggerItems('shop_price_mod', 1.0);
+    const itemMult = gs.triggerItems('shop_price_mod', {
+      ...(options && typeof options === 'object' ? options : {}),
+      multiplier: 1.0,
+    });
     if (typeof itemMult === 'number' && Number.isFinite(itemMult)) {
       mult *= itemMult;
+    } else if (itemMult && typeof itemMult === 'object' && Number.isFinite(itemMult.multiplier)) {
+      mult *= itemMult.multiplier;
     }
   }
 

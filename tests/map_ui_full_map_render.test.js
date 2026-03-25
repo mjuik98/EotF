@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 
 import {
   createFullMapLayout,
@@ -123,12 +124,13 @@ describe('map_ui_full_map_render', () => {
       refs,
       { type: 'combat', floor: 3, visited: false, accessible: true },
       { clientX: 390, clientY: 290 },
-      { combat: { icon: 'C', label: 'Combat', color: '#f44', desc: 'Fight.' } },
+      { combat: { icon: 'C', label: 'Combat', color: '#f44', desc: '피해 14. [지속]' } },
       { innerWidth: 420, innerHeight: 320 },
     );
 
     expect(refs.tooltip.style.opacity).toBe('1');
     expect(refs.tooltipTitle.textContent).toBe('C Combat');
+    expect(refs.tooltipDesc.innerHTML).toContain('kw-dmg');
     expect(refs.tooltipStatus.textContent).toBe('3F - Reachable');
     expect(refs.tooltip.style.left).toBe('210px');
     expect(refs.tooltip.style.top).toBe('190px');
@@ -145,5 +147,13 @@ describe('map_ui_full_map_render', () => {
 
     expect(closest?.node?.id).toBe('a');
     expect(findClosestNodeEntry([], 0, 0, 20)).toBeNull();
+  });
+
+  it('styles full map tooltip descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.full-map-tooltip-desc .kw-dmg');
+    expect(css).toContain('.full-map-tooltip-desc .kw-heal');
+    expect(css).toContain('.full-map-tooltip-desc .kw-buff.kw-block');
   });
 });

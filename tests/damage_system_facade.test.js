@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { DamageSystem } from '../game/features/combat/public.js';
 import { Actions } from '../game/core/state_actions.js';
 import { applyEnemyAreaDamageRuntime } from '../game/features/combat/application/public_combat_command_actions.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 function createHost() {
   const host = {
@@ -230,5 +231,39 @@ describe('DamageSystem facade', () => {
         },
       }),
     );
+  });
+
+  it('routes deal_damage target payloads so acidic_vial affects the actual damaged enemy', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const host = createHost();
+    host._selectedTarget = 0;
+    host.player.items = ['acidic_vial'];
+    host.combat.enemies = [
+      { name: 'Boss', hp: 30, shield: 0, statusEffects: { poisoned: 2 } },
+      { name: 'Marked Add', hp: 30, shield: 0, statusEffects: { poisoned: 1 } },
+    ];
+    host.triggerItems = (trigger, payload) => ItemSystem.triggerItems(host, trigger, payload);
+
+    host.dealDamage(5, 1);
+
+    expect(host.combat.enemies[0].statusEffects.poisoned).toBe(2);
+    expect(host.combat.enemies[1].statusEffects.poisoned).toBe(2);
+    randomSpy.mockRestore();
+  });
+
+  it('boosts god_slayer_blade only against the elite or boss target in mixed encounters', () => {
+    const host = createHost();
+    host.player.items = ['god_slayer_blade'];
+    host.combat.enemies = [
+      { name: 'Ancient Echo', hp: 50, shield: 0, statusEffects: {}, isBoss: true },
+      { name: 'Minion', hp: 40, shield: 0, statusEffects: {} },
+    ];
+    host.triggerItems = (trigger, payload) => ItemSystem.triggerItems(host, trigger, payload);
+
+    const minionDamage = host.dealDamage(10, 1);
+    const bossDamage = host.dealDamage(10, 0);
+
+    expect(minionDamage).toBe(10);
+    expect(bossDamage).toBe(15);
   });
 });

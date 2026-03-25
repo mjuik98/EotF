@@ -31,6 +31,7 @@ export const Trigger = Object.freeze({
 
     PRE_DEATH: 'pre_death',
     FLOOR_START: 'floor_start',
+    REST_UPGRADE: 'rest_upgrade',
 
     ENERGY_GAIN: 'energy_gain',
     ENERGY_EMPTY: 'energy_empty',
@@ -43,7 +44,6 @@ export const Trigger = Object.freeze({
     ENEMY_STATUS_APPLY: 'enemy_status_apply',
     POISON_DAMAGE: 'poison_damage',
 
-    DAMAGE_CALC:     'damage_calc',
     SHOP_PRICE_MOD:  'shop_price_mod',
     SHOP_BUY:        'shop_buy',
     ITEM_USE:        'item_use',

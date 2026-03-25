@@ -31,11 +31,11 @@ export function ensureMiniBossBonus(gs, data, deps = {}) {
   const result = applyMiniBossBonusState(gs, data);
   if (!result) return null;
 
-  gs.addLog?.(`Mini-boss reward: +${result.goldGain} gold, +${result.healed} HP`, 'system');
+  gs.addLog?.(`중간 보스 보상: 골드 +${result.goldGain}, 체력 +${result.healed}`, 'system');
   if (!result.guaranteed) return null;
   playRewardClaimFeedback(deps);
   deps.showItemToast?.(result.guaranteed, { forceQueue: true });
-  gs.addLog?.(`Mini-boss relic: ${result.guaranteed.icon || '@'} ${result.guaranteed.name}`, 'system');
+  gs.addLog?.(`중간 보스 유물: ${result.guaranteed.icon || '@'} ${result.guaranteed.name}`, 'system');
   return result.guaranteed;
 }
 

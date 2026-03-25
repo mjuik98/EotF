@@ -1,7 +1,11 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it, vi } from 'vitest';
 import {
   renderDifficultyPanel,
   renderHiddenEnding,
+  renderInscriptionOverview,
+  renderOptionGrid,
   renderSummaryBar,
 } from '../game/features/run/public.js';
 import {
@@ -39,6 +43,9 @@ function createNode() {
     children: [],
     classList: createClassList(),
     closest: vi.fn(() => null),
+    setAttribute(name, value) {
+      this[name] = String(value);
+    },
     addEventListener: vi.fn((name, handler) => {
       listeners[name] = handler;
     }),
@@ -71,6 +78,55 @@ describe('run_mode_ui_render sections', () => {
     expect(panel.innerHTML).toContain('보상 x1.45');
     expect(panel.innerHTML).toContain('id="rmPresetZone"');
     expect(panel.innerHTML).toContain('id="rmCurseGrid"');
+  });
+
+  it('highlights run modifier, difficulty, and inscription descriptions', () => {
+    const optionContainer = createNode();
+    renderOptionGrid(optionContainer, [{
+      id: 'tax',
+      icon: '!',
+      name: '세금',
+      desc: '피해 14. 잔향 20 충전 [소진]',
+      visibility: 'visible',
+    }], 'tax', 'curse', { createElement: () => createNode() });
+
+    expect(optionContainer.children[0].innerHTML).toContain('kw-dmg');
+    expect(optionContainer.children[0].innerHTML).toContain('kw-echo');
+
+    const difficultyPanel = createNode();
+    renderDifficultyPanel(
+      difficultyPanel,
+      { ascension: 0, endless: false, curse: 'tax' },
+      { maxAscension: 5, unlocks: { ascension: false, endless: true } },
+      {
+        getDifficultyScore: vi.fn(() => 15),
+        getRewardMultiplier: vi.fn(() => 1.45),
+      },
+      {},
+    );
+    expect(difficultyPanel.innerHTML).toContain('rm-diff-desc');
+
+    const inscriptionZone = createNode();
+    const doc = {
+      getElementById: vi.fn((id) => (id === 'rmInscriptionZone' ? inscriptionZone : null)),
+    };
+    renderInscriptionOverview(doc, { inscriptions: { alpha: 1 } }, { disabledInscriptions: [] }, {
+      inscriptions: {
+        alpha: {
+          name: '알파',
+          icon: 'A',
+          maxLevel: 1,
+          levels: [{ desc: '피해 14. 잔향 20 충전 [소진]' }],
+        },
+      },
+      synergies: {
+        combo: { name: '콤보', icon: 'C', inscriptions: ['alpha'], desc: '[지속] 잔향 20 충전' },
+      },
+    });
+
+    expect(inscriptionZone.innerHTML).toContain('kw-dmg');
+    expect(inscriptionZone.innerHTML).toContain('kw-echo');
+    expect(inscriptionZone.innerHTML).toContain('kw-exhaust kw-block');
   });
 
   it('renders summary and hidden-ending banners for inscriptionless runs', () => {
@@ -107,9 +163,19 @@ describe('run_mode_ui_render sections', () => {
     expect(summaryZone.innerHTML).toContain('각인 없이 시작');
     expect(summaryZone.innerHTML).toContain('보상 x1.3');
     expect(hiddenZone.innerHTML).toContain('히든 엔딩 조건 충족');
+    expect(hiddenZone.innerHTML).not.toContain('kw-dmg');
 
     renderHiddenEnding(meta, { ...cfg, disabledInscriptions: [] }, doc);
     expect(hiddenZone.innerHTML).toBe('');
+  });
+
+  it('styles run mode description surfaces with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/run-rules-redesign.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.rm-opt-desc .kw-dmg');
+    expect(css).toContain('.rm-diff-desc .kw-dmg');
+    expect(css).toContain('.rm-chip-desc .kw-echo');
+    expect(css).toContain('.rm-tt-level .kw-buff.kw-block');
   });
 
   it('renders preset slot copy for selected empty and filled slots', () => {

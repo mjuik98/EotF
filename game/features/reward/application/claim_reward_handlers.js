@@ -58,9 +58,9 @@ function claimUpgradeReward({ data, gs }) {
     success: true,
     notification: {
       payload: {
-        name: `Upgrade complete: ${data.cards?.[upgradedId]?.name || upgradedId}`,
+        name: `강화 완료: ${data.cards?.[upgradedId]?.name || upgradedId}`,
         icon: 'UP',
-        desc: 'A random card has been upgraded.',
+        desc: '무작위 카드 1장이 강화되었습니다.',
       },
     },
     updatedState: gs,

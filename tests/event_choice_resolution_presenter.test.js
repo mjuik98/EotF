@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { presentEventChoiceResolution } from '../game/features/event/presentation/browser/event_choice_resolution_presenter.js';
 
 function createDoc() {
-  const eventDesc = { textContent: '' };
+  const eventDesc = { textContent: '', innerHTML: '' };
   return {
     getElementById: vi.fn((id) => (id === 'eventDesc' ? eventDesc : null)),
     refs: { eventDesc },
@@ -37,7 +37,7 @@ describe('event_choice_resolution_presenter', () => {
           payload: { id: 'charm', name: 'Charm' },
         },
         rerenderChoices: true,
-        resultText: 'You take the reward.',
+        resultText: '피해 14. 잔향 20 충전 [소진]',
         upgradeToast: null,
       },
     });
@@ -50,7 +50,9 @@ describe('event_choice_resolution_presenter', () => {
       { typeLabel: 'common card acquired' },
     );
     expect(showItemToast).toHaveBeenNthCalledWith(2, { id: 'charm', name: 'Charm' });
-    expect(doc.refs.eventDesc.textContent).toBe('You take the reward.');
+    expect(doc.refs.eventDesc.innerHTML).toContain('kw-dmg');
+    expect(doc.refs.eventDesc.innerHTML).toContain('kw-echo');
+    expect(doc.refs.eventDesc.innerHTML).toContain('kw-exhaust kw-block');
     expect(renderChoices).toHaveBeenCalledTimes(1);
   });
 
@@ -71,12 +73,12 @@ describe('event_choice_resolution_presenter', () => {
       updateUI: vi.fn(),
       viewModel: {
         continueChoice: true,
-        resultText: 'Slash 강화 완료',
+        resultText: '피해 14. 잔향 20 충전 [소진]',
         upgradeToast: {
           payload: {
             name: 'Upgrade: Slash',
             icon: '\u2728',
-            desc: 'Slash 강화 완료',
+            desc: '피해 14. 잔향 20 충전 [소진]',
           },
         },
       },
@@ -84,6 +86,7 @@ describe('event_choice_resolution_presenter', () => {
 
     expect(renderContinueChoice).toHaveBeenCalledTimes(1);
     expect(onFinish).toHaveBeenCalledTimes(1);
-    expect(doc.refs.eventDesc.textContent).toBe('Slash 강화 완료');
+    expect(doc.refs.eventDesc.innerHTML).toContain('kw-dmg');
+    expect(doc.refs.eventDesc.innerHTML).toContain('kw-echo');
   });
 });

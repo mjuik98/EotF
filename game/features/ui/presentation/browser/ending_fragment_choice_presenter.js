@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 
 export function buildEndingFragmentChoiceViewModel({
@@ -46,7 +48,7 @@ export function presentEndingFragmentChoices({
     const button = doc.createElement('button');
     button.type = 'button';
     button.className = 'frag-card';
-    button.innerHTML = `<div class="frag-icon">${entry.icon}</div><div class="frag-name">${entry.name}</div><div class="frag-desc">${entry.desc}</div>`;
+    button.innerHTML = `<div class="frag-icon">${entry.icon}</div><div class="frag-name">${entry.name}</div><div class="frag-desc">${DescriptionUtils.highlight(entry.desc || '')}</div>`;
 
     const onPick = () => onChoose?.(entry.effect, { button, buttons, grid, wrap });
     button.addEventListener('click', onPick);

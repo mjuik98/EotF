@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { renderCombatInfoItems } from '../game/features/combat/public.js';
 
 class MockFragment {
@@ -18,7 +19,9 @@ class MockElement {
     this.tagName = String(tagName).toUpperCase();
     this.children = [];
     this.style = {};
+    this.className = '';
     this._textContent = '';
+    this._innerHTML = '';
   }
 
   appendChild(node) {
@@ -41,6 +44,14 @@ class MockElement {
 
   get textContent() {
     return this._textContent;
+  }
+
+  set innerHTML(value) {
+    this._innerHTML = String(value ?? '');
+  }
+
+  get innerHTML() {
+    return this._innerHTML;
   }
 }
 
@@ -74,8 +85,8 @@ describe('combat_info_items_ui', () => {
       items: ['common_item', 'rare_item'],
       data: {
         items: {
-          common_item: { name: 'Common Item', desc: 'common', rarity: 'common', icon: 'C' },
-          rare_item: { name: 'Rare Item', desc: 'rare', rarity: 'rare', icon: 'R' },
+          common_item: { name: 'Common Item', desc: '에너지 1 획득', rarity: 'common', icon: 'C' },
+          rare_item: { name: 'Rare Item', desc: '피해 14. 잔향 20 충전 [소진]', rarity: 'rare', icon: 'R' },
         },
       },
     });
@@ -83,5 +94,16 @@ describe('combat_info_items_ui', () => {
     expect(itemEl.children).toHaveLength(2);
     expect(itemEl.children[0].children[1].children[0].textContent).toBe('Rare Item');
     expect(itemEl.children[1].children[1].children[0].textContent).toBe('Common Item');
+    expect(itemEl.children[0].children[1].children[1].innerHTML).toContain('kw-dmg');
+    expect(itemEl.children[0].children[1].children[1].innerHTML).toContain('kw-echo');
+    expect(itemEl.children[0].children[1].children[1].className).toBe('hud-item-tip-desc combat-info-item-desc');
+  });
+
+  it('styles combat info item descriptions with the shared keyword palette', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toContain('.combat-info-item-desc .kw-dmg');
+    expect(css).toContain('.combat-info-item-desc .kw-energy');
+    expect(css).toContain('.combat-info-item-desc .kw-exhaust.kw-block');
   });
 });

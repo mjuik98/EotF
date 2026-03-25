@@ -1,3 +1,5 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
+
 import {
   ensureRunConfig,
   getActiveSynergies,
@@ -41,7 +43,7 @@ export function renderInscriptionOverview(doc, meta, cfg, data) {
           const isOff = disabled.has(id);
           const levelsHtml = (def.levels || []).map((level, idx) => `
             <div class="rm-tt-level ${idx === lvl - 1 ? 'cur' : ''}">
-              <span class="rm-tt-lv">Lv.${idx + 1}</span>${level?.desc || ''}
+              <span class="rm-tt-lv">Lv.${idx + 1}</span>${DescriptionUtils.highlight(level?.desc || '')}
             </div>
           `).join('');
           return `
@@ -67,7 +69,7 @@ export function renderInscriptionOverview(doc, meta, cfg, data) {
             ? activeSyn.map(({ syn }) => `
                 <span class="rm-synergy-chip">
                   <span class="rm-chip-i">${syn.icon || '✦'}</span>${syn.name}
-                  ${syn.desc ? `<span class="rm-chip-desc">${syn.desc}</span>` : ''}
+                  ${syn.desc ? `<span class="rm-chip-desc">${DescriptionUtils.highlight(syn.desc)}</span>` : ''}
                 </span>
               `).join('')
             : '<span class="rm-synergy-empty">활성 시너지가 없습니다.</span>'}

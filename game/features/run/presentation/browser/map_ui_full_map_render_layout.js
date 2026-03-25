@@ -1,3 +1,4 @@
+import { DescriptionUtils } from '../../../../utils/description_utils.js';
 import { getMapNodeTypeOrder } from '../../domain/map_node_content.js';
 import { getNodeStatusText } from './map_ui_full_map_render_helpers.js';
 
@@ -48,6 +49,7 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
   const tooltipTitle = doc.createElement('div');
   tooltipTitle.style.cssText = 'font-weight:700;margin-bottom:6px;font-size:14px;';
   const tooltipDesc = doc.createElement('div');
+  tooltipDesc.className = 'full-map-tooltip-desc';
   tooltipDesc.style.cssText = 'color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:8px;';
   const tooltipStatus = doc.createElement('div');
   tooltipStatus.style.cssText = 'color:rgba(255,255,255,0.6);font-size:11px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);';
@@ -109,7 +111,7 @@ export function updateFullMapTooltip(
   const meta = nodeMeta[node.type] || { icon: '?', label: 'Node', color: '#fff', desc: '' };
   tooltipTitle.style.color = meta.color || '#fff';
   tooltipTitle.textContent = `${meta.icon || '?'} ${meta.label || 'Node'}`;
-  tooltipDesc.textContent = meta.desc || 'Move to this node next.';
+  tooltipDesc.innerHTML = DescriptionUtils.highlight(meta.desc || 'Move to this node next.');
   tooltipStatus.textContent = `${node.floor}F - ${getNodeStatusText(node)}`;
   tooltip.style.opacity = '1';
 

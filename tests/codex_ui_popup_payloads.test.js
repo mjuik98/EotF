@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -67,5 +70,14 @@ describe('codex_ui_popup_payloads', () => {
     expect(cardPayload.html).toContain('사용 횟수');
     expect(itemPayload.html).toContain('Relic');
     expect(itemPayload.html).toContain('Void Set');
+  });
+
+  it('keeps codex popup keyword palette aligned with readable comparison surfaces', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'css/codex_v3.css'), 'utf8');
+
+    expect(source).toContain('.cx-popup-desc .kw-dmg');
+    expect(source).toContain('.cx-popup-desc .kw-shield');
+    expect(source).toContain('.cx-popup-desc .kw-echo');
+    expect(source).toContain('.cx-popup-desc .kw-buff.kw-block');
   });
 });

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { generateItemShopStock } from '../game/features/event/application/item_shop_actions.js';
 import { buildRewardOptionsUseCase } from '../game/features/reward/application/build_reward_options_use_case.js';
 import { drawRewardCards } from '../game/features/reward/presentation/browser/reward_screen_runtime_helpers.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 function withMockedRandom(values, run) {
   const sequence = [...values];
@@ -108,5 +109,38 @@ describe('reward unlock gating', () => {
     const stock = withMockedRandom([0], () => generateItemShopStock(gs, data, runRules));
 
     expect(stock.map((entry) => entry.item.id)).toEqual(['shared_relic']);
+  });
+
+  it('adds one extra card reward choice through dimension_key on the live reward draw path', () => {
+    const gs = {
+      meta: {
+        contentUnlocks: {
+          curses: {},
+          relics: {},
+          relicsByClass: {},
+          cards: { shared: {} },
+        },
+      },
+      player: {
+        class: 'swordsman',
+        items: ['dimension_key'],
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+    const data = {
+      cards: {
+        card_a: { id: 'card_a', rarity: 'common' },
+        card_b: { id: 'card_b', rarity: 'common' },
+        card_c: { id: 'card_c', rarity: 'common' },
+        card_d: { id: 'card_d', rarity: 'common' },
+      },
+      upgradeMap: {},
+    };
+
+    const rewardCards = withMockedRandom([0, 0, 0, 0], () => drawRewardCards(gs, 3, ['common', 'common', 'common'], data));
+
+    expect(rewardCards).toHaveLength(4);
   });
 });

@@ -1,3 +1,4 @@
+import { DomSafe } from '../../../../utils/dom_safe.js';
 import {
   COMBAT_INFO_ITEM_RARITY_BORDER_COLORS,
   RARITY_SORT_ORDER,
@@ -38,7 +39,8 @@ export function renderCombatInfoItems({ doc, itemEl, items, data }) {
     name.textContent = item.name;
     const desc = doc.createElement('div');
     desc.style.cssText = 'font-size:9px;color:var(--text-dim);line-height:1.5;';
-    desc.textContent = item.desc;
+    desc.className = 'hud-item-tip-desc combat-info-item-desc';
+    DomSafe.setHighlightedText(desc, item.desc);
 
     info.append(name, desc);
     row.append(icon, info);

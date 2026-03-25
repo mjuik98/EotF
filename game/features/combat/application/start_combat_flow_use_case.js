@@ -111,12 +111,12 @@ export function startCombatFlowUseCase(mode = 'normal', deps = {}) {
 
   applyRegionDebuffs(gs, getBaseRegionIndex, { runRules });
   runClassCombatStart(gs, classMechanics);
-  gs.triggerItems?.('combat_start');
 
   initDeck(gs, {
     shuffleArrayFn: deps.shuffleArray,
     drawCardsFn: deps.api?.drawCards,
   });
+  gs.triggerItems?.('combat_start');
   if (typeof runRules?.onCombatDeckReady === 'function') {
     runRules.onCombatDeckReady(gs);
   }

@@ -106,4 +106,50 @@ describe('combat_card_frame_ui cost badges', () => {
     expect(desc.className).toContain('card-desc-hover');
     expect(desc.className).toContain('card-desc-hover-readable');
   });
+
+  it('renders reward descriptions with reward-specific classes instead of wrapper-only styling hooks', () => {
+    const doc = createDoc();
+    const root = doc.createElement('div');
+
+    populateCombatCardFrame(root, doc, {
+      cardId: 'slash',
+      card: {
+        name: '베기',
+        icon: '⚔',
+        type: 'ATTACK',
+        cost: 1,
+        desc: '피해 6',
+      },
+      canPlay: true,
+      displayCost: 1,
+    }, { variant: 'reward' });
+
+    const desc = findChild(root, (child) => String(child.className).includes('card-desc'));
+
+    expect(desc.className).toContain('card-desc-reward');
+    expect(desc.className).toContain('reward-card-desc');
+  });
+
+  it('renders deck descriptions with deck-specific readable text classes', () => {
+    const doc = createDoc();
+    const root = doc.createElement('div');
+
+    populateCombatCardFrame(root, doc, {
+      cardId: 'slash',
+      card: {
+        name: '베기',
+        icon: '⚔',
+        type: 'ATTACK',
+        cost: 1,
+        desc: '피해 6',
+      },
+      canPlay: true,
+      displayCost: 1,
+    }, { variant: 'deck' });
+
+    const desc = findChild(root, (child) => String(child.className).includes('card-desc'));
+
+    expect(desc.className).toContain('card-desc-deck');
+    expect(desc.className).toContain('deck-card-desc');
+  });
 });

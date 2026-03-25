@@ -73,8 +73,8 @@ export const RunRules = {
     return getHealAmount(gs, baseAmount);
   },
 
-  getShopCost(gs, baseCost) {
-    return getShopCost(gs, baseCost);
+  getShopCost(gs, baseCost, options = {}) {
+    return getShopCost(gs, baseCost, options);
   },
 
   applyRunStart(gs) {

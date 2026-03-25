@@ -157,11 +157,11 @@ describe('reward_ui_options', () => {
 
     expect(container.children).toHaveLength(5);
     expect(container.children.map((child) => child.getAttribute('aria-label'))).toEqual([
-      'Card A card reward',
-      '체력의 축복 blessing reward',
-      '에너지의 축복 blessing reward',
-      'Boss Relic A item reward',
-      'Boss Relic B item reward',
+      'Card A 카드 보상',
+      '체력의 축복 축복 보상',
+      '에너지의 축복 축복 보상',
+      'Boss Relic A 유물 보상',
+      'Boss Relic B 유물 보상',
     ]);
     expect(triggerItems).toHaveBeenCalledWith('reward_generate', { type: 'item', count: 1 });
   });

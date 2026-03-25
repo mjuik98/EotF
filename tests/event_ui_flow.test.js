@@ -35,6 +35,7 @@ function createElementFactory(elements) {
       title: '',
       attributes: {},
       children: [],
+      innerHTML: '',
       classList: createClassList(),
       listeners,
       appendChild(node) {
@@ -160,7 +161,7 @@ describe('event_ui_flow', () => {
       onResolveChoice,
       onRefreshGoldBar,
       resolveChoice: vi.fn(() => ({
-        resultText: 'You take the reward.',
+        resultText: '피해 14. 잔향 20 충전 [소진]',
         acquiredCard: 'strike',
         acquiredItem: 'charm',
       })),
@@ -174,7 +175,8 @@ describe('event_ui_flow', () => {
       expect.objectContaining({ typeLabel: expect.stringMatching(/card acquired$/) }),
     );
     expect(showItemToast).toHaveBeenNthCalledWith(2, { id: 'charm', name: 'Charm' });
-    expect(doc.elements.eventDesc.textContent).toBe('You take the reward.');
+    expect(doc.elements.eventDesc.innerHTML).toContain('kw-dmg');
+    expect(doc.elements.eventDesc.innerHTML).toContain('kw-echo');
     expect(doc.refs.eventChoices.children).toHaveLength(1);
     expect(typeof doc.refs.eventChoices.children[0].listeners.click).toBe('function');
     expect(gs._eventLock).toBe(false);
