@@ -24,6 +24,18 @@ export const cafOf = (deps) => deps?.cancelAnimationFrame?.bind(deps) || winOf(d
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');
+const CARD_RARITY_LABELS = Object.freeze({
+  common: '일반',
+  uncommon: '고급',
+  rare: '희귀',
+  epic: '영웅',
+  legendary: '전설',
+});
+const CARD_TYPE_LABELS = Object.freeze({
+  attack: '공격',
+  skill: '스킬',
+  power: '파워',
+});
 const CONTENT_TYPE_LABELS = Object.freeze({
   curse: '저주',
   relic: '유물',
@@ -78,6 +90,10 @@ export function buildEndingDeckPreview(gs, data) {
       id: String(id),
       icon: String(card.icon || card.emoji || ['⚡', '🕯', '🗡', '🌀', '💧', '☄'][index % 6]),
       title: String(card.name || id),
+      desc: String(card.desc || ''),
+      typeLabel: CARD_TYPE_LABELS[String(card.type || '').toLowerCase()] || '카드',
+      rarityLabel: CARD_RARITY_LABELS[rarity] || '일반',
+      costText: card.cost == null ? '-' : String(card.cost),
       cls: rarity === 'legendary' ? 'l' : ((rarity === 'epic' || rarity === 'rare' || rarity === 'uncommon') ? 'r' : ''),
     };
   });

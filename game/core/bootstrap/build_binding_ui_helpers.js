@@ -10,6 +10,8 @@ export function buildBindingUiHelpers({ modules, deps }) {
     getSelectedClass: () => titleModules.ClassSelectUI?.getSelectedClass?.() || null,
     clearSelectedClass: () =>
       titleModules.ClassSelectUI?.clearSelection?.(depProviders.title.getClassSelectDeps()),
+    resetCharacterSelectState: () =>
+      titleModules.CharacterSelectUI?.resetSelectionState?.(),
     showPendingClassProgressSummary: () =>
       titleModules.CharacterSelectUI?.showPendingSummaries?.(),
     resetDeckModalFilter: () =>

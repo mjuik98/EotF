@@ -168,6 +168,71 @@ describe('HelpPauseUI help overlay', () => {
     expect(doc.addEventListener).toHaveBeenCalledTimes(1);
   });
 
+  it('re-resolves live deps when toggling pause', async () => {
+    vi.resetModules();
+    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/features/ui/presentation/browser/help_pause_ui.js');
+    const doc = createDoc();
+    const staleSync = vi.fn();
+    const freshSync = vi.fn();
+
+    FreshHelpPauseUI.togglePause({
+      doc,
+      _syncVolumeUI: staleSync,
+      getDeps: () => ({
+        doc,
+        _syncVolumeUI: freshSync,
+        gs: {
+          currentScreen: 'game',
+          meta: { runCount: 2, storyPieces: ['a'] },
+          currentRegion: 0,
+          currentFloor: 3,
+        },
+      }),
+    });
+
+    expect(doc.getElementById('pauseMenu')).toBeTruthy();
+    expect(freshSync).toHaveBeenCalledTimes(1);
+    expect(staleSync).not.toHaveBeenCalled();
+  });
+
+  it('re-resolves live deps for each global hotkey event', async () => {
+    vi.resetModules();
+    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/features/ui/presentation/browser/help_pause_ui.js');
+    const doc = createDoc();
+    const listeners = {};
+    doc.addEventListener = vi.fn((name, handler) => {
+      listeners[name] = handler;
+    });
+    doc.querySelector = vi.fn(() => null);
+
+    FreshHelpPauseUI.bindGlobalHotkeys({
+      doc,
+      gs: { currentScreen: 'title' },
+      getDeps: () => ({
+        doc,
+        gs: {
+          currentScreen: 'game',
+          meta: { runCount: 2, storyPieces: ['a'] },
+          currentRegion: 0,
+          currentFloor: 3,
+        },
+        _syncVolumeUI: vi.fn(),
+      }),
+    });
+
+    listeners.keydown({
+      key: 'Escape',
+      code: 'Escape',
+      repeat: false,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+      target: null,
+    });
+
+    expect(doc.getElementById('pauseMenu')).toBeTruthy();
+  });
+
   it('keeps the compat ending surface wired to the feature-local facade', () => {
     expect(typeof EndingScreenUI.showOutcome).toBe('function');
   });

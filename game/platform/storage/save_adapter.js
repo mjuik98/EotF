@@ -3,6 +3,9 @@ import { ErrorCodes, ErrorSeverity } from '../../core/error_codes.js';
 import { reportError } from '../../core/error_reporter.js';
 
 function getHostRoot() {
+  if (typeof globalThis !== 'undefined') {
+    return globalThis;
+  }
   try {
     return Function('return this')();
   } catch {
@@ -17,12 +20,20 @@ function getHostWindow() {
 }
 
 function getStorage() {
-  const hostWindow = getHostWindow();
-  return hostWindow?.localStorage || null;
+  try {
+    const hostWindow = getHostWindow();
+    return hostWindow?.localStorage || null;
+  } catch {
+    return null;
+  }
 }
 
 function getDocument() {
-  return getHostWindow()?.document || null;
+  try {
+    return getHostWindow()?.document || null;
+  } catch {
+    return null;
+  }
 }
 
 function resolveSaveAdapterDeps(deps = {}) {
@@ -54,8 +65,12 @@ export const SaveAdapter = {
 
   save(key, data, deps = {}) {
     const { storage, logger } = resolveSaveAdapterDeps(deps);
+    if (!storage || typeof storage.setItem !== 'function') {
+      logger.warn('[SaveAdapter] Storage unavailable while saving.');
+      return false;
+    }
     try {
-      storage?.setItem(key, JSON.stringify(data));
+      storage.setItem(key, JSON.stringify(data));
       return true;
     } catch (error) {
       if (error?.name === 'QuotaExceededError') {
@@ -87,7 +102,7 @@ export const SaveAdapter = {
   remove(key, deps = {}) {
     const { storage } = resolveSaveAdapterDeps(deps);
     try {
-      storage?.removeItem(key);
+      storage?.removeItem?.(key);
     } catch {
       // Best-effort cleanup.
     }

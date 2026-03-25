@@ -107,11 +107,16 @@ export function buildRunFlowContractBuilders(ctx) {
 
     gameBoot: () => {
       const refs = getRefs();
+      const runDeps = getRunDeps();
+      const coreRefs = refs.featureRefs?.core || {};
+      const canonicalGs = coreRefs.GS || refs.GS || null;
+      const saveSystem = coreRefs.SaveSystem || refs.SaveSystem;
       return {
-        ...getRunDeps(),
+        ...runDeps,
+        gs: canonicalGs?.player ? canonicalGs : (runDeps.gs || canonicalGs),
         audioEngine: refs.AudioEngine,
         runRules: refs.RunRules,
-        saveSystem: refs.SaveSystem,
+        saveSystem,
         saveSystemDeps: createDeps('saveSystem'),
         initTitleCanvas: refs.initTitleCanvas,
         updateUI: refs.updateUI,

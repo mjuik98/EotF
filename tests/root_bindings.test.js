@@ -69,7 +69,7 @@ describe('RootBindings', () => {
       showMobileWarning: vi.fn(),
       bindGlobalHotkeys: vi.fn(),
     };
-    const gameBootUI = { bootGame: vi.fn() };
+    const gameBootUI = { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() };
     const deps = {
       doc,
       audioEngine,
@@ -90,9 +90,10 @@ describe('RootBindings', () => {
     expect(settingsUI.applyOnBoot).toHaveBeenCalledWith(expect.objectContaining({ doc }));
     expect(registerTitleBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
     expect(registerRunEntryBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
-    expect(helpPauseUI.showMobileWarning).toHaveBeenCalledWith({ token: 'help' });
-    expect(helpPauseUI.bindGlobalHotkeys).toHaveBeenCalledWith({ token: 'help' });
+    expect(helpPauseUI.showMobileWarning).toHaveBeenCalledWith(expect.objectContaining({ token: 'help' }));
+    expect(helpPauseUI.bindGlobalHotkeys).toHaveBeenCalledWith(expect.objectContaining({ token: 'help' }));
     expect(gameBootUI.bootGame).toHaveBeenCalledWith({ token: 'boot' });
+    expect(gameBootUI.refreshTitleSaveState).toHaveBeenCalledWith({ token: 'boot' });
   });
 
   it('syncVolumeUI updates an injected document instead of relying on a global document', () => {

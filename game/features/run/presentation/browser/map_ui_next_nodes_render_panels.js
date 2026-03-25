@@ -77,6 +77,7 @@ export function buildRelicPanel(doc, gs, data, tooltipUI, deps = {}) {
       renderDetail: detailRuntime.renderDetail,
       scheduleDetailClear: detailRuntime.scheduleDetailClear,
       clearDetail: detailRuntime.clearDetail,
+      win,
     });
 
     detailPanel = detailRuntime.detailPanel;

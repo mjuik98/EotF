@@ -54,4 +54,11 @@ describe('SaveAdapter', () => {
     expect(appendChild).toHaveBeenCalledWith(notice);
     expect(timer).toHaveBeenCalledTimes(1);
   });
+
+  it('fails fast when storage is unavailable', () => {
+    const logger = { warn: vi.fn() };
+
+    expect(SaveAdapter.save('run', { hp: 8 }, { storage: null, logger })).toBe(false);
+    expect(logger.warn).toHaveBeenCalledWith('[SaveAdapter] Storage unavailable while saving.');
+  });
 });

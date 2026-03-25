@@ -100,6 +100,12 @@ describe('reward_ui_option_renderers', () => {
     expect(source).toContain('outline: 2px solid rgba(0, 255, 204, 0.9);');
   });
 
+  it('clips reward card shell overflow so shared card shimmer effects stay inside the reward card', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toMatch(/\.reward-card-shell \{\s*width: 170px;\s*height: 260px;\s*padding: 14px;\s*display: flex;\s*flex-direction: column;\s*gap: 8px;\s*overflow: hidden;\s*\}/);
+  });
+
   it('keeps reward description keyword highlights aligned with comparison-card palette', () => {
     const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
 
@@ -214,7 +220,9 @@ describe('reward_ui_option_renderers', () => {
     const upgradedWrapper = container.children[0];
     expect(upgradedWrapper.classList.contains('reward-upgraded-card')).toBe(true);
     expect(upgradedWrapper.title).toContain('강화 카드');
+    const card = upgradedWrapper.children.find((child) => String(child.className).includes('reward-card-shell'));
     const badge = upgradedWrapper.children.find((child) => child.className === 'reward-upgraded-highroll-badge');
+    expect(card).toBeTruthy();
     expect(badge).toBeTruthy();
     expect(badge.textContent).toBe('강화 카드');
   });

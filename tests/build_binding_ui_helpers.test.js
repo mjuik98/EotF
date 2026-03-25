@@ -8,6 +8,7 @@ import { buildBindingUiHelpers } from '../game/core/bootstrap/build_binding_ui_h
 describe('buildBindingUiHelpers', () => {
   it('exposes class-select and deck modal helpers', () => {
     const clearSelection = vi.fn();
+    const resetSelectionState = vi.fn();
     const showPendingSummaries = vi.fn();
     const resetFilter = vi.fn();
     const getSelectedClass = vi.fn(() => 'mage');
@@ -18,7 +19,7 @@ describe('buildBindingUiHelpers', () => {
       featureScopes: {
         title: {
           ClassSelectUI: { getSelectedClass, clearSelection },
-          CharacterSelectUI: { showPendingSummaries },
+          CharacterSelectUI: { resetSelectionState, showPendingSummaries },
         },
         combat: {
           DeckModalUI: { resetFilter },
@@ -35,12 +36,16 @@ describe('buildBindingUiHelpers', () => {
     helpers.showPendingClassProgressSummary();
     expect(showPendingSummaries).toHaveBeenCalledTimes(1);
 
+    helpers.resetCharacterSelectState();
+    expect(resetSelectionState).toHaveBeenCalledTimes(1);
+
     helpers.resetDeckModalFilter();
     expect(resetFilter).toHaveBeenCalledTimes(1);
   });
 
   it('prefers feature-scoped registry views when available', () => {
     const clearSelection = vi.fn();
+    const resetSelectionState = vi.fn();
     const showPendingSummaries = vi.fn();
     const resetFilter = vi.fn();
     const deps = {
@@ -48,12 +53,12 @@ describe('buildBindingUiHelpers', () => {
     };
     const modules = {
       ClassSelectUI: { getSelectedClass: vi.fn(() => 'flat') },
-      CharacterSelectUI: { showPendingSummaries: vi.fn() },
+      CharacterSelectUI: { resetSelectionState: vi.fn(), showPendingSummaries: vi.fn() },
       DeckModalUI: { resetFilter: vi.fn() },
       featureScopes: {
         title: {
           ClassSelectUI: { getSelectedClass: vi.fn(() => 'scoped'), clearSelection },
-          CharacterSelectUI: { showPendingSummaries },
+          CharacterSelectUI: { resetSelectionState, showPendingSummaries },
         },
         combat: {
           DeckModalUI: { resetFilter },
@@ -66,10 +71,12 @@ describe('buildBindingUiHelpers', () => {
     expect(helpers.getSelectedClass()).toBe('scoped');
     helpers.clearSelectedClass();
     helpers.showPendingClassProgressSummary();
+    helpers.resetCharacterSelectState();
     helpers.resetDeckModalFilter();
 
     expect(clearSelection).toHaveBeenCalledWith({ token: 'class-select-deps' });
     expect(showPendingSummaries).toHaveBeenCalledTimes(1);
+    expect(resetSelectionState).toHaveBeenCalledTimes(1);
     expect(resetFilter).toHaveBeenCalledTimes(1);
   });
 

@@ -36,7 +36,7 @@ describe('ending_screen_helpers', () => {
     }, {
       storyFragments: [1, 2, 3],
       cards: {
-        spark: { name: 'Spark', rarity: 'rare', icon: '⚡' },
+        spark: { name: 'Spark', rarity: 'rare', icon: '⚡', desc: 'Deal 8 damage.', type: 'attack', cost: 1 },
       },
       inscriptions: {
         flow: { name: 'Flow', icon: '🜁' },
@@ -46,7 +46,15 @@ describe('ending_screen_helpers', () => {
     expect(payload.score).toBe(45);
     expect(payload.rank.glyph).toBe('C');
     expect(payload.regions[0]).toMatchObject({ name: '지역 1', icon: '🌲', time: '00:15', boss: true });
-    expect(payload.deck[0]).toMatchObject({ id: 'spark', title: 'Spark', cls: 'r' });
+    expect(payload.deck[0]).toMatchObject({
+      id: 'spark',
+      title: 'Spark',
+      cls: 'r',
+      desc: 'Deal 8 damage.',
+      typeLabel: '공격',
+      rarityLabel: '희귀',
+      costText: '1',
+    });
     expect(payload.inscriptions[0]).toMatchObject({ id: 'flow', level: 2, icon: '🜁', name: 'Flow' });
     expect(payload.chips).toContain('4회차');
     expect(payload.unlocks).toEqual([
@@ -74,8 +82,8 @@ describe('ending_screen_helpers', () => {
     const data = {
       regions: [null, { id: 7, name: '빙결 회랑', icon: '❄', accentBase: 'rgba(1,2,3,' }],
       cards: {
-        spark: { name: 'Spark', rarity: 'rare', icon: '⚡' },
-        guard: { name: 'Guard', rarity: 'legendary', icon: '🛡' },
+        spark: { name: 'Spark', rarity: 'rare', icon: '⚡', desc: 'Deal 8 damage.', type: 'attack', cost: 1 },
+        guard: { name: 'Guard', rarity: 'legendary', icon: '🛡', desc: 'Gain 12 block.', type: 'skill', cost: 2 },
       },
       inscriptions: {
         flow: { name: 'Flow', icon: '🜁' },
@@ -87,8 +95,24 @@ describe('ending_screen_helpers', () => {
       expect.objectContaining({ name: '빙결 회랑', icon: '❄', accent: 'rgba(1,2,3,', time: '00:30', boss: true }),
     ]);
     expect(buildEndingDeckPreview(gs, data)).toEqual([
-      expect.objectContaining({ id: 'spark', title: 'Spark', cls: 'r' }),
-      expect.objectContaining({ id: 'guard', title: 'Guard', cls: 'l' }),
+      expect.objectContaining({
+        id: 'spark',
+        title: 'Spark',
+        cls: 'r',
+        desc: 'Deal 8 damage.',
+        typeLabel: '공격',
+        rarityLabel: '희귀',
+        costText: '1',
+      }),
+      expect.objectContaining({
+        id: 'guard',
+        title: 'Guard',
+        cls: 'l',
+        desc: 'Gain 12 block.',
+        typeLabel: '스킬',
+        rarityLabel: '전설',
+        costText: '2',
+      }),
     ]);
     expect(buildEndingInscriptions(gs, data)).toEqual([
       expect.objectContaining({ id: 'flow', level: 2, icon: '🜁', name: 'Flow' }),

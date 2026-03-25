@@ -21,7 +21,9 @@ export const RootBindings = {
     this.syncVolumeUI(deps.audioEngine, { doc });
     this.initEventHandlers(deps);
     this.initHelpPauseUI(deps);
-    deps.gameBootUI?.bootGame?.(deps.getGameBootDeps());
+    const gameBootDeps = deps.getGameBootDeps();
+    deps.gameBootUI?.bootGame?.(gameBootDeps);
+    deps.gameBootUI?.refreshTitleSaveState?.(gameBootDeps);
   },
 
   loadVolumes(audioEngine) {
@@ -85,7 +87,11 @@ export const RootBindings = {
   initHelpPauseUI(deps) {
     if (!deps.helpPauseUI) return;
     const helpPauseDeps = deps.getHelpPauseDeps();
-    deps.helpPauseUI.showMobileWarning?.(helpPauseDeps);
-    deps.helpPauseUI.bindGlobalHotkeys?.(helpPauseDeps);
+    const liveHelpPauseDeps = {
+      ...helpPauseDeps,
+      getDeps: deps.getHelpPauseDeps,
+    };
+    deps.helpPauseUI.showMobileWarning?.(liveHelpPauseDeps);
+    deps.helpPauseUI.bindGlobalHotkeys?.(liveHelpPauseDeps);
   },
 };

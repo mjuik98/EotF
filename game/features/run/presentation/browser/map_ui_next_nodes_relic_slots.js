@@ -26,15 +26,21 @@ function getResolvedRelicItems(items, data) {
     .filter(({ item }) => Boolean(item));
 }
 
+function supportsPointerPin(win) {
+  return !!win && ('ontouchstart' in win || Number(win?.innerWidth || 0) < 900);
+}
+
 export function renderRelicSlots(doc, list, items, data, controls = {}) {
   const {
     detailSurfaceState,
     renderDetail,
     scheduleDetailClear,
     clearDetail,
+    win = null,
   } = controls;
   const resolvedItems = getResolvedRelicItems(items, data);
   const slotNodes = [];
+  const allowPointerPin = supportsPointerPin(win);
 
   resolvedItems.forEach(({ itemId, item }, index) => {
     const rarity = String(item.rarity || 'common').toLowerCase();
@@ -88,7 +94,13 @@ export function renderRelicSlots(doc, list, items, data, controls = {}) {
     slot.addEventListener('mouseleave', clearPreviewSlot);
     slot.addEventListener('focus', previewSlot);
     slot.addEventListener('blur', clearPreviewSlot);
-    slot.addEventListener('click', togglePinnedSlot);
+    slot.addEventListener('click', () => {
+      if (allowPointerPin) {
+        togglePinnedSlot();
+        return;
+      }
+      renderDetail?.(itemId, item, slot, { pinned: false });
+    });
     slot.addEventListener('keydown', (event) => {
       const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || resolvedItems.length);
       if (nextIndex >= 0) {

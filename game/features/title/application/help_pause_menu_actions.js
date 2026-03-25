@@ -1,38 +1,48 @@
 import { buildTitleHelpPauseActions } from './help_pause_title_actions.js';
 
-export function createTitlePauseMenuActions({ deps = {}, ui = {} } = {}) {
-  const titleActions = buildTitleHelpPauseActions(deps);
+function resolveLiveDeps(deps = {}) {
+  const nextDeps = typeof deps.getDeps === 'function' ? (deps.getDeps() || {}) : {};
+  return {
+    ...deps,
+    ...nextDeps,
+  };
+}
 
+export function createTitlePauseMenuActions({ deps = {}, ui = {} } = {}) {
   function togglePause() {
-    ui.togglePause?.(deps);
+    ui.togglePause?.(resolveLiveDeps(deps));
   }
 
   return {
     onResume: () => togglePause(),
     onOpenDeck: () => {
-      deps.showDeckView?.();
+      resolveLiveDeps(deps).showDeckView?.();
       togglePause();
     },
     onOpenCodex: () => {
-      deps.openCodex?.();
+      resolveLiveDeps(deps).openCodex?.();
       togglePause();
     },
     onOpenSettings: () => {
       togglePause();
-      deps.openSettings?.();
+      resolveLiveDeps(deps).openSettings?.();
     },
     onOpenHelp: () => {
-      ui.toggleHelp?.(deps);
+      ui.toggleHelp?.(resolveLiveDeps(deps));
       togglePause();
     },
-    onAbandon: () => ui.abandonRun?.(deps),
-    onReturnToTitle: () => ui.confirmReturnToTitle?.({
-      ...deps,
-      returnToTitleFromPause: titleActions.returnToTitleFromPause,
-    }),
-    onQuitGame: () => deps.quitGame?.(),
-    onSetMasterVolume: (value) => deps.setMasterVolume?.(value),
-    onSetSfxVolume: (value) => deps.setSfxVolume?.(value),
-    onSetAmbientVolume: (value) => deps.setAmbientVolume?.(value),
+    onAbandon: () => ui.abandonRun?.(resolveLiveDeps(deps)),
+    onReturnToTitle: () => {
+      const resolvedDeps = resolveLiveDeps(deps);
+      const titleActions = buildTitleHelpPauseActions(resolvedDeps);
+      ui.confirmReturnToTitle?.({
+        ...resolvedDeps,
+        returnToTitleFromPause: titleActions.returnToTitleFromPause,
+      });
+    },
+    onQuitGame: () => resolveLiveDeps(deps).quitGame?.(),
+    onSetMasterVolume: (value) => resolveLiveDeps(deps).setMasterVolume?.(value),
+    onSetSfxVolume: (value) => resolveLiveDeps(deps).setSfxVolume?.(value),
+    onSetAmbientVolume: (value) => resolveLiveDeps(deps).setAmbientVolume?.(value),
   };
 }

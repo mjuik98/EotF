@@ -180,6 +180,52 @@ describe('deps factory', () => {
     expect(gameBoot.saveSystemDeps.runRules).toEqual({ id: 'run-rules' });
   });
 
+  it('prefers canonical core gs for the game boot contract when legacy run deps are stale', () => {
+    const canonicalGs = {
+      currentScreen: 'title',
+      player: { hp: 80 },
+    };
+
+    seedRefs({
+      GAME: {
+        getDeps: () => ({ token: 'legacy-deps' }),
+        getRunDeps: () => ({ token: 'run-deps', gs: { currentScreen: 'title' } }),
+        getCombatDeps: () => ({ token: 'combat-deps' }),
+        getEventDeps: () => ({ token: 'event-deps' }),
+        getHudDeps: () => ({ token: 'hud-deps' }),
+        getUiDeps: () => ({ token: 'ui-deps' }),
+        getCanvasDeps: () => ({ token: 'canvas-deps' }),
+      },
+      featureRefs: {
+        core: {
+          GS: canonicalGs,
+        },
+      },
+    });
+
+    const gameBoot = createDeps('gameBoot');
+
+    expect(gameBoot.gs).toBe(canonicalGs);
+  });
+
+  it('prefers the canonical core save system for the game boot contract', () => {
+    const staleSaveSystem = { id: 'stale-save' };
+    const canonicalSaveSystem = { id: 'canonical-save' };
+
+    seedRefs({
+      SaveSystem: staleSaveSystem,
+      featureRefs: {
+        core: {
+          SaveSystem: canonicalSaveSystem,
+        },
+      },
+    });
+
+    const gameBoot = createDeps('gameBoot');
+
+    expect(gameBoot.saveSystem).toBe(canonicalSaveSystem);
+  });
+
   it('builds feature contracts from feature-specific GAME dep getters', () => {
     const setBonusSystem = { id: 'set-bonus-system' };
     seedRefs({ SetBonusSystem: setBonusSystem });

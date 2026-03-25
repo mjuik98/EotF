@@ -15,6 +15,10 @@ export const CharacterSelectUI = {
     this._runtime?.onEnter?.();
   },
 
+  resetSelectionState() {
+    this._runtime?.resetSelectionState?.();
+  },
+
   showPendingSummaries() {
     this._runtime?.showPendingSummaries?.();
   },

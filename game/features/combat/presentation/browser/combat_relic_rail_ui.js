@@ -25,12 +25,17 @@ function isPinned(detailPanel, itemId = '') {
     && detailPanel?.dataset?.itemId === itemId;
 }
 
+function supportsPointerPin(win) {
+  return !!win && ('ontouchstart' in win || Number(win?.innerWidth || 0) < 900);
+}
+
 export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
   const countEl = doc?.getElementById?.('combatRelicRailCount');
   const slotsEl = doc?.getElementById?.('combatRelicRailSlots');
   const detailPanel = doc?.getElementById?.('combatRelicPanel');
   const detailPanelList = detailPanel ? doc?.getElementById?.('combatRelicPanelList') : null;
   const win = deps?.win || doc?.defaultView || null;
+  const allowPointerPin = supportsPointerPin(win);
 
   const setBonusSystem = deps?.setBonusSystem || null;
   const detailSurface = createManagedItemDetailSurface({
@@ -139,12 +144,16 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     });
 
     slot.addEventListener('click', (event) => {
-      if (win && ('ontouchstart' in win || Number(win?.innerWidth || 0) < 900)) event?.preventDefault?.();
-      if (isPinned(detailPanel, itemId)) {
-        detailSurface.clear();
+      if (allowPointerPin) {
+        event?.preventDefault?.();
+        if (isPinned(detailPanel, itemId)) {
+          detailSurface.clear();
+          return;
+        }
+        showSlotDetail(slot, true);
         return;
       }
-      showSlotDetail(slot, true);
+      showSlotDetail(slot, false);
     });
     slot.addEventListener('keydown', (event) => {
       const nextIndex = getItemDetailNavIndex(event?.key, index, slotNodes.length || slotSortedItems.length);

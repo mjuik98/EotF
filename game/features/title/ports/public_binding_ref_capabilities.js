@@ -9,6 +9,7 @@ const TITLE_BINDING_REF_KEYS = Object.freeze([
   'startGame',
   'getSelectedClass',
   'clearSelectedClass',
+  'resetCharacterSelectState',
   'showPendingClassProgressSummary',
 ]);
 

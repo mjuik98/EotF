@@ -9,6 +9,65 @@ import { createEndingFragmentChoiceActions } from './ending_fragment_choice_acti
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');
 
+function ensureEndingDeckDetail(doc, deckGrid) {
+  const host = deckGrid?.parentNode;
+  if (!doc || !host) return null;
+
+  let detail = doc.getElementById?.('endingDeckDetail');
+  if (detail) return detail;
+
+  detail = doc.createElement('div');
+  detail.id = 'endingDeckDetail';
+  detail.className = 'ending-deck-detail';
+  detail.dataset.open = 'false';
+  detail.setAttribute?.('aria-hidden', 'true');
+
+  const icon = doc.createElement('div');
+  icon.id = 'endingDeckDetailIcon';
+  icon.className = 'ending-deck-detail-icon';
+
+  const title = doc.createElement('div');
+  title.id = 'endingDeckDetailTitle';
+  title.className = 'ending-deck-detail-title';
+
+  const meta = doc.createElement('div');
+  meta.id = 'endingDeckDetailMeta';
+  meta.className = 'ending-deck-detail-meta';
+
+  const desc = doc.createElement('div');
+  desc.id = 'endingDeckDetailDesc';
+  desc.className = 'ending-deck-detail-desc';
+
+  detail.append(icon, title, meta, desc);
+  host.appendChild(detail);
+  return detail;
+}
+
+function setEndingDeckDetailState(detail, card = null, open = false) {
+  if (!detail?.dataset) return;
+  detail.dataset.open = open ? 'true' : 'false';
+  detail.setAttribute?.('aria-hidden', open ? 'false' : 'true');
+  if (!card) return;
+
+  const icon = detail.ownerDocument?.getElementById?.('endingDeckDetailIcon')
+    || detail.children?.[0]
+    || null;
+  const title = detail.ownerDocument?.getElementById?.('endingDeckDetailTitle')
+    || detail.children?.[1]
+    || null;
+  const meta = detail.ownerDocument?.getElementById?.('endingDeckDetailMeta')
+    || detail.children?.[2]
+    || null;
+  const desc = detail.ownerDocument?.getElementById?.('endingDeckDetailDesc')
+    || detail.children?.[3]
+    || null;
+
+  if (icon) icon.textContent = card.icon || '?';
+  if (title) title.textContent = card.title || card.id || '';
+  if (meta) meta.textContent = `${card.typeLabel || '카드'} · ${card.rarityLabel || '일반'} · 비용 ${card.costText || '-'}`;
+  if (desc) desc.textContent = card.desc || '설명 없음';
+}
+
 export function buildEndingScreenDOM(doc, payload) {
   const root = doc.createElement('div');
   root.id = ROOT_ID;
@@ -88,6 +147,7 @@ export function populateEndingMeta(doc, payload, session, deps = {}) {
   const chipRow = doc.getElementById('chipRow');
   const pillRow = doc.getElementById('pillRow');
   const unlockRow = doc.getElementById('unlockRow');
+  const deckDetail = ensureEndingDeckDetail(doc, deckGrid);
 
   payload.regions.forEach((region, index) => {
     const node = doc.createElement('div');
@@ -106,7 +166,20 @@ export function populateEndingMeta(doc, payload, session, deps = {}) {
     element.className = `mcard ${card.cls}`.trim();
     element.textContent = card.icon;
     element.title = card.title;
+    element.tabIndex = 0;
     element.style.animation = `cardIn .35s ease ${index * 0.05}s forwards`;
+    const showDetail = () => setEndingDeckDetailState(deckDetail, card, true);
+    const hideDetail = () => setEndingDeckDetailState(deckDetail, card, false);
+    element.addEventListener?.('mouseenter', showDetail);
+    element.addEventListener?.('focus', showDetail);
+    element.addEventListener?.('mouseleave', hideDetail);
+    element.addEventListener?.('blur', hideDetail);
+    session.cleanups?.push?.(() => {
+      element.removeEventListener?.('mouseenter', showDetail);
+      element.removeEventListener?.('focus', showDetail);
+      element.removeEventListener?.('mouseleave', hideDetail);
+      element.removeEventListener?.('blur', hideDetail);
+    });
     deckGrid?.appendChild(element);
   });
 

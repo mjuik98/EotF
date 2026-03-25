@@ -5,6 +5,7 @@ import {
   applyEndingRank,
   buildEndingScreenDOM,
   ensureEndingScreenStyle,
+  populateEndingMeta,
 } from '../game/features/ui/public.js';
 
 function createMockElement(tagName = 'div') {
@@ -13,6 +14,7 @@ function createMockElement(tagName = 'div') {
     id: '',
     type: '',
     style: {},
+    dataset: {},
     attrs: {},
     children: [],
     parentNode: null,
@@ -183,5 +185,63 @@ describe('ending_screen_render_helpers', () => {
     expect(doc.head.children).toHaveLength(1);
     expect(doc.head.children[0].id).toBe('ending-screen-styles');
     expect(doc.head.children[0].href).toBe('/css/ending_screen.css');
+  });
+
+  it('renders a hover detail layout for ending deck preview cards', () => {
+    const { doc, byId } = createMockDocument();
+    doc.defaultView = {
+      setTimeout(callback) {
+        callback();
+        return 1;
+      },
+    };
+
+    const deckCol = createMockElement('div');
+    const deckGrid = createMockElement('div');
+    deckGrid.id = 'deckGrid';
+    deckCol.appendChild(deckGrid);
+    const tlNodes = createMockElement('div');
+    tlNodes.id = 'tlNodes';
+    const chipRow = createMockElement('div');
+    chipRow.id = 'chipRow';
+    const pillRow = createMockElement('div');
+    pillRow.id = 'pillRow';
+    byId.set('deckGrid', deckGrid);
+    byId.set('tlNodes', tlNodes);
+    byId.set('chipRow', chipRow);
+    byId.set('pillRow', pillRow);
+
+    const session = { timers: [] };
+    populateEndingMeta(doc, {
+      regions: [],
+      deck: [{
+        icon: '⚡',
+        title: 'Spark',
+        desc: 'Deal 8 damage.',
+        typeLabel: '공격',
+        rarityLabel: '희귀',
+        costText: '1',
+        cls: 'r',
+      }],
+      chips: [],
+      inscriptions: [],
+      unlocks: [],
+    }, session, { win: doc.defaultView });
+
+    expect(deckCol.children.some((child) => child.id === 'endingDeckDetail')).toBe(true);
+    const detail = deckCol.children.find((child) => child.id === 'endingDeckDetail');
+    const card = deckGrid.children[0];
+
+    expect(detail.dataset.open).toBe('false');
+    card.on_mouseenter?.({ currentTarget: card });
+    expect(detail.dataset.open).toBe('true');
+    expect(detail.children[1].textContent).toBe('Spark');
+    expect(detail.children[3].textContent).toBe('Deal 8 damage.');
+    expect(detail.children[2].textContent).toContain('공격');
+    expect(detail.children[2].textContent).toContain('희귀');
+    expect(detail.children[2].textContent).toContain('비용 1');
+
+    card.on_mouseleave?.({ currentTarget: card, relatedTarget: null });
+    expect(detail.dataset.open).toBe('false');
   });
 });

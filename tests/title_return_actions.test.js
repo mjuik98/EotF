@@ -10,6 +10,7 @@ describe('title_return_actions', () => {
     const deps = {
       showTitleScreen: vi.fn(),
       clearSelectedClass: vi.fn(),
+      resetCharacterSelectState: vi.fn(),
       refreshRunModePanel: vi.fn(),
       refreshTitleSaveState: vi.fn(),
       showPendingClassProgressSummary: vi.fn(),
@@ -19,6 +20,7 @@ describe('title_return_actions', () => {
 
     expect(deps.showTitleScreen).toHaveBeenCalledTimes(1);
     expect(deps.clearSelectedClass).toHaveBeenCalledTimes(1);
+    expect(deps.resetCharacterSelectState).toHaveBeenCalledTimes(1);
     expect(deps.refreshRunModePanel).toHaveBeenCalledTimes(1);
     expect(deps.refreshTitleSaveState).toHaveBeenCalledTimes(1);
     expect(deps.showPendingClassProgressSummary).toHaveBeenCalledTimes(1);

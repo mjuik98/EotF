@@ -137,6 +137,14 @@ export function createCharacterSelectRuntime(deps = {}, runtime = {}) {
     onEnter() {
       mountRuntime.updateAll();
     },
+    resetSelectionState() {
+      stopTyping();
+      closeModal();
+      state.idx = 0;
+      state.phase = 'select';
+      mountRuntime.updateAll();
+      mountRuntime.renderPhase();
+    },
     showPendingSummaries() {
       summaryReplay.consumePendingSummaries();
     },

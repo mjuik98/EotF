@@ -279,7 +279,7 @@ describe('map_ui_next_nodes_relic_panel', () => {
     expect(tooltipUI.hideItemTooltip).not.toHaveBeenCalled();
   });
 
-  it('pins the clicked relic detail and falls back inline when the left side is too narrow', () => {
+  it('keeps desktop clicks non-pinned and only pins touch interactions when inline fallback is needed', () => {
     const doc = createDoc();
     const panel = buildRelicPanel(doc, {
       player: {
@@ -321,29 +321,69 @@ describe('map_ui_next_nodes_relic_panel', () => {
     secondSlot._rect = { x: 163, y: 136, top: 136, left: 163, right: 331, bottom: 178, width: 168, height: 42 };
 
     secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
-    expect(detailPanel.dataset.pinned).toBe('true');
+    expect(detailPanel.dataset.pinned).toBe('false');
+    expect(detailPanel.dataset.open).toBe('true');
     expect(detailPanel.dataset.placement).toBe('inline');
     expect(detailPanel.style.position).toBe('static');
     expect(detailPanel.style.width).toBe('100%');
-    expect(detailPanel.style.transformOrigin).toBe('50% 0');
     expect(detailList.children[0].children[0].textContent).toContain('무딘 검');
+
+    secondSlot.listeners.mouseleave({ currentTarget: secondSlot, relatedTarget: null });
+    doc.runTimers();
+    expect(detailPanel.dataset.open).toBe('false');
+
+    const touchPanel = buildRelicPanel(doc, {
+      player: {
+        items: ['dull_blade', 'echo_charm'],
+      },
+    }, {
+      items: {
+        dull_blade: {
+          id: 'dull_blade',
+          name: '무딘 검',
+          icon: '🗡️',
+          rarity: 'common',
+          desc: '카드 사용 시 10% 확률: 잔향 10 충전',
+          trigger: 'card_play',
+        },
+        echo_charm: {
+          id: 'echo_charm',
+          name: '메아리 부적',
+          icon: '🔹',
+          rarity: 'uncommon',
+          desc: '전투 시작 시 잔향 +5',
+          trigger: 'combat_start',
+        },
+      },
+    }, { showItemTooltip: vi.fn(), hideItemTooltip: vi.fn() }, {
+      requestAnimationFrame: (cb) => cb(),
+      win: {
+        ontouchstart: vi.fn(),
+        innerWidth: 640,
+        requestAnimationFrame: (cb) => cb(),
+      },
+    });
+
+    const touchList = touchPanel.children[1].children[0];
+    const touchDetailPanel = touchPanel.children[2];
+    const touchDetailList = touchDetailPanel.children[0];
+    const touchFirstSlot = touchList.children[0];
+    const touchSecondSlot = touchList.children[1];
+    touchPanel._rect = { x: 150, y: 0, top: 0, left: 150, right: 342, bottom: 720, width: 192, height: 720 };
+    touchDetailPanel._rect = { x: 0, y: 56, top: 56, left: 0, right: 240, bottom: 156, width: 240, height: 100 };
+    touchFirstSlot._rect = { x: 163, y: 80, top: 80, left: 163, right: 331, bottom: 122, width: 168, height: 42 };
+    touchSecondSlot._rect = { x: 163, y: 136, top: 136, left: 163, right: 331, bottom: 178, width: 168, height: 42 };
+
+    touchSecondSlot.listeners.click({ currentTarget: touchSecondSlot, preventDefault: vi.fn() });
+    expect(touchDetailPanel.dataset.pinned).toBe('true');
+    expect(touchDetailPanel.dataset.placement).toBe('inline');
+    expect(touchDetailPanel.style.position).toBe('static');
+    expect(touchDetailPanel.style.width).toBe('100%');
+    expect(touchDetailPanel.style.transformOrigin).toBe('50% 0');
+    expect(touchDetailList.children[0].children[0].textContent).toContain('무딘 검');
 
     firstSlot.listeners.mouseenter({ currentTarget: firstSlot });
-    expect(detailList.children[0].children[0].textContent).toContain('무딘 검');
-
-    secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
-    expect(detailPanel.dataset.pinned).toBe('false');
-    expect(detailPanel.dataset.open).toBe('false');
-
-    secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
-    expect(detailPanel.dataset.open).toBe('true');
-    doc.dispatch('pointerdown', { target: doc.createElement('div') });
-    expect(detailPanel.dataset.open).toBe('false');
-
-    secondSlot.listeners.click({ currentTarget: secondSlot, preventDefault: vi.fn() });
-    expect(detailPanel.dataset.open).toBe('true');
-    doc.dispatchView('keydown', { key: 'Escape' });
-    expect(detailPanel.dataset.open).toBe('false');
+    expect(detailList.children[0].children[0].textContent).toContain('메아리 부적');
 
     firstSlot.listeners.mouseenter({ currentTarget: firstSlot });
     expect(detailList.children[0].children[0].textContent).toContain('메아리 부적');

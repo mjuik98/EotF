@@ -286,19 +286,16 @@ describe('combat_relic_rail_ui', () => {
     topSlot.listeners.blur({ type: 'blur', currentTarget: topSlot });
     expect(combatRelicPanel.dataset.open).toBe('false');
 
-    const pinEvent = { type: 'click', currentTarget: topSlot, preventDefault: vi.fn() };
-    topSlot.listeners.click(pinEvent);
+    const clickEvent = { type: 'click', currentTarget: topSlot, preventDefault: vi.fn() };
+    topSlot.listeners.click(clickEvent);
     expect(combatRelicPanel.dataset.open).toBe('true');
-    expect(combatRelicPanel.dataset.pinned).toBe('true');
-    expect(pinEvent.preventDefault).not.toHaveBeenCalled();
+    expect(combatRelicPanel.dataset.pinned).toBe('false');
+    expect(clickEvent.preventDefault).not.toHaveBeenCalled();
 
     topSlot.listeners.mouseleave({ type: 'mouseleave', currentTarget: topSlot });
-    expect(combatRelicPanel.dataset.open).toBe('true');
-
-    doc.listeners.pointerdown({ target: doc.createElement('div') });
     expect(combatRelicPanel.dataset.open).toBe('false');
 
-    topSlot.listeners.click({ type: 'click', currentTarget: topSlot, preventDefault: vi.fn() });
+    topSlot.listeners.focus({ type: 'focus', currentTarget: topSlot });
     expect(combatRelicPanel.dataset.open).toBe('true');
     doc.defaultView.listeners.keydown({ key: 'Escape' });
     expect(combatRelicPanel.dataset.open).toBe('false');

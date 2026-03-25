@@ -59,13 +59,6 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
   wrapper.style.animationDelay = `${idx * 0.08}s`;
   wrapper.setAttribute('aria-label', `${card.name || cardId} 카드 보상`);
 
-  if (isUpgradedReward) {
-    const highrollBadge = doc.createElement('div');
-    highrollBadge.className = 'reward-upgraded-highroll-badge';
-    highrollBadge.textContent = '강화 카드';
-    wrapper.appendChild(highrollBadge);
-  }
-
   const cardEl = doc.createElement('div');
   const rarityClass = `rarity-${card.rarity || 'common'}`;
   const typeClass = toTypeClass(card.type);
@@ -86,6 +79,12 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
     showHotkey: false,
   });
   wrapper.appendChild(cardEl);
+  if (isUpgradedReward) {
+    const highrollBadge = doc.createElement('div');
+    highrollBadge.className = 'reward-upgraded-highroll-badge';
+    highrollBadge.textContent = '강화 카드';
+    wrapper.appendChild(highrollBadge);
+  }
   bindRewardTooltipHandlers(
     wrapper,
     deps,

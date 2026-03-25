@@ -3,6 +3,7 @@ export function completeTitleReturn(deps = {}) {
   else if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
 
   if (typeof deps.clearSelectedClass === 'function') deps.clearSelectedClass();
+  if (typeof deps.resetCharacterSelectState === 'function') deps.resetCharacterSelectState();
   if (typeof deps.refreshRunModePanel === 'function') deps.refreshRunModePanel();
   if (typeof deps.refreshTitleSaveState === 'function') deps.refreshTitleSaveState();
   if (typeof deps.showPendingClassProgressSummary === 'function') deps.showPendingClassProgressSummary();

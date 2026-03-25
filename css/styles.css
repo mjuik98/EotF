@@ -5338,6 +5338,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: hidden;
 }
 
 .reward-item-card {

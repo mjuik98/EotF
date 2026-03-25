@@ -52,4 +52,107 @@ describe('ui_shell_contract_builders', () => {
       isGameStarted: expect.any(Function),
     });
   });
+
+  it('overrides stale run deps gs with the canonical core gs for help-pause save flows', () => {
+    const saveRun = vi.fn();
+    const staleRunGs = { currentScreen: 'game' };
+    const canonicalGs = {
+      currentScreen: 'game',
+      player: { hp: 80 },
+    };
+    const builders = buildUiShellContractBuilders({
+      buildBaseDeps: vi.fn(() => ({ gs: staleRunGs, token: 'run-base' })),
+      getRefs: () => ({
+        featureRefs: {
+          core: {
+            GS: canonicalGs,
+          },
+        },
+        SaveSystem: { saveRun },
+      }),
+      getRaf: vi.fn(() => vi.fn()),
+      getSyncVolumeUIFallback: vi.fn(() => vi.fn()),
+    });
+
+    const deps = builders.helpPause();
+    deps.saveRun({ gs: deps.gs });
+
+    expect(deps.gs).toBe(canonicalGs);
+    expect(saveRun).toHaveBeenCalledWith({
+      gs: canonicalGs,
+      isGameStarted: expect.any(Function),
+    });
+  });
+
+  it('uses the canonical core save system when the top-level alias is stale', () => {
+    const staleSaveRun = vi.fn();
+    const canonicalSaveRun = vi.fn();
+    const canonicalGs = {
+      currentScreen: 'game',
+      player: { hp: 80 },
+    };
+    const builders = buildUiShellContractBuilders({
+      buildBaseDeps: vi.fn(() => ({ gs: canonicalGs, token: 'run-base' })),
+      getRefs: () => ({
+        SaveSystem: { saveRun: staleSaveRun },
+        featureRefs: {
+          core: {
+            GS: canonicalGs,
+            SaveSystem: { saveRun: canonicalSaveRun },
+          },
+        },
+      }),
+      getRaf: vi.fn(() => vi.fn()),
+      getSyncVolumeUIFallback: vi.fn(() => vi.fn()),
+    });
+
+    const deps = builders.helpPause();
+    deps.saveRun({ gs: deps.gs });
+
+    expect(canonicalSaveRun).toHaveBeenCalledWith({
+      gs: canonicalGs,
+      isGameStarted: expect.any(Function),
+    });
+    expect(staleSaveRun).not.toHaveBeenCalled();
+  });
+
+  it('returns to title through current help-pause deps instead of a stale injected binding', () => {
+    const staleReturnToTitle = vi.fn();
+    const canonicalSaveRun = vi.fn();
+    const reload = vi.fn();
+    const canonicalGs = {
+      currentScreen: 'game',
+      player: { hp: 80 },
+    };
+    const builders = buildUiShellContractBuilders({
+      buildBaseDeps: vi.fn(() => ({
+        gs: canonicalGs,
+        token: 'run-base',
+        win: { location: { reload } },
+      })),
+      getRefs: () => ({
+        _gameStarted: () => true,
+        returnToTitleFromPause: staleReturnToTitle,
+        featureRefs: {
+          core: {
+            GS: canonicalGs,
+            SaveSystem: { saveRun: canonicalSaveRun },
+          },
+        },
+      }),
+      getRaf: vi.fn(() => vi.fn()),
+      getSyncVolumeUIFallback: vi.fn(() => vi.fn()),
+    });
+
+    const deps = builders.helpPause();
+    const result = deps.returnToTitleFromPause();
+
+    expect(result).toBe(true);
+    expect(canonicalSaveRun).toHaveBeenCalledWith({
+      gs: canonicalGs,
+      isGameStarted: expect.any(Function),
+    });
+    expect(staleReturnToTitle).not.toHaveBeenCalled();
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
 });

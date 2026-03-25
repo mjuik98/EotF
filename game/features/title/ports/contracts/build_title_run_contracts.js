@@ -20,6 +20,7 @@ export function buildTitleRunContractBuilders(ctx) {
         showTitleScreen: () => refs.switchScreen?.('title'),
         completeTitleReturn: () => refs.completeTitleReturn?.(),
         clearSelectedClass: refs.clearSelectedClass,
+        resetCharacterSelectState: refs.resetCharacterSelectState,
         refreshRunModePanel: refs.refreshRunModePanel,
         refreshTitleSaveState: () => refs.GameBootUI?.refreshTitleSaveState?.(createDeps('gameBoot')),
         showPendingClassProgressSummary: refs.showPendingClassProgressSummary,

@@ -48,4 +48,38 @@ describe('help_pause_menu_actions', () => {
     expect(deps.setSfxVolume).toHaveBeenCalledWith(20);
     expect(deps.setAmbientVolume).toHaveBeenCalledWith(30);
   });
+
+  it('re-resolves live deps when returning to title from the pause menu', () => {
+    const staleReturnToTitle = vi.fn(() => false);
+    const freshReturnToTitle = vi.fn(() => true);
+    const ui = {
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      abandonRun: vi.fn(),
+      confirmReturnToTitle: vi.fn(),
+    };
+
+    const callbacks = createTitlePauseMenuActions({
+      deps: {
+        returnToTitleFromPause: staleReturnToTitle,
+        getDeps: () => ({
+          returnToTitleFromPause: freshReturnToTitle,
+          marker: 'fresh',
+        }),
+      },
+      ui,
+    });
+
+    callbacks.onReturnToTitle();
+
+    expect(ui.confirmReturnToTitle).toHaveBeenCalledWith(expect.objectContaining({
+      marker: 'fresh',
+      returnToTitleFromPause: expect.any(Function),
+    }));
+
+    const [{ returnToTitleFromPause }] = ui.confirmReturnToTitle.mock.calls[0];
+    expect(returnToTitleFromPause()).toBe(true);
+    expect(freshReturnToTitle).toHaveBeenCalledTimes(1);
+    expect(staleReturnToTitle).not.toHaveBeenCalled();
+  });
 });

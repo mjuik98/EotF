@@ -356,6 +356,11 @@ describe('character select ui mount wiring', () => {
     CharacterSelectUI.showPendingSummaries();
     expect(hoisted.summaryReplay.consumePendingSummaries).toHaveBeenCalledTimes(1);
 
+    const runtimeState = hoisted.createCharacterSelectFlow.mock.calls[0][0].state;
+    runtimeState.idx = 1;
+    runtimeState.phase = 'done';
+
+    CharacterSelectUI.resetSelectionState();
     expect(CharacterSelectUI.getSelectionSnapshot()).toEqual({
       index: 0,
       phase: 'select',

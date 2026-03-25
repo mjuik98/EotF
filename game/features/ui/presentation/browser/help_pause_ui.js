@@ -18,34 +18,46 @@ let _helpOpen = false;
 let _pauseOpen = false;
 let _hotkeysBound = false;
 
+function resolveLiveDeps(deps = {}) {
+  const nextDeps = typeof deps.getDeps === 'function' ? (deps.getDeps() || {}) : {};
+  return {
+    ...deps,
+    ...nextDeps,
+  };
+}
+
 export const HelpPauseUI = {
   isHelpOpen() {
     return _helpOpen;
   },
 
   showMobileWarning(deps = {}) {
-    showMobileWarningRuntime(deps);
+    showMobileWarningRuntime(resolveLiveDeps(deps));
   },
 
   toggleHelp(deps = {}) {
-    _helpOpen = toggleHelpOverlayRuntime(deps, () => {
+    const resolvedDeps = resolveLiveDeps(deps);
+    _helpOpen = toggleHelpOverlayRuntime(resolvedDeps, () => {
       _helpOpen = false;
     });
   },
 
   abandonRun(deps = {}) {
-    toggleAbandonConfirmRuntime(deps, () => this.confirmAbandon(deps));
+    const resolvedDeps = resolveLiveDeps(deps);
+    toggleAbandonConfirmRuntime(resolvedDeps, () => this.confirmAbandon(resolvedDeps));
   },
 
   confirmReturnToTitle(deps = {}) {
+    const resolvedDeps = resolveLiveDeps(deps);
     toggleReturnTitleConfirmRuntime({
-      ...deps,
-      win: deps?.win || getDoc(deps)?.defaultView || null,
+      ...resolvedDeps,
+      win: resolvedDeps?.win || getDoc(resolvedDeps)?.defaultView || null,
     });
   },
 
   confirmAbandon(deps = {}) {
-    confirmAbandonRun(deps, (doc) => {
+    const resolvedDeps = resolveLiveDeps(deps);
+    confirmAbandonRun(resolvedDeps, (doc) => {
       closePauseMenu(doc, () => {
         _pauseOpen = false;
       });
@@ -53,8 +65,9 @@ export const HelpPauseUI = {
   },
 
   togglePause(deps = {}) {
+    const resolvedDeps = resolveLiveDeps(deps);
     _pauseOpen = togglePauseMenuRuntime({
-      deps,
+      deps: resolvedDeps,
       ui: this,
       currentPauseOpen: _pauseOpen,
       onPauseStateChange: (nextValue) => {
@@ -64,13 +77,18 @@ export const HelpPauseUI = {
   },
 
   bindGlobalHotkeys(deps = {}) {
-    const doc = getDoc(deps);
+    const doc = getDoc(resolveLiveDeps(deps));
     if (_hotkeysBound) return;
     _hotkeysBound = true;
 
     const self = this;
     doc.addEventListener('keydown', (e) => {
-      handleGlobalHotkey(e, { deps, doc, ui: self });
+      const resolvedDeps = resolveLiveDeps(deps);
+      handleGlobalHotkey(e, {
+        deps: resolvedDeps,
+        doc: getDoc(resolvedDeps) || doc,
+        ui: self,
+      });
     }, true);
   },
 };

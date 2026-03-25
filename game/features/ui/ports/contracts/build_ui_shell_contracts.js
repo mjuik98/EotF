@@ -1,5 +1,6 @@
 import { playClassSelect } from '../public_audio_presentation_capabilities.js';
 import { buildTitleHelpPauseActions } from '../../../title/ports/public_help_pause_application_capabilities.js';
+import { returnToTitleFromPause as returnToTitleFromPauseAction } from '../../../title/application/title_return_actions.js';
 
 export function buildUiShellContractBuilders(ctx) {
   const {
@@ -76,9 +77,33 @@ export function buildUiShellContractBuilders(ctx) {
       const refs = getRefs();
       const runDeps = buildBaseDeps('run');
       const combatRefs = refs.featureRefs?.combat || {};
-      const coreRefs = refs.featureRefs?.core || {};
+      const resolveCurrentRefs = () => getRefs();
+      const resolveCurrentCoreRefs = () => resolveCurrentRefs().featureRefs?.core || {};
+      const resolveCurrentRunDeps = () => buildBaseDeps('run');
+      const resolveCurrentGs = () => {
+        const currentRefs = resolveCurrentRefs();
+        const currentCoreRefs = resolveCurrentCoreRefs();
+        const currentRunDeps = resolveCurrentRunDeps();
+        const currentCanonicalGs = currentCoreRefs.GS || currentRefs.GS || null;
+        return currentCanonicalGs?.player ? currentCanonicalGs : (currentRunDeps.gs || currentCanonicalGs);
+      };
+      const resolveCurrentSaveSystem = () => {
+        const currentRefs = resolveCurrentRefs();
+        const currentCoreRefs = resolveCurrentCoreRefs();
+        return currentCoreRefs.SaveSystem || currentRefs.SaveSystem;
+      };
+      const resolvedGs = resolveCurrentGs();
+      const saveRun = (override = {}) => resolveCurrentSaveSystem()?.saveRun?.({
+        gs: override.gs?.player ? override.gs : (resolveCurrentGs() || override.gs),
+        isGameStarted: () => resolveCurrentRefs()._gameStarted?.(),
+      });
+      const returnToTitleFromPause = () => returnToTitleFromPauseAction({
+        ...resolveCurrentRunDeps(),
+        gs: resolveCurrentGs(),
+        saveRun,
+      });
       const titleActions = buildTitleHelpPauseActions({
-        returnToTitleFromPause: () => refs.returnToTitleFromPause?.(),
+        returnToTitleFromPause,
         restartEndingFlow: refs.restartEndingFlow || refs.restartFromEnding,
         restartFromEnding: refs.restartFromEnding,
         selectEndingFragment: refs.selectEndingFragment || refs.selectFragment,
@@ -88,6 +113,7 @@ export function buildUiShellContractBuilders(ctx) {
       });
       return {
         ...runDeps,
+        gs: resolvedGs,
         audioEngine: refs.AudioEngine,
         showDeckView: refs.showDeckView,
         closeDeckView: refs.closeDeckView,
@@ -109,11 +135,8 @@ export function buildUiShellContractBuilders(ctx) {
         renderCombatEnemies: combatRefs.renderCombatEnemies || refs.renderCombatEnemies,
         finalizeRunOutcome: refs.finalizeRunOutcome,
         hudUpdateUI: combatRefs.HudUpdateUI || refs.HudUpdateUI,
-        saveRun: (override = {}) => refs.SaveSystem?.saveRun?.({
-          gs: override.gs || runDeps.gs || coreRefs.GS || refs.GS,
-          isGameStarted: () => refs._gameStarted?.(),
-        }),
-        clearActiveRunSave: () => refs.SaveSystem?.clearSave?.(),
+        saveRun,
+        clearActiveRunSave: () => resolveCurrentSaveSystem()?.clearSave?.(),
         ...titleActions,
         restartFromEnding: refs.restartFromEnding,
         selectFragment: refs.selectFragment,
