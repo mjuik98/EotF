@@ -24,7 +24,7 @@ export const TooltipUI = {
       this.showGeneralTooltip(
         event,
         '🔥 스킬 소각',
-        '덱에서 원하는 카드 1장을 영구히 제거합니다.<br><br>조건: 덱에 카드가 있어야 합니다.',
+        '덱에서 원하는 카드 1장을 영구히 제거합니다.\n\n조건: 덱에 카드가 있어야 합니다.',
         deps,
       );
       return;
@@ -57,6 +57,7 @@ export const TooltipUI = {
   attachCardTooltips(deps = {}) {
     const doc = _getDoc(deps);
     doc.querySelectorAll('#combatHandCards .card, #deckModalCards > div').forEach((el) => {
+      if (typeof el.tabIndex === 'number' && el.tabIndex < 0) el.tabIndex = 0;
       el.addEventListener('mouseenter', (e) => {
         void ensureCombatTooltipBrowserModules().then((tooltipModules) => {
           const cardId = tooltipModules?.extractTooltipCardId?.(el.getAttribute('onclick'));
@@ -64,7 +65,17 @@ export const TooltipUI = {
           return undefined;
         });
       });
+      el.addEventListener('focus', (e) => {
+        void ensureCombatTooltipBrowserModules().then((tooltipModules) => {
+          const cardId = tooltipModules?.extractTooltipCardId?.(el.getAttribute('onclick'));
+          if (cardId) return this.showTooltip(e, cardId, deps);
+          return undefined;
+        });
+      });
       el.addEventListener('mouseleave', () => {
+        void this.hideTooltip(deps);
+      });
+      el.addEventListener('blur', () => {
         void this.hideTooltip(deps);
       });
     });

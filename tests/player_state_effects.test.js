@@ -87,4 +87,28 @@ describe('player_state_effects', () => {
     expect(hoisted.registerCardDiscovered).toHaveBeenCalledWith(state, 'strike_plus');
     expect(onAcquire).toHaveBeenCalledWith(state);
   });
+
+  it('applies passive set bonuses immediately when item acquisition completes a set', () => {
+    const state = {
+      player: {
+        items: ['abyssal_eye', 'blood_seal', 'ancient_handle'],
+        maxEcho: 50,
+        maxHp: 80,
+        hp: 45,
+      },
+      markDirty: vi.fn(),
+    };
+
+    addPlayerItemAndRegisterState(state, 'abyssal_hand');
+    addPlayerItemAndRegisterState(state, 'blood_oath');
+    addPlayerItemAndRegisterState(state, 'ancient_leather');
+
+    expect(state.player.maxEcho).toBe(60);
+    expect(state.player.maxHp).toBe(110);
+    expect(state.player.hp).toBe(75);
+    expect(state._abyssalSet2Applied).toBe(true);
+    expect(state._bloodSet2Applied).toBe(true);
+    expect(state._ancientSet2Applied).toBe(true);
+    expect(state.markDirty).toHaveBeenCalledWith('hud');
+  });
 });

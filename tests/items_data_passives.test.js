@@ -10,6 +10,14 @@ import { ItemSystem } from '../game/shared/progression/item_system.js';
 import { Trigger } from '../game/data/triggers.js';
 
 describe('items data passives', () => {
+  it('uses emoji icons for all relic definitions', () => {
+    const invalidIcons = Object.entries(ITEMS)
+      .filter(([, item]) => !/\p{Extended_Pictographic}/u.test(String(item.icon || '')))
+      .map(([id, item]) => ({ id, icon: item.icon, name: item.name }));
+
+    expect(invalidIcons).toEqual([]);
+  });
+
   it('restores the first exhausted card through liquid_memory and resets on combat start', () => {
     const gs = {
       _liquidMemoryUsed: false,
@@ -232,7 +240,7 @@ describe('items data passives', () => {
     randomSpy.mockRestore();
   });
 
-  it('returns a before_card_cost delta through crystal_ball instead of an absolute cost', () => {
+  it('preserves before_card_cost payload context through crystal_ball', () => {
     const gs = {
       _crystalDiscounted: new Set(['strike']),
       player: {
@@ -244,7 +252,12 @@ describe('items data passives', () => {
       cardId: 'strike',
       cost: 2,
       baseCost: 2,
-    })).toBe(-1);
+    })).toEqual({
+      cardId: 'strike',
+      cost: 2,
+      baseCost: 2,
+      costDelta: -1,
+    });
   });
 
   it('blocks healing through titan_heart using the heal_amount trigger', () => {
@@ -332,6 +345,25 @@ describe('items data passives', () => {
     expect(result).toBe('❤️ 체력 30 회복. 남은 골드: 50');
     expect(gs.player.gold).toBe(50);
     expect(gs.heal).toHaveBeenCalledWith(30);
+    expect(ITEMS.ancient_battery.desc).toBe('층마다 처음 구매하는 물약: 비용 없음');
+  });
+
+  it('charges potion cost again after ancient_battery spends its once-per-floor shop purchase', () => {
+    const gs = {
+      player: {
+        gold: 80,
+        items: ['ancient_battery'],
+      },
+      heal: vi.fn(),
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    expect(shopBuyPotion(gs, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 80');
+    expect(shopBuyPotion(gs, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 55');
+    expect(gs.player.gold).toBe(55);
+    expect(gs.heal).toHaveBeenCalledTimes(2);
   });
 
   it('grants a consumable dodge stack through golden_feather on combat start', () => {

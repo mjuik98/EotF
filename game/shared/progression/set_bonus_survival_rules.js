@@ -22,6 +22,17 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
     }
   }
 
+  if (counts.void_set >= 3 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+    const targetIdx = resolveTargetIdx(gs, data?.targetIdx);
+    if (targetIdx >= 0 && (gs.combat?.enemies?.[targetIdx]?.statusEffects?.weakened || 0) > 0) {
+      return withAmountValue(data, Math.floor(dealDamageAmount * 1.15));
+    }
+  }
+
+  if (counts.ancient_set >= 5 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
+    return withAmountValue(data, dealDamageAmount + 6);
+  }
+
   if (counts.plague_coven >= 2 && normalizedTrigger === 'poison_damage') {
     const amount = typeof data === 'number' ? data : data?.amount;
     if (amount > 0) gs.addShield?.(1, { name: '역병의 결사 세트(2)', type: 'set' });

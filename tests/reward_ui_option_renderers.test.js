@@ -280,21 +280,25 @@ describe('reward_ui_option_renderers', () => {
       showGeneralTooltip: vi.fn(),
       hideGeneralTooltip: vi.fn(),
     };
+    const descriptionUtils = {
+      highlight: vi.fn((text) => `<span class="hl">${text}</span>`),
+    };
 
     renderBlessingOption(
       container,
       {
         name: '체력의 축복',
         icon: 'HP',
-        desc: '최대 체력이 영구히 증가합니다.',
+        desc: '체력 5 회복. 에너지 1 획득 [지속]',
       },
-      { doc, tooltipUI },
+      { doc, tooltipUI, DescriptionUtils: descriptionUtils },
       vi.fn(),
       0,
     );
 
     const wrapper = container.children[0];
     const card = wrapper.children[0];
+    const desc = card.children.find((child) => String(child.className).includes('reward-card-desc'));
     const mouseenter = wrapper.addEventListener.mock.calls.find(([name]) => name === 'mouseenter')[1];
     const mouseleave = wrapper.addEventListener.mock.calls.find(([name]) => name === 'mouseleave')[1];
     const focus = wrapper.addEventListener.mock.calls.find(([name]) => name === 'focus')[1];
@@ -302,6 +306,7 @@ describe('reward_ui_option_renderers', () => {
 
     expect(wrapper.getAttribute('aria-label')).toBe('체력의 축복 축복 보상');
     expect(card.className).toContain('reward-card-shell');
+    expect(desc.innerHTML).toContain('<span class="hl">체력 5 회복. 에너지 1 획득 [지속]</span>');
 
     mouseenter({ type: 'mouseenter' });
     focus({ type: 'focus' });
@@ -312,13 +317,13 @@ describe('reward_ui_option_renderers', () => {
     expect(tooltipUI.showGeneralTooltip).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'mouseenter', currentTarget: wrapper }),
       '체력의 축복',
-      '최대 체력이 영구히 증가합니다.',
+      '체력 5 회복. 에너지 1 획득 [지속]',
       expect.objectContaining({ doc }),
     );
     expect(tooltipUI.showGeneralTooltip).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'focus', currentTarget: wrapper }),
       '체력의 축복',
-      '최대 체력이 영구히 증가합니다.',
+      '체력 5 회복. 에너지 1 획득 [지속]',
       expect.objectContaining({ doc }),
     );
     expect(tooltipUI.hideGeneralTooltip).toHaveBeenCalledTimes(3);

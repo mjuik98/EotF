@@ -93,17 +93,23 @@ export function renderDeckModalCards(doc, cardsEl, entries, options = {}) {
 
     const el = doc.createElement('div');
     el.className = `card card-frame-variant-deck rarity-${card.rarity || 'common'} ${String(card.type || '').toLowerCase() ? `type-${String(card.type).toLowerCase()}` : ''}`.trim();
+    el.tabIndex = 0;
+    el.setAttribute?.('aria-label', `${card.name || id}. ${card.desc || ''}`);
     el.style.cssText = `position:relative;background:var(--glass);border:1px solid ${borderColor};border-radius:16px;padding:16px 14px;width:160px;min-height:240px;display:flex;flex-direction:column;align-items:center;backdrop-filter:blur(16px);transition:all 0.15s;`;
-    el.onmouseenter = (event) => {
+    const show = (event) => {
       showTooltip?.(event, id);
       el.style.transform = 'translateY(-6px)';
       el.style.boxShadow = '0 12px 32px rgba(0,0,0,0.6)';
     };
-    el.onmouseleave = () => {
+    const hide = () => {
       hideTooltip?.();
       el.style.transform = '';
       el.style.boxShadow = '';
     };
+    el.addEventListener?.('mouseenter', show);
+    el.addEventListener?.('focus', show);
+    el.addEventListener?.('mouseleave', hide);
+    el.addEventListener?.('blur', hide);
 
     if (count > 1) {
       const countBadge = doc.createElement('div');

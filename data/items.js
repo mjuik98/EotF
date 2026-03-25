@@ -396,6 +396,29 @@ function addPlayerDrawCount(gs, amount) {
     return next;
 }
 
+function addPlayerEnergy(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount) || amount === 0) return Number(gs?.player?.energy || 0);
+    const delta = Math.floor(amount);
+    if (delta === 0) return Number(gs?.player?.energy || 0);
+
+    if (typeof gs.dispatch === 'function') {
+        const result = gs.dispatch(Actions.PLAYER_ENERGY, { amount: delta });
+        if (result?.energyAfter !== undefined) return result.energyAfter;
+    }
+
+    gs.player.energy = Math.max(0, Math.floor(Number(gs.player.energy || 0)) + delta);
+    gs.markDirty?.('hud');
+    return gs.player.energy;
+}
+
+function withCardCostDelta(data, delta) {
+    if (!Number.isFinite(delta)) return data;
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+        return { ...data, costDelta: Math.floor(Number(data.costDelta || 0)) + Math.floor(delta) };
+    }
+    return Math.floor(delta);
+}
+
 function exhaustHandCard(gs, handIdx) {
     const hand = gs?.player?.hand;
     if (!Array.isArray(hand) || handIdx < 0 || handIdx >= hand.length) return null;
@@ -579,7 +602,7 @@ const COMMON_ITEMS = {
         desc: '턴 시작 5% 확률: 에너지 1 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && Math.random() < 0.05) {
-                gs.player.energy = Math.min(gs.player.maxEnergy, gs.player.energy + 1);
+                addPlayerEnergy(gs, 1);
                 gs.addLog?.('🪙 행운의 주화: 에너지 회복!', 'item');
             }
         }
@@ -836,7 +859,7 @@ const UNCOMMON_ITEMS = {
                 });
             }
             if (trigger === Trigger.BEFORE_CARD_COST && gs._crystalDiscounted?.has(data?.cardId)) {
-                return -1;
+                return withCardCostDelta(data, -1);
             }
             if (trigger === Trigger.COMBAT_END) {
                 gs._crystalDiscounted = null;
@@ -867,16 +890,16 @@ const UNCOMMON_ITEMS = {
 
     // 세트: 고대인의 유산
     ancient_blade: {
-        id: 'ancient_blade', name: '고대인의 칼날', icon: '刃', rarity: 'uncommon',
-        desc: '피해를 줄 때: 피해 +1',
+        id: 'ancient_blade', name: '고대인의 칼날', icon: '🗡️', rarity: 'uncommon', setId: 'ancient_set',
+        desc: '피해를 줄 때: 피해 +1\n[세트: 고대인의 유산]',
         passive(gs, trigger, data) {
             const amount = getTriggeredAmount(data);
             if (trigger === Trigger.DEAL_DAMAGE && amount !== null) return withTriggeredAmount(data, amount + 1);
         }
     },
     ancient_scroll: {
-        id: 'ancient_scroll', name: '고대인의 두루마리', icon: '卷', rarity: 'uncommon',
-        desc: '전투 시작: 무작위 카드 1장 임시 획득',
+        id: 'ancient_scroll', name: '고대인의 두루마리', icon: '📜', rarity: 'uncommon', setId: 'ancient_set',
+        desc: '전투 시작: 무작위 카드 1장 임시 획득\n[세트: 고대인의 유산]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
                 const allKeys = Object.keys(CARDS);
@@ -918,12 +941,12 @@ const UNCOMMON_ITEMS = {
     },
     void_fang: {
         id: 'void_fang', name: '공허의 송곳니', icon: '🦷', rarity: 'uncommon', setId: 'void_set',
-        desc: '세트 구성품\n[세트: 심연의 삼위일체]',
+        desc: '세트 구성품\n[세트: 공허의 삼위일체]',
         passive() { }
     },
     void_eye: {
         id: 'void_eye', name: '공허의 눈', icon: '👁️', rarity: 'uncommon', setId: 'void_set',
-        desc: '공격 카드 사용 시 20% 확률: 대상에게 약화 1 부여\n[세트: 심연의 삼위일체]',
+        desc: '공격 카드 사용 시 20% 확률: 대상에게 약화 1 부여\n[세트: 공허의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger !== Trigger.CARD_PLAY || Math.random() >= 0.2) return;
             const cardType = String(CARDS?.[data?.cardId]?.type || '').toUpperCase();
@@ -940,7 +963,7 @@ const UNCOMMON_ITEMS = {
     },
     void_crown: {
         id: 'void_crown', name: '공허의 왕관', icon: '👑', rarity: 'uncommon', setId: 'void_set',
-        desc: '비용 0인 카드 사용 시: 잔향 10 충전\n[세트: 심연의 삼위일체]',
+        desc: '비용 0인 카드 사용 시: 잔향 10 충전\n[세트: 공허의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.CARD_PLAY && Number(data?.cost) === 0) {
                 gs.addEcho?.(10, { name: '공허의 왕관', type: 'item' });
@@ -975,14 +998,14 @@ const RARE_ITEMS = {
         id: 'everlasting_oil', name: '꺼지지 않는 기름', icon: '🕯️', rarity: 'rare',
         desc: '턴 시작: 무작위 카드 1장의 비용 0(이번 턴)',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.TURN_START && gs.player.hand?.length > 0) {
+            if (trigger === Trigger.TURN_DRAW_COMPLETE && gs.player.hand?.length > 0) {
                 const h = gs.player.hand;
                 const r = Math.floor(Math.random() * h.length);
                 gs._oilTarget = h[r];
                 gs.addLog?.(`🕯️ 꺼지지 않는 기름: ${CARDS[h[r]]?.name} 비용이 0이 되었습니다!`, 'item');
             }
             if (trigger === Trigger.BEFORE_CARD_COST && data?.cardId === gs._oilTarget) {
-                return -99;
+                return withCardCostDelta(data, -99);
             }
             if (trigger === Trigger.TURN_END || trigger === Trigger.COMBAT_END) {
                 gs._oilTarget = null;
@@ -993,8 +1016,8 @@ const RARE_ITEMS = {
         id: 'phoenix_feather', name: '불사조의 깃털', icon: '🔥', rarity: 'rare',
         desc: '게임당 1회: 사망 시 체력 50% 회복 후 부활',
         passive(gs, trigger) {
-            if (trigger === Trigger.PRE_DEATH && !gs._phoenixUsed) {
-                gs._phoenixUsed = true;
+            if (trigger === Trigger.PRE_DEATH && !gs.player._phoenixUsed) {
+                gs.player._phoenixUsed = true;
                 gs.player.hp = Math.floor(gs.player.maxHp * 0.5);
                 gs.addLog?.('🔥 불사조의 깃털: 죽음에서 돌아왔습니다!', 'item');
                 return true;
@@ -1020,7 +1043,7 @@ const RARE_ITEMS = {
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_END) gs._manaStored = Math.min(3, gs.player.energy);
             if (trigger === Trigger.TURN_START && gs._manaStored) {
-                gs.player.energy = Math.min(gs.player.maxEnergy, gs.player.energy + gs._manaStored);
+                addPlayerEnergy(gs, gs._manaStored);
                 gs.addLog?.(`🔋 마력 배터리: 에너지 ${gs._manaStored} 이월 완료.`, 'item');
                 gs._manaStored = 0;
             }
@@ -1056,7 +1079,7 @@ const RARE_ITEMS = {
                 gs._butterflyCount = (gs._butterflyCount || 0) + 1;
                 if (gs._butterflyCount >= 3) {
                     gs._butterflyCount = 0;
-                    gs.player.energy = gs.player.maxEnergy;
+                    addPlayerEnergy(gs, gs.player.maxEnergy);
                     gs.addLog?.('🦋 태엽 나비: 시간을 가속하여 에너지를 보충합니다!', 'item');
                 }
             }
@@ -1092,7 +1115,7 @@ const RARE_ITEMS = {
 
     // 세트: 심연의 삼위일체
     abyssal_eye: {
-        id: 'abyssal_eye', name: '심연의 눈', icon: '👁️', rarity: 'rare', setId: 'abyssal_trinity',
+        id: 'abyssal_eye', name: '심연의 눈', icon: '👁️', rarity: 'rare', setId: 'abyssal_set',
         desc: '상시: 적 방어막 무시\n[세트: 심연의 삼위일체]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
@@ -1105,7 +1128,7 @@ const RARE_ITEMS = {
         }
     },
     abyssal_hand: {
-        id: 'abyssal_hand', name: '심연의 손', icon: '🤚', rarity: 'rare', setId: 'abyssal_trinity',
+        id: 'abyssal_hand', name: '심연의 손', icon: '🤚', rarity: 'rare', setId: 'abyssal_set',
         desc: '턴마다 처음 사용하는 카드: 2번 발동\n[세트: 심연의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START) gs._abyssalUsed = false;
@@ -1116,11 +1139,11 @@ const RARE_ITEMS = {
         }
     },
     abyssal_heart: {
-        id: 'abyssal_heart', name: '심연의 심장', icon: '🖤', rarity: 'rare', setId: 'abyssal_trinity',
+        id: 'abyssal_heart', name: '심연의 심장', icon: '🖤', rarity: 'rare', setId: 'abyssal_set',
         desc: '체력이 50% 이하일 때 턴 시작: 에너지 1 회복\n[세트: 심연의 삼위일체]',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && gs.player.hp <= gs.player.maxHp * 0.5) {
-                gs.player.energy = Math.min(gs.player.energy + 1, gs.player.maxEnergy);
+                addPlayerEnergy(gs, 1);
                 gs.addLog?.('🖤 심연의 심장: 고동소리가 빨라집니다.', 'item');
             }
         }
@@ -1134,7 +1157,7 @@ const LEGENDARY_ITEMS = {
         desc: '턴 시작: 에너지 1 회복 / 카드 1장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                gs.player.energy = Math.min(gs.player.energy + 1, gs.player.maxEnergy);
+                addPlayerEnergy(gs, 1);
                 gs.drawCards(1, { name: '영겁의 핵심', type: 'item' });
                 gs.addLog?.('💎 영겁의 핵심: 시간이 가속됩니다.', 'item');
             }
@@ -1207,10 +1230,16 @@ const BOSS_ITEMS = {
     boss_black_lotus: {
         id: 'boss_black_lotus', name: '흑연꽃', icon: '🪷', rarity: 'boss',
         desc: '상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우',
+        onAcquire(gs) {
+            gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
+            gs._bossBlackLotusPenaltyApplied = true;
+        },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
-                gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
-                gs._bossBlackLotusPenalty = (gs._bossBlackLotusPenalty || 0) + 1;
+                if (!gs._bossBlackLotusPenaltyApplied) {
+                    gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
+                    gs._bossBlackLotusPenaltyApplied = true;
+                }
                 gs._bossBlackLotusCardCount = 0;
                 return;
             }
@@ -1221,9 +1250,7 @@ const BOSS_ITEMS = {
                 }
                 return;
             }
-            if (trigger === Trigger.COMBAT_END && gs._bossBlackLotusPenalty) {
-                gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) - gs._bossBlackLotusPenalty);
-                gs._bossBlackLotusPenalty = 0;
+            if (trigger === Trigger.COMBAT_END) {
                 gs._bossBlackLotusCardCount = 0;
             }
         }
@@ -1290,7 +1317,7 @@ const SPECIAL_ITEMS = {
         id: 'glitch_circuit', name: '글리치 회로', icon: '📼', rarity: 'special',
         desc: '턴 시작: 무작위 카드 1장의 비용 0 / 다른 카드 1장의 비용 +1(이번 턴)',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.TURN_START && gs.player.hand?.length >= 2) {
+            if (trigger === Trigger.TURN_DRAW_COMPLETE && gs.player.hand?.length >= 2) {
                 const h = gs.player.hand;
                 const r1 = Math.floor(Math.random() * h.length);
                 let r2 = Math.floor(Math.random() * h.length);
@@ -1300,8 +1327,8 @@ const SPECIAL_ITEMS = {
                 gs.addLog?.('📼 글리치 회로: 데이터 간섭 발생!', 'item');
             }
             if (trigger === Trigger.BEFORE_CARD_COST) {
-                if (data?.cardId === gs._glitch0) return -99; // 0으로 만듦
-                if (data?.cardId === gs._glitchPlus) return 1; // +1
+                if (data?.cardId === gs._glitch0) return withCardCostDelta(data, -99); // 0으로 만듦
+                if (data?.cardId === gs._glitchPlus) return withCardCostDelta(data, 1); // +1
             }
             if (trigger === Trigger.TURN_END) {
                 gs._glitch0 = null;
@@ -1311,7 +1338,7 @@ const SPECIAL_ITEMS = {
     },
     ancient_battery: {
         id: 'ancient_battery', name: '고대 배터리', icon: '🔋', rarity: 'special',
-        desc: '턴마다 처음 사용하는 소모품: 에너지 소모 없음',
+        desc: '층마다 처음 구매하는 물약: 비용 없음',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START || trigger === Trigger.FLOOR_START) gs._batteryUsed = false;
             if (trigger === Trigger.ITEM_USE && !gs._batteryUsed) {

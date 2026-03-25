@@ -29,8 +29,11 @@ function createElementFactory(elements) {
     const el = {
       tagName: String(tagName || '').toUpperCase(),
       id: '',
+      attributes: {},
       style: {},
       className: '',
+      type: '',
+      tabIndex: -1,
       textContent: '',
       innerHTML: '',
       title: '',
@@ -49,6 +52,13 @@ function createElementFactory(elements) {
       },
       remove() {
         if (this.id) delete elements[this.id];
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+        this[name] = String(value);
+      },
+      getAttribute(name) {
+        return this.attributes[name];
       },
     };
     return el;
@@ -104,8 +114,8 @@ describe('showEventCardDiscardOverlay', () => {
 
     showEventCardDiscardOverlay(gs, {
       cards: {
-        strike: { rarity: 'common', icon: 'S', name: 'Strike', desc: 'Deal damage' },
-        guard: { rarity: 'common', icon: 'G', name: 'Guard', desc: 'Gain block' },
+        strike: { rarity: 'common', icon: 'S', name: 'Strike', desc: '피해 8. [소진]' },
+        guard: { rarity: 'common', icon: 'G', name: 'Guard', desc: '방어막 8 획득' },
       },
     }, false, { doc, onCancel });
 
@@ -113,6 +123,11 @@ describe('showEventCardDiscardOverlay', () => {
     const list = doc.elements.discardCardList;
     expect(overlay).toBeTruthy();
     expect(list.children).toHaveLength(2);
+    expect(list.children[0].tagName).toBe('BUTTON');
+    expect(list.children[0].type).toBe('button');
+    expect(list.children[0].tabIndex).toBe(0);
+    expect(list.children[0].children[2].innerHTML).toContain('kw-dmg');
+    expect(list.children[0].children[2].innerHTML).toContain('kw-exhaust kw-block');
     expect(list.children[0].children.at(-1).textContent).toBe('x2');
 
     const cancelBtn = overlay.children[2];

@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   buildRunSave,
   hydrateMetaState,
+  hydrateRunState,
 } from '../game/shared/save/save_repository.js';
+import { ITEMS } from '../data/items.js';
+import { Trigger } from '../game/data/triggers.js';
 
 function createRunState() {
   return {
@@ -72,5 +75,23 @@ describe('save_repository', () => {
     expect(persisted.codex.enemies).toEqual(['wolf']);
     expect(persisted.codex.cards).toEqual(['strike']);
     expect(persisted.codex.items).toEqual(['potion']);
+  });
+
+  it('persists phoenix_feather game-long revive usage through save hydration', () => {
+    const gs = createRunState();
+    gs.player.maxHp = 40;
+    gs.player.hp = 3;
+    gs.player.items = ['phoenix_feather'];
+    gs.addLog = () => {};
+
+    expect(ITEMS.phoenix_feather.passive(gs, Trigger.PRE_DEATH)).toBe(true);
+    expect(gs.player._phoenixUsed).toBe(true);
+
+    const save = buildRunSave(gs, 2);
+    const loaded = createRunState();
+    hydrateRunState(loaded, save);
+
+    expect(loaded.player._phoenixUsed).toBe(true);
+    expect(ITEMS.phoenix_feather.passive(loaded, Trigger.PRE_DEATH)).toBeUndefined();
   });
 });

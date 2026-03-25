@@ -5,6 +5,7 @@ import {
   playUiItemGetFeedback,
 } from '../../ports/event_ui_view_ports.js';
 import { dismissTransientOverlay, getAudioEngine } from './event_ui_helpers.js';
+import { DomSafe } from '../../../../utils/dom_safe.js';
 
 export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {}) {
   if (!gs?.player || !data?.cards) return;
@@ -78,7 +79,10 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
     if (!card) return;
     const count = allCards.filter((id) => id === cardId).length;
 
-    const btn = doc.createElement('div');
+    const btn = doc.createElement('button');
+    btn.type = 'button';
+    btn.tabIndex = 0;
+    btn.setAttribute('aria-label', `${card.name}. ${card.desc || ''}`);
     btn.style.cssText = `cursor:pointer;background:rgba(10,5,30,0.9);border:1px solid ${rarityColor[card.rarity] || 'var(--border)'};border-radius:10px;padding:12px;width:120px;text-align:center;transition:all 0.2s;position:relative;`;
 
     const icon = doc.createElement('div');
@@ -91,7 +95,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
 
     const desc = doc.createElement('div');
     desc.style.cssText = 'font-size:10px;color:var(--text-dim);line-height:1.3;';
-    desc.textContent = card.desc || '';
+    DomSafe.setHighlightedText(desc, card.desc || '');
 
     btn.append(icon, name, desc);
 
@@ -102,14 +106,18 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
       btn.appendChild(countBadge);
     }
 
-    btn.onmouseenter = () => {
+    const activate = () => {
       btn.style.borderColor = 'var(--cyan)';
       btn.style.boxShadow = '0 0 12px rgba(0,255,204,0.3)';
     };
-    btn.onmouseleave = () => {
+    const deactivate = () => {
       btn.style.borderColor = rarityColor[card.rarity] || 'var(--border)';
       btn.style.boxShadow = '';
     };
+    btn.onmouseenter = activate;
+    btn.onfocus = activate;
+    btn.onmouseleave = deactivate;
+    btn.onblur = deactivate;
     btn.onclick = () => {
       const result = discardEventCard({ gs, cardId, data, isBurn });
       if (result.success) {

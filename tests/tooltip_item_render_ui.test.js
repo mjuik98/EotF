@@ -109,7 +109,7 @@ describe('tooltip_item_render_ui', () => {
     expect(state.rarityLabel).toBe('희귀');
     expect(state.triggerText).toBe('전투 시작 시');
     expect(state.liveCharge.remaining).toBe(1);
-    expect(state.setDef.name).toBe('심연의 삼위일체');
+    expect(state.setDef.name).toBe('공허의 삼위일체');
     expect(state.setCount).toBe(1);
     expect(state.setOwnedFlags).toEqual([true, false]);
   });

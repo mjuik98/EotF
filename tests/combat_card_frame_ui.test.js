@@ -7,6 +7,7 @@ class MockElement {
     this.tagName = String(tagName || 'div').toUpperCase();
     this.className = '';
     this.textContent = '';
+    this.innerHTML = '';
     this.children = [];
     this.style = {};
   }
@@ -151,5 +152,29 @@ describe('combat_card_frame_ui cost badges', () => {
 
     expect(desc.className).toContain('card-desc-deck');
     expect(desc.className).toContain('deck-card-desc');
+  });
+
+  it('falls back to the shared safe highlight renderer when no description utils are injected', () => {
+    const doc = createDoc();
+    const root = doc.createElement('div');
+
+    populateCombatCardFrame(root, doc, {
+      cardId: 'slash',
+      card: {
+        name: '베기',
+        icon: '⚔',
+        type: 'ATTACK',
+        cost: 1,
+        desc: '<img src=x onerror=alert(1)> 피해 6 [소진]',
+      },
+      canPlay: true,
+      displayCost: 1,
+    }, { variant: 'deck' });
+
+    const desc = findChild(root, (child) => String(child.className).includes('card-desc'));
+
+    expect(desc.innerHTML).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(desc.innerHTML).toContain('kw-dmg');
+    expect(desc.innerHTML).toContain('kw-exhaust kw-block');
   });
 });

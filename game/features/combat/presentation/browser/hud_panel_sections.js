@@ -1,4 +1,3 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
 import { SecurityUtils } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import {
@@ -80,7 +79,7 @@ function updateRegionPanels({ gs, deps, doc, setText }) {
   if (regionNameEl && regionRuleEl) {
     const showTooltip = (event) => {
       const title = `${region.name} - ${region.rule}`;
-      const desc = DescriptionUtils.highlight(region.ruleDesc || COMBAT_TEXT.regionFallback.ruleDesc);
+      const desc = region.ruleDesc || COMBAT_TEXT.regionFallback.ruleDesc;
       if (typeof tooltipUI?.showGeneralTooltip === 'function') {
         tooltipUI.showGeneralTooltip(event, title, desc, { doc, win });
       } else if (typeof deps.showGeneralTooltip === 'function') {

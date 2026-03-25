@@ -66,6 +66,10 @@ describe('character select modal helper', () => {
     expect(modalBox.innerHTML).toContain('kw-echo');
     expect(modalBox.innerHTML).toContain('kw-energy');
     expect(modalBox.innerHTML).toContain('kw-draw');
+    expect(modalBox.innerHTML).toContain('character-skill-tier-desc is-active');
+    expect(modalBox.innerHTML).toContain('character-skill-tier-desc is-muted');
+    expect(modalBox.innerHTML).toContain('character-skill-modal-close');
+    expect(modalBox.innerHTML).toContain('aria-label="닫기"');
     expect(modalBox.innerHTML).toContain('ESC로 닫기');
     expect(modal.classList.contains('open')).toBe(true);
 
@@ -92,6 +96,9 @@ describe('character select modal helper', () => {
   it('styles character skill modal descriptions with the shared keyword palette', () => {
     const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
 
+    expect(css).toContain('.character-skill-tier-desc {');
+    expect(css).toContain('.character-skill-tier-desc.is-active {');
+    expect(css).toContain('.character-skill-modal-close:focus-visible {');
     expect(css).toContain('.character-skill-tier-desc .kw-dmg');
     expect(css).toContain('.character-skill-tier-desc .kw-energy');
     expect(css).toContain('.character-skill-tier-desc .kw-exhaust.kw-block');

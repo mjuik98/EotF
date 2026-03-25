@@ -19,7 +19,7 @@ function createElement(tag = 'div') {
 }
 
 describe('class_trait_panel_ui', () => {
-  it('passes highlighted descriptions into the shared general tooltip', () => {
+  it('passes raw descriptions into the shared general tooltip', () => {
     const doc = {
       createElement: vi.fn((tag) => createElement(tag)),
     };
@@ -40,10 +40,8 @@ describe('class_trait_panel_ui', () => {
     expect(tooltipUI.showGeneralTooltip).toHaveBeenCalledWith(
       expect.anything(),
       '특성',
-      expect.stringContaining('kw-dmg'),
+      '피해 14. 잔향 20 충전 [지속]',
       expect.objectContaining({ doc }),
     );
-    expect(tooltipUI.showGeneralTooltip.mock.calls[0][2]).toContain('kw-echo');
-    expect(tooltipUI.showGeneralTooltip.mock.calls[0][2]).toContain('kw-buff kw-block');
   });
 });

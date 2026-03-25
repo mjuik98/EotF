@@ -6,6 +6,7 @@ import {
   getCardTypeDisplayLabel,
   getCardTypeLabelClass,
 } from './card_render_helpers_ui.js';
+import { DomSafe } from '../../../../utils/dom_safe.js';
 
 function addTagChip(doc, parent, className, text) {
   const tag = doc.createElement('span');
@@ -165,7 +166,7 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
   if (typeof descriptionUtils?.highlight === 'function') {
     desc.innerHTML = descriptionUtils.highlight(card.desc || '');
   } else {
-    desc.textContent = card.desc || '';
+    DomSafe.setHighlightedText(desc, card.desc || '');
   }
   root.appendChild(desc);
 

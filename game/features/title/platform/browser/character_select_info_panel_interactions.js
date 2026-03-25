@@ -1,5 +1,4 @@
 import { bindCharacterInfoLoadoutControls } from './character_select_info_panel_loadout_controls.js';
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
 
 function createNullGeneralTooltipApi() {
   return {
@@ -64,27 +63,39 @@ function bindRelicTooltips(panel, generalTooltip, doc, win, hover) {
 
   (fallbackRelicBadge ? [fallbackRelicBadge] : relicBadges).forEach((relicBadge) => {
     if (!relicBadge) return;
-    relicBadge.addEventListener('mouseenter', (event) => {
+    relicBadge.setAttribute?.('tabindex', '0');
+    relicBadge.setAttribute?.('aria-label', `${relicBadge.dataset.relicTitle || ''}. ${relicBadge.dataset.relicDesc || ''}`);
+    const show = (event) => {
       hover?.();
       generalTooltip.showGeneralTooltip(
         event,
         relicBadge.dataset.relicTitle || '',
-        DescriptionUtils.highlight(relicBadge.dataset.relicDesc || ''),
+        relicBadge.dataset.relicDesc || '',
         { doc, win },
       );
-    });
-    relicBadge.addEventListener('mouseleave', () => generalTooltip.hideGeneralTooltip({ doc, win }));
+    };
+    const hide = () => generalTooltip.hideGeneralTooltip({ doc, win });
+    relicBadge.addEventListener('mouseenter', show);
+    relicBadge.addEventListener('focus', show);
+    relicBadge.addEventListener('mouseleave', hide);
+    relicBadge.addEventListener('blur', hide);
   });
 }
 
 function bindDeckCardTooltips(panel, cardTooltip, cards, hover) {
   const mockGs = { getBuff: () => null, player: { echoChain: 0 } };
   panel.querySelectorAll('.deck-card').forEach((element) => {
-    element.addEventListener('mouseenter', (event) => {
+    element.setAttribute?.('tabindex', '0');
+    element.setAttribute?.('aria-label', element.dataset.cid || '카드');
+    const show = (event) => {
       hover?.();
       cardTooltip.showTooltip(event, element.dataset.cid, { data: { cards }, gs: mockGs });
-    });
-    element.addEventListener('mouseleave', () => cardTooltip.hideTooltip());
+    };
+    const hide = () => cardTooltip.hideTooltip();
+    element.addEventListener('mouseenter', show);
+    element.addEventListener('focus', show);
+    element.addEventListener('mouseleave', hide);
+    element.addEventListener('blur', hide);
   });
 }
 

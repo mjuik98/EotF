@@ -76,7 +76,9 @@ describe('RegionTransitionUI target region parsing', () => {
     expect(deps.gs.currentFloor).toBe(0);
     expect(deps.gs.regionRoute['2']).toBeUndefined();
     expect(deps.particleSystem.burstEffect).toHaveBeenCalledWith(640, 360);
-    expect(deps.descriptionUtils.highlight).toHaveBeenCalledWith('Test Desc');
+    const overlay = deps.doc.body.children[0];
+    const desc = overlay.children[3];
+    expect(desc.innerHTML).toContain('Test Desc');
   });
 
   it('stores explicit target region when targetRegionId is provided', () => {
@@ -100,5 +102,25 @@ describe('RegionTransitionUI target region parsing', () => {
 
     expect(deps.gs.stats.regionClearTimes[1]).toBe(3600);
     expect(deps.gs.stats._regionStartTs).toBe(4600);
+  });
+
+  it('escapes raw markup and still highlights region descriptions without injected description utils', () => {
+    const deps = createDeps(null);
+    delete deps.descriptionUtils;
+    deps.getRegionData.mockReturnValueOnce({
+      name: 'Test Region',
+      rule: 'Test Rule',
+      ruleDesc: '<img src=x onerror=alert(1)> 피해 14 [지역 규칙]',
+      quote: '',
+      accent: '#ffffff',
+    });
+
+    RegionTransitionUI.advanceToNextRegion(deps);
+
+    const overlay = deps.doc.body.children[0];
+    const desc = overlay.children[3];
+    expect(desc.innerHTML).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(desc.innerHTML).toContain('kw-dmg');
+    expect(desc.innerHTML).toContain('kw-special kw-block');
   });
 });

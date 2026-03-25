@@ -91,6 +91,7 @@ export function startPlayerTurnPolicy(gs, commands = {}) {
   gs.triggerItems?.('turn_start');
   drawCount += Math.max(0, Math.floor(Number(gs?.player?.drawCount || 0)));
   drawCardsState(gs, drawCount, { skipRift: true });
+  gs.triggerItems?.('turn_draw_complete');
 
   return { isStunned };
 }

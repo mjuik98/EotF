@@ -1,4 +1,4 @@
-import { stripHtml } from './map_ui_next_nodes_render_helpers.js';
+import { DomSafe } from '../../../../utils/dom_safe.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';
@@ -24,7 +24,10 @@ function buildRuleBanner(doc, regionData) {
 
   const desc = doc.createElement('span');
   desc.className = 'nc-rule-desc';
-  desc.textContent = stripHtml(regionData?.ruleDesc || (regionData?.rule ? `${regionData.rule}이 적용됩니다.` : '')) || '별도 제약 없이 탐색과 전투가 이어집니다.';
+  DomSafe.setHighlightedText(
+    desc,
+    regionData?.ruleDesc || (regionData?.rule ? `${regionData.rule}이 적용됩니다.` : '') || '별도 제약 없이 탐색과 전투가 이어집니다.',
+  );
 
   inner.append(icon, label, separator, desc);
   banner.appendChild(inner);

@@ -59,4 +59,37 @@ describe('TooltipUI lazy modules', () => {
     expect(hoisted.combatTooltipModules.renderCardTooltipContent).toHaveBeenCalledWith(doc, deps.data.cards.strike, deps.gs, { cardId: 'strike' });
     expect(hoisted.combatTooltipModules.showItemTooltipUi).toHaveBeenCalledWith({ type: 'mouseenter' }, 'void_crystal', deps);
   });
+
+  it('binds focus and blur handlers in the shared attachment path', async () => {
+    const listeners = new Map();
+    const cardEl = {
+      addEventListener: vi.fn((type, handler) => listeners.set(type, handler)),
+      getAttribute: vi.fn(() => 'playCard("strike")'),
+    };
+    const tt = { classList: { add: vi.fn(), remove: vi.fn() } };
+    const doc = {
+      getElementById: vi.fn((id) => (id === 'cardTooltip' ? tt : null)),
+      querySelectorAll: vi.fn(() => [cardEl]),
+    };
+    const deps = {
+      doc,
+      win: {},
+      data: { cards: { strike: { id: 'strike', name: 'Strike' } } },
+      gs: { player: {} },
+    };
+    const showSpy = vi.spyOn(TooltipUI, 'showTooltip').mockResolvedValue();
+    const hideSpy = vi.spyOn(TooltipUI, 'hideTooltip').mockResolvedValue();
+
+    TooltipUI.attachCardTooltips(deps);
+    await listeners.get('focus')?.({ type: 'focus' });
+    await listeners.get('blur')?.({ type: 'blur' });
+
+    expect(cardEl.addEventListener).toHaveBeenCalledWith('focus', expect.any(Function));
+    expect(cardEl.addEventListener).toHaveBeenCalledWith('blur', expect.any(Function));
+    expect(showSpy).toHaveBeenCalledWith({ type: 'focus' }, 'strike', deps);
+    expect(hideSpy).toHaveBeenCalledWith(deps);
+
+    showSpy.mockRestore();
+    hideSpy.mockRestore();
+  });
 });

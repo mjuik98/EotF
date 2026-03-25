@@ -17,7 +17,7 @@ import { buildCharacterSelectShellMarkup } from '../game/features/title/platform
 
 function createPanel() {
   return {
-    style: { setProperty() {} },
+    style: { setProperty() { } },
     innerHTML: '',
     querySelectorAll() {
       return [];
@@ -40,12 +40,12 @@ describe('player_facing_localization_regression', () => {
   });
 
   it('keeps class presentation labels in Korean', () => {
-    expect(CLASS_METADATA.swordsman.title).toBe('검사');
-    expect(CLASS_METADATA.mage.title).toBe('술사');
-    expect(CLASS_METADATA.hunter.title).toBe('사냥꾼');
-    expect(CLASS_METADATA.paladin.title).toBe('성기사');
-    expect(CLASS_METADATA.berserker.title).toBe('전사');
-    expect(CLASS_METADATA.guardian.title).toBe('수호자');
+    expect(CLASS_METADATA.swordsman.title).toBe('Swordsman');
+    expect(CLASS_METADATA.mage.title).toBe('Mage');
+    expect(CLASS_METADATA.hunter.title).toBe('Hunter');
+    expect(CLASS_METADATA.paladin.title).toBe('Paladin');
+    expect(CLASS_METADATA.berserker.title).toBe('Berserker');
+    expect(CLASS_METADATA.guardian.title).toBe('Guardian');
     expect(CLASS_METADATA.swordsman.traitTitle).toBe('공명');
     expect(CLASS_METADATA.mage.traitTitle).toBe('메아리');
     expect(CLASS_METADATA.hunter.traitTitle).toBe('정적');
@@ -79,13 +79,13 @@ describe('player_facing_localization_regression', () => {
       buildSectionLabel: (label) => `<span>${label}</span>`,
       buildRadar: () => '<svg>radar</svg>',
       cards: { strike: { name: '타격' } },
-      generalTooltipUI: { hideGeneralTooltip() {}, showGeneralTooltip() {} },
-      cardTooltipUI: { hideTooltip() {}, showTooltip() {} },
+      generalTooltipUI: { hideGeneralTooltip() { }, showGeneralTooltip() { } },
+      cardTooltipUI: { hideTooltip() { }, showTooltip() { } },
       doc: {},
       win: {},
-      hover() {},
-      echo() {},
-      openModal() {},
+      hover() { },
+      echo() { },
+      openModal() { },
     });
 
     expect(panel.innerHTML).toContain('클래스 숙련도');

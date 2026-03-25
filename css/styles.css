@@ -1212,6 +1212,14 @@ body {
   border-left: 2px solid var(--echo);
 }
 
+.class-btn-trait:focus-visible,
+.class-btn-relic:focus-visible {
+  outline: none;
+  border-left-color: var(--cyan);
+  background: rgba(0, 255, 204, 0.08);
+  color: var(--white);
+}
+
 .class-select-relic-panel {
   width: min(100%, 320px);
   margin: 10px auto 0;
@@ -11720,6 +11728,64 @@ body:has(#combatOverlay.active) .panel-bottom {
 .character-skill-tier-desc {
   word-break: keep-all;
   overflow-wrap: anywhere;
+}
+
+.class-select-tooltip {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  background: rgba(10, 10, 25, 0.95);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  max-width: 280px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.class-select-tooltip-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--cyan, #00ffcc);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.class-select-tooltip-desc {
+  font-size: 10px;
+  line-height: 1.5;
+  color: rgba(200, 200, 220, 0.85);
+}
+
+.character-skill-tier-desc {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.character-skill-tier-desc.is-active {
+  color: #aaa;
+}
+
+.character-skill-tier-desc.is-muted {
+  color: #3a3a50;
+}
+
+.character-skill-modal-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.character-skill-modal-close:focus-visible {
+  outline: 1px solid rgba(124, 200, 255, 0.55);
+  border-radius: 6px;
 }
 
 /* 비교형 카드/툴팁 표면의 kw-* 키워드 컬러를 통일한다. */

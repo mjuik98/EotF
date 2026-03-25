@@ -91,6 +91,11 @@ describe('character_select_info_panel helpers', () => {
     const level11ModeUpgrade = createNode();
     const level11ModeSwap = createNode();
     const level11SelectionNote = createNode();
+    const relicBadge = createNode();
+    relicBadge.dataset.relicTitle = 'Relic';
+    relicBadge.dataset.relicDesc = '피해 8';
+    const deckCard = createNode();
+    deckCard.dataset.cid = 'strike';
     const level11DeckCard0 = createNode();
     level11DeckCard0.dataset.level11Index = '0';
     level11DeckCard0.dataset.level11Selectable = 'true';
@@ -110,8 +115,8 @@ describe('character_select_info_panel helpers', () => {
       querySelectorAll: vi.fn((selector) => {
         if (selector === '.char-info-tab') return [summaryTab, detailsTab];
         if (selector === '.char-info-pane') return [summaryPane, detailsPane];
-        if (selector === '.relic-inner') return [];
-        if (selector === '.deck-card') return [];
+        if (selector === '.relic-inner') return [relicBadge];
+        if (selector === '.deck-card') return [deckCard];
         if (selector === '.level11-edit-card') return [level11DeckCard0, level11DeckCard1];
         if (selector === '.level11-add-card-btn') return [level11AddCard];
         return [];
@@ -165,6 +170,11 @@ describe('character_select_info_panel helpers', () => {
     detailsTab.listeners.click();
     expect(detailsTab.classList.contains('is-active')).toBe(true);
     expect(detailsPane.classList.contains('is-active')).toBe(true);
+
+    relicBadge.listeners.focus({ type: 'focus' });
+    deckCard.listeners.focus({ type: 'focus' });
+    expect(relicBadge.setAttribute).toHaveBeenCalledWith('tabindex', '0');
+    expect(deckCard.setAttribute).toHaveBeenCalledWith('tabindex', '0');
 
     level11DeckCard0.listeners.click();
     expect(saveLevel11Upgrade.disabled).toBe(false);

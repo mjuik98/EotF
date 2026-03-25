@@ -90,4 +90,22 @@ describe('tooltip_general_ui', () => {
     expect(css).toContain('.general-tooltip-desc .kw-echo');
     expect(css).toContain('.general-tooltip-desc .kw-buff.kw-block');
   });
+
+  it('highlights raw tooltip text and escapes arbitrary markup at render time', () => {
+    const doc = createDoc();
+    const win = { innerWidth: 900, innerHeight: 700, _generalTipEl: null };
+    const event = {
+      currentTarget: {
+        getBoundingClientRect: () => ({ right: 120, left: 60, top: 40 }),
+      },
+    };
+
+    showGeneralTooltipUi(event, 'Title', '<img src=x onerror=alert(1)> 피해 14 [소진]', { doc, win });
+
+    const content = win._generalTipEl.children[1].innerHTML;
+    expect(content).not.toContain('<img src=x onerror=alert(1)>');
+    expect(content).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(content).toContain('kw-dmg');
+    expect(content).toContain('kw-exhaust kw-block');
+  });
 });

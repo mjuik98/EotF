@@ -9,11 +9,28 @@ export const LEGACY_SET_TIER_FLAGS = Object.freeze({
 
 export const SETS = {
   void_set: {
-    name: '심연의 삼위일체',
+    name: '공허의 삼위일체',
     items: ['void_eye', 'void_fang', 'void_crown'],
+    bonuses: {
+      2: { label: '공허의 공명 — 비용 0인 카드 사용 시 잔향 +5' },
+      3: { label: '공허의 완성 — 약화된 적 공격 시 피해 +15%' },
+    },
+  },
+  abyssal_set: {
+    name: '심연의 삼위일체',
+    items: ['abyssal_eye', 'abyssal_hand', 'abyssal_heart'],
     bonuses: {
       2: { label: '심연의 각성 — 잔향 게이지 최대치 +20%' },
       3: { label: '심연의 완성 — 모든 피해 +15% + 턴 시작 시 잔향 +15' },
+    },
+  },
+  ancient_set: {
+    name: '고대인의 유산',
+    items: ['ancient_handle', 'ancient_leather', 'ancient_belt', 'ancient_cape', 'ancient_blade', 'ancient_scroll'],
+    bonuses: {
+      2: { label: '고대의 육신 — 최대 체력 +10' },
+      4: { label: '고대의 지혜 — 전투 시작 시 카드 1장 드로우' },
+      5: { label: '고대의 계승 — 공격 피해 +6' },
     },
   },
   echo_set: {

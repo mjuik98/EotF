@@ -58,3 +58,35 @@ describe('DescriptionUtils set label normalization', () => {
     expect(highlighted).toMatch(/<br><div class="kw-special kw-block"[\s\S]*세트:\s*혈맹[\s\S]*<\/div>\s*$/);
   });
 });
+
+describe('DescriptionUtils status duration highlight', () => {
+  it('highlights full timed buff phrases including the turn suffix', () => {
+    const highlighted = DescriptionUtils.highlight('반사 1턴 획득. 은신 1턴 획득');
+
+    expect(highlighted).toContain('<span class="kw-buff">반사 1턴</span> 획득');
+    expect(highlighted).toContain('<span class="kw-buff">은신 1턴</span> 획득');
+  });
+
+  it('keeps composite immunity and nullify buffs within a single highlight span', () => {
+    const highlighted = DescriptionUtils.highlight('기절 면역 1회 획득. 반사 및 무효화 1턴 획득');
+
+    expect(highlighted).toContain('<span class="kw-buff">기절 면역 1회</span> 획득');
+    expect(highlighted).toContain('<span class="kw-buff">반사 및 무효화 1턴</span> 획득');
+  });
+
+  it('escapes arbitrary html while still applying repository-owned keyword markup', () => {
+    const highlighted = DescriptionUtils.highlight('<img src=x onerror=alert(1)> 피해 14');
+
+    expect(highlighted).not.toContain('<img src=x onerror=alert(1)>');
+    expect(highlighted).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(highlighted).toContain('kw-dmg');
+  });
+
+  it('supports the shared region rule marker without inline HTML', () => {
+    const highlighted = DescriptionUtils.highlight('[지역 규칙] 피해 14');
+
+    expect(highlighted).toContain('kw-special kw-block');
+    expect(highlighted).toContain('[지역 규칙]');
+    expect(highlighted).toContain('kw-dmg');
+  });
+});

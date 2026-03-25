@@ -24,12 +24,15 @@ describe('boss relic integration guards', () => {
         expect(relic.passive(gs, Trigger.PRE_DEATH)).toBe(true);
     });
 
-    it('boss_black_lotus restores only its own hand-cap penalty on combat end', () => {
+    it('boss_black_lotus keeps its hand-cap penalty across combat end once acquired', () => {
         const relic = ITEMS.boss_black_lotus;
         const gs = {
             player: { _handCapMinus: 2 },
             drawCards: vi.fn()
         };
+
+        relic.onAcquire(gs);
+        expect(gs.player._handCapMinus).toBe(3);
 
         relic.passive(gs, Trigger.COMBAT_START);
         expect(gs.player._handCapMinus).toBe(3);
@@ -38,6 +41,21 @@ describe('boss relic integration guards', () => {
         expect(gs.drawCards).toHaveBeenCalledWith(2, { name: '흑연꽃', type: 'item' });
 
         relic.passive(gs, Trigger.COMBAT_END);
-        expect(gs.player._handCapMinus).toBe(2);
+        expect(gs.player._handCapMinus).toBe(3);
+    });
+
+    it('boss_black_lotus applies its hand-cap penalty on acquire so opening hand limits are already reduced', () => {
+        const relic = ITEMS.boss_black_lotus;
+        const gs = {
+            player: { _handCapMinus: 0 },
+        };
+
+        relic.onAcquire(gs);
+        expect(gs.player._handCapMinus).toBe(1);
+
+        relic.passive(gs, Trigger.COMBAT_START);
+        relic.passive(gs, Trigger.COMBAT_END);
+
+        expect(gs.player._handCapMinus).toBe(1);
     });
 });

@@ -1,4 +1,5 @@
 import { registerCardDiscovered, registerItemFound } from '../codex/codex_record_state_use_case.js';
+import { SetBonusSystem } from '../progression/set_bonus_system.js';
 import {
   applyPlayerGoldCompatState,
   applyPlayerHealCompatState,
@@ -68,6 +69,7 @@ export function addPlayerItemAndRegisterState(state, itemId, itemDef = null) {
   state.player.items.push(itemId);
   registerItemFound(state, itemId);
   if (itemDef && typeof itemDef.onAcquire === 'function') itemDef.onAcquire(state);
+  SetBonusSystem.applyPassiveBonuses(state);
   return itemId;
 }
 

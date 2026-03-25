@@ -4,6 +4,7 @@ import {
   markRegionIntroStartState,
   normalizeTargetRegionId,
 } from '../../state/region_state_commands.js';
+import { DomSafe } from '../../../../utils/dom_safe.js';
 
 function getDoc(deps) {
   return deps?.doc || document;
@@ -15,10 +16,6 @@ function getGS(deps) {
 
 function getWin(deps, doc) {
   return deps?.win || doc?.defaultView || null;
-}
-
-function getDescriptionUtils(deps) {
-  return deps?.descriptionUtils || deps?.DescriptionUtils || null;
 }
 
 export const RegionTransitionUI = {
@@ -65,7 +62,7 @@ export const RegionTransitionUI = {
 
     const desc = doc.createElement('div');
     desc.style.cssText = "font-size:13px;font-style:italic;color:var(--text-dim);max-width:400px;text-align:center;line-height:1.7;animation:fadeInUp 1s ease 1.1s both;opacity:0;";
-    desc.innerHTML = getDescriptionUtils(deps)?.highlight?.(region.ruleDesc) || region.ruleDesc || '';
+    DomSafe.setHighlightedText(desc, region.ruleDesc || '');
 
     overlay.append(subHead, title, rule, desc);
 

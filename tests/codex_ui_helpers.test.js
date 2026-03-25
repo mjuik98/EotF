@@ -87,4 +87,11 @@ describe('codex_ui_helpers', () => {
 
     expect(defs.items.some((entry) => entry?.k === 'set:void')).toBe(true);
   });
+
+  it('keeps codex visible copy aligned with shared card and rarity labels', () => {
+    const defs = getCodexFilterDefinitions({ itemSets: {} });
+
+    expect(defs.cards.map((entry) => entry?.l)).toEqual(['전체', '공격', '기술', '능력']);
+    expect(defs.items.map((entry) => entry?.l)).toContain('비범');
+  });
 });

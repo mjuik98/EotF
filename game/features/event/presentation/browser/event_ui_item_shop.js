@@ -9,6 +9,7 @@ import {
   playUiItemGetFeedback,
 } from '../../ports/event_ui_view_ports.js';
 import { dismissTransientOverlay, getShopItemIcon } from './event_ui_helpers.js';
+import { DomSafe } from '../../../../utils/dom_safe.js';
 
 const ITEM_SHOP_RARITY_CONFIG = Object.freeze({
   common: {
@@ -88,12 +89,16 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
       const canAfford = gs.player.gold >= cost;
       const purchasable = !alreadyOwned && canAfford;
 
-      const card = doc.createElement('div');
+      const card = doc.createElement('button');
       card.className = `item-shop-card rarity-${rarity}`;
+      card.type = 'button';
       card.style.setProperty('--shop-border-color', rc.border);
       card.style.setProperty('--shop-rarity-color', rc.color);
       card.style.opacity = purchasable ? '1' : '0.5';
       card.style.cursor = purchasable ? 'pointer' : 'not-allowed';
+      card.disabled = !purchasable;
+      card.setAttribute('aria-disabled', purchasable ? 'false' : 'true');
+      card.setAttribute('aria-label', `${item.name}. ${item.desc || ''}`);
 
       const rarityLabel = doc.createElement('div');
       rarityLabel.className = 'item-shop-rarity';
@@ -111,8 +116,7 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
 
       const descEl = doc.createElement('div');
       descEl.className = 'item-shop-desc';
-      if (deps.descriptionUtils?.highlight) descEl.innerHTML = deps.descriptionUtils.highlight(item.desc);
-      else descEl.textContent = item.desc;
+      DomSafe.setHighlightedText(descEl, item.desc || '');
 
       const costEl = doc.createElement('div');
       costEl.className = 'item-shop-cost';
@@ -129,16 +133,20 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
         ownedOverlay.appendChild(ownedLabel);
         card.appendChild(ownedOverlay);
       } else if (purchasable) {
-        card.onmouseenter = () => {
+        const activate = () => {
           card.style.borderColor = 'var(--cyan)';
           card.style.transform = 'translateY(-3px)';
           card.style.boxShadow = '0 8px 24px rgba(0,255,204,0.2)';
         };
-        card.onmouseleave = () => {
+        const deactivate = () => {
           card.style.borderColor = rc.border;
           card.style.transform = '';
           card.style.boxShadow = '';
         };
+        card.onmouseenter = activate;
+        card.onfocus = activate;
+        card.onmouseleave = deactivate;
+        card.onblur = deactivate;
         card.onclick = () => {
           const result = purchaseItemFromShopUseCase({ gs, item, cost });
           if (!result.success) return;

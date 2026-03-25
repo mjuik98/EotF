@@ -19,7 +19,7 @@ export function openCharacterSkillModal({
           <span style="font-size:15px;color:${index === 0 ? '#fff' : '#555'};letter-spacing:1px">${tier.name}</span>
           <span style="padding:2px 10px;border-radius:12px;font-size:11px;background:${accent}1a;color:${accent};font-family:'Share Tech Mono',monospace;border:1px solid ${accent}33">${tier.bonus}</span>
         </div>
-        <p class="character-skill-tier-desc" style="font-size:13px;color:${index === 0 ? '#aaa' : '#3a3a50'};margin:0;line-height:1.6">${DescriptionUtils.highlight(tier.desc || '')}</p>
+        <p class="character-skill-tier-desc ${index === 0 ? 'is-active' : 'is-muted'}">${DescriptionUtils.highlight(tier.desc || '')}</p>
       </div>
     </div>
   `).join('');
@@ -36,7 +36,7 @@ export function openCharacterSkillModal({
         <h3 style="font-size:20px;color:#fff;margin:0;letter-spacing:1.5px">${skill.name}</h3>
         ${isEcho ? `<span style="font-size:10px;color:${accent};font-family:'Share Tech Mono',monospace">${skill.echoCost}</span>` : ''}
       </div>
-      <button id="modalClose" style="margin-left:auto;background:none;border:none;color:#555;font-size:24px;cursor:pointer">x</button>
+      <button id="modalClose" type="button" aria-label="닫기" class="character-skill-modal-close">x</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">${tiers}</div>
     <p style="font-size:11px;color:#222;text-align:center;font-family:'Share Tech Mono',monospace;margin:20px 0 0">ESC로 닫기</p>

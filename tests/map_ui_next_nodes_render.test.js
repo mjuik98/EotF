@@ -95,6 +95,19 @@ describe('map_ui_next_nodes_render', () => {
     expect(dock.children[1].children[0].className).toContain('is-actionable');
   });
 
+  it('renders bottom dock region descriptions through the shared highlight path', () => {
+    const doc = createDoc();
+    const dock = buildBottomDock(doc, {
+      name: 'Region',
+      rule: 'No Rule',
+      ruleDesc: '피해 14. [지역 규칙]',
+    });
+
+    const desc = dock.children[0].children[0].children[3];
+    expect(desc.innerHTML).toContain('kw-dmg');
+    expect(desc.innerHTML).toContain('kw-special kw-block');
+  });
+
   it('builds a compact floor bar label', () => {
     const doc = createDoc();
     const bar = buildFloorBar(doc, {

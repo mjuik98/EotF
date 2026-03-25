@@ -1,3 +1,5 @@
+import { DomSafe } from '../../../../utils/dom_safe.js';
+
 export function showGeneralTooltipUi(event, title, content, deps = {}) {
   const doc = deps?.doc || document;
   const win = deps?.win || window;
@@ -27,7 +29,7 @@ export function showGeneralTooltipUi(event, title, content, deps = {}) {
   const contentEl = doc.createElement('div');
   contentEl.className = 'general-tooltip-desc';
   contentEl.style.cssText = 'font-size:11px;color:var(--text);line-height:1.6;';
-  contentEl.innerHTML = content;
+  DomSafe.setHighlightedText(contentEl, content ?? '');
 
   el.append(titleEl, contentEl);
 

@@ -13,6 +13,9 @@ class MockElement {
     this.children = [];
     this.style = {};
     this.className = '';
+    this.tabIndex = -1;
+    this.attributes = {};
+    this.listeners = {};
     this._textContent = '';
     this._innerHTML = '';
   }
@@ -24,6 +27,18 @@ class MockElement {
   appendChild(node) {
     this.children.push(node);
     return node;
+  }
+
+  addEventListener(type, handler) {
+    this.listeners[type] = handler;
+  }
+
+  setAttribute(name, value) {
+    this.attributes[name] = String(value);
+  }
+
+  getAttribute(name) {
+    return this.attributes[name];
   }
 
   set textContent(value) {
@@ -110,6 +125,9 @@ describe('deck_modal_render_ui', () => {
     expect(card.children.some((child) => child.className === 'card-rarity-strip card-rarity-strip-rare')).toBe(true);
     expect(card.children.some((child) => child.className === 'card-crystal-facet card-crystal-facet-type-attack')).toBe(true);
     expect(card.children.at(-1)?.textContent).toBe('공격');
+    expect(card.tabIndex).toBe(0);
+    expect(card.listeners.focus).toBeTypeOf('function');
+    expect(card.listeners.blur).toBeTypeOf('function');
 
     applyDeckFilterButtonStyles(doc, 'ATTACK');
     expect(attackBtn.style.background).toBe('rgba(255,80,100,0.2)');

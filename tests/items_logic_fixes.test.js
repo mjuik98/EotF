@@ -1,7 +1,63 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ITEMS } from '../data/items.js';
+import { CARDS } from '../data/cards.js';
 import { Trigger } from '../game/data/triggers.js';
+import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start_player_turn_policy.js';
+import { beginPlayerTurnState } from '../game/features/combat/state/player_turn_state_commands.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
+import { SetBonusSystem } from '../game/shared/progression/set_bonus_system.js';
+import { CardCostUtils } from '../game/utils/card_cost_utils.js';
+
+function createTurnStartRuntime({
+    items = [],
+    drawPile = [],
+    energy = 0,
+    maxEnergy = 3,
+    hp = 20,
+    maxHp = 20,
+} = {}) {
+    return {
+        currentRegion: 0,
+        player: {
+            items: [...items],
+            buffs: {},
+            deck: [...drawPile],
+            drawPile: [...drawPile],
+            hand: [],
+            graveyard: [],
+            exhausted: [],
+            drawCount: 0,
+            energy,
+            maxEnergy,
+            hp,
+            maxHp,
+            silenceGauge: 0,
+        },
+        combat: {
+            active: true,
+            playerTurn: false,
+            turn: 0,
+            enemies: [],
+        },
+        addLog: vi.fn(),
+        markDirty: vi.fn(),
+        drawCards(count) {
+            for (let i = 0; i < count; i += 1) {
+                if (!this.player.drawPile.length) break;
+                this.player.hand.push(this.player.drawPile.pop());
+            }
+        },
+        triggerItems(trigger, data) {
+            return ItemSystem.triggerItems(this, trigger, data);
+        },
+    };
+}
+
+function runActualTurnStart(gs) {
+    return startPlayerTurnPolicy(gs, {
+        beginPlayerTurnState,
+    });
+}
 
 describe('item logic fixes', () => {
     it('echo_gauntlet stuns a random alive enemy on CHAIN_REACH_5 and does not reset chain', () => {
@@ -117,5 +173,96 @@ describe('item logic fixes', () => {
 
         expect(action.dmg).toBe(9);
         expect(action.intent).toContain('9');
+    });
+
+    it('everlasting_oil discounts a card after the actual turn-start draw path populates the hand', () => {
+        const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
+        const gs = createTurnStartRuntime({
+            items: ['everlasting_oil'],
+            drawPile: ['strike'],
+        });
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.hand).toEqual(['strike']);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(0);
+        randomSpy.mockRestore();
+    });
+
+    it('glitch_circuit applies both the zero-cost and surcharge effects to cards drawn on turn start', () => {
+        const randomSpy = vi.spyOn(Math, 'random')
+            .mockReturnValueOnce(0)
+            .mockReturnValueOnce(0.999);
+        const gs = createTurnStartRuntime({
+            items: ['glitch_circuit'],
+            drawPile: ['strike', 'defend'],
+        });
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.hand).toEqual(['defend', 'strike']);
+        expect(CardCostUtils.calcEffectiveCost('defend', CARDS.defend, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(0);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 1, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(2);
+        randomSpy.mockRestore();
+    });
+
+    it('eternity_core grants overcap energy on the actual turn-start runtime path', () => {
+        const gs = createTurnStartRuntime({
+            items: ['eternity_core'],
+            drawPile: ['strike'],
+            energy: 0,
+            maxEnergy: 3,
+        });
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.energy).toBe(4);
+    });
+
+    it('mana_battery carries stored energy into the next turn above max energy', () => {
+        const gs = createTurnStartRuntime({
+            items: ['mana_battery'],
+            drawPile: ['strike'],
+            energy: 2,
+            maxEnergy: 3,
+        });
+
+        ITEMS.mana_battery.passive(gs, Trigger.TURN_END);
+        runActualTurnStart(gs);
+
+        expect(gs.player.energy).toBe(5);
+    });
+
+    it('counts abyssal trinity relics toward the actual 심연의 삼위일체 set runtime', () => {
+        const gs = {
+            player: {
+                items: ['abyssal_eye', 'abyssal_hand'],
+            },
+        };
+
+        expect(SetBonusSystem.getOwnedSetCounts(gs).abyssal_set).toBe(2);
+        expect(SetBonusSystem.getActiveSets(gs)).toEqual([
+            expect.objectContaining({ key: 'abyssal_set', count: 2 }),
+        ]);
+    });
+
+    it('keeps void trio on a separate 공허 set runtime', () => {
+        const gs = {
+            player: {
+                items: ['void_eye', 'void_crown'],
+            },
+        };
+
+        expect(SetBonusSystem.getOwnedSetCounts(gs).void_set).toBe(2);
+        expect(SetBonusSystem.getOwnedSetCounts(gs).abyssal_set).toBe(0);
+        expect(SetBonusSystem.getActiveSets(gs)).toEqual([
+            expect.objectContaining({ key: 'void_set', count: 2 }),
+        ]);
     });
 });

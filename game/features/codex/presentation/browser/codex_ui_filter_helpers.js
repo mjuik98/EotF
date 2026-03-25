@@ -10,7 +10,7 @@ export function highlightCodexDescription(desc) {
 
 export function getCardTypeLabel(type) {
   const value = String(type || '').toUpperCase();
-  return value === 'ATTACK' ? '공격' : value === 'SKILL' ? '스킬' : value === 'POWER' ? '파워' : (value || '기타');
+  return value === 'ATTACK' ? '공격' : value === 'SKILL' ? '기술' : value === 'POWER' ? '능력' : (value || '기타');
 }
 
 export function getCardTypeClass(type) {
@@ -19,7 +19,7 @@ export function getCardTypeClass(type) {
 }
 
 export function getRarityLabel(rarity) {
-  const map = { boss: '보스', legendary: '전설', rare: '희귀', uncommon: '고급', common: '일반' };
+  const map = { boss: '보스', legendary: '전설', rare: '희귀', uncommon: '비범', common: '일반' };
   return map[String(rarity || 'common').toLowerCase()] || '일반';
 }
 
@@ -72,13 +72,13 @@ export function getCodexFilterDefinitions(data) {
     cards: [
       { k: 'all', l: '전체' },
       { k: 'attack', l: '공격', c: 'f-attack' },
-      { k: 'skill', l: '스킬', c: 'f-skill' },
-      { k: 'power', l: '파워', c: 'f-power' },
+      { k: 'skill', l: '기술', c: 'f-skill' },
+      { k: 'power', l: '능력', c: 'f-power' },
     ],
     items: [
       { k: 'all', l: '전체' },
       { k: 'common', l: '일반' },
-      { k: 'uncommon', l: '고급' },
+      { k: 'uncommon', l: '비범' },
       { k: 'rare', l: '희귀', c: 'f-rare' },
       { k: 'legendary', l: '전설', c: 'f-legendary' },
       { k: 'boss', l: '보스', c: 'f-boss' },

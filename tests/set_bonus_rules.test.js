@@ -5,6 +5,7 @@ import { Actions } from '../game/core/state_action_types.js';
 import { applySetBonusDamageRules } from '../game/shared/progression/set_bonus_damage_rules.js';
 import { applyPassiveSetBonuses } from '../game/shared/progression/set_bonus_passive_effects.js';
 import { applySetBonusResourceRules } from '../game/shared/progression/set_bonus_resource_rules.js';
+import { applySetBonusSurvivalRules } from '../game/shared/progression/set_bonus_survival_rules.js';
 
 function createGameState(overrides = {}) {
   const { player: playerOverrides = {}, ...gsOverrides } = overrides;
@@ -70,14 +71,15 @@ describe('set bonus rules', () => {
       player: { hp: 80, maxHp: 120, maxEcho: 50 },
     });
 
-    applyPassiveSetBonuses(gs, { void_set: 2, echo_set: 2, blood_set: 2 });
-    applyPassiveSetBonuses(gs, { void_set: 2, echo_set: 2, blood_set: 2 });
+    applyPassiveSetBonuses(gs, { abyssal_set: 2, echo_set: 2, blood_set: 2, ancient_set: 2 });
+    applyPassiveSetBonuses(gs, { abyssal_set: 2, echo_set: 2, blood_set: 2, ancient_set: 2 });
 
     expect(player.maxEcho).toBe(60);
-    expect(player.maxHp).toBe(140);
-    expect(player.hp).toBe(100);
+    expect(player.maxHp).toBe(150);
+    expect(player.hp).toBe(110);
     expect(gs._echoSet2).toBe(true);
-    expect(dirty).toEqual(['hud']);
+    expect(gs._ancientSet2Applied).toBe(true);
+    expect(dirty).toEqual(['hud', 'hud']);
   });
 
   it('grants judgement energy every third played card and sanctuary bonuses on matching triggers', () => {
@@ -126,13 +128,18 @@ describe('set bonus rules', () => {
     expect(player.shield).toBe(0);
   });
 
-  it('applies resource triggers across void, machine, storm, and moon sets', () => {
+  it('applies resource triggers across abyssal, void, ancient, machine, storm, and moon sets', () => {
     const { gs, echoes, logs, player } = createGameState({
       player: { hp: 9, maxHp: 30, shield: 15, echoChain: 3, exhausted: ['a', 'b', 'c'] },
     });
+    gs.combat = {
+      enemies: [{ hp: 20, statusEffects: { weakened: 1 } }],
+    };
 
-    expect(applySetBonusResourceRules(gs, { void_set: 3 }, 'deal_damage', 20)).toBe(23);
-    applySetBonusResourceRules(gs, { void_set: 3 }, 'turn_start');
+    expect(applySetBonusResourceRules(gs, { abyssal_set: 3 }, 'deal_damage', 20)).toBe(23);
+    applySetBonusResourceRules(gs, { abyssal_set: 3 }, 'turn_start');
+    applySetBonusResourceRules(gs, { void_set: 2 }, 'card_play', { cardId: 'flash', cost: 0 });
+    applySetBonusResourceRules(gs, { ancient_set: 4 }, 'combat_start');
     expect(applySetBonusResourceRules(gs, { storm_set: 3 }, 'deal_damage', 10)).toBe(11);
 
     for (let i = 0; i < 5; i += 1) {
@@ -153,7 +160,26 @@ describe('set bonus rules', () => {
     expect(blockFatal).toBe(true);
     expect(player.hp).toBe(20);
     expect(negateDamage).toBe(true);
-    expect(echoes).toEqual([{ amount: 15, source: { name: '심연의 삼위일체 세트(3)', type: 'set' } }]);
+    expect(echoes).toEqual([
+      { amount: 15, source: { name: '심연의 삼위일체 세트(3)', type: 'set' } },
+      { amount: 5, source: { name: '공허의 삼위일체 세트(2)', type: 'set' } },
+    ]);
     expect(logs.some(({ message }) => message.includes('피해 무효'))).toBe(true);
+  });
+
+  it('applies void and ancient damage bonuses on their actual deal_damage hooks', () => {
+    const { gs } = createGameState({
+      player: { hp: 60, maxHp: 100 },
+    });
+    gs.combat = {
+      enemies: [{ hp: 30, statusEffects: { weakened: 1 } }],
+    };
+    gs._selectedTarget = 0;
+
+    expect(applySetBonusSurvivalRules(gs, { void_set: 3 }, 'deal_damage', { amount: 20, targetIdx: 0 })).toEqual({
+      amount: 23,
+      targetIdx: 0,
+    });
+    expect(applySetBonusSurvivalRules(gs, { ancient_set: 5 }, 'deal_damage', 20)).toBe(26);
   });
 });

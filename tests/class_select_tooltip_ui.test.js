@@ -57,6 +57,9 @@ describe('class select tooltip helper', () => {
   it('styles class select tooltip descriptions with the shared keyword palette', () => {
     const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
 
+    expect(css).toContain('.class-select-tooltip {');
+    expect(css).toContain('.class-select-tooltip-title {');
+    expect(css).toContain('.class-select-tooltip-desc {');
     expect(css).toContain('.class-select-tooltip-desc .kw-dmg');
     expect(css).toContain('.class-select-tooltip-desc .kw-echo');
     expect(css).toContain('.class-select-tooltip-desc .kw-burst.kw-block');

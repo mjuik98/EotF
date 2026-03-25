@@ -77,11 +77,17 @@ export function renderClassSelectButtons(container, deps = {}) {
     const traitEl = btn.querySelector('.class-btn-trait');
     if (traitEl) {
       traitEl.style.cursor = 'help';
-      traitEl.addEventListener('mouseenter', (event) => {
+      traitEl.setAttribute('tabindex', '0');
+      traitEl.setAttribute('role', 'button');
+      traitEl.setAttribute('aria-label', `${cls.traitTitle || cls.traitName}. ${cls.traitDesc || ''}`);
+      const showTraitTooltip = (event) => {
         event.stopPropagation();
         showTooltip?.(event, cls.traitTitle, cls.traitDesc);
-      });
+      };
+      traitEl.addEventListener('mouseenter', showTraitTooltip);
+      traitEl.addEventListener('focus', showTraitTooltip);
       traitEl.addEventListener('mouseleave', () => hideTooltip?.());
+      traitEl.addEventListener('blur', () => hideTooltip?.());
     }
 
     const relicEl = btn.querySelector('.class-btn-relic');
@@ -99,6 +105,7 @@ export function renderClassSelectButtons(container, deps = {}) {
       relicEl.setAttribute('role', 'button');
       relicEl.setAttribute('aria-controls', 'classSelectRelicDetail');
       relicEl.setAttribute('aria-pressed', 'false');
+      relicEl.setAttribute('aria-label', `${startItem.name}. ${startItem.desc || ''}`);
       relicEl.addEventListener('mouseenter', renderRelicDetail);
       relicEl.addEventListener('focus', renderRelicDetail);
       relicEl.addEventListener('click', renderRelicDetail);

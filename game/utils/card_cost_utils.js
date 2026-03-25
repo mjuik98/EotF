@@ -140,6 +140,8 @@ export const CardCostUtils = {
       });
       if (typeof delta === 'number' && Number.isFinite(delta)) {
         effectiveCost = Math.max(0, Math.floor(effectiveCost + delta));
+      } else if (delta && typeof delta === 'object' && Number.isFinite(delta.costDelta)) {
+        effectiveCost = Math.max(0, Math.floor(effectiveCost + delta.costDelta));
       }
     }
 

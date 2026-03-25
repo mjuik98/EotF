@@ -26,6 +26,10 @@ function createElementFactory(elements) {
     const el = {
       tagName: String(tagName || '').toUpperCase(),
       id: '',
+      type: '',
+      tabIndex: -1,
+      disabled: false,
+      attributes: {},
       style: {
         ...styleState,
         setProperty: vi.fn((name, value) => {
@@ -50,9 +54,18 @@ function createElementFactory(elements) {
       remove() {
         if (this.id) delete elements[this.id];
       },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+        this[name] = String(value);
+      },
+      getAttribute(name) {
+        return this.attributes[name];
+      },
       onclick: null,
       onmouseenter: null,
       onmouseleave: null,
+      onfocus: null,
+      onblur: null,
     };
     return el;
   };
@@ -89,7 +102,7 @@ describe('showEventItemShopOverlay', () => {
   it('renders owned and purchasable item cards with current gold', () => {
     buildItemShopStockUseCaseSpy.mockReturnValueOnce([
       { item: { id: 'owned', name: 'Owned Relic', desc: 'owned', icon: 'O' }, cost: 10, rarity: 'common' },
-      { item: { id: 'new', name: 'New Relic', desc: 'new', icon: 'N' }, cost: 15, rarity: 'rare' },
+      { item: { id: 'new', name: 'New Relic', desc: '피해 14 [소진]', icon: 'N' }, cost: 15, rarity: 'rare' },
     ]);
 
     const doc = createDoc();
@@ -102,8 +115,17 @@ describe('showEventItemShopOverlay', () => {
     expect(overlay).toBeTruthy();
     expect(doc.elements.itemShopGold.textContent).toBe(20);
     expect(list.children).toHaveLength(2);
+    expect(list.children[0].tagName).toBe('BUTTON');
+    expect(list.children[0].type).toBe('button');
+    expect(list.children[0].disabled).toBe(true);
+    expect(list.children[0].getAttribute('aria-disabled')).toBe('true');
     expect(list.children[0].children.at(-1).className).toBe('item-shop-owned-overlay');
+    expect(list.children[1].getAttribute('aria-label')).toBe('New Relic. 피해 14 [소진]');
     expect(list.children[1].style.cursor).toBe('pointer');
+    expect(list.children[1].children[3].innerHTML).toContain('kw-dmg');
+    expect(list.children[1].children[3].innerHTML).toContain('kw-exhaust kw-block');
+    expect(typeof list.children[1].onfocus).toBe('function');
+    expect(typeof list.children[1].onblur).toBe('function');
   });
 
   it('purchases an item, rerenders gold, and triggers success hooks', () => {

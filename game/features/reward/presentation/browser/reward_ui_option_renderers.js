@@ -167,6 +167,7 @@ export function renderItemOption(container, item, deps, onPick, idx) {
 export function renderBlessingOption(container, blessing, deps, onPick, idx) {
   const doc = getDoc(deps);
   if (!blessing) return;
+  const descriptionUtils = getDescriptionUtils(deps);
 
   const isDisabled = !!blessing.disabled;
   const wrapper = doc.createElement('button');
@@ -189,7 +190,7 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
   cardEl.classList.add('reward-blessing-card');
   applyRewardCardShell(cardEl);
   const tooltipContent = blessing.disabledReason
-    ? `${blessing.desc || ''}<br><br>${blessing.disabledReason}`
+    ? `${blessing.desc || ''}\n\n${blessing.disabledReason}`
     : blessing.desc || '';
 
   const icon = doc.createElement('div');
@@ -203,7 +204,8 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
 
   const desc = doc.createElement('div');
   desc.className = 'card-desc reward-card-desc';
-  desc.textContent = blessing.desc;
+  if (descriptionUtils) desc.innerHTML = descriptionUtils.highlight(blessing.desc || '');
+  else desc.textContent = blessing.desc || '';
 
   const type = doc.createElement('div');
   type.className = 'card-type reward-card-type rarity-rare';

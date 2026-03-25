@@ -8,6 +8,7 @@ const TRIGGER_ALIASES = Object.freeze({
   COMBAT_START: 'combat_start',
   COMBAT_END: 'combat_end',
   TURN_START: 'turn_start',
+  TURN_DRAW_COMPLETE: 'turn_draw_complete',
   TURN_END: 'turn_end',
   CARD_PLAY: 'card_play',
   CARD_DRAW: 'card_draw',

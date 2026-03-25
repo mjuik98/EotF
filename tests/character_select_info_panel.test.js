@@ -149,9 +149,10 @@ describe('character_select_info_panel', () => {
     expect(generalTooltipUI.showGeneralTooltip).toHaveBeenCalledWith(
       expect.anything(),
       'Relic',
-      expect.stringContaining('kw-dmg'),
+      '피해 14. 잔향 20 충전 [소진]',
       expect.any(Object),
     );
+    relicBadge.listeners.focus({ type: 'focus' });
 
     deckCard.listeners.mouseenter({ type: 'mouseenter' });
     expect(cardTooltipUI.showTooltip).toHaveBeenCalledWith(
@@ -159,6 +160,9 @@ describe('character_select_info_panel', () => {
       'strike',
       expect.objectContaining({ data: { cards: { strike: { name: 'Strike' } } } }),
     );
+    deckCard.listeners.focus({ type: 'focus' });
+    expect(relicBadge.setAttribute).toHaveBeenCalledWith('tabindex', '0');
+    expect(deckCard.setAttribute).toHaveBeenCalledWith('tabindex', '0');
   });
 
   it('styles character echo descriptions with the shared keyword palette', () => {

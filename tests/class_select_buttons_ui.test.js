@@ -125,14 +125,20 @@ describe('class select buttons helper', () => {
 
     button._trait.listeners.mouseenter({ stopPropagation: vi.fn() });
     expect(showTooltip).toHaveBeenCalledWith(expect.anything(), '공명', 'trait desc');
+    button._trait.listeners.focus({ stopPropagation: vi.fn() });
+    expect(showTooltip).toHaveBeenCalledWith(expect.anything(), '공명', 'trait desc');
     button._trait.listeners.mouseleave();
-    expect(hideTooltip).toHaveBeenCalledTimes(1);
+    button._trait.listeners.blur();
+    expect(hideTooltip).toHaveBeenCalledTimes(2);
 
     button._relic.listeners.mouseenter({ stopPropagation: vi.fn() });
-    expect(showTooltip).toHaveBeenCalledTimes(1);
+    expect(showTooltip).toHaveBeenCalledTimes(2);
+    button._relic.listeners.focus({ stopPropagation: vi.fn() });
     expect(relicPanel.children[0].children[0].children[0].textContent).toContain('둔검');
     expect(relicPanel.children[0].children[1].textContent).toContain('item desc');
     expect(button._relic['aria-controls']).toBe('classSelectRelicDetail');
+    expect(button._trait.tabindex).toBe('0');
+    expect(button._trait.role).toBe('button');
   });
 
   it('keeps the long-form class descriptions short enough for a single-line card layout', () => {
@@ -167,5 +173,7 @@ describe('class select buttons helper', () => {
     expect(css).toMatch(/\.class-btn-trait,\s*\.class-btn-relic\s*\{[^}]*display:\s*block;/s);
     expect(css).toMatch(/\.class-btn-trait,\s*\.class-btn-relic\s*\{[^}]*width:\s*100%;/s);
     expect(css).toMatch(/\.class-btn-trait,\s*\.class-btn-relic\s*\{[^}]*box-sizing:\s*border-box;/s);
+    expect(css).toContain('.class-btn-trait:focus-visible');
+    expect(css).toContain('.class-btn-relic:focus-visible');
   });
 });

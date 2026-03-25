@@ -1,3 +1,5 @@
+import { SecurityUtils } from './security.js';
+
 // ═══════════════════════════════════════════════════════
 //  description_utils.js — 카드/아이템 텍스트 하이라이팅
 //
@@ -17,6 +19,16 @@ export const DescriptionUtils = {
     highlight(text) {
         if (!text) return '';
 
+        function tokenLabel(index) {
+            let value = index;
+            let label = '';
+            do {
+                label = String.fromCharCode(65 + (value % 26)) + label;
+                value = Math.floor(value / 26) - 1;
+            } while (value >= 0);
+            return label;
+        }
+
         let normalizedText = String(text);
         const setLabelMatch = normalizedText.match(/\[세트:[^\]\n]+\]/);
         normalizedText = normalizedText.replace(/\s*\n?\s*세트\s*\d+\s*개\s*:\s*[^\n]*/g, '').trim();
@@ -30,8 +42,14 @@ export const DescriptionUtils = {
             normalizedText = body ? `${body}\n${setLabel}` : setLabel;
         }
 
-        // ── 1단계: HTML 이스케이프 (XSS 방지) ──────────────────
-        // 이미 HTML이 포함된 경우를 대비해 태그는 건드리지 않음
+        // ── 1단계: raw HTML 태그 보호 후 이스케이프 (XSS 방지) ──
+        const rawHtmlPlaceholders = [];
+        normalizedText = normalizedText.replace(/<[^>\n]*>/g, (match) => {
+            const id = `__RAWHTML_${tokenLabel(rawHtmlPlaceholders.length)}__`;
+            rawHtmlPlaceholders.push(SecurityUtils.escapeHtml(match));
+            return id;
+        });
+        normalizedText = SecurityUtils.escapeHtml(normalizedText);
 
         // ── 2단계: 특수 키워드 블록 ([ ] 포맷) ────────────────
         // 플레이스홀더 방식으로 이중 치환 방지
@@ -60,8 +78,9 @@ export const DescriptionUtils = {
             치명타: 'kw-crit',
             독: 'kw-debuff',
             낙인: 'kw-debuff',
+            '지역 규칙': 'kw-special',
         };
-        protect(/[\[【]\s*(소진|지속|즉시|치명타|독|낙인)\s*[\]】]/g, (match) => {
+        protect(/[\[【]\s*(소진|지속|즉시|치명타|독|낙인|지역 규칙)\s*[\]】]/g, (match) => {
             const keyword = match.replace(/^[\[【]\s*|\s*[\]】]$/g, '');
             const open = match.trim().startsWith('【') ? '【' : '[';
             const close = open === '【' ? '】' : ']';
@@ -125,8 +144,22 @@ export const DescriptionUtils = {
             `<span class="kw-debuff">${m}</span>`
         );
 
+        // 복합 버프 문구
+        protect(/기절\s*면역\s*\d+\s*회/g, (m) =>
+            `<span class="kw-buff">${m}</span>`
+        );
+
+        protect(/반사\s*및\s*무효화\s*\d+\s*턴/g, (m) =>
+            `<span class="kw-buff">${m}</span>`
+        );
+
+        // 턴/횟수 버프
+        protect(/(회피|은신|반사|면역|가속|공명)\s*\d+\s*(턴|회)/g, (m) =>
+            `<span class="kw-buff">${m}</span>`
+        );
+
         // 획득 버프
-        protect(/(회피|은신|반사|면역|가속|공명)\s*\d*/g, (m) =>
+        protect(/(회피|은신|반사|면역|가속|공명)\s*\d+/g, (m) =>
             `<span class="kw-buff">${m}</span>`
         );
 
@@ -183,6 +216,10 @@ export const DescriptionUtils = {
             // 안전하게 함수를 전달하여 치환한다.
             ph = ph.split(`__PH${i}__`).join(placeholders[i]);
             // 또는: ph = ph.replace(new RegExp(`__PH${i}__`, 'g'), () => placeholders[i]);
+        }
+
+        for (let i = rawHtmlPlaceholders.length - 1; i >= 0; i--) {
+            ph = ph.split(`__RAWHTML_${tokenLabel(i)}__`).join(rawHtmlPlaceholders[i]);
         }
 
         // 설명 문자열 개행을 실제 줄바꿈으로 렌더링한다.

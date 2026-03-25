@@ -8,7 +8,7 @@ import { echoResonanceEvent } from './events/echo_resonance_event.js';
 import { forgeEvent } from './events/forge_event.js';
 import { merchantLostEvent } from './events/merchant_lost_event.js';
 import { shrineEvent } from './events/shrine_event.js';
-import { registerItemFound } from '../game/shared/codex/codex_records.js';
+import { addPlayerItemAndRegisterState } from '../game/shared/state/player_state_effects.js';
 
 const MAP_NODE_TYPE_LABELS = {
     combat: '전투',
@@ -273,11 +273,7 @@ export const EVENTS = [
                         return { resultText: '균열 너머에 닿을 수 있는 것이 없었다. 공허만 남아 있다.', isFail: true };
                     }
                     gs.player.hp = Math.max(1, gs.player.hp - 20);
-                    gs.player.items.push(picked.id);
-                    registerItemFound(gs, picked.id);
-                    if (typeof picked.onAcquire === 'function') {
-                        picked.onAcquire(gs);
-                    }
+                    addPlayerItemAndRegisterState(gs, picked.id, picked);
                     notifyItemAcquired(picked, services);
                     return `${picked.name}. 저편에 있었다. 몸이 떨린다. 균열은 통과할 때보다 통과하고 난 뒤가 더 무섭다.`;
                 }
@@ -307,11 +303,7 @@ export const EVENTS = [
                     }
 
                     gs.player.hp = Math.max(1, gs.player.hp - 12);
-                    gs.player.items.push(relic.id);
-                    registerItemFound(gs, relic.id);
-                    if (typeof relic.onAcquire === 'function') {
-                        relic.onAcquire(gs);
-                    }
+                    addPlayerItemAndRegisterState(gs, relic.id, relic);
                     notifyItemAcquired(relic, services);
 
                     return `${relic.name}을(를) 손에 넣었다. 힘은 선명하고, 대가도 분명하다.`;
