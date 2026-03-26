@@ -1,3 +1,5 @@
+import { getHandScopedRuntimeState, resetHandScopedCascadeCards } from '../../../../shared/state/hand_index_runtime_state.js';
+
 function collectPermanentBuffs(player, permanentBuffIds = ['echo_berserk']) {
   const permanentBuffs = {};
   if (!player?.buffs) return permanentBuffs;
@@ -23,7 +25,8 @@ export function applyCombatPlayerSetupReducerState(state) {
   player.drawCount = 0;
   player._nextCardDiscount = 0;
   player._freeCardUses = 0;
-  player._cascadeCards = new Map();
+  getHandScopedRuntimeState(state);
+  resetHandScopedCascadeCards(state);
   player._traitCardDiscounts = {};
   player._mageCastCounter = 0;
   player._mageLastDiscountTarget = null;

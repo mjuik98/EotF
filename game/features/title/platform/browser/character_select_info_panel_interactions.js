@@ -1,4 +1,5 @@
 import { bindCharacterInfoLoadoutControls } from './character_select_info_panel_loadout_controls.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 function createNullGeneralTooltipApi() {
   return {
@@ -38,17 +39,21 @@ function bindEchoBadge(panel, selectedChar, hover, echo, openModal) {
   const echoBadge = panel.querySelector('#echoBadge');
   if (!echoBadge) return;
 
-  echoBadge.addEventListener('mouseenter', () => {
+  const applyHoverState = () => {
     hover?.();
     echoBadge.style.borderColor = `${selectedChar.accent}aa`;
     echoBadge.style.background = `linear-gradient(135deg,${selectedChar.accent}1e,${selectedChar.color}1a)`;
     echoBadge.style.boxShadow = `0 0 16px ${selectedChar.accent}33`;
-  });
-  echoBadge.addEventListener('mouseleave', () => {
+  };
+  const clearHoverState = () => {
     echoBadge.style.borderColor = `${selectedChar.accent}44`;
     echoBadge.style.background = `linear-gradient(135deg,${selectedChar.accent}0e,${selectedChar.color}08)`;
     echoBadge.style.boxShadow = 'none';
-  });
+  };
+  echoBadge.addEventListener('mouseenter', applyHoverState);
+  echoBadge.addEventListener('mouseleave', clearHoverState);
+  echoBadge.addEventListener('focus', applyHoverState);
+  echoBadge.addEventListener('blur', clearHoverState);
   echoBadge.addEventListener('click', () => {
     echo?.();
     openModal?.(selectedChar.echoSkill, selectedChar.accent);
@@ -63,39 +68,38 @@ function bindRelicTooltips(panel, generalTooltip, doc, win, hover) {
 
   (fallbackRelicBadge ? [fallbackRelicBadge] : relicBadges).forEach((relicBadge) => {
     if (!relicBadge) return;
-    relicBadge.setAttribute?.('tabindex', '0');
-    relicBadge.setAttribute?.('aria-label', `${relicBadge.dataset.relicTitle || ''}. ${relicBadge.dataset.relicDesc || ''}`);
-    const show = (event) => {
-      hover?.();
-      generalTooltip.showGeneralTooltip(
-        event,
-        relicBadge.dataset.relicTitle || '',
-        relicBadge.dataset.relicDesc || '',
-        { doc, win },
-      );
-    };
-    const hide = () => generalTooltip.hideGeneralTooltip({ doc, win });
-    relicBadge.addEventListener('mouseenter', show);
-    relicBadge.addEventListener('focus', show);
-    relicBadge.addEventListener('mouseleave', hide);
-    relicBadge.addEventListener('blur', hide);
+    bindTooltipTrigger(relicBadge, {
+      label: `${relicBadge.dataset.relicTitle || ''}. ${relicBadge.dataset.relicDesc || ''}`,
+      show(event) {
+        hover?.();
+        generalTooltip.showGeneralTooltip(
+          event,
+          relicBadge.dataset.relicTitle || '',
+          relicBadge.dataset.relicDesc || '',
+          { doc, win },
+        );
+      },
+      hide() {
+        generalTooltip.hideGeneralTooltip({ doc, win });
+      },
+    });
   });
 }
 
 function bindDeckCardTooltips(panel, cardTooltip, cards, hover) {
   const mockGs = { getBuff: () => null, player: { echoChain: 0 } };
   panel.querySelectorAll('.deck-card').forEach((element) => {
-    element.setAttribute?.('tabindex', '0');
-    element.setAttribute?.('aria-label', element.dataset.cid || '카드');
-    const show = (event) => {
-      hover?.();
-      cardTooltip.showTooltip(event, element.dataset.cid, { data: { cards }, gs: mockGs });
-    };
-    const hide = () => cardTooltip.hideTooltip();
-    element.addEventListener('mouseenter', show);
-    element.addEventListener('focus', show);
-    element.addEventListener('mouseleave', hide);
-    element.addEventListener('blur', hide);
+    const ariaLabel = element.dataset.cardLabel || element.dataset.cid || '카드';
+    bindTooltipTrigger(element, {
+      label: ariaLabel,
+      show(event) {
+        hover?.();
+        cardTooltip.showTooltip(event, element.dataset.cid, { data: { cards }, gs: mockGs });
+      },
+      hide() {
+        cardTooltip.hideTooltip();
+      },
+    });
   });
 }
 

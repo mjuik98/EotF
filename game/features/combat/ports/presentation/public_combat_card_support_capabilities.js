@@ -9,5 +9,4 @@ export {
   RARITY_SORT_ORDER,
   RARITY_TEXT_COLORS,
 } from '../../../../../data/rarity_meta.js';
-export { CardCostUtils } from '../../../../utils/card_cost_utils.js';
-export { DescriptionUtils } from '../../../../utils/description_utils.js';
+export { CardCostUtils, DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';

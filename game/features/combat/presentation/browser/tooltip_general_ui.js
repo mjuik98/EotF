@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 
 export function showGeneralTooltipUi(event, title, content, deps = {}) {
   const doc = deps?.doc || document;

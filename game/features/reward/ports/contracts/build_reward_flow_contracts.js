@@ -1,4 +1,4 @@
-import { createRewardReturnActions } from '../../../../shared/runtime/reward_return_actions.js';
+import { createRewardReturnActions } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 export function buildRewardFlowContractBuilders(ctx) {
   const { buildBaseDeps, getRefs } = ctx;

@@ -7,6 +7,7 @@ import {
   findClosestNodeEntry,
   updateFullMapTooltip,
 } from './map_ui_full_map_render.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 function getDoc(deps) {
   return deps?.doc || document;
@@ -76,7 +77,7 @@ export function showFullMapOverlay(deps = {}) {
   doc.addEventListener('keydown', onOverlayKeyDown, true);
 
   const getRegionData = deps.getRegionData;
-  const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: 'Region' };
+  const regionData = typeof getRegionData === 'function' ? getRegionData(gs.currentRegion, gs) : { name: '미확인 지역' };
   const viewportW = Number(win.innerWidth || 1280);
   const viewportH = Number(win.innerHeight || 720);
   const cw = Math.min(720, viewportW - 60);
@@ -146,7 +147,22 @@ export function showFullMapOverlay(deps = {}) {
 
   draw();
 
-  canvas.addEventListener('mousemove', (event) => {
+  const updateTooltipFromCurrentNode = () => {
+    const currentNode = scene.nodeMap.get(gs.currentNode?.id) || scene.nodeEntries[scene.nodeEntries.length - 1]?.node || null;
+    if (!currentNode) return;
+    const currentEntry = scene.nodeEntryById.get(currentNode.id);
+    updateFullMapTooltip({
+      tooltip,
+      tooltipDesc,
+      tooltipStatus,
+      tooltipTitle,
+    }, currentNode, {
+      clientX: currentEntry?.x || 40,
+      clientY: currentEntry?.y || 40,
+    }, nodeMeta);
+  };
+
+  const updateTooltipFromPointer = (event) => {
     const rect = canvas.getBoundingClientRect();
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
@@ -158,13 +174,22 @@ export function showFullMapOverlay(deps = {}) {
       tooltipTitle,
     }, closest?.node || null, event, nodeMeta);
     canvas.style.cursor = closest ? 'pointer' : 'default';
-  });
-  canvas.addEventListener('mouseleave', () => updateFullMapTooltip({
+  };
+  const clearTooltip = () => updateFullMapTooltip({
     tooltip,
     tooltipDesc,
     tooltipStatus,
     tooltipTitle,
-  }, null, null, nodeMeta));
+  }, null, null, nodeMeta);
+
+  bindTooltipTrigger(canvas, {
+    label: canvas.getAttribute?.('aria-label') || '전체 지도',
+    show(event) {
+      if (event?.type === 'focus') updateTooltipFromCurrentNode();
+    },
+    hide: clearTooltip,
+    move: updateTooltipFromPointer,
+  });
 
   doc.body.appendChild(overlay);
   const startY = scene.nodeY({ floor: gs.currentFloor });

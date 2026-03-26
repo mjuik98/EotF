@@ -65,6 +65,7 @@ function createMockDocument() {
 
   return {
     readyState: 'complete',
+    visibilityState: 'visible',
     addEventListener: vi.fn(),
     getElementById: vi.fn((id) => elements[id] || null),
     querySelector: vi.fn(() => null),
@@ -142,6 +143,115 @@ describe('game_boot_ui', () => {
     expect(doc.elements.sttDeckPills.innerHTML).toContain('덱 3장');
     expect(doc.elements.sttRelics.innerHTML).toContain('✦');
   });
+
+  it('renders continue preview from saved data without hydrating the live gs', () => {
+    const doc = createMockDocument();
+    const gs = {
+      meta: { runCount: 2, totalKills: 3, bestChain: 1, runConfig: { ascension: 0 } },
+      player: {
+        class: 'rogue',
+        hp: 11,
+        maxHp: 22,
+        gold: 7,
+        deck: [{ id: 'live' }],
+        hand: [{ id: 'live-hand' }],
+        items: [{ icon: 'L', name: 'Live Relic' }],
+      },
+      currentFloor: 9,
+      currentRegion: 4,
+    };
+
+    const preview = {
+      player: {
+        class: 'mage',
+        hp: 28,
+        maxHp: 40,
+        gold: 123,
+        deck: [{}, {}, {}],
+        hand: [{}, {}],
+        items: [{ icon: '✦', name: '유물' }],
+      },
+      currentFloor: 4,
+      currentRegion: 2,
+      meta: {
+        runConfig: { ascension: 4 },
+      },
+    };
+
+    const saveSystem = {
+      loadMeta: vi.fn(),
+      hasSave: vi.fn(() => true),
+      readRunPreview: vi.fn(() => preview),
+      loadRun: vi.fn(() => true),
+    };
+
+    GameBootUI.refreshTitleSaveState({
+      doc,
+      gs,
+      saveSystem,
+    });
+
+    expect(saveSystem.readRunPreview).toHaveBeenCalledTimes(1);
+    expect(saveSystem.loadRun).not.toHaveBeenCalled();
+    expect(doc.elements.sttClass.textContent).toBe('마법사');
+    expect(doc.elements.titleContinueMeta.textContent).toContain('4층');
+    expect(doc.elements.sttAscension.textContent).toBe('A4');
+    expect(doc.elements.titleContinueMeta.textContent).toContain('A4');
+    expect(gs.player.class).toBe('rogue');
+    expect(gs.currentFloor).toBe(9);
+    expect(gs.currentRegion).toBe(4);
+  });
+
+  it('marks queued continue previews as recovery-pending on the title screen', () => {
+    const doc = createMockDocument();
+    const gs = {
+      meta: { runCount: 2, totalKills: 3, bestChain: 1, runConfig: { ascension: 0 } },
+      player: {
+        class: 'rogue',
+        hp: 11,
+        maxHp: 22,
+        gold: 7,
+        deck: [{ id: 'live' }],
+        hand: [{ id: 'live-hand' }],
+        items: [{ icon: 'L', name: 'Live Relic' }],
+      },
+      currentFloor: 9,
+      currentRegion: 4,
+    };
+    const saveSystem = {
+      flushOutbox: vi.fn(() => 1),
+      hasSave: vi.fn(() => true),
+      readRunPreview: vi.fn(() => ({
+        player: {
+          class: 'mage',
+          hp: 28,
+          maxHp: 40,
+          gold: 123,
+          deck: [{}, {}, {}],
+          hand: [{}, {}],
+          items: [{ icon: '✦', name: '유물' }],
+        },
+        currentFloor: 4,
+        currentRegion: 2,
+        saveState: 'queued',
+        meta: {
+          runConfig: { ascension: 4 },
+        },
+      })),
+    };
+
+    const hasSave = GameBootUI.refreshTitleSaveState({
+      doc,
+      gs,
+      saveSystem,
+    });
+
+    expect(hasSave).toBe(true);
+    expect(saveSystem.flushOutbox).toHaveBeenCalledTimes(1);
+    expect(doc.elements.titleContinueMeta.textContent).toContain('복구 대기');
+    expect(doc.elements.sttDeckPills.innerHTML).toContain('복구 대기');
+  });
+
   it('hides continue entry and clears preview when no save exists', () => {
     const doc = createMockDocument();
     const gs = {

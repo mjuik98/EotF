@@ -9,7 +9,8 @@ import {
   playUiItemGetFeedback,
 } from '../../ports/event_ui_view_ports.js';
 import { dismissTransientOverlay, getShopItemIcon } from './event_ui_helpers.js';
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 const ITEM_SHOP_RARITY_CONFIG = Object.freeze({
   common: {
@@ -48,15 +49,15 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
 
   const eyebrow = doc.createElement('div');
   eyebrow.className = 'item-shop-eyebrow';
-  eyebrow.textContent = 'ITEM SHOP';
+  eyebrow.textContent = '유물 상점';
 
   const bigTitle = doc.createElement('div');
   bigTitle.className = 'item-shop-main-title';
-  bigTitle.textContent = 'What will you buy?';
+  bigTitle.textContent = '무엇을 구매하시겠습니까?';
 
   const goldInfo = doc.createElement('div');
   goldInfo.className = 'item-shop-gold';
-  goldInfo.textContent = 'Gold: ';
+  goldInfo.textContent = '보유 골드: ';
   const goldVal = doc.createElement('span');
   goldVal.id = 'itemShopGold';
   goldVal.textContent = gs.player.gold;
@@ -143,10 +144,12 @@ export function showEventItemShopOverlay(gs, data, runRules, deps = {}) {
           card.style.transform = '';
           card.style.boxShadow = '';
         };
-        card.onmouseenter = activate;
-        card.onfocus = activate;
-        card.onmouseleave = deactivate;
-        card.onblur = deactivate;
+        bindTooltipTrigger(card, {
+          label: `${item.name}. ${item.desc || ''}`,
+          bindMode: 'property',
+          show: activate,
+          hide: deactivate,
+        });
         card.onclick = () => {
           const result = purchaseItemFromShopUseCase({ gs, item, cost });
           if (!result.success) return;

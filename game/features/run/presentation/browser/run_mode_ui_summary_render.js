@@ -1,11 +1,10 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-
 import {
   calcDiffScore,
   getActiveInscriptionCount,
   getActiveSynergies,
   getDiffLevel,
 } from './run_mode_ui_helpers.js';
+import { highlightRunModeText } from './run_mode_text_highlight.js';
 
 export function renderSummaryBar(doc, cfg, meta, runRules, gs, data) {
   const zone = doc.getElementById('rmSummaryBarZone');
@@ -60,7 +59,7 @@ export function renderHiddenEnding(meta, cfg, doc) {
       <div class="rm-hidden-icon">*</div>
       <div class="rm-hidden-body">
         <div class="rm-hidden-title">히든 엔딩 조건 충족</div>
-        <div class="rm-hidden-desc">${DescriptionUtils.highlight('각인을 모두 비활성화한 채 시작하면 숨겨진 결말에 도달할 수 있습니다.')}</div>
+        <div class="rm-hidden-desc">${highlightRunModeText('각인을 모두 비활성화한 채 시작하면 숨겨진 결말에 도달할 수 있습니다.')}</div>
         <div class="rm-hidden-tag">각인 없는 런</div>
       </div>
     </div>
@@ -117,7 +116,7 @@ export function renderDifficultyPanel(panel, cfg, meta, runRules, gs) {
           <div class="rm-diff-bar-fill" style="width:${Math.min(100, score * 1.4)}%;background:linear-gradient(90deg,${diff.color}88,${diff.color})"></div>
         </div>
         <div class="rm-diff-bottom">
-          <span class="rm-diff-desc">${DescriptionUtils.highlight(diff.desc)}</span>
+          <span class="rm-diff-desc">${highlightRunModeText(diff.desc)}</span>
           <span class="rm-diff-reward">보상 x${rewardMultiplier}</span>
         </div>
       </div>

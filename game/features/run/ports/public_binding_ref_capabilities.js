@@ -1,4 +1,4 @@
-import { pickDefinedRefs } from '../../../shared/runtime/pick_defined_refs.js';
+import { pickDefinedRefs } from '../../ui/ports/public_shared_support_capabilities.js';
 
 const RUN_BINDING_REF_KEYS = Object.freeze([
   'RunRules',

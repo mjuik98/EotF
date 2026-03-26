@@ -1,5 +1,6 @@
 export const OUTBOX_RETRY_BASE_MS = 1000;
 export const OUTBOX_RETRY_MAX_MS = 30000;
+export const OUTBOX_ENTRY_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function cloneSnapshot(data) {
   try {
@@ -7,6 +8,17 @@ export function cloneSnapshot(data) {
   } catch {
     return data;
   }
+}
+
+export function getOutboxEntryTimestamp(entry) {
+  const timestamp = Number(entry?.updatedAt ?? entry?.createdAt ?? entry?.nextAttemptAt ?? 0);
+  return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : 0;
+}
+
+export function isOutboxEntryExpired(entry, now = Date.now()) {
+  const timestamp = getOutboxEntryTimestamp(entry);
+  if (!timestamp) return false;
+  return now - timestamp > OUTBOX_ENTRY_TTL_MS;
 }
 
 function retryDelayMs(attempts) {
@@ -42,11 +54,13 @@ export function scheduleOutboxFlush(system, flushFn, delayMs = OUTBOX_RETRY_BASE
 export function upsertOutboxEntry(system, key, payload) {
   const idx = system._outbox.findIndex((entry) => entry.key === key);
   const nextData = cloneSnapshot(payload);
+  const now = Date.now();
 
   if (idx >= 0) {
     system._outboxMetrics.coalescedWrites += 1;
     system._outbox[idx].data = nextData;
-    system._outbox[idx].nextAttemptAt = Date.now();
+    system._outbox[idx].nextAttemptAt = now;
+    system._outbox[idx].updatedAt = now;
     return;
   }
 
@@ -55,7 +69,9 @@ export function upsertOutboxEntry(system, key, payload) {
     key,
     data: nextData,
     attempts: 0,
-    nextAttemptAt: Date.now(),
+    createdAt: now,
+    updatedAt: now,
+    nextAttemptAt: now,
   });
 }
 
@@ -112,6 +128,7 @@ export function flushOutboxQueue(system, { save }) {
       system._outboxMetrics.lastFailureAt = now;
       entry.attempts += 1;
       const waitMs = retryDelayMs(entry.attempts);
+      entry.updatedAt = now;
       entry.nextAttemptAt = now + waitMs;
       nextDelay = nextDelay === null ? waitMs : Math.min(nextDelay, waitMs);
       pending.push(entry);

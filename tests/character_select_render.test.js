@@ -82,8 +82,11 @@ describe('character select render helpers', () => {
     expect(dotsRow.style.display).toBe('flex');
     expect(dotsRow.innerHTML).toContain('data-i="1"');
     expect(buttons[0].addEventListener).toHaveBeenCalledWith('mouseenter', expect.any(Function));
+    expect(buttons[0].addEventListener).toHaveBeenCalledWith('focus', expect.any(Function));
     buttons[0].listeners.mouseenter();
     expect(buttons[0].style.background).toBe('#3a3a55');
+    buttons[0].listeners.blur();
+    expect(buttons[0].style.background).toBe('#151520');
     buttons[2].listeners.click();
     expect(onJumpTo).toHaveBeenCalledWith(2);
   });
@@ -100,8 +103,9 @@ describe('character select render helpers', () => {
     expect(buttonsRow.innerHTML).toContain('Paladin');
     expect(buttonsRow.innerHTML).not.toContain('선택 확정');
     buttonsRow.confirmButton.listeners.mouseenter();
+    buttonsRow.confirmButton.listeners.focus();
     buttonsRow.confirmButton.listeners.click();
-    expect(onHover).toHaveBeenCalledTimes(1);
+    expect(onHover).toHaveBeenCalledTimes(2);
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 

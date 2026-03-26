@@ -39,8 +39,11 @@ describe('combat_cleanup_state_commands', () => {
       _scrollTempCard: 'tmp',
       _fragmentActive: true,
       _fragmentBaseMax: 3,
-      _glitch0: 'g0',
-      _glitchPlus: 'gp',
+      _handScopedRuntime: {
+        oilTargetIndex: 1,
+        glitch0Index: 2,
+        glitchPlusIndex: 3,
+      },
       _eternityActive: true,
     };
 
@@ -106,8 +109,11 @@ describe('combat_cleanup_state_commands', () => {
       _scrollTempCard: 'tmp',
       _fragmentActive: true,
       _fragmentBaseMax: 2,
-      _glitch0: 'g0',
-      _glitchPlus: 'g1',
+      _handScopedRuntime: {
+        oilTargetIndex: 1,
+        glitch0Index: 2,
+        glitchPlusIndex: 3,
+      },
       _eternityActive: true,
     };
 
@@ -121,6 +127,7 @@ describe('combat_cleanup_state_commands', () => {
       playerTurn: true,
     });
     expect(state._activeRegionId).toBeNull();
+    expect(state._handScopedRuntime).toBeNull();
     expect(state._eternityActive).toBe(false);
   });
 });

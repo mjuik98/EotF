@@ -1,4 +1,4 @@
-import { setDatasetBooleanState } from '../../ports/presentation_shared_runtime_capabilities.js';
+import { setDatasetBooleanState } from './combat_surface_state.js';
 
 export const COMBAT_KEYWORD_MAP = Object.freeze({
   '[소진]': { title: '소진', text: '사용 후 이번 전투에서 영구 제거됩니다. 소모 더미로 가지 않습니다.' },

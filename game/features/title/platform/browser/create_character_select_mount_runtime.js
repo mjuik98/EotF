@@ -7,7 +7,6 @@ import {
   clearCharacterSelectLoadoutPreset,
   saveCharacterSelectLoadoutPreset,
 } from './character_select_mount_loadout.js';
-import { TooltipUI } from '../../../combat/ports/public_presentation_capabilities.js';
 import {
   renderCharacterInfoPanel,
   renderCharacterPhase,
@@ -26,6 +25,10 @@ export function buildCharacterSelectSectionLabel(text, accent) {
 
 export function getCharacterClassProgress(meta, classId, classIds) {
   return getCharacterSelectPresentation(meta, classId, classIds).classProgress;
+}
+
+function resolveTooltipUI(deps, win) {
+  return deps?.tooltipUI || deps?.TooltipUI || win?.TooltipUI || null;
 }
 
 export function createCharacterSelectMountRuntime(options = {}) {
@@ -80,6 +83,7 @@ export function createCharacterSelectMountRuntime(options = {}) {
   function renderInfoPanel() {
     const ch = chars[state.idx];
     const presentation = getCharacterSelectPresentation(deps?.gs?.meta, ch.class, classIds);
+    const tooltipUI = resolveTooltipUI(deps, win);
     const {
       customization,
       dataCards,
@@ -96,8 +100,8 @@ export function createCharacterSelectMountRuntime(options = {}) {
       buildSectionLabel: buildCharacterSelectSectionLabel,
       buildRadar: buildCharacterRadar,
       cards: dataCards,
-      generalTooltipUI: TooltipUI,
-      cardTooltipUI: TooltipUI,
+      generalTooltipUI: tooltipUI,
+      cardTooltipUI: tooltipUI,
       doc,
       win,
       hover: () => sfx.hover(),

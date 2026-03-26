@@ -66,4 +66,26 @@ describe('run outcome progression integration', () => {
       gs,
     }));
   });
+
+  it('reports meta save status after committing the run outcome', () => {
+    const gs = createGameState();
+    const saveResult = { status: 'queued', persisted: false, queueDepth: 1 };
+    const saveSystem = {
+      saveMeta: vi.fn(() => saveResult),
+      showSaveStatus: vi.fn(),
+      clearSave: vi.fn(),
+    };
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      doc: { body: {} },
+      saveSystem,
+    });
+
+    expect(saveSystem.saveMeta).toHaveBeenCalledTimes(1);
+    expect(saveSystem.showSaveStatus).toHaveBeenCalledWith(saveResult, expect.objectContaining({
+      gs,
+    }));
+    expect(saveSystem.clearSave).toHaveBeenCalledTimes(1);
+  });
 });

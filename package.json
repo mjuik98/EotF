@@ -14,6 +14,7 @@
     "test": "node scripts/run-vitest-suite.mjs fast",
     "test:guardrails": "node scripts/run-vitest-suite.mjs guardrails",
     "test:full": "node scripts/run-vitest-suite.mjs full",
+    "test:order-guard": "node scripts/check-vitest-order-dependence.mjs fast",
     "test:manifest": "node scripts/test_suite_manifest.mjs --check",
     "test:manifest:write": "node scripts/test_suite_manifest.mjs --write",
     "test:coverage": "vitest run --coverage",
@@ -27,9 +28,11 @@
     "smoke:character-select": "node scripts/run_character_select_smoke.mjs",
     "smoke:reward": "node scripts/run_reward_smoke.mjs",
     "smoke:combat-ui": "node scripts/run_combat_ui_smoke.mjs",
+    "smoke:save-load": "node scripts/save_load_roundtrip_smoke_check.mjs",
+    "smoke:save-outbox-recovery": "node scripts/save_outbox_recovery_smoke_check.mjs",
     "quality:sync": "npm run test:manifest:write && npm run deps:map",
     "quality:fast": "npm run lint && npm test",
-    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run deps:map:check && npm run build && npm run smoke:character-select && npm run smoke:reward && npm run smoke:combat-ui",
+    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run deps:map:check && npm run test:order-guard -- --runs 1 --sample 20 && npm run build && npm run smoke:character-select && npm run smoke:reward && npm run smoke:combat-ui && npm run smoke:save-load && npm run smoke:save-outbox-recovery",
     "quality": "npm run quality:full"
   },
   "keywords": [

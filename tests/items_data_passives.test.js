@@ -260,6 +260,31 @@ describe('items data passives', () => {
     });
   });
 
+  it('does not apply hand-scoped cost relics without a handIndex payload', () => {
+    const gs = {
+      player: {
+        items: ['everlasting_oil', 'glitch_circuit'],
+      },
+      _handScopedRuntime: {
+        costTargets: {
+          oilTargetIndex: 0,
+          glitch0Index: 0,
+          glitchPlusIndex: 1,
+        },
+      },
+    };
+
+    expect(ItemSystem.triggerItems(gs, Trigger.BEFORE_CARD_COST, {
+      cardId: 'strike',
+      cost: 2,
+      baseCost: 2,
+    })).toEqual({
+      cardId: 'strike',
+      cost: 2,
+      baseCost: 2,
+    });
+  });
+
   it('blocks healing through titan_heart using the heal_amount trigger', () => {
     const gs = {
       player: {

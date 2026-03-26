@@ -14,6 +14,8 @@ class MockElement {
     this.textContent = '';
     this.onmouseenter = null;
     this.onmouseleave = null;
+    this.onfocus = null;
+    this.onblur = null;
 
     this.classList = {
       _tokens: new Set(),
@@ -261,5 +263,63 @@ describe('hud_panel_sections localization', () => {
       '지역 규칙이 적용 중입니다.',
       expect.any(Object),
     );
+  });
+
+  it('wires region tooltip handlers for keyboard focus as well as hover', () => {
+    const doc = createDoc();
+    const setText = (id, value) => {
+      const target = doc.getElementById(id);
+      if (target) target.textContent = String(value);
+    };
+
+    [
+      'playerAvatar',
+      'playerPortraitFallback',
+      'regionName',
+      'regionRule',
+      'regionFloor',
+      'playerFloor',
+      'itemSlots',
+      'setBonusPanel',
+      'combatRelicRail',
+      'combatRelicRailCount',
+      'combatRelicRailSlots',
+      'combatRelicPanel',
+      'combatRelicPanelList',
+      'hudRunModifiers',
+      'useEchoSkillBtn',
+      'combatDrawCardBtn',
+      'hudGoldText',
+      'runCount',
+      'killCount',
+      'goldCount',
+      'deckCount',
+      'graveCount',
+      'deckSize',
+      'graveyardSize',
+      'exhaustSize',
+      'combatDeckCount',
+      'combatGraveCount',
+      'combatExhaustCount',
+      'playerNameDisplay',
+      'playerClassDisplay',
+    ].forEach((id) => register(doc, id, id.includes('Btn') ? 'button' : 'div'));
+
+    updateHudPanels({
+      gs: createState(),
+      deps: {
+        tooltipUI: { showGeneralTooltip: vi.fn(), hideGeneralTooltip: vi.fn() },
+        getRegionData: () => ({ name: '지역', rule: '규칙', ruleDesc: '피해 8' }),
+        runRules: { getAscension: () => 0, isEndless: () => false, curses: {} },
+      },
+      doc,
+      data: { classes: {}, items: {}, inscriptions: {} },
+      setText,
+    });
+
+    expect(typeof doc.getElementById('regionName').onfocus).toBe('function');
+    expect(typeof doc.getElementById('regionName').onblur).toBe('function');
+    expect(typeof doc.getElementById('regionRule').onfocus).toBe('function');
+    expect(typeof doc.getElementById('regionRule').onblur).toBe('function');
   });
 });

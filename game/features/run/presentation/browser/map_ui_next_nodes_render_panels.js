@@ -5,7 +5,7 @@ import {
   hexToRgb,
   runOnNextFrame,
 } from './map_ui_next_nodes_render_helpers.js';
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
+import { DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';
 import { buildBottomDock } from './map_bottom_dock.js';
 import {
   applyRelicDetailLayout,
@@ -118,14 +118,23 @@ export function buildNextNodeCard(doc, options = {}) {
   const rewardsHtml = ext.rewards.map((reward) => `<span class="nc-reward-tag ${REWARD_CLASS_MAP[reward] || 'gold'}">${reward}</span>`).join('');
   const traitsHtml = ext.traits.map((trait) => `<span class="nc-trait-tag${ext.diff === 0 ? ' neutral' : ''}">${trait}</span>`).join('');
   const skullsHtml = ext.diff > 0 ? `<div class="nc-danger-skulls">${[0, 1, 2].map((idx) => `<span class="nc-skull${idx < dangerLevel ? ' on' : ''}">☠</span>`).join('')}</div>` : '';
-  const descHtml = DescriptionUtils.highlight(meta.desc || '다음 위치로 이동합니다.');
+  const rawDesc = meta.desc || '다음 위치로 이동합니다.';
+  const descHtml = DescriptionUtils.highlight(rawDesc);
 
   const card = doc.createElement('div');
   card.className = 'node-card';
   card.dataset.cardIdx = String(index);
   card.dataset.nodeId = node.id;
-  card.style.setProperty('--node-color', meta.color);
-  card.style.setProperty('--node-rgb', rgb);
+  card.setAttribute?.('tabindex', '0');
+  card.setAttribute?.('role', 'button');
+  card.setAttribute?.('aria-label', `${meta.label || '노드'}. ${rawDesc}`);
+  if (typeof card.style?.setProperty === 'function') {
+    card.style.setProperty('--node-color', meta.color);
+    card.style.setProperty('--node-rgb', rgb);
+  } else if (card.style) {
+    card.style['--node-color'] = meta.color;
+    card.style['--node-rgb'] = rgb;
+  }
   card.style.animationDelay = `${index * 0.08}s`;
   card.innerHTML = `
     <div class="nc-kbd-badge">${index + 1}</div>

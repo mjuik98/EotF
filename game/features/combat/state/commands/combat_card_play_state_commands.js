@@ -1,3 +1,5 @@
+import { reindexHandScopedRuntimeState } from '../../../../shared/state/hand_index_runtime_state.js';
+
 export function setCombatCardPlayLockState(state, isPlaying) {
   if (!state?.combat) return false;
   state.combat._isPlayingCard = Boolean(isPlaying);
@@ -7,7 +9,9 @@ export function setCombatCardPlayLockState(state, isPlaying) {
 export function removeCardFromHandState(state, handIdx) {
   const hand = state?.player?.hand;
   if (!Array.isArray(hand) || handIdx < 0 || handIdx >= hand.length) return null;
-  return hand.splice(handIdx, 1)[0] ?? null;
+  const removed = hand.splice(handIdx, 1)[0] ?? null;
+  reindexHandScopedRuntimeState(state, handIdx);
+  return removed;
 }
 
 export function restorePlayerHandState(state, hand) {

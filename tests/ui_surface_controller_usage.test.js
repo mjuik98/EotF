@@ -4,7 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('ui surface controller usage', () => {
-  it('reuses the shared controller in clone, map relic, and run-settings surfaces', () => {
+  it('reuses the surface controllers in clone, map relic, and run-settings surfaces', () => {
     const cloneSource = readFileSync(
       path.join(process.cwd(), 'game/features/combat/presentation/browser/card_clone_ui.js'),
       'utf8',
@@ -22,7 +22,7 @@ describe('ui surface controller usage', () => {
       'utf8',
     );
 
-    expect(cloneSource).toContain('createUiSurfaceStateController');
+    expect(cloneSource).toContain('createCombatSurfaceStateController');
     expect(mapPanelsSource).toContain('map_ui_next_nodes_relic_detail_surface.js');
     expect(mapSurfaceSource).toContain('createUiSurfaceStateController');
     expect(runModeSource).toContain('createUiSurfaceStateController');

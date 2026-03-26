@@ -343,4 +343,35 @@ describe('play_card_service', () => {
     expect(gs.combat.enemies[1].statusEffects.weakened).toBeUndefined();
     randomSpy.mockRestore();
   });
+
+  it('reindexes hand-scoped free-cost effects after playing an earlier card', () => {
+    const firstCardId = 'service_card';
+    const freeCardId = 'drawn_card';
+    const gs = createState(firstCardId);
+    const logger = createLogger();
+    gs.player.hand = [firstCardId, freeCardId];
+    gs.player._cascadeCards = new Map([[1, freeCardId]]);
+
+    const result = playCardService({
+      cardId: firstCardId,
+      handIdx: 0,
+      gs,
+      card: { id: firstCardId, name: 'Service Card', cost: 1, effect: vi.fn() },
+      cardCostUtils: CardCostUtils,
+      classMechanics: {},
+      discardCard: vi.fn(),
+      logger,
+      audioEngine: {},
+      runtimeDeps: {
+        renderCombatCards: vi.fn(),
+        updateChainDisplay: vi.fn(),
+      },
+      hudUpdateUI: { processDirtyFlags: vi.fn() },
+    });
+
+    expect(result).toBe(true);
+    expect(gs.player.hand).toEqual([freeCardId]);
+    expect(CardCostUtils.calcEffectiveCost(freeCardId, { cost: 1 }, gs.player, 0)).toBe(0);
+    expect(gs.player._cascadeCards.has(0)).toBe(true);
+  });
 });

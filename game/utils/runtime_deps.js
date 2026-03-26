@@ -1,25 +1,30 @@
-function getHostObject() {
+export function getHostObject() {
+  if (typeof globalThis !== 'undefined') {
+    return globalThis;
+  }
   try {
     return Function('return this')();
   } catch {
-    return globalThis;
+    return null;
   }
 }
 
 export function getDoc(deps = {}) {
   if (deps?.doc) return deps.doc;
-  if (typeof document === 'undefined') return null;
-  return document;
+  if (deps?.win?.document) return deps.win.document;
+  if (typeof document !== 'undefined') return document;
+  return getWin(deps)?.document || null;
 }
 
 export function getWin(deps = {}) {
   if (deps?.win) return deps.win;
-  if (typeof window === 'undefined') return null;
-  return window;
+  if (deps?.doc?.defaultView) return deps.doc.defaultView;
+  const host = getHostObject();
+  return host?.window || host || null;
 }
 
 export function getAudioEngine(deps = {}) {
-  return deps?.audioEngine || getWin(deps)?.AudioEngine || null;
+  return deps?.audioEngine || deps?.win?.AudioEngine || null;
 }
 
 export function getRaf(deps = {}) {
@@ -27,7 +32,7 @@ export function getRaf(deps = {}) {
     return deps.requestAnimationFrame;
   }
 
-  const win = getWin(deps);
+  const win = deps?.win || null;
   if (win && typeof win.requestAnimationFrame === 'function') {
     return win.requestAnimationFrame.bind(win);
   }

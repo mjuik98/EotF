@@ -2,7 +2,7 @@ import {
   getEnemyAnchor,
   getViewportSummary,
   toFiniteNumber,
-} from '../../../shared/runtime/runtime_debug_snapshot_utils.js';
+} from '../../ui/ports/public_shared_support_capabilities.js';
 
 function collectEnemyState(enemies = []) {
   return enemies.map((enemy, index) => ({

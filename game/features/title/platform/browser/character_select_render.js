@@ -15,12 +15,16 @@ export function renderCharacterDots(dotsRow, chars, selectedIndex, onJumpTo) {
 
   dotsRow.querySelectorAll('.dot').forEach((btn) => {
     const i = parseInt(btn.dataset.i, 10);
-    btn.addEventListener('mouseenter', () => {
+    const applyHoverState = () => {
       if (i !== selectedIndex) btn.style.background = '#3a3a55';
-    });
-    btn.addEventListener('mouseleave', () => {
+    };
+    const clearHoverState = () => {
       if (i !== selectedIndex) btn.style.background = '#151520';
-    });
+    };
+    btn.addEventListener('mouseenter', applyHoverState);
+    btn.addEventListener('mouseleave', clearHoverState);
+    btn.addEventListener('focus', applyHoverState);
+    btn.addEventListener('blur', clearHoverState);
     btn.addEventListener('click', () => onJumpTo(i));
   });
 }
@@ -38,6 +42,7 @@ export function renderCharacterButtons(buttonsRow, selectedChar, onHover, onConf
   const confirmButton = buttonsRow.querySelector('#btnCfm') || buttonsRow.children?.[0]?.querySelector?.('#btnCfm');
   if (!confirmButton) return;
   confirmButton.addEventListener('mouseenter', onHover);
+  confirmButton.addEventListener('focus', onHover);
   confirmButton.addEventListener('click', onConfirm);
 }
 

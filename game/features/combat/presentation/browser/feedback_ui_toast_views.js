@@ -1,3 +1,5 @@
+import { DomSafe } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
+
 export function computeItemToastDuration(item, options = {}) {
   const text = `${options?.typeLabel || ''} ${item?.name || ''} ${item?.desc || ''}`.trim();
   return Math.min(
@@ -82,7 +84,11 @@ export function buildItemToastView(doc, {
 
   const sub = doc.createElement('div');
   sub.className = 'toast-sub';
-  sub.innerHTML = highlightDescription(item.desc);
+  if (typeof highlightDescription === 'function') {
+    sub.innerHTML = highlightDescription(item.desc || '');
+  } else {
+    DomSafe.setHighlightedText(sub, item.desc || '');
+  }
 
   const countBadge = doc.createElement('div');
   countBadge.className = 'stack-toast-count';

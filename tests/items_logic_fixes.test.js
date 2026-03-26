@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ITEMS } from '../data/items.js';
 import { CARDS } from '../data/cards.js';
 import { Trigger } from '../game/data/triggers.js';
+import { Actions, Reducers } from '../game/core/state_actions.js';
 import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start_player_turn_policy.js';
 import { beginPlayerTurnState } from '../game/features/combat/state/player_turn_state_commands.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
@@ -191,6 +192,43 @@ describe('item logic fixes', () => {
         randomSpy.mockRestore();
     });
 
+    it('everlasting_oil only discounts the selected duplicate card instance', () => {
+        const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.999);
+        const gs = createTurnStartRuntime({
+            items: ['everlasting_oil'],
+            drawPile: ['strike', 'strike'],
+        });
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.hand).toEqual(['strike', 'strike']);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(CARDS.strike.cost);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 1, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(0);
+        randomSpy.mockRestore();
+    });
+
+    it('everlasting_oil keeps its target aligned after an earlier hand card is discarded', () => {
+        const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.999);
+        const gs = createTurnStartRuntime({
+            items: ['everlasting_oil'],
+            drawPile: ['strike', 'bash'],
+        });
+        gs.dispatch = (action, payload = {}) => Reducers[action]?.(gs, payload);
+
+        runActualTurnStart(gs);
+        Reducers[Actions.CARD_DISCARD](gs, { cardId: 'bash', exhaust: false });
+
+        expect(gs.player.hand).toEqual(['strike']);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(0);
+        randomSpy.mockRestore();
+    });
+
     it('glitch_circuit applies both the zero-cost and surcharge effects to cards drawn on turn start', () => {
         const randomSpy = vi.spyOn(Math, 'random')
             .mockReturnValueOnce(0)
@@ -209,6 +247,53 @@ describe('item logic fixes', () => {
         expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 1, {
             triggerItems: gs.triggerItems.bind(gs),
         })).toBe(2);
+        randomSpy.mockRestore();
+    });
+
+    it('glitch_circuit can distinguish duplicate card instances in the same hand', () => {
+        const randomSpy = vi.spyOn(Math, 'random')
+            .mockReturnValueOnce(0)
+            .mockReturnValueOnce(0.6);
+        const gs = createTurnStartRuntime({
+            items: ['glitch_circuit'],
+            drawPile: ['defend', 'strike', 'strike'],
+        });
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.hand).toEqual(['strike', 'strike', 'defend']);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(0);
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 1, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(CARDS.strike.cost + 1);
+        expect(CardCostUtils.calcEffectiveCost('defend', CARDS.defend, gs.player, 2, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(CARDS.defend.cost);
+        randomSpy.mockRestore();
+    });
+
+    it('glitch_circuit keeps remapped targets aligned after an earlier hand card is discarded', () => {
+        const randomSpy = vi.spyOn(Math, 'random')
+            .mockReturnValueOnce(0.34)
+            .mockReturnValueOnce(0.999);
+        const gs = createTurnStartRuntime({
+            items: ['glitch_circuit'],
+            drawPile: ['defend', 'bash', 'strike'],
+        });
+        gs.dispatch = (action, payload = {}) => Reducers[action]?.(gs, payload);
+
+        runActualTurnStart(gs);
+        Reducers[Actions.CARD_DISCARD](gs, { cardId: 'strike', exhaust: false });
+
+        expect(gs.player.hand).toEqual(['bash', 'defend']);
+        expect(CardCostUtils.calcEffectiveCost('bash', CARDS.bash, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(0);
+        expect(CardCostUtils.calcEffectiveCost('defend', CARDS.defend, gs.player, 1, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(CARDS.defend.cost + 1);
         randomSpy.mockRestore();
     });
 
@@ -237,6 +322,112 @@ describe('item logic fixes', () => {
         runActualTurnStart(gs);
 
         expect(gs.player.energy).toBe(5);
+    });
+
+    it('clockwork_butterfly refills to max energy instead of overflowing on the third turn start', () => {
+        const gs = createTurnStartRuntime({
+            items: ['clockwork_butterfly'],
+            drawPile: [],
+            energy: 0,
+            maxEnergy: 3,
+        });
+
+        runActualTurnStart(gs);
+        runActualTurnStart(gs);
+        runActualTurnStart(gs);
+
+        expect(gs.player.energy).toBe(3);
+    });
+
+    it('balanced_scale clears its queued extra draw when combat ends before the next turn', () => {
+        const gs = createTurnStartRuntime({
+            items: ['balanced_scale'],
+            drawPile: ['strike'],
+            energy: 0,
+        });
+
+        ItemSystem.triggerItems(gs, Trigger.TURN_END);
+        ItemSystem.triggerItems(gs, Trigger.COMBAT_END);
+        runActualTurnStart(gs);
+
+        expect(gs.player.drawCount).toBe(0);
+        expect(gs._scaleActive).toBe(false);
+        expect(gs._scaleDrawReset).toBe(false);
+    });
+
+    it('mana_battery drops stored carry-over when combat ends before the next turn', () => {
+        const gs = createTurnStartRuntime({
+            items: ['mana_battery'],
+            drawPile: [],
+            energy: 2,
+            maxEnergy: 3,
+        });
+
+        ItemSystem.triggerItems(gs, Trigger.TURN_END);
+        ItemSystem.triggerItems(gs, Trigger.COMBAT_END);
+        gs.player.energy = 0;
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.energy).toBe(3);
+    });
+
+    it('glitch_circuit clears turn-only cost overrides when combat ends', () => {
+        const randomSpy = vi.spyOn(Math, 'random')
+            .mockReturnValueOnce(0)
+            .mockReturnValueOnce(0.999);
+        const gs = createTurnStartRuntime({
+            items: ['glitch_circuit'],
+            drawPile: ['strike', 'defend'],
+        });
+
+        runActualTurnStart(gs);
+        ItemSystem.triggerItems(gs, Trigger.COMBAT_END);
+
+        gs.player.drawPile = ['strike'];
+        gs.player.hand = [];
+        gs.player.graveyard = [];
+        gs.player.exhausted = [];
+        gs.player.energy = 0;
+
+        runActualTurnStart(gs);
+
+        expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 0, {
+            triggerItems: gs.triggerItems.bind(gs),
+        })).toBe(CARDS.strike.cost);
+        randomSpy.mockRestore();
+    });
+
+    it('crystal_ball picks up to three unique card types for its combat discount set', () => {
+        const randomSpy = vi.spyOn(Math, 'random')
+            .mockReturnValueOnce(0)
+            .mockReturnValueOnce(0.26)
+            .mockReturnValueOnce(0.51);
+        const gs = {
+            player: {
+                items: ['crystal_ball'],
+                deck: ['strike', 'strike', 'defend', 'bash'],
+            },
+            addLog: vi.fn(),
+        };
+
+        ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+
+        expect([...gs._crystalDiscounted]).toEqual(expect.arrayContaining(['strike', 'defend', 'bash']));
+        expect(gs._crystalDiscounted.size).toBe(3);
+        randomSpy.mockRestore();
+    });
+
+    it('boss_soul_mirror revival does not restore hp above the reduced max hp', () => {
+        const gs = {
+            player: { maxHp: 20, hp: 20 },
+        };
+
+        ITEMS.boss_soul_mirror.onAcquire(gs);
+        gs.player.hp = 0;
+
+        expect(ITEMS.boss_soul_mirror.passive(gs, Trigger.PRE_DEATH)).toBe(true);
+        expect(gs.player.hp).toBe(5);
     });
 
     it('counts abyssal trinity relics toward the actual 심연의 삼위일체 set runtime', () => {

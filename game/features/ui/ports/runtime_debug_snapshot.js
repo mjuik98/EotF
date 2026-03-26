@@ -4,7 +4,7 @@ import {
   isInlineBlockVisible,
   isTitleSurfaceActive,
   isVisibleElement,
-} from '../../../shared/runtime/runtime_debug_snapshot_utils.js';
+} from './public_shared_support_capabilities.js';
 
 export function collectUiRuntimeDebugSnapshot({ doc, win }) {
   const view = win || doc?.defaultView || null;

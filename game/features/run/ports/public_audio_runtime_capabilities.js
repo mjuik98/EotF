@@ -2,4 +2,4 @@ export {
   playEventBossPhase,
   playUiClick,
   playUiFootstep,
-} from '../../../shared/audio/audio_event_helpers.js';
+} from '../../ui/ports/public_shared_support_capabilities.js';

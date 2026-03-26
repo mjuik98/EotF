@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { buildStatusTooltipHTML } from '../game/features/combat/public.js';
 import { getEnemyStatusMeta, getEnemyStatusName } from '../data/status_effects_data.js';
 
+function toVisibleText(html) {
+  return String(html || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 describe('status tooltip builder focus coverage', () => {
   it('renders focus buff tooltip details instead of falling back to a bare description', () => {
     const html = buildStatusTooltipHTML(
@@ -30,10 +37,11 @@ describe('status tooltip builder focus coverage', () => {
   it('fills missing enemy tooltip fields from the shared status metadata accessors', () => {
     const meta = getEnemyStatusMeta('draw_block');
     const html = buildStatusTooltipHTML('draw_block', null, 2);
+    const visibleText = toVisibleText(html);
 
     expect(html).toContain(getEnemyStatusName('draw_block'));
     expect(html).toContain(meta?.icon ?? '');
-    expect(html).toContain(meta?.desc ?? '');
+    expect(visibleText).toContain(meta?.desc ?? '');
   });
 
 });

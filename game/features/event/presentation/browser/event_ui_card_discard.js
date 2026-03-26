@@ -5,7 +5,8 @@ import {
   playUiItemGetFeedback,
 } from '../../ports/event_ui_view_ports.js';
 import { dismissTransientOverlay, getAudioEngine } from './event_ui_helpers.js';
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {}) {
   if (!gs?.player || !data?.cards) return;
@@ -19,7 +20,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
   if (allCards.length === 0) {
     playAttackSlash(getAudioEngine(deps));
     deps.screenShake?.shake?.(10, 0.4);
-    gs.addLog('No cards are available for this action.', 'damage');
+    gs.addLog('이 행동에 사용할 수 있는 카드가 없습니다.', 'damage');
     return;
   }
 
@@ -39,17 +40,17 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
 
   const eyebrow = doc.createElement('div');
   eyebrow.style.cssText = "font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--text-dim);margin-bottom:8px;";
-  eyebrow.textContent = isBurn ? 'BURN' : 'DISCARD';
+  eyebrow.textContent = isBurn ? '카드 소각' : '카드 폐기';
 
   const bigTitle = doc.createElement('div');
   bigTitle.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:22px;font-weight:900;color:var(--white);margin-bottom:6px;";
-  bigTitle.textContent = isBurn ? 'Choose a card to burn' : 'Choose a card to discard (+8 gold)';
+  bigTitle.textContent = isBurn ? '소각할 카드를 선택하세요' : '버릴 카드를 선택하세요 (+8 골드)';
 
   const subTitle = doc.createElement('div');
   subTitle.style.cssText = "font-family:'Crimson Pro',serif;font-style:italic;font-size:13px;color:var(--text-dim);";
   subTitle.textContent = isBurn
-    ? 'The selected card is removed permanently.'
-    : 'Discard the selected card and gain 8 gold.';
+    ? '선택한 카드는 영구히 제거됩니다.'
+    : '선택한 카드를 버리고 8 골드를 얻습니다.';
 
   titleEl.append(eyebrow, bigTitle, subTitle);
 
@@ -94,6 +95,7 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
     name.textContent = card.name;
 
     const desc = doc.createElement('div');
+    desc.className = 'event-card-discard-desc';
     desc.style.cssText = 'font-size:10px;color:var(--text-dim);line-height:1.3;';
     DomSafe.setHighlightedText(desc, card.desc || '');
 
@@ -114,10 +116,12 @@ export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {})
       btn.style.borderColor = rarityColor[card.rarity] || 'var(--border)';
       btn.style.boxShadow = '';
     };
-    btn.onmouseenter = activate;
-    btn.onfocus = activate;
-    btn.onmouseleave = deactivate;
-    btn.onblur = deactivate;
+    bindTooltipTrigger(btn, {
+      label: `${card.name}. ${card.desc || ''}`,
+      bindMode: 'property',
+      show: activate,
+      hide: deactivate,
+    });
     btn.onclick = () => {
       const result = discardEventCard({ gs, cardId, data, isBurn });
       if (result.success) {

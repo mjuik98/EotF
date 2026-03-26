@@ -15,6 +15,7 @@ const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-settings-core-[^/]+\.js$/,
   /\/?assets\/ui-settings-hotkeys-[^/]+\.js$/,
   /\/?assets\/ui-run-mode-[^/]+\.js$/,
+  /\/?assets\/ui-progression-core-[^/]+\.js$/,
   /\/?assets\/data-cards-[^/]+\.js$/,
   /\/?assets\/data-enemies-[^/]+\.js$/,
 ];
@@ -36,8 +37,12 @@ export function getManualChunk(id) {
   if (normalized.endsWith('/data/enemies.js')) return 'data-enemies';
   if (normalized.endsWith('/data/status_key_data.js')) return 'ui-combat';
   if (normalized.endsWith('/game/utils/status_value_utils.js')) return 'ui-combat';
+  if (normalized.includes('/game/shared/progression/set_bonus_')) return 'ui-progression-core';
+  if (normalized.includes('/game/shared/ui/tooltip/')) return 'ui-shared-surfaces';
   if (normalized.includes('/game/shared/ui/item_detail/')) return 'ui-shared-surfaces';
   if (normalized.includes('/game/shared/ui/state/')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_text_highlight.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/combat/presentation/browser/combat_surface_state.js')) return 'ui-combat-copy';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_copy.js')) return 'ui-combat-copy';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_keyword_copy.js')) return 'ui-combat-copy';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_relic_rail_ui.js')) return 'ui-combat-relics';
@@ -91,6 +96,7 @@ export function getManualChunk(id) {
     || normalized.includes('/game/features/ui/presentation/browser/help_pause_')
   ) return 'ui-shell-overlays';
 
+  if (normalized.endsWith('/game/platform/browser/settings/settings_manager.js')) return 'ui-settings-core';
   if (normalized.endsWith('/game/core/settings_manager.js')) return 'ui-settings-core';
   if (normalized.endsWith('/game/features/ui/presentation/browser/settings_ui.js')) return 'ui-settings';
   if (

@@ -29,7 +29,7 @@ describe('title_return_actions', () => {
   it('saves and reloads when returning to title from pause', () => {
     const deps = {
       gs: { currentScreen: 'game' },
-      saveRun: vi.fn(),
+      saveRun: vi.fn(() => ({ status: 'saved', persisted: true })),
       reload: vi.fn(),
     };
 
@@ -38,5 +38,25 @@ describe('title_return_actions', () => {
     expect(result).toBe(true);
     expect(deps.saveRun).toHaveBeenCalledWith({ gs: deps.gs });
     expect(deps.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('blocks reload and reports a warning when the save is only queued', () => {
+    const deps = {
+      gs: { currentScreen: 'game' },
+      saveRun: vi.fn(() => ({ status: 'queued', persisted: false, queueDepth: 1 })),
+      reload: vi.fn(),
+      showSaveStatus: vi.fn(),
+    };
+
+    const result = returnToTitleFromPause(deps);
+
+    expect(result).toBe(false);
+    expect(deps.saveRun).toHaveBeenCalledWith({ gs: deps.gs });
+    expect(deps.showSaveStatus).toHaveBeenCalledWith({
+      status: 'queued',
+      persisted: false,
+      queueDepth: 1,
+    });
+    expect(deps.reload).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,5 @@
 import { DATA } from '../../../../../data/game_data.js';
-import { LogUtils } from '../../../../utils/log_utils.js';
+import { LogUtils } from '../../ports/combat_logging.js';
 import { ENEMY_TURN_BUFFS } from './turn_manager_helpers.js';
 import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
 import {

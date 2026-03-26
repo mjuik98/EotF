@@ -47,15 +47,15 @@ describe('DescriptionUtils set label normalization', () => {
 
     expect(highlighted).not.toContain('세트 2개:');
     expect(highlighted).not.toContain('세트 3개:');
-    expect(highlighted).toContain('kw-special kw-block');
+    expect(highlighted).toContain('kw-special kw-set kw-block');
     expect(highlighted).toContain('세트: 폭풍');
-    expect(highlighted).toContain('<br><div class="kw-special kw-block"');
+    expect(highlighted).toContain('<br><span class="kw-special kw-set kw-block"');
   });
 
   it('moves the set label to the final line', () => {
     const highlighted = DescriptionUtils.highlight('피해 10. [세트:혈맹]');
     expect(highlighted).toContain('세트: 혈맹');
-    expect(highlighted).toMatch(/<br><div class="kw-special kw-block"[\s\S]*세트:\s*혈맹[\s\S]*<\/div>\s*$/);
+    expect(highlighted).toMatch(/<br><span class="kw-special kw-set kw-block"[\s\S]*세트:\s*혈맹[\s\S]*<\/span>\s*$/);
   });
 });
 

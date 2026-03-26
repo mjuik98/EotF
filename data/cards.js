@@ -106,6 +106,7 @@
  * - 턴 시작 시: 에너지 1 획득 [지속]
  */
 import { LogUtils } from '../game/utils/log_utils.js';
+import { setHandScopedCascadeEntry } from './runtime_hand_state_support.js';
 
 
 export const ASSETS = {
@@ -756,8 +757,7 @@ export const CARDS = {
             const newCardIds = gs.player.hand.slice(before);
             if (newCardIds.length > 0) {
                 const cardId = newCardIds[0];
-                if (!gs.player._cascadeCards) gs.player._cascadeCards = new Map();
-                gs.player._cascadeCards.set(gs.player.hand.length - 1, cardId);
+                setHandScopedCascadeEntry(gs, gs.player.hand.length - 1, cardId);
                 gs.addLog(`💧 잔향의 폭포: ${CARDS[cardId]?.name} 드로우, 비용 0!`, 'echo');
             }
             gs.markDirty('hand');
@@ -771,8 +771,7 @@ export const CARDS = {
             const newCardIds = gs.player.hand.slice(before);
             if (newCardIds.length > 0) {
                 const cardId = newCardIds[0];
-                if (!gs.player._cascadeCards) gs.player._cascadeCards = new Map();
-                gs.player._cascadeCards.set(gs.player.hand.length - 1, cardId);
+                setHandScopedCascadeEntry(gs, gs.player.hand.length - 1, cardId);
                 gs.addLog(`💧 잔향의 폭포 +: ${CARDS[cardId]?.name} 드로우, 비용 0!`, 'echo');
             }
             gs.markDirty('hand');

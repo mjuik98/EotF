@@ -67,7 +67,7 @@ export const DescriptionUtils = {
         // 세트 아이템 태그 처리 [세트:이름]
         protect(/\[세트:[^\]\n]+\]/g, (m) => {
             const setName = m.replace(/^\[세트:|\s*\]$/g, '');
-            return `<div class="kw-special kw-block" style="border: 1px solid var(--gold); background: rgba(240,180,41,0.05); color: var(--gold); font-size: 9px; padding: 4px 8px; border-radius: 4px; margin-top: 8px; display: inline-block; font-weight: 600; font-family: 'Cinzel', serif;">◈ 세트: ${setName}</div>`;
+            return `<span class="kw-special kw-set kw-block">◈ 세트: ${setName}</span>`;
         });
 
         // 대괄호/겹괄호 블록 키워드

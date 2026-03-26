@@ -1,3 +1,5 @@
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
+
 import { appendEnemySelectionLabel } from './combat_enemy_card_renderers_ui.js';
 
 export function createEnemyCardShell(doc, { enemy, index, isSelected, selectedMarkerText, onSelectTarget }) {
@@ -56,9 +58,17 @@ export function createEnemyIntentContainer(doc, index, onIntentEnter, onIntentLe
   const intentEl = doc.createElement('div');
   intentEl.id = `enemy_intent_${index}`;
   intentEl.className = 'enemy-intent';
-  intentEl.onmouseenter = onIntentEnter;
-  intentEl.onmouseleave = onIntentLeave;
+  bindEnemyIntentTooltip(intentEl, onIntentEnter, onIntentLeave);
   return intentEl;
+}
+
+export function bindEnemyIntentTooltip(intentEl, onIntentEnter, onIntentLeave) {
+  return bindTooltipTrigger(intentEl, {
+    label: '적 행동 의도',
+    bindMode: 'property',
+    show: onIntentEnter,
+    hide: onIntentLeave,
+  });
 }
 
 export function createEnemyStatusContainer(doc, index, statusFragment) {

@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
 
 function showToast(toast, showItemToast) {
   if (!toast || typeof showItemToast !== 'function') return;

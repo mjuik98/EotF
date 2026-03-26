@@ -1,6 +1,56 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
+
+function escapeHtml(text) {
+  return String(text ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char] || char));
+}
+
+function highlightFragmentChoiceDesc(text) {
+  if (!text) return '';
+
+  const placeholders = [];
+  let html = escapeHtml(text);
+
+  function protect(regex, render) {
+    html = html.replace(regex, (match) => {
+      const token = `__FRAG_${placeholders.length}__`;
+      placeholders.push(render(match));
+      return token;
+    });
+  }
+
+  protect(/[\[【]\s*(소진|지속|즉시|치명타|독|낙인|지역 규칙)\s*[\]】]/g, (match) => {
+    const keyword = match.replace(/^[\[【]\s*|\s*[\]】]$/g, '');
+    const className = keyword === '소진'
+      ? 'kw-exhaust'
+      : keyword === '지속'
+        ? 'kw-buff'
+        : keyword === '즉시'
+          ? 'kw-burst'
+          : keyword === '치명타'
+            ? 'kw-crit'
+            : 'kw-special';
+    return `<span class="${className} kw-block">[${keyword}]</span>`;
+  });
+  protect(/피해\s*\d+|\d+\s*피해/g, (match) => `<span class="kw-dmg">${match}</span>`);
+  protect(/방어막\s*\d+|\d+\s*방어막/g, (match) => `<span class="kw-shield">${match}</span>`);
+  protect(/잔향\s*\d+\s*충전|잔향\s*\d+|잔향\s*충전/g, (match) => `<span class="kw-echo">${match}</span>`);
+  protect(/에너지\s*\d+\s*획득|에너지\s*\d+\s*소모|에너지\s*\+\d+|에너지\s*\d+/g, (match) => (
+    `<span class="kw-energy">${match}</span>`
+  ));
+  protect(/\b\d+\b/g, (match) => `<span class="kw-num">${match}</span>`);
+
+  for (let index = placeholders.length - 1; index >= 0; index -= 1) {
+    html = html.split(`__FRAG_${index}__`).join(placeholders[index]);
+  }
+
+  return html.replace(/\r?\n/g, '<br>');
+}
 
 export function buildEndingFragmentChoiceViewModel({
   choices = [],
@@ -48,7 +98,7 @@ export function presentEndingFragmentChoices({
     const button = doc.createElement('button');
     button.type = 'button';
     button.className = 'frag-card';
-    button.innerHTML = `<div class="frag-icon">${entry.icon}</div><div class="frag-name">${entry.name}</div><div class="frag-desc">${DescriptionUtils.highlight(entry.desc || '')}</div>`;
+    button.innerHTML = `<div class="frag-icon">${entry.icon}</div><div class="frag-name">${entry.name}</div><div class="frag-desc">${highlightFragmentChoiceDesc(entry.desc || '')}</div>`;
 
     const onPick = () => onChoose?.(entry.effect, { button, buttons, grid, wrap });
     button.addEventListener('click', onPick);

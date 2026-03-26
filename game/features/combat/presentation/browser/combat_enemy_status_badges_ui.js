@@ -2,7 +2,9 @@ import {
   DEBUFF_STATUS_KEYS,
   getEnemyStatusMeta,
   getEnemyStatusName,
+  getPlayerStatusMeta,
 } from '../../ports/presentation/public_combat_status_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 export function buildEnemyStatusBadges(statusEffects, doc, handlers = {}) {
   const statusEntries = statusEffects ? Object.entries(statusEffects) : [];
@@ -11,8 +13,10 @@ export function buildEnemyStatusBadges(statusEffects, doc, handlers = {}) {
   statusEntries.forEach(([statusKey, statusValue]) => {
     if (statusKey === 'poisonDuration') return;
 
-    const label = getEnemyStatusName(statusKey) || statusKey;
-    const icon = getEnemyStatusMeta(statusKey)?.icon || '?';
+    const meta = getEnemyStatusMeta(statusKey);
+    const playerMeta = getPlayerStatusMeta(statusKey);
+    const label = playerMeta?.name || meta?.name || getEnemyStatusName(statusKey) || statusKey;
+    const icon = meta?.icon || '?';
     const color = DEBUFF_STATUS_KEYS.includes(statusKey) ? '#ff6688' : '#88ccff';
 
     let displayDuration = statusValue;
@@ -25,11 +29,19 @@ export function buildEnemyStatusBadges(statusEffects, doc, handlers = {}) {
     badge.className = 'enemy-status-badge';
     badge.style.cssText = `font-size:9px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 4px;color:${color};cursor:help;`;
     badge.textContent = `${icon} ${label}${durationText}`;
-    badge.addEventListener('mouseenter', (event) => handlers.onShowStatusTooltip?.(event, statusKey, statusValue, {
-      doc,
-      poisonDuration: statusEffects.poisonDuration,
-    }));
-    badge.addEventListener('mouseleave', () => handlers.onHideStatusTooltip?.({ doc }));
+    const ariaLabel = `${label}${durationText ? ` ${durationText}` : ''}`;
+    bindTooltipTrigger(badge, {
+      label: ariaLabel,
+      show(event) {
+        handlers.onShowStatusTooltip?.(event, statusKey, statusValue, {
+          doc,
+          poisonDuration: statusEffects.poisonDuration,
+        });
+      },
+      hide() {
+        handlers.onHideStatusTooltip?.({ doc });
+      },
+    });
 
     fragment.appendChild(badge);
     fragment.appendChild(doc.createTextNode(' '));

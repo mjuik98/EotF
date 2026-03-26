@@ -85,6 +85,27 @@ describe('Reducers', () => {
         expect(gs.triggerItems).toHaveBeenCalledWith('card_exhaust', { cardId: 'defend' });
     });
 
+    it('CARD_DISCARD reindexes hand-scoped runtime selections after removing an earlier card', () => {
+        const gs = createBaseState();
+        gs.player.hand = ['strike', 'defend', 'bash'];
+        gs.player._cascadeCards = new Map([[2, 'bash']]);
+        gs._handScopedRuntime = {
+            costTargets: {
+                oilTargetIndex: 2,
+                glitch0Index: 2,
+                glitchPlusIndex: 1,
+            },
+        };
+
+        Reducers[Actions.CARD_DISCARD](gs, { cardId: 'strike', exhaust: false });
+
+        expect(gs.player.hand).toEqual(['defend', 'bash']);
+        expect([...gs.player._cascadeCards.entries()]).toEqual([[1, 'bash']]);
+        expect(gs._handScopedRuntime.costTargets.oilTargetIndex).toBe(1);
+        expect(gs._handScopedRuntime.costTargets.glitch0Index).toBe(1);
+        expect(gs._handScopedRuntime.costTargets.glitchPlusIndex).toBe(0);
+    });
+
     it('PLAYER_MAX_ENERGY_GROWTH is capped and does not grant extra energy at cap', () => {
         const gs = createBaseState();
         gs.player.maxEnergy = 5;

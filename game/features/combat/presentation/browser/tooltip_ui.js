@@ -1,4 +1,5 @@
 import { ensureCombatTooltipBrowserModules } from '../../platform/browser/ensure_combat_tooltip_browser_modules.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 let _tooltipTimer = null;
 
@@ -8,6 +9,11 @@ function _getDoc(deps) {
 
 function _getWin(deps) {
   return deps?.win || window;
+}
+
+async function resolveTooltipCardId(el) {
+  const tooltipModules = await ensureCombatTooltipBrowserModules();
+  return tooltipModules?.extractTooltipCardId?.(el?.getAttribute?.('onclick'));
 }
 
 export const TooltipUI = {
@@ -57,26 +63,17 @@ export const TooltipUI = {
   attachCardTooltips(deps = {}) {
     const doc = _getDoc(deps);
     doc.querySelectorAll('#combatHandCards .card, #deckModalCards > div').forEach((el) => {
-      if (typeof el.tabIndex === 'number' && el.tabIndex < 0) el.tabIndex = 0;
-      el.addEventListener('mouseenter', (e) => {
-        void ensureCombatTooltipBrowserModules().then((tooltipModules) => {
-          const cardId = tooltipModules?.extractTooltipCardId?.(el.getAttribute('onclick'));
-          if (cardId) return this.showTooltip(e, cardId, deps);
-          return undefined;
-        });
-      });
-      el.addEventListener('focus', (e) => {
-        void ensureCombatTooltipBrowserModules().then((tooltipModules) => {
-          const cardId = tooltipModules?.extractTooltipCardId?.(el.getAttribute('onclick'));
-          if (cardId) return this.showTooltip(e, cardId, deps);
-          return undefined;
-        });
-      });
-      el.addEventListener('mouseleave', () => {
-        void this.hideTooltip(deps);
-      });
-      el.addEventListener('blur', () => {
-        void this.hideTooltip(deps);
+      bindTooltipTrigger(el, {
+        label: el.getAttribute?.('aria-label') || el.getAttribute?.('title') || '카드 설명 보기',
+        show: (event) => {
+          void resolveTooltipCardId(el).then((cardId) => {
+            if (cardId) return this.showTooltip(event, cardId, deps);
+            return undefined;
+          });
+        },
+        hide: () => {
+          void this.hideTooltip(deps);
+        },
       });
     });
   },

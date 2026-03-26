@@ -12,12 +12,14 @@ describe('game_state_defaults', () => {
 
     first.meta.codex.enemies.add('wolf');
     first.player._cascadeCards.set('strike', 1);
+    first._handScopedRuntime.cascadeCards.set(0, 'strike');
     first.player.upgradedCards.add('strike_plus');
     first.visitedNodes.add('1-0');
     first.combat.log.push({ msg: 'x' });
 
     expect(second.meta.codex.enemies.size).toBe(0);
     expect(second.player._cascadeCards.size).toBe(0);
+    expect(second._handScopedRuntime.cascadeCards.size).toBe(0);
     expect(second.player.upgradedCards.size).toBe(0);
     expect(second.visitedNodes.size).toBe(0);
     expect(second.combat.log).toHaveLength(0);

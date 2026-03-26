@@ -90,6 +90,8 @@ describe('RunSetupUI.startGame', () => {
     expect(gs.player.timeRiftGauge).toBe(0);
     expect(gs.player._nextCardDiscount).toBe(0);
     expect(gs.player._cascadeCards).toBeInstanceOf(Map);
+    expect(gs._handScopedRuntime.cascadeCards).toBeInstanceOf(Map);
+    expect(gs.player._cascadeCards).toBe(gs._handScopedRuntime.cascadeCards);
     expect(gs.player.upgradedCards).toBeInstanceOf(Set);
 
     expect(gs.currentRegion).toBe(0);

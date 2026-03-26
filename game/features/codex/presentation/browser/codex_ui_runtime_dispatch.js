@@ -1,4 +1,4 @@
-import { playUiClick } from '../../../../shared/audio/audio_event_helpers.js';
+import { playUiClick } from '../../../ui/ports/public_shared_support_capabilities.js';
 import {
   renderCardsCodexTab,
   renderEnemyCodexTab,

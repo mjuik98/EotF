@@ -87,6 +87,8 @@ describe('combat ui smoke scripts', () => {
     expect(workflow).toContain('npm run smoke:combat-ui');
     expect(workflow).toContain('npm run smoke:character-select');
     expect(workflow).toContain('npm run smoke:reward');
+    expect(workflow).toContain('npm run smoke:save-load');
+    expect(workflow).toContain('npm run smoke:save-outbox-recovery');
   });
 
   it('wires the character-select smoke run into the local quality workflow', () => {
@@ -98,6 +100,8 @@ describe('combat ui smoke scripts', () => {
     expect(packageJson.scripts['quality:full']).toContain('npm run smoke:character-select');
     expect(packageJson.scripts['quality:full']).toContain('npm run smoke:reward');
     expect(packageJson.scripts['quality:full']).toContain('npm run smoke:combat-ui');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-load');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-outbox-recovery');
   });
 
   it('covers combat relic rail behavior in the browser smoke runner', () => {

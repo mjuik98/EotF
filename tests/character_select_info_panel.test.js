@@ -144,6 +144,13 @@ describe('character_select_info_panel', () => {
     echoBadge.listeners.click();
     expect(echo).toHaveBeenCalledTimes(1);
     expect(openModal).toHaveBeenCalledWith(selectedChar.echoSkill, selectedChar.accent);
+    expect(typeof echoBadge.listeners.focus).toBe('function');
+    expect(typeof echoBadge.listeners.blur).toBe('function');
+
+    echoBadge.listeners.focus();
+    expect(echoBadge.style.borderColor).toBe('#ffd700aa');
+    echoBadge.listeners.blur();
+    expect(echoBadge.style.boxShadow).toBe('none');
 
     relicBadge.listeners.mouseenter({ type: 'mouseenter' });
     expect(generalTooltipUI.showGeneralTooltip).toHaveBeenCalledWith(

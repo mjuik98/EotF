@@ -8,6 +8,7 @@ import {
   addPlayerItemAndRegisterState,
   registerPlayerDeckCardsState,
 } from './player_state_effects.js';
+import { getHandScopedRuntimeState } from './hand_index_runtime_state.js';
 import { resolveClassStartingLoadout } from '../progression/class_loadout_preset_use_case.js';
 
 export function createRunStartPlayer(selectedClass, maxHp, data, deckOverride = null) {
@@ -67,6 +68,7 @@ export function resetRuntimeState(gs, worldMemory) {
     },
   }));
   gs.combat = createDefaultCombatState();
+  getHandScopedRuntimeState(gs);
 }
 
 export function createRunStateCommands() {

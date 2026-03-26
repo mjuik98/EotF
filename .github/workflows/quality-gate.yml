@@ -29,6 +29,7 @@ jobs:
       - run: npm run lint
       - run: npm run test:coverage
       - run: npm run audit:structure
+      - run: npm run test:order-guard -- --runs 1 --sample 20
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Run browser smoke suite
@@ -52,6 +53,8 @@ jobs:
           SMOKE_URL=http://127.0.0.1:4173 npm run smoke:character-select
           SMOKE_URL=http://127.0.0.1:4173 npm run smoke:reward
           SMOKE_URL=http://127.0.0.1:4173 npm run smoke:combat-ui
+          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:save-load
+          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:save-outbox-recovery
       - run: npm run deps:map
       - name: Check dependency map delta thresholds
         if: github.event_name == 'pull_request'

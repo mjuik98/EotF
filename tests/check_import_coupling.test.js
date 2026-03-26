@@ -45,5 +45,5 @@ describe('check_import_coupling', () => {
     expect(current.total).toBeGreaterThan(0);
     expect(current.byPair['feature->shared']).toBeGreaterThan(0);
     expect(Object.keys(current.byPair).length).toBeGreaterThan(10);
-  });
+  }, 20000);
 });

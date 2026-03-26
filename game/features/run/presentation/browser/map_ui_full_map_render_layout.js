@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
+import { DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';
 import { getMapNodeTypeOrder } from '../../domain/map_node_content.js';
 import { getNodeStatusText } from './map_ui_full_map_render_helpers.js';
 
@@ -14,7 +14,7 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
 
   const title = doc.createElement('div');
   title.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.3em;color:var(--echo-bright,#b388ff);margin-bottom:20px;";
-  title.textContent = titleText || regionName || 'Region';
+  title.textContent = titleText || regionName || '미확인 지역';
   overlay.appendChild(title);
 
   const canvasContainer = doc.createElement('div');
@@ -28,6 +28,10 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
   const canvas = doc.createElement('canvas');
   canvas.width = cw;
   canvas.style.display = 'block';
+  canvas.setAttribute?.('tabindex', '0');
+  canvas.setAttribute?.('aria-label', '전체 지도. 현재 지역의 노드와 진행 경로를 확인합니다.');
+  canvas.tabIndex = 0;
+  canvas['aria-label'] = '전체 지도. 현재 지역의 노드와 진행 경로를 확인합니다.';
   canvasContainer.appendChild(canvas);
   overlay.appendChild(canvasContainer);
 
@@ -63,7 +67,7 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
     if (!meta) return;
     const item = doc.createElement('span');
     item.style.cssText = `font-family:'Share Tech Mono',monospace;font-size:12px;color:${meta.color || '#fff'};opacity:0.8;`;
-    item.textContent = `${meta.icon || '?'} ${meta.label || 'Node'}`;
+    item.textContent = `${meta.icon || '?'} ${meta.label || '노드'}`;
     legend.appendChild(item);
   });
   overlay.appendChild(legend);
@@ -108,10 +112,10 @@ export function updateFullMapTooltip(
     return;
   }
 
-  const meta = nodeMeta[node.type] || { icon: '?', label: 'Node', color: '#fff', desc: '' };
+  const meta = nodeMeta[node.type] || { icon: '?', label: '노드', color: '#fff', desc: '' };
   tooltipTitle.style.color = meta.color || '#fff';
-  tooltipTitle.textContent = `${meta.icon || '?'} ${meta.label || 'Node'}`;
-  tooltipDesc.innerHTML = DescriptionUtils.highlight(meta.desc || 'Move to this node next.');
+  tooltipTitle.textContent = `${meta.icon || '?'} ${meta.label || '노드'}`;
+  tooltipDesc.innerHTML = DescriptionUtils.highlight(meta.desc || '다음 이동 경로를 확인하세요.');
   tooltipStatus.textContent = `${node.floor}F - ${getNodeStatusText(node)}`;
   tooltip.style.opacity = '1';
 

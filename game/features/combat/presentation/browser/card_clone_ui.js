@@ -41,8 +41,8 @@ import {
 } from './card_clone_positioning.js';
 import { createCardCloneRuntime } from './card_clone_runtime_ui.js';
 import {
-  createUiSurfaceStateController,
-} from '../../../../shared/ui/state/ui_surface_state_controller.js';
+  createCombatSurfaceStateController,
+} from './combat_surface_state.js';
 
 /* ── 상수 ──────────────────────────────────────────────────── */
 const _LAYER_ID       = 'handCardCloneLayer';
@@ -150,7 +150,7 @@ export const HandCardCloneUI = {
       clonePosition: position,
       cloneRuntime: _cloneRuntime,
       cloneWidth: _CLONE_W,
-      createSurfaceStateController: createUiSurfaceStateController,
+      createSurfaceStateController: createCombatSurfaceStateController,
       doc,
       hoverKeywordLayout: _HOVER_KEYWORD_LAYOUT,
       avoidSelector: _AVOID_SELECTOR,
@@ -158,7 +158,7 @@ export const HandCardCloneUI = {
       win,
     });
     bindCardCloneKeywordPanelInteractions(cloneEl, {
-      createSurfaceStateController: createUiSurfaceStateController,
+      createSurfaceStateController: createCombatSurfaceStateController,
     });
 
     _cloneRuntime.register(cardEl, cloneEl);

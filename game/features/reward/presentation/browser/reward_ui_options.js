@@ -65,7 +65,6 @@ export function renderRewardOptions({
   onTakeItem,
 }) {
   const rewardOptions = buildRewardOptionsUseCase({
-    container,
     data,
     gs,
     isElite,

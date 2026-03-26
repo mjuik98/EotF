@@ -49,9 +49,9 @@ export function findClosestNodeEntry(entries, x, y, threshold) {
 
 export function getNodeStatusText(node) {
   if (!node) return '';
-  if (node.visited) return 'Visited';
-  if (node.accessible) return 'Reachable';
-  return 'Hidden';
+  if (node.visited) return '방문함';
+  if (node.accessible) return '이동 가능';
+  return '숨김';
 }
 
 export function createFullMapParticles(count, cw, contentHeight, random = Math.random) {

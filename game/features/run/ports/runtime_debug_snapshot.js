@@ -2,7 +2,7 @@ import {
   resolveNodePosition,
   resolveNodeTotal,
   toFiniteNumber,
-} from '../../../shared/runtime/runtime_debug_snapshot_utils.js';
+} from '../../ui/ports/public_shared_support_capabilities.js';
 
 function collectRunStartOverlaySummary(doc) {
   const activeOverlayIds = [

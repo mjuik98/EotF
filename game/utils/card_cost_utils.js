@@ -6,16 +6,27 @@
 //  card_ui.js::renderCombatCards() 에 동일한 로직이 복붙되어 있었음.
 //  규칙 변경 시 한 곳만 수정하면 되도록 통합.
 // ────────────────────────────────────────
+function getPlayerCascadeCards(player) {
+  const runtimeCascade = player?._handScopedRuntime?.cascadeCards;
+  if (runtimeCascade instanceof Map) return runtimeCascade;
+  if (player?._cascadeCards instanceof Map) return player._cascadeCards;
+  return null;
+}
+
 export const CardCostUtils = {
 
   /**
    * 해당 카드가 캐스케이드 무료인지 확인
    */
   isCascadeFree(cardId, player, handIndex = -1) {
-    const cascade = player._cascadeCards;
+    const cascade = getPlayerCascadeCards(player);
     if (!cascade) return false;
     if (cascade instanceof Map) {
-      if (handIndex !== -1) return cascade.has(handIndex);
+      if (handIndex !== -1) {
+        const mappedCardId = cascade.get(handIndex);
+        if (mappedCardId === undefined) return false;
+        return mappedCardId === cardId;
+      }
       // Fallback: check if any entry matches cardId (less precise but compatible)
       for (let [idx, id] of cascade) {
         if (id === cardId) return true;
@@ -66,7 +77,7 @@ export const CardCostUtils = {
    */
   consumeFreeCharge(cardId, player, handIndex = -1) {
     if (CardCostUtils.isCascadeFree(cardId, player, handIndex)) {
-      const cascade = player._cascadeCards;
+      const cascade = getPlayerCascadeCards(player);
       if (cascade instanceof Map) {
         if (handIndex !== -1) {
           cascade.delete(handIndex);
@@ -135,6 +146,7 @@ export const CardCostUtils = {
     if (typeof triggerItems === 'function') {
       const delta = triggerItems('before_card_cost', {
         cardId,
+        handIndex,
         cost: effectiveCost,
         baseCost: card.cost,
       });

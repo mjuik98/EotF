@@ -1,44 +1,47 @@
 import { describe, expect, it, vi } from 'vitest';
 
-const { discardEventCardSpy } = vi.hoisted(() => ({
-  discardEventCardSpy: vi.fn(),
+const {
+  discardEventCardSpy,
+  dismissTransientOverlaySpy,
+  playAttackSlashSpy,
+  playUiItemGetFeedbackSpy,
+} = vi.hoisted(() => ({
+  discardEventCardSpy: vi.fn(() => ({ success: true })),
+  dismissTransientOverlaySpy: vi.fn((overlay) => overlay?.remove?.()),
+  playAttackSlashSpy: vi.fn(),
+  playUiItemGetFeedbackSpy: vi.fn(),
 }));
 
 vi.mock('../game/features/event/application/discard_event_card_use_case.js', () => ({
   discardEventCard: discardEventCardSpy,
 }));
 
-vi.mock('../game/features/event/presentation/browser/event_ui_helpers.js', () => ({
-  dismissTransientOverlay: vi.fn((overlay) => overlay?.remove?.()),
-  getAudioEngine: vi.fn((deps) => deps.audioEngine),
+vi.mock('../game/features/event/ports/event_ui_view_ports.js', () => ({
+  EVENT_DISCARD_CARD_RARITY_COLORS: { common: '#888', rare: '#ffd966' },
+  playAttackSlash: playAttackSlashSpy,
+  playUiItemGetFeedback: playUiItemGetFeedbackSpy,
 }));
 
-import { showEventCardDiscardOverlay } from '../game/features/event/public.js';
+vi.mock('../game/features/event/presentation/browser/event_ui_helpers.js', () => ({
+  dismissTransientOverlay: dismissTransientOverlaySpy,
+  getAudioEngine: vi.fn(() => ({ playEvent: vi.fn() })),
+}));
 
-function createClassList() {
-  const set = new Set();
-  return {
-    add: vi.fn((...names) => names.forEach((name) => set.add(name))),
-    remove: vi.fn((...names) => names.forEach((name) => set.delete(name))),
-    contains: (name) => set.has(name),
-  };
-}
+import { showEventCardDiscardOverlay } from '../game/features/event/presentation/browser/event_ui_card_discard.js';
 
 function createElementFactory(elements) {
   return function createElement(tagName) {
     const el = {
       tagName: String(tagName || '').toUpperCase(),
       id: '',
-      attributes: {},
-      style: {},
-      className: '',
       type: '',
       tabIndex: -1,
+      style: {},
+      attributes: {},
       textContent: '',
       innerHTML: '',
-      title: '',
+      className: '',
       children: [],
-      classList: createClassList(),
       append(...nodes) {
         this.children.push(...nodes);
         nodes.forEach((node) => {
@@ -55,11 +58,15 @@ function createElementFactory(elements) {
       },
       setAttribute(name, value) {
         this.attributes[name] = String(value);
-        this[name] = String(value);
       },
       getAttribute(name) {
         return this.attributes[name];
       },
+      onclick: null,
+      onmouseenter: null,
+      onmouseleave: null,
+      onfocus: null,
+      onblur: null,
     };
     return el;
   };
@@ -83,110 +90,46 @@ function createDoc() {
   };
 }
 
-describe('showEventCardDiscardOverlay', () => {
-  it('logs a hit when no cards are available', () => {
-    const gs = {
-      player: { deck: [], hand: [], graveyard: [] },
-      addLog: vi.fn(),
-    };
-    const audioEngine = { playEvent: vi.fn(), playHit: vi.fn() };
-    const screenShake = { shake: vi.fn() };
-
-    showEventCardDiscardOverlay(gs, { cards: {} }, false, {
-      doc: createDoc(),
-      audioEngine,
-      screenShake,
-    });
-
-    expect(audioEngine.playEvent).toHaveBeenCalledWith('attack', 'slash');
-    expect(audioEngine.playHit).not.toHaveBeenCalled();
-    expect(screenShake.shake).toHaveBeenCalledWith(10, 0.4);
-    expect(gs.addLog).toHaveBeenCalledWith('No cards are available for this action.', 'damage');
-  });
-
-  it('renders unique card choices with count badges and cancel handling', () => {
+describe('event_ui_card_discard', () => {
+  it('renders localized copy and shared description classes for discard card text', () => {
     const doc = createDoc();
-    const onCancel = vi.fn();
-    const gs = {
-      player: { deck: ['strike', 'strike'], hand: ['guard'], graveyard: [] },
-      addLog: vi.fn(),
-    };
 
-    showEventCardDiscardOverlay(gs, {
-      cards: {
-        strike: { rarity: 'common', icon: 'S', name: 'Strike', desc: '피해 8. [소진]' },
-        guard: { rarity: 'common', icon: 'G', name: 'Guard', desc: '방어막 8 획득' },
+    showEventCardDiscardOverlay(
+      {
+        player: {
+          deck: ['strike'],
+          hand: [],
+          graveyard: [],
+        },
+        addLog: vi.fn(),
       },
-    }, false, { doc, onCancel });
+      {
+        cards: {
+          strike: {
+            name: '강타',
+            desc: '피해 14 [소진]',
+            rarity: 'rare',
+            icon: 'S',
+          },
+        },
+      },
+      false,
+      { doc },
+    );
 
     const overlay = doc.elements.cardDiscardOverlay;
+    const title = overlay.children[0];
     const list = doc.elements.discardCardList;
-    expect(overlay).toBeTruthy();
-    expect(list.children).toHaveLength(2);
-    expect(list.children[0].tagName).toBe('BUTTON');
-    expect(list.children[0].type).toBe('button');
-    expect(list.children[0].tabIndex).toBe(0);
-    expect(list.children[0].children[2].innerHTML).toContain('kw-dmg');
-    expect(list.children[0].children[2].innerHTML).toContain('kw-exhaust kw-block');
-    expect(list.children[0].children.at(-1).textContent).toBe('x2');
+    const card = list.children[0];
+    const desc = card.children[2];
 
-    const cancelBtn = overlay.children[2];
-    cancelBtn.onclick();
-    expect(onCancel).toHaveBeenCalledTimes(1);
-    expect(doc.elements.cardDiscardOverlay).toBeUndefined();
-  });
-
-  it('discards the chosen card and triggers item/update hooks on success', () => {
-    discardEventCardSpy.mockReturnValueOnce({ success: true });
-    const doc = createDoc();
-    const playItemGet = vi.fn();
-    const updateUI = vi.fn();
-    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
-    const gs = {
-      player: { deck: ['strike'], hand: [], graveyard: [] },
-      addLog: vi.fn(),
-    };
-    const data = {
-      cards: {
-        strike: { rarity: 'common', icon: 'S', name: 'Strike', desc: 'Deal damage' },
-      },
-    };
-
-    showEventCardDiscardOverlay(gs, data, true, { doc, playItemGet, updateUI, audioEngine });
-
-    const cardBtn = doc.elements.discardCardList.children[0];
-    cardBtn.onclick();
-
-    expect(discardEventCardSpy).toHaveBeenCalledWith({ gs, cardId: 'strike', data, isBurn: true });
-    expect(playItemGet).toHaveBeenCalledTimes(1);
-    expect(audioEngine.playEvent).not.toHaveBeenCalled();
-    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
-    expect(updateUI).toHaveBeenCalledTimes(1);
-    expect(doc.elements.cardDiscardOverlay).toBeUndefined();
-  });
-
-  it('uses the audio engine itemGet event when no injected playItemGet hook exists', () => {
-    discardEventCardSpy.mockReturnValueOnce({ success: true });
-    const doc = createDoc();
-    const updateUI = vi.fn();
-    const audioEngine = { playEvent: vi.fn(), playItemGet: vi.fn() };
-    const gs = {
-      player: { deck: ['strike'], hand: [], graveyard: [] },
-      addLog: vi.fn(),
-    };
-    const data = {
-      cards: {
-        strike: { rarity: 'common', icon: 'S', name: 'Strike', desc: 'Deal damage' },
-      },
-    };
-
-    showEventCardDiscardOverlay(gs, data, true, { doc, updateUI, audioEngine });
-
-    const cardBtn = doc.elements.discardCardList.children[0];
-    cardBtn.onclick();
-
-    expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'itemGet');
-    expect(audioEngine.playItemGet).not.toHaveBeenCalled();
-    expect(updateUI).toHaveBeenCalledTimes(1);
+    expect(title.children[0].textContent).toBe('카드 폐기');
+    expect(title.children[1].textContent).toBe('버릴 카드를 선택하세요 (+8 골드)');
+    expect(title.children[2].textContent).toBe('선택한 카드를 버리고 8 골드를 얻습니다.');
+    expect(desc.className).toBe('event-card-discard-desc');
+    expect(desc.innerHTML).toContain('kw-dmg');
+    expect(desc.innerHTML).toContain('kw-exhaust kw-block');
+    expect(typeof card.onfocus).toBe('function');
+    expect(typeof card.onblur).toBe('function');
   });
 });

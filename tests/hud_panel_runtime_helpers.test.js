@@ -232,7 +232,11 @@ describe('hud_panel_runtime_helpers', () => {
 
     const hudHoverEvent = { type: 'mouseenter', currentTarget: itemSlots.children[0] };
     itemSlots.children[0].listeners.mouseenter(hudHoverEvent);
-    expect(showItemTooltip).toHaveBeenCalledWith(hudHoverEvent, 'legendary_relic');
+    expect(showItemTooltip).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'mouseenter',
+      currentTarget: itemSlots.children[0],
+      target: itemSlots.children[0],
+    }), 'legendary_relic');
 
     itemSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: itemSlots.children[0] });
     expect(hideItemTooltip).toHaveBeenCalledWith();
@@ -302,7 +306,11 @@ describe('hud_panel_runtime_helpers', () => {
 
     const hoverEvent = { type: 'mouseenter', currentTarget: itemSlots.children[0] };
     itemSlots.children[0].listeners.mouseenter(hoverEvent);
-    expect(tooltipUI.showItemTooltip).toHaveBeenCalledWith(hoverEvent, 'legendary_relic', expect.any(Object));
+    expect(tooltipUI.showItemTooltip).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'mouseenter',
+      currentTarget: itemSlots.children[0],
+      target: itemSlots.children[0],
+    }), 'legendary_relic', expect.any(Object));
     expect(showItemTooltip).not.toHaveBeenCalled();
 
     itemSlots.children[0].listeners.mouseleave({ type: 'mouseleave', currentTarget: itemSlots.children[0] });

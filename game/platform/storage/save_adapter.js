@@ -1,27 +1,14 @@
-import { Logger } from '../../utils/logger.js';
+import {
+  Logger,
+  getDoc as getRuntimeDoc,
+  getWin as getRuntimeWin,
+} from '../../utils/public_feature_support.js';
 import { ErrorCodes, ErrorSeverity } from '../../core/error_codes.js';
 import { reportError } from '../../core/error_reporter.js';
 
-function getHostRoot() {
-  if (typeof globalThis !== 'undefined') {
-    return globalThis;
-  }
-  try {
-    return Function('return this')();
-  } catch {
-    return null;
-  }
-}
-
-function getHostWindow() {
-  const hostRoot = getHostRoot();
-  if (!hostRoot) return null;
-  return hostRoot.window || hostRoot;
-}
-
 function getStorage() {
   try {
-    const hostWindow = getHostWindow();
+    const hostWindow = getRuntimeWin();
     return hostWindow?.localStorage || null;
   } catch {
     return null;
@@ -30,7 +17,7 @@ function getStorage() {
 
 function getDocument() {
   try {
-    return getHostWindow()?.document || null;
+    return getRuntimeDoc();
   } catch {
     return null;
   }

@@ -3,13 +3,18 @@ import { createCharacterSelectMountActions } from '../../application/character_s
 export function buildCharacterSelectMountPayload({ gs, audioEngine, saveSystem, deps, fns, doc }) {
   const mountActions = createCharacterSelectMountActions({ fns });
   const gameBootDeps = deps.getGameBootDeps?.() || {};
+  const saveSystemDeps = deps.getSaveSystemDeps?.();
 
   return {
     doc,
     gs,
     audioEngine,
     data: gameBootDeps.data || null,
-    onProgressConsumed: () => saveSystem?.saveMeta?.(deps.getSaveSystemDeps()),
+    onProgressConsumed: () => {
+      const status = saveSystem?.saveMeta?.(saveSystemDeps);
+      saveSystem?.showSaveStatus?.(status, saveSystemDeps);
+      return status;
+    },
     onConfirm: mountActions.onConfirm,
     onBack: mountActions.onBack,
     onStart: mountActions.onStart,

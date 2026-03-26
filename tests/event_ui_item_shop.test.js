@@ -113,6 +113,9 @@ describe('showEventItemShopOverlay', () => {
     const overlay = doc.elements.itemShopOverlay;
     const list = doc.elements.itemShopList;
     expect(overlay).toBeTruthy();
+    expect(overlay.children[0].children[0].textContent).toBe('유물 상점');
+    expect(overlay.children[0].children[1].textContent).toBe('무엇을 구매하시겠습니까?');
+    expect(overlay.children[0].children[2].textContent).toBe('보유 골드: ');
     expect(doc.elements.itemShopGold.textContent).toBe(20);
     expect(list.children).toHaveLength(2);
     expect(list.children[0].tagName).toBe('BUTTON');

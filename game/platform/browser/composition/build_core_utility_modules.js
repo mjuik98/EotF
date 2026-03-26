@@ -1,6 +1,8 @@
-import { RandomUtils } from '../../../utils/random_utils.js';
-import { CardCostUtils } from '../../../utils/card_cost_utils.js';
-import { DescriptionUtils } from '../../../utils/description_utils.js';
+import {
+  CardCostUtils,
+  DescriptionUtils,
+  RandomUtils,
+} from '../../../utils/public_feature_support.js';
 
 export function buildCoreUtilityModules() {
   return {

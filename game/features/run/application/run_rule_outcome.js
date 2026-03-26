@@ -25,7 +25,8 @@ function resolveRunRulesState(deps = {}) {
 
 function persistRunOutcomeMeta(deps = {}) {
   const saveSystem = deps.saveSystem;
-  saveSystem?.saveMeta?.();
+  const status = saveSystem?.saveMeta?.(deps);
+  saveSystem?.showSaveStatus?.(status, deps);
   saveSystem?.clearSave?.();
 }
 

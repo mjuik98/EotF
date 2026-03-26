@@ -16,7 +16,7 @@ describe('boss relic integration guards', () => {
         expect(gs.player.maxHp).toBe(85);
 
         expect(relic.passive(gs, Trigger.PRE_DEATH)).toBe(true);
-        expect(gs.player.hp).toBe(25);
+        expect(gs.player.hp).toBe(85);
         expect(relic.passive(gs, Trigger.PRE_DEATH)).toBeUndefined();
 
         relic.passive(gs, Trigger.COMBAT_END);

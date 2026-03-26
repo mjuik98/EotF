@@ -47,7 +47,14 @@ describe('SaveSystem outbox', () => {
 
   it('queues failed meta saves and flushes when adapter recovers', () => {
     let failWrites = true;
-    const saveSpy = vi.spyOn(SaveAdapter, 'save').mockImplementation(() => !failWrites);
+    const metaWrites = [];
+    vi.spyOn(SaveAdapter, 'save').mockImplementation((key, payload) => {
+      if (key === SaveSystem.META_KEY) {
+        metaWrites.push(payload);
+        return !failWrites;
+      }
+      return true;
+    });
 
     const gs = {
       meta: {
@@ -61,16 +68,16 @@ describe('SaveSystem outbox', () => {
 
     SaveSystem.saveMeta({ gs });
     expect(SaveSystem.getOutboxSize()).toBe(1);
-    expect(saveSpy).toHaveBeenCalledTimes(1);
+    expect(metaWrites).toHaveLength(1);
 
     failWrites = false;
     const remaining = SaveSystem.flushOutbox();
 
     expect(remaining).toBe(0);
     expect(SaveSystem.getOutboxSize()).toBe(0);
-    expect(saveSpy).toHaveBeenCalledTimes(2);
+    expect(metaWrites).toHaveLength(2);
 
-    const [, payload] = saveSpy.mock.calls[1];
+    const payload = metaWrites[1];
     expect(payload.codex.enemies).toEqual(['wolf']);
     expect(payload.codex.cards).toEqual(['strike']);
     expect(payload.codex.items).toEqual(['potion']);
@@ -95,8 +102,10 @@ describe('SaveSystem outbox', () => {
 
   it('retries queued writes with exponential backoff', () => {
     let callCount = 0;
-    vi.spyOn(SaveAdapter, 'save').mockImplementation(() => {
-      callCount += 1;
+    vi.spyOn(SaveAdapter, 'save').mockImplementation((key) => {
+      if (key === SaveSystem.META_KEY) {
+        callCount += 1;
+      }
       return callCount >= 4;
     });
 
@@ -139,11 +148,192 @@ describe('SaveSystem outbox', () => {
     expect(payload.worldMemory.shrineSeen).toBe(true);
   });
 
+  it('returns queued status when run save falls back to the outbox', () => {
+    vi.spyOn(SaveAdapter, 'save').mockReturnValue(false);
+    const gs = createRunState();
+
+    const result = SaveSystem.saveRun({ gs, isGameStarted: () => true });
+
+    expect(result).toMatchObject({
+      status: 'queued',
+      persisted: false,
+      queueDepth: 1,
+    });
+    expect(SaveSystem.getOutboxSize()).toBe(1);
+  });
+
+  it('persists queued outbox entries across a memory reset and clears the persisted queue after flush', () => {
+    const storage = new Map();
+    let failRunSave = true;
+
+    vi.spyOn(SaveAdapter, 'save').mockImplementation((key, data) => {
+      if (key === SaveSystem.SAVE_KEY && failRunSave) return false;
+      storage.set(key, JSON.parse(JSON.stringify(data)));
+      return true;
+    });
+    vi.spyOn(SaveAdapter, 'load').mockImplementation((key) => {
+      const data = storage.get(key);
+      return data ? JSON.parse(JSON.stringify(data)) : null;
+    });
+    vi.spyOn(SaveAdapter, 'remove').mockImplementation((key) => {
+      storage.delete(key);
+    });
+
+    const gs = createRunState();
+    const queued = SaveSystem.saveRun({ gs, isGameStarted: () => true });
+
+    expect(queued).toMatchObject({
+      status: 'queued',
+      persisted: false,
+      queueDepth: 1,
+    });
+    expect(storage.get(SaveSystem.OUTBOX_KEY)).toEqual([
+      expect.objectContaining({
+        key: SaveSystem.SAVE_KEY,
+        attempts: 0,
+      }),
+    ]);
+
+    SaveSystem._outbox = [];
+    SaveSystem._outboxLoaded = false;
+
+    expect(SaveSystem.getOutboxSize()).toBe(1);
+    expect(SaveSystem.hasSave()).toBe(true);
+    expect(SaveSystem.readRunPreview()).toEqual(expect.objectContaining({
+      player: expect.objectContaining({ hp: 20 }),
+      currentRegion: 1,
+      currentFloor: 3,
+      saveState: 'queued',
+    }));
+
+    failRunSave = false;
+    expect(SaveSystem.flushOutbox()).toBe(0);
+    expect(SaveSystem.getOutboxSize()).toBe(0);
+    expect(storage.has(SaveSystem.OUTBOX_KEY)).toBe(false);
+    expect(storage.get(SaveSystem.SAVE_KEY)).toEqual(expect.objectContaining({
+      player: expect.objectContaining({ hp: 20 }),
+    }));
+  });
+
+  it('ignores and prunes stale queued run saves when no direct save exists', () => {
+    const removeSpy = vi.spyOn(SaveAdapter, 'remove').mockImplementation(() => {});
+    vi.spyOn(SaveAdapter, 'save').mockReturnValue(true);
+    vi.spyOn(SaveAdapter, 'load').mockImplementation((key) => {
+      if (key !== SaveSystem.OUTBOX_KEY) return null;
+      return [{
+        key: SaveSystem.SAVE_KEY,
+        data: {
+          version: 2,
+          player: {
+            hp: 20,
+            maxHp: 30,
+            deck: ['strike'],
+            gold: 10,
+            buffs: {},
+            upgradedCards: [],
+          },
+          currentRegion: 2,
+          currentFloor: 5,
+          regionFloors: { 2: 5 },
+          regionRoute: { 2: ['elite'] },
+          mapNodes: [{ id: '2-5' }],
+          visitedNodes: ['2-4', '2-5'],
+          currentNode: '2-5',
+          stats: { kills: 3 },
+          worldMemory: { shrineSeen: true },
+        },
+        attempts: 0,
+        createdAt: Date.now() - (8 * 24 * 60 * 60 * 1000),
+        nextAttemptAt: Date.now() - 1000,
+      }];
+    });
+
+    SaveSystem._outbox = [];
+    SaveSystem._outboxLoaded = false;
+
+    expect(SaveSystem.hasSave()).toBe(false);
+    expect(SaveSystem.readRunPreview()).toBe(null);
+    expect(SaveSystem.getOutboxSize()).toBe(0);
+    expect(removeSpy).toHaveBeenCalledWith(SaveSystem.OUTBOX_KEY);
+  });
+
+  it('returns saved status and clears the last save error when the run save persists', () => {
+    vi.spyOn(SaveAdapter, 'save').mockReturnValue(true);
+    SaveSystem._lastSaveError = new Error('stale');
+    const gs = createRunState();
+
+    const result = SaveSystem.saveRun({ gs, isGameStarted: () => true });
+
+    expect(result).toMatchObject({
+      status: 'saved',
+      persisted: true,
+      queueDepth: 0,
+    });
+    expect(SaveSystem._lastSaveError).toBe(null);
+  });
+
+  it('reads a run preview without mutating the live gs', () => {
+    vi.spyOn(SaveAdapter, 'load').mockImplementation((key) => {
+      if (key === SaveSystem.META_KEY) {
+        return {
+          version: 2,
+          runConfig: { ascension: 4, endless: true },
+        };
+      }
+      return {
+        version: 1,
+        player: {
+          hp: 20,
+          maxHp: 30,
+          deck: ['strike'],
+          gold: 10,
+          buffs: { regen: 2 },
+          upgradedCards: ['strike+'],
+        },
+        currentRegion: 2,
+        currentFloor: 5,
+        regionFloors: { 2: 5 },
+        regionRoute: { 2: ['elite'] },
+        mapNodes: [{ id: '2-5' }],
+        visitedNodes: ['2-4', '2-5'],
+        currentNode: '2-5',
+        stats: { kills: 3 },
+        worldMemory: { shrineSeen: true },
+      };
+    });
+    const gs = {
+      player: {
+        hp: 1,
+        maxHp: 1,
+        deck: [],
+        gold: 0,
+        buffs: {},
+        upgradedCards: new Set(),
+      },
+      currentRegion: 0,
+      currentFloor: 1,
+    };
+
+    const preview = SaveSystem.readRunPreview();
+
+    expect(preview.currentRegion).toBe(2);
+    expect(preview.currentFloor).toBe(5);
+    expect(preview.player.hp).toBe(20);
+    expect(preview.meta.runConfig.ascension).toBe(4);
+    expect(preview.saveState).toBe('saved');
+    expect(gs.player.hp).toBe(1);
+    expect(gs.currentRegion).toBe(0);
+    expect(gs.currentFloor).toBe(1);
+  });
+
   it('tracks outbox telemetry for failures, retries, and success', () => {
     let callCount = 0;
-    vi.spyOn(SaveAdapter, 'save').mockImplementation(() => {
-      callCount += 1;
-      return callCount >= 3;
+    vi.spyOn(SaveAdapter, 'save').mockImplementation((key) => {
+      if (key === SaveSystem.SAVE_KEY) {
+        callCount += 1;
+        return callCount >= 3;
+      }
+      return true;
     });
 
     SaveSystem._persistWithOutbox(SaveSystem.SAVE_KEY, { stage: 1 });
@@ -174,6 +364,62 @@ describe('SaveSystem outbox', () => {
     });
 
     expect(SaveSystem.hasSave()).toBe(false);
+  });
+
+  it('discards unsupported future-version run saves and prunes queued copies', () => {
+    const storage = new Map([
+      [SaveSystem.SAVE_KEY, {
+        version: 999,
+        player: {
+          hp: 20,
+          maxHp: 30,
+          deck: ['strike'],
+          gold: 10,
+          buffs: {},
+          upgradedCards: [],
+        },
+        currentRegion: 2,
+        currentFloor: 5,
+      }],
+      [SaveSystem.OUTBOX_KEY, [{
+        key: SaveSystem.SAVE_KEY,
+        data: {
+          version: 999,
+          player: {
+            hp: 22,
+            maxHp: 30,
+            deck: ['strike'],
+            gold: 11,
+            buffs: {},
+            upgradedCards: [],
+          },
+          currentRegion: 3,
+          currentFloor: 6,
+        },
+        attempts: 0,
+        createdAt: Date.now(),
+        nextAttemptAt: Date.now(),
+      }]],
+    ]);
+    vi.spyOn(SaveAdapter, 'load').mockImplementation((key) => structuredClone(storage.get(key)) ?? null);
+    const removeSpy = vi.spyOn(SaveAdapter, 'remove').mockImplementation((key) => {
+      storage.delete(key);
+    });
+    vi.spyOn(SaveAdapter, 'save').mockImplementation((key, data) => {
+      storage.set(key, structuredClone(data));
+      return true;
+    });
+
+    SaveSystem._outbox = [];
+    SaveSystem._outboxLoaded = false;
+
+    expect(SaveSystem.hasSave()).toBe(false);
+    expect(SaveSystem.readRunPreview()).toBe(null);
+    expect(SaveSystem.getOutboxSize()).toBe(0);
+    expect(storage.has(SaveSystem.SAVE_KEY)).toBe(false);
+    expect(storage.has(SaveSystem.OUTBOX_KEY)).toBe(false);
+    expect(removeSpy).toHaveBeenCalledWith(SaveSystem.SAVE_KEY);
+    expect(removeSpy).toHaveBeenCalledWith(SaveSystem.OUTBOX_KEY);
   });
 
   it('hydrates migrated meta saves and ensures run config', () => {
@@ -297,5 +543,64 @@ describe('SaveSystem outbox', () => {
     vi.advanceTimersByTime(1800);
 
     expect(appended[0].remove).toHaveBeenCalledTimes(1);
+  });
+
+  it('reuses a single active save notice instead of stacking duplicate toasts', () => {
+    const appended = [];
+    const removed = [];
+    const doc = {
+      body: {
+        appendChild: vi.fn((node) => {
+          appended.push(node);
+        }),
+      },
+      createElement: vi.fn(() => ({
+        style: { cssText: '' },
+        textContent: '',
+        remove: vi.fn(function remove() {
+          removed.push(this.textContent);
+        }),
+      })),
+    };
+
+    SaveSystem.showSaveStatus({ status: 'queued', persisted: false, queueDepth: 1 }, { doc });
+    SaveSystem.showSaveStatus({ status: 'error', persisted: false, queueDepth: 1 }, { doc });
+
+    expect(doc.body.appendChild).toHaveBeenCalledTimes(1);
+    expect(appended).toHaveLength(1);
+    expect(appended[0].textContent).toBe('저장에 실패해 현재 런을 유지합니다.');
+
+    vi.advanceTimersByTime(4000);
+
+    expect(appended[0].remove).toHaveBeenCalledTimes(1);
+    expect(removed).toEqual(['저장에 실패해 현재 런을 유지합니다.']);
+  });
+
+  it('delegates save status presentation to an injected presenter when provided', () => {
+    const presentSaveStatus = vi.fn();
+
+    SaveSystem.showSaveStatus(
+      { status: 'queued', persisted: false, queueDepth: 1 },
+      { presentSaveStatus, doc: { body: null } },
+    );
+    SaveSystem.showSaveBadge({
+      presentSaveStatus,
+      doc: { body: null },
+    });
+
+    expect(presentSaveStatus).toHaveBeenNthCalledWith(1, {
+      status: 'queued',
+      persisted: false,
+      queueDepth: 1,
+    }, expect.objectContaining({
+      presentSaveStatus,
+    }));
+    expect(presentSaveStatus).toHaveBeenNthCalledWith(2, {
+      status: 'saved',
+      persisted: true,
+      queueDepth: 0,
+    }, expect.objectContaining({
+      presentSaveStatus,
+    }));
   });
 });

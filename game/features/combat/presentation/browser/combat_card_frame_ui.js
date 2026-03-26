@@ -6,7 +6,7 @@ import {
   getCardTypeDisplayLabel,
   getCardTypeLabelClass,
 } from './card_render_helpers_ui.js';
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 
 function addTagChip(doc, parent, className, text) {
   const tag = doc.createElement('span');

@@ -121,9 +121,13 @@ describe('character select bindings', () => {
     expect(hover).toHaveBeenCalledTimes(1);
     expect(left.style.background).toBe('#7CC8FF22');
     expect(left.style.transform).toBe('scale(1.1)');
+    left.listeners.focus();
+    expect(hover).toHaveBeenCalledTimes(2);
 
     right.listeners.mouseleave();
     expect(right.style.boxShadow).toBe('0 0 16px #7CC8FF22');
+    right.listeners.blur();
+    expect(right.style.transform).toBe('scale(1)');
 
     left.listeners.click();
     right.listeners.click();
@@ -133,6 +137,7 @@ describe('character select bindings', () => {
     cleanup();
     expect(left.removeEventListener).toHaveBeenCalledWith('click', expect.any(Function));
     expect(right.removeEventListener).toHaveBeenCalledWith('mouseleave', expect.any(Function));
+    expect(left.removeEventListener).toHaveBeenCalledWith('focus', expect.any(Function));
   });
 
   it('combines keyboard, drag, and arrow cleanup in one setup helper', () => {

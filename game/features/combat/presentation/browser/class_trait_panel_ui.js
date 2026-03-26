@@ -1,3 +1,5 @@
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
+
 export function renderClassTraitPanel(model, deps = {}) {
   if (!model) return '';
 
@@ -9,11 +11,15 @@ export function renderClassTraitPanel(model, deps = {}) {
   root.style.cursor = 'help';
 
   if (model.title && model.desc) {
-    root.addEventListener('mouseenter', (event) => {
-      tooltipUI?.showGeneralTooltip?.(event, model.title, model.desc, { doc, win });
-    });
-    root.addEventListener('mouseleave', () => {
-      tooltipUI?.hideGeneralTooltip?.({ doc, win });
+    const tooltipLabel = [model.title, model.desc].filter(Boolean).join('. ');
+    bindTooltipTrigger(root, {
+      label: tooltipLabel,
+      show(event) {
+        tooltipUI?.showGeneralTooltip?.(event, model.title, model.desc, { doc, win });
+      },
+      hide() {
+        tooltipUI?.hideGeneralTooltip?.({ doc, win });
+      },
     });
   }
 

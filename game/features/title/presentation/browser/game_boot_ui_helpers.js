@@ -1,19 +1,11 @@
-function getHostObject() {
-  try {
-    return Function('return this')();
-  } catch {
-    return null;
-  }
-}
+import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/ports/public_feature_support_capabilities.js';
 
 export function getDoc(deps) {
-  const host = getHostObject();
-  return deps?.doc || deps?.win?.document || host?.document || null;
+  return getRuntimeDoc(deps);
 }
 
 export function getWin(deps) {
-  const host = getHostObject();
-  return deps?.win || deps?.doc?.defaultView || host?.window || host || null;
+  return getRuntimeWin(deps);
 }
 
 export function setText(doc, id, value) {
@@ -36,12 +28,34 @@ export function clearSavePreview(doc) {
   if (relicsEl) relicsEl.innerHTML = '';
 }
 
+function resolvePreviewSaveState(preview) {
+  return preview?.saveState === 'queued' ? 'queued' : 'saved';
+}
+
+function resolveRunPreview(saveSystem, gs) {
+  const preview = saveSystem?.readRunPreview?.();
+  if (preview?.player) return preview;
+
+  const saveLoaded = saveSystem?.loadRun?.({ gs });
+  if (!saveLoaded || !gs?.player) return null;
+  return gs;
+}
+
+function resolvePreviewAscension(preview, gs) {
+  const savedAscension = preview?.meta?.runConfig?.ascension;
+  if (savedAscension !== undefined && savedAscension !== null) {
+    return savedAscension;
+  }
+  return gs?.meta?.runConfig?.ascension ?? 0;
+}
+
 export function populateSaveTooltip(doc, saveSystem, gs) {
   try {
-    const saveLoaded = saveSystem?.loadRun?.({ gs });
-    if (!saveLoaded || !gs?.player) return false;
+    const preview = resolveRunPreview(saveSystem, gs);
+    if (!preview?.player) return false;
 
-    const player = gs.player;
+    const player = preview.player;
+    const saveState = resolvePreviewSaveState(preview);
     const classNames = {
       swordsman: '검사',
       mage: '마법사',
@@ -50,20 +64,26 @@ export function populateSaveTooltip(doc, saveSystem, gs) {
     };
 
     const className = classNames[player.class] || player.class || '-';
+    const ascension = resolvePreviewAscension(preview, gs);
+    const queuedSuffix = saveState === 'queued' ? ' · 복구 대기' : '';
     setText(doc, 'sttClass', className);
-    setText(doc, 'sttFloor', `${gs.currentFloor || 1}층 · ${gs.currentRegion || 0}구역`);
-    setText(doc, 'sttAscension', `A${gs.meta?.runConfig?.ascension ?? 0}`);
+    setText(doc, 'sttFloor', `${preview.currentFloor || 1}층 · ${preview.currentRegion || 0}구역`);
+    setText(doc, 'sttAscension', `A${ascension}`);
     setText(doc, 'sttHp', `${player.hp ?? '-'} / ${player.maxHp ?? '-'}`);
     setText(doc, 'sttGold', `${player.gold ?? 0}`);
-    setText(doc, 'titleContinueMeta', `${gs.currentFloor || 1}층 · ${className} · A${gs.meta?.runConfig?.ascension ?? 0}`);
+    setText(doc, 'titleContinueMeta', `${preview.currentFloor || 1}층 · ${className} · A${ascension}${queuedSuffix}`);
 
     const pillsEl = doc.getElementById('sttDeckPills');
     if (pillsEl) {
       const deckSize = Array.isArray(player.deck) ? player.deck.length : 0;
-      pillsEl.innerHTML = [
+      const pills = [
         `<span class="title-stt-pill title-stt-pill--attack">덱 ${deckSize}장</span>`,
         `<span class="title-stt-pill title-stt-pill--skill">손패 ${player.hand?.length || 0}장</span>`,
-      ].join('');
+      ];
+      if (saveState === 'queued') {
+        pills.unshift('<span class="title-stt-pill title-stt-pill--queued">복구 대기</span>');
+      }
+      pillsEl.innerHTML = pills.join('');
     }
 
     const relicsEl = doc.getElementById('sttRelics');
@@ -84,6 +104,7 @@ export function populateSaveTooltip(doc, saveSystem, gs) {
 }
 
 export function refreshTitleSaveState(doc, saveSystem, gs) {
+  saveSystem?.flushOutbox?.();
   let hasSave = saveSystem?.hasSave?.() ?? false;
   const continueWrap = doc.getElementById('titleContinueWrap');
   const menuDivider = doc.getElementById('titleMenuDivider');

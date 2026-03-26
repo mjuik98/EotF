@@ -4,10 +4,16 @@ export function buildTitleRunContractBuilders(ctx) {
   return {
     runMode: () => {
       const refs = getRefs();
+      const saveSystemDeps = createDeps('saveSystem');
+      const saveMeta = () => {
+        const status = refs.SaveSystem?.saveMeta?.(saveSystemDeps);
+        refs.SaveSystem?.showSaveStatus?.(status, saveSystemDeps);
+        return status;
+      };
       return {
         ...buildBaseDeps('run'),
         runRules: refs.RunRules,
-        saveMeta: () => refs.SaveSystem?.saveMeta?.(createDeps('saveSystem')),
+        saveMeta,
         notice: (msg) => refs.showWorldMemoryNotice?.(msg),
       };
     },

@@ -105,16 +105,20 @@ export function showBranchChoiceOverlay(routes, deps = {}) {
         card.append(heading, info);
       }
 
-      card.addEventListener('mouseenter', () => {
+      const applyHoverState = () => {
         card.style.transform = 'translateY(-2px)';
         card.style.borderColor = 'rgba(123,47,255,0.65)';
         card.style.background = 'rgba(123,47,255,0.12)';
-      });
-      card.addEventListener('mouseleave', () => {
+      };
+      const clearHoverState = () => {
         card.style.transform = '';
         card.style.borderColor = 'rgba(255,255,255,0.14)';
         card.style.background = 'rgba(255,255,255,0.04)';
-      });
+      };
+      card.addEventListener('mouseenter', applyHoverState);
+      card.addEventListener('mouseleave', clearHoverState);
+      card.addEventListener('focus', applyHoverState);
+      card.addEventListener('blur', clearHoverState);
       card.addEventListener('click', () => cleanupAndResolve(option));
       grid.appendChild(card);
     });

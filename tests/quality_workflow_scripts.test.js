@@ -17,14 +17,28 @@ describe('quality workflow scripts', () => {
     expect(packageJson.scripts.test).toBe('node scripts/run-vitest-suite.mjs fast');
     expect(packageJson.scripts['test:guardrails']).toBe('node scripts/run-vitest-suite.mjs guardrails');
     expect(packageJson.scripts['test:full']).toBe('node scripts/run-vitest-suite.mjs full');
+    expect(packageJson.scripts['test:order-guard']).toBe('node scripts/check-vitest-order-dependence.mjs fast');
     expect(packageJson.scripts['deps:map:check']).toBe('node scripts/generate-dependency-map.mjs --check');
     expect(packageJson.scripts['quality:sync']).toBe('npm run test:manifest:write && npm run deps:map');
     expect(packageJson.scripts['quality:full']).toContain('npm run test:coverage');
     expect(packageJson.scripts['quality:full']).toContain('npm run audit:structure');
     expect(packageJson.scripts['quality:full']).toContain('npm run deps:map:check');
+    expect(packageJson.scripts['quality:full']).toContain('npm run test:order-guard -- --runs 1 --sample 20');
     expect(packageJson.scripts['quality:full']).toContain('npm run build');
     expect(packageJson.scripts['quality:full']).toContain('npm run smoke:character-select');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-load');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-outbox-recovery');
     expect(packageJson.scripts.quality).toBe('npm run quality:full');
+  });
+
+  it('registers an order-dependence guard that shuffles the fast suite from the manifest', () => {
+    const script = readText('scripts/check-vitest-order-dependence.mjs');
+
+    expect(script).toContain('test_suite_manifest.json');
+    expect(script).toContain('Math.random');
+    expect(script).toContain('spawnSync');
+    expect(script).toContain('CODEX_VITEST_SUITE');
+    expect(script).toContain("suite = process.argv[2] || 'fast'");
   });
 
   it('keeps the automated quality gate aligned with the local full workflow', () => {
@@ -35,6 +49,7 @@ describe('quality workflow scripts', () => {
     expect(workflow).toContain('- run: npm run lint');
     expect(workflow).toContain('- run: npm run test:coverage');
     expect(workflow).toContain('- run: npm run audit:structure');
+    expect(workflow).toContain('- run: npm run test:order-guard -- --runs 1 --sample 20');
     expect(workflow).toContain('- run: npm run build');
   });
 

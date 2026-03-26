@@ -1,7 +1,7 @@
 import {
   playStageEntryFadeTransition,
   removeRunStartHandoffBlackout,
-} from './run_start_transition_runtime.js';
+} from '../presentation/browser/run_start_transition_runtime.js';
 
 function scheduleWorldMemoryNotice(deps = {}, gs = {}) {
   setTimeout(() => {

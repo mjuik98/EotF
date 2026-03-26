@@ -1,4 +1,5 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
+import { DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 import {
   buildItemDetailViewModel,
@@ -77,17 +78,16 @@ export function renderClassSelectButtons(container, deps = {}) {
     const traitEl = btn.querySelector('.class-btn-trait');
     if (traitEl) {
       traitEl.style.cursor = 'help';
-      traitEl.setAttribute('tabindex', '0');
-      traitEl.setAttribute('role', 'button');
-      traitEl.setAttribute('aria-label', `${cls.traitTitle || cls.traitName}. ${cls.traitDesc || ''}`);
-      const showTraitTooltip = (event) => {
-        event.stopPropagation();
-        showTooltip?.(event, cls.traitTitle, cls.traitDesc);
-      };
-      traitEl.addEventListener('mouseenter', showTraitTooltip);
-      traitEl.addEventListener('focus', showTraitTooltip);
-      traitEl.addEventListener('mouseleave', () => hideTooltip?.());
-      traitEl.addEventListener('blur', () => hideTooltip?.());
+      bindTooltipTrigger(traitEl, {
+        label: `${cls.traitTitle || cls.traitName}. ${cls.traitDesc || ''}`,
+        show(event) {
+          event.stopPropagation?.();
+          showTooltip?.(event, cls.traitTitle, cls.traitDesc);
+        },
+        hide() {
+          hideTooltip?.();
+        },
+      });
     }
 
     const relicEl = btn.querySelector('.class-btn-relic');
@@ -106,8 +106,13 @@ export function renderClassSelectButtons(container, deps = {}) {
       relicEl.setAttribute('aria-controls', 'classSelectRelicDetail');
       relicEl.setAttribute('aria-pressed', 'false');
       relicEl.setAttribute('aria-label', `${startItem.name}. ${startItem.desc || ''}`);
-      relicEl.addEventListener('mouseenter', renderRelicDetail);
-      relicEl.addEventListener('focus', renderRelicDetail);
+      bindTooltipTrigger(relicEl, {
+        label: `${startItem.name}. ${startItem.desc || ''}`,
+        show: renderRelicDetail,
+        hide() {
+          detailSurface.clear();
+        },
+      });
       relicEl.addEventListener('click', renderRelicDetail);
       relicEntries.push(relicEl);
       if (!firstRelicDetail) {

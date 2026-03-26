@@ -1,3 +1,5 @@
+import { clearHandScopedRuntimeState } from '../../../../shared/state/hand_index_runtime_state.js';
+
 export function applyCombatSessionCleanupReducerState(state) {
   const combat = state?.combat;
   if (!combat) return null;
@@ -13,8 +15,7 @@ export function applyCombatSessionCleanupReducerState(state) {
   state._scrollTempCard = null;
   state._fragmentActive = false;
   state._fragmentBaseMax = undefined;
-  state._glitch0 = null;
-  state._glitchPlus = null;
+  clearHandScopedRuntimeState(state);
   state._eternityActive = false;
 
   return {

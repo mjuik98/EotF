@@ -55,6 +55,10 @@ class MockElement {
   addEventListener(type, callback) {
     this._listeners.set(type, callback);
   }
+
+  setAttribute(name, value) {
+    this[name] = String(value);
+  }
 }
 
 function createMockDocument() {
@@ -72,7 +76,7 @@ function createMockDocument() {
 }
 
 describe('buildEnemyStatusBadges', () => {
-  it('renders status badges with poison duration override and hover callbacks', () => {
+  it('renders status badges with poison duration override and hover/focus callbacks', () => {
     const doc = createMockDocument();
     const onShowStatusTooltip = vi.fn();
     const onHideStatusTooltip = vi.fn();
@@ -92,20 +96,31 @@ describe('buildEnemyStatusBadges', () => {
     expect(poisonBadge.className).toBe('enemy-status-badge');
     expect(poisonBadge.textContent).toContain('(3)');
     expect(poisonBadge.style.cssText).toContain('#ff6688');
+    expect(poisonBadge.tabIndex).toBe('0');
+    expect(poisonBadge.role).toBe('button');
+    expect(poisonBadge['aria-label']).toContain('중독');
 
     const armorBadge = fragment.children[2];
     expect(armorBadge.textContent).not.toContain('poisonDuration');
     expect(armorBadge.style.cssText).toContain('#88ccff');
 
     poisonBadge._listeners.get('mouseenter')?.({ type: 'mouseenter' });
+    poisonBadge._listeners.get('focus')?.({ type: 'focus' });
     expect(onShowStatusTooltip).toHaveBeenCalledWith(
-      { type: 'mouseenter' },
+      expect.objectContaining({ type: 'mouseenter', currentTarget: poisonBadge }),
+      'poisoned',
+      2,
+      expect.objectContaining({ doc, poisonDuration: 3 }),
+    );
+    expect(onShowStatusTooltip).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'focus', currentTarget: poisonBadge }),
       'poisoned',
       2,
       expect.objectContaining({ doc, poisonDuration: 3 }),
     );
 
     poisonBadge._listeners.get('mouseleave')?.();
+    poisonBadge._listeners.get('blur')?.();
     expect(onHideStatusTooltip).toHaveBeenCalledWith({ doc });
   });
 

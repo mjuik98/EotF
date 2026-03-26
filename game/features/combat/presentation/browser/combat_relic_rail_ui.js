@@ -1,4 +1,5 @@
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 import { getItemDetailNavIndex, isItemDetailCommitKey } from './item_detail_navigation.js';
 import {
   applyCombatRelicPanelVisuals,
@@ -127,20 +128,17 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     slot.setAttribute('aria-controls', 'combatRelicPanel');
     slot.setAttribute('aria-pressed', 'false');
     const showSlotDetail = (activeSlot, pinned = false) => showDetail(itemId, item, activeSlot, pinned);
+    const clearSlotDetail = () => {
+      if (isPinned(detailPanel, itemId)) return;
+      detailSurface.clear();
+    };
 
-    slot.addEventListener('mouseenter', () => {
-      showSlotDetail(slot);
-    });
-    slot.addEventListener('focus', () => {
-      showSlotDetail(slot);
-    });
-    slot.addEventListener('mouseleave', () => {
-      if (isPinned(detailPanel, itemId)) return;
-      detailSurface.clear();
-    });
-    slot.addEventListener('blur', () => {
-      if (isPinned(detailPanel, itemId)) return;
-      detailSurface.clear();
+    bindTooltipTrigger(slot, {
+      label: buildItemTooltipFallbackText(item, itemId),
+      show: () => {
+        showSlotDetail(slot);
+      },
+      hide: clearSlotDetail,
     });
 
     slot.addEventListener('click', (event) => {

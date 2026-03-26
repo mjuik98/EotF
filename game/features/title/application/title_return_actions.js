@@ -11,8 +11,13 @@ export function completeTitleReturn(deps = {}) {
 
 export function returnToTitleFromPause(deps = {}) {
   const gs = deps?.gs;
-  if (gs && typeof deps.saveRun === 'function') {
-    deps.saveRun({ gs });
+  const saveResult = gs && typeof deps.saveRun === 'function'
+    ? deps.saveRun({ gs })
+    : null;
+
+  if (saveResult?.status === 'queued' || saveResult?.status === 'error') {
+    deps.showSaveStatus?.(saveResult);
+    return false;
   }
 
   if (typeof deps.reload === 'function') {

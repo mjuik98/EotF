@@ -18,7 +18,7 @@ const {
   registerRunEntryBindingsSpy: vi.fn(),
 }));
 
-vi.mock('../game/core/settings_manager.js', () => ({
+vi.mock('../game/platform/browser/settings/settings_manager.js', () => ({
   SettingsManager: {
     load: loadSpy,
     set: setSpy,

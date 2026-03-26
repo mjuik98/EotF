@@ -31,6 +31,7 @@ describe('game_boot_ui_runtime', () => {
     const totalKills = { id: 'titleTotalKills' };
     const bestChain = { id: 'titleBestChain' };
     const doc = {
+      visibilityState: 'visible',
       addEventListener: vi.fn(),
       getElementById: vi.fn((id) => {
         if (id === 'titleStatsBlock') return statsBlock;
@@ -62,6 +63,7 @@ describe('game_boot_ui_runtime', () => {
         ensureMeta: vi.fn(),
       },
       saveSystem: {
+        flushOutbox: vi.fn(() => 0),
         loadMeta: vi.fn(),
       },
       saveSystemDeps: { slot: 1 },
@@ -73,6 +75,7 @@ describe('game_boot_ui_runtime', () => {
     bootGameRuntime(ui, deps);
 
     expect(doc.addEventListener).toHaveBeenCalledWith('click', expect.any(Function), { once: false });
+    expect(deps.saveSystem.flushOutbox).toHaveBeenCalledTimes(1);
     expect(deps.saveSystem.loadMeta).toHaveBeenCalledWith({ slot: 1 });
     expect(deps.runRules.ensureMeta).toHaveBeenCalledWith(deps.gs.meta);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
@@ -103,6 +106,48 @@ describe('game_boot_ui_runtime', () => {
     expect(fx.countUp).toHaveBeenNthCalledWith(1, totalRuns, 3, 1100);
     expect(fx.countUp).toHaveBeenNthCalledWith(2, totalKills, 17, 1250);
     expect(fx.countUp).toHaveBeenNthCalledWith(3, bestChain, 9, 1350);
+  });
+
+  it('flushes the outbox and refreshes title save state when the page becomes visible again', async () => {
+    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const { bootGameRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
+    const doc = {
+      visibilityState: 'hidden',
+      addEventListener: vi.fn(),
+      getElementById: vi.fn(() => null),
+    };
+    helpers.getDoc.mockReturnValue(doc);
+    helpers.getWin.mockReturnValue(globalThis);
+
+    const ui = {
+      refreshTitleSaveState: vi.fn(),
+    };
+    const deps = {
+      gs: { meta: {} },
+      audioEngine: {},
+      runRules: {
+        ensureMeta: vi.fn(),
+      },
+      saveSystem: {
+        flushOutbox: vi.fn(() => 0),
+        loadMeta: vi.fn(),
+      },
+      saveSystemDeps: {},
+      initTitleCanvas: vi.fn(),
+      updateUI: vi.fn(),
+      refreshRunModePanel: vi.fn(),
+    };
+
+    bootGameRuntime(ui, deps);
+
+    const visibilityCall = doc.addEventListener.mock.calls.find(([name]) => name === 'visibilitychange');
+    expect(visibilityCall).toBeTruthy();
+
+    doc.visibilityState = 'visible';
+    visibilityCall[1]();
+
+    expect(deps.saveSystem.flushOutbox).toHaveBeenCalledTimes(2);
+    expect(ui.refreshTitleSaveState).toHaveBeenCalledTimes(2);
   });
 
   it('waits for DOMContentLoaded before booting when the document is still loading', async () => {

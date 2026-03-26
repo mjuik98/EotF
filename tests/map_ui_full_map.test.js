@@ -29,6 +29,7 @@ class MockElement {
     this.scrollTop = 0;
     this.width = 0;
     this.height = 0;
+    this.attributes = {};
     this._textContent = '';
     this._innerHTML = '';
   }
@@ -56,6 +57,14 @@ class MockElement {
   addEventListener(type, handler) {
     if (!this.listeners[type]) this.listeners[type] = [];
     this.listeners[type].push(handler);
+  }
+
+  setAttribute(name, value) {
+    this.attributes[name] = String(value);
+  }
+
+  getAttribute(name) {
+    return this.attributes[name];
   }
 
   getBoundingClientRect() {
@@ -127,10 +136,10 @@ describe('map_ui_full_map', () => {
         ],
       },
       nodeMeta: {
-        combat: { icon: 'C', label: 'Combat', color: '#ff4455', desc: 'Fight enemies.' },
-        event: { icon: 'E', label: 'Event', color: '#33ccff', desc: 'Resolve an event.' },
+        combat: { icon: 'C', label: '전투', color: '#ff4455', desc: '적과 전투합니다.' },
+        event: { icon: 'E', label: '이벤트', color: '#33ccff', desc: '이벤트를 해결합니다.' },
       },
-      getRegionData: () => ({ name: 'Region Zero' }),
+      getRegionData: () => ({ name: '지역 0' }),
     });
 
     const overlay = doc.getElementById('fullMapOverlay');
@@ -139,6 +148,8 @@ describe('map_ui_full_map', () => {
     expect(doc.body.children.includes(overlay)).toBe(true);
     expect(requestAnimationFrame).toHaveBeenCalled();
     expect((doc._listeners.keydown || [])).toHaveLength(1);
+    expect(overlay.children[1].children[0].tabIndex).toBe('0');
+    expect(overlay.children[1].children[0].getAttribute('aria-label')).toContain('전체 지도');
 
     const onKeyDown = doc._listeners.keydown[0];
     onKeyDown({
@@ -168,9 +179,9 @@ describe('map_ui_full_map', () => {
         ],
       },
       nodeMeta: {
-        combat: { icon: 'C', label: 'Combat', color: '#ff4455', desc: 'Fight enemies.' },
+        combat: { icon: 'C', label: '전투', color: '#ff4455', desc: '적과 전투합니다.' },
       },
-      getRegionData: () => ({ name: 'Region Zero' }),
+      getRegionData: () => ({ name: '지역 0' }),
     };
 
     showFullMapOverlay(deps);

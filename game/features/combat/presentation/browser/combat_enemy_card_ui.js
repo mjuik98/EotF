@@ -6,6 +6,7 @@ import {
   syncEnemySelectionState,
 } from './combat_enemy_card_renderers_ui.js';
 import {
+  bindEnemyIntentTooltip,
   createEnemyCardShell,
   createEnemyHpTextNode,
   createEnemyIntentContainer,
@@ -102,8 +103,7 @@ export function updateEnemyCardView({
       intentLabelHtml,
       intentDmgVal,
     });
-    intentEl.onmouseenter = onIntentEnter;
-    intentEl.onmouseleave = onIntentLeave;
+    bindEnemyIntentTooltip(intentEl, onIntentEnter, onIntentLeave);
   }
 
   if (statusEl) {

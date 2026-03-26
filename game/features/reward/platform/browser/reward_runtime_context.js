@@ -6,7 +6,7 @@ import {
 import {
   setRewardPickedState,
   setSkipConfirmVisible,
-} from '../../presentation/browser/reward_ui_render.js';
+} from './reward_ui_state.js';
 
 export function createRewardRuntimeContext() {
   return {

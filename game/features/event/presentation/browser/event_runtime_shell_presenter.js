@@ -1,6 +1,6 @@
 import { ensureEventModalShell } from '../../platform/browser/ensure_event_modal_shell.js';
 import { renderChoices } from './event_ui_dom.js';
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
 
 export function renderEventShellRuntime(event, { doc, gs, refreshGoldBar, resolveChoice }) {
   ensureEventModalShell(doc);

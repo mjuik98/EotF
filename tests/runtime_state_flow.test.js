@@ -280,7 +280,12 @@ describe('runtime state flow guards', () => {
     const played = GameAPI.playCard(cardId, 0, gs);
 
     expect(played).toBe(true);
-    expect(triggerItems).toHaveBeenCalledWith('before_card_cost', { cardId, cost: 2, baseCost: 2 });
+    expect(triggerItems).toHaveBeenCalledWith('before_card_cost', expect.objectContaining({
+      cardId,
+      handIndex: 0,
+      cost: 2,
+      baseCost: 2,
+    }));
     expect(discardSpy).toHaveBeenCalledTimes(1);
     expect(gs.player.energy).toBe(0);
   });

@@ -54,6 +54,14 @@ function loadBootMeta(saveSystem, deps) {
   }
 }
 
+function flushOutbox(saveSystem) {
+  try {
+    saveSystem?.flushOutbox?.();
+  } catch (error) {
+    console.warn('[GameBootUI] flushOutbox error:', error);
+  }
+}
+
 function ensureRunMeta(runRules, gs) {
   try {
     runRules?.ensureMeta?.(gs?.meta);
@@ -96,6 +104,16 @@ function scheduleTitleStats(doc, gs, timers) {
   }, 350);
 }
 
+function bindOutboxRecoveryVisibility(doc, saveSystem, onVisibleRefresh) {
+  if (!doc?.addEventListener || doc.__titleOutboxRecoveryBound) return;
+  doc.__titleOutboxRecoveryBound = true;
+  doc.addEventListener('visibilitychange', () => {
+    if (doc.visibilityState !== 'visible') return;
+    flushOutbox(saveSystem);
+    onVisibleRefresh?.();
+  });
+}
+
 export function bootGameRuntime(ui, deps = {}) {
   const gs = deps.gs;
   const doc = getDoc(deps);
@@ -107,6 +125,7 @@ export function bootGameRuntime(ui, deps = {}) {
 
   try {
     registerAudioUnlock(doc, audioEngine);
+    flushOutbox(saveSystem);
     loadBootMeta(saveSystem, deps);
     ensureRunMeta(runRules, gs);
     scheduleTitleCanvasInit(deps, timers, win);
@@ -122,6 +141,9 @@ export function bootGameRuntime(ui, deps = {}) {
     });
     setupKeyboardNav(doc);
     scheduleTitleStats(doc, gs, timers);
+    bindOutboxRecoveryVisibility(doc, saveSystem, () => {
+      ui.refreshTitleSaveState({ doc, saveSystem, gs });
+    });
 
     ui.refreshTitleSaveState({ doc, saveSystem, gs });
   } catch (error) {

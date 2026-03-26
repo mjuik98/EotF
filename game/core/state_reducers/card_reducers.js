@@ -1,4 +1,5 @@
 import { Actions } from '../state_action_types.js';
+import { reindexHandScopedRuntimeState } from '../../shared/state/hand_index_runtime_state.js';
 
 export const CardReducers = {
   [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {
@@ -6,7 +7,10 @@ export const CardReducers = {
 
     if (!skipHandRemove) {
       const idx = player.hand.indexOf(cardId);
-      if (idx >= 0) player.hand.splice(idx, 1);
+      if (idx >= 0) {
+        player.hand.splice(idx, 1);
+        reindexHandScopedRuntimeState(gs, idx);
+      }
     }
 
     if (exhaust) {

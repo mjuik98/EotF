@@ -88,7 +88,8 @@ describe('bootstrap payload assembly', () => {
     const saveDeps = { token: 'save-deps' };
     const gs = { id: 'gs' };
     const audioEngine = { id: 'audio' };
-    const saveSystem = { saveMeta: vi.fn() };
+    const saveResult = { status: 'queued', persisted: false, queueDepth: 1 };
+    const saveSystem = { saveMeta: vi.fn(() => saveResult), showSaveStatus: vi.fn() };
     const deps = {
       getGameBootDeps: vi.fn(() => ({ data: { cards: 'cards-data' } })),
       getSaveSystemDeps: vi.fn(() => saveDeps),
@@ -115,6 +116,7 @@ describe('bootstrap payload assembly', () => {
     expect(deps.getGameBootDeps).toHaveBeenCalledTimes(1);
     expect(deps.getSaveSystemDeps).toHaveBeenCalledTimes(1);
     expect(saveSystem.saveMeta).toHaveBeenCalledWith(saveDeps);
+    expect(saveSystem.showSaveStatus).toHaveBeenCalledWith(saveResult, saveDeps);
   });
 
   it('builds subscriber refs and combines feature action maps', () => {

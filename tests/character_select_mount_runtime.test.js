@@ -168,6 +168,50 @@ describe('character_select_mount_runtime', () => {
     expect(runtime.resolveClass('berserker')).toBe(chars[1]);
   });
 
+  it('prefers injected tooltip apis so the title mount runtime does not need the combat presentation barrel', () => {
+    const elements = {
+      charCard: createElement(),
+      infoPanel: createElement(),
+      dotsRow: createElement(),
+      buttonsRow: createElement(),
+      bgGradient: createElement(),
+      headerTitle: createElement(),
+    };
+    const tooltipUI = {
+      showTooltip: vi.fn(),
+      hideTooltip: vi.fn(),
+      showGeneralTooltip: vi.fn(),
+      hideGeneralTooltip: vi.fn(),
+    };
+    const chars = [
+      { class: 'paladin', traitName: 'Grace', accent: '#7CC8FF', glow: '#7CC8FF', particle: 'aegis' },
+    ];
+    const deps = {
+      gs: { meta: {} },
+      tooltipUI,
+    };
+    const runtime = createCharacterSelectMountRuntime({
+      chars,
+      deps,
+      doc: {},
+      flow: { jumpTo: vi.fn(), handleConfirm: vi.fn() },
+      getById: (id) => elements[id] || null,
+      openModal: vi.fn(),
+      particleRuntime: { start: vi.fn() },
+      sfx: { hover: vi.fn(), echo: vi.fn() },
+      state: { idx: 0, phase: 'select', typingTimer: null },
+      stopTyping: vi.fn(),
+      win: { TooltipUI: { stale: true } },
+    });
+
+    runtime.updateAll();
+
+    expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({
+      generalTooltipUI: tooltipUI,
+      cardTooltipUI: tooltipUI,
+    }));
+  });
+
   it('passes loadout summary and warning state through to the character card renderer', () => {
     hoisted.getClassState.mockReturnValue({
       level: 12,

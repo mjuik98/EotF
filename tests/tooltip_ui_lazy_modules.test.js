@@ -86,7 +86,11 @@ describe('TooltipUI lazy modules', () => {
 
     expect(cardEl.addEventListener).toHaveBeenCalledWith('focus', expect.any(Function));
     expect(cardEl.addEventListener).toHaveBeenCalledWith('blur', expect.any(Function));
-    expect(showSpy).toHaveBeenCalledWith({ type: 'focus' }, 'strike', deps);
+    expect(showSpy).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'focus',
+      currentTarget: cardEl,
+      target: cardEl,
+    }), 'strike', deps);
     expect(hideSpy).toHaveBeenCalledWith(deps);
 
     showSpy.mockRestore();

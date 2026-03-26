@@ -1,4 +1,4 @@
-import { SettingsManager } from '../../../../core/settings_manager.js';
+import { SettingsManager } from '../../platform/browser/settings_manager.js';
 
 const CODE_LABEL_MAP = {
   Space: 'SPACE',

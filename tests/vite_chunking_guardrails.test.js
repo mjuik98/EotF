@@ -76,6 +76,9 @@ describe('vite chunking guardrails', () => {
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_keyword_copy.js'),
     ).toBe('ui-combat-copy');
     expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_surface_state.js'),
+    ).toBe('ui-combat-copy');
+    expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_relic_rail_ui.js'),
     ).toBe('ui-combat-relics');
     expect(
@@ -100,11 +103,32 @@ describe('vite chunking guardrails', () => {
 
   it('keeps shared item-detail surface helpers out of the combat presentation chunk to avoid circular chunk imports', () => {
     expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/tooltip/tooltip_trigger_bindings.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/item_detail/item_detail_panel_ui.js'),
     ).toBe('ui-shared-surfaces');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/state/ui_surface_state_controller.js'),
     ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_text_highlight.js'),
+    ).toBe('ui-shared-surfaces');
+  });
+
+  it('routes shared set-bonus progression modules into a dedicated shared chunk instead of overlay-owned chunks', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/set_bonus_catalog.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/set_bonus_helpers.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/set_bonus_system.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/set_bonus_trigger_effects.js'),
+    ).toBe('ui-progression-core');
   });
 
   it('keeps SettingsManager in a dedicated settings-support chunk so shell overlays do not own settings persistence code', () => {

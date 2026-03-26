@@ -9,6 +9,14 @@ export {
   resolvePlayStyle,
 } from './character_select_info_panel_featured_content.js';
 
+function escapeAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 export function buildLevel11PresetSummary(preset, cards) {
   if (!preset) return '없음';
   if (preset.type === 'upgrade') {
@@ -26,7 +34,8 @@ export function buildLevel11PresetSummary(preset, cards) {
 export function buildDeckCardMarkup(deck, cards, accent) {
   return `<div class="char-start-deck">${(deck || []).map((cardId) => {
     const card = cards?.[cardId] || { name: cardId };
-    return `<span class="deck-card" data-cid="${cardId}" style="border:1px solid ${accent}1a;padding:4px 10px;font-size:11px;background:${accent}05;cursor:help">${card.name}</span>`;
+    const cardLabel = [card.name, card.desc].filter(Boolean).join('. ');
+    return `<span class="deck-card" data-cid="${escapeAttr(cardId)}" data-card-label="${escapeAttr(cardLabel)}" style="border:1px solid ${accent}1a;padding:4px 10px;font-size:11px;background:${accent}05;cursor:help">${card.name}</span>`;
   }).join('')}</div>`;
 }
 
@@ -44,10 +53,12 @@ export function buildInteractiveDeckCardMarkup(deck, cards, accent, options = {}
     const borderColor = selected ? `${accent}99` : (selectable ? `${accent}44` : `${accent}1a`);
     const background = selected ? `${accent}12` : (selectable ? `${accent}08` : `${accent}05`);
     const boxShadow = selected ? `0 0 0 1px ${accent}66 inset, 0 6px 14px rgba(0, 0, 0, 0.16)` : 'none';
+    const cardLabel = [card.name, card.desc].filter(Boolean).join('. ');
     return `
       <span
         class="deck-card level11-edit-card"
-        data-cid="${cardId}"
+        data-cid="${escapeAttr(cardId)}"
+        data-card-label="${escapeAttr(cardLabel)}"
         data-level11-index="${index}"
         data-level11-selectable="${selectable ? 'true' : 'false'}"
         style="display:inline-flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid ${borderColor};padding:6px 10px;font-size:11px;background:${background};cursor:${selectable ? 'pointer' : 'help'};box-shadow:${boxShadow}"

@@ -1,5 +1,3 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
-
 import {
   ensureRunConfig,
   getActiveSynergies,
@@ -7,6 +5,7 @@ import {
   getInscriptionEffectText,
   getMeta,
 } from './run_mode_ui_helpers.js';
+import { highlightRunModeText } from './run_mode_text_highlight.js';
 import { renderHiddenEnding } from './run_mode_ui_summary_render.js';
 import {
   createUiSurfaceStateController,
@@ -43,7 +42,7 @@ export function renderInscriptionOverview(doc, meta, cfg, data) {
           const isOff = disabled.has(id);
           const levelsHtml = (def.levels || []).map((level, idx) => `
             <div class="rm-tt-level ${idx === lvl - 1 ? 'cur' : ''}">
-              <span class="rm-tt-lv">Lv.${idx + 1}</span>${DescriptionUtils.highlight(level?.desc || '')}
+              <span class="rm-tt-lv">Lv.${idx + 1}</span>${highlightRunModeText(level?.desc || '')}
             </div>
           `).join('');
           return `
@@ -69,7 +68,7 @@ export function renderInscriptionOverview(doc, meta, cfg, data) {
             ? activeSyn.map(({ syn }) => `
                 <span class="rm-synergy-chip">
                   <span class="rm-chip-i">${syn.icon || '✦'}</span>${syn.name}
-                  ${syn.desc ? `<span class="rm-chip-desc">${DescriptionUtils.highlight(syn.desc)}</span>` : ''}
+                  ${syn.desc ? `<span class="rm-chip-desc">${highlightRunModeText(syn.desc)}</span>` : ''}
                 </span>
               `).join('')
             : '<span class="rm-synergy-empty">활성 시너지가 없습니다.</span>'}

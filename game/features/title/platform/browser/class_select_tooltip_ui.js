@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
 
 function getDoc(deps) {
   return deps?.doc || document;
@@ -8,10 +8,18 @@ function getWin(deps) {
   return deps?.win || globalThis;
 }
 
+function escapeHtml(text) {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function showClassSelectTooltip(event, title, desc, deps = {}) {
   const doc = getDoc(deps);
   const win = getWin(deps);
-  const highlightedDesc = DescriptionUtils.highlight(desc || '');
   let tip = doc.getElementById('classSelectTooltip');
   if (!tip) {
     tip = doc.createElement('div');
@@ -20,10 +28,20 @@ export function showClassSelectTooltip(event, title, desc, deps = {}) {
     doc.body.appendChild(tip);
   }
 
-  tip.innerHTML = `
-    <div class="class-select-tooltip-title">${title}</div>
-    <div class="class-select-tooltip-desc">${highlightedDesc}</div>
-  `;
+  tip.innerHTML = '';
+  if (Array.isArray(tip.children)) tip.children.length = 0;
+  const titleEl = doc.createElement('div');
+  titleEl.className = 'class-select-tooltip-title';
+  titleEl.textContent = title || '';
+
+  const descEl = doc.createElement('div');
+  descEl.className = 'class-select-tooltip-desc';
+  DomSafe.setHighlightedText(descEl, desc || '');
+  tip.append(titleEl, descEl);
+
+  if (typeof tip.innerHTML === 'string') {
+    tip.innerHTML = `<div class="class-select-tooltip-title">${escapeHtml(titleEl.textContent)}</div><div class="class-select-tooltip-desc">${descEl.innerHTML}</div>`;
+  }
 
   const anchor = event?.currentTarget || event?.target;
   const rect = anchor?.getBoundingClientRect?.() || { left: 0, bottom: 0 };

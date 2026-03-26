@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 import {
   COMBAT_INFO_ITEM_RARITY_BORDER_COLORS,
   RARITY_SORT_ORDER,

@@ -1,8 +1,8 @@
-export { Logger } from '../../../utils/logger.js';
 export {
+  Logger,
   createRecentFeedMeta,
   formatRecentFeedStatusOutcome,
   formatRecentFeedText,
   getCurrentCardLogSource,
   LogUtils,
-} from '../../../utils/log_utils.js';
+} from '../../ui/ports/public_feature_support_capabilities.js';

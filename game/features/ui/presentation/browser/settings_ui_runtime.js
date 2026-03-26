@@ -1,4 +1,4 @@
-import { SettingsManager } from '../../../../core/settings_manager.js';
+import { SettingsManager } from '../../platform/browser/settings_manager.js';
 import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
 import {
   getDoc,

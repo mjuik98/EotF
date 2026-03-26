@@ -63,6 +63,10 @@ class MockElement {
     this._listeners.set(type, handler);
   }
 
+  setAttribute(name, value) {
+    this[name] = String(value);
+  }
+
   querySelector(selector) {
     return this.querySelectorAll(selector)[0] || null;
   }
@@ -127,6 +131,10 @@ describe('combat_enemy_card_sections_ui', () => {
     expect(name.children[0].textContent).toBe(' P2');
     expect(hpText.textContent).toBe('18 / 30');
     expect(intent.id).toBe('enemy_intent_1');
+    expect(intent.tabIndex).toBe('0');
+    expect(intent.role).toBe('button');
+    expect(typeof intent.onfocus).toBe('function');
+    expect(typeof intent.onblur).toBe('function');
     expect(status.id).toBe('enemy_status_1');
     expect(status.children[0]).toBe(statusFragment);
     expect(preview?.textContent).toBe('6 dmg');

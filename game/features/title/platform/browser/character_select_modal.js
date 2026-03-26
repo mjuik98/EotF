@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../../../utils/description_utils.js';
+import { DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';
 
 export function openCharacterSkillModal({
   skill,

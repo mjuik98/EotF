@@ -35,6 +35,24 @@ describe('CardCostUtils', () => {
         expect(cascade.has(4)).toBe(true);
     });
 
+    it('supports cascade state from the hand-scoped runtime contract', () => {
+        const cascade = new Map([[1, 'strike']]);
+        const player = {
+            zeroCost: false,
+            _handScopedRuntime: {
+                cascadeCards: cascade,
+            },
+            _freeCardUses: 0,
+            costDiscount: 0,
+            _nextCardDiscount: 0,
+            energy: 0,
+        };
+
+        expect(CardCostUtils.isCascadeFree('strike', player, 1)).toBe(true);
+        CardCostUtils.consumeFreeCharge('strike', player, 1);
+        expect(cascade.size).toBe(0);
+    });
+
     it('applies before-card-cost hooks consistently across cost display and can-play checks', () => {
         const card = { cost: 2 };
         const player = {

@@ -180,6 +180,15 @@ export function createDefaultRuntimeState(overrides = {}) {
   const worldMemory = clonePlainObject(overrides.worldMemory);
   const stats = createDefaultStatsState(overrides.stats);
   const combat = createDefaultCombatState(overrides.combat);
+  const handScopedRuntime = {
+    cascadeCards: cloneMap(overrides._handScopedRuntime?.cascadeCards ?? overrides._cascadeCards),
+    costTargets: {
+      glitch0Index: null,
+      glitchPlusIndex: null,
+      oilTargetIndex: null,
+      ...clonePlainObject(overrides._handScopedRuntime?.costTargets),
+    },
+  };
 
   return {
     currentRegion: 0,
@@ -198,6 +207,7 @@ export function createDefaultRuntimeState(overrides = {}) {
     _heartUsed: false,
     _temporalTurn: 0,
     _bossAdvancePending: false,
+    _handScopedRuntime: handScopedRuntime,
     ...overrides,
     regionFloors: clonePlainObject(overrides.regionFloors),
     regionRoute: clonePlainObject(overrides.regionRoute),
@@ -207,15 +217,19 @@ export function createDefaultRuntimeState(overrides = {}) {
     worldMemory,
     stats,
     _stagnationVault: cloneArray(overrides._stagnationVault),
+    _handScopedRuntime: handScopedRuntime,
   };
 }
 
 export function createDefaultGameStateShape() {
-  return {
+  const state = {
     meta: createDefaultMetaState(),
     player: createDefaultPlayerState(),
     ...createDefaultRuntimeState(),
     _dispatchDepth: 0,
     _dispatchSeq: 0,
   };
+  getHandScopedRuntimeState(state);
+  return state;
 }
+import { getHandScopedRuntimeState } from '../shared/state/hand_index_runtime_state.js';

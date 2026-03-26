@@ -126,6 +126,7 @@ describe('refactor structure guardrails', () => {
     const hiddenEndingSource = read('game/features/ui/presentation/browser/story_ui_hidden_ending_render.js');
     const metaProgressionSource = read('game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
     const endingActionsSource = read('game/features/ui/presentation/browser/ending_screen_action_helpers.js');
+    const endingFragmentChoiceSource = read('game/features/ui/presentation/browser/ending_fragment_choice_presenter.js');
     const helpPauseReturnSource = read('game/features/ui/presentation/browser/help_pause_ui_return_runtime.js');
     const helpPauseAbandonSource = read('game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js');
     const helpPauseMenuSource = read('game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js');
@@ -133,7 +134,8 @@ describe('refactor structure guardrails', () => {
 
     expect(settingsActionsSource).toContain("from '../../../ui/public.js'");
     expect(settingsActionsSource).not.toContain("from '../../../ui/ports/public_browser_modules.js'");
-    expect(mountRuntimeSource).toContain("from '../../../combat/ports/public_presentation_capabilities.js'");
+    expect(mountRuntimeSource).toContain('function resolveTooltipUI');
+    expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/public_presentation_capabilities.js'");
     expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/tooltip_ui_ports.js'");
     expect(loadCharacterSelectSource).toContain("from '../domain/class_progression_system.js'");
     expect(loadCharacterSelectSource).not.toContain("from '../ports/class_progression_ports.js'");
@@ -152,6 +154,7 @@ describe('refactor structure guardrails', () => {
     expect(metaProgressionSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
     expect(endingActionsSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
     expect(endingActionsSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
+    expect(endingFragmentChoiceSource).not.toContain("from '../../../../utils/description_utils.js'");
     expect(helpPauseReturnSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
     expect(helpPauseReturnSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
     expect(helpPauseAbandonSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
@@ -178,7 +181,7 @@ describe('refactor structure guardrails', () => {
     expect(runtimeBindingsSource).toContain("./character_select_runtime_progression_bindings.js");
     expect(runtimeBindingsSource).toContain("./character_select_runtime_flow_bindings.js");
     expect(runtimeBindingsSource).toContain("./character_select_runtime_ui_bindings.js");
-    expect(runStartRuntimeSource).toContain("./run_start_transition_runtime.js");
+    expect(runStartRuntimeSource).toContain("../presentation/browser/run_start_transition_runtime.js");
     expect(runStartRuntimeSource).toContain("./run_start_gameplay_runtime.js");
     expect(runRulesSource).toContain("./run_rule_lifecycle.js");
     expect(runRulesSource).toContain("./run_rule_meta.js");

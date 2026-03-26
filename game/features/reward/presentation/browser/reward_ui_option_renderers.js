@@ -1,4 +1,6 @@
 import { populateCombatCardFrame } from '../../../combat/ports/public_card_frame_capabilities.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { bindTooltipTrigger, createTooltipTriggerEvent } from '../../../ui/ports/public_shared_support_capabilities.js';
 import {
   getDescriptionUtils,
   getDoc,
@@ -7,20 +9,8 @@ import {
   toTypeClass,
 } from './reward_ui_helpers.js';
 
-function resolveTooltipUI(deps) {
-  return deps?.tooltipUI || deps?.TooltipUI || null;
-}
-
-function createRewardTooltipEvent(event, currentTarget) {
-  return {
-    ...event,
-    currentTarget,
-    target: event?.target || currentTarget,
-  };
-}
-
 function callTooltipMethod(deps, method, ...args) {
-  const tooltipUI = resolveTooltipUI(deps);
+  const tooltipUI = deps?.tooltipUI || deps?.TooltipUI;
   if (typeof tooltipUI?.[method] !== 'function') return;
   tooltipUI[method](...args);
 }
@@ -33,14 +23,26 @@ function hideRewardTooltips(deps) {
 
 function bindRewardTooltipHandlers(wrapper, deps, show, hideMethod) {
   if (typeof show !== 'function') return;
-  wrapper.addEventListener('mouseenter', (event) => show(event));
-  wrapper.addEventListener('mouseleave', () => callTooltipMethod(deps, hideMethod, deps));
-  wrapper.addEventListener('focus', (event) => show(event));
-  wrapper.addEventListener('blur', () => callTooltipMethod(deps, hideMethod, deps));
+  bindTooltipTrigger(wrapper, {
+    label: wrapper.getAttribute?.('aria-label') || '',
+    show,
+    hide() {
+      callTooltipMethod(deps, hideMethod, deps);
+    },
+  });
 }
 
 function applyRewardCardShell(el, extraClasses = []) {
   el.className = [el.className, 'reward-card-shell', ...extraClasses].filter(Boolean).join(' ').trim();
+}
+
+function setHighlightedRewardText(el, text, descriptionUtils = null) {
+  if (!el) return;
+  if (descriptionUtils && typeof descriptionUtils.highlight === 'function') {
+    el.innerHTML = descriptionUtils.highlight(text || '');
+    return;
+  }
+  DomSafe.setHighlightedText(el, text || '');
 }
 
 export function renderRewardCardOption(container, cardId, data, gs, deps, onPick, idx) {
@@ -91,7 +93,7 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
     (event) => callTooltipMethod(
       deps,
       'showTooltip',
-      createRewardTooltipEvent(event, wrapper),
+      createTooltipTriggerEvent(event, wrapper),
       cardId,
       { ...deps, data, gs },
     ),
@@ -134,8 +136,7 @@ export function renderItemOption(container, item, deps, onPick, idx) {
   const desc = doc.createElement('div');
   desc.className = 'card-desc reward-card-desc';
   const descriptionUtils = getDescriptionUtils(deps);
-  if (descriptionUtils) desc.innerHTML = descriptionUtils.highlight(item.desc || '');
-  else desc.textContent = item.desc || '';
+  setHighlightedRewardText(desc, item.desc || '', descriptionUtils);
 
   const rarity = doc.createElement('div');
   rarity.className = `card-type reward-card-type ${rarityClass}`.trim();
@@ -149,7 +150,7 @@ export function renderItemOption(container, item, deps, onPick, idx) {
     (event) => callTooltipMethod(
       deps,
       'showItemTooltip',
-      createRewardTooltipEvent(event, wrapper),
+      createTooltipTriggerEvent(event, wrapper),
       item.id,
       { ...deps, data: tooltipData, gs: deps.gs },
     ),
@@ -203,8 +204,7 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
 
   const desc = doc.createElement('div');
   desc.className = 'card-desc reward-card-desc';
-  if (descriptionUtils) desc.innerHTML = descriptionUtils.highlight(blessing.desc || '');
-  else desc.textContent = blessing.desc || '';
+  setHighlightedRewardText(desc, blessing.desc || '', descriptionUtils);
 
   const type = doc.createElement('div');
   type.className = 'card-type reward-card-type rarity-rare';
@@ -235,7 +235,7 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
     (event) => callTooltipMethod(
       deps,
       'showGeneralTooltip',
-      createRewardTooltipEvent(event, wrapper),
+      createTooltipTriggerEvent(event, wrapper),
       blessing.name || '축복',
       tooltipContent,
       deps,

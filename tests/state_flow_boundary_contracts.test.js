@@ -106,7 +106,7 @@ describe('state flow boundary contracts', () => {
     expect(deathFlowEnemyRuntime).toContain("./death_flow_runtime_support.js");
     expect(deathFlowPlayerRuntime).toContain("./death_flow_runtime_support.js");
     expect(deathFlowRuntimeSupport).toContain("from '../../../../data/game_data.js'");
-    expect(deathFlowRuntimeSupport).toContain("from '../../../shared/audio/audio_event_helpers.js'");
+    expect(deathFlowRuntimeSupport).toContain("from '../../ui/ports/public_shared_support_capabilities.js'");
     expect(deathFlowRuntimeSupport).toContain('../../../shared/combat/public_combat_runtime_effects.js');
     expect(deathFlowRuntimeSupport).not.toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
     expect(deathFlowActions).not.toContain('../../../../data/game_data.js');

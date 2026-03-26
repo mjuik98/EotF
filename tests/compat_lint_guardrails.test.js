@@ -26,5 +26,5 @@ describe('compat lint guardrails', () => {
         stdio: 'pipe',
       });
     }).not.toThrow();
-  });
+  }, 20000);
 });

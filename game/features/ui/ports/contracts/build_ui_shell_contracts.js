@@ -1,6 +1,8 @@
 import { playClassSelect } from '../public_audio_presentation_capabilities.js';
-import { buildTitleHelpPauseActions } from '../../../title/ports/public_help_pause_application_capabilities.js';
-import { returnToTitleFromPause as returnToTitleFromPauseAction } from '../../../title/application/title_return_actions.js';
+import {
+  buildTitleHelpPauseActions,
+  returnToTitleFromPause as returnToTitleFromPauseAction,
+} from '../../../title/ports/public_help_pause_application_capabilities.js';
 
 export function buildUiShellContractBuilders(ctx) {
   const {
@@ -97,10 +99,18 @@ export function buildUiShellContractBuilders(ctx) {
         gs: override.gs?.player ? override.gs : (resolveCurrentGs() || override.gs),
         isGameStarted: () => resolveCurrentRefs()._gameStarted?.(),
       });
+      const showSaveStatus = (status) => resolveCurrentSaveSystem()?.showSaveStatus?.(
+        status,
+        {
+          ...resolveCurrentRunDeps(),
+          gs: resolveCurrentGs(),
+        },
+      );
       const returnToTitleFromPause = () => returnToTitleFromPauseAction({
         ...resolveCurrentRunDeps(),
         gs: resolveCurrentGs(),
         saveRun,
+        showSaveStatus,
       });
       const titleActions = buildTitleHelpPauseActions({
         returnToTitleFromPause,
@@ -136,6 +146,7 @@ export function buildUiShellContractBuilders(ctx) {
         finalizeRunOutcome: refs.finalizeRunOutcome,
         hudUpdateUI: combatRefs.HudUpdateUI || refs.HudUpdateUI,
         saveRun,
+        showSaveStatus,
         clearActiveRunSave: () => resolveCurrentSaveSystem()?.clearSave?.(),
         ...titleActions,
         restartFromEnding: refs.restartFromEnding,

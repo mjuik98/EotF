@@ -4,6 +4,7 @@ import {
   registerCardUsed,
 } from '../../../shared/combat/public_combat_runtime_effects.js';
 import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
+import { captureHandScopedRuntimeState, restoreHandScopedRuntimeState } from '../../../shared/state/hand_index_runtime_state.js';
 import { changePlayerEnergyState } from '../state/card_state_commands.js';
 import { drawCardsService } from './card_draw_service.js';
 import {
@@ -143,6 +144,7 @@ export function playCardService({
 
     const energyBefore = player.energy;
     const handBefore = [...player.hand];
+    const handScopedStateBefore = captureHandScopedRuntimeState(gs);
     changePlayerEnergyState(gs, -cost);
     removeCardFromHandState(gs, handIdx);
 
@@ -152,6 +154,7 @@ export function playCardService({
         changePlayerEnergyState(gs, restoreEnergy);
       }
       restorePlayerHandState(gs, handBefore);
+      restoreHandScopedRuntimeState(gs, handScopedStateBefore);
     };
     const cardEffectTracker = createCardEffectTracker(runtimeDeps);
 

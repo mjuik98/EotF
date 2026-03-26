@@ -7,7 +7,7 @@ import {
   playRunEntryTransition,
   removeRunStartHandoffBlackout,
   RUN_START_HANDOFF_BLACKOUT_ID,
-} from './run_start_transition_runtime.js';
+} from '../presentation/browser/run_start_transition_runtime.js';
 
 export {
   getRunStartDoc,
@@ -17,7 +17,7 @@ export {
   playStageEntryFadeTransition,
   removeRunStartHandoffBlackout,
   RUN_START_HANDOFF_BLACKOUT_ID,
-} from './run_start_transition_runtime.js';
+} from '../presentation/browser/run_start_transition_runtime.js';
 
 export function enterRunRuntime(deps = {}) {
   const gs = getRunStartGs(deps);

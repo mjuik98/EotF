@@ -113,6 +113,9 @@ describe('reward_ui_option_renderers', () => {
     expect(source).toContain('.reward-card-desc .kw-echo');
     expect(source).toContain('.reward-card-desc .kw-energy');
     expect(source).toContain('.reward-card-desc .kw-exhaust.kw-block');
+    expect(source).toContain('.reward-card-desc .kw-num');
+    expect(source).toContain('.reward-card-desc .kw-debuff');
+    expect(source).toContain('.reward-card-desc .kw-special');
   });
 
   it('renders a card reward with tooltip wiring and selection callback', () => {
@@ -369,5 +372,44 @@ describe('reward_ui_option_renderers', () => {
     expect(wrapper.addEventListener.mock.calls.some(([name]) => name === 'focus')).toBe(true);
     expect(wrapper.addEventListener.mock.calls.some(([name]) => name === 'blur')).toBe(true);
     expect(wrapper.addEventListener).not.toHaveBeenCalledWith('click', expect.any(Function));
+  });
+
+  it('falls back to highlighted html when description utils are not injected', () => {
+    const container = createMockElement('div');
+    const doc = createDoc();
+
+    renderItemOption(
+      container,
+      {
+        id: 'relic_fallback',
+        name: 'Fallback Relic',
+        desc: '피해 14 [소진]',
+        rarity: 'rare',
+        icon: 'R',
+      },
+      { doc },
+      vi.fn(),
+      0,
+    );
+
+    renderBlessingOption(
+      container,
+      {
+        name: '독 축복',
+        icon: '+',
+        desc: '독 2턴 후 피해 8',
+      },
+      { doc },
+      vi.fn(),
+      1,
+    );
+
+    const itemDesc = container.children[0].children[0].children.find((child) => String(child.className).includes('reward-card-desc'));
+    const blessingDesc = container.children[1].children[0].children.find((child) => String(child.className).includes('reward-card-desc'));
+
+    expect(itemDesc.innerHTML).toContain('kw-dmg');
+    expect(itemDesc.innerHTML).toContain('kw-exhaust kw-block');
+    expect(blessingDesc.innerHTML).toContain('kw-debuff');
+    expect(blessingDesc.innerHTML).toContain('kw-dmg');
   });
 });

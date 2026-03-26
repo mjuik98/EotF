@@ -81,7 +81,9 @@ describe('registerRunEntryBindings', () => {
     getBoundHandler(elements.mazeMoveUp)?.();
     getBoundHandler(elements.useEchoSkillBtn)?.();
     getBoundHandler(elements.useEchoSkillBtn, 'mouseenter')?.({ type: 'mouseenter' });
+    getBoundHandler(elements.useEchoSkillBtn, 'focus')?.({ type: 'focus' });
     getBoundHandler(elements.useEchoSkillBtn, 'mouseleave')?.();
+    getBoundHandler(elements.useEchoSkillBtn, 'blur')?.();
     getBoundHandler(elements.combatDrawCardBtn)?.();
     getBoundHandler(elements.endPlayerTurnBtn)?.();
     getBoundHandler(elements.showBattleChronicleBtn)?.();
@@ -101,8 +103,8 @@ describe('registerRunEntryBindings', () => {
     expect(audio.playFootstep).toHaveBeenCalledTimes(1);
     expect(mazeSystem.move).toHaveBeenCalledWith(0, -1);
     expect(actions.useEchoSkill).toHaveBeenCalledTimes(1);
-    expect(actions.showEchoSkillTooltip).toHaveBeenCalledTimes(1);
-    expect(actions.hideEchoSkillTooltip).toHaveBeenCalledTimes(1);
+    expect(actions.showEchoSkillTooltip).toHaveBeenCalledTimes(2);
+    expect(actions.hideEchoSkillTooltip).toHaveBeenCalledTimes(2);
     expect(feedbackUI.triggerEchoButtonEffect).toHaveBeenCalledTimes(1);
     expect(actions.drawCard).toHaveBeenCalledTimes(1);
     expect(feedbackUI.triggerDrawButtonEffect).toHaveBeenCalledTimes(1);

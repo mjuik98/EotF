@@ -1,4 +1,5 @@
 import { stripHtml } from './map_ui_next_nodes_render_helpers.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 import {
   getItemDetailNavIndex,
   isItemDetailCommitKey,
@@ -90,10 +91,11 @@ export function renderRelicSlots(doc, list, items, data, controls = {}) {
       renderDetail?.(itemId, item, slot, { pinned: true });
     };
 
-    slot.addEventListener('mouseenter', previewSlot);
-    slot.addEventListener('mouseleave', clearPreviewSlot);
-    slot.addEventListener('focus', previewSlot);
-    slot.addEventListener('blur', clearPreviewSlot);
+    bindTooltipTrigger(slot, {
+      label: `${item.name || itemId}: ${rawDesc || ''}`,
+      show: previewSlot,
+      hide: clearPreviewSlot,
+    });
     slot.addEventListener('click', () => {
       if (allowPointerPin) {
         togglePinnedSlot();

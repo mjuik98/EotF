@@ -6,6 +6,7 @@ import {
   resolveStatusEffectValue,
   STATUS_KR,
 } from '../../ports/presentation/public_combat_status_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 import { StatusTooltipUI } from './status_tooltip_builder.js';
 
 function _getDoc(deps) { return deps?.doc || document; }
@@ -89,7 +90,6 @@ export const StatusEffectsUI = {
         return;
       }
 
-      const fragment = doc.createDocumentFragment();
       keys.forEach((statusKey, idx) => {
         const buff = buffs[statusKey];
         const info = STATUS_KR[statusKey];
@@ -111,6 +111,7 @@ export const StatusEffectsUI = {
         badge.dataset.buffKey = statusKey;
         badge.style.animationDelay = `${idx * 40}ms`;
         badge.appendChild(doc.createTextNode(label));
+        const ariaLabel = [label, info?.desc || ''].filter(Boolean).join('. ');
 
         const dmgBonus = (statusKey === 'resonance' || statusKey === 'acceleration') && buff?.dmgBonus
           ? ` +${buff.dmgBonus}`
@@ -132,30 +133,30 @@ export const StatusEffectsUI = {
         }
 
         const source = _defaultSource(isBuff);
+        bindTooltipTrigger(badge, {
+          label: ariaLabel,
+          show(event) {
+            if (!info) return;
+            StatusTooltipUI.show(event, statusKey, info, buff, {
+              source,
+              doc,
+              win,
+              statusContainerId: deps.statusContainerId || 'statusEffects',
+            });
+          },
+          hide() {
+            StatusTooltipUI.hide({ doc });
+          },
+          move(event) {
+            const tipEl = doc.getElementById('statusTooltip');
+            if (tipEl?.classList.contains('visible')) {
+              StatusTooltipUI._position(event, tipEl, win);
+            }
+          },
+        });
 
-        badge.addEventListener('mouseenter', (event) => {
-          if (!info) return;
-          StatusTooltipUI.show(event, statusKey, info, buff, {
-            source,
-            doc,
-            win,
-            statusContainerId: deps.statusContainerId || 'statusEffects',
-          });
-        });
-        badge.addEventListener('mousemove', (event) => {
-          const tipEl = doc.getElementById('statusTooltip');
-          if (tipEl?.classList.contains('visible')) {
-            StatusTooltipUI._position(event, tipEl, win);
-          }
-        });
-        badge.addEventListener('mouseleave', () => {
-          StatusTooltipUI.hide({ doc });
-        });
-
-        fragment.appendChild(badge);
+        el.appendChild(badge);
       });
-
-      el.appendChild(fragment);
     };
 
     if (removals.length) {

@@ -12,9 +12,21 @@ function createDoc() {
       elements.set(node.id, node);
     }),
   };
+  function createElement() {
+    return {
+      id: '',
+      style: {},
+      innerHTML: '',
+      children: [],
+      textContent: '',
+      append(...nodes) {
+        this.children.push(...nodes);
+      },
+    };
+  }
   return {
     body,
-    createElement: vi.fn(() => ({ id: '', style: {}, innerHTML: '' })),
+    createElement: vi.fn(() => createElement()),
     getElementById: vi.fn((id) => elements.get(id) || null),
   };
 }
@@ -63,5 +75,20 @@ describe('class select tooltip helper', () => {
     expect(css).toContain('.class-select-tooltip-desc .kw-dmg');
     expect(css).toContain('.class-select-tooltip-desc .kw-echo');
     expect(css).toContain('.class-select-tooltip-desc .kw-burst.kw-block');
+  });
+
+  it('does not inject raw html into the tooltip title node', () => {
+    const doc = createDoc();
+
+    showClassSelectTooltip({
+      currentTarget: {
+        getBoundingClientRect: () => ({ left: 0, bottom: 0 }),
+      },
+    }, '<img src=x onerror=alert(1)>', '피해 8', { doc, win: { innerWidth: 900 } });
+
+    const tip = doc.getElementById('classSelectTooltip');
+    expect(tip.children[0].textContent).toBe('<img src=x onerror=alert(1)>');
+    expect(tip.children[0].innerHTML).toBe('');
+    expect(tip.children[1].innerHTML).toContain('kw-dmg');
   });
 });

@@ -1,4 +1,5 @@
 import { playUiClick, playUiFootstep } from '../../ports/public_audio_runtime_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);
@@ -36,12 +37,21 @@ export function registerRunEntryBindings({
 
   const echoButton = resolvedDoc.getElementById('useEchoSkillBtn');
   if (echoButton) {
+    const showEchoTooltip = (event) => actions.showEchoSkillTooltip?.({
+      ...event,
+      currentTarget: event?.currentTarget || echoButton,
+      target: event?.target || event?.currentTarget || echoButton,
+    });
+    const hideEchoTooltip = () => actions.hideEchoSkillTooltip?.();
     echoButton.addEventListener('click', () => {
       actions.useEchoSkill?.();
       feedbackUI?.triggerEchoButtonEffect?.('useEchoSkillBtn', { doc: resolvedDoc });
     });
-    echoButton.addEventListener('mouseenter', (event) => actions.showEchoSkillTooltip?.(event));
-    echoButton.addEventListener('mouseleave', () => actions.hideEchoSkillTooltip?.());
+    bindTooltipTrigger(echoButton, {
+      label: echoButton.getAttribute?.('aria-label') || '에코 스킬 설명',
+      show: showEchoTooltip,
+      hide: hideEchoTooltip,
+    });
   }
 
   bindClick(resolvedDoc, 'combatDrawCardBtn', () => {

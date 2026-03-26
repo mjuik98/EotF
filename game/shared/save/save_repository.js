@@ -93,7 +93,7 @@ export function hydrateRunState(gs, data) {
   if (!gs || !data?.player) return;
 
   Object.assign(gs.player, data.player);
-  gs.player._cascadeCards = new Map();
+  resetHandScopedCascadeCards(gs);
   if (data.player.upgradedCards) {
     gs.player.upgradedCards = new Set(data.player.upgradedCards);
   }
@@ -115,3 +115,4 @@ export function hydrateRunState(gs, data) {
   if (data.visitedNodes) gs.visitedNodes = new Set(data.visitedNodes);
   if (data.currentNode !== undefined) gs.currentNode = data.currentNode;
 }
+import { resetHandScopedCascadeCards } from '../state/hand_index_runtime_state.js';

@@ -38,16 +38,28 @@ export function bindNextNodeCardInteractions({
     node,
     win,
   });
-
-  card.addEventListener('mouseenter', () => {
+  const applyHoverState = () => {
     hoverTint.style.background = `radial-gradient(ellipse at 50% 58%,rgba(${rgb},.065) 0%,transparent 62%)`;
-  });
-  card.addEventListener('mouseleave', () => {
+  };
+  const clearHoverState = () => {
     hoverTint.style.background = 'transparent';
-  });
-  card.addEventListener('click', () => {
+  };
+  const activateCard = () => {
     playSelectAnim(doc, card, rgb, triggerMove, deps);
+  };
+
+  card.setAttribute?.('tabindex', '0');
+  card.setAttribute?.('role', 'button');
+  card.addEventListener('mouseenter', applyHoverState);
+  card.addEventListener('mouseleave', clearHoverState);
+  card.addEventListener('focus', applyHoverState);
+  card.addEventListener('blur', clearHoverState);
+  card.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault?.();
+    activateCard();
   });
+  card.addEventListener('click', activateCard);
 }
 
 export function createNextNodeOverlayKeyHandler({

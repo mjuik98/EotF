@@ -1,6 +1,6 @@
 import {
   readTextContent,
-} from '../../../shared/runtime/runtime_debug_snapshot_utils.js';
+} from '../../ui/ports/public_shared_support_capabilities.js';
 
 function collectIntroSummary(doc) {
   const overlay = doc?.getElementById?.('introCinematicOverlay');

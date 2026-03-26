@@ -1,4 +1,4 @@
-import { getDoc as _getDoc } from '../../../../utils/runtime_deps.js';
+import { getDoc as _getDoc } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 
 const EXCLUDED_LOG_TYPES = new Set(['system', 'turn-divider']);
 

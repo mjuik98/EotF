@@ -336,8 +336,20 @@ import { LogUtils } from '../game/utils/log_utils.js';
 import { CARDS, UPGRADE_MAP } from './cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { CONSTANTS } from '../game/data/constants.js';
-import { Actions } from '../game/core/store/state_actions.js';
-import { registerCardDiscovered, registerItemFound } from '../game/shared/codex/codex_records.js';
+import {
+    clearHandScopedCostTargets,
+    getHandScopedCostTargets,
+    reindexHandScopedRuntimeState,
+    registerCardDiscovered,
+    registerItemFound,
+    setHandScopedCostTarget,
+} from './runtime_shared_support.js';
+
+const ITEM_ACTIONS = Object.freeze({
+    CARD_DISCARD: 'card:discard',
+    PLAYER_ENERGY: 'player:energy',
+    PLAYER_ENERGY_SET: 'player:energy-set',
+});
 
 function getCardCost(cardId) {
     return CARDS?.[cardId]?.cost ?? 0;
@@ -402,11 +414,25 @@ function addPlayerEnergy(gs, amount) {
     if (delta === 0) return Number(gs?.player?.energy || 0);
 
     if (typeof gs.dispatch === 'function') {
-        const result = gs.dispatch(Actions.PLAYER_ENERGY, { amount: delta });
+        const result = gs.dispatch(ITEM_ACTIONS.PLAYER_ENERGY, { amount: delta });
         if (result?.energyAfter !== undefined) return result.energyAfter;
     }
 
     gs.player.energy = Math.max(0, Math.floor(Number(gs.player.energy || 0)) + delta);
+    gs.markDirty?.('hud');
+    return gs.player.energy;
+}
+
+function setPlayerEnergy(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount)) return Number(gs?.player?.energy || 0);
+    const next = Math.max(0, Math.floor(amount));
+
+    if (typeof gs.dispatch === 'function') {
+        const result = gs.dispatch(ITEM_ACTIONS.PLAYER_ENERGY_SET, { amount: next });
+        if (result?.energyAfter !== undefined) return result.energyAfter;
+    }
+
+    gs.player.energy = Math.min(Math.max(0, Math.floor(Number(gs.player.maxEnergy || 0))), next);
     gs.markDirty?.('hud');
     return gs.player.energy;
 }
@@ -419,6 +445,22 @@ function withCardCostDelta(data, delta) {
     return Math.floor(delta);
 }
 
+function matchesHandScopedCard(data, targetIndex) {
+    return Number.isInteger(data?.handIndex)
+        && Number.isInteger(targetIndex)
+        && data.handIndex === targetIndex;
+}
+
+function pickRandomHandIndex(hand, excludedIndexes = []) {
+    if (!Array.isArray(hand) || hand.length <= 0) return null;
+    const excluded = new Set((excludedIndexes || []).filter((idx) => Number.isInteger(idx) && idx >= 0));
+    if (excluded.size >= hand.length) return null;
+
+    let pick = Math.floor(Math.random() * hand.length);
+    while (excluded.has(pick)) pick = Math.floor(Math.random() * hand.length);
+    return pick;
+}
+
 function exhaustHandCard(gs, handIdx) {
     const hand = gs?.player?.hand;
     if (!Array.isArray(hand) || handIdx < 0 || handIdx >= hand.length) return null;
@@ -426,7 +468,8 @@ function exhaustHandCard(gs, handIdx) {
     const cardId = hand[handIdx];
     if (typeof gs?.dispatch === 'function') {
         hand.splice(handIdx, 1);
-        gs.dispatch(Actions.CARD_DISCARD, {
+        reindexHandScopedRuntimeState(gs, handIdx);
+        gs.dispatch(ITEM_ACTIONS.CARD_DISCARD, {
             cardId,
             exhaust: true,
             skipHandRemove: true,
@@ -435,6 +478,7 @@ function exhaustHandCard(gs, handIdx) {
     }
 
     hand.splice(handIdx, 1);
+    reindexHandScopedRuntimeState(gs, handIdx);
     if (Array.isArray(gs?.player?.exhausted)) {
         gs.player.exhausted.push(cardId);
     }
@@ -449,6 +493,7 @@ function discardDrawnCard(gs, cardId, sourceName) {
     const idx = hand.lastIndexOf(cardId);
     if (idx < 0) return false;
     hand.splice(idx, 1);
+    reindexHandScopedRuntimeState(gs, idx);
     if (!Array.isArray(gs.player.graveyard)) gs.player.graveyard = [];
     gs.player.graveyard.push(cardId);
     gs.markDirty?.('hand');
@@ -462,6 +507,7 @@ function exhaustDrawnCard(gs, cardId, sourceName) {
     const idx = hand.lastIndexOf(cardId);
     if (idx < 0) return false;
     hand.splice(idx, 1);
+    reindexHandScopedRuntimeState(gs, idx);
     if (!Array.isArray(gs.player.exhausted)) gs.player.exhausted = [];
     gs.player.exhausted.push(cardId);
     gs.markDirty?.('hand');
@@ -828,8 +874,12 @@ const UNCOMMON_ITEMS = {
                 gs._scaleDrawReset = true;
                 gs.addLog?.('⚖️ 균형의 저울: 추가 드로우!', 'item');
             }
-            if ((trigger === Trigger.TURN_END || trigger === 'death') && gs._scaleDrawReset) {
+            if ((trigger === Trigger.TURN_END || trigger === Trigger.COMBAT_END || trigger === 'death') && gs._scaleDrawReset) {
                 addPlayerDrawCount(gs, -1);
+                gs._scaleDrawReset = false;
+            }
+            if (trigger === Trigger.COMBAT_END || trigger === 'death') {
+                gs._scaleActive = false;
                 gs._scaleDrawReset = false;
             }
         }
@@ -847,13 +897,13 @@ const UNCOMMON_ITEMS = {
         passive(gs, trigger, data) {
             if (trigger === Trigger.COMBAT_START && gs.player.deck?.length > 0) {
                 gs._crystalDiscounted = new Set();
-                const deck = [...gs.player.deck];
+                const uniqueCardIds = [...new Set(gs.player.deck)];
                 const picks = new Set();
-                while (picks.size < Math.min(3, deck.length)) {
-                    picks.add(Math.floor(Math.random() * deck.length));
+                while (picks.size < Math.min(3, uniqueCardIds.length)) {
+                    picks.add(Math.floor(Math.random() * uniqueCardIds.length));
                 }
                 picks.forEach(r => {
-                    const cardId = deck[r];
+                    const cardId = uniqueCardIds[r];
                     gs._crystalDiscounted.add(cardId);
                     gs.addLog?.(`🔮 수정구슬: ${CARDS[cardId]?.name} 비용 -1`, 'item');
                 });
@@ -998,17 +1048,18 @@ const RARE_ITEMS = {
         id: 'everlasting_oil', name: '꺼지지 않는 기름', icon: '🕯️', rarity: 'rare',
         desc: '턴 시작: 무작위 카드 1장의 비용 0(이번 턴)',
         passive(gs, trigger, data) {
+            const costTargets = getHandScopedCostTargets(gs);
             if (trigger === Trigger.TURN_DRAW_COMPLETE && gs.player.hand?.length > 0) {
                 const h = gs.player.hand;
-                const r = Math.floor(Math.random() * h.length);
-                gs._oilTarget = h[r];
+                const r = pickRandomHandIndex(h);
+                setHandScopedCostTarget(gs, 'oilTargetIndex', r);
                 gs.addLog?.(`🕯️ 꺼지지 않는 기름: ${CARDS[h[r]]?.name} 비용이 0이 되었습니다!`, 'item');
             }
-            if (trigger === Trigger.BEFORE_CARD_COST && data?.cardId === gs._oilTarget) {
+            if (trigger === Trigger.BEFORE_CARD_COST && matchesHandScopedCard(data, costTargets?.oilTargetIndex)) {
                 return withCardCostDelta(data, -99);
             }
             if (trigger === Trigger.TURN_END || trigger === Trigger.COMBAT_END) {
-                gs._oilTarget = null;
+                clearHandScopedCostTargets(gs, ['oilTargetIndex']);
             }
         }
     },
@@ -1047,6 +1098,9 @@ const RARE_ITEMS = {
                 gs.addLog?.(`🔋 마력 배터리: 에너지 ${gs._manaStored} 이월 완료.`, 'item');
                 gs._manaStored = 0;
             }
+            if (trigger === Trigger.COMBAT_END || trigger === 'death') {
+                gs._manaStored = 0;
+            }
         }
     },
     bloody_contract: {
@@ -1079,7 +1133,7 @@ const RARE_ITEMS = {
                 gs._butterflyCount = (gs._butterflyCount || 0) + 1;
                 if (gs._butterflyCount >= 3) {
                     gs._butterflyCount = 0;
-                    addPlayerEnergy(gs, gs.player.maxEnergy);
+                    setPlayerEnergy(gs, gs.player.maxEnergy);
                     gs.addLog?.('🦋 태엽 나비: 시간을 가속하여 에너지를 보충합니다!', 'item');
                 }
             }
@@ -1222,7 +1276,7 @@ const BOSS_ITEMS = {
             }
             if (trigger === Trigger.PRE_DEATH && !gs._bossSoulMirrorRevived) {
                 gs._bossSoulMirrorRevived = true;
-                gs.player.hp = 25;
+                gs.player.hp = Math.max(1, Math.min(gs.player.maxHp || 1, (gs.player.hp || 0) + 25));
                 return true;
             }
         }
@@ -1317,22 +1371,24 @@ const SPECIAL_ITEMS = {
         id: 'glitch_circuit', name: '글리치 회로', icon: '📼', rarity: 'special',
         desc: '턴 시작: 무작위 카드 1장의 비용 0 / 다른 카드 1장의 비용 +1(이번 턴)',
         passive(gs, trigger, data) {
+            const costTargets = getHandScopedCostTargets(gs);
             if (trigger === Trigger.TURN_DRAW_COMPLETE && gs.player.hand?.length >= 2) {
                 const h = gs.player.hand;
-                const r1 = Math.floor(Math.random() * h.length);
-                let r2 = Math.floor(Math.random() * h.length);
-                while (r1 === r2) r2 = Math.floor(Math.random() * h.length);
-                gs._glitch0 = h[r1];
-                gs._glitchPlus = h[r2];
+                const r1 = pickRandomHandIndex(h);
+                const r2 = pickRandomHandIndex(h, [r1]);
+                setHandScopedCostTarget(gs, 'glitch0Index', r1);
+                setHandScopedCostTarget(gs, 'glitchPlusIndex', r2);
                 gs.addLog?.('📼 글리치 회로: 데이터 간섭 발생!', 'item');
             }
             if (trigger === Trigger.BEFORE_CARD_COST) {
-                if (data?.cardId === gs._glitch0) return withCardCostDelta(data, -99); // 0으로 만듦
-                if (data?.cardId === gs._glitchPlus) return withCardCostDelta(data, 1); // +1
+                if (matchesHandScopedCard(data, costTargets?.glitch0Index)) return withCardCostDelta(data, -99); // 0으로 만듦
+                if (matchesHandScopedCard(data, costTargets?.glitchPlusIndex)) return withCardCostDelta(data, 1); // +1
             }
             if (trigger === Trigger.TURN_END) {
-                gs._glitch0 = null;
-                gs._glitchPlus = null;
+                clearHandScopedCostTargets(gs, ['glitch0Index', 'glitchPlusIndex']);
+            }
+            if (trigger === Trigger.COMBAT_END || trigger === 'death') {
+                clearHandScopedCostTargets(gs, ['glitch0Index', 'glitchPlusIndex']);
             }
         }
     },

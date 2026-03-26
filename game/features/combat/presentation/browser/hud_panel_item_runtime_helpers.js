@@ -1,4 +1,5 @@
 import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
 import { renderCombatRelicRail } from './combat_relic_rail_ui.js';
@@ -69,8 +70,11 @@ export function updateItemPanels({ gs, deps, doc, data }) {
         if (inSet) slot.style.outline = '1px dashed rgba(0,255,204,0.4)';
         slot.textContent = item.icon;
         slot.title = buildItemTooltipFallbackText(item, id);
-        slot.addEventListener('mouseenter', (event) => showItemTooltip(event, id));
-        slot.addEventListener('mouseleave', () => hideItemTooltip());
+        bindTooltipTrigger(slot, {
+          label: slot.title,
+          show: (event) => showItemTooltip(event, id),
+          hide: () => hideItemTooltip(),
+        });
         itemEl.appendChild(slot);
       });
     }

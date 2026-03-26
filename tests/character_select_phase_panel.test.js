@@ -97,16 +97,24 @@ describe('character_select_phase_panel', () => {
     reselectButton.listeners.mouseenter();
     expect(reselectButton.style.color).toBe('#ccc');
     expect(reselectButton.style.borderColor).toBe('#555');
+    reselectButton.listeners.focus();
+    expect(reselectButton.style.color).toBe('#ccc');
 
     reselectButton.listeners.mouseleave();
     expect(reselectButton.style.color).toBe('#99a');
     expect(reselectButton.style.borderColor).toBe('rgba(255,255,255,0.2)');
+    reselectButton.listeners.blur();
+    expect(reselectButton.style.color).toBe('#99a');
 
     reselectButton.listeners.click();
     expect(state.phase).toBe('select');
     expect(root.classList.contains('is-focus-locked')).toBe(false);
     expect(rerender).toHaveBeenCalledTimes(1);
 
+    startButton.listeners.focus();
+    expect(startButton.style.boxShadow).toBe('0 0 40px #ff555566');
+    startButton.listeners.blur();
+    expect(startButton.style.boxShadow).toBe('0 0 20px #ff555533');
     startButton.listeners.click();
     expect(onStart).toHaveBeenCalledTimes(1);
   });

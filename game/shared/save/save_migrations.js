@@ -5,8 +5,22 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function toVersion(value) {
+  const version = Number(value?.version || 1);
+  return Number.isFinite(version) ? version : 1;
+}
+
+export function isUnsupportedFutureRunSave(raw) {
+  return !!raw && typeof raw === 'object' && toVersion(raw) > RUN_SAVE_VERSION;
+}
+
+export function isUnsupportedFutureMetaSave(raw) {
+  return !!raw && typeof raw === 'object' && toVersion(raw) > META_SAVE_VERSION;
+}
+
 export function migrateRunSave(raw) {
   if (!raw || typeof raw !== 'object') return null;
+  if (isUnsupportedFutureRunSave(raw)) return null;
 
   const save = {
     ...raw,
@@ -30,6 +44,7 @@ export function migrateRunSave(raw) {
 
 export function migrateMetaSave(raw) {
   if (!raw || typeof raw !== 'object') return null;
+  if (isUnsupportedFutureMetaSave(raw)) return null;
 
   const meta = {
     ...raw,

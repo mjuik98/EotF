@@ -113,10 +113,14 @@ export function bindCharacterSelectArrows(resolveById, {
     button.addEventListener('click', onClick);
     button.addEventListener('mouseenter', onMouseEnter);
     button.addEventListener('mouseleave', onMouseLeave);
+    button.addEventListener('focus', onMouseEnter);
+    button.addEventListener('blur', onMouseLeave);
 
     cleanups.push(() => button.removeEventListener('click', onClick));
     cleanups.push(() => button.removeEventListener('mouseenter', onMouseEnter));
     cleanups.push(() => button.removeEventListener('mouseleave', onMouseLeave));
+    cleanups.push(() => button.removeEventListener('focus', onMouseEnter));
+    cleanups.push(() => button.removeEventListener('blur', onMouseLeave));
   };
 
   setup('btnLeft', -1);

@@ -44,7 +44,8 @@ const EXPECTED_CONTRACTS = [
 ];
 
 function seedRefs(overrides = {}) {
-  const saveMeta = vi.fn();
+  const saveMeta = vi.fn(() => ({ status: 'saved', persisted: true, queueDepth: 0 }));
+  const showSaveStatus = vi.fn();
   const refs = {
     GAME: {
       getDeps: () => ({ token: 'legacy-deps' }),
@@ -57,12 +58,12 @@ function seedRefs(overrides = {}) {
     },
     _gameStarted: () => true,
     RunRules: { id: 'run-rules' },
-    SaveSystem: { saveMeta },
+    SaveSystem: { saveMeta, showSaveStatus },
     GS: { playCard: vi.fn() },
     ...overrides,
   };
   initDepsFactory(refs);
-  return { refs, saveMeta };
+  return { refs, saveMeta, showSaveStatus };
 }
 
 describe('deps factory', () => {
@@ -150,12 +151,15 @@ describe('deps factory', () => {
   });
 
   it('keeps nested run contracts wired via createDeps', () => {
-    const { saveMeta } = seedRefs();
+    const { saveMeta, showSaveStatus } = seedRefs();
 
     const runMode = createDeps('runMode');
     runMode.saveMeta();
     expect(saveMeta).toHaveBeenCalledTimes(1);
     expect(saveMeta.mock.calls[0][0].runRules).toEqual({ id: 'run-rules' });
+    expect(showSaveStatus).toHaveBeenCalledTimes(1);
+    expect(showSaveStatus.mock.calls[0][0]).toEqual({ status: 'saved', persisted: true, queueDepth: 0 });
+    expect(showSaveStatus.mock.calls[0][1].runRules).toEqual({ id: 'run-rules' });
 
     const combatFlow = createDeps('combatFlow');
     const eventFlow = createDeps('eventFlow');

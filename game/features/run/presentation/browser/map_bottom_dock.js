@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../../utils/dom_safe.js';
+import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';

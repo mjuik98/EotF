@@ -3,4 +3,4 @@ export {
   playEventResonanceBurst,
   playStatusHeal,
   playUiClick,
-} from '../../../shared/audio/audio_event_helpers.js';
+} from './public_shared_support_capabilities.js';

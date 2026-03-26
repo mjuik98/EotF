@@ -77,14 +77,18 @@ export function renderCharacterPhase({
 
   const reselectButton = resolveById?.('btnResel');
   if (reselectButton) {
-    reselectButton.addEventListener('mouseenter', () => {
+    const applyReselectHoverState = () => {
       reselectButton.style.color = RESELECT_BUTTON_HOVER_COLOR;
       reselectButton.style.borderColor = RESELECT_BUTTON_HOVER_BORDER;
-    });
-    reselectButton.addEventListener('mouseleave', () => {
+    };
+    const clearReselectHoverState = () => {
       reselectButton.style.color = RESELECT_BUTTON_BASE_COLOR;
       reselectButton.style.borderColor = RESELECT_BUTTON_BASE_BORDER;
-    });
+    };
+    reselectButton.addEventListener('mouseenter', applyReselectHoverState);
+    reselectButton.addEventListener('mouseleave', clearReselectHoverState);
+    reselectButton.addEventListener('focus', applyReselectHoverState);
+    reselectButton.addEventListener('blur', clearReselectHoverState);
     reselectButton.addEventListener('click', () => {
       state.phase = 'select';
       setCharacterSelectFocusLock(resolveById, false);
@@ -95,14 +99,18 @@ export function renderCharacterPhase({
 
   const startButton = resolveById?.('btnRealStart');
   if (startButton) {
-    startButton.addEventListener('mouseenter', () => {
+    const applyStartHoverState = () => {
       startButton.style.boxShadow = `0 0 40px ${selectedChar.accent}66`;
       startButton.style.background = `linear-gradient(135deg,${selectedChar.color}77,${selectedChar.color}44)`;
-    });
-    startButton.addEventListener('mouseleave', () => {
+    };
+    const clearStartHoverState = () => {
       startButton.style.boxShadow = `0 0 20px ${selectedChar.accent}33`;
       startButton.style.background = `linear-gradient(135deg,${selectedChar.color}55,${selectedChar.color}22)`;
-    });
+    };
+    startButton.addEventListener('mouseenter', applyStartHoverState);
+    startButton.addEventListener('mouseleave', clearStartHoverState);
+    startButton.addEventListener('focus', applyStartHoverState);
+    startButton.addEventListener('blur', clearStartHoverState);
     startButton.addEventListener('click', onStart);
   }
 }

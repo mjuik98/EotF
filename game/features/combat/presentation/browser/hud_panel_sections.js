@@ -1,4 +1,5 @@
 import { SecurityUtils } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import {
   updateActionButtons,
@@ -94,10 +95,15 @@ function updateRegionPanels({ gs, deps, doc, setText }) {
       }
     };
 
-    regionNameEl.onmouseenter = showTooltip;
-    regionNameEl.onmouseleave = hideTooltip;
-    regionRuleEl.onmouseenter = showTooltip;
-    regionRuleEl.onmouseleave = hideTooltip;
+    [regionNameEl, regionRuleEl].forEach((el) => {
+      const ariaLabel = `${region.name}. ${region.rule}. ${region.ruleDesc || COMBAT_TEXT.regionFallback.ruleDesc}`;
+      bindTooltipTrigger(el, {
+        bindMode: 'property',
+        label: ariaLabel,
+        show: showTooltip,
+        hide: hideTooltip,
+      });
+    });
   }
 
   const maxFloors = region.floors || 5;

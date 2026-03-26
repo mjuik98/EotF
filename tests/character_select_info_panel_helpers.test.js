@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   buildRoadmapPreviewMeta,
+  buildDeckCardMarkup,
 } from '../game/features/title/platform/browser/character_select_info_panel_markup.js';
 import {
   arraysEqual,
@@ -74,6 +75,11 @@ describe('character_select_info_panel helpers', () => {
     expect(normalizeRelicIds([{ id: 'starter' }, { name: 'Alpha' }], 'fallback')).toEqual(['starter', 'Alpha']);
     expect(arraysEqual(['a', 'b'], ['a', 'b'])).toBe(true);
     expect(arraysEqual(['a'], ['b'])).toBe(false);
+    expect(buildDeckCardMarkup(
+      ['strike'],
+      { strike: { name: '강타', desc: '피해 6' } },
+      '#7cc8ff',
+    )).toContain('data-card-label="강타. 피해 6"');
   });
 
   it('binds tab and loadout interactions through the extracted interaction helper', () => {
@@ -96,6 +102,7 @@ describe('character_select_info_panel helpers', () => {
     relicBadge.dataset.relicDesc = '피해 8';
     const deckCard = createNode();
     deckCard.dataset.cid = 'strike';
+    deckCard.dataset.cardLabel = '강타. 피해 6';
     const level11DeckCard0 = createNode();
     level11DeckCard0.dataset.level11Index = '0';
     level11DeckCard0.dataset.level11Selectable = 'true';
@@ -175,6 +182,7 @@ describe('character_select_info_panel helpers', () => {
     deckCard.listeners.focus({ type: 'focus' });
     expect(relicBadge.setAttribute).toHaveBeenCalledWith('tabindex', '0');
     expect(deckCard.setAttribute).toHaveBeenCalledWith('tabindex', '0');
+    expect(deckCard.setAttribute).toHaveBeenCalledWith('aria-label', '강타. 피해 6');
 
     level11DeckCard0.listeners.click();
     expect(saveLevel11Upgrade.disabled).toBe(false);
