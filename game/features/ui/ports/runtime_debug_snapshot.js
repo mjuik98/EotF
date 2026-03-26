@@ -4,11 +4,23 @@ import {
   isInlineBlockVisible,
   isTitleSurfaceActive,
   isVisibleElement,
-} from './public_shared_support_capabilities.js';
+} from './public_runtime_debug_support_capabilities.js';
 
 export function collectUiRuntimeDebugSnapshot({ doc, win }) {
   const view = win || doc?.defaultView || null;
-  if (!doc) return { panels: [] };
+  if (!doc) {
+    return {
+      panels: [],
+      surface: {
+        activePanelIds: [],
+        activePanelCount: 0,
+      },
+      overlays: {
+        activePanelIds: [],
+        activePanelCount: 0,
+      },
+    };
+  }
 
   const panels = [
     ['mainTitle', doc.getElementById('mainTitleSubScreen'), (element) => isTitleSurfaceActive(doc, view) && isVisibleElement(element, view)],
@@ -29,5 +41,15 @@ export function collectUiRuntimeDebugSnapshot({ doc, win }) {
     .filter(([, element, isVisible]) => isVisible(element))
     .map(([id]) => id);
 
-  return { panels };
+  return {
+    panels,
+    surface: {
+      activePanelIds: panels,
+      activePanelCount: panels.length,
+    },
+    overlays: {
+      activePanelIds: panels,
+      activePanelCount: panels.length,
+    },
+  };
 }

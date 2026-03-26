@@ -1,19 +1,9 @@
 import { bindCharacterInfoLoadoutControls } from './character_select_info_panel_loadout_controls.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
-
-function createNullGeneralTooltipApi() {
-  return {
-    hideGeneralTooltip() {},
-    showGeneralTooltip() {},
-  };
-}
-
-function createNullCardTooltipApi() {
-  return {
-    hideTooltip() {},
-    showTooltip() {},
-  };
-}
+import {
+  bindCharacterInfoDeckCardTooltips,
+  bindCharacterInfoRelicTooltips,
+  createCharacterInfoTooltipApis,
+} from './character_select_info_panel_tooltips.js';
 
 function bindTabInteractions(panel, hover) {
   const tabButtons = panel.querySelectorAll('.char-info-tab');
@@ -60,49 +50,6 @@ function bindEchoBadge(panel, selectedChar, hover, echo, openModal) {
   });
 }
 
-function bindRelicTooltips(panel, generalTooltip, doc, win, hover) {
-  const relicBadges = typeof panel.querySelectorAll === 'function'
-    ? Array.from(panel.querySelectorAll('.relic-inner') || [])
-    : [];
-  const fallbackRelicBadge = relicBadges.length === 0 ? panel.querySelector('.relic-inner') : null;
-
-  (fallbackRelicBadge ? [fallbackRelicBadge] : relicBadges).forEach((relicBadge) => {
-    if (!relicBadge) return;
-    bindTooltipTrigger(relicBadge, {
-      label: `${relicBadge.dataset.relicTitle || ''}. ${relicBadge.dataset.relicDesc || ''}`,
-      show(event) {
-        hover?.();
-        generalTooltip.showGeneralTooltip(
-          event,
-          relicBadge.dataset.relicTitle || '',
-          relicBadge.dataset.relicDesc || '',
-          { doc, win },
-        );
-      },
-      hide() {
-        generalTooltip.hideGeneralTooltip({ doc, win });
-      },
-    });
-  });
-}
-
-function bindDeckCardTooltips(panel, cardTooltip, cards, hover) {
-  const mockGs = { getBuff: () => null, player: { echoChain: 0 } };
-  panel.querySelectorAll('.deck-card').forEach((element) => {
-    const ariaLabel = element.dataset.cardLabel || element.dataset.cid || '카드';
-    bindTooltipTrigger(element, {
-      label: ariaLabel,
-      show(event) {
-        hover?.();
-        cardTooltip.showTooltip(event, element.dataset.cid, { data: { cards }, gs: mockGs });
-      },
-      hide() {
-        cardTooltip.hideTooltip();
-      },
-    });
-  });
-}
-
 export function bindCharacterInfoPanelInteractions({
   panel,
   selectedChar,
@@ -118,14 +65,16 @@ export function bindCharacterInfoPanelInteractions({
   onSaveLoadoutPreset,
   onClearLoadoutPreset,
 } = {}) {
-  const generalTooltip = generalTooltipUI || createNullGeneralTooltipApi();
-  const cardTooltip = cardTooltipUI || createNullCardTooltipApi();
+  const { generalTooltip, cardTooltip } = createCharacterInfoTooltipApis({
+    generalTooltipUI,
+    cardTooltipUI,
+  });
   generalTooltip.hideGeneralTooltip({ doc, win });
 
   bindTabInteractions(panel, hover);
   bindEchoBadge(panel, selectedChar, hover, echo, openModal);
-  bindRelicTooltips(panel, generalTooltip, doc, win, hover);
-  bindDeckCardTooltips(panel, cardTooltip, cards, hover);
+  bindCharacterInfoRelicTooltips(panel, generalTooltip, { doc, win, hover });
+  bindCharacterInfoDeckCardTooltips(panel, cardTooltip, { cards, hover });
   bindCharacterInfoLoadoutControls({
     panel,
     selectedChar,

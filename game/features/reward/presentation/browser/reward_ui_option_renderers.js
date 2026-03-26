@@ -1,6 +1,5 @@
 import { populateCombatCardFrame } from '../../../combat/ports/public_card_frame_capabilities.js';
-import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
-import { bindTooltipTrigger, createTooltipTriggerEvent } from '../../../ui/ports/public_shared_support_capabilities.js';
+import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
 import {
   getDescriptionUtils,
   getDoc,
@@ -8,29 +7,12 @@ import {
   toRarityLabel,
   toTypeClass,
 } from './reward_ui_helpers.js';
-
-function callTooltipMethod(deps, method, ...args) {
-  const tooltipUI = deps?.tooltipUI || deps?.TooltipUI;
-  if (typeof tooltipUI?.[method] !== 'function') return;
-  tooltipUI[method](...args);
-}
-
-function hideRewardTooltips(deps) {
-  callTooltipMethod(deps, 'hideTooltip', deps);
-  callTooltipMethod(deps, 'hideItemTooltip', deps);
-  callTooltipMethod(deps, 'hideGeneralTooltip', deps);
-}
-
-function bindRewardTooltipHandlers(wrapper, deps, show, hideMethod) {
-  if (typeof show !== 'function') return;
-  bindTooltipTrigger(wrapper, {
-    label: wrapper.getAttribute?.('aria-label') || '',
-    show,
-    hide() {
-      callTooltipMethod(deps, hideMethod, deps);
-    },
-  });
-}
+import {
+  bindRewardTooltipHandlers,
+  createRewardTooltipTrigger,
+  hideRewardTooltips,
+  invokeRewardTooltip,
+} from './reward_ui_option_bindings.js';
 
 function applyRewardCardShell(el, extraClasses = []) {
   el.className = [el.className, 'reward-card-shell', ...extraClasses].filter(Boolean).join(' ').trim();
@@ -90,10 +72,10 @@ export function renderRewardCardOption(container, cardId, data, gs, deps, onPick
   bindRewardTooltipHandlers(
     wrapper,
     deps,
-    (event) => callTooltipMethod(
+    (event) => invokeRewardTooltip(
       deps,
       'showTooltip',
-      createTooltipTriggerEvent(event, wrapper),
+      createRewardTooltipTrigger(event, wrapper),
       cardId,
       { ...deps, data, gs },
     ),
@@ -147,10 +129,10 @@ export function renderItemOption(container, item, deps, onPick, idx) {
   bindRewardTooltipHandlers(
     wrapper,
     deps,
-    (event) => callTooltipMethod(
+    (event) => invokeRewardTooltip(
       deps,
       'showItemTooltip',
-      createTooltipTriggerEvent(event, wrapper),
+      createRewardTooltipTrigger(event, wrapper),
       item.id,
       { ...deps, data: tooltipData, gs: deps.gs },
     ),
@@ -232,10 +214,10 @@ export function renderBlessingOption(container, blessing, deps, onPick, idx) {
   bindRewardTooltipHandlers(
     wrapper,
     deps,
-    (event) => callTooltipMethod(
+    (event) => invokeRewardTooltip(
       deps,
       'showGeneralTooltip',
-      createTooltipTriggerEvent(event, wrapper),
+      createRewardTooltipTrigger(event, wrapper),
       blessing.name || '축복',
       tooltipContent,
       deps,

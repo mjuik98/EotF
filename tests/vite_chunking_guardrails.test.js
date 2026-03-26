@@ -114,6 +114,30 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_text_highlight.js'),
     ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_feature_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_text_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_dom_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_shared_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_tooltip_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_audio_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_runtime_debug_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_binding_ref_support_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
   });
 
   it('routes shared set-bonus progression modules into a dedicated shared chunk instead of overlay-owned chunks', () => {

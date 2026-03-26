@@ -1,8 +1,9 @@
 import {
+  isVisibleElement,
   resolveNodePosition,
   resolveNodeTotal,
   toFiniteNumber,
-} from '../../ui/ports/public_shared_support_capabilities.js';
+} from '../../ui/ports/public_runtime_debug_support_capabilities.js';
 
 function collectRunStartOverlaySummary(doc) {
   const activeOverlayIds = [
@@ -50,10 +51,40 @@ function collectMapSummary(gs) {
   };
 }
 
-export function collectRunRuntimeDebugSnapshot({ modules, doc }) {
-  const gs = modules?.featureScopes?.core?.GS || modules?.GS || {};
+function collectMapSurfaceSummary(doc, view) {
+  const nodeCards = typeof doc?.querySelectorAll === 'function'
+    ? Array.from(doc.querySelectorAll('.node-card'))
+    : [];
+  const relicPanel = doc?.getElementById?.('ncRelicPanel') || null;
+
   return {
-    map: collectMapSummary(gs),
+    nodeCardCount: nodeCards.length,
+    relicPanelVisible: isVisibleElement(relicPanel, view),
+  };
+}
+
+export function collectRunRuntimeDebugSnapshot({ modules, doc, win }) {
+  const gs = modules?.featureScopes?.core?.GS || modules?.GS || {};
+  const view = win || doc?.defaultView || null;
+  const mapSummary = collectMapSummary(gs);
+  const mapSurface = {
+    ...collectMapSurfaceSummary(doc, view),
+    currentNodeId: mapSummary.currentNode,
+    reachableNodeIds: mapSummary.reachableNodeIds,
+  };
+  return {
+    map: {
+      ...mapSummary,
+      resources: {
+        currentRegion: mapSummary.currentRegion,
+        currentFloor: mapSummary.currentFloor,
+        accessibleNodeCount: mapSummary.accessibleNodeCount,
+      },
+      ui: mapSurface,
+      surface: {
+        ...mapSurface,
+      },
+    },
     overlays: {
       runStart: collectRunStartOverlaySummary(doc),
     },

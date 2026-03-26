@@ -109,6 +109,9 @@ describe('feature structure guardrails', () => {
   it('keeps core deps contract builders free of direct feature imports', () => {
     const files = [
       'game/core/deps/contracts/core_contract_builders.js',
+      'game/core/deps/contracts/build_combat_turn_base_contract.js',
+      'game/core/deps/contracts/build_reward_contract.js',
+      'game/core/deps/contracts/build_save_system_contract.js',
       'game/core/deps/contracts/run_contract_builders.js',
       'game/core/deps/contracts/ui_contract_builders.js',
     ];
@@ -116,7 +119,69 @@ describe('feature structure guardrails', () => {
     for (const file of files) {
       const source = readSource(file);
       expect(source).not.toMatch(/features\//);
-      expect(source).toMatch(/create_feature_contract_capabilities/);
+    }
+  });
+
+  it('keeps the core contract registry as a thin coordinator over local builder helpers', () => {
+    const source = readSource('game/core/deps/contracts/core_contract_builders.js');
+
+    expect(source).toContain("./build_combat_turn_base_contract.js");
+    expect(source).toContain("./build_reward_contract.js");
+    expect(source).toContain("./build_save_system_contract.js");
+    expect(source).toContain("./build_feature_contract_builder_group.js");
+    expect(source).not.toContain('enemyTurn:');
+    expect(source).not.toContain('showRewardScreen:');
+    expect(source).not.toContain('runRules:');
+  });
+
+  it('keeps the dep contract registry delegated through local contract builder group helpers', () => {
+    const source = readSource('game/core/deps_contract_registry.js');
+
+    expect(source).toContain("./deps/contracts/build_contract_builder_groups.js");
+    expect(source).toContain('buildContractBuilderGroups');
+    expect(source).toContain('mergeContractBuilderGroups');
+    expect(source).not.toContain("from './deps/contracts/core_contract_builders.js'");
+    expect(source).not.toContain("from './deps/contracts/ui_contract_builders.js'");
+    expect(source).not.toContain("from './deps/contracts/run_contract_builders.js'");
+  });
+
+  it('creates feature contract capabilities once at the group-assembly boundary', () => {
+    const groupSource = readSource('game/core/deps/contracts/build_contract_builder_groups.js');
+    const coreSource = readSource('game/core/deps/contracts/core_contract_builders.js');
+    const uiSource = readSource('game/core/deps/contracts/ui_contract_builders.js');
+    const runSource = readSource('game/core/deps/contracts/run_contract_builders.js');
+
+    expect(groupSource).toContain("./create_feature_contract_capabilities.js");
+    expect(groupSource).toContain('createFeatureContractCapabilities');
+    expect(groupSource).toContain('featureContracts');
+    expect(coreSource).not.toContain('createFeatureContractCapabilities');
+    expect(uiSource).not.toContain('createFeatureContractCapabilities');
+    expect(runSource).not.toContain('createFeatureContractCapabilities');
+  });
+
+  it('routes feature contract builder aggregation through a shared local helper', () => {
+    const coreSource = readSource('game/core/deps/contracts/core_contract_builders.js');
+    const uiSource = readSource('game/core/deps/contracts/ui_contract_builders.js');
+    const runSource = readSource('game/core/deps/contracts/run_contract_builders.js');
+
+    expect(coreSource).toContain("./build_feature_contract_builder_group.js");
+    expect(uiSource).toContain("./build_feature_contract_builder_group.js");
+    expect(runSource).toContain("./build_feature_contract_builder_group.js");
+    expect(coreSource).toContain('buildFeatureContractBuilderGroup');
+    expect(uiSource).toContain('buildFeatureContractBuilderGroup');
+    expect(runSource).toContain('buildFeatureContractBuilderGroup');
+  });
+
+  it('keeps extracted core contract helpers free of feature capability wiring', () => {
+    const files = [
+      'game/core/deps/contracts/build_combat_turn_base_contract.js',
+      'game/core/deps/contracts/build_reward_contract.js',
+      'game/core/deps/contracts/build_save_system_contract.js',
+    ];
+
+    for (const file of files) {
+      const source = readSource(file);
+      expect(source).not.toMatch(/create_feature_contract_capabilities/);
     }
   });
 
@@ -144,5 +209,35 @@ describe('feature structure guardrails', () => {
     expect(panelSource).toContain("./character_select_info_panel_sections.js");
     expect(sectionSource).toContain('buildCharacterInfoSummarySection');
     expect(sectionSource).toContain('buildCharacterInfoDetailsSection');
+  });
+
+  it('keeps top-level ui and combat port naming on explicit public/runtime patterns', () => {
+    const uiPortFiles = fs.readdirSync(path.join(FEATURES_ROOT, 'ui', 'ports'))
+      .filter((entry) => entry.endsWith('.js'))
+      .sort();
+    const combatPortFiles = fs.readdirSync(path.join(FEATURES_ROOT, 'combat', 'ports'))
+      .filter((entry) => entry.endsWith('.js'))
+      .sort();
+
+    const allowedUiNonPublic = new Set([
+      'create_ui_ports.js',
+      'ending_screen_runtime_ports.js',
+      'runtime_debug_snapshot.js',
+    ]);
+    const allowedCombatNonPublic = new Set([
+      'combat_logging.js',
+      'create_combat_ports.js',
+      'help_pause_combat_ports.js',
+      'hud_shared_view_ports.js',
+      'player_turn_policy_ports.js',
+      'presentation_shared_runtime_capabilities.js',
+      'runtime_debug_snapshot.js',
+      'tooltip_ui_ports.js',
+    ]);
+
+    expect(uiPortFiles.filter((file) => !file.startsWith('public_') && !allowedUiNonPublic.has(file))).toEqual([]);
+    expect(combatPortFiles.filter((file) => !file.startsWith('public_') && !allowedCombatNonPublic.has(file))).toEqual([]);
+    expect(uiPortFiles).toContain('runtime_debug_snapshot.js');
+    expect(combatPortFiles).toContain('runtime_debug_snapshot.js');
   });
 });

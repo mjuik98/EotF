@@ -7,7 +7,7 @@ import {
   findClosestNodeEntry,
   updateFullMapTooltip,
 } from './map_ui_full_map_render.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
 
 function getDoc(deps) {
   return deps?.doc || document;

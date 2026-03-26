@@ -1,6 +1,6 @@
 import { ensureEventModalShell } from '../../platform/browser/ensure_event_modal_shell.js';
 import { renderChoices } from './event_ui_dom.js';
-import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { applyEventShellCopy } from './event_text_surface.js';
 
 export function renderEventShellRuntime(event, { doc, gs, refreshGoldBar, resolveChoice }) {
   ensureEventModalShell(doc);
@@ -9,9 +9,7 @@ export function renderEventShellRuntime(event, { doc, gs, refreshGoldBar, resolv
   const descEl = doc.getElementById('eventDesc');
   const imgContEl = doc.getElementById('eventImageContainer');
 
-  if (eyebrowEl) eyebrowEl.textContent = event.eyebrow || 'LAYER 1 EVENT';
-  if (titleEl) titleEl.textContent = event.title;
-  if (descEl) DomSafe.setHighlightedText(descEl, event.desc);
+  applyEventShellCopy({ eyebrowEl, titleEl, descEl, event });
   if (imgContEl) imgContEl.style.display = 'none';
 
   refreshGoldBar?.();

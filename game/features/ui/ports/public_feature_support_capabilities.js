@@ -1,3 +1,6 @@
+/**
+ * @deprecated compat-only barrel. Prefer narrow support ports from this directory.
+ */
 export {
   CardCostUtils,
   DescriptionUtils,

@@ -5,8 +5,8 @@ import {
   playUiItemGetFeedback,
 } from '../../ports/event_ui_view_ports.js';
 import { dismissTransientOverlay, getAudioEngine } from './event_ui_helpers.js';
-import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
+import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
 
 export function showEventCardDiscardOverlay(gs, data, isBurn = false, deps = {}) {
   if (!gs?.player || !data?.cards) return;

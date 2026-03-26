@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { DescriptionUtils } from '../../../ui/ports/public_text_support_capabilities.js';
 
 import {
   buildDeckCardMarkup,

@@ -124,6 +124,7 @@ describe('quality workflow scripts', () => {
     const lintScript = JSON.parse(readText('package.json')).scripts.lint;
     const suiteScript = readText('scripts/test_suite_manifest.mjs');
     const couplingScript = readText('scripts/check-import-coupling.mjs');
+    const deprecatedCompatScript = readText('scripts/check-deprecated-compat-imports.mjs');
 
     expect(suiteManifest.fast.length).toBeGreaterThan(0);
     expect(suiteManifest.guardrails.length).toBeGreaterThan(0);
@@ -132,6 +133,7 @@ describe('quality workflow scripts', () => {
     expect(couplingTargets.maxByPair['feature->data']).toBe(13);
     expect(couplingTargets.maxByPair['feature->utils']).toBe(4);
     expect(couplingTargets.maxByPair['feature->legacy']).toBe(1);
+    expect(lintScript).toContain('node scripts/check-deprecated-compat-imports.mjs');
     expect(lintScript).toContain('node scripts/test_suite_manifest.mjs --check');
     expect(suiteScript).toContain('--write');
     expect(suiteScript).toContain('--check');
@@ -140,6 +142,10 @@ describe('quality workflow scripts', () => {
     expect(suiteScript).toContain('test_suite_manifest.json');
     expect(couplingScript).toContain('--json');
     expect(couplingScript).toContain('import_coupling_targets.json');
+    expect(deprecatedCompatScript).toContain('public_feature_support_capabilities.js');
+    expect(deprecatedCompatScript).toContain('public_shared_support_capabilities.js');
+    expect(deprecatedCompatScript).toContain('shared_support_capabilities.js');
+    expect(deprecatedCompatScript).toContain('public_core_support_capabilities.js');
   });
 
   it('keeps dependency delta thresholds biased toward convergence instead of growth', () => {
@@ -176,6 +182,8 @@ describe('quality workflow scripts', () => {
     expect(agents).toContain('Run `npm run test:full` when a change spans both runtime behavior and guardrail coverage.');
     expect(agents).toContain('Run `npm run quality:sync` when test ownership and dependency-map outputs both changed.');
     expect(agents).toContain('Run `npm run deps:map:check` to verify generated dependency map outputs are current before handoff on dependency-flow changes.');
+    expect(agents).toContain('Broad compat support barrels are deprecated and must not be used for new runtime imports.');
+    expect(agents).toContain('Feature port files should prefer explicit `public_*` names; reserve `runtime_*` names for runtime debug or orchestration surfaces.');
   });
 
   it('keeps window-usage and state-mutation targets aligned with live files and current totals', () => {

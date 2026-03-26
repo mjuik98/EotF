@@ -153,6 +153,17 @@
       "message": "feature implementation must use run feature domain ownership instead of the run-rules systems compat surface"
     },
     {
+      "id": "runtime-no-deprecated-compat-barrels",
+      "from": ["app", "combat", "core", "data", "domain", "engine", "feature", "legacy", "platform", "presentation", "shared", "state", "systems", "ui", "utils"],
+      "denyTargets": [
+        "game/features/ui/ports/public_feature_support_capabilities.js",
+        "game/features/ui/ports/public_shared_support_capabilities.js",
+        "game/core/shared_support_capabilities.js",
+        "game/platform/legacy/core_support/public_core_support_capabilities.js"
+      ],
+      "message": "runtime code must not import deprecated compat-only support barrels"
+    },
+    {
       "id": "reward-application-platform-boundary",
       "from": ["feature"],
       "sourcePrefixes": [

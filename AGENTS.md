@@ -34,6 +34,8 @@ This file is the working contract for engineers and coding agents in this reposi
 - The current tree still includes `game/ui/`, `game/app/`, `game/combat/`, `game/domain/`, `game/state/`, `game/presentation/`, and `game/systems/`; treat them as compat or transitional surfaces unless the task explicitly targets them.
 - Keep `game/core/` orchestration-only, with composition/bootstrap/store wiring concentrated there.
 - Cross-feature imports should use `game/features/<feature>/public.js` or `ports/*`, not feature internals.
+- Broad compat support barrels are deprecated and must not be used for new runtime imports.
+- Feature port files should prefer explicit `public_*` names; reserve `runtime_*` names for runtime debug or orchestration surfaces.
 - Feature-internal transitional dirs such as `app`, `bindings`, `compat`, `contracts`, `runtime`, `modules`, and feature-local `ui` should stay thin wrappers around canonical ownership.
 - Browser runtime code must not use Node-only APIs.
 - Browser globals, DOM access, canvas, timers, storage, and audio bindings belong in feature `platform/*` or `game/platform/browser/*`.

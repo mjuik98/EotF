@@ -12,6 +12,19 @@ describe('deps factory structure', () => {
 
     expect(source).toContain("from './deps/deps_factory_contract_catalog.js'");
     expect(source).toContain("from './deps/deps_factory_accessors.js'");
-    expect(source).toContain("from './deps/deps_factory_global_bridge.js'");
+    expect(source).toContain("from './deps/deps_factory_caches.js'");
+    expect(source).toContain("from './deps/deps_factory_public_runtime.js'");
+    expect(source).toContain('createDepsFactoryCaches');
+    expect(source).toContain('createDepsFactoryPublicRuntime');
+    expect(source).toContain('publicDepAccessorExports');
+    expect(source).toContain('syncPublicGlobalHooks');
+    expect(source).not.toContain('let contractCatalog = null;');
+    expect(source).not.toContain('let publicDepAccessors = null;');
+    expect(source).not.toContain('export function getHudUpdateDeps() {');
+    expect(source).not.toContain('export function getGameBootDeps() {');
+    expect(source).not.toContain('return getPublicDepAccessors().getHudUpdateDeps();');
+    expect(source).not.toContain('return getPublicDepAccessors().getGameBootDeps();');
+    expect(source).not.toContain('syncGlobalDepsFactoryHooks({');
+    expect(source).not.toContain('createPublicDepAccessorExportBindings(');
   });
 });

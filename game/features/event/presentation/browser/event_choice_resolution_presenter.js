@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { setEventDescriptionText } from './event_text_surface.js';
 
 function showToast(toast, showItemToast) {
   if (!toast || typeof showItemToast !== 'function') return;
@@ -38,7 +38,7 @@ export function presentEventChoiceResolution({
   }
 
   const descEl = doc?.getElementById?.('eventDesc');
-  if (descEl) DomSafe.setHighlightedText(descEl, viewModel?.resultText || '');
+  setEventDescriptionText(descEl, viewModel?.resultText || '');
 
   showToast(viewModel?.upgradeToast, showItemToast);
 

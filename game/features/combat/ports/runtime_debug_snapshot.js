@@ -1,8 +1,10 @@
 import {
   getEnemyAnchor,
   getViewportSummary,
+  isVisibleElement,
+  readTextContent,
   toFiniteNumber,
-} from '../../ui/ports/public_shared_support_capabilities.js';
+} from '../../ui/ports/public_runtime_debug_support_capabilities.js';
 
 function collectEnemyState(enemies = []) {
   return enemies.map((enemy, index) => ({
@@ -14,6 +16,45 @@ function collectEnemyState(enemies = []) {
     intent: enemy?.nextAction || enemy?.intent || null,
     statusKeys: Object.keys(enemy?.status || enemy?.statuses || {}),
   }));
+}
+
+function collectCombatResourceSummary(gs) {
+  const player = gs?.player || {};
+  return {
+    handCount: Array.isArray(player.hand) ? player.hand.length : 0,
+    drawPileCount: Array.isArray(player.drawPile) ? player.drawPile.length : 0,
+    graveyardCount: Array.isArray(player.graveyard) ? player.graveyard.length : 0,
+    energy: toFiniteNumber(player.energy),
+    maxEnergy: toFiniteNumber(player.maxEnergy),
+  };
+}
+
+function collectCombatUiSummary(doc, view) {
+  const handCards = typeof doc?.querySelectorAll === 'function'
+    ? Array.from(doc.querySelectorAll('#combatHandCards .card'))
+    : [];
+  const endTurnButton = typeof doc?.querySelector === 'function'
+    ? doc.querySelector('.action-btn-end')
+    : null;
+  const hoverClone = typeof doc?.querySelector === 'function'
+    ? doc.querySelector('#handCardCloneLayer .card-clone-visible')
+    : null;
+  const keywordPanel = hoverClone?.querySelector?.('.card-clone-keyword-panel') || null;
+  const keywordTitle = keywordPanel?.querySelector?.('.card-clone-keyword-body-title') || null;
+  const mechanicTrigger = hoverClone?.querySelector?.('.card-hover-mechanic-trigger') || null;
+
+  return {
+    handCardCount: handCards.length,
+    energyLabel: readTextContent(doc?.getElementById?.('combatEnergyText')),
+    turnLabel: readTextContent(doc?.getElementById?.('turnIndicator')),
+    endTurnDisabled: !!endTurnButton?.disabled,
+    endTurnVisible: isVisibleElement(endTurnButton, view),
+    hoverCloneVisible: !!hoverClone,
+    hoverKeywordPanelOpen: hoverClone?.dataset?.keywordPanelOpen === 'true',
+    hoverKeywordPlacement: hoverClone?.dataset?.keywordPlacement || null,
+    hoverKeywordTitle: readTextContent(keywordTitle),
+    hoverMechanicLabel: readTextContent(mechanicTrigger),
+  };
 }
 
 export function collectCombatRuntimeDebugSnapshot({ modules, doc, win }) {
@@ -30,6 +71,7 @@ export function collectCombatRuntimeDebugSnapshot({ modules, doc, win }) {
     .filter((enemy) => enemy.targetable)
     .map((enemy) => enemy.index);
   const selectedTarget = toFiniteNumber(gs?._selectedTarget, -1);
+  const uiSummary = collectCombatUiSummary(doc, view);
 
   return {
     combat: {
@@ -49,6 +91,9 @@ export function collectCombatRuntimeDebugSnapshot({ modules, doc, win }) {
       targetableEnemyIndexes,
       enemies: enemyStates,
       logSize: Array.isArray(gs?.combat?.log) ? gs.combat.log.length : 0,
+      resources: collectCombatResourceSummary(gs),
+      ui: uiSummary,
+      surface: uiSummary,
     },
   };
 }

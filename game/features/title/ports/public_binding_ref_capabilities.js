@@ -1,4 +1,4 @@
-import { pickDefinedRefs } from '../../ui/ports/public_shared_support_capabilities.js';
+import { pickDefinedRefs } from '../../ui/ports/public_binding_ref_support_capabilities.js';
 
 const TITLE_BINDING_REF_KEYS = Object.freeze([
   'ClassSelectUI',

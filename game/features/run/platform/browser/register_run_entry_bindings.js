@@ -1,5 +1,5 @@
 import { playUiClick, playUiFootstep } from '../../ports/public_audio_runtime_capabilities.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
 
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);

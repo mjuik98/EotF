@@ -1,5 +1,5 @@
 import { LEGACY_PLAYER_STATE_FALLBACK_FLAG } from './player_state_command_fallback_flag.js';
-import { Actions } from '../core_support/public_core_support_capabilities.js';
+import { Actions } from '../core_support/public_state_action_support_capabilities.js';
 import {
   applyLegacyPlayerGoldMutation,
   applyLegacyPlayerHealMutation,

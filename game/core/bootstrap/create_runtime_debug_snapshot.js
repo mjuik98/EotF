@@ -24,15 +24,25 @@ export function createRuntimeDebugSnapshot({ modules, doc, win }) {
   const introCinematic = titleSnapshot.title?.introCinematic || null;
   const storyFragment = titleSnapshot.overlays?.storyFragment || null;
   const runStart = runSnapshot.overlays?.runStart || { active: false, activeOverlayIds: [] };
+  const activeOverlayIds = [
+    ...(introCinematic?.active ? ['introCinematic'] : []),
+    ...(storyFragment?.active ? ['storyFragment'] : []),
+    ...((runStart.activeOverlayIds || []).filter(Boolean)),
+  ];
 
   return {
     coordinateSystem: 'screen-space origin=(top-left), +x=right, +y=down',
     screen: gs?.currentScreen || null,
+    ui: uiSnapshot,
     panels: uiSnapshot.panels || [],
     title: titleSnapshot.title,
     overlays: {
       storyFragment,
       runStart,
+      surface: {
+        activeOverlayIds,
+        activeOverlayCount: activeOverlayIds.length,
+      },
     },
     player: collectPlayerSummary(gs),
     combat: combatSnapshot.combat,

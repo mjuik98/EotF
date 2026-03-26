@@ -10,7 +10,7 @@ import {
 import {
   playEventResonanceBurst,
   playUiItemGet,
-} from '../../ui/ports/public_shared_support_capabilities.js';
+} from '../../ui/ports/public_audio_support_capabilities.js';
 import {
   createRecentFeedMeta,
   formatRecentFeedText,

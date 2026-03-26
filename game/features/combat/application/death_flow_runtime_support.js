@@ -3,7 +3,7 @@ export {
   playReactionEnemyDeath,
   playReactionPlayerDeath,
   playStatusHeal,
-} from '../../ui/ports/public_shared_support_capabilities.js';
+} from '../../ui/ports/public_audio_support_capabilities.js';
 export {
   registerEnemyKill,
   recordEnemyWorldKill,

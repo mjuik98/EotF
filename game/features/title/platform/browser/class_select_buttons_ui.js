@@ -1,5 +1,4 @@
-import { DescriptionUtils } from '../../../ui/ports/public_feature_support_capabilities.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_shared_support_capabilities.js';
+import { DescriptionUtils } from '../../../ui/ports/public_text_support_capabilities.js';
 
 import {
   buildItemDetailViewModel,
@@ -7,6 +6,10 @@ import {
   createManagedItemDetailSurface,
   setItemDetailPanelState,
 } from './relic_detail_shared_ui.js';
+import {
+  bindClassRelicDetailTrigger,
+  bindClassTraitTooltip,
+} from './class_select_button_bindings.js';
 
 function getDoc(deps) {
   return deps?.doc || document;
@@ -76,48 +79,19 @@ export function renderClassSelectButtons(container, deps = {}) {
     `;
 
     const traitEl = btn.querySelector('.class-btn-trait');
-    if (traitEl) {
-      traitEl.style.cursor = 'help';
-      bindTooltipTrigger(traitEl, {
-        label: `${cls.traitTitle || cls.traitName}. ${cls.traitDesc || ''}`,
-        show(event) {
-          event.stopPropagation?.();
-          showTooltip?.(event, cls.traitTitle, cls.traitDesc);
-        },
-        hide() {
-          hideTooltip?.();
-        },
-      });
-    }
+    bindClassTraitTooltip(traitEl, cls, { showTooltip, hideTooltip });
 
     const relicEl = btn.querySelector('.class-btn-relic');
     if (relicEl && startItem) {
-      const renderRelicDetail = (event) => {
-        event?.stopPropagation?.();
-        detailSurface.show({
-          activeEntry: relicEl,
-          detail: buildStartRelicDetail(startItemKey, startItem),
-          itemId: startItemKey,
-        });
-      };
-      relicEl.style.cursor = 'pointer';
-      relicEl.setAttribute('tabindex', '0');
-      relicEl.setAttribute('role', 'button');
-      relicEl.setAttribute('aria-controls', 'classSelectRelicDetail');
-      relicEl.setAttribute('aria-pressed', 'false');
-      relicEl.setAttribute('aria-label', `${startItem.name}. ${startItem.desc || ''}`);
-      bindTooltipTrigger(relicEl, {
-        label: `${startItem.name}. ${startItem.desc || ''}`,
-        show: renderRelicDetail,
-        hide() {
-          detailSurface.clear();
-        },
+      const relicBinding = bindClassRelicDetailTrigger(relicEl, {
+        activeEntry: relicEl,
+        item: startItem,
+        itemId: startItemKey,
+        detailSurface,
+        renderDetail: buildStartRelicDetail,
       });
-      relicEl.addEventListener('click', renderRelicDetail);
       relicEntries.push(relicEl);
-      if (!firstRelicDetail) {
-        firstRelicDetail = { itemId: startItemKey, item: startItem, activeEntry: relicEl };
-      }
+      if (!firstRelicDetail && relicBinding) firstRelicDetail = relicBinding;
     }
 
     container.appendChild(btn);

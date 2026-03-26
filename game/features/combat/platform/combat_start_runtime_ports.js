@@ -1,5 +1,5 @@
 import { CombatInitializer } from '../application/combat_initializer.js';
-import { playEventBossPhase } from '../../ui/ports/public_shared_support_capabilities.js';
+import { playEventBossPhase } from '../../ui/ports/public_audio_support_capabilities.js';
 import {
   applyCombatEntryOverlay,
   finalizeCombatStartUi,

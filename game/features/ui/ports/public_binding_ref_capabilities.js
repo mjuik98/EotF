@@ -1,4 +1,4 @@
-import { pickDefinedRefs } from './public_shared_support_capabilities.js';
+import { pickDefinedRefs } from './public_binding_ref_support_capabilities.js';
 
 const UI_BINDING_REF_KEYS = Object.freeze([
   'ScreenUI',

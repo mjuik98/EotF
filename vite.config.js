@@ -41,6 +41,14 @@ export function getManualChunk(id) {
   if (normalized.includes('/game/shared/ui/tooltip/')) return 'ui-shared-surfaces';
   if (normalized.includes('/game/shared/ui/item_detail/')) return 'ui-shared-surfaces';
   if (normalized.includes('/game/shared/ui/state/')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_feature_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_text_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_dom_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_shared_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_tooltip_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_audio_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_runtime_debug_support_capabilities.js')) return 'ui-shared-surfaces';
+  if (normalized.endsWith('/game/features/ui/ports/public_binding_ref_support_capabilities.js')) return 'ui-shared-surfaces';
   if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_text_highlight.js')) return 'ui-shared-surfaces';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_surface_state.js')) return 'ui-combat-copy';
   if (normalized.endsWith('/game/features/combat/presentation/browser/combat_copy.js')) return 'ui-combat-copy';

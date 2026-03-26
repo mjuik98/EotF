@@ -1,3 +1,13 @@
+function resolveSelectedClassKey(selectedChar) {
+  if (selectedChar?.class !== undefined && selectedChar?.class !== null) {
+    return selectedChar.class;
+  }
+  if (selectedChar?.id !== undefined) {
+    return selectedChar.id;
+  }
+  return null;
+}
+
 export function confirmCharacterSelection({
   state,
   chars,
@@ -24,8 +34,9 @@ export function confirmCharacterSelection({
 export function createCharacterSelectMountActions({ fns = {} } = {}) {
   return {
     onConfirm(selectedChar) {
-      if (selectedChar?.id !== undefined) {
-        fns.selectClass?.(selectedChar.id);
+      const selectedClassKey = resolveSelectedClassKey(selectedChar);
+      if (selectedClassKey !== null) {
+        fns.selectClass?.(selectedClassKey);
       }
     },
 
@@ -34,8 +45,9 @@ export function createCharacterSelectMountActions({ fns = {} } = {}) {
     },
 
     onStart(selectedChar) {
-      if (selectedChar?.id !== undefined) {
-        fns.selectClass?.(selectedChar.id);
+      const selectedClassKey = resolveSelectedClassKey(selectedChar);
+      if (selectedClassKey !== null) {
+        fns.selectClass?.(selectedClassKey);
       }
       fns.startGame?.();
     },

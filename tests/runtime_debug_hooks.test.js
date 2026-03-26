@@ -41,11 +41,52 @@ function createDoc() {
   ensureElement('deckViewModal', 'none');
   ensureElement('settingsModal', 'none');
   ensureElement('mainTitleSubScreen', 'none');
+  elements.set('combatEnergyText', {
+    id: 'combatEnergyText',
+    textContent: '2 / 3',
+    style: { display: 'block' },
+  });
+  elements.set('turnIndicator', {
+    id: 'turnIndicator',
+    textContent: '적의 턴',
+    style: { display: 'block' },
+  });
+  elements.set('combatHandCards', {
+    id: 'combatHandCards',
+    style: { display: 'block' },
+  });
+  elements.set('handCardCloneLayer', {
+    id: 'handCardCloneLayer',
+    style: { display: 'block' },
+  });
   elements.set('gameCanvas', { id: 'gameCanvas', width: 1440, height: 900 });
+  const combatCards = [{ className: 'card' }, { className: 'card' }];
+  const hoverClone = {
+    className: 'card-clone-visible',
+    dataset: {
+      keywordPanelOpen: 'false',
+      keywordPlacement: 'right',
+    },
+    querySelector: () => null,
+  };
+  const endTurnButton = {
+    className: 'action-btn-end',
+    disabled: true,
+    style: { display: 'block' },
+  };
 
   return {
     defaultView,
     getElementById: (id) => elements.get(id) || null,
+    querySelectorAll: (selector) => {
+      if (selector === '#combatHandCards .card') return combatCards;
+      return [];
+    },
+    querySelector: (selector) => {
+      if (selector === '#handCardCloneLayer .card-clone-visible') return hoverClone;
+      if (selector === '.action-btn-end') return endTurnButton;
+      return null;
+    },
   };
 }
 
@@ -172,6 +213,17 @@ describe('runtime debug hooks', () => {
 
     expect(snapshot).toMatchObject({
       screen: 'combat',
+      ui: {
+        panels: expect.arrayContaining(['characterSelect', 'combatOverlay']),
+        surface: {
+          activePanelIds: expect.arrayContaining(['characterSelect', 'combatOverlay']),
+          activePanelCount: 2,
+        },
+        overlays: {
+          activePanelIds: expect.arrayContaining(['characterSelect', 'combatOverlay']),
+          activePanelCount: 2,
+        },
+      },
       panels: expect.arrayContaining(['characterSelect', 'combatOverlay']),
       title: {
         selectedClass: 'guardian',
@@ -179,6 +231,31 @@ describe('runtime debug hooks', () => {
           classId: 'guardian',
           phase: 'select',
         }),
+        surface: {
+          selectedClass: 'guardian',
+          characterSelectClassId: 'guardian',
+          characterSelectPhase: 'select',
+          introCinematicActive: false,
+          storyFragmentActive: false,
+        },
+        ui: {
+          selectedClass: 'guardian',
+          characterSelectClassId: 'guardian',
+          characterSelectPhase: 'select',
+          introCinematicActive: false,
+          storyFragmentActive: false,
+        },
+      },
+      overlays: {
+        storyFragment: null,
+        runStart: {
+          active: false,
+          activeOverlayIds: [],
+        },
+        surface: {
+          activeOverlayIds: [],
+          activeOverlayCount: 0,
+        },
       },
       player: {
         class: 'guardian',
@@ -201,6 +278,28 @@ describe('runtime debug hooks', () => {
           viewport: { width: 1440, height: 900, source: 'gameCanvas' },
           playerAnchor: { x: 720, y: 702 },
         },
+        resources: {
+          handCount: 2,
+          drawPileCount: 0,
+          graveyardCount: 1,
+          energy: 2,
+          maxEnergy: 3,
+        },
+        ui: {
+          handCardCount: 2,
+          energyLabel: '2 / 3',
+          turnLabel: '적의 턴',
+          endTurnDisabled: true,
+        },
+        surface: {
+          handCardCount: 2,
+          energyLabel: '2 / 3',
+          turnLabel: '적의 턴',
+          endTurnDisabled: true,
+          hoverCloneVisible: true,
+          hoverKeywordPanelOpen: false,
+          hoverKeywordPlacement: 'right',
+        },
       },
       map: {
         coordinateSystem: 'map floor increases downward, node position increases rightward',
@@ -211,6 +310,23 @@ describe('runtime debug hooks', () => {
         canChoosePath: false,
         reachableNodeIds: ['5-1'],
         accessibleNodeCount: 1,
+        resources: {
+          currentRegion: 2,
+          currentFloor: 4,
+          accessibleNodeCount: 1,
+        },
+        ui: {
+          nodeCardCount: 0,
+          relicPanelVisible: false,
+          currentNodeId: '4-1',
+          reachableNodeIds: ['5-1'],
+        },
+        surface: {
+          nodeCardCount: 0,
+          relicPanelVisible: false,
+          currentNodeId: '4-1',
+          reachableNodeIds: ['5-1'],
+        },
       },
       runtime: {
         gameStarted: true,
@@ -299,6 +415,7 @@ describe('runtime debug hooks', () => {
       text: '눈을 뜬다. 검의 무게는 기억하는데...',
       continueLabel: '계속',
     });
+    expect(snapshot.title.surface.storyFragmentActive).toBe(true);
     expect(snapshot.runtime.overlayMode).toBe('storyFragment');
   });
 });

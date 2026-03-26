@@ -1,1 +1,1 @@
-export { playUiClick } from '../../ui/ports/public_shared_support_capabilities.js';
+export { playUiClick } from '../../ui/ports/public_audio_support_capabilities.js';

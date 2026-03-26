@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/assert-bundle-budgets.mjs",
     "preview": "vite preview",
-    "lint": "node scripts/test_suite_manifest.mjs --check && node scripts/check-architecture.mjs && node scripts/check-feature-structure.mjs && node scripts/check-compat-surface.mjs && node scripts/check-canonical-feature-imports.mjs && node scripts/check-compat-public-entrypoints.mjs && node scripts/check-legacy-global-access.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs && node scripts/check-content-data.mjs",
+    "lint": "node scripts/test_suite_manifest.mjs --check && node scripts/check-architecture.mjs && node scripts/check-feature-structure.mjs && node scripts/check-compat-surface.mjs && node scripts/check-canonical-feature-imports.mjs && node scripts/check-deprecated-compat-imports.mjs && node scripts/check-compat-public-entrypoints.mjs && node scripts/check-legacy-global-access.mjs && node scripts/check-window-usage.mjs && node scripts/check-state-mutations.mjs && node scripts/check-event-contracts.mjs && node scripts/check-import-coupling.mjs && node scripts/check-content-data.mjs",
     "test": "node scripts/run-vitest-suite.mjs fast",
     "test:guardrails": "node scripts/run-vitest-suite.mjs guardrails",
     "test:full": "node scripts/run-vitest-suite.mjs full",

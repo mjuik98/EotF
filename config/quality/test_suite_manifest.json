@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-26T07:15:36.025Z",
+  "generatedAt": "2026-03-26T09:56:32.334Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -35,6 +35,7 @@
     "tests/card_render_helpers_ui.test.js",
     "tests/card_target_ui.test.js",
     "tests/card_ui.test.js",
+    "tests/character_select_actions.test.js",
     "tests/character_select_bindings.test.js",
     "tests/character_select_card_ui.test.js",
     "tests/character_select_flow.test.js",

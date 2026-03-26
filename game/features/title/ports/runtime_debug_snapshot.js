@@ -1,6 +1,6 @@
 import {
   readTextContent,
-} from '../../ui/ports/public_shared_support_capabilities.js';
+} from '../../ui/ports/public_runtime_debug_support_capabilities.js';
 
 function collectIntroSummary(doc) {
   const overlay = doc?.getElementById?.('introCinematicOverlay');
@@ -32,14 +32,32 @@ function collectStoryFragmentSummary(doc) {
 
 export function collectTitleRuntimeDebugSnapshot({ modules, doc }) {
   const titleModules = modules?.featureScopes?.title || modules || {};
+  const selectedClass = titleModules?.ClassSelectUI?.getSelectedClass?.() || null;
+  const characterSelect = titleModules?.CharacterSelectUI?.getSelectionSnapshot?.() || null;
+  const introCinematic = collectIntroSummary(doc);
+  const storyFragment = collectStoryFragmentSummary(doc);
   return {
     title: {
-      selectedClass: titleModules?.ClassSelectUI?.getSelectedClass?.() || null,
-      characterSelect: titleModules?.CharacterSelectUI?.getSelectionSnapshot?.() || null,
-      introCinematic: collectIntroSummary(doc),
+      selectedClass,
+      characterSelect,
+      introCinematic,
+      ui: {
+        selectedClass,
+        characterSelectClassId: characterSelect?.classId || null,
+        characterSelectPhase: characterSelect?.phase || null,
+        introCinematicActive: !!introCinematic?.active,
+        storyFragmentActive: !!storyFragment?.active,
+      },
+      surface: {
+        selectedClass,
+        characterSelectClassId: characterSelect?.classId || null,
+        characterSelectPhase: characterSelect?.phase || null,
+        introCinematicActive: !!introCinematic?.active,
+        storyFragmentActive: !!storyFragment?.active,
+      },
     },
     overlays: {
-      storyFragment: collectStoryFragmentSummary(doc),
+      storyFragment,
     },
   };
 }

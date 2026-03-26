@@ -4,7 +4,7 @@ import {
   playReactionPlayerHit,
   playStatusHeal,
   playStatusSkill,
-} from './shared_support_capabilities.js';
+} from './audio_feedback_support_capabilities.js';
 
 export function registerPlayerEventSubscribers(ctx) {
   EventBus.on(Actions.PLAYER_DAMAGE, ({ result, gs }) => {

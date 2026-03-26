@@ -5,32 +5,36 @@ import {
   buildFeatureContractAccessors as buildFeatureContractAccessorsBase,
   createDepsAccessors as createDepsAccessorsBase,
 } from './deps/deps_factory_accessors.js';
+import { createDepsFactoryCaches } from './deps/deps_factory_caches.js';
 import { createDepContractCatalog } from './deps/deps_factory_contract_catalog.js';
-import { syncGlobalDepsFactoryHooks } from './deps/deps_factory_global_bridge.js';
+import { createPublicDepAccessors } from './deps/deps_factory_public_accessors.js';
+import { createDepsFactoryPublicRuntime } from './deps/deps_factory_public_runtime.js';
 import { createDepsFactoryRuntime } from './deps_factory_runtime.js';
 
 const runtime = createDepsFactoryRuntime();
-let contractCatalog = null;
-
-function getContractCatalog() {
-  if (!contractCatalog) {
-    contractCatalog = createDepContractCatalog(runtime, createDeps);
-  }
-  return contractCatalog;
-}
+const depsFactoryCaches = createDepsFactoryCaches({
+  createDepContractCatalog,
+  createPublicDepAccessors,
+  runtime,
+  createDeps,
+});
+const { getContractCatalog, getPublicDepAccessors } = depsFactoryCaches;
+const {
+  publicDepAccessorExports,
+  syncPublicGlobalHooks,
+} = createDepsFactoryPublicRuntime({
+  createDeps,
+  getPublicDepAccessors,
+});
 
 export function initDepsFactory(refs) {
   runtime.initRefs(refs);
-  syncGlobalDepsFactoryHooks({
-    getHudUpdateDeps,
-  });
+  syncPublicGlobalHooks();
 }
 
 export function patchRefs(partial) {
   runtime.patchRefs(partial);
-  syncGlobalDepsFactoryHooks({
-    getHudUpdateDeps,
-  });
+  syncPublicGlobalHooks();
 }
 
 export const DepContracts = new Proxy([], {
@@ -80,38 +84,38 @@ export function buildFeatureContractAccessors(contractMap, depsFactory = null) {
   });
 }
 
-export function baseDeps() { return createDeps('base'); }
-export function getStoryDeps() { return createDeps('story'); }
-export function getCombatTurnBaseDeps() { return createDeps('combatTurnBase'); }
-export function getEventDeps() { return createDeps('event'); }
-export function getRewardDeps() { return createDeps('reward'); }
-export function getRunReturnDeps() { return createDeps('runReturn'); }
-export function getCombatFlowDeps() { return createDeps('combatFlow'); }
-export function getEventFlowDeps() { return createDeps('eventFlow'); }
-export function getRewardFlowDeps() { return createDeps('rewardFlow'); }
-export function getHudUpdateDeps() { return createDeps('hudUpdate'); }
-export function getCombatHudDeps() { return createDeps('combatHud'); }
-export function getCardTargetDeps() { return createDeps('cardTarget'); }
-export function baseCardDeps() { return createDeps('baseCard'); }
-export function getFeedbackDeps() { return createDeps('feedback'); }
-export function getCodexDeps() { return createDeps('codex'); }
-export function getDeckModalDeps() { return createDeps('deckModal'); }
-export function getTooltipDeps() { return createDeps('tooltip'); }
-export function getScreenDeps() { return createDeps('screen'); }
-export function getCombatInfoDeps() { return createDeps('combatInfo'); }
-export function getClassSelectDeps() { return createDeps('classSelect'); }
-export function getSaveSystemDeps() { return createDeps('saveSystem'); }
-export function getRunModeDeps() { return createDeps('runMode'); }
-export function getRunStartDeps() { return createDeps('runStart'); }
-export function getRunSetupDeps() { return createDeps('runSetup'); }
-export function getRunNodeHandoffDeps() { return createDeps('runNodeHandoff'); }
-export function getMetaProgressionDeps() { return createDeps('metaProgression'); }
-export function getRegionTransitionDeps() { return createDeps('regionTransition'); }
-export function getHelpPauseDeps() { return createDeps('helpPause'); }
-export function getWorldCanvasDeps() { return createDeps('worldCanvas'); }
-export function getSettingsDeps() { return createDeps('settings'); }
-export function getGameBootDeps() { return createDeps('gameBoot'); }
-
-syncGlobalDepsFactoryHooks({
+export const {
+  baseCardDeps,
+  baseDeps,
+  getCardTargetDeps,
+  getClassSelectDeps,
+  getCodexDeps,
+  getCombatFlowDeps,
+  getCombatHudDeps,
+  getCombatInfoDeps,
+  getCombatTurnBaseDeps,
+  getDeckModalDeps,
+  getEventDeps,
+  getEventFlowDeps,
+  getFeedbackDeps,
+  getGameBootDeps,
+  getHelpPauseDeps,
   getHudUpdateDeps,
-});
+  getMetaProgressionDeps,
+  getRegionTransitionDeps,
+  getRewardDeps,
+  getRewardFlowDeps,
+  getRunModeDeps,
+  getRunNodeHandoffDeps,
+  getRunReturnDeps,
+  getRunSetupDeps,
+  getRunStartDeps,
+  getSaveSystemDeps,
+  getScreenDeps,
+  getSettingsDeps,
+  getStoryDeps,
+  getTooltipDeps,
+  getWorldCanvasDeps,
+} = publicDepAccessorExports;
+
+syncPublicGlobalHooks();

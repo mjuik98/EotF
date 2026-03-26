@@ -1,4 +1,4 @@
-import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/ports/public_feature_support_capabilities.js';
+import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/ports/public_dom_support_capabilities.js';
 
 export function getDoc(deps) {
   return getRuntimeDoc(deps);
