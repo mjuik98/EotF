@@ -1,4 +1,5 @@
 export { ACHIEVEMENTS } from './domain/achievement_definitions.js';
+export { buildAchievementRoadmap } from './domain/achievement_roadmap_queries.js';
 export { getAchievementProgressValue } from './domain/achievement_progress_queries.js';
 export {
   buildUnlockRoadmap,

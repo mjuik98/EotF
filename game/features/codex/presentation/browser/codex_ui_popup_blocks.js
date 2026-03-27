@@ -40,9 +40,13 @@ export function buildCodexRecordBlock(gs, category, id) {
   const record = getCodexRecord(gs, category, id);
   if (!record) return '';
   if (category === 'enemies') {
+    const encounters = Math.max(0, Number(record.encounters ?? 0));
+    const kills = Math.max(0, Number(record.kills ?? 0));
+    const ratio = encounters > 0 ? `${Math.round((kills / encounters) * 100)}%` : '-';
     return `<div class="cx-popup-recs">
       <div class="cx-prec"><div class="cx-prec-icon">👁️</div><div class="cx-prec-info"><div class="cx-prec-label">조우 횟수</div><div class="cx-prec-val" style="color:#88ccff">${record.encounters ?? 0}회</div></div></div>
       <div class="cx-prec"><div class="cx-prec-icon">💀</div><div class="cx-prec-info"><div class="cx-prec-label">처치 횟수</div><div class="cx-prec-val" style="color:#ff8899">${record.kills ?? 0}회</div></div></div>
+      <div class="cx-prec"><div class="cx-prec-icon">◐</div><div class="cx-prec-info"><div class="cx-prec-label">처치율</div><div class="cx-prec-val" style="color:#b6a6ff">${ratio}</div></div></div>
       <div class="cx-prec"><div class="cx-prec-icon">📖</div><div class="cx-prec-info"><div class="cx-prec-label">첫 발견</div><div class="cx-prec-val" style="color:var(--cx-gold)">${record.firstSeen || '-'}</div></div></div>
     </div>`;
   }
@@ -50,6 +54,8 @@ export function buildCodexRecordBlock(gs, category, id) {
     return `<div class="cx-popup-recs">
       <div class="cx-prec" style="flex:2"><div class="cx-prec-icon">✦</div><div class="cx-prec-info"><div class="cx-prec-label">사용 횟수</div><div class="cx-prec-val" style="color:#88ccff">${record.used ?? 0}회</div></div></div>
       <div class="cx-prec" style="flex:2"><div class="cx-prec-icon">📖</div><div class="cx-prec-info"><div class="cx-prec-label">첫 발견</div><div class="cx-prec-val" style="color:var(--cx-gold)">${record.firstSeen || '-'}</div></div></div>
+      ${record.upgradedDiscovered ? `<div class="cx-prec" style="flex:2"><div class="cx-prec-icon">+</div><div class="cx-prec-info"><div class="cx-prec-label">강화 사용 횟수</div><div class="cx-prec-val" style="color:#88ccff">${record.upgradeUsed ?? 0}회</div></div></div>` : ''}
+      ${record.upgradedDiscovered ? `<div class="cx-prec" style="flex:2"><div class="cx-prec-icon">⬆</div><div class="cx-prec-info"><div class="cx-prec-label">강화 첫 발견</div><div class="cx-prec-val" style="color:var(--cx-gold)">${record.upgradeFirstSeen || '-'}</div></div></div>` : ''}
     </div>`;
   }
   if (category === 'items') {

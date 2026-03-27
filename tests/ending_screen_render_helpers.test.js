@@ -102,6 +102,7 @@ describe('ending_screen_render_helpers', () => {
       title: 'title',
       subtitle: 'subtitle',
       stats: [],
+      progressionSummary: ['검사 · A2', '새 해금 1건'],
       achievements: [{
         id: 'first_victory',
         icon: '🏁',
@@ -114,6 +115,8 @@ describe('ending_screen_render_helpers', () => {
     expect(root.innerHTML).not.toContain('btnCodex');
     expect(root.innerHTML).toContain('이번 업적');
     expect(root.innerHTML).toContain('achievementRow');
+    expect(root.innerHTML).toContain('이번 귀환');
+    expect(root.innerHTML).toContain('progressionRow');
   });
 
   it('applies rank text, styles, and sigil attributes', () => {
@@ -216,11 +219,14 @@ describe('ending_screen_render_helpers', () => {
     pillRow.id = 'pillRow';
     const achievementRow = createMockElement('div');
     achievementRow.id = 'achievementRow';
+    const progressionRow = createMockElement('div');
+    progressionRow.id = 'progressionRow';
     byId.set('deckGrid', deckGrid);
     byId.set('tlNodes', tlNodes);
     byId.set('chipRow', chipRow);
     byId.set('pillRow', pillRow);
     byId.set('achievementRow', achievementRow);
+    byId.set('progressionRow', progressionRow);
 
     const session = { timers: [] };
     populateEndingMeta(doc, {
@@ -237,6 +243,7 @@ describe('ending_screen_render_helpers', () => {
       chips: [],
       inscriptions: [],
       unlocks: [],
+      progressionSummary: ['검사 · A2', '새 해금 1건'],
       achievements: [{
         id: 'first_victory',
         icon: '🏁',
@@ -259,6 +266,8 @@ describe('ending_screen_render_helpers', () => {
     expect(detail.children[2].textContent).toContain('비용 1');
     expect(achievementRow.children[0].textContent).toContain('🏁');
     expect(achievementRow.children[0].textContent).toContain('첫 승리');
+    expect(progressionRow.children[0].textContent).toContain('검사 · A2');
+    expect(progressionRow.children[1].textContent).toContain('새 해금 1건');
 
     card.on_mouseleave?.({ currentTarget: card, relatedTarget: null });
     expect(detail.dataset.open).toBe('false');

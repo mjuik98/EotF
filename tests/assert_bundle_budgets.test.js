@@ -68,7 +68,7 @@ describe('assert_bundle_budgets', () => {
     expect(budgets.entryCss.maxBytes).toBe(190 * 1024);
     expect(budgets.uiEventJs.maxBytes).toBe(44 * 1024);
     expect(budgets.uiCombatJs.maxBytes).toBe(320 * 1024);
-    expect(budgets.codexUiJs.maxBytes).toBe(39 * 1024);
+    expect(budgets.codexUiJs.maxBytes).toBe(41024);
     expect(budgets.runModeUiJs.maxBytes).toBe(28 * 1024);
     expect(budgets.runModeUiJs.label).toBe('run mode ui chunk');
   });

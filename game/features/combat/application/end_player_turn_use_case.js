@@ -1,11 +1,14 @@
 import { endPlayerTurnService } from './end_turn_service.js';
+import { Logger } from '../ports/combat_logging.js';
+
+const CombatTurnLogger = Logger.child('CombatTurn');
 
 function defaultScheduleEnemyTurn(runEnemyTurn, delayMs) {
   setTimeout(async () => {
     try {
       await runEnemyTurn?.();
     } catch (error) {
-      console.error('[CombatTurn] 적 턴 오류:', error);
+      CombatTurnLogger.error('적 턴 오류:', error);
     }
   }, delayMs);
 }

@@ -26,10 +26,11 @@ import {
 } from './codex_ui_popup_runtime.js';
 
 export function renderCodexRuntimeProgress(state, ui, doc, gs, data) {
+  const runtimeGs = gs?.meta ? gs : (state?.deps?.gs || {});
   const progress = {
-    ...buildCodexProgress(gs, data),
-    rewardRoadmap: buildCodexRewardRoadmap(gs?.meta),
-    recentDiscoveries: buildRecentCodexDiscoveries(gs?.meta, { data }),
+    ...buildCodexProgress(runtimeGs, data),
+    rewardRoadmap: buildCodexRewardRoadmap(runtimeGs?.meta, { limit: 3 }),
+    recentDiscoveries: buildRecentCodexDiscoveries(runtimeGs?.meta, { data, limit: 4 }),
   };
   renderCodexProgress(doc, progress, {
     onSelectTab: (tab) => ui.setCodexTab(tab, state.deps),

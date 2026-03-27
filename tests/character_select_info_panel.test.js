@@ -132,6 +132,7 @@ describe('character_select_info_panel', () => {
           level: 2,
         },
       }],
+      pendingSummaryCount: 2,
       buildSectionLabel: (label) => `<span>${label}</span>`,
       buildRadar: () => '<svg>radar</svg>',
       cards: { strike: { name: 'Strike' } },
@@ -162,6 +163,7 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('핏빛 월식');
     expect(panel.innerHTML).toContain('심판');
     expect(panel.innerHTML).toContain('0 / 1');
+    expect(panel.innerHTML).toContain('미확인 진행 기록 2건');
     expect(panel.innerHTML).toContain('최근 진행 기록');
     expect(panel.innerHTML).toContain('승리 · +42 XP · 레벨 2');
     expect(panel.innerHTML).toContain('펼쳐서 전체 해금 보상 보기');

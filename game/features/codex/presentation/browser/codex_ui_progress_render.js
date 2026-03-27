@@ -24,7 +24,7 @@ function renderRewardRoadmap(entries = []) {
               <span class="cx-cat-label">${entry.contentLabel}</span>
               <span class="cx-cat-nums">${entry.progressLabel}</span>
             </div>
-            <div class="cx-ring-cap" style="margin-top:4px;text-align:left">${entry.achievementTitle}${entry.focusLabel ? ` · ${entry.focusLabel}` : ''}</div>
+            <div class="cx-ring-cap" style="margin-top:4px;text-align:left">${entry.achievementTitle}${entry.focusLabel ? ` · ${entry.focusLabel}` : ''}${entry.remaining > 0 ? ` · 앞으로 ${entry.remaining}개` : ' · 달성 직전'}</div>
           </div>
         `).join('')}
       </div>
@@ -41,7 +41,7 @@ function renderRecentDiscoveries(entries = []) {
         ${entries.map((entry) => `
           <div class="cx-cat-header">
             <span class="cx-cat-label">${entry.categoryLabel} · ${entry.label}</span>
-            <span class="cx-cat-nums">${entry.firstSeen}</span>
+            <span class="cx-cat-nums">${entry.firstSeen} · 신규 ${entry.categoryLabel} 발견</span>
           </div>
         `).join('')}
       </div>

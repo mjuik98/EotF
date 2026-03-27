@@ -1,9 +1,3 @@
-export function getDoc(deps) {
-  if (deps?.doc) return deps.doc;
-  if (typeof document === 'undefined') return null;
-  return document;
-}
-
 export function getGS(deps) {
   return deps?.gs;
 }

@@ -18,6 +18,10 @@ export function ensureCharacterSelectMeta(meta, classIds, progressionSystem = Cl
   return meta;
 }
 
+function resolvePendingSummaryCount(meta, classId, classIds, progressionSystem) {
+  return progressionSystem.getPendingSummaryCount?.(meta, classId, classIds) || 0;
+}
+
 export function getCharacterSelectPresentation(meta, classId, classIds, progressionSystem = ClassProgressionSystem) {
   if (!meta || !classId) {
     return {
@@ -26,6 +30,7 @@ export function getCharacterSelectPresentation(meta, classId, classIds, progress
       roadmap: classId ? progressionSystem.getRoadmap(classId) : [],
       unlockRoadmap: { account: [], class: [] },
       recentSummaries: [],
+      pendingSummaryCount: 0,
     };
   }
   return {
@@ -34,6 +39,7 @@ export function getCharacterSelectPresentation(meta, classId, classIds, progress
     roadmap: progressionSystem.getRoadmap(classId),
     unlockRoadmap: buildUnlockRoadmap(meta, { classId }),
     recentSummaries: progressionSystem.getRecentSummaries?.(meta, classId, classIds) || [],
+    pendingSummaryCount: resolvePendingSummaryCount(meta, classId, classIds, progressionSystem),
   };
 }
 
@@ -48,6 +54,9 @@ export function createCharacterSelectProgressionFacade(meta, classIds, progressi
     getRoadmap: (classId) => progressionSystem.getRoadmap(classId),
     getRecentSummaries: (metaRef = meta, classId, ids = classIds, limit = 3) => (
       progressionSystem.getRecentSummaries?.(metaRef, classId, ids, limit) || []
+    ),
+    getPendingSummaryCount: (metaRef = meta, classId, ids = classIds) => (
+      resolvePendingSummaryCount(metaRef, classId, ids, progressionSystem)
     ),
   };
 }

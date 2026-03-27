@@ -26,6 +26,7 @@ describe('load_character_select_use_case', () => {
       })),
       getRoadmap: vi.fn(() => ['skill-a']),
       getRecentSummaries: vi.fn(() => ['summary-a']),
+      getPendingSummaryCount: vi.fn(() => 2),
     };
 
     expect(getCharacterSelectPresentation(null, 'paladin', ['paladin'], progressionSystem)).toEqual({
@@ -37,6 +38,7 @@ describe('load_character_select_use_case', () => {
       roadmap: ['skill-a'],
       unlockRoadmap: { account: [], class: [] },
       recentSummaries: [],
+      pendingSummaryCount: 0,
     });
 
     expect(getCharacterSelectPresentation({}, 'paladin', ['paladin'], progressionSystem)).toEqual({
@@ -51,6 +53,7 @@ describe('load_character_select_use_case', () => {
         class: expect.any(Array),
       }),
       recentSummaries: ['summary-a'],
+      pendingSummaryCount: 2,
     });
   });
 });

@@ -1,5 +1,5 @@
 import { RunRules, getBaseRegionIndex, getRegionCount } from '../../run/ports/public_rule_capabilities.js';
-import { Actions } from '../../../core/store/state_actions.js';
+import { Actions } from '../ports/public_state_action_capabilities.js';
 import {
   beginCombatResolution,
   completeCombatResolution,
@@ -8,12 +8,9 @@ import {
   setCombatActive,
 } from '../../../shared/state/runtime_session_commands.js';
 import {
-  playEventResonanceBurst,
-  playUiItemGet,
-} from '../../ui/ports/public_audio_support_capabilities.js';
-import {
   createRecentFeedMeta,
   formatRecentFeedText,
+  Logger,
   LogUtils,
 } from '../ports/combat_logging.js';
 import {
@@ -24,13 +21,30 @@ import {
   syncCombatMaxChainState,
 } from '../state/combat_chain_state_commands.js';
 
-const getDoc = (deps = {}) => deps.doc || document;
-const getWin = (deps = {}) => deps.win || window;
+function resolveRuntimeHost(deps = {}) {
+  return deps.win || deps.doc?.defaultView || null;
+}
+
+function resolvePlayItemGet(deps = {}) {
+  if (typeof deps.playItemGet === 'function') return deps.playItemGet;
+  return () => deps.audioEngine?.playItemGet?.();
+}
+
+function resolveErrorReporter(deps = {}) {
+  if (typeof deps.reportError === 'function') return deps.reportError;
+  return (error) => Logger.error('[endCombat] Error:', error);
+}
+
+function playResonanceBurstAudio(audioEngine, deps = {}) {
+  if (typeof deps.playEventResonanceBurst === 'function') {
+    deps.playEventResonanceBurst(audioEngine);
+    return;
+  }
+  audioEngine?.playResonanceBurst?.();
+}
 
 export const CombatLifecycle = {
   async endCombat(deps = {}) {
-    const win = getWin(deps);
-    const doc = getDoc(deps);
     const outcome = await runEndCombatFlow({
       combatStateCommands: {
         beginResolution: beginCombatResolution,
@@ -40,16 +54,16 @@ export const CombatLifecycle = {
       },
       deps: {
         ...deps,
-        playItemGet: () => playUiItemGet(deps.audioEngine || win.AudioEngine),
+        playItemGet: resolvePlayItemGet(deps),
       },
       dispatchCombatEnd: (state) => state.dispatch?.(Actions.COMBAT_END, { victory: true }),
-      doc,
+      doc: deps.doc || deps.win?.document || null,
       getBaseRegionIndex,
       getRegionCount,
       gs: this,
       isEndlessRun: (state) => RunRules.isEndless(state),
-      reportError: (error) => console.error('[endCombat] Error:', error),
-      win,
+      reportError: resolveErrorReporter(deps),
+      win: resolveRuntimeHost(deps),
     });
 
     if (outcome?.skipped || outcome?.error) return outcome;
@@ -61,15 +75,16 @@ export const CombatLifecycle = {
   updateChainDisplay(deps = {}) {
     const chain = this.player.echoChain;
     syncCombatMaxChainState(this, chain);
-    const win = getWin(deps);
-    const updateChainUI = deps.updateChainUI || win.updateChainUI;
+    const runtimeHost = resolveRuntimeHost(deps);
+    const updateChainUI = deps.updateChainUI || runtimeHost?.updateChainUI;
     if (typeof updateChainUI === 'function') updateChainUI(chain);
-    const audioEngine = deps.audioEngine || win.AudioEngine;
+    const audioEngine = deps.audioEngine || runtimeHost?.AudioEngine;
     if (chain > 0) audioEngine?.playChain?.(chain);
 
     if (chain >= 5 && chain % 5 === 0) {
-      if (chain === 5 && typeof win.showChainAnnounce === 'function') {
-        win.showChainAnnounce('RESONANCE BURST!!');
+      const showChainAnnounce = deps.showChainAnnounce || runtimeHost?.showChainAnnounce;
+      if (chain === 5 && typeof showChainAnnounce === 'function') {
+        showChainAnnounce('RESONANCE BURST!!');
       }
       this.triggerResonanceBurst(deps, { isPassive: true });
     }
@@ -77,18 +92,18 @@ export const CombatLifecycle = {
 
   triggerResonanceBurst(deps = {}, options = {}) {
     const isPassive = !!options.isPassive;
-    const win = getWin(deps);
+    const runtimeHost = resolveRuntimeHost(deps);
 
     if (!isPassive) {
       resetPlayerEchoChain(this);
       this.drainEcho(50);
     }
 
-    const audioEngine = deps.audioEngine || win.AudioEngine;
-    const screenShake = deps.screenShake || win.ScreenShake;
-    const particleSystem = deps.particleSystem || win.ParticleSystem;
+    const audioEngine = deps.audioEngine || runtimeHost?.AudioEngine;
+    const screenShake = deps.screenShake || runtimeHost?.ScreenShake;
+    const particleSystem = deps.particleSystem || runtimeHost?.ParticleSystem;
 
-    playEventResonanceBurst(audioEngine);
+    playResonanceBurstAudio(audioEngine, deps);
 
     if (isPassive) {
       screenShake?.shake?.(5, 0.3);
@@ -107,10 +122,11 @@ export const CombatLifecycle = {
     const hitResults = applyPassiveResonanceBurstState(this, burstDmg, {
       onEnemyDeath: (enemy, index) => this.onEnemyDeath(enemy, index, deps),
     });
+    const viewportWidth = Number(deps.viewportWidth || runtimeHost?.innerWidth || 0);
+    const showDmgPopup = deps.showDmgPopup || runtimeHost?.showDmgPopup;
     hitResults.forEach(({ index, dealt }) => {
       if (dealt <= 0) return;
-      const x = win.innerWidth / 2 + (index - (this.combat.enemies.length - 1) / 2) * 200;
-      const showDmgPopup = deps.showDmgPopup || win.showDmgPopup;
+      const x = viewportWidth / 2 + (index - (this.combat.enemies.length - 1) / 2) * 200;
       if (typeof showDmgPopup === 'function') {
         showDmgPopup(burstDmg, x, 200, '#00ffcc');
       }
@@ -129,7 +145,7 @@ export const CombatLifecycle = {
       }),
     }));
 
-    const renderCombatEnemies = deps.renderCombatEnemies || win.renderCombatEnemies;
+    const renderCombatEnemies = deps.renderCombatEnemies || runtimeHost?.renderCombatEnemies;
     if (typeof renderCombatEnemies === 'function') renderCombatEnemies();
   },
 };

@@ -1,4 +1,5 @@
 import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/ports/public_dom_support_capabilities.js';
+import { buildAchievementRoadmap } from '../../../meta_progression/public.js';
 
 export function getDoc(deps) {
   return getRuntimeDoc(deps);
@@ -99,12 +100,54 @@ function buildRunArchiveMeta(entry) {
   ].filter(Boolean).join(' · ');
 }
 
+function buildAchievementRoadmapRows(entries = []) {
+  if (!Array.isArray(entries) || entries.length === 0) return '';
+  return `
+    <div class="title-run-archive-roadmap">
+      <div class="title-run-archive-label">다음 업적</div>
+      <div class="title-run-archive-list">
+        ${entries.map((entry) => `
+          <div class="title-run-archive-row">
+            <strong>${escapeHtml(`${entry.icon || '✦'} ${entry.title || ''}`.trim())}</strong>
+            <span>${escapeHtml(entry.progressLabel || '')}${entry.focusLabel ? ` · ${escapeHtml(entry.focusLabel)}` : ''}</span>
+            <span>${escapeHtml(entry.rewardLabel || entry.description || '')}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function formatRetryTiming(nextRetryAt) {
   const retryAt = Number(nextRetryAt || 0);
   if (!retryAt) return '';
   const diffMs = retryAt - Date.now();
   if (diffMs <= 0) return '곧 재시도';
   return `${Math.max(1, Math.ceil(diffMs / 1000))}초 후 재시도`;
+}
+
+function formatElapsedTiming(timestamp) {
+  const value = Number(timestamp || 0);
+  if (!value) return '';
+  const diffMs = Math.max(0, Date.now() - value);
+  const diffSeconds = Math.max(1, Math.floor(diffMs / 1000));
+  if (diffSeconds < 60) return `${diffSeconds}초 전`;
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  return `${Math.floor(diffHours / 24)}일 전`;
+}
+
+function buildRecoveryMeta(metrics = {}) {
+  const parts = [];
+  const retryFailures = Number(metrics?.retryFailures || 0);
+  if (retryFailures > 0) parts.push(`재시도 실패 ${retryFailures}회`);
+  const lastFailureLabel = formatElapsedTiming(metrics?.lastFailureAt);
+  if (lastFailureLabel) parts.push(`마지막 실패 ${lastFailureLabel}`);
+  const retryTiming = formatRetryTiming(metrics?.nextRetryAt);
+  if (retryTiming) parts.push(retryTiming);
+  return parts.join(' · ');
 }
 
 function downloadTextFile(filename, text, options = {}) {
@@ -176,6 +219,8 @@ export function renderTitleRunArchive(doc, gs) {
     return;
   }
 
+  const achievementRows = buildAchievementRoadmapRows(buildAchievementRoadmap(gs?.meta).account);
+
   el.innerHTML = `
     <div class="title-run-archive-label">귀환 기록실</div>
     <div class="title-run-archive-list">
@@ -187,6 +232,7 @@ export function renderTitleRunArchive(doc, gs) {
         </div>
       `).join('')}
     </div>
+    ${achievementRows}
   `;
 }
 
@@ -207,7 +253,7 @@ export function renderTitleRecoveryPanel(doc, saveSystem, gs) {
   panel.innerHTML = `
     <div class="title-recovery-kicker">복구 대기 저장</div>
     <div class="title-recovery-copy">저장 ${queueDepth}건이 브라우저에 남아 있다.</div>
-    <div class="title-recovery-meta">${escapeHtml(formatRetryTiming(metrics?.nextRetryAt))}</div>
+    <div class="title-recovery-meta">${escapeHtml(buildRecoveryMeta(metrics))}</div>
   `;
 
   if (!retryBtn) return;
@@ -269,6 +315,21 @@ function resolvePreviewAscension(preview, gs) {
   return gs?.meta?.runConfig?.ascension ?? 0;
 }
 
+function buildSaveSlotPreviewMeta(summary = {}) {
+  const preview = summary?.preview;
+  if (!preview?.player) return null;
+
+  const className = resolveTitleClassName(preview.player.class);
+  const floor = Number(preview?.currentFloor || 1);
+  const ascension = resolvePreviewAscension(preview, { meta: summary?.meta });
+  const queued = preview?.saveState === 'queued';
+
+  return {
+    primary: `${className} · ${floor}층`,
+    secondary: `A${ascension}${queued ? ' · 복구 대기' : ''}`,
+  };
+}
+
 export function populateSaveTooltip(doc, saveSystem, gs, slot) {
   try {
     const preview = resolveRunPreview(saveSystem, gs, slot);
@@ -326,10 +387,13 @@ function renderTitleSaveSlotControls(doc, saveSystem, gs, options = {}) {
     const slot = Number(summary?.slot || 1);
     const active = slot === selectedSlot;
     const hasSave = !!summary?.hasSave;
+    const previewMeta = buildSaveSlotPreviewMeta(summary);
     return `
       <button class="title-save-slot-btn ${active ? 'active' : ''} ${hasSave ? 'has-save' : 'empty'}" type="button" data-save-slot="${slot}">
         <span class="title-save-slot-label">슬롯 ${slot}</span>
         <span class="title-save-slot-state">${hasSave ? '저장됨' : '비어 있음'}</span>
+        ${previewMeta ? `<span class="title-save-slot-meta">${escapeHtml(previewMeta.primary)}</span>` : ''}
+        ${previewMeta ? `<span class="title-save-slot-meta">${escapeHtml(previewMeta.secondary)}</span>` : ''}
       </button>
     `;
   }).join('');

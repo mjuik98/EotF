@@ -3,6 +3,8 @@ import {
   getActiveInscriptionCount,
   getEarnedInscriptionCount,
   getPresetSlots,
+  isHiddenEndingReady,
+  isSameRunConfig,
 } from './run_mode_ui_helpers.js';
 
 export function renderPresets(ui, doc, cfg, meta, runRules) {
@@ -13,6 +15,8 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
   const selectedSlot = Math.max(0, Math.min(3, Number(ui._selectedPresetSlot) || 0));
   const selectedPreset = slots[selectedSlot]?.preset || null;
   const saveLabel = selectedPreset ? '현재 설정으로 덮어쓰기' : '+ 현재 설정 저장';
+  const presetMatchesCurrent = selectedPreset ? isSameRunConfig(selectedPreset.config, cfg) : false;
+  const hiddenEndingReady = selectedPreset ? isHiddenEndingReady(meta, selectedPreset.config || {}) : false;
   zone.innerHTML = `
     <div class="rm-presets-wrap">
       <div class="rm-preset-bar">
@@ -44,6 +48,10 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
             / 각인 ${Array.isArray(selectedPreset.config?.disabledInscriptions)
               ? Math.max(0, getEarnedInscriptionCount(meta) - selectedPreset.config.disabledInscriptions.length)
               : getActiveInscriptionCount(meta, selectedPreset.config || {})}
+          </span>
+          <span class="rm-preset-inline-desc">
+            ${presetMatchesCurrent ? '현재 구성과 동일' : '선택 슬롯 프리셋'}
+            ${hiddenEndingReady ? ' · 히든 결말 준비' : ''}
           </span>
           <div class="rm-preset-actions">
             <button type="button" class="rm-preset-btn primary" data-action="load-preset" data-slot="${selectedSlot}">

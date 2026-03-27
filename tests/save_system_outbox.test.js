@@ -5,7 +5,7 @@ import {
   bindSaveNotifications,
   bindSaveStorage,
 } from '../game/shared/save/public.js';
-import { presentSaveStatus } from '../game/shared/save/save_status_presenter.js';
+import { presentSaveStatus } from '../game/platform/browser/notifications/save_status_presenter.js';
 import { silenceConsole } from './helpers/silence_console.js';
 
 function createRunState() {

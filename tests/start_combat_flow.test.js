@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CombatInitializer } from '../game/features/combat/public.js';
 import { startCombatFlowUseCase } from '../game/features/combat/public.js';
+import { Logger } from '../game/features/combat/ports/combat_logging.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 function createDeps() {
@@ -117,10 +118,10 @@ describe('startCombatFlowUseCase', () => {
   });
 
   it('fails fast when required combat dependencies are missing', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const loggerEmit = vi.spyOn(Logger, '_emit').mockImplementation(() => {});
 
     expect(startCombatFlowUseCase('normal', { gs: null })).toBeNull();
-    expect(consoleError).toHaveBeenCalledWith('[CombatStart] Missing dependencies');
+    expect(loggerEmit).toHaveBeenCalledWith('error', ['Missing dependencies'], 'CombatStart');
   });
 
   it('keeps combat-start draw relics and temporary hand relics after the opening hand is prepared', () => {

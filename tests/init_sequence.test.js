@@ -236,4 +236,29 @@ describe('bootGame', () => {
     result.StorySystem.showRunFragment({ stage: 2 });
     expect(modules.StoryUI.showRunFragment).toHaveBeenCalledWith({ token: 'story-deps', stage: 2 });
   });
+
+  it('accepts an explicit runtime context when globals are unavailable', () => {
+    const modules = createModules();
+    const fns = createFns();
+    const deps = createDeps();
+    const doc = { body: {} };
+    const win = { innerWidth: 1440 };
+
+    globalThis.window = undefined;
+    globalThis.document = undefined;
+
+    const result = bootGame(modules, fns, deps, { doc, win });
+
+    expect(modules.GAME.init).toHaveBeenCalledWith(
+      modules.GS,
+      modules.DATA,
+      modules.AudioEngine,
+      modules.ParticleSystem,
+    );
+    expect(result.StorySystem).toBeTruthy();
+    expect(modules.MazeSystem.configure).toHaveBeenCalledWith(expect.objectContaining({
+      doc,
+      win,
+    }));
+  });
 });

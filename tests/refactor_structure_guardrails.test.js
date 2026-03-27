@@ -30,6 +30,22 @@ describe('refactor structure guardrails', () => {
     expect(source).not.toContain('_canvasRefs: null');
   });
 
+  it('routes core runtime context resolution through a shared runtime-environment helper', () => {
+    const bootstrapContextSource = read('game/core/bootstrap/create_bootstrap_context.js');
+    const initSequenceSource = read('game/core/init_sequence.js');
+    const subscriberContextSource = read('game/core/event_subscriber_context.js');
+    const titleSettingsSource = read('game/core/bindings/title_settings_bindings.js');
+    const runtimeEnvironmentSource = read('game/core/runtime_environment.js');
+
+    expect(bootstrapContextSource).toContain("../runtime_environment.js");
+    expect(initSequenceSource).toContain("./runtime_environment.js");
+    expect(subscriberContextSource).toContain("./runtime_environment.js");
+    expect(titleSettingsSource).toContain("../runtime_environment.js");
+    expect(runtimeEnvironmentSource).toContain('export function resolveBrowserRuntime');
+    expect(runtimeEnvironmentSource).toContain('export function resolveBrowserDocument');
+    expect(runtimeEnvironmentSource).toContain('export function resolveBrowserWindow');
+  });
+
   it('keeps binding deps/runtime assembly on scoped module registry readers instead of legacy compat flattening', () => {
     const depsRefsSource = read('game/core/bootstrap/build_binding_deps_refs.js');
     const runtimePortsSource = read('game/core/bootstrap/build_binding_runtime_ports.js');
@@ -107,15 +123,29 @@ describe('refactor structure guardrails', () => {
   it('keeps title cross-feature abandon and ending hooks on public feature ports', () => {
     const abandonActionsSource = read('game/features/title/application/help_pause_abandon_actions.js');
     const abandonPresenterSource = read('game/features/title/presentation/browser/abandon_outcome_presenter.js');
+    const eventSessionSource = read('game/features/event/ports/public_event_session_application_capabilities.js');
+    const runReturnFlowSource = read('game/features/run/application/workflows/run_return_flow.js');
+    const runReturnActionsSource = read('game/features/run/application/build_run_return_runtime_actions.js');
 
     expect(abandonActionsSource).toContain('../../combat/ports/public_application_capabilities.js');
+    expect(abandonActionsSource).toContain("../ports/public_help_pause_presentation_capabilities.js");
+    expect(abandonActionsSource).not.toContain("../presentation/browser/abandon_outcome_presenter.js");
     expect(abandonActionsSource).not.toContain('../../combat/ports/help_pause_combat_ports.js');
     expect(abandonPresenterSource).toContain('../../../ui/ports/public_ending_presentation_capabilities.js');
     expect(abandonPresenterSource).not.toContain('../../../ui/ports/ending_screen_runtime_ports.js');
+    expect(eventSessionSource).toContain("../application/event_choice_view_model.js");
+    expect(eventSessionSource).not.toContain("../presentation/event_choice_view_model.js");
+    expect(runReturnFlowSource).toContain("../../ports/public_run_return_presentation_capabilities.js");
+    expect(runReturnFlowSource).not.toContain("../../presentation/browser/run_return_overlay_presenter.js");
+    expect(runReturnFlowSource).not.toContain("../../presentation/browser/run_return_branch_presenter.js");
+    expect(runReturnActionsSource).toContain("./run_return_timing.js");
+    expect(runReturnActionsSource).not.toContain("../presentation/browser/run_return_overlay_presenter.js");
   });
 
   it('keeps title browser helpers on canonical cross-feature public surfaces', () => {
     const settingsActionsSource = read('game/features/title/platform/browser/create_title_settings_actions.js');
+    const buildCoreRunSystemModulesSource = read('game/platform/browser/composition/build_core_run_system_modules.js');
+    const sharedSavePublicSource = read('game/shared/save/public.js');
     const mountRuntimeSource = read('game/features/title/platform/browser/create_character_select_mount_runtime.js');
     const loadCharacterSelectSource = read('game/features/title/application/load_character_select_use_case.js');
     const rewardOptionsSource = read('game/features/reward/application/build_reward_options_use_case.js');
@@ -132,8 +162,10 @@ describe('refactor structure guardrails', () => {
     const helpPauseMenuSource = read('game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js');
     const uiShellContractsSource = read('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
 
-    expect(settingsActionsSource).toContain("from '../../../ui/public.js'");
-    expect(settingsActionsSource).not.toContain("from '../../../ui/ports/public_browser_modules.js'");
+    expect(settingsActionsSource).toContain("from '../../../ui/ports/public_browser_modules.js'");
+    expect(settingsActionsSource).not.toContain("from '../../../ui/public.js'");
+    expect(buildCoreRunSystemModulesSource).toContain("from '../notifications/save_status_presenter.js'");
+    expect(sharedSavePublicSource).not.toContain("./save_status_presenter.js");
     expect(mountRuntimeSource).toContain('function resolveTooltipUI');
     expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/public_presentation_capabilities.js'");
     expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/tooltip_ui_ports.js'");
@@ -163,6 +195,48 @@ describe('refactor structure guardrails', () => {
     expect(helpPauseMenuSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
     expect(uiShellContractsSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
     expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+  });
+
+  it('keeps shared player resource rules off run feature capability imports', () => {
+    const resourceUseCaseSource = read('game/shared/player/player_resource_use_cases.js');
+    const ruleSupportSource = read('game/shared/player/player_resource_rule_support.js');
+
+    expect(resourceUseCaseSource).not.toContain("../../features/run/ports/public_rule_capabilities.js");
+    expect(ruleSupportSource).not.toContain('/features/run/');
+  });
+
+  it('keeps shared game-state compat wrappers on combat ports instead of combat application internals', () => {
+    const cardCompatSource = read('game/shared/state/compat/game_state_card_runtime_compat_methods.js');
+    const combatCompatSource = read('game/shared/state/compat/game_state_combat_runtime_compat_methods.js');
+    const runtimePortSource = read('game/features/combat/ports/public_game_state_runtime_capabilities.js');
+
+    expect(cardCompatSource).toContain("from '../../../features/combat/ports/public_game_state_runtime_capabilities.js'");
+    expect(cardCompatSource).not.toContain('/application/card_methods_facade.js');
+    expect(combatCompatSource).toContain("from '../../../features/combat/ports/public_game_state_runtime_capabilities.js'");
+    expect(combatCompatSource).not.toContain('/application/combat_methods_facade.js');
+    expect(runtimePortSource).toContain("../application/card_methods_facade.js");
+    expect(runtimePortSource).toContain("../application/combat_methods_facade.js");
+  });
+
+  it('keeps combat feature state/event action access behind a local port surface', () => {
+    const files = [
+      'game/features/combat/state/card_state_commands.js',
+      'game/features/combat/application/damage_system_facade.js',
+      'game/features/combat/application/play_card_service.js',
+      'game/features/combat/application/death_flow_enemy_runtime.js',
+      'game/features/combat/application/combat_lifecycle_facade.js',
+    ];
+    const portSource = read('game/features/combat/ports/public_state_action_capabilities.js');
+
+    expect(portSource).toContain("from '../../../core/event_bus.js'");
+    expect(portSource).toContain("from '../../../core/store/state_actions.js'");
+
+    for (const file of files) {
+      const source = read(file);
+      expect(source).toContain("../ports/public_state_action_capabilities.js");
+      expect(source).not.toContain("from '../../../core/store/state_actions.js'");
+      expect(source).not.toContain("from '../../../core/event_bus.js'");
+    }
   });
 
   it('splits title, run, and event runtime hubs into focused helper modules', () => {

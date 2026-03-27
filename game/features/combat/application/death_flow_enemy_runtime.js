@@ -1,5 +1,4 @@
-import { EventBus } from '../../../core/event_bus.js';
-import { Actions } from '../../../core/store/state_actions.js';
+import { Actions, EventBus } from '../ports/public_state_action_capabilities.js';
 import { getRegionData } from '../../run/ports/public_rule_capabilities.js';
 import {
   playReactionEnemyDeath,

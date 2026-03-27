@@ -207,6 +207,21 @@ describe('player_hp_panel_ui', () => {
     }));
   });
 
+  it('returns null when no document dependency is injected', () => {
+    const gs = {
+      currentScreen: 'combat',
+      combat: { active: true },
+      player: {
+        hp: 50,
+        maxHp: 100,
+        shield: 0,
+        buffs: {},
+      },
+    };
+
+    expect(renderFloatingPlayerHpPanel({ gs })).toBeNull();
+  });
+
   it('restores the floating status tooltip after hp panel rerender', () => {
     const doc = createMockDocument();
     const showForAnchor = vi.spyOn(StatusTooltipUI, 'showForAnchor').mockImplementation(() => {});

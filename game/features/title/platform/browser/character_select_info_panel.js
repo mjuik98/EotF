@@ -22,6 +22,7 @@ export function renderCharacterInfoPanel({
   roadmap,
   unlockRoadmap,
   recentSummaries,
+  pendingSummaryCount = 0,
   buildSectionLabel,
   buildRadar,
   cards,
@@ -90,9 +91,10 @@ export function renderCharacterInfoPanel({
     summaryRelics,
     cards,
     featuredCardIds,
-    featuredCardTags,
-    roadmapPreviewText,
-    unlockRoadmap,
+      featuredCardTags,
+      roadmapPreviewText,
+      unlockRoadmap,
+      pendingSummaryCount,
   })}
         ${buildCharacterInfoDetailsSection({
     selectedChar,

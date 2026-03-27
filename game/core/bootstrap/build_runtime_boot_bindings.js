@@ -6,6 +6,7 @@ import {
   setupStorySystemBridge,
 } from '../init_sequence_steps.js';
 import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
+import { reportError } from '../error_reporter.js';
 
 export function buildRuntimeBootBindings({ modules, fns, deps, doc, win, schedule = setTimeout }) {
   const coreModules = getModuleRegistryScope(modules, 'core');
@@ -18,7 +19,7 @@ export function buildRuntimeBootBindings({ modules, fns, deps, doc, win, schedul
       try {
         coreModules.GameInit.boot(buildGameBootPayload({ modules, deps, fns }));
       } catch (e) {
-        console.error('Critical Boot Error:', e);
+        reportError(e, { context: 'bootstrap:boot-game-init' });
       }
     },
     configureMaze() {

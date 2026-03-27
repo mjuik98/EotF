@@ -1,4 +1,4 @@
-import { resolveBranchTargetRegion } from '../../presentation/browser/run_return_branch_presenter.js';
+import { resolveBranchTargetRegion } from '../../ports/public_run_return_presentation_capabilities.js';
 import {
   clearRunReturnCombatSurface,
   dismissRunReturnNodeOverlay,
@@ -6,7 +6,7 @@ import {
   prepareRewardExitPresentation,
   scheduleRunReturnRefresh,
   showGameplayScreenFromReturn,
-} from '../../presentation/browser/run_return_overlay_presenter.js';
+} from '../../ports/public_run_return_presentation_capabilities.js';
 import {
   consumeBossRewardFlags,
   resetRuntimeInteractionState,
@@ -50,7 +50,7 @@ export function returnToGameplayFromRun(fromReward, deps = {}) {
   const gs = deps.gs;
   const runRules = deps.runRules;
   if (!gs || !runRules) {
-    console.error('[RunReturnUI] Missing gs or runRules');
+    deps.logger?.error?.('[RunReturnUI] Missing gs or runRules');
     return;
   }
 

@@ -99,3 +99,20 @@ export function getInscriptionEffectText(def, lvl) {
   const levelDef = def?.levels?.[Math.max(0, lvl - 1)];
   return String(levelDef?.desc || def?.desc || '효과 정보 없음');
 }
+
+export function isSameRunConfig(left, right) {
+  const leftCfg = cloneRunConfig(left);
+  const rightCfg = cloneRunConfig(right);
+  return leftCfg.ascension === rightCfg.ascension
+    && leftCfg.endless === rightCfg.endless
+    && leftCfg.curse === rightCfg.curse
+    && leftCfg.disabledInscriptions.length === rightCfg.disabledInscriptions.length
+    && leftCfg.disabledInscriptions.every((id, index) => id === rightCfg.disabledInscriptions[index]);
+}
+
+export function isHiddenEndingReady(meta, cfg) {
+  const earned = Object.entries(meta?.inscriptions || {}).filter(([, value]) => Number(value) > 0);
+  if (!earned.length) return false;
+  const disabled = new Set(cfg?.disabledInscriptions || []);
+  return earned.every(([id]) => disabled.has(id));
+}

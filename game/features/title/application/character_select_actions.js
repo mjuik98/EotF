@@ -1,3 +1,7 @@
+import { Logger } from '../../ui/ports/public_logging_support_capabilities.js';
+
+const CharacterSelectLogger = Logger.child('CharacterSelectUI');
+
 function resolveSelectedClassKey(selectedChar) {
   if (selectedChar?.class !== undefined && selectedChar?.class !== null) {
     return selectedChar.class;
@@ -15,7 +19,7 @@ export function confirmCharacterSelection({
   renderPhase,
   onConfirm,
   setTimeoutImpl = setTimeout,
-  log = (...args) => console.log(...args),
+  log = (...args) => CharacterSelectLogger.info(...args),
 } = {}) {
   if (state?.phase !== 'select') return;
   const selectedChar = chars[state.idx];

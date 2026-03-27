@@ -37,24 +37,43 @@ describe('codex_ui_runtime_helpers', () => {
   let helpers;
   let render;
   let popupRuntime;
+  let helperModule;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     helpers = await import('../game/features/codex/presentation/browser/codex_ui_runtime_helpers.js');
     render = await import('../game/features/codex/presentation/browser/codex_ui_render.js');
     popupRuntime = await import('../game/features/codex/presentation/browser/codex_ui_popup_runtime.js');
+    helperModule = await import('../game/features/codex/presentation/browser/codex_ui_helpers.js');
   });
 
   it('renders progress and filter callbacks through shared helpers', () => {
     const ui = { setCodexTab: vi.fn(), renderCodexContent: vi.fn() };
-    const state = { tab: 'enemies', deps: { gs: {}, data: {} }, filter: 'all', showUnknown: false };
+    const state = { tab: 'enemies', deps: { gs: { meta: {} }, data: {} }, filter: 'all', showUnknown: false };
     const doc = {};
+    helperModule.buildCodexRewardRoadmap.mockReturnValueOnce([{
+      contentLabel: '큐레이터의 등불',
+      remaining: 7,
+    }]);
+    helperModule.buildRecentCodexDiscoveries.mockReturnValueOnce([{
+      categoryLabel: '카드',
+      label: '타격',
+      firstSeen: '2026-03-26',
+    }]);
 
     helpers.renderCodexRuntimeProgress(state, ui, doc, {}, {});
     helpers.renderCodexRuntimeFilterBar(state, ui, doc, {});
 
     expect(render.renderCodexProgress).toHaveBeenCalledTimes(1);
     expect(render.renderCodexFilterBar).toHaveBeenCalledTimes(1);
+    expect(helperModule.buildCodexRewardRoadmap).toHaveBeenCalledWith({}, { limit: 3 });
+    expect(helperModule.buildRecentCodexDiscoveries).toHaveBeenCalledWith({}, { data: {}, limit: 4 });
+    expect(render.renderCodexProgress.mock.calls[0][1].rewardRoadmap[0]).toEqual(expect.objectContaining({
+      remaining: 7,
+    }));
+    expect(render.renderCodexProgress.mock.calls[0][1].recentDiscoveries[0]).toEqual(expect.objectContaining({
+      categoryLabel: '카드',
+    }));
 
     const options = render.renderCodexFilterBar.mock.calls[0][1];
     options.onFilterChange('elite');

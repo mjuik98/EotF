@@ -32,10 +32,16 @@ function formatRetryTiming(nextRetryAt) {
   return ` · 다음 재시도 ${seconds}초 후`;
 }
 
+function buildRetryFailureSuffix(status) {
+  const retryFailures = Number(status?.retryFailures || 0);
+  if (retryFailures <= 0) return '';
+  return ` · 재시도 실패 ${retryFailures}회`;
+}
+
 function buildQueueSuffix(status) {
   const queueDepth = Number(status?.queueDepth || 0);
   if (queueDepth <= 0) return '';
-  return ` 대기 ${queueDepth}건${formatRetryTiming(status?.nextRetryAt)}`;
+  return ` 대기 ${queueDepth}건${buildRetryFailureSuffix(status)}${formatRetryTiming(status?.nextRetryAt)}`;
 }
 
 function resolvePresentation(status) {

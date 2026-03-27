@@ -40,10 +40,15 @@ describe('codex_ui_popup_payloads', () => {
     expect(setBlock).toContain('1/2 보유');
     expect(buildCodexQuoteBlock('기록된 문장')).toContain('기록된 문장');
     expect(buildCodexRecordBlock(
-      { meta: { codexRecords: { cards: { strike: { used: 4, firstSeen: 'loop-1' } } } } },
+      { meta: { codexRecords: { cards: { strike: { used: 4, firstSeen: 'loop-1', upgradedDiscovered: true, upgradeUsed: 2, upgradeFirstSeen: 'loop-2' } } } } },
       'cards',
       'strike',
-    )).toContain('사용 횟수');
+    )).toContain('강화 사용 횟수');
+    expect(buildCodexRecordBlock(
+      { meta: { codexRecords: { enemies: { wolf: { encounters: 4, kills: 2, firstSeen: 'loop-1' } } } } },
+      'enemies',
+      'wolf',
+    )).toContain('처치율');
   });
 
   it('builds enemy, card, and item popup payloads', () => {
@@ -53,7 +58,7 @@ describe('codex_ui_popup_payloads', () => {
     );
     const cardPayload = buildCardPayload(
       { id: 'strike', name: 'Strike', type: 'ATTACK', rarity: 'common', cost: 1, desc: 'Deal 6', icon: 'S' },
-      { gs: { meta: { codexRecords: { cards: { strike: { used: 4 } } } } }, data: { cards: {} }, safeHtml: (value) => value },
+      { gs: { meta: { codexRecords: { cards: { strike: { used: 4, upgradedDiscovered: true, upgradeUsed: 1, upgradeFirstSeen: 'loop-2' } } } } }, data: { cards: { strike_plus: { id: 'strike_plus', type: 'ATTACK', name: 'Strike+', cost: 2, desc: 'Deal 9' } } }, safeHtml: (value) => value },
     );
     const itemPayload = buildItemPayload(
       { id: 'relic', name: 'Relic', rarity: 'rare', desc: 'Gain power', icon: 'R', set: 'void' },
@@ -67,7 +72,8 @@ describe('codex_ui_popup_payloads', () => {
     expect(enemyPayload.theme.border).toContain('192,132,252');
     expect(enemyPayload.html).toContain('Wolf');
     expect(cardPayload.html).toContain('Strike');
-    expect(cardPayload.html).toContain('사용 횟수');
+    expect(cardPayload.html).toContain('강화 사용 횟수');
+    expect(cardPayload.html).toContain('강화 첫 발견');
     expect(itemPayload.html).toContain('Relic');
     expect(itemPayload.html).toContain('Void Set');
   });

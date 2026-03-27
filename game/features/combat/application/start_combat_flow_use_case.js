@@ -1,4 +1,7 @@
 import { activateCombat } from '../ports/public_state_capabilities.js';
+import { Logger } from '../ports/combat_logging.js';
+
+const CombatStartLogger = Logger.child('CombatStart');
 
 function resolveCombatMode(mode) {
   if (mode === true) return 'boss';
@@ -79,7 +82,7 @@ export function startCombatFlowUseCase(mode = 'normal', deps = {}) {
     || typeof applyRegionDebuffs !== 'function'
     || typeof initDeck !== 'function'
   ) {
-    console.error('[CombatStart] Missing dependencies');
+    CombatStartLogger.error('Missing dependencies');
     return null;
   }
 

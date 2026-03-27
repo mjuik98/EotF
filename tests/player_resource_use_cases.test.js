@@ -79,22 +79,36 @@ describe('PlayerResourceUseCaseMethods', () => {
 
   it('applies cursed and item-based scaling before healing', () => {
     const host = createHost();
+    host.runConfig = { ascension: 5, curse: 'fatigue' };
     host.getBuff = vi.fn((id) => (id === 'cursed' ? { stacks: 1 } : null));
     host.triggerItems.mockImplementation((event, amount) => (event === 'heal_amount' ? amount + 1 : amount));
 
     host.heal(10, { name: '치유 물약', type: 'item' });
 
-    expect(host.commit).toHaveBeenCalledWith('player:heal', { amount: 8 });
+    expect(host.commit).toHaveBeenCalledWith('player:heal', { amount: 5 });
     expect(host.addLog).toHaveBeenCalledWith(
-      '💍 치유 물약: 8 회복',
+      '💍 치유 물약: 5 회복',
       'heal',
       expect.objectContaining({
         recentFeed: expect.objectContaining({
           eligible: true,
-          text: '치유 물약: 8 회복',
+          text: '치유 물약: 5 회복',
         }),
       }),
     );
+  });
+
+  it('resolves routed active region ids without feature run-rule imports', () => {
+    const host = createHost();
+    host._activeRegionId = null;
+    host.currentRegion = 3;
+    host.regionRoute = { 3: 4 };
+
+    const result = host.heal(6);
+
+    expect(result).toBeUndefined();
+    expect(host.commit).not.toHaveBeenCalledWith('player:heal', expect.anything());
+    expect(host.addLog).toHaveBeenCalledWith('⚙️ 메아리의 근원: 회복 불가!', 'damage');
   });
 
   it('logs source-aware status application and generic gold gains', () => {

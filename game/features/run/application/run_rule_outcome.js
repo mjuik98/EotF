@@ -3,6 +3,7 @@ import { CURSES } from '../domain/run_rules_curses.js';
 import { getRegionCount } from '../domain/run_rules_regions.js';
 import { evaluateAchievementTrigger } from '../../meta_progression/public.js';
 import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
+import { Logger } from '../../ui/ports/public_logging_support_capabilities.js';
 import { ensureRunRuleMeta, resolveRunRuleClassIds } from './run_rule_meta.js';
 import {
   applyRunOutcomeRewards,
@@ -13,6 +14,8 @@ import {
   syncRunOutcomeMeta,
 } from '../state/run_outcome_state_commands.js';
 import { createRecentRunSummary, recordRecentRun } from '../domain/recent_run_history.js';
+
+const RunRulesLogger = Logger.child('RunRules');
 
 function ensureOutcomeMeta(meta) {
   ensureRunRuleMeta(meta, { curses: CURSES });
@@ -85,7 +88,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
       regionCount: getRegionCount(),
     });
   } catch (e) {
-    console.warn('[RunRules] Class progression update failed:', e?.message || e);
+    RunRulesLogger.warn('Class progression update failed:', e?.message || e);
   }
 
   const progressionResult = evaluateAchievementTrigger(gs.meta, 'run_completed', {

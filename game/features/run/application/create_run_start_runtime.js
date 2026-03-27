@@ -1,5 +1,6 @@
 import { runIdempotent } from './run_idempotency.js';
 import { createRunGameplayRuntime } from './run_start_gameplay_runtime.js';
+import { reportError } from '../../../core/error_reporter.js';
 import {
   getRunStartDoc,
   getRunStartGs,
@@ -39,7 +40,7 @@ export function enterRunRuntime(deps = {}) {
         });
         if (fragmentShown) removeRunStartHandoffBlackout(doc);
       } catch (error) {
-        console.error('[RunStartUI] showRunFragment failed:', error);
+        reportError(error, { context: 'run:start-fragment' });
         fragmentShown = false;
       }
     }

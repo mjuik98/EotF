@@ -57,8 +57,8 @@ describe('title save slot controls', () => {
     const saveSystem = {
       getSelectedSlot: vi.fn(() => 2),
       getSlotSummaries: vi.fn(() => [
-        { slot: 1, hasSave: true, preview: { player: { class: 'swordsman', hp: 80, maxHp: 80, gold: 10, deck: ['strike'], hand: [], items: [] }, currentFloor: 2, currentRegion: 0 } },
-        { slot: 2, hasSave: true, preview: { player: { class: 'mage', hp: 55, maxHp: 60, gold: 40, deck: ['bolt'], hand: [], items: [] }, currentFloor: 4, currentRegion: 1, meta: { runConfig: { ascension: 2 }, recentRuns: [] } } },
+        { slot: 1, hasSave: true, preview: { player: { class: 'swordsman', hp: 80, maxHp: 80, gold: 10, deck: ['strike'], hand: [], items: [] }, currentFloor: 2, currentRegion: 0, meta: { runConfig: { ascension: 0 } } } },
+        { slot: 2, hasSave: true, preview: { player: { class: 'mage', hp: 55, maxHp: 60, gold: 40, deck: ['bolt'], hand: [], items: [] }, currentFloor: 4, currentRegion: 1, saveState: 'queued', meta: { runConfig: { ascension: 2 }, recentRuns: [] } } },
         { slot: 3, hasSave: false, preview: null },
       ]),
       readMetaPreview: vi.fn(() => ({ runCount: 4, totalKills: 12, bestChain: 5, recentRuns: [] })),
@@ -85,6 +85,10 @@ describe('title save slot controls', () => {
     expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('슬롯 1');
     expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('슬롯 2');
     expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('active');
+    expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('검사 · 2층');
+    expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('마법사 · 4층');
+    expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('A2');
+    expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('복구 대기');
     expect(doc.elements.sttClass.textContent).toBe('마법사');
 
     const exportHandler = doc.elements.titleSaveExportBtn.addEventListener.mock.calls.at(-1)?.[1];

@@ -1,10 +1,11 @@
 import { moveToNodeUseCase } from './move_to_node_use_case.js';
-import { presentNodeTransition } from '../presentation/present_node_transition.js';
 import { playUiFootstep } from '../ports/public_audio_runtime_capabilities.js';
+import { presentNodeTransition } from '../ports/public_navigation_presentation_capabilities.js';
 import {
   MAP_COMBAT_NODE_TYPES,
   Trigger,
 } from '../ports/public_data_runtime_capabilities.js';
+import { reportError } from '../../../core/error_reporter.js';
 
 export function createMapNavigationRuntime(overrides = {}) {
   const {
@@ -36,7 +37,7 @@ export function createMapNavigationRuntime(overrides = {}) {
           unlockNodeMovement: () => deps.setNodeMovementLocked?.(gs, false),
         });
       } catch (error) {
-        console.error('[MapNavigationUI] 이동 중 오류:', error);
+        reportError(error, { context: 'run:map-navigation' });
         deps.setNodeMovementLocked?.(gs, false);
         deps.updateUI?.();
         return null;

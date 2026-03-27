@@ -221,7 +221,7 @@ describe('run_mode_ui_render sections', () => {
             ascension: 3,
             endless: true,
             curse: 'tax',
-            disabledInscriptions: ['beta'],
+            disabledInscriptions: ['alpha', 'beta'],
           },
         },
         null,
@@ -238,12 +238,19 @@ describe('run_mode_ui_render sections', () => {
     expect(zone.innerHTML).toContain('빈 슬롯');
     expect(zone.innerHTML).toContain('이 슬롯을 선택한 뒤 현재 설정을 저장할 수 있습니다.');
 
-    renderPresets({ _selectedPresetSlot: 1 }, doc, {}, meta, runRules);
+    renderPresets({ _selectedPresetSlot: 1 }, doc, {
+      ascension: 3,
+      endless: true,
+      curse: 'tax',
+      disabledInscriptions: ['alpha', 'beta'],
+    }, meta, runRules);
     expect(zone.innerHTML).toContain('세팅 A');
     expect(zone.innerHTML).toContain('A3');
     expect(zone.innerHTML).toContain('/ 무한');
     expect(zone.innerHTML).toContain('/ 세금');
-    expect(zone.innerHTML).toContain('/ 각인 1');
+    expect(zone.innerHTML).toContain('/ 각인 0');
+    expect(zone.innerHTML).toContain('현재 구성과 동일');
+    expect(zone.innerHTML).toContain('히든 결말 준비');
     expect(zone.innerHTML).toContain('data-action="load-preset"');
     expect(zone.innerHTML).toContain('data-action="delete-preset"');
     expect(zone.innerHTML).toContain('현재 설정으로 덮어쓰기');

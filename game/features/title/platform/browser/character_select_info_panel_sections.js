@@ -96,11 +96,15 @@ export function buildCharacterInfoSummarySection({
   featuredCardTags,
   roadmapPreviewText,
   unlockRoadmap,
+  pendingSummaryCount = 0,
 } = {}) {
   const unlockRows = [
     ...(unlockRoadmap?.account || []),
     ...(unlockRoadmap?.class || []),
   ];
+  const pendingSummaryNotice = pendingSummaryCount > 0
+    ? `<div class="char-info-text" style="margin-top:8px;color:rgba(255,214,112,0.92)">미확인 진행 기록 ${pendingSummaryCount}건 · 입장 시 순차 재생</div>`
+    : '';
 
   return `
     <section class="char-info-pane is-active" data-pane="summary" role="tabpanel">
@@ -141,6 +145,7 @@ export function buildCharacterInfoSummarySection({
       <div class="char-info-block">
         ${buildSectionLabel('다음 마스터리 해금', selectedChar.accent)}
         <div class="char-info-text">${roadmapPreviewText}</div>
+        ${pendingSummaryNotice}
       </div>
 
       <div class="char-info-block">

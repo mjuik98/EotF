@@ -1,8 +1,7 @@
-const getDoc = (deps) => deps?.doc || document;
-
 export const PlayerUiEffectMethods = {
   showLowHpWarning(deps = {}) {
-    const doc = getDoc(deps);
+    const doc = deps?.doc || null;
+    if (!doc?.body) return;
     let el = doc.querySelector('.pulse-overlay');
     if (!el) {
       el = doc.createElement('div');

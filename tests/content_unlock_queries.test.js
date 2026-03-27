@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import * as metaProgression from '../game/features/meta_progression/public.js';
 import {
   buildUnlockRoadmap,
   isContentAvailable,
@@ -295,5 +296,48 @@ describe('content unlock queries', () => {
         focusLabel: '도감 수집',
       }),
     ]);
+  });
+
+  it('builds the next achievement roadmap entries for account and class progression', () => {
+    const meta = {
+      progress: {
+        victories: 2,
+        cursedVictories: 0,
+        failures: 1,
+      },
+      classProgress: {
+        levels: {
+          paladin: 2,
+        },
+      },
+      achievements: {
+        states: {
+          first_victory: { unlocked: true },
+        },
+      },
+    };
+
+    expect(typeof metaProgression.buildAchievementRoadmap).toBe('function');
+    expect(metaProgression.buildAchievementRoadmap(meta, { classId: 'paladin' })).toEqual({
+      account: [
+        expect.objectContaining({
+          id: 'cursed_conqueror_1',
+          title: '저주 정복자 I',
+          progressLabel: '0 / 1',
+        }),
+        expect.objectContaining({
+          id: 'merchant_ally',
+          title: '상인의 인연',
+          progressLabel: '0 / 1',
+        }),
+      ],
+      class: [
+        expect.objectContaining({
+          id: 'paladin_mastery_3',
+          title: '성기사 숙련',
+          progressLabel: '2 / 3',
+        }),
+      ],
+    });
   });
 });

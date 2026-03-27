@@ -1,5 +1,8 @@
 import { CONSTANTS } from '../../../data/constants.js';
 import { RunRules, getBaseRegionIndex } from '../../run/ports/public_rule_capabilities.js';
+import { Logger } from '../ports/combat_logging.js';
+
+const DifficultyScalerLogger = Logger.child('DifficultyScaler');
 
 export const DifficultyScaler = {
   getMultiplier(paramsOrGs, runCount, region, floor) {
@@ -39,7 +42,7 @@ export const DifficultyScaler = {
 
   scaleEnemy(enemy, gs, runCount, region, floor) {
     if (!gs) {
-      console.warn('[DifficultyScaler] gs is undefined, using base enemy');
+      DifficultyScalerLogger.warn('Missing game state, using base enemy');
       return { ...enemy };
     }
     const m = this.getMultiplier(gs, runCount, region, floor);

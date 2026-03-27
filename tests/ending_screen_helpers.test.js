@@ -19,8 +19,13 @@ describe('ending_screen_helpers', () => {
         runCount: 4,
       },
       player: {
+        class: 'swordsman',
         kills: 6,
         deck: ['spark'],
+      },
+      runConfig: {
+        ascension: 2,
+        endless: true,
       },
       stats: {
         maxChain: 5,
@@ -58,6 +63,12 @@ describe('ending_screen_helpers', () => {
     });
     expect(payload.inscriptions[0]).toMatchObject({ id: 'flow', level: 2, icon: '🜁', name: 'Flow' });
     expect(payload.chips).toContain('4회차');
+    expect(payload.progressionSummary).toEqual([
+      '검사 · A2',
+      '무한 모드',
+      '새 해금 1건',
+      '업적 1건',
+    ]);
     expect(payload.unlocks).toEqual([
       expect.objectContaining({ type: 'curse', id: 'blood_moon', label: '저주 해금 · 핏빛 월식' }),
     ]);

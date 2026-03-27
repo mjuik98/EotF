@@ -1,3 +1,6 @@
+import { ErrorSeverity } from '../error_codes.js';
+import { reportError } from '../error_reporter.js';
+
 function toFiniteNumber(value, fallback = 0) {
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
@@ -60,7 +63,10 @@ export function createAdvanceTimeHook({ modules, fns, win }) {
               fns?.renderMinimap?.();
             }
           } catch (error) {
-            console.warn('[RuntimeDebugHooks] advanceTime refresh failed:', error);
+            reportError(error, {
+              context: 'runtime:debug-hooks',
+              severity: ErrorSeverity.WARN,
+            });
           }
           resolve(duration);
         });

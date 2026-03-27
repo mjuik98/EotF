@@ -1,5 +1,8 @@
-import { createRunRuleCapabilities } from '../../features/run/ports/public_rule_capabilities.js';
 import { PlayerStateActions as Actions } from '../state/player_state_commands.js';
+import {
+  resolvePlayerActiveRegionId,
+  resolvePlayerHealAmount,
+} from './player_resource_rule_support.js';
 import {
   createRecentFeedMeta,
   formatRecentFeedStatusOutcome,
@@ -7,10 +10,6 @@ import {
   getCurrentCardLogSource,
   LogUtils,
 } from '../../utils/log_utils.js';
-
-function getRunRules() {
-  return createRunRuleCapabilities();
-}
 
 export const PlayerResourceUseCaseMethods = {
   addEcho(amount, source = null) {
@@ -45,16 +44,12 @@ export const PlayerResourceUseCaseMethods = {
   },
 
   heal(amount, source = null, deps = {}) {
-    void deps;
-    const activeRegionId = Number(this._activeRegionId);
-    const regionId = Number.isFinite(activeRegionId)
-      ? Math.max(0, Math.floor(activeRegionId))
-      : getRunRules().getRegionIdForStage(this.currentRegion, this);
+    const regionId = resolvePlayerActiveRegionId(this, deps);
     if (regionId === 4) {
       this.addLog(LogUtils.formatSystem('메아리의 근원: 회복 불가!'), 'damage');
       return;
     }
-    let adjusted = getRunRules().RunRules.getHealAmount(this, amount);
+    let adjusted = resolvePlayerHealAmount(this, amount, deps);
     if ((this.getBuff('cursed')?.stacks || 0) > 0) {
       adjusted = Math.max(0, Math.floor(adjusted * 0.7));
     }

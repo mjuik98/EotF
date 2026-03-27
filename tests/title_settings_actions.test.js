@@ -19,7 +19,7 @@ vi.mock('../game/features/run/ports/public_browser_modules.js', () => ({
   }),
 }));
 
-vi.mock('../game/features/ui/public.js', () => ({
+vi.mock('../game/features/ui/ports/public_browser_modules.js', () => ({
   createUiBrowserModuleCapabilities: () => ({
     ensureSettings: vi.fn(async () => ({ SettingsUI: lazySettingsUi })),
   }),

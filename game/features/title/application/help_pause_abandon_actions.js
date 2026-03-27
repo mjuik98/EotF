@@ -1,5 +1,5 @@
 import { cleanupCombatAfterAbandon } from '../../combat/ports/public_application_capabilities.js';
-import { showAbandonOutcome } from '../presentation/browser/abandon_outcome_presenter.js';
+import { showAbandonOutcome } from '../ports/public_help_pause_presentation_capabilities.js';
 
 function resolveDoc(deps = {}) {
   return deps.doc || deps.win?.document || null;

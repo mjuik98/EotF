@@ -3,12 +3,12 @@ import { EventBus } from './event_bus.js';
 import { Actions } from './state_actions.js';
 import { playUiCard } from './audio_feedback_support_capabilities.js';
 import { resolveLegacyAction } from '../platform/legacy/public.js';
+import { resolveBrowserRuntime } from './runtime_environment.js';
 
 export function createEventSubscriberContext(uiRefs = {}) {
   const ui = uiRefs || {};
   const actions = ui.actions || {};
-  const doc = ui.doc || (typeof document !== 'undefined' ? document : null);
-  const win = ui.win || (typeof window !== 'undefined' ? window : null);
+  const { doc, win } = resolveBrowserRuntime(ui);
   const legacyRoot = ui.legacyRoot || GAME;
 
   const resolveAction = (name) => {

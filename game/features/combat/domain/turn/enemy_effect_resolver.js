@@ -1,4 +1,6 @@
-import { LogUtils } from '../../ports/combat_logging.js';
+import { Logger, LogUtils } from '../../ports/combat_logging.js';
+
+const EnemyEffectLogger = Logger.child('EnemyEffectResolver');
 
 function resolveEnemyEffectCommands(commands = {}) {
   return {
@@ -180,6 +182,6 @@ export function handleEnemyEffectLogic(effect, gs, enemy, { regionId, data, comm
   if (Number.isFinite(playerHp) && playerHp < 1) return undefined;
   const handler = ENEMY_EFFECTS[effect];
   if (handler) return handler(gs, enemy, {}, regionId, data, resolveEnemyEffectCommands(commands));
-  console.warn('[TurnManager] 알 수 없는 효과:', effect);
+  EnemyEffectLogger.warn('Unknown enemy effect', { effect });
   return undefined;
 }

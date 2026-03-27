@@ -7,19 +7,21 @@ import {
 } from './player_hp_panel_runtime.js';
 
 function getDoc(deps = {}) {
-  return deps.doc || document;
+  return deps.doc || null;
 }
 
 export { getPlayerHpPanelLevel };
 
 export function removeFloatingPlayerHpPanel(deps = {}) {
   const doc = getDoc(deps);
+  if (!doc) return null;
   doc.getElementById('ncFloatingHpShell')?.remove();
   return null;
 }
 
 export function renderFloatingPlayerHpPanel(deps = {}) {
   const doc = getDoc(deps);
+  if (!doc) return null;
   const gs = deps.gs;
   const existingShell = doc.getElementById('ncFloatingHpShell');
   const tooltipState = existingShell ? captureFloatingTooltipState(doc) : null;

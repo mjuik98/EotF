@@ -293,12 +293,92 @@ describe('architecture refactor guardrails', () => {
         'game/features/run/application/create_maze_runtime.js',
         '../platform/browser/',
       ],
+      [
+        'game/features/run/application/workflows/run_return_flow.js',
+        '../../presentation/',
+      ],
+      [
+        'game/features/title/application/help_pause_abandon_actions.js',
+        '../presentation/',
+      ],
+      [
+        'game/features/event/application/resolve_event_choice_use_case.js',
+        '../presentation/',
+      ],
+      [
+        'game/features/run/application/create_map_navigation_runtime.js',
+        '../presentation/',
+      ],
     ];
 
     for (const [file, blockedImport] of expectations) {
       const source = readText(file);
       expect(source).not.toContain(blockedImport);
     }
+  });
+
+  it('keeps run return workflow on explicit ports and logger-based error handling', () => {
+    const source = readText('game/features/run/application/workflows/run_return_flow.js');
+
+    expect(source).toContain("../../ports/public_run_return_presentation_capabilities.js");
+    expect(source).not.toContain('console.error');
+    expect(source).not.toContain("../../presentation/browser/run_return_overlay_presenter.js");
+    expect(source).not.toContain("../../presentation/browser/run_return_branch_presenter.js");
+  });
+
+  it('keeps selected application/runtime modules free of direct console logging', () => {
+    const files = [
+      'game/features/title/application/character_select_actions.js',
+      'game/features/run/application/run_rule_outcome.js',
+      'game/features/event/application/workflows/event_choice_flow_error_handler.js',
+      'game/features/run/application/create_run_start_runtime.js',
+      'game/features/combat/application/start_combat_flow_use_case.js',
+      'game/features/run/application/create_map_navigation_runtime.js',
+      'game/features/combat/application/end_player_turn_use_case.js',
+    ];
+
+    for (const file of files) {
+      const source = readText(file);
+      expect(source).not.toContain('console.');
+    }
+  });
+
+  it('keeps selected core bootstrap modules free of direct console logging and hardwired browser globals', () => {
+    const expectations = [
+      ['game/core/bootstrap/build_runtime_boot_bindings.js', 'console.'],
+      ['game/core/bootstrap/build_runtime_debug_hooks.js', 'console.'],
+      ['game/core/bootstrap/create_bootstrap_context.js', '|| document'],
+      ['game/core/bootstrap/create_bootstrap_context.js', '|| window'],
+      ['game/core/init_sequence.js', 'doc: document'],
+      ['game/core/init_sequence.js', 'win: window'],
+    ];
+
+    for (const [file, blockedPattern] of expectations) {
+      const source = readText(file);
+      expect(source).not.toContain(blockedPattern);
+    }
+  });
+
+  it('keeps selected shared and combat domain modules free of direct console logging and document fallbacks', () => {
+    const expectations = [
+      ['game/shared/ui/player_hp_panel/player_hp_panel_ui.js', '|| document'],
+      ['game/features/combat/domain/turn/enemy_effect_resolver.js', 'console.'],
+      ['game/features/combat/domain/difficulty_scaler.js', 'console.'],
+    ];
+
+    for (const [file, blockedPattern] of expectations) {
+      const source = readText(file);
+      expect(source).not.toContain(blockedPattern);
+    }
+  });
+
+  it('keeps combat lifecycle application free of browser global fallbacks and broad ui audio imports', () => {
+    const source = readText('game/features/combat/application/combat_lifecycle_facade.js');
+
+    expect(source).not.toContain('|| document');
+    expect(source).not.toContain('|| window');
+    expect(source).not.toContain('console.error');
+    expect(source).not.toContain("../../ui/ports/public_audio_support_capabilities.js");
   });
 
   it('keeps save infrastructure free of embedded presenter imports and DOM toasts', () => {

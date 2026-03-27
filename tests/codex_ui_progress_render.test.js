@@ -103,6 +103,7 @@ describe('codex_ui_progress_render', () => {
         achievementTitle: '야전 생물학자',
         progressLabel: '5 / 12',
         focusLabel: '적 도감',
+        remaining: 7,
       }],
       recentDiscoveries: [{
         categoryLabel: '카드',
@@ -122,7 +123,9 @@ describe('codex_ui_progress_render', () => {
     expect(section.innerHTML).toContain('stroke-dashoffset="42.0"');
     expect(section.innerHTML).toContain('다음 조사 목표');
     expect(section.innerHTML).toContain('야전 생물학자');
+    expect(section.innerHTML).toContain('앞으로 7개');
     expect(section.innerHTML).toContain('최근 발견');
     expect(section.innerHTML).toContain('타격');
+    expect(section.innerHTML).toContain('신규 카드 발견');
   });
 });

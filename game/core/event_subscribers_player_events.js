@@ -24,7 +24,7 @@ export function registerPlayerEventSubscribers(ctx) {
     }
 
     if (gs.player.hp > 0 && gs.player.hp <= gs.player.maxHp * 0.25) {
-      gs.showLowHpWarning?.();
+      gs.showLowHpWarning?.({ doc: ctx.doc });
     }
   });
 

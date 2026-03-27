@@ -3,6 +3,14 @@ import path from 'node:path';
 
 import { describe, expect, it, vi } from 'vitest';
 
+const hoisted = vi.hoisted(() => ({
+  reportError: vi.fn(),
+}));
+
+vi.mock('../game/core/error_reporter.js', () => ({
+  reportError: hoisted.reportError,
+}));
+
 import { buildRuntimeBootBindings } from '../game/core/bootstrap/build_runtime_boot_bindings.js';
 
 describe('buildRuntimeBootBindings scoped registry usage', () => {
@@ -24,6 +32,7 @@ describe('buildRuntimeBootBindings scoped registry usage', () => {
   });
 
   it('reads GameInit from the core scope while keeping MazeSystem in the run scope', () => {
+    hoisted.reportError.mockReset();
     const boot = vi.fn();
     const syncVolumeUI = vi.fn();
     const exposeGlobals = vi.fn();
@@ -93,5 +102,44 @@ describe('buildRuntimeBootBindings scoped registry usage', () => {
       }),
     );
     expect(register).toHaveBeenCalledWith('finalizeRunOutcome', finalizeRunOutcome);
+  });
+
+  it('reports boot failures through the structured error reporter', () => {
+    hoisted.reportError.mockReset();
+    const failure = new Error('boot exploded');
+    const modules = {
+      exposeGlobals: vi.fn(),
+      featureScopes: {
+        core: {
+          AudioEngine: {},
+          FovEngine: {},
+          GAME: { register: vi.fn() },
+          GS: {},
+          GameInit: {
+            boot: vi.fn(() => {
+              throw failure;
+            }),
+            syncVolumeUI: vi.fn(),
+          },
+        },
+        run: {
+          MazeSystem: {},
+          finalizeRunOutcome: vi.fn(),
+        },
+      },
+    };
+
+    const bindings = buildRuntimeBootBindings({
+      modules,
+      fns: {},
+      deps: { getStoryDeps: () => ({}), patchRefs: vi.fn() },
+      doc: {},
+      win: {},
+    });
+
+    expect(() => bindings.bootGameInit()).not.toThrow();
+    expect(hoisted.reportError).toHaveBeenCalledWith(failure, {
+      context: 'bootstrap:boot-game-init',
+    });
   });
 });

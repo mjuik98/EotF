@@ -41,6 +41,15 @@ const CONTENT_TYPE_LABELS = Object.freeze({
   relic: '유물',
   card: '카드',
 });
+const CLASS_LABELS = Object.freeze({
+  swordsman: '검사',
+  mage: '마법사',
+  hunter: '사냥꾼',
+  paladin: '성기사',
+  berserker: '광전사',
+  guardian: '수호자',
+  rogue: '도적',
+});
 const tfmt = (ms) => {
   const totalSeconds = Math.max(0, Math.floor(num(ms, 0) / 1000));
   return `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}`;
@@ -70,6 +79,27 @@ function describeUnlockedAchievement(achievementId) {
     title: String(definition.title || achievementId),
     description: String(definition.description || ''),
   };
+}
+
+function getEndingClassLabel(classId) {
+  return CLASS_LABELS[String(classId || '')] || String(classId || '').trim();
+}
+
+function buildEndingProgressionSummary(gs) {
+  const items = [];
+  const classLabel = getEndingClassLabel(gs?.player?.class);
+  const ascension = Math.max(0, Math.floor(num(gs?.runConfig?.ascension, 0)));
+
+  if (classLabel) items.push(`${classLabel} · A${ascension}`);
+  if (gs?.runConfig?.endless) items.push('무한 모드');
+
+  const unlockCount = Array.isArray(gs?.runOutcomeUnlocks) ? gs.runOutcomeUnlocks.length : 0;
+  if (unlockCount > 0) items.push(`새 해금 ${unlockCount}건`);
+
+  const achievementCount = Array.isArray(gs?.runOutcomeAchievements) ? gs.runOutcomeAchievements.length : 0;
+  if (achievementCount > 0) items.push(`업적 ${achievementCount}건`);
+
+  return items;
 }
 
 export function buildEndingRegions(gs, data) {
@@ -185,6 +215,7 @@ export function buildEndingPayload(gs, data) {
     regions: buildEndingRegions(gs, data),
     deck: buildEndingDeckPreview(gs, data),
     inscriptions: buildEndingInscriptions(gs, data),
+    progressionSummary: buildEndingProgressionSummary(gs),
     unlocks: Array.isArray(gs?.runOutcomeUnlocks)
       ? gs.runOutcomeUnlocks.map(describeUnlockedContent).filter(Boolean)
       : [],

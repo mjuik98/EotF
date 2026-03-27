@@ -61,6 +61,15 @@ export function consumeClassPendingSummary(meta, classIds = []) {
   return consumePendingSummary(meta, classIds);
 }
 
+export function getClassPendingSummaryCount(meta, classId, classIds = []) {
+  const cp = ensureClassProgress(meta, classIds);
+  if (!cp) return 0;
+
+  const pendingSummaries = Array.isArray(cp.pendingSummaries) ? cp.pendingSummaries : [];
+  if (!classId) return pendingSummaries.length;
+  return pendingSummaries.filter((summary) => summary?.classId === classId).length;
+}
+
 export function getClassRecentSummaries(meta, classId, classIds = [], limit = 3) {
   if (!meta || !classId) return [];
   const cp = ensureClassProgress(meta, classIds);

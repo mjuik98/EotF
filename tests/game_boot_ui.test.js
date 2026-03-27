@@ -371,6 +371,16 @@ describe('game_boot_ui', () => {
         runCount: 8,
         totalKills: 57,
         bestChain: 15,
+        progress: {
+          victories: 2,
+          cursedVictories: 0,
+          failures: 1,
+        },
+        achievements: {
+          states: {
+            first_victory: { unlocked: true },
+          },
+        },
         runConfig: { ascension: 0 },
         recentRuns: [
           { runNumber: 3, outcome: 'victory', classId: 'guardian', ascension: 3, maxChain: 14, unlockCount: 0, achievementCount: 1, kills: 11, floor: 8 },
@@ -397,6 +407,9 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleRunArchive.innerHTML).toContain('해금 2');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('업적 1');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('처치 17');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('다음 업적');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('상인의 인연');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('0 / 1');
   });
 
   it('shows an explicit recovery panel and retries queued outbox saves on demand', () => {
@@ -430,6 +443,7 @@ describe('game_boot_ui', () => {
           queueDepth: 2,
           nextRetryAt: new Date('2026-01-01T00:00:05Z').getTime(),
           retryFailures: 1,
+          lastFailureAt: new Date('2025-12-31T23:59:57Z').getTime(),
         })
         .mockReturnValueOnce({
           queueDepth: 0,
@@ -450,6 +464,8 @@ describe('game_boot_ui', () => {
 
     expect(doc.elements.titleRecoveryPanel.innerHTML).toContain('복구 대기 저장');
     expect(doc.elements.titleRecoveryPanel.innerHTML).toContain('2건');
+    expect(doc.elements.titleRecoveryPanel.innerHTML).toContain('재시도 실패 1회');
+    expect(doc.elements.titleRecoveryPanel.innerHTML).toContain('마지막 실패 3초 전');
     expect(doc.elements.titleRecoveryRetryBtn.addEventListener).toHaveBeenCalledTimes(1);
 
     const retryHandler = doc.elements.titleRecoveryRetryBtn.addEventListener.mock.calls[0][1];

@@ -58,4 +58,39 @@ describe('buildRuntimeDebugHooks', () => {
     expect(fns.updateEchoSkillBtn).toHaveBeenCalledTimes(1);
     expect(fns.renderMinimap).toHaveBeenCalledTimes(1);
   });
+
+  it('resolves advanceTime even when refresh work throws', async () => {
+    const timers = [];
+    const hooks = buildRuntimeDebugHooks({
+      modules: {
+        featureScopes: {
+          core: {
+            GS: {
+              currentScreen: 'game',
+              combat: { active: true },
+            },
+          },
+        },
+      },
+      fns: {
+        updateUI: vi.fn(() => {
+          throw new Error('refresh failed');
+        }),
+      },
+      doc: { body: {} },
+      win: {
+        setTimeout: (cb) => {
+          timers.push(cb);
+        },
+        requestAnimationFrame: (cb) => cb(16),
+      },
+      createSnapshot: vi.fn(() => ({ screen: 'title' })),
+    });
+
+    const pending = hooks.advanceTime(16);
+    expect(timers).toHaveLength(1);
+    timers[0]();
+
+    await expect(pending).resolves.toBe(16);
+  });
 });

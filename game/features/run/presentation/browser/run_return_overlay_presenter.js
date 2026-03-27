@@ -1,4 +1,6 @@
-export const OVERLAY_DISMISS_MS = 320;
+import { OVERLAY_DISMISS_MS } from '../../application/run_return_timing.js';
+
+export { OVERLAY_DISMISS_MS };
 
 function nextFrame(cb) {
   if (typeof requestAnimationFrame === 'function') {

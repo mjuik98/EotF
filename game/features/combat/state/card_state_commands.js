@@ -1,4 +1,4 @@
-import { Actions } from '../../../core/store/state_actions.js';
+import { Actions } from '../ports/public_state_action_capabilities.js';
 
 export function drawCardsState(gs, count = 1) {
   if (!gs?.dispatch) return null;
