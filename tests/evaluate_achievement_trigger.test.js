@@ -230,4 +230,32 @@ describe('evaluate achievement trigger', () => {
     expect(meta.contentUnlocks.relics.memory_thread.unlocked).toBe(true);
     expect(meta.contentUnlocks.relics.field_journal.unlocked).toBe(true);
   });
+
+  it('supports boss, region, and ascension milestones from diversified run progress', () => {
+    const meta = {
+      achievements: { version: 1, states: {} },
+      contentUnlocks: { version: 1, curses: {}, relics: {}, relicsByClass: {}, cards: { shared: {} } },
+      progress: {
+        victories: 6,
+        failures: 0,
+        bossKills: { silent_tyrant: 1 },
+        regionVictories: { 1: 1 },
+        highestVictoryAscension: 5,
+      },
+    };
+
+    const result = evaluateAchievementTrigger(meta, 'run_completed', {
+      kind: 'victory',
+      runConfig: { curse: 'none', ascension: 5 },
+    });
+
+    expect(result.newlyUnlockedAchievements).toEqual(expect.arrayContaining([
+      'silent_tyrant_hunter',
+      'city_conqueror',
+      'ascension_vanguard_5',
+    ]));
+    expect(meta.achievements.states.silent_tyrant_hunter.unlocked).toBe(true);
+    expect(meta.achievements.states.city_conqueror.unlocked).toBe(true);
+    expect(meta.achievements.states.ascension_vanguard_5.unlocked).toBe(true);
+  });
 });

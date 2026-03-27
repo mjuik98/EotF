@@ -27,6 +27,9 @@ describe('ending_screen_helpers', () => {
         ascension: 2,
         endless: true,
       },
+      worldMemory: {
+        routeTriangulated: 1,
+      },
       stats: {
         maxChain: 5,
         damageDealt: 234,
@@ -69,6 +72,7 @@ describe('ending_screen_helpers', () => {
       '새 해금 1건',
       '업적 1건',
     ]);
+    expect(payload.chips).toContain('항로 개척');
     expect(payload.unlocks).toEqual([
       expect.objectContaining({ type: 'curse', id: 'blood_moon', label: '저주 해금 · 핏빛 월식' }),
     ]);
@@ -89,6 +93,9 @@ describe('ending_screen_helpers', () => {
         storyPieces: [1, 2, 3],
         inscriptions: { flow: 2, frost: false },
         runCount: 2,
+      },
+      worldMemory: {
+        surveyorsRequiemSeen: 1,
       },
       player: {
         deck: ['spark', 'guard'],
@@ -136,7 +143,7 @@ describe('ending_screen_helpers', () => {
     expect(buildEndingInscriptions(gs, data)).toEqual([
       expect.objectContaining({ id: 'flow', level: 2, icon: '🜁', name: 'Flow' }),
     ]);
-    expect(buildEndingChips(gs, 3, 3)).toEqual(['노 데스', '풀 스토리', '2회차']);
+    expect(buildEndingChips(gs, 3, 3)).toEqual(['노 데스', '풀 스토리', '조사 완결', '2회차']);
   });
 
   it('decorates abandon outcome and removes codex button from markup', () => {

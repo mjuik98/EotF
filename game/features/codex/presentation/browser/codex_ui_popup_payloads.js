@@ -9,6 +9,7 @@ import {
   getRarityBadgeClass,
   getRarityLabel,
 } from './codex_ui_helpers.js';
+import { getUnlockRequirementLabel } from '../../../meta_progression/domain/content_unlock_queries.js';
 export {
   buildCodexNavBlock,
   buildCodexQuoteBlock,
@@ -19,6 +20,12 @@ import {
   buildCodexRecordBlock,
   buildCodexSetPopupBlock,
 } from './codex_ui_popup_blocks.js';
+
+function buildUnlockHintBlock(type, id) {
+  const label = getUnlockRequirementLabel({ type, id });
+  if (!label) return '';
+  return `<div class="cx-popup-sub">해금 조건 · ${label}</div>`;
+}
 
 export function buildEnemyPopupPayload(enemy, options = {}) {
   const {
@@ -85,6 +92,7 @@ export function buildCardPopupPayload(card, options = {}) {
   const rarityBadge = rarity === 'legendary' ? 'b-legendary' : rarity === 'rare' ? 'b-rare' : 'b-item';
   const upgradeCard = getCodexCardUpgradeEntry(data, card.id);
   const record = getCodexRecord(gs, 'cards', card.id);
+  const unlockHintBlock = buildUnlockHintBlock('card', card.id);
   const upgradeBlock = upgradeCard ? `
     <div class="cx-popup-divider"></div>
     <div class="cx-popup-sub" style="margin-bottom:10px">${record?.upgradedDiscovered ? '강화 카드 발견' : '강화 카드 미발견'}</div>
@@ -115,6 +123,7 @@ export function buildCardPopupPayload(card, options = {}) {
       <div class="cx-popup-divider"></div>
       ${buildCodexRecordBlock(gs, 'cards', card.id)}
       <div class="cx-popup-desc">${safeHtml(card.desc || '')}</div>
+      ${unlockHintBlock}
       ${upgradeBlock}
       ${quoteHtml}
       ${navHtml}
@@ -131,6 +140,7 @@ export function buildItemPopupPayload(item, options = {}) {
     quoteHtml = '',
   } = options;
   const setDef = item.set ? getCodexSets(data)[item.set] : null;
+  const unlockHintBlock = buildUnlockHintBlock('relic', item.id);
   return {
     theme: {
       bg1: setDef ? '#0e0a1e' : '#0c0a1a',
@@ -155,6 +165,7 @@ export function buildItemPopupPayload(item, options = {}) {
       <div class="cx-popup-divider"></div>
       ${buildCodexRecordBlock(gs, 'items', item.id)}
       <div class="cx-popup-desc">${safeHtml(item.desc || '')}</div>
+      ${unlockHintBlock}
       ${quoteHtml}
       ${buildCodexSetPopupBlock(item, data, gs)}
       ${navHtml}

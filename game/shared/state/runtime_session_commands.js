@@ -83,9 +83,12 @@ export function syncSelectedTarget(gs) {
   return gs._selectedTarget;
 }
 
-export function recordEnemyWorldKill(gs, enemyId) {
+export function recordEnemyWorldKill(gs, enemyId, options = {}) {
   const key = `killed_${enemyId}`;
   gs.worldMemory[key] = (gs.worldMemory[key] || 0) + 1;
+  if (options?.isBoss && gs?.meta?.progress?.bossKills) {
+    gs.meta.progress.bossKills[enemyId] = (gs.meta.progress.bossKills[enemyId] || 0) + 1;
+  }
   return gs.worldMemory[key];
 }
 

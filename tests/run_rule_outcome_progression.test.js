@@ -141,4 +141,28 @@ describe('run outcome progression integration', () => {
     });
     expect(gs.meta.recentRuns[0].runNumber).toBe(2);
   });
+
+  it('captures diversified progression counters and recap tags after a high-ascension regional victory', () => {
+    const gs = createGameState();
+    gs.player = { class: 'mage', kills: 5 };
+    gs.currentRegion = 1;
+    gs.currentFloor = 7;
+    gs.runConfig.ascension = 5;
+    gs.stats.maxChain = 13;
+    gs.stats.clearTimeMs = 580000;
+    gs.worldMemory.routeTriangulated = 1;
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(gs.meta.progress.regionVictories[1]).toBe(1);
+    expect(gs.meta.progress.highestVictoryAscension).toBe(5);
+    expect(gs.meta.recentRuns.at(-1)).toMatchObject({
+      ascension: 5,
+      storyCount: 0,
+      milestones: expect.arrayContaining(['상위 승천', '항로 개척', '연쇄 13']),
+    });
+  });
 });

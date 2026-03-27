@@ -36,7 +36,16 @@ export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCode
   if (!curses[meta.runConfig.curse]) meta.runConfig.curse = 'none';
   if (!Array.isArray(meta.runConfigPresets)) meta.runConfigPresets = [];
   if (!meta.progress || typeof meta.progress !== 'object') {
-    meta.progress = { echoShards: 0, totalDamage: 0, victories: 0, cursedVictories: 0, failures: 0, bossKills: {} };
+    meta.progress = {
+      echoShards: 0,
+      totalDamage: 0,
+      victories: 0,
+      cursedVictories: 0,
+      failures: 0,
+      bossKills: {},
+      regionVictories: {},
+      highestVictoryAscension: 0,
+    };
   }
   if (!Number.isFinite(meta.progress.echoShards)) meta.progress.echoShards = 0;
   if (!Number.isFinite(meta.progress.totalDamage)) meta.progress.totalDamage = 0;
@@ -44,6 +53,8 @@ export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCode
   if (!Number.isFinite(meta.progress.cursedVictories)) meta.progress.cursedVictories = 0;
   if (!Number.isFinite(meta.progress.failures)) meta.progress.failures = 0;
   if (!meta.progress.bossKills || typeof meta.progress.bossKills !== 'object') meta.progress.bossKills = {};
+  if (!meta.progress.regionVictories || typeof meta.progress.regionVictories !== 'object') meta.progress.regionVictories = {};
+  if (!Number.isFinite(meta.progress.highestVictoryAscension)) meta.progress.highestVictoryAscension = 0;
 
   if (!meta.achievements || typeof meta.achievements !== 'object') {
     meta.achievements = { version: 1, states: {} };

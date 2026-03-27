@@ -1,5 +1,9 @@
 export const MAX_RECENT_RUNS = 10;
 
+function cloneStringArray(value) {
+  return Array.isArray(value) ? value.map((entry) => String(entry)) : [];
+}
+
 function toNonNegativeInt(value, fallback = 0) {
   const number = Number(value);
   if (!Number.isFinite(number)) return fallback;
@@ -23,8 +27,23 @@ function cloneRecentRunEntry(entry) {
     unlockCount: toNonNegativeInt(entry.unlockCount, 0),
     achievementCount: toNonNegativeInt(entry.achievementCount, 0),
     kills: toNonNegativeInt(entry.kills, 0),
+    milestones: cloneStringArray(entry.milestones).slice(0, 3),
     timestamp: toNonNegativeInt(entry.timestamp, 0),
   };
+}
+
+function buildRecentRunMilestones(gs, progressionResult = {}) {
+  const milestones = [];
+  const maxChain = toNonNegativeInt(gs?.stats?.maxChain, 0);
+  const ascension = toNonNegativeInt(gs?.runConfig?.ascension, 0);
+  if (ascension >= 5) milestones.push('상위 승천');
+  if (gs?.worldMemory?.surveyorsRequiemSeen) milestones.push('조사 완결');
+  else if (gs?.worldMemory?.routeTriangulated) milestones.push('항로 개척');
+  if (maxChain >= 12) milestones.push(`연쇄 ${maxChain}`);
+  if (Array.isArray(progressionResult?.newlyUnlockedAchievements) && progressionResult.newlyUnlockedAchievements.length > 0) {
+    milestones.push(`업적 ${progressionResult.newlyUnlockedAchievements.length}`);
+  }
+  return milestones.slice(0, 3);
 }
 
 export function ensureRecentRuns(meta) {
@@ -52,6 +71,7 @@ export function createRecentRunSummary(gs, kind = 'defeat', progressionResult = 
     unlockCount: Array.isArray(progressionResult?.newlyUnlockedContent) ? progressionResult.newlyUnlockedContent.length : 0,
     achievementCount: Array.isArray(progressionResult?.newlyUnlockedAchievements) ? progressionResult.newlyUnlockedAchievements.length : 0,
     kills: toNonNegativeInt(gs?.player?.kills, 0),
+    milestones: buildRecentRunMilestones(gs, progressionResult),
     timestamp: toNonNegativeInt(now, 0),
   };
 }

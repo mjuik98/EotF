@@ -84,6 +84,12 @@ function describeAchievementFocus(condition = {}) {
       return '세계 기억';
     case 'class_level':
       return '클래스 숙련';
+    case 'boss_kills':
+      return '보스 격파';
+    case 'region_victories':
+      return '지역 정복';
+    case 'highest_ascension_victory':
+      return '승천 승리';
     case 'story_pieces':
       return '스토리 조각';
     case 'codex_entries':

@@ -355,4 +355,89 @@ describe('events_data direct choice branches', () => {
     expect(gs.mapNodes[0].type).toBe('event');
     expect(result).toContain('2층 A 구역');
   });
+
+  it('unlocks a long-term triangulation event after cartographer and lookout memories overlap', () => {
+    const event = EVENTS.find((entry) => entry.id === 'route_triangulation');
+    const choice = findChoice('route_triangulation', '교차 좌표를 고정한다');
+    const gs = {
+      currentFloor: 1,
+      worldMemory: {
+        cartographerMarked: 1,
+        lookoutWatched: 1,
+      },
+      mapNodes: [
+        { id: 'n6', floor: 2, pos: 0, type: 'combat', visited: false },
+        { id: 'n7', floor: 2, pos: 1, type: 'event', visited: false },
+      ],
+      player: {
+        gold: 25,
+        echo: 0,
+      },
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+    };
+
+    expect(event?.isAvailable(gs)).toBe(true);
+
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0);
+
+    const result = choice.effect(gs);
+
+    expect(gs.player.gold).toBe(5);
+    expect(gs.player.echo).toBe(35);
+    expect(gs.worldMemory.routeTriangulated).toBe(1);
+    expect(gs.mapNodes[0].type).toBe('elite');
+    expect(gs.mapNodes[1].type).toBe('shop');
+    expect(result).toContain('정예 전투');
+    expect(result).toContain('상점');
+  });
+
+  it('lets the surveyors requiem cash out unlocked special relics from long-term world state', () => {
+    const event = EVENTS.find((entry) => entry.id === 'surveyors_requiem');
+    const choice = findChoice('surveyors_requiem', '조사품을 회수한다');
+    const services = {
+      playItemGet: vi.fn(),
+      showItemToast: vi.fn(),
+    };
+    const gs = {
+      worldMemory: {
+        routeTriangulated: 1,
+        killed_silent_tyrant: 1,
+      },
+      player: {
+        gold: 0,
+        items: [],
+      },
+      addGold(amount) {
+        this.player.gold += amount;
+      },
+      meta: {
+        contentUnlocks: {
+          relics: {
+            field_journal: { unlocked: true },
+          },
+          relicsByClass: {},
+          cards: { shared: {} },
+        },
+      },
+    };
+
+    expect(event?.isAvailable(gs)).toBe(true);
+
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    const result = choice.effect(gs, services);
+
+    expect(gs.worldMemory.surveyorsRequiemSeen).toBe(1);
+    expect(gs.player.gold).toBe(60);
+    expect(gs.player.items).toEqual(['field_journal']);
+    expect(result).toContain('현장 기록장');
+    expect(services.playItemGet).toHaveBeenCalledTimes(1);
+    expect(services.showItemToast).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'field_journal',
+    }));
+  });
 });

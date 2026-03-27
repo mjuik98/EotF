@@ -72,7 +72,10 @@ export function createDefaultMetaState(overrides = {}) {
       totalDamage: 0,
       victories: 0,
       failures: 0,
+      cursedVictories: 0,
       bossKills: {},
+      regionVictories: {},
+      highestVictoryAscension: 0,
     },
     ...overrides,
   };
@@ -97,7 +100,10 @@ export function createDefaultMetaState(overrides = {}) {
     totalDamage: 0,
     victories: 0,
     failures: 0,
+    cursedVictories: 0,
     bossKills: {},
+    regionVictories: {},
+    highestVictoryAscension: 0,
     ...clonePlainObject(overrides.progress),
   };
   return meta;

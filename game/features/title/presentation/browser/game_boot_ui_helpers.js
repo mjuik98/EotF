@@ -83,10 +83,21 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+function formatClearTime(ms) {
+  const totalSeconds = Math.max(0, Math.floor(Number(ms || 0) / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
 function buildRecentRunSubtitle(entry) {
   const tags = [`A${entry?.ascension || 0}`];
+  if (Number(entry?.floor || 0) > 0) tags.push(`${entry.floor}층`);
+  if (Number(entry?.clearTimeMs || 0) > 0) tags.push(formatClearTime(entry.clearTimeMs));
   if (entry?.endless) tags.push('무한');
   if (entry?.curseId && entry.curseId !== 'none') tags.push(entry.curseId);
+  const milestones = Array.isArray(entry?.milestones) ? entry.milestones.filter(Boolean) : [];
+  milestones.slice(0, 2).forEach((milestone) => tags.push(String(milestone)));
   if (Number(entry?.maxChain || 0) > 0) tags.push(`연쇄 ${entry.maxChain}`);
   return tags.join(' · ');
 }
@@ -94,9 +105,12 @@ function buildRecentRunSubtitle(entry) {
 function buildRunArchiveMeta(entry) {
   return [
     `층 ${entry?.floor || 1}`,
+    Number(entry?.clearTimeMs || 0) > 0 ? formatClearTime(entry.clearTimeMs) : '',
+    Number(entry?.storyCount || 0) > 0 ? `기억 ${entry.storyCount}` : '',
     Number(entry?.kills || 0) > 0 ? `처치 ${entry.kills}` : '',
     Number(entry?.unlockCount || 0) > 0 ? `해금 ${entry.unlockCount}` : '',
     Number(entry?.achievementCount || 0) > 0 ? `업적 ${entry.achievementCount}` : '',
+    ...(Array.isArray(entry?.milestones) ? entry.milestones.slice(0, 2).map((milestone) => String(milestone)) : []),
   ].filter(Boolean).join(' · ');
 }
 

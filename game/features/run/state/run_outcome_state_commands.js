@@ -105,6 +105,15 @@ export function recordVictoryProgress(gs) {
   if (gs?.runConfig?.curse && gs.runConfig.curse !== 'none') {
     progress.cursedVictories = (progress.cursedVictories || 0) + 1;
   }
+  const regionIndex = Math.max(0, Math.floor(Number(gs?.currentRegion) || 0));
+  if (!progress.regionVictories || typeof progress.regionVictories !== 'object') {
+    progress.regionVictories = {};
+  }
+  progress.regionVictories[regionIndex] = (progress.regionVictories[regionIndex] || 0) + 1;
+  progress.highestVictoryAscension = Math.max(
+    Number(progress.highestVictoryAscension || 0),
+    Math.max(0, Math.floor(Number(gs?.runConfig?.ascension) || 0)),
+  );
   progress.echoShards = (progress.echoShards || 0) + 2;
   meta.maxAscension = Math.max(meta.maxAscension || 0, Math.min(20, progress.victories));
   if (progress.victories >= 3) meta.unlocks.endless = true;

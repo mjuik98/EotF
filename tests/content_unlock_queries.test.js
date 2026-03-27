@@ -340,4 +340,37 @@ describe('content unlock queries', () => {
       ],
     });
   });
+
+  it('prioritizes diversified achievement roadmap entries from boss, region, and ascension progress', () => {
+    const meta = {
+      progress: {
+        victories: 6,
+        cursedVictories: 0,
+        failures: 0,
+        bossKills: { silent_tyrant: 1 },
+        regionVictories: { 1: 1 },
+        highestVictoryAscension: 4,
+      },
+      achievements: {
+        states: {
+          first_victory: { unlocked: true },
+          veteran_victory_3: { unlocked: true },
+          veteran_victory_5: { unlocked: true },
+        },
+      },
+    };
+
+    expect(metaProgression.buildAchievementRoadmap(meta, { classId: 'mage' }).account).toEqual([
+      expect.objectContaining({
+        id: 'ascension_vanguard_5',
+        focusLabel: '승천 승리',
+        progressLabel: '4 / 5',
+      }),
+      expect.objectContaining({
+        id: 'city_conqueror',
+        focusLabel: '지역 정복',
+        progressLabel: '1 / 1',
+      }),
+    ]);
+  });
 });

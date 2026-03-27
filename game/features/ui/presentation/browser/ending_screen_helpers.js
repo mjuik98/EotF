@@ -167,6 +167,8 @@ export function buildEndingChips(gs, storyCount, storyTotal) {
   return [
     !num(gs?.stats?.deathCount) ? '노 데스' : '',
     storyCount >= storyTotal ? '풀 스토리' : '',
+    gs?.worldMemory?.surveyorsRequiemSeen ? '조사 완결' : '',
+    !gs?.worldMemory?.surveyorsRequiemSeen && gs?.worldMemory?.routeTriangulated ? '항로 개척' : '',
     `${Math.max(1, Math.floor(num(gs?.meta?.runCount, 1)))}회차`,
   ].filter(Boolean);
 }

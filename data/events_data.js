@@ -498,6 +498,7 @@ export const EVENTS = [
                 effect(gs) {
                     gs.addGold(20);
                     gs.addEcho(15);
+                    markWorldMemory(gs, 'cartographerMarked');
                     const rerouted = rewriteUpcomingNodeType(gs, {
                         toType: 'event',
                         preferFrom: ['combat'],
@@ -517,6 +518,7 @@ export const EVENTS = [
                     }
                     gs.player.gold -= 15;
                     gs.addEcho(40);
+                    markWorldMemory(gs, 'cartographerMarked');
                     const touched = new Set();
                     const dangerShift = rewriteUpcomingNodeType(gs, {
                         toType: 'elite',
@@ -560,6 +562,7 @@ export const EVENTS = [
                 text: '🔍 적들이 보이는 대로 기억한다 (잔향 +20)',
                 effect(gs) {
                     gs.addEcho(20);
+                    markWorldMemory(gs, 'lookoutWatched');
                     const softened = rewriteUpcomingNodeType(gs, {
                         toType: 'combat',
                         preferFrom: ['elite'],
@@ -575,6 +578,7 @@ export const EVENTS = [
                 text: '💤 고요에 삼켜진다 (체력 +20)',
                 effect(gs) {
                     gs.heal(20);
+                    markWorldMemory(gs, 'lookoutWatched');
                     const refuge = rewriteUpcomingNodeType(gs, {
                         toType: 'rest',
                         preferFrom: ['combat', 'event'],
@@ -592,6 +596,97 @@ export const EVENTS = [
                     return '난간에서 손을 떼고 계단을 내려왔다. 높이는 사라졌지만 시야는 남아 있었다.';
                 }
             }
+        ]
+    },
+    {
+        id: 'route_triangulation', layer: 1, title: '항로 삼각측량', eyebrow: 'LAYER 1 · 장기 세계 이벤트',
+        isAvailable(gs) {
+            const memory = gs?.worldMemory || {};
+            return Number(memory.cartographerMarked || 0) > 0
+                && Number(memory.lookoutWatched || 0) > 0
+                && Number(memory.routeTriangulated || 0) <= 0;
+        },
+        desc: '지도 제작자의 선과 감시자의 시야가 한 점에서 겹친다. 지금 좌표를 고정하면, 다음 항로는 더 이상 우연으로 남지 않는다.',
+        choices: [
+            {
+                text: '🧭 교차 좌표를 고정한다 (골드 20 소모, 잔향 +35)',
+                effect(gs) {
+                    if ((gs?.player?.gold || 0) < 20) {
+                        return { resultText: '좌표를 붙들 고정추가 부족하다. 항로가 다시 흐려진다.', isFail: true };
+                    }
+                    gs.player.gold -= 20;
+                    gs.addEcho(35);
+                    markWorldMemory(gs, 'routeTriangulated');
+
+                    const touched = new Set();
+                    const eliteRoute = rewriteUpcomingNodeType(gs, {
+                        toType: 'elite',
+                        preferFrom: ['combat', 'event', 'rest', 'shop'],
+                        excludeIds: touched,
+                    });
+                    if (eliteRoute?.node?.id) touched.add(eliteRoute.node.id);
+                    const shopRoute = rewriteUpcomingNodeType(gs, {
+                        toType: 'shop',
+                        preferFrom: ['combat', 'event', 'rest'],
+                        fallbackFrom: ['elite'],
+                        excludeIds: touched,
+                    });
+
+                    if (eliteRoute && shopRoute) {
+                        return `교차 좌표를 못 박았다. ${formatNodeRef(eliteRoute.node)}는 ${formatNodeType(eliteRoute.to)}로, ${formatNodeRef(shopRoute.node)}는 ${formatNodeType(shopRoute.to)}으로 재정렬됐다.`;
+                    }
+                    if (eliteRoute) {
+                        return `교차 좌표를 못 박았다. ${formatNodeRef(eliteRoute.node)}가 ${formatNodeType(eliteRoute.to)}로 응결했다.`;
+                    }
+                    if (shopRoute) {
+                        return `교차 좌표를 못 박았다. ${formatNodeRef(shopRoute.node)}에 ${formatNodeType(shopRoute.to)}이 열렸다.`;
+                    }
+                    return '교차 좌표를 고정했지만 이번 층의 항로는 이미 굳어 있었다. 다음 루프가 이 흔적을 기억할 것이다.';
+                }
+            },
+            {
+                text: '🚶 좌표를 흘려보낸다',
+                effect() {
+                    return '정밀한 항로를 손에 넣을 기회였지만, 이번에는 우연을 그대로 두었다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'surveyors_requiem', layer: 2, title: '측량사의 진혼', eyebrow: 'LAYER 2 · 장기 세계 이벤트',
+        isAvailable(gs) {
+            const memory = gs?.worldMemory || {};
+            return Number(memory.routeTriangulated || 0) > 0
+                && Number(memory.killed_silent_tyrant || 0) > 0
+                && Number(memory.surveyorsRequiemSeen || 0) <= 0;
+        },
+        desc: '침묵의 군주가 쓰러진 뒤, 항로 위에 남은 조사품들이 조용히 빛난다. 누군가는 끝까지 기록하려 했고, 그 기록은 이제 당신의 몫이 되었다.',
+        choices: [
+            {
+                text: '📓 조사품을 회수한다',
+                effect(gs, services = {}) {
+                    markWorldMemory(gs, 'surveyorsRequiemSeen');
+                    if (typeof gs?.addGold === 'function') gs.addGold(25);
+                    else if (gs?.player) gs.player.gold = (gs.player.gold || 0) + 25;
+                    const journal = ITEMS.field_journal;
+                    const unlocked = hasRelicUnlockState(gs?.meta, 'field_journal', gs?.player?.class);
+                    const obtainable = unlocked && journal && !(gs?.player?.items || []).includes('field_journal');
+                    if (obtainable) {
+                        addPlayerItemAndRegisterState(gs, journal.id, journal);
+                        notifyItemAcquired(journal, services);
+                        return '흩어진 조사 기록을 묶어 현장 기록장을 회수했다. 회수품을 정리해 골드도 챙겼고, 빈칸이 메워지며 다음 항로가 또렷해진다.';
+                    }
+                    return '흩어진 조사 기록을 모두 회수했다. 기록은 이미 손에 있었지만 회수품 정산은 남았다. 측량사의 집념이 세계에 새겨졌다.';
+                }
+            },
+            {
+                text: '🕯️ 이름만 남긴 채 떠난다',
+                effect(gs) {
+                    markWorldMemory(gs, 'surveyorsRequiemSeen');
+                    gs.addEcho?.(20);
+                    return '남겨진 이름들을 조용히 읽고 자리를 떠났다. 기록은 가져가지 않았지만, 진혼의 잔향은 몸에 남았다.';
+                }
+            },
         ]
     }
 ];

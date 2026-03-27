@@ -29,6 +29,9 @@ function isAchievementSatisfied(meta, definition, context = {}) {
       return getAchievementProgressValue(meta, definition.condition) >= definition.condition.count;
     }
     case 'class_level':
+    case 'boss_kills':
+    case 'region_victories':
+    case 'highest_ascension_victory':
       return getAchievementProgressValue(meta, definition.condition) >= definition.condition.count;
     default:
       return false;

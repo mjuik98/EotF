@@ -335,10 +335,10 @@ describe('game_boot_ui', () => {
         bestChain: 14,
         runConfig: { ascension: 0 },
         recentRuns: [
-          { outcome: 'victory', classId: 'guardian', ascension: 3, maxChain: 14, curseId: 'tax' },
-          { outcome: 'defeat', classId: 'berserker', ascension: 1, maxChain: 8 },
-          { outcome: 'abandon', classId: 'hunter', ascension: 0, maxChain: 3, endless: true },
-          { outcome: 'victory', classId: 'mage', ascension: 4, maxChain: 12 },
+          { outcome: 'victory', classId: 'guardian', ascension: 3, maxChain: 14, curseId: 'tax', floor: 8, clearTimeMs: 420000, storyCount: 5, milestones: ['항로 개척'] },
+          { outcome: 'defeat', classId: 'berserker', ascension: 1, maxChain: 8, floor: 5, clearTimeMs: 610000, storyCount: 1 },
+          { outcome: 'abandon', classId: 'hunter', ascension: 0, maxChain: 3, endless: true, floor: 3, clearTimeMs: 120000, storyCount: 0 },
+          { outcome: 'victory', classId: 'mage', ascension: 4, maxChain: 12, floor: 7, clearTimeMs: 580000, storyCount: 4, milestones: ['상위 승천'] },
         ],
       },
       player: {},
@@ -361,6 +361,9 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('마법사');
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('광전사');
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('사냥꾼');
+    expect(doc.elements.titleRecentRuns.innerHTML).toContain('7층');
+    expect(doc.elements.titleRecentRuns.innerHTML).toContain('09:40');
+    expect(doc.elements.titleRecentRuns.innerHTML).toContain('상위 승천');
     expect(doc.elements.titleRecentRuns.innerHTML).not.toContain('수호자');
   });
 
@@ -383,11 +386,11 @@ describe('game_boot_ui', () => {
         },
         runConfig: { ascension: 0 },
         recentRuns: [
-          { runNumber: 3, outcome: 'victory', classId: 'guardian', ascension: 3, maxChain: 14, unlockCount: 0, achievementCount: 1, kills: 11, floor: 8 },
-          { runNumber: 4, outcome: 'defeat', classId: 'berserker', ascension: 1, maxChain: 8, unlockCount: 1, achievementCount: 0, kills: 9, floor: 5 },
-          { runNumber: 5, outcome: 'abandon', classId: 'hunter', ascension: 0, maxChain: 3, endless: true, unlockCount: 0, achievementCount: 0, kills: 4, floor: 3 },
-          { runNumber: 6, outcome: 'victory', classId: 'mage', ascension: 4, maxChain: 12, unlockCount: 2, achievementCount: 1, kills: 17, floor: 8 },
-          { runNumber: 7, outcome: 'defeat', classId: 'paladin', ascension: 2, maxChain: 6, unlockCount: 0, achievementCount: 0, kills: 6, floor: 4 },
+          { runNumber: 3, outcome: 'victory', classId: 'guardian', ascension: 3, maxChain: 14, unlockCount: 0, achievementCount: 1, kills: 11, floor: 8, clearTimeMs: 480000, storyCount: 5, milestones: ['항로 개척'] },
+          { runNumber: 4, outcome: 'defeat', classId: 'berserker', ascension: 1, maxChain: 8, unlockCount: 1, achievementCount: 0, kills: 9, floor: 5, clearTimeMs: 690000, storyCount: 1 },
+          { runNumber: 5, outcome: 'abandon', classId: 'hunter', ascension: 0, maxChain: 3, endless: true, unlockCount: 0, achievementCount: 0, kills: 4, floor: 3, clearTimeMs: 120000, storyCount: 0 },
+          { runNumber: 6, outcome: 'victory', classId: 'mage', ascension: 4, maxChain: 12, unlockCount: 2, achievementCount: 1, kills: 17, floor: 8, clearTimeMs: 580000, storyCount: 4, milestones: ['상위 승천', '연쇄 12'] },
+          { runNumber: 7, outcome: 'defeat', classId: 'paladin', ascension: 2, maxChain: 6, unlockCount: 0, achievementCount: 0, kills: 6, floor: 4, clearTimeMs: 350000, storyCount: 2 },
         ],
       },
       player: {},
@@ -407,6 +410,9 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleRunArchive.innerHTML).toContain('해금 2');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('업적 1');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('처치 17');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('09:40');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('기억 4');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('상위 승천');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('다음 업적');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('상인의 인연');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('0 / 1');

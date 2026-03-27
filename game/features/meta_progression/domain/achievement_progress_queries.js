@@ -23,6 +23,15 @@ export function getAchievementProgressValue(meta, condition = {}) {
       return Number(meta?.worldMemory?.[condition.key] ?? 0);
     case 'class_level':
       return Number(meta?.classProgress?.levels?.[condition.classId] || 0);
+    case 'boss_kills': {
+      const bossId = String(condition?.bossId || '');
+      if (!bossId) return 0;
+      return Number(meta?.progress?.bossKills?.[bossId] ?? meta?.worldMemory?.[`killed_${bossId}`] ?? 0);
+    }
+    case 'region_victories':
+      return Number(meta?.progress?.regionVictories?.[condition.regionId] || 0);
+    case 'highest_ascension_victory':
+      return Number(meta?.progress?.highestVictoryAscension || 0);
     case 'story_pieces':
       return Array.isArray(meta?.storyPieces) ? meta.storyPieces.length : 0;
     case 'codex_entries':

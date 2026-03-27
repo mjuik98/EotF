@@ -57,25 +57,27 @@ describe('codex_ui_popup_payloads', () => {
       { safeHtml: (value) => value, navHtml: '<nav />', quoteHtml: '<quote />' },
     );
     const cardPayload = buildCardPayload(
-      { id: 'strike', name: 'Strike', type: 'ATTACK', rarity: 'common', cost: 1, desc: 'Deal 6', icon: 'S' },
-      { gs: { meta: { codexRecords: { cards: { strike: { used: 4, upgradedDiscovered: true, upgradeUsed: 1, upgradeFirstSeen: 'loop-2' } } } } }, data: { cards: { strike_plus: { id: 'strike_plus', type: 'ATTACK', name: 'Strike+', cost: 2, desc: 'Deal 9' } } }, safeHtml: (value) => value },
+      { id: 'judgement', name: 'Judgement', type: 'ATTACK', rarity: 'common', cost: 1, desc: 'Deal 6', icon: 'S' },
+      { gs: { meta: { codexRecords: { cards: { judgement: { used: 4, upgradedDiscovered: true, upgradeUsed: 1, upgradeFirstSeen: 'loop-2' } } } } }, data: { cards: { judgement_plus: { id: 'judgement_plus', type: 'ATTACK', name: 'Judgement+', cost: 2, desc: 'Deal 9' } } }, safeHtml: (value) => value },
     );
     const itemPayload = buildItemPayload(
-      { id: 'relic', name: 'Relic', rarity: 'rare', desc: 'Gain power', icon: 'R', set: 'void' },
+      { id: 'void_compass', name: 'Void Compass', rarity: 'rare', desc: 'Gain power', icon: 'R', set: 'void' },
       {
-        gs: { meta: { codex: { enemies: new Set(), cards: new Set(), items: new Set(['relic']) }, codexRecords: { items: { relic: { found: 2 } } } } },
-        data: { itemSets: { void: { name: 'Void Set', items: ['relic'], effect: 'Bonus' } }, items: { relic: { id: 'relic', name: 'Relic' } } },
+        gs: { meta: { codex: { enemies: new Set(), cards: new Set(), items: new Set(['void_compass']) }, codexRecords: { items: { void_compass: { found: 2 } } } } },
+        data: { itemSets: { void: { name: 'Void Set', items: ['void_compass'], effect: 'Bonus' } }, items: { void_compass: { id: 'void_compass', name: 'Void Compass' } } },
         safeHtml: (value) => value,
       },
     );
 
     expect(enemyPayload.theme.border).toContain('192,132,252');
     expect(enemyPayload.html).toContain('Wolf');
-    expect(cardPayload.html).toContain('Strike');
+    expect(cardPayload.html).toContain('Judgement');
     expect(cardPayload.html).toContain('강화 사용 횟수');
     expect(cardPayload.html).toContain('강화 첫 발견');
-    expect(itemPayload.html).toContain('Relic');
+    expect(cardPayload.html).toContain('해금 조건');
+    expect(itemPayload.html).toContain('Void Compass');
     expect(itemPayload.html).toContain('Void Set');
+    expect(itemPayload.html).toContain('해금 조건');
   });
 
   it('keeps codex popup keyword palette aligned with readable comparison surfaces', () => {

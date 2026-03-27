@@ -22,7 +22,9 @@ export function applyEnemyDeathState(gs, enemy, idx, deps = {}) {
   if (gs.meta.codex && enemy.id) {
     deps.registerEnemyKill?.(enemy.id);
   }
-  deps.recordEnemyWorldKill?.(enemy.id);
+  deps.recordEnemyWorldKill?.(enemy.id, {
+    isBoss: !!enemy?.isBoss,
+  });
 
   const aliveEnemies = gs.combat.enemies.filter((combatEnemy) => combatEnemy.hp > 0);
   const shouldEndCombat = aliveEnemies.length === 0 && !deps.isCombatEndScheduled?.();

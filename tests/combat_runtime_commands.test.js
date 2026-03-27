@@ -56,4 +56,23 @@ describe('combat_runtime_commands', () => {
     expect(recordEnemyWorldKill(gs, 'wolf')).toBe(1);
     expect(completeCombatResolution(gs)).toEqual({ running: false, scheduled: false });
   });
+
+  it('tracks boss kills separately in meta progression when the defeated enemy is a boss', () => {
+    const gs = {
+      combat: { active: true, playerTurn: true, enemies: [] },
+      player: { echoChain: 0 },
+      worldMemory: {},
+      meta: { progress: { bossKills: {} } },
+      _endCombatRunning: false,
+      _endCombatScheduled: false,
+      _selectedTarget: null,
+      _rewardLock: false,
+      _nodeMoveLock: false,
+      _eventLock: false,
+    };
+
+    expect(recordEnemyWorldKill(gs, 'silent_tyrant', { isBoss: true })).toBe(1);
+    expect(gs.worldMemory.killed_silent_tyrant).toBe(1);
+    expect(gs.meta.progress.bossKills.silent_tyrant).toBe(1);
+  });
 });

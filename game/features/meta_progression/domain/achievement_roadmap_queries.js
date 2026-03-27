@@ -16,6 +16,12 @@ function describeAchievementFocus(condition = {}) {
       return '세계 기억';
     case 'class_level':
       return '클래스 숙련';
+    case 'boss_kills':
+      return '보스 격파';
+    case 'region_victories':
+      return '지역 정복';
+    case 'highest_ascension_victory':
+      return '승천 승리';
     case 'story_pieces':
       return '스토리 조각';
     case 'codex_entries':
@@ -56,29 +62,66 @@ function buildAchievementEntry(meta, achievement = {}) {
     title: String(achievement.title || ''),
     icon: String(achievement.icon || '✦'),
     description: String(achievement.description || ''),
+    progress,
     progressLabel: target > 0 ? `${progress} / ${target}` : `${progress}`,
     focusLabel: describeAchievementFocus(condition),
     rewardLabel: buildRewardLabel(achievement),
     remaining: target > 0 ? Math.max(0, target - progress) : 0,
     target,
+    priority: getAchievementPriority(condition),
   };
 }
 
+function getAchievementPriority(condition = {}) {
+  switch (condition?.type) {
+    case 'region_victories':
+      return 0;
+    case 'boss_kills':
+      return 1;
+    case 'highest_ascension_victory':
+      return 2;
+    default:
+      return 3;
+  }
+}
+
 function compareAchievementEntries(left, right) {
-  if (left.remaining !== right.remaining) return left.remaining - right.remaining;
+  const leftSpotlight = isSpotlightAchievement(left);
+  const rightSpotlight = isSpotlightAchievement(right);
+  if (leftSpotlight !== rightSpotlight) return leftSpotlight ? -1 : 1;
+
+  if (leftSpotlight && rightSpotlight) {
+    const leftStage = getAchievementStage(left);
+    const rightStage = getAchievementStage(right);
+    if (leftStage !== rightStage) return leftStage - rightStage;
+    if ((left.priority || 0) !== (right.priority || 0)) return (left.priority || 0) - (right.priority || 0);
+    if (left.remaining !== right.remaining) return left.remaining - right.remaining;
+  }
   if (left.target !== right.target) return left.target - right.target;
+  if (left.remaining !== right.remaining) return left.remaining - right.remaining;
+  if ((left.order || 0) !== (right.order || 0)) return (left.order || 0) - (right.order || 0);
   return left.id.localeCompare(right.id);
+}
+
+function getAchievementStage(entry = {}) {
+  if ((entry.remaining || 0) > 0 && (entry.progress || 0) > 0) return 0;
+  if ((entry.remaining || 0) === 0) return 1;
+  return 2;
+}
+
+function isSpotlightAchievement(entry = {}) {
+  return (entry.priority || 0) < 3 && (((entry.progress || 0) > 0) || ((entry.remaining || 0) === 0));
 }
 
 export function buildAchievementRoadmap(meta, { classId = '', limit = 2 } = {}) {
   const account = [];
   const scopedClassId = String(classId || '');
   const scoped = [];
+  let order = 0;
 
   for (const achievement of Object.values(ACHIEVEMENTS || {})) {
     if (!achievement?.id || isAchievementUnlocked(meta, achievement.id)) continue;
-    const entry = buildAchievementEntry(meta, achievement);
-    if (entry.remaining === 0) continue;
+    const entry = { ...buildAchievementEntry(meta, achievement), order: order += 1 };
     if (achievement.scope === 'class') {
       if (!scopedClassId || String(achievement?.condition?.classId || '') !== scopedClassId) continue;
       scoped.push(entry);

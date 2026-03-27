@@ -56,7 +56,9 @@ describe('death_handler_enemy_state', () => {
       idx: 0,
     }));
     expect(deps.registerEnemyKill).toHaveBeenCalledWith('boss_alpha');
-    expect(deps.recordEnemyWorldKill).toHaveBeenCalledWith('boss_alpha');
+    expect(deps.recordEnemyWorldKill).toHaveBeenCalledWith('boss_alpha', {
+      isBoss: true,
+    });
     expect(deps.scheduleCombatEnd).toHaveBeenCalledTimes(1);
   });
 });
