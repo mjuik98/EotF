@@ -14,6 +14,7 @@ describe('vite chunking guardrails', () => {
     expect(source).toContain("return 'ui-combat-tooltips';");
     expect(source).toContain("return 'ui-shared-surfaces';");
     expect(source).toContain("return 'ui-reward';");
+    expect(source).toContain("return 'ui-run-mode-runtime';");
     expect(source).toContain("return 'ui-event';");
     expect(source).toContain("return 'ui-shell-overlays';");
     expect(source).toContain("return 'ui-shell-hotkeys';");
@@ -47,6 +48,7 @@ describe('vite chunking guardrails', () => {
       'assets/ui-combat-tooltips-abc.js',
       'assets/ui-event-abc.js',
       'assets/ui-reward-abc.js',
+      'assets/ui-run-mode-runtime-abc.js',
       'assets/ui-shell-overlays-abc.js',
       'assets/ui-shell-hotkeys-abc.js',
       'assets/ui-settings-abc.js',
@@ -141,6 +143,21 @@ describe('vite chunking guardrails', () => {
   });
 
   it('routes shared set-bonus progression modules into a dedicated shared chunk instead of overlay-owned chunks', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_runtime.js'),
+    ).toBe('ui-run-mode-runtime');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_render.js'),
+    ).toBe('ui-run-mode-runtime');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_presets_render.js'),
+    ).toBe('ui-run-mode-runtime');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_summary_render.js'),
+    ).toBe('ui-run-mode-runtime');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_inscriptions_render.js'),
+    ).toBe('ui-run-mode-runtime');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/set_bonus_catalog.js'),
     ).toBe('ui-progression-core');

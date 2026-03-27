@@ -25,11 +25,12 @@ vi.mock('../game/features/ui/presentation/browser/ending_screen_fx.js', () => ({
   initEndingFx: vi.fn(() => ({ wisps: [] })),
 }));
 
+import * as helpers from '../game/features/ui/presentation/browser/ending_screen_runtime_helpers.js';
+import * as endingHelpers from '../game/features/ui/presentation/browser/ending_screen_helpers.js';
+import * as endingFx from '../game/features/ui/presentation/browser/ending_screen_fx.js';
+
 describe('ending_screen_runtime_helpers', () => {
-  it('prepares a session by cleaning up, injecting markup, and booting fx', async () => {
-    const helpers = await import('../game/features/ui/presentation/browser/ending_screen_runtime_helpers.js');
-    const endingHelpers = await import('../game/features/ui/presentation/browser/ending_screen_helpers.js');
-    const endingFx = await import('../game/features/ui/presentation/browser/ending_screen_fx.js');
+  it('prepares a session by cleaning up, injecting markup, and booting fx', () => {
     const doc = {
       body: {
         appendChild: vi.fn(),
@@ -54,10 +55,7 @@ describe('ending_screen_runtime_helpers', () => {
     expect(result.session.payload).toMatchObject({ score: 45 });
   });
 
-  it('exposes payload, mount, and session bootstrap helpers for the ending runtime', async () => {
-    const helpers = await import('../game/features/ui/presentation/browser/ending_screen_runtime_helpers.js');
-    const endingHelpers = await import('../game/features/ui/presentation/browser/ending_screen_helpers.js');
-    const endingFx = await import('../game/features/ui/presentation/browser/ending_screen_fx.js');
+  it('exposes payload, mount, and session bootstrap helpers for the ending runtime', () => {
     const doc = {
       body: {
         appendChild: vi.fn(),
@@ -92,11 +90,7 @@ describe('ending_screen_runtime_helpers', () => {
     expect(fx).toMatchObject({ wisps: [] });
   });
 
-  it('binds sigil cycling and restart flow through runtime callbacks', async () => {
-    const helpers = await import('../game/features/ui/presentation/browser/ending_screen_runtime_helpers.js');
-    const endingHelpers = await import('../game/features/ui/presentation/browser/ending_screen_helpers.js');
-    const endingFx = await import('../game/features/ui/presentation/browser/ending_screen_fx.js');
-
+  it('binds sigil cycling and restart flow through runtime callbacks', () => {
     let sigilHandler = null;
     let restartHandler = null;
     const sigil = {
@@ -153,9 +147,7 @@ describe('ending_screen_runtime_helpers', () => {
     expect(restartFromEnding).not.toHaveBeenCalled();
   });
 
-  it('prefers restartEndingFlow over the legacy restartFromEnding callback', async () => {
-    const helpers = await import('../game/features/ui/presentation/browser/ending_screen_runtime_helpers.js');
-
+  it('prefers restartEndingFlow over the legacy restartFromEnding callback', () => {
     let restartHandler = null;
     const restartButton = {
       addEventListener: vi.fn((type, fn) => {
@@ -194,9 +186,7 @@ describe('ending_screen_runtime_helpers', () => {
     expect(restartFromEnding).not.toHaveBeenCalled();
   });
 
-  it('prefers endingActions.restart over direct restart callbacks', async () => {
-    const helpers = await import('../game/features/ui/presentation/browser/ending_screen_runtime_helpers.js');
-
+  it('prefers endingActions.restart over direct restart callbacks', () => {
     let restartHandler = null;
     const restartButton = {
       addEventListener: vi.fn((type, fn) => {

@@ -345,7 +345,7 @@ describe('RewardUI', () => {
     );
   });
 
-  it('forces reward item acquisition through the toast queue', () => {
+  it('forces reward item acquisition through the toast queue', async () => {
     vi.useFakeTimers();
     clearIdempotencyPrefix('reward:');
 
@@ -360,7 +360,7 @@ describe('RewardUI', () => {
     };
 
     try {
-      RewardUI.takeRewardItem('relic_reward', deps);
+      await RewardUI.takeRewardItem('relic_reward', deps);
 
       expect(deps.showItemToast).toHaveBeenCalledWith(
         deps.data.items.relic_reward,
@@ -376,7 +376,7 @@ describe('RewardUI', () => {
     }
   });
 
-  it('clears picked state and unlocks reward flow when remove selection is cancelled', () => {
+  it('clears picked state and unlocks reward flow when remove selection is cancelled', async () => {
     clearIdempotencyPrefix('reward:');
 
     const deps = createDeps({ maxEnergy: 3 });
@@ -389,7 +389,7 @@ describe('RewardUI', () => {
       }),
     };
 
-    RewardUI.takeRewardRemove(deps);
+    await RewardUI.takeRewardRemove(deps);
 
     expect(deps.EventUI.showCardDiscard).toHaveBeenCalledTimes(1);
     expect(deps.gs._rewardLock).toBe(false);

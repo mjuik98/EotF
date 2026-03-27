@@ -1,12 +1,16 @@
 import { Actions } from '../../../core/store/state_actions.js';
 import {
   createRecentFeedMeta,
-  formatRecentFeedStatusOutcome,
-  formatRecentFeedText,
-  getCurrentCardLogSource,
   Logger,
   LogUtils,
 } from '../ports/combat_logging.js';
+import {
+  applyResolvedEnemyDamageEffects,
+} from './damage_system_effects.js';
+import {
+  logEnemyStatusResult,
+  logShieldGainResult,
+} from './damage_system_logging.js';
 import {
   applyEnemyStatusState,
   applyPlayerDamageState,
@@ -14,8 +18,6 @@ import {
 } from '../state/card_state_commands.js';
 import {
   adjustEnemyStatusDuration,
-  advancePlayerChain,
-  applyLifesteal,
   calculateBaseResolvedDamageValue,
   calculatePotentialDamageValue,
   createDamageRuntime,
@@ -29,7 +31,6 @@ import {
   resolveIncomingPlayerDamage,
   resolveShieldGainAmount,
   resolveEnemyTargetIndex,
-  runDealDamageClassHook,
 } from './damage_system_runtime_helpers.js';
 
 export const DamageSystem = {
@@ -67,63 +68,18 @@ export const DamageSystem = {
       this.takeDamage?.(thornsAmt, { name: enemy.name, type: 'enemy' }, deps);
     }
 
-    advancePlayerChain(this, enemy, noChain, deps, win);
-
-    const totalDamage = result?.totalDamage ?? damage;
-    deps.onDealDamageResolved?.({
-      damage: totalDamage,
-      prevented: false,
+    return applyResolvedEnemyDamageEffects(this, {
+      enemy,
+      resolvedTargetIdx,
       result,
-      targetIdx: resolvedTargetIdx,
+      damage,
+      noChain,
+      deps,
+      win,
+      getBuff,
+      source,
+      base,
     });
-    runDealDamageClassHook(this, totalDamage, resolvedTargetIdx, deps, win);
-
-    if (typeof this.addLog === 'function') {
-      if (source && source.name) {
-        const icon = source.type === 'trait' ? '[특성]' : (source.type === 'item' ? '[아이템]' : '[효과]');
-        this.addLog(`${icon} [${source.name}] -> ${enemy.name}: ${totalDamage} dmg`, 'damage', createRecentFeedMeta({
-          source,
-          text: formatRecentFeedText({
-            sourceName: source.name,
-            sourceType: source.type,
-            targetName: enemy.name,
-            outcome: `${totalDamage} 피해`,
-          }),
-        }));
-      } else if (this._currentCard) {
-        const currentCardSource = getCurrentCardLogSource(this);
-        const recentFeedMeta = createRecentFeedMeta({
-          source: currentCardSource,
-          text: formatRecentFeedText({
-            sourceName: this._currentCard.name,
-            sourceType: 'card',
-            targetName: enemy.name,
-            outcome: `${totalDamage} 피해`,
-          }),
-        });
-        const cardWasCrit = base.hasCritBuff || result?.isCrit;
-        if (cardWasCrit) {
-          this.addLog(LogUtils.formatCardCritical(this._currentCard.name, enemy.name, totalDamage), 'card-log', recentFeedMeta);
-        } else {
-          this.addLog(LogUtils.formatCardAttack(this._currentCard.name, enemy.name, totalDamage), 'card-log', recentFeedMeta);
-        }
-      } else {
-        this.addLog(LogUtils.formatAttack('플레이어', enemy.name, totalDamage), 'damage');
-      }
-    }
-
-    applyLifesteal(this, totalDamage, getBuff);
-    this.markDirty?.('enemies');
-
-    if (typeof deps.updateStatusDisplay === 'function') {
-      deps.updateStatusDisplay();
-    }
-
-    if (result?.isDead && typeof this.onEnemyDeath === 'function') {
-      this.onEnemyDeath(enemy, resolvedTargetIdx, deps);
-    }
-
-    return result?.actualDamage ?? damage;
   },
 
   dealDamageAll(amount, noChain = false, deps = {}) {
@@ -140,30 +96,7 @@ export const DamageSystem = {
     }
 
     applyPlayerShieldState(this, actual);
-    if (typeof this.addLog === 'function') {
-      if (source && source.name) {
-        const icon = source.type === 'item' ? '🛡' : '✨';
-        this.addLog(`${icon} ${source.name}: 방어막 +${actual}`, 'shield', createRecentFeedMeta({
-          source,
-          text: formatRecentFeedText({
-            sourceName: source.name,
-            sourceType: source.type,
-            outcome: `방어막 +${actual}`,
-          }),
-        }));
-      } else if (this._currentCard) {
-        this.addLog(LogUtils.formatCardShield(this._currentCard.name, actual), 'buff', createRecentFeedMeta({
-          source: getCurrentCardLogSource(this),
-          text: formatRecentFeedText({
-            sourceName: this._currentCard.name,
-            sourceType: 'card',
-            outcome: `방어막 +${actual}`,
-          }),
-        }));
-      } else {
-        this.addLog(LogUtils.formatShield('플레이어', actual), 'shield');
-      }
-    }
+    logShieldGainResult(this, { actual, source });
   },
 
   takeDamage(amount, source = null, deps = {}) {
@@ -237,21 +170,11 @@ export const DamageSystem = {
       targetIdx: resolvedTargetIdx,
     });
 
-    this.addLog?.(
-      LogUtils.formatStatus(enemy.name, status, result?.duration || adjustedDuration),
-      'echo',
-      this._currentCard
-        ? createRecentFeedMeta({
-          source: getCurrentCardLogSource(this),
-          text: formatRecentFeedText({
-            sourceName: this._currentCard.name,
-            sourceType: 'card',
-            targetName: enemy.name,
-            outcome: formatRecentFeedStatusOutcome(status, result?.duration || adjustedDuration),
-          }),
-        })
-        : null,
-    );
+    logEnemyStatusResult(this, {
+      enemyName: enemy.name,
+      status,
+      duration: result?.duration || adjustedDuration,
+    });
     Logger.debug('[applyEnemyStatus] Applied', status, 'for', adjustedDuration, 'turns to', enemy.name);
   },
 

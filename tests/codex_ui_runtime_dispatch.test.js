@@ -26,20 +26,15 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_structure.js', () 
   setCodexTabState: vi.fn(),
 }));
 
-describe('codex_ui_runtime_dispatch', () => {
-  let dispatch;
-  let contentRuntime;
-  let inscriptions;
-  let runtimeHelpers;
-  let structure;
+import * as dispatch from '../game/features/codex/presentation/browser/codex_ui_runtime_dispatch.js';
+import * as contentRuntime from '../game/features/codex/presentation/browser/codex_ui_content_runtime.js';
+import * as inscriptions from '../game/features/codex/presentation/browser/codex_ui_inscriptions.js';
+import * as runtimeHelpers from '../game/features/codex/presentation/browser/codex_ui_runtime_helpers.js';
+import * as structure from '../game/features/codex/presentation/browser/codex_ui_structure.js';
 
-  beforeEach(async () => {
+describe('codex_ui_runtime_dispatch', () => {
+  beforeEach(() => {
     vi.clearAllMocks();
-    dispatch = await import('../game/features/codex/presentation/browser/codex_ui_runtime_dispatch.js');
-    contentRuntime = await import('../game/features/codex/presentation/browser/codex_ui_content_runtime.js');
-    inscriptions = await import('../game/features/codex/presentation/browser/codex_ui_inscriptions.js');
-    runtimeHelpers = await import('../game/features/codex/presentation/browser/codex_ui_runtime_helpers.js');
-    structure = await import('../game/features/codex/presentation/browser/codex_ui_structure.js');
   });
 
   it('creates codex modal callbacks that mutate state and call facade actions', () => {

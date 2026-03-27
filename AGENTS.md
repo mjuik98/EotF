@@ -31,7 +31,7 @@ This file is the working contract for engineers and coding agents in this reposi
 ## Architecture
 
 - New implementation belongs under `game/features/<feature>/`, `game/shared/*`, or `game/platform/*`.
-- The current tree still includes `game/ui/`, `game/app/`, `game/combat/`, `game/domain/`, `game/state/`, `game/presentation/`, and `game/systems/`; treat them as compat or transitional surfaces unless the task explicitly targets them.
+- The current tree still includes `game/ui/`, `game/app/`, `game/combat/`, `game/domain/`, `game/state/`, `game/presentation/`, and `game/systems/`; these roots currently have zero canonical runtime file ownership and should stay compat/transitional unless the task explicitly targets them.
 - Keep `game/core/` orchestration-only, with composition/bootstrap/store wiring concentrated there.
 - Cross-feature imports should use `game/features/<feature>/public.js` or `ports/*`, not feature internals.
 - Broad compat support barrels are deprecated and must not be used for new runtime imports.
@@ -67,6 +67,7 @@ This file is the working contract for engineers and coding agents in this reposi
 - Run `npm run test:manifest` when test files move between suites or new test files are added.
 - Run `npm run test:guardrails` for architecture, boundary, compat, or composition changes.
 - Run `npm run test:full` when a change spans both runtime behavior and guardrail coverage.
+- Run `npm run test:slow-report` when a fast-suite change may affect local/CI cycle time; treat recurring slowest files as optimization candidates.
 - Run `npm run lint` for architecture, boundary, state-flow, global API, or data/content changes.
 - Run `npm run build` for user-visible browser changes and before handoff on substantial work.
 - Run `npm run quality:sync` when test ownership and dependency-map outputs both changed.
@@ -76,6 +77,7 @@ This file is the working contract for engineers and coding agents in this reposi
   - click `#mainStartBtn`
   - confirm character select renders
   - check for console/page errors
+  - prefer `npm run smoke:browser` for a consistent multi-flow smoke run
 
 ## Quality Config and Outputs
 

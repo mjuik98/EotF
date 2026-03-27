@@ -28,6 +28,7 @@ jobs:
       - run: npm run deps:map:check
       - run: npm run lint
       - run: npm run test:coverage
+      - run: npm run test:slow-report -- --threshold-ms 1500 --top 10
       - run: npm run audit:structure
       - run: npm run test:order-guard -- --runs 1 --sample 20
       - run: npm run build
@@ -50,11 +51,7 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:4173 >/dev/null
-          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:character-select
-          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:reward
-          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:combat-ui
-          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:save-load
-          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:save-outbox-recovery
+          SMOKE_URL=http://127.0.0.1:4173 npm run smoke:browser
       - run: npm run deps:map
       - name: Check dependency map delta thresholds
         if: github.event_name == 'pull_request'

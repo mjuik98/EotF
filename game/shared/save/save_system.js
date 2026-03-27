@@ -21,7 +21,6 @@ import {
 import { createOutboxMetrics, summarizeOutboxMetrics } from './save_outbox_metrics.js';
 import {
   clearOutboxTimer,
-  cloneSnapshot,
   dropOutboxKey,
   flushOutboxQueue,
   isOutboxEntryExpired,
@@ -32,6 +31,16 @@ import {
   scheduleOutboxFlush,
   upsertOutboxEntry,
 } from './save_outbox_queue.js';
+import {
+  computeNextOutboxFlushDelay,
+  createOutboxPersistedSnapshot,
+  normalizeOutboxEntries,
+  pruneExpiredOutboxEntries,
+} from './save_outbox_state.js';
+import {
+  readMetaSaveData,
+  readRunSaveRecord,
+} from './save_readers.js';
 
 const SAVE_KEY = 'echo_fallen_save';
 const META_KEY = 'echo_fallen_meta';
@@ -72,7 +81,7 @@ export const SaveSystem = {
 
     try {
       const raw = saveAdapter?.load?.(this.OUTBOX_KEY);
-      this._outbox = this._normalizeOutboxEntries(raw);
+      this._outbox = normalizeOutboxEntries(raw);
     } catch (error) {
       Logger.warn('[SaveSystem] Outbox load failed:', error?.message || error);
       this._outbox = [];
@@ -86,47 +95,17 @@ export const SaveSystem = {
 
     if (!this._outbox.length) return;
 
-    const nextAttemptAt = this._outbox.reduce((soonest, entry) => (
-      Math.min(soonest, Number.isFinite(entry.nextAttemptAt) ? entry.nextAttemptAt : Date.now())
-    ), Number.POSITIVE_INFINITY);
-    this._scheduleOutboxFlush(Math.max(0, nextAttemptAt - Date.now()));
+    this._scheduleOutboxFlush(computeNextOutboxFlushDelay(this._outbox) ?? this.OUTBOX_RETRY_BASE_MS);
   },
 
   _normalizeOutboxEntries(raw) {
-    if (!Array.isArray(raw)) return [];
-
-    return raw.flatMap((entry) => {
-      if (!entry || typeof entry.key !== 'string' || !Object.prototype.hasOwnProperty.call(entry, 'data')) {
-        return [];
-      }
-
-      return [{
-        key: entry.key,
-        data: cloneSnapshot(entry.data),
-        attempts: Math.max(0, Math.floor(Number(entry.attempts) || 0)),
-        createdAt: Number.isFinite(Number(entry.createdAt))
-          ? Number(entry.createdAt)
-          : Date.now(),
-        updatedAt: Number.isFinite(Number(entry.updatedAt))
-          ? Number(entry.updatedAt)
-          : Number.isFinite(Number(entry.createdAt))
-            ? Number(entry.createdAt)
-            : Date.now(),
-        nextAttemptAt: Number.isFinite(Number(entry.nextAttemptAt))
-          ? Number(entry.nextAttemptAt)
-          : Date.now(),
-      }];
-    });
+    return normalizeOutboxEntries(raw);
   },
 
   _pruneExpiredOutboxEntries() {
-    if (!Array.isArray(this._outbox) || this._outbox.length === 0) return false;
-
-    const nextOutbox = this._outbox.filter((entry) => !isOutboxEntryExpired(entry));
-    if (nextOutbox.length === this._outbox.length) return false;
-
-    this._outbox = nextOutbox;
-    return true;
+    const result = pruneExpiredOutboxEntries(this._outbox, { isExpired: isOutboxEntryExpired });
+    this._outbox = result.entries;
+    return result.changed;
   },
 
   _persistOutbox() {
@@ -136,22 +115,7 @@ export const SaveSystem = {
       return true;
     }
 
-    const snapshot = this._outbox.map((entry) => ({
-      key: entry.key,
-      data: cloneSnapshot(entry.data),
-      attempts: Math.max(0, Math.floor(Number(entry.attempts) || 0)),
-      createdAt: Number.isFinite(Number(entry.createdAt))
-        ? Number(entry.createdAt)
-        : Date.now(),
-      updatedAt: Number.isFinite(Number(entry.updatedAt))
-        ? Number(entry.updatedAt)
-        : Number.isFinite(Number(entry.createdAt))
-          ? Number(entry.createdAt)
-          : Date.now(),
-      nextAttemptAt: Number.isFinite(Number(entry.nextAttemptAt))
-        ? Number(entry.nextAttemptAt)
-        : Date.now(),
-    }));
+    const snapshot = createOutboxPersistedSnapshot(this._outbox);
     const persisted = saveAdapter?.save?.(this.OUTBOX_KEY, snapshot);
     if (!persisted) {
       Logger.warn('[SaveSystem] Failed to persist the save outbox.');
@@ -331,98 +295,38 @@ export const SaveSystem = {
     return this._readRunSaveRecord({ logErrors })?.data || null;
   },
 
-  _sanitizeLoadedSaveEntry(raw, {
-    key,
-    label,
-    logErrors = true,
-    isUnsupportedFutureVersion = () => false,
-    queued = false,
-  } = {}) {
-    if (!raw) return null;
-    if (!isUnsupportedFutureVersion(raw)) return raw;
-
-    if (queued) {
-      this._dropOutboxKey(key);
-    } else {
-      getSaveAdapter()?.remove?.(key);
-    }
-
-    if (logErrors) {
-      Logger.warn(`[SaveSystem] Dropped unsupported future-version ${queued ? 'queued ' : ''}${label} save.`);
-    }
-    return null;
-  },
-
   _readRunSaveRecord({ logErrors = true } = {}) {
     this._ensureOutboxLoaded();
-    const saveAdapter = getSaveAdapter();
-
-    try {
-      const raw = this._sanitizeLoadedSaveEntry(saveAdapter?.load?.(this.SAVE_KEY) || null, {
-        key: this.SAVE_KEY,
-        label: 'run',
-        logErrors,
-        isUnsupportedFutureVersion: isUnsupportedFutureRunSave,
-      });
-      const queued = this._sanitizeLoadedSaveEntry(
-        this._outbox.find((entry) => entry.key === this.SAVE_KEY)?.data || null,
-        {
-          key: this.SAVE_KEY,
-          label: 'run',
-          logErrors,
-          isUnsupportedFutureVersion: isUnsupportedFutureRunSave,
-          queued: true,
-        },
-      );
-      const saveState = raw ? 'saved' : (queued ? 'queued' : null);
-      const data = migrateRunSave(raw || queued);
-      if (!data) return null;
-
-      if (!this.validateSaveData(data)) {
-        if (logErrors) Logger.error('[SaveSystem] Save data validation failed');
-        return null;
-      }
-
-      return {
-        data,
-        saveState,
-      };
-    } catch (e) {
-      if (logErrors) Logger.error('[SaveSystem] Run load failed:', e);
-      return null;
-    }
+    return readRunSaveRecord({
+      outbox: this._outbox,
+      saveAdapter: getSaveAdapter(),
+      saveKey: this.SAVE_KEY,
+      logErrors,
+      isUnsupportedFutureVersion: isUnsupportedFutureRunSave,
+      migrateSave: migrateRunSave,
+      validateSaveData: (data) => this.validateSaveData(data),
+      dropOutboxKey: (key) => this._dropOutboxKey(key),
+      removePersistedKey: (key) => getSaveAdapter()?.remove?.(key),
+      logWarn: (message) => Logger.warn(message),
+      logError: (...args) => Logger.error(...args),
+    });
   },
 
   _readMetaSaveData({ logErrors = true } = {}) {
     this._ensureOutboxLoaded();
-    const saveAdapter = getSaveAdapter();
-
-    try {
-      const raw = this._sanitizeLoadedSaveEntry(saveAdapter?.load?.(this.META_KEY) || null, {
-        key: this.META_KEY,
-        label: 'meta',
-        logErrors,
-        isUnsupportedFutureVersion: isUnsupportedFutureMetaSave,
-      });
-      const queued = this._sanitizeLoadedSaveEntry(
-        this._outbox.find((entry) => entry.key === this.META_KEY)?.data || null,
-        {
-          key: this.META_KEY,
-          label: 'meta',
-          logErrors,
-          isUnsupportedFutureVersion: isUnsupportedFutureMetaSave,
-          queued: true,
-        },
-      );
-      const data = migrateMetaSave(raw || queued);
-      if (!data) return null;
-
-      ensureMetaRunConfig(data);
-      return data;
-    } catch (e) {
-      if (logErrors) Logger.error('[SaveSystem] Meta preview load failed:', e);
-      return null;
-    }
+    return readMetaSaveData({
+      outbox: this._outbox,
+      saveAdapter: getSaveAdapter(),
+      metaKey: this.META_KEY,
+      logErrors,
+      isUnsupportedFutureVersion: isUnsupportedFutureMetaSave,
+      migrateSave: migrateMetaSave,
+      ensureMetaRunConfig,
+      dropOutboxKey: (key) => this._dropOutboxKey(key),
+      removePersistedKey: (key) => getSaveAdapter()?.remove?.(key),
+      logWarn: (message) => Logger.warn(message),
+      logError: (...args) => Logger.error(...args),
+    });
   },
 
   clearSave() {

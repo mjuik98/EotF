@@ -9,6 +9,7 @@ const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-combat-tooltips-[^/]+\.js$/,
   /\/?assets\/ui-event-[^/]+\.js$/,
   /\/?assets\/ui-reward-[^/]+\.js$/,
+  /\/?assets\/ui-run-mode-runtime-[^/]+\.js$/,
   /\/?assets\/ui-shell-overlays-[^/]+\.js$/,
   /\/?assets\/ui-shell-hotkeys-[^/]+\.js$/,
   /\/?assets\/ui-settings-[^/]+\.js$/,
@@ -111,6 +112,13 @@ export function getManualChunk(id) {
     normalized.endsWith('/game/features/ui/presentation/browser/settings_ui_keybinding_helpers.js')
     || normalized.endsWith('/game/features/ui/presentation/browser/settings_ui_runtime_helpers.js')
   ) return 'ui-settings-hotkeys';
+  if (
+    normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui_runtime.js')
+    || normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui_render.js')
+    || normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui_summary_render.js')
+    || normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui_presets_render.js')
+    || normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui_inscriptions_render.js')
+  ) return 'ui-run-mode-runtime';
   if (normalized.endsWith('/game/features/run/presentation/browser/run_mode_ui.js')) return 'ui-run-mode';
 
   return null;

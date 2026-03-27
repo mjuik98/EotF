@@ -11,6 +11,24 @@ describe('combat ui smoke scripts', () => {
 
     expect(packageJson.scripts['smoke:combat-ui']).toBe('node scripts/run_combat_ui_smoke.mjs');
     expect(packageJson.scripts['smoke:character-select']).toBe('node scripts/run_character_select_smoke.mjs');
+    expect(packageJson.scripts['smoke:browser']).toBe('node scripts/run_browser_smoke_suite.mjs');
+  });
+
+  it('aggregates browser smoke checks through a single suite script', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'run_browser_smoke_suite.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("const smokeCommands = [");
+    expect(source).toContain("'smoke:character-select'");
+    expect(source).toContain("'smoke:reward'");
+    expect(source).toContain("'smoke:combat-ui'");
+    expect(source).toContain("'smoke:save-load'");
+    expect(source).toContain("'smoke:save-outbox-recovery'");
+    expect(source).toContain('formatSmokeSuiteSummary');
+    expect(source).toContain('GITHUB_STEP_SUMMARY');
+    expect(source).toContain('spawnSync');
   });
 
   it('points the combat UI smoke wrapper at the browser smoke runner', () => {
@@ -84,11 +102,7 @@ describe('combat ui smoke scripts', () => {
     );
 
     expect(workflow).toContain('npx playwright install --with-deps chromium');
-    expect(workflow).toContain('npm run smoke:combat-ui');
-    expect(workflow).toContain('npm run smoke:character-select');
-    expect(workflow).toContain('npm run smoke:reward');
-    expect(workflow).toContain('npm run smoke:save-load');
-    expect(workflow).toContain('npm run smoke:save-outbox-recovery');
+    expect(workflow).toContain('npm run smoke:browser');
   });
 
   it('wires the character-select smoke run into the local quality workflow', () => {
@@ -97,11 +111,7 @@ describe('combat ui smoke scripts', () => {
     );
 
     expect(packageJson.scripts.quality).toBe('npm run quality:full');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:character-select');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:reward');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:combat-ui');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-load');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-outbox-recovery');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser');
   });
 
   it('covers combat relic rail behavior in the browser smoke runner', () => {

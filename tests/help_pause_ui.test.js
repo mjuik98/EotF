@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
-import { EndingScreenUI } from '../game/features/ui/public.js';
-import { HelpPauseUI } from '../game/features/ui/ports/public_help_pause_ui.js';
+import { EndingScreenUI } from '../game/features/ui/presentation/browser/ending_screen_ui.js';
+import {
+  HelpPauseUI,
+  __resetHelpPauseUiStateForTests,
+} from '../game/features/ui/presentation/browser/help_pause_ui.js';
 import {
   showMobileWarningRuntime,
   toggleHelpOverlayRuntime,
@@ -93,6 +96,7 @@ function createHotkeyDoc() {
 
 describe('HelpPauseUI help overlay', () => {
   beforeEach(() => {
+    __resetHelpPauseUiStateForTests();
     Object.defineProperty(globalThis, 'localStorage', {
       value: createLocalStorageMock(),
       configurable: true,
@@ -153,29 +157,29 @@ describe('HelpPauseUI help overlay', () => {
     expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
-  it('binds global hotkeys only once per module instance', async () => {
-    vi.resetModules();
-    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/features/ui/presentation/browser/help_pause_ui.js');
+  it('binds global hotkeys only once until the explicit test reset runs', () => {
     const doc = {
       addEventListener: vi.fn(),
       querySelector: () => null,
       getElementById: () => null,
     };
 
-    FreshHelpPauseUI.bindGlobalHotkeys({ doc });
-    FreshHelpPauseUI.bindGlobalHotkeys({ doc });
+    HelpPauseUI.bindGlobalHotkeys({ doc });
+    HelpPauseUI.bindGlobalHotkeys({ doc });
 
     expect(doc.addEventListener).toHaveBeenCalledTimes(1);
+
+    __resetHelpPauseUiStateForTests();
+    HelpPauseUI.bindGlobalHotkeys({ doc });
+    expect(doc.addEventListener).toHaveBeenCalledTimes(2);
   });
 
-  it('re-resolves live deps when toggling pause', async () => {
-    vi.resetModules();
-    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/features/ui/presentation/browser/help_pause_ui.js');
+  it('re-resolves live deps when toggling pause', () => {
     const doc = createDoc();
     const staleSync = vi.fn();
     const freshSync = vi.fn();
 
-    FreshHelpPauseUI.togglePause({
+    HelpPauseUI.togglePause({
       doc,
       _syncVolumeUI: staleSync,
       getDeps: () => ({
@@ -195,9 +199,7 @@ describe('HelpPauseUI help overlay', () => {
     expect(staleSync).not.toHaveBeenCalled();
   });
 
-  it('re-resolves live deps for each global hotkey event', async () => {
-    vi.resetModules();
-    const { HelpPauseUI: FreshHelpPauseUI } = await import('../game/features/ui/presentation/browser/help_pause_ui.js');
+  it('re-resolves live deps for each global hotkey event', () => {
     const doc = createDoc();
     const listeners = {};
     doc.addEventListener = vi.fn((name, handler) => {
@@ -205,7 +207,7 @@ describe('HelpPauseUI help overlay', () => {
     });
     doc.querySelector = vi.fn(() => null);
 
-    FreshHelpPauseUI.bindGlobalHotkeys({
+    HelpPauseUI.bindGlobalHotkeys({
       doc,
       gs: { currentScreen: 'title' },
       getDeps: () => ({

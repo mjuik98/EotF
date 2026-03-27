@@ -36,18 +36,22 @@ vi.mock('../game/shared/codex/codex_record_state_use_case.js', () => ({
   registerItemFound: hoisted.registerItemFound,
 }));
 
+import {
+  applyShopCardPurchaseState,
+  applyShopEnergyPurchaseState,
+  purchaseEventShopItemState,
+} from '../game/features/event/state/event_state_commands.js';
+import {
+  applyBlessingRewardState,
+  applyMiniBossBonusState,
+} from '../game/features/reward/state/reward_state_commands.js';
+
 describe('event/reward state command ownership', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('routes event shop player mutations through shared player state commands', async () => {
-    const {
-      applyShopCardPurchaseState,
-      applyShopEnergyPurchaseState,
-      purchaseEventShopItemState,
-    } = await import('../game/features/event/state/event_state_commands.js');
-
+  it('routes event shop player mutations through shared player state commands', () => {
     const state = {
       player: {
         deck: [],
@@ -69,13 +73,8 @@ describe('event/reward state command ownership', () => {
     expect(energyResult).toEqual({ gold: 53, maxEnergy: 4, energy: 4 });
   });
 
-  it('routes reward player mutations through shared player state commands', async () => {
+  it('routes reward player mutations through shared player state commands', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
-    const {
-      applyBlessingRewardState,
-      applyMiniBossBonusState,
-    } = await import('../game/features/reward/state/reward_state_commands.js');
-
     const state = {
       currentRegion: 2,
       player: {

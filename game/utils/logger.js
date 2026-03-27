@@ -25,7 +25,13 @@ function buildPrefix(level, context) {
 const _state = {
   isDev: isDevMode(),
   level: resolveLevel(AppConfig.logLevel),
+  testMuted: isVitestRuntime(),
 };
+
+function isVitestRuntime() {
+  if (typeof process === 'undefined' || !process?.env) return false;
+  return Boolean(process.env.VITEST || process.env.VITEST_POOL_ID);
+}
 
 export const Logger = {
   setLevel(levelName) {
@@ -41,11 +47,16 @@ export const Logger = {
     _state.isDev = !!enabled;
   },
 
+  setTestMuted(enabled) {
+    _state.testMuted = !!enabled;
+  },
+
   _shouldLog(levelName) {
     return _state.level <= resolveLevel(levelName);
   },
 
   _emit(levelName, args, context = AppConfig.appName) {
+    if (_state.testMuted) return;
     if (!_state.isDev && (levelName === 'debug' || levelName === 'info' || levelName === 'warn')) {
       return;
     }

@@ -21,6 +21,9 @@ describe('test suite manifest', () => {
   it('routes repository tests according to the explicit manifest instead of filename tokens', () => {
     expect(getSuiteForTestFile('tests/compat_lint_guardrails.test.js')).toBe('guardrails');
     expect(getSuiteForTestFile('tests/composition_module_registrars.test.js')).toBe('guardrails');
+    expect(getSuiteForTestFile('tests/check_import_coupling.test.js')).toBe('guardrails');
+    expect(getSuiteForTestFile('tests/quality_workflow_scripts.test.js')).toBe('guardrails');
+    expect(getSuiteForTestFile('tests/test_suite_manifest.test.js')).toBe('guardrails');
     expect(getSuiteForTestFile('tests/runtime_state_flow.test.js')).toBe('fast');
     expect(getSuiteForTestFile('tests/help_pause_ui_runtime.test.js')).toBe('fast');
   });
@@ -30,6 +33,8 @@ describe('test suite manifest', () => {
       'tests/runtime_state_flow.test.js',
       'tests/compat_lint_guardrails.test.js',
       'tests/composition_module_registrars.test.js',
+      'tests/check_import_coupling.test.js',
+      'tests/quality_workflow_scripts.test.js',
       'tests/help_pause_ui_runtime.test.js',
     ];
 
@@ -41,6 +46,8 @@ describe('test suite manifest', () => {
       guardrails: [
         'tests/compat_lint_guardrails.test.js',
         'tests/composition_module_registrars.test.js',
+        'tests/check_import_coupling.test.js',
+        'tests/quality_workflow_scripts.test.js',
       ],
     });
   });

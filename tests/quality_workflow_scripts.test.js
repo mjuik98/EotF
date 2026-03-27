@@ -12,6 +12,7 @@ describe('quality workflow scripts', () => {
     const packageJson = JSON.parse(readText('package.json'));
 
     expect(packageJson.scripts['quality:fast']).toBe('npm run lint && npm test');
+    expect(packageJson.scripts['test:slow-report']).toBe('node scripts/report-slow-tests.mjs --suite fast');
     expect(packageJson.scripts['test:manifest']).toBe('node scripts/test_suite_manifest.mjs --check');
     expect(packageJson.scripts['test:manifest:write']).toBe('node scripts/test_suite_manifest.mjs --write');
     expect(packageJson.scripts.test).toBe('node scripts/run-vitest-suite.mjs fast');
@@ -25,9 +26,7 @@ describe('quality workflow scripts', () => {
     expect(packageJson.scripts['quality:full']).toContain('npm run deps:map:check');
     expect(packageJson.scripts['quality:full']).toContain('npm run test:order-guard -- --runs 1 --sample 20');
     expect(packageJson.scripts['quality:full']).toContain('npm run build');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:character-select');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-load');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:save-outbox-recovery');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser');
     expect(packageJson.scripts.quality).toBe('npm run quality:full');
   });
 
@@ -43,14 +42,20 @@ describe('quality workflow scripts', () => {
 
   it('keeps the automated quality gate aligned with the local full workflow', () => {
     const workflow = readText('.github/workflows/quality-gate.yml');
+    const slowReportScript = readText('scripts/report-slow-tests.mjs');
+    const smokeSuiteScript = readText('scripts/run_browser_smoke_suite.mjs');
 
     expect(workflow).toContain('- run: npm run test:manifest');
     expect(workflow).toContain('- run: npm run deps:map:check');
     expect(workflow).toContain('- run: npm run lint');
     expect(workflow).toContain('- run: npm run test:coverage');
+    expect(workflow).toContain('- run: npm run test:slow-report -- --threshold-ms 1500 --top 10');
     expect(workflow).toContain('- run: npm run audit:structure');
     expect(workflow).toContain('- run: npm run test:order-guard -- --runs 1 --sample 20');
     expect(workflow).toContain('- run: npm run build');
+    expect(workflow).toContain('SMOKE_URL=http://127.0.0.1:4173 npm run smoke:browser');
+    expect(slowReportScript).toContain('GITHUB_STEP_SUMMARY');
+    expect(smokeSuiteScript).toContain('GITHUB_STEP_SUMMARY');
   });
 
   it('loads coverage thresholds from quality config', () => {
@@ -128,10 +133,10 @@ describe('quality workflow scripts', () => {
 
     expect(suiteManifest.fast.length).toBeGreaterThan(0);
     expect(suiteManifest.guardrails.length).toBeGreaterThan(0);
-    expect(couplingTargets.maxTotal).toBe(216);
-    expect(couplingTargets.maxByPair['feature->shared']).toBe(36);
+    expect(couplingTargets.maxTotal).toBe(187);
+    expect(couplingTargets.maxByPair['feature->shared']).toBe(26);
     expect(couplingTargets.maxByPair['feature->data']).toBe(13);
-    expect(couplingTargets.maxByPair['feature->utils']).toBe(4);
+    expect(couplingTargets.maxByPair['feature->core']).toBe(18);
     expect(couplingTargets.maxByPair['feature->legacy']).toBe(1);
     expect(lintScript).toContain('node scripts/check-deprecated-compat-imports.mjs');
     expect(lintScript).toContain('node scripts/test_suite_manifest.mjs --check');
@@ -172,6 +177,8 @@ describe('quality workflow scripts', () => {
     expect(readme).toContain('npm run quality:fast');
     expect(readme).toContain('npm run quality:full');
     expect(readme).toContain('npm run audit:structure');
+    expect(readme).toContain('npm run smoke:browser');
+    expect(readme).toContain('npm run test:slow-report');
   });
 
   it('documents the split test workflow in the repository contract', () => {
@@ -199,7 +206,7 @@ describe('quality workflow scripts', () => {
       'engine/audio.js',
     ]);
 
-    expect(stateTargets.totalMax).toBe(72);
+    expect(stateTargets.totalMax).toBe(68);
     expect(Object.keys(stateTargets.byFileMax)).not.toContain('game/domain/combat/turn/end_player_turn_policy.js');
     expect(Object.keys(stateTargets.byFileMax)).not.toContain('game/domain/combat/turn/enemy_effect_resolver.js');
     expect(Object.keys(stateTargets.byFileMax)).not.toContain('game/domain/combat/turn/turn_state_mutators.js');

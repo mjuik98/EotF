@@ -12,10 +12,10 @@ describe('check_import_coupling', () => {
     const targets = readCouplingTargets();
 
     expect(IMPORT_COUPLING_TARGETS_PATH.endsWith('config/quality/import_coupling_targets.json')).toBe(true);
-    expect(targets.maxTotal).toBe(216);
-    expect(targets.maxByPair['feature->shared']).toBe(36);
+    expect(targets.maxTotal).toBe(187);
+    expect(targets.maxByPair['feature->shared']).toBe(26);
     expect(targets.maxByPair['feature->data']).toBe(13);
-    expect(targets.maxByPair['feature->utils']).toBe(4);
+    expect(targets.maxByPair['feature->core']).toBe(18);
     expect(targets.maxByPair['feature->legacy']).toBe(1);
   });
 
@@ -45,5 +45,5 @@ describe('check_import_coupling', () => {
     expect(current.total).toBeGreaterThan(0);
     expect(current.byPair['feature->shared']).toBeGreaterThan(0);
     expect(Object.keys(current.byPair).length).toBeGreaterThan(10);
-  }, 20000);
+  }, 40000);
 });

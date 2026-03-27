@@ -63,22 +63,16 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', ()
   transitionCodexTab: vi.fn(),
 }));
 
-describe('codex_ui_runtime', () => {
-  let runtime;
-  let render;
-  let structure;
-  let controller;
-  let inscriptions;
-  let codexShell;
+import * as runtime from '../game/features/codex/presentation/browser/codex_ui_runtime.js';
+import * as render from '../game/features/codex/presentation/browser/codex_ui_render.js';
+import * as structure from '../game/features/codex/presentation/browser/codex_ui_structure.js';
+import * as controller from '../game/features/codex/presentation/browser/codex_ui_controller.js';
+import * as inscriptions from '../game/features/codex/presentation/browser/codex_ui_inscriptions.js';
+import * as codexShell from '../game/features/codex/platform/browser/ensure_codex_modal_shell.js';
 
-  beforeEach(async () => {
+describe('codex_ui_runtime', () => {
+  beforeEach(() => {
     vi.clearAllMocks();
-    runtime = await import('../game/features/codex/presentation/browser/codex_ui_runtime.js');
-    render = await import('../game/features/codex/presentation/browser/codex_ui_render.js');
-    structure = await import('../game/features/codex/presentation/browser/codex_ui_structure.js');
-    controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
-    inscriptions = await import('../game/features/codex/presentation/browser/codex_ui_inscriptions.js');
-    codexShell = await import('../game/features/codex/platform/browser/ensure_codex_modal_shell.js');
   });
 
   it('opens the codex modal and wires initial render callbacks', () => {

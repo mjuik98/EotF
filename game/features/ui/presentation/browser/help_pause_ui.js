@@ -18,6 +18,12 @@ let _helpOpen = false;
 let _pauseOpen = false;
 let _hotkeysBound = false;
 
+export function __resetHelpPauseUiStateForTests() {
+  _helpOpen = false;
+  _pauseOpen = false;
+  _hotkeysBound = false;
+}
+
 function resolveLiveDeps(deps = {}) {
   const nextDeps = typeof deps.getDeps === 'function' ? (deps.getDeps() || {}) : {};
   return {

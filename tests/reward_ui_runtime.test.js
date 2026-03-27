@@ -30,7 +30,7 @@ function createDoc() {
 }
 
 describe('reward_ui_runtime', () => {
-  it('plays hit feedback when no upgrade target exists', () => {
+  it('plays hit feedback when no upgrade target exists', async () => {
     clearIdempotencyPrefix('reward:');
     const audioEngine = { playEvent: vi.fn(), playHit: vi.fn() };
     const deps = {
@@ -48,7 +48,7 @@ describe('reward_ui_runtime', () => {
     };
 
     try {
-      takeRewardUpgradeRuntime(deps);
+      await takeRewardUpgradeRuntime(deps);
     } finally {
       clearIdempotencyPrefix('reward:');
     }
@@ -60,7 +60,7 @@ describe('reward_ui_runtime', () => {
     expect(deps.showItemToast).not.toHaveBeenCalled();
   });
 
-  it('uses injected playItemGet without double-triggering the audio engine fallback', () => {
+  it('uses injected playItemGet without double-triggering the audio engine fallback', async () => {
     vi.useFakeTimers();
     clearIdempotencyPrefix('reward:');
     const doc = createDoc();
@@ -85,7 +85,7 @@ describe('reward_ui_runtime', () => {
     };
 
     try {
-      takeRewardCardRuntime('strike', deps);
+      await takeRewardCardRuntime('strike', deps);
       vi.runAllTimers();
     } finally {
       vi.useRealTimers();
@@ -98,7 +98,7 @@ describe('reward_ui_runtime', () => {
     expect(returnFromReward).toHaveBeenCalledTimes(1);
   });
 
-  it('returns directly to the game when remove flow has no EventUI discard hook', () => {
+  it('returns directly to the game when remove flow has no EventUI discard hook', async () => {
     clearIdempotencyPrefix('reward:');
     const doc = createDoc();
     const returnFromReward = vi.fn();
@@ -111,7 +111,7 @@ describe('reward_ui_runtime', () => {
     };
 
     try {
-      takeRewardRemoveRuntime(deps);
+      await takeRewardRemoveRuntime(deps);
     } finally {
       clearIdempotencyPrefix('reward:');
     }
@@ -121,7 +121,7 @@ describe('reward_ui_runtime', () => {
     expect(returnFromReward).toHaveBeenCalledTimes(1);
   });
 
-  it('locks the reward and returns to game when skipping', () => {
+  it('locks the reward and returns to game when skipping', async () => {
     clearIdempotencyPrefix('reward:');
     const returnFromReward = vi.fn();
     const deps = {
@@ -132,7 +132,7 @@ describe('reward_ui_runtime', () => {
     };
 
     try {
-      skipRewardRuntime(deps);
+      await skipRewardRuntime(deps);
     } finally {
       clearIdempotencyPrefix('reward:');
     }

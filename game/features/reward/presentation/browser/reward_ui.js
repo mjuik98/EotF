@@ -1,5 +1,10 @@
-import { createRewardRuntime } from '../../application/create_reward_runtime.js';
 import { showRewardScreenRuntime } from '../../application/workflows/show_reward_screen_workflow.js';
+import { createLoadedRewardRuntime } from './reward_runtime_loader.js';
+
+async function withRewardRuntime(deps = {}, callback) {
+  const runtime = await createLoadedRewardRuntime(deps);
+  return callback(runtime);
+}
 
 export const RewardUI = {
   showRewardScreen(mode = false, deps = {}) {
@@ -7,34 +12,34 @@ export const RewardUI = {
   },
 
   takeRewardBlessing(blessing, deps = {}) {
-    return createRewardRuntime(deps).takeRewardBlessing(blessing);
+    return withRewardRuntime(deps, (runtime) => runtime.takeRewardBlessing(blessing));
   },
 
   takeRewardCard(cardId, deps = {}) {
-    return createRewardRuntime(deps).takeRewardCard(cardId);
+    return withRewardRuntime(deps, (runtime) => runtime.takeRewardCard(cardId));
   },
 
   takeRewardItem(itemKey, deps = {}) {
-    return createRewardRuntime(deps).takeRewardItem(itemKey);
+    return withRewardRuntime(deps, (runtime) => runtime.takeRewardItem(itemKey));
   },
 
   takeRewardUpgrade(deps = {}) {
-    return createRewardRuntime(deps).takeRewardUpgrade();
+    return withRewardRuntime(deps, (runtime) => runtime.takeRewardUpgrade());
   },
 
   takeRewardRemove(deps = {}) {
-    return createRewardRuntime(deps).takeRewardRemove();
+    return withRewardRuntime(deps, (runtime) => runtime.takeRewardRemove());
   },
 
   showSkipConfirm(deps = {}) {
-    createRewardRuntime(deps).showSkipConfirm();
+    return withRewardRuntime(deps, (runtime) => runtime.showSkipConfirm());
   },
 
   hideSkipConfirm(deps = {}) {
-    createRewardRuntime(deps).hideSkipConfirm();
+    return withRewardRuntime(deps, (runtime) => runtime.hideSkipConfirm());
   },
 
   skipReward(deps = {}) {
-    return createRewardRuntime(deps).skipReward();
+    return withRewardRuntime(deps, (runtime) => runtime.skipReward());
   },
 };
