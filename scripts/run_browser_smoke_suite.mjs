@@ -5,6 +5,7 @@ const smokeCommands = [
   'smoke:character-select',
   'smoke:reward',
   'smoke:combat-ui',
+  'smoke:title-meta',
   'smoke:save-load',
   'smoke:save-outbox-recovery',
 ];

@@ -11,6 +11,7 @@ describe('combat ui smoke scripts', () => {
 
     expect(packageJson.scripts['smoke:combat-ui']).toBe('node scripts/run_combat_ui_smoke.mjs');
     expect(packageJson.scripts['smoke:character-select']).toBe('node scripts/run_character_select_smoke.mjs');
+    expect(packageJson.scripts['smoke:title-meta']).toBe('node scripts/title_meta_smoke_check.mjs');
     expect(packageJson.scripts['smoke:browser']).toBe('node scripts/run_browser_smoke_suite.mjs');
   });
 
@@ -24,6 +25,7 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain("'smoke:character-select'");
     expect(source).toContain("'smoke:reward'");
     expect(source).toContain("'smoke:combat-ui'");
+    expect(source).toContain("'smoke:title-meta'");
     expect(source).toContain("'smoke:save-load'");
     expect(source).toContain("'smoke:save-outbox-recovery'");
     expect(source).toContain('formatSmokeSuiteSummary');

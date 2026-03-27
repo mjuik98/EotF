@@ -1,4 +1,7 @@
-import { reducedMotion } from './run_mode_ui_helpers.js';
+import {
+  buildDailyRunChallenge,
+  reducedMotion,
+} from './run_mode_ui_helpers.js';
 import { highlightRunModeText } from './run_mode_text_highlight.js';
 import {
   buildUnlockRoadmap,
@@ -10,6 +13,7 @@ import {
   renderInscriptionOverview,
 } from './run_mode_ui_inscriptions_render.js';
 import {
+  renderChallengePanel,
   renderDifficultyPanel,
   renderHiddenEnding,
   renderSummaryBar,
@@ -22,6 +26,8 @@ import {
 } from './run_mode_ui_presets_render.js';
 
 export {
+  buildDailyRunChallenge,
+  renderChallengePanel,
   renderDifficultyPanel,
   renderHiddenEnding,
   renderPresetDialog,
@@ -125,6 +131,7 @@ export function renderPanel(ui, doc, cfg, meta, runRules, gs, data) {
 
   renderDifficultyPanel(panel, cfg, meta, runRules, gs);
   renderPresets(ui, doc, cfg, meta, runRules);
+  renderChallengePanel(doc, buildDailyRunChallenge({ meta, runRules, now: data?.now || undefined }));
   renderOptionGrid(doc.getElementById('rmCurseGrid'), buildCurseOptionEntries({ meta, runRules }), cfg.curse, 'curse', doc);
   renderInscriptionOverview(doc, meta, cfg, data);
   renderUnlockRoadmap(doc, buildUnlockRoadmap(meta, { classId: gs?.player?.class }));

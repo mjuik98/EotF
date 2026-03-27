@@ -114,6 +114,21 @@ function buildRunArchiveMeta(entry) {
   ].filter(Boolean).join(' · ');
 }
 
+function buildRunArchiveSummary(entries = []) {
+  const totalRuns = entries.length;
+  const victories = entries.filter((entry) => entry?.outcome === 'victory').length;
+  const highestAscension = entries.reduce((best, entry) => Math.max(best, Number(entry?.ascension || 0)), 0);
+  const maxKills = entries.reduce((best, entry) => Math.max(best, Number(entry?.kills || 0)), 0);
+  const winRate = totalRuns > 0 ? Math.round((victories / totalRuns) * 100) : 0;
+
+  return [
+    `최근 ${totalRuns}런`,
+    `승률 ${winRate}%`,
+    `최고 승천 A${highestAscension}`,
+    `최다 처치 ${maxKills}`,
+  ];
+}
+
 function buildAchievementRoadmapRows(entries = []) {
   if (!Array.isArray(entries) || entries.length === 0) return '';
   return `
@@ -234,9 +249,13 @@ export function renderTitleRunArchive(doc, gs) {
   }
 
   const achievementRows = buildAchievementRoadmapRows(buildAchievementRoadmap(gs?.meta).account);
+  const summaryBadges = buildRunArchiveSummary(entries);
 
   el.innerHTML = `
     <div class="title-run-archive-label">귀환 기록실</div>
+    <div class="title-run-archive-summary">
+      ${summaryBadges.map((badge) => `<span class="title-run-archive-badge">${escapeHtml(badge)}</span>`).join('')}
+    </div>
     <div class="title-run-archive-list">
       ${entries.map((entry) => `
         <div class="title-run-archive-row">

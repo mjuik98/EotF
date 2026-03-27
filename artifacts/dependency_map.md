@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-27T16:13:52.785Z
-- Nodes: 1249
-- Edges: 1617
+- Generated: 2026-03-27T16:49:45.721Z
+- Nodes: 1250
+- Edges: 1620
 
 ## Layer Edges
 
@@ -16,6 +16,7 @@
 | core->utils | 2 |
 | data->data | 20 |
 | data->other | 2 |
+| data->shared | 1 |
 | data->utils | 4 |
 | engine->data | 1 |
 | engine->engine | 2 |
@@ -44,7 +45,7 @@
 | shared->data | 5 |
 | shared->feature | 2 |
 | shared->legacy | 2 |
-| shared->shared | 74 |
+| shared->shared | 76 |
 | shared->utils | 3 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -54,9 +55,9 @@
 
 | File | Out Degree |
 |---|---:|
+| data/events_data.js | 9 |
 | game/features/run/application/run_rule_outcome.js | 9 |
 | game/shared/save/save_system.js | 9 |
-| data/events_data.js | 8 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
 | game/core/deps_factory.js | 8 |
 | game/features/combat/platform/browser/public_combat_core_browser_modules.js | 8 |

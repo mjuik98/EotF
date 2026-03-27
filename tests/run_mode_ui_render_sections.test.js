@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it, vi } from 'vitest';
 import {
+  renderChallengePanel,
   renderDifficultyPanel,
   renderHiddenEnding,
   renderInscriptionOverview,
@@ -195,6 +196,30 @@ describe('run_mode_ui_render sections', () => {
     expect(roadmapZone.innerHTML).toContain('첫 승리');
     expect(roadmapZone.innerHTML).toContain('0 / 1');
     expect(roadmapZone.innerHTML).toContain('승리 런');
+  });
+
+  it('renders a daily challenge panel with deterministic modifiers and apply action', () => {
+    const challengeZone = createNode();
+    const doc = {
+      getElementById: vi.fn((id) => ({
+        rmChallengeZone: challengeZone,
+      }[id] || null)),
+    };
+
+    renderChallengePanel(doc, {
+      label: '일일 도전',
+      dateLabel: '2026-03-28',
+      summary: 'A3 · 무한 · 핏빛 월식',
+      tags: ['승천 3', '무한', '저주: 핏빛 월식'],
+      rewardLabel: '기록용 추천 구성',
+      buttonLabel: '오늘의 구성 적용',
+    });
+
+    expect(challengeZone.innerHTML).toContain('일일 도전');
+    expect(challengeZone.innerHTML).toContain('2026-03-28');
+    expect(challengeZone.innerHTML).toContain('A3 · 무한 · 핏빛 월식');
+    expect(challengeZone.innerHTML).toContain('기록용 추천 구성');
+    expect(challengeZone.innerHTML).toContain('data-action="apply-daily-challenge"');
   });
 
   it('styles run mode description surfaces with the shared keyword palette', () => {

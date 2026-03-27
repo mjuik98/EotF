@@ -9,6 +9,7 @@ import { forgeEvent } from './events/forge_event.js';
 import { merchantLostEvent } from './events/merchant_lost_event.js';
 import { shrineEvent } from './events/shrine_event.js';
 import { addPlayerItemAndRegisterState } from './runtime_shared_support.js';
+import { pickMissingItemFromBestOwnedSet } from '../game/shared/progression/set_bonus_queries.js';
 
 const MAP_NODE_TYPE_LABELS = {
     combat: '전투',
@@ -125,6 +126,10 @@ function hasAvailableSpecialOfferItem(gs) {
 function notifyItemAcquired(item, services = {}) {
     services.playItemGet?.();
     services.showItemToast?.(item);
+}
+
+function pickBestIncompleteSetReward(gs) {
+    return pickMissingItemFromBestOwnedSet(gs, ITEMS);
 }
 
 function ensureWorldMemory(gs) {
@@ -485,6 +490,62 @@ export const EVENTS = [
                 text: '🚶 뒤돌아선다',
                 effect() {
                     return '석관의 심장 소리를 등지고 걸어 나왔다. 오늘은 생존이 탐욕보다 앞섰다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'attunement_cache', layer: 2, title: '공명 보관고', eyebrow: 'LAYER 2 · 세트 추적 이벤트',
+        isAvailable(gs) {
+            return !!pickBestIncompleteSetReward(gs);
+        },
+        desc: '공명 조각이 정갈하게 쌓인 보관고다. 이미 지닌 유물과 같은 파장을 내는 파편들이 어둠 속에서 당신을 부른다.',
+        choices: [
+            {
+                text: '✨ 공명을 맞춘다 (세트 구성품 1개 획득)',
+                effect(gs, services = {}) {
+                    const reward = pickBestIncompleteSetReward(gs);
+                    if (!reward?.item) {
+                        return { resultText: '맞출 수 있는 공명이 없다. 보관고는 끝내 잠잠했다.', isFail: true };
+                    }
+
+                    addPlayerItemAndRegisterState(gs, reward.item.id, reward.item);
+                    notifyItemAcquired(reward.item, services);
+                    return `${reward.setName}의 조각이 손에 붙는다. 이제 ${reward.nextOwnedCount}/${reward.total}. 보관고는 당신이 무엇을 모으는지 정확히 알고 있었다.`;
+                }
+            },
+            {
+                text: '💠 잔향만 챙긴다 (잔향 +30)',
+                effect(gs) {
+                    gs.addEcho?.(30);
+                    return '파편은 내려놓고 공명만 챙겼다. 완성은 미뤄졌지만, 다음 선택을 비출 빛은 남았다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'survivor_cairn', layer: 1, title: '생환자의 케언', eyebrow: 'LAYER 1 · 탐색 이벤트',
+        desc: '돌무더기 아래에 누군가의 귀환 기록이 남아 있다. 길을 잃지 않기 위해, 누군가는 마지막 좌표를 여기 숨겨 두었다.',
+        choices: [
+            {
+                text: '🪨 희미한 좌표를 따른다 (체력 10 회복, 다음 층 휴식처 확보)',
+                effect(gs) {
+                    gs.heal?.(10);
+                    const rewritten = rewriteUpcomingNodeType(gs, {
+                        toType: 'rest',
+                        preferFrom: ['combat', 'event', 'shop'],
+                    });
+                    if (!rewritten) {
+                        return '상처는 조금 아물었지만, 바꿀 수 있는 갈래는 더 남아 있지 않았다.';
+                    }
+                    return `${formatNodeRef(rewritten.node)}의 길이 ${formatNodeType(rewritten.to)}으로 바뀌었다. 다른 누군가의 귀환 기록이 이번엔 당신을 살린다.`;
+                }
+            },
+            {
+                text: '📜 기록만 읽고 지나간다 (골드 +20)',
+                effect(gs) {
+                    gs.addGold?.(20);
+                    return '좌표는 외우지 않았다. 대신 케언 아래 숨겨진 금속 패를 챙겼다. 살아남은 자의 작은 사례비다.';
                 }
             },
         ]

@@ -537,6 +537,19 @@ body {
   gap: 8px;
 }
 
+.title-run-archive-summary {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.title-run-archive-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  color: rgba(228, 236, 249, 0.86);
+}
+
 .title-run-archive-row {
   display: grid;
   gap: 3px;
@@ -5645,6 +5658,14 @@ body:has(#combatOverlay.active) .panel-bottom {
 .reward-card-type.rarity-legendary {
   color: #c084fc;
   text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+}
+
+.reward-item-set-hint {
+  padding: 5px 7px;
+  border-radius: 10px;
+  background: rgba(0, 255, 204, 0.08);
+  font-size: 10.5px;
+  color: rgba(214, 255, 244, 0.92);
 }
 
 .reward-card-wrapper:hover {

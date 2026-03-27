@@ -38,4 +38,20 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain("afterLoad.currentRegion !== beforeReturn.currentRegion");
     expect(source).toContain("afterLoad.playerClass !== beforeReturn.playerClass");
   });
+
+  it('includes a title meta smoke that captures archive and daily challenge screenshots', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'title_meta_smoke_check.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("localStorage.setItem('echo_fallen_meta'");
+    expect(source).toContain("page.waitForSelector('#titleRunArchive'");
+    expect(source).toContain("page.click('#mainRunRulesBtn')");
+    expect(source).toContain("page.waitForSelector('#rmChallengeZone'");
+    expect(source).toContain("page.click('[data-action=\"apply-daily-challenge\"]')");
+    expect(source).toContain("path.join(outDir, 'title-meta.png')");
+    expect(source).toContain("path.join(outDir, 'run-settings-daily-challenge.png')");
+    expect(source).toContain("path.join(outDir, 'result.json')");
+  });
 });

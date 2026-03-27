@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1249,
-  "edgeCount": 1617,
+  "nodeCount": 1250,
+  "edgeCount": 1620,
   "layerEdges": {
     "core->core": 190,
     "core->feature": 26,
@@ -10,6 +10,7 @@
     "core->utils": 2,
     "data->data": 20,
     "data->other": 2,
+    "data->shared": 1,
     "data->utils": 4,
     "engine->data": 1,
     "engine->engine": 2,
@@ -38,13 +39,19 @@
     "shared->data": 5,
     "shared->feature": 2,
     "shared->legacy": 2,
-    "shared->shared": 74,
+    "shared->shared": 76,
     "shared->utils": 3,
     "utils->core": 1,
     "utils->data": 2,
     "utils->utils": 5
   },
   "hottestByOut": [
+    {
+      "file": "data/events_data.js",
+      "layer": "data",
+      "outDegree": 9,
+      "inDegree": 1
+    },
     {
       "file": "game/features/run/application/run_rule_outcome.js",
       "layer": "feature",
@@ -56,12 +63,6 @@
       "layer": "shared",
       "outDegree": 9,
       "inDegree": 0
-    },
-    {
-      "file": "data/events_data.js",
-      "layer": "data",
-      "outDegree": 8,
-      "inDegree": 1
     },
     {
       "file": "game/core/bindings/build_module_registry_group_registrars.js",
@@ -246,6 +247,7 @@
       "data/events/shrine_event.js",
       "data/items.js",
       "data/runtime_shared_support.js",
+      "game/shared/progression/set_bonus_queries.js",
       "game/utils/log_utils.js"
     ],
     "data/events/echo_resonance_event.js": [],
@@ -3640,6 +3642,10 @@
     "game/shared/progression/set_bonus_passive_effects.js": [
       "game/shared/state/player_state_commands.js"
     ],
+    "game/shared/progression/set_bonus_queries.js": [
+      "game/shared/progression/set_bonus_catalog.js",
+      "game/shared/progression/set_bonus_helpers.js"
+    ],
     "game/shared/progression/set_bonus_resource_rules.js": [
       "game/shared/progression/set_bonus_helpers.js",
       "game/shared/state/player_state_commands.js"
@@ -3805,5 +3811,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-03-27T16:13:52.785Z"
+  "generatedAt": "2026-03-27T16:49:45.721Z"
 }

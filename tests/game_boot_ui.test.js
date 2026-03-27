@@ -405,6 +405,9 @@ describe('game_boot_ui', () => {
     });
 
     expect(doc.elements.titleRunArchive.innerHTML).toContain('귀환 기록실');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('최근 5런');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('승률 40%');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('최고 승천 A4');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('Run 7');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('Run 6');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('해금 2');
@@ -413,6 +416,7 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleRunArchive.innerHTML).toContain('09:40');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('기억 4');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('상위 승천');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('최다 처치 17');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('다음 업적');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('상인의 인연');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('0 / 1');

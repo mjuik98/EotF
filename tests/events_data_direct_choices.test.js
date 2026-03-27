@@ -440,4 +440,57 @@ describe('events_data direct choice branches', () => {
       id: 'field_journal',
     }));
   });
+
+  it('lets attunement_cache hand out a missing relic from the player’s strongest incomplete set', () => {
+    const event = EVENTS.find((entry) => entry.id === 'attunement_cache');
+    const choice = findChoice('attunement_cache', '공명을 맞춘다');
+    const services = {
+      playItemGet: vi.fn(),
+      showItemToast: vi.fn(),
+    };
+    const gs = {
+      player: {
+        items: ['monks_rosary'],
+      },
+      meta: {},
+    };
+
+    expect(event?.isAvailable(gs)).toBe(true);
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    const result = choice.effect(gs, services);
+
+    expect(gs.player.items).toContain('fountain_essence');
+    expect(result).toContain('생명의 성배');
+    expect(services.playItemGet).toHaveBeenCalledTimes(1);
+    expect(services.showItemToast).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'fountain_essence',
+    }));
+  });
+
+  it('lets survivor_cairn convert a future node into a rest stop while healing the player', () => {
+    const choice = findChoice('survivor_cairn', '희미한 좌표를 따른다');
+    const gs = {
+      currentFloor: 1,
+      mapNodes: [
+        { id: 'n8', floor: 2, pos: 0, type: 'combat', visited: false },
+      ],
+      player: {
+        hp: 18,
+        maxHp: 30,
+      },
+      heal(amount) {
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
+      },
+    };
+
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    const result = choice.effect(gs);
+
+    expect(gs.player.hp).toBe(28);
+    expect(gs.mapNodes[0].type).toBe('rest');
+    expect(result).toContain('2층 A 구역');
+    expect(result).toContain('휴식처');
+  });
 });

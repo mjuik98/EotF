@@ -14,6 +14,34 @@ import {
   invokeRewardTooltip,
 } from './reward_ui_option_bindings.js';
 
+function getRewardItemSetProgress(gs, item, setBonusSystem = null) {
+  const setId = item?.setId;
+  if (!setId) return null;
+
+  const setDef = setBonusSystem?.sets?.[setId] || null;
+  const setItems = Array.isArray(setDef?.items) ? setDef.items : [];
+  const total = setItems.length;
+  if (total <= 1) return null;
+
+  const owned = new Set(Array.isArray(gs?.player?.items) ? gs.player.items : []);
+  const ownedCount = setItems.reduce((count, itemId) => count + (owned.has(itemId) ? 1 : 0), 0);
+  const alreadyOwned = owned.has(item.id);
+  const nextOwnedCount = alreadyOwned ? ownedCount : Math.min(total, ownedCount + 1);
+  const setName = setDef?.name
+    || String(item.desc || '').match(/\[세트:\s*([^\]\n]+)\s*\]/)?.[1]
+    || item.setName
+    || item.setId;
+
+  return {
+    setName,
+    ownedCount,
+    total,
+    alreadyOwned,
+    nextOwnedCount,
+    completesSet: nextOwnedCount >= total,
+  };
+}
+
 function applyRewardCardShell(el, extraClasses = []) {
   el.className = [el.className, 'reward-card-shell', ...extraClasses].filter(Boolean).join(' ').trim();
 }
@@ -125,6 +153,13 @@ export function renderItemOption(container, item, deps, onPick, idx) {
   rarity.textContent = `유물 · ${toRarityLabel(item.rarity)}`;
 
   cardEl.append(icon, name, desc, rarity);
+  const setProgress = getRewardItemSetProgress(deps?.gs, item, deps?.setBonusSystem);
+  if (setProgress && !setProgress.alreadyOwned && setProgress.nextOwnedCount > setProgress.ownedCount) {
+    const setHint = doc.createElement('div');
+    setHint.className = 'reward-item-set-hint';
+    setHint.textContent = `${setProgress.setName} · 획득 시 ${setProgress.nextOwnedCount}/${setProgress.total}${setProgress.completesSet ? ' · 세트 완성' : ''}`;
+    cardEl.appendChild(setHint);
+  }
   wrapper.appendChild(cardEl);
   bindRewardTooltipHandlers(
     wrapper,

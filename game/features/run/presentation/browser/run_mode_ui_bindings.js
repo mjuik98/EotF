@@ -52,6 +52,10 @@ export function bindRunModePanelEvents(ui, deps = {}) {
     }
     if (action === 'delete-preset') {
       ui.deletePreset(Number(target.dataset.slot), deps);
+      return;
+    }
+    if (action === 'apply-daily-challenge') {
+      ui.applyDailyChallenge(deps);
     }
   });
 

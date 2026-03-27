@@ -284,6 +284,49 @@ describe('reward_ui_option_renderers', () => {
     expect(tooltipUI.hideItemTooltip).toHaveBeenCalledTimes(3);
   });
 
+  it('surfaces set-completion guidance for relic rewards that advance an owned set', () => {
+    const container = createMockElement('div');
+    const doc = createDoc();
+
+    renderItemOption(
+      container,
+      {
+        id: 'fountain_essence',
+        name: '샘물의 정수',
+        desc: '세트 구성품\n[세트: 생명의 성배]',
+        rarity: 'uncommon',
+        icon: '💧',
+        setId: 'holy_grail',
+      },
+      {
+        doc,
+        gs: {
+          player: {
+            items: ['monks_rosary'],
+          },
+        },
+        setBonusSystem: {
+          sets: {
+            holy_grail: {
+              name: '생명의 성배',
+              items: ['monks_rosary', 'fountain_essence', 'life_bloom_seed'],
+            },
+          },
+        },
+      },
+      vi.fn(),
+      0,
+    );
+
+    const wrapper = container.children[0];
+    const card = wrapper.children[0];
+    const setHint = card.children.find((child) => String(child.className).includes('reward-item-set-hint'));
+
+    expect(setHint).toBeTruthy();
+    expect(setHint.textContent).toContain('생명의 성배');
+    expect(setHint.textContent).toContain('획득 시 2/3');
+  });
+
   it('renders blessing rewards with general tooltip wiring', () => {
     const container = createMockElement('div');
     const doc = createDoc();
