@@ -136,6 +136,35 @@ describe('settings_ui_runtime', () => {
     expect(ui._rebindWindow).toBe(null);
   });
 
+  it('persists canonical target-cycle rebinds through the legacy nextTarget settings key', () => {
+    const listeners = {};
+    const button = {
+      textContent: 'TAB',
+      classList: {
+        add: vi.fn(),
+        remove: vi.fn(),
+      },
+    };
+    const win = {
+      addEventListener: vi.fn((name, handler) => {
+        listeners[name] = handler;
+      }),
+      removeEventListener: vi.fn((name, handler) => {
+        if (listeners[name] === handler) delete listeners[name];
+      }),
+    };
+    const doc = {
+      querySelector: vi.fn((selector) => (selector === '[data-keybind="targetCycle"]' ? button : null)),
+    };
+    const ui = createUi({ _runtimeDeps: { doc, win } });
+
+    startSettingsRebind(ui, 'targetCycle', { doc, win });
+    listeners.keydown({ code: 'KeyT', key: 't', preventDefault: vi.fn() });
+
+    expect(SettingsManager.get('keybindings.nextTarget')).toBe('KeyT');
+    expect(SettingsManager.get('keybindings.targetCycle')).toBe(undefined);
+  });
+
   it('closes the settings modal and forwards live deps', () => {
     const modal = { classList: createClassList(['active']) };
     const doc = {

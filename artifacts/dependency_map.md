@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-27T12:02:24.098Z
-- Nodes: 1224
-- Edges: 1593
+- Generated: 2026-03-27T16:13:52.785Z
+- Nodes: 1249
+- Edges: 1617
 
 ## Layer Edges
 
@@ -21,7 +21,7 @@
 | engine->engine | 2 |
 | feature->core | 16 |
 | feature->data | 13 |
-| feature->feature | 1017 |
+| feature->feature | 1039 |
 | feature->legacy | 1 |
 | feature->other | 1 |
 | feature->platform | 3 |
@@ -44,7 +44,7 @@
 | shared->data | 5 |
 | shared->feature | 2 |
 | shared->legacy | 2 |
-| shared->shared | 72 |
+| shared->shared | 74 |
 | shared->utils | 3 |
 | utils->core | 1 |
 | utils->data | 2 |
@@ -76,7 +76,7 @@
 |---|---:|
 | game/core/bindings/module_registry_scopes.js | 17 |
 | game/features/ui/ports/public_tooltip_support_capabilities.js | 16 |
-| game/features/meta_progression/public.js | 13 |
+| game/features/meta_progression/public.js | 15 |
 | game/features/combat/ports/combat_logging.js | 12 |
 | game/features/run/ports/public_rule_capabilities.js | 12 |
 | data/game_data.js | 11 |

@@ -3,6 +3,7 @@ import { SettingsManager } from '../game/core/settings_manager.js';
 import {
   checkConflicts,
   codeToLabel,
+  syncKeybindingDisplay,
   resolveKeybindRow,
   sortKeybindingRows,
   updateConflictBanner,
@@ -124,5 +125,17 @@ describe('settings_ui_keybinding_helpers', () => {
     expect(deckBtn.classList.toggle).toHaveBeenCalledWith('conflict', true);
     expect(updateBanner).toHaveBeenCalledWith(banner, [{ code: 'KeyP', actions: ['pause', 'deckView'] }]);
     expect(sortRows).toHaveBeenCalledWith(doc, expect.any(Set));
+  });
+
+  it('reads canonical target-cycle bindings through the shared input resolver', () => {
+    SettingsManager.set('keybindings.nextTarget', 'KeyT');
+    const button = { textContent: '' };
+    const doc = {
+      querySelector: vi.fn((selector) => (selector === '[data-keybind="targetCycle"]' ? button : null)),
+    };
+
+    syncKeybindingDisplay('targetCycle', doc);
+
+    expect(button.textContent).toBe('T');
   });
 });

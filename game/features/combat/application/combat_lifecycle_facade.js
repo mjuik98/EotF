@@ -14,8 +14,8 @@ import {
   LogUtils,
 } from '../ports/combat_logging.js';
 import {
-  runEndCombatFlow,
-} from './run_end_combat_flow_use_case.js';
+  runCombatRewardTransition,
+} from '../../combat_session/ports/runtime/public_combat_session_runtime_surface.js';
 import {
   applyPassiveResonanceBurstState,
   syncCombatMaxChainState,
@@ -45,7 +45,7 @@ function playResonanceBurstAudio(audioEngine, deps = {}) {
 
 export const CombatLifecycle = {
   async endCombat(deps = {}) {
-    const outcome = await runEndCombatFlow({
+    const outcome = await runCombatRewardTransition({
       combatStateCommands: {
         beginResolution: beginCombatResolution,
         completeResolution: completeCombatResolution,

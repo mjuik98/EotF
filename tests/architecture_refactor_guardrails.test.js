@@ -454,11 +454,11 @@ describe('architecture refactor guardrails', () => {
     );
   });
 
-  it('keeps character-select mounting routed through the title runtime public surface', () => {
+  it('keeps character-select mounting routed through the frontdoor runtime public surface', () => {
     const source = readText('game/core/bootstrap/mount_character_select.js');
 
     expect(source).toContain(
-      "from '../../features/title/ports/runtime/public_title_runtime_surface.js'",
+      "from '../../features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js'",
     );
     expect(source).not.toContain(
       "from '../../features/title/platform/browser/build_character_select_mount_payload.js'",

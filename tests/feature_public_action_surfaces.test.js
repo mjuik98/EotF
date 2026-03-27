@@ -256,6 +256,11 @@ vi.mock('../game/features/title/ports/runtime/public_title_runtime_surface.js', 
   registerTitleBindings: vi.fn(),
 }));
 
+vi.mock('../game/features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js', () => ({
+  buildFrontdoorBootPublicActions: hoisted.buildTitleBootPublicActions,
+  registerFrontdoorBindings: vi.fn(),
+}));
+
 vi.mock('../game/features/ui/public.js', () => ({
   buildUiShellContractPublicBuilders: hoisted.buildUiShellContractPublicBuilders,
   buildUiRuntimeSubscriberPublicActions: hoisted.buildUiRuntimeSubscriberPublicActions,

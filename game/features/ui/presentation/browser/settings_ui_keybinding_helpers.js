@@ -1,31 +1,8 @@
 import { SettingsManager } from '../../platform/browser/settings_manager.js';
-
-const CODE_LABEL_MAP = {
-  Space: 'SPACE',
-  Escape: 'ESC',
-  Slash: '?',
-  Enter: 'ENTER',
-  Tab: 'TAB',
-  KeyQ: 'Q',
-  KeyW: 'W',
-  KeyE: 'E',
-  KeyR: 'R',
-  KeyT: 'T',
-  KeyA: 'A',
-  KeyS: 'S',
-  KeyD: 'D',
-  KeyF: 'F',
-  KeyG: 'G',
-  KeyZ: 'Z',
-  KeyX: 'X',
-  KeyC: 'C',
-  KeyV: 'V',
-  Digit1: '1',
-  Digit2: '2',
-  Digit3: '3',
-  Digit4: '4',
-  Digit5: '5',
-};
+import {
+  getInputBindingCode,
+  inputCodeToLabel,
+} from '../../ports/public_input_capabilities.js';
 
 const KEYBIND_ACTION_LABELS = {
   endTurn: '턴 종료',
@@ -44,19 +21,11 @@ export const KEYBINDING_GROUPS = [
 ];
 
 export function codeToLabel(code) {
-  if (!code) return '';
-  if (CODE_LABEL_MAP[code]) return CODE_LABEL_MAP[code];
-  if (code.startsWith('Key')) return code.slice(3);
-  if (code.startsWith('Digit')) return code.slice(5);
-  if (code.startsWith('Arrow')) {
-    const dir = code.slice(5);
-    return { Up: 'UP', Down: 'DOWN', Left: 'LEFT', Right: 'RIGHT' }[dir] ?? code;
-  }
-  return code;
+  return inputCodeToLabel(code);
 }
 
 export function syncKeybindingDisplay(action, doc) {
-  const code = SettingsManager.get(`keybindings.${action}`);
+  const code = getInputBindingCode(action, undefined, SettingsManager.get('keybindings'));
   const btn = doc.querySelector(`[data-keybind="${action}"]`);
   if (btn) btn.textContent = codeToLabel(code);
 }

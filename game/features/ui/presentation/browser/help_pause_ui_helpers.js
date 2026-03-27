@@ -1,5 +1,6 @@
 export {
   eventMatchesCode,
+  getCurrentInputBindings,
   getKeybindingCode,
   keyCodeToLabel,
 } from './help_pause_keybinding_helpers.js';
@@ -21,6 +22,7 @@ export {
   canToggleDeckView,
   getRunHotkeyPolicy,
   getRunHotkeyState,
+  handleRunSessionHotkeyEvent,
   hasBlockingGameplayModal,
 } from './help_pause_run_hotkey_state.js';
 

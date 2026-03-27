@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 const {
   loadSpy,
   setSpy,
-  registerTitleBindingsSpy,
+  registerFrontdoorBindingsSpy,
   registerRunEntryBindingsSpy,
 } = vi.hoisted(() => ({
   loadSpy: vi.fn(() => ({
@@ -14,7 +14,7 @@ const {
     },
   })),
   setSpy: vi.fn(),
-  registerTitleBindingsSpy: vi.fn(),
+  registerFrontdoorBindingsSpy: vi.fn(),
   registerRunEntryBindingsSpy: vi.fn(),
 }));
 
@@ -25,8 +25,8 @@ vi.mock('../game/platform/browser/settings/settings_manager.js', () => ({
   },
 }));
 
-vi.mock('../game/features/title/ports/runtime/public_title_runtime_surface.js', () => ({
-  registerTitleBindings: registerTitleBindingsSpy,
+vi.mock('../game/features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js', () => ({
+  registerFrontdoorBindings: registerFrontdoorBindingsSpy,
 }));
 
 vi.mock('../game/features/run/ports/runtime/public_run_runtime_surface.js', () => ({
@@ -88,7 +88,7 @@ describe('RootBindings', () => {
     RootBindings.boot(deps);
 
     expect(settingsUI.applyOnBoot).toHaveBeenCalledWith(expect.objectContaining({ doc }));
-    expect(registerTitleBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
+    expect(registerFrontdoorBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
     expect(registerRunEntryBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
     expect(helpPauseUI.showMobileWarning).toHaveBeenCalledWith(expect.objectContaining({ token: 'help' }));
     expect(helpPauseUI.bindGlobalHotkeys).toHaveBeenCalledWith(expect.objectContaining({ token: 'help' }));

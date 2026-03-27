@@ -1,7 +1,7 @@
 import {
   buildCharacterSelectMountPayload,
   ensureCharacterSelectShell,
-} from '../../features/title/ports/runtime/public_title_runtime_surface.js';
+} from '../../features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js';
 import { getModuleRegistryScope } from '../bindings/module_registry_scopes.js';
 
 export function mountCharacterSelect({ modules, deps, fns, doc }) {

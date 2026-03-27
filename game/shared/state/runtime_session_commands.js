@@ -83,6 +83,11 @@ export function syncSelectedTarget(gs) {
   return gs._selectedTarget;
 }
 
+export function setSelectedTarget(gs, targetIndex) {
+  gs._selectedTarget = toTargetIndex(targetIndex);
+  return gs._selectedTarget;
+}
+
 export function recordEnemyWorldKill(gs, enemyId, options = {}) {
   const key = `killed_${enemyId}`;
   gs.worldMemory[key] = (gs.worldMemory[key] || 0) + 1;

@@ -1,5 +1,5 @@
 import { SettingsManager } from '../settings/settings_manager.js';
-import { registerTitleBindings } from '../../../features/title/ports/runtime/public_title_runtime_surface.js';
+import { registerFrontdoorBindings } from '../../../features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js';
 import { registerRunEntryBindings } from '../../../features/run/ports/runtime/public_run_runtime_surface.js';
 import { isEscapeKey, isVisibleModal } from './root_binding_helpers.js';
 
@@ -66,7 +66,7 @@ export const RootBindings = {
     const doc = getBindingDoc(deps);
     const actions = deps.actions || {};
 
-    registerTitleBindings({
+    registerFrontdoorBindings({
       actions,
       audio: deps.audioEngine,
       doc,

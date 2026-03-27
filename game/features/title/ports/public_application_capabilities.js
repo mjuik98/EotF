@@ -5,3 +5,4 @@ export {
 export * from './public_progression_capabilities.js';
 export * from './public_ending_application_capabilities.js';
 export * from './public_help_pause_application_capabilities.js';
+export * from './public_return_application_capabilities.js';

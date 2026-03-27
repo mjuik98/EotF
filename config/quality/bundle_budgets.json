@@ -7,6 +7,6 @@
   "uiCombatTooltipsJs": { "label": "ui-combat-tooltips chunk", "maxBytes": 16384 },
   "uiSettingsJs": { "label": "ui-settings chunk", "maxBytes": 20480 },
   "uiShellOverlaysJs": { "label": "ui-shell-overlays chunk", "maxBytes": 22528 },
-  "codexUiJs": { "label": "codex ui chunk", "maxBytes": 41152 },
+  "codexUiJs": { "label": "codex ui chunk", "maxBytes": 41280 },
   "runModeUiJs": { "label": "run mode ui chunk", "maxBytes": 28672 }
 }

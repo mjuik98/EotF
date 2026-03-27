@@ -1,3 +1,4 @@
+import { cycleNextCombatTarget } from '../../../combat_session/ports/public_application_capabilities.js';
 import {
   getRunHotkeyPolicy,
   getRunHotkeyState,
@@ -20,21 +21,7 @@ export function closeVisibleModalById(event, doc, id, onClose, swallowEscape) {
 }
 
 export function cycleNextTarget(gs, deps) {
-  const enemies = gs?.combat?.enemies || [];
-  const aliveIndices = enemies
-    .map((enemy, idx) => (enemy.hp > 0 ? idx : -1))
-    .filter((idx) => idx >= 0);
-
-  if (aliveIndices.length <= 1) return;
-
-  const current = aliveIndices.indexOf(gs._selectedTarget ?? -1);
-  gs._selectedTarget = aliveIndices[(current + 1) % aliveIndices.length];
-  if (typeof gs?.addLog === 'function') {
-    gs.addLog(`🎯 대상: ${enemies[gs._selectedTarget].name}`, 'system');
-  }
-  if (typeof deps.renderCombatEnemies === 'function') {
-    deps.renderCombatEnemies();
-  }
+  cycleNextCombatTarget(gs, deps);
 }
 
 export function handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape }) {

@@ -1,5 +1,6 @@
 import { SettingsManager } from '../../platform/browser/settings_manager.js';
 import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
+import { getInputSettingsKey } from '../../ports/public_input_capabilities.js';
 import {
   getDoc,
   getWin,
@@ -61,6 +62,7 @@ export function startSettingsRebind(ui, action, deps = {}) {
   const doc = getDoc(deps);
   cancelSettingsRebind(ui, deps);
   beginSettingsRebindUi(ui, action, doc, getWin(deps));
+  const settingsKey = getInputSettingsKey(action) || action;
 
   ui._keydownHandler = (e) => {
     e.preventDefault();
@@ -69,7 +71,7 @@ export function startSettingsRebind(ui, action, deps = {}) {
       return;
     }
 
-    SettingsManager.set(`keybindings.${action}`, e.code);
+    SettingsManager.set(`keybindings.${settingsKey}`, e.code);
     ui._syncKeybindingDisplay(action, doc);
     cleanupSettingsRebind(ui, action, doc);
   };

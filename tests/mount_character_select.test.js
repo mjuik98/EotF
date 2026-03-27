@@ -6,7 +6,7 @@ const hoisted = vi.hoisted(() => ({
   getModuleRegistryScope: vi.fn((modules, scope) => modules[scope]),
 }));
 
-vi.mock('../game/features/title/ports/runtime/public_title_runtime_surface.js', () => ({
+vi.mock('../game/features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js', () => ({
   buildCharacterSelectMountPayload: hoisted.buildCharacterSelectMountPayload,
   ensureCharacterSelectShell: hoisted.ensureCharacterSelectShell,
 }));

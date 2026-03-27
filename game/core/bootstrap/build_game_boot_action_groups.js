@@ -1,9 +1,9 @@
 import { buildRunBootPublicActions } from '../../features/run/ports/public_runtime_capabilities.js';
-import { buildTitleBootPublicActions } from '../../features/title/ports/runtime/public_title_runtime_surface.js';
+import { buildFrontdoorBootPublicActions } from '../../features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js';
 
 export function buildGameBootActionGroups(fns) {
   return {
-    title: buildTitleBootPublicActions(fns),
+    title: buildFrontdoorBootPublicActions(fns),
     run: buildRunBootPublicActions(fns),
   };
 }

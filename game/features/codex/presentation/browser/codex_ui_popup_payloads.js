@@ -9,7 +9,7 @@ import {
   getRarityBadgeClass,
   getRarityLabel,
 } from './codex_ui_helpers.js';
-import { getUnlockRequirementLabel } from '../../../meta_progression/domain/content_unlock_queries.js';
+import { getUnlockRequirementLabel } from '../../../meta_progression/public.js';
 export {
   buildCodexNavBlock,
   buildCodexQuoteBlock,

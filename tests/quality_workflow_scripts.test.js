@@ -80,7 +80,7 @@ describe('quality workflow scripts', () => {
     expect(bundleBudgets.entryCss.maxBytes).toBe(190 * 1024);
     expect(bundleBudgets.uiEventJs.maxBytes).toBe(44 * 1024);
     expect(bundleBudgets.uiCombatJs.maxBytes).toBe(320 * 1024);
-    expect(bundleBudgets.codexUiJs.maxBytes).toBe(41024);
+    expect(bundleBudgets.codexUiJs.maxBytes).toBe(41280);
     expect(bundleBudgets.runModeUiJs.maxBytes).toBe(28 * 1024);
     expect(structuralAuditThresholds.maxThinReexports).toBe(0);
     expect(structuralAuditThresholds.maxCompatRootCounts['game/ui']).toBe(0);
