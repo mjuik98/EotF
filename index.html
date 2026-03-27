@@ -67,6 +67,10 @@
                 <div class="title-stat-label">최고 연쇄</div>
               </div>
             </div>
+            <div class="title-recent-runs" id="titleRecentRuns"></div>
+            <div class="title-run-archive" id="titleRunArchive"></div>
+            <div class="title-recovery-panel" id="titleRecoveryPanel"></div>
+            <button id="titleRecoveryRetryBtn" class="title-recovery-retry" type="button" style="display:none;"></button>
           </div>
         </section>
 
@@ -105,6 +109,16 @@
           </div>
 
           <div class="title-menu-divider" id="titleMenuDivider" style="display:none;"></div>
+
+          <div class="title-save-controls" aria-label="저장 슬롯 관리">
+            <div class="title-save-slot-bar" id="titleSaveSlotBar"></div>
+            <div class="title-save-actions">
+              <button id="titleSaveExportBtn" class="title-save-action-btn" type="button">내보내기</button>
+              <button id="titleSaveImportBtn" class="title-save-action-btn" type="button">가져오기</button>
+              <button id="titleSaveDeleteBtn" class="title-save-action-btn title-save-action-btn--danger" type="button">삭제</button>
+              <input id="titleSaveImportInput" type="file" accept="application/json,.json" hidden>
+            </div>
+          </div>
 
           <div class="title-menu-list">
             <button id="mainStartBtn" class="title-menu-btn title-menu-btn--primary" data-nav="1" type="button">

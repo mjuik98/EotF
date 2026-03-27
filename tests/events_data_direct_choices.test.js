@@ -260,4 +260,99 @@ describe('events_data direct choice branches', () => {
     expect(gs.player.echo).toBe(20);
     expect(result).toContain('남의 기억이 당신 안으로 들어온다');
   });
+
+  it('lets the returned caravan reroute a future node after saving the merchant', () => {
+    const choice = findChoice('merchant_caravan', '안전한 길');
+    const gs = {
+      currentFloor: 1,
+      worldMemory: {
+        savedMerchant: 1,
+      },
+      mapNodes: [
+        { id: 'n4', floor: 2, pos: 0, type: 'combat', visited: false },
+      ],
+      player: {
+        gold: 0,
+        hp: 22,
+        maxHp: 40,
+      },
+      heal(amount) {
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
+      },
+    };
+
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    const result = choice.effect(gs);
+
+    expect(gs.worldMemory.merchantCaravanMet).toBe(1);
+    expect(gs.player.hp).toBe(30);
+    expect(gs.mapNodes[0].type).toBe('shop');
+    expect(result).toContain('상점');
+  });
+
+  it('forces a debt payment path after robbing the merchant', () => {
+    const choice = findChoice('merchant_collectors', '빚을 갚는다');
+    const gs = {
+      worldMemory: {
+        stoleFromMerchant: true,
+      },
+      player: {
+        gold: 40,
+      },
+    };
+
+    const result = choice.effect(gs);
+
+    expect(gs.player.gold).toBe(15);
+    expect(gs.worldMemory.merchantDebtResolved).toBe(1);
+    expect(result).toContain('빚');
+  });
+
+  it('lets the ancient echo memorial convert boss memory into echo charge', () => {
+    const choice = findChoice('ancient_echo_memorial', '잔향을 받아들인다');
+    const gs = {
+      worldMemory: {
+        killed_ancient_echo: 1,
+      },
+      player: {
+        echo: 5,
+      },
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+    };
+
+    const result = choice.effect(gs);
+
+    expect(gs.player.echo).toBe(45);
+    expect(gs.worldMemory.ancientEchoMemorialSeen).toBe(1);
+    expect(result).toContain('태고의 잔향');
+  });
+
+  it('opens a broker reroute event when merchant and boss memories overlap', () => {
+    const choice = findChoice('memory_broker', '봉인 좌표를 산다');
+    const gs = {
+      currentFloor: 1,
+      worldMemory: {
+        savedMerchant: 1,
+        killed_ancient_echo: 1,
+      },
+      mapNodes: [
+        { id: 'n5', floor: 2, pos: 0, type: 'combat', visited: false },
+      ],
+      player: {
+        gold: 40,
+      },
+    };
+
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    const result = choice.effect(gs);
+
+    expect(gs.player.gold).toBe(15);
+    expect(gs.worldMemory.memoryBrokerMet).toBe(1);
+    expect(gs.mapNodes[0].type).toBe('event');
+    expect(result).toContain('2층 A 구역');
+  });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildUnlockRoadmap,
   isContentAvailable,
   getContentVisibility,
   getContentLabel,
@@ -103,5 +104,196 @@ describe('content unlock queries', () => {
     expect(isContentAvailable(meta, { type: 'card', id: 'blade_dance', classId: 'hunter' })).toBe(false);
     expect(isContentAvailable(meta, { type: 'relic', id: 'void_compass', classId: 'mage' })).toBe(true);
     expect(isContentAvailable(meta, { type: 'relic', id: 'void_compass', classId: 'guardian' })).toBe(false);
+  });
+
+  it('builds the next account and class unlock roadmap entries', () => {
+    const meta = {
+      stats: {
+        victories: 0,
+        cursedVictories: 0,
+      },
+      classProgress: {
+        levels: {
+          paladin: 2,
+        },
+      },
+      contentUnlocks: {
+        curses: {},
+        relics: {},
+        cards: { shared: {} },
+      },
+    };
+
+    expect(buildUnlockRoadmap(meta, { classId: 'paladin' })).toEqual({
+      account: [
+        {
+          contentType: 'curse',
+          contentId: 'blood_moon',
+          contentLabel: '핏빛 월식',
+          requirementLabel: '첫 승리 필요',
+          progressLabel: '0 / 1',
+          achievementTitle: '첫 승리',
+          focusLabel: '승리 런',
+        },
+        {
+          contentType: 'curse',
+          contentId: 'void_oath',
+          contentLabel: '공허의 맹세',
+          requirementLabel: '저주 활성화 상태로 승리 1회 필요',
+          progressLabel: '0 / 1',
+          achievementTitle: '저주 정복자 I',
+          focusLabel: '저주 승리',
+        },
+      ],
+      class: [{
+        contentType: 'card',
+        contentId: 'judgement',
+        contentLabel: '심판',
+        requirementLabel: '찬송기사 숙련도 3 달성 필요',
+        progressLabel: '2 / 3',
+        achievementTitle: '성기사 숙련',
+        focusLabel: '클래스 숙련',
+      }],
+    });
+  });
+
+  it('skips unlock roadmap entries that are already unlocked', () => {
+    const meta = {
+      stats: {
+        victories: 1,
+        cursedVictories: 1,
+      },
+      classProgress: {
+        levels: {
+          paladin: 3,
+        },
+      },
+      contentUnlocks: {
+        curses: {
+          blood_moon: { unlocked: true },
+        },
+        relics: {},
+        cards: {
+          shared: {},
+          paladin: {
+            judgement: { unlocked: true },
+          },
+        },
+      },
+    };
+
+    expect(buildUnlockRoadmap(meta, { classId: 'paladin' })).toEqual({
+      account: [
+        {
+          contentType: 'curse',
+          contentId: 'void_oath',
+          contentLabel: '공허의 맹세',
+          requirementLabel: '저주 활성화 상태로 승리 1회 필요',
+          progressLabel: '1 / 1',
+          achievementTitle: '저주 정복자 I',
+          focusLabel: '저주 승리',
+        },
+        {
+          contentType: 'relic',
+          contentId: 'ancient_battery',
+          contentLabel: '고대 배터리',
+          requirementLabel: '잃어버린 상인을 1회 구출 필요',
+          progressLabel: '0 / 1',
+          achievementTitle: '상인의 인연',
+          focusLabel: '세계 기억',
+        },
+      ],
+      class: [],
+    });
+  });
+
+  it('surfaces multiple near-term account unlocks instead of only the first entry', () => {
+    const meta = {
+      bestChain: 11,
+      worldMemory: {
+        savedMerchant: 1,
+      },
+      progress: {
+        victories: 4,
+        failures: 2,
+      },
+      classProgress: {
+        levels: {},
+      },
+      contentUnlocks: {
+        curses: {
+          blood_moon: { unlocked: true },
+          void_oath: { unlocked: true },
+          shadow_burden: { unlocked: true },
+          ruinous_tide: { unlocked: true },
+        },
+        relics: {
+          ancient_battery: { unlocked: true },
+        },
+        relicsByClass: {},
+        cards: { shared: {} },
+      },
+    };
+
+    expect(buildUnlockRoadmap(meta, { classId: 'mage' }).account).toEqual([
+      expect.objectContaining({
+        contentType: 'relic',
+        contentId: 'dimension_key',
+        achievementTitle: '루프 개척자',
+        progressLabel: '4 / 5',
+      }),
+      expect.objectContaining({
+        contentType: 'relic',
+        contentId: 'eternal_fragment',
+        achievementTitle: '상처 입은 귀환',
+        progressLabel: '2 / 3',
+      }),
+    ]);
+  });
+
+  it('tracks story-piece and codex-entry progress in the unlock roadmap', () => {
+    const meta = {
+      storyPieces: [1, 2, 3, 4],
+      codex: {
+        enemies: new Set(['a', 'b', 'c', 'd', 'e', 'f']),
+        cards: new Set(['g', 'h', 'i', 'j', 'k']),
+        items: new Set(['l', 'm', 'n', 'o', 'p', 'q', 'r']),
+      },
+      progress: {
+        victories: 0,
+        failures: 0,
+      },
+      classProgress: {
+        levels: {},
+      },
+      contentUnlocks: {
+        curses: {
+          blood_moon: { unlocked: true },
+          void_oath: { unlocked: true },
+          shadow_burden: { unlocked: true },
+          ruinous_tide: { unlocked: true },
+        },
+        relics: {
+          ancient_battery: { unlocked: true },
+        },
+        relicsByClass: {},
+        cards: { shared: {} },
+      },
+    };
+
+    expect(buildUnlockRoadmap(meta, { classId: 'guardian' }).account).toEqual([
+      expect.objectContaining({
+        contentId: 'memory_thread',
+        achievementTitle: '기억 수집가',
+        progressLabel: '4 / 5',
+        focusLabel: '스토리 조각',
+      }),
+      expect.objectContaining({
+        contentId: 'field_journal',
+        achievementTitle: '현장 조사원',
+        progressLabel: '18 / 20',
+        focusLabel: '도감 수집',
+      }),
+    ]);
   });
 });

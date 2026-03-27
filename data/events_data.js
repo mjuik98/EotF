@@ -84,6 +84,19 @@ function isItemObtainableFrom(item, source = 'event') {
     return routes.includes(source);
 }
 
+function hasRelicUnlockState(meta, itemId, classId = '') {
+    const shared = meta?.contentUnlocks?.relics?.[itemId];
+    if (shared?.unlocked) return true;
+    if (!classId) return false;
+    return !!meta?.contentUnlocks?.relicsByClass?.[String(classId)]?.[itemId]?.unlocked;
+}
+
+function isEventRelicAvailable(gs, item) {
+    if (!item?.id) return false;
+    if (item.requiresUnlock !== true) return true;
+    return hasRelicUnlockState(gs?.meta, item.id, gs?.player?.class);
+}
+
 function pickObtainableItem(gs, {
     source = 'event',
     specialOfferOnly = false,
@@ -95,14 +108,34 @@ function pickObtainableItem(gs, {
         if (!isItemObtainableFrom(item, source)) return false;
         if (specialOfferOnly && item.specialOffer !== true) return false;
         if (excludeOwned && owned.has(item.id)) return false;
+        if (!isEventRelicAvailable(gs, item)) return false;
         return true;
     });
     return pickRandom(pool) || null;
 }
 
+function hasAvailableSpecialOfferItem(gs) {
+    return !!pickObtainableItem(gs, {
+        source: 'special_event',
+        specialOfferOnly: true,
+        excludeOwned: true,
+    });
+}
+
 function notifyItemAcquired(item, services = {}) {
     services.playItemGet?.();
     services.showItemToast?.(item);
+}
+
+function ensureWorldMemory(gs) {
+    if (!gs.worldMemory || typeof gs.worldMemory !== 'object') {
+        gs.worldMemory = {};
+    }
+    return gs.worldMemory;
+}
+
+function markWorldMemory(gs, key, value = 1) {
+    ensureWorldMemory(gs)[key] = value;
 }
 
 export const EVENTS = [
@@ -150,6 +183,134 @@ export const EVENTS = [
     },
     shrineEvent,
     merchantLostEvent,
+    {
+        id: 'merchant_caravan', layer: 2, title: '돌아온 상단', eyebrow: 'LAYER 2 · 연속 이벤트',
+        desc: '익숙한 목소리가 당신을 불렀다. 길 잃은 상인이 작은 상단을 이끌고 서 있다. "지난번의 빚은 길로 갚겠다." 상자와 지도 중 하나를 내민다.',
+        isAvailable(gs) {
+            const memory = gs?.worldMemory || {};
+            return Number(memory.savedMerchant || 0) > 0 && !memory.merchantCaravanMet;
+        },
+        choices: [
+            {
+                text: '📦 보급 상자를 받는다 (체력 8 회복, 골드 25)',
+                effect(gs) {
+                    markWorldMemory(gs, 'merchantCaravanMet');
+                    gs.heal?.(8);
+                    gs.addGold?.(25);
+                    return '상단은 약품과 동전을 남기고 사라졌다. 당신을 기억하는 세계가 있다는 사실이 조금 불편하다.';
+                }
+            },
+            {
+                text: '🗺 안전한 길을 묻는다 (체력 8 회복, 다음 층 상점으로 변경)',
+                effect(gs) {
+                    markWorldMemory(gs, 'merchantCaravanMet');
+                    gs.heal?.(8);
+                    const rewritten = rewriteUpcomingNodeType(gs, {
+                        toType: 'shop',
+                        preferFrom: ['combat', 'event'],
+                    });
+                    if (!rewritten) {
+                        return '상인은 길을 짚어 줬지만, 바꿀 수 있는 갈래는 없었다. 그래도 숨을 돌릴 시간은 벌었다.';
+                    }
+                    return `${formatNodeRef(rewritten.node)}의 길이 ${formatNodeType(rewritten.to)}으로 바뀌었다. 상단은 더 이상 우연이 아니라고 말하는 듯하다.`;
+                }
+            },
+        ]
+    },
+    {
+        id: 'merchant_collectors', layer: 2, title: '채권 수금인', eyebrow: 'LAYER 2 · 연속 이벤트',
+        desc: '검은 장부를 든 수금인이 길을 막는다. "상인의 빚은 돌아옵니다." 그는 당신이 외면했던 표정을 정확히 기억하고 있다.',
+        isAvailable(gs) {
+            const memory = gs?.worldMemory || {};
+            return !!memory.stoleFromMerchant && !memory.merchantDebtResolved;
+        },
+        choices: [
+            {
+                text: '💸 빚을 갚는다 (골드 -25)',
+                effect(gs) {
+                    if (Number(gs?.player?.gold || 0) < 25) {
+                        return { resultText: '갚을 만큼의 금이 없다. 수금인은 침묵 속에서 손을 뻗는다.', isFail: true };
+                    }
+                    gs.player.gold -= 25;
+                    markWorldMemory(gs, 'merchantDebtResolved');
+                    return '장부에 붉은 선이 그어진다. 빚은 사라졌지만, 기억은 사라지지 않는다.';
+                }
+            },
+            {
+                text: '🏃 흔적을 남긴 채 달아난다 (체력 -12)',
+                effect(gs) {
+                    markWorldMemory(gs, 'merchantDebtResolved');
+                    gs.player.hp = Math.max(1, Number(gs?.player?.hp || 0) - 12);
+                    return '칼끝이 스치고 지나간다. 간신히 벗어났지만, 이번에는 몸이 값을 치렀다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'ancient_echo_memorial', layer: 2, title: '태고의 추모석', eyebrow: 'LAYER 2 · 기억 이벤트',
+        desc: '검은 석판에 태고의 잔향이 눌어붙어 있다. 한 번 쓰러뜨린 목소리가 다시 귓가를 긁는다. 세계가 패배를 기억하는 방식은 늘 불쾌하다.',
+        isAvailable(gs) {
+            const memory = gs?.worldMemory || {};
+            return Number(memory.killed_ancient_echo || 0) > 0 && !memory.ancientEchoMemorialSeen;
+        },
+        choices: [
+            {
+                text: '🌑 잔향을 받아들인다 (잔향 +40)',
+                effect(gs) {
+                    markWorldMemory(gs, 'ancientEchoMemorialSeen');
+                    gs.addEcho?.(40);
+                    return '태고의 잔향이 다시 스며든다. 승리는 끝났지만, 울림은 아직 끝나지 않았다.';
+                }
+            },
+            {
+                text: '🪨 파편을 주워 담는다 (골드 +30)',
+                effect(gs) {
+                    markWorldMemory(gs, 'ancientEchoMemorialSeen');
+                    gs.addGold?.(30);
+                    return '깨진 추모석 조각 사이에 아직 값이 남아 있었다. 세계는 기억마저 거래품으로 남겨 둔다.';
+                }
+            },
+        ]
+    },
+    {
+        id: 'memory_broker', layer: 2, title: '기억 밀거래상', eyebrow: 'LAYER 2 · 교차 기억 이벤트',
+        desc: '상인의 인장과 태고의 잔향이 한 자리에 겹친다. 얼굴을 가린 거래상이 웃는다. "기억이 두 겹이면 길값도 바뀌지." 그는 봉인 좌표를 판다.',
+        isAvailable(gs) {
+            const memory = gs?.worldMemory || {};
+            return Number(memory.savedMerchant || 0) > 0
+                && Number(memory.killed_ancient_echo || 0) > 0
+                && !memory.memoryBrokerMet;
+        },
+        choices: [
+            {
+                text: '🗺 봉인 좌표를 산다 (골드 -25, 다음 층 이벤트로 변경)',
+                effect(gs) {
+                    if (Number(gs?.player?.gold || 0) < 25) {
+                        return { resultText: '거래를 마무리할 금이 부족하다. 밀거래상은 좌표 대신 침묵만 남긴다.', isFail: true };
+                    }
+                    gs.player.gold -= 25;
+                    markWorldMemory(gs, 'memoryBrokerMet');
+                    const rerouted = rewriteUpcomingNodeType(gs, {
+                        toType: 'event',
+                        preferFrom: ['combat', 'rest'],
+                    });
+                    if (!rerouted) {
+                        return '좌표는 손에 들어왔지만, 지금 바꿀 수 있는 갈래는 없었다. 다음 루프에 더 선명해질지도 모른다.';
+                    }
+                    return `${formatNodeRef(rerouted.node)}의 경로가 ${formatNodeType(rerouted.to)}로 바뀌었다. 밀거래상은 이미 다음 기억으로 사라졌다.`;
+                }
+            },
+            {
+                text: '💉 기억을 담보로 돈을 받는다 (체력 -8, 골드 +40)',
+                effect(gs) {
+                    markWorldMemory(gs, 'memoryBrokerMet');
+                    gs.player.hp = Math.max(1, Number(gs?.player?.hp || 0) - 8);
+                    gs.addGold?.(40);
+                    return '팔뚝에 차가운 감각이 남는다. 무엇을 맡겼는지는 기억나지 않지만, 대가만큼은 손에 남았다.';
+                }
+            },
+        ]
+    },
     echoResonanceEvent,
     forgeEvent,
     {
@@ -288,6 +449,9 @@ export const EVENTS = [
     },
     {
         id: 'sealed_reliquary', layer: 2, title: '봉인된 성유물고', eyebrow: 'LAYER 2 · 특수 유물 이벤트',
+        isAvailable(gs) {
+            return hasAvailableSpecialOfferItem(gs);
+        },
         desc: '검은 석관들이 원형으로 배치되어 있다. 봉인마다 다른 심장이 뛴다. 강한 힘이 잠들어 있지만, 꺼내는 순간 대가도 함께 깨어날 것이다.',
         choices: [
             {

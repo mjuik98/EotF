@@ -54,6 +54,7 @@ export function resolveEventService({
   runIdempotent,
   resolveEventChoiceFlow,
   finishEventFlow,
+  flowUi,
   refreshGoldBar,
   resolveEvent,
 }) {
@@ -65,10 +66,11 @@ export function resolveEventService({
     deps,
     audioEngine,
     getEventId,
-    runIdempotent,
-    resolveEventChoiceFlow,
-    finishEventFlow,
-    refreshGoldBar,
-    resolveEvent,
-  });
+      runIdempotent,
+      resolveEventChoiceFlow,
+      finishEventFlow,
+      flowUi,
+      refreshGoldBar,
+      resolveEvent,
+    });
 }

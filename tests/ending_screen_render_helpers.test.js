@@ -102,10 +102,18 @@ describe('ending_screen_render_helpers', () => {
       title: 'title',
       subtitle: 'subtitle',
       stats: [],
+      achievements: [{
+        id: 'first_victory',
+        icon: '🏁',
+        title: '첫 승리',
+        description: '첫 승리를 달성했다.',
+      }],
     });
 
     expect(root.id).toBe('endingScreen');
     expect(root.innerHTML).not.toContain('btnCodex');
+    expect(root.innerHTML).toContain('이번 업적');
+    expect(root.innerHTML).toContain('achievementRow');
   });
 
   it('applies rank text, styles, and sigil attributes', () => {
@@ -206,10 +214,13 @@ describe('ending_screen_render_helpers', () => {
     chipRow.id = 'chipRow';
     const pillRow = createMockElement('div');
     pillRow.id = 'pillRow';
+    const achievementRow = createMockElement('div');
+    achievementRow.id = 'achievementRow';
     byId.set('deckGrid', deckGrid);
     byId.set('tlNodes', tlNodes);
     byId.set('chipRow', chipRow);
     byId.set('pillRow', pillRow);
+    byId.set('achievementRow', achievementRow);
 
     const session = { timers: [] };
     populateEndingMeta(doc, {
@@ -226,6 +237,12 @@ describe('ending_screen_render_helpers', () => {
       chips: [],
       inscriptions: [],
       unlocks: [],
+      achievements: [{
+        id: 'first_victory',
+        icon: '🏁',
+        title: '첫 승리',
+        description: '첫 승리를 달성했다.',
+      }],
     }, session, { win: doc.defaultView });
 
     expect(deckCol.children.some((child) => child.id === 'endingDeckDetail')).toBe(true);
@@ -240,6 +257,8 @@ describe('ending_screen_render_helpers', () => {
     expect(detail.children[2].textContent).toContain('공격');
     expect(detail.children[2].textContent).toContain('희귀');
     expect(detail.children[2].textContent).toContain('비용 1');
+    expect(achievementRow.children[0].textContent).toContain('🏁');
+    expect(achievementRow.children[0].textContent).toContain('첫 승리');
 
     card.on_mouseleave?.({ currentTarget: card, relatedTarget: null });
     expect(detail.dataset.open).toBe('false');

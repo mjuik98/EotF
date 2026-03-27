@@ -512,6 +512,126 @@ body {
   flex-wrap: wrap;
 }
 
+.title-recent-runs {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.title-run-archive,
+.title-recovery-panel {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.title-run-archive-label,
+.title-recovery-kicker {
+  color: rgba(187, 196, 219, 0.62);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+
+.title-run-archive-list {
+  display: grid;
+  gap: 8px;
+}
+
+.title-run-archive-row {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.title-run-archive-row strong {
+  color: rgba(245, 247, 255, 0.95);
+  font-size: 12px;
+}
+
+.title-run-archive-row span,
+.title-recovery-copy,
+.title-recovery-meta {
+  color: rgba(203, 208, 224, 0.72);
+  font-size: 11px;
+}
+
+.title-recovery-panel {
+  padding: 10px 12px;
+  border: 1px solid rgba(240, 180, 41, 0.18);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(240, 180, 41, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.title-recovery-retry {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid rgba(240, 180, 41, 0.32);
+  border-radius: 12px;
+  background: rgba(22, 20, 14, 0.92);
+  color: rgba(255, 245, 214, 0.94);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.title-recent-runs-label {
+  color: rgba(187, 196, 219, 0.62);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+
+.title-recent-runs-list {
+  display: grid;
+  gap: 8px;
+}
+
+.title-recent-run-chip {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.title-recent-run-chip strong {
+  color: rgba(245, 247, 255, 0.95);
+  font-size: 13px;
+}
+
+.title-recent-run-chip span {
+  color: rgba(203, 208, 224, 0.68);
+  font-size: 11px;
+}
+
+.title-recent-run-chip .title-recent-run-outcome {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.title-recent-run-chip.victory {
+  border-color: rgba(74, 243, 204, 0.22);
+  background: linear-gradient(180deg, rgba(74, 243, 204, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.title-recent-run-chip.defeat {
+  border-color: rgba(255, 107, 74, 0.2);
+  background: linear-gradient(180deg, rgba(255, 107, 74, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.title-recent-run-chip.abandon {
+  border-color: rgba(240, 212, 114, 0.2);
+  background: linear-gradient(180deg, rgba(240, 212, 114, 0.08), rgba(255, 255, 255, 0.03));
+}
+
 .title-stat-item {
   min-width: 112px;
 }
@@ -732,6 +852,84 @@ body {
   height: 1px;
   margin: 6px 0 12px;
   background: linear-gradient(90deg, rgba(123, 47, 255, 0.25), transparent);
+}
+
+.title-save-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 14px;
+  animation: titleFadeSlideLeft 0.6s ease 1.18s both;
+}
+
+.title-save-slot-bar,
+.title-save-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.title-save-slot-btn,
+.title-save-action-btn {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(236, 240, 250, 0.86);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.title-save-slot-btn:hover,
+.title-save-slot-btn:focus-visible,
+.title-save-action-btn:hover,
+.title-save-action-btn:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 255, 204, 0.3);
+  background: rgba(0, 255, 204, 0.08);
+}
+
+.title-save-slot-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 88px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-align: left;
+}
+
+.title-save-slot-btn.active {
+  border-color: rgba(0, 255, 204, 0.42);
+  background: linear-gradient(180deg, rgba(8, 47, 44, 0.72), rgba(7, 23, 24, 0.9));
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.08);
+}
+
+.title-save-slot-btn.empty {
+  opacity: 0.72;
+}
+
+.title-save-slot-label {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.title-save-slot-state {
+  color: rgba(164, 176, 206, 0.72);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+}
+
+.title-save-action-btn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.title-save-action-btn--danger:hover,
+.title-save-action-btn--danger:focus-visible {
+  border-color: rgba(255, 98, 118, 0.3);
+  background: rgba(255, 98, 118, 0.08);
 }
 
 .title-menu-list {

@@ -6,11 +6,13 @@ describe('settings manager platform boundary', () => {
   it('keeps browser settings persistence canonically owned by platform/browser', () => {
     const coreCompatSource = readText('game/core/settings_manager.js');
     const platformSource = readText('game/platform/browser/settings/settings_manager.js');
+    const platformStorageSource = readText('game/platform/browser/settings/settings_storage.js');
 
     expect(coreCompatSource).toContain("../platform/browser/settings/settings_manager.js");
     expect(coreCompatSource).not.toContain('localStorage.getItem');
-    expect(platformSource).toContain('localStorage.getItem');
-    expect(platformSource).toContain('localStorage.setItem');
+    expect(platformSource).toContain("./settings_storage.js");
+    expect(platformStorageSource).toContain('localStorage');
+    expect(platformStorageSource).toContain('bindSettingsStorage');
   });
 
   it('routes direct settings consumers to the platform-owned module', () => {

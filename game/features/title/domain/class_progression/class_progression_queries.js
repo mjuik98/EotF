@@ -60,3 +60,14 @@ export function peekClassPendingSummary(meta, classIds = []) {
 export function consumeClassPendingSummary(meta, classIds = []) {
   return consumePendingSummary(meta, classIds);
 }
+
+export function getClassRecentSummaries(meta, classId, classIds = [], limit = 3) {
+  if (!meta || !classId) return [];
+  const cp = ensureClassProgress(meta, classIds);
+  if (!cp) return [];
+
+  return (cp.recentSummaries || [])
+    .filter((summary) => summary?.classId === classId)
+    .slice(-Math.max(0, Number(limit) || 0))
+    .reverse();
+}

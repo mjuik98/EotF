@@ -14,7 +14,7 @@ import {
 export const GameBootUI = {
   refreshTitleSaveState(deps = {}) {
     const doc = getDoc(deps);
-    return refreshTitleSaveState(doc, deps.saveSystem, deps.gs);
+    return refreshTitleSaveState(doc, deps.saveSystem, deps.gs, deps);
   },
 
   bootGame(deps = {}) {

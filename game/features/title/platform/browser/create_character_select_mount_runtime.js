@@ -5,6 +5,7 @@ import {
 import {
   buildCharacterSelectLoadoutPayload,
   clearCharacterSelectLoadoutPreset,
+  selectCharacterSelectLoadoutPresetSlot,
   saveCharacterSelectLoadoutPreset,
 } from './character_select_mount_loadout.js';
 import {
@@ -97,6 +98,8 @@ export function createCharacterSelectMountRuntime(options = {}) {
       selectedChar: ch,
       classProgress: presentation.classProgress,
       roadmap: presentation.roadmap,
+      unlockRoadmap: presentation.unlockRoadmap,
+      recentSummaries: presentation.recentSummaries,
       buildSectionLabel: buildCharacterSelectSectionLabel,
       buildRadar: buildCharacterRadar,
       cards: dataCards,
@@ -126,6 +129,12 @@ export function createCharacterSelectMountRuntime(options = {}) {
       onClearLoadoutPreset: (slot) => {
         const didClear = clearCharacterSelectLoadoutPreset(deps?.gs, ch.class, slot);
         if (!didClear) return;
+        saveProgressMeta();
+        updateAll();
+      },
+      onSelectLoadoutPresetSlot: (slotId) => {
+        const didSelect = selectCharacterSelectLoadoutPresetSlot(deps?.gs, ch.class, slotId);
+        if (!didSelect) return;
         saveProgressMeta();
         updateAll();
       },

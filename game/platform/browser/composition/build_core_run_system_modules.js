@@ -1,10 +1,36 @@
-import { bindSaveStorage, SaveSystem } from '../../../shared/save/public.js';
+import {
+  bindSaveNotifications,
+  bindSaveStorage,
+  presentSaveStatus,
+  SaveSystem,
+} from '../../../shared/save/public.js';
 import { GS } from '../../../core/store/public.js';
 import { SaveAdapter } from '../../storage/save_adapter.js';
 import { createRunSystemCapabilities } from '../../../features/run/ports/public_system_capabilities.js';
+import { createSaveRuntimeNotifications } from '../notifications/save_runtime_notifications.js';
 
 export function buildCoreRunSystemModules() {
-  bindSaveStorage(SaveAdapter);
+  const saveNotifications = createSaveRuntimeNotifications({ presentSaveStatus });
+  const runtimeSaveAdapter = {
+    load(key, deps = {}) {
+      return SaveAdapter.load(key, deps);
+    },
+    save(key, data, deps = {}) {
+      return SaveAdapter.save(key, data, {
+        ...deps,
+        notifyStorageFailure: deps.notifyStorageFailure || saveNotifications.storageFailure,
+      });
+    },
+    remove(key, deps = {}) {
+      return SaveAdapter.remove(key, deps);
+    },
+    has(key, deps = {}) {
+      return SaveAdapter.has(key, deps);
+    },
+  };
+
+  bindSaveStorage(runtimeSaveAdapter);
+  bindSaveNotifications(saveNotifications);
   const { rules, runtime } = createRunSystemCapabilities();
 
   return {

@@ -71,6 +71,8 @@ export function savePresetRuntime(ui, slot, deps = {}) {
     open: true,
     slot: idx,
     name: existing?.name || `프리셋 ${idx + 1}`,
+    existingName: existing?.name || '',
+    overwrite: !!existing,
   };
   renderPresetDialog(ui, getDoc(deps), deps);
   return true;

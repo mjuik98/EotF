@@ -2,6 +2,7 @@ import { CARDS } from '../../../../../data/cards.js';
 import { getUnlockedContent, UNLOCKABLES } from '../../../meta_progression/public.js';
 import {
   buildClassLoadoutCustomizationPresentation,
+  setActiveClassLoadoutPresetSlot,
   saveLevel11LoadoutPreset,
   saveLevel12LoadoutPreset,
 } from '../../../../shared/progression/class_loadout_preset_use_case.js';
@@ -124,6 +125,17 @@ export function saveCharacterSelectLoadoutPreset({
 export function clearCharacterSelectLoadoutPreset(gs, classId, slot) {
   const presets = gs?.meta?.classProgress?.loadoutPresets?.[classId];
   if (!presets || (slot !== 'level11' && slot !== 'level12')) return false;
+  const activeSlot = String(presets.activeSlot || 'slot1');
+  if (presets.slotEntries?.[activeSlot]) {
+    presets.slotEntries[activeSlot][slot] = null;
+    presets.level11 = presets.slotEntries[activeSlot].level11 || null;
+    presets.level12 = presets.slotEntries[activeSlot].level12 || null;
+    return true;
+  }
   presets[slot] = null;
   return true;
+}
+
+export function selectCharacterSelectLoadoutPresetSlot(gs, classId, slotId) {
+  return !!setActiveClassLoadoutPresetSlot(gs?.meta, classId, slotId);
 }

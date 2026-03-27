@@ -1,4 +1,4 @@
-import { getContentLabel } from '../../../meta_progression/public.js';
+import { ACHIEVEMENTS, getContentLabel } from '../../../meta_progression/public.js';
 
 const RANKS = [
   { min: 200, glyph: 'S', color: '#f0d472', glow: 'rgba(240,212,114,.55)', title: '전설의 정복자', label: 'LEGENDARY' },
@@ -58,6 +58,17 @@ function describeUnlockedContent(entry) {
   return {
     ...entry,
     label: `${CONTENT_TYPE_LABELS[contentType] || contentType} 해금 · ${getContentLabel({ type: contentType, id: contentId })}`,
+  };
+}
+
+function describeUnlockedAchievement(achievementId) {
+  const definition = ACHIEVEMENTS?.[achievementId];
+  if (!definition) return null;
+  return {
+    id: definition.id || achievementId,
+    icon: String(definition.icon || '✦'),
+    title: String(definition.title || achievementId),
+    description: String(definition.description || ''),
   };
 }
 
@@ -176,6 +187,9 @@ export function buildEndingPayload(gs, data) {
     inscriptions: buildEndingInscriptions(gs, data),
     unlocks: Array.isArray(gs?.runOutcomeUnlocks)
       ? gs.runOutcomeUnlocks.map(describeUnlockedContent).filter(Boolean)
+      : [],
+    achievements: Array.isArray(gs?.runOutcomeAchievements)
+      ? gs.runOutcomeAchievements.map(describeUnlockedAchievement).filter(Boolean)
       : [],
   };
 }

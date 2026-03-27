@@ -98,6 +98,17 @@ describe('codex_ui_progress_render', () => {
       cards: { seen: 2, total: 4 },
       items: { seen: 3, total: 5 },
       inscriptions: { seen: 1, total: 1 },
+      rewardRoadmap: [{
+        contentLabel: '큐레이터의 등불',
+        achievementTitle: '야전 생물학자',
+        progressLabel: '5 / 12',
+        focusLabel: '적 도감',
+      }],
+      recentDiscoveries: [{
+        categoryLabel: '카드',
+        label: '타격',
+        firstSeen: '2026-03-26',
+      }],
       percent: 58,
       circumference: 100,
       offset: 42,
@@ -109,5 +120,9 @@ describe('codex_ui_progress_render', () => {
     expect(doc.getElementById('cxBadge_cards').textContent).toBe('2/4');
     expect(section.innerHTML).toContain('58%');
     expect(section.innerHTML).toContain('stroke-dashoffset="42.0"');
+    expect(section.innerHTML).toContain('다음 조사 목표');
+    expect(section.innerHTML).toContain('야전 생물학자');
+    expect(section.innerHTML).toContain('최근 발견');
+    expect(section.innerHTML).toContain('타격');
   });
 });

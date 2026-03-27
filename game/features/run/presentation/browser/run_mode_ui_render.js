@@ -1,6 +1,7 @@
 import { reducedMotion } from './run_mode_ui_helpers.js';
 import { highlightRunModeText } from './run_mode_text_highlight.js';
 import {
+  buildUnlockRoadmap,
   getContentVisibility,
   getUnlockRequirementLabel,
 } from '../../../meta_progression/public.js';
@@ -12,6 +13,7 @@ import {
   renderDifficultyPanel,
   renderHiddenEnding,
   renderSummaryBar,
+  renderUnlockRoadmap,
 } from './run_mode_ui_summary_render.js';
 import {
   renderPresetDialog,
@@ -27,6 +29,7 @@ export {
   refreshInscriptionPanel,
   renderInscriptionOverview,
   renderSummaryBar,
+  renderUnlockRoadmap,
   syncModalMood,
 };
 
@@ -124,6 +127,7 @@ export function renderPanel(ui, doc, cfg, meta, runRules, gs, data) {
   renderPresets(ui, doc, cfg, meta, runRules);
   renderOptionGrid(doc.getElementById('rmCurseGrid'), buildCurseOptionEntries({ meta, runRules }), cfg.curse, 'curse', doc);
   renderInscriptionOverview(doc, meta, cfg, data);
+  renderUnlockRoadmap(doc, buildUnlockRoadmap(meta, { classId: gs?.player?.class }));
   renderHiddenEnding(meta, cfg, doc);
   renderSummaryBar(doc, cfg, meta, runRules, gs, data);
 }

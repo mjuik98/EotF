@@ -23,6 +23,21 @@ function getPalette(tone = 'info') {
   return palette[tone] || palette.info;
 }
 
+function formatRetryTiming(nextRetryAt) {
+  const retryAt = Number(nextRetryAt || 0);
+  if (!retryAt) return '';
+  const diffMs = retryAt - Date.now();
+  if (diffMs <= 0) return ' · 곧 재시도';
+  const seconds = Math.max(1, Math.ceil(diffMs / 1000));
+  return ` · 다음 재시도 ${seconds}초 후`;
+}
+
+function buildQueueSuffix(status) {
+  const queueDepth = Number(status?.queueDepth || 0);
+  if (queueDepth <= 0) return '';
+  return ` 대기 ${queueDepth}건${formatRetryTiming(status?.nextRetryAt)}`;
+}
+
 function resolvePresentation(status) {
   if (status?.status === 'saved') {
     return {
@@ -34,7 +49,7 @@ function resolvePresentation(status) {
 
   if (status?.status === 'queued') {
     return {
-      text: '저장을 완료하지 못해 현재 런을 유지합니다.',
+      text: `저장을 완료하지 못해 현재 런을 유지합니다.${buildQueueSuffix(status)}`,
       tone: 'warn',
       durationMs: 4000,
     };
@@ -42,7 +57,7 @@ function resolvePresentation(status) {
 
   if (status?.status === 'error') {
     return {
-      text: '저장에 실패해 현재 런을 유지합니다.',
+      text: `저장에 실패해 현재 런을 유지합니다.${buildQueueSuffix(status)}`,
       tone: 'error',
       durationMs: 4000,
     };

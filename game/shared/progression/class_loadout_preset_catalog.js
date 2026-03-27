@@ -3,6 +3,9 @@ export const EMPTY_PRESET = Object.freeze({
   level12: null,
 });
 
+export const DEFAULT_LOADOUT_PRESET_SLOT = 'slot1';
+export const LOADOUT_PRESET_SLOTS = Object.freeze(['slot1', 'slot2', 'slot3']);
+
 export const CLASS_CARD_POOLS = Object.freeze({
   swordsman: Object.freeze([
     'foot_step',

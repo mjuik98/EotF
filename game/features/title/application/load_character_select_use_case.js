@@ -1,4 +1,5 @@
 import { ClassProgressionSystem } from '../domain/class_progression_system.js';
+import { buildUnlockRoadmap } from '../../meta_progression/public.js';
 
 function buildFallbackProgress(classId) {
   return {
@@ -23,12 +24,16 @@ export function getCharacterSelectPresentation(meta, classId, classIds, progress
       classProgress: buildFallbackProgress(classId),
       maxLevel: progressionSystem.MAX_LEVEL,
       roadmap: classId ? progressionSystem.getRoadmap(classId) : [],
+      unlockRoadmap: { account: [], class: [] },
+      recentSummaries: [],
     };
   }
   return {
     classProgress: progressionSystem.getClassState(meta, classId, classIds) || buildFallbackProgress(classId),
     maxLevel: progressionSystem.MAX_LEVEL,
     roadmap: progressionSystem.getRoadmap(classId),
+    unlockRoadmap: buildUnlockRoadmap(meta, { classId }),
+    recentSummaries: progressionSystem.getRecentSummaries?.(meta, classId, classIds) || [],
   };
 }
 
@@ -41,5 +46,8 @@ export function createCharacterSelectProgressionFacade(meta, classIds, progressi
       return getCharacterSelectPresentation(metaRef, classId, ids, progressionSystem).classProgress;
     },
     getRoadmap: (classId) => progressionSystem.getRoadmap(classId),
+    getRecentSummaries: (metaRef = meta, classId, ids = classIds, limit = 3) => (
+      progressionSystem.getRecentSummaries?.(metaRef, classId, ids, limit) || []
+    ),
   };
 }

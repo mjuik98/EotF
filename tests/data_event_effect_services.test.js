@@ -163,4 +163,41 @@ describe('data event effect services', () => {
     });
     expect(services.playItemGet).toHaveBeenCalledTimes(1);
   });
+
+  it('grants an unlocked special relic through sealed reliquary', () => {
+    const services = {
+      playItemGet: vi.fn(),
+      showItemToast: vi.fn(),
+    };
+    const event = EVENTS.find((entry) => entry.id === 'sealed_reliquary');
+    const choice = event.choices[0];
+    const gs = {
+      meta: {
+        contentUnlocks: {
+          curses: {},
+          relics: {
+            dimension_key: { unlocked: true },
+          },
+          relicsByClass: {},
+          cards: { shared: {} },
+        },
+      },
+      player: {
+        hp: 40,
+        items: [],
+      },
+    };
+
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    const result = choice.effect(gs, services);
+
+    expect(result).toContain('차원 열쇠');
+    expect(gs.player.hp).toBe(28);
+    expect(gs.player.items).toEqual(['dimension_key']);
+    expect(services.playItemGet).toHaveBeenCalledTimes(1);
+    expect(services.showItemToast).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'dimension_key',
+    }));
+  });
 });

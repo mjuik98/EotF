@@ -25,6 +25,7 @@ describe('load_character_select_use_case', () => {
         progress: 0.2,
       })),
       getRoadmap: vi.fn(() => ['skill-a']),
+      getRecentSummaries: vi.fn(() => ['summary-a']),
     };
 
     expect(getCharacterSelectPresentation(null, 'paladin', ['paladin'], progressionSystem)).toEqual({
@@ -34,6 +35,8 @@ describe('load_character_select_use_case', () => {
       }),
       maxLevel: 10,
       roadmap: ['skill-a'],
+      unlockRoadmap: { account: [], class: [] },
+      recentSummaries: [],
     });
 
     expect(getCharacterSelectPresentation({}, 'paladin', ['paladin'], progressionSystem)).toEqual({
@@ -43,6 +46,11 @@ describe('load_character_select_use_case', () => {
       }),
       maxLevel: 10,
       roadmap: ['skill-a'],
+      unlockRoadmap: expect.objectContaining({
+        account: expect.any(Array),
+        class: expect.any(Array),
+      }),
+      recentSummaries: ['summary-a'],
     });
   });
 });

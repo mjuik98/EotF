@@ -1,6 +1,8 @@
 import {
   applyCodexFilter,
+  buildCodexRewardRoadmap,
   buildCodexProgress,
+  buildRecentCodexDiscoveries,
   ensureCodexState,
   getCodexFilterDefinitions,
   getCodexRecord,
@@ -24,7 +26,11 @@ import {
 } from './codex_ui_popup_runtime.js';
 
 export function renderCodexRuntimeProgress(state, ui, doc, gs, data) {
-  const progress = buildCodexProgress(gs, data);
+  const progress = {
+    ...buildCodexProgress(gs, data),
+    rewardRoadmap: buildCodexRewardRoadmap(gs?.meta),
+    recentDiscoveries: buildRecentCodexDiscoveries(gs?.meta, { data }),
+  };
   renderCodexProgress(doc, progress, {
     onSelectTab: (tab) => ui.setCodexTab(tab, state.deps),
   });

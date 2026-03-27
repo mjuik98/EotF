@@ -158,4 +158,76 @@ describe('evaluate achievement trigger', () => {
       { type: 'relic', id: 'void_compass', classId: 'swordsman', source: 'swordsman_mastery_2' },
     ]);
   });
+
+  it('supports account-wide unlocks from victories, best chain, and world memory progress', () => {
+    const meta = {
+      achievements: { version: 1, states: {} },
+      contentUnlocks: { version: 1, curses: {}, relics: {}, relicsByClass: {}, cards: { shared: {} } },
+      progress: { victories: 5, failures: 0, bossKills: {} },
+      bestChain: 12,
+      worldMemory: {
+        savedMerchant: 1,
+      },
+    };
+
+    const result = evaluateAchievementTrigger(meta, 'run_completed', {
+      kind: 'victory',
+      runConfig: { curse: 'none' },
+    });
+
+    expect(result.newlyUnlockedAchievements).toEqual([
+      'first_victory',
+      'veteran_victory_3',
+      'veteran_victory_5',
+      'chain_master_12',
+      'merchant_ally',
+    ]);
+    expect(meta.contentUnlocks.curses.blood_moon.unlocked).toBe(true);
+    expect(meta.contentUnlocks.curses.shadow_burden.unlocked).toBe(true);
+    expect(meta.contentUnlocks.relics.dimension_key.unlocked).toBe(true);
+    expect(meta.contentUnlocks.relics.glitch_circuit.unlocked).toBe(true);
+    expect(meta.contentUnlocks.relics.ancient_battery.unlocked).toBe(true);
+  });
+
+  it('supports account-wide unlocks from accumulated failures on non-victory outcomes', () => {
+    const meta = {
+      achievements: { version: 1, states: {} },
+      contentUnlocks: { version: 1, curses: {}, relics: {}, relicsByClass: {}, cards: { shared: {} } },
+      progress: { victories: 0, failures: 3, bossKills: {} },
+    };
+
+    const result = evaluateAchievementTrigger(meta, 'run_completed', {
+      kind: 'defeat',
+      runConfig: { curse: 'none' },
+    });
+
+    expect(result.newlyUnlockedAchievements).toEqual(['scarred_return_3']);
+    expect(meta.contentUnlocks.relics.eternal_fragment.unlocked).toBe(true);
+  });
+
+  it('supports story and codex based account unlocks from stored meta progress', () => {
+    const meta = {
+      achievements: { version: 1, states: {} },
+      contentUnlocks: { version: 1, curses: {}, relics: {}, relicsByClass: {}, cards: { shared: {} } },
+      progress: { victories: 0, failures: 0, bossKills: {} },
+      storyPieces: [1, 2, 3, 4, 5],
+      codex: {
+        enemies: new Set(['wolf', 'boar', 'shade', 'bishop', 'cultist', 'harpy', 'warden', 'slug']),
+        cards: new Set(['strike', 'guard', 'charge', 'slash', 'spark', 'wall']),
+        items: new Set(['relic_a', 'relic_b', 'relic_c', 'relic_d', 'relic_e', 'relic_f']),
+      },
+    };
+
+    const result = evaluateAchievementTrigger(meta, 'run_completed', {
+      kind: 'victory',
+      runConfig: { curse: 'none' },
+    });
+
+    expect(result.newlyUnlockedAchievements).toEqual([
+      'story_seeker_5',
+      'codex_survey_20',
+    ]);
+    expect(meta.contentUnlocks.relics.memory_thread.unlocked).toBe(true);
+    expect(meta.contentUnlocks.relics.field_journal.unlocked).toBe(true);
+  });
 });

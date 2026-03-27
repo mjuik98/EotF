@@ -7,6 +7,7 @@ import {
   renderInscriptionOverview,
   renderOptionGrid,
   renderSummaryBar,
+  renderUnlockRoadmap,
 } from '../game/features/run/public.js';
 import {
   renderPresetDialog,
@@ -169,6 +170,33 @@ describe('run_mode_ui_render sections', () => {
     expect(hiddenZone.innerHTML).toBe('');
   });
 
+  it('renders the next unlock roadmap in run settings', () => {
+    const roadmapZone = createNode();
+    const doc = {
+      getElementById: vi.fn((id) => ({
+        rmUnlockRoadmapZone: roadmapZone,
+      }[id] || null)),
+    };
+
+    renderUnlockRoadmap(doc, {
+      account: [{
+        contentType: 'curse',
+        contentId: 'blood_moon',
+        contentLabel: '핏빛 월식',
+        requirementLabel: '첫 승리 필요',
+        progressLabel: '0 / 1',
+        achievementTitle: '첫 승리',
+        focusLabel: '승리 런',
+      }],
+    });
+
+    expect(roadmapZone.innerHTML).toContain('다음 해금');
+    expect(roadmapZone.innerHTML).toContain('핏빛 월식');
+    expect(roadmapZone.innerHTML).toContain('첫 승리');
+    expect(roadmapZone.innerHTML).toContain('0 / 1');
+    expect(roadmapZone.innerHTML).toContain('승리 런');
+  });
+
   it('styles run mode description surfaces with the shared keyword palette', () => {
     const css = readFileSync(new URL('../css/run-rules-redesign.css', import.meta.url), 'utf8');
 
@@ -216,6 +244,9 @@ describe('run_mode_ui_render sections', () => {
     expect(zone.innerHTML).toContain('/ 무한');
     expect(zone.innerHTML).toContain('/ 세금');
     expect(zone.innerHTML).toContain('/ 각인 1');
+    expect(zone.innerHTML).toContain('data-action="load-preset"');
+    expect(zone.innerHTML).toContain('data-action="delete-preset"');
+    expect(zone.innerHTML).toContain('현재 설정으로 덮어쓰기');
   });
 
   it('renders preset dialog wiring and syncs curse modal mood', () => {
@@ -248,7 +279,7 @@ describe('run_mode_ui_render sections', () => {
       }),
     };
     const ui = {
-      _presetDialog: { open: true, slot: 2, name: '기본 <세팅>' },
+      _presetDialog: { open: true, slot: 2, name: '기본 <세팅>', overwrite: true, existingName: '기본 <세팅>' },
       closePresetDialog: vi.fn(),
       confirmPresetSave: vi.fn(),
     };
@@ -261,6 +292,7 @@ describe('run_mode_ui_render sections', () => {
     expect(existing.remove).toHaveBeenCalledTimes(1);
     expect(overlay.innerHTML).toContain('슬롯 3');
     expect(overlay.innerHTML).toContain('기본 &lt;세팅&gt;');
+    expect(overlay.innerHTML).toContain('기존 프리셋을 덮어씁니다');
     expect(input.focus).toHaveBeenCalledTimes(1);
     expect(input.select).toHaveBeenCalledTimes(1);
 

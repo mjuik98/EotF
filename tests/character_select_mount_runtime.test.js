@@ -10,6 +10,7 @@ const hoisted = vi.hoisted(() => {
     progress: 0.2,
   }));
   const getRoadmap = vi.fn(() => []);
+  const getRecentSummaries = vi.fn(() => []);
   const renderCharacterInfoPanel = vi.fn();
   const renderCharacterPhase = vi.fn();
   const renderCharacterButtons = vi.fn();
@@ -22,6 +23,7 @@ const hoisted = vi.hoisted(() => {
     ensureMeta,
     getClassState,
     getRoadmap,
+    getRecentSummaries,
     renderCharacterInfoPanel,
     renderCharacterPhase,
     renderCharacterButtons,
@@ -44,6 +46,7 @@ vi.mock('../game/features/title/domain/class_progression_system.js', () => ({
     ensureMeta: hoisted.ensureMeta,
     getClassState: hoisted.getClassState,
     getRoadmap: hoisted.getRoadmap,
+    getRecentSummaries: hoisted.getRecentSummaries,
   },
 }));
 
@@ -153,6 +156,13 @@ describe('character_select_mount_runtime', () => {
     expect(hoisted.ensureMeta).toHaveBeenCalledWith({}, ['paladin', 'berserker']);
     expect(hoisted.renderCharacterCard).toHaveBeenCalledTimes(1);
     expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledTimes(1);
+    expect(hoisted.renderCharacterInfoPanel).toHaveBeenCalledWith(expect.objectContaining({
+      unlockRoadmap: expect.objectContaining({
+        account: expect.any(Array),
+        class: expect.any(Array),
+      }),
+      recentSummaries: expect.any(Array),
+    }));
     expect(hoisted.renderCharacterDots).toHaveBeenCalledWith(elements.dotsRow, chars, 0, flow.jumpTo);
     expect(hoisted.renderCharacterButtons).toHaveBeenCalledWith(elements.buttonsRow, chars[0], expect.any(Function), flow.handleConfirm);
     expect(hoisted.updateCharacterArrows).toHaveBeenCalledWith(expect.any(Function), '#7CC8FF');

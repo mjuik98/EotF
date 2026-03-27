@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
+import { bindSettingsStorage } from '../game/platform/browser/settings/settings_storage.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));
@@ -25,6 +26,7 @@ describe('SettingsManager', () => {
       configurable: true,
       writable: true,
     });
+    bindSettingsStorage(null);
     SettingsManager._data = null;
   });
 
@@ -80,5 +82,19 @@ describe('SettingsManager', () => {
 
     expect(after).toEqual(before);
     expect(warnSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses bound storage instead of reading global localStorage directly', () => {
+    const boundStorage = createLocalStorageMock({
+      eotf_settings: JSON.stringify({
+        keybindings: { pause: 'KeyP' },
+      }),
+    });
+    bindSettingsStorage(boundStorage);
+
+    const data = SettingsManager.load();
+
+    expect(data.keybindings.pause).toBe('KeyP');
+    expect(boundStorage.getItem).toHaveBeenCalledWith('eotf_settings');
   });
 });

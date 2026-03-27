@@ -12,6 +12,7 @@ import {
   recordVictoryProgress,
   syncRunOutcomeMeta,
 } from '../state/run_outcome_state_commands.js';
+import { createRecentRunSummary, recordRecentRun } from '../domain/recent_run_history.js';
 
 function ensureOutcomeMeta(meta) {
   ensureRunRuleMeta(meta, { curses: CURSES });
@@ -34,12 +35,15 @@ function publishProgressionUnlocks(gs, progressionResult, kind, deps = {}) {
   gs.runOutcomeUnlocks = Array.isArray(progressionResult?.newlyUnlockedContent)
     ? progressionResult.newlyUnlockedContent.slice()
     : [];
+  gs.runOutcomeAchievements = Array.isArray(progressionResult?.newlyUnlockedAchievements)
+    ? progressionResult.newlyUnlockedAchievements.slice()
+    : [];
 
-  if (!gs.runOutcomeUnlocks.length || typeof deps.onProgressionUnlocked !== 'function') return;
+  if ((!gs.runOutcomeUnlocks.length && !gs.runOutcomeAchievements.length) || typeof deps.onProgressionUnlocked !== 'function') return;
   deps.onProgressionUnlocked(gs.runOutcomeUnlocks, {
     kind,
     gs,
-    newlyUnlockedAchievements: progressionResult.newlyUnlockedAchievements || [],
+    newlyUnlockedAchievements: gs.runOutcomeAchievements,
   });
 }
 
@@ -89,6 +93,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
     runConfig: gs.runConfig,
   });
   publishProgressionUnlocks(gs, progressionResult, kind, deps);
+  recordRecentRun(gs.meta, createRecentRunSummary(gs, kind, progressionResult));
 
   applyRunOutcomeRewards(gs, shardGain);
   persistRunOutcomeMeta(deps);

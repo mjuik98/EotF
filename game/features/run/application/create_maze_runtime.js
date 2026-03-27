@@ -1,11 +1,3 @@
-import { createMazeDomAdapter } from '../platform/browser/maze_dom_adapter.js';
-import { createMazePresenter } from '../presentation/maze_presenter.js';
-import {
-  handleMazeExit,
-  prepareMazeOpenState,
-  resolveMazeMove,
-} from '../presentation/browser/maze_system_runtime_ui.js';
-
 function getRequestAnimationFrame(dom, deps = {}) {
   return deps.requestAnimationFrame || dom.getWin()?.requestAnimationFrame?.bind?.(dom.getWin()) || null;
 }
@@ -15,7 +7,7 @@ function getSetTimeout(dom, deps = {}) {
 }
 
 export function createMazeRuntime(deps = {}) {
-  const dom = createMazeDomAdapter(deps);
+  const dom = deps.mazeDom;
   const state = {
     canvas: null,
     ctx: null,
@@ -34,9 +26,12 @@ export function createMazeRuntime(deps = {}) {
     shakeFrm: 0,
     tileSize: 40,
   };
-  const presenter = createMazePresenter({ dom, state, deps });
+  const presenter = typeof deps.createMazePresenter === 'function'
+    ? deps.createMazePresenter({ dom, state, deps })
+    : null;
 
   function initCanvas() {
+    if (!dom?.getCanvas || !dom?.getMinimap) return false;
     state.canvas = dom.getCanvas();
     state.minimap = dom.getMinimap();
     if (!state.canvas || !state.minimap) return false;
@@ -52,12 +47,12 @@ export function createMazeRuntime(deps = {}) {
       if (state.shakeFrm-- <= 0) {
         state.shakeX = 0;
         state.shakeY = 0;
-        presenter.draw();
+        presenter?.draw?.();
         return;
       }
       state.shakeX = (Math.random() - 0.5) * 8;
       state.shakeY = (Math.random() - 0.5) * 8;
-      presenter.draw();
+      presenter?.draw?.();
       raf?.(loop);
     };
     raf?.(loop);
@@ -72,7 +67,7 @@ export function createMazeRuntime(deps = {}) {
 
   function onExit() {
     close();
-    handleMazeExit({
+    deps.handleMazeExit?.({
       pendingCombat: state.pendingCombat,
       showWorldMemoryNotice: deps.showWorldMemoryNotice,
       startCombat: deps.startCombat,
@@ -88,7 +83,7 @@ export function createMazeRuntime(deps = {}) {
     open(isBoss) {
       if (!initCanvas()) return;
 
-      const nextState = prepareMazeOpenState(deps.fovEngine || null, isBoss);
+      const nextState = deps.prepareMazeOpenState?.(deps.fovEngine || null, isBoss);
       if (!nextState) return;
 
       state.pendingCombat = nextState.pendingCombat;
@@ -100,17 +95,17 @@ export function createMazeRuntime(deps = {}) {
       state.py = nextState.py;
       state.fovActive = nextState.fovActive;
 
-      presenter.resize();
+      presenter?.resize?.();
       dom.getWin()?.addEventListener?.('resize', presenter.resize);
       dom.showOverlay();
-      presenter.updateHud();
-      presenter.draw();
+      presenter?.updateHud?.();
+      presenter?.draw?.();
     },
 
     close,
 
     move(dx, dy) {
-      const result = resolveMazeMove({
+      const result = deps.resolveMazeMove?.({
         dx,
         dy,
         px: state.px,
@@ -128,8 +123,8 @@ export function createMazeRuntime(deps = {}) {
       state.px = result.px;
       state.py = result.py;
       state.stepCount = result.stepCount;
-      presenter.updateHud();
-      presenter.draw();
+      presenter?.updateHud?.();
+      presenter?.draw?.();
 
       if (result.shouldExit) {
         onExit();

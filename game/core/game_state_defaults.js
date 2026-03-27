@@ -64,6 +64,8 @@ export function createDefaultMetaState(overrides = {}) {
       endless: false,
     },
     maxAscension: 0,
+    recentRuns: [],
+    activeSaveSlot: 1,
     runConfig: createDefaultRunConfig(),
     progress: {
       echoShards: 0,
@@ -88,6 +90,7 @@ export function createDefaultMetaState(overrides = {}) {
     endless: false,
     ...clonePlainObject(overrides.unlocks),
   };
+  meta.recentRuns = cloneArray(overrides.recentRuns);
   meta.runConfig = createDefaultRunConfig(overrides.runConfig);
   meta.progress = {
     echoShards: 0,

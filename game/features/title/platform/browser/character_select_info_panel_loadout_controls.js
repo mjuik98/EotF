@@ -4,6 +4,7 @@ export function bindCharacterInfoLoadoutControls({
   loadoutState,
   onSaveLoadoutPreset,
   onClearLoadoutPreset,
+  onSelectLoadoutPresetSlot,
 }) {
   let level11Mode = loadoutState.initialLevel11Mode;
   let selectedLevel11UpgradeIndex = loadoutState.initialLevel11UpgradeIndex;
@@ -12,6 +13,7 @@ export function bindCharacterInfoLoadoutControls({
 
   const level11ModeUpgrade = panel.querySelector('#level11ModeUpgrade');
   const level11ModeSwap = panel.querySelector('#level11ModeSwap');
+  const slotButtons = Array.from(panel.querySelectorAll('.char-loadout-slot-btn') || []);
   const level11SelectionNote = panel.querySelector('#level11SelectionNote');
   const level11EditableCards = Array.from(panel.querySelectorAll('.level11-edit-card') || []);
   const level11AddCardButtons = Array.from(panel.querySelectorAll('.level11-add-card-btn') || []);
@@ -42,6 +44,14 @@ export function bindCharacterInfoLoadoutControls({
       }
     });
   };
+
+  slotButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const slotId = String(button.dataset.loadoutSlot || '');
+      if (!slotId) return;
+      onSelectLoadoutPresetSlot?.(slotId);
+    });
+  });
 
   const applyLevel11ModeVisuals = () => {
     if (level11ModeUpgrade) {

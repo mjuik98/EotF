@@ -15,6 +15,7 @@ vi.mock('../game/features/event/platform/event_runtime_dom.js', async () => {
 });
 
 import { finishEventFlow, resolveEventChoiceFlow } from '../game/features/event/public.js';
+import { createEventChoiceFlowUi } from '../game/features/event/platform/browser/create_event_choice_flow_ui.js';
 
 function createClassList() {
   const classes = new Set();
@@ -118,6 +119,7 @@ describe('event_ui_flow', () => {
     const gs = { _eventLock: true };
     const clearCurrentEvent = vi.fn();
     const deps = {
+      flowUi: createEventChoiceFlowUi(),
       showGameplayScreen: vi.fn(),
       updateUI: vi.fn(),
       renderMinimap: vi.fn(),
@@ -153,7 +155,7 @@ describe('event_ui_flow', () => {
         choices: [{ text: 'Take reward' }],
       },
       doc,
-      deps: { updateUI, showItemToast },
+      deps: { flowUi: createEventChoiceFlowUi(), updateUI, showItemToast },
       sharedData: {
         cards: { strike: { id: 'strike', name: 'Strike', rarity: 'common' } },
         items: { charm: { id: 'charm', name: 'Charm' } },
@@ -195,7 +197,7 @@ describe('event_ui_flow', () => {
         choices: [{ text: '카드 강화', cssClass: 'shop-choice-upgrade' }],
       },
       doc,
-      deps: { showItemToast, updateUI: vi.fn() },
+      deps: { flowUi: createEventChoiceFlowUi(), showItemToast, updateUI: vi.fn() },
       onFinish,
       onRefreshGoldBar: vi.fn(),
       resolveChoice: vi.fn(() => ({
@@ -228,6 +230,7 @@ describe('event_ui_flow', () => {
       gs,
       event: { persistent: false, choices: [{ text: 'Broken path' }] },
       doc,
+      deps: { flowUi: createEventChoiceFlowUi() },
       audioEngine,
       resolveChoice: vi.fn(() => {
         throw new Error('boom');

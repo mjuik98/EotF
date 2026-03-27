@@ -271,6 +271,45 @@ describe('architecture refactor guardrails', () => {
     }
   });
 
+  it('keeps selected application workflows free of direct presentation and browser module imports', () => {
+    const expectations = [
+      [
+        'game/features/event/application/workflows/event_choice_flow.js',
+        '../../presentation/',
+      ],
+      [
+        'game/features/event/application/workflows/event_choice_flow.js',
+        '../../platform/',
+      ],
+      [
+        'game/features/reward/application/workflows/show_reward_screen_workflow.js',
+        '../../presentation/',
+      ],
+      [
+        'game/features/run/application/create_maze_runtime.js',
+        '../presentation/',
+      ],
+      [
+        'game/features/run/application/create_maze_runtime.js',
+        '../platform/browser/',
+      ],
+    ];
+
+    for (const [file, blockedImport] of expectations) {
+      const source = readText(file);
+      expect(source).not.toContain(blockedImport);
+    }
+  });
+
+  it('keeps save infrastructure free of embedded presenter imports and DOM toasts', () => {
+    const saveSystemSource = readText('game/shared/save/save_system.js');
+    const saveAdapterSource = readText('game/platform/storage/save_adapter.js');
+
+    expect(saveSystemSource).not.toContain("./save_status_presenter.js");
+    expect(saveAdapterSource).not.toContain('doc.createElement');
+    expect(saveAdapterSource).not.toContain('doc.body.appendChild');
+  });
+
   it('routes feature utility access through feature-owned support wrappers', () => {
     const expectations = [
       [

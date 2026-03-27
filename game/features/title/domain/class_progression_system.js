@@ -3,6 +3,7 @@ import {
   consumeClassPendingSummary,
   ensureClassProgressMeta,
   getClassActiveBonuses,
+  getClassRecentSummaries,
   getClassProgressState,
   getClassRoadmap,
   getRewardRelicChoiceBonus,
@@ -53,6 +54,10 @@ export const ClassProgressionSystem = {
 
   getRoadmap(classId) {
     return getClassRoadmap(classId);
+  },
+
+  getRecentSummaries(meta, classId, classIds = [], limit = 3) {
+    return getClassRecentSummaries(meta, classId, classIds, limit);
   },
 
   awardRunXP(gs, outcome = 'defeat', options = {}) {

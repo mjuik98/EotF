@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SaveAdapter } from '../game/core/save_adapter.js';
-import { SaveSystem, bindSaveStorage } from '../game/shared/save/public.js';
+import {
+  SaveSystem,
+  bindSaveNotifications,
+  bindSaveStorage,
+} from '../game/shared/save/public.js';
+import { presentSaveStatus } from '../game/shared/save/save_status_presenter.js';
 import { silenceConsole } from './helpers/silence_console.js';
 
 function createRunState() {
@@ -31,6 +36,7 @@ describe('SaveSystem outbox', () => {
     vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
     silenceConsole(['warn']);
     bindSaveStorage(SaveAdapter);
+    bindSaveNotifications({ saveStatus: presentSaveStatus });
     SaveSystem.clearOutbox();
     SaveSystem.resetOutboxMetrics();
     SaveSystem._lastSaveError = null;
@@ -38,6 +44,7 @@ describe('SaveSystem outbox', () => {
 
   afterEach(() => {
     bindSaveStorage(SaveAdapter);
+    bindSaveNotifications(null);
     SaveSystem.clearOutbox();
     SaveSystem.resetOutboxMetrics();
     SaveSystem._lastSaveError = null;
@@ -568,16 +575,28 @@ describe('SaveSystem outbox', () => {
 
     expect(doc.body.appendChild).toHaveBeenCalledTimes(1);
     expect(appended).toHaveLength(1);
-    expect(appended[0].textContent).toBe('저장에 실패해 현재 런을 유지합니다.');
+    expect(appended[0].textContent).toBe('저장에 실패해 현재 런을 유지합니다. 대기 1건');
 
     vi.advanceTimersByTime(4000);
 
     expect(appended[0].remove).toHaveBeenCalledTimes(1);
-    expect(removed).toEqual(['저장에 실패해 현재 런을 유지합니다.']);
+    expect(removed).toEqual(['저장에 실패해 현재 런을 유지합니다. 대기 1건']);
   });
 
   it('delegates save status presentation to an injected presenter when provided', () => {
     const presentSaveStatus = vi.fn();
+    vi.spyOn(SaveSystem, 'getOutboxMetrics').mockReturnValue({
+      directWrites: 0,
+      initialFailures: 1,
+      queuedWrites: 1,
+      coalescedWrites: 0,
+      retryFailures: 0,
+      retrySuccesses: 0,
+      lastSuccessAt: 0,
+      lastFailureAt: 0,
+      queueDepth: 3,
+      nextRetryAt: new Date('2026-01-01T00:00:05Z').getTime(),
+    });
 
     SaveSystem.showSaveStatus(
       { status: 'queued', persisted: false, queueDepth: 1 },
@@ -591,7 +610,8 @@ describe('SaveSystem outbox', () => {
     expect(presentSaveStatus).toHaveBeenNthCalledWith(1, {
       status: 'queued',
       persisted: false,
-      queueDepth: 1,
+      queueDepth: 3,
+      nextRetryAt: new Date('2026-01-01T00:00:05Z').getTime(),
     }, expect.objectContaining({
       presentSaveStatus,
     }));

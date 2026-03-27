@@ -61,9 +61,11 @@ describe('run outcome progression integration', () => {
         id: 'blood_moon',
       }),
     ]);
+    expect(gs.runOutcomeAchievements).toEqual(['first_victory']);
     expect(onProgressionUnlocked).toHaveBeenCalledWith(gs.runOutcomeUnlocks, expect.objectContaining({
       kind: 'victory',
       gs,
+      newlyUnlockedAchievements: ['first_victory'],
     }));
   });
 
@@ -87,5 +89,56 @@ describe('run outcome progression integration', () => {
       gs,
     }));
     expect(saveSystem.clearSave).toHaveBeenCalledTimes(1);
+  });
+
+  it('evaluates world-memory and chain achievements from synced run outcome state', () => {
+    const gs = createGameState();
+    gs.worldMemory.savedMerchant = 1;
+    gs.stats.maxChain = 12;
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(gs.meta.achievements.states.chain_master_12.unlocked).toBe(true);
+    expect(gs.meta.achievements.states.merchant_ally.unlocked).toBe(true);
+    expect(gs.meta.contentUnlocks.relics.glitch_circuit.unlocked).toBe(true);
+    expect(gs.meta.contentUnlocks.relics.ancient_battery.unlocked).toBe(true);
+  });
+
+  it('stores capped recent run summaries without reviving legacy runHistory', () => {
+    const gs = createGameState();
+    gs.player = { class: 'guardian', kills: 9 };
+    gs.currentRegion = 2;
+    gs.currentFloor = 7;
+    gs.stats.maxChain = 14;
+    gs.stats.clearTimeMs = 43210;
+    gs.meta.storyPieces = [1, 2, 3, 4, 5];
+    gs.meta.recentRuns = Array.from({ length: 10 }, (_, index) => ({
+      runNumber: index + 1,
+      outcome: 'defeat',
+      classId: 'mage',
+      timestamp: index + 1,
+    }));
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(gs.meta.runHistory).toBeUndefined();
+    expect(gs.meta.recentRuns).toHaveLength(10);
+    expect(gs.meta.recentRuns.at(-1)).toMatchObject({
+      outcome: 'victory',
+      classId: 'guardian',
+      region: 2,
+      floor: 7,
+      maxChain: 14,
+      clearTimeMs: 43210,
+      storyCount: 5,
+      unlockCount: 2,
+    });
+    expect(gs.meta.recentRuns[0].runNumber).toBe(2);
   });
 });

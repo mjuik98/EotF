@@ -53,4 +53,20 @@ describe('event_choice_domain', () => {
     expect(picked).toEqual({ id: 'a', layer: 1 });
     randomSpy.mockRestore();
   });
+
+  it('skips events whose availability predicate rejects the current state', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const picked = pickRandomEventPolicy(
+      { currentFloor: 3, meta: { contentUnlocks: { relics: {} } } },
+      {
+        events: [
+          { id: 'locked-special', layer: 2, isAvailable: () => false },
+          { id: 'fallback', layer: 2 },
+        ],
+      },
+    );
+
+    expect(picked).toEqual({ id: 'fallback', layer: 2 });
+    randomSpy.mockRestore();
+  });
 });

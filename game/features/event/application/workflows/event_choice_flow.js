@@ -1,17 +1,14 @@
 import { createFinishEventFlowUseCase } from '../finish_event_flow_use_case.js';
 import { handleResolveEventChoiceFlowError } from './event_choice_flow_error_handler.js';
 import { resolveEventChoiceExecution } from './event_choice_flow_services.js';
-import { presentEventChoiceResolution } from '../../presentation/browser/event_choice_resolution_presenter.js';
-import { renderEventContinueChoice } from '../../presentation/event_continue_choice_presenter.js';
-import {
-  dismissEventModalRuntime,
-  renderEventChoices,
-} from '../../platform/event_runtime_dom.js';
 
 const finishEventFlowUseCase = createFinishEventFlowUseCase();
 
 export function finishEventFlow(doc, gs, deps = {}, clearCurrentEvent = () => {}) {
-  dismissEventModalRuntime(doc.getElementById('eventModal'), () => {
+  const flowUi = deps?.flowUi;
+  if (!flowUi?.dismissModal) return;
+
+  flowUi.dismissModal(doc, () => {
     finishEventFlowUseCase({
       gs,
       clearCurrentEvent,
@@ -30,13 +27,14 @@ export function resolveEventChoiceFlow(choiceIdx, {
   doc,
   audioEngine,
   deps = {},
+  flowUi = deps?.flowUi,
   sharedData = deps?.data || {},
   resolveChoice,
   onResolveChoice,
   onFinish,
   onRefreshGoldBar,
 } = {}) {
-  if (!gs || !event || !doc) return null;
+  if (!gs || !event || !doc || !flowUi?.presentResolution) return null;
 
   try {
     const execution = resolveEventChoiceExecution({
@@ -50,15 +48,13 @@ export function resolveEventChoiceFlow(choiceIdx, {
     });
     const { resolution, viewModel } = execution || {};
 
-    presentEventChoiceResolution({
+    flowUi.presentResolution({
       doc,
       event,
       gs,
       onFinish,
       onRefreshGoldBar,
       onResolveChoice,
-      renderChoices: renderEventChoices,
-      renderContinueChoice: renderEventContinueChoice,
       showItemToast: deps.showItemToast,
       updateUI: deps.updateUI,
       viewModel,

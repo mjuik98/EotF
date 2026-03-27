@@ -6,6 +6,41 @@ import {
 } from './run_mode_ui_helpers.js';
 import { highlightRunModeText } from './run_mode_text_highlight.js';
 
+function buildUnlockRoadmapRows(entries = []) {
+  return entries.slice(0, 4).map((entry) => `
+    <div class="char-info-text" style="display:grid;gap:3px;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.03);">
+      <span style="color:#edf4ff">${entry.contentLabel}</span>
+      <span style="color:rgba(213,221,242,0.76)">${entry.requirementLabel}</span>
+      <span style="color:rgba(213,221,242,0.68)">${entry.achievementTitle}${entry.progressLabel ? ` · ${entry.progressLabel}` : ''}</span>
+      ${entry.focusLabel ? `<span style="color:rgba(160,214,198,0.74)">${entry.focusLabel}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+export function renderUnlockRoadmap(doc, roadmap = {}) {
+  const zone = doc.getElementById('rmUnlockRoadmapZone');
+  if (!zone) return;
+
+  const entries = [
+    ...(roadmap?.account || []),
+    ...(roadmap?.class || []),
+  ];
+
+  if (entries.length === 0) {
+    zone.innerHTML = '';
+    return;
+  }
+
+  zone.innerHTML = `
+    <div class="char-info-block" style="margin-top:14px;">
+      <div class="rm-section-label" style="margin-bottom:8px;">다음 해금</div>
+      <div style="display:grid;gap:8px;">
+        ${buildUnlockRoadmapRows(entries)}
+      </div>
+    </div>
+  `;
+}
+
 export function renderSummaryBar(doc, cfg, meta, runRules, gs, data) {
   const zone = doc.getElementById('rmSummaryBarZone');
   if (!zone) return;
@@ -126,6 +161,7 @@ export function renderDifficultyPanel(panel, cfg, meta, runRules, gs) {
     <div id="rmCurseGrid" class="rm-option-grid" role="radiogroup" aria-label="저주 선택"></div>
 
     <div id="rmInscriptionZone"></div>
+    <div id="rmUnlockRoadmapZone"></div>
 
     <div id="rmHiddenEndingZone"></div>
     <div id="rmSummaryBarZone"></div>

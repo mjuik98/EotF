@@ -1,4 +1,4 @@
-import { ensureClassProgress } from './meta_persistence.js';
+import { ensureClassProgress, MAX_RECENT_SUMMARIES } from './meta_persistence.js';
 import { buildRunRewards } from './reward_calculator.js';
 import { createPendingRunSummary, getDefaultClassState } from './pending_summary_store.js';
 import { toClassIds, toNonNegativeInt } from './xp_policy.js';
@@ -32,5 +32,9 @@ export function awardRunXP(gs, outcome = 'defeat', options = {}) {
   });
 
   cp.pendingSummaries.push(summary);
+  cp.recentSummaries.push(summary);
+  if (cp.recentSummaries.length > MAX_RECENT_SUMMARIES) {
+    cp.recentSummaries = cp.recentSummaries.slice(-MAX_RECENT_SUMMARIES);
+  }
   return summary;
 }

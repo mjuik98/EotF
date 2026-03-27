@@ -4,6 +4,8 @@ const hoisted = vi.hoisted(() => ({
   SaveSystem: { id: 'save-system' },
   StoreGS: { token: 'store-gs' },
   bindSaveStorage: vi.fn(),
+  bindSaveNotifications: vi.fn(),
+  presentSaveStatus: vi.fn(),
   RunRules: { id: 'run-rules' },
   createFinalizeRunOutcomeAction: vi.fn((saveSystem) => ({ saveSystem, kind: 'bound' })),
   getBaseRegionIndex: vi.fn(() => 1),
@@ -12,7 +14,9 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock('../game/shared/save/public.js', () => ({
+  bindSaveNotifications: hoisted.bindSaveNotifications,
   bindSaveStorage: hoisted.bindSaveStorage,
+  presentSaveStatus: hoisted.presentSaveStatus,
   SaveSystem: hoisted.SaveSystem,
 }));
 
@@ -41,6 +45,7 @@ describe('buildCoreRunSystemModules', () => {
     const modules = buildCoreRunSystemModules();
 
     expect(hoisted.bindSaveStorage).toHaveBeenCalledTimes(1);
+    expect(hoisted.bindSaveNotifications).toHaveBeenCalledTimes(1);
     expect(hoisted.createFinalizeRunOutcomeAction).toHaveBeenCalledWith(
       hoisted.SaveSystem,
       expect.any(Function),

@@ -1,3 +1,5 @@
+import { ensureRecentRuns } from './recent_run_history.js';
+
 export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCodexRecords, ensureClassProgressionMeta }) {
   if (!meta || typeof meta !== 'object') return;
 
@@ -6,6 +8,7 @@ export function ensureRunMeta(meta, { curses, data, ensureCodexState, ensureCode
     meta.inscriptions = { echo_boost: false, resilience: false, fortune: false };
   }
   if (!Array.isArray(meta.storyPieces)) meta.storyPieces = [];
+  ensureRecentRuns(meta);
 
   ensureCodexState({ meta });
   ensureCodexRecords({ meta });

@@ -10,6 +10,11 @@ import { createCodexBrowserModuleCapabilities } from '../../../codex/ports/publi
 
 const codexBrowserModules = createCodexBrowserModuleCapabilities();
 
+function syncActiveSaveSlot(gs, slot) {
+  if (!gs?.meta) return;
+  Object.assign(gs.meta, { activeSaveSlot: Number(slot || 1) });
+}
+
 export function createTitleFlowActions(context) {
   const { doc, fns, modules, moduleRegistry, playClick, ports, win } = context;
 
@@ -44,11 +49,16 @@ export function createTitleFlowActions(context) {
       playClick();
       const runStartDeps = ports.getRunStartDeps?.() || {};
       const saveSystemDeps = ports.getSaveSystemDeps?.() || {};
+      const slot = modules.SaveSystem?.getSelectedSlot?.()
+        || saveSystemDeps.gs?.meta?.activeSaveSlot
+        || 1;
+      const preview = modules.SaveSystem?.readRunPreview?.({ slot });
       const { gs } = resolveTitleState({ saveSystemDeps });
+      syncActiveSaveSlot(gs, slot);
       return continueRunUseCase({
-        currentRegion: gs?.currentRegion || 0,
+        currentRegion: preview?.currentRegion ?? gs?.currentRegion ?? 0,
         getRunStartDeps: () => runStartDeps,
-        loadRun: () => modules.SaveSystem?.loadRun?.(saveSystemDeps),
+        loadRun: () => modules.SaveSystem?.loadRun?.({ ...saveSystemDeps, slot }),
         resumeRun: runStartDeps.continueLoadedRun,
         onBeforeResume: () => showMainTitleScreen(doc),
         onAfterCanvasReady: () => {
@@ -85,6 +95,10 @@ export function createTitleFlowActions(context) {
       playClick();
       const runSetupDeps = ports.getRunSetupDeps?.() || {};
       const { gs } = resolveTitleState({ runSetupDeps });
+      const slot = modules.SaveSystem?.getSelectedSlot?.()
+        || gs?.meta?.activeSaveSlot
+        || 1;
+      syncActiveSaveSlot(gs, slot);
       startTitleRunUseCase({
         getSelectedClass: () => modules.ClassSelectUI?.getSelectedClass?.(),
         hideTitleSubscreens: () => hideTitleSubscreens(doc),

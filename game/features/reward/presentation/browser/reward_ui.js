@@ -1,4 +1,5 @@
 import { showRewardScreenRuntime } from '../../application/workflows/show_reward_screen_workflow.js';
+import { createRewardScreenWorkflowUi } from './create_reward_screen_workflow_ui.js';
 import { createLoadedRewardRuntime } from './reward_runtime_loader.js';
 
 async function withRewardRuntime(deps = {}, callback) {
@@ -8,7 +9,10 @@ async function withRewardRuntime(deps = {}, callback) {
 
 export const RewardUI = {
   showRewardScreen(mode = false, deps = {}) {
-    showRewardScreenRuntime(this, mode, deps);
+    showRewardScreenRuntime(this, mode, {
+      ...deps,
+      rewardScreenUi: createRewardScreenWorkflowUi(this, deps),
+    });
   },
 
   takeRewardBlessing(blessing, deps = {}) {

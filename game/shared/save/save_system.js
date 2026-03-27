@@ -1,5 +1,4 @@
 import { Logger } from '../../utils/logger.js';
-import { presentSaveStatus } from './save_status_presenter.js';
 import {
   META_SAVE_VERSION,
   RUN_SAVE_VERSION,
@@ -41,11 +40,41 @@ import {
   readMetaSaveData,
   readRunSaveRecord,
 } from './save_readers.js';
+import { getSaveNotifications } from './save_notifications.js';
 
 const SAVE_KEY = 'echo_fallen_save';
 const META_KEY = 'echo_fallen_meta';
 const OUTBOX_KEY = 'echo_fallen_outbox';
 const SAVE_ERROR_QUEUED = 'persist queued in outbox';
+const DEFAULT_SAVE_SLOT = 1;
+const SAVE_SLOT_COUNT = 3;
+const SAVE_BUNDLE_SCHEMA_VERSION = 1;
+
+function normalizeSaveSlot(slot) {
+  const resolved = Number(slot);
+  if (!Number.isInteger(resolved) || resolved < 1) return DEFAULT_SAVE_SLOT;
+  return resolved;
+}
+
+function buildSlotKey(baseKey, slot) {
+  const normalizedSlot = normalizeSaveSlot(slot);
+  if (normalizedSlot === DEFAULT_SAVE_SLOT) return baseKey;
+  return `${baseKey}_slot${normalizedSlot}`;
+}
+
+function hasExplicitSlot(options = {}) {
+  return Object.prototype.hasOwnProperty.call(options || {}, 'slot');
+}
+
+function isRunSaveStorageKey(baseKey, key) {
+  const value = String(key || '');
+  return value === baseKey || value.startsWith(`${baseKey}_slot`);
+}
+
+function syncActiveSaveSlot(gs, slot) {
+  if (!gs?.meta) return;
+  Object.assign(gs.meta, { activeSaveSlot: normalizeSaveSlot(slot) });
+}
 
 function getSaveAdapter() {
   return getSaveStorage();
@@ -53,6 +82,12 @@ function getSaveAdapter() {
 
 function isQueuedRunSaveError(error) {
   return error?.message === `[SaveSystem] run ${SAVE_ERROR_QUEUED}`;
+}
+
+function resolveSaveStatusNotifier(deps = {}) {
+  if (typeof deps.notifySaveStatus === 'function') return deps.notifySaveStatus;
+  if (typeof deps.presentSaveStatus === 'function') return deps.presentSaveStatus;
+  return getSaveNotifications().saveStatus;
 }
 
 export const SaveSystem = {
@@ -68,6 +103,25 @@ export const SaveSystem = {
   _outboxTimerAt: 0,
   _isFlushingOutbox: false,
   _outboxMetrics: createOutboxMetrics(),
+  _selectedSlot: DEFAULT_SAVE_SLOT,
+
+  resolveSlot(deps = {}) {
+    return normalizeSaveSlot(
+      deps?.slot
+      ?? deps?.gs?.meta?.activeSaveSlot
+      ?? this._selectedSlot
+      ?? DEFAULT_SAVE_SLOT,
+    );
+  },
+
+  _getSlotKeys(slot) {
+    const resolvedSlot = normalizeSaveSlot(slot);
+    return {
+      slot: resolvedSlot,
+      saveKey: buildSlotKey(this.SAVE_KEY, resolvedSlot),
+      metaKey: buildSlotKey(this.META_KEY, resolvedSlot),
+    };
+  },
 
   _ensureOutboxLoaded() {
     if (this._outboxLoaded) return;
@@ -166,7 +220,7 @@ export const SaveSystem = {
       save: (key, payload) => saveAdapter?.save?.(key, payload) || false,
     });
     this._persistOutbox();
-    if (!this._outbox.some((entry) => entry.key === this.SAVE_KEY) && isQueuedRunSaveError(this._lastSaveError)) {
+    if (!this._outbox.some((entry) => isRunSaveStorageKey(this.SAVE_KEY, entry.key)) && isQueuedRunSaveError(this._lastSaveError)) {
       this._lastSaveError = null;
     }
     return remaining;
@@ -196,10 +250,13 @@ export const SaveSystem = {
   saveMeta(deps = {}) {
     const gs = getGS(deps);
     if (!gs?.meta) return;
+    const { slot, metaKey } = this._getSlotKeys(this.resolveSlot(deps));
+    syncActiveSaveSlot(gs, slot);
 
     try {
       const meta = buildMetaSave(gs, META_SAVE_VERSION);
-      const persisted = this._persistWithOutbox(this.META_KEY, meta);
+      if (meta) meta.activeSaveSlot = slot;
+      const persisted = this._persistWithOutbox(metaKey, meta);
       if (!persisted) {
         this._lastSaveError = new Error(`[SaveSystem] meta ${SAVE_ERROR_QUEUED}`);
         return { status: 'queued', persisted: false, queueDepth: this.getOutboxSize() };
@@ -215,9 +272,11 @@ export const SaveSystem = {
   loadMeta(deps = {}) {
     const gs = getGS(deps);
     if (!gs?.meta) return;
+    const slot = this.resolveSlot(deps);
+    syncActiveSaveSlot(gs, slot);
 
     try {
-      const data = this._readMetaSaveData({ logErrors: false });
+      const data = this._readMetaSaveData({ slot, logErrors: false });
       if (data) {
         hydrateMetaState(gs, data);
       }
@@ -232,6 +291,7 @@ export const SaveSystem = {
       Logger.warn('[SaveSystem] RunRules.ensureMeta failed:', e.message);
     }
 
+    syncActiveSaveSlot(gs, slot);
     ensureMetaRunConfig(gs.meta);
   },
 
@@ -242,6 +302,8 @@ export const SaveSystem = {
   saveRun(deps = {}) {
     const gs = getGS(deps);
     if (!gs?.player) return { status: 'skipped', persisted: false, reason: 'missing-player', queueDepth: this.getOutboxSize() };
+    const { slot, saveKey } = this._getSlotKeys(this.resolveSlot(deps));
+    syncActiveSaveSlot(gs, slot);
 
     const isGameStarted = typeof deps.isGameStarted === 'function' ? deps.isGameStarted() : true;
     if (!isGameStarted) return { status: 'skipped', persisted: false, reason: 'game-not-started', queueDepth: this.getOutboxSize() };
@@ -249,7 +311,7 @@ export const SaveSystem = {
 
     try {
       const save = buildRunSave(gs, RUN_SAVE_VERSION);
-      const persisted = this._persistWithOutbox(this.SAVE_KEY, save);
+      const persisted = this._persistWithOutbox(saveKey, save);
       if (!persisted) {
         this._lastSaveError = new Error(`[SaveSystem] run ${SAVE_ERROR_QUEUED}`);
         return { status: 'queued', persisted: false, queueDepth: this.getOutboxSize() };
@@ -266,24 +328,27 @@ export const SaveSystem = {
   loadRun(deps = {}) {
     const gs = getGS(deps);
     if (!gs) return false;
+    const slot = this.resolveSlot(deps);
+    syncActiveSaveSlot(gs, slot);
 
-    const data = this._readRunSaveData();
+    const data = this._readRunSaveData({ slot });
     if (!data) return false;
 
     hydrateRunState(gs, data);
     return true;
   },
 
-  hasSave() {
-    return !!this._readRunSaveData({ logErrors: false });
+  hasSave(deps = {}) {
+    return !!this._readRunSaveData({ ...deps, logErrors: false });
   },
 
-  readRunPreview() {
-    const previewRecord = this._readRunSaveRecord({ logErrors: false });
+  readRunPreview(deps = {}) {
+    const slot = this.resolveSlot(deps);
+    const previewRecord = this._readRunSaveRecord({ slot, logErrors: false });
     const preview = previewRecord?.data || null;
     if (!preview) return null;
 
-    const meta = this._readMetaSaveData({ logErrors: false });
+    const meta = this._readMetaSaveData({ slot, logErrors: false });
     const nextPreview = {
       ...preview,
       saveState: previewRecord?.saveState || 'saved',
@@ -291,16 +356,81 @@ export const SaveSystem = {
     return meta ? { ...nextPreview, meta } : nextPreview;
   },
 
-  _readRunSaveData({ logErrors = true } = {}) {
-    return this._readRunSaveRecord({ logErrors })?.data || null;
+  readMetaPreview(deps = {}) {
+    return this._readMetaSaveData({ ...deps, logErrors: false });
   },
 
-  _readRunSaveRecord({ logErrors = true } = {}) {
+  getSelectedSlot() {
+    return this.resolveSlot();
+  },
+
+  selectSlot(slot, deps = {}) {
+    const selectedSlot = normalizeSaveSlot(slot);
+    this._selectedSlot = selectedSlot;
+    syncActiveSaveSlot(deps?.gs, selectedSlot);
+    return selectedSlot;
+  },
+
+  getSlotSummaries({ slots = null } = {}) {
+    const resolvedSlots = Array.isArray(slots) && slots.length
+      ? slots.map((slot) => normalizeSaveSlot(slot))
+      : Array.from({ length: SAVE_SLOT_COUNT }, (_, index) => index + 1);
+
+    return resolvedSlots.map((slot) => ({
+      slot,
+      hasSave: this.hasSave({ slot }),
+      preview: this.readRunPreview({ slot }),
+      meta: this.readMetaPreview({ slot }),
+    }));
+  },
+
+  exportBundle(deps = {}) {
+    const slot = this.resolveSlot(deps);
+    return {
+      schemaVersion: SAVE_BUNDLE_SCHEMA_VERSION,
+      slot,
+      exportedAt: Date.now(),
+      meta: this.readMetaPreview({ slot }),
+      run: this._readRunSaveData({ slot, logErrors: false }),
+    };
+  },
+
+  importBundle(bundle, deps = {}) {
+    if (!bundle || typeof bundle !== 'object') {
+      throw new Error('[SaveSystem] Invalid save bundle.');
+    }
+
+    const slot = this.resolveSlot(deps);
+    const { saveKey, metaKey } = this._getSlotKeys(slot);
+    const nextMeta = bundle.meta && typeof bundle.meta === 'object'
+      ? { ...bundle.meta, activeSaveSlot: slot }
+      : null;
+    const nextRun = bundle.run && typeof bundle.run === 'object'
+      ? bundle.run
+      : null;
+
+    if (nextMeta) this._persistWithOutbox(metaKey, nextMeta);
+    if (nextRun) this._persistWithOutbox(saveKey, nextRun);
+    this.selectSlot(slot, deps);
+
+    if (deps?.gs?.meta && nextMeta) {
+      hydrateMetaState(deps.gs, nextMeta);
+      syncActiveSaveSlot(deps.gs, slot);
+    }
+    return { status: 'imported', slot };
+  },
+
+  _readRunSaveData({ logErrors = true, ...deps } = {}) {
+    return this._readRunSaveRecord({ ...deps, logErrors })?.data || null;
+  },
+
+  _readRunSaveRecord({ logErrors = true, ...deps } = {}) {
     this._ensureOutboxLoaded();
+    const { saveKey } = this._getSlotKeys(this.resolveSlot(deps));
     return readRunSaveRecord({
       outbox: this._outbox,
       saveAdapter: getSaveAdapter(),
-      saveKey: this.SAVE_KEY,
+      saveKey,
       logErrors,
       isUnsupportedFutureVersion: isUnsupportedFutureRunSave,
       migrateSave: migrateRunSave,
@@ -312,12 +442,13 @@ export const SaveSystem = {
     });
   },
 
-  _readMetaSaveData({ logErrors = true } = {}) {
+  _readMetaSaveData({ logErrors = true, ...deps } = {}) {
     this._ensureOutboxLoaded();
+    const { metaKey } = this._getSlotKeys(this.resolveSlot(deps));
     return readMetaSaveData({
       outbox: this._outbox,
       saveAdapter: getSaveAdapter(),
-      metaKey: this.META_KEY,
+      metaKey,
       logErrors,
       isUnsupportedFutureVersion: isUnsupportedFutureMetaSave,
       migrateSave: migrateMetaSave,
@@ -329,20 +460,44 @@ export const SaveSystem = {
     });
   },
 
-  clearSave() {
-    getSaveAdapter()?.remove?.(this.SAVE_KEY);
-    this._dropOutboxKey(this.SAVE_KEY);
+  clearSave(options = {}) {
+    const { saveKey, metaKey } = this._getSlotKeys(this.resolveSlot(options));
+    getSaveAdapter()?.remove?.(saveKey);
+    this._dropOutboxKey(saveKey);
+
+    if (hasExplicitSlot(options)) {
+      getSaveAdapter()?.remove?.(metaKey);
+      this._dropOutboxKey(metaKey);
+    }
   },
 
   showSaveStatus(status, deps = {}) {
-    return presentSaveStatus(status, deps);
+    const notifySaveStatus = resolveSaveStatusNotifier(deps);
+    if (typeof notifySaveStatus !== 'function') return false;
+
+    const metrics = this.getOutboxMetrics();
+    const queueDepth = Math.max(
+      Number(status?.queueDepth || 0),
+      Number(metrics?.queueDepth || 0),
+    );
+    const nextRetryAt = Number(status?.nextRetryAt || 0) || Number(metrics?.nextRetryAt || 0);
+    const notified = notifySaveStatus({
+      ...status,
+      ...(queueDepth > 0 ? { queueDepth } : {}),
+      ...(nextRetryAt > 0 ? { nextRetryAt } : {}),
+    }, deps);
+    return notified !== false;
   },
 
   showSaveBadge(deps = {}) {
-    return presentSaveStatus({
+    const notifySaveStatus = resolveSaveStatusNotifier(deps);
+    if (typeof notifySaveStatus !== 'function') return false;
+
+    const notified = notifySaveStatus({
       status: 'saved',
       persisted: true,
       queueDepth: 0,
     }, deps);
+    return notified !== false;
   },
 };

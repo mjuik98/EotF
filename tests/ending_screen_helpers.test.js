@@ -33,6 +33,7 @@ describe('ending_screen_helpers', () => {
       runOutcomeUnlocks: [
         { type: 'curse', id: 'blood_moon', source: 'first_victory' },
       ],
+      runOutcomeAchievements: ['first_victory'],
     }, {
       storyFragments: [1, 2, 3],
       cards: {
@@ -59,6 +60,13 @@ describe('ending_screen_helpers', () => {
     expect(payload.chips).toContain('4회차');
     expect(payload.unlocks).toEqual([
       expect.objectContaining({ type: 'curse', id: 'blood_moon', label: '저주 해금 · 핏빛 월식' }),
+    ]);
+    expect(payload.achievements).toEqual([
+      expect.objectContaining({
+        id: 'first_victory',
+        icon: '🏁',
+        title: '첫 승리',
+      }),
     ]);
   });
 

@@ -14,6 +14,7 @@ import {
   getRunRules,
 } from '../platform/event_runtime_context.js';
 import { finishEventFlow, resolveEventChoiceFlow } from './workflows/event_choice_flow.js';
+import { createEventChoiceFlowUi } from '../platform/browser/create_event_choice_flow_ui.js';
 import {
   openEventItemShopRuntime,
   openEventRestSiteRuntime,
@@ -54,6 +55,7 @@ export function createEventUiRuntime(deps = {}, callbacks = {}, domActions = {
   const doc = getDoc(deps);
   const runRules = getRunRules(deps);
   const audioEngine = getAudioEngine(deps);
+  const flowUi = createEventChoiceFlowUi();
   const refreshGoldBar = () => callbacks.refreshGoldBar?.();
 
   return {
@@ -89,6 +91,7 @@ export function createEventUiRuntime(deps = {}, callbacks = {}, domActions = {
         runIdempotent,
         resolveEventChoiceFlow,
         finishEventFlow,
+        flowUi,
         refreshGoldBar,
         resolveEvent: callbacks.resolveEvent,
       });

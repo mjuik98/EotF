@@ -30,17 +30,8 @@ describe('SaveAdapter', () => {
     expect(reportErrorFn).toHaveBeenCalledTimes(1);
   });
 
-  it('renders quota notices with injected document and timer collaborators', () => {
-    const appendChild = vi.fn();
-    const timer = vi.fn();
-    const notice = {
-      style: {},
-      remove: vi.fn(),
-    };
-    const doc = {
-      body: { appendChild },
-      createElement: vi.fn(() => notice),
-    };
+  it('delegates quota notices to injected storage-failure notifications', () => {
+    const notifyStorageFailure = vi.fn(() => true);
     const storage = {
       setItem: vi.fn(() => {
         const error = new Error('full');
@@ -49,10 +40,11 @@ describe('SaveAdapter', () => {
       }),
     };
 
-    expect(SaveAdapter.save('run', { hp: 8 }, { storage, doc, setTimeoutFn: timer })).toBe(false);
-    expect(doc.createElement).toHaveBeenCalledWith('div');
-    expect(appendChild).toHaveBeenCalledWith(notice);
-    expect(timer).toHaveBeenCalledTimes(1);
+    expect(SaveAdapter.save('run', { hp: 8 }, { storage, notifyStorageFailure })).toBe(false);
+    expect(notifyStorageFailure).toHaveBeenCalledWith(
+      { key: 'run', reason: 'Storage quota exceeded' },
+      expect.objectContaining({ storage, notifyStorageFailure }),
+    );
   });
 
   it('fails fast when storage is unavailable', () => {

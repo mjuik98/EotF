@@ -263,7 +263,17 @@ describe('runtime contract regressions', () => {
     finishEventFlow(
       { getElementById: vi.fn(() => null) },
       gs,
-      { showGameplayScreen, updateNextNodes, updateUI, renderMinimap },
+      {
+        flowUi: {
+          dismissModal(_doc, onDone) {
+            onDone?.();
+          },
+        },
+        showGameplayScreen,
+        updateNextNodes,
+        updateUI,
+        renderMinimap,
+      },
       clearCurrentEvent,
     );
 

@@ -56,6 +56,7 @@ export function pickRandomEventPolicy(gs, data) {
   if (!gs || !data?.events) return null;
   const pool = data.events.filter((event) => {
     if (event.layer === 2 && gs.currentFloor < 2) return false;
+    if (typeof event?.isAvailable === 'function' && !event.isAvailable(gs, data)) return false;
     return true;
   });
   if (!pool.length) return null;

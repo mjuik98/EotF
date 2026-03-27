@@ -31,6 +31,60 @@ function buildRoadmapRows(roadmap = [], classProgress = {}) {
   }).join('');
 }
 
+function buildUnlockRoadmapRows(entries = []) {
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return '<div class="char-info-text">다음 해금이 없습니다.</div>';
+  }
+
+  return entries.slice(0, 4).map((entry) => `
+    <div class="char-info-text" style="display:grid;gap:3px;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.03);">
+      <span style="color:#edf4ff">${entry.contentLabel}</span>
+      <span style="color:rgba(213,221,242,0.76)">${entry.requirementLabel}</span>
+      <span style="color:rgba(213,221,242,0.68)">${entry.achievementTitle}${entry.progressLabel ? ` · ${entry.progressLabel}` : ''}</span>
+      ${entry.focusLabel ? `<span style="color:rgba(160,214,198,0.74)">${entry.focusLabel}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function buildRecentSummaryRows(recentSummaries = []) {
+  if (!Array.isArray(recentSummaries) || recentSummaries.length === 0) {
+    return '<div class="char-info-text">아직 기록된 최근 런이 없습니다.</div>';
+  }
+
+  return recentSummaries.map((summary) => {
+    const outcomeLabel = summary?.outcome === 'victory' ? '승리' : '패배';
+    const levelLabel = Array.isArray(summary?.levelUps) && summary.levelUps.length > 0
+      ? ` · 레벨 ${summary.levelUps.join(', ')}`
+      : '';
+    return `
+      <div class="char-info-text" style="display:grid;gap:3px;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.03);">
+        <span style="color:#edf4ff">${outcomeLabel} · +${summary?.totalGain || 0} XP${levelLabel}</span>
+        <span style="color:rgba(213,221,242,0.68)">누적 ${summary?.after?.totalXp || 0} XP · Lv.${summary?.after?.level || 1}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function buildLoadoutSlotButtons(loadoutCustomization = {}, accent = '#ffffff') {
+  const slots = Array.isArray(loadoutCustomization?.availableSlots)
+    ? loadoutCustomization.availableSlots
+    : [];
+  if (!slots.length) return '';
+
+  return `
+    <div class="char-start-deck" style="margin:0 0 10px">
+      ${slots.map((slot) => `
+        <button
+          class="char-loadout-slot-btn"
+          type="button"
+          data-loadout-slot="${slot.id}"
+          style="border:1px solid ${slot.active ? `${accent}66` : 'rgba(255,255,255,0.14)'};background:${slot.active ? `${accent}14` : 'rgba(255,255,255,0.04)'};color:${slot.active ? accent : '#d5ddf2'};border-radius:999px;padding:4px 10px;font-size:10px;letter-spacing:0.06em;cursor:pointer"
+        >${slot.label}${slot.hasPreset ? ' ●' : ''}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
 export function buildCharacterInfoSummarySection({
   selectedChar,
   buildSectionLabel,
@@ -41,7 +95,13 @@ export function buildCharacterInfoSummarySection({
   featuredCardIds,
   featuredCardTags,
   roadmapPreviewText,
+  unlockRoadmap,
 } = {}) {
+  const unlockRows = [
+    ...(unlockRoadmap?.account || []),
+    ...(unlockRoadmap?.class || []),
+  ];
+
   return `
     <section class="char-info-pane is-active" data-pane="summary" role="tabpanel">
       <div class="char-info-block" style="border-color:${selectedChar.accent}22;background:${selectedChar.accent}06;">
@@ -82,6 +142,13 @@ export function buildCharacterInfoSummarySection({
         ${buildSectionLabel('다음 마스터리 해금', selectedChar.accent)}
         <div class="char-info-text">${roadmapPreviewText}</div>
       </div>
+
+      <div class="char-info-block">
+        ${buildSectionLabel('해금 로드맵', selectedChar.accent)}
+        <div style="display:grid;gap:8px;">
+          ${buildUnlockRoadmapRows(unlockRows)}
+        </div>
+      </div>
     </section>
   `;
 }
@@ -108,6 +175,7 @@ export function buildCharacterInfoDetailsSection({
   level12Unlocked,
   level12Summary,
   loadoutCustomization,
+  recentSummaries,
 } = {}) {
   const roadmapRows = buildRoadmapRows(roadmap, classProgress);
 
@@ -161,7 +229,15 @@ export function buildCharacterInfoDetailsSection({
       </div>
 
       <div class="char-info-block">
+        ${buildSectionLabel('최근 진행 기록', selectedChar.accent)}
+        <div style="display:grid;gap:8px;">
+          ${buildRecentSummaryRows(recentSummaries)}
+        </div>
+      </div>
+
+      <div class="char-info-block">
         ${buildSectionLabel('시작 덱', selectedChar.accent)}
+        ${buildLoadoutSlotButtons(loadoutCustomization, selectedChar.accent)}
         ${level11Unlocked ? `
           <div class="char-info-text">카드를 클릭해 대상을 지정하세요.</div>
           <div class="char-start-deck" style="margin:8px 0 10px">

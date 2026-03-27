@@ -33,9 +33,25 @@ describe('ClassProgressionSystem', () => {
     expect(meta.classProgress.levels.mage).toBe(1);
     expect(meta.classProgress.xp.swordsman).toBe(0);
     expect(Array.isArray(meta.classProgress.pendingSummaries)).toBe(true);
+    expect(Array.isArray(meta.classProgress.recentSummaries)).toBe(true);
     expect(meta.classProgress.loadoutPresets.swordsman).toEqual({
+      activeSlot: 'slot1',
       level11: null,
       level12: null,
+      slotEntries: {
+        slot1: {
+          level11: null,
+          level12: null,
+        },
+        slot2: {
+          level11: null,
+          level12: null,
+        },
+        slot3: {
+          level11: null,
+          level12: null,
+        },
+      },
     });
   });
 
@@ -59,6 +75,11 @@ describe('ClassProgressionSystem', () => {
     expect(summary.after.totalXp).toBe(summary.before.totalXp + summary.totalGain);
     expect(summary.rewards.some((row) => row.label.includes('보스'))).toBe(true);
     expect(gs.meta.classProgress.pendingSummaries).toHaveLength(1);
+    expect(gs.meta.classProgress.recentSummaries).toHaveLength(1);
+    expect(gs.meta.classProgress.recentSummaries[0]).toMatchObject({
+      classId: 'swordsman',
+      outcome: 'victory',
+    });
   });
 
   it('creates multi-level-up summary when gain is large enough', () => {
@@ -97,5 +118,22 @@ describe('ClassProgressionSystem', () => {
     expect(first).toBeTruthy();
     expect(second).toBeTruthy();
     expect(empty).toBeNull();
+  });
+
+  it('caps stored recent summaries while preserving the newest runs', () => {
+    const gs = createGs();
+    ClassProgressionSystem.ensureMeta(gs.meta, ['swordsman']);
+
+    for (let index = 0; index < 16; index += 1) {
+      ClassProgressionSystem.awardRunXP(gs, index % 2 === 0 ? 'victory' : 'defeat', {
+        classIds: ['swordsman'],
+      });
+    }
+
+    expect(gs.meta.classProgress.pendingSummaries).toHaveLength(16);
+    expect(gs.meta.classProgress.recentSummaries).toHaveLength(12);
+    expect(gs.meta.classProgress.recentSummaries[11].after.totalXp).toBe(
+      gs.meta.classProgress.pendingSummaries[15].after.totalXp,
+    );
   });
 });

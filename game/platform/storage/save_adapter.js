@@ -1,6 +1,5 @@
 import {
   Logger,
-  getDoc as getRuntimeDoc,
   getWin as getRuntimeWin,
 } from '../../utils/public_feature_support.js';
 import { ErrorCodes, ErrorSeverity } from '../../core/error_codes.js';
@@ -15,19 +14,9 @@ function getStorage() {
   }
 }
 
-function getDocument() {
-  try {
-    return getRuntimeDoc();
-  } catch {
-    return null;
-  }
-}
-
 function resolveSaveAdapterDeps(deps = {}) {
   return {
     storage: deps.storage || getStorage(),
-    doc: deps.doc || getDocument(),
-    setTimeoutFn: typeof deps.setTimeoutFn === 'function' ? deps.setTimeoutFn : setTimeout,
     reportErrorFn: deps.reportErrorFn || reportError,
     logger: deps.logger || Logger,
   };
@@ -62,7 +51,7 @@ export const SaveAdapter = {
     } catch (error) {
       if (error?.name === 'QuotaExceededError') {
         logger.warn('[SaveAdapter] Quota exceeded while saving.');
-        this._notifySaveFailed('Storage quota exceeded', deps);
+        this._notifySaveFailed({ key, reason: 'Storage quota exceeded' }, deps);
       } else {
         resolveSaveAdapterDeps(deps).reportErrorFn(error, {
           code: ErrorCodes.SAVE_WRITE_FAILED,
@@ -75,15 +64,9 @@ export const SaveAdapter = {
     }
   },
 
-  _notifySaveFailed(reason, deps = {}) {
-    const { doc, setTimeoutFn } = resolveSaveAdapterDeps(deps);
-    if (!doc?.body) return;
-    const el = doc.createElement('div');
-    el.textContent = `Save failed: ${reason}`;
-    el.style.cssText =
-      'position:fixed;bottom:24px;right:24px;background:#ff3366;color:white;padding:12px 20px;border-radius:8px;z-index:9999;font-family:sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);';
-    doc.body.appendChild(el);
-    setTimeoutFn(() => el.remove(), 4000);
+  _notifySaveFailed(payload, deps = {}) {
+    const notifyStorageFailure = deps.notifyStorageFailure;
+    return notifyStorageFailure?.(payload, deps) || false;
   },
 
   remove(key, deps = {}) {

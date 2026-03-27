@@ -105,6 +105,33 @@ describe('character_select_info_panel', () => {
       selectedChar,
       classProgress: { level: 1, totalXp: 0, nextLevelXp: 100, progress: 0.3 },
       roadmap: [{ lv: 2, icon: '+', desc: 'Unlock starter bonus.' }],
+      unlockRoadmap: {
+        account: [{
+          contentType: 'curse',
+          contentId: 'blood_moon',
+          contentLabel: '핏빛 월식',
+          requirementLabel: '첫 승리 필요',
+          progressLabel: '0 / 1',
+          achievementTitle: '첫 승리',
+        }],
+        class: [{
+          contentType: 'card',
+          contentId: 'judgement',
+          contentLabel: '심판',
+          requirementLabel: '찬송기사 숙련도 3 달성 필요',
+          progressLabel: '1 / 3',
+          achievementTitle: '성기사 숙련',
+        }],
+      },
+      recentSummaries: [{
+        outcome: 'victory',
+        totalGain: 42,
+        levelUps: [2],
+        after: {
+          totalXp: 142,
+          level: 2,
+        },
+      }],
       buildSectionLabel: (label) => `<span>${label}</span>`,
       buildRadar: () => '<svg>radar</svg>',
       cards: { strike: { name: 'Strike' } },
@@ -131,6 +158,12 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('시작 장비');
     expect(panel.innerHTML).toContain('다음 마스터리 해금');
     expect(panel.innerHTML).toContain('다음 해금: Lv.2 Unlock starter bonus.');
+    expect(panel.innerHTML).toContain('해금 로드맵');
+    expect(panel.innerHTML).toContain('핏빛 월식');
+    expect(panel.innerHTML).toContain('심판');
+    expect(panel.innerHTML).toContain('0 / 1');
+    expect(panel.innerHTML).toContain('최근 진행 기록');
+    expect(panel.innerHTML).toContain('승리 · +42 XP · 레벨 2');
     expect(panel.innerHTML).toContain('펼쳐서 전체 해금 보상 보기');
     expect(panel.innerHTML).not.toContain('전투 성향');
     expect(panel.innerHTML).not.toContain('시작 덱 요약');
@@ -196,6 +229,10 @@ describe('character_select_info_panel', () => {
     const clearLevel11Preset = createNode();
     const saveLevel12Preset = createNode();
     const clearLevel12Preset = createNode();
+    const slotButton1 = createNode();
+    slotButton1.dataset.loadoutSlot = 'slot1';
+    const slotButton2 = createNode();
+    slotButton2.dataset.loadoutSlot = 'slot2';
     const level11AddCard = createNode();
     level11AddCard.dataset.level11AddCardId = 'blade_dance';
     const level12BonusRelic = createNode();
@@ -220,6 +257,9 @@ describe('character_select_info_panel', () => {
         if (selector === '.level11-add-card-btn') {
           return [level11AddCard];
         }
+        if (selector === '.char-loadout-slot-btn') {
+          return [slotButton1, slotButton2];
+        }
         if (selector === '.level11-selection-note') {
           return [];
         }
@@ -240,6 +280,7 @@ describe('character_select_info_panel', () => {
 
     const onSaveLoadoutPreset = vi.fn();
     const onClearLoadoutPreset = vi.fn();
+    const onSelectLoadoutPresetSlot = vi.fn();
     const selectedChar = {
       accent: '#7cc8ff',
       color: '#13354b',
@@ -277,6 +318,12 @@ describe('character_select_info_panel', () => {
         showTooltip: vi.fn(),
       },
       loadoutCustomization: {
+        activeSlot: 'slot2',
+        availableSlots: [
+          { id: 'slot1', label: '빌드 1', active: false, hasPreset: false },
+          { id: 'slot2', label: '빌드 2', active: true, hasPreset: true },
+          { id: 'slot3', label: '빌드 3', active: false, hasPreset: false },
+        ],
         level11Unlocked: true,
         level12Unlocked: true,
         level11Preset: { type: 'swap', removeIndex: 1, removeCardId: 'heavy_blow', addCardId: 'blade_dance' },
@@ -298,6 +345,7 @@ describe('character_select_info_panel', () => {
       },
       onSaveLoadoutPreset,
       onClearLoadoutPreset,
+      onSelectLoadoutPresetSlot,
       doc: {},
       win: {},
       hover: vi.fn(),
@@ -319,6 +367,8 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).not.toContain('기본 시작 덱');
     expect(panel.innerHTML).not.toContain('적용 후 시작 덱');
     expect(panel.innerHTML).toContain('Heavy Blow');
+    expect(panel.innerHTML).toContain('빌드 1');
+    expect(panel.innerHTML).toContain('빌드 2');
     expect(panel.innerHTML).toContain('저장된 프리셋 일부를 현재 상태에서 적용할 수 없습니다.');
     expect(panel.innerHTML).toContain('모든 마스터리 보상 해금 완료');
     expect(panel.innerHTML).not.toContain('다음 해금: 모든 마스터리 보상 해금 완료');
@@ -340,6 +390,7 @@ describe('character_select_info_panel', () => {
 
     level11ModeUpgrade.listeners.click();
     expect(saveLevel11Upgrade.disabled).toBe(true);
+    slotButton1.listeners.click();
     level11DeckCard0.listeners.click();
     expect(saveLevel11Upgrade.disabled).toBe(false);
     saveLevel11Upgrade.listeners.click();
@@ -359,6 +410,7 @@ describe('character_select_info_panel', () => {
       type: 'upgrade',
       targetIndex: 0,
     });
+    expect(onSelectLoadoutPresetSlot).toHaveBeenCalledWith('slot1');
     expect(onSaveLoadoutPreset).toHaveBeenNthCalledWith(2, {
       slot: 'level11',
       type: 'swap',

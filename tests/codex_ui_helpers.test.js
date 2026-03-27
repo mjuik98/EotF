@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   applyCodexFilter,
+  buildCodexRewardRoadmap,
   buildCodexProgress,
+  buildRecentCodexDiscoveries,
   ensureCodexState,
   getBaseCodexCards,
   getCodexFilterDefinitions,
@@ -93,5 +95,65 @@ describe('codex_ui_helpers', () => {
 
     expect(defs.cards.map((entry) => entry?.l)).toEqual(['전체', '공격', '기술', '능력']);
     expect(defs.items.map((entry) => entry?.l)).toContain('비범');
+  });
+
+  it('builds the nearest codex reward milestones across categories', () => {
+    const meta = {
+      codex: {
+        enemies: new Set(['wolf', 'boar', 'slime', 'cultist', 'echo']),
+        cards: new Set(['strike', 'defend', 'charge', 'afterimage', 'prediction', 'time_echo']),
+        items: new Set(['dull_blade', 'void_compass', 'guardian_seal']),
+      },
+      contentUnlocks: {
+        curses: {},
+        relics: {},
+        relicsByClass: {},
+        cards: { shared: {} },
+      },
+    };
+
+    expect(buildCodexRewardRoadmap(meta)).toEqual([
+      expect.objectContaining({
+        contentId: 'curator_lantern',
+        achievementTitle: '야전 생물학자',
+        progressLabel: '5 / 12',
+        focusLabel: '적 도감',
+      }),
+      expect.objectContaining({
+        contentId: 'ink_reservoir',
+        achievementTitle: '전투 서기관',
+        progressLabel: '6 / 15',
+        focusLabel: '카드 도감',
+      }),
+    ]);
+  });
+
+  it('surfaces recent codex discoveries from record history', () => {
+    const meta = {
+      codexRecords: {
+        enemies: {
+          wolf: { firstSeen: '2026-03-24', encounters: 3, kills: 2 },
+        },
+        cards: {
+          strike: { firstSeen: '2026-03-26', used: 7 },
+        },
+        items: {
+          void_compass: { firstSeen: '2026-03-25', found: 1 },
+        },
+      },
+    };
+
+    expect(buildRecentCodexDiscoveries(meta, { limit: 2 })).toEqual([
+      expect.objectContaining({
+        category: 'cards',
+        id: 'strike',
+        firstSeen: '2026-03-26',
+      }),
+      expect.objectContaining({
+        category: 'items',
+        id: 'void_compass',
+        firstSeen: '2026-03-25',
+      }),
+    ]);
   });
 });

@@ -110,14 +110,27 @@ describe('run_state_commands', () => {
       pendingSummaries: [],
       loadoutPresets: {
         swordsman: {
-          level11: {
-            type: 'swap',
-            removeIndex: 2,
-            removeCardId: 'heavy_blow',
-            addCardId: 'twin_strike',
-          },
-          level12: {
-            bonusRelicId: 'bonus_relic',
+          activeSlot: 'slot2',
+          slotEntries: {
+            slot1: {
+              level11: {
+                type: 'swap',
+                removeIndex: 2,
+                removeCardId: 'heavy_blow',
+                addCardId: 'twin_strike',
+              },
+              level12: {
+                bonusRelicId: 'bonus_relic',
+              },
+            },
+            slot2: {
+              level11: {
+                type: 'upgrade',
+                targetIndex: 1,
+                cardId: 'defend',
+              },
+              level12: null,
+            },
           },
         },
       },
@@ -135,8 +148,12 @@ describe('run_state_commands', () => {
       cards: {
         strike: { id: 'strike' },
         defend: { id: 'defend' },
+        defend_plus: { id: 'defend_plus', baseCardId: 'defend' },
         heavy_blow: { id: 'heavy_blow' },
         twin_strike: { id: 'twin_strike' },
+      },
+      upgradeMap: {
+        defend: 'defend_plus',
       },
       items: {
         starter_relic: {
@@ -148,9 +165,8 @@ describe('run_state_commands', () => {
       },
     });
 
-    expect(gs.player.deck).toEqual(['strike', 'defend', 'twin_strike']);
-    expect(gs.player.items).toEqual(['starter_relic', 'bonus_relic']);
-    expect(hoisted.registerCardDiscovered).toHaveBeenCalledWith(gs, 'twin_strike');
-    expect(hoisted.registerItemFound).toHaveBeenCalledWith(gs, 'bonus_relic');
+    expect(gs.player.deck).toEqual(['strike', 'defend_plus', 'heavy_blow']);
+    expect(gs.player.items).toEqual(['starter_relic']);
+    expect(hoisted.registerCardDiscovered).toHaveBeenCalledWith(gs, 'defend_plus');
   });
 });

@@ -1,12 +1,12 @@
-import { createMazeRuntime } from '../../application/create_maze_runtime.js';
+import { createMazeBrowserRuntime } from './create_maze_browser_runtime.js';
 
 let _deps = {};
-let _runtime = createMazeRuntime(_deps);
+let _runtime = createMazeBrowserRuntime(_deps);
 
 export const MazeSystem = {
   configure(nextDeps = {}) {
     _deps = { ..._deps, ...nextDeps };
-    _runtime = createMazeRuntime(_deps);
+    _runtime = createMazeBrowserRuntime(_deps);
   },
 
   init() {

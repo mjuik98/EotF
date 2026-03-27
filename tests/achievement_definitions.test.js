@@ -25,6 +25,12 @@ describe('achievement definitions', () => {
       classId: 'swordsman',
       unlockHint: '잔향검사 숙련도 3 달성 필요',
     });
+    expect(ACHIEVEMENTS.story_seeker_5.condition).toMatchObject({ type: 'story_pieces', count: 5 });
+    expect(ACHIEVEMENTS.codex_survey_20.condition).toMatchObject({ type: 'codex_entries', count: 20 });
+    expect(UNLOCKABLES.relics.memory_thread).toMatchObject({
+      requires: ['story_seeker_5'],
+      scope: 'account',
+    });
   });
 
   it('keeps unlockable curse ids aligned with the run curse catalog', () => {
@@ -57,7 +63,11 @@ describe('achievement definitions', () => {
     }
     for (const [relicId, unlockable] of Object.entries(UNLOCKABLES.relics)) {
       expect(ITEMS[relicId]).toBeTruthy();
-      expect(CLASS_METADATA[unlockable.classId]).toBeTruthy();
+      if (unlockable.scope === 'class') {
+        expect(CLASS_METADATA[unlockable.classId]).toBeTruthy();
+      } else {
+        expect(unlockable.scope).toBe('account');
+      }
     }
   });
 
@@ -69,6 +79,23 @@ describe('achievement definitions', () => {
         expect(unlockable).toBeTruthy();
         expect(unlockable.classId).toBe(reward.classId);
       }
+    }
+  });
+
+  it('provides player-facing presentation metadata for achievement summaries', () => {
+    expect(ACHIEVEMENTS.first_victory).toMatchObject({
+      title: '첫 승리',
+      description: expect.any(String),
+      icon: '🏁',
+    });
+
+    for (const achievement of Object.values(ACHIEVEMENTS)) {
+      expect(typeof achievement.title).toBe('string');
+      expect(achievement.title.length).toBeGreaterThan(0);
+      expect(typeof achievement.description).toBe('string');
+      expect(achievement.description.length).toBeGreaterThan(0);
+      expect(typeof achievement.icon).toBe('string');
+      expect(achievement.icon.length).toBeGreaterThan(0);
     }
   });
 });

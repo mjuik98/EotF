@@ -1,20 +1,35 @@
 import { ACHIEVEMENTS } from '../domain/achievement_definitions.js';
 import { applyContentUnlockRewards } from './apply_content_unlock_rewards.js';
+import { getAchievementProgressValue } from '../domain/achievement_progress_queries.js';
 
 function isAchievementSatisfied(meta, definition, context = {}) {
   switch (definition?.condition?.type) {
     case 'victories': {
-      if (Number(meta?.progress?.victories || 0) < definition.condition.count) return false;
+      if (getAchievementProgressValue(meta, definition.condition) < definition.condition.count) return false;
       return context.kind ? context.kind === 'victory' : true;
     }
     case 'cursed_victories': {
-      if (Number(meta?.progress?.cursedVictories || 0) < definition.condition.count) return false;
+      if (getAchievementProgressValue(meta, definition.condition) < definition.condition.count) return false;
       if (context.kind && context.kind !== 'victory') return false;
       if (!('runConfig' in context)) return true;
       return !!context.runConfig?.curse && context.runConfig.curse !== 'none';
     }
+    case 'failures': {
+      if (getAchievementProgressValue(meta, definition.condition) < definition.condition.count) return false;
+      if (!context.kind) return true;
+      return context.kind !== 'victory';
+    }
+    case 'story_pieces':
+    case 'codex_entries':
+    case 'best_chain':
+      return getAchievementProgressValue(meta, definition.condition) >= definition.condition.count;
+    case 'world_memory_count': {
+      const key = String(definition?.condition?.key || '');
+      if (!key) return false;
+      return getAchievementProgressValue(meta, definition.condition) >= definition.condition.count;
+    }
     case 'class_level':
-      return Number(meta?.classProgress?.levels?.[definition?.condition?.classId] || 0) >= definition.condition.count;
+      return getAchievementProgressValue(meta, definition.condition) >= definition.condition.count;
     default:
       return false;
   }

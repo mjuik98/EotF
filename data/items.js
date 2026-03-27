@@ -1336,6 +1336,7 @@ const SPECIAL_ITEMS = {
     // ══════════════ [ 대분류: 특수/이벤트 유물 ] ══════════════
     eternal_fragment: {
         id: 'eternal_fragment', name: '영원의 파편', icon: '💎', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1 / 매 턴 드로우 +1 / 전투 종료: 원래 수치로 복원',
         onAcquire(gs) {
             gs.player.maxHp += 20;
@@ -1360,6 +1361,7 @@ const SPECIAL_ITEMS = {
     },
     dimension_key: {
         id: 'dimension_key', name: '차원 열쇠', icon: '🔑', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '상시: 카드 보상 선택지 +1',
         passive(gs, trigger, data) {
             if (trigger === Trigger.REWARD_GENERATE && data?.type === 'card') {
@@ -1369,6 +1371,7 @@ const SPECIAL_ITEMS = {
     },
     glitch_circuit: {
         id: 'glitch_circuit', name: '글리치 회로', icon: '📼', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '턴 시작: 무작위 카드 1장의 비용 0 / 다른 카드 1장의 비용 +1(이번 턴)',
         passive(gs, trigger, data) {
             const costTargets = getHandScopedCostTargets(gs);
@@ -1394,12 +1397,81 @@ const SPECIAL_ITEMS = {
     },
     ancient_battery: {
         id: 'ancient_battery', name: '고대 배터리', icon: '🔋', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '층마다 처음 구매하는 물약: 비용 없음',
         passive(gs, trigger, data) {
             if (trigger === Trigger.TURN_START || trigger === Trigger.FLOOR_START) gs._batteryUsed = false;
             if (trigger === Trigger.ITEM_USE && !gs._batteryUsed) {
                 gs._batteryUsed = true;
                 return { costFree: true };
+            }
+        }
+    },
+    memory_thread: {
+        id: 'memory_thread', name: '기억의 실타래', icon: '🧵', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
+        desc: '획득: 최대 체력 +12 / 전투 시작: 방어막 8 획득',
+        onAcquire(gs) {
+            gs.player.maxHp += 12;
+            gs.player.hp += 12;
+        },
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addShield?.(8, { name: '기억의 실타래', type: 'item' });
+            }
+        }
+    },
+    field_journal: {
+        id: 'field_journal', name: '현장 기록장', icon: '📓', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
+        desc: '획득: 골드 +35 / 층 이동: 체력 3 회복',
+        onAcquire(gs) {
+            gs.addGold?.(35, { name: '현장 기록장', type: 'item' });
+        },
+        passive(gs, trigger) {
+            if (trigger === Trigger.FLOOR_START) {
+                gs.heal?.(3, { name: '현장 기록장', type: 'item' });
+            }
+        }
+    },
+    curator_lantern: {
+        id: 'curator_lantern', name: '큐레이터의 등불', icon: '🏮', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
+        desc: '획득: 최대 체력 +8 / 전투 시작: 잔향 10 충전',
+        onAcquire(gs) {
+            gs.player.maxHp += 8;
+            gs.player.hp += 8;
+        },
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addEcho?.(10, { name: '큐레이터의 등불', type: 'item' });
+            }
+        }
+    },
+    ink_reservoir: {
+        id: 'ink_reservoir', name: '잉크 저장고', icon: '🖋', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
+        desc: '획득: 골드 +20 / 전투 시작: 방어막 6 획득',
+        onAcquire(gs) {
+            gs.addGold?.(20, { name: '잉크 저장고', type: 'item' });
+        },
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addShield?.(6, { name: '잉크 저장고', type: 'item' });
+            }
+        }
+    },
+    specimen_case: {
+        id: 'specimen_case', name: '표본 보관함', icon: '🧰', rarity: 'special',
+        specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
+        desc: '획득: 최대 체력 +10 / 층 이동: 골드 8 획득',
+        onAcquire(gs) {
+            gs.player.maxHp += 10;
+            gs.player.hp += 10;
+        },
+        passive(gs, trigger) {
+            if (trigger === Trigger.FLOOR_START) {
+                gs.addGold?.(8, { name: '표본 보관함', type: 'item' });
             }
         }
     },

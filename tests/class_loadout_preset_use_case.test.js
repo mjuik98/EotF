@@ -3,6 +3,7 @@ import {
   buildClassLoadoutCustomizationPresentation,
   clearClassLoadoutPreset,
   resolveClassStartingLoadout,
+  setActiveClassLoadoutPresetSlot,
   saveLevel11LoadoutPreset,
   saveLevel12LoadoutPreset,
 } from '../game/shared/progression/class_loadout_preset_use_case.js';
@@ -130,11 +131,26 @@ describe('class_loadout_preset_use_case', () => {
     expect(resolved.relicIds).toEqual(['dull_blade']);
 
     clearClassLoadoutPreset(meta, 'swordsman', 'level11');
-    clearClassLoadoutPreset(meta, 'swordsman', 'level12');
+   clearClassLoadoutPreset(meta, 'swordsman', 'level12');
 
     expect(meta.classProgress.loadoutPresets.swordsman).toEqual({
+      activeSlot: 'slot1',
       level11: null,
       level12: null,
+      slotEntries: {
+        slot1: {
+          level11: null,
+          level12: null,
+        },
+        slot2: {
+          level11: null,
+          level12: null,
+        },
+        slot3: {
+          level11: null,
+          level12: null,
+        },
+      },
     });
   });
 
@@ -214,5 +230,58 @@ describe('class_loadout_preset_use_case', () => {
     expect(presentation.previewRelicIds).toEqual(['dull_blade', 'guardian_seal']);
     expect(presentation.hasInvalidPreset).toBe(false);
     expect(presentation.invalidWarnings).toEqual([]);
+  });
+
+  it('switches between multiple saved build slots and resolves the active slot loadout', () => {
+    const meta = createMeta(12);
+    const data = createData();
+    const classMeta = createClassMeta();
+
+    saveLevel11LoadoutPreset(meta, 'swordsman', {
+      type: 'swap',
+      removeIndex: 2,
+      addCardId: 'blade_dance',
+    }, {
+      classLevel: 12,
+      classMeta,
+      data,
+    });
+    saveLevel12LoadoutPreset(meta, 'swordsman', 'guardian_seal', {
+      classLevel: 12,
+      classMeta,
+      data,
+    });
+
+    expect(setActiveClassLoadoutPresetSlot(meta, 'swordsman', 'slot2')).toBe('slot2');
+
+    saveLevel11LoadoutPreset(meta, 'swordsman', {
+      type: 'upgrade',
+      targetIndex: 0,
+    }, {
+      classLevel: 12,
+      classMeta,
+      data,
+    });
+
+    const presentation = buildClassLoadoutCustomizationPresentation(meta, 'swordsman', {
+      classLevel: 12,
+      classMeta,
+      data,
+    });
+    const resolved = resolveClassStartingLoadout(meta, 'swordsman', {
+      classLevel: 12,
+      classMeta,
+      data,
+    });
+
+    expect(presentation.activeSlot).toBe('slot2');
+    expect(presentation.availableSlots).toEqual([
+      expect.objectContaining({ id: 'slot1', hasPreset: true }),
+      expect.objectContaining({ id: 'slot2', hasPreset: true, active: true }),
+      expect.objectContaining({ id: 'slot3', hasPreset: false }),
+    ]);
+    expect(resolved.deck).toEqual(['strike_plus', 'defend', 'heavy_blow']);
+    expect(resolved.relicIds).toEqual(['dull_blade']);
+    expect(meta.classProgress.loadoutPresets.swordsman.activeSlot).toBe('slot2');
   });
 });

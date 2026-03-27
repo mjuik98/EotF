@@ -20,6 +20,8 @@ export function renderCharacterInfoPanel({
   selectedChar,
   classProgress,
   roadmap,
+  unlockRoadmap,
+  recentSummaries,
   buildSectionLabel,
   buildRadar,
   cards,
@@ -33,6 +35,7 @@ export function renderCharacterInfoPanel({
   loadoutCustomization,
   onSaveLoadoutPreset,
   onClearLoadoutPreset,
+  onSelectLoadoutPresetSlot,
 } = {}) {
   if (!panel || !selectedChar || !classProgress) return;
 
@@ -89,6 +92,7 @@ export function renderCharacterInfoPanel({
     featuredCardIds,
     featuredCardTags,
     roadmapPreviewText,
+    unlockRoadmap,
   })}
         ${buildCharacterInfoDetailsSection({
     selectedChar,
@@ -112,6 +116,7 @@ export function renderCharacterInfoPanel({
     level12Unlocked,
     level12Summary,
     loadoutCustomization,
+    recentSummaries,
   })}
       </div>
     </div>`;
@@ -133,5 +138,6 @@ export function renderCharacterInfoPanel({
     },
     onSaveLoadoutPreset,
     onClearLoadoutPreset,
+    onSelectLoadoutPresetSlot,
   });
 }

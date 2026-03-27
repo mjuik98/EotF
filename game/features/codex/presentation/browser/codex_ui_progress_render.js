@@ -12,6 +12,43 @@ function catBar(label, seen, total, fillClass, tab) {
     </div>`;
 }
 
+function renderRewardRoadmap(entries = []) {
+  if (!Array.isArray(entries) || entries.length === 0) return '';
+  return `
+    <div class="cx-progress-block">
+      <div class="cx-ring-cap" style="margin-bottom:6px">다음 조사 목표</div>
+      <div style="display:grid;gap:8px;">
+        ${entries.map((entry) => `
+          <div class="cx-cat-item" style="padding:8px 10px;">
+            <div class="cx-cat-header">
+              <span class="cx-cat-label">${entry.contentLabel}</span>
+              <span class="cx-cat-nums">${entry.progressLabel}</span>
+            </div>
+            <div class="cx-ring-cap" style="margin-top:4px;text-align:left">${entry.achievementTitle}${entry.focusLabel ? ` · ${entry.focusLabel}` : ''}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderRecentDiscoveries(entries = []) {
+  if (!Array.isArray(entries) || entries.length === 0) return '';
+  return `
+    <div class="cx-progress-block">
+      <div class="cx-ring-cap" style="margin-bottom:6px">최근 발견</div>
+      <div style="display:grid;gap:6px;">
+        ${entries.map((entry) => `
+          <div class="cx-cat-header">
+            <span class="cx-cat-label">${entry.categoryLabel} · ${entry.label}</span>
+            <span class="cx-cat-nums">${entry.firstSeen}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
 export function renderCodexProgress(doc, progress, handlers = {}) {
   const section = doc.getElementById('cxProgressSection');
   if (!section) return;
@@ -52,6 +89,8 @@ export function renderCodexProgress(doc, progress, handlers = {}) {
       ${catBar('💎 유물', progress.items.seen, progress.items.total, 'fill-items', 'items')}
       ${catBar('✨ 각인', progress.inscriptions.seen, progress.inscriptions.total, 'fill-inscr', 'inscriptions')}
     </div>
+    ${renderRewardRoadmap(progress.rewardRoadmap)}
+    ${renderRecentDiscoveries(progress.recentDiscoveries)}
   `;
 
   section.querySelectorAll('.cx-cat-item').forEach((element) => {

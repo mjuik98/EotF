@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../game/features/codex/presentation/browser/codex_ui_helpers.js', () => ({
   applyCodexFilter: vi.fn((entries) => entries.filter((entry) => entry.keep !== false)),
   buildCodexProgress: vi.fn(() => ({ enemies: 2 })),
+  buildCodexRewardRoadmap: vi.fn(() => []),
+  buildRecentCodexDiscoveries: vi.fn(() => []),
   ensureCodexState: vi.fn(() => ({
     enemies: new Set(['seen-enemy']),
     cards: new Set(['seen-card']),

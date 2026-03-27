@@ -1,5 +1,7 @@
 export { SaveSystem } from './save_system.js';
+export { bindSaveNotifications } from './save_notifications.js';
 export { bindSaveStorage } from './save_storage.js';
+export { presentSaveStatus } from './save_status_presenter.js';
 export {
   META_SAVE_VERSION,
   RUN_SAVE_VERSION,

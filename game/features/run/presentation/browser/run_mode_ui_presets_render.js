@@ -12,6 +12,7 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
   const slots = getPresetSlots(meta);
   const selectedSlot = Math.max(0, Math.min(3, Number(ui._selectedPresetSlot) || 0));
   const selectedPreset = slots[selectedSlot]?.preset || null;
+  const saveLabel = selectedPreset ? '현재 설정으로 덮어쓰기' : '+ 현재 설정 저장';
   zone.innerHTML = `
     <div class="rm-presets-wrap">
       <div class="rm-preset-bar">
@@ -30,7 +31,7 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
           `).join('')}
         </div>
         <button type="button" class="rm-preset-save-btn" data-action="save-preset" data-slot="${selectedSlot}">
-          + 현재 설정 저장
+          ${saveLabel}
         </button>
       </div>
       <div class="rm-preset-inline-meta">${selectedPreset ? `
@@ -44,6 +45,17 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
               ? Math.max(0, getEarnedInscriptionCount(meta) - selectedPreset.config.disabledInscriptions.length)
               : getActiveInscriptionCount(meta, selectedPreset.config || {})}
           </span>
+          <div class="rm-preset-actions">
+            <button type="button" class="rm-preset-btn primary" data-action="load-preset" data-slot="${selectedSlot}">
+              불러오기
+            </button>
+            <button type="button" class="rm-preset-btn" data-action="save-preset" data-slot="${selectedSlot}">
+              현재 설정으로 덮어쓰기
+            </button>
+            <button type="button" class="rm-preset-btn subtle" data-action="delete-preset" data-slot="${selectedSlot}">
+              삭제
+            </button>
+          </div>
         ` : `
           <span class="rm-preset-inline-slot empty">슬롯 ${selectedSlot + 1}</span>
           <span class="rm-preset-inline-name empty">빈 슬롯</span>
@@ -64,11 +76,15 @@ export function renderPresetDialog(ui, doc, deps = {}) {
   const overlay = doc.createElement('div');
   overlay.id = 'rmPresetDialog';
   overlay.className = 'rm-preset-dialog-backdrop';
+  const overwriteCopy = state.overwrite
+    ? `<div class="rm-preset-dialog-desc">슬롯 ${state.slot + 1}의 ${escapeAttr(state.existingName || state.name || `프리셋 ${state.slot + 1}`)}을 현재 승천, 모드, 저주, 각인 설정으로 갱신합니다.</div>
+      <div class="rm-preset-dialog-desc">기존 프리셋을 덮어씁니다. 이름을 바꾸면 같은 슬롯에서 새 이름으로 저장됩니다.</div>`
+    : `<div class="rm-preset-dialog-desc">슬롯 ${state.slot + 1}에 현재 승천, 모드, 저주, 각인 설정을 저장합니다.</div>`;
   overlay.innerHTML = `
     <div class="rm-preset-dialog" role="dialog" aria-modal="true" aria-labelledby="rmPresetDialogTitle">
       <div class="rm-preset-dialog-kicker">프리셋 저장</div>
-      <div id="rmPresetDialogTitle" class="rm-preset-dialog-title">이 구성을 저장합니다</div>
-      <div class="rm-preset-dialog-desc">슬롯 ${state.slot + 1}에 현재 승천, 모드, 저주, 각인 설정을 저장합니다.</div>
+      <div id="rmPresetDialogTitle" class="rm-preset-dialog-title">${state.overwrite ? '기존 프리셋을 갱신합니다' : '이 구성을 저장합니다'}</div>
+      ${overwriteCopy}
       <input id="rmPresetNameInput" class="rm-preset-input" type="text" maxlength="32" value="${escapeAttr(state.name || '')}" placeholder="프리셋 이름" />
       <div class="rm-preset-dialog-actions">
         <button type="button" class="rm-preset-btn subtle" data-action="cancel-preset-save">취소</button>

@@ -64,6 +64,7 @@ export function bindCharacterInfoPanelInteractions({
   loadoutState,
   onSaveLoadoutPreset,
   onClearLoadoutPreset,
+  onSelectLoadoutPresetSlot,
 } = {}) {
   const { generalTooltip, cardTooltip } = createCharacterInfoTooltipApis({
     generalTooltipUI,
@@ -81,5 +82,6 @@ export function bindCharacterInfoPanelInteractions({
     loadoutState,
     onSaveLoadoutPreset,
     onClearLoadoutPreset,
+    onSelectLoadoutPresetSlot,
   });
 }

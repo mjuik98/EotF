@@ -1,3 +1,5 @@
+import { getSettingsStorage } from './settings_storage.js';
+
 const STORAGE_KEY = 'eotf_settings';
 
 const DEFAULTS = {
@@ -46,7 +48,7 @@ export const SettingsManager = {
 
   load() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = getSettingsStorage()?.getItem?.(STORAGE_KEY);
       if (!raw) {
         this._data = clone(DEFAULTS);
         return this._data;
@@ -63,7 +65,7 @@ export const SettingsManager = {
 
   save() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._data));
+      getSettingsStorage()?.setItem?.(STORAGE_KEY, JSON.stringify(this._data));
     } catch (error) {
       console.warn('[SettingsManager] Save failed:', error);
     }

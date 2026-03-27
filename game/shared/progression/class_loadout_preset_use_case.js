@@ -1,4 +1,8 @@
-import { EMPTY_PRESET } from './class_loadout_preset_catalog.js';
+import {
+  DEFAULT_LOADOUT_PRESET_SLOT,
+  EMPTY_PRESET,
+  LOADOUT_PRESET_SLOTS,
+} from './class_loadout_preset_catalog.js';
 import {
   applyLevel11Preset,
   buildCardSummaryLine,
@@ -26,12 +30,57 @@ function ensureClassProgressContainer(meta) {
   return cp;
 }
 
+function normalizeSlotId(slotId) {
+  const key = String(slotId || '');
+  return LOADOUT_PRESET_SLOTS.includes(key) ? key : DEFAULT_LOADOUT_PRESET_SLOT;
+}
+
+function cloneSlotEntries(entries) {
+  return Object.fromEntries(LOADOUT_PRESET_SLOTS.map((slotId) => [
+    slotId,
+    clonePresetEntry(entries?.[slotId] || EMPTY_PRESET),
+  ]));
+}
+
+function syncActivePresetAliases(entry) {
+  const activeSlot = normalizeSlotId(entry?.activeSlot);
+  const slotEntries = cloneSlotEntries(entry?.slotEntries);
+  const activeEntry = clonePresetEntry(slotEntries[activeSlot] || EMPTY_PRESET);
+  entry.activeSlot = activeSlot;
+  entry.slotEntries = slotEntries;
+  entry.level11 = activeEntry.level11;
+  entry.level12 = activeEntry.level12;
+  return entry;
+}
+
+function normalizePresetEntry(entry) {
+  const source = entry && typeof entry === 'object' ? entry : EMPTY_PRESET;
+  const hasSlots = source.slotEntries && typeof source.slotEntries === 'object' && !Array.isArray(source.slotEntries);
+  const next = hasSlots
+    ? {
+      activeSlot: normalizeSlotId(source.activeSlot),
+      slotEntries: cloneSlotEntries(source.slotEntries),
+    }
+    : {
+      activeSlot: DEFAULT_LOADOUT_PRESET_SLOT,
+      slotEntries: cloneSlotEntries({
+        [DEFAULT_LOADOUT_PRESET_SLOT]: source,
+      }),
+    };
+  return syncActivePresetAliases(next);
+}
+
+function getActivePresetEntry(entry) {
+  const normalized = syncActivePresetAliases(entry);
+  return normalized.slotEntries[normalized.activeSlot];
+}
+
 function ensurePresetEntry(meta, classId) {
   const cp = ensureClassProgressContainer(meta);
   if (!cp || !classId) return null;
   const key = String(classId);
   const current = cp.loadoutPresets[key];
-  const normalized = clonePresetEntry(current || EMPTY_PRESET);
+  const normalized = normalizePresetEntry(current || EMPTY_PRESET);
   cp.loadoutPresets[key] = normalized;
   return normalized;
 }
@@ -39,7 +88,7 @@ function ensurePresetEntry(meta, classId) {
 function readPresetEntry(meta, classId) {
   const key = String(classId || '');
   const current = meta?.classProgress?.loadoutPresets?.[key];
-  return clonePresetEntry(current || EMPTY_PRESET);
+  return normalizePresetEntry(current || EMPTY_PRESET);
 }
 
 function getClassMasteryLevel(meta, classId, overrideLevel) {
@@ -110,8 +159,17 @@ function validateLevel12Preset(meta, classId, bonusRelicId, options = {}) {
 export function clearClassLoadoutPreset(meta, classId, slot) {
   const entry = ensurePresetEntry(meta, classId);
   if (!entry || (slot !== 'level11' && slot !== 'level12')) return null;
-  entry[slot] = null;
+  getActivePresetEntry(entry)[slot] = null;
+  syncActivePresetAliases(entry);
   return entry;
+}
+
+export function setActiveClassLoadoutPresetSlot(meta, classId, slotId) {
+  const entry = ensurePresetEntry(meta, classId);
+  if (!entry) return null;
+  entry.activeSlot = normalizeSlotId(slotId);
+  syncActivePresetAliases(entry);
+  return entry.activeSlot;
 }
 
 export function saveLevel11LoadoutPreset(meta, classId, input, options = {}) {
@@ -119,7 +177,8 @@ export function saveLevel11LoadoutPreset(meta, classId, input, options = {}) {
   if (!entry) return null;
   const preset = validateLevel11Preset(meta, classId, input, options);
   if (!preset) return null;
-  entry.level11 = preset;
+  getActivePresetEntry(entry).level11 = preset;
+  syncActivePresetAliases(entry);
   return preset;
 }
 
@@ -128,7 +187,8 @@ export function saveLevel12LoadoutPreset(meta, classId, bonusRelicId, options = 
   if (!entry) return null;
   const preset = validateLevel12Preset(meta, classId, bonusRelicId, options);
   if (!preset) return null;
-  entry.level12 = preset;
+  getActivePresetEntry(entry).level12 = preset;
+  syncActivePresetAliases(entry);
   return preset;
 }
 
@@ -136,9 +196,10 @@ export function resolveClassStartingLoadout(meta, classId, options = {}) {
   const baseDeck = getBaseStartDeck(classId, options.classMeta, options.data);
   const baseRelicId = getBaseStartRelicId(options.classMeta);
   const entry = readPresetEntry(meta, classId);
+  const activeEntry = getActivePresetEntry(entry);
 
-  const level11Preset = validateLevel11Preset(meta, classId, entry?.level11, options);
-  const level12Preset = validateLevel12Preset(meta, classId, entry?.level12?.bonusRelicId, options);
+  const level11Preset = validateLevel11Preset(meta, classId, activeEntry?.level11, options);
+  const level12Preset = validateLevel12Preset(meta, classId, activeEntry?.level12?.bonusRelicId, options);
 
   const deck = applyLevel11Preset(baseDeck, level11Preset, options.data);
   const relicIds = [baseRelicId].filter(Boolean);
@@ -157,13 +218,14 @@ export function buildClassLoadoutCustomizationPresentation(meta, classId, option
   const baseDeck = getBaseStartDeck(classId, options.classMeta, options.data);
   const baseRelicId = getBaseStartRelicId(options.classMeta);
   const savedPreset = readPresetEntry(meta, classId);
+  const activeEntry = getActivePresetEntry(savedPreset);
   const resolved = resolveClassStartingLoadout(meta, classId, options);
   const invalidWarnings = [];
 
-  if (savedPreset?.level11 && !resolved.level11Preset) {
+  if (activeEntry?.level11 && !resolved.level11Preset) {
     invalidWarnings.push('Lv.11 시작 덱 프리셋을 적용할 수 없습니다. 저장된 설정을 확인하세요.');
   }
-  if (savedPreset?.level12 && !resolved.level12Preset) {
+  if (activeEntry?.level12 && !resolved.level12Preset) {
     invalidWarnings.push('Lv.12 시작 유물 프리셋을 적용할 수 없습니다. 저장된 설정을 확인하세요.');
   }
 
@@ -172,6 +234,16 @@ export function buildClassLoadoutCustomizationPresentation(meta, classId, option
   const level12Summary = buildLevel12PresetSummary(resolved.level12Preset, options.data);
 
   return {
+    activeSlot: savedPreset.activeSlot,
+    availableSlots: LOADOUT_PRESET_SLOTS.map((slotId, index) => {
+      const entry = savedPreset.slotEntries?.[slotId] || EMPTY_PRESET;
+      return {
+        id: slotId,
+        label: `빌드 ${index + 1}`,
+        active: savedPreset.activeSlot === slotId,
+        hasPreset: !!(entry?.level11 || entry?.level12),
+      };
+    }),
     level11Unlocked: classLevel >= 11,
     level12Unlocked: classLevel >= 12,
     level11Preset: resolved.level11Preset,

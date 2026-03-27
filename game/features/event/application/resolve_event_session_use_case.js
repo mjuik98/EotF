@@ -16,6 +16,7 @@ export function createResolveEventSessionUseCase(options = {}) {
       runIdempotent,
       resolveEventChoiceFlow,
       finishEventFlow,
+      flowUi,
       refreshGoldBar,
       resolveEvent,
     } = input;
@@ -32,8 +33,9 @@ export function createResolveEventSessionUseCase(options = {}) {
         doc,
         audioEngine,
         deps,
+        flowUi,
         onResolveChoice: resolveEvent,
-        onFinish: () => finishEventFlow(doc, gs, deps, clearEventSession),
+        onFinish: () => finishEventFlow(doc, gs, { ...deps, flowUi }, clearEventSession),
         onRefreshGoldBar: refreshGoldBar,
       }),
       { ttlMs: 800 },

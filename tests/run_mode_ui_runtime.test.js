@@ -12,6 +12,7 @@ import {
   closeRunSettingsModal,
   confirmPresetSaveRuntime,
   openRunSettingsModal,
+  savePresetRuntime,
   selectPresetSlotRuntime,
 } from '../game/features/run/presentation/browser/run_mode_ui_runtime.js';
 
@@ -135,6 +136,70 @@ describe('run_mode_ui_runtime', () => {
     expect(ui.refresh).toHaveBeenCalledWith(deps);
     expect(deps.saveMeta).toHaveBeenCalledTimes(1);
     expect(deps.notice).toHaveBeenCalledWith('프리셋을 저장했습니다.');
+  });
+
+  it('opens preset save dialog in overwrite mode for filled slots', () => {
+    const body = {
+      appendChild: vi.fn((node) => node),
+    };
+    const ui = {};
+    const deps = {
+      gs: {
+        meta: {
+          maxAscension: 5,
+          unlocks: { endless: true },
+          runConfig: {
+            ascension: 2,
+            endless: false,
+            curse: 'none',
+            disabledInscriptions: [],
+          },
+          runConfigPresets: [
+            {
+              id: 'preset-1',
+              name: '세팅 A',
+              config: {
+                ascension: 3,
+                endless: true,
+                curse: 'tax',
+                disabledInscriptions: ['alpha'],
+              },
+            },
+            null,
+            null,
+            null,
+          ],
+        },
+      },
+      runRules: {
+        ensureMeta: vi.fn(),
+      },
+      doc: {
+        body,
+        createElement: vi.fn(() => ({
+          id: '',
+          className: '',
+          innerHTML: '',
+          addEventListener: vi.fn(),
+        })),
+        getElementById: vi.fn((id) => {
+          if (id === 'rmPresetDialog') return null;
+          if (id === 'rmPresetNameInput') return null;
+          return null;
+        }),
+      },
+    };
+
+    const result = savePresetRuntime(ui, 0, deps);
+
+    expect(result).toBe(true);
+    expect(ui._presetDialog).toMatchObject({
+      open: true,
+      slot: 0,
+      name: '세팅 A',
+      existingName: '세팅 A',
+      overwrite: true,
+    });
   });
 
   it('closes run settings modal and hides the inscription layout', () => {
