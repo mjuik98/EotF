@@ -53,6 +53,16 @@ function createDoc() {
   };
 }
 
+function findById(node, id) {
+  if (!node) return null;
+  if (node.id === id) return node;
+  for (const child of node.children || []) {
+    const found = findById(child, id);
+    if (found) return found;
+  }
+  return null;
+}
+
 describe('help_pause_ui_dialog_runtime', () => {
   it('toggles the abandon confirm overlay and wires confirm callback', () => {
     const doc = createDoc();
@@ -62,8 +72,7 @@ describe('help_pause_ui_dialog_runtime', () => {
     const overlay = doc.getElementById('abandonConfirm');
     expect(overlay).toBeTruthy();
 
-    const buttonRow = overlay.children[3];
-    const confirmButton = buttonRow.children[1];
+    const confirmButton = findById(overlay, 'abandonConfirmSubmitBtn');
     confirmButton.onclick();
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -83,8 +92,7 @@ describe('help_pause_ui_dialog_runtime', () => {
     const overlay = doc.getElementById('returnTitleConfirm');
     expect(overlay).toBeTruthy();
 
-    const buttonRow = overlay.children[3];
-    const confirmButton = buttonRow.children[1];
+    const confirmButton = findById(overlay, 'returnTitleSubmitBtn');
     confirmButton.onclick();
 
     expect(deps.saveRun).toHaveBeenCalledWith({ gs: deps.gs });

@@ -10,6 +10,10 @@ describe('save outbox recovery smoke script', () => {
       'utf8',
     );
 
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('resolveSmokeAppUrl');
+    expect(source).toContain('closeStaticAssetServer');
+    expect(source).toContain('runSmokeBrowserSession');
     expect(source).toContain("localStorage.setItem('echo_fallen_outbox'");
     expect(source).toContain("localStorage.getItem('echo_fallen_save')");
     expect(source).toContain("page.waitForSelector('#mainContinueBtn'");

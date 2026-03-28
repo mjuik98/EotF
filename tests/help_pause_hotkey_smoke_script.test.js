@@ -10,10 +10,9 @@ describe('help pause hotkey smoke script', () => {
       'utf8',
     );
 
-    expect(source).toContain("from 'node:http'");
-    expect(source).toContain('createServer(');
-    expect(source).toContain('server.listen(0,');
-    expect(source).toContain('server.close((error) => {');
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('resolveSmokeAppUrl');
+    expect(source).toContain('closeStaticAssetServer');
   });
 
   it('drives run and combat flows to confirm subpanels block run and combat shortcuts with ESC priority intact', () => {
@@ -31,6 +30,14 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("openPauseSubpanel(page, '도감', '#codexModal')");
     expect(source).toContain("openPauseSubpanel(page, '환경 설정', '#settingsModal')");
     expect(source).toContain("openPauseSubpanel(page, '컨트롤 안내 (?)', '#helpMenu')");
+    expect(source).toContain('captureOverlayFrameState');
+    expect(source).toContain("overlay.classList.contains('hp-overlay')");
+    expect(source).toContain("panel.classList.contains('gm-modal-panel')");
+    expect(source).toContain("pauseFrame.overlayClassName.includes('hp-overlay-pause')");
+    expect(source).toContain("helpFrame.overlayClassName.includes('hp-overlay-help')");
+    expect(source).toContain("path.join(outDir, 'pause-menu.png')");
+    expect(source).toContain("path.join(outDir, 'help-menu.png')");
+    expect(source).toContain("path.join(outDir, 'result.json')");
     expect(source).toContain("page.keyboard.press('Tab')");
     expect(source).toContain("page.keyboard.press('KeyM')");
     expect(source).toContain("page.keyboard.press('KeyQ')");
@@ -45,6 +52,10 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain('codexBlocksShortcuts');
     expect(source).toContain('settingsBlocksShortcuts');
     expect(source).toContain('helpBlocksShortcuts');
+    expect(source).toContain('pauseUsesSharedFrame');
+    expect(source).toContain('helpUsesSharedFrame');
+    expect(source).toContain('pauseActionCount');
+    expect(source).toContain('helpEntryCount');
     expect(source).toContain("page.screenshot({ path: path.join(outDir, 'shot.png') })");
   });
 });

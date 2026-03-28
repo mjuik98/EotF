@@ -103,6 +103,7 @@ export function createCharacterSelectMountRuntime(options = {}) {
       buildSectionLabel: buildCharacterSelectSectionLabel,
       buildRadar: buildCharacterRadar,
       cards: dataCards,
+      gs: deps?.gs,
       generalTooltipUI: tooltipUI,
       cardTooltipUI: tooltipUI,
       doc,

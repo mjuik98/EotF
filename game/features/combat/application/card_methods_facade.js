@@ -1,4 +1,4 @@
-import { DATA } from '../../../../data/game_data.js';
+import { CARDS } from '../../../../data/cards.js';
 import {
   drawStateCards,
   playStateCard,
@@ -34,7 +34,7 @@ export const CardMethods = {
   },
 
   getRandomCard(rarity = 'common') {
-    const allCards = Object.values(DATA.cards);
+    const allCards = Object.values(CARDS);
     const pool = allCards.filter((c) => c.rarity === rarity && !c.upgraded).map((c) => c.id);
 
     if (!pool.length) {

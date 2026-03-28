@@ -1,5 +1,5 @@
 const CODEX_MODAL_SHELL_MARKUP = `
-<div class="codex-modal-inner"></div>
+<div class="codex-modal-inner gm-modal-panel gm-modal-accent-cyan"></div>
 `.trim();
 
 function resolveDoc(doc = null) {

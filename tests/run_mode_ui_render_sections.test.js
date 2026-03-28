@@ -2,13 +2,11 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it, vi } from 'vitest';
 import {
-  renderChallengePanel,
   renderDifficultyPanel,
   renderHiddenEnding,
   renderInscriptionOverview,
   renderOptionGrid,
   renderSummaryBar,
-  renderUnlockRoadmap,
 } from '../game/features/run/public.js';
 import {
   renderPresetDialog,
@@ -80,6 +78,10 @@ describe('run_mode_ui_render sections', () => {
     expect(panel.innerHTML).toContain('보상 x1.45');
     expect(panel.innerHTML).toContain('id="rmPresetZone"');
     expect(panel.innerHTML).toContain('id="rmCurseGrid"');
+    expect(panel.innerHTML).not.toContain('id="rmChallengeZone"');
+    expect(panel.innerHTML).not.toContain('id="rmUnlockRoadmapZone"');
+    expect(panel.innerHTML.indexOf('id="rmSummaryBarZone"')).toBeGreaterThan(panel.innerHTML.indexOf('id="rmPresetZone"'));
+    expect(panel.innerHTML.indexOf('id="rmSummaryBarZone"')).toBeLessThan(panel.innerHTML.indexOf('class="rm-top-row"'));
   });
 
   it('highlights run modifier, difficulty, and inscription descriptions', () => {
@@ -90,10 +92,16 @@ describe('run_mode_ui_render sections', () => {
       name: '세금',
       desc: '피해 14. 잔향 20 충전 [소진]',
       visibility: 'visible',
+      difficultyWeight: 5,
     }], 'tax', 'curse', { createElement: () => createNode() });
 
     expect(optionContainer.children[0].innerHTML).toContain('kw-dmg');
     expect(optionContainer.children[0].innerHTML).toContain('kw-echo');
+    expect(optionContainer.children[0].innerHTML).toContain('rm-opt-header');
+    expect(optionContainer.children[0].innerHTML).toContain('rm-opt-body');
+    expect(optionContainer.children[0].innerHTML).toContain('rm-opt-footer');
+    expect(optionContainer.children[0].innerHTML).toContain('현재 적용 중');
+    expect(optionContainer.children[0].innerHTML).toContain('난이도 +5');
 
     const difficultyPanel = createNode();
     renderDifficultyPanel(
@@ -129,6 +137,33 @@ describe('run_mode_ui_render sections', () => {
     expect(inscriptionZone.innerHTML).toContain('kw-dmg');
     expect(inscriptionZone.innerHTML).toContain('kw-echo');
     expect(inscriptionZone.innerHTML).toContain('kw-exhaust kw-block');
+  });
+
+  it('renders locked and neutral curse cards with stable footer copy', () => {
+    const optionContainer = createNode();
+    renderOptionGrid(optionContainer, [
+      {
+        id: 'none',
+        icon: '*',
+        name: '없음',
+        desc: '적용되는 저주가 없습니다.',
+        visibility: 'visible',
+        difficultyWeight: 0,
+      },
+      {
+        id: 'blood_moon',
+        icon: '🌒',
+        name: '핏빛 월식',
+        desc: '적의 HP와 공격력이 12% 증가합니다.',
+        visibility: 'locked-visible',
+        unlockHint: '첫 승리 필요',
+        difficultyWeight: 12,
+      },
+    ], 'none', 'curse', { createElement: () => createNode() });
+
+    expect(optionContainer.children[0].innerHTML).toContain('중립 구성');
+    expect(optionContainer.children[1].innerHTML).toContain('rm-opt-footer locked');
+    expect(optionContainer.children[1].innerHTML).toContain('첫 승리 필요');
   });
 
   it('renders summary and hidden-ending banners for inscriptionless runs', () => {
@@ -169,57 +204,6 @@ describe('run_mode_ui_render sections', () => {
 
     renderHiddenEnding(meta, { ...cfg, disabledInscriptions: [] }, doc);
     expect(hiddenZone.innerHTML).toBe('');
-  });
-
-  it('renders the next unlock roadmap in run settings', () => {
-    const roadmapZone = createNode();
-    const doc = {
-      getElementById: vi.fn((id) => ({
-        rmUnlockRoadmapZone: roadmapZone,
-      }[id] || null)),
-    };
-
-    renderUnlockRoadmap(doc, {
-      account: [{
-        contentType: 'curse',
-        contentId: 'blood_moon',
-        contentLabel: '핏빛 월식',
-        requirementLabel: '첫 승리 필요',
-        progressLabel: '0 / 1',
-        achievementTitle: '첫 승리',
-        focusLabel: '승리 런',
-      }],
-    });
-
-    expect(roadmapZone.innerHTML).toContain('다음 해금');
-    expect(roadmapZone.innerHTML).toContain('핏빛 월식');
-    expect(roadmapZone.innerHTML).toContain('첫 승리');
-    expect(roadmapZone.innerHTML).toContain('0 / 1');
-    expect(roadmapZone.innerHTML).toContain('승리 런');
-  });
-
-  it('renders a daily challenge panel with deterministic modifiers and apply action', () => {
-    const challengeZone = createNode();
-    const doc = {
-      getElementById: vi.fn((id) => ({
-        rmChallengeZone: challengeZone,
-      }[id] || null)),
-    };
-
-    renderChallengePanel(doc, {
-      label: '일일 도전',
-      dateLabel: '2026-03-28',
-      summary: 'A3 · 무한 · 핏빛 월식',
-      tags: ['승천 3', '무한', '저주: 핏빛 월식'],
-      rewardLabel: '기록용 추천 구성',
-      buttonLabel: '오늘의 구성 적용',
-    });
-
-    expect(challengeZone.innerHTML).toContain('일일 도전');
-    expect(challengeZone.innerHTML).toContain('2026-03-28');
-    expect(challengeZone.innerHTML).toContain('A3 · 무한 · 핏빛 월식');
-    expect(challengeZone.innerHTML).toContain('기록용 추천 구성');
-    expect(challengeZone.innerHTML).toContain('data-action="apply-daily-challenge"');
   });
 
   it('styles run mode description surfaces with the shared keyword palette', () => {
@@ -274,8 +258,9 @@ describe('run_mode_ui_render sections', () => {
     expect(zone.innerHTML).toContain('/ 무한');
     expect(zone.innerHTML).toContain('/ 세금');
     expect(zone.innerHTML).toContain('/ 각인 0');
-    expect(zone.innerHTML).toContain('현재 구성과 동일');
+    expect(zone.innerHTML).toContain('현재 적용 중');
     expect(zone.innerHTML).toContain('히든 결말 준비');
+    expect(zone.innerHTML).toContain('rm-preset-inline-main');
     expect(zone.innerHTML).toContain('data-action="load-preset"');
     expect(zone.innerHTML).toContain('data-action="delete-preset"');
     expect(zone.innerHTML).toContain('현재 설정으로 덮어쓰기');

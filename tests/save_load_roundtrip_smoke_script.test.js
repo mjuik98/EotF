@@ -10,10 +10,12 @@ describe('save load roundtrip smoke script', () => {
       'utf8',
     );
 
-    expect(source).toContain("from 'node:http'");
-    expect(source).toContain('createServer(');
-    expect(source).toContain('server.listen(0,');
-    expect(source).toContain('server.close((error) => {');
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('resolveSmokeAppUrl');
+    expect(source).toContain('closeStaticAssetServer');
+    expect(source).toContain('runSmokeBrowserSession');
+    expect(source).not.toContain('.dist-snapshot-');
+    expect(source).not.toContain('fs.cp(distDir');
   });
 
   it('covers the save to title to continue roundtrip and asserts the restored state', () => {
@@ -39,19 +41,20 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain("afterLoad.playerClass !== beforeReturn.playerClass");
   });
 
-  it('includes a title meta smoke that captures archive and daily challenge screenshots', () => {
+  it('includes a title meta smoke that captures archive and run settings screenshots', () => {
     const source = fs.readFileSync(
       path.join(process.cwd(), 'scripts', 'title_meta_smoke_check.mjs'),
       'utf8',
     );
 
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('resolveSmokeAppUrl');
+    expect(source).toContain('runSmokeBrowserSession');
     expect(source).toContain("localStorage.setItem('echo_fallen_meta'");
     expect(source).toContain("page.waitForSelector('#titleRunArchive'");
     expect(source).toContain("page.click('#mainRunRulesBtn')");
-    expect(source).toContain("page.waitForSelector('#rmChallengeZone'");
-    expect(source).toContain("page.click('[data-action=\"apply-daily-challenge\"]')");
     expect(source).toContain("path.join(outDir, 'title-meta.png')");
-    expect(source).toContain("path.join(outDir, 'run-settings-daily-challenge.png')");
+    expect(source).toContain("path.join(outDir, 'run-settings.png')");
     expect(source).toContain("path.join(outDir, 'result.json')");
   });
 });

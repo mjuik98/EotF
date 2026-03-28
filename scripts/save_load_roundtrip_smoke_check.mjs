@@ -1,44 +1,16 @@
-import { createServer } from 'node:http';
-import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {
+  closeStaticAssetServer,
+  resetSmokeBrowserStorage,
+  resolveSmokeAppUrl,
+  runSmokeBrowserSession,
+  waitForSmokeFonts,
+} from './browser_smoke_support.mjs';
 
 const workspaceRoot = process.cwd();
 const distDir = path.join(workspaceRoot, 'dist');
 const outDir = path.join(workspaceRoot, 'output', 'web-game', 'save-load-roundtrip-smoke');
-const snapshotDir = path.join(outDir, `.dist-snapshot-${process.pid}`);
-
-const MIME_TYPES = {
-  '.css': 'text/css; charset=utf-8',
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-};
-
-function createDistServer(rootDir) {
-  return createServer(async (req, res) => {
-    try {
-      const rawPath = req.url === '/' ? '/index.html' : (req.url || '/index.html');
-      const pathname = decodeURIComponent(rawPath.split('?')[0]);
-      const filePath = path.resolve(rootDir, `.${pathname}`);
-      if (!filePath.startsWith(rootDir)) {
-        res.writeHead(403).end('Forbidden');
-        return;
-      }
-
-      const data = await fs.readFile(filePath);
-      const ext = path.extname(filePath).toLowerCase();
-      res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
-      res.end(data);
-    } catch (error) {
-      res.writeHead(error?.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end(error?.code === 'ENOENT' ? 'Not found' : String(error?.message || error));
-    }
-  });
-}
 
 async function clickIfVisible(page, selector, timeout = 4000) {
   const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
@@ -61,115 +33,82 @@ async function enterRunFlow(page) {
 }
 
 await fs.mkdir(outDir, { recursive: true });
-if (!process.env.SMOKE_URL) {
-  await fs.rm(snapshotDir, { recursive: true, force: true });
-  await fs.cp(distDir, snapshotDir, { recursive: true });
-}
-const server = process.env.SMOKE_URL ? null : createDistServer(process.env.SMOKE_URL ? distDir : snapshotDir);
-let browser = null;
+const { appUrl, server } = await resolveSmokeAppUrl({
+  smokeUrl: process.env.SMOKE_URL || '',
+  distDir,
+});
 
 try {
-  let appUrl = process.env.SMOKE_URL || null;
-  if (server) {
-    await new Promise((resolve, reject) => {
-      server.once('error', reject);
-      server.listen(0, '127.0.0.1', resolve);
-    });
-    const { port } = server.address();
-    appUrl = `http://127.0.0.1:${port}`;
-  }
+  await runSmokeBrowserSession({
+    appUrl,
+    preparePage: async ({ page }) => {
+      await resetSmokeBrowserStorage(page);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await enterRunFlow(page);
+      await waitForSmokeFonts(page);
+    },
+    run: async ({ page, errors }) => {
+      const beforeReturn = await page.evaluate(() => ({
+        currentScreen: window.GS?.currentScreen || null,
+        currentRegion: window.GS?.currentRegion ?? null,
+        currentFloor: window.GS?.currentFloor ?? null,
+        playerClass: window.GS?.player?.class || null,
+        playerHp: window.GS?.player?.hp ?? null,
+      }));
 
-  browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
-  const errors = [];
-  page.on('pageerror', (error) => errors.push(`pageerror:${error.message}`));
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') errors.push(`console:${msg.text()}`);
+      await page.keyboard.press('Escape');
+      await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
+      await page.getByRole('button', { name: '처음으로' }).click();
+      await page.waitForSelector('#returnTitleConfirm', { state: 'visible', timeout: 10000 });
+      await page.locator('#returnTitleConfirm button', { hasText: '처음으로' }).click();
+      await page.waitForTimeout(1500);
+
+      const afterSave = await page.evaluate(() => ({
+        currentScreen: window.GS?.currentScreen || null,
+        rawSave: localStorage.getItem('echo_fallen_save'),
+        continueVisible: document.getElementById('titleContinueWrap')?.style?.display === 'block',
+        continueDisabled: document.getElementById('mainContinueBtn')?.disabled ?? null,
+      }));
+      await page.screenshot({ path: path.join(outDir, 'title.png') });
+
+      await page.click('#mainContinueBtn');
+      await page.waitForTimeout(1500);
+
+      const afterLoad = await page.evaluate((capturedErrors) => ({
+        currentScreen: window.GS?.currentScreen || null,
+        currentRegion: window.GS?.currentRegion ?? null,
+        currentFloor: window.GS?.currentFloor ?? null,
+        playerClass: window.GS?.player?.class || null,
+        playerHp: window.GS?.player?.hp ?? null,
+        rawSave: localStorage.getItem('echo_fallen_save'),
+        errors: capturedErrors,
+      }), errors);
+      await page.screenshot({ path: path.join(outDir, 'loaded.png') });
+
+      const payload = { beforeReturn, afterSave, afterLoad, errors };
+      await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify(payload, null, 2));
+      console.log(JSON.stringify(payload, null, 2));
+
+      if (!afterSave.rawSave) {
+        throw new Error('save-load smoke expected echo_fallen_save to be written before returning to title');
+      }
+      if (!afterSave.continueVisible || afterSave.continueDisabled) {
+        throw new Error('save-load smoke expected continue entry to be visible and enabled on the title screen');
+      }
+      if (afterLoad.currentScreen !== 'game') {
+        throw new Error(`save-load smoke expected continue to restore gameplay, got "${afterLoad.currentScreen}"`);
+      }
+      if (afterLoad.currentRegion !== beforeReturn.currentRegion || afterLoad.currentFloor !== beforeReturn.currentFloor) {
+        throw new Error('save-load smoke expected region/floor to roundtrip through continue');
+      }
+      if (afterLoad.playerClass !== beforeReturn.playerClass || afterLoad.playerHp !== beforeReturn.playerHp) {
+        throw new Error('save-load smoke expected player class/hp to roundtrip through continue');
+      }
+      if (errors.length > 0) {
+        throw new Error(`save-load smoke saw browser errors: ${errors.join(' | ')}`);
+      }
+    },
   });
-
-  await page.goto(appUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await enterRunFlow(page);
-  await page.evaluate(async () => {
-    if (document.fonts?.ready) {
-      await document.fonts.ready;
-    }
-  });
-
-  const beforeReturn = await page.evaluate(() => ({
-    currentScreen: window.GS?.currentScreen || null,
-    currentRegion: window.GS?.currentRegion ?? null,
-    currentFloor: window.GS?.currentFloor ?? null,
-    playerClass: window.GS?.player?.class || null,
-    playerHp: window.GS?.player?.hp ?? null,
-  }));
-
-  await page.keyboard.press('Escape');
-  await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
-  await page.getByRole('button', { name: '처음으로' }).click();
-  await page.waitForSelector('#returnTitleConfirm', { state: 'visible', timeout: 10000 });
-  await page.locator('#returnTitleConfirm button', { hasText: '처음으로' }).click();
-  await page.waitForTimeout(1500);
-
-  const afterSave = await page.evaluate(() => ({
-    currentScreen: window.GS?.currentScreen || null,
-    rawSave: localStorage.getItem('echo_fallen_save'),
-    continueVisible: document.getElementById('titleContinueWrap')?.style?.display === 'block',
-    continueDisabled: document.getElementById('mainContinueBtn')?.disabled ?? null,
-  }));
-  await page.screenshot({ path: path.join(outDir, 'title.png') });
-
-  await page.click('#mainContinueBtn');
-  await page.waitForTimeout(1500);
-
-  const afterLoad = await page.evaluate((capturedErrors) => ({
-    currentScreen: window.GS?.currentScreen || null,
-    currentRegion: window.GS?.currentRegion ?? null,
-    currentFloor: window.GS?.currentFloor ?? null,
-    playerClass: window.GS?.player?.class || null,
-    playerHp: window.GS?.player?.hp ?? null,
-    rawSave: localStorage.getItem('echo_fallen_save'),
-    errors: capturedErrors,
-  }), errors);
-  await page.screenshot({ path: path.join(outDir, 'loaded.png') });
-
-  const payload = { beforeReturn, afterSave, afterLoad, errors };
-  await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify(payload, null, 2));
-  console.log(JSON.stringify(payload, null, 2));
-
-  if (!afterSave.rawSave) {
-    throw new Error('save-load smoke expected echo_fallen_save to be written before returning to title');
-  }
-  if (!afterSave.continueVisible || afterSave.continueDisabled) {
-    throw new Error('save-load smoke expected continue entry to be visible and enabled on the title screen');
-  }
-  if (afterLoad.currentScreen !== 'game') {
-    throw new Error(`save-load smoke expected continue to restore gameplay, got "${afterLoad.currentScreen}"`);
-  }
-  if (afterLoad.currentRegion !== beforeReturn.currentRegion || afterLoad.currentFloor !== beforeReturn.currentFloor) {
-    throw new Error('save-load smoke expected region/floor to roundtrip through continue');
-  }
-  if (afterLoad.playerClass !== beforeReturn.playerClass || afterLoad.playerHp !== beforeReturn.playerHp) {
-    throw new Error('save-load smoke expected player class/hp to roundtrip through continue');
-  }
-  if (errors.length > 0) {
-    throw new Error(`save-load smoke saw browser errors: ${errors.join(' | ')}`);
-  }
 } finally {
-  if (browser) await browser.close();
-  if (!process.env.SMOKE_URL) {
-    await fs.rm(snapshotDir, { recursive: true, force: true });
-  }
-  if (server) {
-    await new Promise((resolve, reject) => {
-      server.close((error) => {
-        if (error) reject(error);
-        else resolve();
-      });
-    });
-  }
+  await closeStaticAssetServer(server);
 }

@@ -1,10 +1,6 @@
-import {
-  buildDailyRunChallenge,
-  reducedMotion,
-} from './run_mode_ui_helpers.js';
+import { reducedMotion } from './run_mode_ui_helpers.js';
 import { highlightRunModeText } from './run_mode_text_highlight.js';
 import {
-  buildUnlockRoadmap,
   getContentVisibility,
   getUnlockRequirementLabel,
 } from '../../../meta_progression/public.js';
@@ -13,11 +9,9 @@ import {
   renderInscriptionOverview,
 } from './run_mode_ui_inscriptions_render.js';
 import {
-  renderChallengePanel,
   renderDifficultyPanel,
   renderHiddenEnding,
   renderSummaryBar,
-  renderUnlockRoadmap,
 } from './run_mode_ui_summary_render.js';
 import {
   renderPresetDialog,
@@ -26,8 +20,6 @@ import {
 } from './run_mode_ui_presets_render.js';
 
 export {
-  buildDailyRunChallenge,
-  renderChallengePanel,
   renderDifficultyPanel,
   renderHiddenEnding,
   renderPresetDialog,
@@ -35,7 +27,6 @@ export {
   refreshInscriptionPanel,
   renderInscriptionOverview,
   renderSummaryBar,
-  renderUnlockRoadmap,
   syncModalMood,
 };
 
@@ -67,6 +58,16 @@ export function curseFlash(el, modalEl) {
   setTimeout(() => ripple.remove(), 700);
 }
 
+function buildOptionFooterCopy(opt, { isSelected = false, isLockedVisible = false, isNone = false } = {}) {
+  if (isLockedVisible) return opt.unlockHint || '해금 필요';
+
+  const statePrefix = isSelected ? '현재 적용 중 · ' : '';
+  if (isNone) return `${statePrefix}중립 구성`;
+
+  const weight = Math.max(0, Math.floor(Number(opt.difficultyWeight) || 0));
+  return `${statePrefix}난이도 +${weight}`;
+}
+
 export function renderOptionGrid(container, items, selected, type, doc) {
   if (!container) return;
 
@@ -90,12 +91,19 @@ export function renderOptionGrid(container, items, selected, type, doc) {
     card.setAttribute('tabindex', isSelected && !isLockedVisible ? '0' : '-1');
     card.setAttribute('aria-label', `${opt.name}: ${opt.desc || ''}${isLockedVisible ? `, ${opt.unlockHint || '해금 필요'}` : ''}`);
 
+    const footerCopy = buildOptionFooterCopy(opt, { isSelected, isLockedVisible, isNone });
     card.innerHTML = `
       <div class="rm-opt-check">✓</div>
-      <div class="rm-opt-icon">${opt.icon || '*'}</div>
-      <div class="rm-opt-name">${opt.name}${opt.isNew ? '<span class="rm-new-badge">NEW</span>' : ''}</div>
-      <div class="rm-opt-desc">${highlightRunModeText(opt.desc || '')}</div>
-      ${isLockedVisible ? `<div class="rm-opt-lock">${opt.unlockHint || '해금 필요'}</div>` : ''}
+      <div class="rm-opt-header">
+        <div class="rm-opt-icon">${opt.icon || '*'}</div>
+        <div class="rm-opt-title">
+          <div class="rm-opt-name">${opt.name}${opt.isNew ? '<span class="rm-new-badge">NEW</span>' : ''}</div>
+        </div>
+      </div>
+      <div class="rm-opt-body">
+        <div class="rm-opt-desc">${highlightRunModeText(opt.desc || '')}</div>
+      </div>
+      <div class="rm-opt-footer${isLockedVisible ? ' locked' : ''}">${footerCopy}</div>
     `;
 
     container.appendChild(card);
@@ -131,10 +139,8 @@ export function renderPanel(ui, doc, cfg, meta, runRules, gs, data) {
 
   renderDifficultyPanel(panel, cfg, meta, runRules, gs);
   renderPresets(ui, doc, cfg, meta, runRules);
-  renderChallengePanel(doc, buildDailyRunChallenge({ meta, runRules, now: data?.now || undefined }));
+  renderSummaryBar(doc, cfg, meta, runRules, gs, data);
+  renderHiddenEnding(meta, cfg, doc);
   renderOptionGrid(doc.getElementById('rmCurseGrid'), buildCurseOptionEntries({ meta, runRules }), cfg.curse, 'curse', doc);
   renderInscriptionOverview(doc, meta, cfg, data);
-  renderUnlockRoadmap(doc, buildUnlockRoadmap(meta, { classId: gs?.player?.class }));
-  renderHiddenEnding(meta, cfg, doc);
-  renderSummaryBar(doc, cfg, meta, runRules, gs, data);
 }

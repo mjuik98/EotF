@@ -120,19 +120,41 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("./run_mode_ui_inscriptions_render.js");
   });
 
+  it('uses explicit vitest suite include lists instead of suite-sized exclude arrays', () => {
+    const source = read('vitest.config.js');
+
+    expect(source).toContain('function getSuiteIncludes()');
+    expect(source).toContain('include: getSuiteIncludes()');
+    expect(source).toContain("if (suite === 'fast') return fast;");
+    expect(source).toContain("if (suite === 'guardrails') return guardrails;");
+    expect(source).toContain('return allTestFiles;');
+  });
+
   it('keeps title cross-feature abandon and ending hooks on public feature ports', () => {
     const abandonActionsSource = read('game/features/title/application/help_pause_abandon_actions.js');
     const abandonPresenterSource = read('game/features/title/presentation/browser/abandon_outcome_presenter.js');
+    const helpPauseAbandonRuntimeSource = read('game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js');
+    const uiShellContractsSource = read('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
     const eventSessionSource = read('game/features/event/ports/public_event_session_application_capabilities.js');
     const runReturnFlowSource = read('game/features/run/application/workflows/run_return_flow.js');
     const runReturnActionsSource = read('game/features/run/application/build_run_return_runtime_actions.js');
 
-    expect(abandonActionsSource).toContain('../../combat/ports/public_application_capabilities.js');
-    expect(abandonActionsSource).toContain("../ports/public_help_pause_presentation_capabilities.js");
+    expect(abandonActionsSource).toContain('resolveCombatCleanup');
+    expect(abandonActionsSource).toContain('deps.cleanupCombatAfterAbandon');
+    expect(abandonActionsSource).toContain('deps.deactivateCombat?.(gs)');
+    expect(abandonActionsSource).toContain('deps.showAbandonOutcome');
+    expect(abandonActionsSource).not.toContain("from '../../../shared/state/runtime_flow_controls.js'");
+    expect(abandonActionsSource).not.toContain('gs.combat.active = false');
+    expect(abandonActionsSource).not.toContain('../../combat/ports/public_application_capabilities.js');
+    expect(abandonActionsSource).not.toContain("../ports/public_help_pause_presentation_capabilities.js");
     expect(abandonActionsSource).not.toContain("../presentation/browser/abandon_outcome_presenter.js");
     expect(abandonActionsSource).not.toContain('../../combat/ports/help_pause_combat_ports.js');
     expect(abandonPresenterSource).toContain('../../../ui/ports/public_ending_presentation_capabilities.js');
     expect(abandonPresenterSource).not.toContain('../../../ui/ports/ending_screen_runtime_ports.js');
+    expect(helpPauseAbandonRuntimeSource).toContain("../../ports/public_ending_presentation_capabilities.js");
+    expect(helpPauseAbandonRuntimeSource).toContain("showAbandonOutcome: deps.showAbandonOutcome || ((nextDeps) => EndingScreenUI.showOutcome('abandon', nextDeps))");
+    expect(uiShellContractsSource).toContain('cleanupCombatAfterAbandon: combatRefs.cleanupCombatAfterAbandon || refs.cleanupCombatAfterAbandon');
+    expect(uiShellContractsSource).toContain('showAbandonOutcome: refs.showAbandonOutcome');
     expect(eventSessionSource).toContain("../application/event_choice_view_model.js");
     expect(eventSessionSource).not.toContain("../presentation/event_choice_view_model.js");
     expect(runReturnFlowSource).toContain("../../ports/public_run_return_presentation_capabilities.js");

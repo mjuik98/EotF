@@ -94,6 +94,26 @@ function createHotkeyDoc() {
   };
 }
 
+function findById(node, id) {
+  if (!node) return null;
+  if (node.id === id) return node;
+  for (const child of node.children || []) {
+    const found = findById(child, id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function findByClassName(node, token) {
+  if (!node) return null;
+  if (String(node.className || '').split(/\s+/).includes(token)) return node;
+  for (const child of node.children || []) {
+    const found = findByClassName(child, token);
+    if (found) return found;
+  }
+  return null;
+}
+
 describe('HelpPauseUI help overlay', () => {
   beforeEach(() => {
     __resetHelpPauseUiStateForTests();
@@ -120,7 +140,7 @@ describe('HelpPauseUI help overlay', () => {
 
     const menu = doc.getElementById('helpMenu');
     expect(menu).toBeTruthy();
-    const grid = menu.children[1];
+    const grid = findByClassName(menu, 'hp-help-grid');
     const renderedKeys = [];
     for (let i = 0; i < grid.children.length; i += 2) {
       renderedKeys.push(grid.children[i].textContent);
@@ -262,7 +282,7 @@ describe('HelpPauseUI help overlay', () => {
     const menu = doc.getElementById('helpMenu');
     expect(menu).toBeTruthy();
 
-    const closeButton = menu.children[3];
+    const closeButton = findById(menu, 'helpCloseBtn');
     closeButton.onclick();
     expect(doc.getElementById('helpMenu')).toBeNull();
     expect(onClose).toHaveBeenCalledTimes(1);

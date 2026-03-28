@@ -7,8 +7,58 @@ import {
   INPUT_ACTION_END_TURN,
   INPUT_ACTION_HELP,
   INPUT_ACTION_PAUSE,
+  INPUT_ACTION_TARGET_CYCLE,
 } from '../ports/public_input_capabilities.js';
-import { handleCombatInputAction } from '../../combat_session/ports/public_application_capabilities.js';
+
+function fallbackCombatInputAction(actionId, context = {}) {
+  const {
+    deps = {},
+    event,
+    gs,
+    onTargetCycle,
+    runHotkeyState = { allowsCombatHotkeys: false },
+  } = context;
+
+  if (!runHotkeyState.allowsCombatHotkeys) return false;
+
+  if (actionId === INPUT_ACTION_ECHO_SKILL) {
+    deps.useEchoSkill?.();
+    return true;
+  }
+
+  if (actionId === INPUT_ACTION_DRAW_CARD) {
+    event?.preventDefault?.();
+    deps.drawCard?.();
+    deps.buttonFeedback?.triggerDrawButton?.();
+    return true;
+  }
+
+  if (actionId === INPUT_ACTION_END_TURN) {
+    event?.preventDefault?.();
+    deps.endPlayerTurn?.();
+    return true;
+  }
+
+  if (actionId === INPUT_ACTION_TARGET_CYCLE) {
+    event?.preventDefault?.();
+    if (typeof onTargetCycle === 'function') {
+      onTargetCycle(actionId, { ...context, deps, event, gs });
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function resolveCombatInputActionHandler(context = {}, deps = {}) {
+  if (typeof context.handleCombatInputAction === 'function') {
+    return context.handleCombatInputAction;
+  }
+  if (typeof deps.handleCombatInputAction === 'function') {
+    return deps.handleCombatInputAction;
+  }
+  return fallbackCombatInputAction;
+}
 
 export function handleRunInputAction(actionId, context = {}) {
   const {
@@ -70,6 +120,7 @@ export function handleRunInputAction(actionId, context = {}) {
 
   if (runHotkeyState.mode === 'modal' || context.hasBlockingGameplayModal) return false;
 
+  const handleCombatInputAction = resolveCombatInputActionHandler(context, deps);
   return handleCombatInputAction(actionId, {
     ...context,
     deps,

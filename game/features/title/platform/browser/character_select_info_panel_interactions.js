@@ -54,6 +54,7 @@ export function bindCharacterInfoPanelInteractions({
   panel,
   selectedChar,
   cards,
+  gs,
   generalTooltipUI,
   cardTooltipUI,
   doc,
@@ -75,7 +76,7 @@ export function bindCharacterInfoPanelInteractions({
   bindTabInteractions(panel, hover);
   bindEchoBadge(panel, selectedChar, hover, echo, openModal);
   bindCharacterInfoRelicTooltips(panel, generalTooltip, { doc, win, hover });
-  bindCharacterInfoDeckCardTooltips(panel, cardTooltip, { cards, hover });
+  bindCharacterInfoDeckCardTooltips(panel, cardTooltip, { cards, hover, gs });
   bindCharacterInfoLoadoutControls({
     panel,
     selectedChar,

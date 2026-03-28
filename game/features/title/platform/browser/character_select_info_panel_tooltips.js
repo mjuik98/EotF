@@ -47,15 +47,14 @@ export function bindCharacterInfoRelicTooltips(panel, generalTooltip, { doc, win
   });
 }
 
-export function bindCharacterInfoDeckCardTooltips(panel, cardTooltip, { cards, hover } = {}) {
-  const mockGs = { getBuff: () => null, player: { echoChain: 0 } };
+export function bindCharacterInfoDeckCardTooltips(panel, cardTooltip, { cards, hover, gs } = {}) {
   panel.querySelectorAll('.deck-card').forEach((element) => {
     const ariaLabel = element.dataset.cardLabel || element.dataset.cid || '카드';
     bindTooltipTrigger(element, {
       label: ariaLabel,
       show(event) {
         hover?.();
-        cardTooltip.showTooltip(event, element.dataset.cid, { data: { cards }, gs: mockGs });
+        cardTooltip.showTooltip(event, element.dataset.cid, { data: { cards }, gs });
       },
       hide() {
         cardTooltip.hideTooltip();

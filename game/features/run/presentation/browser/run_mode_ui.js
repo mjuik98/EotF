@@ -21,7 +21,6 @@ import {
   refreshInscriptionPanel,
 } from './run_mode_ui_render.js';
 import {
-  applyDailyChallengeRuntime,
   closePresetDialogRuntime,
   closeRunSettingsModal,
   confirmPresetSaveRuntime,
@@ -155,10 +154,6 @@ export const RunModeUI = {
 
   deletePreset(slot, deps = {}) {
     deletePresetRuntime(this, slot, deps);
-  },
-
-  applyDailyChallenge(deps = {}) {
-    applyDailyChallengeRuntime(this, deps);
   },
 
   refreshInscriptions(deps = {}) {

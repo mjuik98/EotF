@@ -1,4 +1,10 @@
-import { buildTitleHelpPauseActions } from '../../application/help_pause_title_actions.js';
+function resolveEndingActions(refs = {}) {
+  return {
+    restart: refs.restartEndingFlow || refs.restartFromEnding,
+    selectFragment: refs.selectEndingFragment || refs.selectFragment,
+    openCodex: refs.openEndingCodex || refs.openCodex,
+  };
+}
 
 export function buildTitleStoryContractBuilders(ctx) {
   const {
@@ -9,24 +15,17 @@ export function buildTitleStoryContractBuilders(ctx) {
   return {
     story: () => {
       const refs = getRefs();
-      const titleActions = buildTitleHelpPauseActions({
-        restartEndingFlow: refs.restartEndingFlow || refs.restartFromEnding,
-        restartFromEnding: refs.restartFromEnding,
-        selectEndingFragment: refs.selectEndingFragment || refs.selectFragment,
-        selectFragment: refs.selectFragment,
-        openEndingCodex: refs.openEndingCodex || refs.openCodex,
-        openCodex: refs.openCodex,
-      });
+      const endingActions = resolveEndingActions(refs);
 
       return {
         ...buildBaseDeps('run'),
         audioEngine: refs.AudioEngine,
         particleSystem: refs.ParticleSystem,
         showWorldMemoryNotice: refs.showWorldMemoryNotice,
-        restartEndingFlow: titleActions.restartEndingFlow,
-        selectEndingFragment: titleActions.selectEndingFragment,
-        openEndingCodex: titleActions.openEndingCodex,
-        endingActions: titleActions.endingActions,
+        restartEndingFlow: () => endingActions.restart?.(),
+        selectEndingFragment: (effect) => endingActions.selectFragment?.(effect),
+        openEndingCodex: () => endingActions.openCodex?.(),
+        endingActions,
         restartFromEnding: refs.restartFromEnding,
         openCodex: refs.openCodex,
       };

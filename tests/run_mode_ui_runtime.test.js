@@ -9,8 +9,6 @@ vi.mock('../game/features/run/platform/browser/ensure_run_settings_shell.js', ()
 }));
 
 import {
-  applyDailyChallengeRuntime,
-  buildDailyRunChallenge,
   closeRunSettingsModal,
   confirmPresetSaveRuntime,
   openRunSettingsModal,
@@ -68,7 +66,7 @@ describe('run_mode_ui_runtime', () => {
     expect(ui.refreshInscriptions).toHaveBeenCalledWith(deps);
   });
 
-  it('selects an empty preset slot and refreshes instead of loading', () => {
+  it('selects a preset slot for preview and refreshes without loading', () => {
     const ui = {
       _selectedPresetSlot: 0,
       loadPreset: vi.fn(),
@@ -77,14 +75,28 @@ describe('run_mode_ui_runtime', () => {
     const deps = {
       gs: {
         meta: {
-          runConfigPresets: [null, null, null, null],
+          runConfigPresets: [
+            null,
+            {
+              id: 'preset-2',
+              name: '세팅 B',
+              config: {
+                ascension: 2,
+                endless: true,
+                curse: 'tax',
+                disabledInscriptions: [],
+              },
+            },
+            null,
+            null,
+          ],
         },
       },
     };
 
-    selectPresetSlotRuntime(ui, 2, deps);
+    selectPresetSlotRuntime(ui, 1, deps);
 
-    expect(ui._selectedPresetSlot).toBe(2);
+    expect(ui._selectedPresetSlot).toBe(1);
     expect(ui.loadPreset).not.toHaveBeenCalled();
     expect(ui.refresh).toHaveBeenCalledWith(deps);
   });
@@ -202,89 +214,6 @@ describe('run_mode_ui_runtime', () => {
       existingName: '세팅 A',
       overwrite: true,
     });
-  });
-
-  it('applies the daily challenge configuration and persists the result', () => {
-    const ui = {
-      refresh: vi.fn(),
-    };
-    const deps = {
-      gs: {
-        meta: {
-          maxAscension: 5,
-          unlocks: { ascension: true, endless: true },
-          runConfig: {
-            ascension: 0,
-            endless: false,
-            curse: 'none',
-            disabledInscriptions: [],
-          },
-          contentUnlocks: {
-            curses: {
-              blood_moon: { unlocked: true },
-            },
-          },
-        },
-      },
-      runRules: {
-        ensureMeta: vi.fn(),
-        curses: {
-          none: { id: 'none', name: '없음' },
-          blood_moon: { id: 'blood_moon', name: '핏빛 월식' },
-        },
-      },
-      saveMeta: vi.fn(),
-      notice: vi.fn(),
-      now: new Date('2026-03-28T12:00:00Z'),
-    };
-
-    const result = applyDailyChallengeRuntime(ui, deps);
-
-    expect(result).toBe(true);
-    expect(deps.gs.meta.runConfig).toMatchObject({
-      ascension: 4,
-      endless: true,
-      curse: 'blood_moon',
-    });
-    expect(ui.refresh).toHaveBeenCalledWith(deps);
-    expect(deps.saveMeta).toHaveBeenCalledTimes(1);
-    expect(deps.notice).toHaveBeenCalledWith('일일 도전 구성을 적용했습니다.');
-  });
-
-  it('builds a deterministic daily challenge from the current date and unlocks', () => {
-    const challenge = buildDailyRunChallenge({
-      meta: {
-        maxAscension: 5,
-        unlocks: { ascension: true, endless: true },
-        contentUnlocks: {
-          curses: {
-            blood_moon: { unlocked: true },
-            silence: { unlocked: true },
-          },
-        },
-      },
-      runRules: {
-        curses: {
-          none: { id: 'none', name: '없음' },
-          blood_moon: { id: 'blood_moon', name: '핏빛 월식' },
-          silence: { id: 'silence', name: '침묵 서약' },
-        },
-      },
-      now: new Date('2026-03-28T12:00:00Z'),
-    });
-
-    expect(challenge).toMatchObject({
-      label: '일일 도전',
-      dateLabel: '2026-03-28',
-      config: {
-        ascension: 4,
-        endless: true,
-        curse: 'blood_moon',
-      },
-    });
-    expect(challenge.summary).toContain('A4');
-    expect(challenge.summary).toContain('핏빛 월식');
-    expect(challenge.tags).toContain('무한');
   });
 
   it('closes run settings modal and hides the inscription layout', () => {

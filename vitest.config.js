@@ -7,18 +7,18 @@ const allTestFiles = listRepositoryTestFiles();
 const { fast, guardrails } = partitionTestFiles(allTestFiles);
 const coverageThresholds = JSON.parse(fs.readFileSync(new URL('./config/quality/coverage_thresholds.json', import.meta.url), 'utf8'));
 
-function getSuiteExcludes() {
-  if (suite === 'fast') return guardrails;
-  if (suite === 'guardrails') return fast;
-  return [];
+function getSuiteIncludes() {
+  if (suite === 'fast') return fast;
+  if (suite === 'guardrails') return guardrails;
+  return allTestFiles;
 }
 
 export default defineConfig({
   test: {
+    include: getSuiteIncludes(),
     exclude: [
       ...configDefaults.exclude,
       '**/.worktrees/**',
-      ...getSuiteExcludes(),
     ],
     coverage: {
       provider: 'v8',

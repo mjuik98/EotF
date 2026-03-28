@@ -1,4 +1,4 @@
-import { DATA } from '../../../../data/game_data.js';
+import { ENEMIES } from '../../../../data/enemies.js';
 import { DifficultyScaler } from '../domain/difficulty_scaler.js';
 
 export function spawnScaledEnemyForRegion(gs, deps = {}) {
@@ -16,7 +16,7 @@ export function spawnScaledEnemyForRegion(gs, deps = {}) {
     ? region.enemies
     : [...region.enemies, ...(region.strongEnemies || [])];
   const enemyKey = pool[Math.floor(Math.random() * pool.length)];
-  const enemyData = DATA.enemies[enemyKey];
+  const enemyData = ENEMIES[enemyKey];
 
   if (!enemyData || gs.combat.enemies.length >= 3) return null;
 

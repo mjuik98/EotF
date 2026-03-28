@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-27T16:00:00.495Z",
+  "generatedAt": "2026-03-28T06:16:18.962Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -271,6 +271,7 @@
     "tests/help_pause_title_actions.test.js",
     "tests/help_pause_ui.test.js",
     "tests/help_pause_ui_abandon_runtime.test.js",
+    "tests/help_pause_ui_dialog_overlays.test.js",
     "tests/help_pause_ui_dialog_runtime.test.js",
     "tests/help_pause_ui_helpers.test.js",
     "tests/help_pause_ui_pause_menu_overlay.test.js",
@@ -310,7 +311,6 @@
     "tests/logger_test_runtime_silence.test.js",
     "tests/map_branching.test.js",
     "tests/map_relic_detail_layout.test.js",
-    "tests/map_relic_panel_smoke_script.test.js",
     "tests/map_ui_facade.test.js",
     "tests/map_ui_full_map.test.js",
     "tests/map_ui_full_map_render.test.js",
@@ -329,6 +329,7 @@
     "tests/meta_progression_actions.test.js",
     "tests/meta_progression_ui.test.js",
     "tests/meta_progression_ui_runtime.test.js",
+    "tests/modal_shell_markup.test.js",
     "tests/mount_character_select.test.js",
     "tests/move_to_node_use_case.test.js",
     "tests/new_mechanics.test.js",

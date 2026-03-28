@@ -143,6 +143,11 @@ describe('character_select_info_panel helpers', () => {
     };
     const onSaveLoadoutPreset = vi.fn();
     const onClearLoadoutPreset = vi.fn();
+    const gs = { getBuff: vi.fn(() => null), player: { echoChain: 2 } };
+    const cardTooltipUI = {
+      hideTooltip: vi.fn(),
+      showTooltip: vi.fn(),
+    };
 
     bindCharacterInfoPanelInteractions({
       panel,
@@ -154,6 +159,7 @@ describe('character_select_info_panel helpers', () => {
       cards: {},
       doc: {},
       win: {},
+      gs,
       hover: vi.fn(),
       echo: vi.fn(),
       openModal: vi.fn(),
@@ -161,10 +167,7 @@ describe('character_select_info_panel helpers', () => {
         hideGeneralTooltip: vi.fn(),
         showGeneralTooltip: vi.fn(),
       },
-      cardTooltipUI: {
-        hideTooltip: vi.fn(),
-        showTooltip: vi.fn(),
-      },
+      cardTooltipUI,
       loadoutState: {
         initialLevel11Mode: 'upgrade',
         initialLevel11UpgradeIndex: null,
@@ -183,6 +186,11 @@ describe('character_select_info_panel helpers', () => {
     expect(relicBadge.setAttribute).toHaveBeenCalledWith('tabindex', '0');
     expect(deckCard.setAttribute).toHaveBeenCalledWith('tabindex', '0');
     expect(deckCard.setAttribute).toHaveBeenCalledWith('aria-label', '강타. 피해 6');
+    expect(cardTooltipUI.showTooltip).toHaveBeenCalledWith(
+      expect.anything(),
+      'strike',
+      expect.objectContaining({ gs }),
+    );
 
     level11DeckCard0.listeners.click();
     expect(saveLevel11Upgrade.disabled).toBe(false);

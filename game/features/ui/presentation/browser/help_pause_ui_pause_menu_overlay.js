@@ -1,10 +1,20 @@
-import { appendTextNode } from './help_pause_ui_overlay_dom.js';
+import {
+  createActionButton,
+  createActionsRow,
+  createOverlayShell,
+  createTextBlock,
+} from './help_pause_modal_frame.js';
 
 function createSliderRow(doc, deps, label, id, handler) {
-  const row = doc.createElement('div');
+  const row = createTextBlock(doc, {
+    className: 'hp-slider-row',
+  });
   row.style.cssText = 'display:flex;align-items:center;gap:15px;';
-
-  appendTextNode(doc, row, 'span', label, "font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;color:var(--text-dim);width:45px;");
+  row.appendChild(createTextBlock(doc, {
+    tagName: 'span',
+    className: 'hp-slider-label',
+    text: label,
+  }));
 
   const input = doc.createElement('input');
   input.type = 'range';
@@ -15,7 +25,7 @@ function createSliderRow(doc, deps, label, id, handler) {
 
   const val = doc.createElement('span');
   val.id = `${id}Val`;
-  val.style.cssText = "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--white);width:40px;text-align:right;";
+  val.className = 'hp-slider-value';
 
   const currentVol = deps.audioEngine?.getVolumes?.() || {};
   let initialV = 0;
@@ -34,80 +44,94 @@ function createSliderRow(doc, deps, label, id, handler) {
 }
 
 export function createPauseMenu(doc, gs, deps, callbacks) {
-  const menu = doc.createElement('div');
-  menu.id = 'pauseMenu';
-  menu.style.cssText = 'position:fixed;inset:0;background:rgba(3,3,10,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:12000;animation:fadeIn 0.3s ease both;backdrop-filter:blur(8px);';
+  const { overlay, panel, body, footer } = createOverlayShell(doc, {
+    id: 'pauseMenu',
+    overlayClassName: 'hp-overlay-pause',
+    panelClassName: 'hp-panel-pause gm-modal-accent-echo',
+    eyebrow: 'PAUSE',
+    title: '일시정지',
+    subtitle: '전투 흐름과 보조 오버레이를 여기서 정리합니다',
+  });
 
-  appendTextNode(doc, menu, 'div', '일시정지', "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.5em;color:var(--text-dim);");
-  appendTextNode(doc, menu, 'div', '일시정지', "font-family:'Cinzel Decorative',serif;font-size:48px;font-weight:900;color:var(--white);text-shadow:0 0 20px rgba(255,255,255,0.2);");
+  panel.className += ' hp-panel-tall';
+  const mainBtns = createTextBlock(doc, {
+    className: 'hp-menu-actions',
+  });
 
-  const mainBtns = doc.createElement('div');
-  mainBtns.style.cssText = 'display:flex;flex-direction:column;gap:12px;width:280px;';
+  const resBtn = createActionButton(doc, {
+    id: 'pauseResumeBtn',
+    className: 'action-btn-primary hp-action-strong',
+    text: '계속하기',
+    onClick: callbacks.onResume,
+  });
 
-  const resBtn = doc.createElement('button');
-  resBtn.style.cssText = "font-family:'Cinzel',serif;font-size:16px;letter-spacing:0.2em;color:var(--echo);background:rgba(123,47,255,0.12);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;";
-  resBtn.textContent = '계속하기';
-  resBtn.onclick = callbacks.onResume;
-
-  const midRow = doc.createElement('div');
-  midRow.style.display = 'flex';
-  midRow.style.gap = '8px';
-
-  const deckBtn = doc.createElement('button');
-  deckBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
-  deckBtn.textContent = '덱 보기';
-  deckBtn.onclick = callbacks.onOpenDeck;
-
-  const codexBtn = doc.createElement('button');
-  codexBtn.style.cssText = "flex:1;font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.15em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;";
-  codexBtn.textContent = '도감';
-  codexBtn.onclick = callbacks.onOpenCodex;
+  const midRow = createActionsRow(doc, 'hp-menu-split');
+  const deckBtn = createActionButton(doc, {
+    id: 'pauseOpenDeckBtn',
+    className: 'action-btn-secondary',
+    text: '덱 보기',
+    onClick: callbacks.onOpenDeck,
+  });
+  const codexBtn = createActionButton(doc, {
+    id: 'pauseOpenCodexBtn',
+    className: 'action-btn-secondary',
+    text: '도감',
+    onClick: callbacks.onOpenCodex,
+  });
   midRow.append(deckBtn, codexBtn);
 
-  const settingsBtn = doc.createElement('button');
-  settingsBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--white);background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;width:100%;";
-  settingsBtn.textContent = '환경 설정';
-  settingsBtn.onclick = callbacks.onOpenSettings;
+  const settingsBtn = createActionButton(doc, {
+    id: 'pauseOpenSettingsBtn',
+    className: 'action-btn-secondary',
+    text: '환경 설정',
+    onClick: callbacks.onOpenSettings,
+  });
 
-  const helpBtn = doc.createElement('button');
-  helpBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--cyan);background:rgba(0,255,204,0.08);border:1px solid rgba(0,255,204,0.3);border-radius:8px;padding:16px;cursor:pointer;";
-  helpBtn.textContent = '컨트롤 안내 (?)';
-  helpBtn.onclick = callbacks.onOpenHelp;
+  const helpBtn = createActionButton(doc, {
+    id: 'pauseOpenHelpBtn',
+    className: 'action-btn-secondary hp-action-cyan',
+    text: '컨트롤 안내 (?)',
+    onClick: callbacks.onOpenHelp,
+  });
 
-  const abandonBtn = doc.createElement('button');
-  abandonBtn.style.cssText = "font-family:'Cinzel',serif;font-size:15px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.3);border-radius:8px;padding:16px;cursor:pointer;";
-  abandonBtn.textContent = '런 포기하기';
-  abandonBtn.onclick = callbacks.onAbandon;
+  const abandonBtn = createActionButton(doc, {
+    id: 'pauseAbandonBtn',
+    className: 'action-btn-end',
+    text: '런 포기하기',
+    onClick: callbacks.onAbandon,
+  });
 
-  const startBtn = doc.createElement('button');
-  startBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--text-dim);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;cursor:pointer;";
-  startBtn.textContent = '처음으로';
-  startBtn.onclick = callbacks.onReturnToTitle;
+  const startBtn = createActionButton(doc, {
+    id: 'pauseReturnTitleBtn',
+    className: 'hp-action-subtle',
+    text: '처음으로',
+    onClick: callbacks.onReturnToTitle,
+  });
 
-  const quitBtn = doc.createElement('button');
-  quitBtn.style.cssText = "font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.2em;color:var(--danger);background:rgba(255,51,102,0.05);border:1px solid rgba(255,51,102,0.2);border-radius:8px;padding:14px;cursor:pointer;margin-top:4px;";
-  quitBtn.textContent = '게임 종료';
-  quitBtn.onclick = callbacks.onQuitGame;
+  const quitBtn = createActionButton(doc, {
+    id: 'pauseQuitGameBtn',
+    className: 'hp-action-subtle hp-action-danger',
+    text: '게임 종료',
+    onClick: callbacks.onQuitGame,
+  });
 
   mainBtns.append(resBtn, midRow, settingsBtn, helpBtn, abandonBtn, startBtn, quitBtn);
-  menu.appendChild(mainBtns);
+  body.appendChild(mainBtns);
 
-  const volPanel = doc.createElement('div');
-  volPanel.style.cssText = 'display:flex;flex-direction:column;gap:16px;margin-top:12px;background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;width:280px;';
+  const volPanel = createTextBlock(doc, {
+    className: 'hp-volume-panel',
+  });
   volPanel.append(
     createSliderRow(doc, deps, 'MASTER', 'volMasterSlider', callbacks.onSetMasterVolume),
     createSliderRow(doc, deps, 'SFX', 'volSfxSlider', callbacks.onSetSfxVolume),
     createSliderRow(doc, deps, 'BGM', 'volAmbientSlider', callbacks.onSetAmbientVolume),
   );
-  menu.appendChild(volPanel);
+  body.appendChild(volPanel);
 
-  appendTextNode(
-    doc,
-    menu,
-    'div',
-    `총 ${gs.meta.runCount}회차 | 지역 ${gs.currentRegion + 1} | ${gs.currentFloor}층 | 스토리 조각 ${gs.meta.storyPieces.length}/10`,
-    "font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text-dim);text-align:center;",
-  );
+  footer.appendChild(createTextBlock(doc, {
+    className: 'hp-menu-meta',
+    text: `총 ${gs.meta.runCount}회차 | 지역 ${gs.currentRegion + 1} | ${gs.currentFloor}층 | 스토리 조각 ${gs.meta.storyPieces.length}/10`,
+  }));
 
-  return menu;
+  return overlay;
 }

@@ -44,6 +44,16 @@ function findById(node, id) {
   return null;
 }
 
+function findByClassName(node, token) {
+  if (!node) return null;
+  if (String(node.className || '').split(/\s+/).includes(token)) return node;
+  for (const child of node.children || []) {
+    const found = findByClassName(child, token);
+    if (found) return found;
+  }
+  return null;
+}
+
 describe('help_pause_ui_pause_menu_overlay', () => {
   it('builds the pause menu and seeds volume sliders from the audio engine', () => {
     const doc = createDoc();
@@ -84,6 +94,10 @@ describe('help_pause_ui_pause_menu_overlay', () => {
     );
 
     expect(menu.id).toBe('pauseMenu');
+    expect(menu.className).toContain('hp-overlay');
+    expect(menu.className).toContain('hp-overlay-pause');
+    expect(menu.children[0].className).toContain('hp-panel');
+    expect(menu.children[0].className).toContain('gm-modal-panel');
     const masterSlider = findById(menu, 'volMasterSlider');
     const sfxSlider = findById(menu, 'volSfxSlider');
     const ambientSlider = findById(menu, 'volAmbientSlider');
@@ -98,9 +112,10 @@ describe('help_pause_ui_pause_menu_overlay', () => {
     expect(sfxValue.textContent).toBe('80%');
     expect(ambientValue.textContent).toBe('25%');
     expect(masterSlider.style.setProperty).toHaveBeenCalledWith('--fill-percent', '50%');
-    expect(menu.children.at(-1).textContent).toContain('총 7회차');
-    expect(menu.children.at(-1).textContent).toContain('지역 2');
-    expect(menu.children.at(-1).textContent).toContain('5층');
-    expect(menu.children.at(-1).textContent).toContain('3/10');
+    const meta = findByClassName(menu, 'hp-menu-meta');
+    expect(meta.textContent).toContain('총 7회차');
+    expect(meta.textContent).toContain('지역 2');
+    expect(meta.textContent).toContain('5층');
+    expect(meta.textContent).toContain('3/10');
   });
 });

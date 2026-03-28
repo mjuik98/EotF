@@ -1,6 +1,3 @@
-import { cleanupCombatAfterAbandon } from '../../combat/ports/public_application_capabilities.js';
-import { showAbandonOutcome } from '../ports/public_help_pause_presentation_capabilities.js';
-
 function resolveDoc(deps = {}) {
   return deps.doc || deps.win?.document || null;
 }
@@ -19,6 +16,28 @@ function clearActiveRunSave(deps = {}) {
   saveSystem?.clearSave?.();
 }
 
+function cleanupCombatAfterAbandonFallback(deps = {}) {
+  const { gs, doc } = deps;
+  if (!gs?.combat?.active) return false;
+
+  deps.deactivateCombat?.(gs);
+  const hudUpdateUI = deps.hudUpdateUI || null;
+  if (typeof hudUpdateUI?.resetCombatUI === 'function') {
+    hudUpdateUI.resetCombatUI({ ...deps, doc, gs });
+  } else {
+    doc?.getElementById?.('combatOverlay')?.classList?.remove?.('active');
+  }
+
+  return true;
+}
+
+function resolveCombatCleanup(deps = {}) {
+  if (typeof deps.cleanupCombatAfterAbandon === 'function') {
+    return deps.cleanupCombatAfterAbandon;
+  }
+  return cleanupCombatAfterAbandonFallback;
+}
+
 export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {}) {
   const gs = resolveGs(deps);
   if (!gs) return false;
@@ -27,7 +46,7 @@ export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {
   doc?.getElementById?.('abandonConfirm')?.remove();
   onClosePauseMenu(doc);
 
-  cleanupCombatAfterAbandon({ ...deps, doc, gs });
+  resolveCombatCleanup(deps)({ ...deps, doc, gs });
   deps.removeFloatingPlayerHpPanel?.({ doc });
 
   if (typeof deps.finalizeRunOutcome === 'function') {
@@ -35,8 +54,11 @@ export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {
   }
 
   clearActiveRunSave(deps);
-  const presentAbandonOutcome = deps.showAbandonOutcome || showAbandonOutcome;
+  const presentAbandonOutcome = deps.showAbandonOutcome || null;
   const presentDeps = { ...deps };
+  delete presentDeps.cleanupCombatAfterAbandon;
+  delete presentDeps.deactivateCombat;
   delete presentDeps.removeFloatingPlayerHpPanel;
-  return presentAbandonOutcome(presentDeps);
+  delete presentDeps.showAbandonOutcome;
+  return presentAbandonOutcome?.(presentDeps) ?? false;
 }

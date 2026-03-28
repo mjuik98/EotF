@@ -54,9 +54,6 @@ export function bindRunModePanelEvents(ui, deps = {}) {
       ui.deletePreset(Number(target.dataset.slot), deps);
       return;
     }
-    if (action === 'apply-daily-challenge') {
-      ui.applyDailyChallenge(deps);
-    }
   });
 
   panel.addEventListener('keydown', (event) => {

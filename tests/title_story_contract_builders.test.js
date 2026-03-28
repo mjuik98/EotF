@@ -1,8 +1,20 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildTitleStoryContractBuilders } from '../game/features/title/ports/contracts/build_title_story_contracts.js';
 
 describe('title_story_contract_builders', () => {
+  it('avoids importing the overlay-oriented help pause title actions module', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'game/features/title/ports/contracts/build_title_story_contracts.js'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('../../application/help_pause_title_actions.js');
+  });
+
   it('builds story deps around title-owned ending actions', () => {
     const restart = vi.fn();
     const selectFragment = vi.fn();

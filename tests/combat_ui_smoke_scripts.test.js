@@ -10,6 +10,7 @@ describe('combat ui smoke scripts', () => {
     );
 
     expect(packageJson.scripts['smoke:combat-ui']).toBe('node scripts/run_combat_ui_smoke.mjs');
+    expect(packageJson.scripts['smoke:help-pause-hotkeys']).toBe('node scripts/run_help_pause_hotkey_smoke.mjs');
     expect(packageJson.scripts['smoke:character-select']).toBe('node scripts/run_character_select_smoke.mjs');
     expect(packageJson.scripts['smoke:title-meta']).toBe('node scripts/title_meta_smoke_check.mjs');
     expect(packageJson.scripts['smoke:browser']).toBe('node scripts/run_browser_smoke_suite.mjs');
@@ -25,6 +26,7 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain("'smoke:character-select'");
     expect(source).toContain("'smoke:reward'");
     expect(source).toContain("'smoke:combat-ui'");
+    expect(source).toContain("'smoke:help-pause-hotkeys'");
     expect(source).toContain("'smoke:title-meta'");
     expect(source).toContain("'smoke:save-load'");
     expect(source).toContain("'smoke:save-outbox-recovery'");
@@ -39,10 +41,8 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("from 'node:http'");
-    expect(source).toContain('createServer(');
-    expect(source).toContain('server.listen(0,');
-    expect(source).toContain('server.close((error) => {');
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('runSmokeScriptWithServer');
     expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs')");
     expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-combat-ui')");
   });
@@ -53,12 +53,22 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("from 'node:http'");
-    expect(source).toContain('createServer(');
-    expect(source).toContain('server.listen(0,');
-    expect(source).toContain('server.close((error) => {');
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('runSmokeScriptWithServer');
     expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_deep_combat_reward.mjs')");
     expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-reward-flow')");
+  });
+
+  it('self-hosts the help/pause hotkey smoke wrapper before launching Playwright', () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'run_help_pause_hotkey_smoke.mjs'),
+      'utf8',
+    );
+
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('runSmokeScriptWithServer');
+    expect(source).toContain("path.join(process.cwd(), 'scripts', 'help_pause_hotkey_smoke_check.mjs')");
+    expect(source).toContain("path.join('output', 'web-game', 'help-pause-hotkey-smoke')");
   });
 
   it('drives the reward smoke through the real combat-to-reward handoff', () => {

@@ -1,5 +1,5 @@
 import {
-  CombatGameData,
+  CombatDeathQuotes,
   playReactionPlayerDeath,
   playStatusHeal,
   setCombatActive,
@@ -32,7 +32,7 @@ export function handleCombatPlayerDeath(gs, deps = {}) {
 
   runCombatPlayerDeathSequence(gs, {
     ...deps,
-    deathQuotes: CombatGameData.deathQuotes,
+    deathQuotes: CombatDeathQuotes,
     showDeathScreen: deps.showDeathScreen || (() => showCombatDeathScreen(gs, deps)),
   });
 }

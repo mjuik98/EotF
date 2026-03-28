@@ -1,4 +1,3 @@
-import { cycleNextCombatTarget } from '../../../combat_session/ports/public_application_capabilities.js';
 import {
   getRunHotkeyPolicy,
   getRunHotkeyState,
@@ -21,7 +20,27 @@ export function closeVisibleModalById(event, doc, id, onClose, swallowEscape) {
 }
 
 export function cycleNextTarget(gs, deps) {
-  cycleNextCombatTarget(gs, deps);
+  if (typeof deps?.cycleNextCombatTarget === 'function') {
+    return deps.cycleNextCombatTarget(gs, deps);
+  }
+
+  const enemies = gs?.combat?.enemies || [];
+  const aliveIndices = enemies
+    .map((enemy, idx) => (enemy.hp > 0 ? idx : -1))
+    .filter((idx) => idx >= 0);
+
+  if (aliveIndices.length <= 1) return false;
+
+  const current = aliveIndices.indexOf(gs?._selectedTarget ?? -1);
+  const nextTarget = aliveIndices[(current + 1) % aliveIndices.length];
+  gs._selectedTarget = nextTarget;
+  if (typeof gs?.addLog === 'function') {
+    gs.addLog(`🎯 대상: ${enemies[nextTarget].name}`, 'system');
+  }
+  if (typeof deps?.renderCombatEnemies === 'function') {
+    deps.renderCombatEnemies();
+  }
+  return true;
 }
 
 export function handleEscapeHotkey(event, { deps, doc, gs, ui, swallowEscape }) {

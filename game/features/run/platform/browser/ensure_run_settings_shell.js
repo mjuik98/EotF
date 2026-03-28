@@ -1,11 +1,13 @@
 const RUN_SETTINGS_SHELL_MARKUP = `
-<div class="modal-content run-settings-panel">
-  <div class="modal-header">
-    <div class="modal-title">런 규칙</div>
+<div class="modal-content run-settings-panel gm-modal-panel gm-modal-accent-echo">
+  <div class="modal-header gm-modal-header gm-modal-header-row">
+    <div class="gm-modal-header-main">
+      <div class="modal-title gm-modal-title">런 규칙</div>
+    </div>
     <button id="closeRunSettingsBtn" aria-label="닫기">✕</button>
   </div>
 
-  <div id="runSettingsBody" class="run-settings-body">
+  <div id="runSettingsBody" class="run-settings-body gm-modal-body">
     <div id="runModePanel" class="run-mode-panel run-settings-modal-panel"></div>
 
     <div id="inscriptionLayout" class="run-inscription-layout" style="display:none;" data-open="false">

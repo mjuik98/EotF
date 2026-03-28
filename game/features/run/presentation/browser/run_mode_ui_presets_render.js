@@ -30,7 +30,7 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
               data-slot="${index}"
               role="tab"
               aria-selected="${index === selectedSlot ? 'true' : 'false'}"
-              aria-label="${preset ? `프리셋 ${index + 1} 불러오기: ${preset.name || `프리셋 ${index + 1}`}` : `비어 있는 프리셋 슬롯 ${index + 1}`}"
+              aria-label="${preset ? `프리셋 ${index + 1} 선택: ${preset.name || `프리셋 ${index + 1}`}` : `비어 있는 프리셋 슬롯 ${index + 1}`}"
             >${index + 1}</button>
           `).join('')}
         </div>
@@ -40,19 +40,21 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
       </div>
       <div class="rm-preset-inline-meta">${selectedPreset ? `
           <span class="rm-preset-inline-slot">슬롯 ${selectedSlot + 1}</span>
-          <span class="rm-preset-inline-name">${selectedPreset.name || `프리셋 ${selectedSlot + 1}`}</span>
-          <span class="rm-preset-inline-desc">
-            A${selectedPreset.config?.ascension || 0}
-            / ${selectedPreset.config?.endless ? '무한' : '일반'}
-            / ${runRules?.curses?.[selectedPreset.config?.curse]?.name || '저주 없음'}
-            / 각인 ${Array.isArray(selectedPreset.config?.disabledInscriptions)
-              ? Math.max(0, getEarnedInscriptionCount(meta) - selectedPreset.config.disabledInscriptions.length)
-              : getActiveInscriptionCount(meta, selectedPreset.config || {})}
-          </span>
-          <span class="rm-preset-inline-desc">
-            ${presetMatchesCurrent ? '현재 구성과 동일' : '선택 슬롯 프리셋'}
-            ${hiddenEndingReady ? ' · 히든 결말 준비' : ''}
-          </span>
+          <div class="rm-preset-inline-main">
+            <span class="rm-preset-inline-name">${selectedPreset.name || `프리셋 ${selectedSlot + 1}`}</span>
+            <span class="rm-preset-inline-desc">
+              A${selectedPreset.config?.ascension || 0}
+              / ${selectedPreset.config?.endless ? '무한' : '일반'}
+              / ${runRules?.curses?.[selectedPreset.config?.curse]?.name || '저주 없음'}
+              / 각인 ${Array.isArray(selectedPreset.config?.disabledInscriptions)
+                ? Math.max(0, getEarnedInscriptionCount(meta) - selectedPreset.config.disabledInscriptions.length)
+                : getActiveInscriptionCount(meta, selectedPreset.config || {})}
+            </span>
+            <span class="rm-preset-inline-desc secondary">
+              ${presetMatchesCurrent ? '현재 적용 중' : '미리보기 중 · 불러오기를 눌러 적용'}
+              ${hiddenEndingReady ? ' · 히든 결말 준비' : ''}
+            </span>
+          </div>
           <div class="rm-preset-actions">
             <button type="button" class="rm-preset-btn primary" data-action="load-preset" data-slot="${selectedSlot}">
               불러오기
@@ -66,8 +68,10 @@ export function renderPresets(ui, doc, cfg, meta, runRules) {
           </div>
         ` : `
           <span class="rm-preset-inline-slot empty">슬롯 ${selectedSlot + 1}</span>
-          <span class="rm-preset-inline-name empty">빈 슬롯</span>
-          <span class="rm-preset-inline-desc empty">이 슬롯을 선택한 뒤 현재 설정을 저장할 수 있습니다.</span>
+          <div class="rm-preset-inline-main">
+            <span class="rm-preset-inline-name empty">빈 슬롯</span>
+            <span class="rm-preset-inline-desc empty">이 슬롯을 선택한 뒤 현재 설정을 저장할 수 있습니다.</span>
+          </div>
         `}
       </div>
     </div>

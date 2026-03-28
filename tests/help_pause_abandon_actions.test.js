@@ -30,6 +30,9 @@ describe('help_pause_abandon_actions', () => {
     const doc = createDoc();
     doc.register('abandonConfirm', createElement());
     const combatOverlay = doc.register('combatOverlay', createElement());
+    const deactivateCombat = vi.fn((gs) => {
+      gs.combat.active = false;
+    });
     const finalizeRunOutcome = vi.fn();
     const clearActiveRunSave = vi.fn();
     const showOutcome = vi.fn(() => false);
@@ -46,12 +49,14 @@ describe('help_pause_abandon_actions', () => {
 
     const result = confirmHelpPauseAbandonRun({
       ...deps,
+      deactivateCombat,
       hudUpdateUI: null,
       showAbandonOutcome: showOutcome,
     }, onClosePauseMenu);
 
     expect(result).toBe(false);
     expect(onClosePauseMenu).toHaveBeenCalledWith(doc);
+    expect(deactivateCombat).toHaveBeenCalledWith(deps.gs);
     expect(deps.gs.combat.active).toBe(false);
     expect(combatOverlay.classList.remove).toHaveBeenCalledWith('active');
     expect(finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true }, { gs: deps.gs });
@@ -59,7 +64,6 @@ describe('help_pause_abandon_actions', () => {
     expect(showOutcome).toHaveBeenCalledWith(expect.objectContaining({
       doc,
       gs: deps.gs,
-      showAbandonOutcome: showOutcome,
     }));
   });
 });

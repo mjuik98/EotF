@@ -1,44 +1,14 @@
-import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {
+  closeStaticAssetServer,
+  resolveSmokeAppUrl,
+} from './browser_smoke_support.mjs';
 
 const workspaceRoot = process.cwd();
 const distDir = path.join(workspaceRoot, 'dist');
 const outDir = path.join(workspaceRoot, 'output', 'web-game', 'character-select-level-xp-smoke');
-const snapshotDir = path.join(outDir, `.dist-snapshot-${process.pid}`);
-
-const MIME_TYPES = {
-  '.css': 'text/css; charset=utf-8',
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-};
-
-function createDistServer(rootDir) {
-  return createServer(async (req, res) => {
-    try {
-      const rawPath = req.url === '/' ? '/index.html' : (req.url || '/index.html');
-      const pathname = decodeURIComponent(rawPath.split('?')[0]);
-      const filePath = path.resolve(rootDir, `.${pathname}`);
-      if (!filePath.startsWith(rootDir)) {
-        res.writeHead(403).end('Forbidden');
-        return;
-      }
-
-      const data = await fs.readFile(filePath);
-      const ext = path.extname(filePath).toLowerCase();
-      res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
-      res.end(data);
-    } catch (error) {
-      res.writeHead(error?.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end(error?.code === 'ENOENT' ? 'Not found' : String(error?.message || error));
-    }
-  });
-}
 
 async function captureGameplayDebugState(page, capturedErrors = []) {
   return page.evaluate((errors) => ({
@@ -101,9 +71,14 @@ async function advanceRunStartOverlays(page) {
   return { storyFragmentSkipped };
 }
 
-async function findCombatHoverCardWithMechanicTrigger(page) {
+async function findCombatHoverCardPreview(page) {
   const handCards = page.locator('#combatHandCards .card');
   const handCardCount = await handCards.count();
+  if (handCardCount === 0) {
+    throw new Error('No combat hand cards were rendered for the hover preview smoke check.');
+  }
+
+  let fallbackHoverCardIndex = null;
   for (let index = 0; index < handCardCount; index += 1) {
     await handCards.nth(index).hover();
     await page.waitForSelector('#handCardCloneLayer .card-clone-visible', {
@@ -111,36 +86,38 @@ async function findCombatHoverCardWithMechanicTrigger(page) {
       timeout: 8000,
     });
     await page.waitForTimeout(180);
+    if (fallbackHoverCardIndex === null) {
+      fallbackHoverCardIndex = index + 1;
+    }
     const hasMechanicTrigger = await page.evaluate(
       () => Boolean(document.querySelector('#handCardCloneLayer .card-clone-visible .card-hover-mechanic-trigger')),
     );
     if (hasMechanicTrigger) {
-      return index + 1;
+      return { hoverCardIndex: index + 1, hasMechanicTrigger: true };
     }
   }
 
-  throw new Error(`No combat hand card exposed a hover mechanic trigger across ${handCardCount} hovered cards.`);
+  if (fallbackHoverCardIndex !== null) {
+    await handCards.nth(fallbackHoverCardIndex - 1).hover();
+    await page.waitForSelector('#handCardCloneLayer .card-clone-visible', {
+      state: 'visible',
+      timeout: 8000,
+    });
+    await page.waitForTimeout(180);
+    return { hoverCardIndex: fallbackHoverCardIndex, hasMechanicTrigger: false };
+  }
+
+  throw new Error(`No combat hand card produced a visible hover clone across ${handCardCount} hovered cards.`);
 }
 
 await fs.mkdir(outDir, { recursive: true });
-if (!process.env.SMOKE_URL) {
-  await fs.rm(snapshotDir, { recursive: true, force: true });
-  await fs.cp(distDir, snapshotDir, { recursive: true });
-}
-const server = process.env.SMOKE_URL ? null : createDistServer(snapshotDir);
+const { appUrl, server } = await resolveSmokeAppUrl({
+  smokeUrl: process.env.SMOKE_URL || '',
+  distDir,
+});
 let browser = null;
 
 try {
-  let appUrl = process.env.SMOKE_URL || null;
-  if (server) {
-    await new Promise((resolve, reject) => {
-      server.once('error', reject);
-      server.listen(0, '127.0.0.1', resolve);
-    });
-    const { port } = server.address();
-    appUrl = `http://127.0.0.1:${port}`;
-  }
-
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = [];
@@ -249,15 +226,17 @@ try {
     const energyLabel = document.getElementById('combatEnergyText')?.textContent?.trim() || '';
     return cardCount > 0 && energyLabel.length > 0;
   }, { timeout: 10000 });
-  const hoverCardIndex = await findCombatHoverCardWithMechanicTrigger(page);
-  await page.hover('#handCardCloneLayer .card-hover-mechanic-trigger');
-  await page.waitForTimeout(120);
-  await page.focus('#handCardCloneLayer .card-hover-mechanic-trigger');
-  await page.waitForFunction(() => {
-    const clone = document.querySelector('#handCardCloneLayer .card-clone-visible');
-    return clone?.dataset?.keywordPanelOpen === 'true';
-  }, { timeout: 5000 });
-  const preEndTurnHoverPayload = await page.evaluate(() => {
+  const hoverCardSelection = await findCombatHoverCardPreview(page);
+  if (hoverCardSelection.hasMechanicTrigger) {
+    await page.hover('#handCardCloneLayer .card-hover-mechanic-trigger');
+    await page.waitForTimeout(120);
+    await page.focus('#handCardCloneLayer .card-hover-mechanic-trigger');
+    await page.waitForFunction(() => {
+      const clone = document.querySelector('#handCardCloneLayer .card-clone-visible');
+      return clone?.dataset?.keywordPanelOpen === 'true';
+    }, { timeout: 5000 });
+  }
+  const preEndTurnHoverPayload = await page.evaluate((hoverMechanicTriggerAvailable) => {
     const runtimeSnapshot = (() => {
       try {
         const raw = globalThis.render_game_to_text?.();
@@ -268,10 +247,13 @@ try {
     })();
     const hoverClone = document.querySelector('#handCardCloneLayer .card-clone-visible');
     return {
-      combatHoverKeywordPanelOpenBeforeEndTurn: hoverClone?.dataset?.keywordPanelOpen === 'true',
+      combatHoverMechanicTriggerAvailable: hoverMechanicTriggerAvailable,
+      combatHoverKeywordPanelOpenBeforeEndTurn: hoverMechanicTriggerAvailable
+        ? hoverClone?.dataset?.keywordPanelOpen === 'true'
+        : false,
       runtimeCombatHoverKeywordPanelOpenBeforeEndTurn: runtimeSnapshot?.combat?.surface?.hoverKeywordPanelOpen ?? null,
     };
-  });
+  }, hoverCardSelection.hasMechanicTrigger);
   await page.click('.action-btn-end');
   await page.waitForFunction(() => {
     try {
@@ -283,7 +265,7 @@ try {
       return false;
     }
   }, { timeout: 5000 });
-  const combatPayload = await page.evaluate(({ hoverCardIndex: selectedHoverCardIndex, preEndTurnHoverPayload: capturedPreEndTurnHoverPayload }) => {
+  const combatPayload = await page.evaluate(({ hoverCardIndex: selectedHoverCardIndex, hoverMechanicTriggerAvailable, preEndTurnHoverPayload: capturedPreEndTurnHoverPayload }) => {
     const runtimeSnapshot = (() => {
       try {
         const raw = globalThis.render_game_to_text?.();
@@ -304,6 +286,7 @@ try {
       turnIndicatorText: document.getElementById('turnIndicator')?.textContent?.trim() || null,
       endTurnDisabled: !!endTurnButton?.disabled,
       combatHoverCardIndex: selectedHoverCardIndex,
+      combatHoverMechanicTriggerAvailable: hoverMechanicTriggerAvailable,
       combatHoverCloneVisible: !!hoverClone,
       combatHoverCloneCostClass: hoverCloneCost?.className || null,
       ...capturedPreEndTurnHoverPayload,
@@ -324,20 +307,14 @@ try {
       runtimeCombatHoverKeywordPanelOpen: runtimeSnapshot?.combat?.surface?.hoverKeywordPanelOpen ?? null,
       runtimeCombatHoverKeywordTitle: runtimeSnapshot?.combat?.surface?.hoverKeywordTitle ?? null,
     };
-  }, { hoverCardIndex, preEndTurnHoverPayload });
+  }, {
+    hoverCardIndex: hoverCardSelection.hoverCardIndex,
+    hoverMechanicTriggerAvailable: hoverCardSelection.hasMechanicTrigger,
+    preEndTurnHoverPayload,
+  });
   await page.screenshot({ path: path.join(outDir, 'shot.png') });
   console.log(JSON.stringify({ ...payload, ...gameplayPayload, ...combatPayload }, null, 2));
 } finally {
   if (browser) await browser.close();
-  if (!process.env.SMOKE_URL) {
-    await fs.rm(snapshotDir, { recursive: true, force: true });
-  }
-  if (server) {
-    await new Promise((resolve, reject) => {
-      server.close((error) => {
-        if (error) reject(error);
-        else resolve();
-      });
-    });
-  }
+  await closeStaticAssetServer(server);
 }

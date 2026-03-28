@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-27T16:49:45.721Z
-- Nodes: 1250
-- Edges: 1620
+- Generated: 2026-03-28T07:33:55.340Z
+- Nodes: 1253
+- Edges: 1618
 
 ## Layer Edges
 
@@ -14,7 +14,7 @@
 | core->other | 1 |
 | core->shared | 6 |
 | core->utils | 2 |
-| data->data | 20 |
+| data->data | 21 |
 | data->other | 2 |
 | data->shared | 1 |
 | data->utils | 4 |
@@ -22,11 +22,11 @@
 | engine->engine | 2 |
 | feature->core | 16 |
 | feature->data | 13 |
-| feature->feature | 1039 |
+| feature->feature | 1032 |
 | feature->legacy | 1 |
 | feature->other | 1 |
 | feature->platform | 3 |
-| feature->shared | 26 |
+| feature->shared | 28 |
 | legacy->core | 5 |
 | legacy->feature | 8 |
 | legacy->legacy | 80 |
@@ -42,7 +42,7 @@
 | platform->shared | 3 |
 | platform->utils | 2 |
 | shared->core | 4 |
-| shared->data | 5 |
+| shared->data | 7 |
 | shared->feature | 2 |
 | shared->legacy | 2 |
 | shared->shared | 76 |
@@ -58,13 +58,13 @@
 | data/events_data.js | 9 |
 | game/features/run/application/run_rule_outcome.js | 9 |
 | game/shared/save/save_system.js | 9 |
+| data/game_data.js | 8 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
 | game/core/deps_factory.js | 8 |
 | game/features/combat/platform/browser/public_combat_core_browser_modules.js | 8 |
 | game/features/combat/ports/public_surface.js | 8 |
 | game/features/title/ports/runtime/public_title_runtime_surface.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
-| data/game_data.js | 7 |
 | game/features/codex/presentation/browser/codex_ui_runtime.js | 7 |
 | game/features/combat/application/death_flow_enemy_runtime.js | 7 |
 | game/features/combat/application/play_card_service.js | 7 |
@@ -80,16 +80,16 @@
 | game/features/meta_progression/public.js | 15 |
 | game/features/combat/ports/combat_logging.js | 12 |
 | game/features/run/ports/public_rule_capabilities.js | 12 |
-| data/game_data.js | 11 |
 | game/features/combat/ports/presentation/public_combat_browser_support_capabilities.js | 11 |
 | game/features/combat/ports/presentation/public_combat_card_support_capabilities.js | 11 |
 | game/shared/runtime/public.js | 11 |
 | game/features/combat/presentation/browser/combat_copy.js | 10 |
 | game/shared/state/player_state_commands.js | 10 |
 | game/core/deps_factory.js | 9 |
+| data/cards.js | 8 |
+| data/game_data.js | 8 |
 | game/core/error_reporter.js | 8 |
 | game/core/event_bus.js | 8 |
-| game/features/run/ports/public_data_runtime_capabilities.js | 8 |
 
 > Full graph is available in `artifacts/dependency_map.json`.
 

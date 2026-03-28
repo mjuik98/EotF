@@ -11,7 +11,8 @@ import { ITEMS } from './items.js';
 import { ENEMIES } from './enemies.js';
 import { REGIONS, START_DECKS, BASE_REGION_SEQUENCE, BRANCH_ROUTES } from './regions.js';
 import { CLASS_METADATA, CLASS_ID_ORDER } from './class_metadata.js';
-import { EVENTS, STORY_FRAGMENTS, DEATH_QUOTES } from './events_data.js';
+import { EVENTS, STORY_FRAGMENTS } from './events_data.js';
+import { DEATH_QUOTES } from './death_quotes.js';
 import { INSCRIPTIONS, INSCRIPTION_SYNERGIES } from './inscriptions.js';
 
 export const DATA = {

@@ -29,6 +29,7 @@
     "smoke:character-select": "node scripts/run_character_select_smoke.mjs",
     "smoke:reward": "node scripts/run_reward_smoke.mjs",
     "smoke:combat-ui": "node scripts/run_combat_ui_smoke.mjs",
+    "smoke:help-pause-hotkeys": "node scripts/run_help_pause_hotkey_smoke.mjs",
     "smoke:title-meta": "node scripts/title_meta_smoke_check.mjs",
     "smoke:save-load": "node scripts/save_load_roundtrip_smoke_check.mjs",
     "smoke:save-outbox-recovery": "node scripts/save_outbox_recovery_smoke_check.mjs",

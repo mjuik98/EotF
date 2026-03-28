@@ -1,4 +1,4 @@
-import { DATA } from '../../../../../data/game_data.js';
+import { CARDS } from '../../../../../data/cards.js';
 import { LogUtils } from '../../ports/combat_logging.js';
 import { ENEMY_TURN_BUFFS } from './turn_manager_helpers.js';
 import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
@@ -73,7 +73,7 @@ export function startPlayerTurnPolicy(gs, commands = {}) {
       if (pickedPool) {
         const { cardId: targetCardId } = exhaustRandomPlayerCardState(gs, pools, pick);
         if (targetCardId) {
-          const cardName = DATA?.cards?.[targetCardId]?.name || targetCardId;
+          const cardName = CARDS?.[targetCardId]?.name || targetCardId;
           gs.addLog?.(LogUtils.formatSystem(`지역 효과: ${cardName} 카드가 소멸되었습니다.`), 'damage');
         }
       }

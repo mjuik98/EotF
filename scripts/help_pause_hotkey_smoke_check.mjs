@@ -1,43 +1,14 @@
-import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {
+  closeStaticAssetServer,
+  resolveSmokeAppUrl,
+} from './browser_smoke_support.mjs';
 
 const workspaceRoot = process.cwd();
 const distDir = path.join(workspaceRoot, 'dist');
-const outDir = path.join(workspaceRoot, 'output', 'web-game', 'help-pause-hotkey-smoke');
-
-const MIME_TYPES = {
-  '.css': 'text/css; charset=utf-8',
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.svg': 'image/svg+xml',
-  '.woff2': 'font/woff2',
-};
-
-function createDistServer(rootDir) {
-  return createServer(async (req, res) => {
-    try {
-      const rawPath = req.url === '/' ? '/index.html' : (req.url || '/index.html');
-      const pathname = decodeURIComponent(rawPath.split('?')[0]);
-      const filePath = path.resolve(rootDir, `.${pathname}`);
-      if (!filePath.startsWith(rootDir)) {
-        res.writeHead(403).end('Forbidden');
-        return;
-      }
-
-      const data = await fs.readFile(filePath);
-      const ext = path.extname(filePath).toLowerCase();
-      res.writeHead(200, { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' });
-      res.end(data);
-    } catch (error) {
-      res.writeHead(error?.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end(error?.code === 'ENOENT' ? 'Not found' : String(error?.message || error));
-    }
-  });
-}
+const outDir = process.env.SMOKE_OUT_DIR || path.join(workspaceRoot, 'output', 'web-game', 'help-pause-hotkey-smoke');
 
 async function clickIfVisible(page, selector, timeout = 4000) {
   const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
@@ -90,6 +61,38 @@ async function waitForSurfaceClosed(page, surfaceSelector) {
 async function closeActiveSurface(page, surfaceSelector) {
   await page.keyboard.press('Escape');
   await waitForSurfaceClosed(page, surfaceSelector);
+}
+
+async function captureOverlayFrameState(page, surfaceSelector, {
+  entrySelector = '',
+  titleSelector = '.gm-modal-title',
+  subtitleSelector = '.gm-modal-subtitle',
+} = {}) {
+  return page.evaluate(({ selector, entrySel, titleSel, subtitleSel }) => {
+    const overlay = document.querySelector(selector);
+    const panel = overlay?.querySelector('.gm-modal-panel') || null;
+    const actions = overlay?.querySelectorAll('.action-btn') || [];
+    const entries = entrySel ? overlay?.querySelectorAll(entrySel) || [] : [];
+    return {
+      overlayClassName: document.getElementById(overlay?.id || '')?.className || '',
+      panelClassName: panel?.className || '',
+      titleText: overlay?.querySelector(titleSel)?.textContent?.trim() || null,
+      subtitleText: overlay?.querySelector(subtitleSel)?.textContent?.trim() || null,
+      actionCount: actions.length,
+      entryCount: entries.length,
+      usesSharedFrame: Boolean(
+        overlay
+        && overlay.classList.contains('hp-overlay')
+        && panel
+        && panel.classList.contains('gm-modal-panel')
+      ),
+    };
+  }, {
+    selector: surfaceSelector,
+    entrySel: entrySelector,
+    titleSel: titleSelector,
+    subtitleSel: subtitleSelector,
+  });
 }
 
 async function assertBlockedShortcuts(page, surfaceSelector) {
@@ -218,20 +221,13 @@ async function assertEscapePriority(page, surfaceSelector) {
 }
 
 await fs.mkdir(outDir, { recursive: true });
-const server = process.env.SMOKE_URL ? null : createDistServer(distDir);
+const { appUrl, server } = await resolveSmokeAppUrl({
+  smokeUrl: process.env.SMOKE_URL || '',
+  distDir,
+});
 let browser = null;
 
 try {
-  let appUrl = process.env.SMOKE_URL || null;
-  if (server) {
-    await new Promise((resolve, reject) => {
-      server.once('error', reject);
-      server.listen(0, '127.0.0.1', resolve);
-    });
-    const { port } = server.address();
-    appUrl = `http://127.0.0.1:${port}`;
-  }
-
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   const errors = [];
@@ -248,6 +244,14 @@ try {
     }
   });
 
+  await page.keyboard.press('Escape');
+  await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
+  const pauseFrame = await captureOverlayFrameState(page, '#pauseMenu', {
+    entrySelector: '.hp-menu-actions .action-btn',
+  });
+  await page.screenshot({ path: path.join(outDir, 'pause-menu.png') });
+  await closeActiveSurface(page, '#pauseMenu');
+
   await openPauseSubpanel(page, '도감', '#codexModal');
   const codexResult = await assertBlockedShortcuts(page, '#codexModal');
   await closeActiveSurface(page, '#codexModal');
@@ -257,6 +261,10 @@ try {
   await closeActiveSurface(page, '#settingsModal');
 
   await openPauseSubpanel(page, '컨트롤 안내 (?)', '#helpMenu');
+  const helpFrame = await captureOverlayFrameState(page, '#helpMenu', {
+    entrySelector: '.hp-help-grid .hp-kbd-cell',
+  });
+  await page.screenshot({ path: path.join(outDir, 'help-menu.png') });
   const helpResult = await assertBlockedShortcuts(page, '#helpMenu');
   await closeActiveSurface(page, '#helpMenu');
 
@@ -268,10 +276,14 @@ try {
   const combatEscapeResult = await assertEscapePriority(page, '#codexModal');
 
   await page.screenshot({ path: path.join(outDir, 'shot.png') });
-  console.log(JSON.stringify({
+  const result = {
     codexBlocksShortcuts: codexResult.surfaceStillOpen && !codexResult.deckOpened && !codexResult.fullMapOpened,
     settingsBlocksShortcuts: settingsResult.surfaceStillOpen && !settingsResult.deckOpened && !settingsResult.fullMapOpened,
     helpBlocksShortcuts: helpResult.surfaceStillOpen && !helpResult.deckOpened && !helpResult.fullMapOpened,
+    pauseUsesSharedFrame: pauseFrame.usesSharedFrame && pauseFrame.overlayClassName.includes('hp-overlay-pause'),
+    helpUsesSharedFrame: helpFrame.usesSharedFrame && helpFrame.overlayClassName.includes('hp-overlay-help'),
+    pauseActionCount: pauseFrame.actionCount,
+    helpEntryCount: helpFrame.entryCount,
     combatCodexBlocksHotkeys: combatCodexResult.surfaceStillOpen
       && combatCodexResult.combatOverlayActive
       && combatCodexResult.stateUnchanged,
@@ -280,15 +292,10 @@ try {
       && combatEscapeResult.combatOverlayStayedActive
       && combatEscapeResult.secondEscapeOpenedPause,
     errors,
-  }, null, 2));
+  };
+  await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result, null, 2));
 } finally {
   if (browser) await browser.close();
-  if (server) {
-    await new Promise((resolve, reject) => {
-      server.close((error) => {
-        if (error) reject(error);
-        else resolve();
-      });
-    });
-  }
+  await closeStaticAssetServer(server);
 }

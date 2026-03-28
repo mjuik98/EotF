@@ -1,5 +1,4 @@
 import {
-  buildDailyRunChallenge,
   cloneRunConfig,
   ensureRunConfig,
   getDoc,
@@ -46,15 +45,6 @@ export function refreshRunModeUI(ui, deps = {}) {
 export function selectPresetSlotRuntime(ui, slot, deps = {}) {
   const idx = Math.max(0, Math.min(3, Math.floor(Number(slot) || 0)));
   ui._selectedPresetSlot = idx;
-
-  const { gs } = deps;
-  const meta = getMeta(gs);
-  const preset = meta?.runConfigPresets?.[idx];
-  if (preset?.config) {
-    ui.loadPreset(idx, deps);
-    return;
-  }
-
   ui.refresh(deps);
 }
 
@@ -124,26 +114,6 @@ export function loadPresetRuntime(ui, slot, deps = {}) {
   deps.notice?.('프리셋을 불러왔습니다.');
   return true;
 }
-
-export function applyDailyChallengeRuntime(ui, deps = {}) {
-  const { gs, runRules } = deps;
-  if (!gs || !runRules) return false;
-
-  const meta = getMeta(gs);
-  if (!meta) return false;
-
-  runRules.ensureMeta(meta);
-  const cfg = ensureRunConfig(meta);
-  const challenge = buildDailyRunChallenge({ meta, runRules, now: deps.now || new Date() });
-  Object.assign(cfg, cloneRunConfig(challenge.config));
-
-  ui.refresh(deps);
-  deps.saveMeta?.();
-  deps.notice?.('일일 도전 구성을 적용했습니다.');
-  return true;
-}
-
-export { buildDailyRunChallenge };
 
 export function deletePresetRuntime(ui, slot, deps = {}) {
   const { gs, runRules } = deps;

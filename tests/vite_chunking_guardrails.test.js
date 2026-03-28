@@ -45,10 +45,12 @@ describe('vite chunking guardrails', () => {
       'assets/ui-combat-copy-abc.js',
       'assets/ui-combat-deck-abc.js',
       'assets/ui-combat-chronicle-abc.js',
+      'assets/ui-combat-status-abc.js',
       'assets/ui-combat-tooltips-abc.js',
       'assets/ui-event-abc.js',
       'assets/ui-reward-abc.js',
       'assets/ui-run-mode-runtime-abc.js',
+      'assets/ui-run-mode-config-abc.js',
       'assets/ui-shell-overlays-abc.js',
       'assets/ui-shell-hotkeys-abc.js',
       'assets/ui-settings-abc.js',
@@ -56,6 +58,7 @@ describe('vite chunking guardrails', () => {
       'assets/ui-settings-hotkeys-abc.js',
       'assets/ui-run-mode-abc.js',
       'assets/data-cards-abc.js',
+      'assets/data-items-abc.js',
       'assets/vendor-abc.js',
     ];
 
@@ -65,9 +68,9 @@ describe('vite chunking guardrails', () => {
     expect(filterLazyChunkModulePreloads(deps, { hostType: 'js', hostId: 'game/core/main.js' })).toEqual(deps);
   });
 
-  it('keeps status data and status utils with the combat presentation chunk to avoid overlay chunk cycles', () => {
-    expect(getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/status_key_data.js')).toBe('ui-combat');
-    expect(getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/utils/status_value_utils.js')).toBe('ui-combat');
+  it('keeps status data and status utils with the combat status tooltip chunk so the main combat chunk does not own tooltip-only state helpers', () => {
+    expect(getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/status_key_data.js')).toBe('ui-combat-status');
+    expect(getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/utils/status_value_utils.js')).toBe('ui-combat-status');
   });
 
   it('routes shared combat copy data into its own shared chunk', () => {
@@ -101,6 +104,21 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/item_detail_panel_ui.js'),
     ).toBe('ui-combat-relics');
+  });
+
+  it('moves combat status tooltip runtime and metadata out of the main combat chunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/status_tooltip_meta_data.js'),
+    ).toBe('ui-combat-status');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/status_tooltip_builder.js'),
+    ).toBe('ui-combat-status');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/status_tooltip_runtime_ui.js'),
+    ).toBe('ui-combat-status');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/combat_enemy_status_tooltip_ui.js'),
+    ).toBe('ui-combat-status');
   });
 
   it('keeps shared item-detail surface helpers out of the combat presentation chunk to avoid circular chunk imports', () => {
@@ -140,6 +158,18 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_binding_ref_support_capabilities.js'),
     ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/contracts/build_ui_shell_contracts.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/contracts/public_ui_contract_capabilities.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/codex/platform/browser/ensure_codex_modal_shell.js'),
+    ).toBe('ui-shared-surfaces');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/codex/presentation/browser/codex_ui_style.js'),
+    ).toBe('ui-shared-surfaces');
   });
 
   it('routes shared set-bonus progression modules into a dedicated shared chunk instead of overlay-owned chunks', () => {
@@ -172,6 +202,57 @@ describe('vite chunking guardrails', () => {
     ).toBe('ui-progression-core');
   });
 
+  it('keeps progression and meta unlock logic on shared progression/data chunks instead of the combat chunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/class_metadata.js'),
+    ).toBe('data-classes');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/events_data.js'),
+    ).toBe('data-events');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/class_loadout_preset_use_case.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/class_loadout_preset_helpers.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/domain/achievement_definitions.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/application/evaluate_achievement_trigger.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/domain/class_progression/runtime_apply.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/domain/class_progression_system.js'),
+    ).toBe('ui-progression-core');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/load_character_select_use_case.js'),
+    ).toBe('ui-progression-core');
+  });
+
+  it('keeps meta progression content labels on a dedicated shared data chunk instead of pulling the run content port into overlay chunks', () => {
+    const contentUnlockQueries = readText('game/features/meta_progression/domain/content_unlock_queries.js');
+    const runContentCapabilities = readText('game/features/run/ports/public_content_capabilities.js');
+
+    expect(runContentCapabilities).toContain("from './public_data_runtime_capabilities.js'");
+    expect(runContentCapabilities).toContain("from '../domain/run_rules_curses.js'");
+    expect(contentUnlockQueries).toContain('../../run/ports/public_content_capabilities.js');
+  });
+
+  it('keeps combat runtime modules on narrow data catalogs instead of the aggregated game_data surface', () => {
+    const cardMethodsFacade = readText('game/features/combat/application/card_methods_facade.js');
+    const deathFlowRuntimeSupport = readText('game/features/combat/application/death_flow_runtime_support.js');
+    const deathSpawnRuntime = readText('game/features/combat/platform/death_spawn_runtime.js');
+    const startPlayerTurnPolicy = readText('game/features/combat/domain/turn/start_player_turn_policy.js');
+
+    expect(cardMethodsFacade).not.toContain("from '../../../../data/game_data.js'");
+    expect(deathFlowRuntimeSupport).not.toContain("from '../../../../data/game_data.js'");
+    expect(deathSpawnRuntime).not.toContain("from '../../../../data/game_data.js'");
+    expect(startPlayerTurnPolicy).not.toContain("from '../../../../../data/game_data.js'");
+  });
+
   it('keeps SettingsManager in a dedicated settings-support chunk so shell overlays do not own settings persistence code', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/core/settings_manager.js'),
@@ -197,6 +278,38 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/help_pause_visibility.js'),
     ).toBe('ui-shell-hotkeys');
+  });
+
+  it('keeps title help/pause action modules on the shell overlay chunk instead of the combat chunk', () => {
+    const helpPauseAbandonActions = readText('game/features/title/application/help_pause_abandon_actions.js');
+
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/help_pause_title_actions.js'),
+    ).toBe('ui-shell-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/help_pause_menu_actions.js'),
+    ).toBe('ui-shell-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/help_pause_abandon_actions.js'),
+    ).toBe('ui-shell-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/title_return_actions.js'),
+    ).toBe('ui-shell-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/ending_action_ports.js'),
+    ).toBe('ui-shell-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/ports/public_help_pause_application_capabilities.js'),
+    ).toBe('ui-shell-overlays');
+
+    expect(helpPauseAbandonActions).not.toContain("../../combat/ports/public_application_capabilities.js");
+    expect(helpPauseAbandonActions).not.toContain("../ports/public_help_pause_presentation_capabilities.js");
+  });
+
+  it('keeps run config state commands on a dedicated config chunk so runtime-only rendering stays within budget without chunk cycles', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/state/run_config_state_commands.js'),
+    ).toBe('ui-run-mode-config');
   });
 
   it('uses narrow title capability surfaces instead of the broad public application barrel in overlay-related runtimes', () => {

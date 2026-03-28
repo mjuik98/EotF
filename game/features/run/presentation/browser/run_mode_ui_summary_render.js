@@ -17,31 +17,6 @@ function buildUnlockRoadmapRows(entries = []) {
   `).join('');
 }
 
-function buildChallengeTags(tags = []) {
-  return tags.map((tag) => `<span class="rm-summary-tag neutral">${tag}</span>`).join('');
-}
-
-export function renderChallengePanel(doc, challenge = null) {
-  const zone = doc.getElementById('rmChallengeZone');
-  if (!zone) return;
-
-  if (!challenge) {
-    zone.innerHTML = '';
-    return;
-  }
-
-  zone.innerHTML = `
-    <div class="rm-challenge-panel">
-      <div class="rm-section-label" style="margin-bottom:8px;">${challenge.label}</div>
-      <div class="rm-challenge-date">${challenge.dateLabel}</div>
-      <div class="rm-challenge-summary">${challenge.summary}</div>
-      <div class="rm-challenge-tags">${buildChallengeTags(challenge.tags)}</div>
-      <div class="rm-challenge-reward">${challenge.rewardLabel || ''}</div>
-      <button type="button" class="rm-apply-challenge-btn" data-action="apply-daily-challenge">${challenge.buttonLabel || '구성 적용'}</button>
-    </div>
-  `;
-}
-
 export function renderUnlockRoadmap(doc, roadmap = {}) {
   const zone = doc.getElementById('rmUnlockRoadmapZone');
   if (!zone) return;
@@ -143,6 +118,8 @@ export function renderDifficultyPanel(panel, cfg, meta, runRules, gs) {
 
   panel.innerHTML = `
     <div id="rmPresetZone"></div>
+    <div id="rmSummaryBarZone"></div>
+    <div id="rmHiddenEndingZone"></div>
 
     <div class="rm-top-row">
       <div class="rm-top-card">
@@ -182,14 +159,9 @@ export function renderDifficultyPanel(panel, cfg, meta, runRules, gs) {
       </div>
     </div>
 
-    <div id="rmChallengeZone"></div>
     <div class="rm-section-label">저주 선택 <span class="rm-section-hint">난이도 상승</span></div>
     <div id="rmCurseGrid" class="rm-option-grid" role="radiogroup" aria-label="저주 선택"></div>
 
     <div id="rmInscriptionZone"></div>
-    <div id="rmUnlockRoadmapZone"></div>
-
-    <div id="rmHiddenEndingZone"></div>
-    <div id="rmSummaryBarZone"></div>
   `;
 }

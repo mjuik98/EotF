@@ -10,14 +10,11 @@ describe('character select smoke script', () => {
       'utf8',
     );
 
-    expect(source).toContain("from 'node:http'");
-    expect(source).toContain('createServer(');
-    expect(source).toContain('server.listen(0,');
-    expect(source).toContain('await new Promise((resolve, reject) => {');
-    expect(source).toContain('await fs.cp(distDir, snapshotDir, { recursive: true })');
-    expect(source).toContain("createDistServer(snapshotDir)");
-    expect(source).toContain("await fs.rm(snapshotDir, { recursive: true, force: true })");
-    expect(source).toContain('server.close((error) => {');
+    expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('resolveSmokeAppUrl');
+    expect(source).toContain('closeStaticAssetServer');
+    expect(source).not.toContain('.dist-snapshot-');
+    expect(source).not.toContain('fs.cp(distDir');
   });
 
   it('waits for the mounted character-select UI before capturing the screenshot', () => {
@@ -50,10 +47,14 @@ describe('character select smoke script', () => {
     expect(source).toContain("page.waitForSelector('#combatOverlay.active'");
     expect(source).toContain("globalThis.advanceTime");
     expect(source).toContain("document.querySelectorAll('#combatHandCards .card').length");
-    expect(source).toContain('async function findCombatHoverCardWithMechanicTrigger(page)');
+    expect(source).toContain('async function findCombatHoverCardPreview(page)');
     expect(source).toContain("page.locator('#combatHandCards .card')");
     expect(source).toContain("await handCards.count()");
     expect(source).toContain("page.waitForSelector('#handCardCloneLayer .card-clone-visible'");
+    expect(source).toContain('hasMechanicTrigger: true');
+    expect(source).toContain('hasMechanicTrigger: false');
+    expect(source).toContain('combatHoverMechanicTriggerAvailable');
+    expect(source).toContain('if (hoverCardSelection.hasMechanicTrigger)');
     expect(source).toContain("page.hover('#handCardCloneLayer .card-hover-mechanic-trigger')");
     expect(source).toContain("page.focus('#handCardCloneLayer .card-hover-mechanic-trigger')");
     expect(source).toContain("page.click('.action-btn-end')");
@@ -62,9 +63,11 @@ describe('character select smoke script', () => {
     expect(source).toContain("document.querySelector('#handCardCloneLayer .card-clone-visible')");
     expect(source).toContain("hoverClone?.querySelector('.card-clone-keyword-panel')");
     expect(source).toContain("hoverClone?.querySelector('.card-hover-mechanic-trigger')");
-    expect(source).toContain('No combat hand card exposed a hover mechanic trigger');
-    expect(source).toContain('page.evaluate(({ hoverCardIndex: selectedHoverCardIndex, preEndTurnHoverPayload: capturedPreEndTurnHoverPayload }) => {');
-    expect(source).toContain('}, { hoverCardIndex, preEndTurnHoverPayload })');
+    expect(source).not.toContain('No combat hand card exposed a hover mechanic trigger');
+    expect(source).toContain('page.evaluate(({ hoverCardIndex: selectedHoverCardIndex, hoverMechanicTriggerAvailable, preEndTurnHoverPayload: capturedPreEndTurnHoverPayload }) => {');
+    expect(source).toContain('hoverCardIndex: hoverCardSelection.hoverCardIndex');
+    expect(source).toContain('hoverMechanicTriggerAvailable: hoverCardSelection.hasMechanicTrigger');
+    expect(source).toContain('preEndTurnHoverPayload,');
     expect(source).toContain("document.getElementById('combatEnergyText')");
     expect(source).toContain("document.getElementById('turnIndicator')");
     expect(source).toContain("document.querySelector('.action-btn-end')");
@@ -79,6 +82,7 @@ describe('character select smoke script', () => {
     expect(source).toContain('runtimeCombatHoverKeywordPanelOpen');
     expect(source).toContain('combatHoverKeywordPanelOpenBeforeEndTurn');
     expect(source).toContain('runtimeCombatHoverKeywordPanelOpenBeforeEndTurn');
+    expect(source).toContain('combatHoverMechanicTriggerAvailable');
     expect(source).toContain('combatTurnIndicatorAfterEndTurn');
     expect(source).toContain('runtimeCombatPlayerTurnAfterEndTurn');
     expect(source).toContain('errors.length === 0');

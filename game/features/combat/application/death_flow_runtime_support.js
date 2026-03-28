@@ -1,4 +1,4 @@
-export { DATA as CombatGameData } from '../../../../data/game_data.js';
+export { DEATH_QUOTES as CombatDeathQuotes } from '../../../../data/death_quotes.js';
 export {
   playReactionEnemyDeath,
   playReactionPlayerDeath,
