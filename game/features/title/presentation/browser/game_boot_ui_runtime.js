@@ -5,6 +5,7 @@ import {
   startLoreTicker,
 } from './game_boot_ui_fx.js';
 import { getDoc, getWin } from './game_boot_ui_helpers.js';
+import { preloadAssetDomain } from '../../platform/browser/title_asset_runtime.js';
 
 function bindTimer(fn, context) {
   if (typeof fn !== 'function') return fn;
@@ -90,6 +91,15 @@ function refreshTitlePanels(deps) {
   deps.refreshRunModePanel?.();
 }
 
+function preloadTitleAssets(deps = {}) {
+  if (!deps?.data?.assetManifest?.characters) return;
+  Promise.resolve(
+    preloadAssetDomain(deps.data, 'characters', {
+      createImage: deps.createImage || (() => (typeof Image !== 'undefined' ? new Image() : null)),
+    }),
+  ).catch(() => {});
+}
+
 function scheduleTitleStats(doc, gs, timers) {
   const runCount = Math.max(0, (gs?.meta?.runCount ?? 1) - 1);
   if (runCount <= 0) return;
@@ -128,6 +138,7 @@ export function bootGameRuntime(ui, deps = {}) {
     flushOutbox(saveSystem);
     loadBootMeta(saveSystem, deps);
     ensureRunMeta(runRules, gs);
+    preloadTitleAssets(deps);
     scheduleTitleCanvasInit(deps, timers, win);
     refreshTitlePanels(deps);
 

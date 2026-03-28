@@ -1,5 +1,10 @@
 import { startEchoRippleDissolve } from '../../../../platform/browser/effects/echo_ripple_transition.js';
 import { playStatusHeal } from '../../ports/public_audio_presentation_capabilities.js';
+import {
+  INPUT_ACTION_CANCEL,
+  INPUT_ACTION_CONFIRM,
+  isInputActionBoundTo,
+} from '../../ports/public_input_capabilities.js';
 import { getDoc } from './story_ui_helpers.js';
 
 export { renderHiddenEndingOverlay } from './story_ui_hidden_ending_render.js';
@@ -28,9 +33,14 @@ export function renderStoryFragmentOverlay(frag, deps = {}) {
   btn.onmouseout = () => { btn.style.color = 'var(--text-dim)'; };
 
   let completed = false;
+  let keydownHandler = null;
   const finish = () => {
     if (completed) return;
     completed = true;
+    if (keydownHandler) {
+      doc.removeEventListener?.('keydown', keydownHandler);
+      keydownHandler = null;
+    }
     if (typeof deps.onFragmentClosed === 'function') deps.onFragmentClosed();
   };
 
@@ -65,6 +75,15 @@ export function renderStoryFragmentOverlay(frag, deps = {}) {
       onComplete: finish,
     });
   };
+
+  keydownHandler = (event) => {
+    if (!isInputActionBoundTo(event, INPUT_ACTION_CONFIRM) && !isInputActionBoundTo(event, INPUT_ACTION_CANCEL)) {
+      return;
+    }
+    event.preventDefault?.();
+    btn.onclick();
+  };
+  doc.addEventListener?.('keydown', keydownHandler);
 
   el.append(head, body, bar, btn);
   doc.body.appendChild(el);

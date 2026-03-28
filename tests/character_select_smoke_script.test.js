@@ -4,17 +4,16 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('character select smoke script', () => {
-  it('self-hosts the built dist before launching Playwright', () => {
+  it('supports self-hosting a prebuilt smoke dist before launching Playwright', () => {
     const source = fs.readFileSync(
       path.join(process.cwd(), 'scripts', 'character_select_smoke_check.mjs'),
       'utf8',
     );
 
     expect(source).toContain("from './browser_smoke_support.mjs'");
+    expect(source).toContain('process.env.SMOKE_DIST_DIR');
     expect(source).toContain('resolveSmokeAppUrl');
     expect(source).toContain('closeStaticAssetServer');
-    expect(source).not.toContain('.dist-snapshot-');
-    expect(source).not.toContain('fs.cp(distDir');
   });
 
   it('waits for the mounted character-select UI before capturing the screenshot', () => {

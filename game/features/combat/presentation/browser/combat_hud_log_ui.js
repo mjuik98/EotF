@@ -72,6 +72,64 @@ function trimOverflow(logContainer) {
   }
 }
 
+function clearStyleProperty(node, property) {
+  if (!node?.style) return;
+  if (typeof node.style.removeProperty === 'function') {
+    node.style.removeProperty(property);
+    return;
+  }
+  node.style[property] = '';
+}
+
+function setStyleProperty(node, property, value) {
+  if (!node?.style) return;
+  node.style[property] = value;
+}
+
+function applyRecentFeedLayout(feed, layout) {
+  if (!feed?.style) return;
+
+  if (feed?.dataset) {
+    if (!feed.dataset.defaultFeedTitle && typeof feed.dataset.feedTitle === 'string') {
+      feed.dataset.defaultFeedTitle = feed.dataset.feedTitle;
+    }
+    feed.dataset.feedTitle = layout === 'compact'
+      ? ''
+      : (feed.dataset.defaultFeedTitle || feed.dataset.feedTitle || '');
+  }
+
+  ['right', 'top', 'width', 'maxWidth', 'maxHeight', 'alignItems'].forEach((property) => {
+    clearStyleProperty(feed, property);
+  });
+
+  Array.from(feed.children || []).forEach((child) => {
+    ['width', 'fontSize', 'lineHeight', 'padding', 'borderRadius', 'whiteSpace', 'overflow', 'textOverflow', 'backgroundColor'].forEach((property) => {
+      clearStyleProperty(child, property);
+    });
+  });
+
+  if (layout !== 'compact') return;
+
+  setStyleProperty(feed, 'right', '18px');
+  setStyleProperty(feed, 'top', 'clamp(300px, 34vh, 440px)');
+  setStyleProperty(feed, 'width', 'min(260px, 18vw)');
+  setStyleProperty(feed, 'maxWidth', 'calc(100vw - 36px)');
+  setStyleProperty(feed, 'maxHeight', '72px');
+  setStyleProperty(feed, 'alignItems', 'flex-end');
+
+  Array.from(feed.children || []).forEach((child) => {
+    setStyleProperty(child, 'width', '100%');
+    setStyleProperty(child, 'fontSize', '12px');
+    setStyleProperty(child, 'lineHeight', '1.35');
+    setStyleProperty(child, 'padding', '7px 11px');
+    setStyleProperty(child, 'borderRadius', '999px');
+    setStyleProperty(child, 'whiteSpace', 'nowrap');
+    setStyleProperty(child, 'overflow', 'hidden');
+    setStyleProperty(child, 'textOverflow', 'ellipsis');
+    setStyleProperty(child, 'backgroundColor', 'rgba(7, 10, 20, 0.82)');
+  });
+}
+
 function syncLogSurface(doc, logContainer, entries, { scrollOnAdd = false, limitOverflow = false } = {}) {
   if (!logContainer) return false;
 
@@ -102,17 +160,20 @@ export function updateCombatLog(doc, logEntries) {
   const viewportWidth = Number(doc?.defaultView?.innerWidth || 0);
   const recentFeedLayout = viewportWidth > 0 && viewportWidth <= 1180
     ? 'stacked'
-    : (viewportWidth > 0 && viewportWidth <= 1400 ? 'tight' : 'rail');
+    : (viewportWidth > 0 && viewportWidth <= 1400 ? 'tight' : 'compact');
   if (recentCombatFeed?.dataset) {
     recentCombatFeed.dataset.layout = recentFeedLayout;
   }
-  const visibleRecentFeedEntries = recentFeedEntries.slice(-(recentFeedLayout === 'rail' ? 3 : 2));
+  const visibleRecentFeedEntries = recentFeedEntries.slice(
+    -(recentFeedLayout === 'compact' ? 1 : 2),
+  );
 
   const fullLogUpdated = syncLogSurface(doc, logContainer, recentLogs, {
     scrollOnAdd: true,
     limitOverflow: true,
   });
   const recentFeedUpdated = syncLogSurface(doc, recentCombatFeed, visibleRecentFeedEntries);
+  applyRecentFeedLayout(recentCombatFeed, recentFeedLayout);
 
   return fullLogUpdated || recentFeedUpdated;
 }

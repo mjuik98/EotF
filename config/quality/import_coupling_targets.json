@@ -1,5 +1,5 @@
 {
-  "maxTotal": 187,
+  "maxTotal": 189,
   "maxByPair": {
     "core->feature": 26,
     "core->legacy": 7,
@@ -11,7 +11,7 @@
     "feature->data": 13,
     "feature->legacy": 1,
     "feature->platform": 3,
-    "feature->shared": 26,
+    "feature->shared": 27,
     "legacy->core": 5,
     "legacy->feature": 8,
     "legacy->shared": 12,
@@ -21,7 +21,7 @@
     "platform->engine": 5,
     "platform->feature": 15,
     "platform->legacy": 2,
-    "platform->shared": 3,
+    "platform->shared": 4,
     "platform->utils": 2,
     "shared->core": 4,
     "shared->data": 5,

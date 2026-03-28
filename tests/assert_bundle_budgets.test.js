@@ -99,7 +99,11 @@ describe('assert_bundle_budgets', () => {
   it('passes when bundle artifacts stay within budget', () => {
     const distDir = createFixtureDist();
 
-    expect(() => assertBundleBudgets({ distDir })).not.toThrow();
+    const report = assertBundleBudgets({ distDir });
+
+    expect(report.stats.entryJs.headroomBytes).toBe(390 * 1024);
+    expect(report.stats.entryCss.utilizationPct).toBeCloseTo((8 * 1024) / (190 * 1024), 4);
+    expect(report.stats.uiCombatJs.headroomBytes).toBe(309 * 1024);
   });
 
   it('fails when a required bundle artifact exceeds its budget', () => {

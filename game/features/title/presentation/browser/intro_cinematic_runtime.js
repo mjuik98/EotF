@@ -5,6 +5,12 @@ import {
   ensureIntroStyle,
   mountRunStartHandoffBlackout,
 } from './intro_cinematic_helpers.js';
+import {
+  INPUT_ACTION_CANCEL,
+  INPUT_ACTION_CONFIRM,
+  keyboardEventMatchesCode,
+  isInputActionBoundTo,
+} from '../../../ui/ports/public_input_capabilities.js';
 
 const runtime = {
   animationRaf: null,
@@ -46,6 +52,14 @@ function resolveRaf(deps = {}, win = null) {
 
 function resolveCancelRaf(deps = {}, win = null) {
   return deps.cancelRaf || bindBrowserFn(win?.cancelAnimationFrame, win) || null;
+}
+
+function isIntroSkipInput(event) {
+  return (
+    isInputActionBoundTo(event, INPUT_ACTION_CONFIRM)
+    || isInputActionBoundTo(event, INPUT_ACTION_CANCEL)
+    || keyboardEventMatchesCode(event, 'Space')
+  );
 }
 
 export function cleanupIntroCinematic(deps = {}) {
@@ -186,7 +200,9 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
   };
 
   runtime.skipKeyHandler = (event) => {
-    if (event.key === 'Escape' || event.key === ' ') finish();
+    if (!isIntroSkipInput(event)) return;
+    event.preventDefault?.();
+    finish();
   };
   doc.addEventListener('keydown', runtime.skipKeyHandler);
   overlay.addEventListener('click', finish, { once: true });

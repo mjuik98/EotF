@@ -15,8 +15,10 @@ describe('createGameBootPorts', () => {
           ParticleSystem: { id: 'particles' },
         },
         title: {
-          HelpPauseUI: { id: 'help' },
           GameBootUI: { id: 'boot' },
+        },
+        screen: {
+          HelpPauseUI: { id: 'help' },
           SettingsUI: { id: 'settings' },
         },
       },
@@ -27,9 +29,9 @@ describe('createGameBootPorts', () => {
     expect(ports.getRunDeps()).toEqual({ token: 'run' });
     expect(ports.getAudioEngine()).toBe(modules.featureScopes.core.AudioEngine);
     expect(ports.getParticleSystem()).toBe(modules.featureScopes.core.ParticleSystem);
-    expect(ports.getHelpPauseUI()).toBe(modules.featureScopes.title.HelpPauseUI);
+    expect(ports.getHelpPauseUI()).toBe(modules.featureScopes.screen.HelpPauseUI);
     expect(ports.getGameBootUI()).toBe(modules.featureScopes.title.GameBootUI);
-    expect(ports.getSettingsUI()).toBe(modules.featureScopes.title.SettingsUI);
+    expect(ports.getSettingsUI()).toBe(modules.featureScopes.screen.SettingsUI);
   });
 
   it('prefers feature-scoped registry modules for new bootstrap consumers', () => {
@@ -47,8 +49,10 @@ describe('createGameBootPorts', () => {
           ParticleSystem: { id: 'scoped-particles' },
         },
         title: {
-          HelpPauseUI: { id: 'scoped-help' },
           GameBootUI: { id: 'scoped-boot' },
+        },
+        screen: {
+          HelpPauseUI: { id: 'scoped-help' },
           SettingsUI: { id: 'scoped-settings' },
         },
       },

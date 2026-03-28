@@ -14,9 +14,19 @@ import { CLASS_METADATA, CLASS_ID_ORDER } from './class_metadata.js';
 import { EVENTS, STORY_FRAGMENTS } from './events_data.js';
 import { DEATH_QUOTES } from './death_quotes.js';
 import { INSCRIPTIONS, INSCRIPTION_SYNERGIES } from './inscriptions.js';
+import { ASSET_MANIFEST, ASSET_SUMMARY } from './asset_manifest.js';
+import { resolveAssetPreviewEntry, resolveAssetPreviewUrl } from './asset_preview_runtime.js';
+
+const ASSET_PREVIEW = Object.freeze({
+  resolveEntry: resolveAssetPreviewEntry,
+  resolveUrl: resolveAssetPreviewUrl,
+});
 
 export const DATA = {
   assets: ASSETS,
+  assetManifest: ASSET_MANIFEST,
+  assetPreview: ASSET_PREVIEW,
+  assetSummary: ASSET_SUMMARY,
   cards: CARDS,
   upgradeMap: UPGRADE_MAP,
   items: ITEMS,
@@ -51,5 +61,8 @@ export {
   STORY_FRAGMENTS,
   DEATH_QUOTES,
   INSCRIPTIONS,
-  INSCRIPTION_SYNERGIES
+  INSCRIPTION_SYNERGIES,
+  ASSET_MANIFEST,
+  ASSET_PREVIEW,
+  ASSET_SUMMARY
 };

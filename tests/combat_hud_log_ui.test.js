@@ -125,7 +125,7 @@ describe('combat_hud_log_ui', () => {
     expect(combatLog.scrollTop).toBe(combatLog.scrollHeight);
     expect(recentCombatFeed.children).toHaveLength(1);
     expect(recentCombatFeed.children[0].textContent).toBe('Enemy is stunned');
-    expect(recentCombatFeed.dataset.layout).toBe('rail');
+    expect(recentCombatFeed.dataset.layout).toBe('compact');
   });
 
   it('updates existing id-based entries, prunes stale nodes, and keeps recent limit', () => {
@@ -193,6 +193,22 @@ describe('combat_hud_log_ui', () => {
     expect(recentCombatFeed.dataset.layout).toBe('tight');
     expect(recentCombatFeed.children[0].dataset.logId).toBe('echo');
     expect(recentCombatFeed.children[1].dataset.logId).toBe('card-2');
+  });
+
+  it('keeps only the latest eligible entry in the compact wide-screen feed', () => {
+    const doc = createDoc();
+    doc.defaultView.innerWidth = 1600;
+    const { recentCombatFeed } = createLogSurfaces(doc);
+
+    updateCombatLog(doc, [
+      { id: 'buff', msg: '🃏 [방호]: 방어막 +6', type: 'buff' },
+      { id: 'echo', msg: '✨ 공명 폭발: 10 피해!', type: 'echo' },
+      { id: 'heal', msg: '🃏 [응급 처치]: 5 회복', type: 'card-log' },
+    ]);
+
+    expect(recentCombatFeed.dataset.layout).toBe('compact');
+    expect(recentCombatFeed.children).toHaveLength(1);
+    expect(recentCombatFeed.children[0].dataset.logId).toBe('heal');
   });
 
   it('falls back to a stacked layout when the viewport is too narrow for the right rail', () => {

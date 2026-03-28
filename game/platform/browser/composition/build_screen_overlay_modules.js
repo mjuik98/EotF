@@ -1,5 +1,5 @@
-import { createUiModuleCapabilities } from '../../../features/ui/ports/public_module_capabilities.js';
+import { buildScreenSceneOverlayModules } from '../../../features/ui/ports/public_scene_module_capabilities.js';
 
 export function buildScreenOverlayModules() {
-  return createUiModuleCapabilities().overlays;
+  return buildScreenSceneOverlayModules();
 }

@@ -156,6 +156,8 @@ describe('game_boot_ui', () => {
     expect(doc.elements.sttRelics.innerHTML).toContain('✦');
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('최근 귀환');
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('승리');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('클래스별 전적');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('최근 흐름');
   });
 
   it('renders continue preview from saved data without hydrating the live gs', () => {
@@ -374,6 +376,21 @@ describe('game_boot_ui', () => {
         runCount: 8,
         totalKills: 57,
         bestChain: 15,
+        analytics: {
+          totals: {
+            runs: 12,
+            victories: 5,
+            defeats: 4,
+            abandons: 3,
+            kills: 74,
+            floors: 67,
+          },
+          classes: {
+            mage: { runs: 4, victories: 2, kills: 29, floors: 25, bestFloor: 8 },
+            guardian: { runs: 3, victories: 2, kills: 22, floors: 18, bestFloor: 8 },
+            paladin: { runs: 2, victories: 1, kills: 10, floors: 9, bestFloor: 5 },
+          },
+        },
         progress: {
           victories: 2,
           cursedVictories: 0,
@@ -417,6 +434,11 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleRunArchive.innerHTML).toContain('기억 4');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('상위 승천');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('최다 처치 17');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('전술 분석');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('평균 층 5.6');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('평균 처치 6.2');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('주력 클래스 마법사');
+    expect(doc.elements.titleRunArchive.innerHTML).toContain('최고 승률 수호자');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('다음 업적');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('상인의 인연');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('0 / 1');

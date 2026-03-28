@@ -28,7 +28,12 @@ describe('runtime metrics', () => {
     const currentMinute = metrics.perMinute[metrics.perMinute.length - 1];
 
     expect(metrics.totals.events).toBe(3);
+    expect(metrics.totals.uniqueEvents).toBe(2);
+    expect(metrics.totals.uniqueErrors).toBe(0);
     expect(metrics.recent.events).toBe(3);
+    expect(metrics.recent.activeMinutes).toBe(1);
+    expect(metrics.recent.eventsPerMinute).toBe(3);
+    expect(metrics.recent.errorsPerMinute).toBe(0);
     expect(metrics.topEvents[0]).toEqual({ event: 'metrics:a', count: 2 });
     expect(metrics.topEvents[1]).toEqual({ event: 'metrics:b', count: 1 });
     expect(currentMinute.events).toBe(3);
@@ -64,6 +69,11 @@ describe('runtime metrics', () => {
 
     expect(metrics.totals.events).toBe(3);
     expect(metrics.totals.errors).toBe(3);
+    expect(metrics.totals.uniqueEvents).toBe(3);
+    expect(metrics.totals.uniqueErrors).toBe(2);
+    expect(metrics.recent.activeMinutes).toBe(2);
+    expect(metrics.recent.eventsPerMinute).toBe(1.5);
+    expect(metrics.recent.errorsPerMinute).toBe(1.5);
     expect(metrics.recent.errorRate).toBe(1);
     expect(metrics.topErrors[0]).toEqual({ code: ErrorCodes.SAVE_LOAD_FAILED, count: 2 });
     expect(metrics.topErrors[1]).toEqual({ code: ErrorCodes.INVALID_ACTION, count: 1 });
@@ -86,4 +96,3 @@ describe('runtime metrics', () => {
     expect(metrics.topEvents[0]).toEqual({ event: 'metrics:dup', count: 1 });
   });
 });
-

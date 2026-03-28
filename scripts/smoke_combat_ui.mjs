@@ -333,7 +333,7 @@ async function main() {
     assertCondition(result.combatRelicRailCountText === '1', `combat relic rail count mismatch: ${result.combatRelicRailCountText}`);
     assertCondition(result.combatRelicPanelOpen === false, `combat relic panel should be closed by default: ${result.combatRelicPanelOpen}`);
     assertCondition(result.combatRelicPanelVisible === false, `combat relic panel should remain hidden when closed: ${result.combatRelicPanelVisible}`);
-    assertCondition(['rail', 'tight', 'stacked'].includes(result.recentFeedLayout), `recent feed layout state missing: ${result.recentFeedLayout}`);
+    assertCondition(['compact', 'tight', 'stacked'].includes(result.recentFeedLayout), `recent feed layout state missing: ${result.recentFeedLayout}`);
     assertCondition(result.recentFeedEntryCount >= 1, `recent feed should render seeded entries, got ${result.recentFeedEntryCount}`);
 
     const stackedToastResult = await triggerStackedToastScenario(page);
@@ -493,7 +493,7 @@ async function main() {
     });
 
     assertCondition(actionFeedResult.recentFeedEntryCount >= 1, 'recent combat feed did not update after playing a real card');
-    assertCondition(['rail', 'tight', 'stacked'].includes(actionFeedResult.recentFeedLayout), `unexpected recent feed layout after card play: ${actionFeedResult.recentFeedLayout}`);
+    assertCondition(['compact', 'tight', 'stacked'].includes(actionFeedResult.recentFeedLayout), `unexpected recent feed layout after card play: ${actionFeedResult.recentFeedLayout}`);
     assertCondition(/^1\s*\//.test(actionFeedResult.energyAfterCard || ''), `expected defend play to spend one energy, got ${actionFeedResult.energyAfterCard}`);
 
     await page.click('#useEchoSkillBtn');

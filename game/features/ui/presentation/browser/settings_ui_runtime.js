@@ -1,6 +1,10 @@
 import { SettingsManager } from '../../platform/browser/settings_manager.js';
 import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
-import { getInputSettingsKey } from '../../ports/public_input_capabilities.js';
+import {
+  INPUT_ACTION_CANCEL,
+  getInputSettingsKey,
+  isInputActionBoundTo,
+} from '../../ports/public_input_capabilities.js';
 import {
   getDoc,
   getWin,
@@ -11,6 +15,7 @@ import {
   setSettingsModalActive,
 } from './settings_ui_runtime_helpers.js';
 import { ensureSettingsModalShell } from '../../platform/browser/ensure_settings_modal_shell.js';
+import { ensureSettingsUiStyle } from './settings_ui_style.js';
 
 export function getLiveSettingsDeps(ui, doc) {
   return {
@@ -22,6 +27,7 @@ export function getLiveSettingsDeps(ui, doc) {
 
 export function openSettingsModal(ui, deps = {}) {
   const doc = getDoc(deps);
+  ensureSettingsUiStyle(doc);
   ensureSettingsModalShell(doc);
   const modal = doc.getElementById('settingsModal');
   if (!modal) {
@@ -66,7 +72,7 @@ export function startSettingsRebind(ui, action, deps = {}) {
 
   ui._keydownHandler = (e) => {
     e.preventDefault();
-    if (e.code === 'Escape') {
+    if (isInputActionBoundTo(e, INPUT_ACTION_CANCEL)) {
       cancelSettingsRebind(ui, deps);
       return;
     }

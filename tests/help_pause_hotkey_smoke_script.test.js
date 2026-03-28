@@ -25,7 +25,9 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("page.waitForSelector('#btnRealStart'");
     expect(source).toContain("page.waitForSelector('#storyContinueBtn'");
     expect(source).toContain("page.waitForSelector('#nodeCardOverlay'");
-    expect(source).toContain("page.keyboard.press('Escape')");
+    expect(source).toContain("from './help_pause_smoke_helpers.mjs'");
+    expect(source).toContain('ensurePauseMenuVisible(page)');
+    expect(source).toContain("closeSurfaceWithEscapeFallback(page, surfaceSelector, 10000, { preferEscape: true })");
     expect(source).toContain("page.getByRole('button', { name: buttonName })");
     expect(source).toContain("openPauseSubpanel(page, '도감', '#codexModal')");
     expect(source).toContain("openPauseSubpanel(page, '환경 설정', '#settingsModal')");

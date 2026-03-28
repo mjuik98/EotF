@@ -12,7 +12,7 @@ export function resolveTitleActionModules(modules = {}) {
     CharacterSelectUI: resolveModuleRegistryValue(modules, 'CharacterSelectUI', ['title']),
     ClassSelectUI: resolveModuleRegistryValue(modules, 'ClassSelectUI', ['title']),
     MetaProgressionUI: resolveModuleRegistryValue(modules, 'MetaProgressionUI', ['screen', 'title']),
-    HelpPauseUI: resolveModuleRegistryValue(modules, 'HelpPauseUI', ['title', 'screen']),
+    HelpPauseUI: resolveModuleRegistryValue(modules, 'HelpPauseUI', ['screen', 'title']),
     RunSetupUI: resolveModuleRegistryValue(modules, 'RunSetupUI', ['run']),
     RunModeUI: resolveModuleRegistryValue(modules, 'RunModeUI', ['run']),
     RegionTransitionUI: resolveModuleRegistryValue(modules, 'RegionTransitionUI', ['run']),

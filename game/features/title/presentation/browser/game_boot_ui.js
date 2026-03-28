@@ -6,6 +6,7 @@ import {
   getDoc,
   refreshTitleSaveState,
 } from './game_boot_ui_helpers.js';
+import { ensureTitleScreenUiStyle } from './title_screen_ui_style.js';
 import {
   bootGameRuntime,
   bootWhenReadyRuntime,
@@ -14,10 +15,12 @@ import {
 export const GameBootUI = {
   refreshTitleSaveState(deps = {}) {
     const doc = getDoc(deps);
+    ensureTitleScreenUiStyle(doc);
     return refreshTitleSaveState(doc, deps.saveSystem, deps.gs, deps);
   },
 
   bootGame(deps = {}) {
+    ensureTitleScreenUiStyle(getDoc(deps));
     bootGameRuntime(this, deps);
   },
 

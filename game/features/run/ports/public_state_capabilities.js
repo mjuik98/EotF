@@ -24,6 +24,11 @@ import {
   recordVictoryProgress,
   syncRunOutcomeMeta,
 } from '../state/run_outcome_state_commands.js';
+import {
+  buildRunAnalyticsSnapshot,
+  ensureRunAnalytics,
+  recordRunAnalytics,
+} from '../domain/run_analytics.js';
 
 export function createRunStateCapabilities() {
   return {
@@ -33,11 +38,13 @@ export function createRunStateCapabilities() {
     applyRunStartLoadout,
     applySilenceCurseTurnStart,
     beginRunOutcomeCommit,
+    buildRunAnalyticsSnapshot,
     captureRunOutcomeTiming,
     consumeBossRewardFlags,
     createRunStartPlayer,
     createRunStateCommands,
     recordDefeatProgress,
+    recordRunAnalytics,
     resetRunConfig,
     resetRuntimeState,
     resetRuntimeInteractionState,
@@ -45,6 +52,7 @@ export function createRunStateCapabilities() {
     resolveNodeByRef,
     setNodeMovementLocked,
     syncRunOutcomeMeta,
+    ensureRunAnalytics,
   };
 }
 
@@ -55,11 +63,13 @@ export {
   applyRunStartLoadout,
   applySilenceCurseTurnStart,
   beginRunOutcomeCommit,
+  buildRunAnalyticsSnapshot,
   captureRunOutcomeTiming,
   consumeBossRewardFlags,
   createRunStartPlayer,
   createRunStateCommands,
   recordDefeatProgress,
+  recordRunAnalytics,
   resetRunConfig,
   resetRuntimeState,
   resetRuntimeInteractionState,
@@ -67,4 +77,5 @@ export {
   resolveNodeByRef,
   setNodeMovementLocked,
   syncRunOutcomeMeta,
+  ensureRunAnalytics,
 };

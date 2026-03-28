@@ -241,6 +241,21 @@ describe('vite chunking guardrails', () => {
     expect(contentUnlockQueries).toContain('../../run/ports/public_content_capabilities.js');
   });
 
+  it('routes title and character-select progression flows through narrow feature ports instead of broad public barrels', () => {
+    const titleBootHelpers = readText('game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const characterSelectProgression = readText('game/features/title/application/load_character_select_use_case.js');
+    const characterSelectLoadout = readText('game/features/title/platform/browser/character_select_mount_loadout.js');
+
+    expect(titleBootHelpers).toContain("../../../meta_progression/ports/public_roadmap_capabilities.js");
+    expect(titleBootHelpers).toContain("../../../run/ports/public_analytics_capabilities.js");
+    expect(titleBootHelpers).not.toContain("../../../meta_progression/public.js");
+    expect(titleBootHelpers).not.toContain("../../../run/public.js");
+    expect(characterSelectProgression).toContain('../../meta_progression/ports/public_unlock_capabilities.js');
+    expect(characterSelectProgression).not.toContain('../../meta_progression/public.js');
+    expect(characterSelectLoadout).toContain('../../../meta_progression/ports/public_unlock_capabilities.js');
+    expect(characterSelectLoadout).not.toContain('../../../meta_progression/public.js');
+  });
+
   it('keeps combat runtime modules on narrow data catalogs instead of the aggregated game_data surface', () => {
     const cardMethodsFacade = readText('game/features/combat/application/card_methods_facade.js');
     const deathFlowRuntimeSupport = readText('game/features/combat/application/death_flow_runtime_support.js');

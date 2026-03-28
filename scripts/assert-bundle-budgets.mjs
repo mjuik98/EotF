@@ -74,7 +74,21 @@ export function assertBundleBudgets({
   budgets = DEFAULT_BUNDLE_BUDGETS,
   distDir = path.join(process.cwd(), 'dist'),
 } = {}) {
-  const stats = collectBundleStats(distDir);
+  const rawStats = collectBundleStats(distDir);
+  const stats = Object.fromEntries(
+    Object.entries(rawStats).map(([key, stat]) => {
+      const budget = budgets[key];
+      const maxBytes = Number(budget?.maxBytes || 0);
+      const headroomBytes = maxBytes ? maxBytes - stat.bytes : null;
+      const utilizationPct = maxBytes ? Number((stat.bytes / maxBytes).toFixed(4)) : null;
+      return [key, {
+        ...stat,
+        maxBytes: maxBytes || null,
+        headroomBytes,
+        utilizationPct,
+      }];
+    }),
+  );
   const missing = Object.keys(budgets).filter((key) => !stats[key]);
 
   if (missing.length > 0) {
@@ -116,7 +130,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     } else {
       Object.entries(DEFAULT_BUNDLE_BUDGETS).forEach(([key, budget]) => {
         const stat = report.stats[key];
-        console.log(`${budget.label}: ${formatBytes(stat.bytes)} / ${formatBytes(budget.maxBytes)} (${stat.file})`);
+        console.log(
+          `${budget.label}: ${formatBytes(stat.bytes)} / ${formatBytes(budget.maxBytes)} (${stat.file}, ${(Number(stat.utilizationPct || 0) * 100).toFixed(1)}% used, ${formatBytes(Math.max(0, Number(stat.headroomBytes || 0)))} headroom)`,
+        );
       });
     }
 

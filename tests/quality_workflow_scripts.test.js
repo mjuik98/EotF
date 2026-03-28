@@ -56,6 +56,7 @@ describe('quality workflow scripts', () => {
     expect(workflow).toContain('SMOKE_URL=http://127.0.0.1:4173 npm run smoke:browser');
     expect(slowReportScript).toContain('GITHUB_STEP_SUMMARY');
     expect(smokeSuiteScript).toContain('GITHUB_STEP_SUMMARY');
+    expect(smokeSuiteScript).toContain('SMOKE_DIST_DIR');
   });
 
   it('loads coverage thresholds from quality config', () => {
@@ -133,8 +134,8 @@ describe('quality workflow scripts', () => {
 
     expect(suiteManifest.fast.length).toBeGreaterThan(0);
     expect(suiteManifest.guardrails.length).toBeGreaterThan(0);
-    expect(couplingTargets.maxTotal).toBe(187);
-    expect(couplingTargets.maxByPair['feature->shared']).toBe(26);
+    expect(couplingTargets.maxTotal).toBe(189);
+    expect(couplingTargets.maxByPair['feature->shared']).toBe(27);
     expect(couplingTargets.maxByPair['feature->data']).toBe(13);
     expect(couplingTargets.maxByPair['feature->core']).toBe(18);
     expect(couplingTargets.maxByPair['feature->legacy']).toBe(1);

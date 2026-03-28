@@ -8,16 +8,9 @@ import {
   recordPlayerStateLegacyCompatBridge,
   runPlayerStateLegacyFallback,
 } from '../../platform/legacy/state/player_state_command_legacy_adapter.js';
+import { clampNonNegative, selectPlayerState } from './player_state_helpers.js';
 
 export const PlayerStateActions = Actions;
-
-function clampNonNegative(value) {
-  return Math.max(0, Number(value) || 0);
-}
-
-function selectPlayerState(gs) {
-  return gs?.player || null;
-}
 
 function dispatchStateCommand(gs, action, payload) {
   if (typeof gs?.dispatch !== 'function') {

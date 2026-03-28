@@ -1,10 +1,4 @@
-function getDoc(deps = {}) {
-  return deps.doc || deps.win?.document || null;
-}
-
-function getWin(deps = {}) {
-  return deps.win || deps.doc?.defaultView || null;
-}
+import { getDoc, getWin } from '../../ui/ports/public_dom_support_capabilities.js';
 
 export function resolveEndingActions(deps = {}) {
   const endingActions = deps.endingActions || {};

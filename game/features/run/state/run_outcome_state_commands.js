@@ -1,25 +1,16 @@
+import {
+  selectCombatState,
+  selectMetaState,
+  selectPlayerState,
+  selectStatsState,
+} from '../../../core/store/selectors.js';
+
 const RunOutcomePlayerActionIds = Object.freeze({
   playerEnergySet: 'player:energy-set',
   playerHpSet: 'player:hp-set',
   playerMaxEnergySet: 'player:max-energy-set',
   playerMaxHpSet: 'player:max-hp-set',
 });
-
-function selectCombatState(gs) {
-  return gs?.combat || null;
-}
-
-function selectMetaState(gs) {
-  return gs?.meta || null;
-}
-
-function selectPlayerState(gs) {
-  return gs?.player || null;
-}
-
-function selectStatsState(gs) {
-  return gs?.stats || null;
-}
 
 function dispatchRunOutcomePlayerState(gs, action, payload) {
   if (typeof gs?.dispatch !== 'function') return null;

@@ -1,5 +1,5 @@
-import { buildScreenShellPrimaryModules } from './build_screen_shell_primary_modules.js';
+import { buildScreenScenePrimaryModules } from '../../../features/ui/ports/public_scene_module_capabilities.js';
 
 export function buildScreenPrimaryModules() {
-  return buildScreenShellPrimaryModules();
+  return buildScreenScenePrimaryModules();
 }

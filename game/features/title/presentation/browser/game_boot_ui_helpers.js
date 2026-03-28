@@ -1,5 +1,7 @@
 import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/ports/public_dom_support_capabilities.js';
-import { buildAchievementRoadmap } from '../../../meta_progression/public.js';
+import { buildAchievementRoadmap } from '../../../meta_progression/ports/public_roadmap_capabilities.js';
+import { buildRunAnalyticsSnapshot } from '../../../run/ports/public_analytics_capabilities.js';
+import { buildSaveRecoveryMeta } from '../../../../shared/save/save_status_formatters.js';
 
 export function getDoc(deps) {
   return getRuntimeDoc(deps);
@@ -41,6 +43,18 @@ const TITLE_OUTCOME_LABELS = Object.freeze({
 
 function resolveTitleClassName(classId) {
   return TITLE_CLASS_NAMES[String(classId || '')] || String(classId || '-');
+}
+
+function buildTitleAssetPreviewUrl(data, domain, id) {
+  return data?.assetPreview?.resolveUrl?.(domain, id) || '';
+}
+
+function buildTitleClassAssetMarkup(classId, data) {
+  const previewId = String(classId || '');
+  if (!previewId) return '';
+  const previewUrl = buildTitleAssetPreviewUrl(data, 'characters', previewId);
+  if (!previewUrl) return '';
+  return `<span class="title-class-preview" data-asset-preview="characters.${escapeHtml(previewId)}" style="display:inline-flex;width:26px;height:26px;border-radius:9px;background-image:url('${previewUrl}');background-size:cover;background-position:center;box-shadow:0 8px 16px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.12);flex-shrink:0;"></span>`;
 }
 
 function resolveSelectedSlot(saveSystem, gs) {
@@ -129,6 +143,53 @@ function buildRunArchiveSummary(entries = []) {
   ];
 }
 
+function buildRunAnalyticsRows(meta = {}) {
+  const snapshot = buildRunAnalyticsSnapshot(meta);
+  if (!snapshot.totalRuns) return '';
+
+  const rows = [
+    `평균 층 ${snapshot.avgFloor}`,
+    `평균 처치 ${snapshot.avgKills}`,
+  ];
+  if (snapshot.favoriteClassId) {
+    rows.push(`주력 클래스 ${resolveTitleClassName(snapshot.favoriteClassId)} · ${snapshot.favoriteClassRuns}런`);
+  }
+  if (snapshot.bestClassId) {
+    rows.push(`최고 승률 ${resolveTitleClassName(snapshot.bestClassId)} · ${snapshot.bestClassWinRate}%`);
+  }
+  if (snapshot.currentStreakCount > 0 && snapshot.currentStreakOutcome) {
+    rows.push(`현재 흐름 ${snapshot.currentStreakCount}${TITLE_OUTCOME_LABELS[snapshot.currentStreakOutcome]}`);
+  }
+  if (Array.isArray(snapshot.recentOutcomeLabels) && snapshot.recentOutcomeLabels.length > 0) {
+    rows.push(`최근 흐름 ${snapshot.recentOutcomeLabels.join(' · ')}`);
+  }
+
+  const classBreakdown = Array.isArray(snapshot.classBreakdown)
+    ? snapshot.classBreakdown.slice(0, 3)
+    : [];
+
+  return `
+    <div class="title-run-archive-roadmap">
+      <div class="title-run-archive-label">전술 분석</div>
+      <div class="title-run-archive-summary">
+        ${rows.map((badge) => `<span class="title-run-archive-badge">${escapeHtml(badge)}</span>`).join('')}
+      </div>
+      ${classBreakdown.length > 0 ? `
+        <div class="title-run-archive-label">클래스별 전적</div>
+        <div class="title-run-archive-list">
+          ${classBreakdown.map((entry) => `
+            <div class="title-run-archive-row">
+              <strong>${escapeHtml(resolveTitleClassName(entry.classId))}</strong>
+              <span>${escapeHtml(`런 ${entry.runs} · 승률 ${entry.winRate}%`)}</span>
+              <span>${escapeHtml(`최고 ${entry.bestFloor}층 · 평균 ${entry.avgFloor}층`)}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 function buildAchievementRoadmapRows(entries = []) {
   if (!Array.isArray(entries) || entries.length === 0) return '';
   return `
@@ -147,36 +208,8 @@ function buildAchievementRoadmapRows(entries = []) {
   `;
 }
 
-function formatRetryTiming(nextRetryAt) {
-  const retryAt = Number(nextRetryAt || 0);
-  if (!retryAt) return '';
-  const diffMs = retryAt - Date.now();
-  if (diffMs <= 0) return '곧 재시도';
-  return `${Math.max(1, Math.ceil(diffMs / 1000))}초 후 재시도`;
-}
-
-function formatElapsedTiming(timestamp) {
-  const value = Number(timestamp || 0);
-  if (!value) return '';
-  const diffMs = Math.max(0, Date.now() - value);
-  const diffSeconds = Math.max(1, Math.floor(diffMs / 1000));
-  if (diffSeconds < 60) return `${diffSeconds}초 전`;
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  if (diffMinutes < 60) return `${diffMinutes}분 전`;
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  return `${Math.floor(diffHours / 24)}일 전`;
-}
-
 function buildRecoveryMeta(metrics = {}) {
-  const parts = [];
-  const retryFailures = Number(metrics?.retryFailures || 0);
-  if (retryFailures > 0) parts.push(`재시도 실패 ${retryFailures}회`);
-  const lastFailureLabel = formatElapsedTiming(metrics?.lastFailureAt);
-  if (lastFailureLabel) parts.push(`마지막 실패 ${lastFailureLabel}`);
-  const retryTiming = formatRetryTiming(metrics?.nextRetryAt);
-  if (retryTiming) parts.push(retryTiming);
-  return parts.join(' · ');
+  return buildSaveRecoveryMeta(metrics);
 }
 
 function downloadTextFile(filename, text, options = {}) {
@@ -209,7 +242,7 @@ async function readImportFileText(file) {
   return '';
 }
 
-export function renderTitleRecentRuns(doc, gs) {
+export function renderTitleRecentRuns(doc, gs, data = null) {
   const el = doc.getElementById('titleRecentRuns');
   if (!el) return;
 
@@ -227,6 +260,7 @@ export function renderTitleRecentRuns(doc, gs) {
     <div class="title-recent-runs-list">
       ${entries.map((entry) => `
         <div class="title-recent-run-chip ${escapeHtml(entry?.outcome || 'defeat')}">
+          ${buildTitleClassAssetMarkup(entry?.classId, data)}
           <span class="title-recent-run-outcome">${escapeHtml(TITLE_OUTCOME_LABELS[entry?.outcome] || '기록')}</span>
           <strong>${escapeHtml(resolveTitleClassName(entry?.classId))}</strong>
           <span>${escapeHtml(buildRecentRunSubtitle(entry))}</span>
@@ -236,7 +270,7 @@ export function renderTitleRecentRuns(doc, gs) {
   `;
 }
 
-export function renderTitleRunArchive(doc, gs) {
+export function renderTitleRunArchive(doc, gs, data = null) {
   const el = doc.getElementById('titleRunArchive');
   if (!el) return;
 
@@ -250,6 +284,7 @@ export function renderTitleRunArchive(doc, gs) {
 
   const achievementRows = buildAchievementRoadmapRows(buildAchievementRoadmap(gs?.meta).account);
   const summaryBadges = buildRunArchiveSummary(entries);
+  const analyticsRows = buildRunAnalyticsRows(gs?.meta);
 
   el.innerHTML = `
     <div class="title-run-archive-label">귀환 기록실</div>
@@ -259,12 +294,13 @@ export function renderTitleRunArchive(doc, gs) {
     <div class="title-run-archive-list">
       ${entries.map((entry) => `
         <div class="title-run-archive-row">
-          <strong>Run ${escapeHtml(entry?.runNumber || 0)}</strong>
+          <strong>${buildTitleClassAssetMarkup(entry?.classId, data)} Run ${escapeHtml(entry?.runNumber || 0)}</strong>
           <span>${escapeHtml(TITLE_OUTCOME_LABELS[entry?.outcome] || '기록')} · ${escapeHtml(resolveTitleClassName(entry?.classId))}</span>
           <span>${escapeHtml(buildRunArchiveMeta(entry))}</span>
         </div>
       `).join('')}
     </div>
+    ${analyticsRows}
     ${achievementRows}
   `;
 }
@@ -513,9 +549,10 @@ export function refreshTitleSaveState(doc, saveSystem, gs, options = {}) {
 
   const metaPreview = resolveMetaPreview(saveSystem, gs, selectedSlot);
   const displayState = metaPreview ? { ...gs, meta: metaPreview } : gs;
+  const data = options.data || null;
 
-  renderTitleRecentRuns(doc, displayState);
-  renderTitleRunArchive(doc, displayState);
+  renderTitleRecentRuns(doc, displayState, data);
+  renderTitleRunArchive(doc, displayState, data);
   renderTitleRecoveryPanel(doc, saveSystem, gs);
 
   return hasSave;

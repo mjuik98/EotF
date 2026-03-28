@@ -18,13 +18,14 @@ function createDeps({ storyPieces = [], fragments = [], runCount = 1 } = {}) {
   };
 }
 
-function createDoc() {
-  const elements = new Map();
-  const body = {
-    children: [],
-    appendChild(node) {
-      this.children.push(node);
-      if (node?.id) elements.set(node.id, node);
+  function createDoc() {
+    const elements = new Map();
+    const listeners = new Map();
+    const body = {
+      children: [],
+      appendChild(node) {
+        this.children.push(node);
+        if (node?.id) elements.set(node.id, node);
       return node;
     },
   };
@@ -64,12 +65,21 @@ function createDoc() {
     return el;
   }
 
-  return {
-    body,
-    createElement,
-    getElementById(id) {
-      return elements.get(id) || null;
-    },
+    return {
+      body,
+      createElement,
+      addEventListener(type, handler) {
+        listeners.set(type, handler);
+      },
+      removeEventListener(type, handler) {
+        if (listeners.get(type) === handler) listeners.delete(type);
+      },
+      dispatch(type, event = {}) {
+        listeners.get(type)?.(event);
+      },
+      getElementById(id) {
+        return elements.get(id) || null;
+      },
   };
 }
 
@@ -181,6 +191,28 @@ describe('StoryUI stage fragment flow', () => {
     button.onclick();
 
     expect(onFragmentClosed).toHaveBeenCalledTimes(1);
+    expect(doc.getElementById('storyContinueBtn')).toBeNull();
+  });
+
+  it('displayFragment accepts confirm and cancel keyboard actions for dismissal', () => {
+    const doc = createDoc();
+    const onFragmentClosed = vi.fn();
+
+    StoryUI.displayFragment(
+      { id: 1, run: 1, title: 'A', text: 'A' },
+      { doc, closeEffect: 'none', onFragmentClosed },
+    );
+
+    doc.dispatch('keydown', { code: 'Enter', key: 'Enter', preventDefault: vi.fn() });
+    expect(onFragmentClosed).toHaveBeenCalledTimes(1);
+
+    StoryUI.displayFragment(
+      { id: 2, run: 2, title: 'B', text: 'B' },
+      { doc, closeEffect: 'none', onFragmentClosed },
+    );
+    doc.dispatch('keydown', { code: 'Escape', key: 'Escape', preventDefault: vi.fn() });
+
+    expect(onFragmentClosed).toHaveBeenCalledTimes(2);
     expect(doc.getElementById('storyContinueBtn')).toBeNull();
   });
 });

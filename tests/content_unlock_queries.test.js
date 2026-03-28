@@ -324,11 +324,13 @@ describe('content unlock queries', () => {
           id: 'cursed_conqueror_1',
           title: '저주 정복자 I',
           progressLabel: '0 / 1',
+          rewardLabel: '보상 · 공허의 맹세',
         }),
         expect.objectContaining({
           id: 'merchant_ally',
           title: '상인의 인연',
           progressLabel: '0 / 1',
+          rewardLabel: '보상 · 고대 배터리',
         }),
       ],
       class: [
@@ -336,6 +338,7 @@ describe('content unlock queries', () => {
           id: 'paladin_mastery_3',
           title: '성기사 숙련',
           progressLabel: '2 / 3',
+          rewardLabel: '보상 · 심판',
         }),
       ],
     });

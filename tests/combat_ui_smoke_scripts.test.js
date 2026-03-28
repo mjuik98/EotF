@@ -33,6 +33,8 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('formatSmokeSuiteSummary');
     expect(source).toContain('GITHUB_STEP_SUMMARY');
     expect(source).toContain('spawnSync');
+    expect(source).toContain('SMOKE_DIST_DIR');
+    expect(source).toContain('vite.js');
   });
 
   it('points the combat UI smoke wrapper at the browser smoke runner', () => {
@@ -141,6 +143,7 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('relicTooltipResult');
     expect(source).toContain('slotTitle');
     expect(source).toContain('slotAriaLabel');
+    expect(source).toContain("['compact', 'tight', 'stacked']");
     expect(source).toContain('panelOpen');
     expect(source).toContain('panelText');
     expect(source).toContain('typeof window.updateUI === \'function\'');

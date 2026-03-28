@@ -16,17 +16,23 @@ describe('build-first optimization guardrails', () => {
     }
   });
 
-  it('keeps codex, run-rules, and character-select CSS out of eager html and plain-browser ESM imports', () => {
+  it('keeps codex, run-rules, title, settings, and character-select CSS out of eager html and plain-browser ESM imports', () => {
     const html = readText('index.html');
     const codexUi = readText('game/features/codex/presentation/browser/codex_ui.js');
     const runModeUi = readText('game/features/run/presentation/browser/run_mode_ui.js');
+    const gameBootUi = readText('game/features/title/presentation/browser/game_boot_ui.js');
+    const settingsUi = readText('game/features/ui/presentation/browser/settings_ui.js');
 
     expect(html).not.toContain('css/codex_v3.css');
     expect(html).not.toContain('css/run-rules-redesign.css');
+    expect(html).not.toContain('css/title_screen.css');
+    expect(html).not.toContain('css/settings_modal.css');
     expect(html).not.toContain('css/class_progression.css');
     expect(html).not.toContain('css/character_select_layout.css');
     expect(codexUi).not.toContain("import '../../../../../css/codex_v3.css';");
     expect(runModeUi).not.toContain("import '../../../../../css/run-rules-redesign.css';");
+    expect(gameBootUi).not.toContain("import '../../../../../css/title_screen.css';");
+    expect(settingsUi).not.toContain("import '../../../../../css/settings_modal.css';");
   });
 
   it('keeps title, event, and reward shells as feature-owned lazy mounts instead of eager html payloads', () => {
@@ -35,6 +41,8 @@ describe('build-first optimization guardrails', () => {
     const eventModalShell = readText('game/features/event/platform/browser/ensure_event_modal_shell.js');
     const rewardScreenShell = readText('game/features/reward/platform/browser/ensure_reward_screen_shell.js');
 
+    expect(html).toContain('id="titleSceneRoot"');
+    expect(html).toContain('id="runtimeSceneRoot"');
     expect(html).toContain('id="charSelectSubScreen"');
     expect(html).toContain('id="eventModal"');
     expect(html).toContain('id="rewardScreen"');

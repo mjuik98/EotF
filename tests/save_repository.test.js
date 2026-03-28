@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildMetaSave,
   buildRunSave,
   hydrateMetaState,
   hydrateRunState,
@@ -75,6 +76,53 @@ describe('save_repository', () => {
     expect(persisted.codex.enemies).toEqual(['wolf']);
     expect(persisted.codex.cards).toEqual(['strike']);
     expect(persisted.codex.items).toEqual(['potion']);
+  });
+
+  it('detaches nested analytics data when building and hydrating meta saves', () => {
+    const gs = {
+      meta: {
+        analytics: {
+          totals: { runs: 3, victories: 2 },
+          classes: {
+            mage: { runs: 2, victories: 2 },
+          },
+        },
+        codex: {
+          enemies: new Set(),
+          cards: new Set(),
+          items: new Set(),
+        },
+      },
+    };
+
+    const save = buildMetaSave(gs, 2);
+    gs.meta.analytics.totals.runs = 99;
+
+    expect(save.analytics).toEqual({
+      totals: { runs: 3, victories: 2 },
+      classes: {
+        mage: { runs: 2, victories: 2 },
+      },
+    });
+
+    const loaded = {
+      meta: {
+        analytics: {
+          totals: { runs: 0, victories: 0 },
+          classes: {},
+        },
+        codex: {
+          enemies: new Set(),
+          cards: new Set(),
+          items: new Set(),
+        },
+      },
+    };
+    hydrateMetaState(loaded, save);
+    save.analytics.totals.runs = 77;
+
+    expect(loaded.meta.analytics.totals.runs).toBe(3);
+    expect(loaded.meta.analytics.classes.mage.runs).toBe(2);
   });
 
   it('persists phoenix_feather game-long revive usage through save hydration', () => {

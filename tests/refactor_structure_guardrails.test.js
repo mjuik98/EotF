@@ -404,4 +404,42 @@ describe('refactor structure guardrails', () => {
       expect(source).toContain("./helpers/silence_console.js");
     }
   });
+
+  it('centralizes repeated selectors, runtime deps, and save formatting helpers on shared modules', () => {
+    const runOutcomeSource = read('game/features/run/state/run_outcome_state_commands.js');
+    const playerStateCommandsSource = read('game/shared/state/player_state_commands.js');
+    const playerLegacyMutationsSource = read('game/shared/state/player_state_legacy_mutations.js');
+    const eventUiHelpersSource = read('game/features/event/presentation/browser/event_ui_helpers.js');
+    const runModeHelpersSource = read('game/features/run/presentation/browser/run_mode_ui_helpers.js');
+    const endingActionPortsSource = read('game/features/title/application/ending_action_ports.js');
+    const combatTurnPortsSource = read('game/features/combat/platform/combat_turn_runtime_ports.js');
+    const saveStatusPresenterSource = read('game/platform/browser/notifications/save_status_presenter.js');
+    const saveRuntimeNotificationsSource = read('game/platform/browser/notifications/save_runtime_notifications.js');
+    const gameBootHelpersSource = read('game/features/title/presentation/browser/game_boot_ui_helpers.js');
+
+    expect(runOutcomeSource).toContain("from '../../../core/store/selectors.js'");
+    expect(runOutcomeSource).not.toContain('function selectCombatState(');
+    expect(runOutcomeSource).not.toContain('function selectMetaState(');
+    expect(runOutcomeSource).not.toContain('function selectPlayerState(');
+    expect(runOutcomeSource).not.toContain('function selectStatsState(');
+
+    expect(playerStateCommandsSource).toContain("from './player_state_helpers.js'");
+    expect(playerLegacyMutationsSource).toContain("from './player_state_helpers.js'");
+
+    expect(eventUiHelpersSource).toContain("from '../../platform/event_runtime_deps.js'");
+    expect(eventUiHelpersSource).not.toContain('export function getEventId(');
+    expect(eventUiHelpersSource).not.toContain('export function getDoc(');
+    expect(eventUiHelpersSource).not.toContain('export function getGS(');
+    expect(eventUiHelpersSource).not.toContain('export function getData(');
+    expect(eventUiHelpersSource).not.toContain('export function getRunRules(');
+    expect(eventUiHelpersSource).not.toContain('export function getAudioEngine(');
+
+    expect(runModeHelpersSource).toContain("from '../../../ui/ports/public_dom_support_capabilities.js'");
+    expect(endingActionPortsSource).toContain("from '../../ui/ports/public_dom_support_capabilities.js'");
+    expect(combatTurnPortsSource).toContain("from '../../../utils/runtime_deps.js'");
+    expect(saveRuntimeNotificationsSource).not.toContain("from '../../../utils/runtime_deps.js'");
+
+    expect(saveStatusPresenterSource).toContain("from '../../../shared/save/save_status_formatters.js'");
+    expect(gameBootHelpersSource).toContain("from '../../../../shared/save/save_status_formatters.js'");
+  });
 });

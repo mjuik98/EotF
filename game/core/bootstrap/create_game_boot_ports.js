@@ -10,7 +10,7 @@ export function createGameBootPorts(modules) {
     getRunDeps: () => coreModules.GAME?.getRunDeps?.() || {},
     getAudioEngine: () => coreModules.AudioEngine,
     getParticleSystem: () => coreModules.ParticleSystem,
-    getHelpPauseUI: () => resolveModuleRegistryValue(modules, 'HelpPauseUI', ['title', 'screen']),
+    getHelpPauseUI: () => resolveModuleRegistryValue(modules, 'HelpPauseUI', ['screen', 'title']),
     getGameBootUI: () => resolveModuleRegistryValue(modules, 'GameBootUI', ['title']),
     getSettingsUI: () => resolveModuleRegistryValue(modules, 'SettingsUI', ['title', 'screen']),
   };

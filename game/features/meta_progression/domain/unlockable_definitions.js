@@ -5,6 +5,7 @@ export const UNLOCKABLES = Object.freeze({
       scope: 'account',
       requires: ['first_victory'],
       unlockHint: '첫 승리 필요',
+      displayName: '핏빛 월식',
       visibleBeforeUnlock: true,
     },
     void_oath: {
@@ -12,6 +13,7 @@ export const UNLOCKABLES = Object.freeze({
       scope: 'account',
       requires: ['cursed_conqueror_1'],
       unlockHint: '저주 활성화 상태로 승리 1회 필요',
+      displayName: '공허의 맹세',
       visibleBeforeUnlock: true,
     },
     shadow_burden: {
@@ -19,6 +21,7 @@ export const UNLOCKABLES = Object.freeze({
       scope: 'account',
       requires: ['veteran_victory_3'],
       unlockHint: '승리 3회 필요',
+      displayName: '그림자 짐',
       visibleBeforeUnlock: true,
     },
     ruinous_tide: {
@@ -26,6 +29,7 @@ export const UNLOCKABLES = Object.freeze({
       scope: 'account',
       requires: ['cursed_conqueror_3'],
       unlockHint: '저주 활성화 상태로 승리 3회 필요',
+      displayName: '파멸의 조류',
       visibleBeforeUnlock: true,
     },
   },

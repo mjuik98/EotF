@@ -1,10 +1,4 @@
-function clampNonNegative(value) {
-  return Math.max(0, Number(value) || 0);
-}
-
-function selectPlayerState(gs) {
-  return gs?.player || null;
-}
+import { clampNonNegative, selectPlayerState } from './player_state_helpers.js';
 
 export function applyLegacyPlayerHealMutation(gs, amount) {
   const player = selectPlayerState(gs);

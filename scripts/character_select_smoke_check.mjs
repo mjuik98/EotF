@@ -7,7 +7,7 @@ import {
 } from './browser_smoke_support.mjs';
 
 const workspaceRoot = process.cwd();
-const distDir = path.join(workspaceRoot, 'dist');
+const distDir = process.env.SMOKE_DIST_DIR || path.join(workspaceRoot, 'dist');
 const outDir = path.join(workspaceRoot, 'output', 'web-game', 'character-select-level-xp-smoke');
 
 async function captureGameplayDebugState(page, capturedErrors = []) {

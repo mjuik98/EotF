@@ -32,6 +32,14 @@ export function createLazyHelpPauseModule() {
       return (await resolveModule())?.isHelpOpen?.(...args);
     },
 
+    async swallowEscape(...args) {
+      return (await resolveModule())?.swallowEscape?.(...args);
+    },
+
+    async handleGlobalHotkey(...args) {
+      return (await resolveModule())?.handleGlobalHotkey?.(...args);
+    },
+
     async showMobileWarning(...args) {
       return (await resolveModule())?.showMobileWarning?.(...args);
     },

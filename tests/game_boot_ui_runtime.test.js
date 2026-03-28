@@ -12,6 +12,11 @@ vi.mock('../game/features/title/presentation/browser/game_boot_ui_helpers.js', (
   getWin: vi.fn(),
 }));
 
+const preloadAssetDomainSpy = vi.fn();
+vi.mock('../game/features/title/platform/browser/title_asset_runtime.js', () => ({
+  preloadAssetDomain: preloadAssetDomainSpy,
+}));
+
 describe('game_boot_ui_runtime', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -20,6 +25,7 @@ describe('game_boot_ui_runtime', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
+    preloadAssetDomainSpy.mockReset();
   });
 
   it('runs the boot orchestration and schedules title stats refresh', async () => {
@@ -62,6 +68,9 @@ describe('game_boot_ui_runtime', () => {
       runRules: {
         ensureMeta: vi.fn(),
       },
+      data: {
+        assetManifest: { characters: { mage: {}, guardian: {} } },
+      },
       saveSystem: {
         flushOutbox: vi.fn(() => 0),
         loadMeta: vi.fn(),
@@ -80,6 +89,7 @@ describe('game_boot_ui_runtime', () => {
     expect(deps.runRules.ensureMeta).toHaveBeenCalledWith(deps.gs.meta);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
     expect(deps.refreshRunModePanel).toHaveBeenCalledTimes(1);
+    expect(preloadAssetDomainSpy).toHaveBeenCalledWith(deps.data, 'characters', expect.any(Object));
     expect(fx.startAudioWave).toHaveBeenCalledWith(doc, expect.objectContaining({
       win: globalThis,
     }));
@@ -127,6 +137,9 @@ describe('game_boot_ui_runtime', () => {
       audioEngine: {},
       runRules: {
         ensureMeta: vi.fn(),
+      },
+      data: {
+        assetManifest: { characters: { mage: {} } },
       },
       saveSystem: {
         flushOutbox: vi.fn(() => 0),

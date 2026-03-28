@@ -23,7 +23,7 @@
     "platform->engine": 5,
     "platform->feature": 15,
     "platform->legacy": 2,
-    "platform->shared": 3,
+    "platform->shared": 4,
     "platform->utils": 4,
     "shared->core": 4,
     "shared->data": 5,

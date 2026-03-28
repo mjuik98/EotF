@@ -14,6 +14,8 @@ export function collectUiRuntimeDebugSnapshot({ doc, win }) {
       surface: {
         activePanelIds: [],
         activePanelCount: 0,
+        sceneRootIds: [],
+        sceneRootCount: 0,
       },
       overlays: {
         activePanelIds: [],
@@ -40,12 +42,20 @@ export function collectUiRuntimeDebugSnapshot({ doc, win }) {
   ]
     .filter(([, element, isVisible]) => isVisible(element))
     .map(([id]) => id);
+  const sceneRootIds = [
+    ['titleSceneRoot', doc.getElementById('titleSceneRoot')],
+    ['runtimeSceneRoot', doc.getElementById('runtimeSceneRoot')],
+  ]
+    .filter(([, element]) => isVisibleElement(element, view))
+    .map(([id]) => id);
 
   return {
     panels,
     surface: {
       activePanelIds: panels,
       activePanelCount: panels.length,
+      sceneRootIds,
+      sceneRootCount: sceneRootIds.length,
     },
     overlays: {
       activePanelIds: panels,

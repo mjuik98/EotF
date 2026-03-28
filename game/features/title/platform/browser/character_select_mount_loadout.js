@@ -1,5 +1,5 @@
 import { CARDS } from '../../../../../data/cards.js';
-import { getUnlockedContent, UNLOCKABLES } from '../../../meta_progression/public.js';
+import { getUnlockedContent, UNLOCKABLES } from '../../../meta_progression/ports/public_unlock_capabilities.js';
 import {
   buildClassLoadoutCustomizationPresentation,
   setActiveClassLoadoutPresetSlot,

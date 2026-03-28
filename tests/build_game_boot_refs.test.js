@@ -37,6 +37,7 @@ describe('buildGameBootRefs', () => {
     expect(refs.helpPauseUI).toBe(modules.HelpPauseUI);
     expect(refs.gameBootUI).toBe(modules.GameBootUI);
     expect(refs.settingsUI).toBe(modules.SettingsUI);
+    expect(refs.getRunDeps()).toEqual({ token: 'run-deps' });
     expect(refs.getGameBootDeps()).toEqual({ token: 'game-boot-deps' });
     expect(refs.getHelpPauseDeps()).toEqual({ token: 'help-pause-deps' });
   });

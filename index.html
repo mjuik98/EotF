@@ -23,9 +23,10 @@
   <div id="titleScreen" class="screen active">
     <canvas id="titleCanvas"></canvas>
     <canvas id="titleWarpCanvas"></canvas>
-    <div class="title-content">
+    <div id="titleSceneRoot" class="scene-root" style="position:relative;width:100%;height:100%;">
+      <div class="title-content">
       <!-- 1단계: 메인 타이틀 화면 -->
-      <div id="mainTitleSubScreen">
+        <div id="mainTitleSubScreen">
         <section class="title-panel-left" aria-labelledby="titleBrandHeading">
           <div class="title-brand-eyebrow">A ROGUELIKE DECKBUILDER</div>
           <div class="title-rune-wrap" aria-hidden="true">
@@ -166,11 +167,11 @@
       </div>
 
       <!-- 2단계: 캐릭터 선택 화면 -->
-      <div id="charSelectSubScreen" class="char-select-sub-screen" style="display:none;"></div>
+        <div id="charSelectSubScreen" class="char-select-sub-screen" style="display:none;"></div>
 
       <!-- 런 설정 모달 -->
-      <div id="runSettingsModal" class="modal-overlay" style="display:none;"></div>
-
+        <div id="runSettingsModal" class="modal-overlay" style="display:none;"></div>
+      </div>
     </div>
   </div>
 
@@ -375,6 +376,7 @@
   <!-- Warp Flash Overlay -->
   <div id="warpFlashOverlay" class="warp-flash-overlay"></div>
 
+  <div id="runtimeSceneRoot" class="scene-root"></div>
   <!-- 통합 상태이상 툴팁 (status_tooltip_builder.js 에서 자동 생성되지만
      미리 선언해두면 첫 hover 시 레이아웃 shift 를 방지할 수 있습니다) -->
   <div id="statusTooltip" class="stt"></div>

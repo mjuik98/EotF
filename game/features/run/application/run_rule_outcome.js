@@ -14,6 +14,7 @@ import {
   syncRunOutcomeMeta,
 } from '../state/run_outcome_state_commands.js';
 import { createRecentRunSummary, recordRecentRun } from '../domain/recent_run_history.js';
+import { recordRunAnalytics } from '../domain/run_analytics.js';
 
 const RunRulesLogger = Logger.child('RunRules');
 
@@ -96,7 +97,9 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
     runConfig: gs.runConfig,
   });
   publishProgressionUnlocks(gs, progressionResult, kind, deps);
-  recordRecentRun(gs.meta, createRecentRunSummary(gs, kind, progressionResult));
+  const recentRunSummary = createRecentRunSummary(gs, kind, progressionResult);
+  recordRecentRun(gs.meta, recentRunSummary);
+  recordRunAnalytics(gs.meta, recentRunSummary);
 
   applyRunOutcomeRewards(gs, shardGain);
   persistRunOutcomeMeta(deps);

@@ -12,14 +12,7 @@ import {
   shouldAbortCombatTurn,
   waitWhileCombatActive,
 } from '../presentation/browser/combat_turn_flow_ui.js';
-
-function getDoc(deps = {}) {
-  return deps?.doc || document;
-}
-
-function getWin(deps = {}) {
-  return deps?.win || window;
-}
+import { getDoc, getWin } from '../../../utils/runtime_deps.js';
 
 export function createCombatTurnRuntimePorts() {
   return {

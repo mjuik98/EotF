@@ -39,7 +39,20 @@ function createDoc() {
   const slider = { value: '', style: { setProperty: vi.fn() } };
   const value = { textContent: '' };
   const icon = { textContent: '' };
+  const listeners = new Map();
+  const defaultView = {
+    addEventListener: vi.fn((type, handler) => {
+      listeners.set(type, handler);
+    }),
+    dispatchEvent: (type, event) => listeners.get(type)?.(event),
+  };
   return {
+    defaultView,
+    addEventListener: vi.fn((type, handler) => {
+      listeners.set(type, handler);
+    }),
+    dispatchEvent: (type, event) => listeners.get(type)?.(event),
+    getElementById: vi.fn(() => null),
     querySelectorAll: vi.fn((selector) => {
       if (selector.includes('master-val')) return [value];
       if (selector.includes('sfx-val')) return [value];
@@ -67,7 +80,7 @@ describe('RootBindings', () => {
     const settingsUI = { applyOnBoot: vi.fn() };
     const helpPauseUI = {
       showMobileWarning: vi.fn(),
-      bindGlobalHotkeys: vi.fn(),
+      handleGlobalHotkey: vi.fn(),
     };
     const gameBootUI = { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() };
     const deps = {
@@ -83,6 +96,7 @@ describe('RootBindings', () => {
       gs: { currentScreen: 'title' },
       getGameBootDeps: vi.fn(() => ({ token: 'boot' })),
       getHelpPauseDeps: vi.fn(() => ({ token: 'help' })),
+      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' }, live: true })),
     };
 
     RootBindings.boot(deps);
@@ -90,8 +104,17 @@ describe('RootBindings', () => {
     expect(settingsUI.applyOnBoot).toHaveBeenCalledWith(expect.objectContaining({ doc }));
     expect(registerFrontdoorBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
     expect(registerRunEntryBindingsSpy).toHaveBeenCalledWith(expect.objectContaining({ doc }));
-    expect(helpPauseUI.showMobileWarning).toHaveBeenCalledWith(expect.objectContaining({ token: 'help' }));
-    expect(helpPauseUI.bindGlobalHotkeys).toHaveBeenCalledWith(expect.objectContaining({ token: 'help' }));
+    expect(helpPauseUI.showMobileWarning).toHaveBeenCalledWith(expect.objectContaining({ token: 'help', doc }));
+    expect(doc.defaultView.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function), true);
+    doc.defaultView.dispatchEvent('keydown', { key: 'a', code: 'KeyA' });
+    expect(helpPauseUI.handleGlobalHotkey).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'a', code: 'KeyA' }),
+      expect.objectContaining({
+        doc,
+        ui: helpPauseUI,
+        deps: expect.objectContaining({ token: 'help', doc, live: true }),
+      }),
+    );
     expect(gameBootUI.bootGame).toHaveBeenCalledWith({ token: 'boot' });
     expect(gameBootUI.refreshTitleSaveState).toHaveBeenCalledWith({ token: 'boot' });
   });

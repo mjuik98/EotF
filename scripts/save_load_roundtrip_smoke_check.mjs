@@ -7,9 +7,10 @@ import {
   runSmokeBrowserSession,
   waitForSmokeFonts,
 } from './browser_smoke_support.mjs';
+import { ensurePauseMenuVisible } from './help_pause_smoke_helpers.mjs';
 
 const workspaceRoot = process.cwd();
-const distDir = path.join(workspaceRoot, 'dist');
+const distDir = process.env.SMOKE_DIST_DIR || path.join(workspaceRoot, 'dist');
 const outDir = path.join(workspaceRoot, 'output', 'web-game', 'save-load-roundtrip-smoke');
 
 async function clickIfVisible(page, selector, timeout = 4000) {
@@ -30,6 +31,40 @@ async function enterRunFlow(page) {
   await page.click('#storyContinueBtn');
   await page.waitForSelector('#nodeCardOverlay', { state: 'visible', timeout: 15000 });
   await page.waitForTimeout(250);
+}
+
+async function waitForContinueReady(page, timeout = 10000) {
+  const isReady = async () => page.waitForFunction(() => {
+    const continueWrap = document.getElementById('titleContinueWrap');
+    const continueButton = document.getElementById('mainContinueBtn');
+    if (!continueWrap || !continueButton) return false;
+    const wrapStyle = getComputedStyle(continueWrap);
+    return wrapStyle.display !== 'none' && !continueButton.disabled;
+  }, { timeout }).then(() => true).catch(() => false);
+
+  if (await isReady()) return;
+
+  await page.evaluate(() => {
+    const win = window;
+    const doc = document;
+    const runtimeDeps = typeof win.GAME?.getRunDeps === 'function'
+      ? (win.GAME.getRunDeps() || {})
+      : {};
+    win.GameBootUI?.refreshTitleSaveState?.({
+      ...runtimeDeps,
+      gs: runtimeDeps.gs || win.GS || null,
+      doc,
+      win,
+    });
+  }).catch(() => null);
+
+  await page.waitForFunction(() => {
+    const continueWrap = document.getElementById('titleContinueWrap');
+    const continueButton = document.getElementById('mainContinueBtn');
+    if (!continueWrap || !continueButton) return false;
+    const wrapStyle = getComputedStyle(continueWrap);
+    return wrapStyle.display !== 'none' && !continueButton.disabled;
+  }, { timeout });
 }
 
 await fs.mkdir(outDir, { recursive: true });
@@ -56,12 +91,11 @@ try {
         playerHp: window.GS?.player?.hp ?? null,
       }));
 
-      await page.keyboard.press('Escape');
-      await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
+      await ensurePauseMenuVisible(page);
       await page.getByRole('button', { name: '처음으로' }).click();
       await page.waitForSelector('#returnTitleConfirm', { state: 'visible', timeout: 10000 });
       await page.locator('#returnTitleConfirm button', { hasText: '처음으로' }).click();
-      await page.waitForTimeout(1500);
+      await waitForContinueReady(page);
 
       const afterSave = await page.evaluate(() => ({
         currentScreen: window.GS?.currentScreen || null,

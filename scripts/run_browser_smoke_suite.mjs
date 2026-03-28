@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 
 const smokeCommands = [
   'smoke:character-select',
@@ -44,40 +45,69 @@ export function formatSmokeSuiteSummary(results = []) {
   return `${lines.join('\n')}\n`;
 }
 
-const results = [];
+function buildStandaloneSmokeDist(workspaceRoot = process.cwd()) {
+  const viteCliPath = path.join(workspaceRoot, 'node_modules', 'vite', 'bin', 'vite.js');
+  const distDir = path.join(workspaceRoot, 'tmp', `smoke-dist-${process.pid}-${Date.now()}`);
+  fs.mkdirSync(path.dirname(distDir), { recursive: true });
 
-for (const smokeCommand of smokeCommands) {
-  const start = Date.now();
-  console.log(`[smoke:browser] start ${smokeCommand}`);
-  const npmExecPath = process.env.npm_execpath;
-  const npmNodePath = process.env.npm_node_execpath || process.execPath;
-  const result = npmExecPath
-    ? spawnSync(npmNodePath, [npmExecPath, 'run', smokeCommand], {
-      stdio: 'inherit',
-      env: process.env,
-    })
-    : spawnSync('npm', ['run', smokeCommand], {
-      stdio: 'inherit',
-      env: process.env,
-      shell: true,
-    });
-  const durationMs = Date.now() - start;
-  const smokeResult = {
-    command: smokeCommand,
-    durationMs,
-    exitCode: result.status ?? null,
-    ok: !result.error && (result.status ?? 1) === 0,
-  };
-  results.push(smokeResult);
-  console.log(`[smoke:browser] ${smokeResult.ok ? 'pass' : 'fail'} ${smokeCommand} (${formatDurationMs(durationMs)})`);
-
-  if (result.error) {
-    writeGithubSummary(formatSmokeSuiteSummary(results));
-    throw result.error;
-  }
+  const result = spawnSync(process.execPath, [viteCliPath, 'build', '--outDir', distDir, '--emptyOutDir'], {
+    stdio: 'inherit',
+    env: process.env,
+  });
+  if (result.error) throw result.error;
   if ((result.status ?? 1) !== 0) {
-    writeGithubSummary(formatSmokeSuiteSummary(results));
     process.exit(result.status ?? 1);
+  }
+  return distDir;
+}
+
+const results = [];
+const smokeEnv = { ...process.env };
+let tempDistDir = '';
+
+if (!smokeEnv.SMOKE_URL && !smokeEnv.SMOKE_DIST_DIR) {
+  tempDistDir = buildStandaloneSmokeDist();
+  smokeEnv.SMOKE_DIST_DIR = tempDistDir;
+}
+
+try {
+  for (const smokeCommand of smokeCommands) {
+    const start = Date.now();
+    console.log(`[smoke:browser] start ${smokeCommand}`);
+    const npmExecPath = process.env.npm_execpath;
+    const npmNodePath = process.env.npm_node_execpath || process.execPath;
+    const result = npmExecPath
+      ? spawnSync(npmNodePath, [npmExecPath, 'run', smokeCommand], {
+        stdio: 'inherit',
+        env: smokeEnv,
+      })
+      : spawnSync('npm', ['run', smokeCommand], {
+        stdio: 'inherit',
+        env: smokeEnv,
+        shell: true,
+      });
+    const durationMs = Date.now() - start;
+    const smokeResult = {
+      command: smokeCommand,
+      durationMs,
+      exitCode: result.status ?? null,
+      ok: !result.error && (result.status ?? 1) === 0,
+    };
+    results.push(smokeResult);
+    console.log(`[smoke:browser] ${smokeResult.ok ? 'pass' : 'fail'} ${smokeCommand} (${formatDurationMs(durationMs)})`);
+
+    if (result.error) {
+      writeGithubSummary(formatSmokeSuiteSummary(results));
+      throw result.error;
+    }
+    if ((result.status ?? 1) !== 0) {
+      writeGithubSummary(formatSmokeSuiteSummary(results));
+      process.exit(result.status ?? 1);
+    }
+  }
+} finally {
+  if (tempDistDir) {
+    fs.rmSync(tempDistDir, { recursive: true, force: true });
   }
 }
 

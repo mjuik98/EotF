@@ -3,10 +3,15 @@ import { SettingsManager } from '../game/core/settings_manager.js';
 
 const hoisted = vi.hoisted(() => ({
   ensureSettingsModalShell: vi.fn(),
+  ensureSettingsUiStyle: vi.fn(),
 }));
 
 vi.mock('../game/features/ui/platform/browser/ensure_settings_modal_shell.js', () => ({
   ensureSettingsModalShell: hoisted.ensureSettingsModalShell,
+}));
+
+vi.mock('../game/features/ui/presentation/browser/settings_ui_style.js', () => ({
+  ensureSettingsUiStyle: hoisted.ensureSettingsUiStyle,
 }));
 
 import {
@@ -93,6 +98,7 @@ describe('settings_ui_runtime', () => {
 
     expect(didOpen).toBe(true);
     expect(hoisted.ensureSettingsModalShell).toHaveBeenCalledWith(doc);
+    expect(hoisted.ensureSettingsUiStyle).toHaveBeenCalledWith(doc);
     expect(ui._runtimeDeps).toEqual({ doc, audioEngine });
     expect(ui._bindDomEvents).toHaveBeenCalledWith(doc);
     expect(ui._syncAllTabs).toHaveBeenCalledWith(doc);

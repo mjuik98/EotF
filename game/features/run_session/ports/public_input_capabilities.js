@@ -1,6 +1,7 @@
 export {
   INPUT_ACTION_CANCEL,
   INPUT_ACTION_CODEX,
+  INPUT_ACTION_CONFIRM,
   INPUT_ACTION_DECK_VIEW,
   INPUT_ACTION_DRAW_CARD,
   INPUT_ACTION_ECHO_SKILL,
@@ -9,4 +10,8 @@ export {
   INPUT_ACTION_PAUSE,
   INPUT_ACTION_TARGET_CYCLE,
 } from '../../../shared/input/input_action_ids.js';
-export { resolveKeyboardActionFromSettings } from '../../../shared/input/keyboard_to_action.js';
+export {
+  isInputActionBoundTo,
+  keyboardEventMatchesCode,
+  resolveKeyboardActionFromSettings,
+} from '../../../shared/input/keyboard_to_action.js';

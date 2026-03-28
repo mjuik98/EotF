@@ -1,20 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
-  createUiModuleCapabilities: vi.fn(() => ({
-    primary: {
-      ScreenUI: { id: 'screen-public' },
-    },
-    overlays: {
-      MetaProgressionUI: { id: 'meta-public' },
-      HelpPauseUI: { id: 'help-public' },
-      SettingsUI: { id: 'settings-public' },
-    },
+  buildScreenScenePrimaryModules: vi.fn(() => ({
+    ScreenUI: { id: 'screen-public' },
+  })),
+  buildScreenSceneOverlayModules: vi.fn(() => ({
+    MetaProgressionUI: { id: 'meta-public' },
+    HelpPauseUI: { id: 'help-public' },
+    SettingsUI: { id: 'settings-public' },
   })),
 }));
 
-vi.mock('../game/features/ui/ports/public_module_capabilities.js', () => ({
-  createUiModuleCapabilities: hoisted.createUiModuleCapabilities,
+vi.mock('../game/features/ui/ports/public_scene_module_capabilities.js', () => ({
+  buildScreenScenePrimaryModules: hoisted.buildScreenScenePrimaryModules,
+  buildScreenSceneOverlayModules: hoisted.buildScreenSceneOverlayModules,
 }));
 
 import { buildScreenPrimaryModules } from '../game/platform/browser/composition/build_screen_primary_modules.js';
@@ -22,22 +21,25 @@ import { buildScreenOverlayModules } from '../game/platform/browser/composition/
 
 describe('composition module assembly', () => {
   beforeEach(() => {
-    hoisted.createUiModuleCapabilities.mockClear();
+    hoisted.buildScreenScenePrimaryModules.mockClear();
+    hoisted.buildScreenSceneOverlayModules.mockClear();
   });
 
-  it('routes only screen shell modules through the ui module capability export', () => {
+  it('routes only screen shell modules through the narrow scene-module port', () => {
     expect(buildScreenPrimaryModules()).toEqual({
       ScreenUI: { id: 'screen-public' },
     });
-    expect(hoisted.createUiModuleCapabilities).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildScreenScenePrimaryModules).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildScreenSceneOverlayModules).not.toHaveBeenCalled();
   });
 
-  it('routes overlay modules through narrow ui module capability exports', () => {
+  it('routes overlay modules through the narrow scene-module port', () => {
     expect(buildScreenOverlayModules()).toEqual({
       MetaProgressionUI: { id: 'meta-public' },
       HelpPauseUI: { id: 'help-public' },
       SettingsUI: { id: 'settings-public' },
     });
-    expect(hoisted.createUiModuleCapabilities).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildScreenSceneOverlayModules).toHaveBeenCalledTimes(1);
+    expect(hoisted.buildScreenScenePrimaryModules).not.toHaveBeenCalled();
   });
 });

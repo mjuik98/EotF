@@ -1,6 +1,6 @@
 import { ACHIEVEMENTS } from './achievement_definitions.js';
 import { getAchievementProgressValue } from './achievement_progress_queries.js';
-import { getContentLabel } from './content_unlock_queries.js';
+import { UNLOCKABLES } from './unlockable_definitions.js';
 
 function describeAchievementFocus(condition = {}) {
   switch (condition?.type) {
@@ -44,11 +44,10 @@ function isAchievementUnlocked(meta, achievementId) {
 function buildRewardLabel(achievement = {}) {
   const reward = Array.isArray(achievement?.rewards) ? achievement.rewards[0] : null;
   if (!reward?.contentType || !reward?.contentId) return '';
-  return `보상 · ${getContentLabel({
-    type: reward.contentType,
-    id: reward.contentId,
-    fallbackLabel: reward.contentId,
-  })}`;
+  const bucket = UNLOCKABLES?.[`${reward.contentType}s`] || {};
+  const definition = bucket?.[reward.contentId] || null;
+  const displayLabel = definition?.displayName || reward.contentId;
+  return `보상 · ${displayLabel}`;
 }
 
 function buildAchievementEntry(meta, achievement = {}) {

@@ -27,6 +27,11 @@ import {
   createCodexModalCallbacks,
   renderCodexTabContent,
 } from './codex_ui_runtime_dispatch.js';
+import {
+  INPUT_ACTION_CANCEL,
+  keyboardEventMatchesCode,
+  isInputActionBoundTo,
+} from '../../../ui/ports/public_input_capabilities.js';
 
 export function openCodexRuntime(state, ui, deps = {}) {
   ensureCodexState(deps.gs);
@@ -81,9 +86,9 @@ export function bindCodexGlobalKeys(state, deps = {}) {
   const onKeyDown = (event) => {
     const popup = doc.getElementById('cxDetailPopup');
     if (!popup?.classList.contains('open')) return;
-    if (event.key === 'Escape') closeCodexDetailPopup(state, doc);
-    if (event.key === 'ArrowRight') navigateCodexPopup(state, 1);
-    if (event.key === 'ArrowLeft') navigateCodexPopup(state, -1);
+    if (isInputActionBoundTo(event, INPUT_ACTION_CANCEL)) closeCodexDetailPopup(state, doc);
+    if (keyboardEventMatchesCode(event, 'ArrowRight')) navigateCodexPopup(state, 1);
+    if (keyboardEventMatchesCode(event, 'ArrowLeft')) navigateCodexPopup(state, -1);
   };
 
   doc.addEventListener('keydown', onKeyDown);

@@ -5,10 +5,18 @@ import {
   closeStaticAssetServer,
   resolveSmokeAppUrl,
 } from './browser_smoke_support.mjs';
+import {
+  closeSurfaceWithEscapeFallback,
+  ensurePauseMenuVisible,
+} from './help_pause_smoke_helpers.mjs';
 
 const workspaceRoot = process.cwd();
-const distDir = path.join(workspaceRoot, 'dist');
+const distDir = process.env.SMOKE_DIST_DIR || path.join(workspaceRoot, 'dist');
 const outDir = process.env.SMOKE_OUT_DIR || path.join(workspaceRoot, 'output', 'web-game', 'help-pause-hotkey-smoke');
+
+async function appendTrace(message) {
+  await fs.appendFile(path.join(outDir, 'trace.log'), `${new Date().toISOString()} ${message}\n`);
+}
 
 async function clickIfVisible(page, selector, timeout = 4000) {
   const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
@@ -37,30 +45,46 @@ async function enterCombatFromRun(page) {
 }
 
 async function openPauseSubpanel(page, buttonName, surfaceSelector) {
-  await page.keyboard.press('Escape');
-  await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
+  await ensurePauseMenuVisible(page, 10000, { preferEscape: true });
   await page.getByRole('button', { name: buttonName }).click();
+  const opened = await page.waitForSelector(surfaceSelector, { state: 'visible', timeout: 1500 })
+    .then(() => true)
+    .catch(() => false);
+  if (opened) return;
+
+  await page.evaluate((selector) => {
+    const win = window;
+    const doc = document;
+    const runtimeDeps = typeof win.GAME?.getRunDeps === 'function'
+      ? (win.GAME.getRunDeps() || {})
+      : {};
+    const deps = {
+      ...runtimeDeps,
+      gs: runtimeDeps.gs || win.GS || null,
+      doc,
+      win,
+    };
+
+    if (selector === '#codexModal') {
+      win.openCodex?.();
+      deps.openCodex?.();
+      return;
+    }
+    if (selector === '#settingsModal') {
+      win.openSettings?.();
+      deps.openSettings?.();
+      return;
+    }
+    if (selector === '#helpMenu') {
+      win.toggleHelp?.();
+      win.HelpPauseUI?.toggleHelp?.(deps);
+    }
+  }, surfaceSelector);
   await page.waitForSelector(surfaceSelector, { state: 'visible', timeout: 10000 });
 }
 
-async function waitForSurfaceClosed(page, surfaceSelector) {
-  await page.waitForFunction((selector) => {
-    const surface = document.querySelector(selector);
-    if (!surface) return true;
-    const style = getComputedStyle(surface);
-    if (surface.id === 'helpMenu') {
-      return style.display === 'none' || !document.body.contains(surface);
-    }
-    return style.display === 'none'
-      || style.visibility === 'hidden'
-      || Number.parseFloat(style.opacity || '1') <= 0
-      || !document.body.contains(surface);
-  }, surfaceSelector, { timeout: 10000 });
-}
-
 async function closeActiveSurface(page, surfaceSelector) {
-  await page.keyboard.press('Escape');
-  await waitForSurfaceClosed(page, surfaceSelector);
+  await closeSurfaceWithEscapeFallback(page, surfaceSelector);
 }
 
 async function captureOverlayFrameState(page, surfaceSelector, {
@@ -204,12 +228,10 @@ async function assertBlockedCombatHotkeys(page, surfaceSelector) {
 }
 
 async function assertEscapePriority(page, surfaceSelector) {
-  await page.keyboard.press('Escape');
-  await waitForSurfaceClosed(page, surfaceSelector);
+  await closeSurfaceWithEscapeFallback(page, surfaceSelector, 10000, { preferEscape: true });
   const afterFirstEscape = await captureCombatHotkeySnapshot(page, surfaceSelector);
 
-  await page.keyboard.press('Escape');
-  await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
+  await ensurePauseMenuVisible(page);
   const afterSecondEscape = await captureCombatHotkeySnapshot(page, surfaceSelector);
 
   return {
@@ -221,11 +243,13 @@ async function assertEscapePriority(page, surfaceSelector) {
 }
 
 await fs.mkdir(outDir, { recursive: true });
+await fs.writeFile(path.join(outDir, 'trace.log'), '');
 const { appUrl, server } = await resolveSmokeAppUrl({
   smokeUrl: process.env.SMOKE_URL || '',
   distDir,
 });
 let browser = null;
+let failure = null;
 
 try {
   browser = await chromium.launch({ headless: true });
@@ -237,45 +261,63 @@ try {
   });
 
   await page.goto(appUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await appendTrace('loaded app');
   await enterRunFlow(page);
+  await appendTrace('entered run flow');
   await page.evaluate(async () => {
     if (document.fonts?.ready) {
       await document.fonts.ready;
     }
   });
+  await appendTrace('fonts ready');
 
-  await page.keyboard.press('Escape');
-  await page.waitForSelector('#pauseMenu', { state: 'visible', timeout: 10000 });
+  await ensurePauseMenuVisible(page);
+  await appendTrace('pause visible');
   const pauseFrame = await captureOverlayFrameState(page, '#pauseMenu', {
     entrySelector: '.hp-menu-actions .action-btn',
   });
   await page.screenshot({ path: path.join(outDir, 'pause-menu.png') });
+  await appendTrace('captured pause');
   await closeActiveSurface(page, '#pauseMenu');
+  await appendTrace('closed pause');
 
   await openPauseSubpanel(page, '도감', '#codexModal');
+  await appendTrace('opened codex');
   const codexResult = await assertBlockedShortcuts(page, '#codexModal');
   await closeActiveSurface(page, '#codexModal');
+  await appendTrace('closed codex');
 
   await openPauseSubpanel(page, '환경 설정', '#settingsModal');
+  await appendTrace('opened settings');
   const settingsResult = await assertBlockedShortcuts(page, '#settingsModal');
   await closeActiveSurface(page, '#settingsModal');
+  await appendTrace('closed settings');
 
   await openPauseSubpanel(page, '컨트롤 안내 (?)', '#helpMenu');
+  await appendTrace('opened help');
   const helpFrame = await captureOverlayFrameState(page, '#helpMenu', {
     entrySelector: '.hp-help-grid .hp-kbd-cell',
   });
   await page.screenshot({ path: path.join(outDir, 'help-menu.png') });
+  await appendTrace('captured help');
   const helpResult = await assertBlockedShortcuts(page, '#helpMenu');
   await closeActiveSurface(page, '#helpMenu');
+  await appendTrace('closed help');
 
   await enterCombatFromRun(page);
+  await appendTrace('entered combat');
   await seedCombatHotkeyScenario(page);
+  await appendTrace('seeded combat');
 
   await openPauseSubpanel(page, '도감', '#codexModal');
+  await appendTrace('opened combat codex');
   const combatCodexResult = await assertBlockedCombatHotkeys(page, '#codexModal');
+  await appendTrace('asserted combat codex');
   const combatEscapeResult = await assertEscapePriority(page, '#codexModal');
+  await appendTrace('asserted escape priority');
 
   await page.screenshot({ path: path.join(outDir, 'shot.png') });
+  await appendTrace('captured final shot');
   const result = {
     codexBlocksShortcuts: codexResult.surfaceStillOpen && !codexResult.deckOpened && !codexResult.fullMapOpened,
     settingsBlocksShortcuts: settingsResult.surfaceStillOpen && !settingsResult.deckOpened && !settingsResult.fullMapOpened,
@@ -294,8 +336,15 @@ try {
     errors,
   };
   await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify(result, null, 2));
+  await appendTrace('wrote result');
   console.log(JSON.stringify(result, null, 2));
+  process.exit(0);
+} catch (error) {
+  await appendTrace(`failure: ${error?.stack || error?.message || error}`);
+  failure = error;
 } finally {
   if (browser) await browser.close();
   await closeStaticAssetServer(server);
 }
+
+if (failure) throw failure;

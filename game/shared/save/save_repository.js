@@ -14,12 +14,12 @@ function cloneSerializable(value, fallback) {
 export function buildMetaSave(gs, version) {
   if (!gs?.meta) return null;
 
-  const meta = { ...gs.meta };
+  const meta = cloneSerializable(gs.meta, {}) || {};
   if (meta.codex) {
     meta.codex = {
-      enemies: [...meta.codex.enemies],
-      cards: [...meta.codex.cards],
-      items: [...meta.codex.items],
+      enemies: [...(gs.meta.codex?.enemies || [])],
+      cards: [...(gs.meta.codex?.cards || [])],
+      items: [...(gs.meta.codex?.items || [])],
     };
   }
   meta.version = version;
@@ -29,7 +29,7 @@ export function buildMetaSave(gs, version) {
 export function hydrateMetaState(gs, data) {
   if (!gs?.meta || !data) return;
 
-  const nextData = { ...data };
+  const nextData = cloneSerializable(data, {}) || {};
   if (data.codex) {
     nextData.codex = {
       enemies: new Set(data.codex.enemies || []),

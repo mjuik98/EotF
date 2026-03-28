@@ -12,6 +12,7 @@ export function buildGameBootRefs({ modules, deps }) {
     helpPauseUI: ports.getHelpPauseUI(),
     gameBootUI: ports.getGameBootUI(),
     settingsUI: ports.getSettingsUI(),
+    getRunDeps: () => ports.getRunDeps(),
     getGameBootDeps: () => depProviders.title.getGameBootDeps(),
     getHelpPauseDeps: () => depProviders.title.getHelpPauseDeps(),
   };

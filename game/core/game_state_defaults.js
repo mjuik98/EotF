@@ -65,6 +65,21 @@ export function createDefaultMetaState(overrides = {}) {
     },
     maxAscension: 0,
     recentRuns: [],
+    analytics: {
+      totals: {
+        runs: 0,
+        victories: 0,
+        defeats: 0,
+        abandons: 0,
+        kills: 0,
+        floors: 0,
+        clearTimeMs: 0,
+        storyCount: 0,
+        unlockCount: 0,
+        achievementCount: 0,
+      },
+      classes: {},
+    },
     activeSaveSlot: 1,
     runConfig: createDefaultRunConfig(),
     progress: {
@@ -94,6 +109,21 @@ export function createDefaultMetaState(overrides = {}) {
     ...clonePlainObject(overrides.unlocks),
   };
   meta.recentRuns = cloneArray(overrides.recentRuns);
+  meta.analytics = clonePlainObject(overrides.analytics);
+  meta.analytics.totals = {
+    runs: 0,
+    victories: 0,
+    defeats: 0,
+    abandons: 0,
+    kills: 0,
+    floors: 0,
+    clearTimeMs: 0,
+    storyCount: 0,
+    unlockCount: 0,
+    achievementCount: 0,
+    ...clonePlainObject(overrides.analytics?.totals),
+  };
+  meta.analytics.classes = clonePlainObject(overrides.analytics?.classes);
   meta.runConfig = createDefaultRunConfig(overrides.runConfig);
   meta.progress = {
     echoShards: 0,

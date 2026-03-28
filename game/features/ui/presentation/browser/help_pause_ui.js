@@ -1,7 +1,8 @@
 import { getDoc } from './help_pause_ui_helpers.js';
 import {
   closePauseMenu,
-  handleGlobalHotkey,
+  handleGlobalHotkey as handleGlobalHotkeyRuntime,
+  swallowEscape as swallowEscapeRuntime,
 } from './help_pause_ui_runtime.js';
 import { confirmAbandonRun } from './help_pause_ui_abandon_runtime.js';
 import {
@@ -35,6 +36,20 @@ function resolveLiveDeps(deps = {}) {
 export const HelpPauseUI = {
   isHelpOpen() {
     return _helpOpen;
+  },
+
+  swallowEscape(event) {
+    swallowEscapeRuntime(event);
+  },
+
+  handleGlobalHotkey(event, options = {}) {
+    const resolvedDeps = resolveLiveDeps(options.deps || {});
+    const doc = options.doc || getDoc(resolvedDeps);
+    handleGlobalHotkeyRuntime(event, {
+      deps: resolvedDeps,
+      doc,
+      ui: options.ui || this,
+    });
   },
 
   showMobileWarning(deps = {}) {
@@ -90,7 +105,7 @@ export const HelpPauseUI = {
     const self = this;
     doc.addEventListener('keydown', (e) => {
       const resolvedDeps = resolveLiveDeps(deps);
-      handleGlobalHotkey(e, {
+      handleGlobalHotkeyRuntime(e, {
         deps: resolvedDeps,
         doc: getDoc(resolvedDeps) || doc,
         ui: self,

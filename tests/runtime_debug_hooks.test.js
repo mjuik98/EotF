@@ -33,6 +33,8 @@ function createDoc() {
   };
 
   ensureElement('charSelectSubScreen', 'block');
+  ensureElement('titleSceneRoot', 'block');
+  ensureElement('runtimeSceneRoot', 'block');
   ensureElement('runSettingsModal', 'none');
   ensureElement('codexModal', 'none');
   ensureElement('combatOverlay', 'block', true);
@@ -218,6 +220,8 @@ describe('runtime debug hooks', () => {
         surface: {
           activePanelIds: expect.arrayContaining(['characterSelect', 'combatOverlay']),
           activePanelCount: 2,
+          sceneRootIds: ['titleSceneRoot', 'runtimeSceneRoot'],
+          sceneRootCount: 2,
         },
         overlays: {
           activePanelIds: expect.arrayContaining(['characterSelect', 'combatOverlay']),

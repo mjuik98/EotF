@@ -24,12 +24,12 @@ describe('codex_input_binding_runtime', () => {
 
     bindCodexGlobalKeys(state, { doc });
 
-    listeners.keydown({ key: 'KeyC' });
+    listeners.keydown({ key: 'c', code: 'KeyC' });
     expect(closeSpy).not.toHaveBeenCalled();
     expect(navigateSpy).not.toHaveBeenCalled();
 
-    listeners.keydown({ key: 'Escape' });
-    listeners.keydown({ key: 'ArrowRight' });
+    listeners.keydown({ key: 'Escape', code: 'Escape' });
+    listeners.keydown({ key: 'ArrowRight', code: 'ArrowRight' });
 
     expect(closeSpy).toHaveBeenCalledWith(state, doc);
     expect(navigateSpy).toHaveBeenCalledWith(state, 1);

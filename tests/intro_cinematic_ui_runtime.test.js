@@ -112,7 +112,7 @@ describe('intro_cinematic_runtime', () => {
     expect(doc.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
 
     const keydown = doc.listeners.get('keydown');
-    keydown({ key: 'Escape' });
+    keydown({ key: 'Enter', code: 'Enter', preventDefault: vi.fn() });
 
     expect(blackoutSpy).toHaveBeenCalledWith(doc);
     expect(overlay.remove).toHaveBeenCalledTimes(1);
@@ -172,7 +172,7 @@ describe('intro_cinematic_runtime', () => {
 
     expect(doc.body.appendChild).toHaveBeenCalledWith(overlay);
     const keydown = doc.listeners.get('keydown');
-    keydown({ key: 'Escape' });
+    keydown({ key: 'Escape', code: 'Escape', preventDefault: vi.fn() });
 
     expect(blackoutSpy).toHaveBeenCalledWith(doc);
     expect(onComplete).toHaveBeenCalledTimes(1);

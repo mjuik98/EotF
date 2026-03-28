@@ -55,9 +55,22 @@ function _sumMapValues(map) {
   return total;
 }
 
+function _countActiveMinutes(eventMap, errorMap) {
+  const activeMinutes = new Set([
+    ...eventMap.keys(),
+    ...errorMap.keys(),
+  ]);
+  return activeMinutes.size;
+}
+
 function _toRate(errors, events) {
   if (!events) return 0;
   return Number((errors / events).toFixed(4));
+}
+
+function _toPerMinute(total, activeMinutes) {
+  if (!activeMinutes) return 0;
+  return Number((total / activeMinutes).toFixed(2));
 }
 
 function _buildPerMinuteSeries(nowTs) {
@@ -103,16 +116,22 @@ export function getRuntimeMetrics(options = {}) {
 
   const recentEvents = _sumMapValues(_state.minuteEventCounts);
   const recentErrors = _sumMapValues(_state.minuteErrorCounts);
+  const activeMinutes = _countActiveMinutes(_state.minuteEventCounts, _state.minuteErrorCounts);
 
   return {
     windowMinutes: AppConfig.metricsWindowMinutes,
     totals: {
       events: _state.totalEvents,
       errors: _state.totalErrors,
+      uniqueEvents: _state.eventCounts.size,
+      uniqueErrors: _state.errorCounts.size,
     },
     recent: {
       events: recentEvents,
       errors: recentErrors,
+      activeMinutes,
+      eventsPerMinute: _toPerMinute(recentEvents, activeMinutes),
+      errorsPerMinute: _toPerMinute(recentErrors, activeMinutes),
       errorRate: _toRate(recentErrors, recentEvents),
     },
     topEvents: _buildTopEntries(_state.eventCounts, 'event', topN),
@@ -129,4 +148,3 @@ export function resetRuntimeMetrics() {
   _state.minuteEventCounts.clear();
   _state.minuteErrorCounts.clear();
 }
-

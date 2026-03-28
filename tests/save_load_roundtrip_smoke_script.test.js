@@ -28,7 +28,8 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain("page.waitForSelector('#btnRealStart'");
     expect(source).toContain("page.waitForSelector('#storyContinueBtn'");
     expect(source).toContain("page.waitForSelector('#nodeCardOverlay'");
-    expect(source).toContain("page.keyboard.press('Escape')");
+    expect(source).toContain("from './help_pause_smoke_helpers.mjs'");
+    expect(source).toContain('ensurePauseMenuVisible(page)');
     expect(source).toContain("page.getByRole('button', { name: '처음으로' })");
     expect(source).toContain("page.locator('#returnTitleConfirm button', { hasText: '처음으로' })");
     expect(source).toContain("localStorage.getItem('echo_fallen_save')");
