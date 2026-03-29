@@ -10,4 +10,4 @@ export {
   resolveNodePosition,
   resolveNodeTotal,
   toFiniteNumber,
-} from '../../../shared/public_feature_support.js';
+} from '../../../shared/runtime/runtime_debug_snapshot_utils.js';

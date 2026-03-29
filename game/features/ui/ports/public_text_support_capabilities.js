@@ -1,1 +1,1 @@
-export { DescriptionUtils } from '../../../utils/public_feature_support.js';
+export { DescriptionUtils } from '../../../utils/description_utils.js';

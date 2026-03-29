@@ -1,4 +1,4 @@
 export {
   bindTooltipTrigger,
   createTooltipTriggerEvent,
-} from '../../../shared/public_feature_support.js';
+} from '../../../shared/ui/tooltip/tooltip_trigger_bindings.js';

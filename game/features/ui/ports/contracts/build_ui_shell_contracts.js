@@ -1,4 +1,4 @@
-import { playClassSelect } from '../public_audio_presentation_capabilities.js';
+import { playClassSelect } from '../public_audio_support_capabilities.js';
 import {
   buildTitleHelpPauseActions,
   returnToTitleFromPause as returnToTitleFromPauseAction,

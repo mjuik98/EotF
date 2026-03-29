@@ -12,7 +12,7 @@ describe('coupling support facades', () => {
     expect(cardCostUtils).not.toContain("../shared/state/hand_index_runtime_state.js");
   });
 
-  it('funnels shared and utils browser support through ui feature support facades', () => {
+  it('funnels shared and utils browser support through ui feature support facades without pulling broad compat barrels into narrow ports', () => {
     const uiFeatureSupport = readText('game/features/ui/ports/public_feature_support_capabilities.js');
     const uiSharedSupport = readText('game/features/ui/ports/public_shared_support_capabilities.js');
     const uiTextSupport = readText('game/features/ui/ports/public_text_support_capabilities.js');
@@ -37,15 +37,18 @@ describe('coupling support facades', () => {
 
     expect(uiFeatureSupport).toContain("../../../utils/public_feature_support.js");
     expect(uiSharedSupport).toContain("../../../shared/public_feature_support.js");
-    expect(uiTextSupport).toContain("../../../utils/public_feature_support.js");
-    expect(uiDomSupport).toContain("../../../utils/public_feature_support.js");
-    expect(uiLoggingSupport).toContain("../../../utils/public_feature_support.js");
+    expect(uiTextSupport).toContain("../../../utils/description_utils.js");
+    expect(uiDomSupport).toContain("../../../utils/dom_safe.js");
+    expect(uiDomSupport).toContain("../../../utils/runtime_deps.js");
+    expect(uiDomSupport).toContain("../../../utils/security.js");
+    expect(uiLoggingSupport).toContain("../../../utils/log_utils.js");
+    expect(uiLoggingSupport).toContain("../../../utils/logger.js");
     expect(uiCardMathSupport).toContain("../../../utils/public_feature_support.js");
-    expect(uiTooltipSupport).toContain("../../../shared/public_feature_support.js");
-    expect(uiAudioSupport).toContain("../../../shared/public_feature_support.js");
-    expect(uiRuntimeDebugSupport).toContain("../../../shared/public_feature_support.js");
-    expect(uiBindingSupport).toContain("../../../shared/public_feature_support.js");
-    expect(uiRewardReturnSupport).toContain("../../../shared/public_feature_support.js");
+    expect(uiTooltipSupport).toContain("../../../shared/ui/tooltip/tooltip_trigger_bindings.js");
+    expect(uiAudioSupport).toContain("../../../shared/audio/audio_event_helpers.js");
+    expect(uiRuntimeDebugSupport).toContain("../../../shared/runtime/runtime_debug_snapshot_utils.js");
+    expect(uiBindingSupport).toContain("../../../shared/runtime/pick_defined_refs.js");
+    expect(uiRewardReturnSupport).toContain("../../../shared/runtime/reward_return_actions.js");
     expect(eventItemShop).toContain("../../../ui/ports/public_dom_support_capabilities.js");
     expect(eventItemShop).toContain("../../../ui/ports/public_tooltip_support_capabilities.js");
     expect(runBottomDock).toContain("../../../ui/ports/public_dom_support_capabilities.js");

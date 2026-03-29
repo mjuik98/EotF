@@ -1,1 +1,1 @@
-export { pickDefinedRefs } from '../../../shared/public_feature_support.js';
+export { pickDefinedRefs } from '../../../shared/runtime/pick_defined_refs.js';

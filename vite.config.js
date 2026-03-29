@@ -14,6 +14,7 @@ const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-run-mode-runtime-[^/]+\.js$/,
   /\/?assets\/ui-shell-[^/]+\.js$/,
   /\/?assets\/ui-shell-hotkeys-[^/]+\.js$/,
+  /\/?assets\/ui-shared-data-[^/]+\.js$/,
   /\/?assets\/ui-settings-[^/]+\.js$/,
   /\/?assets\/ui-settings-core-[^/]+\.js$/,
   /\/?assets\/ui-settings-hotkeys-[^/]+\.js$/,
@@ -35,8 +36,58 @@ export function filterLazyChunkModulePreloads(deps, context = {}) {
 
 export function getManualChunk(id) {
   const normalized = id.replace(/\\/g, '/');
+  const uiSupportPortSuffixes = [
+    '/game/features/ui/ports/public_audio_support_capabilities.js',
+    '/game/features/ui/ports/public_binding_ref_support_capabilities.js',
+    '/game/features/ui/ports/public_dom_support_capabilities.js',
+    '/game/features/ui/ports/public_logging_support_capabilities.js',
+    '/game/features/ui/ports/public_reward_return_support_capabilities.js',
+    '/game/features/ui/ports/public_runtime_debug_support_capabilities.js',
+    '/game/features/ui/ports/public_text_support_capabilities.js',
+    '/game/features/ui/ports/public_tooltip_support_capabilities.js',
+  ];
+  const uiSupportLeafSuffixes = [
+    '/game/utils/description_utils.js',
+    '/game/utils/dom_safe.js',
+    '/game/utils/logger.js',
+    '/game/utils/log_utils.js',
+    '/game/utils/runtime_deps.js',
+    '/game/utils/security.js',
+    '/game/shared/audio/audio_event_helpers.js',
+    '/game/shared/runtime/pick_defined_refs.js',
+    '/game/shared/runtime/reward_return_actions.js',
+    '/game/shared/runtime/runtime_debug_snapshot_utils.js',
+    '/game/shared/ui/tooltip/tooltip_trigger_bindings.js',
+  ];
+  const uiShellSupportSuffixes = [
+    '/game/features/ui/ports/contracts/build_ui_shell_contracts.js',
+    '/game/features/ui/ports/contracts/public_ui_contract_capabilities.js',
+    '/game/features/title/ports/public_help_pause_application_capabilities.js',
+    '/game/features/title/application/help_pause_title_actions.js',
+    '/game/features/title/application/help_pause_abandon_actions.js',
+    '/game/features/title/application/help_pause_menu_actions.js',
+    '/game/features/title/application/title_return_actions.js',
+    '/game/features/title/application/ending_action_ports.js',
+  ];
+  const uiSharedDataSuffixes = [
+    '/data/game_data.js',
+    '/data/death_quotes.js',
+    '/game/features/meta_progression/public.js',
+    '/game/features/meta_progression/domain/achievement_definitions.js',
+    '/game/features/meta_progression/domain/achievement_roadmap_queries.js',
+    '/game/features/meta_progression/domain/achievement_progress_queries.js',
+    '/game/features/meta_progression/domain/content_unlock_queries.js',
+    '/game/features/meta_progression/domain/unlockable_definitions.js',
+    '/game/features/meta_progression/application/evaluate_achievement_trigger.js',
+    '/game/platform/browser/effects/echo_ripple_transition.js',
+    '/game/features/run/domain/run_rules_curses.js',
+  ];
 
   if (normalized.includes('/node_modules/')) return 'vendor';
+  if (uiSupportPortSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
+  if (uiSupportLeafSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
+  if (uiShellSupportSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
+  if (uiSharedDataSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-shared-data';
 
   if (normalized.endsWith('/data/cards.js')) return 'data-cards';
   if (normalized.endsWith('/data/items.js')) return 'data-items';
@@ -93,7 +144,9 @@ export function getManualChunk(id) {
     normalized.includes('/game/features/ui/presentation/browser/ending_')
     || normalized.includes('/game/features/ui/presentation/browser/story_')
     || normalized.includes('/game/features/ui/presentation/browser/meta_progression_')
+    || normalized.endsWith('/game/features/ui/ports/public_audio_presentation_capabilities.js')
   ) return 'ui-shell';
+  if (normalized.endsWith('/game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js')) return null;
   if (
     normalized.endsWith('/game/features/ui/presentation/browser/help_pause_keybinding_helpers.js')
     || normalized.endsWith('/game/features/ui/presentation/browser/help_pause_run_hotkey_state.js')

@@ -75,6 +75,5 @@ export function bindTitleDisclosurePanels(doc) {
     expand: '관리 열기',
     collapse: '관리 접기',
   });
-
   syncTitleDisclosurePanels(doc);
 }

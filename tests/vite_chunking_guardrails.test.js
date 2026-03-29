@@ -15,6 +15,8 @@ describe('vite chunking guardrails', () => {
     expect(source).toContain("return 'ui-reward';");
     expect(source).toContain("return 'ui-run-mode-runtime';");
     expect(source).toContain("return 'ui-event';");
+    expect(source).toContain("return 'ui-support';");
+    expect(source).toContain("return 'ui-shared-data';");
     expect(source).toContain("return 'ui-shell-hotkeys';");
     expect(source).toContain("return 'ui-settings-core';");
     expect(source).toContain("return 'ui-settings-hotkeys';");
@@ -28,6 +30,8 @@ describe('vite chunking guardrails', () => {
     expect(source).toContain("/game/features/ui/presentation/browser/ending_");
     expect(source).toContain("/game/features/ui/presentation/browser/story_");
     expect(source).toContain("/game/features/ui/presentation/browser/settings_ui.js");
+    expect(source).toContain("/game/features/ui/ports/public_audio_presentation_capabilities.js");
+    expect(source).toContain("/game/features/meta_progression/public.js");
     expect(source).toContain("/game/features/run/presentation/browser/run_mode_ui.js");
     expect(source).not.toContain("/game/presentation/screens/event_");
     expect(source).not.toContain("/game/ui/screens/event_");
@@ -119,10 +123,10 @@ describe('vite chunking guardrails', () => {
     ).toBe('ui-combat');
   });
 
-  it('stops force-routing shared surface helpers so rollup can keep them with their owning feature chunks', () => {
+  it('routes cross-feature ui support ports into a shared support chunk instead of leaving shell and combat to import each other', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/tooltip/tooltip_trigger_bindings.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/item_detail/item_detail_panel_ui.js'),
     ).toBe(null);
@@ -137,31 +141,49 @@ describe('vite chunking guardrails', () => {
     ).toBe(null);
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_text_support_capabilities.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_dom_support_capabilities.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_shared_support_capabilities.js'),
     ).toBe(null);
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_tooltip_support_capabilities.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_audio_support_capabilities.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_runtime_debug_support_capabilities.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_binding_ref_support_capabilities.js'),
+    ).toBe('ui-support');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_card_cost_support_capabilities.js'),
+    ).toBe(null);
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_logging_support_capabilities.js'),
+    ).toBe('ui-support');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_reward_return_support_capabilities.js'),
+    ).toBe('ui-support');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/utils/public_feature_support.js'),
+    ).toBe(null);
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/public_feature_support.js'),
     ).toBe(null);
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/contracts/build_ui_shell_contracts.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/contracts/public_ui_contract_capabilities.js'),
-    ).toBe(null);
+    ).toBe('ui-support');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/ports/public_help_pause_application_capabilities.js'),
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/codex/platform/browser/ensure_codex_modal_shell.js'),
     ).toBe(null);
@@ -174,6 +196,24 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_runtime.js'),
     ).toBe('ui-run-mode-runtime');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_audio_presentation_capabilities.js'),
+    ).toBe('ui-shell');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/public.js'),
+    ).toBe('ui-shared-data');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/platform/browser/effects/echo_ripple_transition.js'),
+    ).toBe('ui-shared-data');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/game_data.js'),
+    ).toBe('ui-shared-data');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/death_quotes.js'),
+    ).toBe('ui-shared-data');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/domain/run_rules_curses.js'),
+    ).toBe('ui-shared-data');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_ui_render.js'),
     ).toBe('ui-run-mode-runtime');
@@ -200,7 +240,7 @@ describe('vite chunking guardrails', () => {
     ).toBe(null);
   });
 
-  it('leaves progression and meta unlock logic to importer-owned chunks instead of force-routing them through shell', () => {
+  it('routes shared progression and meta unlock logic through a dedicated shared-data chunk instead of forcing shell/combat to import each other', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/class_metadata.js'),
     ).toBe('data-classes');
@@ -215,10 +255,10 @@ describe('vite chunking guardrails', () => {
     ).toBe(null);
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/domain/achievement_definitions.js'),
-    ).toBe(null);
+    ).toBe('ui-shared-data');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/application/evaluate_achievement_trigger.js'),
-    ).toBe(null);
+    ).toBe('ui-shared-data');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/domain/class_progression/runtime_apply.js'),
     ).toBe(null);
@@ -293,30 +333,30 @@ describe('vite chunking guardrails', () => {
     ).toBe('ui-shell-hotkeys');
   });
 
-  it('keeps title help/pause action modules on the unified shell chunk instead of the combat chunk', () => {
+  it('keeps title help/pause action modules on the shared shell-support chunk instead of the combat chunk', () => {
     const helpPauseAbandonActions = readText('game/features/title/application/help_pause_abandon_actions.js');
 
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/help_pause_title_actions.js'),
-    ).toBe('ui-shell');
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/help_pause_menu_actions.js'),
-    ).toBe('ui-shell');
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/help_pause_abandon_actions.js'),
-    ).toBe('ui-shell');
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/title_return_actions.js'),
-    ).toBe('ui-shell');
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/application/ending_action_ports.js'),
-    ).toBe('ui-shell');
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/title/ports/public_help_pause_application_capabilities.js'),
-    ).toBe('ui-shell');
+    ).toBe('ui-support');
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js'),
-    ).toBe('ui-shell');
+    ).toBe(null);
 
     expect(helpPauseAbandonActions).not.toContain("../../combat/ports/public_application_capabilities.js");
     expect(helpPauseAbandonActions).not.toContain("../ports/public_help_pause_presentation_capabilities.js");
@@ -336,6 +376,7 @@ describe('vite chunking guardrails', () => {
     const helpPauseReturnRuntime = readText('game/features/ui/presentation/browser/help_pause_ui_return_runtime.js');
     const helpPauseMenuRuntime = readText('game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js');
     const shellContracts = readText('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
+    const nextNodeInteractions = readText('game/features/run/presentation/browser/map_ui_next_nodes_interactions.js');
     const runRules = readText('game/features/run/application/run_rules.js');
     const runRuleMeta = readText('game/features/run/application/run_rule_meta.js');
     const runRuleLifecycle = readText('game/features/run/application/run_rule_lifecycle.js');
@@ -350,6 +391,8 @@ describe('vite chunking guardrails', () => {
     expect(helpPauseReturnRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(helpPauseMenuRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(shellContracts).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
+    expect(nextNodeInteractions).toContain("../../../ui/ports/public_help_pause_hotkey_capabilities.js");
+    expect(nextNodeInteractions).not.toContain("public_help_pause_presentation_capabilities.js");
 
     expect(runRuleMeta).toContain("../../title/ports/public_progression_capabilities.js");
     expect(runRuleLifecycle).toContain("../../title/ports/public_progression_capabilities.js");

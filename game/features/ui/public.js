@@ -3,6 +3,7 @@ export * from './ports/public_application_capabilities.js';
 export * from './ports/public_browser_modules.js';
 export * from './ports/public_ending_presentation_capabilities.js';
 export * from './ports/public_help_pause_presentation_capabilities.js';
+export * from './ports/public_help_pause_hotkey_capabilities.js';
 export * from './ports/public_meta_progression_presentation_capabilities.js';
 export * from './ports/public_screen_presentation_capabilities.js';
 export * from './ports/public_settings_presentation_capabilities.js';

@@ -4,7 +4,6 @@ import {
   handleGlobalHotkey as handleGlobalHotkeyRuntime,
   swallowEscape as swallowEscapeRuntime,
 } from './help_pause_ui_runtime.js';
-import { confirmAbandonRun } from './help_pause_ui_abandon_runtime.js';
 import {
   toggleAbandonConfirmRuntime,
   toggleReturnTitleConfirmRuntime,
@@ -18,11 +17,13 @@ import { togglePauseMenuRuntime } from './help_pause_ui_pause_runtime.js';
 let _helpOpen = false;
 let _pauseOpen = false;
 let _hotkeysBound = false;
+let _abandonRuntimePromise = null;
 
 export function __resetHelpPauseUiStateForTests() {
   _helpOpen = false;
   _pauseOpen = false;
   _hotkeysBound = false;
+  _abandonRuntimePromise = null;
 }
 
 function resolveLiveDeps(deps = {}) {
@@ -31,6 +32,17 @@ function resolveLiveDeps(deps = {}) {
     ...deps,
     ...nextDeps,
   };
+}
+
+async function loadAbandonRuntime() {
+  if (!_abandonRuntimePromise) {
+    _abandonRuntimePromise = import('./help_pause_ui_abandon_runtime.js')
+      .catch((error) => {
+        _abandonRuntimePromise = null;
+        throw error;
+      });
+  }
+  return _abandonRuntimePromise;
 }
 
 export const HelpPauseUI = {
@@ -76,9 +88,10 @@ export const HelpPauseUI = {
     });
   },
 
-  confirmAbandon(deps = {}) {
+  async confirmAbandon(deps = {}) {
     const resolvedDeps = resolveLiveDeps(deps);
-    confirmAbandonRun(resolvedDeps, (doc) => {
+    const { confirmAbandonRun } = await loadAbandonRuntime();
+    return confirmAbandonRun(resolvedDeps, (doc) => {
       closePauseMenu(doc, () => {
         _pauseOpen = false;
       });

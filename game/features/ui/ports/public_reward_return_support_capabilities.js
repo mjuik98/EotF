@@ -1,1 +1,1 @@
-export { createRewardReturnActions } from '../../../shared/public_feature_support.js';
+export { createRewardReturnActions } from '../../../shared/runtime/reward_return_actions.js';

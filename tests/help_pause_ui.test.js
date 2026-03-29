@@ -337,7 +337,7 @@ describe('HelpPauseUI help overlay', () => {
 });
 
 describe('HelpPauseUI abandon flow', () => {
-  it('shows the cinematic ending result instead of switching to death screen', () => {
+  it('shows the cinematic ending result instead of switching to death screen', async () => {
     const doc = createDoc();
     const abandonConfirm = doc.createElement('div');
     abandonConfirm.id = 'abandonConfirm';
@@ -377,7 +377,7 @@ describe('HelpPauseUI abandon flow', () => {
 
     const showOutcomeSpy = vi.spyOn(EndingScreenUI, 'showOutcome').mockReturnValue(true);
 
-    HelpPauseUI.confirmAbandon(deps);
+    await HelpPauseUI.confirmAbandon(deps);
 
     expect(deps.finalizeRunOutcome).toHaveBeenCalledWith('defeat', { echoFragments: 2, abandoned: true }, { gs: deps.gs });
     expect(deps.clearActiveRunSave).toHaveBeenCalledTimes(1);
