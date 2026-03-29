@@ -33,8 +33,29 @@ describe('createTitleSettingsActions', () => {
     ensureFlow.mockResolvedValue({ RunModeUI: lazyRunModeUi });
     lazyRunModeUi.openSettings.mockReset();
     lazyRunModeUi.closeSettings.mockReset();
+    lazyRunModeUi.closeSettings.mockReturnValue(true);
     lazySettingsUi.openSettings.mockReset();
     lazySettingsUi.closeSettings.mockReset();
+    lazySettingsUi.closeSettings.mockReturnValue(true);
+  });
+
+  it('reports a no-op when title settings close is requested before the settings ui is resolved', () => {
+    const actions = createTitleSettingsActions({
+      doc: null,
+      modules: {},
+      moduleRegistry: {},
+      ports: {
+        getSettingsDeps: vi.fn(() => ({ source: 'settings-deps' })),
+        getRunModeDeps: vi.fn(() => ({ source: 'run-mode-deps' })),
+        getMetaProgressionDeps: vi.fn(() => ({})),
+        getRegionTransitionDeps: vi.fn(() => ({})),
+      },
+      saveVolumes: vi.fn(),
+      playClick: vi.fn(),
+    });
+
+    expect(actions.closeSettings()).toBe(false);
+    expect(actions.closeRunSettings()).toBe(false);
   });
 
   it('closes title settings through the lazily loaded settings ui after opening it', async () => {
@@ -54,7 +75,7 @@ describe('createTitleSettingsActions', () => {
     });
 
     await actions.openSettings();
-    actions.closeSettings();
+    expect(actions.closeSettings()).toBe(true);
 
     expect(lazySettingsUi.openSettings).toHaveBeenCalledWith({ source: 'settings-deps' });
     expect(lazySettingsUi.closeSettings).toHaveBeenCalledWith({ source: 'settings-deps' });
@@ -77,7 +98,7 @@ describe('createTitleSettingsActions', () => {
     });
 
     await actions.openRunSettings();
-    actions.closeRunSettings();
+    expect(actions.closeRunSettings()).toBe(true);
 
     expect(lazyRunModeUi.openSettings).toHaveBeenCalledWith({ source: 'run-mode-deps' });
     expect(lazyRunModeUi.closeSettings).toHaveBeenCalledWith({ source: 'run-mode-deps' });

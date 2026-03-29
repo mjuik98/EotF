@@ -41,4 +41,12 @@ describe('combat card css regression', () => {
     expect(source).toContain(".card-clone[data-keyword-placement='left'] .card-clone-keyword-panel");
     expect(source).toContain(".card-clone[data-keyword-placement='bottom'] .card-clone-keyword-link");
   });
+
+  it('keeps hover card descriptions on a larger readable text scale', () => {
+    const source = readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+    const hoverReadableBlock = source.match(/\.card-desc-hover-readable\s*\{[^}]+\}/)?.[0] || '';
+
+    expect(hoverReadableBlock).toContain('font-size: 14px;');
+    expect(hoverReadableBlock).toContain('line-height: 1.74;');
+  });
 });

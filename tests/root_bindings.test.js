@@ -35,7 +35,14 @@ vi.mock('../game/features/run/ports/runtime/public_run_runtime_surface.js', () =
 
 import { RootBindings } from '../game/platform/browser/bindings/root_bindings.js';
 
-function createDoc() {
+function createClassList(initial = []) {
+  const tokens = new Set(initial);
+  return {
+    contains: (name) => tokens.has(name),
+  };
+}
+
+function createDoc(elements = {}) {
   const slider = { value: '', style: { setProperty: vi.fn() } };
   const value = { textContent: '' };
   const icon = { textContent: '' };
@@ -45,6 +52,12 @@ function createDoc() {
       listeners.set(type, handler);
     }),
     dispatchEvent: (type, event) => listeners.get(type)?.(event),
+    getComputedStyle: vi.fn((element) => ({
+      display: element?.style?.display || 'none',
+      visibility: 'visible',
+      opacity: element?.classList?.contains?.('active') ? '1' : '0',
+      pointerEvents: element?.classList?.contains?.('active') ? 'auto' : 'none',
+    })),
   };
   return {
     defaultView,
@@ -52,7 +65,7 @@ function createDoc() {
       listeners.set(type, handler);
     }),
     dispatchEvent: (type, event) => listeners.get(type)?.(event),
-    getElementById: vi.fn(() => null),
+    getElementById: vi.fn((id) => elements[id] || null),
     querySelectorAll: vi.fn((selector) => {
       if (selector.includes('master-val')) return [value];
       if (selector.includes('sfx-val')) return [value];
@@ -68,15 +81,19 @@ function createDoc() {
   };
 }
 
+function createAudioEngine() {
+  return {
+    getVolumes: vi.fn(() => ({ master: 0.4, sfx: 0.5, ambient: 0.6 })),
+    setVolume: vi.fn(),
+    setSfxVolume: vi.fn(),
+    setAmbientVolume: vi.fn(),
+  };
+}
+
 describe('RootBindings', () => {
   it('boot passes the injected document through settings and runtime binding setup', () => {
     const doc = createDoc();
-    const audioEngine = {
-      setVolume: vi.fn(),
-      setSfxVolume: vi.fn(),
-      setAmbientVolume: vi.fn(),
-      getVolumes: vi.fn(() => ({ master: 0.4, sfx: 0.5, ambient: 0.6 })),
-    };
+    const audioEngine = createAudioEngine();
     const settingsUI = { applyOnBoot: vi.fn() };
     const helpPauseUI = {
       showMobileWarning: vi.fn(),
@@ -121,12 +138,102 @@ describe('RootBindings', () => {
 
   it('syncVolumeUI updates an injected document instead of relying on a global document', () => {
     const doc = createDoc();
-    const audioEngine = {
-      getVolumes: vi.fn(() => ({ master: 0.4, sfx: 0.5, ambient: 0.6 })),
-    };
+    const audioEngine = createAudioEngine();
 
     RootBindings.syncVolumeUI(audioEngine, { doc });
 
     expect(doc.querySelectorAll).toHaveBeenCalled();
+  });
+
+  it('does not try to close title-owned modals from the root help-pause handler', () => {
+    const closeRunSettings = vi.fn();
+    const modal = {
+      style: { display: 'flex' },
+      classList: createClassList(),
+    };
+    const doc = createDoc({ runSettingsModal: modal });
+    const helpPauseUI = {
+      showMobileWarning: vi.fn(),
+      handleGlobalHotkey: vi.fn(),
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      isHelpOpen: vi.fn(() => false),
+    };
+    const deps = {
+      doc,
+      audioEngine: createAudioEngine(),
+      settingsUI: { applyOnBoot: vi.fn() },
+      helpPauseUI,
+      gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
+      actions: {},
+      gs: { currentScreen: 'title' },
+      getGameBootDeps: vi.fn(() => ({})),
+      getHelpPauseDeps: vi.fn(() => ({ closeRunSettings })),
+      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
+    };
+
+    RootBindings.boot(deps);
+
+    const event = {
+      key: 'Escape',
+      code: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+    };
+
+    doc.defaultView.dispatchEvent('keydown', event);
+
+    expect(closeRunSettings).not.toHaveBeenCalled();
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(event.stopPropagation).not.toHaveBeenCalled();
+    expect(event.stopImmediatePropagation).not.toHaveBeenCalled();
+    expect(helpPauseUI.handleGlobalHotkey).not.toHaveBeenCalled();
+  });
+
+  it('consumes Escape for gameplay modals when help-pause deps provide close actions', () => {
+    const closeRunSettings = vi.fn();
+    const modal = {
+      style: { display: 'flex' },
+      classList: createClassList(),
+    };
+    const doc = createDoc({ runSettingsModal: modal });
+    const helpPauseUI = {
+      showMobileWarning: vi.fn(),
+      handleGlobalHotkey: vi.fn(),
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      isHelpOpen: vi.fn(() => false),
+    };
+    const deps = {
+      doc,
+      audioEngine: createAudioEngine(),
+      settingsUI: { applyOnBoot: vi.fn() },
+      helpPauseUI,
+      gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
+      actions: {},
+      gs: { currentScreen: 'game' },
+      getGameBootDeps: vi.fn(() => ({})),
+      getHelpPauseDeps: vi.fn(() => ({ closeRunSettings })),
+      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
+    };
+
+    RootBindings.boot(deps);
+
+    const event = {
+      key: 'Escape',
+      code: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+    };
+
+    doc.defaultView.dispatchEvent('keydown', event);
+
+    expect(closeRunSettings).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
+    expect(helpPauseUI.handleGlobalHotkey).not.toHaveBeenCalled();
   });
 });

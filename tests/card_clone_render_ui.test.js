@@ -92,6 +92,7 @@ describe('card_clone_render_ui', () => {
     expect(clone.children.some((child) => child.className === 'card-name card-name-hover')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-desc card-desc-hover card-desc-hover-readable')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-tags card-tags-hover')).toBe(true);
+    expect(clone.children.some((child) => child.className === 'card-particles')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-particles card-particles-aura')).toBe(true);
     expect(clone.children.some((child) => child.className === 'card-clone-keyword-panel')).toBe(true);
     expect(clone.children.find((child) => child.className === 'card-clone-keyword-panel')?.children[0]?.children[0]?.textContent).toBe('소진');

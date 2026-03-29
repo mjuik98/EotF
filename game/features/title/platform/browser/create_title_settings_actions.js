@@ -31,7 +31,7 @@ export function createTitleSettingsActions(context) {
     },
 
     closeRunSettings() {
-      resolvedRunModeUI?.closeSettings?.(ports.getRunModeDeps());
+      return resolvedRunModeUI?.closeSettings?.(ports.getRunModeDeps()) ?? false;
     },
 
     refreshRunModePanel() {
@@ -123,7 +123,7 @@ export function createTitleSettingsActions(context) {
     },
 
     closeSettings() {
-      resolvedSettingsUI?.closeSettings?.(ports.getSettingsDeps());
+      return resolvedSettingsUI?.closeSettings?.(ports.getSettingsDeps()) ?? false;
     },
 
     async setSettingsTab(tab) {

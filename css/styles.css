@@ -10316,7 +10316,8 @@ body:has(#combatOverlay.active) .panel-bottom {
   width: 100%;
   text-align: left;
   padding: 8px 10px 0;
-  line-height: 1.66;
+  font-size: 14px;
+  line-height: 1.74;
   color: rgba(224, 218, 242, 0.94);
 }
 

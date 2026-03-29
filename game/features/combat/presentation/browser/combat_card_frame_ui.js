@@ -182,7 +182,12 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
 
   if (isRareLike) {
     const particleColor = rarity === 'legendary' ? '#c084fc' : '#f0b429';
-    root.appendChild(createUnifiedParticles(doc, particleColor, { isClone: variant === 'hover' }));
+    if (variant === 'hover') {
+      root.appendChild(createUnifiedParticles(doc, particleColor));
+      root.appendChild(createUnifiedParticles(doc, particleColor, { isClone: true }));
+    } else {
+      root.appendChild(createUnifiedParticles(doc, particleColor));
+    }
   }
 
   return root;

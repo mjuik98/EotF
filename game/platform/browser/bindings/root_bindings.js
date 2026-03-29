@@ -28,6 +28,12 @@ function getLiveRunDeps(doc, deps = {}) {
   return deps.getRunDeps?.() || {};
 }
 
+function resolveEscapeHotkeyGs(deps = {}, liveRunDeps = {}) {
+  const bootGs = deps.gs || deps.State || deps.state || null;
+  if (bootGs?.currentScreen === 'title') return bootGs;
+  return liveRunDeps.gs || liveRunDeps.State || liveRunDeps.state || bootGs;
+}
+
 function swallowEscapeEvent(event) {
   event?.preventDefault?.();
   event?.stopPropagation?.();
@@ -37,8 +43,12 @@ function swallowEscapeEvent(event) {
 function closeLiveEscapeSurface(event, doc, id, onClose) {
   const element = doc?.getElementById?.(id) || null;
   if (!isVisibleModal(element, doc)) return false;
+  if (typeof onClose !== 'function') return false;
+
+  const handled = onClose(element);
+  if (handled === false) return false;
+
   swallowEscapeEvent(event);
-  onClose?.(element);
   return true;
 }
 
@@ -59,6 +69,8 @@ function isLiveRunScreen(doc, deps = {}) {
 
 function handleLiveEscapeHotkey(event, { doc, deps = {}, ui = null } = {}) {
   if (!doc || !ui) return false;
+  const currentGs = deps.gs || deps.State || deps.state || null;
+  const isTitleScreen = currentGs?.currentScreen === 'title';
 
   if (closeLiveEscapeSurface(event, doc, 'fullMapOverlay', (overlay) => {
     if (typeof overlay._closeFullMap === 'function') overlay._closeFullMap();
@@ -66,7 +78,8 @@ function handleLiveEscapeHotkey(event, { doc, deps = {}, ui = null } = {}) {
   })) return true;
 
   if (closeLiveEscapeSurface(event, doc, 'battleChronicleOverlay', () => {
-    deps.closeBattleChronicle?.();
+    if (typeof deps.closeBattleChronicle !== 'function') return false;
+    return deps.closeBattleChronicle() !== false;
   })) return true;
 
   if (closeLiveEscapeSurface(event, doc, 'returnTitleConfirm', () => {
@@ -84,20 +97,24 @@ function handleLiveEscapeHotkey(event, { doc, deps = {}, ui = null } = {}) {
     return true;
   }
 
-  if (closeLiveEscapeSurface(event, doc, 'deckViewModal', () => {
-    deps.closeDeckView?.();
+  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'deckViewModal', () => {
+    if (typeof deps.closeDeckView !== 'function') return false;
+    return deps.closeDeckView() !== false;
   })) return true;
 
-  if (closeLiveEscapeSurface(event, doc, 'codexModal', () => {
-    deps.closeCodex?.();
+  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'codexModal', () => {
+    if (typeof deps.closeCodex !== 'function') return false;
+    return deps.closeCodex() !== false;
   })) return true;
 
-  if (closeLiveEscapeSurface(event, doc, 'runSettingsModal', () => {
-    deps.closeRunSettings?.();
+  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'runSettingsModal', () => {
+    if (typeof deps.closeRunSettings !== 'function') return false;
+    return deps.closeRunSettings() !== false;
   })) return true;
 
-  if (closeLiveEscapeSurface(event, doc, 'settingsModal', () => {
-    deps.closeSettings?.();
+  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'settingsModal', () => {
+    if (typeof deps.closeSettings !== 'function') return false;
+    return deps.closeSettings() !== false;
   })) return true;
 
   const pauseMenu = doc.getElementById('pauseMenu');
@@ -113,7 +130,7 @@ function handleLiveEscapeHotkey(event, { doc, deps = {}, ui = null } = {}) {
     return true;
   }
 
-  return (deps.gs || deps.State || deps.state || null)?.currentScreen === 'title';
+  return isTitleScreen;
 }
 
 export const RootBindings = {
@@ -209,11 +226,13 @@ export const RootBindings = {
     target.__rootHelpPauseHotkeysBound = true;
     target.addEventListener('keydown', (event) => {
       const liveHelpPauseUI = resolveHelpPauseUI(doc, deps) || helpPauseUI;
+      const liveRunDeps = getLiveRunDeps(doc, deps);
       const resolvedHelpPauseDeps = {
         ...(deps.getHelpPauseDeps?.() || {}),
-        ...getLiveRunDeps(doc, deps),
+        ...liveRunDeps,
         doc,
         win: doc.defaultView || deps.win || null,
+        gs: resolveEscapeHotkeyGs(deps, liveRunDeps),
       };
       if (isEscapeKey(event)) {
         const escapeHandled = handleLiveEscapeHotkey(event, {
