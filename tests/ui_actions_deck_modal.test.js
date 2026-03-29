@@ -54,4 +54,23 @@ describe('createUiActions deck modal deps', () => {
     expect(modules.TooltipUI.showTooltip).toHaveBeenCalledWith({ type: 'mouseenter' }, 'strike', tooltipDeps);
     expect(modules.TooltipUI.hideTooltip).toHaveBeenCalledWith(tooltipDeps);
   });
+
+  it('exposes togglePause for gameplay surfaces that need the shared pause UI', () => {
+    const helpPauseDeps = { gs: { currentScreen: 'game' }, doc: { id: 'doc' } };
+    const modules = {
+      HelpPauseUI: {
+        togglePause: vi.fn(),
+      },
+    };
+    const ports = {
+      getHelpPauseDeps: vi.fn(() => helpPauseDeps),
+    };
+
+    const actions = createUiActions(modules, {}, ports);
+
+    actions.togglePause();
+
+    expect(ports.getHelpPauseDeps).toHaveBeenCalledTimes(1);
+    expect(modules.HelpPauseUI.togglePause).toHaveBeenCalledWith(helpPauseDeps);
+  });
 });

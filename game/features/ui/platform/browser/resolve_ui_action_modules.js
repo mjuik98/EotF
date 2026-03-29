@@ -16,6 +16,7 @@ export function resolveUiActionModules(modules = {}) {
     DomValueUI: resolveUiRuntimeModule(modules, 'DomValueUI', ['screen', 'combat']),
     GS: resolveUiRuntimeModule(modules, 'GS', ['core']),
     GameInit: resolveUiRuntimeModule(modules, 'GameInit', ['core']),
+    HelpPauseUI: resolveUiRuntimeModule(modules, 'HelpPauseUI', ['screen', 'title']),
     HudUpdateUI: resolveUiRuntimeModule(modules, 'HudUpdateUI', ['combat']),
     ScreenUI: resolveUiRuntimeModule(modules, 'ScreenUI', ['screen']),
     SettingsUI: resolveUiRuntimeModule(modules, 'SettingsUI', ['screen']),

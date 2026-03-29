@@ -7,23 +7,45 @@ function createMockElement() {
     children: [],
     textContent: '',
     innerHTML: '',
+    parentNode: null,
     append(...nodes) {
+      nodes.forEach((node) => {
+        if (node) node.parentNode = this;
+      });
       this.children.push(...nodes);
     },
     appendChild(node) {
+      if (node) node.parentNode = this;
       this.children.push(node);
       return node;
     },
-    addEventListener: vi.fn(),
-    remove: vi.fn(),
+    addEventListener(type, handler) {
+      this.listeners = this.listeners || new Map();
+      this.listeners.set(type, handler);
+    },
+    remove() {
+      if (!this.parentNode) return;
+      this.parentNode.children = this.parentNode.children.filter((child) => child !== this);
+      this.parentNode = null;
+    },
   };
 }
 
 function createMockDoc() {
   const body = createMockElement();
+  const listeners = new Map();
   return {
     body,
     createElement: vi.fn(() => createMockElement()),
+    addEventListener: vi.fn((type, handler) => {
+      listeners.set(type, handler);
+    }),
+    removeEventListener: vi.fn((type, handler) => {
+      if (listeners.get(type) === handler) listeners.delete(type);
+    }),
+    dispatch(type, event) {
+      listeners.get(type)?.(event);
+    },
   };
 }
 
@@ -122,5 +144,26 @@ describe('RegionTransitionUI target region parsing', () => {
     expect(desc.innerHTML).toContain('&lt;img src=x onerror=alert(1)&gt;');
     expect(desc.innerHTML).toContain('kw-dmg');
     expect(desc.innerHTML).toContain('kw-special kw-block');
+  });
+
+  it('closes the region intro overlay on Escape', () => {
+    const deps = createDeps(null);
+
+    RegionTransitionUI.advanceToNextRegion(deps);
+
+    const event = {
+      key: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+    };
+
+    deps.doc.dispatch('keydown', event);
+
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(deps.doc.body.children).toHaveLength(0);
+    expect(deps.generateMap).toHaveBeenCalledWith(deps.gs.currentRegion);
+    expect(deps.updateUI).toHaveBeenCalledTimes(1);
+    expect(deps.showRunFragment).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,6 +5,7 @@ const UI_DEP_CONTRACTS = Object.freeze({
   getCombatHudDeps: 'combatHud',
   getCombatInfoDeps: 'combatInfo',
   getDeckModalDeps: 'deckModal',
+  getHelpPauseDeps: 'helpPause',
   getHudUpdateDeps: 'hudUpdate',
   getScreenDeps: 'screen',
   getTooltipDeps: 'tooltip',

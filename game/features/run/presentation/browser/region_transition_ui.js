@@ -82,9 +82,14 @@ export const RegionTransitionUI = {
     doc.body.appendChild(overlay);
 
     let closed = false;
+    let onKeyDown = null;
     const closeOverlay = () => {
       if (closed) return;
       closed = true;
+      if (onKeyDown) {
+        doc.removeEventListener?.('keydown', onKeyDown, true);
+        onKeyDown = null;
+      }
       overlay.style.transition = 'opacity 0.8s';
       overlay.style.opacity = '0';
       const setTimeoutFn = deps.setTimeoutFn || win?.setTimeout?.bind?.(win) || setTimeout;
@@ -97,6 +102,15 @@ export const RegionTransitionUI = {
       }, 800);
     };
     closeBtn.addEventListener('click', closeOverlay);
+
+    onKeyDown = (event) => {
+      if (event?.key !== 'Escape' && event?.key !== 'Esc') return;
+      event.preventDefault?.();
+      event.stopPropagation?.();
+      event.stopImmediatePropagation?.();
+      closeOverlay();
+    };
+    doc.addEventListener?.('keydown', onKeyDown, true);
 
     deps.particleSystem?.burstEffect?.((win?.innerWidth || 0) / 2, (win?.innerHeight || 0) / 2);
     deps.screenShake?.shake?.(8, 0.5);

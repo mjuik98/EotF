@@ -141,12 +141,12 @@ export function renderDeckModalCards(doc, cardsEl, entries, options = {}) {
       showHotkey: false,
     });
 
-    const type = el.children[el.children.length - 1];
-    if (type) {
-      const typeLabel = getCardTypeDisplayLabel(card.type);
-      type.textContent = card.upgraded ? `${typeLabel} ✦` : typeLabel;
-      type.style.color = typeColor;
-    }
+    const type = doc.createElement('div');
+    const typeLabel = getCardTypeDisplayLabel(card.type);
+    type.className = 'card-type';
+    type.textContent = card.upgraded ? `${typeLabel} ✦` : typeLabel;
+    type.style.color = typeColor;
+    el.appendChild(type);
 
     cardsEl.appendChild(el);
   });

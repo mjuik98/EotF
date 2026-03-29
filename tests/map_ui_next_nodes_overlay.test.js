@@ -36,6 +36,9 @@ function createElement(doc, tag = 'div') {
     addEventListener(type, handler) {
       el.listeners[type] = handler;
     },
+    focus: vi.fn(() => {
+      doc.activeElement = el;
+    }),
     remove() {
       if (el.id) doc._elements.delete(el.id);
     },
@@ -44,9 +47,11 @@ function createElement(doc, tag = 'div') {
     cloneNode: () => createElement(doc, tag),
     querySelectorAll(selector) {
       const results = [];
+      const className = selector.startsWith('.') ? selector.slice(1) : '';
       const visit = (node) => {
         if (!node) return;
-        if (selector === '.node-card' && String(node.className || '').includes('node-card')) {
+        const classTokens = String(node.className || '').split(/\s+/).filter(Boolean);
+        if (className && classTokens.includes(className)) {
           results.push(node);
         }
         for (const child of node.children || []) visit(child);
@@ -148,6 +153,45 @@ describe('map_ui_next_nodes overlay', () => {
     keyHandler({ key: '1' });
     vi.advanceTimersByTime(800);
     expect(moveToNode).toHaveBeenCalledWith('n1');
+  });
+
+  it('focuses the first route card when the overlay opens so keyboard shortcuts are live immediately', () => {
+    const doc = createDoc();
+
+    updateNextNodesOverlay({
+      doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      moveToNode: vi.fn(),
+      showDeckView: vi.fn(),
+      closeDeckView: vi.fn(),
+      showFullMap: vi.fn(),
+      gs: {
+        currentScreen: 'game',
+        currentRegion: 0,
+        currentFloor: 1,
+        combat: { active: false },
+        _nodeMoveLock: false,
+        _rewardLock: false,
+        _endCombatScheduled: false,
+        _endCombatRunning: false,
+        player: { hp: 10, maxHp: 10, items: [], deck: [], graveyard: [], exhausted: [] },
+        mapNodes: [
+          { id: 'n1', floor: 2, accessible: true, visited: false, type: 'combat' },
+        ],
+      },
+      nodeMeta: {
+        combat: { color: '#ff4455', icon: 'C', label: 'Combat', desc: 'fight' },
+      },
+      getRegionData: () => ({ name: 'Region', rule: 'Rule' }),
+      getFloorStatusText: () => '1F',
+      data: { items: {} },
+    });
+
+    const overlay = doc.getElementById('nodeCardOverlay');
+    const firstCard = overlay.querySelectorAll('.node-card')[0];
+
+    expect(firstCard.focus).toHaveBeenCalledTimes(1);
+    expect(doc.activeElement).toBe(firstCard);
   });
 
   it('does not toggle deck view while the full-map overlay is visible', () => {

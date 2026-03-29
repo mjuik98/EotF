@@ -188,4 +188,9 @@ export function updateNextNodesOverlay(deps = {}) {
   overlay.style.flexDirection = 'row';
   overlay.style.alignItems = 'stretch';
   overlay.style.pointerEvents = 'auto';
+
+  const firstCard = typeof row.querySelectorAll === 'function'
+    ? row.querySelectorAll('.node-card')[0]
+    : null;
+  firstCard?.focus?.();
 }

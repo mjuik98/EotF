@@ -103,6 +103,10 @@ export function createUiActions(modules, fns, ports) {
       modules.DeckModalUI?.closeDeckView?.(ports.getDeckModalDeps());
     },
 
+    togglePause() {
+      modules.HelpPauseUI?.togglePause?.(ports.getHelpPauseDeps());
+    },
+
     async openCodex() {
       playUiClick(modules.AudioEngine);
       await codexBrowserModules.ensurePrimary(modules);

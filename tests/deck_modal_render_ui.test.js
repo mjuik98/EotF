@@ -43,6 +43,7 @@ class MockElement {
 
   set textContent(value) {
     this._textContent = String(value ?? '');
+    this._innerHTML = '';
     this.children = [];
   }
 
@@ -52,6 +53,7 @@ class MockElement {
 
   set innerHTML(value) {
     this._innerHTML = String(value ?? '');
+    this._textContent = this._innerHTML.replace(/<[^>]+>/g, '');
   }
 
   get innerHTML() {
@@ -132,6 +134,56 @@ describe('deck_modal_render_ui', () => {
     applyDeckFilterButtonStyles(doc, 'ATTACK');
     expect(attackBtn.style.background).toBe('rgba(255,80,100,0.2)');
     expect(allBtn.style.background).toBe('transparent');
+  });
+
+  it('renders deck descriptions and type labels as separate nodes', () => {
+    const doc = createDoc();
+    const cardsEl = new MockElement('div');
+
+    renderDeckModalCards(doc, cardsEl, [
+      {
+        id: 'strike_plus',
+        count: 1,
+        inHand: false,
+        inGraveyard: false,
+        card: {
+          rarity: 'common',
+          type: 'ATTACK',
+          cost: 1,
+          icon: '👊🏻',
+          name: '타격+',
+          desc: '피해 13. 잔향 5 충전',
+          upgraded: true,
+        },
+      },
+      {
+        id: 'heavy_blow_plus',
+        count: 1,
+        inHand: false,
+        inGraveyard: false,
+        card: {
+          rarity: 'rare',
+          type: 'ATTACK',
+          cost: 3,
+          icon: '🔨',
+          name: '중격+',
+          desc: '피해 28. 기절 1턴 부여',
+          upgraded: true,
+        },
+      },
+    ]);
+
+    const strikeCard = cardsEl.children[0];
+    const heavyBlowCard = cardsEl.children[1];
+    const strikeDesc = strikeCard.children.find((child) => String(child.className).includes('deck-card-desc'));
+    const heavyBlowDesc = heavyBlowCard.children.find((child) => String(child.className).includes('deck-card-desc'));
+    const strikeType = strikeCard.children.find((child) => String(child.className).includes('card-type'));
+    const heavyBlowType = heavyBlowCard.children.find((child) => String(child.className).includes('card-type'));
+
+    expect(strikeDesc?.textContent).toContain('피해 13');
+    expect(heavyBlowDesc?.textContent).toContain('피해 28');
+    expect(strikeType?.textContent).toBe('공격 ✦');
+    expect(heavyBlowType?.textContent).toBe('공격 ✦');
   });
 
   it('styles deck modal descriptions with a readable deck-specific text block', async () => {
