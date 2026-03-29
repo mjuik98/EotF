@@ -18,7 +18,7 @@ const BATTLE_CHRONICLE_SHELL_MARKUP = `
     <div id="battleChronicleList" class="battle-chronicle-list"></div>
   </div>
   <div class="gm-modal-footer">
-    <button id="closeBattleChronicleBtn" class="action-btn action-btn-secondary">닫기<span class="kbd-hint">ESC</span></button>
+    <button id="closeBattleChronicleBtn" class="action-btn action-btn-secondary gm-close-btn gm-close-btn-footer">닫기<span class="kbd-hint">ESC</span></button>
   </div>
 </div>
 `.trim();

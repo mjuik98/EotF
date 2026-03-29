@@ -95,6 +95,28 @@ describe('map_ui_next_nodes_render', () => {
     expect(dock.children[1].children[0].className).toContain('is-actionable');
   });
 
+  it('renders deck and pause hints from the current input bindings instead of hardcoded keys', () => {
+    const doc = createDoc();
+    const dock = buildBottomDock(doc, { name: 'Region', rule: 'No Rule' }, {
+      keybindings: {
+        deckView: 'Tab',
+        pause: 'KeyP',
+      },
+      nodeCount: 2,
+      onShowFullMap: () => {},
+      onToggleDeckView: () => {},
+    });
+
+    const bar = dock.children[1];
+    const deckEntry = bar.children[2];
+    const pauseEntry = bar.children[6];
+
+    expect(deckEntry.children[0].textContent).toBe('Tab');
+    expect(deckEntry.children[1].textContent).toBe('덱 보기');
+    expect(pauseEntry.children[0].textContent).toBe('P');
+    expect(pauseEntry.children[1].textContent).toBe('일시정지');
+  });
+
   it('renders bottom dock region descriptions through the shared highlight path', () => {
     const doc = createDoc();
     const dock = buildBottomDock(doc, {

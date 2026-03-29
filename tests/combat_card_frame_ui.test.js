@@ -31,6 +31,30 @@ function findChild(root, predicate) {
 }
 
 describe('combat_card_frame_ui cost badges', () => {
+  it('does not render duplicate card type labels in the frame', () => {
+    const doc = createDoc();
+    const root = doc.createElement('div');
+
+    populateCombatCardFrame(root, doc, {
+      cardId: 'heavy_blow_plus',
+      card: {
+        name: '중격+',
+        icon: '🔨',
+        type: 'ATTACK',
+        cost: 3,
+        desc: '피해 28. 기절 1턴 부여',
+        rarity: 'rare',
+        upgraded: true,
+      },
+      canPlay: true,
+      displayCost: 3,
+    }, { variant: 'hand' });
+
+    const typeEl = findChild(root, (child) => String(child.className).includes('card-type'));
+
+    expect(typeEl).toBeNull();
+  });
+
   it('renders hand cost badges with shared variant and type classes', () => {
     const doc = createDoc();
     const root = doc.createElement('div');

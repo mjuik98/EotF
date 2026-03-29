@@ -79,6 +79,12 @@ describe('build-first optimization guardrails', () => {
     expect(codexShell).toContain('codex-modal-inner');
   });
 
+  it('avoids a full-body decorative backdrop layer behind the run rules content', () => {
+    const runRulesCss = readText('css/run-rules-redesign.css');
+
+    expect(runRulesCss).not.toContain('#runSettingsBody::before {');
+  });
+
   it('keeps the repository contract free of removed doc paths', () => {
     const agents = readText('AGENTS.md');
     const readme = readText('README.md');

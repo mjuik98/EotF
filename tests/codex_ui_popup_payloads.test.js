@@ -71,6 +71,8 @@ describe('codex_ui_popup_payloads', () => {
 
     expect(enemyPayload.theme.border).toContain('192,132,252');
     expect(enemyPayload.html).toContain('Wolf');
+    expect(enemyPayload.html).toContain('gm-close-btn');
+    expect(enemyPayload.html).toContain('gm-close-btn-icon');
     expect(cardPayload.html).toContain('Judgement');
     expect(cardPayload.html).toContain('강화 사용 횟수');
     expect(cardPayload.html).toContain('강화 첫 발견');

@@ -3,8 +3,6 @@ import {
   detectCardTags,
   getCardRarityDisplayLabel,
   getCardTypeClass,
-  getCardTypeDisplayLabel,
-  getCardTypeLabelClass,
 } from './card_render_helpers_ui.js';
 import { DomSafe } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
 
@@ -79,7 +77,6 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
 
   const rarity = card.rarity || 'common';
   const typeClass = getCardTypeClass(card.type);
-  const typeLabelClass = getCardTypeLabelClass(card.type);
   const rarityLabel = getCardRarityDisplayLabel(rarity);
   const isLegendary = rarity === 'legendary';
   const isRareLike = rarity === 'rare' || rarity === 'legendary';
@@ -171,15 +168,6 @@ export function populateCombatCardFrame(root, doc, model = {}, options = {}) {
   root.appendChild(desc);
 
   addCardTags(doc, root, card, variant);
-
-  const type = doc.createElement('div');
-  type.className = [
-    'card-type',
-    typeLabelClass,
-    variant === 'hover' ? 'card-type-hover' : '',
-  ].filter(Boolean).join(' ');
-  type.textContent = getCardTypeDisplayLabel(card.type);
-  root.appendChild(type);
 
   if (!canPlay && variant === 'hand') {
     const shortfall = Math.max(0, Number(displayCost || 0) - Math.max(0, Number(energy) || 0));

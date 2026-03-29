@@ -4,7 +4,7 @@ const RUN_SETTINGS_SHELL_MARKUP = `
     <div class="gm-modal-header-main">
       <div class="modal-title gm-modal-title">런 규칙</div>
     </div>
-    <button id="closeRunSettingsBtn" aria-label="닫기">✕</button>
+    <button id="closeRunSettingsBtn" class="gm-close-btn gm-close-btn-icon" aria-label="닫기">✕</button>
   </div>
 
   <div id="runSettingsBody" class="run-settings-body gm-modal-body">

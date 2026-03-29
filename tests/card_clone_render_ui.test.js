@@ -96,7 +96,7 @@ describe('card_clone_render_ui', () => {
     expect(clone.children.some((child) => child.className === 'card-clone-keyword-panel')).toBe(true);
     expect(clone.children.find((child) => child.className === 'card-clone-keyword-panel')?.children[0]?.children[0]?.textContent).toBe('소진');
     expect(clone.children.some((child) => child.className === 'card-clone-arrow')).toBe(true);
-    expect(clone.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('공격');
+    expect(clone.children.find((child) => String(child.className).includes('card-type'))).toBeUndefined();
 
     rng.mockRestore();
   });

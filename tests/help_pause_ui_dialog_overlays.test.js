@@ -48,6 +48,8 @@ describe('help_pause_ui_dialog_overlays', () => {
     expect(menu.children[0].className).toContain('hp-panel');
     expect(menu.children[0].className).toContain('gm-modal-panel');
     expect(menu.children[0].children.at(-1).children[0].className).toContain('action-btn-secondary');
+    expect(menu.children[0].children.at(-1).children[0].className).toContain('gm-close-btn');
+    expect(menu.children[0].children.at(-1).children[0].className).toContain('gm-close-btn-footer');
   });
 
   it('builds confirm dialogs and the mobile warning through the same overlay frame system', () => {

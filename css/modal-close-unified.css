@@ -19,8 +19,18 @@
 }
 
 /* ══════════════════════════════════════════
-   2. 헤더형 ✕ 버튼 (도감, 런 규칙)
+   2. 공통 베이스
 ══════════════════════════════════════════ */
+.gm-close-btn {
+  cursor: pointer;
+  box-shadow: none;
+  text-decoration: none;
+}
+
+/* ══════════════════════════════════════════
+   3. 헤더형 ✕ 버튼 (도감, 런 규칙)
+══════════════════════════════════════════ */
+.gm-close-btn-icon,
 .cx-close-btn,
 #closeRunSettingsBtn {
   width: 36px;
@@ -30,7 +40,6 @@
   border: 1px solid var(--close-border);
   color: var(--close-color);
   font-size: 15px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,6 +52,7 @@
   margin-left: auto;
 }
 
+.gm-close-btn-icon:hover,
 .cx-close-btn:hover,
 #closeRunSettingsBtn:hover {
   background: var(--close-danger-bg);
@@ -51,6 +61,7 @@
   transform: scale(1.08);
 }
 
+.gm-close-btn-icon:active,
 .cx-close-btn:active,
 #closeRunSettingsBtn:active {
   transform: scale(0.93);
@@ -58,8 +69,9 @@
 
 
 /* ══════════════════════════════════════════
-   3. 푸터형 텍스트 버튼 (설정, 덱보기, 전투기록)
+   4. 푸터형 텍스트 버튼 (설정, 덱보기, 전투기록, 도움말, 전체지도)
 ══════════════════════════════════════════ */
+.gm-close-btn-footer,
 .settings-close-btn,
 #deckViewCloseBtn,
 #closeBattleChronicleBtn {
@@ -79,6 +91,7 @@
   transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.14s;
 }
 
+.gm-close-btn-footer:hover,
 .settings-close-btn:hover,
 #deckViewCloseBtn:hover,
 #closeBattleChronicleBtn:hover {
@@ -89,6 +102,7 @@
   box-shadow: none;
 }
 
+.gm-close-btn-footer:active,
 .settings-close-btn:active,
 #deckViewCloseBtn:active,
 #closeBattleChronicleBtn:active {
@@ -96,6 +110,7 @@
 }
 
 /* ESC 힌트 뱃지 통일 */
+.gm-close-btn-footer .kbd-hint,
 .settings-close-btn .kbd-hint,
 #deckViewCloseBtn .kbd-hint,
 #closeBattleChronicleBtn .kbd-hint {
@@ -111,30 +126,11 @@
 }
 
 /* ══════════════════════════════════════════
-   4. 도움말/일시정지 (JS 동적 생성)
+   5. 위치별 보정
 ══════════════════════════════════════════ */
-#pauseMenu .action-btn-secondary:last-child,
-#helpMenu .action-btn-secondary:last-child {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  padding: 10px 26px;
-  border-radius: 8px;
-  background: var(--close-bg);
-  border: 1px solid var(--close-border);
-  color: var(--close-color);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: none;
-  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.14s;
-}
-
-#pauseMenu .action-btn-secondary:last-child:hover,
-#helpMenu .action-btn-secondary:last-child:hover {
-  background: var(--close-bg-hover);
-  border-color: var(--close-border-hover);
-  color: var(--close-color-hover);
-  transform: translateY(-1px);
-  box-shadow: none;
+#cxDetailPopup .gm-close-btn-icon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
 }

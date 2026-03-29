@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import {
   buildCodexModalMarkup,
@@ -108,6 +110,7 @@ describe('codex_ui_structure', () => {
     expect(markup).toContain('id="cxSearch"');
     expect(markup).toContain('id="codexContent"');
     expect(markup).toContain('id="codexTab_items"');
+    expect(markup).toContain('class="gm-modal-body cx-body"');
   });
 
   it('injects structure once and wires events', () => {
@@ -163,5 +166,14 @@ describe('codex_ui_structure', () => {
 
     expect(doc.getElementById('codexTab_items').classList.contains('active')).toBe(true);
     expect(doc.getElementById('codexTab_cards').classList.contains('active')).toBe(false);
+  });
+
+  it('keeps the codex body as a flex column so the scrollable content area can grow', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'css', 'codex_v3.css'), 'utf8');
+
+    expect(source).toContain('.cx-body');
+    expect(source).toContain('flex: 1');
+    expect(source).toContain('flex-direction: column');
+    expect(source).toContain('min-height: 0');
   });
 });

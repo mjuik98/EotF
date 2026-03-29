@@ -13,7 +13,7 @@ export function buildCodexModalMarkup() {
     + '<option value="rarity">등급순</option><option value="count">횟수순</option></select>'
     + '<button class="cx-close-btn" id="codexCloseBtn">✕</button></div>'
     + '</div>'
-    + '<div class="gm-modal-body"><div class="cx-progress-section" id="cxProgressSection"></div><div class="cx-tabs">'
+    + '<div class="gm-modal-body cx-body"><div class="cx-progress-section" id="cxProgressSection"></div><div class="cx-tabs">'
     + '<button class="cx-tab-btn active" id="codexTab_enemies" data-tab="enemies">👾 적 도감 <span class="cx-tab-badge" id="cxBadge_enemies"></span></button>'
     + '<button class="cx-tab-btn" id="codexTab_cards" data-tab="cards">🃏 카드 도감 <span class="cx-tab-badge" id="cxBadge_cards"></span></button>'
     + '<button class="cx-tab-btn" id="codexTab_items" data-tab="items">💎 유물 도감 <span class="cx-tab-badge" id="cxBadge_items"></span></button>'

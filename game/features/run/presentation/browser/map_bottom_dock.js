@@ -1,4 +1,8 @@
 import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
+import {
+  getInputBindingCode,
+  inputCodeToLabel,
+} from '../../../ui/ports/public_input_capabilities.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';
@@ -35,14 +39,21 @@ function buildRuleBanner(doc, regionData) {
 }
 
 export function buildBottomDock(doc, regionData, options = {}) {
-  const { nodeCount = 0, onShowFullMap = null, onToggleDeckView = null } = options;
+  const {
+    keybindings = null,
+    nodeCount = 0,
+    onShowFullMap = null,
+    onToggleDeckView = null,
+  } = options;
   const bar = doc.createElement('div');
   bar.className = 'nc-bottom-bar';
+  const deckViewKeyLabel = inputCodeToLabel(getInputBindingCode('deckView', undefined, keybindings)) || 'D';
+  const pauseKeyLabel = inputCodeToLabel(getInputBindingCode('pause', undefined, keybindings)) || 'ESC';
   const items = [
     { keys: ['M'], label: '전체 지도', action: onShowFullMap },
-    { keys: ['TAB'], label: '덱 보기', action: onToggleDeckView },
+    { keys: [deckViewKeyLabel], label: '덱 보기', action: onToggleDeckView },
     { keys: Array.from({ length: Math.max(1, Math.min(3, nodeCount)) }, (_, index) => String(index + 1)), label: '경로 선택', action: null },
-    { keys: ['ESC'], label: '설정', action: null },
+    { keys: [pauseKeyLabel], label: '일시정지', action: null },
   ];
 
   items.forEach((item, index) => {

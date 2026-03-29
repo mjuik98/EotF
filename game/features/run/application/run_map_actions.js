@@ -45,6 +45,7 @@ export function createRunMapActions(context) {
     showFullMap() {
       const deps = ports.getCanvasDeps({
         getFloorStatusText: fns.getFloorStatusText,
+        getRegionData: modules.getRegionData,
         minimapCanvas: modules._canvasRefs?.minimapCanvas,
         minimapCtx: modules._canvasRefs?.minimapCtx,
         moveToNode: fns.moveToNode,

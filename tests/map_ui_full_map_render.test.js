@@ -115,6 +115,8 @@ describe('map_ui_full_map_render', () => {
     expect(refs.legend.children).toHaveLength(2);
     expect(refs.closeBtn.innerHTML).toContain('닫기');
     expect(refs.closeBtn.innerHTML).toContain('ESC');
+    expect(refs.closeBtn.className).toContain('gm-close-btn');
+    expect(refs.closeBtn.className).toContain('gm-close-btn-footer');
     expect(refs.canvas.width).toBe(640);
     expect(refs.glitchCanvas.height).toBe(420);
     expect(refs.canvas.tabIndex).toBe(0);

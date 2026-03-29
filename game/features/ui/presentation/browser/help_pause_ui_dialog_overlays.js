@@ -73,7 +73,7 @@ export function createHelpMenu(doc, deps, onClose) {
   }));
   footer.appendChild(createActionButton(doc, {
     id: 'helpCloseBtn',
-    className: 'action-btn-secondary',
+    className: 'action-btn-secondary gm-close-btn gm-close-btn-footer',
     html: '닫기<span class="kbd-hint">ESC</span>',
     onClick: onClose,
   }));

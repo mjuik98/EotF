@@ -319,7 +319,7 @@ async function main() {
     assertCondition(result.enemyIntentText && !result.enemyIntentText.includes('Attack'), `enemy intent was not localized: ${result.enemyIntentText}`);
     assertCondition(result.enemyIntentText?.includes('공격'), `enemy intent text missing localized attack label: ${result.enemyIntentText}`);
     assertCondition(result.handCount >= 3, `expected at least 3 hand cards, got ${result.handCount}`);
-    assertCondition(result.firstCardTypeText === '공격', `expected localized hand card type label, got ${result.firstCardTypeText}`);
+    assertCondition(result.firstCardTypeText === null, `expected hand card type label to be absent, got ${result.firstCardTypeText}`);
     assertCondition(result.firstCardRarityText === '일반', `expected localized hand card rarity tag, got ${result.firstCardRarityText}`);
     assertCondition(result.firstCostClass?.includes('card-cost-hand'), `first hand card cost was not rendered with hand cost variant: ${result.firstCostClass}`);
     assertCondition(result.disabledCostClass?.includes('card-cost-insufficient-energy'), `disabled hand card cost did not surface insufficient energy state: ${result.disabledCostClass}`);

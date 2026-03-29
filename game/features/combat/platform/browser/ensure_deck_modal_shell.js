@@ -29,7 +29,7 @@ const DECK_MODAL_SHELL_MARKUP = `
     <div class="deck-modal-cards" id="deckModalCards"></div>
   </div>
   <div class="deck-footer gm-modal-footer">
-    <button id="deckViewCloseBtn" class="action-btn action-btn-secondary">닫기<span class="kbd-hint">ESC</span></button>
+    <button id="deckViewCloseBtn" class="action-btn action-btn-secondary gm-close-btn gm-close-btn-footer">닫기<span class="kbd-hint">ESC</span></button>
   </div>
 </div>
 `.trim();

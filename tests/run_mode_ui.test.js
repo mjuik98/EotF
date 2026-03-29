@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { bindRunModePanelEvents } from '../game/features/run/public.js';
+import { buildRunSettingsShellMarkup } from '../game/features/run/platform/browser/ensure_run_settings_shell.js';
 import { ensureRunModeUiStyle } from '../game/features/run/presentation/browser/run_mode_ui_style.js';
 
 function createElement() {
@@ -76,5 +77,13 @@ describe('RunModeUI bindings', () => {
     expect(doc.head.children[0].rel).toBe('stylesheet');
     expect(doc.head.children[0].href).toContain('run-rules-redesign.css');
     expect(doc.head.children[0].href).not.toBe('/css/run-rules-redesign.css');
+  });
+
+  it('buildRunSettingsShellMarkup marks the dismiss icon as a shared close button', () => {
+    const markup = buildRunSettingsShellMarkup();
+
+    expect(markup).toContain('id="closeRunSettingsBtn"');
+    expect(markup).toContain('gm-close-btn');
+    expect(markup).toContain('gm-close-btn-icon');
   });
 });

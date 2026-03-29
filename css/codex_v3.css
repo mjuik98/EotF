@@ -136,6 +136,15 @@
 /* ════════════════════════════════════════
    HEADER
 ════════════════════════════════════════ */
+.cx-body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .cx-header {
   position: relative;
   z-index: 2;
@@ -641,6 +650,7 @@
 ════════════════════════════════════════ */
 .cx-content-wrap {
   flex: 1;
+  min-height: 0;
   position: relative;
   overflow: hidden;
   z-index: 2;
@@ -1551,24 +1561,10 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid rgba(255, 255, 255, .08);
-  color: var(--cx-dim);
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .15s;
   z-index: 2;
 }
 
 .cx-popup-close:hover {
-  background: rgba(255, 51, 102, .12);
-  border-color: rgba(255, 51, 102, .3);
   color: var(--cx-danger);
 }
 

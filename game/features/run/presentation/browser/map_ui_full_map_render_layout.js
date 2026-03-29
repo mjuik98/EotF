@@ -73,7 +73,7 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
   overlay.appendChild(legend);
 
   const closeBtn = doc.createElement('button');
-  closeBtn.className = 'action-btn action-btn-secondary';
+  closeBtn.className = 'action-btn action-btn-secondary gm-close-btn gm-close-btn-footer';
   closeBtn.innerHTML = '닫기<span class="kbd-hint">ESC</span>';
   closeBtn.style.marginTop = '20px';
   closeBtn.onclick = onClose;

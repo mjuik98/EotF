@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { showFullMapOverlay } from '../game/features/run/public.js';
+import { createRunMapActions } from '../game/features/run/application/run_map_actions.js';
 
 class MockContext2D {
   clearRect() {}
@@ -189,5 +190,39 @@ describe('map_ui_full_map', () => {
 
     showFullMapOverlay(deps);
     expect(doc.getElementById('fullMapOverlay')).toBeNull();
+  });
+
+  it('passes getRegionData through the full-map action deps', () => {
+    const getCanvasDeps = vi.fn((extra = {}) => extra);
+    const showFullMap = vi.fn();
+    const getRegionData = vi.fn();
+
+    const actions = createRunMapActions({
+      fns: {
+        getFloorStatusText: vi.fn(() => '1F'),
+        moveToNode: vi.fn(),
+      },
+      modules: {
+        MapUI: { showFullMap },
+        NODE_META: { combat: { label: '전투' } },
+        _canvasRefs: {
+          minimapCanvas: { id: 'minimap' },
+          minimapCtx: { id: 'ctx' },
+        },
+        getRegionData,
+      },
+      ports: {
+        getCanvasDeps,
+      },
+    });
+
+    actions.showFullMap();
+
+    expect(getCanvasDeps).toHaveBeenCalledWith(expect.objectContaining({
+      getRegionData,
+    }));
+    expect(showFullMap).toHaveBeenCalledWith(expect.objectContaining({
+      getRegionData,
+    }));
   });
 });

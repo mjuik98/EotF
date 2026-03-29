@@ -45,7 +45,7 @@ export function buildEnemyPopupPayload(enemy, options = {}) {
   return {
     theme: { ...theme, bg2: '#08080f' },
     html: `
-      <button class="cx-popup-close" id="cxPopupClose">✕</button>
+      <button class="cx-popup-close gm-close-btn gm-close-btn-icon" id="cxPopupClose">✕</button>
       <div class="cx-popup-hdr">
         <div class="cx-popup-icon-frame">${enemy.icon || '?'}</div>
         <div class="cx-popup-hdr-info">
@@ -108,7 +108,7 @@ export function buildCardPopupPayload(card, options = {}) {
   return {
     theme: { ...theme, bg2: '#08080f' },
     html: `
-      <button class="cx-popup-close" id="cxPopupClose">✕</button>
+      <button class="cx-popup-close gm-close-btn gm-close-btn-icon" id="cxPopupClose">✕</button>
       <div class="cx-popup-hdr">
         <div class="cx-popup-icon-frame">${card.icon || '?'}</div>
         <div class="cx-popup-hdr-info">
@@ -149,7 +149,7 @@ export function buildItemPopupPayload(item, options = {}) {
       glow: setDef?.glow || 'rgba(0,255,204,.07)',
     },
     html: `
-      <button class="cx-popup-close" id="cxPopupClose">✕</button>
+      <button class="cx-popup-close gm-close-btn gm-close-btn-icon" id="cxPopupClose">✕</button>
       <div class="cx-popup-hdr">
         <div class="cx-popup-icon-frame">${item.icon || '?'}</div>
         <div class="cx-popup-hdr-info">

@@ -86,7 +86,7 @@ describe('combat_card_render_ui', () => {
     expect(el.children.some((child) => child.className === 'card-desc')).toBe(true);
     expect(el.children.some((child) => child.className === 'card-tags')).toBe(true);
     expect(el.children.some((child) => child.className === 'card-particles')).toBe(true);
-    expect(el.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('공격');
+    expect(el.children.find((child) => String(child.className).includes('card-type'))).toBeUndefined();
 
     rng.mockRestore();
   });
@@ -119,8 +119,8 @@ describe('combat_card_render_ui', () => {
     expect(firstCost.className).toContain('card-cost-insufficient-energy');
     expect(firstOverlay.children[0].textContent).toBe('에너지 2 부족');
     expect(second.children.some((child) => child.className === 'card-legendary-border')).toBe(true);
-    expect(first.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('스킬');
-    expect(second.children.find((child) => String(child.className).includes('card-type'))?.textContent).toBe('파워');
+    expect(first.children.find((child) => String(child.className).includes('card-type'))).toBeUndefined();
+    expect(second.children.find((child) => String(child.className).includes('card-type'))).toBeUndefined();
     expect(first.style['--fan-rot']).toBeDefined();
     expect(second.style['--fan-lift']).toBeDefined();
   });

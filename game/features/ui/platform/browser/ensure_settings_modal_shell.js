@@ -180,7 +180,7 @@ const SETTINGS_MODAL_SHELL_MARKUP = `
 
   <div class="settings-footer gm-modal-footer">
     <button class="settings-reset-btn">기본값 초기화</button>
-    <button class="settings-close-btn">
+    <button class="settings-close-btn gm-close-btn gm-close-btn-footer">
       닫기<span class="kbd-hint">ESC</span>
     </button>
   </div>
