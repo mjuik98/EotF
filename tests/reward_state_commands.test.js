@@ -137,4 +137,34 @@ describe('reward_state_commands', () => {
     expect(dispatch).toHaveBeenCalledWith(Actions.PLAYER_GOLD, { amount: 18 });
     vi.restoreAllMocks();
   });
+
+  it('applies onAcquire effects for guaranteed mini-boss relic rewards', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const onAcquire = vi.fn((state) => {
+      state.player.maxEnergy += 1;
+    });
+    const state = {
+      currentRegion: 2,
+      player: {
+        hp: 20,
+        maxHp: 40,
+        gold: 5,
+        items: [],
+        maxEnergy: 3,
+      },
+    };
+    const data = {
+      items: {
+        rare: { id: 'rare', rarity: 'rare', onAcquire },
+      },
+    };
+
+    const result = applyMiniBossBonusState(state, data);
+
+    expect(result?.guaranteed?.id).toBe('rare');
+    expect(state.player.items).toContain('rare');
+    expect(onAcquire).toHaveBeenCalledWith(state);
+    expect(state.player.maxEnergy).toBe(4);
+    vi.restoreAllMocks();
+  });
 });

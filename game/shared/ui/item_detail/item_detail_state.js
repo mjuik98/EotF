@@ -16,15 +16,6 @@ const RARITY_LABELS = {
   boss: '보스',
 };
 
-const ITEM_CHARGE_META = {
-  echo_bell: { gsKey: '_bellCount', max: 10, label: '이번 전투 카드 사용', type: 'num' },
-  clockwork_butterfly: { gsKey: '_butterflyCount', max: 3, label: '이번 턴 발동 횟수', type: 'dot' },
-  void_crystal: { gsKey: '_voidCrystalUsed', max: 1, label: '이번 전투 발동', type: 'invert-dot' },
-  echo_heart: { gsKey: '_heartUsed', max: 1, label: '부활 횟수', type: 'invert-dot' },
-  eternal_fragment: { gsKey: '_fragmentActive', label: '전투 효과 상태', type: 'bool' },
-  titan_fragment: { gsKey: '_titanUsed', label: '발동 여부', type: 'bool' },
-};
-
 const TRIGGER_LABEL_MAP = {
   combat_start: '전투 시작 시',
   card_play: '카드 사용 시',
@@ -74,16 +65,36 @@ function resolveSetDisplayName(item, setDef, members) {
   return setDef?.name || item?.setId || '';
 }
 
+function readChargeState(gs, chargeMeta) {
+  if (!gs || !chargeMeta) return undefined;
+  if (chargeMeta.scope === 'combat' && !gs.combat?.active) return undefined;
+  if (chargeMeta.itemRuntimeKey && chargeMeta.stateKey) {
+    const runtime = gs._itemRuntime?.[chargeMeta.itemRuntimeKey];
+    if (runtime && Object.prototype.hasOwnProperty.call(runtime, chargeMeta.stateKey)) {
+      return runtime[chargeMeta.stateKey];
+    }
+  }
+  if (chargeMeta.itemPlayerStateKey && chargeMeta.stateKey) {
+    const persistent = gs.player?._itemState?.[chargeMeta.itemPlayerStateKey];
+    if (persistent && Object.prototype.hasOwnProperty.call(persistent, chargeMeta.stateKey)) {
+      return persistent[chargeMeta.stateKey];
+    }
+  }
+  if (chargeMeta.fallbackGsKey) return gs[chargeMeta.fallbackGsKey];
+  if (chargeMeta.gsKey) return gs[chargeMeta.gsKey];
+  return undefined;
+}
+
 export function resolveItemDetailState(itemId, item, data, gs, setBonusSystem) {
   const rarity = item.rarity || 'common';
   const rarityLabel = RARITY_LABELS[rarity] || rarity;
   const rarityMeta = RARITY_TIP_META[rarity] || RARITY_TIP_META.common;
   const triggerText = item.trigger ? (TRIGGER_LABEL_MAP[item.trigger] || item.trigger) : '패시브';
 
-  const chargeMeta = ITEM_CHARGE_META[itemId] || null;
+  const chargeMeta = item?.chargeMeta || null;
   let liveCharge = null;
   if (chargeMeta && gs) {
-    const val = gs[chargeMeta.gsKey];
+    const val = readChargeState(gs, chargeMeta);
     if (chargeMeta.type === 'bool') {
       liveCharge = { type: 'bool', active: !!val, label: chargeMeta.label };
     } else if (chargeMeta.type === 'invert-dot') {

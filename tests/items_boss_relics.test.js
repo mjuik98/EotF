@@ -33,6 +33,7 @@ describe('boss relic integration guards', () => {
 
         relic.onAcquire(gs);
         expect(gs.player._handCapMinus).toBe(3);
+        expect(gs.player._itemState.boss_black_lotus.handCapPenalty).toBe(1);
 
         relic.passive(gs, Trigger.COMBAT_START);
         expect(gs.player._handCapMinus).toBe(3);
@@ -52,6 +53,7 @@ describe('boss relic integration guards', () => {
 
         relic.onAcquire(gs);
         expect(gs.player._handCapMinus).toBe(1);
+        expect(gs.player._itemState.boss_black_lotus.handCapPenalty).toBe(1);
 
         relic.passive(gs, Trigger.COMBAT_START);
         relic.passive(gs, Trigger.COMBAT_END);

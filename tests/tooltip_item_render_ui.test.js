@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ITEMS } from '../data/items.js';
 import {
   createItemTooltipElement,
   positionItemTooltipElement,
@@ -83,13 +84,26 @@ describe('tooltip_item_render_ui', () => {
   it('resolves runtime charge, trigger text, and set ownership state', () => {
     const data = {
       items: {
-        void_crystal: { id: 'void_crystal', setId: 'void_set', rarity: 'rare', trigger: 'combat_start' },
+        void_crystal: {
+          id: 'void_crystal',
+          setId: 'void_set',
+          rarity: 'rare',
+          trigger: 'combat_start',
+          chargeMeta: {
+            gsKey: '_voidCrystalUsed',
+            max: 1,
+            label: '이번 전투 발동',
+            type: 'invert-dot',
+            scope: 'combat',
+          },
+        },
         void_shard: { id: 'void_shard', setId: 'void_set' },
       },
     };
     const item = data.items.void_crystal;
     const gs = {
       _voidCrystalUsed: false,
+      combat: { active: true },
       player: { items: ['void_crystal'] },
     };
     const setBonusSystem = {
@@ -112,6 +126,77 @@ describe('tooltip_item_render_ui', () => {
     expect(state.setDef.name).toBe('공허의 삼위일체');
     expect(state.setCount).toBe(1);
     expect(state.setOwnedFlags).toEqual([true, false]);
+  });
+
+  it('reads live charge from item runtime and persistent item state namespaces', () => {
+    const data = {
+      items: {
+        echo_bell: { ...ITEMS.echo_bell, rarity: 'common' },
+        energy_core: { ...ITEMS.energy_core, rarity: 'rare' },
+      },
+    };
+    const gs = {
+      combat: { active: true },
+      _itemRuntime: {
+        echo_bell: { count: 4 },
+      },
+      player: {
+        items: ['echo_bell', 'energy_core'],
+        _itemState: {
+          energy_core: { count: 1 },
+        },
+      },
+    };
+
+    const echoBellState = resolveItemTooltipState('echo_bell', data.items.echo_bell, data, gs, null);
+    const energyCoreState = resolveItemTooltipState('energy_core', data.items.energy_core, data, gs, null);
+
+    expect(echoBellState.liveCharge).toEqual(expect.objectContaining({
+      type: 'num',
+      val: 4,
+      max: 10,
+    }));
+    expect(energyCoreState.liveCharge).toEqual(expect.objectContaining({
+      type: 'num',
+      val: 1,
+      max: 2,
+    }));
+  });
+
+  it('resets combat-scoped charge outside combat and reads charge metadata from item definitions', () => {
+    const data = {
+      items: {
+        liquid_memory: {
+          id: 'liquid_memory',
+          rarity: 'uncommon',
+          chargeMeta: {
+            itemRuntimeKey: 'liquid_memory',
+            stateKey: 'used',
+            max: 1,
+            label: '전투당 복구',
+            type: 'invert-dot',
+            scope: 'combat',
+          },
+        },
+      },
+    };
+    const gs = {
+      combat: { active: false },
+      _itemRuntime: {
+        liquid_memory: { used: true },
+      },
+      player: {
+        items: ['liquid_memory'],
+      },
+    };
+
+    const state = resolveItemTooltipState('liquid_memory', data.items.liquid_memory, data, gs, null);
+
+    expect(state.liveCharge).toEqual(expect.objectContaining({
+      type: 'dot',
+      remaining: 1,
+      max: 1,
+    }));
   });
 
   it('prefers localized set names over raw runtime identifiers', () => {

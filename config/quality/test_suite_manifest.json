@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-28T14:00:22.867Z",
+  "generatedAt": "2026-03-29T15:33:59.215Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -160,6 +160,7 @@
     "tests/damage_system_facade.test.js",
     "tests/damage_system_logging.test.js",
     "tests/data_event_effect_services.test.js",
+    "tests/death_flow_player_runtime.test.js",
     "tests/death_fragment_choice_presenter.test.js",
     "tests/death_handler.test.js",
     "tests/death_handler_enemy_state.test.js",
@@ -294,6 +295,7 @@
     "tests/input_help_entries.test.js",
     "tests/intro_cinematic_helpers.test.js",
     "tests/intro_cinematic_ui_runtime.test.js",
+    "tests/item_acquire_paths.test.js",
     "tests/item_detail_panel_helpers.test.js",
     "tests/item_detail_panel_ui.test.js",
     "tests/item_detail_surface_contract_usage.test.js",

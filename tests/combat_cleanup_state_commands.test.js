@@ -44,6 +44,10 @@ describe('combat_cleanup_state_commands', () => {
         glitch0Index: 2,
         glitchPlusIndex: 3,
       },
+      _itemRuntime: {
+        liquid_memory: { used: true },
+        boss_soul_mirror: { revived: true },
+      },
       _eternityActive: true,
     };
 
@@ -128,6 +132,7 @@ describe('combat_cleanup_state_commands', () => {
     });
     expect(state._activeRegionId).toBeNull();
     expect(state._handScopedRuntime).toBeNull();
+    expect(state._itemRuntime).toEqual({});
     expect(state._eternityActive).toBe(false);
   });
 });

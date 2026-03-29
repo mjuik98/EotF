@@ -135,13 +135,13 @@ describe('save_repository', () => {
     gs.addLog = () => {};
 
     expect(ITEMS.phoenix_feather.passive(gs, Trigger.PRE_DEATH)).toBe(true);
-    expect(gs.player._phoenixUsed).toBe(true);
+    expect(gs.player._itemState.phoenix_feather.used).toBe(true);
 
     const save = buildRunSave(gs, 2);
     const loaded = createRunState();
     hydrateRunState(loaded, save);
 
-    expect(loaded.player._phoenixUsed).toBe(true);
+    expect(loaded.player._itemState.phoenix_feather.used).toBe(true);
     expect(ITEMS.phoenix_feather.passive(loaded, Trigger.PRE_DEATH)).toBeUndefined();
   });
 
@@ -161,6 +161,7 @@ describe('save_repository', () => {
 
     expect(loaded.player.maxHp).toBe(15);
     expect(loaded.player.hp).toBe(15);
+    expect(loaded.player._itemState.boss_soul_mirror.penaltyApplied).toBe(true);
   });
 
   it('does not reapply boss_black_lotus hand limit penalty after save hydration', () => {
@@ -179,6 +180,7 @@ describe('save_repository', () => {
     ITEMS.boss_black_lotus.passive(loaded, Trigger.COMBAT_START);
 
     expect(loaded.player._handCapMinus).toBe(1);
+    expect(loaded.player._itemState.boss_black_lotus.penaltyApplied).toBe(true);
   });
 
   it('preserves ancient_battery once-per-floor usage across save hydration', () => {
@@ -193,6 +195,7 @@ describe('save_repository', () => {
 
     expect(shopBuyPotion(gs, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 80');
     expect(gs.player.gold).toBe(80);
+    expect(gs.player._itemState.ancient_battery.usedFloor).toBe(4);
 
     const save = buildRunSave(gs, 2);
     const loaded = createRunState();
@@ -204,5 +207,43 @@ describe('save_repository', () => {
 
     expect(shopBuyPotion(loaded, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 55');
     expect(loaded.player.gold).toBe(55);
+    expect(loaded.player._itemState.ancient_battery.usedFloor).toBe(4);
+  });
+
+  it('strips migrated legacy relic state fields when saving and hydrating', () => {
+    const gs = createRunState();
+    gs.player.items = ['phoenix_feather', 'energy_core', 'ancient_battery'];
+    gs.player._phoenixUsed = true;
+    gs.player._energyCoreCount = 2;
+    gs.player._ancientBatteryUsedFloor = 7;
+    gs.player._itemDerivedHandCapMinus = 1;
+
+    const save = buildRunSave(gs, 2);
+
+    expect(save.player._phoenixUsed).toBeUndefined();
+    expect(save.player._energyCoreCount).toBeUndefined();
+    expect(save.player._ancientBatteryUsedFloor).toBeUndefined();
+    expect(save.player._itemDerivedHandCapMinus).toBeUndefined();
+
+    const loaded = createRunState();
+    hydrateRunState(loaded, {
+      ...save,
+      player: {
+        ...save.player,
+        items: ['phoenix_feather', 'energy_core', 'ancient_battery'],
+        _phoenixUsed: true,
+        _energyCoreCount: 2,
+        _ancientBatteryUsedFloor: 7,
+        _itemDerivedHandCapMinus: 1,
+      },
+    });
+
+    expect(loaded.player._itemState.phoenix_feather.used).toBe(true);
+    expect(loaded.player._itemState.energy_core.count).toBe(2);
+    expect(loaded.player._itemState.ancient_battery.usedFloor).toBe(7);
+    expect(loaded.player._phoenixUsed).toBeUndefined();
+    expect(loaded.player._energyCoreCount).toBeUndefined();
+    expect(loaded.player._ancientBatteryUsedFloor).toBeUndefined();
+    expect(loaded.player._itemDerivedHandCapMinus).toBeUndefined();
   });
 });

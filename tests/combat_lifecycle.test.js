@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CombatLifecycle } from '../game/features/combat/public.js';
 import * as RunRuleSystem from '../game/features/run/ports/public_rule_capabilities.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 describe('CombatLifecycle', () => {
   afterEach(() => {
@@ -148,6 +149,51 @@ describe('CombatLifecycle', () => {
           eligible: true,
           text: '공명 폭발: 5 피해',
         },
+      }),
+    );
+  });
+
+  it('routes passive resonance burst hits through deal_damage item hooks', () => {
+    const showDmgPopup = vi.fn();
+    const host = {
+      combat: {
+        enemies: [{ hp: 30, isBoss: true }],
+      },
+      player: {
+        echoChain: 5,
+        items: ['god_slayer_blade'],
+      },
+      stats: {
+        damageDealt: 0,
+      },
+      addLog: vi.fn(),
+      onEnemyDeath: vi.fn(),
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    CombatLifecycle.triggerResonanceBurst.call(host, {
+      win: {
+        innerWidth: 1440,
+        AudioEngine: { playResonanceBurst: vi.fn() },
+        ScreenShake: { shake: vi.fn() },
+        ParticleSystem: { hitEffect: vi.fn() },
+        showDmgPopup,
+        renderCombatEnemies: vi.fn(),
+      },
+    }, { isPassive: true });
+
+    expect(host.combat.enemies[0].hp).toBe(23);
+    expect(host.stats.damageDealt).toBe(7);
+    expect(showDmgPopup).toHaveBeenCalledWith(7, expect.any(Number), 200, '#00ffcc');
+    expect(host.addLog).toHaveBeenCalledWith(
+      '✨ ✨ 공명 폭발: 7 피해!',
+      'echo',
+      expect.objectContaining({
+        recentFeed: expect.objectContaining({
+          text: '공명 폭발: 7 피해',
+        }),
       }),
     );
   });

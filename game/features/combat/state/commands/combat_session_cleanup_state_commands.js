@@ -12,9 +12,10 @@ export function applyCombatSessionCleanupReducerState(state) {
   state._temporalTurn = 0;
   state._activeRegionId = null;
   state._ignoreShield = false;
-  state._scrollTempCard = null;
-  state._fragmentActive = false;
-  state._fragmentBaseMax = undefined;
+  state._itemRuntime = {};
+  delete state._scrollTempCard;
+  delete state._fragmentActive;
+  delete state._fragmentBaseMax;
   clearHandScopedRuntimeState(state);
   state._eternityActive = false;
 

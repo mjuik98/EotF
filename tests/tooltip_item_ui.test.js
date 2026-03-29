@@ -80,6 +80,7 @@ describe('tooltip_item_ui', () => {
     const doc = createDoc();
     const win = { innerWidth: 400, innerHeight: 320 };
     const gs = {
+      combat: { active: true },
       _voidCrystalUsed: false,
       player: {
         items: ['void_crystal'],
@@ -95,6 +96,13 @@ describe('tooltip_item_ui', () => {
           rarity: 'rare',
           trigger: 'combat_start',
           setId: 'void_set',
+          chargeMeta: {
+            gsKey: '_voidCrystalUsed',
+            max: 1,
+            label: '이번 전투 발동',
+            type: 'invert-dot',
+            scope: 'combat',
+          },
         },
         void_shard: {
           id: 'void_shard',

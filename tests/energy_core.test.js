@@ -14,22 +14,22 @@ describe('energy_core relic', () => {
         // 1. Normal combat victory - should NOT increase
         energy_core.passive(gs, Trigger.COMBAT_END, { isBoss: false });
         expect(gs.player.maxEnergy).toBe(3);
-        expect(gs.player._energyCoreCount).toBeUndefined();
+        expect(gs.player._itemState?.energy_core?.count).toBeUndefined();
 
         // 2. Boss combat victory 1 - should increase
         energy_core.passive(gs, Trigger.COMBAT_END, { isBoss: true });
         expect(gs.player.maxEnergy).toBe(4);
-        expect(gs.player._energyCoreCount).toBe(1);
+        expect(gs.player._itemState.energy_core.count).toBe(1);
         expect(gs.addLog).toHaveBeenCalledWith(expect.stringContaining('에너지 핵'), 'echo');
 
         // 3. Boss combat victory 2 - should increase
         energy_core.passive(gs, Trigger.COMBAT_END, { isBoss: true });
         expect(gs.player.maxEnergy).toBe(5);
-        expect(gs.player._energyCoreCount).toBe(2);
+        expect(gs.player._itemState.energy_core.count).toBe(2);
 
         // 4. Boss combat victory 3 - should NOT increase (limit 2)
         energy_core.passive(gs, Trigger.COMBAT_END, { isBoss: true });
         expect(gs.player.maxEnergy).toBe(5);
-        expect(gs.player._energyCoreCount).toBe(2);
+        expect(gs.player._itemState.energy_core.count).toBe(2);
     });
 });

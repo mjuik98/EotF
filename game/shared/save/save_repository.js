@@ -11,6 +11,23 @@ function cloneSerializable(value, fallback) {
   }
 }
 
+function ensurePlayerItemState(player) {
+  if (!player || typeof player !== 'object') return {};
+  if (!player._itemState || typeof player._itemState !== 'object' || Array.isArray(player._itemState)) {
+    player._itemState = {};
+  }
+  return player._itemState;
+}
+
+function stripLegacyItemStateFields(player) {
+  if (!player || typeof player !== 'object') return player;
+  delete player._phoenixUsed;
+  delete player._energyCoreCount;
+  delete player._ancientBatteryUsedFloor;
+  delete player._itemDerivedHandCapMinus;
+  return player;
+}
+
 export function buildMetaSave(gs, version) {
   if (!gs?.meta) return null;
 
@@ -60,16 +77,17 @@ export function validateRunSaveData(data) {
 
 export function buildRunSave(gs, version) {
   if (!gs?.player) return null;
+  const player = stripLegacyItemStateFields({
+    ...gs.player,
+    buffs: gs.combat.active ? {} : { ...gs.player.buffs },
+    hand: [],
+    upgradedCards: [...(gs.player.upgradedCards instanceof Set ? gs.player.upgradedCards : [])],
+    _cascadeCards: [],
+  });
 
   return {
     version,
-    player: {
-      ...gs.player,
-      buffs: gs.combat.active ? {} : { ...gs.player.buffs },
-      hand: [],
-      upgradedCards: [...(gs.player.upgradedCards instanceof Set ? gs.player.upgradedCards : [])],
-      _cascadeCards: [],
-    },
+    player,
     currentRegion: gs.currentRegion,
     currentFloor: gs.currentFloor,
     regionFloors: cloneSerializable(gs.regionFloors, {}),
@@ -110,11 +128,37 @@ export function hydrateRunState(gs, data) {
   if (data.currentNode !== undefined) gs.currentNode = data.currentNode;
 
   const itemIds = new Set(Array.isArray(gs.player.items) ? gs.player.items : []);
-  const legacyPenaltyFlags = {};
-  if (itemIds.has('boss_soul_mirror')) legacyPenaltyFlags._bossSoulMirrorPenaltyApplied = true;
-  if (itemIds.has('boss_black_lotus') && Number(gs.player._handCapMinus || 0) > 0) {
-    legacyPenaltyFlags._bossBlackLotusPenaltyApplied = true;
+  const itemState = ensurePlayerItemState(gs.player);
+  if (itemIds.has('phoenix_feather') && gs.player._phoenixUsed) {
+    itemState.phoenix_feather = { ...(itemState.phoenix_feather || {}), used: true };
   }
-  if (Object.keys(legacyPenaltyFlags).length > 0) Object.assign(gs.player, legacyPenaltyFlags);
+  if (itemIds.has('energy_core') && Number.isFinite(Number(gs.player._energyCoreCount))) {
+    itemState.energy_core = {
+      ...(itemState.energy_core || {}),
+      count: Number(gs.player._energyCoreCount || 0),
+    };
+  }
+  if (itemIds.has('boss_soul_mirror')) {
+    itemState.boss_soul_mirror = {
+      ...(itemState.boss_soul_mirror || {}),
+      penaltyApplied: true,
+    };
+  }
+  if (itemIds.has('boss_black_lotus') && Number(gs.player._handCapMinus || 0) > 0) {
+    const existingPenalty = Math.max(0, Number(itemState.boss_black_lotus?.handCapPenalty || 0));
+    const derivedPenalty = existingPenalty || 1;
+    itemState.boss_black_lotus = {
+      ...(itemState.boss_black_lotus || {}),
+      handCapPenalty: derivedPenalty,
+      penaltyApplied: true,
+    };
+  }
+  if (itemIds.has('ancient_battery') && Number.isFinite(Number(gs.player._ancientBatteryUsedFloor))) {
+    itemState.ancient_battery = {
+      ...(itemState.ancient_battery || {}),
+      usedFloor: Number(gs.player._ancientBatteryUsedFloor),
+    };
+  }
+  stripLegacyItemStateFields(gs.player);
 }
 import { resetHandScopedCascadeCards } from '../state/hand_index_runtime_state.js';

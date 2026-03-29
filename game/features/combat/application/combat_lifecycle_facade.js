@@ -121,6 +121,11 @@ export const CombatLifecycle = {
 
     const hitResults = applyPassiveResonanceBurstState(this, burstDmg, {
       onEnemyDeath: (enemy, index) => this.onEnemyDeath(enemy, index, deps),
+      resolveDamage: ({ amount, index }) => this.triggerItems('deal_damage', {
+        amount,
+        source: 'resonance_burst',
+        targetIdx: index,
+      }),
     });
     const viewportWidth = Number(deps.viewportWidth || runtimeHost?.innerWidth || 0);
     const showDmgPopup = deps.showDmgPopup || runtimeHost?.showDmgPopup;
@@ -128,20 +133,21 @@ export const CombatLifecycle = {
       if (dealt <= 0) return;
       const x = viewportWidth / 2 + (index - (this.combat.enemies.length - 1) / 2) * 200;
       if (typeof showDmgPopup === 'function') {
-        showDmgPopup(burstDmg, x, 200, '#00ffcc');
+        showDmgPopup(dealt, x, 200, '#00ffcc');
       }
 
       if (isPassive && typeof particleSystem?.hitEffect === 'function') {
         particleSystem.hitEffect(x, 200, false);
       }
     });
+    const totalDealt = hitResults.reduce((sum, { dealt }) => sum + Math.max(0, Number(dealt || 0)), 0);
 
-    this.addLog(LogUtils.formatEcho(`✨ 공명 폭발: ${burstDmg} 피해!`), 'echo', createRecentFeedMeta({
+    this.addLog(LogUtils.formatEcho(`✨ 공명 폭발: ${totalDealt} 피해!`), 'echo', createRecentFeedMeta({
       source: { name: '공명 폭발', type: 'skill' },
       text: formatRecentFeedText({
         sourceName: '공명 폭발',
         sourceType: 'skill',
-        outcome: `${burstDmg} 피해`,
+        outcome: `${totalDealt} 피해`,
       }),
     }));
 

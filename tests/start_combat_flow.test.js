@@ -224,7 +224,7 @@ describe('startCombatFlowUseCase', () => {
 
     expect(gs.player.hp).toBe(34);
     expect(gs.player.hand.length).toBe(8);
-    expect(gs.player.hand).toContain(gs._scrollTempCard);
+    expect(gs.player.hand).toContain(gs._itemRuntime?.ancient_scroll?.tempCardId);
 
     randomSpy.mockRestore();
   });

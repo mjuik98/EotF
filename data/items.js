@@ -337,6 +337,14 @@ import { CARDS, UPGRADE_MAP } from './cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { CONSTANTS } from '../game/data/constants.js';
 import {
+    applyPlayerMaxEnergyGrowthState,
+    applyPlayerMaxHpGrowthState,
+    setPlayerEnergyState,
+    setPlayerHpState,
+    setPlayerMaxHpState,
+    setPlayerMaxEnergyState,
+} from '../game/shared/state/player_state_commands.js';
+import {
     clearHandScopedCostTargets,
     getHandScopedCostTargets,
     reindexHandScopedRuntimeState,
@@ -435,6 +443,198 @@ function setPlayerEnergy(gs, amount) {
     gs.player.energy = Math.min(Math.max(0, Math.floor(Number(gs.player.maxEnergy || 0))), next);
     gs.markDirty?.('hud');
     return gs.player.energy;
+}
+
+function growPlayerMaxHp(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount) || amount === 0) {
+        return {
+            hpAfter: Number(gs?.player?.hp || 0),
+            maxHpAfter: Number(gs?.player?.maxHp || 0),
+        };
+    }
+
+    const delta = Math.floor(amount);
+    const result = applyPlayerMaxHpGrowthState(gs, delta);
+    if (result) return result;
+
+    gs.player.maxHp = Math.max(1, Number(gs.player.maxHp || 0) + delta);
+    if (delta > 0) {
+        gs.player.hp = Math.min(gs.player.maxHp, Number(gs.player.hp || 0) + delta);
+    } else {
+        gs.player.hp = Math.min(gs.player.maxHp, Number(gs.player.hp || 0));
+    }
+    gs.markDirty?.('hud');
+    return {
+        hpAfter: Number(gs.player.hp || 0),
+        maxHpAfter: Number(gs.player.maxHp || 0),
+    };
+}
+
+function growPlayerMaxEnergy(gs, amount, options = {}) {
+    if (!gs?.player || !Number.isFinite(amount) || amount === 0) {
+        return {
+            energyAfter: Number(gs?.player?.energy || 0),
+            maxEnergyAfter: Number(gs?.player?.maxEnergy || 0),
+        };
+    }
+
+    const delta = Math.floor(amount);
+    const result = applyPlayerMaxEnergyGrowthState(gs, delta, options);
+    if (result) return result;
+
+    const maxEnergyCap = Math.max(1, Number(gs.player.maxEnergyCap || CONSTANTS?.PLAYER?.MAX_ENERGY_CAP || 5));
+    const previousMax = Math.max(1, Number(gs.player.maxEnergy || 1));
+    const previousEnergy = Math.max(0, Number(gs.player.energy || 0));
+    const requestedMax = Math.max(1, previousMax + delta);
+    gs.player.maxEnergy = Math.min(maxEnergyCap, requestedMax);
+    if (delta > 0) {
+        const actualIncrease = Math.max(0, gs.player.maxEnergy - previousMax);
+        gs.player.energy = Math.min(gs.player.maxEnergy, previousEnergy + actualIncrease);
+    } else {
+        gs.player.energy = Math.min(gs.player.maxEnergy, previousEnergy);
+    }
+    gs.markDirty?.('hud');
+    return {
+        energyAfter: Number(gs.player.energy || 0),
+        maxEnergyAfter: Number(gs.player.maxEnergy || 0),
+    };
+}
+
+function setPlayerHp(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount)) return Number(gs?.player?.hp || 0);
+    const next = Math.floor(amount);
+    const result = setPlayerHpState(gs, next);
+    if (result?.hpAfter !== undefined) return result.hpAfter;
+
+    const rawMaxHp = Number(gs.player.maxHp);
+    const maxHp = Number.isFinite(rawMaxHp) && rawMaxHp > 0
+        ? rawMaxHp
+        : Math.max(1, next, Number(gs.player.hp || 0));
+    gs.player.hp = Math.max(0, Math.min(maxHp, next));
+    gs.markDirty?.('hud');
+    return Number(gs.player.hp || 0);
+}
+
+function setPlayerMaxHp(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount)) return Number(gs?.player?.maxHp || 0);
+    const next = Math.floor(amount);
+    const result = setPlayerMaxHpState(gs, next);
+    if (result?.maxHpAfter !== undefined) return result.maxHpAfter;
+
+    gs.player.maxHp = Math.max(1, next || 1);
+    gs.player.hp = Math.min(gs.player.maxHp, Math.max(0, Number(gs.player.hp || 0) || 0));
+    gs.markDirty?.('hud');
+    return Number(gs.player.maxHp || 0);
+}
+
+function setPlayerMaxEnergy(gs, amount, options = {}) {
+    if (!gs?.player || !Number.isFinite(amount)) return Number(gs?.player?.maxEnergy || 0);
+    const next = Math.floor(amount);
+    const result = setPlayerMaxEnergyState(gs, next, options);
+    if (result?.maxEnergyAfter !== undefined) return result.maxEnergyAfter;
+
+    const currentCap = Math.max(1, Number(gs.player.maxEnergyCap || CONSTANTS?.PLAYER?.MAX_ENERGY_CAP || 5));
+    const requestedCap = Math.max(1, Number(options.maxEnergyCap || currentCap) || currentCap);
+    gs.player.maxEnergy = Math.min(requestedCap, Math.max(1, next || 1));
+    gs.player.energy = Math.min(gs.player.maxEnergy, Math.max(0, Number(gs.player.energy || 0) || 0));
+    gs.markDirty?.('hud');
+    return Number(gs.player.maxEnergy || 0);
+}
+
+function getItemRuntimeState(gs, itemId) {
+    if (!gs || !itemId) return {};
+    if (!gs._itemRuntime || typeof gs._itemRuntime !== 'object' || Array.isArray(gs._itemRuntime)) {
+        gs._itemRuntime = {};
+    }
+    if (!gs._itemRuntime[itemId] || typeof gs._itemRuntime[itemId] !== 'object' || Array.isArray(gs._itemRuntime[itemId])) {
+        gs._itemRuntime[itemId] = {};
+    }
+    return gs._itemRuntime[itemId];
+}
+
+function getPlayerItemState(gs, itemId) {
+    if (!gs?.player || !itemId) return {};
+    if (!gs.player._itemState || typeof gs.player._itemState !== 'object' || Array.isArray(gs.player._itemState)) {
+        gs.player._itemState = {};
+    }
+    if (!gs.player._itemState[itemId] || typeof gs.player._itemState[itemId] !== 'object' || Array.isArray(gs.player._itemState[itemId])) {
+        gs.player._itemState[itemId] = {};
+    }
+    return gs.player._itemState[itemId];
+}
+
+function calculatePlayerItemHandCapPenalty(player) {
+    const itemState = player?._itemState;
+    if (!itemState || typeof itemState !== 'object' || Array.isArray(itemState)) return 0;
+    return Object.values(itemState).reduce((sum, entry) => {
+        const penalty = Math.max(0, Number(entry?.handCapPenalty || 0));
+        return sum + penalty;
+    }, 0);
+}
+
+function syncPlayerItemHandCapPenalty(gs, { previousItemPenalty, legacyDerivedHint } = {}) {
+    if (!gs?.player) return 0;
+    const currentPenalty = Math.max(0, Number(gs.player._handCapMinus || 0));
+    const totalItemPenalty = calculatePlayerItemHandCapPenalty(gs.player);
+    const subtractPenalty = legacyDerivedHint !== undefined
+        ? Math.max(0, Number(legacyDerivedHint || 0))
+        : Math.max(0, Number(previousItemPenalty || 0));
+    const externalPenalty = Math.max(0, currentPenalty - subtractPenalty);
+    gs.player._handCapMinus = externalPenalty + totalItemPenalty;
+    return gs.player._handCapMinus;
+}
+
+function setPlayerItemHandCapPenalty(gs, itemId, handCapPenalty, options = {}) {
+    if (!gs?.player || !itemId) return 0;
+    const previousItemPenalty = calculatePlayerItemHandCapPenalty(gs.player);
+    const itemState = getPlayerItemState(gs, itemId);
+    const nextPenalty = Math.max(0, Number(handCapPenalty || 0));
+    if (nextPenalty > 0) itemState.handCapPenalty = nextPenalty;
+    else delete itemState.handCapPenalty;
+    return syncPlayerItemHandCapPenalty(gs, { ...options, previousItemPenalty });
+}
+
+function syncIgnoreShieldFlag(gs) {
+    if (!gs) return false;
+    const runtime = (gs._itemRuntime && typeof gs._itemRuntime === 'object' && !Array.isArray(gs._itemRuntime))
+        ? gs._itemRuntime
+        : null;
+    gs._ignoreShield = !!runtime && Object.values(runtime).some((entry) => !!entry?.ignoreShield);
+    return gs._ignoreShield;
+}
+
+function setItemIgnoreShield(gs, itemId, active) {
+    if (!gs || !itemId) return false;
+    const runtime = getItemRuntimeState(gs, itemId);
+    runtime.ignoreShield = !!active;
+    return syncIgnoreShieldFlag(gs);
+}
+
+function addTemporaryCombatCardToHand(gs, itemId, cardId) {
+    if (!gs?.player || !itemId || !cardId) return null;
+    const runtime = getItemRuntimeState(gs, itemId);
+    runtime.tempCardId = cardId;
+    if (!Array.isArray(gs.player.hand)) gs.player.hand = [];
+    gs.player.hand.push(cardId);
+    gs.markDirty?.('hand');
+    return cardId;
+}
+
+function removeTemporaryCombatCard(gs, itemId) {
+    if (!gs?.player || !itemId) return null;
+    const runtime = getItemRuntimeState(gs, itemId);
+    const tempId = runtime.tempCardId;
+    if (!tempId) return null;
+
+    runtime.tempCardId = null;
+
+    ['hand', 'deck', 'drawPile', 'discardPile', 'graveyard', 'exhausted'].forEach((zone) => {
+        const pile = gs.player?.[zone];
+        const idx = pile?.lastIndexOf?.(tempId) ?? -1;
+        if (idx >= 0) pile.splice(idx, 1);
+    });
+    gs.markDirty?.('hand');
+    return tempId;
 }
 
 function withCardCostDelta(data, delta) {
@@ -673,9 +873,10 @@ const COMMON_ITEMS = {
         desc: '피해를 줄 때: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화',
         passive(gs, trigger) {
             if (trigger === Trigger.DEAL_DAMAGE) {
-                gs._tallyCount = (gs._tallyCount || 0) + 1;
-                if (gs._tallyCount >= 5) {
-                    gs._tallyCount = 0;
+                const runtime = getItemRuntimeState(gs, 'tally_stone');
+                runtime.count = (runtime.count || 0) + 1;
+                if (runtime.count >= 5) {
+                    runtime.count = 0;
                     gs.addShield(12, { name: '집계석', type: 'item' });
                     gs.addLog('🧮 집계석: 방어막 12 생성!', 'item');
                 }
@@ -687,11 +888,12 @@ const COMMON_ITEMS = {
         desc: '카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전',
         passive(gs, trigger) {
             if (trigger === Trigger.CARD_PLAY) {
-                gs._bellCount = (gs._bellCount || 0) + 1;
-                if (gs._bellCount % 10 === 5) {
+                const runtime = getItemRuntimeState(gs, 'echo_bell');
+                runtime.count = (runtime.count || 0) + 1;
+                if (runtime.count % 10 === 5) {
                     gs.addEcho(5, { name: '잔향의 종', type: 'item' });
                 }
-                if (gs._bellCount % 10 === 0) {
+                if (runtime.count % 10 === 0) {
                     gs.addEcho(15, { name: '잔향의 종', type: 'item' });
                 }
             }
@@ -724,25 +926,25 @@ const COMMON_ITEMS = {
     ancient_handle: {
         id: 'ancient_handle', name: '고대인의 자루', icon: '🐻', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
         passive() { }
     },
     ancient_leather: {
         id: 'ancient_leather', name: '고대인의 가죽', icon: '🐻‍❄️', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
         passive() { }
     },
     ancient_belt: {
         id: 'ancient_belt', name: '고대인의 허리띠', icon: '🐼', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
         passive() { }
     },
     ancient_cape: {
         id: 'ancient_cape', name: '고대인의 망토', icon: '🐨', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { gs.player.maxHp += 5; gs.player.hp += 5; },
+        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
         passive() { }
     },
 };
@@ -797,21 +999,21 @@ const UNCOMMON_ITEMS = {
         id: 'titans_belt', name: '거인의 허리띠', icon: '🪢', rarity: 'uncommon', setId: 'titans_endurance',
         desc: '전투 시작: 최대 체력 +15 / 체력 15 회복 / 전투 종료: 원래 수치로 복원\n[세트: 거인의 인내]',
         passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START && !gs._titansBeltApplied) {
-                gs._titansBeltApplied = 15;
-                gs.player.maxHp += 15;
+            const runtime = getItemRuntimeState(gs, 'titans_belt');
+            if (trigger === Trigger.COMBAT_START && !runtime.appliedBonus) {
+                runtime.appliedBonus = 15;
+                setPlayerMaxHp(gs, Number(gs.player.maxHp || 0) + 15);
                 if (typeof gs.heal === 'function') {
                     gs.heal(15, { name: '거인의 허리띠', type: 'item' });
                 } else {
-                    gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 15);
+                    setPlayerHp(gs, Math.min(gs.player.maxHp, Number(gs.player.hp || 0) + 15));
                 }
                 gs.markDirty?.('hud');
             }
-            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._titansBeltApplied) {
-                const bonus = gs._titansBeltApplied;
-                gs.player.maxHp = Math.max(1, gs.player.maxHp - bonus);
-                gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-                gs._titansBeltApplied = 0;
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.appliedBonus) {
+                const bonus = runtime.appliedBonus;
+                setPlayerMaxHp(gs, Math.max(1, Number(gs.player.maxHp || 0) - bonus));
+                runtime.appliedBonus = 0;
                 gs.markDirty?.('hud');
             }
         }
@@ -907,8 +1109,9 @@ const UNCOMMON_ITEMS = {
         id: 'liquid_memory', name: '액체 기억', icon: '🧪', rarity: 'uncommon',
         desc: '전투당 1회: 처음 소멸한 카드를 덱 맨 위로 되돌림',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.CARD_EXHAUST && !gs._liquidMemoryUsed) {
-                gs._liquidMemoryUsed = true;
+            const runtime = getItemRuntimeState(gs, 'liquid_memory');
+            if (trigger === Trigger.CARD_EXHAUST && !runtime.used) {
+                runtime.used = true;
                 const idx = gs.player.exhausted.lastIndexOf(data.cardId);
                 if (idx >= 0) {
                     gs.player.exhausted.splice(idx, 1);
@@ -918,27 +1121,28 @@ const UNCOMMON_ITEMS = {
                     gs.addLog?.(`🧪 액체 기억: ${CARDS[data.cardId]?.name}를 복구했습니다.`, 'item');
                 }
             }
-            if (trigger === Trigger.COMBAT_START) gs._liquidMemoryUsed = false;
+            if (trigger === Trigger.COMBAT_START) runtime.used = false;
         }
     },
     balanced_scale: {
         id: 'balanced_scale', name: '균형의 저울', icon: '⚖️', rarity: 'uncommon',
         desc: '턴 종료 시 에너지가 0일 때: 다음 턴 카드 1장 드로우',
         passive(gs, trigger) {
-            if (trigger === Trigger.TURN_END && gs.player.energy === 0) gs._scaleActive = true;
-            if (trigger === Trigger.TURN_START && gs._scaleActive) {
-                gs._scaleActive = false;
+            const runtime = getItemRuntimeState(gs, 'balanced_scale');
+            if (trigger === Trigger.TURN_END && gs.player.energy === 0) runtime.active = true;
+            if (trigger === Trigger.TURN_START && runtime.active) {
+                runtime.active = false;
                 addPlayerDrawCount(gs, 1);
-                gs._scaleDrawReset = true;
+                runtime.drawReset = true;
                 gs.addLog?.('⚖️ 균형의 저울: 추가 드로우!', 'item');
             }
-            if ((trigger === Trigger.TURN_END || trigger === Trigger.COMBAT_END || trigger === 'death') && gs._scaleDrawReset) {
+            if ((trigger === Trigger.TURN_END || trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.drawReset) {
                 addPlayerDrawCount(gs, -1);
-                gs._scaleDrawReset = false;
+                runtime.drawReset = false;
             }
             if (trigger === Trigger.COMBAT_END || trigger === 'death') {
-                gs._scaleActive = false;
-                gs._scaleDrawReset = false;
+                runtime.active = false;
+                runtime.drawReset = false;
             }
         }
     },
@@ -953,8 +1157,9 @@ const UNCOMMON_ITEMS = {
         id: 'crystal_ball', name: '수정구슬', icon: '🔮', rarity: 'uncommon',
         desc: '전투 시작: 무작위 카드 3종류의 비용 -1(이번 전투)',
         passive(gs, trigger, data) {
+            const runtime = getItemRuntimeState(gs, 'crystal_ball');
             if (trigger === Trigger.COMBAT_START && gs.player.deck?.length > 0) {
-                gs._crystalDiscounted = new Set();
+                runtime.discounted = new Set();
                 const uniqueCardIds = [...new Set(gs.player.deck)];
                 const picks = new Set();
                 while (picks.size < Math.min(3, uniqueCardIds.length)) {
@@ -962,15 +1167,15 @@ const UNCOMMON_ITEMS = {
                 }
                 picks.forEach(r => {
                     const cardId = uniqueCardIds[r];
-                    gs._crystalDiscounted.add(cardId);
+                    runtime.discounted.add(cardId);
                     gs.addLog?.(`🔮 수정구슬: ${CARDS[cardId]?.name} 비용 -1`, 'item');
                 });
             }
-            if (trigger === Trigger.BEFORE_CARD_COST && gs._crystalDiscounted?.has(data?.cardId)) {
+            if (trigger === Trigger.BEFORE_CARD_COST && runtime.discounted?.has(data?.cardId)) {
                 return withCardCostDelta(data, -1);
             }
             if (trigger === Trigger.COMBAT_END) {
-                gs._crystalDiscounted = null;
+                runtime.discounted = null;
             }
         }
     },
@@ -979,8 +1184,7 @@ const UNCOMMON_ITEMS = {
         desc: '상점 구매 시: 최대 체력 +1',
         passive(gs, trigger) {
             if (trigger === Trigger.SHOP_BUY) {
-                gs.player.maxHp += 1;
-                gs.player.hp += 1;
+                growPlayerMaxHp(gs, 1);
                 gs.addLog?.('📿 상인의 펜던트: 건강해진 느낌!', 'item');
             }
         }
@@ -1012,27 +1216,10 @@ const UNCOMMON_ITEMS = {
             if (trigger === Trigger.COMBAT_START) {
                 const allKeys = Object.keys(CARDS);
                 const randomCard = allKeys[Math.floor(Math.random() * allKeys.length)];
-                gs._scrollTempCard = randomCard;
-                gs.player.hand.push(randomCard);
+                addTemporaryCombatCardToHand(gs, 'ancient_scroll', randomCard);
                 gs.addLog?.(`📜 고대인의 두루마리: ${CARDS[randomCard]?.name} 임시 획득!`, 'item');
             }
-            if (trigger === Trigger.COMBAT_END && gs._scrollTempCard) {
-                const tempId = gs._scrollTempCard;
-                gs._scrollTempCard = null;
-
-                // 모든 영역에서 임시 카드 제거
-                const hIdx = gs.player.hand?.lastIndexOf(tempId);
-                if (hIdx >= 0) gs.player.hand.splice(hIdx, 1);
-
-                const dIdx = gs.player.deck?.lastIndexOf(tempId);
-                if (dIdx >= 0) gs.player.deck.splice(dIdx, 1);
-
-                const gIdx = gs.player.graveyard?.lastIndexOf(tempId);
-                if (gIdx >= 0) gs.player.graveyard.splice(gIdx, 1);
-
-                const eIdx = gs.player.exhausted?.lastIndexOf(tempId);
-                if (eIdx >= 0) gs.player.exhausted.splice(eIdx, 1);
-            }
+            if (trigger === Trigger.COMBAT_END) removeTemporaryCombatCard(gs, 'ancient_scroll');
         }
     },
     dusk_mark: {
@@ -1082,19 +1269,18 @@ const UNCOMMON_ITEMS = {
         id: 'paradox_contract', name: '역설 계약', icon: '⏳', rarity: 'uncommon',
         desc: '전투 시작: 최대 에너지 +1 / 전투 종료: 원래 수치로 복원',
         passive(gs, trigger) {
+            const runtime = getItemRuntimeState(gs, 'paradox_contract');
             if (trigger === Trigger.COMBAT_START) {
-                if (gs._paradoxActive) return;
-                gs._paradoxActive = true;
-                gs._paradoxBaseMax = gs.player.maxEnergy;
-                gs.player.maxEnergy += 1;
-                gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
+                if (runtime.active) return;
+                runtime.active = true;
+                runtime.baseMax = gs.player.maxEnergy;
+                growPlayerMaxEnergy(gs, 1);
                 return;
             }
-            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._paradoxActive) {
-                gs.player.maxEnergy = Math.max(1, gs._paradoxBaseMax || gs.player.maxEnergy);
-                gs.player.energy = Math.min(gs.player.energy || 0, gs.player.maxEnergy);
-                gs._paradoxActive = false;
-                delete gs._paradoxBaseMax;
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.active) {
+                setPlayerMaxEnergy(gs, Math.max(1, runtime.baseMax || gs.player.maxEnergy));
+                runtime.active = false;
+                delete runtime.baseMax;
             }
         }
     },
@@ -1125,9 +1311,10 @@ const RARE_ITEMS = {
         id: 'phoenix_feather', name: '불사조의 깃털', icon: '🔥', rarity: 'rare',
         desc: '게임당 1회: 사망 시 체력 50% 회복 후 부활',
         passive(gs, trigger) {
-            if (trigger === Trigger.PRE_DEATH && !gs.player._phoenixUsed) {
-                gs.player._phoenixUsed = true;
-                gs.player.hp = Math.floor(gs.player.maxHp * 0.5);
+            const persistent = getPlayerItemState(gs, 'phoenix_feather');
+            if (trigger === Trigger.PRE_DEATH && !persistent.used) {
+                persistent.used = true;
+                setPlayerHp(gs, Math.floor(gs.player.maxHp * 0.5));
                 gs.addLog?.('🔥 불사조의 깃털: 죽음에서 돌아왔습니다!', 'item');
                 return true;
             }
@@ -1136,7 +1323,7 @@ const RARE_ITEMS = {
     dimension_pocket: {
         id: 'dimension_pocket', name: '차원 주머니', icon: '🎒', rarity: 'rare',
         desc: '획득: 최대 에너지 +1 / 턴 시작: 덱에 [노이즈] 1장 추가',
-        onAcquire(gs) { gs.player.maxEnergy += 1; },
+        onAcquire(gs) { setPlayerMaxEnergy(gs, Number(gs.player.maxEnergy || 0) + 1); },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
                 if (!pushCardToCombatDrawPile(gs, 'curse_noise')) {
@@ -1150,14 +1337,15 @@ const RARE_ITEMS = {
         id: 'mana_battery', name: '마력 배터리', icon: '🔋', rarity: 'rare',
         desc: '턴 종료: 남은 에너지 이월(최대 3)',
         passive(gs, trigger) {
-            if (trigger === Trigger.TURN_END) gs._manaStored = Math.min(3, gs.player.energy);
-            if (trigger === Trigger.TURN_START && gs._manaStored) {
-                addPlayerEnergy(gs, gs._manaStored);
-                gs.addLog?.(`🔋 마력 배터리: 에너지 ${gs._manaStored} 이월 완료.`, 'item');
-                gs._manaStored = 0;
+            const runtime = getItemRuntimeState(gs, 'mana_battery');
+            if (trigger === Trigger.TURN_END) runtime.stored = Math.min(3, gs.player.energy);
+            if (trigger === Trigger.TURN_START && runtime.stored) {
+                addPlayerEnergy(gs, runtime.stored);
+                gs.addLog?.(`🔋 마력 배터리: 에너지 ${runtime.stored} 이월 완료.`, 'item');
+                runtime.stored = 0;
             }
             if (trigger === Trigger.COMBAT_END || trigger === 'death') {
-                gs._manaStored = 0;
+                runtime.stored = 0;
             }
         }
     },
@@ -1166,7 +1354,7 @@ const RARE_ITEMS = {
         desc: '전투 시작: 체력 6 소모 / 카드 2장 드로우',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
-                gs.player.hp = Math.max(1, gs.player.hp - 6);
+                setPlayerHp(gs, Math.max(1, Number(gs.player.hp || 0) - 6));
                 gs.drawCards(2, { name: '핏빛 계약', type: 'item' });
                 gs.addLog?.('📜 핏빛 계약: 대가를 치르고 힘을 얻습니다.', 'item');
             }
@@ -1177,8 +1365,7 @@ const RARE_ITEMS = {
         desc: '적 처치 시: 최대 체력 +2',
         passive(gs, trigger) {
             if (trigger === Trigger.ENEMY_KILL) {
-                gs.player.maxHp += 2;
-                gs.player.hp += 2;
+                growPlayerMaxHp(gs, 2);
                 gs.addLog?.('🧲 영혼 자석: 생명력이 강화되었습니다.', 'item');
             }
         }
@@ -1187,16 +1374,17 @@ const RARE_ITEMS = {
         id: 'clockwork_butterfly', name: '태엽 나비', icon: '🦋', rarity: 'rare',
         desc: '턴 시작 3회마다: 에너지 모두 회복',
         passive(gs, trigger) {
+            const runtime = getItemRuntimeState(gs, 'clockwork_butterfly');
             if (trigger === Trigger.TURN_START) {
-                gs._butterflyCount = (gs._butterflyCount || 0) + 1;
-                if (gs._butterflyCount >= 3) {
-                    gs._butterflyCount = 0;
+                runtime.count = (runtime.count || 0) + 1;
+                if (runtime.count >= 3) {
+                    runtime.count = 0;
                     setPlayerEnergy(gs, gs.player.maxEnergy);
                     gs.addLog?.('🦋 태엽 나비: 시간을 가속하여 에너지를 보충합니다!', 'item');
                 }
             }
             if (trigger === Trigger.COMBAT_END) {
-                gs._butterflyCount = 0;
+                runtime.count = 0;
             }
         }
     },
@@ -1205,12 +1393,11 @@ const RARE_ITEMS = {
         desc: '보스 전투 승리 시: 최대 에너지 +1(최대 2)',
         passive(gs, trigger, data) {
             if (trigger !== Trigger.COMBAT_END || !data?.isBoss) return;
-            const count = Number(gs.player._energyCoreCount || 0);
+            const persistent = getPlayerItemState(gs, 'energy_core');
+            const count = Number(persistent.count || 0);
             if (count >= 2) return;
-            gs.player._energyCoreCount = count + 1;
-            gs.player.maxEnergy += 1;
-            gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
-            gs.markDirty?.('hud');
+            persistent.count = count + 1;
+            growPlayerMaxEnergy(gs, 1);
             gs.addLog?.('🔋 에너지 핵: 최대 에너지 +1', 'echo');
         }
     },
@@ -1231,11 +1418,11 @@ const RARE_ITEMS = {
         desc: '상시: 적 방어막 무시\n[세트: 심연의 삼위일체]',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
-                gs._ignoreShield = true;
+                setItemIgnoreShield(gs, 'abyssal_eye', true);
                 gs.addLog?.('👁️ 심연의 눈: 적의 방어막이 무효화됩니다.', 'item');
             }
             if (trigger === Trigger.COMBAT_END) {
-                gs._ignoreShield = false;
+                setItemIgnoreShield(gs, 'abyssal_eye', false);
             }
         }
     },
@@ -1243,9 +1430,10 @@ const RARE_ITEMS = {
         id: 'abyssal_hand', name: '심연의 손', icon: '🤚', rarity: 'rare', setId: 'abyssal_set',
         desc: '턴마다 처음 사용하는 카드: 2번 발동\n[세트: 심연의 삼위일체]',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.TURN_START) gs._abyssalUsed = false;
-            if (trigger === Trigger.CARD_PLAY && !gs._abyssalUsed) {
-                gs._abyssalUsed = true;
+            const runtime = getItemRuntimeState(gs, 'abyssal_hand');
+            if (trigger === Trigger.TURN_START) runtime.used = false;
+            if (trigger === Trigger.CARD_PLAY && !runtime.used) {
+                runtime.used = true;
                 return { doubleCast: true };
             }
         }
@@ -1293,9 +1481,10 @@ const LEGENDARY_ITEMS = {
         id: 'infinite_loop', name: '무한의 루프', icon: '🌀', rarity: 'legendary',
         desc: '카드 3장 사용할 때마다: 손패의 무작위 카드 1장 소모 후 복사본 2장 추가',
         passive(gs, trigger, data) {
+            const runtime = getItemRuntimeState(gs, 'infinite_loop');
             if (trigger === Trigger.CARD_PLAY) {
-                gs._loopCount = (gs._loopCount || 0) + 1;
-                if (gs._loopCount % 3 === 0 && gs.player.hand?.length > 0) {
+                runtime.count = (runtime.count || 0) + 1;
+                if (runtime.count % 3 === 0 && gs.player.hand?.length > 0) {
                     const h = gs.player.hand;
                     const r = Math.floor(Math.random() * h.length);
                     const card = exhaustHandCard(gs, r);
@@ -1306,7 +1495,7 @@ const LEGENDARY_ITEMS = {
                 }
             }
             if (trigger === Trigger.COMBAT_END) {
-                gs._loopCount = 0;
+                runtime.count = 0;
             }
         }
     },
@@ -1318,23 +1507,23 @@ const BOSS_ITEMS = {
         id: 'boss_soul_mirror', name: '영혼 거울', icon: '🪞', rarity: 'boss',
         desc: '획득: 최대 체력 -15 / 전투당 1회: 사망 시 체력 25 회복 후 부활',
         onAcquire(gs) {
-            gs.player.maxHp = Math.max(1, gs.player.maxHp - 15);
-            gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-            gs.player._bossSoulMirrorPenaltyApplied = true;
+            setPlayerMaxHp(gs, Math.max(1, Number(gs.player.maxHp || 0) - 15));
+            getPlayerItemState(gs, 'boss_soul_mirror').penaltyApplied = true;
         },
         passive(gs, trigger) {
+            const persistent = getPlayerItemState(gs, 'boss_soul_mirror');
+            const runtime = getItemRuntimeState(gs, 'boss_soul_mirror');
             if (trigger === Trigger.COMBAT_START) {
-                if (!gs.player._bossSoulMirrorPenaltyApplied) {
-                    gs.player.maxHp = Math.max(1, gs.player.maxHp - 15);
-                    gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-                    gs.player._bossSoulMirrorPenaltyApplied = true;
+                if (!persistent.penaltyApplied) {
+                    setPlayerMaxHp(gs, Math.max(1, Number(gs.player.maxHp || 0) - 15));
+                    persistent.penaltyApplied = true;
                 }
-                gs._bossSoulMirrorRevived = false;
+                runtime.revived = false;
                 return;
             }
-            if (trigger === Trigger.PRE_DEATH && !gs._bossSoulMirrorRevived) {
-                gs._bossSoulMirrorRevived = true;
-                gs.player.hp = Math.max(1, Math.min(gs.player.maxHp || 1, (gs.player.hp || 0) + 25));
+            if (trigger === Trigger.PRE_DEATH && !runtime.revived) {
+                runtime.revived = true;
+                setPlayerHp(gs, Math.max(1, Math.min(gs.player.maxHp || 1, (gs.player.hp || 0) + 25)));
                 return true;
             }
         }
@@ -1343,34 +1532,37 @@ const BOSS_ITEMS = {
         id: 'boss_black_lotus', name: '흑연꽃', icon: '🪷', rarity: 'boss',
         desc: '상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우',
         onAcquire(gs) {
-            gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
-            gs.player._bossBlackLotusPenaltyApplied = true;
+            const persistent = getPlayerItemState(gs, 'boss_black_lotus');
+            setPlayerItemHandCapPenalty(gs, 'boss_black_lotus', 1);
+            persistent.penaltyApplied = true;
         },
         passive(gs, trigger) {
+            const persistent = getPlayerItemState(gs, 'boss_black_lotus');
+            const runtime = getItemRuntimeState(gs, 'boss_black_lotus');
             if (trigger === Trigger.COMBAT_START) {
-                if (!gs.player._bossBlackLotusPenaltyApplied) {
-                    gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
-                    gs.player._bossBlackLotusPenaltyApplied = true;
+                if (!persistent.penaltyApplied) {
+                    setPlayerItemHandCapPenalty(gs, 'boss_black_lotus', Math.max(1, Number(persistent.handCapPenalty || 0) || 1));
+                    persistent.penaltyApplied = true;
                 }
-                gs._bossBlackLotusCardCount = 0;
+                runtime.cardCount = 0;
                 return;
             }
             if (trigger === Trigger.CARD_PLAY) {
-                gs._bossBlackLotusCardCount = (gs._bossBlackLotusCardCount || 0) + 1;
-                if (gs._bossBlackLotusCardCount % 5 === 0) {
+                runtime.cardCount = (runtime.cardCount || 0) + 1;
+                if (runtime.cardCount % 5 === 0) {
                     gs.drawCards?.(2, { name: '흑연꽃', type: 'item' });
                 }
                 return;
             }
             if (trigger === Trigger.COMBAT_END) {
-                gs._bossBlackLotusCardCount = 0;
+                runtime.cardCount = 0;
             }
         }
     },
     titan_heart: {
         id: 'titan_heart', name: '티탄의 심장', icon: '❤️', rarity: 'boss',
         desc: '획득: 최대 체력 +50 / 상시: 체력 회복 불가',
-        onAcquire(gs) { gs.player.maxHp += 50; gs.player.hp += 50; },
+        onAcquire(gs) { growPlayerMaxHp(gs, 50); },
         passive(gs, trigger) {
             if (trigger === Trigger.HEAL_AMOUNT) return 0;
         }
@@ -1378,7 +1570,7 @@ const BOSS_ITEMS = {
     eye_of_storm: {
         id: 'eye_of_storm', name: '폭풍의 눈', icon: '🌀', rarity: 'boss',
         desc: '획득: 최대 에너지 +1 / 턴 시작: 모든 적에게 취약 1 부여',
-        onAcquire(gs) { gs.player.maxEnergy += 1; },
+        onAcquire(gs) { setPlayerMaxEnergy(gs, Number(gs.player.maxEnergy || 0) + 1); },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
                 gs.combat?.enemies?.forEach((enemy, idx) => {
@@ -1397,23 +1589,21 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1 / 매 턴 드로우 +1 / 전투 종료: 원래 수치로 복원',
         onAcquire(gs) {
-            gs.player.maxHp += 20;
-            gs.player.hp += 20;
+            growPlayerMaxHp(gs, 20);
         },
         passive(gs, trigger) {
-            if (trigger === Trigger.COMBAT_START && !gs._fragmentActive) {
-                gs._fragmentActive = true;
-                gs._fragmentBaseMax = gs.player.maxEnergy;
-                gs.player.maxEnergy += 1;
-                gs.player.energy = Math.min(gs.player.maxEnergy, (gs.player.energy || 0) + 1);
+            const runtime = getItemRuntimeState(gs, 'eternal_fragment');
+            if (trigger === Trigger.COMBAT_START && !runtime.active) {
+                runtime.active = true;
+                runtime.baseMax = gs.player.maxEnergy;
+                growPlayerMaxEnergy(gs, 1);
                 addPlayerDrawCount(gs, 1);
             }
-            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._fragmentActive) {
-                gs.player.maxEnergy = gs._fragmentBaseMax ?? Math.max(1, gs.player.maxEnergy - 1);
-                gs.player.energy = Math.min(gs.player.energy || 0, gs.player.maxEnergy);
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.active) {
+                setPlayerMaxEnergy(gs, runtime.baseMax ?? Math.max(1, gs.player.maxEnergy - 1));
                 addPlayerDrawCount(gs, -1);
-                gs._fragmentActive = false;
-                delete gs._fragmentBaseMax;
+                runtime.active = false;
+                delete runtime.baseMax;
             }
         }
     },
@@ -1459,15 +1649,16 @@ const SPECIAL_ITEMS = {
         desc: '층마다 처음 구매하는 물약: 비용 없음',
         passive(gs, trigger, data) {
             if (trigger === Trigger.ITEM_USE) {
+                const persistent = getPlayerItemState(gs, 'ancient_battery');
                 const itemId = String(data?.itemId || '');
                 const kind = String(data?.kind || '');
                 if (itemId !== 'potion' && kind !== 'potion') return;
 
                 const currentFloor = Math.max(0, Math.floor(Number(gs?.currentFloor || 0)));
-                const usedFloor = Number(gs?.player?._ancientBatteryUsedFloor);
+                const usedFloor = Number(persistent.usedFloor);
                 if (Number.isFinite(usedFloor) && usedFloor === currentFloor) return;
 
-                gs.player._ancientBatteryUsedFloor = currentFloor;
+                persistent.usedFloor = currentFloor;
                 return { ...data, costFree: true };
             }
         }
@@ -1477,8 +1668,7 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +12 / 전투 시작: 방어막 8 획득',
         onAcquire(gs) {
-            gs.player.maxHp += 12;
-            gs.player.hp += 12;
+            growPlayerMaxHp(gs, 12);
         },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
@@ -1504,8 +1694,7 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +8 / 전투 시작: 잔향 10 충전',
         onAcquire(gs) {
-            gs.player.maxHp += 8;
-            gs.player.hp += 8;
+            growPlayerMaxHp(gs, 8);
         },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
@@ -1531,8 +1720,7 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +10 / 층 이동: 골드 8 획득',
         onAcquire(gs) {
-            gs.player.maxHp += 10;
-            gs.player.hp += 10;
+            growPlayerMaxHp(gs, 10);
         },
         passive(gs, trigger) {
             if (trigger === Trigger.FLOOR_START) {
@@ -1540,6 +1728,26 @@ const SPECIAL_ITEMS = {
             }
         }
     },
+};
+
+const ITEM_CHARGE_META = {
+    tally_stone: { itemRuntimeKey: 'tally_stone', stateKey: 'count', max: 5, label: '누적 타격', type: 'num', scope: 'combat' },
+    echo_bell: { itemRuntimeKey: 'echo_bell', stateKey: 'count', max: 10, label: '이번 전투 카드 사용', type: 'num', scope: 'combat' },
+    liquid_memory: { itemRuntimeKey: 'liquid_memory', stateKey: 'used', max: 1, label: '전투당 복구', type: 'invert-dot', scope: 'combat' },
+    balanced_scale: { itemRuntimeKey: 'balanced_scale', stateKey: 'active', label: '추가 드로우 예약', type: 'bool', scope: 'combat' },
+    ancient_scroll: { itemRuntimeKey: 'ancient_scroll', stateKey: 'tempCardId', label: '임시 카드 활성', type: 'bool', scope: 'combat' },
+    paradox_contract: { itemRuntimeKey: 'paradox_contract', stateKey: 'active', label: '전투 효과 상태', type: 'bool', scope: 'combat' },
+    mana_battery: { itemRuntimeKey: 'mana_battery', stateKey: 'stored', max: 3, label: '이월 에너지', type: 'num', scope: 'combat' },
+    clockwork_butterfly: { itemRuntimeKey: 'clockwork_butterfly', stateKey: 'count', max: 3, label: '이번 턴 발동 횟수', type: 'dot', scope: 'combat' },
+    energy_core: { itemPlayerStateKey: 'energy_core', stateKey: 'count', max: 2, label: '보스 승리 성장', type: 'num' },
+    phoenix_feather: { itemPlayerStateKey: 'phoenix_feather', stateKey: 'used', max: 1, label: '게임당 부활', type: 'invert-dot' },
+    infinite_loop: { itemRuntimeKey: 'infinite_loop', stateKey: 'count', max: 3, label: '다음 증식까지 카드', type: 'num', scope: 'combat' },
+    boss_soul_mirror: { itemRuntimeKey: 'boss_soul_mirror', stateKey: 'revived', max: 1, label: '이번 전투 부활', type: 'invert-dot', scope: 'combat' },
+    boss_black_lotus: { itemRuntimeKey: 'boss_black_lotus', stateKey: 'cardCount', max: 5, label: '다음 드로우까지 카드', type: 'num', scope: 'combat' },
+    void_crystal: { gsKey: '_voidCrystalUsed', max: 1, label: '이번 전투 발동', type: 'invert-dot', scope: 'combat' },
+    echo_heart: { gsKey: '_heartUsed', max: 1, label: '부활 횟수', type: 'invert-dot', scope: 'combat' },
+    eternal_fragment: { itemRuntimeKey: 'eternal_fragment', stateKey: 'active', label: '전투 효과 상태', type: 'bool', scope: 'combat' },
+    titan_fragment: { gsKey: '_titanUsed', label: '발동 여부', type: 'bool', scope: 'combat' },
 };
 
 export const ITEMS = {
@@ -1550,3 +1758,7 @@ export const ITEMS = {
     ...BOSS_ITEMS,
     ...SPECIAL_ITEMS
 };
+
+Object.entries(ITEM_CHARGE_META).forEach(([itemId, chargeMeta]) => {
+    if (ITEMS[itemId]) ITEMS[itemId].chargeMeta = chargeMeta;
+});

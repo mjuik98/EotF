@@ -28,6 +28,7 @@ export function handleCombatPlayerDeath(gs, deps = {}) {
 
   playReactionPlayerDeath(audioEngine);
   setCombatActive(gs, false);
+  gs.triggerItems?.('combat_end', { isBoss: false, defeated: true });
   gs.triggerItems('death');
 
   runCombatPlayerDeathSequence(gs, {

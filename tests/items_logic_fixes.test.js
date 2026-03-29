@@ -138,8 +138,8 @@ describe('item logic fixes', () => {
 
         relic.passive(gs, Trigger.COMBAT_END);
         expect(gs.player.maxEnergy).toBe(3);
-        expect(gs._paradoxActive).toBe(false);
-        expect(gs._paradoxBaseMax).toBeUndefined();
+        expect(gs._itemRuntime.paradox_contract.active).toBe(false);
+        expect(gs._itemRuntime.paradox_contract.baseMax).toBeUndefined();
 
         relic.passive(gs, Trigger.COMBAT_START);
         expect(gs.player.maxEnergy).toBe(4);
@@ -156,7 +156,7 @@ describe('item logic fixes', () => {
 
         expect(gs.player.maxEnergy).toBe(3);
         expect(gs.player.energy).toBe(3);
-        expect(gs._paradoxActive).toBe(false);
+        expect(gs._itemRuntime.paradox_contract.active).toBe(false);
     });
 
     it('magnifying_glass lowers enemy attack intents through the live enemy action path without ai wrapping', () => {
@@ -353,8 +353,8 @@ describe('item logic fixes', () => {
         runActualTurnStart(gs);
 
         expect(gs.player.drawCount).toBe(0);
-        expect(gs._scaleActive).toBe(false);
-        expect(gs._scaleDrawReset).toBe(false);
+        expect(gs._itemRuntime.balanced_scale.active).toBe(false);
+        expect(gs._itemRuntime.balanced_scale.drawReset).toBe(false);
     });
 
     it('mana_battery drops stored carry-over when combat ends before the next turn', () => {
@@ -415,8 +415,8 @@ describe('item logic fixes', () => {
 
         ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
 
-        expect([...gs._crystalDiscounted]).toEqual(expect.arrayContaining(['strike', 'defend', 'bash']));
-        expect(gs._crystalDiscounted.size).toBe(3);
+        expect([...gs._itemRuntime.crystal_ball.discounted]).toEqual(expect.arrayContaining(['strike', 'defend', 'bash']));
+        expect(gs._itemRuntime.crystal_ball.discounted.size).toBe(3);
         randomSpy.mockRestore();
     });
 

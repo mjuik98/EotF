@@ -20,7 +20,9 @@ describe('items data passives', () => {
 
   it('restores the first exhausted card through liquid_memory and resets on combat start', () => {
     const gs = {
-      _liquidMemoryUsed: false,
+      _itemRuntime: {
+        liquid_memory: { used: false },
+      },
       player: {
         deck: ['guard'],
         exhausted: ['strike'],
@@ -30,13 +32,13 @@ describe('items data passives', () => {
 
     ITEMS.liquid_memory.passive(gs, Trigger.CARD_EXHAUST, { cardId: 'strike' });
 
-    expect(gs._liquidMemoryUsed).toBe(true);
+    expect(gs._itemRuntime.liquid_memory.used).toBe(true);
     expect(gs.player.exhausted).toEqual([]);
     expect(gs.player.deck).toEqual(['guard', 'strike']);
 
     ITEMS.liquid_memory.passive(gs, Trigger.COMBAT_START);
 
-    expect(gs._liquidMemoryUsed).toBe(false);
+    expect(gs._itemRuntime.liquid_memory.used).toBe(false);
   });
 
   it('returns the first exhausted card to the combat draw pile instead of mutating the permanent deck', () => {
@@ -76,13 +78,13 @@ describe('items data passives', () => {
     ITEMS.balanced_scale.passive(gs, Trigger.TURN_START);
 
     expect(gs.player.drawCount).toBe(1);
-    expect(gs._scaleActive).toBe(false);
-    expect(gs._scaleDrawReset).toBe(true);
+    expect(gs._itemRuntime.balanced_scale.active).toBe(false);
+    expect(gs._itemRuntime.balanced_scale.drawReset).toBe(true);
 
     ITEMS.balanced_scale.passive(gs, Trigger.TURN_END);
 
     expect(gs.player.drawCount).toBe(0);
-    expect(gs._scaleDrawReset).toBe(false);
+    expect(gs._itemRuntime.balanced_scale.drawReset).toBe(false);
   });
 
   it('adds and removes a temporary card through ancient_scroll combat lifecycle', () => {
@@ -90,6 +92,8 @@ describe('items data passives', () => {
       player: {
         hand: [],
         deck: [],
+        drawPile: [],
+        discardPile: [],
         graveyard: [],
         exhausted: [],
       },
@@ -100,19 +104,23 @@ describe('items data passives', () => {
 
     ITEMS.ancient_scroll.passive(gs, Trigger.COMBAT_START);
 
-    const tempCardId = gs._scrollTempCard;
+    const tempCardId = gs._itemRuntime?.ancient_scroll?.tempCardId;
     expect(typeof tempCardId).toBe('string');
     expect(gs.player.hand).toContain(tempCardId);
 
     gs.player.deck.push(tempCardId);
+    gs.player.drawPile.push(tempCardId);
+    gs.player.discardPile.push(tempCardId);
     gs.player.graveyard.push(tempCardId);
     gs.player.exhausted.push(tempCardId);
 
     ITEMS.ancient_scroll.passive(gs, Trigger.COMBAT_END);
 
-    expect(gs._scrollTempCard).toBeNull();
+    expect(gs._itemRuntime?.ancient_scroll?.tempCardId).toBeNull();
     expect(gs.player.hand).not.toContain(tempCardId);
     expect(gs.player.deck).not.toContain(tempCardId);
+    expect(gs.player.drawPile).not.toContain(tempCardId);
+    expect(gs.player.discardPile).not.toContain(tempCardId);
     expect(gs.player.graveyard).not.toContain(tempCardId);
     expect(gs.player.exhausted).not.toContain(tempCardId);
   });
@@ -138,7 +146,9 @@ describe('items data passives', () => {
       player: {
         maxEnergy: 3,
         energy: 2,
-        _energyCoreCount: 0,
+        _itemState: {
+          energy_core: { count: 0 },
+        },
       },
       markDirty: vi.fn(),
       addLog: vi.fn(),
@@ -148,10 +158,26 @@ describe('items data passives', () => {
     ITEMS.energy_core.passive(gs, Trigger.COMBAT_END, { isBoss: true });
     ITEMS.energy_core.passive(gs, Trigger.COMBAT_END, { isBoss: true });
 
-    expect(gs.player._energyCoreCount).toBe(2);
+    expect(gs.player._itemState.energy_core.count).toBe(2);
     expect(gs.player.maxEnergy).toBe(5);
     expect(gs.player.energy).toBe(4);
     expect(gs.markDirty).toHaveBeenCalledTimes(2);
+  });
+
+  it('tracks abyssal_eye shield-ignore ownership in item runtime while keeping the global compatibility flag in sync', () => {
+    const gs = {
+      _itemRuntime: {},
+      _ignoreShield: false,
+      addLog: () => {},
+    };
+
+    ITEMS.abyssal_eye.passive(gs, Trigger.COMBAT_START);
+    expect(gs._itemRuntime.abyssal_eye.ignoreShield).toBe(true);
+    expect(gs._ignoreShield).toBe(true);
+
+    ITEMS.abyssal_eye.passive(gs, Trigger.COMBAT_END);
+    expect(gs._itemRuntime.abyssal_eye.ignoreShield).toBe(false);
+    expect(gs._ignoreShield).toBe(false);
   });
 
   it('boosts special reward card choices through dimension_key', () => {
@@ -185,7 +211,9 @@ describe('items data passives', () => {
 
   it('routes infinite_loop through the actual exhaust pipeline before cloning the card', () => {
     const gs = {
-      _loopCount: 2,
+      _itemRuntime: {
+        infinite_loop: { count: 2 },
+      },
       player: {
         items: ['infinite_loop'],
         hand: ['strike'],
@@ -242,7 +270,9 @@ describe('items data passives', () => {
 
   it('preserves before_card_cost payload context through crystal_ball', () => {
     const gs = {
-      _crystalDiscounted: new Set(['strike']),
+      _itemRuntime: {
+        crystal_ball: { discounted: new Set(['strike']) },
+      },
       player: {
         items: ['crystal_ball'],
       },
@@ -605,7 +635,9 @@ describe('items data passives', () => {
 
   it('adds a midpoint echo payout to echo_bell while preserving the ten-card spike', () => {
     const gs = {
-      _bellCount: 0,
+      _itemRuntime: {
+        echo_bell: { count: 0 },
+      },
       player: {
         echo: 0,
         items: ['echo_bell'],
@@ -697,7 +729,7 @@ describe('items data passives', () => {
 
     expect(gs.player.maxHp).toBe(35);
     expect(gs.player.hp).toBe(35);
-    expect(gs._bossSoulMirrorRevived).toBe(false);
+    expect(gs._itemRuntime.boss_soul_mirror.revived).toBe(false);
   });
 
   it('applies merchants_pendant to standard shop purchases through the shop_buy runtime hook', () => {

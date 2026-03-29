@@ -104,6 +104,6 @@ describe('player_turn_policy_actions', () => {
 
     expect(result).toEqual({ isStunned: false });
     expect(drawCardsState).toHaveBeenCalledWith(gs, 7, { skipRift: true });
-    expect(gs._scaleDrawReset).toBe(true);
+    expect(gs._itemRuntime.balanced_scale.drawReset).toBe(true);
   });
 });

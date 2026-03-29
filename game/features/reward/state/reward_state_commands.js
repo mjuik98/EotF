@@ -25,7 +25,7 @@ export function applyMiniBossBonusState(state, data) {
     : null;
 
   if (guaranteed) {
-    addPlayerItemAndRegisterState(state, guaranteed.id);
+    addPlayerItemAndRegisterState(state, guaranteed.id, guaranteed);
   }
 
   return {
