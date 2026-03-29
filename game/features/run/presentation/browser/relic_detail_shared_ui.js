@@ -1,8 +1,8 @@
-export { resolveItemDetailState } from '../../../../shared/ui/item_detail/item_detail_state.js';
+export { resolveItemDetailState } from '../../../ui/ports/public_item_detail_support_capabilities.js';
 export {
   buildItemDetailViewModel,
   formatItemDetailChargeValue,
-} from '../../../../shared/ui/item_detail/item_detail_view_model.js';
+} from '../../../ui/ports/public_item_detail_support_capabilities.js';
 export {
   applyItemDetailPanelStyles,
   bindItemDetailDismissStrategy,
@@ -13,8 +13,8 @@ export {
   renderItemDetailSurface,
   renderItemDetailPanelContent,
   setItemDetailPanelState,
-} from '../../../../shared/ui/item_detail/item_detail_panel_ui.js';
+} from '../../../ui/ports/public_item_detail_support_capabilities.js';
 export {
   getItemDetailNavIndex,
   isItemDetailCommitKey,
-} from '../../../../shared/ui/item_detail/item_detail_navigation.js';
+} from '../../../ui/ports/public_item_detail_support_capabilities.js';

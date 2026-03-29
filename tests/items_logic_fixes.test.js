@@ -4,6 +4,7 @@ import { CARDS } from '../data/cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { Actions, Reducers } from '../game/core/state_actions.js';
 import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start_player_turn_policy.js';
+import { getEnemyAction } from '../game/features/combat/domain/enemy_turn_domain.js';
 import { beginPlayerTurnState } from '../game/features/combat/state/player_turn_state_commands.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
 import { SetBonusSystem } from '../game/shared/progression/set_bonus_system.js';
@@ -158,22 +159,23 @@ describe('item logic fixes', () => {
         expect(gs._paradoxActive).toBe(false);
     });
 
-    it('magnifying_glass lowers enemy attack intents through the live enemy ai path', () => {
+    it('magnifying_glass lowers enemy attack intents through the live enemy action path without ai wrapping', () => {
         const gs = {
             player: { items: ['magnifying_glass'] },
-            combat: {
-                enemies: [{
-                    hp: 20,
-                    ai: () => ({ type: 'strike', intent: '공격 10', dmg: 10 }),
-                }],
+            triggerItems(trigger, data) {
+                return ItemSystem.triggerItems(this, trigger, data);
             },
         };
+        const enemy = {
+            hp: 20,
+            ai: () => ({ type: 'strike', intent: '공격 10', dmg: 10 }),
+        };
 
-        ItemSystem.triggerItems(gs, Trigger.TURN_START);
-        const action = gs.combat.enemies[0].ai(1);
+        const action = getEnemyAction(enemy, 1, gs);
 
         expect(action.dmg).toBe(9);
         expect(action.intent).toContain('9');
+        expect(enemy.ai(1)).toEqual({ type: 'strike', intent: '공격 10', dmg: 10 });
     });
 
     it('everlasting_oil discounts a card after the actual turn-start draw path populates the hand', () => {

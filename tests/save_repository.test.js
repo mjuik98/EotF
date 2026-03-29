@@ -8,6 +8,8 @@ import {
 } from '../game/shared/save/save_repository.js';
 import { ITEMS } from '../data/items.js';
 import { Trigger } from '../game/data/triggers.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
+import { shopBuyPotion } from '../game/features/event/application/event_shop_actions.js';
 
 function createRunState() {
   return {
@@ -141,5 +143,66 @@ describe('save_repository', () => {
 
     expect(loaded.player._phoenixUsed).toBe(true);
     expect(ITEMS.phoenix_feather.passive(loaded, Trigger.PRE_DEATH)).toBeUndefined();
+  });
+
+  it('does not reapply boss_soul_mirror max hp penalty after save hydration', () => {
+    const gs = createRunState();
+    gs.player.items = ['boss_soul_mirror'];
+
+    ITEMS.boss_soul_mirror.onAcquire(gs);
+    expect(gs.player.maxHp).toBe(15);
+    expect(gs.player.hp).toBe(15);
+
+    const save = buildRunSave(gs, 2);
+    const loaded = createRunState();
+    hydrateRunState(loaded, save);
+
+    ITEMS.boss_soul_mirror.passive(loaded, Trigger.COMBAT_START);
+
+    expect(loaded.player.maxHp).toBe(15);
+    expect(loaded.player.hp).toBe(15);
+  });
+
+  it('does not reapply boss_black_lotus hand limit penalty after save hydration', () => {
+    const gs = createRunState();
+    gs.player.items = ['boss_black_lotus'];
+    gs.player._handCapMinus = 0;
+
+    ITEMS.boss_black_lotus.onAcquire(gs);
+    expect(gs.player._handCapMinus).toBe(1);
+
+    const save = buildRunSave(gs, 2);
+    const loaded = createRunState();
+    loaded.player._handCapMinus = 0;
+    hydrateRunState(loaded, save);
+
+    ITEMS.boss_black_lotus.passive(loaded, Trigger.COMBAT_START);
+
+    expect(loaded.player._handCapMinus).toBe(1);
+  });
+
+  it('preserves ancient_battery once-per-floor usage across save hydration', () => {
+    const gs = createRunState();
+    gs.currentFloor = 4;
+    gs.player.gold = 80;
+    gs.player.items = ['ancient_battery'];
+    gs.heal = () => {};
+    gs.triggerItems = function triggerItems(trigger, data) {
+      return ItemSystem.triggerItems(this, trigger, data);
+    };
+
+    expect(shopBuyPotion(gs, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 80');
+    expect(gs.player.gold).toBe(80);
+
+    const save = buildRunSave(gs, 2);
+    const loaded = createRunState();
+    loaded.heal = () => {};
+    loaded.triggerItems = function triggerItems(trigger, data) {
+      return ItemSystem.triggerItems(this, trigger, data);
+    };
+    hydrateRunState(loaded, save);
+
+    expect(shopBuyPotion(loaded, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 55');
+    expect(loaded.player.gold).toBe(55);
   });
 });

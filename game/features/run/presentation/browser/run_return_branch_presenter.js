@@ -1,4 +1,4 @@
-import { routeOverlayEscapeToPause } from '../../../../shared/runtime/overlay_escape_policy.js';
+import { routeOverlayEscapeToPause } from '../../ports/public_overlay_escape_capabilities.js';
 
 function getRunReturnDoc(deps) {
   return deps?.doc || deps?.win?.document || null;

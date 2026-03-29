@@ -1,4 +1,4 @@
-import { reindexHandScopedRuntimeState } from '../../../../shared/state/hand_index_runtime_state.js';
+import { reindexHandScopedRuntimeState } from '../../ports/public_hand_runtime_state_capabilities.js';
 
 export function setCombatCardPlayLockState(state, isPlaying) {
   if (!state?.combat) return false;

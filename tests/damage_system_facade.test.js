@@ -266,4 +266,16 @@ describe('DamageSystem facade', () => {
     expect(minionDamage).toBe(10);
     expect(bossDamage).toBe(15);
   });
+
+  it('uses the live item trigger path when predicting incoming enemy intent damage', () => {
+    const host = createHost();
+    host.player.items = ['magnifying_glass'];
+    host.combat.turn = 2;
+    host.combat.enemies = [
+      { name: 'Watcher', hp: 30, shield: 0, statusEffects: {}, ai: () => ({ type: 'attack', intent: '공격 10', dmg: 10 }) },
+    ];
+    host.triggerItems = (trigger, payload) => ItemSystem.triggerItems(host, trigger, payload);
+
+    expect(host.getEnemyIntent(0)).toBe(9);
+  });
 });

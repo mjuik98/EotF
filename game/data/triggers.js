@@ -43,6 +43,7 @@ export const Trigger = Object.freeze({
     BEFORE_CARD_COST: 'before_card_cost',
 
     ENEMY_STATUS_APPLY: 'enemy_status_apply',
+    ENEMY_INTENT: 'enemy_intent',
     POISON_DAMAGE: 'poison_damage',
 
     SHOP_PRICE_MOD:  'shop_price_mod',

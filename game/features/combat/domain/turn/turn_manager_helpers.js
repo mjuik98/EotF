@@ -2,6 +2,7 @@ import {
   ENEMY_TURN_BUFF_KEYS,
   TURN_START_DEBUFF_KEYS,
 } from '../../../../../data/status_key_data.js';
+import { getResolvedEnemyAction } from '../enemy_intent_domain.js';
 
 export const TURN_START_DEBUFFS = new Set(TURN_START_DEBUFF_KEYS);
 export const ENEMY_TURN_BUFFS = new Set(ENEMY_TURN_BUFF_KEYS);
@@ -21,12 +22,8 @@ export const TurnManagerHelpers = {
     return false;
   },
 
-  getEnemyAction(enemy, turn) {
-    try {
-      return enemy.ai(turn);
-    } catch {
-      return { type: 'strike', intent: `공격 ${enemy.atk}`, dmg: enemy.atk };
-    }
+  getEnemyAction(enemy, turn, gs = null) {
+    return getResolvedEnemyAction(gs, enemy, turn);
   },
 
   decayEnemyWeaken(enemy) {

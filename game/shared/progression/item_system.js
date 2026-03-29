@@ -34,6 +34,7 @@ const TRIGGER_ALIASES = Object.freeze({
   SHIELD_GAIN: 'shield_gain',
   SHIELD_BREAK: 'shield_break',
   BEFORE_CARD_COST: 'before_card_cost',
+  ENEMY_INTENT: 'enemy_intent',
   SHOP_PRICE_MOD: 'shop_price_mod',
   SHOP_BUY: 'shop_buy',
   ITEM_USE: 'item_use',

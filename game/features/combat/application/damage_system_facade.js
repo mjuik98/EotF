@@ -32,6 +32,7 @@ import {
   resolveShieldGainAmount,
   resolveEnemyTargetIndex,
 } from './damage_system_runtime_helpers.js';
+import { getResolvedEnemyAction } from '../domain/enemy_intent_domain.js';
 
 export const DamageSystem = {
   calculatePotentialDamage(amount, noChain = false) {
@@ -182,6 +183,6 @@ export const DamageSystem = {
     const idx = getSelectedTargetIndex(this, targetIdx);
     const enemy = this.combat.enemies[idx];
     if (!enemy || enemy.hp <= 0) return 0;
-    return enemy.ai(this.combat.turn + 1)?.dmg || 0;
+    return getResolvedEnemyAction(this, enemy, this.combat.turn + 1)?.dmg || 0;
   },
 };

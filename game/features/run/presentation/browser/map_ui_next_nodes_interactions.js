@@ -4,7 +4,7 @@ import {
   canOpenFullMap,
   canToggleDeckView,
 } from '../../../ui/ports/public_help_pause_hotkey_capabilities.js';
-import { routeOverlayEscapeToPause } from '../../../../shared/runtime/overlay_escape_policy.js';
+import { routeOverlayEscapeToPause } from '../../ports/public_overlay_escape_capabilities.js';
 
 export function createNextNodeTrigger({
   deps = {},

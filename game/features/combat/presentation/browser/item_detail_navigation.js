@@ -1,4 +1,4 @@
 export {
   getItemDetailNavIndex,
   isItemDetailCommitKey,
-} from '../../../../shared/ui/item_detail/item_detail_navigation.js';
+} from '../../../ui/ports/public_item_detail_support_capabilities.js';

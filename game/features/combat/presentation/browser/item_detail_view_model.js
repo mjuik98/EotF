@@ -1,4 +1,4 @@
 export {
   buildItemDetailViewModel,
   formatItemDetailChargeValue,
-} from '../../../../shared/ui/item_detail/item_detail_view_model.js';
+} from '../../../ui/ports/public_item_detail_support_capabilities.js';

@@ -2,6 +2,7 @@ import {
   DescriptionUtils,
   INTENT_DESCRIPTIONS,
 } from '../../ports/presentation/public_combat_card_support_capabilities.js';
+import { getResolvedEnemyAction } from '../../domain/enemy_intent_domain.js';
 import { COMBAT_INTENT_LABEL_TRANSLATIONS } from './combat_copy.js';
 
 let _intentTipTimer = null;
@@ -70,16 +71,12 @@ export function resolveEnemyIntentDescription(intent) {
   };
 }
 
-export function resolveEnemyIntent(enemy, turn) {
+export function resolveEnemyIntent(enemy, turn, gs = null) {
   if (enemy?.statusEffects?.stunned > 0) {
     return { type: 'stunned', intent: '기절', dmg: 0, effect: 'stunned' };
   }
-
-  try {
-    return enemy?.ai ? enemy.ai(turn) : { intent: '?', dmg: 0 };
-  } catch {
-    return { intent: '?', dmg: 0 };
-  }
+  if (!enemy?.ai) return { intent: '?', dmg: 0 };
+  return getResolvedEnemyAction(gs, enemy, turn);
 }
 
 export function showEnemyIntentTooltip(event, enemyIdx, deps = {}) {
@@ -95,7 +92,7 @@ export function showEnemyIntentTooltip(event, enemyIdx, deps = {}) {
   const enemy = gs.combat.enemies[idx];
   if (!enemy?.ai) return;
 
-  const intent = resolveEnemyIntent(enemy, gs.combat.turn);
+  const intent = resolveEnemyIntent(enemy, gs.combat.turn, gs);
   if (gs.combat.turn <= 0) return;
 
   const icon = getEnemyIntentIcon(intent);

@@ -8,4 +8,4 @@ export {
   renderItemDetailSurface,
   renderItemDetailPanelContent,
   setItemDetailPanelState,
-} from '../../../../shared/ui/item_detail/item_detail_panel_ui.js';
+} from '../../../ui/ports/public_item_detail_support_capabilities.js';

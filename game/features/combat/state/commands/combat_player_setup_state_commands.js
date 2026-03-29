@@ -1,4 +1,7 @@
-import { getHandScopedRuntimeState, resetHandScopedCascadeCards } from '../../../../shared/state/hand_index_runtime_state.js';
+import {
+  getHandScopedRuntimeState,
+  resetHandScopedCascadeCards,
+} from '../../ports/public_hand_runtime_state_capabilities.js';
 
 function collectPermanentBuffs(player, permanentBuffIds = ['echo_berserk']) {
   const permanentBuffs = {};

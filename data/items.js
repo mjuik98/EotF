@@ -570,50 +570,101 @@ const COMMON_ITEMS = {
     },
     void_shard: {
         id: 'void_shard', name: '공허의 파편', icon: '🔷', rarity: 'common',
-        desc: '전투 종료: 잔향 20 충전',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_END) { gs.addEcho(20, { name: '공허의 파편', type: 'item' }); } }
+        desc: '전투 시작: 잔향 50 이상일 때 방어막 5 획득 / 전투 종료: 잔향 20 충전',
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START && Number(gs.player.echo || 0) >= 50) {
+                gs.addShield?.(5, { name: '공허의 파편', type: 'item' });
+            }
+            if (trigger === Trigger.COMBAT_END) {
+                gs.addEcho(20, { name: '공허의 파편', type: 'item' });
+            }
+        }
     },
     cracked_amulet: {
         id: 'cracked_amulet', name: '부서진 목걸이', icon: '📿', rarity: 'common',
-        desc: '턴 시작: 체력 2 회복',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.heal(2, { name: '부서진 목걸이', type: 'item' }); } }
+        desc: '전투 시작: 방어막 4 획득 / 턴 시작: 체력 2 회복',
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addShield?.(4, { name: '부서진 목걸이', type: 'item' });
+            }
+            if (trigger === Trigger.TURN_START) {
+                gs.heal(2, { name: '부서진 목걸이', type: 'item' });
+            }
+        }
     },
     worn_pouch: {
         id: 'worn_pouch', name: '낡은 주머니', icon: '💰', rarity: 'common',
-        desc: '전투 시작: 골드 5 획득',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addGold(5, { name: '낡은 주머니', type: 'item' }); } }
+        desc: '전투 시작: 골드 5 획득 / 층 이동: 골드 3 획득',
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addGold(5, { name: '낡은 주머니', type: 'item' });
+            }
+            if (trigger === Trigger.FLOOR_START) {
+                gs.addGold(3, { name: '낡은 주머니', type: 'item' });
+            }
+        }
     },
     dull_blade: {
         id: 'dull_blade', name: '무딘 검', icon: '🗡️', rarity: 'common',
-        desc: '카드 사용 시 10% 확률: 잔향 10 충전',
-        passive(gs, trigger) { if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) { gs.addEcho(10, { name: '무딘 검', type: 'item' }); } }
+        desc: '전투 시작: 잔향 5 충전 / 카드 사용 시 10% 확률: 잔향 10 충전',
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addEcho(5, { name: '무딘 검', type: 'item' });
+            }
+            if (trigger === Trigger.CARD_PLAY && Math.random() < 0.1) {
+                gs.addEcho(10, { name: '무딘 검', type: 'item' });
+            }
+        }
     },
     travelers_map: {
         id: 'travelers_map', name: '여행자의 지도', icon: '🗺️', rarity: 'common',
-        desc: '층 이동: 체력 3 회복',
-        passive(gs, trigger) { if (trigger === Trigger.FLOOR_START) { gs.heal(3, { name: '여행자의 지도', type: 'item' }); } }
+        desc: '층 이동: 체력 3 회복 / 골드 4 획득',
+        passive(gs, trigger) {
+            if (trigger === Trigger.FLOOR_START) {
+                gs.heal(3, { name: '여행자의 지도', type: 'item' });
+                gs.addGold?.(4, { name: '여행자의 지도', type: 'item' });
+            }
+        }
     },
     rift_talisman: {
         id: 'rift_talisman', name: '균열의 부적', icon: '🧿', rarity: 'common',
-        desc: '전투 시작: 방어막 5 획득',
-        passive(gs, trigger) { if (trigger === Trigger.COMBAT_START) { gs.addShield(5, { name: '균열의 부적', type: 'item' }); } }
+        desc: '전투 시작: 방어막 5 획득 / 잔향 5 충전',
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.addShield(5, { name: '균열의 부적', type: 'item' });
+                gs.addEcho?.(5, { name: '균열의 부적', type: 'item' });
+            }
+        }
     },
     blood_shard: {
         id: 'blood_shard', name: '핏빛 파편', icon: '🩸', rarity: 'common',
-        desc: '적 처치 시: 잔향 10 충전',
-        passive(gs, trigger) { if (trigger === Trigger.ENEMY_KILL) { gs.addEcho(10, { name: '핏빛 파편', type: 'item' }); } }
+        desc: '적 처치 시: 잔향 10 충전 / 체력 1 회복',
+        passive(gs, trigger) {
+            if (trigger === Trigger.ENEMY_KILL) {
+                gs.addEcho(10, { name: '핏빛 파편', type: 'item' });
+                gs.heal?.(1, { name: '핏빛 파편', type: 'item' });
+            }
+        }
     },
     morning_dew: {
         id: 'morning_dew', name: '아침 이슬', icon: '💧', rarity: 'common',
-        desc: '턴 시작: 방어막 3 획득',
-        passive(gs, trigger) { if (trigger === Trigger.TURN_START) { gs.addShield(3, { name: '아침 이슬', type: 'item' }); } }
+        desc: '전투 시작: 체력 2 회복 / 턴 시작: 방어막 3 획득',
+        passive(gs, trigger) {
+            if (trigger === Trigger.COMBAT_START) {
+                gs.heal?.(2, { name: '아침 이슬', type: 'item' });
+            }
+            if (trigger === Trigger.TURN_START) {
+                gs.addShield(3, { name: '아침 이슬', type: 'item' });
+            }
+        }
     },
     thin_codex: {
         id: 'thin_codex', name: '얇은 문서', icon: '📄', rarity: 'common',
-        desc: '전투 시작: 덱 10장 이하일 때: 카드 1장 드로우',
+        desc: '전투 시작: 덱 10장 이하일 때 카드 1장 드로우 / 방어막 4 획득',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && (gs.player.deck?.length || 0) <= 10) {
                 gs.drawCards(1, { name: '얇은 문서', type: 'item' });
+                gs.addShield?.(4, { name: '얇은 문서', type: 'item' });
             }
         }
     },
@@ -633,10 +684,13 @@ const COMMON_ITEMS = {
     },
     echo_bell: {
         id: 'echo_bell', name: '잔향의 종', icon: '🔔', rarity: 'common',
-        desc: '카드 10장 사용할 때마다: 잔향 15 충전',
+        desc: '카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전',
         passive(gs, trigger) {
             if (trigger === Trigger.CARD_PLAY) {
                 gs._bellCount = (gs._bellCount || 0) + 1;
+                if (gs._bellCount % 10 === 5) {
+                    gs.addEcho(5, { name: '잔향의 종', type: 'item' });
+                }
                 if (gs._bellCount % 10 === 0) {
                     gs.addEcho(15, { name: '잔향의 종', type: 'item' });
                 }
@@ -645,11 +699,14 @@ const COMMON_ITEMS = {
     },
     lucky_coin: {
         id: 'lucky_coin', name: '행운의 주화', icon: '🪙', rarity: 'common',
-        desc: '턴 시작 5% 확률: 에너지 1 회복',
+        desc: '턴 시작 5% 확률: 에너지 1 회복 / 상점 구매 시: 골드 3 획득',
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START && Math.random() < 0.05) {
                 addPlayerEnergy(gs, 1);
                 gs.addLog?.('🪙 행운의 주화: 에너지 회복!', 'item');
+            }
+            if (trigger === Trigger.SHOP_BUY) {
+                gs.addGold?.(3, { name: '행운의 주화', type: 'item' });
             }
         }
     },
@@ -743,7 +800,11 @@ const UNCOMMON_ITEMS = {
             if (trigger === Trigger.COMBAT_START && !gs._titansBeltApplied) {
                 gs._titansBeltApplied = 15;
                 gs.player.maxHp += 15;
-                gs.player.hp += 15;
+                if (typeof gs.heal === 'function') {
+                    gs.heal(15, { name: '거인의 허리띠', type: 'item' });
+                } else {
+                    gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + 15);
+                }
                 gs.markDirty?.('hud');
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && gs._titansBeltApplied) {
@@ -784,25 +845,22 @@ const UNCOMMON_ITEMS = {
     },
     magnifying_glass: {
         id: 'magnifying_glass', name: '돋보기', icon: '🔍', rarity: 'uncommon',
-        desc: '턴 시작: 모든 적 공격 의도 10% 감소',
-        passive(gs, trigger) {
-            if (trigger === Trigger.TURN_START) {
-                (gs.combat?.enemies || []).forEach((enemy) => {
-                    if (!enemy?.ai || enemy._magnifyingGlassWrapped) return;
-                    const baseAi = enemy.ai.bind(enemy);
-                    enemy._magnifyingGlassWrapped = true;
-                    enemy.ai = (...args) => {
-                        const action = baseAi(...args);
-                        if (!action || typeof action !== 'object') return action;
-                        const baseDmg = Number(action.dmg || 0);
-                        if (baseDmg <= 0) return action;
-                        const scaledDmg = Math.max(0, Math.floor(baseDmg * 0.9));
-                        const nextIntent = typeof action.intent === 'string'
-                            ? action.intent.replace(new RegExp(`${baseDmg}(\\s*x\\d+)?$`), `${scaledDmg}$1`)
-                            : action.intent;
-                        return { ...action, dmg: scaledDmg, intent: nextIntent };
-                    };
-                });
+        desc: '상시: 모든 적 공격 의도 10% 감소',
+        passive(gs, trigger, data) {
+            if (trigger === Trigger.ENEMY_INTENT && data?.action) {
+                const baseDmg = Number(data.action.dmg || 0);
+                if (baseDmg <= 0) return;
+                const scaledDmg = Math.max(0, Math.floor(baseDmg * 0.9));
+                const nextIntent = typeof data.action.intent === 'string'
+                    ? data.action.intent.replace(new RegExp(`${baseDmg}(\\s*x\\d+)?$`), `${scaledDmg}$1`)
+                    : data.action.intent;
+                return {
+                    action: {
+                        ...data.action,
+                        dmg: scaledDmg,
+                        intent: nextIntent,
+                    },
+                };
             }
         }
     },
@@ -1262,14 +1320,14 @@ const BOSS_ITEMS = {
         onAcquire(gs) {
             gs.player.maxHp = Math.max(1, gs.player.maxHp - 15);
             gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-            gs._bossSoulMirrorPenaltyApplied = true;
+            gs.player._bossSoulMirrorPenaltyApplied = true;
         },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
-                if (!gs._bossSoulMirrorPenaltyApplied) {
+                if (!gs.player._bossSoulMirrorPenaltyApplied) {
                     gs.player.maxHp = Math.max(1, gs.player.maxHp - 15);
                     gs.player.hp = Math.min(gs.player.hp, gs.player.maxHp);
-                    gs._bossSoulMirrorPenaltyApplied = true;
+                    gs.player._bossSoulMirrorPenaltyApplied = true;
                 }
                 gs._bossSoulMirrorRevived = false;
                 return;
@@ -1286,13 +1344,13 @@ const BOSS_ITEMS = {
         desc: '상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우',
         onAcquire(gs) {
             gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
-            gs._bossBlackLotusPenaltyApplied = true;
+            gs.player._bossBlackLotusPenaltyApplied = true;
         },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
-                if (!gs._bossBlackLotusPenaltyApplied) {
+                if (!gs.player._bossBlackLotusPenaltyApplied) {
                     gs.player._handCapMinus = Math.max(0, Number(gs.player._handCapMinus || 0) + 1);
-                    gs._bossBlackLotusPenaltyApplied = true;
+                    gs.player._bossBlackLotusPenaltyApplied = true;
                 }
                 gs._bossBlackLotusCardCount = 0;
                 return;
@@ -1400,10 +1458,17 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '층마다 처음 구매하는 물약: 비용 없음',
         passive(gs, trigger, data) {
-            if (trigger === Trigger.TURN_START || trigger === Trigger.FLOOR_START) gs._batteryUsed = false;
-            if (trigger === Trigger.ITEM_USE && !gs._batteryUsed) {
-                gs._batteryUsed = true;
-                return { costFree: true };
+            if (trigger === Trigger.ITEM_USE) {
+                const itemId = String(data?.itemId || '');
+                const kind = String(data?.kind || '');
+                if (itemId !== 'potion' && kind !== 'potion') return;
+
+                const currentFloor = Math.max(0, Math.floor(Number(gs?.currentFloor || 0)));
+                const usedFloor = Number(gs?.player?._ancientBatteryUsedFloor);
+                if (Number.isFinite(usedFloor) && usedFloor === currentFloor) return;
+
+                gs.player._ancientBatteryUsedFloor = currentFloor;
+                return { ...data, costFree: true };
             }
         }
     },

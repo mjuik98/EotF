@@ -22,7 +22,7 @@ export function buildEnemyHpText(enemy) {
 
 export function buildEnemyViewModel({ enemy, index, gs, data, doc, deps, handlers }) {
   const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
-  const intent = resolveEnemyIntent(enemy, gs.combat.turn);
+  const intent = resolveEnemyIntent(enemy, gs.combat.turn, gs);
   let intentIcon = getEnemyIntentIcon(intent);
   let intentLabel = formatEnemyIntentLabel(intent);
   let intentDmgVal = intent.dmg;

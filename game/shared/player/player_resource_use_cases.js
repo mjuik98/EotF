@@ -9,7 +9,7 @@ import {
   formatRecentFeedText,
   getCurrentCardLogSource,
   LogUtils,
-} from '../../utils/log_utils.js';
+} from '../logging/log_utils.js';
 
 export const PlayerResourceUseCaseMethods = {
   addEcho(amount, source = null) {

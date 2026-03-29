@@ -9,6 +9,7 @@ import {
   showEnemyIntentTooltip,
   syncEnemyIntentTooltipAnchor,
 } from '../game/features/combat/public.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
 
 class MockElement {
   constructor(doc, tagName = 'div') {
@@ -182,6 +183,25 @@ describe('combat_intent_ui', () => {
 
     expect(formatEnemyIntentLabel({ intent: 'Attack 18', dmg: 18 })).toBe('공격');
     expect(getEnemyIntentIcon({ type: 'attack', intent: 'Attack 18', dmg: 18 })).toBe('!');
+  });
+
+  it('applies item-based intent modifiers when the UI resolves enemy intent', () => {
+    const gs = {
+      player: {
+        items: ['magnifying_glass'],
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    const intent = resolveEnemyIntent({
+      ai: () => ({ type: 'attack', intent: 'Attack 20', dmg: 20 }),
+      statusEffects: {},
+    }, 2, gs);
+
+    expect(intent.dmg).toBe(18);
+    expect(intent.intent).toContain('18');
   });
 
   it('styles intent tooltip keyword highlights with the readable comparison palette', () => {

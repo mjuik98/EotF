@@ -1,4 +1,4 @@
-import { Logger } from '../../utils/logger.js';
+import { Logger } from '../logging/logger.js';
 import {
   META_SAVE_VERSION,
   RUN_SAVE_VERSION,

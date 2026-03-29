@@ -295,6 +295,32 @@ describe('items data passives', () => {
     expect(ItemSystem.triggerItems(gs, Trigger.HEAL_AMOUNT, 8)).toBe(0);
   });
 
+  it('routes titans_belt healing through the live heal hook instead of direct hp mutation', () => {
+    const gs = {
+      player: {
+        items: ['titans_belt', 'titan_heart'],
+        maxHp: 30,
+        hp: 10,
+      },
+      markDirty: vi.fn(),
+      addLog: vi.fn(),
+      heal(amount) {
+        const adjusted = this.triggerItems('heal_amount', amount);
+        const resolved = typeof adjusted === 'number' ? adjusted : amount;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + Math.max(0, resolved));
+        return { healed: resolved };
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+
+    expect(gs.player.maxHp).toBe(45);
+    expect(gs.player.hp).toBe(10);
+  });
+
   it('applies eye_of_storm vulnerable to every enemy instead of the player', () => {
     const gs = {
       player: {
@@ -373,6 +399,230 @@ describe('items data passives', () => {
     expect(ITEMS.ancient_battery.desc).toBe('층마다 처음 구매하는 물약: 비용 없음');
   });
 
+  it('adds steady combat and floor gold through worn_pouch runtime hooks', () => {
+    const gs = {
+      player: {
+        gold: 10,
+        items: ['worn_pouch'],
+      },
+      addGold(amount) {
+        this.player.gold += amount;
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+    ItemSystem.triggerItems(gs, Trigger.FLOOR_START);
+
+    expect(gs.player.gold).toBe(18);
+    expect(ITEMS.worn_pouch.desc).toBe('전투 시작: 골드 5 획득 / 층 이동: 골드 3 획득');
+  });
+
+  it('adds a combat-start echo charge while preserving dull_blade card-play procs', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
+    const gs = {
+      player: {
+        echo: 0,
+        items: ['dull_blade'],
+      },
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+    ItemSystem.triggerItems(gs, Trigger.CARD_PLAY, { cardId: 'strike', cost: 1 });
+
+    expect(gs.player.echo).toBe(15);
+    expect(ITEMS.dull_blade.desc).toBe('전투 시작: 잔향 5 충전 / 카드 사용 시 10% 확률: 잔향 10 충전');
+
+    randomSpy.mockRestore();
+  });
+
+  it('adds sustain to blood_shard through the active enemy_kill path', () => {
+    const gs = {
+      player: {
+        echo: 0,
+        hp: 10,
+        maxHp: 20,
+        items: ['blood_shard'],
+      },
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+      heal: vi.fn((amount) => {
+        gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + amount);
+      }),
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.ENEMY_KILL, { enemy: { hp: 0 }, idx: 0 });
+
+    expect(gs.player.echo).toBe(10);
+    expect(gs.player.hp).toBe(11);
+    expect(gs.heal).toHaveBeenCalledWith(1, { name: '핏빛 파편', type: 'item' });
+    expect(ITEMS.blood_shard.desc).toBe('적 처치 시: 잔향 10 충전 / 체력 1 회복');
+  });
+
+  it('turns stored echo into opening defense through void_shard runtime triggers', () => {
+    const gs = {
+      player: {
+        echo: 60,
+        shield: 0,
+        items: ['void_shard'],
+      },
+      dispatch(action, payload) {
+        return Reducers[action](this, payload);
+      },
+      markDirty: vi.fn(),
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_END);
+
+    expect(gs.player.shield).toBe(5);
+    expect(gs.player.echo).toBe(80);
+    expect(ITEMS.void_shard.desc).toBe('전투 시작: 잔향 50 이상일 때 방어막 5 획득 / 전투 종료: 잔향 20 충전');
+  });
+
+  it('adds opening defense to cracked_amulet while keeping its turn-start heal', () => {
+    const gs = {
+      player: {
+        hp: 8,
+        maxHp: 20,
+        shield: 0,
+        items: ['cracked_amulet'],
+      },
+      dispatch(action, payload) {
+        return Reducers[action](this, payload);
+      },
+      markDirty: vi.fn(),
+      heal: vi.fn((amount) => {
+        gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + amount);
+      }),
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+    ItemSystem.triggerItems(gs, Trigger.TURN_START);
+
+    expect(gs.player.shield).toBe(4);
+    expect(gs.player.hp).toBe(10);
+    expect(ITEMS.cracked_amulet.desc).toBe('전투 시작: 방어막 4 획득 / 턴 시작: 체력 2 회복');
+  });
+
+  it('adds travel gold to travelers_map on the live floor_start hook', () => {
+    const gs = {
+      player: {
+        hp: 10,
+        maxHp: 20,
+        gold: 7,
+        items: ['travelers_map'],
+      },
+      heal: vi.fn((amount) => {
+        gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + amount);
+      }),
+      addGold(amount) {
+        this.player.gold += amount;
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.FLOOR_START);
+
+    expect(gs.player.hp).toBe(13);
+    expect(gs.player.gold).toBe(11);
+    expect(ITEMS.travelers_map.desc).toBe('층 이동: 체력 3 회복 / 골드 4 획득');
+  });
+
+  it('adds an opening echo charge to rift_talisman through combat_start', () => {
+    const gs = {
+      player: {
+        shield: 0,
+        echo: 0,
+        items: ['rift_talisman'],
+      },
+      dispatch(action, payload) {
+        return Reducers[action](this, payload);
+      },
+      markDirty: vi.fn(),
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+
+    expect(gs.player.shield).toBe(5);
+    expect(gs.player.echo).toBe(5);
+    expect(ITEMS.rift_talisman.desc).toBe('전투 시작: 방어막 5 획득 / 잔향 5 충전');
+  });
+
+  it('turns thin_codex into a stronger low-deck opener on combat_start', () => {
+    const gs = {
+      player: {
+        deck: ['strike', 'guard'],
+        shield: 0,
+        items: ['thin_codex'],
+      },
+      dispatch: vi.fn((action, payload) => Reducers[action](gs, payload)),
+      markDirty: vi.fn(),
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+
+    expect(gs.dispatch).toHaveBeenCalledWith(Actions.CARD_DRAW, { count: 1 });
+    expect(gs.player.shield).toBe(4);
+    expect(ITEMS.thin_codex.desc).toBe('전투 시작: 덱 10장 이하일 때 카드 1장 드로우 / 방어막 4 획득');
+  });
+
+  it('adds an opening heal to morning_dew while preserving the turn-start shield hook', () => {
+    const gs = {
+      player: {
+        hp: 9,
+        maxHp: 20,
+        shield: 0,
+        items: ['morning_dew'],
+      },
+      dispatch(action, payload) {
+        return Reducers[action](this, payload);
+      },
+      markDirty: vi.fn(),
+      heal: vi.fn((amount) => {
+        gs.player.hp = Math.min(gs.player.maxHp, gs.player.hp + amount);
+      }),
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+    ItemSystem.triggerItems(gs, Trigger.TURN_START);
+
+    expect(gs.player.hp).toBe(11);
+    expect(gs.player.shield).toBe(3);
+    expect(ITEMS.morning_dew.desc).toBe('전투 시작: 체력 2 회복 / 턴 시작: 방어막 3 획득');
+  });
+
+  it('adds a midpoint echo payout to echo_bell while preserving the ten-card spike', () => {
+    const gs = {
+      _bellCount: 0,
+      player: {
+        echo: 0,
+        items: ['echo_bell'],
+      },
+      addEcho(amount) {
+        this.player.echo += amount;
+      },
+    };
+
+    for (let index = 0; index < 10; index += 1) {
+      ItemSystem.triggerItems(gs, Trigger.CARD_PLAY, { cardId: `card_${index}`, cost: 1 });
+    }
+
+    expect(gs.player.echo).toBe(20);
+    expect(ITEMS.echo_bell.desc).toBe('카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전');
+  });
+
   it('charges potion cost again after ancient_battery spends its once-per-floor shop purchase', () => {
     const gs = {
       player: {
@@ -389,6 +639,28 @@ describe('items data passives', () => {
     expect(shopBuyPotion(gs, 25)).toBe('❤️ 체력 30 회복. 남은 골드: 55');
     expect(gs.player.gold).toBe(55);
     expect(gs.heal).toHaveBeenCalledTimes(2);
+  });
+
+  it('refunds part of shop spending through lucky_coin on the live shop_buy path', () => {
+    const gs = {
+      player: {
+        gold: 30,
+        items: ['lucky_coin'],
+      },
+      heal: vi.fn(),
+      addGold(amount) {
+        this.player.gold += amount;
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    const result = shopBuyPotion(gs, 25);
+
+    expect(result).toBe('❤️ 체력 30 회복. 남은 골드: 8');
+    expect(gs.player.gold).toBe(8);
+    expect(ITEMS.lucky_coin.desc).toBe('턴 시작 5% 확률: 에너지 1 회복 / 상점 구매 시: 골드 3 획득');
   });
 
   it('grants a consumable dodge stack through golden_feather on combat start', () => {

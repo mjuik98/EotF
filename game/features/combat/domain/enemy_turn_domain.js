@@ -1,5 +1,6 @@
 import { LogUtils } from '../ports/combat_logging.js';
 import { handleEnemyEffectLogic } from './turn/enemy_effect_resolver.js';
+import { getResolvedEnemyAction } from './enemy_intent_domain.js';
 import {
   isInfiniteStackBuff,
   normalizeInfiniteStack,
@@ -213,12 +214,8 @@ export function processEnemyStun(enemy) {
   return consumeEnemyStunState(enemy).stunnedConsumed;
 }
 
-export function getEnemyAction(enemy, turn) {
-  try {
-    return enemy.ai(turn);
-  } catch {
-    return { type: 'strike', intent: `공격 ${enemy.atk}`, dmg: enemy.atk };
-  }
+export function getEnemyAction(enemy, turn, gs = null) {
+  return getResolvedEnemyAction(gs, enemy, turn);
 }
 
 export function decayEnemyWeaken(enemy) {

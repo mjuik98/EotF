@@ -13,7 +13,7 @@ import {
   setGuardianPreservedShieldState,
   setMageDiscountTargetState,
 } from '../state/class_mechanic_state_commands.js';
-import { LogUtils } from '../../utils/log_utils.js';
+import { LogUtils } from '../logging/log_utils.js';
 
 function getGS(gs) {
   return gs;

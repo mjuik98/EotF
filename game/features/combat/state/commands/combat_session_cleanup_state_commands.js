@@ -1,4 +1,4 @@
-import { clearHandScopedRuntimeState } from '../../../../shared/state/hand_index_runtime_state.js';
+import { clearHandScopedRuntimeState } from '../../ports/public_hand_runtime_state_capabilities.js';
 
 export function applyCombatSessionCleanupReducerState(state) {
   const combat = state?.combat;

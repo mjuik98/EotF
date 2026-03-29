@@ -108,5 +108,13 @@ export function hydrateRunState(gs, data) {
   if (data.mapNodes !== undefined) gs.mapNodes = cloneSerializable(data.mapNodes, null);
   if (data.visitedNodes) gs.visitedNodes = new Set(data.visitedNodes);
   if (data.currentNode !== undefined) gs.currentNode = data.currentNode;
+
+  const itemIds = new Set(Array.isArray(gs.player.items) ? gs.player.items : []);
+  const legacyPenaltyFlags = {};
+  if (itemIds.has('boss_soul_mirror')) legacyPenaltyFlags._bossSoulMirrorPenaltyApplied = true;
+  if (itemIds.has('boss_black_lotus') && Number(gs.player._handCapMinus || 0) > 0) {
+    legacyPenaltyFlags._bossBlackLotusPenaltyApplied = true;
+  }
+  if (Object.keys(legacyPenaltyFlags).length > 0) Object.assign(gs.player, legacyPenaltyFlags);
 }
 import { resetHandScopedCascadeCards } from '../state/hand_index_runtime_state.js';

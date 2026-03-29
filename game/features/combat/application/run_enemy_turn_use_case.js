@@ -79,7 +79,7 @@ export async function runEnemyTurnUseCase({
       continue;
     }
 
-    const action = resolveEnemyAction(enemy, gs.combat.turn);
+    const action = resolveEnemyAction(enemy, gs.combat.turn, gs);
 
     if (action.type === 'phase_shift' || action.effect === 'phase_shift') {
       resolveBossPhaseShift(gs, enemy);

@@ -1,4 +1,4 @@
-import { Logger } from '../../utils/logger.js';
+import { Logger } from '../logging/logger.js';
 
 function resolveLogger(deps = {}) {
   const logger = deps.logger || Logger;
