@@ -225,4 +225,41 @@ describe('map_ui_full_map', () => {
       getRegionData,
     }));
   });
+
+  it('passes togglePause through the next-node overlay deps', () => {
+    const getCanvasDeps = vi.fn((extra = {}) => extra);
+    const updateNextNodes = vi.fn();
+    const togglePause = vi.fn();
+
+    const actions = createRunMapActions({
+      fns: {
+        closeDeckView: vi.fn(),
+        getFloorStatusText: vi.fn(() => '1F'),
+        moveToNode: vi.fn(),
+        showDeckView: vi.fn(),
+        showFullMap: vi.fn(),
+        togglePause,
+      },
+      modules: {
+        MapUI: { updateNextNodes },
+        NODE_META: { combat: { label: '전투' } },
+        _canvasRefs: {
+          minimapCanvas: { id: 'minimap' },
+          minimapCtx: { id: 'ctx' },
+        },
+      },
+      ports: {
+        getCanvasDeps,
+      },
+    });
+
+    actions.updateNextNodes();
+
+    expect(getCanvasDeps).toHaveBeenCalledWith(expect.objectContaining({
+      togglePause,
+    }));
+    expect(updateNextNodes).toHaveBeenCalledWith(expect.objectContaining({
+      togglePause,
+    }));
+  });
 });

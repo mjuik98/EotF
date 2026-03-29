@@ -38,6 +38,7 @@ export function createRunMapActions(context) {
         nodeMeta: modules.NODE_META,
         showDeckView: fns.showDeckView,
         showFullMap: fns.showFullMap,
+        togglePause: fns.togglePause,
       });
       modules.MapUI?.updateNextNodes?.(deps);
     },

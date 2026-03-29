@@ -67,4 +67,46 @@ describe('run_return_branch_presenter', () => {
     card.listeners.click();
     await expect(promise).resolves.toEqual(expect.objectContaining({ regionId: 1 }));
   });
+
+  it('opens pause instead of auto-selecting a route when escape is pressed', async () => {
+    const body = createElement(null, 'body');
+    const addEventListener = vi.fn();
+    const removeEventListener = vi.fn();
+    const togglePause = vi.fn();
+    const doc = {
+      body,
+      createElement(tagName) {
+        return createElement(doc, tagName);
+      },
+      addEventListener,
+      removeEventListener,
+    };
+    body.ownerDocument = doc;
+
+    const promise = showBranchChoiceOverlay([
+      { regionId: 1, label: '지역 1', difficulty: '보통', rewardMod: 1.1 },
+      { regionId: 2, label: '지역 2', difficulty: '어려움', rewardMod: 1.3 },
+    ], { doc, togglePause });
+
+    const onKeyDown = addEventListener.mock.calls[0][1];
+    const event = {
+      key: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    };
+    let resolved = false;
+    promise.then(() => {
+      resolved = true;
+    });
+
+    onKeyDown(event);
+    await Promise.resolve();
+
+    expect(togglePause).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(removeEventListener).not.toHaveBeenCalled();
+    expect(resolved).toBe(false);
+    expect(body.children).toHaveLength(1);
+  });
 });

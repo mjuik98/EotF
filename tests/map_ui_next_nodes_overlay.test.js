@@ -341,6 +341,50 @@ describe('map_ui_next_nodes overlay', () => {
     expect(event.preventDefault).not.toHaveBeenCalled();
   });
 
+  it('opens pause when escape is pressed from the next-node overlay', () => {
+    const doc = createDoc();
+    const togglePause = vi.fn();
+
+    updateNextNodesOverlay({
+      doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      moveToNode: vi.fn(),
+      showDeckView: vi.fn(),
+      closeDeckView: vi.fn(),
+      showFullMap: vi.fn(),
+      togglePause,
+      gs: {
+        currentScreen: 'game',
+        currentRegion: 0,
+        currentFloor: 1,
+        combat: { active: false },
+        _nodeMoveLock: false,
+        _rewardLock: false,
+        _endCombatScheduled: false,
+        _endCombatRunning: false,
+        player: { hp: 10, maxHp: 10, items: [], deck: [], graveyard: [], exhausted: [] },
+        mapNodes: [
+          { id: 'n1', floor: 2, accessible: true, visited: false, type: 'combat' },
+        ],
+      },
+      nodeMeta: {
+        combat: { color: '#ff4455', icon: 'C', label: 'Combat', desc: 'fight' },
+      },
+      getRegionData: () => ({ name: 'Region', rule: 'Rule' }),
+      getFloorStatusText: () => '1F',
+      data: { items: {} },
+    });
+
+    const overlay = doc.getElementById('nodeCardOverlay');
+    const keyHandler = overlay._ncKey;
+    const event = { key: 'Escape', preventDefault: vi.fn() };
+
+    keyHandler(event);
+
+    expect(togglePause).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+  });
+
   it('does not toggle deck view while the run settings modal is visible', () => {
     const doc = createDoc();
     const runSettingsModal = createElement(doc);

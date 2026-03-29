@@ -4,6 +4,7 @@ import {
   canOpenFullMap,
   canToggleDeckView,
 } from '../../../ui/ports/public_help_pause_hotkey_capabilities.js';
+import { routeOverlayEscapeToPause } from '../../../../shared/runtime/overlay_escape_policy.js';
 
 export function createNextNodeTrigger({
   deps = {},
@@ -75,6 +76,10 @@ export function createNextNodeOverlayKeyHandler({
 } = {}) {
   return (event) => {
     if (overlay.style.display === 'none') return;
+    if (routeOverlayEscapeToPause(event, {
+      deps: { ...deps, win },
+      overlayName: 'next-node',
+    })) return;
     if (event.key === 'm' || event.key === 'M') {
       if (canOpenFullMap(doc) && typeof deps.showFullMap === 'function') {
         deps.showFullMap();

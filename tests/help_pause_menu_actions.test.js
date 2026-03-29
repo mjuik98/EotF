@@ -82,4 +82,88 @@ describe('help_pause_menu_actions', () => {
     expect(freshReturnToTitle).toHaveBeenCalledTimes(1);
     expect(staleReturnToTitle).not.toHaveBeenCalled();
   });
+
+  it('waits for the codex to open before closing the pause menu', async () => {
+    let releaseOpenCodex = null;
+    const openCodex = vi.fn(() => new Promise((resolve) => {
+      releaseOpenCodex = resolve;
+    }));
+    const ui = {
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      abandonRun: vi.fn(),
+      confirmReturnToTitle: vi.fn(),
+    };
+
+    const callbacks = createTitlePauseMenuActions({
+      deps: { openCodex },
+      ui,
+    });
+
+    const openPromise = callbacks.onOpenCodex();
+    expect(openCodex).toHaveBeenCalledTimes(1);
+    expect(ui.togglePause).not.toHaveBeenCalled();
+
+    releaseOpenCodex?.();
+    await openPromise;
+
+    expect(ui.togglePause).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for settings to open before closing the pause menu', async () => {
+    let releaseOpenSettings = null;
+    const openSettings = vi.fn(() => new Promise((resolve) => {
+      releaseOpenSettings = resolve;
+    }));
+    const ui = {
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      abandonRun: vi.fn(),
+      confirmReturnToTitle: vi.fn(),
+    };
+
+    const callbacks = createTitlePauseMenuActions({
+      deps: { openSettings },
+      ui,
+    });
+
+    const openPromise = callbacks.onOpenSettings();
+    expect(openSettings).toHaveBeenCalledTimes(1);
+    expect(ui.togglePause).not.toHaveBeenCalled();
+
+    releaseOpenSettings?.();
+    await openPromise;
+
+    expect(ui.togglePause).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the pause menu open and logs the error when a surface action fails', async () => {
+    const error = new Error('settings failed');
+    const logger = {
+      child: vi.fn(() => ({
+        debug: vi.fn(),
+        error: vi.fn(),
+      })),
+    };
+    const ui = {
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      abandonRun: vi.fn(),
+      confirmReturnToTitle: vi.fn(),
+    };
+
+    const callbacks = createTitlePauseMenuActions({
+      deps: {
+        logger,
+        openSettings: vi.fn(() => Promise.reject(error)),
+      },
+      ui,
+    });
+
+    await expect(callbacks.onOpenSettings()).rejects.toThrow('settings failed');
+
+    const pauseLogger = logger.child.mock.results[0].value;
+    expect(ui.togglePause).not.toHaveBeenCalled();
+    expect(pauseLogger.error).toHaveBeenCalledTimes(1);
+  });
 });

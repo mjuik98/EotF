@@ -1,3 +1,5 @@
+import { routeOverlayEscapeToPause } from '../../../../shared/runtime/overlay_escape_policy.js';
+
 function getRunReturnDoc(deps) {
   return deps?.doc || deps?.win?.document || null;
 }
@@ -125,13 +127,13 @@ export function showBranchChoiceOverlay(routes, deps = {}) {
 
     const skipHint = doc.createElement('div');
     skipHint.style.cssText = 'margin-top:12px;text-align:center;font-size:11px;color:rgba(220,220,235,0.5);';
-    skipHint.textContent = 'ESC를 누르면 추천 경로를 즉시 선택합니다.';
+    skipHint.textContent = 'ESC를 누르면 일시정지 메뉴를 엽니다.';
 
     const onKeyDown = (event) => {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      event.stopPropagation();
-      cleanupAndResolve(options[0]);
+      routeOverlayEscapeToPause(event, {
+        deps,
+        overlayName: 'branch-choice',
+      });
     };
     doc.addEventListener?.('keydown', onKeyDown, true);
 
