@@ -11,11 +11,16 @@ function getAssetRuntimeCache(data) {
   return data.__assetRuntimeCache;
 }
 
-export function resolveTitleAssetUrl(data, domain, id) {
-  const entry = data?.assetManifest?.[domain]?.[id];
-  if (!entry) return '';
+function resolveExplicitAssetUrl(manifest, domain, id) {
+  const entry = manifest?.[domain]?.[id];
+  if (!entry || typeof entry !== 'object') return '';
 
   const explicitUrl = entry.src || entry.href || entry.url || '';
+  return explicitUrl ? String(explicitUrl) : '';
+}
+
+export function resolveTitleAssetUrl(data, domain, id) {
+  const explicitUrl = resolveExplicitAssetUrl(data?.assetManifest, domain, id);
   if (explicitUrl) return String(explicitUrl);
 
   return data?.assetPreview?.resolveUrl?.(domain, id) || '';

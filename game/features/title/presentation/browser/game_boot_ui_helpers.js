@@ -2,6 +2,7 @@ import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/po
 import { buildAchievementRoadmap } from '../../../meta_progression/ports/public_roadmap_capabilities.js';
 import { buildRunAnalyticsSnapshot } from '../../../run/ports/public_analytics_capabilities.js';
 import { buildSaveRecoveryMeta } from '../../../../shared/save/save_status_formatters.js';
+import { bindTitleDisclosurePanels } from './title_disclosure_panels.js';
 
 export function getDoc(deps) {
   return getRuntimeDoc(deps);
@@ -271,14 +272,18 @@ export function renderTitleRecentRuns(doc, gs, data = null) {
 }
 
 export function renderTitleRunArchive(doc, gs, data = null) {
-  const el = doc.getElementById('titleRunArchive');
-  if (!el) return;
+  const disclosureEl = doc.getElementById('titleArchiveDisclosure');
+  const summaryEl = doc.getElementById('titleArchiveSummary');
+  const detailEl = doc.getElementById('titleRunArchive');
+  if (!summaryEl || !detailEl) return;
 
   const entries = Array.isArray(gs?.meta?.recentRuns)
     ? gs.meta.recentRuns.slice(-5).reverse()
     : [];
   if (entries.length === 0) {
-    el.innerHTML = '';
+    if (disclosureEl) disclosureEl.style.display = 'none';
+    summaryEl.innerHTML = '';
+    detailEl.innerHTML = '';
     return;
   }
 
@@ -286,11 +291,12 @@ export function renderTitleRunArchive(doc, gs, data = null) {
   const summaryBadges = buildRunArchiveSummary(entries);
   const analyticsRows = buildRunAnalyticsRows(gs?.meta);
 
-  el.innerHTML = `
-    <div class="title-run-archive-label">귀환 기록실</div>
-    <div class="title-run-archive-summary">
-      ${summaryBadges.map((badge) => `<span class="title-run-archive-badge">${escapeHtml(badge)}</span>`).join('')}
-    </div>
+  if (disclosureEl) disclosureEl.style.display = 'grid';
+  summaryEl.innerHTML = summaryBadges
+    .map((badge) => `<span class="title-run-archive-badge">${escapeHtml(badge)}</span>`)
+    .join('');
+
+  detailEl.innerHTML = `
     <div class="title-run-archive-list">
       ${entries.map((entry) => `
         <div class="title-run-archive-row">
@@ -554,6 +560,7 @@ export function refreshTitleSaveState(doc, saveSystem, gs, options = {}) {
   renderTitleRecentRuns(doc, displayState, data);
   renderTitleRunArchive(doc, displayState, data);
   renderTitleRecoveryPanel(doc, saveSystem, gs);
+  bindTitleDisclosurePanels(doc);
 
   return hasSave;
 }

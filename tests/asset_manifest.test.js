@@ -21,7 +21,11 @@ describe('asset_manifest', () => {
   });
 
   it('builds character asset entries from canonical class metadata', async () => {
-    const { ASSET_MANIFEST } = await import('../data/asset_manifest.js');
+    const {
+      ASSET_MANIFEST,
+      resolveAssetManifestEntry,
+      resolveAssetManifestUrl,
+    } = await import('../data/asset_manifest.js');
 
     expect(ASSET_MANIFEST.characters.swordsman).toEqual({
       key: 'characters.swordsman',
@@ -32,6 +36,15 @@ describe('asset_manifest', () => {
       kind: 'emoji',
     });
     expect(ASSET_MANIFEST.characters.guardian.value).toBe(CLASS_METADATA.guardian.emoji);
+    expect(resolveAssetManifestEntry(ASSET_MANIFEST, 'characters', 'guardian')).toBe(
+      ASSET_MANIFEST.characters.guardian,
+    );
+    expect(resolveAssetManifestUrl(ASSET_MANIFEST, 'characters', 'guardian')).toBe('');
+    expect(resolveAssetManifestUrl({
+      cards: {
+        strike: { key: 'cards.strike', kind: 'image', src: '/cards/strike.png' },
+      },
+    }, 'cards', 'strike')).toBe('/cards/strike.png');
   });
 
   it('summarizes domain counts for playtest and content-pipeline reporting', async () => {

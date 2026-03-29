@@ -52,9 +52,11 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain('resolveSmokeAppUrl');
     expect(source).toContain('runSmokeBrowserSession');
     expect(source).toContain("localStorage.setItem('echo_fallen_meta'");
-    expect(source).toContain("page.waitForSelector('#titleRunArchive'");
+    expect(source).toContain("page.waitForSelector('#titleArchiveSummary'");
+    expect(source).toContain("page.click('#titleArchiveToggleBtn')");
     expect(source).toContain("page.click('#mainRunRulesBtn')");
     expect(source).toContain("path.join(outDir, 'title-meta.png')");
+    expect(source).toContain("path.join(outDir, 'title-meta-expanded.png')");
     expect(source).toContain("path.join(outDir, 'run-settings.png')");
     expect(source).toContain("path.join(outDir, 'result.json')");
   });

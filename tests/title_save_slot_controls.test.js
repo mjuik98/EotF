@@ -23,6 +23,9 @@ function makeElement() {
 function createMockDocument() {
   const elements = {
     titleRecentRuns: { ...makeElement(), id: 'titleRecentRuns' },
+    titleArchiveDisclosure: { ...makeElement(), id: 'titleArchiveDisclosure' },
+    titleArchiveSummary: { ...makeElement(), id: 'titleArchiveSummary' },
+    titleArchiveToggleBtn: { ...makeElement(), id: 'titleArchiveToggleBtn' },
     titleRunArchive: { ...makeElement(), id: 'titleRunArchive' },
     titleRecoveryPanel: { ...makeElement(), id: 'titleRecoveryPanel' },
     titleRecoveryRetryBtn: { ...makeElement(), id: 'titleRecoveryRetryBtn' },
@@ -42,6 +45,8 @@ function createMockDocument() {
     titleSaveImportBtn: { ...makeElement(), id: 'titleSaveImportBtn' },
     titleSaveDeleteBtn: { ...makeElement(), id: 'titleSaveDeleteBtn' },
     titleSaveImportInput: { ...makeElement(), id: 'titleSaveImportInput' },
+    titleSaveManageToggleBtn: { ...makeElement(), id: 'titleSaveManageToggleBtn' },
+    titleSaveActionPanel: { ...makeElement(), id: 'titleSaveActionPanel', hidden: false },
   };
 
   return {
@@ -90,6 +95,13 @@ describe('title save slot controls', () => {
     expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('A2');
     expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('복구 대기');
     expect(doc.elements.sttClass.textContent).toBe('마법사');
+    expect(doc.elements.titleSaveActionPanel.hidden).toBe(true);
+    expect(doc.elements.titleSaveManageToggleBtn.textContent).toBe('관리 열기');
+
+    const manageHandler = doc.elements.titleSaveManageToggleBtn.addEventListener.mock.calls.at(-1)?.[1];
+    manageHandler?.();
+    expect(doc.elements.titleSaveActionPanel.hidden).toBe(false);
+    expect(doc.elements.titleSaveManageToggleBtn.textContent).toBe('관리 접기');
 
     const exportHandler = doc.elements.titleSaveExportBtn.addEventListener.mock.calls.at(-1)?.[1];
     exportHandler?.();

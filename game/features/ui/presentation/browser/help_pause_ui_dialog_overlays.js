@@ -1,4 +1,5 @@
-import { getKeybindingCode, keyCodeToLabel } from './help_pause_ui_helpers.js';
+import { getCurrentInputBindings } from './help_pause_keybinding_helpers.js';
+import { getInputHelpEntries } from '../../ports/public_input_capabilities.js';
 import {
   createActionButton,
   createActionsRow,
@@ -50,16 +51,8 @@ export function createHelpMenu(doc, deps, onClose) {
     className: 'hp-help-grid',
   });
 
-  const keyRows = [
-    [keyCodeToLabel(getKeybindingCode('pause', 'Escape')), '일시정지 (창 닫기)'],
-    [keyCodeToLabel(getKeybindingCode('deckView', 'KeyD')), '덱 보기'],
-    [keyCodeToLabel(getKeybindingCode('help', 'Slash')), '도움말 열기'],
-    [keyCodeToLabel(getKeybindingCode('echoSkill', 'KeyE')), '잔향 스킬 발동 (전투 중)'],
-    [keyCodeToLabel(getKeybindingCode('drawCard', 'KeyQ')), '카드 드로우 (전투 중)'],
-    [keyCodeToLabel(getKeybindingCode('endTurn', 'Enter')), '턴 종료 (전투 중)'],
-    ['1 - 0', '손패 카드 빠른 사용'],
-    [keyCodeToLabel(getKeybindingCode('nextTarget', 'Tab')), '다음 적 대상 전환'],
-  ];
+  const keyRows = getInputHelpEntries(getCurrentInputBindings())
+    .map((entry) => [entry.keyLabel, entry.description]);
 
   keyRows.forEach(([keyLabel, description]) => {
     const keyBox = createTextBlock(doc, {

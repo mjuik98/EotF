@@ -3,6 +3,10 @@ export {
   getInputSettingsKey,
 } from '../../../shared/input/input_binding_resolver.js';
 export {
+  getInputActionMeta,
+  getInputHelpEntries,
+} from '../../../shared/input/input_action_meta.js';
+export {
   INPUT_ACTION_CANCEL,
   INPUT_ACTION_CONFIRM,
 } from '../../../shared/input/input_action_ids.js';

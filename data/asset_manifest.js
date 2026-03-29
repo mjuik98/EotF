@@ -109,6 +109,18 @@ export const ASSET_MANIFEST = Object.freeze({
   fx: FX_ASSET_MANIFEST,
 });
 
+export function resolveAssetManifestEntry(manifest = ASSET_MANIFEST, domain, id) {
+  return manifest?.[domain]?.[id] || null;
+}
+
+export function resolveAssetManifestUrl(manifest = ASSET_MANIFEST, domain, id) {
+  const entry = resolveAssetManifestEntry(manifest, domain, id);
+  if (!entry || typeof entry !== 'object') return '';
+
+  const explicitUrl = entry.src || entry.href || entry.url || '';
+  return explicitUrl ? String(explicitUrl) : '';
+}
+
 export function summarizeAssetManifest(manifest = ASSET_MANIFEST) {
   const domains = Object.fromEntries(
     Object.entries(manifest).map(([domainId, entries]) => [

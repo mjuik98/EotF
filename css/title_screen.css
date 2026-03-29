@@ -376,11 +376,61 @@
   gap: 10px;
 }
 
+.title-archive-disclosure {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.title-disclosure-head,
+.title-save-controls-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title-disclosure-toggle {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(232, 238, 249, 0.86);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
+}
+
+.title-disclosure-toggle:hover,
+.title-disclosure-toggle:focus-visible {
+  border-color: rgba(0, 255, 204, 0.28);
+  background: rgba(0, 255, 204, 0.08);
+  transform: translateY(-1px);
+}
+
+.title-disclosure-toggle--compact {
+  min-height: 28px;
+  padding: 0 12px;
+}
+
 .title-run-archive,
 .title-recovery-panel {
   margin-top: 14px;
   display: grid;
   gap: 8px;
+}
+
+.title-archive-disclosure .title-run-archive {
+  margin-top: 0;
+}
+
+.title-run-archive[hidden],
+.title-save-action-panel[hidden] {
+  display: none !important;
 }
 
 .title-run-archive-label,
@@ -749,6 +799,11 @@
   gap: 10px;
   margin: 0 0 14px;
   animation: titleFadeSlideLeft 0.6s ease 1.18s both;
+}
+
+.title-save-action-panel {
+  display: grid;
+  gap: 8px;
 }
 
 .title-save-slot-bar,

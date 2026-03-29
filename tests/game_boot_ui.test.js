@@ -41,6 +41,9 @@ function createMockDocument() {
     titleTotalKills: { ...makeElement(), id: 'titleTotalKills' },
     titleBestChain: { ...makeElement(), id: 'titleBestChain' },
     titleRecentRuns: { ...makeElement(), id: 'titleRecentRuns' },
+    titleArchiveDisclosure: { ...makeElement(), id: 'titleArchiveDisclosure' },
+    titleArchiveSummary: { ...makeElement(), id: 'titleArchiveSummary' },
+    titleArchiveToggleBtn: { ...makeElement(), id: 'titleArchiveToggleBtn' },
     titleRunArchive: { ...makeElement(), id: 'titleRunArchive' },
     titleRecoveryPanel: { ...makeElement(), id: 'titleRecoveryPanel' },
     titleRecoveryRetryBtn: { ...makeElement(), id: 'titleRecoveryRetryBtn' },
@@ -65,6 +68,8 @@ function createMockDocument() {
     titleContinueMeta: { ...makeElement(), id: 'titleContinueMeta' },
     sttDeckPills: { ...makeElement(), id: 'sttDeckPills' },
     sttRelics: { ...makeElement(), id: 'sttRelics' },
+    titleSaveManageToggleBtn: { ...makeElement(), id: 'titleSaveManageToggleBtn' },
+    titleSaveActionPanel: { ...makeElement(), id: 'titleSaveActionPanel', hidden: false },
   };
 
   return {
@@ -156,8 +161,14 @@ describe('game_boot_ui', () => {
     expect(doc.elements.sttRelics.innerHTML).toContain('✦');
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('최근 귀환');
     expect(doc.elements.titleRecentRuns.innerHTML).toContain('승리');
+    expect(doc.elements.titleArchiveDisclosure.style.display).toBe('grid');
+    expect(doc.elements.titleArchiveSummary.innerHTML).toContain('승률 100%');
+    expect(doc.elements.titleRunArchive.hidden).toBe(true);
+    expect(doc.elements.titleArchiveToggleBtn.textContent).toBe('기록 펼치기');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('클래스별 전적');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('최근 흐름');
+    expect(doc.elements.titleSaveActionPanel.hidden).toBe(true);
+    expect(doc.elements.titleSaveManageToggleBtn.textContent).toBe('관리 열기');
   });
 
   it('renders continue preview from saved data without hydrating the live gs', () => {
@@ -421,10 +432,11 @@ describe('game_boot_ui', () => {
       saveSystem: { hasSave: vi.fn(() => false), loadRun: vi.fn(() => false), flushOutbox: vi.fn(() => 0), getOutboxMetrics: vi.fn(() => ({ queueDepth: 0 })) },
     });
 
-    expect(doc.elements.titleRunArchive.innerHTML).toContain('귀환 기록실');
-    expect(doc.elements.titleRunArchive.innerHTML).toContain('최근 5런');
-    expect(doc.elements.titleRunArchive.innerHTML).toContain('승률 40%');
-    expect(doc.elements.titleRunArchive.innerHTML).toContain('최고 승천 A4');
+    expect(doc.elements.titleArchiveDisclosure.style.display).toBe('grid');
+    expect(doc.elements.titleArchiveSummary.innerHTML).toContain('최근 5런');
+    expect(doc.elements.titleArchiveSummary.innerHTML).toContain('승률 40%');
+    expect(doc.elements.titleArchiveSummary.innerHTML).toContain('최고 승천 A4');
+    expect(doc.elements.titleArchiveSummary.innerHTML).toContain('최다 처치 17');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('Run 7');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('Run 6');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('해금 2');
@@ -433,7 +445,6 @@ describe('game_boot_ui', () => {
     expect(doc.elements.titleRunArchive.innerHTML).toContain('09:40');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('기억 4');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('상위 승천');
-    expect(doc.elements.titleRunArchive.innerHTML).toContain('최다 처치 17');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('전술 분석');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('평균 층 5.6');
     expect(doc.elements.titleRunArchive.innerHTML).toContain('평균 처치 6.2');

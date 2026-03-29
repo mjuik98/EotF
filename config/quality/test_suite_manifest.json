@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-28T12:10:16.501Z",
+  "generatedAt": "2026-03-28T14:00:22.867Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -291,6 +291,7 @@
     "tests/init_sequence.test.js",
     "tests/input_action_ids.test.js",
     "tests/input_binding_resolver.test.js",
+    "tests/input_help_entries.test.js",
     "tests/intro_cinematic_helpers.test.js",
     "tests/intro_cinematic_ui_runtime.test.js",
     "tests/item_detail_panel_helpers.test.js",
@@ -479,6 +480,7 @@
     "tests/time_rift_bug.test.js",
     "tests/title_bindings.test.js",
     "tests/title_canvas_runtime.test.js",
+    "tests/title_disclosure_panels.test.js",
     "tests/title_return_actions.test.js",
     "tests/title_save_slot_controls.test.js",
     "tests/title_screen_style_split.test.js",

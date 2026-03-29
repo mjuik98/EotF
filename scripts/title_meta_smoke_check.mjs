@@ -62,18 +62,31 @@ try {
       await waitForSmokeFonts(page);
     },
     run: async ({ page, errors }) => {
-      await page.waitForSelector('#titleRunArchive', { state: 'attached', timeout: 15000 });
+      await page.waitForSelector('#titleArchiveSummary', { state: 'attached', timeout: 15000 });
       await page.waitForFunction(() => {
-        const archiveText = document.getElementById('titleRunArchive')?.textContent || '';
-        return archiveText.includes('귀환 기록실') && archiveText.includes('최근 5런') && archiveText.includes('최고 승천 A4');
+        const summaryText = document.getElementById('titleArchiveSummary')?.textContent || '';
+        return summaryText.includes('최근 5런') && summaryText.includes('최고 승천 A4');
       }, { timeout: 15000 });
 
       const titleState = await page.evaluate(() => ({
-        archiveText: document.getElementById('titleRunArchive')?.innerText || '',
+        archiveSummaryText: document.getElementById('titleArchiveSummary')?.innerText || '',
+        archiveExpanded: document.getElementById('titleRunArchive')?.hidden === false,
         statsText: document.getElementById('titleStatsBlock')?.innerText || '',
         continueVisible: document.getElementById('titleContinueWrap')?.style?.display || '',
+        saveActionsExpanded: document.getElementById('titleSaveActionPanel')?.hidden === false,
       }));
       await page.screenshot({ path: path.join(outDir, 'title-meta.png'), fullPage: true });
+
+      await page.click('#titleArchiveToggleBtn');
+      await page.waitForFunction(() => {
+        const archive = document.getElementById('titleRunArchive');
+        return !!archive && archive.hidden === false && archive.textContent.includes('전술 분석');
+      }, { timeout: 15000 });
+
+      const expandedArchiveText = await page.evaluate(() => {
+        return document.getElementById('titleRunArchive')?.innerText || '';
+      });
+      await page.screenshot({ path: path.join(outDir, 'title-meta-expanded.png'), fullPage: true });
 
       await page.click('#mainRunRulesBtn');
       await page.waitForSelector('#runSettingsModal', { state: 'visible', timeout: 15000 });
@@ -92,11 +105,21 @@ try {
       await page.screenshot({ path: path.join(outDir, 'run-settings.png'), fullPage: true });
 
       const payload = { titleState, runSettingsState, errors };
+      payload.titleState.expandedArchiveText = expandedArchiveText;
       await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify(payload, null, 2));
       console.log(JSON.stringify(payload, null, 2));
 
-      if (!titleState.archiveText.includes('승률 40%')) {
+      if (!titleState.archiveSummaryText.includes('승률 40%')) {
         throw new Error('title meta smoke expected the archive summary to render win rate badges');
+      }
+      if (titleState.archiveExpanded) {
+        throw new Error('title meta smoke expected the archive detail panel to stay collapsed by default');
+      }
+      if (titleState.saveActionsExpanded) {
+        throw new Error('title meta smoke expected the save management controls to stay collapsed by default');
+      }
+      if (!expandedArchiveText.includes('전술 분석')) {
+        throw new Error('title meta smoke expected the archive detail panel to reveal analytics when expanded');
       }
       if (runSettingsState.hasChallengeZone) {
         throw new Error('title meta smoke expected the run settings panel to omit the daily challenge block');

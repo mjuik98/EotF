@@ -35,7 +35,7 @@ function createFixtureDist() {
   writeSizedFile(path.join(assetsDir, 'ui-combat-chronicle-test.js'), 98 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-combat-tooltips-test.js'), 10 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-settings-test.js'), 6 * 1024);
-  writeSizedFile(path.join(assetsDir, 'ui-shell-overlays-test.js'), 8 * 1024);
+  writeSizedFile(path.join(assetsDir, 'ui-shell-test.js'), 8 * 1024);
   writeSizedFile(path.join(assetsDir, 'codex_ui-test.js'), 6 * 1024);
   writeSizedFile(path.join(assetsDir, 'ui-run-mode-test.js'), 5 * 1024);
 
@@ -67,7 +67,9 @@ describe('assert_bundle_budgets', () => {
     expect(budgets.entryJs.maxBytes).toBe(400 * 1024);
     expect(budgets.entryCss.maxBytes).toBe(190 * 1024);
     expect(budgets.uiEventJs.maxBytes).toBe(44 * 1024);
-    expect(budgets.uiCombatJs.maxBytes).toBe(320 * 1024);
+    expect(budgets.uiCombatJs.maxBytes).toBe(384 * 1024);
+    expect(budgets.uiShellJs.maxBytes).toBe(192 * 1024);
+    expect(budgets.uiShellJs.label).toBe('ui-shell chunk');
     expect(budgets.codexUiJs.maxBytes).toBe(41280);
     expect(budgets.runModeUiJs.maxBytes).toBe(28 * 1024);
     expect(budgets.runModeUiJs.label).toBe('run mode ui chunk');
@@ -89,7 +91,7 @@ describe('assert_bundle_budgets', () => {
         uiCombatJs: { label: 'ui-combat chunk', maxBytes: 11 * 1024 },
         uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 10 * 1024 },
         uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 6 * 1024 },
-        uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 8 * 1024 },
+        uiShellJs: { label: 'ui-shell chunk', maxBytes: 8 * 1024 },
         codexUiJs: { label: 'codex ui chunk', maxBytes: 6 * 1024 },
         runModeUiJs: { label: 'run mode ui chunk', maxBytes: 5 * 1024 },
       },
@@ -103,7 +105,7 @@ describe('assert_bundle_budgets', () => {
 
     expect(report.stats.entryJs.headroomBytes).toBe(390 * 1024);
     expect(report.stats.entryCss.utilizationPct).toBeCloseTo((8 * 1024) / (190 * 1024), 4);
-    expect(report.stats.uiCombatJs.headroomBytes).toBe(309 * 1024);
+    expect(report.stats.uiCombatJs.headroomBytes).toBe(373 * 1024);
   });
 
   it('fails when a required bundle artifact exceeds its budget', () => {
@@ -119,7 +121,7 @@ describe('assert_bundle_budgets', () => {
         uiCombatJs: { label: 'ui-combat chunk', maxBytes: 11 * 1024 },
         uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 10 * 1024 },
         uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 6 * 1024 },
-        uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 8 * 1024 },
+        uiShellJs: { label: 'ui-shell chunk', maxBytes: 8 * 1024 },
         codexUiJs: { label: 'codex ui chunk', maxBytes: 6 * 1024 },
         runModeUiJs: { label: 'run mode ui chunk', maxBytes: 5 * 1024 },
       },
@@ -136,7 +138,7 @@ describe('assert_bundle_budgets', () => {
           uiCombatJs: { label: 'ui-combat chunk', maxBytes: 11 * 1024 },
           uiCombatTooltipsJs: { label: 'ui-combat-tooltips chunk', maxBytes: 10 * 1024 },
           uiSettingsJs: { label: 'ui-settings chunk', maxBytes: 6 * 1024 },
-          uiShellOverlaysJs: { label: 'ui-shell-overlays chunk', maxBytes: 8 * 1024 },
+          uiShellJs: { label: 'ui-shell chunk', maxBytes: 8 * 1024 },
           codexUiJs: { label: 'codex ui chunk', maxBytes: 6 * 1024 },
           runModeUiJs: { label: 'run mode ui chunk', maxBytes: 5 * 1024 },
         },

@@ -41,7 +41,7 @@ export function collectBundleStats(distDir = path.join(process.cwd(), 'dist')) {
   const uiCombatFile = findAssetByPattern(distDir, /^ui-combat-(?!copy-|deck-|chronicle-|tooltips-).*\.js$/);
   const uiCombatTooltipsFile = findAssetByPattern(distDir, /^ui-combat-tooltips-.*\.js$/);
   const uiSettingsFile = findAssetByPattern(distDir, /^ui-settings-.*\.js$/);
-  const uiShellOverlaysFile = findAssetByPattern(distDir, /^ui-shell-overlays-.*\.js$/);
+  const uiShellFile = findAssetByPattern(distDir, /^ui-shell-.*\.js$/);
   const codexUiFile = findAssetByPattern(distDir, /^codex_ui-.*\.js$/);
   const runModeUiFile = findAssetByPattern(distDir, /^(run_mode_ui|ui-run-mode)-.*\.js$/);
 
@@ -53,7 +53,7 @@ export function collectBundleStats(distDir = path.join(process.cwd(), 'dist')) {
     uiCombatJs: uiCombatFile && path.join(distDir, 'assets', uiCombatFile),
     uiCombatTooltipsJs: uiCombatTooltipsFile && path.join(distDir, 'assets', uiCombatTooltipsFile),
     uiSettingsJs: uiSettingsFile && path.join(distDir, 'assets', uiSettingsFile),
-    uiShellOverlaysJs: uiShellOverlaysFile && path.join(distDir, 'assets', uiShellOverlaysFile),
+    uiShellJs: uiShellFile && path.join(distDir, 'assets', uiShellFile),
     codexUiJs: codexUiFile && path.join(distDir, 'assets', codexUiFile),
     runModeUiJs: runModeUiFile && path.join(distDir, 'assets', runModeUiFile),
   };
