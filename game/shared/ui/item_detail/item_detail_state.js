@@ -119,9 +119,13 @@ export function resolveItemDetailState(itemId, item, data, gs, setBonusSystem) {
     }
     if (setDef) setDef = { ...setDef, name: resolveSetDisplayName(item, setDef, setMembers) };
     if (setDef && gs) {
-      const counts = setBonusSystem.getOwnedSetCounts?.(gs) || {};
-      setCount = counts[item.setId] || 0;
       setOwnedFlags = setDef.items.map((id) => gs.player?.items?.includes(id) ?? false);
+      const counts = setBonusSystem.getOwnedSetCounts?.(gs) || {};
+      if (Object.prototype.hasOwnProperty.call(counts, item.setId)) {
+        setCount = counts[item.setId] || 0;
+      } else {
+        setCount = setOwnedFlags.filter(Boolean).length;
+      }
     }
   } else if (item.setId) {
     if (setMembers.length >= 2) {

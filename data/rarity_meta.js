@@ -1,10 +1,12 @@
 'use strict';
 
 export const RARITY_SORT_ORDER = Object.freeze({
-  legendary: 0,
-  rare: 1,
-  uncommon: 2,
-  common: 3,
+  boss: 0,
+  legendary: 1,
+  special: 2,
+  rare: 3,
+  uncommon: 4,
+  common: 5,
 });
 
 export const RARITY_LABELS = Object.freeze({
@@ -13,6 +15,7 @@ export const RARITY_LABELS = Object.freeze({
   rare: '희귀',
   legendary: '전설',
   boss: '보스',
+  special: '특수',
 });
 
 export const RARITY_TEXT_COLORS = Object.freeze({
@@ -21,4 +24,5 @@ export const RARITY_TEXT_COLORS = Object.freeze({
   rare: 'var(--gold)',
   legendary: '#c084fc',
   boss: '#ff3366',
+  special: '#44caf3',
 });

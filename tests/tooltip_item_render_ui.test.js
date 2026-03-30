@@ -238,6 +238,43 @@ describe('tooltip_item_render_ui', () => {
     expect(state.setDef.name).toBe('철옹성');
   });
 
+  it('falls back to owned set members when runtime counts omit a dynamically resolved set', () => {
+    const data = {
+      items: {
+        opening_mark: {
+          id: 'opening_mark',
+          name: '시작의 각인',
+          desc: '세트 구성품\n[세트: 시작의 각인]',
+          rarity: 'uncommon',
+          setId: 'opening_set',
+        },
+        opening_charm: {
+          id: 'opening_charm',
+          name: '시작의 부적',
+          desc: '세트 구성품\n[세트: 시작의 각인]',
+          rarity: 'uncommon',
+          setId: 'opening_set',
+        },
+      },
+    };
+    const gs = {
+      player: { items: ['opening_mark'] },
+    };
+    const setBonusSystem = {
+      sets: {},
+      getOwnedSetCounts: vi.fn(() => ({})),
+    };
+
+    const state = resolveItemTooltipState('opening_mark', data.items.opening_mark, data, gs, setBonusSystem);
+
+    expect(state.setDef).toEqual(expect.objectContaining({
+      name: '시작의 각인',
+      items: ['opening_mark', 'opening_charm'],
+    }));
+    expect(state.setCount).toBe(1);
+    expect(state.setOwnedFlags).toEqual([true, false]);
+  });
+
   it('keeps feature tooltip rendering decoupled from data rarity imports', () => {
     const source = readFileSync(
       path.join(process.cwd(), 'game/features/combat/presentation/browser/tooltip_item_element.js'),

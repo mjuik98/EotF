@@ -5,10 +5,11 @@ import {
   saveRunBeforeReturn,
 } from '../game/features/ui/public.js';
 
-function createModalElement({ active = true } = {}) {
+function createModalElement({ active = true, id = '', style = {} } = {}) {
   return {
+    id,
     hidden: false,
-    style: {},
+    style,
     classList: {
       contains: (name) => active && name === 'active',
     },
@@ -16,16 +17,16 @@ function createModalElement({ active = true } = {}) {
   };
 }
 
-function createDoc(elements = {}) {
+function createDoc(elements = {}, computedStyleById = {}) {
   return {
     querySelector: () => null,
     getElementById: (id) => elements[id] || null,
     defaultView: {
       getComputedStyle: (el) => ({
-        display: el?.style?.display || 'block',
-        visibility: 'visible',
-        opacity: el?.classList?.contains?.('active') ? '1' : '0',
-        pointerEvents: el?.classList?.contains?.('active') ? 'auto' : 'none',
+        display: computedStyleById[el?.id]?.display || el?.style?.display || 'block',
+        visibility: computedStyleById[el?.id]?.visibility || 'visible',
+        opacity: computedStyleById[el?.id]?.opacity || (el?.classList?.contains?.('active') ? '1' : '0'),
+        pointerEvents: computedStyleById[el?.id]?.pointerEvents || (el?.classList?.contains?.('active') ? 'auto' : 'none'),
       }),
     },
   };
@@ -194,6 +195,41 @@ describe('help_pause_ui_runtime', () => {
 
     expect(showDeckView).not.toHaveBeenCalled();
     expect(event.preventDefault).not.toHaveBeenCalled();
+  });
+
+  it('opens pause instead of closing an inactive settings shell without loaded modal CSS', () => {
+    const togglePause = vi.fn();
+    const closeSettings = vi.fn();
+    const event = createKeyEvent({ key: 'Escape', code: 'Escape' });
+
+    handleGlobalHotkey(event, {
+      doc: createDoc(
+        {
+          settingsModal: createModalElement({ active: false, id: 'settingsModal' }),
+        },
+        {
+          settingsModal: {
+            display: 'block',
+            visibility: 'visible',
+            opacity: '1',
+            pointerEvents: 'auto',
+          },
+        },
+      ),
+      ui: {
+        togglePause,
+        toggleHelp: vi.fn(),
+        isHelpOpen: () => false,
+      },
+      deps: {
+        gs: { currentScreen: 'game', combat: { active: false } },
+        closeSettings,
+      },
+    });
+
+    expect(closeSettings).not.toHaveBeenCalled();
+    expect(togglePause).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
   });
 
   it('does not open the codex while the settings modal is visible', () => {

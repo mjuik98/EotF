@@ -13,11 +13,12 @@ import {
 } from './item_detail_panel_ui.js';
 
 const RARITY_SORT_ORDER = {
-  legendary: 0,
-  epic: 1,
-  rare: 2,
-  uncommon: 3,
-  common: 4,
+  boss: 0,
+  legendary: 1,
+  special: 2,
+  rare: 3,
+  uncommon: 4,
+  common: 5,
 };
 
 function isPinned(detailPanel, itemId = '') {

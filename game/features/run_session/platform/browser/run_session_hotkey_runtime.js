@@ -105,6 +105,9 @@ export function isCombatOverlayActive(doc) {
 
 export function isVisibleModal(el, doc) {
   if (!el) return false;
+  if (el.id === 'settingsModal') {
+    return !!el.classList?.contains('active');
+  }
   if (el.hidden) return false;
 
   const inlineDisplay = String(el.style?.display || '').trim().toLowerCase();

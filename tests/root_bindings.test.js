@@ -42,7 +42,7 @@ function createClassList(initial = []) {
   };
 }
 
-function createDoc(elements = {}) {
+function createDoc(elements = {}, computedStyleById = {}) {
   const slider = { value: '', style: { setProperty: vi.fn() } };
   const value = { textContent: '' };
   const icon = { textContent: '' };
@@ -53,10 +53,10 @@ function createDoc(elements = {}) {
     }),
     dispatchEvent: (type, event) => listeners.get(type)?.(event),
     getComputedStyle: vi.fn((element) => ({
-      display: element?.style?.display || 'none',
-      visibility: 'visible',
-      opacity: element?.classList?.contains?.('active') ? '1' : '0',
-      pointerEvents: element?.classList?.contains?.('active') ? 'auto' : 'none',
+      display: computedStyleById[element?.id]?.display || element?.style?.display || 'none',
+      visibility: computedStyleById[element?.id]?.visibility || 'visible',
+      opacity: computedStyleById[element?.id]?.opacity || (element?.classList?.contains?.('active') ? '1' : '0'),
+      pointerEvents: computedStyleById[element?.id]?.pointerEvents || (element?.classList?.contains?.('active') ? 'auto' : 'none'),
     })),
   };
   return {
@@ -194,10 +194,21 @@ describe('RootBindings', () => {
   it('consumes Escape for gameplay modals when help-pause deps provide close actions', () => {
     const closeRunSettings = vi.fn();
     const modal = {
+      id: 'runSettingsModal',
       style: { display: 'flex' },
       classList: createClassList(),
     };
-    const doc = createDoc({ runSettingsModal: modal });
+    const doc = createDoc(
+      { runSettingsModal: modal },
+      {
+        runSettingsModal: {
+          display: 'flex',
+          visibility: 'visible',
+          opacity: '1',
+          pointerEvents: 'auto',
+        },
+      },
+    );
     const helpPauseUI = {
       showMobileWarning: vi.fn(),
       handleGlobalHotkey: vi.fn(),
@@ -235,5 +246,119 @@ describe('RootBindings', () => {
     expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
     expect(helpPauseUI.handleGlobalHotkey).not.toHaveBeenCalled();
+  });
+
+  it('opens pause instead of closing an inactive settings shell without loaded modal CSS', () => {
+    const closeSettings = vi.fn();
+    const settingsModal = {
+      id: 'settingsModal',
+      style: {},
+      classList: createClassList(),
+    };
+    const doc = createDoc(
+      { settingsModal },
+      {
+        settingsModal: {
+          display: 'block',
+          visibility: 'visible',
+          opacity: '1',
+          pointerEvents: 'auto',
+        },
+      },
+    );
+    const helpPauseUI = {
+      showMobileWarning: vi.fn(),
+      handleGlobalHotkey: vi.fn(),
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      isHelpOpen: vi.fn(() => false),
+    };
+    const deps = {
+      doc,
+      audioEngine: createAudioEngine(),
+      settingsUI: { applyOnBoot: vi.fn() },
+      helpPauseUI,
+      gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
+      actions: {},
+      gs: { currentScreen: 'game' },
+      getGameBootDeps: vi.fn(() => ({})),
+      getHelpPauseDeps: vi.fn(() => ({ closeSettings })),
+      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
+    };
+
+    RootBindings.boot(deps);
+
+    const event = {
+      key: 'Escape',
+      code: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+    };
+
+    doc.defaultView.dispatchEvent('keydown', event);
+
+    expect(closeSettings).not.toHaveBeenCalled();
+    expect(helpPauseUI.togglePause).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens pause instead of closing a hidden deck shell that only stays mounted for layout', () => {
+    const closeDeckView = vi.fn();
+    const deckViewModal = {
+      id: 'deckViewModal',
+      style: {},
+      classList: createClassList(),
+    };
+    const doc = createDoc(
+      { deckViewModal },
+      {
+        deckViewModal: {
+          display: 'flex',
+          visibility: 'hidden',
+          opacity: '0',
+          pointerEvents: 'none',
+        },
+      },
+    );
+    const helpPauseUI = {
+      showMobileWarning: vi.fn(),
+      handleGlobalHotkey: vi.fn(),
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      isHelpOpen: vi.fn(() => false),
+    };
+    const deps = {
+      doc,
+      audioEngine: createAudioEngine(),
+      settingsUI: { applyOnBoot: vi.fn() },
+      helpPauseUI,
+      gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
+      actions: {},
+      gs: { currentScreen: 'game' },
+      getGameBootDeps: vi.fn(() => ({})),
+      getHelpPauseDeps: vi.fn(() => ({ closeDeckView })),
+      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
+    };
+
+    RootBindings.boot(deps);
+
+    const event = {
+      key: 'Escape',
+      code: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+    };
+
+    doc.defaultView.dispatchEvent('keydown', event);
+
+    expect(closeDeckView).not.toHaveBeenCalled();
+    expect(helpPauseUI.togglePause).toHaveBeenCalledTimes(1);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
   });
 });

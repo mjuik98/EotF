@@ -2974,6 +2974,7 @@ body:has(#combatOverlay.active) .panel-bottom {
 }
 
 #combatRelicRailSlots button {
+  position: relative;
   width: 34px;
   height: 34px;
   border-radius: 10px;

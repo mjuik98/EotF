@@ -124,6 +124,7 @@ describe('combat_relic_rail_ui', () => {
     expect(source).toContain('padding: 6px 34px 6px 6px;');
     expect(source).toContain('border-radius: 12px;');
     expect(source).toContain('box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);');
+    expect(source).toMatch(/#combatRelicRailSlots button \{[^}]*position:\s*relative;/s);
     expect(source).toMatch(/\.nc-floating-hp-shell \.nc-hp-wrap \{[^}]*pointer-events:\s*none;/s);
     expect(source).toContain('#combatRelicPanel {');
     expect(source).toContain("#combatRelicPanel[data-open='true']");
@@ -532,6 +533,56 @@ describe('combat_relic_rail_ui', () => {
 
     expect(combatRelicRailSlots.children).toHaveLength(1);
     expect(combatRelicRailSlots.children[0].textContent).toBe('◇');
+  });
+
+  it('sorts boss and special relics ahead of lower-rarity relics in the combat rail', () => {
+    const doc = createDoc();
+    const combatRelicRail = doc.createElement('div');
+    combatRelicRail.id = 'combatRelicRail';
+    const combatRelicRailCount = doc.createElement('span');
+    combatRelicRailCount.id = 'combatRelicRailCount';
+    const combatRelicRailSlots = doc.createElement('div');
+    combatRelicRailSlots.id = 'combatRelicRailSlots';
+    const combatRelicPanel = doc.createElement('div');
+    combatRelicPanel.id = 'combatRelicPanel';
+    const combatRelicPanelList = doc.createElement('div');
+    combatRelicPanelList.id = 'combatRelicPanelList';
+    combatRelicPanel.appendChild(combatRelicPanelList);
+    combatRelicRail.append(combatRelicRailCount, combatRelicRailSlots, combatRelicPanel);
+
+    doc.defaultView = {
+      innerWidth: 1280,
+      listeners: {},
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+      removeEventListener(name, handler) {
+        if (this.listeners[name] === handler) delete this.listeners[name];
+      },
+    };
+
+    renderCombatRelicRail({
+      doc,
+      gs: {
+        player: {
+          items: ['common_relic', 'special_relic', 'rare_relic', 'boss_relic'],
+        },
+      },
+      data: {
+        items: {
+          common_relic: { id: 'common_relic', name: '공통 유물', icon: 'C', rarity: 'common', desc: 'common' },
+          special_relic: { id: 'special_relic', name: '특수 유물', icon: 'S', rarity: 'special', desc: 'special' },
+          rare_relic: { id: 'rare_relic', name: '희귀 유물', icon: 'R', rarity: 'rare', desc: 'rare' },
+          boss_relic: { id: 'boss_relic', name: '보스 유물', icon: 'B', rarity: 'boss', desc: 'boss' },
+        },
+      },
+    });
+
+    expect(combatRelicRailSlots.children).toHaveLength(4);
+    expect(combatRelicRailSlots.children[0].textContent).toBe('B');
+    expect(combatRelicRailSlots.children[1].textContent).toBe('S');
+    expect(combatRelicRailSlots.children[2].textContent).toBe('R');
+    expect(combatRelicRailSlots.children[3].textContent).toBe('C');
   });
 
   it('preserves existing combat relic panel shell when combatRelicPanelList is absent', () => {

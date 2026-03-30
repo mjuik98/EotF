@@ -38,6 +38,7 @@ const ITEM_TRIGGER_CONTRACTS = Object.freeze({
   turn_draw_complete: {
     publishers: [
       ['game/features/combat/domain/turn/start_player_turn_policy.js', "gs.triggerItems?.('turn_draw_complete');"],
+      ['game/features/combat/application/start_combat_flow_use_case.js', "gs.triggerItems?.('turn_draw_complete');"],
     ],
   },
   turn_end: {

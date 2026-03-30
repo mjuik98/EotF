@@ -57,6 +57,13 @@ function runClassCombatStart(gs, classMechanics) {
   }
 }
 
+function finalizeOpeningHandSetup(gs, runRules) {
+  if (typeof runRules?.onCombatDeckReady === 'function') {
+    runRules.onCombatDeckReady(gs);
+  }
+  gs.triggerItems?.('turn_draw_complete');
+}
+
 export function startCombatFlowUseCase(mode = 'normal', deps = {}) {
   const gs = deps.gs;
   const data = deps.data;
@@ -120,9 +127,7 @@ export function startCombatFlowUseCase(mode = 'normal', deps = {}) {
     drawCardsFn: deps.api?.drawCards,
   });
   gs.triggerItems?.('combat_start');
-  if (typeof runRules?.onCombatDeckReady === 'function') {
-    runRules.onCombatDeckReady(gs);
-  }
+  finalizeOpeningHandSetup(gs, runRules);
 
   return {
     combatMode,
