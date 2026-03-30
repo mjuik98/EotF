@@ -31,21 +31,6 @@ function buildRoadmapRows(roadmap = [], classProgress = {}) {
   }).join('');
 }
 
-function buildUnlockRoadmapRows(entries = []) {
-  if (!Array.isArray(entries) || entries.length === 0) {
-    return '<div class="char-info-text">다음 해금이 없습니다.</div>';
-  }
-
-  return entries.slice(0, 4).map((entry) => `
-    <div class="char-info-text" style="display:grid;gap:3px;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.03);">
-      <span style="color:#edf4ff">${entry.contentLabel}</span>
-      <span style="color:rgba(213,221,242,0.76)">${entry.requirementLabel}</span>
-      <span style="color:rgba(213,221,242,0.68)">${entry.achievementTitle}${entry.progressLabel ? ` · ${entry.progressLabel}` : ''}</span>
-      ${entry.focusLabel ? `<span style="color:rgba(160,214,198,0.74)">${entry.focusLabel}</span>` : ''}
-    </div>
-  `).join('');
-}
-
 function buildRecentSummaryRows(recentSummaries = []) {
   if (!Array.isArray(recentSummaries) || recentSummaries.length === 0) {
     return '<div class="char-info-text">아직 기록된 최근 런이 없습니다.</div>';
@@ -95,13 +80,8 @@ export function buildCharacterInfoSummarySection({
   featuredCardIds,
   featuredCardTags,
   roadmapPreviewText,
-  unlockRoadmap,
   pendingSummaryCount = 0,
 } = {}) {
-  const unlockRows = [
-    ...(unlockRoadmap?.account || []),
-    ...(unlockRoadmap?.class || []),
-  ];
   const pendingSummaryNotice = pendingSummaryCount > 0
     ? `<div class="char-info-text" style="margin-top:8px;color:rgba(255,214,112,0.92)">미확인 진행 기록 ${pendingSummaryCount}건 · 입장 시 순차 재생</div>`
     : '';
@@ -146,13 +126,6 @@ export function buildCharacterInfoSummarySection({
         ${buildSectionLabel('다음 마스터리 해금', selectedChar.accent)}
         <div class="char-info-text">${roadmapPreviewText}</div>
         ${pendingSummaryNotice}
-      </div>
-
-      <div class="char-info-block">
-        ${buildSectionLabel('해금 로드맵', selectedChar.accent)}
-        <div style="display:grid;gap:8px;">
-          ${buildUnlockRoadmapRows(unlockRows)}
-        </div>
       </div>
     </section>
   `;

@@ -159,10 +159,11 @@ describe('character_select_info_panel', () => {
     expect(panel.innerHTML).toContain('시작 장비');
     expect(panel.innerHTML).toContain('다음 마스터리 해금');
     expect(panel.innerHTML).toContain('다음 해금: Lv.2 Unlock starter bonus.');
-    expect(panel.innerHTML).toContain('해금 로드맵');
-    expect(panel.innerHTML).toContain('핏빛 월식');
-    expect(panel.innerHTML).toContain('심판');
-    expect(panel.innerHTML).toContain('0 / 1');
+    expect(panel.innerHTML).not.toContain('해금 로드맵');
+    expect(panel.innerHTML).not.toContain('핏빛 월식');
+    expect(panel.innerHTML).not.toContain('심판');
+    expect(panel.innerHTML).not.toContain('첫 승리 필요');
+    expect(panel.innerHTML).not.toContain('찬송기사 숙련도 3 달성 필요');
     expect(panel.innerHTML).toContain('미확인 진행 기록 2건');
     expect(panel.innerHTML).toContain('최근 진행 기록');
     expect(panel.innerHTML).toContain('승리 · +42 XP · 레벨 2');
