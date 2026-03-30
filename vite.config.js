@@ -46,6 +46,11 @@ export function getManualChunk(id) {
     '/game/features/ui/ports/public_text_support_capabilities.js',
     '/game/features/ui/ports/public_tooltip_support_capabilities.js',
   ];
+  const uiSupportCanonicalSuffixes = [
+    '/game/platform/browser/dom/public.js',
+    '/game/shared/logging/public.js',
+    '/game/shared/ui/tooltip/public.js',
+  ];
   const uiSupportLeafSuffixes = [
     '/game/utils/description_utils.js',
     '/game/utils/dom_safe.js',
@@ -85,6 +90,7 @@ export function getManualChunk(id) {
 
   if (normalized.includes('/node_modules/')) return 'vendor';
   if (uiSupportPortSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
+  if (uiSupportCanonicalSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
   if (uiSupportLeafSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
   if (uiShellSupportSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-support';
   if (uiSharedDataSuffixes.some((suffix) => normalized.endsWith(suffix))) return 'ui-shared-data';

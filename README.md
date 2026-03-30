@@ -32,6 +32,7 @@ npm run preview
 # development
 npm run dev
 npm run clean
+npm run clean:smoke
 
 # verification
 npm test
@@ -53,6 +54,18 @@ npm run smoke:browser
 ```
 
 `npm test`는 빠른 로직/런타임 회귀 루프이고, `npm run test:guardrails`는 구조/compat/조립 가드레일 묶음입니다. `npm run test:manifest`는 명시 test suite manifest가 저장소 상태와 동기화돼 있는지 확인하고, drift를 반영할 때는 `npm run test:manifest:write`를 사용합니다. `npm run test:slow-report`는 fast suite 기준으로 느린 테스트 파일 상위를 리포트합니다. dependency flow를 건드린 변경은 `npm run deps:map`으로 산출물을 갱신하고 `npm run deps:map:check`로 현재 저장소 상태와 맞는지 확인합니다. `npm run audit:transition-surfaces`는 transitional runtime surface의 파일 분포를 읽기 전용으로 집계합니다(현재 canonical runtime 파일 기준 transitional root 집계는 0). 둘을 함께 갱신할 때는 `npm run quality:sync`를 사용합니다. 테스트 소유권과 dependency map이 같이 바뀌는 작업은 handoff 전에 `npm run quality:sync`를 먼저 돌리는 편이 안전합니다. 둘 다 필요한 변경은 `npm run test:full`로 함께 확인합니다.
+
+`npm run quality:full`은 로컬에서 `npm run build` 직후 기존 `dist/`를 재사용해 브라우저 스모크를 돌리므로, 같은 검증 루프 안에서 번들을 한 번 더 생성하지 않습니다. `npm run clean:smoke`는 누적된 브라우저 스모크 산출물까지 같이 정리할 때 사용합니다.
+
+## Environment Variables
+
+주로 스모크/프리뷰 검증에서 사용하는 환경 변수입니다.
+
+```text
+SMOKE_URL       이미 떠 있는 앱 URL을 재사용합니다. 지정하면 로컬 정적 서버를 새로 띄우지 않습니다.
+SMOKE_DIST_DIR  스모크 검증이 서빙할 빌드 출력 경로입니다. 미지정 시 각 스크립트가 기본 dist 또는 임시 dist를 사용합니다.
+SMOKE_OUT_DIR   스모크 스크립트 결과물(JSON/PNG) 출력 경로를 덮어씁니다.
+```
 
 UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 캐릭터 선택 화면이 렌더링되는지와 콘솔/페이지 오류가 없는지도 확인합니다.
 

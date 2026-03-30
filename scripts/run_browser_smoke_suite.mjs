@@ -11,6 +11,7 @@ const smokeCommands = [
   'smoke:save-load',
   'smoke:save-outbox-recovery',
 ];
+const args = new Set(process.argv.slice(2));
 
 function writeGithubSummary(text) {
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
@@ -61,13 +62,25 @@ function buildStandaloneSmokeDist(workspaceRoot = process.cwd()) {
   return distDir;
 }
 
+function resolveReuseDistDir(workspaceRoot = process.cwd()) {
+  const distDir = path.join(workspaceRoot, 'dist');
+  if (!fs.existsSync(distDir)) {
+    throw new Error('Cannot reuse dist for smoke:browser because dist/ does not exist. Run npm run build first.');
+  }
+  return distDir;
+}
+
 const results = [];
 const smokeEnv = { ...process.env };
 let tempDistDir = '';
 
 if (!smokeEnv.SMOKE_URL && !smokeEnv.SMOKE_DIST_DIR) {
-  tempDistDir = buildStandaloneSmokeDist();
-  smokeEnv.SMOKE_DIST_DIR = tempDistDir;
+  if (args.has('--reuse-dist')) {
+    smokeEnv.SMOKE_DIST_DIR = resolveReuseDistDir();
+  } else {
+    tempDistDir = buildStandaloneSmokeDist();
+    smokeEnv.SMOKE_DIST_DIR = tempDistDir;
+  }
 }
 
 try {

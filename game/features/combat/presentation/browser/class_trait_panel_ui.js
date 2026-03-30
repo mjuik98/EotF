@@ -1,4 +1,4 @@
-import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
 
 export function renderClassTraitPanel(model, deps = {}) {
   if (!model) return '';

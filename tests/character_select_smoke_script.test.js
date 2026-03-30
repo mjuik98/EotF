@@ -12,6 +12,7 @@ describe('character select smoke script', () => {
 
     expect(source).toContain("from './browser_smoke_support.mjs'");
     expect(source).toContain('process.env.SMOKE_DIST_DIR');
+    expect(source).toContain('process.env.SMOKE_OUT_DIR');
     expect(source).toContain('resolveSmokeAppUrl');
     expect(source).toContain('closeStaticAssetServer');
   });

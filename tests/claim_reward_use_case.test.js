@@ -10,7 +10,11 @@ vi.mock('../game/shared/codex/codex_record_state_use_case.js', () => ({
   registerItemFound: hoisted.registerItemFound,
 }));
 
-import { claimReward } from '../game/features/reward/public.js';
+import { ItemSystem } from '../game/shared/progression/item_system.js';
+import {
+  claimReward,
+  ensureMiniBossBonus,
+} from '../game/features/reward/public.js';
 
 describe('claim_reward_use_case', () => {
   it('rejects energy blessings when already at cap', () => {
@@ -88,8 +92,7 @@ describe('claim_reward_use_case', () => {
     expect(hoisted.registerItemFound).toHaveBeenCalledWith(gs, 'charm');
   });
 
-  it('localizes mini-boss reward logs', async () => {
-    const { ensureMiniBossBonus } = await import('../game/features/reward/public.js');
+  it('localizes mini-boss reward logs', () => {
     const addLog = vi.fn();
     const showItemToast = vi.fn();
     const playItemGet = vi.fn();
@@ -127,9 +130,7 @@ describe('claim_reward_use_case', () => {
     }
   });
 
-  it('routes mini-boss bonus healing through the live heal hook', async () => {
-    const { ensureMiniBossBonus } = await import('../game/features/reward/public.js');
-    const { ItemSystem } = await import('../game/shared/progression/item_system.js');
+  it('routes mini-boss bonus healing through the live heal hook', () => {
     const showItemToast = vi.fn();
     const playItemGet = vi.fn();
     const data = {

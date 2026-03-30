@@ -36,7 +36,7 @@
     "smoke:browser": "node scripts/run_browser_smoke_suite.mjs",
     "quality:sync": "npm run test:manifest:write && npm run deps:map",
     "quality:fast": "npm run lint && npm test",
-    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run deps:map:check && npm run test:order-guard -- --runs 1 --sample 20 && npm run test:slow-report && npm run build && npm run smoke:browser",
+    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run deps:map:check && npm run test:order-guard -- --runs 1 --sample 20 && npm run test:slow-report && npm run build && npm run smoke:browser -- --reuse-dist",
     "quality": "npm run quality:full"
   },
   "keywords": [
@@ -51,8 +51,5 @@
     "playwright": "^1.58.2",
     "vite": "^7.3.1",
     "vitest": "^3.2.4"
-  },
-  "dependencies": {
-    "acorn": "^8.16.0"
   }
 }

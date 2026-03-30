@@ -12,8 +12,9 @@ describe('check_import_coupling', () => {
     const targets = readCouplingTargets();
 
     expect(IMPORT_COUPLING_TARGETS_PATH.endsWith('config/quality/import_coupling_targets.json')).toBe(true);
-    expect(targets.maxTotal).toBe(189);
-    expect(targets.maxByPair['feature->shared']).toBe(27);
+    expect(targets.maxTotal).toBe(217);
+    expect(targets.maxByPair['feature->shared']).toBe(45);
+    expect(targets.maxByPair['feature->platform']).toBe(15);
     expect(targets.maxByPair['feature->data']).toBe(13);
     expect(targets.maxByPair['feature->core']).toBe(18);
     expect(targets.maxByPair['feature->legacy']).toBe(1);

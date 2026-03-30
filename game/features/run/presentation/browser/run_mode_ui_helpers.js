@@ -1,6 +1,6 @@
 import { ensureRunConfigMeta } from '../../state/run_config_state_commands.js';
 import { CURSES } from '../../domain/run_rules_curses.js';
-export { getDoc } from '../../../ui/ports/public_dom_support_capabilities.js';
+export { getDoc } from '../../../../platform/browser/dom/public.js';
 
 export function getMeta(gs) {
   return gs?.meta || null;

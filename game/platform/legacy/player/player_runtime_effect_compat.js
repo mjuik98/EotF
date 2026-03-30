@@ -9,6 +9,7 @@ export function resolvePlayerRuntimeEffectCompat(deps = {}) {
     endPlayerTurn: deps.endPlayerTurn || win?.endPlayerTurn || legacyRoot?.endPlayerTurn,
     screenShake: deps.screenShake || win?.ScreenShake || legacyRoot?.ScreenShake,
     setTimeoutFn: deps.setTimeoutFn || win?.setTimeout?.bind(win) || setTimeout,
+    updateEchoSkillBtn: deps.updateEchoSkillBtn || win?.GAME?.API?.updateEchoSkillBtn || legacyRoot?.API?.updateEchoSkillBtn,
     updateClassSpecialUI: deps.updateClassSpecialUI || win?.updateClassSpecialUI || legacyRoot?.updateClassSpecialUI,
     updateNoiseWidget: deps.updateNoiseWidget || win?.updateNoiseWidget || legacyRoot?.updateNoiseWidget,
   };

@@ -7,31 +7,15 @@ import {
   runSmokeBrowserSession,
   waitForSmokeFonts,
 } from './browser_smoke_support.mjs';
+import {
+  clickIfVisible,
+  enterRunFlow,
+} from './browser_smoke_flow_helpers.mjs';
 import { ensurePauseMenuVisible } from './help_pause_smoke_helpers.mjs';
 
 const workspaceRoot = process.cwd();
 const distDir = process.env.SMOKE_DIST_DIR || path.join(workspaceRoot, 'dist');
-const outDir = path.join(workspaceRoot, 'output', 'web-game', 'save-load-roundtrip-smoke');
-
-async function clickIfVisible(page, selector, timeout = 4000) {
-  const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
-  if (!handle) return false;
-  await handle.click();
-  return true;
-}
-
-async function enterRunFlow(page) {
-  await page.click('#mainStartBtn');
-  await page.waitForSelector('#btnCfm', { state: 'visible', timeout: 10000 });
-  await page.click('#btnCfm');
-  await page.waitForSelector('#btnRealStart', { state: 'visible', timeout: 10000 });
-  await page.click('#btnRealStart');
-  await clickIfVisible(page, '#introCinematicOverlay', 10000);
-  await page.waitForSelector('#storyContinueBtn', { state: 'visible', timeout: 10000 });
-  await page.click('#storyContinueBtn');
-  await page.waitForSelector('#nodeCardOverlay', { state: 'visible', timeout: 15000 });
-  await page.waitForTimeout(250);
-}
+const outDir = process.env.SMOKE_OUT_DIR || path.join(workspaceRoot, 'output', 'web-game', 'save-load-roundtrip-smoke');
 
 async function captureOverlayFrameState(page, surfaceSelector, {
   titleSelector = '.gm-modal-title',

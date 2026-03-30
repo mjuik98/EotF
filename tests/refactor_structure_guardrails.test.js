@@ -434,8 +434,8 @@ describe('refactor structure guardrails', () => {
     expect(eventUiHelpersSource).not.toContain('export function getRunRules(');
     expect(eventUiHelpersSource).not.toContain('export function getAudioEngine(');
 
-    expect(runModeHelpersSource).toContain("from '../../../ui/ports/public_dom_support_capabilities.js'");
-    expect(endingActionPortsSource).toContain("from '../../ui/ports/public_dom_support_capabilities.js'");
+    expect(runModeHelpersSource).toContain("from '../../../../platform/browser/dom/public.js'");
+    expect(endingActionPortsSource).toContain("from '../../../platform/browser/dom/public.js'");
     expect(combatTurnPortsSource).toContain("from '../../../utils/runtime_deps.js'");
     expect(saveRuntimeNotificationsSource).not.toContain("from '../../../utils/runtime_deps.js'");
 

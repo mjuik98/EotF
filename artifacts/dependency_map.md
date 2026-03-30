@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-03-28T12:03:01.215Z
-- Nodes: 1265
-- Edges: 1647
+- Generated: 2026-03-30T09:42:05.271Z
+- Nodes: 1283
+- Edges: 1671
 
 ## Layer Edges
 
@@ -16,18 +16,18 @@
 | core->utils | 2 |
 | data->data | 29 |
 | data->other | 2 |
-| data->shared | 1 |
+| data->shared | 2 |
 | data->utils | 4 |
 | engine->data | 1 |
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 13 |
-| feature->feature | 1048 |
+| feature->feature | 1034 |
 | feature->legacy | 1 |
-| feature->other | 1 |
-| feature->platform | 3 |
-| feature->shared | 27 |
-| feature->utils | 1 |
+| feature->other | 2 |
+| feature->platform | 15 |
+| feature->shared | 45 |
+| feature->utils | 2 |
 | legacy->core | 5 |
 | legacy->feature | 8 |
 | legacy->legacy | 80 |
@@ -39,15 +39,14 @@
 | platform->feature | 15 |
 | platform->legacy | 2 |
 | platform->other | 1 |
-| platform->platform | 21 |
-| platform->shared | 4 |
+| platform->platform | 22 |
+| platform->shared | 3 |
 | platform->utils | 2 |
 | shared->core | 4 |
 | shared->data | 5 |
 | shared->feature | 2 |
 | shared->legacy | 2 |
-| shared->shared | 78 |
-| shared->utils | 3 |
+| shared->shared | 86 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 5 |
@@ -67,27 +66,27 @@
 | game/features/combat/ports/public_surface.js | 8 |
 | game/features/title/ports/runtime/public_title_runtime_surface.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
+| game/features/combat/application/damage_system_facade.js | 7 |
 | game/features/combat/application/death_flow_enemy_runtime.js | 7 |
 | game/features/combat/application/play_card_service.js | 7 |
-| game/features/combat/presentation/browser/combat_relic_rail_ui.js | 7 |
-| game/features/combat/presentation/browser/combat_ui.js | 7 |
+| game/features/combat/domain/enemy_turn_domain.js | 7 |
 
 ## Top Incoming Dependencies
 
 | File | In Degree |
 |---|---:|
 | game/core/bindings/module_registry_scopes.js | 17 |
-| game/features/ui/ports/public_tooltip_support_capabilities.js | 16 |
+| game/shared/ui/tooltip/public.js | 16 |
 | game/features/combat/ports/combat_logging.js | 12 |
 | game/features/meta_progression/public.js | 12 |
 | game/features/run/ports/public_rule_capabilities.js | 12 |
+| game/platform/browser/dom/public.js | 12 |
 | game/features/combat/ports/presentation/public_combat_browser_support_capabilities.js | 11 |
 | game/features/combat/ports/presentation/public_combat_card_support_capabilities.js | 11 |
 | game/shared/runtime/public.js | 11 |
+| game/shared/state/player_state_commands.js | 11 |
 | game/features/combat/presentation/browser/combat_copy.js | 10 |
-| game/shared/state/player_state_commands.js | 10 |
 | game/core/deps_factory.js | 9 |
-| game/features/ui/ports/public_dom_support_capabilities.js | 9 |
 | data/cards.js | 8 |
 | data/game_data.js | 8 |
 | game/core/error_reporter.js | 8 |

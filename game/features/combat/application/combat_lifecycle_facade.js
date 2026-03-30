@@ -97,7 +97,7 @@ export const CombatLifecycle = {
 
     if (!isPassive) {
       resetPlayerEchoChain(this);
-      this.drainEcho(50);
+      this.drainEcho(50, deps);
     }
 
     const audioEngine = deps.audioEngine || runtimeHost?.AudioEngine;

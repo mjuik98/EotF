@@ -6,7 +6,7 @@ import {
   resolveStatusEffectValue,
   STATUS_KR,
 } from '../../ports/presentation/public_combat_status_support_capabilities.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
 import { StatusTooltipUI } from './status_tooltip_builder.js';
 
 function _getDoc(deps) { return deps?.doc || document; }

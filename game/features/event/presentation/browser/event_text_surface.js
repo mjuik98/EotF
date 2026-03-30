@@ -1,4 +1,4 @@
-import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
+import { DomSafe } from '../../../../platform/browser/dom/public.js';
 
 export function setEventDescriptionText(descEl, text) {
   if (!descEl) return;

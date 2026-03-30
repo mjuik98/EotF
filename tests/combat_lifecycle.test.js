@@ -199,6 +199,30 @@ describe('CombatLifecycle', () => {
     );
   });
 
+  it('passes runtime deps when an active resonance burst drains echo', () => {
+    const deps = {
+      updateEchoSkillBtn: vi.fn(),
+      win: {
+        AudioEngine: { playResonanceBurst: vi.fn() },
+        ScreenShake: { shake: vi.fn() },
+        ParticleSystem: { hitEffect: vi.fn() },
+      },
+    };
+    const host = {
+      combat: {
+        enemies: [],
+      },
+      player: {
+        echoChain: 8,
+      },
+      drainEcho: vi.fn(),
+    };
+
+    CombatLifecycle.triggerResonanceBurst.call(host, deps, { isPassive: false });
+
+    expect(host.drainEcho).toHaveBeenCalledWith(50, deps);
+  });
+
   it('runs combat_end relic cleanup before combat state teardown on victory', async () => {
     vi.useFakeTimers();
 

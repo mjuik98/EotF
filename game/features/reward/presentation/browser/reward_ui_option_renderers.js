@@ -1,5 +1,5 @@
 import { populateCombatCardFrame } from '../../../combat/ports/public_card_frame_capabilities.js';
-import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
+import { DomSafe } from '../../../../platform/browser/dom/public.js';
 import {
   getDescriptionUtils,
   getDoc,

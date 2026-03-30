@@ -1,3 +1,1 @@
-export { DomSafe } from '../../../utils/dom_safe.js';
-export { getDoc, getRaf, getWin } from '../../../utils/runtime_deps.js';
-export { SecurityUtils } from '../../../utils/security.js';
+export { DomSafe, getDoc, getRaf, getWin, SecurityUtils } from '../../../platform/browser/dom/public.js';

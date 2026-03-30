@@ -1,10 +1,11 @@
 import { endPlayerTurnService } from './end_turn_service.js';
 import { Logger } from '../ports/combat_logging.js';
+import { getSetTimeout } from '../../../platform/browser/dom/public.js';
 
 const CombatTurnLogger = Logger.child('CombatTurn');
 
-function defaultScheduleEnemyTurn(runEnemyTurn, delayMs) {
-  setTimeout(async () => {
+function defaultScheduleEnemyTurn(runEnemyTurn, delayMs, scheduleFn) {
+  scheduleFn(async () => {
     try {
       await runEnemyTurn?.();
     } catch (error) {
@@ -23,7 +24,9 @@ export function endPlayerTurnUseCase({
   cleanupTurnUi,
   showEnemyTurnUi,
   runEnemyTurn,
-  scheduleEnemyTurn = defaultScheduleEnemyTurn,
+  scheduleEnemyTurn,
+  setTimeoutFn,
+  win,
 } = {}) {
   const outcome = endPlayerTurnService({
     gs,
@@ -34,10 +37,17 @@ export function endPlayerTurnUseCase({
   });
   if (!outcome) return null;
 
+  const resolvedScheduleEnemyTurn = scheduleEnemyTurn
+    || ((enemyTurnRunner, delayMs) => defaultScheduleEnemyTurn(
+      enemyTurnRunner,
+      delayMs,
+      getSetTimeout({ setTimeoutFn, win }),
+    ));
+
   if (outcome.ui.resetChain) resetChainUi?.(0);
   if (outcome.ui.cleanupTooltips) cleanupTurnUi?.();
   if (outcome.ui.setEnemyTurn) showEnemyTurnUi?.();
-  scheduleEnemyTurn(runEnemyTurn, outcome.ui.enemyTurnDelayMs);
+  resolvedScheduleEnemyTurn(runEnemyTurn, outcome.ui.enemyTurnDelayMs);
 
   return outcome.result;
 }

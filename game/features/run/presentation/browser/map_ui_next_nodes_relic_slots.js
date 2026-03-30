@@ -1,5 +1,5 @@
 import { stripHtml } from './map_ui_next_nodes_render_helpers.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
 import {
   getItemDetailNavIndex,
   isItemDetailCommitKey,

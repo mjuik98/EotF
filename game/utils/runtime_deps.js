@@ -40,6 +40,23 @@ export function getRaf(deps = {}) {
   return null;
 }
 
+export function getSetTimeout(deps = {}) {
+  if (typeof deps?.setTimeoutFn === 'function') {
+    return deps.setTimeoutFn;
+  }
+
+  if (typeof deps?.setTimeout === 'function') {
+    return deps.setTimeout;
+  }
+
+  const win = deps?.win || null;
+  if (win && typeof win.setTimeout === 'function') {
+    return win.setTimeout.bind(win);
+  }
+
+  return setTimeout;
+}
+
 export function getHudUpdateDeps(deps = {}) {
   if (typeof deps?.getHudUpdateDeps === 'function') {
     return deps.getHudUpdateDeps();

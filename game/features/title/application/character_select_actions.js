@@ -1,4 +1,4 @@
-import { Logger } from '../../ui/ports/public_logging_support_capabilities.js';
+import { Logger } from '../../../shared/logging/public.js';
 
 const CharacterSelectLogger = Logger.child('CharacterSelectUI');
 

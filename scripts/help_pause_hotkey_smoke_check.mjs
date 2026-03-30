@@ -6,6 +6,11 @@ import {
   resolveSmokeAppUrl,
 } from './browser_smoke_support.mjs';
 import {
+  clickIfVisible,
+  enterCombatFromRun,
+  enterRunFlow,
+} from './browser_smoke_flow_helpers.mjs';
+import {
   closeSurfaceWithEscapeFallback,
   ensurePauseMenuVisible,
 } from './help_pause_smoke_helpers.mjs';
@@ -16,32 +21,6 @@ const outDir = process.env.SMOKE_OUT_DIR || path.join(workspaceRoot, 'output', '
 
 async function appendTrace(message) {
   await fs.appendFile(path.join(outDir, 'trace.log'), `${new Date().toISOString()} ${message}\n`);
-}
-
-async function clickIfVisible(page, selector, timeout = 4000) {
-  const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
-  if (!handle) return false;
-  await handle.click();
-  return true;
-}
-
-async function enterRunFlow(page) {
-  await page.click('#mainStartBtn');
-  await page.waitForSelector('#btnCfm', { state: 'visible', timeout: 10000 });
-  await page.click('#btnCfm');
-  await page.waitForSelector('#btnRealStart', { state: 'visible', timeout: 10000 });
-  await page.click('#btnRealStart');
-  await clickIfVisible(page, '#introCinematicOverlay', 10000);
-  await page.waitForSelector('#storyContinueBtn', { state: 'visible', timeout: 10000 });
-  await page.click('#storyContinueBtn');
-  await page.waitForSelector('#nodeCardOverlay', { state: 'visible', timeout: 15000 });
-  await page.waitForTimeout(250);
-}
-
-async function enterCombatFromRun(page) {
-  await page.click('.node-card');
-  await page.waitForSelector('#combatOverlay.active', { state: 'attached', timeout: 15000 });
-  await page.waitForTimeout(1200);
 }
 
 async function openPauseSubpanel(page, buttonName, surfaceSelector) {

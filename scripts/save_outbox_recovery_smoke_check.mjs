@@ -9,7 +9,7 @@ import {
 
 const workspaceRoot = process.cwd();
 const distDir = process.env.SMOKE_DIST_DIR || path.join(workspaceRoot, 'dist');
-const outDir = path.join(workspaceRoot, 'output', 'web-game', 'save-outbox-recovery-smoke');
+const outDir = process.env.SMOKE_OUT_DIR || path.join(workspaceRoot, 'output', 'web-game', 'save-outbox-recovery-smoke');
 
 function buildQueuedRunOutboxEntry() {
   const now = Date.now();

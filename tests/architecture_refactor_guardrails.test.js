@@ -321,7 +321,9 @@ describe('architecture refactor guardrails', () => {
     const source = readText('game/features/run/application/workflows/run_return_flow.js');
 
     expect(source).toContain("../../ports/public_run_return_presentation_capabilities.js");
+    expect(source).toContain("../../../../platform/browser/dom/public.js");
     expect(source).not.toContain('console.error');
+    expect(source).not.toContain('setTimeout(');
     expect(source).not.toContain("../../presentation/browser/run_return_overlay_presenter.js");
     expect(source).not.toContain("../../presentation/browser/run_return_branch_presenter.js");
   });
@@ -332,6 +334,7 @@ describe('architecture refactor guardrails', () => {
       'game/features/run/application/run_rule_outcome.js',
       'game/features/event/application/workflows/event_choice_flow_error_handler.js',
       'game/features/run/application/create_run_start_runtime.js',
+      'game/features/run/application/run_start_gameplay_runtime.js',
       'game/features/combat/application/start_combat_flow_use_case.js',
       'game/features/run/application/create_map_navigation_runtime.js',
       'game/features/combat/application/end_player_turn_use_case.js',
@@ -381,11 +384,24 @@ describe('architecture refactor guardrails', () => {
     expect(source).not.toContain("../../ui/ports/public_audio_support_capabilities.js");
   });
 
+  it('routes application scheduling helpers through platform/browser runtime deps instead of direct globals', () => {
+    const runStartSource = readText('game/features/run/application/run_start_gameplay_runtime.js');
+    const endPlayerTurnSource = readText('game/features/combat/application/end_player_turn_use_case.js');
+
+    expect(runStartSource).toContain("from '../../../platform/browser/dom/public.js'");
+    expect(runStartSource).toContain('getSetTimeout');
+    expect(runStartSource).not.toContain('setTimeout(');
+    expect(endPlayerTurnSource).toContain("from '../../../platform/browser/dom/public.js'");
+    expect(endPlayerTurnSource).toContain('getSetTimeout');
+    expect(endPlayerTurnSource).not.toContain('setTimeout(');
+  });
+
   it('keeps save infrastructure free of embedded presenter imports and DOM toasts', () => {
     const saveSystemSource = readText('game/shared/save/save_system.js');
     const saveAdapterSource = readText('game/platform/storage/save_adapter.js');
 
     expect(saveSystemSource).not.toContain("./save_status_presenter.js");
+    expect(saveAdapterSource).toContain("../browser/storage/local_save_adapter.js");
     expect(saveAdapterSource).not.toContain('doc.createElement');
     expect(saveAdapterSource).not.toContain('doc.body.appendChild');
   });

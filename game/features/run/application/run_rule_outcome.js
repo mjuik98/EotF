@@ -3,7 +3,7 @@ import { CURSES } from '../domain/run_rules_curses.js';
 import { getRegionCount } from '../domain/run_rules_regions.js';
 import { evaluateAchievementTrigger } from '../../meta_progression/public.js';
 import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
-import { Logger } from '../../ui/ports/public_logging_support_capabilities.js';
+import { Logger } from '../../../shared/logging/public.js';
 import { ensureRunRuleMeta, resolveRunRuleClassIds } from './run_rule_meta.js';
 import {
   applyRunOutcomeRewards,

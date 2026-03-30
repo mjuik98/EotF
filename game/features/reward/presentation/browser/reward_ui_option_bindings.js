@@ -1,4 +1,4 @@
-import { bindTooltipTrigger, createTooltipTriggerEvent } from '../../../ui/ports/public_tooltip_support_capabilities.js';
+import { bindTooltipTrigger, createTooltipTriggerEvent } from '../../../../shared/ui/tooltip/public.js';
 
 function callTooltipMethod(deps, method, ...args) {
   const tooltipUI = deps?.tooltipUI || deps?.TooltipUI;

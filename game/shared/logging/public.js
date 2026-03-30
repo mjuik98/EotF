@@ -4,5 +4,5 @@ export {
   formatRecentFeedText,
   getCurrentCardLogSource,
   LogUtils,
-  Logger,
-} from '../../../shared/logging/public.js';
+} from '../../utils/log_utils.js';
+export { Logger } from '../../utils/logger.js';

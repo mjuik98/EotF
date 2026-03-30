@@ -137,6 +137,15 @@ describe('vite chunking guardrails', () => {
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/run/presentation/browser/run_mode_text_highlight.js'),
     ).toBe(null);
     expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/platform/browser/dom/public.js'),
+    ).toBe('ui-support');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/ui/tooltip/public.js'),
+    ).toBe('ui-support');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/logging/public.js'),
+    ).toBe('ui-support');
+    expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/ui/ports/public_feature_support_capabilities.js'),
     ).toBe(null);
     expect(

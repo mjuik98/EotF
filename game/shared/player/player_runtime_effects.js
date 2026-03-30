@@ -3,15 +3,15 @@ import { PlayerResourceUseCaseMethods } from './player_resource_use_cases.js';
 import { PlayerStateActions as Actions, setPlayerEnergyState } from '../state/player_state_commands.js';
 
 export const PlayerRuntimeEffectMethods = {
-  addEcho(amount, source = null) {
+  addEcho(amount, source = null, deps = {}) {
     const result = PlayerResourceUseCaseMethods.addEcho.call(this, amount, source);
-    GAME?.API?.updateEchoSkillBtn?.();
+    resolvePlayerRuntimeEffectCompat(deps).updateEchoSkillBtn?.();
     return result;
   },
 
-  drainEcho(amount) {
+  drainEcho(amount, deps = {}) {
     const result = PlayerResourceUseCaseMethods.drainEcho.call(this, amount);
-    GAME?.API?.updateEchoSkillBtn?.();
+    resolvePlayerRuntimeEffectCompat(deps).updateEchoSkillBtn?.();
     return result;
   },
 

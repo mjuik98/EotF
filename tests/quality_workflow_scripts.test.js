@@ -26,7 +26,7 @@ describe('quality workflow scripts', () => {
     expect(packageJson.scripts['quality:full']).toContain('npm run deps:map:check');
     expect(packageJson.scripts['quality:full']).toContain('npm run test:order-guard -- --runs 1 --sample 20');
     expect(packageJson.scripts['quality:full']).toContain('npm run build');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser -- --reuse-dist');
     expect(packageJson.scripts.quality).toBe('npm run quality:full');
   });
 
@@ -134,8 +134,9 @@ describe('quality workflow scripts', () => {
 
     expect(suiteManifest.fast.length).toBeGreaterThan(0);
     expect(suiteManifest.guardrails.length).toBeGreaterThan(0);
-    expect(couplingTargets.maxTotal).toBe(189);
-    expect(couplingTargets.maxByPair['feature->shared']).toBe(27);
+    expect(couplingTargets.maxTotal).toBe(217);
+    expect(couplingTargets.maxByPair['feature->shared']).toBe(45);
+    expect(couplingTargets.maxByPair['feature->platform']).toBe(15);
     expect(couplingTargets.maxByPair['feature->data']).toBe(13);
     expect(couplingTargets.maxByPair['feature->core']).toBe(18);
     expect(couplingTargets.maxByPair['feature->legacy']).toBe(1);

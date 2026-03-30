@@ -108,6 +108,34 @@ describe('player runtime effects', () => {
 
     expect(endPlayerTurn).toHaveBeenCalledTimes(1);
   });
+
+  it('updates the echo skill affordance through injected runtime compat when echo increases', () => {
+    const { gs, player } = createRuntimeState({
+      player: { echo: 2, maxEcho: 10 },
+    });
+    const updateEchoSkillBtn = vi.fn();
+
+    PlayerRuntimeEffectMethods.addEcho.call(gs, 3, { name: '테스트', type: 'item' }, {
+      updateEchoSkillBtn,
+    });
+
+    expect(player.echo).toBe(5);
+    expect(updateEchoSkillBtn).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates the echo skill affordance through injected runtime compat when echo drains', () => {
+    const { gs, player } = createRuntimeState({
+      player: { echo: 7, maxEcho: 10 },
+    });
+    const updateEchoSkillBtn = vi.fn();
+
+    PlayerRuntimeEffectMethods.drainEcho.call(gs, 4, {
+      updateEchoSkillBtn,
+    });
+
+    expect(player.echo).toBe(3);
+    expect(updateEchoSkillBtn).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('player ui effects', () => {

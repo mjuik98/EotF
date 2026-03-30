@@ -8,7 +8,7 @@ import {
 
 const workspaceRoot = process.cwd();
 const distDir = process.env.SMOKE_DIST_DIR || path.join(workspaceRoot, 'dist');
-const outDir = path.join(workspaceRoot, 'output', 'web-game', 'character-select-level-xp-smoke');
+const outDir = process.env.SMOKE_OUT_DIR || path.join(workspaceRoot, 'output', 'web-game', 'character-select-level-xp-smoke');
 
 async function captureGameplayDebugState(page, capturedErrors = []) {
   return page.evaluate((errors) => ({

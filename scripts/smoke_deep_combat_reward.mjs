@@ -1,6 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import {
+  advanceRuntimeTime,
+  clickIfVisible,
+  enterCombatFromRun,
+  enterRunFlow,
+} from './browser_smoke_flow_helpers.mjs';
 
 function parseArgs(argv) {
   const args = {
@@ -64,23 +70,6 @@ async function writeNamedState(page, outDir, filename) {
   }
 }
 
-async function clickIfVisible(page, selector, timeout = 4000) {
-  const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
-  if (!handle) return false;
-  await handle.click();
-  return true;
-}
-
-async function advanceTime(page, ms) {
-  await page.evaluate(async (duration) => {
-    if (typeof window.advanceTime === 'function') {
-      await window.advanceTime(duration);
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, duration));
-  }, ms);
-}
-
 function assertCondition(condition, message, details = null) {
   if (!condition) {
     if (details !== null) {
@@ -111,20 +100,8 @@ async function main() {
     await page.goto(args.url, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
 
-    await page.click('#mainStartBtn');
-    await page.waitForSelector('#btnCfm', { state: 'visible', timeout: 10000 });
-    await page.click('#btnCfm');
-    await page.waitForSelector('#btnRealStart', { state: 'visible', timeout: 10000 });
-    await page.click('#btnRealStart');
-
-    await clickIfVisible(page, '#introCinematicOverlay', 10000);
-    await page.waitForSelector('#storyContinueBtn', { state: 'visible', timeout: 10000 });
-    await page.click('#storyContinueBtn');
-
-    await page.waitForSelector('.node-card', { state: 'visible', timeout: 15000 });
-    await page.click('.node-card');
-    await page.waitForSelector('#combatOverlay.active', { state: 'attached', timeout: 15000 });
-    await advanceTime(page, 1200);
+    await enterRunFlow(page, { nodeReadySelector: '.node-card' });
+    await enterCombatFromRun(page);
     await writeSnapshot(page, args.outDir, 0);
 
     await page.evaluate(() => {
@@ -168,7 +145,7 @@ async function main() {
       await writeNamedState(page, args.outDir, 'state-endcombat-timeout.json');
       throw error;
     }
-    await advanceTime(page, 1200);
+    await advanceRuntimeTime(page, 1200);
     await writeSnapshot(page, args.outDir, 1);
 
     await page.click('#rewardSkipInitBtn');
@@ -183,7 +160,7 @@ async function main() {
       throw error;
     }
     await page.waitForSelector('.node-card', { state: 'visible', timeout: 10000 });
-    await advanceTime(page, 800);
+    await advanceRuntimeTime(page, 800);
     await writeSnapshot(page, args.outDir, 2);
 
     assertCondition(

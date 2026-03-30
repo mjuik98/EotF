@@ -1,6 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import {
+  advanceRuntimeTime,
+  clickIfVisible,
+  enterCombatFromRun,
+  enterRunFlow,
+} from './browser_smoke_flow_helpers.mjs';
 
 function parseArgs(argv) {
   const args = {
@@ -59,38 +65,9 @@ function assertCondition(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-async function clickIfVisible(page, selector, timeout = 4000) {
-  const handle = await page.waitForSelector(selector, { timeout, state: 'visible' }).catch(() => null);
-  if (!handle) return false;
-  await handle.click();
-  return true;
-}
-
-async function advanceTime(page, ms) {
-  await page.evaluate(async (duration) => {
-    if (typeof window.advanceTime === 'function') {
-      await window.advanceTime(duration);
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, duration));
-  }, ms);
-}
-
 async function enterCombatFromRealRun(page) {
-  await page.click('#mainStartBtn');
-  await page.waitForSelector('#btnCfm', { state: 'visible', timeout: 10000 });
-  await page.click('#btnCfm');
-  await page.waitForSelector('#btnRealStart', { state: 'visible', timeout: 10000 });
-  await page.click('#btnRealStart');
-
-  await clickIfVisible(page, '#introCinematicOverlay', 10000);
-  await page.waitForSelector('#storyContinueBtn', { state: 'visible', timeout: 10000 });
-  await page.click('#storyContinueBtn');
-
-  await page.waitForSelector('.node-card', { state: 'visible', timeout: 15000 });
-  await page.click('.node-card');
-  await page.waitForSelector('#combatOverlay.active', { state: 'attached', timeout: 15000 });
-  await advanceTime(page, 1200);
+  await enterRunFlow(page, { nodeReadySelector: '.node-card' });
+  await enterCombatFromRun(page);
 
   return page.evaluate(() => {
     const overlay = document.querySelector('#combatOverlay.active');
@@ -534,7 +511,7 @@ async function main() {
       const rewardScreen = document.getElementById('rewardScreen');
       return !rewardScreen?.classList?.contains('active') && !!document.querySelector('.node-card');
     }, { timeout: 10000 });
-    await advanceTime(page, 800);
+    await advanceRuntimeTime(page, 800);
     await writeSnapshot(page, args.outDir, 'combat-ui-return-map');
 
     const returnFlowResult = await page.evaluate(() => {

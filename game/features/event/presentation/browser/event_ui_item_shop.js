@@ -9,8 +9,8 @@ import {
   playUiItemGetFeedback,
 } from '../../ports/event_ui_view_ports.js';
 import { dismissTransientOverlay, getShopItemIcon } from './event_ui_helpers.js';
-import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
+import { DomSafe } from '../../../../platform/browser/dom/public.js';
+import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
 
 const ITEM_SHOP_RARITY_CONFIG = Object.freeze({
   common: {

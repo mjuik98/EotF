@@ -96,4 +96,32 @@ describe('run_start_ui_runtime', () => {
     expect(deps.showWorldMemoryNotice.mock.calls[0][0]).toContain('상인들이 당신을 기억한다');
     expect(deps.showWorldMemoryNotice.mock.calls[0][0]).toContain('태고의 잔향이 기다린다');
   });
+
+  it('uses the injected runtime scheduler for canvas handoff and world-memory notice work', () => {
+    const scheduled = [];
+    const deps = createDeps({
+      setTimeoutFn: vi.fn((callback, delayMs) => {
+        scheduled.push({ callback, delayMs });
+        return scheduled.length;
+      }),
+      gs: {
+        worldMemory: {
+          savedMerchant: 1,
+        },
+      },
+    });
+
+    enterRunRuntime(deps);
+    vi.advanceTimersByTime(330);
+
+    expect(deps.setTimeoutFn).toHaveBeenCalledTimes(2);
+    expect(scheduled.map(({ delayMs }) => delayMs)).toEqual([80, 1000]);
+
+    scheduled[0].callback();
+    expect(deps.initGameCanvas).toHaveBeenCalledTimes(1);
+    expect(deps.gameLoop).toHaveBeenCalledTimes(1);
+
+    scheduled[1].callback();
+    expect(deps.showWorldMemoryNotice).toHaveBeenCalledWith('상인들이 당신을 기억한다');
+  });
 });

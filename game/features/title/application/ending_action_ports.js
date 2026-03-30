@@ -1,4 +1,4 @@
-import { getDoc, getWin } from '../../ui/ports/public_dom_support_capabilities.js';
+import { getDoc, getWin } from '../../../platform/browser/dom/public.js';
 
 export function resolveEndingActions(deps = {}) {
   const endingActions = deps.endingActions || {};

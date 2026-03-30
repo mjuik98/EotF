@@ -1,4 +1,5 @@
 import { resolveBranchTargetRegion } from '../../ports/public_run_return_presentation_capabilities.js';
+import { getSetTimeout } from '../../../../platform/browser/dom/public.js';
 import {
   clearRunReturnCombatSurface,
   dismissRunReturnNodeOverlay,
@@ -21,8 +22,12 @@ function finalizeBossVictoryOutcome(deps, gs) {
   else deps.storySystem?.showNormalEnding?.();
 }
 
+function getRunReturnSchedule(deps = {}) {
+  return getSetTimeout(deps);
+}
+
 function scheduleBossRegionTransition(deps, gs, clearRewardExitStyles, rewardExitDelay) {
-  setTimeout(() => {
+  getRunReturnSchedule(deps)(() => {
     showGameplayScreenFromReturn(deps);
     clearRewardExitStyles();
     scheduleRunReturnRefresh(deps, 100, () => {
@@ -35,12 +40,13 @@ function scheduleBossRegionTransition(deps, gs, clearRewardExitStyles, rewardExi
 }
 
 function scheduleStandardGameplayReturn(deps, clearRewardExitStyles, rewardExitDelay) {
-  setTimeout(() => {
+  const schedule = getRunReturnSchedule(deps);
+  schedule(() => {
     showGameplayScreenFromReturn(deps);
     clearRewardExitStyles();
     scheduleRunReturnRefresh(deps, 50, () => {
       if (typeof deps.renderMinimap === 'function') {
-        setTimeout(() => deps.renderMinimap(), 50);
+        schedule(() => deps.renderMinimap(), 50);
       }
     });
   }, rewardExitDelay);
@@ -72,7 +78,7 @@ export function returnToGameplayFromRun(fromReward, deps = {}) {
 
   if (fromReward && wasBoss) {
     if (wasLastRegion && !endlessRun) {
-      setTimeout(() => {
+      getRunReturnSchedule(deps)(() => {
         rewardScreen?.classList.remove('active');
         clearRewardExitStyles();
         finalizeBossVictoryOutcome(deps, gs);

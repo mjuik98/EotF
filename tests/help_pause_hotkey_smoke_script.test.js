@@ -21,10 +21,9 @@ describe('help pause hotkey smoke script', () => {
       'utf8',
     );
 
-    expect(source).toContain("page.click('#mainStartBtn')");
-    expect(source).toContain("page.waitForSelector('#btnRealStart'");
-    expect(source).toContain("page.waitForSelector('#storyContinueBtn'");
-    expect(source).toContain("page.waitForSelector('#nodeCardOverlay'");
+    expect(source).toContain("from './browser_smoke_flow_helpers.mjs'");
+    expect(source).toContain('enterRunFlow(page)');
+    expect(source).toContain('enterCombatFromRun(page)');
     expect(source).toContain("from './help_pause_smoke_helpers.mjs'");
     expect(source).toContain('ensurePauseMenuVisible(page)');
     expect(source).toContain("closeSurfaceWithEscapeFallback(page, surfaceSelector, 10000, { preferEscape: true })");

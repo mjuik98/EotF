@@ -34,6 +34,7 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain('GITHUB_STEP_SUMMARY');
     expect(source).toContain('spawnSync');
     expect(source).toContain('SMOKE_DIST_DIR');
+    expect(source).toContain('--reuse-dist');
     expect(source).toContain('vite.js');
   });
 
@@ -43,10 +44,10 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("from './browser_smoke_support.mjs'");
-    expect(source).toContain('runSmokeScriptWithServer');
-    expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs')");
-    expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-combat-ui')");
+    expect(source).toContain("from './smoke_wrapper_support.mjs'");
+    expect(source).toContain('runHostedSmokeWrapper');
+    expect(source).toContain("scriptFile: 'smoke_combat_ui.mjs'");
+    expect(source).toContain("outDirSegments: ['refactor-smoke-combat-ui']");
   });
 
   it('self-hosts the reward smoke wrapper before launching Playwright', () => {
@@ -55,10 +56,10 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("from './browser_smoke_support.mjs'");
-    expect(source).toContain('runSmokeScriptWithServer');
-    expect(source).toContain("path.join(process.cwd(), 'scripts', 'smoke_deep_combat_reward.mjs')");
-    expect(source).toContain("path.join('output', 'web-game', 'refactor-smoke-reward-flow')");
+    expect(source).toContain("from './smoke_wrapper_support.mjs'");
+    expect(source).toContain('runHostedSmokeWrapper');
+    expect(source).toContain("scriptFile: 'smoke_deep_combat_reward.mjs'");
+    expect(source).toContain("outDirSegments: ['refactor-smoke-reward-flow']");
   });
 
   it('self-hosts the help/pause hotkey smoke wrapper before launching Playwright', () => {
@@ -67,10 +68,10 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("from './browser_smoke_support.mjs'");
-    expect(source).toContain('runSmokeScriptWithServer');
-    expect(source).toContain("path.join(process.cwd(), 'scripts', 'help_pause_hotkey_smoke_check.mjs')");
-    expect(source).toContain("path.join('output', 'web-game', 'help-pause-hotkey-smoke')");
+    expect(source).toContain("from './smoke_wrapper_support.mjs'");
+    expect(source).toContain('runHostedSmokeWrapper');
+    expect(source).toContain("scriptFile: 'help_pause_hotkey_smoke_check.mjs'");
+    expect(source).toContain("outDirSegments: ['help-pause-hotkey-smoke']");
   });
 
   it('drives the reward smoke through the real combat-to-reward handoff', () => {
@@ -79,6 +80,10 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
+    expect(source).toContain("from './browser_smoke_flow_helpers.mjs'");
+    expect(source).toContain('enterRunFlow');
+    expect(source).toContain('enterCombatFromRun');
+    expect(source).toContain('advanceRuntimeTime');
     expect(source).toContain("page.click('#useEchoSkillBtn')");
     expect(source).toContain("document.getElementById('rewardScreen')");
     expect(source).toContain("document.querySelector('#combatOverlay.active')");
@@ -95,8 +100,10 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("path.join(process.cwd(), 'scripts', 'character_select_smoke_check.mjs')");
-    expect(source).toContain("path.join('output', 'web-game', 'character-select-level-xp-smoke')");
+    expect(source).toContain("from './smoke_wrapper_support.mjs'");
+    expect(source).toContain('runForwardedSmokeWrapper');
+    expect(source).toContain("scriptFile: 'character_select_smoke_check.mjs'");
+    expect(source).toContain("outDirSegments: ['character-select-level-xp-smoke']");
   });
 
   it('checks the localized card rarity tag in the browser smoke runner', () => {
@@ -105,6 +112,9 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
+    expect(source).toContain("from './browser_smoke_flow_helpers.mjs'");
+    expect(source).toContain('enterRunFlow');
+    expect(source).toContain('enterCombatFromRun');
     expect(source).toContain("querySelector('.card-rarity-tag')");
     expect(source).toContain("result.firstCardRarityText === '일반'");
   });
@@ -125,7 +135,31 @@ describe('combat ui smoke scripts', () => {
     );
 
     expect(packageJson.scripts.quality).toBe('npm run quality:full');
-    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser');
+    expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser -- --reuse-dist');
+  });
+
+  it('lets browser smoke scripts override their output directories through the shared environment contract', () => {
+    const characterSelectSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'character_select_smoke_check.mjs'),
+      'utf8',
+    );
+    const titleMetaSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'title_meta_smoke_check.mjs'),
+      'utf8',
+    );
+    const saveLoadSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'save_load_roundtrip_smoke_check.mjs'),
+      'utf8',
+    );
+    const saveOutboxSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'save_outbox_recovery_smoke_check.mjs'),
+      'utf8',
+    );
+
+    expect(characterSelectSource).toContain('process.env.SMOKE_OUT_DIR');
+    expect(titleMetaSource).toContain('process.env.SMOKE_OUT_DIR');
+    expect(saveLoadSource).toContain('process.env.SMOKE_OUT_DIR');
+    expect(saveOutboxSource).toContain('process.env.SMOKE_OUT_DIR');
   });
 
   it('covers combat relic rail behavior in the browser smoke runner', () => {
@@ -214,11 +248,8 @@ describe('combat ui smoke scripts', () => {
       'utf8',
     );
 
-    expect(source).toContain("page.click('#mainStartBtn')");
-    expect(source).toContain("page.waitForSelector('#btnCfm'");
-    expect(source).toContain("page.waitForSelector('#btnRealStart'");
-    expect(source).toContain("page.waitForSelector('#storyContinueBtn'");
-    expect(source).toContain("page.waitForSelector('.node-card'");
+    expect(source).toContain("enterRunFlow(page, { nodeReadySelector: '.node-card' })");
+    expect(source).toContain('enterCombatFromRun(page)');
     expect(source).toContain("page.click('#rewardSkipInitBtn')");
     expect(source).toContain("page.click('#rewardSkipConfirmBtn')");
     expect(source).toContain('returnFlowResult');

@@ -1,4 +1,4 @@
-import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../ui/ports/public_dom_support_capabilities.js';
+import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../../platform/browser/dom/public.js';
 import { buildAchievementRoadmap } from '../../../meta_progression/ports/public_roadmap_capabilities.js';
 import { buildRunAnalyticsSnapshot } from '../../../run/ports/public_analytics_capabilities.js';
 import { buildSaveRecoveryMeta } from '../../../../shared/save/save_status_formatters.js';

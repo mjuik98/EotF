@@ -4,7 +4,7 @@ import {
   getEnemyStatusName,
   getPlayerStatusMeta,
 } from '../../ports/presentation/public_combat_status_support_capabilities.js';
-import { bindTooltipTrigger } from '../../../ui/ports/public_tooltip_support_capabilities.js';
+import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
 
 export function buildEnemyStatusBadges(statusEffects, doc, handlers = {}) {
   const statusEntries = statusEffects ? Object.entries(statusEffects) : [];

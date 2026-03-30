@@ -4,7 +4,7 @@ import {
   markRegionIntroStartState,
   normalizeTargetRegionId,
 } from '../../state/region_state_commands.js';
-import { DomSafe } from '../../../ui/ports/public_dom_support_capabilities.js';
+import { DomSafe } from '../../../../platform/browser/dom/public.js';
 
 function getDoc(deps) {
   return deps?.doc || document;
