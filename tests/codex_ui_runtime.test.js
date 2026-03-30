@@ -65,6 +65,10 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', ()
   transitionCodexTab: vi.fn(),
 }));
 
+vi.mock('../game/features/ui/ports/public_input_capabilities.js', () => ({
+  keyboardEventMatchesCode: vi.fn((event, code) => event.code === code),
+}));
+
 import * as runtime from '../game/features/codex/presentation/browser/codex_ui_runtime.js';
 import * as render from '../game/features/codex/presentation/browser/codex_ui_render.js';
 import * as structure from '../game/features/codex/presentation/browser/codex_ui_structure.js';
@@ -80,8 +84,12 @@ describe('codex_ui_runtime', () => {
   it('opens the codex modal and wires initial render callbacks', () => {
     const state = { tab: 'enemies', deps: null };
     const content = { textContent: '' };
+    const search = { focus: vi.fn() };
     const doc = {
-      getElementById: vi.fn((id) => (id === 'codexContent' ? content : null)),
+      getElementById: vi.fn((id) => ({
+        codexContent: content,
+        cxSearch: search,
+      }[id] || null)),
     };
     const ui = {
       renderCodexContent: vi.fn(),
@@ -100,6 +108,7 @@ describe('codex_ui_runtime', () => {
     expect(codexShell.ensureCodexModalShell).toHaveBeenCalledWith(doc);
     expect(controller.showCodexModal).toHaveBeenCalledWith(doc);
     expect(structure.injectCodexModalStructure).toHaveBeenCalledTimes(1);
+    expect(search.focus).toHaveBeenCalledTimes(1);
     expect(render.renderCodexProgress).toHaveBeenCalledTimes(1);
     expect(structure.setCodexTabState).toHaveBeenCalledWith(doc, 'enemies');
     expect(render.renderCodexFilterBar).toHaveBeenCalledTimes(1);
@@ -140,5 +149,33 @@ describe('codex_ui_runtime', () => {
       deps.gs,
     );
     expect(render.renderCodexProgress).toHaveBeenCalledTimes(1);
+  });
+
+  it('routes popup arrow keys through popup navigation only while the popup is open', () => {
+    const listeners = new Map();
+    const popup = {
+      classList: {
+        contains: vi.fn((className) => className === 'open'),
+      },
+    };
+    const doc = {
+      addEventListener: vi.fn((type, handler) => listeners.set(type, handler)),
+      getElementById: vi.fn((id) => (id === 'cxDetailPopup' ? popup : null)),
+    };
+    const ui = {
+      renderCodexContent: vi.fn(),
+      closeCodex: vi.fn(),
+      setCodexTab: vi.fn(),
+    };
+    const deps = { doc, gs: {}, data: {} };
+    const state = { tab: 'enemies', deps: null };
+
+    runtime.openCodexRuntime(state, ui, deps);
+
+    listeners.get('keydown')?.({ code: 'ArrowRight' });
+    listeners.get('keydown')?.({ code: 'ArrowLeft' });
+
+    expect(controller.navigateCodexPopup).toHaveBeenNthCalledWith(1, state, 1);
+    expect(controller.navigateCodexPopup).toHaveBeenNthCalledWith(2, state, -1);
   });
 });

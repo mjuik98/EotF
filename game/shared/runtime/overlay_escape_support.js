@@ -40,31 +40,6 @@ function isPauseMenuVisible(doc) {
 
 const RUN_ESCAPE_SURFACES = Object.freeze([
   {
-    key: 'codexDetail',
-    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('cxDetailPopup') || null, doc),
-    close: (_element, context) => closeVisibleById(context, 'cxDetailPopup', (popup) => {
-      const closeButton = context.doc?.getElementById?.('cxPopupClose') || null;
-      if (typeof closeButton?.click === 'function') closeButton.click();
-      else popup.classList?.remove?.('open');
-    }),
-  },
-  {
-    key: 'combatRelicDetail',
-    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('combatRelicPanel') || null, doc),
-    close: (_element, context) => closeVisibleById(context, 'combatRelicPanel', (panel) => {
-      if (typeof panel.__closeEscapeSurface !== 'function') return false;
-      panel.__closeEscapeSurface();
-    }),
-  },
-  {
-    key: 'mapRelicDetail',
-    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('mapRelicDetailPanel') || null, doc),
-    close: (_element, context) => closeVisibleById(context, 'mapRelicDetailPanel', (panel) => {
-      if (typeof panel.__closeEscapeSurface !== 'function') return false;
-      panel.__closeEscapeSurface();
-    }),
-  },
-  {
     key: 'fullMap',
     isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('fullMapOverlay') || null, doc),
     close: (_element, context) => closeVisibleById(context, 'fullMapOverlay', (overlay) => {
@@ -147,23 +122,6 @@ const RUN_ESCAPE_SURFACES = Object.freeze([
 ]);
 
 const TITLE_ESCAPE_SURFACES = Object.freeze([
-  {
-    key: 'codexDetail',
-    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('cxDetailPopup') || null, doc),
-    close: (_element, context) => closeVisibleById(context, 'cxDetailPopup', (popup) => {
-      const closeButton = context.doc?.getElementById?.('cxPopupClose') || null;
-      if (typeof closeButton?.click === 'function') closeButton.click();
-      else popup.classList?.remove?.('open');
-    }),
-  },
-  {
-    key: 'classSelectRelicDetail',
-    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('classSelectRelicDetail') || null, doc),
-    close: (_element, context) => closeVisibleById(context, 'classSelectRelicDetail', (panel) => {
-      if (typeof panel.__closeEscapeSurface !== 'function') return false;
-      panel.__closeEscapeSurface();
-    }),
-  },
   {
     key: 'codex',
     isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('codexModal') || null, doc),

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { registerTitleBindings } from '../game/features/title/ui/title_bindings.js';
+import { registerEscapeSurface } from '../game/shared/runtime/overlay_escape_support.js';
 
 function createElement() {
   return {
@@ -17,6 +18,16 @@ function getBoundHandler(element, eventName = 'click') {
 function getDocumentHandler(doc, eventName) {
   const entry = doc.addEventListener.mock.calls.find(([name]) => name === eventName);
   return entry?.[1];
+}
+
+function registerVisibleTitleSurface(doc, key, close = vi.fn()) {
+  return registerEscapeSurface(doc, key, {
+    close,
+    hotkeyKey: key,
+    isVisible: () => true,
+    priority: 400,
+    scopes: ['title'],
+  });
 }
 
 describe('registerTitleBindings', () => {
@@ -116,45 +127,44 @@ describe('registerTitleBindings', () => {
     expect(actions.selectClass).toHaveBeenCalledWith({ dataset: { class: 'mage' } });
   });
 
-  it('closes the codex detail popup before the title codex modal', () => {
-    const popup = {
-      classList: {
-        contains: vi.fn((name) => name === 'open'),
-        remove: vi.fn(),
-      },
-      style: { display: 'block' },
-    };
-    const elements = {
-      codexModal: { classList: { contains: vi.fn((name) => name === 'active') }, style: {} },
-      cxDetailPopup: popup,
-      runSettingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
-      settingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
-      charSelectSubScreen: { style: { display: 'none' } },
-    };
-    const doc = {
-      addEventListener: vi.fn(),
-      getElementById: vi.fn((id) => elements[id] || null),
-      querySelectorAll: vi.fn(() => []),
-    };
-    const actions = {
-      closeCodex: vi.fn(),
-      closeRunSettings: vi.fn(),
-      closeSettings: vi.fn(),
-      backToTitle: vi.fn(),
-    };
+  [
+    ['codex detail popup', 'codexDetail'],
+    ['class select relic detail', 'classSelectRelicDetail'],
+  ].forEach(([label, surfaceKey]) => {
+    it(`closes the ${label} before the title codex modal`, () => {
+      const closeSurface = vi.fn();
+      const elements = {
+        codexModal: { classList: { contains: vi.fn((name) => name === 'active') }, style: {} },
+        runSettingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+        settingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+        charSelectSubScreen: { style: { display: 'none' } },
+      };
+      const doc = {
+        addEventListener: vi.fn(),
+        getElementById: vi.fn((id) => elements[id] || null),
+        querySelectorAll: vi.fn(() => []),
+      };
+      registerVisibleTitleSurface(doc, surfaceKey, closeSurface);
+      const actions = {
+        closeCodex: vi.fn(),
+        closeRunSettings: vi.fn(),
+        closeSettings: vi.fn(),
+        backToTitle: vi.fn(),
+      };
 
-    registerTitleBindings({
-      actions,
-      audio: { playEvent: vi.fn(), playClick: vi.fn() },
-      doc,
-      getIsTitleScreen: () => true,
-      isVisibleModal: (element) => element?.classList?.contains?.('active') || false,
+      registerTitleBindings({
+        actions,
+        audio: { playEvent: vi.fn(), playClick: vi.fn() },
+        doc,
+        getIsTitleScreen: () => true,
+        isVisibleModal: (element) => element?.classList?.contains?.('active') || false,
+      });
+
+      const onKeyDown = getDocumentHandler(doc, 'keydown');
+      onKeyDown({ key: 'Escape', preventDefault: vi.fn(), stopPropagation: vi.fn(), stopImmediatePropagation: vi.fn() });
+
+      expect(closeSurface).toHaveBeenCalledTimes(1);
+      expect(actions.closeCodex).not.toHaveBeenCalled();
     });
-
-    const onKeyDown = getDocumentHandler(doc, 'keydown');
-    onKeyDown({ key: 'Escape', preventDefault: vi.fn(), stopPropagation: vi.fn(), stopImmediatePropagation: vi.fn() });
-
-    expect(popup.classList.remove).toHaveBeenCalledWith('open');
-    expect(actions.closeCodex).not.toHaveBeenCalled();
   });
 });

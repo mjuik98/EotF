@@ -21,43 +21,30 @@ import {
 
 export { closeCodexDetailPopup };
 
-export function openEnemyCodexPopup(state, enemy, list) {
-  const reopen = (entry, popupList) => openEnemyCodexPopup(state, entry, popupList);
+function openCodexPopupEntry(state, entry, list, reopen, buildPayload) {
   const deps = state.deps;
-  if (list !== undefined) setCodexPopupNavigation(state, enemy, list, reopen);
-  const payload = buildEnemyPopupPayload(enemy, {
-    gs: deps?.gs,
+  if (list !== undefined) setCodexPopupNavigation(state, entry, list, reopen);
+  const payload = buildPayload(entry, {
+    gs: deps.gs,
+    data: deps.data,
     safeHtml: highlightCodexDescription,
-    quoteHtml: buildCodexQuoteBlock(enemy.quote),
+    quoteHtml: buildCodexQuoteBlock(entry.quote),
     navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
   });
   mountPopup(state, getCodexDoc(deps), payload, reopen);
+}
+
+export function openEnemyCodexPopup(state, enemy, list) {
+  const reopen = (entry, popupList) => openEnemyCodexPopup(state, entry, popupList);
+  openCodexPopupEntry(state, enemy, list, reopen, buildEnemyPopupPayload);
 }
 
 export function openCardCodexPopup(state, card, list) {
   const reopen = (entry, popupList) => openCardCodexPopup(state, entry, popupList);
-  const deps = state.deps;
-  if (list !== undefined) setCodexPopupNavigation(state, card, list, reopen);
-  const payload = buildCardPopupPayload(card, {
-    gs: deps?.gs,
-    data: deps?.data,
-    safeHtml: highlightCodexDescription,
-    quoteHtml: buildCodexQuoteBlock(card.quote),
-    navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
-  });
-  mountPopup(state, getCodexDoc(deps), payload, reopen);
+  openCodexPopupEntry(state, card, list, reopen, buildCardPopupPayload);
 }
 
 export function openItemCodexPopup(state, item, list) {
   const reopen = (entry, popupList) => openItemCodexPopup(state, entry, popupList);
-  const deps = state.deps;
-  if (list !== undefined) setCodexPopupNavigation(state, item, list, reopen);
-  const payload = buildItemPopupPayload(item, {
-    gs: deps?.gs,
-    data: deps?.data,
-    safeHtml: highlightCodexDescription,
-    quoteHtml: buildCodexQuoteBlock(item.quote),
-    navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
-  });
-  mountPopup(state, getCodexDoc(deps), payload, reopen);
+  openCodexPopupEntry(state, item, list, reopen, buildItemPopupPayload);
 }

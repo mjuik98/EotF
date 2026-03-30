@@ -5,6 +5,7 @@ import {
   canToggleDeckView,
   getRunHotkeyState,
 } from '../game/features/ui/public.js';
+import { registerEscapeSurface } from '../game/shared/runtime/overlay_escape_support.js';
 
 function createModalElement({ active = true } = {}) {
   return {
@@ -40,6 +41,16 @@ function createDoc(elements = {}) {
       }),
     },
   };
+}
+
+function registerVisibleSurface(doc, key, hotkeyKey = key) {
+  return registerEscapeSurface(doc, key, {
+    close: vi.fn(),
+    hotkeyKey,
+    isVisible: () => true,
+    priority: 400,
+    scopes: ['run'],
+  });
 }
 
 describe('help_pause_ui_helpers run hotkey state', () => {
@@ -79,24 +90,30 @@ describe('help_pause_ui_helpers run hotkey state', () => {
     expect(canToggleDeckView(doc)).toBe(false);
   });
 
-  it('treats the codex detail popup as a higher-priority surface than the codex modal', () => {
-    const doc = createDoc({
-      cxDetailPopup: createOpenPopupElement(),
-      codexModal: createModalElement(),
-    });
+  [
+    ['codex detail popup', 'codexDetail'],
+    ['combat relic detail panel', 'combatRelicDetail'],
+    ['map relic detail panel', 'mapRelicDetail'],
+  ].forEach(([label, surfaceKey]) => {
+    it(`treats the ${label} as a higher-priority surface than the codex modal`, () => {
+      const doc = createDoc({
+        codexModal: createModalElement(),
+      });
+      registerVisibleSurface(doc, surfaceKey);
 
-    expect(getRunHotkeyState(doc, {
-      currentScreen: 'game',
-      combat: { active: false },
-    })).toEqual({
-      mode: 'modal',
-      activeSurface: 'codexDetail',
-      visibleSurfaces: ['codexDetail', 'codex'],
-      allowsCombatHotkeys: false,
-      allowsRunNavigationHotkeys: false,
+      expect(getRunHotkeyState(doc, {
+        currentScreen: 'game',
+        combat: { active: false },
+      })).toEqual({
+        mode: 'modal',
+        activeSurface: surfaceKey,
+        visibleSurfaces: [surfaceKey, 'codex'],
+        allowsCombatHotkeys: false,
+        allowsRunNavigationHotkeys: false,
+      });
+      expect(canOpenFullMap(doc)).toBe(false);
+      expect(canToggleDeckView(doc)).toBe(false);
     });
-    expect(canOpenFullMap(doc)).toBe(false);
-    expect(canToggleDeckView(doc)).toBe(false);
   });
 
   it('lets deck view toggle itself while still blocking other run shortcuts', () => {

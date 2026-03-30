@@ -1,6 +1,7 @@
 import {
   createUiSurfaceStateController,
 } from '../state/ui_surface_state_controller.js';
+import { registerEscapeSurface } from '../../runtime/overlay_escape_support.js';
 import {
   createItemDetailBadge,
   createItemDetailElement,
@@ -153,7 +154,6 @@ export function createManagedItemDetailSurface({
   detailPanelList,
   entriesRoot,
   entries,
-  registerEscape = null,
   escapeHotkeyKey = detailPanel?.id || 'detail',
   escapePriority = 300,
   escapeScopes = ['run'],
@@ -169,20 +169,19 @@ export function createManagedItemDetailSurface({
     variant,
     strategy,
   });
-  const registerSurface = (close = () => controller.clear()) => {
-    if (!detailPanel) return () => {};
-    detailPanel.__closeEscapeSurface = close;
-    if (typeof registerEscape !== 'function') return () => {};
-    return registerEscape({
-      close,
-      detailPanel,
-      doc,
+  let closeSurface = () => controller.clear();
+  const registerSurface = () => {
+    if (!detailPanel || !doc) return () => {};
+    return registerEscapeSurface(doc, detailPanel, {
+      close: () => closeSurface(),
       hotkeyKey: escapeHotkeyKey,
+      isVisible: () => detailPanel?.dataset?.open === 'true',
       priority: escapePriority,
       scopes: escapeScopes,
     });
   };
   let resetEscapeSurface = registerSurface();
+  controller.closeSurface = () => closeSurface();
   controller.bindDismiss = (context = {}) => {
     if (!strategy.shouldDismiss && !strategy.onDismiss) return () => {};
 
@@ -197,15 +196,16 @@ export function createManagedItemDetailSurface({
       ...payload,
     });
 
-    resetEscapeSurface();
-    resetEscapeSurface = registerSurface(() => {
+    closeSurface = () => {
       const payload = buildDismissContext({ event: null, reason: 'escape-surface' });
       if (strategy.onDismiss) {
         strategy.onDismiss(payload);
         return;
       }
       controller.clear(context);
-    });
+    };
+    resetEscapeSurface();
+    resetEscapeSurface = registerSurface();
 
     const cleanup = bindItemDetailDismissStrategy({
       doc,
@@ -220,6 +220,7 @@ export function createManagedItemDetailSurface({
     });
     return () => {
       cleanup();
+      closeSurface = () => controller.clear(context);
       resetEscapeSurface();
       resetEscapeSurface = registerSurface();
     };

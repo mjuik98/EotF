@@ -28,9 +28,7 @@ import {
   renderCodexTabContent,
 } from './codex_ui_runtime_dispatch.js';
 import {
-  INPUT_ACTION_CANCEL,
   keyboardEventMatchesCode,
-  isInputActionBoundTo,
 } from '../../../ui/ports/public_input_capabilities.js';
 
 export function openCodexRuntime(state, ui, deps = {}) {
@@ -41,9 +39,8 @@ export function openCodexRuntime(state, ui, deps = {}) {
   ensureCodexModalShell(doc);
   bindCodexGlobalKeys(state, deps);
   showCodexModal(doc);
-
   injectCodexModalStructure(doc, createCodexModalCallbacks(state, ui));
-
+  doc?.getElementById?.('cxSearch')?.focus?.();
   renderCodexRuntimeProgress(state, ui, doc, deps.gs, deps.data);
   setCodexTabState(doc, state.tab);
   renderCodexRuntimeFilterBar(state, ui, doc, deps.data);
@@ -86,7 +83,6 @@ export function bindCodexGlobalKeys(state, deps = {}) {
   const onKeyDown = (event) => {
     const popup = doc.getElementById('cxDetailPopup');
     if (!popup?.classList.contains('open')) return;
-    if (isInputActionBoundTo(event, INPUT_ACTION_CANCEL)) closeCodexDetailPopup(state, doc);
     if (keyboardEventMatchesCode(event, 'ArrowRight')) navigateCodexPopup(state, 1);
     if (keyboardEventMatchesCode(event, 'ArrowLeft')) navigateCodexPopup(state, -1);
   };

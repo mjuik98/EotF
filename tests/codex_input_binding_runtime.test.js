@@ -31,7 +31,7 @@ describe('codex_input_binding_runtime', () => {
     listeners.keydown({ key: 'Escape', code: 'Escape' });
     listeners.keydown({ key: 'ArrowRight', code: 'ArrowRight' });
 
-    expect(closeSpy).toHaveBeenCalledWith(state, doc);
+    expect(closeSpy).not.toHaveBeenCalled();
     expect(navigateSpy).toHaveBeenCalledWith(state, 1);
 
     closeSpy.mockRestore();

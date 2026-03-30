@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { registerEscapeSurface } from '../game/shared/runtime/overlay_escape_support.js';
 
 const {
   loadSpy,
@@ -89,6 +90,16 @@ function createAudioEngine() {
     setSfxVolume: vi.fn(),
     setAmbientVolume: vi.fn(),
   };
+}
+
+function registerVisibleRunSurface(doc, key, close = vi.fn()) {
+  return registerEscapeSurface(doc, key, {
+    close,
+    hotkeyKey: key,
+    isVisible: () => true,
+    priority: 400,
+    scopes: ['run'],
+  });
 }
 
 describe('RootBindings', () => {
@@ -363,125 +374,69 @@ describe('RootBindings', () => {
     expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
   });
 
-  it('closes the codex detail popup before closing the codex modal', () => {
-    const closeCodex = vi.fn();
-    const codexModal = {
-      id: 'codexModal',
-      style: { display: 'flex' },
-      classList: createClassList(['active']),
-    };
-    const detailPopup = {
-      id: 'cxDetailPopup',
-      style: { display: 'flex' },
-      classList: createClassList(['open']),
-    };
-    const doc = createDoc(
-      { codexModal, cxDetailPopup: detailPopup },
-      {
-        codexModal: {
-          display: 'flex',
-          visibility: 'visible',
-          opacity: '1',
-          pointerEvents: 'auto',
+  [
+    ['codex detail popup', 'codexDetail'],
+    ['combat relic detail surface', 'combatRelicDetail'],
+  ].forEach(([label, surfaceKey]) => {
+    it(`closes the ${label} before opening pause or closing the codex modal`, () => {
+      const closeCodex = vi.fn();
+      const closeSurface = vi.fn();
+      const codexModal = {
+        id: 'codexModal',
+        style: { display: 'flex' },
+        classList: createClassList(['active']),
+      };
+      const doc = createDoc(
+        { codexModal },
+        {
+          codexModal: {
+            display: 'flex',
+            visibility: 'visible',
+            opacity: '1',
+            pointerEvents: 'auto',
+          },
         },
-      },
-    );
-    const helpPauseUI = {
-      showMobileWarning: vi.fn(),
-      handleGlobalHotkey: vi.fn(),
-      togglePause: vi.fn(),
-      toggleHelp: vi.fn(),
-      isHelpOpen: vi.fn(() => false),
-    };
-    const deps = {
-      doc,
-      audioEngine: createAudioEngine(),
-      settingsUI: { applyOnBoot: vi.fn() },
-      helpPauseUI,
-      gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
-      actions: {},
-      gs: { currentScreen: 'game' },
-      getGameBootDeps: vi.fn(() => ({})),
-      getHelpPauseDeps: vi.fn(() => ({ closeCodex })),
-      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
-    };
+      );
+      registerVisibleRunSurface(doc, surfaceKey, closeSurface);
+      const helpPauseUI = {
+        showMobileWarning: vi.fn(),
+        handleGlobalHotkey: vi.fn(),
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        isHelpOpen: vi.fn(() => false),
+      };
+      const deps = {
+        doc,
+        audioEngine: createAudioEngine(),
+        settingsUI: { applyOnBoot: vi.fn() },
+        helpPauseUI,
+        gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
+        actions: {},
+        gs: { currentScreen: 'game' },
+        getGameBootDeps: vi.fn(() => ({})),
+        getHelpPauseDeps: vi.fn(() => ({ closeCodex })),
+        getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
+      };
 
-    RootBindings.boot(deps);
+      RootBindings.boot(deps);
 
-    const event = {
-      key: 'Escape',
-      code: 'Escape',
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      stopImmediatePropagation: vi.fn(),
-    };
+      const event = {
+        key: 'Escape',
+        code: 'Escape',
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        stopImmediatePropagation: vi.fn(),
+      };
 
-    doc.defaultView.dispatchEvent('keydown', event);
+      doc.defaultView.dispatchEvent('keydown', event);
 
-    expect(detailPopup.classList.contains('open')).toBe(false);
-    expect(closeCodex).not.toHaveBeenCalled();
-    expect(event.preventDefault).toHaveBeenCalledTimes(1);
-    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-    expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
-    expect(helpPauseUI.handleGlobalHotkey).not.toHaveBeenCalled();
-  });
-
-  it('closes a registered detail surface before opening pause', () => {
-    const combatRelicPanel = {
-      id: 'combatRelicPanel',
-      dataset: { open: 'true' },
-      style: { display: 'block' },
-      classList: createClassList(),
-      __closeEscapeSurface: vi.fn(function closeSurface() {
-        this.dataset.open = 'false';
-      }),
-    };
-    const doc = createDoc(
-      { combatRelicPanel },
-      {
-        combatRelicPanel: {
-          display: 'block',
-          visibility: 'visible',
-          opacity: '1',
-          pointerEvents: 'auto',
-        },
-      },
-    );
-    const helpPauseUI = {
-      showMobileWarning: vi.fn(),
-      handleGlobalHotkey: vi.fn(),
-      togglePause: vi.fn(),
-      toggleHelp: vi.fn(),
-      isHelpOpen: vi.fn(() => false),
-    };
-    const deps = {
-      doc,
-      audioEngine: createAudioEngine(),
-      settingsUI: { applyOnBoot: vi.fn() },
-      helpPauseUI,
-      gameBootUI: { bootGame: vi.fn(), refreshTitleSaveState: vi.fn() },
-      actions: {},
-      gs: { currentScreen: 'game' },
-      getGameBootDeps: vi.fn(() => ({})),
-      getHelpPauseDeps: vi.fn(() => ({})),
-      getRunDeps: vi.fn(() => ({ gs: { currentScreen: 'game' } })),
-    };
-
-    RootBindings.boot(deps);
-
-    const event = {
-      key: 'Escape',
-      code: 'Escape',
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      stopImmediatePropagation: vi.fn(),
-    };
-
-    doc.defaultView.dispatchEvent('keydown', event);
-
-    expect(combatRelicPanel.__closeEscapeSurface).toHaveBeenCalledTimes(1);
-    expect(combatRelicPanel.dataset.open).toBe('false');
-    expect(helpPauseUI.togglePause).not.toHaveBeenCalled();
-    expect(helpPauseUI.handleGlobalHotkey).not.toHaveBeenCalled();
+      expect(closeSurface).toHaveBeenCalledTimes(1);
+      expect(closeCodex).not.toHaveBeenCalled();
+      expect(helpPauseUI.togglePause).not.toHaveBeenCalled();
+      expect(helpPauseUI.handleGlobalHotkey).not.toHaveBeenCalled();
+      expect(event.preventDefault).toHaveBeenCalledTimes(1);
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+      expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
+    });
   });
 });

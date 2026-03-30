@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { closeTopEscapeSurface } from '../game/shared/runtime/overlay_escape_support.js';
 
 vi.mock('../game/features/codex/presentation/browser/codex_ui_popup.js', () => ({
   closeCodexPopup: vi.fn(),
@@ -17,6 +18,11 @@ function makeNode() {
   const listeners = {};
   return {
     innerHTML: '',
+    classList: {
+      contains: vi.fn(() => false),
+      add: vi.fn(),
+      remove: vi.fn(),
+    },
     addEventListener: vi.fn((name, handler) => {
       listeners[name] = handler;
     }),
@@ -38,7 +44,9 @@ describe('codex_ui_popup_runtime_helpers', () => {
 
   it('closes popup state and clears navigation', () => {
     const state = {};
-    const doc = {};
+    const doc = {
+      getElementById: vi.fn(() => null),
+    };
 
     helpers.closeCodexDetailPopup(state, doc);
 
@@ -51,12 +59,15 @@ describe('codex_ui_popup_runtime_helpers', () => {
     const close = makeNode();
     const prev = makeNode();
     const next = makeNode();
+    const popupOverlay = makeNode();
+    popupOverlay.classList.contains = vi.fn((name) => name === 'open');
     const doc = {
       getElementById: vi.fn((id) => ({
         cxPopupBox: box,
         cxPopupClose: close,
         cxNavPrev: prev,
         cxNavNext: next,
+        cxDetailPopup: popupOverlay,
       }[id] || null)),
     };
     const state = {};
@@ -79,5 +90,37 @@ describe('codex_ui_popup_runtime_helpers', () => {
     expect(popup.closeCodexPopup).toHaveBeenCalledWith(doc);
     expect(controller.navigateCodexPopup).toHaveBeenCalledWith(state, -1);
     expect(controller.navigateCodexPopup).toHaveBeenCalledWith(state, 1);
+  });
+
+  it('registers the codex detail popup as an explicit escape surface', () => {
+    const box = makeNode();
+    const close = makeNode();
+    const popupOverlay = makeNode();
+    popupOverlay.classList.contains = vi.fn((name) => name === 'open');
+    const doc = {
+      getElementById: vi.fn((id) => ({
+        cxPopupBox: box,
+        cxPopupClose: close,
+        cxDetailPopup: popupOverlay,
+      }[id] || null)),
+    };
+    const state = {};
+
+    helpers.mountPopup(state, doc, {
+      theme: { bg1: '#1', bg2: '#2', border: '#3', glow: '#4' },
+      html: '<content />',
+    }, vi.fn());
+
+    const handled = closeTopEscapeSurface({ key: 'Escape' }, {
+      deps: {},
+      doc,
+      scope: 'run',
+      swallowEscape: vi.fn(),
+      ui: {},
+    });
+
+    expect(handled).toBe(true);
+    expect(popup.closeCodexPopup).toHaveBeenCalledWith(doc);
+    expect(controller.clearCodexPopupNavigation).toHaveBeenCalledWith(state);
   });
 });

@@ -9,6 +9,7 @@ import {
   navigateCodexPopup,
   setCodexPopupNavigation,
 } from './codex_ui_controller.js';
+import { registerEscapeSurface } from '../../../../shared/runtime/overlay_escape_support.js';
 
 export function closeCodexDetailPopup(state, doc) {
   closeCodexPopup(doc);
@@ -16,26 +17,30 @@ export function closeCodexDetailPopup(state, doc) {
 }
 
 function ensurePopupShell(state, doc) {
-  return ensureCodexPopupOverlay(doc, () => closeCodexDetailPopup(state, doc));
-}
-
-function setPopupTheme(doc, theme) {
-  setCodexPopupTheme(doc, theme.bg1, theme.bg2, theme.border, theme.glow);
-}
-
-function bindPopupNavigation(state, doc, reopen) {
-  setCodexPopupNavigation(state, null, null, reopen);
-  doc.getElementById('cxNavPrev')?.addEventListener('click', () => navigateCodexPopup(state, -1));
-  doc.getElementById('cxNavNext')?.addEventListener('click', () => navigateCodexPopup(state, 1));
+  const closePopup = () => closeCodexDetailPopup(state, doc);
+  if (state._popupEscapeDoc !== doc) {
+    state._popupEscapeCleanup?.();
+    state._popupEscapeDoc = doc;
+    state._popupEscapeCleanup = registerEscapeSurface(doc, 'codexDetail', {
+      close: closePopup,
+      isVisible: ({ doc: popupDoc }) => popupDoc?.getElementById?.('cxDetailPopup')?.classList?.contains?.('open'),
+      priority: 400,
+      scopes: ['run', 'title'],
+    });
+  }
+  return ensureCodexPopupOverlay(doc, closePopup);
 }
 
 export function mountPopup(state, doc, payload, reopen) {
   ensurePopupShell(state, doc);
-  setPopupTheme(doc, payload.theme);
+  const closePopup = () => closeCodexDetailPopup(state, doc);
+  setCodexPopupTheme(doc, payload.theme.bg1, payload.theme.bg2, payload.theme.border, payload.theme.glow);
   const box = doc.getElementById('cxPopupBox');
   if (!box) return;
   box.innerHTML = payload.html;
-  doc.getElementById('cxPopupClose')?.addEventListener('click', () => closeCodexDetailPopup(state, doc));
-  bindPopupNavigation(state, doc, reopen);
+  doc.getElementById('cxPopupClose')?.addEventListener('click', closePopup);
+  setCodexPopupNavigation(state, null, null, reopen);
+  doc.getElementById('cxNavPrev')?.addEventListener('click', () => navigateCodexPopup(state, -1));
+  doc.getElementById('cxNavNext')?.addEventListener('click', () => navigateCodexPopup(state, 1));
   openCodexPopup(doc);
 }

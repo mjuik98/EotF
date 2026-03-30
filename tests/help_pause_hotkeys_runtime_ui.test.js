@@ -4,6 +4,7 @@ import {
   cycleNextTarget,
   handleEscapeHotkey,
 } from '../game/features/ui/public.js';
+import { registerEscapeSurface } from '../game/shared/runtime/overlay_escape_support.js';
 
 function createModalElement({ active = true } = {}) {
   return {
@@ -38,6 +39,19 @@ function createDoc(elements = {}) {
         pointerEvents: el?.classList?.contains?.('active') ? 'auto' : 'none',
       }),
     },
+  };
+}
+
+function registerVisibleSurface(doc, key, hotkeyKey = key, close = vi.fn()) {
+  return {
+    close,
+    cleanup: registerEscapeSurface(doc, key, {
+      close,
+      hotkeyKey,
+      isVisible: () => true,
+      priority: 400,
+      scopes: ['run'],
+    }),
   };
 }
 
@@ -88,33 +102,38 @@ describe('help_pause_hotkeys_runtime_ui', () => {
     expect(ui.togglePause).toHaveBeenCalledTimes(1);
   });
 
-  it('closes the codex detail popup before the codex modal', () => {
-    const swallowEscape = vi.fn();
-    const closeCodex = vi.fn();
-    const popup = createCodexPopupElement();
-    const doc = createDoc({
-      cxDetailPopup: popup,
-      codexModal: createModalElement(),
-    });
+  [
+    ['codex detail popup', 'codexDetail'],
+    ['combat relic detail panel', 'combatRelicDetail'],
+  ].forEach(([label, surfaceKey]) => {
+    it(`closes the ${label} before the codex modal`, () => {
+      const swallowEscape = vi.fn();
+      const closeCodex = vi.fn();
+      const closeSurface = vi.fn();
+      const doc = createDoc({
+        codexModal: createModalElement(),
+      });
+      registerVisibleSurface(doc, surfaceKey, surfaceKey, closeSurface);
 
-    const result = handleEscapeHotkey({ key: 'Escape' }, {
-      deps: {
-        closeCodex,
+      const result = handleEscapeHotkey({ key: 'Escape' }, {
+        deps: {
+          closeCodex,
+          gs: { currentScreen: 'game', combat: { active: false } },
+        },
+        doc,
         gs: { currentScreen: 'game', combat: { active: false } },
-      },
-      doc,
-      gs: { currentScreen: 'game', combat: { active: false } },
-      ui: {
-        togglePause: vi.fn(),
-        toggleHelp: vi.fn(),
-        isHelpOpen: vi.fn(() => false),
-      },
-      swallowEscape,
-    });
+        ui: {
+          togglePause: vi.fn(),
+          toggleHelp: vi.fn(),
+          isHelpOpen: vi.fn(() => false),
+        },
+        swallowEscape,
+      });
 
-    expect(result).toBe(true);
-    expect(popup.classList.remove).toHaveBeenCalledWith('open');
-    expect(closeCodex).not.toHaveBeenCalled();
-    expect(swallowEscape).toHaveBeenCalledTimes(1);
+      expect(result).toBe(true);
+      expect(closeSurface).toHaveBeenCalledTimes(1);
+      expect(closeCodex).not.toHaveBeenCalled();
+      expect(swallowEscape).toHaveBeenCalledTimes(1);
+    });
   });
 });

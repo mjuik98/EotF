@@ -39,7 +39,7 @@ describe('architecture refactor guardrails', () => {
     expect(source).not.toContain("from '../../../systems/set_bonus_system.js'");
     expect(source).not.toContain("from '../../../features/combat/domain/difficulty_scaler.js'");
     expect(source).toContain("from '../../../features/combat/ports/public_system_capabilities.js'");
-    expect(source).toContain("from '../../../shared/progression/set_bonus_system.js'");
+    expect(source).toContain("from '../../../shared/progression/public.js'");
   });
 
   it('routes core runtime bindings through feature ports/runtime surfaces', () => {

@@ -321,7 +321,7 @@ describe('item_detail_surface_ui', () => {
     expect(detailPanel.dataset.open).toBe('false');
   });
 
-  it('exposes a reusable escape close hook while the managed surface is open', () => {
+  it('exposes a reusable surface close API while the managed surface is open', () => {
     const doc = createDoc();
     const detailPanel = doc.createElement('div');
     const detailList = doc.createElement('div');
@@ -350,8 +350,8 @@ describe('item_detail_surface_ui', () => {
       itemId: 'escape_hook',
     });
 
-    expect(typeof detailPanel.__closeEscapeSurface).toBe('function');
-    detailPanel.__closeEscapeSurface();
+    expect(typeof surface.closeSurface).toBe('function');
+    surface.closeSurface();
     expect(detailPanel.dataset.open).toBe('false');
   });
 });

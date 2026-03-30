@@ -46,7 +46,7 @@ async function enterCombatFromRun(page) {
 
 async function openPauseSubpanel(page, buttonName, surfaceSelector) {
   await ensurePauseMenuVisible(page, 10000, { preferEscape: true });
-  await page.getByRole('button', { name: buttonName }).click();
+  await page.locator('#pauseMenu').getByRole('button', { name: buttonName, exact: true }).click();
   const opened = await page.waitForSelector(surfaceSelector, { state: 'visible', timeout: 1500 })
     .then(() => true)
     .catch(() => false);
@@ -63,15 +63,15 @@ async function openPauseSubpanel(page, buttonName, surfaceSelector) {
       gs: runtimeDeps.gs || win.GS || null,
       doc,
       win,
+      openCodex: runtimeDeps.openCodex || win.openCodex,
+      openSettings: runtimeDeps.openSettings || win.openSettings,
     };
 
     if (selector === '#codexModal') {
-      win.openCodex?.();
       deps.openCodex?.();
       return;
     }
     if (selector === '#settingsModal') {
-      win.openSettings?.();
       deps.openSettings?.();
       return;
     }
@@ -242,6 +242,66 @@ async function assertEscapePriority(page, surfaceSelector) {
   };
 }
 
+async function openVisibleCodexDetailPopup(page) {
+  const opened = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll('#codexModal .cx-card:not(.is-unknown)'));
+    const target = cards.find((entry) => {
+      const style = getComputedStyle(entry);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    });
+    target?.click?.();
+    return Boolean(target);
+  });
+  if (!opened) throw new Error('codex detail smoke setup could not find a visible discovered codex card');
+  await page.waitForSelector('#cxDetailPopup.open', { state: 'visible', timeout: 10000 });
+}
+
+async function assertNestedCodexEscapePriority(page) {
+  const readNestedState = () => page.evaluate(() => {
+    const isVisible = (selector) => {
+      const element = document.querySelector(selector);
+      if (!element) return false;
+      const style = getComputedStyle(element);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      return Number.parseFloat(style.opacity || '1') > 0 || style.pointerEvents !== 'none';
+    };
+
+    return {
+      detailOpen: isVisible('#cxDetailPopup'),
+      codexOpen: isVisible('#codexModal'),
+      pauseOpen: isVisible('#pauseMenu'),
+    };
+  });
+
+  await openVisibleCodexDetailPopup(page);
+  const beforeEscape = await readNestedState();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.getElementById('cxDetailPopup')?.classList?.contains?.('open'), null, { timeout: 10000 });
+  const afterFirstEscape = await readNestedState();
+
+  await page.keyboard.press('Escape');
+  await page.waitForFunction((pauseWasOpen) => {
+    const isVisible = (selector) => {
+      const element = document.querySelector(selector);
+      if (!element) return false;
+      const style = getComputedStyle(element);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      return Number.parseFloat(style.opacity || '1') > 0 || style.pointerEvents !== 'none';
+    };
+
+    return !isVisible('#codexModal') && isVisible('#pauseMenu') === pauseWasOpen;
+  }, beforeEscape.pauseOpen, { timeout: 10000 });
+  const afterSecondEscape = await readNestedState();
+
+  return {
+    firstEscapeClosedDetailOnly: !afterFirstEscape.detailOpen
+      && afterFirstEscape.codexOpen
+      && afterFirstEscape.pauseOpen === beforeEscape.pauseOpen,
+    secondEscapeClosedCodexOnly: !afterSecondEscape.codexOpen
+      && afterSecondEscape.pauseOpen === beforeEscape.pauseOpen,
+  };
+}
+
 await fs.mkdir(outDir, { recursive: true });
 await fs.writeFile(path.join(outDir, 'trace.log'), '');
 const { appUrl, server } = await resolveSmokeAppUrl({
@@ -313,6 +373,14 @@ try {
   await appendTrace('opened combat codex');
   const combatCodexResult = await assertBlockedCombatHotkeys(page, '#codexModal');
   await appendTrace('asserted combat codex');
+  await closeActiveSurface(page, '#codexModal');
+  await appendTrace('closed combat codex after blocked hotkeys');
+  await openPauseSubpanel(page, '도감', '#codexModal');
+  await appendTrace('reopened combat codex for nested escape');
+  const combatNestedCodexEscapeResult = await assertNestedCodexEscapePriority(page);
+  await appendTrace('asserted nested codex escape priority');
+  await openPauseSubpanel(page, '도감', '#codexModal');
+  await appendTrace('reopened combat codex');
   const combatEscapeResult = await assertEscapePriority(page, '#codexModal');
   await appendTrace('asserted escape priority');
 
@@ -329,6 +397,8 @@ try {
     combatCodexBlocksHotkeys: combatCodexResult.surfaceStillOpen
       && combatCodexResult.combatOverlayActive
       && combatCodexResult.stateUnchanged,
+    nestedCodexEscapeOrder: combatNestedCodexEscapeResult.firstEscapeClosedDetailOnly
+      && combatNestedCodexEscapeResult.secondEscapeClosedCodexOnly,
     escapeClosesSurfaceBeforePause: combatEscapeResult.firstEscapeClosedSurface
       && combatEscapeResult.firstEscapeKeptPauseClosed
       && combatEscapeResult.combatOverlayStayedActive
@@ -338,6 +408,13 @@ try {
   await fs.writeFile(path.join(outDir, 'result.json'), JSON.stringify(result, null, 2));
   await appendTrace('wrote result');
   console.log(JSON.stringify(result, null, 2));
+  const failedChecks = Object.entries(result)
+    .filter(([key]) => !['pauseActionCount', 'helpEntryCount', 'errors'].includes(key))
+    .filter(([, value]) => value !== true)
+    .map(([key]) => key);
+  if (failedChecks.length > 0 || errors.length > 0) {
+    throw new Error(`help-pause hotkey smoke failed: ${JSON.stringify({ failedChecks, errors })}`);
+  }
   process.exit(0);
 } catch (error) {
   await appendTrace(`failure: ${error?.stack || error?.message || error}`);

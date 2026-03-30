@@ -28,7 +28,7 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("from './help_pause_smoke_helpers.mjs'");
     expect(source).toContain('ensurePauseMenuVisible(page)');
     expect(source).toContain("closeSurfaceWithEscapeFallback(page, surfaceSelector, 10000, { preferEscape: true })");
-    expect(source).toContain("page.getByRole('button', { name: buttonName })");
+    expect(source).toContain("page.locator('#pauseMenu').getByRole('button', { name: buttonName, exact: true })");
     expect(source).toContain("openPauseSubpanel(page, '도감', '#codexModal')");
     expect(source).toContain("openPauseSubpanel(page, '환경 설정', '#settingsModal')");
     expect(source).toContain("openPauseSubpanel(page, '컨트롤 안내 (?)', '#helpMenu')");
@@ -49,8 +49,15 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("document.getElementById('deckViewModal')");
     expect(source).toContain("document.getElementById('fullMapOverlay')");
     expect(source).toContain("document.querySelector('#combatOverlay.active')");
+    expect(source).toContain('openVisibleCodexDetailPopup');
+    expect(source).toContain('assertNestedCodexEscapePriority');
+    expect(source).toContain("page.waitForFunction((pauseWasOpen) => {");
+    expect(source).toContain("return !isVisible('#codexModal') && isVisible('#pauseMenu') === pauseWasOpen;");
     expect(source).toContain('combatCodexBlocksHotkeys');
+    expect(source).toContain('nestedCodexEscapeOrder');
     expect(source).toContain('escapeClosesSurfaceBeforePause');
+    expect(source).toContain('failedChecks');
+    expect(source).toContain('help-pause hotkey smoke failed');
     expect(source).toContain('codexBlocksShortcuts');
     expect(source).toContain('settingsBlocksShortcuts');
     expect(source).toContain('helpBlocksShortcuts');
