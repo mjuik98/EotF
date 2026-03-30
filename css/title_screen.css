@@ -980,7 +980,8 @@
 
 .title-menu-section--exit {
   margin-bottom: 8px;
-  padding: 14px 14px 12px;
+  gap: 0;
+  padding: 10px;
   border-radius: 22px;
   border: 1px solid rgba(255, 98, 118, 0.12);
   background:
@@ -991,7 +992,6 @@
 }
 
 .title-menu-section--exit .title-menu-btn {
-  margin-top: 2px;
   border-top: 1px solid rgba(255, 98, 118, 0.16);
   border-bottom: 1px solid rgba(255, 98, 118, 0.16);
   border-radius: 18px;

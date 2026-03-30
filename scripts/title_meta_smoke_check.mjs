@@ -76,9 +76,9 @@ try {
         saveActionsExpanded: document.getElementById('titleSaveActionPanel')?.hidden === false,
         runAccessLabel: document.querySelector('.title-menu-section--run .title-menu-kicker')?.textContent || '',
         runAccessSummary: document.querySelector('.title-menu-section--run .title-menu-summary')?.textContent || '',
-        sessionExitLabel: document.querySelector('.title-menu-section--exit .title-menu-kicker')?.textContent || '',
-        sessionExitSummary: document.querySelector('.title-menu-section--exit .title-menu-summary')?.textContent || '',
-        sessionExitMeta: document.querySelector('#mainQuitBtn .title-menu-meta')?.textContent || '',
+        quitActionLabel: document.querySelector('#mainQuitBtn .title-menu-text')?.textContent || '',
+        quitActionMeta: document.querySelector('#mainQuitBtn .title-menu-meta')?.textContent || '',
+        exitSectionHasHeader: !!document.querySelector('.title-menu-section--exit .title-menu-section-head'),
       }));
       await page.screenshot({ path: path.join(outDir, 'title-meta.png'), fullPage: true });
 
@@ -126,10 +126,13 @@ try {
       if (titleState.runAccessLabel !== '저장된 런') {
         throw new Error(`title meta smoke expected the run access section label to be "저장된 런", got "${titleState.runAccessLabel}"`);
       }
-      if (titleState.sessionExitLabel !== '세션 이탈') {
-        throw new Error(`title meta smoke expected the session exit section label to be "세션 이탈", got "${titleState.sessionExitLabel}"`);
+      if (titleState.exitSectionHasHeader) {
+        throw new Error('title meta smoke expected the exit card to collapse into a single quit action without a section heading');
       }
-      if (!titleState.sessionExitMeta.includes('브라우저 창 닫기')) {
+      if (titleState.quitActionLabel !== '게임 종료') {
+        throw new Error(`title meta smoke expected the quit action label to be "게임 종료", got "${titleState.quitActionLabel}"`);
+      }
+      if (!titleState.quitActionMeta.includes('브라우저 창 닫기')) {
         throw new Error('title meta smoke expected the session exit action to describe the browser close behavior');
       }
       if (!expandedArchiveText.includes('전술 분석')) {

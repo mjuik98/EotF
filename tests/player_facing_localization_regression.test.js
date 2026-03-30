@@ -41,7 +41,8 @@ describe('player_facing_localization_regression', () => {
     expect(html).toContain('재개와 슬롯 관리를 정리합니다');
     expect(html).toContain('게임 종료');
     expect(html).toContain('브라우저 창 닫기');
-    expect(html).toContain('세션 이탈');
+    expect(html).not.toContain('세션 이탈');
+    expect(html).not.toContain('게임을 마치고 브라우저를 벗어납니다');
     expect(shellMarkup).toContain('당신의 잔향을 선택하라');
   });
 
