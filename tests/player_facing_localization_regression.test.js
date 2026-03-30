@@ -36,6 +36,12 @@ describe('player_facing_localization_regression', () => {
     expect(html).toContain('잔향의 공명');
     expect(html).toContain('메인 메뉴');
     expect(html).toContain('체력');
+    expect(html).toContain('이어하기');
+    expect(html).toContain('저장된 런');
+    expect(html).toContain('재개와 슬롯 관리를 정리합니다');
+    expect(html).toContain('게임 종료');
+    expect(html).toContain('브라우저 창 닫기');
+    expect(html).toContain('세션 이탈');
     expect(shellMarkup).toContain('당신의 잔향을 선택하라');
   });
 

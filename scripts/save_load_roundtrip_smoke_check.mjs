@@ -33,6 +33,32 @@ async function enterRunFlow(page) {
   await page.waitForTimeout(250);
 }
 
+async function captureOverlayFrameState(page, surfaceSelector, {
+  titleSelector = '.gm-modal-title',
+  bodySelector = '.hp-body-copy',
+} = {}) {
+  return page.evaluate(({ selector, titleSel, bodySel }) => {
+    const overlay = document.querySelector(selector);
+    const panel = overlay?.querySelector('.gm-modal-panel') || null;
+    const buttons = Array.from(overlay?.querySelectorAll('button') || []);
+    return {
+      titleText: overlay?.querySelector(titleSel)?.textContent?.trim() || null,
+      bodyText: overlay?.querySelector(bodySel)?.textContent?.trim() || null,
+      buttonLabels: buttons.map((button) => button.textContent?.trim() || '').filter(Boolean),
+      usesSharedFrame: Boolean(
+        overlay
+        && overlay.classList.contains('hp-overlay')
+        && panel
+        && panel.classList.contains('gm-modal-panel')
+      ),
+    };
+  }, {
+    selector: surfaceSelector,
+    titleSel: titleSelector,
+    bodySel: bodySelector,
+  });
+}
+
 async function waitForContinueReady(page, timeout = 10000) {
   const isReady = async () => page.waitForFunction(() => {
     const continueWrap = document.getElementById('titleContinueWrap');
@@ -92,9 +118,11 @@ try {
       }));
 
       await ensurePauseMenuVisible(page);
-      await page.getByRole('button', { name: '처음으로' }).click();
+      await page.getByRole('button', { name: '타이틀로 돌아가기' }).click();
       await page.waitForSelector('#returnTitleConfirm', { state: 'visible', timeout: 10000 });
-      await page.locator('#returnTitleConfirm button', { hasText: '처음으로' }).click();
+      const returnTitleFrame = await captureOverlayFrameState(page, '#returnTitleConfirm');
+      await page.screenshot({ path: path.join(outDir, 'return-title-confirm.png') });
+      await page.locator('#returnTitleConfirm button', { hasText: '타이틀로 이동' }).click();
       await waitForContinueReady(page);
 
       const afterSave = await page.evaluate(() => ({
@@ -103,6 +131,8 @@ try {
         continueVisible: document.getElementById('titleContinueWrap')?.style?.display === 'block',
         continueDisabled: document.getElementById('mainContinueBtn')?.disabled ?? null,
       }));
+      afterSave.returnTitleFrame = returnTitleFrame;
+      afterSave.returnTitleUsesSharedFrame = returnTitleFrame.usesSharedFrame;
       await page.screenshot({ path: path.join(outDir, 'title.png') });
 
       await page.click('#mainContinueBtn');
@@ -128,6 +158,9 @@ try {
       }
       if (!afterSave.continueVisible || afterSave.continueDisabled) {
         throw new Error('save-load smoke expected continue entry to be visible and enabled on the title screen');
+      }
+      if (!afterSave.returnTitleUsesSharedFrame) {
+        throw new Error('save-load smoke expected the return-title confirm to use the shared help-pause frame');
       }
       if (afterLoad.currentScreen !== 'game') {
         throw new Error(`save-load smoke expected continue to restore gameplay, got "${afterLoad.currentScreen}"`);

@@ -6,6 +6,7 @@ import {
 } from './help_pause_ui_runtime.js';
 import {
   toggleAbandonConfirmRuntime,
+  toggleQuitGameConfirmRuntime,
   toggleReturnTitleConfirmRuntime,
 } from './help_pause_ui_dialog_runtime.js';
 import {
@@ -83,6 +84,14 @@ export const HelpPauseUI = {
   confirmReturnToTitle(deps = {}) {
     const resolvedDeps = resolveLiveDeps(deps);
     toggleReturnTitleConfirmRuntime({
+      ...resolvedDeps,
+      win: resolvedDeps?.win || getDoc(resolvedDeps)?.defaultView || null,
+    });
+  },
+
+  confirmQuitGame(deps = {}) {
+    const resolvedDeps = resolveLiveDeps(deps);
+    toggleQuitGameConfirmRuntime({
       ...resolvedDeps,
       win: resolvedDeps?.win || getDoc(resolvedDeps)?.defaultView || null,
     });

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { createTitleSystemActions } from '../game/features/title/platform/browser/create_title_system_actions.js';
 import { registerTitleBindings } from '../game/features/title/ui/title_bindings.js';
 import { registerEscapeSurface } from '../game/shared/runtime/overlay_escape_support.js';
 
@@ -31,6 +32,34 @@ function registerVisibleTitleSurface(doc, key, close = vi.fn()) {
 }
 
 describe('registerTitleBindings', () => {
+  it('routes title quit requests through the shared help-pause quit confirmation when available', async () => {
+    const confirmQuitGame = vi.fn();
+    const playClick = vi.fn();
+    const win = { close: vi.fn() };
+
+    const actions = createTitleSystemActions({
+      modules: {
+        HelpPauseUI: {
+          confirmQuitGame,
+        },
+      },
+      playClick,
+      ports: {
+        getHelpPauseDeps: () => ({ doc: { marker: 'doc' } }),
+        getMetaProgressionDeps: () => ({}),
+      },
+      win,
+    });
+
+    await actions.quitGame();
+
+    expect(playClick).toHaveBeenCalledTimes(1);
+    expect(confirmQuitGame).toHaveBeenCalledWith(expect.objectContaining({
+      doc: { marker: 'doc' },
+      win,
+    }));
+  });
+
   it('routes title controls through injected actions', () => {
     const elements = {
       mainContinueBtn: createElement(),

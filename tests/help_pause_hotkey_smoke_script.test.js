@@ -31,7 +31,9 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("page.locator('#pauseMenu').getByRole('button', { name: buttonName, exact: true })");
     expect(source).toContain("openPauseSubpanel(page, '도감', '#codexModal')");
     expect(source).toContain("openPauseSubpanel(page, '환경 설정', '#settingsModal')");
-    expect(source).toContain("openPauseSubpanel(page, '컨트롤 안내 (?)', '#helpMenu')");
+    expect(source).toContain("openPauseSubpanel(page, '조작 안내', '#helpMenu')");
+    expect(source).toContain("openPauseSubpanel(page, '게임 종료', '#quitGameConfirm')");
+    expect(source).toContain("closeActiveSurface(page, '#pauseMenu')");
     expect(source).toContain('captureOverlayFrameState');
     expect(source).toContain("overlay.classList.contains('hp-overlay')");
     expect(source).toContain("panel.classList.contains('gm-modal-panel')");
@@ -39,6 +41,7 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("helpFrame.overlayClassName.includes('hp-overlay-help')");
     expect(source).toContain("path.join(outDir, 'pause-menu.png')");
     expect(source).toContain("path.join(outDir, 'help-menu.png')");
+    expect(source).toContain("path.join(outDir, 'quit-confirm.png')");
     expect(source).toContain("path.join(outDir, 'result.json')");
     expect(source).toContain("page.keyboard.press('Tab')");
     expect(source).toContain("page.keyboard.press('KeyM')");
@@ -61,7 +64,13 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain('codexBlocksShortcuts');
     expect(source).toContain('settingsBlocksShortcuts');
     expect(source).toContain('helpBlocksShortcuts');
+    expect(source).toContain('quitConfirmUsesSharedFrame');
+    expect(source).toContain('quitConfirmEscapePriority');
+    expect(source).toContain('quitConfirmTitleText');
+    expect(source).toContain('quitConfirmBodyText');
     expect(source).toContain('pauseUsesSharedFrame');
+    expect(source).toContain('pauseExitEyebrow');
+    expect(source).toContain('pauseExitLabels');
     expect(source).toContain('helpUsesSharedFrame');
     expect(source).toContain('pauseActionCount');
     expect(source).toContain('helpEntryCount');

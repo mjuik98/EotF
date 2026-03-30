@@ -55,6 +55,13 @@ function findByClassName(node, token) {
   return null;
 }
 
+function collectButtonLabels(node, labels = []) {
+  if (!node) return labels;
+  if (node.tagName === 'BUTTON') labels.push(node.textContent || node.innerHTML || '');
+  for (const child of node.children || []) collectButtonLabels(child, labels);
+  return labels;
+}
+
 describe('help_pause_ui_pause_menu_overlay', () => {
   it('builds the pause menu without duplicating sound controls from settings', () => {
     const doc = createDoc();
@@ -108,6 +115,51 @@ describe('help_pause_ui_pause_menu_overlay', () => {
     expect(meta.textContent).toContain('지역 2');
     expect(meta.textContent).toContain('5층');
     expect(meta.textContent).toContain('3/10');
+  });
+
+  it('groups continue actions separately from run exit actions with explicit wording', () => {
+    const doc = createDoc();
+    const menu = createPauseMenu(
+      doc,
+      {
+        currentRegion: 0,
+        currentFloor: 1,
+        meta: {
+          runCount: 1,
+          storyPieces: [],
+        },
+      },
+      {},
+      {
+        onResume: vi.fn(),
+        onOpenDeck: vi.fn(),
+        onOpenCodex: vi.fn(),
+        onOpenSettings: vi.fn(),
+        onOpenHelp: vi.fn(),
+        onAbandon: vi.fn(),
+        onReturnToTitle: vi.fn(),
+        onQuitGame: vi.fn(),
+      },
+    );
+
+    const leaveSection = findByClassName(menu, 'hp-menu-leave');
+    expect(leaveSection).toBeTruthy();
+
+    const leaveEyebrow = findByClassName(leaveSection, 'hp-menu-section-eyebrow');
+    expect(leaveEyebrow?.textContent).toBe('세션 이탈');
+
+    const leaveLabels = collectButtonLabels(leaveSection);
+    expect(leaveLabels).toEqual([
+      '타이틀로 돌아가기',
+      '이번 런 포기',
+      '게임 종료',
+    ]);
+
+    const allLabels = collectButtonLabels(menu);
+    expect(allLabels).toContain('조작 안내');
+    expect(allLabels).not.toContain('컨트롤 안내 (?)');
+    expect(allLabels).not.toContain('처음으로');
+    expect(allLabels).not.toContain('런 포기하기');
   });
 
   it('restores the system cursor for help-pause overlays on top of the global custom cursor mode', () => {

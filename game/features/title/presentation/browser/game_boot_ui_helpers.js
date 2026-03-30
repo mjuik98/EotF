@@ -39,7 +39,7 @@ const TITLE_CLASS_NAMES = Object.freeze({
 const TITLE_OUTCOME_LABELS = Object.freeze({
   victory: '승리',
   defeat: '패배',
-  abandon: '중단',
+  abandon: '런 중단',
 });
 
 function resolveTitleClassName(classId) {
@@ -420,7 +420,7 @@ export function populateSaveTooltip(doc, saveSystem, gs, slot) {
     setText(doc, 'sttAscension', `A${ascension}`);
     setText(doc, 'sttHp', `${player.hp ?? '-'} / ${player.maxHp ?? '-'}`);
     setText(doc, 'sttGold', `${player.gold ?? 0}`);
-    setText(doc, 'titleContinueMeta', `${preview.currentFloor || 1}층 · ${className} · A${ascension}${queuedSuffix}`);
+    setText(doc, 'titleContinueMeta', `저장된 런 · ${preview.currentFloor || 1}층 · ${className} · A${ascension}${queuedSuffix}`);
 
     const pillsEl = doc.getElementById('sttDeckPills');
     if (pillsEl) {

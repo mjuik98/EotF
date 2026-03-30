@@ -54,12 +54,19 @@ export function createTitleSystemActions(context) {
     },
 
     quitGame() {
-      const root = typeof globalThis !== 'undefined' ? globalThis : null;
       playClick();
-      if (root?.confirm?.('정말로 게임을 종료하시겠습니까?')) {
-        win?.close?.();
-        setTimeout(() => root?.alert?.('브라우저 정책상 닫기 API가 작동하지 않을 수 있습니다. 창을 직접 닫아주세요.'), 500);
+      if (typeof modules.HelpPauseUI?.confirmQuitGame === 'function') {
+        return modules.HelpPauseUI.confirmQuitGame({
+          ...ports.getHelpPauseDeps(),
+          win,
+        });
       }
+      const root = typeof globalThis !== 'undefined' ? globalThis : null;
+      if (root?.confirm?.('게임을 종료하시겠습니까?')) {
+        win?.close?.();
+        return true;
+      }
+      return false;
     },
   };
 }

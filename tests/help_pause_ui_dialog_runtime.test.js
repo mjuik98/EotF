@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   toggleAbandonConfirmRuntime,
+  toggleQuitGameConfirmRuntime,
   toggleReturnTitleConfirmRuntime,
 } from '../game/features/ui/public.js';
 
@@ -48,6 +49,7 @@ function createDoc() {
       location: {
         reload: vi.fn(),
       },
+      close: vi.fn(),
     },
     getElementById: (id) => elements[id] || null,
   };
@@ -101,5 +103,48 @@ describe('help_pause_ui_dialog_runtime', () => {
     expect(toggleReturnTitleConfirmRuntime(deps)).toBe(true);
     expect(toggleReturnTitleConfirmRuntime(deps)).toBe(false);
     expect(doc.getElementById('returnTitleConfirm')).toBeNull();
+  });
+
+  it('toggles the quit confirm overlay and keeps a browser fallback status visible after requesting close', () => {
+    const doc = createDoc();
+    const deps = {
+      doc,
+      win: doc.defaultView,
+    };
+
+    expect(toggleQuitGameConfirmRuntime(deps)).toBe(true);
+    const overlay = doc.getElementById('quitGameConfirm');
+    expect(overlay).toBeTruthy();
+
+    const confirmButton = findById(overlay, 'quitGameSubmitBtn');
+    confirmButton.onclick();
+
+    expect(doc.defaultView.close).toHaveBeenCalledTimes(1);
+    expect(doc.getElementById('quitGameConfirm')).toBeTruthy();
+    expect(findById(overlay, 'quitGameStatus')?.textContent).toContain('창 닫기를 요청했습니다.');
+    expect(findById(overlay, 'quitGameCancelBtn')?.textContent).toBe('닫기');
+    expect(findById(overlay, 'quitGameSubmitBtn')?.textContent).toBe('종료 요청됨');
+  });
+
+  it('uses an injected native quit request when available', () => {
+    const doc = createDoc();
+    const quitGameRequest = vi.fn(() => true);
+    const deps = {
+      doc,
+      win: doc.defaultView,
+      quitGameRequest,
+    };
+
+    expect(toggleQuitGameConfirmRuntime(deps)).toBe(true);
+    const overlay = doc.getElementById('quitGameConfirm');
+    const confirmButton = findById(overlay, 'quitGameSubmitBtn');
+    confirmButton.onclick();
+
+    expect(quitGameRequest).toHaveBeenCalledWith(expect.objectContaining({
+      doc,
+      win: doc.defaultView,
+    }));
+    expect(doc.defaultView.close).not.toHaveBeenCalled();
+    expect(doc.getElementById('quitGameConfirm')).toBeNull();
   });
 });

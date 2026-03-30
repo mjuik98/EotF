@@ -56,6 +56,10 @@ export function createLazyHelpPauseModule() {
       return (await resolveModule())?.confirmReturnToTitle?.(...args);
     },
 
+    async confirmQuitGame(...args) {
+      return (await resolveModule())?.confirmQuitGame?.(...args);
+    },
+
     async confirmAbandon(...args) {
       return (await resolveModule())?.confirmAbandon?.(...args);
     },

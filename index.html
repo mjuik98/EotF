@@ -88,47 +88,54 @@
             <div class="title-menu-kicker">메인 메뉴</div>
           </div>
 
-          <div class="title-continue-wrap" id="titleContinueWrap" style="display:none;">
-            <button id="mainContinueBtn" class="title-continue-btn" data-nav="0" type="button">
-              <span class="title-continue-icon" aria-hidden="true">↺</span>
-              <span class="title-continue-copy">
-                <span class="title-continue-title">이어하기</span>
-                <span class="title-continue-meta" id="titleContinueMeta">최근 저장된 런</span>
-              </span>
-              <span class="title-menu-arrow" aria-hidden="true">→</span>
-            </button>
-            <div class="title-save-tooltip" id="titleSaveTooltip" role="note">
-              <div class="title-save-tooltip-title">
-                <span class="title-save-tooltip-dot"></span>
-                <span>저장 프리뷰</span>
-              </div>
-              <div class="title-save-row"><span>클래스</span><strong id="sttClass">-</strong></div>
-              <div class="title-save-row"><span>진행도</span><strong id="sttFloor">-</strong></div>
-              <div class="title-save-row"><span>승천</span><strong id="sttAscension">A0</strong></div>
-              <div class="title-save-row"><span>체력</span><strong id="sttHp">-</strong></div>
-              <div class="title-save-row"><span>골드</span><strong id="sttGold">0</strong></div>
-              <div class="title-save-deck">
-                <div class="title-save-deck-label">덱 구성</div>
-                <div class="title-save-deck-pills" id="sttDeckPills"></div>
-              </div>
-              <div class="title-save-relics" id="sttRelics"></div>
+          <div class="title-menu-section title-menu-section--run" aria-label="저장된 런">
+            <div class="title-menu-section-head">
+              <div class="title-menu-kicker">저장된 런</div>
+              <div class="title-menu-summary">재개와 슬롯 관리를 정리합니다</div>
             </div>
-          </div>
 
-          <div class="title-menu-divider" id="titleMenuDivider" style="display:none;"></div>
-
-          <div class="title-save-controls" aria-label="저장 슬롯 관리">
-            <div class="title-save-controls-head">
-              <div class="title-menu-kicker">저장 슬롯</div>
-              <button id="titleSaveManageToggleBtn" class="title-disclosure-toggle title-disclosure-toggle--compact" type="button" aria-expanded="false">관리 열기</button>
+            <div class="title-continue-wrap" id="titleContinueWrap" style="display:none;">
+              <button id="mainContinueBtn" class="title-continue-btn" data-nav="0" type="button">
+                <span class="title-continue-icon" aria-hidden="true">↺</span>
+                <span class="title-continue-copy">
+                  <span class="title-continue-title">이어하기</span>
+                  <span class="title-continue-meta" id="titleContinueMeta">저장된 런</span>
+                </span>
+                <span class="title-menu-arrow" aria-hidden="true">→</span>
+              </button>
+              <div class="title-save-tooltip" id="titleSaveTooltip" role="note">
+                <div class="title-save-tooltip-title">
+                  <span class="title-save-tooltip-dot"></span>
+                  <span>저장 프리뷰</span>
+                </div>
+                <div class="title-save-row"><span>클래스</span><strong id="sttClass">-</strong></div>
+                <div class="title-save-row"><span>진행도</span><strong id="sttFloor">-</strong></div>
+                <div class="title-save-row"><span>승천</span><strong id="sttAscension">A0</strong></div>
+                <div class="title-save-row"><span>체력</span><strong id="sttHp">-</strong></div>
+                <div class="title-save-row"><span>골드</span><strong id="sttGold">0</strong></div>
+                <div class="title-save-deck">
+                  <div class="title-save-deck-label">덱 구성</div>
+                  <div class="title-save-deck-pills" id="sttDeckPills"></div>
+                </div>
+                <div class="title-save-relics" id="sttRelics"></div>
+              </div>
             </div>
-            <div class="title-save-slot-bar" id="titleSaveSlotBar"></div>
-            <div id="titleSaveActionPanel" class="title-save-action-panel" hidden>
-              <div class="title-save-actions">
-                <button id="titleSaveExportBtn" class="title-save-action-btn" type="button">내보내기</button>
-                <button id="titleSaveImportBtn" class="title-save-action-btn" type="button">가져오기</button>
-                <button id="titleSaveDeleteBtn" class="title-save-action-btn title-save-action-btn--danger" type="button">삭제</button>
-                <input id="titleSaveImportInput" type="file" accept="application/json,.json" hidden>
+
+            <div class="title-menu-divider" id="titleMenuDivider" style="display:none;"></div>
+
+            <div class="title-save-controls" aria-label="저장 슬롯 관리">
+              <div class="title-save-controls-head">
+                <div class="title-menu-kicker">저장 슬롯</div>
+                <button id="titleSaveManageToggleBtn" class="title-disclosure-toggle title-disclosure-toggle--compact" type="button" aria-expanded="false">관리 열기</button>
+              </div>
+              <div class="title-save-slot-bar" id="titleSaveSlotBar"></div>
+              <div id="titleSaveActionPanel" class="title-save-action-panel" hidden>
+                <div class="title-save-actions">
+                  <button id="titleSaveExportBtn" class="title-save-action-btn" type="button">내보내기</button>
+                  <button id="titleSaveImportBtn" class="title-save-action-btn" type="button">가져오기</button>
+                  <button id="titleSaveDeleteBtn" class="title-save-action-btn title-save-action-btn--danger" type="button">삭제</button>
+                  <input id="titleSaveImportInput" type="file" accept="application/json,.json" hidden>
+                </div>
               </div>
             </div>
           </div>
@@ -162,10 +169,17 @@
               <span class="title-menu-shortcut">S</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>
+          </div>
+
+          <div class="title-menu-section title-menu-section--exit" aria-label="세션 이탈">
+            <div class="title-menu-section-head">
+              <div class="title-menu-kicker">세션 이탈</div>
+              <div class="title-menu-summary">게임을 마치고 브라우저를 벗어납니다</div>
+            </div>
             <button id="mainQuitBtn" class="title-menu-btn title-menu-btn--danger" data-nav="5" type="button">
               <span class="title-menu-icon" aria-hidden="true">×</span>
-              <span class="title-menu-text">종료</span>
-              <span class="title-menu-meta">게임 닫기</span>
+              <span class="title-menu-text">게임 종료</span>
+              <span class="title-menu-meta">브라우저 창 닫기</span>
               <span class="title-menu-shortcut">ESC</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>

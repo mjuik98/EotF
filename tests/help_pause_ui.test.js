@@ -334,6 +334,14 @@ describe('HelpPauseUI help overlay', () => {
     expect(doc.getElementById('pauseMenu')).toBeNull();
     expect(onPauseStateChange).toHaveBeenLastCalledWith(false);
   });
+
+  it('opens the shared quit confirmation overlay through the UI facade', () => {
+    const doc = createDoc();
+
+    HelpPauseUI.confirmQuitGame({ doc });
+
+    expect(doc.getElementById('quitGameConfirm')).toBeTruthy();
+  });
 });
 
 describe('HelpPauseUI abandon flow', () => {

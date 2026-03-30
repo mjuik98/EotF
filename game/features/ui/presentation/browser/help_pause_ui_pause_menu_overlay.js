@@ -16,8 +16,8 @@ export function createPauseMenu(doc, gs, deps, callbacks) {
   });
 
   panel.className += ' hp-panel-tall';
-  const mainBtns = createTextBlock(doc, {
-    className: 'hp-menu-actions',
+  const runActions = createTextBlock(doc, {
+    className: 'hp-menu-actions hp-menu-section',
   });
 
   const resBtn = createActionButton(doc, {
@@ -52,33 +52,47 @@ export function createPauseMenu(doc, gs, deps, callbacks) {
   const helpBtn = createActionButton(doc, {
     id: 'pauseOpenHelpBtn',
     className: 'action-btn-secondary hp-action-cyan',
-    text: '컨트롤 안내 (?)',
+    text: '조작 안내',
     onClick: callbacks.onOpenHelp,
+  });
+
+  const startBtn = createActionButton(doc, {
+    id: 'pauseReturnTitleBtn',
+    className: 'hp-action-subtle hp-action-exit',
+    text: '타이틀로 돌아가기',
+    onClick: callbacks.onReturnToTitle,
   });
 
   const abandonBtn = createActionButton(doc, {
     id: 'pauseAbandonBtn',
     className: 'action-btn-end',
-    text: '런 포기하기',
+    text: '이번 런 포기',
     onClick: callbacks.onAbandon,
-  });
-
-  const startBtn = createActionButton(doc, {
-    id: 'pauseReturnTitleBtn',
-    className: 'hp-action-subtle',
-    text: '처음으로',
-    onClick: callbacks.onReturnToTitle,
   });
 
   const quitBtn = createActionButton(doc, {
     id: 'pauseQuitGameBtn',
-    className: 'hp-action-subtle hp-action-danger',
+    className: 'hp-action-subtle hp-action-danger hp-action-quit',
     text: '게임 종료',
     onClick: callbacks.onQuitGame,
   });
 
-  mainBtns.append(resBtn, midRow, settingsBtn, helpBtn, abandonBtn, startBtn, quitBtn);
-  body.appendChild(mainBtns);
+  runActions.append(resBtn, midRow, settingsBtn, helpBtn);
+
+  const leaveActions = createTextBlock(doc, {
+    className: 'hp-menu-leave hp-menu-section',
+  });
+  leaveActions.append(
+    createTextBlock(doc, {
+      className: 'hp-menu-section-eyebrow',
+      text: '세션 이탈',
+    }),
+    startBtn,
+    abandonBtn,
+    quitBtn,
+  );
+
+  body.append(runActions, leaveActions);
 
   footer.appendChild(createTextBlock(doc, {
     className: 'hp-menu-meta',

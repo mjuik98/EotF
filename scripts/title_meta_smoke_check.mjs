@@ -74,6 +74,11 @@ try {
         statsText: document.getElementById('titleStatsBlock')?.innerText || '',
         continueVisible: document.getElementById('titleContinueWrap')?.style?.display || '',
         saveActionsExpanded: document.getElementById('titleSaveActionPanel')?.hidden === false,
+        runAccessLabel: document.querySelector('.title-menu-section--run .title-menu-kicker')?.textContent || '',
+        runAccessSummary: document.querySelector('.title-menu-section--run .title-menu-summary')?.textContent || '',
+        sessionExitLabel: document.querySelector('.title-menu-section--exit .title-menu-kicker')?.textContent || '',
+        sessionExitSummary: document.querySelector('.title-menu-section--exit .title-menu-summary')?.textContent || '',
+        sessionExitMeta: document.querySelector('#mainQuitBtn .title-menu-meta')?.textContent || '',
       }));
       await page.screenshot({ path: path.join(outDir, 'title-meta.png'), fullPage: true });
 
@@ -117,6 +122,15 @@ try {
       }
       if (titleState.saveActionsExpanded) {
         throw new Error('title meta smoke expected the save management controls to stay collapsed by default');
+      }
+      if (titleState.runAccessLabel !== '저장된 런') {
+        throw new Error(`title meta smoke expected the run access section label to be "저장된 런", got "${titleState.runAccessLabel}"`);
+      }
+      if (titleState.sessionExitLabel !== '세션 이탈') {
+        throw new Error(`title meta smoke expected the session exit section label to be "세션 이탈", got "${titleState.sessionExitLabel}"`);
+      }
+      if (!titleState.sessionExitMeta.includes('브라우저 창 닫기')) {
+        throw new Error('title meta smoke expected the session exit action to describe the browser close behavior');
       }
       if (!expandedArchiveText.includes('전술 분석')) {
         throw new Error('title meta smoke expected the archive detail panel to reveal analytics when expanded');

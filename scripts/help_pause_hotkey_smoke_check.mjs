@@ -87,23 +87,45 @@ async function closeActiveSurface(page, surfaceSelector) {
   await closeSurfaceWithEscapeFallback(page, surfaceSelector);
 }
 
+async function assertConfirmEscapeReturnsToPause(page, surfaceSelector) {
+  await closeSurfaceWithEscapeFallback(page, surfaceSelector, 10000, { preferEscape: true });
+  return page.waitForFunction((selector) => {
+    const isVisible = (targetSelector) => {
+      const element = document.querySelector(targetSelector);
+      if (!element) return false;
+      const style = getComputedStyle(element);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      if (element.id === 'helpMenu') return true;
+      return Number.parseFloat(style.opacity || '1') > 0 || style.pointerEvents !== 'none';
+    };
+
+    return !isVisible(selector) && isVisible('#pauseMenu');
+  }, surfaceSelector, { timeout: 10000 }).then(() => true).catch(() => false);
+}
+
 async function captureOverlayFrameState(page, surfaceSelector, {
   entrySelector = '',
   titleSelector = '.gm-modal-title',
   subtitleSelector = '.gm-modal-subtitle',
+  bodySelector = '.hp-body-copy',
 } = {}) {
-  return page.evaluate(({ selector, entrySel, titleSel, subtitleSel }) => {
+  return page.evaluate(({ selector, entrySel, titleSel, subtitleSel, bodySel }) => {
     const overlay = document.querySelector(selector);
     const panel = overlay?.querySelector('.gm-modal-panel') || null;
     const actions = overlay?.querySelectorAll('.action-btn') || [];
     const entries = entrySel ? overlay?.querySelectorAll(entrySel) || [] : [];
+    const buttonLabels = Array.from(overlay?.querySelectorAll('button') || [])
+      .map((button) => button.textContent?.trim() || '')
+      .filter(Boolean);
     return {
       overlayClassName: document.getElementById(overlay?.id || '')?.className || '',
       panelClassName: panel?.className || '',
       titleText: overlay?.querySelector(titleSel)?.textContent?.trim() || null,
       subtitleText: overlay?.querySelector(subtitleSel)?.textContent?.trim() || null,
+      bodyText: overlay?.querySelector(bodySel)?.textContent?.trim() || null,
       actionCount: actions.length,
       entryCount: entries.length,
+      buttonLabels,
       usesSharedFrame: Boolean(
         overlay
         && overlay.classList.contains('hp-overlay')
@@ -116,6 +138,7 @@ async function captureOverlayFrameState(page, surfaceSelector, {
     entrySel: entrySelector,
     titleSel: titleSelector,
     subtitleSel: subtitleSelector,
+    bodySel: bodySelector,
   });
 }
 
@@ -336,6 +359,12 @@ try {
   const pauseFrame = await captureOverlayFrameState(page, '#pauseMenu', {
     entrySelector: '.hp-menu-actions .action-btn',
   });
+  const pauseExitSnapshot = await page.evaluate(() => ({
+    eyebrow: document.querySelector('#pauseMenu .hp-menu-leave .hp-menu-section-eyebrow')?.textContent?.trim() || '',
+    labels: Array.from(document.querySelectorAll('#pauseMenu .hp-menu-leave button'))
+      .map((button) => button.textContent?.trim() || '')
+      .filter(Boolean),
+  }));
   await page.screenshot({ path: path.join(outDir, 'pause-menu.png') });
   await appendTrace('captured pause');
   await closeActiveSurface(page, '#pauseMenu');
@@ -353,7 +382,7 @@ try {
   await closeActiveSurface(page, '#settingsModal');
   await appendTrace('closed settings');
 
-  await openPauseSubpanel(page, '컨트롤 안내 (?)', '#helpMenu');
+  await openPauseSubpanel(page, '조작 안내', '#helpMenu');
   await appendTrace('opened help');
   const helpFrame = await captureOverlayFrameState(page, '#helpMenu', {
     entrySelector: '.hp-help-grid .hp-kbd-cell',
@@ -363,6 +392,15 @@ try {
   const helpResult = await assertBlockedShortcuts(page, '#helpMenu');
   await closeActiveSurface(page, '#helpMenu');
   await appendTrace('closed help');
+
+  await openPauseSubpanel(page, '게임 종료', '#quitGameConfirm');
+  await appendTrace('opened quit confirm');
+  const quitConfirmFrame = await captureOverlayFrameState(page, '#quitGameConfirm');
+  await page.screenshot({ path: path.join(outDir, 'quit-confirm.png') });
+  const quitConfirmEscapePriority = await assertConfirmEscapeReturnsToPause(page, '#quitGameConfirm');
+  await appendTrace('closed quit confirm');
+  await closeActiveSurface(page, '#pauseMenu');
+  await appendTrace('closed pause after quit confirm');
 
   await enterCombatFromRun(page);
   await appendTrace('entered combat');
@@ -390,7 +428,13 @@ try {
     codexBlocksShortcuts: codexResult.surfaceStillOpen && !codexResult.deckOpened && !codexResult.fullMapOpened,
     settingsBlocksShortcuts: settingsResult.surfaceStillOpen && !settingsResult.deckOpened && !settingsResult.fullMapOpened,
     helpBlocksShortcuts: helpResult.surfaceStillOpen && !helpResult.deckOpened && !helpResult.fullMapOpened,
+    quitConfirmUsesSharedFrame: quitConfirmFrame.usesSharedFrame,
+    quitConfirmEscapePriority,
+    quitConfirmTitleText: quitConfirmFrame.titleText,
+    quitConfirmBodyText: quitConfirmFrame.bodyText,
     pauseUsesSharedFrame: pauseFrame.usesSharedFrame && pauseFrame.overlayClassName.includes('hp-overlay-pause'),
+    pauseExitEyebrow: pauseExitSnapshot.eyebrow,
+    pauseExitLabels: pauseExitSnapshot.labels,
     helpUsesSharedFrame: helpFrame.usesSharedFrame && helpFrame.overlayClassName.includes('hp-overlay-help'),
     pauseActionCount: pauseFrame.actionCount,
     helpEntryCount: helpFrame.entryCount,
@@ -409,7 +453,15 @@ try {
   await appendTrace('wrote result');
   console.log(JSON.stringify(result, null, 2));
   const failedChecks = Object.entries(result)
-    .filter(([key]) => !['pauseActionCount', 'helpEntryCount', 'errors'].includes(key))
+    .filter(([key]) => ![
+      'pauseActionCount',
+      'helpEntryCount',
+      'errors',
+      'quitConfirmTitleText',
+      'quitConfirmBodyText',
+      'pauseExitEyebrow',
+      'pauseExitLabels',
+    ].includes(key))
     .filter(([, value]) => value !== true)
     .map(([key]) => key);
   if (failedChecks.length > 0 || errors.length > 0) {

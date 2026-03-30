@@ -122,7 +122,7 @@ export function createReturnTitleConfirm(doc, onCancel, onConfirm) {
     overlayClassName: 'hp-overlay-confirm',
     panelClassName: 'hp-panel-confirm gm-modal-accent-echo',
     eyebrow: '확인',
-    title: '처음 화면으로 돌아가시겠습니까?',
+    title: '타이틀로 돌아가시겠습니까?',
   });
 
   panel.className += ' hp-panel-centered';
@@ -143,7 +143,47 @@ export function createReturnTitleConfirm(doc, onCancel, onConfirm) {
     createActionButton(doc, {
       id: 'returnTitleSubmitBtn',
       className: 'action-btn-primary hp-action-strong',
-      text: '처음으로',
+      text: '타이틀로 이동',
+      onClick: onConfirm,
+    }),
+  );
+  footer.appendChild(actions);
+  return overlay;
+}
+
+export function createQuitGameConfirm(doc, onCancel, onConfirm) {
+  const { overlay, panel, body, footer } = createOverlayShell(doc, {
+    id: 'quitGameConfirm',
+    overlayClassName: 'hp-overlay-confirm hp-overlay-danger',
+    panelClassName: 'hp-panel-confirm hp-panel-quit gm-modal-accent-ember',
+    eyebrow: '확인',
+    title: '게임을 종료하시겠습니까?',
+  });
+
+  panel.className += ' hp-panel-centered';
+  body.className += ' hp-body-centered';
+  body.appendChild(createTextBlock(doc, {
+    className: 'hp-body-copy',
+    html: '브라우저에서는 자동 종료가 제한될 수 있습니다.<br>데스크톱 래퍼가 있으면 앱 종료 요청을 우선 시도합니다.',
+  }));
+  body.appendChild(createTextBlock(doc, {
+    id: 'quitGameStatus',
+    className: 'hp-body-copy hp-body-copy-compact hp-quit-status',
+    text: '',
+  }));
+
+  const actions = createActionsRow(doc);
+  actions.append(
+    createActionButton(doc, {
+      id: 'quitGameCancelBtn',
+      className: 'action-btn-secondary',
+      text: '취소',
+      onClick: onCancel,
+    }),
+    createActionButton(doc, {
+      id: 'quitGameSubmitBtn',
+      className: 'action-btn-end hp-action-strong',
+      text: '종료하기',
       onClick: onConfirm,
     }),
   );

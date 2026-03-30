@@ -30,8 +30,12 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain("page.waitForSelector('#nodeCardOverlay'");
     expect(source).toContain("from './help_pause_smoke_helpers.mjs'");
     expect(source).toContain('ensurePauseMenuVisible(page)');
-    expect(source).toContain("page.getByRole('button', { name: '처음으로' })");
-    expect(source).toContain("page.locator('#returnTitleConfirm button', { hasText: '처음으로' })");
+    expect(source).toContain("page.getByRole('button', { name: '타이틀로 돌아가기' })");
+    expect(source).toContain("page.locator('#returnTitleConfirm button', { hasText: '타이틀로 이동' })");
+    expect(source).toContain("path.join(outDir, 'return-title-confirm.png')");
+    expect(source).toContain('captureOverlayFrameState');
+    expect(source).toContain('returnTitleFrame');
+    expect(source).toContain('returnTitleUsesSharedFrame');
     expect(source).toContain("localStorage.getItem('echo_fallen_save')");
     expect(source).toContain("document.getElementById('titleContinueWrap')?.style?.display === 'block'");
     expect(source).toContain("page.click('#mainContinueBtn')");
@@ -55,6 +59,9 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain("page.waitForSelector('#titleArchiveSummary'");
     expect(source).toContain("page.click('#titleArchiveToggleBtn')");
     expect(source).toContain("page.click('#mainRunRulesBtn')");
+    expect(source).toContain('runAccessLabel');
+    expect(source).toContain('sessionExitLabel');
+    expect(source).toContain('sessionExitMeta');
     expect(source).toContain("path.join(outDir, 'title-meta.png')");
     expect(source).toContain("path.join(outDir, 'title-meta-expanded.png')");
     expect(source).toContain("path.join(outDir, 'run-settings.png')");

@@ -102,6 +102,33 @@ describe('help_pause_hotkeys_runtime_ui', () => {
     expect(ui.togglePause).toHaveBeenCalledTimes(1);
   });
 
+  it('closes quit confirmation before the visible pause menu', () => {
+    const swallowEscape = vi.fn();
+    const ui = {
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      isHelpOpen: vi.fn(() => false),
+    };
+    const quitGameConfirm = createModalElement();
+    const doc = createDoc({
+      pauseMenu: createModalElement(),
+      quitGameConfirm,
+    });
+
+    const result = handleEscapeHotkey({ key: 'Escape' }, {
+      deps: { gs: { currentScreen: 'game', combat: { active: false } } },
+      doc,
+      gs: { currentScreen: 'game', combat: { active: false } },
+      ui,
+      swallowEscape,
+    });
+
+    expect(result).toBe(true);
+    expect(swallowEscape).toHaveBeenCalledTimes(1);
+    expect(quitGameConfirm.remove).toHaveBeenCalledTimes(1);
+    expect(ui.togglePause).not.toHaveBeenCalled();
+  });
+
   [
     ['codex detail popup', 'codexDetail'],
     ['combat relic detail panel', 'combatRelicDetail'],

@@ -40,6 +40,13 @@ function isPauseMenuVisible(doc) {
 
 const RUN_ESCAPE_SURFACES = Object.freeze([
   {
+    key: 'quitGame',
+    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('quitGameConfirm') || null, doc),
+    close: (_element, context) => closeVisibleById(context, 'quitGameConfirm', () => {
+      context.doc.getElementById('quitGameConfirm')?.remove?.();
+    }),
+  },
+  {
     key: 'fullMap',
     isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('fullMapOverlay') || null, doc),
     close: (_element, context) => closeVisibleById(context, 'fullMapOverlay', (overlay) => {
@@ -122,6 +129,13 @@ const RUN_ESCAPE_SURFACES = Object.freeze([
 ]);
 
 const TITLE_ESCAPE_SURFACES = Object.freeze([
+  {
+    key: 'quitGame',
+    isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('quitGameConfirm') || null, doc),
+    close: (_element, context) => closeVisibleById(context, 'quitGameConfirm', () => {
+      context.doc.getElementById('quitGameConfirm')?.remove?.();
+    }),
+  },
   {
     key: 'codex',
     isVisible: ({ doc }) => isVisibleOverlayElement(doc?.getElementById?.('codexModal') || null, doc),

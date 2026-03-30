@@ -3,6 +3,7 @@ import {
   createAbandonConfirm,
   createHelpMenu,
   createMobileWarning,
+  createQuitGameConfirm,
   createReturnTitleConfirm,
 } from '../game/features/ui/public.js';
 
@@ -56,9 +57,10 @@ describe('help_pause_ui_dialog_overlays', () => {
     const doc = createDoc();
     const abandon = createAbandonConfirm(doc, vi.fn(), vi.fn());
     const returnTitle = createReturnTitleConfirm(doc, vi.fn(), vi.fn());
+    const quitGame = createQuitGameConfirm(doc, vi.fn(), vi.fn());
     const warning = createMobileWarning(doc, vi.fn());
 
-    [abandon, returnTitle, warning].forEach((overlay) => {
+    [abandon, returnTitle, quitGame, warning].forEach((overlay) => {
       expect(overlay.className).toContain('hp-overlay');
       expect(overlay.children[0].className).toContain('hp-panel');
       expect(overlay.children[0].className).toContain('gm-modal-panel');
@@ -67,5 +69,16 @@ describe('help_pause_ui_dialog_overlays', () => {
     expect(abandon.children[0].children.at(-1).children[0].className).toContain('hp-actions');
     expect(returnTitle.children[0].children.at(-1).children[0].className).toContain('hp-actions');
     expect(warning.children[0].children.at(-1).children[0].className).toContain('action-btn-primary');
+
+    const returnTitleHeader = returnTitle.children[0].children[0];
+    const headerMain = returnTitleHeader.children[0];
+    expect(headerMain.children[1].textContent).toBe('타이틀로 돌아가시겠습니까?');
+    expect(returnTitle.children[0].children.at(-1).children[0].children[1].textContent).toBe('타이틀로 이동');
+
+    const quitHeader = quitGame.children[0].children[0].children[0];
+    expect(quitHeader.children[1].textContent).toBe('게임을 종료하시겠습니까?');
+    expect(quitGame.children[0].children[1].children[0].innerHTML).toContain('브라우저에서는 자동 종료가 제한될 수 있습니다.');
+    expect(quitGame.children[0].children[1].children[1].id).toBe('quitGameStatus');
+    expect(quitGame.children[0].children.at(-1).children[0].children[1].textContent).toBe('종료하기');
   });
 });

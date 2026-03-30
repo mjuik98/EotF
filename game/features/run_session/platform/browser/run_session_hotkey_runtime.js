@@ -18,6 +18,7 @@ export const RUN_HOTKEY_SURFACES = Object.freeze([
   { key: 'pause', isVisible: (doc) => isPauseMenuVisible(doc) },
   { key: 'fullMap', isVisible: (doc) => isFullMapOverlayVisible(doc) },
   { key: 'battleChronicle', id: 'battleChronicleOverlay' },
+  { key: 'quitGame', id: 'quitGameConfirm' },
   { key: 'returnTitle', id: 'returnTitleConfirm' },
   { key: 'abandonConfirm', id: 'abandonConfirm' },
   { key: 'deckView', id: 'deckViewModal' },
