@@ -5281,6 +5281,11 @@ body:has(#combatOverlay.active) .panel-bottom {
   backdrop-filter: blur(10px);
   z-index: 12000;
   animation: fadeIn 0.25s ease both;
+  cursor: auto;
+}
+
+.hp-overlay button {
+  cursor: pointer;
 }
 
 .hp-overlay-warning {
@@ -5411,32 +5416,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   flex: 1;
 }
 
-.hp-volume-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 18px 20px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.hp-slider-label {
-  width: 56px;
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  color: var(--text-dim);
-}
-
-.hp-slider-value {
-  width: 40px;
-  text-align: right;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  color: var(--white);
-}
-
 .hp-action-strong {
   min-height: 48px;
   font-size: 15px;
@@ -5481,68 +5460,6 @@ body:has(#combatOverlay.active) .panel-bottom {
   .hp-help-desc {
     font-size: 14px;
   }
-}
-
-/* ── 사운드 슬라이더 스타일 ── */
-#pauseMenu input[type="range"] {
-  --hp-slider-color: var(--echo);
-  --hp-slider-glow: rgba(123, 47, 255, 0.6);
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(100, 100, 100, 0.5);
-  cursor: pointer;
-}
-
-#pauseMenu #volMasterSlider {
-  accent-color: var(--echo);
-  --hp-slider-color: var(--echo);
-  --hp-slider-glow: rgba(123, 47, 255, 0.6);
-}
-
-#pauseMenu #volSfxSlider {
-  accent-color: var(--cyan);
-  --hp-slider-color: var(--cyan);
-  --hp-slider-glow: rgba(0, 255, 204, 0.6);
-}
-
-#pauseMenu #volAmbientSlider {
-  accent-color: #44ff88;
-  --hp-slider-color: #44ff88;
-  --hp-slider-glow: rgba(68, 255, 136, 0.6);
-}
-
-#pauseMenu input[type="range"]::-webkit-slider-runnable-track,
-#pauseMenu input[type="range"]::-moz-range-track {
-  width: 100%;
-  height: 6px;
-  background: linear-gradient(
-    to right,
-    var(--hp-slider-color) 0%,
-    var(--hp-slider-color) var(--fill-percent, 50%),
-    rgba(100, 100, 100, 0.5) var(--fill-percent, 50%),
-    rgba(100, 100, 100, 0.5) 100%
-  );
-  border-radius: 3px;
-}
-
-#pauseMenu input[type="range"]::-webkit-slider-thumb,
-#pauseMenu input[type="range"]::-moz-range-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  background: var(--hp-slider-color);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 8px var(--hp-slider-glow);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-#pauseMenu input[type="range"]::-webkit-slider-thumb {
-  margin-top: -4px;
 }
 
 /* ═══════════════════════════════════════

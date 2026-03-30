@@ -15,15 +15,15 @@ export function closeCodexDetailPopup(state, doc) {
   clearCodexPopupNavigation(state);
 }
 
-export function ensurePopupShell(state, doc) {
-  return ensureCodexPopupOverlay(doc, (popupDoc) => closeCodexDetailPopup(state, popupDoc));
+function ensurePopupShell(state, doc) {
+  return ensureCodexPopupOverlay(doc, () => closeCodexDetailPopup(state, doc));
 }
 
-export function setPopupTheme(doc, theme) {
+function setPopupTheme(doc, theme) {
   setCodexPopupTheme(doc, theme.bg1, theme.bg2, theme.border, theme.glow);
 }
 
-export function bindPopupNavigation(state, doc, reopen) {
+function bindPopupNavigation(state, doc, reopen) {
   setCodexPopupNavigation(state, null, null, reopen);
   doc.getElementById('cxNavPrev')?.addEventListener('click', () => navigateCodexPopup(state, -1));
   doc.getElementById('cxNavNext')?.addEventListener('click', () => navigateCodexPopup(state, 1));

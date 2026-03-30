@@ -3,10 +3,17 @@ import {
   resolveKeyboardActionFromSettings,
 } from '../../ports/public_input_capabilities.js';
 import { handleRunInputAction } from '../../application/handle_run_input_action.js';
+import {
+  closeTopEscapeSurface,
+  isVisibleModal,
+  listVisibleEscapeSurfaceKeys,
+} from './run_session_overlay_escape_support.js';
+
+export { closeTopEscapeSurface, isVisibleModal };
 
 // Keep DOM-derived run-session visibility centralized here so legacy UI helpers can
 // delegate without owning the browser hotkey rules.
-export const RUN_HOTKEY_SURFACES = [
+export const RUN_HOTKEY_SURFACES = Object.freeze([
   { key: 'help', isVisible: (doc) => isHelpMenuVisible(doc) },
   { key: 'pause', isVisible: (doc) => isPauseMenuVisible(doc) },
   { key: 'fullMap', isVisible: (doc) => isFullMapOverlayVisible(doc) },
@@ -14,10 +21,13 @@ export const RUN_HOTKEY_SURFACES = [
   { key: 'returnTitle', id: 'returnTitleConfirm' },
   { key: 'abandonConfirm', id: 'abandonConfirm' },
   { key: 'deckView', id: 'deckViewModal' },
+  { key: 'codexDetail', id: 'cxDetailPopup' },
+  { key: 'combatRelicDetail', id: 'combatRelicPanel' },
+  { key: 'mapRelicDetail', id: 'mapRelicDetailPanel' },
   { key: 'codex', id: 'codexModal' },
   { key: 'runSettings', id: 'runSettingsModal' },
   { key: 'settings', id: 'settingsModal' },
-];
+]);
 
 export const RUN_HOTKEY_MODE_POLICY = {
   modal: {
@@ -103,34 +113,6 @@ export function isCombatOverlayActive(doc) {
   return Boolean(overlay?.classList?.contains('active'));
 }
 
-export function isVisibleModal(el, doc) {
-  if (!el) return false;
-  if (el.id === 'settingsModal') {
-    return !!el.classList?.contains('active');
-  }
-  if (el.hidden) return false;
-
-  const inlineDisplay = String(el.style?.display || '').trim().toLowerCase();
-  if (inlineDisplay === 'none') return false;
-
-  const view = doc?.defaultView || null;
-  if (typeof view?.getComputedStyle !== 'function') {
-    return Boolean(el.classList?.contains('active') || inlineDisplay);
-  }
-
-  const computed = view.getComputedStyle(el);
-  if (computed.display === 'none') return false;
-  if (computed.visibility === 'hidden') return false;
-
-  const opacity = Number.parseFloat(computed.opacity || '1');
-  const pointerEvents = String(computed.pointerEvents || '').toLowerCase();
-  if (!el.classList?.contains('active') && opacity <= 0 && pointerEvents === 'none') {
-    return false;
-  }
-
-  return true;
-}
-
 export function isFullMapOverlayVisible(doc) {
   return isVisibleModal(doc?.getElementById?.('fullMapOverlay') || null, doc);
 }
@@ -163,14 +145,7 @@ export function isRunCutsceneVisible(doc) {
 
 export function listVisibleRunHotkeySurfaces(doc) {
   if (!doc) return [];
-  return RUN_HOTKEY_SURFACES
-    .filter((surface) => {
-      if (typeof surface.isVisible === 'function') {
-        return surface.isVisible(doc);
-      }
-      return isVisibleModal(doc.getElementById?.(surface.id) || null, doc);
-    })
-    .map((surface) => surface.key);
+  return listVisibleEscapeSurfaceKeys(doc, { scope: 'run' });
 }
 
 export function getRunHotkeyPolicy(mode) {

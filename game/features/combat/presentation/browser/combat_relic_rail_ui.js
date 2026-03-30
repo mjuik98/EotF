@@ -45,6 +45,9 @@ export function renderCombatRelicRail({ doc, gs, data, deps = {} }) {
     win,
     detailPanel,
     detailPanelList,
+    escapeHotkeyKey: 'combatRelicDetail',
+    escapePriority: 350,
+    escapeScopes: ['run'],
     entriesRoot: slotsEl,
     variant: 'combat',
     strategy: {

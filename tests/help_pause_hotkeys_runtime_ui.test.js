@@ -16,6 +16,17 @@ function createModalElement({ active = true } = {}) {
   };
 }
 
+function createCodexPopupElement({ open = true } = {}) {
+  return {
+    classList: {
+      contains: (name) => open && name === 'open',
+      remove: vi.fn((name) => {
+        if (name === 'open') open = false;
+      }),
+    },
+  };
+}
+
 function createDoc(elements = {}) {
   return {
     getElementById: (id) => elements[id] || null,
@@ -75,5 +86,35 @@ describe('help_pause_hotkeys_runtime_ui', () => {
     expect(result).toBe(true);
     expect(swallowEscape).toHaveBeenCalledWith(event);
     expect(ui.togglePause).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the codex detail popup before the codex modal', () => {
+    const swallowEscape = vi.fn();
+    const closeCodex = vi.fn();
+    const popup = createCodexPopupElement();
+    const doc = createDoc({
+      cxDetailPopup: popup,
+      codexModal: createModalElement(),
+    });
+
+    const result = handleEscapeHotkey({ key: 'Escape' }, {
+      deps: {
+        closeCodex,
+        gs: { currentScreen: 'game', combat: { active: false } },
+      },
+      doc,
+      gs: { currentScreen: 'game', combat: { active: false } },
+      ui: {
+        togglePause: vi.fn(),
+        toggleHelp: vi.fn(),
+        isHelpOpen: vi.fn(() => false),
+      },
+      swallowEscape,
+    });
+
+    expect(result).toBe(true);
+    expect(popup.classList.remove).toHaveBeenCalledWith('open');
+    expect(closeCodex).not.toHaveBeenCalled();
+    expect(swallowEscape).toHaveBeenCalledTimes(1);
   });
 });

@@ -3,6 +3,7 @@ export {
   RUN_HOTKEY_MODE_POLICY,
   canOpenFullMap,
   canToggleDeckView,
+  closeTopEscapeSurface,
   getRunHotkeyPolicy,
   getRunHotkeyState,
   getRunSessionDoc as getDoc,

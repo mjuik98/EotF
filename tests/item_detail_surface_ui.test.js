@@ -320,4 +320,38 @@ describe('item_detail_surface_ui', () => {
     ]);
     expect(detailPanel.dataset.open).toBe('false');
   });
+
+  it('exposes a reusable escape close hook while the managed surface is open', () => {
+    const doc = createDoc();
+    const detailPanel = doc.createElement('div');
+    const detailList = doc.createElement('div');
+    const entriesRoot = doc.createElement('div');
+    const entry = doc.createElement('button');
+    entriesRoot.appendChild(entry);
+
+    const surface = createManagedItemDetailSurface({
+      doc,
+      win: doc.defaultView,
+      detailPanel,
+      detailPanelList: detailList,
+      entriesRoot,
+      variant: 'inline',
+    });
+
+    surface.show({
+      activeEntry: entry,
+      detail: {
+        icon: '✧',
+        title: '공용 닫기 훅',
+        rarityLabel: '희귀',
+        triggerText: '지속',
+        desc: 'escape hook',
+      },
+      itemId: 'escape_hook',
+    });
+
+    expect(typeof detailPanel.__closeEscapeSurface).toBe('function');
+    detailPanel.__closeEscapeSurface();
+    expect(detailPanel.dataset.open).toBe('false');
+  });
 });

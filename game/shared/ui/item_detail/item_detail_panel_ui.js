@@ -153,6 +153,10 @@ export function createManagedItemDetailSurface({
   detailPanelList,
   entriesRoot,
   entries,
+  registerEscape = null,
+  escapeHotkeyKey = detailPanel?.id || 'detail',
+  escapePriority = 300,
+  escapeScopes = ['run'],
   variant = 'combat',
   strategy = {},
   } = {}) {
@@ -165,6 +169,20 @@ export function createManagedItemDetailSurface({
     variant,
     strategy,
   });
+  const registerSurface = (close = () => controller.clear()) => {
+    if (!detailPanel) return () => {};
+    detailPanel.__closeEscapeSurface = close;
+    if (typeof registerEscape !== 'function') return () => {};
+    return registerEscape({
+      close,
+      detailPanel,
+      doc,
+      hotkeyKey: escapeHotkeyKey,
+      priority: escapePriority,
+      scopes: escapeScopes,
+    });
+  };
+  let resetEscapeSurface = registerSurface();
   controller.bindDismiss = (context = {}) => {
     if (!strategy.shouldDismiss && !strategy.onDismiss) return () => {};
 
@@ -179,7 +197,17 @@ export function createManagedItemDetailSurface({
       ...payload,
     });
 
-    return bindItemDetailDismissStrategy({
+    resetEscapeSurface();
+    resetEscapeSurface = registerSurface(() => {
+      const payload = buildDismissContext({ event: null, reason: 'escape-surface' });
+      if (strategy.onDismiss) {
+        strategy.onDismiss(payload);
+        return;
+      }
+      controller.clear(context);
+    });
+
+    const cleanup = bindItemDetailDismissStrategy({
       doc,
       win,
       detailPanel,
@@ -190,6 +218,11 @@ export function createManagedItemDetailSurface({
         ? (payload) => strategy.onDismiss(buildDismissContext(payload))
         : () => controller.clear(context),
     });
+    return () => {
+      cleanup();
+      resetEscapeSurface();
+      resetEscapeSurface = registerSurface();
+    };
   };
   return controller;
 }

@@ -52,6 +52,9 @@ export function renderClassSelectButtons(container, deps = {}) {
     doc,
     detailPanel: relicDetailPanel,
     detailPanelList: relicDetailList,
+    escapeHotkeyKey: 'classSelectRelicDetail',
+    escapePriority: 350,
+    escapeScopes: ['title'],
     entries: () => relicEntries,
     variant: 'inline',
   });

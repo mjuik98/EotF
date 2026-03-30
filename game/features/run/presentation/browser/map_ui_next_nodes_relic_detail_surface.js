@@ -65,6 +65,9 @@ export function createRelicDetailSurfaceRuntime(options = {}) {
     win,
     detailPanel,
     detailPanelList: detailList,
+    escapeHotkeyKey: 'mapRelicDetail',
+    escapePriority: 350,
+    escapeScopes: ['run'],
     entriesRoot: list,
     variant: 'combat',
     strategy: {

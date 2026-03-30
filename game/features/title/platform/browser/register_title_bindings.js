@@ -1,4 +1,5 @@
 import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
+import { closeTopEscapeSurface } from '../../../run_session/ports/public_hotkey_capabilities.js';
 
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);
@@ -19,21 +20,11 @@ export function registerTitleBindings({
     if (!getIsTitleScreen()) return;
     if (!isEscapeKey(event)) return;
 
-    const codexModal = resolvedDoc.getElementById('codexModal');
-    if (isVisibleModal(codexModal)) {
-      actions.closeCodex?.();
-      return;
-    }
-
-    const runSettings = resolvedDoc.getElementById('runSettingsModal');
-    if (isVisibleModal(runSettings)) {
-      actions.closeRunSettings?.();
-      return;
-    }
-
-    const settingsModal = resolvedDoc.getElementById('settingsModal');
-    if (isVisibleModal(settingsModal)) {
-      actions.closeSettings?.();
+    if (closeTopEscapeSurface(event, {
+      actions,
+      doc: resolvedDoc,
+      scope: 'title',
+    })) {
       return;
     }
 

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { createPauseMenu } from '../game/features/ui/public.js';
 
@@ -55,7 +56,7 @@ function findByClassName(node, token) {
 }
 
 describe('help_pause_ui_pause_menu_overlay', () => {
-  it('builds the pause menu and seeds volume sliders from the audio engine', () => {
+  it('builds the pause menu without duplicating sound controls from settings', () => {
     const doc = createDoc();
     const callbacks = {
       onResume: vi.fn(),
@@ -98,24 +99,21 @@ describe('help_pause_ui_pause_menu_overlay', () => {
     expect(menu.className).toContain('hp-overlay-pause');
     expect(menu.children[0].className).toContain('hp-panel');
     expect(menu.children[0].className).toContain('gm-modal-panel');
-    const masterSlider = findById(menu, 'volMasterSlider');
-    const sfxSlider = findById(menu, 'volSfxSlider');
-    const ambientSlider = findById(menu, 'volAmbientSlider');
-    const masterValue = findById(menu, 'volMasterSliderVal');
-    const sfxValue = findById(menu, 'volSfxSliderVal');
-    const ambientValue = findById(menu, 'volAmbientSliderVal');
-
-    expect(masterSlider.value).toBe(50);
-    expect(sfxSlider.value).toBe(80);
-    expect(ambientSlider.value).toBe(25);
-    expect(masterValue.textContent).toBe('50%');
-    expect(sfxValue.textContent).toBe('80%');
-    expect(ambientValue.textContent).toBe('25%');
-    expect(masterSlider.style.setProperty).toHaveBeenCalledWith('--fill-percent', '50%');
+    expect(findByClassName(menu, 'hp-volume-panel')).toBeNull();
+    expect(findById(menu, 'volMasterSlider')).toBeNull();
+    expect(findById(menu, 'volSfxSlider')).toBeNull();
+    expect(findById(menu, 'volAmbientSlider')).toBeNull();
     const meta = findByClassName(menu, 'hp-menu-meta');
     expect(meta.textContent).toContain('총 7회차');
     expect(meta.textContent).toContain('지역 2');
     expect(meta.textContent).toContain('5층');
     expect(meta.textContent).toContain('3/10');
+  });
+
+  it('restores the system cursor for help-pause overlays on top of the global custom cursor mode', () => {
+    const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+
+    expect(css).toMatch(/\.hp-overlay\s*\{[^}]*cursor:\s*auto;/s);
+    expect(css).toMatch(/\.hp-overlay button\s*\{[^}]*cursor:\s*pointer;/s);
   });
 });

@@ -115,4 +115,46 @@ describe('registerTitleBindings', () => {
     expect(actions.backToTitle).toHaveBeenCalledTimes(1);
     expect(actions.selectClass).toHaveBeenCalledWith({ dataset: { class: 'mage' } });
   });
+
+  it('closes the codex detail popup before the title codex modal', () => {
+    const popup = {
+      classList: {
+        contains: vi.fn((name) => name === 'open'),
+        remove: vi.fn(),
+      },
+      style: { display: 'block' },
+    };
+    const elements = {
+      codexModal: { classList: { contains: vi.fn((name) => name === 'active') }, style: {} },
+      cxDetailPopup: popup,
+      runSettingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+      settingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+      charSelectSubScreen: { style: { display: 'none' } },
+    };
+    const doc = {
+      addEventListener: vi.fn(),
+      getElementById: vi.fn((id) => elements[id] || null),
+      querySelectorAll: vi.fn(() => []),
+    };
+    const actions = {
+      closeCodex: vi.fn(),
+      closeRunSettings: vi.fn(),
+      closeSettings: vi.fn(),
+      backToTitle: vi.fn(),
+    };
+
+    registerTitleBindings({
+      actions,
+      audio: { playEvent: vi.fn(), playClick: vi.fn() },
+      doc,
+      getIsTitleScreen: () => true,
+      isVisibleModal: (element) => element?.classList?.contains?.('active') || false,
+    });
+
+    const onKeyDown = getDocumentHandler(doc, 'keydown');
+    onKeyDown({ key: 'Escape', preventDefault: vi.fn(), stopPropagation: vi.fn(), stopImmediatePropagation: vi.fn() });
+
+    expect(popup.classList.remove).toHaveBeenCalledWith('open');
+    expect(actions.closeCodex).not.toHaveBeenCalled();
+  });
 });

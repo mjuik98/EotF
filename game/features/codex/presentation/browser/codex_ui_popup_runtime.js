@@ -21,54 +21,43 @@ import {
 
 export { closeCodexDetailPopup };
 
-function quoteBlock(quote) {
-  return buildCodexQuoteBlock(quote);
-}
-
-function navBlock(state) {
-  return buildCodexNavBlock(state.popupList, state.popupIndex);
-}
-
 export function openEnemyCodexPopup(state, enemy, list) {
-  if (list !== undefined) {
-    setCodexPopupNavigation(state, enemy, list, (entry, popupList) => openEnemyCodexPopup(state, entry, popupList));
-  }
-  const doc = getCodexDoc(state.deps);
+  const reopen = (entry, popupList) => openEnemyCodexPopup(state, entry, popupList);
+  const deps = state.deps;
+  if (list !== undefined) setCodexPopupNavigation(state, enemy, list, reopen);
   const payload = buildEnemyPopupPayload(enemy, {
-    gs: state.deps?.gs,
+    gs: deps?.gs,
     safeHtml: highlightCodexDescription,
-    quoteHtml: quoteBlock(enemy.quote),
-    navHtml: navBlock(state),
+    quoteHtml: buildCodexQuoteBlock(enemy.quote),
+    navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
   });
-  mountPopup(state, doc, payload, (entry, popupList) => openEnemyCodexPopup(state, entry, popupList));
+  mountPopup(state, getCodexDoc(deps), payload, reopen);
 }
 
 export function openCardCodexPopup(state, card, list) {
-  if (list !== undefined) {
-    setCodexPopupNavigation(state, card, list, (entry, popupList) => openCardCodexPopup(state, entry, popupList));
-  }
-  const doc = getCodexDoc(state.deps);
+  const reopen = (entry, popupList) => openCardCodexPopup(state, entry, popupList);
+  const deps = state.deps;
+  if (list !== undefined) setCodexPopupNavigation(state, card, list, reopen);
   const payload = buildCardPopupPayload(card, {
-    gs: state.deps?.gs,
-    data: state.deps?.data,
+    gs: deps?.gs,
+    data: deps?.data,
     safeHtml: highlightCodexDescription,
-    quoteHtml: quoteBlock(card.quote),
-    navHtml: navBlock(state),
+    quoteHtml: buildCodexQuoteBlock(card.quote),
+    navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
   });
-  mountPopup(state, doc, payload, (entry, popupList) => openCardCodexPopup(state, entry, popupList));
+  mountPopup(state, getCodexDoc(deps), payload, reopen);
 }
 
 export function openItemCodexPopup(state, item, list) {
-  if (list !== undefined) {
-    setCodexPopupNavigation(state, item, list, (entry, popupList) => openItemCodexPopup(state, entry, popupList));
-  }
-  const doc = getCodexDoc(state.deps);
+  const reopen = (entry, popupList) => openItemCodexPopup(state, entry, popupList);
+  const deps = state.deps;
+  if (list !== undefined) setCodexPopupNavigation(state, item, list, reopen);
   const payload = buildItemPopupPayload(item, {
-    gs: state.deps?.gs,
-    data: state.deps?.data,
+    gs: deps?.gs,
+    data: deps?.data,
     safeHtml: highlightCodexDescription,
-    quoteHtml: quoteBlock(item.quote),
-    navHtml: navBlock(state),
+    quoteHtml: buildCodexQuoteBlock(item.quote),
+    navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
   });
-  mountPopup(state, doc, payload, (entry, popupList) => openItemCodexPopup(state, entry, popupList));
+  mountPopup(state, getCodexDoc(deps), payload, reopen);
 }

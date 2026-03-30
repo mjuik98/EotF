@@ -17,6 +17,17 @@ function createModalElement({ active = true } = {}) {
   };
 }
 
+function createOpenPopupElement() {
+  return {
+    hidden: false,
+    style: { display: 'block' },
+    classList: {
+      contains: (name) => name === 'open',
+      remove: vi.fn(),
+    },
+  };
+}
+
 function createDoc(elements = {}) {
   return {
     getElementById: (id) => elements[id] || null,
@@ -61,6 +72,26 @@ describe('help_pause_ui_helpers run hotkey state', () => {
       mode: 'modal',
       activeSurface: 'codex',
       visibleSurfaces: ['codex'],
+      allowsCombatHotkeys: false,
+      allowsRunNavigationHotkeys: false,
+    });
+    expect(canOpenFullMap(doc)).toBe(false);
+    expect(canToggleDeckView(doc)).toBe(false);
+  });
+
+  it('treats the codex detail popup as a higher-priority surface than the codex modal', () => {
+    const doc = createDoc({
+      cxDetailPopup: createOpenPopupElement(),
+      codexModal: createModalElement(),
+    });
+
+    expect(getRunHotkeyState(doc, {
+      currentScreen: 'game',
+      combat: { active: false },
+    })).toEqual({
+      mode: 'modal',
+      activeSurface: 'codexDetail',
+      visibleSurfaces: ['codexDetail', 'codex'],
       allowsCombatHotkeys: false,
       allowsRunNavigationHotkeys: false,
     });

@@ -1,6 +1,7 @@
 import { SettingsManager } from '../settings/settings_manager.js';
 import { registerFrontdoorBindings } from '../../../features/frontdoor/ports/runtime/public_frontdoor_runtime_surface.js';
 import { registerRunEntryBindings } from '../../../features/run/ports/runtime/public_run_runtime_surface.js';
+import { closeTopEscapeSurface } from '../overlay_escape_stack.js';
 import { isEscapeKey, isVisibleModal } from './root_binding_helpers.js';
 
 function getBindingDoc(deps = {}) {
@@ -72,57 +73,13 @@ function handleLiveEscapeHotkey(event, { doc, deps = {}, ui = null } = {}) {
   const currentGs = deps.gs || deps.State || deps.state || null;
   const isTitleScreen = currentGs?.currentScreen === 'title';
 
-  if (closeLiveEscapeSurface(event, doc, 'fullMapOverlay', (overlay) => {
-    if (typeof overlay._closeFullMap === 'function') overlay._closeFullMap();
-    else overlay.remove();
+  if (closeTopEscapeSurface(event, {
+    deps,
+    doc,
+    scope: 'run',
+    swallowEscape: swallowEscapeEvent,
+    ui,
   })) return true;
-
-  if (closeLiveEscapeSurface(event, doc, 'battleChronicleOverlay', () => {
-    if (typeof deps.closeBattleChronicle !== 'function') return false;
-    return deps.closeBattleChronicle() !== false;
-  })) return true;
-
-  if (closeLiveEscapeSurface(event, doc, 'returnTitleConfirm', () => {
-    doc.getElementById('returnTitleConfirm')?.remove();
-  })) return true;
-
-  if (closeLiveEscapeSurface(event, doc, 'abandonConfirm', () => {
-    doc.getElementById('abandonConfirm')?.remove();
-  })) return true;
-
-  const helpMenu = doc.getElementById('helpMenu');
-  if (helpMenu && helpMenu.style.display !== 'none') {
-    swallowEscapeEvent(event);
-    ui.toggleHelp?.(deps);
-    return true;
-  }
-
-  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'deckViewModal', () => {
-    if (typeof deps.closeDeckView !== 'function') return false;
-    return deps.closeDeckView() !== false;
-  })) return true;
-
-  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'codexModal', () => {
-    if (typeof deps.closeCodex !== 'function') return false;
-    return deps.closeCodex() !== false;
-  })) return true;
-
-  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'runSettingsModal', () => {
-    if (typeof deps.closeRunSettings !== 'function') return false;
-    return deps.closeRunSettings() !== false;
-  })) return true;
-
-  if (!isTitleScreen && closeLiveEscapeSurface(event, doc, 'settingsModal', () => {
-    if (typeof deps.closeSettings !== 'function') return false;
-    return deps.closeSettings() !== false;
-  })) return true;
-
-  const pauseMenu = doc.getElementById('pauseMenu');
-  if (isVisibleModal(pauseMenu, doc)) {
-    swallowEscapeEvent(event);
-    ui.togglePause?.(deps);
-    return true;
-  }
 
   if (isLiveRunScreen(doc, deps) && !ui.isHelpOpen?.()) {
     swallowEscapeEvent(event);
