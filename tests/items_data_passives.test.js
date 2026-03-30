@@ -626,7 +626,7 @@ describe('items data passives', () => {
 
     expect(gs.dispatch).toHaveBeenCalledWith(Actions.CARD_DRAW, { count: 1 });
     expect(gs.player.shield).toBe(4);
-    expect(ITEMS.thin_codex.desc).toBe('전투 시작: 덱 10장 이하일 때 카드 1장 드로우 / 방어막 4 획득');
+    expect(ITEMS.thin_codex.desc).toBe('전투 시작: 덱 10장 이하일 때 카드 1장 드로우 및 방어막 4 획득');
   });
 
   it('adds an opening heal to morning_dew while preserving the turn-start shield hook', () => {
@@ -764,7 +764,10 @@ describe('items data passives', () => {
         hp: 20,
         items: ['merchants_pendant'],
       },
-      heal: vi.fn(),
+      heal(amount) {
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
+        return { healed: amount };
+      },
       addLog: vi.fn(),
       triggerItems(trigger, data) {
         return ItemSystem.triggerItems(this, trigger, data);
@@ -776,6 +779,34 @@ describe('items data passives', () => {
     expect(result).toBe('❤️ 체력 30 회복. 남은 골드: 25');
     expect(gs.player.gold).toBe(25);
     expect(gs.player.maxHp).toBe(41);
-    expect(gs.player.hp).toBe(21);
+    expect(gs.player.hp).toBe(41);
+  });
+
+  it('blocks merchants_pendant and soul_magnet healing through titan_heart while preserving max-hp growth', () => {
+    const gs = {
+      player: {
+        hp: 10,
+        maxHp: 40,
+        items: ['titan_heart', 'merchants_pendant', 'soul_magnet'],
+      },
+      addLog: vi.fn(),
+      heal(amount) {
+        const adjusted = this.triggerItems('heal_amount', amount);
+        const resolved = typeof adjusted === 'number' ? adjusted : amount;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + Math.max(0, resolved));
+        return { healed: resolved };
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    ItemSystem.triggerItems(gs, Trigger.SHOP_BUY, { kind: 'potion', cost: 25 });
+    expect(gs.player.maxHp).toBe(41);
+    expect(gs.player.hp).toBe(10);
+
+    ItemSystem.triggerItems(gs, Trigger.ENEMY_KILL, { enemy: { hp: 0 }, idx: 0 });
+    expect(gs.player.maxHp).toBe(43);
+    expect(gs.player.hp).toBe(10);
   });
 });

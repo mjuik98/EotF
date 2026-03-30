@@ -408,6 +408,16 @@ function pushCardToCombatDrawPile(gs, cardId) {
     return false;
 }
 
+function unshiftCardToCombatDrawPile(gs, cardId) {
+    const drawPile = getCombatDrawPile(gs);
+    if (drawPile) {
+        drawPile.unshift(cardId);
+        gs.markDirty?.('hand');
+        return true;
+    }
+    return false;
+}
+
 function addPlayerDrawCount(gs, amount) {
     if (!gs?.player || !Number.isFinite(amount) || amount === 0) return 0;
     const current = Math.max(0, Math.floor(Number(gs.player.drawCount || 0)));
@@ -468,6 +478,35 @@ function growPlayerMaxHp(gs, amount) {
         hpAfter: Number(gs.player.hp || 0),
         maxHpAfter: Number(gs.player.maxHp || 0),
     };
+}
+
+function addPlayerMaxHpWithoutHealing(gs, amount) {
+    if (!gs?.player || !Number.isFinite(amount) || amount === 0) {
+        return {
+            hpAfter: Number(gs?.player?.hp || 0),
+            maxHpAfter: Number(gs?.player?.maxHp || 0),
+        };
+    }
+    const delta = Math.floor(amount);
+    const nextMaxHp = Math.max(1, Number(gs.player.maxHp || 0) + delta);
+    setPlayerMaxHp(gs, nextMaxHp);
+    return {
+        hpAfter: Number(gs.player.hp || 0),
+        maxHpAfter: Number(gs.player.maxHp || 0),
+    };
+}
+
+function healPlayerThroughHook(gs, amount, source = null) {
+    if (!gs?.player || !Number.isFinite(amount) || amount <= 0) {
+        return { healed: 0, hpAfter: Number(gs?.player?.hp || 0) };
+    }
+    if (typeof gs.heal === 'function') {
+        return gs.heal(amount, source);
+    }
+    const beforeHp = Number(gs.player.hp || 0);
+    const nextHp = Math.min(Number(gs.player.maxHp || beforeHp), beforeHp + Math.floor(amount));
+    setPlayerHp(gs, nextHp);
+    return { healed: Math.max(0, nextHp - beforeHp), hpAfter: nextHp };
 }
 
 function growPlayerMaxEnergy(gs, amount, options = {}) {
@@ -860,7 +899,7 @@ const COMMON_ITEMS = {
     },
     thin_codex: {
         id: 'thin_codex', name: '얇은 문서', icon: '📄', rarity: 'common',
-        desc: '전투 시작: 덱 10장 이하일 때 카드 1장 드로우 / 방어막 4 획득',
+        desc: '전투 시작: 덱 10장 이하일 때 카드 1장 드로우 및 방어막 4 획득',
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START && (gs.player.deck?.length || 0) <= 10) {
                 gs.drawCards(1, { name: '얇은 문서', type: 'item' });
@@ -1180,10 +1219,11 @@ const UNCOMMON_ITEMS = {
     },
     merchants_pendant: {
         id: 'merchants_pendant', name: '상인의 펜던트', icon: '📿', rarity: 'uncommon',
-        desc: '상점 구매 시: 최대 체력 +1',
+        desc: '상점 구매 시: 최대 체력 +1 / 체력 1 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.SHOP_BUY) {
-                growPlayerMaxHp(gs, 1);
+                addPlayerMaxHpWithoutHealing(gs, 1);
+                healPlayerThroughHook(gs, 1, { name: '상인의 펜던트', type: 'item' });
                 gs.addLog?.('📿 상인의 펜던트: 건강해진 느낌!', 'item');
             }
         }
@@ -1240,7 +1280,7 @@ const UNCOMMON_ITEMS = {
     },
     void_eye: {
         id: 'void_eye', name: '공허의 눈', icon: '👁️', rarity: 'uncommon', setId: 'void_set',
-        desc: '공격 카드 사용 시 20% 확률: 대상에게 약화 1 부여\n[세트: 공허의 삼위일체]',
+        desc: '공격 카드 사용 시 20% 확률: 대상에게 약화 1 부여 / 여러 적 타격 시 모두 적용\n[세트: 공허의 삼위일체]',
         passive(gs, trigger, data) {
             if (trigger !== Trigger.CARD_PLAY || Math.random() >= 0.2) return;
             const cardType = String(CARDS?.[data?.cardId]?.type || '').toUpperCase();
@@ -1325,7 +1365,7 @@ const RARE_ITEMS = {
         onAcquire(gs) { setPlayerMaxEnergy(gs, Number(gs.player.maxEnergy || 0) + 1); },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
-                if (!pushCardToCombatDrawPile(gs, 'curse_noise')) {
+                if (!unshiftCardToCombatDrawPile(gs, 'curse_noise')) {
                     gs.player.deck.push('curse_noise');
                 }
                 gs.addLog?.('🎒 차원 주머니: 공간의 뒤틀림으로 노이즈가 유입됩니다.', 'echo');
@@ -1361,10 +1401,11 @@ const RARE_ITEMS = {
     },
     soul_magnet: {
         id: 'soul_magnet', name: '영혼 자석', icon: '🧲', rarity: 'rare',
-        desc: '적 처치 시: 최대 체력 +2',
+        desc: '적 처치 시: 최대 체력 +2 / 체력 2 회복',
         passive(gs, trigger) {
             if (trigger === Trigger.ENEMY_KILL) {
-                growPlayerMaxHp(gs, 2);
+                addPlayerMaxHpWithoutHealing(gs, 2);
+                healPlayerThroughHook(gs, 2, { name: '영혼 자석', type: 'item' });
                 gs.addLog?.('🧲 영혼 자석: 생명력이 강화되었습니다.', 'item');
             }
         }
@@ -1395,8 +1436,10 @@ const RARE_ITEMS = {
             const persistent = getPlayerItemState(gs, 'energy_core');
             const count = Number(persistent.count || 0);
             if (count >= 2) return;
+            const previousMax = Math.max(1, Number(gs.player.maxEnergy || 1));
+            const result = growPlayerMaxEnergy(gs, 1);
+            if (Number(result?.maxEnergyAfter || previousMax) <= previousMax) return;
             persistent.count = count + 1;
-            growPlayerMaxEnergy(gs, 1);
             gs.addLog?.('🔋 에너지 핵: 최대 에너지 +1', 'echo');
         }
     },

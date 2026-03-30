@@ -269,4 +269,59 @@ describe('CombatLifecycle', () => {
     expect(host.player.maxHp).toBe(40);
     expect(host.player.hp).toBe(40);
   });
+
+  it('does not consume energy_core boss-growth charges when max energy is already capped on the live combat-end path', async () => {
+    vi.useFakeTimers();
+
+    const host = {
+      combat: {
+        active: true,
+        enemies: [{ isBoss: true }],
+      },
+      stats: {
+        damageDealt: 0,
+        damageTaken: 0,
+      },
+      player: {
+        items: ['energy_core'],
+        _itemState: {
+          energy_core: { count: 1 },
+        },
+        maxEnergy: 5,
+        energy: 5,
+        kills: 0,
+        echoChain: 0,
+      },
+      currentRegion: 0,
+      currentNode: { type: 'boss' },
+      addLog: vi.fn(),
+      dispatch: vi.fn(),
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    const endCombatPromise = CombatLifecycle.endCombat.call(host, {
+      runRules: { onCombatEnd: vi.fn() },
+      doc: { getElementById: vi.fn(() => null) },
+      win: {},
+      tooltipUI: { hideTooltip: vi.fn() },
+      cleanupAllTooltips: vi.fn(),
+      hudUpdateUI: { resetCombatUI: vi.fn(), hideNodeOverlay: vi.fn() },
+      updateChainUI: vi.fn(),
+      renderHand: vi.fn(),
+      renderCombatCards: vi.fn(),
+      updateUI: vi.fn(),
+      audioEngine: { playItemGet: vi.fn() },
+      showCombatSummary: vi.fn(),
+      showRewardScreen: vi.fn(),
+    });
+
+    await vi.runAllTimersAsync();
+    await endCombatPromise;
+
+    expect(host.player.maxEnergy).toBe(5);
+    expect(host.player._itemState.energy_core.count).toBe(1);
+    expect(host.addLog).not.toHaveBeenCalledWith('🔋 에너지 핵: 최대 에너지 +1', 'echo');
+  });
 });

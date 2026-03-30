@@ -6,6 +6,7 @@ import { Actions, Reducers } from '../game/core/state_actions.js';
 import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start_player_turn_policy.js';
 import { getEnemyAction } from '../game/features/combat/domain/enemy_turn_domain.js';
 import { beginPlayerTurnState } from '../game/features/combat/state/player_turn_state_commands.js';
+import { applyEnemyDeathState } from '../game/features/combat/application/enemy_death_state.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
 import { SetBonusSystem } from '../game/shared/progression/set_bonus_system.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
@@ -108,6 +109,13 @@ describe('item logic fixes', () => {
         randomSpy.mockRestore();
     });
 
+    it('keeps desc aligned for target and max-hp growth item behavior', () => {
+        expect(ITEMS.void_eye.desc).toBe('공격 카드 사용 시 20% 확률: 대상에게 약화 1 부여 / 여러 적 타격 시 모두 적용\n[세트: 공허의 삼위일체]');
+        expect(ITEMS.merchants_pendant.desc).toBe('상점 구매 시: 최대 체력 +1 / 체력 1 회복');
+        expect(ITEMS.soul_magnet.desc).toBe('적 처치 시: 최대 체력 +2 / 체력 2 회복');
+        expect(ITEMS.thin_codex.desc).toBe('전투 시작: 덱 10장 이하일 때 카드 1장 드로우 및 방어막 4 획득');
+    });
+
     it('dusk_mark applies extra weaken only when dealing damage to a weakened target', () => {
         const gs = {
             _selectedTarget: 0,
@@ -126,6 +134,43 @@ describe('item logic fixes', () => {
         expect(gs.applyEnemyStatus).toHaveBeenCalledTimes(1);
         expect(gs.applyEnemyStatus).toHaveBeenCalledWith('weakened', 1, 0, { name: '황혼의 낙인', type: 'item' });
     });
+
+    it('routes soul_magnet healing through the enemy_kill runtime path so titan_heart can still block the heal', () => {
+        const gs = {
+            combat: {
+                enemies: [{ hp: 0, gold: 12, name: 'Slime', id: 'slime' }],
+            },
+            player: {
+                items: ['titan_heart', 'soul_magnet'],
+                hp: 10,
+                maxHp: 40,
+                kills: 0,
+            },
+            meta: {},
+            addLog: vi.fn(),
+            addGold: vi.fn(),
+            heal(amount) {
+                const adjusted = this.triggerItems('heal_amount', amount);
+                const resolved = typeof adjusted === 'number' ? adjusted : amount;
+                this.player.hp = Math.min(this.player.maxHp, this.player.hp + Math.max(0, resolved));
+                return { healed: resolved };
+            },
+            triggerItems(trigger, data) {
+                return ItemSystem.triggerItems(this, trigger, data);
+            },
+        };
+
+        applyEnemyDeathState(gs, gs.combat.enemies[0], 0, {
+            addGold: gs.addGold,
+            addLog: gs.addLog,
+            triggerItems: gs.triggerItems.bind(gs),
+            recordEnemyWorldKill: vi.fn(),
+        });
+
+        expect(gs.player.maxHp).toBe(42);
+        expect(gs.player.hp).toBe(10);
+    });
+
     it('paradox_contract does not permanently increase max energy when combat start triggers twice', () => {
         const relic = ITEMS.paradox_contract;
         const gs = {
@@ -360,6 +405,18 @@ describe('item logic fixes', () => {
         runActualTurnStart(gs);
 
         expect(gs.player.energy).toBe(8);
+    });
+
+    it('dimension_pocket leaves curse_noise in the combat draw pile instead of auto-drawing it on the same turn', () => {
+        const gs = createTurnStartRuntime({
+            items: ['dimension_pocket'],
+            drawPile: ['strike', 'defend', 'bash', 'strike', 'defend'],
+        });
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.hand).not.toContain('curse_noise');
+        expect(gs.player.drawPile).toEqual(['curse_noise']);
     });
 
     it('balanced_scale clears its queued extra draw when combat ends before the next turn', () => {

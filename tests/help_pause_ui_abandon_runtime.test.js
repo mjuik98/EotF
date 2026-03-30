@@ -34,7 +34,14 @@ describe('help_pause_ui_abandon_runtime', () => {
     const deps = {
       doc,
       gs: {
-        combat: { active: true },
+        combat: { active: true, playerTurn: true, enemies: [] },
+        player: {
+          hand: [],
+          graveyard: [],
+          exhausted: [],
+          drawPile: [],
+          discardPile: [],
+        },
       },
       finalizeRunOutcome: vi.fn(),
       clearActiveRunSave: vi.fn(),

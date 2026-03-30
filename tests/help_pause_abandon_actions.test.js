@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { confirmHelpPauseAbandonRun } from '../game/features/title/application/help_pause_abandon_actions.js';
+import { cleanupCombatAfterAbandon } from '../game/features/combat/application/help_pause_abandon_combat_actions.js';
 
 function createElement() {
   return {
@@ -65,5 +66,56 @@ describe('help_pause_abandon_actions', () => {
       doc,
       gs: deps.gs,
     }));
+  });
+
+  it('publishes combat_end and clears combat-only item state on the live abandon cleanup path', () => {
+    const doc = createDoc();
+    doc.register('abandonConfirm', createElement());
+    const combatOverlay = doc.register('combatOverlay', createElement());
+    const gs = {
+      combat: {
+        active: true,
+        playerTurn: true,
+        enemies: [],
+      },
+      player: {
+        maxEnergy: 4,
+        energy: 0,
+        hand: ['guard'],
+        graveyard: [],
+        exhausted: [],
+        drawPile: ['strike'],
+        discardPile: ['defend'],
+      },
+      _itemRuntime: {
+        paradox_contract: { active: true, baseMax: 3 },
+        crystal_ball: { discounted: new Set(['strike', 'defend']) },
+        ancient_scroll: { tempCardId: 'tmp_card' },
+      },
+      triggerItems(trigger, data) {
+        if (trigger === 'combat_end') {
+          expect(this._itemRuntime.paradox_contract.active).toBe(true);
+          expect(data).toEqual({ isBoss: false, defeated: true, abandoned: true });
+          this.player.maxEnergy = 3;
+        }
+        return data;
+      },
+    };
+
+    confirmHelpPauseAbandonRun({
+      doc,
+      gs,
+      cleanupCombatAfterAbandon,
+      finalizeRunOutcome: vi.fn(),
+      clearActiveRunSave: vi.fn(),
+      showAbandonOutcome: vi.fn(() => false),
+    }, vi.fn());
+
+    expect(gs.combat.active).toBe(false);
+    expect(gs.player.maxEnergy).toBe(3);
+    expect(gs.player.hand).toEqual([]);
+    expect(gs.player.drawPile).toEqual([]);
+    expect(gs._itemRuntime).toEqual({});
+    expect(combatOverlay.classList.remove).toHaveBeenCalledWith('active');
   });
 });
