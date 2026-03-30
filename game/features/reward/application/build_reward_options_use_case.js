@@ -109,6 +109,8 @@ function resolveRewardItemChoiceCount(gs, data) {
     const result = gs.triggerItems('reward_generate', { type: 'item', count: totalChoices });
     if (typeof result === 'number' && Number.isFinite(result)) {
       totalChoices = Math.max(1, Math.floor(result));
+    } else if (result && typeof result === 'object' && Number.isFinite(result.count)) {
+      totalChoices = Math.max(1, Math.floor(result.count));
     }
   }
   return totalChoices;

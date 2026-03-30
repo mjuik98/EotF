@@ -46,6 +46,9 @@ function playResonanceBurstAudio(audioEngine, deps = {}) {
 export const CombatLifecycle = {
   async endCombat(deps = {}) {
     const outcome = await runCombatRewardTransition({
+      beforeCombatEndCleanup: (state, nextOutcome) => state.triggerItems?.('combat_end', {
+        isBoss: nextOutcome?.isBoss,
+      }),
       combatStateCommands: {
         beginResolution: beginCombatResolution,
         completeResolution: completeCombatResolution,
@@ -67,8 +70,6 @@ export const CombatLifecycle = {
     });
 
     if (outcome?.skipped || outcome?.error) return outcome;
-
-    this.triggerItems('combat_end', { isBoss: outcome.isBoss });
     return outcome;
   },
 

@@ -189,6 +189,10 @@ describe('items data passives', () => {
     ).toBeUndefined();
   });
 
+  it('keeps clockwork_butterfly description aligned with its overcap recovery behavior', () => {
+    expect(ITEMS.clockwork_butterfly.desc).toBe('턴 시작 3회마다: 에너지 최대치만큼 회복');
+  });
+
   it('routes combat-start draw passives through runtime compat without mutating canonical GS helpers', () => {
     const gs = {
       combat: { active: true },
@@ -349,6 +353,26 @@ describe('items data passives', () => {
 
     expect(gs.player.maxHp).toBe(45);
     expect(gs.player.hp).toBe(10);
+  });
+
+  it('routes acidic_vial poison growth through applyEnemyStatus instead of direct enemy mutation', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const gs = {
+      _selectedTarget: 0,
+      combat: {
+        enemies: [
+          { hp: 12, statusEffects: { poisoned: 2, poisonDuration: 1 } },
+        ],
+      },
+      applyEnemyStatus: vi.fn(),
+    };
+
+    ITEMS.acidic_vial.passive(gs, Trigger.DEAL_DAMAGE, { amount: 5, targetIdx: 0 });
+
+    expect(gs.applyEnemyStatus).toHaveBeenCalledWith('poisoned', 1, 0, { name: '산성 유리병', type: 'item' });
+    expect(gs.combat.enemies[0].statusEffects.poisoned).toBe(2);
+    expect(gs.combat.enemies[0].statusEffects.poisonDuration).toBe(1);
+    randomSpy.mockRestore();
   });
 
   it('applies eye_of_storm vulnerable to every enemy instead of the player', () => {

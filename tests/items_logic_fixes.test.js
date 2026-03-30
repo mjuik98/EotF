@@ -326,7 +326,7 @@ describe('item logic fixes', () => {
         expect(gs.player.energy).toBe(5);
     });
 
-    it('clockwork_butterfly refills to max energy instead of overflowing on the third turn start', () => {
+    it('clockwork_butterfly restores a full energy bar on the third turn start', () => {
         const gs = createTurnStartRuntime({
             items: ['clockwork_butterfly'],
             drawPile: [],
@@ -338,7 +338,28 @@ describe('item logic fixes', () => {
         runActualTurnStart(gs);
         runActualTurnStart(gs);
 
-        expect(gs.player.energy).toBe(3);
+        expect(gs.player.energy).toBe(6);
+    });
+
+    it('clockwork_butterfly does not erase overcap energy restored earlier in the same turn-start path', () => {
+        const gs = createTurnStartRuntime({
+            items: ['mana_battery', 'clockwork_butterfly'],
+            drawPile: [],
+            energy: 2,
+            maxEnergy: 3,
+        });
+
+        ITEMS.mana_battery.passive(gs, Trigger.TURN_END);
+        runActualTurnStart(gs);
+        gs.player.energy = 2;
+        ITEMS.mana_battery.passive(gs, Trigger.TURN_END);
+        runActualTurnStart(gs);
+        gs.player.energy = 2;
+        ITEMS.mana_battery.passive(gs, Trigger.TURN_END);
+
+        runActualTurnStart(gs);
+
+        expect(gs.player.energy).toBe(8);
     });
 
     it('balanced_scale clears its queued extra draw when combat ends before the next turn', () => {

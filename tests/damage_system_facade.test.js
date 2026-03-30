@@ -40,8 +40,19 @@ function createHost() {
         };
       }
       if (action === Actions.ENEMY_STATUS) {
+        const enemy = host.combat.enemies[payload.targetIdx];
+        enemy.statusEffects ??= {};
+        if (payload.status === 'poisoned') {
+          enemy.statusEffects.poisoned = (enemy.statusEffects.poisoned || 0) + payload.duration;
+          enemy.statusEffects.poisonDuration = 3;
+          return {
+            duration: enemy.statusEffects.poisoned,
+            poisonDuration: enemy.statusEffects.poisonDuration,
+          };
+        }
+        enemy.statusEffects[payload.status] = (enemy.statusEffects[payload.status] || 0) + payload.duration;
         return {
-          duration: payload.duration,
+          duration: enemy.statusEffects[payload.status],
         };
       }
       if (action === Actions.PLAYER_DAMAGE) {
@@ -248,6 +259,22 @@ describe('DamageSystem facade', () => {
 
     expect(host.combat.enemies[0].statusEffects.poisoned).toBe(2);
     expect(host.combat.enemies[1].statusEffects.poisoned).toBe(2);
+    randomSpy.mockRestore();
+  });
+
+  it('refreshes poison duration through the live acidic_vial damage path', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const host = createHost();
+    host.player.items = ['acidic_vial'];
+    host.combat.enemies = [
+      { name: 'Target', hp: 30, shield: 0, statusEffects: { poisoned: 1, poisonDuration: 1 } },
+    ];
+    host.triggerItems = (trigger, payload) => ItemSystem.triggerItems(host, trigger, payload);
+
+    host.dealDamage(5, 0);
+
+    expect(host.combat.enemies[0].statusEffects.poisoned).toBe(2);
+    expect(host.combat.enemies[0].statusEffects.poisonDuration).toBe(3);
     randomSpy.mockRestore();
   });
 

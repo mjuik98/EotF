@@ -1,5 +1,6 @@
 export async function endCombatUseCase({
   buildOutcome,
+  beforeCombatEndCleanup,
   clock,
   combatStateCommands,
   combatUiPort,
@@ -19,6 +20,7 @@ export async function endCombatUseCase({
 
   try {
     runRules?.onCombatEnd?.(gs);
+    beforeCombatEndCleanup?.(gs, outcome);
     dispatchCombatEnd?.(gs);
 
     combatUiPort?.resetAfterCombat?.(outcome.uiReset);

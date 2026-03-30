@@ -969,8 +969,7 @@ const UNCOMMON_ITEMS = {
             const targetIdx = resolveTriggeredTargetIdx(gs, data);
             const target = gs.combat?.enemies?.[targetIdx];
             if (!target?.statusEffects || (target.statusEffects.poisoned || 0) <= 0) return;
-            target.statusEffects.poisoned += 1;
-            target.statusEffects.poisonDuration = Math.max(1, target.statusEffects.poisonDuration || 3);
+            gs.applyEnemyStatus?.('poisoned', 1, targetIdx, { name: '산성 유리병', type: 'item' });
         }
     },
     cobra_scale_charm: {
@@ -1372,14 +1371,14 @@ const RARE_ITEMS = {
     },
     clockwork_butterfly: {
         id: 'clockwork_butterfly', name: '태엽 나비', icon: '🦋', rarity: 'rare',
-        desc: '턴 시작 3회마다: 에너지 모두 회복',
+        desc: '턴 시작 3회마다: 에너지 최대치만큼 회복',
         passive(gs, trigger) {
             const runtime = getItemRuntimeState(gs, 'clockwork_butterfly');
             if (trigger === Trigger.TURN_START) {
                 runtime.count = (runtime.count || 0) + 1;
                 if (runtime.count >= 3) {
                     runtime.count = 0;
-                    setPlayerEnergy(gs, gs.player.maxEnergy);
+                    addPlayerEnergy(gs, Number(gs.player.maxEnergy || 0));
                     gs.addLog?.('🦋 태엽 나비: 시간을 가속하여 에너지를 보충합니다!', 'item');
                 }
             }

@@ -126,4 +126,56 @@ describe('claim_reward_use_case', () => {
       Math.random = originalRandom;
     }
   });
+
+  it('routes mini-boss bonus healing through the live heal hook', async () => {
+    const { ensureMiniBossBonus } = await import('../game/features/reward/public.js');
+    const { ItemSystem } = await import('../game/shared/progression/item_system.js');
+    const showItemToast = vi.fn();
+    const playItemGet = vi.fn();
+    const data = {
+      items: {
+        relic_rare: {
+          id: 'relic_rare',
+          name: '희귀 유물',
+          icon: '@',
+          rarity: 'rare',
+        },
+      },
+    };
+    const gs = {
+      currentRegion: 0,
+      player: {
+        maxHp: 20,
+        hp: 10,
+        items: ['titan_heart'],
+      },
+      addLog: vi.fn(),
+      markDirty: vi.fn(),
+      heal(amount) {
+        let adjusted = amount;
+        const scaled = this.triggerItems('heal_amount', adjusted);
+        if (typeof scaled === 'number' && Number.isFinite(scaled)) {
+          adjusted = Math.max(0, Math.floor(scaled));
+        }
+        const healed = Math.min(adjusted, this.player.maxHp - this.player.hp);
+        this.player.hp += healed;
+        return { healed, hpAfter: this.player.hp };
+      },
+      triggerItems(trigger, payload) {
+        return ItemSystem.triggerItems(this, trigger, payload);
+      },
+    };
+
+    const originalRandom = Math.random;
+    Math.random = vi.fn(() => 0);
+
+    try {
+      ensureMiniBossBonus(gs, data, { showItemToast, playItemGet });
+
+      expect(gs.player.hp).toBe(10);
+      expect(gs.addLog).toHaveBeenCalledWith('중간 보스 보상: 골드 +12, 체력 +0', 'system');
+    } finally {
+      Math.random = originalRandom;
+    }
+  });
 });

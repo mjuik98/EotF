@@ -9,6 +9,7 @@ import { endCombatUseCase } from './end_combat_use_case.js';
 
 export function runEndCombatFlow({
   combatStateCommands,
+  beforeCombatEndCleanup,
   deps = {},
   dispatchCombatEnd,
   doc,
@@ -52,6 +53,7 @@ export function runEndCombatFlow({
 
   return endCombatUseCase({
     audioPort,
+    beforeCombatEndCleanup: beforeCombatEndCleanup || deps.beforeCombatEndCleanup,
     buildOutcome,
     clock,
     combatStateCommands,

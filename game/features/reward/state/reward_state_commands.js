@@ -13,7 +13,9 @@ export function applyMiniBossBonusState(state, data) {
 
   const heal = Math.max(1, Math.floor((state.player.maxHp || 1) * 0.15));
   const goldGain = Math.max(12, Math.floor(((state.currentRegion || 0) + 1) * 6));
-  const healed = applyPlayerHealDeltaState(state, heal)?.healed ?? 0;
+  const healed = typeof state.heal === 'function'
+    ? (state.heal(heal)?.healed ?? 0)
+    : (applyPlayerHealDeltaState(state, heal)?.healed ?? 0);
   applyPlayerGoldDeltaState(state, goldGain);
 
   const rareItems = Object.values(data?.items || {}).filter((item) => {

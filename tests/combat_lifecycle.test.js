@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CombatLifecycle } from '../game/features/combat/public.js';
 import * as RunRuleSystem from '../game/features/run/ports/public_rule_capabilities.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
+import { Reducers } from '../game/core/state_actions.js';
 
 describe('CombatLifecycle', () => {
   afterEach(() => {
@@ -196,5 +197,76 @@ describe('CombatLifecycle', () => {
         }),
       }),
     );
+  });
+
+  it('runs combat_end relic cleanup before combat state teardown on victory', async () => {
+    vi.useFakeTimers();
+
+    const host = {
+      combat: {
+        active: true,
+        enemies: [],
+        playerTurn: true,
+        turn: 1,
+        log: [],
+      },
+      stats: {
+        damageDealt: 0,
+        damageTaken: 0,
+      },
+      player: {
+        items: ['paradox_contract', 'titans_belt'],
+        buffs: {},
+        hand: [],
+        graveyard: [],
+        exhausted: [],
+        drawPile: [],
+        discardPile: [],
+        drawCount: 0,
+        silenceGauge: 0,
+        timeRiftGauge: 0,
+        energy: 3,
+        maxEnergy: 3,
+        hp: 40,
+        maxHp: 40,
+        echoChain: 0,
+      },
+      currentRegion: 0,
+      currentNode: null,
+      markDirty: vi.fn(),
+      dispatch(action, payload = {}) {
+        return Reducers[action]?.(this, payload);
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    host.triggerItems('combat_start');
+    expect(host.player.maxEnergy).toBe(4);
+    expect(host.player.maxHp).toBe(55);
+
+    const endCombatPromise = CombatLifecycle.endCombat.call(host, {
+      runRules: { onCombatEnd: vi.fn() },
+      doc: { getElementById: vi.fn(() => null) },
+      win: {},
+      tooltipUI: { hideTooltip: vi.fn() },
+      cleanupAllTooltips: vi.fn(),
+      hudUpdateUI: { resetCombatUI: vi.fn(), hideNodeOverlay: vi.fn() },
+      updateChainUI: vi.fn(),
+      renderHand: vi.fn(),
+      renderCombatCards: vi.fn(),
+      updateUI: vi.fn(),
+      audioEngine: { playItemGet: vi.fn() },
+      showCombatSummary: vi.fn(),
+      showRewardScreen: vi.fn(),
+    });
+
+    await vi.runAllTimersAsync();
+    await endCombatPromise;
+
+    expect(host.player.maxEnergy).toBe(3);
+    expect(host.player.maxHp).toBe(40);
+    expect(host.player.hp).toBe(40);
   });
 });
