@@ -81,14 +81,10 @@
           </div>
         </section>
 
-        <section class="title-panel-right" id="titleMenuPanel" aria-label="메인 메뉴">
+        <section class="title-panel-right" id="titleMenuPanel" aria-label="타이틀 선택">
           <div class="title-nav-cursor" id="titleNavCursor" aria-hidden="true"></div>
 
-          <div class="title-menu-head">
-            <div class="title-menu-kicker">메인 메뉴</div>
-          </div>
-
-          <div class="title-menu-section title-menu-section--run" aria-label="저장된 런">
+          <div id="titleRunSection" class="title-menu-section title-menu-section--run" aria-label="저장된 런" style="display:none;">
             <div class="title-menu-section-head">
               <div class="title-menu-kicker">저장된 런</div>
               <div class="title-menu-summary">재개와 슬롯 관리를 정리합니다</div>
@@ -144,38 +140,33 @@
             <button id="mainStartBtn" class="title-menu-btn title-menu-btn--primary" data-nav="1" type="button">
               <span class="title-menu-icon" aria-hidden="true">✦</span>
               <span class="title-menu-text">잔향 속으로</span>
-              <span class="title-menu-meta">새 런 시작</span>
               <span class="title-menu-shortcut">ENTER</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>
             <button id="mainRunRulesBtn" class="title-menu-btn" data-nav="2" type="button">
               <span class="title-menu-icon" aria-hidden="true">⌘</span>
               <span class="title-menu-text">런 규칙</span>
-              <span class="title-menu-meta">모드와 각인 확인</span>
               <span class="title-menu-shortcut">R</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>
             <button id="mainCodexBtn" class="title-menu-btn" data-nav="3" type="button">
               <span class="title-menu-icon" aria-hidden="true">◫</span>
               <span class="title-menu-text">도감</span>
-              <span class="title-menu-meta">해금한 적과 카드</span>
               <span class="title-menu-shortcut">D</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>
             <button id="mainSettingsBtn" class="title-menu-btn" data-nav="4" type="button">
               <span class="title-menu-icon" aria-hidden="true">⋯</span>
               <span class="title-menu-text">설정</span>
-              <span class="title-menu-meta">오디오와 연출 조정</span>
               <span class="title-menu-shortcut">S</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>
           </div>
 
-          <div class="title-menu-section title-menu-section--exit">
-            <button id="mainQuitBtn" class="title-menu-btn title-menu-btn--danger" data-nav="5" type="button">
+          <div class="title-menu-section title-menu-section--utility">
+            <button id="mainQuitBtn" class="title-menu-btn title-menu-btn--utility" data-nav="5" type="button">
               <span class="title-menu-icon" aria-hidden="true">×</span>
               <span class="title-menu-text">게임 종료</span>
-              <span class="title-menu-meta">브라우저 창 닫기</span>
               <span class="title-menu-shortcut">ESC</span>
               <span class="title-menu-arrow" aria-hidden="true">→</span>
             </button>

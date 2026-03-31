@@ -47,6 +47,7 @@ function createMockDocument() {
     titleRunArchive: { ...makeElement(), id: 'titleRunArchive' },
     titleRecoveryPanel: { ...makeElement(), id: 'titleRecoveryPanel' },
     titleRecoveryRetryBtn: { ...makeElement(), id: 'titleRecoveryRetryBtn' },
+    titleRunSection: { ...makeElement(), id: 'titleRunSection' },
     titleContinueWrap: { ...makeElement(), id: 'titleContinueWrap' },
     titleMenuDivider: { ...makeElement(), id: 'titleMenuDivider' },
     titleMenuPanel: { ...makeElement(), id: 'titleMenuPanel', getBoundingClientRect: vi.fn(() => ({ top: 0 })) },
@@ -153,6 +154,7 @@ describe('game_boot_ui', () => {
     });
 
     expect(doc.elements.titleStatsBlock.style.display).toBe('block');
+    expect(doc.elements.titleRunSection.style.display).toBe('flex');
     expect(doc.elements.titleContinueWrap.style.display).toBe('block');
     expect(doc.elements.titleMenuDivider.style.display).toBe('block');
     expect(doc.elements.sttClass.textContent).toBe('마법사');
@@ -300,6 +302,7 @@ describe('game_boot_ui', () => {
     });
 
     expect(hasSave).toBe(false);
+    expect(doc.elements.titleRunSection.style.display).toBe('none');
     expect(doc.elements.titleContinueWrap.style.display).toBe('none');
     expect(doc.elements.titleMenuDivider.style.display).toBe('none');
     expect(doc.elements.mainContinueBtn.disabled).toBe(true);
@@ -330,6 +333,7 @@ describe('game_boot_ui', () => {
     });
 
     expect(hasSave).toBe(false);
+    expect(doc.elements.titleRunSection.style.display).toBe('none');
     expect(doc.elements.titleContinueWrap.style.display).toBe('none');
     expect(doc.elements.titleMenuDivider.style.display).toBe('none');
     expect(doc.elements.mainContinueBtn.disabled).toBe(true);

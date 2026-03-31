@@ -67,11 +67,12 @@ function resolveSelectedSlot(saveSystem, gs) {
 }
 
 function createFallbackSlotSummaries(saveSystem, slot) {
-  const preview = saveSystem?.readRunPreview?.({ slot }) || null;
+  const hasSave = saveSystem?.hasSave?.({ slot }) ?? false;
+  const preview = hasSave ? (saveSystem?.readRunPreview?.({ slot }) || null) : null;
   return [
     {
       slot,
-      hasSave: !!preview,
+      hasSave,
       preview,
       meta: saveSystem?.readMetaPreview?.({ slot }) || null,
     },
@@ -405,9 +406,9 @@ function buildSaveSlotPreviewMeta(summary = {}) {
   };
 }
 
-export function populateSaveTooltip(doc, saveSystem, gs, slot) {
+export function populateSaveTooltip(doc, saveSystem, gs, slot, previewOverride = null) {
   try {
-    const preview = resolveRunPreview(saveSystem, gs, slot);
+    const preview = previewOverride?.player ? previewOverride : resolveRunPreview(saveSystem, gs, slot);
     if (!preview?.player) return false;
 
     const player = preview.player;
@@ -457,7 +458,7 @@ function renderTitleSaveSlotControls(doc, saveSystem, gs, options = {}) {
   if (!slotBar) return;
 
   const selectedSlot = resolveSelectedSlot(saveSystem, gs);
-  const slotSummaries = resolveSlotSummaries(saveSystem, selectedSlot);
+  const slotSummaries = options.slotSummaries || resolveSlotSummaries(saveSystem, selectedSlot);
   slotBar.innerHTML = slotSummaries.map((summary) => {
     const slot = Number(summary?.slot || 1);
     const active = slot === selectedSlot;
@@ -534,17 +535,30 @@ export function refreshTitleSaveState(doc, saveSystem, gs, options = {}) {
   }
   const selectedSlot = resolveSelectedSlot(saveSystem, gs);
   saveSystem?.selectSlot?.(selectedSlot, { gs });
-  renderTitleSaveSlotControls(doc, saveSystem, gs, options);
+  const slotSummaries = resolveSlotSummaries(saveSystem, selectedSlot);
+  renderTitleSaveSlotControls(doc, saveSystem, gs, {
+    ...options,
+    slotSummaries,
+  });
+  const selectedSummary = slotSummaries.find((summary) => Number(summary?.slot || 0) === selectedSlot) || null;
 
   let hasSave = saveSystem?.hasSave?.({ slot: selectedSlot }) ?? false;
+  const runSection = doc.getElementById('titleRunSection');
   const continueWrap = doc.getElementById('titleContinueWrap');
   const menuDivider = doc.getElementById('titleMenuDivider');
   const continueBtn = doc.getElementById('mainContinueBtn');
 
   if (hasSave) {
-    hasSave = populateSaveTooltip(doc, saveSystem, gs, selectedSlot);
+    hasSave = populateSaveTooltip(doc, saveSystem, gs, selectedSlot, selectedSummary?.preview || null);
   }
 
+  const hasAnyOtherSavedSlot = slotSummaries.some((summary) => {
+    const slot = Number(summary?.slot || 0);
+    return slot !== selectedSlot && !!summary?.hasSave;
+  });
+  const hasAnySave = hasSave || hasAnyOtherSavedSlot;
+
+  if (runSection) runSection.style.display = hasAnySave ? 'flex' : 'none';
   if (continueWrap) continueWrap.style.display = hasSave ? 'block' : 'none';
   if (menuDivider) menuDivider.style.display = hasSave ? 'block' : 'none';
   if (continueBtn) continueBtn.disabled = !hasSave;

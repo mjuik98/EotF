@@ -57,9 +57,9 @@ describe('save load roundtrip smoke script', () => {
     expect(source).toContain("page.waitForSelector('#titleArchiveSummary'");
     expect(source).toContain("page.click('#titleArchiveToggleBtn')");
     expect(source).toContain("page.click('#mainRunRulesBtn')");
-    expect(source).toContain('runAccessLabel');
+    expect(source).toContain('runSectionVisible');
     expect(source).toContain('quitActionLabel');
-    expect(source).toContain('quitActionMeta');
+    expect(source).toContain('quitActionHasMeta');
     expect(source).toContain('exitSectionHasHeader');
     expect(source).toContain("path.join(outDir, 'title-meta.png')");
     expect(source).toContain("path.join(outDir, 'title-meta-expanded.png')");

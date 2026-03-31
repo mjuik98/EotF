@@ -5,6 +5,12 @@ function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);
 }
 
+function isEditableTarget(target) {
+  if (!target) return false;
+  const tagName = String(target.tagName || '').toLowerCase();
+  return target.isContentEditable || tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+}
+
 export function registerTitleBindings({
   actions,
   audio,
@@ -18,19 +24,55 @@ export function registerTitleBindings({
 
   resolvedDoc.addEventListener('keydown', (event) => {
     if (!getIsTitleScreen()) return;
-    if (!isEscapeKey(event)) return;
 
-    if (closeTopEscapeSurface(event, {
-      actions,
-      doc: resolvedDoc,
-      scope: 'title',
-    })) {
+    const key = String(event?.key || '').toLowerCase();
+    const characterSelect = resolvedDoc.getElementById('charSelectSubScreen');
+    const mainTitle = resolvedDoc.getElementById('mainTitleSubScreen');
+    const codexModal = resolvedDoc.getElementById('codexModal');
+    const runSettingsModal = resolvedDoc.getElementById('runSettingsModal');
+    const settingsModal = resolvedDoc.getElementById('settingsModal');
+
+    if (isEscapeKey(event)) {
+      if (closeTopEscapeSurface(event, {
+        actions,
+        doc: resolvedDoc,
+        scope: 'title',
+      })) {
+        return;
+      }
+
+      if (characterSelect && characterSelect.style.display === 'block') {
+        actions.backToTitle?.();
+        return;
+      }
+
+      actions.quitGame?.();
       return;
     }
 
-    const characterSelect = resolvedDoc.getElementById('charSelectSubScreen');
-    if (characterSelect && characterSelect.style.display === 'block') {
-      actions.backToTitle?.();
+    if (event?.metaKey || event?.ctrlKey || event?.altKey || isEditableTarget(event?.target)) return;
+    if (mainTitle?.style?.display === 'none') return;
+    if (characterSelect?.style?.display === 'block') return;
+    if (isVisibleModal(codexModal) || isVisibleModal(runSettingsModal) || isVisibleModal(settingsModal)) return;
+
+    if (key === 'r') {
+      event.preventDefault?.();
+      playUiClick(audio);
+      actions.openRunSettings?.();
+      return;
+    }
+
+    if (key === 'd') {
+      event.preventDefault?.();
+      playUiClick(audio);
+      actions.openCodexFromTitle?.();
+      return;
+    }
+
+    if (key === 's') {
+      event.preventDefault?.();
+      playUiClick(audio);
+      actions.openSettings?.();
     }
   });
 

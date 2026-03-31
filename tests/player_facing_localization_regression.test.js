@@ -34,13 +34,19 @@ describe('player_facing_localization_regression', () => {
     const shellMarkup = buildCharacterSelectShellMarkup();
 
     expect(html).toContain('잔향의 공명');
-    expect(html).toContain('메인 메뉴');
     expect(html).toContain('체력');
     expect(html).toContain('이어하기');
     expect(html).toContain('저장된 런');
     expect(html).toContain('재개와 슬롯 관리를 정리합니다');
     expect(html).toContain('게임 종료');
-    expect(html).toContain('브라우저 창 닫기');
+    expect(html).toMatch(/title-menu-section title-menu-section--utility[\s\S]*id="mainQuitBtn" class="title-menu-btn title-menu-btn--utility"/);
+    expect(html).not.toMatch(/id="mainQuitBtn" class="title-menu-btn title-menu-btn--danger"/);
+    expect(html).not.toContain('새 런 시작');
+    expect(html).not.toContain('모드와 각인 확인');
+    expect(html).not.toContain('해금한 적과 카드');
+    expect(html).not.toContain('오디오와 연출 조정');
+    expect(html).not.toContain('브라우저 창 닫기');
+    expect(html).not.toContain('메인 메뉴');
     expect(html).not.toContain('세션 이탈');
     expect(html).not.toContain('게임을 마치고 브라우저를 벗어납니다');
     expect(shellMarkup).toContain('당신의 잔향을 선택하라');

@@ -589,11 +589,6 @@
   letter-spacing: 0.18em;
 }
 
-.title-menu-head {
-  margin-bottom: 18px;
-  animation: titleFadeUp 0.6s ease 1.05s both;
-}
-
 .title-menu-section {
   display: flex;
   flex-direction: column;
@@ -892,7 +887,7 @@
 .title-menu-list {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .title-menu-btn {
@@ -900,8 +895,7 @@
   grid-template-columns: 22px minmax(0, 1fr) auto auto;
   align-items: center;
   column-gap: 14px;
-  row-gap: 2px;
-  padding: 16px 16px 16px 20px;
+  padding: 14px 16px 14px 20px;
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: transparent;
@@ -960,46 +954,59 @@
   text-shadow: 0 0 10px rgba(123, 47, 255, 0.5);
 }
 
-.title-menu-btn--danger:hover,
-.title-menu-btn--danger.kb-focus {
-  color: rgba(255, 127, 159, 0.96);
-  background: linear-gradient(90deg, rgba(255, 51, 102, 0.08), transparent 82%);
-  border-color: rgba(255, 51, 102, 0.14);
-}
-
 .title-menu-section--run {
   margin-bottom: 16px;
 }
 
 .title-menu-section--run .title-menu-summary,
-.title-menu-section--exit .title-menu-summary {
+.title-menu-section--utility .title-menu-summary {
   margin-top: 0;
   font-size: 12px;
   color: rgba(192, 200, 220, 0.68);
 }
 
-.title-menu-section--exit {
-  margin-bottom: 8px;
+.title-menu-section--utility {
+  margin-bottom: 0;
   gap: 0;
-  padding: 10px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 98, 118, 0.12);
-  background:
-    linear-gradient(180deg, rgba(48, 16, 22, 0.56), rgba(14, 8, 12, 0.82)),
-    rgba(255, 255, 255, 0.02);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  padding-top: 0;
   animation: titleFadeSlideLeft 0.6s ease 1.58s both;
 }
 
-.title-menu-section--exit .title-menu-btn {
-  border-top: 1px solid rgba(255, 98, 118, 0.16);
-  border-bottom: 1px solid rgba(255, 98, 118, 0.16);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(39, 12, 18, 0.48), rgba(12, 9, 14, 0.74));
+.title-menu-section--utility .title-menu-btn {
+  border-top: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+}
+
+.title-menu-btn--utility {
+  color: rgba(220, 225, 236, 0.78);
+}
+
+.title-menu-btn--utility .title-menu-icon {
+  color: rgba(217, 167, 180, 0.68);
+}
+
+.title-menu-btn--utility .title-menu-shortcut,
+.title-menu-btn--utility .title-menu-arrow {
+  color: rgba(190, 199, 221, 0.46);
+}
+
+.title-menu-btn--utility:hover,
+.title-menu-btn--utility.kb-focus {
+  transform: translateX(6px) scale(1.02);
+  color: #fff;
+  background: linear-gradient(90deg, rgba(80, 200, 120, 0.15), transparent 85%);
+  border-color: rgba(80, 200, 120, 0.3);
+  text-shadow: 0 0 8px rgba(80, 200, 120, 0.24);
+}
+
+.title-menu-btn--utility:hover .title-menu-icon,
+.title-menu-btn--utility.kb-focus .title-menu-icon {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(80, 200, 120, 0.24);
 }
 
 .title-menu-icon {
-  grid-row: 1 / span 2;
   font-size: 15px;
   color: rgba(178, 186, 214, 0.85);
   transition: color 0.24s ease, text-shadow 0.24s ease;
@@ -1018,16 +1025,10 @@
   font-family: 'Cinzel', serif;
   font-size: 15px;
   letter-spacing: 0.16em;
-}
-
-.title-menu-meta {
-  grid-column: 2;
-  color: rgba(200, 210, 230, 0.8);
-  font-size: 12px;
+  line-height: 1.3;
 }
 
 .title-menu-shortcut {
-  align-self: start;
   padding: 2px 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
@@ -1276,10 +1277,6 @@
 
   .title-menu-btn {
     grid-template-columns: 20px minmax(0, 1fr) auto;
-  }
-
-  .title-menu-meta {
-    grid-column: 2 / span 2;
   }
 
   .title-menu-shortcut {

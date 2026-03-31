@@ -72,13 +72,12 @@ try {
         archiveSummaryText: document.getElementById('titleArchiveSummary')?.innerText || '',
         archiveExpanded: document.getElementById('titleRunArchive')?.hidden === false,
         statsText: document.getElementById('titleStatsBlock')?.innerText || '',
+        runSectionVisible: document.getElementById('titleRunSection')?.style?.display === 'flex',
         continueVisible: document.getElementById('titleContinueWrap')?.style?.display || '',
         saveActionsExpanded: document.getElementById('titleSaveActionPanel')?.hidden === false,
-        runAccessLabel: document.querySelector('.title-menu-section--run .title-menu-kicker')?.textContent || '',
-        runAccessSummary: document.querySelector('.title-menu-section--run .title-menu-summary')?.textContent || '',
         quitActionLabel: document.querySelector('#mainQuitBtn .title-menu-text')?.textContent || '',
-        quitActionMeta: document.querySelector('#mainQuitBtn .title-menu-meta')?.textContent || '',
-        exitSectionHasHeader: !!document.querySelector('.title-menu-section--exit .title-menu-section-head'),
+        quitActionHasMeta: !!document.querySelector('#mainQuitBtn .title-menu-meta'),
+        exitSectionHasHeader: !!document.querySelector('.title-menu-section--utility .title-menu-section-head'),
       }));
       await page.screenshot({ path: path.join(outDir, 'title-meta.png'), fullPage: true });
 
@@ -123,8 +122,8 @@ try {
       if (titleState.saveActionsExpanded) {
         throw new Error('title meta smoke expected the save management controls to stay collapsed by default');
       }
-      if (titleState.runAccessLabel !== '저장된 런') {
-        throw new Error(`title meta smoke expected the run access section label to be "저장된 런", got "${titleState.runAccessLabel}"`);
+      if (titleState.runSectionVisible) {
+        throw new Error('title meta smoke expected the saved-run section to stay hidden when no save exists');
       }
       if (titleState.exitSectionHasHeader) {
         throw new Error('title meta smoke expected the exit card to collapse into a single quit action without a section heading');
@@ -132,8 +131,8 @@ try {
       if (titleState.quitActionLabel !== '게임 종료') {
         throw new Error(`title meta smoke expected the quit action label to be "게임 종료", got "${titleState.quitActionLabel}"`);
       }
-      if (!titleState.quitActionMeta.includes('브라우저 창 닫기')) {
-        throw new Error('title meta smoke expected the session exit action to describe the browser close behavior');
+      if (titleState.quitActionHasMeta) {
+        throw new Error('title meta smoke expected the quit action to render without subtitle copy');
       }
       if (!expandedArchiveText.includes('전술 분석')) {
         throw new Error('title meta smoke expected the archive detail panel to reveal analytics when expanded');

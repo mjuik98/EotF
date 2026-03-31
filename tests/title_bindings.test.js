@@ -156,6 +156,80 @@ describe('registerTitleBindings', () => {
     expect(actions.selectClass).toHaveBeenCalledWith({ dataset: { class: 'mage' } });
   });
 
+  it('uses escape to request quit from the main title when no higher-priority surface is open', () => {
+    const elements = {
+      codexModal: { classList: { contains: vi.fn(() => false) }, style: {} },
+      runSettingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+      settingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+      charSelectSubScreen: { style: { display: 'none' } },
+    };
+    const doc = {
+      addEventListener: vi.fn(),
+      getElementById: vi.fn((id) => elements[id] || null),
+      querySelectorAll: vi.fn(() => []),
+    };
+    const actions = {
+      backToTitle: vi.fn(),
+      closeCodex: vi.fn(),
+      closeRunSettings: vi.fn(),
+      closeSettings: vi.fn(),
+      quitGame: vi.fn(),
+    };
+
+    registerTitleBindings({
+      actions,
+      audio: { playEvent: vi.fn(), playClick: vi.fn() },
+      doc,
+      getIsTitleScreen: () => true,
+      isVisibleModal: () => false,
+    });
+
+    const onKeyDown = getDocumentHandler(doc, 'keydown');
+    onKeyDown?.({ key: 'Escape', preventDefault: vi.fn(), stopPropagation: vi.fn(), stopImmediatePropagation: vi.fn() });
+
+    expect(actions.quitGame).toHaveBeenCalledTimes(1);
+    expect(actions.backToTitle).not.toHaveBeenCalled();
+  });
+
+  it('routes title letter shortcuts to run rules, codex, and settings from the main title screen', () => {
+    const elements = {
+      codexModal: { classList: { contains: vi.fn(() => false) }, style: {} },
+      runSettingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+      settingsModal: { classList: { contains: vi.fn(() => false) }, style: { display: 'none' } },
+      charSelectSubScreen: { style: { display: 'none' } },
+      mainTitleSubScreen: { style: { display: 'block' } },
+    };
+    const doc = {
+      addEventListener: vi.fn(),
+      getElementById: vi.fn((id) => elements[id] || null),
+      querySelectorAll: vi.fn(() => []),
+    };
+    const actions = {
+      openRunSettings: vi.fn(),
+      openCodexFromTitle: vi.fn(),
+      openSettings: vi.fn(),
+    };
+    const audio = { playEvent: vi.fn(), playClick: vi.fn() };
+
+    registerTitleBindings({
+      actions,
+      audio,
+      doc,
+      getIsTitleScreen: () => true,
+      isVisibleModal: () => false,
+    });
+
+    const onKeyDown = getDocumentHandler(doc, 'keydown');
+    onKeyDown?.({ key: 'r', preventDefault: vi.fn(), target: null });
+    onKeyDown?.({ key: 'd', preventDefault: vi.fn(), target: null });
+    onKeyDown?.({ key: 's', preventDefault: vi.fn(), target: null });
+
+    expect(actions.openRunSettings).toHaveBeenCalledTimes(1);
+    expect(actions.openCodexFromTitle).toHaveBeenCalledTimes(1);
+    expect(actions.openSettings).toHaveBeenCalledTimes(1);
+    expect(audio.playEvent).toHaveBeenCalledTimes(3);
+  });
+
   [
     ['codex detail popup', 'codexDetail'],
     ['class select relic detail', 'classSelectRelicDetail'],

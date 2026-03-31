@@ -33,6 +33,11 @@ export function setupKeyboardNav(doc) {
     updateCursor(index);
   };
 
+  const isVisibleItem = (item) => {
+    const rect = item?.getBoundingClientRect?.();
+    return Boolean(rect && rect.width > 0 && rect.height > 0);
+  };
+
   const getNextVisibleIndex = (currentIndex, direction) => {
     let nextIndex = currentIndex;
     if (nextIndex < 0) {
@@ -40,8 +45,7 @@ export function setupKeyboardNav(doc) {
     }
     for (let i = 0; i < state.navItems.length; i += 1) {
       nextIndex = (nextIndex + direction + state.navItems.length) % state.navItems.length;
-      const rect = state.navItems[nextIndex].getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
+      if (isVisibleItem(state.navItems[nextIndex])) {
         return nextIndex;
       }
     }
@@ -69,8 +73,18 @@ export function setupKeyboardNav(doc) {
       return;
     }
 
-    if (event.key === 'Enter' && state.navIndex >= 0) {
-      state.navItems[state.navIndex]?.click();
+    if (event.key === 'Enter') {
+      const preferredStartIndex = state.navItems.findIndex((item) => item.id === 'mainStartBtn' && isVisibleItem(item));
+      const targetIndex = state.navIndex >= 0
+        ? state.navIndex
+        : preferredStartIndex >= 0
+          ? preferredStartIndex
+          : getNextVisibleIndex(-1, 1);
+      if (targetIndex >= 0) {
+        event.preventDefault();
+        setFocus(targetIndex);
+        state.navItems[targetIndex]?.click();
+      }
       return;
     }
 

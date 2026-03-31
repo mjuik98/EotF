@@ -22,6 +22,7 @@ function makeElement() {
 
 function createMockDocument() {
   const elements = {
+    titleRunSection: { ...makeElement(), id: 'titleRunSection' },
     titleRecentRuns: { ...makeElement(), id: 'titleRecentRuns' },
     titleArchiveDisclosure: { ...makeElement(), id: 'titleArchiveDisclosure' },
     titleArchiveSummary: { ...makeElement(), id: 'titleArchiveSummary' },
@@ -124,5 +125,63 @@ describe('title save slot controls', () => {
     const deleteHandler = doc.elements.titleSaveDeleteBtn.addEventListener.mock.calls.at(-1)?.[1];
     deleteHandler?.();
     expect(saveSystem.clearSave).toHaveBeenCalledWith({ slot: 2 });
+  });
+
+  it('keeps the save slot section visible when switching from a saved slot to an empty slot', () => {
+    const doc = createMockDocument();
+    const gs = { meta: { runCount: 1, totalKills: 0, bestChain: 0, activeSaveSlot: 1 } };
+    let selectedSlot = 1;
+    const summaries = [
+      {
+        slot: 1,
+        hasSave: true,
+        preview: {
+          player: { class: 'swordsman', hp: 80, maxHp: 80, gold: 10, deck: ['strike'], hand: [], items: [] },
+          currentFloor: 2,
+          currentRegion: 0,
+          meta: { runConfig: { ascension: 0 } },
+        },
+        meta: { runCount: 4, totalKills: 12, bestChain: 5, recentRuns: [] },
+      },
+      { slot: 2, hasSave: false, preview: null, meta: { runCount: 4, totalKills: 12, bestChain: 5, recentRuns: [] } },
+      { slot: 3, hasSave: false, preview: null, meta: { runCount: 4, totalKills: 12, bestChain: 5, recentRuns: [] } },
+    ];
+    const saveSystem = {
+      getSelectedSlot: vi.fn(() => selectedSlot),
+      getSlotSummaries: vi.fn(() => summaries),
+      readMetaPreview: vi.fn(({ slot }) => summaries.find((summary) => summary.slot === slot)?.meta || null),
+      flushOutbox: vi.fn(() => 0),
+      hasSave: vi.fn(({ slot }) => slot === 1),
+      readRunPreview: vi.fn(({ slot }) => summaries.find((summary) => summary.slot === slot)?.preview || null),
+      selectSlot: vi.fn((slot, { gs: currentGs } = {}) => {
+        selectedSlot = slot;
+        if (currentGs?.meta) currentGs.meta.activeSaveSlot = slot;
+      }),
+      loadMeta: vi.fn(),
+    };
+
+    GameBootUI.refreshTitleSaveState({
+      doc,
+      gs,
+      saveSystem,
+    });
+
+    expect(doc.elements.titleRunSection.style.display).toBe('flex');
+    expect(doc.elements.titleContinueWrap.style.display).toBe('block');
+
+    const slotBarHandler = doc.elements.titleSaveSlotBar.addEventListener.mock.calls.at(-1)?.[1];
+    slotBarHandler?.({
+      target: {
+        closest: vi.fn(() => ({ dataset: { saveSlot: '2' } })),
+      },
+    });
+
+    expect(saveSystem.selectSlot).toHaveBeenCalledWith(2, { gs });
+    expect(doc.elements.titleRunSection.style.display).toBe('flex');
+    expect(doc.elements.titleContinueWrap.style.display).toBe('none');
+    expect(doc.elements.titleMenuDivider.style.display).toBe('none');
+    expect(doc.elements.mainContinueBtn.disabled).toBe(true);
+    expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('슬롯 1');
+    expect(doc.elements.titleSaveSlotBar.innerHTML).toContain('슬롯 2');
   });
 });
