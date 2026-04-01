@@ -1,5 +1,9 @@
 # Dependencies
 node_modules/
+.npmrc
+.yarnrc*
+.env*
+!.env.example
 
 # Build output
 dist/
@@ -20,3 +24,6 @@ vite-dev*.log
 outputweb-*/
 
 .playwright-cli/
+
+# Local agent artifacts
+docs/superpowers/

@@ -103,4 +103,4 @@ UI에 영향이 있는 작업은 개발 서버에서 `#mainStartBtn` 클릭 후 
 
 ## License
 
-ISC
+[ISC](LICENSE)
