@@ -104,6 +104,17 @@ export function pushCardToExhaustedState(state, cardId) {
   const player = ensurePlayer(state);
   if (!player?.exhausted || !cardId) return null;
   player.exhausted.push(cardId);
+  let preventedExhaust = false;
+  if (typeof state?.triggerItems === 'function') {
+    preventedExhaust = state.triggerItems('card_exhaust', { cardId }) === true;
+  }
+  if (preventedExhaust) {
+    const exIdx = player.exhausted.lastIndexOf(cardId);
+    if (exIdx >= 0) player.exhausted.splice(exIdx, 1);
+    if (Array.isArray(player.graveyard)) {
+      player.graveyard.push(cardId);
+    }
+  }
   return cardId;
 }
 

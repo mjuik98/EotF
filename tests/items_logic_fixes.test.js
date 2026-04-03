@@ -4,6 +4,7 @@ import { CARDS } from '../data/cards.js';
 import { Trigger } from '../game/data/triggers.js';
 import { Actions, Reducers } from '../game/core/state_actions.js';
 import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start_player_turn_policy.js';
+import { createStartPlayerTurnPolicyCommands } from '../game/features/combat/ports/player_turn_policy_ports.js';
 import { getEnemyAction } from '../game/features/combat/domain/enemy_turn_domain.js';
 import { beginPlayerTurnState } from '../game/features/combat/state/player_turn_state_commands.js';
 import { applyEnemyDeathState } from '../game/features/combat/application/enemy_death_state.js';
@@ -228,6 +229,29 @@ describe('item logic fixes', () => {
 
         expect(gs.player.maxHp).toBe(42);
         expect(gs.player.hp).toBe(10);
+    });
+
+    it('fires liquid_memory on the live region-2 forced exhaust path instead of leaving the card stranded in exhausted', () => {
+        const gs = createTurnStartRuntime({
+            items: ['liquid_memory'],
+            drawPile: [],
+        });
+        gs.currentRegion = 2;
+        gs.player.hand = ['strike'];
+        gs.player.graveyard = [];
+
+        startPlayerTurnPolicy(gs, createStartPlayerTurnPolicyCommands({
+            beginPlayerTurnState,
+            drawCardsState(state, count) {
+                state.drawCards(count);
+                return { drewCards: Math.min(count, state.player.hand.length) };
+            },
+            resolveActiveRegionId: () => 2,
+        }));
+
+        expect(gs.player.exhausted).toEqual([]);
+        expect(gs.player.hand).toContain('strike');
+        expect(gs._itemRuntime.liquid_memory.used).toBe(true);
     });
 
     it('paradox_contract does not permanently increase max energy when combat start triggers twice', () => {

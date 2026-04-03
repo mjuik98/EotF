@@ -189,4 +189,100 @@ describe('death_flow_player_runtime', () => {
     expect(gs._itemRuntime?.boss_soul_mirror?.revived ?? false).toBe(false);
     expect(gs.combat.active).toBe(true);
   });
+
+  it('does not let phoenix_feather bypass titan_heart healing lock on the live death path', async () => {
+    vi.useFakeTimers();
+
+    const doc = createDoc();
+    const showDeathScreen = vi.fn();
+    const gs = {
+      combat: {
+        active: true,
+        enemies: [],
+      },
+      player: {
+        hp: 0,
+        maxHp: 40,
+        items: ['titan_heart', 'phoenix_feather'],
+        _itemState: {
+          phoenix_feather: {},
+        },
+      },
+      heal(amount) {
+        const adjusted = this.triggerItems('heal_amount', amount);
+        const resolved = typeof adjusted === 'number' ? adjusted : amount;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + Math.max(0, resolved));
+        return { healed: Math.max(0, resolved), hpAfter: this.player.hp };
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    handleCombatPlayerDeath(gs, {
+      doc,
+      win: {
+        innerWidth: 1280,
+        innerHeight: 720,
+      },
+      showDeathScreen,
+      audioEngine: {},
+      screenShake: { shake: vi.fn() },
+      particleSystem: { deathEffect: vi.fn() },
+    });
+
+    expect(gs.player.hp).toBe(0);
+    expect(gs.player._itemState.phoenix_feather.used).not.toBe(true);
+    expect(gs.combat.active).toBe(false);
+    await vi.runAllTimersAsync();
+    expect(showDeathScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not let boss_soul_mirror bypass titan_heart healing lock on the live death path', async () => {
+    vi.useFakeTimers();
+
+    const doc = createDoc();
+    const showDeathScreen = vi.fn();
+    const gs = {
+      combat: {
+        active: true,
+        enemies: [],
+      },
+      player: {
+        hp: 0,
+        maxHp: 25,
+        items: ['titan_heart', 'boss_soul_mirror'],
+        _itemState: {
+          boss_soul_mirror: { penaltyApplied: true },
+        },
+      },
+      heal(amount) {
+        const adjusted = this.triggerItems('heal_amount', amount);
+        const resolved = typeof adjusted === 'number' ? adjusted : amount;
+        this.player.hp = Math.min(this.player.maxHp, this.player.hp + Math.max(0, resolved));
+        return { healed: Math.max(0, resolved), hpAfter: this.player.hp };
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    handleCombatPlayerDeath(gs, {
+      doc,
+      win: {
+        innerWidth: 1280,
+        innerHeight: 720,
+      },
+      showDeathScreen,
+      audioEngine: {},
+      screenShake: { shake: vi.fn() },
+      particleSystem: { deathEffect: vi.fn() },
+    });
+
+    expect(gs.player.hp).toBe(0);
+    expect(gs._itemRuntime?.boss_soul_mirror?.revived ?? false).toBe(false);
+    expect(gs.combat.active).toBe(false);
+    await vi.runAllTimersAsync();
+    expect(showDeathScreen).toHaveBeenCalledTimes(1);
+  });
 });

@@ -575,8 +575,18 @@ function healPlayerThroughHook(gs, amount, source = null) {
     if (typeof gs.heal === 'function') {
         return gs.heal(amount, source);
     }
+    let adjusted = Math.floor(amount);
+    if (typeof gs.triggerItems === 'function') {
+        const scaled = gs.triggerItems(Trigger.HEAL_AMOUNT, adjusted);
+        if (typeof scaled === 'number' && Number.isFinite(scaled)) {
+            adjusted = Math.max(0, Math.floor(scaled));
+        }
+    }
+    if (adjusted <= 0) {
+        return { healed: 0, hpAfter: Number(gs.player.hp || 0) };
+    }
     const beforeHp = Number(gs.player.hp || 0);
-    const nextHp = Math.min(Number(gs.player.maxHp || beforeHp), beforeHp + Math.floor(amount));
+    const nextHp = Math.min(Number(gs.player.maxHp || beforeHp), beforeHp + adjusted);
     setPlayerHp(gs, nextHp);
     return { healed: Math.max(0, nextHp - beforeHp), hpAfter: nextHp };
 }
@@ -1423,8 +1433,12 @@ const RARE_ITEMS = {
             const persistent = getPlayerItemState(gs, 'phoenix_feather');
             if (trigger === Trigger.PRE_DEATH && !persistent.used) {
                 if (Number(gs?.player?.hp || 0) > 0) return;
+                const result = healPlayerThroughHook(gs, Math.floor(gs.player.maxHp * 0.5), {
+                    name: '불사조의 깃털',
+                    type: 'item',
+                });
+                if ((result?.healed || 0) <= 0 && Number(gs?.player?.hp || 0) <= 0) return;
                 persistent.used = true;
-                setPlayerHp(gs, Math.floor(gs.player.maxHp * 0.5));
                 gs.addLog?.('🔥 불사조의 깃털: 죽음에서 돌아왔습니다!', 'item');
                 return true;
             }
@@ -1636,8 +1650,12 @@ const BOSS_ITEMS = {
             }
             if (trigger === Trigger.PRE_DEATH && !runtime.revived) {
                 if (Number(gs?.player?.hp || 0) > 0) return;
+                const result = healPlayerThroughHook(gs, 25, {
+                    name: '영혼 거울',
+                    type: 'item',
+                });
+                if ((result?.healed || 0) <= 0 && Number(gs?.player?.hp || 0) <= 0) return;
                 runtime.revived = true;
-                setPlayerHp(gs, Math.max(1, Math.min(gs.player.maxHp || 1, (gs.player.hp || 0) + 25)));
                 return true;
             }
         }
