@@ -426,6 +426,78 @@ function addPlayerDrawCount(gs, amount) {
     return next;
 }
 
+function applyCombatScopedAdditiveBonus(gs, itemId, stateKey, amount, applyDelta) {
+    if (!gs?.player || !itemId || !stateKey || typeof applyDelta !== 'function') return 0;
+    const runtime = getItemRuntimeState(gs, itemId);
+    const currentApplied = Math.max(0, Math.floor(Number(runtime[stateKey] || 0)));
+    if (currentApplied > 0) return currentApplied;
+
+    const requested = Math.max(0, Math.floor(Number(amount || 0)));
+    if (requested <= 0) {
+        runtime[stateKey] = 0;
+        return 0;
+    }
+
+    const applied = Math.max(0, Math.floor(Number(applyDelta(requested)) || 0));
+    runtime[stateKey] = applied;
+    return applied;
+}
+
+function clearCombatScopedAdditiveBonus(gs, itemId, stateKey, applyDelta) {
+    if (!gs?.player || !itemId || !stateKey) return 0;
+    const runtime = getItemRuntimeState(gs, itemId);
+    const applied = Math.max(0, Math.floor(Number(runtime[stateKey] || 0)));
+    if (applied > 0 && typeof applyDelta === 'function') {
+        applyDelta(-applied);
+    }
+    runtime[stateKey] = 0;
+    return applied;
+}
+
+function applyCombatScopedMaxEnergyBonus(gs, itemId, amount, stateKey = 'appliedMaxEnergyBonus') {
+    return applyCombatScopedAdditiveBonus(gs, itemId, stateKey, amount, (delta) => {
+        const previousMax = Math.max(1, Number(gs.player.maxEnergy || 1));
+        const result = growPlayerMaxEnergy(gs, delta);
+        const nextMax = Math.max(1, Number(result?.maxEnergyAfter || gs.player.maxEnergy || previousMax));
+        return Math.max(0, nextMax - previousMax);
+    });
+}
+
+function clearCombatScopedMaxEnergyBonus(gs, itemId, stateKey = 'appliedMaxEnergyBonus') {
+    return clearCombatScopedAdditiveBonus(gs, itemId, stateKey, (delta) => {
+        growPlayerMaxEnergy(gs, delta);
+    });
+}
+
+function applyCombatScopedMaxHpBonus(gs, itemId, amount, stateKey = 'appliedMaxHpBonus') {
+    return applyCombatScopedAdditiveBonus(gs, itemId, stateKey, amount, (delta) => {
+        const previousMax = Math.max(1, Number(gs.player.maxHp || 1));
+        const nextMax = setPlayerMaxHp(gs, previousMax + delta);
+        return Math.max(0, Number(nextMax || previousMax) - previousMax);
+    });
+}
+
+function clearCombatScopedMaxHpBonus(gs, itemId, stateKey = 'appliedMaxHpBonus') {
+    return clearCombatScopedAdditiveBonus(gs, itemId, stateKey, (delta) => {
+        const currentMax = Math.max(1, Number(gs.player.maxHp || 1));
+        setPlayerMaxHp(gs, Math.max(1, currentMax + delta));
+    });
+}
+
+function applyCombatScopedDrawCountBonus(gs, itemId, amount, stateKey = 'appliedDrawCountBonus') {
+    return applyCombatScopedAdditiveBonus(gs, itemId, stateKey, amount, (delta) => {
+        const previous = Math.max(0, Math.floor(Number(gs.player.drawCount || 0)));
+        const next = addPlayerDrawCount(gs, delta);
+        return Math.max(0, next - previous);
+    });
+}
+
+function clearCombatScopedDrawCountBonus(gs, itemId, stateKey = 'appliedDrawCountBonus') {
+    return clearCombatScopedAdditiveBonus(gs, itemId, stateKey, (delta) => {
+        addPlayerDrawCount(gs, delta);
+    });
+}
+
 function addPlayerEnergy(gs, amount) {
     if (!gs?.player || !Number.isFinite(amount) || amount === 0) return Number(gs?.player?.energy || 0);
     const delta = Math.floor(amount);
@@ -667,7 +739,8 @@ function removeTemporaryCombatCard(gs, itemId) {
 
     runtime.tempCardId = null;
 
-    ['hand', 'deck', 'drawPile', 'discardPile', 'graveyard', 'exhausted'].forEach((zone) => {
+    // Temporary combat cards must never mutate the permanent deck during cleanup.
+    ['hand', 'drawPile', 'discardPile', 'graveyard', 'exhausted'].forEach((zone) => {
         const pile = gs.player?.[zone];
         const idx = pile?.lastIndexOf?.(tempId) ?? -1;
         if (idx >= 0) pile.splice(idx, 1);
@@ -965,25 +1038,25 @@ const COMMON_ITEMS = {
     ancient_handle: {
         id: 'ancient_handle', name: '고대인의 자루', icon: '🐻', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
+        onAcquire(gs) { addPlayerMaxHpWithoutHealing(gs, 5); },
         passive() { }
     },
     ancient_leather: {
         id: 'ancient_leather', name: '고대인의 가죽', icon: '🐻‍❄️', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
+        onAcquire(gs) { addPlayerMaxHpWithoutHealing(gs, 5); },
         passive() { }
     },
     ancient_belt: {
         id: 'ancient_belt', name: '고대인의 허리띠', icon: '🐼', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
+        onAcquire(gs) { addPlayerMaxHpWithoutHealing(gs, 5); },
         passive() { }
     },
     ancient_cape: {
         id: 'ancient_cape', name: '고대인의 망토', icon: '🐨', rarity: 'common', setId: 'ancient_set',
         desc: '획득: 최대 체력 +5\n[세트: 고대인의 유산]',
-        onAcquire(gs) { growPlayerMaxHp(gs, 5); },
+        onAcquire(gs) { addPlayerMaxHpWithoutHealing(gs, 5); },
         passive() { }
     },
 };
@@ -1038,9 +1111,9 @@ const UNCOMMON_ITEMS = {
         desc: '전투 시작: 최대 체력 +15 / 체력 15 회복 / 전투 종료: 원래 수치로 복원\n[세트: 거인의 인내]',
         passive(gs, trigger) {
             const runtime = getItemRuntimeState(gs, 'titans_belt');
-            if (trigger === Trigger.COMBAT_START && !runtime.appliedBonus) {
-                runtime.appliedBonus = 15;
-                setPlayerMaxHp(gs, Number(gs.player.maxHp || 0) + 15);
+            if (trigger === Trigger.COMBAT_START && !runtime.active) {
+                runtime.active = true;
+                applyCombatScopedMaxHpBonus(gs, 'titans_belt', 15, 'appliedMaxHpBonus');
                 if (typeof gs.heal === 'function') {
                     gs.heal(15, { name: '거인의 허리띠', type: 'item' });
                 } else {
@@ -1048,10 +1121,9 @@ const UNCOMMON_ITEMS = {
                 }
                 gs.markDirty?.('hud');
             }
-            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.appliedBonus) {
-                const bonus = runtime.appliedBonus;
-                setPlayerMaxHp(gs, Math.max(1, Number(gs.player.maxHp || 0) - bonus));
-                runtime.appliedBonus = 0;
+            if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.active) {
+                clearCombatScopedMaxHpBonus(gs, 'titans_belt', 'appliedMaxHpBonus');
+                runtime.active = false;
                 gs.markDirty?.('hud');
             }
         }
@@ -1312,14 +1384,12 @@ const UNCOMMON_ITEMS = {
             if (trigger === Trigger.COMBAT_START) {
                 if (runtime.active) return;
                 runtime.active = true;
-                runtime.baseMax = gs.player.maxEnergy;
-                growPlayerMaxEnergy(gs, 1);
+                applyCombatScopedMaxEnergyBonus(gs, 'paradox_contract', 1, 'appliedMaxEnergyBonus');
                 return;
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.active) {
-                setPlayerMaxEnergy(gs, Math.max(1, runtime.baseMax || gs.player.maxEnergy));
+                clearCombatScopedMaxEnergyBonus(gs, 'paradox_contract', 'appliedMaxEnergyBonus');
                 runtime.active = false;
-                delete runtime.baseMax;
             }
         }
     },
@@ -1604,7 +1674,7 @@ const BOSS_ITEMS = {
     titan_heart: {
         id: 'titan_heart', name: '티탄의 심장', icon: '❤️', rarity: 'boss',
         desc: '획득: 최대 체력 +50 / 상시: 체력 회복 불가',
-        onAcquire(gs) { growPlayerMaxHp(gs, 50); },
+        onAcquire(gs) { addPlayerMaxHpWithoutHealing(gs, 50); },
         passive(gs, trigger) {
             if (trigger === Trigger.HEAL_AMOUNT) return 0;
         }
@@ -1631,21 +1701,19 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +20 / 전투 시작: 최대 에너지 +1 / 매 턴 드로우 +1 / 전투 종료: 원래 수치로 복원',
         onAcquire(gs) {
-            growPlayerMaxHp(gs, 20);
+            addPlayerMaxHpWithoutHealing(gs, 20);
         },
         passive(gs, trigger) {
             const runtime = getItemRuntimeState(gs, 'eternal_fragment');
             if (trigger === Trigger.COMBAT_START && !runtime.active) {
                 runtime.active = true;
-                runtime.baseMax = gs.player.maxEnergy;
-                growPlayerMaxEnergy(gs, 1);
-                addPlayerDrawCount(gs, 1);
+                applyCombatScopedMaxEnergyBonus(gs, 'eternal_fragment', 1, 'appliedMaxEnergyBonus');
+                applyCombatScopedDrawCountBonus(gs, 'eternal_fragment', 1, 'appliedDrawCountBonus');
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.active) {
-                setPlayerMaxEnergy(gs, runtime.baseMax ?? Math.max(1, gs.player.maxEnergy - 1));
-                addPlayerDrawCount(gs, -1);
+                clearCombatScopedMaxEnergyBonus(gs, 'eternal_fragment', 'appliedMaxEnergyBonus');
+                clearCombatScopedDrawCountBonus(gs, 'eternal_fragment', 'appliedDrawCountBonus');
                 runtime.active = false;
-                delete runtime.baseMax;
             }
         }
     },
@@ -1710,7 +1778,7 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +12 / 전투 시작: 방어막 8 획득',
         onAcquire(gs) {
-            growPlayerMaxHp(gs, 12);
+            addPlayerMaxHpWithoutHealing(gs, 12);
         },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
@@ -1736,7 +1804,7 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +8 / 전투 시작: 잔향 10 충전',
         onAcquire(gs) {
-            growPlayerMaxHp(gs, 8);
+            addPlayerMaxHpWithoutHealing(gs, 8);
         },
         passive(gs, trigger) {
             if (trigger === Trigger.COMBAT_START) {
@@ -1762,7 +1830,7 @@ const SPECIAL_ITEMS = {
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
         desc: '획득: 최대 체력 +10 / 층 이동: 골드 8 획득',
         onAcquire(gs) {
-            growPlayerMaxHp(gs, 10);
+            addPlayerMaxHpWithoutHealing(gs, 10);
         },
         passive(gs, trigger) {
             if (trigger === Trigger.FLOOR_START) {
@@ -1786,10 +1854,7 @@ const ITEM_CHARGE_META = {
     infinite_loop: { itemRuntimeKey: 'infinite_loop', stateKey: 'count', max: 3, label: '다음 증식까지 카드', type: 'num', scope: 'combat' },
     boss_soul_mirror: { itemRuntimeKey: 'boss_soul_mirror', stateKey: 'revived', max: 1, label: '이번 전투 부활', type: 'invert-dot', scope: 'combat' },
     boss_black_lotus: { itemRuntimeKey: 'boss_black_lotus', stateKey: 'cardCount', max: 5, label: '다음 드로우까지 카드', type: 'num', scope: 'combat' },
-    void_crystal: { gsKey: '_voidCrystalUsed', max: 1, label: '이번 전투 발동', type: 'invert-dot', scope: 'combat' },
-    echo_heart: { gsKey: '_heartUsed', max: 1, label: '부활 횟수', type: 'invert-dot', scope: 'combat' },
     eternal_fragment: { itemRuntimeKey: 'eternal_fragment', stateKey: 'active', label: '전투 효과 상태', type: 'bool', scope: 'combat' },
-    titan_fragment: { gsKey: '_titanUsed', label: '발동 여부', type: 'bool', scope: 'combat' },
 };
 
 export const ITEMS = {

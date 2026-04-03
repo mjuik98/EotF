@@ -61,6 +61,7 @@ function finalizeOpeningHandSetup(gs, runRules) {
   if (typeof runRules?.onCombatDeckReady === 'function') {
     runRules.onCombatDeckReady(gs);
   }
+  gs.triggerItems?.('turn_start');
   gs.triggerItems?.('turn_draw_complete');
 }
 

@@ -26,8 +26,8 @@ const ITEM_TRIGGER_CONTRACTS = Object.freeze({
   },
   combat_end: {
     publishers: [
-      ['game/features/combat/application/combat_lifecycle_facade.js', "state.triggerItems?.('combat_end', {"],
-      ['game/features/combat/application/death_flow_player_runtime.js', "gs.triggerItems?.('combat_end', { isBoss: false, defeated: true });"],
+      ['game/features/combat/application/combat_lifecycle_facade.js', "buildCombatEndItemTriggerPayload({"],
+      ['game/features/combat/application/death_flow_player_runtime.js', "gs.triggerItems?.('combat_end', buildCombatEndItemTriggerPayload({"],
     ],
   },
   turn_start: {

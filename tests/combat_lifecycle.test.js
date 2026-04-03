@@ -225,6 +225,7 @@ describe('CombatLifecycle', () => {
 
   it('runs combat_end relic cleanup before combat state teardown on victory', async () => {
     vi.useFakeTimers();
+    const combatEndPayloads = [];
 
     const host = {
       combat: {
@@ -262,6 +263,9 @@ describe('CombatLifecycle', () => {
         return Reducers[action]?.(this, payload);
       },
       triggerItems(trigger, data) {
+        if (trigger === 'combat_end') {
+          combatEndPayloads.push(data);
+        }
         return ItemSystem.triggerItems(this, trigger, data);
       },
     };
@@ -292,6 +296,12 @@ describe('CombatLifecycle', () => {
     expect(host.player.maxEnergy).toBe(3);
     expect(host.player.maxHp).toBe(40);
     expect(host.player.hp).toBe(40);
+    expect(combatEndPayloads).toEqual([{
+      isBoss: false,
+      victory: true,
+      defeated: false,
+      abandoned: false,
+    }]);
   });
 
   it('does not consume energy_core boss-growth charges when max energy is already capped on the live combat-end path', async () => {

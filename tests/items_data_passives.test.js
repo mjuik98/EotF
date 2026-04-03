@@ -87,11 +87,12 @@ describe('items data passives', () => {
     expect(gs._itemRuntime.balanced_scale.drawReset).toBe(false);
   });
 
-  it('adds and removes a temporary card through ancient_scroll combat lifecycle', () => {
+  it('removes ancient_scroll temporary cards from combat-local piles without touching matching permanent deck copies', () => {
     const gs = {
       player: {
+        items: ['ancient_scroll'],
         hand: [],
-        deck: [],
+        deck: ['guard'],
         drawPile: [],
         discardPile: [],
         graveyard: [],
@@ -102,7 +103,7 @@ describe('items data passives', () => {
 
     vi.spyOn(Math, 'random').mockReturnValue(0);
 
-    ITEMS.ancient_scroll.passive(gs, Trigger.COMBAT_START);
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
 
     const tempCardId = gs._itemRuntime?.ancient_scroll?.tempCardId;
     expect(typeof tempCardId).toBe('string');
@@ -114,11 +115,11 @@ describe('items data passives', () => {
     gs.player.graveyard.push(tempCardId);
     gs.player.exhausted.push(tempCardId);
 
-    ITEMS.ancient_scroll.passive(gs, Trigger.COMBAT_END);
+    ItemSystem.triggerItems(gs, Trigger.COMBAT_END);
 
     expect(gs._itemRuntime?.ancient_scroll?.tempCardId).toBeNull();
     expect(gs.player.hand).not.toContain(tempCardId);
-    expect(gs.player.deck).not.toContain(tempCardId);
+    expect(gs.player.deck).toEqual(['guard', tempCardId]);
     expect(gs.player.drawPile).not.toContain(tempCardId);
     expect(gs.player.discardPile).not.toContain(tempCardId);
     expect(gs.player.graveyard).not.toContain(tempCardId);

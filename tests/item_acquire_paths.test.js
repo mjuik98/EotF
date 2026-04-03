@@ -6,6 +6,7 @@ import {
   applyMiniBossBonusState,
 } from '../game/features/reward/state/reward_state_commands.js';
 import { applyRunStartLoadout } from '../game/shared/state/run_state_commands.js';
+import { ITEMS } from '../data/items.js';
 
 function createAcquireRelic(label, onAcquireSpy) {
   return {
@@ -103,5 +104,35 @@ describe('item acquire paths', () => {
     expect(miniBossAcquire).toHaveBeenCalledWith(miniBossState);
     expect(miniBossState.player.items).toContain('mini_boss_relic');
     expect(miniBossState.player.maxEnergy).toBe(5);
+  });
+
+  it('does not heal when acquiring relics whose descriptions only promise max-hp growth', () => {
+    const cases = [
+      ['ancient_handle', 5],
+      ['ancient_leather', 5],
+      ['ancient_belt', 5],
+      ['ancient_cape', 5],
+      ['titan_heart', 50],
+      ['eternal_fragment', 20],
+      ['memory_thread', 12],
+      ['curator_lantern', 8],
+      ['specimen_case', 10],
+    ];
+
+    cases.forEach(([itemId, maxHpGain]) => {
+      const state = {
+        player: {
+          items: [],
+          hp: 11,
+          maxHp: 30,
+        },
+      };
+
+      addRewardItemToInventory(state, itemId, ITEMS[itemId]);
+
+      expect(state.player.items).toContain(itemId);
+      expect(state.player.maxHp).toBe(30 + maxHpGain);
+      expect(state.player.hp).toBe(11);
+    });
   });
 });

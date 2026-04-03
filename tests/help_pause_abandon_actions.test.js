@@ -95,7 +95,12 @@ describe('help_pause_abandon_actions', () => {
       triggerItems(trigger, data) {
         if (trigger === 'combat_end') {
           expect(this._itemRuntime.paradox_contract.active).toBe(true);
-          expect(data).toEqual({ isBoss: false, defeated: true, abandoned: true });
+          expect(data).toEqual({
+            isBoss: false,
+            victory: false,
+            defeated: true,
+            abandoned: true,
+          });
           this.player.maxEnergy = 3;
         }
         return data;

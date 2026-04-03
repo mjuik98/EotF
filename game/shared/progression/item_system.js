@@ -82,15 +82,7 @@ export const ItemSystem = {
     const runtimeGs = createItemPassiveRuntimeFacade(gs);
     let currentResult = data;
     let boolResult = false;
-
-    const sortedItems = [...gs.player.items].sort((a, b) => {
-      if (normalizedTrigger === 'damage_taken') {
-        const aPrio = (a === 'void_crystal' || a === 'blood_crown') ? -1 : 0;
-        const bPrio = (b === 'void_crystal' || b === 'blood_crown') ? -1 : 0;
-        return aPrio - bPrio;
-      }
-      return 0;
-    });
+    const sortedItems = [...gs.player.items];
 
     sortedItems.forEach((itemId) => {
       const item = DATA.items[itemId];

@@ -7,6 +7,9 @@ import { startPlayerTurnPolicy } from '../game/features/combat/domain/turn/start
 import { getEnemyAction } from '../game/features/combat/domain/enemy_turn_domain.js';
 import { beginPlayerTurnState } from '../game/features/combat/state/player_turn_state_commands.js';
 import { applyEnemyDeathState } from '../game/features/combat/application/enemy_death_state.js';
+import { CombatLifecycle } from '../game/features/combat/application/combat_lifecycle_facade.js';
+import { handleCombatPlayerDeath } from '../game/features/combat/application/death_flow_player_runtime.js';
+import { cleanupCombatAfterAbandon } from '../game/features/combat/application/help_pause_abandon_combat_actions.js';
 import { ItemSystem } from '../game/shared/progression/item_system.js';
 import { SetBonusSystem } from '../game/shared/progression/set_bonus_system.js';
 import { CardCostUtils } from '../game/utils/card_cost_utils.js';
@@ -60,6 +63,62 @@ function runActualTurnStart(gs) {
     return startPlayerTurnPolicy(gs, {
         beginPlayerTurnState,
     });
+}
+
+function createCombatEndOutcomeHost({ isBoss = false } = {}) {
+    return {
+        combat: {
+            active: true,
+            enemies: isBoss ? [{ hp: 10, isBoss: true }] : [],
+            playerTurn: true,
+            turn: 1,
+        },
+        stats: {
+            damageDealt: 0,
+            damageTaken: 0,
+        },
+        player: {
+            items: ['void_shard', 'balanced_scale', 'mana_battery', 'energy_core'],
+            buffs: {},
+            hand: [],
+            graveyard: [],
+            exhausted: [],
+            drawPile: [],
+            discardPile: [],
+            drawCount: 1,
+            silenceGauge: 0,
+            timeRiftGauge: 0,
+            echo: 60,
+            energy: 0,
+            maxEnergy: 3,
+            hp: 40,
+            maxHp: 40,
+            shield: 0,
+            kills: 0,
+            echoChain: 0,
+            _itemState: {
+                energy_core: { count: 0 },
+            },
+        },
+        _itemRuntime: {
+            balanced_scale: { active: true, drawReset: true },
+            mana_battery: { stored: 2 },
+        },
+        currentRegion: 0,
+        currentNode: isBoss ? { type: 'boss' } : null,
+        addLog: vi.fn(),
+        addEcho(amount) {
+            this.player.echo += Number(amount || 0);
+            return { echoAfter: this.player.echo };
+        },
+        markDirty: vi.fn(),
+        dispatch(action, payload = {}) {
+            return Reducers[action]?.(this, payload);
+        },
+        triggerItems(trigger, data) {
+            return ItemSystem.triggerItems(this, trigger, data);
+        },
+    };
 }
 
 describe('item logic fixes', () => {
@@ -202,6 +261,30 @@ describe('item logic fixes', () => {
         expect(gs.player.maxEnergy).toBe(3);
         expect(gs.player.energy).toBe(3);
         expect(gs._itemRuntime.paradox_contract.active).toBe(false);
+    });
+
+    it('restores the original max energy after paradox_contract and eternal_fragment stack during the same combat', () => {
+        const gs = {
+            player: {
+                items: ['paradox_contract', 'eternal_fragment'],
+                maxEnergy: 3,
+                energy: 3,
+                drawCount: 0,
+            },
+            addLog: vi.fn(),
+            markDirty: vi.fn(),
+        };
+
+        ItemSystem.triggerItems(gs, Trigger.COMBAT_START);
+
+        expect(gs.player.maxEnergy).toBe(5);
+        expect(gs.player.drawCount).toBe(1);
+
+        ItemSystem.triggerItems(gs, Trigger.COMBAT_END);
+
+        expect(gs.player.maxEnergy).toBe(3);
+        expect(gs.player.energy).toBe(3);
+        expect(gs.player.drawCount).toBe(0);
     });
 
     it('magnifying_glass lowers enemy attack intents through the live enemy action path without ai wrapping', () => {
@@ -535,5 +618,120 @@ describe('item logic fixes', () => {
         expect(SetBonusSystem.getActiveSets(gs)).toEqual([
             expect.objectContaining({ key: 'void_set', count: 2 }),
         ]);
+    });
+
+    it.each([
+        {
+            label: 'victory',
+            runner: async (gs) => {
+                const endCombatPromise = CombatLifecycle.endCombat.call(gs, {
+                    runRules: { onCombatEnd: vi.fn() },
+                    doc: { getElementById: vi.fn(() => null) },
+                    win: {},
+                    tooltipUI: { hideTooltip: vi.fn() },
+                    cleanupAllTooltips: vi.fn(),
+                    hudUpdateUI: { resetCombatUI: vi.fn(), hideNodeOverlay: vi.fn() },
+                    updateChainUI: vi.fn(),
+                    renderHand: vi.fn(),
+                    renderCombatCards: vi.fn(),
+                    updateUI: vi.fn(),
+                    audioEngine: { playItemGet: vi.fn() },
+                    showCombatSummary: vi.fn(),
+                    showRewardScreen: vi.fn(),
+                });
+
+                await vi.runAllTimersAsync();
+                await endCombatPromise;
+            },
+            isBoss: false,
+            expectedMaxEnergy: 3,
+            expectedCount: 0,
+        },
+        {
+            label: 'boss victory',
+            runner: async (gs) => {
+                const endCombatPromise = CombatLifecycle.endCombat.call(gs, {
+                    runRules: { onCombatEnd: vi.fn() },
+                    doc: { getElementById: vi.fn(() => null) },
+                    win: {},
+                    tooltipUI: { hideTooltip: vi.fn() },
+                    cleanupAllTooltips: vi.fn(),
+                    hudUpdateUI: { resetCombatUI: vi.fn(), hideNodeOverlay: vi.fn() },
+                    updateChainUI: vi.fn(),
+                    renderHand: vi.fn(),
+                    renderCombatCards: vi.fn(),
+                    updateUI: vi.fn(),
+                    audioEngine: { playItemGet: vi.fn() },
+                    showCombatSummary: vi.fn(),
+                    showRewardScreen: vi.fn(),
+                });
+
+                await vi.runAllTimersAsync();
+                await endCombatPromise;
+            },
+            isBoss: true,
+            expectedMaxEnergy: 4,
+            expectedCount: 1,
+        },
+        {
+            label: 'defeat',
+            runner: async (gs) => {
+                handleCombatPlayerDeath(gs, {
+                    doc: {
+                        body: { style: {}, appendChild: vi.fn() },
+                        createElement: vi.fn(() => ({
+                            style: {},
+                            appendChild: vi.fn(),
+                            remove: vi.fn(),
+                            textContent: '',
+                        })),
+                        getElementById: vi.fn(() => ({ classList: { remove: vi.fn() } })),
+                    },
+                    win: {
+                        innerWidth: 1280,
+                        innerHeight: 720,
+                    },
+                    showDeathScreen: vi.fn(),
+                    audioEngine: {},
+                    screenShake: { shake: vi.fn() },
+                    particleSystem: { deathEffect: vi.fn() },
+                });
+                await vi.runAllTimersAsync();
+            },
+            isBoss: false,
+            expectedMaxEnergy: 3,
+            expectedCount: 0,
+        },
+        {
+            label: 'abandon',
+            runner: async (gs) => {
+                cleanupCombatAfterAbandon({
+                    gs,
+                    doc: {
+                        getElementById: vi.fn(() => ({ classList: { remove: vi.fn() } })),
+                    },
+                });
+            },
+            isBoss: false,
+            expectedMaxEnergy: 3,
+            expectedCount: 0,
+        },
+    ])('applies combat_end cleanup and rewards consistently on %s', async ({ runner, isBoss, expectedMaxEnergy, expectedCount }) => {
+        vi.useFakeTimers();
+        const gs = createCombatEndOutcomeHost({ isBoss });
+
+        expect(gs._itemRuntime.balanced_scale.active).toBe(true);
+        expect(gs._itemRuntime.balanced_scale.drawReset).toBe(true);
+        expect(gs._itemRuntime.mana_battery.stored).toBe(2);
+
+        await runner(gs);
+
+        expect(gs.player.echo).toBe(80);
+        expect(gs.player.drawCount).toBe(0);
+        expect(gs._itemRuntime?.balanced_scale?.active ?? false).toBe(false);
+        expect(gs._itemRuntime?.balanced_scale?.drawReset ?? false).toBe(false);
+        expect(gs._itemRuntime?.mana_battery?.stored ?? 0).toBe(0);
+        expect(gs.player.maxEnergy).toBe(expectedMaxEnergy);
+        expect(gs.player._itemState.energy_core.count).toBe(expectedCount);
     });
 });

@@ -13,6 +13,7 @@ import {
   buildDeathFragmentChoices,
   renderDeathFragmentChoices,
 } from '../presentation/browser/death_fragment_choice_presenter.js';
+import { buildCombatEndItemTriggerPayload } from './combat_end_item_trigger_payload.js';
 
 export function handleCombatPlayerDeath(gs, deps = {}) {
   const { win } = resolveDeathRuntimeContext(deps);
@@ -28,7 +29,10 @@ export function handleCombatPlayerDeath(gs, deps = {}) {
 
   playReactionPlayerDeath(audioEngine);
   setCombatActive(gs, false);
-  gs.triggerItems?.('combat_end', { isBoss: false, defeated: true });
+  gs.triggerItems?.('combat_end', buildCombatEndItemTriggerPayload({
+    isBoss: false,
+    defeated: true,
+  }));
   gs.triggerItems('death');
 
   runCombatPlayerDeathSequence(gs, {

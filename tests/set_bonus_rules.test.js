@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PlayerReducers } from '../game/core/state_reducers/player_reducers.js';
-import { Actions } from '../game/core/state_action_types.js';
-import { applySetBonusDamageRules } from '../game/shared/progression/set_bonus_damage_rules.js';
 import { applyPassiveSetBonuses } from '../game/shared/progression/set_bonus_passive_effects.js';
 import { applySetBonusResourceRules } from '../game/shared/progression/set_bonus_resource_rules.js';
 import { applySetBonusSurvivalRules } from '../game/shared/progression/set_bonus_survival_rules.js';
@@ -40,6 +38,12 @@ function createGameState(overrides = {}) {
       player.shield = (player.shield || 0) + amount;
       shields.push({ amount, source });
     },
+    applyEnemyStatus(status, duration, targetIdx) {
+      const enemy = this.combat?.enemies?.[targetIdx];
+      if (!enemy) return;
+      enemy.statusEffects = enemy.statusEffects || {};
+      enemy.statusEffects[status] = (enemy.statusEffects[status] || 0) + duration;
+    },
     heal(amount, source) {
       const healed = Math.min(amount, Math.max(0, player.maxHp - player.hp));
       player.hp += healed;
@@ -71,66 +75,25 @@ describe('set bonus rules', () => {
       player: { hp: 80, maxHp: 120, maxEcho: 50 },
     });
 
-    applyPassiveSetBonuses(gs, { abyssal_set: 2, echo_set: 2, blood_set: 2, ancient_set: 2 });
-    applyPassiveSetBonuses(gs, { abyssal_set: 2, echo_set: 2, blood_set: 2, ancient_set: 2 });
+    applyPassiveSetBonuses(gs, { abyssal_set: 2, ancient_set: 2 });
+    applyPassiveSetBonuses(gs, { abyssal_set: 2, ancient_set: 2 });
 
     expect(player.maxEcho).toBe(60);
-    expect(player.maxHp).toBe(150);
-    expect(player.hp).toBe(110);
-    expect(gs._echoSet2).toBe(true);
+    expect(player.maxHp).toBe(130);
+    expect(player.hp).toBe(90);
     expect(gs._ancientSet2Applied).toBe(true);
-    expect(dirty).toEqual(['hud', 'hud']);
+    expect(dirty).toEqual(['hud']);
   });
 
-  it('grants judgement energy every third played card and sanctuary bonuses on matching triggers', () => {
-    const { gs, logs, player, shields } = createGameState({
+  it('applies resource triggers across abyssal, void, ancient, and machine sets', () => {
+    const { gs, draws, echoes, logs, player } = createGameState({
       player: {
-        hp: 95,
-        maxHp: 100,
-        maxEnergy: 5,
-        energy: 1,
-        statusEffects: { poison: 2, weak: 1 },
+        hp: 9,
+        maxHp: 30,
+        shield: 15,
+        echoChain: 3,
+        exhausted: ['a', 'b', 'c'],
       },
-    });
-    vi.spyOn(Math, 'random').mockReturnValue(0);
-
-    applySetBonusDamageRules(gs, { judgement: 3 }, 'card_play');
-    applySetBonusDamageRules(gs, { judgement: 3 }, 'card_play');
-    applySetBonusDamageRules(gs, { judgement: 3 }, 'card_play');
-    applySetBonusDamageRules(gs, { sanctuary: 2 }, 'combat_start');
-    applySetBonusDamageRules(gs, { sanctuary: 2 }, 'combat_start');
-    applySetBonusDamageRules(gs, { sanctuary: 3 }, 'heal_amount', 10);
-    applySetBonusDamageRules(gs, { sanctuary: 5 }, 'turn_start');
-
-    expect(player.energy).toBe(2);
-    expect(player.maxHp).toBe(110);
-    expect(player.hp).toBe(110);
-    expect(gs._sanctuarySet2Applied).toBe(true);
-    expect(gs._sanctuarySet2Bonus).toBe(10);
-    expect(shields.map(({ amount }) => amount)).toEqual([5]);
-    expect(player.statusEffects.poison).toBe(0);
-    expect(logs.some(({ message }) => message.includes('에너지 회복'))).toBe(true);
-    expect(logs.some(({ message }) => message.includes('poison 제거'))).toBe(true);
-  });
-
-  it('scales shadow venom poison damage, draw rewards, and shield gain', () => {
-    const { gs, draws, player, shields } = createGameState();
-    gs._lastKillByPoison = true;
-
-    const numeric = applySetBonusDamageRules(gs, { shadow_venom: 5 }, 'poison_damage', 4);
-    const objectPayload = applySetBonusDamageRules(gs, { shadow_venom: 5 }, 'poison_damage', { amount: 6, id: 'tick' });
-    applySetBonusDamageRules(gs, { shadow_venom: 3 }, 'enemy_kill');
-
-    expect(numeric).toBe(6);
-    expect(objectPayload).toEqual({ amount: 8, id: 'tick' });
-    expect(draws).toHaveLength(1);
-    expect(shields).toEqual([]);
-    expect(player.shield).toBe(0);
-  });
-
-  it('applies resource triggers across abyssal, void, ancient, machine, storm, and moon sets', () => {
-    const { gs, echoes, logs, player } = createGameState({
-      player: { hp: 9, maxHp: 30, shield: 15, echoChain: 3, exhausted: ['a', 'b', 'c'] },
     });
     gs.combat = {
       enemies: [{ hp: 20, statusEffects: { weakened: 1 } }],
@@ -140,7 +103,6 @@ describe('set bonus rules', () => {
     applySetBonusResourceRules(gs, { abyssal_set: 3 }, 'turn_start');
     applySetBonusResourceRules(gs, { void_set: 2 }, 'card_play', { cardId: 'flash', cost: 0 });
     applySetBonusResourceRules(gs, { ancient_set: 4 }, 'combat_start');
-    expect(applySetBonusResourceRules(gs, { storm_set: 3 }, 'deal_damage', 10)).toBe(11);
 
     for (let i = 0; i < 5; i += 1) {
       applySetBonusResourceRules(gs, { machine_set: 2 }, 'card_exhaust');
@@ -151,35 +113,54 @@ describe('set bonus rules', () => {
     expect(gs._machineSet2EnergyUsed).toBe(4);
     expect(gs._machineSet3DamageBonus).toBe(15);
     expect(applySetBonusResourceRules(gs, { machine_set: 3 }, 'deal_damage', 10)).toBe(25);
-
-    const blockFatal = applySetBonusResourceRules(gs, { moon_set: 5 }, 'damage_taken', 9);
-    const preventDamage = vi.spyOn(Math, 'random').mockReturnValue(0.1);
-    const negateDamage = applySetBonusResourceRules(gs, { blood_set: 3 }, 'damage_taken', 5);
-    preventDamage.mockRestore();
-
-    expect(blockFatal).toBe(true);
-    expect(player.hp).toBe(20);
-    expect(negateDamage).toBe(true);
+    expect(draws).toEqual([
+      { amount: 1, source: { name: '고대인의 유산 세트(4)', type: 'set' } },
+    ]);
     expect(echoes).toEqual([
       { amount: 15, source: { name: '심연의 삼위일체 세트(3)', type: 'set' } },
       { amount: 5, source: { name: '공허의 삼위일체 세트(2)', type: 'set' } },
     ]);
-    expect(logs.some(({ message }) => message.includes('피해 무효'))).toBe(true);
+    expect(logs.some(({ message }) => message.includes('에너지 +1'))).toBe(true);
   });
 
-  it('applies void and ancient damage bonuses on their actual deal_damage hooks', () => {
-    const { gs } = createGameState({
+  it('applies live survival triggers for void, ancient, serpents, grail, titan, and fortress sets', () => {
+    const { gs, shields } = createGameState({
       player: { hp: 60, maxHp: 100 },
     });
     gs.combat = {
-      enemies: [{ hp: 30, statusEffects: { weakened: 1 } }],
+      enemies: [
+        { hp: 30, statusEffects: { weakened: 1, poisoned: 10 } },
+        { hp: 30, statusEffects: {} },
+      ],
     };
     gs._selectedTarget = 0;
+    vi.spyOn(Math, 'random').mockReturnValue(0);
 
     expect(applySetBonusSurvivalRules(gs, { void_set: 3 }, 'deal_damage', { amount: 20, targetIdx: 0 })).toEqual({
       amount: 23,
       targetIdx: 0,
     });
     expect(applySetBonusSurvivalRules(gs, { ancient_set: 5 }, 'deal_damage', 20)).toBe(26);
+    expect(applySetBonusSurvivalRules(gs, { serpents_gaze: 3 }, 'deal_damage', { amount: 20, targetIdx: 0 })).toEqual({
+      amount: 25,
+      targetIdx: 0,
+    });
+    applySetBonusSurvivalRules(gs, { serpents_gaze: 2 }, 'poison_damage', { amount: 4, targetIdx: 0 });
+    expect(gs.combat.enemies[1].statusEffects.poisoned).toBe(2);
+    expect(applySetBonusSurvivalRules(gs, { holy_grail: 2 }, 'heal_amount', 50)).toBe(40);
+    expect(shields).toEqual([{ amount: 10, source: { name: '생명의 성배 세트(2)', type: 'set' } }]);
+    applySetBonusSurvivalRules(gs, { holy_grail: 3 }, 'heal_amount', 5);
+    expect(applySetBonusSurvivalRules(gs, { holy_grail: 3 }, 'deal_damage', 10)).toBe(14);
+    expect(applySetBonusSurvivalRules(gs, { titans_endurance: 2 }, 'deal_damage', 10)).toBe(undefined);
+    gs.player.hp = 90;
+    expect(applySetBonusSurvivalRules(gs, { titans_endurance: 2 }, 'deal_damage', 10)).toBe(15);
+    gs.player.hp = 10;
+    expect(applySetBonusSurvivalRules(gs, { titans_endurance: 3 }, 'damage_taken', 20)).toBe(true);
+    expect(gs.player.hp).toBe(1);
+    gs.player.shield = 50;
+    expect(applySetBonusSurvivalRules(gs, { iron_fortress: 2 }, 'deal_damage', 10)).toBe(20);
+    gs.player.energy = 1;
+    applySetBonusSurvivalRules(gs, { iron_fortress: 5 }, 'turn_start');
+    expect(gs.player.energy).toBe(2);
   });
 });

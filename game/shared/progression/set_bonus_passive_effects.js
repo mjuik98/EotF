@@ -35,13 +35,6 @@ export function applyPassiveSetBonuses(gs, counts) {
     player.maxEcho = Math.floor((player.maxEcho || 0) * 1.2);
   }
 
-  if (counts.echo_set >= 2) gs._echoSet2 = true;
-
-  if (counts.blood_set >= 2 && !gs._bloodSet2Applied) {
-    gs._bloodSet2Applied = true;
-    applyPassivePlayerMaxHpGrowth(gs, 20);
-  }
-
   if (counts.ancient_set >= 2 && !gs._ancientSet2Applied) {
     gs._ancientSet2Applied = true;
     applyPassivePlayerMaxHpGrowth(gs, 10);

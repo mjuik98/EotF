@@ -1,5 +1,6 @@
 export { createCombatStartRuntime } from '../application/create_combat_start_runtime.js';
 export { beginPlayerTurnUseCase } from '../application/begin_player_turn_use_case.js';
+export { buildCombatEndItemTriggerPayload } from '../application/combat_end_item_trigger_payload.js';
 export { CombatInitializer } from '../application/combat_initializer.js';
 export { endPlayerTurnService } from '../application/end_turn_service.js';
 export { endPlayerTurnUseCase } from '../application/end_player_turn_use_case.js';

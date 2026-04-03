@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'vitest';
 
+import { ITEMS } from '../data/items.js';
 import { SETS } from '../game/shared/progression/set_bonus_catalog.js';
 
 describe('set_bonus_catalog', () => {
@@ -22,8 +25,26 @@ describe('set_bonus_catalog', () => {
     expect(SETS.ancient_set.bonuses[2].label).toBe('고대의 육신 — 최대 체력 +10');
     expect(SETS.ancient_set.bonuses[4].label).toBe('고대의 지혜 — 전투 시작 시 카드 1장 드로우');
     expect(SETS.ancient_set.bonuses[5].label).toBe('고대의 계승 — 공격 피해 +6');
-    expect(SETS.echo_set.bonuses[2].label).toBe('반향의 공명 — 공명 폭발 게이지 -20 (80에서 발동)');
-    expect(SETS.echo_set.bonuses[3].label).toBe('반향의 완성 — 매 턴 자동 잔향 +20');
-    expect(SETS.blood_set.bonuses[2].label).toBe('혈맹의 결의 — 최대 체력 +20');
+    expect(SETS.holy_grail.bonuses[2].label).toBe('성배의 자비 — 초과 회복량을 방어막으로 전환');
+    expect(SETS.iron_fortress.bonuses[5].label).toBe('철옹성의 완성 — 턴 시작 시 방어막이 40 이상이면 에너지 1 회복');
+  });
+
+  it('only exposes sets whose members are all defined in the live item catalog', () => {
+    const undefinedMembers = Object.entries(SETS).flatMap(([setKey, setDef]) => (
+      (setDef.items || [])
+        .filter((itemId) => !ITEMS[itemId])
+        .map((itemId) => ({ setKey, itemId }))
+    ));
+
+    expect(undefinedMembers).toEqual([]);
+  });
+
+  it('keeps charge metadata attached only to defined items', () => {
+    const source = readFileSync(new URL('../data/items.js', import.meta.url), 'utf8');
+    const block = source.match(/const ITEM_CHARGE_META = \{([\s\S]*?)\n\};/);
+    const chargeItemIds = [...(block?.[1]?.matchAll(/^\s*([a-z0-9_]+):\s*\{/gm) || [])].map((match) => match[1]);
+
+    expect(block).not.toBeNull();
+    expect(chargeItemIds.filter((itemId) => !ITEMS[itemId])).toEqual([]);
   });
 });

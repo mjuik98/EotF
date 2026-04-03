@@ -20,6 +20,7 @@ import {
   applyPassiveResonanceBurstState,
   syncCombatMaxChainState,
 } from '../state/combat_chain_state_commands.js';
+import { buildCombatEndItemTriggerPayload } from './combat_end_item_trigger_payload.js';
 
 function resolveRuntimeHost(deps = {}) {
   return deps.win || deps.doc?.defaultView || null;
@@ -46,9 +47,13 @@ function playResonanceBurstAudio(audioEngine, deps = {}) {
 export const CombatLifecycle = {
   async endCombat(deps = {}) {
     const outcome = await runCombatRewardTransition({
-      beforeCombatEndCleanup: (state, nextOutcome) => state.triggerItems?.('combat_end', {
-        isBoss: nextOutcome?.isBoss,
-      }),
+      beforeCombatEndCleanup: (state, nextOutcome) => state.triggerItems?.(
+        'combat_end',
+        buildCombatEndItemTriggerPayload({
+          isBoss: nextOutcome?.isBoss,
+          victory: true,
+        }),
+      ),
       combatStateCommands: {
         beginResolution: beginCombatResolution,
         completeResolution: completeCombatResolution,

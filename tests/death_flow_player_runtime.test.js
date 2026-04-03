@@ -32,6 +32,7 @@ describe('death_flow_player_runtime', () => {
 
     const doc = createDoc();
     const triggerOrder = [];
+    const combatEndPayloads = [];
     const gs = {
       combat: {
         active: true,
@@ -52,6 +53,9 @@ describe('death_flow_player_runtime', () => {
       },
       triggerItems(trigger, data) {
         triggerOrder.push(trigger);
+        if (trigger === 'combat_end') {
+          combatEndPayloads.push(data);
+        }
         return ItemSystem.triggerItems(this, trigger, data);
       },
     };
@@ -70,6 +74,12 @@ describe('death_flow_player_runtime', () => {
     });
 
     expect(triggerOrder).toEqual(['pre_death', 'combat_end', 'death']);
+    expect(combatEndPayloads).toEqual([{
+      isBoss: false,
+      victory: false,
+      defeated: true,
+      abandoned: false,
+    }]);
     expect(gs.combat.active).toBe(false);
     expect(gs.player.echo).toBe(80);
     expect(gs.player.shield).toBe(0);

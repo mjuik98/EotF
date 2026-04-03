@@ -13,15 +13,6 @@ import {
 export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) {
   const dealDamageAmount = normalizedTrigger === 'deal_damage' ? getAmountValue(data) : null;
 
-  if (counts.dusk_set >= 2 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
-    const targetIdx = resolveTargetIdx(gs, data?.targetIdx);
-    if (targetIdx < 0) return undefined;
-    const target = gs.combat?.enemies?.[targetIdx];
-    if ((target?.statusEffects?.poisoned || 0) > 0) {
-      return withAmountValue(data, dealDamageAmount + 8);
-    }
-  }
-
   if (counts.void_set >= 3 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
     const targetIdx = resolveTargetIdx(gs, data?.targetIdx);
     if (targetIdx >= 0 && (gs.combat?.enemies?.[targetIdx]?.statusEffects?.weakened || 0) > 0) {
@@ -31,15 +22,6 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
 
   if (counts.ancient_set >= 5 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
     return withAmountValue(data, dealDamageAmount + 6);
-  }
-
-  if (counts.plague_coven >= 2 && normalizedTrigger === 'poison_damage') {
-    const amount = typeof data === 'number' ? data : data?.amount;
-    if (amount > 0) gs.addShield?.(1, { name: '역병의 결사 세트(2)', type: 'set' });
-  }
-  if (counts.plague_coven >= 3 && normalizedTrigger === 'poison_damage') {
-    if (typeof data === 'number') return Math.floor(data * 1.2);
-    if (data && typeof data.amount === 'number') return { ...data, amount: Math.floor(data.amount * 1.2) };
   }
 
   if (hasSetTier(gs, counts, 'serpents_gaze', 2) && normalizedTrigger === 'poison_damage' && data?.amount > 0 && Math.random() < 0.1) {

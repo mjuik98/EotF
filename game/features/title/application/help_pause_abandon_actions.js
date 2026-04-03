@@ -1,3 +1,5 @@
+import { buildCombatEndItemTriggerPayload } from '../../combat/ports/public_combat_flow_application_capabilities.js';
+
 function resolveDoc(deps = {}) {
   return deps.doc || deps.win?.document || null;
 }
@@ -20,7 +22,11 @@ function cleanupCombatAfterAbandonFallback(deps = {}) {
   const { gs, doc } = deps;
   if (!gs?.combat?.active) return false;
 
-  gs.triggerItems?.('combat_end', { isBoss: false, defeated: true, abandoned: true });
+  gs.triggerItems?.('combat_end', buildCombatEndItemTriggerPayload({
+    isBoss: false,
+    defeated: true,
+    abandoned: true,
+  }));
   if (typeof deps.applyCombatEndCleanupState === 'function') {
     deps.applyCombatEndCleanupState(gs);
   } else {

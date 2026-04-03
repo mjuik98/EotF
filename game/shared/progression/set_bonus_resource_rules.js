@@ -1,4 +1,4 @@
-import { changePlayerEnergyState, setPlayerHpState } from '../state/player_state_commands.js';
+import { changePlayerEnergyState } from '../state/player_state_commands.js';
 import { getAmountValue, withAmountValue } from './set_bonus_helpers.js';
 
 export function applySetBonusResourceRules(gs, counts, normalizedTrigger, data) {
@@ -21,22 +21,6 @@ export function applySetBonusResourceRules(gs, counts, normalizedTrigger, data) 
     gs.drawCards?.(1, { name: '고대인의 유산 세트(4)', type: 'set' });
   }
 
-  if (counts.echo_set >= 3 && normalizedTrigger === 'turn_start') {
-    gs.addEcho?.(20, { name: '반향의 삼각 세트(3)', type: 'set' });
-  }
-
-  if (counts.blood_set >= 3 && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data > 0 && Math.random() < 0.2) {
-    gs.addLog?.('💉 혈맹의 완성: 피해 무효!', 'echo');
-    return true;
-  }
-
-  if (counts.storm_set >= 2 && normalizedTrigger === 'card_play') {
-    gs.addEcho?.(4, { name: '폭풍의 세 검 세트(2)', type: 'set' });
-  }
-  if (counts.storm_set >= 3 && normalizedTrigger === 'deal_damage' && (gs.player.echoChain || 0) >= 3 && dealDamageAmount !== null) {
-    return withAmountValue(data, Math.floor(dealDamageAmount * 1.1));
-  }
-
   if (counts.machine_set >= 2) {
     if (normalizedTrigger === 'card_exhaust' && (gs._machineSet2EnergyUsed || 0) < 4) {
       gs._machineSet2EnergyUsed = (gs._machineSet2EnergyUsed || 0) + 1;
@@ -49,19 +33,6 @@ export function applySetBonusResourceRules(gs, counts, normalizedTrigger, data) 
   }
   if (counts.machine_set >= 3 && normalizedTrigger === 'deal_damage' && (gs._machineSet3DamageBonus || 0) > 0 && dealDamageAmount !== null) {
     return withAmountValue(data, dealDamageAmount + gs._machineSet3DamageBonus);
-  }
-
-  if (counts.moon_set >= 2 && normalizedTrigger === 'heal_amount' && typeof data === 'number' && data > 0) {
-    gs.addShield?.(2, { name: '달의 신비 세트(2)', type: 'set' });
-  }
-  if (counts.moon_set >= 3 && normalizedTrigger === 'turn_start' && (gs.player.shield || 0) >= 15) {
-    gs.heal?.(3, { name: '달의 신비 세트(3)', type: 'set' });
-  }
-  if (counts.moon_set >= 5 && normalizedTrigger === 'damage_taken' && typeof data === 'number' && data >= (gs.player.hp || 0) && !gs._moonSetReviveUsed) {
-    gs._moonSetReviveUsed = true;
-    setPlayerHpState(gs, 20);
-    gs.addLog?.('🌙 달의 신비: 치명적 피해 방지 및 체력 회복!', 'echo');
-    return true;
   }
 
   return undefined;
