@@ -23,6 +23,7 @@ describe('settings manager platform boundary', () => {
     const settingsKeybindingHelpers = readText('game/features/ui/presentation/browser/settings_ui_keybinding_helpers.js');
     const helpPauseKeybindingHelpers = readText('game/features/ui/presentation/browser/help_pause_keybinding_helpers.js');
     const rootBindings = readText('game/platform/browser/bindings/root_bindings.js');
+    const rootBindingSettings = readText('game/platform/browser/bindings/root_binding_settings.js');
 
     expect(featureSettingsAdapter).toContain("../../../../platform/browser/settings/settings_manager.js");
     expect(settingsRuntime).toContain("../../platform/browser/settings_manager.js");
@@ -30,6 +31,7 @@ describe('settings manager platform boundary', () => {
     expect(settingsApplyHelpers).toContain("../../platform/browser/settings_manager.js");
     expect(settingsKeybindingHelpers).toContain("../../platform/browser/settings_manager.js");
     expect(helpPauseKeybindingHelpers).toContain("../../platform/browser/settings_manager.js");
-    expect(rootBindings).toContain("../settings/settings_manager.js");
+    expect(rootBindings).toContain("./root_binding_settings.js");
+    expect(rootBindingSettings).toContain("../settings/settings_manager.js");
   });
 });

@@ -1,8 +1,44 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { buildUiHelpPauseContract } from '../game/features/ui/ports/contracts/build_ui_help_pause_contract.js';
 import { buildUiShellContractBuilders } from '../game/features/ui/ports/contracts/build_ui_shell_contracts.js';
 
 describe('ui_shell_contract_builders', () => {
+  it('builds help-pause deps through the extracted contract helper', () => {
+    const canonicalGs = {
+      currentScreen: 'game',
+      player: { hp: 80 },
+    };
+    const saveRun = vi.fn();
+
+    const deps = buildUiHelpPauseContract({
+      buildBaseDeps: vi.fn((scope) => ({ gs: canonicalGs, scope })),
+      getRefs: () => ({
+        AudioEngine: { playEvent: vi.fn() },
+        openCodex: vi.fn(),
+        featureRefs: {
+          core: {
+            GS: canonicalGs,
+            SaveSystem: { saveRun },
+          },
+          combat: {
+            playCard: vi.fn(),
+          },
+        },
+      }),
+      getSyncVolumeUIFallback: vi.fn(() => vi.fn()),
+    });
+
+    deps.saveRun();
+
+    expect(deps.gs).toBe(canonicalGs);
+    expect(deps.scope).toBe('run');
+    expect(saveRun).toHaveBeenCalledWith({
+      gs: canonicalGs,
+      isGameStarted: expect.any(Function),
+    });
+  });
+
   it('prefers run base deps gs when building help-pause save actions', () => {
     const saveRun = vi.fn();
     const scopedGs = { currentScreen: 'game' };

@@ -422,11 +422,13 @@ describe('vite chunking guardrails', () => {
     const helpPauseReturnRuntime = readText('game/features/ui/presentation/browser/help_pause_ui_return_runtime.js');
     const helpPauseMenuRuntime = readText('game/features/ui/presentation/browser/help_pause_menu_runtime_ui.js');
     const shellContracts = readText('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
+    const helpPauseContract = readText('game/features/ui/ports/contracts/build_ui_help_pause_contract.js');
     const nextNodeInteractions = readText('game/features/run/presentation/browser/map_ui_next_nodes_interactions.js');
     const runRules = readText('game/features/run/application/run_rules.js');
     const runRuleMeta = readText('game/features/run/application/run_rule_meta.js');
     const runRuleLifecycle = readText('game/features/run/application/run_rule_lifecycle.js');
     const runRuleOutcome = readText('game/features/run/application/run_rule_outcome.js');
+    const runOutcomeExternalPorts = readText('game/features/run/application/run_outcome_external_ports.js');
     const rewardOptions = readText('game/features/reward/application/build_reward_options_use_case.js');
 
     expect(endingActionHelpers).toContain("../../../title/ports/public_ending_application_capabilities.js");
@@ -436,13 +438,15 @@ describe('vite chunking guardrails', () => {
     expect(helpPauseAbandonRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(helpPauseReturnRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(helpPauseMenuRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
-    expect(shellContracts).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
+    expect(shellContracts).toContain("./build_ui_help_pause_contract.js");
+    expect(helpPauseContract).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(nextNodeInteractions).toContain("../../../ui/ports/public_help_pause_hotkey_capabilities.js");
     expect(nextNodeInteractions).not.toContain("public_help_pause_presentation_capabilities.js");
 
     expect(runRuleMeta).toContain("../../title/ports/public_progression_capabilities.js");
     expect(runRuleLifecycle).toContain("../../title/ports/public_progression_capabilities.js");
-    expect(runRuleOutcome).toContain("../../title/ports/public_progression_capabilities.js");
+    expect(runRuleOutcome).toContain("./run_outcome_external_ports.js");
+    expect(runOutcomeExternalPorts).toContain("../../title/ports/public_progression_capabilities.js");
     expect(rewardOptions).toContain("../ports/reward_option_policy_ports.js");
 
     expect(endingActionHelpers).not.toContain('public_application_capabilities.js');

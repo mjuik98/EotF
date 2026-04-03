@@ -1,9 +1,8 @@
 import { DATA } from '../ports/public_data_runtime_capabilities.js';
 import { CURSES } from '../domain/run_rules_curses.js';
 import { getRegionCount } from '../domain/run_rules_regions.js';
-import { evaluateAchievementTrigger } from '../../meta_progression/public.js';
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import { Logger } from '../../../shared/logging/public.js';
+import { resolveRunOutcomeExternalPorts } from './run_outcome_external_ports.js';
 import { ensureRunRuleMeta, resolveRunRuleClassIds } from './run_rule_meta.js';
 import {
   applyRunOutcomeRewards,
@@ -26,13 +25,6 @@ function resolveRunRulesState(deps = {}) {
   if (deps.gs) return deps.gs;
   if (typeof deps.getGameState === 'function') return deps.getGameState();
   return null;
-}
-
-function persistRunOutcomeMeta(deps = {}) {
-  const saveSystem = deps.saveSystem;
-  const status = saveSystem?.saveMeta?.(deps);
-  saveSystem?.showSaveStatus?.(status, deps);
-  saveSystem?.clearSave?.();
 }
 
 function publishProgressionUnlocks(gs, progressionResult, kind, deps = {}) {
@@ -67,6 +59,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
   const gs = resolveRunRulesState(deps);
   if (!gs) return 0;
   if (!beginRunOutcomeCommit(gs)) return 0;
+  const externalPorts = resolveRunOutcomeExternalPorts(deps);
 
   captureRunOutcomeTiming(gs);
   ensureOutcomeMeta(gs.meta);
@@ -83,7 +76,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
   }
 
   try {
-    ClassProgressionSystem.awardRunXP(gs, kind, {
+    externalPorts.awardRunXp(gs, kind, {
       ...options,
       classIds: resolveRunRuleClassIds(DATA),
       regionCount: getRegionCount(),
@@ -92,7 +85,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
     RunRulesLogger.warn('Class progression update failed:', e?.message || e);
   }
 
-  const progressionResult = evaluateAchievementTrigger(gs.meta, 'run_completed', {
+  const progressionResult = externalPorts.evaluateAchievements(gs.meta, 'run_completed', {
     kind,
     runConfig: gs.runConfig,
   });
@@ -102,7 +95,7 @@ export function finalizeRunOutcome(kind = 'defeat', options = {}, deps = {}) {
   recordRunAnalytics(gs.meta, recentRunSummary);
 
   applyRunOutcomeRewards(gs, shardGain);
-  persistRunOutcomeMeta(deps);
+  externalPorts.persistMeta({ ...deps, gs });
 
   return shardGain;
 }

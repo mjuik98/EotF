@@ -21,6 +21,38 @@ function createGameState(curse = 'none') {
 }
 
 describe('run outcome progression integration', () => {
+  it('uses injected external ports before falling back to default progression integrations', () => {
+    const gs = createGameState();
+    const awardRunXp = vi.fn();
+    const evaluateAchievements = vi.fn(() => ({
+      newlyUnlockedContent: [{ type: 'curse', id: 'test_unlock' }],
+      newlyUnlockedAchievements: ['custom_achievement'],
+    }));
+    const persistMeta = vi.fn();
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      externalPorts: {
+        awardRunXp,
+        evaluateAchievements,
+        persistMeta,
+      },
+      saveSystem: { saveMeta: vi.fn(), clearSave: vi.fn() },
+    });
+
+    expect(awardRunXp).toHaveBeenCalledWith(gs, 'victory', expect.objectContaining({
+      classIds: expect.any(Array),
+      regionCount: expect.any(Number),
+    }));
+    expect(evaluateAchievements).toHaveBeenCalledWith(gs.meta, 'run_completed', {
+      kind: 'victory',
+      runConfig: gs.runConfig,
+    });
+    expect(persistMeta).toHaveBeenCalledWith(expect.objectContaining({ gs }));
+    expect(gs.runOutcomeUnlocks).toEqual([{ type: 'curse', id: 'test_unlock' }]);
+    expect(gs.runOutcomeAchievements).toEqual(['custom_achievement']);
+  });
+
   it('evaluates run_completed achievements after a victory', () => {
     const gs = createGameState();
 

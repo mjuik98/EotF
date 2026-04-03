@@ -1,8 +1,5 @@
 import { playClassSelect } from '../public_audio_support_capabilities.js';
-import {
-  buildTitleHelpPauseActions,
-  returnToTitleFromPause as returnToTitleFromPauseAction,
-} from '../../../title/ports/public_help_pause_application_capabilities.js';
+import { buildUiHelpPauseContract } from './build_ui_help_pause_contract.js';
 
 export function buildUiShellContractBuilders(ctx) {
   const {
@@ -76,88 +73,10 @@ export function buildUiShellContractBuilders(ctx) {
       };
     },
 
-    helpPause: () => {
-      const refs = getRefs();
-      const runDeps = buildBaseDeps('run');
-      const combatRefs = refs.featureRefs?.combat || {};
-      const resolveCurrentRefs = () => getRefs();
-      const resolveCurrentCoreRefs = () => resolveCurrentRefs().featureRefs?.core || {};
-      const resolveCurrentRunDeps = () => buildBaseDeps('run');
-      const resolveCurrentGs = () => {
-        const currentRefs = resolveCurrentRefs();
-        const currentCoreRefs = resolveCurrentCoreRefs();
-        const currentRunDeps = resolveCurrentRunDeps();
-        const currentCanonicalGs = currentCoreRefs.GS || currentRefs.GS || null;
-        return currentCanonicalGs?.player ? currentCanonicalGs : (currentRunDeps.gs || currentCanonicalGs);
-      };
-      const resolveCurrentSaveSystem = () => {
-        const currentRefs = resolveCurrentRefs();
-        const currentCoreRefs = resolveCurrentCoreRefs();
-        return currentCoreRefs.SaveSystem || currentRefs.SaveSystem;
-      };
-      const resolvedGs = resolveCurrentGs();
-      const saveRun = (override = {}) => resolveCurrentSaveSystem()?.saveRun?.({
-        gs: override.gs?.player ? override.gs : (resolveCurrentGs() || override.gs),
-        isGameStarted: () => resolveCurrentRefs()._gameStarted?.(),
-      });
-      const showSaveStatus = (status) => resolveCurrentSaveSystem()?.showSaveStatus?.(
-        status,
-        {
-          ...resolveCurrentRunDeps(),
-          gs: resolveCurrentGs(),
-        },
-      );
-      const returnToTitleFromPause = () => returnToTitleFromPauseAction({
-        ...resolveCurrentRunDeps(),
-        gs: resolveCurrentGs(),
-        saveRun,
-        showSaveStatus,
-      });
-      const titleActions = buildTitleHelpPauseActions({
-        returnToTitleFromPause,
-        restartEndingFlow: refs.restartEndingFlow || refs.restartFromEnding,
-        restartFromEnding: refs.restartFromEnding,
-        selectEndingFragment: refs.selectEndingFragment || refs.selectFragment,
-        selectFragment: refs.selectFragment,
-        openEndingCodex: refs.openEndingCodex || refs.openCodex,
-        openCodex: refs.openCodex,
-      });
-      return {
-        ...runDeps,
-        gs: resolvedGs,
-        audioEngine: refs.AudioEngine,
-        showDeckView: refs.showDeckView,
-        closeDeckView: refs.closeDeckView,
-        openCodex: refs.openCodex,
-        closeCodex: refs.closeCodex,
-        closeRunSettings: refs.closeRunSettings,
-        openSettings: refs.openSettings,
-        closeSettings: refs.closeSettings,
-        quitGame: refs.quitGame,
-        setMasterVolume: refs.setMasterVolume,
-        setSfxVolume: refs.setSfxVolume,
-        setAmbientVolume: refs.setAmbientVolume,
-        closeBattleChronicle: refs.closeBattleChronicle,
-        _syncVolumeUI: refs._syncVolumeUI || getSyncVolumeUIFallback(),
-        useEchoSkill: combatRefs.useEchoSkill || refs.useEchoSkill,
-        drawCard: combatRefs.drawCard || refs.drawCard,
-        endPlayerTurn: combatRefs.endPlayerTurn || refs.endPlayerTurn,
-        playCard: combatRefs.playCard || refs.playCard,
-        renderCombatEnemies: combatRefs.renderCombatEnemies || refs.renderCombatEnemies,
-        cleanupCombatAfterAbandon: combatRefs.cleanupCombatAfterAbandon || refs.cleanupCombatAfterAbandon,
-        finalizeRunOutcome: refs.finalizeRunOutcome,
-        showAbandonOutcome: refs.showAbandonOutcome,
-        hudUpdateUI: combatRefs.HudUpdateUI || refs.HudUpdateUI,
-        saveRun,
-        showSaveStatus,
-        clearActiveRunSave: () => resolveCurrentSaveSystem()?.clearSave?.(),
-        ...titleActions,
-        restartFromEnding: refs.restartFromEnding,
-        selectFragment: refs.selectFragment,
-        switchScreen: refs.switchScreen,
-        returnToGame: refs.returnToGame,
-        buttonFeedback: refs.ButtonFeedback,
-      };
-    },
+    helpPause: () => buildUiHelpPauseContract({
+        buildBaseDeps,
+        getRefs,
+        getSyncVolumeUIFallback,
+      }),
   };
 }

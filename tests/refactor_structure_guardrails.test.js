@@ -1,11 +1,107 @@
 import { describe, expect, it } from 'vitest';
-import { pathExists, readText } from './helpers/guardrail_fs.js';
+import { pathExists, readJson, readText } from './helpers/guardrail_fs.js';
 
 function read(file) {
   return readText(file);
 }
 
+function getFeatureName(file) {
+  const match = /^game\/features\/([^/]+)\//.exec(String(file || ''));
+  return match?.[1] || null;
+}
+
+function collectFeatureCycles(graph = {}) {
+  const adjacency = new Map();
+  const knownFeatures = new Set();
+
+  for (const [source, targets] of Object.entries(graph)) {
+    const sourceFeature = getFeatureName(source);
+    if (!sourceFeature) continue;
+    knownFeatures.add(sourceFeature);
+    if (!adjacency.has(sourceFeature)) adjacency.set(sourceFeature, new Set());
+
+    for (const target of targets || []) {
+      const targetFeature = getFeatureName(target);
+      if (!targetFeature || targetFeature === sourceFeature) continue;
+      knownFeatures.add(targetFeature);
+      adjacency.get(sourceFeature).add(targetFeature);
+      if (!adjacency.has(targetFeature)) adjacency.set(targetFeature, new Set());
+    }
+  }
+
+  const indexes = new Map();
+  const lowLinks = new Map();
+  const stack = [];
+  const active = new Set();
+  const components = [];
+  let nextIndex = 0;
+
+  function visit(feature) {
+    indexes.set(feature, nextIndex);
+    lowLinks.set(feature, nextIndex);
+    nextIndex += 1;
+    stack.push(feature);
+    active.add(feature);
+
+    for (const neighbor of adjacency.get(feature) || []) {
+      if (!indexes.has(neighbor)) {
+        visit(neighbor);
+        lowLinks.set(feature, Math.min(lowLinks.get(feature), lowLinks.get(neighbor)));
+        continue;
+      }
+
+      if (active.has(neighbor)) {
+        lowLinks.set(feature, Math.min(lowLinks.get(feature), indexes.get(neighbor)));
+      }
+    }
+
+    if (lowLinks.get(feature) !== indexes.get(feature)) return;
+
+    const component = [];
+    while (stack.length > 0) {
+      const current = stack.pop();
+      active.delete(current);
+      component.push(current);
+      if (current === feature) break;
+    }
+
+    if (component.length > 1) {
+      components.push(component.sort());
+    }
+  }
+
+  for (const feature of [...knownFeatures].sort()) {
+    if (!indexes.has(feature)) {
+      visit(feature);
+    }
+  }
+
+  return components.sort((left, right) => {
+    if (right.length !== left.length) return right.length - left.length;
+    return left.join(',').localeCompare(right.join(','));
+  });
+}
+
 describe('refactor structure guardrails', () => {
+  it('keeps the current cross-feature cycle set from expanding', () => {
+    const graph = readJson('artifacts/dependency_map.json').graph;
+    const cycles = collectFeatureCycles(graph);
+
+    expect(cycles).toEqual([
+      [
+        'codex',
+        'combat',
+        'combat_session',
+        'event',
+        'meta_progression',
+        'reward',
+        'run',
+        'title',
+        'ui',
+      ],
+    ]);
+  });
+
   it('keeps the legacy global bridge as a thin assembly over helper modules', () => {
     const source = read('game/platform/legacy/global_bridge_runtime.js');
 
@@ -135,6 +231,7 @@ describe('refactor structure guardrails', () => {
     const abandonPresenterSource = read('game/features/title/presentation/browser/abandon_outcome_presenter.js');
     const helpPauseAbandonRuntimeSource = read('game/features/ui/presentation/browser/help_pause_ui_abandon_runtime.js');
     const uiShellContractsSource = read('game/features/ui/ports/contracts/build_ui_shell_contracts.js');
+    const helpPauseContractSource = read('game/features/ui/ports/contracts/build_ui_help_pause_contract.js');
     const eventSessionSource = read('game/features/event/ports/public_event_session_application_capabilities.js');
     const runReturnFlowSource = read('game/features/run/application/workflows/run_return_flow.js');
     const runReturnActionsSource = read('game/features/run/application/build_run_return_runtime_actions.js');
@@ -153,8 +250,9 @@ describe('refactor structure guardrails', () => {
     expect(abandonPresenterSource).not.toContain('../../../ui/ports/ending_screen_runtime_ports.js');
     expect(helpPauseAbandonRuntimeSource).toContain("../../ports/public_ending_presentation_capabilities.js");
     expect(helpPauseAbandonRuntimeSource).toContain("showAbandonOutcome: deps.showAbandonOutcome || ((nextDeps) => EndingScreenUI.showOutcome('abandon', nextDeps))");
-    expect(uiShellContractsSource).toContain('cleanupCombatAfterAbandon: combatRefs.cleanupCombatAfterAbandon || refs.cleanupCombatAfterAbandon');
-    expect(uiShellContractsSource).toContain('showAbandonOutcome: refs.showAbandonOutcome');
+    expect(uiShellContractsSource).toContain("./build_ui_help_pause_contract.js");
+    expect(helpPauseContractSource).toContain('cleanupCombatAfterAbandon: combatRefs.cleanupCombatAfterAbandon || refs.cleanupCombatAfterAbandon');
+    expect(helpPauseContractSource).toContain('showAbandonOutcome: refs.showAbandonOutcome');
     expect(eventSessionSource).toContain("../application/event_choice_view_model.js");
     expect(eventSessionSource).not.toContain("../presentation/event_choice_view_model.js");
     expect(runReturnFlowSource).toContain("../../ports/public_run_return_presentation_capabilities.js");
@@ -175,6 +273,7 @@ describe('refactor structure guardrails', () => {
     const runRuleMetaSource = read('game/features/run/application/run_rule_meta.js');
     const runRuleLifecycleSource = read('game/features/run/application/run_rule_lifecycle.js');
     const runRuleOutcomeSource = read('game/features/run/application/run_rule_outcome.js');
+    const runOutcomeExternalPortsSource = read('game/features/run/application/run_outcome_external_ports.js');
     const hiddenEndingSource = read('game/features/ui/presentation/browser/story_ui_hidden_ending_render.js');
     const metaProgressionSource = read('game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
     const endingActionsSource = read('game/features/ui/presentation/browser/ending_screen_action_helpers.js');
@@ -198,10 +297,12 @@ describe('refactor structure guardrails', () => {
     expect(runRulesSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(runRuleMetaSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
     expect(runRuleLifecycleSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
-    expect(runRuleOutcomeSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleOutcomeSource).toContain("./run_outcome_external_ports.js");
+    expect(runOutcomeExternalPortsSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
     expect(runRuleMetaSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(runRuleLifecycleSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(runRuleOutcomeSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(runOutcomeExternalPortsSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(hiddenEndingSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
     expect(hiddenEndingSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
     expect(metaProgressionSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
@@ -215,8 +316,9 @@ describe('refactor structure guardrails', () => {
     expect(helpPauseAbandonSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
     expect(helpPauseMenuSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
     expect(helpPauseMenuSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
-    expect(uiShellContractsSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(uiShellContractsSource).toContain("./build_ui_help_pause_contract.js");
     expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
+    expect(pathExists('game/features/ui/ports/contracts/build_ui_help_pause_contract.js')).toBe(true);
   });
 
   it('splits overlay escape runtime into surface, visibility, and registry helpers', () => {
@@ -248,6 +350,17 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("./save_system_public_facade.js");
     expect(pathExists('game/shared/save/save_system_outbox_controller.js')).toBe(true);
     expect(pathExists('game/shared/save/save_system_public_facade.js')).toBe(true);
+  });
+
+  it('keeps root browser bindings as a facade over focused binding helpers', () => {
+    const source = read('game/platform/browser/bindings/root_bindings.js');
+
+    expect(source).toContain("./root_binding_settings.js");
+    expect(source).toContain("./root_binding_events.js");
+    expect(source).toContain("./root_binding_help_pause.js");
+    expect(pathExists('game/platform/browser/bindings/root_binding_settings.js')).toBe(true);
+    expect(pathExists('game/platform/browser/bindings/root_binding_events.js')).toBe(true);
+    expect(pathExists('game/platform/browser/bindings/root_binding_help_pause.js')).toBe(true);
   });
 
   it('keeps event runtime helpers thin over lazy overlay loader modules', () => {
