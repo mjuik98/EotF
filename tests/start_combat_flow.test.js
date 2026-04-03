@@ -124,6 +124,20 @@ function createOpeningHandCombatState({
         this.player.energy = Math.max(0, Number(this.player.energy || 0) + Number(payload?.amount || 0));
         return { energyAfter: this.player.energy };
       }
+      if (action === 'player:max-energy-growth') {
+        const amount = Number(payload?.amount || 0);
+        const previousMax = Number(this.player.maxEnergy || 0);
+        this.player.maxEnergy = Math.max(1, previousMax + amount);
+        if (amount > 0) {
+          this.player.energy = Math.min(this.player.maxEnergy, Number(this.player.energy || 0) + amount);
+        } else {
+          this.player.energy = Math.min(this.player.maxEnergy, Number(this.player.energy || 0));
+        }
+        return {
+          maxEnergyAfter: this.player.maxEnergy,
+          energyAfter: this.player.energy,
+        };
+      }
       if (action === 'enemy:status') {
         const enemy = this.combat.enemies[payload.targetIdx];
         if (!enemy) return null;
@@ -346,6 +360,32 @@ describe('startCombatFlowUseCase', () => {
     randomSpy.mockRestore();
   });
 
+  it('applies eternal_fragment extra draw to the opening combat turn', () => {
+    vi.restoreAllMocks();
+    vi.spyOn(CombatInitializer, 'resetCombatState').mockImplementation(() => {});
+    vi.spyOn(CombatInitializer, 'spawnEnemies').mockImplementation(() => ({
+      spawnedKeys: ['ancient_echo'],
+      isHiddenBoss: false,
+    }));
+    vi.spyOn(CombatInitializer, 'applyRegionDebuffs').mockImplementation(() => {});
+
+    const gs = createOpeningHandCombatState({
+      items: ['eternal_fragment'],
+      deck: ['strike', 'defend', 'bash', 'guard', 'charge', 'slash', 'spark'],
+      energy: 3,
+      maxEnergy: 3,
+      hp: 30,
+      maxHp: 50,
+    });
+
+    startCombatFlowUseCase('normal', createOpeningHandCombatDeps(gs));
+
+    expect(gs.player.maxEnergy).toBe(4);
+    expect(gs.player.energy).toBe(4);
+    expect(gs.player.drawCount).toBe(1);
+    expect(gs.player.hand).toHaveLength(6);
+  });
+
   it('applies hand-scoped opening-draw relics to the first combat hand', () => {
     vi.restoreAllMocks();
     vi.spyOn(CombatInitializer, 'resetCombatState').mockImplementation(() => {});
@@ -399,5 +439,27 @@ describe('startCombatFlowUseCase', () => {
     })).toBe(2);
 
     randomSpy.mockRestore();
+  });
+
+  it('leaves a one-card opening hand unchanged for glitch_circuit because it needs two distinct cards', () => {
+    vi.restoreAllMocks();
+    vi.spyOn(CombatInitializer, 'resetCombatState').mockImplementation(() => {});
+    vi.spyOn(CombatInitializer, 'spawnEnemies').mockImplementation(() => ({
+      spawnedKeys: ['ancient_echo'],
+      isHiddenBoss: false,
+    }));
+    vi.spyOn(CombatInitializer, 'applyRegionDebuffs').mockImplementation(() => {});
+
+    const gs = createOpeningHandCombatState({
+      items: ['glitch_circuit'],
+      deck: ['strike'],
+    });
+
+    startCombatFlowUseCase('normal', createOpeningHandCombatDeps(gs));
+
+    expect(gs.player.hand).toEqual(['strike']);
+    expect(CardCostUtils.calcEffectiveCost('strike', CARDS.strike, gs.player, 0, {
+      triggerItems: gs.triggerItems.bind(gs),
+    })).toBe(CARDS.strike.cost);
   });
 });

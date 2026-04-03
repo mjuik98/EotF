@@ -130,7 +130,7 @@ describe('save_repository', () => {
   it('persists phoenix_feather game-long revive usage through save hydration', () => {
     const gs = createRunState();
     gs.player.maxHp = 40;
-    gs.player.hp = 3;
+    gs.player.hp = 0;
     gs.player.items = ['phoenix_feather'];
     gs.addLog = () => {};
 
@@ -142,6 +142,7 @@ describe('save_repository', () => {
     hydrateRunState(loaded, save);
 
     expect(loaded.player._itemState.phoenix_feather.used).toBe(true);
+    loaded.player.hp = 0;
     expect(ITEMS.phoenix_feather.passive(loaded, Trigger.PRE_DEATH)).toBeUndefined();
   });
 

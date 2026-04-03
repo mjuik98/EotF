@@ -140,6 +140,7 @@ describe('items data passives', () => {
 
     expect(gs.player.drawPile).toContain('curse_noise');
     expect(gs.player.deck).toEqual(['strike', 'guard']);
+    expect(ITEMS.dimension_pocket.desc).toBe('획득: 최대 에너지 +1 / 턴 시작: 드로우 더미에 [노이즈] 1장 추가');
   });
 
   it('caps energy_core growth after two boss combat victories', () => {
@@ -190,8 +191,12 @@ describe('items data passives', () => {
     ).toBeUndefined();
   });
 
-  it('keeps clockwork_butterfly description aligned with its overcap recovery behavior', () => {
-    expect(ITEMS.clockwork_butterfly.desc).toBe('턴 시작 3회마다: 에너지 최대치만큼 회복');
+  it('labels combat-scoped counter relics with their per-combat scope', () => {
+    expect(ITEMS.tally_stone.desc).toBe('이번 전투에서 피해를 줄 때: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화');
+    expect(ITEMS.echo_bell.desc).toBe('이번 전투에서 카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전');
+    expect(ITEMS.clockwork_butterfly.desc).toBe('이번 전투에서 턴 시작 3회마다: 에너지 최대치만큼 회복');
+    expect(ITEMS.infinite_loop.desc).toBe('이번 전투에서 카드 3장 사용할 때마다: 손패의 무작위 카드 1장 소모 후 복사본 2장 추가');
+    expect(ITEMS.boss_black_lotus.desc).toBe('상시: 손패 제한 -1 / 이번 전투에서 카드 5장 사용할 때마다: 카드 2장 드로우');
   });
 
   it('routes combat-start draw passives through runtime compat without mutating canonical GS helpers', () => {
@@ -677,7 +682,7 @@ describe('items data passives', () => {
     }
 
     expect(gs.player.echo).toBe(20);
-    expect(ITEMS.echo_bell.desc).toBe('카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전');
+    expect(ITEMS.echo_bell.desc).toBe('이번 전투에서 카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전');
   });
 
   it('charges potion cost again after ancient_battery spends its once-per-floor shop purchase', () => {

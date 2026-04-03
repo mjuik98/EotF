@@ -147,4 +147,46 @@ describe('death_flow_player_runtime', () => {
     expect(gs._itemRuntime.infinite_loop.count).toBe(0);
     expect(gs._itemRuntime.ancient_scroll.tempCardId).toBeNull();
   });
+
+  it('does not consume multiple revive relics on a single death event', () => {
+    vi.useFakeTimers();
+
+    const doc = createDoc();
+    const gs = {
+      combat: {
+        active: true,
+        enemies: [],
+      },
+      player: {
+        hp: 0,
+        maxHp: 40,
+        items: ['phoenix_feather', 'boss_soul_mirror'],
+        _itemState: {
+          phoenix_feather: {},
+          boss_soul_mirror: { penaltyApplied: true },
+        },
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    handleCombatPlayerDeath(gs, {
+      doc,
+      win: {
+        innerWidth: 1280,
+        innerHeight: 720,
+      },
+      showDeathScreen: vi.fn(),
+      audioEngine: {},
+      screenShake: { shake: vi.fn() },
+      particleSystem: { deathEffect: vi.fn() },
+      updateUI: vi.fn(),
+    });
+
+    expect(gs.player.hp).toBe(20);
+    expect(gs.player._itemState.phoenix_feather.used).toBe(true);
+    expect(gs._itemRuntime?.boss_soul_mirror?.revived ?? false).toBe(false);
+    expect(gs.combat.active).toBe(true);
+  });
 });

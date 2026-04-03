@@ -982,7 +982,7 @@ const COMMON_ITEMS = {
     },
     tally_stone: {
         id: 'tally_stone', name: '집계석', icon: '🧮', rarity: 'common',
-        desc: '피해를 줄 때: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화',
+        desc: '이번 전투에서 피해를 줄 때: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화',
         passive(gs, trigger) {
             if (trigger === Trigger.DEAL_DAMAGE) {
                 const runtime = getItemRuntimeState(gs, 'tally_stone');
@@ -997,7 +997,7 @@ const COMMON_ITEMS = {
     },
     echo_bell: {
         id: 'echo_bell', name: '잔향의 종', icon: '🔔', rarity: 'common',
-        desc: '카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전',
+        desc: '이번 전투에서 카드 5장 사용할 때마다: 잔향 5 충전 / 카드 10장 사용할 때마다: 잔향 15 충전',
         passive(gs, trigger) {
             if (trigger === Trigger.CARD_PLAY) {
                 const runtime = getItemRuntimeState(gs, 'echo_bell');
@@ -1422,6 +1422,7 @@ const RARE_ITEMS = {
         passive(gs, trigger) {
             const persistent = getPlayerItemState(gs, 'phoenix_feather');
             if (trigger === Trigger.PRE_DEATH && !persistent.used) {
+                if (Number(gs?.player?.hp || 0) > 0) return;
                 persistent.used = true;
                 setPlayerHp(gs, Math.floor(gs.player.maxHp * 0.5));
                 gs.addLog?.('🔥 불사조의 깃털: 죽음에서 돌아왔습니다!', 'item');
@@ -1431,7 +1432,7 @@ const RARE_ITEMS = {
     },
     dimension_pocket: {
         id: 'dimension_pocket', name: '차원 주머니', icon: '🎒', rarity: 'rare',
-        desc: '획득: 최대 에너지 +1 / 턴 시작: 덱에 [노이즈] 1장 추가',
+        desc: '획득: 최대 에너지 +1 / 턴 시작: 드로우 더미에 [노이즈] 1장 추가',
         onAcquire(gs) { setPlayerMaxEnergy(gs, Number(gs.player.maxEnergy || 0) + 1); },
         passive(gs, trigger) {
             if (trigger === Trigger.TURN_START) {
@@ -1482,7 +1483,7 @@ const RARE_ITEMS = {
     },
     clockwork_butterfly: {
         id: 'clockwork_butterfly', name: '태엽 나비', icon: '🦋', rarity: 'rare',
-        desc: '턴 시작 3회마다: 에너지 최대치만큼 회복',
+        desc: '이번 전투에서 턴 시작 3회마다: 에너지 최대치만큼 회복',
         passive(gs, trigger) {
             const runtime = getItemRuntimeState(gs, 'clockwork_butterfly');
             if (trigger === Trigger.TURN_START) {
@@ -1591,7 +1592,7 @@ const LEGENDARY_ITEMS = {
     },
     infinite_loop: {
         id: 'infinite_loop', name: '무한의 루프', icon: '🌀', rarity: 'legendary',
-        desc: '카드 3장 사용할 때마다: 손패의 무작위 카드 1장 소모 후 복사본 2장 추가',
+        desc: '이번 전투에서 카드 3장 사용할 때마다: 손패의 무작위 카드 1장 소모 후 복사본 2장 추가',
         passive(gs, trigger, data) {
             const runtime = getItemRuntimeState(gs, 'infinite_loop');
             if (trigger === Trigger.CARD_PLAY) {
@@ -1634,6 +1635,7 @@ const BOSS_ITEMS = {
                 return;
             }
             if (trigger === Trigger.PRE_DEATH && !runtime.revived) {
+                if (Number(gs?.player?.hp || 0) > 0) return;
                 runtime.revived = true;
                 setPlayerHp(gs, Math.max(1, Math.min(gs.player.maxHp || 1, (gs.player.hp || 0) + 25)));
                 return true;
@@ -1642,7 +1644,7 @@ const BOSS_ITEMS = {
     },
     boss_black_lotus: {
         id: 'boss_black_lotus', name: '흑연꽃', icon: '🪷', rarity: 'boss',
-        desc: '상시: 손패 제한 -1 / 카드 5장 사용할 때마다: 카드 2장 드로우',
+        desc: '상시: 손패 제한 -1 / 이번 전투에서 카드 5장 사용할 때마다: 카드 2장 드로우',
         onAcquire(gs) {
             const persistent = getPlayerItemState(gs, 'boss_black_lotus');
             setPlayerItemHandCapPenalty(gs, 'boss_black_lotus', 1);
@@ -1709,6 +1711,7 @@ const SPECIAL_ITEMS = {
                 runtime.active = true;
                 applyCombatScopedMaxEnergyBonus(gs, 'eternal_fragment', 1, 'appliedMaxEnergyBonus');
                 applyCombatScopedDrawCountBonus(gs, 'eternal_fragment', 1, 'appliedDrawCountBonus');
+                gs.drawCards?.(1, { name: '영원의 파편', type: 'item' });
             }
             if ((trigger === Trigger.COMBAT_END || trigger === 'death') && runtime.active) {
                 clearCombatScopedMaxEnergyBonus(gs, 'eternal_fragment', 'appliedMaxEnergyBonus');
@@ -1730,7 +1733,7 @@ const SPECIAL_ITEMS = {
     glitch_circuit: {
         id: 'glitch_circuit', name: '글리치 회로', icon: '📼', rarity: 'special',
         specialOffer: true, requiresUnlock: true, obtainableFrom: ['special_event'],
-        desc: '턴 시작: 무작위 카드 1장의 비용 0 / 다른 카드 1장의 비용 +1(이번 턴)',
+        desc: '손패가 2장 이상일 때 턴 시작: 무작위 카드 1장의 비용 0 / 다른 카드 1장의 비용 +1(이번 턴)',
         passive(gs, trigger, data) {
             const costTargets = getHandScopedCostTargets(gs);
             if (trigger === Trigger.TURN_DRAW_COMPLETE && gs.player.hand?.length >= 2) {

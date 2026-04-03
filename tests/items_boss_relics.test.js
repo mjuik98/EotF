@@ -15,13 +15,17 @@ describe('boss relic integration guards', () => {
         relic.passive(gs, Trigger.COMBAT_START);
         expect(gs.player.maxHp).toBe(85);
 
+        gs.player.hp = 0;
         expect(relic.passive(gs, Trigger.PRE_DEATH)).toBe(true);
-        expect(gs.player.hp).toBe(85);
+        expect(gs.player.hp).toBe(25);
+        gs.player.hp = 0;
         expect(relic.passive(gs, Trigger.PRE_DEATH)).toBeUndefined();
 
         relic.passive(gs, Trigger.COMBAT_END);
         relic.passive(gs, Trigger.COMBAT_START);
+        gs.player.hp = 0;
         expect(relic.passive(gs, Trigger.PRE_DEATH)).toBe(true);
+        expect(gs.player.hp).toBe(25);
     });
 
     it('boss_black_lotus keeps its hand-cap penalty across combat end once acquired', () => {
