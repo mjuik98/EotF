@@ -31,7 +31,7 @@ export function openSettingsModal(ui, deps = {}) {
   ensureSettingsModalShell(doc);
   const modal = doc.getElementById('settingsModal');
   if (!modal) {
-    console.warn('[SettingsUI] #settingsModal not found');
+    deps.logger?.warn?.('[SettingsUI] #settingsModal not found');
     return false;
   }
 

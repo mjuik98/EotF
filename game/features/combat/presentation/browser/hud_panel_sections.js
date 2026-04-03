@@ -1,5 +1,5 @@
 import { SecurityUtils } from '../../ports/presentation/public_combat_browser_support_capabilities.js';
-import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
+import { bindTooltipTrigger } from '../../ports/public_tooltip_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import {
   updateActionButtons,

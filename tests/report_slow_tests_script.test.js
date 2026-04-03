@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { collectSlowTestFiles, formatSlowTestSummary, sortSlowTestFiles } from '../scripts/report-slow-tests.mjs';
+import {
+  collectSlowTestFiles,
+  filterReportToSuite,
+  formatSlowTestSummary,
+  sortSlowTestFiles,
+} from '../scripts/report-slow-tests.mjs';
 
 describe('report slow tests script', () => {
   it('sorts test files by duration descending', () => {
@@ -47,5 +52,26 @@ describe('report slow tests script', () => {
     expect(summary).toContain('- Suite: `fast`');
     expect(summary).toContain('| 900ms | `tests/a.test.js` |');
     expect(summary).toContain('| 700ms | `tests/b.test.js` |');
+  });
+
+  it('filters a Vitest report down to the selected suite files', () => {
+    const report = {
+      testResults: [
+        { name: `${process.cwd()}/tests/audio_engine.test.js`, startTime: 1_000, endTime: 1_900 },
+        { name: `${process.cwd()}/tests/quality_workflow_scripts.test.js`, startTime: 2_000, endTime: 3_100 },
+      ],
+    };
+
+    const filtered = filterReportToSuite(report, {
+      suite: 'fast',
+      manifest: {
+        fast: ['tests/audio_engine.test.js'],
+        guardrails: ['tests/quality_workflow_scripts.test.js'],
+      },
+    });
+
+    expect(filtered.testResults).toEqual([
+      { name: `${process.cwd()}/tests/audio_engine.test.js`, startTime: 1_000, endTime: 1_900 },
+    ]);
   });
 });

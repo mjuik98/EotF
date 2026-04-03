@@ -5,6 +5,30 @@ import { describe, expect, it } from 'vitest';
 
 import { ROOT, readText, walkJsFiles } from './helpers/guardrail_fs.js';
 
+const featureFiles = walkJsFiles(path.join(ROOT, 'game', 'features'))
+  .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'));
+const nonUiFeatureFiles = featureFiles.filter((relPath) => !relPath.startsWith('game/features/ui/'));
+const featureFilesOutsideUiPorts = featureFiles.filter((relPath) => !relPath.startsWith('game/features/ui/ports/'));
+const gameFiles = walkJsFiles(path.join(ROOT, 'game'))
+  .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'));
+const gameFilesOutsideBroadUiBarrels = gameFiles
+  .filter((relPath) => !relPath.endsWith('game/features/ui/ports/public_feature_support_capabilities.js'))
+  .filter((relPath) => !relPath.endsWith('game/features/ui/ports/public_shared_support_capabilities.js'));
+const gameFilesOutsideCompatCoreBarrels = gameFiles
+  .filter((relPath) => !relPath.endsWith('game/core/shared_support_capabilities.js'))
+  .filter((relPath) => !relPath.endsWith('game/platform/legacy/core_support/public_core_support_capabilities.js'));
+const uiPortSupportFiles = walkJsFiles(path.join(ROOT, 'game', 'features', 'ui', 'ports'))
+  .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'))
+  .filter((relPath) => relPath.endsWith('_support_capabilities.js'))
+  .filter((relPath) => !relPath.endsWith('public_feature_support_capabilities.js'))
+  .filter((relPath) => !relPath.endsWith('public_shared_support_capabilities.js'));
+const sourceCache = new Map([...new Set([...featureFiles, ...gameFiles, ...uiPortSupportFiles])]
+  .map((relPath) => [relPath, readText(relPath)]));
+
+function getSource(relPath) {
+  return sourceCache.get(relPath) || readText(relPath);
+}
+
 describe('coupling support facades', () => {
   it('removes the utils-to-shared hand runtime dependency from card cost utils', () => {
     const cardCostUtils = readText('game/utils/card_cost_utils.js');
@@ -73,12 +97,8 @@ describe('coupling support facades', () => {
   });
 
   it('keeps canonical dom, logging, and tooltip helpers off the ui feature surface for non-ui feature imports', () => {
-    const featureFiles = walkJsFiles(path.join(ROOT, 'game', 'features'))
-      .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'))
-      .filter((relPath) => !relPath.startsWith('game/features/ui/'));
-
-    const legacyUiSupportUsers = featureFiles.filter((relPath) => {
-      const source = readText(relPath);
+    const legacyUiSupportUsers = nonUiFeatureFiles.filter((relPath) => {
+      const source = getSource(relPath);
       return source.includes('ui/ports/public_dom_support_capabilities.js')
         || source.includes('ui/ports/public_logging_support_capabilities.js')
         || source.includes('ui/ports/public_tooltip_support_capabilities.js');
@@ -88,12 +108,8 @@ describe('coupling support facades', () => {
   });
 
   it('keeps broad ui support barrels compat-only for feature consumers', () => {
-    const featureFiles = walkJsFiles(path.join(ROOT, 'game', 'features'))
-      .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'))
-      .filter((relPath) => !relPath.startsWith('game/features/ui/ports/'));
-
-    const broadImportUsers = featureFiles.filter((relPath) => {
-      const source = readText(relPath);
+    const broadImportUsers = featureFilesOutsideUiPorts.filter((relPath) => {
+      const source = getSource(relPath);
       return source.includes('public_feature_support_capabilities.js')
         || source.includes('public_shared_support_capabilities.js');
     });
@@ -102,13 +118,8 @@ describe('coupling support facades', () => {
   });
 
   it('keeps broad ui support barrels out of non-barrel game runtime source entirely', () => {
-    const gameFiles = walkJsFiles(path.join(ROOT, 'game'))
-      .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'))
-      .filter((relPath) => !relPath.endsWith('game/features/ui/ports/public_feature_support_capabilities.js'))
-      .filter((relPath) => !relPath.endsWith('game/features/ui/ports/public_shared_support_capabilities.js'));
-
-    const broadImportUsers = gameFiles.filter((relPath) => {
-      const source = readText(relPath);
+    const broadImportUsers = gameFilesOutsideBroadUiBarrels.filter((relPath) => {
+      const source = getSource(relPath);
       return source.includes('public_feature_support_capabilities.js')
         || source.includes('public_shared_support_capabilities.js');
     });
@@ -117,14 +128,8 @@ describe('coupling support facades', () => {
   });
 
   it('keeps narrow ui support ports on canonical support sources instead of broad barrels', () => {
-    const uiPortFiles = walkJsFiles(path.join(ROOT, 'game', 'features', 'ui', 'ports'))
-      .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'))
-      .filter((relPath) => relPath.endsWith('_support_capabilities.js'))
-      .filter((relPath) => !relPath.endsWith('public_feature_support_capabilities.js'))
-      .filter((relPath) => !relPath.endsWith('public_shared_support_capabilities.js'));
-
-    const barrelUsers = uiPortFiles.filter((relPath) => {
-      const source = readText(relPath);
+    const barrelUsers = uiPortSupportFiles.filter((relPath) => {
+      const source = getSource(relPath);
       return source.includes('./public_feature_support_capabilities.js')
         || source.includes('./public_shared_support_capabilities.js');
     });
@@ -162,13 +167,8 @@ describe('coupling support facades', () => {
   });
 
   it('keeps compat-only core support barrels out of runtime imports', () => {
-    const gameFiles = walkJsFiles(path.join(ROOT, 'game'))
-      .map((fullPath) => path.relative(ROOT, fullPath).split(path.sep).join('/'))
-      .filter((relPath) => !relPath.endsWith('game/core/shared_support_capabilities.js'))
-      .filter((relPath) => !relPath.endsWith('game/platform/legacy/core_support/public_core_support_capabilities.js'));
-
-    const compatBarrelUsers = gameFiles.filter((relPath) => {
-      const source = readText(relPath);
+    const compatBarrelUsers = gameFilesOutsideCompatCoreBarrels.filter((relPath) => {
+      const source = getSource(relPath);
       return source.includes('shared_support_capabilities.js')
         || source.includes('public_core_support_capabilities.js');
     });

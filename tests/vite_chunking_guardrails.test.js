@@ -13,8 +13,10 @@ describe('vite chunking guardrails', () => {
     expect(source).toContain("return 'ui-combat-tooltips';");
     expect(source).toContain("return 'ui-shell';");
     expect(source).toContain("return 'ui-reward';");
+    expect(source).toContain("return 'ui-reward-options';");
     expect(source).toContain("return 'ui-run-mode-runtime';");
     expect(source).toContain("return 'ui-event';");
+    expect(source).toContain("return 'ui-event-overlays';");
     expect(source).toContain("return 'ui-support';");
     expect(source).toContain("return 'ui-shared-data';");
     expect(source).toContain("return 'ui-shell-hotkeys';");
@@ -50,7 +52,9 @@ describe('vite chunking guardrails', () => {
       'assets/ui-combat-status-abc.js',
       'assets/ui-combat-tooltips-abc.js',
       'assets/ui-event-abc.js',
+      'assets/ui-event-overlays-abc.js',
       'assets/ui-reward-abc.js',
+      'assets/ui-reward-options-abc.js',
       'assets/ui-run-mode-runtime-abc.js',
       'assets/ui-run-mode-config-abc.js',
       'assets/ui-shell-abc.js',
@@ -106,6 +110,39 @@ describe('vite chunking guardrails', () => {
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/combat/presentation/browser/item_detail_panel_ui.js'),
     ).toBe('ui-combat');
+  });
+
+  it('splits reward option rendering helpers into a dedicated reward subchunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/reward/presentation/browser/reward_ui_options.js'),
+    ).toBe('ui-reward-options');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/reward/presentation/browser/reward_ui_option_renderers.js'),
+    ).toBe('ui-reward-options');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/reward/presentation/browser/reward_ui_option_bindings.js'),
+    ).toBe('ui-reward-options');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/reward/presentation/browser/show_reward_screen_runtime.js'),
+    ).toBe('ui-reward');
+  });
+
+  it('splits heavy event overlays into a dedicated lazy event subchunk', () => {
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/event/presentation/browser/event_ui_item_shop.js'),
+    ).toBe('ui-event-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/event/presentation/browser/event_ui_card_discard.js'),
+    ).toBe('ui-event-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/event/presentation/browser/event_rest_site_presenter.js'),
+    ).toBe('ui-event-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/event/presentation/browser/event_ui_particles.js'),
+    ).toBe('ui-event-overlays');
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/event/presentation/browser/event_ui_runtime_helpers.js'),
+    ).toBe('ui-event');
   });
 
   it('keeps combat status tooltip runtime and metadata on the main combat chunk to avoid circular combat subchunks', () => {
@@ -289,14 +326,14 @@ describe('vite chunking guardrails', () => {
   });
 
   it('routes title and character-select progression flows through narrow feature ports instead of broad public barrels', () => {
-    const titleBootHelpers = readText('game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const titleRunArchiveHelpers = readText('game/features/title/presentation/browser/title_run_archive_helpers.js');
     const characterSelectProgression = readText('game/features/title/application/load_character_select_use_case.js');
     const characterSelectLoadout = readText('game/features/title/platform/browser/character_select_mount_loadout.js');
 
-    expect(titleBootHelpers).toContain("../../../meta_progression/ports/public_roadmap_capabilities.js");
-    expect(titleBootHelpers).toContain("../../../run/ports/public_analytics_capabilities.js");
-    expect(titleBootHelpers).not.toContain("../../../meta_progression/public.js");
-    expect(titleBootHelpers).not.toContain("../../../run/public.js");
+    expect(titleRunArchiveHelpers).toContain("../../../meta_progression/ports/public_roadmap_capabilities.js");
+    expect(titleRunArchiveHelpers).toContain("../../../run/ports/public_analytics_capabilities.js");
+    expect(titleRunArchiveHelpers).not.toContain("../../../meta_progression/public.js");
+    expect(titleRunArchiveHelpers).not.toContain("../../../run/public.js");
     expect(characterSelectProgression).toContain('../../meta_progression/ports/public_unlock_capabilities.js');
     expect(characterSelectProgression).not.toContain('../../meta_progression/public.js');
     expect(characterSelectLoadout).toContain('../../../meta_progression/ports/public_unlock_capabilities.js');

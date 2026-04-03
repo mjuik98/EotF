@@ -3,12 +3,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { normalizeTestFilePath, readSuiteManifest } from './test_suite_manifest.mjs';
 
 function parseArgs(argv) {
   const args = {
     suite: 'fast',
     thresholdMs: 500,
     top: 10,
+    inputFile: null,
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -29,6 +31,10 @@ function parseArgs(argv) {
       args.top = Number(next);
       index += 1;
       continue;
+    }
+    if (arg === '--input-file' && next) {
+      args.inputFile = next;
+      index += 1;
     }
   }
 
@@ -56,6 +62,21 @@ export function collectSlowTestFiles(report = {}, { thresholdMs = 500 } = {}) {
   }
 
   return sortSlowTestFiles(files);
+}
+
+export function filterReportToSuite(report = {}, { suite = 'fast', manifest = readSuiteManifest() } = {}) {
+  if (suite === 'full') return report;
+
+  const suiteFiles = new Set((manifest?.[suite] || []).map(normalizeTestFilePath));
+  const testResults = Array.isArray(report?.testResults) ? report.testResults : [];
+
+  return {
+    ...report,
+    testResults: testResults.filter((result) => {
+      const filePath = normalizeTestFilePath(toRelativePath(String(result?.name || '')));
+      return suiteFiles.has(filePath);
+    }),
+  };
 }
 
 function toRelativePath(filePath) {
@@ -124,6 +145,10 @@ function runVitestJsonReport({ suite, outputFile }) {
   }
 }
 
+function readVitestJsonReport(inputFile) {
+  return JSON.parse(fs.readFileSync(inputFile, 'utf8'));
+}
+
 function printSummary({ suite, thresholdMs, top, slowFiles }) {
   console.log(`Slow test file report (suite=${suite}, threshold>${thresholdMs}ms):`);
   if (slowFiles.length === 0) {
@@ -142,12 +167,17 @@ export function main() {
   const outputFile = path.join(os.tmpdir(), `vitest-slow-report-${process.pid}.json`);
 
   try {
-    runVitestJsonReport({
-      suite: args.suite,
-      outputFile,
-    });
-    const report = JSON.parse(fs.readFileSync(outputFile, 'utf8'));
-    const slowFiles = collectSlowTestFiles(report, { thresholdMs: args.thresholdMs });
+    const report = args.inputFile
+      ? readVitestJsonReport(args.inputFile)
+      : (() => {
+        runVitestJsonReport({
+          suite: args.suite,
+          outputFile,
+        });
+        return readVitestJsonReport(outputFile);
+      })();
+    const filteredReport = filterReportToSuite(report, { suite: args.suite });
+    const slowFiles = collectSlowTestFiles(filteredReport, { thresholdMs: args.thresholdMs });
     printSummary({
       suite: args.suite,
       thresholdMs: args.thresholdMs,

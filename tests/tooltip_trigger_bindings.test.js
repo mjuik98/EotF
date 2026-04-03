@@ -18,16 +18,19 @@ describe('tooltip_trigger_bindings', () => {
   });
 
   it('moves repeated tooltip trigger wiring onto the shared helper', () => {
+    const combatTooltipPortSource = readRepoFile('game/features/combat/ports/public_tooltip_support_capabilities.js');
+    expect(combatTooltipPortSource).toContain("../../../shared/ui/tooltip/public.js");
+
     const targetFiles = [
-      ['game/features/combat/presentation/browser/tooltip_ui.js', '../../../../shared/ui/tooltip/public.js'],
-      ['game/features/combat/presentation/browser/hud_panel_item_runtime_helpers.js', '../../../../shared/ui/tooltip/public.js'],
+      ['game/features/combat/presentation/browser/tooltip_ui.js', '../../ports/public_tooltip_support_capabilities.js'],
+      ['game/features/combat/presentation/browser/hud_panel_item_runtime_helpers.js', '../../ports/public_tooltip_support_capabilities.js'],
       ['game/features/combat/presentation/browser/combat_enemy_card_ui.js', 'bindEnemyIntentTooltip('],
-      ['game/features/combat/presentation/browser/combat_enemy_card_sections_ui.js', '../../../../shared/ui/tooltip/public.js'],
-      ['game/features/combat/presentation/browser/combat_relic_rail_ui.js', '../../../../shared/ui/tooltip/public.js'],
-      ['game/features/combat/presentation/browser/status_effects_ui.js', '../../../../shared/ui/tooltip/public.js'],
-      ['game/features/combat/presentation/browser/combat_enemy_status_badges_ui.js', '../../../../shared/ui/tooltip/public.js'],
-      ['game/features/combat/presentation/browser/class_trait_panel_ui.js', '../../../../shared/ui/tooltip/public.js'],
-      ['game/features/combat/presentation/browser/hud_panel_sections.js', '../../../../shared/ui/tooltip/public.js'],
+      ['game/features/combat/presentation/browser/combat_enemy_card_sections_ui.js', '../../ports/public_tooltip_support_capabilities.js'],
+      ['game/features/combat/presentation/browser/combat_relic_rail_ui.js', '../../ports/public_tooltip_support_capabilities.js'],
+      ['game/features/combat/presentation/browser/status_effects_ui.js', '../../ports/public_tooltip_support_capabilities.js'],
+      ['game/features/combat/presentation/browser/combat_enemy_status_badges_ui.js', '../../ports/public_tooltip_support_capabilities.js'],
+      ['game/features/combat/presentation/browser/class_trait_panel_ui.js', '../../ports/public_tooltip_support_capabilities.js'],
+      ['game/features/combat/presentation/browser/hud_panel_sections.js', '../../ports/public_tooltip_support_capabilities.js'],
       ['game/features/event/presentation/browser/event_ui_item_shop.js', '../../../../shared/ui/tooltip/public.js'],
       ['game/features/event/presentation/browser/event_ui_card_discard.js', '../../../../shared/ui/tooltip/public.js'],
       ['game/features/reward/presentation/browser/reward_ui_option_bindings.js', '../../../../shared/ui/tooltip/public.js'],

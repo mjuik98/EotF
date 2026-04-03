@@ -1,9 +1,9 @@
 import { ensureRewardScreenShell } from '../../platform/browser/ensure_reward_screen_shell.js';
 import { getDoc } from './reward_screen_runtime_helpers.js';
-import { renderRewardOptions } from './reward_ui_options.js';
+import { loadRewardOptionRenderers } from './load_reward_option_renderers.js';
 import { renderRewardHeader } from './reward_ui_render.js';
 
-export function showRewardScreenView(ui, payload, deps = {}) {
+export async function showRewardScreenView(ui, payload, deps = {}) {
   const {
     data,
     gs,
@@ -20,6 +20,7 @@ export function showRewardScreenView(ui, payload, deps = {}) {
   container.textContent = '';
   container.classList.remove('picked');
 
+  const { renderRewardOptions } = await loadRewardOptionRenderers();
   renderRewardOptions({
     container,
     rewardMode,

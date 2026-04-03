@@ -166,4 +166,17 @@ describe('RegionTransitionUI target region parsing', () => {
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
     expect(deps.showRunFragment).toHaveBeenCalledTimes(1);
   });
+
+  it('routes missing-state errors through an injected logger', () => {
+    const logger = {
+      error: vi.fn(),
+    };
+
+    RegionTransitionUI.advanceToNextRegion({
+      gs: null,
+      logger,
+    });
+
+    expect(logger.error).toHaveBeenCalledWith('[RegionTransitionUI] Missing gs');
+  });
 });

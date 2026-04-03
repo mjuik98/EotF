@@ -29,8 +29,13 @@ export function createCharacterSelectFlow({
   renderPhase,
   onConfirm,
   setTimeoutImpl = setTimeout,
-  log = (...args) => console.log(...args),
+  log = null,
+  logger = null,
 } = {}) {
+  const emitLog = typeof log === 'function'
+    ? log
+    : (logger?.info ? (...args) => logger.info(...args) : undefined);
+
   function setVisible(isVisible, dir) {
     setCharacterSelectVisibility(resolveById, isVisible, dir);
   }
@@ -63,7 +68,7 @@ export function createCharacterSelectFlow({
     }
     confirmCharacterSelection({
       chars,
-      log,
+      log: emitLog,
       onConfirm,
       renderPhase,
       setTimeoutImpl,

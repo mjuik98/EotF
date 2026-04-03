@@ -9,7 +9,9 @@ const LAZY_HTML_PRELOAD_PATTERNS = [
   /\/?assets\/ui-combat-status-[^/]+\.js$/,
   /\/?assets\/ui-combat-tooltips-[^/]+\.js$/,
   /\/?assets\/ui-event-[^/]+\.js$/,
+  /\/?assets\/ui-event-overlays-[^/]+\.js$/,
   /\/?assets\/ui-reward-[^/]+\.js$/,
+  /\/?assets\/ui-reward-options-[^/]+\.js$/,
   /\/?assets\/ui-run-mode-config-[^/]+\.js$/,
   /\/?assets\/ui-run-mode-runtime-[^/]+\.js$/,
   /\/?assets\/ui-shell-[^/]+\.js$/,
@@ -114,6 +116,12 @@ export function getManualChunk(id) {
   if (normalized.endsWith('/game/features/combat/presentation/browser/item_detail_view_model.js')) return 'ui-combat';
   if (normalized.includes('/game/features/combat/presentation/browser/item_detail_')) return 'ui-combat';
   if (normalized.includes('/game/ui/map/')) return 'ui-map';
+  if (
+    normalized.endsWith('/game/features/event/presentation/browser/event_ui_item_shop.js')
+    || normalized.endsWith('/game/features/event/presentation/browser/event_ui_card_discard.js')
+    || normalized.endsWith('/game/features/event/presentation/browser/event_rest_site_presenter.js')
+    || normalized.endsWith('/game/features/event/presentation/browser/event_ui_particles.js')
+  ) return 'ui-event-overlays';
   if (normalized.includes('/game/features/event/presentation/browser/')) return 'ui-event';
   if (
     normalized.includes('/game/features/combat/presentation/browser/deck_modal_')
@@ -144,6 +152,11 @@ export function getManualChunk(id) {
     || normalized.includes('/game/features/combat/presentation/browser/')
     || normalized.includes('/game/presentation/combat/')
   ) return 'ui-combat';
+  if (
+    normalized.endsWith('/game/features/reward/presentation/browser/reward_ui_options.js')
+    || normalized.endsWith('/game/features/reward/presentation/browser/reward_ui_option_renderers.js')
+    || normalized.endsWith('/game/features/reward/presentation/browser/reward_ui_option_bindings.js')
+  ) return 'ui-reward-options';
   if (normalized.includes('/game/features/reward/presentation/browser/')) return 'ui-reward';
 
   if (

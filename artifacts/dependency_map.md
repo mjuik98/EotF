@@ -1,18 +1,18 @@
 # Dependency Map
 
-- Generated: 2026-03-30T09:42:05.271Z
-- Nodes: 1283
-- Edges: 1671
+- Generated: 2026-04-03T08:51:18.172Z
+- Nodes: 1319
+- Edges: 1711
 
 ## Layer Edges
 
 | Edge | Count |
 |---|---:|
-| core->core | 192 |
-| core->feature | 26 |
-| core->legacy | 7 |
+| core->core | 193 |
+| core->feature | 14 |
+| core->legacy | 6 |
 | core->other | 1 |
-| core->shared | 6 |
+| core->shared | 4 |
 | core->utils | 2 |
 | data->data | 29 |
 | data->other | 2 |
@@ -22,11 +22,11 @@
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 13 |
-| feature->feature | 1034 |
+| feature->feature | 1069 |
 | feature->legacy | 1 |
 | feature->other | 2 |
 | feature->platform | 15 |
-| feature->shared | 45 |
+| feature->shared | 37 |
 | feature->utils | 2 |
 | legacy->core | 5 |
 | legacy->feature | 8 |
@@ -39,14 +39,14 @@
 | platform->feature | 15 |
 | platform->legacy | 2 |
 | platform->other | 1 |
-| platform->platform | 22 |
+| platform->platform | 24 |
 | platform->shared | 3 |
 | platform->utils | 2 |
 | shared->core | 4 |
 | shared->data | 5 |
 | shared->feature | 2 |
 | shared->legacy | 2 |
-| shared->shared | 86 |
+| shared->shared | 111 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 5 |
@@ -58,7 +58,6 @@
 | data/game_data.js | 10 |
 | game/features/run/application/run_rule_outcome.js | 10 |
 | data/events_data.js | 9 |
-| game/shared/save/save_system.js | 9 |
 | game/core/bindings/build_module_registry_group_registrars.js | 8 |
 | game/core/deps_factory.js | 8 |
 | game/features/codex/presentation/browser/codex_ui_runtime.js | 8 |
@@ -70,13 +69,13 @@
 | game/features/combat/application/death_flow_enemy_runtime.js | 7 |
 | game/features/combat/application/play_card_service.js | 7 |
 | game/features/combat/domain/enemy_turn_domain.js | 7 |
+| game/features/combat/presentation/browser/combat_relic_rail_ui.js | 7 |
 
 ## Top Incoming Dependencies
 
 | File | In Degree |
 |---|---:|
 | game/core/bindings/module_registry_scopes.js | 17 |
-| game/shared/ui/tooltip/public.js | 16 |
 | game/features/combat/ports/combat_logging.js | 12 |
 | game/features/meta_progression/public.js | 12 |
 | game/features/run/ports/public_rule_capabilities.js | 12 |
@@ -90,6 +89,7 @@
 | data/cards.js | 8 |
 | data/game_data.js | 8 |
 | game/core/error_reporter.js | 8 |
+| game/core/event_bus.js | 8 |
 
 > Full graph is available in `artifacts/dependency_map.json`.
 

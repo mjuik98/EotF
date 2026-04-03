@@ -18,11 +18,15 @@ function getWin(deps, doc) {
   return deps?.win || doc?.defaultView || null;
 }
 
+function getLogger(deps = {}) {
+  return deps.logger || null;
+}
+
 export const RegionTransitionUI = {
   advanceToNextRegion(deps = {}) {
     const gs = getGS(deps);
     if (!gs) {
-      console.error('[RegionTransitionUI] Missing gs');
+      getLogger(deps)?.error?.('[RegionTransitionUI] Missing gs');
       return;
     }
 
@@ -36,7 +40,7 @@ export const RegionTransitionUI = {
     const getRegionData = deps.getRegionData;
     const region = getRegionData?.(gs.currentRegion, gs);
     if (!region) {
-      console.error('[RegionTransitionUI] No region data for region', gs.currentRegion);
+      getLogger(deps)?.error?.('[RegionTransitionUI] No region data for region', gs.currentRegion);
       return;
     }
 

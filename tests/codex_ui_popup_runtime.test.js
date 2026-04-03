@@ -6,13 +6,16 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_helpers.js', () =>
 }));
 
 vi.mock('../game/features/codex/presentation/browser/codex_ui_popup.js', () => ({
-  buildCardPopupPayload: vi.fn(() => ({ theme: { bg1: '#1', bg2: '#2', border: '#3', glow: '#4' }, html: '<card />' })),
-  buildEnemyPopupPayload: vi.fn(() => ({ theme: { bg1: '#a', bg2: '#b', border: '#c', glow: '#d' }, html: '<enemy />' })),
-  buildItemPopupPayload: vi.fn(() => ({ theme: { bg1: '#x', bg2: '#y', border: '#z', glow: '#w' }, html: '<item />' })),
   closeCodexPopup: vi.fn(),
   ensureCodexPopupOverlay: vi.fn(),
   openCodexPopup: vi.fn(),
   setCodexPopupTheme: vi.fn(),
+}));
+
+vi.mock('../game/features/codex/presentation/browser/codex_ui_popup_payloads.js', () => ({
+  buildCardPopupPayload: vi.fn(() => ({ theme: { bg1: '#1', bg2: '#2', border: '#3', glow: '#4' }, html: '<card />' })),
+  buildEnemyPopupPayload: vi.fn(() => ({ theme: { bg1: '#a', bg2: '#b', border: '#c', glow: '#d' }, html: '<enemy />' })),
+  buildItemPopupPayload: vi.fn(() => ({ theme: { bg1: '#x', bg2: '#y', border: '#z', glow: '#w' }, html: '<item />' })),
 }));
 
 vi.mock('../game/features/codex/presentation/browser/codex_ui_popup_blocks.js', () => ({
@@ -39,6 +42,7 @@ function makeNode() {
 
 describe('codex_ui_popup_runtime', () => {
   let popup;
+  let popupPayloads;
   let popupBlocks;
   let controller;
   let runtime;
@@ -46,12 +50,13 @@ describe('codex_ui_popup_runtime', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     popup = await import('../game/features/codex/presentation/browser/codex_ui_popup.js');
+    popupPayloads = await import('../game/features/codex/presentation/browser/codex_ui_popup_payloads.js');
     popupBlocks = await import('../game/features/codex/presentation/browser/codex_ui_popup_blocks.js');
     controller = await import('../game/features/codex/presentation/browser/codex_ui_controller.js');
     runtime = await import('../game/features/codex/presentation/browser/codex_ui_popup_runtime.js');
   });
 
-  it('opens the enemy popup, mounts markup, and wires close/nav handlers', () => {
+  it('opens the enemy popup, mounts markup, and wires close/nav handlers', async () => {
     const box = makeNode();
     const close = makeNode();
     const prev = makeNode();
@@ -71,12 +76,12 @@ describe('codex_ui_popup_runtime', () => {
     };
     const enemy = { id: 'wolf', quote: 'growl' };
 
-    runtime.openEnemyCodexPopup(state, enemy, state.popupList);
+    await runtime.openEnemyCodexPopup(state, enemy, state.popupList);
 
     expect(controller.setCodexPopupNavigation).toHaveBeenCalledWith(state, enemy, state.popupList, expect.any(Function));
     expect(popupBlocks.buildCodexQuoteBlock).toHaveBeenCalledWith('growl');
     expect(popupBlocks.buildCodexNavBlock).toHaveBeenCalledWith(state.popupList, state.popupIndex);
-    expect(popup.buildEnemyPopupPayload).toHaveBeenCalledWith(enemy, expect.objectContaining({
+    expect(popupPayloads.buildEnemyPopupPayload).toHaveBeenCalledWith(enemy, expect.objectContaining({
       gs: state.deps.gs,
       safeHtml: expect.any(Function),
       quoteHtml: '<quote />',
@@ -96,7 +101,7 @@ describe('codex_ui_popup_runtime', () => {
     expect(controller.navigateCodexPopup).toHaveBeenCalledWith(state, 1);
   });
 
-  it('opens card and item popups with gs/data context and exposes direct close helper', () => {
+  it('opens card and item popups with gs/data context and exposes direct close helper', async () => {
     const box = makeNode();
     const close = makeNode();
     const doc = {
@@ -111,8 +116,8 @@ describe('codex_ui_popup_runtime', () => {
       popupIndex: 0,
     };
 
-    runtime.openCardCodexPopup(state, { id: 'strike', quote: 'slash' });
-    expect(popup.buildCardPopupPayload).toHaveBeenCalledWith(
+    await runtime.openCardCodexPopup(state, { id: 'strike', quote: 'slash' });
+    expect(popupPayloads.buildCardPopupPayload).toHaveBeenCalledWith(
       { id: 'strike', quote: 'slash' },
       expect.objectContaining({
         gs: state.deps.gs,
@@ -120,8 +125,8 @@ describe('codex_ui_popup_runtime', () => {
       }),
     );
 
-    runtime.openItemCodexPopup(state, { id: 'relic', quote: 'shine' });
-    expect(popup.buildItemPopupPayload).toHaveBeenCalledWith(
+    await runtime.openItemCodexPopup(state, { id: 'relic', quote: 'shine' });
+    expect(popupPayloads.buildItemPopupPayload).toHaveBeenCalledWith(
       { id: 'relic', quote: 'shine' },
       expect.objectContaining({
         gs: state.deps.gs,

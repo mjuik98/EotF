@@ -1,11 +1,11 @@
 import { renderChoices } from '../../presentation/browser/event_ui_dom.js';
 import { dismissEventModal } from '../../presentation/browser/event_ui_helpers.js';
-import { showEventCardDiscardOverlay } from '../../presentation/browser/event_ui_card_discard.js';
 import {
   openEventItemShopRuntime,
   openEventRestSiteRuntime,
   openEventShopRuntime,
   renderEventShellRuntime,
+  showEventCardDiscardOverlay,
 } from '../../presentation/browser/event_ui_runtime_helpers.js';
 
 export function createEventRuntimeDomActions() {

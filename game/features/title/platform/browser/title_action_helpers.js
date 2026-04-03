@@ -62,7 +62,7 @@ export function playPreRunRipple({ doc, startPreRunRipple, win }, onComplete) {
       onComplete: done,
     });
   } catch (error) {
-    console.error('[TitleActions] pre-run ripple failed:', error);
+    win?.logger?.error?.('[TitleActions] pre-run ripple failed:', error);
     overlay.remove();
     done();
   }

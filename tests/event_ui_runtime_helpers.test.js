@@ -4,12 +4,22 @@ vi.mock('../game/features/event/presentation/browser/event_ui_dom.js', () => ({
   renderChoices: vi.fn(),
 }));
 
-vi.mock('../game/features/event/presentation/browser/event_ui_item_shop.js', () => ({
-  showEventItemShopOverlay: vi.fn(),
+vi.mock('../game/features/event/presentation/browser/load_event_item_shop_overlay.js', () => ({
+  loadEventItemShopOverlay: vi.fn(async () => ({
+    showEventItemShopOverlay: vi.fn(),
+  })),
 }));
 
-vi.mock('../game/features/event/presentation/browser/event_rest_site_presenter.js', () => ({
-  showEventRestSiteOverlay: vi.fn(),
+vi.mock('../game/features/event/presentation/browser/load_event_rest_site_overlay.js', () => ({
+  loadEventRestSiteOverlay: vi.fn(async () => ({
+    showEventRestSiteOverlay: vi.fn(),
+  })),
+}));
+
+vi.mock('../game/features/event/presentation/browser/load_event_card_discard_overlay.js', () => ({
+  loadEventCardDiscardOverlay: vi.fn(async () => ({
+    showEventCardDiscardOverlay: vi.fn(),
+  })),
 }));
 
 vi.mock('../game/features/event/presentation/browser/event_shop_presenter.js', () => ({
@@ -21,6 +31,7 @@ import {
   openEventRestSiteRuntime,
   openEventShopRuntime,
   renderEventShellRuntime,
+  showEventCardDiscardOverlay,
 } from '../game/features/event/presentation/browser/event_ui_runtime_helpers.js';
 
 describe('event_ui_runtime_helpers', () => {
@@ -57,10 +68,11 @@ describe('event_ui_runtime_helpers', () => {
     expect(eventModal.classList.add).toHaveBeenCalledWith('active');
   });
 
-  it('delegates shop, rest-site, and item-shop entrypoints to extracted helpers', async () => {
+  it('delegates shop, rest-site, item-shop, and card-discard entrypoints to lazy overlay loaders', async () => {
     const shop = await import('../game/features/event/presentation/browser/event_shop_presenter.js');
-    const rest = await import('../game/features/event/presentation/browser/event_rest_site_presenter.js');
-    const itemShop = await import('../game/features/event/presentation/browser/event_ui_item_shop.js');
+    const rest = await import('../game/features/event/presentation/browser/load_event_rest_site_overlay.js');
+    const itemShop = await import('../game/features/event/presentation/browser/load_event_item_shop_overlay.js');
+    const cardDiscard = await import('../game/features/event/presentation/browser/load_event_card_discard_overlay.js');
     const deps = { marker: true };
     const showItemShop = vi.fn();
 
@@ -70,7 +82,7 @@ describe('event_ui_runtime_helpers', () => {
       runRules: {},
       showItemShop,
     });
-    openEventRestSiteRuntime(deps, {
+    await openEventRestSiteRuntime(deps, {
       gs: { player: {} },
       data: {},
       runRules: {},
@@ -79,16 +91,18 @@ describe('event_ui_runtime_helpers', () => {
       showCardDiscard: vi.fn(),
       showEvent: vi.fn(),
     });
-    openEventItemShopRuntime(null, deps, {
+    await openEventItemShopRuntime(null, deps, {
       gs: { player: {} },
       data: {},
       runRules: {},
       refreshEventGoldBar: vi.fn(),
     });
+    await showEventCardDiscardOverlay({ player: {} }, { cards: {} }, false, deps);
 
     expect(created).toEqual({ title: 'shop' });
     expect(shop.createEventShop).toHaveBeenCalled();
-    expect(rest.showEventRestSiteOverlay).toHaveBeenCalled();
-    expect(itemShop.showEventItemShopOverlay).toHaveBeenCalled();
+    expect(rest.loadEventRestSiteOverlay).toHaveBeenCalled();
+    expect(itemShop.loadEventItemShopOverlay).toHaveBeenCalled();
+    expect(cardDiscard.loadEventCardDiscardOverlay).toHaveBeenCalled();
   });
 });

@@ -138,6 +138,12 @@ describe('game_boot_ui', () => {
     const saveSystem = {
       loadMeta: vi.fn(),
       hasSave: vi.fn(() => true),
+      readRunPreview: vi.fn(() => ({
+        player: gs.player,
+        currentFloor: gs.currentFloor,
+        currentRegion: gs.currentRegion,
+        meta: gs.meta,
+      })),
       loadRun: vi.fn(() => true),
     };
 

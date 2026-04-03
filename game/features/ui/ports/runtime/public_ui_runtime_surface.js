@@ -45,15 +45,20 @@ export function createLegacyUiCommandFacade({
   getModule,
   getUiRuntimeDeps,
   getCombatRuntimeDeps,
-  warn = console.warn,
+  logger = null,
+  warn = null,
 }) {
+  const emitWarn = typeof warn === 'function'
+    ? warn
+    : (logger?.warn ? (...args) => logger.warn(...args) : undefined);
+
   function callUiCommand(moduleName, methodName, warningLabel, depsFactory = getUiRuntimeDeps) {
     const module = getModule(moduleName);
     if (module?.[methodName]) {
       module[methodName](depsFactory());
       return;
     }
-    warn(`[API] ${warningLabel} not available`);
+    emitWarn?.(`[API] ${warningLabel} not available`);
   }
 
   return {

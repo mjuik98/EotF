@@ -54,6 +54,28 @@ describe('architecture refactor guardrails', () => {
     }
   });
 
+  it('keeps core feature binding and contract catalogs behind feature-owned aggregate ports', () => {
+    const bindingRefsSource = readText('game/core/bootstrap/build_binding_feature_refs.js');
+    const contractsSource = readText('game/core/deps/contracts/create_feature_contract_capabilities.js');
+    const debugSnapshotSource = readText('game/core/bootstrap/create_runtime_debug_snapshot.js');
+
+    expect(bindingRefsSource).toContain("../../features/ui/ports/public_feature_binding_ref_catalog.js");
+    expect(bindingRefsSource).not.toContain('../../features/combat/ports/public_binding_ref_capabilities.js');
+    expect(contractsSource).toContain("../../../features/ui/ports/public_feature_contract_capability_catalog.js");
+    expect(contractsSource).not.toContain("../../../features/combat/ports/public_contract_capabilities.js");
+    expect(debugSnapshotSource).toContain("../../features/ui/ports/public_runtime_debug_snapshot_catalog.js");
+    expect(debugSnapshotSource).not.toContain("../../features/combat/ports/runtime_debug_snapshot.js");
+  });
+
+  it('keeps legacy bridge bootstrap registration routed through a single core helper', () => {
+    const initRuntimeSource = readText('game/core/bootstrap/init_bootstrap_runtime.js');
+    const registerLegacySource = readText('game/core/bootstrap/register_legacy_surface.js');
+
+    expect(initRuntimeSource).toContain("./register_legacy_surface.js");
+    expect(initRuntimeSource).not.toContain("../../platform/legacy/public.js");
+    expect(registerLegacySource).toContain("../../platform/legacy/public.js");
+  });
+
   it('keeps game state runtime method ownership in shared/state', () => {
     const gameStateSource = readText('game/core/game_state.js');
     const storeStateSource = readText('game/core/store/game_state.js');

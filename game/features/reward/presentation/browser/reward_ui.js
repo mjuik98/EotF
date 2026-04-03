@@ -9,7 +9,7 @@ async function withRewardRuntime(deps = {}, callback) {
 
 export const RewardUI = {
   showRewardScreen(mode = false, deps = {}) {
-    showRewardScreenRuntime(this, mode, {
+    return showRewardScreenRuntime(this, mode, {
       ...deps,
       rewardScreenUi: createRewardScreenWorkflowUi(this, deps),
     });

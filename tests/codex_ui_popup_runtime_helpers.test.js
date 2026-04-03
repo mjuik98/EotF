@@ -123,4 +123,44 @@ describe('codex_ui_popup_runtime_helpers', () => {
     expect(popup.closeCodexPopup).toHaveBeenCalledWith(doc);
     expect(controller.clearCodexPopupNavigation).toHaveBeenCalledWith(state);
   });
+
+  it('closes the popup on Escape before outer modal handlers run', () => {
+    const listeners = {};
+    const popupOverlay = makeNode();
+    let isOpen = true;
+    popupOverlay.classList.contains = vi.fn((name) => name === 'open' && isOpen);
+    const box = makeNode();
+    const close = makeNode();
+    const doc = {
+      addEventListener: vi.fn((name, handler) => {
+        listeners[name] = handler;
+      }),
+      getElementById: vi.fn((id) => ({
+        cxPopupBox: box,
+        cxPopupClose: close,
+        cxDetailPopup: popupOverlay,
+      }[id] || null)),
+    };
+    const state = {};
+
+    helpers.mountPopup(state, doc, {
+      theme: { bg1: '#1', bg2: '#2', border: '#3', glow: '#4' },
+      html: '<content />',
+    }, vi.fn());
+
+    const event = {
+      key: 'Escape',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      stopImmediatePropagation: vi.fn(),
+    };
+    listeners.keydown(event);
+    isOpen = false;
+
+    expect(popup.closeCodexPopup).toHaveBeenCalledWith(doc);
+    expect(controller.clearCodexPopupNavigation).toHaveBeenCalledWith(state);
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
+    expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+    expect(event.stopImmediatePropagation).toHaveBeenCalledTimes(1);
+  });
 });

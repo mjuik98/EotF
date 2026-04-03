@@ -7,7 +7,7 @@ import {
   renderBlessingOption,
   renderItemOption,
   renderRewardCardOption,
-} from './reward_ui_render.js';
+} from './reward_ui_option_renderers.js';
 
 export { createRewardBlessings, getRelicRewardChance };
 

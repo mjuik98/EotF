@@ -4,6 +4,9 @@ const hoisted = vi.hoisted(() => ({
   ensureRewardScreenShell: vi.fn(),
   renderRewardHeader: vi.fn(),
   renderRewardOptions: vi.fn(),
+  loadRewardOptionRenderers: vi.fn(async () => ({
+    renderRewardOptions: hoisted.renderRewardOptions,
+  })),
 }));
 
 vi.mock('../game/features/reward/platform/browser/ensure_reward_screen_shell.js', () => ({
@@ -14,8 +17,8 @@ vi.mock('../game/features/reward/presentation/browser/reward_ui_render.js', () =
   renderRewardHeader: hoisted.renderRewardHeader,
 }));
 
-vi.mock('../game/features/reward/presentation/browser/reward_ui_options.js', () => ({
-  renderRewardOptions: hoisted.renderRewardOptions,
+vi.mock('../game/features/reward/presentation/browser/load_reward_option_renderers.js', () => ({
+  loadRewardOptionRenderers: hoisted.loadRewardOptionRenderers,
 }));
 
 import { showRewardScreenView } from '../game/features/reward/presentation/browser/show_reward_screen_runtime.js';
@@ -33,7 +36,7 @@ function createRewardCardsElement() {
 }
 
 describe('showRewardScreenView', () => {
-  it('switches to the reward screen without re-entering the reward action surface', () => {
+  it('switches to the reward screen without re-entering the reward action surface', async () => {
     const rewardCards = createRewardCardsElement();
     const rewardScreen = {
       classList: {
@@ -55,15 +58,16 @@ describe('showRewardScreenView', () => {
       switchScreen: vi.fn(),
     };
 
-    expect(() => showRewardScreenView({}, {
+    await expect(showRewardScreenView({}, {
       data: {},
       gs: {},
       isElite: false,
       rewardCards: [],
       rewardMode: 'normal',
-    }, deps)).not.toThrow();
+    }, deps)).resolves.toBeUndefined();
 
     expect(hoisted.ensureRewardScreenShell).toHaveBeenCalledWith(doc);
+    expect(hoisted.loadRewardOptionRenderers).toHaveBeenCalledTimes(1);
     expect(deps.showRewardScreen).not.toHaveBeenCalled();
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
     expect(rewardCards.textContent).toBe('');

@@ -10,7 +10,7 @@ export function createLegacyApiCaller(target) {
       if (typeof root?.[methodName] === 'function') {
         return root[methodName](...args);
       }
-      console.warn(`[GAME] Method not found: ${methodName}`);
+      root?.logger?.warn?.(`[LegacyApi] Method not found: ${methodName}`);
       return undefined;
     },
   };

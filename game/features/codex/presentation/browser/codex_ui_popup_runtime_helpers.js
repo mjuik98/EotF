@@ -9,7 +9,11 @@ import {
   navigateCodexPopup,
   setCodexPopupNavigation,
 } from './codex_ui_controller.js';
-import { registerEscapeSurface } from '../../../../shared/runtime/overlay_escape_support.js';
+import {
+  defaultSwallowEscape,
+  isEscapeKey,
+  registerEscapeSurface,
+} from '../../../../shared/runtime/overlay_escape_support.js';
 
 export function closeCodexDetailPopup(state, doc) {
   closeCodexPopup(doc);
@@ -27,6 +31,18 @@ function ensurePopupShell(state, doc) {
       priority: 400,
       scopes: ['run', 'title'],
     });
+  }
+  if (state._popupKeyDoc !== doc) {
+    state._popupKeyDoc?.removeEventListener?.('keydown', state._popupKeyHandler);
+    state._popupKeyDoc = doc;
+    state._popupKeyHandler = (event) => {
+      const popup = doc?.getElementById?.('cxDetailPopup');
+      if (!popup?.classList?.contains?.('open')) return;
+      if (!isEscapeKey(event)) return;
+      defaultSwallowEscape(event);
+      closePopup();
+    };
+    doc?.addEventListener?.('keydown', state._popupKeyHandler);
   }
   return ensureCodexPopupOverlay(doc, closePopup);
 }

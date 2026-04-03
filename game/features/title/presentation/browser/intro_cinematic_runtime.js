@@ -158,7 +158,7 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
   const selectedClass = deps.getSelectedClass?.() || 'swordsman';
   const runCount = gs?.meta?.runCount ?? 1;
 
-  console.log('[IntroCinematicUI] play()', {
+  deps.logger?.info?.('[IntroCinematicUI] play()', {
     isFirstRun: runCount <= 1,
     runCount,
     selectedClass,

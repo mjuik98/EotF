@@ -111,11 +111,18 @@ describe('combat ui smoke scripts', () => {
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
       'utf8',
     );
+    const scenarioSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui_scenarios.mjs'),
+      'utf8',
+    );
 
     expect(source).toContain("from './browser_smoke_flow_helpers.mjs'");
-    expect(source).toContain('enterRunFlow');
-    expect(source).toContain('enterCombatFromRun');
-    expect(source).toContain("querySelector('.card-rarity-tag')");
+    expect(source).toContain("from './smoke_combat_ui_scenarios.mjs'");
+    expect(source).toContain("from './smoke_combat_ui_support.mjs'");
+    expect(scenarioSource).toContain('enterRunFlow');
+    expect(scenarioSource).toContain('enterCombatFromRun');
+    expect(scenarioSource).toContain("querySelector('.card-rarity-tag')");
+    expect(source).toContain('seedCombatScenario');
     expect(source).toContain("result.firstCardRarityText === '일반'");
   });
 
@@ -167,11 +174,15 @@ describe('combat ui smoke scripts', () => {
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
       'utf8',
     );
+    const scenarioSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui_scenarios.mjs'),
+      'utf8',
+    );
 
-    expect(source).toContain("gs.player.items = ['serpent_fang_dagger']");
-    expect(source).toContain('combatRelicRail');
-    expect(source).toContain('combatRelicRailCountText');
-    expect(source).toContain('combatRelicPanel');
+    expect(scenarioSource).toContain("gs.player.items = ['serpent_fang_dagger']");
+    expect(scenarioSource).toContain('combatRelicRail');
+    expect(scenarioSource).toContain('combatRelicRailCountText');
+    expect(scenarioSource).toContain('combatRelicPanel');
     expect(source).toContain('combatRelicPanelOpen === false');
     expect(source).toContain("page.hover('#combatRelicRailSlots button')");
     expect(source).toContain('relicTooltipResult');
@@ -180,7 +191,7 @@ describe('combat ui smoke scripts', () => {
     expect(source).toContain("['compact', 'tight', 'stacked']");
     expect(source).toContain('panelOpen');
     expect(source).toContain('panelText');
-    expect(source).toContain('typeof window.updateUI === \'function\'');
+    expect(scenarioSource).toContain('typeof window.updateUI === \'function\'');
     expect(source).toContain('mobileRelicRailVisible');
     expect(source).toContain('mobileRelicRailWithinViewport');
     expect(source).toContain('page.waitForFunction');
@@ -191,8 +202,12 @@ describe('combat ui smoke scripts', () => {
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
       'utf8',
     );
+    const scenarioSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui_scenarios.mjs'),
+      'utf8',
+    );
 
-    expect(source).toContain("gs.player.hand = ['strike', 'resonance', 'heavy_blow', 'defend']");
+    expect(scenarioSource).toContain("gs.player.hand = ['strike', 'resonance', 'heavy_blow', 'defend']");
     expect(source).toContain("page.hover('#combatHandCards .card:nth-child(2)')");
     expect(source).toContain("page.hover('#handCardCloneLayer .card-hover-mechanic-trigger')");
     expect(source).toContain("page.focus('#handCardCloneLayer .card-hover-mechanic-trigger')");
@@ -214,10 +229,14 @@ describe('combat ui smoke scripts', () => {
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
       'utf8',
     );
+    const scenarioSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui_scenarios.mjs'),
+      'utf8',
+    );
 
     expect(source).toContain('prepareResonanceScenario');
-    expect(source).toContain("gs.player.class = 'swordsman'");
-    expect(source).toContain("resonance: { stacks: 99, dmgBonus: 2 }");
+    expect(scenarioSource).toContain("gs.player.class = 'swordsman'");
+    expect(scenarioSource).toContain("resonance: { stacks: 99, dmgBonus: 2 }");
     expect(source).toContain("page.click('#combatHandCards .card[data-card-id=\"strike\"]')");
     expect(source).toContain('resonanceAfterAttackResult');
     expect(source).toContain('resonanceBadgeVisible');
@@ -247,9 +266,13 @@ describe('combat ui smoke scripts', () => {
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
       'utf8',
     );
+    const scenarioSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui_scenarios.mjs'),
+      'utf8',
+    );
 
-    expect(source).toContain("enterRunFlow(page, { nodeReadySelector: '.node-card' })");
-    expect(source).toContain('enterCombatFromRun(page)');
+    expect(scenarioSource).toContain("enterRunFlow(page, { nodeReadySelector: '.node-card' })");
+    expect(scenarioSource).toContain('enterCombatFromRun(page)');
     expect(source).toContain("page.click('#rewardSkipInitBtn')");
     expect(source).toContain("page.click('#rewardSkipConfirmBtn')");
     expect(source).toContain('returnFlowResult');
@@ -279,13 +302,17 @@ describe('combat ui smoke scripts', () => {
       path.join(process.cwd(), 'scripts', 'smoke_combat_ui.mjs'),
       'utf8',
     );
+    const scenarioSource = fs.readFileSync(
+      path.join(process.cwd(), 'scripts', 'smoke_combat_ui_scenarios.mjs'),
+      'utf8',
+    );
 
-    expect(source).toContain("window.showCombatSummary");
-    expect(source).toContain("typeof window.showItemToast !== 'function'");
-    expect(source).toContain("window.showItemToast(smokeItem");
+    expect(scenarioSource).toContain("window.showCombatSummary");
+    expect(scenarioSource).toContain("typeof window.showItemToast !== 'function'");
+    expect(scenarioSource).toContain("window.showItemToast(smokeItem");
     expect(source).toContain('stackedToastResult');
-    expect(source).toContain("document.querySelectorAll('.stack-toast')");
-    expect(source).toContain("itemToast?.querySelector('.stack-toast-count')");
+    expect(scenarioSource).toContain("document.querySelectorAll('.stack-toast')");
+    expect(scenarioSource).toContain("itemToast?.querySelector('.stack-toast-count')");
     expect(source).toContain("stackedToastResult.toastCount >= 2");
     expect(source).toContain("stackedToastResult.itemCountBadge === 'x2'");
   });

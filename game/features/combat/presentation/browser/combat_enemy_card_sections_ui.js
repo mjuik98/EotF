@@ -1,4 +1,4 @@
-import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
+import { bindTooltipTrigger } from '../../ports/public_tooltip_support_capabilities.js';
 
 import { appendEnemySelectionLabel } from './combat_enemy_card_renderers_ui.js';
 

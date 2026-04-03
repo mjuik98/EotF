@@ -177,4 +177,54 @@ describe('intro_cinematic_runtime', () => {
     expect(blackoutSpy).toHaveBeenCalledWith(doc);
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
+
+  it('logs intro playback through the injected logger instead of console defaults', async () => {
+    const helpers = await import('../game/features/title/presentation/browser/intro_cinematic_helpers.js');
+    const { playIntroCinematicRuntime } = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
+    const doc = createDoc();
+    const overlay = createOverlayShell();
+    const textBox = { appendChild: vi.fn() };
+    const canvas = {
+      isConnected: true,
+      offsetWidth: 640,
+      offsetHeight: 360,
+      getContext: vi.fn(() => ({
+        clearRect: vi.fn(),
+        beginPath: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+      })),
+    };
+    const logger = { info: vi.fn() };
+
+    vi.spyOn(helpers, 'ensureIntroStyle').mockImplementation(() => {});
+    vi.spyOn(helpers, 'buildIntroOverlay').mockReturnValue({ canvas, overlay, textBox });
+    vi.spyOn(helpers, 'buildIntroSequence').mockReturnValue({
+      nodes: [{ isConnected: true, dataset: {}, style: {} }],
+      delays: [0],
+      totalDuration: 1000,
+    });
+    vi.spyOn(helpers, 'createIntroParticles').mockReturnValue([{ x: 1, y: 2, vy: -1, r: 1 }]);
+
+    playIntroCinematicRuntime({
+      doc,
+      win: {
+        innerWidth: 640,
+        innerHeight: 360,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      },
+      gs: { meta: { runCount: 2 } },
+      getSelectedClass: () => 'rogue',
+      logger,
+      raf: vi.fn(() => null),
+      cancelRaf: vi.fn(),
+    });
+
+    expect(logger.info).toHaveBeenCalledWith('[IntroCinematicUI] play()', {
+      isFirstRun: false,
+      runCount: 2,
+      selectedClass: 'rogue',
+    });
+  });
 });

@@ -155,4 +155,27 @@ describe('ui_shell_contract_builders', () => {
     expect(staleReturnToTitle).not.toHaveBeenCalled();
     expect(reload).toHaveBeenCalledTimes(1);
   });
+
+  it('routes class-select audio errors through an injected logger', () => {
+    const logger = {
+      warn: vi.fn(),
+    };
+    const builders = buildUiShellContractBuilders({
+      buildBaseDeps: vi.fn(() => ({ logger })),
+      getRefs: () => ({
+        AudioEngine: {
+          playEvent: vi.fn(() => {
+            throw new Error('audio-failed');
+          }),
+        },
+      }),
+      getRaf: vi.fn(() => vi.fn()),
+      getSyncVolumeUIFallback: vi.fn(() => vi.fn()),
+    });
+
+    const deps = builders.classSelect();
+    deps.playClassSelect('mage');
+
+    expect(logger.warn).toHaveBeenCalledWith('Audio error:', expect.any(Error));
+  });
 });

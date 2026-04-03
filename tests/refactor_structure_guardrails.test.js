@@ -219,6 +219,82 @@ describe('refactor structure guardrails', () => {
     expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
   });
 
+  it('splits overlay escape runtime into surface, visibility, and registry helpers', () => {
+    const source = read('game/shared/runtime/overlay_escape_support.js');
+
+    expect(source).toContain("./overlay_escape_surface_definitions.js");
+    expect(source).toContain("./overlay_escape_visibility.js");
+    expect(source).toContain("./overlay_escape_registry.js");
+    expect(pathExists('game/shared/runtime/overlay_escape_surface_definitions.js')).toBe(true);
+    expect(pathExists('game/shared/runtime/overlay_escape_visibility.js')).toBe(true);
+    expect(pathExists('game/shared/runtime/overlay_escape_registry.js')).toBe(true);
+  });
+
+  it('keeps save system IO as an orchestration facade over focused helpers', () => {
+    const source = read('game/shared/save/save_system_io.js');
+
+    expect(source).toContain("./save_system_run_meta_io.js");
+    expect(source).toContain("./save_system_slot_summaries.js");
+    expect(source).toContain("./save_system_bundle_io.js");
+    expect(pathExists('game/shared/save/save_system_run_meta_io.js')).toBe(true);
+    expect(pathExists('game/shared/save/save_system_slot_summaries.js')).toBe(true);
+    expect(pathExists('game/shared/save/save_system_bundle_io.js')).toBe(true);
+  });
+
+  it('keeps save system facade and outbox lifecycle split across focused helpers', () => {
+    const source = read('game/shared/save/save_system.js');
+
+    expect(source).toContain("./save_system_outbox_controller.js");
+    expect(source).toContain("./save_system_public_facade.js");
+    expect(pathExists('game/shared/save/save_system_outbox_controller.js')).toBe(true);
+    expect(pathExists('game/shared/save/save_system_public_facade.js')).toBe(true);
+  });
+
+  it('keeps event runtime helpers thin over lazy overlay loader modules', () => {
+    const source = read('game/features/event/presentation/browser/event_ui_runtime_helpers.js');
+
+    expect(source).toContain("./load_event_item_shop_overlay.js");
+    expect(source).toContain("./load_event_rest_site_overlay.js");
+    expect(source).toContain("./load_event_card_discard_overlay.js");
+    expect(pathExists('game/features/event/presentation/browser/load_event_item_shop_overlay.js')).toBe(true);
+    expect(pathExists('game/features/event/presentation/browser/load_event_rest_site_overlay.js')).toBe(true);
+    expect(pathExists('game/features/event/presentation/browser/load_event_card_discard_overlay.js')).toBe(true);
+  });
+
+  it('splits character select card rendering and info-panel markup into focused helper modules', () => {
+    const cardSource = read('game/features/title/platform/browser/character_select_card_ui.js');
+    const markupSource = read('game/features/title/platform/browser/character_select_info_panel_markup.js');
+
+    expect(cardSource).toContain("./character_select_card_nodes.js");
+    expect(cardSource).toContain("./character_select_card_visual_styles.js");
+    expect(pathExists('game/features/title/platform/browser/character_select_card_nodes.js')).toBe(true);
+    expect(pathExists('game/features/title/platform/browser/character_select_card_visual_styles.js')).toBe(true);
+    expect(markupSource).toContain("./character_select_info_panel_markup_deck.js");
+    expect(markupSource).toContain("./character_select_info_panel_markup_sections.js");
+    expect(pathExists('game/features/title/platform/browser/character_select_info_panel_markup_deck.js')).toBe(true);
+    expect(pathExists('game/features/title/platform/browser/character_select_info_panel_markup_sections.js')).toBe(true);
+  });
+
+  it('keeps the settings modal shell as assembly over extracted shell sections', () => {
+    const source = read('game/features/ui/platform/browser/ensure_settings_modal_shell.js');
+
+    expect(source).toContain("./settings_modal_shell_frame.js");
+    expect(source).toContain("./settings_modal_shell_panels.js");
+    expect(pathExists('game/features/ui/platform/browser/settings_modal_shell_frame.js')).toBe(true);
+    expect(pathExists('game/features/ui/platform/browser/settings_modal_shell_panels.js')).toBe(true);
+  });
+
+  it('keeps item detail panel UI as a facade over controller, dismiss, and content helpers', () => {
+    const source = read('game/shared/ui/item_detail/item_detail_panel_ui.js');
+
+    expect(source).toContain("./item_detail_surface_controller.js");
+    expect(source).toContain("./item_detail_surface_dismiss.js");
+    expect(source).toContain("./item_detail_panel_content.js");
+    expect(pathExists('game/shared/ui/item_detail/item_detail_surface_controller.js')).toBe(true);
+    expect(pathExists('game/shared/ui/item_detail/item_detail_surface_dismiss.js')).toBe(true);
+    expect(pathExists('game/shared/ui/item_detail/item_detail_panel_content.js')).toBe(true);
+  });
+
   it('keeps shared player resource rules off run feature capability imports', () => {
     const resourceUseCaseSource = read('game/shared/player/player_resource_use_cases.js');
     const ruleSupportSource = read('game/shared/player/player_resource_rule_support.js');
@@ -415,7 +491,8 @@ describe('refactor structure guardrails', () => {
     const combatTurnPortsSource = read('game/features/combat/platform/combat_turn_runtime_ports.js');
     const saveStatusPresenterSource = read('game/platform/browser/notifications/save_status_presenter.js');
     const saveRuntimeNotificationsSource = read('game/platform/browser/notifications/save_runtime_notifications.js');
-    const gameBootHelpersSource = read('game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const titleSaveSlotHelpersSource = read('game/features/title/presentation/browser/title_save_slot_helpers.js');
+    const titleSaveSlotControlsSource = read('game/features/title/presentation/browser/title_save_slot_controls.js');
 
     expect(runOutcomeSource).toContain("from '../../../core/store/selectors.js'");
     expect(runOutcomeSource).not.toContain('function selectCombatState(');
@@ -440,6 +517,8 @@ describe('refactor structure guardrails', () => {
     expect(saveRuntimeNotificationsSource).not.toContain("from '../../../utils/runtime_deps.js'");
 
     expect(saveStatusPresenterSource).toContain("from '../../../shared/save/save_status_formatters.js'");
-    expect(gameBootHelpersSource).toContain("from '../../../../shared/save/save_status_formatters.js'");
+    expect(titleSaveSlotHelpersSource).toContain("from './title_save_slot_controls.js'");
+    expect(titleSaveSlotHelpersSource).not.toContain("from '../../../../shared/save/save_status_formatters.js'");
+    expect(titleSaveSlotControlsSource).toContain("from '../../../../shared/save/save_status_formatters.js'");
   });
 });

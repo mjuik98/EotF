@@ -29,7 +29,7 @@ function buildStartRelicDetail(itemId, item) {
 
 export function renderClassSelectButtons(container, deps = {}) {
   if (!container) {
-    console.error('[ClassSelectUI] No container found for rendering buttons');
+    deps.logger?.error?.('[ClassSelectUI] No container found for rendering buttons');
     return;
   }
 

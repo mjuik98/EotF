@@ -1,5 +1,5 @@
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
-import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
+import { bindTooltipTrigger } from '../../ports/public_tooltip_support_capabilities.js';
 import { getItemDetailNavIndex, isItemDetailCommitKey } from './item_detail_navigation.js';
 import {
   applyCombatRelicPanelVisuals,

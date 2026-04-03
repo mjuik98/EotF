@@ -1,5 +1,5 @@
 import { ensureCombatTooltipBrowserModules } from '../../platform/browser/ensure_combat_tooltip_browser_modules.js';
-import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
+import { bindTooltipTrigger } from '../../ports/public_tooltip_support_capabilities.js';
 
 let _tooltipTimer = null;
 

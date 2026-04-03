@@ -1,5 +1,5 @@
 import { RARITY_SORT_ORDER } from '../../../../../data/rarity_meta.js';
-import { bindTooltipTrigger } from '../../../../shared/ui/tooltip/public.js';
+import { bindTooltipTrigger } from '../../ports/public_tooltip_support_capabilities.js';
 import { COMBAT_TEXT } from './combat_copy.js';
 import { buildItemTooltipFallbackText } from './item_tooltip_fallback_text.js';
 import { renderCombatRelicRail } from './combat_relic_rail_ui.js';

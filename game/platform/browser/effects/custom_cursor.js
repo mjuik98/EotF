@@ -1,4 +1,7 @@
+import { Logger } from '../browser_logger.js';
+
 let cursorSession = null;
+const cursorLogger = Logger.child('CustomCursor');
 
 function getDoc(deps = {}) {
   return deps.doc || document;
@@ -21,7 +24,7 @@ export const CustomCursor = {
     const ctx = canvas?.getContext('2d');
 
     if (!cDot || !cRing || !canvas || !ctx) {
-      console.warn('[CustomCursor] Required elements not found in DOM');
+      cursorLogger.warn('Required elements not found in DOM');
       return;
     }
 

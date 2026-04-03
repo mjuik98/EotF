@@ -13,6 +13,7 @@ describe('quality workflow scripts', () => {
 
     expect(packageJson.scripts['quality:fast']).toBe('npm run lint && npm test');
     expect(packageJson.scripts['test:slow-report']).toBe('node scripts/report-slow-tests.mjs --suite fast');
+    expect(packageJson.scripts['test:coverage']).toBe('node scripts/run-vitest-coverage-report.mjs');
     expect(packageJson.scripts['test:manifest']).toBe('node scripts/test_suite_manifest.mjs --check');
     expect(packageJson.scripts['test:manifest:write']).toBe('node scripts/test_suite_manifest.mjs --write');
     expect(packageJson.scripts.test).toBe('node scripts/run-vitest-suite.mjs fast');
@@ -25,6 +26,7 @@ describe('quality workflow scripts', () => {
     expect(packageJson.scripts['quality:full']).toContain('npm run audit:structure');
     expect(packageJson.scripts['quality:full']).toContain('npm run deps:map:check');
     expect(packageJson.scripts['quality:full']).toContain('npm run test:order-guard -- --runs 1 --sample 20');
+    expect(packageJson.scripts['quality:full']).toContain('npm run test:slow-report -- --input-file artifacts/quality/vitest-full-report.json');
     expect(packageJson.scripts['quality:full']).toContain('npm run build');
     expect(packageJson.scripts['quality:full']).toContain('npm run smoke:browser -- --reuse-dist');
     expect(packageJson.scripts.quality).toBe('npm run quality:full');
@@ -44,12 +46,13 @@ describe('quality workflow scripts', () => {
     const workflow = readText('.github/workflows/quality-gate.yml');
     const slowReportScript = readText('scripts/report-slow-tests.mjs');
     const smokeSuiteScript = readText('scripts/run_browser_smoke_suite.mjs');
+    const coverageScript = readText('scripts/run-vitest-coverage-report.mjs');
 
     expect(workflow).toContain('- run: npm run test:manifest');
     expect(workflow).toContain('- run: npm run deps:map:check');
     expect(workflow).toContain('- run: npm run lint');
     expect(workflow).toContain('- run: npm run test:coverage');
-    expect(workflow).toContain('- run: npm run test:slow-report -- --threshold-ms 1500 --top 10');
+    expect(workflow).toContain('- run: npm run test:slow-report -- --input-file artifacts/quality/vitest-full-report.json --threshold-ms 1500 --top 10');
     expect(workflow).toContain('- run: npm run audit:structure');
     expect(workflow).toContain('- run: npm run test:order-guard -- --runs 1 --sample 20');
     expect(workflow).toContain('- run: npm run build');
@@ -57,6 +60,9 @@ describe('quality workflow scripts', () => {
     expect(slowReportScript).toContain('GITHUB_STEP_SUMMARY');
     expect(smokeSuiteScript).toContain('GITHUB_STEP_SUMMARY');
     expect(smokeSuiteScript).toContain('SMOKE_DIST_DIR');
+    expect(coverageScript).toContain('artifacts/quality/vitest-full-report.json');
+    expect(coverageScript).toContain('--coverage');
+    expect(coverageScript).toContain('--reporter=json');
   });
 
   it('loads coverage thresholds from quality config', () => {

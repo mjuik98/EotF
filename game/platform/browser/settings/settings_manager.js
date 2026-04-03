@@ -1,4 +1,5 @@
 import { getSettingsStorage } from './settings_storage.js';
+import { Logger } from '../browser_logger.js';
 
 const STORAGE_KEY = 'eotf_settings';
 
@@ -57,7 +58,7 @@ export const SettingsManager = {
       this._data = this._deepMerge(clone(DEFAULTS), parsed);
       return this._data;
     } catch (error) {
-      console.warn('[SettingsManager] Load failed, using defaults:', error);
+      Logger.warn('[SettingsManager] Load failed, using defaults:', error);
       this._data = clone(DEFAULTS);
       return this._data;
     }
@@ -67,7 +68,7 @@ export const SettingsManager = {
     try {
       getSettingsStorage()?.setItem?.(STORAGE_KEY, JSON.stringify(this._data));
     } catch (error) {
-      console.warn('[SettingsManager] Save failed:', error);
+      Logger.warn('[SettingsManager] Save failed:', error);
     }
   },
 
@@ -83,7 +84,7 @@ export const SettingsManager = {
     const target = keys.reduce((obj, key) => obj?.[key], this._data);
 
     if (!target || !Object.prototype.hasOwnProperty.call(target, lastKey)) {
-      console.warn(`[SettingsManager] Unknown path: ${path}`);
+      Logger.warn(`[SettingsManager] Unknown path: ${path}`);
       return;
     }
 

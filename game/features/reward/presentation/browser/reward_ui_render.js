@@ -1,9 +1,3 @@
-export {
-  renderBlessingOption,
-  renderItemOption,
-  renderRewardCardOption,
-} from './reward_ui_option_renderers.js';
-
 export function renderRewardHeader(doc, rewardMode, isElite) {
   const eyebrow = doc.getElementById('rewardEyebrow');
   const titleEl = doc.getElementById('rewardTitle');

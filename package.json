@@ -18,7 +18,7 @@
     "test:order-guard": "node scripts/check-vitest-order-dependence.mjs fast",
     "test:manifest": "node scripts/test_suite_manifest.mjs --check",
     "test:manifest:write": "node scripts/test_suite_manifest.mjs --write",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "node scripts/run-vitest-coverage-report.mjs",
     "test:watch": "vitest",
     "deps:map": "node scripts/generate-dependency-map.mjs",
     "deps:map:check": "node scripts/generate-dependency-map.mjs --check",
@@ -36,7 +36,7 @@
     "smoke:browser": "node scripts/run_browser_smoke_suite.mjs",
     "quality:sync": "npm run test:manifest:write && npm run deps:map",
     "quality:fast": "npm run lint && npm test",
-    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run deps:map:check && npm run test:order-guard -- --runs 1 --sample 20 && npm run test:slow-report && npm run build && npm run smoke:browser -- --reuse-dist",
+    "quality:full": "npm run lint && npm run test:coverage && npm run audit:structure && npm run deps:map:check && npm run test:order-guard -- --runs 1 --sample 20 && npm run test:slow-report -- --input-file artifacts/quality/vitest-full-report.json && npm run build && npm run smoke:browser -- --reuse-dist",
     "quality": "npm run quality:full"
   },
   "keywords": [

@@ -163,4 +163,35 @@ describe('help_pause_hotkeys_runtime_ui', () => {
       expect(swallowEscape).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('swallows escape before closing the static codex surface so pause does not reopen on the same key event', () => {
+    const swallowEscape = vi.fn();
+    const closeCodex = vi.fn(() => {
+      expect(swallowEscape).toHaveBeenCalledTimes(1);
+    });
+    const doc = createDoc({
+      codexModal: createModalElement(),
+    });
+    const ui = {
+      togglePause: vi.fn(),
+      toggleHelp: vi.fn(),
+      isHelpOpen: vi.fn(() => false),
+    };
+
+    const result = handleEscapeHotkey({ key: 'Escape' }, {
+      deps: {
+        closeCodex,
+        gs: { currentScreen: 'game', combat: { active: false } },
+      },
+      doc,
+      gs: { currentScreen: 'game', combat: { active: false } },
+      ui,
+      swallowEscape,
+    });
+
+    expect(result).toBe(true);
+    expect(closeCodex).toHaveBeenCalledTimes(1);
+    expect(swallowEscape.mock.invocationCallOrder[0]).toBeLessThan(closeCodex.mock.invocationCallOrder[0]);
+    expect(ui.togglePause).not.toHaveBeenCalled();
+  });
 });

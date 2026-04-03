@@ -197,4 +197,19 @@ describe('settings_ui_runtime', () => {
     expect(audioEngine.playEvent).toHaveBeenCalledWith('ui', 'click');
     expect(audioEngine.playClick).not.toHaveBeenCalled();
   });
+
+  it('routes missing-modal warnings through an injected logger', () => {
+    const doc = {
+      getElementById: vi.fn(() => null),
+    };
+    const logger = {
+      warn: vi.fn(),
+    };
+    const ui = createUi();
+
+    const didOpen = openSettingsModal(ui, { doc, logger });
+
+    expect(didOpen).toBe(false);
+    expect(logger.warn).toHaveBeenCalledWith('[SettingsUI] #settingsModal not found');
+  });
 });

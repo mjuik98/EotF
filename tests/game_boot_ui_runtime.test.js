@@ -188,4 +188,58 @@ describe('game_boot_ui_runtime', () => {
 
     expect(ui.bootGame).toHaveBeenCalledWith(deps);
   });
+
+  it('routes boot-time failures through an injected logger instead of console', async () => {
+    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
+    const { bootGameRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
+    const doc = {
+      visibilityState: 'visible',
+      addEventListener: vi.fn(),
+      getElementById: vi.fn(() => null),
+    };
+    helpers.getDoc.mockReturnValue(doc);
+    helpers.getWin.mockReturnValue(globalThis);
+
+    const logger = {
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
+    const ui = {
+      refreshTitleSaveState: vi.fn(),
+    };
+    const deps = {
+      gs: { meta: {} },
+      logger,
+      audioEngine: {},
+      runRules: {
+        ensureMeta: vi.fn(() => {
+          throw new Error('ensure-meta-failed');
+        }),
+      },
+      saveSystem: {
+        flushOutbox: vi.fn(() => {
+          throw new Error('flush-failed');
+        }),
+        loadMeta: vi.fn(() => {
+          throw new Error('load-meta-failed');
+        }),
+      },
+      updateUI: vi.fn(() => {
+        throw new Error('update-ui-failed');
+      }),
+      refreshRunModePanel: vi.fn(),
+    };
+
+    bootGameRuntime(ui, deps);
+
+    expect(logger.warn).toHaveBeenCalledWith('[GameBootUI] flushOutbox error:', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith('[GameBootUI] loadMeta error:', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith('[GameBootUI] ensureMeta error:', expect.any(Error));
+    expect(logger.warn).toHaveBeenCalledWith('[GameBootUI] updateUI error:', expect.any(Error));
+    expect(ui.refreshTitleSaveState).toHaveBeenCalledWith({
+      doc,
+      saveSystem: deps.saveSystem,
+      gs: deps.gs,
+    });
+  });
 });

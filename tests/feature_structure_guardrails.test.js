@@ -97,12 +97,7 @@ describe('feature structure guardrails', () => {
     const importSpecs = [...source.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]);
 
     expect(importSpecs).toEqual([
-      '../../../features/combat/ports/public_contract_capabilities.js',
-      '../../../features/event/ports/public_contract_capabilities.js',
-      '../../../features/reward/ports/public_contract_capabilities.js',
-      '../../../features/run/ports/public_contract_capabilities.js',
-      '../../../features/title/ports/public_contract_capabilities.js',
-      '../../../features/ui/ports/public_contract_capabilities.js',
+      '../../../features/ui/ports/public_feature_contract_capability_catalog.js',
     ]);
   });
 
@@ -207,6 +202,9 @@ describe('feature structure guardrails', () => {
     const sectionSource = readSource('game/features/title/platform/browser/character_select_info_panel_sections.js');
 
     expect(panelSource).toContain("./character_select_info_panel_sections.js");
+    expect(sectionSource).toContain("./character_select_info_panel_summary_section.js");
+    expect(sectionSource).toContain("./character_select_info_panel_details_section.js");
+    expect(sectionSource).toContain("./character_select_info_panel_section_helpers.js");
     expect(sectionSource).toContain('buildCharacterInfoSummarySection');
     expect(sectionSource).toContain('buildCharacterInfoDetailsSection');
   });

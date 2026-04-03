@@ -278,7 +278,33 @@ async function assertNestedCodexEscapePriority(page) {
   await openVisibleCodexDetailPopup(page);
   const beforeEscape = await readNestedState();
   await page.keyboard.press('Escape');
-  await page.waitForFunction(() => !document.getElementById('cxDetailPopup')?.classList?.contains?.('open'), null, { timeout: 10000 });
+  await page.waitForFunction(() => !document.getElementById('cxDetailPopup')?.classList?.contains?.('open'), null, { timeout: 10000 })
+    .catch(async (error) => {
+      const debugState = await page.evaluate(() => {
+        const describe = (selector) => {
+          const element = document.querySelector(selector);
+          if (!element) return null;
+          const style = getComputedStyle(element);
+          return {
+            className: element.className,
+            dataOpen: element.dataset?.open || null,
+            display: style.display,
+            visibility: style.visibility,
+            opacity: style.opacity,
+            pointerEvents: style.pointerEvents,
+          };
+        };
+
+        return {
+          codexModal: describe('#codexModal'),
+          detailPopup: describe('#cxDetailPopup'),
+          pauseMenu: describe('#pauseMenu'),
+          combatRelicPanel: describe('#combatRelicPanel'),
+          battleChronicleOverlay: describe('#battleChronicleOverlay'),
+        };
+      });
+      throw new Error(`${error.message}\nNested codex debug: ${JSON.stringify(debugState)}`);
+    });
   const afterFirstEscape = await readNestedState();
 
   await page.keyboard.press('Escape');

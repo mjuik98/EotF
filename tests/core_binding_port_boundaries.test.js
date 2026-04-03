@@ -31,11 +31,8 @@ describe('core binding port boundaries', () => {
       'utf8',
     );
 
-    expect(source).toContain('../../features/combat/ports/public_binding_ref_capabilities.js');
-    expect(source).toContain('../../features/reward/ports/public_binding_ref_capabilities.js');
-    expect(source).toContain('../../features/run/ports/public_binding_ref_capabilities.js');
-    expect(source).toContain('../../features/title/ports/public_binding_ref_capabilities.js');
-    expect(source).toContain('../../features/ui/ports/public_binding_ref_capabilities.js');
+    expect(source).toContain('../../features/ui/ports/public_feature_binding_ref_catalog.js');
+    expect(source).not.toContain('/public_binding_ref_capabilities.js');
     expect(source).not.toContain('const FEATURE_REF_KEYS');
   });
 });

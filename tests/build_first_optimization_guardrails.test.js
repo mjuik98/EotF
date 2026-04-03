@@ -59,6 +59,7 @@ describe('build-first optimization guardrails', () => {
     const runSettingsShell = readText('game/features/run/platform/browser/ensure_run_settings_shell.js');
     const deckModalShell = readText('game/features/combat/platform/browser/ensure_deck_modal_shell.js');
     const settingsModalShell = readText('game/features/ui/platform/browser/ensure_settings_modal_shell.js');
+    const settingsModalFrame = readText('game/features/ui/platform/browser/settings_modal_shell_frame.js');
     const chronicleShell = readText('game/features/combat/platform/browser/ensure_battle_chronicle_shell.js');
     const codexShell = readText('game/features/codex/platform/browser/ensure_codex_modal_shell.js');
 
@@ -74,7 +75,8 @@ describe('build-first optimization guardrails', () => {
     expect(html).not.toContain('chronicle-filter-btn');
     expect(runSettingsShell).toContain('각인 상세 설정');
     expect(deckModalShell).toContain('📚 덱');
-    expect(settingsModalShell).toContain('SETTINGS');
+    expect(settingsModalShell).toContain('./settings_modal_shell_frame.js');
+    expect(settingsModalFrame).toContain('SETTINGS');
     expect(chronicleShell).toContain('chronicle-filter-btn');
     expect(codexShell).toContain('codex-modal-inner');
   });

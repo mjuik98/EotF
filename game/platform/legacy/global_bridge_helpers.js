@@ -121,7 +121,7 @@ export function exposeLegacyGlobals(mapping, root = getLegacyRoot()) {
     try {
       root[key] = val;
     } catch (e) {
-      console.warn(`[GAME] Could not expose global: ${key}`, e);
+      root?.logger?.warn?.(`[LegacyGlobals] Could not expose global: ${key}`, e);
     }
   });
 }

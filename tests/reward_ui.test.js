@@ -202,13 +202,13 @@ function findChildByClass(node, className) {
 }
 
 describe('RewardUI', () => {
-  it('renders card rewards even when the game state lacks getRandomCard', () => {
+  it('renders card rewards even when the game state lacks getRandomCard', async () => {
     const originalRandom = Math.random;
     Math.random = vi.fn(() => 0);
     const deps = createDeps({ maxEnergy: 3, withGetRandomCard: false });
 
     try {
-      RewardUI.showRewardScreen('normal', deps);
+      await RewardUI.showRewardScreen('normal', deps);
     } finally {
       Math.random = originalRandom;
     }
@@ -220,23 +220,23 @@ describe('RewardUI', () => {
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
   });
 
-  it('localizes boss reward header copy', () => {
+  it('localizes boss reward header copy', async () => {
     const deps = createDeps({ maxEnergy: 3 });
 
-    RewardUI.showRewardScreen('boss', deps);
+    await RewardUI.showRewardScreen('boss', deps);
 
     expect(deps.doc.getElementById('rewardEyebrow')?.textContent).toBe('보스 보상');
     expect(deps.doc.getElementById('rewardTitle')?.textContent).toBe('보스 처치');
     expect(deps.doc.getElementById('rewardTitle')?.style.display).toBe('block');
   });
 
-  it('surfaces exactly one upgraded card in a normal three-card combat reward high-roll', () => {
+  it('surfaces exactly one upgraded card in a normal three-card combat reward high-roll', async () => {
     const originalRandom = Math.random;
     Math.random = vi.fn(() => 0);
     const deps = createDeps({ maxEnergy: 3 });
 
     try {
-      RewardUI.showRewardScreen('normal', deps);
+      await RewardUI.showRewardScreen('normal', deps);
     } finally {
       Math.random = originalRandom;
     }
@@ -248,7 +248,7 @@ describe('RewardUI', () => {
     expect(upgradedCount).toBe(1);
   });
 
-  it('caps elite three-card combat rewards at one upgraded card', () => {
+  it('caps elite three-card combat rewards at one upgraded card', async () => {
     const originalRandom = Math.random;
     Math.random = vi.fn(() => 0);
     const deps = createDeps({ maxEnergy: 3 });
@@ -261,7 +261,7 @@ describe('RewardUI', () => {
     deps.data.cards.card_c_plus.rarity = 'rare';
 
     try {
-      RewardUI.showRewardScreen('normal', deps);
+      await RewardUI.showRewardScreen('normal', deps);
     } finally {
       Math.random = originalRandom;
     }
@@ -273,11 +273,11 @@ describe('RewardUI', () => {
     expect(upgradedCount).toBe(1);
   });
 
-  it('marks permanent energy blessing with emphasized disabled visuals at cap', () => {
+  it('marks permanent energy blessing with emphasized disabled visuals at cap', async () => {
     const cap = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP) || 5;
     const deps = createDeps({ maxEnergy: cap });
 
-    RewardUI.showRewardScreen('boss', deps);
+    await RewardUI.showRewardScreen('boss', deps);
 
     const energyBlessing = findBlessingWrapper(deps.rewardCards, '에너지의 축복');
     expect(energyBlessing).toBeTruthy();
@@ -297,11 +297,11 @@ describe('RewardUI', () => {
     expect(deps.switchScreen).toHaveBeenCalledWith('reward');
   });
 
-  it('keeps permanent energy blessing selectable below cap', () => {
+  it('keeps permanent energy blessing selectable below cap', async () => {
     const cap = Number(CONSTANTS?.PLAYER?.MAX_ENERGY_CAP) || 5;
     const deps = createDeps({ maxEnergy: Math.max(0, cap - 1) });
 
-    RewardUI.showRewardScreen('boss', deps);
+    await RewardUI.showRewardScreen('boss', deps);
 
     const energyBlessing = findBlessingWrapper(deps.rewardCards, '에너지의 축복');
     expect(energyBlessing).toBeTruthy();
@@ -314,7 +314,7 @@ describe('RewardUI', () => {
     expect(findChildByClass(blessingCard, 'reward-disabled-reason')).toBeFalsy();
   });
 
-  it('queues the guaranteed mini-boss relic toast', () => {
+  it('queues the guaranteed mini-boss relic toast', async () => {
     const originalRandom = Math.random;
     Math.random = vi.fn()
       .mockReturnValueOnce(0)
@@ -332,7 +332,7 @@ describe('RewardUI', () => {
     };
 
     try {
-      RewardUI.showRewardScreen('mini_boss', deps);
+      await RewardUI.showRewardScreen('mini_boss', deps);
     } finally {
       Math.random = originalRandom;
     }

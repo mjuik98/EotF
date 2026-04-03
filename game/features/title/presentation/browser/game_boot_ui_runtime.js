@@ -7,6 +7,10 @@ import {
 import { getDoc, getWin } from './game_boot_ui_helpers.js';
 import { preloadAssetDomain } from '../../platform/browser/title_asset_runtime.js';
 
+function getLogger(deps = {}) {
+  return deps.logger || null;
+}
+
 function bindTimer(fn, context) {
   if (typeof fn !== 'function') return fn;
   if (typeof fn.bind !== 'function') return fn;
@@ -51,23 +55,23 @@ function loadBootMeta(saveSystem, deps) {
   try {
     saveSystem?.loadMeta?.(deps.saveSystemDeps || {});
   } catch (error) {
-    console.error('[GameBootUI] loadMeta error:', error);
+    getLogger(deps)?.error?.('[GameBootUI] loadMeta error:', error);
   }
 }
 
-function flushOutbox(saveSystem) {
+function flushOutbox(saveSystem, deps = {}) {
   try {
     saveSystem?.flushOutbox?.();
   } catch (error) {
-    console.warn('[GameBootUI] flushOutbox error:', error);
+    getLogger(deps)?.warn?.('[GameBootUI] flushOutbox error:', error);
   }
 }
 
-function ensureRunMeta(runRules, gs) {
+function ensureRunMeta(runRules, gs, deps = {}) {
   try {
     runRules?.ensureMeta?.(gs?.meta);
   } catch (error) {
-    console.error('[GameBootUI] ensureMeta error:', error);
+    getLogger(deps)?.error?.('[GameBootUI] ensureMeta error:', error);
   }
 }
 
@@ -86,7 +90,7 @@ function refreshTitlePanels(deps) {
   try {
     deps.updateUI?.();
   } catch (error) {
-    console.warn('[GameBootUI] updateUI error:', error);
+    getLogger(deps)?.warn?.('[GameBootUI] updateUI error:', error);
   }
   deps.refreshRunModePanel?.();
 }
@@ -135,9 +139,9 @@ export function bootGameRuntime(ui, deps = {}) {
 
   try {
     registerAudioUnlock(doc, audioEngine);
-    flushOutbox(saveSystem);
+    flushOutbox(saveSystem, deps);
     loadBootMeta(saveSystem, deps);
-    ensureRunMeta(runRules, gs);
+    ensureRunMeta(runRules, gs, deps);
     preloadTitleAssets(deps);
     scheduleTitleCanvasInit(deps, timers, win);
     refreshTitlePanels(deps);
@@ -158,7 +162,7 @@ export function bootGameRuntime(ui, deps = {}) {
 
     ui.refreshTitleSaveState({ doc, saveSystem, gs });
   } catch (error) {
-    console.error('[GameBootUI] boot error:', error);
+    getLogger(deps)?.error?.('[GameBootUI] boot error:', error);
   }
 }
 

@@ -92,4 +92,27 @@ describe('character select flow helper', () => {
     expect(renderPhase).toHaveBeenCalledTimes(2);
     expect(onConfirm).toHaveBeenCalledWith(chars[2]);
   });
+
+  it('uses the injected logger when no explicit log function is provided', () => {
+    const state = { idx: 1, phase: 'select' };
+    const chars = [{ name: 'A' }, { name: 'B' }];
+    const root = createNode();
+    const logger = { info: vi.fn() };
+
+    const flow = createCharacterSelectFlow({
+      state,
+      chars,
+      resolveById: (id) => ({ charSelectSubScreen: root }[id] || null),
+      sfx: { select: vi.fn() },
+      renderPhase: vi.fn(),
+      onConfirm: vi.fn(),
+      setTimeoutImpl: (handler) => handler(),
+      logger,
+    });
+
+    flow.handleConfirm();
+
+    expect(logger.info).toHaveBeenCalledWith('[CharacterSelectUI] Character selected:', chars[1]);
+    expect(logger.info).toHaveBeenCalledWith('[CharacterSelectUI] Firing onConfirm callback');
+  });
 });

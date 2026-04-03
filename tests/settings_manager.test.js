@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsManager } from '../game/core/settings_manager.js';
 import { bindSettingsStorage } from '../game/platform/browser/settings/settings_storage.js';
+import { Logger } from '../game/utils/logger.js';
 
 function createLocalStorageMock(initial = {}) {
   const store = new Map(Object.entries(initial));
@@ -73,7 +74,7 @@ describe('SettingsManager', () => {
   });
 
   it('rejects unknown paths without mutating state', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(Logger, 'warn').mockImplementation(() => {});
     SettingsManager.load();
     const before = SettingsManager.getAll();
 

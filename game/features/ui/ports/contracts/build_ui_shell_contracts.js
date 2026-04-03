@@ -48,14 +48,15 @@ export function buildUiShellContractBuilders(ctx) {
     },
 
     classSelect: () => {
+      const baseDeps = buildBaseDeps('ui');
       const refs = getRefs();
       return {
-        ...buildBaseDeps('ui'),
+        ...baseDeps,
         playClassSelect: (cls) => {
           try {
             playClassSelect(refs.AudioEngine, cls);
           } catch (e) {
-            console.warn('Audio error:', e);
+            baseDeps.logger?.warn?.('Audio error:', e);
           }
         },
       };
