@@ -1,4 +1,4 @@
-import { resolveCharacterSelectRuntimeEnv } from './character_select_runtime_env.js';
+import { createCharacterSelectRuntimePorts } from '../ports/create_character_select_runtime_ports.js';
 import {
   createCharacterSelectModalController,
   createCharacterSelectRuntimeState,
@@ -29,7 +29,7 @@ export function createCharacterSelectRuntime(deps = {}, runtime = {}) {
     cancelAnimationFrameImpl,
     setTimeoutImpl,
     clearIntervalImpl,
-  } = resolveCharacterSelectRuntimeEnv(deps);
+  } = createCharacterSelectRuntimePorts(deps);
   const state = createCharacterSelectRuntimeState();
   const classIds = chars.map((ch) => ch.class);
   const progressionFacade = createProgressionFacade(deps?.gs?.meta, classIds);

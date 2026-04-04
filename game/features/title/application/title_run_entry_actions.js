@@ -1,3 +1,8 @@
+import {
+  getTitleRequestAnimationFrame,
+  getTitleSetTimeout,
+} from '../ports/title_runtime_ports.js';
+
 export function startTitleRunUseCase({
   getSelectedClass,
   hideTitleSubscreens,
@@ -30,7 +35,7 @@ export function continueRunUseCase({
   loadRun,
   onAfterCanvasReady,
   onBeforeResume,
-  setTimeoutFn = setTimeout,
+  setTimeoutFn = null,
 } = {}) {
   if (typeof resumeRun === 'function') {
     return resumeRun({
@@ -54,13 +59,16 @@ export function continueRunUseCase({
   runStartDeps.updateUI?.();
   runStartDeps.updateClassSpecialUI?.();
 
-  setTimeoutFn(() => {
+  const scheduleResume = getTitleSetTimeout(runStartDeps, setTimeoutFn);
+  const requestAnimationFrameImpl = getTitleRequestAnimationFrame(runStartDeps);
+
+  scheduleResume(() => {
     runStartDeps.initGameCanvas?.();
     if (
-      typeof runStartDeps.requestAnimationFrame === 'function'
+      typeof requestAnimationFrameImpl === 'function'
       && typeof runStartDeps.gameLoop === 'function'
     ) {
-      runStartDeps.requestAnimationFrame(runStartDeps.gameLoop);
+      requestAnimationFrameImpl(runStartDeps.gameLoop);
     }
     onAfterCanvasReady?.(runStartDeps);
   }, 80);

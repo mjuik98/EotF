@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1368,
-  "edgeCount": 1737,
+  "nodeCount": 1369,
+  "edgeCount": 1744,
   "layerEdges": {
     "core->core": 196,
     "core->feature": 26,
@@ -16,7 +16,7 @@
     "engine->engine": 2,
     "feature->core": 17,
     "feature->data": 11,
-    "feature->feature": 1085,
+    "feature->feature": 1092,
     "feature->legacy": 1,
     "feature->other": 2,
     "feature->platform": 14,
@@ -2727,19 +2727,20 @@
     "game/features/title/app/title_system_actions.js": [],
     "game/features/title/application/build_title_boot_actions.js": [],
     "game/features/title/application/character_select_actions.js": [
+      "game/features/title/ports/title_runtime_ports.js",
       "game/shared/logging/public.js"
     ],
-    "game/features/title/application/character_select_runtime_env.js": [],
     "game/features/title/application/character_select_runtime_state.js": [],
     "game/features/title/application/create_character_select_runtime.js": [
-      "game/features/title/application/character_select_runtime_env.js",
-      "game/features/title/application/character_select_runtime_state.js"
+      "game/features/title/application/character_select_runtime_state.js",
+      "game/features/title/ports/create_character_select_runtime_ports.js"
     ],
     "game/features/title/application/ending_action_ports.js": [
       "game/features/title/ports/ending_runtime_ports.js"
     ],
     "game/features/title/application/help_pause_abandon_actions.js": [
-      "game/features/combat/ports/public_combat_flow_application_capabilities.js"
+      "game/features/combat/ports/public_combat_flow_application_capabilities.js",
+      "game/features/title/ports/title_runtime_ports.js"
     ],
     "game/features/title/application/help_pause_menu_actions.js": [
       "game/features/title/application/help_pause_title_actions.js",
@@ -2754,10 +2755,15 @@
       "game/features/title/domain/class_progression_system.js"
     ],
     "game/features/title/application/meta_progression_actions.js": [
-      "game/features/title/application/title_return_actions.js"
+      "game/features/title/application/title_return_actions.js",
+      "game/features/title/ports/title_runtime_ports.js"
     ],
-    "game/features/title/application/title_return_actions.js": [],
-    "game/features/title/application/title_run_entry_actions.js": [],
+    "game/features/title/application/title_return_actions.js": [
+      "game/features/title/ports/title_runtime_ports.js"
+    ],
+    "game/features/title/application/title_run_entry_actions.js": [
+      "game/features/title/ports/title_runtime_ports.js"
+    ],
     "game/features/title/domain/character_select_catalog_content.js": [
       "game/features/title/ports/public_character_select_data_capabilities.js"
     ],
@@ -2984,10 +2990,13 @@
       "game/features/title/ports/contracts/build_title_run_contracts.js",
       "game/features/title/ports/contracts/build_title_story_contracts.js"
     ],
+    "game/features/title/ports/create_character_select_runtime_ports.js": [
+      "game/features/title/ports/title_runtime_ports.js"
+    ],
     "game/features/title/ports/create_title_dep_providers.js": [],
     "game/features/title/ports/create_title_ports.js": [],
     "game/features/title/ports/ending_runtime_ports.js": [
-      "game/platform/browser/dom/public.js"
+      "game/features/title/ports/title_runtime_ports.js"
     ],
     "game/features/title/ports/ending_ui_ports.js": [],
     "game/features/title/ports/help_pause_ui_ports.js": [],
@@ -3036,6 +3045,9 @@
       "game/features/title/platform/browser/create_title_bindings.js",
       "game/features/title/platform/browser/ensure_character_select_shell.js",
       "game/features/title/platform/browser/register_title_bindings.js"
+    ],
+    "game/features/title/ports/title_runtime_ports.js": [
+      "game/platform/browser/dom/public.js"
     ],
     "game/features/title/presentation/browser/abandon_outcome_presenter.js": [
       "game/features/ui/ports/public_ending_presentation_capabilities.js"
@@ -4099,5 +4111,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-04-04T15:32:55.930Z"
+  "generatedAt": "2026-04-04T15:54:42.419Z"
 }

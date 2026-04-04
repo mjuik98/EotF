@@ -1,8 +1,5 @@
 import { buildCombatEndItemTriggerPayload } from '../../combat/ports/public_combat_flow_application_capabilities.js';
-
-function resolveDoc(deps = {}) {
-  return deps.doc || deps.win?.document || null;
-}
+import { getTitleDoc } from '../ports/title_runtime_ports.js';
 
 function resolveGs(deps = {}) {
   return deps.gs || deps.state || deps.State || null;
@@ -53,7 +50,7 @@ export function confirmHelpPauseAbandonRun(deps = {}, onClosePauseMenu = () => {
   const gs = resolveGs(deps);
   if (!gs) return false;
 
-  const doc = resolveDoc(deps);
+  const doc = getTitleDoc(deps);
   doc?.getElementById?.('abandonConfirm')?.remove();
   onClosePauseMenu(doc);
 

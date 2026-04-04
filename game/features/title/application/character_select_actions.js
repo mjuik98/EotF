@@ -1,4 +1,5 @@
 import { Logger } from '../../../shared/logging/public.js';
+import { getTitleSetTimeout } from '../ports/title_runtime_ports.js';
 
 const CharacterSelectLogger = Logger.child('CharacterSelectUI');
 
@@ -18,7 +19,7 @@ export function confirmCharacterSelection({
   sfx,
   renderPhase,
   onConfirm,
-  setTimeoutImpl = setTimeout,
+  setTimeoutImpl = null,
   log = (...args) => CharacterSelectLogger.info(...args),
 } = {}) {
   if (state?.phase !== 'select') return;
@@ -27,7 +28,7 @@ export function confirmCharacterSelection({
   sfx?.select?.();
   state.phase = 'burst';
   renderPhase?.();
-  setTimeoutImpl?.(() => {
+  getTitleSetTimeout({}, setTimeoutImpl)?.(() => {
     state.phase = 'done';
     renderPhase?.();
     log?.('[CharacterSelectUI] Firing onConfirm callback');

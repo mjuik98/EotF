@@ -287,6 +287,32 @@ describe('refactor structure guardrails', () => {
     expect(runReturnActionsSource).not.toContain("../presentation/browser/run_return_overlay_presenter.js");
   });
 
+  it('routes title runtime environment lookups through title port helpers', () => {
+    const titleRunEntrySource = read('game/features/title/application/title_run_entry_actions.js');
+    const titleReturnSource = read('game/features/title/application/title_return_actions.js');
+    const metaProgressionSource = read('game/features/title/application/meta_progression_actions.js');
+    const helpPauseAbandonSource = read('game/features/title/application/help_pause_abandon_actions.js');
+    const characterSelectActionsSource = read('game/features/title/application/character_select_actions.js');
+    const characterSelectRuntimeSource = read('game/features/title/application/create_character_select_runtime.js');
+    const titleRuntimePortsSource = read('game/features/title/ports/title_runtime_ports.js');
+    const characterSelectRuntimePortsSource = read('game/features/title/ports/create_character_select_runtime_ports.js');
+
+    expect(titleRunEntrySource).toContain("../ports/title_runtime_ports.js");
+    expect(titleRunEntrySource).not.toContain('setTimeoutFn = setTimeout');
+    expect(titleReturnSource).toContain("../ports/title_runtime_ports.js");
+    expect(titleReturnSource).not.toContain('win?.location?.reload');
+    expect(metaProgressionSource).toContain("../ports/title_runtime_ports.js");
+    expect(metaProgressionSource).not.toContain('setTimeoutFn = setTimeout');
+    expect(helpPauseAbandonSource).toContain("../ports/title_runtime_ports.js");
+    expect(helpPauseAbandonSource).not.toContain('deps.win?.document');
+    expect(characterSelectActionsSource).toContain("../ports/title_runtime_ports.js");
+    expect(characterSelectActionsSource).not.toContain('setTimeoutImpl = setTimeout');
+    expect(characterSelectRuntimeSource).toContain("../ports/create_character_select_runtime_ports.js");
+    expect(characterSelectRuntimeSource).not.toContain("./character_select_runtime_env.js");
+    expect(titleRuntimePortsSource).toContain("from '../../../platform/browser/dom/public.js'");
+    expect(characterSelectRuntimePortsSource).toContain("./title_runtime_ports.js");
+  });
+
   it('keeps title browser helpers on canonical cross-feature public surfaces', () => {
     const settingsActionsSource = read('game/features/title/platform/browser/create_title_settings_actions.js');
     const buildCoreRunSystemModulesSource = read('game/platform/browser/composition/build_core_run_system_modules.js');

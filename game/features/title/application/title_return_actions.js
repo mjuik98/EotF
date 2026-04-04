@@ -1,3 +1,5 @@
+import { resolveTitleReload } from '../ports/title_runtime_ports.js';
+
 export function completeTitleReturn(deps = {}) {
   if (typeof deps.showTitleScreen === 'function') deps.showTitleScreen();
   else if (typeof deps.switchScreen === 'function') deps.switchScreen('title');
@@ -20,14 +22,9 @@ export function returnToTitleFromPause(deps = {}) {
     return false;
   }
 
-  if (typeof deps.reload === 'function') {
-    deps.reload();
-    return true;
-  }
-
-  const win = deps?.win || deps?.doc?.defaultView || null;
-  if (typeof win?.location?.reload === 'function') {
-    win.location.reload();
+  const reload = resolveTitleReload(deps);
+  if (typeof reload === 'function') {
+    reload();
     return true;
   }
 

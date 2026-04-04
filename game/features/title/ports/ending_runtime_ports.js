@@ -1,13 +1,17 @@
-import { getDoc as getRuntimeDoc, getWin as getRuntimeWin } from '../../../platform/browser/dom/public.js';
+import {
+  getTitleDoc,
+  getTitleSetTimeout,
+  getTitleWin,
+} from './title_runtime_ports.js';
 
 export function getEndingDoc(deps = {}) {
   if (typeof deps.getEndingDoc === 'function') return deps.getEndingDoc(deps);
-  return getRuntimeDoc(deps);
+  return getTitleDoc(deps);
 }
 
 export function getEndingWin(deps = {}) {
   if (typeof deps.getEndingWin === 'function') return deps.getEndingWin(deps);
-  return getRuntimeWin(deps);
+  return getTitleWin(deps);
 }
 
 export function resolveEndingRestartSchedule(deps = {}, scheduleFn = null) {
@@ -15,5 +19,5 @@ export function resolveEndingRestartSchedule(deps = {}, scheduleFn = null) {
   if (typeof deps.scheduleEndingRestart === 'function') return deps.scheduleEndingRestart;
 
   const win = getEndingWin(deps);
-  return win?.setTimeout?.bind?.(win) || setTimeout;
+  return getTitleSetTimeout({ ...deps, win });
 }

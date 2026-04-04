@@ -1,4 +1,5 @@
 import { completeTitleReturn } from './title_return_actions.js';
+import { getTitleSetTimeout } from '../ports/title_runtime_ports.js';
 
 function resolveCompleteTitleReturn(deps = {}) {
   if (typeof deps.completeTitleReturn === 'function') {
@@ -35,7 +36,7 @@ export function selectMetaFragmentAction(
   {
     cleanup = null,
     delayMs = 500,
-    setTimeoutFn = setTimeout,
+    setTimeoutFn = null,
   } = {},
 ) {
   const gs = deps?.gs;
@@ -46,7 +47,7 @@ export function selectMetaFragmentAction(
     return false;
   }
 
-  setTimeoutFn(() => {
+  getTitleSetTimeout(deps, setTimeoutFn)(() => {
     resolveCompleteTitleReturn(deps)();
   }, delayMs);
   return true;
