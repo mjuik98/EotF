@@ -53,6 +53,52 @@ describe('run outcome progression integration', () => {
     expect(gs.runOutcomeAchievements).toEqual(['custom_achievement']);
   });
 
+  it('prefers injected run outcome integration ports before default persistence wiring', () => {
+    const gs = createGameState();
+    const saveSystem = {
+      saveMeta: vi.fn(),
+      showSaveStatus: vi.fn(),
+      clearSave: vi.fn(),
+    };
+    const runOutcomeIntegrationPorts = {
+      awardRunXp: vi.fn(),
+      evaluateAchievements: vi.fn(() => ({
+        newlyUnlockedContent: [],
+        newlyUnlockedAchievements: [],
+      })),
+      persistMeta: vi.fn(),
+    };
+
+    finalizeRunOutcome('victory', {}, {
+      gs,
+      runOutcomeIntegrationPorts,
+      saveSystem,
+    });
+
+    expect(runOutcomeIntegrationPorts.awardRunXp).toHaveBeenCalledWith(
+      gs,
+      'victory',
+      expect.objectContaining({
+        classIds: expect.any(Array),
+        regionCount: expect.any(Number),
+      }),
+    );
+    expect(runOutcomeIntegrationPorts.evaluateAchievements).toHaveBeenCalledWith(
+      gs.meta,
+      'run_completed',
+      {
+        kind: 'victory',
+        runConfig: gs.runConfig,
+      },
+    );
+    expect(runOutcomeIntegrationPorts.persistMeta).toHaveBeenCalledWith(
+      expect.objectContaining({ gs }),
+    );
+    expect(saveSystem.saveMeta).not.toHaveBeenCalled();
+    expect(saveSystem.showSaveStatus).not.toHaveBeenCalled();
+    expect(saveSystem.clearSave).not.toHaveBeenCalled();
+  });
+
   it('evaluates run_completed achievements after a victory', () => {
     const gs = createGameState();
 

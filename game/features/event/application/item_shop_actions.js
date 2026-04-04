@@ -1,5 +1,5 @@
 import { ITEM_SHOP_RARITY_BASE_COSTS, ITEM_SHOP_RARITY_ORDER } from '../../../../data/event_shop_data.js';
-import { isContentAvailable } from '../../meta_progression/public.js';
+import { isContentAvailable } from '../ports/item_shop_policy_ports.js';
 import {
   discardEventCardState,
   purchaseEventShopItemState,

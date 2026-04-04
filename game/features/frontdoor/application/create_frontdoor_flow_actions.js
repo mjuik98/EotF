@@ -7,9 +7,8 @@ import {
   showMainTitleScreen,
   startTitleRunUseCase,
 } from '../../title/ports/public_frontdoor_capabilities.js';
-import { createCodexBrowserModuleCapabilities } from '../../codex/ports/public_browser_modules.js';
-
-const codexBrowserModules = createCodexBrowserModuleCapabilities();
+import { createFrontdoorRuntimePorts } from './frontdoor_runtime_ports.js';
+import { createFrontdoorCodexRuntimePorts } from '../ports/create_frontdoor_codex_runtime_ports.js';
 
 function syncActiveSaveSlot(gs, slot) {
   if (!gs?.meta) return;
@@ -18,27 +17,15 @@ function syncActiveSaveSlot(gs, slot) {
 
 export function createFrontdoorFlowActions(context) {
   const { doc, fns, modules, moduleRegistry, playClick, ports, win } = context;
-
-  function getTitleGameBootDeps() {
-    return ports.getGameBootDeps?.() || {};
-  }
-
-  function resolveTitleState(overrides = {}) {
-    const gameBootDeps = overrides.gameBootDeps || getTitleGameBootDeps();
-    const saveSystemDeps = overrides.saveSystemDeps || {};
-    const runSetupDeps = overrides.runSetupDeps || {};
-    return {
-      data: runSetupDeps.data || saveSystemDeps.data || gameBootDeps.data || modules.DATA,
-      gs: runSetupDeps.gs || saveSystemDeps.gs || gameBootDeps.gs || modules.GS,
-    };
-  }
+  const runtimePorts = createFrontdoorRuntimePorts(context);
+  const codexRuntimePorts = createFrontdoorCodexRuntimePorts({ moduleRegistry });
 
   return {
     showCharacterSelect() {
       playClick();
       ensureCharacterSelectShell(doc);
       showCharacterSelectScreen(doc);
-      modules.CharacterSelectUI?.onEnter?.();
+      runtimePorts.onCharacterSelectEnter();
     },
 
     backToTitle() {
@@ -50,16 +37,14 @@ export function createFrontdoorFlowActions(context) {
       playClick();
       const runStartDeps = ports.getRunStartDeps?.() || {};
       const saveSystemDeps = ports.getSaveSystemDeps?.() || {};
-      const slot = modules.SaveSystem?.getSelectedSlot?.()
-        || saveSystemDeps.gs?.meta?.activeSaveSlot
-        || 1;
-      const preview = modules.SaveSystem?.readRunPreview?.({ slot });
-      const { gs } = resolveTitleState({ saveSystemDeps });
+      const { gs } = runtimePorts.resolveTitleState({ saveSystemDeps });
+      const slot = runtimePorts.getSelectedSlot({ gs, saveSystemDeps });
+      const preview = runtimePorts.readRunPreview(slot);
       syncActiveSaveSlot(gs, slot);
       return continueRunUseCase({
         currentRegion: preview?.currentRegion ?? gs?.currentRegion ?? 0,
         getRunStartDeps: () => runStartDeps,
-        loadRun: () => modules.SaveSystem?.loadRun?.({ ...saveSystemDeps, slot }),
+        loadRun: () => runtimePorts.loadRun(slot, saveSystemDeps),
         resumeRun: runStartDeps.continueLoadedRun,
         onBeforeResume: () => showMainTitleScreen(doc),
         onAfterCanvasReady: () => {
@@ -72,36 +57,34 @@ export function createFrontdoorFlowActions(context) {
 
     async openCodexFromTitle() {
       playClick();
-      await codexBrowserModules.ensurePrimary(moduleRegistry);
-      modules.CodexUI?.openCodex?.(resolveTitleState());
+      await codexRuntimePorts.openCodex(
+        runtimePorts.resolveTitleState(),
+        (state) => runtimePorts.openCodex(state),
+      );
     },
 
     async openEndingCodex() {
       playClick();
-      await codexBrowserModules.ensurePrimary(moduleRegistry);
-      modules.CodexUI?.openCodex?.(resolveTitleState());
+      await codexRuntimePorts.openCodex(
+        runtimePorts.resolveTitleState(),
+        (state) => runtimePorts.openCodex(state),
+      );
     },
 
     selectClass(target) {
       playClick();
       const classSelectDeps = ports.getClassSelectDeps();
-      if (typeof target === 'string' || typeof target === 'number') {
-        modules.ClassSelectUI?.selectClassById?.(target, classSelectDeps);
-        return;
-      }
-      modules.ClassSelectUI?.selectClass?.(target, classSelectDeps);
+      runtimePorts.selectClass(target, classSelectDeps);
     },
 
     startGame() {
       playClick();
       const runSetupDeps = ports.getRunSetupDeps?.() || {};
-      const { gs } = resolveTitleState({ runSetupDeps });
-      const slot = modules.SaveSystem?.getSelectedSlot?.()
-        || gs?.meta?.activeSaveSlot
-        || 1;
+      const { gs } = runtimePorts.resolveTitleState({ runSetupDeps });
+      const slot = runtimePorts.getSelectedSlot({ gs });
       syncActiveSaveSlot(gs, slot);
       startTitleRunUseCase({
-        getSelectedClass: () => modules.ClassSelectUI?.getSelectedClass?.(),
+        getSelectedClass: () => runtimePorts.getSelectedClass(),
         hideTitleSubscreens: () => hideTitleSubscreens(doc),
         markPreRunRipplePlayed: () => {
           if (gs) gs._preRunRipplePlayed = true;
@@ -114,12 +97,7 @@ export function createFrontdoorFlowActions(context) {
           onComplete,
         ),
         playPrelude: (onComplete) => playPreRunRipple({ doc, startPreRunRipple: ports.startPreRunRipple, win }, onComplete),
-        startRunSetup: () => {
-          if (typeof runSetupDeps.startGame === 'function') {
-            return runSetupDeps.startGame();
-          }
-          return modules.RunSetupUI?.startGame?.(runSetupDeps);
-        },
+        startRunSetup: () => runtimePorts.startRunSetup(runSetupDeps),
       });
     },
   };

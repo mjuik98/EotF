@@ -1,67 +1,44 @@
+import { createRunWorldRenderRuntimePorts } from '../ports/create_run_world_render_runtime_ports.js';
+
 export function createWorldRenderActions(context) {
-  const { fns, modules, ports } = context;
+  const runtimePorts = context.ports.getRunWorldRenderRuntimePorts?.()
+    || createRunWorldRenderRuntimePorts(context);
 
   return {
     gameLoop(timestamp) {
-      const deps = ports.getCanvasDeps({
-        gameLoop: fns.gameLoop,
-        getRegionData: modules.getRegionData,
-        hitStop: modules.HitStop,
-        particleSystem: modules.ParticleSystem,
-        refs: {
-          gameCanvas: modules._canvasRefs?.gameCanvas,
-          gameCtx: modules._canvasRefs?.gameCtx,
-        },
-        renderMinimap: fns.renderMinimap,
-        renderNodeInfo: fns.renderNodeInfo,
-        requestAnimationFrame: ports.requestAnimationFrame,
-        screenShake: modules.ScreenShake,
-      });
-      modules.WorldRenderLoopUI?.gameLoop?.(timestamp, deps);
+      return runtimePorts.gameLoop?.(timestamp);
     },
 
     renderGameWorld(dt, ctx, w, h) {
-      const deps = ports.getCanvasDeps({
-        refs: {
-          gameCanvas: modules._canvasRefs?.gameCanvas,
-          gameCtx: modules._canvasRefs?.gameCtx,
-        },
-        renderMinimap: fns.renderMinimap,
-        renderNodeInfo: fns.renderNodeInfo,
-      });
-      modules.WorldRenderLoopUI?.renderGameWorld?.(dt, ctx, w, h, deps);
+      return runtimePorts.renderGameWorld?.(dt, ctx, w, h);
     },
 
     renderRegionBackground(ctx, w, h) {
-      modules.WorldRenderLoopUI?.renderRegionBackground?.(ctx, w, h, ports.getCanvasDeps({
-        getRegionData: modules.getRegionData,
-      }));
+      return runtimePorts.renderRegionBackground?.(ctx, w, h);
     },
 
     renderDynamicLights(ctx, w, h) {
-      modules.WorldRenderLoopUI?.renderDynamicLights?.(ctx, w, h, ports.getCanvasDeps({
-        getRegionData: modules.getRegionData,
-      }));
+      return runtimePorts.renderDynamicLights?.(ctx, w, h);
     },
 
     renderNodeInfo(ctx, w, h) {
-      modules.WorldCanvasUI?.renderNodeInfo?.(ctx, w, h, ports.getWorldCanvasDeps());
+      return runtimePorts.renderNodeInfo?.(ctx, w, h);
     },
 
     getFloorStatusText(regionId, floor) {
-      return modules.WorldCanvasUI?.getFloorStatusText?.(regionId, floor, ports.getWorldCanvasDeps()) || '';
+      return runtimePorts.getFloorStatusText?.(regionId, floor) || '';
     },
 
     wrapCanvasText(ctx, text, x, y, maxW, lineH) {
-      return modules.WorldCanvasUI?.wrapCanvasText?.(ctx, text, x, y, maxW, lineH);
+      return runtimePorts.wrapCanvasText?.(ctx, text, x, y, maxW, lineH);
     },
 
     roundRect(ctx, x, y, w, h, r) {
-      return modules.WorldCanvasUI?.roundRect?.(ctx, x, y, w, h, r);
+      return runtimePorts.roundRect?.(ctx, x, y, w, h, r);
     },
 
     roundRectTop(ctx, x, y, w, h, r) {
-      return modules.WorldCanvasUI?.roundRectTop?.(ctx, x, y, w, h, r);
+      return runtimePorts.roundRectTop?.(ctx, x, y, w, h, r);
     },
   };
 }

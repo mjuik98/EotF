@@ -1,7 +1,7 @@
 import {
   startPlayerTurnPolicy,
 } from '../domain/turn/start_player_turn_policy.js';
-import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
+import { resolveActiveRegionId } from '../ports/public_run_rule_capabilities.js';
 import { syncGuardianPreservedShield } from '../ports/public_state_capabilities.js';
 import {
   decayEnemyWeaken,

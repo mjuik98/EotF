@@ -18,8 +18,10 @@ import { createCombatTurnRuntime } from '../game/features/combat/application/cre
 describe('create_combat_turn_runtime', () => {
   it('routes player turn end through injected runtime ports', () => {
     hoisted.endPlayerTurnUseCase.mockReturnValue({ ok: true });
+    const getCombatSetTimeout = vi.fn();
     const runtime = createCombatTurnRuntime({
       cleanupTurnUi: vi.fn(),
+      getCombatSetTimeout,
       scheduleEnemyTurn: vi.fn(),
       showEnemyTurnUi: vi.fn(),
     });
@@ -45,6 +47,7 @@ describe('create_combat_turn_runtime', () => {
       cleanupTurnUi: expect.any(Function),
       showEnemyTurnUi: expect.any(Function),
       runEnemyTurn: expect.any(Function),
+      getCombatSetTimeout,
       scheduleEnemyTurn: expect.any(Function),
     }));
   });

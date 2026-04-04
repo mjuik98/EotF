@@ -35,6 +35,7 @@ export function endPlayerTurnRuntime(deps = {}, runtime = {}) {
     cleanupTurnUi: () => ports.cleanupTurnUi(deps),
     showEnemyTurnUi: () => ports.showEnemyTurnUi(deps),
     runEnemyTurn: () => deps.enemyTurn?.(),
+    getCombatSetTimeout: runtime.getCombatSetTimeout,
     scheduleEnemyTurn: runtime.scheduleEnemyTurn,
   });
 }

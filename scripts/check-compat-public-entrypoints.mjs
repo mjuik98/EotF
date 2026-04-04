@@ -17,7 +17,14 @@ function toPosix(value) {
 
 async function collectJsFiles(dir) {
   const out = [];
-  const entries = await fs.readdir(dir, { withFileTypes: true });
+  let entries;
+
+  try {
+    entries = await fs.readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === 'ENOENT') return out;
+    throw error;
+  }
 
   for (const entry of entries) {
     const full = path.join(dir, entry.name);

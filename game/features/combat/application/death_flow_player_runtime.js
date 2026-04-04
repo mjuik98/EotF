@@ -5,10 +5,10 @@ import {
   setCombatActive,
 } from './death_flow_runtime_support.js';
 import {
-  resolveDeathRuntimeContext,
   runCombatPlayerDeathSequence,
   showCombatDeathOutcome,
 } from '../platform/death_runtime_ports.js';
+import { createCombatDeathRuntimePorts } from '../platform/create_combat_death_runtime_ports.js';
 import {
   buildDeathFragmentChoices,
   renderDeathFragmentChoices,
@@ -16,14 +16,16 @@ import {
 import { buildCombatEndItemTriggerPayload } from './combat_end_item_trigger_payload.js';
 
 export function handleCombatPlayerDeath(gs, deps = {}) {
-  const { win } = resolveDeathRuntimeContext(deps);
-  const audioEngine = deps.audioEngine || win.AudioEngine;
+  const runtimePorts = {
+    ...createCombatDeathRuntimePorts(gs, deps),
+    ...(deps.deathRuntimePorts || {}),
+  };
+  const audioEngine = runtimePorts.audioEngine;
   const preDeathResult = gs.triggerItems?.('pre_death');
 
   if (preDeathResult === true) {
     playStatusHeal(audioEngine);
-    const updateUI = deps.updateUI || win.updateUI;
-    if (typeof updateUI === 'function') updateUI();
+    runtimePorts.updateUI?.();
     return;
   }
 
@@ -38,7 +40,7 @@ export function handleCombatPlayerDeath(gs, deps = {}) {
   runCombatPlayerDeathSequence(gs, {
     ...deps,
     deathQuotes: CombatDeathQuotes,
-    showDeathScreen: deps.showDeathScreen || (() => showCombatDeathScreen(gs, deps)),
+    showDeathScreen: runtimePorts.showDeathScreen || (() => showCombatDeathScreen(gs, deps)),
   });
 }
 
@@ -47,14 +49,16 @@ export function showCombatDeathScreen(gs, deps = {}) {
 }
 
 export function generateCombatDeathFragmentChoices(gs, deps = {}) {
-  const { doc, win } = resolveDeathRuntimeContext(deps);
-  const selectFragment = deps.selectFragment || win.selectFragment;
+  const runtimePorts = {
+    ...createCombatDeathRuntimePorts(gs, deps),
+    ...(deps.deathRuntimePorts || {}),
+  };
   const choices = buildDeathFragmentChoices();
 
   renderDeathFragmentChoices({
     choices,
-    doc,
-    onSelect: (effect) => selectFragment?.(effect),
+    doc: runtimePorts.doc,
+    onSelect: (effect) => runtimePorts.selectFragment?.(effect),
   });
 
   return { gs, choices };

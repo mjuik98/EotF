@@ -1,6 +1,6 @@
 import { DATA } from '../ports/public_data_runtime_capabilities.js';
+import { createRunRuleProgressionPorts } from '../ports/create_run_rule_progression_ports.js';
 import { getRunCurseDefinition } from '../domain/run_rules_curses.js';
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
 import {
   applyPlayerMaxHpPenalty,
   applySilenceCurseTurnStart,
@@ -14,7 +14,9 @@ export function applyRunStartEffects(gs, options = {}) {
   const getAscension = options.getAscension || (() => 0);
   const curses = options.curses || {};
   const data = options.data || DATA;
-  const classProgressionSystem = options.classProgressionSystem || ClassProgressionSystem;
+  const runRuleProgressionPorts = options.runRuleProgressionPorts || createRunRuleProgressionPorts({
+    classProgressionSystem: options.classProgressionSystem,
+  });
 
   ensureMeta(gs.meta);
   const asc = getAscension(gs);
@@ -27,7 +29,7 @@ export function applyRunStartEffects(gs, options = {}) {
   const curseDef = getRunCurseDefinition(cfg.curse, curses);
   if (curseDef.runStartMaxHpPenalty) applyPlayerMaxHpPenalty(gs, curseDef.runStartMaxHpPenalty);
 
-  classProgressionSystem.applyRunStartBonuses(gs, {
+  runRuleProgressionPorts.applyRunStartBonuses(gs, {
     classIds,
     data,
   });
@@ -35,9 +37,11 @@ export function applyRunStartEffects(gs, options = {}) {
 
 export function applyCombatStartEffects(gs, options = {}) {
   if (!gs?.player) return;
-  const classProgressionSystem = options.classProgressionSystem || ClassProgressionSystem;
+  const runRuleProgressionPorts = options.runRuleProgressionPorts || createRunRuleProgressionPorts({
+    classProgressionSystem: options.classProgressionSystem,
+  });
 
-  classProgressionSystem.applyCombatStartBonuses(gs, {
+  runRuleProgressionPorts.applyCombatStartBonuses(gs, {
     classIds: resolveRunRuleClassIds(options.data || DATA),
   });
 }
@@ -45,9 +49,11 @@ export function applyCombatStartEffects(gs, options = {}) {
 export function applyCombatDeckReadyEffects(gs, options = {}) {
   if (!gs?.player) return;
   const data = options.data || DATA;
-  const classProgressionSystem = options.classProgressionSystem || ClassProgressionSystem;
+  const runRuleProgressionPorts = options.runRuleProgressionPorts || createRunRuleProgressionPorts({
+    classProgressionSystem: options.classProgressionSystem,
+  });
 
-  classProgressionSystem.applyDeckReadyBonuses(gs, {
+  runRuleProgressionPorts.applyDeckReadyBonuses(gs, {
     classIds: resolveRunRuleClassIds(data),
     data,
   });

@@ -1,6 +1,6 @@
 import { endPlayerTurnService } from './end_turn_service.js';
 import { Logger } from '../ports/combat_logging.js';
-import { getSetTimeout } from '../../../platform/browser/dom/public.js';
+import { getCombatSetTimeout as resolveCombatSetTimeout } from '../ports/public_runtime_timing_capabilities.js';
 
 const CombatTurnLogger = Logger.child('CombatTurn');
 
@@ -25,6 +25,7 @@ export function endPlayerTurnUseCase({
   showEnemyTurnUi,
   runEnemyTurn,
   scheduleEnemyTurn,
+  getCombatSetTimeout,
   setTimeoutFn,
   win,
 } = {}) {
@@ -41,7 +42,7 @@ export function endPlayerTurnUseCase({
     || ((enemyTurnRunner, delayMs) => defaultScheduleEnemyTurn(
       enemyTurnRunner,
       delayMs,
-      getSetTimeout({ setTimeoutFn, win }),
+      resolveCombatSetTimeout({ getCombatSetTimeout, setTimeoutFn, win }),
     ));
 
   if (outcome.ui.resetChain) resetChainUi?.(0);

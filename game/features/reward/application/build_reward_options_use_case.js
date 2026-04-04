@@ -1,8 +1,8 @@
 import {
   ClassProgressionSystem,
   CONSTANTS,
+  isContentAvailable,
 } from '../ports/reward_option_policy_ports.js';
-import { isContentAvailable } from '../../meta_progression/public.js';
 
 export const RELIC_REWARD_CHANCE_NORMAL = 0;
 export const RELIC_REWARD_CHANCE_ELITE = 0.1;

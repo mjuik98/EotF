@@ -57,6 +57,72 @@ describe('CombatLifecycle', () => {
     expect(showRewardScreen).toHaveBeenCalledWith(false);
   });
 
+  it('prefers injected combat end runtime ports over window fallbacks', async () => {
+    const hostileWin = {
+      CombatUI: { cleanupAllTooltips: vi.fn() },
+      HudUpdateUI: { resetCombatUI: vi.fn(), hideNodeOverlay: vi.fn() },
+      renderCombatCards: vi.fn(),
+      renderHand: vi.fn(),
+      showCombatSummary: vi.fn(),
+      TooltipUI: { hideTooltip: vi.fn() },
+      updateChainUI: vi.fn(),
+      updateUI: vi.fn(),
+      setTimeout: vi.fn(),
+      showRewardScreen: vi.fn(),
+    };
+    const combatUiPort = {
+      resetAfterCombat: vi.fn(),
+      hideNodeOverlay: vi.fn(),
+      showSummary: vi.fn(),
+    };
+    const rewardFlowPort = {
+      openReward: vi.fn(),
+      returnFromReward: vi.fn(),
+    };
+    const audioPort = { playItemGet: vi.fn() };
+    const clock = { delay: vi.fn(() => Promise.resolve()) };
+    const host = {
+      combat: {
+        active: true,
+        enemies: [],
+      },
+      stats: {
+        damageDealt: 0,
+        damageTaken: 0,
+      },
+      player: {
+        kills: 0,
+        echoChain: 0,
+      },
+      currentRegion: 0,
+      currentNode: null,
+      dispatch: vi.fn(),
+      triggerItems: vi.fn(),
+    };
+
+    await CombatLifecycle.endCombat.call(host, {
+      runRules: { onCombatEnd: vi.fn() },
+      win: hostileWin,
+      combatEndRuntimePorts: {
+        audioPort,
+        clock,
+        combatUiPort,
+        rewardFlowPort,
+      },
+    });
+
+    expect(combatUiPort.resetAfterCombat).toHaveBeenCalledTimes(1);
+    expect(combatUiPort.hideNodeOverlay).toHaveBeenCalledTimes(1);
+    expect(combatUiPort.showSummary).toHaveBeenCalledTimes(1);
+    expect(audioPort.playItemGet).toHaveBeenCalledTimes(1);
+    expect(rewardFlowPort.openReward).toHaveBeenCalledWith(false);
+    expect(clock.delay).toHaveBeenCalledWith(1000);
+    expect(hostileWin.updateUI).not.toHaveBeenCalled();
+    expect(hostileWin.showCombatSummary).not.toHaveBeenCalled();
+    expect(hostileWin.renderHand).not.toHaveBeenCalled();
+    expect(hostileWin.renderCombatCards).not.toHaveBeenCalled();
+  });
+
   it('uses returnFromReward for endless last-region boss clears', async () => {
     vi.useFakeTimers();
     vi.spyOn(RunRuleSystem, 'getBaseRegionIndex').mockReturnValue(0);

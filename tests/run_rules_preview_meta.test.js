@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GAME } from '../game/core/global_bridge.js';
 import { RunRules, finalizeRunOutcome } from '../game/features/run/ports/public_rule_capabilities.js';
+import { ensureRunRuleMeta } from '../game/features/run/application/run_rule_meta.js';
+import {
+  applyCombatDeckReadyEffects,
+  applyCombatStartEffects,
+  applyRunStartEffects,
+} from '../game/features/run/application/run_rule_lifecycle.js';
 
 describe('RunRules preview meta support', () => {
   const originalState = GAME.State;
@@ -49,6 +55,75 @@ describe('RunRules preview meta support', () => {
 
     expect(meta.achievements.states.first_victory.unlocked).toBe(true);
     expect(meta.contentUnlocks.curses.blood_moon.unlocked).toBe(true);
+  });
+
+  it('prefers injected run rule progression ports when ensuring meta', () => {
+    const meta = {
+      runCount: 1,
+      unlocks: { ascension: true, endless: true },
+      runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
+    };
+    const runRuleProgressionPorts = {
+      ensureClassProgressionMeta: vi.fn(),
+      reconcileMetaProgression: vi.fn(),
+    };
+
+    ensureRunRuleMeta(meta, {
+      runRuleProgressionPorts,
+    });
+
+    expect(runRuleProgressionPorts.ensureClassProgressionMeta).toHaveBeenCalledWith(
+      meta,
+      expect.any(Array),
+    );
+    expect(runRuleProgressionPorts.reconcileMetaProgression).toHaveBeenCalledWith(meta);
+  });
+
+  it('prefers injected run rule progression ports for run-start and combat-start bonuses', () => {
+    const gs = {
+      meta: {
+        unlocks: { ascension: true, endless: false },
+        runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
+      },
+      player: {
+        maxHp: 100,
+      },
+      runConfig: { ascension: 0, endless: false, curse: 'none', disabledInscriptions: [] },
+    };
+    const runRuleProgressionPorts = {
+      applyRunStartBonuses: vi.fn(),
+      applyCombatStartBonuses: vi.fn(),
+      applyDeckReadyBonuses: vi.fn(),
+    };
+
+    applyRunStartEffects(gs, {
+      ensureMeta: vi.fn(),
+      getAscension: vi.fn(() => 0),
+      runRuleProgressionPorts,
+    });
+    applyCombatStartEffects(gs, { runRuleProgressionPorts });
+    applyCombatDeckReadyEffects(gs, { runRuleProgressionPorts });
+
+    expect(runRuleProgressionPorts.applyRunStartBonuses).toHaveBeenCalledWith(
+      gs,
+      expect.objectContaining({
+        classIds: expect.any(Array),
+        data: expect.any(Object),
+      }),
+    );
+    expect(runRuleProgressionPorts.applyCombatStartBonuses).toHaveBeenCalledWith(
+      gs,
+      expect.objectContaining({
+        classIds: expect.any(Array),
+      }),
+    );
+    expect(runRuleProgressionPorts.applyDeckReadyBonuses).toHaveBeenCalledWith(
+      gs,
+      expect.objectContaining({
+        classIds: expect.any(Array),
+        data: expect.any(Object),
+      }),
+    );
   });
 
   it('finalizes a run without creating recent-run history entries', () => {

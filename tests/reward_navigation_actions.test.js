@@ -3,6 +3,38 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRewardNavigationActions } from '../game/features/event/app/reward_navigation_actions.js';
 
 describe('reward_navigation_actions', () => {
+  it('prefers injected reward navigation runtime ports over RunReturnUI compat methods', () => {
+    const modules = {
+      RunReturnUI: {
+        returnFromReward: vi.fn(),
+        returnToGame: vi.fn(),
+      },
+    };
+    const rewardNavigationRuntimePorts = {
+      returnFromReward: vi.fn(),
+      returnToGame: vi.fn(),
+    };
+    const ports = {
+      getRewardFlowDeps: vi.fn(() => ({
+        returnFromReward: vi.fn(),
+        returnToGame: vi.fn(),
+      })),
+      getRewardNavigationRuntimePorts: vi.fn(() => rewardNavigationRuntimePorts),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    const actions = createRewardNavigationActions(modules, ports);
+    actions.returnFromReward();
+    actions.returnToGame(false);
+    actions.rewardActions.returnToGame(true);
+
+    expect(rewardNavigationRuntimePorts.returnFromReward).toHaveBeenCalledTimes(1);
+    expect(rewardNavigationRuntimePorts.returnToGame).toHaveBeenNthCalledWith(1, false);
+    expect(rewardNavigationRuntimePorts.returnToGame).toHaveBeenNthCalledWith(2, true);
+    expect(modules.RunReturnUI.returnFromReward).not.toHaveBeenCalled();
+    expect(modules.RunReturnUI.returnToGame).not.toHaveBeenCalled();
+  });
+
   it('prefers RunReturnUI when reward return actions are available', () => {
     const modules = {
       RunReturnUI: {

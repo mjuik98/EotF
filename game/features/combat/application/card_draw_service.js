@@ -1,4 +1,4 @@
-import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
+import { resolveActiveRegionId } from '../ports/public_run_rule_capabilities.js';
 import { drawCardsState } from '../state/card_state_commands.js';
 
 export function drawCardsService({

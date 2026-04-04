@@ -27,6 +27,49 @@ describe('death_flow_player_runtime', () => {
     vi.restoreAllMocks();
   });
 
+  it('prefers injected death runtime ports over window fallbacks on revive updates', () => {
+    vi.useFakeTimers();
+
+    const injectedUpdateUI = vi.fn();
+    const hostileUpdateUI = vi.fn();
+    const doc = createDoc();
+    const gs = {
+      combat: {
+        active: true,
+        enemies: [],
+      },
+      player: {
+        hp: 0,
+        maxHp: 40,
+        items: ['phoenix_feather'],
+        _itemState: {
+          phoenix_feather: {},
+        },
+      },
+      triggerItems(trigger, data) {
+        return ItemSystem.triggerItems(this, trigger, data);
+      },
+    };
+
+    handleCombatPlayerDeath(gs, {
+      doc,
+      win: {
+        innerWidth: 1280,
+        innerHeight: 720,
+        updateUI: hostileUpdateUI,
+      },
+      deathRuntimePorts: {
+        updateUI: injectedUpdateUI,
+      },
+      showDeathScreen: vi.fn(),
+      screenShake: { shake: vi.fn() },
+      particleSystem: { deathEffect: vi.fn() },
+    });
+
+    expect(injectedUpdateUI).toHaveBeenCalledTimes(1);
+    expect(hostileUpdateUI).not.toHaveBeenCalled();
+  });
+
   it('publishes combat_end on defeat so combat-end relics still clean up and fire', async () => {
     vi.useFakeTimers();
 

@@ -134,9 +134,10 @@ describe('state flow boundary contracts', () => {
     expect(playCardService).not.toContain('player.hand = handBefore');
     expect(playCardService).not.toContain('player._nextCardDiscount = Math.max(0, player._nextCardDiscount - 1)');
     expect(playCardService).not.toContain('stats.cardsPlayed++');
-    expect(runEnemyTurnUseCase).toContain('../../run/ports/public_rule_capabilities.js');
+    expect(runEnemyTurnUseCase).toContain('../ports/public_run_rule_capabilities.js');
     expect(runEnemyTurnUseCase).toContain('../domain/turn/start_player_turn_policy.js');
     expect(runEnemyTurnUseCase).toContain('../ports/public_state_capabilities.js');
+    expect(runEnemyTurnUseCase).not.toContain('../../run/ports/public_rule_capabilities.js');
     expect(runEnemyTurnUseCase).not.toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
     expect(runEnemyTurnUseCase).not.toContain('../../../domain/run/region_service.js');
     expect(runEnemyTurnUseCase).not.toContain('../../../shared/state/runtime_session_commands.js');

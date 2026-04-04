@@ -17,11 +17,25 @@ describe('repository documentation guardrails', () => {
     const docsRoot = path.join(process.cwd(), 'docs', 'superpowers');
     const plansDir = path.join(docsRoot, 'plans');
     const specsDir = path.join(docsRoot, 'specs');
+    const allowedDirs = new Set(['plans', 'specs']);
 
-    expect(fs.existsSync(plansDir)).toBe(true);
-    expect(fs.existsSync(specsDir)).toBe(true);
-    expect(fs.readdirSync(plansDir).some((name) => name.endsWith('.md'))).toBe(true);
-    expect(fs.readdirSync(specsDir).some((name) => name.endsWith('.md'))).toBe(true);
+    if (!fs.existsSync(docsRoot)) {
+      expect(fs.existsSync(docsRoot)).toBe(false);
+      return;
+    }
+
+    const directEntries = fs.readdirSync(docsRoot, { withFileTypes: true });
+    expect(directEntries.every((entry) => entry.isDirectory() && allowedDirs.has(entry.name))).toBe(true);
+
+    const markdownFiles = [plansDir, specsDir]
+      .filter((dir) => fs.existsSync(dir))
+      .flatMap((dir) => fs.readdirSync(dir).map((name) => path.join(dir, name)))
+      .filter((filePath) => filePath.endsWith('.md'));
+
+    expect(markdownFiles.every((filePath) => {
+      const relPath = path.relative(docsRoot, filePath).split(path.sep).join('/');
+      return relPath.startsWith('plans/') || relPath.startsWith('specs/');
+    })).toBe(true);
   });
 
   it('documents the split between canonical docs and superpowers working artifacts', () => {

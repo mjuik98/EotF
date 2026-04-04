@@ -3,6 +3,68 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRewardActions } from '../game/features/event/app/reward_actions.js';
 
 describe('reward_actions', () => {
+  it('prefers injected reward runtime action ports over RewardUI compat methods', () => {
+    const modules = {
+      RewardUI: {
+        hideSkipConfirm: vi.fn(),
+        showRewardScreen: vi.fn(),
+        skipReward: vi.fn(),
+        takeRewardCard: vi.fn(),
+        takeRewardItem: vi.fn(),
+        takeRewardRemove: vi.fn(),
+        takeRewardUpgrade: vi.fn(),
+        showSkipConfirm: vi.fn(),
+      },
+    };
+    const rewardRuntimeActionPorts = {
+      hideSkipConfirm: vi.fn(),
+      openReward: vi.fn(),
+      showRewardScreen: vi.fn(),
+      skipReward: vi.fn(),
+      takeRewardCard: vi.fn(),
+      takeRewardItem: vi.fn(),
+      takeRewardRemove: vi.fn(),
+      takeRewardUpgrade: vi.fn(),
+      showSkipConfirm: vi.fn(),
+    };
+    const ports = {
+      getRewardDeps: vi.fn(() => ({ token: 'reward-deps' })),
+      getRewardFlowDeps: vi.fn(() => ({ openReward: vi.fn() })),
+      getRewardRuntimeActionPorts: vi.fn(() => rewardRuntimeActionPorts),
+      getRunReturnDeps: vi.fn(() => ({ token: 'run-return-deps' })),
+    };
+
+    const actions = createRewardActions(modules, ports);
+
+    actions.showRewardScreen(true);
+    actions.openReward('boss');
+    actions.takeRewardCard('strike');
+    actions.takeRewardItem('relic');
+    actions.takeRewardUpgrade();
+    actions.takeRewardRemove();
+    actions.showSkipConfirm();
+    actions.hideSkipConfirm();
+    actions.skipReward();
+
+    expect(rewardRuntimeActionPorts.showRewardScreen).toHaveBeenCalledWith(true);
+    expect(rewardRuntimeActionPorts.openReward).toHaveBeenCalledWith('boss');
+    expect(rewardRuntimeActionPorts.takeRewardCard).toHaveBeenCalledWith('strike');
+    expect(rewardRuntimeActionPorts.takeRewardItem).toHaveBeenCalledWith('relic');
+    expect(rewardRuntimeActionPorts.takeRewardUpgrade).toHaveBeenCalledTimes(1);
+    expect(rewardRuntimeActionPorts.takeRewardRemove).toHaveBeenCalledTimes(1);
+    expect(rewardRuntimeActionPorts.showSkipConfirm).toHaveBeenCalledTimes(1);
+    expect(rewardRuntimeActionPorts.hideSkipConfirm).toHaveBeenCalledTimes(1);
+    expect(rewardRuntimeActionPorts.skipReward).toHaveBeenCalledTimes(1);
+    expect(modules.RewardUI.showRewardScreen).not.toHaveBeenCalled();
+    expect(modules.RewardUI.takeRewardCard).not.toHaveBeenCalled();
+    expect(modules.RewardUI.takeRewardItem).not.toHaveBeenCalled();
+    expect(modules.RewardUI.takeRewardUpgrade).not.toHaveBeenCalled();
+    expect(modules.RewardUI.takeRewardRemove).not.toHaveBeenCalled();
+    expect(modules.RewardUI.showSkipConfirm).not.toHaveBeenCalled();
+    expect(modules.RewardUI.hideSkipConfirm).not.toHaveBeenCalled();
+    expect(modules.RewardUI.skipReward).not.toHaveBeenCalled();
+  });
+
   it('routes reward and return actions through reward ports when no reward flow contract is available', () => {
     const modules = {
       RewardUI: {

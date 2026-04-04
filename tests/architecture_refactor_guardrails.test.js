@@ -450,9 +450,23 @@ describe('architecture refactor guardrails', () => {
     expect(runStartSource).toContain('getRunRaf');
     expect(runStartSource).not.toContain("from '../../../platform/browser/dom/public.js'");
     expect(runStartSource).not.toContain('setTimeout(');
-    expect(endPlayerTurnSource).toContain("from '../../../platform/browser/dom/public.js'");
-    expect(endPlayerTurnSource).toContain('getSetTimeout');
+    expect(endPlayerTurnSource).toContain("from '../ports/public_runtime_timing_capabilities.js'");
+    expect(endPlayerTurnSource).toContain('getCombatSetTimeout');
+    expect(endPlayerTurnSource).not.toContain("from '../../../platform/browser/dom/public.js'");
     expect(endPlayerTurnSource).not.toContain('setTimeout(');
+  });
+
+  it('keeps frontdoor codex readiness and combat run-rule access behind feature-local ports', () => {
+    const frontdoorFlowSource = readText('game/features/frontdoor/application/create_frontdoor_flow_actions.js');
+    const combatLifecycleSource = readText('game/features/combat/application/combat_lifecycle_facade.js');
+    const runEnemyTurnSource = readText('game/features/combat/application/run_enemy_turn_use_case.js');
+
+    expect(frontdoorFlowSource).toContain("../ports/create_frontdoor_codex_runtime_ports.js");
+    expect(frontdoorFlowSource).not.toContain("../../codex/ports/public_browser_modules.js");
+    expect(combatLifecycleSource).toContain("../ports/public_run_rule_capabilities.js");
+    expect(combatLifecycleSource).not.toContain("../../run/ports/public_rule_capabilities.js");
+    expect(runEnemyTurnSource).toContain("../ports/public_run_rule_capabilities.js");
+    expect(runEnemyTurnSource).not.toContain("../../run/ports/public_rule_capabilities.js");
   });
 
   it('keeps save infrastructure free of embedded presenter imports and DOM toasts', () => {

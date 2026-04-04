@@ -3,8 +3,7 @@ import {
   ensureCodexRecords,
   ensureCodexState,
 } from '../ports/public_codex_state_capabilities.js';
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
-import { reconcileMetaProgression } from '../../meta_progression/public.js';
+import { createRunRuleProgressionPorts } from '../ports/create_run_rule_progression_ports.js';
 import { ensureRunMeta } from '../domain/run_rules_meta.js';
 
 export function resolveRunRuleClassIds(data = DATA) {
@@ -16,14 +15,19 @@ export function ensureRunRuleMeta(meta, options = {}) {
   const data = options.data || DATA;
   const ensureCodexStateRef = options.ensureCodexState || ensureCodexState;
   const ensureCodexRecordsRef = options.ensureCodexRecords || ensureCodexRecords;
-  const classProgressionSystem = options.classProgressionSystem || ClassProgressionSystem;
+  const runRuleProgressionPorts = options.runRuleProgressionPorts || createRunRuleProgressionPorts({
+    classProgressionSystem: options.classProgressionSystem,
+    reconcileMetaProgression: options.reconcileMetaProgression,
+  });
 
   ensureRunMeta(meta, {
     curses,
     data,
     ensureCodexState: ensureCodexStateRef,
     ensureCodexRecords: ensureCodexRecordsRef,
-    ensureClassProgressionMeta: (metaRef, classIds) => classProgressionSystem.ensureMeta(metaRef, classIds),
+    ensureClassProgressionMeta: (metaRef, classIds) => (
+      runRuleProgressionPorts.ensureClassProgressionMeta(metaRef, classIds)
+    ),
   });
-  reconcileMetaProgression(meta);
+  runRuleProgressionPorts.reconcileMetaProgression(meta);
 }

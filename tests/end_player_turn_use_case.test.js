@@ -58,7 +58,7 @@ describe('end_player_turn_use_case', () => {
     expect(resetChainUi).not.toHaveBeenCalled();
   });
 
-  it('uses the injected timeout scheduler when no custom enemy-turn scheduler is provided', async () => {
+  it('uses the injected combat timing port when no custom enemy-turn scheduler is provided', async () => {
     vi.spyOn(endTurnService, 'endPlayerTurnService').mockReturnValue({
       result: { discarded: 1 },
       ui: {
@@ -73,17 +73,19 @@ describe('end_player_turn_use_case', () => {
       callback();
       return delayMs;
     });
+    const getCombatSetTimeout = vi.fn(() => setTimeoutFn);
     const runEnemyTurn = vi.fn().mockResolvedValue(undefined);
 
     const result = endPlayerTurnUseCase({
       gs: { player: { class: 'guardian' } },
       runEnemyTurn,
-      setTimeoutFn,
+      getCombatSetTimeout,
     });
 
     await Promise.resolve();
 
     expect(result).toEqual({ discarded: 1 });
+    expect(getCombatSetTimeout).toHaveBeenCalledTimes(1);
     expect(setTimeoutFn).toHaveBeenCalledTimes(1);
     expect(setTimeoutFn).toHaveBeenCalledWith(expect.any(Function), 450);
     expect(runEnemyTurn).toHaveBeenCalledTimes(1);

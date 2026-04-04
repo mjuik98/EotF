@@ -200,6 +200,33 @@ describe('refactor structure guardrails', () => {
     expect(source).toContain("./set_bonus_resource_rules.js");
   });
 
+  it('routes run map/render and reward compat runtime assembly through dedicated port helpers', () => {
+    const worldRenderSource = read('game/features/run/application/world_render_actions.js');
+    const worldRenderPortsSource = read('game/features/run/ports/create_run_world_render_runtime_ports.js');
+    const runMapSource = read('game/features/run/application/run_map_actions.js');
+    const runMapPortsSource = read('game/features/run/ports/create_run_map_runtime_ports.js');
+    const rewardActionsSource = read('game/features/reward/application/create_reward_runtime_actions.js');
+    const rewardActionPortsSource = read('game/features/reward/ports/create_reward_runtime_action_ports.js');
+
+    expect(worldRenderSource).toContain("../ports/create_run_world_render_runtime_ports.js");
+    expect(worldRenderSource).not.toContain('modules.WorldRenderLoopUI');
+    expect(worldRenderSource).not.toContain('modules.WorldCanvasUI');
+    expect(worldRenderPortsSource).toContain('modules.WorldRenderLoopUI');
+    expect(worldRenderPortsSource).toContain('modules.WorldCanvasUI');
+
+    expect(runMapSource).toContain("../ports/create_run_map_runtime_ports.js");
+    expect(runMapSource).not.toContain('modules.MapGenerationUI');
+    expect(runMapSource).not.toContain('modules.MapUI');
+    expect(runMapSource).not.toContain('modules.MapNavigationUI');
+    expect(runMapPortsSource).toContain('modules.MapGenerationUI');
+    expect(runMapPortsSource).toContain('modules.MapUI');
+    expect(runMapPortsSource).toContain('modules.MapNavigationUI');
+
+    expect(rewardActionsSource).toContain("../ports/create_reward_runtime_action_ports.js");
+    expect(rewardActionsSource).not.toContain('modules.RewardUI');
+    expect(rewardActionPortsSource).toContain('modules.RewardUI');
+  });
+
   it('delegates echo ripple rendering into focused browser effect helpers', () => {
     const source = read('game/platform/browser/effects/echo_ripple_transition.js');
 
@@ -267,11 +294,25 @@ describe('refactor structure guardrails', () => {
     const mountRuntimeSource = read('game/features/title/platform/browser/create_character_select_mount_runtime.js');
     const loadCharacterSelectSource = read('game/features/title/application/load_character_select_use_case.js');
     const rewardOptionsSource = read('game/features/reward/application/build_reward_options_use_case.js');
+    const rewardOptionPolicyPortsSource = read('game/features/reward/ports/reward_option_policy_ports.js');
+    const itemShopActionsSource = read('game/features/event/application/item_shop_actions.js');
+    const itemShopPolicyPortsSource = read('game/features/event/ports/item_shop_policy_ports.js');
     const runRulesSource = read('game/features/run/application/run_rules.js');
     const runRuleMetaSource = read('game/features/run/application/run_rule_meta.js');
     const runRuleLifecycleSource = read('game/features/run/application/run_rule_lifecycle.js');
     const runRuleOutcomeSource = read('game/features/run/application/run_rule_outcome.js');
     const runOutcomeExternalPortsSource = read('game/features/run/application/run_outcome_external_ports.js');
+    const runOutcomeIntegrationPortsSource = read('game/features/run/ports/create_run_outcome_integration_ports.js');
+    const runRuleProgressionPortsSource = read('game/features/run/ports/create_run_rule_progression_ports.js');
+    const combatEndFlowSource = read('game/features/combat/application/run_end_combat_flow_use_case.js');
+    const combatEndRuntimePortsSource = read('game/features/combat/platform/create_combat_end_runtime_ports.js');
+    const combatDeathRuntimeSource = read('game/features/combat/application/death_flow_player_runtime.js');
+    const combatDeathRuntimePortsSource = read('game/features/combat/platform/create_combat_death_runtime_ports.js');
+    const frontdoorFlowSource = read('game/features/frontdoor/application/create_frontdoor_flow_actions.js');
+    const frontdoorRuntimePortsSource = read('game/features/frontdoor/application/frontdoor_runtime_ports.js');
+    const frontdoorCodexRuntimePortsSource = read('game/features/frontdoor/ports/create_frontdoor_codex_runtime_ports.js');
+    const rewardNavigationSource = read('game/features/reward/application/reward_navigation_actions.js');
+    const rewardNavigationRuntimePortsSource = read('game/features/reward/ports/create_reward_navigation_runtime_ports.js');
     const hiddenEndingSource = read('game/features/ui/presentation/browser/story_ui_hidden_ending_render.js');
     const metaProgressionSource = read('game/features/ui/presentation/browser/meta_progression_ui_runtime.js');
     const endingActionsSource = read('game/features/ui/presentation/browser/ending_screen_action_helpers.js');
@@ -293,16 +334,49 @@ describe('refactor structure guardrails', () => {
     expect(loadCharacterSelectSource).toContain("from '../domain/class_progression_system.js'");
     expect(loadCharacterSelectSource).not.toContain("from '../ports/class_progression_ports.js'");
     expect(rewardOptionsSource).toContain("from '../ports/reward_option_policy_ports.js'");
+    expect(rewardOptionsSource).not.toContain("from '../../meta_progression/public.js'");
     expect(rewardOptionsSource).not.toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(rewardOptionPolicyPortsSource).toContain("from '../../meta_progression/public.js'");
+    expect(itemShopActionsSource).toContain("from '../ports/item_shop_policy_ports.js'");
+    expect(itemShopActionsSource).not.toContain("from '../../meta_progression/public.js'");
+    expect(itemShopPolicyPortsSource).toContain("from '../../meta_progression/public.js'");
     expect(runRulesSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
-    expect(runRuleMetaSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
-    expect(runRuleLifecycleSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleMetaSource).toContain("from '../ports/create_run_rule_progression_ports.js'");
+    expect(runRuleLifecycleSource).toContain("from '../ports/create_run_rule_progression_ports.js'");
     expect(runRuleOutcomeSource).toContain("./run_outcome_external_ports.js");
-    expect(runOutcomeExternalPortsSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runOutcomeExternalPortsSource).toContain("../ports/create_run_outcome_integration_ports.js");
+    expect(runOutcomeIntegrationPortsSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runOutcomeIntegrationPortsSource).toContain("from '../../meta_progression/public.js'");
+    expect(runRuleProgressionPortsSource).toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleProgressionPortsSource).toContain("from '../../meta_progression/public.js'");
+    expect(runRuleMetaSource).not.toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleLifecycleSource).not.toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runRuleMetaSource).not.toContain("from '../../meta_progression/public.js'");
     expect(runRuleMetaSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(runRuleLifecycleSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(runRuleOutcomeSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(runOutcomeExternalPortsSource).not.toContain("from '../../title/ports/public_progression_capabilities.js'");
+    expect(runOutcomeExternalPortsSource).not.toContain("from '../../meta_progression/public.js'");
     expect(runOutcomeExternalPortsSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
+    expect(rewardNavigationSource).toContain("../ports/create_reward_navigation_runtime_ports.js");
+    expect(rewardNavigationSource).not.toContain('modules.RunReturnUI');
+    expect(rewardNavigationRuntimePortsSource).toContain('modules.RunReturnUI');
+    expect(combatEndFlowSource).toContain("../platform/create_combat_end_runtime_ports.js");
+    expect(combatEndFlowSource).not.toContain('win?.showCombatSummary');
+    expect(combatEndFlowSource).not.toContain('win?.updateUI');
+    expect(combatEndRuntimePortsSource).toContain("./combat_end_ports.js");
+    expect(combatDeathRuntimeSource).toContain("../platform/create_combat_death_runtime_ports.js");
+    expect(combatDeathRuntimeSource).not.toContain('win.updateUI');
+    expect(combatDeathRuntimeSource).not.toContain('win.selectFragment');
+    expect(combatDeathRuntimePortsSource).toContain("./death_runtime_ports.js");
+    expect(frontdoorFlowSource).toContain("./frontdoor_runtime_ports.js");
+    expect(frontdoorFlowSource).toContain("../ports/create_frontdoor_codex_runtime_ports.js");
+    expect(frontdoorFlowSource).not.toContain("../../codex/ports/public_browser_modules.js");
+    expect(frontdoorFlowSource).not.toContain('modules.RunSetupUI?.startGame');
+    expect(frontdoorFlowSource).not.toContain('modules.SaveSystem?.loadRun?.');
+    expect(frontdoorRuntimePortsSource).toContain('modules.RunSetupUI');
+    expect(frontdoorRuntimePortsSource).toContain('modules.SaveSystem');
+    expect(frontdoorCodexRuntimePortsSource).toContain("../../codex/ports/public_browser_modules.js");
     expect(hiddenEndingSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
     expect(hiddenEndingSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
     expect(metaProgressionSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
@@ -319,6 +393,11 @@ describe('refactor structure guardrails', () => {
     expect(uiShellContractsSource).toContain("./build_ui_help_pause_contract.js");
     expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
     expect(pathExists('game/features/ui/ports/contracts/build_ui_help_pause_contract.js')).toBe(true);
+    expect(pathExists('game/features/run/ports/create_run_outcome_integration_ports.js')).toBe(true);
+    expect(pathExists('game/features/combat/platform/create_combat_end_runtime_ports.js')).toBe(true);
+    expect(pathExists('game/features/combat/platform/create_combat_death_runtime_ports.js')).toBe(true);
+    expect(pathExists('game/features/frontdoor/application/frontdoor_runtime_ports.js')).toBe(true);
+    expect(pathExists('game/features/frontdoor/ports/create_frontdoor_codex_runtime_ports.js')).toBe(true);
   });
 
   it('splits overlay escape runtime into surface, visibility, and registry helpers', () => {

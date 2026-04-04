@@ -1,19 +1,12 @@
-import { evaluateAchievementTrigger } from '../../meta_progression/public.js';
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
-
-function persistRunOutcomeMeta(deps = {}) {
-  const saveSystem = deps.saveSystem;
-  const status = saveSystem?.saveMeta?.(deps);
-  saveSystem?.showSaveStatus?.(status, deps);
-  saveSystem?.clearSave?.();
-}
+import { createRunOutcomeIntegrationPorts } from '../ports/create_run_outcome_integration_ports.js';
 
 export function resolveRunOutcomeExternalPorts(deps = {}) {
-  const ports = deps.externalPorts || {};
+  const overridePorts = deps.externalPorts || {};
+  const integrationPorts = deps.runOutcomeIntegrationPorts || createRunOutcomeIntegrationPorts();
 
   return {
-    awardRunXp: ports.awardRunXp || ((gs, kind, options) => ClassProgressionSystem.awardRunXP(gs, kind, options)),
-    evaluateAchievements: ports.evaluateAchievements || ((meta, eventName, payload) => evaluateAchievementTrigger(meta, eventName, payload)),
-    persistMeta: ports.persistMeta || ((persistDeps) => persistRunOutcomeMeta(persistDeps)),
+    awardRunXp: overridePorts.awardRunXp || integrationPorts.awardRunXp,
+    evaluateAchievements: overridePorts.evaluateAchievements || integrationPorts.evaluateAchievements,
+    persistMeta: overridePorts.persistMeta || integrationPorts.persistMeta,
   };
 }

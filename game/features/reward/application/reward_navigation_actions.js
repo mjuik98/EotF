@@ -1,64 +1,23 @@
+import { createRewardNavigationRuntimePorts } from '../ports/create_reward_navigation_runtime_ports.js';
+
 export function createRewardNavigationActions(modules, ports) {
-  const getRunReturnDeps = () => ports.getRunReturnDeps?.();
-  const getRewardFlow = () => ports.getRewardFlowDeps?.();
+  const runtimePorts = ports.getRewardNavigationRuntimePorts?.()
+    || createRewardNavigationRuntimePorts({ modules, ports });
+
+  const returnFromReward = () => {
+    runtimePorts.returnFromReward();
+  };
+
+  const returnToGame = (fromReward = false) => {
+    runtimePorts.returnToGame(fromReward);
+  };
 
   return {
-    returnFromReward() {
-      const deps = getRunReturnDeps();
-      if (typeof modules.RunReturnUI?.returnFromReward === 'function') {
-        modules.RunReturnUI.returnFromReward(deps);
-        return;
-      }
-      if (typeof modules.RunReturnUI?.returnToGame === 'function') {
-        modules.RunReturnUI.returnToGame(true, deps);
-        return;
-      }
-      getRewardFlow()?.returnFromReward?.();
-    },
-
-    returnToGame(fromReward = false) {
-      const deps = getRunReturnDeps();
-      if (typeof modules.RunReturnUI?.returnToGame === 'function') {
-        modules.RunReturnUI.returnToGame(fromReward, deps);
-        return;
-      }
-
-      if (fromReward) {
-        getRewardFlow()?.returnFromReward?.();
-        return;
-      }
-
-      getRewardFlow()?.returnToGame?.(false);
-    },
-
+    returnFromReward,
+    returnToGame,
     rewardActions: {
-      returnFromReward() {
-        const deps = getRunReturnDeps();
-        if (typeof modules.RunReturnUI?.returnFromReward === 'function') {
-          modules.RunReturnUI.returnFromReward(deps);
-          return;
-        }
-        if (typeof modules.RunReturnUI?.returnToGame === 'function') {
-          modules.RunReturnUI.returnToGame(true, deps);
-          return;
-        }
-        getRewardFlow()?.returnFromReward?.();
-      },
-
-      returnToGame(fromReward = false) {
-        const deps = getRunReturnDeps();
-        if (typeof modules.RunReturnUI?.returnToGame === 'function') {
-          modules.RunReturnUI.returnToGame(fromReward, deps);
-          return;
-        }
-
-        if (fromReward) {
-          getRewardFlow()?.returnFromReward?.();
-          return;
-        }
-
-        getRewardFlow()?.returnToGame?.(false);
-      },
+      returnFromReward,
+      returnToGame,
     },
   };
 }

@@ -1,77 +1,46 @@
 import { createRewardNavigationActions } from './reward_navigation_actions.js';
+import { createRewardRuntimeActionPorts } from '../ports/create_reward_runtime_action_ports.js';
 
 export function createRewardActions(modules, ports) {
   const navigation = createRewardNavigationActions(modules, ports);
-  const getRewardFlow = () => ports.getRewardFlowDeps?.();
-  const getRewardDeps = () => ports.getRewardDeps();
-  const rewardDepsDispatchStack = new Set();
-  const callRewardAction = (actionName, ...args) => {
-    const canDispatchViaRewardDeps = !rewardDepsDispatchStack.has(actionName);
-    const rewardDeps = getRewardDeps();
-    const rewardAction = rewardDeps?.[actionName];
-    if (canDispatchViaRewardDeps && typeof rewardAction === 'function') {
-      rewardDepsDispatchStack.add(actionName);
-      try {
-        rewardAction(...args);
-        return true;
-      } finally {
-        rewardDepsDispatchStack.delete(actionName);
-      }
-    }
-
-    const rewardUi = modules.RewardUI;
-    const compatAction = rewardUi?.[actionName];
-    if (typeof compatAction === 'function') {
-      compatAction.call(rewardUi, ...args, rewardDeps);
-      return true;
-    }
-
-    return false;
-  };
-
-  function openReward(mode = false) {
-    if (callRewardAction('showRewardScreen', mode)) {
-      return;
-    }
-
-    getRewardFlow()?.openReward?.(mode);
-  }
+  const runtimePorts = ports.getRewardRuntimeActionPorts?.()
+    || createRewardRuntimeActionPorts(modules, ports);
 
   return {
     showRewardScreen(isBoss) {
-      openReward(isBoss);
+      return runtimePorts.showRewardScreen?.(isBoss);
     },
 
     openReward(mode = false) {
-      openReward(mode);
+      return runtimePorts.openReward?.(mode);
     },
 
     takeRewardCard(cardId) {
-      callRewardAction('takeRewardCard', cardId);
+      return runtimePorts.takeRewardCard?.(cardId);
     },
 
     takeRewardItem(itemKey) {
-      callRewardAction('takeRewardItem', itemKey);
+      return runtimePorts.takeRewardItem?.(itemKey);
     },
 
     takeRewardUpgrade() {
-      callRewardAction('takeRewardUpgrade');
+      return runtimePorts.takeRewardUpgrade?.();
     },
 
     takeRewardRemove() {
-      callRewardAction('takeRewardRemove');
+      return runtimePorts.takeRewardRemove?.();
     },
 
     showSkipConfirm() {
-      callRewardAction('showSkipConfirm');
+      return runtimePorts.showSkipConfirm?.();
     },
 
     hideSkipConfirm() {
-      callRewardAction('hideSkipConfirm');
+      return runtimePorts.hideSkipConfirm?.();
     },
 
     skipReward() {
-      callRewardAction('skipReward');
+      return runtimePorts.skipReward?.();
     },
 
     returnFromReward: navigation.returnFromReward,

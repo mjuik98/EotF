@@ -315,4 +315,48 @@ describe('map_ui_full_map', () => {
       togglePause,
     }));
   });
+
+  it('prefers injected run map runtime ports over compat map modules', () => {
+    const runtimePorts = {
+      generateMap: vi.fn(),
+      renderMinimap: vi.fn(),
+      showFullMap: vi.fn(),
+      updateNextNodes: vi.fn(),
+      moveToNode: vi.fn(),
+    };
+    const modules = {
+      MapGenerationUI: { generateMap: vi.fn() },
+      MapNavigationUI: { moveToNode: vi.fn() },
+      MapUI: {
+        renderMinimap: vi.fn(),
+        showFullMap: vi.fn(),
+        updateNextNodes: vi.fn(),
+      },
+    };
+
+    const actions = createRunMapActions({
+      fns: {},
+      modules,
+      ports: {
+        getRunMapRuntimePorts: vi.fn(() => runtimePorts),
+      },
+    });
+
+    actions.generateMap(2);
+    actions.renderMinimap();
+    actions.updateNextNodes();
+    actions.showFullMap();
+    actions.moveToNode({ id: 'node-1' });
+
+    expect(runtimePorts.generateMap).toHaveBeenCalledWith(2);
+    expect(runtimePorts.renderMinimap).toHaveBeenCalledTimes(1);
+    expect(runtimePorts.updateNextNodes).toHaveBeenCalledTimes(1);
+    expect(runtimePorts.showFullMap).toHaveBeenCalledTimes(1);
+    expect(runtimePorts.moveToNode).toHaveBeenCalledWith({ id: 'node-1' });
+    expect(modules.MapGenerationUI.generateMap).not.toHaveBeenCalled();
+    expect(modules.MapNavigationUI.moveToNode).not.toHaveBeenCalled();
+    expect(modules.MapUI.renderMinimap).not.toHaveBeenCalled();
+    expect(modules.MapUI.showFullMap).not.toHaveBeenCalled();
+    expect(modules.MapUI.updateNextNodes).not.toHaveBeenCalled();
+  });
 });
