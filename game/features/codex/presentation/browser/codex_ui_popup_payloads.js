@@ -8,6 +8,7 @@ import {
   getEnemyTypeLabel,
   getRarityBadgeClass,
   getRarityLabel,
+  resolveCodexItemSetId,
 } from './codex_ui_helpers.js';
 import { getUnlockRequirementLabel } from '../../../meta_progression/public.js';
 export {
@@ -50,8 +51,8 @@ export function buildEnemyPopupPayload(enemy, options = {}) {
         <div class="cx-popup-icon-frame">${enemy.icon || '?'}</div>
         <div class="cx-popup-hdr-info">
           <div class="cx-popup-tags">
-            <span class="cx-badge ${getEnemyBadgeClass(enemy)}" style="position:static">${getEnemyTypeLabel(enemy)}</span>
-            ${enemy.region ? `<span class="cx-badge b-item" style="position:static">${enemy.region}</span>` : ''}
+            <span class="cx-badge cx-badge-inline ${getEnemyBadgeClass(enemy)}">${getEnemyTypeLabel(enemy)}</span>
+            ${enemy.region ? `<span class="cx-badge cx-badge-inline b-item">${enemy.region}</span>` : ''}
           </div>
           <div class="cx-popup-name">${enemy.name}</div>
           <div class="cx-popup-sub">${enemy.drops ? `격퇴 시 ${enemy.drops}` : `골드 ${enemy.gold ?? 0}`}</div>
@@ -95,14 +96,14 @@ export function buildCardPopupPayload(card, options = {}) {
   const unlockHintBlock = buildUnlockHintBlock('card', card.id);
   const upgradeBlock = upgradeCard ? `
     <div class="cx-popup-divider"></div>
-    <div class="cx-popup-sub" style="margin-bottom:10px">${record?.upgradedDiscovered ? '강화 카드 발견' : '강화 카드 미발견'}</div>
-    <div class="cx-popup-desc" style="margin-top:0">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
-        <span class="cx-badge ${getCardTypeClass(upgradeCard.type)}" style="position:static">${upgradeCard.name}</span>
-        <span class="cx-badge ${rarityBadge}" style="position:static">비용 ${upgradeCard.cost ?? 0}</span>
+    <div class="cx-popup-sub cx-popup-upgrade-status">${record?.upgradedDiscovered ? '강화 카드 발견' : '강화 카드 미발견'}</div>
+    <div class="cx-popup-desc cx-popup-upgrade-desc">
+      <div class="cx-popup-upgrade-header">
+        <span class="cx-badge cx-badge-inline ${getCardTypeClass(upgradeCard.type)}">${upgradeCard.name}</span>
+        <span class="cx-badge cx-badge-inline ${rarityBadge}">비용 ${upgradeCard.cost ?? 0}</span>
       </div>
-      ${record?.upgradedDiscovered ? safeHtml(upgradeCard.desc || '') : '<span style="opacity:.72">강화 버전은 아직 도감에 기록되지 않았습니다.</span>'}
-      ${record?.upgradedDiscovered ? `<div style="margin-top:10px;color:#88ccff;font-size:12px">강화 사용 횟수 ${record.upgradeUsed ?? 0}회</div>` : ''}
+      ${record?.upgradedDiscovered ? safeHtml(upgradeCard.desc || '') : '<span class="cx-popup-upgrade-note">강화 버전은 아직 도감에 기록되지 않았습니다.</span>'}
+      ${record?.upgradedDiscovered ? `<div class="cx-popup-upgrade-usage">강화 사용 횟수 ${record.upgradeUsed ?? 0}회</div>` : ''}
     </div>
   ` : '';
   return {
@@ -113,8 +114,8 @@ export function buildCardPopupPayload(card, options = {}) {
         <div class="cx-popup-icon-frame">${card.icon || '?'}</div>
         <div class="cx-popup-hdr-info">
           <div class="cx-popup-tags">
-            <span class="cx-badge ${getCardTypeClass(card.type)}" style="position:static">${getCardTypeLabel(card.type)}</span>
-            <span class="cx-badge ${rarityBadge}" style="position:static">${rarityLabel}</span>
+            <span class="cx-badge cx-badge-inline ${getCardTypeClass(card.type)}">${getCardTypeLabel(card.type)}</span>
+            <span class="cx-badge cx-badge-inline ${rarityBadge}">${rarityLabel}</span>
           </div>
           <div class="cx-popup-name">${card.name}</div>
           <div class="cx-popup-sub">에너지 비용 ${card.cost ?? 0}</div>
@@ -139,7 +140,8 @@ export function buildItemPopupPayload(item, options = {}) {
     navHtml = '',
     quoteHtml = '',
   } = options;
-  const setDef = item.set ? getCodexSets(data)[item.set] : null;
+  const setId = resolveCodexItemSetId(item);
+  const setDef = setId ? getCodexSets(data)[setId] : null;
   const unlockHintBlock = buildUnlockHintBlock('relic', item.id);
   return {
     theme: {
@@ -154,9 +156,9 @@ export function buildItemPopupPayload(item, options = {}) {
         <div class="cx-popup-icon-frame">${item.icon || '?'}</div>
         <div class="cx-popup-hdr-info">
           <div class="cx-popup-tags">
-            <span class="cx-badge b-item" style="position:static">유물</span>
-            <span class="cx-badge ${getRarityBadgeClass(item.rarity)}" style="position:static">${getRarityLabel(item.rarity)}</span>
-            ${item.set ? '<span class="cx-badge b-set" style="position:static">세트</span>' : ''}
+            <span class="cx-badge cx-badge-inline b-item">유물</span>
+            <span class="cx-badge cx-badge-inline ${getRarityBadgeClass(item.rarity)}">${getRarityLabel(item.rarity)}</span>
+            ${setId ? '<span class="cx-badge cx-badge-inline b-set">세트</span>' : ''}
           </div>
           <div class="cx-popup-name">${item.name}</div>
           <div class="cx-popup-sub">${getRarityLabel(item.rarity)} 등급 유물</div>

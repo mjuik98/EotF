@@ -1,7 +1,10 @@
 import { CARDS } from '../../../../../data/cards.js';
 import { LogUtils } from '../../ports/combat_logging.js';
-import { ENEMY_TURN_BUFFS } from './turn_manager_helpers.js';
-import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
+import {
+  forEachEnemyTurnBuff,
+  isInfiniteStackBuff,
+  normalizeInfiniteStack,
+} from './infinite_stack_buffs.js';
 import {
   decrementStackedBuff,
   drawFromRandomPlayerPool,
@@ -32,7 +35,7 @@ export function startPlayerTurnPolicy(gs, commands = {}) {
       return currentRegion;
     });
 
-  ENEMY_TURN_BUFFS.forEach((buffId) => {
+  forEachEnemyTurnBuff((buffId) => {
     const buff = gs.player.buffs?.[buffId];
     normalizeInfiniteStack(buffId, buff);
     if (isInfiniteStackBuff(buffId, buff)) return;

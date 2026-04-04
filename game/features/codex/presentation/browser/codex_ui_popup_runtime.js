@@ -38,7 +38,7 @@ async function openCodexPopupEntry(state, entry, list, reopen, payloadBuilderNam
     gs: deps.gs,
     data: deps.data,
     safeHtml: highlightCodexDescription,
-    quoteHtml: buildCodexQuoteBlock(entry.quote),
+    quoteHtml: buildCodexQuoteBlock(entry.quote, highlightCodexDescription),
     navHtml: buildCodexNavBlock(state.popupList, state.popupIndex),
   });
   mountPopup(state, getCodexDoc(deps), payload, reopen);

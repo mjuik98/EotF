@@ -16,4 +16,12 @@ describe('buildCoreEngineModules', () => {
 
     expect(modules.GS).toBe(hoisted.StoreGS);
   });
+
+  it('keeps item set ids on runtime relic data for downstream codex rendering', () => {
+    const modules = buildCoreEngineModules();
+
+    expect(modules.DATA.items.serpent_fang_dagger).toEqual(expect.objectContaining({
+      setId: 'serpents_gaze',
+    }));
+  });
 });

@@ -58,4 +58,15 @@ describe('asset_manifest', () => {
     expect(summary.domains.items.count).toBeGreaterThan(20);
     expect(DATA.assetSummary).toEqual(summary);
   });
+
+  it('keeps status effect asset metadata on the data side for production bundle safety', async () => {
+    const { ASSET_MANIFEST } = await import('../data/asset_manifest.js');
+
+    expect(ASSET_MANIFEST.statusEffects.poisoned).toEqual({
+      key: 'statusEffects.poisoned',
+      kind: 'emoji',
+      value: '☠',
+      buff: false,
+    });
+  });
 });

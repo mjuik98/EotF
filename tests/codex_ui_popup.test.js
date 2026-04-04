@@ -96,7 +96,7 @@ describe('codex_ui_popup', () => {
   it('builds nav and set blocks from current state', () => {
     const nav = buildCodexNavBlock([{ name: 'A' }, { name: 'B' }, { name: 'C' }], 1);
     const setBlock = buildCodexSetPopupBlock(
-      { set: 'void' },
+      { setId: 'void' },
       {
         itemSets: {
           void: { name: 'Void Set', effect: 'Bonus', items: ['a', 'b'], color: '#00ffcc' },
@@ -130,10 +130,10 @@ describe('codex_ui_popup', () => {
       },
     );
     const itemPayload = buildItemPopupPayload(
-      { id: 'void_compass', name: 'Void Compass', rarity: 'rare', desc: 'Gain power', icon: 'R', set: 'void' },
+      { id: 'serpent_fang_dagger', name: 'Snakefang', rarity: 'rare', desc: 'Gain power', icon: 'R', setId: 'serpents_gaze' },
       {
-        gs: { meta: { codex: { enemies: new Set(), cards: new Set(), items: new Set(['void_compass']) }, codexRecords: { items: { void_compass: { found: 2 } } } } },
-        data: { itemSets: { void: { name: 'Void Set', items: ['void_compass'], effect: 'Bonus' } }, items: { void_compass: { id: 'void_compass', name: 'Void Compass' } } },
+        gs: { meta: { codex: { enemies: new Set(), cards: new Set(), items: new Set(['serpent_fang_dagger']) }, codexRecords: { items: { serpent_fang_dagger: { found: 2 } } } } },
+        data: { items: { serpent_fang_dagger: { id: 'serpent_fang_dagger', name: 'Snakefang' }, acidic_vial: { id: 'acidic_vial', name: 'Acidic Vial' }, cobra_scale_charm: { id: 'cobra_scale_charm', name: 'Cobra Charm' } } },
         safeHtml: (value) => value,
       },
     );
@@ -144,8 +144,8 @@ describe('codex_ui_popup', () => {
     expect(cardPayload.html).toContain('강화 사용 횟수');
     expect(cardPayload.html).toContain('강화 첫 발견');
     expect(cardPayload.html).toContain('해금 조건');
-    expect(itemPayload.html).toContain('Void Compass');
-    expect(itemPayload.html).toContain('Void Set');
+    expect(itemPayload.html).toContain('Snakefang');
+    expect(itemPayload.html).toContain('독사의 시선');
     expect(itemPayload.html).toContain('해금 조건');
   });
 });

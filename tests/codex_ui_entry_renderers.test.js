@@ -71,32 +71,24 @@ describe('codex_ui_entry_renderers', () => {
     const doc = createDoc();
     const onOpen = vi.fn();
     const card = createCodexItemCard(doc, {
-      id: 'relic_a',
-      name: 'Relic A',
+      id: 'serpent_fang_dagger',
+      name: 'Snakefang',
       icon: '✦',
       rarity: 'legendary',
-      set: 'echo',
+      setId: 'serpents_gaze',
     }, 0, {
       gs: {
         meta: {
-          codex: { enemies: new Set(), cards: new Set(), items: new Set(['relic_a']) },
+          codex: { enemies: new Set(), cards: new Set(), items: new Set(['serpent_fang_dagger']) },
         },
       },
-      data: {
-        itemSets: {
-          echo: {
-            name: 'Echo Set',
-            color: '#00ffcc',
-            border: 'rgba(0,255,204,.4)',
-          },
-        },
-      },
+      data: {},
       onOpen,
     });
 
-    expect(card.innerHTML).toContain('Relic A');
-    expect(card.innerHTML).toContain('Echo Set');
-    expect(card.style.setProperty).toHaveBeenCalledWith('--cx-card-border', 'rgba(0,255,204,.4)');
+    expect(card.innerHTML).toContain('Snakefang');
+    expect(card.innerHTML).toContain('독사의 시선');
+    expect(card.style.setProperty).toHaveBeenCalledWith('--cx-card-border', 'rgba(0,255,204,.2)');
     expect(card.listeners.click).toHaveLength(1);
 
     card.listeners.click[0]();

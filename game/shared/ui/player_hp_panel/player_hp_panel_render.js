@@ -55,12 +55,12 @@ export function buildFloatingPlayerHpPanel(doc, gs, deps = {}, options = {}) {
   labelCol.className = 'nc-hp-label-col';
   const labelEl = doc.createElement('span');
   labelEl.className = 'nc-hp-label';
-  labelEl.textContent = 'HEALTH';
+  labelEl.textContent = '체력';
   labelCol.appendChild(labelEl);
   if (level === 'critical' || level === 'low') {
     const warnEl = doc.createElement('span');
     warnEl.className = 'nc-hp-warn';
-    warnEl.textContent = level === 'critical' ? 'CRITICAL' : 'LOW';
+    warnEl.textContent = level === 'critical' ? '위험' : '주의';
     labelCol.appendChild(warnEl);
   }
 
@@ -107,12 +107,12 @@ export function buildFloatingPlayerHpPanel(doc, gs, deps = {}, options = {}) {
     const shieldLabel = doc.createElement('div');
     shieldLabel.className = 'nc-hp-shield-label';
     const shieldLeft = createEl(doc, 'div', 'nc-hp-shield-label-left');
-    shieldLeft.textContent = 'Shield';
+    shieldLeft.textContent = '보호막';
     const shieldRight = createEl(doc, 'div', 'nc-hp-shield-label-right');
     const shieldNum = createEl(doc, 'span', 'nc-hp-shield-num');
     shieldNum.textContent = String(shield);
     const shieldExpire = createEl(doc, 'span', 'nc-hp-shield-expire');
-    shieldExpire.textContent = 'next hit';
+    shieldExpire.textContent = '다음 피격까지';
     shieldRight.append(shieldNum, shieldExpire);
     shieldLabel.append(shieldLeft, shieldRight);
     shieldSection.append(shieldOuter, shieldLabel);
@@ -133,9 +133,9 @@ export function buildFloatingPlayerHpPanel(doc, gs, deps = {}, options = {}) {
     banner.className = 'nc-hp-danger-banner';
     const dot = createEl(doc, 'div', 'nc-hp-danger-dot');
     const dangerText = createEl(doc, 'span', 'nc-hp-danger-text');
-    dangerText.textContent = level === 'critical' ? 'critical health' : 'low health';
+    dangerText.textContent = level === 'critical' ? '치명적 체력' : '낮은 체력';
     const rec = createEl(doc, 'span', 'nc-hp-danger-rec');
-    rec.textContent = level === 'critical' ? 'heal now' : 'recover soon';
+    rec.textContent = level === 'critical' ? '즉시 회복 권장' : '회복 준비';
     banner.append(dot, dangerText, rec);
     wrap.appendChild(banner);
   }
@@ -143,7 +143,7 @@ export function buildFloatingPlayerHpPanel(doc, gs, deps = {}, options = {}) {
   const statusSection = doc.createElement('div');
   statusSection.className = 'nc-hp-status-section';
   const statusLabel = createEl(doc, 'div', 'nc-hp-status-label');
-  statusLabel.textContent = 'status';
+  statusLabel.textContent = '상태 효과';
   const statusBadges = doc.createElement('div');
   statusBadges.id = statusContainerId;
   statusBadges.className = 'nc-hp-status-badges';

@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -9,7 +12,7 @@ import {
 } from '../game/features/ui/public.js';
 
 function createMockElement(tagName = 'div') {
-  return {
+  const element = {
     tagName: String(tagName).toUpperCase(),
     id: '',
     type: '',
@@ -18,8 +21,6 @@ function createMockElement(tagName = 'div') {
     attrs: {},
     children: [],
     parentNode: null,
-    innerHTML: '',
-    textContent: '',
     className: '',
     disabled: false,
     title: '',
@@ -50,6 +51,9 @@ function createMockElement(tagName = 'div') {
     setAttribute(name, value) {
       this.attrs[name] = value;
     },
+    getAttribute(name) {
+      return this.attrs[name];
+    },
     querySelectorAll(selector) {
       if (selector === '.frag-card') {
         return this.children.filter((child) => child.className.includes('frag-card'));
@@ -57,6 +61,29 @@ function createMockElement(tagName = 'div') {
       return [];
     },
   };
+
+  Object.defineProperty(element, 'textContent', {
+    get() {
+      return this._textContent || '';
+    },
+    set(value) {
+      this._textContent = String(value ?? '');
+      this._innerHTML = '';
+      this.children = [];
+    },
+  });
+
+  Object.defineProperty(element, 'innerHTML', {
+    get() {
+      return this._innerHTML || '';
+    },
+    set(value) {
+      this._innerHTML = String(value ?? '');
+      this._textContent = this._innerHTML.replace(/<[^>]+>/g, '');
+    },
+  });
+
+  return element;
 }
 
 function createMockDocument() {
@@ -198,7 +225,7 @@ describe('ending_screen_render_helpers', () => {
     expect(doc.head.children[0].href).toBe('/css/ending_screen.css');
   });
 
-  it('renders a hover detail layout for ending deck preview cards', () => {
+  it('renders a highlighted hover detail layout with accessible metadata for ending deck preview cards', () => {
     const { doc, byId } = createMockDocument();
     doc.defaultView = {
       setTimeout(callback) {
@@ -234,7 +261,7 @@ describe('ending_screen_render_helpers', () => {
       deck: [{
         icon: '⚡',
         title: 'Spark',
-        desc: 'Deal 8 damage.',
+        desc: '전투 시작: 피해 8. 잔향 20 충전 [소진]',
         typeLabel: '공격',
         rarityLabel: '희귀',
         costText: '1',
@@ -257,10 +284,19 @@ describe('ending_screen_render_helpers', () => {
     const card = deckGrid.children[0];
 
     expect(detail.dataset.open).toBe('false');
+    expect(card.attrs['aria-label']).toContain('Spark');
+    expect(card.attrs['aria-label']).toContain('전투 시작: 피해 8. 잔향 20 충전 [소진]');
+    expect(card.attrs['aria-controls']).toBe('endingDeckDetail');
+    expect(card.attrs['aria-describedby']).toBe('endingDeckDetailDesc');
+    expect(card.attrs['aria-expanded']).toBe('false');
     card.on_mouseenter?.({ currentTarget: card });
     expect(detail.dataset.open).toBe('true');
+    expect(card.attrs['aria-expanded']).toBe('true');
     expect(detail.children[1].textContent).toBe('Spark');
-    expect(detail.children[3].textContent).toBe('Deal 8 damage.');
+    expect(detail.children[3].innerHTML).toContain('kw-trigger');
+    expect(detail.children[3].innerHTML).toContain('kw-dmg');
+    expect(detail.children[3].innerHTML).toContain('kw-echo');
+    expect(detail.children[3].innerHTML).toContain('kw-exhaust kw-block');
     expect(detail.children[2].textContent).toContain('공격');
     expect(detail.children[2].textContent).toContain('희귀');
     expect(detail.children[2].textContent).toContain('비용 1');
@@ -271,5 +307,12 @@ describe('ending_screen_render_helpers', () => {
 
     card.on_mouseleave?.({ currentTarget: card, relatedTarget: null });
     expect(detail.dataset.open).toBe('false');
+    expect(card.attrs['aria-expanded']).toBe('false');
+  });
+
+  it('keeps ending deck detail descriptions on the shared readable keyword palette', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'css/styles.css'), 'utf8');
+
+    expect(source).toContain('.ending-deck-detail-desc');
   });
 });

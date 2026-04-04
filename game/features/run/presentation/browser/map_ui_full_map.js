@@ -147,19 +147,35 @@ export function showFullMapOverlay(deps = {}) {
 
   draw();
 
-  const updateTooltipFromCurrentNode = () => {
-    const currentNode = scene.nodeMap.get(gs.currentNode?.id) || scene.nodeEntries[scene.nodeEntries.length - 1]?.node || null;
-    if (!currentNode) return;
-    const currentEntry = scene.nodeEntryById.get(currentNode.id);
+  const keyboardEntries = [...scene.nodeEntries].sort((left, right) => (
+    left.node.floor - right.node.floor
+    || left.x - right.x
+  ));
+  let keyboardNodeIndex = -1;
+
+  const updateTooltipFromEntry = (entry) => {
+    if (!entry) return;
+    keyboardNodeIndex = keyboardEntries.findIndex((candidate) => candidate.node.id === entry.node.id);
     updateFullMapTooltip({
       tooltip,
       tooltipDesc,
       tooltipStatus,
       tooltipTitle,
-    }, currentNode, {
-      clientX: currentEntry?.x || 40,
-      clientY: currentEntry?.y || 40,
+    }, entry.node, {
+      clientX: entry.x,
+      clientY: entry.y,
     }, nodeMeta);
+  };
+
+  const updateTooltipFromCurrentNode = () => {
+    const currentNode = scene.nodeMap.get(gs.currentNode?.id) || scene.nodeEntries[scene.nodeEntries.length - 1]?.node || null;
+    if (!currentNode) return;
+    const currentEntry = scene.nodeEntryById.get(currentNode.id);
+    updateTooltipFromEntry(currentEntry || {
+      node: currentNode,
+      x: 40,
+      y: 40,
+    });
   };
 
   const updateTooltipFromPointer = (event) => {
@@ -167,6 +183,9 @@ export function showFullMapOverlay(deps = {}) {
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
     const closest = findClosestNodeEntry(scene.nodeEntries, mx, my, FULL_MAP_HOVER_THRESHOLD + 5);
+    if (closest) {
+      keyboardNodeIndex = keyboardEntries.findIndex((entry) => entry.node.id === closest.node.id);
+    }
     updateFullMapTooltip({
       tooltip,
       tooltipDesc,
@@ -175,12 +194,44 @@ export function showFullMapOverlay(deps = {}) {
     }, closest?.node || null, event, nodeMeta);
     canvas.style.cursor = closest ? 'pointer' : 'default';
   };
-  const clearTooltip = () => updateFullMapTooltip({
-    tooltip,
-    tooltipDesc,
-    tooltipStatus,
-    tooltipTitle,
-  }, null, null, nodeMeta);
+  const clearTooltip = () => {
+    canvas.style.cursor = 'default';
+    updateFullMapTooltip({
+      tooltip,
+      tooltipDesc,
+      tooltipStatus,
+      tooltipTitle,
+    }, null, null, nodeMeta);
+  };
+
+  canvas.addEventListener('keydown', (event) => {
+    if (!keyboardEntries.length) return;
+    const moveKeys = {
+      ArrowLeft: -1,
+      ArrowUp: -1,
+      ArrowRight: 1,
+      ArrowDown: 1,
+    };
+    if (event.key === 'Home') {
+      event.preventDefault();
+      event.stopPropagation?.();
+      updateTooltipFromEntry(keyboardEntries[0]);
+      return;
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      event.stopPropagation?.();
+      updateTooltipFromEntry(keyboardEntries[keyboardEntries.length - 1]);
+      return;
+    }
+    const direction = moveKeys[event.key];
+    if (!direction) return;
+    event.preventDefault();
+    event.stopPropagation?.();
+    const startIndex = keyboardNodeIndex >= 0 ? keyboardNodeIndex : keyboardEntries.findIndex((entry) => entry.node.id === gs.currentNode?.id);
+    const nextIndex = Math.max(0, Math.min(keyboardEntries.length - 1, startIndex + direction));
+    updateTooltipFromEntry(keyboardEntries[nextIndex]);
+  });
 
   bindTooltipTrigger(canvas, {
     label: canvas.getAttribute?.('aria-label') || '전체 지도',

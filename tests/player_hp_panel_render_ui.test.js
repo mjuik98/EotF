@@ -95,6 +95,12 @@ describe('player_hp_panel_render_ui', () => {
     expect(wrap.querySelectorAll('.nc-hp-danger-banner')).toHaveLength(1);
     expect(wrap.querySelectorAll('.nc-hp-shield-bar-fill')).toHaveLength(1);
     expect(wrap.querySelectorAll('.nc-hp-status-badges')).toHaveLength(1);
+    expect(wrap.children[0].children[0].children[0].textContent).toBe('체력');
+    expect(wrap.children[0].children[0].children[1].textContent).toBe('위험');
+    expect(wrap.children[1].children[1].children[1].children[0].textContent).toBe('보호막');
+    expect(wrap.children[1].children[1].children[1].children[1].children[1].textContent).toBe('다음 피격까지');
+    expect(wrap.children[3].children[2].textContent).toBe('즉시 회복 권장');
+    expect(wrap.children[4].children[0].textContent).toBe('상태 효과');
     expect(updateStatusDisplay).toHaveBeenCalledWith({
       doc,
       gs: { player: { hp: 18, maxHp: 100, shield: 12 } },

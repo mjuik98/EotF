@@ -95,6 +95,7 @@
 .frag-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .frag-card{width:170px;padding:14px 14px 12px;background:rgba(9,8,28,.78);border:1px solid rgba(74,243,204,.18);border-radius:12px;color:var(--moon);text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.24);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease}
 .frag-card:hover{transform:translateY(-4px);border-color:rgba(74,243,204,.52);box-shadow:0 18px 36px rgba(74,243,204,.12);background:rgba(14,16,34,.92)}
+.frag-card:focus-visible{outline:1px solid rgba(74,243,204,.68);outline-offset:3px;transform:translateY(-4px);border-color:rgba(74,243,204,.52);box-shadow:0 18px 36px rgba(74,243,204,.12);background:rgba(14,16,34,.92)}
 .frag-card:disabled{opacity:.48;transform:none;cursor:not-allowed}
 .frag-icon{font-size:24px;margin-bottom:8px}
 .frag-name{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;color:var(--moon);margin-bottom:6px}

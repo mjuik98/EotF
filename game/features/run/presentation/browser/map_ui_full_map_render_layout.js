@@ -30,6 +30,8 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
   canvas.style.display = 'block';
   canvas.setAttribute?.('tabindex', '0');
   canvas.setAttribute?.('aria-label', '전체 지도. 현재 지역의 노드와 진행 경로를 확인합니다.');
+  canvas.setAttribute?.('aria-describedby', 'fullMapTooltip');
+  canvas.setAttribute?.('aria-keyshortcuts', 'ArrowLeft ArrowRight ArrowUp ArrowDown Home End');
   canvas.tabIndex = 0;
   canvas['aria-label'] = '전체 지도. 현재 지역의 노드와 진행 경로를 확인합니다.';
   canvasContainer.appendChild(canvas);
@@ -42,6 +44,8 @@ export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName
   overlay.appendChild(glitchCanvas);
 
   const tooltip = doc.createElement('div');
+  tooltip.id = 'fullMapTooltip';
+  tooltip.setAttribute?.('role', 'tooltip');
   tooltip.style.cssText = `
       position:fixed; z-index:1000; pointer-events:none;
       background:rgba(5,5,18,0.95); border:1px solid rgba(123,47,255,0.7);

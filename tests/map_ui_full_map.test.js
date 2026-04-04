@@ -151,6 +151,7 @@ describe('map_ui_full_map', () => {
     expect((doc._listeners.keydown || [])).toHaveLength(1);
     expect(overlay.children[1].children[0].tabIndex).toBe('0');
     expect(overlay.children[1].children[0].getAttribute('aria-label')).toContain('전체 지도');
+    expect(overlay.children[1].children[0].getAttribute('aria-describedby')).toContain('fullMapTooltip');
 
     const onKeyDown = doc._listeners.keydown[0];
     onKeyDown({
@@ -162,6 +163,58 @@ describe('map_ui_full_map', () => {
 
     expect(cancelAnimationFrame).toHaveBeenCalledWith(11);
     expect(doc.getElementById('fullMapOverlay')).toBeNull();
+  });
+
+  it('lets keyboard users move the full-map tooltip focus between visible nodes', () => {
+    const doc = createMockDocument();
+    showFullMapOverlay({
+      doc,
+      win: { innerWidth: 1280, innerHeight: 720 },
+      requestAnimationFrame: vi.fn(() => 11),
+      cancelAnimationFrame: vi.fn(),
+      gs: {
+        currentRegion: 0,
+        currentFloor: 2,
+        currentNode: { id: '2-a' },
+        mapNodes: [
+          { id: '1-a', floor: 1, pos: 0, total: 1, type: 'combat', visited: true, accessible: true, children: ['2-a'] },
+          { id: '2-a', floor: 2, pos: 0, total: 1, type: 'event', visited: false, accessible: true },
+        ],
+      },
+      nodeMeta: {
+        combat: { icon: 'C', label: '전투', color: '#ff4455', desc: '피해 14. [지속]' },
+        event: { icon: 'E', label: '이벤트', color: '#33ccff', desc: '회복 6. [보호]' },
+      },
+      getRegionData: () => ({ name: '지역 0' }),
+    });
+
+    const overlay = doc.getElementById('fullMapOverlay');
+    const canvas = overlay.children[1].children[0];
+    const tooltip = overlay.children[3];
+    const tooltipTitle = tooltip.children[0];
+    const tooltipStatus = tooltip.children[2];
+
+    canvas.listeners.focus[0]({ type: 'focus' });
+    expect(tooltip.style.opacity).toBe('1');
+    expect(tooltipTitle.textContent).toBe('E 이벤트');
+    expect(tooltipStatus.textContent).toBe('2F - 이동 가능');
+    expect(canvas.getAttribute('aria-keyshortcuts')).toContain('ArrowLeft');
+
+    canvas.listeners.keydown[0]({
+      key: 'ArrowLeft',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    });
+    expect(tooltipTitle.textContent).toBe('C 전투');
+    expect(tooltipStatus.textContent).toBe('1F - 방문함');
+
+    canvas.listeners.keydown[0]({
+      key: 'ArrowRight',
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    });
+    expect(tooltipTitle.textContent).toBe('E 이벤트');
+    expect(tooltipStatus.textContent).toBe('2F - 이동 가능');
   });
 
   it('toggles off an existing full-map overlay on repeated invocation', () => {

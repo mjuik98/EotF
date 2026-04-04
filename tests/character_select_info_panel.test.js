@@ -184,9 +184,9 @@ describe('character_select_info_panel', () => {
     expect(typeof echoBadge.listeners.blur).toBe('function');
 
     echoBadge.listeners.focus();
-    expect(echoBadge.style.borderColor).toBe('#ffd700aa');
+    expect(echoBadge.classList.contains('is-emphasized')).toBe(true);
     echoBadge.listeners.blur();
-    expect(echoBadge.style.boxShadow).toBe('none');
+    expect(echoBadge.classList.contains('is-emphasized')).toBe(false);
 
     relicBadge.listeners.mouseenter({ type: 'mouseenter' });
     expect(generalTooltipUI.showGeneralTooltip).toHaveBeenCalledWith(

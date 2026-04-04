@@ -30,7 +30,8 @@ describe('text surface render contracts', () => {
       ['game/features/title/platform/browser/character_select_modal.js', 'DescriptionUtils.highlight'],
       ['game/features/title/platform/browser/character_select_info_panel_summary_section.js', 'DescriptionUtils.highlight'],
       ['game/features/reward/presentation/browser/reward_ui_option_renderers.js', 'DomSafe.setHighlightedText'],
-      ['game/features/ui/presentation/browser/ending_fragment_choice_presenter.js', 'highlightFragmentChoiceDesc'],
+      ['game/features/ui/presentation/browser/ending_fragment_choice_presenter.js', 'DescriptionUtils.highlight'],
+      ['game/features/ui/presentation/browser/ending_screen_render_helpers.js', 'DomSafe.setHighlightedText'],
       ['game/features/codex/presentation/browser/codex_ui_popup_runtime.js', 'safeHtml: highlightCodexDescription'],
       ['game/features/codex/presentation/browser/codex_ui_popup_payloads.js', 'safeHtml = (value) => value ||'],
     ];

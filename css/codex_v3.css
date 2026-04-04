@@ -795,6 +795,10 @@
   display: block;
 }
 
+.cx-set-ring-svg {
+  transform: rotate(-90deg);
+}
+
 .cx-set-ring-txt {
   position: absolute;
   inset: 0;
@@ -804,6 +808,7 @@
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
   font-weight: 700;
+  color: var(--sv-color, #00ffcc);
 }
 
 .cx-set-items {
@@ -877,6 +882,21 @@
   font-size: 13px;
   line-height: 1.6;
   color: rgba(255, 255, 255, .5);
+}
+
+.cx-set-effect-status {
+  color: var(--sv-color, #00ffcc);
+  font-weight: 600;
+}
+
+.cx-set-effect-status.is-complete {
+  text-shadow: 0 0 12px var(--sv-glow, rgba(0, 255, 204, .15));
+}
+
+.cx-set-view-divider {
+  height: 1px;
+  margin: 8px 0 28px;
+  background: rgba(255, 255, 255, .05);
 }
 
 /* ════════════════════════════════════════
@@ -1327,6 +1347,11 @@
   color: var(--cx-muted);
 }
 
+.cx-record-badge--left {
+  right: auto;
+  left: 12px;
+}
+
 /* HINT BADGE (on unknown card) */
 .cx-hint-badge {
   position: absolute;
@@ -1616,6 +1641,10 @@
   color: var(--cx-dim);
 }
 
+.cx-popup-upgrade-status {
+  margin-bottom: 10px;
+}
+
 .cx-popup-divider {
   height: 1px;
   margin: 16px 0;
@@ -1702,6 +1731,52 @@
   line-height: 1.75;
   color: rgba(255, 255, 255, .72);
   margin-bottom: 14px;
+}
+
+.cx-popup-upgrade-desc {
+  margin-top: 0;
+}
+
+.cx-popup-upgrade-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cx-popup-upgrade-note {
+  opacity: .72;
+}
+
+.cx-popup-upgrade-usage {
+  margin-top: 10px;
+  color: #88ccff;
+  font-size: 12px;
+}
+
+.cx-badge-inline {
+  position: static;
+}
+
+.cx-prec--wide {
+  flex: 2;
+}
+
+.cx-prec-val--info {
+  color: #88ccff;
+}
+
+.cx-prec-val--danger {
+  color: #ff8899;
+}
+
+.cx-prec-val--accent {
+  color: #b6a6ff;
+}
+
+.cx-prec-val--gold {
+  color: var(--cx-gold);
 }
 
 .cx-popup-desc .kw-dmg{color:#ff6677;font-weight:600}
@@ -1874,6 +1949,10 @@
   transition: all .2s;
 }
 
+.cx-popup-nav-btn.is-next {
+  flex-direction: row-reverse;
+}
+
 .cx-popup-nav-btn:hover:not(:disabled) {
   border-color: var(--pb-border, rgba(0, 255, 204, .3));
   color: var(--cx-text);
@@ -1890,6 +1969,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 8px;
+}
+
+.cx-badge-set-offset {
+  top: 26px;
 }
 
 .cx-popup-nav-pos {

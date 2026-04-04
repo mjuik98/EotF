@@ -24,22 +24,22 @@ export function buildCodexSetBlockMarkup(def, {
       <span class="cx-set-icon">${def.icon || '◈'}</span>
       <span class="cx-set-name">${def.name}</span>
       <div class="cx-set-ring">
-        <svg width="42" height="42" viewBox="0 0 42 42" style="transform:rotate(-90deg)">
+        <svg class="cx-set-ring-svg" width="42" height="42" viewBox="0 0 42 42">
           <circle fill="none" stroke="rgba(255,255,255,.07)" stroke-width="4" cx="21" cy="21" r="${radius}"/>
           <circle fill="none" stroke="${def.color || '#00ffcc'}" stroke-width="4" stroke-linecap="round"
             cx="21" cy="21" r="${radius}"
             stroke-dasharray="${circumference.toFixed(1)}"
             stroke-dashoffset="${offset.toFixed(1)}"/>
         </svg>
-        <div class="cx-set-ring-txt" style="color:${def.color || '#00ffcc'}">${owned}/${total}</div>
+        <div class="cx-set-ring-txt">${owned}/${total}</div>
       </div>
     </div>
     <div class="cx-set-items">${itemsHtml}</div>
     <div class="cx-set-effect">
       <span class="cx-set-effect-icon">✦</span>
       <span class="cx-set-effect-text">
-        <span style="color:${def.color || '#00ffcc'};font-weight:600">${owned}/${total} 보유</span>
-        ${isComplete ? ` · <span style="color:${def.color || '#00ffcc'};font-weight:600">세트 효과 활성화</span>` : ' · 세트 미완성'}
+        <span class="cx-set-effect-status">${owned}/${total} 보유</span>
+        ${isComplete ? ' · <span class="cx-set-effect-status is-complete">세트 효과 활성화</span>' : ' · 세트 미완성'}
         <br>${def.effect || ''}
       </span>
     </div>

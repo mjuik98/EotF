@@ -5,6 +5,7 @@ import {
   presentEndingFragmentChoices,
 } from './ending_fragment_choice_presenter.js';
 import { createEndingFragmentChoiceActions } from './ending_fragment_choice_actions.js';
+import { DomSafe } from '../../ports/public_dom_support_capabilities.js';
 
 const num = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const fmt = (value) => Math.max(0, Math.floor(num(value, 0))).toLocaleString('ko-KR');
@@ -65,7 +66,7 @@ function setEndingDeckDetailState(detail, card = null, open = false) {
   if (icon) icon.textContent = card.icon || '?';
   if (title) title.textContent = card.title || card.id || '';
   if (meta) meta.textContent = `${card.typeLabel || '카드'} · ${card.rarityLabel || '일반'} · 비용 ${card.costText || '-'}`;
-  if (desc) desc.textContent = card.desc || '설명 없음';
+  if (desc) DomSafe.setHighlightedText(desc, card.desc || '설명 없음');
 }
 
 export function buildEndingScreenDOM(doc, payload) {
@@ -171,9 +172,19 @@ export function populateEndingMeta(doc, payload, session, deps = {}) {
     element.textContent = card.icon;
     element.title = card.title;
     element.tabIndex = 0;
+    element.setAttribute?.('aria-label', `${card.title || card.id || '카드'}. ${card.desc || '설명 없음'}`);
+    element.setAttribute?.('aria-controls', 'endingDeckDetail');
+    element.setAttribute?.('aria-describedby', 'endingDeckDetailDesc');
+    element.setAttribute?.('aria-expanded', 'false');
     element.style.animation = `cardIn .35s ease ${index * 0.05}s forwards`;
-    const showDetail = () => setEndingDeckDetailState(deckDetail, card, true);
-    const hideDetail = () => setEndingDeckDetailState(deckDetail, card, false);
+    const showDetail = () => {
+      setEndingDeckDetailState(deckDetail, card, true);
+      element.setAttribute?.('aria-expanded', 'true');
+    };
+    const hideDetail = () => {
+      setEndingDeckDetailState(deckDetail, card, false);
+      element.setAttribute?.('aria-expanded', 'false');
+    };
     element.addEventListener?.('mouseenter', showDetail);
     element.addEventListener?.('focus', showDetail);
     element.addEventListener?.('mouseleave', hideDetail);

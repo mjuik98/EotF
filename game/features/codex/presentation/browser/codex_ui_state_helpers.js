@@ -4,10 +4,31 @@ import {
   isCardUpgradeVariant as isCodexCardUpgradeVariant,
   resolveCodexCardId as resolveCodexCardReferenceId,
 } from '../../../../shared/codex/codex_record_state_use_case.js';
+import { SETS as CANONICAL_ITEM_SETS } from '../../../../shared/progression/set_bonus_catalog.js';
 
 export { ensureSharedCodexState as ensureCodexState };
 
-const DEFAULT_SETS = {};
+function buildCodexSetDefinitions(setCatalog = CANONICAL_ITEM_SETS) {
+  return Object.freeze(
+    Object.fromEntries(
+      Object.entries(setCatalog || {}).map(([setId, setDef]) => {
+        const effect = Object.entries(setDef?.bonuses || {})
+          .sort(([leftTier], [rightTier]) => Number(leftTier) - Number(rightTier))
+          .map(([tier, bonus]) => `${tier}세트: ${bonus?.label || ''}`)
+          .filter(Boolean)
+          .join(' / ');
+
+        return [setId, Object.freeze({
+          name: setDef?.name || setId,
+          items: Object.freeze([...(setDef?.items || [])]),
+          effect,
+        })];
+      }),
+    ),
+  );
+}
+
+const DEFAULT_SETS = buildCodexSetDefinitions();
 
 export function getCodexDoc(deps) {
   return deps?.doc || document;
@@ -33,7 +54,13 @@ export function getCodexCardUpgradeEntry(data, cardId) {
 }
 
 export function getCodexSets(data) {
-  return data?.itemSets || DEFAULT_SETS;
+  const itemSets = data?.itemSets;
+  if (itemSets && Object.keys(itemSets).length > 0) return itemSets;
+  return DEFAULT_SETS;
+}
+
+export function resolveCodexItemSetId(item) {
+  return item?.setId || item?.set || '';
 }
 
 export function buildCodexProgress(gs, data) {

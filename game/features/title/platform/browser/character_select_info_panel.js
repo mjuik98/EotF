@@ -72,6 +72,18 @@ export function renderCharacterInfoPanel({
 
   panel.style.setProperty('--char-accent', selectedChar.accent);
   panel.style.setProperty('--char-color', selectedChar.color);
+  panel.style.setProperty('--char-accent-faint', `${selectedChar.accent}06`);
+  panel.style.setProperty('--char-accent-surface', `${selectedChar.accent}0a`);
+  panel.style.setProperty('--char-accent-soft', `${selectedChar.accent}14`);
+  panel.style.setProperty('--char-accent-border-soft', `${selectedChar.accent}22`);
+  panel.style.setProperty('--char-accent-border', `${selectedChar.accent}44`);
+  panel.style.setProperty('--char-accent-border-strong', `${selectedChar.accent}66`);
+  panel.style.setProperty('--char-accent-dim', `${selectedChar.accent}66`);
+  panel.style.setProperty('--char-accent-muted', `${selectedChar.accent}99`);
+  panel.style.setProperty('--char-accent-glow', `${selectedChar.accent}33`);
+  panel.style.setProperty('--char-color-soft', `${selectedChar.color}08`);
+  panel.style.setProperty('--char-color-strong', `${selectedChar.color}1a`);
+  panel.style.setProperty('--char-mastery-progress', `${progressPct}%`);
   panel.innerHTML = `
     <div class="char-info-shell">
       <div class="char-info-tabs" role="tablist" aria-label="캐릭터 상세">

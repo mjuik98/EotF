@@ -101,7 +101,7 @@ describe('ending_fragment_choice_presenter', () => {
     expect(session.cleanups).toHaveLength(1);
   });
 
-  it('highlights fragment choice descriptions with keyword markup', () => {
+  it('highlights fragment choice descriptions with the shared keyword and trigger markup', () => {
     const doc = createDoc();
     const parent = createMockElement('div');
     const anchor = createMockElement('div');
@@ -114,12 +114,14 @@ describe('ending_fragment_choice_presenter', () => {
       session: { cleanups: [] },
       viewModel: {
         title: '메아리 조각 1개 - 각인을 선택하라',
-        choices: [{ effect: 'echo_boost', icon: '⚡', name: '잔향 강화', desc: '피해 14. 잔향 20 충전 [소진]' }],
+        choices: [{ effect: 'echo_boost', icon: '⚡', name: '잔향 강화', desc: '전투 시작: 피해 14. 기절 1턴 부여 [소진]' }],
       },
     });
 
+    expect(result.buttons[0].innerHTML).toContain('kw-trigger');
+    expect(result.buttons[0].innerHTML).toContain('kw-special');
     expect(result.buttons[0].innerHTML).toContain('kw-dmg');
-    expect(result.buttons[0].innerHTML).toContain('kw-echo');
+    expect(result.buttons[0].innerHTML).toContain('kw-debuff');
     expect(result.buttons[0].innerHTML).toContain('kw-exhaust kw-block');
   });
 
@@ -130,5 +132,11 @@ describe('ending_fragment_choice_presenter', () => {
     expect(source).toContain('.frag-desc .kw-shield');
     expect(source).toContain('.frag-desc .kw-echo');
     expect(source).toContain('.frag-desc .kw-buff.kw-block');
+  });
+
+  it('keeps fragment choice keyboard focus styling aligned with hover affordances', () => {
+    const source = fs.readFileSync(path.join(process.cwd(), 'css/ending_screen.css'), 'utf8');
+
+    expect(source).toContain('.frag-card:focus-visible');
   });
 });

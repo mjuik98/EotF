@@ -1,6 +1,6 @@
 export function bindCharacterInfoLoadoutControls({
   panel,
-  selectedChar,
+  selectedChar: _selectedChar,
   loadoutState,
   onSaveLoadoutPreset,
   onClearLoadoutPreset,
@@ -27,20 +27,14 @@ export function bindCharacterInfoLoadoutControls({
       const selected = level11Mode === 'swap'
         ? cardIndex === selectedLevel11SwapIndex
         : cardIndex === selectedLevel11UpgradeIndex;
-      element.style.borderColor = selected
-        ? `${selectedChar.accent}99`
-        : (selectable ? `${selectedChar.accent}44` : `${selectedChar.accent}1a`);
-      element.style.background = selected
-        ? `${selectedChar.accent}12`
-        : (selectable ? `${selectedChar.accent}08` : `${selectedChar.accent}05`);
-      element.style.boxShadow = selected
-        ? `0 0 0 1px ${selectedChar.accent}66 inset, 0 6px 14px rgba(0, 0, 0, 0.16)`
-        : 'none';
+      element.classList?.toggle('is-selectable', selectable);
+      element.classList?.toggle('is-inactive', !selectable);
+      element.classList?.toggle('is-selected', selected);
       element.setAttribute('aria-pressed', selected ? 'true' : 'false');
       const stateBadge = typeof element.querySelector === 'function' ? element.querySelector('.level11-card-state') : null;
       if (stateBadge) {
         stateBadge.textContent = selected ? (level11Mode === 'swap' ? '교체 대상' : '강화 예정') : '';
-        stateBadge.style.display = selected ? 'inline-flex' : 'none';
+        stateBadge.classList?.toggle('is-visible', selected);
       }
     });
   };
@@ -55,14 +49,12 @@ export function bindCharacterInfoLoadoutControls({
 
   const applyLevel11ModeVisuals = () => {
     if (level11ModeUpgrade) {
-      level11ModeUpgrade.style.borderColor = level11Mode === 'upgrade' ? `${selectedChar.accent}66` : 'rgba(255,255,255,0.14)';
-      level11ModeUpgrade.style.background = level11Mode === 'upgrade' ? `${selectedChar.accent}14` : 'rgba(255,255,255,0.04)';
-      level11ModeUpgrade.style.color = level11Mode === 'upgrade' ? selectedChar.accent : '#d5ddf2';
+      level11ModeUpgrade.classList?.toggle('is-active', level11Mode === 'upgrade');
+      level11ModeUpgrade.setAttribute('aria-pressed', level11Mode === 'upgrade' ? 'true' : 'false');
     }
     if (level11ModeSwap) {
-      level11ModeSwap.style.borderColor = level11Mode === 'swap' ? `${selectedChar.accent}66` : 'rgba(255,255,255,0.14)';
-      level11ModeSwap.style.background = level11Mode === 'swap' ? `${selectedChar.accent}14` : 'rgba(255,255,255,0.04)';
-      level11ModeSwap.style.color = level11Mode === 'swap' ? selectedChar.accent : '#d5ddf2';
+      level11ModeSwap.classList?.toggle('is-active', level11Mode === 'swap');
+      level11ModeSwap.setAttribute('aria-pressed', level11Mode === 'swap' ? 'true' : 'false');
     }
     if (level11SelectionNote) {
       level11SelectionNote.textContent = level11Mode === 'swap'
@@ -71,9 +63,7 @@ export function bindCharacterInfoLoadoutControls({
     }
     level11AddCardButtons.forEach((button) => {
       const active = button.dataset.level11AddCardId === selectedLevel11AddCardId;
-      button.style.borderColor = active ? `${selectedChar.accent}66` : 'rgba(255,255,255,0.14)';
-      button.style.background = active ? `${selectedChar.accent}14` : 'rgba(255,255,255,0.04)';
-      button.style.color = active ? selectedChar.accent : '#d5ddf2';
+      button.classList?.toggle('is-active', active);
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
     if (saveLevel11Upgrade) saveLevel11Upgrade.disabled = !Number.isInteger(selectedLevel11UpgradeIndex);

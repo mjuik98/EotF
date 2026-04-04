@@ -79,7 +79,7 @@ describe('codex_ui_popup_runtime', () => {
     await runtime.openEnemyCodexPopup(state, enemy, state.popupList);
 
     expect(controller.setCodexPopupNavigation).toHaveBeenCalledWith(state, enemy, state.popupList, expect.any(Function));
-    expect(popupBlocks.buildCodexQuoteBlock).toHaveBeenCalledWith('growl');
+    expect(popupBlocks.buildCodexQuoteBlock).toHaveBeenCalledWith('growl', expect.any(Function));
     expect(popupBlocks.buildCodexNavBlock).toHaveBeenCalledWith(state.popupList, state.popupIndex);
     expect(popupPayloads.buildEnemyPopupPayload).toHaveBeenCalledWith(enemy, expect.objectContaining({
       gs: state.deps.gs,

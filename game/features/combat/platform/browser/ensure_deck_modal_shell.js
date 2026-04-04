@@ -2,7 +2,7 @@ const DECK_MODAL_SHELL_MARKUP = `
 <div class="deck-modal-inner gm-modal-panel gm-modal-accent-cyan">
   <div class="deck-modal-header-special gm-modal-header gm-modal-header-row">
     <div class="gm-modal-header-main">
-      <div class="gm-modal-eyebrow">DECK OVERVIEW</div>
+      <div class="gm-modal-eyebrow">덱 개요</div>
       <div class="deck-modal-title gm-modal-title" style="margin-bottom:0;">📚 덱 — <span id="deckModalCount">0</span>장</div>
       <div class="gm-modal-subtitle">현재 전투에서 사용할 카드 구성</div>
     </div>

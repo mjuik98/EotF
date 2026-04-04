@@ -7240,6 +7240,7 @@ body:has(#combatOverlay.active) .panel-bottom {
   font-family: 'Share Tech Mono', monospace;
   margin: 0 0 10px;
   padding-left: 10px;
+  border-left: 2px solid var(--char-accent-border-soft, rgba(255, 255, 255, 0.16));
 }
 
 /* Echo badge */
@@ -10367,6 +10368,7 @@ body:has(#combatOverlay.active) .panel-bottom {
    .echo-skill-tt-desc .kw-dmg, .echo-skill-tt-desc .kw-echo, .echo-skill-tt-desc .kw-buff.kw-block
    .itt-desc .kw-dmg, .itt-desc .kw-shield, .itt-desc .kw-echo, .itt-desc .kw-burst.kw-block
    .deck-card-desc .kw-dmg, .deck-card-desc .kw-shield, .deck-card-desc .kw-draw, .deck-card-desc .kw-buff.kw-block
+   .ending-deck-detail-desc .kw-dmg, .ending-deck-detail-desc .kw-echo, .ending-deck-detail-desc .kw-exhaust.kw-block, .ending-deck-detail-desc .kw-trigger
    .fragment-desc .kw-dmg, .fragment-desc .kw-echo, .fragment-desc .kw-buff.kw-block
    .frag-desc .kw-dmg, .frag-desc .kw-shield, .frag-desc .kw-echo, .frag-desc .kw-buff.kw-block
    .item-tooltip-desc .kw-dmg, .item-tooltip-desc .kw-shield, .item-tooltip-desc .kw-echo, .item-tooltip-desc .kw-exhaust.kw-block
@@ -10381,7 +10383,7 @@ body:has(#combatOverlay.active) .panel-bottom {
    .rm-opt-desc .kw-dmg, .rm-diff-desc .kw-dmg, .rm-chip-desc .kw-echo, .rm-tt-level .kw-buff.kw-block
    .event-card-discard-desc .kw-draw
 */
-:where(.card-desc-hover, .card-desc-reward, .reward-card-desc, .event-card-discard-desc, .card-desc-deck, .deck-card-desc, .item-tooltip-desc, .item-shop-desc, .itt-desc, .stt-desc, .card-tooltip-desc, .toast-sub, .node-card-desc, .class-btn-desc, .fragment-desc, .frag-desc, .echo-skill-tt-desc, .event-desc, .general-tooltip-desc, .class-select-tooltip-desc, .combat-info-item-desc, .full-map-tooltip-desc, .character-skill-tier-desc, .char-echo-desc, .cx-popup-desc, .rm-opt-desc, .rm-diff-desc, .rm-chip-desc, .rm-tt-level) {
+:where(.card-desc-hover, .card-desc-reward, .reward-card-desc, .event-card-discard-desc, .card-desc-deck, .deck-card-desc, .ending-deck-detail-desc, .item-tooltip-desc, .item-shop-desc, .itt-desc, .stt-desc, .card-tooltip-desc, .toast-sub, .node-card-desc, .class-btn-desc, .fragment-desc, .frag-desc, .echo-skill-tt-desc, .event-desc, .general-tooltip-desc, .class-select-tooltip-desc, .combat-info-item-desc, .full-map-tooltip-desc, .character-skill-tier-desc, .char-echo-desc, .cx-popup-desc, .rm-opt-desc, .rm-diff-desc, .rm-chip-desc, .rm-tt-level) {
   --kw-dmg-color: #ff6677;
   --kw-shield-color: #60c8ff;
   --kw-heal-color: #44ee88;
@@ -10401,12 +10403,12 @@ body:has(#combatOverlay.active) .panel-bottom {
   --kw-special-border: rgba(240, 180, 41, 0.45);
 }
 
-:where(.card-desc-hover, .card-desc-reward, .reward-card-desc, .event-card-discard-desc, .card-desc-deck, .deck-card-desc, .item-tooltip-desc, .item-shop-desc, .itt-desc, .stt-desc, .card-tooltip-desc, .toast-sub, .node-card-desc, .class-btn-desc, .fragment-desc, .frag-desc, .echo-skill-tt-desc, .event-desc, .general-tooltip-desc, .class-select-tooltip-desc, .combat-info-item-desc, .full-map-tooltip-desc, .character-skill-tier-desc, .char-echo-desc, .cx-popup-desc, .rm-opt-desc, .rm-diff-desc, .rm-chip-desc, .rm-tt-level)
+:where(.card-desc-hover, .card-desc-reward, .reward-card-desc, .event-card-discard-desc, .card-desc-deck, .deck-card-desc, .ending-deck-detail-desc, .item-tooltip-desc, .item-shop-desc, .itt-desc, .stt-desc, .card-tooltip-desc, .toast-sub, .node-card-desc, .class-btn-desc, .fragment-desc, .frag-desc, .echo-skill-tt-desc, .event-desc, .general-tooltip-desc, .class-select-tooltip-desc, .combat-info-item-desc, .full-map-tooltip-desc, .character-skill-tier-desc, .char-echo-desc, .cx-popup-desc, .rm-opt-desc, .rm-diff-desc, .rm-chip-desc, .rm-tt-level)
 :is(.kw-dmg, .kw-shield, .kw-heal, .kw-echo, .kw-energy, .kw-draw, .kw-debuff, .kw-special, .kw-chain) {
   font-weight: 600;
 }
 
-:where(.card-desc-hover, .card-desc-reward, .reward-card-desc, .event-card-discard-desc, .card-desc-deck, .deck-card-desc, .item-tooltip-desc, .item-shop-desc, .itt-desc, .stt-desc, .card-tooltip-desc, .toast-sub, .node-card-desc, .class-btn-desc, .fragment-desc, .frag-desc, .echo-skill-tt-desc, .event-desc, .general-tooltip-desc, .class-select-tooltip-desc, .combat-info-item-desc, .full-map-tooltip-desc, .character-skill-tier-desc, .char-echo-desc, .cx-popup-desc, .rm-opt-desc, .rm-diff-desc, .rm-chip-desc, .rm-tt-level)
+:where(.card-desc-hover, .card-desc-reward, .reward-card-desc, .event-card-discard-desc, .card-desc-deck, .deck-card-desc, .ending-deck-detail-desc, .item-tooltip-desc, .item-shop-desc, .itt-desc, .stt-desc, .card-tooltip-desc, .toast-sub, .node-card-desc, .class-btn-desc, .fragment-desc, .frag-desc, .echo-skill-tt-desc, .event-desc, .general-tooltip-desc, .class-select-tooltip-desc, .combat-info-item-desc, .full-map-tooltip-desc, .character-skill-tier-desc, .char-echo-desc, .cx-popup-desc, .rm-opt-desc, .rm-diff-desc, .rm-chip-desc, .rm-tt-level)
 :is(.kw-exhaust.kw-block, .kw-buff.kw-block, .kw-burst.kw-block) {
   border-radius: 3px;
   padding: 0 3px;

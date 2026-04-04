@@ -2,7 +2,7 @@ import { CARDS } from './cards.js';
 import { CLASS_METADATA } from './class_metadata.js';
 import { ENEMIES } from './enemies.js';
 import { ITEMS } from './items.js';
-import { STATUS_KR } from './status_effects_data.js';
+import { STATUS_EFFECT_ASSET_DATA } from './status_effect_asset_data.js';
 
 function buildEmojiEntry(key, value, extra = {}) {
   return Object.freeze({
@@ -72,7 +72,7 @@ const ITEM_ASSET_MANIFEST = freezeEntries(
 
 const STATUS_EFFECT_ASSET_MANIFEST = freezeEntries(
   Object.fromEntries(
-    Object.entries(STATUS_KR).map(([statusId, status]) => [
+    Object.entries(STATUS_EFFECT_ASSET_DATA).map(([statusId, status]) => [
       statusId,
       buildEmojiEntry(`statusEffects.${statusId}`, status.icon || '?', {
         buff: Boolean(status.buff),

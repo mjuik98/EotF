@@ -7,6 +7,7 @@ import { CLASS_METADATA } from '../data/class_metadata.js';
 import { EVENTS } from '../data/events_data.js';
 import { getStatusTooltipMeta } from '../data/status_tooltip_meta_data.js';
 import { buildDeathFragmentChoices } from '../game/features/combat/presentation/browser/death_fragment_choice_presenter.js';
+import { buildDeckModalShellMarkup } from '../game/features/combat/platform/browser/ensure_deck_modal_shell.js';
 import { createShopEventService } from '../game/features/event/application/shop_service.js';
 import {
   buildCardPopupPayload,
@@ -141,5 +142,12 @@ describe('player_facing_localization_regression', () => {
     expect(echoEvent.choices[2].text).toBe('🔮 관찰만 한다 (잔향 +30)');
     expect(blessingOfLightMeta.nextTurnText({ healPerTurn: 3 })).toBe('매 턴 종료 시 체력 +3 회복');
     expect(blessingOfLightMeta.statUnit).toBe('체력');
+  });
+
+  it('keeps deck modal headings in Korean', () => {
+    const markup = buildDeckModalShellMarkup();
+
+    expect(markup).toContain('덱 개요');
+    expect(markup).not.toContain('DECK OVERVIEW');
   });
 });

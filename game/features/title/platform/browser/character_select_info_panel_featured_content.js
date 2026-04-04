@@ -25,7 +25,7 @@ export function inferFeaturedCardTag(card = {}) {
   return '핵심';
 }
 
-export function buildFeaturedCardMarkup(cardIds, cards, accent, tagMap = {}) {
+export function buildFeaturedCardMarkup(cardIds, cards, _accent, tagMap = {}) {
   const resolvedCards = Array.isArray(cardIds) ? cardIds.filter(Boolean) : [];
   if (resolvedCards.length === 0) {
     return '<div class="char-info-text">대표 카드 정보 없음</div>';
@@ -35,7 +35,7 @@ export function buildFeaturedCardMarkup(cardIds, cards, accent, tagMap = {}) {
     const card = cards?.[cardId] || { name: cardId };
     const tag = tagMap?.[cardId] || inferFeaturedCardTag(card);
     return `
-      <span class="deck-card deck-card-featured" data-cid="${cardId}" style="border:1px solid ${accent}26;background:linear-gradient(180deg,${accent}10,${accent}04);cursor:help">
+      <span class="deck-card deck-card-basic deck-card-featured" data-cid="${cardId}">
         <span class="deck-card-name">${card.name}</span>
         <span class="deck-card-role">${tag}</span>
       </span>

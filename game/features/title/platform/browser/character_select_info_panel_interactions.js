@@ -25,20 +25,16 @@ function bindTabInteractions(panel, hover) {
   });
 }
 
-function bindEchoBadge(panel, selectedChar, hover, echo, openModal) {
+function bindEchoBadge(panel, _selectedChar, hover, echo, openModal) {
   const echoBadge = panel.querySelector('#echoBadge');
   if (!echoBadge) return;
 
   const applyHoverState = () => {
     hover?.();
-    echoBadge.style.borderColor = `${selectedChar.accent}aa`;
-    echoBadge.style.background = `linear-gradient(135deg,${selectedChar.accent}1e,${selectedChar.color}1a)`;
-    echoBadge.style.boxShadow = `0 0 16px ${selectedChar.accent}33`;
+    echoBadge.classList?.add('is-emphasized');
   };
   const clearHoverState = () => {
-    echoBadge.style.borderColor = `${selectedChar.accent}44`;
-    echoBadge.style.background = `linear-gradient(135deg,${selectedChar.accent}0e,${selectedChar.color}08)`;
-    echoBadge.style.boxShadow = 'none';
+    echoBadge.classList?.remove('is-emphasized');
   };
   echoBadge.addEventListener('mouseenter', applyHoverState);
   echoBadge.addEventListener('mouseleave', clearHoverState);
@@ -46,7 +42,7 @@ function bindEchoBadge(panel, selectedChar, hover, echo, openModal) {
   echoBadge.addEventListener('blur', clearHoverState);
   echoBadge.addEventListener('click', () => {
     echo?.();
-    openModal?.(selectedChar.echoSkill, selectedChar.accent);
+    openModal?.(_selectedChar.echoSkill, _selectedChar.accent);
   });
 }
 

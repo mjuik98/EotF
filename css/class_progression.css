@@ -38,10 +38,11 @@
 }
 
 .csm-mastery-panel {
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--char-accent-border-soft, rgba(255, 255, 255, 0.09));
   border-radius: 10px;
   margin-bottom: 14px;
   padding: 13px 14px;
+  background: var(--char-accent-surface, rgba(255, 255, 255, 0.02));
 }
 
 .csm-mastery-head {
@@ -56,6 +57,7 @@
   font-size: 9px;
   letter-spacing: 0.28em;
   font-family: 'Cinzel', serif;
+  color: var(--char-accent, #f6f7ff);
 }
 
 .csm-mastery-level {
@@ -81,9 +83,11 @@
 
 .csm-mastery-fill {
   height: 100%;
-  width: 0;
+  width: var(--char-mastery-progress, 0%);
   border-radius: 999px;
   transition: width 0.8s ease;
+  background: var(--char-accent, #fff);
+  box-shadow: 0 0 10px var(--char-accent-glow, rgba(255, 255, 255, 0.2));
 }
 
 .csm-roadmap {

@@ -3,6 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   buildRoadmapPreviewMeta,
   buildDeckCardMarkup,
+  buildFeatureSectionMarkup,
+  buildInteractiveDeckCardMarkup,
+  buildLockedStateMarkup,
+  buildRelicMarkup,
+  buildRoadmapSummaryMarkup,
 } from '../game/features/title/platform/browser/character_select_info_panel_markup.js';
 import {
   arraysEqual,
@@ -75,11 +80,56 @@ describe('character_select_info_panel helpers', () => {
     expect(normalizeRelicIds([{ id: 'starter' }, { name: 'Alpha' }], 'fallback')).toEqual(['starter', 'Alpha']);
     expect(arraysEqual(['a', 'b'], ['a', 'b'])).toBe(true);
     expect(arraysEqual(['a'], ['b'])).toBe(false);
-    expect(buildDeckCardMarkup(
+    const deckMarkup = buildDeckCardMarkup(
       ['strike'],
       { strike: { name: '강타', desc: '피해 6' } },
       '#7cc8ff',
-    )).toContain('data-card-label="강타. 피해 6"');
+    );
+    expect(deckMarkup).toContain('data-card-label="강타. 피해 6"');
+    expect(deckMarkup).toContain('deck-card-basic');
+    expect(deckMarkup).not.toContain('style=');
+
+    const interactiveDeckMarkup = buildInteractiveDeckCardMarkup(
+      ['strike'],
+      { strike: { name: '강타', desc: '피해 6' } },
+      '#7cc8ff',
+      { upgradeIndices: [0] },
+    );
+    expect(interactiveDeckMarkup).toContain('level11-edit-card');
+    expect(interactiveDeckMarkup).toContain('data-level11-selectable="true"');
+    expect(interactiveDeckMarkup).not.toContain('style=');
+
+    const relicMarkup = buildRelicMarkup(
+      [{ icon: '🛡', name: '수호 인장', desc: '보호막 +8' }],
+      '#7cc8ff',
+    );
+    expect(relicMarkup).toContain('relic-inner-title');
+    expect(relicMarkup).toContain('relic-inner-meta');
+    expect(relicMarkup).not.toContain('style=');
+
+    const lockedStateMarkup = buildLockedStateMarkup({
+      accent: '#7cc8ff',
+      unlockLabel: 'Lv.12 해금',
+      message: '추가 유물을 해금합니다.',
+    });
+    expect(lockedStateMarkup).toContain('char-locked-state');
+    expect(lockedStateMarkup).toContain('char-feature-badge');
+    expect(lockedStateMarkup).not.toContain('style=');
+
+    const featureSectionMarkup = buildFeatureSectionMarkup({
+      accent: '#7cc8ff',
+      title: '추가 유물 선택',
+      badgeLabel: '선택 가능',
+      body: '<div class="char-info-text">설명</div>',
+    });
+    expect(featureSectionMarkup).toContain('char-feature-panel');
+    expect(featureSectionMarkup).toContain('char-feature-panel-title');
+    expect(featureSectionMarkup).not.toContain('style=');
+
+    const roadmapSummaryMarkup = buildRoadmapSummaryMarkup('다음 해금: Lv.2 보상', '펼쳐서 확인');
+    expect(roadmapSummaryMarkup).toContain('csm-roadmap-summary-copy');
+    expect(roadmapSummaryMarkup).toContain('csm-roadmap-summary-preview');
+    expect(roadmapSummaryMarkup).not.toContain('style=');
   });
 
   it('binds tab and loadout interactions through the extracted interaction helper', () => {

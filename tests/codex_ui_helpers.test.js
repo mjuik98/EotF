@@ -91,10 +91,11 @@ describe('codex_ui_helpers', () => {
   });
 
   it('keeps codex visible copy aligned with shared card and rarity labels', () => {
-    const defs = getCodexFilterDefinitions({ itemSets: {} });
+    const defs = getCodexFilterDefinitions({});
 
     expect(defs.cards.map((entry) => entry?.l)).toEqual(['전체', '공격', '기술', '능력']);
     expect(defs.items.map((entry) => entry?.l)).toContain('비범');
+    expect(defs.items.some((entry) => entry?.k === 'set:serpents_gaze')).toBe(true);
   });
 
   it('builds the nearest codex reward milestones across categories', () => {

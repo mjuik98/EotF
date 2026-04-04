@@ -1,5 +1,9 @@
-import { ENEMY_TURN_BUFFS, TURN_START_DEBUFFS } from './turn_manager_helpers.js';
-import { normalizeInfiniteStack, isInfiniteStackBuff } from './infinite_stack_buffs.js';
+import {
+  isEnemyTurnBuff,
+  isInfiniteStackBuff,
+  isTurnStartDebuff,
+  normalizeInfiniteStack,
+} from './infinite_stack_buffs.js';
 import {
   decrementStackedBuff,
 } from './turn_state_mutators.js';
@@ -46,8 +50,8 @@ export function endPlayerTurnPolicy(gs, data, options = {}) {
     const buff = player.buffs[buffId];
     if (!buff || typeof buff !== 'object') return;
     normalizeInfiniteStack(buffId, buff);
-    if (TURN_START_DEBUFFS.has(buffId)) return;
-    if (ENEMY_TURN_BUFFS.has(buffId)) return;
+    if (isTurnStartDebuff(buffId)) return;
+    if (isEnemyTurnBuff(buffId)) return;
     if (buffId === 'resonance') return;
     if (buff.nextEnergy) return;
     if (buff.echoRegen) gs.addEcho(buff.echoRegen);

@@ -109,7 +109,8 @@ describe('character_select_mount_runtime', () => {
   });
 
   it('builds section labels and class progress fallbacks', () => {
-    expect(buildCharacterSelectSectionLabel('로드맵', '#7CC8FF')).toContain('#7CC8FF44');
+    expect(buildCharacterSelectSectionLabel('로드맵', '#7CC8FF')).toContain('class="s-label"');
+    expect(buildCharacterSelectSectionLabel('로드맵', '#7CC8FF')).not.toContain('style=');
     expect(getCharacterClassProgress(null, 'paladin', ['paladin'])).toEqual(expect.objectContaining({
       classId: 'paladin',
       level: 1,

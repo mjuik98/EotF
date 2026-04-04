@@ -20,7 +20,6 @@ export function buildCharacterInfoDetailsSection({
   buildSectionLabel,
   buildRadar,
   cards,
-  progressPct,
   roadmapPreviewText,
   roadmapSummaryHint,
   baseRelics,
@@ -41,10 +40,10 @@ export function buildCharacterInfoDetailsSection({
 
   return `
     <section class="char-info-pane" data-pane="details" role="tabpanel">
-      <div class="csm-mastery-panel" style="border-color:${selectedChar.accent}2f;background:${selectedChar.accent}0a;">
+      <div class="csm-mastery-panel">
         <div class="csm-mastery-head">
           <div>
-            <div class="csm-mastery-title" style="color:${selectedChar.accent}">클래스 숙련도</div>
+            <div class="csm-mastery-title">클래스 숙련도</div>
             <div class="csm-mastery-level">${classProgress.nextLevelXp === null ? 'MAX' : `Lv.${classProgress.level}`}</div>
           </div>
           <div class="csm-mastery-xp">
@@ -52,7 +51,7 @@ export function buildCharacterInfoDetailsSection({
           </div>
         </div>
         <div class="csm-mastery-bar">
-          <div class="csm-mastery-fill" style="width:${progressPct}%;background:${selectedChar.accent};box-shadow:0 0 10px ${selectedChar.accent}55"></div>
+          <div class="csm-mastery-fill"></div>
         </div>
         <details class="csm-roadmap-details">
           <summary class="csm-roadmap-summary">${buildRoadmapSummaryMarkup(roadmapPreviewText, roadmapSummaryHint)}</summary>
@@ -70,7 +69,7 @@ export function buildCharacterInfoDetailsSection({
           ${buildSectionLabel('시작 유물', selectedChar.accent)}
           <div class="char-info-text">기본 시작 유물</div>
           ${buildRelicMarkup(baseRelics, selectedChar.accent)}
-          <div class="char-info-text" style="margin-top:10px">추가 유물</div>
+          <div class="char-info-text char-info-text--section-gap">추가 유물</div>
           ${level12Unlocked
     ? (bonusRelics.length > 0
       ? buildRelicMarkup(bonusRelics, selectedChar.accent, { slotOffset: 1 })
@@ -90,7 +89,7 @@ export function buildCharacterInfoDetailsSection({
 
       <div class="char-info-block">
         ${buildSectionLabel('최근 진행 기록', selectedChar.accent)}
-        <div style="display:grid;gap:8px;">
+        <div class="char-info-stack">
           ${buildRecentSummaryRows(recentSummaries)}
         </div>
       </div>
@@ -100,11 +99,11 @@ export function buildCharacterInfoDetailsSection({
         ${buildLoadoutSlotButtons(loadoutCustomization, selectedChar.accent)}
         ${level11Unlocked ? `
           <div class="char-info-text">카드를 클릭해 대상을 지정하세요.</div>
-          <div class="char-start-deck" style="margin:8px 0 10px">
-            <button id="level11ModeUpgrade" class="level11-mode-btn" type="button" style="border:1px solid ${initialLevel11Mode === 'upgrade' ? `${selectedChar.accent}66` : 'rgba(255,255,255,0.14)'};background:${initialLevel11Mode === 'upgrade' ? `${selectedChar.accent}14` : 'rgba(255,255,255,0.04)'};color:${initialLevel11Mode === 'upgrade' ? selectedChar.accent : '#d5ddf2'};border-radius:999px;padding:4px 10px;font-size:10px;letter-spacing:0.06em;cursor:pointer">강화</button>
-            <button id="level11ModeSwap" class="level11-mode-btn" type="button" style="border:1px solid ${initialLevel11Mode === 'swap' ? `${selectedChar.accent}66` : 'rgba(255,255,255,0.14)'};background:${initialLevel11Mode === 'swap' ? `${selectedChar.accent}14` : 'rgba(255,255,255,0.04)'};color:${initialLevel11Mode === 'swap' ? selectedChar.accent : '#d5ddf2'};border-radius:999px;padding:4px 10px;font-size:10px;letter-spacing:0.06em;cursor:pointer">교체</button>
+          <div class="char-start-deck char-info-chip-row">
+            <button id="level11ModeUpgrade" class="level11-mode-btn char-chip-button${initialLevel11Mode === 'upgrade' ? ' is-active' : ''}" type="button" aria-pressed="${initialLevel11Mode === 'upgrade' ? 'true' : 'false'}">강화</button>
+            <button id="level11ModeSwap" class="level11-mode-btn char-chip-button${initialLevel11Mode === 'swap' ? ' is-active' : ''}" type="button" aria-pressed="${initialLevel11Mode === 'swap' ? 'true' : 'false'}">교체</button>
           </div>
-          <div id="level11SelectionNote" class="char-info-text level11-selection-note" style="margin-bottom:8px">${initialLevel11Mode === 'swap' ? '교체할 카드를 선택한 뒤 추가 카드를 골라 저장하세요.' : '강화할 카드를 선택한 뒤 저장하세요.'}</div>
+          <div id="level11SelectionNote" class="char-info-text level11-selection-note">${initialLevel11Mode === 'swap' ? '교체할 카드를 선택한 뒤 추가 카드를 골라 저장하세요.' : '강화할 카드를 선택한 뒤 저장하세요.'}</div>
           ${buildInteractiveDeckCardMarkup(baseDeck, cards, selectedChar.accent, {
     upgradeIndices: eligibleUpgradeIndices,
     swapIndices: eligibleSwapIndices,
@@ -112,21 +111,21 @@ export function buildCharacterInfoDetailsSection({
     selectedUpgradeIndex: initialLevel11UpgradeIndex,
     selectedSwapIndex: initialLevel11SwapIndex,
   })}
-          <div class="char-info-text" style="margin-top:10px">추가 카드 선택</div>
-          <div class="char-start-deck" style="margin:8px 0 10px">
+          <div class="char-info-text char-info-text--section-gap">추가 카드 선택</div>
+          <div class="char-start-deck char-info-chip-row">
             ${(loadoutCustomization?.eligibleSwapAddCards || []).map((entry) => `
               <button
-                class="level11-add-card-btn"
+                class="level11-add-card-btn char-chip-button"
                 type="button"
                 data-level11-add-card-id="${entry.cardId}"
-                style="border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.04);color:#d5ddf2;border-radius:999px;padding:4px 10px;font-size:10px;letter-spacing:0.06em;cursor:pointer"
+                aria-pressed="false"
               >${entry.name || entry.cardId}</button>
             `).join('')}
           </div>
-          <div class="char-start-deck" style="margin-top:8px">
-            <button id="saveLevel11Upgrade" type="button">강화로 저장</button>
-            <button id="saveLevel11Swap" type="button">교체로 저장</button>
-            <button id="clearLevel11Preset" type="button">해제</button>
+          <div class="char-start-deck char-start-deck--actions">
+            <button id="saveLevel11Upgrade" class="char-action-btn" type="button">강화로 저장</button>
+            <button id="saveLevel11Swap" class="char-action-btn" type="button">교체로 저장</button>
+            <button id="clearLevel11Preset" class="char-action-btn char-action-btn--ghost" type="button">해제</button>
           </div>
         ` : buildDeckCardMarkup(baseDeck, cards, selectedChar.accent)}
       </div>
@@ -135,7 +134,7 @@ export function buildCharacterInfoDetailsSection({
         <div class="char-info-block">
           ${buildSectionLabel('마스터리 커스터마이즈', selectedChar.accent)}
           ${(loadoutCustomization.invalidWarnings || []).map((warning) => (
-            `<div class="char-info-text" style="color:#ffb347">${warning}</div>`
+            `<div class="char-info-text char-info-text--warning">${warning}</div>`
           )).join('')}
           ${buildFeatureSectionMarkup({
     accent: selectedChar.accent,
@@ -158,12 +157,12 @@ export function buildCharacterInfoDetailsSection({
     body: level12Unlocked ? `
       <div class="char-info-text">현재 설정: ${level12Summary}</div>
       <div class="char-info-text">Lv.12 추가 유물 저장</div>
-      <div class="char-start-deck">
-        <select id="level12BonusRelic">${(loadoutCustomization.eligibleBonusRelics || []).map((entry) => (
+      <div class="char-start-deck char-start-deck--controls">
+        <select id="level12BonusRelic" class="char-loadout-select">${(loadoutCustomization.eligibleBonusRelics || []).map((entry) => (
       `<option value="${entry.id}">${entry.name || entry.id}</option>`
     )).join('')}</select>
-        <button id="saveLevel12Preset" type="button">유물 저장</button>
-        <button id="clearLevel12Preset" type="button">해제</button>
+        <button id="saveLevel12Preset" class="char-action-btn" type="button">유물 저장</button>
+        <button id="clearLevel12Preset" class="char-action-btn char-action-btn--ghost" type="button">해제</button>
       </div>
     ` : `
       <div class="char-info-text">현재 설정: ${level12Summary}</div>

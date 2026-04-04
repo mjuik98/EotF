@@ -10,6 +10,7 @@ import {
   getRarityCardClass,
   getRarityLabel,
   isSeenCodexCard,
+  resolveCodexItemSetId,
 } from './codex_ui_helpers.js';
 import {
   createCodexEntryShell,
@@ -67,7 +68,7 @@ export function createCodexCardEntry(doc, cardEntry, index, context = {}) {
 
   const rec = getCodexRecord(gs, 'cards', cardEntry.id);
   const usedBadge = seen && rec ? `<div class="cx-record-badge">✦ ${rec.used ?? 0}</div>` : '';
-  const upgradeBadge = seen && rec?.upgradedDiscovered ? '<div class="cx-record-badge" style="right:auto;left:12px">+</div>' : '';
+  const upgradeBadge = seen && rec?.upgradedDiscovered ? '<div class="cx-record-badge cx-record-badge--left">+</div>' : '';
   const hintBadge = !seen && cardEntry.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${cardEntry.hint}</div></div>` : '';
   const rarityLabel = getRarityLabel(cardEntry.rarity);
 
@@ -95,7 +96,8 @@ export function createCodexItemCard(doc, item, index, context = {}) {
   const { gs, data, onOpen } = context;
   const codex = ensureCodexState(gs);
   const seen = codex.items.has(item.id);
-  const setDef = item.set ? getCodexSets(data)[item.set] : null;
+  const setId = resolveCodexItemSetId(item);
+  const setDef = setId ? getCodexSets(data)[setId] : null;
   const card = createCodexEntryShell(
     doc,
     item,
@@ -104,14 +106,17 @@ export function createCodexItemCard(doc, item, index, context = {}) {
     seen,
   );
   setCodexEntryAnimationDelay(card, index);
-  if (setDef && seen) card.style.setProperty('--cx-card-border', setDef.border || 'rgba(0,255,204,.2)');
+  if (setDef && seen) {
+    card.style.setProperty('--cx-card-border', setDef.border || 'rgba(0,255,204,.2)');
+    card.style.setProperty('--set-color', setDef.color || '#00ffcc');
+  }
 
   const hintBadge = !seen && item.hint ? `<div class="cx-hint-badge"><div class="cx-hint-inner">${item.hint}</div></div>` : '';
 
   card.innerHTML += `
     <div class="cx-num">#${String(index + 1).padStart(3, '0')}</div>
     ${seen ? `<div class="cx-badge ${getRarityBadgeClass(item.rarity)}">${getRarityLabel(item.rarity)}</div>` : ''}
-    ${seen && item.set ? '<div class="cx-badge b-set" style="top:26px;">세트</div>' : ''}
+    ${seen && setId ? '<div class="cx-badge b-set cx-badge-set-offset">세트</div>' : ''}
     <div class="cx-icon-area">
       <div class="cx-icon-bg"></div>
       ${seen ? `<div class="cx-icon">${item.icon || '?'}</div>` : `<div class="cx-silhouette">${item.icon || '?'}</div>`}
@@ -122,7 +127,7 @@ export function createCodexItemCard(doc, item, index, context = {}) {
       <div class="cx-sub">${seen ? (setDef ? `◈ ${setDef.name}` : `${getRarityLabel(item.rarity)} 등급`) : '미발견'}</div>
     </div>
     ${seen && item.isNew ? '<div class="cx-new-dot"></div>' : ''}
-    ${seen && setDef ? `<div class="cx-set-pip" style="--set-color:${setDef.color}"></div><div class="cx-set-ribbon" style="--set-color:${setDef.color}"></div>` : ''}
+    ${seen && setDef ? '<div class="cx-set-pip"></div><div class="cx-set-ribbon"></div>' : ''}
   `;
 
   if (seen) card.addEventListener('click', () => onOpen?.(item));
@@ -169,7 +174,7 @@ export function renderCodexSetView(doc, container, data, gs, handlers = {}) {
 
   if (Object.keys(sets).length > 0) {
     const div = doc.createElement('div');
-    div.style.cssText = 'height:1px;background:rgba(255,255,255,.05);margin:8px 0 28px';
+    div.className = 'cx-set-view-divider';
     container.appendChild(div);
   }
 }

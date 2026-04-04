@@ -20,8 +20,8 @@ import {
 import { buildCharacterRadar } from './character_select_radar.js';
 import { renderCharacterCard } from './character_select_card_ui.js';
 
-export function buildCharacterSelectSectionLabel(text, accent) {
-  return `<span class="s-label" style="border-left:2px solid ${accent}44">${text}</span>`;
+export function buildCharacterSelectSectionLabel(text, _accent) {
+  return `<span class="s-label">${text}</span>`;
 }
 
 export function getCharacterClassProgress(meta, classId, classIds) {

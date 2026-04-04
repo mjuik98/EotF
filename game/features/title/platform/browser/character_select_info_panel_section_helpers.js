@@ -26,28 +26,28 @@ export function buildRecentSummaryRows(recentSummaries = []) {
       ? ` · 레벨 ${summary.levelUps.join(', ')}`
       : '';
     return `
-      <div class="char-info-text" style="display:grid;gap:3px;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.03);">
-        <span style="color:#edf4ff">${outcomeLabel} · +${summary?.totalGain || 0} XP${levelLabel}</span>
-        <span style="color:rgba(213,221,242,0.68)">누적 ${summary?.after?.totalXp || 0} XP · Lv.${summary?.after?.level || 1}</span>
+      <div class="char-info-text char-info-text--summary-row">
+        <span class="char-info-text--summary-primary">${outcomeLabel} · +${summary?.totalGain || 0} XP${levelLabel}</span>
+        <span class="char-info-text--summary-secondary">누적 ${summary?.after?.totalXp || 0} XP · Lv.${summary?.after?.level || 1}</span>
       </div>
     `;
   }).join('');
 }
 
-export function buildLoadoutSlotButtons(loadoutCustomization = {}, accent = '#ffffff') {
+export function buildLoadoutSlotButtons(loadoutCustomization = {}, _accent = '#ffffff') {
   const slots = Array.isArray(loadoutCustomization?.availableSlots)
     ? loadoutCustomization.availableSlots
     : [];
   if (!slots.length) return '';
 
   return `
-    <div class="char-start-deck" style="margin:0 0 10px">
+    <div class="char-start-deck char-loadout-slot-row">
       ${slots.map((slot) => `
         <button
-          class="char-loadout-slot-btn"
+          class="char-loadout-slot-btn char-chip-button${slot.active ? ' is-active' : ''}${slot.hasPreset ? ' has-preset' : ''}"
           type="button"
           data-loadout-slot="${slot.id}"
-          style="border:1px solid ${slot.active ? `${accent}66` : 'rgba(255,255,255,0.14)'};background:${slot.active ? `${accent}14` : 'rgba(255,255,255,0.04)'};color:${slot.active ? accent : '#d5ddf2'};border-radius:999px;padding:4px 10px;font-size:10px;letter-spacing:0.06em;cursor:pointer"
+          aria-pressed="${slot.active ? 'true' : 'false'}"
         >${slot.label}${slot.hasPreset ? ' ●' : ''}</button>
       `).join('')}
     </div>
