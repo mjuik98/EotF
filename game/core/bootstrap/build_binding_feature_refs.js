@@ -1,4 +1,4 @@
-import { buildFeatureBindingRefGroups } from '../../features/ui/ports/public_feature_binding_ref_catalog.js';
+import { buildFeatureBindingRefGroups } from '../composition/feature_binding_ref_catalog.js';
 
 const CORE_BINDING_REF_KEYS = Object.freeze([
   'GAME',

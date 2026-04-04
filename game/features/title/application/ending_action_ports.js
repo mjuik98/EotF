@@ -1,4 +1,8 @@
-import { getDoc, getWin } from '../../../platform/browser/dom/public.js';
+import {
+  getEndingDoc,
+  getEndingWin,
+  resolveEndingRestartSchedule,
+} from '../ports/ending_runtime_ports.js';
 
 export function resolveEndingActions(deps = {}) {
   const endingActions = deps.endingActions || {};
@@ -26,11 +30,11 @@ export function scheduleEndingRestartAction(
   } = {},
 ) {
   const { restart } = resolveEndingActions(deps);
-  const doc = getDoc(deps);
-  const win = getWin(deps);
-  const schedule = scheduleFn || win?.setTimeout?.bind?.(win) || setTimeout;
+  const doc = getEndingDoc(deps);
+  const win = getEndingWin(deps);
+  const schedule = resolveEndingRestartSchedule(deps, scheduleFn);
   const timer = schedule(() => {
-    cleanup?.({ doc, win: deps?.win });
+    cleanup?.({ doc, win });
     restart?.();
   }, delayMs);
 

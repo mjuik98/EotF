@@ -3,6 +3,19 @@ import { describe, expect, it, vi } from 'vitest';
 import { buildFeatureContractAccessors } from '../game/core/deps_factory.js';
 
 describe('buildFeatureContractAccessors', () => {
+  it('uses the canonical core/composition feature contract catalog', async () => {
+    const { createFeatureContractCapabilities } = await import(
+      '../game/core/deps/contracts/create_feature_contract_capabilities.js'
+    );
+    const { createFeatureContractCapabilityCatalog } = await import(
+      '../game/core/composition/feature_contract_capability_catalog.js'
+    );
+
+    expect(createFeatureContractCapabilities()).toEqual(
+      createFeatureContractCapabilityCatalog(),
+    );
+  });
+
   it('prefers buildContractDepAccessors when the deps factory provides it', () => {
     const buildContractDepAccessors = vi.fn(() => Object.freeze({
       getScreenDeps: () => ({ token: 'screen' }),

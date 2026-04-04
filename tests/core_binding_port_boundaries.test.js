@@ -31,7 +31,7 @@ describe('core binding port boundaries', () => {
       'utf8',
     );
 
-    expect(source).toContain('../../features/ui/ports/public_feature_binding_ref_catalog.js');
+    expect(source).toContain('../composition/feature_binding_ref_catalog.js');
     expect(source).not.toContain('/public_binding_ref_capabilities.js');
     expect(source).not.toContain('const FEATURE_REF_KEYS');
   });

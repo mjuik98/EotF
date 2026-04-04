@@ -29,7 +29,10 @@ describe('architecture refactor guardrails', () => {
     const source = readText('game/platform/browser/composition/build_core_run_system_modules.js');
 
     expect(source).toContain("from '../../../features/run/ports/public_system_capabilities.js'");
+    expect(source).toContain('configureSaveRuntimeContext');
     expect(source).not.toContain("from '../../../features/run/application/");
+    expect(source).not.toContain('bindSaveStorage(');
+    expect(source).not.toContain('bindSaveNotifications(');
   });
 
   it('keeps core progression composition routed through canonical feature/shared owners', () => {
@@ -38,8 +41,10 @@ describe('architecture refactor guardrails', () => {
     expect(source).not.toContain("from '../../../combat/difficulty_scaler.js'");
     expect(source).not.toContain("from '../../../systems/set_bonus_system.js'");
     expect(source).not.toContain("from '../../../features/combat/domain/difficulty_scaler.js'");
+    expect(source).not.toContain("from '../../../shared/class/class_mechanics.js'");
     expect(source).toContain("from '../../../features/combat/ports/public_system_capabilities.js'");
     expect(source).toContain("from '../../../shared/progression/public.js'");
+    expect(source).toContain('ClassMechanics: classMechanics.ClassMechanics');
   });
 
   it('routes core runtime bindings through feature ports/runtime surfaces', () => {
@@ -54,17 +59,45 @@ describe('architecture refactor guardrails', () => {
     }
   });
 
-  it('keeps core feature binding and contract catalogs behind feature-owned aggregate ports', () => {
+  it('keeps core feature binding and contract catalogs behind core/composition-owned aggregate catalogs', () => {
     const bindingRefsSource = readText('game/core/bootstrap/build_binding_feature_refs.js');
     const contractsSource = readText('game/core/deps/contracts/create_feature_contract_capabilities.js');
     const debugSnapshotSource = readText('game/core/bootstrap/create_runtime_debug_snapshot.js');
 
-    expect(bindingRefsSource).toContain("../../features/ui/ports/public_feature_binding_ref_catalog.js");
+    expect(bindingRefsSource).toContain("../composition/feature_binding_ref_catalog.js");
     expect(bindingRefsSource).not.toContain('../../features/combat/ports/public_binding_ref_capabilities.js');
-    expect(contractsSource).toContain("../../../features/ui/ports/public_feature_contract_capability_catalog.js");
+    expect(contractsSource).toContain("../../composition/feature_contract_capability_catalog.js");
     expect(contractsSource).not.toContain("../../../features/combat/ports/public_contract_capabilities.js");
-    expect(debugSnapshotSource).toContain("../../features/ui/ports/public_runtime_debug_snapshot_catalog.js");
+    expect(debugSnapshotSource).toContain("../composition/runtime_debug_snapshot_catalog.js");
     expect(debugSnapshotSource).not.toContain("../../features/combat/ports/runtime_debug_snapshot.js");
+  });
+
+  it('routes moved codex and loadout business logic through feature-owned canonical ports', () => {
+    const titleLoadoutSource = readText('game/features/title/platform/browser/character_select_mount_loadout.js');
+    const codexStateHelpersSource = readText('game/features/codex/presentation/browser/codex_ui_state_helpers.js');
+    const combatCodexRuntimeSource = readText('game/features/combat/ports/public_codex_runtime_capabilities.js');
+
+    expect(titleLoadoutSource).toContain("../../../meta_progression/ports/public_loadout_capabilities.js");
+    expect(titleLoadoutSource).not.toContain("../../../../shared/progression/class_loadout_preset_use_case.js");
+    expect(codexStateHelpersSource).toContain("../../ports/public_state_capabilities.js");
+    expect(codexStateHelpersSource).not.toContain("../../../../shared/codex/codex_record_state_use_case.js");
+    expect(combatCodexRuntimeSource).toContain("../../codex/ports/public_state_capabilities.js");
+    expect(combatCodexRuntimeSource).not.toContain("../../../shared/codex/codex_records.js");
+  });
+
+  it('keeps title and ui shell orchestration delegated to the frontdoor feature', () => {
+    const titleFlowSource = readText('game/features/title/platform/browser/create_title_flow_actions.js');
+    const titleBootRuntimeSource = readText('game/features/title/presentation/browser/game_boot_ui_runtime.js');
+    const uiHelpPauseContractSource = readText('game/features/ui/ports/contracts/build_ui_help_pause_contract.js');
+
+    expect(titleFlowSource).toContain("../../../frontdoor/ports/public_application_capabilities.js");
+    expect(titleFlowSource).not.toContain("../../application/title_run_entry_actions.js");
+    expect(titleFlowSource).not.toContain("../../../codex/ports/public_browser_modules.js");
+    expect(titleBootRuntimeSource).toContain("../../../frontdoor/ports/public_runtime_capabilities.js");
+    expect(titleBootRuntimeSource).not.toContain("./game_boot_ui_fx.js");
+    expect(titleBootRuntimeSource).not.toContain("../../platform/browser/title_asset_runtime.js");
+    expect(uiHelpPauseContractSource).toContain("../../../frontdoor/ports/public_application_capabilities.js");
+    expect(uiHelpPauseContractSource).not.toContain("../../../title/ports/public_help_pause_application_capabilities.js");
   });
 
   it('keeps legacy bridge bootstrap registration routed through a single core helper', () => {
@@ -339,11 +372,13 @@ describe('architecture refactor guardrails', () => {
     }
   });
 
-  it('keeps run return workflow on explicit ports and logger-based error handling', () => {
+  it('keeps run return workflow on explicit feature-local runtime ports and logger-based error handling', () => {
     const source = readText('game/features/run/application/workflows/run_return_flow.js');
 
     expect(source).toContain("../../ports/public_run_return_presentation_capabilities.js");
-    expect(source).toContain("../../../../platform/browser/dom/public.js");
+    expect(source).toContain("../../ports/run_runtime_timing_ports.js");
+    expect(source).not.toContain("../../../../platform/browser/dom/public.js");
+    expect(source).toContain('getRunSetTimeout');
     expect(source).not.toContain('console.error');
     expect(source).not.toContain('setTimeout(');
     expect(source).not.toContain("../../presentation/browser/run_return_overlay_presenter.js");
@@ -406,12 +441,14 @@ describe('architecture refactor guardrails', () => {
     expect(source).not.toContain("../../ui/ports/public_audio_support_capabilities.js");
   });
 
-  it('routes application scheduling helpers through platform/browser runtime deps instead of direct globals', () => {
+  it('routes application scheduling helpers through feature-local runtime timing ports instead of platform imports', () => {
     const runStartSource = readText('game/features/run/application/run_start_gameplay_runtime.js');
     const endPlayerTurnSource = readText('game/features/combat/application/end_player_turn_use_case.js');
 
-    expect(runStartSource).toContain("from '../../../platform/browser/dom/public.js'");
-    expect(runStartSource).toContain('getSetTimeout');
+    expect(runStartSource).toContain("from '../ports/run_runtime_timing_ports.js'");
+    expect(runStartSource).toContain('getRunSetTimeout');
+    expect(runStartSource).toContain('getRunRaf');
+    expect(runStartSource).not.toContain("from '../../../platform/browser/dom/public.js'");
     expect(runStartSource).not.toContain('setTimeout(');
     expect(endPlayerTurnSource).toContain("from '../../../platform/browser/dom/public.js'");
     expect(endPlayerTurnSource).toContain('getSetTimeout');

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { createCodexCardReferenceUseCase } from '../game/shared/codex/codex_card_reference_use_case.js';
+import { createCodexCardReferenceUseCase } from '../game/features/codex/application/codex_card_reference_use_case.js';
 
 describe('codex_card_reference_use_case', () => {
   it('exposes codex card id helpers behind a use case boundary', () => {

@@ -10,7 +10,7 @@ import {
   registerEnemyKill,
   resolveCodexCardId,
   registerItemFound,
-} from '../game/shared/codex/codex_records.js';
+} from '../game/features/codex/domain/codex_records.js';
 
 describe('codex_records_system', () => {
   it('normalizes codex and codexRecords containers', () => {

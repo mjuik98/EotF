@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { clearIdempotencyPrefix } from '../game/utils/idempotency_utils.js';
 import {
+  createRewardRuntime,
   skipRewardRuntime,
   takeRewardCardRuntime,
   takeRewardRemoveRuntime,
@@ -30,6 +31,20 @@ function createDoc() {
 }
 
 describe('reward_ui_runtime', () => {
+  it('creates runtime helpers through an injected runtime context factory', () => {
+    const setSkipConfirmVisible = vi.fn();
+    const createRewardRuntimeContext = vi.fn(() => ({
+      setSkipConfirmVisible,
+    }));
+    const deps = { createRewardRuntimeContext };
+
+    const runtime = createRewardRuntime(deps);
+    runtime.showSkipConfirm();
+
+    expect(createRewardRuntimeContext).toHaveBeenCalledWith(deps);
+    expect(setSkipConfirmVisible).toHaveBeenCalledWith(deps, true);
+  });
+
   it('plays hit feedback when no upgrade target exists', async () => {
     clearIdempotencyPrefix('reward:');
     const audioEngine = { playEvent: vi.fn(), playHit: vi.fn() };

@@ -1,5 +1,5 @@
 import { Logger } from '../logging/logger.js';
-import { getSaveStorage } from './save_storage.js';
+import { getSaveStorage } from './save_runtime_context.js';
 import { createOutboxMetrics, summarizeOutboxMetrics } from './save_outbox_metrics.js';
 import {
   clearOutboxTimer,
@@ -19,19 +19,19 @@ import {
 } from './save_outbox_state.js';
 import { clearQueuedRunSaveErrorIfRecovered } from './save_system_io.js';
 
-function getSaveAdapter() {
-  return getSaveStorage();
+function getSaveAdapter(deps = {}) {
+  return getSaveStorage(deps);
 }
 
 export const saveSystemOutboxController = {
-  _ensureOutboxLoaded() {
+  _ensureOutboxLoaded(deps = {}) {
     if (this._outboxLoaded) return;
     if (Array.isArray(this._outbox) && this._outbox.length > 0) {
       this._outboxLoaded = true;
       return;
     }
 
-    const saveAdapter = getSaveAdapter();
+    const saveAdapter = getSaveAdapter(deps);
     this._outboxLoaded = true;
 
     try {
@@ -45,7 +45,7 @@ export const saveSystemOutboxController = {
     const prunedStaleEntries = this._pruneExpiredOutboxEntries();
     if (prunedStaleEntries) {
       Logger.warn(`[SaveSystem] Dropped stale queued saves older than ${this.OUTBOX_ENTRY_TTL_MS}ms.`);
-      this._persistOutbox();
+      this._persistOutbox(deps);
     }
 
     if (!this._outbox.length) return;
@@ -63,8 +63,8 @@ export const saveSystemOutboxController = {
     return result.changed;
   },
 
-  _persistOutbox() {
-    const saveAdapter = getSaveAdapter();
+  _persistOutbox(deps = {}) {
+    const saveAdapter = getSaveAdapter(deps);
     if (!this._outbox.length) {
       saveAdapter?.remove?.(this.OUTBOX_KEY);
       return true;
@@ -86,52 +86,52 @@ export const saveSystemOutboxController = {
     scheduleOutboxFlush(this, () => this.flushOutbox(), delayMs);
   },
 
-  _upsertOutboxEntry(key, payload) {
-    this._ensureOutboxLoaded();
+  _upsertOutboxEntry(key, payload, deps = {}) {
+    this._ensureOutboxLoaded(deps);
     upsertOutboxEntry(this, key, payload);
-    this._persistOutbox();
+    this._persistOutbox(deps);
   },
 
-  _persistWithOutbox(key, payload) {
-    this._ensureOutboxLoaded();
-    const saveAdapter = getSaveAdapter();
+  _persistWithOutbox(key, payload, deps = {}) {
+    this._ensureOutboxLoaded(deps);
+    const saveAdapter = getSaveAdapter(deps);
     const persisted = persistWithOutbox(this, key, payload, {
       save: (saveKey, snapshot) => saveAdapter?.save?.(saveKey, snapshot) || false,
       logWarn: (message) => Logger.warn(message),
     });
     if (!persisted) {
-      this._persistOutbox();
+      this._persistOutbox(deps);
     }
     return persisted;
   },
 
-  _dropOutboxKey(key) {
-    this._ensureOutboxLoaded();
+  _dropOutboxKey(key, deps = {}) {
+    this._ensureOutboxLoaded(deps);
     dropOutboxKey(this, key);
-    this._persistOutbox();
+    this._persistOutbox(deps);
   },
 
-  flushOutbox() {
-    this._ensureOutboxLoaded();
+  flushOutbox(deps = {}) {
+    this._ensureOutboxLoaded(deps);
     if (this._pruneExpiredOutboxEntries()) {
-      this._persistOutbox();
+      this._persistOutbox(deps);
     }
-    const saveAdapter = getSaveAdapter();
+    const saveAdapter = getSaveAdapter(deps);
     const remaining = flushOutboxQueue(this, {
       save: (key, payload) => saveAdapter?.save?.(key, payload) || false,
     });
-    this._persistOutbox();
+    this._persistOutbox(deps);
     clearQueuedRunSaveErrorIfRecovered(this);
     return remaining;
   },
 
-  getOutboxSize() {
-    this._ensureOutboxLoaded();
+  getOutboxSize(deps = {}) {
+    this._ensureOutboxLoaded(deps);
     return this._outbox.length;
   },
 
-  getOutboxMetrics() {
-    this._ensureOutboxLoaded();
+  getOutboxMetrics(deps = {}) {
+    this._ensureOutboxLoaded(deps);
     return summarizeOutboxMetrics(this._outboxMetrics, this._outbox);
   },
 
@@ -139,10 +139,10 @@ export const saveSystemOutboxController = {
     this._outboxMetrics = createOutboxMetrics();
   },
 
-  clearOutbox() {
+  clearOutbox(deps = {}) {
     this._outbox = [];
     this._outboxLoaded = true;
     this._clearOutboxTimer();
-    getSaveAdapter()?.remove?.(this.OUTBOX_KEY);
+    getSaveAdapter(deps)?.remove?.(this.OUTBOX_KEY);
   },
 };

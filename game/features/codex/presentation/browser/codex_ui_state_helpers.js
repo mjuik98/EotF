@@ -3,7 +3,7 @@ import {
   getCardUpgradeId as getCodexCardUpgradeId,
   isCardUpgradeVariant as isCodexCardUpgradeVariant,
   resolveCodexCardId as resolveCodexCardReferenceId,
-} from '../../../../shared/codex/codex_record_state_use_case.js';
+} from '../../ports/public_state_capabilities.js';
 import { SETS as CANONICAL_ITEM_SETS } from '../../../../shared/progression/set_bonus_catalog.js';
 
 export { ensureSharedCodexState as ensureCodexState };

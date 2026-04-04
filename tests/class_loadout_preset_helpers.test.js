@@ -6,7 +6,7 @@ import {
   buildLevel12PresetSummary,
   getEligibleBonusRelicIds,
   getEligibleSwapAddCardIds,
-} from '../game/shared/progression/class_loadout_preset_helpers.js';
+} from '../game/features/meta_progression/domain/class_loadout_preset_helpers.js';
 
 function createMeta() {
   return {

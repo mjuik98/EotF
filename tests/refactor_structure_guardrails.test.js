@@ -92,9 +92,7 @@ describe('refactor structure guardrails', () => {
         'codex',
         'combat',
         'combat_session',
-        'event',
         'meta_progression',
-        'reward',
         'run',
         'title',
         'ui',
@@ -251,8 +249,8 @@ describe('refactor structure guardrails', () => {
     expect(helpPauseAbandonRuntimeSource).toContain("../../ports/public_ending_presentation_capabilities.js");
     expect(helpPauseAbandonRuntimeSource).toContain("showAbandonOutcome: deps.showAbandonOutcome || ((nextDeps) => EndingScreenUI.showOutcome('abandon', nextDeps))");
     expect(uiShellContractsSource).toContain("./build_ui_help_pause_contract.js");
-    expect(helpPauseContractSource).toContain('cleanupCombatAfterAbandon: combatRefs.cleanupCombatAfterAbandon || refs.cleanupCombatAfterAbandon');
-    expect(helpPauseContractSource).toContain('showAbandonOutcome: refs.showAbandonOutcome');
+    expect(helpPauseContractSource).toContain("../../../frontdoor/ports/public_application_capabilities.js");
+    expect(helpPauseContractSource).not.toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(eventSessionSource).toContain("../application/event_choice_view_model.js");
     expect(eventSessionSource).not.toContain("../presentation/event_choice_view_model.js");
     expect(runReturnFlowSource).toContain("../../ports/public_run_return_presentation_capabilities.js");
@@ -286,7 +284,9 @@ describe('refactor structure guardrails', () => {
     expect(settingsActionsSource).toContain("from '../../../ui/ports/public_browser_modules.js'");
     expect(settingsActionsSource).not.toContain("from '../../../ui/public.js'");
     expect(buildCoreRunSystemModulesSource).toContain("from '../notifications/save_status_presenter.js'");
+    expect(buildCoreRunSystemModulesSource).toContain('configureSaveRuntimeContext');
     expect(sharedSavePublicSource).not.toContain("./save_status_presenter.js");
+    expect(sharedSavePublicSource).toContain("./save_runtime_context.js");
     expect(mountRuntimeSource).toContain('function resolveTooltipUI');
     expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/public_presentation_capabilities.js'");
     expect(mountRuntimeSource).not.toContain("from '../../../combat/ports/tooltip_ui_ports.js'");
@@ -456,6 +456,8 @@ describe('refactor structure guardrails', () => {
     const runStartRuntimeSource = read('game/features/run/application/create_run_start_runtime.js');
     const runRulesSource = read('game/features/run/application/run_rules.js');
     const deathFlowSource = read('game/features/combat/application/death_flow_actions.js');
+    const playCardServiceSource = read('game/features/combat/application/play_card_service.js');
+    const combatLifecycleSource = read('game/features/combat/application/combat_lifecycle_facade.js');
     const eventRuntimeContextSource = read('game/features/event/platform/event_runtime_context.js');
     const eventApplicationSource = read('game/features/event/ports/public_application_capabilities.js');
     const combatSupportSource = read('game/features/combat/ports/public_presentation_support_capabilities.js');
@@ -478,6 +480,11 @@ describe('refactor structure guardrails', () => {
     expect(eventRuntimeContextSource).toContain("./event_runtime_hud.js");
     expect(eventApplicationSource).toContain("./public_event_session_application_capabilities.js");
     expect(eventApplicationSource).toContain("./public_event_shop_application_capabilities.js");
+    expect(playCardServiceSource).toContain("./combat_card_runtime_facade.js");
+    expect(playCardServiceSource).toContain("./combat_card_play_resolution.js");
+    expect(playCardServiceSource).not.toContain('new Proxy(');
+    expect(combatLifecycleSource).toContain("./combat_lifecycle_runtime_support.js");
+    expect(combatLifecycleSource).not.toContain('function resolveRuntimeHost');
     expect(combatSupportSource).toContain("./presentation/public_combat_browser_support_capabilities.js");
     expect(combatSupportSource).toContain("./presentation/public_combat_card_support_capabilities.js");
     expect(combatSupportSource).toContain("./presentation/public_combat_runtime_support_capabilities.js");
@@ -625,7 +632,8 @@ describe('refactor structure guardrails', () => {
     expect(eventUiHelpersSource).not.toContain('export function getAudioEngine(');
 
     expect(runModeHelpersSource).toContain("from '../../../../platform/browser/dom/public.js'");
-    expect(endingActionPortsSource).toContain("from '../../../platform/browser/dom/public.js'");
+    expect(endingActionPortsSource).toContain("from '../ports/ending_runtime_ports.js'");
+    expect(endingActionPortsSource).not.toContain("from '../../../platform/browser/dom/public.js'");
     expect(combatTurnPortsSource).toContain("from '../../../utils/runtime_deps.js'");
     expect(saveRuntimeNotificationsSource).not.toContain("from '../../../utils/runtime_deps.js'");
 

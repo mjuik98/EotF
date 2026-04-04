@@ -308,7 +308,7 @@ async function assertNestedCodexEscapePriority(page) {
   const afterFirstEscape = await readNestedState();
 
   await page.keyboard.press('Escape');
-  await page.waitForFunction((pauseWasOpen) => {
+  await page.waitForFunction(() => {
     const isVisible = (selector) => {
       const element = document.querySelector(selector);
       if (!element) return false;
@@ -317,15 +317,45 @@ async function assertNestedCodexEscapePriority(page) {
       return Number.parseFloat(style.opacity || '1') > 0 || style.pointerEvents !== 'none';
     };
 
-    return !isVisible('#codexModal') && isVisible('#pauseMenu') === pauseWasOpen;
-  }, beforeEscape.pauseOpen, { timeout: 10000 });
+    return !isVisible('#codexModal');
+  }, null, { timeout: 10000 }).catch(async (error) => {
+    const debugState = await page.evaluate(() => {
+      const describe = (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const style = getComputedStyle(element);
+        return {
+          className: element.className,
+          dataOpen: element.dataset?.open || null,
+          display: style.display,
+          visibility: style.visibility,
+          opacity: style.opacity,
+          pointerEvents: style.pointerEvents,
+        };
+      };
+
+      const runDeps = window.GAME?.getRunDeps?.() || {};
+      return {
+        codexModal: describe('#codexModal'),
+        detailPopup: describe('#cxDetailPopup'),
+        pauseMenu: describe('#pauseMenu'),
+        combatRelicPanel: describe('#combatRelicPanel'),
+        battleChronicleOverlay: describe('#battleChronicleOverlay'),
+        visibleEscapeSurfaces: window.listVisibleEscapeSurfaceKeys?.(document, { scope: 'run' }) || null,
+        closeCodexType: typeof runDeps.closeCodex,
+        closeBattleChronicleType: typeof runDeps.closeBattleChronicle,
+      };
+    });
+    throw new Error(`${error.message}\nNested codex second-escape debug: ${JSON.stringify(debugState)}`);
+  });
   const afterSecondEscape = await readNestedState();
 
   return {
     firstEscapeClosedDetailOnly: !afterFirstEscape.detailOpen
-      && afterFirstEscape.codexOpen
+      && afterFirstEscape.codexOpen === beforeEscape.codexOpen
       && afterFirstEscape.pauseOpen === beforeEscape.pauseOpen,
-    secondEscapeClosedCodexOnly: !afterSecondEscape.codexOpen
+    secondEscapeClosedCodexOnly: !afterSecondEscape.detailOpen
+      && !afterSecondEscape.codexOpen
       && afterSecondEscape.pauseOpen === beforeEscape.pauseOpen,
   };
 }

@@ -1,6 +1,5 @@
 import {
-  bindSaveNotifications,
-  bindSaveStorage,
+  configureSaveRuntimeContext,
   SaveSystem,
 } from '../../../shared/save/public.js';
 import { GS } from '../../../core/store/public.js';
@@ -29,12 +28,16 @@ export function buildCoreRunSystemModules() {
     },
   };
 
-  bindSaveStorage(runtimeSaveAdapter);
-  bindSaveNotifications(saveNotifications);
+  const saveRuntimeContext = configureSaveRuntimeContext({
+    saveSystem: SaveSystem,
+    storage: runtimeSaveAdapter,
+    notifications: saveNotifications,
+  });
   const { rules, runtime } = createRunSystemCapabilities();
 
   return {
     SaveSystem,
+    SaveRuntimeContext: saveRuntimeContext,
     RunRules: rules.RunRules,
     getRegionData: rules.getRegionData,
     getBaseRegionIndex: rules.getBaseRegionIndex,

@@ -1,0 +1,75 @@
+export const EMPTY_PRESET = Object.freeze({
+  level11: null,
+  level12: null,
+});
+
+export const DEFAULT_LOADOUT_PRESET_SLOT = 'slot1';
+export const LOADOUT_PRESET_SLOTS = Object.freeze(['slot1', 'slot2', 'slot3']);
+
+export const CLASS_CARD_POOLS = Object.freeze({
+  swordsman: Object.freeze([
+    'foot_step',
+    'twin_strike',
+    'acceleration',
+    'charge',
+    'afterimage',
+    'blade_dance',
+    'echo_dance',
+    'phantom_blade',
+    'vibrations_end',
+  ]),
+  mage: Object.freeze([
+    'foresight',
+    'time_echo',
+    'void_mirror',
+    'prediction',
+    'temporal_echo',
+    'arcane_storm',
+    'time_warp',
+  ]),
+  hunter: Object.freeze([
+    'silent_stab',
+    'vanish',
+    'counter',
+    'death_mark',
+    'shadow_step',
+    'poison_blade',
+    'phantom_step',
+    'silent_strike',
+    'focus',
+    'combat_frenzy',
+    'vampiric_touch',
+    'spike_shield',
+  ]),
+  paladin: Object.freeze([
+    'holy_strike',
+    'divine_grace',
+    'brand_of_light',
+    'blessing_of_light',
+    'hallowed_ground',
+    'retribution',
+    'divine_aura',
+    'judgement',
+  ]),
+  berserker: Object.freeze([
+    'blood_fury',
+    'reckless_swing',
+    'battle_dance',
+    'berserk_mode',
+    'abyssal_thirst',
+    'frenzy_strike',
+    'endure',
+    'blood_contract',
+    'wild_slash',
+  ]),
+  guardian: Object.freeze([
+    'iron_defense',
+    'shield_slam',
+    'resonant_shield',
+    'unbreakable_wall',
+    'bastion',
+    'iron_spikes',
+    'fortify',
+    'impulse',
+  ]),
+});

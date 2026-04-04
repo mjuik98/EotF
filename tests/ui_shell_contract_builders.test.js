@@ -33,10 +33,10 @@ describe('ui_shell_contract_builders', () => {
 
     expect(deps.gs).toBe(canonicalGs);
     expect(deps.scope).toBe('run');
-    expect(saveRun).toHaveBeenCalledWith({
+    expect(saveRun).toHaveBeenCalledWith(expect.objectContaining({
       gs: canonicalGs,
       isGameStarted: expect.any(Function),
-    });
+    }));
   });
 
   it('prefers run base deps gs when building help-pause save actions', () => {
@@ -56,10 +56,10 @@ describe('ui_shell_contract_builders', () => {
     deps.saveRun();
 
     expect(deps.gs).toBe(scopedGs);
-    expect(saveRun).toHaveBeenCalledWith({
+    expect(saveRun).toHaveBeenCalledWith(expect.objectContaining({
       gs: scopedGs,
       isGameStarted: expect.any(Function),
-    });
+    }));
   });
 
   it('falls back to canonical core feature refs before stale top-level gs aliases', () => {
@@ -83,10 +83,10 @@ describe('ui_shell_contract_builders', () => {
     const deps = builders.helpPause();
     deps.saveRun();
 
-    expect(saveRun).toHaveBeenCalledWith({
+    expect(saveRun).toHaveBeenCalledWith(expect.objectContaining({
       gs: scopedGs,
       isGameStarted: expect.any(Function),
-    });
+    }));
   });
 
   it('overrides stale run deps gs with the canonical core gs for help-pause save flows', () => {
@@ -114,10 +114,10 @@ describe('ui_shell_contract_builders', () => {
     deps.saveRun({ gs: deps.gs });
 
     expect(deps.gs).toBe(canonicalGs);
-    expect(saveRun).toHaveBeenCalledWith({
+    expect(saveRun).toHaveBeenCalledWith(expect.objectContaining({
       gs: canonicalGs,
       isGameStarted: expect.any(Function),
-    });
+    }));
   });
 
   it('uses the canonical core save system when the top-level alias is stale', () => {
@@ -145,10 +145,49 @@ describe('ui_shell_contract_builders', () => {
     const deps = builders.helpPause();
     deps.saveRun({ gs: deps.gs });
 
-    expect(canonicalSaveRun).toHaveBeenCalledWith({
+    expect(canonicalSaveRun).toHaveBeenCalledWith(expect.objectContaining({
       gs: canonicalGs,
       isGameStarted: expect.any(Function),
+    }));
+    expect(staleSaveRun).not.toHaveBeenCalled();
+  });
+
+  it('prefers the canonical core save runtime context over stale save-system aliases', () => {
+    const staleSaveRun = vi.fn();
+    const runtimeSaveRun = vi.fn();
+    const canonicalGs = {
+      currentScreen: 'game',
+      player: { hp: 80 },
+    };
+    const builders = buildUiShellContractBuilders({
+      buildBaseDeps: vi.fn(() => ({ gs: canonicalGs, token: 'run-base' })),
+      getRefs: () => ({
+        SaveSystem: { saveRun: staleSaveRun },
+        featureRefs: {
+          core: {
+            GS: canonicalGs,
+            SaveRuntimeContext: {
+              saveSystem: { saveRun: runtimeSaveRun },
+            },
+          },
+        },
+      }),
+      getRaf: vi.fn(() => vi.fn()),
+      getSyncVolumeUIFallback: vi.fn(() => vi.fn()),
     });
+
+    const deps = builders.helpPause();
+    deps.saveRun({ gs: deps.gs });
+
+    expect(runtimeSaveRun).toHaveBeenCalledWith(expect.objectContaining({
+      gs: canonicalGs,
+      saveRuntimeContext: expect.objectContaining({
+        saveSystem: expect.objectContaining({
+          saveRun: runtimeSaveRun,
+        }),
+      }),
+      isGameStarted: expect.any(Function),
+    }));
     expect(staleSaveRun).not.toHaveBeenCalled();
   });
 
@@ -184,10 +223,10 @@ describe('ui_shell_contract_builders', () => {
     const result = deps.returnToTitleFromPause();
 
     expect(result).toBe(true);
-    expect(canonicalSaveRun).toHaveBeenCalledWith({
+    expect(canonicalSaveRun).toHaveBeenCalledWith(expect.objectContaining({
       gs: canonicalGs,
       isGameStarted: expect.any(Function),
-    });
+    }));
     expect(staleReturnToTitle).not.toHaveBeenCalled();
     expect(reload).toHaveBeenCalledTimes(1);
   });

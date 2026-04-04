@@ -8,8 +8,6 @@ import {
   setCombatActive,
 } from '../../../shared/state/runtime_session_commands.js';
 import {
-  createRecentFeedMeta,
-  formatRecentFeedText,
   Logger,
   LogUtils,
 } from '../ports/combat_logging.js';
@@ -21,28 +19,14 @@ import {
   syncCombatMaxChainState,
 } from '../state/combat_chain_state_commands.js';
 import { buildCombatEndItemTriggerPayload } from './combat_end_item_trigger_payload.js';
-
-function resolveRuntimeHost(deps = {}) {
-  return deps.win || deps.doc?.defaultView || null;
-}
-
-function resolvePlayItemGet(deps = {}) {
-  if (typeof deps.playItemGet === 'function') return deps.playItemGet;
-  return () => deps.audioEngine?.playItemGet?.();
-}
-
-function resolveErrorReporter(deps = {}) {
-  if (typeof deps.reportError === 'function') return deps.reportError;
-  return (error) => Logger.error('[endCombat] Error:', error);
-}
-
-function playResonanceBurstAudio(audioEngine, deps = {}) {
-  if (typeof deps.playEventResonanceBurst === 'function') {
-    deps.playEventResonanceBurst(audioEngine);
-    return;
-  }
-  audioEngine?.playResonanceBurst?.();
-}
+import {
+  createPassiveResonanceBurstLogMeta,
+  playResonanceBurstAudio,
+  renderPassiveResonanceBurstHits,
+  resolveErrorReporter,
+  resolvePlayItemGet,
+  resolveRuntimeHost,
+} from './combat_lifecycle_runtime_support.js';
 
 export const CombatLifecycle = {
   async endCombat(deps = {}) {
@@ -70,7 +54,7 @@ export const CombatLifecycle = {
       getRegionCount,
       gs: this,
       isEndlessRun: (state) => RunRules.isEndless(state),
-      reportError: resolveErrorReporter(deps),
+      reportError: resolveErrorReporter(Logger, deps),
       win: resolveRuntimeHost(deps),
     });
 
@@ -133,29 +117,17 @@ export const CombatLifecycle = {
         targetIdx: index,
       }),
     });
-    const viewportWidth = Number(deps.viewportWidth || runtimeHost?.innerWidth || 0);
-    const showDmgPopup = deps.showDmgPopup || runtimeHost?.showDmgPopup;
-    hitResults.forEach(({ index, dealt }) => {
-      if (dealt <= 0) return;
-      const x = viewportWidth / 2 + (index - (this.combat.enemies.length - 1) / 2) * 200;
-      if (typeof showDmgPopup === 'function') {
-        showDmgPopup(dealt, x, 200, '#00ffcc');
-      }
-
-      if (isPassive && typeof particleSystem?.hitEffect === 'function') {
-        particleSystem.hitEffect(x, 200, false);
-      }
-    });
+    renderPassiveResonanceBurstHits(hitResults, this.combat.enemies.length, {
+      ...deps,
+      particleSystem,
+    }, runtimeHost);
     const totalDealt = hitResults.reduce((sum, { dealt }) => sum + Math.max(0, Number(dealt || 0)), 0);
 
-    this.addLog(LogUtils.formatEcho(`✨ 공명 폭발: ${totalDealt} 피해!`), 'echo', createRecentFeedMeta({
-      source: { name: '공명 폭발', type: 'skill' },
-      text: formatRecentFeedText({
-        sourceName: '공명 폭발',
-        sourceType: 'skill',
-        outcome: `${totalDealt} 피해`,
-      }),
-    }));
+    this.addLog(
+      LogUtils.formatEcho(`✨ 공명 폭발: ${totalDealt} 피해!`),
+      'echo',
+      createPassiveResonanceBurstLogMeta(totalDealt),
+    );
 
     const renderCombatEnemies = deps.renderCombatEnemies || runtimeHost?.renderCombatEnemies;
     if (typeof renderCombatEnemies === 'function') renderCombatEnemies();

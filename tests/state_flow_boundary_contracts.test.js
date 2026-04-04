@@ -91,10 +91,12 @@ describe('state flow boundary contracts', () => {
     const deathFlowRuntimeSupport = read('game/features/combat/application/death_flow_runtime_support.js');
     const enemyDeathState = read('game/features/combat/application/enemy_death_state.js');
     const helpPauseAbandonCombat = read('game/features/combat/application/help_pause_abandon_combat_actions.js');
+    const playCardResolution = read('game/features/combat/application/combat_card_play_resolution.js');
+    const playCardStateResolution = read('game/features/combat/state/combat_card_play_resolution.js');
     const playCardService = read('game/features/combat/application/play_card_service.js');
     const runEnemyTurnUseCase = read('game/features/combat/application/run_enemy_turn_use_case.js');
     const startCombatFlowUseCase = read('game/features/combat/application/start_combat_flow_use_case.js');
-    const classMechanicRules = read('game/shared/class/class_mechanic_rules.js');
+    const classMechanicRules = read('game/features/combat/domain/class_mechanic_rules.js');
     const eventRestService = read('game/features/event/application/rest_service.js');
     const eventShopService = read('game/features/event/application/shop_service.js');
 
@@ -119,7 +121,9 @@ describe('state flow boundary contracts', () => {
     expect(enemyDeathState).not.toContain('gs.combat.miniBossDefeated = true');
     expect(helpPauseAbandonCombat).toContain('../ports/public_state_capabilities.js');
     expect(helpPauseAbandonCombat).not.toContain('../../../shared/state/runtime_flow_controls.js');
-    expect(playCardService).toContain('../../run/ports/public_rule_capabilities.js');
+    expect(playCardService).toContain('./combat_card_play_resolution.js');
+    expect(playCardResolution).toContain("../state/combat_card_play_resolution.js");
+    expect(playCardStateResolution).toContain('../../run/ports/public_rule_capabilities.js');
     expect(playCardService).toContain('../../../shared/combat/public_combat_runtime_effects.js');
     expect(playCardService).not.toContain('../../../domain/combat/public_combat_runtime_capabilities.js');
     expect(playCardService).not.toContain('../../../domain/run/region_service.js');

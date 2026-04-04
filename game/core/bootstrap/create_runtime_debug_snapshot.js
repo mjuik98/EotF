@@ -1,4 +1,4 @@
-import { collectFeatureRuntimeDebugSnapshots } from '../../features/ui/ports/public_runtime_debug_snapshot_catalog.js';
+import { collectFeatureRuntimeDebugSnapshots } from '../composition/runtime_debug_snapshot_catalog.js';
 
 function toFiniteNumber(value, fallback = 0) {
   const num = Number(value);

@@ -1,5 +1,5 @@
 import { resolveBranchTargetRegion } from '../../ports/public_run_return_presentation_capabilities.js';
-import { getSetTimeout } from '../../../../platform/browser/dom/public.js';
+import { getRunSetTimeout } from '../../ports/run_runtime_timing_ports.js';
 import {
   clearRunReturnCombatSurface,
   dismissRunReturnNodeOverlay,
@@ -23,7 +23,7 @@ function finalizeBossVictoryOutcome(deps, gs) {
 }
 
 function getRunReturnSchedule(deps = {}) {
-  return getSetTimeout(deps);
+  return getRunSetTimeout(deps);
 }
 
 function scheduleBossRegionTransition(deps, gs, clearRewardExitStyles, rewardExitDelay) {

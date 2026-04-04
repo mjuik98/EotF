@@ -97,7 +97,7 @@ describe('feature structure guardrails', () => {
     const importSpecs = [...source.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1]);
 
     expect(importSpecs).toEqual([
-      '../../../features/ui/ports/public_feature_contract_capability_catalog.js',
+      '../../composition/feature_contract_capability_catalog.js',
     ]);
   });
 

@@ -2,9 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 
 const hoisted = vi.hoisted(() => ({
   SaveSystem: { id: 'save-system' },
+  SaveRuntimeContext: { id: 'save-runtime-context' },
   StoreGS: { token: 'store-gs' },
-  bindSaveStorage: vi.fn(),
-  bindSaveNotifications: vi.fn(),
+  configureSaveRuntimeContext: vi.fn(() => hoisted.SaveRuntimeContext),
   presentSaveStatus: vi.fn(),
   RunRules: { id: 'run-rules' },
   createFinalizeRunOutcomeAction: vi.fn((saveSystem) => ({ saveSystem, kind: 'bound' })),
@@ -14,8 +14,7 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock('../game/shared/save/public.js', () => ({
-  bindSaveNotifications: hoisted.bindSaveNotifications,
-  bindSaveStorage: hoisted.bindSaveStorage,
+  configureSaveRuntimeContext: hoisted.configureSaveRuntimeContext,
   presentSaveStatus: hoisted.presentSaveStatus,
   SaveSystem: hoisted.SaveSystem,
 }));
@@ -44,14 +43,19 @@ describe('buildCoreRunSystemModules', () => {
   it('builds the run module group through public feature capabilities only', () => {
     const modules = buildCoreRunSystemModules();
 
-    expect(hoisted.bindSaveStorage).toHaveBeenCalledTimes(1);
-    expect(hoisted.bindSaveNotifications).toHaveBeenCalledTimes(1);
+    expect(hoisted.configureSaveRuntimeContext).toHaveBeenCalledTimes(1);
+    expect(hoisted.configureSaveRuntimeContext).toHaveBeenCalledWith(expect.objectContaining({
+      saveSystem: hoisted.SaveSystem,
+      storage: expect.any(Object),
+      notifications: expect.any(Object),
+    }));
     expect(hoisted.createFinalizeRunOutcomeAction).toHaveBeenCalledWith(
       hoisted.SaveSystem,
       expect.any(Function),
     );
     expect(modules).toEqual({
       SaveSystem: hoisted.SaveSystem,
+      SaveRuntimeContext: hoisted.SaveRuntimeContext,
       RunRules: hoisted.RunRules,
       getRegionData: hoisted.getRegionData,
       getBaseRegionIndex: hoisted.getBaseRegionIndex,

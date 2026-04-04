@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ClassMechanics } from '../game/shared/class/class_mechanic_rules.js';
+import { ClassMechanics } from '../game/features/combat/domain/class_mechanic_rules.js';
 import { ClassMechanics as ClassMechanicsFacade } from '../game/shared/class/class_mechanics.js';
 
 function createState(overrides = {}) {

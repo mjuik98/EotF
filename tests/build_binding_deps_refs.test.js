@@ -3,6 +3,30 @@ import { describe, expect, it, vi } from 'vitest';
 import { buildBindingDepsRefs } from '../game/core/bootstrap/build_binding_deps_refs.js';
 
 describe('buildBindingDepsRefs', () => {
+  it('keeps feature ref grouping owned by the core/composition catalog', async () => {
+    const { buildBindingFeatureRefs } = await import(
+      '../game/core/bootstrap/build_binding_feature_refs.js'
+    );
+    const { buildFeatureBindingRefGroups } = await import(
+      '../game/core/composition/feature_binding_ref_catalog.js'
+    );
+    const refs = {
+      GAME: { id: 'game' },
+      GS: { id: 'gs' },
+      ScreenUI: { id: 'screen' },
+      CombatUI: { id: 'combat' },
+      RewardUI: { id: 'reward' },
+    };
+
+    expect(buildBindingFeatureRefs(refs)).toEqual({
+      core: {
+        GAME: { id: 'game' },
+        GS: { id: 'gs' },
+      },
+      ...buildFeatureBindingRefGroups(refs),
+    });
+  });
+
   it('prefers scoped module refs and merges binding functions into one deps surface', () => {
     const modules = {
       CombatUI: { id: 'stale-top-level-combat' },

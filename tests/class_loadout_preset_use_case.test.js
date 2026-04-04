@@ -6,7 +6,7 @@ import {
   setActiveClassLoadoutPresetSlot,
   saveLevel11LoadoutPreset,
   saveLevel12LoadoutPreset,
-} from '../game/shared/progression/class_loadout_preset_use_case.js';
+} from '../game/features/meta_progression/application/class_loadout_preset_use_case.js';
 
 function createMeta(level = 12) {
   return {

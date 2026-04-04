@@ -7,8 +7,8 @@ export function exportSaveBundle(system, deps = {}) {
     schemaVersion: SAVE_BUNDLE_SCHEMA_VERSION,
     slot,
     exportedAt: Date.now(),
-    meta: system.readMetaPreview({ slot }),
-    run: system._readRunSaveData({ slot, logErrors: false }),
+    meta: system.readMetaPreview({ ...deps, slot }),
+    run: system._readRunSaveData({ ...deps, slot, logErrors: false }),
   };
 }
 
@@ -26,8 +26,8 @@ export function importSaveBundle(system, bundle, deps = {}) {
     ? bundle.run
     : null;
 
-  if (nextMeta) system._persistWithOutbox(metaKey, nextMeta);
-  if (nextRun) system._persistWithOutbox(saveKey, nextRun);
+  if (nextMeta) system._persistWithOutbox(metaKey, nextMeta, deps);
+  if (nextRun) system._persistWithOutbox(saveKey, nextRun, deps);
   system.selectSlot(slot, deps);
 
   if (deps?.gs?.meta && nextMeta) {

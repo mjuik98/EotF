@@ -110,13 +110,15 @@ export function buildRunFlowContractBuilders(ctx) {
       const runDeps = getRunDeps();
       const coreRefs = refs.featureRefs?.core || {};
       const canonicalGs = coreRefs.GS || refs.GS || null;
-      const saveSystem = coreRefs.SaveSystem || refs.SaveSystem;
+      const saveRuntimeContext = coreRefs.SaveRuntimeContext || refs.SaveRuntimeContext || null;
+      const saveSystem = saveRuntimeContext?.saveSystem || coreRefs.SaveSystem || refs.SaveSystem;
       return {
         ...runDeps,
         gs: canonicalGs?.player ? canonicalGs : (runDeps.gs || canonicalGs),
         audioEngine: refs.AudioEngine,
         runRules: refs.RunRules,
         saveSystem,
+        saveRuntimeContext,
         saveSystemDeps: createDeps('saveSystem'),
         initTitleCanvas: refs.initTitleCanvas,
         updateUI: refs.updateUI,

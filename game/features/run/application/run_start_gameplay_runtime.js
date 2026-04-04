@@ -2,7 +2,7 @@ import {
   playStageEntryFadeTransition,
   removeRunStartHandoffBlackout,
 } from '../presentation/browser/run_start_transition_runtime.js';
-import { getRaf, getSetTimeout } from '../../../platform/browser/dom/public.js';
+import { getRunRaf, getRunSetTimeout } from '../ports/run_runtime_timing_ports.js';
 
 function showGameplayPanels(deps = {}, doc = null) {
   if (typeof deps.showGameplayPanels === 'function') {
@@ -17,7 +17,7 @@ function showGameplayPanels(deps = {}, doc = null) {
 }
 
 function scheduleWorldMemoryNotice(deps = {}, gs = {}) {
-  getSetTimeout(deps)(() => {
+  getRunSetTimeout(deps)(() => {
     const wm = gs.worldMemory || {};
     const hints = [];
     if ((wm.savedMerchant || 0) > 0) hints.push('상인들이 당신을 기억한다');
@@ -31,8 +31,8 @@ function scheduleWorldMemoryNotice(deps = {}, gs = {}) {
 export function createRunGameplayRuntime({ deps = {}, doc, gs, win }) {
   let gameplayStarted = false;
   const runtimeDeps = { ...deps, doc, win };
-  const setTimeoutFn = getSetTimeout(runtimeDeps);
-  const requestAnimationFrameFn = getRaf(runtimeDeps);
+  const setTimeoutFn = getRunSetTimeout(runtimeDeps);
+  const requestAnimationFrameFn = getRunRaf(runtimeDeps);
 
   const beginGameplay = () => {
     if (gameplayStarted) return;
@@ -62,7 +62,7 @@ export function createRunGameplayRuntime({ deps = {}, doc, gs, win }) {
     playStageEntryFadeTransition({
       doc,
       win,
-      requestAnimationFrame: deps.requestAnimationFrame,
+      requestAnimationFrame: deps.requestAnimationFrame || requestAnimationFrameFn,
     }, beginGameplay);
     removeRunStartHandoffBlackout(doc);
   };

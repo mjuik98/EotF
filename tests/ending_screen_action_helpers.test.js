@@ -7,6 +7,36 @@ import {
 } from '../game/features/ui/public.js';
 
 describe('ending_screen_action_helpers', () => {
+  it('prefers injected ending runtime accessors over browser defaults', () => {
+    const cleanup = vi.fn();
+    const restart = vi.fn();
+    const getEndingDoc = vi.fn(() => ({ id: 'doc' }));
+    const getEndingWin = vi.fn(() => ({
+      setTimeout(fn, delay) {
+        fn();
+        return delay;
+      },
+    }));
+
+    scheduleEndingRestartAction({
+      endingActions: { restart },
+      getEndingDoc,
+      getEndingWin,
+    }, {
+      cleanup,
+      delayMs: 25,
+    });
+
+    expect(getEndingDoc).toHaveBeenCalledTimes(1);
+    expect(getEndingWin).toHaveBeenCalled();
+    expect(cleanup).toHaveBeenCalledWith({
+      doc: { id: 'doc' },
+      win: expect.objectContaining({
+        setTimeout: expect.any(Function),
+      }),
+    });
+  });
+
   it('prefers endingActions callbacks when resolving action handles', () => {
     const restart = vi.fn();
     const selectFragment = vi.fn();

@@ -1,1 +1,1 @@
-export { registerEnemyEncounter } from '../../../shared/codex/codex_records.js';
+export { registerEnemyEncounter } from '../../codex/ports/public_state_capabilities.js';

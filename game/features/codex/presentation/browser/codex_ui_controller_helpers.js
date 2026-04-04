@@ -1,5 +1,23 @@
-export function applyCodexModalOpen(modal) {
+function clearPendingCodexModalClose(modal, clearTimeoutFn = clearTimeout) {
+  if (!modal) return;
+
+  const closeHandler = modal.__codexCloseAnimationEnd || null;
+  if (closeHandler) {
+    modal.removeEventListener?.('animationend', closeHandler);
+  }
+
+  const closeTimer = modal.__codexCloseTimer;
+  if (closeTimer != null) {
+    clearTimeoutFn?.(closeTimer);
+  }
+
+  modal.__codexCloseAnimationEnd = null;
+  modal.__codexCloseTimer = null;
+}
+
+export function applyCodexModalOpen(modal, options = {}) {
   if (!modal) return null;
+  clearPendingCodexModalClose(modal, options.clearTimeoutFn);
   modal.classList.remove('fade-out');
   modal.style.display = 'flex';
   modal.classList.add('fade-in');
@@ -13,21 +31,25 @@ export function runCodexModalClose(modal, options = {}) {
     onBeforeHide,
     timeoutMs = 300,
     setTimeoutFn = setTimeout,
+    clearTimeoutFn = clearTimeout,
   } = options;
 
+  clearPendingCodexModalClose(modal, clearTimeoutFn);
   onBeforeHide?.();
   modal.classList.remove('fade-in');
   modal.classList.add('fade-out');
 
   const onEnd = () => {
+    if (modal.__codexCloseAnimationEnd !== onEnd) return;
+    clearPendingCodexModalClose(modal, clearTimeoutFn);
     modal.style.display = 'none';
     modal.classList.remove('fade-out');
-    modal.removeEventListener?.('animationend', onEnd);
   };
 
+  modal.__codexCloseAnimationEnd = onEnd;
   modal.addEventListener?.('animationend', onEnd);
-  setTimeoutFn(() => {
-    if (modal.style.display !== 'none') onEnd();
+  modal.__codexCloseTimer = setTimeoutFn(() => {
+    if (modal.__codexCloseAnimationEnd === onEnd && modal.style.display !== 'none') onEnd();
   }, timeoutMs);
 
   return true;

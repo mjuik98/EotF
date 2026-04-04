@@ -53,8 +53,8 @@ describe('help pause hotkey smoke script', () => {
     expect(source).toContain("document.querySelector('#combatOverlay.active')");
     expect(source).toContain('openVisibleCodexDetailPopup');
     expect(source).toContain('assertNestedCodexEscapePriority');
-    expect(source).toContain("page.waitForFunction((pauseWasOpen) => {");
-    expect(source).toContain("return !isVisible('#codexModal') && isVisible('#pauseMenu') === pauseWasOpen;");
+    expect(source).toContain("page.waitForFunction(() => {");
+    expect(source).toContain("return !isVisible('#codexModal');");
     expect(source).toContain('combatCodexBlocksHotkeys');
     expect(source).toContain('nestedCodexEscapeOrder');
     expect(source).toContain('escapeClosesSurfaceBeforePause');

@@ -294,10 +294,10 @@ describe('vite chunking guardrails', () => {
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/data/events_data.js'),
     ).toBe('data-events');
     expect(
-      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/class_loadout_preset_use_case.js'),
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/application/class_loadout_preset_use_case.js'),
     ).toBe(null);
     expect(
-      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/shared/progression/class_loadout_preset_helpers.js'),
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/domain/class_loadout_preset_helpers.js'),
     ).toBe(null);
     expect(
       getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/domain/achievement_definitions.js'),
@@ -439,7 +439,7 @@ describe('vite chunking guardrails', () => {
     expect(helpPauseReturnRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(helpPauseMenuRuntime).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
     expect(shellContracts).toContain("./build_ui_help_pause_contract.js");
-    expect(helpPauseContract).toContain("../../../title/ports/public_help_pause_application_capabilities.js");
+    expect(helpPauseContract).toContain("../../../frontdoor/ports/public_application_capabilities.js");
     expect(nextNodeInteractions).toContain("../../../ui/ports/public_help_pause_hotkey_capabilities.js");
     expect(nextNodeInteractions).not.toContain("public_help_pause_presentation_capabilities.js");
 

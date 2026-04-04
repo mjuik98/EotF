@@ -1,6 +1,15 @@
 export { SaveSystem } from './save_system.js';
-export { bindSaveNotifications } from './save_notifications.js';
-export { bindSaveStorage } from './save_storage.js';
+export {
+  SaveRuntimeContext,
+  bindSaveNotifications,
+  bindSaveRuntimeContext,
+  bindSaveStorage,
+  configureSaveRuntimeContext,
+  getSaveNotifications,
+  getSaveRuntimeContext,
+  getSaveStorage,
+  resolveSaveRuntimeContext,
+} from './save_runtime_context.js';
 export {
   META_SAVE_VERSION,
   RUN_SAVE_VERSION,

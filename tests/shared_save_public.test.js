@@ -5,10 +5,13 @@ import path from 'node:path';
 import {
   META_SAVE_VERSION,
   RUN_SAVE_VERSION,
+  SaveRuntimeContext,
   SaveSystem,
   buildMetaSave,
   buildRunSave,
+  configureSaveRuntimeContext,
   createOutboxMetrics,
+  getSaveRuntimeContext,
   migrateMetaSave,
   migrateRunSave,
   summarizeOutboxMetrics,
@@ -20,9 +23,12 @@ import * as SaveRepository from '../game/shared/save/save_repository.js';
 describe('shared save public surface', () => {
   it('exposes the canonical save surface through shared/save/public.js', () => {
     expect(SaveSystem).toBeTypeOf('object');
+    expect(SaveRuntimeContext).toBeTypeOf('object');
     expect(typeof buildMetaSave).toBe('function');
     expect(typeof buildRunSave).toBe('function');
+    expect(typeof configureSaveRuntimeContext).toBe('function');
     expect(typeof createOutboxMetrics).toBe('function');
+    expect(typeof getSaveRuntimeContext).toBe('function');
     expect(typeof summarizeOutboxMetrics).toBe('function');
   });
 

@@ -7,44 +7,45 @@ import {
   takeRewardRemoveAction,
   takeRewardUpgradeAction,
 } from './reward_runtime_actions.js';
-import { createRewardRuntimeContext } from '../platform/browser/reward_runtime_context.js';
+import { resolveRewardRuntimeContext } from '../ports/reward_runtime_context_ports.js';
 
-export function createRewardRuntime(deps = {}, runtime = createRewardRuntimeContext()) {
+export function createRewardRuntime(deps = {}, runtime = null) {
+  const rewardRuntime = resolveRewardRuntimeContext(deps, runtime);
   return {
     finishReward() {
       return finishRewardFlow(deps);
     },
 
     takeRewardBlessing(blessing) {
-      return takeRewardBlessingAction(blessing, deps, runtime);
+      return takeRewardBlessingAction(blessing, deps, rewardRuntime);
     },
 
     takeRewardCard(cardId) {
-      return takeRewardCardAction(cardId, deps, runtime);
+      return takeRewardCardAction(cardId, deps, rewardRuntime);
     },
 
     takeRewardItem(itemKey) {
-      return takeRewardItemAction(itemKey, deps, runtime);
+      return takeRewardItemAction(itemKey, deps, rewardRuntime);
     },
 
     takeRewardUpgrade() {
-      return takeRewardUpgradeAction(deps, runtime);
+      return takeRewardUpgradeAction(deps, rewardRuntime);
     },
 
     takeRewardRemove() {
-      return takeRewardRemoveAction(deps, runtime);
+      return takeRewardRemoveAction(deps, rewardRuntime);
     },
 
     showSkipConfirm() {
-      runtime.setSkipConfirmVisible?.(deps, true);
+      rewardRuntime.setSkipConfirmVisible?.(deps, true);
     },
 
     hideSkipConfirm() {
-      runtime.setSkipConfirmVisible?.(deps, false);
+      rewardRuntime.setSkipConfirmVisible?.(deps, false);
     },
 
     skipReward() {
-      return skipRewardAction(deps, runtime);
+      return skipRewardAction(deps, rewardRuntime);
     },
   };
 }

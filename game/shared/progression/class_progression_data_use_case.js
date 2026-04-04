@@ -6,4 +6,4 @@ export {
 export {
   DEFAULT_LOADOUT_PRESET_SLOT,
   LOADOUT_PRESET_SLOTS,
-} from './class_loadout_preset_catalog.js';
+} from '../../features/meta_progression/ports/public_loadout_capabilities.js';

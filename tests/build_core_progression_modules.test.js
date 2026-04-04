@@ -6,10 +6,6 @@ const hoisted = vi.hoisted(() => ({
   DifficultyScaler: { id: 'difficulty' },
 }));
 
-vi.mock('../game/shared/class/class_mechanics.js', () => ({
-  ClassMechanics: hoisted.ClassMechanics,
-}));
-
 vi.mock('../game/shared/progression/set_bonus_system.js', () => ({
   SetBonusSystem: hoisted.SetBonusSystem,
 }));
@@ -18,6 +14,9 @@ vi.mock('../game/features/combat/ports/public_system_capabilities.js', () => ({
   createCombatSystemCapabilities: vi.fn(() => ({
     difficulty: {
       DifficultyScaler: hoisted.DifficultyScaler,
+    },
+    classMechanics: {
+      ClassMechanics: hoisted.ClassMechanics,
     },
   })),
 }));

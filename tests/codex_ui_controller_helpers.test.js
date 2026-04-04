@@ -28,16 +28,44 @@ describe('codex_ui_controller_helpers', () => {
   it('opens and closes the codex modal through shared helpers', () => {
     const modal = createModal();
     const setTimeoutFn = vi.fn((callback) => callback());
+    const clearTimeoutFn = vi.fn();
     const onBeforeHide = vi.fn();
 
     expect(applyCodexModalOpen(modal)).toBe(modal);
     expect(modal.style.display).toBe('flex');
     expect(modal.classList.contains('fade-in')).toBe(true);
 
-    expect(runCodexModalClose(modal, { onBeforeHide, setTimeoutFn })).toBe(true);
+    expect(runCodexModalClose(modal, { onBeforeHide, setTimeoutFn, clearTimeoutFn })).toBe(true);
     expect(onBeforeHide).toHaveBeenCalledTimes(1);
     expect(modal.style.display).toBe('none');
     expect(modal.classList.contains('fade-out')).toBe(false);
+  });
+
+  it('cancels a pending close when the codex modal reopens immediately', () => {
+    const modal = createModal();
+    const pendingTimers = [];
+    const setTimeoutFn = vi.fn((callback) => {
+      pendingTimers.push(callback);
+      return callback;
+    });
+    const clearTimeoutFn = vi.fn((timer) => {
+      const index = pendingTimers.indexOf(timer);
+      if (index >= 0) pendingTimers.splice(index, 1);
+    });
+
+    applyCodexModalOpen(modal, { clearTimeoutFn });
+    expect(runCodexModalClose(modal, { setTimeoutFn, clearTimeoutFn })).toBe(true);
+    expect(modal.classList.contains('fade-out')).toBe(true);
+
+    expect(applyCodexModalOpen(modal, { clearTimeoutFn })).toBe(modal);
+    expect(modal.style.display).toBe('flex');
+    expect(modal.classList.contains('fade-in')).toBe(true);
+    expect(modal.classList.contains('fade-out')).toBe(false);
+    expect(pendingTimers).toHaveLength(0);
+
+    modal.listeners.animationend?.();
+    expect(modal.style.display).toBe('flex');
+    expect(modal.classList.contains('fade-in')).toBe(true);
   });
 
   it('runs codex tab transition choreography and clears the transition flag', () => {

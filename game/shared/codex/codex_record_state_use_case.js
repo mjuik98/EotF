@@ -5,7 +5,8 @@ export {
   isCardUpgradeVariant,
   registerCardDiscovered,
   registerCardUsed,
+  registerEnemyEncounter,
   registerEnemyKill,
   registerItemFound,
   resolveCodexCardId,
-} from './codex_records.js';
+} from '../../features/codex/application/codex_record_state_use_case.js';

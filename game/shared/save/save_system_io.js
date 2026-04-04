@@ -1,6 +1,5 @@
 import { validateRunSaveData } from './save_repository.js';
-import { getSaveStorage } from './save_storage.js';
-import { getSaveNotifications } from './save_notifications.js';
+import { getSaveNotifications, getSaveStorage } from './save_runtime_context.js';
 import {
   hasExplicitSlot,
 } from './save_slot_keys.js';
@@ -29,8 +28,8 @@ import {
   selectSaveSlot as selectSaveSlotViaSummaries,
 } from './save_system_slot_summaries.js';
 
-function getSaveAdapter() {
-  return getSaveStorage();
+function getSaveAdapter(deps = {}) {
+  return getSaveStorage(deps);
 }
 
 export {
@@ -47,7 +46,7 @@ export {
 function resolveSaveStatusNotifier(deps = {}) {
   if (typeof deps.notifySaveStatus === 'function') return deps.notifySaveStatus;
   if (typeof deps.presentSaveStatus === 'function') return deps.presentSaveStatus;
-  return getSaveNotifications().saveStatus;
+  return getSaveNotifications(deps).saveStatus;
 }
 
 export function resolveSaveSlot(system, deps = {}) {
@@ -92,12 +91,12 @@ export function readMetaSaveDataForSystem(system, { logErrors = true, ...deps } 
 
 export function clearSaveForSystem(system, options = {}) {
   const { saveKey, metaKey } = system._getSlotKeys(system.resolveSlot(options));
-  getSaveAdapter()?.remove?.(saveKey);
-  system._dropOutboxKey(saveKey);
+  getSaveAdapter(options)?.remove?.(saveKey);
+  system._dropOutboxKey(saveKey, options);
 
   if (hasExplicitSlot(options)) {
-    getSaveAdapter()?.remove?.(metaKey);
-    system._dropOutboxKey(metaKey);
+    getSaveAdapter(options)?.remove?.(metaKey);
+    system._dropOutboxKey(metaKey, options);
   }
 }
 

@@ -1,97 +1,30 @@
 import { Actions } from '../ports/public_state_action_capabilities.js';
 import {
-  createLegacyGameStateRuntimeFacade,
   registerCardUsed,
 } from '../../../shared/combat/public_combat_runtime_effects.js';
-import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
 import {
   captureHandScopedRuntimeState,
   restoreHandScopedRuntimeState,
 } from '../ports/public_hand_runtime_state_capabilities.js';
 import { changePlayerEnergyState } from '../state/card_state_commands.js';
-import { drawCardsService } from './card_draw_service.js';
 import {
-  consumeNextCardDiscountState,
   incrementCardsPlayedState,
   removeCardFromHandState,
   restorePlayerHandState,
   setCombatCardPlayLockState,
 } from '../state/commands/combat_card_play_state_commands.js';
+import {
+  createCardEffectTracker,
+  createCombatRuntimeFacade,
+  runCardEffect,
+} from './combat_card_runtime_facade.js';
+import {
+  applyPreItemCardPlayState,
+  buildCardPlayPayload,
+  finishCardPlayState,
+} from './combat_card_play_resolution.js';
 
-export function createCombatRuntimeFacade(gs) {
-  return createLegacyGameStateRuntimeFacade(gs);
-}
-
-function createCardEffectRuntimeFacade(gs, runtimeDeps = {}) {
-  const combatRuntimeFacade = createCombatRuntimeFacade(gs);
-
-  return new Proxy(combatRuntimeFacade, {
-    get(target, prop, receiver) {
-      if (
-        prop === 'dealDamage'
-        || prop === 'dealDamageAll'
-        || prop === 'takeDamage'
-        || prop === 'addShield'
-        || prop === 'applyEnemyStatus'
-      ) {
-        const runtimeMethod = Reflect.get(target, prop, receiver);
-        if (typeof runtimeMethod !== 'function') return runtimeMethod;
-
-        return (...args) => {
-          const depsArgIndex = prop === 'dealDamage'
-            ? 4
-            : (prop === 'applyEnemyStatus' ? 3 : 2);
-          const currentDeps = args[depsArgIndex];
-          const mergedDeps = { ...runtimeDeps, ...(currentDeps || {}) };
-          const nextArgs = [...args];
-          nextArgs[depsArgIndex] = mergedDeps;
-          return runtimeMethod(...nextArgs);
-        };
-      }
-
-      if (prop === 'drawCards') {
-        return (count = 1, options = {}) => drawCardsService({
-          count,
-          gs,
-          options,
-          deps: {
-            getRegionData: runtimeDeps?.getRegionData,
-            runtimeDeps,
-          },
-        });
-      }
-
-      return Reflect.get(target, prop, receiver);
-    },
-  });
-}
-
-function createCardEffectTracker(runtimeDeps = {}) {
-  const damagedTargetIdxs = [];
-  const existingHandler = runtimeDeps?.onDealDamageResolved;
-
-  return {
-    damagedTargetIdxs,
-    runtimeDeps: {
-      ...runtimeDeps,
-      onDealDamageResolved(payload = {}) {
-        if (Number.isInteger(payload?.targetIdx)) {
-          damagedTargetIdxs.push(payload.targetIdx);
-        }
-        existingHandler?.(payload);
-      },
-    },
-  };
-}
-
-function runCardEffect(gs, card, runtimeDeps = {}) {
-  gs._currentCard = card;
-  try {
-    card.effect?.(createCardEffectRuntimeFacade(gs, runtimeDeps));
-  } finally {
-    gs._currentCard = null;
-  }
-}
+export { createCombatRuntimeFacade };
 
 export function playCardService({
   cardId,
@@ -168,50 +101,32 @@ export function playCardService({
       throw effectErr;
     }
 
-    const combatRegionId = resolveActiveRegionId(gs, {
-      getRegionData: runtimeDeps?.getRegionData,
+    applyPreItemCardPlayState({
+      gs,
+      player,
+      cardId,
+      handIdx,
+      nextCardDiscountBeforePlay,
+      classMechanics,
+      cardCostUtils,
+      runtimeDeps,
     });
-    if (combat?.active && combatRegionId === 1) {
-      gs.addSilence?.(1);
-    }
 
-    if (nextCardDiscountBeforePlay > 0) {
-      consumeNextCardDiscountState(gs);
-    }
-
-    cardCostUtils?.consumeTraitDiscount?.(cardId, player);
-    cardCostUtils?.consumeFreeCharge?.(cardId, player, handIdx);
-
-    const classMech = classMechanics?.[player.class];
-    if (classMech && typeof classMech.onPlayCard === 'function') {
-      classMech.onPlayCard(gs, { cardId });
-    }
-
-    const cardPlayPayload = { cardId, cost };
-    const damagedTargetIdxs = [...new Set((cardEffectTracker?.damagedTargetIdxs || []).filter((idx) => Number.isInteger(idx)))];
-    if (damagedTargetIdxs.length > 0) {
-      cardPlayPayload.targetIdx = damagedTargetIdxs[0];
-      cardPlayPayload.targetIdxs = damagedTargetIdxs;
-    }
+    const cardPlayPayload = buildCardPlayPayload(cardId, cost, cardEffectTracker?.damagedTargetIdxs);
     const cardPlayResult = gs.triggerItems?.('card_play', cardPlayPayload);
     if (cardPlayResult?.doubleCast) {
       runCardEffect(gs, card, runtimeDeps);
     }
 
-    if (player.echoChain >= 5 && typeof gs.triggerResonanceBurst === 'function') {
-      gs.triggerResonanceBurst({
-        audioEngine,
-        screenShake: runtimeDeps?.ScreenShake,
-        particleSystem: runtimeDeps?.ParticleSystem,
-        showDmgPopup: runtimeDeps?.showDmgPopup,
-        updateUI: runtimeDeps?.updateUI,
-        renderCombatEnemies: runtimeDeps?.renderCombatEnemies,
-      }, { isPassive: true });
-    }
-
-    if (!player.graveyard.includes(cardId) && !player.exhausted.includes(cardId)) {
-      discardCard(cardId, card.exhaust, gs, true);
-    }
+    finishCardPlayState({
+      gs,
+      player,
+      card,
+      cardId,
+      discardCard,
+      audioEngine,
+      runtimeDeps,
+    });
 
     incrementCardsPlayedState(gs);
     registerCardUsed(gs, cardId);

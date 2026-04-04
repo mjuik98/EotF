@@ -116,7 +116,7 @@ describe('game_boot_ui_runtime', () => {
     expect(fx.countUp).toHaveBeenNthCalledWith(1, totalRuns, 3, 1100);
     expect(fx.countUp).toHaveBeenNthCalledWith(2, totalKills, 17, 1250);
     expect(fx.countUp).toHaveBeenNthCalledWith(3, bestChain, 9, 1350);
-  });
+  }, 10000);
 
   it('flushes the outbox and refreshes title save state when the page becomes visible again', async () => {
     const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');

@@ -4,10 +4,10 @@ import { CARDS } from '../data/cards.js';
 import { CLASS_METADATA } from '../data/class_metadata.js';
 import { ITEMS } from '../data/items.js';
 import { ACHIEVEMENTS } from '../game/features/meta_progression/domain/achievement_definitions.js';
+import { CLASS_CARD_POOLS } from '../game/features/meta_progression/domain/class_loadout_preset_catalog.js';
 import { getContentLabel } from '../game/features/meta_progression/domain/content_unlock_queries.js';
 import { UNLOCKABLES } from '../game/features/meta_progression/domain/unlockable_definitions.js';
 import { CURSES } from '../game/features/run/domain/run_rules_curses.js';
-import { CLASS_CARD_POOLS } from '../game/shared/progression/class_loadout_preset_catalog.js';
 
 describe('achievement definitions', () => {
   it('declares the initial curse unlock achievements', () => {

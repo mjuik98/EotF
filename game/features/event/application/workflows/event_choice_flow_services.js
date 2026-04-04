@@ -1,5 +1,5 @@
 import { createResolveEventChoiceUseCase } from '../resolve_event_choice_use_case.js';
-import { createEventEffectServices } from '../../platform/browser/event_effect_services.js';
+import { resolveEventEffectServices } from '../../ports/event_effect_service_ports.js';
 
 export function resolveEventChoiceExecution({
   audioEngine,
@@ -10,10 +10,7 @@ export function resolveEventChoiceExecution({
   resolveChoice,
   sharedData = deps?.data || {},
 } = {}) {
-  const effectServices = deps.eventEffectServices || createEventEffectServices({
-    audioEngine,
-    showItemToast: deps.showItemToast,
-  });
+  const effectServices = resolveEventEffectServices(deps, { audioEngine });
   const resolveEventChoice = createResolveEventChoiceUseCase(
     typeof resolveChoice === 'function'
       ? {

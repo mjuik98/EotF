@@ -203,6 +203,25 @@ describe('runtime debug hooks', () => {
     vi.useRealTimers();
   });
 
+  it('collects feature runtime debug snapshots through the core/composition catalog', async () => {
+    const doc = createDoc();
+    const modules = createModules();
+    const { collectFeatureRuntimeDebugSnapshots } = await import(
+      '../game/core/composition/runtime_debug_snapshot_catalog.js'
+    );
+
+    expect(collectFeatureRuntimeDebugSnapshots({
+      modules,
+      doc,
+      win: doc.defaultView,
+    })).toMatchObject({
+      combat: expect.any(Object),
+      run: expect.any(Object),
+      title: expect.any(Object),
+      ui: expect.any(Object),
+    });
+  });
+
   it('builds a concise runtime snapshot from state and visible panels', () => {
     const doc = createDoc();
     const modules = createModules();

@@ -93,7 +93,8 @@ describe('coupling support facades', () => {
     expect(combatRuntimeDebug).toContain("../../ui/ports/public_runtime_debug_support_capabilities.js");
     expect(rewardBindingRefs).toContain("../../ui/ports/public_binding_ref_support_capabilities.js");
     expect(runModeHelpers).toContain("../../../../platform/browser/dom/public.js");
-    expect(endingActionPorts).toContain("../../../platform/browser/dom/public.js");
+    expect(endingActionPorts).toContain("../ports/ending_runtime_ports.js");
+    expect(endingActionPorts).not.toContain("../../../platform/browser/dom/public.js");
   });
 
   it('keeps canonical dom, logging, and tooltip helpers off the ui feature surface for non-ui feature imports', () => {

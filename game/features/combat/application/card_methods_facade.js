@@ -1,4 +1,4 @@
-import { CARDS } from '../../../../data/cards.js';
+import { CARDS } from '../../../shared/cards/card_data.js';
 import {
   drawStateCards,
   playStateCard,

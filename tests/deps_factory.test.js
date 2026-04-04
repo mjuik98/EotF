@@ -230,6 +230,26 @@ describe('deps factory', () => {
     expect(gameBoot.saveSystem).toBe(canonicalSaveSystem);
   });
 
+  it('prefers the canonical core save runtime context for the game boot contract', () => {
+    const staleSaveSystem = { id: 'stale-save' };
+    const runtimeSaveSystem = { id: 'runtime-save' };
+    const runtimeContext = { saveSystem: runtimeSaveSystem };
+
+    seedRefs({
+      SaveSystem: staleSaveSystem,
+      featureRefs: {
+        core: {
+          SaveRuntimeContext: runtimeContext,
+        },
+      },
+    });
+
+    const gameBoot = createDeps('gameBoot');
+
+    expect(gameBoot.saveRuntimeContext).toBe(runtimeContext);
+    expect(gameBoot.saveSystem).toBe(runtimeSaveSystem);
+  });
+
   it('builds feature contracts from feature-specific GAME dep getters', () => {
     const setBonusSystem = { id: 'set-bonus-system' };
     seedRefs({ SetBonusSystem: setBonusSystem });
