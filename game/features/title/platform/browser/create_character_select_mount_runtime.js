@@ -1,7 +1,7 @@
 import {
   ensureCharacterSelectMeta,
   getCharacterSelectPresentation,
-} from '../../application/load_character_select_use_case.js';
+} from '../../ports/public_character_select_progression_capabilities.js';
 import {
   buildCharacterSelectLoadoutPayload,
   clearCharacterSelectLoadoutPreset,

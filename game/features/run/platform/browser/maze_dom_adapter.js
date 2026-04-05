@@ -1,6 +1,7 @@
 export function createMazeDomAdapter(deps = {}) {
   function getDoc() {
-    return deps.doc || document;
+    if (deps.doc) return deps.doc;
+    return typeof document !== 'undefined' ? document : null;
   }
 
   function getWin() {
@@ -9,22 +10,22 @@ export function createMazeDomAdapter(deps = {}) {
 
   return {
     getCanvas() {
-      return getDoc().getElementById('mazeCanvas');
+      return getDoc()?.getElementById('mazeCanvas') || null;
     },
     getMinimap() {
-      return getDoc().getElementById('mazeMinimap');
+      return getDoc()?.getElementById('mazeMinimap') || null;
     },
     getDoc,
     getWin,
     hideOverlay() {
-      const overlay = getDoc().getElementById('mazeOverlay');
+      const overlay = getDoc()?.getElementById('mazeOverlay');
       if (overlay) overlay.style.display = 'none';
     },
     removeGuide() {
-      getDoc().getElementById('mazeGuide')?.remove();
+      getDoc()?.getElementById('mazeGuide')?.remove();
     },
     showOverlay() {
-      const overlay = getDoc().getElementById('mazeOverlay');
+      const overlay = getDoc()?.getElementById('mazeOverlay');
       if (overlay) overlay.style.display = 'flex';
     },
   };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import * as metaProgression from '../game/features/meta_progression/public.js';
+import { buildAchievementRoadmap } from '../game/features/meta_progression/ports/public_roadmap_capabilities.js';
 import {
   buildUnlockRoadmap,
   isContentAvailable,
@@ -317,8 +317,8 @@ describe('content unlock queries', () => {
       },
     };
 
-    expect(typeof metaProgression.buildAchievementRoadmap).toBe('function');
-    expect(metaProgression.buildAchievementRoadmap(meta, { classId: 'paladin' })).toEqual({
+    expect(typeof buildAchievementRoadmap).toBe('function');
+    expect(buildAchievementRoadmap(meta, { classId: 'paladin' })).toEqual({
       account: [
         expect.objectContaining({
           id: 'cursed_conqueror_1',
@@ -363,7 +363,7 @@ describe('content unlock queries', () => {
       },
     };
 
-    expect(metaProgression.buildAchievementRoadmap(meta, { classId: 'mage' }).account).toEqual([
+    expect(buildAchievementRoadmap(meta, { classId: 'mage' }).account).toEqual([
       expect.objectContaining({
         id: 'ascension_vanguard_5',
         focusLabel: '승천 승리',

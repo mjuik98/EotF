@@ -1,10 +1,12 @@
 import {
   ACHIEVEMENTS,
   getAchievementProgressValue,
+} from '../../meta_progression/ports/public_achievement_capabilities.js';
+import {
   getContentLabel,
   isContentUnlocked,
   UNLOCKABLES,
-} from '../../meta_progression/public.js';
+} from '../../meta_progression/ports/public_unlock_capabilities.js';
 
 const CODEX_MILESTONE_TYPES = new Set([
   'codex_entries',

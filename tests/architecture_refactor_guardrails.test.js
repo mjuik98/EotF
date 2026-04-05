@@ -100,6 +100,30 @@ describe('architecture refactor guardrails', () => {
     expect(uiHelpPauseContractSource).not.toContain("../../../title/ports/public_help_pause_application_capabilities.js");
   });
 
+  it('keeps frontdoor title-shell access behind frontdoor-local bridge ports', () => {
+    const frontdoorFlowSource = readText('game/features/frontdoor/application/create_frontdoor_flow_actions.js');
+    const frontdoorBootRuntimeSource = readText('game/features/frontdoor/platform/browser/frontdoor_boot_runtime.js');
+    const frontdoorTitlePortsSource = readText('game/features/frontdoor/ports/frontdoor_title_flow_ports.js');
+    const frontdoorTitleBootPortsSource = readText('game/features/frontdoor/ports/frontdoor_title_boot_ports.js');
+    const titleFrontdoorFlowSource = readText('game/features/title/ports/public_frontdoor_flow_capabilities.js');
+    const titleFrontdoorBootSource = readText('game/features/title/ports/public_frontdoor_boot_capabilities.js');
+    const titleFrontdoorCompatSource = readText('game/features/title/ports/public_frontdoor_capabilities.js');
+
+    expect(frontdoorFlowSource).toContain("../ports/frontdoor_title_flow_ports.js");
+    expect(frontdoorFlowSource).not.toContain("../../title/ports/public_frontdoor_capabilities.js");
+    expect(frontdoorBootRuntimeSource).toContain("../../ports/frontdoor_title_boot_ports.js");
+    expect(frontdoorBootRuntimeSource).not.toContain("../../../title/ports/public_frontdoor_capabilities.js");
+    expect(frontdoorTitlePortsSource).toContain("../../title/ports/public_frontdoor_flow_capabilities.js");
+    expect(frontdoorTitlePortsSource).not.toContain("../../title/ports/public_frontdoor_capabilities.js");
+    expect(frontdoorTitleBootPortsSource).toContain("../../title/ports/public_frontdoor_boot_capabilities.js");
+    expect(titleFrontdoorFlowSource).toContain("../application/title_run_entry_actions.js");
+    expect(titleFrontdoorFlowSource).toContain("../presentation/browser/title_screen_dom.js");
+    expect(titleFrontdoorBootSource).toContain("../presentation/browser/game_boot_ui_fx.js");
+    expect(titleFrontdoorBootSource).toContain("../presentation/browser/game_boot_ui_helpers.js");
+    expect(titleFrontdoorCompatSource).toContain("./public_frontdoor_boot_capabilities.js");
+    expect(titleFrontdoorCompatSource).toContain("./public_frontdoor_flow_capabilities.js");
+  });
+
   it('keeps legacy bridge bootstrap registration routed through a single core helper', () => {
     const initRuntimeSource = readText('game/core/bootstrap/init_bootstrap_runtime.js');
     const registerLegacySource = readText('game/core/bootstrap/register_legacy_surface.js');
@@ -218,6 +242,132 @@ describe('architecture refactor guardrails', () => {
     expect(source).toContain("from '../domain/run_rules_regions.js'");
     expect(scalingSource).toContain("from '../domain/run_rules_difficulty.js'");
     expect(metaSource).toContain("from '../domain/run_rules_meta.js'");
+  });
+
+  it('keeps maze runtime host access behind injected run platform ports', () => {
+    const source = readText('game/features/run/application/create_maze_runtime.js');
+    const browserRuntimeSource = readText('game/features/run/presentation/browser/create_maze_browser_runtime.js');
+
+    expect(source).toContain('const host = deps.mazeHost || null;');
+    expect(source).not.toContain('dom.getWin()?.');
+    expect(browserRuntimeSource).toContain("../../platform/browser/maze_runtime_host.js");
+  });
+
+  it('routes run-start loadout ownership through canonical run state and meta progression ports', () => {
+    const canonicalSource = readText('game/features/run/state/run_state_commands.js');
+    const sharedSource = readText('game/shared/state/run_state_commands.js');
+    const sharedLoadoutUseCaseSource = readText('game/shared/progression/class_loadout_preset_use_case.js');
+    const sharedLoadoutHelpersSource = readText('game/shared/progression/class_loadout_preset_helpers.js');
+    const sharedLoadoutCatalogSource = readText('game/shared/progression/class_loadout_preset_catalog.js');
+    const sharedClassProgressSource = readText('game/shared/progression/class_progression_data_use_case.js');
+    const titleXpPolicySource = readText('game/features/title/domain/class_progression/xp_policy.js');
+    const titleMetaPersistenceSource = readText('game/features/title/domain/class_progression/meta_persistence.js');
+    const titleQueriesSource = readText('game/features/title/domain/class_progression/class_progression_queries.js');
+
+    expect(canonicalSource).toContain("../../meta_progression/ports/public_loadout_capabilities.js");
+    expect(canonicalSource).not.toContain("../progression/class_loadout_preset_use_case.js");
+    expect(sharedSource).toContain("../../features/run/state/run_state_commands.js");
+    expect(sharedLoadoutUseCaseSource).toContain("../../features/meta_progression/ports/public_loadout_capabilities.js");
+    expect(sharedLoadoutUseCaseSource).not.toContain("../../features/meta_progression/application/class_loadout_preset_use_case.js");
+    expect(sharedLoadoutHelpersSource).toContain("../../features/meta_progression/ports/public_loadout_capabilities.js");
+    expect(sharedLoadoutHelpersSource).not.toContain("../../features/meta_progression/domain/class_loadout_preset_helpers.js");
+    expect(sharedLoadoutCatalogSource).toContain("../../features/meta_progression/ports/public_loadout_capabilities.js");
+    expect(sharedLoadoutCatalogSource).not.toContain("../../features/meta_progression/domain/class_loadout_preset_catalog.js");
+    expect(sharedClassProgressSource).toContain("../../features/meta_progression/ports/public_class_progression_capabilities.js");
+    expect(titleXpPolicySource).toContain("../../../meta_progression/ports/public_class_progression_capabilities.js");
+    expect(titleMetaPersistenceSource).toContain("../../../meta_progression/ports/public_class_progression_capabilities.js");
+    expect(titleQueriesSource).toContain("../../../meta_progression/ports/public_class_progression_capabilities.js");
+    expect(titleXpPolicySource).not.toContain("../../../../shared/progression/class_progression_data_use_case.js");
+    expect(titleMetaPersistenceSource).not.toContain("../../../../shared/progression/class_progression_data_use_case.js");
+    expect(titleQueriesSource).not.toContain("../../../../shared/progression/class_progression_data_use_case.js");
+  });
+
+  it('keeps title progression ports split between class progression and character-select helpers', () => {
+    const classProgressionPortSource = readText('game/features/title/ports/public_class_progression_capabilities.js');
+    const characterSelectProgressionPortSource = readText('game/features/title/ports/public_character_select_progression_capabilities.js');
+    const compatProgressionPortSource = readText('game/features/title/ports/public_progression_capabilities.js');
+    const compatClassProgressionAliasSource = readText('game/features/title/ports/class_progression_ports.js');
+    const rewardPolicyPortSource = readText('game/features/reward/ports/reward_option_policy_ports.js');
+    const runRuleProgressionPortsSource = readText('game/features/run/ports/create_run_rule_progression_ports.js');
+    const runOutcomeIntegrationPortsSource = readText('game/features/run/ports/create_run_outcome_integration_ports.js');
+    const mountRuntimeSource = readText('game/features/title/platform/browser/create_character_select_mount_runtime.js');
+    const runtimeBindingsSource = readText('game/features/title/platform/browser/character_select_runtime_progression_bindings.js');
+
+    expect(classProgressionPortSource).toContain("../domain/class_progression_system.js");
+    expect(characterSelectProgressionPortSource).toContain("../application/load_character_select_use_case.js");
+    expect(compatProgressionPortSource).toContain("./public_class_progression_capabilities.js");
+    expect(compatProgressionPortSource).toContain("./public_character_select_progression_capabilities.js");
+    expect(compatClassProgressionAliasSource).toContain("./public_class_progression_capabilities.js");
+    expect(rewardPolicyPortSource).toContain("../../title/ports/public_class_progression_capabilities.js");
+    expect(rewardPolicyPortSource).not.toContain("../../title/ports/public_progression_capabilities.js");
+    expect(runRuleProgressionPortsSource).toContain("../../title/ports/public_class_progression_capabilities.js");
+    expect(runRuleProgressionPortsSource).not.toContain("../../title/ports/public_progression_capabilities.js");
+    expect(runOutcomeIntegrationPortsSource).toContain("../../title/ports/public_class_progression_capabilities.js");
+    expect(runOutcomeIntegrationPortsSource).not.toContain("../../title/ports/public_progression_capabilities.js");
+    expect(mountRuntimeSource).toContain("../../ports/public_character_select_progression_capabilities.js");
+    expect(mountRuntimeSource).not.toContain("../../application/load_character_select_use_case.js");
+    expect(runtimeBindingsSource).toContain("../../ports/public_character_select_progression_capabilities.js");
+    expect(runtimeBindingsSource).not.toContain("../../application/load_character_select_use_case.js");
+  });
+
+  it('keeps meta progression consumers routed through narrow unlock and achievement ports', () => {
+    const achievementPortSource = readText('game/features/meta_progression/ports/public_achievement_capabilities.js');
+    const achievementApplicationPortSource = readText('game/features/meta_progression/ports/public_achievement_application_capabilities.js');
+    const unlockApplicationPortSource = readText('game/features/meta_progression/ports/public_unlock_application_capabilities.js');
+    const metaPublicSource = readText('game/features/meta_progression/public.js');
+    const rewardPolicyPortSource = readText('game/features/reward/ports/reward_option_policy_ports.js');
+    const itemShopPolicyPortSource = readText('game/features/event/ports/item_shop_policy_ports.js');
+    const runRuleProgressionPortsSource = readText('game/features/run/ports/create_run_rule_progression_ports.js');
+    const runOutcomeIntegrationPortsSource = readText('game/features/run/ports/create_run_outcome_integration_ports.js');
+    const rewardUiHelpersSource = readText('game/features/reward/presentation/browser/reward_ui_helpers.js');
+    const rewardScreenRuntimeHelpersSource = readText('game/features/reward/presentation/browser/reward_screen_runtime_helpers.js');
+    const runModeUiSource = readText('game/features/run/presentation/browser/run_mode_ui.js');
+    const runModeUiRenderSource = readText('game/features/run/presentation/browser/run_mode_ui_render.js');
+    const runModeUiRuntimeSource = readText('game/features/run/presentation/browser/run_mode_ui_runtime.js');
+    const codexPopupPayloadsSource = readText('game/features/codex/presentation/browser/codex_ui_popup_payloads.js');
+    const codexProgressionQueriesSource = readText('game/features/codex/domain/codex_progression_queries.js');
+    const endingScreenHelpersSource = readText('game/features/ui/presentation/browser/ending_screen_helpers.js');
+
+    expect(achievementPortSource).toContain("../domain/achievement_definitions.js");
+    expect(achievementPortSource).toContain("../domain/achievement_progress_queries.js");
+    expect(achievementApplicationPortSource).toContain("../application/evaluate_achievement_trigger.js");
+    expect(achievementApplicationPortSource).toContain("../application/reconcile_meta_progression.js");
+    expect(unlockApplicationPortSource).toContain("../application/apply_content_unlock_rewards.js");
+    expect(metaPublicSource).toContain("./ports/public_loadout_capabilities.js");
+    expect(metaPublicSource).toContain("./ports/public_unlock_capabilities.js");
+    expect(metaPublicSource).toContain("./ports/public_unlock_application_capabilities.js");
+    expect(metaPublicSource).toContain("./ports/public_achievement_capabilities.js");
+    expect(metaPublicSource).toContain("./ports/public_achievement_application_capabilities.js");
+    expect(metaPublicSource).not.toContain("./domain/class_loadout_preset_catalog.js");
+    expect(metaPublicSource).not.toContain("./domain/class_loadout_preset_helpers.js");
+    expect(metaPublicSource).not.toContain("./application/class_loadout_preset_use_case.js");
+    expect(metaPublicSource).not.toContain("./application/apply_content_unlock_rewards.js");
+    expect(rewardPolicyPortSource).toContain("../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(rewardPolicyPortSource).not.toContain("../../meta_progression/public.js");
+    expect(itemShopPolicyPortSource).toContain("../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(itemShopPolicyPortSource).not.toContain("../../meta_progression/public.js");
+    expect(runRuleProgressionPortsSource).toContain("../../meta_progression/ports/public_achievement_application_capabilities.js");
+    expect(runRuleProgressionPortsSource).not.toContain("../../meta_progression/public.js");
+    expect(runOutcomeIntegrationPortsSource).toContain("../../meta_progression/ports/public_achievement_application_capabilities.js");
+    expect(runOutcomeIntegrationPortsSource).not.toContain("../../meta_progression/public.js");
+    expect(rewardUiHelpersSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(rewardUiHelpersSource).not.toContain("../../../meta_progression/public.js");
+    expect(rewardScreenRuntimeHelpersSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(rewardScreenRuntimeHelpersSource).not.toContain("../../../meta_progression/public.js");
+    expect(runModeUiSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(runModeUiSource).not.toContain("../../../meta_progression/public.js");
+    expect(runModeUiRenderSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(runModeUiRenderSource).not.toContain("../../../meta_progression/public.js");
+    expect(runModeUiRuntimeSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(runModeUiRuntimeSource).not.toContain("../../../meta_progression/public.js");
+    expect(codexPopupPayloadsSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(codexPopupPayloadsSource).not.toContain("../../../meta_progression/public.js");
+    expect(codexProgressionQueriesSource).toContain("../../meta_progression/ports/public_achievement_capabilities.js");
+    expect(codexProgressionQueriesSource).toContain("../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(codexProgressionQueriesSource).not.toContain("../../meta_progression/public.js");
+    expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_achievement_capabilities.js");
+    expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(endingScreenHelpersSource).not.toContain("../../../meta_progression/public.js");
   });
 
   it('keeps feature code free of direct systems imports', () => {

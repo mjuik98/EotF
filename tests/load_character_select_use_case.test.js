@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   ensureCharacterSelectMeta,
   getCharacterSelectPresentation,
-} from '../game/features/title/public.js';
+} from '../game/features/title/ports/public_character_select_progression_capabilities.js';
 
 describe('load_character_select_use_case', () => {
   it('no-ops ensureMeta when meta is absent', () => {

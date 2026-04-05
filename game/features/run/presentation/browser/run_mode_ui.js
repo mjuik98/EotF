@@ -7,7 +7,7 @@ import {
   getContentVisibility,
   getUnlockRequirementLabel,
   isContentUnlocked,
-} from '../../../meta_progression/public.js';
+} from '../../../meta_progression/ports/public_unlock_capabilities.js';
 import { ensureRunModeUiStyle } from './run_mode_ui_style.js';
 import {
   selectRunCurse,

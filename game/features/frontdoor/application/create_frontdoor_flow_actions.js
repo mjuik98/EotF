@@ -6,7 +6,7 @@ import {
   showCharacterSelectScreen,
   showMainTitleScreen,
   startTitleRunUseCase,
-} from '../../title/ports/public_frontdoor_capabilities.js';
+} from '../ports/frontdoor_title_flow_ports.js';
 import { createFrontdoorRuntimePorts } from './frontdoor_runtime_ports.js';
 import { createFrontdoorCodexRuntimePorts } from '../ports/create_frontdoor_codex_runtime_ports.js';
 

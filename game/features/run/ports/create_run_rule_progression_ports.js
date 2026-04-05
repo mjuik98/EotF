@@ -1,5 +1,5 @@
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
-import { reconcileMetaProgression } from '../../meta_progression/public.js';
+import { ClassProgressionSystem } from '../../title/ports/public_class_progression_capabilities.js';
+import { reconcileMetaProgression } from '../../meta_progression/ports/public_achievement_application_capabilities.js';
 
 export function createRunRuleProgressionPorts(options = {}) {
   const classProgressionSystem = options.classProgressionSystem || ClassProgressionSystem;

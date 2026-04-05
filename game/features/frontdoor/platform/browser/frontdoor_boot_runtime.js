@@ -6,7 +6,7 @@ import {
   setupKeyboardNav,
   startAudioWave,
   startLoreTicker,
-} from '../../../title/ports/public_frontdoor_capabilities.js';
+} from '../../ports/frontdoor_title_boot_ports.js';
 
 function getLogger(deps = {}) {
   return deps.logger || null;

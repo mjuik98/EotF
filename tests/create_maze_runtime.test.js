@@ -10,17 +10,13 @@ describe('create_maze_runtime', () => {
       updateHud: vi.fn(),
     };
     const handleMazeExit = vi.fn();
-    const addEventListener = vi.fn();
-    const removeEventListener = vi.fn();
+    const addWindowListener = vi.fn();
+    const removeWindowListener = vi.fn();
+    const requestAnimationFrame = vi.fn();
+    const setTimeoutFn = vi.fn((fn) => fn());
     const dom = {
       getCanvas: vi.fn(() => ({ getContext: vi.fn(() => ({})) })),
       getMinimap: vi.fn(() => ({ getContext: vi.fn(() => ({})) })),
-      getWin: vi.fn(() => ({
-        addEventListener,
-        removeEventListener,
-        requestAnimationFrame: vi.fn(),
-        setTimeout: vi.fn((fn) => fn()),
-      })),
       hideOverlay: vi.fn(),
       removeGuide: vi.fn(),
       showOverlay: vi.fn(),
@@ -29,6 +25,12 @@ describe('create_maze_runtime', () => {
     const runtime = createMazeRuntime({
       mazeDom: dom,
       createMazePresenter: vi.fn(() => presenter),
+      mazeHost: {
+        addWindowListener,
+        removeWindowListener,
+        requestAnimationFrame,
+        setTimeoutFn,
+      },
       prepareMazeOpenState: vi.fn(() => ({
         pendingCombat: true,
         stepCount: 0,
@@ -56,11 +58,11 @@ describe('create_maze_runtime', () => {
     expect(presenter.resize).toHaveBeenCalledTimes(1);
     expect(presenter.updateHud).toHaveBeenCalledTimes(2);
     expect(presenter.draw).toHaveBeenCalledTimes(2);
-    expect(addEventListener).toHaveBeenCalledWith('resize', presenter.resize);
-    expect(removeEventListener).toHaveBeenCalledWith('resize', presenter.resize);
+    expect(addWindowListener).toHaveBeenCalledWith('resize', presenter.resize);
+    expect(removeWindowListener).toHaveBeenCalledWith('resize', presenter.resize);
     expect(handleMazeExit).toHaveBeenCalledWith(expect.objectContaining({
       pendingCombat: true,
-      setTimeoutFn: expect.any(Function),
+      setTimeoutFn,
     }));
   });
 });

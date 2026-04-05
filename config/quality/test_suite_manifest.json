@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-04T15:54:41.771Z",
+  "generatedAt": "2026-04-05T15:09:02.676Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -575,6 +575,7 @@
     "tests/legacy_player_state_mutation_structure.test.js",
     "tests/legacy_public_surface_boundaries.test.js",
     "tests/maze_feature_entry_compat_reexports.test.js",
+    "tests/meta_progression_compat_port_reexports.test.js",
     "tests/module_registry.test.js",
     "tests/module_registry_scopes.test.js",
     "tests/no_runtime_top_level_compat_imports.test.js",

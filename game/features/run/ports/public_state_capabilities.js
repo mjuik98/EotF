@@ -13,7 +13,7 @@ import {
   createRunStateCommands,
   resetRunConfig,
   resetRuntimeState,
-} from '../../../shared/state/run_state_commands.js';
+} from '../state/run_state_commands.js';
 import {
   applyPlayerMaxHpPenalty,
   applyRunOutcomeRewards,

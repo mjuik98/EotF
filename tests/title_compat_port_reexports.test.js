@@ -7,7 +7,11 @@ describe('title compat port re-exports', () => {
   it('keeps legacy title and reward policy ports as thin aliases to canonical title capabilities', () => {
     const expectations = {
       'game/features/title/ports/class_progression_ports.js':
-        "export { ClassProgressionSystem } from './public_progression_capabilities.js';",
+        "export { ClassProgressionSystem } from './public_class_progression_capabilities.js';",
+      'game/features/title/ports/public_progression_capabilities.js': [
+        "export * from './public_class_progression_capabilities.js';",
+        "export * from './public_character_select_progression_capabilities.js';",
+      ].join('\n'),
       'game/features/title/ports/ending_ui_ports.js': [
         'export {',
         '  resolveEndingActions,',
@@ -27,8 +31,11 @@ describe('title compat port re-exports', () => {
       ].join('\n'),
       'game/features/reward/ports/reward_option_policy_ports.js': [
         "export { CONSTANTS } from '../../../data/constants.js';",
-        "export { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';",
-        "export { isContentAvailable } from '../../meta_progression/public.js';",
+        "export { ClassProgressionSystem } from '../../title/ports/public_class_progression_capabilities.js';",
+        "export { isContentAvailable } from '../../meta_progression/ports/public_unlock_capabilities.js';",
+      ].join('\n'),
+      'game/features/event/ports/item_shop_policy_ports.js': [
+        "export { isContentAvailable } from '../../meta_progression/ports/public_unlock_capabilities.js';",
       ].join('\n'),
     };
 

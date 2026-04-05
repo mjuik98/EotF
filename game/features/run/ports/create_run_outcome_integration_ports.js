@@ -1,5 +1,5 @@
-import { evaluateAchievementTrigger } from '../../meta_progression/public.js';
-import { ClassProgressionSystem } from '../../title/ports/public_progression_capabilities.js';
+import { evaluateAchievementTrigger } from '../../meta_progression/ports/public_achievement_application_capabilities.js';
+import { ClassProgressionSystem } from '../../title/ports/public_class_progression_capabilities.js';
 
 function persistRunOutcomeMeta(deps = {}) {
   const saveSystem = deps.saveSystem;

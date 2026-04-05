@@ -4,7 +4,7 @@ import {
   getDoc,
   getMeta,
 } from './run_mode_ui_helpers.js';
-import { isContentUnlocked } from '../../../meta_progression/public.js';
+import { isContentUnlocked } from '../../../meta_progression/ports/public_unlock_capabilities.js';
 import {
   deleteRunConfigPreset,
   loadRunConfigPreset,

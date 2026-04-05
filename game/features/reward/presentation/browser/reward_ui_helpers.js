@@ -1,6 +1,6 @@
 import { getRewardMaxEnergyCap } from '../../application/build_reward_options_use_case.js';
 import { RARITY_LABELS } from '../../ports/reward_ui_view_ports.js';
-import { isContentAvailable } from '../../../meta_progression/public.js';
+import { isContentAvailable } from '../../../meta_progression/ports/public_unlock_capabilities.js';
 import {
   drawRewardCards,
   getData,

@@ -1,14 +1,12 @@
-export { ACHIEVEMENTS } from './domain/achievement_definitions.js';
-export { CLASS_CARD_POOLS, DEFAULT_LOADOUT_PRESET_SLOT, LOADOUT_PRESET_SLOTS } from './domain/class_loadout_preset_catalog.js';
-export { buildAchievementRoadmap } from './domain/achievement_roadmap_queries.js';
-export { getAchievementProgressValue } from './domain/achievement_progress_queries.js';
+export { CLASS_CARD_POOLS, DEFAULT_LOADOUT_PRESET_SLOT, LOADOUT_PRESET_SLOTS } from './ports/public_loadout_capabilities.js';
 export {
-  buildCardSummaryLine,
-  buildLevel11PresetSummary,
-  buildLevel12PresetSummary,
-  getEligibleBonusRelicIds,
-  getEligibleSwapAddCardIds,
-} from './domain/class_loadout_preset_helpers.js';
+  CLASS_MASTERY_LEVEL_XP,
+  getClassMasteryRoadmap,
+  MAX_CLASS_MASTERY_LEVEL,
+} from './ports/public_class_progression_capabilities.js';
+export * from './ports/public_achievement_capabilities.js';
+export { buildAchievementRoadmap } from './ports/public_roadmap_capabilities.js';
+export { buildCardSummaryLine, buildLevel11PresetSummary, buildLevel12PresetSummary, getEligibleBonusRelicIds, getEligibleSwapAddCardIds } from './ports/public_loadout_capabilities.js';
 export {
   buildClassLoadoutCustomizationPresentation,
   clearClassLoadoutPreset,
@@ -16,17 +14,7 @@ export {
   saveLevel11LoadoutPreset,
   saveLevel12LoadoutPreset,
   setActiveClassLoadoutPresetSlot,
-} from './application/class_loadout_preset_use_case.js';
-export {
-  buildUnlockRoadmap,
-  isContentAvailable,
-  getContentLabel,
-  getContentVisibility,
-  getUnlockRequirementLabel,
-  getUnlockedContent,
-  isContentUnlocked,
-} from './domain/content_unlock_queries.js';
-export { UNLOCKABLES } from './domain/unlockable_definitions.js';
-export { applyContentUnlockRewards } from './application/apply_content_unlock_rewards.js';
-export { evaluateAchievementTrigger } from './application/evaluate_achievement_trigger.js';
-export { reconcileMetaProgression } from './application/reconcile_meta_progression.js';
+} from './ports/public_loadout_capabilities.js';
+export * from './ports/public_unlock_capabilities.js';
+export { applyContentUnlockRewards } from './ports/public_unlock_application_capabilities.js';
+export * from './ports/public_achievement_application_capabilities.js';

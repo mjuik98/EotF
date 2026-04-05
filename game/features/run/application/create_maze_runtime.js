@@ -1,13 +1,14 @@
-function getRequestAnimationFrame(dom, deps = {}) {
-  return deps.requestAnimationFrame || dom.getWin()?.requestAnimationFrame?.bind?.(dom.getWin()) || null;
+function getRequestAnimationFrame(host, deps = {}) {
+  return deps.requestAnimationFrame || host?.requestAnimationFrame || null;
 }
 
-function getSetTimeout(dom, deps = {}) {
-  return deps.setTimeoutFn || dom.getWin()?.setTimeout?.bind?.(dom.getWin()) || setTimeout;
+function getSetTimeout(host, deps = {}) {
+  return deps.setTimeoutFn || host?.setTimeoutFn || setTimeout;
 }
 
 export function createMazeRuntime(deps = {}) {
   const dom = deps.mazeDom;
+  const host = deps.mazeHost || null;
   const state = {
     canvas: null,
     ctx: null,
@@ -42,7 +43,7 @@ export function createMazeRuntime(deps = {}) {
 
   function shakeAnim() {
     state.shakeFrm = 6;
-    const raf = getRequestAnimationFrame(dom, deps);
+    const raf = getRequestAnimationFrame(host, deps);
     const loop = () => {
       if (state.shakeFrm-- <= 0) {
         state.shakeX = 0;
@@ -60,7 +61,7 @@ export function createMazeRuntime(deps = {}) {
 
   function close() {
     state.fovActive = false;
-    dom.getWin()?.removeEventListener?.('resize', presenter.resize);
+    host?.removeWindowListener?.('resize', presenter.resize);
     dom.hideOverlay();
     dom.removeGuide();
   }
@@ -71,7 +72,7 @@ export function createMazeRuntime(deps = {}) {
       pendingCombat: state.pendingCombat,
       showWorldMemoryNotice: deps.showWorldMemoryNotice,
       startCombat: deps.startCombat,
-      setTimeoutFn: getSetTimeout(dom, deps),
+      setTimeoutFn: getSetTimeout(host, deps),
     });
   }
 
@@ -96,7 +97,7 @@ export function createMazeRuntime(deps = {}) {
       state.fovActive = nextState.fovActive;
 
       presenter?.resize?.();
-      dom.getWin()?.addEventListener?.('resize', presenter.resize);
+      host?.addWindowListener?.('resize', presenter.resize);
       dom.showOverlay();
       presenter?.updateHud?.();
       presenter?.draw?.();

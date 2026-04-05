@@ -5,4 +5,4 @@ export {
   saveLevel11LoadoutPreset,
   saveLevel12LoadoutPreset,
   setActiveClassLoadoutPresetSlot,
-} from '../../features/meta_progression/application/class_loadout_preset_use_case.js';
+} from '../../features/meta_progression/ports/public_loadout_capabilities.js';

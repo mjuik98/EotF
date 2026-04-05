@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-04-04T15:54:42.419Z
-- Nodes: 1369
-- Edges: 1744
+- Generated: 2026-04-05T15:09:03.463Z
+- Nodes: 1382
+- Edges: 1749
 
 ## Layer Edges
 
@@ -22,11 +22,11 @@
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 11 |
-| feature->feature | 1092 |
+| feature->feature | 1102 |
 | feature->legacy | 1 |
 | feature->other | 2 |
 | feature->platform | 14 |
-| feature->shared | 43 |
+| feature->shared | 42 |
 | feature->utils | 2 |
 | legacy->core | 5 |
 | legacy->feature | 8 |
@@ -42,11 +42,11 @@
 | platform->platform | 27 |
 | platform->shared | 3 |
 | platform->utils | 2 |
-| shared->core | 4 |
+| shared->core | 3 |
 | shared->data | 3 |
 | shared->feature | 2 |
 | shared->legacy | 2 |
-| shared->shared | 102 |
+| shared->shared | 99 |
 | utils->core | 1 |
 | utils->data | 2 |
 | utils->utils | 5 |
@@ -82,7 +82,7 @@
 | game/platform/browser/dom/public.js | 11 |
 | game/shared/runtime/public.js | 11 |
 | game/features/combat/presentation/browser/combat_copy.js | 10 |
-| game/features/meta_progression/public.js | 10 |
+| game/features/meta_progression/ports/public_unlock_capabilities.js | 10 |
 | game/core/deps_factory.js | 9 |
 | game/shared/state/player_state_commands.js | 9 |
 | data/game_data.js | 8 |

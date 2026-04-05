@@ -1,7 +1,7 @@
 import {
   CLASS_MASTERY_LEVEL_XP,
   MAX_CLASS_MASTERY_LEVEL,
-} from '../../../../shared/progression/class_progression_data_use_case.js';
+} from '../../../meta_progression/ports/public_class_progression_capabilities.js';
 
 export function toNonNegativeInt(value, fallback = 0) {
   const n = Number(value);
