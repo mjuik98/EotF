@@ -344,6 +344,53 @@ describe('play_card_service', () => {
     randomSpy.mockRestore();
   });
 
+  it('does not weaken a fallback target when an attack card deals no damage through void_eye', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const cardId = 'strike';
+    const gs = createState(cardId);
+    const logger = createLogger();
+    gs._selectedTarget = 0;
+    gs.player.items = ['void_eye'];
+    gs.combat.enemies = [
+      {
+        name: 'Immune Dummy',
+        hp: 20,
+        shield: 0,
+        statusEffects: { immune: 1 },
+        ai: () => ({ dmg: 0 }),
+      },
+    ];
+    gs.triggerItems = (trigger, payload) => ItemSystem.triggerItems(gs, trigger, payload);
+
+    const result = playCardService({
+      cardId,
+      handIdx: 0,
+      gs,
+      card: {
+        id: cardId,
+        name: 'Missed Strike',
+        cost: 1,
+        effect: (runtimeGs) => {
+          runtimeGs.dealDamage(4, 0);
+        },
+      },
+      cardCostUtils: CardCostUtils,
+      classMechanics: {},
+      discardCard: vi.fn(),
+      logger,
+      audioEngine: {},
+      runtimeDeps: {
+        renderCombatCards: vi.fn(),
+        updateChainDisplay: vi.fn(),
+      },
+      hudUpdateUI: { processDirtyFlags: vi.fn() },
+    });
+
+    expect(result).toBe(true);
+    expect(gs.combat.enemies[0].statusEffects.weakened).toBeUndefined();
+    randomSpy.mockRestore();
+  });
+
   it('reindexes hand-scoped free-cost effects after playing an earlier card', () => {
     const firstCardId = 'service_card';
     const freeCardId = 'drawn_card';

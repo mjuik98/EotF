@@ -278,6 +278,26 @@ describe('DamageSystem facade', () => {
     randomSpy.mockRestore();
   });
 
+  it('does not fire deal_damage side-effect relics when the resolved damage is 0', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const host = createHost();
+    host.player.items = ['acidic_vial', 'dusk_mark', 'tally_stone'];
+    host.player.buffs.weakened = { stacks: 1 };
+    host.combat.enemies = [
+      { name: 'Target', hp: 30, shield: 0, statusEffects: { poisoned: 1, weakened: 1 } },
+    ];
+    host.triggerItems = (trigger, payload) => ItemSystem.triggerItems(host, trigger, payload);
+
+    const dealt = host.dealDamage(1, 0);
+
+    expect(dealt).toBe(0);
+    expect(host.combat.enemies[0].hp).toBe(30);
+    expect(host.combat.enemies[0].statusEffects.poisoned).toBe(1);
+    expect(host.combat.enemies[0].statusEffects.weakened).toBe(1);
+    expect(host._itemRuntime?.tally_stone?.count ?? 0).toBe(0);
+    randomSpy.mockRestore();
+  });
+
   it('boosts god_slayer_blade only against the elite or boss target in mixed encounters', () => {
     const host = createHost();
     host.player.items = ['god_slayer_blade'];

@@ -995,8 +995,9 @@ const COMMON_ITEMS = {
     tally_stone: {
         id: 'tally_stone', name: '집계석', icon: '🧮', rarity: 'common',
         desc: '이번 전투에서 피해를 줄 때: 집계 +1 / 5회 누적 시: 방어막 12 획득 후 초기화',
-        passive(gs, trigger) {
-            if (trigger === Trigger.DEAL_DAMAGE) {
+        passive(gs, trigger, data) {
+            const amount = getTriggeredAmount(data);
+            if (trigger === Trigger.DEAL_DAMAGE && amount !== null && amount > 0) {
                 const runtime = getItemRuntimeState(gs, 'tally_stone');
                 runtime.count = (runtime.count || 0) + 1;
                 if (runtime.count >= 5) {
@@ -1089,6 +1090,8 @@ const UNCOMMON_ITEMS = {
         id: 'acidic_vial', name: '산성 유리병', icon: '🧪', rarity: 'uncommon', setId: 'serpents_gaze',
         desc: '독이 있는 적에게 피해를 줄 때 20% 확률: 대상의 독 +1\n[세트: 독사의 시선]',
         passive(gs, trigger, data) {
+            const amount = getTriggeredAmount(data);
+            if (amount === null || amount <= 0) return;
             if (trigger !== Trigger.DEAL_DAMAGE || Math.random() >= 0.2) return;
             const targetIdx = resolveTriggeredTargetIdx(gs, data);
             const target = gs.combat?.enemies?.[targetIdx];
@@ -1349,6 +1352,8 @@ const UNCOMMON_ITEMS = {
         id: 'dusk_mark', name: '황혼의 낙인', icon: '🌘', rarity: 'uncommon', setId: 'dusk_set',
         desc: '약화된 적에게 피해를 줄 때: 대상에게 약화 1 부여\n[세트: 황혼의 쌍인]',
         passive(gs, trigger, data) {
+            const amount = getTriggeredAmount(data);
+            if (amount === null || amount <= 0) return;
             if (trigger !== Trigger.DEAL_DAMAGE) return;
             const targetIdx = resolveTriggeredTargetIdx(gs, data);
             const target = gs.combat?.enemies?.[targetIdx];
@@ -1371,12 +1376,8 @@ const UNCOMMON_ITEMS = {
             if (cardType !== 'ATTACK') return;
             const targetIdxs = [...new Set((Array.isArray(data?.targetIdxs) ? data.targetIdxs : [])
                 .filter((idx) => Number.isInteger(idx) && idx >= 0))];
-            if (targetIdxs.length > 0) {
-                targetIdxs.forEach((targetIdx) => gs.applyEnemyStatus?.('weakened', 1, targetIdx));
-                return;
-            }
-            const targetIdx = resolveTriggeredTargetIdx(gs, data);
-            gs.applyEnemyStatus?.('weakened', 1, targetIdx);
+            if (targetIdxs.length <= 0) return;
+            targetIdxs.forEach((targetIdx) => gs.applyEnemyStatus?.('weakened', 1, targetIdx));
         }
     },
     void_crown: {
