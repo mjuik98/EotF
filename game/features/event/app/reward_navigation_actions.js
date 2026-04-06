@@ -1,1 +1,1 @@
-export { createRewardNavigationActions } from '../../reward/ports/runtime/public_reward_runtime_surface.js';
+export { createRewardNavigationActions } from '../integration/reward_runtime_capabilities.js';

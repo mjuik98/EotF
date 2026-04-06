@@ -25,6 +25,27 @@ describe('architecture refactor guardrails', () => {
     expect(matches).toEqual([]);
   });
 
+  it('keeps feature application and domain code off feature-local platform internals', () => {
+    const roots = [
+      path.join(ROOT, 'game/features'),
+    ];
+    const matches = [];
+
+    for (const root of roots) {
+      for (const fullPath of walkJsFiles(root)) {
+        const relPath = toPosix(path.relative(ROOT, fullPath));
+        if (!/\/(application|domain)\//.test(relPath)) continue;
+
+        const source = readFullPath(fullPath);
+        if (/from ['"]\.\.\/platform\//.test(source) || /from ['"]\.\.\/\.\.\/platform\//.test(source)) {
+          matches.push(relPath);
+        }
+      }
+    }
+
+    expect(matches).toEqual([]);
+  });
+
   it('keeps core run composition routed through public run capability ports', () => {
     const source = readText('game/platform/browser/composition/build_core_run_system_modules.js');
 
@@ -77,7 +98,7 @@ describe('architecture refactor guardrails', () => {
     const codexStateHelpersSource = readText('game/features/codex/presentation/browser/codex_ui_state_helpers.js');
     const combatCodexRuntimeSource = readText('game/features/combat/ports/public_codex_runtime_capabilities.js');
 
-    expect(titleLoadoutSource).toContain("../../../meta_progression/ports/public_loadout_capabilities.js");
+    expect(titleLoadoutSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(titleLoadoutSource).not.toContain("../../../../shared/progression/class_loadout_preset_use_case.js");
     expect(codexStateHelpersSource).toContain("../../ports/public_state_capabilities.js");
     expect(codexStateHelpersSource).not.toContain("../../../../shared/codex/codex_record_state_use_case.js");
@@ -90,10 +111,10 @@ describe('architecture refactor guardrails', () => {
     const titleBootRuntimeSource = readText('game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const uiHelpPauseContractSource = readText('game/features/ui/ports/contracts/build_ui_help_pause_contract.js');
 
-    expect(titleFlowSource).toContain("../../../frontdoor/ports/public_application_capabilities.js");
+    expect(titleFlowSource).toContain("../../integration/frontdoor_capabilities.js");
     expect(titleFlowSource).not.toContain("../../application/title_run_entry_actions.js");
     expect(titleFlowSource).not.toContain("../../../codex/ports/public_browser_modules.js");
-    expect(titleBootRuntimeSource).toContain("../../../frontdoor/ports/public_runtime_capabilities.js");
+    expect(titleBootRuntimeSource).toContain("../../integration/frontdoor_capabilities.js");
     expect(titleBootRuntimeSource).not.toContain("./game_boot_ui_fx.js");
     expect(titleBootRuntimeSource).not.toContain("../../platform/browser/title_asset_runtime.js");
     expect(uiHelpPauseContractSource).toContain("../../../frontdoor/ports/public_application_capabilities.js");
@@ -290,7 +311,7 @@ describe('architecture refactor guardrails', () => {
     const titleMetaPersistenceSource = readText('game/features/title/domain/class_progression/meta_persistence.js');
     const titleQueriesSource = readText('game/features/title/domain/class_progression/class_progression_queries.js');
 
-    expect(canonicalSource).toContain("../../meta_progression/ports/public_loadout_capabilities.js");
+    expect(canonicalSource).toContain("../integration/meta_progression_capabilities.js");
     expect(canonicalSource).not.toContain("../progression/class_loadout_preset_use_case.js");
     expect(sharedSource).toContain("../../features/run/state/run_state_commands.js");
     expect(sharedLoadoutUseCaseSource).toContain("../../features/meta_progression/ports/public_loadout_capabilities.js");
@@ -300,9 +321,9 @@ describe('architecture refactor guardrails', () => {
     expect(sharedLoadoutCatalogSource).toContain("../../features/meta_progression/ports/public_loadout_capabilities.js");
     expect(sharedLoadoutCatalogSource).not.toContain("../../features/meta_progression/domain/class_loadout_preset_catalog.js");
     expect(sharedClassProgressSource).toContain("../../features/meta_progression/ports/public_class_progression_capabilities.js");
-    expect(titleXpPolicySource).toContain("../../../meta_progression/ports/public_class_progression_capabilities.js");
-    expect(titleMetaPersistenceSource).toContain("../../../meta_progression/ports/public_class_progression_capabilities.js");
-    expect(titleQueriesSource).toContain("../../../meta_progression/ports/public_class_progression_capabilities.js");
+    expect(titleXpPolicySource).toContain("../../integration/meta_progression_capabilities.js");
+    expect(titleMetaPersistenceSource).toContain("../../integration/meta_progression_capabilities.js");
+    expect(titleQueriesSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(titleXpPolicySource).not.toContain("../../../../shared/progression/class_progression_data_use_case.js");
     expect(titleMetaPersistenceSource).not.toContain("../../../../shared/progression/class_progression_data_use_case.js");
     expect(titleQueriesSource).not.toContain("../../../../shared/progression/class_progression_data_use_case.js");
@@ -379,20 +400,19 @@ describe('architecture refactor guardrails', () => {
     expect(runRuleProgressionPortsSource).not.toContain("../../meta_progression/public.js");
     expect(runOutcomeIntegrationPortsSource).toContain("../../meta_progression/ports/public_achievement_application_capabilities.js");
     expect(runOutcomeIntegrationPortsSource).not.toContain("../../meta_progression/public.js");
-    expect(rewardUiHelpersSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(rewardUiHelpersSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(rewardUiHelpersSource).not.toContain("../../../meta_progression/public.js");
-    expect(rewardScreenRuntimeHelpersSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(rewardScreenRuntimeHelpersSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(rewardScreenRuntimeHelpersSource).not.toContain("../../../meta_progression/public.js");
-    expect(runModeUiSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(runModeUiSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(runModeUiSource).not.toContain("../../../meta_progression/public.js");
-    expect(runModeUiRenderSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(runModeUiRenderSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(runModeUiRenderSource).not.toContain("../../../meta_progression/public.js");
-    expect(runModeUiRuntimeSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(runModeUiRuntimeSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(runModeUiRuntimeSource).not.toContain("../../../meta_progression/public.js");
-    expect(codexPopupPayloadsSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(codexPopupPayloadsSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(codexPopupPayloadsSource).not.toContain("../../../meta_progression/public.js");
-    expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_unlock_application_capabilities.js");
-    expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_achievement_capabilities.js");
+    expect(endingScreenHelpersSource).toContain("../../integration/meta_progression_capabilities.js");
     expect(endingScreenHelpersSource).not.toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
     expect(endingScreenHelpersSource).not.toContain("../../../meta_progression/public.js");
   });
@@ -407,8 +427,7 @@ describe('architecture refactor guardrails', () => {
     expect(codexProgressionQueriesSource).toContain("../application/codex_progression_queries.js");
     expect(codexProgressionQueriesSource).not.toContain("../../meta_progression/ports/public_achievement_capabilities.js");
     expect(codexProgressionQueriesSource).not.toContain("../../meta_progression/ports/public_unlock_capabilities.js");
-    expect(codexApplicationQueriesSource).toContain("../../meta_progression/ports/public_achievement_capabilities.js");
-    expect(codexApplicationQueriesSource).toContain("../../meta_progression/ports/public_unlock_application_capabilities.js");
+    expect(codexApplicationQueriesSource).toContain("../integration/meta_progression_capabilities.js");
     expect(codexApplicationQueriesSource).not.toContain("../../meta_progression/public.js");
     expect(codexUiHelpersSource).toContain("../../ports/public_progression_capabilities.js");
     expect(codexUiHelpersSource).not.toContain("../../domain/codex_progression_queries.js");
@@ -430,7 +449,7 @@ describe('architecture refactor guardrails', () => {
     expect(combatDomainSource).toContain("../application/difficulty_scaler.js");
     expect(combatDomainSource).not.toContain("../../run/ports/public_rule_capabilities.js");
     expect(combatDomainSource).not.toContain("../ports/combat_logging.js");
-    expect(combatApplicationSource).toContain("../../run/ports/public_rule_capabilities.js");
+    expect(combatApplicationSource).toContain("../integration/run_capabilities.js");
     expect(combatApplicationSource).toContain("../ports/combat_logging.js");
     expect(eventActionsSource).toContain("from './event_shop_policy_queries.js'");
     expect(eventActionsSource).not.toContain("from '../domain/event_shop_domain.js'");
@@ -450,6 +469,39 @@ describe('architecture refactor guardrails', () => {
     }
 
     expect(matches).toEqual([]);
+  });
+
+  it('keeps direct cross-feature runtime imports behind feature-local integration or port seams', () => {
+    const violations = [];
+
+    for (const fullPath of walkJsFiles(path.join(ROOT, 'game/features'))) {
+      const relPath = toPosix(path.relative(ROOT, fullPath));
+      const source = readFullPath(fullPath);
+      const importRegex = /^\s*(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/gm;
+
+      let match;
+      while ((match = importRegex.exec(source)) !== null) {
+        const spec = match[1];
+        if (!spec.startsWith('.')) continue;
+
+        const targetFullPath = path.resolve(path.dirname(fullPath), spec.endsWith('.js') ? spec : `${spec}.js`);
+        const targetRelPath = toPosix(path.relative(ROOT, targetFullPath));
+        if (!targetRelPath.startsWith('game/features/')) continue;
+
+        const sourceFeature = relPath.split('/')[2];
+        const targetFeature = targetRelPath.split('/')[2];
+        if (!sourceFeature || !targetFeature || sourceFeature === targetFeature) continue;
+
+        const isAllowedSource =
+          relPath.includes('/ports/')
+          || relPath.includes('/integration/');
+        if (isAllowedSource) continue;
+
+        violations.push(`${relPath} -> ${targetRelPath}`);
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 
   it('keeps the transitional game/domain root empty once canonical owners exist', () => {

@@ -1,5 +1,7 @@
-import { ACHIEVEMENTS } from '../../../meta_progression/ports/public_achievement_capabilities.js';
-import { getContentLabel } from '../../../meta_progression/ports/public_unlock_application_capabilities.js';
+import {
+  ACHIEVEMENTS,
+  getContentLabel,
+} from '../../integration/meta_progression_capabilities.js';
 
 const RANKS = [
   { min: 200, glyph: 'S', color: '#f0d472', glow: 'rgba(240,212,114,.55)', title: '전설의 정복자', label: 'LEGENDARY' },

@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../../ui/ports/public_text_support_capabilities.js';
+import { DescriptionUtils } from '../../integration/ui_support_capabilities.js';
 import { getMapNodeTypeOrder } from '../../application/map_node_content_queries.js';
 import { getNodeStatusText } from './map_ui_full_map_render_helpers.js';
 

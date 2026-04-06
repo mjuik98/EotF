@@ -1,7 +1,7 @@
 import {
   getClassMasteryRoadmap,
   MAX_CLASS_MASTERY_LEVEL,
-} from '../../../meta_progression/ports/public_class_progression_capabilities.js';
+} from '../../integration/meta_progression_capabilities.js';
 import { ensureClassProgress } from './meta_persistence.js';
 import { consumePendingSummary, peekPendingSummary } from './pending_summary_store.js';
 import { resolveMasteryBonuses } from './runtime_apply.js';

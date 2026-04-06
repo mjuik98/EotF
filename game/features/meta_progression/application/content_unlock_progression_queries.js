@@ -6,7 +6,7 @@ import {
   getRunCardLabel,
   getRunCurseLabel,
   getRunRelicLabel,
-} from '../../run/ports/public_content_capabilities.js';
+} from '../integration/run_content_capabilities.js';
 
 function getDefinitionBucket(type) {
   return UNLOCKABLES?.[`${type}s`] || {};

@@ -2,7 +2,7 @@ import {
   DEFAULT_LOADOUT_PRESET_SLOT,
   LOADOUT_PRESET_SLOTS,
   MAX_CLASS_MASTERY_LEVEL,
-} from '../../../meta_progression/ports/public_class_progression_capabilities.js';
+} from '../../integration/meta_progression_capabilities.js';
 import { toClassIds, toNonNegativeInt, xpForLevel } from './xp_policy.js';
 
 function createEmptyLoadoutPreset() {

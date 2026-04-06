@@ -1,3 +1,5 @@
+import { isContentAvailable } from '../../integration/meta_progression_capabilities.js';
+
 export function getDoc(deps) {
   return deps?.doc || deps?.win?.document || null;
 }
@@ -128,4 +130,3 @@ export function drawRewardCards(gs, count, rarities, data = null, options = {}) 
   }
   return maybeUpgradeRewardCardChoice(out, data, options);
 }
-import { isContentAvailable } from '../../../meta_progression/ports/public_unlock_capabilities.js';

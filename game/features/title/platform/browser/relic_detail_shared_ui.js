@@ -1,7 +1,7 @@
 export {
   buildItemDetailViewModel,
   formatItemDetailChargeValue,
-} from '../../../ui/ports/public_item_detail_support_capabilities.js';
+} from '../../integration/ui_support_capabilities.js';
 export {
   applyItemDetailPanelStyles,
   bindItemDetailDismissStrategy,
@@ -12,4 +12,4 @@ export {
   renderItemDetailSurface,
   renderItemDetailPanelContent,
   setItemDetailPanelState,
-} from '../../../ui/ports/public_item_detail_support_capabilities.js';
+} from '../../integration/ui_support_capabilities.js';

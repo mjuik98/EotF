@@ -1,5 +1,5 @@
-import { buildAchievementRoadmap } from '../../../meta_progression/ports/public_roadmap_capabilities.js';
-import { buildRunAnalyticsSnapshot } from '../../../run/ports/public_analytics_capabilities.js';
+import { buildAchievementRoadmap } from '../../integration/meta_progression_capabilities.js';
+import { buildRunAnalyticsSnapshot } from '../../integration/run_capabilities.js';
 import {
   buildTitleClassAssetMarkup,
   escapeHtml,

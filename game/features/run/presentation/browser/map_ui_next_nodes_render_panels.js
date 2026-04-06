@@ -5,7 +5,7 @@ import {
   hexToRgb,
   runOnNextFrame,
 } from './map_ui_next_nodes_render_helpers.js';
-import { DescriptionUtils } from '../../../ui/ports/public_text_support_capabilities.js';
+import { DescriptionUtils } from '../../integration/ui_support_capabilities.js';
 import { buildBottomDock } from './map_bottom_dock.js';
 import {
   applyRelicDetailLayout,

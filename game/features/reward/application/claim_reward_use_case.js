@@ -1,11 +1,13 @@
-import { playUiItemGetFeedback } from '../platform/reward_audio_ports.js';
-import { createRewardReturnActions } from '../platform/reward_return_ports.js';
+import {
+  createRewardReturnActions,
+  playUiItemGetFeedback,
+} from '../integration/runtime_feedback_capabilities.js';
 import {
   applyMiniBossBonusState,
 } from '../state/reward_state_commands.js';
 import { claimRewardByType } from './claim_reward_handlers.js';
 
-export { createRewardReturnActions } from '../platform/reward_return_ports.js';
+export { createRewardReturnActions } from '../integration/runtime_feedback_capabilities.js';
 
 export function playRewardClaimFeedback(deps = {}) {
   return playUiItemGetFeedback(deps.playItemGet, deps.audioEngine);

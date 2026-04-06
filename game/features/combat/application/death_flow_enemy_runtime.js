@@ -15,7 +15,7 @@ import {
   createCombatDeathRuntimeHost,
   createEnemyDeathRuntimePort,
   spawnCombatEnemy,
-} from '../platform/death_runtime_ports.js';
+} from '../integration/death_runtime_capabilities.js';
 
 export function spawnEnemyForCombat(gs, deps = {}) {
   return spawnCombatEnemy(gs, {

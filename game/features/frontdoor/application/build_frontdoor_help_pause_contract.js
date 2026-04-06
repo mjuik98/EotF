@@ -1,7 +1,7 @@
 import {
   buildTitleHelpPauseActions,
   returnToTitleFromPause as returnToTitleFromPauseAction,
-} from '../../title/ports/public_help_pause_application_capabilities.js';
+} from '../integration/title_help_pause_application_capabilities.js';
 
 export function buildFrontdoorHelpPauseContract(ctx) {
   const {

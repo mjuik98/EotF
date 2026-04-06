@@ -1,5 +1,5 @@
-import { cleanupCombatAfterAbandon } from '../../../combat/ports/public_combat_flow_application_capabilities.js';
-import { confirmHelpPauseAbandonRun } from '../../../title/ports/public_help_pause_application_capabilities.js';
+import { cleanupCombatAfterAbandon } from '../../integration/combat_capabilities.js';
+import { confirmHelpPauseAbandonRun } from '../../integration/title_help_pause_capabilities.js';
 import { EndingScreenUI } from '../../ports/public_ending_presentation_capabilities.js';
 
 function removeFloatingPlayerHpPanel(deps = {}) {

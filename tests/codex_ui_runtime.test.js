@@ -65,7 +65,7 @@ vi.mock('../game/features/codex/presentation/browser/codex_ui_controller.js', ()
   transitionCodexTab: vi.fn(),
 }));
 
-vi.mock('../game/features/ui/ports/public_input_capabilities.js', () => ({
+vi.mock('../game/features/codex/integration/ui_support_capabilities.js', () => ({
   keyboardEventMatchesCode: vi.fn((event, code) => event.code === code),
 }));
 

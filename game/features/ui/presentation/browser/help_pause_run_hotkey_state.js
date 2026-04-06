@@ -6,4 +6,4 @@ export {
   getRunHotkeyState,
   handleRunSessionHotkeyEvent,
   hasBlockingGameplayModal,
-} from '../../../run_session/ports/public_hotkey_capabilities.js';
+} from '../../integration/run_session_hotkey_capabilities.js';

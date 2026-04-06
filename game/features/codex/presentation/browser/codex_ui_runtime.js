@@ -29,7 +29,7 @@ import {
 } from './codex_ui_runtime_dispatch.js';
 import {
   keyboardEventMatchesCode,
-} from '../../../ui/ports/public_input_capabilities.js';
+} from '../../integration/ui_support_capabilities.js';
 
 export function openCodexRuntime(state, ui, deps = {}) {
   ensureCodexState(deps.gs);

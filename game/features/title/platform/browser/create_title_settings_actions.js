@@ -1,5 +1,5 @@
-import { createRunBrowserModuleCapabilities } from '../../../run/ports/public_browser_modules.js';
-import { createUiBrowserModuleCapabilities } from '../../../ui/ports/public_browser_modules.js';
+import { createRunBrowserModuleCapabilities } from '../../integration/run_capabilities.js';
+import { createUiBrowserModuleCapabilities } from '../../integration/ui_browser_module_capabilities.js';
 import { setVolume } from './title_action_helpers.js';
 
 const runBrowserModules = createRunBrowserModuleCapabilities();

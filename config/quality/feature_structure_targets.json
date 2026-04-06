@@ -6,6 +6,7 @@
   "canonicalTopLevelDirs": [
     "application",
     "domain",
+    "integration",
     "state",
     "presentation",
     "platform",

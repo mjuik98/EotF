@@ -12,16 +12,14 @@ import {
   getEventId,
   getGS,
   getRunRules,
-} from '../platform/event_runtime_context.js';
-import { finishEventFlow, resolveEventChoiceFlow } from './workflows/event_choice_flow.js';
-import { createEventChoiceFlowUi } from '../platform/browser/create_event_choice_flow_ui.js';
-import {
+  createEventChoiceFlowUi,
   openEventItemShopRuntime,
   openEventRestSiteRuntime,
   openEventShopRuntime,
   renderEventShellRuntime,
   showEventCardDiscardOverlay,
-} from '../platform/event_runtime_dom.js';
+} from '../integration/ui_runtime_capabilities.js';
+import { finishEventFlow, resolveEventChoiceFlow } from './workflows/event_choice_flow.js';
 
 export function createEventUiCallbacks(api, deps = {}) {
   return {

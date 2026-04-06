@@ -7,8 +7,8 @@ import {
 import {
   runCombatPlayerDeathSequence,
   showCombatDeathOutcome,
-} from '../platform/death_runtime_ports.js';
-import { createCombatDeathRuntimePorts } from '../platform/create_combat_death_runtime_ports.js';
+  createCombatDeathRuntimePorts,
+} from '../integration/death_runtime_capabilities.js';
 import {
   buildDeathFragmentChoices,
   renderDeathFragmentChoices,

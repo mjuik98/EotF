@@ -1,4 +1,4 @@
-import { populateCombatCardFrame } from '../../../combat/ports/public_card_frame_capabilities.js';
+import { populateCombatCardFrame } from '../../integration/combat_capabilities.js';
 import { DomSafe } from '../../../../platform/browser/dom/public.js';
 import {
   getDescriptionUtils,

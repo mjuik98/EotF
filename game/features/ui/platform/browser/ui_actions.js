@@ -1,5 +1,5 @@
 import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
-import { createCodexBrowserModuleCapabilities } from '../../../codex/ports/public_browser_modules.js';
+import { createCodexBrowserModuleCapabilities } from '../../integration/codex_browser_modules.js';
 
 const codexBrowserModules = createCodexBrowserModuleCapabilities();
 

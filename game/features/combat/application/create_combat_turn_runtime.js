@@ -1,6 +1,6 @@
 import { endPlayerTurnUseCase } from './end_player_turn_use_case.js';
 import { runEnemyTurnUseCase } from './run_enemy_turn_use_case.js';
-import { createCombatTurnRuntimePorts } from '../platform/combat_turn_runtime_ports.js';
+import { createCombatTurnRuntimePorts } from '../integration/turn_runtime_capabilities.js';
 import {
   createEndPlayerTurnPolicyOptions,
   createStartPlayerTurnAction,

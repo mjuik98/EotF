@@ -1,4 +1,4 @@
-import { createCanvasLifecycleActions } from '../platform/browser/run_canvas_lifecycle_actions.js';
+import { createCanvasLifecycleActions } from '../integration/run_canvas_runtime_capabilities.js';
 import { createWorldRenderActions } from './world_render_actions.js';
 import { createRunMapActions } from './run_map_actions.js';
 

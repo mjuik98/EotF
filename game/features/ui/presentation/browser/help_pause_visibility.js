@@ -10,4 +10,4 @@ export {
   isRunCutsceneVisible,
   isVisibleModal,
   listVisibleRunHotkeySurfaces,
-} from '../../../run_session/ports/public_hotkey_capabilities.js';
+} from '../../integration/run_session_hotkey_capabilities.js';

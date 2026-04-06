@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-04-06T06:32:42.788Z
-- Nodes: 1404
-- Edges: 1767
+- Generated: 2026-04-06T08:20:37.894Z
+- Nodes: 1439
+- Edges: 1758
 
 ## Layer Edges
 
@@ -22,7 +22,7 @@
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 11 |
-| feature->feature | 1114 |
+| feature->feature | 1105 |
 | feature->legacy | 1 |
 | feature->other | 2 |
 | feature->platform | 15 |
@@ -88,8 +88,8 @@
 | game/core/error_reporter.js | 8 |
 | game/core/event_bus.js | 8 |
 | game/features/combat/ports/public_tooltip_support_capabilities.js | 8 |
-| game/features/meta_progression/ports/public_unlock_capabilities.js | 8 |
 | game/features/run/ports/public_data_runtime_capabilities.js | 8 |
+| game/shared/ui/tooltip/public.js | 8 |
 
 > Full graph is available in `artifacts/dependency_map.json`.
 

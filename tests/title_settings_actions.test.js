@@ -13,13 +13,13 @@ const lazySettingsUi = {
   closeSettings: vi.fn(),
 };
 
-vi.mock('../game/features/run/ports/public_browser_modules.js', () => ({
+vi.mock('../game/features/title/integration/run_capabilities.js', () => ({
   createRunBrowserModuleCapabilities: () => ({
     ensureFlow,
   }),
 }));
 
-vi.mock('../game/features/ui/ports/public_browser_modules.js', () => ({
+vi.mock('../game/features/title/integration/ui_browser_module_capabilities.js', () => ({
   createUiBrowserModuleCapabilities: () => ({
     ensureSettings: vi.fn(async () => ({ SettingsUI: lazySettingsUi })),
   }),

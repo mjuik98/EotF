@@ -3,7 +3,7 @@ import {
   enterCombatState,
   setActiveCombatRegionState,
 } from '../state/combat_entry_state_commands.js';
-import { createCombatStartRuntimePorts } from '../platform/combat_start_runtime_ports.js';
+import { createCombatStartRuntimePorts } from '../integration/start_runtime_capabilities.js';
 
 function buildCombatStartDeps(deps = {}, runtime = {}) {
   const defaultPorts = createCombatStartRuntimePorts();

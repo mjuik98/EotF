@@ -1,4 +1,4 @@
-import { RunRules, getBaseRegionIndex } from '../../run/ports/public_rule_capabilities.js';
+import { RunRules, getBaseRegionIndex } from '../integration/run_capabilities.js';
 import { getDifficultyMultiplier, scaleEnemyByMultiplier } from '../domain/difficulty_scaler_rules.js';
 import { Logger } from '../ports/combat_logging.js';
 

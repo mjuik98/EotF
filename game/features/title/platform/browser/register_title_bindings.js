@@ -1,5 +1,5 @@
 import { playUiClick } from '../../ports/public_audio_presentation_capabilities.js';
-import { closeTopEscapeSurface } from '../../../run_session/ports/public_hotkey_capabilities.js';
+import { closeTopEscapeSurface } from '../../integration/run_session_capabilities.js';
 
 function bindClick(doc, id, handler) {
   doc?.getElementById?.(id)?.addEventListener?.('click', handler);

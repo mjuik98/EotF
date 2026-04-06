@@ -1,4 +1,4 @@
-import { DescriptionUtils } from '../../../ui/ports/public_text_support_capabilities.js';
+import { DescriptionUtils } from '../../integration/ui_support_capabilities.js';
 
 import {
   buildItemDetailViewModel,

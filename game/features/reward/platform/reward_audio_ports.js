@@ -1,4 +1,4 @@
 export {
   playAttackSlash,
   playUiItemGetFeedback,
-} from '../../ui/ports/public_audio_support_capabilities.js';
+} from '../integration/ui_support_capabilities.js';

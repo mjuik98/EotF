@@ -3,7 +3,7 @@ import { hexToRgb } from './map_ui_next_nodes_render.js';
 import {
   canOpenFullMap,
   canToggleDeckView,
-} from '../../../ui/ports/public_help_pause_hotkey_capabilities.js';
+} from '../../integration/ui_support_capabilities.js';
 import { routeOverlayEscapeToPause } from '../../ports/public_overlay_escape_capabilities.js';
 
 export function createNextNodeTrigger({

@@ -10,7 +10,7 @@ import {
   INPUT_ACTION_CONFIRM,
   keyboardEventMatchesCode,
   isInputActionBoundTo,
-} from '../../../ui/ports/public_input_capabilities.js';
+} from '../../integration/ui_support_capabilities.js';
 
 const runtime = {
   animationRaf: null,

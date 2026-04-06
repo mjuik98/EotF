@@ -9,7 +9,7 @@ import {
   addPlayerItemAndRegisterState,
   registerPlayerDeckCardsState,
 } from '../../../shared/state/player_state_effects.js';
-import { resolveClassStartingLoadout } from '../../meta_progression/ports/public_loadout_capabilities.js';
+import { resolveClassStartingLoadout } from '../integration/meta_progression_capabilities.js';
 
 export function createRunStartPlayer(selectedClass, maxHp, data, deckOverride = null) {
   const baseDeck = Array.isArray(deckOverride) ? deckOverride : data.startDecks[selectedClass];

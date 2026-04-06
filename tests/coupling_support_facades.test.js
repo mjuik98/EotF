@@ -84,8 +84,8 @@ describe('coupling support facades', () => {
     expect(eventItemShop).toContain("../../../../platform/browser/dom/public.js");
     expect(eventItemShop).toContain("../../../../shared/ui/tooltip/public.js");
     expect(runBottomDock).toContain("../../../../platform/browser/dom/public.js");
-    expect(runModeText).toContain("../../../ui/ports/public_text_support_capabilities.js");
-    expect(titleClassButtons).toContain("../../../ui/ports/public_text_support_capabilities.js");
+    expect(runModeText).toContain("../../integration/ui_support_capabilities.js");
+    expect(titleClassButtons).toContain("../../integration/ui_support_capabilities.js");
     expect(titleClassButtonBindings).toContain("../../../../shared/ui/tooltip/public.js");
     expect(rewardOptionRenderers).toContain("../../../../platform/browser/dom/public.js");
     expect(rewardOptionBindings).toContain("../../../../shared/ui/tooltip/public.js");

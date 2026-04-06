@@ -3,7 +3,7 @@ import {
   getRunHotkeyPolicy,
   getRunHotkeyState,
   isVisibleModal,
-} from '../../../run_session/ports/public_hotkey_capabilities.js';
+} from '../../integration/run_session_hotkey_capabilities.js';
 
 export function closeOverlayOnEscape(event, element, onClose, swallowEscape) {
   if (!element) return false;

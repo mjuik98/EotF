@@ -10,7 +10,7 @@ import {
   getRarityLabel,
   resolveCodexItemSetId,
 } from './codex_ui_helpers.js';
-import { getUnlockRequirementLabel } from '../../../meta_progression/ports/public_unlock_capabilities.js';
+import { getUnlockRequirementLabel } from '../../integration/meta_progression_capabilities.js';
 export {
   buildCodexNavBlock,
   buildCodexQuoteBlock,

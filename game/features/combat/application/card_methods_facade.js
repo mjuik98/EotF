@@ -3,7 +3,7 @@ import {
   drawStateCards,
   playStateCard,
 } from './public_combat_command_actions.js';
-import { createCombatCardRuntimePorts } from '../platform/combat_card_runtime_ports.js';
+import { createCombatCardRuntimePorts } from '../integration/card_runtime_capabilities.js';
 
 export const CardMethods = {
   drawCards(count = 1, options = {}) {

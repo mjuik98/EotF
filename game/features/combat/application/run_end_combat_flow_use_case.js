@@ -1,7 +1,7 @@
 import { buildCombatEndOutcome } from '../presentation/build_combat_end_outcome.js';
 import {
   createCombatEndRuntimePorts,
-} from '../platform/create_combat_end_runtime_ports.js';
+} from '../integration/end_runtime_capabilities.js';
 import { endCombatUseCase } from './end_combat_use_case.js';
 
 export function runEndCombatFlow({

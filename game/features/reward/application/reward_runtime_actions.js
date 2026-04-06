@@ -1,11 +1,13 @@
 import { clearIdempotencyKey, runIdempotent } from './reward_idempotency.js';
-import { playAttackSlash } from '../platform/reward_audio_ports.js';
+import {
+  createRewardReturnActions,
+  playAttackSlash,
+} from '../integration/runtime_feedback_capabilities.js';
 import {
   isRewardFlowLocked,
   lockRewardFlow,
   unlockRewardFlow,
 } from '../state/reward_runtime_flow_ports.js';
-import { createRewardReturnActions } from '../platform/reward_return_ports.js';
 import {
   buildRewardDiscardDeps,
   claimReward,

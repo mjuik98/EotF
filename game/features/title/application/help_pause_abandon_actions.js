@@ -1,4 +1,4 @@
-import { buildCombatEndItemTriggerPayload } from '../../combat/ports/public_combat_flow_application_capabilities.js';
+import { buildCombatEndItemTriggerPayload } from '../integration/combat_capabilities.js';
 import { getTitleDoc } from '../ports/title_runtime_ports.js';
 
 function resolveGs(deps = {}) {

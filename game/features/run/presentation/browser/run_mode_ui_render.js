@@ -3,7 +3,7 @@ import { highlightRunModeText } from './run_mode_text_highlight.js';
 import {
   getContentVisibility,
   getUnlockRequirementLabel,
-} from '../../../meta_progression/ports/public_unlock_capabilities.js';
+} from '../../integration/meta_progression_capabilities.js';
 import {
   refreshInscriptionPanel,
   renderInscriptionOverview,

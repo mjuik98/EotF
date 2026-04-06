@@ -1,11 +1,12 @@
 import { CARDS } from '../../../../shared/cards/card_data.js';
-import { getUnlockedContent, UNLOCKABLES } from '../../../meta_progression/ports/public_unlock_capabilities.js';
 import {
   buildClassLoadoutCustomizationPresentation,
+  getUnlockedContent,
   setActiveClassLoadoutPresetSlot,
   saveLevel11LoadoutPreset,
   saveLevel12LoadoutPreset,
-} from '../../../meta_progression/ports/public_loadout_capabilities.js';
+  UNLOCKABLES,
+} from '../../integration/meta_progression_capabilities.js';
 
 export function buildCharacterSelectLoadoutPayload(ch, presentation, deps = {}) {
   const meta = deps?.gs?.meta;

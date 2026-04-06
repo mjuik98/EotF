@@ -1,4 +1,4 @@
-import { resolveActiveRegionId } from '../../run/ports/public_rule_capabilities.js';
+import { resolveActiveRegionId } from '../integration/run_capabilities.js';
 import { consumeNextCardDiscountState } from './commands/combat_card_play_state_commands.js';
 
 export function applyPreItemCardPlayState({

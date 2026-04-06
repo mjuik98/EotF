@@ -13,7 +13,7 @@ import {
 } from '../ports/combat_logging.js';
 import {
   runCombatRewardTransition,
-} from '../../combat_session/ports/runtime/public_combat_session_runtime_surface.js';
+} from '../integration/combat_session_runtime_capabilities.js';
 import {
   applyPassiveResonanceBurstState,
   syncCombatMaxChainState,

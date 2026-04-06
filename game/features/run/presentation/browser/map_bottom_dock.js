@@ -2,7 +2,7 @@ import { DomSafe } from '../../../../platform/browser/dom/public.js';
 import {
   getInputBindingCode,
   inputCodeToLabel,
-} from '../../../ui/ports/public_input_capabilities.js';
+} from '../../integration/ui_support_capabilities.js';
 
 function regionIcon(name, fallback = '🧭') {
   const firstChar = Array.from(String(name || '').trim())[0] || '';

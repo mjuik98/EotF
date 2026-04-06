@@ -83,21 +83,11 @@ function collectFeatureCycles(graph = {}) {
 }
 
 describe('refactor structure guardrails', () => {
-  it('keeps the current cross-feature cycle set from expanding', () => {
+  it('keeps cross-feature feature-level cycles eliminated', () => {
     const graph = readJson('artifacts/dependency_map.json').graph;
     const cycles = collectFeatureCycles(graph);
 
-    expect(cycles).toEqual([
-      [
-        'codex',
-        'combat',
-        'combat_session',
-        'meta_progression',
-        'run',
-        'title',
-        'ui',
-      ],
-    ]);
+    expect(cycles).toEqual([]);
   });
 
   it('keeps the legacy global bridge as a thin assembly over helper modules', () => {
@@ -271,7 +261,7 @@ describe('refactor structure guardrails', () => {
     expect(abandonActionsSource).not.toContain("../ports/public_help_pause_presentation_capabilities.js");
     expect(abandonActionsSource).not.toContain("../presentation/browser/abandon_outcome_presenter.js");
     expect(abandonActionsSource).not.toContain('../../combat/ports/help_pause_combat_ports.js');
-    expect(abandonPresenterSource).toContain('../../../ui/ports/public_ending_presentation_capabilities.js');
+    expect(abandonPresenterSource).toContain('../../integration/ui_support_capabilities.js');
     expect(abandonPresenterSource).not.toContain('../../../ui/ports/ending_screen_runtime_ports.js');
     expect(helpPauseAbandonRuntimeSource).toContain("../../ports/public_ending_presentation_capabilities.js");
     expect(helpPauseAbandonRuntimeSource).toContain("showAbandonOutcome: deps.showAbandonOutcome || ((nextDeps) => EndingScreenUI.showOutcome('abandon', nextDeps))");
@@ -360,7 +350,7 @@ describe('refactor structure guardrails', () => {
     const titleProgressionSource = read('game/features/title/application/load_character_select_use_case.js');
     const unlockApplicationSource = read('game/features/meta_progression/ports/public_unlock_application_capabilities.js');
 
-    expect(settingsActionsSource).toContain("from '../../../ui/ports/public_browser_modules.js'");
+    expect(settingsActionsSource).toContain("from '../../integration/ui_browser_module_capabilities.js'");
     expect(settingsActionsSource).not.toContain("from '../../../ui/public.js'");
     expect(buildCoreRunSystemModulesSource).toContain("from '../notifications/save_status_presenter.js'");
     expect(buildCoreRunSystemModulesSource).toContain('configureSaveRuntimeContext');
@@ -404,38 +394,36 @@ describe('refactor structure guardrails', () => {
     expect(runOutcomeExternalPortsSource).not.toContain("from '../../title/ports/class_progression_ports.js'");
     expect(mountRuntimeSource).toContain("from '../../ports/public_character_select_progression_capabilities.js'");
     expect(mountRuntimeSource).not.toContain("from '../../application/load_character_select_use_case.js'");
-    expect(rewardUiHelpersSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(rewardUiHelpersSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(rewardUiHelpersSource).not.toContain("from '../../../meta_progression/public.js'");
-    expect(rewardScreenRuntimeHelpersSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(rewardScreenRuntimeHelpersSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(rewardScreenRuntimeHelpersSource).not.toContain("from '../../../meta_progression/public.js'");
-    expect(runModeUiSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(runModeUiSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(runModeUiSource).not.toContain("from '../../../meta_progression/public.js'");
-    expect(runModeUiRenderSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(runModeUiRenderSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(runModeUiRenderSource).not.toContain("from '../../../meta_progression/public.js'");
-    expect(runModeUiRuntimeSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(runModeUiRuntimeSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(runModeUiRuntimeSource).not.toContain("from '../../../meta_progression/public.js'");
-    expect(codexPopupPayloadsSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(codexPopupPayloadsSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(codexPopupPayloadsSource).not.toContain("from '../../../meta_progression/public.js'");
     expect(unlockApplicationSource).toContain("from '../application/content_unlock_progression_queries.js'");
-    expect(titleProgressionSource).toContain("from '../../meta_progression/ports/public_unlock_application_capabilities.js'");
+    expect(titleProgressionSource).toContain("from '../integration/meta_progression_capabilities.js'");
     expect(titleProgressionSource).not.toContain("from '../../meta_progression/ports/public_unlock_capabilities.js'");
-    expect(codexProgressionQueriesSource).toContain("from '../../meta_progression/ports/public_unlock_application_capabilities.js'");
-    expect(codexProgressionQueriesSource).toContain("from '../../meta_progression/ports/public_achievement_capabilities.js'");
+    expect(codexProgressionQueriesSource).toContain("from '../integration/meta_progression_capabilities.js'");
     expect(codexProgressionQueriesSource).not.toContain("from '../../meta_progression/public.js'");
-    expect(endingScreenHelpersSource).toContain("from '../../../meta_progression/ports/public_unlock_application_capabilities.js'");
-    expect(endingScreenHelpersSource).toContain("from '../../../meta_progression/ports/public_achievement_capabilities.js'");
+    expect(endingScreenHelpersSource).toContain("from '../../integration/meta_progression_capabilities.js'");
     expect(endingScreenHelpersSource).not.toContain("from '../../../meta_progression/public.js'");
     expect(rewardNavigationSource).toContain("../ports/create_reward_navigation_runtime_ports.js");
     expect(rewardNavigationSource).not.toContain('modules.RunReturnUI');
     expect(rewardNavigationRuntimePortsSource).toContain('modules.RunReturnUI');
-    expect(combatEndFlowSource).toContain("../platform/create_combat_end_runtime_ports.js");
+    expect(combatEndFlowSource).toContain("../integration/end_runtime_capabilities.js");
     expect(combatEndFlowSource).not.toContain('win?.showCombatSummary');
     expect(combatEndFlowSource).not.toContain('win?.updateUI');
     expect(combatEndRuntimePortsSource).toContain("./combat_end_ports.js");
-    expect(combatDeathRuntimeSource).toContain("../platform/create_combat_death_runtime_ports.js");
+    expect(combatDeathRuntimeSource).toContain("../integration/death_runtime_capabilities.js");
     expect(combatDeathRuntimeSource).not.toContain('win.updateUI');
     expect(combatDeathRuntimeSource).not.toContain('win.selectFragment');
-    expect(combatEnemyDeathRuntimeSource).toContain("../platform/death_runtime_ports.js");
+    expect(combatEnemyDeathRuntimeSource).toContain("../integration/death_runtime_capabilities.js");
     expect(combatEnemyDeathRuntimeSource).not.toContain("../platform/browser/death_runtime_host.js");
     expect(combatEnemyDeathRuntimeSource).not.toContain('win.AudioEngine');
     expect(combatDeathRuntimePortsSource).toContain("./death_runtime_ports.js");
@@ -450,18 +438,18 @@ describe('refactor structure guardrails', () => {
     expect(frontdoorRuntimePortsSource).toContain('modules.RunSetupUI');
     expect(frontdoorRuntimePortsSource).toContain('modules.SaveSystem');
     expect(frontdoorCodexRuntimePortsSource).toContain("../../codex/ports/public_browser_modules.js");
-    expect(hiddenEndingSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
+    expect(hiddenEndingSource).toContain("from '../../integration/title_ending_capabilities.js'");
     expect(hiddenEndingSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
-    expect(metaProgressionSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
+    expect(metaProgressionSource).toContain("from '../../integration/title_ending_capabilities.js'");
     expect(metaProgressionSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
-    expect(endingActionsSource).toContain("from '../../../title/ports/public_ending_application_capabilities.js'");
+    expect(endingActionsSource).toContain("from '../../integration/title_ending_capabilities.js'");
     expect(endingActionsSource).not.toContain("from '../../../title/ports/ending_ui_ports.js'");
     expect(endingFragmentChoiceSource).not.toContain("from '../../../../utils/description_utils.js'");
-    expect(helpPauseReturnSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(helpPauseReturnSource).toContain("from '../../integration/title_help_pause_capabilities.js'");
     expect(helpPauseReturnSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
-    expect(helpPauseAbandonSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(helpPauseAbandonSource).toContain("from '../../integration/title_help_pause_capabilities.js'");
     expect(helpPauseAbandonSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
-    expect(helpPauseMenuSource).toContain("from '../../../title/ports/public_help_pause_application_capabilities.js'");
+    expect(helpPauseMenuSource).toContain("from '../../integration/title_help_pause_capabilities.js'");
     expect(helpPauseMenuSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
     expect(uiShellContractsSource).toContain("./build_ui_help_pause_contract.js");
     expect(uiShellContractsSource).not.toContain("from '../../../title/ports/help_pause_ui_ports.js'");
@@ -642,7 +630,7 @@ describe('refactor structure guardrails', () => {
     expect(combatSupportSource).toContain("./presentation/public_combat_card_support_capabilities.js");
     expect(combatSupportSource).toContain("./presentation/public_combat_runtime_support_capabilities.js");
     expect(combatSupportSource).toContain("./presentation/public_combat_status_support_capabilities.js");
-    expect(cardMethodsSource).toContain("../platform/combat_card_runtime_ports.js");
+    expect(cardMethodsSource).toContain("../integration/card_runtime_capabilities.js");
     expect(cardMethodsSource).not.toContain("../../../platform/legacy/adapters/create_legacy_game_state_card_ports.js");
   });
 
