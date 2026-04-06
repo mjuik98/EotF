@@ -10,7 +10,22 @@ import {
   drawFromRandomPlayerPool,
 } from './turn_state_mutators.js';
 
+function resolveRandomFn(source = null) {
+  if (typeof source === 'function') return source;
+  if (typeof source?.randomFn === 'function') return source.randomFn;
+  if (typeof source?.random === 'function') return source.random;
+  return Math.random;
+}
+
+function pickRandomIndex(length, source = null) {
+  const size = Math.max(0, Math.floor(Number(length) || 0));
+  if (size < 1) return -1;
+  const randomFn = resolveRandomFn(source);
+  return Math.min(size - 1, Math.floor(randomFn() * size));
+}
+
 export function startPlayerTurnPolicy(gs, commands = {}) {
+  const randomSource = commands.randomFn || commands.randomSource || gs;
   const consumePlayerBuffState = commands.consumePlayerBuffState
     || ((state, buffId) => decrementStackedBuff(state?.player?.buffs, buffId));
   const drawCardsState = commands.drawCardsState
@@ -62,7 +77,7 @@ export function startPlayerTurnPolicy(gs, commands = {}) {
 
     const totalCards = pools.reduce((sum, pool) => sum + pool.cards.length, 0);
     if (totalCards > 0) {
-      let pick = Math.floor(Math.random() * totalCards);
+      let pick = pickRandomIndex(totalCards, randomSource);
       let pickedPool = null;
 
       for (const pool of pools) {

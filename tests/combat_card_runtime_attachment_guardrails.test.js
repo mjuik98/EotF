@@ -61,6 +61,27 @@ describe('combat card runtime attachment guardrails', () => {
     expect(drawCardsState).toHaveBeenCalledWith(gs, 5, { skipRift: true });
   });
 
+  it('uses an injected randomFn for region-2 forced exhaust selection', () => {
+    const gs = createTurnState();
+    const randomFn = vi.fn(() => 0.99);
+    const exhaustRandomPlayerCardState = vi.fn(() => ({ cardId: 'grave_card' }));
+
+    gs._activeRegionId = 2;
+    gs.player.deck = ['deck_card'];
+    gs.player.hand = ['hand_card'];
+    gs.player.graveyard = ['grave_card'];
+
+    startPlayerTurnPolicy(gs, {
+      drawCardsState: vi.fn(),
+      exhaustRandomPlayerCardState,
+      randomFn,
+      resolveActiveRegionId: () => 2,
+    });
+
+    expect(randomFn).toHaveBeenCalledTimes(1);
+    expect(exhaustRandomPlayerCardState).toHaveBeenCalledWith(gs, expect.any(Array), 0);
+  });
+
   it('routes echo-skill draw effects through explicit deps instead of GS card helpers', () => {
     const gs = {
       addLog: vi.fn(),

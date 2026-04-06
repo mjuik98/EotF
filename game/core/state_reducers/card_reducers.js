@@ -1,6 +1,22 @@
 import { Actions } from '../state_action_types.js';
 import { reindexHandScopedRuntimeState } from '../../shared/state/hand_index_runtime_state.js';
 
+function resolveRandomFn(source = null) {
+  if (typeof source?.randomFn === 'function') return source.randomFn;
+  if (typeof source?.random === 'function') return source.random;
+  return Math.random;
+}
+
+function shuffleArray(arr, source = null) {
+  if (!Array.isArray(arr)) return arr;
+  const randomFn = resolveRandomFn(source);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.min(i, Math.floor(randomFn() * (i + 1)));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export const CardReducers = {
   [Actions.CARD_DISCARD](gs, { cardId, exhaust = false, skipHandRemove = false }) {
     const player = gs.player;
@@ -47,10 +63,7 @@ export const CardReducers = {
         if (!player.graveyard || player.graveyard.length === 0) break;
 
         player.drawPile = [...player.graveyard];
-        for (let j = player.drawPile.length - 1; j > 0; j--) {
-          const k = Math.floor(Math.random() * (j + 1));
-          [player.drawPile[j], player.drawPile[k]] = [player.drawPile[k], player.drawPile[j]];
-        }
+        shuffleArray(player.drawPile, gs);
         player.graveyard = [];
         if (typeof gs.addLog === 'function') {
           gs.addLog('무덤의 카드를 덱으로 옮기고 섞었습니다.', 'system');

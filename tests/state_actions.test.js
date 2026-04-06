@@ -70,6 +70,21 @@ describe('Reducers', () => {
         expect(gs.isDirty('hand')).toBe(true);
     });
 
+    it('CARD_DRAW uses an injected randomFn when reshuffling graveyard into deck', () => {
+        const gs = createBaseState();
+        gs.addLog = vi.fn();
+        gs.player.drawPile = [];
+        gs.player.graveyard = ['a', 'b', 'c'];
+        gs.randomFn = vi.fn(() => 0);
+
+        const result = Reducers[Actions.CARD_DRAW](gs, { count: 1 });
+
+        expect(gs.randomFn).toHaveBeenCalledTimes(2);
+        expect(result.drawn).toBe(1);
+        expect(gs.player.hand).toEqual(['a']);
+        expect(gs.player.drawPile).toEqual(['b', 'c']);
+    });
+
     it('CARD_DISCARD dispatches correct item trigger by discard type', () => {
         const gs = createBaseState();
         gs.triggerItems = vi.fn();

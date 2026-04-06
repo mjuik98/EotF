@@ -8,7 +8,25 @@ import {
   replacePlayerDeckCardAndRegisterState,
 } from '../../../shared/state/player_state_effects.js';
 
-export function applyMiniBossBonusState(state, data) {
+function resolveRewardRandomSource(options = {}, state = null) {
+  return options.randomFn || options.randomSource || state;
+}
+
+function resolveRandomFn(source = null) {
+  if (typeof source === 'function') return source;
+  if (typeof source?.randomFn === 'function') return source.randomFn;
+  if (typeof source?.random === 'function') return source.random;
+  return Math.random;
+}
+
+function pickRandomItem(items, source = null) {
+  if (!Array.isArray(items) || items.length < 1) return null;
+  const randomFn = resolveRandomFn(source);
+  const index = Math.min(items.length - 1, Math.floor(randomFn() * items.length));
+  return items[index] ?? null;
+}
+
+export function applyMiniBossBonusState(state, data, options = {}) {
   if (!state?.player) return null;
 
   const heal = Math.max(1, Math.floor((state.player.maxHp || 1) * 0.15));
@@ -22,9 +40,7 @@ export function applyMiniBossBonusState(state, data) {
     const isRareEnough = item?.rarity === 'rare' || item?.rarity === 'legendary';
     return isRareEnough && !(state.player.items || []).includes(item.id);
   });
-  const guaranteed = rareItems.length
-    ? rareItems[Math.floor(Math.random() * rareItems.length)]
-    : null;
+  const guaranteed = pickRandomItem(rareItems, resolveRewardRandomSource(options, state));
 
   if (guaranteed) {
     addPlayerItemAndRegisterState(state, guaranteed.id, guaranteed);
@@ -59,11 +75,12 @@ export function addRewardItemToInventory(state, itemId, itemDef) {
   return addPlayerItemAndRegisterState(state, itemId, itemDef);
 }
 
-export function upgradeRandomRewardCardState(state, data) {
+export function upgradeRandomRewardCardState(state, data, options = {}) {
   const upgradable = (state?.player?.deck || []).filter((id) => data?.upgradeMap?.[id]);
   if (!upgradable.length) return null;
 
-  const cardId = upgradable[Math.floor(Math.random() * upgradable.length)];
+  const cardId = pickRandomItem(upgradable, resolveRewardRandomSource(options, state));
+  if (!cardId) return null;
   const upgradedId = data.upgradeMap[cardId];
   return replacePlayerDeckCardAndRegisterState(state, cardId, upgradedId);
 }

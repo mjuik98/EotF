@@ -51,6 +51,40 @@ describe('reward_state_commands', () => {
     vi.restoreAllMocks();
   });
 
+  it('uses an injected randomFn for mini-boss item selection and random card upgrades', () => {
+    const randomFn = vi.fn()
+      .mockReturnValueOnce(0.99)
+      .mockReturnValueOnce(0.99);
+    const state = {
+      currentRegion: 2,
+      player: {
+        hp: 20,
+        maxHp: 40,
+        gold: 5,
+        items: [],
+        deck: ['strike', 'slash'],
+      },
+    };
+    const data = {
+      items: {
+        rare_a: { id: 'rare_a', rarity: 'rare' },
+        rare_b: { id: 'rare_b', rarity: 'rare' },
+      },
+      upgradeMap: {
+        strike: 'strike_plus',
+        slash: 'slash_plus',
+      },
+    };
+
+    const bonus = applyMiniBossBonusState(state, data, { randomFn });
+    const upgradedId = upgradeRandomRewardCardState(state, data, { randomFn });
+
+    expect(randomFn).toHaveBeenCalledTimes(2);
+    expect(bonus?.guaranteed?.id).toBe('rare_b');
+    expect(upgradedId).toBe('slash_plus');
+    expect(state.player.deck).toEqual(['strike', 'slash_plus']);
+  });
+
   it('adds inventory items and upgrades deck cards through state commands', () => {
     const onAcquire = vi.fn();
     const state = {

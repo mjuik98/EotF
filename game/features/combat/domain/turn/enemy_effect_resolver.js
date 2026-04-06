@@ -1,5 +1,19 @@
 import { Logger, LogUtils } from '../../ports/combat_logging.js';
 
+function resolveRandomFn(source = null) {
+  if (typeof source === 'function') return source;
+  if (typeof source?.randomFn === 'function') return source.randomFn;
+  if (typeof source?.random === 'function') return source.random;
+  return Math.random;
+}
+
+function pickRandomIndex(length, source = null) {
+  const size = Math.max(0, Math.floor(Number(length) || 0));
+  if (size < 1) return -1;
+  const randomFn = resolveRandomFn(source);
+  return Math.min(size - 1, Math.floor(randomFn() * size));
+}
+
 const EnemyEffectLogger = Logger.child('EnemyEffectResolver');
 
 function resolveEnemyEffectCommands(commands = {}) {
@@ -15,6 +29,7 @@ function resolveEnemyEffectCommands(commands = {}) {
     setPlayerEchoChainState: commands.setPlayerEchoChainState || ((state) => Number(state?.player?.echoChain || 0)),
     setPlayerEchoStateCommand: commands.setPlayerEchoStateCommand || ((state) => Number(state?.player?.echo || 0)),
     setPlayerEnergyStateCommand: commands.setPlayerEnergyStateCommand || ((state) => Number(state?.player?.energy || 0)),
+    randomFn: resolveRandomFn(commands.randomFn || commands.randomSource),
   };
 }
 
@@ -64,12 +79,12 @@ const ENEMY_EFFECTS = {
   add_noise(gs, _enemy, _deps, regionId) {
     if (regionId === 1) gs.addSilence(3);
   },
-  exhaust_card(gs, _enemy, _deps, _baseRegion, data) {
+  exhaust_card(gs, _enemy, _deps, _baseRegion, data, commands) {
     if (gs.player.hand.length > 0) {
-      const ci = Math.floor(Math.random() * gs.player.hand.length);
+      const ci = pickRandomIndex(gs.player.hand.length, commands.randomFn);
       const c = gs.player.hand.splice(ci, 1)[0];
       commands.pushCardToExhaustedState(gs, c);
-      gs.addLog(`💀 ${data.cards[c]?.name} 소각!`, 'damage');
+      gs.addLog(`💀 ${data?.cards?.[c]?.name || c} 소각!`, 'damage');
       return { uiAction: 'renderCombatCards' };
     }
     return undefined;

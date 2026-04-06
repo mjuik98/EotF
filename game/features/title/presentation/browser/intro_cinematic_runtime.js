@@ -13,12 +13,22 @@ import {
 } from '../../integration/ui_support_capabilities.js';
 
 const runtime = {
-  animationRaf: null,
-  overlay: null,
-  resizeHandler: null,
-  skipKeyHandler: null,
-  timeoutIds: [],
+  active: null,
 };
+
+function createRuntimeState({ cancelRaf = null, doc = null, timers = null, win = null } = {}) {
+  return {
+    animationRaf: null,
+    cancelRaf,
+    doc,
+    overlay: null,
+    resizeHandler: null,
+    skipKeyHandler: null,
+    timeoutIds: [],
+    timers,
+    win,
+  };
+}
 
 function bindBrowserFn(fn, context) {
   if (typeof fn !== 'function') return null;
@@ -63,33 +73,37 @@ function isIntroSkipInput(event) {
 }
 
 export function cleanupIntroCinematic(deps = {}) {
-  const doc = resolveDoc(deps);
-  const win = resolveWin(deps, doc);
-  const timers = resolveTimerApi(deps, win);
-  const cancelRaf = resolveCancelRaf(deps, win);
+  const activeRuntime = runtime.active;
+  if (!activeRuntime) return;
 
-  runtime.timeoutIds.forEach((id) => timers.clearTimeout(id));
-  runtime.timeoutIds = [];
+  const doc = activeRuntime.doc || resolveDoc(deps);
+  const win = activeRuntime.win || resolveWin(deps, doc);
+  const timers = activeRuntime.timers || resolveTimerApi(deps, win);
+  const cancelRaf = activeRuntime.cancelRaf || resolveCancelRaf(deps, win);
 
-  if (doc && runtime.skipKeyHandler) {
-    doc.removeEventListener('keydown', runtime.skipKeyHandler);
-    runtime.skipKeyHandler = null;
+  activeRuntime.timeoutIds.forEach((id) => timers.clearTimeout(id));
+  activeRuntime.timeoutIds = [];
+
+  if (doc && activeRuntime.skipKeyHandler) {
+    doc.removeEventListener('keydown', activeRuntime.skipKeyHandler);
+    activeRuntime.skipKeyHandler = null;
   }
-  if (win && runtime.resizeHandler) {
-    win.removeEventListener('resize', runtime.resizeHandler);
-    runtime.resizeHandler = null;
+  if (win && activeRuntime.resizeHandler) {
+    win.removeEventListener('resize', activeRuntime.resizeHandler);
+    activeRuntime.resizeHandler = null;
   }
-  if (runtime.animationRaf !== null) {
-    cancelRaf?.(runtime.animationRaf);
-    runtime.animationRaf = null;
+  if (activeRuntime.animationRaf !== null) {
+    cancelRaf?.(activeRuntime.animationRaf);
+    activeRuntime.animationRaf = null;
   }
-  if (runtime.overlay) {
-    runtime.overlay.remove();
-    runtime.overlay = null;
+  if (activeRuntime.overlay) {
+    activeRuntime.overlay.remove();
+    activeRuntime.overlay = null;
   }
+  runtime.active = null;
 }
 
-function startParticleLoop(canvas, deps = {}) {
+function startParticleLoop(activeRuntime, canvas, deps = {}) {
   const win = resolveWin(deps, canvas?.ownerDocument);
   const raf = resolveRaf(deps, win);
   const cancelRaf = resolveCancelRaf(deps, win);
@@ -102,15 +116,15 @@ function startParticleLoop(canvas, deps = {}) {
     canvas.height = canvas.offsetHeight || win.innerHeight;
   };
   resize();
-  runtime.resizeHandler = resize;
+  activeRuntime.resizeHandler = resize;
   win.addEventListener('resize', resize);
 
   const particles = createIntroParticles(canvas.width, canvas.height);
-  cancelRaf?.(runtime.animationRaf);
+  cancelRaf?.(activeRuntime.animationRaf);
 
   const draw = () => {
     if (!canvas.isConnected) {
-      runtime.animationRaf = null;
+      activeRuntime.animationRaf = null;
       return;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -125,13 +139,13 @@ function startParticleLoop(canvas, deps = {}) {
       ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
       ctx.fill();
     });
-    runtime.animationRaf = raf?.(draw) ?? null;
+    activeRuntime.animationRaf = raf?.(draw) ?? null;
   };
 
   draw();
 }
 
-function revealSequence(sequence, setTimeoutFn = setTimeout) {
+function revealSequence(activeRuntime, sequence, setTimeoutFn = setTimeout) {
   sequence.nodes.forEach((node, index) => {
     const timeoutId = setTimeoutFn(() => {
       const el = sequence.nodes[index];
@@ -144,7 +158,7 @@ function revealSequence(sequence, setTimeoutFn = setTimeout) {
       el.style.opacity = '1';
       el.style.transform = 'translateY(0)';
     }, sequence.delays[index]);
-    runtime.timeoutIds.push(timeoutId);
+    activeRuntime.timeoutIds.push(timeoutId);
   });
 }
 
@@ -164,18 +178,21 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
     selectedClass,
   });
 
-  cleanupIntroCinematic({
-    doc,
-    win,
-    cancelRaf,
-    clearTimeoutFn: timers.clearTimeout,
-  });
+  cleanupIntroCinematic();
   ensureIntroStyle(doc);
 
+  const activeRuntime = createRuntimeState({
+    cancelRaf,
+    doc,
+    timers,
+    win,
+  });
+  runtime.active = activeRuntime;
+
   const { canvas, overlay, textBox } = buildIntroOverlay(doc);
-  runtime.overlay = overlay;
+  activeRuntime.overlay = overlay;
   doc.body.appendChild(overlay);
-  startParticleLoop(canvas, {
+  startParticleLoop(activeRuntime, canvas, {
     win,
     raf,
     cancelRaf,
@@ -199,14 +216,14 @@ export function playIntroCinematicRuntime(deps = {}, onComplete) {
     onComplete?.();
   };
 
-  runtime.skipKeyHandler = (event) => {
+  activeRuntime.skipKeyHandler = (event) => {
     if (!isIntroSkipInput(event)) return;
     event.preventDefault?.();
     finish();
   };
-  doc.addEventListener('keydown', runtime.skipKeyHandler);
+  doc.addEventListener('keydown', activeRuntime.skipKeyHandler);
   overlay.addEventListener('click', finish, { once: true });
 
-  revealSequence(sequence, timers.setTimeout);
-  runtime.timeoutIds.push(timers.setTimeout(finish, sequence.totalDuration));
+  revealSequence(activeRuntime, sequence, timers.setTimeout);
+  activeRuntime.timeoutIds.push(timers.setTimeout(finish, sequence.totalDuration));
 }

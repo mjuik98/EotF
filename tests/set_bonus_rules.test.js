@@ -163,4 +163,24 @@ describe('set bonus rules', () => {
     applySetBonusSurvivalRules(gs, { iron_fortress: 5 }, 'turn_start');
     expect(gs.player.energy).toBe(2);
   });
+
+  it('uses an injected randomFn for serpents_gaze poison transfer rolls', () => {
+    const { gs } = createGameState({
+      player: { hp: 60, maxHp: 100 },
+    });
+    const randomFn = vi.fn()
+      .mockReturnValueOnce(0.05)
+      .mockReturnValueOnce(0.99);
+    gs.combat = {
+      enemies: [
+        { hp: 30, statusEffects: {} },
+        { hp: 30, statusEffects: {} },
+      ],
+    };
+
+    applySetBonusSurvivalRules(gs, { serpents_gaze: 2 }, 'poison_damage', { amount: 4, targetIdx: 0 }, { randomFn });
+
+    expect(randomFn).toHaveBeenCalledTimes(2);
+    expect(gs.combat.enemies[1].statusEffects.poisoned).toBe(2);
+  });
 });

@@ -9,6 +9,7 @@ import {
   processEnemyStatusTicks,
   processEnemyStun,
 } from '../game/features/combat/domain/enemy_turn_domain.js';
+import { handleEnemyEffectLogic } from '../game/features/combat/domain/turn/enemy_effect_resolver.js';
 
 describe('enemy_turn_domain', () => {
   it('consumes stunned and weakened stacks together when an enemy is stunned', () => {
@@ -200,5 +201,41 @@ describe('enemy_turn_domain', () => {
     });
     expect(gs.stats.damageDealt).toBe(10);
     expect(gs.onEnemyDeath).toHaveBeenCalledWith(enemy, 0);
+  });
+
+  it('uses an injected randomFn for exhaust_card enemy effects', () => {
+    const randomFn = vi.fn(() => 0.99);
+    const pushCardToExhaustedState = vi.fn();
+    const gs = {
+      player: {
+        hp: 30,
+        hand: ['alpha', 'beta'],
+      },
+      combat: {
+        active: true,
+      },
+      addLog: vi.fn(),
+    };
+    const enemy = {
+      hp: 20,
+      name: 'Shade',
+    };
+
+    const result = handleEnemyEffectLogic('exhaust_card', gs, enemy, {
+      data: {
+        cards: {
+          beta: { name: 'Beta' },
+        },
+      },
+      commands: {
+        pushCardToExhaustedState,
+        randomFn,
+      },
+    });
+
+    expect(randomFn).toHaveBeenCalledTimes(1);
+    expect(pushCardToExhaustedState).toHaveBeenCalledWith(gs, 'beta');
+    expect(gs.player.hand).toEqual(['alpha']);
+    expect(result).toEqual({ uiAction: 'renderCombatCards' });
   });
 });

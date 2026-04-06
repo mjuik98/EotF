@@ -30,7 +30,7 @@ export function scheduleRewardReturnUseCase({
 }
 
 export function ensureMiniBossBonus(gs, data, deps = {}) {
-  const result = applyMiniBossBonusState(gs, data);
+  const result = applyMiniBossBonusState(gs, data, deps);
   if (!result) return null;
 
   gs.addLog?.(`중간 보스 보상: 골드 +${result.goldGain}, 체력 +${result.healed}`, 'system');

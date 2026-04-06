@@ -10,8 +10,24 @@ import {
   setPlayerHpState,
 } from '../state/player_state_commands.js';
 
-export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) {
+function resolveRandomFn(source = null) {
+  if (typeof source === 'function') return source;
+  if (typeof source?.randomFn === 'function') return source.randomFn;
+  if (typeof source?.random === 'function') return source.random;
+  return Math.random;
+}
+
+function pickRandomItem(items, source = null) {
+  if (!Array.isArray(items) || items.length < 1) return null;
+  const randomFn = resolveRandomFn(source);
+  const index = Math.min(items.length - 1, Math.floor(randomFn() * items.length));
+  return items[index] ?? null;
+}
+
+export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data, options = {}) {
   const dealDamageAmount = normalizedTrigger === 'deal_damage' ? getAmountValue(data) : null;
+  const randomSource = options.randomFn || options.randomSource || gs;
+  const randomFn = resolveRandomFn(randomSource);
 
   if (counts.void_set >= 3 && normalizedTrigger === 'deal_damage' && dealDamageAmount !== null) {
     const targetIdx = resolveTargetIdx(gs, data?.targetIdx);
@@ -24,13 +40,13 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
     return withAmountValue(data, dealDamageAmount + 6);
   }
 
-  if (hasSetTier(gs, counts, 'serpents_gaze', 2) && normalizedTrigger === 'poison_damage' && data?.amount > 0 && Math.random() < 0.1) {
+  if (hasSetTier(gs, counts, 'serpents_gaze', 2) && normalizedTrigger === 'poison_damage' && data?.amount > 0 && randomFn() < 0.1) {
     const aliveIndices = (gs.combat?.enemies || [])
       .map((enemy, idx) => (enemy.hp > 0 ? idx : -1))
       .filter((idx) => idx !== -1);
     if (aliveIndices.length > 1) {
       const others = aliveIndices.filter((idx) => idx !== data.targetIdx);
-      const targetIdx = others[Math.floor(Math.random() * others.length)];
+      const targetIdx = pickRandomItem(others, randomSource);
       if (Number.isInteger(targetIdx)) {
         gs.applyEnemyStatus?.('poisoned', 2, targetIdx, { name: '독사의 시선 세트(2)', type: 'set' });
         gs.addLog?.('🐍 독사의 갈무리: 독 전이!', 'echo');
@@ -88,7 +104,7 @@ export function applySetBonusSurvivalRules(gs, counts, normalizedTrigger, data) 
     normalizedTrigger === 'turn_start'
     && (
       (counts.iron_fortress >= 5 && (gs.player.shield || 0) >= 40)
-      || (hasLegacySetTier(gs, 'iron_fortress', 2) && (gs.player.shield || 0) > 0 && Math.random() < 0.25)
+      || (hasLegacySetTier(gs, 'iron_fortress', 2) && (gs.player.shield || 0) > 0 && randomFn() < 0.25)
     )
   ) {
     changePlayerEnergyState(gs, 1);

@@ -1,4 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as helpers from '../game/features/title/presentation/browser/intro_cinematic_helpers.js';
+import {
+  cleanupIntroCinematic,
+  playIntroCinematicRuntime,
+} from '../game/features/title/presentation/browser/intro_cinematic_runtime.js';
 
 function createDoc() {
   const listeners = new Map();
@@ -50,15 +55,14 @@ describe('intro_cinematic_runtime', () => {
   });
 
   afterEach(() => {
+    cleanupIntroCinematic();
     vi.useRealTimers();
     vi.restoreAllMocks();
     globalThis.document = originalDocument;
     globalThis.window = originalWindow;
   });
 
-  it('mounts the intro overlay and completes on skip input', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/intro_cinematic_helpers.js');
-    const { playIntroCinematicRuntime } = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
+  it('mounts the intro overlay and completes on skip input', () => {
     const doc = createDoc();
     const overlay = createOverlayShell();
     const textBox = { appendChild: vi.fn() };
@@ -119,9 +123,7 @@ describe('intro_cinematic_runtime', () => {
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
 
-  it('falls back to global document/window when deps omit browser handles', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/intro_cinematic_helpers.js');
-    const { playIntroCinematicRuntime } = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
+  it('falls back to global document/window when deps omit browser handles', () => {
     const doc = createDoc();
     const overlay = createOverlayShell();
     const textBox = { appendChild: vi.fn() };
@@ -178,9 +180,7 @@ describe('intro_cinematic_runtime', () => {
     expect(onComplete).toHaveBeenCalledTimes(1);
   });
 
-  it('logs intro playback through the injected logger instead of console defaults', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/intro_cinematic_helpers.js');
-    const { playIntroCinematicRuntime } = await import('../game/features/title/presentation/browser/intro_cinematic_runtime.js');
+  it('logs intro playback through the injected logger instead of console defaults', () => {
     const doc = createDoc();
     const overlay = createOverlayShell();
     const textBox = { appendChild: vi.fn() };
@@ -226,5 +226,84 @@ describe('intro_cinematic_runtime', () => {
       runCount: 2,
       selectedClass: 'rogue',
     });
+  });
+
+  it('cleans up listeners from the previously mounted document before rebinding a new runtime', () => {
+    const firstDoc = createDoc();
+    const secondDoc = createDoc();
+    const firstOverlay = createOverlayShell();
+    const secondOverlay = createOverlayShell();
+    const textBox = { appendChild: vi.fn() };
+    const firstCanvas = {
+      isConnected: true,
+      offsetWidth: 640,
+      offsetHeight: 360,
+      getContext: vi.fn(() => ({
+        clearRect: vi.fn(),
+        beginPath: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+      })),
+    };
+    const secondCanvas = {
+      isConnected: true,
+      offsetWidth: 640,
+      offsetHeight: 360,
+      getContext: vi.fn(() => ({
+        clearRect: vi.fn(),
+        beginPath: vi.fn(),
+        arc: vi.fn(),
+        fill: vi.fn(),
+      })),
+    };
+    const firstWin = {
+      innerWidth: 640,
+      innerHeight: 360,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+    const secondWin = {
+      innerWidth: 640,
+      innerHeight: 360,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+
+    vi.spyOn(helpers, 'ensureIntroStyle').mockImplementation(() => {});
+    vi.spyOn(helpers, 'buildIntroOverlay')
+      .mockReturnValueOnce({ canvas: firstCanvas, overlay: firstOverlay, textBox })
+      .mockReturnValueOnce({ canvas: secondCanvas, overlay: secondOverlay, textBox });
+    vi.spyOn(helpers, 'buildIntroSequence').mockReturnValue({
+      nodes: [{ isConnected: true, dataset: {}, style: {} }],
+      delays: [0],
+      totalDuration: 1000,
+    });
+    vi.spyOn(helpers, 'createIntroParticles').mockReturnValue([{ x: 1, y: 2, vy: -1, r: 1 }]);
+
+    playIntroCinematicRuntime({
+      doc: firstDoc,
+      win: firstWin,
+      gs: { meta: { runCount: 1 } },
+      getSelectedClass: () => 'mage',
+      raf: vi.fn(() => null),
+      cancelRaf: vi.fn(),
+    });
+
+    const firstKeydown = firstDoc.listeners.get('keydown');
+    expect(firstKeydown).toBeTypeOf('function');
+
+    playIntroCinematicRuntime({
+      doc: secondDoc,
+      win: secondWin,
+      gs: { meta: { runCount: 2 } },
+      getSelectedClass: () => 'rogue',
+      raf: vi.fn(() => null),
+      cancelRaf: vi.fn(),
+    });
+
+    expect(firstDoc.removeEventListener).toHaveBeenCalledWith('keydown', firstKeydown);
+    expect(firstWin.removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
+    expect(firstDoc.listeners.has('keydown')).toBe(false);
+    expect(secondDoc.listeners.has('keydown')).toBe(true);
   });
 });

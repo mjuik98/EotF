@@ -92,6 +92,38 @@ describe('claim_reward_use_case', () => {
     expect(hoisted.registerItemFound).toHaveBeenCalledWith(gs, 'charm');
   });
 
+  it('routes an injected randomFn through upgrade reward claims', () => {
+    const randomFn = vi.fn(() => 0.99);
+    const gs = {
+      player: {
+        deck: ['strike', 'slash'],
+        items: [],
+      },
+    };
+    const data = {
+      cards: {
+        strike_plus: { name: 'Strike+' },
+        slash_plus: { name: 'Slash+' },
+      },
+      upgradeMap: {
+        strike: 'strike_plus',
+        slash: 'slash_plus',
+      },
+    };
+
+    const result = claimReward({
+      gs,
+      data,
+      rewardType: 'upgrade',
+      context: { randomFn },
+    });
+
+    expect(randomFn).toHaveBeenCalledTimes(1);
+    expect(result.success).toBe(true);
+    expect(result.rewardId).toBe('slash_plus');
+    expect(gs.player.deck).toEqual(['strike', 'slash_plus']);
+  });
+
   it('localizes mini-boss reward logs', () => {
     const addLog = vi.fn();
     const showItemToast = vi.fn();

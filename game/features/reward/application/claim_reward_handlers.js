@@ -42,14 +42,14 @@ function claimItemReward({ data, gs, rewardId }) {
   };
 }
 
-function claimUpgradeReward({ data, gs }) {
+function claimUpgradeReward({ context = {}, data, gs }) {
   const deck = gs?.player?.deck || [];
   const upgradable = deck.filter((id) => data?.upgradeMap?.[id]);
   if (!upgradable.length) {
     return { success: false, reason: 'no-upgrade-target' };
   }
 
-  const upgradedId = upgradeRandomRewardCardState(gs, data);
+  const upgradedId = upgradeRandomRewardCardState(gs, data, context);
   if (!upgradedId) {
     return { success: false, reason: 'no-upgrade-target' };
   }
@@ -85,7 +85,7 @@ export function claimRewardByType({
     return claimItemReward({ data, gs, rewardId });
   }
   if (rewardType === 'upgrade') {
-    return claimUpgradeReward({ data, gs });
+    return claimUpgradeReward({ context, data, gs });
   }
 
   return { success: false, reason: 'unsupported-reward', context };

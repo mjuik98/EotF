@@ -24,6 +24,8 @@ export function createStartPlayerTurnPolicyCommands(overrides = {}) {
     consumePlayerBuffState: overrides.consumePlayerBuffState || consumePlayerBuffStackState,
     drawCardsState: overrides.drawCardsState || drawPlayerCardsState,
     exhaustRandomPlayerCardState: overrides.exhaustRandomPlayerCardState || exhaustRandomPlayerCardState,
+    randomFn: overrides.randomFn,
+    randomSource: overrides.randomSource,
     reducePlayerTurnEnergyState: overrides.reducePlayerTurnEnergyState || reducePlayerTurnEnergyState,
     reducePlayerTurnMaxEchoState: overrides.reducePlayerTurnMaxEchoState || reducePlayerTurnMaxEchoState,
     resolveActiveRegionId: overrides.resolveActiveRegionId,
