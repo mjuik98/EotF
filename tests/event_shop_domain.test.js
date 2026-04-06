@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
-  getEventShopMaxEnergyCap,
   hasRestorableStagnationCards,
   pickRandomBaseCardId,
   pickRandomUpgradeableCardId,
-} from '../game/features/event/domain/event_shop_domain.js';
+  resolveEventShopMaxEnergyCap,
+} from '../game/features/event/domain/event_shop_rule_queries.js';
+import { getEventShopMaxEnergyCap } from '../game/features/event/application/event_shop_policy_queries.js';
 
 describe('event_shop_domain', () => {
   it('chooses card candidates from base and upgradeable pools', () => {
@@ -27,9 +28,15 @@ describe('event_shop_domain', () => {
     randomSpy.mockRestore();
   });
 
-  it('computes energy cap and stagnation availability from state', () => {
+  it('computes energy cap from pure inputs and runtime state', () => {
+    expect(resolveEventShopMaxEnergyCap({ overrideCap: 7, configCap: 5 })).toBe(7);
+    expect(resolveEventShopMaxEnergyCap({ overrideCap: undefined, configCap: 6 })).toBe(6);
+    expect(resolveEventShopMaxEnergyCap({ overrideCap: undefined, configCap: undefined })).toBe(5);
     expect(getEventShopMaxEnergyCap({ player: { maxEnergyCap: 7 } })).toBe(7);
     expect(getEventShopMaxEnergyCap({ player: {} })).toBeGreaterThanOrEqual(5);
+  });
+
+  it('computes stagnation availability from state', () => {
     expect(hasRestorableStagnationCards({ _stagnationVault: ['a'] })).toBe(true);
     expect(hasRestorableStagnationCards({ _stagnationVault: [] })).toBe(false);
   });

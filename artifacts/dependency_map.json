@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1400,
-  "edgeCount": 1765,
+  "nodeCount": 1404,
+  "edgeCount": 1767,
   "layerEdges": {
     "core->core": 196,
     "core->feature": 26,
@@ -16,7 +16,7 @@
     "engine->engine": 2,
     "feature->core": 17,
     "feature->data": 11,
-    "feature->feature": 1112,
+    "feature->feature": 1114,
     "feature->legacy": 1,
     "feature->other": 2,
     "feature->platform": 15,
@@ -1068,6 +1068,11 @@
     "game/features/combat/application/death_handler_facade.js": [
       "game/features/combat/application/death_flow_actions.js"
     ],
+    "game/features/combat/application/difficulty_scaler.js": [
+      "game/features/combat/domain/difficulty_scaler_rules.js",
+      "game/features/combat/ports/combat_logging.js",
+      "game/features/run/ports/public_rule_capabilities.js"
+    ],
     "game/features/combat/application/end_combat_use_case.js": [],
     "game/features/combat/application/end_player_turn_use_case.js": [
       "game/features/combat/application/end_turn_service.js",
@@ -1149,11 +1154,10 @@
       "game/shared/state/class_mechanic_state_commands.js"
     ],
     "game/features/combat/domain/damage_value_domain.js": [],
-    "game/features/combat/domain/difficulty_scaler.js": [
-      "game/data/constants.js",
-      "game/features/combat/ports/combat_logging.js",
-      "game/features/run/ports/public_rule_capabilities.js"
+    "game/features/combat/domain/difficulty_scaler_rules.js": [
+      "game/data/constants.js"
     ],
+    "game/features/combat/domain/difficulty_scaler.js": [],
     "game/features/combat/domain/enemy_intent_domain.js": [
       "game/data/triggers.js"
     ],
@@ -1292,7 +1296,7 @@
     ],
     "game/features/combat/platform/death_spawn_runtime.js": [
       "data/enemies.js",
-      "game/features/combat/domain/difficulty_scaler.js"
+      "game/features/combat/application/difficulty_scaler.js"
     ],
     "game/features/combat/platform/legacy_window_query_groups.js": [
       "game/features/combat/ports/create_combat_ports.js"
@@ -1412,8 +1416,8 @@
       "game/features/combat/ports/public_state_capabilities.js"
     ],
     "game/features/combat/ports/public_system_capabilities.js": [
-      "game/features/combat/domain/class_mechanic_rules.js",
-      "game/features/combat/domain/difficulty_scaler.js"
+      "game/features/combat/application/difficulty_scaler.js",
+      "game/features/combat/domain/class_mechanic_rules.js"
     ],
     "game/features/combat/ports/public_tooltip_support_capabilities.js": [],
     "game/features/combat/ports/runtime_debug_snapshot.js": [
@@ -1850,12 +1854,16 @@
       "game/features/event/state/event_session_store.js"
     ],
     "game/features/event/application/event_shop_actions.js": [
+      "game/features/event/application/event_shop_policy_queries.js",
       "game/features/event/application/resolve_event_choice_actions.js",
       "game/features/event/application/rest_service.js",
       "game/features/event/application/shop_service.js",
-      "game/features/event/domain/event_shop_domain.js",
       "game/features/event/state/event_state_commands.js",
       "game/features/run/ports/public_rule_capabilities.js"
+    ],
+    "game/features/event/application/event_shop_policy_queries.js": [
+      "game/features/event/domain/event_shop_rule_queries.js",
+      "game/features/event/ports/event_data_policy_ports.js"
     ],
     "game/features/event/application/finish_event_flow_use_case.js": [
       "game/features/event/state/event_runtime_flow_ports.js"
@@ -1909,9 +1917,8 @@
     ],
     "game/features/event/compat/event_manager.js": [],
     "game/features/event/domain/event_choice_domain.js": [],
-    "game/features/event/domain/event_shop_domain.js": [
-      "game/features/event/ports/event_data_policy_ports.js"
-    ],
+    "game/features/event/domain/event_shop_domain.js": [],
+    "game/features/event/domain/event_shop_rule_queries.js": [],
     "game/features/event/domain/rest/build_rest_options.js": [],
     "game/features/event/domain/shop/build_shop_config.js": [],
     "game/features/event/platform/browser/create_event_choice_flow_ui.js": [
@@ -4168,5 +4175,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-04-06T06:09:25.247Z"
+  "generatedAt": "2026-04-06T06:32:42.788Z"
 }

@@ -1,4 +1,4 @@
-import { DifficultyScaler } from '../domain/difficulty_scaler.js';
+import { DifficultyScaler } from '../application/difficulty_scaler.js';
 import { ClassMechanics } from '../domain/class_mechanic_rules.js';
 
 export function createCombatSystemCapabilities() {

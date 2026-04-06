@@ -1,5 +1,5 @@
 import { ENEMIES } from '../../../../data/enemies.js';
-import { DifficultyScaler } from '../domain/difficulty_scaler.js';
+import { DifficultyScaler } from '../application/difficulty_scaler.js';
 
 export function spawnScaledEnemyForRegion(gs, deps = {}) {
   const {

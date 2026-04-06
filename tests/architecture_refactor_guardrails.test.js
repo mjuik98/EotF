@@ -414,6 +414,31 @@ describe('architecture refactor guardrails', () => {
     expect(codexUiHelpersSource).not.toContain("../../domain/codex_progression_queries.js");
   });
 
+  it('routes combat and event policy queries through application owners while leaving domain files compat-only', () => {
+    const combatSystemPortSource = readText('game/features/combat/ports/public_system_capabilities.js');
+    const combatDeathSpawnSource = readText('game/features/combat/platform/death_spawn_runtime.js');
+    const combatDomainSource = readText('game/features/combat/domain/difficulty_scaler.js');
+    const combatApplicationSource = readText('game/features/combat/application/difficulty_scaler.js');
+    const eventActionsSource = readText('game/features/event/application/event_shop_actions.js');
+    const eventDomainSource = readText('game/features/event/domain/event_shop_domain.js');
+    const eventApplicationSource = readText('game/features/event/application/event_shop_policy_queries.js');
+
+    expect(combatSystemPortSource).toContain("from '../application/difficulty_scaler.js'");
+    expect(combatSystemPortSource).not.toContain("from '../domain/difficulty_scaler.js'");
+    expect(combatDeathSpawnSource).toContain("from '../application/difficulty_scaler.js'");
+    expect(combatDeathSpawnSource).not.toContain("from '../domain/difficulty_scaler.js'");
+    expect(combatDomainSource).toContain("../application/difficulty_scaler.js");
+    expect(combatDomainSource).not.toContain("../../run/ports/public_rule_capabilities.js");
+    expect(combatDomainSource).not.toContain("../ports/combat_logging.js");
+    expect(combatApplicationSource).toContain("../../run/ports/public_rule_capabilities.js");
+    expect(combatApplicationSource).toContain("../ports/combat_logging.js");
+    expect(eventActionsSource).toContain("from './event_shop_policy_queries.js'");
+    expect(eventActionsSource).not.toContain("from '../domain/event_shop_domain.js'");
+    expect(eventDomainSource).toContain("../application/event_shop_policy_queries.js");
+    expect(eventDomainSource).not.toContain("../ports/event_data_policy_ports.js");
+    expect(eventApplicationSource).toContain("../ports/event_data_policy_ports.js");
+  });
+
   it('keeps feature code free of direct systems imports', () => {
     const matches = [];
 

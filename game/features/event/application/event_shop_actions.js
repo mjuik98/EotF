@@ -18,7 +18,7 @@ import {
   hasRestorableStagnationCards,
   pickRandomBaseCardId,
   pickRandomUpgradeableCardId,
-} from '../domain/event_shop_domain.js';
+} from './event_shop_policy_queries.js';
 
 function emitShopBuy(state, payload) {
   state.triggerItems?.('shop_buy', payload);
