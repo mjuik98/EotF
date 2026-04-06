@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1391,
-  "edgeCount": 1760,
+  "nodeCount": 1393,
+  "edgeCount": 1762,
   "layerEdges": {
     "core->core": 196,
     "core->feature": 26,
@@ -16,7 +16,7 @@
     "engine->engine": 2,
     "feature->core": 17,
     "feature->data": 11,
-    "feature->feature": 1108,
+    "feature->feature": 1110,
     "feature->legacy": 1,
     "feature->other": 2,
     "feature->platform": 15,
@@ -2347,6 +2347,10 @@
     "game/features/run/application/run_outcome_external_ports.js": [
       "game/features/run/ports/create_run_outcome_integration_ports.js"
     ],
+    "game/features/run/application/run_region_runtime_queries.js": [
+      "game/features/run/domain/run_region_rule_queries.js",
+      "game/features/run/ports/public_data_runtime_capabilities.js"
+    ],
     "game/features/run/application/run_return_actions.js": [],
     "game/features/run/application/run_return_timing.js": [],
     "game/features/run/application/run_rule_lifecycle.js": [
@@ -2367,20 +2371,21 @@
       "game/features/run/application/run_rule_meta.js",
       "game/features/run/domain/recent_run_history.js",
       "game/features/run/domain/run_analytics.js",
+      "game/features/run/domain/run_region_rule_queries.js",
       "game/features/run/domain/run_rules_curses.js",
-      "game/features/run/domain/run_rules_regions.js",
       "game/features/run/ports/public_data_runtime_capabilities.js",
       "game/features/run/state/run_outcome_state_commands.js",
       "game/shared/logging/public.js"
     ],
     "game/features/run/application/run_rule_scaling.js": [],
     "game/features/run/application/run_rules.js": [
+      "game/features/run/application/run_region_runtime_queries.js",
       "game/features/run/application/run_rule_lifecycle.js",
       "game/features/run/application/run_rule_meta.js",
       "game/features/run/application/run_rule_outcome.js",
       "game/features/run/application/run_rule_scaling.js",
-      "game/features/run/domain/run_rules_curses.js",
-      "game/features/run/domain/run_rules_regions.js"
+      "game/features/run/domain/run_region_rule_queries.js",
+      "game/features/run/domain/run_rules_curses.js"
     ],
     "game/features/run/application/run_setup_helpers.js": [
       "game/features/run/ports/public_state_capabilities.js"
@@ -2411,6 +2416,7 @@
       "game/features/run/domain/run_rules_regions.js"
     ],
     "game/features/run/domain/run_analytics.js": [],
+    "game/features/run/domain/run_region_rule_queries.js": [],
     "game/features/run/domain/run_rules_curses.js": [],
     "game/features/run/domain/run_rules_difficulty.js": [
       "game/features/run/domain/run_rules_curses.js",
@@ -2419,9 +2425,7 @@
     "game/features/run/domain/run_rules_meta.js": [
       "game/features/run/domain/recent_run_history.js"
     ],
-    "game/features/run/domain/run_rules_regions.js": [
-      "game/features/run/ports/public_data_runtime_capabilities.js"
-    ],
+    "game/features/run/domain/run_rules_regions.js": [],
     "game/features/run/modules/public_run_modules.js": [],
     "game/features/run/modules/run_module_catalog.js": [],
     "game/features/run/platform/browser/create_run_canvas_bindings.js": [
@@ -4154,5 +4158,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-04-06T04:37:23.635Z"
+  "generatedAt": "2026-04-06T04:56:08.208Z"
 }

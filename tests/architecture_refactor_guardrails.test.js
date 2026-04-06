@@ -238,12 +238,17 @@ describe('architecture refactor guardrails', () => {
     const source = readText('game/features/run/application/run_rules.js');
     const scalingSource = readText('game/features/run/application/run_rule_scaling.js');
     const metaSource = readText('game/features/run/application/run_rule_meta.js');
+    const outcomeSource = readText('game/features/run/application/run_rule_outcome.js');
 
     expect(source).not.toContain("from '../../../systems/run_rules_");
     expect(source).toContain("from '../domain/run_rules_curses.js'");
-    expect(source).toContain("from '../domain/run_rules_regions.js'");
+    expect(source).toContain("from './run_region_runtime_queries.js'");
+    expect(source).toContain("from '../domain/run_region_rule_queries.js'");
+    expect(source).not.toContain("from '../domain/run_rules_regions.js'");
     expect(scalingSource).toContain("from '../domain/run_rules_difficulty.js'");
     expect(metaSource).toContain("from '../domain/run_rules_meta.js'");
+    expect(outcomeSource).toContain("from '../domain/run_region_rule_queries.js'");
+    expect(outcomeSource).not.toContain("from '../domain/run_rules_regions.js'");
   });
 
   it('keeps maze runtime host access behind injected run platform ports', () => {

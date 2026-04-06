@@ -1,6 +1,6 @@
 import { DATA } from '../ports/public_data_runtime_capabilities.js';
 import { CURSES } from '../domain/run_rules_curses.js';
-import { getRegionCount } from '../domain/run_rules_regions.js';
+import { getRegionCount } from '../domain/run_region_rule_queries.js';
 import { Logger } from '../../../shared/logging/public.js';
 import { resolveRunOutcomeExternalPorts } from './run_outcome_external_ports.js';
 import { ensureRunRuleMeta, resolveRunRuleClassIds } from './run_rule_meta.js';

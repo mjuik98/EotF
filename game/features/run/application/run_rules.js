@@ -1,10 +1,12 @@
 import { CURSES } from '../domain/run_rules_curses.js';
 import {
-  getRegionCount,
   getBaseRegionIndex,
-  getRegionIdForStage,
+  getRegionCount,
+} from '../domain/run_region_rule_queries.js';
+import {
   getRegionData,
-} from '../domain/run_rules_regions.js';
+  getRegionIdForStage,
+} from './run_region_runtime_queries.js';
 import {
   getAscension,
   getDifficultyScore,
@@ -30,11 +32,13 @@ import {
 } from './run_rule_outcome.js';
 
 export {
-  getRegionCount,
   getBaseRegionIndex,
-  getRegionIdForStage,
+  getRegionCount,
+} from '../domain/run_region_rule_queries.js';
+export {
   getRegionData,
-} from '../domain/run_rules_regions.js';
+  getRegionIdForStage,
+} from './run_region_runtime_queries.js';
 
 export const RunRules = {
   curses: CURSES,
