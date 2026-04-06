@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-04-06T04:56:08.208Z
-- Nodes: 1393
-- Edges: 1762
+- Generated: 2026-04-06T05:22:41.186Z
+- Nodes: 1397
+- Edges: 1764
 
 ## Layer Edges
 
@@ -22,7 +22,7 @@
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 11 |
-| feature->feature | 1110 |
+| feature->feature | 1112 |
 | feature->legacy | 1 |
 | feature->other | 2 |
 | feature->platform | 15 |

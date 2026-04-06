@@ -1,5 +1,5 @@
 import { DescriptionUtils } from '../../../ui/ports/public_text_support_capabilities.js';
-import { getMapNodeTypeOrder } from '../../domain/map_node_content.js';
+import { getMapNodeTypeOrder } from '../../application/map_node_content_queries.js';
 import { getNodeStatusText } from './map_ui_full_map_render_helpers.js';
 
 export function createFullMapLayout(doc, { ch, cw, nodeMeta, onClose, regionName, titleText }) {

@@ -1,4 +1,4 @@
-import { getMapNodeVisualFallback } from '../../domain/map_node_content.js';
+import { getMapNodeVisualFallback } from '../../application/map_node_content_queries.js';
 import {
   getLinkedChildren,
   MINIMAP_HOVER_THRESHOLD,

@@ -111,7 +111,7 @@ vi.mock('../game/features/title/platform/browser/character_select_bindings.js', 
   setupCharacterSelectBindings: hoisted.setupCharacterSelectBindings,
 }));
 
-vi.mock('../game/features/title/domain/character_select_catalog_content.js', () => ({
+vi.mock('../game/features/title/application/character_select_catalog_queries.js', () => ({
   CHARACTER_SELECT_CHARS: [
     {
       class: 'paladin',

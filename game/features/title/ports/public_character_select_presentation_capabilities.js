@@ -1,4 +1,4 @@
-export { CHARACTER_SELECT_CHARS } from '../domain/character_select_catalog_content.js';
+export { CHARACTER_SELECT_CHARS } from '../application/character_select_catalog_queries.js';
 export { createCharacterSelectSfx } from '../platform/browser/character_select_audio.js';
 export * from '../platform/browser/character_select_bindings.js';
 export * from '../platform/browser/character_select_card_ui.js';

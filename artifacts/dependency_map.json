@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1393,
-  "edgeCount": 1762,
+  "nodeCount": 1397,
+  "edgeCount": 1764,
   "layerEdges": {
     "core->core": 196,
     "core->feature": 26,
@@ -16,7 +16,7 @@
     "engine->engine": 2,
     "feature->core": 17,
     "feature->data": 11,
-    "feature->feature": 1110,
+    "feature->feature": 1112,
     "feature->legacy": 1,
     "feature->other": 2,
     "feature->platform": 15,
@@ -2337,6 +2337,10 @@
       "game/features/run/application/run_start_gameplay_runtime.js",
       "game/features/run/presentation/browser/run_start_transition_runtime.js"
     ],
+    "game/features/run/application/map_node_content_queries.js": [
+      "game/features/run/domain/map_node_content_queries.js",
+      "game/features/run/ports/public_data_runtime_capabilities.js"
+    ],
     "game/features/run/application/move_to_node_use_case.js": [
       "game/features/run/ports/public_state_capabilities.js"
     ],
@@ -2408,9 +2412,8 @@
     ],
     "game/features/run/bindings/public_run_bindings.js": [],
     "game/features/run/contracts/public_run_contract_builders.js": [],
-    "game/features/run/domain/map_node_content.js": [
-      "game/features/run/ports/public_data_runtime_capabilities.js"
-    ],
+    "game/features/run/domain/map_node_content_queries.js": [],
+    "game/features/run/domain/map_node_content.js": [],
     "game/features/run/domain/recent_run_history.js": [],
     "game/features/run/domain/resolve_active_region_id.js": [
       "game/features/run/domain/run_rules_regions.js"
@@ -2580,7 +2583,7 @@
     ],
     "game/features/run/presentation/browser/map_ui_full_map_render_helpers.js": [],
     "game/features/run/presentation/browser/map_ui_full_map_render_layout.js": [
-      "game/features/run/domain/map_node_content.js",
+      "game/features/run/application/map_node_content_queries.js",
       "game/features/run/presentation/browser/map_ui_full_map_render_helpers.js",
       "game/features/ui/ports/public_text_support_capabilities.js"
     ],
@@ -2590,7 +2593,7 @@
       "game/shared/ui/tooltip/public.js"
     ],
     "game/features/run/presentation/browser/map_ui_minimap_render_frame.js": [
-      "game/features/run/domain/map_node_content.js",
+      "game/features/run/application/map_node_content_queries.js",
       "game/features/run/presentation/browser/map_ui_minimap_render_helpers.js"
     ],
     "game/features/run/presentation/browser/map_ui_minimap_render_helpers.js": [],
@@ -2622,7 +2625,7 @@
       "game/shared/ui/tooltip/public.js"
     ],
     "game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js": [
-      "game/features/run/domain/map_node_content.js",
+      "game/features/run/application/map_node_content_queries.js",
       "game/features/run/ports/public_player_hp_panel_runtime_capabilities.js"
     ],
     "game/features/run/presentation/browser/map_ui_next_nodes_render_panels.js": [
@@ -2635,7 +2638,7 @@
     ],
     "game/features/run/presentation/browser/map_ui_next_nodes_render.js": [],
     "game/features/run/presentation/browser/map_ui_next_nodes.js": [
-      "game/features/run/domain/map_node_content.js",
+      "game/features/run/application/map_node_content_queries.js",
       "game/features/run/ports/presentation_shared_state_capabilities.js",
       "game/features/run/presentation/browser/map_ui_next_nodes_interactions.js",
       "game/features/run/presentation/browser/map_ui_next_nodes_overlay_helpers.js",
@@ -2766,6 +2769,10 @@
       "game/features/title/ports/title_runtime_ports.js",
       "game/shared/logging/public.js"
     ],
+    "game/features/title/application/character_select_catalog_queries.js": [
+      "game/features/title/domain/character_select_catalog_queries.js",
+      "game/features/title/ports/public_character_select_data_capabilities.js"
+    ],
     "game/features/title/application/character_select_runtime_state.js": [],
     "game/features/title/application/create_character_select_runtime.js": [
       "game/features/title/application/character_select_runtime_state.js",
@@ -2800,9 +2807,8 @@
     "game/features/title/application/title_run_entry_actions.js": [
       "game/features/title/ports/title_runtime_ports.js"
     ],
-    "game/features/title/domain/character_select_catalog_content.js": [
-      "game/features/title/ports/public_character_select_data_capabilities.js"
-    ],
+    "game/features/title/domain/character_select_catalog_content.js": [],
+    "game/features/title/domain/character_select_catalog_queries.js": [],
     "game/features/title/domain/class_progression_system.js": [
       "game/features/title/domain/class_progression/class_progression_awards.js",
       "game/features/title/domain/class_progression/class_progression_queries.js",
@@ -2925,7 +2931,7 @@
       "game/features/title/platform/browser/character_select_summary_replay.js"
     ],
     "game/features/title/platform/browser/character_select_runtime_progression_bindings.js": [
-      "game/features/title/domain/character_select_catalog_content.js",
+      "game/features/title/application/character_select_catalog_queries.js",
       "game/features/title/ports/public_character_select_progression_capabilities.js"
     ],
     "game/features/title/platform/browser/character_select_runtime_ui_bindings.js": [
@@ -4158,5 +4164,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-04-06T04:56:08.208Z"
+  "generatedAt": "2026-04-06T05:22:41.186Z"
 }

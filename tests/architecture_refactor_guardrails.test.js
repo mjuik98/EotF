@@ -251,6 +251,25 @@ describe('architecture refactor guardrails', () => {
     expect(outcomeSource).not.toContain("from '../domain/run_rules_regions.js'");
   });
 
+  it('routes title and run data-backed content queries through application owners while leaving domain files compat-only', () => {
+    const titlePresentationSource = readText('game/features/title/ports/public_character_select_presentation_capabilities.js');
+    const runNextNodesSource = readText('game/features/run/presentation/browser/map_ui_next_nodes.js');
+    const runNextNodeHelpersSource = readText('game/features/run/presentation/browser/map_ui_next_nodes_render_helpers.js');
+    const runFullMapSource = readText('game/features/run/presentation/browser/map_ui_full_map_render_layout.js');
+    const runMinimapSource = readText('game/features/run/presentation/browser/map_ui_minimap_render_frame.js');
+
+    expect(titlePresentationSource).toContain("from '../application/character_select_catalog_queries.js'");
+    expect(titlePresentationSource).not.toContain("from '../domain/character_select_catalog_content.js'");
+    expect(runNextNodesSource).toContain("from '../../application/map_node_content_queries.js'");
+    expect(runNextNodesSource).not.toContain("from '../../domain/map_node_content.js'");
+    expect(runNextNodeHelpersSource).toContain("from '../../application/map_node_content_queries.js'");
+    expect(runNextNodeHelpersSource).not.toContain("from '../../domain/map_node_content.js'");
+    expect(runFullMapSource).toContain("from '../../application/map_node_content_queries.js'");
+    expect(runFullMapSource).not.toContain("from '../../domain/map_node_content.js'");
+    expect(runMinimapSource).toContain("from '../../application/map_node_content_queries.js'");
+    expect(runMinimapSource).not.toContain("from '../../domain/map_node_content.js'");
+  });
+
   it('keeps maze runtime host access behind injected run platform ports', () => {
     const source = readText('game/features/run/application/create_maze_runtime.js');
     const browserRuntimeSource = readText('game/features/run/presentation/browser/create_maze_browser_runtime.js');

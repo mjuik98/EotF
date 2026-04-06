@@ -1,4 +1,4 @@
-import { getMapNodeVisualFallback } from '../../domain/map_node_content.js';
+import { getMapNodeVisualFallback } from '../../application/map_node_content_queries.js';
 import { canShowNextNodeOverlay } from '../../ports/presentation_shared_state_capabilities.js';
 import {
   bindNextNodeCardInteractions,
