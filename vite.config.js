@@ -83,6 +83,7 @@ export function getManualChunk(id) {
     '/game/features/meta_progression/domain/achievement_definitions.js',
     '/game/features/meta_progression/domain/achievement_roadmap_queries.js',
     '/game/features/meta_progression/domain/achievement_progress_queries.js',
+    '/game/features/meta_progression/application/content_unlock_progression_queries.js',
     '/game/features/meta_progression/domain/content_unlock_queries.js',
     '/game/features/meta_progression/domain/unlockable_definitions.js',
     '/game/features/meta_progression/application/evaluate_achievement_trigger.js',

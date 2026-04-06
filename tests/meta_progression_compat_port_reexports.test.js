@@ -30,6 +30,7 @@ describe('meta progression compat port re-exports', () => {
       ].join('\n'),
       'game/features/meta_progression/ports/public_unlock_application_capabilities.js': [
         "export { applyContentUnlockRewards } from '../application/apply_content_unlock_rewards.js';",
+        "export { buildUnlockRoadmap, getContentLabel } from '../application/content_unlock_progression_queries.js';",
       ].join('\n'),
     };
 

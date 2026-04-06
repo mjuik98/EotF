@@ -2,13 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import {
   applyCodexFilter,
-  buildCodexRewardRoadmap,
   buildCodexProgress,
-  buildRecentCodexDiscoveries,
   ensureCodexState,
   getBaseCodexCards,
   getCodexFilterDefinitions,
 } from '../game/features/codex/public.js';
+import {
+  buildCodexRewardRoadmap,
+  buildRecentCodexDiscoveries,
+} from '../game/features/codex/ports/public_progression_capabilities.js';
 
 describe('codex_ui_helpers', () => {
   it('normalizes codex state containers to sets', () => {

@@ -353,8 +353,10 @@ describe('refactor structure guardrails', () => {
     const runModeUiRenderSource = read('game/features/run/presentation/browser/run_mode_ui_render.js');
     const runModeUiRuntimeSource = read('game/features/run/presentation/browser/run_mode_ui_runtime.js');
     const codexPopupPayloadsSource = read('game/features/codex/presentation/browser/codex_ui_popup_payloads.js');
-    const codexProgressionQueriesSource = read('game/features/codex/domain/codex_progression_queries.js');
+    const codexProgressionQueriesSource = read('game/features/codex/application/codex_progression_queries.js');
     const endingScreenHelpersSource = read('game/features/ui/presentation/browser/ending_screen_helpers.js');
+    const titleProgressionSource = read('game/features/title/application/load_character_select_use_case.js');
+    const unlockApplicationSource = read('game/features/meta_progression/ports/public_unlock_application_capabilities.js');
 
     expect(settingsActionsSource).toContain("from '../../../ui/ports/public_browser_modules.js'");
     expect(settingsActionsSource).not.toContain("from '../../../ui/public.js'");
@@ -412,10 +414,13 @@ describe('refactor structure guardrails', () => {
     expect(runModeUiRuntimeSource).not.toContain("from '../../../meta_progression/public.js'");
     expect(codexPopupPayloadsSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
     expect(codexPopupPayloadsSource).not.toContain("from '../../../meta_progression/public.js'");
-    expect(codexProgressionQueriesSource).toContain("from '../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(unlockApplicationSource).toContain("from '../application/content_unlock_progression_queries.js'");
+    expect(titleProgressionSource).toContain("from '../../meta_progression/ports/public_unlock_application_capabilities.js'");
+    expect(titleProgressionSource).not.toContain("from '../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(codexProgressionQueriesSource).toContain("from '../../meta_progression/ports/public_unlock_application_capabilities.js'");
     expect(codexProgressionQueriesSource).toContain("from '../../meta_progression/ports/public_achievement_capabilities.js'");
     expect(codexProgressionQueriesSource).not.toContain("from '../../meta_progression/public.js'");
-    expect(endingScreenHelpersSource).toContain("from '../../../meta_progression/ports/public_unlock_capabilities.js'");
+    expect(endingScreenHelpersSource).toContain("from '../../../meta_progression/ports/public_unlock_application_capabilities.js'");
     expect(endingScreenHelpersSource).toContain("from '../../../meta_progression/ports/public_achievement_capabilities.js'");
     expect(endingScreenHelpersSource).not.toContain("from '../../../meta_progression/public.js'");
     expect(rewardNavigationSource).toContain("../ports/create_reward_navigation_runtime_ports.js");

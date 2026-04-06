@@ -1,5 +1,5 @@
 import { ClassProgressionSystem } from '../domain/class_progression_system.js';
-import { buildUnlockRoadmap } from '../../meta_progression/ports/public_unlock_capabilities.js';
+import { buildUnlockRoadmap } from '../../meta_progression/ports/public_unlock_application_capabilities.js';
 
 function buildFallbackProgress(classId) {
   return {

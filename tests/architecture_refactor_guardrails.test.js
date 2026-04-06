@@ -316,6 +316,7 @@ describe('architecture refactor guardrails', () => {
     const achievementPortSource = readText('game/features/meta_progression/ports/public_achievement_capabilities.js');
     const achievementApplicationPortSource = readText('game/features/meta_progression/ports/public_achievement_application_capabilities.js');
     const unlockApplicationPortSource = readText('game/features/meta_progression/ports/public_unlock_application_capabilities.js');
+    const unlockQueriesSource = readText('game/features/meta_progression/domain/content_unlock_queries.js');
     const metaPublicSource = readText('game/features/meta_progression/public.js');
     const rewardPolicyPortSource = readText('game/features/reward/ports/reward_option_policy_ports.js');
     const itemShopPolicyPortSource = readText('game/features/event/ports/item_shop_policy_ports.js');
@@ -327,7 +328,6 @@ describe('architecture refactor guardrails', () => {
     const runModeUiRenderSource = readText('game/features/run/presentation/browser/run_mode_ui_render.js');
     const runModeUiRuntimeSource = readText('game/features/run/presentation/browser/run_mode_ui_runtime.js');
     const codexPopupPayloadsSource = readText('game/features/codex/presentation/browser/codex_ui_popup_payloads.js');
-    const codexProgressionQueriesSource = readText('game/features/codex/domain/codex_progression_queries.js');
     const endingScreenHelpersSource = readText('game/features/ui/presentation/browser/ending_screen_helpers.js');
 
     expect(achievementPortSource).toContain("../domain/achievement_definitions.js");
@@ -335,6 +335,9 @@ describe('architecture refactor guardrails', () => {
     expect(achievementApplicationPortSource).toContain("../application/evaluate_achievement_trigger.js");
     expect(achievementApplicationPortSource).toContain("../application/reconcile_meta_progression.js");
     expect(unlockApplicationPortSource).toContain("../application/apply_content_unlock_rewards.js");
+    expect(unlockApplicationPortSource).toContain("../application/content_unlock_progression_queries.js");
+    expect(unlockQueriesSource).toContain("../application/content_unlock_progression_queries.js");
+    expect(unlockQueriesSource).not.toContain("../../run/ports/public_content_capabilities.js");
     expect(metaPublicSource).toContain("./ports/public_loadout_capabilities.js");
     expect(metaPublicSource).toContain("./ports/public_unlock_capabilities.js");
     expect(metaPublicSource).toContain("./ports/public_unlock_application_capabilities.js");
@@ -364,12 +367,27 @@ describe('architecture refactor guardrails', () => {
     expect(runModeUiRuntimeSource).not.toContain("../../../meta_progression/public.js");
     expect(codexPopupPayloadsSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
     expect(codexPopupPayloadsSource).not.toContain("../../../meta_progression/public.js");
-    expect(codexProgressionQueriesSource).toContain("../../meta_progression/ports/public_achievement_capabilities.js");
-    expect(codexProgressionQueriesSource).toContain("../../meta_progression/ports/public_unlock_capabilities.js");
-    expect(codexProgressionQueriesSource).not.toContain("../../meta_progression/public.js");
+    expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_unlock_application_capabilities.js");
     expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_achievement_capabilities.js");
-    expect(endingScreenHelpersSource).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(endingScreenHelpersSource).not.toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
     expect(endingScreenHelpersSource).not.toContain("../../../meta_progression/public.js");
+  });
+
+  it('keeps codex progression read models on application-owned ports instead of domain files', () => {
+    const codexProgressionPortSource = readText('game/features/codex/ports/public_progression_capabilities.js');
+    const codexProgressionQueriesSource = readText('game/features/codex/domain/codex_progression_queries.js');
+    const codexApplicationQueriesSource = readText('game/features/codex/application/codex_progression_queries.js');
+    const codexUiHelpersSource = readText('game/features/codex/presentation/browser/codex_ui_helpers.js');
+
+    expect(codexProgressionPortSource).toContain("../application/codex_progression_queries.js");
+    expect(codexProgressionQueriesSource).toContain("../application/codex_progression_queries.js");
+    expect(codexProgressionQueriesSource).not.toContain("../../meta_progression/ports/public_achievement_capabilities.js");
+    expect(codexProgressionQueriesSource).not.toContain("../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(codexApplicationQueriesSource).toContain("../../meta_progression/ports/public_achievement_capabilities.js");
+    expect(codexApplicationQueriesSource).toContain("../../meta_progression/ports/public_unlock_application_capabilities.js");
+    expect(codexApplicationQueriesSource).not.toContain("../../meta_progression/public.js");
+    expect(codexUiHelpersSource).toContain("../../ports/public_progression_capabilities.js");
+    expect(codexUiHelpersSource).not.toContain("../../domain/codex_progression_queries.js");
   });
 
   it('keeps feature code free of direct systems imports', () => {

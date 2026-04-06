@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-04-06T03:55:14.373Z
-- Nodes: 1386
-- Edges: 1755
+- Generated: 2026-04-06T04:12:51.028Z
+- Nodes: 1390
+- Edges: 1758
 
 ## Layer Edges
 
@@ -22,7 +22,7 @@
 | engine->engine | 2 |
 | feature->core | 17 |
 | feature->data | 11 |
-| feature->feature | 1103 |
+| feature->feature | 1106 |
 | feature->legacy | 1 |
 | feature->other | 2 |
 | feature->platform | 15 |
@@ -82,13 +82,13 @@
 | game/platform/browser/dom/public.js | 11 |
 | game/shared/runtime/public.js | 11 |
 | game/features/combat/presentation/browser/combat_copy.js | 10 |
-| game/features/meta_progression/ports/public_unlock_capabilities.js | 10 |
 | game/shared/state/player_state_commands.js | 10 |
 | game/core/deps_factory.js | 9 |
 | data/game_data.js | 8 |
 | game/core/error_reporter.js | 8 |
 | game/core/event_bus.js | 8 |
 | game/features/combat/ports/public_tooltip_support_capabilities.js | 8 |
+| game/features/meta_progression/ports/public_unlock_capabilities.js | 8 |
 | game/features/run/ports/public_data_runtime_capabilities.js | 8 |
 
 > Full graph is available in `artifacts/dependency_map.json`.

@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { buildAchievementRoadmap } from '../game/features/meta_progression/ports/public_roadmap_capabilities.js';
 import {
   buildUnlockRoadmap,
+  getContentLabel,
+} from '../game/features/meta_progression/ports/public_unlock_application_capabilities.js';
+import {
   isContentAvailable,
   getContentVisibility,
-  getContentLabel,
   getUnlockRequirementLabel,
   getUnlockedContent,
   isContentUnlocked,

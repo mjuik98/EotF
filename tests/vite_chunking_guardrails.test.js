@@ -316,10 +316,13 @@ describe('vite chunking guardrails', () => {
     ).toBe(null);
   });
 
-  it('keeps meta progression content labels on a dedicated shared data chunk instead of pulling the run content port into overlay chunks', () => {
-    const contentUnlockQueries = readText('game/features/meta_progression/domain/content_unlock_queries.js');
+  it('keeps meta progression content labels on a dedicated shared data chunk through application-owned queries instead of pulling the run content port into overlay chunks', () => {
+    const contentUnlockQueries = readText('game/features/meta_progression/application/content_unlock_progression_queries.js');
     const runContentCapabilities = readText('game/features/run/ports/public_content_capabilities.js');
 
+    expect(
+      getManualChunk('/mnt/c/Users/mjuik/RoguelikeRPG/game/features/meta_progression/application/content_unlock_progression_queries.js'),
+    ).toBe('ui-shared-data');
     expect(runContentCapabilities).toContain("from './public_data_runtime_capabilities.js'");
     expect(runContentCapabilities).toContain("from '../domain/run_rules_curses.js'");
     expect(contentUnlockQueries).toContain('../../run/ports/public_content_capabilities.js');
@@ -337,14 +340,14 @@ describe('vite chunking guardrails', () => {
     const runModeUiRender = readText('game/features/run/presentation/browser/run_mode_ui_render.js');
     const runModeUiRuntime = readText('game/features/run/presentation/browser/run_mode_ui_runtime.js');
     const codexPopupPayloads = readText('game/features/codex/presentation/browser/codex_ui_popup_payloads.js');
-    const codexProgressionQueries = readText('game/features/codex/domain/codex_progression_queries.js');
+    const codexProgressionQueries = readText('game/features/codex/application/codex_progression_queries.js');
     const endingScreenHelpers = readText('game/features/ui/presentation/browser/ending_screen_helpers.js');
 
     expect(titleRunArchiveHelpers).toContain("../../../meta_progression/ports/public_roadmap_capabilities.js");
     expect(titleRunArchiveHelpers).toContain("../../../run/ports/public_analytics_capabilities.js");
     expect(titleRunArchiveHelpers).not.toContain("../../../meta_progression/public.js");
     expect(titleRunArchiveHelpers).not.toContain("../../../run/public.js");
-    expect(characterSelectProgression).toContain('../../meta_progression/ports/public_unlock_capabilities.js');
+    expect(characterSelectProgression).toContain('../../meta_progression/ports/public_unlock_application_capabilities.js');
     expect(characterSelectProgression).not.toContain('../../meta_progression/public.js');
     expect(characterSelectLoadout).toContain('../../../meta_progression/ports/public_unlock_capabilities.js');
     expect(characterSelectLoadout).not.toContain('../../../meta_progression/public.js');
@@ -364,10 +367,10 @@ describe('vite chunking guardrails', () => {
     expect(runModeUiRuntime).not.toContain("../../../meta_progression/public.js");
     expect(codexPopupPayloads).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
     expect(codexPopupPayloads).not.toContain("../../../meta_progression/public.js");
-    expect(codexProgressionQueries).toContain("../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(codexProgressionQueries).toContain("../../meta_progression/ports/public_unlock_application_capabilities.js");
     expect(codexProgressionQueries).toContain("../../meta_progression/ports/public_achievement_capabilities.js");
     expect(codexProgressionQueries).not.toContain("../../meta_progression/public.js");
-    expect(endingScreenHelpers).toContain("../../../meta_progression/ports/public_unlock_capabilities.js");
+    expect(endingScreenHelpers).toContain("../../../meta_progression/ports/public_unlock_application_capabilities.js");
     expect(endingScreenHelpers).toContain("../../../meta_progression/ports/public_achievement_capabilities.js");
     expect(endingScreenHelpers).not.toContain("../../../meta_progression/public.js");
   });
