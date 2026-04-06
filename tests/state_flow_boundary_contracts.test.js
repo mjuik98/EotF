@@ -12,9 +12,11 @@ function read(file) {
 describe('state flow boundary contracts', () => {
   it('keeps shared player state commands free of inline legacy mutation bodies', () => {
     const playerStateCommands = read('game/shared/state/player_state_commands.js');
+    const playerStateLegacyBridge = read('game/shared/state/player_state_legacy_runtime_bridge.js');
 
-    expect(playerStateCommands).toContain('../../platform/legacy/state/player_state_command_legacy_adapter.js');
+    expect(playerStateCommands).toContain('./player_state_legacy_runtime_bridge.js');
     expect(playerStateCommands).not.toContain('../../platform/legacy/state/legacy_player_state_command_mutations.js');
+    expect(playerStateLegacyBridge).toContain('../../platform/legacy/state/player_state_command_legacy_adapter.js');
     expect(playerStateCommands).not.toContain('player.hp = Math.min(');
     expect(playerStateCommands).not.toContain('player.shield = Math.max(');
     expect(playerStateCommands).not.toContain('player.echo = nextEcho');

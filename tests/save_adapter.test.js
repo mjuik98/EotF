@@ -1,8 +1,23 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SaveAdapter } from '../game/core/save_adapter.js';
 
 describe('SaveAdapter', () => {
+  const originalWindow = globalThis.window;
+  const originalLocalStorage = globalThis.localStorage;
+
+  afterEach(() => {
+    globalThis.window = originalWindow;
+    if (originalLocalStorage === undefined) {
+      delete globalThis.localStorage;
+      return;
+    }
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: originalLocalStorage,
+    });
+  });
+
   it('uses injected storage for load, save, remove, and has operations', () => {
     const storage = {
       getItem: vi.fn((key) => (key === 'run' ? '{"hp":7}' : null)),
@@ -18,6 +33,25 @@ describe('SaveAdapter', () => {
 
     expect(storage.setItem).toHaveBeenCalledWith('run', '{"hp":8}');
     expect(storage.removeItem).toHaveBeenCalledWith('run');
+  });
+
+  it('resolves host localStorage without routing through a support barrel', () => {
+    const storage = {
+      getItem: vi.fn((key) => (key === 'run' ? '{"hp":9}' : null)),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    };
+
+    globalThis.window = undefined;
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: storage,
+    });
+
+    expect(SaveAdapter.load('run')).toEqual({ hp: 9 });
+    expect(SaveAdapter.has('run')).toBe(true);
+    expect(SaveAdapter.save('run', { hp: 10 })).toBe(true);
+    expect(storage.setItem).toHaveBeenCalledWith('run', '{"hp":10}');
   });
 
   it('reports malformed loads through injected error reporter', () => {

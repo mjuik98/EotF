@@ -1,9 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import {
-  applyPlayerGoldCompatState,
   applyPlayerHealState,
 } from '../game/shared/state/player_state_commands.js';
+import { applyPlayerGoldCompatState } from '../game/shared/state/player_state_command_compat.js';
 import { enableLegacyPlayerStateCommandFallback } from '../game/platform/legacy/state/legacy_player_state_command_fallback.js';
 import {
   getPlayerStateLegacyFallbackMetrics,

@@ -15,9 +15,14 @@ function buildUiDepAccessors() {
   return Deps.buildFeatureContractAccessors(UI_DEP_CONTRACTS, Deps);
 }
 
+function resolveUiDocument(options = {}) {
+  if (options.doc) return options.doc;
+  if (options.win?.document) return options.win.document;
+  return typeof document !== 'undefined' ? document : null;
+}
+
 export function createUiPorts(options = {}) {
-  const fallbackDoc = typeof document !== 'undefined' ? document : null;
-  const doc = options.doc || fallbackDoc;
+  const doc = resolveUiDocument(options);
   const depAccessors = buildUiDepAccessors();
 
   return {

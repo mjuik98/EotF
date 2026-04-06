@@ -1,5 +1,6 @@
 import * as Deps from '../../../core/deps_factory.js';
 import { resolveModuleRegistryGameRoot } from '../../../core/bindings/module_registry_scopes.js';
+import { resolveRunCanvasRuntime } from '../platform/browser/run_canvas_runtime_env.js';
 
 const RUN_CANVAS_DEP_CONTRACTS = Object.freeze({
   getRunNodeHandoffDeps: 'runNodeHandoff',
@@ -18,14 +19,7 @@ function buildCanvasDeps(game, options = {}, extra = {}) {
 }
 
 export function createRunCanvasPorts(modules, options = {}) {
-  const fallbackDoc = typeof document !== 'undefined' ? document : null;
-  const fallbackWin = typeof window !== 'undefined' ? window : null;
-  const doc = options.doc || fallbackDoc;
-  const win = options.win || fallbackWin;
-  const requestAnimationFrame =
-    options.requestAnimationFrame
-    || win?.requestAnimationFrame?.bind?.(win)
-    || ((cb) => setTimeout(cb, 16));
+  const { doc, win, requestAnimationFrame } = resolveRunCanvasRuntime(options);
   const depAccessors = buildRunCanvasDepAccessors();
   const game = resolveModuleRegistryGameRoot(modules);
 

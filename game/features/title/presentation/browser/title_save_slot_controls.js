@@ -1,44 +1,17 @@
 import { buildSaveRecoveryMeta } from '../../../../shared/save/save_status_formatters.js';
 import {
+  downloadTextFile,
+  readImportFileText,
+} from '../../../../platform/browser/storage/title_save_file_io.js';
+import {
   bindEventOnce,
   escapeHtml,
-  getWin,
 } from './title_boot_ui_shared.js';
 import {
   buildSaveSlotPreviewMeta,
   resolveSelectedSaveSlot,
   resolveSlotSummaries,
 } from './title_save_slot_preview.js';
-
-function downloadTextFile(filename, text, options = {}) {
-  const doc = options.doc || (typeof document !== 'undefined' ? document : null);
-  const win = options.win || (typeof window !== 'undefined' ? window : null);
-  if (!doc || !win?.URL?.createObjectURL) return false;
-
-  const blob = new Blob([text], { type: options.type || 'application/json;charset=utf-8' });
-  const url = win.URL.createObjectURL(blob);
-  const anchor = doc.createElement?.('a');
-  if (!anchor) {
-    win.URL.revokeObjectURL?.(url);
-    return false;
-  }
-
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.style.display = 'none';
-  doc.body?.appendChild?.(anchor);
-  anchor.click?.();
-  anchor.remove?.();
-  win.URL.revokeObjectURL?.(url);
-  return true;
-}
-
-async function readImportFileText(file) {
-  if (typeof file?.text === 'function') {
-    return file.text();
-  }
-  return '';
-}
 
 export function renderTitleRecoveryPanel(doc, saveSystem, gs, options = {}) {
   const panel = doc.getElementById('titleRecoveryPanel');
@@ -128,7 +101,7 @@ export function renderTitleSaveSlotControls(doc, saveSystem, gs, options = {}) {
     downloadText(
       `echo-of-the-fallen-slot-${selectedSlot}.json`,
       JSON.stringify(bundle, null, 2),
-      { doc, win: getWin({ doc }), type: 'application/json;charset=utf-8' },
+      { doc, type: 'application/json;charset=utf-8' },
     );
   }, '__titleSaveExportHandler');
 

@@ -213,10 +213,12 @@ describe('architecture refactor guardrails', () => {
 
   it('keeps shared player-state commands free of legacy fallback flag literals', () => {
     const source = readText('game/shared/state/player_state_commands.js');
+    const bridgeSource = readText('game/shared/state/player_state_legacy_runtime_bridge.js');
 
     expect(source).not.toContain('__legacyPlayerStateCommandFallback');
     expect(source).not.toContain("./player_state_command_fallback_flag.js");
-    expect(source).toContain("../../platform/legacy/state/player_state_command_legacy_adapter.js");
+    expect(source).toContain("./player_state_legacy_runtime_bridge.js");
+    expect(bridgeSource).toContain("../../platform/legacy/state/player_state_command_legacy_adapter.js");
   });
 
   it('keeps shared runtime methods routed through explicit legacy compat adapters for combat/card helpers', () => {

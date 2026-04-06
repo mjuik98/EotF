@@ -12,10 +12,20 @@ vi.mock('../game/features/title/presentation/browser/game_boot_ui_helpers.js', (
   getWin: vi.fn(),
 }));
 
-const preloadAssetDomainSpy = vi.fn();
-vi.mock('../game/features/title/platform/browser/title_asset_runtime.js', () => ({
-  preloadAssetDomain: preloadAssetDomainSpy,
+const hoisted = vi.hoisted(() => ({
+  preloadAssetDomainSpy: vi.fn(),
 }));
+
+vi.mock('../game/features/title/platform/browser/title_asset_runtime.js', () => ({
+  preloadAssetDomain: hoisted.preloadAssetDomainSpy,
+}));
+
+import * as fx from '../game/features/title/presentation/browser/game_boot_ui_fx.js';
+import * as helpers from '../game/features/title/presentation/browser/game_boot_ui_helpers.js';
+import {
+  bootGameRuntime,
+  bootWhenReadyRuntime,
+} from '../game/features/title/presentation/browser/game_boot_ui_runtime.js';
 
 describe('game_boot_ui_runtime', () => {
   beforeEach(() => {
@@ -25,13 +35,10 @@ describe('game_boot_ui_runtime', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
-    preloadAssetDomainSpy.mockReset();
+    hoisted.preloadAssetDomainSpy.mockReset();
   });
 
   it('runs the boot orchestration and schedules title stats refresh', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
-    const fx = await import('../game/features/title/presentation/browser/game_boot_ui_fx.js');
-    const { bootGameRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const statsBlock = { style: {} };
     const totalRuns = { id: 'titleTotalRuns' };
     const totalKills = { id: 'titleTotalKills' };
@@ -89,7 +96,7 @@ describe('game_boot_ui_runtime', () => {
     expect(deps.runRules.ensureMeta).toHaveBeenCalledWith(deps.gs.meta);
     expect(deps.updateUI).toHaveBeenCalledTimes(1);
     expect(deps.refreshRunModePanel).toHaveBeenCalledTimes(1);
-    expect(preloadAssetDomainSpy).toHaveBeenCalledWith(deps.data, 'characters', expect.any(Object));
+    expect(hoisted.preloadAssetDomainSpy).toHaveBeenCalledWith(deps.data, 'characters', expect.any(Object));
     expect(fx.startAudioWave).toHaveBeenCalledWith(doc, expect.objectContaining({
       win: globalThis,
     }));
@@ -119,8 +126,6 @@ describe('game_boot_ui_runtime', () => {
   }, 10000);
 
   it('flushes the outbox and refreshes title save state when the page becomes visible again', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
-    const { bootGameRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const doc = {
       visibilityState: 'hidden',
       addEventListener: vi.fn(),
@@ -164,8 +169,6 @@ describe('game_boot_ui_runtime', () => {
   });
 
   it('waits for DOMContentLoaded before booting when the document is still loading', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
-    const { bootWhenReadyRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const doc = {
       readyState: 'loading',
       addEventListener: vi.fn(),
@@ -190,8 +193,6 @@ describe('game_boot_ui_runtime', () => {
   });
 
   it('routes boot-time failures through an injected logger instead of console', async () => {
-    const helpers = await import('../game/features/title/presentation/browser/game_boot_ui_helpers.js');
-    const { bootGameRuntime } = await import('../game/features/title/presentation/browser/game_boot_ui_runtime.js');
     const doc = {
       visibilityState: 'visible',
       addEventListener: vi.fn(),

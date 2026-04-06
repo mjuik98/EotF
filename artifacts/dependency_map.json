@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1382,
-  "edgeCount": 1749,
+  "nodeCount": 1386,
+  "edgeCount": 1755,
   "layerEdges": {
     "core->core": 196,
     "core->feature": 26,
@@ -16,10 +16,10 @@
     "engine->engine": 2,
     "feature->core": 17,
     "feature->data": 11,
-    "feature->feature": 1102,
+    "feature->feature": 1103,
     "feature->legacy": 1,
     "feature->other": 2,
-    "feature->platform": 14,
+    "feature->platform": 15,
     "feature->shared": 42,
     "feature->utils": 2,
     "legacy->core": 5,
@@ -33,14 +33,14 @@
     "platform->feature": 15,
     "platform->legacy": 2,
     "platform->other": 1,
-    "platform->platform": 27,
+    "platform->platform": 29,
     "platform->shared": 3,
     "platform->utils": 2,
     "shared->core": 3,
     "shared->data": 3,
     "shared->feature": 2,
-    "shared->legacy": 2,
-    "shared->shared": 99,
+    "shared->legacy": 1,
+    "shared->shared": 102,
     "utils->core": 1,
     "utils->data": 2,
     "utils->utils": 5
@@ -187,15 +187,15 @@
       "inDegree": 10
     },
     {
-      "file": "game/core/deps_factory.js",
-      "layer": "core",
-      "outDegree": 8,
-      "inDegree": 9
-    },
-    {
       "file": "game/shared/state/player_state_commands.js",
       "layer": "shared",
       "outDegree": 3,
+      "inDegree": 10
+    },
+    {
+      "file": "game/core/deps_factory.js",
+      "layer": "core",
+      "outDegree": 8,
       "inDegree": 9
     },
     {
@@ -2432,6 +2432,7 @@
       "game/features/run/presentation/browser/transition/public_run_transition_browser_modules.js"
     ],
     "game/features/run/platform/browser/run_canvas_lifecycle_actions.js": [],
+    "game/features/run/platform/browser/run_canvas_runtime_env.js": [],
     "game/features/run/platform/browser/run_module_capabilities.js": [
       "game/features/run/platform/browser/run_browser_modules.js"
     ],
@@ -2453,7 +2454,8 @@
     ],
     "game/features/run/ports/create_run_canvas_ports.js": [
       "game/core/bindings/module_registry_scopes.js",
-      "game/core/deps_factory.js"
+      "game/core/deps_factory.js",
+      "game/features/run/platform/browser/run_canvas_runtime_env.js"
     ],
     "game/features/run/ports/create_run_map_runtime_ports.js": [
       "game/features/run/ports/public_state_capabilities.js"
@@ -3150,6 +3152,7 @@
     "game/features/title/presentation/browser/title_save_slot_controls.js": [
       "game/features/title/presentation/browser/title_boot_ui_shared.js",
       "game/features/title/presentation/browser/title_save_slot_preview.js",
+      "game/platform/browser/storage/title_save_file_io.js",
       "game/shared/save/save_status_formatters.js"
     ],
     "game/features/title/presentation/browser/title_save_slot_helpers.js": [
@@ -3585,6 +3588,7 @@
     ],
     "game/platform/browser/overlay_escape_stack.js": [],
     "game/platform/browser/root_ui_bindings.js": [],
+    "game/platform/browser/runtime_env.js": [],
     "game/platform/browser/settings/settings_manager.js": [
       "game/platform/browser/browser_logger.js",
       "game/platform/browser/settings/settings_storage.js"
@@ -3593,7 +3597,11 @@
     "game/platform/browser/storage/local_save_adapter.js": [
       "game/core/error_codes.js",
       "game/core/error_reporter.js",
-      "game/utils/public_feature_support.js"
+      "game/platform/browser/runtime_env.js",
+      "game/utils/logger.js"
+    ],
+    "game/platform/browser/storage/title_save_file_io.js": [
+      "game/platform/browser/runtime_env.js"
     ],
     "game/platform/legacy/adapters/create_legacy_combat_compat.js": [
       "game/features/combat/platform/public_combat_legacy_surface.js",
@@ -4043,12 +4051,15 @@
       "game/shared/player/player_runtime_effects.js",
       "game/shared/player/player_ui_effects.js"
     ],
-    "game/shared/state/player_state_command_compat.js": [],
+    "game/shared/state/player_state_command_compat.js": [
+      "game/shared/state/player_state_commands.js",
+      "game/shared/state/player_state_legacy_runtime_bridge.js"
+    ],
     "game/shared/state/player_state_command_fallback_flag.js": [],
     "game/shared/state/player_state_commands.js": [
       "game/core/store/state_actions.js",
-      "game/platform/legacy/state/player_state_command_legacy_adapter.js",
-      "game/shared/state/player_state_helpers.js"
+      "game/shared/state/player_state_helpers.js",
+      "game/shared/state/player_state_legacy_runtime_bridge.js"
     ],
     "game/shared/state/player_state_effects.js": [
       "game/shared/codex/codex_record_state_use_case.js",
@@ -4059,6 +4070,7 @@
     "game/shared/state/player_state_legacy_mutations.js": [
       "game/shared/state/player_state_helpers.js"
     ],
+    "game/shared/state/player_state_legacy_runtime_bridge.js": [],
     "game/shared/state/public.js": [],
     "game/shared/state/run_state_commands.js": [],
     "game/shared/state/runtime_flow_controls.js": [
@@ -4131,5 +4143,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-04-05T15:09:03.463Z"
+  "generatedAt": "2026-04-06T03:55:14.373Z"
 }

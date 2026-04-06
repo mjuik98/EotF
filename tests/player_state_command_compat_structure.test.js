@@ -11,6 +11,7 @@ describe('player state command compat structure', () => {
     );
 
     expect(source).toContain("./player_state_commands.js");
+    expect(source).toContain("./player_state_legacy_runtime_bridge.js");
     expect(source).toContain('applyPlayerGoldCompatState');
     expect(source).toContain('applyPlayerHealCompatState');
     expect(source).toContain('applyPlayerMaxEnergyGrowthCompatState');

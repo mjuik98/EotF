@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-05T15:09:02.676Z",
+  "generatedAt": "2026-04-06T03:40:35.716Z",
   "fast": [
     "tests/achievement_definitions.test.js",
     "tests/app_config.test.js",
@@ -11,6 +11,7 @@
     "tests/begin_player_turn_use_case.test.js",
     "tests/boot_runtime_features.test.js",
     "tests/bootstrap_game.test.js",
+    "tests/browser_runtime_env.test.js",
     "tests/build_binding_deps_helpers.test.js",
     "tests/build_binding_deps_refs.test.js",
     "tests/build_binding_legacy_surface_step_groups.test.js",
@@ -488,6 +489,7 @@
     "tests/title_return_actions.test.js",
     "tests/title_run_archive_helpers.test.js",
     "tests/title_runtime_ports.test.js",
+    "tests/title_save_file_io.test.js",
     "tests/title_save_slot_controls.test.js",
     "tests/title_save_slot_helpers.test.js",
     "tests/title_screen_style_split.test.js",

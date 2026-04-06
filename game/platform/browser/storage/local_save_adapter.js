@@ -1,14 +1,15 @@
 import {
-  Logger,
-  getWin as getRuntimeWin,
-} from '../../../utils/public_feature_support.js';
+  resolveBrowserWindow,
+  resolveHostObject,
+} from '../runtime_env.js';
 import { ErrorCodes, ErrorSeverity } from '../../../core/error_codes.js';
 import { reportError } from '../../../core/error_reporter.js';
+import { Logger } from '../../../utils/logger.js';
 
 function getStorage() {
   try {
-    const hostWindow = getRuntimeWin();
-    return hostWindow?.localStorage || null;
+    const hostRuntime = resolveBrowserWindow() || resolveHostObject();
+    return hostRuntime?.localStorage || null;
   } catch {
     return null;
   }
