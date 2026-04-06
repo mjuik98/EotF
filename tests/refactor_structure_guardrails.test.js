@@ -333,7 +333,9 @@ describe('refactor structure guardrails', () => {
     const combatEndFlowSource = read('game/features/combat/application/run_end_combat_flow_use_case.js');
     const combatEndRuntimePortsSource = read('game/features/combat/platform/create_combat_end_runtime_ports.js');
     const combatDeathRuntimeSource = read('game/features/combat/application/death_flow_player_runtime.js');
+    const combatEnemyDeathRuntimeSource = read('game/features/combat/application/death_flow_enemy_runtime.js');
     const combatDeathRuntimePortsSource = read('game/features/combat/platform/create_combat_death_runtime_ports.js');
+    const combatDeathRuntimeHostSource = read('game/features/combat/platform/browser/death_runtime_host.js');
     const frontdoorFlowSource = read('game/features/frontdoor/application/create_frontdoor_flow_actions.js');
     const frontdoorRuntimePortsSource = read('game/features/frontdoor/application/frontdoor_runtime_ports.js');
     const frontdoorCodexRuntimePortsSource = read('game/features/frontdoor/ports/create_frontdoor_codex_runtime_ports.js');
@@ -433,7 +435,13 @@ describe('refactor structure guardrails', () => {
     expect(combatDeathRuntimeSource).toContain("../platform/create_combat_death_runtime_ports.js");
     expect(combatDeathRuntimeSource).not.toContain('win.updateUI');
     expect(combatDeathRuntimeSource).not.toContain('win.selectFragment');
+    expect(combatEnemyDeathRuntimeSource).toContain("../platform/death_runtime_ports.js");
+    expect(combatEnemyDeathRuntimeSource).not.toContain("../platform/browser/death_runtime_host.js");
+    expect(combatEnemyDeathRuntimeSource).not.toContain('win.AudioEngine');
     expect(combatDeathRuntimePortsSource).toContain("./death_runtime_ports.js");
+    expect(combatDeathRuntimePortsSource).toContain("./browser/death_runtime_host.js");
+    expect(combatDeathRuntimePortsSource).not.toContain('|| window');
+    expect(combatDeathRuntimePortsSource).not.toContain('|| document');
     expect(frontdoorFlowSource).toContain("./frontdoor_runtime_ports.js");
     expect(frontdoorFlowSource).toContain("../ports/create_frontdoor_codex_runtime_ports.js");
     expect(frontdoorFlowSource).not.toContain("../../codex/ports/public_browser_modules.js");
@@ -461,6 +469,7 @@ describe('refactor structure guardrails', () => {
     expect(pathExists('game/features/run/ports/create_run_outcome_integration_ports.js')).toBe(true);
     expect(pathExists('game/features/combat/platform/create_combat_end_runtime_ports.js')).toBe(true);
     expect(pathExists('game/features/combat/platform/create_combat_death_runtime_ports.js')).toBe(true);
+    expect(pathExists('game/features/combat/platform/browser/death_runtime_host.js')).toBe(true);
     expect(pathExists('game/features/frontdoor/application/frontdoor_runtime_ports.js')).toBe(true);
     expect(pathExists('game/features/frontdoor/ports/create_frontdoor_codex_runtime_ports.js')).toBe(true);
   });

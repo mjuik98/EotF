@@ -1,17 +1,17 @@
 import {
-  resolveDeathRuntimeContext,
   showCombatDeathOutcome,
 } from './death_runtime_ports.js';
+import { createCombatDeathRuntimeHost } from './browser/death_runtime_host.js';
 
 export function createCombatDeathRuntimePorts(gs, deps = {}) {
-  const runtime = resolveDeathRuntimeContext(deps);
+  const runtimeHost = createCombatDeathRuntimeHost(deps);
 
   return {
-    audioEngine: deps.audioEngine || runtime.win?.AudioEngine,
-    doc: runtime.doc,
-    selectFragment: deps.selectFragment || runtime.win?.selectFragment,
+    audioEngine: runtimeHost.audioEngine,
+    doc: runtimeHost.doc,
+    selectFragment: runtimeHost.selectFragment,
     showDeathScreen: deps.showDeathScreen || (() => showCombatDeathOutcome(gs, deps)),
-    updateUI: deps.updateUI || runtime.win?.updateUI,
-    win: runtime.win,
+    updateUI: runtimeHost.updateUI,
+    win: runtimeHost.win,
   };
 }

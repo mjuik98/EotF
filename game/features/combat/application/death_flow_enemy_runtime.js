@@ -12,8 +12,8 @@ import { applyEnemyDeathState } from './enemy_death_state.js';
 import { handleEnemyDeathFlow } from './enemy_death_flow.js';
 import { endCombatRuntime } from '../ports/public_application_capabilities.js';
 import {
+  createCombatDeathRuntimeHost,
   createEnemyDeathRuntimePort,
-  resolveDeathRuntimeContext,
   spawnCombatEnemy,
 } from '../platform/death_runtime_ports.js';
 
@@ -25,8 +25,7 @@ export function spawnEnemyForCombat(gs, deps = {}) {
 }
 
 export function handleCombatEnemyDeath(gs, enemy, idx, deps = {}) {
-  const { win } = resolveDeathRuntimeContext(deps);
-  const audioEngine = deps.audioEngine || win.AudioEngine;
+  const audioEngine = createCombatDeathRuntimeHost(deps).audioEngine;
   const { runtimePort } = createEnemyDeathRuntimePort(gs, {
     ...deps,
     endCombat: (endCombatDeps) => endCombatRuntime(gs, endCombatDeps),

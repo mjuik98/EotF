@@ -6,16 +6,14 @@ import {
   scheduleCombatEndFlow,
   scheduleEnemyRemoval,
 } from './death_runtime_helpers.js';
+import {
+  createCombatDeathRuntimeHost,
+  resolveCombatDeathRuntimeContext,
+} from './browser/death_runtime_host.js';
 import { showDeathOutcomeScreen } from './death_outcome_helpers.js';
 import { spawnScaledEnemyForRegion } from './death_spawn_runtime.js';
 
-function resolveDoc(deps = {}) {
-  return deps.doc || deps.win?.document || document;
-}
-
-function resolveWin(deps = {}) {
-  return deps.win || deps.doc?.defaultView || window;
-}
+export { createCombatDeathRuntimeHost } from './browser/death_runtime_host.js';
 
 function getAliveCombatEnemies(gs) {
   return gs.combat.enemies.filter(function isAlive(enemy) {
@@ -24,28 +22,27 @@ function getAliveCombatEnemies(gs) {
 }
 
 export function spawnCombatEnemy(gs, deps = {}) {
-  const win = resolveWin(deps);
-  const hudUpdateUI = deps.hudUpdateUI || win.HudUpdateUI;
+  const runtimeHost = createCombatDeathRuntimeHost(deps);
+  const { doc, win } = runtimeHost;
 
   return spawnScaledEnemyForRegion(gs, {
     getRegionData: deps.getRegionData,
-    renderCombatEnemies: deps.renderCombatEnemies || win.renderCombatEnemies,
-    enableActionButtons: hudUpdateUI?.enableActionButtons?.bind?.(hudUpdateUI),
-    doc: resolveDoc(deps),
+    renderCombatEnemies: runtimeHost.renderCombatEnemies,
+    enableActionButtons: runtimeHost.hudUpdateUI?.enableActionButtons?.bind?.(runtimeHost.hudUpdateUI),
+    doc,
     win,
   });
 }
 
 export function createEnemyDeathRuntimePort(gs, deps = {}) {
-  const doc = resolveDoc(deps);
-  const win = resolveWin(deps);
-  const cleanupTooltips = deps.cleanupAllTooltips || win.CombatUI?.cleanupAllTooltips;
+  const runtimeHost = createCombatDeathRuntimeHost(deps);
+  const { doc, win } = runtimeHost;
 
   return {
     doc,
     win,
     runtimePort: {
-      cleanupTooltips: () => cleanupEnemyDeathTooltips(cleanupTooltips, doc, win),
+      cleanupTooltips: () => cleanupEnemyDeathTooltips(runtimeHost.cleanupAllTooltips, doc, win),
       lockCombatEndInputs: () => lockCombatEndInputs(doc),
       queueCombatEnd: () => {
         if (typeof deps.endCombat !== 'function') return;
@@ -57,48 +54,44 @@ export function createEnemyDeathRuntimePort(gs, deps = {}) {
         });
       },
       removeDeadEnemies: () => deps.replaceCombatEnemies?.(gs, getAliveCombatEnemies(gs)),
-      renderCombatEnemies: deps.renderCombatEnemies || win.renderCombatEnemies,
+      renderCombatEnemies: runtimeHost.renderCombatEnemies,
       scheduleEnemyRemoval: (enemyIdx, onRemove) => {
         const cardEl = doc.getElementById(`enemy_${enemyIdx}`);
         scheduleEnemyRemoval(cardEl, setTimeout, onRemove);
       },
       syncSelectedTarget: () => deps.syncSelectedTarget?.(gs),
-      updateUi: deps.updateUI || win.updateUI,
+      updateUi: runtimeHost.updateUI,
     },
   };
 }
 
 export function runCombatPlayerDeathSequence(gs, deps = {}) {
-  const doc = resolveDoc(deps);
-  const win = resolveWin(deps);
+  const runtimeHost = createCombatDeathRuntimeHost(deps);
+  const { doc, win } = runtimeHost;
   const combatOverlay = doc.getElementById('combatOverlay');
-  const screenShake = deps.screenShake || win.ScreenShake;
-  const particleSystem = deps.particleSystem || win.ParticleSystem;
 
   runPlayerDeathSequence({
     combatOverlay,
     deathQuotes: deps.deathQuotes,
     doc,
-    particleSystem,
+    particleSystem: runtimeHost.particleSystem,
     schedule: setTimeout,
-    screenShake,
+    screenShake: runtimeHost.screenShake,
     showDeathScreen: deps.showDeathScreen,
     win,
   });
 }
 
 export function showCombatDeathOutcome(gs, deps = {}) {
-  const win = resolveWin(deps);
+  const { win } = resolveCombatDeathRuntimeContext(deps);
   showDeathOutcomeScreen(gs, deps, win);
 }
 
 export function createDeathEndingActionPorts(deps = {}) {
-  return buildDeathEndingActions(deps, resolveWin(deps));
+  const { win } = resolveCombatDeathRuntimeContext(deps);
+  return buildDeathEndingActions(deps, win);
 }
 
 export function resolveDeathRuntimeContext(deps = {}) {
-  return {
-    doc: resolveDoc(deps),
-    win: resolveWin(deps),
-  };
+  return resolveCombatDeathRuntimeContext(deps);
 }
