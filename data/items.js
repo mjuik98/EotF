@@ -348,10 +348,12 @@ import {
     clearHandScopedCostTargets,
     getHandScopedCostTargets,
     reindexHandScopedRuntimeState,
+    setHandScopedCostTarget,
+} from './runtime_hand_state_support.js';
+import {
     registerCardDiscovered,
     registerItemFound,
-    setHandScopedCostTarget,
-} from './runtime_shared_support.js';
+} from './runtime_codex_support.js';
 
 const ITEM_ACTIONS = Object.freeze({
     CARD_DISCARD: 'card:discard',

@@ -1,6 +1,6 @@
 {
-  "nodeCount": 1397,
-  "edgeCount": 1764,
+  "nodeCount": 1400,
+  "edgeCount": 1765,
   "layerEdges": {
     "core->core": 196,
     "core->feature": 26,
@@ -8,7 +8,7 @@
     "core->other": 1,
     "core->shared": 4,
     "core->utils": 2,
-    "data->data": 29,
+    "data->data": 30,
     "data->other": 2,
     "data->shared": 2,
     "data->utils": 4,
@@ -113,6 +113,12 @@
       "inDegree": 1
     },
     {
+      "file": "data/items.js",
+      "layer": "data",
+      "outDegree": 7,
+      "inDegree": 3
+    },
+    {
       "file": "game/features/combat/application/damage_system_facade.js",
       "layer": "feature",
       "outDegree": 7,
@@ -129,12 +135,6 @@
       "layer": "feature",
       "outDegree": 7,
       "inDegree": 1
-    },
-    {
-      "file": "game/features/combat/domain/enemy_turn_domain.js",
-      "layer": "feature",
-      "outDegree": 7,
-      "inDegree": 3
     }
   ],
   "hottestByIn": [
@@ -257,7 +257,7 @@
       "data/events/merchant_lost_event.js",
       "data/events/shrine_event.js",
       "data/items.js",
-      "data/runtime_shared_support.js",
+      "data/runtime_player_state_support.js",
       "game/shared/progression/set_bonus_queries.js",
       "game/utils/log_utils.js"
     ],
@@ -284,7 +284,8 @@
     "data/inscriptions.js": [],
     "data/items.js": [
       "data/cards.js",
-      "data/runtime_shared_support.js",
+      "data/runtime_codex_support.js",
+      "data/runtime_hand_state_support.js",
       "game/data/constants.js",
       "game/data/triggers.js",
       "game/shared/state/player_state_commands.js",
@@ -295,7 +296,9 @@
     "data/regions.js": [
       "data/class_metadata.js"
     ],
+    "data/runtime_codex_support.js": [],
     "data/runtime_hand_state_support.js": [],
+    "data/runtime_player_state_support.js": [],
     "data/runtime_shared_support.js": [],
     "data/status_effect_asset_data.js": [],
     "data/status_effects_data.js": [],
@@ -3541,7 +3544,7 @@
       "game/platform/browser/composition/build_core_utility_modules.js"
     ],
     "game/platform/browser/composition/build_core_utility_modules.js": [
-      "game/utils/public_feature_support.js"
+      "game/utils/public_core_utility_support.js"
     ],
     "game/platform/browser/composition/build_run_flow_modules.js": [],
     "game/platform/browser/composition/build_run_map_modules.js": [],
@@ -4156,6 +4159,7 @@
     "game/utils/logger.js": [
       "game/core/app_config.js"
     ],
+    "game/utils/public_core_utility_support.js": [],
     "game/utils/public_feature_support.js": [],
     "game/utils/random_utils.js": [],
     "game/utils/runtime_deps.js": [],
@@ -4164,5 +4168,5 @@
       "data/status_key_data.js"
     ]
   },
-  "generatedAt": "2026-04-06T05:22:41.186Z"
+  "generatedAt": "2026-04-06T06:09:25.247Z"
 }

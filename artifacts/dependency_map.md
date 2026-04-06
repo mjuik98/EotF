@@ -1,8 +1,8 @@
 # Dependency Map
 
-- Generated: 2026-04-06T05:22:41.186Z
-- Nodes: 1397
-- Edges: 1764
+- Generated: 2026-04-06T06:09:25.247Z
+- Nodes: 1400
+- Edges: 1765
 
 ## Layer Edges
 
@@ -14,7 +14,7 @@
 | core->other | 1 |
 | core->shared | 4 |
 | core->utils | 2 |
-| data->data | 29 |
+| data->data | 30 |
 | data->other | 2 |
 | data->shared | 2 |
 | data->utils | 4 |
@@ -66,10 +66,10 @@
 | game/features/combat/ports/public_surface.js | 8 |
 | game/features/title/ports/runtime/public_title_runtime_surface.js | 8 |
 | game/platform/browser/composition/build_core_engine_modules.js | 8 |
+| data/items.js | 7 |
 | game/features/combat/application/damage_system_facade.js | 7 |
 | game/features/combat/application/death_flow_enemy_runtime.js | 7 |
 | game/features/combat/application/play_card_service.js | 7 |
-| game/features/combat/domain/enemy_turn_domain.js | 7 |
 
 ## Top Incoming Dependencies
 

@@ -8,7 +8,7 @@ import { echoResonanceEvent } from './events/echo_resonance_event.js';
 import { forgeEvent } from './events/forge_event.js';
 import { merchantLostEvent } from './events/merchant_lost_event.js';
 import { shrineEvent } from './events/shrine_event.js';
-import { addPlayerItemAndRegisterState } from './runtime_shared_support.js';
+import { addPlayerItemAndRegisterState } from './runtime_player_state_support.js';
 import { pickMissingItemFromBestOwnedSet } from '../game/shared/progression/set_bonus_queries.js';
 
 const MAP_NODE_TYPE_LABELS = {
